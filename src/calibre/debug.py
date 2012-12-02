@@ -15,7 +15,13 @@ def option_parser():
     parser = OptionParser(usage='''\
 %prog [options]
 
-Run an embedded python interpreter.
+Various command line interfaces useful for debugging calibre. With no options,
+this command starts an embedded python interpreter. You can also run the main
+calibre GUI and the calibre viewer in debug mode.
+
+It also contains interfaces to various bits of calibre that do not have
+dedicated command line tools, such as font subsetting, tweaking ebooks and so
+on.
 ''')
     parser.add_option('-c', '--command', help='Run python code.', default=None)
     parser.add_option('-e', '--exec-file', default=None, help='Run the python code in file.')
@@ -141,8 +147,10 @@ def print_basic_debug_info(out=None):
     if out is None: out = sys.stdout
     out = functools.partial(prints, file=out)
     import platform
-    from calibre.constants import __appname__, get_version, isportable, isosx
-    out(__appname__, get_version(), 'Portable' if isportable else '')
+    from calibre.constants import (__appname__, get_version, isportable, isosx,
+                                   isfrozen)
+    out(__appname__, get_version(), 'Portable' if isportable else '',
+        'isfrozen:', isfrozen)
     out(platform.platform(), platform.system())
     out(platform.system_alias(platform.system(), platform.release(),
             platform.version()))

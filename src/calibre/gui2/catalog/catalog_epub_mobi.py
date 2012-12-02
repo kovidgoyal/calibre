@@ -88,7 +88,7 @@ class PluginWidget(QWidget,Ui_Form):
                              [{'ordinal':0,
                                'enabled':True,
                                'name':_('Catalogs'),
-                               'field':'Tags',
+                               'field':_('Tags'),
                                'pattern':'Catalog'},],
                              ['table_widget'])
 
@@ -97,13 +97,13 @@ class PluginWidget(QWidget,Ui_Form):
                              [{'ordinal':0,
                                'enabled':True,
                                'name':_('Read book'),
-                               'field':'Tags',
+                               'field':_('Tags'),
                                'pattern':'+',
                                'prefix':u'\u2713'},
                               {'ordinal':1,
                                'enabled':True,
                                'name':_('Wishlist item'),
-                               'field':'Tags',
+                               'field':_('Tags'),
                                'pattern':'Wishlist',
                                'prefix':u'\u00d7'},],
                              ['table_widget','table_widget'])
@@ -127,7 +127,7 @@ class PluginWidget(QWidget,Ui_Form):
             elif 'prefix' in rule and rule['prefix'] is None:
                 continue
             else:
-                if rule['field'] != 'Tags':
+                if rule['field'] != _('Tags'):
                     # Look up custom column friendly name
                     rule['field'] = self.eligible_custom_fields[rule['field']]['field']
                     if rule['pattern'] in [_('any value'),_('any date')]:
@@ -144,14 +144,14 @@ class PluginWidget(QWidget,Ui_Form):
         # Strip off the trailing '_tw'
         opts_dict[c_name[:-3]] = opt_value
 
-    def exclude_genre_changed(self, regex):
+    def exclude_genre_changed(self):
         """ Dynamically compute excluded genres.
 
-        Run exclude_genre regex against db.all_tags() to show excluded tags.
-        PROVISIONAL CODE, NEEDS TESTING
+        Run exclude_genre regex against selected genre_source_field to show excluded tags.
 
-        Args:
-         regex (QLineEdit.text()): regex to compile, compute
+        Inputs:
+            current regex
+            genre_source_field
 
         Output:
          self.exclude_genre_results (QLabel): updated to show tags to be excluded as genres
@@ -183,10 +183,18 @@ class PluginWidget(QWidget,Ui_Form):
                 return "%s  ...  %s" % (', '.join(start), ', '.join(end))
 
         results = _('No genres will be excluded')
+
+        regex = unicode(getattr(self, 'exclude_genre').text()).strip()
         if not regex:
             self.exclude_genre_results.clear()
             self.exclude_genre_results.setText(results)
             return
+
+        # Populate all_genre_tags from currently source
+        if self.genre_source_field_name == _('Tags'):
+            all_genre_tags = self.db.all_tags()
+        else:
+            all_genre_tags = list(self.db.all_custom(self.db.field_metadata.key_to_label(self.genre_source_field_name)))
 
         try:
             pattern = re.compile((str(regex)))
@@ -194,12 +202,12 @@ class PluginWidget(QWidget,Ui_Form):
             results = _("regex error: %s") % sys.exc_info()[1]
         else:
             excluded_tags = []
-            for tag in self.all_tags:
+            for tag in all_genre_tags:
                 hit = pattern.search(tag)
                 if hit:
                     excluded_tags.append(hit.string)
             if excluded_tags:
-                if set(excluded_tags) == set(self.all_tags):
+                if set(excluded_tags) == set(all_genre_tags):
                     results = _("All genres will be excluded")
                 else:
                     results = _truncated_results(excluded_tags)
@@ -218,7 +226,7 @@ class PluginWidget(QWidget,Ui_Form):
     def fetch_eligible_custom_fields(self):
         self.all_custom_fields = self.db.custom_field_keys()
         custom_fields = {}
-        custom_fields['Tags'] = {'field':'tag', 'datatype':u'text'}
+        custom_fields[_('Tags')] = {'field':'tag', 'datatype':u'text'}
         for custom_field in self.all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
             if field_md['datatype'] in ['bool','composite','datetime','enumeration','text']:
@@ -237,6 +245,34 @@ class PluginWidget(QWidget,Ui_Form):
         self.merge_after.setEnabled(enabled)
         self.include_hr.setEnabled(enabled)
 
+    def generate_genres_changed(self, enabled):
+        '''
+        Toggle Genres-related controls
+        '''
+        self.genre_source_field.setEnabled(enabled)
+
+    def genre_source_field_changed(self,new_index):
+        '''
+        Process changes in the genre_source_field combo box
+        Update Excluded genres preview
+        '''
+        new_source = str(self.genre_source_field.currentText())
+        self.genre_source_field_name = new_source
+        if new_source != _('Tags'):
+            genre_source_spec = self.genre_source_fields[unicode(new_source)]
+            self.genre_source_field_name = genre_source_spec['field']
+        self.exclude_genre_changed()
+
+    def header_note_source_field_changed(self,new_index):
+        '''
+        Process changes in the header_note_source_field combo box
+        '''
+        new_source = str(self.header_note_source_field.currentText())
+        self.header_note_source_field_name = new_source
+        if new_source > '':
+            header_note_source_spec = self.header_note_source_fields[unicode(new_source)]
+            self.header_note_source_field_name = header_note_source_spec['field']
+
     def initialize(self, name, db):
         '''
         CheckBoxControls (c_type: check_box):
@@ -245,8 +281,8 @@ class PluginWidget(QWidget,Ui_Form):
              'generate_recently_added','generate_descriptions',
              'include_hr']
         ComboBoxControls (c_type: combo_box):
-            ['exclude_source_field','header_note_source_field',
-             'merge_source_field']
+            ['exclude_source_field','genre_source_field',
+             'header_note_source_field','merge_source_field']
         LineEditControls (c_type: line_edit):
             ['exclude_genre']
         RadioButtonControls (c_type: radio_button):
@@ -261,11 +297,11 @@ class PluginWidget(QWidget,Ui_Form):
         '''
         self.name = name
         self.db = db
-        self.all_tags = db.all_tags()
+        self.all_genre_tags = []
         self.fetch_eligible_custom_fields()
         self.populate_combo_boxes()
 
-        # Update dialog fields from stored options
+        # Update dialog fields from stored options, validating options for combo boxes
         exclusion_rules = []
         prefix_rules = []
         for opt in self.OPTION_FIELDS:
@@ -273,13 +309,18 @@ class PluginWidget(QWidget,Ui_Form):
             opt_value = gprefs.get(self.name + '_' + c_name, c_def)
             if c_type in ['check_box']:
                 getattr(self, c_name).setChecked(eval(str(opt_value)))
-            elif c_type in ['combo_box'] and opt_value is not None:
-                # *** Test this code with combo boxes ***
-                #index = self.read_source_field.findText(opt_value)
-                index = getattr(self,c_name).findText(opt_value)
-                if index == -1 and c_name == 'read_source_field':
-                    index = self.read_source_field.findText('Tag')
-                #self.read_source_field.setCurrentIndex(index)
+            elif c_type in ['combo_box']:
+                if opt_value is None:
+                    index = 0
+                    if c_name == 'genre_source_field':
+                        index = self.genre_source_field.findText(_('Tags'))
+                else:
+                    index = getattr(self,c_name).findText(opt_value)
+                    if index == -1:
+                        if c_name == 'read_source_field':
+                            index = self.read_source_field.findText(_('Tags'))
+                        elif c_name == 'genre_source_field':
+                            index = self.genre_source_field.findText(_('Tags'))
                 getattr(self,c_name).setCurrentIndex(index)
             elif c_type in ['line_edit']:
                 getattr(self, c_name).setText(opt_value if opt_value else '')
@@ -320,6 +361,17 @@ class PluginWidget(QWidget,Ui_Form):
             header_note_source_spec = self.header_note_source_fields[cs]
             self.header_note_source_field_name = header_note_source_spec['field']
 
+        # Init self.genre_source_field_name
+        self.genre_source_field_name = _('Tags')
+        cs = unicode(self.genre_source_field.currentText())
+        if cs != _('Tags'):
+            genre_source_spec = self.genre_source_fields[cs]
+            self.genre_source_field_name = genre_source_spec['field']
+
+        # Hook Genres checkbox
+        self.generate_genres.clicked.connect(self.generate_genres_changed)
+        self.generate_genres_changed(self.generate_genres.isChecked())
+
         # Initialize exclusion rules
         self.exclusion_rules_table = ExclusionRules(self.exclusion_rules_gb,
             "exclusion_rules_tw",exclusion_rules, self.eligible_custom_fields,self.db)
@@ -329,7 +381,27 @@ class PluginWidget(QWidget,Ui_Form):
             "prefix_rules_tw",prefix_rules, self.eligible_custom_fields,self.db)
 
         # Initialize excluded genres preview
-        self.exclude_genre_changed(unicode(getattr(self, 'exclude_genre').text()).strip())
+        self.exclude_genre_changed()
+
+    def merge_source_field_changed(self,new_index):
+        '''
+        Process changes in the merge_source_field combo box
+        '''
+        new_source = str(self.merge_source_field.currentText())
+        self.merge_source_field_name = new_source
+        if new_source > '':
+            merge_source_spec = self.merge_source_fields[unicode(new_source)]
+            self.merge_source_field_name = merge_source_spec['field']
+            if not self.merge_before.isChecked() and not self.merge_after.isChecked():
+                self.merge_after.setChecked(True)
+            self.merge_before.setEnabled(True)
+            self.merge_after.setEnabled(True)
+            self.include_hr.setEnabled(True)
+
+        else:
+            self.merge_before.setEnabled(False)
+            self.merge_after.setEnabled(False)
+            self.include_hr.setEnabled(False)
 
     def options(self):
         # Save/return the current options
@@ -373,7 +445,7 @@ class PluginWidget(QWidget,Ui_Form):
             else:
                 opts_dict[c_name] = opt_value
 
-        # Generate specs for merge_comments, header_note_source_field
+        # Generate specs for merge_comments, header_note_source_field, genre_source_field
         checked = ''
         if self.merge_before.isChecked():
             checked = 'before'
@@ -384,6 +456,8 @@ class PluginWidget(QWidget,Ui_Form):
             (self.merge_source_field_name, checked, include_hr)
 
         opts_dict['header_note_source_field'] = self.header_note_source_field_name
+
+        opts_dict['genre_source_field'] = self.genre_source_field_name
 
         # Fix up exclude_genre regex if blank. Assume blank = no exclusions
         if opts_dict['exclude_genre'] == '':
@@ -457,35 +531,18 @@ class PluginWidget(QWidget,Ui_Form):
         self.merge_after.setEnabled(False)
         self.include_hr.setEnabled(False)
 
-    def header_note_source_field_changed(self,new_index):
-        '''
-        Process changes in the header_note_source_field combo box
-        '''
-        new_source = str(self.header_note_source_field.currentText())
-        self.header_note_source_field_name = new_source
-        if new_source > '':
-            header_note_source_spec = self.header_note_source_fields[unicode(new_source)]
-            self.header_note_source_field_name = header_note_source_spec['field']
-
-    def merge_source_field_changed(self,new_index):
-        '''
-        Process changes in the merge_source_field combo box
-        '''
-        new_source = str(self.merge_source_field.currentText())
-        self.merge_source_field_name = new_source
-        if new_source > '':
-            merge_source_spec = self.merge_source_fields[unicode(new_source)]
-            self.merge_source_field_name = merge_source_spec['field']
-            if not self.merge_before.isChecked() and not self.merge_after.isChecked():
-                self.merge_after.setChecked(True)
-            self.merge_before.setEnabled(True)
-            self.merge_after.setEnabled(True)
-            self.include_hr.setEnabled(True)
-
-        else:
-            self.merge_before.setEnabled(False)
-            self.merge_after.setEnabled(False)
-            self.include_hr.setEnabled(False)
+        # Populate the 'Genres' combo box
+        custom_fields = {_('Tags'):{'field':None,'datatype':None}}
+        for custom_field in self.all_custom_fields:
+            field_md = self.db.metadata_for_field(custom_field)
+            if field_md['datatype'] in ['text','enumeration']:
+                custom_fields[field_md['name']] = {'field':custom_field,
+                                                   'datatype':field_md['datatype']}
+        # Add the sorted eligible fields to the combo box
+        for cf in sorted(custom_fields, key=sort_key):
+            self.genre_source_field.addItem(cf)
+        self.genre_source_fields = custom_fields
+        self.genre_source_field.currentIndexChanged.connect(self.genre_source_field_changed)
 
     def show_help(self):
         '''
@@ -779,9 +836,10 @@ class GenericRulesTable(QTableWidget):
         # Populate the Pattern field based upon the Source field
 
         source_field = str(combo.currentText())
+
         if source_field == '':
             values = []
-        elif source_field == 'Tags':
+        elif source_field == _('Tags'):
             values = sorted(self.db.all_tags(), key=sort_key)
         else:
             if self.eligible_custom_fields[unicode(source_field)]['datatype'] in ['enumeration', 'text']:

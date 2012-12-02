@@ -8,7 +8,7 @@ from calibre import guess_type
 from calibre.customize import (FileTypePlugin, MetadataReaderPlugin,
     MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase, StoreBase)
 from calibre.constants import numeric_version
-from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
+from calibre.ebooks.metadata.archive import ArchiveExtract, get_comic_metadata
 from calibre.ebooks.html.to_zip import HTML2ZIP
 
 plugins = []
@@ -140,7 +140,7 @@ class ComicMetadataReader(MetadataReaderPlugin):
             elif id_.startswith(b'PK'):
                 ftype = 'cbz'
         if ftype == 'cbr':
-            from calibre.libunrar import extract_first_alphabetically as extract_first
+            from calibre.utils.unrar import extract_first_alphabetically as extract_first
             extract_first
         else:
             from calibre.libunzip import extract_member
@@ -150,9 +150,9 @@ class ComicMetadataReader(MetadataReaderPlugin):
         ret = extract_first(stream)
         mi = MetaInformation(None, None)
         stream.seek(0)
-        if ftype == 'cbz':
+        if ftype in {'cbr', 'cbz'}:
             try:
-                mi.smart_update(get_cbz_metadata(stream))
+                mi.smart_update(get_comic_metadata(stream, ftype))
             except:
                 pass
         if ret is not None:

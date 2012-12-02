@@ -31,6 +31,10 @@ class CustomHelpFormatter(IndentedHelpFormatter):
 
     def format_usage(self, usage):
         from calibre.utils.terminal import colored
+        parts = usage.split(' ')
+        if parts:
+            parts[0] = colored(parts[0], fg='yellow', bold=True)
+        usage = ' '.join(parts)
         return colored(_('Usage'), fg='blue', bold=True) + ': ' + usage
 
     def format_heading(self, heading):

@@ -1,12 +1,12 @@
 /*
  * Memory DLL loading code
- * Version 0.0.2
+ * Version 0.0.3
  *
- * Copyright (c) 2004-2005 by Joachim Bauch / mail@joachim-bauch.de
+ * Copyright (c) 2004-2012 by Joachim Bauch / mail@joachim-bauch.de
  * http://www.joachim-bauch.de
  *
  * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
+ * 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
@@ -19,7 +19,7 @@
  *
  * The Initial Developer of the Original Code is Joachim Bauch.
  *
- * Portions created by Joachim Bauch are Copyright (C) 2004-2005
+ * Portions created by Joachim Bauch are Copyright (C) 2004-2012
  * Joachim Bauch. All Rights Reserved.
  *
  */
@@ -35,21 +35,11 @@ typedef void *HMEMORYMODULE;
 extern "C" {
 #endif
 
-typedef void *(*FINDPROC)();
-
-extern FINDPROC findproc;
-extern void *findproc_data;
-
-HMEMORYMODULE MemoryLoadLibrary(char *, const void *);
+HMEMORYMODULE MemoryLoadLibrary(const void *);
 
 FARPROC MemoryGetProcAddress(HMEMORYMODULE, const char *);
 
 void MemoryFreeLibrary(HMEMORYMODULE);
-
-BOOL MyFreeLibrary(HMODULE hModule);
-HMODULE MyLoadLibrary(char *lpFileName);
-FARPROC MyGetProcAddress(HMODULE hModule, LPCSTR lpProcName);
-HMODULE MyGetModuleHandle(LPCTSTR lpModuleName);
 
 #ifdef __cplusplus
 }

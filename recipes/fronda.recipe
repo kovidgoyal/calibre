@@ -1,39 +1,88 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = u'2010, Tomasz Dlugosz <tomek3d@gmail.com>'
+__copyright__ = u'2010-2012, Tomasz Dlugosz <tomek3d@gmail.com>'
 '''
 fronda.pl
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
+from datetime import timedelta, date
 
 class Fronda(BasicNewsRecipe):
     title          = u'Fronda.pl'
     publisher      = u'Fronda.pl'
-    description    = u'Portal po\u015bwi\u0119cony - Infformacje'
+    description    = u'Portal po\u015bwi\u0119cony - Informacje'
     language = 'pl'
     __author__ = u'Tomasz D\u0142ugosz'
     oldest_article = 7
     max_articles_per_feed = 100
     use_embedded_content = False
+    no_stylesheets = True
 
-    feeds          = [(u'Infformacje', u'http://fronda.pl/news/feed')]
+    extra_css = '''
+        h1 {font-size:150%}
+        .body {text-align:left;}
+        div.headline {font-weight:bold}
+    '''
 
-    keep_only_tags = [dict(name='h2', attrs={'class':'news_title'}),
-                      dict(name='div', attrs={'class':'naglowek_tresc'}),
-                      dict(name='div', attrs={'id':'czytaj'}) ]
+    earliest_date = date.today() - timedelta(days=oldest_article)
 
-    remove_tags = [dict(name='a', attrs={'class':'print'})]
+    def date_cut(self,datestr):
+        # eg. 5.11.2012, 12:07
+        timestamp = datestr.split(',')[0]
+        parts = timestamp.split('.')
+        art_date = date(int(parts[2]),int(parts[1]),int(parts[0]))
+        return True if art_date < self.earliest_date else False
 
-    preprocess_regexps = [
-        (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
-            [ (r'<p><a href="http://fronda.pl/sklepy">.*</a></p>', lambda match: ''),
-              (r'<p><a href="http://fronda.pl/pasaz">.*</a></p>', lambda match: ''),
-              (r'<h3><strong>W.* lektury.*</a></p></div>', lambda match: '</div>'),
-              (r'<h3>Zobacz t.*?</div>', lambda match: '</div>'),
-              (r'<p[^>]*>&nbsp;</p>', lambda match: ''),
-              (r'<p><span style=".*?"><br /></span></p> ', lambda match: ''),
-              (r'<a style=\'float:right;margin-top:3px;\' href="http://www.facebook.com/share.php?.*?</a>', lambda match: '')]
-    ]
+    def parse_index(self):
+        genres = [
+            ('ekonomia,4.html', 'Ekonomia'),
+            ('filozofia,15.html', 'Filozofia'),
+            ('historia,6.html', 'Historia'),
+            ('kosciol,8.html', 'Kościół'),
+            ('kultura,5.html', 'Kultura'),
+            ('media,10.html', 'Media'),
+            ('nauka,9.html', 'Nauka'),
+            ('polityka,11.html', 'Polityka'),
+            ('polska,12.html', 'Polska'),
+            ('prolife,3.html', 'Prolife'),
+            ('religia,7.html', 'Religia'),
+            ('rodzina,13.html', 'Rodzina'),
+            ('swiat,14.html', 'Świat'),
+            ('wydarzenie,16.html', 'Wydarzenie')
+        ]
+        feeds = []
+        articles = {}
+
+        for url, genName in genres:
+            soup = self.index_to_soup('http://www.fronda.pl/c/'+ url)
+            articles[genName] = []
+            for item in soup.findAll('li'):
+                article_h = item.find('h2')
+                if not article_h:
+                    continue
+                article_date = self.tag_to_string(item.find('b'))
+                if self.date_cut(article_date):
+                    continue
+                article_a = article_h.find('a')
+                article_url = 'http://www.fronda.pl' + article_a['href']
+                article_title = self.tag_to_string(article_a)
+                articles[genName].append( { 'title' : article_title, 'url' : article_url, 'date' : article_date })
+            feeds.append((genName, articles[genName]))
+        return feeds
+
+    keep_only_tags = [ 
+        dict(name='div', attrs={'class':'yui-g'})
+        ]
+
+    remove_tags = [
+        dict(name='div', attrs={'class':['related-articles',
+                'button right',
+                'pagination']}),
+        dict(name='h3', attrs={'class':'block-header article comments'}),
+        dict(name='ul', attrs={'class':'comment-list'}),
+        dict(name='ul', attrs={'class':'category'}),
+        dict(name='p', attrs={'id':'comments-disclaimer'}),
+        dict(name='div', attrs={'id':'comment-form'})
+        ]

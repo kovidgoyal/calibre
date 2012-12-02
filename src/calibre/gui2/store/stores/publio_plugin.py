@@ -68,7 +68,7 @@ class PublioStore(BasicStoreConfig, StorePlugin):
                     counter -= 1
 
                     s = SearchResult()
-                    s.cover_url = 'http://www.publio.pl' + cover_url 
+                    s.cover_url = 'http://www.publio.pl' + cover_url
                     s.title = title.strip()
                     s.author = author
                     s.price = price

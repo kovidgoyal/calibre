@@ -6,17 +6,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, socket, struct, subprocess, sys
+import os, socket, struct, subprocess, sys, glob
 from distutils.spawn import find_executable
 
 from PyQt4 import pyqtconfig
 
-from setup import isosx, iswindows, islinux
+from setup import isosx, iswindows, islinux, is64bit
 
 OSX_SDK = '/Developer/SDKs/MacOSX10.5.sdk'
 
 os.environ['MACOSX_DEPLOYMENT_TARGET'] = '10.5'
-is64bit = sys.maxsize > 2**32
 
 NMAKE = RC = msvc = MT = win_inc = win_lib = win_ddk = win_ddk_lib_dirs = None
 if iswindows:
@@ -36,7 +35,7 @@ if iswindows:
             MT = os.path.join(os.path.dirname(p), 'bin', 'mt.exe')
     MT = os.path.join(SDK, 'bin', 'mt.exe')
     os.environ['QMAKESPEC'] = 'win32-msvc'
-    ICU = r'Q:\icu'
+    ICU = os.environ.get('ICU_DIR', r'Q:\icu')
 
 QMAKE = '/Volumes/sw/qt/bin/qmake' if isosx else 'qmake'
 if find_executable('qmake-qt4'):
@@ -122,7 +121,8 @@ if iswindows:
     zlib_lib_dirs = [sw_lib_dir]
     zlib_libs = ['zlib']
 
-    magick_inc_dirs = [os.path.join(prefix, 'build', 'ImageMagick-6.7.6')]
+    md = glob.glob(os.path.join(prefix, 'build', 'ImageMagick-*'))[-1]
+    magick_inc_dirs = [md]
     magick_lib_dirs = [os.path.join(magick_inc_dirs[0], 'VisualMagick', 'lib')]
     magick_libs = ['CORE_RL_wand_', 'CORE_RL_magick_']
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')

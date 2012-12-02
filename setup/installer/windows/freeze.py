@@ -10,14 +10,13 @@ import sys, os, shutil, glob, py_compile, subprocess, re, zipfile, time, textwra
 
 from setup import (Command, modules, functions, basenames, __version__,
     __appname__)
-from setup.build_environment import msvc, MT, RC
+from setup.build_environment import msvc, MT, RC, is64bit
 from setup.installer.windows.wix import WixMixIn
 
 ICU_DIR = os.environ.get('ICU_DIR', r'Q:\icu')
 OPENSSL_DIR = os.environ.get('OPENSSL_DIR', r'Q:\openssl')
 QT_DIR = os.environ.get('QT_DIR', 'Q:\\Qt\\4.8.2')
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
-LIBUNRAR         = os.environ.get('UNRARDLL', 'C:\\Program Files\\UnrarDLL\\unrar.dll')
 SW               = r'C:\cygwin\home\kovid\sw'
 IMAGEMAGICK = os.path.join(SW, 'build',
                             'ImageMagick-*\\VisualMagick\\bin')
@@ -26,6 +25,7 @@ LZMA = r'Q:\easylzma\build\easylzma-0.0.8'
 
 VERSION = re.sub('[a-z]\d+', '', __version__)
 WINVER = VERSION+'.0'
+machine = 'X64' if is64bit else 'X86'
 
 DESCRIPTIONS = {
         'calibre' : 'The main calibre program',
@@ -88,8 +88,9 @@ class Win32Freeze(Command, WixMixIn):
         self.archive_lib_dir()
         self.remove_CRT_from_manifests()
         self.create_installer()
-        self.build_portable()
-        self.build_portable_installer()
+        if not is64bit:
+            self.build_portable()
+            self.build_portable_installer()
 
     def remove_CRT_from_manifests(self):
         '''
@@ -110,7 +111,7 @@ class Win32Freeze(Command, WixMixIn):
             self.info('Removing CRT dependency from manifest of: %s'%bn)
             # Blank out the bytes corresponding to the dependency specification
             nraw = repl_pat.sub(lambda m: b' '*len(m.group()), raw)
-            if len(nraw) != len(raw):
+            if len(nraw) != len(raw) or nraw == raw:
                 raise Exception('Something went wrong with %s'%bn)
             with open(dll, 'wb') as f:
                 f.write(nraw)
@@ -131,6 +132,23 @@ class Win32Freeze(Command, WixMixIn):
             # We dont want the manifests as the manifest in the exe will be
             # used instead
             shutil.copy2(f, tgt)
+
+    def fix_pyd_bootstraps_in(self, folder):
+        for dirpath, dirnames, filenames in os.walk(folder):
+            for f in filenames:
+                name, ext = os.path.splitext(f)
+                bpy = self.j(dirpath, name + '.py')
+                if ext == '.pyd' and os.path.exists(bpy):
+                    with open(bpy, 'rb') as f:
+                        raw = f.read().strip()
+                    if (not raw.startswith('def __bootstrap__') or not
+                            raw.endswith('__bootstrap__()')):
+                        raise Exception('The file %r has non'
+                                ' bootstrap code'%self.j(dirpath, f))
+                    for ext in ('.py', '.pyc', '.pyo'):
+                        x = self.j(dirpath, name+ext)
+                        if os.path.exists(x):
+                            os.remove(x)
 
     def freeze(self):
         shutil.copy2(self.j(self.src_root, 'LICENSE'), self.base)
@@ -184,23 +202,12 @@ class Win32Freeze(Command, WixMixIn):
         shutil.copytree(self.j(comext, 'shell'), self.j(sp_dir, 'win32com', 'shell'))
         shutil.rmtree(comext)
 
-        # Fix PyCrypto, removing the bootstrap .py modules that load the .pyd
-        # modules, since they do not work when in a zip file
-        for crypto_dir in glob.glob(self.j(sp_dir, 'pycrypto-*', 'Crypto')):
-            for dirpath, dirnames, filenames in os.walk(crypto_dir):
-                for f in filenames:
-                    name, ext = os.path.splitext(f)
-                    if ext == '.pyd':
-                        with open(self.j(dirpath, name+'.py')) as f:
-                            raw = f.read().strip()
-                        if (not raw.startswith('def __bootstrap__') or not
-                                raw.endswith('__bootstrap__()')):
-                            raise Exception('The PyCrypto file %r has non'
-                                    ' bootstrap code'%self.j(dirpath, f))
-                        for ext in ('.py', '.pyc', '.pyo'):
-                            x = self.j(dirpath, name+ext)
-                            if os.path.exists(x):
-                                os.remove(x)
+        # Fix PyCrypto and Pillow, removing the bootstrap .py modules that load
+        # the .pyd modules, since they do not work when in a zip file
+        for folder in os.listdir(sp_dir):
+            folder = self.j(sp_dir, folder)
+            if os.path.isdir(folder):
+                self.fix_pyd_bootstraps_in(folder)
 
         for pat in (r'PyQt4\uic\port_v3', ):
             x = glob.glob(self.j(self.lib_dir, 'site-packages', pat))[0]
@@ -260,9 +267,6 @@ class Win32Freeze(Command, WixMixIn):
 
         print
         print 'Adding third party dependencies'
-        print '\tAdding unrar'
-        shutil.copyfile(LIBUNRAR, os.path.join(self.dll_dir,
-                        os.path.basename(LIBUNRAR).replace('64', '')))
 
         print '\tAdding misc binary deps'
         bindir = os.path.join(SW, 'bin')
@@ -370,7 +374,7 @@ class Win32Freeze(Command, WixMixIn):
         if not self.opts.keep_site:
             os.remove(y)
 
-    def run_builder(self, cmd):
+    def run_builder(self, cmd, show_output=False):
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
         if p.wait() != 0:
@@ -379,6 +383,9 @@ class Win32Freeze(Command, WixMixIn):
             self.info(p.stdout.read())
             self.info(p.stderr.read())
             sys.exit(1)
+        if show_output:
+            self.info(p.stdout.read())
+            self.info(p.stderr.read())
 
     def build_portable_installer(self):
         zf = self.a(self.j('dist', 'calibre-portable-%s.zip.lz'%VERSION))
@@ -404,7 +411,7 @@ class Win32Freeze(Command, WixMixIn):
         exe = self.j('dist', 'calibre-portable-installer-%s.exe'%VERSION)
         if self.newer(exe, [obj, xobj]):
             self.info('Linking', exe)
-            cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:X86',
+            cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:'+machine,
                     '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:WINDOWS',
                     '/LIBPATH:'+(LZMA+r'\lib\Release'),
                     '/RELEASE', '/MANIFEST', '/MANIFESTUAC:level="asInvoker" uiAccess="false"',
@@ -461,7 +468,7 @@ class Win32Freeze(Command, WixMixIn):
         exe = self.j(base, 'calibre-portable.exe')
         if self.newer(exe, [obj]):
             self.info('Linking', exe)
-            cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:X86',
+            cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:'+machine,
                     '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:WINDOWS',
                     '/RELEASE',
                     '/ENTRY:wWinMainCRTStartup',
@@ -502,9 +509,11 @@ class Win32Freeze(Command, WixMixIn):
         finally:
             os.chdir(cwd)
 
-    def build_launchers(self):
+    def build_launchers(self, debug=False):
         if not os.path.exists(self.obj_dir):
             os.makedirs(self.obj_dir)
+        dflags = (['/Zi'] if debug else [])
+        dlflags = (['/DEBUG'] if debug else ['/INCREMENTAL:NO'])
         base = self.j(self.src_root, 'setup', 'installer', 'windows')
         sources = [self.j(base, x) for x in ['util.c', 'MemoryModule.c']]
         headers = [self.j(base, x) for x in ['util.h', 'MemoryModule.h']]
@@ -513,20 +522,20 @@ class Win32Freeze(Command, WixMixIn):
         cflags += ['/DPYDLL="python%s.dll"'%self.py_ver, '/IC:/Python%s/include'%self.py_ver]
         for src, obj in zip(sources, objects):
             if not self.newer(obj, headers+[src]): continue
-            cmd = [msvc.cc] + cflags + ['/Fo'+obj, '/Tc'+src]
-            self.run_builder(cmd)
+            cmd = [msvc.cc] + cflags + dflags + ['/Fo'+obj, '/Tc'+src]
+            self.run_builder(cmd, show_output=True)
 
         dll = self.j(self.obj_dir, 'calibre-launcher.dll')
         ver = '.'.join(__version__.split('.')[:2])
         if self.newer(dll, objects):
-            cmd = [msvc.linker, '/DLL', '/INCREMENTAL:NO', '/VERSION:'+ver,
-                    '/OUT:'+dll, '/nologo', '/MACHINE:X86'] + objects + \
+            cmd = [msvc.linker, '/DLL', '/VERSION:'+ver, '/OUT:'+dll,
+                   '/nologo', '/MACHINE:'+machine] + dlflags + objects + \
                 [self.embed_resources(dll),
                 '/LIBPATH:C:/Python%s/libs'%self.py_ver,
                 'python%s.lib'%self.py_ver,
                 '/delayload:python%s.dll'%self.py_ver]
             self.info('Linking calibre-launcher.dll')
-            self.run_builder(cmd)
+            self.run_builder(cmd, show_output=True)
 
         src = self.j(base, 'main.c')
         shutil.copy2(dll, self.base)
@@ -544,16 +553,16 @@ class Win32Freeze(Command, WixMixIn):
                 dest = self.j(self.obj_dir, bname+'.obj')
                 if self.newer(dest, [src]+headers):
                     self.info('Compiling', bname)
-                    cmd = [msvc.cc] + xflags + ['/Tc'+src, '/Fo'+dest]
+                    cmd = [msvc.cc] + xflags + dflags + ['/Tc'+src, '/Fo'+dest]
                     self.run_builder(cmd)
                 exe = self.j(self.base, bname+'.exe')
                 lib = dll.replace('.dll', '.lib')
                 if self.newer(exe, [dest, lib, self.rc_template, __file__]):
                     self.info('Linking', bname)
-                    cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:X86',
+                    cmd = [msvc.linker] + ['/MACHINE:'+machine,
                             '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:'+subsys,
                             '/LIBPATH:C:/Python%s/libs'%self.py_ver, '/RELEASE',
-                            '/OUT:'+exe, self.embed_resources(exe),
+                            '/OUT:'+exe] + dlflags + [self.embed_resources(exe),
                             dest, lib]
                     self.run_builder(cmd)
 
@@ -566,9 +575,18 @@ class Win32Freeze(Command, WixMixIn):
             for x in (self.plugins_dir, self.dll_dir):
                 for pyd in os.listdir(x):
                     if pyd.endswith('.pyd') and pyd not in {
-                            'sqlite_custom.pyd', 'calibre_style.pyd'}:
                         # sqlite_custom has to be a file for
                         # sqlite_load_extension to work
+                        'sqlite_custom.pyd',
+                        # calibre_style has to be loaded by Qt therefore it
+                        # must be a file
+                        'calibre_style.pyd',
+                        # Because of https://github.com/fancycode/MemoryModule/issues/4
+                        # any extensions that use C++ exceptions must be loaded
+                        # from files
+                        'unrar.pyd', 'wpd.pyd', 'podofo.pyd',
+                        'progress_indicator.pyd',
+                        }:
                         self.add_to_zipfile(zf, pyd, x)
                         os.remove(self.j(x, pyd))
 
@@ -581,7 +599,8 @@ class Win32Freeze(Command, WixMixIn):
             sp = self.j(self.lib_dir, 'site-packages')
             # Special handling for PIL and pywin32
             handled = set(['PIL.pth', 'pywin32.pth', 'PIL', 'win32'])
-            self.add_to_zipfile(zf, 'PIL', sp)
+            if not is64bit:
+                self.add_to_zipfile(zf, 'PIL', sp)
             base = self.j(sp, 'win32', 'lib')
             for x in os.listdir(base):
                 if os.path.splitext(x)[1] not in ('.exe',):
@@ -593,16 +612,17 @@ class Win32Freeze(Command, WixMixIn):
                         self.add_to_zipfile(zf, x, base)
 
             handled.add('easy-install.pth')
+            # We dont want the site.py from site-packages
+            handled.add('site.pyo')
+
             for d in self.get_pth_dirs(self.j(sp, 'easy-install.pth')):
                 handled.add(self.b(d))
                 for x in os.listdir(d):
-                    if x == 'EGG-INFO':
+                    if x in {'EGG-INFO', 'site.py', 'site.pyc', 'site.pyo'}:
                         continue
                     self.add_to_zipfile(zf, x, d)
 
             # The rest of site-packages
-            # We dont want the site.py from site-packages
-            handled.add('site.pyo')
             for x in os.listdir(sp):
                 if x in handled or x.endswith('.egg-info'):
                     continue
@@ -622,8 +642,10 @@ class Win32Freeze(Command, WixMixIn):
             line = line.strip()
             if not line or line.startswith('#') or line.startswith('import'):
                 continue
-            candidate = self.j(base, line)
+            candidate = os.path.abspath(self.j(base, line))
             if os.path.exists(candidate):
+                if not os.path.isdir(candidate):
+                    raise ValueError('%s is not a directory'%candidate)
                 yield candidate
 
     def add_to_zipfile(self, zf, name, base, exclude=frozenset()):

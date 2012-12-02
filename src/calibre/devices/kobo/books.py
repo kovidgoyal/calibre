@@ -60,6 +60,8 @@ class Book(Book_):
         self.contentID          = None
         self.current_shelves    = []
         self.kobo_collections   = []
+        self.kobo_series        = None
+        self.kobo_series_number = None
 
         if thumbnail_name is not None:
             self.thumbnail = ImageWrapper(thumbnail_name)

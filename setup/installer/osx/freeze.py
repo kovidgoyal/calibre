@@ -388,7 +388,7 @@ def main():
                          'dist_dir' : 'build/py2app',
                          'argv_emulation' : True,
                          'iconfile' : icon,
-                         'frameworks': ['libusb.dylib', 'libunrar.dylib'],
+                         'frameworks': ['libusb.dylib'],
                          'includes' : ['sip', 'pkg_resources', 'PyQt4.QtXml',
                                        'PyQt4.QtSvg', 'PyQt4.QtWebKit', 'commands',
                                        'mechanize', 'ClientForm', 'usbobserver',

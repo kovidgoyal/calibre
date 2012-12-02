@@ -146,7 +146,7 @@ class ANSIStream(Detect):
 
     def __init__(self, stream=None):
         super(ANSIStream, self).__init__(stream)
-        self.encoding = getattr(self.stream, 'encoding', 'utf-8')
+        self.encoding = getattr(self.stream, 'encoding', 'utf-8') or 'utf-8'
 
     def write(self, text):
         if isinstance(text, type(u'')):

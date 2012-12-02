@@ -510,17 +510,18 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def show_full_screen_label(self):
         f = self.full_screen_label
         self.esc_full_screen_action.setEnabled(True)
-        f.setVisible(True)
         height = 200
         width = int(0.7*self.view.width())
         f.resize(width, height)
         f.move((self.view.width() - width)//2, (self.view.height()-height)//2)
-        a = self.full_screen_label_anim
-        a.setDuration(500)
-        a.setStartValue(QSize(width, 0))
-        a.setEndValue(QSize(width, height))
-        a.start()
-        QTimer.singleShot(3500, self.full_screen_label.hide)
+        if self.view.document.show_fullscreen_help:
+            f.setVisible(True)
+            a = self.full_screen_label_anim
+            a.setDuration(500)
+            a.setStartValue(QSize(width, 0))
+            a.setEndValue(QSize(width, height))
+            a.start()
+            QTimer.singleShot(3500, self.full_screen_label.hide)
         self.view.document.switch_to_fullscreen_mode()
         if self.view.document.fullscreen_clock:
             self.show_clock()
@@ -591,8 +592,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             fs = self.window_mode_changed == 'fullscreen'
             self.window_mode_changed = None
             if fs:
-                if self.view.document.show_fullscreen_help:
-                    self.show_full_screen_label()
+                self.show_full_screen_label()
             else:
                 self.view.document.switch_to_window_mode()
             self.view.document.page_position.restore()

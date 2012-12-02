@@ -2,21 +2,46 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class AdvancedUserRecipe1303841067(BasicNewsRecipe):
 
     title          = u'Pro Physik'
-    __author__  = 'schuster'
-    oldest_article = 4
+    __author__  = 'schuster, Armin Geller' # AGE Upd. 2012-11-28
+    oldest_article        = 4
     max_articles_per_feed = 100
-    no_stylesheets         = True
-    use_embedded_content   = False
-    language               = 'de'
-    remove_javascript      = True
-    cover_url = 'http://www.pro-physik.de/Phy/images/site/prophysik_logo1.jpg'
+
+    no_stylesheets        = True
+    remove_javascript     = True
+    remove_empty_feeds    = True
+    language              = 'de'
+
+    cover_url = 'http://www.pro-physik.de/prophy/images/bg_logo_prophy.gif'
 
 
-    def print_version(self, url):
-        return url.replace('leadArticle.do', 'print.do')
+    keep_only_tags    = [
+                          dict(name='div', attrs={'class':['leftColRight']})
+                        ]
 
+    remove_tags = [
+                    dict(name='div', attrs={'class':["withMargin socialWrapper addthis_toolbox addthis_default_style"]}),
+                  # AGe: If you don't like to see further informations for the article
+                  #      and additional links please remove # in belows next line
+#                    dict(name='div', attrs={'class':["insideBox"]}),
+                  ]
 
-    feeds          = [(u'Hightech', u'http://www.pro-physik.de/Phy/hightechfeed.xml'),
-                          (u'Forschung', u'http://www.pro-physik.de/Phy/forschungfeed.xml'),
-                          (u'Magazin', u'http://www.pro-physik.de/Phy/magazinfeed.xml')]
+    feeds = [
+              (u'Nachrichten', u'http://www.pro-physik.de/graphicalrss/prophy/newsFeed.xml'),
+              (u'Forschung', u'http://www.pro-physik.de/graphicalrss/prophy/newsforschungFeed.xml'),
+              (u'Techologie', u'http://www.pro-physik.de/graphicalrss/prophy/newstechnologieFeed.xml'),
+              (u'Industrie', u'http://www.pro-physik.de/graphicalrss/prophy/newsindustrieFeed.xml'),
+              (u'Hochschule', u'http://www.pro-physik.de/graphicalrss/prophy/newshochschuleFeed.xml'),
+              (u'Panorama', u'http://www.pro-physik.de/graphicalrss/prophy/newspanoramaFeed.xml'),
+              (u'DPG', u'http://www.pro-physik.de/graphicalrss/prophy/newsdpgFeed.xml'),
+              (u'Physik Jornal', u'http://www.pro-physik.de/graphicalrss/prophy/pjnewsFeed.xml'),
+              (u'Veranstaltungen', u'http://www.pro-physik.de/rss/prophy/eventsFeed.xml'),
 
+              # AGe if you like to see job offers please remove # on next lines below
+
+#              (u'Stellenmarkt', u'http://www.pro-physik.de/rss/prophy/jobsFeed.xml'),
+#              (u'Industrie Stellenanzeigen', u'http://www.pro-physik.de/rss/prophy/jobsindustrieFeed.xml'),
+#              (u'PhD Stellenanzeigen', u'http://www.pro-physik.de/rss/prophy/jobsphdFeed.xml'),
+#              (u'PostDoc Stellenanzeigen', u'http://www.pro-physik.de/rss/prophy/jobspostdocFeed.xml'),
+#              (u'Öffentlicher Dienst Stellenanzeigen', u'http://www.pro-physik.de/rss/prophy/jobsdienstFeed.xml'),
+#              (u'Hochschule Stellenanzeigen', u'http://www.pro-physik.de/rss/prophy/jobshochschuleFeed.xml'),
+            ]

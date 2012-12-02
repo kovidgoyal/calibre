@@ -182,7 +182,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
                     out(ioreg)
 
         if hasattr(buf, 'getvalue'):
-            return buf.getvalue().decode('utf-8')
+            return buf.getvalue().decode('utf-8', 'replace')
     finally:
         sys.stdout = oldo
         sys.stderr = olde

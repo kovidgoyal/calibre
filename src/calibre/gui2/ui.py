@@ -45,6 +45,7 @@ from calibre.gui2.auto_add import AutoAdder
 from calibre.library.sqlite import sqlite, DatabaseException
 from calibre.gui2.proceed import ProceedQuestion
 from calibre.gui2.dialogs.message_box import JobError
+from calibre.gui2.job_indicator import Pointer
 
 class Listener(Thread): # {{{
 
@@ -109,6 +110,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     def __init__(self, opts, parent=None, gui_debug=None):
         global _gui
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
+        self.jobs_pointer = Pointer(self)
         self.proceed_requested.connect(self.do_proceed,
                 type=Qt.QueuedConnection)
         self.proceed_question = ProceedQuestion(self)

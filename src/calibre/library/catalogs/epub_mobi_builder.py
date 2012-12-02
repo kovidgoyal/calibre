@@ -15,7 +15,8 @@ from calibre.customize.ui import output_profiles
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ebooks.chardet import substitute_entites
 from calibre.ebooks.metadata import author_to_author_sort
-from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException
+from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException, \
+                                     InvalidGenresSourceFieldException
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.config import config_dir
 from calibre.utils.date import format_date, is_date_undefined, now as nowf
@@ -134,7 +135,7 @@ class CatalogBuilder(object):
         self.generate_recently_read = False
         self.genres = []
         self.genre_tags_dict = \
-            self.filter_db_tags(max_len = 245 - len("%s/Genre_.html" % self.content_dir)) \
+            self.filter_genre_tags(max_len = 245 - len("%s/Genre_.html" % self.content_dir)) \
             if self.opts.generate_genres else None
         self.html_filelist_1 = []
         self.html_filelist_2 = []
@@ -938,6 +939,21 @@ class CatalogBuilder(object):
                 this_title['tags'] = self.filter_excluded_genres(record['tags'],
                                         self.opts.exclude_genre)
 
+            this_title['genres'] = []
+            if self.opts.genre_source_field == _('Tags'):
+                this_title['genres'] = this_title['tags']
+            else:
+                record_genres = self.db.get_field(record['id'],
+                                    self.opts.genre_source_field,
+                                    index_is_id=True)
+
+                if record_genres:
+                    if type(record_genres) is not list:
+                        record_genres = [record_genres]
+
+                    this_title['genres'] = self.filter_excluded_genres(record_genres,
+                                            self.opts.exclude_genre)
+
             if record['formats']:
                 formats = []
                 for format in record['formats']:
@@ -1104,7 +1120,7 @@ class CatalogBuilder(object):
 
             self.bookmarked_books = bookmarks
 
-    def filter_db_tags(self, max_len):
+    def filter_genre_tags(self, max_len):
         """ Remove excluded tags from data set, return normalized genre list.
 
         Filter all db tags, removing excluded tags supplied in opts.
@@ -1166,7 +1182,32 @@ class CatalogBuilder(object):
         normalized_tags = []
         friendly_tags = []
         excluded_tags = []
-        for tag in self.db.all_tags():
+
+        # Fetch all possible genres from source field
+        all_genre_tags = []
+        if self.opts.genre_source_field == _('Tags'):
+            all_genre_tags = self.db.all_tags()
+        else:
+            # Validate custom field is usable as a genre source
+            field_md = self.db.metadata_for_field(self.opts.genre_source_field)
+            if not field_md['datatype'] in ['enumeration','text']:
+                all_custom_fields = self.db.custom_field_keys()
+                eligible_custom_fields = []
+                for cf in all_custom_fields:
+                    if self.db.metadata_for_field(cf)['datatype'] in ['enumeration','text']:
+                        eligible_custom_fields.append(cf)
+                self.opts.log.error("Custom genre_source_field must be either:\n"
+                                    " 'Comma separated text, like tags, shown in the browser',\n"
+                                    " 'Text, column shown in the tag browser', or\n"
+                                    " 'Text, but with a fixed set of permitted values'.")
+                self.opts.log.error("Eligible custom fields: %s" % ', '.join(eligible_custom_fields))
+                raise InvalidGenresSourceFieldException, "invalid custom field specified for genre_source_field"
+
+            all_genre_tags = list(self.db.all_custom(self.db.field_metadata.key_to_label(self.opts.genre_source_field)))
+
+        all_genre_tags.sort()
+
+        for tag in all_genre_tags:
             if tag in self.excluded_tags:
                 excluded_tags.append(tag)
                 continue
@@ -1194,9 +1235,10 @@ class CatalogBuilder(object):
                     if genre_tags_dict[key] == normalized:
                         self.opts.log.warn("       %s" % key)
         if self.opts.verbose:
-            self.opts.log.info('%s' % _format_tag_list(genre_tags_dict, header="enabled genre tags in database"))
-            self.opts.log.info('%s' % _format_tag_list(excluded_tags, header="excluded genre tags"))
+            self.opts.log.info('%s' % _format_tag_list(genre_tags_dict, header="enabled genres"))
+            self.opts.log.info('%s' % _format_tag_list(excluded_tags, header="excluded genres"))
 
+        print("genre_tags_dict: %s" % genre_tags_dict)
         return genre_tags_dict
 
     def filter_excluded_genres(self, tags, regex):
@@ -1969,7 +2011,7 @@ class CatalogBuilder(object):
         create a separate HTML file. Normalize tags to flatten synonymous tags.
 
         Inputs:
-         db.all_tags() (list): all database tags
+         self.genre_tags_dict (list): all genre tags
 
         Output:
          (files): HTML file per genre
@@ -1987,7 +2029,7 @@ class CatalogBuilder(object):
             tag_list = {}
             for book in self.books_by_author:
                 # Scan each book for tag matching friendly_tag
-                if 'tags' in book and friendly_tag in book['tags']:
+                if 'genres' in book and friendly_tag in book['genres']:
                     this_book = {}
                     this_book['author'] = book['author']
                     this_book['title'] = book['title']
@@ -2577,18 +2619,18 @@ class CatalogBuilder(object):
 
         # Genres
         genres = ''
-        if 'tags' in book:
+        if 'genres' in book:
             _soup = BeautifulSoup('')
             genresTag = Tag(_soup,'p')
             gtc = 0
-            for (i, tag) in enumerate(sorted(book.get('tags', []))):
+            for (i, tag) in enumerate(sorted(book.get('genres', []))):
                 aTag = Tag(_soup,'a')
                 if self.opts.generate_genres:
                     aTag['href'] = "Genre_%s.html" % self.genre_tags_dict[tag]
                 aTag.insert(0,escape(NavigableString(tag)))
                 genresTag.insert(gtc, aTag)
                 gtc += 1
-                if i < len(book['tags'])-1:
+                if i < len(book['genres'])-1:
                     genresTag.insert(gtc, NavigableString(' &middot; '))
                     gtc += 1
             genres = genresTag.renderContents()
@@ -4382,7 +4424,7 @@ class CatalogBuilder(object):
         """ Return the first friendly_tag matching genre.
 
         Scan self.genre_tags_dict[] for first friendly_tag matching genre.
-        genre_tags_dict[] populated in filter_db_tags().
+        genre_tags_dict[] populated in filter_genre_tags().
 
         Args:
          genre (str): genre to match

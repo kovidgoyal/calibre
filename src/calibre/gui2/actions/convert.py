@@ -132,6 +132,7 @@ class ConvertAction(InterfaceAction):
             num = len(jobs)
 
         if num > 0:
+            self.gui.jobs_pointer.start()
             self.gui.status_bar.show_message(_('Starting conversion of %d book(s)') %
                 num, 2000)
 

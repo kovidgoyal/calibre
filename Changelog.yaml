@@ -19,6 +19,139 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.8
+  date: 2012-11-30
+
+  new features:
+    - title: "Add an option to show the cover size in the book details panel on the right. Option is in Preferences->Look & Feel->Book Details"
+
+    - title: "Kobo driver: Add support for firmware 2.2. Also add an option to send series information to the device."
+      description: "The newest Kobo firmware can display series information. Unfortunately, the Kobo does not read this information from the ebook file itself. It has to be sent separately after the Kobo has finished processing the new files. So you might have to connect - send books - disconnect and then re-connect for the series infor to show up. Fixes #1084388 (Add support for series on Kobo devices)"
+
+    - title: "Catalogs: Allow using custom columns as the source for Genres when generating catalogs"
+
+    - title: "When the user asks calibre to convert a book, show a small animation to highlight that the convert job has been queued to run in the background"
+
+    - title: "Add support for the notification center in OS X 10.8"
+
+    - title: "calibredb: Add an option to specify the cover to use when adding books with calibredb add."
+      tickets: [1083932]
+
+    - title: "EPUB Input: Add support for EPUB files with broken central directory records *and* data descriptors"
+
+    - title: "Comic metadata: Support reading metadata from cbr files. Also read the comments and published date info from the metadata."
+      tickets: [1082340]
+
+    - title: "Speed up processing of RAR and CBR files by avoiding an extra file copy"
+
+    - title: "Add driver for Nexus 10 on linux."
+      tickets: [1082563]
+
+  bug fixes:
+    - title: "KF8 Input: Handle invalid KF8 files with links pointing to non-existent locations and incorrect values in the div table."
+      tickets: [1082669]
+
+    - title: "Viewer: Fix handling of empty self closing tags."
+      tickets: [1083278]
+
+    - title: "Fix use of {formats} in save to disk templates. Fix some formatter functions causing plugboards to not validate."
+
+    - title: "Fix calibre quitting when minimized to system tray and an update available message is shown and then closed."
+      tickets: [1082630]
+
+    - title: "Viewer: Fix vertical margin at the top of the first page of a chapter incorrect in a certain rare circumstance (first child of body being an empty paragraph)."
+      tickets: [1082640]
+
+    - title: "E-book viewer: Fix bug that caused the default language for hyphenation to be ignored for books that do not specify a language"
+
+  improved recipes:
+    - Pro Physik
+    - Aachener Nachrichten
+    - Science News
+
+- version: 0.9.7
+  date: 2012-11-23
+
+  new features:
+    - title: "Edit metadata dialog: Show the size of the current book cover in the edit metadata dialog."
+      tickets: [1079781]
+
+    - title: "Get Books: Allow easy searching by title and author in addition to any keyword, to prevent large numbers of spurious matches."
+
+    - title: "An option to automatically convert any added book to the current output format, found under Preferences->Adding books"
+
+    - title: "E-book viewer: Allow viewing tables in a separate popup window by right clicking on the table and selecting 'View table'. Useful for reference books that have lots of large tables."
+      tickets: [1080710]
+
+    - title: "Catalogs: Add the current library name as an available field when generating catalogs in csv/xml format."
+      tickets: [1078422]
+
+    - title: "Enable colored text in the output from the command line tools on windows"
+
+    - title: "E-book viewer: Add an option to hide the help message when entering full screen mode"
+
+    - title: "E-book viewer: Add an option to always start the viewer in full screen mode"
+
+    - title: "E-book viewer: Add many more controls to the context menu, particularly useful in full screen mode"
+
+    - title: "E-book viewer: Allow easy searching of the selected word or phrase in google via the context menu"
+
+    - title: "Add a new type of FileType plugin, postimport, that runs after a book has been added to the database."
+
+    - title: "Get Books: Remove Gandalf store, add Publio store. Update the Legimi store plugin for website changes"
+ 
+  bug fixes:
+    - title: "Conversion: Correctly handle values of left and right for the deprecated align attribute of images, mapping them to the CSS float property instead of to text-align."
+      tickets: [1081094]
+
+    - title: "MOBI Output: When generating joint MOBI6/KF8 files do not set incorrect display CSS values for tables in the KF8 part"
+
+    - title: "Connect to iTunes: Ignore AAC audio files."
+      tickets: [1081096]
+
+    - title: "E-book viewer: Fix restoring from fullscreen not respecting maximized window state"
+
+    - title: "Fix rows in the device books view sometimes being too high"
+
+    - title: "Catalogs: Fixed a problem occurring when merging comments with a custom field whose type is a list."
+
+    - title: "Linux binary: Use exec in the wrapper shell scripts that are used to set env vars and launch calibre utilities."
+      tickets: [1077884]
+
+    - title: "E-book viewer: Fix blank pages after every page when viewing some comic files in paged mode"
+
+    - title: "E-book viewer: When printing, respect the specified page range."
+      tickets: [1074220]
+
+    - title: "Font subsetting: Parse the GSUB table for glyph substitution rules and do not remove any glyphs that could act as substitutes. Keep zero length glyphs like the glyphs for non printable characters when subsetting TrueType outlines."
+
+    - title: "Smarten punctuation: Fix self closing script tags causing smarten punctuation to fail"
+
+
+  improved recipes:
+    - Arguments and facts
+    - Business Standard
+    - The New Yorker
+
+  new recipes:
+    - title: Various Czech and Hungarian news sources 
+      author: bubak
+
+    - title: Various Polish recipes 
+      author: Artur Stachecki
+
+    - title: Buchreport 
+      author: a.peter
+
+    - title: Red Voltaire 
+      author: atordo
+
+    - title: Autosport 
+      author: Mr Stefan 
+
+    - title: House News
+      author: Eddie Lau
+
 - version: 0.9.6
   date: 2012-11-10
 

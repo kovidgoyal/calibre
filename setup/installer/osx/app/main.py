@@ -437,8 +437,8 @@ class Py2App(object):
 
     @flush
     def add_misc_libraries(self):
-        for x in ('usb-1.0.0', 'mtp.9', 'unrar', 'readline.6.1',
-                    'wmflite-0.2.7', 'chm.0', 'sqlite3.0'):
+        for x in ('usb-1.0.0', 'mtp.9', 'readline.6.1', 'wmflite-0.2.7',
+                  'chm.0', 'sqlite3.0'):
             info('\nAdding', x)
             x = 'lib%s.dylib'%x
             shutil.copy2(join(SW, 'lib', x), self.frameworks_dir)
@@ -597,6 +597,8 @@ class Py2App(object):
             else:
                 os.symlink(join('../..', x),
                            join(cc_dir, x))
+        shutil.copytree(join(SW, 'build/notifier.app'), join(
+            self.contents_dir, 'calibre-notifier.app'))
 
     @flush
     def copy_site(self):
