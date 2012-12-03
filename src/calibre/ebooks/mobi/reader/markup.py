@@ -11,7 +11,7 @@ import re, os
 
 from calibre.ebooks.chardet import strip_encoding_declarations
 
-def update_internal_links(mobi8_reader):
+def update_internal_links(mobi8_reader, log):
     # need to update all links that are internal which
     # are based on positions within the xhtml files **BEFORE**
     # cutting and pasting any pieces into the xhtml text files
@@ -35,11 +35,16 @@ def update_internal_links(mobi8_reader):
                 for m in posfid_index_pattern.finditer(tag):
                     posfid = m.group(1)
                     offset = m.group(2)
-                    filename, idtag = mr.get_id_tag_by_pos_fid(int(posfid, 32),
-                            int(offset, 32))
-                    suffix = (b'#' + idtag) if idtag else b''
-                    replacement = filename.split('/')[-1].encode(
-                            mr.header.codec) + suffix
+                    try:
+                        filename, idtag = mr.get_id_tag_by_pos_fid(
+                            int(posfid, 32), int(offset, 32))
+                    except ValueError:
+                        log.warn('Invalid link, points to nowhere, ignoring')
+                        replacement = b'#'
+                    else:
+                        suffix = (b'#' + idtag) if idtag else b''
+                        replacement = filename.split('/')[-1].encode(
+                                mr.header.codec) + suffix
                     tag = posfid_index_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag
         raw = b''.join(srcpieces)
@@ -198,7 +203,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
     # All flows are now unicode and have links resolved
     return flows
 
-def insert_flows_into_markup(parts, flows, mobi8_reader):
+def insert_flows_into_markup(parts, flows, mobi8_reader, log):
     mr = mobi8_reader
 
     # kindle:flow:XXXX?mime=YYYY/ZZZ (used for style sheets, svg images, etc)
@@ -214,12 +219,17 @@ def insert_flows_into_markup(parts, flows, mobi8_reader):
             if tag.startswith('<'):
                 for m in flow_pattern.finditer(tag):
                     num = int(m.group(1), 32)
-                    fi = mr.flowinfo[num]
-                    if fi.format == 'inline':
-                        tag = flows[num]
+                    try:
+                        fi = mr.flowinfo[num]
+                    except IndexError:
+                        log.warn('Ignoring invalid flow reference: %s'%m.group())
+                        tag = ''
                     else:
-                        replacement = '"../' + fi.dir + '/' + fi.fname + '"'
-                        tag = flow_pattern.sub(replacement, tag, 1)
+                        if fi.format == 'inline':
+                            tag = flows[num]
+                        else:
+                            replacement = '"../' + fi.dir + '/' + fi.fname + '"'
+                            tag = flow_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag
         part = "".join(srcpieces)
         # store away modified version
@@ -298,7 +308,7 @@ def upshift_markup(parts):
 
 def expand_mobi8_markup(mobi8_reader, resource_map, log):
     # First update all internal links that are based on offsets
-    parts = update_internal_links(mobi8_reader)
+    parts = update_internal_links(mobi8_reader, log)
 
     # Remove pointless markup inserted by kindlegen
     remove_kindlegen_markup(parts)
@@ -308,7 +318,7 @@ def expand_mobi8_markup(mobi8_reader, resource_map, log):
     flows = update_flow_links(mobi8_reader, resource_map, log)
 
     # Insert inline flows into the markup
-    insert_flows_into_markup(parts, flows, mobi8_reader)
+    insert_flows_into_markup(parts, flows, mobi8_reader, log)
 
     # Insert raster images into markup
     insert_images_into_markup(parts, resource_map, log)

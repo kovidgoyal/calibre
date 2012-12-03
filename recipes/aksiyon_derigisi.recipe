@@ -20,6 +20,7 @@ class Aksiyon (BasicNewsRecipe):
     auto_cleanup = True
     cover_img_url = 'http://www.aksiyon.com.tr/aksiyon/images/aksiyon/top-page/aksiyon_top_r2_c1.jpg'
     masthead_url = 'http://aksiyon.com.tr/aksiyon/images/aksiyon/top-page/aksiyon_top_r2_c1.jpg'
+    ignore_duplicate_articles = { 'title', 'url' }
     remove_empty_feeds= True
     feeds          = [
                       ( u'KAPAK', u'http://www.aksiyon.com.tr/aksiyon/rss?sectionId=26'),

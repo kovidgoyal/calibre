@@ -418,8 +418,11 @@ static BOOL move_program() {
     }
 
     if (MoveFileEx(L"Calibre Portable\\Calibre", L"..\\Calibre", 0) == 0) {
-        show_last_error(L"Failed to move calibre program folder");
-        return false;
+        Sleep(4000); // Sleep and try again
+        if (MoveFileEx(L"Calibre Portable\\Calibre", L"..\\Calibre", 0) == 0) {
+            show_last_error(L"Failed to move calibre program folder. This is usually caused by an antivirus program or a file sync program like DropBox. Turn them off temporarily and try again. Underlying error: ");
+            return false;
+        }
     }
 
     if (!directory_exists(L"..\\Calibre Library")) {

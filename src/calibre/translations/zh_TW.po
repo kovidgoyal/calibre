@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-11-22 04:01+0000\n"
-"PO-Revision-Date: 2012-10-19 08:56+0000\n"
+"POT-Creation-Date: 2012-11-23 03:42+0000\n"
+"PO-Revision-Date: 2012-11-27 04:51+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-11-22 05:06+0000\n"
-"X-Generator: Launchpad (build 16293)\n"
+"X-Launchpad-Export-Date: 2012-11-28 04:39+0000\n"
+"X-Generator: Launchpad (build 16309)\n"
 "Language: zh_TW\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1696,27 +1696,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1215
 msgid "Specify a tags type column for automatic management"
-msgstr ""
+msgstr "指定自動管理的標籤類型欄位"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1216
 msgid "Create Bookshelves"
-msgstr ""
+msgstr "建立書櫃"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1217
 msgid ""
 "Create new bookshelves on the Kobo Touch if they do not exist. This is only "
 "for firmware V2.0.0 or later."
-msgstr ""
+msgstr "如果在 Kobo Touch 中沒有書櫃則建立一個新的。這只對 V2.0.0 以後的韌體有用。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1218
 msgid "Delete Empty Bookshelves"
-msgstr ""
+msgstr "刪除空的書櫃"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1219
 msgid ""
 "Delete any empty bookshelves from the Kobo Touch when syncing is finished. "
 "This is only for firmware V2.0.0 or later."
-msgstr ""
+msgstr "當同步結束時刪除 Kobo Touch 中空的書櫃。這只對 V2.0.0 以後的韌體有用。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1220
 msgid "Upload covers for books"
@@ -1744,7 +1744,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1249
 msgid "Title to test when debugging"
-msgstr ""
+msgstr "除錯時要測試的書名"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1250
 msgid ""
@@ -1922,7 +1922,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:222
 #, python-format
 msgid "Found id: %s"
-msgstr ""
+msgstr "發現 id：%s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2105,41 +2105,41 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:273
 msgid "Use fixed network port"
-msgstr ""
+msgstr "使用固定網路連接埠"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:274
 msgid ""
 "If checked, use the port number in the \"Port\" box, otherwise the driver "
 "will pick a random port"
-msgstr ""
+msgstr "如果核取，會使用在「連接埠」方塊中的連接埠編號，否則驅動程式會隨機挑選連接埠"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:276
 msgid "Port number: "
-msgstr ""
+msgstr "連接埠編號： "
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:277
 msgid ""
 "Enter the port number the driver is to use if the \"fixed port\" box is "
 "checked"
-msgstr ""
+msgstr "輸入當核取「固定連接埠」時要使用的連接埠編號"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:278
 msgid "Print extra debug information"
-msgstr ""
+msgstr "顯示額外的除錯資訊"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:279
 msgid "Check this box if requested when reporting problems"
-msgstr ""
+msgstr "當回報錯誤時如果需要請核取此方塊"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:281
 msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device."
-msgstr ""
+msgstr "元數據欄位的逗號分隔清單，用以轉成裝置中的藏書。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:283
 msgid "Possibilities include: series, tags, authors, etc"
-msgstr ""
+msgstr "可能包含：系列、標籤、作者等"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:291
 msgid "Enable the no-activity timeout"
@@ -2155,7 +2155,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:296
 msgid "Use this IP address"
-msgstr ""
+msgstr "使用這個 IP 位址"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:297
 msgid ""
@@ -2167,21 +2167,21 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:766
 #, python-format
 msgid "Too many connection attempts from %s"
-msgstr ""
+msgstr "來自 %s 太多連線嘗試"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1271
 #, python-format
 msgid "Invalid port in options: %s"
-msgstr ""
+msgstr "選項中有無效的連接埠：%s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1279
 #, python-format
 msgid "Failed to connect to port %d. Try a different value."
-msgstr ""
+msgstr "無法連接至連接埠 %d。請嘗試不同的數值。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1291
 msgid "Failed to allocate a random port"
-msgstr ""
+msgstr "無法配置隨機連接埠"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -2306,6 +2306,8 @@ msgid ""
 "cable/USB port on your computer. If you device has a \"Reset to factory "
 "defaults\" type of setting somewhere, use it. Underlying error: %s"
 msgstr ""
+"無法存取您裝置的主要記憶體。您應該連絡裝置的製造商以獲得支援。常見的修正方式有：嘗試不同的 USB 纜線/USB "
+"連接埠。如果您的裝置有「重設為原廠預設值」之類的設定，也可以使用它。底層錯誤為：%s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:114
 #, python-format
@@ -2388,13 +2390,13 @@ msgstr "記憶卡 A 資料夾"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:69
 msgid "Swap main and card A"
-msgstr ""
+msgstr "交換主要記憶體與記憶卡 A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:70
 msgid ""
 "Check this box if the device's main memory is being seen as card a and the "
 "card is being seen as main memory"
-msgstr ""
+msgstr "如果裝置的主要記憶體被視為記憶卡，而記憶卡被視為主要記憶體，可以核取這個方塊"
 
 #: /home/kovid/work/calibre/src/calibre/devices/utils.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/utils.py:24
@@ -3031,24 +3033,24 @@ msgstr "保持封面的長寬比，而不將它延伸到填滿產生的 pdf 的�
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:94
 msgid "The font family used to render serif fonts"
-msgstr ""
+msgstr "用來繪製襯線字型的字族"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:97
 msgid "The font family used to render sans-serif fonts"
-msgstr ""
+msgstr "用來繪製無襯線字型的字族"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:100
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:104
 msgid "The font family used to render monospaced fonts"
-msgstr ""
+msgstr "用來繪製等寬字型的字族"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:107
 msgid "The default font size"
-msgstr ""
+msgstr "預設的字型大小"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:110
 msgid "The default font size for monospaced text"
-msgstr ""
+msgstr "等寬文字的預設字型大小"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -3478,28 +3480,28 @@ msgstr ""
 msgid ""
 "Set the top margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
-msgstr ""
+msgstr "以 pts 設定頂端邊界。預設值為 %default。將這個數值設為小於零則表示不使用邊界。注意：72 pts 等同 1 英吋"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:381
 #, python-format
 msgid ""
 "Set the bottom margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
-msgstr ""
+msgstr "以 pts 設定底部邊界。預設值為 %default。將這個數值設為小於零則表示不使用邊界。注意：72 pts 等同 1 英吋"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:387
 #, python-format
 msgid ""
 "Set the left margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
-msgstr ""
+msgstr "以 pts 設定左邊界。預設值為 %default。將這個數值設為小於零則表示不使用邊界。注意：72 pts 等同 1 英吋"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:393
 #, python-format
 msgid ""
 "Set the right margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
-msgstr ""
+msgstr "以 pts 設定右邊界。預設值為 %default。將這個數值設為小於零則表示不使用邊界。注意：72 pts 等同 1 英吋"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:400
 msgid ""
@@ -3676,7 +3678,7 @@ msgstr "設定出版日期。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:574
 msgid "Set the book timestamp (no longer used anywhere)"
-msgstr ""
+msgstr "設定書籍時刻戳記 (已不在任何地方使用)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:578
 msgid ""
@@ -12842,12 +12844,12 @@ msgid "LRF Viewer toolbar"
 msgstr "LRF 檢視器工具列"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:534
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:538
 msgid "Next Page"
 msgstr "下一頁"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:132
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:535
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:539
 msgid "Previous Page"
 msgstr "上一頁"
 
@@ -17509,87 +17511,83 @@ msgstr ""
 msgid "No results found for:"
 msgstr "找不到此項的結果："
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:497
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:501
 msgid "&Lookup in dictionary"
 msgstr "在字典中查詢(&L)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:503
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:507
 msgid "View &image..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:505
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:509
 msgid "View &table..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:508
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:512
 msgid "&Search for next occurrence"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:513
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:517
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:141
 msgid "Go to..."
 msgstr "移至..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:529
 msgid "Next Section"
 msgstr "下一節"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:526
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:530
 msgid "Previous Section"
 msgstr "上一節"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:528
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:532
 msgid "Document Start"
 msgstr "文件的開頭"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:533
 msgid "Document End"
 msgstr "文件的結尾"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:531
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:535
 msgid "Section Start"
 msgstr "章節開頭"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:532
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:536
 msgid "Section End"
 msgstr "章節結尾"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:543
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:547
 msgid "Normal font size"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:610
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:614
 #, python-format
 msgid "S&earch Google for '%s'"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:38
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:38
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:28
 msgid "Zoom &in"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:39
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:39
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:29
 msgid "Zoom &out"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:40
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:40
 msgid "&Save as"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:41
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:41
 msgid "&Rotate"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:67
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:67
 msgid "Choose a file to save to"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:100
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:100
 #, python-format
 msgid "View Image: %s"
 msgstr ""
@@ -17903,6 +17901,18 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:69
 #, python-format
 msgid "Failed to render document %s"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:57
+msgid "View Table"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:72
+msgid "No table found"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:73
+msgid "No table was found"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:100

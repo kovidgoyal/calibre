@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 9, 7)
+numeric_version = (0, 9, 8)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -28,7 +28,7 @@ isunix = isosx or islinux
 isportable = os.environ.get('CALIBRE_PORTABLE_BUILD', None) is not None
 ispy3 = sys.version_info.major > 2
 isxp = iswindows and sys.getwindowsversion().major < 6
-is64bit = sys.maxint > (1 << 32)
+is64bit = sys.maxsize > (1 << 32)
 isworker = os.environ.has_key('CALIBRE_WORKER') or os.environ.has_key('CALIBRE_SIMPLE_WORKER')
 if isworker:
     os.environ.pop('CALIBRE_FORCE_ANSI', None)

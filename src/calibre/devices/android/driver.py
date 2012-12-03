@@ -232,7 +232,7 @@ class ANDROID(USBMS):
             'THINKPAD_TABLET', 'SGH-T989', 'YP-G70', 'STORAGE_DEVICE',
             'ADVANCED', 'SGH-I727', 'USB_FLASH_DRIVER', 'ANDROID',
             'S5830I_CARD', 'MID7042', 'LINK-CREATE', '7035', 'VIEWPAD_7E',
-            'NOVO7', 'MB526']
+            'NOVO7', 'MB526', '_USB#WYK7MSF8KE', 'TABLET_PC']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
@@ -243,7 +243,7 @@ class ANDROID(USBMS):
             'FILE-CD_GADGET', 'GT-I9001_CARD', 'USB_2.0', 'XT875',
             'UMS_COMPOSITE', 'PRO', '.KOBO_VOX', 'SGH-T989_CARD', 'SGH-I727',
             'USB_FLASH_DRIVER', 'ANDROID', 'MID7042', '7035', 'VIEWPAD_7E',
-            'NOVO7', 'ADVANCED']
+            'NOVO7', 'ADVANCED', 'TABLET_PC']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 

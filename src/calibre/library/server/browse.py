@@ -22,6 +22,7 @@ from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
 from calibre.library.field_metadata import category_icon_map
 from calibre.library.server.utils import quote, unquote
+from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 
 def xml(*args, **kwargs):
     ans = prepare_string_for_xml(*args, **kwargs)
@@ -823,6 +824,16 @@ class BrowseServer(object):
                 if field in ('title', 'formats') or not args.get(field, False) \
                         or not m['name']:
                     continue
+                if field == 'identifiers':
+                    urls = urls_from_identifiers(mi.get(field, {}))
+                    links = [u'<a class="details_category_link" target="_new" href="%s" title="%s:%s">%s</a>' % (url, id_typ, id_val, name)
+                            for name, id_typ, id_val, url in urls]
+                    links = u', '.join(links)
+                    if links:
+                        fields.append((m['name'], u'<strong>%s: </strong>%s'%(
+                            _('Ids'), links)))
+                        continue
+
                 if m['datatype'] == 'rating':
                     r = u'<strong>%s: </strong>'%xml(m['name']) + \
                             render_rating(mi.get(field)/2.0, self.opts.url_prefix,

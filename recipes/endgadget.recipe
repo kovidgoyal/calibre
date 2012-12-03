@@ -21,10 +21,11 @@ class Engadget(BasicNewsRecipe):
     use_embedded_content  = False
     remove_javascript     = True
     remove_empty_feeds    = True
+    auto_cleanup = True
 
-    keep_only_tags = [dict(name='div', attrs={'class':['post_content permalink ','post_content permalink alt-post-full']})]
-    remove_tags = [dict(name='div', attrs={'class':['filed_under','post_footer']})]
-    remove_tags_after =  [dict(name='div', attrs={'class':['post_footer']})]
+    #keep_only_tags = [dict(name='div', attrs={'class':['post_content permalink ','post_content permalink alt-post-full']})]
+    #remove_tags = [dict(name='div', attrs={'class':['filed_under','post_footer']})]
+    #remove_tags_after =  [dict(name='div', attrs={'class':['post_footer']})]
 
     feeds = [(u'Posts', u'http://www.engadget.com/rss.xml')]
 
@@ -33,5 +34,5 @@ class Engadget(BasicNewsRecipe):
                     h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
                     p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
                     body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-		'''
+        '''
 
