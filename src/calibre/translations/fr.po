@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-11-30 03:42+0000\n"
-"PO-Revision-Date: 2012-11-26 00:19+0000\n"
+"PO-Revision-Date: 2012-12-02 11:38+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-12-01 04:40+0000\n"
+"X-Launchpad-Export-Date: 2012-12-03 04:34+0000\n"
 "X-Generator: Launchpad (build 16319)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
@@ -1919,10 +1919,14 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
+"Kobo montre maintenant des recommandations sur l’appareil. Dans certains "
+"cas, il s’agit de fichiers, mais dans d’autres cas, il s’agit seulement de "
+"redirections vers des sites d'achat. Activer, si vous voulez les "
+"voir/supprimer."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1243
 msgid "Set Series information"
-msgstr ""
+msgstr "Définir les informations de Séries"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1244
 msgid ""
@@ -1931,6 +1935,11 @@ msgid ""
 "only be added to the device after the book has been processed by the device. "
 "Enable if you wish to set series information."
 msgstr ""
+"Les listes de livres sur les appareils Kobo peuvent afficher des "
+"informations sur les séries. Celles-ci ne sont pas lues par l'appareil pour "
+"les livres chargés non officiellement. Les informations des séries ne "
+"peuvent être ajoutées à l'appareil que lorsque le livre a été traité par "
+"l'appareil. Activer si vous souhaitez définir les informations des séries."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1249
 msgid ""
@@ -1940,6 +1949,12 @@ msgid ""
 "factory defaults and testing software. This driver supports firmware V2.x.x "
 "and DBVersion up to "
 msgstr ""
+"Kobo met à jour de manière régulière le micrologiciel et la version de la "
+"base de données. Avec cette option Calibre tentera d'effectuer une lecture-"
+"écriture complète - Ici se trouvent les dragons!! Activer seulement si vous "
+"êtes à l'aise avec la restauration de votre Kobo aux paramètres par défauts "
+"et le test de logiciel. Ce pilote supporte le micrologiciel v2.0.x et la DB "
+"jusqu'à la version "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1255
 msgid "Title to test when debugging"
@@ -6074,6 +6089,9 @@ msgid ""
 "Cannot rename as no library was found at %s. Try switching to this library "
 "first, then switch back and retry the renaming."
 msgstr ""
+"Impossible de renommer car aucune bibliothèque n'a été trouvée à %s. Essayez "
+"de changer de bibliothèque d'abord, puis de revenir et réessayer le "
+"renommage."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:335
 msgid "Rename failed"
@@ -7998,7 +8016,7 @@ msgstr "&Genres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Field containing Genre information"
-msgstr ""
+msgstr "Champ contenant des informations de genre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "&Recently Added"
@@ -8051,7 +8069,7 @@ msgstr "Exclure les genres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:306
 msgid "Genres to &exclude (regex):"
-msgstr ""
+msgstr "Genres à &exclure (regex) :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:307
 msgid "Reset to default"
@@ -15362,7 +15380,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:150
 msgid "Automatically &convert added books to the current output format"
-msgstr ""
+msgstr "&Convertir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:151
 msgid "The Add &Process"
@@ -16603,11 +16621,11 @@ msgstr "Afficher la &couverture dans le panneau des détails du livre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:274
 msgid "Show the size of the book's cover in pixels"
-msgstr ""
+msgstr "Afficher la taille de la couverture du livre en pixels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:275
 msgid "Show cover &size"
-msgstr ""
+msgstr "Afficher la &taille de la couverture"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:277
 msgid ""
@@ -18604,7 +18622,7 @@ msgstr "Pas de requête"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:178
 msgid "You must enter a title, author or keyword to search for."
-msgstr ""
+msgstr "Vous devez entrer un titre, un auteur ou un mot-clé à rechercher."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:300
 msgid "Customize get books search"
@@ -18640,7 +18658,7 @@ msgstr "Mot &clé :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:176
 msgid "Search by any keyword"
-msgstr ""
+msgstr "Rechercher par mot-clé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:182
 msgid "Open a selected book in the system's web browser"
@@ -19460,11 +19478,11 @@ msgstr "Afficher la barre de défilement en mode plein écran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:63
 msgid "Start viewer in full screen mode"
-msgstr ""
+msgstr "Lancer le visionneur en mode plein écran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:65
 msgid "Show full screen usage help"
-msgstr ""
+msgstr "Afficher l'aide du mode plein écran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:74
 msgid "Font options"
@@ -19631,11 +19649,11 @@ msgstr "Afficher la barre de défilement en mode plein écran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:407
 msgid "&Start viewer in full screen mode"
-msgstr ""
+msgstr "&Lancer le visionneur en mode plein écran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:408
 msgid "Show &help message when starting full screen mode"
-msgstr ""
+msgstr "Afficher le message d'&aide lors du démarrage en mode plein écran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:409
 msgid "F&ull  screen options"
@@ -20184,11 +20202,11 @@ msgstr "Afficher la Table"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:72
 msgid "No table found"
-msgstr ""
+msgstr "Pas de tableau trouvé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:73
 msgid "No table was found"
-msgstr ""
+msgstr "Aucun tableau n'a été trouvé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:100
 msgid "Test name invalid"
@@ -20854,7 +20872,7 @@ msgid ""
 msgstr ""
 "Titre du catalogue généré utilisé comme titre dans les métadonnées.\n"
 "Par défaut : '%default'\n"
-"S’applique aux formats de sortie : AZW3,ePub, MOBI"
+"S’applique aux formats de sortie : AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:49
 #, python-format
@@ -20994,6 +21012,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Champ source pour la section Genres.\n"
+"Par défaut : '%default'\\n\n"
+"S’applique aux formats de sortie : AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:135
 #, python-format
@@ -21484,7 +21505,7 @@ msgstr "Assigne le numéro de la série de(s) livre(s) ajoutés"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:341
 msgid "Path to the cover to use for the added book"
-msgstr ""
+msgstr "Chemin à utiliser pour la couverture du livre ajouté"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:377
 msgid "You must specify at least one file to add"
