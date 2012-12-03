@@ -28,7 +28,7 @@ def self_closing_sub(match):
     tag = match.group(1)
     if tag.lower().strip() == 'br':
         return match.group()
-    return '<%s %s></%s>'%(match.group(1), match.group(2), match.group(1))
+    return '<%s%s></%s>'%(match.group(1), match.group(2), match.group(1))
 
 def load_html(path, view, codec='utf-8', mime_type=None,
         pre_load_callback=lambda x:None, path_is_html=False):
@@ -45,12 +45,9 @@ def load_html(path, view, codec='utf-8', mime_type=None,
 
     html = EntityDeclarationProcessor(html).processed_html
     has_svg = re.search(r'<[:a-zA-Z]*svg', html) is not None
-    if 'xhtml' in mime_type:
-        self_closing_pat = re.compile(r'<([a-z1-6]+)\s+([^>]+)/>',
-                re.IGNORECASE)
-        html = self_closing_pat.sub(self_closing_sub, html)
+    self_closing_pat = re.compile(r'<\s*([A-Za-z1-6]+)([^>]*)/\s*>')
+    html = self_closing_pat.sub(self_closing_sub, html)
 
-    html = re.sub(ur'<\s*title\s*/\s*>', u'', html, flags=re.IGNORECASE)
     loading_url = QUrl.fromLocalFile(path)
     pre_load_callback(loading_url)
 

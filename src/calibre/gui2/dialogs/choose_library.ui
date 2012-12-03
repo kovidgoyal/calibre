@@ -59,12 +59,12 @@
      </item>
      <item>
       <widget class="QCheckBox" name="copy_structure">
-       <property name="text">
-        <string>&amp;Copy structure from the current library</string>
-       </property>
        <property name="toolTip">
         <string>Copy the custom columns, saved searches, column widths, plugboards,
 user categories, and other information from the old to the new library</string>
+       </property>
+       <property name="text">
+        <string>&amp;Copy structure from the current library</string>
        </property>
       </widget>
      </item>
@@ -138,7 +138,14 @@ user categories, and other information from the old to the new library</string>
     </widget>
    </item>
    <item row="2" column="1" colspan="2">
-    <widget class="HistoryLineEdit" name="location"/>
+    <widget class="HistoryLineEdit" name="location">
+     <property name="sizeAdjustPolicy">
+      <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+     </property>
+     <property name="minimumContentsLength">
+      <number>40</number>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

@@ -34,6 +34,16 @@ Elem = namedtuple('Elem',
 FlowInfo = namedtuple('FlowInfo',
         'type format dir fname')
 
+# locate beginning and ending positions of tag with specific aid attribute
+def locate_beg_end_of_tag(ml, aid):
+    pattern = br'''<[^>]*\said\s*=\s*['"]%s['"][^>]*>''' % aid
+    aid_pattern = re.compile(pattern, re.IGNORECASE)
+    for m in re.finditer(aid_pattern, ml):
+        plt = m.start()
+        pgt = ml.find(b'>', plt+1)
+        return plt, pgt
+    return 0, 0
+
 class Mobi8Reader(object):
 
     def __init__(self, mobi6_reader, log):
@@ -148,6 +158,7 @@ class Mobi8Reader(object):
         for skelnum, skelname, divcnt, skelpos, skellen in self.files:
             baseptr = skelpos + skellen
             skeleton = text[skelpos:baseptr]
+            inspos_warned = False
             for i in xrange(divcnt):
                 insertpos, idtext, filenum, seqnum, startpos, length = \
                                     self.elems[divptr]
@@ -156,6 +167,23 @@ class Mobi8Reader(object):
                     filename = 'part%04d.html' % filenum
                 part = text[baseptr:baseptr + length]
                 insertpos = insertpos - skelpos
+                head = skeleton[:insertpos]
+                tail = skeleton[insertpos:]
+                if (tail.find(b'>') < tail.find(b'<') or head.rfind(b'>') <
+                    head.rfind(b'<')):
+                    # There is an incomplete tag in either the head or tail.
+                    # This can happen for some badly formed KF8 files, see for
+                    # example, https://bugs.launchpad.net/bugs/1082669
+                    if not inspos_warned:
+                        self.log.warn(
+                            'The div table for %s has incorrect insert '
+                                'positions. Calculating manually.'%skelname)
+                        inspos_warned = True
+                    bp, ep = locate_beg_end_of_tag(skeleton, aidtext if
+                        isinstance(aidtext, bytes) else aidtext.encode('utf-8'))
+                    if bp != ep:
+                        insertpos = ep + 1 + startpos
+
                 skeleton = skeleton[0:insertpos] + part + skeleton[insertpos:]
                 baseptr = baseptr + length
                 divptr += 1
@@ -320,6 +348,7 @@ class Mobi8Reader(object):
     def create_ncx(self):
         index_entries = read_ncx(self.kf8_sections, self.header.ncxidx,
                 self.header.codec)
+        remove = []
 
         # Add href and anchor info to the index entries
         for entry in index_entries:
@@ -332,10 +361,19 @@ class Mobi8Reader(object):
                 idtag = self.get_id_tag(pos).decode(self.header.codec)
                 href = '%s/%s'%(fi.type, fi.filename)
             else:
-                href, idtag = self.get_id_tag_by_pos_fid(*pos_fid)
+                try:
+                    href, idtag = self.get_id_tag_by_pos_fid(*pos_fid)
+                except ValueError:
+                    self.log.warn('Invalid entry in NCX (title: %s), ignoring'
+                                  %entry['text'])
+                    remove.append(entry)
+                    continue
 
             entry['href'] = href
             entry['idtag'] = idtag
+
+        for e in remove:
+            index_entries.remove(e)
 
         # Build the TOC object
         return build_toc(index_entries)

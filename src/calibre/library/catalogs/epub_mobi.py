@@ -121,6 +121,13 @@ class EPUB_MOBI(CatalogPlugin):
                           help=_("Include 'Recently Added' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: AZW3, ePub, MOBI output formats")),
+                   Option('--genre-source-field',
+                          default='Tags',
+                          dest='genre_source_field',
+                          action = None,
+                          help=_("Source field for Genres section.\n"
+                          "Default: '%default'\n"
+                          "Applies to: AZW3, ePub, MOBI output formats")),
                    Option('--header-note-source-field',
                           default='',
                           dest='header_note_source_field',
@@ -327,7 +334,7 @@ class EPUB_MOBI(CatalogPlugin):
             if key in ['catalog_title','author_clip','connected_kindle','creator',
                        'cross_reference_authors','description_clip','exclude_book_marker',
                        'exclude_genre','exclude_tags','exclusion_rules', 'fmt',
-                       'header_note_source_field','merge_comments_rule',
+                       'genre_source_field', 'header_note_source_field','merge_comments_rule',
                        'output_profile','prefix_rules','read_book_marker',
                        'search_text','sort_by','sort_descriptions_by_author','sync',
                        'thumb_width','use_existing_cover','wishlist_tag']:

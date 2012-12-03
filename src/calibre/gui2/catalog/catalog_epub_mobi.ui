@@ -54,40 +54,71 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
+      <item row="1" column="0">
        <widget class="QCheckBox" name="generate_titles">
         <property name="text">
          <string>&amp;Titles</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="3">
+      <item row="3" column="0">
        <widget class="QCheckBox" name="generate_series">
         <property name="text">
          <string>&amp;Series</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QCheckBox" name="generate_genres">
-        <property name="text">
-         <string>&amp;Genres</string>
-        </property>
-       </widget>
+      <item row="0" column="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QCheckBox" name="generate_genres">
+          <property name="text">
+           <string>&amp;Genres</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="genre_source_field">
+          <property name="toolTip">
+           <string>Field containing Genre information</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
-      <item row="4" column="2">
-       <widget class="QCheckBox" name="generate_recently_added">
-        <property name="text">
-         <string>&amp;Recently Added</string>
-        </property>
-       </widget>
+      <item row="1" column="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QCheckBox" name="generate_recently_added">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>26</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>&amp;Recently Added</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
-      <item row="4" column="3">
-       <widget class="QCheckBox" name="generate_descriptions">
-        <property name="text">
-         <string>&amp;Descriptions</string>
-        </property>
-       </widget>
+      <item row="3" column="2">
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <item>
+         <widget class="QCheckBox" name="generate_descriptions">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>26</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>&amp;Descriptions</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -177,7 +208,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
          </size>
         </property>
         <property name="text">
-         <string>Tags to &amp;exclude (regex):</string>
+         <string>Genres to &amp;exclude (regex):</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
