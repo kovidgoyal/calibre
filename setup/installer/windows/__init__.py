@@ -39,18 +39,6 @@ class Win32(WinBase):
     def msi64(self):
         return installer_name('msi', is64bit=True)
 
-    def sign_msi(self):
-        import xattr
-        print ('Signing installers ...')
-        sign64 = False
-        msi64 = self.msi64
-        if os.path.exists(msi64) and 'user.signed' not in xattr.list(msi64):
-            subprocess.check_call(['scp', msi64, self.VM_NAME +
-                    ':build/%s/%s'%(__appname__, msi64)])
-            sign64 = True
-        subprocess.check_call(['ssh', self.VM_NAME, '~/sign.sh'], shell=False)
-        return sign64
-
     def do_dl(self, installer, errmsg):
         subprocess.check_call(('scp',
             '%s:build/%s/%s'%(self.VM_NAME, __appname__, installer), 'dist'))
@@ -62,14 +50,8 @@ class Win32(WinBase):
         installer = self.installer()
         if os.path.exists('build/winfrozen'):
             shutil.rmtree('build/winfrozen')
-        sign64 = self.sign_msi()
-        if sign64:
-            self.do_dl(self.msi64, 'Failed to d/l signed 64 bit installer')
-            import xattr
-            xattr.set(self.msi64, 'user.signed', 'true')
 
         self.do_dl(installer, 'Failed to freeze')
-
         installer = 'dist/%s-portable-installer-%s.exe'%(__appname__, __version__)
         self.do_dl(installer, 'Failed to get portable installer')
 

@@ -91,6 +91,7 @@ class Win32Freeze(Command, WixMixIn):
         if not is64bit:
             self.build_portable()
             self.build_portable_installer()
+        self.sign_installers()
 
     def remove_CRT_from_manifests(self):
         '''
@@ -487,6 +488,17 @@ class Win32Freeze(Command, WixMixIn):
             self.add_dir_to_zip(zf, base, 'Calibre Portable')
 
         subprocess.check_call([LZMA + r'\bin\elzma.exe', '-9', '--lzip', name])
+
+    def sign_installers(self):
+        self.info('Signing installers...')
+        files = glob.glob(self.j('dist', '*.msi')) + glob.glob(self.j('dist',
+                                                                      '*.exe'))
+        if not files:
+            raise ValueError('No installers found')
+        subprocess.check_call(['signtool.exe', 'sign', '/a', '/d',
+            'calibre - E-book management', '/du',
+            'http://calibre-ebook.com', '/t',
+            'http://timestamp.verisign.com/scripts/timstamp.dll'] + files)
 
     def add_dir_to_zip(self, zf, path, prefix=''):
         '''
