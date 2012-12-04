@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-11-30 03:42+0000\n"
-"PO-Revision-Date: 2012-11-30 17:27+0000\n"
-"Last-Translator: Maximilian Mühlbauer <Unknown>\n"
+"PO-Revision-Date: 2012-12-03 10:53+0000\n"
+"Last-Translator: Gregor Santner <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-01 04:41+0000\n"
-"X-Generator: Launchpad (build 16319)\n"
+"X-Launchpad-Export-Date: 2012-12-04 04:52+0000\n"
+"X-Generator: Launchpad (build 16335)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -7906,7 +7906,7 @@ msgstr "&Genres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Field containing Genre information"
-msgstr ""
+msgstr "Feld mit Kategorieinformation"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "&Recently Added"
@@ -7959,7 +7959,7 @@ msgstr "Ausgeschlossene Genres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:306
 msgid "Genres to &exclude (regex):"
-msgstr ""
+msgstr "Zu ignorierende Kategorien (regex):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:307
 msgid "Reset to default"
@@ -15246,6 +15246,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:150
 msgid "Automatically &convert added books to the current output format"
 msgstr ""
+"Hinzugefügte Bücher automatisch in das aktuelle Ausgabeformat &konvertieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:151
 msgid "The Add &Process"
@@ -16480,11 +16481,11 @@ msgstr "Zeige das &Cover in der Buchdetailansicht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:274
 msgid "Show the size of the book's cover in pixels"
-msgstr ""
+msgstr "Die Anzahl der Pixel des Buch-Covers in Pixel anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:275
 msgid "Show cover &size"
-msgstr ""
+msgstr "Cover anzeigen &Größe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:277
 msgid ""
@@ -18453,6 +18454,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:178
 msgid "You must enter a title, author or keyword to search for."
 msgstr ""
+"Du musst einen Titel,Autor, oder ein Schlüsselwort eingeben, nach dem "
+"gesucht werden soll."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:300
 msgid "Customize get books search"
@@ -18477,19 +18480,19 @@ msgstr "Bücher erwerben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:171
 msgid "Search by title"
-msgstr ""
+msgstr "Nach Titel suchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:173
 msgid "Search by author"
-msgstr ""
+msgstr "Nach Autor suchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:175
 msgid "&Keyword:"
-msgstr ""
+msgstr "&Schlüsselwort"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:176
 msgid "Search by any keyword"
-msgstr ""
+msgstr "Nach allen Schlüsselwörtern suchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:182
 msgid "Open a selected book in the system's web browser"
@@ -19621,7 +19624,7 @@ msgstr "Betrachte Bild..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:509
 msgid "View &table..."
-msgstr ""
+msgstr "&Tabelle anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:512
 msgid "&Search for next occurrence"
@@ -19658,7 +19661,7 @@ msgstr "Ende des Abschnitts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:547
 msgid "Normal font size"
-msgstr ""
+msgstr "Normale Schriftgröße"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:614
 #, python-format
@@ -20020,15 +20023,15 @@ msgstr "Dokument %s konnte nicht dargestellt werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:57
 msgid "View Table"
-msgstr ""
+msgstr "Tabelle anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:72
 msgid "No table found"
-msgstr ""
+msgstr "Keine Tabelle gefunden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:73
 msgid "No table was found"
-msgstr ""
+msgstr "Keine Tabelle wurde gefunden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:100
 msgid "Test name invalid"
