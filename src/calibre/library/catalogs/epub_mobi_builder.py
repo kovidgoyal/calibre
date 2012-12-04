@@ -126,7 +126,7 @@ class CatalogBuilder(object):
         self.bookmarked_books_by_date_read = None
         self.books_by_author = None
         self.books_by_date_range = None
-        self.books_by_description = None
+        self.books_by_description = []
         self.books_by_month = None
         self.books_by_series = None
         self.books_by_title = None
@@ -748,8 +748,9 @@ class CatalogBuilder(object):
 
         # Assumes books_by_title already populated
         # init books_by_description before relisting multiple authors
-        books_by_description = list(books_by_author) if self.opts.sort_descriptions_by_author \
-                                                    else list(self.books_by_title)
+        if self.opts.generate_descriptions:
+            books_by_description = list(books_by_author) if self.opts.sort_descriptions_by_author \
+                else list(self.books_by_title)
 
         if self.opts.cross_reference_authors:
             books_by_author = self.relist_multiple_authors(books_by_author)
@@ -760,8 +761,9 @@ class CatalogBuilder(object):
         asl = [i['author_sort'] for i in books_by_author]
         las = max(asl, key=len)
 
-        self.books_by_description = sorted(books_by_description,
-            key=lambda x: sort_key(self._kf_books_by_author_sorter_author_sort(x, len(las))))
+        if self.opts.generate_descriptions:
+            self.books_by_description = sorted(books_by_description,
+                key=lambda x: sort_key(self._kf_books_by_author_sorter_author_sort(x, len(las))))
 
         books_by_author = sorted(books_by_author,
             key=lambda x: sort_key(self._kf_books_by_author_sorter_author_sort(x, len(las))))
@@ -2973,7 +2975,7 @@ class CatalogBuilder(object):
                 contentTag = Tag(soup, 'content')
                 contentTag['src'] = "content/ByDateAdded.html"
                 navPointTag.insert(1, contentTag)
-            else:
+            elif self.opts.generate_descriptions:
                 # Descriptions only
                 contentTag = Tag(soup, 'content')
                 contentTag['src'] = "content/book_%d.html" % int(self.books_by_description[0]['id'])
@@ -4103,21 +4105,20 @@ class CatalogBuilder(object):
             spine.insert(stc, itemrefTag)
             stc += 1
 
-        if self.opts.generate_descriptions:
-            for book in self.books_by_description:
-                # manifest
-                itemTag = Tag(soup, "item")
-                itemTag['href'] = "content/book_%d.html" % int(book['id'])
-                itemTag['id'] = "book%d" % int(book['id'])
-                itemTag['media-type'] = "application/xhtml+xml"
-                manifest.insert(mtc, itemTag)
-                mtc += 1
+        for book in self.books_by_description:
+            # manifest
+            itemTag = Tag(soup, "item")
+            itemTag['href'] = "content/book_%d.html" % int(book['id'])
+            itemTag['id'] = "book%d" % int(book['id'])
+            itemTag['media-type'] = "application/xhtml+xml"
+            manifest.insert(mtc, itemTag)
+            mtc += 1
 
-                # spine
-                itemrefTag = Tag(soup, "itemref")
-                itemrefTag['idref'] = "book%d" % int(book['id'])
-                spine.insert(stc, itemrefTag)
-                stc += 1
+            # spine
+            itemrefTag = Tag(soup, "itemref")
+            itemrefTag['idref'] = "book%d" % int(book['id'])
+            spine.insert(stc, itemrefTag)
+            stc += 1
 
         # Guide
         if self.generate_for_kindle_mobi:
