@@ -44,6 +44,18 @@ def locate_beg_end_of_tag(ml, aid):
         return plt, pgt
     return 0, 0
 
+def reverse_tag_iter(block):
+    ''' Iterate over all tags in block in reverse order, i.e. last tag
+    to first tag. '''
+    end = len(block)
+    while True:
+        pgt = block.rfind(b'>', 0, end)
+        if pgt == -1: break
+        plt = block.rfind(b'<', 0, pgt)
+        if plt == -1: break
+        yield block[plt:pgt+1]
+        end = plt
+
 class Mobi8Reader(object):
 
     def __init__(self, mobi6_reader, log):
@@ -275,13 +287,12 @@ class Mobi8Reader(object):
         return '%s/%s'%(fi.type, fi.filename), idtext
 
     def get_id_tag(self, pos):
-        # find the correct tag by actually searching in the destination
-        # textblock at position
+        # Find the first tag with a named anchor (name or id attribute) before
+        # pos
         fi = self.get_file_info(pos)
         if fi.num is None and fi.start is None:
             raise ValueError('No file contains pos: %d'%pos)
         textblock = self.parts[fi.num]
-        id_map = []
         npos = pos - fi.start
         pgt = textblock.find(b'>', npos)
         plt = textblock.find(b'<', npos)
@@ -290,28 +301,15 @@ class Mobi8Reader(object):
         if plt == npos or pgt < plt:
             npos = pgt + 1
         textblock = textblock[0:npos]
-        # find id links only inside of tags
-        #    inside any < > pair find all "id=' and return whatever is inside
-        #    the quotes
-        id_pattern = re.compile(br'''<[^>]*\sid\s*=\s*['"]([^'"]*)['"][^>]*>''',
-                re.IGNORECASE)
-        for m in re.finditer(id_pattern, textblock):
-            id_map.append((m.start(), m.group(1)))
+        id_re = re.compile(br'''<[^>]+\sid\s*=\s*['"]([^'"]+)['"]''')
+        name_re = re.compile(br'''<\s*a\s*\sname\s*=\s*['"]([^'"]+)['"]''')
+        for tag in reverse_tag_iter(textblock):
+            m = id_re.match(tag) or name_re.match(tag)
+            if m is not None:
+                return m.group(1)
 
-        if not id_map:
-            # Found no id in the textblock, link must be to top of file
-            return b''
-        # if npos is before first id= inside a tag, return the first
-        if npos < id_map[0][0]:
-            return id_map[0][1]
-        # if npos is after the last id= inside a tag, return the last
-        if npos > id_map[-1][0]:
-            return id_map[-1][1]
-        # otherwise find last id before npos
-        for i, item in enumerate(id_map):
-            if npos < item[0]:
-                return id_map[i-1][1]
-        return id_map[0][1]
+        # No tag found, link to start of file
+        return b''
 
     def create_guide(self):
         guide = Guide()
