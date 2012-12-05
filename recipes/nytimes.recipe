@@ -398,7 +398,6 @@ class NYTimes(BasicNewsRecipe):
         from contextlib import closing
         import copy
         from calibre.ebooks.chardet import xml_to_unicode
-        print("ARTICLE_TO_SOUP "+url_or_raw)
         if re.match(r'\w+://', url_or_raw):
             br = self.clone_browser(self.browser)
             open_func = getattr(br, 'open_novisit', br.open)
