@@ -320,13 +320,11 @@ class OEBReader(object):
                 self.logger.warn(u'Spine item %r not found' % idref)
                 continue
             item = manifest.ids[idref]
-            spine.add(item, elem.get('linear'))
-        for item in spine:
-            if item.media_type.lower() not in OEB_DOCS:
-                if not hasattr(item.data, 'xpath'):
-                    self.oeb.log.warn('The item %s is not a XML document.'
-                            ' Removing it from spine.'%item.href)
-                    spine.remove(item)
+            if item.media_type.lower() in OEB_DOCS and hasattr(item.data, 'xpath'):
+                spine.add(item, elem.get('linear'))
+            else:
+                self.oeb.log.warn('The item %s is not a XML document.'
+                        ' Removing it from spine.'%item.href)
         if len(spine) == 0:
             raise OEBError("Spine is empty")
         self._spine_add_extra()

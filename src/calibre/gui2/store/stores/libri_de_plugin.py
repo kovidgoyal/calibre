@@ -72,8 +72,8 @@ class LibreDEStore(BasicStoreConfig, StorePlugin):
                 mobi = details.xpath(
                         'boolean(.//span[@class="bindername" and contains(text(), "mobipocket")]/text())')
 
-                cover_url = ''.join(data.xpath('.//div[@class="coverImg"]/a/img/@src'))
-                price = ''.join(data.xpath('.//span[@class="preis"]/text()')).replace('*', '').strip()
+                cover_url = ''.join(data.xpath('.//div[@class="coverimg"]/a/img/@src'))
+                price = ''.join(data.xpath('.//div[@class="preis"]/text()')).replace('*', '').strip()
 
                 counter -= 1
 

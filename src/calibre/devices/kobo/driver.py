@@ -2357,6 +2357,8 @@ class KOBOTOUCH(KOBO):
         update_query = 'UPDATE content SET Series=?, SeriesNumber==? where BookID is Null and ContentID = ?'
         if book.series is None:
             update_values = (None, None, book.contentID, )
+        elif book.series_index is None:         # This should never happen, but...
+            update_values = (book.series, None, book.contentID, )
         else:
             update_values = (book.series, "%g"%book.series_index, book.contentID, )
 
