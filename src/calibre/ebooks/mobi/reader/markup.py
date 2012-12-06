@@ -74,11 +74,12 @@ def remove_kindlegen_markup(parts):
         part = "".join(srcpieces)
         parts[i] = part
 
-    # we can safely remove all of the Kindlegen generated data-AmznPageBreak tags
+    # we can safely remove all of the Kindlegen generated data-AmznPageBreak
+    # attributes
     find_tag_with_AmznPageBreak_pattern = re.compile(
             r'''(<[^>]*\sdata-AmznPageBreak=[^>]*>)''', re.IGNORECASE)
     within_tag_AmznPageBreak_position_pattern = re.compile(
-            r'''\sdata-AmznPageBreak=['"][^'"]*['"]''')
+            r'''\sdata-AmznPageBreak=['"]([^'"]*)['"]''')
 
     for i in xrange(len(parts)):
         part = parts[i]
@@ -86,10 +87,8 @@ def remove_kindlegen_markup(parts):
         for j in range(len(srcpieces)):
             tag = srcpieces[j]
             if tag.startswith('<'):
-                for m in within_tag_AmznPageBreak_position_pattern.finditer(tag):
-                    replacement = ''
-                    tag = within_tag_AmznPageBreak_position_pattern.sub(replacement, tag, 1)
-                srcpieces[j] = tag
+                srcpieces[j] = within_tag_AmznPageBreak_position_pattern.sub(
+                    lambda m:' style="page-break-after:%s"'%m.group(1), tag)
         part = "".join(srcpieces)
         parts[i] = part
 
@@ -203,7 +202,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
     # All flows are now unicode and have links resolved
     return flows
 
-def insert_flows_into_markup(parts, flows, mobi8_reader):
+def insert_flows_into_markup(parts, flows, mobi8_reader, log):
     mr = mobi8_reader
 
     # kindle:flow:XXXX?mime=YYYY/ZZZ (used for style sheets, svg images, etc)
@@ -219,12 +218,17 @@ def insert_flows_into_markup(parts, flows, mobi8_reader):
             if tag.startswith('<'):
                 for m in flow_pattern.finditer(tag):
                     num = int(m.group(1), 32)
-                    fi = mr.flowinfo[num]
-                    if fi.format == 'inline':
-                        tag = flows[num]
+                    try:
+                        fi = mr.flowinfo[num]
+                    except IndexError:
+                        log.warn('Ignoring invalid flow reference: %s'%m.group())
+                        tag = ''
                     else:
-                        replacement = '"../' + fi.dir + '/' + fi.fname + '"'
-                        tag = flow_pattern.sub(replacement, tag, 1)
+                        if fi.format == 'inline':
+                            tag = flows[num]
+                        else:
+                            replacement = '"../' + fi.dir + '/' + fi.fname + '"'
+                            tag = flow_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag
         part = "".join(srcpieces)
         # store away modified version
@@ -313,7 +317,7 @@ def expand_mobi8_markup(mobi8_reader, resource_map, log):
     flows = update_flow_links(mobi8_reader, resource_map, log)
 
     # Insert inline flows into the markup
-    insert_flows_into_markup(parts, flows, mobi8_reader)
+    insert_flows_into_markup(parts, flows, mobi8_reader, log)
 
     # Insert raster images into markup
     insert_images_into_markup(parts, resource_map, log)

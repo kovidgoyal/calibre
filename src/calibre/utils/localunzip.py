@@ -152,6 +152,8 @@ def copy_compressed_file(src, size, dest):
     amt = min(size, 20*1024)
     while read < size:
         raw = src.read(min(size-read, amt))
+        if not raw and read < size:
+            raise ValueError('Invalid ZIP file, local header is damaged')
         read += len(raw)
         dest.write(d.decompress(raw, 200*1024))
         count = 0

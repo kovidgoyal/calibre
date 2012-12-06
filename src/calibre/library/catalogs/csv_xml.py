@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -11,6 +11,7 @@ from collections import namedtuple
 from calibre.customize import CatalogPlugin
 from calibre.library.catalogs import FIELDS
 from calibre.customize.conversion import DummyReporter
+
 
 class CSV_XML(CatalogPlugin):
     'CSV/XML catalog generator'
@@ -22,27 +23,27 @@ class CSV_XML(CatalogPlugin):
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Greg Riker'
     version = (1, 0, 0)
-    file_types = set(['csv','xml'])
+    file_types = set(['csv', 'xml'])
 
     cli_options = [
             Option('--fields',
-                default = 'all',
-                dest = 'fields',
-                action = None,
-                help = _('The fields to output when cataloging books in the '
+                default='all',
+                dest='fields',
+                action=None,
+                help=_('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
                     'Available fields: %(fields)s,\n'
                     'plus user-created custom fields.\n'
                     'Example: %(opt)s=title,authors,tags\n'
                     "Default: '%%default'\n"
-                    "Applies to: CSV, XML output formats")%dict(
+                    "Applies to: CSV, XML output formats") % dict(
                         fields=', '.join(FIELDS), opt='--fields')),
 
             Option('--sort-by',
-                default = 'id',
-                dest = 'sort_by',
-                action = None,
-                help = _('Output field to sort on.\n'
+                default='id',
+                dest='sort_by',
+                action=None,
+                help=_('Output field to sort on.\n'
                 'Available fields: author_sort, id, rating, size, timestamp, title_sort\n'
                 "Default: '%default'\n"
                 "Applies to: CSV, XML output formats"))]
@@ -97,7 +98,7 @@ class CSV_XML(CatalogPlugin):
             for entry in data:
                 entry['ondevice'] = db.catalog_plugin_on_device_temp_mapping[entry['id']]['ondevice']
 
-        fm = {x:db.field_metadata.get(x, {}) for x in fields}
+        fm = {x: db.field_metadata.get(x, {}) for x in fields}
 
         if self.fmt == 'csv':
             outfile = codecs.open(path_to_output, 'w', 'utf8')
@@ -113,7 +114,7 @@ class CSV_XML(CatalogPlugin):
                 outstr = []
                 for field in fields:
                     if field.startswith('#'):
-                        item = db.get_field(entry['id'],field,index_is_id=True)
+                        item = db.get_field(entry['id'], field, index_is_id=True)
                     elif field == 'library_name':
                         item = current_library
                     elif field == 'title_sort':
@@ -129,7 +130,7 @@ class CSV_XML(CatalogPlugin):
                         for format in item:
                             fmt_list.append(format.rpartition('.')[2].lower())
                         item = ', '.join(fmt_list)
-                    elif field in ['authors','tags']:
+                    elif field in ['authors', 'tags']:
                         item = ', '.join(item)
                     elif field == 'isbn':
                         # Could be 9, 10 or 13 digits
@@ -137,20 +138,20 @@ class CSV_XML(CatalogPlugin):
                     elif field in ['pubdate', 'timestamp']:
                         item = isoformat(item)
                     elif field == 'comments':
-                        item = item.replace(u'\r\n',u' ')
-                        item = item.replace(u'\n',u' ')
+                        item = item.replace(u'\r\n', u' ')
+                        item = item.replace(u'\n', u' ')
                     elif fm.get(field, {}).get('datatype', None) == 'rating' and item:
-                        item = u'%.2g'%(item/2.0)
+                        item = u'%.2g' % (item / 2.0)
 
                     # Convert HTML to markdown text
                     if type(item) is unicode:
-                        opening_tag = re.search('<(\w+)(\x20|>)',item)
+                        opening_tag = re.search('<(\w+)(\x20|>)', item)
                         if opening_tag:
                             closing_tag = re.search('<\/%s>$' % opening_tag.group(1), item)
                             if closing_tag:
                                 item = html2text(item)
 
-                    outstr.append(u'"%s"' % unicode(item).replace('"','""'))
+                    outstr.append(u'"%s"' % unicode(item).replace('"', '""'))
 
                 outfile.write(u','.join(outstr) + u'\n')
             outfile.close()
@@ -165,14 +166,14 @@ class CSV_XML(CatalogPlugin):
 
                 for field in fields:
                     if field.startswith('#'):
-                        val = db.get_field(r['id'],field,index_is_id=True)
+                        val = db.get_field(r['id'], field, index_is_id=True)
                         if not isinstance(val, (str, unicode)):
                             val = unicode(val)
-                        item = getattr(E, field.replace('#','_'))(val)
+                        item = getattr(E, field.replace('#', '_'))(val)
                         record.append(item)
 
                 for field in ('id', 'uuid', 'publisher', 'rating', 'size',
-                              'isbn','ondevice', 'identifiers'):
+                              'isbn', 'ondevice', 'identifiers'):
                     if field in fields:
                         val = r[field]
                         if not val:
@@ -180,7 +181,7 @@ class CSV_XML(CatalogPlugin):
                         if not isinstance(val, (str, unicode)):
                             if (fm.get(field, {}).get('datatype', None) ==
                                     'rating' and val):
-                                val = u'%.2g'%(val/2.0)
+                                val = u'%.2g' % (val / 2.0)
                             val = unicode(val)
                         item = getattr(E, field)(val)
                         record.append(item)
@@ -227,4 +228,3 @@ class CSV_XML(CatalogPlugin):
             with open(path_to_output, 'w') as f:
                 f.write(etree.tostring(root, encoding='utf-8',
                     xml_declaration=True, pretty_print=True))
-

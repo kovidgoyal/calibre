@@ -9,15 +9,15 @@ class Zaman (BasicNewsRecipe):
     __author__             = u'thomass'
     oldest_article         = 2
     max_articles_per_feed  =50
-   # no_stylesheets         = True
+    no_stylesheets         = True
     #delay                  = 1
-    #use_embedded_content   = False
-    encoding               = 'ISO 8859-9'
-    publisher              = 'Zaman'
+    use_embedded_content   = False
+    encoding               = 'utf-8'
+    publisher              = 'Feza Gazetecilik'
     category               = 'news, haberler,TR,gazete'
     language               = 'tr'
     publication_type = 'newspaper '
-    extra_css              = '.buyukbaslik{font-weight: bold; font-size: 18px;color:#0000FF}'#body{ font-family: Verdana,Helvetica,Arial,sans-serif } .introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
+    extra_css              = 'h1{text-transform: capitalize; font-weight: bold; font-size: 22px;color:#0000FF} p{text-align:justify} ' #.introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
     conversion_options = {
                             'tags'            : category
                             ,'language'        : language
@@ -26,25 +26,26 @@ class Zaman (BasicNewsRecipe):
                          }
     cover_img_url = 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-snc4/188140_81722291869_2111820_n.jpg'
     masthead_url = 'http://medya.zaman.com.tr/extentions/zaman.com.tr/img/section/logo-section.png'
+    ignore_duplicate_articles = { 'title', 'url' }
+    auto_cleanup = False
+    remove_empty_feeds= True
 
 
-    #keep_only_tags      = [dict(name='div', attrs={'id':[ 'news-detail-content']}), dict(name='td', attrs={'class':['columnist-detail','columnist_head']})  ]
-    remove_tags = [ dict(name='img', attrs={'src':['http://medya.zaman.com.tr/zamantryeni/pics/zamanonline.gif']})]#,dict(name='div', attrs={'class':['radioEmbedBg','radyoProgramAdi']}),dict(name='a', attrs={'class':['webkit-html-attribute-value webkit-html-external-link']}),dict(name='table', attrs={'id':['yaziYorumTablosu']}),dict(name='img', attrs={'src':['http://medya.zaman.com.tr/pics/paylas.gif','http://medya.zaman.com.tr/extentions/zaman.com.tr/img/columnist/ma-16.png']})
+    #keep_only_tags      = [dict(name='div', attrs={'id':[ 'contentposition19']})]#,dict(name='div', attrs={'id':[ 'xxx']}),dict(name='div', attrs={'id':[ 'xxx']}),dict(name='div', attrs={'id':[ 'xxx']}),dict(name='div', attrs={'id':[ 'xxx']}),dict(name='div', attrs={'id':[ 'xxx']}),dict(name='div', attrs={'id':[ 'xxx']}),dict(name='div', attrs={'id':[ 'news-detail-content']}), dict(name='td', attrs={'class':['columnist-detail','columnist_head']}),  ]
+    remove_tags = [ dict(name='img', attrs={'src':['http://cmsmedya.zaman.com.tr/images/logo/logo.bmp']}),dict(name='hr', attrs={'class':['interactive-hr']})]#    remove_tags = [ dict(name='div', attrs={'class':[ 'detayUyari']}),dict(name='div', attrs={'class':[ 'detayYorum']}),dict(name='div', attrs={'class':[ 'addthis_toolbox addthis_default_style ']}),dict(name='div', attrs={'id':[ 'tumYazi']})]#,dict(name='div', attrs={'id':[ 'xxx']}),dict(name='div', attrs={'id':[ 'xxx']}),dict(name='div', attrs={'id':[ 'xxx']}),dict(name='div', attrs={'id':[ 'xxx']}),dict(name='div', attrs={'id':[ 'xxx']}),dict(name='div', attrs={'id':[ 'xxx']}),dict(name='img', attrs={'src':['http://medya.zaman.com.tr/zamantryeni/pics/zamanonline.gif']}),dict(name='div', attrs={'class':['radioEmbedBg','radyoProgramAdi']}),dict(name='a', attrs={'class':['webkit-html-attribute-value webkit-html-external-link']}),dict(name='table', attrs={'id':['yaziYorumTablosu']}),dict(name='img', attrs={'src':['http://medya.zaman.com.tr/pics/paylas.gif','http://medya.zaman.com.tr/extentions/zaman.com.tr/img/columnist/ma-16.png']}),dict(name='div', attrs={'id':[ 'news-detail-gallery']}),dict(name='div', attrs={'id':[ 'news-detail-title-bottom-part']}),dict(name='div', attrs={'id':[ 'news-detail-news-paging-main']})]#
 
 
     #remove_attributes = ['width','height']
     remove_empty_feeds= True
 
     feeds          = [
-                      ( u'Anasayfa', u'http://www.zaman.com.tr/anasayfa.rss'),
-                      ( u'Son Dakika', u'http://www.zaman.com.tr/sondakika.rss'),
-                      #( u'En çok Okunanlar', u'http://www.zaman.com.tr/max_all.rss'),
-                      #( u'Manşet', u'http://www.zaman.com.tr/manset.rss'),
-                      ( u'Gündem', u'http://www.zaman.com.tr/gundem.rss'),
+                      ( u'Manşet', u'http://www.zaman.com.tr/manset.rss'),
                       ( u'Yazarlar', u'http://www.zaman.com.tr/yazarlar.rss'),
                       ( u'Politika', u'http://www.zaman.com.tr/politika.rss'),
                       ( u'Ekonomi', u'http://www.zaman.com.tr/ekonomi.rss'),
                       ( u'Dış Haberler', u'http://www.zaman.com.tr/dishaberler.rss'),
+                      ( u'Son Dakika', u'http://www.zaman.com.tr/sondakika.rss'),
+                      ( u'Gündem', u'http://www.zaman.com.tr/gundem.rss'),
                       ( u'Yorumlar', u'http://www.zaman.com.tr/yorumlar.rss'),
                       ( u'Röportaj', u'http://www.zaman.com.tr/roportaj.rss'),
                       ( u'Dizi Yazı', u'http://www.zaman.com.tr/dizi.rss'),
@@ -59,8 +60,9 @@ class Zaman (BasicNewsRecipe):
                       ( u'Cuma Eki', u'http://www.zaman.com.tr/cuma.rss'),
                       ( u'Cumaertesi Eki', u'http://www.zaman.com.tr/cumaertesi.rss'),
                       ( u'Pazar Eki', u'http://www.zaman.com.tr/pazar.rss'),
+                      ( u'En çok Okunanlar', u'http://www.zaman.com.tr/max_all.rss'),
+                      ( u'Anasayfa', u'http://www.zaman.com.tr/anasayfa.rss'),
 
                         ]
     def print_version(self, url):
-     return url.replace('http://www.zaman.com.tr/haber.do?haberno=', 'http://www.zaman.com.tr/yazdir.do?haberno=')
-
+     return url.replace('http://www.zaman.com.tr/newsDetail_getNewsById.action?newsId=', 'http://www.zaman.com.tr/newsDetail_openPrintPage.action?newsId=')

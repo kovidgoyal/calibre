@@ -11,12 +11,11 @@ from distutils.spawn import find_executable
 
 from PyQt4 import pyqtconfig
 
-from setup import isosx, iswindows, islinux
+from setup import isosx, iswindows, islinux, is64bit
 
 OSX_SDK = '/Developer/SDKs/MacOSX10.5.sdk'
 
 os.environ['MACOSX_DEPLOYMENT_TARGET'] = '10.5'
-is64bit = sys.maxsize > 2**32
 
 NMAKE = RC = msvc = MT = win_inc = win_lib = win_ddk = win_ddk_lib_dirs = None
 if iswindows:
