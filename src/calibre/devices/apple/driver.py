@@ -214,9 +214,9 @@ class ITUNES(DriverBase):
         "Cannot copy books directly from iDevice. "
         "Drag from iTunes Library to desktop, then add to calibre's Library window.")
     UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE = _(
-        "Unsupported direct connect mode. "
+        "*** Unsupported direct connect mode. "
         "See http://www.mobileread.com/forums/showthread.php?t=118559 "
-        "for instructions on using 'Connect to iTunes'")
+        "for instructions on using 'Connect to iTunes' ***")
     ITUNES_SANDBOX_LOCKOUT_MESSAGE = _(
         '<p>Unable to communicate with iTunes.</p>'
         '<p>Refer to this '
@@ -818,7 +818,7 @@ class ITUNES(DriverBase):
         if DEBUG:
             logger().info("%s.get_device_information()" % self.__class__.__name__)
 
-        return (self.sources['iPod'], 'hw v1.0', 'sw v1.0', 'mime type normally goes here')
+        return (self.sources['iPod'], 'hw v1.0', 'sw v1.0', 'unknown mime type')
 
     def get_file(self, path, outfile, end_session=True):
         '''
@@ -871,13 +871,14 @@ class ITUNES(DriverBase):
                            product_id
                            ))
 
-        # Display a dialog recommending using 'Connect to iTunes' if user hasn't
-        # previously disabled the dialog
-        if dynamic.get(confirm_config_name(self.DISPLAY_DISABLE_DIALOG), True):
-            raise AppleOpenFeedback(self)
-        else:
-            if DEBUG:
-                logger().error(" %s" % self.UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE)
+        if False:
+            # Display a dialog recommending using 'Connect to iTunes' if user hasn't
+            # previously disabled the dialog
+            if dynamic.get(confirm_config_name(self.DISPLAY_DISABLE_DIALOG), True):
+                raise AppleOpenFeedback(self)
+            else:
+                if DEBUG:
+                    logger().info(" %s" % self.UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE)
 
         # Log supported DEVICE_IDs and BCDs
         logger().info(" BCD: %s" % ['0x%x' % x for x in sorted(self.BCD)])
@@ -1026,6 +1027,10 @@ class ITUNES(DriverBase):
             #logger().info('  plugboard: %s' % plugboards)
         self.plugboards = plugboards
         self.plugboard_func = pb_func
+
+    def shutdown(self):
+        if DEBUG:
+            logger().info("%s.shutdown()\n" % self.__class__.__name__)
 
     def sync_booklists(self, booklists, end_session=True):
         '''
@@ -2336,6 +2341,7 @@ class ITUNES(DriverBase):
                 except:
                     if DEBUG:
                         logger().info(" no books in library")
+
         self.library_orphans = library_orphans
         return library_books
 
@@ -2547,16 +2553,16 @@ class ITUNES(DriverBase):
         '''
         PURGE_ORPHANS = False
 
-        if PURGE_ORPHANS:
-            if DEBUG:
-                logger().info(" %s._purge_orphans()" % self.__class__.__name__)
-                #self._dump_library_books(library_books)
-                #logger().info("  cached_books:\n   %s" % "\n   ".join(cached_books.keys()))
+        if DEBUG:
+            logger().info(" %s._purge_orphans()" % self.__class__.__name__)
+            #self._dump_library_books(library_books)
+            #logger().info("  cached_books:\n   %s" % "\n   ".join(cached_books.keys()))
 
-            for book in library_books:
-                if isosx:
-                    if book not in cached_books and \
-                       str(library_books[book].description()).startswith(self.description_prefix):
+        for book in library_books:
+            if isosx:
+                if book not in cached_books and \
+                   str(library_books[book].description()).startswith(self.description_prefix):
+                    if PURGE_ORPHANS:
                         if DEBUG:
                             logger().info("  '%s' not found on iDevice, removing from iTunes" % book)
                         btr = {
@@ -2564,9 +2570,14 @@ class ITUNES(DriverBase):
                                  'author': library_books[book].artist(),
                                'lib_book': library_books[book]}
                         self._remove_from_iTunes(btr)
-                elif iswindows:
-                    if book not in cached_books and \
-                       library_books[book].Description.startswith(self.description_prefix):
+                    else:
+                        if DEBUG:
+                            logger().info("  '%s' found in iTunes, but not on iDevice" % (book))
+
+            elif iswindows:
+                if book not in cached_books and \
+                   library_books[book].Description.startswith(self.description_prefix):
+                    if PURGE_ORPHANS:
                         if DEBUG:
                             logger().info("  '%s' not found on iDevice, removing from iTunes" % book)
                         btr = {
@@ -2574,9 +2585,9 @@ class ITUNES(DriverBase):
                                  'author': library_books[book].Artist,
                                'lib_book': library_books[book]}
                         self._remove_from_iTunes(btr)
-        else:
-            if DEBUG:
-                logger().info(" %s._purge_orphans(disabled)" % self.__class__.__name__)
+                    else:
+                        if DEBUG:
+                            logger().info("  '%s' found in iTunes, but not on iDevice" % (book))
 
     def _remove_existing_copy(self, path, metadata):
         '''
@@ -3111,7 +3122,6 @@ class ITUNES(DriverBase):
         '''
         if DEBUG:
             logger().info(" %s._wait_for_writable_metadata()" % self.__class__.__name__)
-            logger().warning("  %s" % self.UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE)
 
         attempts = 9
         while attempts:
