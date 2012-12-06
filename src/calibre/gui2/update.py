@@ -8,7 +8,7 @@ from PyQt4.Qt import (QThread, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,
 import mechanize
 
 from calibre.constants import (__appname__, __version__, iswindows, isosx,
-        isportable)
+        isportable, is64bit)
 from calibre import browser, prints, as_unicode
 from calibre.utils.config import prefs
 from calibre.gui2 import config, dynamic, open_url
@@ -18,6 +18,13 @@ URL = 'http://status.calibre-ebook.com/latest'
 #URL = 'http://localhost:8000/latest'
 NO_CALIBRE_UPDATE = '-0.0.0'
 VSEP = '|'
+
+def get_download_url():
+    which = ('portable' if isportable else 'windows' if iswindows
+            else 'osx' if isosx else 'linux')
+    if which == 'windows' and is64bit:
+        which += '64'
+    return 'http://calibre-ebook.com/download_' + which
 
 def get_newest_version():
     br = browser()
@@ -116,10 +123,7 @@ class UpdateNotification(QDialog):
         config.set('new_version_notification', bool(self.cb.isChecked()))
 
     def accept(self):
-        url = ('http://calibre-ebook.com/download_' +
-            ('portable' if isportable else 'windows' if iswindows
-                else 'osx' if isosx else 'linux'))
-        open_url(QUrl(url))
+        open_url(QUrl(get_download_url()))
 
         QDialog.accept(self)
 

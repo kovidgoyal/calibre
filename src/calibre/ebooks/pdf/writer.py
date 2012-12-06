@@ -27,10 +27,10 @@ def get_custom_size(opts):
     custom_size = None
     if opts.custom_size != None:
         width, sep, height = opts.custom_size.partition('x')
-        if height != '':
+        if height:
             try:
-                width = int(width)
-                height = int(height)
+                width = float(width)
+                height = float(height)
                 custom_size = (width, height)
             except:
                 custom_size = None

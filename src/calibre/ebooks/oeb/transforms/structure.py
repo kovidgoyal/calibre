@@ -114,7 +114,9 @@ class DetectStructure(object):
 
         def find_matches(expr, doc):
             try:
-                return XPath(expr)(doc)
+                ans = XPath(expr)(doc)
+                len(ans)
+                return ans
             except:
                 self.log.warn('Invalid chapter expression, ignoring: %s'%expr)
                 return []
@@ -203,7 +205,9 @@ class DetectStructure(object):
 
         def find_matches(expr, doc):
             try:
-                return XPath(expr)(doc)
+                ans = XPath(expr)(doc)
+                len(ans)
+                return ans
             except:
                 self.log.warn('Invalid ToC expression, ignoring: %s'%expr)
                 return []
