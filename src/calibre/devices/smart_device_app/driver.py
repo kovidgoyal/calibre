@@ -54,6 +54,8 @@ def synchronous(tlockname):
 
 class ConnectionListener (Thread):
 
+    NOT_SERVICED_COUNT = 6
+
     def __init__(self, driver):
         Thread.__init__(self)
         self.daemon = True
@@ -78,8 +80,8 @@ class ConnectionListener (Thread):
 
             if not self.driver.connection_queue.empty():
                 queue_not_serviced_count += 1
-                if queue_not_serviced_count >= 3:
-                    self.driver._debug('queue not serviced')
+                if queue_not_serviced_count >= self.NOT_SERVICED_COUNT:
+                    self.driver._debug('queue not serviced', queue_not_serviced_count)
                     try:
                         sock = self.driver.connection_queue.get_nowait()
                         s = self.driver._json_encode(
@@ -1281,10 +1283,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._close_listen_socket()
                 return message
         else:
-            while i < 100: # try up to 100 random port numbers
+            while i < 100: # try 9090 then up to 99 random port numbers
                 i += 1
                 port = self._attach_to_port(self.listen_socket,
-                                            random.randint(8192, 32000))
+                                9090 if i == 1 else random.randint(8192, 32000))
                 if port != 0:
                     break
             if port == 0:
