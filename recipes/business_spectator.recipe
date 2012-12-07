@@ -16,6 +16,7 @@ class BusinessSpectator(BasicNewsRecipe):
     oldest_article         = 2
     max_articles_per_feed  = 100
     no_stylesheets         = True
+    auto_cleanup = True
     #delay                  = 1
     use_embedded_content   = False
     encoding               = 'utf8'
@@ -32,11 +33,11 @@ class BusinessSpectator(BasicNewsRecipe):
                             ,'linearize_tables': False
                          }
 
-    keep_only_tags    =  [dict(id='storyHeader'), dict(id='body-html')]
+    #keep_only_tags    =  [dict(id='storyHeader'), dict(id='body-html')]
 
-    remove_tags = [dict(attrs={'class':'hql'})]
+    #remove_tags = [dict(attrs={'class':'hql'})]
 
-    remove_attributes = ['width','height','style']
+    #remove_attributes = ['width','height','style']
 
     feeds          = [
                       ('Top Stories', 'http://www.businessspectator.com.au/top-stories.rss'),
@@ -46,3 +47,4 @@ class BusinessSpectator(BasicNewsRecipe):
                       ('Daily Dossier', 'http://www.businessspectator.com.au/bs.nsf/RSS?readform&type=kgb&cat=dossier'),
                       ('Australia', 'http://www.businessspectator.com.au/bs.nsf/RSS?readform&type=region&cat=australia'),
                     ]
+ 

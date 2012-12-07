@@ -1,21 +1,27 @@
 __license__   = 'GPL v3'
+__author__    = 'faber1971'
+description   = 'Italian rock webzine - v1.01 (6, July 2012)'
 from calibre.web.feeds.news import BasicNewsRecipe
-
 class AdvancedUserRecipe1328535130(BasicNewsRecipe):
     title          = u'Onda Rock'
     __author__    = 'faber1971'
     description   = 'Italian rock webzine'
     language = 'it'
-
-
-    oldest_article = 7
+    oldest_article = 15
     max_articles_per_feed = 100
     auto_cleanup = False
     remove_tags = [
-                            dict(name='div', attrs={'id':['boxHeader','boxlinks_med','footer','boxinterviste','box_special_med','boxdiscografia_head','path']}),
+                            dict(name='div', attrs={'id':['boxHeader','boxlinks_med','footer','boxinterviste','box_special_med','boxdiscografia_head','path','widget','menuarea','headerarea']}),
                             dict(name='div', attrs={'align':'left'}),
+                            dict(name='div', attrs={'class':['media','boxarticoli']}),
                             dict(name='div', attrs={'style':'text-align: center'}),
+                            dict(name='table', attrs={'cellpadding':'0'}),
+                            dict(name='span', attrs={'class':'liketext'}),
                             ]
     no_stylesheets = True
     feeds          = [(u'Onda Rock', u'http://www.ondarock.it/feed.php')]
-    masthead_url            = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/71135_45820579767_4993043_n.jpg'
+    masthead_url            = 'http://api.ning.com/files/4ot8ampp*-rYQuwL2NoaHvVqcyu7VMyWyan12a9QMsJUWxk-q5V1-34wnD-Wj9B5qWjc1yPMLGiwQg8hZJxaySeaG2lx8hpV/2009_banner_ondarock.gif'
+
+    extra_css = '''
+        .boxtabscontain_page {border: 1px solid #E0E0E0;clear: both;font-family: "Verdana", "Arial", "Helvetica", sans-serif;font-size: 10px;line-height: 17px;margin: 0px 0px 20px;padding: 10px 10px 10px 40px;position: relative;top: -1px;width: 258px;z-index: 1;}
+                '''

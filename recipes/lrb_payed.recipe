@@ -1,15 +1,15 @@
-
 __license__   = 'GPL v3'
 __copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 lrb.co.uk
 '''
+import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class LondonReviewOfBooksPayed(BasicNewsRecipe):
     title                 = 'London Review of Books'
-    __author__            = 'Darko Miletic'
+    __author__            = 'Rich Shang, Darko Miletic'
     description           = 'Subscription content. Literary review publishing essay-length book reviews and topical articles on politics, literature, history, philosophy, science and the arts by leading writers and thinkers'
     category              = 'news, literature, UK'
     publisher             = 'LRB Ltd.'
@@ -41,9 +41,12 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
         articles = []
         soup = self.index_to_soup(self.INDEX)
         cover_item = soup.find('p',attrs={'class':'cover'})
+        dates = str(soup.find('span', attrs={'class':'coverdate'}))
+        newdates = re.sub('\<.*\>','',re.split('<br />',dates)[1])
+        self.timefmt = ' [%s]'%newdates
         lrbtitle = self.title
         if  cover_item:
-            self.cover_url = self.INDEX + cover_item.a.img['src']
+            self.cover_url = re.sub('/m/','/l/',cover_item.a.img['src'])
             content = self.INDEX + cover_item.a['href']
             soup2 = self.index_to_soup(content)
             sitem = soup2.find(attrs={'class':'article-list'})
@@ -54,13 +57,20 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
                 feed_link = item
                 if feed_link.has_key('href'):
                     url   = self.INDEX + feed_link['href']
-                    title = title_prefix + self.tag_to_string(feed_link)
+                    title_link = re.split('<br />',str(feed_link))
+                    if len (title_link) > 1:
+                        title = title_prefix + re.sub('\<.*\>','',title_link[0]) + ' - ' + re.sub('\<.*\>','',title_link[1])
+                    else:
+                        title = title_prefix + self.tag_to_string(feed_link)
+                    desc = item.findNext('li')
+                    if desc is not None and desc.find('cite') is not None and desc.find('ul') is None:
+                        description=self.tag_to_string(desc)
                     date  = strftime(self.timefmt)
                     articles.append({
-                                      'title'      :title
-                                     ,'date'       :date
-                                     ,'url'        :url
-                                     ,'description':description
+                                        'title'      :title
+                                        ,'date'       :date
+                                        ,'url'        :url
+                                        ,'description':description
                                     })
         return [(lrbtitle, articles)]
 

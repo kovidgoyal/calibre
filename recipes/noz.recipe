@@ -1,0 +1,29 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1344926684(BasicNewsRecipe):
+    title          = u'Neue Osnabrücker Zeitung'
+    __author__ = 'Krittika Goyal'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    #auto_cleanup = True
+    no_stylesheets         = True
+    use_embedded_content   = False
+    language               = 'de'
+    remove_javascript      = True
+
+    keep_only_tags = [dict(name='h1', attrs={'class':'enlargeable'}), dict(name='h2', attrs={'class':'enlargeable vorspann'}), dict(name='div', attrs={'id':'largePicContainer'}), dict(name='span', attrs={'id':'articletext'})]
+    remove_tags = [dict(name='div', attrs={'id':'retresco-title'}),dict(name='div', attrs={'class':'retresco-item s1 relative'}),dict(name='a', attrs={'class':'medium2 largeSpaceTop icon'})]
+
+    feeds          = [(u'Lokales', u'http://www.noz.de/rss/Lokales'),
+(u'Vermischtes', u'http://www.noz.de/rss/Vermischtes'),
+(u'Politik', u'http://www.noz.de/rss/Politik'),
+(u'Wirtschaft', u'http://www.noz.de/rss/Wirtschaft'),
+(u'Kultur', u'http://www.noz.de/rss/Kultur'),
+(u'Medien', u'http://www.noz.de/rss/Medien'),
+(u'Wissenschaft', u'http://www.noz.de/rss/wissenschaft'),
+(u'Sport', u'http://www.noz.de/rss/Sport'),
+(u'Computer', u'http://www.noz.de/rss/Computer'),
+(u'Musik', u'http://www.noz.de/rss/Musik'),
+(u'Szene', u'http://www.noz.de/rss/Szene'),
+(u'Niedersachsen', u'http://www.noz.de/rss/Niedersachsen'),
+(u'Kino', u'http://www.noz.de/rss/Kino')]

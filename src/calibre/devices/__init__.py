@@ -55,21 +55,42 @@ def get_connected_device():
             break
     return dev
 
-def debug(ioreg_to_tmp=False, buf=None):
+def debug(ioreg_to_tmp=False, buf=None, plugins=None,
+        disabled_plugins=None):
+    '''
+    If plugins is None, then this method calls startup and shutdown on the
+    device plugins. So if you are using it in a context where startup could
+    already have been called (for example in the main GUI), pass in the list of
+    device plugins as the plugins parameter.
+    '''
     import textwrap
-    from calibre.customize.ui import device_plugins
+    from calibre.customize.ui import device_plugins, disabled_device_plugins
+    from calibre.debug import print_basic_debug_info
     from calibre.devices.scanner import DeviceScanner, win_pnp_drives
-    from calibre.constants import iswindows, isosx, __version__
+    from calibre.constants import iswindows, isosx
     from calibre import prints
     oldo, olde = sys.stdout, sys.stderr
 
     if buf is None:
         buf = StringIO()
     sys.stdout = sys.stderr = buf
+    out = partial(prints, file=buf)
+
+    devplugins = device_plugins() if plugins is None else plugins
+    devplugins = list(sorted(devplugins, cmp=lambda
+            x,y:cmp(x.__class__.__name__, y.__class__.__name__)))
+    if plugins is None:
+        for d in devplugins:
+            try:
+                d.startup()
+            except:
+                out('Startup failed for device plugin: %s'%d)
+
+    if disabled_plugins is None:
+        disabled_plugins = list(disabled_device_plugins())
 
     try:
-        out = partial(prints, file=buf)
-        out('Version:', __version__)
+        print_basic_debug_info(out=buf)
         s = DeviceScanner()
         s.scan()
         devices = (s.devices)
@@ -96,65 +117,81 @@ def debug(ioreg_to_tmp=False, buf=None):
             ioreg += 'Output from osx_get_usb_drives:\n'+drives+'\n\n'
             ioreg += Device.run_ioreg()
         connected_devices = []
-        devplugins = list(sorted(device_plugins(), cmp=lambda
-                x,y:cmp(x.__class__.__name__, y.__class__.__name__)))
-        out('Available plugins:', textwrap.fill(' '.join([x.__class__.__name__ for x in
-            devplugins])))
-        out(' ')
-        out('Looking for devices...')
-        for dev in devplugins:
-            connected, det = s.is_device_connected(dev, debug=True)
-            if connected:
-                out('\t\tDetected possible device', dev.__class__.__name__)
-                connected_devices.append((dev, det))
-
-        out(' ')
-        errors = {}
-        success = False
-        out('Devices possibly connected:', end=' ')
-        for dev, det in connected_devices:
-            out(dev.name, end=', ')
-        if not connected_devices:
-            out('None', end='')
-        out(' ')
-        for dev, det in connected_devices:
-            out('Trying to open', dev.name, '...', end=' ')
-            try:
-                dev.reset(detected_device=det)
-                dev.open(det, None)
-                out('OK')
-            except:
-                import traceback
-                errors[dev] = traceback.format_exc()
-                out('failed')
-                continue
-            success = True
-            if hasattr(dev, '_main_prefix'):
-                out('Main memory:', repr(dev._main_prefix))
-            out('Total space:', dev.total_space())
-            break
-        if not success and errors:
-            out('Opening of the following devices failed')
-            for dev,msg in errors.items():
-                out(dev)
-                out(msg)
-                out(' ')
-
-        if ioreg is not None:
-            ioreg = 'IOREG Output\n'+ioreg
+        if disabled_plugins:
+            out('\nDisabled plugins:', textwrap.fill(' '.join([x.__class__.__name__ for x in
+                disabled_plugins])))
             out(' ')
-            if ioreg_to_tmp:
-                open('/tmp/ioreg.txt', 'wb').write(ioreg)
-                out('Dont forget to send the contents of /tmp/ioreg.txt')
-                out('You can open it with the command: open /tmp/ioreg.txt')
-            else:
-                out(ioreg)
+        found_dev = False
+        for dev in devplugins:
+            if not dev.MANAGES_DEVICE_PRESENCE: continue
+            out('Looking for devices of type:', dev.__class__.__name__)
+            if dev.debug_managed_device_detection(s.devices, buf):
+                found_dev = True
+                break
+            out(' ')
+
+        if not found_dev:
+            out('Looking for devices...')
+            for dev in devplugins:
+                if dev.MANAGES_DEVICE_PRESENCE: continue
+                connected, det = s.is_device_connected(dev, debug=True)
+                if connected:
+                    out('\t\tDetected possible device', dev.__class__.__name__)
+                    connected_devices.append((dev, det))
+
+            out(' ')
+            errors = {}
+            success = False
+            out('Devices possibly connected:', end=' ')
+            for dev, det in connected_devices:
+                out(dev.name, end=', ')
+            if not connected_devices:
+                out('None', end='')
+            out(' ')
+            for dev, det in connected_devices:
+                out('Trying to open', dev.name, '...', end=' ')
+                try:
+                    dev.reset(detected_device=det)
+                    dev.open(det, None)
+                    out('OK')
+                except:
+                    import traceback
+                    errors[dev] = traceback.format_exc()
+                    out('failed')
+                    continue
+                success = True
+                if hasattr(dev, '_main_prefix'):
+                    out('Main memory:', repr(dev._main_prefix))
+                out('Total space:', dev.total_space())
+                break
+            if not success and errors:
+                out('Opening of the following devices failed')
+                for dev,msg in errors.items():
+                    out(dev)
+                    out(msg)
+                    out(' ')
+
+            if ioreg is not None:
+                ioreg = 'IOREG Output\n'+ioreg
+                out(' ')
+                if ioreg_to_tmp:
+                    open('/tmp/ioreg.txt', 'wb').write(ioreg)
+                    out('Dont forget to send the contents of /tmp/ioreg.txt')
+                    out('You can open it with the command: open /tmp/ioreg.txt')
+                else:
+                    out(ioreg)
 
         if hasattr(buf, 'getvalue'):
-            return buf.getvalue().decode('utf-8')
+            return buf.getvalue().decode('utf-8', 'replace')
     finally:
         sys.stdout = oldo
         sys.stderr = olde
+        if plugins is None:
+            for d in devplugins:
+                try:
+                    d.shutdown()
+                except:
+                    pass
 
 def device_info(ioreg_to_tmp=False, buf=None):
     from calibre.devices.scanner import DeviceScanner, win_pnp_drives

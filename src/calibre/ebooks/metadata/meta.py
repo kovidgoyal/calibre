@@ -15,7 +15,7 @@ _METADATA_PRIORITIES = [
                        'html', 'htm', 'xhtml', 'xhtm',
                        'rtf', 'fb2', 'pdf', 'prc', 'odt',
                        'epub', 'lit', 'lrx', 'lrf', 'mobi',
-                       'rb', 'imp', 'azw', 'snb'
+                       'azw', 'azw3', 'azw1', 'rb', 'imp', 'snb'
                       ]
 
 # The priorities for loading metadata from different file types

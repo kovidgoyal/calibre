@@ -1,127 +1,109 @@
 #!/usr/bin/env python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
+__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
 
-
-import os, sys, urlparse
-
-from BeautifulSoup import BeautifulSoup, Tag
-
-
-from PyQt4 import QtCore
-from PyQt4.Qt import QUrl, QEventLoop, SIGNAL,  QObject, Qt, \
-    QPrinter, QPrintPreviewDialog, QPrintDialog, QDialog, QMetaObject, Q_ARG
+from PyQt4.Qt import (QObject, QEventLoop, Qt, QPrintDialog, QPainter, QSize,
+        QPrintPreviewDialog)
 from PyQt4.QtWebKit import QWebView
 
-PRINTCSS = 'body{width:100%;margin:0;padding:0;font-family:Arial;color:#000;background:none;font-size:12pt;text-align:left;}h1,h2,h3,h4,h5,h6{font-family:Helvetica;}h1{font-size:19pt;}h2{font-size:17pt;}h3{font-size:15pt;}h4,h5,h6{font-size:12pt;}pre,code,samp{font:10ptCourier,monospace;white-space:pre-wrap;page-break-inside:avoid;}blockquote{margin:1.3em;padding:1em;font-size:10pt;}hr{background-color:#ccc;}aimg{border:none;}a:link,a:visited{background:transparent;font-weight:700;text-decoration:underline;color:#333;}a:link:after,a{color:#000;}table{margin:1px;text-align:left;}th{border-bottom:1pxsolid#333;font-weight:bold;}td{border-bottom:1pxsolid#333;}th,td{padding:4px10px4px0;}tfoot{font-style:italic;}caption{background:#fff;margin-bottom:2em;text-align:left;}thead{display:table-header-group;}tr{page-break-inside:avoid;}#header,.header,#footer,.footer,#navbar,.navbar,#navigation,.navigation,#rightSideBar,.rightSideBar,#leftSideBar,.leftSideBar{display:none;}'
+from calibre.gui2 import error_dialog
+from calibre.ebooks.oeb.display.webview import load_html
+from calibre.utils.resources import compiled_coffeescript
 
 class Printing(QObject):
-    def __init__(self, spine, preview):
-        from calibre.gui2 import is_ok_to_use_qt
-        if not is_ok_to_use_qt():
-            raise Exception('Not OK to use Qt')
-        QObject.__init__(self)
-        self.loop = QEventLoop()
 
-        self.view = QWebView()
-        if preview:
-            self.connect(self.view, SIGNAL('loadFinished(bool)'), self.print_preview)
-        else:
-            self.connect(self.view, SIGNAL('loadFinished(bool)'), self.print_book)
+    def __init__(self, iterator, parent):
+        QObject.__init__(self, parent)
+        self.current_index = 0
+        self.iterator = iterator
+        self.view = QWebView(self.parent())
+        self.mf = mf = self.view.page().mainFrame()
+        for x in (Qt.Horizontal, Qt.Vertical):
+            mf.setScrollBarPolicy(x, Qt.ScrollBarAlwaysOff)
+        self.view.loadFinished.connect(self.load_finished)
+        self.paged_js = compiled_coffeescript('ebooks.oeb.display.utils')
+        self.paged_js += compiled_coffeescript('ebooks.oeb.display.paged')
 
-        self.process_content(spine)
+    def load_finished(self, ok):
+        self.loaded_ok = ok
 
-    def process_content(self, spine):
-        content = ''
+    def start_print(self):
+        self.pd = QPrintDialog(self.parent())
+        self.pd.open(self._start_print)
 
-        for path in spine:
-            raw = self.raw_content(path)
-            content += self.parsed_content(raw, path)
+    def _start_print(self):
+        self.do_print(self.pd.printer())
 
-        refined_content = self.refine_content(content)
+    def start_preview(self):
+        self.pd = QPrintPreviewDialog(self.parent())
+        self.pd.paintRequested.connect(self.do_print)
+        self.pd.exec_()
 
-        base = os.path.splitdrive(spine[0])[0]
-        base = base if base != '' else '/'
+    def do_print(self, printer):
+        painter = QPainter(printer)
+        zoomx = printer.logicalDpiX()/self.view.logicalDpiX()
+        zoomy = printer.logicalDpiY()/self.view.logicalDpiY()
+        painter.scale(zoomx, zoomy)
+        pr = printer.pageRect()
+        self.view.page().setViewportSize(QSize(pr.width()/zoomx,
+            pr.height()/zoomy))
+        evaljs = self.mf.evaluateJavaScript
+        loop = QEventLoop(self)
+        pagenum = 0
+        from_, to = printer.fromPage(), printer.toPage()
+        first = True
 
-        QMetaObject.invokeMethod(self, "load_content", Qt.QueuedConnection, Q_ARG('QString', refined_content), Q_ARG('QString', base))
-        self.loop.exec_()
+        for path in self.iterator.spine:
+            self.loaded_ok = None
+            load_html(path, self.view, codec=getattr(path, 'encoding', 'utf-8'),
+                    mime_type=getattr(path, 'mime_type', None))
+            while self.loaded_ok is None:
+                loop.processEvents(loop.ExcludeUserInputEvents)
+            if not self.loaded_ok:
+                return error_dialog(self.parent(), _('Failed to render'),
+                        _('Failed to render document %s')%path, show=True)
+            evaljs(self.paged_js)
+            evaljs('''
+                document.body.style.backgroundColor = "white";
+                paged_display.set_geometry(1, 0, 0, 0);
+                paged_display.layout();
+                paged_display.fit_images();
+            ''')
 
-    @QtCore.pyqtSignature('load_content(QString, QString)')
-    def load_content(self, content, base):
-        self.view.setHtml(content, QUrl(base))
+            while True:
+                pagenum += 1
+                if (pagenum >= from_ and (to == 0 or pagenum <= to)):
+                    if not first:
+                        printer.newPage()
+                    first = False
+                    self.mf.render(painter)
+                nsl = evaljs('paged_display.next_screen_location()').toInt()
+                if not nsl[1] or nsl[0] <= 0: break
+                evaljs('window.scrollTo(%d, 0)'%nsl[0])
 
-    def raw_content(self, path):
-        return open(path, 'rb').read().decode(path.encoding)
-
-    def parsed_content(self, raw_content, path):
-        dom_tree = BeautifulSoup(raw_content).body
-
-        # Remove sytle information that is applied to the entire document.
-        # This does not remove styles applied within a tag.
-        styles = dom_tree.findAll('style')
-        for s in styles:
-            s.extract()
-
-        scripts = dom_tree.findAll('script')
-        for s in scripts:
-            s.extract()
-
-        # Convert all relative links to absolute paths.
-        links = dom_tree.findAll(src=True)
-        for s in links:
-            if QUrl(s['src']).isRelative():
-                s['src'] = urlparse.urljoin(path, s['src'])
-        links = dom_tree.findAll(href=True)
-        for s in links:
-            if QUrl(s['href']).isRelative():
-                s['href'] = urlparse.urljoin(path, s['href'])
-
-        return unicode(dom_tree)
-
-    # Adds the begenning and endings tags to the document.
-    # Adds the print css.
-    def refine_content(self, content):
-        dom_tree = BeautifulSoup('<html><head></head><body>%s</body></html>' % content)
-
-        css = dom_tree.findAll('link')
-        for c in css:
-            c.extract()
-
-        print_css = Tag(BeautifulSoup(), 'style', [('type', 'text/css'), ('title', 'override_css')])
-        print_css.insert(0, PRINTCSS)
-        dom_tree.findAll('head')[0].insert(0, print_css)
-
-        return unicode(dom_tree)
-
-    def print_preview(self, ok):
-        printer = QPrinter(QPrinter.HighResolution)
-        printer.setPageMargins(1, 1, 1, 1, QPrinter.Inch)
-
-        previewDialog = QPrintPreviewDialog(printer)
-
-        self.connect(previewDialog, SIGNAL('paintRequested(QPrinter *)'), self.view.print_)
-        previewDialog.exec_()
-        self.disconnect(previewDialog, SIGNAL('paintRequested(QPrinter *)'), self.view.print_)
-
-        self.loop.quit()
-
-    def print_book(self, ok):
-        printer = QPrinter(QPrinter.HighResolution)
-        printer.setPageMargins(1, 1, 1, 1, QPrinter.Inch)
-
-        printDialog = QPrintDialog(printer)
-        printDialog.setWindowTitle(_("Print eBook"))
-
-        printDialog.exec_()
-        if printDialog.result() == QDialog.Accepted:
-            self.view.print_(printer)
-
-        self.loop.quit()
-
-def main():
-    return 0
+        painter.end()
 
 if __name__ == '__main__':
-    sys.exit(main())
+    from calibre.gui2 import Application
+    from calibre.ebooks.oeb.iterator.book import EbookIterator
+    from PyQt4.Qt import QPrinter, QTimer
+    import sys
+    app = Application([])
+
+    def doit():
+        with EbookIterator(sys.argv[-1]) as it:
+            p = Printing(it, None)
+            printer = QPrinter()
+            of = sys.argv[-1]+'.pdf'
+            printer.setOutputFileName(of)
+            p.do_print(printer)
+            print ('Printed to:', of)
+            app.exit()
+    QTimer.singleShot(0, doit)
+    app.exec_()
 

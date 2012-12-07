@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>653</width>
-    <height>672</height>
+    <height>746</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,17 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="TOCView" name="toc"/>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
+      <widget class="TOCView" name="toc">
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>0</height>
+        </size>
+       </property>
+      </widget>
       <widget class="QFrame" name="frame">
        <property name="frameShape">
         <enum>QFrame::StyledPanel</enum>
@@ -131,6 +141,7 @@
    <addaction name="separator"/>
    <addaction name="action_preferences"/>
    <addaction name="action_metadata"/>
+   <addaction name="action_load_theme"/>
    <addaction name="separator"/>
    <addaction name="action_print"/>
   </widget>
@@ -143,6 +154,7 @@
    </attribute>
    <addaction name="action_find_next"/>
    <addaction name="action_find_previous"/>
+   <addaction name="action_toggle_paged_mode"/>
   </widget>
   <action name="action_back">
    <property name="icon">
@@ -307,6 +319,30 @@
    </property>
    <property name="shortcut">
     <string>Shift+F3</string>
+   </property>
+  </action>
+  <action name="action_toggle_paged_mode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../../resources/images.qrc">
+     <normaloff>:/images/scroll.png</normaloff>:/images/scroll.png</iconset>
+   </property>
+   <property name="text">
+    <string>Toggle Paged mode</string>
+   </property>
+  </action>
+  <action name="action_load_theme">
+   <property name="icon">
+    <iconset resource="../../../../resources/images.qrc">
+     <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
+   </property>
+   <property name="text">
+    <string>Load theme</string>
+   </property>
+   <property name="toolTip">
+    <string>Load a theme</string>
    </property>
   </action>
  </widget>

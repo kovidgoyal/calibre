@@ -10,7 +10,7 @@ import cStringIO
 
 from calibre.devices.usbms.driver import USBMS
 
-HTC_BCDS = [0x100, 0x0222, 0x0226, 0x227, 0x228]
+HTC_BCDS = [0x100, 0x0222, 0x0226, 0x227, 0x228, 0x229, 0x9999]
 
 class ANDROID(USBMS):
 
@@ -40,9 +40,14 @@ class ANDROID(USBMS):
                        0xca4  : HTC_BCDS,
                        0xca9  : HTC_BCDS,
                        0xcac  : HTC_BCDS,
+                       0xcba  : HTC_BCDS,
                        0xccf  : HTC_BCDS,
+                       0xcd6  : HTC_BCDS,
+                       0xce5  : HTC_BCDS,
+                       0xcec  : HTC_BCDS,
                        0x2910 : HTC_BCDS,
-                       0xff9  : HTC_BCDS + [0x9999],
+                       0xe77  : HTC_BCDS,
+                       0xff9  : HTC_BCDS,
             },
 
             # Eken
@@ -50,14 +55,18 @@ class ANDROID(USBMS):
 
             # Motorola
             0x22b8 : { 0x41d9 : [0x216], 0x2d61 : [0x100], 0x2d67 : [0x100],
+                       0x2de8 : [0x229],
                        0x41db : [0x216], 0x4285 : [0x216], 0x42a3 : [0x216],
                        0x4286 : [0x216], 0x42b3 : [0x216], 0x42b4 : [0x216],
                        0x7086 : [0x0226], 0x70a8: [0x9999], 0x42c4 : [0x216],
                        0x70c6 : [0x226],
                        0x4316 : [0x216],
+                       0x4317 : [0x216],
                        0x42d6 : [0x216],
                        0x42d7 : [0x216],
                        0x42f7 : [0x216],
+                       0x4365 : [0x216],
+                       0x4366 : [0x216],
                      },
             # Freescale
             0x15a2 : {
@@ -71,6 +80,7 @@ class ANDROID(USBMS):
 
             # Sony Ericsson
             0xfce : {
+                0xa173 : [0x216],
                 0xd12e : [0x0100],
                 0xe156 : [0x226],
                 0xe15d : [0x226],
@@ -81,7 +91,7 @@ class ANDROID(USBMS):
 
             # Google
             0x18d1 : {
-                0x0001 : [0x0223, 0x9999],
+                0x0001 : [0x0223, 0x230, 0x9999],
                 0x0003 : [0x0230],
                 0x4e11 : [0x0100, 0x226, 0x227],
                 0x4e12 : [0x0100, 0x226, 0x227],
@@ -89,7 +99,9 @@ class ANDROID(USBMS):
                 0x4e22 : [0x0100, 0x226, 0x227, 0x231],
                 0xb058 : [0x0222, 0x226, 0x227],
                 0x0ff9 : [0x0226],
+                0xc91  : HTC_BCDS,
                 0xdddd : [0x216],
+                0xdeed : [0x231],
             },
 
             # Samsung
@@ -97,8 +109,9 @@ class ANDROID(USBMS):
                        0x681c : [0x0222, 0x0223, 0x0224, 0x0400],
                        0x6640 : [0x0100],
                        0x685b : [0x0400, 0x0226],
-                       0x685e : [0x0400],
+                       0x685e : [0x0400, 0x226],
                        0x6860 : [0x0400],
+                       0x6863 : [0x226],
                        0x6877 : [0x0400],
                        0x689e : [0x0400],
                        0xdeed : [0x0222],
@@ -112,7 +125,11 @@ class ANDROID(USBMS):
                     0xc004 : [0x0226],
                     0x8801 : [0x0226, 0x0227],
                     0xe115 : [0x0216], # PocketBook A10
-                    0xe107 : [0x326], # PocketBook 622
+            },
+
+            # Another Viewsonic
+            0x0bb0 : {
+                    0x2a2b : [0x0226, 0x0227],
             },
 
             # Acer
@@ -151,7 +168,7 @@ class ANDROID(USBMS):
             # Xperia
             0x13d3 : { 0x3304 : [0x0001, 0x0002] },
 
-            # CREEL?? Also Nextbook
+            # CREEL?? Also Nextbook and Wayteq
             0x5e3 : { 0x726 : [0x222] },
 
             # ZTE
@@ -164,25 +181,38 @@ class ANDROID(USBMS):
             0x2237: { 0x2208 : [0x0226] },
 
             # Lenovo
-            0x17ef : { 0x7421 : [0x0216] },
+            0x17ef : {
+                    0x7421 : [0x0216],
+                    0x741b : [0x9999],
+            },
 
             # Pantech
             0x10a9 : { 0x6050 : [0x227] },
 
+            # Prestigio
+            0x2207 : { 0 : [0x222] },
+
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books',
             'sdcard/ebooks']
-    EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
-            'send e-books to on the device. The first one that exists will '
+    EXTRA_CUSTOMIZATION_MESSAGE = [_('Comma separated list of directories to '
+            'send e-books to on the device\'s <b>main memory</b>. The first one that exists will '
+            'be used'),
+            _('Comma separated list of directories to '
+            'send e-books to on the device\'s <b>storage cards</b>. The first one that exists will '
             'be used')
-    EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(EBOOK_DIR_MAIN)
+            ]
+
+    EXTRA_CUSTOMIZATION_DEFAULT = [', '.join(EBOOK_DIR_MAIN), '']
 
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
             'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC', 'LGE', 'NVIDIA',
             'GENERIC-', 'ZTE', 'MID', 'QUALCOMM', 'PANDIGIT', 'HYSTON',
             'VIZIO', 'GOOGLE', 'FREESCAL', 'KOBO_INC', 'LENOVO', 'ROCKCHIP',
-            'POCKET', 'ONDA_MID', 'ZENITHIN', 'INGENIC', 'PMID701C', 'PD']
+            'POCKET', 'ONDA_MID', 'ZENITHIN', 'INGENIC', 'PMID701C', 'PD',
+            'PMP5097C', 'MASS', 'NOVO7', 'ZEKI', 'COBY', 'SXZ', 'USB_2.0',
+            'COBY_MID', 'VS', 'AINOL', 'TOPWISE', 'PAD703']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -197,8 +227,12 @@ class ANDROID(USBMS):
             'UMS', '.K080', 'P990', 'LTE', 'MB853', 'GT-S5660_CARD', 'A107',
             'GT-I9003_CARD', 'XT912', 'FILE-CD_GADGET', 'RK29_SDK', 'MB855',
             'XT910', 'BOOK_A10', 'USB_2.0_DRIVER', 'I9100T', 'P999DW',
-            'KTABLET_PC', 'INGENIC', 'GT-I9001_CARD', 'USB_2.0_DRIVER',
-            'GT-S5830L_CARD', 'UNIVERSE', 'XT875']
+            'KTABLET_PC', 'INGENIC', 'GT-I9001_CARD', 'USB_2.0',
+            'GT-S5830L_CARD', 'UNIVERSE', 'XT875', 'PRO', '.KOBO_VOX',
+            'THINKPAD_TABLET', 'SGH-T989', 'YP-G70', 'STORAGE_DEVICE',
+            'ADVANCED', 'SGH-I727', 'USB_FLASH_DRIVER', 'ANDROID',
+            'S5830I_CARD', 'MID7042', 'LINK-CREATE', '7035', 'VIEWPAD_7E',
+            'NOVO7', 'MB526', '_USB#WYK7MSF8KE', 'TABLET_PC']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
@@ -206,8 +240,10 @@ class ANDROID(USBMS):
             'ANDROID_MID', 'P990_SD_CARD', '.K080', 'LTE_CARD', 'MB853',
             'A1-07___C0541A4F', 'XT912', 'MB855', 'XT910', 'BOOK_A10_CARD',
             'USB_2.0_DRIVER', 'I9100T', 'P999DW_SD_CARD', 'KTABLET_PC',
-            'FILE-CD_GADGET', 'GT-I9001_CARD', 'USB_2.0_DRIVER', 'XT875',
-            'UMS_COMPOSITE']
+            'FILE-CD_GADGET', 'GT-I9001_CARD', 'USB_2.0', 'XT875',
+            'UMS_COMPOSITE', 'PRO', '.KOBO_VOX', 'SGH-T989_CARD', 'SGH-I727',
+            'USB_FLASH_DRIVER', 'ANDROID', 'MID7042', '7035', 'VIEWPAD_7E',
+            'NOVO7', 'ADVANCED', 'TABLET_PC']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 
@@ -217,22 +253,34 @@ class ANDROID(USBMS):
 
     def post_open_callback(self):
         opts = self.settings()
-        dirs = opts.extra_customization
-        if not dirs:
-            dirs = self.EBOOK_DIR_MAIN
-        else:
-            dirs = [x.strip() for x in dirs.split(',')]
-        self.EBOOK_DIR_MAIN = dirs
+        opts = opts.extra_customization
+        if not opts:
+            opts = [self.EBOOK_DIR_MAIN, '']
+
+        def strtolist(x):
+            if isinstance(x, basestring):
+                x = [y.strip() for y in x.split(',')]
+            return x or []
+
+        opts = [strtolist(x) for x in opts]
+        self._android_main_ebook_dir = opts[0]
+        self._android_card_ebook_dir = opts[1]
 
     def get_main_ebook_dir(self, for_upload=False):
-        dirs = self.EBOOK_DIR_MAIN
+        dirs = self._android_main_ebook_dir
         if not for_upload:
             def aldiko_tweak(x):
                 return 'eBooks' if x == 'eBooks/import' else x
-            if isinstance(dirs, basestring):
-                dirs = [dirs]
             dirs = list(map(aldiko_tweak, dirs))
         return dirs
+
+    def get_carda_ebook_dir(self, for_upload=False):
+        if not for_upload:
+            return ''
+        return self._android_card_ebook_dir
+
+    def get_cardb_ebook_dir(self, for_upload=False):
+        return self.get_carda_ebook_dir()
 
     def windows_sort_drives(self, drives):
         try:
@@ -249,9 +297,10 @@ class ANDROID(USBMS):
     @classmethod
     def configure_for_kindle_app(cls):
         proxy = cls._configProxy()
-        proxy['format_map'] = ['mobi', 'azw', 'azw1', 'azw4', 'pdf']
+        proxy['format_map'] = ['azw3', 'mobi', 'azw', 'azw1', 'azw4', 'pdf']
         proxy['use_subdirs'] = False
-        proxy['extra_customization'] = ','.join(['kindle']+cls.EBOOK_DIR_MAIN)
+        proxy['extra_customization'] = [
+                ','.join(['kindle']+cls.EBOOK_DIR_MAIN), '']
 
     @classmethod
     def configure_for_generic_epub_app(cls):

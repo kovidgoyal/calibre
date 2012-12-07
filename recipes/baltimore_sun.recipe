@@ -1,45 +1,37 @@
 from __future__ import with_statement
 __license__ = 'GPL 3'
-__copyright__ = 'Original 2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__copyright__= 'Modified 2011,  Josh Hall <jwtheiv@gmail.com>'
+__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
+__copyright__ = '2012 Josh Hall<jwtheiv@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-'''
-www.baltimoresun.com
-'''
-
+import urllib, re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class BaltimoreSun(BasicNewsRecipe):
 
     title       = 'The Baltimore Sun'
     __author__ = 'Josh Hall'
-    description = 'Politics, local and business news from Baltimore'
-    language = 'en'
+    description = 'Complete local news and blogs from Baltimore'
+    language    = 'en'
+    version     = 2.1
     oldest_article = 1
     max_articles_per_feed = 100
-    remove_empty_feeds    = True
-    use_embedded_content    = False
-    no_stylesheets        = True
-    remove_javascript = True
-    #masthead_url = 'http://www.baltimoresun.com/images/thirdpartylogo.gif'
+    use_embedded_content = False
+    no_stylesheets       = True
+    remove_javascript    = True
+    recursions           = 1
 
-    remove_tags_before = dict(name='div', attrs={'class':['story', 'entry']})
-    remove_tags_after = [
-                                      {'class':['photo_article',]},
-                                      dict(name='div', attrs={'class':'shirttail-promo right clearfix'}),
-                                    ]
-
+    ignore_duplicate_articles = {'title'}
     keep_only_tags = [dict(name='div', attrs={'class':["story","entry-asset asset hentry"]}),
                       dict(name='div', attrs={'id':["pagebody","story","maincontentcontainer"]}),
                            ]
+    remove_tags_after = [{'class':['photo_article',]}]
 
+    match_regexps = [r'page=[0-9]+']
 
-    remove_tags = [{'id':["moduleArticleTools","content-bottom","rail","articleRelates module","toolSet","relatedrailcontent","div-wrapper","beta","atp-comments","footer","article-promo"]},
-                   {'class':["entry-footer-left","entry-footer-right","shirttail-promo right clearfix","clearfix","relatedTitle","articleRelates module","asset-footer","tools","comments","featurePromo","featurePromo fp-topjobs brownBackground","clearfix fullSpan brownBackground","curvedContent","toppaginate","module","module-header","module-content"]},
-                   dict(name='font',attrs={'id':["cr-other-headlines"]}),
-                   dict(name=['iframe']),
-                          ]
+    remove_tags = [{'id':["moduleArticleTools","content-bottom","rail","articleRelates module","toolSet","relatedrailcontent","div-wrapper","beta","atp-comments","footer",'gallery-subcontent','subFooter']},
+                   {'class':["clearfix","relatedTitle","articleRelates module","asset-footer","tools","comments","featurePromo","featurePromo fp-topjobs brownBackground","clearfix fullSpan brownBackground","curvedContent",'nextgen-share-tools','outbrainTools', 'google-ad-story-bottom']},
+                   dict(name='font',attrs={'id':["cr-other-headlines"]})]
     extra_css = '''
                     h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
                     h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
@@ -53,8 +45,9 @@ class BaltimoreSun(BasicNewsRecipe):
                     .maincontentcontainer{font-family:Arial,Helvetica,sans-serif;font-size:small;}
                     .story-body{font-family:Arial,Helvetica,sans-serif;font-size:small;}
                     body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-		'''
+                '''
     feeds = [
+## News ##
          (u'Top Headlines', u'http://www.baltimoresun.com/rss2.0.xml'),
          (u'Breaking News', u'http://www.baltimoresun.com/news/breaking/rss2.0.xml'),
          (u'Top Maryland', u'http://www.baltimoresun.com/news/maryland/rss2.0.xml'),
@@ -69,10 +62,10 @@ class BaltimoreSun(BasicNewsRecipe):
          (u'Local Politics', u'http://www.baltimoresun.com/news/maryland/politics/rss2.0.xml'),
          (u'Weather', u'http://www.baltimoresun.com/news/weather/rss2.0.xml'),
          #(u'Traffic', u'http://www.baltimoresun.com/features/commuting/rss2.0.xml'),
-         (u'Nation/world', u'http://feeds.chicagotribune.com/chicagotribune/news/nationworld/'),
+         (u'Nation/world', u'http://feeds.feedburner.com/baltimoresun/news/nationworld/rss2'),
          (u'Weird News', u'http://www.baltimoresun.com/news/offbeat/rss2.0.xml'),
 
-
+##Sports##
          (u'Top Sports', u'http://www.baltimoresun.com/sports/rss2.0.xml'),
          (u'Orioles/Baseball', u'http://www.baltimoresun.com/sports/orioles/rss2.0.xml'),
          (u'Ravens/Football', u'http://www.baltimoresun.com/sports/ravens/rss2.0.xml'),
@@ -85,6 +78,7 @@ class BaltimoreSun(BasicNewsRecipe):
          #(u'High School', u'http://www.baltimoresun.com/sports/high-school/rss2.0.xml'),
          #(u'Outdoors', u'http://www.baltimoresun.com/sports/outdoors/rss2.0.xml'),
 
+## Entertainment ##
          (u'Celebrity News', u'http://www.baltimoresun.com/entertainment/celebrities/rss2.0.xml'),
          (u'Arts & Theater', u'http://www.baltimoresun.com/entertainment/arts/rss2.0.xml'),
          (u'Movies', u'http://www.baltimoresun.com/entertainment/movies/rss2.0.xml'),
@@ -92,14 +86,16 @@ class BaltimoreSun(BasicNewsRecipe):
          (u'Restaurants & Food', u'http://www.baltimoresun.com/entertainment/dining/rss2.0.xml'),
          (u'TV/Media', u'http://www.baltimoresun.com/entertainment/tv/rss2.0.xml'),
 
+## Life ##
          (u'Health&Wellness', u'http://www.baltimoresun.com/health/rss2.0.xml'),
          (u'Home & Garden', u'http://www.baltimoresun.com/features/home-garden/rss2.0.xml'),
          (u'Living Green', u'http://www.baltimoresun.com/features/green/rss2.0.xml'),
          (u'Parenting', u'http://www.baltimoresun.com/features/parenting/rss2.0.xml'),
          (u'Fashion', u'http://www.baltimoresun.com/features/fashion/rss2.0.xml'),
          (u'Travel', u'http://www.baltimoresun.com/travel/rss2.0.xml'),
-        (u'Faith', u'http://www.baltimoresun.com/features/faith/rss2.0.xml'),
+        #(u'Faith', u'http://www.baltimoresun.com/features/faith/rss2.0.xml'),
 
+## Business ##
          (u'Top Business', u'http://www.baltimoresun.com/business/rss2.0.xml'),
          (u'Technology', u'http://www.baltimoresun.com/business/technology/rss2.0.xml'),
          (u'Personal finance', u'http://www.baltimoresun.com/business/money/rss2.0.xml'),
@@ -109,12 +105,14 @@ class BaltimoreSun(BasicNewsRecipe):
          (u'Consumer Safety', u'http://www.baltimoresun.com/business/consumer-safety/rss2.0.xml'),
          (u'Investing', u'http://www.baltimoresun.com/business/money/rss2.0.xml'),
 
+## Opinion##
          (u'Sun Editorials', u'http://www.baltimoresun.com/news/opinion/editorial/rss2.0.xml'),
          (u'Op/Ed', u'http://www.baltimoresun.com/news/opinion/oped/rss2.0.xml'),
          (u'Readers Respond', u'http://www.baltimoresun.com/news/opinion/readersrespond/'),
 
-         (u'Kevin Cowherd', 'http://www.baltimoresun.com/sports/bal-columnist-cowherd,0,6829726.columnist-rss2.0.xml'),
-         (u'Jay Hancock', u'http://www.baltimoresun.com/business/money/bal-columnist-hancock,0,6673611.columnist-rss2.0.xml'),
+## Columnists ##
+         (u'Kevin Cowherd', u'http://www.baltimoresun.com/sports/bal-columnist-cowherd,0,6829726.columnist-rss2.0.xml'),
+         (u'Robert Ehrlich', u'http://www.baltimoresun.com/news/opinion/columnists/bal-columnist-ehrlich,0,1825227.columnist-rss2.0.xml'),
          (u'Jacques Kelly', u'http://www.baltimoresun.com/news/maryland/bal-columnist-kelly,0,1154701.columnist-rss2.0.xml'),
          (u'Marta H. Mossburg', u'http://www.baltimoresun.com/news/opinion/oped/bal-columnist-mossburg,0,7982155.columnist-rss2.0.xml'),
          (u'Mike Preston', u'http://www.baltimoresun.com/sports/bal-columnist-preston,0,6169796.columnist-rss2.0.xml'),
@@ -122,59 +120,80 @@ class BaltimoreSun(BasicNewsRecipe):
          (u'Dan Rodricks', u'http://www.baltimoresun.com/news/maryland/bal-columnist-rodricks,0,7089843.columnist-rss2.0.xml'),
          (u'Thomas F. Schaller', u'http://www.baltimoresun.com/news/opinion/columnists/bal-columnist-schaller,0,897397.columnist-rss2.0.xml'),
          (u'Peter Schmuck', u'http://www.baltimoresun.com/sports/bal-columnist-schmuck,0,7485088.columnist-rss2.0.xml'),
-         (u'Ron Smith', u'http://www.baltimoresun.com/news/opinion/bal-columnist-ronsmith,0,3964803.columnist-rss2.0.xml'),
 
-         (u'Baltimore Crime Beat', u'http://weblogs.baltimoresun.com/news/crime/blog/index.xml'),
-         (u'Getting There', u'http://weblogs.baltimoresun.com/news/traffic/index.xml'),
-         (u'InsideEd', u'http://weblogs.baltimoresun.com/news/education/blog/index.xml'),
-         (u'Maryland Politics', u'http://weblogs.baltimoresun.com/news/local/politics/index.xml'),
-         (u'Maryland Weather', u'http://weblogs.marylandweather.com/index.xml'),
-         (u'Second Opinion', u'http://weblogs.baltimoresun.com/news/opinion/index.xml'),
-         (u'You Dont Say', u'http://weblogs.baltimoresun.com/news/mcintyre/blog/index.xml'),
+## News Blogs ##
+         (u'Baltimore Crime Beat', u'http://baltimore.feedsportal.com/c/34255/f/623075/index.rss'),
+         (u'InsideEd', u'http://www.baltimoresun.com/news/maryland/education/blog/rss2.0.xml'),
+         (u'Maryland Politics', u'http://www.baltimoresun.com/news/maryland/politics/blog/rss2.0.xml'),
+         (u'Maryland Weather', u'http://www.baltimoresun.com/news/weather/weather-blog/rss2.0.xml'),
+         (u'Second Opinion', u'http://www.baltimoresun.com/news/opinion/second-opinion-blog/rss2.0.xml'),
+         (u'Sun Investigates', u'http://www.baltimoresun.com/news/maryland/sun-investigates/rss2.0.xml'),
+         (u'You Dont Say', u'http://www.baltimoresun.com/news/language-blog/rss2.0.xml'),
 
-         (u'BaltTech', u'http://weblogs.baltimoresun.com/news/technology/index.xml'),
-         (u'Consuming Interests', u'http://weblogs.baltimoresun.com/business/consuminginterests/blog/index.xml'),
-         (u'Jay Hancocks Blog', u'http://weblogs.baltimoresun.com/business/hancock/blog/index.xml'),
-         (u'The Real Estate Wonk', u'http://weblogs.baltimoresun.com/business/realestate/blog/index.xml'),
+## Business Blogs ##
+         (u'BaltTech', u'http://www.baltimoresun.com/business/technology/blog/rss2.0.xml'),
+         (u'Consuming Interests', u'http://www.baltimoresun.com/business/consuming-interests-blog/rss2.0.xml'),
+         (u'The Real Estate Wonk', u'http://www.baltimoresun.com/business/real-estate/wonk/rss2.0.xml'),
 
-         (u'Clef Notes', 'http://weblogs.baltimoresun.com/entertainment/classicalmusic/index.xml'),
-         (u'Dining at Large', u'http://weblogs.baltimoresun.com/entertainment/dining/reviews/blog/index.xml'),
-         (u'Midnight Sun', u'http://weblogs.baltimoresun.com/entertainment/midnight_sun/blog/index.xml'),
-         (u'Mike Sragow Gets Reel', u'http://weblogs.baltimoresun.com/entertainment/movies/blog/index.xml'),
-         (u'Read Street', u'http://weblogs.baltimoresun.com/entertainment/books/blog/index.xml'),
-         (u'Reality Check', u'http://weblogs.baltimoresun.com/entertainment/realitycheck/blog/index.xml'),
-         (u'Z on TV', u'http://weblogs.baltimoresun.com/entertainment/zontv/index.xml'),
+## Entertainment Blogs ##
+         (u'Clef Notes & Drama Queens', 'http://weblogs.baltimoresun.com/entertainment/classicalmusic/index.xml'),
+        (u'Baltimore Diner', u'http://baltimore.feedsportal.com/c/34255/f/623088/index.rss'),
+         (u'Midnight Sun', u'http://www.baltimoresun.com/entertainment/music/midnight-sun-blog/rss2.0.xml'),
+         (u'Read Street', u'http://www.baltimoresun.com/features/books/read-street/rss2.0.xml'),
+         (u'Z on TV', u'http://www.baltimoresun.com/entertainment/tv/z-on-tv-blog/rss2.0.xml'),
 
+## Life Blogs ##
          (u'BMore Green', u'http://weblogs.baltimoresun.com/features/green/index.xml'),
-         (u'Charm City Moms', u'http://weblogs.baltimoresun.com/features/baltimoremomblog/index.xml'),
-         (u'Exercists', u'http://weblogs.baltimoresun.com/health/fitness/index.xml'),
-         (u'Garden Variety', 'http://weblogs.baltimoresun.com/features/gardening/index.xml'),
-         #(u'In Good Faith', u'http://weblogs.baltimoresun.com/news/faith/index.xml'),
-         (u'Picture of Health', u'http://weblogs.baltimoresun.com/health/index.xml'),
+         (u'Baltimore Insider',u'http://www.baltimoresun.com/features/baltimore-insider-blog/rss2.0.xml'),
+         (u'Homefront', u'http://www.baltimoresun.com/features/parenting/homefront/rss2.0.xml'),
+         (u'Picture of Health', u'http://www.baltimoresun.com/health/blog/rss2.0.xml'),
          (u'Unleashed', u'http://weblogs.baltimoresun.com/features/mutts/blog/index.xml'),
 
+## b the site blogs ##
+         (u'Game Cache', u'http://www.baltimoresun.com/entertainment/bthesite/game-cache/rss2.0.xml'),
+         (u'TV Lust', u'http://www.baltimoresun.com/entertainment/bthesite/tv-lust/rss2.0.xml'),
+
+## Sports Blogs ##
+           (u'Baltimore Sports Blitz', u'http://baltimore.feedsportal.com/c/34255/f/623097/index.rss'),
          #(u'Faceoff', u'http://weblogs.baltimoresun.com/sports/lacrosse/blog/index.xml'),
          #(u'MMA Stomping Grounds', u'http://weblogs.baltimoresun.com/sports/mma/blog/index.xml'),
-         (u'Orioles Insider', u'http://weblogs.baltimoresun.com/sports/orioles/blog/index.xml'),
-         #(u'Outdoors Girl', u'http://weblogs.baltimoresun.com/sports/outdoors/blog/index.xml'),
-         (u'Ravens Insider', u'http://weblogs.baltimoresun.com/sports/ravens/blog/index.xml'),
+         (u'Orioles Insider', u'http://baltimore.feedsportal.com/c/34255/f/623100/index.rss'),
+         (u'Ravens Insider', u'http://www.baltimoresun.com/sports/ravens/ravens-insider/rss2.0.xml'),
          #(u'Recruiting Report', u'http://weblogs.baltimoresun.com/sports/college/recruiting/index.xml'),
          #(u'Ring Posts', u'http://weblogs.baltimoresun.com/sports/wrestling/blog/index.xml'),
-         (u'The Schmuck Stops Here', u'http://weblogs.baltimoresun.com/sports/schmuck/index.xml'),
-         (u'Toy Department', u'http://weblogs.baltimoresun.com/sports/thetoydepartment/index.xml'),
+         (u'The Schmuck Stops Here', u'http://www.baltimoresun.com/sports/schmuck-blog/rss2.0.xml'),
          #(u'Tracking the Terps', u'http://weblogs.baltimoresun.com/sports/college/maryland_terps/blog/index.xml'),
          #(u'Varsity Letters', u'http://weblogs.baltimoresun.com/sports/highschool/varsityletters/index.xml'),
-         (u'Virtual Vensanity', u'http://weblogs.baltimoresun.com/entertainment/bthesite/vensel/index.xml'),
-
              ]
 
 
     def get_article_url(self, article):
-        print article.get('feedburner_origlink', article.get('guid', article.get('link')))
-        return article.get('feedburner_origlink', article.get('guid', article.get('link')))
+        ans = None
+        try:
+            s = article.summary
+            ans = urllib.unquote(
+                re.search(r'href=".+?bookmark.cfm.+?link=(.+?)"', s).group(1))
+        except:
+            pass
+        if ans is None:
+            ans = article.get('feedburner_origlink', article.get('guid', article.get('link')))
+        if ans is not None:
+            return ans.replace('?track=rss', '')
 
+    def skip_ad_pages(self, soup):
+        text = soup.find(text='click here to continue to article')
+        if text:
+            a = text.parent
+            url = a.get('href')
+            if url:
+                return self.index_to_soup(url, raw=True)
 
     def postprocess_html(self, soup, first_fetch):
+        # Remove the navigation bar. It was kept until now to be able to follow
+        # the links to further pages. But now we don't need them anymore.
+        for nav in soup.findAll(attrs={'class':['toppaginate','article-nav clearfix']}):
+            nav.extract()
+
         for t in soup.findAll(['table', 'tr', 'td']):
             t.name = 'div'
 

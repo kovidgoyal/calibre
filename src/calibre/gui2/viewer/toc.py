@@ -93,15 +93,28 @@ class TOCItem(QStandardItem):
     def type(cls):
         return QStandardItem.UserType+10
 
-    def update_indexing_state(self, spine_index, scroll_pos, anchor_map):
+    def update_indexing_state(self, spine_index, viewport_rect, anchor_map,
+            in_paged_mode):
+        if in_paged_mode:
+            self.update_indexing_state_paged(spine_index, viewport_rect,
+                    anchor_map)
+        else:
+            self.update_indexing_state_unpaged(spine_index, viewport_rect,
+                    anchor_map)
+
+    def update_indexing_state_unpaged(self, spine_index, viewport_rect,
+            anchor_map):
         is_being_viewed = False
-        top, bottom = scroll_pos
+        top, bottom = viewport_rect[1], viewport_rect[3]
         # We use bottom-25 in the checks below to account for the case where
         # the next entry has some invisible margin that just overlaps with the
         # bottom of the screen. In this case it will appear to the user that
         # the entry is not visible on the screen. Of course, the margin could
         # be larger than 25, but that's a decent compromise. Also we dont want
         # to count a partial line as being visible.
+
+        # We only care about y position
+        anchor_map = {k:v[1] for k, v in anchor_map.iteritems()}
 
         if spine_index >= self.starts_at and spine_index <= self.ends_at:
             # The position at which this anchor is present in the document
@@ -115,7 +128,7 @@ class TOCItem(QStandardItem):
                 # ancestors of this entry.
                 psp = [anchor_map.get(x, 0) for x in self.possible_end_anchors]
                 psp = [x for x in psp if x >= start_pos]
-            # The end position. The first anchor whose pos is >= self.start_pos
+            # The end position. The first anchor whose pos is >= start_pos
             # or if the end is not in this spine item, we set it to the bottom
             # of the window +1
             end_pos = min(psp) if psp else (bottom+1 if self.ends_at >=
@@ -133,6 +146,51 @@ class TOCItem(QStandardItem):
                 # This spine item contains the end
                 # The end position is after the start of the viewport
                 (spine_index != self.starts_at or bottom-25 >= start_pos)):
+                # The start position is before the end of the viewport
+                is_being_viewed = True
+
+        changed = is_being_viewed != self.is_being_viewed
+        self.is_being_viewed = is_being_viewed
+        if changed:
+            self.setFont(self.bold_font if is_being_viewed else self.normal_font)
+
+    def update_indexing_state_paged(self, spine_index, viewport_rect,
+            anchor_map):
+        is_being_viewed = False
+
+        left, right = viewport_rect[0], viewport_rect[2]
+        left, right = (left, 0), (right, -1)
+
+        if spine_index >= self.starts_at and spine_index <= self.ends_at:
+            # The position at which this anchor is present in the document
+            start_pos = anchor_map.get(self.start_anchor, (0, 0))
+            psp = []
+            if self.ends_at == spine_index:
+                # Anchors that could possibly indicate the start of the next
+                # section and therefore the end of this section.
+                # self.possible_end_anchors is a set of anchors belonging to
+                # toc entries with depth <= self.depth that are also not
+                # ancestors of this entry.
+                psp = [anchor_map.get(x, (0, 0)) for x in self.possible_end_anchors]
+                psp = [x for x in psp if x >= start_pos]
+            # The end position. The first anchor whose pos is >= start_pos
+            # or if the end is not in this spine item, we set it to the column
+            # after the right edge of the viewport
+            end_pos = min(psp) if psp else (right if self.ends_at >=
+                    spine_index else (0, 0))
+            if spine_index > self.starts_at and spine_index < self.ends_at:
+                # The entire spine item is contained in this entry
+                is_being_viewed = True
+            elif (spine_index == self.starts_at and right > start_pos and
+                # This spine item contains the start
+                # The start position is before the end of the viewport
+                (spine_index != self.ends_at or left < end_pos)):
+                # The end position is after the start of the viewport
+                is_being_viewed = True
+            elif (spine_index == self.ends_at and left < end_pos and
+                # This spine item contains the end
+                # The end position is after the start of the viewport
+                (spine_index != self.starts_at or right > start_pos)):
                 # The start position is before the end of the viewport
                 is_being_viewed = True
 
@@ -183,20 +241,26 @@ class TOC(QStandardItemModel):
                 self.currently_viewed_entry = t
         return items_being_viewed
 
-    def next_entry(self, spine_pos, anchor_map, scroll_pos, backwards=False,
-            current_entry=None):
+    def next_entry(self, spine_pos, anchor_map, viewport_rect, in_paged_mode,
+            backwards=False, current_entry=None):
         current_entry = (self.currently_viewed_entry if current_entry is None
                 else current_entry)
         if current_entry is None: return
         items = reversed(self.all_items) if backwards else self.all_items
         found = False
-        top = scroll_pos[0]
+
+        if in_paged_mode:
+            start = viewport_rect[0]
+            anchor_map = {k:v[0] for k, v in anchor_map.iteritems()}
+        else:
+            start = viewport_rect[1]
+            anchor_map = {k:v[1] for k, v in anchor_map.iteritems()}
+
         for item in items:
             if found:
                 start_pos = anchor_map.get(item.start_anchor, 0)
-                if backwards and item.is_being_viewed and start_pos >= top:
-                    # Going to this item will either not move the scroll
-                    # position or cause to to *increase* instead of descresing
+                if backwards and item.is_being_viewed and start_pos >= start:
+                    # This item will not cause any scrolling
                     continue
                 if item.starts_at != spine_pos or item.start_anchor:
                     return item

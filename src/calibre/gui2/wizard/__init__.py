@@ -85,7 +85,7 @@ class Kindle(Device):
 
     output_profile = 'kindle'
     output_format  = 'MOBI'
-    name = 'Kindle 1-4 and Touch'
+    name = 'Kindle Touch/1-4'
     manufacturer = 'Amazon'
     id = 'kindle'
 
@@ -117,6 +117,11 @@ class KindleFire(KindleDX):
     id = 'kindle_fire'
     output_profile = 'kindle_fire'
     supports_color = True
+
+class KindlePW(Kindle):
+    name = 'Kindle PaperWhite'
+    id = 'kindle_pw'
+    output_profile = 'kindle_pw'
 
 class Sony505(Device):
 
@@ -267,7 +272,7 @@ class Android(Device):
     def commit(cls):
         super(Android, cls).commit()
         for plugin in device_plugins(include_disabled=True):
-            if plugin.name == 'Android driver':
+            if hasattr(plugin, 'configure_for_generic_epub_app'):
                 plugin.configure_for_generic_epub_app()
 
 class AndroidTablet(Android):
@@ -287,7 +292,7 @@ class AndroidPhoneWithKindle(Android):
     def commit(cls):
         super(Android, cls).commit()
         for plugin in device_plugins(include_disabled=True):
-            if plugin.name == 'Android driver':
+            if hasattr(plugin, 'configure_for_kindle_app'):
                 plugin.configure_for_kindle_app()
 
 class AndroidTabletWithKindle(AndroidPhoneWithKindle):
@@ -440,8 +445,7 @@ class KindlePage(QWizardPage, KindleUI):
         x = unicode(self.to_address.text()).strip()
         parts = x.split('@')
 
-        if (self.send_email_widget.set_email_settings(True) and len(parts) >= 2
-                and parts[0]):
+        if (len(parts) >= 2 and parts[0] and self.send_email_widget.set_email_settings(True)):
             conf = smtp_prefs()
             accounts = conf.parse().accounts
             if not accounts: accounts = {}
@@ -551,7 +555,7 @@ class DevicePage(QWizardPage, DeviceUI):
     def nextId(self):
         idx = list(self.device_view.selectionModel().selectedIndexes())[0]
         dev = self.dev_model.data(idx, Qt.UserRole)
-        if dev in (Kindle, KindleDX):
+        if dev in (Kindle, KindleDX, KindleFire, KindlePW):
             return KindlePage.ID
         if dev is iPhone:
             return StanzaPage.ID
@@ -676,8 +680,9 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.language.blockSignals(True)
         self.language.clear()
         from calibre.utils.localization import (available_translations,
-            get_language, get_lang)
+            get_language, get_lang, get_lc_messages_path)
         lang = get_lang()
+        lang = get_lc_messages_path(lang) if lang else lang
         if lang is None or lang not in available_translations():
             lang = 'en'
         def get_esc_lang(l):

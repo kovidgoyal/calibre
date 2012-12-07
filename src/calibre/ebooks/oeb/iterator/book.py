@@ -22,7 +22,6 @@ from calibre.utils.logging import default_log
 from calibre import (guess_type, prepare_string_for_xml,
         xml_replace_entities)
 from calibre.ebooks.oeb.transforms.cover import CoverManager
-
 from calibre.ebooks.oeb.iterator.spine import (SpineItem, create_indexing_data)
 from calibre.ebooks.oeb.iterator.bookmarks import BookmarksMixin
 
@@ -76,7 +75,8 @@ class EbookIterator(BookmarksMixin):
                     return i
 
     def __enter__(self, processed=False, only_input_plugin=False,
-            run_char_count=True, read_anchor_map=True):
+            run_char_count=True, read_anchor_map=True,
+            extract_embedded_fonts_for_qt=False):
         ''' Convert an ebook file into an exploded OEB book suitable for
         display in viewers/preprocessing etc. '''
 
@@ -126,6 +126,7 @@ class EbookIterator(BookmarksMixin):
         self.spine = []
         Spiny = partial(SpineItem, read_anchor_map=read_anchor_map,
                 run_char_count=run_char_count)
+        is_comic = plumber.input_fmt.lower() in {'cbc', 'cbz', 'cbr', 'cb7'}
         for i in ordered:
             spath = i.path
             mt = None
@@ -135,12 +136,14 @@ class EbookIterator(BookmarksMixin):
                 mt = guess_type(spath)[0]
             try:
                 self.spine.append(Spiny(spath, mime_type=mt))
+                if is_comic:
+                    self.spine[-1].is_single_page = True
             except:
                 self.log.warn('Missing spine item:', repr(spath))
 
         cover = self.opf.cover
         if cover and self.ebook_ext in {'lit', 'mobi', 'prc', 'opf', 'fb2',
-                'azw', 'azw3'}:
+                                        'azw', 'azw3'}:
             cfile = os.path.join(self.base, 'calibre_iterator_cover.html')
             rcpath = os.path.relpath(cover, self.base).replace(os.sep, '/')
             chtml = (TITLEPAGE%prepare_string_for_xml(rcpath, True)).encode('utf-8')
@@ -173,6 +176,16 @@ class EbookIterator(BookmarksMixin):
             create_indexing_data(self.spine, self.toc)
 
         self.read_bookmarks()
+
+        if extract_embedded_fonts_for_qt:
+            from calibre.ebooks.oeb.iterator.extract_fonts import extract_fonts
+            try:
+                extract_fonts(self.opf, self.log)
+            except:
+                ol = self.log.filter_level
+                self.log.filter_level = self.log.DEBUG
+                self.log.exception('Failed to extract fonts')
+                self.log.filter_level = ol
 
         return self
 

@@ -11,7 +11,7 @@ from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2 import (question_dialog, error_dialog, info_dialog, gprefs,
         warning_dialog, available_width)
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.constants import preferred_encoding, filesystem_encoding, DEBUG
 from calibre.utils.config import prefs
 from calibre import prints, force_unicode, as_unicode
@@ -42,6 +42,7 @@ class DuplicatesAdder(QObject): # {{{
         # here we add all the formats for dupe book record created above
         self.db_adder.add_formats(id, formats)
         self.db_adder.number_of_books_added += 1
+        self.db_adder.auto_convert_books.add(id)
         self.count += 1
         self.added.emit(self.count)
         single_shot(self.add_one)
@@ -107,8 +108,16 @@ class DBAdder(QObject): # {{{
         self.input_queue = Queue()
         self.output_queue = Queue()
         self.merged_books = set([])
+        self.auto_convert_books = set()
 
     def end(self):
+        if (gprefs['manual_add_auto_convert'] and
+                self.auto_convert_books):
+            from calibre.gui2.ui import get_gui
+            gui = get_gui()
+            gui.iactions['Convert Books'].auto_convert_auto_add(
+                self.auto_convert_books)
+
         self.input_queue.put((None, None, None))
 
     def start(self):
@@ -151,7 +160,6 @@ class DBAdder(QObject): # {{{
             if not os.access(fmts[-1], os.R_OK):
                 fmts[-1] = fmt
         return fmts
-
 
     def add(self, id, opf, cover, name):
         formats = self.ids.pop(id)
@@ -219,6 +227,7 @@ class DBAdder(QObject): # {{{
                     self.duplicates.append((mi, cover, orig_formats))
                 else:
                     self.add_formats(id_, formats)
+                    self.auto_convert_books.add(id_)
                     self.number_of_books_added += 1
         else:
             self.names.append(name)
@@ -382,12 +391,25 @@ class Adder(QObject): # {{{
         if not duplicates:
             return self.duplicates_processed()
         self.pd.hide()
-        files = [_('%(title)s by %(author)s')%dict(title=x[0].title,
-            author=x[0].format_field('authors')[1]) for x in duplicates]
+        duplicate_message = []
+        for x in duplicates:
+            duplicate_message.append(_('Already in calibre:'))
+            matching_books = self.db.books_with_same_title(x[0])
+            for book_id in matching_books:
+                aut = [a.replace('|', ',') for a in (self.db.authors(book_id,
+                    index_is_id=True) or '').split(',')]
+                duplicate_message.append('\t'+ _('%(title)s by %(author)s')%
+                        dict(title=self.db.title(book_id, index_is_id=True),
+                        author=authors_to_string(aut)))
+            duplicate_message.append(_('You are trying to add:'))
+            duplicate_message.append('\t'+_('%(title)s by %(author)s')%
+                    dict(title=x[0].title,
+                    author=x[0].format_field('authors')[1]))
+            duplicate_message.append('')
         if question_dialog(self._parent, _('Duplicates found!'),
                         _('Books with the same title as the following already '
-                        'exist in the database. Add them anyway?'),
-                        '\n'.join(files)):
+                        'exist in calibre. Add them anyway?'),
+                        '\n'.join(duplicate_message)):
             pd = QProgressDialog(_('Adding duplicates...'), '', 0, len(duplicates),
                     self._parent)
             pd.setCancelButton(None)

@@ -105,14 +105,14 @@ class UniqueFilenames(object): # {{{
                 base, ext = posixpath.splitext(item.href)
                 nhref = base + suffix + ext
                 nhref = oeb.manifest.generate(href=nhref)[1]
+                spine_pos = item.spine_position
+                oeb.manifest.remove(item)
                 nitem = oeb.manifest.add(item.id, nhref, item.media_type, data=data,
                         fallback=item.fallback)
                 self.seen_filenames.add(posixpath.basename(nhref))
                 self.rename_map[item.href] = nhref
-                if item.spine_position is not None:
-                    oeb.spine.insert(item.spine_position, nitem, item.linear)
-                    oeb.spine.remove(item)
-                oeb.manifest.remove(item)
+                if spine_pos is not None:
+                    oeb.spine.insert(spine_pos, nitem, item.linear)
             else:
                 self.seen_filenames.add(fname)
 

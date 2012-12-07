@@ -32,14 +32,6 @@ def test_lxml():
     else:
         raise RuntimeError('lxml failed')
 
-def test_fontconfig():
-    from calibre.utils.fonts import fontconfig
-    families = fontconfig.find_font_families()
-    num = len(families)
-    if num < 10:
-        raise RuntimeError('Fontconfig found only %d font families'%num)
-    print ('Fontconfig OK! (%d families)'%num)
-
 def test_winutil():
     from calibre.devices.scanner import win_pnp_drives
     matches = win_pnp_drives.scanner()
@@ -76,35 +68,62 @@ def test_qt():
     print ('Qt OK!')
 
 def test_imaging():
-    from calibre.utils.magick.draw import create_canvas, Image
-    im = create_canvas(20, 20, '#ffffff')
-    jpg = im.export('jpg')
-    Image().load(jpg)
-    im.export('png')
-    print ('ImageMagick OK!')
+    from calibre.ebooks import calibre_cover
+    data = calibre_cover('test', 'ok')
+    if len(data) > 1000:
+        print ('ImageMagick OK!')
+    else:
+        raise RuntimeError('ImageMagick choked!')
     from PIL import Image
-    i = Image.open(cStringIO.StringIO(jpg))
-    if i.size != (20, 20):
+    try:
+        import _imaging, _imagingmath, _imagingft
+        _imaging, _imagingmath, _imagingft
+    except ImportError:
+        from PIL import _imaging, _imagingmath, _imagingft
+    _imaging, _imagingmath, _imagingft
+    i = Image.open(cStringIO.StringIO(data))
+    if i.size < (20, 20):
         raise RuntimeError('PIL choked!')
     print ('PIL OK!')
 
 def test_unrar():
-    from calibre.libunrar import _libunrar
-    if not _libunrar:
-        raise RuntimeError('Failed to load libunrar')
+    from calibre.utils.unrar import test_basic
+    test_basic()
     print ('Unrar OK!')
+
+def test_icu():
+    from calibre.utils.icu import _icu_not_ok
+    if _icu_not_ok:
+        raise RuntimeError('ICU module not loaded/valid')
+    print ('ICU OK!')
+
+def test_wpd():
+    wpd = plugins['wpd'][0]
+    try:
+        wpd.init('calibre', 1, 1, 1)
+    except wpd.NoWPD:
+        print ('This computer does not have WPD')
+    else:
+        wpd.uninit()
+
+def test_woff():
+    from calibre.utils.fonts.woff import test
+    test()
+    print ('WOFF ok!')
 
 def test():
     test_plugins()
     test_lxml()
-    test_fontconfig()
     test_sqlite()
-    test_qt()
     test_imaging()
     test_unrar()
+    test_icu()
+    test_woff()
+    test_qt()
     if iswindows:
         test_win32()
         test_winutil()
+        test_wpd()
 
 if __name__ == '__main__':
     test()

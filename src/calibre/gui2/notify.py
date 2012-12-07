@@ -7,7 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from calibre.constants import islinux, isosx
+from calibre.constants import islinux, isosx, get_osx_version
 
 class Notifier(object):
 
@@ -101,32 +101,37 @@ class QtNotifier(Notifier):
             except:
                 pass
 
-class GrowlNotifier(Notifier):
-
-    notification_type = 'All notifications'
+class AppleNotifier(Notifier):
 
     def __init__(self):
+        self.ok = False
+        import os, sys
         try:
-            import Growl
-            self.icon = Growl.Image.imageFromPath(I('notify.png'))
-            self.growl = Growl.GrowlNotifier(applicationName='calibre',
-                    applicationIcon=self.icon, notifications=[self.notification_type])
-            self.growl.register()
-            self.ok = True
+            self.exe = os.path.join(sys.console_binaries_path.replace(
+                'console.app', 'calibre-notifier.app'), 'Calibre')
+            self.ok = os.access(self.exe, os.X_OK)
+            import subprocess
+            self.call = subprocess.Popen
         except:
-            self.ok = False
+            pass
 
-    def encode(self, msg):
-        if isinstance(msg, unicode):
-            msg = msg.encode('utf-8')
-        return msg
+    def notify(self, body, summary):
+        def encode(x):
+            if isinstance(x, unicode):
+                x = x.encode('utf-8')
+            return x
+
+        cmd = [self.exe, '-activate',
+               'net.kovidgoyal.calibre', '-message', encode(body)]
+        if summary:
+            cmd += ['-title', encode(summary)]
+        self.call(cmd)
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
         if self.ok:
             try:
-                self.growl.notify(self.notification_type, self.encode(summary),
-                        self.encode(body))
+                self.notify(body, summary)
             except:
                 import traceback
                 traceback.print_exc()
@@ -140,10 +145,10 @@ def get_notifier(systray=None):
             ans = FDONotifier()
             if not ans.ok:
                 ans = None
-    #if isosx:
-    #    ans = GrowlNotifier()
-    #    if not ans.ok:
-    #        ans = None
+    elif isosx and get_osx_version() >= (10, 8, 0):
+        ans = AppleNotifier()
+        if not ans.ok:
+            ans = None
     if ans is None:
         ans = QtNotifier(systray)
         if not ans.ok:

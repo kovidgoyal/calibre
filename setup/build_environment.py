@@ -6,18 +6,18 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, socket, struct, subprocess
+import os, socket, struct, subprocess, sys, glob
 from distutils.spawn import find_executable
 
 from PyQt4 import pyqtconfig
 
-from setup import isosx, iswindows, islinux
+from setup import isosx, iswindows, islinux, is64bit
 
 OSX_SDK = '/Developer/SDKs/MacOSX10.5.sdk'
 
 os.environ['MACOSX_DEPLOYMENT_TARGET'] = '10.5'
 
-NMAKE = RC = msvc = MT = win_inc = win_lib = win_ddk = None
+NMAKE = RC = msvc = MT = win_inc = win_lib = win_ddk = win_ddk_lib_dirs = None
 if iswindows:
     from distutils import msvc9compiler
     msvc = msvc9compiler.MSVCCompiler()
@@ -26,7 +26,8 @@ if iswindows:
     RC = msvc.find_exe('rc.exe')
     SDK = os.environ.get('WINSDK', r'C:\Program Files\Microsoft SDKs\Windows\v6.0A')
     DDK = os.environ.get('WINDDK', r'Q:\WinDDK\7600.16385.0')
-    win_ddk = [DDK+'\\inc\\'+x for x in ('api',)]
+    win_ddk = [DDK+'\\inc\\'+x for x in ('atl71',)]
+    win_ddk_lib_dirs = [DDK+'\\lib\\ATL\\i386']
     win_inc = os.environ['include'].split(';')
     win_lib = os.environ['lib'].split(';')
     for p in win_inc:
@@ -34,6 +35,7 @@ if iswindows:
             MT = os.path.join(os.path.dirname(p), 'bin', 'mt.exe')
     MT = os.path.join(SDK, 'bin', 'mt.exe')
     os.environ['QMAKESPEC'] = 'win32-msvc'
+    ICU = os.environ.get('ICU_DIR', r'Q:\icu')
 
 QMAKE = '/Volumes/sw/qt/bin/qmake' if isosx else 'qmake'
 if find_executable('qmake-qt4'):
@@ -82,26 +84,27 @@ qt_inc = pyqt.qt_inc_dir
 qt_lib = pyqt.qt_lib_dir
 ft_lib_dirs = []
 ft_libs = []
+ft_inc_dirs = []
 jpg_libs = []
 jpg_lib_dirs = []
-fc_inc = '/usr/include/fontconfig'
-fc_lib = '/usr/lib'
 podofo_inc = '/usr/include/podofo'
 podofo_lib = '/usr/lib'
 chmlib_inc_dirs = chmlib_lib_dirs = []
 sqlite_inc_dirs = []
 icu_inc_dirs = []
 icu_lib_dirs = []
+zlib_inc_dirs = []
+zlib_lib_dirs = []
+zlib_libs = ['z']
 
 if iswindows:
     prefix  = r'C:\cygwin\home\kovid\sw'
     sw_inc_dir  = os.path.join(prefix, 'include')
     sw_lib_dir  = os.path.join(prefix, 'lib')
-    icu_inc_dirs = [sw_inc_dir]
-    icu_lib_dirs = [sw_lib_dir]
+    icu_inc_dirs = [os.path.join(ICU, 'source', 'common'), os.path.join(ICU,
+        'source', 'i18n')]
+    icu_lib_dirs = [os.path.join(ICU, 'source', 'lib')]
     sqlite_inc_dirs = [sw_inc_dir]
-    fc_inc = os.path.join(sw_inc_dir, 'fontconfig')
-    fc_lib = sw_lib_dir
     chmlib_inc_dirs = consolidate('CHMLIB_INC_DIR', os.path.join(prefix,
         'build', 'chmlib-0.40', 'src'))
     chmlib_lib_dirs = consolidate('CHMLIB_LIB_DIR', os.path.join(prefix,
@@ -113,15 +116,18 @@ if iswindows:
     jpg_libs = ['jpeg']
     ft_lib_dirs = [sw_lib_dir]
     ft_libs = ['freetype']
+    ft_inc_dirs = [sw_inc_dir]
+    zlib_inc_dirs = [sw_inc_dir]
+    zlib_lib_dirs = [sw_lib_dir]
+    zlib_libs = ['zlib']
 
-    magick_inc_dirs = [os.path.join(prefix, 'build', 'ImageMagick-6.7.6')]
+    md = glob.glob(os.path.join(prefix, 'build', 'ImageMagick-*'))[-1]
+    magick_inc_dirs = [md]
     magick_lib_dirs = [os.path.join(magick_inc_dirs[0], 'VisualMagick', 'lib')]
     magick_libs = ['CORE_RL_wand_', 'CORE_RL_magick_']
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
     podofo_lib = sw_lib_dir
 elif isosx:
-    fc_inc = '/sw/include/fontconfig'
-    fc_lib = '/sw/lib'
     podofo_inc = '/sw/podofo'
     podofo_lib = '/sw/lib'
     magick_inc_dirs = consolidate('MAGICK_INC',
@@ -132,6 +138,8 @@ elif isosx:
     png_inc_dirs = consolidate('PNG_INC_DIR', '/sw/include')
     png_lib_dirs = consolidate('PNG_LIB_DIR', '/sw/lib')
     png_libs = ['png12']
+    ft_libs = ['freetype']
+    ft_inc_dirs = ['/sw/include/freetype2']
 else:
     # Include directories
     png_inc_dirs = pkgconfig_include_dirs('libpng', 'PNG_INC_DIR',
@@ -147,14 +155,11 @@ else:
     if not magick_libs:
         magick_libs = ['MagickWand', 'MagickCore']
     png_libs = ['png']
+    ft_inc_dirs = pkgconfig_include_dirs('freetype2', 'FT_INC_DIR',
+            '/usr/include/freetype2')
+    ft_lib_dirs = pkgconfig_lib_dirs('freetype2', 'FT_LIB_DIR', '/usr/lib')
+    ft_libs = pkgconfig_libs('freetype2', '', '')
 
-
-fc_inc = os.environ.get('FC_INC_DIR', fc_inc)
-fc_lib = os.environ.get('FC_LIB_DIR', fc_lib)
-fc_error = None if os.path.exists(os.path.join(fc_inc, 'fontconfig.h')) else \
-    ('fontconfig header files not found on your system. '
-            'Try setting the FC_INC_DIR and FC_LIB_DIR environment '
-            'variables.')
 
 magick_error = None
 if not magick_inc_dirs or not os.path.exists(os.path.join(magick_inc_dirs[0],

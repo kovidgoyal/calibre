@@ -15,8 +15,8 @@ from setup import __version__ as VERSION, __appname__ as APPNAME, basenames, \
 LICENSE = open('LICENSE', 'rb').read()
 MAGICK_HOME='@executable_path/../Frameworks/ImageMagick'
 ENV = dict(
-        FC_CONFIG_DIR='@executable_path/../Resources/fonts',
-        FC_CONFIG_FILE='@executable_path/../Resources/fonts/fonts.conf',
+        FONTCONFIG_PATH='@executable_path/../Resources/fonts',
+        FONTCONFIG_FILE='@executable_path/../Resources/fonts/fonts.conf',
         MAGICK_CONFIGURE_PATH=MAGICK_HOME+'/config',
         MAGICK_CODER_MODULE_PATH=MAGICK_HOME+'/modules-Q16/coders',
         MAGICK_CODER_FILTER_PATH=MAGICK_HOME+'/modules-Q16/filter',
@@ -243,9 +243,6 @@ class Py2App(object):
     @flush
     def get_local_dependencies(self, path_to_lib):
         for x in self.get_dependencies(path_to_lib):
-            if x.startswith('libpodofo'):
-                yield x, x
-                continue
             for y in (SW+'/lib/', '/usr/local/lib/', SW+'/qt/lib/',
                     '/opt/local/lib/',
                     SW+'/python/Python.framework/', SW+'/freetype/lib/'):
@@ -330,10 +327,6 @@ class Py2App(object):
         for f in glob.glob('src/calibre/plugins/*.so'):
             shutil.copy2(f, dest)
             self.fix_dependencies_in_lib(join(dest, basename(f)))
-            if 'podofo' in f:
-                self.change_dep('libpodofo.0.8.4.dylib',
-                self.FID+'/'+'libpodofo.0.8.4.dylib', join(dest, basename(f)))
-
 
     @flush
     def create_plist(self):
@@ -364,6 +357,7 @@ class Py2App(object):
                 'application. Visit http://calibre-ebook.com for details.'),
                 CFBundleIconFile='library.icns',
                 LSMultipleInstancesProhibited=True,
+                NSHighResolutionCapable=True,
                 LSEnvironment=env
         )
         plistlib.writePlist(pl, join(self.contents_dir, 'Info.plist'))
@@ -379,13 +373,13 @@ class Py2App(object):
     @flush
     def add_podofo(self):
         info('\nAdding PoDoFo')
-        pdf = join(SW, 'lib', 'libpodofo.0.8.4.dylib')
+        pdf = join(SW, 'lib', 'libpodofo.0.9.1.dylib')
         self.install_dylib(pdf)
 
     @flush
     def add_poppler(self):
         info('\nAdding poppler')
-        for x in ('libpoppler.25.dylib',):
+        for x in ('libpoppler.28.dylib',):
             self.install_dylib(os.path.join(SW, 'lib', x))
         for x in ('pdftohtml', 'pdftoppm', 'pdfinfo'):
             self.install_dylib(os.path.join(SW, 'bin', x), False)
@@ -417,7 +411,6 @@ class Py2App(object):
         raw = open(fc, 'rb').read()
         raw = raw.replace('<dir>/usr/share/fonts</dir>', '''\
         <dir>/Library/Fonts</dir>
-        <dir>/Network/Library/Fonts</dir>
         <dir>/System/Library/Fonts</dir>
         <dir>/usr/X11R6/lib/X11/fonts</dir>
         <dir>/usr/share/fonts</dir>
@@ -444,12 +437,15 @@ class Py2App(object):
 
     @flush
     def add_misc_libraries(self):
-        for x in ('usb', 'unrar', 'readline.6.1', 'wmflite-0.2.7', 'chm.0',
-                'sqlite3.0'):
+        for x in ('usb-1.0.0', 'mtp.9', 'readline.6.1', 'wmflite-0.2.7',
+                  'chm.0', 'sqlite3.0'):
             info('\nAdding', x)
             x = 'lib%s.dylib'%x
             shutil.copy2(join(SW, 'lib', x), self.frameworks_dir)
-            self.set_id(join(self.frameworks_dir, x), self.FID+'/'+x)
+            dest = join(self.frameworks_dir, x)
+            self.set_id(dest, self.FID+'/'+x)
+            if 'mtp' in x:
+                self.fix_dependencies_in_lib(dest)
 
     @flush
     def add_site_packages(self):
@@ -482,10 +478,6 @@ class Py2App(object):
                     shutil.rmtree(tdir)
         shutil.rmtree(os.path.join(self.site_packages, 'calibre', 'plugins'))
         self.remove_bytecode(join(self.resources_dir, 'Python', 'site-packages'))
-        # Create dummy IPython README_STARTUP
-        with open(join(self.site_packages,
-            'IPython/config/profile/README_STARTUP'), 'wb') as f:
-            f.write('\n')
 
     @flush
     def add_modules_from_dir(self, src):
@@ -605,6 +597,8 @@ class Py2App(object):
             else:
                 os.symlink(join('../..', x),
                            join(cc_dir, x))
+        shutil.copytree(join(SW, 'build/notifier.app'), join(
+            self.contents_dir, 'calibre-notifier.app'))
 
     @flush
     def copy_site(self):
@@ -627,8 +621,9 @@ class Py2App(object):
         if os.path.exists(dmg):
             os.unlink(dmg)
         tdir = tempfile.mkdtemp()
-        shutil.copytree(d, os.path.join(tdir, os.path.basename(d)),
-                symlinks=True)
+        appdir = os.path.join(tdir, os.path.basename(d))
+        shutil.copytree(d, appdir, symlinks=True)
+        subprocess.check_call(['/Users/kovid/sign.sh', appdir])
         os.symlink('/Applications', os.path.join(tdir, 'Applications'))
         subprocess.check_call(['/usr/bin/hdiutil', 'create', '-srcfolder', tdir,
                                '-volname', volname, '-format', format, dmg])

@@ -1,0 +1,19 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class AdvancedUserRecipe1350731826(BasicNewsRecipe):
+    title          = u'Yazihane'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    __author__            = 'A Erdogan'
+    description           = 'Sports Blog'
+    publisher             = 'yazihaneden.com'
+    category              = 'sports, basketball, nba, cycling, euroleague'
+    no_stylesheets        = True
+    use_embedded_content  = False
+    masthead_url          = 'http://www.yazihaneden.com/wp-content/uploads/Untitled-1.png'
+    language = 'tr'
+
+    keep_only_tags = [ dict(name='div', attrs={'id':re.compile('(^|| )post-($|| )', re.DOTALL)})]
+    remove_tags_after = dict(name='div', attrs={'class':'post-footer clear'})
+    feeds          = [(u'Yazihane', u'http://www.yazihaneden.com/feed/')]

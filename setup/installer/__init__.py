@@ -6,12 +6,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, tempfile, os, time
+import subprocess, tempfile, os, time, socket
 
 from setup import Command, installer_name
 from setup.build_environment import HOST, PROJECT
 
-BASE_RSYNC = ['rsync', '-avz', '--delete']
+BASE_RSYNC = ['rsync', '-avz', '--delete', '--force']
 EXCLUDES = []
 for x in [
     'src/calibre/plugins', 'src/calibre/manual', 'src/calibre/trac',
@@ -23,6 +23,18 @@ SAFE_EXCLUDES = ['"%s"'%x if '*' in x else x for x in EXCLUDES]
 def get_rsync_pw():
     return open('/home/kovid/work/kde/conf/buildbot').read().partition(
                 ':')[-1].strip()
+
+def is_vm_running(name):
+    pat = '/%s/'%name
+    pids= [pid for pid in os.listdir('/proc') if pid.isdigit()]
+    for pid in pids:
+        try:
+            cmdline = open(os.path.join('/proc', pid, 'cmdline'), 'rb').read()
+        except IOError:
+            continue # file went away
+        if 'vmware-vmx' in cmdline and pat in cmdline:
+            return True
+    return False
 
 class Rsync(Command):
 
@@ -46,15 +58,20 @@ class Push(Command):
     def run(self, opts):
         from threading import Thread
         threads = []
-        for host in (
-            r'Owner@winxp:/cygdrive/c/Documents\ and\ Settings/Owner/calibre',
-            'kovid@ox:calibre',
-            r'kovid@win7:/cygdrive/c/Users/kovid/calibre',
-            ):
-            rcmd = BASE_RSYNC + EXCLUDES + ['.', host]
-            print '\n\nPushing to:', host, '\n'
-            threads.append(Thread(target=subprocess.check_call, args=(rcmd,)))
-            threads[-1].start()
+        for host, vmname in {
+                r'Owner@winxp:/cygdrive/c/Documents\ and\ Settings/Owner/calibre':'winxp',
+                'kovid@ox:calibre':None,
+                r'kovid@win7:/cygdrive/c/Users/kovid/calibre':'Windows 7',
+                'kovid@getafix:calibre-src':None,
+                }.iteritems():
+            if '@getafix:' in host and socket.gethostname() == 'getafix':
+                continue
+            if vmname is None or is_vm_running(vmname):
+                rcmd = BASE_RSYNC + EXCLUDES + ['.', host]
+                print '\n\nPushing to:', vmname or host, '\n'
+                threads.append(Thread(target=subprocess.check_call, args=(rcmd,),
+                    kwargs={'stdout':open(os.devnull, 'wb')}))
+                threads[-1].start()
         for thread in threads:
             thread.join()
 
@@ -118,13 +135,7 @@ class VMInstaller(Command):
 
 
     def run_vm(self):
-        pat = '/%s/'%(self.VM_CHECK or self.VM_NAME)
-        pids= [pid for pid in os.listdir('/proc') if pid.isdigit()]
-        for pid in pids:
-            cmdline = open(os.path.join('/proc', pid, 'cmdline'), 'rb').read()
-            if 'vmware-vmx' in cmdline and pat in cmdline:
-                return
-
+        if is_vm_running(self.VM_CHECK or self.VM_NAME): return
         self.__p = subprocess.Popen([self.vm])
 
     def start_vm(self, sleep=75):

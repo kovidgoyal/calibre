@@ -16,6 +16,7 @@ static char python_dll[] = PYDLL;
 void set_gui_app(char yes) { GUI_APP = yes; }
 char is_gui_app() { return GUI_APP; }
 
+int calibre_show_python_error(const wchar_t *preamble, int code);
 
 // memimporter {{{
 
@@ -63,17 +64,6 @@ static void* FindLibrary(char *name, PyObject *callback)
 	return p;
 }
 
-static PyObject *set_find_proc(PyObject *self, PyObject *args)
-{
-	PyObject *callback = NULL;
-	if (!PyArg_ParseTuple(args, "|O:set_find_proc", &callback))
-		return NULL;
-	Py_DECREF((PyObject *)findproc_data);
-	Py_INCREF(callback);
-	findproc_data = (void *)callback;
-    return Py_BuildValue("i", 1);
-}
-
 static PyObject *
 import_module(PyObject *self, PyObject *args)
 {
@@ -92,7 +82,7 @@ import_module(PyObject *self, PyObject *args)
 			      &data, &size,
 			      &initfuncname, &modname, &pathname))
 		return NULL;
-	hmem = MemoryLoadLibrary(pathname, data);
+	hmem = MemoryLoadLibrary(data);
 	if (!hmem) {
 		PyErr_Format(*DLL_ImportError,
 			     "MemoryLoadLibrary() failed loading %s", pathname);
@@ -119,14 +109,14 @@ import_module(PyObject *self, PyObject *args)
 static PyMethodDef methods[] = {
 	{ "import_module", import_module, METH_VARARGS,
 	  "import_module(code, initfunc, dllname[, finder]) -> module" },
-	{ "set_find_proc", set_find_proc, METH_VARARGS },
 	{ NULL, NULL },		/* Sentinel */
 };
 
 // }}}
 
 static int _show_error(const wchar_t *preamble, const wchar_t *msg, const int code) {
-    wchar_t *buf, *cbuf;
+    wchar_t *buf;
+    char *cbuf;
     buf = (wchar_t*)LocalAlloc(LMEM_ZEROINIT, sizeof(wchar_t)*
             (wcslen(msg) + wcslen(preamble) + 80));
 
@@ -142,7 +132,7 @@ static int _show_error(const wchar_t *preamble, const wchar_t *msg, const int co
     else {
         cbuf = (char*) calloc(10+(wcslen(buf)*4), sizeof(char));
         if (cbuf) {
-            if (WideCharToMultiByte(CP_UTF8, 0, buf, -1, cbuf, 10+(wcslen(buf)*4), NULL, NULL) != 0) printf_s(cbuf);
+            if (WideCharToMultiByte(CP_UTF8, 0, buf, -1, cbuf, (int)(10+(wcslen(buf)*4)), NULL, NULL) != 0) printf_s(cbuf);
             free(cbuf);
         }
     }
@@ -165,6 +155,7 @@ int show_last_error_crt(wchar_t *preamble) {
 int show_last_error(wchar_t *preamble) {
     wchar_t *msg = NULL;
     DWORD dw = GetLastError(); 
+    int ret;
 
     FormatMessage(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | 
@@ -173,10 +164,13 @@ int show_last_error(wchar_t *preamble) {
         NULL,
         dw,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        &msg,
-        0, NULL );
+        (LPWSTR)&msg, 
+        0,
+        NULL );
 
-    return _show_error(preamble, msg, (int)dw);
+    ret = _show_error(preamble, msg, (int)dw);
+    if (msg != NULL) LocalFree(msg);
+    return ret;
 }
 
 char* get_app_dir() {
@@ -217,19 +211,15 @@ wchar_t* get_app_dirw() {
 
 
 void load_python_dll() {
-    char *app_dir, *fc_dir, *fc_file, *dll_dir, *qt_plugin_dir;
+    char *app_dir, *dll_dir, *qt_plugin_dir;
     size_t l;
 
     app_dir = get_app_dir();
     l = strlen(app_dir)+20;
     dll_dir = (char*) calloc(l, sizeof(char));
-    fc_dir  = (char*) calloc(l, sizeof(char));
-    fc_file = (char*) calloc(l, sizeof(char));
     qt_plugin_dir = (char*) calloc(l, sizeof(char));
-    if (!dll_dir || !qt_plugin_dir || !fc_dir) ExitProcess(_show_error(L"Out of memory", L"", 1));
+    if (!dll_dir || !qt_plugin_dir) ExitProcess(_show_error(L"Out of memory", L"", 1));
     _snprintf_s(dll_dir, l, _TRUNCATE, "%sDLLs", app_dir);
-    _snprintf_s(fc_dir,  l, _TRUNCATE, "%sfontconfig", app_dir);
-    _snprintf_s(fc_file, l, _TRUNCATE, "%s\\fonts.conf", fc_dir);
     _snprintf_s(qt_plugin_dir, l, _TRUNCATE, "%sqt_plugins", app_dir);
     free(app_dir);
 
@@ -237,8 +227,6 @@ void load_python_dll() {
     _putenv_s("MAGICK_CONFIGURE_PATH", dll_dir);
     _putenv_s("MAGICK_CODER_MODULE_PATH", dll_dir);
     _putenv_s("MAGICK_FILTER_MODULE_PATH", dll_dir);
-    _putenv_s("FC_CONFIG_DIR", fc_dir);
-    _putenv_s("FC_CONFIG_FILE", fc_file);
     _putenv_s("QT_PLUGIN_PATH", qt_plugin_dir);
 
     if (!SetDllDirectoryA(dll_dir)) ExitProcess(show_last_error(L"Failed to set DLL directory."));
@@ -260,10 +248,10 @@ void setup_stream(const char *name, const char *errors, UINT cp) {
     else if (cp == CP_UTF7) _snprintf_s(buf, 100, _TRUNCATE, "%s", "utf-7");
     else _snprintf_s(buf, 100, _TRUNCATE, "cp%d", cp);
 
-    stream = PySys_GetObject(name);
+    stream = PySys_GetObject((char*)name);
 
-    if (!PyFile_SetEncodingAndErrors(stream, buf, errors)) 
-        ExitProcess(calibre_show_python_error("Failed to set stream encoding", 1));
+    if (!PyFile_SetEncodingAndErrors(stream, buf, (char*)errors)) 
+        ExitProcess(calibre_show_python_error(L"Failed to set stream encoding", 1));
 
     free(buf);
     
@@ -378,7 +366,6 @@ void initialize_interpreter(wchar_t *outr, wchar_t *errr,
     }
     PySys_SetObject("argv", argv);
 
-    findproc = FindLibrary;
 	Py_InitModule3("_memimporter", methods, module_doc);
 
 }

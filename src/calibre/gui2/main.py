@@ -8,8 +8,8 @@ from PyQt4.Qt import (QCoreApplication, QIcon, QObject, QTimer,
         QPixmap, QSplashScreen, QApplication)
 
 from calibre import prints, plugins, force_unicode
-from calibre.constants import (iswindows, __appname__, isosx, DEBUG,
-        filesystem_encoding)
+from calibre.constants import (iswindows, __appname__, isosx, DEBUG, islinux,
+        filesystem_encoding, get_portable_base)
 from calibre.utils.ipc import gui_socket_address, RC
 from calibre.gui2 import (ORG_NAME, APP_UID, initialize_file_icon_provider,
     Application, choose_dir, error_dialog, question_dialog, gprefs)
@@ -20,6 +20,9 @@ from calibre.library.sqlite import sqlite, DatabaseException
 
 if iswindows:
     winutil = plugins['winutil'][0]
+
+class AbortInit(Exception):
+    pass
 
 def option_parser():
     parser = _option_parser('''\
@@ -46,10 +49,43 @@ path_to_ebook to the database.
                 'will be silently aborted, so use with care.'))
     return parser
 
+def find_portable_library():
+    base = get_portable_base()
+    if base is None: return
+    import glob
+    candidates = [os.path.basename(os.path.dirname(x)) for x in glob.glob(
+        os.path.join(base, u'*%smetadata.db'%os.sep))]
+    if not candidates:
+        candidates = [u'Calibre Library']
+    lp = prefs['library_path']
+    if not lp:
+        lib = os.path.join(base, candidates[0])
+    else:
+        lib = None
+        q = os.path.basename(lp)
+        for c in candidates:
+            c = c
+            if c.lower() == q.lower():
+                lib = os.path.join(base, c)
+                break
+        if lib is None:
+            lib = os.path.join(base, candidates[0])
+
+    if len(lib) > 74:
+        error_dialog(None, _('Path too long'),
+            _("Path to Calibre Portable (%s) "
+                'too long. Must be less than 59 characters.')%base, show=True)
+        raise AbortInit()
+
+    prefs.set('library_path', lib)
+    if not os.path.exists(lib):
+        os.mkdir(lib)
+
 def init_qt(args):
     from calibre.gui2.ui import Main
     parser = option_parser()
     opts, args = parser.parse_args(args)
+    find_portable_library()
     if opts.with_library is not None:
         if not os.path.exists(opts.with_library):
             os.makedirs(opts.with_library)
@@ -58,9 +94,10 @@ def init_qt(args):
             prints('Using library at', prefs['library_path'])
     QCoreApplication.setOrganizationName(ORG_NAME)
     QCoreApplication.setApplicationName(APP_UID)
-    app = Application(args)
+    override = 'calibre-gui' if islinux else None
+    app = Application(args, override_program_name=override)
     actions = tuple(Main.create_application_menubar())
-    app.setWindowIcon(QIcon(I('library.png')))
+    app.setWindowIcon(QIcon(I('lt.png')))
     return app, opts, args, actions
 
 
@@ -134,7 +171,8 @@ class GuiRunner(QObject):
         main = Main(self.opts, gui_debug=self.gui_debug)
         if self.splash_screen is not None:
             self.splash_screen.showMessage(_('Initializing user interface...'))
-        main.initialize(self.library_path, db, self.listener, self.actions)
+        with gprefs: # Only write gui.json after initialization is complete
+            main.initialize(self.library_path, db, self.listener, self.actions)
         if self.splash_screen is not None:
             self.splash_screen.finish(main)
         if DEBUG:
@@ -253,6 +291,7 @@ def run_in_debug_mode(logpath=None):
 
 def run_gui(opts, args, actions, listener, app, gui_debug=None):
     initialize_file_icon_provider()
+    app.load_builtin_fonts(scan_for_fonts=True)
     if not dynamic.get('welcome_wizard_was_run', False):
         from calibre.gui2.wizard import wizard
         wizard().exec_()
@@ -312,17 +351,39 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
 
     raise SystemExit(1)
 
-def communicate(opts, args):
-    t = RC()
+def build_pipe(print_error=True):
+    t = RC(print_error=print_error)
     t.start()
-    time.sleep(3)
-    if not t.done:
-        f = os.path.expanduser('~/.calibre_calibre GUI.lock')
-        cant_start(what=_('try deleting the file')+': '+f)
+    t.join(3.0)
+    if t.is_alive():
+        if iswindows():
+            cant_start()
+        else:
+            f = os.path.expanduser('~/.calibre_calibre GUI.lock')
+            cant_start(what=_('try deleting the file')+': '+f)
         raise SystemExit(1)
+    return t
 
+def shutdown_other(rc=None):
+    if rc is None:
+        rc = build_pipe(print_error=False)
+        if rc.conn is None:
+            prints(_('No running calibre found'))
+            return # No running instance found
+    from calibre.utils.lock import singleinstance
+    rc.conn.send('shutdown:')
+    prints(_('Shutdown command sent, waiting for shutdown...'))
+    for i in xrange(50):
+        if singleinstance('calibre GUI'):
+            return
+        time.sleep(0.1)
+    prints(_('Failed to shutdown running calibre instance'))
+    raise SystemExit(1)
+
+def communicate(opts, args):
+    t = build_pipe()
     if opts.shutdown_running_calibre:
-        t.conn.send('shutdown:')
+        shutdown_other(t)
     else:
         if len(args) > 1:
             args[1] = os.path.abspath(args[1])
@@ -330,14 +391,16 @@ def communicate(opts, args):
     t.conn.close()
     raise SystemExit(0)
 
-
 def main(args=sys.argv):
     gui_debug = None
     if args[0] == '__CALIBRE_GUI_DEBUG__':
         gui_debug = args[1]
         args = ['calibre']
 
-    app, opts, args, actions = init_qt(args)
+    try:
+        app, opts, args, actions = init_qt(args)
+    except AbortInit:
+        return 1
     from calibre.utils.lock import singleinstance
     from multiprocessing.connection import Listener
     si = singleinstance('calibre GUI')

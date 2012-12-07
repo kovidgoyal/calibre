@@ -1,0 +1,50 @@
+__license__   = 'GPL v3'
+__copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.thenewage.co.za
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class TheNewAge_za(BasicNewsRecipe):
+    title                 = 'The New Age'
+    __author__            = 'Darko Miletic'
+    description           = "The New Age newspaper is a national daily newspaper, owned and operated by TNA Media (Pty) Ltd. TNA Media was established in June 2010 and the first publication of The New Age was on 6 December 2010. The New Age covers news from all nine provinces, along with national events, Op-Ed columns, politics, Africa and International news, sports, business, entertainment, lifestyle, science and technology."
+    publisher             = 'TNA Media (Pty.) Ltd.'
+    category              = 'news, politics, South Africa'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    auto_cleanup          = False    
+    language              = 'en_ZA'
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://www.thenewage.co.za/image/tnalogo.png'
+    extra_css             = """ 
+                                body{font-family: Arial,Verdana,sans-serif }
+                                img{display: block}
+                                .storyheadline{font-size: x-large; font-weight: bold}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags = [dict(name=['object','embed','iframe','table','meta','link'])]
+    keep_only_tags = [dict(name='div', attrs={'id':['dv_headline', 'dv_story_dtls']})]
+
+
+    feeds = [
+              (u'National' , u'http://www.thenewage.co.za/rss.aspx?cat_id=1007')
+             ,(u'Provinces', u'http://www.thenewage.co.za/rss.aspx?cat_id=1008')
+             ,(u'Business' , u'http://www.thenewage.co.za/rss.aspx?cat_id=9'   )
+             ,(u'Sport'    , u'http://www.thenewage.co.za/rss.aspx?cat_id=10'  )
+             ,(u'World'    , u'http://www.thenewage.co.za/rss.aspx?cat_id=1020')
+             ,(u'Africa'   , u'http://www.thenewage.co.za/rss.aspx?cat_id=1019')
+             ,(u'Science&Tech', u'http://www.thenewage.co.za/rss.aspx?cat_id=1021')
+            ]

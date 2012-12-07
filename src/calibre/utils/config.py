@@ -12,7 +12,7 @@ from optparse import OptionParser as _OptionParser, OptionGroup
 from optparse import IndentedHelpFormatter
 
 from calibre.constants import (config_dir, CONFIG_DIR_MODE, __appname__,
-        __version__, __author__, terminal_controller)
+        __version__, __author__)
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.config_base import (make_config_dir, Option, OptionValues,
         OptionSet, ConfigInterface, Config, prefs, StringConfig, ConfigProxy,
@@ -30,28 +30,32 @@ def check_config_write_access():
 class CustomHelpFormatter(IndentedHelpFormatter):
 
     def format_usage(self, usage):
-        tc = terminal_controller()
-        return "%s%s%s: %s\n" % (tc.BLUE, _('Usage'), tc.NORMAL, usage)
+        from calibre.utils.terminal import colored
+        parts = usage.split(' ')
+        if parts:
+            parts[0] = colored(parts[0], fg='yellow', bold=True)
+        usage = ' '.join(parts)
+        return colored(_('Usage'), fg='blue', bold=True) + ': ' + usage
 
     def format_heading(self, heading):
-        tc = terminal_controller()
-        return "%*s%s%s%s:\n" % (self.current_indent, tc.BLUE,
-                                 "", heading, tc.NORMAL)
+        from calibre.utils.terminal import colored
+        return "%*s%s:\n" % (self.current_indent, '',
+                                 colored(heading, fg='blue', bold=True))
 
     def format_option(self, option):
         import textwrap
-        tc = terminal_controller()
+        from calibre.utils.terminal import colored
 
         result = []
         opts = self.option_strings[option]
         opt_width = self.help_position - self.current_indent - 2
         if len(opts) > opt_width:
             opts = "%*s%s\n" % (self.current_indent, "",
-                                    tc.GREEN+opts+tc.NORMAL)
+                                    colored(opts, fg='green'))
             indent_first = self.help_position
         else:                       # start help on same line as opts
             opts = "%*s%-*s  " % (self.current_indent, "", opt_width +
-                    len(tc.GREEN + tc.NORMAL), tc.GREEN + opts + tc.NORMAL)
+                    len(colored('', fg='green')), colored(opts, fg='green'))
             indent_first = 0
         result.append(opts)
         if option.help:
@@ -78,11 +82,11 @@ class OptionParser(_OptionParser):
                  conflict_handler='resolve',
                  **kwds):
         import textwrap
-        tc = terminal_controller()
+        from calibre.utils.terminal import colored
 
         usage = textwrap.dedent(usage)
         if epilog is None:
-            epilog = _('Created by ')+tc.RED+__author__+tc.NORMAL
+            epilog = _('Created by ')+colored(__author__, fg='cyan')
         usage += '\n\n'+_('''Whenever you pass arguments to %prog that have spaces in them, '''
                  '''enclose the arguments in quotation marks.''')
         _OptionParser.__init__(self, usage=usage, version=version, epilog=epilog,
@@ -94,6 +98,21 @@ class OptionParser(_OptionParser):
             _("Options")
             _("show this help message and exit")
             _("show program's version number and exit")
+
+    def print_usage(self, file=None):
+        from calibre.utils.terminal import ANSIStream
+        s = ANSIStream(file)
+        _OptionParser.print_usage(self, file=s)
+
+    def print_help(self, file=None):
+        from calibre.utils.terminal import ANSIStream
+        s = ANSIStream(file)
+        _OptionParser.print_help(self, file=s)
+
+    def print_version(self, file=None):
+        from calibre.utils.terminal import ANSIStream
+        s = ANSIStream(file)
+        _OptionParser.print_version(self, file=s)
 
     def error(self, msg):
         if self.gui_mode:
@@ -240,6 +259,7 @@ class XMLConfig(dict):
 
     def __init__(self, rel_path_to_cf_file):
         dict.__init__(self)
+        self.no_commit = False
         self.defaults = {}
         self.file_path = os.path.join(config_dir,
                 *(rel_path_to_cf_file.split('/')))
@@ -304,6 +324,7 @@ class XMLConfig(dict):
             self.commit()
 
     def commit(self):
+        if self.no_commit: return
         if hasattr(self, 'file_path') and self.file_path:
             dpath = os.path.dirname(self.file_path)
             if not os.path.exists(dpath):
@@ -313,6 +334,13 @@ class XMLConfig(dict):
                 f.seek(0)
                 f.truncate()
                 f.write(raw)
+
+    def __enter__(self):
+        self.no_commit = True
+
+    def __exit__(self, *args):
+        self.no_commit = False
+        self.commit()
 
 def to_json(obj):
     if isinstance(obj, bytearray):
@@ -359,7 +387,18 @@ class JSONConfig(XMLConfig):
         dict.__setitem__(self, key, val)
         self.commit()
 
+class DevicePrefs:
 
+    def __init__(self, global_prefs):
+        self.global_prefs = global_prefs
+        self.overrides = {}
 
+    def set_overrides(self, **kwargs):
+        self.overrides = kwargs.copy()
+
+    def __getitem__(self, key):
+        return self.overrides.get(key, self.global_prefs[key])
+
+device_prefs = DevicePrefs(prefs)
 
 

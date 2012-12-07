@@ -9,8 +9,9 @@ __docformat__ = 'restructuredtext en'
 import textwrap, codecs, importlib
 from functools import partial
 
-from PyQt4.Qt import QWidget, QSpinBox, QDoubleSpinBox, QLineEdit, QTextEdit, \
-    QCheckBox, QComboBox, Qt, QIcon, pyqtSignal, QLabel
+from PyQt4.Qt import (QWidget, QSpinBox, QDoubleSpinBox, QLineEdit, QTextEdit,
+    QCheckBox, QComboBox, Qt, QIcon, pyqtSignal, QLabel, QFontComboBox, QFont,
+    QFontInfo)
 
 from calibre.customize.conversion import OptionRecommendation
 from calibre.ebooks.conversion.config import load_defaults, \
@@ -18,6 +19,7 @@ from calibre.ebooks.conversion.config import load_defaults, \
     load_specifics, GuiRecommendations
 from calibre import prepare_string_for_xml
 from calibre.customize.ui import plugin_for_input_format
+from calibre.gui2.font_family_chooser import FontFamilyChooser
 
 def config_widget_for_input_plugin(plugin):
     name = plugin.name.lower().replace(' ', '_')
@@ -34,8 +36,6 @@ def bulk_defaults_for_input_format(fmt):
         if w is not None:
             return load_defaults(w.COMMIT_NAME)
     return {}
-
-
 
 class Widget(QWidget):
 
@@ -143,6 +143,10 @@ class Widget(QWidget):
             if not ans:
                 ans = None
             return ans
+        elif isinstance(g, QFontComboBox):
+            return unicode(QFontInfo(g.currentFont()).family())
+        elif isinstance(g, FontFamilyChooser):
+            return g.font_family
         elif isinstance(g, EncodingComboBox):
             ans = unicode(g.currentText()).strip()
             try:
@@ -187,6 +191,8 @@ class Widget(QWidget):
         elif isinstance(g, (XPathEdit, RegexEdit)):
             g.edit.editTextChanged.connect(f)
             g.edit.currentIndexChanged.connect(f)
+        elif isinstance(g, FontFamilyChooser):
+            g.family_changed.connect(f)
         else:
             raise Exception('Can\'t connect %s'%type(g))
 
@@ -205,6 +211,10 @@ class Widget(QWidget):
             if not val: val = ''
             getattr(g, 'setPlainText', g.setText)(val)
             getattr(g, 'setCursorPosition', lambda x: x)(0)
+        elif isinstance(g, QFontComboBox):
+            g.setCurrentFont(QFont(val or ''))
+        elif isinstance(g, FontFamilyChooser):
+            g.font_family = val
         elif isinstance(g, EncodingComboBox):
             if val:
                 g.setEditText(val)

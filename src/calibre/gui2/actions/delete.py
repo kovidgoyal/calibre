@@ -139,6 +139,21 @@ class DeleteAction(InterfaceAction):
             return set([])
         return set(map(self.gui.library_view.model().id, rows))
 
+    def remove_format_by_id(self, book_id, fmt):
+        title = self.gui.current_db.title(book_id, index_is_id=True)
+        if not confirm('<p>'+(_(
+            'The %(fmt)s format will be <b>permanently deleted</b> from '
+            '%(title)s. Are you sure?')%dict(fmt=fmt, title=title))
+                            +'</p>', 'library_delete_specific_format', self.gui):
+            return
+
+        self.gui.library_view.model().db.remove_format(book_id, fmt,
+                index_is_id=True, notify=False)
+        self.gui.library_view.model().refresh_ids([book_id])
+        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
+                self.gui.library_view.currentIndex())
+        self.gui.tags_view.recount()
+
     def delete_selected_formats(self, *args):
         ids = self._get_selected_ids()
         if not ids:
@@ -271,6 +286,14 @@ class DeleteAction(InterfaceAction):
                 current_row = view.row_count() - 1
             view.set_current_row(current_row)
 
+    def library_ids_deleted2(self, ids_deleted, next_id=None):
+        view = self.gui.library_view
+        current_row = None
+        if next_id is not None:
+            rmap = view.ids_to_rows([next_id])
+            current_row = rmap.get(next_id, None)
+        self.library_ids_deleted(ids_deleted, current_row=current_row)
+
     def delete_books(self, *args):
         '''
         Delete selected books from device or library.
@@ -310,16 +333,13 @@ class DeleteAction(InterfaceAction):
                                    'removed from your calibre library. Are you sure?')
                                 +'</p>', 'library_delete_books', self.gui):
                 return
-            ci = view.currentIndex()
-            row = None
-            if ci.isValid():
-                row = ci.row()
+            next_id = view.next_id
             if len(rows) < 5:
                 view.model().delete_books_by_id(to_delete_ids)
-                self.library_ids_deleted(to_delete_ids, row)
+                self.library_ids_deleted2(to_delete_ids, next_id=next_id)
             else:
                 self.__md = MultiDeleter(self.gui, to_delete_ids,
-                        partial(self.library_ids_deleted, current_row=row))
+                        partial(self.library_ids_deleted2, next_id=next_id))
         # Device view is visible.
         else:
             if self.gui.stack.currentIndex() == 1:

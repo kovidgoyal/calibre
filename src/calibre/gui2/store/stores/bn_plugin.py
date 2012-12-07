@@ -6,7 +6,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import random
 import urllib
 from contextlib import closing
 
@@ -24,51 +23,40 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class BNStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        pub_id = 'sHa5EXvYOwA'
-        # Use Kovid's affiliate id 30% of the time.
-        if random.randint(1, 10) in (1, 2, 3):
-            pub_id = '0dsO3kDu/AU'
-
-        murl = 'http://click.linksynergy.com/fs-bin/click?id=%s&offerid=239662.13&type=3&subid=0' % pub_id
-
-        if detail_item:
-            purl = 'http://click.linksynergy.com/fs-bin/click?id=%s&subid=&offerid=239662.%s&type=2&subid=0' % (pub_id, detail_item)
-            url = purl
-        else:
-            purl = None
-            url = murl
-
-        #print(url)
+        url = "http://bn.com"
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(url)))
+            open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
         else:
-            d = WebStoreDialog(self.gui, murl, parent, purl)
+            d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.barnesandnoble.com/s/%s?keyword=%s&store=ebook' % (query.replace(' ', '-'), urllib.quote_plus(query))
+        url = 'http://www.barnesandnoble.com/s/%s?keyword=%s&store=ebook&view=list' % (query.replace(' ', '-'), urllib.quote_plus(query))
 
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read())
+            raw = f.read()
+            doc = html.fromstring(raw)
             for data in doc.xpath('//ul[contains(@class, "result-set")]/li[contains(@class, "result")]'):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//div[contains(@class, "display-tile-item")]/@data-bn-ean'))
+                id = ''.join(data.xpath('.//div[contains(@class, "image-block")]/a/@href'))
                 if not id:
                     continue
 
                 cover_url = ''.join(data.xpath('.//img[contains(@class, "product-image")]/@src'))
 
-                title = ''.join(data.xpath('.//a[@class="title"]//text()'))
-                author = ', '.join(data.xpath('.//a[@class="contributor"]//text()'))
-                price = ''.join(data.xpath('.//div[@class="price-format"]//span[contains(@class, "price")]/text()'))
+                title = ''.join(data.xpath('descendant::p[@class="title"]//span[@class="name"]//text()')).strip()
+                if not title: continue
+
+                author = ', '.join(data.xpath('.//ul[@class="contributors"]//a[@class="subtle"]//text()')).strip()
+                price = ''.join(data.xpath('.//a[contains(@class, "bn-price")]//text()'))
 
                 counter -= 1
 

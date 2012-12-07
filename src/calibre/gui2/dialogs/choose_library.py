@@ -11,8 +11,9 @@ from PyQt4.Qt import QDialog
 
 from calibre.gui2.dialogs.choose_library_ui import Ui_Dialog
 from calibre.gui2 import error_dialog, choose_dir
-from calibre.constants import filesystem_encoding, iswindows
-from calibre import isbytestring, patheq
+from calibre.constants import (filesystem_encoding, iswindows,
+        get_portable_base)
+from calibre import isbytestring, patheq, force_unicode
 from calibre.gui2.wizard import move_library
 from calibre.library.database2 import LibraryDatabase2
 
@@ -39,18 +40,45 @@ class ChooseLibrary(QDialog, Ui_Dialog):
         self.copy_structure.setEnabled(to_what)
 
     def choose_loc(self, *args):
-        loc = choose_dir(self, 'choose library location',
-                _('Choose location for calibre library'))
+        base = get_portable_base()
+        if base is None:
+            loc = choose_dir(self, 'choose library location',
+                    _('Choose location for calibre library'))
+        else:
+            name = force_unicode('choose library loc at' + base,
+                    filesystem_encoding)
+            loc = choose_dir(self, name,
+                    _('Choose location for calibre library'), default_dir=base,
+                    no_save_dir=True)
         if loc is not None:
             self.location.setText(loc)
 
     def check_action(self, ac, loc):
         exists = self.db.exists_at(loc)
+        base = get_portable_base()
         if patheq(loc, self.db.library_path):
             error_dialog(self, _('Same as current'),
                     _('The location %s contains the current calibre'
                         ' library')%loc, show=True)
             return False
+
+        if base is not None and ac in ('new', 'move'):
+            abase = os.path.normcase(os.path.abspath(base))
+            cal = os.path.normcase(os.path.abspath(os.path.join(abase,
+                'Calibre')))
+            aloc = os.path.normcase(os.path.abspath(loc))
+            if (aloc.startswith(cal+os.sep) or aloc == cal):
+                error_dialog(self, _('Bad location'),
+                    _('You should not create a library inside the Calibre'
+                        ' folder as this folder is automatically deleted during upgrades.'),
+                    show=True)
+                return False
+            if aloc.startswith(abase) and os.path.dirname(aloc) != abase:
+                error_dialog(self, _('Bad location'),
+                    _('You can only create libraries inside %s at the top '
+                        'level, not in sub-folders')%base, show=True)
+                return False
+
         empty = not os.listdir(loc)
         if ac == 'existing' and not exists:
             error_dialog(self, _('No existing library found'),

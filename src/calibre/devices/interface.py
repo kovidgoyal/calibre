@@ -15,6 +15,8 @@ class DevicePlugin(Plugin):
 
     #: Ordered list of supported formats
     FORMATS     = ["lrf", "rtf", "pdf", "txt"]
+    # If True, the config dialog will not show the formats box
+    HIDE_FORMATS_CONFIG_BOX = False
 
     #: VENDOR_ID can be either an integer, a list of integers or a dictionary
     #: If it is a dictionary, it must be a dictionary of dictionaries,
@@ -79,6 +81,31 @@ class DevicePlugin(Plugin):
     #: by.
     NUKE_COMMENTS = None
 
+    #: If True indicates that  this driver completely manages device detection,
+    #: ejecting and so forth. If you set this to True, you *must* implement the
+    #: detect_managed_devices and debug_managed_device_detection methods.
+    #: A driver with this set to true is responsible for detection of devices,
+    #: managing a blacklist of devices, a list of ejected devices and so forth.
+    #: calibre will periodically call the detect_managed_devices() method and
+    #: is it returns a detected device, calibre will call open(). open() will
+    #: be called every time a device is returned even is previous calls to open()
+    #: failed, therefore the driver must maintain its own blacklist of failed
+    #: devices. Similarly, when ejecting, calibre will call eject() and then
+    #: assuming the next call to detect_managed_devices() returns None, it will
+    #: call post_yank_cleanup().
+    MANAGES_DEVICE_PRESENCE = False
+
+    #: If set the True, calibre will call the :meth:`get_driveinfo()` method
+    #: after the books lists have been loaded to get the driveinfo.
+    SLOW_DRIVEINFO = False
+
+    #: If set to True, calibre will ask the user if they want to manage the
+    #: device with calibre, the first time it is detected. If you set this to
+    #: True you must implement :meth:`get_device_uid()` and
+    #: :meth:`ignore_connected_device()` and
+    #: :meth:`get_user_blacklisted_devices` and
+    #: :meth:`set_user_blacklisted_devices`
+    ASK_TO_ALLOW_CONNECT = False
 
     @classmethod
     def get_gui_name(cls):
@@ -194,10 +221,44 @@ class DevicePlugin(Plugin):
                                     return True, dev
         return False, None
 
+    def detect_managed_devices(self, devices_on_system, force_refresh=False):
+        '''
+        Called only if MANAGES_DEVICE_PRESENCE is True.
+
+        Scan for devices that this driver can handle. Should return a device
+        object if a device is found. This object will be passed to the open()
+        method as the connected_device. If no device is found, return None. The
+        returned object can be anything, calibre does not use it, it is only
+        passed to open().
+
+        This method is called periodically by the GUI, so make sure it is not
+        too resource intensive. Use a cache to avoid repeatedly scanning the
+        system.
+
+        :param devices_on_system: Set of USB devices found on the system.
+
+        :param force_refresh: If True and the driver uses a cache to prevent
+                              repeated scanning, the cache must be flushed.
+
+        '''
+        raise NotImplementedError()
+
+    def debug_managed_device_detection(self, devices_on_system, output):
+        '''
+        Called only if MANAGES_DEVICE_PRESENCE is True.
+
+        Should write information about the devices detected on the system to
+        output, which is a file like object.
+
+        Should return True if a device was detected and successfully opened,
+        otherwise False.
+        '''
+        raise NotImplementedError()
+
     # }}}
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
-            detected_device=None) :
+            detected_device=None):
         """
         :param key: The key to unlock the device
         :param log_packets: If true the packet stream to/from the device is logged
@@ -268,6 +329,9 @@ class DevicePlugin(Plugin):
         '''
         Un-mount / eject the device from the OS. This does not check if there
         are pending GUI jobs that need to communicate with the device.
+
+        NOTE: That this method may not be called on the same thread as the rest
+        of the device methods.
         '''
         raise NotImplementedError()
 
@@ -295,10 +359,22 @@ class DevicePlugin(Plugin):
 
         :return: (device name, device version, software version on device, mime type)
                  The tuple can optionally have a fifth element, which is a
-                 drive information diction. See usbms.driver for an example.
+                 drive information dictionary. See usbms.driver for an example.
 
         """
         raise NotImplementedError()
+
+    def get_driveinfo(self):
+        '''
+        Return the driveinfo dictionary. Usually called from
+        get_device_information(), but if loading the driveinfo is slow for this
+        driver, then it should set SLOW_DRIVEINFO. In this case, this method
+        will be called by calibre after the book lists have been loaded. Note
+        that it is not called on the device thread, so the driver should cache
+        the drive info in the books() method and this function should return
+        the cached data.
+        '''
+        return {}
 
     def card_prefix(self, end_session=True):
         '''
@@ -485,7 +561,8 @@ class DevicePlugin(Plugin):
         Set the device name in the driveinfo file to 'name'. This setting will
         persist until the file is re-created or the name is changed again.
 
-        Non-disk devices will ignore this request.
+        Non-disk devices should implement this method based on the location
+        codes returned by the get_device_information() method.
         '''
         pass
 
@@ -493,8 +570,144 @@ class DevicePlugin(Plugin):
         '''
         Given a list of paths, returns another list of paths. These paths
         point to addable versions of the books.
+
+        If there is an error preparing a book, then instead of a path, the
+        position in the returned list for that book should be a three tuple:
+        (original_path, the exception instance, traceback)
         '''
         return paths
+
+    def startup(self):
+        '''
+        Called when calibre is is starting the device. Do any initialization
+        required. Note that multiple instances of the class can be instantiated,
+        and thus __init__ can be called multiple times, but only one instance
+        will have this method called. This method is called on the device
+        thread, not the GUI thread.
+        '''
+        pass
+
+    def shutdown(self):
+        '''
+        Called when calibre is shutting down, either for good or in preparation
+        to restart. Do any cleanup required. This method is called on the
+        device thread, not the GUI thread.
+        '''
+        pass
+
+    def get_device_uid(self):
+        '''
+        Must return a unique id for the currently connected device (this is
+        called immediately after a successful call to open()). You must
+        implement this method if you set ASK_TO_ALLOW_CONNECT = True
+        '''
+        raise NotImplementedError()
+
+    def ignore_connected_device(self, uid):
+        '''
+        Should ignore the device identified by uid (the result of a call to
+        get_device_uid()) in the future. You must implement this method if you
+        set ASK_TO_ALLOW_CONNECT = True. Note that this function is called
+        immediately after open(), so if open() caches some state, the driver
+        should reset that state.
+        '''
+        raise NotImplementedError()
+
+    def get_user_blacklisted_devices(self):
+        '''
+        Return map of device uid to friendly name for all devices that the user
+        has asked to be ignored.
+        '''
+        return {}
+
+    def set_user_blacklisted_devices(self, devices):
+        '''
+        Set the list of device uids that should be ignored by this driver.
+        '''
+        pass
+
+    def specialize_global_preferences(self, device_prefs):
+        '''
+        Implement this method if your device wants to override a particular
+        preference. You must ensure that all call sites that want a preference
+        that can be overridden use device_prefs['something'] instead
+        of prefs['something']. Your
+        method should call device_prefs.set_overrides(pref=val, pref=val, ...).
+        Currently used for:
+        metadata management (prefs['manage_device_metadata'])
+        '''
+        device_prefs.set_overrides()
+
+
+    # Dynamic control interface.
+    # The following methods are probably called on the GUI thread. Any driver
+    # that implements these methods must take pains to be thread safe, because
+    # the device_manager might be using the driver at the same time that one of
+    # these methods is called.
+
+    def is_dynamically_controllable(self):
+        '''
+        Called by the device manager when starting plugins. If this method returns
+        a string, then a) it supports the device manager's dynamic control
+        interface, and b) that name is to be used when talking to the plugin.
+
+        This method can be called on the GUI thread. A driver that implements
+        this method must be thread safe.
+        '''
+        return None
+
+    def start_plugin(self):
+        '''
+        This method is called to start the plugin. The plugin should begin
+        to accept device connections however it does that. If the plugin is
+        already accepting connections, then do nothing.
+
+        This method can be called on the GUI thread. A driver that implements
+        this method must be thread safe.
+        '''
+        pass
+
+    def stop_plugin(self):
+        '''
+        This method is called to stop the plugin. The plugin should no longer
+        accept connections, and should cleanup behind itself. It is likely that
+        this method should call shutdown. If the plugin is already not accepting
+        connections, then do nothing.
+
+        This method can be called on the GUI thread. A driver that implements
+        this method must be thread safe.
+        '''
+        pass
+
+    def get_option(self, opt_string, default=None):
+        '''
+        Return the value of the option indicated by opt_string. This method can
+        be called when the plugin is not started. Return None if the option does
+        not exist.
+
+        This method can be called on the GUI thread. A driver that implements
+        this method must be thread safe.
+        '''
+        return default
+
+    def set_option(self, opt_string, opt_value):
+        '''
+        Set the value of the option indicated by opt_string. This method can
+        be called when the plugin is not started.
+
+        This method can be called on the GUI thread. A driver that implements
+        this method must be thread safe.
+        '''
+        pass
+
+    def is_running(self):
+        '''
+        Return True if the plugin is started, otherwise false
+
+        This method can be called on the GUI thread. A driver that implements
+        this method must be thread safe.
+        '''
+        return False
 
 class BookList(list):
     '''
@@ -519,7 +732,7 @@ class BookList(list):
         pass
 
     def supports_collections(self):
-        ''' Return True if the the device supports collections for this book list. '''
+        ''' Return True if the device supports collections for this book list. '''
         raise NotImplementedError()
 
     def add_book(self, book, replace_metadata):

@@ -23,13 +23,16 @@ FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating',
     'formats', 'isbn', 'uuid', 'pubdate', 'cover', 'last_modified',
     'identifiers'])
 
+do_notify = True
 def send_message(msg=''):
+    global do_notify
+    if not do_notify:
+        return
     prints('Notifying calibre of the change')
     from calibre.utils.ipc import RC
-    import time
     t = RC(print_error=False)
     t.start()
-    time.sleep(3)
+    t.join(3)
     if t.done:
         t.conn.send('refreshdb:'+msg)
         t.conn.close()
@@ -42,22 +45,27 @@ def get_parser(usage):
     parser = OptionParser(usage)
     go = parser.add_option_group(_('GLOBAL OPTIONS'))
     go.add_option('--library-path', '--with-library', default=None, help=_('Path to the calibre library. Default is to use the path stored in the settings.'))
+    go.add_option('--dont-notify-gui', default=False, action='store_true',
+            help=_('Do not notify the running calibre GUI (if any) that the database has'
+                ' changed. Use with care, as it can lead to database corruption!'))
 
     return parser
 
 def get_db(dbpath, options):
+    global do_notify
     if options.library_path is not None:
         dbpath = options.library_path
     if dbpath is None:
         raise ValueError('No saved library path, either run the GUI or use the'
                 ' --with-library option')
     dbpath = os.path.abspath(dbpath)
+    if options.dont_notify_gui:
+        do_notify = False
     return LibraryDatabase2(dbpath)
 
 def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, separator,
             prefix, subtitle='Books in the calibre database'):
-    from calibre.constants import terminal_controller as tc
-    terminal_controller = tc()
+    from calibre.utils.terminal import ColoredStream, geometry
     if sort_by:
         db.sort(sort_by, ascending)
     if search_text:
@@ -92,7 +100,7 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
         for j, field in enumerate(fields):
             widths[j] = max(widths[j], len(unicode(i[field])))
 
-    screen_width = terminal_controller.COLS if line_width < 0 else line_width
+    screen_width = geometry()[0] if line_width < 0 else line_width
     if not screen_width:
         screen_width = 80
     field_width = screen_width//len(fields)
@@ -111,7 +119,8 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
     widths = list(base_widths)
     titles = map(lambda x, y: '%-*s%s'%(x-len(separator), y, separator),
             widths, title_fields)
-    print terminal_controller.GREEN + ''.join(titles)+terminal_controller.NORMAL
+    with ColoredStream(sys.stdout, fg='green'):
+        print ''.join(titles)
 
     wrappers = map(lambda x: TextWrapper(x-1), widths)
     o = cStringIO.StringIO()
@@ -165,7 +174,7 @@ List the books available in the calibre database.
 
 def command_list(args, dbpath):
     pre = get_parser('')
-    pargs = [x for x in args if x in ('--with-library', '--library-path')
+    pargs = [x for x in args if x.startswith('--with-library') or x.startswith('--library-path')
         or not x.startswith('-')]
     opts = pre.parse_args(sys.argv[:1] + pargs)[0]
     db = get_db(dbpath, opts)
@@ -206,7 +215,7 @@ class DevNull(object):
 NULL = DevNull()
 
 def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
-        oauthors, oisbn, otags, oseries, oseries_index):
+        oauthors, oisbn, otags, oseries, oseries_index, ocover):
     orig = sys.stdout
     #sys.stdout = NULL
     try:
@@ -238,25 +247,29 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
                 if val: setattr(mi, x, val)
             if oseries:
                 mi.series_index = oseries_index
+            if ocover:
+                mi.cover = ocover
 
             formats.append(format)
             metadata.append(mi)
 
         file_duplicates = []
+        added_ids = set()
         if files:
-            file_duplicates = db.add_books(files, formats, metadata,
-                                           add_duplicates=add_duplicates)
-            if file_duplicates:
-                file_duplicates = file_duplicates[0]
-
+            file_duplicates, ids = db.add_books(files, formats, metadata,
+                                           add_duplicates=add_duplicates,
+                                           return_ids=True)
+            added_ids |= set(ids)
 
         dir_dups = []
         for dir in dirs:
             if recurse:
-                dir_dups.extend(db.recursive_import(dir, single_book_per_directory=one_book_per_directory))
+                dir_dups.extend(db.recursive_import(dir,
+                    single_book_per_directory=one_book_per_directory,
+                    added_ids=added_ids))
             else:
                 func = db.import_book_directory if one_book_per_directory else db.import_book_directory_multiple
-                dups = func(dir)
+                dups = func(dir, added_ids=added_ids)
                 if not dups:
                     dups = []
                 dir_dups.extend(dups)
@@ -265,7 +278,8 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
 
         if add_duplicates:
             for mi, formats in dir_dups:
-                db.import_book(mi, formats)
+                book_id = db.import_book(mi, formats)
+                added_ids.add(book_id)
         else:
             if dir_dups or file_duplicates:
                 print >>sys.stderr, _('The following books were not added as '
@@ -287,6 +301,9 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
                     print >>sys.stderr, '\t\t ', path
 
         write_dirtied(db)
+        if added_ids:
+            prints(_('Added book ids: %s')%(', '.join(map(type(u''),
+                added_ids))))
         send_message()
     finally:
         sys.stdout = orig
@@ -320,11 +337,12 @@ the directory related options below.
             help=_('Set the series of the added book(s)'))
     parser.add_option('-S', '--series-index', default=1.0, type=float,
             help=_('Set the series number of the added book(s)'))
-
+    parser.add_option('-c', '--cover', default=None,
+            help=_('Path to the cover to use for the added book'))
 
     return parser
 
-def do_add_empty(db, title, authors, isbn, tags, series, series_index):
+def do_add_empty(db, title, authors, isbn, tags, series, series_index, cover):
     from calibre.ebooks.metadata import MetaInformation
     mi = MetaInformation(None)
     if title is not None:
@@ -337,6 +355,8 @@ def do_add_empty(db, title, authors, isbn, tags, series, series_index):
         mi.tags = tags
     if series:
         mi.series, mi.series_index = series, series_index
+    if cover:
+        mi.cover = cover
     db.import_book(mi, [])
     write_dirtied(db)
     send_message()
@@ -349,7 +369,7 @@ def command_add(args, dbpath):
     tags = [x.strip() for x in opts.tags.split(',')] if opts.tags else []
     if opts.empty:
         do_add_empty(get_db(dbpath, opts), opts.title, aut, opts.isbn, tags,
-                opts.series, opts.series_index)
+                opts.series, opts.series_index, opts.cover)
         return 0
     if len(args) < 2:
         parser.print_help()
@@ -358,7 +378,7 @@ def command_add(args, dbpath):
         return 1
     do_add(get_db(dbpath, opts), args[1:], opts.one_book_per_directory,
             opts.recurse, opts.duplicates, opts.title, aut, opts.isbn,
-            tags, opts.series, opts.series_index)
+            tags, opts.series, opts.series_index, opts.cover)
     return 0
 
 def do_remove(db, ids):
@@ -686,7 +706,22 @@ datatype is one of: {0}
             help=_('A dictionary of options to customize how '
                 'the data in this column will be interpreted. This is a JSON '
                 ' string. For enumeration columns, use '
-                '--display=\'{"enum_values":["val1", "val2"]}\''))
+                '--display="{\\"enum_values\\":[\\"val1\\", \\"val2\\"]}"'
+                '\n'
+                'There are many options that can go into the display variable.'
+                'The options by column type are:\n'
+                'composite: composite_template, composite_sort, make_category,'
+                'contains_html, use_decorations\n'
+                'datetime: date_format\n'
+                'enumeration: enum_values, enum_colors, use_decorations\n'
+                'int, float: number_format\n'
+                'text: is_names, use_decorations\n'
+                '\n'
+                'The best way to find legal combinations is to create a custom'
+                'column of the appropriate type in the GUI then look at the'
+                'backup OPF for a book (ensure that a new OPF has been created'
+                'since the column was added). You will see the JSON for the'
+                '"display" for the new column in the OPF.'))
     return parser
 
 
@@ -713,6 +748,7 @@ def catalog_option_parser(args):
     def add_plugin_parser_options(fmt, parser, log):
 
         # Fetch the extension-specific CLI options from the plugin
+        # library.catalogs.<format>.py
         plugin = plugin_for_catalog_format(fmt)
         for option in plugin.cli_options:
             if option.action:
@@ -792,6 +828,7 @@ def catalog_option_parser(args):
 def command_catalog(args, dbpath):
     parser, plugin, log = catalog_option_parser(args)
     opts, args = parser.parse_args(sys.argv[1:])
+
     if len(args) < 2:
         parser.print_help()
         print
@@ -823,7 +860,9 @@ def parse_series_string(db, label, value):
         val = pat.sub('', val).strip()
         s_index = float(match.group(1))
     elif val:
-        if tweaks['series_index_auto_increment'] != 'const':
+        if tweaks['series_index_auto_increment'] == 'no_change':
+            pass
+        elif tweaks['series_index_auto_increment'] != 'const':
             s_index = db.get_next_cc_series_num_for(val, label=label)
         else:
             s_index = 1.0
@@ -990,6 +1029,55 @@ def command_saved_searches(args, dbpath):
         return 1
 
     return 0
+
+def backup_metadata_option_parser():
+    parser = get_parser(_('''\
+%prog backup_metadata [options]
+
+Backup the metadata stored in the database into individual OPF files in each
+books directory. This normally happens automatically, but you can run this
+command to force re-generation of the OPF files, with the --all option.
+
+Note that there is normally no need to do this, as the OPF files are backed up
+automatically, every time metadata is changed.
+'''))
+    parser.add_option('--all', default=False, action='store_true',
+        help=_('Normally, this command only operates on books that have'
+            ' out of date OPF files. This option makes it operate on all'
+            ' books.'))
+    return parser
+
+class BackupProgress(object):
+
+    def __init__(self):
+        self.total = 0
+        self.count = 0
+
+    def __call__(self, book_id, mi, ok):
+        if mi is True:
+            self.total = book_id
+        else:
+            self.count += 1
+            prints(u'%.1f%% %s - %s'%((self.count*100)/float(self.total),
+                book_id, mi.title))
+
+def command_backup_metadata(args, dbpath):
+    parser = backup_metadata_option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) != 0:
+        parser.print_help()
+        return 1
+
+    if opts.library_path is not None:
+        dbpath = opts.library_path
+    if isbytestring(dbpath):
+        dbpath = dbpath.decode(preferred_encoding)
+    db = LibraryDatabase2(dbpath)
+    book_ids = None
+    if opts.all:
+        book_ids = db.all_ids()
+    db.dump_metadata(book_ids=book_ids, callback=BackupProgress())
+
 
 def check_library_option_parser():
     from calibre.library.check_library import CHECKS
@@ -1205,8 +1293,7 @@ def command_list_categories(args, dbpath):
     fields = ['category', 'tag_name', 'count', 'rating']
 
     def do_list():
-        from calibre.constants import terminal_controller as tc
-        terminal_controller = tc()
+        from calibre.utils.terminal import geometry, ColoredStream
 
         separator = ' '
         widths = list(map(lambda x : 0, fields))
@@ -1214,7 +1301,7 @@ def command_list_categories(args, dbpath):
             for j, field in enumerate(fields):
                 widths[j] = max(widths[j], max(len(field), len(unicode(i[field]))))
 
-        screen_width = terminal_controller.COLS if opts.width < 0 else opts.width
+        screen_width = geometry()[0]
         if not screen_width:
             screen_width = 80
         field_width = screen_width//len(fields)
@@ -1233,7 +1320,8 @@ def command_list_categories(args, dbpath):
         widths = list(base_widths)
         titles = map(lambda x, y: '%-*s%s'%(x-len(separator), y, separator),
                 widths, fields)
-        print terminal_controller.GREEN + ''.join(titles)+terminal_controller.NORMAL
+        with ColoredStream(sys.stdout, fg='green'):
+            print ''.join(titles)
 
         wrappers = map(lambda x: TextWrapper(x-1), widths)
         o = cStringIO.StringIO()
@@ -1267,7 +1355,7 @@ COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
             'show_metadata', 'set_metadata', 'export', 'catalog',
             'saved_searches', 'add_custom_column', 'custom_columns',
             'remove_custom_column', 'set_custom', 'restore_database',
-            'check_library', 'list_categories')
+            'check_library', 'list_categories', 'backup_metadata')
 
 
 def option_parser():

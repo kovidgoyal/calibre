@@ -7,8 +7,8 @@ __docformat__ = 'restructuredtext en'
 
 import functools
 
-from PyQt4.Qt import Qt, QStackedWidget, QMenu, \
-        QSize, QSizePolicy, QStatusBar, QLabel, QFont
+from PyQt4.Qt import (Qt, QStackedWidget, QMenu, QTimer,
+        QSize, QSizePolicy, QStatusBar, QLabel, QFont)
 
 from calibre.utils.config import prefs
 from calibre.constants import (isosx, __appname__, preferred_encoding,
@@ -265,10 +265,16 @@ class LayoutMixin(object): # {{{
                 type=Qt.QueuedConnection)
         self.book_details.open_containing_folder.connect(self.iactions['View'].view_folder_for_id)
         self.book_details.view_specific_format.connect(self.iactions['View'].view_format_by_id)
+        self.book_details.remove_specific_format.connect(
+                self.iactions['Remove Books'].remove_format_by_id)
+        self.book_details.save_specific_format.connect(
+                self.iactions['Save To Disk'].save_library_format_by_ids)
+        self.book_details.view_device_book.connect(
+                self.iactions['View'].view_device_book)
 
         m = self.library_view.model()
         if m.rowCount(None) > 0:
-            self.library_view.set_current_row(0)
+            QTimer.singleShot(0, self.library_view.set_current_row)
             m.current_changed(self.library_view.currentIndex(),
                     self.library_view.currentIndex())
         self.library_view.setFocus(Qt.OtherFocusReason)

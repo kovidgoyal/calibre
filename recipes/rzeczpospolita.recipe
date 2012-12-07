@@ -34,16 +34,20 @@ class RzeczpospolitaRecipe(BasicNewsRecipe):
     keep_only_tags.append(dict(name = 'div', attrs = {'id' : 'story'}))
 
     remove_tags =[]
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'articleLeftBox'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'socialNewTools'}))
     remove_tags.append(dict(name = 'div', attrs = {'id' : 'socialTools'}))
     remove_tags.append(dict(name = 'div', attrs = {'class' : 'articleToolBoxTop'}))
     remove_tags.append(dict(name = 'div', attrs = {'class' : 'clr'}))
     remove_tags.append(dict(name = 'div', attrs = {'id' : 'recommendations'}))
-    remove_tags.append(dict(name = 'div', attrs = {'id' : 'editorPicks'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'editorPicks'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'editorPicks editorPicksFirst'}))
     remove_tags.append(dict(name = 'div', attrs = {'id' : 'articleCopyrightText'}))
     remove_tags.append(dict(name = 'div', attrs = {'id' : 'articleCopyrightButton'}))
     remove_tags.append(dict(name = 'div', attrs = {'class' : 'articleToolBoxBottom'}))
     remove_tags.append(dict(name = 'div', attrs = {'class' : 'more'}))
     remove_tags.append(dict(name = 'div', attrs = {'class' : 'addRecommendation'}))
+    remove_tags.append(dict(name = 'h3', attrs = {'id' : 'tags'}))
 
     extra_css = '''
                     body {font-family: verdana, arial, helvetica, geneva, sans-serif ;}
@@ -66,4 +70,5 @@ class RzeczpospolitaRecipe(BasicNewsRecipe):
         forget, sep, index = rest.rpartition(',')
 
         return start + '/' + index + '?print=tak'
+
 

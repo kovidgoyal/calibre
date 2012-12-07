@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
+__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt4.Qt import QWidget, QListWidgetItem, Qt, QVariant, SIGNAL, \
-                     QLabel, QLineEdit, QCheckBox
+from PyQt4.Qt import (QWidget, QListWidgetItem, Qt, QVariant, QLabel,
+        QLineEdit, QCheckBox)
 
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.device_drivers.configwidget_ui import Ui_ConfigWidget
@@ -40,8 +40,11 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
             item.setCheckState(Qt.Checked if format in format_map else Qt.Unchecked)
 
-        self.connect(self.column_up, SIGNAL('clicked()'), self.up_column)
-        self.connect(self.column_down, SIGNAL('clicked()'), self.down_column)
+        self.column_up.clicked.connect(self.up_column)
+        self.column_down.clicked.connect(self.down_column)
+
+        if device.HIDE_FORMATS_CONFIG_BOX:
+            self.groupBox.hide()
 
         if supports_subdirs:
             self.opt_use_subdirs.setChecked(self.settings.use_subdirs)
@@ -86,6 +89,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                         l.setBuddy(self.opt_extra_customization[i])
                         l.setWordWrap(True)
                         self.opt_extra_customization[i].setText(settings.extra_customization[i])
+                        self.opt_extra_customization[i].setCursorPosition(0)
                         self.extra_layout.addWidget(l, row_func(i, 0), col_func(i))
                     self.extra_layout.addWidget(self.opt_extra_customization[i],
                                                 row_func(i, 1), col_func(i))
@@ -98,6 +102,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                 l.setWordWrap(True)
                 if settings.extra_customization:
                     self.opt_extra_customization.setText(settings.extra_customization)
+                    self.opt_extra_customization.setCursorPosition(0)
                 self.opt_extra_customization.setCursorPosition(0)
                 self.extra_layout.addWidget(l, 0, 0)
                 self.extra_layout.addWidget(self.opt_extra_customization, 1, 0)
@@ -152,3 +157,5 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                     '<br>'+unicode(err), show=True)
 
             return False
+
+

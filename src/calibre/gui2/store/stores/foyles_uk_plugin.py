@@ -6,7 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib2, re
+import urllib2
 from contextlib import closing
 
 from lxml import html
@@ -40,32 +40,27 @@ class FoylesUKStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.foyles.co.uk/Public/Shop/Search.aspx?fFacetId=1015&searchBy=1&quick=true&term=' + urllib2.quote(query)
+        url = 'http://ebooks.foyles.co.uk/search_for-' + urllib2.quote(query)
 
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//table[contains(@id, "MainContent")]/tr/td/div[contains(@class, "Item")]'):
+            for data in doc.xpath('//div[@class="doc-item"]'):
                 if counter <= 0:
                     break
-                id = ''.join(data.xpath('.//a[@class="Title"]/@href')).strip()
-                if not id:
+                id_ = ''.join(data.xpath('.//p[@class="doc-cover"]/a/@href')).strip()
+                if not id_:
                     continue
 
-                # filter out the audio books
-                if not data.xpath('boolean(.//div[@class="Relative"]/ul/li[contains(text(), "ePub")])'):
-                    continue
-
-                cover_url = ''.join(data.xpath('.//a[@class="Jacket"]/img/@src'))
-                title = ''.join(data.xpath('.//a[@class="Title"]/text()'))
-                author = ', '.join(data.xpath('.//span[@class="Author"]/text()'))
-                price = ''.join(data.xpath('./ul/li[@class="Strong"]/text()'))
-                mo = re.search('£[\d\.]+', price)
-                if mo is None:
-                    continue
-                price = mo.group(0)
+                cover_url = ''.join(data.xpath('.//p[@class="doc-cover"]/a/img/@src'))
+                title = ''.join(data.xpath('.//span[@class="title"]/a/text()'))
+                author = ', '.join(data.xpath('.//span[@class="author"]/span[@class="author"]/text()'))
+                price = ''.join(data.xpath('.//span[@class="price"]/text()'))
+                format_ = ''.join(data.xpath('.//p[@class="doc-meta-format"]/span[last()]/text()'))
+                format_, ign, drm = format_.partition(' ')
+                drm = SearchResult.DRM_LOCKED if 'DRM' in drm else SearchResult.DRM_UNLOCKED
 
                 counter -= 1
 
@@ -74,8 +69,8 @@ class FoylesUKStore(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price
-                s.detail_item = id
-                s.drm = SearchResult.DRM_LOCKED
-                s.formats = 'ePub'
+                s.detail_item = id_
+                s.drm = drm
+                s.formats = format_
 
                 yield s

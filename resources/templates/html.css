@@ -236,7 +236,8 @@ th {
 /* inlines */
 
 b, strong {
-  font-weight: bolder;
+  /* ADE doesn't support bolder with embedded fonts */
+  font-weight: bold;
 }
 
 i, cite, em, var, dfn {
@@ -402,7 +403,3 @@ img, object, svg|svg {
     height: auto;
 }
 
-/* These are needed because ADE renders anchors the same as links */
-
-a { text-decoration: inherit; color: inherit; cursor: inherit }
-a[href] { text-decoration: underline; color: blue; cursor: pointer }

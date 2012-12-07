@@ -9,7 +9,9 @@ __docformat__ = 'restructuredtext en'
 
 import re, os
 
-def update_internal_links(mobi8_reader):
+from calibre.ebooks.chardet import strip_encoding_declarations
+
+def update_internal_links(mobi8_reader, log):
     # need to update all links that are internal which
     # are based on positions within the xhtml files **BEFORE**
     # cutting and pasting any pieces into the xhtml text files
@@ -33,15 +35,20 @@ def update_internal_links(mobi8_reader):
                 for m in posfid_index_pattern.finditer(tag):
                     posfid = m.group(1)
                     offset = m.group(2)
-                    filename, idtag = mr.get_id_tag_by_pos_fid(int(posfid, 32),
-                            int(offset, 32))
-                    suffix = (b'#' + idtag) if idtag else b''
-                    replacement = filename.split('/')[-1].encode(
-                            mr.header.codec) + suffix
+                    try:
+                        filename, idtag = mr.get_id_tag_by_pos_fid(
+                            int(posfid, 32), int(offset, 32))
+                    except ValueError:
+                        log.warn('Invalid link, points to nowhere, ignoring')
+                        replacement = b'#'
+                    else:
+                        suffix = (b'#' + idtag) if idtag else b''
+                        replacement = filename.split('/')[-1].encode(
+                                mr.header.codec) + suffix
                     tag = posfid_index_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag
-        part = ''.join([x.decode(mr.header.codec) for x in srcpieces])
-        parts.append(part)
+        raw = b''.join(srcpieces)
+        parts.append(raw.decode(mr.header.codec))
 
     # All parts are now unicode and have no internal links
     return parts
@@ -67,11 +74,12 @@ def remove_kindlegen_markup(parts):
         part = "".join(srcpieces)
         parts[i] = part
 
-    # we can safely remove all of the Kindlegen generated data-AmznPageBreak tags
+    # we can safely remove all of the Kindlegen generated data-AmznPageBreak
+    # attributes
     find_tag_with_AmznPageBreak_pattern = re.compile(
             r'''(<[^>]*\sdata-AmznPageBreak=[^>]*>)''', re.IGNORECASE)
     within_tag_AmznPageBreak_position_pattern = re.compile(
-            r'''\sdata-AmznPageBreak=['"][^'"]*['"]''')
+            r'''\sdata-AmznPageBreak=['"]([^'"]*)['"]''')
 
     for i in xrange(len(parts)):
         part = parts[i]
@@ -79,10 +87,8 @@ def remove_kindlegen_markup(parts):
         for j in range(len(srcpieces)):
             tag = srcpieces[j]
             if tag.startswith('<'):
-                for m in within_tag_AmznPageBreak_position_pattern.finditer(tag):
-                    replacement = ''
-                    tag = within_tag_AmznPageBreak_position_pattern.sub(replacement, tag, 1)
-                srcpieces[j] = tag
+                srcpieces[j] = within_tag_AmznPageBreak_position_pattern.sub(
+                    lambda m:' style="page-break-after:%s"'%m.group(1), tag)
         part = "".join(srcpieces)
         parts[i] = part
 
@@ -196,7 +202,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
     # All flows are now unicode and have links resolved
     return flows
 
-def insert_flows_into_markup(parts, flows, mobi8_reader):
+def insert_flows_into_markup(parts, flows, mobi8_reader, log):
     mr = mobi8_reader
 
     # kindle:flow:XXXX?mime=YYYY/ZZZ (used for style sheets, svg images, etc)
@@ -212,12 +218,17 @@ def insert_flows_into_markup(parts, flows, mobi8_reader):
             if tag.startswith('<'):
                 for m in flow_pattern.finditer(tag):
                     num = int(m.group(1), 32)
-                    fi = mr.flowinfo[num]
-                    if fi.format == 'inline':
-                        tag = flows[num]
+                    try:
+                        fi = mr.flowinfo[num]
+                    except IndexError:
+                        log.warn('Ignoring invalid flow reference: %s'%m.group())
+                        tag = ''
                     else:
-                        replacement = '"../' + fi.dir + '/' + fi.fname + '"'
-                        tag = flow_pattern.sub(replacement, tag, 1)
+                        if fi.format == 'inline':
+                            tag = flows[num]
+                        else:
+                            replacement = '"../' + fi.dir + '/' + fi.fname + '"'
+                            tag = flow_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag
         part = "".join(srcpieces)
         # store away modified version
@@ -296,7 +307,7 @@ def upshift_markup(parts):
 
 def expand_mobi8_markup(mobi8_reader, resource_map, log):
     # First update all internal links that are based on offsets
-    parts = update_internal_links(mobi8_reader)
+    parts = update_internal_links(mobi8_reader, log)
 
     # Remove pointless markup inserted by kindlegen
     remove_kindlegen_markup(parts)
@@ -306,7 +317,7 @@ def expand_mobi8_markup(mobi8_reader, resource_map, log):
     flows = update_flow_links(mobi8_reader, resource_map, log)
 
     # Insert inline flows into the markup
-    insert_flows_into_markup(parts, flows, mobi8_reader)
+    insert_flows_into_markup(parts, flows, mobi8_reader, log)
 
     # Insert raster images into markup
     insert_images_into_markup(parts, resource_map, log)
@@ -324,6 +335,8 @@ def expand_mobi8_markup(mobi8_reader, resource_map, log):
     for i, part in enumerate(parts):
         pi = mobi8_reader.partinfo[i]
         with open(os.path.join(pi.type, pi.filename), 'wb') as f:
+            part = strip_encoding_declarations(part)
+            part = part.replace('<head>', '<head><meta charset="UTF-8"/>', 1)
             f.write(part.encode('utf-8'))
             spine.append(f.name)
 

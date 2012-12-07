@@ -13,7 +13,7 @@ from lxml import etree
 
 from calibre import guess_type, strftime
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre.ebooks.oeb.base import XPath, XHTML_NS, XHTML
+from calibre.ebooks.oeb.base import XPath, XHTML_NS, XHTML, xml2text, urldefrag
 from calibre.library.comments import comments_to_html
 from calibre.utils.date import is_date_undefined
 from calibre.ebooks.chardet import strip_encoding_declarations
@@ -41,11 +41,25 @@ class Jacket(object):
         return removed
 
     def remove_first_image(self):
+        deleted_item = None
         for item in self.oeb.spine:
             removed = self.remove_images(item)
             if removed > 0:
                 self.log('Removed first image')
+                body = XPath('//h:body')(item.data)
+                if body:
+                    raw = xml2text(body[0]).strip()
+                    imgs = XPath('//h:img|//svg:svg')(item.data)
+                    if not raw and not imgs:
+                        self.log('Removing %s as it has no content'%item.href)
+                        self.oeb.manifest.remove(item)
+                        deleted_item = item
                 break
+        if deleted_item is not None:
+            for item in list(self.oeb.toc):
+                href = urldefrag(item.href)[0]
+                if href == deleted_item.href:
+                    self.oeb.toc.remove(item)
 
     def insert_metadata(self, mi):
         self.log('Inserting metadata into book...')
@@ -180,9 +194,17 @@ def render_jacket(mi, output_profile,
                 args[key] = escape(val)
                 args[key+'_label'] = escape(display_name)
             except:
+                # if the val (custom column contents) is None, don't add to args
                 pass
 
+        if False:
+            print("Custom column values available in jacket template:")
+            for key in args.keys():
+                if key.startswith('_') and not key.endswith('_label'):
+                    print(" %s: %s" % ('#' + key[1:], args[key]))
+
         # Used in the comment describing use of custom columns in templates
+        # Don't change this unless you also change it in template.xhtml
         args['_genre_label'] = args.get('_genre_label', '{_genre_label}')
         args['_genre'] = args.get('_genre', '{_genre}')
 

@@ -6,10 +6,12 @@ class AdvancedUserRecipe1271446252(BasicNewsRecipe):
     max_articles_per_feed = 100
     language = 'fr'
     __author__ = 'zorgluf'
+    max_articles_per_feed = 25
+    #encoding = 'cp1252'
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
 
     feeds          = [(u'CanardPC', u'http://www.canardpc.com/feed.php')]
-    remove_tags_after  = dict(id='auteur_news')
-    remove_tags_before = dict(id='fil_ariane')
-    no_stylesheets = True
-    remove_tags    = [dict(name='a', attrs={'class':'news_tags'}),
-        dict(name='div', attrs={'id':'fil_ariane'})]
+

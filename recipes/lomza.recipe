@@ -5,9 +5,9 @@ class Lomza(BasicNewsRecipe):
     __author__        = 'fenuks'
     description   = u'4Łomża - regional site'
     cover_url      = 'http://www.4lomza.pl/i/logo4lomza_m.jpg'
-    language       = 'pl' 
+    language       = 'pl'
     oldest_article = 15
-    no_styleseets=True
+    no_stylesheets = True
     max_articles_per_feed = 100
     remove_tags=[dict(name='div', attrs={'class':['bxbanner', 'drukuj', 'wyslijznajomemu']})]
     keep_only_tags=[dict(name='div', attrs={'class':'wiadomosc'})]

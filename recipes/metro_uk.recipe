@@ -1,14 +1,17 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre import strftime
+import re
+import datetime
+import time
+
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title          = u'Metro UK'
-    description = 'News as provide by The Metro -UK'
+    description = 'News as provided by The Metro -UK'
     #timefmt = ''
     __author__ = 'Dave Asbury'
     #last update 9/6/12
     cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/276636_117118184990145_2132092232_n.jpg'
-    #no_stylesheets = True
     oldest_article = 1
-    max_articles_per_feed = 10
     remove_empty_feeds = True
     remove_javascript     = True
     auto_cleanup = True
@@ -16,16 +19,56 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
 
     language = 'en_GB'
     masthead_url        = 'http://e-edition.metro.co.uk/images/metro_logo.gif'
-    keep_only_tags = [
 
-    ]
-    remove_tags    = [
+    def parse_index(self):
+		articles = {}
+		key = None
+		ans = []
+		feeds = [ ('UK', 'http://metro.co.uk/news/uk/'),
+			('World', 'http://metro.co.uk/news/world/'),
+			('Weird', 'http://metro.co.uk/news/weird/'),
+			('Money', 'http://metro.co.uk/news/money/'),
+			('Sport', 'http://metro.co.uk/sport/'),
+			('Guilty Pleasures', 'http://metro.co.uk/guilty-pleasures/')
+			]
+		for key, feed in feeds:
+			soup = self.index_to_soup(feed)
+			articles[key] = []
+			ans.append(key)
 
-                               ]
+			today = datetime.date.today()
+			today = time.mktime(today.timetuple())-60*60*24
 
+			for a in soup.findAll('a'):
+				for name, value in a.attrs:
+					if name == "class" and value=="post":
+						url = a['href']
+						title = a['title']
+						print title
+						description = ''
+						m = re.search('^.*uk/([^/]*)/([^/]*)/([^/]*)/', url)
+						skip = 1
+						if len(m.groups()) == 3:
+							g = m.groups()
+							dt = datetime.datetime.strptime(''+g[0]+'-'+g[1]+'-'+g[2], '%Y-%m-%d')
+							pubdate = time.strftime('%a, %d %b', dt.timetuple())
 
-    feeds          = [
-        (u'News', u'http://www.metro.co.uk/rss/news/'), (u'Money', u'http://www.metro.co.uk/rss/money/'), (u'Sport', u'http://www.metro.co.uk/rss/sport/'), (u'Film', u'http://www.metro.co.uk/rss/metrolife/film/'), (u'Music', u'http://www.metro.co.uk/rss/metrolife/music/'), (u'TV', u'http://www.metro.co.uk/rss/tv/'), (u'Showbiz', u'http://www.metro.co.uk/rss/showbiz/'), (u'Weird News', u'http://www.metro.co.uk/rss/weird/'), (u'Travel', u'http://www.metro.co.uk/rss/travel/'), (u'Lifestyle', u'http://www.metro.co.uk/rss/lifestyle/'), (u'Books', u'http://www.metro.co.uk/rss/lifestyle/books/'), (u'Food', u'http://www.metro.co.uk/rss/lifestyle/restaurants/')]
-    extra_css  = '''
-	body{ text-align: justify; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:normal;}
-                	 '''
+							dt = time.mktime(dt.timetuple())
+							if dt >= today:
+								print pubdate
+								skip = 0
+						else:
+							pubdate = strftime('%a, %d %b')
+
+						summary = a.find(True, attrs={'class':'excerpt'})
+						if summary:
+							description = self.tag_to_string(summary, use_alt=False)
+
+						if skip == 0:
+							articles[key].append(
+										dict(title=title, url=url, date=pubdate,
+												description=description,
+												content=''))
+		#ans = self.sort_index_by(ans, {'The Front Page':-1, 'Dining In, Dining Out':1, 'Obituaries':2})
+		ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
+		return ans

@@ -1,0 +1,33 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1347997197(BasicNewsRecipe):
+    title          = u'XpatLoop.com'
+    __author__     = 'laca'
+    oldest_article = 7
+    language = 'en_HU'
+    auto_cleanup = True
+    masthead_url          = 'http://www.xpatloop.com/images/cms/xs_logo.gif'
+    use_embedded_content  = False
+
+    author = 'laca'
+    simultaneous_downloads= 1
+    max_articles_per_feed = 50
+
+    no_stylesheets = True
+
+    feeds          = [(u'Current Affairs', u'http://www.xpatloop.com/current_affairs.rss'),
+	(u'Community & Culture', u'http://www.xpatloop.com/community.rss'),
+	(u'Business & Finance', u'http://www.xpatloop.com/business.rss'),
+	(u'Entertainment', u'http://www.xpatloop.com/entertainment.rss'),
+	(u'Dining Guide', u'http://www.xpatloop.com/dining_guide.rss'),
+	(u'Getting Around', u'http://www.xpatloop.com/getting_around.rss'),
+	(u'Movies', u'http://www.xpatloop.com/movies.rss'),
+	(u'Shopping', u'http://www.xpatloop.com/shopping_channel.rss'),
+	(u'Travel', u'http://www.xpatloop.com/travel.rss'),
+	(u'Sport and Fitness', u'http://www.xpatloop.com/sport_and_fitness.rss'),
+	(u'Health and Wellness', u'http://www.xpatloop.com/health_and_wellness.rss'),
+	(u'Infotech & Telco', u'http://www.xpatloop.com/infotech_telco.rss'),
+	(u'Real Estate', u'http://www.xpatloop.com/property_real_estate.rss'),
+	(u'Specials', u'http://www.xpatloop.com/specials.rss'),
+	(u'Video Channel', u'http://www.xpatloop.com/video.rss'),
+	(u'Events', u'http://www.xpatloop.com/events.rss')]

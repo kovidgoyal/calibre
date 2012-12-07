@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 __all__ = [
         'pot', 'translations', 'get_translations', 'iso639',
-        'build', 'server',
+        'build', 'server', 'mathjax',
         'gui',
         'develop', 'install',
         'kakasi', 'coffee', 'resources',
@@ -20,7 +20,7 @@ __all__ = [
         'upload_user_manual', 'upload_demo', 'reupload',
         'linux32', 'linux64', 'linux', 'linux_freeze',
         'osx32_freeze', 'osx', 'rsync', 'push',
-        'win32_freeze', 'win32', 'win',
+        'win32_freeze', 'win32', 'win64', 'win',
         'stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'publish'
         ]
 
@@ -36,6 +36,9 @@ build = Build()
 
 from setup.server import Server
 server = Server()
+
+from setup.mathjax import MathJax
+mathjax = MathJax()
 
 from setup.install import Develop, Install, Sdist
 develop = Develop()
@@ -88,9 +91,10 @@ osx = OSX()
 from setup.installer.osx.app.main import OSX32_Freeze
 osx32_freeze = OSX32_Freeze()
 
-from setup.installer.windows import Win, Win32
+from setup.installer.windows import Win, Win32, Win64
 win = Win()
 win32 = Win32()
+win64 = Win64()
 from setup.installer.windows.freeze import Win32Freeze
 win32_freeze = Win32Freeze()
 

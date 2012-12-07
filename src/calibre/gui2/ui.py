@@ -44,6 +44,8 @@ from calibre.gui2.keyboard import Manager
 from calibre.gui2.auto_add import AutoAdder
 from calibre.library.sqlite import sqlite, DatabaseException
 from calibre.gui2.proceed import ProceedQuestion
+from calibre.gui2.dialogs.message_box import JobError
+from calibre.gui2.job_indicator import Pointer
 
 class Listener(Thread): # {{{
 
@@ -108,9 +110,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     def __init__(self, opts, parent=None, gui_debug=None):
         global _gui
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
+        self.jobs_pointer = Pointer(self)
         self.proceed_requested.connect(self.do_proceed,
                 type=Qt.QueuedConnection)
         self.proceed_question = ProceedQuestion(self)
+        self.job_error_dialog = JobError(self)
         self.keyboard = Manager(self)
         _gui = self
         self.opts = opts
@@ -189,10 +193,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.content_server = None
         self.spare_servers = []
         self.must_restart_before_config = False
-        # Initialize fontconfig in a separate thread as this can be a lengthy
-        # process if run for the first time on this machine
-        from calibre.utils.fonts import fontconfig
-        self.fc = fontconfig
         self.listener = Listener(listener)
         self.check_messages_timer = QTimer()
         self.connect(self.check_messages_timer, SIGNAL('timeout()'),
@@ -228,7 +228,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.default_thumbnail = None
         self.tb_wrapper = textwrap.TextWrapper(width=40)
         self.viewers = collections.deque()
-        self.system_tray_icon = SystemTrayIcon(QIcon(I('library.png')), self)
+        self.system_tray_icon = SystemTrayIcon(QIcon(I('lt.png')), self)
         self.system_tray_icon.setToolTip('calibre')
         self.system_tray_icon.tooltip_requested.connect(
                 self.job_manager.show_tooltip)
@@ -337,6 +337,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         if config['autolaunch_server']:
             self.start_content_server()
 
+
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
 
         self.read_settings()
@@ -358,6 +359,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.keyboard.finalize()
         self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
 
+        self.save_layout_state()
+
         # Collect cycles now
         gc.collect()
 
@@ -368,8 +371,28 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                         'the file: %s<p>The '
                         'log will be displayed automatically.')%self.gui_debug, show=True)
 
+        self.iactions['Connect Share'].check_smartdevice_menus()
+        QTimer.singleShot(1, self.start_smartdevice)
+
     def esc(self, *args):
         self.clear_button.click()
+
+    def start_smartdevice(self):
+        message = None
+        if self.device_manager.get_option('smartdevice', 'autostart'):
+            try:
+                message = self.device_manager.start_plugin('smartdevice')
+            except:
+                message = 'start smartdevice unknown exception'
+                prints(message)
+                import traceback
+                traceback.print_exc()
+        if message:
+            if not self.device_manager.is_running('Wireless Devices'):
+                    error_dialog(self, _('Problem starting the wireless device'),
+                                 _('The wireless device driver did not start. '
+                                   'It said "%s"')%message,  show=True)
+        self.iactions['Connect Share'].set_smartdevice_action_state()
 
     def start_content_server(self, check_started=True):
         from calibre.library.server.main import start_threaded_server
@@ -679,12 +702,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         except:
             pass
         if not minz:
-            d = error_dialog(self, dialog_title,
+            self.job_error_dialog.show_error(dialog_title,
                     _('<b>Failed</b>')+': '+unicode(job.description),
                     det_msg=job.details)
-            d.setModal(False)
-            d.show()
-            self._modeless_dialogs.append(d)
 
     def read_settings(self):
         geometry = config['main_window_geometry']
@@ -693,9 +713,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.read_layout_settings()
 
     def write_settings(self):
-        config.set('main_window_geometry', self.saveGeometry())
-        dynamic.set('sort_history', self.library_view.model().sort_history)
-        self.save_layout_state()
+        with gprefs: # Only write to gprefs once
+            config.set('main_window_geometry', self.saveGeometry())
+            dynamic.set('sort_history', self.library_view.model().sort_history)
+            self.save_layout_state()
 
     def quit(self, checked=True, restart=False, debug_on_restart=False,
             confirm_quit=True):
@@ -738,6 +759,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             # Goes here, because if cf is valid, db is valid.
             db.prefs['field_metadata'] = db.field_metadata.all_metadata()
             db.commit_dirty_cache()
+            db.prefs.write_serialized(prefs['library_path'])
         for action in self.iactions.values():
             if not action.shutting_down():
                 return

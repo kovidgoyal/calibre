@@ -8,7 +8,7 @@ from calibre import guess_type
 from calibre.customize import (FileTypePlugin, MetadataReaderPlugin,
     MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase, StoreBase)
 from calibre.constants import numeric_version
-from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
+from calibre.ebooks.metadata.archive import ArchiveExtract, get_comic_metadata
 from calibre.ebooks.html.to_zip import HTML2ZIP
 
 plugins = []
@@ -140,7 +140,7 @@ class ComicMetadataReader(MetadataReaderPlugin):
             elif id_.startswith(b'PK'):
                 ftype = 'cbz'
         if ftype == 'cbr':
-            from calibre.libunrar import extract_first_alphabetically as extract_first
+            from calibre.utils.unrar import extract_first_alphabetically as extract_first
             extract_first
         else:
             from calibre.libunzip import extract_member
@@ -150,9 +150,9 @@ class ComicMetadataReader(MetadataReaderPlugin):
         ret = extract_first(stream)
         mi = MetaInformation(None, None)
         stream.seek(0)
-        if ftype == 'cbz':
+        if ftype in {'cbr', 'cbz'}:
             try:
-                mi.smart_update(get_cbz_metadata(stream))
+                mi.smart_update(get_comic_metadata(stream, ftype))
             except:
                 pass
         if ret is not None:
@@ -643,7 +643,7 @@ from calibre.devices.cybook.driver import CYBOOK, ORIZON
 from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK,
                 POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK,
                 BOOQ, ELONEX, POCKETBOOK301, MENTOR, POCKETBOOK602,
-                POCKETBOOK701, POCKETBOOK360P, PI2)
+                POCKETBOOK701, POCKETBOOK360P, PI2, POCKETBOOK622)
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import (JETBOOK, MIBUK, JETBOOK_MINI,
@@ -668,13 +668,13 @@ from calibre.devices.teclast.driver import (TECLAST_K3, NEWSMY, IPAPYRUS,
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import (PALMPRE, AVANT, SWEEX, PDNOVEL,
         GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, LUMIREAD, ALURATEK_COLOR,
-        TREKSTOR, EEEREADER, NEXTBOOK, ADAM, MOOVYBOOK, COBY, EX124G)
+        TREKSTOR, EEEREADER, NEXTBOOK, ADAM, MOOVYBOOK, COBY, EX124G, WAYTEQ)
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
-from calibre.devices.kobo.driver import KOBO
+from calibre.devices.kobo.driver import KOBO, KOBOTOUCH
 from calibre.devices.bambook.driver import BAMBOOK
 from calibre.devices.boeye.driver import BOEYE_BEX, BOEYE_BDX
-
-
+from calibre.devices.smart_device_app.driver import SMART_DEVICE_APP
+from calibre.devices.mtp.driver import MTP_DEVICE
 
 # Order here matters. The first matched device is the one used.
 plugins += [
@@ -689,7 +689,7 @@ plugins += [
     JETBOOK, JETBOOK_MINI, MIBUK, JETBOOK_COLOR,
     SHINEBOOK,
     POCKETBOOK360, POCKETBOOK301, POCKETBOOK602, POCKETBOOK701, POCKETBOOK360P,
-    PI2,
+    POCKETBOOK622, PI2,
     KINDLE, KINDLE2, KINDLE_DX, KINDLE_FIRE,
     NOOK, NOOK_COLOR,
     PRS505, PRST1,
@@ -724,7 +724,7 @@ plugins += [
     SNE,
     ALEX, ODYSSEY,
     PALMPRE,
-    KOBO,
+    KOBO, KOBOTOUCH,
     AZBOOKA,
     FOLDER_DEVICE_FOR_CONFIG,
     AVANT,
@@ -742,12 +742,16 @@ plugins += [
     EEEREADER,
     NEXTBOOK,
     ADAM,
-    MOOVYBOOK, COBY, EX124G,
+    MOOVYBOOK, COBY, EX124G, WAYTEQ,
     ITUNES,
     BOEYE_BEX,
     BOEYE_BDX,
+    MTP_DEVICE,
+    SMART_DEVICE_APP,
     USER_DEFINED,
 ]
+
+
 # }}}
 
 # New metadata download plugins {{{
@@ -1115,6 +1119,19 @@ class MetadataSources(PreferencesPlugin):
     config_widget = 'calibre.gui2.preferences.metadata_sources'
     description = _('Control how calibre downloads ebook metadata from the net')
 
+class IgnoredDevices(PreferencesPlugin):
+    name = 'Ignored Devices'
+    icon = I('reader.png')
+    gui_name = _('Ignored devices')
+    category = 'Sharing'
+    gui_category = _('Sharing')
+    category_order = 4
+    name_order = 4
+    config_widget = 'calibre.gui2.preferences.ignored_devices'
+    description = _('Control which devices calibre will ignore when they are connected '
+            'to the computer.')
+
+
 class Plugins(PreferencesPlugin):
     name = 'Plugins'
     icon = I('plugins.png')
@@ -1163,7 +1180,7 @@ class Misc(PreferencesPlugin):
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
         Email, Server, Plugins, Tweaks, Misc, TemplateFunctions,
-        MetadataSources, Keyboard]
+        MetadataSources, Keyboard, IgnoredDevices]
 
 #}}}
 
@@ -1203,7 +1220,7 @@ class StoreAmazonFRKindleStore(StoreBase):
     description = u'Tous les ebooks Kindle'
     actual_plugin = 'calibre.gui2.store.stores.amazon_fr_plugin:AmazonFRKindleStore'
 
-    headquarters = 'DE'
+    headquarters = 'FR'
     formats = ['KINDLE']
     affiliate = True
 
@@ -1262,18 +1279,6 @@ class StoreBNStore(StoreBase):
 
     headquarters = 'US'
     formats = ['NOOK']
-    affiliate = True
-
-class StoreBeamEBooksDEStore(StoreBase):
-    name = 'Beam EBooks DE'
-    author = 'Charles Haley'
-    description = u'Bei uns finden Sie: Tausende deutschsprachige eBooks; Alle eBooks ohne hartes DRM; PDF, ePub und Mobipocket Format; Sofortige Verfügbarkeit - 24 Stunden am Tag; Günstige Preise; eBooks für viele Lesegeräte, PC,Mac und Smartphones; Viele Gratis eBooks'
-    actual_plugin = 'calibre.gui2.store.stores.beam_ebooks_de_plugin:BeamEBooksDEStore'
-
-    drm_free_only = True
-    headquarters = 'DE'
-    formats = ['EPUB', 'MOBI', 'PDF']
-    affiliate = True
 
 class StoreBeWriteStore(StoreBase):
     name = 'BeWrite Books'
@@ -1351,6 +1356,15 @@ class StoreEbookscomStore(StoreBase):
     formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
     affiliate = True
 
+class StoreEbooksGratuitsStore(StoreBase):
+    name = 'EbooksGratuits.com'
+    description = u'Ebooks Libres et Gratuits'
+    actual_plugin = 'calibre.gui2.store.stores.ebooksgratuits_plugin:EbooksGratuitsStore'
+
+    headquarters = 'FR'
+    formats = ['EPUB', 'MOBI', 'PDF', 'PDB']
+    drm_free_only = True
+
 # class StoreEBookShoppeUKStore(StoreBase):
 #     name = 'ebookShoppe UK'
 #     author = u'Charles Haley'
@@ -1378,6 +1392,16 @@ class StoreEKnigiStore(StoreBase):
 
     headquarters = 'BG'
     formats = ['EPUB', 'PDF', 'HTML']
+    affiliate = True
+
+class StoreEmpikStore(StoreBase):
+    name = 'Empik'
+    author = u'Tomasz Długosz'
+    description  = u'Empik to marka o unikalnym dziedzictwie i legendarne miejsce, dawne “okno na świat”. Jest obecna w polskim krajobrazie kulturalnym od 60 lat (wcześniej jako Kluby Międzynarodowej Prasy i Książki).'
+    actual_plugin = 'calibre.gui2.store.stores.empik_plugin:EmpikStore'
+
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF']
     affiliate = True
 
 class StoreEscapeMagazineStore(StoreBase):
@@ -1409,15 +1433,6 @@ class StoreFoylesUKStore(StoreBase):
     formats = ['EPUB', 'PDF']
     affiliate = True
 
-class StoreGandalfStore(StoreBase):
-    name = 'Gandalf'
-    author = u'Tomasz Długosz'
-    description = u'Księgarnia internetowa Gandalf.'
-    actual_plugin = 'calibre.gui2.store.stores.gandalf_plugin:GandalfStore'
-
-    headquarters = 'PL'
-    formats = ['EPUB', 'PDF']
-
 class StoreGoogleBooksStore(StoreBase):
     name = 'Google Books'
     description = u'Google Books'
@@ -1448,11 +1463,12 @@ class StoreKoboStore(StoreBase):
 class StoreLegimiStore(StoreBase):
     name = 'Legimi'
     author = u'Tomasz Długosz'
-    description = u'Tanie oraz darmowe ebooki, egazety i blogi w formacie EPUB, wprost na Twój e-czytnik, iPhone, iPad, Android i komputer'
+    description = u'Ebooki w formacie EPUB, MOBI i PDF'
     actual_plugin = 'calibre.gui2.store.stores.legimi_plugin:LegimiStore'
 
     headquarters = 'PL'
-    formats = ['EPUB']
+    formats = ['EPUB', 'PDF', 'MOBI']
+    affiliate = True
 
 class StoreLibreDEStore(StoreBase):
     name = 'Libri DE'
@@ -1484,6 +1500,16 @@ class StoreManyBooksStore(StoreBase):
     headquarters = 'US'
     formats = ['EPUB', 'FB2', 'JAR', 'LIT', 'LRF', 'MOBI', 'PDB', 'PDF', 'RB', 'RTF', 'TCR', 'TXT', 'ZIP']
 
+class StoreMillsBoonUKStore(StoreBase):
+    name = 'Mills and Boon UK'
+    author = 'Charles Haley'
+    description = u'"Bring Romance to Life" "[A] hallmark for romantic fiction, recognised around the world."'
+    actual_plugin = 'calibre.gui2.store.stores.mills_boon_uk_plugin:MillsBoonUKStore'
+
+    headquarters = 'UK'
+    formats = ['EPUB']
+    affiliate = True
+
 class StoreMobileReadStore(StoreBase):
     name = 'MobileRead'
     description = u'Ebooks handcrafted with the utmost care.'
@@ -1511,15 +1537,6 @@ class StoreOpenBooksStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
 
-class StoreOReillyStore(StoreBase):
-    name = 'OReilly'
-    description = u'Programming and tech ebooks from OReilly.'
-    actual_plugin = 'calibre.gui2.store.stores.oreilly_plugin:OReillyStore'
-
-    drm_free_only = True
-    headquarters = 'US'
-    formats = ['APK', 'DAISY', 'EPUB', 'MOBI', 'PDF']
-
 class StoreOzonRUStore(StoreBase):
     name = 'OZON.ru'
     description = u'ebooks from OZON.ru'
@@ -1539,6 +1556,16 @@ class StorePragmaticBookshelfStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'MOBI', 'PDF']
+
+class StorePublioStore(StoreBase):
+    name = 'Publio'
+    description = u'Publio.pl to księgarnia internetowa, w której mogą Państwo nabyć e-booki i audiobooki.'
+    actual_plugin = 'calibre.gui2.store.stores.publio_plugin:PublioStore'
+    author = u'Tomasz Długosz'
+
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
 
 class StoreRW2010Store(StoreBase):
     name = 'RW2010'
@@ -1634,7 +1661,6 @@ plugins += [
     StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore,
     StoreBNStore, StoreSonyStore,
-    StoreBeamEBooksDEStore,
     StoreBeWriteStore,
     StoreBiblioStore,
     StoreBookotekaStore,
@@ -1643,12 +1669,13 @@ plugins += [
     StoreEbookNLStore,
     StoreEbookpointStore,
     StoreEbookscomStore,
+    StoreEbooksGratuitsStore,
     StoreEHarlequinStore,
     StoreEKnigiStore,
+    StoreEmpikStore,
     StoreEscapeMagazineStore,
     StoreFeedbooksStore,
     StoreFoylesUKStore,
-    StoreGandalfStore,
     StoreGoogleBooksStore,
     StoreGutenbergStore,
     StoreKoboStore,
@@ -1656,12 +1683,13 @@ plugins += [
     StoreLibreDEStore,
     StoreLitResStore,
     StoreManyBooksStore,
+    StoreMillsBoonUKStore,
     StoreMobileReadStore,
     StoreNextoStore,
     StoreOpenBooksStore,
-    StoreOReillyStore,
     StoreOzonRUStore,
     StorePragmaticBookshelfStore,
+    StorePublioStore,
     StoreRW2010Store,
     StoreSmashwordsStore,
     StoreVirtualoStore,
@@ -1689,7 +1717,7 @@ if __name__ == '__main__':
         ret = 0
 
         for x in ('lxml', 'calibre.ebooks.BeautifulSoup', 'uuid',
-            'calibre.utils.terminfo', 'calibre.utils.magick', 'PIL', 'Image',
+            'calibre.utils.terminal', 'calibre.utils.magick', 'PIL', 'Image',
             'sqlite3', 'mechanize', 'httplib', 'xml'):
             if x in sys.modules:
                 ret = 1

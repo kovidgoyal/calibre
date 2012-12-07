@@ -1,5 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class NewYorkTimesBookReview(BasicNewsRecipe):
     title          = u'New York Times Book Review'
@@ -7,50 +6,16 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
     __author__     = 'Krittika Goyal'
     oldest_article = 8 #days
     max_articles_per_feed = 1000
-    recursions = 2
+    #recursions = 2
     #encoding = 'latin1'
+    use_embedded_content = False
 
-    remove_stylesheets = True
-    #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
-    remove_tags_after  = dict(name='div', attrs={'id':'authorId'})
-    remove_tags = [
-       dict(name='iframe'),
-       dict(name=['div', 'a'], attrs={'class':['enlargeThis', 'jumpLink']}),
-       dict(name='div', attrs={'id':['sidebarArticles', 'toolsRight']}),
-       #dict(name='ul', attrs={'class':'article-tools'}),
-       #dict(name='ul', attrs={'class':'articleTools'}),
-    ]
-    match_regexps = [
-            r'http://www.nytimes.com/.+pagewanted=[2-9]+'
-            ]
+    no_stylesheets = True
+    auto_cleanup = True
+
 
     feeds          = [
-('New York Times Sunday Book Review',
- 'http://feeds.nytimes.com/nyt/rss/SundayBookReview'),
-]
+                     ('New York Times Sunday Book Review',
+                      'http://feeds.nytimes.com/nyt/rss/SundayBookReview'),
+                     ]
 
-
-    def preprocess_html(self, soup):
-        story = soup.find(name='div', attrs={'id':'article'})
-        #td = heading.findParent(name='td')
-        #td.extract()
-        soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
-        body = soup.find(name='body')
-        body.insert(0, story)
-        #for x in soup.findAll(name='p', text=lambda x:x and '--&gt;' in x):
-             #p = x.findParent('p')
-             #if p is not None:
-                  #p.extract()
-        return soup
-
-    def postprocess_html(self, soup, first):
-        for div in soup.findAll(id='pageLinks'):
-            div.extract()
-        if not first:
-            h1 = soup.find('h1')
-            if h1 is not None:
-                h1.extract()
-            t = soup.find(attrs={'class':'timestamp'})
-            if t is not None:
-                t.extract()
-        return soup

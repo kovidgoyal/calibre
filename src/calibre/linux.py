@@ -5,6 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, os, cPickle, textwrap, stat
 from subprocess import check_call
+from functools import partial
 
 from calibre import  __appname__, prints, guess_type
 from calibre.constants import islinux, isnetbsd, isbsd
@@ -15,7 +16,7 @@ from calibre import CurrentDir
 
 entry_points = {
         'console_scripts': [ \
-             'ebook-device       = calibre.devices.prs500.cli.main:main',
+             'ebook-device       = calibre.devices.cli:main',
              'ebook-meta         = calibre.ebooks.metadata.cli:main',
              'ebook-convert      = calibre.ebooks.conversion.cli:main',
              'markdown-calibre   = calibre.ebooks.markdown.markdown:main',
@@ -28,7 +29,6 @@ entry_points = {
              'calibre-parallel   = calibre.utils.ipc.worker:main',
              'calibre-customize  = calibre.customize.ui:main',
              'calibre-complete   = calibre.utils.complete:main',
-             'pdfmanipulate      = calibre.ebooks.pdf.manipulate.cli:main',
              'fetch-ebook-metadata = calibre.ebooks.metadata.sources.cli:main',
              'epub-fix           = calibre.ebooks.epub.fix.main:main',
              'calibre-smtp = calibre.utils.smtp:main',
@@ -298,7 +298,7 @@ class PostInstall:
                         return 0
                         ;;
                     cp )
-                        if [[ ${cur} == prs500:* ]]; then
+                        if [[ ${cur} == dev:* ]]; then
                         COMPREPLY=( $(_ebook_device_ls "${cur:7}") )
                         return 0
                         else
@@ -306,20 +306,20 @@ class PostInstall:
                         return 0
                         fi
                         ;;
-                    prs500 )
+                    dev )
                         COMPREPLY=( $(compgen -W "cp ls rm mkdir touch cat info books df" "${cur}") )
                         return 0
                         ;;
                     * )
-                        if [[ ${cur} == prs500:* ]]; then
+                        if [[ ${cur} == dev:* ]]; then
                         COMPREPLY=( $(_ebook_device_ls "${cur:7}") )
                         return 0
                         else
-                        if [[ ${prev} == prs500:* ]]; then
+                        if [[ ${prev} == dev:* ]]; then
                             _filedir
                             return 0
                         else
-                            COMPREPLY=( $(compgen -W "prs500:" "${cur}") )
+                            COMPREPLY=( $(compgen -W "dev:" "${cur}") )
                             return 0
                         fi
                         return 0
@@ -346,19 +346,40 @@ class PostInstall:
         try:
             self.info('Setting up desktop integration...')
 
+            env = os.environ.copy()
+            cc = check_call
+            if getattr(sys, 'frozen_path', False) and 'LD_LIBRARY_PATH' in env:
+                paths = env.get('LD_LIBRARY_PATH', '').split(os.pathsep)
+                paths = [x for x in paths if x]
+                npaths = [x for x in paths if x != sys.frozen_path+'/lib']
+                env['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
+                cc = partial(check_call, env=env)
+
             with TemporaryDirectory() as tdir, CurrentDir(tdir), \
                                 PreserveMIMEDefaults():
                 render_img('mimetypes/lrf.png', 'calibre-lrf.png')
-                check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png application-lrf', shell=True)
+                cc('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png application-lrf', shell=True)
                 self.icon_resources.append(('mimetypes', 'application-lrf', '128'))
-                check_call('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png text-lrs', shell=True)
+                cc('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png text-lrs', shell=True)
                 self.icon_resources.append(('mimetypes', 'application-lrs',
                 '128'))
-                render_img('lt.png', 'calibre-gui.png')
-                check_call('xdg-icon-resource install --noupdate --size 128 calibre-gui.png calibre-gui', shell=True)
+                render_img('mimetypes/mobi.png', 'calibre-mobi.png')
+                cc('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-mobi.png application-x-mobipocket-ebook', shell=True)
+                self.icon_resources.append(('mimetypes', 'application-x-mobipocket-ebook', '128'))
+                render_img('mimetypes/tpz.png', 'calibre-tpz.png')
+                cc('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-tpz.png application-x-topaz-ebook', shell=True)
+                self.icon_resources.append(('mimetypes', 'application-x-topaz-ebook', '128'))
+                render_img('mimetypes/azw2.png', 'calibre-azw2.png')
+                cc('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-azw2.png application-x-kindle-application', shell=True)
+                self.icon_resources.append(('mimetypes', 'application-x-kindle-application', '128'))
+                render_img('mimetypes/azw3.png', 'calibre-azw3.png')
+                cc('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-azw3.png application-x-mobi8-ebook', shell=True)
+                self.icon_resources.append(('mimetypes', 'application-x-mobi8-ebook', '128'))
+                render_img('lt.png', 'calibre-gui.png', width=256, height=256)
+                cc('xdg-icon-resource install --noupdate --size 256 calibre-gui.png calibre-gui', shell=True)
                 self.icon_resources.append(('apps', 'calibre-gui', '128'))
                 render_img('viewer.png', 'calibre-viewer.png')
-                check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
+                cc('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
                 self.icon_resources.append(('apps', 'calibre-viewer', '128'))
 
                 mimetypes = set([])
@@ -385,14 +406,14 @@ class PostInstall:
                         'calibre-ebook-viewer.desktop')
                 for x in des:
                     cmd = ['xdg-desktop-menu', 'install', '--noupdate', './'+x]
-                    check_call(' '.join(cmd), shell=True)
+                    cc(' '.join(cmd), shell=True)
                     self.menu_resources.append(x)
-                check_call(['xdg-desktop-menu', 'forceupdate'])
-                f = open('calibre-mimetypes', 'wb')
+                cc(['xdg-desktop-menu', 'forceupdate'])
+                f = open('calibre-mimetypes.xml', 'wb')
                 f.write(MIME)
                 f.close()
-                self.mime_resources.append('calibre-mimetypes')
-                check_call('xdg-mime install ./calibre-mimetypes', shell=True)
+                self.mime_resources.append('calibre-mimetypes.xml')
+                cc('xdg-mime install ./calibre-mimetypes.xml', shell=True)
         except Exception:
             if self.opts.fatal_errors:
                 raise
@@ -553,6 +574,33 @@ MIME = '''\
     <mime-type type="text/lrs">
         <comment>SONY E-book source format</comment>
         <glob pattern="*.lrs"/>
+    </mime-type>
+    <mime-type type="application/x-mobipocket-ebook">
+        <comment>Amazon Mobipocket e-book format</comment>
+        <sub-class-of type="application/x-palm-database"/>
+        <glob pattern="*.azw"/>
+    </mime-type>
+    <mime-type type="application/x-topaz-ebook">
+        <comment>Amazon Topaz ebook format</comment>
+        <glob pattern="*.tpz"/>
+        <glob pattern="*.azw1"/>
+    </mime-type>
+    <mime-type type="application/x-kindle-application">
+        <comment>Amazon Kindle Application (Kindlet)</comment>
+        <sub-class-of type="application/x-java-archive"/>
+        <glob pattern="*.azw2"/>
+    </mime-type>
+    <mime-type type="application/x-mobipocket-subscription">
+        <comment>Amazon Mobipocket ebook newspaper format</comment>
+        <sub-class-of type="application/x-mobipocket-ebook"/>
+        <!-- Technically, this depends on the cdeType (NWPR or MAGZ), but since EXTH headers have a variable length, it's tricky to probe via magic... -->
+        <alias type="application/x-mobipocket-subscription-magazine"/>
+        <glob pattern="*.pobi"/>
+    </mime-type>
+    <mime-type type="application/x-mobi8-ebook">
+        <comment>Amazon KF8 ebook format</comment>
+        <sub-class-of type="application/x-palm-database"/>
+        <glob pattern="*.azw3"/>
     </mime-type>
 </mime-info>
 '''

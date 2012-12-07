@@ -1,5 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-class Polska_times(BasicNewsRecipe):
+class PolskaTimes(BasicNewsRecipe):
     title          = u'Polska Times'
     __author__        = 'fenuks'
     description   = u'Internetowe wydanie dziennika ogólnopolskiego Polska The Times. Najświeższe informacje: wydarzenia w kraju i na świecie, reportaże, poradniki, opinie.'
@@ -10,6 +10,7 @@ class Polska_times(BasicNewsRecipe):
     max_articles_per_feed = 100
     remove_emty_feeds= True
     no_stylesheets = True
+    ignore_duplicate_articles = {'title', 'url'}
     #preprocess_regexps = [(re.compile(ur'<b>Czytaj także:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur',<b>Czytaj też:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>Zobacz także:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<center><h4><a.*?</a></h4></center>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ TEŻ:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ WIĘCEJ:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ TAKŻE:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>\* CZYTAJ KONIECZNIE:.*', re.DOTALL), lambda match: '</body>'), (re.compile(ur'<b>Nasze serwisy:</b>.*', re.DOTALL), lambda match: '</body>') ]
     remove_tags_after= dict(attrs={'src':'http://nm.dz.com.pl/dz.png'})
     remove_tags=[dict(id='mat-podobne'), dict(name='a', attrs={'class':'czytajDalej'}), dict(attrs={'src':'http://nm.dz.com.pl/dz.png'})]
@@ -22,6 +23,7 @@ class Polska_times(BasicNewsRecipe):
         if 'Advertisement' in soup.title:
             nexturl=soup.find('a')['href']
             return self.index_to_soup(nexturl, raw=True)
+
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.prasa24.pl/gazeta/metropolia-warszawska/')

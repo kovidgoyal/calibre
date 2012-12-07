@@ -20,6 +20,7 @@ from calibre.ebooks.metadata import title_sort
 from calibre.utils.date import parse_date, as_local_time
 from calibre import strftime, prints, sanitize_file_name_unicode
 from calibre.ptempfile import SpooledTemporaryFile
+from calibre.db.lazy import FormatsList
 
 plugboard_any_device_value = 'any device'
 plugboard_any_format_value = 'any format'
@@ -159,7 +160,7 @@ class Formatter(TemplateFormatter):
                 return self.composite_values[key]
             if key in kwargs:
                 val = kwargs[key]
-                if isinstance(val, list):
+                if isinstance(val, list) or isinstance(val, FormatsList):
                     val = ','.join(val)
                 return val.replace('/', '_').replace('\\', '_')
             return ''
@@ -200,6 +201,11 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
         template = re.sub(r'\{series_index[^}]*?\}', '', template)
     if mi.rating is not None:
         format_args['rating'] = mi.format_rating(divide_by=2.0)
+    if mi.identifiers:
+        format_args['identifiers'] = mi.format_field_extended('identifiers')[1]
+    else:
+        format_args['identifiers'] = ''
+
     if hasattr(mi.timestamp, 'timetuple'):
         format_args['timestamp'] = strftime(timefmt, mi.timestamp.timetuple())
     if hasattr(mi.pubdate, 'timetuple'):

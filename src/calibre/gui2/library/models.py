@@ -16,7 +16,7 @@ from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import SafeFormat
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.config import tweaks, prefs
+from calibre.utils.config import tweaks, device_prefs
 from calibre.utils.date import dt_factory, qt_to_dt, as_local_time
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
@@ -220,16 +220,15 @@ class BooksModel(QAbstractTableModel): # {{{
         self.count_changed()
         self.reset()
 
-    def delete_books(self, indices):
+    def delete_books(self, indices, permanent=False):
         ids = map(self.id, indices)
-        for id in ids:
-            self.db.delete_book(id, notify=False)
-        self.books_deleted()
+        self.delete_books_by_id(ids, permanent=permanent)
         return ids
 
-    def delete_books_by_id(self, ids):
+    def delete_books_by_id(self, ids, permanent=False):
         for id in ids:
-            self.db.delete_book(id)
+            self.db.delete_book(id, permanent=permanent, do_clean=False)
+        self.db.clean()
         self.books_deleted()
 
     def books_added(self, num):
@@ -846,7 +845,9 @@ class BooksModel(QAbstractTableModel): # {{{
                     s_index = float(match.group(1))
                     val = pat.sub('', val).strip()
                 elif val:
-                    if tweaks['series_index_auto_increment'] != 'const':
+                    # it is OK to leave s_index == None when using 'no_change'
+                    if tweaks['series_index_auto_increment'] != 'const' and \
+                            tweaks['series_index_auto_increment'] != 'no_change':
                         s_index = self.db.get_next_cc_series_num_for(val,
                                                         label=label, num=None)
         elif typ == 'composite':
@@ -870,12 +871,18 @@ class BooksModel(QAbstractTableModel): # {{{
             try:
                 return self._set_data(index, value)
             except (IOError, OSError) as err:
+                import traceback
                 if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
-                    import traceback
+                    fname = getattr(err, 'filename', None)
+                    p = 'Locked file: %s\n\n'%fname if fname else ''
                     error_dialog(get_gui(), _('Permission denied'),
                             _('Could not change the on disk location of this'
                                 ' book. Is it open in another program?'),
-                            det_msg=traceback.format_exc(), show=True)
+                            det_msg=p+traceback.format_exc(), show=True)
+                    return False
+                error_dialog(get_gui(), _('Failed to set data'),
+                        _('Could not set data, click Show Details to see why.'),
+                        det_msg=traceback.format_exc(), show=True)
             except:
                 import traceback
                 traceback.print_exc()
@@ -915,7 +922,8 @@ class BooksModel(QAbstractTableModel): # {{{
                         self.db.set_series_index(id, float(match.group(1)))
                         val = pat.sub('', val).strip()
                     elif val:
-                        if tweaks['series_index_auto_increment'] != 'const':
+                        if tweaks['series_index_auto_increment'] != 'const' and \
+                            tweaks['series_index_auto_increment'] != 'no_change':
                             ni = self.db.get_next_series_num_for(val)
                             if ni != 1:
                                 self.db.set_series_index(id, ni)
@@ -1049,6 +1057,7 @@ class DeviceBooksModel(BooksModel): # {{{
 
     booklist_dirtied = pyqtSignal()
     upload_collections = pyqtSignal(object)
+    resize_rows = pyqtSignal()
 
     def __init__(self, parent):
         BooksModel.__init__(self, parent)
@@ -1150,11 +1159,16 @@ class DeviceBooksModel(BooksModel): # {{{
                      (cname != 'collections' or \
                      (callable(getattr(self.db, 'supports_collections', None)) and \
                       self.db.supports_collections() and \
-                      prefs['manage_device_metadata']=='manual')):
+                      device_prefs['manage_device_metadata']=='manual')):
                 flags |= Qt.ItemIsEditable
         return flags
 
     def search(self, text, reset=True):
+        # This should not be here, but since the DeviceBooksModel does not
+        # implement count_changed and I am too lazy to fix that, this kludge
+        # will have to do
+        self.resize_rows.emit()
+
         if not text or not text.strip():
             self.map = list(range(len(self.db)))
         else:
@@ -1191,7 +1205,10 @@ class DeviceBooksModel(BooksModel): # {{{
                     ax = authors_to_string(self.db[x].authors)
                 except:
                     ax = ''
-            return ax
+            try:
+                return sort_key(ax)
+            except:
+                return ax
 
         keygen = {
                 'title': ('title_sorter', lambda x: sort_key(x) if x else ''),
@@ -1363,6 +1380,8 @@ class DeviceBooksModel(BooksModel): # {{{
                 return QVariant(authors_to_string(au))
             elif cname == 'size':
                 size = self.db[self.map[row]].size
+                if not isinstance(size, (float, int)):
+                    size = 0
                 return QVariant(human_readable(size))
             elif cname == 'timestamp':
                 dt = self.db[self.map[row]].datetime
@@ -1442,7 +1461,7 @@ class DeviceBooksModel(BooksModel): # {{{
             self.editable = ['title', 'authors', 'collections']
         else:
             self.editable = []
-        if prefs['manage_device_metadata']=='on_connect':
+        if device_prefs['manage_device_metadata']=='on_connect':
             self.editable = []
 
 # }}}

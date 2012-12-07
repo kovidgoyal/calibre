@@ -13,7 +13,6 @@ import datetime, os, re, sys, json, hashlib
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
 from calibre import strftime
-from calibre.utils.logging import default_log
 
 '''
 Notes on collections:
@@ -286,14 +285,17 @@ class KINDLE(USBMS):
 
 class KINDLE2(KINDLE):
 
-    name           = 'Kindle 2/3/4/Touch Device Interface'
-    description    = _('Communicate with the Kindle 2/3/4/Touch eBook reader.')
+    name           = 'Kindle 2/3/4/Touch/PaperWhite Device Interface'
+    description    = _('Communicate with the Kindle 2/3/4/Touch/PaperWhite eBook reader.')
 
-    FORMATS        = KINDLE.FORMATS + ['pdf', 'azw4', 'pobi']
-    DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs', '.sdr']
+    FORMATS     = ['azw', 'mobi', 'azw3', 'prc', 'azw1', 'tpz', 'azw4', 'pobi', 'pdf', 'txt']
+    DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs', '.sdr', '.han']
+    # On the Touch, there's also .asc files, but not using the same basename (for X-Ray & End Actions), azw3f & azw3r files, but all of them are in the .sdr sidecar folder
 
     PRODUCT_ID = [0x0002, 0x0004]
     BCD        = [0x0100]
+    # SUPPORTS_SUB_DIRS = False # Apparently the Paperwhite doesn't like files placed in subdirectories
+    # SUPPORTS_SUB_DIRS_FOR_SCAN = True
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Send page number information when sending books') +
@@ -325,7 +327,9 @@ class KINDLE2(KINDLE):
     OPT_APNX           = 0
     OPT_APNX_ACCURATE  = 1
     OPT_APNX_CUST_COL  = 2
-    THUMBNAIL_HEIGHT = 180
+    # x330 on the PaperWhite
+    THUMBNAIL_HEIGHT = 330
+    # x262 on the Touch. Doesn't choke on x330, though.
 
     def formats_to_scan_for(self):
         ans = USBMS.formats_to_scan_for(self) | {'azw3'}
@@ -389,6 +393,7 @@ class KINDLE2(KINDLE):
         self.upload_apnx(path, filename, metadata, filepath)
 
     def upload_kindle_thumbnail(self, metadata, filepath):
+        from calibre.utils.logging import default_log
         coverdata = getattr(metadata, 'thumbnail', None)
         if not coverdata or not coverdata[2]:
             return
@@ -413,7 +418,8 @@ class KINDLE2(KINDLE):
         if not opts.extra_customization[self.OPT_APNX]:
             return
 
-        if os.path.splitext(filepath.lower())[1] not in ('.azw', '.mobi', '.prc'):
+        if os.path.splitext(filepath.lower())[1] not in ('.azw', '.mobi',
+                '.prc', '.azw3'):
             return
 
         # Create the sidecar folder if necessary
@@ -448,7 +454,7 @@ class KINDLE_DX(KINDLE2):
     name           = 'Kindle DX Device Interface'
     description    = _('Communicate with the Kindle DX eBook reader.')
 
-
+    FORMATS = ['azw', 'mobi', 'prc', 'azw1', 'tpz', 'azw4', 'pobi', 'pdf', 'txt']
     PRODUCT_ID = [0x0003]
     BCD        = [0x0100]
 
@@ -460,8 +466,7 @@ class KINDLE_FIRE(KINDLE2):
     name = 'Kindle Fire Device Interface'
     description = _('Communicate with the Kindle Fire')
     gui_name = 'Fire'
-    FORMATS = list(KINDLE2.FORMATS)
-    FORMATS.insert(0, 'azw3')
+    FORMATS = ['azw3', 'azw', 'mobi', 'prc', 'azw1', 'tpz', 'azw4', 'pobi', 'pdf', 'txt']
 
     PRODUCT_ID = [0x0006]
     BCD = [0x216, 0x100]

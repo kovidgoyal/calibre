@@ -15,7 +15,8 @@ from binascii import hexlify, unhexlify
 import cherrypy
 
 from calibre.utils.date import isoformat
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
+from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.utils.icu import sort_key
 from calibre.library.server import custom_fields_to_display
@@ -118,12 +119,16 @@ class AjaxServer(object):
 
 
     # Get book metadata {{{
-    def ajax_book_to_json(self, book_id, get_category_urls=True):
+    def ajax_book_to_json(self, book_id, get_category_urls=True,
+                          device_compatible=False):
         mi = self.db.get_metadata(book_id, index_is_id=True)
-        try:
-            mi.rating = mi.rating/2.
-        except:
-            mi.rating = 0.0
+
+        if not device_compatible:
+            try:
+                mi.rating = mi.rating/2.
+            except:
+                mi.rating = 0.0
+
         data = self.ajax_json_codec.encode_book_metadata(mi)
         for x in ('publication_type', 'size', 'db_id', 'lpath', 'mime',
                 'rights', 'book_producer'):
@@ -131,57 +136,68 @@ class AjaxServer(object):
 
         data['cover'] = absurl(self.opts.url_prefix, u'/get/cover/%d'%book_id)
         data['thumbnail'] = absurl(self.opts.url_prefix, u'/get/thumb/%d'%book_id)
-        mi.format_metadata = {k.lower():dict(v) for k, v in
-                mi.format_metadata.iteritems()}
-        for v in mi.format_metadata.itervalues():
-            mtime = v.get('mtime', None)
-            if mtime is not None:
-                v['mtime'] = isoformat(mtime, as_utc=True)
-        data['format_metadata'] = mi.format_metadata
-        fmts = set(x.lower() for x in mi.format_metadata.iterkeys())
-        pf = prefs['output_format'].lower()
-        other_fmts = list(fmts)
-        try:
-            fmt = pf if pf in fmts else other_fmts[0]
-        except:
-            fmt = None
-        if fmts and fmt:
-            other_fmts = [x for x in fmts if x != fmt]
-        data['formats'] = sorted(fmts)
-        if fmt:
-            data['main_format'] = {fmt: absurl(self.opts.url_prefix, u'/get/%s/%d'%(fmt, book_id))}
-        else:
-            data['main_format'] = None
-        data['other_formats'] = {fmt: absurl(self.opts.url_prefix, u'/get/%s/%d'%(fmt, book_id)) for fmt
-                in other_fmts}
 
-        if get_category_urls:
-            category_urls = data['category_urls'] = {}
-            ccache = self.categories_cache()
-            for key in mi.all_field_keys():
-                fm = mi.metadata_for_field(key)
-                if (fm and fm['is_category'] and not fm['is_csp'] and
-                        key != 'formats' and fm['datatype'] not in ['rating']):
-                    categories = mi.get(key)
-                    if isinstance(categories, basestring):
-                        categories = [categories]
-                    if categories is None:
-                        categories = []
-                    dbtags = {}
-                    for category in categories:
-                        for tag in ccache.get(key, []):
-                            if tag.original_name == category:
-                                dbtags[category] = books_in_url(self.opts.url_prefix,
-                                    tag.category if tag.category else key,
-                                    tag.original_name if tag.id is None else
-                                    unicode(tag.id))
-                                break
-                    category_urls[key] = dbtags
+        if not device_compatible:
+            mi.format_metadata = {k.lower():dict(v) for k, v in
+                    mi.format_metadata.iteritems()}
+            for v in mi.format_metadata.itervalues():
+                mtime = v.get('mtime', None)
+                if mtime is not None:
+                    v['mtime'] = isoformat(mtime, as_utc=True)
+            data['format_metadata'] = mi.format_metadata
+            fmts = set(x.lower() for x in mi.format_metadata.iterkeys())
+            pf = prefs['output_format'].lower()
+            other_fmts = list(fmts)
+            try:
+                fmt = pf if pf in fmts else other_fmts[0]
+            except:
+                fmt = None
+            if fmts and fmt:
+                other_fmts = [x for x in fmts if x != fmt]
+            data['formats'] = sorted(fmts)
+            if fmt:
+                data['main_format'] = {fmt: absurl(self.opts.url_prefix, u'/get/%s/%d'%(fmt, book_id))}
+            else:
+                data['main_format'] = None
+            data['other_formats'] = {fmt: absurl(self.opts.url_prefix, u'/get/%s/%d'%(fmt, book_id)) for fmt
+                    in other_fmts}
+
+            if get_category_urls:
+                category_urls = data['category_urls'] = {}
+                ccache = self.categories_cache()
+                for key in mi.all_field_keys():
+                    fm = mi.metadata_for_field(key)
+                    if (fm and fm['is_category'] and not fm['is_csp'] and
+                            key != 'formats' and fm['datatype'] not in ['rating']):
+                        categories = mi.get(key)
+                        if isinstance(categories, basestring):
+                            categories = [categories]
+                        if categories is None:
+                            categories = []
+                        dbtags = {}
+                        for category in categories:
+                            for tag in ccache.get(key, []):
+                                if tag.original_name == category:
+                                    dbtags[category] = books_in_url(self.opts.url_prefix,
+                                        tag.category if tag.category else key,
+                                        tag.original_name if tag.id is None else
+                                        unicode(tag.id))
+                                    break
+                        category_urls[key] = dbtags
+        else:
+            series = data.get('series', None)
+            if series:
+                tsorder = tweaks['save_template_title_series_sorting']
+                series = title_sort(series, order=tsorder)
+            else:
+                series = ''
+            data['_series_sort_'] = series
 
         return data, mi.last_modified
 
     @Endpoint(set_last_modified=False)
-    def ajax_book(self, book_id, category_urls='true'):
+    def ajax_book(self, book_id, category_urls='true', id_is_uuid='false',
+                  device_compatible='false'):
         '''
         Return the metadata of the book as a JSON dictionary.
 
@@ -192,9 +208,13 @@ class AjaxServer(object):
         cherrypy.response.timeout = 3600
 
         try:
-            book_id = int(book_id)
+            if id_is_uuid == 'true':
+                book_id = self.db.get_id_from_uuid(book_id)
+            else:
+                book_id = int(book_id)
             data, last_modified = self.ajax_book_to_json(book_id,
-                    get_category_urls=category_urls.lower()=='true')
+                    get_category_urls=category_urls.lower()=='true',
+                    device_compatible=device_compatible.lower()=='true');
         except:
             raise cherrypy.HTTPError(404, 'No book with id: %r'%book_id)
 
@@ -204,7 +224,7 @@ class AjaxServer(object):
         return data
 
     @Endpoint(set_last_modified=False)
-    def ajax_books(self, ids=None, category_urls='true'):
+    def ajax_books(self, ids=None, category_urls='true', id_is_uuid='false'):
         '''
         Return the metadata for a list of books specified as a comma separated
         list of ids. The metadata is returned as a dictionary mapping ids to
@@ -218,7 +238,10 @@ class AjaxServer(object):
         if ids is None:
             raise cherrypy.HTTPError(404, 'Must specify some ids')
         try:
-            ids = set(int(x.strip()) for x in ids.split(','))
+            if id_is_uuid == 'true':
+                ids = set(self.db.get_id_from_uuid(x) for x in ids.split(','))
+            else:
+                ids = set(int(x.strip()) for x in ids.split(','))
         except:
             raise cherrypy.HTTPError(404, 'ids must be a comma separated list'
                     ' of integers')

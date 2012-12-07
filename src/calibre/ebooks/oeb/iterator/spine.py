@@ -53,6 +53,7 @@ class SpineItem(unicode):
         if mime_type is None:
             mime_type = guess_type(obj)[0]
         obj.mime_type = mime_type
+        obj.is_single_page = None
         return obj
 
 class IndexEntry(object):

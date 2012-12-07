@@ -1,59 +1,104 @@
+import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
-class AdvancedUserRecipe1335532466(BasicNewsRecipe):
-    title                = u'Richmond Times-Dispatch'
-    description      = 'News from Richmond, Virginia, USA'
-    __author__     = 'jde'
-    cover_url        = 'http://static2.dukecms.com/va_tn/timesdispatch_com/site-media/img/icons/logo252x97.png'
-    language        = 'en'
-    encoding        = 'utf8'
-    oldest_article = 1 #days
-    max_articles_per_feed = 25
-    needs_subscription = False
-    remove_javascript = True
-    recursions      = 0
-    use_embedded_content = False
-    no_stylesheets = True
-    auto_cleanup = True
+class RichmondTimesDispatch(BasicNewsRecipe):
+    title               = u'Richmond Times-Dispatch'
+    description         = "The Richmond Times-Dispatch is the primary daily newspaper in Richmond, \
+                            the capital of Virginia, United States, as well as the Virginia cities of Petersburg, \
+                            Chester. Hopewell, Colonial Heights, Charlottesville, Lynchburg, Waynesboro, \
+                            and is also a default paper for rural regions of the state.  \
+                            The RTD has published in some form for more than 150 years."
+    __author__          = '_reader'
+    __date__            = '17 October 2012'
+    __version__         = '1.6'
+    cover_url           = 'http://static2.dukecms.com/va_tn/timesdispatch_com/site-media/img/icons/logo252x97.png'
+    masthead_url            = 'http://static2.dukecms.com/va_tn/timesdispatch_com/site-media/img/icons/logo252x97.png'
+    language            = 'en'
+    oldest_article      = 1.5 #days
+    max_articles_per_feed   = 100
+    ignore_duplicate_articles = { 'title', 'url' }
+    needs_subscription  = False
+    publisher           = 'timesdispatch.com'
+    category            = 'news, commentary'
+    tags                = 'news'
+    publication_type    = 'newspaper'
+    no_stylesheets      = True
+    use_embedded_content= False
+    encoding            = None
+    simultaneous_downloads  = 20
+    recursions          = 0
+    remove_javascript   = True
+    remove_empty_feeds  = True
+    auto_cleanup        = False
+
+    conversion_options = {
+                           'comments'    : description,
+                           'tags'             : tags,
+                           'language'      : language,
+                           'publisher'      : publisher,
+                           'authors'        : publisher,
+                           'smarten_punctuation' : True
+                            }
+
+    remove_tags_before = dict(id='hnews hentry item')
+
+    remove_tags_after   = dict(name='hr')
+
+    remove_tags =   [
+                    dict(name='div', attrs={'id':['mg_hd', 'mg_ft', 'sr_b', 'comments_left', 'comments_right']})
+                    ,dict(name='div', attrs={'class':['bottom_social','article_bottom']})
+                    ,dict(name='table', attrs={'class':['ap-mediabox-table', 'ap-htmltable-table', 'ap-photogallery-table', 'ap-htmlfragment-table']})
+                    ]
+
+
+    preprocess_regexps = [
+                   (re.compile(r'<table class="ap-story-table hnews hentry item".*?<td class="ap-story-td">', re.DOTALL|re.IGNORECASE), lambda match: ''),
+                   (re.compile(r'<p>\s*http://www2.timesdispatch.*?</p>', re.DOTALL|re.IGNORECASE), lambda match: ''),
+                   (re.compile(r'<p>\s*<img src="http://static2.dukecms.*?</p>', re.DOTALL|re.IGNORECASE), lambda match: ''),
+                   (re.compile(r'<p>\s*<a href="http://www2.timesdispatch.*?</p>', re.DOTALL|re.IGNORECASE), lambda match: ''),
+                   (re.compile(r'<hr.*?>', re.DOTALL|re.IGNORECASE), lambda match: ''),             #strip <hr /> line break
+                   (re.compile(r'<a\s*rel="item-license.*?Use</a>.', re.DOTALL|re.IGNORECASE), lambda match: ''),           #strip <hr /> line break
+                   (re.compile(r'<small>\s*Richmond Times-Dispatch.*?</small>', re.DOTALL|re.IGNORECASE), lambda match: ''),            #strip <hr /> line break
+                    ]
+
 
     feeds          =   [
+    ('News',        'http://www2.timesdispatch.com/list/feed/rss/news-archive'),
+    ('Breaking News',   'http://www2.timesdispatch.com/list/feed/rss/breaking-news'),
+    ('National News',   'http://www2.timesdispatch.com/list/feed/rss/national-news'),
+    ('Local News',      'http://www2.timesdispatch.com/list/feed/rss/local-news'),
+    ('Business',        'http://www2.timesdispatch.com/list/feed/rss/business'),
+    ('Local Business',  'http://www2.timesdispatch.com/list/feed/rss/local-business'),
+    ('Politics',        'http://www2.timesdispatch.com/list/feed/rss/politics'),
+    ('Virginia Politics',   'http://www2.timesdispatch.com/list/feed/rss/virginia-politics'),
+    ('History',   'http://www2.timesdispatch.com/feed/rss/special_section/news/history'),
+    ('Sports',      'http://www2.timesdispatch.com/list/feed/rss/sports2'),
+    ('Health',      'http://www2.timesdispatch.com/feed/rss/lifestyles/health_med_fit/'),
+    ('Entertainment/Life',  'http://www2.timesdispatch.com/list/feed/rss/entertainment'),
+    ('Arts/Theatre',    'http://www2.timesdispatch.com/feed/rss/entertainment/arts_theatre/'),
+    ('Movies',      'http://www2.timesdispatch.com/list/feed/rss/movies'),
+    ('Music',       'http://www2.timesdispatch.com/list/feed/rss/music'),
+    ('Dining & Food',   'http://www2.timesdispatch.com/list/feed/rss/dining'),
+    ('Home & Garden',   'http://www2.timesdispatch.com/list/feed/rss/home-and-garden/'),
+    ('Travel',     'http://www2.timesdispatch.com/feed/rss/travel/'),
+    ('Opinion',     'http://www2.timesdispatch.com/feed/rss/news/opinion/'),
+    ('Editorials',      'http://www2.timesdispatch.com/list/feed/rss/editorial-desk'),
+    ('Columnists and Blogs',    'http://www2.timesdispatch.com/list/feed/rss/news-columnists-blogs'),
+    ('Opinion Columnists',  'http://www2.timesdispatch.com/list/feed/rss/opinion-editorial-columnists'),
+    ('Letters to the Editor',   'http://www2.timesdispatch.com/list/feed/rss/opinion-letters'),
+    ('Traffic',     'http://www2.timesdispatch.com/list/feed/rss/traffic'),
+    ('Drives',     'http://www2.timesdispatch.com/feed/rss/classifieds/transportation/'),
 
-('News',
-'http://www2.timesdispatch.com/list/feed/rss/news-archive'),
-('Breaking News',
-'http://www2.timesdispatch.com/list/feed/rss/breaking-news'),
-('National News',
-'http://www2.timesdispatch.com/list/feed/rss/national-news'),
-('Local News',
-'http://www2.timesdispatch.com/list/feed/rss/local-news'),
-('Business',
-'http://www2.timesdispatch.com/list/feed/rss/business'),
-('Local Business',
-'http://www2.timesdispatch.com/list/feed/rss/local-business'),
-('Politics',
-'http://www2.timesdispatch.com/list/feed/rss/politics'),
-('Virginia Politics',
-'http://www2.timesdispatch.com/list/feed/rss/virginia-politics'),
-('Editorials',
-'http://www2.timesdispatch.com/list/feed/rss/editorial-desk'),
-('Columnists and Blogs',
-'http://www2.timesdispatch.com/list/feed/rss/news-columnists-blogs'),
-('Opinion Columnists',
-'http://www2.timesdispatch.com/list/feed/rss/opinion-editorial-columnists'),
-('Letters to the Editor',
-'http://www2.timesdispatch.com/list/feed/rss/opinion-letters'),
-('Traffic',
-'http://www2.timesdispatch.com/list/feed/rss/traffic'),
-('Sports',
-'http://www2.timesdispatch.com/list/feed/rss/sports2'),
-('Entertainment/Life',
-'http://www2.timesdispatch.com/list/feed/rss/entertainment'),
-('Movies',
-'http://www2.timesdispatch.com/list/feed/rss/movies'),
-('Music',
-'http://www2.timesdispatch.com/list/feed/rss/music'),
-('Dining & Food',
-'http://www2.timesdispatch.com/list/feed/rss/dining'),
+        ]
 
-    ]
-
+    def print_version(self,url):
+        article_num = re.sub(r'(^.*)\-([0-9]{4,10})\/$', r'\g<2>', url)
+        ap_pat = re.compile('http')
+        #print '\nDEBUG>>>>>>>>: article_num: ', article_num
+        #print 'DEBUG>>>>>>>>: ap_pat.search(article_num): ', ap_pat.search(article_num)
+        if ap_pat.search(article_num):            #AP article, no print url
+            #print 'DEBUG>>>>>>>>: AP URL: ', url
+            return url
+        else:
+            printURL = 'http://www2.timesdispatch.com/member-center/share-this/print/?content=ar' + article_num
+            return printURL

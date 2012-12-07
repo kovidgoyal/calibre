@@ -30,10 +30,16 @@ class JavaScriptLoader(object):
     CS = {
             'cfi':'ebooks.oeb.display.cfi',
             'indexing':'ebooks.oeb.display.indexing',
+            'paged':'ebooks.oeb.display.paged',
+            'utils':'ebooks.oeb.display.utils',
+            'fs':'ebooks.oeb.display.full_screen',
+            'math': 'ebooks.oeb.display.mathjax',
+            'extract': 'ebooks.oeb.display.extract',
         }
 
     ORDER = ('jquery', 'jquery_scrollTo', 'bookmarks', 'referencing', 'images',
-            'hyphenation', 'hyphenator', 'cfi', 'indexing',)
+            'hyphenation', 'hyphenator', 'utils', 'cfi', 'indexing', 'paged',
+            'fs', 'math', 'extract')
 
 
     def __init__(self, dynamic_coffeescript=False):
@@ -74,7 +80,7 @@ class JavaScriptLoader(object):
             evaljs(src)
 
         if not lang:
-            lang = 'en'
+            lang = default_lang or 'en'
 
         def lang_name(l):
             l = l.lower()

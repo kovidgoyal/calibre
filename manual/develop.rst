@@ -6,9 +6,9 @@ Setting up a |app| development environment
 ===========================================
 
 |app| is completely open source, licensed under the `GNU GPL v3 <http://www.gnu.org/copyleft/gpl.html>`_.
-This means that you are free to download and modify the program to your heart's content. In this section, 
-you will learn how to get a |app| development environment set up on the operating system of your choice. 
-|app| is written primarily in `Python <http://www.python.org>`_ with some C/C++ code for speed and system interfacing. 
+This means that you are free to download and modify the program to your heart's content. In this section,
+you will learn how to get a |app| development environment set up on the operating system of your choice.
+|app| is written primarily in `Python <http://www.python.org>`_ with some C/C++ code for speed and system interfacing.
 Note that |app| is not compatible with Python 3 and requires at least Python 2.7.
 
 .. contents:: Contents
@@ -20,15 +20,17 @@ Design philosophy
 
 |app| has its roots in the Unix world, which means that its design is highly modular.
 The modules interact with each other via well defined interfaces. This makes adding new features and fixing
-bugs in |app| very easy, resulting in a frenetic pace of development. Because of its roots, |app| has a 
+bugs in |app| very easy, resulting in a frenetic pace of development. Because of its roots, |app| has a
 comprehensive command line interface for all its functions, documented in :ref:`cli`.
 
 The modular design of |app| is expressed via ``Plugins``. There is a :ref:`tutorial <customize>` on writing |app| plugins.
 For example, adding support for a new device to |app| typically involves writing less than a 100 lines of code in the form of
-a device driver plugin. You can browse the 
-`built-in drivers <http://bazaar.launchpad.net/%7Ekovid/calibre/trunk/files/head%3A/src/calibre/devices/>`_. Similarly, adding support 
-for new conversion formats involves writing input/output format plugins. Another example of the modular design is the :ref:`recipe system <news>` for 
+a device driver plugin. You can browse the
+`built-in drivers <http://bazaar.launchpad.net/%7Ekovid/calibre/trunk/files/head%3A/src/calibre/devices/>`_. Similarly, adding support
+for new conversion formats involves writing input/output format plugins. Another example of the modular design is the :ref:`recipe system <news>` for
 fetching news. For more examples of plugins designed to add features to |app|, see the `plugin index <http://www.mobileread.com/forums/showthread.php?p=1362767#post1362767>`_.
+
+.. _code_layout:
 
 Code layout
 ^^^^^^^^^^^^^^
@@ -70,13 +72,21 @@ After installing Bazaar, you can get the |app| source code with the command::
 
     bzr branch lp:calibre
 
-On Windows you will need the complete path name, that will be something like :file:`C:\\Program Files\\Bazaar\\bzr.exe`. To update a branch
-to the latest code, use the command::
+On Windows you will need the complete path name, that will be something like :file:`C:\\Program Files\\Bazaar\\bzr.exe`. 
+
+To update a branch to the latest code, use the command::
 
     bzr merge
 
-The calibre repository is huge so the branch operation above takes along time (about an hour). If you want to get the code faster, the sourcecode for the latest release is always available as an
-`archive <http://status.calibre-ebook.com/dist/src>`_.
+|app| is a very large project with a very long source control history, so the
+above can take a while (10mins to an hour depending on your internet speed).
+
+If you want to get the code faster, the sourcecode for the latest release is
+always available as an `archive <http://status.calibre-ebook.com/dist/src>`_.
+You can also use bzr to just download the source code, without the history,
+using::
+
+  bzr branch --stacked lp:calibre
 
 Submitting your changes to be included
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -91,15 +101,15 @@ this, make your changes, then run::
 This will create a :file:`my-changes` file in the current directory,
 simply attach that to a ticket on the |app| `bug tracker <https://bugs.launchpad.net/calibre>`_.
 
-If you plan to do a lot of development on |app|, then the best method is to create a 
+If you plan to do a lot of development on |app|, then the best method is to create a
 `Launchpad <http://launchpad.net>`_ account. Once you have an account, you can use it to register
 your bzr branch created by the `bzr branch` command above. First run the
 following command to tell bzr about your launchpad account::
 
     bzr launchpad-login your_launchpad_username
 
-Now, you have to setup SSH access to Launchpad. First create an SSH public/private keypair. Then upload 
-the public key to Launchpad by going to your Launchpad account page. Instructions for setting up the 
+Now, you have to setup SSH access to Launchpad. First create an SSH public/private keypair. Then upload
+the public key to Launchpad by going to your Launchpad account page. Instructions for setting up the
 private key in bzr are at http://bazaar-vcs.org/Bzr_and_SSH. Now you can upload your branch to the |app|
 project in Launchpad by following the instructions at https://help.launchpad.net/Code/UploadingABranch.
 Whenever you commit changes to your branch with the command::
@@ -107,8 +117,8 @@ Whenever you commit changes to your branch with the command::
     bzr commit -m "Comment describing your change"
 
 Kovid can merge it directly from your branch into the main |app| source tree. You should also keep an eye on the |app|
-`development forum <http://www.mobileread.com/forums/forumdisplay.php?f=240>`. Before making major changes, you should
-discuss them in the forum or contact Kovid directly (his email address is all over the source code). 
+`development forum <http://www.mobileread.com/forums/forumdisplay.php?f=240>`_. Before making major changes, you should
+discuss them in the forum or contact Kovid directly (his email address is all over the source code).
 
 Windows development environment
 ---------------------------------
@@ -118,12 +128,12 @@ the previously checked out |app| code directory. For example::
 
     cd C:\Users\kovid\work\calibre
 
-calibre is the directory that contains the src and resources sub-directories. 
+calibre is the directory that contains the src and resources sub-directories.
 
 The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory.
 So, following the example above, it would be ``C:\Users\kovid\work\calibre\src``. `Here is a short
 guide <http://docs.python.org/using/windows.html#excursus-setting-environment-variables>`_ to setting environment
-variables on Windows. 
+variables on Windows.
 
 Once you have set the environment variable, open a new command prompt and check that it was correctly set by using
 the command::
@@ -134,7 +144,7 @@ Setting this environment variable means that |app| will now load all its Python 
 
 That's it! You are now ready to start hacking on the |app| code. For example, open the file :file:`src\\calibre\\__init__.py`
 in your favorite editor and add the line::
-    
+
     print ("Hello, world!")
 
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
@@ -149,24 +159,25 @@ the previously checked out |app| code directory, for example::
 
 calibre is the directory that contains the src and resources sub-directories. Ensure you have installed the |app| commandline tools via :guilabel:`Preferences->Advanced->Miscellaneous` in the |app| GUI.
 
-The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory.
-So, following the example above, it would be ``/Users/kovid/work/calibre/src``. Apple 
-`documentation <http://developer.apple.com/mac/library/documentation/MacOSX/Conceptual/BPRuntimeConfig/Articles/EnvironmentVars.html#//apple_ref/doc/uid/20002093-BCIJIJBH>`_
-on how to set environment variables. 
+The next step is to create a bash script that will set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory when running calibre in debug mode.
 
-Once you have set the environment variable, open a new Terminal and check that it was correctly set by using
-the command::
+Create a plain text file::
 
-    echo $CALIBRE_DEVELOP_FROM
+    #!/bin/sh
+    export CALIBRE_DEVELOP_FROM="/Users/kovid/work/calibre/src"
+    calibre-debug -g
 
-Setting this environment variable means that |app| will now load all its Python code from the specified location.
+Save this file as ``/usr/bin/calibre-develop``, then set its permissions so that it can be executed::
 
-That's it! You are now ready to start hacking on the |app| code. For example, open the file :file:`src/calibre/__init__.py`
-in your favorite editor and add the line::
-    
-    print ("Hello, world!")
+    chmod +x /usr/bin/calibre-develop
 
-near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
+Once you have done this, run::
+
+    calibre-develop
+
+You should see some diagnostic information in the Terminal window as calibre
+starts up, and you should see an asterisk after the version number in the GUI
+window, indicating that you are running from source.
 
 Linux development environment
 ------------------------------
@@ -181,11 +192,11 @@ Install the |app| using the binary installer. Then open a terminal and change to
 
     cd /home/kovid/work/calibre
 
-calibre is the directory that contains the src and resources sub-directories. 
+calibre is the directory that contains the src and resources sub-directories.
 
 The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory.
 So, following the example above, it would be ``/home/kovid/work/calibre/src``. How to set environment variables depends on
-your Linux distribution and what shell you are using. 
+your Linux distribution and what shell you are using.
 
 Once you have set the environment variable, open a new terminal and check that it was correctly set by using
 the command::
@@ -196,7 +207,7 @@ Setting this environment variable means that |app| will now load all its Python 
 
 That's it! You are now ready to start hacking on the |app| code. For example, open the file :file:`src/calibre/__init__.py`
 in your favorite editor and add the line::
-    
+
     print ("Hello, world!")
 
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.

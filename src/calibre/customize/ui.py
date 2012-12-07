@@ -8,7 +8,7 @@ from calibre.customize import (CatalogPlugin, FileTypePlugin, PluginNotFound,
                               MetadataReaderPlugin, MetadataWriterPlugin,
                               InterfaceActionBase as InterfaceAction,
                               PreferencesPlugin, platform, InvalidPlugin,
-                              StoreBase as Store)
+                              StoreBase as Store, ViewerPlugin)
 from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
 from calibre.customize.zipplugin import loader
 from calibre.customize.profiles import InputProfile, OutputProfile
@@ -104,14 +104,17 @@ def is_disabled(plugin):
 # File type plugins {{{
 
 _on_import           = {}
+_on_postimport       = {}
 _on_preprocess       = {}
 _on_postprocess      = {}
 
 def reread_filetype_plugins():
     global _on_import
+    global _on_postimport
     global _on_preprocess
     global _on_postprocess
     _on_import           = {}
+    _on_postimport       = {}
     _on_preprocess       = {}
     _on_postprocess      = {}
 
@@ -122,6 +125,10 @@ def reread_filetype_plugins():
                     if not _on_import.has_key(ft):
                         _on_import[ft] = []
                     _on_import[ft].append(plugin)
+                if plugin.on_postimport:
+                    if not _on_postimport.has_key(ft):
+                        _on_postimport[ft] = []
+                    _on_postimport[ft].append(plugin)
                 if plugin.on_preprocess:
                     if not _on_preprocess.has_key(ft):
                         _on_preprocess[ft] = []
@@ -163,6 +170,22 @@ run_plugins_on_preprocess  = functools.partial(_run_filetype_plugins,
                                                occasion='preprocess')
 run_plugins_on_postprocess = functools.partial(_run_filetype_plugins,
                                                occasion='postprocess')
+
+def run_plugins_on_postimport(db, book_id, fmt):
+    customization = config['plugin_customization']
+    fmt = fmt.lower()
+    for plugin in _on_postimport.get(fmt, []):
+        if is_disabled(plugin):
+            continue
+        plugin.site_customization = customization.get(plugin.name, '')
+        with plugin:
+            try:
+                plugin.postimport(book_id, fmt, db)
+            except:
+                print ('Running file type plugin %s failed with traceback:'%
+                       plugin.name)
+                traceback.print_exc()
+
 # }}}
 
 # Plugin customization {{{
@@ -447,7 +470,8 @@ def plugin_for_catalog_format(fmt):
 
 # }}}
 
-def device_plugins(include_disabled=False): # {{{
+# Device plugins {{{
+def device_plugins(include_disabled=False):
     for plugin in _initialized_plugins:
         if isinstance(plugin, DevicePlugin):
             if include_disabled or not is_disabled(plugin):
@@ -455,6 +479,13 @@ def device_plugins(include_disabled=False): # {{{
                     if getattr(plugin, 'plugin_needs_delayed_initialization',
                             False):
                         plugin.do_delayed_plugin_initialization()
+                    yield plugin
+
+def disabled_device_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, DevicePlugin):
+            if is_disabled(plugin):
+                if platform in plugin.supported_platforms:
                     yield plugin
 # }}}
 
@@ -481,6 +512,13 @@ def all_metadata_plugins():
             yield plugin
 # }}}
 
+# Viewer plugins {{{
+def all_viewer_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, ViewerPlugin):
+            yield plugin
+# }}}
+
 # Initialize plugins {{{
 
 _initialized_plugins = []
@@ -497,6 +535,7 @@ def initialize_plugin(plugin, path_to_zip_file):
                             %tb) + '\n'+tb)
 
 def has_external_plugins():
+    'True if there are updateable (zip file based) plugins'
     return bool(config['plugins'])
 
 def initialize_plugins(perf=False):
@@ -554,6 +593,23 @@ def initialized_plugins():
 
 # CLI {{{
 
+def build_plugin(path):
+    from calibre import prints
+    from calibre.ptempfile import PersistentTemporaryFile
+    from calibre.utils.zipfile import ZipFile, ZIP_STORED
+    path = type(u'')(path)
+    names = frozenset(os.listdir(path))
+    if u'__init__.py' not in names:
+        prints(path, ' is not a valid plugin')
+        raise SystemExit(1)
+    t = PersistentTemporaryFile(u'.zip')
+    with ZipFile(t, u'w', ZIP_STORED) as zf:
+        zf.add_dir(path)
+    t.close()
+    plugin = add_plugin(t.name)
+    os.remove(t.name)
+    prints(u'Plugin updated:', plugin.name, plugin.version)
+
 def option_parser():
     parser = OptionParser(usage=_('''\
     %prog options
@@ -562,6 +618,10 @@ def option_parser():
     '''))
     parser.add_option('-a', '--add-plugin', default=None,
                       help=_('Add a plugin by specifying the path to the zip file containing it.'))
+    parser.add_option('-b', '--build-plugin', default=None,
+            help=_('For plugin developers: Path to the directory where you are'
+                ' developing the plugin. This command will automatically zip '
+                'up the plugin and update it in calibre.'))
     parser.add_option('-r', '--remove-plugin', default=None,
                       help=_('Remove a custom plugin by name. Has no effect on builtin plugins'))
     parser.add_option('--customize-plugin', default=None,
@@ -583,6 +643,8 @@ def main(args=sys.argv):
     if opts.add_plugin is not None:
         plugin = add_plugin(opts.add_plugin)
         print 'Plugin added:', plugin.name, plugin.version
+    if opts.build_plugin is not None:
+        build_plugin(opts.build_plugin)
     if opts.remove_plugin is not None:
         if remove_plugin(opts.remove_plugin):
             print 'Plugin removed'

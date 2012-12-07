@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os, itertools, operator
 from functools import partial
 from future_builtins import map
+from collections import OrderedDict
 
 from PyQt4.Qt import (QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal,
     QModelIndex, QIcon, QItemSelection, QMimeData, QDrag, QApplication,
@@ -89,6 +90,7 @@ class BooksView(QTableView): # {{{
 
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
+        self.row_sizing_done = False
 
         if not tweaks['horizontal_scrolling_per_column']:
             self.setHorizontalScrollMode(self.ScrollPerPixel)
@@ -125,7 +127,7 @@ class BooksView(QTableView): # {{{
         self.last_modified_delegate = DateDelegate(self,
                 tweak_name='gui_last_modified_display_format')
         self.languages_delegate = LanguagesDelegate(self)
-        self.tags_delegate = CompleteDelegate(self, ',', 'all_tags')
+        self.tags_delegate = CompleteDelegate(self, ',', 'all_tag_names')
         self.authors_delegate = CompleteDelegate(self, '&', 'all_author_names', True)
         self.cc_names_delegate = CompleteDelegate(self, '&', 'all_custom', True)
         self.series_delegate = TextDelegate(self)
@@ -140,6 +142,8 @@ class BooksView(QTableView): # {{{
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
+        self._model.count_changed_signal.connect(self.do_row_sizing,
+                                                 type=Qt.QueuedConnection)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
         self.selectionModel().currentRowChanged.connect(self._model.current_changed)
@@ -510,6 +514,7 @@ class BooksView(QTableView): # {{{
             except:
                 # Ignore invalid tweak values as users seem to often get them
                 # wrong
+                print('Ignoring invalid sort_columns_at_startup tweak, with error:')
                 import traceback
                 traceback.print_exc()
             old_state['sort_history'] = sh
@@ -519,12 +524,16 @@ class BooksView(QTableView): # {{{
         self.apply_state(old_state, max_sort_levels=max_levels)
         self.column_header.blockSignals(False)
 
-        # Resize all rows to have the correct height
-        if self.model().rowCount(QModelIndex()) > 0:
-            self.resizeRowToContents(0)
-            self.verticalHeader().setDefaultSectionSize(self.rowHeight(0))
+        self.do_row_sizing()
 
         self.was_restored = True
+
+    def do_row_sizing(self):
+        # Resize all rows to have the correct height
+        if not self.row_sizing_done and self.model().rowCount(QModelIndex()) > 0:
+            self.resizeRowToContents(0)
+            self.verticalHeader().setDefaultSectionSize(self.rowHeight(0))
+            self.row_sizing_done = True
 
     def resize_column_to_fit(self, column):
         col = self.column_map.index(column)
@@ -775,7 +784,7 @@ class BooksView(QTableView): # {{{
                     self.scrollTo(self.model().index(row, i), self.PositionAtCenter)
                     break
 
-    def set_current_row(self, row, select=True):
+    def set_current_row(self, row=0, select=True):
         if row > -1 and row < self.model().rowCount(QModelIndex()):
             h = self.horizontalHeader()
             logical_indices = list(range(h.count()))
@@ -792,6 +801,17 @@ class BooksView(QTableView): # {{{
             if select:
                 sm = self.selectionModel()
                 sm.select(index, sm.ClearAndSelect|sm.Rows)
+
+    def ids_to_rows(self, ids):
+        row_map = OrderedDict()
+        ids = frozenset(ids)
+        m = self.model()
+        for row in xrange(m.rowCount(QModelIndex())):
+            if len(row_map) >= len(ids): break
+            c = m.id(row)
+            if c in ids:
+                row_map[c] = row
+        return row_map
 
     def select_rows(self, identifiers, using_ids=True, change_current=True,
             scroll=True):
@@ -855,6 +875,35 @@ class BooksView(QTableView): # {{{
                     break
         return property(fget=fget, fset=fset)
 
+    @property
+    def next_id(self):
+        '''
+        Return the id of the 'next' row (i.e. the first unselected row after
+        the current row).
+        '''
+        ci = self.currentIndex()
+        if not ci.isValid():
+            return None
+        selected_rows = frozenset([i.row() for i in self.selectedIndexes() if
+            i.isValid()])
+        column = ci.column()
+
+        for i in xrange(ci.row()+1, self.row_count()):
+            if i in selected_rows: continue
+            try:
+                return self.model().id(self.model().index(i, column))
+            except:
+                pass
+
+        # No unselected rows after the current row, look before
+        for i in xrange(ci.row()-1, -1, -1):
+            if i in selected_rows: continue
+            try:
+                return self.model().id(self.model().index(i, column))
+            except:
+                pass
+        return None
+
     def close(self):
         self._model.close()
 
@@ -901,6 +950,8 @@ class DeviceBooksView(BooksView): # {{{
     def __init__(self, parent):
         BooksView.__init__(self, parent, DeviceBooksModel,
                            use_edit_metadata_dialog=False)
+        self._model.resize_rows.connect(self.do_row_sizing,
+                                                 type=Qt.QueuedConnection)
         self.can_add_columns = False
         self.columns_resized = False
         self.resize_on_select = False

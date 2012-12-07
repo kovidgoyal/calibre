@@ -106,7 +106,7 @@ class KF8Writer(object):
         not used for fonts. '''
 
         def pointer(item, oref):
-            ref = item.abshref(oref)
+            ref = urlnormalize(item.abshref(oref))
             idx = self.resources.item_map.get(ref, None)
             if idx is not None:
                 is_image = self.resources.records[idx-1][:4] not in {b'FONT'}

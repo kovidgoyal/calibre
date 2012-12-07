@@ -561,7 +561,9 @@ class OPDSServer(object):
         if type_ != 'I':
             raise cherrypy.HTTPError(404, 'Non id categories not supported')
 
-        ids = self.db.get_books_for_category(category, which)
+        q = category
+        if q == 'news': q = 'tags'
+        ids = self.db.get_books_for_category(q, which)
         sort_by = 'series' if category == 'series' else 'title'
 
         return self.get_opds_acquisition_feed(ids, offset, page_url,
@@ -591,6 +593,9 @@ class OPDSServer(object):
                 continue
             meta = category_meta.get(category, None)
             if meta is None:
+                continue
+            if category_meta.is_custom_field(category) and \
+                                category not in custom_fields_to_display(self.db):
                 continue
             cats.append((meta['name'], meta['name'], 'N'+category))
         updated = self.db.last_modified()

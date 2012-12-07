@@ -12,6 +12,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks
 
 box_values = {}
+last_matchkind = CONTAINS_MATCH
 
 class SearchDialog(QDialog, Ui_Dialog):
 
@@ -25,10 +26,6 @@ class SearchDialog(QDialog, Ui_Dialog):
 
         all_authors = db.all_authors()
         all_authors.sort(key=lambda x : sort_key(x[1]))
-        for i in all_authors:
-            id, name = i
-            name = name.strip().replace('|', ',')
-            self.authors_box.addItem(name)
         self.authors_box.setEditText('')
         self.authors_box.set_separator('&')
         self.authors_box.set_space_before_sep(True)
@@ -39,10 +36,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         all_series.sort(key=lambda x : sort_key(x[1]))
         self.series_box.set_separator(None)
         self.series_box.update_items_cache([x[1] for x in all_series])
-        for i in all_series:
-            id, name = i
-            self.series_box.addItem(name)
-        self.series_box.setEditText('')
+        self.series_box.show_initial_value('')
 
         all_tags = db.all_tags()
         self.tags_box.update_items_cache(all_tags)
@@ -64,6 +58,9 @@ class SearchDialog(QDialog, Ui_Dialog):
 
         current_tab = gprefs.get('advanced search dialog current tab', 0)
         self.tabWidget.setCurrentIndex(current_tab)
+        if current_tab == 1:
+            self.matchkind.setCurrentIndex(last_matchkind)
+
         self.tabWidget.currentChanged[int].connect(self.tab_changed)
         self.tab_changed(current_tab)
 
@@ -180,7 +177,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         general_index = unicode(self.general_combo.currentText())
         self.box_last_values['general_index'] = general_index
         global box_values
+        global last_matchkind
         box_values = copy.deepcopy(self.box_last_values)
+        last_matchkind = mk
         if general:
             ans.append(unicode(self.general_combo.currentText()) + ':"' +
                     self.mc + general + '"')

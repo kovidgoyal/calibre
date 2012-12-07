@@ -1,0 +1,50 @@
+#!/usr/bin/env  python
+
+__license__ = 'GPL v3'
+__author__ = 'teepel <teepel44@gmail.com>'
+
+'''
+bankier.pl
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class bankier(BasicNewsRecipe):
+    title          = u'Bankier.pl'
+    __author__ = 'teepel <teepel44@gmail.com>'
+    language       = 'pl'
+    description ='Polski portal finansowy. Informacje o: gospodarka, inwestowanie, finanse osobiste, prowadzenie firmy, kursy walut, notowania akcji, fundusze.'
+    masthead_url='http://www.bankier.pl/gfx/hd-mid-02.gif'
+    INDEX='http://bankier.pl/'
+    remove_empty_feeds= True
+    oldest_article = 1
+    max_articles_per_feed = 100
+    remove_javascript=True
+    no_stylesheets=True
+    simultaneous_downloads = 5
+
+    keep_only_tags =[]
+    keep_only_tags.append(dict(name = 'div', attrs = {'align' : 'left'}))
+
+    remove_tags =[]
+    remove_tags.append(dict(name = 'table', attrs = {'cellspacing' : '2'}))
+    remove_tags.append(dict(name = 'div', attrs = {'align' : 'center'}))
+    remove_tags.append(dict(name = 'img', attrs = {'src' : '/gfx/hd-mid-02.gif'}))
+    #remove_tags.append(dict(name = 'a', attrs = {'target' : '_blank'}))
+    #remove_tags.append(dict(name = 'br', attrs = {'clear' : 'all'}))
+
+    feeds          = [
+            (u'Wiadomości dnia', u'http://feeds.feedburner.com/bankier-wiadomosci-dnia'),
+            (u'Finanse osobiste', u'http://feeds.feedburner.com/bankier-finanse-osobiste'),
+            (u'Firma', u'http://feeds.feedburner.com/bankier-firma'),
+            (u'Giełda', u'http://feeds.feedburner.com/bankier-gielda'),
+            (u'Rynek walutowy', u'http://feeds.feedburner.com/bankier-rynek-walutowy'),
+            (u'Komunikaty ze spółek', u'http://feeds.feedburner.com/bankier-espi'),
+         ]
+    def print_version(self, url):
+        segment = url.split('.')
+        urlPart = segment[2]
+        segments = urlPart.split('-')
+        urlPart2 = segments[-1]
+        return 'http://www.bankier.pl/wiadomosci/print.html?article_id=' + urlPart2
+

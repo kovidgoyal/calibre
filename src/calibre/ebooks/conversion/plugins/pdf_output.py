@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
+__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 '''
@@ -14,6 +14,7 @@ import os
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ptempfile import TemporaryDirectory
+from calibre.constants import iswindows
 
 UNITS = [
             'millimeter',
@@ -61,7 +62,7 @@ ORIENTATIONS = ['portrait', 'landscape']
 class PDFOutput(OutputFormatPlugin):
 
     name = 'PDF Output'
-    author = 'John Schember and Kovid Goyal'
+    author = 'Kovid Goyal'
     file_type = 'pdf'
 
     options = set([
@@ -88,6 +89,25 @@ class PDFOutput(OutputFormatPlugin):
             help=_('Preserve the aspect ratio of the cover, instead'
                 ' of stretching it to fill the full first page of the'
                 ' generated pdf.')),
+        OptionRecommendation(name='pdf_serif_family',
+            recommended_value='Times New Roman', help=_(
+                'The font family used to render serif fonts')),
+        OptionRecommendation(name='pdf_sans_family',
+            recommended_value='Helvetica', help=_(
+                'The font family used to render sans-serif fonts')),
+        OptionRecommendation(name='pdf_mono_family',
+            recommended_value='Courier New', help=_(
+                'The font family used to render monospaced fonts')),
+        OptionRecommendation(name='pdf_standard_font', choices=['serif',
+            'sans', 'mono'],
+            recommended_value='serif', help=_(
+                'The font family used to render monospaced fonts')),
+        OptionRecommendation(name='pdf_default_font_size',
+            recommended_value=20, help=_(
+                'The default font size')),
+        OptionRecommendation(name='pdf_mono_font_size',
+            recommended_value=16, help=_(
+                'The default font size for monospaced text')),
         ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
@@ -96,24 +116,6 @@ class PDFOutput(OutputFormatPlugin):
         self.output_path = output_path
         self.metadata = oeb_book.metadata
         self.cover_data = None
-
-        # Remove page-break-before on <body> element as it causes
-        # blank pages in PDF Output
-        from calibre.ebooks.oeb.base import XPath
-        stylesheet = self.oeb.manifest.main_stylesheet
-        if stylesheet is not None:
-            from cssutils.css import CSSRule
-            classes = set(['.calibre'])
-            for x in self.oeb.spine:
-                root = x.data
-                body = XPath('//h:body[@class]')(root)
-                if body:
-                    classes.add('.'+body[0].get('class'))
-
-            for rule in stylesheet.data.cssRules.rulesOfType(CSSRule.STYLE_RULE):
-                if rule.selectorList.selectorText in classes:
-                    rule.style.removeProperty('page-break-before')
-                    rule.style.removeProperty('page-break-after')
 
 
         if input_plugin.is_image_collection:
@@ -125,19 +127,94 @@ class PDFOutput(OutputFormatPlugin):
 
     def convert_images(self, images):
         from calibre.ebooks.pdf.writer import ImagePDFWriter
-        self.write(ImagePDFWriter, images)
+        self.write(ImagePDFWriter, images, None)
 
     def get_cover_data(self):
-        g, m = self.oeb.guide, self.oeb.manifest
-        if 'titlepage' not in g:
-            if 'cover' in g:
-                href = g['cover'].href
-                from calibre.ebooks.oeb.base import urlnormalize
-                for item in m:
-                    if item.href == urlnormalize(href):
-                        self.cover_data = item.data
-                        if not isinstance(self.cover_data, basestring):
-                            self.cover_data = None
+        oeb = self.oeb
+        if (oeb.metadata.cover and
+                unicode(oeb.metadata.cover[0]) in oeb.manifest.ids):
+            cover_id = unicode(oeb.metadata.cover[0])
+            item = oeb.manifest.ids[cover_id]
+            self.cover_data = item.data
+
+    def handle_embedded_fonts(self):
+        '''
+        Because of QtWebKit's inability to handle embedded fonts correctly, we
+        remove the embedded fonts and make them available system wide instead.
+        If you ever move to Qt WebKit 2.3+ then this will be unnecessary.
+        '''
+        from calibre.ebooks.oeb.base import urlnormalize
+        from calibre.gui2 import must_use_qt
+        from calibre.utils.fonts.utils import get_font_names, remove_embed_restriction
+        from PyQt4.Qt import QFontDatabase, QByteArray
+
+        # First find all @font-face rules and remove them, adding the embedded
+        # fonts to Qt
+        family_map = {}
+        for item in list(self.oeb.manifest):
+            if not hasattr(item.data, 'cssRules'): continue
+            remove = set()
+            for i, rule in enumerate(item.data.cssRules):
+                if rule.type == rule.FONT_FACE_RULE:
+                    remove.add(i)
+                    try:
+                        s = rule.style
+                        src = s.getProperty('src').propertyValue[0].uri
+                        font_family = s.getProperty('font-family').propertyValue[0].value
+                    except:
+                        continue
+                    path = item.abshref(src)
+                    ff = self.oeb.manifest.hrefs.get(urlnormalize(path), None)
+                    if ff is None:
+                        continue
+
+                    raw = ff.data
+                    self.oeb.manifest.remove(ff)
+                    try:
+                        raw = remove_embed_restriction(raw)
+                    except:
+                        continue
+                    must_use_qt()
+                    QFontDatabase.addApplicationFontFromData(QByteArray(raw))
+                    try:
+                        family_name = get_font_names(raw)[0]
+                    except:
+                        family_name = None
+                    if family_name:
+                        family_map[icu_lower(font_family)] = family_name
+
+            for i in sorted(remove, reverse=True):
+                item.data.cssRules.pop(i)
+
+        # Now map the font family name specified in the css to the actual
+        # family name of the embedded font (they may be different in general).
+        for item in self.oeb.manifest:
+            if not hasattr(item.data, 'cssRules'): continue
+            for i, rule in enumerate(item.data.cssRules):
+                if rule.type != rule.STYLE_RULE: continue
+                ff = rule.style.getProperty('font-family')
+                if ff is None: continue
+                val = ff.propertyValue
+                for i in xrange(val.length):
+                    k = icu_lower(val[i].value)
+                    if k in family_map:
+                        val[i].value = family_map[k]
+
+    def remove_font_specification(self):
+        # Qt produces image based pdfs on windows when non-generic fonts are specified
+        # This might change in Qt WebKit 2.3+ you will have to test.
+        for item in self.oeb.manifest:
+            if not hasattr(item.data, 'cssRules'): continue
+            for i, rule in enumerate(item.data.cssRules):
+                if rule.type != rule.STYLE_RULE: continue
+                ff = rule.style.getProperty('font-family')
+                if ff is None: continue
+                val = ff.propertyValue
+                for i in xrange(val.length):
+                    k = icu_lower(val[i].value)
+                    if k not in {'serif', 'sans', 'sans-serif', 'sansserif',
+                            'monospace', 'cursive', 'fantasy'}:
+                        val[i].value = ''
 
     def convert_text(self, oeb_book):
         from calibre.ebooks.pdf.writer import PDFWriter
@@ -145,6 +222,11 @@ class PDFOutput(OutputFormatPlugin):
 
         self.log.debug('Serializing oeb input to disk for processing...')
         self.get_cover_data()
+
+        if iswindows:
+            self.remove_font_specification()
+        else:
+            self.handle_embedded_fonts()
 
         with TemporaryDirectory('_pdf_out') as oeb_dir:
             from calibre.customize.ui import plugin_for_output_format
@@ -154,11 +236,13 @@ class PDFOutput(OutputFormatPlugin):
             opfpath = glob.glob(os.path.join(oeb_dir, '*.opf'))[0]
             opf = OPF(opfpath, os.path.dirname(opfpath))
 
-            self.write(PDFWriter, [s.path for s in opf.spine])
+            self.write(PDFWriter, [s.path for s in opf.spine], getattr(opf,
+                'toc', None))
 
-    def write(self, Writer, items):
+    def write(self, Writer, items, toc):
         from calibre.ebooks.pdf.writer import PDFMetadata
-        writer = Writer(self.opts, self.log, cover_data=self.cover_data)
+        writer = Writer(self.opts, self.log, cover_data=self.cover_data,
+                toc=toc)
 
         close = False
         if not hasattr(self.output_path, 'write'):

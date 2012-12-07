@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+
+__license__ = 'GPL v3'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class naszdziennik(BasicNewsRecipe):
+    title = u'Nasz Dziennik'
+    __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>'
+    language = 'pl'
+    description =u'Nasz Dziennik - Ogólnopolska gazeta codzienna. Podejmuje tematykę dotyczącą życia społecznego, kulturalnego, politycznego i religijnego. Propaguje wartości chrześcijańskie oraz tradycję i kulturę polską.'
+    masthead_url='http://www.naszdziennik.pl/images/logo-male.png'
+    max_articles_per_feed = 100
+    remove_javascript=True
+    no_stylesheets = True
+
+    keep_only_tags =[dict(attrs = {'id' : 'article'})]
+    
+    #definiujemy nową funkcje; musi zwracać listę feedów wraz z artykułami
+    def parse_index(self):
+        #adres do parsowania artykułów
+        soup = self.index_to_soup('http://www.naszdziennik.pl/news')
+        #deklaracja pustej listy feedów
+        feeds = []
+        #deklaracja pustego słownika artykułów
+        articles = {}
+        #deklaracja pustej listy sekcji
+        sections = []
+        #deklaracja pierwszej sekcji jako pusty string
+        section = ''
+        
+        #pętla for, która analizuje po kolei każdy tag "news-article"
+        for item in soup.findAll(attrs = {'class' : 'news-article'}) :
+            #w tagu "news-article szukamy pierwszego taga h4"
+            section = item.find('h4')
+            #zmiennej sekcja przypisujemy zawartość tekstową taga
+            section = self.tag_to_string(section)
+            #sprawdzamy czy w słowniku artykułów istnieje klucz dotyczący sekcji
+            #jeśli nie istnieje to :
+            if not articles.has_key(section) :
+                #do listy sekcji dodajemy nową sekcje
+                sections.append(section)
+                #deklarujemy nową sekcje w słowniku artykułów przypisując jej klucz odpowiadający nowej sekcji, którego wartością jest pusta lista
+                articles[section] = []
+            #przeszukujemy kolejny tag "title-datetime"
+            article_title_datetime = item.find(attrs = {'class' : 'title-datetime'})
+            #w tagu title-datetime znajdujemy pierwszy link
+            article_a = article_title_datetime.find('a')
+            #i tworzymy z niego link absolutny do właściwego artykułu
+            article_url = 'http://naszdziennik.pl' + article_a['href']
+            #jako tytuł użyty będzie tekst pomiędzy tagami <a>
+            article_title = self.tag_to_string(article_a)
+            #a data będzie tekstem z pierwszego taga h4 znalezionego w tagu title-datetime
+            article_date = self.tag_to_string(article_title_datetime.find('h4')) 
+            #zebrane elementy dodajemy do listy zadeklarowanej w linijce 44
+            articles[section].append( { 'title' : article_title,  'url' : article_url, 'date' : article_date })
+        #po dodaniu wszystkich artykułów dodajemy sekcje do listy feedów, korzystając z list sekcji znajdujących się w słowniku
+        for section in sections:
+            feeds.append((section, articles[section]))
+        #zwracamy listę feedów, której parsowaniem zajmie się calibre
+        return feeds

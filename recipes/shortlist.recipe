@@ -5,13 +5,15 @@ class AdvancedUserRecipe1324663493(BasicNewsRecipe):
     title          = u'Shortlist'
     description = 'Articles From Shortlist.com'
     # I've set oldest article to 7 days as the website updates weekly
-    oldest_article = 7
-    max_articles_per_feed = 12
+    oldest_article = 8
+    max_articles_per_feed = 20
     remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets = True
+    ignore_duplicate_articles = {'title'}
+
     __author__ = 'Dave Asbury'
-    # last updated 19/5/12
+    # last updated 7/10/12
     language = 'en_GB'
     def get_cover_url(self):
             soup = self.index_to_soup('http://www.shortlist.com')
@@ -45,17 +47,16 @@ class AdvancedUserRecipe1324663493(BasicNewsRecipe):
                      ]
 
     feeds          = [
-                               (u'Home carousel',u'http://feed43.com/7106317222455380.xml'),
-                               (u'This Weeks Issue', u'http://feed43.com/0323588208751786.xml'),
-         (u'Cool Stuff',u'http://feed43.com/6253845228768456.xml'),
-                                (u'Style',u'http://feed43.com/7217107577215678.xml'),
-                                (u'Films',u'http://feed43.com/3101308515277265.xml'),
-         (u'Music',u'http://feed43.com/2416400550560162.xml'),
-         (u'TV',u'http://feed43.com/4781172470717123.xml'),
-         (u'Sport',u'http://feed43.com/5303151885853308.xml'),
-         (u'Gaming',u'http://feed43.com/8883764600355347.xml'),
-                                (u'Women',u'http://feed43.com/2648221746514241.xml'),
-                                (u'Instant Improver', u'http://feed43.com/1236541026275417.xml'),
+                               #edit http://feed43.com/feed.html?name=3156308700147005
+                               # repeatable pattern = <h3>{_}<a href="{%}">{%}</a>{*}</h3>
 
-    #(u'Articles', u'http://feed43.com/3428534448355545.xml')
+                                (u'This Weeks Issue', u'http://feed43.com/5205766657404804.xml'),
+                                (u'Home Page',u'http://feed43.com/3156308700147005.xml'),
+                                (u'Cool Stuff',u'http://feed43.com/1557051772026706.xml'),
+                                (u'Style',u'http://feed43.com/4168836374571502.xml'),
+                                (u'Entertainment',u'http://feed43.com/4578504030588024.xml'),
+
+
     ]
+
+

@@ -22,9 +22,9 @@ class NewYorker(BasicNewsRecipe):
     masthead_url          = 'http://www.newyorker.com/css/i/hed/logo.gif'
     extra_css             = """
                                 body {font-family: "Times New Roman",Times,serif}
-                                .articleauthor{color: #9F9F9F; 
+                                .articleauthor{color: #9F9F9F;
                                                font-family: Arial, sans-serif;
-                                               font-size: small; 
+                                               font-size: small;
                                                text-transform: uppercase}
                                 .rubric,.dd,h6#credit{color: #CD0021;
                                         font-family: Arial, sans-serif;
@@ -63,11 +63,11 @@ class NewYorker(BasicNewsRecipe):
         return url.strip()
 
     def get_cover_url(self):
-        cover_url = None
-        soup = self.index_to_soup('http://www.newyorker.com/magazine/toc/')
-        cover_item = soup.find('img',attrs={'id':'inThisIssuePhoto'})
+        cover_url = "http://www.newyorker.com/images/covers/1925/1925_02_21_p233.jpg"
+        soup = self.index_to_soup('http://www.newyorker.com/magazine?intcid=magazine')
+        cover_item = soup.find('div',attrs={'id':'media-count-1'})
         if cover_item:
-           cover_url = 'http://www.newyorker.com' + cover_item['src'].strip()
+           cover_url = 'http://www.newyorker.com' + cover_item.div.img['src'].strip()
         return cover_url
 
     def preprocess_html(self, soup):

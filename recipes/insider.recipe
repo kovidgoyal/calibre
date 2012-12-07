@@ -1,0 +1,59 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import unicode_literals
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class insider(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title      = 'Insider'
+    language = 'cs'
+
+    remove_tags        = [dict(name='div', attrs={'class':'article-related-content'})
+                 ,dict(name='div', attrs={'class':'calendar'})
+                 ,dict(name='span', attrs={'id':'labelHolder'})
+    ]
+
+    no_stylesheets = True
+    keep_only_tags = [dict(name='div', attrs={'class':['doubleBlock textContentFormat']})]
+
+    preprocess_regexps = [(re.compile(r'T.mata:.*', re.DOTALL|re.IGNORECASE), lambda m: '</body>')]
+    needs_subscription = True
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        br.open('http://www.denikinsider.cz/')
+        br.select_form(nr=0)
+        br['login-name'] = self.username
+        br['login-password'] = self.password
+        res = br.submit()
+        raw = res.read()
+        if u'Odhlásit se' not in raw:
+            raise ValueError('Failed to login to insider.cz'
+                             'Check your username and password.')
+        return br
+
+    def parse_index(self):
+        articles = []
+
+        soup = self.index_to_soup('http://www.denikinsider.cz')
+        titles = soup.findAll('span', attrs={'class':'homepageArticleTitle'})
+        if titles is None:
+            raise ValueError('Could not find category content')
+
+        articles = []
+        seen_titles = set([])
+        for title in titles:
+            if title.string in seen_titles:
+                continue
+            article = title.parent
+            seen_titles.add(title.string)
+            url = article['href']
+            if url.startswith('/'):
+                url = 'http://www.denikinsider.cz/'+url
+            self.log('\tFound article:', title, 'at', url)
+            articles.append({'title':title.string, 'url':url, 'description':'',
+                            'date':''})
+        return [(self.title, articles)]
+
+

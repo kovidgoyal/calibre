@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 8, 56)
+numeric_version = (0, 9, 9)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -14,26 +14,24 @@ Various run time constants.
 
 import sys, locale, codecs, os, importlib, collections
 
-_tc = None
-def terminal_controller():
-    global _tc
-    if _tc is None:
-        from calibre.utils.terminfo import TerminalController
-        _tc = TerminalController(sys.stdout)
-    return _tc
-
 _plat = sys.platform.lower()
 iswindows = 'win32' in _plat or 'win64' in _plat
 isosx     = 'darwin' in _plat
 isnewosx  = isosx and getattr(sys, 'new_app_bundle', False)
 isfreebsd = 'freebsd' in _plat
 isnetbsd = 'netbsd' in _plat
-isbsd = isfreebsd or isnetbsd
+isdragonflybsd = 'dragonfly' in _plat
+isbsd = isfreebsd or isnetbsd or isdragonflybsd
 islinux   = not(iswindows or isosx or isbsd)
 isfrozen  = hasattr(sys, 'frozen')
 isunix = isosx or islinux
 isportable = os.environ.get('CALIBRE_PORTABLE_BUILD', None) is not None
 ispy3 = sys.version_info.major > 2
+isxp = iswindows and sys.getwindowsversion().major < 6
+is64bit = sys.maxsize > (1 << 32)
+isworker = os.environ.has_key('CALIBRE_WORKER') or os.environ.has_key('CALIBRE_SIMPLE_WORKER')
+if isworker:
+    os.environ.pop('CALIBRE_FORCE_ANSI', None)
 
 try:
     preferred_encoding = locale.getpreferredencoding()
@@ -46,6 +44,19 @@ winerror   = importlib.import_module('winerror') if iswindows else None
 win32api   = importlib.import_module('win32api') if iswindows else None
 fcntl      = None if iswindows else importlib.import_module('fcntl')
 
+_osx_ver = None
+def get_osx_version():
+    global _osx_ver
+    if _osx_ver is None:
+        import platform
+        from collections import namedtuple
+        OSX = namedtuple('OSX', 'major minor tertiary')
+        try:
+            _osx_ver = OSX(*(map(int, platform.mac_ver()[0].split('.'))))
+        except:
+            _osx_ver = OSX(0, 0, 0)
+    return _osx_ver
+
 filesystem_encoding = sys.getfilesystemencoding()
 if filesystem_encoding is None: filesystem_encoding = 'utf-8'
 else:
@@ -55,7 +66,7 @@ else:
             # On linux, unicode arguments to os file functions are coerced to an ascii
             # bytestring if sys.getfilesystemencoding() == 'ascii', which is
             # just plain dumb. So issue a warning.
-            print ('WARNING: You do not have the LANG environment variable set. '
+            print ('WARNING: You do not have the LANG environment variable set correctly. '
                     'This will cause problems with non-ascii filenames. '
                     'Set it to something like en_US.UTF-8.\n')
     except:
@@ -81,17 +92,22 @@ class Plugins(collections.Mapping):
                 'magick',
                 'podofo',
                 'cPalmdoc',
-                'fontconfig',
                 'progress_indicator',
                 'chmlib',
                 'chm_extra',
                 'icu',
                 'speedup',
+                'freetype',
+                'woff',
+                'unrar',
             ]
         if iswindows:
-            plugins.append('winutil')
+            plugins.extend(['winutil', 'wpd', 'winfonts'])
         if isosx:
             plugins.append('usbobserver')
+        if islinux or isosx:
+            plugins.append('libusb')
+            plugins.append('libmtp')
         self.plugins = frozenset(plugins)
 
     def load_plugin(self, name):
@@ -170,7 +186,15 @@ def get_version():
     v = __version__
     if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
         v += '*'
+    if iswindows and is64bit:
+        v += ' [64bit]'
+
     return v
+
+def get_portable_base():
+    'Return path to the directory that contains calibre-portable.exe or None'
+    if isportable:
+        return os.path.dirname(os.path.dirname(os.environ['CALIBRE_PORTABLE_BUILD']))
 
 def get_unicode_windows_env_var(name):
     import ctypes
@@ -211,4 +235,14 @@ def get_windows_temp_path():
     ctypes.windll.kernel32.GetTempPathW(n, buf)
     ans = buf.value
     return ans if ans else None
+
+def get_windows_user_locale_name():
+    import ctypes
+    k32 = ctypes.windll.kernel32
+    n = 200
+    buf = ctypes.create_unicode_buffer(u'\0'*n)
+    n = k32.GetUserDefaultLocaleName(buf, n)
+    if n == 0:
+        return None
+    return u'_'.join(buf.value.split(u'-')[:2])
 

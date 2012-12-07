@@ -196,6 +196,8 @@ class QueueBulk(QProgressDialog):
                 dtitle = unicode(mi.title)
             except:
                 dtitle = repr(mi.title)
+            if len(dtitle) > 50:
+                dtitle = dtitle[:50].rpartition(' ')[0]+'...'
             self.setLabelText(_('Queueing ')+dtitle)
             desc = _('Convert book %(num)d of %(tot)d (%(title)s)') % dict(
                     num=self.i, tot=len(self.book_ids), title=dtitle)
@@ -234,6 +236,9 @@ class QueueBulk(QProgressDialog):
 
 def fetch_scheduled_recipe(arg): # {{{
     fmt = prefs['output_format'].lower()
+    # Never use AZW3 for periodicals...
+    if fmt == 'azw3':
+        fmt = 'mobi'
     pt = PersistentTemporaryFile(suffix='_recipe_out.%s'%fmt.lower())
     pt.close()
     recs = []

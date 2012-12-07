@@ -8,13 +8,17 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import re, operator, math
 from collections import defaultdict
+from xml.dom import SyntaxErr
 
 from lxml import etree
 import cssutils
+from cssutils.css import Property
 
+from calibre import guess_type
 from calibre.ebooks.oeb.base import (XHTML, XHTML_NS, CSS_MIME, OEB_STYLES,
         namespace, barename, XPath)
 from calibre.ebooks.oeb.stylizer import Stylizer
+from calibre.utils.filenames import ascii_filename
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 STRIPNUM = re.compile(r'[-0-9]+$')
@@ -99,6 +103,22 @@ def FontMapper(sbase=None, dbase=None, dkey=None):
     else:
         return NullMapper()
 
+class EmbedFontsCSSRules(object):
+
+    def __init__(self, body_font_family, rules):
+        self.body_font_family, self.rules = body_font_family, rules
+        self.href = None
+
+    def __call__(self, oeb):
+        if not self.body_font_family: return None
+        if not self.href:
+            iid, href = oeb.manifest.generate(u'page_styles', u'page_styles.css')
+            rules = [x.cssText for x in self.rules]
+            rules = u'\n\n'.join(rules)
+            sheet = cssutils.parseString(rules, validate=False)
+            self.href = oeb.manifest.add(iid, href, guess_type(href)[0],
+                    data=sheet).href
+        return self.href
 
 class CSSFlattener(object):
     def __init__(self, fbase=None, fkey=None, lineh=None, unfloat=False,
@@ -142,10 +162,60 @@ class CSSFlattener(object):
                 cssutils.replaceUrls(item.data, item.abshref,
                         ignoreImportRules=True)
 
+        self.body_font_family, self.embed_font_rules = self.get_embed_font_info(
+                self.opts.embed_font_family)
+        # Store for use in output plugins/transforms that generate content,
+        # like the AZW3 output inline ToC.
+        self.oeb.store_embed_font_rules = EmbedFontsCSSRules(self.body_font_family,
+                self.embed_font_rules)
         self.stylize_spine()
         self.sbase = self.baseline_spine() if self.fbase else None
         self.fmap = FontMapper(self.sbase, self.fbase, self.fkey)
         self.flatten_spine()
+
+    def get_embed_font_info(self, family, failure_critical=True):
+        efi = []
+        body_font_family = None
+        if not family:
+            return body_font_family, efi
+        from calibre.utils.fonts.scanner import font_scanner
+        from calibre.utils.fonts.utils import panose_to_css_generic_family
+        faces = font_scanner.fonts_for_family(family)
+        if not faces:
+            msg = (u'No embeddable fonts found for family: %r'%self.opts.embed_font_family)
+            if failure_critical:
+                raise ValueError(msg)
+            self.oeb.log.warn(msg)
+            return body_font_family, efi
+
+        for i, font in enumerate(faces):
+            ext = 'otf' if font['is_otf'] else 'ttf'
+            fid, href = self.oeb.manifest.generate(id=u'font',
+                href=u'%s.%s'%(ascii_filename(font['full_name']).replace(u' ', u'-'), ext))
+            item = self.oeb.manifest.add(fid, href,
+                    guess_type('dummy.'+ext)[0],
+                    data=font_scanner.get_font_data(font))
+            item.unload_data_from_memory()
+
+            cfont = {
+                    u'font-family':u'"%s"'%font['font-family'],
+                    u'panose-1': u' '.join(map(unicode, font['panose'])),
+                    u'src': u'url(%s)'%item.href,
+            }
+
+            if i == 0:
+                generic_family = panose_to_css_generic_family(font['panose'])
+                body_font_family = u"'%s',%s"%(font['font-family'], generic_family)
+                self.oeb.log(u'Embedding font: %s'%font['font-family'])
+            for k in (u'font-weight', u'font-style', u'font-stretch'):
+                if font[k] != u'normal':
+                    cfont[k] = font[k]
+            rule = '@font-face { %s }'%('; '.join(u'%s:%s'%(k, v) for k, v in
+                cfont.iteritems()))
+            rule = cssutils.parseString(rule)
+            efi.append(rule)
+
+        return body_font_family, efi
 
     def stylize_spine(self):
         self.stylizers = {}
@@ -168,6 +238,8 @@ class CSSFlattener(object):
                 bs.extend(['page-break-before: always'])
             if self.context.change_justification != 'original':
                 bs.append('text-align: '+ self.context.change_justification)
+            if self.body_font_family:
+                bs.append(u'font-family: '+self.body_font_family)
             body.set('style', '; '.join(bs))
             stylizer = Stylizer(html, item.href, self.oeb, self.context, profile,
                     user_css=self.context.extra_css,
@@ -221,7 +293,7 @@ class CSSFlattener(object):
                         value = 0.0
                     cssdict[property] = "%0.5fem" % (value / fsize)
 
-    def flatten_node(self, node, stylizer, names, styles, psize, item_id):
+    def flatten_node(self, node, stylizer, names, styles, pseudo_styles, psize, item_id):
         if not isinstance(node.tag, basestring) \
            or namespace(node.tag) != XHTML_NS:
                return
@@ -241,7 +313,7 @@ class CSSFlattener(object):
                 if val in ('middle', 'bottom', 'top'):
                     cssdict['vertical-align'] = val
                 elif val in ('left', 'right'):
-                    cssdict['text-align'] = val
+                    cssdict['float'] = val
             del node.attrib['align']
         if node.tag == XHTML('font'):
             tags = ['descendant::h:%s'%x for x in ('p', 'div', 'table', 'h1',
@@ -276,10 +348,16 @@ class CSSFlattener(object):
                 cssdict['font-family'] = node.attrib['face']
                 del node.attrib['face']
         if 'color' in node.attrib:
-            cssdict['color'] = node.attrib['color']
+            try:
+                cssdict['color'] = Property('color', node.attrib['color']).value
+            except (ValueError, SyntaxErr):
+                pass
             del node.attrib['color']
         if 'bgcolor' in node.attrib:
-            cssdict['background-color'] = node.attrib['bgcolor']
+            try:
+                cssdict['background-color'] = Property('background-color', node.attrib['bgcolor']).value
+            except ValueError:
+                pass
             del node.attrib['bgcolor']
         if cssdict.get('font-weight', '').lower() == 'medium':
             cssdict['font-weight'] = 'normal' # ADE chokes on font-weight medium
@@ -350,25 +428,51 @@ class CSSFlattener(object):
                 cssdict.get('text-align', None) not in ('center', 'right')):
                 cssdict['text-indent'] =  "%1.1fem" % indent_size
 
-        if cssdict:
-            items = cssdict.items()
-            items.sort()
-            css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
-            classes = node.get('class', '').strip() or 'calibre'
-            klass = STRIPNUM.sub('', classes.split()[0].replace('_', ''))
-            if css in styles:
-                match = styles[css]
-            else:
-                match = klass + str(names[klass] or '')
-                styles[css] = match
-                names[klass] += 1
-            node.attrib['class'] = match
+        pseudo_classes = style.pseudo_classes(self.filter_css)
+        if cssdict or pseudo_classes:
+            keep_classes = set()
+
+            if cssdict:
+                items = cssdict.items()
+                items.sort()
+                css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
+                classes = node.get('class', '').strip() or 'calibre'
+                klass = STRIPNUM.sub('', classes.split()[0].replace('_', ''))
+                if css in styles:
+                    match = styles[css]
+                else:
+                    match = klass + str(names[klass] or '')
+                    styles[css] = match
+                    names[klass] += 1
+                node.attrib['class'] = match
+                keep_classes.add(match)
+
+            for psel, cssdict in pseudo_classes.iteritems():
+                items = sorted(cssdict.iteritems())
+                css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
+                pstyles = pseudo_styles[psel]
+                if css in pstyles:
+                    match = pstyles[css]
+                else:
+                    # We have to use a different class for each psel as
+                    # otherwise you can have incorrect styles for a situation
+                    # like: a:hover { color: red } a:link { color: blue } a.x:hover { color: green }
+                    # If the pcalibre class for a:hover and a:link is the same,
+                    # then the class attribute for a.x tags will contain both
+                    # that class and the class for a.x:hover, which is wrong.
+                    klass = 'pcalibre'
+                    match = klass + str(names[klass] or '')
+                    pstyles[css] = match
+                    names[klass] += 1
+                keep_classes.add(match)
+                node.attrib['class'] = ' '.join(keep_classes)
+
         elif 'class' in node.attrib:
             del node.attrib['class']
         if 'style' in node.attrib:
             del node.attrib['style']
         for child in node:
-            self.flatten_node(child, stylizer, names, styles, psize, item_id)
+            self.flatten_node(child, stylizer, names, styles, pseudo_styles, psize, item_id)
 
     def flatten_head(self, item, href, global_href):
         html = item.data
@@ -416,7 +520,8 @@ class CSSFlattener(object):
             items.sort()
             css = ';\n'.join("%s: %s" % (key, val) for key, val in items)
             css = ('@page {\n%s\n}\n'%css) if items else ''
-            rules = [r.cssText for r in stylizer.font_face_rules]
+            rules = [r.cssText for r in stylizer.font_face_rules +
+                    self.embed_font_rules]
             raw = '\n\n'.join(rules)
             css += '\n\n' + raw
             global_css[css].append(item)
@@ -439,7 +544,7 @@ class CSSFlattener(object):
 
     def flatten_spine(self):
         names = defaultdict(int)
-        styles = {}
+        styles, pseudo_styles = {}, defaultdict(dict)
         for item in self.oeb.spine:
             html = item.data
             stylizer = self.stylizers[item]
@@ -447,10 +552,20 @@ class CSSFlattener(object):
                 self.specializer(item, stylizer)
             body = html.find(XHTML('body'))
             fsize = self.context.dest.fbase
-            self.flatten_node(body, stylizer, names, styles, fsize, item.id)
+            self.flatten_node(body, stylizer, names, styles, pseudo_styles, fsize, item.id)
         items = [(key, val) for (val, key) in styles.items()]
         items.sort()
+        # :hover must come after link and :active must come after :hover
+        psels = sorted(pseudo_styles.iterkeys(), key=lambda x :
+                {'hover':1, 'active':2}.get(x, 0))
+        for psel in psels:
+            styles = pseudo_styles[psel]
+            if not styles: continue
+            x = sorted(((k+':'+psel, v) for v, k in styles.iteritems()))
+            items.extend(x)
+
         css = ''.join(".%s {\n%s;\n}\n\n" % (key, val) for key, val in items)
+
         href = self.replace_css(css)
         global_css = self.collect_global_css()
         for item in self.oeb.spine:

@@ -1,6 +1,6 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
-class Gry_online_pl(BasicNewsRecipe):
+class GryOnlinePl(BasicNewsRecipe):
     title          = u'Gry-Online.pl'
     __author__        = 'fenuks'
     description   = 'Gry-Online.pl - computer games'
@@ -12,8 +12,8 @@ class Gry_online_pl(BasicNewsRecipe):
     cover_url='http://www.gry-online.pl/im/gry-online-logo.png'
     max_articles_per_feed = 100
     no_stylesheets= True
-    keep_only_tags=[dict(name='div', attrs={'class':'gc660'})]
-    remove_tags=[dict({'class':['nav-social', 'add-info', 'smlb', 'lista lista3 lista-gry', 'S013po', 'zm_gfx_cnt_bottom', 'ocen-txt', 'wiecej-txt', 'wiecej-txt2']})]
+    keep_only_tags=[dict(name='div', attrs={'class':['gc660', 'gc660 S013']})]
+    remove_tags=[dict({'class':['nav-social', 'add-info', 'smlb', 'lista lista3 lista-gry', 'S013po', 'S013-npb', 'zm_gfx_cnt_bottom', 'ocen-txt', 'wiecej-txt', 'wiecej-txt2']})]
     feeds          = [(u'Newsy', 'http://www.gry-online.pl/rss/news.xml'), ('Teksty', u'http://www.gry-online.pl/rss/teksty.xml')]
 
 
@@ -21,17 +21,18 @@ class Gry_online_pl(BasicNewsRecipe):
         tag = appendtag.find('div', attrs={'class':'n5p'})
         if tag:
             nexturls=tag.findAll('a')
-            for nexturl in nexturls[1:]:
-                try:
-                    soup2 = self.index_to_soup('http://www.gry-online.pl/S020.asp'+ nexturl['href'])
-                except:
-                    soup2 = self.index_to_soup('http://www.gry-online.pl/S022.asp'+ nexturl['href'])
+            url_part = soup.find('link', attrs={'rel':'canonical'})['href']
+            url_part = url_part[25:].rpartition('?')[0]
+            for nexturl in nexturls[1:-1]:
+                soup2 = self.index_to_soup('http://www.gry-online.pl/' + url_part + nexturl['href'])
                 pagetext = soup2.find(attrs={'class':'gc660'})
                 for r in pagetext.findAll(name='header'):
                     r.extract()
+                for r in pagetext.findAll(attrs={'itemprop':'description'}):
+                    r.extract()
                 pos = len(appendtag.contents)
                 appendtag.insert(pos, pagetext)
-            for r in appendtag.findAll(attrs={'class':['n5p', 'add-info', 'twitter-share-button']}):
+            for r in appendtag.findAll(attrs={'class':['n5p', 'add-info', 'twitter-share-button', 'lista lista3 lista-gry']}):
                 r.extract()
 
 

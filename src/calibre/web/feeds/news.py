@@ -77,7 +77,8 @@ class BasicNewsRecipe(Recipe):
     delay                  = 0
 
     #: Publication type
-    #: Set to newspaper, magazine or blog
+    #: Set to newspaper, magazine or blog. If set to None, no publication type
+    #: metadata will be written to the opf file.
     publication_type = 'unknown'
 
     #: Number of simultaneous downloads. Set to 1 if the server is picky.
@@ -166,9 +167,10 @@ class BasicNewsRecipe(Recipe):
     extra_css              = None
 
     #: If True empty feeds are removed from the output.
-    #: This option has no effect if parse_index is overriden in
+    #: This option has no effect if parse_index is overridden in
     #: the sub class. It is meant only for recipes that return a list
-    #: of feeds using `feeds` or :meth:`get_feeds`.
+    #: of feeds using `feeds` or :meth:`get_feeds`. It is also used if you use
+    #: the ignore_duplicate_articles option.
     remove_empty_feeds = False
 
     #: List of regular expressions that determines which links to follow
@@ -320,6 +322,15 @@ class BasicNewsRecipe(Recipe):
     #: The string will be used as the disabled message
     recipe_disabled = None
 
+    #: Ignore duplicates of articles that are present in more than one section.
+    #: A duplicate article is an article that has the same title and/or URL.
+    #: To ignore articles with the same title, set this to:
+    #: ignore_duplicate_articles = {'title'}
+    #: To use URLs instead, set it to:
+    #: ignore_duplicate_articles = {'url'}
+    #: To match on title or URL, set it to:
+    #: ignore_duplicate_articles = {'title', 'url'}
+    ignore_duplicate_articles = None
 
     # See the built-in profiles for examples of these settings.
 
@@ -452,11 +463,11 @@ class BasicNewsRecipe(Recipe):
         Override in a subclass to customize extraction of the :term:`URL` that points
         to the content for each article. Return the
         article URL. It is called with `article`, an object representing a parsed article
-        from a feed. See `feedparser <http://www.feedparser.org/docs/>`_.
+        from a feed. See `feedparser <http://packages.python.org/feedparser/>`_.
         By default it looks for the original link (for feeds syndicated via a
         service like feedburner or pheedo) and if found,
         returns that or else returns
-        `article.link <http://www.feedparser.org/docs/reference-entry-link.html>`_.
+        `article.link <http://packages.python.org/feedparser/reference-entry-link.html>`_.
         '''
         for key in article.keys():
             if key.endswith('_origlink'):
@@ -934,7 +945,8 @@ class BasicNewsRecipe(Recipe):
             npos = pos
         ans = src[:npos+1]
         if len(ans) < len(src):
-            return ans+u'\u2026' if isinstance(ans, unicode) else ans + '...'
+            return (ans+u'\u2026') if isinstance(ans, unicode) else (ans +
+                    '...')
         return ans
 
     def feed2index(self, f, feeds):
@@ -1017,6 +1029,28 @@ class BasicNewsRecipe(Recipe):
             url = ('file:'+pt.name) if iswindows else ('file://'+pt.name)
         return self._fetch_article(url, dir,  f, a, num_of_feeds)
 
+    def remove_duplicate_articles(self, feeds):
+        seen_keys = defaultdict(set)
+        remove = []
+        for f in feeds:
+            for article in f:
+                for key in self.ignore_duplicate_articles:
+                    val = getattr(article, key)
+                    seen = seen_keys[key]
+                    if val:
+                        if val in seen:
+                            remove.append((f, article))
+                        else:
+                            seen.add(val)
+
+        for feed, article in remove:
+            self.log.debug('Removing duplicate article: %s from section: %s'%(
+                article.title, feed.title))
+            feed.remove_article(article)
+
+        if self.remove_empty_feeds:
+            feeds = [f for f in feeds if len(f) > 0]
+        return feeds
 
     def build_index(self):
         self.report_progress(0, _('Fetching feeds...'))
@@ -1030,6 +1064,9 @@ class BasicNewsRecipe(Recipe):
 
         if not feeds:
             raise ValueError('No articles found, aborting')
+
+        if self.ignore_duplicate_articles is not None:
+            feeds = self.remove_duplicate_articles(feeds)
 
         #feeds = FeedCollection(feeds)
 
@@ -1264,7 +1301,8 @@ class BasicNewsRecipe(Recipe):
         mi = MetaInformation(title, [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__
-        mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
+        if self.publication_type:
+            mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
         mi.timestamp = nowf()
         article_titles, aseen = [], set()
         for f in feeds:

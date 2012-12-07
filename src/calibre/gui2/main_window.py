@@ -7,9 +7,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import StringIO, traceback, sys, gc
 
-from PyQt4.Qt import QMainWindow, QString, Qt, QFont, QTimer, \
-                     QAction, QMenu, QMenuBar, QIcon, pyqtSignal, QObject
-from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
+from PyQt4.Qt import (QMainWindow, QTimer, QAction, QMenu, QMenuBar, QIcon,
+                      pyqtSignal, QObject)
 from calibre.utils.config import OptionParser
 from calibre.gui2 import error_dialog
 from calibre import prints
@@ -20,25 +19,7 @@ Usage: %prog [options]
 Launch the Graphical User Interface
 '''):
     parser = OptionParser(usage)
-    # The b is required because of a regression in optparse.py in python 2.7.0
-    parser.add_option(b'--redirect-console-output', default=False, action='store_true', dest='redirect',
-                      help=_('Redirect console output to a dialog window (both stdout and stderr). Useful on windows where GUI apps do not have a output streams.'))
     return parser
-
-class DebugWindow(ConversionErrorDialog):
-
-    def __init__(self, parent):
-        ConversionErrorDialog.__init__(self, parent, 'Console output', '')
-        self.setModal(Qt.NonModal)
-        font = QFont()
-        font.setStyleHint(QFont.TypeWriter)
-        self.text.setFont(font)
-
-    def write(self, msg):
-        self.text.setPlainText(self.text.toPlainText()+QString(msg))
-
-    def flush(self):
-        pass
 
 class GarbageCollector(QObject):
 
@@ -120,10 +101,6 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self, parent)
         if disable_automatic_gc:
             self._gc = GarbageCollector(self, debug=False)
-        if getattr(opts, 'redirect', False):
-            self.__console_redirect = DebugWindow(self)
-            sys.stdout = sys.stderr = self.__console_redirect
-            self.__console_redirect.show()
 
     def unhandled_exception(self, type, value, tb):
         if type == KeyboardInterrupt:
@@ -138,4 +115,6 @@ class MainWindow(QMainWindow):
             error_dialog(self, _('Unhandled exception'), msg, det_msg=fe,
                     show=True)
         except BaseException:
+            pass
+        except:
             pass

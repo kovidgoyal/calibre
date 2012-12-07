@@ -150,8 +150,15 @@ class EPUBInput(InputFormatPlugin):
         from calibre import walk
         from calibre.ebooks import DRMError
         from calibre.ebooks.metadata.opf2 import OPF
-        zf = ZipFile(stream)
-        zf.extractall(os.getcwdu())
+        try:
+            zf = ZipFile(stream)
+            zf.extractall(os.getcwdu())
+        except:
+            log.exception('EPUB appears to be invalid ZIP file, trying a'
+                    ' more forgiving ZIP parser')
+            from calibre.utils.localunzip import extractall
+            stream.seek(0)
+            extractall(stream)
         encfile = os.path.abspath(os.path.join('META-INF', 'encryption.xml'))
         opf = self.find_opf()
         if opf is None:
@@ -198,11 +205,13 @@ class EPUBInput(InputFormatPlugin):
                 ('application/vnd.adobe-page-template+xml','application/text'):
                     not_for_spine.add(id_)
 
+        seen = set()
         for x in list(opf.iterspine()):
             ref = x.get('idref', None)
-            if ref is None or ref in not_for_spine:
+            if not ref or ref in not_for_spine or ref in seen:
                 x.getparent().remove(x)
                 continue
+            seen.add(ref)
 
         if len(list(opf.iterspine())) == 0:
             raise ValueError('No valid entries in the spine of this EPUB')

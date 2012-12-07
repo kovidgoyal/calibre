@@ -1,0 +1,52 @@
+__license__   = 'GPL v3'
+__copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
+'''
+italia.pravda.ru
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Pravda_ita(BasicNewsRecipe):
+    title                 = 'Pravda in Italiano'
+    __author__            = 'Darko Miletic'
+    description           = 'News from Russia and rest of the world'
+    publisher             = 'PRAVDA.Ru'
+    category              = 'news, politics, Russia'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'it'
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://italia.pravda.ru/pix/logo.gif'
+    extra_css             = """
+                               body{font-family: Arial,sans-serif }
+                               img{margin-bottom: 0.4em; display:block}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_attributes=['lang', 'style']
+    keep_only_tags = [dict(name='div', attrs={'id':'article'})]
+
+
+    feeds = [
+              (u'Dal mondo'  , u'http://italia.pravda.ru/world/export-articles.xml'           )
+             ,(u'Russia'     , u'http://italia.pravda.ru/russia/export-articles.xml'          )
+             ,(u'Societa'    , u'http://italia.pravda.ru/society/export-articles.xml'         )
+             ,(u'Avvenimenti', u'http://italia.pravda.ru/hotspots/export-articles.xml'        )
+             ,(u'Opinioni'   , u'http://italia.pravda.ru/opinion/export-articles.xml'         )
+             ,(u'Scienza'    , u'http://italia.pravda.ru/science/export-articles.xml'         )
+             ,(u'Economia'   , u'http://italia.pravda.ru/russia/economics/export-articles.xml')
+             ,(u'Politica'   , u'http://italia.pravda.ru/russia/politics/export-articles.xml' )
+            ]
+
+    def print_version(self, url):
+        return url + '?mode=print'

@@ -710,3 +710,35 @@ EPUB from the ZIP file are::
 
 Note that because this file explores the potential of EPUB, most of the advanced formatting is not going to work on readers less capable than |app|'s built-in EPUB viewer. 
 
+
+Convert ODT documents
+~~~~~~~~~~~~~~~~~~~~~
+
+|app| can directly convert ODT (OpenDocument Text) files. You should use styles to format your document and minimize the use of direct formatting.
+When inserting images into your document you need to anchor them to the paragraph, images anchored to a page will all end up in the front of the conversion.
+
+To enable automatic detection of chapters, you need to mark them with the build-in styles called 'Heading 1', 'Heading 2', ..., 'Heading 6' ('Heading 1' equates to the HTML tag <h1>, 'Heading 2' to <h2> etc). When you convert in |app| you can enter which style you used into the 'Detect chapters at' box. Example:
+
+  * If you mark Chapters with style 'Heading 2', you have to set the 'Detect chapters at' box to ``//h:h2``
+  * For a nested TOC with Sections marked with 'Heading 2' and the Chapters marked with 'Heading 3' you need to enter ``//h:h2|//h:h3``. On the Convert - TOC page set the 'Level 1 TOC' box to ``//h:h2`` and the 'Level 2 TOC' box to ``//h:h3``.
+
+Well-known document properties (Title, Keywords, Description, Creator) are recognized and |app| will use the first image (not to small, and with good aspect-ratio) as the cover image.
+
+There is also an advanced property conversion mode, which is activated by setting the custom property ``opf.metadata`` ('Yes or No' type) to Yes in your ODT document (File->Properties->Custom Properties).
+If this property is detected by |app|, the following custom properties are recognized (``opf.authors`` overrides document creator)::
+
+    opf.titlesort
+    opf.authors
+    opf.authorsort
+    opf.publisher
+    opf.pubdate
+    opf.isbn
+    opf.language
+    opf.series
+    opf.seriesindex
+
+In addition to this, you can specify the picture to use as the cover by naming it ``opf.cover`` (right click, Picture->Options->Name) in the ODT. If no picture with this name is found, the 'smart' method is used.
+As the cover detection might result in double covers in certain output formats, the process will remove the paragraph (only if the only content is the cover!) from the document. But this works only with the named picture!
+
+To disable cover detection you can set the custom property ``opf.nocover`` ('Yes or No' type) to Yes in advanced mode.
+

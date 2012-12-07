@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>753</width>
+    <width>1035</width>
     <height>547</height>
    </rect>
   </property>
@@ -24,6 +24,36 @@
        <string>The Add &amp;Process</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
+       <item row="4" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_add_formats_to_existing">
+         <property name="toolTip">
+          <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
+existing book records. The box to the right controls what happens when an existing record already has
+the incoming format. Note that this option also affects the Copy to library action.
+
+Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc. Author match is exact.</string>
+         </property>
+         <property name="text">
+          <string>&amp;Automerge added books if they already exist in the calibre library:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QComboBox" name="opt_automerge">
+         <property name="toolTip">
+          <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
+existing book records. This box controls what happens when an existing record already has
+the incoming format: 
+
+Ignore duplicate incoming files - means that existing files in your calibre library will not be replaced
+Overwrite existing duplicate files - means that existing files in your calibre library will be replaced
+Create new record for each duplicate file - means that a new book entry will be created for each duplicate file
+
+Title matching ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc.
+Author matching is exact.</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0" colspan="3">
         <widget class="QLabel" name="label_6">
          <property name="text">
@@ -68,44 +98,7 @@
          </item>
         </layout>
        </item>
-       <item row="2" column="0" colspan="3">
-        <widget class="QCheckBox" name="opt_preserve_date_on_ctl">
-         <property name="text">
-          <string>When using the  &quot;&amp;Copy to library&quot; action to copy books between libraries, preserve the date</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QCheckBox" name="opt_add_formats_to_existing">
-         <property name="toolTip">
-          <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
-existing book records. The box to the right controls what happens when an existing record already has
-the incoming format. Note that this option also affects the Copy to library action.
-
-Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc. Author match is exact.</string>
-         </property>
-         <property name="text">
-          <string>&amp;Automerge added books if they already exist in the calibre library:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2">
-        <widget class="QComboBox" name="opt_automerge">
-         <property name="toolTip">
-          <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
-existing book records. This box controls what happens when an existing record already has
-the incoming format: 
-
-Ignore duplicate incoming files - means that existing files in your calibre library will not be replaced
-Overwrite existing duplicate files - means that existing files in your calibre library will be replaced
-Create new record for each duplicate file - means that a new book entry will be created for each duplicate file
-
-Title matching ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc.
-Author matching is exact.</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
+       <item row="5" column="0">
         <widget class="QLabel" name="label_230">
          <property name="text">
           <string>&amp;Tags to apply when adding a book:</string>
@@ -115,14 +108,14 @@ Author matching is exact.</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="2">
+       <item row="5" column="2">
         <widget class="QLineEdit" name="opt_new_book_tags">
          <property name="toolTip">
           <string>A comma-separated list of tags that will be applied to books added to the library</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="0" colspan="3">
+       <item row="6" column="0" colspan="3">
         <widget class="QGroupBox" name="metadata_box">
          <property name="title">
           <string>&amp;Configure metadata from file name</string>
@@ -144,6 +137,20 @@ Author matching is exact.</string>
          </layout>
         </widget>
        </item>
+       <item row="2" column="0" colspan="3">
+        <widget class="QCheckBox" name="opt_preserve_date_on_ctl">
+         <property name="text">
+          <string>When using the  &quot;&amp;Copy to library&quot; action to copy books between libraries, preserve the date</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_manual_add_auto_convert">
+         <property name="text">
+          <string>Automatically &amp;convert added books to the current output format</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_4">
@@ -156,7 +163,7 @@ Author matching is exact.</string>
          <property name="toolTip">
           <string>If set, this option will causes calibre to check if a file
  being auto-added is already in the calibre library.
- If it is, a meesage will pop up asking you whether
+ If it is, a message will pop up asking you whether
  you want to add it anyway.</string>
          </property>
          <property name="text">

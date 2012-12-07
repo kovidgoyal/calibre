@@ -101,7 +101,7 @@ class POCKETBOOK360(EB600):
 
     VENDOR_NAME = ['PHILIPS', '__POCKET', 'POCKETBO']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['MASS_STORGE', 'BOOK_USB_STORAGE',
-            'OK_POCKET_611_61']
+            'OK_POCKET_611_61', 'OK_POCKET_360+61']
 
     OSX_MAIN_MEM = OSX_CARD_A_MEM = 'Philips Mass Storge Media'
     OSX_MAIN_MEM_VOL_PAT = re.compile(r'/Pocket')
@@ -250,6 +250,19 @@ class POCKETBOOK602(USBMS):
     VENDOR_NAME = ''
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['PB602', 'PB603', 'PB902',
             'PB903', 'PB']
+
+class POCKETBOOK622(POCKETBOOK602):
+
+    name = 'PocketBook 622 Device Interface'
+    description    = _('Communicate with the PocketBook 622 reader.')
+    EBOOK_DIR_MAIN = ''
+
+    VENDOR_ID   = [0x0489]
+    PRODUCT_ID  = [0xe107]
+    BCD         = [0x0326]
+
+    VENDOR_NAME = 'LINUX'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
 
 class POCKETBOOK360P(POCKETBOOK602):
 

@@ -6,7 +6,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import random
 import re
 import urllib2
 from contextlib import closing
@@ -25,23 +24,12 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class EHarlequinStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        m_url = 'http://www.dpbolvw.net/'
-        h_click = 'click-4879827-534091'
-        d_click = 'click-4879827-10375439'
-        # Use Kovid's affiliate id 30% of the time.
-        if random.randint(1, 10) in (1, 2, 3):
-            h_click = 'click-4913808-534091'
-            d_click = 'click-4913808-10375439'
-
-        url = m_url + h_click
-        detail_url = None
-        if detail_item:
-            detail_url = m_url + d_click + detail_item
+        url = 'http://www.harlequin.com/'
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
+            open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
         else:
-            d = WebStoreDialog(self.gui, url, parent, detail_url)
+            d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
@@ -74,7 +62,7 @@ class EHarlequinStore(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price.strip()
-                s.detail_item = '?url=http://ebooks.eharlequin.com/' + id.strip()
+                s.detail_item = 'http://ebooks.eharlequin.com/' + id.strip()
                 s.formats = 'EPUB'
                 
                 yield s

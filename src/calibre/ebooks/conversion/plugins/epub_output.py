@@ -144,6 +144,22 @@ class EPUBOutput(OutputFormatPlugin):
             for u in XPath('//h:u')(root):
                 u.tag = 'span'
                 u.set('style', 'text-decoration:underline')
+
+            seen_ids, seen_names = set(), set()
+            for x in XPath('//*[@id or @name]')(root):
+                eid, name = x.get('id', None), x.get('name', None)
+                if eid:
+                    if eid in seen_ids:
+                        del x.attrib['id']
+                    else:
+                        seen_ids.add(eid)
+                if name:
+                    if name in seen_names:
+                        del x.attrib['name']
+                    else:
+                        seen_names.add(name)
+
+
     # }}}
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
@@ -388,7 +404,8 @@ class EPUBOutput(OutputFormatPlugin):
                 if not tag.text:
                     tag.getparent().remove(tag)
             for tag in XPath('//h:script')(root):
-                if not tag.text and not tag.get('src', False):
+                if (not tag.text and not tag.get('src', False) and
+                        tag.get('type', None) != 'text/x-mathjax-config'):
                     tag.getparent().remove(tag)
             for tag in XPath('//h:body/descendant::h:script')(root):
                 tag.getparent().remove(tag)

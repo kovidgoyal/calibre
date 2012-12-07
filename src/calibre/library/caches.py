@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, itertools, time, traceback
+import re, itertools, time, traceback, locale
 from itertools import repeat, izip, imap
 from datetime import timedelta
 from threading import Thread
@@ -15,11 +15,11 @@ from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE, clean_date_for_sort
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
-from calibre.utils.localization import (canonicalize_lang, lang_map, get_udc,
-        get_lang)
+from calibre.utils.localization import (canonicalize_lang, lang_map, get_udc)
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import prints
+from calibre.utils.icu import primary_find
 
 class MetadataBackup(Thread): # {{{
     '''
@@ -118,7 +118,15 @@ class MetadataBackup(Thread): # {{{
 
 # }}}
 
+
 ### Global utility function for get_match here and in gui2/library.py
+# This is a global for performance
+pref_use_primary_find_in_search = False
+
+def set_use_primary_find_in_search(toWhat):
+    global pref_use_primary_find_in_search
+    pref_use_primary_find_in_search = toWhat
+
 CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
 REGEXP_MATCH   = 2
@@ -130,8 +138,8 @@ def _match(query, value, matchkind):
     else:
         internal_match_ok = False
     for t in value:
-        t = icu_lower(t)
         try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
+            t = icu_lower(t)
             if (matchkind == EQUALS_MATCH):
                 if internal_match_ok:
                     if query == t:
@@ -147,9 +155,15 @@ def _match(query, value, matchkind):
                             return True
                 elif query == t:
                     return True
-            elif ((matchkind == REGEXP_MATCH and re.search(query, t, re.I|re.UNICODE)) or ### search unanchored
-                  (matchkind == CONTAINS_MATCH and query in t)):
+            elif matchkind == REGEXP_MATCH:
+                if re.search(query, t, re.I|re.UNICODE):
                     return True
+            elif matchkind == CONTAINS_MATCH:
+                if pref_use_primary_find_in_search:
+                    if primary_find(query, t)[0] != -1:
+                        return True
+                elif query in t:
+                        return True
         except re.error:
             pass
     return False
@@ -226,10 +240,6 @@ class ResultCache(SearchQueryParser): # {{{
     '''
     def __init__(self, FIELD_MAP, field_metadata, db_prefs=None):
         self.FIELD_MAP = FIELD_MAP
-        l = get_lang()
-        asciize_author_names = l and l.lower() in ('en', 'eng')
-        if not asciize_author_names:
-            self.ascii_name = lambda x: False
         self.db_prefs = db_prefs
         self.composites = {}
         self.udc = get_udc()
@@ -249,6 +259,9 @@ class ResultCache(SearchQueryParser): # {{{
         SearchQueryParser.__init__(self, self.all_search_locations, optimize=True)
         self.build_date_relop_dict()
         self.build_numeric_relop_dict()
+        # Do this here so the var get updated when a library changes
+        global pref_use_primary_find_in_search
+        pref_use_primary_find_in_search = prefs['use_primary_find_in_search']
 
     def break_cycles(self):
         self._data = self.field_metadata = self.FIELD_MAP = \
@@ -278,15 +291,6 @@ class ResultCache(SearchQueryParser): # {{{
             yield x[idx]
 
     # Search functions {{{
-
-    def ascii_name(self, name):
-        try:
-            ans = self.udc.decode(name)
-            if ans == name:
-                ans = False
-        except:
-            ans = False
-        return ans
 
     def universal_set(self):
         return set([i[0] for i in self._data if i is not None])
@@ -348,6 +352,14 @@ class ResultCache(SearchQueryParser): # {{{
                             '<=':[2, relop_le]
                         }
 
+    local_today         = ('_today', icu_lower(_('today')))
+    local_yesterday     = ('_yesterday', icu_lower(_('yesterday')))
+    local_thismonth     = ('_thismonth', icu_lower(_('thismonth')))
+    local_daysago       = icu_lower(_('daysago'))
+    local_daysago_len   = len(local_daysago)
+    untrans_daysago     = '_daysago'
+    untrans_daysago_len = len('_daysago')
+
     def get_dates_matches(self, location, query, candidates):
         matches = set([])
         if len(query) < 2:
@@ -386,17 +398,24 @@ class ResultCache(SearchQueryParser): # {{{
         if relop is None:
                 (p, relop) = self.date_search_relops['=']
 
-        if query == _('today'):
+        if query in self.local_today:
             qd = now()
             field_count = 3
-        elif query == _('yesterday'):
+        elif query in self.local_yesterday:
             qd = now() - timedelta(1)
             field_count = 3
-        elif query == _('thismonth'):
+        elif query in self.local_thismonth:
             qd = now()
             field_count = 2
-        elif query.endswith(_('daysago')):
-            num = query[0:-len(_('daysago'))]
+        elif query.endswith(self.local_daysago):
+            num = query[0:-self.local_daysago_len]
+            try:
+                qd = now() - timedelta(int(num))
+            except:
+                raise ParseException(query, len(query), 'Number conversion error', self)
+            field_count = 3
+        elif query.endswith(self.untrans_daysago):
+            num = query[0:-self.untrans_daysago_len]
             try:
                 qd = now() - timedelta(int(num))
             except:
@@ -549,6 +568,7 @@ class ResultCache(SearchQueryParser): # {{{
                     matches.add(id_)
                 continue
 
+            add_if_nothing_matches = valq == 'false'
             pairs = [p.strip() for p in item[loc].split(split_char)]
             for pair in pairs:
                 parts = pair.split(':')
@@ -564,9 +584,13 @@ class ResultCache(SearchQueryParser): # {{{
                             continue
                     elif valq == 'false':
                         if v:
+                            add_if_nothing_matches = False
                             continue
                     elif not _match(valq, v, valq_mkind):
                         continue
+                matches.add(id_)
+
+            if add_if_nothing_matches:
                 matches.add(id_)
         return matches
 
@@ -587,14 +611,23 @@ class ResultCache(SearchQueryParser): # {{{
             query = icu_lower(query)
         return matchkind, query
 
+    local_no        = icu_lower(_('no'))
+    local_yes       = icu_lower(_('yes'))
+    local_unchecked = icu_lower(_('unchecked'))
+    local_checked   = icu_lower(_('checked'))
+    local_empty     = icu_lower(_('empty'))
+    local_blank     = icu_lower(_('blank'))
+    local_bool_values = (
+                    local_no, local_unchecked, '_no', 'false',
+                    local_yes, local_checked, '_yes', 'true',
+                    local_empty, local_blank, '_empty')
+
     def get_bool_matches(self, location, query, candidates):
         bools_are_tristate = self.db_prefs.get('bools_are_tristate')
         loc = self.field_metadata[location]['rec_index']
         matches = set()
         query = icu_lower(query)
-        if query not in (_('no'), _('unchecked'), '_no', 'false',
-                         _('yes'), _('checked'), '_yes', 'true',
-                         _('empty'), _('blank'), '_empty'):
+        if query not in self.local_bool_values:
             raise ParseException(_('Invalid boolean query "{0}"').format(query))
         for id_ in candidates:
             item = self._data[id_]
@@ -604,25 +637,27 @@ class ResultCache(SearchQueryParser): # {{{
             val = force_to_bool(item[loc])
             if not bools_are_tristate:
                 if val is None or not val: # item is None or set to false
-                    if query in [_('no'), _('unchecked'), '_no', 'false']:
+                    if query in (self.local_no, self.local_unchecked, '_no', 'false'):
                         matches.add(item[0])
                 else: # item is explicitly set to true
-                    if query in [_('yes'), _('checked'), '_yes', 'true']:
+                    if query in (self.local_yes, self.local_checked, '_yes', 'true'):
                         matches.add(item[0])
             else:
                 if val is None:
-                    if query in [_('empty'), _('blank'), '_empty', 'false']:
+                    if query in (self.local_empty, self.local_blank, '_empty', 'false'):
                         matches.add(item[0])
                 elif not val: # is not None and false
-                    if query in [_('no'), _('unchecked'), '_no', 'true']:
+                    if query in (self.local_no, self.local_unchecked, '_no', 'true'):
                         matches.add(item[0])
                 else: # item is not None and true
-                    if query in [_('yes'), _('checked'), '_yes', 'true']:
+                    if query in (self.local_yes, self.local_checked, '_yes', 'true'):
                         matches.add(item[0])
         return matches
 
     def get_matches(self, location, query, candidates=None,
             allow_recursion=True):
+        # If candidates is not None, it must not be modified. Changing its
+        # value will break query optimization in the search parser
         matches = set([])
         if candidates is None:
             candidates = self.universal_set()
@@ -649,8 +684,13 @@ class ResultCache(SearchQueryParser): # {{{
                     else:
                         invert = False
                     for loc in location:
-                        matches |= self.get_matches(loc, query,
-                                candidates=candidates, allow_recursion=False)
+                        c = candidates.copy()
+                        m = self.get_matches(loc, query,
+                                candidates=c, allow_recursion=False)
+                        matches |= m
+                        c -= m
+                        if len(c) == 0:
+                            break
                     if invert:
                         matches = self.universal_set() - matches
                     return matches
@@ -665,10 +705,15 @@ class ResultCache(SearchQueryParser): # {{{
                     if l and l != 'all' and l in self.all_search_locations:
                         terms.add(l)
                 if terms:
+                    c = candidates.copy()
                     for l in terms:
                         try:
-                            matches |= self.get_matches(l, query,
-                                candidates=candidates, allow_recursion=allow_recursion)
+                            m = self.get_matches(l, query,
+                                candidates=c, allow_recursion=allow_recursion)
+                            matches |= m
+                            c -= m
+                            if len(c) == 0:
+                                break
                         except:
                             pass
                     return matches
@@ -745,6 +790,7 @@ class ResultCache(SearchQueryParser): # {{{
             for i, loc in enumerate(location):
                 location[i] = db_col[loc]
 
+            current_candidates = candidates.copy()
             for loc in location: # location is now an array of field indices
                 if loc == db_col['authors']:
                     ### DB stores authors with commas changed to bars, so change query
@@ -761,9 +807,7 @@ class ResultCache(SearchQueryParser): # {{{
                 else:
                     q = query
 
-                au_loc = self.FIELD_MAP['authors']
-
-                for id_ in candidates:
+                for id_ in current_candidates:
                     item = self._data[id_]
                     if item is None: continue
 
@@ -805,14 +849,12 @@ class ResultCache(SearchQueryParser): # {{{
                     if loc not in exclude_fields: # time for text matching
                         if is_multiple_cols[loc] is not None:
                             vals = [v.strip() for v in item[loc].split(is_multiple_cols[loc])]
-                            if loc == au_loc:
-                                vals += filter(None, map(self.ascii_name,
-                                    vals))
                         else:
                             vals = [item[loc]] ### make into list to make _match happy
                         if _match(q, vals, matchkind):
                             matches.add(item[0])
                             continue
+                current_candidates -= matches
         return matches
 
     def search(self, query, return_matches=False):
@@ -902,7 +944,9 @@ class ResultCache(SearchQueryParser): # {{{
 
     def set(self, row, col, val, row_is_id=False):
         id = row if row_is_id else self._map_filtered[row]
-        self._data[id][col] = val
+        d = self._data[id]
+        d[col] = val
+        d.refresh_composites()
 
     def get(self, row, col, row_is_id=False):
         id = row if row_is_id else self._map_filtered[row]
@@ -1081,15 +1125,14 @@ class SortKeyGenerator(object):
                     dt = 'datetime'
                 elif sb == 'number':
                     try:
-                        val = val.replace(',', '').strip()
                         p = 1
                         for i, candidate in enumerate(
-                                    (' B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
+                                    ('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
                             if val.endswith(candidate):
                                 p = 1024**(i)
                                 val = val[:-len(candidate)].strip()
                                 break
-                        val = float(val) * p
+                        val = locale.atof(val) * p
                     except:
                         val = 0.0
                     dt = 'float'

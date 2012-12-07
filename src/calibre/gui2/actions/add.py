@@ -10,9 +10,9 @@ from functools import partial
 
 from PyQt4.Qt import QPixmap, QTimer
 
-
-from calibre.gui2 import error_dialog, choose_files, \
-    choose_dir, warning_dialog, info_dialog
+from calibre import as_unicode
+from calibre.gui2 import (error_dialog, choose_files, choose_dir,
+        warning_dialog, info_dialog)
 from calibre.gui2.dialogs.add_empty_book import AddEmptyBookDialog
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
@@ -30,7 +30,7 @@ def get_filters():
             (_('LRF Books'), ['lrf']),
             (_('HTML Books'), ['htm', 'html', 'xhtm', 'xhtml']),
             (_('LIT Books'), ['lit']),
-            (_('MOBI Books'), ['mobi', 'prc', 'azw']),
+            (_('MOBI Books'), ['mobi', 'prc', 'azw', 'azw3']),
             (_('Topaz books'), ['tpz','azw1']),
             (_('Text books'), ['txt', 'text', 'rtf']),
             (_('PDF Books'), ['pdf', 'azw4']),
@@ -329,10 +329,11 @@ class AddAction(InterfaceAction):
                     x.decode(preferred_encoding, 'replace') for x in
                     self._adder.merged_books])
             info_dialog(self.gui, _('Merged some books'),
-                    _('The following duplicate books were found and incoming '
-                        'book formats were processed and merged into your '
-                        'Calibre database according to your automerge '
-                        'settings:'), det_msg=books, show=True)
+                _('The following %d duplicate books were found and incoming '
+                    'book formats were processed and merged into your '
+                    'Calibre database according to your automerge '
+                    'settings:')%len(self._adder.merged_books),
+                    det_msg=books, show=True)
 
         if getattr(self._adder, 'number_of_books_added', 0) > 0 or \
                 getattr(self._adder, 'merged_books', False):
@@ -399,12 +400,45 @@ class AddAction(InterfaceAction):
             d = error_dialog(self.gui, _('Add to library'), _('No book files found'))
             d.exec_()
             return
-        paths = self.gui.device_manager.device.prepare_addable_books(paths)
-        from calibre.gui2.add import Adder
-        self.__adder_func = partial(self._add_from_device_adder, on_card=None,
-                                                    model=view.model())
-        self._adder = Adder(self.gui, self.gui.library_view.model().db,
-                self.Dispatcher(self.__adder_func), spare_server=self.gui.spare_server)
-        self._adder.add(paths)
+
+        self.gui.device_manager.prepare_addable_books(self.Dispatcher(partial(
+            self.books_prepared, view)), paths)
+        self.bpd = ProgressDialog(_('Downloading books'),
+                msg=_('Downloading books from device'), parent=self.gui,
+                cancelable=False)
+        QTimer.singleShot(1000, self.show_bpd)
+
+    def show_bpd(self):
+        if self.bpd is not None:
+            self.bpd.show()
+
+    def books_prepared(self, view, job):
+        self.bpd.hide()
+        self.bpd = None
+        if job.exception is not None:
+            self.gui.device_job_exception(job)
+            return
+        paths = job.result
+        ok_paths = [x for x in paths if isinstance(x, basestring)]
+        failed_paths = [x for x in paths if isinstance(x, tuple)]
+        if failed_paths:
+            if not ok_paths:
+                msg = _('Could not download files from the device')
+                typ = error_dialog
+            else:
+                msg = _('Could not download some files from the device')
+                typ = warning_dialog
+            det_msg = [x[0]+ '\n    ' + as_unicode(x[1]) for x in failed_paths]
+            det_msg = '\n\n'.join(det_msg)
+            typ(self.gui, _('Could not download files'), msg, det_msg=det_msg,
+                    show=True)
+
+        if ok_paths:
+            from calibre.gui2.add import Adder
+            self.__adder_func = partial(self._add_from_device_adder, on_card=None,
+                                                        model=view.model())
+            self._adder = Adder(self.gui, self.gui.library_view.model().db,
+                    self.Dispatcher(self.__adder_func), spare_server=self.gui.spare_server)
+            self._adder.add(ok_paths)
 
 

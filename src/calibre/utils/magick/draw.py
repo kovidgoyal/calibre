@@ -10,7 +10,7 @@ import os
 from calibre.utils.magick import Image, DrawingWand, create_canvas
 from calibre.constants import __appname__, __version__
 from calibre.utils.config import tweaks
-from calibre import fit_image
+from calibre import fit_image, force_unicode
 
 def _data_to_image(data):
     if isinstance(data, Image):
@@ -166,12 +166,9 @@ def add_borders_to_image(img_data, left=0, top=0, right=0, bottom=0,
     return canvas.export(fmt)
 
 def create_text_wand(font_size, font_path=None):
-    if font_path is None:
-        font_path = tweaks['generate_cover_title_font']
-        if font_path is None:
-            font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
     ans = DrawingWand()
-    ans.font = font_path
+    if font_path is not None:
+        ans.font = font_path
     ans.font_size = font_size
     ans.gravity = 'CenterGravity'
     ans.text_alias = True
@@ -238,6 +235,17 @@ class TextLine(object):
     def __init__(self, text, font_size, bottom_margin=30, font_path=None):
         self.text, self.font_size, = text, font_size
         self.bottom_margin = bottom_margin
+        if font_path is None:
+            if not isinstance(text, unicode):
+                text = force_unicode(text)
+            from calibre.utils.fonts.utils import get_font_for_text
+            fd = get_font_for_text(text)
+            if fd is not None:
+                from calibre.ptempfile import PersistentTemporaryFile
+                pt = PersistentTemporaryFile('.ttf')
+                pt.write(fd)
+                pt.close()
+                font_path = pt.name
         self.font_path = font_path
 
     def __repr__(self):
@@ -245,12 +253,18 @@ class TextLine(object):
 
 
 def create_cover_page(top_lines, logo_path, width=590, height=750,
-        bgcolor='#ffffff', output_format='jpg'):
+        bgcolor='#ffffff', output_format='jpg', texture_data=None,
+        texture_opacity=1.0):
     '''
     Create the standard calibre cover page and return it as a byte string in
     the specified output_format.
     '''
     canvas = create_canvas(width, height, bgcolor)
+    if texture_data and hasattr(canvas, 'texture'):
+        texture = Image()
+        texture.load(texture_data)
+        texture.set_opacity(texture_opacity)
+        canvas.texture(texture)
 
     bottom = 10
     for line in top_lines:
@@ -263,7 +277,7 @@ def create_cover_page(top_lines, logo_path, width=590, height=750,
     if not foot_font:
         foot_font = P('fonts/liberation/LiberationMono-Regular.ttf')
     vanity = create_text_arc(__appname__ + ' ' + __version__, 24,
-            font=foot_font)
+            font=foot_font, bgcolor='#00000000')
     lwidth, lheight = vanity.size
     left = int(max(0, (width - lwidth)/2.))
     top  = height - lheight - 10
@@ -279,6 +293,9 @@ def create_cover_page(top_lines, logo_path, width=590, height=750,
             logo.size = (lwidth, lheight)
         left = int(max(0, (width - lwidth)/2.))
         top  = bottom+10
+        extra = int((available[1] - lheight)/2.0)
+        if extra > 0:
+            top += extra
         canvas.compose(logo, left, top)
 
     return canvas.export(output_format)

@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, uuid
 
 from lxml import etree
 from urlparse import urlparse
@@ -80,12 +80,50 @@ class DetectStructure(object):
             if not node.title or not node.title.strip():
                 node.title = _('Unnamed')
 
+        if self.opts.start_reading_at:
+            self.detect_start_reading()
+
+    def detect_start_reading(self):
+        expr = self.opts.start_reading_at
+        try:
+            expr = XPath(expr)
+        except:
+            self.log.warn(
+                'Invalid start reading at XPath expression, ignoring: %s'%expr)
+            return
+        for item in self.oeb.spine:
+            if not hasattr(item.data, 'xpath'): continue
+            matches = expr(item.data)
+            if matches:
+                elem = matches[0]
+                eid = elem.get('id', None)
+                if not eid:
+                    eid = u'start_reading_at_'+unicode(uuid.uuid4()).replace(u'-', u'')
+                    elem.set('id', eid)
+                if u'text' in self.oeb.guide:
+                    self.oeb.guide.remove(u'text')
+                self.oeb.guide.add(u'text', u'Start', item.href+u'#'+eid)
+                self.log('Setting start reading at position to %s in %s'%(
+                    self.opts.start_reading_at, item.href))
+                return
+        self.log.warn("Failed to find start reading at position: %s"%
+                self.opts.start_reading_at)
+
     def detect_chapters(self):
         self.detected_chapters = []
+
+        def find_matches(expr, doc):
+            try:
+                ans = XPath(expr)(doc)
+                len(ans)
+                return ans
+            except:
+                self.log.warn('Invalid chapter expression, ignoring: %s'%expr)
+                return []
+
         if self.opts.chapter:
-            chapter_xpath = XPath(self.opts.chapter)
             for item in self.oeb.spine:
-                for x in chapter_xpath(item.data):
+                for x in find_matches(self.opts.chapter, item.data):
                     self.detected_chapters.append((item, x))
 
             chapter_mark = self.opts.chapter_mark
@@ -164,11 +202,21 @@ class DetectStructure(object):
         added = OrderedDict()
         added2 = OrderedDict()
         counter = 1
+
+        def find_matches(expr, doc):
+            try:
+                ans = XPath(expr)(doc)
+                len(ans)
+                return ans
+            except:
+                self.log.warn('Invalid ToC expression, ignoring: %s'%expr)
+                return []
+
         for document in self.oeb.spine:
             previous_level1 = list(added.itervalues())[-1] if added else None
             previous_level2 = list(added2.itervalues())[-1] if added2 else None
 
-            for elem in XPath(self.opts.level1_toc)(document.data):
+            for elem in find_matches(self.opts.level1_toc, document.data):
                 text, _href = self.elem_to_link(document, elem, counter)
                 counter += 1
                 if text:
@@ -178,7 +226,7 @@ class DetectStructure(object):
                     #node.add(_('Top'), _href)
 
             if self.opts.level2_toc is not None and added:
-                for elem in XPath(self.opts.level2_toc)(document.data):
+                for elem in find_matches(self.opts.level2_toc, document.data):
                     level1 = None
                     for item in document.data.iterdescendants():
                         if item in added:
@@ -196,7 +244,8 @@ class DetectStructure(object):
                             break
 
                 if self.opts.level3_toc is not None and added2:
-                    for elem in XPath(self.opts.level3_toc)(document.data):
+                    for elem in find_matches(self.opts.level3_toc,
+                            document.data):
                         level2 = None
                         for item in document.data.iterdescendants():
                             if item in added2:

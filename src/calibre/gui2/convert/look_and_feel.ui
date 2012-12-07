@@ -6,28 +6,54 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>655</width>
-    <height>522</height>
+    <width>699</width>
+    <height>619</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QCheckBox" name="opt_disable_font_rescaling">
-     <property name="text">
-      <string>&amp;Disable font size rescaling</string>
+   <item row="3" column="4">
+    <widget class="QDoubleSpinBox" name="opt_line_height">
+     <property name="suffix">
+      <string> pt</string>
+     </property>
+     <property name="decimals">
+      <number>1</number>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_18">
+   <item row="3" column="3">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>Base &amp;font size:</string>
+      <string>Line &amp;height:</string>
      </property>
      <property name="buddy">
-      <cstring>opt_base_font_size</cstring>
+      <cstring>opt_line_height</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Minimum &amp;line height:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_minimum_line_height</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QDoubleSpinBox" name="opt_minimum_line_height">
+     <property name="suffix">
+      <string> %</string>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <double>900.000000000000000</double>
      </property>
     </widget>
    </item>
@@ -97,49 +123,6 @@
      </item>
     </layout>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>Minimum &amp;line height:</string>
-     </property>
-     <property name="buddy">
-      <cstring>opt_minimum_line_height</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QDoubleSpinBox" name="opt_minimum_line_height">
-     <property name="suffix">
-      <string> %</string>
-     </property>
-     <property name="decimals">
-      <number>1</number>
-     </property>
-     <property name="maximum">
-      <double>900.000000000000000</double>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Line &amp;height:</string>
-     </property>
-     <property name="buddy">
-      <cstring>opt_line_height</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QDoubleSpinBox" name="opt_line_height">
-     <property name="suffix">
-      <string> pt</string>
-     </property>
-     <property name="decimals">
-      <number>1</number>
-     </property>
-    </widget>
-   </item>
    <item row="5" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
@@ -157,14 +140,14 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0" colspan="2">
+   <item row="7" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_remove_paragraph_spacing">
      <property name="text">
       <string>Remove &amp;spacing between paragraphs</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="3">
+   <item row="7" column="3">
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>&amp;Indent size:</string>
@@ -177,7 +160,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="4">
+   <item row="7" column="4">
     <widget class="QDoubleSpinBox" name="opt_remove_paragraph_spacing_indent_size">
      <property name="toolTip">
       <string>&lt;p&gt;When calibre removes inter paragraph spacing, it automatically sets a paragraph indent, to ensure that paragraphs can be easily distinguished. This option controls the width of that indent.</string>
@@ -199,85 +182,7 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_insert_blank_line">
-     <property name="text">
-      <string>Insert &amp;blank line between paragraphs</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="3">
-    <widget class="QLabel" name="label_7">
-     <property name="text">
-      <string>&amp;Line size:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-     <property name="buddy">
-      <cstring>opt_insert_blank_line_size</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="4">
-    <widget class="QDoubleSpinBox" name="opt_insert_blank_line_size">
-     <property name="suffix">
-      <string> em</string>
-     </property>
-     <property name="decimals">
-      <number>1</number>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>Text &amp;justification:</string>
-     </property>
-     <property name="buddy">
-      <cstring>opt_change_justification</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="2" colspan="3">
-    <widget class="QComboBox" name="opt_change_justification"/>
-   </item>
-   <item row="9" column="0">
-    <widget class="QCheckBox" name="opt_smarten_punctuation">
-     <property name="text">
-      <string>Smarten &amp;punctuation</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="1" colspan="4">
-    <widget class="QCheckBox" name="opt_asciiize">
-     <property name="text">
-      <string>&amp;Transliterate unicode characters to ASCII</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="0">
-    <widget class="QCheckBox" name="opt_unsmarten_punctuation">
-     <property name="text">
-      <string>&amp;UnSmarten punctuation</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="1" colspan="2">
-    <widget class="QCheckBox" name="opt_keep_ligatures">
-     <property name="text">
-      <string>Keep &amp;ligatures</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="3">
-    <widget class="QCheckBox" name="opt_linearize_tables">
-     <property name="text">
-      <string>&amp;Linearize tables</string>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="0" colspan="5">
+   <item row="12" column="0" colspan="5">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
       <number>0</number>
@@ -378,8 +283,136 @@
          </item>
         </layout>
        </item>
+       <item row="3" column="0">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item row="8" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_insert_blank_line">
+     <property name="text">
+      <string>Insert &amp;blank line between paragraphs</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="4">
+    <widget class="QDoubleSpinBox" name="opt_insert_blank_line_size">
+     <property name="suffix">
+      <string> em</string>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Text &amp;justification:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_change_justification</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="2" colspan="3">
+    <widget class="QComboBox" name="opt_change_justification"/>
+   </item>
+   <item row="10" column="0">
+    <widget class="QCheckBox" name="opt_smarten_punctuation">
+     <property name="text">
+      <string>Smarten &amp;punctuation</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="1" colspan="4">
+    <widget class="QCheckBox" name="opt_asciiize">
+     <property name="text">
+      <string>&amp;Transliterate unicode characters to ASCII</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QCheckBox" name="opt_unsmarten_punctuation">
+     <property name="text">
+      <string>&amp;UnSmarten punctuation</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="1" colspan="2">
+    <widget class="QCheckBox" name="opt_keep_ligatures">
+     <property name="text">
+      <string>Keep &amp;ligatures</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="3">
+    <widget class="QCheckBox" name="opt_linearize_tables">
+     <property name="text">
+      <string>&amp;Linearize tables</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_18">
+     <property name="text">
+      <string>Base &amp;font size:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_base_font_size</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="3">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>&amp;Line size:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>opt_insert_blank_line_size</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>&amp;Embed font family:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_embed_font_family</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="5">
+    <widget class="QCheckBox" name="opt_disable_font_rescaling">
+     <property name="text">
+      <string>&amp;Disable font size rescaling</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1" colspan="2">
+    <widget class="FontFamilyChooser" name="opt_embed_font_family" native="true"/>
+   </item>
+   <item row="6" column="3" colspan="2">
+    <widget class="QCheckBox" name="opt_subset_embedded_fonts">
+     <property name="text">
+      <string>&amp;Subset all embedded fonts (Experimental)</string>
+     </property>
     </widget>
    </item>
   </layout>
@@ -389,6 +422,11 @@
    <class>EncodingComboBox</class>
    <extends>QComboBox</extends>
    <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>FontFamilyChooser</class>
+   <extends>QWidget</extends>
+   <header>calibre/gui2/font_family_chooser.h</header>
   </customwidget>
  </customwidgets>
  <resources>

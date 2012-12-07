@@ -212,19 +212,32 @@
        <string>Book Details</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_12">
-       <item row="1" column="0" rowspan="2">
+       <item row="2" column="1">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Note that &lt;b&gt;comments&lt;/b&gt; will always be displayed at the end, regardless of the position you assign here.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QCheckBox" name="opt_use_roman_numerals_for_series_number">
+         <property name="text">
+          <string>Use &amp;Roman numerals for series</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" rowspan="2">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Select displayed metadata</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0" rowspan="3">
-           <widget class="QListView" name="field_display_order">
-            <property name="alternatingRowColors">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="1">
            <widget class="QToolButton" name="df_up_button">
             <property name="toolTip">
@@ -244,6 +257,13 @@
             <property name="icon">
              <iconset resource="../../../../resources/images.qrc">
               <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" rowspan="3">
+           <widget class="QListView" name="field_display_order">
+            <property name="alternatingRowColors">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -288,25 +308,39 @@ Manage Authors. You can use the values {author} and
          </item>
         </layout>
        </item>
-       <item row="0" column="1">
-        <widget class="QCheckBox" name="opt_use_roman_numerals_for_series_number">
-         <property name="text">
-          <string>Use &amp;Roman numerals for series</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Note that &lt;b&gt;comments&lt;/b&gt; will always be displayed at the end, regardless of the position you assign here.</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
+       <item row="1" column="0" colspan="2">
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="QCheckBox" name="opt_bd_show_cover">
+           <property name="text">
+            <string>Show &amp;cover in the book details panel</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="opt_bd_overlay_cover_size">
+           <property name="toolTip">
+            <string>Show the size of the book's cover in pixels</string>
+           </property>
+           <property name="text">
+            <string>Show cover &amp;size</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_bd1">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -320,7 +354,7 @@ Manage Authors. You can use the values {author} and
       </attribute>
       <layout class="QGridLayout" name="gridLayout_10">
        <item row="3" column="2" colspan="3">
-        <widget class="MultiCompleteLineEdit" name="opt_categories_using_hierarchy">
+        <widget class="EditWithComplete" name="opt_categories_using_hierarchy">
          <property name="toolTip">
           <string>A comma-separated list of categories in which items containing
 periods are displayed in the tag browser trees. For example, if
@@ -397,7 +431,7 @@ up into subcategories. If the partition method is set to disable, this value is 
         </widget>
        </item>
        <item row="1" column="3" colspan="2">
-        <widget class="MultiCompleteLineEdit" name="opt_tag_browser_dont_collapse">
+        <widget class="EditWithComplete" name="opt_tag_browser_dont_collapse">
          <property name="toolTip">
           <string>A comma-separated list of categories that are not to
 be partitioned even if the number of items is larger than
@@ -506,9 +540,9 @@ a few top-level elements.</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>MultiCompleteLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>calibre/gui2/complete.h</header>
+   <class>EditWithComplete</class>
+   <extends>QComboBox</extends>
+   <header>calibre/gui2/complete2.h</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -6,7 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Embedded console for debugging.
 '''
 
-import sys, os
+import sys, os, functools
 from calibre.utils.config import OptionParser
 from calibre.constants import iswindows
 from calibre import prints
@@ -15,10 +15,18 @@ def option_parser():
     parser = OptionParser(usage='''\
 %prog [options]
 
-Run an embedded python interpreter.
+Various command line interfaces useful for debugging calibre. With no options,
+this command starts an embedded python interpreter. You can also run the main
+calibre GUI and the calibre viewer in debug mode.
+
+It also contains interfaces to various bits of calibre that do not have
+dedicated command line tools, such as font subsetting, tweaking ebooks and so
+on.
 ''')
     parser.add_option('-c', '--command', help='Run python code.', default=None)
     parser.add_option('-e', '--exec-file', default=None, help='Run the python code in file.')
+    parser.add_option('-f', '--subset-font', default=False,
+            action='store_true', help='Subset the specified font')
     parser.add_option('-d', '--debug-device-driver', default=False, action='store_true',
                       help='Debug the specified device driver.')
     parser.add_option('-g', '--gui',  default=False, action='store_true',
@@ -35,9 +43,6 @@ Run an embedded python interpreter.
                       help='Run the ebook viewer',)
     parser.add_option('--paths', default=False, action='store_true',
             help='Output the paths necessary to setup the calibre environment')
-    parser.add_option('--migrate', action='store_true', default=False,
-                      help='Migrate old database. Needs two arguments. Path '
-                           'to library1.db and path to new library folder.')
     parser.add_option('--add-simple-plugin', default=None,
             help='Add a simple plugin (i.e. a plugin that consists of only a '
             '.py file), by specifying the path to the py file containing the '
@@ -60,6 +65,11 @@ Run an embedded python interpreter.
             'editing tools, and then rebuilds the file from the edited HTML. '
             'Makes no additional changes to the HTML, unlike a full calibre '
             'conversion).')
+    parser.add_option('-s', '--shutdown-running-calibre', default=False,
+            action='store_true',
+            help=_('Cause a running calibre instance, if any, to be'
+                ' shutdown. Note that if there are running jobs, they '
+                'will be silently aborted, so use with care.'))
 
     parser.add_option('--test-build', help='Test binary modules in build',
             action='store_true', default=False)
@@ -111,28 +121,6 @@ def reinit_db(dbpath, callback=None, sql_dump=None):
             os.remove(dest)
     prints('Database successfully re-initialized')
 
-def migrate(old, new):
-    from calibre.utils.config import prefs
-    from calibre.library.database import LibraryDatabase
-    from calibre.library.database2 import LibraryDatabase2
-    from calibre.utils.terminfo import ProgressBar
-    from calibre.constants import terminal_controller
-    class Dummy(ProgressBar):
-        def setLabelText(self, x): pass
-        def setAutoReset(self, y): pass
-        def reset(self): pass
-        def setRange(self, min, max):
-            self.min = min
-            self.max = max
-        def setValue(self, val):
-            self.update(float(val)/getattr(self, 'max', 1))
-
-    db = LibraryDatabase(old)
-    db2 = LibraryDatabase2(new)
-    db2.migrate_old(db, Dummy(terminal_controller(), 'Migrating database...'))
-    prefs['library_path'] = os.path.abspath(new)
-    print 'Database migrated to', os.path.abspath(new)
-
 def debug_device_driver():
     from calibre.devices import debug
     debug(ioreg_to_tmp=True, buf=sys.stdout)
@@ -155,26 +143,34 @@ def add_simple_plugin(path_to_plugin):
     os.chdir(odir)
     shutil.rmtree(tdir)
 
-def run_debug_gui(logpath):
-    import time, platform
-    time.sleep(3) # Give previous GUI time to shutdown fully and release locks
-    from calibre.constants import __appname__, __version__, isosx
-    print __appname__, _('Debug log')
-    print __appname__, __version__
-    print platform.platform()
-    print platform.system()
-    print platform.system_alias(platform.system(), platform.release(),
-            platform.version())
-    print 'Python', platform.python_version()
+def print_basic_debug_info(out=None):
+    if out is None: out = sys.stdout
+    out = functools.partial(prints, file=out)
+    import platform
+    from calibre.constants import (__appname__, get_version, isportable, isosx,
+                                   isfrozen, is64bit)
+    out(__appname__, get_version(), 'Portable' if isportable else '',
+        'isfrozen:', isfrozen, 'is64bit:', is64bit)
+    out(platform.platform(), platform.system(), platform.architecture())
+    out(platform.system_alias(platform.system(), platform.release(),
+            platform.version()))
+    out('Python', platform.python_version())
     try:
         if iswindows:
-            print 'Windows:', platform.win32_ver()
+            out('Windows:', platform.win32_ver())
         elif isosx:
-            print 'OSX:', platform.mac_ver()
+            out('OSX:', platform.mac_ver())
         else:
-            print 'Linux:', platform.linux_distribution()
+            out('Linux:', platform.linux_distribution())
     except:
         pass
+
+def run_debug_gui(logpath):
+    import time
+    time.sleep(3) # Give previous GUI time to shutdown fully and release locks
+    from calibre.constants import __appname__
+    prints(__appname__, _('Debug log'))
+    print_basic_debug_info()
     from calibre.gui2.main import main
     main(['__CALIBRE_GUI_DEBUG__', logpath])
 
@@ -198,9 +194,15 @@ def main(args=sys.argv):
         execfile(ef, g)
         return
 
+    if len(args) > 1 and args[1] in ('-f', '--subset-font'):
+        from calibre.utils.fonts.sfnt.subset import main
+        main(['subset-font']+args[2:])
+        return
+
     opts, args = option_parser().parse_args(args)
     if opts.gui:
         from calibre.gui2.main import main
+        print_basic_debug_info()
         main(['calibre'])
     elif opts.gui_debug is not None:
         run_debug_gui(opts.gui_debug)
@@ -230,11 +232,6 @@ def main(args=sys.argv):
         exec opts.command
     elif opts.debug_device_driver:
         debug_device_driver()
-    elif opts.migrate:
-        if len(args) < 3:
-            print 'You must specify the path to library1.db and the path to the new library folder'
-            return 1
-        migrate(args[1], args[2])
     elif opts.add_simple_plugin is not None:
         add_simple_plugin(opts.add_simple_plugin)
     elif opts.paths:
@@ -258,6 +255,9 @@ def main(args=sys.argv):
     elif opts.test_build:
         from calibre.test_build import test
         test()
+    elif opts.shutdown_running_calibre:
+        from calibre.gui2.main import shutdown_other
+        shutdown_other()
     else:
         from calibre import ipython
         ipython()

@@ -1,0 +1,94 @@
+
+__license__   = 'GPL v3'
+__copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.nsfwcorp.com
+'''
+
+import urllib
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class NotSafeForWork(BasicNewsRecipe):
+    title                  = 'Not Safe For Work Corporation'
+    __author__             = 'Darko Miletic'
+    description            = 'Not Safe For Work Corporation'
+    publisher              = 'Not Safe For Work Corporation'
+    category               = 'news, politics, USA, World'
+    no_stylesheets         = True
+    oldest_article         = 15
+    encoding               = 'utf-8'
+    needs_subscription     = True
+    auto_cleanup           = False
+    INDEX                  = 'https://www.nsfwcorp.com'
+    LOGIN                  = INDEX + '/login'
+    use_embedded_content   = False
+    language               = 'en'
+    publication_type       = 'magazine'
+    masthead_url           = 'http://assets.nsfwcorp.com/media/headers/nsfw_banner.jpg'
+    extra_css              = """
+                                 body{font-family: Constantia,"Lucida Bright",Lucidabright,"Lucida Serif",Lucida,"DejaVu Serif","Bitstream Vera Serif","Liberation Serif",Georgia,serif}
+                                 img{margin-top:0.5em; margin-bottom: 0.7em; display: block}
+                                 .fontFace{font-family: 'LeagueGothicRegular',Arial,sans-serif;}
+                                 .dispatchTitle{text-transform: uppercase; font-size: x-large; font-weight: bold}
+                                 .dispatchSubtitle{font-size: x-large; font-weight: bold}
+                                 #fromLine{color: gray; text-align:right}
+                                 #toLine{color: gray}
+                                 #toLine a{color: red}
+                                 #fromLine a{color: red}
+                                 .row a{color: red}
+                             """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags_before = dict(attrs={'id':'fromToLine'})
+    remove_tags_after  = dict(attrs={'id':'unlockButtonDiv'})
+    remove_tags=[
+                   dict(name=['meta', 'link', 'iframe', 'embed', 'object'])
+                  ,dict(name='a', attrs={'class':'switchToDeskNotes'})
+                  ,dict(attrs={'id':'unlockButtonDiv'})
+                ]
+    remove_attributes = ['lang']
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        br.open(self.LOGIN)
+        if self.username is not None and self.password is not None:
+            data = urllib.urlencode({ 'email':self.username
+                                     ,'password':self.password
+                                   })
+            br.open(self.LOGIN, data)
+        return br
+
+    def parse_index(self):
+        articles = []
+        soup = self.index_to_soup(self.INDEX)
+        dispatches = soup.find(attrs={'id':'dispatches'})
+        if dispatches:
+            for item in dispatches.findAll('h3'):
+                description = u''
+                title_link = item.find('span', attrs={'class':'dispatchTitle'})
+                description_link = item.find('span', attrs={'class':'dispatchSubtitle'})
+                feed_link = item.find('a', href=True)
+                if feed_link:
+                    url         = self.INDEX + feed_link['href']
+                    title       = self.tag_to_string(title_link)
+                    description = self.tag_to_string(description_link)
+                    date        = strftime(self.timefmt)
+                    articles.append({
+                                      'title'      :title
+                                     ,'date'       :date
+                                     ,'url'        :url
+                                     ,'description':description
+                                    })
+        return [('Dispatches', articles)]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup

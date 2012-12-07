@@ -25,41 +25,12 @@ class PluginWidget(Widget, Ui_Form):
                     'mobi_keep_original_images',
                     'mobi_ignore_margins', 'mobi_toc_at_start',
                 'dont_compress', 'no_inline_toc', 'share_not_sync',
-                'personal_doc']#, 'mobi_navpoints_only_deepest']
+                'personal_doc', 'mobi_file_type']
                 )
         self.db, self.book_id = db, book_id
 
-        '''
-        from calibre.utils.fonts import fontconfig
-
-        global font_family_model
-        if font_family_model is None:
-            font_family_model = FontFamilyModel()
-            try:
-                font_family_model.families = fontconfig.find_font_families(allowed_extensions=['ttf'])
-            except:
-                import traceback
-                font_family_model.families = []
-                print 'WARNING: Could not load fonts'
-                traceback.print_exc()
-            font_family_model.families.sort()
-            font_family_model.families[:0] = [_('Default')]
-
-        self.font_family_model = font_family_model
-        self.opt_masthead_font.setModel(self.font_family_model)
-        '''
+        self.opt_mobi_file_type.addItems(['old', 'both', 'new'])
 
         self.initialize_options(get_option, get_help, db, book_id)
 
-    '''
-    def set_value_handler(self, g, val):
-        if unicode(g.objectName()) in 'opt_masthead_font':
-            idx = -1
-            if val:
-                idx = g.findText(val, Qt.MatchFixedString)
-            if idx < 0:
-                idx = 0
-            g.setCurrentIndex(idx)
-            return True
-        return False
-    '''
+

@@ -9,13 +9,13 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os, errno, shutil
 
-from PyQt4.Qt import (Qt, QDateTimeEdit, pyqtSignal, QMessageBox,
-    QIcon, QToolButton, QWidget, QLabel, QGridLayout, QApplication,
-    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, QDialog, QMenu,
-    QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox, QAction)
+from PyQt4.Qt import (Qt, QDateTimeEdit, pyqtSignal, QMessageBox, QIcon,
+        QToolButton, QWidget, QLabel, QGridLayout, QApplication,
+        QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, QDialog, QMenu,
+        QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox,
+        QAction, QCalendarWidget, QDate)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
-from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks, prefs
 from calibre.ebooks.metadata import (title_sort, authors_to_string,
@@ -23,6 +23,7 @@ from calibre.ebooks.metadata import (title_sort, authors_to_string,
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATETIME,
         choose_files, error_dialog, choose_images)
+from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.date import (local_tz, qt_to_dt, as_local_time,
         UNDEFINED_DATE)
 from calibre import strftime
@@ -90,22 +91,26 @@ class TitleEdit(EnLineEdit):
 
     def commit(self, db, id_):
         title = self.current_val
-        try:
-            if self.COMMIT:
-                getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False)
-            else:
-                getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False,
-                        commit=False)
-        except (IOError, OSError) as err:
-            if getattr(err, 'errno', -1) == errno.EACCES: # Permission denied
-                import traceback
-                fname = err.filename if err.filename else 'file'
-                error_dialog(self, _('Permission denied'),
-                        _('Could not open %s. Is it being used by another'
-                        ' program?')%fname, det_msg=traceback.format_exc(),
-                        show=True)
-                return False
-            raise
+        if title != self.original_val:
+            # Only try to commit if changed. This allow setting of other fields
+            # to work even if some of the book files are opened in windows.
+            try:
+                if self.COMMIT:
+                    getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False)
+                else:
+                    getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False,
+                            commit=False)
+            except (IOError, OSError) as err:
+                if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
+                    import traceback
+                    fname = getattr(err, 'filename', None)
+                    p = 'Locked file: %s\n\n'%fname if fname else ''
+                    error_dialog(self, _('Permission denied'),
+                            _('Could not change the on disk location of this'
+                                ' book. Is it open in another program?'),
+                            det_msg=p+traceback.format_exc(), show=True)
+                    return False
+                raise
         return True
 
     @dynamic_property
@@ -204,7 +209,7 @@ class TitleSortEdit(TitleEdit):
 # }}}
 
 # Authors {{{
-class AuthorsEdit(MultiCompleteComboBox):
+class AuthorsEdit(EditWithComplete):
 
     TOOLTIP = ''
     LABEL = _('&Author(s):')
@@ -212,7 +217,7 @@ class AuthorsEdit(MultiCompleteComboBox):
     def __init__(self, parent, manage_authors):
         self.dialog = parent
         self.books_to_refresh = set([])
-        MultiCompleteComboBox.__init__(self, parent)
+        EditWithComplete.__init__(self, parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
         self.setEditable(True)
@@ -246,14 +251,6 @@ class AuthorsEdit(MultiCompleteComboBox):
 
     def initialize(self, db, id_):
         self.books_to_refresh = set([])
-        all_authors = db.all_authors()
-        all_authors.sort(key=lambda x : sort_key(x[1]))
-        self.clear()
-        for i in all_authors:
-            id, name = i
-            name = name.strip().replace('|', ',')
-            self.addItem(name)
-
         self.set_separator('&')
         self.set_space_before_sep(True)
         self.set_add_separator(tweaks['authors_completer_append_separator'])
@@ -269,19 +266,23 @@ class AuthorsEdit(MultiCompleteComboBox):
 
     def commit(self, db, id_):
         authors = self.current_val
-        try:
-            self.books_to_refresh |= db.set_authors(id_, authors, notify=False,
-                allow_case_change=True)
-        except (IOError, OSError) as err:
-            if getattr(err, 'errno', -1) == errno.EACCES: # Permission denied
-                import traceback
-                fname = err.filename if err.filename else 'file'
-                error_dialog(self, _('Permission denied'),
-                        _('Could not open %s. Is it being used by another'
-                        ' program?')%fname, det_msg=traceback.format_exc(),
-                        show=True)
-                return False
-            raise
+        if authors != self.original_val:
+            # Only try to commit if changed. This allow setting of other fields
+            # to work even if some of the book files are opened in windows.
+            try:
+                self.books_to_refresh |= db.set_authors(id_, authors, notify=False,
+                    allow_case_change=True)
+            except (IOError, OSError) as err:
+                if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
+                    import traceback
+                    fname = getattr(err, 'filename', None)
+                    p = 'Locked file: %s\n\n'%fname if fname else ''
+                    error_dialog(self, _('Permission denied'),
+                            _('Could not change the on disk location of this'
+                                ' book. Is it open in another program?'),
+                            det_msg=p+traceback.format_exc(), show=True)
+                    return False
+                raise
         return True
 
     @dynamic_property
@@ -298,7 +299,6 @@ class AuthorsEdit(MultiCompleteComboBox):
                 val = [self.get_default()]
             self.setEditText(' & '.join([x.strip() for x in val]))
             self.lineEdit().setCursorPosition(0)
-
 
         return property(fget=fget, fset=fset)
 
@@ -452,13 +452,13 @@ class AuthorSortEdit(EnLineEdit):
 # }}}
 
 # Series {{{
-class SeriesEdit(MultiCompleteComboBox):
+class SeriesEdit(EditWithComplete):
 
     TOOLTIP = _('List of known series. You can add new series.')
     LABEL = _('&Series:')
 
     def __init__(self, parent):
-        MultiCompleteComboBox.__init__(self, parent)
+        EditWithComplete.__init__(self, parent)
         self.set_separator(None)
         self.dialog = parent
         self.setSizeAdjustPolicy(
@@ -488,19 +488,12 @@ class SeriesEdit(MultiCompleteComboBox):
         all_series.sort(key=lambda x : sort_key(x[1]))
         self.update_items_cache([x[1] for x in all_series])
         series_id = db.series_id(id_, index_is_id=True)
-        idx, c = None, 0
-        self.clear()
+        inval = ''
         for i in all_series:
-            id, name = i
-            if id == series_id:
-                idx = c
-            self.addItem(name)
-            c += 1
-
-        self.lineEdit().setText('')
-        if idx is not None:
-            self.setCurrentIndex(idx)
-        self.original_val = self.current_val
+            if i[0] == series_id:
+                inval = i[1]
+                break
+        self.original_val = self.current_val = inval
 
     def commit(self, db, id_):
         series = self.current_val
@@ -560,7 +553,7 @@ class SeriesIndexEdit(QDoubleSpinBox):
         return True
 
     def increment(self):
-        if self.db is not None:
+        if tweaks['series_index_auto_increment'] != 'no_change' and self.db is not None:
             try:
                 series = self.series_edit.current_val
                 if series and series != self.original_series_name:
@@ -874,6 +867,7 @@ class Cover(ImageView): # {{{
 
     def __init__(self, parent):
         ImageView.__init__(self, parent)
+        self.show_size = True
         self.dialog = parent
         self._cdata = None
         self.cover_changed.connect(self.set_pixmap_from_data)
@@ -1102,14 +1096,14 @@ class RatingEdit(QSpinBox): # {{{
 
 # }}}
 
-class TagsEdit(MultiCompleteLineEdit): # {{{
+class TagsEdit(EditWithComplete): # {{{
     LABEL = _('Ta&gs:')
     TOOLTIP = '<p>'+_('Tags categorize the book. This is particularly '
             'useful while searching. <br><br>They can be any words '
             'or phrases, separated by commas.')
 
     def __init__(self, parent):
-        MultiCompleteLineEdit.__init__(self, parent)
+        EditWithComplete.__init__(self, parent)
         self.books_to_refresh = set([])
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
@@ -1130,7 +1124,7 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
         tags = db.tags(id_, index_is_id=True)
         tags = tags.split(',') if tags else []
         self.current_val = tags
-        self.all_items = db.all_tags()
+        self.all_items = db.all_tag_names()
         self.original_val = self.current_val
 
     @property
@@ -1343,11 +1337,11 @@ class ISBNDialog(QDialog) : # {{{
 
 # }}}
 
-class PublisherEdit(MultiCompleteComboBox): # {{{
+class PublisherEdit(EditWithComplete): # {{{
     LABEL = _('&Publisher:')
 
     def __init__(self, parent):
-        MultiCompleteComboBox.__init__(self, parent)
+        EditWithComplete.__init__(self, parent)
         self.set_separator(None)
         self.setSizeAdjustPolicy(
                 self.AdjustToMinimumContentsLengthWithIcon)
@@ -1373,17 +1367,12 @@ class PublisherEdit(MultiCompleteComboBox): # {{{
         all_publishers.sort(key=lambda x : sort_key(x[1]))
         self.update_items_cache([x[1] for x in all_publishers])
         publisher_id = db.publisher_id(id_, index_is_id=True)
-        idx = None
-        self.clear()
-        for i, x in enumerate(all_publishers):
-            id_, name = x
-            if id_ == publisher_id:
-                idx = i
-            self.addItem(name)
-
-        self.setEditText('')
-        if idx is not None:
-            self.setCurrentIndex(idx)
+        inval = ''
+        for pid, name in all_publishers:
+            if pid == publisher_id:
+                inval = name
+                break
+        self.original_val = self.current_val = inval
 
     def commit(self, db, id_):
         self.books_to_refresh |= db.set_publisher(id_, self.current_val,
@@ -1392,7 +1381,15 @@ class PublisherEdit(MultiCompleteComboBox): # {{{
 
 # }}}
 
-class DateEdit(QDateTimeEdit): # {{{
+# DateEdit {{{
+
+class CalendarWidget(QCalendarWidget):
+
+    def showEvent(self, ev):
+        if self.selectedDate().year() == UNDEFINED_DATE.year:
+            self.setSelectedDate(QDate.currentDate())
+
+class DateEdit(QDateTimeEdit):
 
     TOOLTIP = ''
     LABEL = _('&Date:')
@@ -1409,6 +1406,9 @@ class DateEdit(QDateTimeEdit): # {{{
             fmt = self.FMT
         self.setDisplayFormat(fmt)
         self.setCalendarPopup(True)
+        self.cw = CalendarWidget(self)
+        self.cw.setVerticalHeaderFormat(self.cw.NoVerticalHeader)
+        self.setCalendarWidget(self.cw)
         self.setMinimumDateTime(UNDEFINED_QDATETIME)
         self.setSpecialValueText(_('Undefined'))
         self.clear_button = QToolButton(parent)

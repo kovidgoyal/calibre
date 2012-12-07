@@ -573,8 +573,13 @@ class Amazon(Source):
             else:
                 url = 'http://www.amazon.%s/dp/%s'%(domain, asin)
             if url:
-                idtype = 'amazon' if self.domain == 'com' else 'amazon_'+self.domain
+                idtype = 'amazon' if domain == 'com' else 'amazon_'+domain
                 return (idtype, asin, url)
+
+    def get_book_url_name(self, idtype, idval, url):
+        if idtype == 'amazon':
+            return self.name
+        return 'A' + idtype.replace('_', '.')[1:]
     # }}}
 
     @property
@@ -687,7 +692,11 @@ class Amazon(Source):
             return True
 
         for div in root.xpath(r'//div[starts-with(@id, "result_")]'):
-            for a in div.xpath(r'descendant::a[@class="title" and @href]'):
+            links = div.xpath(r'descendant::a[@class="title" and @href]')
+            if not links:
+                # New amazon markup
+                links = div.xpath('descendant::h3/a[@href]')
+            for a in links:
                 title = tostring(a, method='text', encoding=unicode)
                 if title_ok(title):
                     matches.append(a.get('href'))

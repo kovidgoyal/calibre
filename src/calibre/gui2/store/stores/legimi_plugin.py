@@ -25,11 +25,12 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
         
-        url = 'http://www.legimi.com/pl/ebooks/?price=any'
+        plain_url = 'http://www.legimi.com/pl/ebooki/'
+        url = 'https://ssl.afiliant.com/affskrypt,,2f9de2,,11483,,,?u=(' + plain_url + ')'
         detail_url = None
 
         if detail_item:
-            detail_url = detail_item
+            detail_url = 'https://ssl.afiliant.com/affskrypt,,2f9de2,,11483,,,?u=(' + detail_item + ')'
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
@@ -40,32 +41,36 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.legimi.com/pl/ebooks/?price=any&lang=pl&search=' + urllib.quote_plus(query) + '&sort=relevance'
+        url = 'http://www.legimi.com/pl/ebooki/?szukaj=' + urllib.quote_plus(query)
         
         br = browser()
-        drm_pattern = re.compile("(DRM)")
+        drm_pattern = re.compile("zabezpieczona DRM")
         
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@class="list"]/ul/li'):
+            for data in doc.xpath('//div[@id="listBooks"]/div'):
                 if counter <= 0:
                     break
                 
-                id = ''.join(data.xpath('.//div[@class="item_cover_container"]/a[1]/@href'))
+                id = ''.join(data.xpath('.//a[@class="plainLink"]/@href'))
                 if not id:
                     continue
 
-                cover_url = ''.join(data.xpath('.//div[@class="item_cover_container"]/a/img/@src'))
-                title = ''.join(data.xpath('.//div[@class="item_entries"]/h2/a/text()'))
-                author = ''.join(data.xpath('.//div[@class="item_entries"]/span[1]/a/text()'))
+                cover_url = ''.join(data.xpath('.//img[1]/@src'))
+                title = ''.join(data.xpath('.//span[@class="bookListTitle ellipsis"]/text()'))
+                author = ''.join(data.xpath('.//span[@class="bookListAuthor ellipsis"]/text()'))
                 author = re.sub(',','',author)
                 author = re.sub(';',',',author)
-                price = ''.join(data.xpath('.//span[@class="ebook_price"]/text()'))
-                formats = ''.join(data.xpath('.//div[@class="item_entries"]/span[3]/text()'))
-                formats = re.sub('Format:','',formats)
-                drm = drm_pattern.search(formats)
-                formats = re.sub('\(DRM\)','',formats)
+                price = ''.join(data.xpath('.//div[@class="bookListPrice"]/span/text()'))
+                formats = []
+                with closing(br.open(id.strip(), timeout=timeout/4)) as nf:
+                    idata = html.fromstring(nf.read())
+                    formatlist = idata.xpath('.//div[@id="fullBookFormats"]//span[@class="bookFormat"]/text()')
+                    for x in formatlist:
+                        if x.strip() not in formats:
+                            formats.append(x.strip())
+                    drm = drm_pattern.search(''.join(idata.xpath('.//div[@id="fullBookFormats"]/p/text()')))
 
                 counter -= 1
                 
@@ -75,7 +80,7 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price
                 s.detail_item = 'http://www.legimi.com/' + id.strip()
+                s.formats = ', '.join(formats)
                 s.drm = SearchResult.DRM_LOCKED if drm else SearchResult.DRM_UNLOCKED
-                s.formats = formats.strip()
                 
                 yield s

@@ -286,15 +286,17 @@ class Spine(ResourceCollection): # {{{
     @staticmethod
     def from_opf_spine_element(itemrefs, manifest):
         s = Spine(manifest)
+        seen = set()
         for itemref in itemrefs:
             idref = itemref.get('idref', None)
             if idref is not None:
                 path = s.manifest.path_for_id(idref)
-                if path:
+                if path and path not in seen:
                     r = Spine.Item(lambda x:idref, path, is_path=True)
                     r.is_linear = itemref.get('linear', 'yes') == 'yes'
                     r.idref = idref
                     s.append(r)
+                    seen.add(path)
         return s
 
     @staticmethod
@@ -508,6 +510,7 @@ class OPF(object): # {{{
     tags_path       = XPath('descendant::*[re:match(name(), "subject", "i")]')
     isbn_path       = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
                             '(re:match(@scheme, "isbn", "i") or re:match(@opf:scheme, "isbn", "i"))]')
+    pubdate_path    = XPath('descendant::*[re:match(name(), "date", "i")]')
     raster_cover_path = XPath('descendant::*[re:match(name(), "meta", "i") and ' +
             're:match(@name, "cover", "i") and @content]')
     identifier_path = XPath('descendant::*[re:match(name(), "identifier", "i")]')
@@ -536,8 +539,6 @@ class OPF(object): # {{{
                                         formatter=float, none_is=1)
     title_sort      = TitleSortField('title_sort', is_dc=False)
     rating          = MetadataField('rating', is_dc=False, formatter=float)
-    pubdate         = MetadataField('date', formatter=parse_date,
-                                    renderer=isoformat)
     publication_type = MetadataField('publication_type', is_dc=False)
     timestamp       = MetadataField('timestamp', is_dc=False,
                                     formatter=parse_date, renderer=isoformat)
@@ -791,19 +792,16 @@ class OPF(object): # {{{
             remove = list(self.authors_path(self.metadata))
             for elem in remove:
                 elem.getparent().remove(elem)
-            elems = []
-            for author in val:
-                attrib = {'{%s}role'%self.NAMESPACES['opf']: 'aut'}
-                elem = self.create_metadata_element('creator', attrib=attrib)
+            # Ensure new author element is at the top of the list
+            # for broken implementations that always use the first
+            # <dc:creator> element with no attention to the role
+            for author in reversed(val):
+                elem = self.metadata.makeelement('{%s}creator'%
+                        self.NAMESPACES['dc'], nsmap=self.NAMESPACES)
+                elem.tail = '\n'
+                self.metadata.insert(0, elem)
+                elem.set('{%s}role'%self.NAMESPACES['opf'], 'aut')
                 self.set_text(elem, author.strip())
-                # Ensure new author element is at the top of the list
-                # for broken implementations that always use the first
-                # <dc:creator> element with no attention to the role
-                elems.append(elem)
-            for elem in reversed(elems):
-                parent = elem.getparent()
-                parent.remove(elem)
-                parent.insert(0, elem)
 
         return property(fget=fget, fset=fset)
 
@@ -847,6 +845,44 @@ class OPF(object): # {{{
             for tag in val:
                 elem = self.create_metadata_element('subject')
                 self.set_text(elem, unicode(tag))
+
+        return property(fget=fget, fset=fset)
+
+    @dynamic_property
+    def pubdate(self):
+
+        def fget(self):
+            ans = None
+            for match in self.pubdate_path(self.metadata):
+                try:
+                    val = parse_date(etree.tostring(match, encoding=unicode,
+                        method='text', with_tail=False).strip())
+                except:
+                    continue
+                if ans is None or val < ans:
+                    ans = val
+            return ans
+
+        def fset(self, val):
+            least_val = least_elem = None
+            for match in self.pubdate_path(self.metadata):
+                try:
+                    cval = parse_date(etree.tostring(match, encoding=unicode,
+                        method='text', with_tail=False).strip())
+                except:
+                    match.getparent().remove(match)
+                else:
+                    if not val:
+                        match.getparent().remove(match)
+                    if least_val is None or cval < least_val:
+                        least_val, least_elem = cval, match
+
+            if val:
+                if least_val is None:
+                    least_elem = self.create_metadata_element('date')
+
+                least_elem.attrib.clear()
+                least_elem.text = isoformat(val)
 
         return property(fget=fget, fset=fset)
 
@@ -981,9 +1017,8 @@ class OPF(object): # {{{
         def fset(self, val):
             matches = self.bkp_path(self.metadata)
             if not matches:
-                attrib = {'{%s}role'%self.NAMESPACES['opf']: 'bkp'}
-                matches = [self.create_metadata_element('contributor',
-                                                        attrib=attrib)]
+                matches = [self.create_metadata_element('contributor')]
+                matches[0].set('{%s}role'%self.NAMESPACES['opf'], 'bkp')
             self.set_text(matches[0], unicode(val))
         return property(fget=fget, fset=fset)
 
@@ -1116,7 +1151,7 @@ class OPF(object): # {{{
     def smart_update(self, mi, replace_metadata=False):
         for attr in ('title', 'authors', 'author_sort', 'title_sort',
                      'publisher', 'series', 'series_index', 'rating',
-                     'isbn', 'tags', 'category', 'comments',
+                     'isbn', 'tags', 'category', 'comments', 'book_producer',
                      'pubdate', 'user_categories', 'author_link_map'):
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
@@ -1320,7 +1355,10 @@ class OPFCreator(Metadata):
         guide = E.guide()
         if self.guide is not None:
             for ref in self.guide:
-                item = E.reference(type=ref.type, href=ref.href())
+                href = ref.href()
+                if isinstance(href, bytes):
+                    href = href.decode('utf-8')
+                item = E.reference(type=ref.type, href=href)
                 if ref.title:
                     item.set('title', ref.title)
                 guide.append(item)

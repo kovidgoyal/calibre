@@ -16,6 +16,7 @@ from zipimport import ZipImportError
 
 from calibre import prints
 from calibre.constants import iswindows, isosx
+from calibre.utils.ipc import eintr_retry_call
 
 PARALLEL_FUNCS = {
       'lrfviewer'    :
@@ -41,12 +42,6 @@ PARALLEL_FUNCS = {
 
       'read_metadata' :
       ('calibre.ebooks.metadata.worker', 'read_metadata_', 'notification'),
-
-      'read_pdf_metadata' :
-      ('calibre.utils.podofo.__init__', 'get_metadata_', None),
-
-      'write_pdf_metadata' :
-      ('calibre.utils.podofo.__init__', 'set_metadata_', None),
 
       'save_book' :
       ('calibre.ebooks.metadata.worker', 'save_book', 'notification'),
@@ -75,7 +70,7 @@ class Progress(Thread):
             if x is None:
                 break
             try:
-                self.conn.send(x)
+                eintr_retry_call(self.conn.send, x)
             except:
                 break
 
@@ -178,7 +173,7 @@ def main():
     key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
     resultf = unhexlify(os.environ['CALIBRE_WORKER_RESULT']).decode('utf-8')
     with closing(Client(address, authkey=key)) as conn:
-        name, args, kwargs, desc = conn.recv()
+        name, args, kwargs, desc = eintr_retry_call(conn.recv)
         if desc:
             prints(desc)
             sys.stdout.flush()

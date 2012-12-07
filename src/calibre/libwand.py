@@ -23,16 +23,16 @@ class Severity(ctypes.c_long):
     pass
 
 class String(ctypes.c_char_p):
-    
+
     def __del__(self):
         _libwand.MagickRelinquishMemory(self)
-        
+
     def __str__(self):
         return self.value
 
 if _libwand is not None:
     _libwand.MagickGetException.argtypes = [ctypes.c_void_p, ctypes.POINTER(Severity)]
-    _libwand.MagickGetException.restype  = String 
+    _libwand.MagickGetException.restype  = String
 
 def get_exception(wand):
     severity = Severity()

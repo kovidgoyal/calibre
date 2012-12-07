@@ -68,6 +68,7 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
                                    '<b>permanently deleted</b> from your '
                                    'device. Please verify the list.')+'</p>')
         self.buttonBox.accepted.connect(self.accepted)
+        self.buttonBox.rejected.connect(self.rejected)
         self.table.cellClicked.connect(self.cell_clicked)
         self.table.setSelectionMode(QAbstractItemView.NoSelection)
         self.table.setColumnCount(7)

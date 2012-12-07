@@ -7,11 +7,12 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Fetch a webpage and its links recursively. The webpages are saved to disk in
 UTF-8 encoding with any charset declarations removed.
 '''
-import sys, socket, os, urlparse, re, time, copy, urllib2, threading, traceback
+import sys, socket, os, urlparse, re, time, copy, urllib2, threading, traceback, imghdr
 from urllib import url2pathname, quote
 from httplib import responses
 from PIL import Image
 from cStringIO import StringIO
+from base64 import b64decode
 
 from calibre import browser, relpath, unicode_path
 from calibre.constants import filesystem_encoding, iswindows
@@ -346,37 +347,53 @@ class RecursiveFetcher(object):
         c = 0
         for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
             iurl = tag['src']
-            if callable(self.image_url_processor):
-                iurl = self.image_url_processor(baseurl, iurl)
-            if not urlparse.urlsplit(iurl).scheme:
-                iurl = urlparse.urljoin(baseurl, iurl, False)
-            with self.imagemap_lock:
-                if self.imagemap.has_key(iurl):
-                    tag['src'] = self.imagemap[iurl]
+            if iurl.startswith('data:image/'):
+                try:
+                    data = b64decode(iurl.partition(',')[-1])
+                except:
+                    self.log.exception('Failed to decode embedded image')
                     continue
-            try:
-                data = self.fetch_url(iurl)
-                if data == 'GIF89a\x01':
-                    # Skip empty GIF files as PIL errors on them anyway
+            else:
+                if callable(self.image_url_processor):
+                    iurl = self.image_url_processor(baseurl, iurl)
+                if not urlparse.urlsplit(iurl).scheme:
+                    iurl = urlparse.urljoin(baseurl, iurl, False)
+                with self.imagemap_lock:
+                    if self.imagemap.has_key(iurl):
+                        tag['src'] = self.imagemap[iurl]
+                        continue
+                try:
+                    data = self.fetch_url(iurl)
+                    if data == 'GIF89a\x01':
+                        # Skip empty GIF files as PIL errors on them anyway
+                        continue
+                except Exception:
+                    self.log.exception('Could not fetch image ', iurl)
                     continue
-            except Exception:
-                self.log.exception('Could not fetch image ', iurl)
-                continue
             c += 1
             fname = ascii_filename('img'+str(c))
             if isinstance(fname, unicode):
                 fname = fname.encode('ascii', 'replace')
             imgpath = os.path.join(diskpath, fname+'.jpg')
-            try:
-                im = Image.open(StringIO(data)).convert('RGBA')
+            if (imghdr.what(None, data) is None and b'<svg' in data[:1024]):
+                # SVG image
+                imgpath = os.path.join(diskpath, fname+'.svg')
                 with self.imagemap_lock:
                     self.imagemap[iurl] = imgpath
                 with open(imgpath, 'wb') as x:
-                    im.save(x, 'JPEG')
+                    x.write(data)
                 tag['src'] = imgpath
-            except:
-                traceback.print_exc()
-                continue
+            else:
+                try:
+                    im = Image.open(StringIO(data)).convert('RGBA')
+                    with self.imagemap_lock:
+                        self.imagemap[iurl] = imgpath
+                    with open(imgpath, 'wb') as x:
+                        im.save(x, 'JPEG')
+                    tag['src'] = imgpath
+                except:
+                    traceback.print_exc()
+                    continue
 
     def absurl(self, baseurl, tag, key, filter=True):
         iurl = tag[key]
@@ -532,7 +549,7 @@ def option_parser(usage=_('%prog URL\n\nWhere URL is for example http://google.c
 
 def create_fetcher(options, image_map={}, log=None):
     if log is None:
-        log = Log()
+        log = Log(level=Log.DEBUG) if options.verbose else Log()
     return RecursiveFetcher(options, log, image_map={})
 
 def main(args=sys.argv):

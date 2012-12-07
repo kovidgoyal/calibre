@@ -802,7 +802,7 @@ def inspect_mobi(mobi_file, ddir):
             alltext += rec.raw
         of.seek(0)
 
-    root = html.fromstring(alltext.decode('utf-8'))
+    root = html.fromstring(alltext.decode(f.mobi_header.encoding))
     with open(os.path.join(ddir, 'pretty.html'), 'wb') as of:
         of.write(html.tostring(root, pretty_print=True, encoding='utf-8',
             include_meta_content_type=True))

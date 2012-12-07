@@ -13,11 +13,12 @@ from multiprocessing import cpu_count
 from PyQt4.pyqtconfig import QtGuiModuleMakefile
 
 from setup import Command, islinux, isbsd, isosx, SRC, iswindows
-from setup.build_environment import (fc_inc, fc_lib, chmlib_inc_dirs, fc_error,
+from setup.build_environment import (chmlib_inc_dirs,
         podofo_inc, podofo_lib, podofo_error, pyqt, OSX_SDK, NMAKE, QMAKE,
         msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
-        icu_lib_dirs)
+        icu_lib_dirs, win_ddk_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs,
+        zlib_libs, zlib_lib_dirs, zlib_inc_dirs, is64bit)
 MT
 isunix = islinux or isosx or isbsd
 
@@ -46,13 +47,19 @@ class Extension(object):
         self.ldflags = kwargs.get('ldflags', [])
         self.optional = kwargs.get('optional', False)
         self.needs_ddk = kwargs.get('needs_ddk', False)
+        of = kwargs.get('optimize_level', None)
+        if of is None:
+            of = '/Ox' if iswindows else '-O3'
+        else:
+            flag = '/O%d' if iswindows else '-O%d'
+            of = flag % of
+        self.cflags.insert(0, of)
+
+    def preflight(self, obj_dir, compiler, linker, builder, cflags, ldflags):
+        pass
 
 reflow_sources = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.cpp'))
 reflow_headers = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.h'))
-
-pdfreflow_libs = []
-if iswindows:
-    pdfreflow_libs = ['advapi32', 'User32', 'Gdi32', 'zlib']
 
 icu_libs = ['icudata', 'icui18n', 'icuuc', 'icuio']
 icu_cflags = []
@@ -61,7 +68,6 @@ if iswindows:
 if isosx:
     icu_libs = ['icucore']
     icu_cflags = ['-DU_DISABLE_RENAMING'] # Needed to use system libicucore.dylib
-
 
 extensions = [
 
@@ -119,12 +125,23 @@ extensions = [
                     'calibre/utils/lzx/mspack.h'],
             inc_dirs=['calibre/utils/lzx']),
 
-    Extension('fontconfig',
-        ['calibre/utils/fonts/fontconfig.c'],
-        inc_dirs = [fc_inc],
-        libraries=['fontconfig'],
-        lib_dirs=[fc_lib],
-        error=fc_error),
+    Extension('freetype',
+        ['calibre/utils/fonts/freetype.cpp'],
+        inc_dirs = ft_inc_dirs,
+        libraries=ft_libs,
+        lib_dirs=ft_lib_dirs),
+
+    Extension('woff',
+        ['calibre/utils/fonts/woff/main.c',
+         'calibre/utils/fonts/woff/woff.c'],
+        headers=[
+        'calibre/utils/fonts/woff/woff.h',
+        'calibre/utils/fonts/woff/woff-private.h'],
+        libraries=zlib_libs,
+        lib_dirs=zlib_lib_dirs,
+        inc_dirs=zlib_inc_dirs,
+        ),
+
 
     Extension('msdes',
                 ['calibre/utils/msdes/msdesmodule.c',
@@ -137,11 +154,19 @@ extensions = [
         ['calibre/ebooks/compression/palmdoc.c']),
 
     Extension('podofo',
-                    ['calibre/utils/podofo/podofo.cpp'],
+                    [
+                        'calibre/utils/podofo/utils.cpp',
+                        'calibre/utils/podofo/output.cpp',
+                        'calibre/utils/podofo/doc.cpp',
+                        'calibre/utils/podofo/outline.cpp',
+                        'calibre/utils/podofo/podofo.cpp',
+                    ],
+                    headers=[
+                        'calibre/utils/podofo/global.h',
+                    ],
                     libraries=['podofo'],
                     lib_dirs=[podofo_lib],
-                    inc_dirs=[podofo_inc],
-                    optional=True,
+                    inc_dirs=[podofo_inc, os.path.dirname(podofo_inc)],
                     error=podofo_error),
 
     Extension('pictureflow',
@@ -158,27 +183,88 @@ extensions = [
                 sip_files = ['calibre/gui2/progress_indicator/QProgressIndicator.sip']
                 ),
 
+    Extension('unrar',
+              ['unrar/%s.cpp'%(x.partition('.')[0]) for x in '''
+               rar.o strlist.o strfn.o pathfn.o savepos.o smallfn.o global.o file.o
+               filefn.o filcreat.o archive.o arcread.o unicode.o system.o
+               isnt.o crypt.o crc.o rawread.o encname.o resource.o match.o
+               timefn.o rdwrfn.o consio.o options.o ulinks.o errhnd.o rarvm.o
+               secpassword.o rijndael.o getbits.o sha1.o extinfo.o extract.o
+               volume.o list.o find.o unpack.o cmddata.o filestr.o scantree.o
+               '''.split()] + ['calibre/utils/unrar.cpp'],
+              inc_dirs=['unrar'],
+              cflags = [('/' if iswindows else '-') + x for x in (
+                  'DSILENT', 'DRARDLL', 'DUNRAR')] + (
+                  [] if iswindows else ['-D_FILE_OFFSET_BITS=64',
+                                        '-D_LARGEFILE_SOURCE']),
+              optimize_level=2,
+              libraries=['User32', 'Advapi32', 'kernel32', 'Shell32'] if iswindows else []
+              ),
+
     ]
 
 
 if iswindows:
-    extensions.append(Extension('winutil',
+    extensions.extend([
+        Extension('winutil',
                 ['calibre/utils/windows/winutil.c'],
                 libraries=['shell32', 'setupapi', 'wininet'],
                 cflags=['/X']
-                ))
+                ),
+        Extension('wpd',
+            [
+                'calibre/devices/mtp/windows/utils.cpp',
+                'calibre/devices/mtp/windows/device_enumeration.cpp',
+                'calibre/devices/mtp/windows/content_enumeration.cpp',
+                'calibre/devices/mtp/windows/device.cpp',
+                'calibre/devices/mtp/windows/wpd.cpp',
+            ],
+            headers=[
+                'calibre/devices/mtp/windows/global.h',
+            ],
+            libraries=['ole32', 'oleaut32', 'portabledeviceguids', 'user32'],
+            # needs_ddk=True,
+            cflags=['/X']
+            ),
+        Extension('winfonts',
+                ['calibre/utils/fonts/winfonts.cpp'],
+                libraries=['Gdi32', 'User32'],
+                cflags=['/X']
+                ),
+
+        ])
 
 if isosx:
     extensions.append(Extension('usbobserver',
                 ['calibre/devices/usbobserver/usbobserver.c'],
-                ldflags=['-framework', 'IOKit'])
+                ldflags=['-framework', 'CoreServices', '-framework', 'IOKit'])
             )
+
+if islinux or isosx:
+    extensions.append(Extension('libusb',
+        ['calibre/devices/libusb/libusb.c'],
+        libraries=['usb-1.0']
+    ))
+
+    extensions.append(Extension('libmtp',
+        [
+        'calibre/devices/mtp/unix/devices.c',
+        'calibre/devices/mtp/unix/libmtp.c'
+        ],
+        headers=[
+        'calibre/devices/mtp/unix/devices.h',
+        'calibre/devices/mtp/unix/upstream/music-players.h',
+        'calibre/devices/mtp/unix/upstream/device-flags.h',
+        ],
+        libraries=['mtp']
+    ))
 
 if isunix:
     cc = os.environ.get('CC', 'gcc')
     cxx = os.environ.get('CXX', 'g++')
     cflags = os.environ.get('OVERRIDE_CFLAGS',
-        '-O3 -Wall -DNDEBUG -fno-strict-aliasing -pipe')
+        # '-Wall -DNDEBUG -ggdb -fno-strict-aliasing -pipe')
+        '-Wall -DNDEBUG -fno-strict-aliasing -pipe')
     cflags = shlex.split(cflags) + ['-fPIC']
     ldflags = os.environ.get('OVERRIDE_LDFLAGS', '-Wall')
     ldflags = shlex.split(ldflags)
@@ -213,10 +299,12 @@ if isosx:
 
 if iswindows:
     cc = cxx = msvc.cc
-    cflags = '/c /nologo /Ox /MD /W3 /EHsc /DNDEBUG'.split()
+    cflags = '/c /nologo /MD /W3 /EHsc /DNDEBUG'.split()
     ldflags = '/DLL /nologo /INCREMENTAL:NO /NODEFAULTLIB:libcmt.lib'.split()
     #cflags = '/c /nologo /Ox /MD /W3 /EHsc /Zi'.split()
     #ldflags = '/DLL /nologo /INCREMENTAL:NO /DEBUG'.split()
+    if is64bit:
+        cflags.append('/GS-')
 
     for p in win_inc:
         cflags.append('-I'+p)
@@ -240,9 +328,6 @@ class Build(Command):
            CFLAGS  - Extra compiler flags
            LDFLAGS - Extra linker flags
 
-           FC_INC_DIR - fontconfig header files
-           FC_LIB_DIR - fontconfig library
-
            POPPLER_INC_DIR - poppler header files
            POPPLER_LIB_DIR - poppler-qt4 library
 
@@ -255,7 +340,7 @@ class Build(Command):
         ''')
 
     def add_options(self, parser):
-        choices = [e.name for e in extensions]+['all']
+        choices = [e.name for e in extensions]+['all', 'style']
         parser.add_option('-1', '--only', choices=choices, default='all',
                 help=('Build only the named extension. Available: '+
                     ', '.join(choices)+'. Default:%default'))
@@ -269,7 +354,8 @@ class Build(Command):
         self.obj_dir = os.path.join(os.path.dirname(SRC), 'build', 'objects')
         if not os.path.exists(self.obj_dir):
             os.makedirs(self.obj_dir)
-        self.build_style(self.j(self.SRC, 'calibre', 'plugins'))
+        if opts.only in {'all', 'style'}:
+            self.build_style(self.j(self.SRC, 'calibre', 'plugins'))
         for ext in extensions:
             if opts.only != 'all' and opts.only != ext.name:
                 continue
@@ -307,12 +393,13 @@ class Build(Command):
         compiler = cxx if ext.needs_cxx else cc
         linker = msvc.linker if iswindows else compiler
         objects = []
-        einc = self.inc_dirs_to_cflags(ext.inc_dirs)
         obj_dir = self.j(self.obj_dir, ext.name)
+        ext.preflight(obj_dir, compiler, linker, self, cflags, ldflags)
+        einc = self.inc_dirs_to_cflags(ext.inc_dirs)
         if ext.needs_ddk:
             ddk_flags = ['-I'+x for x in win_ddk]
-            i = [i for i in range(len(cflags)) if 'VC\\INCLUDE' in cflags[i]][0]
-            cflags[i+1:i+2] = ddk_flags
+            cflags.extend(ddk_flags)
+            ldflags.extend(['/LIBPATH:'+x for x in win_ddk_lib_dirs])
         if not os.path.exists(obj_dir):
             os.makedirs(obj_dir)
         for src in ext.sources:
@@ -329,7 +416,7 @@ class Build(Command):
         dest = self.dest(ext)
         elib = self.lib_dirs_to_ldflags(ext.lib_dirs)
         xlib = self.libraries_to_ldflags(ext.libraries)
-        if self.newer(dest, objects):
+        if self.newer(dest, objects+ext.extra_objs):
             print 'Linking', ext.name
             cmd = [linker]
             if iswindows:

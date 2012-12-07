@@ -3,20 +3,16 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Miscellaneous widgets used in the GUI
 '''
-import re, traceback, os
+import re, os
 
 from PyQt4.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
-                        QListWidgetItem, QTextCharFormat, QApplication,
-                        QSyntaxHighlighter, QCursor, QColor, QWidget,
-                        QPixmap, QSplitterHandle, QToolButton,
-                        QAbstractListModel, QVariant, Qt, SIGNAL, pyqtSignal,
-                        QRegExp, QSettings, QSize, QSplitter,
-                        QPainter, QLineEdit, QComboBox, QPen, QGraphicsScene,
-                        QMenu, QStringListModel, QCompleter, QStringList,
-                        QTimer, QRect, QFontDatabase, QGraphicsView)
+        QListWidgetItem, QTextCharFormat, QApplication, QSyntaxHighlighter,
+        QCursor, QColor, QWidget, QPixmap, QSplitterHandle, QToolButton,
+        QVariant, Qt, SIGNAL, pyqtSignal, QRegExp, QSize, QSplitter, QPainter,
+        QLineEdit, QComboBox, QPen, QGraphicsScene, QMenu, QStringListModel,
+        QCompleter, QStringList, QTimer, QRect, QGraphicsView, QByteArray)
 
-from calibre.constants import iswindows
-from calibre.gui2 import (NONE, error_dialog, pixmap_to_data, gprefs,
+from calibre.gui2 import (error_dialog, pixmap_to_data, gprefs,
         warning_dialog)
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
@@ -287,6 +283,7 @@ class ImageView(QWidget, ImageDropMixin): # {{{
         self.setMinimumSize(QSize(150, 200))
         ImageDropMixin.__init__(self)
         self.draw_border = True
+        self.show_size = False
 
     def setPixmap(self, pixmap):
         if not isinstance(pixmap, QPixmap):
@@ -309,6 +306,7 @@ class ImageView(QWidget, ImageDropMixin): # {{{
         if pmap.isNull():
             return
         w, h = pmap.width(), pmap.height()
+        ow, oh = w, h
         cw, ch = self.rect().width(), self.rect().height()
         scaled, nw, nh = fit_image(w, h, cw, ch)
         if scaled:
@@ -321,12 +319,22 @@ class ImageView(QWidget, ImageDropMixin): # {{{
         p = QPainter(self)
         p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
         p.drawPixmap(target, pmap)
-        pen = QPen()
-        pen.setWidth(self.BORDER_WIDTH)
-        p.setPen(pen)
         if self.draw_border:
+            pen = QPen()
+            pen.setWidth(self.BORDER_WIDTH)
+            p.setPen(pen)
             p.drawRect(target)
-        #p.drawRect(self.rect())
+        if self.show_size:
+            sztgt = target.adjusted(0, 0, 0, -4)
+            f = p.font()
+            f.setBold(True)
+            p.setFont(f)
+            sz = u'\u00a0%d x %d\u00a0'%(ow, oh)
+            flags = Qt.AlignBottom|Qt.AlignRight|Qt.TextSingleLine
+            szrect = p.boundingRect(sztgt, flags, sz)
+            p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))
+            p.setPen(QPen(QColor(255,255,255)))
+            p.drawText(sztgt, flags, sz)
         p.end()
 # }}}
 
@@ -348,46 +356,6 @@ class CoverView(QGraphicsView, ImageDropMixin): # {{{
         self.scene.addPixmap(pmap)
         self.setScene(self.scene)
 
-# }}}
-
-class FontFamilyModel(QAbstractListModel): # {{{
-
-    def __init__(self, *args):
-        QAbstractListModel.__init__(self, *args)
-        from calibre.utils.fonts import fontconfig
-        try:
-            self.families = fontconfig.find_font_families()
-        except:
-            self.families = []
-            print 'WARNING: Could not load fonts'
-            traceback.print_exc()
-        # Restrict to Qt families as Qt tends to crash
-        qt_families = set([unicode(x) for x in QFontDatabase().families()])
-        self.families = list(qt_families.intersection(set(self.families)))
-        self.families.sort()
-        self.families[:0] = [_('None')]
-        self.font = QFont('Verdana' if iswindows else 'sansserif')
-
-    def rowCount(self, *args):
-        return len(self.families)
-
-    def data(self, index, role):
-        try:
-            family = self.families[index.row()]
-        except:
-            traceback.print_exc()
-            return NONE
-        if role == Qt.DisplayRole:
-            return QVariant(family)
-        if role == Qt.FontRole:
-            # If a user chooses some non standard font as the interface font,
-            # rendering some font names causes Qt to crash, so return what is
-            # hopefully a "safe" font
-            return QVariant(self.font)
-        return NONE
-
-    def index_of(self, family):
-        return self.families.index(family.strip())
 # }}}
 
 # BasicList {{{
@@ -626,6 +594,9 @@ class HistoryLineEdit(QComboBox): # {{{
         self.setInsertPolicy(self.NoInsert)
         self.setMaxCount(10)
 
+    def setPlaceholderText(self, txt):
+        return self.lineEdit().setPlaceholderText(txt)
+
     @property
     def store_name(self):
         return 'lineedit_history_'+self._name
@@ -803,69 +774,29 @@ class PythonHighlighter(QSyntaxHighlighter): # {{{
     @classmethod
     def loadConfig(cls):
         Config = cls.Config
-        settings = QSettings()
-        def setDefaultString(name, default):
-            value = settings.value(name).toString()
-            if value.isEmpty():
-                value = default
-            Config[name] = value
 
         for name in ("window", "shell"):
-            Config["%swidth" % name] = settings.value("%swidth" % name,
-                    QVariant(QApplication.desktop() \
-                             .availableGeometry().width() / 2)).toInt()[0]
-            Config["%sheight" % name] = settings.value("%sheight" % name,
-                    QVariant(QApplication.desktop() \
-                             .availableGeometry().height() / 2)).toInt()[0]
-            Config["%sy" % name] = settings.value("%sy" % name,
-                    QVariant(0)).toInt()[0]
-        Config["toolbars"] = settings.value("toolbars").toByteArray()
-        Config["splitter"] = settings.value("splitter").toByteArray()
-        Config["shellx"] = settings.value("shellx", QVariant(0)).toInt()[0]
-        Config["windowx"] = settings.value("windowx", QVariant(QApplication \
-                .desktop().availableGeometry().width() / 2)).toInt()[0]
-        Config["remembergeometry"] = settings.value("remembergeometry",
-                QVariant(True)).toBool()
-        Config["startwithshell"] = settings.value("startwithshell",
-                QVariant(True)).toBool()
-        Config["showwindowinfo"] = settings.value("showwindowinfo",
-                QVariant(True)).toBool()
-        setDefaultString("shellstartup", """\
-    from __future__ import division
-    import codecs
-    import sys
-    sys.stdin = codecs.getreader("UTF8")(sys.stdin)
-    sys.stdout = codecs.getwriter("UTF8")(sys.stdout)""")
-        setDefaultString("newfile", """\
-    #!/usr/bin/env python
-
-    from __future__ import division
-
-    import sys
-    """)
-        Config["backupsuffix"] = settings.value("backupsuffix",
-                QVariant(".bak")).toString()
-        setDefaultString("beforeinput", "#>>>")
-        setDefaultString("beforeoutput", "#---")
-        Config["cwd"] = settings.value("cwd", QVariant(".")).toString()
-        Config["tooltipsize"] = settings.value("tooltipsize",
-                QVariant(150)).toInt()[0]
-        Config["maxlinestoscan"] = settings.value("maxlinestoscan",
-                QVariant(5000)).toInt()[0]
-        Config["pythondocpath"] = settings.value("pythondocpath",
-                QVariant("http://docs.python.org")).toString()
-        Config["autohidefinddialog"] = settings.value("autohidefinddialog",
-                QVariant(True)).toBool()
-        Config["findcasesensitive"] = settings.value("findcasesensitive",
-                QVariant(False)).toBool()
-        Config["findwholewords"] = settings.value("findwholewords",
-                QVariant(False)).toBool()
-        Config["tabwidth"] = settings.value("tabwidth",
-                QVariant(4)).toInt()[0]
-        Config["fontfamily"] = settings.value("fontfamily",
-                QVariant("monospace")).toString()
-        Config["fontsize"] = settings.value("fontsize",
-                QVariant(10)).toInt()[0]
+            Config["%swidth" % name] = QVariant(QApplication.desktop().availableGeometry().width() / 2).toInt()[0]
+            Config["%sheight" % name] = QVariant(QApplication.desktop().availableGeometry().height() / 2).toInt()[0]
+            Config["%sy" % name] = QVariant(0).toInt()[0]
+        Config["toolbars"] = QByteArray(b'')
+        Config["splitter"] = QByteArray(b'')
+        Config["shellx"] = QVariant(0).toInt()[0]
+        Config["windowx"] = QVariant(QApplication.desktop().availableGeometry().width() / 2).toInt()[0]
+        Config["remembergeometry"] = QVariant(True).toBool()
+        Config["startwithshell"] = QVariant(True).toBool()
+        Config["showwindowinfo"] = QVariant(True).toBool()
+        Config["backupsuffix"] = QVariant(".bak").toString()
+        Config["cwd"]  = QVariant(".").toString()
+        Config["tooltipsize"] = QVariant(150).toInt()[0]
+        Config["maxlinestoscan"] = QVariant(5000).toInt()[0]
+        Config["pythondocpath"] = QVariant("http://docs.python.org").toString()
+        Config["autohidefinddialog"] = QVariant(True).toBool()
+        Config["findcasesensitive"] = QVariant(False).toBool()
+        Config["findwholewords"] = QVariant(False).toBool()
+        Config["tabwidth"] = QVariant(4).toInt()[0]
+        Config["fontfamily"] = QVariant("monospace").toString()
+        Config["fontsize"] = QVariant(10).toInt()[0]
         for name, color, bold, italic in (
                 ("normal", "#000000", False, False),
                 ("keyword", "#000080", True, False),
@@ -877,12 +808,9 @@ class PythonHighlighter(QSyntaxHighlighter): # {{{
                 ("number", "#924900", False, False),
                 ("error", "#FF0000", False, False),
                 ("pyqt", "#50621A", False, False)):
-            Config["%sfontcolor" % name] = settings.value(
-                    "%sfontcolor" % name, QVariant(color)).toString()
-            Config["%sfontbold" % name] = settings.value(
-                    "%sfontbold" % name, QVariant(bold)).toBool()
-            Config["%sfontitalic" % name] = settings.value(
-                    "%sfontitalic" % name, QVariant(italic)).toBool()
+            Config["%sfontcolor" % name] = QVariant(color).toString()
+            Config["%sfontbold" % name] = QVariant(bold).toBool()
+            Config["%sfontitalic" % name] = QVariant(italic).toBool()
 
 
     @classmethod

@@ -18,6 +18,7 @@ from calibre.customize.ui import (initialized_plugins, is_disabled, enable_plugi
                                  remove_plugin, NameConflict)
 from calibre.gui2 import (NONE, error_dialog, info_dialog, choose_files,
         question_dialog, gprefs)
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.icu import lower
 from calibre.constants import iswindows
@@ -29,7 +30,7 @@ class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
         SearchQueryParser.__init__(self, ['all'])
         self.show_only_user_plugins = show_only_user_plugins
         self.icon = QVariant(QIcon(I('plugins.png')))
-        p = QIcon(self.icon).pixmap(32, 32, QIcon.Disabled, QIcon.On)
+        p = QIcon(self.icon).pixmap(64, 64, QIcon.Disabled, QIcon.On)
         self.disabled_icon = QVariant(QIcon(p))
         self._p = p
         self.populate()
@@ -194,17 +195,20 @@ class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
                         dict(plugin_type=category, plugins=_('plugins')))
         else:
             plugin = self.index_to_plugin(index)
+            disabled = is_disabled(plugin)
             if role == Qt.DisplayRole:
                 ver = '.'.join(map(str, plugin.version))
                 desc = '\n'.join(textwrap.wrap(plugin.description, 100))
                 ans='%s (%s) %s %s\n%s'%(plugin.name, ver, _('by'), plugin.author, desc)
                 c = plugin_customization(plugin)
-                if c:
+                if c and not disabled:
                     ans += _('\nCustomization: ')+c
+                if disabled:
+                    ans += _('\n\nThis plugin has been disabled')
                 return QVariant(ans)
             if role == Qt.DecorationRole:
-                return self.disabled_icon if is_disabled(plugin) else self.icon
-            if role == Qt.ForegroundRole and is_disabled(plugin):
+                return self.disabled_icon if disabled else self.icon
+            if role == Qt.ForegroundRole and disabled:
                 return QVariant(QBrush(Qt.gray))
             if role == Qt.UserRole:
                 return plugin
@@ -360,6 +364,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 if plugin.do_user_config(self.gui):
                     self._plugin_model.refresh_plugin(plugin)
             elif op == 'remove':
+                if not confirm('<p>' +
+                    _('Are you sure you want to remove the plugin: %s?')%
+                    '<b>{0}</b>'.format(plugin.name),
+                    'confirm_plugin_removal_msg', parent=self):
+                    return
+
                 msg = _('Plugin <b>{0}</b> successfully removed').format(plugin.name)
                 if remove_plugin(plugin):
                     self._plugin_model.populate()
@@ -384,6 +394,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self._plugin_model.populate()
         self._plugin_model.reset()
         self.changed_signal.emit()
+        if d.do_restart:
+            self.restart_now.emit()
 
     def reload_store_plugins(self):
         self.gui.load_store_plugins()
@@ -398,7 +410,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             return
 
         all_locations = OrderedDict(ConfigWidget.LOCATIONS)
-        plugin_action = plugin.load_actual_plugin(self.gui)
+        try:
+            plugin_action = plugin.load_actual_plugin(self.gui)
+        except:
+            # Broken plugin, fails to initialize. Given that, it's probably
+            # already configured, so we can just quit.
+            return
         installed_actions = OrderedDict([
             (key, list(gprefs.get('action-layout-'+key, [])))
             for key in all_locations])

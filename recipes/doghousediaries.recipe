@@ -1,0 +1,52 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010-2012, NiLuJe <niluje at ak-team.com>'
+
+'''
+Fetch DoghouseDiaries.
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class DoghouseDiaries(BasicNewsRecipe):
+    title = 'Doghouse Diaries'
+    description = 'A webcomic.'
+    __author__ = 'NiLuJe'
+    language = 'en'
+
+    use_embedded_content = False
+    # 14 comics per fetch (not really days... but we can't easily get the date of individual comics, short of parsing each one...)
+    oldest_article = 14
+
+    cover_url = 'http://www.thedoghousediaries.com/logos/logo3.png'
+    masthead_url = 'http://www.thedoghousediaries.com/logos/logo3.png'
+
+    keep_only_tags = [dict(name='img', attrs={'class': re.compile("comic-item*")}), dict(name='h1'), dict(name='div', attrs={'class':'entry'}), dict(name='p', id='alttext')]
+    remove_tags = [dict(name='div', attrs={'class':'pin-it-btn-wrapper'}), dict(name='span'), dict(name='div', id='wp_fb_like_button')]
+    remove_attributes = ['width', 'height']
+    no_stylesheets = True
+
+    # Turn image bubblehelp into a paragraph (NOTE: We run before the remove_tags cleanup, so we need to make sure we only parse the comic-item img, not the pinterest one pulled by the entry div)
+    preprocess_regexps = [
+        (re.compile(r'(<img.*src="http://thedoghousediaries.com/comics/.*title=")([^"]+)(".*>)'),
+         lambda m: '%s%s<p id="alttext"><strong>%s</strong></p>' % (m.group(1), m.group(3), m.group(2)))
+    ]
+
+    def parse_index(self):
+        INDEX = 'http://www.thedoghousediaries.com/'
+
+        soup = self.index_to_soup(INDEX)
+        articles = []
+        # Since the feed sucks, and there's no real archive, we use the 'Quick Archive' thingie, but we can't get the date from here, so stop after 14 comics...
+        for item in soup.findAll('option', {}, True, None, self.oldest_article+1):
+            # Skip the quick archive itself
+            if ( item['value'] != '0' ):
+                articles.append({
+                    'title': self.tag_to_string(item).encode('UTF-8'),
+                    'url': item['value'],
+                    'description': '',
+                    'content': '',
+                })
+
+        return [('Doghouse Diaries', articles)]
+

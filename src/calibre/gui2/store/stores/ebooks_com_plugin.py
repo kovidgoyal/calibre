@@ -64,11 +64,11 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
                     continue
                 id = mo.group()
 
-                cover_url = ''.join(data.xpath('.//div[@class="img"]//img/@src'))
+                cover_url = ''.join(data.xpath('.//div[contains(@class, "img")]//img/@src'))
 
                 title = ''.join(data.xpath(
                     'descendant::span[@class="book-title"]/a/text()')).strip()
-                author = ''.join(data.xpath(
+                author = ', '.join(data.xpath(
                     'descendant::span[@class="author"]/a/text()')).strip()
                 if not title or not author:
                     continue
@@ -97,7 +97,7 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
         with closing(br.open(url + id, timeout=timeout)) as nf:
             pdoc = html.fromstring(nf.read())
 
-            price_l = pdoc.xpath('//span[@class="price"]/text()')
+            price_l = pdoc.xpath('//div[@class="book-info"]/div[@class="price"]/text()')
             if price_l:
                 price = price_l[0]
             search_result.price = price.strip()

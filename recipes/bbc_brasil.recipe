@@ -1,0 +1,594 @@
+##
+## Title:        BBC News, Sport, and Blog Calibre Recipe
+## Contact:      mattst - jmstanfield@gmail.com
+##
+## License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
+## Copyright:    mattst - jmstanfield@gmail.com
+##
+## Written:      November 2011
+## Last Edited:  2011-11-19
+##
+
+__license__     = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
+__copyright__   = 'mattst - jmstanfield@gmail.com'
+
+
+'''
+BBC News, Sport, and Blog Calibre Recipe
+'''
+
+# Import the regular expressions module.
+import re
+
+# Import the BasicNewsRecipe class which this class extends.
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class BBCBrasilRecipe(BasicNewsRecipe):
+
+    #
+    #    **** IMPORTANT USERS READ ME ****
+    #
+    #  First select the feeds you want then scroll down below the feeds list
+    #  and select the values you want for the other user preferences, like
+    #  oldest_article and such like.
+    #
+    #
+    #  Select the BBC rss feeds which you want in your ebook.
+    #  Selected feed have NO '#' at their start, de-selected feeds begin with a '#'.
+    #
+    #  Eg.  ("News Home", "http://feeds.bbci.co.uk/... - include feed.
+    #  Eg. #("News Home", "http://feeds.bbci.co.uk/... - do not include feed.
+    #
+    # There are 68 feeds below which constitute the bulk of the available rss
+    # feeds on the BBC web site. These include 5 blogs by editors and
+    # correspondants, 16 sports feeds, 15 'sub' regional feeds (Eg. North West
+    # Wales, Scotland Business), and 7 Welsh language feeds.
+    #
+    # Some of the feeds are low volume (Eg. blogs), or very low volume (Eg. Click)
+    # so if "oldest_article = 1.5" (only articles published in the last 36 hours)
+    # you may get some 'empty feeds' which will not then be included in the ebook.
+    #
+    # The 15 feeds currently selected below are simply my default ones.
+    #
+    # Note: With all 68 feeds selected, oldest_article set to 2,
+    # max_articles_per_feed set to 100, and simultaneous_downloads set to 10,
+    # the ebook creation took 29 minutes on my speedy 100 mbps net connection,
+    # fairly high-end desktop PC running Linux (Ubuntu Lucid-Lynx).
+    # More realistically with 15 feeds selected, oldest_article set to 1.5,
+    # max_articles_per_feed set to 100, and simultaneous_downloads set to 20,
+    # it took 6 minutes. If that's too slow increase 'simultaneous_downloads'.
+    #
+    # Select / de-select the feeds you want in your ebook.
+    #
+    feeds = [
+                      (u'Primeira P\xe1gina', u'http://www.bbc.co.uk/portuguese/index.xml'),
+                      (u'\xdaltimas Not\xedcias', u'http://www.bbc.co.uk/portuguese/ultimas_noticias/index.xml'),
+                      (u'Internacional', u'http://www.bbc.co.uk/portuguese/topicos/internacional/index.xml'),
+                      (u'Brasil', u'http://www.bbc.co.uk/portuguese/topicos/brasil/index.xml'),
+                      (u'Am\xe9rica Latina', u'http://www.bbc.co.uk/portuguese/topicos/america_latina/index.xml'),
+                      (u'Economia', u'http://www.bbc.co.uk/portuguese/topicos/economia/index.xml'),
+                      (u'Sa\xfade', u'http://www.bbc.co.uk/portuguese/topicos/saude/index.xml'),
+                      (u'Ci\xeancia e Tecnologia', u'http://www.bbc.co.uk/portuguese/topicos/ciencia_e_tecnologia/index.xml'),
+                      (u'Cultura', u'http://www.bbc.co.uk/portuguese/topicos/cultura/index.xml'),
+                      (u'V\xeddeos e Fotos', u'http://www.bbc.co.uk/portuguese/videos_e_fotos/index.xml'),
+                      (u'Especiais', u'http://www.bbc.co.uk/portuguese/especiais/index.xml')
+            ]
+
+
+    #    **** SELECT YOUR USER PREFERENCES ****
+
+    # Title to use for the ebook.
+    #
+    title = 'BBC Brasil'
+
+    # A brief description for the ebook.
+    #
+    description = u'Not\xedcias do Brasil e do mundo pela British Broadcasting Corporation'
+
+    # The max number of articles which may be downloaded from each feed.
+    # I've never seen more than about 70 articles in a single feed in the
+    # BBC feeds.
+    #
+    max_articles_per_feed = 100
+
+    # The max age of articles which may be downloaded from each feed. This is
+    # specified in days - note fractions of days are allowed, Eg. 2.5 (2 and a
+    # half days). My default of 1.5 days is the last 36 hours, the point at
+    # which I've decided 'news' becomes 'old news', but be warned this is not
+    # so good for the blogs, technology, magazine, etc., and sports feeds.
+    # You may wish to extend this to 2-5 but watch out ebook creation time will
+    # increase as well. Setting this to 30 will get everything (AFAICT) as long
+    # as max_articles_per_feed remains set high (except for 'Click' which is
+    # v. low volume and its currently oldest article is 4th Feb 2011).
+    #
+    oldest_article = 1.5
+
+    # Number of simultaneous downloads. 20 is consistantly working fine on the
+    # BBC News feeds with no problems. Speeds things up from the defualt of 5.
+    # If you have a lot of feeds and/or have increased oldest_article above 2
+    # then you may wish to try increasing simultaneous_downloads to 25-30,
+    # Or, of course, if you are in a hurry. [I've not tried beyond 20.]
+    #
+    simultaneous_downloads = 20
+
+    # Timeout for fetching files from the server in seconds. The default of
+    # 120 seconds, seems somewhat excessive.
+    #
+    timeout = 30
+
+    # The format string for the date shown on the ebook's first page.
+    # List of all values: http://docs.python.org/library/time.html
+    # Default in news.py has a leading space so that's mirrored here.
+    # As with 'feeds' select/de-select by adding/removing the initial '#',
+    # only one timefmt should be selected, here's a few to choose from.
+    #
+    timefmt = ' [%a, %d %b %Y]'              # [Fri, 14 Nov 2011] (Calibre default)
+    #timefmt = ' [%a, %d %b %Y %H:%M]'       # [Fri, 14 Nov 2011 18:30]
+    #timefmt = ' [%a, %d %b %Y %I:%M %p]'    # [Fri, 14 Nov 2011 06:30 PM]
+    #timefmt = ' [%d %b %Y]'                 # [14 Nov 2011]
+    #timefmt = ' [%d %b %Y %H:%M]'           # [14 Nov 2011 18.30]
+    #timefmt = ' [%Y-%m-%d]'                 # [2011-11-14]
+    #timefmt = ' [%Y-%m-%d-%H-%M]'           # [2011-11-14-18-30]
+
+
+
+    #
+    #    **** IMPORTANT ****
+    #
+    #    DO NOT EDIT BELOW HERE UNLESS YOU KNOW WHAT YOU ARE DOING.
+    #
+    #    DO NOT EDIT BELOW HERE UNLESS YOU KNOW WHAT YOU ARE DOING.
+    #
+    #    I MEAN IT, YES I DO, ABSOLUTELY, AT YOU OWN RISK. :)
+    #
+    #    **** IMPORTANT ****
+    #
+
+
+
+    # Author of this recipe.
+    __author__ = 'Carlos Laviola'
+
+    language = 'pt_BR'
+
+    # Set tags.
+    tags = 'news, sport, blog'
+
+    # Set publisher and publication type.
+    publisher = 'BBC'
+    publication_type = 'newspaper'
+
+    # Disable stylesheets from site.
+    no_stylesheets = True
+
+    # Specifies an override encoding for sites that have an incorrect charset
+    # specified. Default of 'None' says to auto-detect. Some other BBC recipes
+    # use 'utf8', which works fine (so use that if necessary) but auto-detecting
+    # with None is working fine, so stick with that for robustness.
+    encoding = None
+
+    # Sets whether a feed has full articles embedded in it. The BBC feeds do not.
+    use_embedded_content = False
+
+    # Removes empty feeds - why keep them!?
+    remove_empty_feeds = True
+
+    # Create a custom title which fits nicely in the Kindle title list.
+    # Requires "import time" above class declaration, and replacing
+    # title with custom_title in conversion_options (right column only).
+    # Example of string below: "BBC News - 14 Nov 2011"
+    #
+    # custom_title = "BBC News - " + time.strftime('%d %b %Y')
+
+    '''
+    # Conversion options for advanced users, but don't forget to comment out the
+    # current conversion_options below. Avoid setting 'linearize_tables' as that
+    # plays havoc with the 'old style' table based pages.
+    #
+    conversion_options = { 'title'       : title,
+                           'comments'    : description,
+                           'tags'        : tags,
+                           'language'    : language,
+                           'publisher'   : publisher,
+                           'authors'     : publisher,
+                           'smarten_punctuation' : True
+                         }
+    '''
+
+    conversion_options = { 'smarten_punctuation' : True }
+
+    # Specify extra CSS - overrides ALL other CSS (IE. Added last).
+    extra_css = 'body { font-family: verdana, helvetica, sans-serif; } \
+                 .introduction, .first { font-weight: bold; } \
+                 .cross-head { font-weight: bold; font-size: 125%; } \
+                 .cap, .caption { display: block; font-size: 80%; font-style: italic; } \
+                 .cap, .caption, .caption img, .caption span { display: block; text-align: center; margin: 5px auto; } \
+                 .byl, .byd, .byline img, .byline-name, .byline-title, .author-name, .author-position, \
+                    .correspondent-portrait img, .byline-lead-in, .name, .role, .bbc-role { display: block; \
+                    text-align: center; font-size: 80%; font-style: italic; margin: 1px auto; } \
+                 .story-date, .published, .datestamp { font-size: 80%; } \
+                 table { width: 100%; } \
+                 td img { display: block; margin: 5px auto; } \
+                 ul { padding-top: 10px; } \
+                 ol { padding-top: 10px; } \
+                 li { padding-top: 5px; padding-bottom: 5px; } \
+                 h1 { text-align: center; font-size: 175%; font-weight: bold; } \
+                 h2 { text-align: center; font-size: 150%; font-weight: bold; } \
+                 h3 { text-align: center; font-size: 125%; font-weight: bold; } \
+                 h4, h5, h6 { text-align: center; font-size: 100%; font-weight: bold; }'
+
+    # Remove various tag attributes to improve the look of the ebook pages.
+    remove_attributes = [ 'border', 'cellspacing', 'align', 'cellpadding', 'colspan',
+                          'valign', 'vspace', 'hspace', 'alt', 'width', 'height' ]
+
+    # Remove the (admittedly rarely used) line breaks, "<br />", which sometimes
+    # cause a section of the ebook to start in an unsightly fashion or, more
+    # frequently, a "<br />" will muck up the formatting of a correspondant's byline.
+    # "<br />" and "<br clear/>" are far more frequently used on the table formatted
+    # style of pages, and really spoil the look of the ebook pages.
+    preprocess_regexps     = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
+                              (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: '')]
+
+
+    # Create regular expressions for tag keeping and removal to make the matches more
+    # robust against minor changes and errors in the HTML, Eg. double spaces, leading
+    # and trailing spaces, missing hyphens, and such like.
+    # Python regular expression ('re' class) page: http://docs.python.org/library/re.html
+
+    # ***************************************
+    # Regular expressions for keep_only_tags:
+    # ***************************************
+
+    # The BBC News HTML pages use variants of 'storybody' to denote the section of a HTML
+    # page which contains the main text of the article. Match storybody variants: 'storybody',
+    # 'story-body', 'story body','storybody ', etc.
+    storybody_reg_exp = '^.*story[_ -]*body.*$'
+
+    # The BBC sport and 'newsbeat' (features) HTML pages use 'blq_content' to hold the title
+    # and published date. This is one level above the usual news pages which have the title
+    # and date within 'story-body'. This is annoying since 'blq_content' must also be kept,
+    # resulting in a lot of extra things to be removed by remove_tags.
+    blq_content_reg_exp = '^.*blq[_ -]*content.*$'
+
+    # The BBC has an alternative page design structure, which I suspect is an out-of-date
+    # design but which is still used in some articles, Eg. 'Click' (technology), 'FastTrack'
+    # (travel), and in some sport pages. These alternative pages are table based (which is
+    # why I think they are an out-of-date design) and account for -I'm guesstimaking- less
+    # than 1% of all articles. They use a table class 'storycontent' to hold the article
+    # and like blq_content (above) have required lots of extra removal by remove_tags.
+    story_content_reg_exp = '^.*story[_ -]*content.*$'
+
+    # Keep the sections of the HTML which match the list below. The HTML page created by
+    # Calibre will fill <body> with those sections which are matched. Note that the
+    # blq_content_reg_exp must be listed before storybody_reg_exp in keep_only_tags due to
+    # it being the parent of storybody_reg_exp, that is to say the div class/id 'story-body'
+    # will be inside div class/id 'blq_content' in the HTML (if 'blq_content' is there at
+    # all). If they are the other way around in keep_only_tags then blq_content_reg_exp
+    # will end up being discarded.
+    keep_only_tags = [ dict(name='table', attrs={'class':re.compile(story_content_reg_exp, re.IGNORECASE)}),
+                       dict(name='div',   attrs={'class':re.compile(blq_content_reg_exp, re.IGNORECASE)}),
+                       dict(name='div',   attrs={'id':re.compile(blq_content_reg_exp, re.IGNORECASE)}),
+                       dict(name='div',   attrs={'class':re.compile(storybody_reg_exp, re.IGNORECASE)}),
+                       dict(name='div',   attrs={'id':re.compile(storybody_reg_exp, re.IGNORECASE)}) ]
+
+    # ************************************
+    # Regular expressions for remove_tags:
+    # ************************************
+
+    # Regular expression to remove share-help and variant tags. The share-help class
+    # is used by the site for a variety of 'sharing' type links, Eg. Facebook, delicious,
+    # twitter, email. Removed to avoid page clutter.
+    share_help_reg_exp = '^.*share[_ -]*help.*$'
+
+    # Regular expression to remove embedded-hyper and variant tags. This class is used to
+    # display links to other BBC News articles on the same/similar subject.
+    embedded_hyper_reg_exp = '^.*embed*ed[_ -]*hyper.*$'
+
+    # Regular expression to remove hypertabs and variant tags. This class is used to
+    # display a tab bar at the top of an article which allows the user to switch to
+    # an article (viewed on the same page) providing further info., 'in depth' analysis,
+    # an editorial, a correspondant's blog entry, and such like. The ability to handle
+    # a tab bar of this nature is currently beyond the scope of this recipe and
+    # possibly of Calibre itself (not sure about that - TO DO - check!).
+    hypertabs_reg_exp = '^.*hyper[_ -]*tabs.*$'
+
+    # Regular expression to remove story-feature and variant tags. Eg. 'story-feature',
+    # 'story-feature related narrow', 'story-feature wide', 'story-feature narrow'.
+    # This class is used to add additional info. boxes, or small lists, outside of
+    # the main story. TO DO: Work out a way to incorporate these neatly.
+    story_feature_reg_exp = '^.*story[_ -]*feature.*$'
+
+    # Regular expression to remove video and variant tags, Eg. 'videoInStoryB',
+    # 'videoInStoryC'. This class is used to embed video.
+    video_reg_exp = '^.*video.*$'
+
+    # Regular expression to remove audio and variant tags, Eg. 'audioInStoryD'.
+    # This class is used to embed audio.
+    audio_reg_exp = '^.*audio.*$'
+
+    # Regular expression to remove pictureGallery and variant tags, Eg. 'pictureGallery'.
+    # This class is used to embed a photo slideshow. See also 'slideshow' below.
+    picture_gallery_reg_exp = '^.*picture.*$'
+
+    # Regular expression to remove slideshow and variant tags, Eg. 'dslideshow-enclosure'.
+    # This class is used to embed a slideshow (not necessarily photo) but both
+    # 'slideshow' and 'pictureGallery' are used for slideshows.
+    slideshow_reg_exp = '^.*slide[_ -]*show.*$'
+
+    # Regular expression to remove social-links and variant tags. This class is used to
+    # display links to a BBC bloggers main page, used in various columnist's blogs
+    # (Eg. Nick Robinson, Robert Preston).
+    social_links_reg_exp = '^.*social[_ -]*links.*$'
+
+    # Regular expression to remove quote and (multi) variant tags, Eg. 'quote',
+    # 'endquote', 'quote-credit', 'quote-credit-title', etc. These are usually
+    # removed by 'story-feature' removal (as they are usually within them), but
+    # not always. The quotation removed is always (AFAICT) in the article text
+    # as well but a 2nd copy is placed in a quote tag to draw attention to it.
+    # The quote class tags may or may not appear in div's.
+    quote_reg_exp = '^.*quote.*$'
+
+    # Regular expression to remove hidden and variant tags, Eg. 'hidden'.
+    # The purpose of these is unclear, they seem to be an internal link to a
+    # section within the article, but the text of the link (Eg. 'Continue reading
+    # the main story') never seems to be displayed anyway. Removed to avoid clutter.
+    # The hidden class tags may or may not appear in div's.
+    hidden_reg_exp = '^.*hidden.*$'
+
+    # Regular expression to remove comment and variant tags, Eg. 'comment-introduction'.
+    # Used on the site to display text about registered users entering comments.
+    comment_reg_exp = '^.*comment.*$'
+
+    # Regular expression to remove form and variant tags, Eg. 'comment-form'.
+    # Used on the site to allow registered BBC users to fill in forms, typically
+    # for entering comments about an article.
+    form_reg_exp = '^.*form.*$'
+
+    # Extra things to remove due to the addition of 'blq_content' in keep_only_tags.
+
+    #<div class="story-actions"> Used on sports pages for 'email' and 'print'.
+    story_actions_reg_exp = '^.*story[_ -]*actions.*$'
+
+    #<div class="bookmark-list"> Used on sports pages instead of 'share-help' (for
+    # social networking links).
+    bookmark_list_reg_exp = '^.*bookmark[_ -]*list.*$'
+
+    #<div id="secondary-content" class="content-group">
+    # NOTE: Don't remove class="content-group" that is needed.
+    # Used on sports pages to link to 'similar stories'.
+    secondary_content_reg_exp = '^.*secondary[_ -]*content.*$'
+
+    #<div id="featured-content" class="content-group">
+    # NOTE: Don't remove class="content-group" that is needed.
+    # Used on sports pages to link to pages like 'tables', 'fixtures', etc.
+    featured_content_reg_exp = '^.*featured[_ -]*content.*$'
+
+    #<div id="navigation">
+    # Used on sports pages to link to pages like 'tables', 'fixtures', etc.
+    # Used sometimes instead of "featured-content" above.
+    navigation_reg_exp = '^.*navigation.*$'
+
+    #<a class="skip" href="#blq-container-inner">Skip to top</a>
+    # Used on sports pages to link to the top of the page.
+    skip_reg_exp = '^.*skip.*$'
+
+    # Extra things to remove due to the addition of 'storycontent' in keep_only_tags,
+    # which are the alterative table design based pages. The purpose of some of these
+    # is not entirely clear from the pages (which are a total mess!).
+
+    # Remove mapping based tags, Eg. <map id="world_map">
+    # The dynamic maps don't seem to work during ebook creation. TO DO: Investigate.
+    map_reg_exp = '^.*map.*$'
+
+    # Remove social bookmarking variation, called 'socialBookMarks'.
+    social_bookmarks_reg_exp = '^.*social[_ -]*bookmarks.*$'
+
+    # Remove page navigation tools, like 'search', 'email', 'print', called 'blq-mast'.
+    blq_mast_reg_exp = '^.*blq[_ -]*mast.*$'
+
+    # Remove 'sharesb', I think this is a generic 'sharing' class. It seems to appear
+    # alongside 'socialBookMarks' whenever that appears. I am removing it as well
+    # under the assumption that it can appear alone as well.
+    sharesb_reg_exp = '^.*sharesb.*$'
+
+    # Remove class 'o'. The worst named user created css class of all time. The creator
+    # should immediately be fired. I've seen it used to hold nothing at all but with
+    # 20 or so empty lines in it. Also to hold a single link to another article.
+    # Whatever it was designed to do it is not wanted by this recipe. Exact match only.
+    o_reg_exp = '^o$'
+
+    # Remove 'promotopbg' and 'promobottombg', link lists. Have decided to
+    # use two reg expressions to make removing this (and variants) robust.
+    promo_top_reg_exp = '^.*promotopbg.*$'
+    promo_bottom_reg_exp = '^.*promobottombg.*$'
+
+    # Remove 'nlp', provides heading for link lists. Requires an exact match due to
+    # risk of matching those letters in something needed, unless I see a variation
+    # of 'nlp' used at a later date.
+    nlp_reg_exp = '^nlp$'
+
+    # Remove 'mva', provides embedded floating content of various types. Variant 'mvb'
+    # has also now been seen. Requires an exact match of 'mva' or 'mvb' due to risk of
+    # matching those letters in something needed.
+    mva_or_mvb_reg_exp = '^mv[ab]$'
+
+    # Remove 'mvtb', seems to be page navigation tools, like 'blq-mast'.
+    mvtb_reg_exp = '^mvtb$'
+
+    # Remove 'blq-toplink', class to provide a link to the top of the page.
+    blq_toplink_reg_exp = '^.*blq[_ -]*top[_ -]*link.*$'
+
+    # Remove 'products and services' links, Eg. desktop tools, alerts, and so on.
+    # Eg. Class="servicev4 ukfs_services" - what a mess of a name. Have decided to
+    # use two reg expressions to make removing this (and variants) robust.
+    prods_services_01_reg_exp = '^.*servicev4.*$'
+    prods_services_02_reg_exp = '^.*ukfs[_ -]*services.*$'
+
+    # Remove -what I think is- some kind of navigation tools helper class, though I am
+    # not sure, it's called: 'blq-rst blq-new-nav'. What I do know is it pops up
+    # frequently and it is not wanted. Have decided to use two reg expressions to make
+    # removing this (and variants) robust.
+    blq_misc_01_reg_exp = '^.*blq[_ -]*rst.*$'
+    blq_misc_02_reg_exp = '^.*blq[_ -]*new[_ -]*nav.*$'
+
+    # Remove 'puffbox' - this may only appear inside 'storyextra', so it may not
+    # need removing - I have no clue what it does other than it contains links.
+    # Whatever it is - it is not part of the article and is not wanted.
+    puffbox_reg_exp = '^.*puffbox.*$'
+
+    # Remove 'sibtbg' and 'sibtbgf' - some kind of table formatting classes.
+    sibtbg_reg_exp = '^.*sibtbg.*$'
+
+    # Remove 'storyextra' - links to relevant articles and external sites.
+    storyextra_reg_exp = '^.*story[_ -]*extra.*$'
+
+
+    remove_tags = [ dict(name='div',  attrs={'class':re.compile(story_feature_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(share_help_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(embedded_hyper_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(hypertabs_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(video_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(audio_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(picture_gallery_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(slideshow_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(quote_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(hidden_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(comment_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(story_actions_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(bookmark_list_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'id':re.compile(secondary_content_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'id':re.compile(featured_content_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'id':re.compile(navigation_reg_exp, re.IGNORECASE)}),
+                    dict(name='form', attrs={'id':re.compile(form_reg_exp, re.IGNORECASE)}),
+                    dict(attrs={'class':re.compile(quote_reg_exp, re.IGNORECASE)}),
+                    dict(attrs={'class':re.compile(hidden_reg_exp, re.IGNORECASE)}),
+                    dict(attrs={'class':re.compile(social_links_reg_exp, re.IGNORECASE)}),
+                    dict(attrs={'class':re.compile(comment_reg_exp, re.IGNORECASE)}),
+                    dict(attrs={'class':re.compile(skip_reg_exp, re.IGNORECASE)}),
+                    dict(name='map', attrs={'id':re.compile(map_reg_exp, re.IGNORECASE)}),
+                    dict(name='map', attrs={'name':re.compile(map_reg_exp, re.IGNORECASE)}),
+                    dict(name='div', attrs={'id':re.compile(social_bookmarks_reg_exp, re.IGNORECASE)}),
+                    dict(name='div', attrs={'id':re.compile(blq_mast_reg_exp, re.IGNORECASE)}),
+                    dict(name='div', attrs={'class':re.compile(sharesb_reg_exp, re.IGNORECASE)}),
+                    dict(name='div', attrs={'class':re.compile(o_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(promo_top_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(promo_bottom_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(nlp_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(mva_or_mvb_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(mvtb_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(blq_toplink_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(prods_services_01_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(prods_services_02_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(blq_misc_01_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(blq_misc_02_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':re.compile(puffbox_reg_exp, re.IGNORECASE)}),
+                    dict(attrs={'class':re.compile(sibtbg_reg_exp, re.IGNORECASE)}),
+                    dict(attrs={'class':re.compile(storyextra_reg_exp, re.IGNORECASE)}),
+                    dict(name='div',  attrs={'class':'tools-container'}),
+                    dict(name='div',  attrs={'class':'tools-container-end'}),
+                    dict(name='div',  attrs={'class':'g-block story-body contextual-links'}),
+                    dict(name='div',  attrs={'class':' g-w11 sidebar'})
+                  ]
+
+    # Uses url to create and return the 'printer friendly' version of the url.
+    # In other words the 'print this page' address of the page.
+    #
+    # There are 3 types of urls used in the BBC site's rss feeds. There is just
+    # 1 type for the standard news while there are 2 used for sports feed urls.
+    # Note: Sports urls are linked from regular news feeds (Eg. 'News Home') when
+    # there is a major story of interest to 'everyone'. So even if no BBC sports
+    # feeds are added to 'feeds' the logic of this method is still needed to avoid
+    # blank / missing / empty articles which have an index title and then no body.
+    def print_version(self, url):
+
+        # Handle sports page urls type 01:
+        if (url.find("go/rss/-/sport1/") != -1):
+            temp_url = url.replace("go/rss/-/", "")
+
+        # Handle sports page urls type 02:
+        elif (url.find("go/rss/int/news/-/sport1/") != -1):
+            temp_url = url.replace("go/rss/int/news/-/", "")
+
+        # Handle regular news page urls:
+        else:
+            temp_url = url.replace("go/rss/int/news/-/", "")
+
+        # Always add "?print=true" to the end of the url.
+        print_url = temp_url + "?print=true"
+
+        return print_url
+
+
+    # Remove articles in feeds based on a string in the article title or url.
+    #
+    # Code logic written by: Starson17 - posted in: "Recipes - Re-usable code"
+    # thread, in post with title: "Remove articles from feed", see url:
+    # http://www.mobileread.com/forums/showpost.php?p=1165462&postcount=6
+    # Many thanks and all credit to Starson17.
+    #
+    # Starson17's code has obviously been altered to suite my requirements.
+    def parse_feeds(self):
+
+        # Call parent's method.
+        feeds = BasicNewsRecipe.parse_feeds(self)
+
+        # Loop through all feeds.
+        for feed in feeds:
+
+            # Loop through all articles in feed.
+            for article in feed.articles[:]:
+
+                # Match key words and remove article if there's a match.
+
+                # Most BBC rss feed video only 'articles' use upper case 'VIDEO'
+                # as a title prefix. Just match upper case 'VIDEO', so that
+                # articles like 'Video game banned' won't be matched and removed.
+                if 'VIDEO' in article.title:
+                    feed.articles.remove(article)
+
+                # Most BBC rss feed audio only 'articles' use upper case 'AUDIO'
+                # as a title prefix. Just match upper case 'AUDIO', so that
+                # articles like 'Hi-Def audio...' won't be matched and removed.
+                elif 'AUDIO' in article.title:
+                    feed.articles.remove(article)
+
+                # Most BBC rss feed photo slideshow 'articles' use 'In Pictures',
+                # 'In pictures', and 'in pictures', somewhere in their title.
+                # Match any case of that phrase.
+                elif 'IN PICTURES' in article.title.upper():
+                    feed.articles.remove(article)
+
+                # As above, but user contributed pictures. Match any case.
+                elif 'YOUR PICTURES' in article.title.upper():
+                    feed.articles.remove(article)
+
+                # 'Sportsday Live' are articles which contain a constantly and
+                # dynamically updated 'running commentary' during a live sporting
+                # event. Match any case.
+                elif 'SPORTSDAY LIVE' in article.title.upper():
+                    feed.articles.remove(article)
+
+                # Sometimes 'Sportsday Live' (above) becomes 'Live - Sport Name'.
+                # These are being matched below using 'Live - ' because removing all
+                # articles with 'live' in their titles would remove some articles
+                # that are in fact not live sports pages. Match any case.
+                elif 'LIVE - ' in article.title.upper():
+                    feed.articles.remove(article)
+
+                # 'Quiz of the week' is a Flash player weekly news quiz. Match only
+                # the 'Quiz of the' part in anticipation of monthly and yearly
+                # variants. Match any case.
+                elif 'QUIZ OF THE' in article.title.upper():
+                    feed.articles.remove(article)
+
+                # Remove articles with 'scorecards' in the url. These are BBC sports
+                # pages which just display a cricket scorecard. The pages have a mass
+                # of table and css entries to display the scorecards nicely. Probably
+                # could make them work with this recipe, but might take a whole day
+                # of work to sort out all the css - basically a formatting nightmare.
+                elif 'scorecards' in article.url:
+                    feed.articles.remove(article)
+
+        return feeds
+
+# End of class and file.

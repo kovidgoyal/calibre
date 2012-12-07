@@ -12,7 +12,7 @@ from calibre.devices.mime import mime_type_ext
 from calibre.devices.interface import BookList as _BookList
 from calibre.constants import preferred_encoding
 from calibre import isbytestring, force_unicode
-from calibre.utils.config import prefs, tweaks
+from calibre.utils.config import device_prefs, tweaks
 from calibre.utils.icu import strcmp
 from calibre.utils.formatter import EvalFormatter
 
@@ -124,7 +124,7 @@ class CollectionsBookList(BookList):
 
     def get_collections(self, collection_attributes):
         from calibre.devices.usbms.driver import debug_print
-        debug_print('Starting get_collections:', prefs['manage_device_metadata'])
+        debug_print('Starting get_collections:', device_prefs['manage_device_metadata'])
         debug_print('Renaming rules:', tweaks['sony_collection_renaming_rules'])
         debug_print('Formatting template:', tweaks['sony_collection_name_template'])
         debug_print('Sorting rules:', tweaks['sony_collection_sorting_rules'])
@@ -132,7 +132,7 @@ class CollectionsBookList(BookList):
         # Complexity: we can use renaming rules only when using automatic
         # management. Otherwise we don't always have the metadata to make the
         # right decisions
-        use_renaming_rules = prefs['manage_device_metadata'] == 'on_connect'
+        use_renaming_rules = device_prefs['manage_device_metadata'] == 'on_connect'
 
         collections = {}
 
@@ -169,7 +169,7 @@ class CollectionsBookList(BookList):
             # book in all existing collections. Do not add any new ones.
             attrs = ['device_collections']
             if getattr(book, '_new_book', False):
-                if prefs['manage_device_metadata'] == 'manual':
+                if device_prefs['manage_device_metadata'] == 'manual':
                     # Ensure that the book is in all the book's existing
                     # collections plus all metadata collections
                     attrs += collection_attributes
@@ -178,7 +178,7 @@ class CollectionsBookList(BookList):
                     # thing. The book's existing collections are ignored. Put
                     # the book in collections defined by its metadata.
                     attrs = collection_attributes
-            elif prefs['manage_device_metadata'] == 'on_connect':
+            elif device_prefs['manage_device_metadata'] == 'on_connect':
                 # For existing books, modify the collections only if the user
                 # specified 'on_connect'
                 attrs = collection_attributes

@@ -1,0 +1,36 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import unicode_literals
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class ceskyDenikRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'denik.cz'
+    publisher = u''
+    description = u'Český deník'
+    oldest_article = 1
+    max_articles_per_feed = 20
+    use_embedded_content = False
+    remove_empty_feeds = True
+
+    feeds = [
+           (u'Z domova', u'http://www.denik.cz/rss/z_domova.html')
+            ,(u'Pražský deník - Moje Praha', u'http://prazsky.denik.cz/rss/zpravy_region.html')
+            #,(u'Zahraničí', u'http://www.denik.cz/rss/ze_sveta.html')
+            #,(u'Kultura', u'http://www.denik.cz/rss/kultura.html')
+            ]
+
+
+    #encoding = 'iso-8859-2'
+    language = 'cs'
+    cover_url = 'http://g.denik.cz/images/loga/denik.png'
+    remove_javascript = True
+    no_stylesheets = True
+    extra_css             = """
+                            """
+
+    remove_tags = []
+    keep_only_tags = [dict(name='div', attrs={'class':'content'})]
+    #remove_tags_before = dict(name='h1')
+    remove_tags_after = dict(name='p', attrs={'class':'clanek-autor'})
+
+

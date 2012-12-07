@@ -9,10 +9,12 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import inspect, re, traceback
+from math import trunc
 
 from calibre import human_readable
 from calibre.constants import DEBUG
 from calibre.ebooks.metadata import title_sort
+from calibre.utils.config import tweaks
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
@@ -169,8 +171,8 @@ class BuiltinAdd(BuiltinFormatterFunction):
     __doc__ = doc = _('add(x, y) -- returns x + y. Throws an exception if either x or y are not numbers.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x else 0)
-        y = float(y if y else 0)
+        x = float(x if x and x != 'None' else 0)
+        y = float(y if y and y != 'None' else 0)
         return unicode(x + y)
 
 class BuiltinSubtract(BuiltinFormatterFunction):
@@ -180,8 +182,8 @@ class BuiltinSubtract(BuiltinFormatterFunction):
     __doc__ = doc = _('subtract(x, y) -- returns x - y. Throws an exception if either x or y are not numbers.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x else 0)
-        y = float(y if y else 0)
+        x = float(x if x and x != 'None' else 0)
+        y = float(y if y and y != 'None' else 0)
         return unicode(x - y)
 
 class BuiltinMultiply(BuiltinFormatterFunction):
@@ -191,8 +193,8 @@ class BuiltinMultiply(BuiltinFormatterFunction):
     __doc__ = doc = _('multiply(x, y) -- returns x * y. Throws an exception if either x or y are not numbers.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x else 0)
-        y = float(y if y else 0)
+        x = float(x if x and x != 'None' else 0)
+        y = float(y if y and y != 'None' else 0)
         return unicode(x * y)
 
 class BuiltinDivide(BuiltinFormatterFunction):
@@ -202,8 +204,8 @@ class BuiltinDivide(BuiltinFormatterFunction):
     __doc__ = doc = _('divide(x, y) -- returns x / y. Throws an exception if either x or y are not numbers.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x else 0)
-        y = float(y if y else 0)
+        x = float(x if x and x != 'None' else 0)
+        y = float(y if y and y != 'None' else 0)
         return unicode(x / y)
 
 class BuiltinTemplate(BuiltinFormatterFunction):
@@ -591,6 +593,26 @@ class BuiltinSelect(BuiltinFormatterFunction):
                 return v[len(key)+1:]
         return ''
 
+class BuiltinApproximateFormats(BuiltinFormatterFunction):
+    name = 'approximate_formats'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('approximate_formats() -- return a comma-separated '
+                  'list of formats that at one point were associated with the '
+                  'book. There is no guarantee that this list is correct, '
+                  'although it probably is. '
+                  'This function can be called in template program mode using '
+                  'the template "{:\'approximate_formats()\'}". '
+                  'Note that format names are always uppercase, as in EPUB.'
+            )
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        fmt_data = mi.get('db_approx_formats', [])
+        if not fmt_data:
+            return ''
+        data = sorted(fmt_data)
+        return ','.join(v.upper() for v in data)
+
 class BuiltinFormatsModtimes(BuiltinFormatterFunction):
     name = 'formats_modtimes'
     arg_count = 1
@@ -627,6 +649,21 @@ class BuiltinFormatsSizes(BuiltinFormatterFunction):
         fmt_data = mi.get('format_metadata', {})
         return ','.join(k.upper()+':'+str(v['size']) for k,v in fmt_data.iteritems())
 
+class BuiltinFormatsPaths(BuiltinFormatterFunction):
+    name = 'formats_paths'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('formats_paths() -- return a comma-separated list of '
+                      'colon_separated items representing full path to '
+                      'the formats of a book. You can use the select '
+                      'function to get the path for a specific '
+                      'format. Note that format names are always uppercase, '
+                      'as in EPUB.')
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        fmt_data = mi.get('format_metadata', {})
+        return ','.join(k.upper()+':'+str(v['path']) for k,v in fmt_data.iteritems())
+
 class BuiltinHumanReadable(BuiltinFormatterFunction):
     name = 'human_readable'
     arg_count = 1
@@ -657,11 +694,17 @@ class BuiltinFormatNumber(BuiltinFormatterFunction):
         if val == '' or val == 'None':
             return ''
         try:
-            return template.format(float(val))
+            v1 = float(val)
+        except:
+            return ''
+        try: # Try formatting the value as a float
+            return template.format(v1)
         except:
             pass
-        try:
-            return template.format(int(val))
+        try: # Try formatting the value as an int
+            v2 = trunc(v1)
+            if v2 == v1:
+                return template.format(v2)
         except:
             pass
         return ''
@@ -1138,6 +1181,18 @@ class BuiltinCurrentLibraryName(BuiltinFormatterFunction):
         from calibre.library import current_library_name
         return current_library_name()
 
+class BuiltinCurrentLibraryPath(BuiltinFormatterFunction):
+    name = 'current_library_path'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('current_library_path() -- '
+                'return the path to the current calibre library. This function can '
+                'be called in template program mode using the template '
+                '"{:\'current_library_path()\'}".')
+    def evaluate(self, formatter, kwargs, mi, locals):
+        from calibre.library import current_library_path
+        return current_library_path()
+
 class BuiltinFinishFormatting(BuiltinFormatterFunction):
     name = 'finish_formatting'
     arg_count = 4
@@ -1155,12 +1210,14 @@ class BuiltinFinishFormatting(BuiltinFormatterFunction):
         return prefix + formatter._do_format(val, fmt) + suffix
 
 _formatter_builtins = [
-    BuiltinAdd(), BuiltinAnd(), BuiltinAssign(), BuiltinBooksize(),
+    BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(),
+    BuiltinAssign(), BuiltinBooksize(),
     BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
-    BuiltinCurrentLibraryName(),
+    BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
     BuiltinField(), BuiltinFinishFormatting(), BuiltinFormatDate(),
-    BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsSizes(),
+    BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsPaths(),
+    BuiltinFormatsSizes(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
     BuiltinInList(), BuiltinListDifference(), BuiltinListEquals(),
@@ -1196,7 +1253,7 @@ from calibre.utils.formatter_functions import formatter_functions
 class UserFunction(FormatterUserFunction):
 ''' + func
     locals_ = {}
-    if DEBUG:
+    if DEBUG and tweaks.get('enable_template_debug_printing', False):
         print prog
     exec prog in locals_
     cls = locals_['UserFunction'](name, doc, arg_count, eval_func)

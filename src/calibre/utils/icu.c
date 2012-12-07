@@ -4,14 +4,35 @@
 #include <unicode/utypes.h>
 #include <unicode/uclean.h>
 #include <unicode/ucol.h>
+#include <unicode/ucoleitr.h>
 #include <unicode/ustring.h>
+#include <unicode/usearch.h>
+#include <unicode/utrans.h>
 
+static PyObject* uchar_to_unicode(const UChar *src, int32_t len) {
+    wchar_t *buf = NULL;
+    PyObject *ans = NULL;
+    UErrorCode status = U_ZERO_ERROR;
+
+    if (len < 0) { len = u_strlen(src); }
+    buf = (wchar_t *)calloc(4*len, sizeof(wchar_t));
+    if (buf == NULL) return PyErr_NoMemory();
+    u_strToWCS(buf, 4*len, NULL, src, len, &status);
+    if (U_SUCCESS(status)) {
+        ans = PyUnicode_FromWideChar(buf, wcslen(buf));
+        if (ans == NULL) PyErr_NoMemory();
+    } else PyErr_SetString(PyExc_TypeError, "Failed to convert UChar* to wchar_t*");
+
+    free(buf);
+    return ans;
+}
 
 // Collator object definition {{{
 typedef struct {
     PyObject_HEAD
     // Type-specific fields go here.
     UCollator *collator;
+    USet *contractions;
 
 } icu_Collator;
 
@@ -19,6 +40,7 @@ static void
 icu_Collator_dealloc(icu_Collator* self)
 {
     if (self->collator != NULL) ucol_close(self->collator);
+    if (self->contractions != NULL) uset_close(self->contractions);
     self->collator = NULL;
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -29,18 +51,19 @@ icu_Collator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     icu_Collator *self;
     const char *loc;
     UErrorCode status = U_ZERO_ERROR;
+    UCollator *collator;
 
     if (!PyArg_ParseTuple(args, "s", &loc)) return NULL;
+    collator = ucol_open(loc, &status);
+    if (collator == NULL || U_FAILURE(status)) { 
+        PyErr_SetString(PyExc_Exception, "Failed to create collator.");
+        return NULL;
+    }
 
     self = (icu_Collator *)type->tp_alloc(type, 0);
     if (self != NULL) {
-        self->collator = ucol_open(loc, &status);
-        if (self->collator == NULL || U_FAILURE(status)) { 
-            PyErr_SetString(PyExc_Exception, "Failed to create collator.");
-            self->collator = NULL;
-            Py_DECREF(self);
-            return NULL;
-        }
+        self->collator = collator;
+        self->contractions = NULL;
     }
 
     return (PyObject *)self;
@@ -63,11 +86,28 @@ icu_Collator_display_name(icu_Collator *self, void *closure) {
 
     u_strToUTF8(buf, 100, NULL, dname, -1, &status);
     if (U_FAILURE(status)) {
-        PyErr_SetString(PyExc_Exception, "Failed ot convert dname to UTF-8"); return NULL;
+        PyErr_SetString(PyExc_Exception, "Failed to convert dname to UTF-8"); return NULL;
     }
     return Py_BuildValue("s", buf);
 }
 
+// }}}
+
+// Collator.strength {{{
+static PyObject *
+icu_Collator_get_strength(icu_Collator *self, void *closure) {
+    return Py_BuildValue("i", ucol_getStrength(self->collator));
+}
+
+static int
+icu_Collator_set_strength(icu_Collator *self, PyObject *val, void *closure) {
+    if (!PyInt_Check(val)) {
+        PyErr_SetString(PyExc_TypeError, "Strength must be an integer.");
+        return -1;
+    }
+    ucol_setStrength(self->collator, (int)PyInt_AS_LONG(val));
+    return 0;
+}
 // }}}
 
 // Collator.actual_locale {{{
@@ -89,7 +129,7 @@ icu_Collator_actual_locale(icu_Collator *self, void *closure) {
 static PyObject *
 icu_Collator_sort_key(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     char *input;
-    Py_ssize_t sz;
+    int32_t sz;
     UChar *buf;
     uint8_t *buf2;
     PyObject *ans;
@@ -98,7 +138,7 @@ icu_Collator_sort_key(icu_Collator *self, PyObject *args, PyObject *kwargs) {
   
     if (!PyArg_ParseTuple(args, "es", "UTF-8", &input)) return NULL;
 
-    sz = strlen(input);
+    sz = (int32_t)strlen(input);
 
     buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
 
@@ -137,14 +177,14 @@ icu_Collator_sort_key(icu_Collator *self, PyObject *args, PyObject *kwargs) {
 static PyObject *
 icu_Collator_strcmp(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     char *a_, *b_;
-    size_t asz, bsz;
+    int32_t asz, bsz;
     UChar *a, *b;
     UErrorCode status = U_ZERO_ERROR;
     UCollationResult res = UCOL_EQUAL;
   
     if (!PyArg_ParseTuple(args, "eses", "UTF-8", &a_, "UTF-8", &b_)) return NULL;
     
-    asz = strlen(a_); bsz = strlen(b_);
+    asz = (int32_t)strlen(a_); bsz = (int32_t)strlen(b_);
 
     a = (UChar*)calloc(asz*4 + 1, sizeof(UChar));
     b = (UChar*)calloc(bsz*4 + 1, sizeof(UChar));
@@ -164,7 +204,168 @@ icu_Collator_strcmp(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     return Py_BuildValue("i", res);
 } // }}}
 
+// Collator.find {{{
+static PyObject *
+icu_Collator_find(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+    PyObject *a_, *b_;
+    int32_t asz, bsz;
+    UChar *a, *b;
+    wchar_t *aw, *bw;
+    UErrorCode status = U_ZERO_ERROR;
+    UStringSearch *search = NULL;
+    int32_t pos = -1, length = -1;
+  
+    if (!PyArg_ParseTuple(args, "UU", &a_, &b_)) return NULL;
+    asz = (int32_t)PyUnicode_GetSize(a_); bsz = (int32_t)PyUnicode_GetSize(b_);
+    
+    a = (UChar*)calloc(asz*4 + 2, sizeof(UChar));
+    b = (UChar*)calloc(bsz*4 + 2, sizeof(UChar));
+    aw = (wchar_t*)calloc(asz*4 + 2, sizeof(wchar_t));
+    bw = (wchar_t*)calloc(bsz*4 + 2, sizeof(wchar_t));
 
+    if (a == NULL || b == NULL || aw == NULL || bw == NULL) return PyErr_NoMemory();
+
+    PyUnicode_AsWideChar((PyUnicodeObject*)a_, aw, asz*4+1);
+    PyUnicode_AsWideChar((PyUnicodeObject*)b_, bw, bsz*4+1);
+    u_strFromWCS(a, asz*4 + 1, NULL, aw, -1, &status);
+    u_strFromWCS(b, bsz*4 + 1, NULL, bw, -1, &status);
+
+    if (U_SUCCESS(status)) {
+        search = usearch_openFromCollator(a, -1, b, -1, self->collator, NULL, &status);
+        if (U_SUCCESS(status)) {
+            pos = usearch_first(search, &status);
+            if (pos != USEARCH_DONE) 
+                length = usearch_getMatchedLength(search);
+            else
+                pos = -1;
+        }
+        if (search != NULL) usearch_close(search);
+    }
+
+    free(a); free(b); free(aw); free(bw);
+
+    return Py_BuildValue("ii", pos, length);
+} // }}}
+
+// Collator.contractions {{{
+static PyObject *
+icu_Collator_contractions(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+    UErrorCode status = U_ZERO_ERROR;
+    UChar *str;
+    UChar32 start=0, end=0;
+    int32_t count = 0, len = 0, dlen = 0, i;
+    PyObject *ans = Py_None, *pbuf;
+    wchar_t *buf;
+
+    if (self->contractions == NULL) {
+        self->contractions = uset_open(1, 0);
+        if (self->contractions == NULL) return PyErr_NoMemory();
+        self->contractions = ucol_getTailoredSet(self->collator, &status);
+    }
+    status = U_ZERO_ERROR; 
+
+    str = (UChar*)calloc(100, sizeof(UChar));
+    buf = (wchar_t*)calloc(4*100+2, sizeof(wchar_t));
+    if (str == NULL || buf == NULL) return PyErr_NoMemory();
+
+    count = uset_getItemCount(self->contractions);
+    ans = PyTuple_New(count);
+    if (ans != NULL) {
+        for (i = 0; i < count; i++) {
+            len = uset_getItem(self->contractions, i, &start, &end, str, 1000, &status);
+            if (len >= 2) {
+                // We have a string
+                status = U_ZERO_ERROR;
+                u_strToWCS(buf, 4*100 + 1, &dlen, str, len, &status);
+                pbuf = PyUnicode_FromWideChar(buf, dlen);
+                if (pbuf == NULL) return PyErr_NoMemory();
+                PyTuple_SetItem(ans, i, pbuf);
+            } else {
+                // Ranges dont make sense for contractions, ignore them
+                PyTuple_SetItem(ans, i, Py_None);
+            }
+        }
+    }
+    free(str); free(buf);
+  
+    return Py_BuildValue("O", ans);
+} // }}}
+
+// Collator.startswith {{{
+static PyObject *
+icu_Collator_startswith(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+    PyObject *a_, *b_;
+    int32_t asz, bsz;
+    int32_t actual_a, actual_b;
+    UChar *a, *b;
+    wchar_t *aw, *bw;
+    UErrorCode status = U_ZERO_ERROR;
+    int ans = 0;
+  
+    if (!PyArg_ParseTuple(args, "UU", &a_, &b_)) return NULL;
+    asz = (int32_t)PyUnicode_GetSize(a_); bsz = (int32_t)PyUnicode_GetSize(b_);
+    if (asz < bsz) Py_RETURN_FALSE;
+    if (bsz == 0) Py_RETURN_TRUE;
+    
+    a = (UChar*)calloc(asz*4 + 2, sizeof(UChar));
+    b = (UChar*)calloc(bsz*4 + 2, sizeof(UChar));
+    aw = (wchar_t*)calloc(asz*4 + 2, sizeof(wchar_t));
+    bw = (wchar_t*)calloc(bsz*4 + 2, sizeof(wchar_t));
+
+    if (a == NULL || b == NULL || aw == NULL || bw == NULL) return PyErr_NoMemory();
+
+    actual_a = (int32_t)PyUnicode_AsWideChar((PyUnicodeObject*)a_, aw, asz*4+1);
+    actual_b = (int32_t)PyUnicode_AsWideChar((PyUnicodeObject*)b_, bw, bsz*4+1);
+    if (actual_a > -1 && actual_b > -1) {
+        u_strFromWCS(a, asz*4 + 1, &actual_a, aw, -1, &status);
+        u_strFromWCS(b, bsz*4 + 1, &actual_b, bw, -1, &status);
+
+        if (U_SUCCESS(status) && ucol_equal(self->collator, a, actual_b, b, actual_b))
+            ans = 1;
+    }
+
+    free(a); free(b); free(aw); free(bw);
+    if (ans) Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
+} // }}}
+
+// Collator.startswith {{{
+static PyObject *
+icu_Collator_collation_order(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+    PyObject *a_;
+    int32_t asz;
+    int32_t actual_a;
+    UChar *a;
+    wchar_t *aw;
+    UErrorCode status = U_ZERO_ERROR;
+    UCollationElements *iter = NULL;
+    int order = 0, len = -1;
+  
+    if (!PyArg_ParseTuple(args, "U", &a_)) return NULL;
+    asz = (int32_t)PyUnicode_GetSize(a_); 
+    
+    a = (UChar*)calloc(asz*4 + 2, sizeof(UChar));
+    aw = (wchar_t*)calloc(asz*4 + 2, sizeof(wchar_t));
+
+    if (a == NULL || aw == NULL ) return PyErr_NoMemory();
+
+    actual_a = (int32_t)PyUnicode_AsWideChar((PyUnicodeObject*)a_, aw, asz*4+1);
+    if (actual_a > -1) {
+        u_strFromWCS(a, asz*4 + 1, &actual_a, aw, -1, &status);
+        iter = ucol_openElements(self->collator, a, actual_a, &status);
+        if (iter != NULL && U_SUCCESS(status)) {
+            order = ucol_next(iter, &status);
+            len = ucol_getOffset(iter);
+            ucol_closeElements(iter); iter = NULL;
+        }
+    }
+
+    free(a); free(aw); 
+    return Py_BuildValue("ii", order, len);
+} // }}}
+
+static PyObject*
+icu_Collator_clone(icu_Collator *self, PyObject *args, PyObject *kwargs);
 
 static PyMethodDef icu_Collator_methods[] = {
     {"sort_key", (PyCFunction)icu_Collator_sort_key, METH_VARARGS,
@@ -173,6 +374,26 @@ static PyMethodDef icu_Collator_methods[] = {
 
     {"strcmp", (PyCFunction)icu_Collator_strcmp, METH_VARARGS,
      "strcmp(unicode object, unicode object) -> strcmp(a, b) <=> cmp(sorty_key(a), sort_key(b)), but faster."
+    },
+
+    {"find", (PyCFunction)icu_Collator_find, METH_VARARGS,
+        "find(pattern, source) -> returns the position and length of the first occurrence of pattern in source. Returns (-1, -1) if not found."
+    },
+
+    {"contractions", (PyCFunction)icu_Collator_contractions, METH_VARARGS,
+        "contractions() -> returns the contractions defined for this collator."
+    },
+
+    {"clone", (PyCFunction)icu_Collator_clone, METH_VARARGS,
+        "clone() -> returns a clone of this collator."
+    },
+
+    {"startswith", (PyCFunction)icu_Collator_startswith, METH_VARARGS,
+        "startswith(a, b) -> returns True iff a startswith b, following the current collation rules."
+    },
+
+    {"collation_order", (PyCFunction)icu_Collator_collation_order, METH_VARARGS,
+        "collation_order(string) -> returns (order, length) where order is an integer that gives the position of string in a list. length gives the number of characters used for order."
     },
 
     {NULL}  /* Sentinel */
@@ -188,6 +409,12 @@ static PyGetSetDef  icu_Collator_getsetters[] = {
      (getter)icu_Collator_display_name, NULL,
      (char *)"Display name of this collator in English. The name reflects the actual data source used.",
      NULL},
+
+    {(char *)"strength",
+     (getter)icu_Collator_get_strength, (setter)icu_Collator_set_strength,
+     (char *)"The strength of this collator.",
+     NULL},
+
 
     {NULL}  /* Sentinel */
 };
@@ -236,6 +463,31 @@ static PyTypeObject icu_CollatorType = { // {{{
 
 // }}
 
+// Collator.clone {{{
+static PyObject*
+icu_Collator_clone(icu_Collator *self, PyObject *args, PyObject *kwargs)
+{
+    UCollator *collator;
+    UErrorCode status = U_ZERO_ERROR;
+    int32_t bufsize = -1;
+    icu_Collator *clone;
+
+    collator = ucol_safeClone(self->collator, NULL, &bufsize, &status);
+
+    if (collator == NULL || U_FAILURE(status)) {
+        PyErr_SetString(PyExc_Exception, "Failed to create collator.");
+        return NULL;
+    }
+
+    clone = PyObject_New(icu_Collator, &icu_CollatorType);
+    if (clone == NULL) return PyErr_NoMemory();
+
+    clone->collator = collator;
+    clone->contractions = NULL;
+
+    return (PyObject*) clone;
+
+} // }}}
 
 // }}}
 
@@ -246,7 +498,7 @@ static PyObject *
 icu_upper(PyObject *self, PyObject *args) {
     char *input, *ans, *buf3 = NULL;
     const char *loc;
-    size_t sz;
+    int32_t sz;
     UChar *buf, *buf2;
     PyObject *ret;
     UErrorCode status = U_ZERO_ERROR;
@@ -254,7 +506,7 @@ icu_upper(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "ses", &loc, "UTF-8", &input)) return NULL;
     
-    sz = strlen(input);
+    sz = (int32_t)strlen(input);
 
     buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
     buf2 = (UChar*)calloc(sz*8 + 1, sizeof(UChar));
@@ -291,7 +543,7 @@ static PyObject *
 icu_lower(PyObject *self, PyObject *args) {
     char *input, *ans, *buf3 = NULL;
     const char *loc;
-    size_t sz;
+    int32_t sz;
     UChar *buf, *buf2;
     PyObject *ret;
     UErrorCode status = U_ZERO_ERROR;
@@ -299,7 +551,7 @@ icu_lower(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "ses", &loc, "UTF-8", &input)) return NULL;
     
-    sz = strlen(input);
+    sz = (int32_t)strlen(input);
 
     buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
     buf2 = (UChar*)calloc(sz*8 + 1, sizeof(UChar));
@@ -336,7 +588,7 @@ static PyObject *
 icu_title(PyObject *self, PyObject *args) {
     char *input, *ans, *buf3 = NULL;
     const char *loc;
-    size_t sz;
+    int32_t sz;
     UChar *buf, *buf2;
     PyObject *ret;
     UErrorCode status = U_ZERO_ERROR;
@@ -344,7 +596,7 @@ icu_title(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "ses", &loc, "UTF-8", &input)) return NULL;
     
-    sz = strlen(input);
+    sz = (int32_t)strlen(input);
 
     buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
     buf2 = (UChar*)calloc(sz*8 + 1, sizeof(UChar));
@@ -376,7 +628,6 @@ icu_title(PyObject *self, PyObject *args) {
     return ret;
 } // }}}
 
-
 // set_default_encoding {{{
 static PyObject *
 icu_set_default_encoding(PyObject *self, PyObject *args) {
@@ -391,6 +642,35 @@ icu_set_default_encoding(PyObject *self, PyObject *args) {
 }
 // }}}
 
+// set_default_encoding {{{
+static PyObject *
+icu_get_available_transliterators(PyObject *self, PyObject *args) {
+    PyObject *ans, *l;
+    UErrorCode status = U_ZERO_ERROR;
+    const UChar *id = NULL;
+    UEnumeration *i;
+
+    ans = PyList_New(0);
+    if (ans == NULL) return PyErr_NoMemory();
+
+    i = utrans_openIDs(&status);
+    if (i == NULL || U_FAILURE(status)) {Py_DECREF(ans); PyErr_SetString(PyExc_RuntimeError, "Failed to create enumerator"); return NULL; }
+
+    do {
+        id = uenum_unext(i, NULL, &status);
+        if (U_SUCCESS(status) && id != NULL) {
+            l = uchar_to_unicode(id, -1);
+            if (l == NULL) break;
+            PyList_Append(ans, l);
+            Py_DECREF(l);
+        }
+    } while(id != NULL);
+    uenum_close(i);
+
+    return ans;
+}
+
+// }}}
 static PyMethodDef icu_methods[] = {
     {"upper", icu_upper, METH_VARARGS,
         "upper(locale, unicode object) -> upper cased unicode object using locale rules."
@@ -408,9 +688,14 @@ static PyMethodDef icu_methods[] = {
         "set_default_encoding(encoding) -> Set the default encoding for the python unicode implementation."
     },
 
+    {"get_available_transliterators", icu_get_available_transliterators, METH_VARARGS,
+        "get_available_transliterators() -> Return list of available transliterators. This list is rather limited on OS X."
+    },
+
     {NULL}  /* Sentinel */
 };
 
+#define ADDUCONST(x) PyModule_AddIntConstant(m, #x, x)
 
 PyMODINIT_FUNC
 initicu(void) 
@@ -419,7 +704,10 @@ initicu(void)
     UErrorCode status = U_ZERO_ERROR;
 
     u_init(&status);
-
+    if (U_FAILURE(status)) {
+        PyErr_SetString(PyExc_RuntimeError, u_errorName(status));
+        return;
+    }
 
     if (PyType_Ready(&icu_CollatorType) < 0)
         return;
@@ -431,6 +719,23 @@ initicu(void)
     PyModule_AddObject(m, "Collator", (PyObject *)&icu_CollatorType);
     // uint8_t must be the same size as char
     PyModule_AddIntConstant(m, "ok", (U_SUCCESS(status) && sizeof(uint8_t) == sizeof(char)) ? 1 : 0);
+
+    ADDUCONST(USET_SPAN_NOT_CONTAINED);
+    ADDUCONST(USET_SPAN_CONTAINED);
+    ADDUCONST(USET_SPAN_SIMPLE);
+    ADDUCONST(UCOL_DEFAULT);
+    ADDUCONST(UCOL_PRIMARY);
+    ADDUCONST(UCOL_SECONDARY);
+    ADDUCONST(UCOL_TERTIARY);
+    ADDUCONST(UCOL_DEFAULT_STRENGTH);
+    ADDUCONST(UCOL_QUATERNARY);
+    ADDUCONST(UCOL_IDENTICAL);
+    ADDUCONST(UCOL_OFF);
+    ADDUCONST(UCOL_ON);
+    ADDUCONST(UCOL_SHIFTED);
+    ADDUCONST(UCOL_NON_IGNORABLE);
+    ADDUCONST(UCOL_LOWER_FIRST);
+    ADDUCONST(UCOL_UPPER_FIRST);
 
 }
 // }}}

@@ -1,0 +1,45 @@
+#!/usr/bin/env  python
+
+__license__ = 'GPL v3'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class leequipe(BasicNewsRecipe):
+    title = u'l\'equipe'
+    __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>'
+    language = 'fr'
+    description = u'Retrouvez tout le sport en direct sur le site de L\'EQUIPE et suivez l\'actualité du football, rugby, basket, cyclisme, f1, volley, hand, tous les résultats sportifs'
+    oldest_article = 1
+    masthead_url = 'http://static.lequipe.fr/v6/img/logo-lequipe.png'
+    max_articles_per_feed = 100
+    simultaneous_downloads = 5
+    remove_javascript = True
+    no_stylesheets = True
+    use_embedded_content = False
+    recursions = 0
+
+    keep_only_tags = []
+    keep_only_tags.append(dict(attrs={'id': ['article']}))
+
+    remove_tags = []
+    remove_tags.append(dict(attrs={'id': ['partage', 'ensavoirplus', 'bloc_bas_breve', 'commentaires', 'tools']}))
+    remove_tags.append(dict(attrs={'class': ['partage_bis', 'date']}))
+
+    feeds = [(u'Football', u'http://www.lequipe.fr/rss/actu_rss_Football.xml'),
+             (u'Auto-Moto', u'http://www.lequipe.fr/rss/actu_rss_Auto-Moto.xml'),
+             (u'Tennis', u'http://www.lequipe.fr/rss/actu_rss_Tennis.xml'),
+             (u'Golf', u'http://www.lequipe.fr/rss/actu_rss_Golf.xml'),
+             (u'Rugby', u'http://www.lequipe.fr/rss/actu_rss_Rugby.xml'),
+             (u'Basket', u'http://www.lequipe.fr/rss/actu_rss_Basket.xml'),
+             (u'Hand', u'http://www.lequipe.fr/rss/actu_rss_Hand.xml'),
+             (u'Cyclisme', u'http://www.lequipe.fr/rss/actu_rss_Cyclisme.xml'),
+             (u'Autres Sports', u'http://pipes.yahoo.com/pipes/pipe.run?_id=2039f7f4f350c70c5e4e8633aa1b37cd&_render=rss')
+             ]
+
+    def preprocess_html(self, soup):
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+                tstr = alink.string
+                alink.replaceWith(tstr)
+        return soup
