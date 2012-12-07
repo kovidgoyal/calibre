@@ -1,43 +1,74 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre import strftime
+import re
+import datetime
+import time
+
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title          = u'Metro UK'
-    description = 'Author Dave Asbury : News from The Metro - UK'
+    description = 'News as provided by The Metro -UK'
     #timefmt = ''
     __author__ = 'Dave Asbury'
-    #last update 9/9/12
+    #last update 9/6/12
     cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/276636_117118184990145_2132092232_n.jpg'
-    no_stylesheets = True
     oldest_article = 1
-    max_articles_per_feed = 12
     remove_empty_feeds = True
     remove_javascript     = True
-    #auto_cleanup = True
+    auto_cleanup = True
     encoding = 'UTF-8'
-    cover_url ='http://profile.ak.fbcdn.net/hprofile-ak-snc4/157897_117118184990145_840702264_n.jpg'
+
     language = 'en_GB'
     masthead_url        = 'http://e-edition.metro.co.uk/images/metro_logo.gif'
-    extra_css = '''
-                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:900;font-size:1.6em;}
-                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:1.2em;}
-                    p{font-family:Arial,Helvetica,sans-serif;font-size:1.0em;}
-                    body{font-family:Helvetica,Arial,sans-serif;font-size:1.0em;}
-        '''
-    keep_only_tags = [
-        #dict(name='h1'),
-        #dict(name='h2'),
-        #dict(name='div', attrs={'class' : ['row','article','img-cnt figure','clrd']})
-    #dict(name='h3'),
-    #dict(attrs={'class' :  'BText'}),
-        ]
-    remove_tags    = [
-                                dict(name='div',attrs={'class' : 'art-fd fd-gr1-b clrd'}),
-                                dict(name='span',attrs={'class' : 'share'}),
-        dict(name='li'),
-        dict(attrs={'class' : ['twitter-share-button','header-forms','hdr-lnks','close','art-rgt','fd-gr1-b clrd google-article','news m12 clrd clr-b p5t shareBtm','item-ds csl-3-img news','c-1of3 c-last','c-1of1','pd','item-ds csl-3-img sport']}),
-                dict(attrs={'id' : ['','sky-left','sky-right','ftr-nav','and-ftr','notificationList','logo','miniLogo','comments-news','metro_extras']})
-                               ]
-    remove_tags_before = dict(name='h1')
-    #remove_tags_after = dict(attrs={'id':['topic-buttons']})
 
-    feeds          = [
-        (u'News', u'http://www.metro.co.uk/rss/news/'), (u'Money', u'http://www.metro.co.uk/rss/money/'), (u'Sport', u'http://www.metro.co.uk/rss/sport/'), (u'Film', u'http://www.metro.co.uk/rss/metrolife/film/'), (u'Music', u'http://www.metro.co.uk/rss/metrolife/music/'), (u'TV', u'http://www.metro.co.uk/rss/tv/'), (u'Showbiz', u'http://www.metro.co.uk/rss/showbiz/'), (u'Weird News', u'http://www.metro.co.uk/rss/weird/'), (u'Travel', u'http://www.metro.co.uk/rss/travel/'), (u'Lifestyle', u'http://www.metro.co.uk/rss/lifestyle/'), (u'Books', u'http://www.metro.co.uk/rss/lifestyle/books/'), (u'Food', u'http://www.metro.co.uk/rss/lifestyle/restaurants/')]
+    def parse_index(self):
+		articles = {}
+		key = None
+		ans = []
+		feeds = [ ('UK', 'http://metro.co.uk/news/uk/'),
+			('World', 'http://metro.co.uk/news/world/'),
+			('Weird', 'http://metro.co.uk/news/weird/'),
+			('Money', 'http://metro.co.uk/news/money/'),
+			('Sport', 'http://metro.co.uk/sport/'),
+			('Guilty Pleasures', 'http://metro.co.uk/guilty-pleasures/')
+			]
+		for key, feed in feeds:
+			soup = self.index_to_soup(feed)
+			articles[key] = []
+			ans.append(key)
+
+			today = datetime.date.today()
+			today = time.mktime(today.timetuple())-60*60*24
+
+			for a in soup.findAll('a'):
+				for name, value in a.attrs:
+					if name == "class" and value=="post":
+						url = a['href']
+						title = a['title']
+						print title
+						description = ''
+						m = re.search('^.*uk/([^/]*)/([^/]*)/([^/]*)/', url)
+						skip = 1
+						if len(m.groups()) == 3:
+							g = m.groups()
+							dt = datetime.datetime.strptime(''+g[0]+'-'+g[1]+'-'+g[2], '%Y-%m-%d')
+							pubdate = time.strftime('%a, %d %b', dt.timetuple())
+
+							dt = time.mktime(dt.timetuple())
+							if dt >= today:
+								print pubdate
+								skip = 0
+						else:
+							pubdate = strftime('%a, %d %b')
+
+						summary = a.find(True, attrs={'class':'excerpt'})
+						if summary:
+							description = self.tag_to_string(summary, use_alt=False)
+
+						if skip == 0:
+							articles[key].append(
+										dict(title=title, url=url, date=pubdate,
+												description=description,
+												content=''))
+		#ans = self.sort_index_by(ans, {'The Front Page':-1, 'Dining In, Dining Out':1, 'Obituaries':2})
+		ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
+		return ans
