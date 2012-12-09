@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-12-07 04:42+0000\n"
-"PO-Revision-Date: 2012-11-27 11:48+0000\n"
+"PO-Revision-Date: 2012-12-08 12:24+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-08 04:44+0000\n"
+"X-Launchpad-Export-Date: 2012-12-09 04:37+0000\n"
 "X-Generator: Launchpad (build 16341)\n"
 "Language: it\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
@@ -1149,7 +1149,7 @@ msgstr "Comunica con iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:212
 msgid "Apple iDevice detected, launching iTunes, please wait ..."
-msgstr ""
+msgstr "Apple iDevice rilevato, avvio di iTunes, attendi..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:214
 msgid ""
@@ -1166,6 +1166,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes' ***"
 msgstr ""
+"*** Modalità di connessione diretta non supportata. Vedi "
+"http://www.mobileread.com/forums/showthread.php?t=118559 per istruzioni "
+"sull'utilizzo di 'Connetti a iTunes' ***"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:221
 msgid ""
@@ -1606,8 +1609,8 @@ msgstr ""
 "Il Kindle 3 e le versioni più recenti possono utilizzare le informazioni sui "
 "numero di pagina presenti nei file MOBI. Con questa opzione, calibre "
 "calcolerà ed invierà queste informazioni al Kindle in fase di caricamento di "
-"file MOBI attraverso la presa USB. Da notare che i numeri di pagina non "
-"corrispondono alle pagine del libro in versione cartacea."
+"file MOBI tramite USB. Da notare che i numeri di pagina non corrispondono "
+"alle pagine del libro in versione cartacea."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:308
 msgid "Use slower but more accurate page number calculation"
@@ -1888,10 +1891,13 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
+"Kobo mostra consigli sul dispositivo. In alcuni casi riguardano file, ma in "
+"altri sono solo riferimenti al sito web dal quale acquistare. Abilitala se "
+"desideri vederli/eliminarli."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1243
 msgid "Set Series information"
-msgstr ""
+msgstr "Imposta informazioni sulla serie"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1244
 msgid ""
@@ -2430,7 +2436,7 @@ msgstr "Comunica con il lettore iPapyrus."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:81
 msgid "Communicate with the Sovos reader."
-msgstr "Comunica con il lettore Sovos"
+msgstr "Comunica con il lettore Sovos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:91
 msgid "Communicate with the Sunstech EB700 reader."
@@ -2471,7 +2477,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:623
 #, python-format
 msgid "Unable to mount main memory (Error code: %d)"
-msgstr "Impossibile montare la memoria principale (Codice errore: %d)"
+msgstr "Impossibile montare la memoria principale (Codice di errore: %d)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:674
 #, python-format
@@ -2626,7 +2632,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
-msgstr "Cartella nella Card A"
+msgstr "Cartella nella scheda A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:69
 msgid "Swap main and card A"
@@ -2656,7 +2662,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/utils.py:29
 #, python-format
 msgid "Selected slot: %s is not supported."
-msgstr "Lo slot selezionato: %s non è supportato."
+msgstr "Slot selezionato: %s non è supportato."
 
 #: /home/kovid/work/calibre/src/calibre/devices/utils.py:36
 msgid "There is insufficient free space in main memory"
@@ -2977,7 +2983,7 @@ msgid ""
 "disables the generation of this cover."
 msgstr ""
 "In genere, se il file di input non ha una copertina e non ne viene "
-"specificata una, viene generata una copertina di default con il titolo, "
+"specificata una, viene generata una copertina predefinita con il titolo, "
 "l'autore, etc. Questa opzione disabilita la generazione di questa copertina."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/epub_output.py:84
@@ -3146,8 +3152,8 @@ msgid ""
 msgstr ""
 "Come gestire i CSS usando css-type = 'classe'.\n"
 "Il valore predefinito è esterno.\n"
-"esterni: utilizzare un file CSS esterno che si collega nel documento.\n"
-"inline: Posizionare il CSS nella sezione head del documento."
+"esternal: utilizzare un file CSS esterno che si collega nel documento.\n"
+"inline: posizionare il CSS nell'intestazione del documento."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/htmlz_output.py:42
 msgid ""
@@ -3229,7 +3235,7 @@ msgstr "La famiglia di caratteri a spaziatura fissa da includere"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:157
 msgid "Comic"
-msgstr "Comic"
+msgstr "Fumetto"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:45
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:270
@@ -3686,9 +3692,9 @@ msgid ""
 "are always removed with plain text output."
 msgstr ""
 "Non rimuovere i riferimenti ad immagini all'interno del documento. Questa "
-"opzione è utile solo se accompagnata ad un opzione di formattazione del "
+"opzione è utile solo se accompagnata ad un'opzione di formattazione del "
 "testo diversa da \"plain\". L'uso dell'opzione \"plain\" rimuove sempre i "
-"link dai documenti"
+"collegamenti dai documenti."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_output.py:68
 msgid ""
@@ -3830,6 +3836,10 @@ msgid ""
 "Useful if you are embedding a particularly large font with lots of unused "
 "glyphs."
 msgstr ""
+"Sottoinsieme di tutti i caratteri integrati. Ogni carattere integrato è "
+"ridotto per contenere solo i glifi utilizzati in questo documento. Ciò "
+"riduce la dimensione dei file dei caratteri. Utile se stai integrando un "
+"carattere particolarmente grande con molti glifi non utilizzati."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:218
 msgid ""
@@ -4284,8 +4294,7 @@ msgstr ""
 msgid ""
 "Look for common words and patterns that denote italics and italicize them."
 msgstr ""
-"Cerca parole e segni che indicano l'uso dell'italico e mettili in formato "
-"italico."
+"Cerca parole e segni che indicano l'uso del corsivo e rendili in corsivo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:595
 msgid ""
@@ -5748,7 +5757,7 @@ msgstr "Aggiungi libri alla biblioteca calibre dal dispositivo connesso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:26
 msgid "Merging user annotations into database"
-msgstr "Fondi le annotazioni utente nel database"
+msgstr "Unisci le annotazioni utente nel database"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:778
@@ -5766,7 +5775,7 @@ msgstr "Il recupero delle note non è supportato per questo dispositivo"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:112
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:136
 msgid "Use library only"
-msgstr "Usare solo la biblioteca"
+msgstr "Usa solo la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:137
@@ -6552,6 +6561,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:117
 msgid "Show the &failed books in the main book list after updating metadata"
 msgstr ""
+"Mostra i li&bri con problemi nell'elenco principale dopo l'aggiornamento dei "
+"metadati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:123
 msgid "Download complete"
@@ -6922,7 +6933,7 @@ msgstr "G"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Get books"
-msgstr "Prendi libri"
+msgstr "Ottieni libri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:22
 msgid "Search for ebooks"
@@ -7830,7 +7841,7 @@ msgstr "&Generi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Field containing Genre information"
-msgstr ""
+msgstr "Campo contenente informazioni sul genere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "&Recently Added"
@@ -7878,7 +7889,7 @@ msgstr "Generi esclusi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:306
 msgid "Genres to &exclude (regex):"
-msgstr ""
+msgstr "Generi da &escludere (espressione regolare):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:307
 msgid "Reset to default"
@@ -11728,7 +11739,7 @@ msgid ""
 "If blank, the source field is used if the field is modifiable"
 msgstr ""
 "Campo nel quale il testo sarà immesso dopo le sostituzioni. \n"
-"Se lasciato vuoto, verrà usato il campo sorgente (se modificabile)."
+"Se lasciato vuoto, sarà utilizzato il campo sorgente (se modificabile)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:641
 msgid "M&ode:"
@@ -11771,7 +11782,7 @@ msgid ""
 "Used when displaying test results to separate values in multiple-valued "
 "fields"
 msgstr ""
-"Usando per separare i valori in campi multivalore quando si mostrano i "
+"Utilizzato per separare i valori in campi multivalore quando si mostrano i "
 "risultati dei test"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:653
@@ -12045,9 +12056,9 @@ msgid ""
 "virus/malware. Only install it if you got it from a trusted source. Are you "
 "sure you want to proceed?"
 msgstr ""
-"Installa plugin è un <b>rischio alla sicurezza</b>. I plugin possono "
-"contenere virus/malware. Installalo solo se l'hai ottenuto da una fonte "
-"sicura. Sei certo di voler proseguire?"
+"L'installazione di plugin è un <b>rischio per la sicurezza</b>. I plugin "
+"possono contenere virus/malware. Installalo solo se l'hai ottenuto da una "
+"fonte sicura. Sei certo di voler proseguire?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:707
 #, python-format
@@ -12759,7 +12770,7 @@ msgstr "&Pulisci"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:224
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:185
 msgid "Search only in specific fields:"
-msgstr "Cerca solo nei campi selezionati:"
+msgstr "Cerca solo in campi specifici:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:205
 msgid "Titl&e/Author/Series ..."
@@ -13110,7 +13121,7 @@ msgstr "Tag 2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:269
 msgid "Template language tutorial"
-msgstr "Tutorial sul modello del linguaggio"
+msgstr "Guida sul modello del linguaggio"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:273
 msgid "Template function reference"
@@ -16245,11 +16256,11 @@ msgstr "Mostra la &copertina nel pannello dei dettagli del libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:274
 msgid "Show the size of the book's cover in pixels"
-msgstr ""
+msgstr "Mostra le dimensioni della copertina del libro in pixel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:275
 msgid "Show cover &size"
-msgstr ""
+msgstr "Mo&stra dimensioni della copertina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:277
 msgid ""

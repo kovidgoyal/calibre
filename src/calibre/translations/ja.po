@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-07 04:42+0000\n"
-"PO-Revision-Date: 2012-12-01 07:34+0000\n"
+"PO-Revision-Date: 2012-12-08 06:59+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-12-08 04:45+0000\n"
+"X-Launchpad-Export-Date: 2012-12-09 04:37+0000\n"
 "X-Generator: Launchpad (build 16341)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1074,7 +1074,7 @@ msgstr "iTunes/iBooksと通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:212
 msgid "Apple iDevice detected, launching iTunes, please wait ..."
-msgstr ""
+msgstr "Apple iDeviceが接続されました。iTunesを起動しますので、お待ちください、、、"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:214
 msgid ""
@@ -1090,6 +1090,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes' ***"
 msgstr ""
+"*** サポートされていない直接接続モードです。詳しくは "
+"http://www.mobileread.com/forums/showthread.php?t=118559 の'Connect to "
+"iTunes'の説明を参照してください。 ***"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:221
 msgid ""
@@ -1753,11 +1756,11 @@ msgstr "Kobo Touch上の空のブックシェルフを、同期が終わった�
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1221
 msgid "Upload covers for books"
-msgstr ""
+msgstr "書籍の表紙をアップロード"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1227
 msgid "Always upload covers"
-msgstr ""
+msgstr "常に表紙をアップロード"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1228
 msgid ""
@@ -1765,6 +1768,8 @@ msgid ""
 "already on the device. Select this option if you want covers uploaded the "
 "first time you send the book to the device."
 msgstr ""
+"表紙をアップロードするオプションが選ばれた場合、ドライバはデバイス上にすでに表紙がある場合のみ、置き換えます。もし最初に書籍をデバイスへ送る時にも表紙をア"
+"ップロードしたい場合にこのオプションを選択してください。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
 msgid ""
@@ -1772,10 +1777,12 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
+"Koboはデバイス上でおすすめを表示します。それは場合によってはファイルがあることもありますが、時には単に販売ウエブサイトへのリンクで出しかない場合もあり"
+"ます。それらを表示する/削除したい場合にこれを有効にしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1243
 msgid "Set Series information"
-msgstr ""
+msgstr "シリーズ情報を設定"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1244
 msgid ""
@@ -1784,6 +1791,8 @@ msgid ""
 "only be added to the device after the book has been processed by the device. "
 "Enable if you wish to set series information."
 msgstr ""
+"Koboデバイスの書籍リストはシリーズ情報も表示することができます。しかしアップロードされた書籍はこの情報が読まれません。シリーズ情報はアップロード後、デ"
+"バイスで開かなければ表示されません。シリーズ情報をセットしたい場合には、これを有効にしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1249
 msgid ""
@@ -3043,6 +3052,9 @@ msgid ""
 "Useful if your document contains lots of GIF/PNG images that become very "
 "large when converted to JPEG."
 msgstr ""
+"Calibreはディフォールトでは、MOBIファイル内の画像をJPEGへ変換します。これは古いMOBIビューワーが、他の画像フォーマットをサーポートしてい"
+"ない場合があるため、最大の互換性を得るために、このようになっています。このオプションはCalibreにそれをやめさせます。これはドキュメント内にたくさんの"
+"GIF/PNG画像があり、JPEGに変換すると非常に大きくなる場合に便利です。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:93
 msgid ""
@@ -3052,6 +3064,10 @@ msgid ""
 "6 and the new KF8 format, or only the new KF8 format. KF8 has more features "
 "than MOBI 6, but only works with newer Kindles."
 msgstr ""
+"ディフォールトではCalibreは、古いMOBI "
+"6フォーマットのMOBIファイルを生成します。このフォーマットは全てのデバイスで表示できます。しかしながら、この設定を変えるとCalibreは新しいKF8"
+"のみ、もしくはMOBI 6 とKF 8の両方を含むMOBIファイルを生成できます。KF 8 はMOBI 6 "
+"より多くの機能がありますが、新しいKindleでしか使えません。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:136
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:125
@@ -8269,7 +8285,7 @@ msgstr "マージンを無視する(&M)"
 msgid ""
 "Do not convert all images to &JPEG (may result in images not working in "
 "older viewers)"
-msgstr ""
+msgstr "全てのイメージをJPEGに変換しない（古めのデバイスではイメージが表示されなくなる可能性があります。）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:87
 msgid "Kindle options"
@@ -8277,7 +8293,7 @@ msgstr "Kindle オプション"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:88
 msgid "MOBI file &type:"
-msgstr ""
+msgstr "MOBIファイル・タイプ(&T)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:89
 msgid "Personal Doc tag:"
@@ -8289,6 +8305,8 @@ msgid ""
 "both MOBI filetypes. If you wish to use the new format on your device, "
 "convert to AZW3 instead of MOBI."
 msgstr ""
+"<b>注意：</b>いくつかのKinldeデバイスでは「新しい」、もしくは「両方」のMOBIファイル・タイプの表示に問題があることがあります。デバイス上で"
+"新しいフォーマットを使いたい場合には、MOBIの替わりにAZW3を使ってください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"

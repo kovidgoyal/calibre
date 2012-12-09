@@ -12,13 +12,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-12-07 20:36+0000\n"
+"PO-Revision-Date: 2012-12-08 20:16+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-12-08 04:57+0000\n"
+"X-Launchpad-Export-Date: 2012-12-09 04:38+0000\n"
 "X-Generator: Launchpad (build 16341)\n"
 "Language: ca\n"
 
@@ -17164,7 +17164,7 @@ msgstr "Moere"
 
 #. name for mvr
 msgid "Marau"
-msgstr ""
+msgstr "Marau"
 
 #. name for mvs
 msgid "Massep"
@@ -17440,11 +17440,11 @@ msgstr "Makah"
 
 #. name for myi
 msgid "Mina (India)"
-msgstr ""
+msgstr "Mina (Índia)"
 
 #. name for myj
 msgid "Mangayat"
-msgstr ""
+msgstr "Mangayat"
 
 #. name for myk
 msgid "Senoufo; Mamara"
@@ -17452,11 +17452,11 @@ msgstr "Senufo; Mamara"
 
 #. name for myl
 msgid "Moma"
-msgstr ""
+msgstr "Moma"
 
 #. name for mym
 msgid "Me'en"
-msgstr ""
+msgstr "Meen"
 
 #. name for myo
 msgid "Anfillo"
@@ -17472,15 +17472,15 @@ msgstr "Maninka; Forest"
 
 #. name for myr
 msgid "Muniche"
-msgstr ""
+msgstr "Munitxe"
 
 #. name for mys
 msgid "Mesmes"
-msgstr ""
+msgstr "Mesmes"
 
 #. name for myu
 msgid "Mundurukú"
-msgstr ""
+msgstr "Munduruku"
 
 #. name for myv
 msgid "Erzya"
@@ -17488,19 +17488,19 @@ msgstr ""
 
 #. name for myw
 msgid "Muyuw"
-msgstr ""
+msgstr "Muyuw"
 
 #. name for myx
 msgid "Masaaba"
-msgstr ""
+msgstr "Masaba"
 
 #. name for myy
 msgid "Macuna"
-msgstr ""
+msgstr "Macuna"
 
 #. name for myz
 msgid "Mandaic; Classical"
-msgstr ""
+msgstr "Mandaic Clàssic"
 
 #. name for mza
 msgid "Mixtec; Santa María Zacatepec"
@@ -17516,11 +17516,11 @@ msgstr "Llenguatge de signes de Madagascar"
 
 #. name for mzd
 msgid "Malimba"
-msgstr ""
+msgstr "Malimba"
 
 #. name for mze
 msgid "Morawa"
-msgstr ""
+msgstr "Morawa"
 
 #. name for mzg
 msgid "Monastic Sign Language"
@@ -17536,7 +17536,7 @@ msgstr "Mazatec; Ixcatlán"
 
 #. name for mzj
 msgid "Manya"
-msgstr ""
+msgstr "Manya"
 
 #. name for mzk
 msgid "Mambila; Nigeria"
@@ -17548,35 +17548,35 @@ msgstr "Mixe; Mazatlan"
 
 #. name for mzm
 msgid "Mumuye"
-msgstr ""
+msgstr "Mumuye"
 
 #. name for mzn
 msgid "Mazanderani"
-msgstr ""
+msgstr "Mazanderaní"
 
 #. name for mzo
 msgid "Matipuhy"
-msgstr ""
+msgstr "Matipu"
 
 #. name for mzp
 msgid "Movima"
-msgstr ""
+msgstr "Movima"
 
 #. name for mzq
 msgid "Mori Atas"
-msgstr ""
+msgstr "Mori; Atas"
 
 #. name for mzr
 msgid "Marúbo"
-msgstr ""
+msgstr "Marubo"
 
 #. name for mzs
 msgid "Macanese"
-msgstr ""
+msgstr "Crioll Macau"
 
 #. name for mzt
 msgid "Mintil"
-msgstr ""
+msgstr "Mintil"
 
 #. name for mzu
 msgid "Inapang"
@@ -17584,7 +17584,7 @@ msgstr ""
 
 #. name for mzv
 msgid "Manza"
-msgstr ""
+msgstr "Manza"
 
 #. name for mzw
 msgid "Deg"
@@ -17592,7 +17592,7 @@ msgstr ""
 
 #. name for mzx
 msgid "Mawayana"
-msgstr ""
+msgstr "Mauaiana"
 
 #. name for mzy
 msgid "Mozambican Sign Language"
@@ -17600,7 +17600,7 @@ msgstr "Llenguatge de signes moçambiquès"
 
 #. name for mzz
 msgid "Maiadomu"
-msgstr ""
+msgstr "Maiadom"
 
 #. name for naa
 msgid "Namla"
@@ -28784,7 +28784,7 @@ msgstr ""
 
 #. name for xmz
 msgid "Mori Bawah"
-msgstr ""
+msgstr "Mori; Bawah"
 
 #. name for xna
 msgid "North Arabian; Ancient"
