@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-07 04:42+0000\n"
-"PO-Revision-Date: 2012-11-27 04:51+0000\n"
+"PO-Revision-Date: 2012-12-11 04:39+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-12-08 04:56+0000\n"
-"X-Generator: Launchpad (build 16341)\n"
+"X-Launchpad-Export-Date: 2012-12-11 04:45+0000\n"
+"X-Generator: Launchpad (build 16356)\n"
 "Language: zh_TW\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1065,7 +1065,7 @@ msgstr "與 iTunes/iBooks 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:212
 msgid "Apple iDevice detected, launching iTunes, please wait ..."
-msgstr ""
+msgstr "偵測到 Apple iDevice，執行 iTunes，請稍候…"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:214
 msgid ""
@@ -1079,6 +1079,8 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes' ***"
 msgstr ""
+"*** 不支援的直接連線模式。請查閱 http://www.mobileread.com/forums/showthread.php?t=118559 "
+"for instructions on using 'Connect to iTunes' ***"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:221
 msgid ""
@@ -1086,6 +1088,9 @@ msgid ""
 "href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
 "forum post</a> for more information.</p><p></p>"
 msgstr ""
+"<p>無法連繫 iTunes。</p><p>請參考這個<a "
+"href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
+"論壇文章</a>以獲取更多資訊。</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:375
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:378
@@ -1741,7 +1746,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1243
 msgid "Set Series information"
-msgstr ""
+msgstr "設定系列資訊"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1244
 msgid ""
@@ -2119,7 +2124,7 @@ msgstr "安全式密碼"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:273
 msgid "Enter a password that the device app must use to connect to calibre"
-msgstr ""
+msgstr "輸入裝置上的 app 用來與 calibre 連線的密碼"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:275
 msgid "Use fixed network port"
@@ -2161,7 +2166,7 @@ msgstr "可能包含：系列、標籤、作者等"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:293
 msgid "Enable the no-activity timeout"
-msgstr ""
+msgstr "啟用不活動逾時"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:294
 #, python-format
@@ -2170,6 +2175,8 @@ msgid ""
 "device does nothing for %d minutes. Unchecking this  box disables this "
 "timeout, so calibre will never automatically disconnect."
 msgstr ""
+"如果核取此方塊，calibre 會在連線的裝置 %d 分鐘都沒有動作後自動斷線。如果不核取這個方塊就會停用逾時時間，因而 calibre "
+"不會自動中斷連線。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:298
 msgid "Use this IP address"
@@ -3483,7 +3490,7 @@ msgstr ""
 msgid ""
 "An XPath expression. Page breaks are inserted before the specified elements. "
 "To disable use the expression: /"
-msgstr ""
+msgstr "XPath 表示式。換頁符號要插入在指定元素之前。要停用則使用表示式：/"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:364
 msgid ""
@@ -3820,7 +3827,7 @@ msgstr "正在對電子書籍進行轉換..."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:1153
 #, python-format
 msgid "Running %s plugin"
-msgstr ""
+msgstr "執行 %s 外掛程式"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 #, python-format
@@ -4490,7 +4497,7 @@ msgstr "從 OZON.ru 下載元數據和封面"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:58
 msgid "Sample Book"
-msgstr ""
+msgstr "範例書籍"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/mobi6.py:75
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -4498,15 +4505,15 @@ msgstr "這是 Amazon Topaz 書籍。它是無法被處理的。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:46
 msgid "This is not a MOBI file. It is a Topaz file."
-msgstr ""
+msgstr "這不是 MOBI 檔案。它是 Topaz 檔案。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:51
 msgid "This is not a MOBI file."
-msgstr ""
+msgstr "這不是 MOBI 檔案。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:54
 msgid "This file is locked with DRM. It cannot be tweaked."
-msgstr ""
+msgstr "這個檔案已經用 DRM 鎖定。它無法被調整。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:59
 msgid ""
@@ -4514,6 +4521,8 @@ msgid ""
 "from Amazon. calibre can only tweak MOBI files that contain KF8 books. Older "
 "MOBI files without KF8 are not tweakable."
 msgstr ""
+"這個 MOBI 檔案並非 KF8 格式的書籍。KF8 是 Amazon 的新式。calibre 只能調整包含 KF8 的 MOBI 檔案。較舊不包含 "
+"KF8 的 MOBI 檔案是無法調整的。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:65
 msgid ""
@@ -4652,7 +4661,7 @@ msgstr "側邊欄"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/outline_writer.py:60
 #, python-format
 msgid "Page %d"
-msgstr ""
+msgstr "第 %d 頁"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:71
 msgid "Could not find pdftohtml, check it is in your PATH"
@@ -4819,7 +4828,7 @@ msgstr "需要重新啟動"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:341
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:741
 msgid "Restart calibre now"
-msgstr ""
+msgstr "立即重新啟動 calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:572
 msgid "Choose Files"
@@ -4995,7 +5004,7 @@ msgid ""
 "The following %d duplicate books were found and incoming book formats were "
 "processed and merged into your Calibre database according to your automerge "
 "settings:"
-msgstr ""
+msgstr "發現下列 %d 本重複的書籍，而新進的書籍格式已經根據您的自動合併設定值處理並合併到您的 Calibre 資料庫中："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:354
 msgid "Failed to read metadata"
@@ -5033,23 +5042,23 @@ msgstr "找不到書籍檔案"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:406
 msgid "Downloading books"
-msgstr ""
+msgstr "下載書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:407
 msgid "Downloading books from device"
-msgstr ""
+msgstr "從裝置下載書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:426
 msgid "Could not download files from the device"
-msgstr ""
+msgstr "無法從裝置下載書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:429
 msgid "Could not download some files from the device"
-msgstr ""
+msgstr "無法從裝置下載某些檔案"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:433
 msgid "Could not download files"
-msgstr ""
+msgstr "無法下載檔案"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:13
 msgid "Add books to library"
@@ -5256,14 +5265,14 @@ msgstr "太長"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:324
 msgid "Not found"
-msgstr ""
+msgstr "找不到"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:325
 #, python-format
 msgid ""
 "Cannot rename as no library was found at %s. Try switching to this library "
 "first, then switch back and retry the renaming."
-msgstr ""
+msgstr "不能重新命名，因為在 %s 找不到書庫。請先試著切換到這個書庫，然後再切換回去並再試一次重新命名。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:335
 msgid "Rename failed"
@@ -5558,7 +5567,7 @@ msgstr "無法刪除"
 msgid ""
 "The %(fmt)s format will be <b>permanently deleted</b> from %(title)s. Are "
 "you sure?"
-msgstr ""
+msgstr "%(fmt)s 格式會從 %(title)s<b>永久刪除</b>。您確定嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:162
 msgid "Choose formats to be deleted"
@@ -5633,11 +5642,11 @@ msgstr "選取的書籍會從您的裝置<b>永遠刪除</b>您確定嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:33
 msgid "Start wireless device connection"
-msgstr ""
+msgstr "啟動無線裝置連線"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:34
 msgid "Stop wireless device connection"
-msgstr ""
+msgstr "停止無線裝置連線"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:38
 msgid "Connect to folder"
@@ -5663,7 +5672,7 @@ msgstr "啟動/停止內容伺服器"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:96
 #, python-format
 msgid " [%(ip)s, port %(port)d]"
-msgstr ""
+msgstr " [%(ip)s, 連接埠 %(port)d]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:100
 msgid "Stop Content Server"
@@ -5710,17 +5719,17 @@ msgstr "正在停止伺服器，這可能要花上一分鐘，請稍候..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:238
 msgid "Disable autostart"
-msgstr ""
+msgstr "停用自動啟動"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:239
 msgid ""
 "Do you want wireless device connections to be started automatically when "
 "calibre starts?"
-msgstr ""
+msgstr "您想要無線裝置連線在 calibre 啟動時自動啟動嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:262
 msgid "Many IP addresses. See Start/Stop dialog."
-msgstr ""
+msgstr "多重 IP 位址。請查閱啟動/停止對話盒。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
@@ -5810,7 +5819,7 @@ msgstr "無法下載書籍中 %d 的元數據和/或封面。點選「顯示詳�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:117
 msgid "Show the &failed books in the main book list after updating metadata"
-msgstr ""
+msgstr "在更新元數據後在主要書籍清單中顯示失敗的書籍(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:123
 msgid "Download complete"
@@ -6056,7 +6065,7 @@ msgstr "不能儲存到磁碟"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:63
 msgid "Choose format to save to disk"
-msgstr ""
+msgstr "選擇要儲存至磁碟的格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:84
 msgid "Choose destination directory"
@@ -6169,15 +6178,15 @@ msgstr "搜尋電子書"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "this author"
-msgstr ""
+msgstr "這位作者"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "this title"
-msgstr ""
+msgstr "這個書名"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "this book"
-msgstr ""
+msgstr "這本書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:469
@@ -6213,7 +6222,7 @@ msgid ""
 "Using the integrated search you can easily find which store has the book you "
 "are looking for, at the best price. You also get DRM status and other useful "
 "information."
-msgstr ""
+msgstr "使用這項整合式搜尋您可以輕易的找到哪間商店有您在找的書籍，以及最便宜的價格。您也可以取得 DRM 狀態與其他有用的資訊。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:142
 msgid ""
@@ -6240,7 +6249,7 @@ msgstr "調整書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:64
 msgid "Choose the format to tweak:"
-msgstr ""
+msgstr "選擇要調整的格式："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:74
 msgid ""
@@ -6271,11 +6280,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:103
 msgid "&Explode Book"
-msgstr ""
+msgstr "展開書籍(&E)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:104
 msgid "&Preview Book"
-msgstr ""
+msgstr "預覽書籍(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:25
@@ -6291,57 +6300,57 @@ msgstr "重建書籍(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:109
 msgid "Explode the book to edit its components"
-msgstr ""
+msgstr "展開書籍以編輯它的元件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:111
 msgid "Preview the result of your tweaks"
-msgstr ""
+msgstr "預覽您調整的結果"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:113
 msgid "Abort without saving any changes"
-msgstr ""
+msgstr "不儲存任何變更就中止"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:115
 msgid "Save your changes and update the book in the calibre library"
-msgstr ""
+msgstr "儲存您的變更並更新 calibre 書庫中的書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:155
 msgid "Exploding, please wait..."
-msgstr ""
+msgstr "正在展開，請稍候…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:187
 msgid "Failed to unpack"
-msgstr ""
+msgstr "無法解壓縮"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:178
 #, python-format
 msgid "Could not explode the %s file."
-msgstr ""
+msgstr "無法展開 %s 檔案。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:188
 #, python-format
 msgid ""
 "Could not explode the %s file. Click \"Show Details\" for more information."
-msgstr ""
+msgstr "無法展開 %s 檔案。點選「顯示詳細資料」以取得更多資訊。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:222
 msgid "Failed to rebuild file"
-msgstr ""
+msgstr "無法重新建立檔案"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:223
 #, python-format
 msgid "Failed to rebuild %s. For more information, click \"Show details\"."
-msgstr ""
+msgstr "無法重新建立 %s。需要更多資訊，請點選「顯示詳細資料」。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:231
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:240
 msgid "Rebuilding, please wait..."
-msgstr ""
+msgstr "正在重新建立，請稍候…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:289
 msgid "Make small changes to ePub, HTMLZ or AZW3 format books"
-msgstr ""
+msgstr "對 ePub、HTMLZ 或 AZW3 格式的書籍進行微調"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:290
 msgid "T"
@@ -6353,7 +6362,7 @@ msgstr "不能調整書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:310
 msgid "Cannot Tweak Book"
-msgstr ""
+msgstr "不能調整書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:311
 msgid ""
@@ -6361,6 +6370,9 @@ msgid ""
 "\n"
 "First convert the book to one of these formats."
 msgstr ""
+"書籍必須是 ePub、HTMLZ 或 AZW3 格式才能調整。\n"
+"\n"
+"首先請將書籍轉換到這些格式之一。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -6492,11 +6504,11 @@ msgstr "加入書籍的程序似乎停住了。請試著重新啟動 calibre 並
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:396
 msgid "Already in calibre:"
-msgstr ""
+msgstr "已經在 calibre 中："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:404
 msgid "You are trying to add:"
-msgstr ""
+msgstr "您嘗試加入："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:409
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:223
@@ -6507,7 +6519,7 @@ msgstr "發現重複項目！"
 msgid ""
 "Books with the same title as the following already exist in calibre. Add "
 "them anyway?"
-msgstr ""
+msgstr "與下列同名的書籍已存在 calibre 中。要強制加入它們嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:413
 msgid "Adding duplicates..."
@@ -6743,12 +6755,12 @@ msgstr "封面大小： %(width)d x %(height)d"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:481
 #, python-format
 msgid "Delete the %s format"
-msgstr ""
+msgstr "刪除 %s 格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:482
 #, python-format
 msgid "Save the %s format to disk"
-msgstr ""
+msgstr "儲存 %s 格式至磁碟"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -6913,32 +6925,32 @@ msgstr "電子書選項"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:90
 msgid "Catalogs"
-msgstr ""
+msgstr "分類"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:99
 msgid "Read book"
-msgstr ""
+msgstr "閱讀書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:105
 msgid "Wishlist item"
-msgstr ""
+msgstr "希望清單項目"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:854
 msgid "any date"
-msgstr ""
+msgstr "任何日期"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:852
 msgid "any value"
-msgstr ""
+msgstr "任何數值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:135
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:850
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:852
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:854
 msgid "unspecified"
-msgstr ""
+msgstr "未指定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:185
 msgid "No genres will be excluded"
@@ -6947,7 +6959,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:202
 #, python-format
 msgid "regex error: %s"
-msgstr ""
+msgstr "正規表示式錯誤：%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:211
 msgid "All genres will be excluded"
@@ -6956,26 +6968,26 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:697
 #, python-format
 msgid "Are you sure you want to delete '%s'?"
-msgstr ""
+msgstr "您確定要刪除「%s」？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:699
 #, python-format
 msgid "Are you sure you want to delete rules #%(first)d-%(last)d?"
-msgstr ""
+msgstr "您確定要刪除規則 #%(first)d-%(last)d？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:700
 msgid "Delete Rule"
-msgstr ""
+msgstr "刪除規則"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:850
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:613
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4770
 msgid "False"
-msgstr ""
+msgstr "False"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:850
 msgid "True"
-msgstr ""
+msgstr "True"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:875
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:966
@@ -6989,16 +7001,16 @@ msgstr "名稱"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:876
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:968
 msgid "Field"
-msgstr ""
+msgstr "欄位"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:877
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:969
 msgid "Value"
-msgstr ""
+msgstr "數值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:967
 msgid "Prefix"
-msgstr ""
+msgstr "前綴"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:290
 msgid "Enabled sections will be included in the generated catalog."
@@ -7010,15 +7022,15 @@ msgstr "包含節"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:292
 msgid "&Authors"
-msgstr ""
+msgstr "作者(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:293
 msgid "&Titles"
-msgstr ""
+msgstr "書名(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:294
 msgid "&Series"
-msgstr ""
+msgstr "系列(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:295
 msgid "&Genres"
@@ -7030,7 +7042,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "&Recently Added"
-msgstr ""
+msgstr "最近加入的(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:298
 msgid "&Descriptions"
@@ -7044,7 +7056,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:300
 msgid "Prefixes"
-msgstr ""
+msgstr "前綴"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:301
 msgid ""
@@ -7074,11 +7086,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:307
 msgid "Reset to default"
-msgstr ""
+msgstr "重設為預設值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:309
 msgid "Results of regex:"
-msgstr ""
+msgstr "正規表示式結果："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:310
 msgid "Tags that will be excluded as genres"
@@ -7096,7 +7108,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:313
 msgid "Merge additional content before Comments metadata."
-msgstr ""
+msgstr "在評論元數據之前合併額外內容。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:314
 msgid "&Before"
@@ -7104,7 +7116,7 @@ msgstr "之前(&B)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:315
 msgid "Merge additional content after Comments metadata."
-msgstr ""
+msgstr "在評論元數據之後合併額外內容。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:316
 msgid "&After"
@@ -7113,31 +7125,31 @@ msgstr "之後(&A)"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:317
 msgid ""
 "Separate Comments metadata and additional content with a horizontal rule."
-msgstr ""
+msgstr "以水平線分隔評論元數據與額外的內容。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:318
 msgid "Include &Separator"
-msgstr ""
+msgstr "包含分隔線(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "&Merge with Comments:"
-msgstr ""
+msgstr "與評論合併(&M):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:320
 msgid "Catalog cover:"
-msgstr ""
+msgstr "分類封面："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
 msgid "Generate new cover"
-msgstr ""
+msgstr "產生新封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:322
 msgid "Use existing cover"
-msgstr ""
+msgstr "使用現有封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
 msgid "E&xtra Description note:"
-msgstr ""
+msgstr "額外的描述備註(&X):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:324
 msgid "Custom column source for text to include in Description section."
@@ -7145,7 +7157,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
 msgid "&Thumb width:"
-msgstr ""
+msgstr "縮圖寬度(&T):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
 msgid "Size hint for cover thumbnails included in Descriptions section."
@@ -7157,11 +7169,11 @@ msgstr " 英吋"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid "Author cross-references:"
-msgstr ""
+msgstr "作者交叉參照："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:329
 msgid "For books with multiple authors, list each author separately"
-msgstr ""
+msgstr "多個作者的書籍，請分別列出每位作者"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -7322,11 +7334,11 @@ msgstr "建立連結"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:215
 msgid "Enter &URL:"
-msgstr ""
+msgstr "輸入 &URL："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:216
 msgid "Enter name (optional):"
-msgstr ""
+msgstr "輸入名稱 (選擇性)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:577
 msgid "Normal view"
@@ -7338,7 +7350,7 @@ msgstr "HTML 原始檔"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output.py:17
 msgid "AZW3 Output"
-msgstr ""
+msgstr "AZW3 輸出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/azw3_output_ui.py:53
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:84
@@ -7732,7 +7744,7 @@ msgstr "如何處理以 CSS 為基礎的類別"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output_ui.py:50
 msgid "Use book &title as the filename for the HTML file inside the archive"
-msgstr ""
+msgstr "使用書名做為壓縮檔中 HTML 的檔案名稱"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
@@ -7857,7 +7869,7 @@ msgstr "其他的 CSS 屬性(&O):"
 msgid ""
 "Comma separated list of CSS properties to remove. For example: display, "
 "color, font-family"
-msgstr ""
+msgstr "要移除的 CSS 屬性的逗號分隔清單。例如：display, color, font-family"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:229
 msgid "&Filter Style Information"
@@ -7901,7 +7913,7 @@ msgstr "行距(&L):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:240
 msgid "&Embed font family:"
-msgstr ""
+msgstr "內嵌的字族(&E):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:241
 msgid "&Disable font size rescaling"
@@ -7909,7 +7921,7 @@ msgstr "停用字型大小縮放(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:242
 msgid "&Subset all embedded fonts (Experimental)"
-msgstr ""
+msgstr "所有內嵌字型的子群組 (實驗性)(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:16
 msgid "LRF Output"
