@@ -29,8 +29,6 @@ class PagedDisplay
         this.current_page_height = null
         this.document_margins = null
         this.use_document_margins = false
-        this.footer_panel = null
-        this.header_panel = null
 
     read_document_margins: () ->
         # Read page margins from the document. First checks for an @page rule.
