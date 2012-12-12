@@ -2499,8 +2499,8 @@ class ITUNES(DriverBase):
                 self.iTunes = win32com.client.Dispatch("iTunes.Application")
             except:
                 self.iTunes = None
-                raise UserFeedback(' %s._launch_iTunes(): unable to find installed iTunes'
-                                    % self.__class__.__name__, details=None, level=UserFeedback.WARN)
+                raise OpenFeedback('Unable to launch iTunes.\n' +
+                                   'Try launching calibre as Administrator')
 
             if not DEBUG:
                 self.iTunes.Windows[0].Minimized = True
@@ -2508,8 +2508,7 @@ class ITUNES(DriverBase):
 
             try:
                 # Pre-emptive test to confirm functional iTunes automation interface
-                foo = self.iTunes.Version
-                foo
+                logger().info("  automation interface with iTunes %s established" % self.iTunes.Version)
             except:
                 self.iTunes = None
                 raise OpenFeedback('Unable to connect to iTunes.\n' +
