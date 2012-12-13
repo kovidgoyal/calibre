@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-07 04:42+0000\n"
-"PO-Revision-Date: 2012-07-18 17:43+0000\n"
-"Last-Translator: Tal Nisan <talnl357@gmail.com>\n"
+"PO-Revision-Date: 2012-12-12 16:04+0000\n"
+"Last-Translator: Hisbro <talnl357@gmail.com>\n"
 "Language-Team: Hebrew <he@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-08 04:43+0000\n"
-"X-Generator: Launchpad (build 16341)\n"
+"X-Launchpad-Export-Date: 2012-12-13 04:40+0000\n"
+"X-Generator: Launchpad (build 16361)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -427,6 +427,7 @@ msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
 msgstr ""
+"מצא את ההתאמה הקודמות או ההבאה בעת חיפוש בספריית ה-calibre שלך במצב הדגשה."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:899
 msgid "Choose a random book from your calibre library"
@@ -438,7 +439,7 @@ msgstr "חפש ספרים ממוכרים שונים"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:922
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "קבל רכיבי calibre חדשים או עדכן רכיבים קיימים."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:941
 msgid "Look and Feel"
@@ -578,7 +579,7 @@ msgstr "הגדרות מתקדמות"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1084
 msgid "Create your own template functions"
-msgstr ""
+msgstr "צור פונקציות תבנית משלך"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1089
 msgid "Sharing books by email"
@@ -616,18 +617,18 @@ msgstr "הורדת מטא-נתונים"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1120
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr "שלוט באופן בו קליבר מוריד מטא-נתונים מהרשת"
+msgstr "שלוט באופן בו calibre מוריד מטא-נתונים של ספרים אלקטרונים מהרשת"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1125
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:392
 msgid "Ignored devices"
-msgstr ""
+msgstr "התקנים שמתעלמים מהם"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1131
 msgid ""
 "Control which devices calibre will ignore when they are connected to the "
 "computer."
-msgstr ""
+msgstr "קבע מאילו התקנים calibre יתעלם כאשר הם מחוברים למחשב."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1138
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:296
@@ -652,7 +653,7 @@ msgstr "מקלדת"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1167
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr "התאם את קיצורי המקלדת בהם קליבר משתמש"
+msgstr "התאם את קיצורי המקלדת בהם calibre משתמש"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1172
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
@@ -665,11 +666,11 @@ msgstr "הגדרות מתקדמות שונות"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:108
 msgid "Options specific to the output format."
-msgstr ""
+msgstr "אפשרויות ספציפיות לפורמט הפלט."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:118
 msgid "Options specific to the input format."
-msgstr ""
+msgstr "אפשרויות ספציפיות לפורמט הקלט."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:133
 msgid "Conversion Input"
@@ -683,7 +684,7 @@ msgid ""
 "encoding declarations."
 msgstr ""
 "ציין את סוג הקידוד של קובץ המקור. בחירה זו תביא לביטול הגדרת הקידוד מהקובץ. "
-"שימושי למסמכים שאין בהם הגדרת קידוד או הגדרות קידוד שגויות"
+"שימושי במיוחד למסמכים שאין בהם הגדרת קידוד או בעלי הגדרות קידוד שגויות."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:280
 msgid "Conversion Output"
@@ -694,7 +695,7 @@ msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
-"אם מוגדר ,רכיב ההמרה ינסה ליצור קובץ קריא ככל האפשר.עלול לא להשפיע כלל עבור "
+"אם מוגדר ,רכיב ההמרה ינסה ליצור קובץ קריא ככל האפשר. עלול לא להשפיע כלל עבור "
 "רכיבים מסויימים."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:310
@@ -718,7 +719,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:459
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
-msgstr "פרופיל זה מיועד עבור SONY PRS line מדגמים 500/505/600/700 ועוד."
+msgstr "פרופיל זה מיועד עבור SONY PRS line מדגמים 500/505/600/700 וכדומה."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:71
 msgid "This profile is intended for the SONY PRS 300."
@@ -747,7 +748,7 @@ msgstr "פרופיל זה מיועד עבור Hanlin V3 ומכשירים דומ�
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:124
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:580
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr "פרופיל זה מיועד עבור Hanlin V5 ומכשירים דומים"
+msgstr "פרופיל זה מיועד עבור Hanlin V5 ומכשירים דומים."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:134
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:588
@@ -777,7 +778,7 @@ msgstr "פרופיל זה מיועד עבור IRex Digital Reader 1000."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:196
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:715
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr "פרופיל זה מיועד עבור IRex Digital Reader 800"
+msgstr "פרופיל זה מיועד עבור IRex Digital Reader 800."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:208
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:729
@@ -851,7 +852,7 @@ msgstr "פרופיל זה מיועד למכשיר Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:661
 msgid "This profile is intended for the Amazon Kindle PaperWhite"
-msgstr ""
+msgstr "פרופיל זה מיועד ל-Amazon Kindle PaperWhite."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:672
 msgid "This profile is intended for the Amazon Kindle Fire."
@@ -868,7 +869,7 @@ msgstr "הפרופיל הזה מיועד ל'סאנדה במבוק' (Sanda Bamboo
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:767
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "פרופיל זה מיועד לסדרת ההתקנים של PocketBook Pro 900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -949,7 +950,7 @@ msgstr "הפסק את הרכיב המצויין"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:145
 #, python-format
 msgid "Path to library too long. Must be less than %d characters."
-msgstr ""
+msgstr "נתיב הסיפריה ארוך מידי. אורכו חייב להיות פחות מ-%d תווים."
 
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:134
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:666
@@ -984,6 +985,8 @@ msgid ""
 "Cause a running calibre instance, if any, to be shutdown. Note that if there "
 "are running jobs, they will be silently aborted, so use with care."
 msgstr ""
+"סוגר מופע של calibre במידה וקיים.שים לב שאם ישנן עבודות המתבצעות ברקע, הן "
+"יבוטלו בחשאי, לכן השתמש בזהירות."
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:172
 msgid "Debug log"
@@ -1011,7 +1014,7 @@ msgstr "תקשר עם סלולרי S60"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:335
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "תקשר עם מחשבי לוח מסוג WebOS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:63
 msgid ""
@@ -1173,7 +1176,7 @@ msgstr "תקשר עם אייטונס"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "תקשר עם קורא הספרים האלקטרוניים Sanda Bambok."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
@@ -1188,11 +1191,13 @@ msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
 msgstr ""
+"לא ניתן להוסיף ספר לסיפריה ישירות מ-Bambook. אנא שומר את את הספר בדיסק הקשיח "
+"והוסף אותו לסיפריה משם."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:67
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
-msgstr ""
+msgstr "לא ניתן להתחבר ל-Bambook, התקן את הסיפריה של Bambook קודם."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:75
 msgid ""
@@ -1280,7 +1285,7 @@ msgstr "שולח מטא תגיות למכשיר"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:129
 msgid "Bambook SDK has not been installed."
-msgstr ""
+msgstr "ערכת פיתוח תוכנה של Bambook לא הותקנה."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."

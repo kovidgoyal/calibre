@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-07 04:42+0000\n"
-"PO-Revision-Date: 2012-07-26 20:48+0000\n"
-"Last-Translator: Rafael Antonio Belokurows <rafadv123@gmail.com>\n"
+"PO-Revision-Date: 2012-12-12 19:29+0000\n"
+"Last-Translator: André Glória <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-08 04:49+0000\n"
-"X-Generator: Launchpad (build 16341)\n"
+"X-Launchpad-Export-Date: 2012-12-13 04:41+0000\n"
+"X-Generator: Launchpad (build 16361)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -423,12 +423,15 @@ msgstr "Copiar um livro de uma biblioteca Calibre para outra"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:888
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
+"Realizar pequenos ajustes a ficheiros epub ou htmlz na sua biblioteca calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:893
 msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
 msgstr ""
+"Encontrar a próxima e anterior correspondências ao pesquisar, na sua "
+"biblioteca calibre, em modo de destaques"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:899
 msgid "Choose a random book from your calibre library"
@@ -630,13 +633,15 @@ msgstr "Controlar o modo de receção dos detalhes de um livro via Internet"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1125
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:392
 msgid "Ignored devices"
-msgstr ""
+msgstr "Dispositivos ignorados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1131
 msgid ""
 "Control which devices calibre will ignore when they are connected to the "
 "computer."
 msgstr ""
+"Controlar quais os dispositivos a ignorar pelo calibre, quando ligados ao "
+"seu computador."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1138
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:296
@@ -870,7 +875,7 @@ msgstr "Este perfil é destinado ao Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:661
 msgid "This profile is intended for the Amazon Kindle PaperWhite"
-msgstr ""
+msgstr "Este perfil encontra-se vocacionado para o Amazon Kindle PaperWhite"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:672
 msgid "This profile is intended for the Amazon Kindle Fire."
@@ -938,6 +943,9 @@ msgid ""
 "plugin. This command will automatically zip up the plugin and update it in "
 "calibre."
 msgstr ""
+"Para programadores de plugins: Diretório onde se encontra o plugin em "
+"desenvolvimento. Este comando irá compactar e atualizar o plugin no calibre "
+"automaticamente."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:626
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
@@ -1010,6 +1018,10 @@ msgid ""
 "Cause a running calibre instance, if any, to be shutdown. Note that if there "
 "are running jobs, they will be silently aborted, so use with care."
 msgstr ""
+"Causa a terminação de uma instância do calibre, caso exista alguma em "
+"execução. Note que se existirem tarefas em execução, estas serão "
+"silenciosamente canceladas, pelo que deve usar esta funcionalidade com "
+"cuidado."
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:172
 msgid "Debug log"
@@ -1024,12 +1036,18 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device's "
 "<b>main memory</b>. The first one that exists will be used"
 msgstr ""
+"Lista separada por vírgulas, de diretórios, na <b>memória principal</b> do "
+"dispositivo, para onde enviar e-books . O primeiro diretório que exista, "
+"será o utilizado"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:201
 msgid ""
 "Comma separated list of directories to send e-books to on the device's "
 "<b>storage cards</b>. The first one that exists will be used"
 msgstr ""
+"Lista separada por vírgulas, de diretórios, em <b>cartões de memória</b> do "
+"dispositivo, para onde enviar e-books . O primeiro diretório que exista, "
+"será o utilizado."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:316
 msgid "Communicate with S60 phones."
@@ -1050,6 +1068,14 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>Se não pretende que o calibre reconheça o seu Apple iDevice quando ligado "
+"ao computador, clique <b>Desativar Apple Driver</b>.</p><p>Para transferir "
+"livros para o seu iDevice, clique <b>Desativar Apple Driver</b>, e em "
+"seguida use o método 'Ligar ao iTunes' recomendado em <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Calibre + "
+"iDevices FAQ</a>, através do menu <em>Ligar/Partilhar</em>|<em>Ligar ao "
+"iTunes</em>.</p><p>Ativar o Apple driver para comunicação direta com "
+"iDevices é um modo, não suportado, para utilizadores avançados.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:80
 msgid "Disable Apple driver"
@@ -1092,6 +1118,11 @@ msgid ""
 "your calibre configuration directory.</p><p>Enabling indicates that iTunes "
 "is configured to store copies in your iTunes Media folder.</p>"
 msgstr ""
+"<p>Esta opção deve coincidir com a opção em "
+"<i>Preferências</i>|<i>Avançadas</i> no seu iTunes.</p><p>Desativando-a irá "
+"guardar cópias de livros transferidos com o iTunes no seu diretório de "
+"configuração do calibre.</p><p>Ativando-a indica que o iTunes se encontra "
+"configurado para guardar cópias no seu diretório iTunes Media.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:196
 msgid "Apple device"
@@ -1103,7 +1134,7 @@ msgstr "Estabelecer ligação com o sistema iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:212
 msgid "Apple iDevice detected, launching iTunes, please wait ..."
-msgstr ""
+msgstr "Apple iDevice detetado, a lançar o iTunes, por favor aguarde ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:214
 msgid ""
@@ -1120,6 +1151,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes' ***"
 msgstr ""
+"*** Modo de ligação direta não suportado. Consulte "
+"http://www.mobileread.com/forums/showthread.php?t=118559 para instruções em "
+"como usar o 'Ligar ao iTunes' ***"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:221
 msgid ""
@@ -1127,6 +1161,9 @@ msgid ""
 "href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
 "forum post</a> for more information.</p><p></p>"
 msgstr ""
+"<p>Incapaz de comunicar com o  iTunes.</p><p>Consulte este <a "
+"href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
+"tópico no fórum</a> para mais informação.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:375
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:378
@@ -1141,7 +1178,7 @@ msgstr "A actualizar a lista de metadados do dispositivo..."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3335
 #, python-format
 msgid "%(num)d of %(tot)d"
-msgstr ""
+msgstr "%(num)d de %(tot)d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:505
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1195
@@ -1339,11 +1376,11 @@ msgstr "Comunicar com o Blackberry playbook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "Comunicar com leitores BOEYE BEX Serial."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "Comunicar com leitores BOEYE BDX serial."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
@@ -1371,11 +1408,11 @@ msgstr "Comunicar com o leitor PocketBook 602/603/902/903"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
-msgstr ""
+msgstr "Comunicar com o leitor PocketBook 622."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:270
 msgid "Communicate with the PocketBook 360+ reader."
-msgstr ""
+msgstr "Comunicar com o leitor PocketBook 360+."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:280
 msgid "Communicate with the PocketBook 701"
@@ -1527,21 +1564,21 @@ msgstr "%(time)s<br />Última página lida: Localização %(loc)d (%(pr)d%%)"
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:210
 #, python-format
 msgid "<b>Location %(dl)d &bull; %(typ)s</b><br />%(text)s<br />"
-msgstr ""
+msgstr "<b>Localização %(dl)d &bull; %(typ)s</b><br />%(text)s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:219
 #, python-format
 msgid "<b>Page %(dl)d &bull; %(typ)s</b><br />"
-msgstr ""
+msgstr "<b>Página %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:224
 #, python-format
 msgid "<b>Location %(dl)d &bull; %(typ)s</b><br />"
-msgstr ""
+msgstr "<b>Localização %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:289
 msgid "Communicate with the Kindle 2/3/4/Touch/PaperWhite eBook reader."
-msgstr ""
+msgstr "Comunicar com os leitores Kindle 2/3/4/Touch/PaperWhite."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:301
 msgid "Send page number information when sending books"

@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-07 04:42+0000\n"
-"PO-Revision-Date: 2012-12-11 04:48+0000\n"
+"PO-Revision-Date: 2012-12-13 04:33+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-12-12 04:37+0000\n"
+"X-Launchpad-Export-Date: 2012-12-13 04:41+0000\n"
 "X-Generator: Launchpad (build 16361)\n"
 "Language: zh_TW\n"
 
@@ -9070,12 +9070,12 @@ msgstr "與裝置連線時發生錯誤"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:860
 #, python-format
 msgid "Manage the %s?"
-msgstr ""
+msgstr "管理 %s？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:861
 #, python-format
 msgid "Detected the <b>%s</b>. Do you want calibre to manage it?"
-msgstr ""
+msgstr "偵測到 <b>%s</b>。您想要 calibre 管理它嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:884
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1460
@@ -9104,7 +9104,7 @@ msgstr "設定 %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:939
 #, python-format
 msgid "Restart calibre for the changes to %s to be applied."
-msgstr ""
+msgstr "重新啟動 calibre 讓對 %s 的變更生效。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:981
 msgid "Error talking to device"
@@ -9114,7 +9114,7 @@ msgstr "與裝置連繫時發生錯誤"
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device or reboot."
-msgstr ""
+msgstr "與裝置溝通時發生暫時的錯誤。請拔除接頭後重新連接裝置或重開機。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1027
 msgid "Device: "
@@ -9135,7 +9135,7 @@ msgstr "沒有裝置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1140
 msgid "No device connected"
-msgstr ""
+msgstr "尚未連接裝置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1156
 #, python-format
@@ -9200,7 +9200,7 @@ msgstr "<p>不能上傳書籍到裝置，因為已無更多可用空間 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1540
 msgid "Incorrect destination"
-msgstr ""
+msgstr "不正確的目的地"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:142
 msgid "Unknown formats"
@@ -9255,21 +9255,23 @@ msgstr "儲存範本(&T):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:57
 msgid "No formats selected"
-msgstr ""
+msgstr "沒有選取的格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:58
 msgid "You must choose at least one format to send to the device"
-msgstr ""
+msgstr "您必須選擇至少一種格式以傳送到裝置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:86
 msgid ""
 "<b>Save &template</b> to control the filename and\n"
 "        location of files sent to the device:"
 msgstr ""
+"<b>儲存範本(&T)</b> 可以控制傳送到\n"
+"        裝置的檔案位置與名稱："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:92
 msgid "&Template editor"
-msgstr ""
+msgstr "範本編輯器(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
