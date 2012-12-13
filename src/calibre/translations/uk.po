@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-11-30 03:42+0000\n"
-"PO-Revision-Date: 2012-11-30 05:40+0000\n"
+"POT-Creation-Date: 2012-12-07 04:42+0000\n"
+"PO-Revision-Date: 2012-12-07 06:15+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,8 +17,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-12-01 04:52+0000\n"
-"X-Generator: Launchpad (build 16319)\n"
+"X-Launchpad-Export-Date: 2012-12-08 04:53+0000\n"
+"X-Generator: Launchpad (build 16341)\n"
 "Language: uk\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -173,7 +173,7 @@ msgstr "Не робить абсолютно нічого"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:202
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/google_books_plugin.py:107
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:191
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:885
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:924
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:244
 #: /home/kovid/work/calibre/src/calibre/library/database.py:914
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:587
@@ -1055,7 +1055,7 @@ msgstr "Зв'язується з телефонами на базі операц
 msgid "Communicate with WebOS tablets."
 msgstr "Обмін даними з планшетами під керуванням WebOS."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:61
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:63
 msgid ""
 "<p>If you do not want calibre to recognize your Apple iDevice when it is "
 "connected to your computer, click <b>Disable Apple Driver</b>.</p><p>To "
@@ -1077,31 +1077,31 @@ msgstr ""
 "драйвера Apple для безпосереднього з’єднання з пристроєм Apple є "
 "непідтримуваним розширеним режимом користування.</p><p></p>"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:78
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:80
 msgid "Disable Apple driver"
 msgstr "Увімкнути драйвер Apple"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:82
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:84
 msgid "Enable Apple driver"
 msgstr "Вимкнути драйвер Apple"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:118
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:121
 msgid "Use Series as Category in iTunes/iBooks"
 msgstr "Використати Серії як Категорії у iTunes/iBooks"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:119
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:122
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
 msgstr "Увімкнути використання назви серія як жанру iTunes, категорія iBooks"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:121
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:124
 msgid "Cache covers from iTunes/iBooks"
 msgstr "Кешувати обкладинку з iTunes/iBooks"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:123
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:126
 msgid "Enable to cache and display covers from iTunes/iBooks"
 msgstr "Увімкнути кешування і відображення обкладинки з iTunes/iBooks"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:124
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:127
 #, python-format
 msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
@@ -1110,7 +1110,7 @@ msgstr ""
 "У «Налаштуваннях iTunes->Додатково» позначено пункт «Копіювати файли до теки "
 "даних iTunes %s»"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:126
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:129
 msgid ""
 "<p>This setting should match your iTunes <i>Preferences</i>|<i>Advanced</i> "
 "setting.</p><p>Disabling will store copies of books transferred to iTunes in "
@@ -1123,19 +1123,19 @@ msgstr ""
 "налаштувань calibre.</p><p>Позначення пункту означатиме, що iTunes "
 "налаштовано на зберігання копій у вашій теці даних iTunes.</p>"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:190
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:196
 msgid "Apple device"
 msgstr "Пристрої Apple"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:192
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:198
 msgid "Communicate with iTunes/iBooks."
 msgstr "Зв'язується з iTunes/iBooks."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:206
-msgid "Apple device detected, launching iTunes, please wait ..."
-msgstr "Пристрій Apple виявлено, запуск iTunes, будь ласка, зачекайте…"
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:212
+msgid "Apple iDevice detected, launching iTunes, please wait ..."
+msgstr "Виявлено пристрій виробництва Apple, запускаємо iTunes, зачекайте…"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:208
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:214
 msgid ""
 "Cannot copy books directly from iDevice. Drag from iTunes Library to "
 "desktop, then add to calibre's Library window."
@@ -1143,17 +1143,17 @@ msgstr ""
 "Неможливо скопіювати книги напряму з пристрою. Перетягніть з бібліотеки "
 "iTunes на робочий стіл, після чого додайте до бібліотеки calibre."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:211
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:217
 msgid ""
-"Unsupported direct connect mode. See "
+"*** Unsupported direct connect mode. See "
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
-"using 'Connect to iTunes'"
+"using 'Connect to iTunes' ***"
 msgstr ""
-"Непідтримуваний режим безпосереднього з’єднання. Настанови щодо використання "
-"можливості «З’єднатися з iTunes» наведено тут: "
-"http://www.mobileread.com/forums/showthread.php?t=118559"
+"*** Непідтримуваний режим безпосереднього з’єднання. Настанови щодо "
+"користування режимом з’єднання з iTunes можна знайти тут: "
+"http://www.mobileread.com/forums/showthread.php?t=118559 ***"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:215
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:221
 msgid ""
 "<p>Unable to communicate with iTunes.</p><p>Refer to this <a "
 "href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
@@ -1163,29 +1163,29 @@ msgstr ""
 "href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
 "повідомлення на форумі</a> для отримання додаткової інформації.</p><p></p>"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:382
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:385
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:375
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:378
 msgid "Updating device metadata listing..."
 msgstr "Оновлення списку метаданих пристрою…"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:462
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:502
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1117
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1163
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3262
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3304
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:456
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:497
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1143
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1190
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3293
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3335
 #, python-format
 msgid "%(num)d of %(tot)d"
 msgstr "%(num)d з %(tot)d"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:510
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1168
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3311
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:505
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1195
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3342
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:110
 msgid "finished"
 msgstr "завершено"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:702
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:697
 msgid ""
 "Some books not found in iTunes database.\n"
 "Delete using the iBooks app.\n"
@@ -1195,7 +1195,7 @@ msgstr ""
 "Вилучіть за допомогою додатку iBooks.\n"
 "Натисніть «Показати деталі», щоб побачити список."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1080
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1105
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
@@ -1203,15 +1203,15 @@ msgstr ""
 "Деякі обкладинки не можуть бути конвертовані.\n"
 "Натисніть кнопку \"Показати деталі\" для списку."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2785
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2817
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:106
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:448
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:471
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:773
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:792
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:392
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:398
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:429
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:394
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:400
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:431
 #: /home/kovid/work/calibre/src/calibre/devices/utils.py:80
 #: /home/kovid/work/calibre/src/calibre/devices/utils.py:84
 #: /home/kovid/work/calibre/src/calibre/devices/utils.py:116
@@ -1226,13 +1226,13 @@ msgstr ""
 msgid "News"
 msgstr "Новини"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2786
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2818
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3342
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3360
 msgid "Catalog"
 msgstr "Каталог"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3154
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3185
 msgid "Communicate with iTunes."
 msgstr "Зв’язується з iTunes."
 
@@ -1300,8 +1300,8 @@ msgstr "Отримую список книжок з пристрою…"
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:268
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:324
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:367
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1095
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1097
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1099
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:277
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:279
 msgid "Transferring books to device..."
@@ -1312,8 +1312,8 @@ msgstr "Передаю книжки до пристрою…"
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:491
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:525
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:404
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1108
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1119
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1110
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1121
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:301
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:332
 msgid "Adding books to device metadata listing..."
@@ -1335,8 +1335,8 @@ msgstr "Вилучаємо книжки з пристрою…"
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:374
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:479
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:486
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1157
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1163
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1159
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1165
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:366
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:371
 msgid "Removing books from device metadata listing..."
@@ -2007,7 +2007,7 @@ msgid "Communicate with MTP devices"
 msgstr "Обмін даними з пристроями MTP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:143
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:912
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:914
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:95
 msgid "Get device information..."
 msgstr "Отримую інформацію про пристрій…"
@@ -2148,12 +2148,12 @@ msgstr ""
 "ці коментарі"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:66
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:262
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:264
 msgid "All by title"
 msgstr "Усі по назві"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:67
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:263
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:265
 msgid "All by author"
 msgstr "Усі по автору"
 
@@ -2291,42 +2291,42 @@ msgstr ""
 "автора книги, якщо у книги декілька авторів. Не позначайте пункт, якщо ви "
 "використовуєте додаткові засоби обробки метаданих."
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:174
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:176
 msgid "Wireless Device"
 msgstr "Бездротовий пристрій"
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:178
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:180
 msgid "Communicate with Smart Device apps"
 msgstr "Обмін даними з програмами на портативному пристрої"
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:264
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:266
 msgid "All by something"
 msgstr "Все за чимось"
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:267
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:269
 msgid "Enable connections at startup"
 msgstr "Увімкнути з’єднання під час запуску"
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:268
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:270
 msgid "Check this box to allow connections when calibre starts"
 msgstr ""
 "Позначте цей пункт, щоб дозволити Calibre вмикати з’єднання під час запуску"
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:270
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:272
 msgid "Security password"
 msgstr "Захисний пароль"
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:271
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:273
 msgid "Enter a password that the device app must use to connect to calibre"
 msgstr ""
 "Вкажіть пароль, який програма на пристрої має використовувати для "
 "встановлення з’єднання з Calibre"
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:273
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:275
 msgid "Use fixed network port"
 msgstr "Фіксований порт мережі"
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:274
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:276
 msgid ""
 "If checked, use the port number in the \"Port\" box, otherwise the driver "
 "will pick a random port"
@@ -2335,11 +2335,11 @@ msgstr ""
 "у полі «Порт». Якщо пункт не буде позначено, використовуватиметься "
 "випадковий порт."
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:276
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:278
 msgid "Port number: "
 msgstr "Номер порту: "
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:277
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:279
 msgid ""
 "Enter the port number the driver is to use if the \"fixed port\" box is "
 "checked"
@@ -2347,17 +2347,17 @@ msgstr ""
 "Вкажіть номер порту, який має використовувати драйвер, якщо позначено пункт "
 "«Фіксований порт мережі»."
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:278
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:280
 msgid "Print extra debug information"
 msgstr "Виводити додаткові діагностичні дані"
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:279
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:281
 msgid "Check this box if requested when reporting problems"
 msgstr ""
 "Позначте цей пункт, якщо вас попросять про додаткові дані під час "
 "обговорення вади."
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:281
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:283
 msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device."
@@ -2365,15 +2365,15 @@ msgstr ""
 "Список полів метаданих, розділений комами, які слід перетворити у збірки на "
 "пристрої."
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:283
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:285
 msgid "Possibilities include: series, tags, authors, etc"
 msgstr "Можливі варіанти: series, tags, authors тощо"
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:291
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:293
 msgid "Enable the no-activity timeout"
 msgstr "Увімкнути визначення періоду бездіяльності"
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:292
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:294
 #, python-format
 msgid ""
 "If this box is checked, calibre will automatically disconnect if a connected "
@@ -2386,11 +2386,11 @@ msgstr ""
 "виконуватиметься, отже calibre не розриватиме з’єднання у автоматичному "
 "режимі."
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:296
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:298
 msgid "Use this IP address"
 msgstr "Використовувати цю IP-адресу"
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:297
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:299
 msgid ""
 "Use this option if you want to force the driver to listen on a particular IP "
 "address. The driver will listen only on the entered address, and this "
@@ -2400,24 +2400,24 @@ msgstr ""
 "певної IP-адреси. Драйвер очікуватиме на дані лише з вказаної адреси. Лише "
 "цю адресу буде запропоновано за допомогою mDNS (bonjour)."
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:766
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:768
 #, python-format
 msgid "Too many connection attempts from %s"
 msgstr "Забагато спроб встановлення з’єднання від %s"
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1271
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1273
 #, python-format
 msgid "Invalid port in options: %s"
 msgstr "Некоректний порт у параметрах: %s"
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1279
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1281
 #, python-format
 msgid "Failed to connect to port %d. Try a different value."
 msgstr ""
 "Не вдалося встановити з’єднання з портом %d. Спробуйте скористатися іншим "
 "значенням."
 
-#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1291
+#: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1293
 msgid "Failed to allocate a random port"
 msgstr "Не вдалося отримати у користування випадковий порт"
 
@@ -4842,10 +4842,10 @@ msgstr "Коментарі"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:161
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:943
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:1188
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:982
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:1228
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:201
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:779
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:780
 msgid "Tags"
 msgstr "Теґи"
 
@@ -4857,8 +4857,8 @@ msgstr "Теґи"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:67
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:163
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:303
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2266
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:307
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2306
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:140
 msgid "Series"
 msgid_plural "Series"
@@ -5286,7 +5286,7 @@ msgstr "HTML TOC параметри створення."
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:160
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:176
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:777
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:778
 msgid "Rating"
 msgstr "Оцінка"
 
@@ -5881,7 +5881,7 @@ msgstr "Ввімкнути/створити бібліотеку…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:58
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:171
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:172
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:129
 #, python-format
 msgid "%d books"
@@ -6709,7 +6709,7 @@ msgstr "F1"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:118
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:679
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:679
 msgid "Help"
 msgstr "Довідка"
 
@@ -6867,7 +6867,7 @@ msgid "Click the show details button to see which ones."
 msgstr "Натисніть кнопку «Показати подробиці», щоб переглянути список."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:784
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:785
 msgid "Show book details"
 msgstr "Показати деталі книги"
 
@@ -7100,7 +7100,7 @@ msgstr "П&опередній перегляд книги"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:248
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:234
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:667
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:667
 msgid "&Cancel"
 msgstr "&Скасувати"
 
@@ -7546,6 +7546,7 @@ msgid "Click to open"
 msgstr "Натисніть, щоб відкрити"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:180
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:834
 msgid "Ids"
 msgstr "Ідентифікатори"
 
@@ -7817,8 +7818,8 @@ msgid "Delete Rule"
 msgstr "Вилучити правило"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:850
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:609
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4725
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:613
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4770
 msgid "False"
 msgstr "Ні"
 
@@ -7831,7 +7832,7 @@ msgstr "Так"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:342
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:90
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:257
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:258
 msgid "Name"
 msgstr "Назва"
 
@@ -9417,7 +9418,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:157
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:188
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:439
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:661
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "&Save"
 msgstr "&Зберегти"
 
@@ -10884,7 +10885,7 @@ msgstr "Про&філь:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:24
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:247
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:658
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:658
 msgid "&OK"
 msgstr "&Гаразд"
 
@@ -12210,8 +12211,8 @@ msgstr "Переривання…"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:156
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:299
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:1379
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:303
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:1419
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:113
 msgid "Authors"
 msgstr "Автори"
@@ -12255,7 +12256,7 @@ msgstr "Об’єкти"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:652
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:281
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:282
 msgid "Search"
 msgstr "Пошук"
 
@@ -14740,14 +14741,14 @@ msgstr "Редагувати метадані"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:936
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:107
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:108
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:219
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:410
 msgid "Next"
 msgstr "Далі"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:67
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:107
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:229
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:393
 msgid "Previous"
@@ -18400,7 +18401,7 @@ msgid "Books:"
 msgstr "Книги:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:186
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:670
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:670
 msgid "&Close"
 msgstr "&Закрити"
 
@@ -18449,7 +18450,7 @@ msgstr "З&апит:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:63
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:670
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:670
 msgid "Close"
 msgstr "Закрити"
 
@@ -18662,7 +18663,7 @@ msgid "Alter Tag Browser"
 msgstr "Альтернативний перегляд міток"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:397
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:276
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:277
 msgid "Sort by"
 msgstr "Сортувати за"
 
@@ -19007,7 +19008,7 @@ msgstr ""
 "буде згорнуто до системного лотка. Щоб завершити роботу програми, виберіть "
 "пункт <b>Вийти</b> у контекстному меню піктограми системного лотка."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:79
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:86
 #, python-format
 msgid ""
 "New version <b>%(ver)s</b> of %(app)s is available for download. See the <a "
@@ -19017,46 +19018,46 @@ msgstr ""
 "списком нових можливостей <a href=\"http://calibre-ebook.com/whats-"
 "new\">тут</a>."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:85
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:92
 msgid "Update available!"
 msgstr "Доступне оновлення!"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:90
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:97
 msgid "Show this notification for future updates"
 msgstr "Показувати це сповіщення для наступних оновлень"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:95
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:102
 msgid "&Get update"
 msgstr "&Отримати оновлення"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:99
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:106
 msgid "Update &plugins"
 msgstr "Оновити &додатки"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:158
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:162
 #, python-format
 msgid " (%d plugin updates)"
 msgstr " (%d оновлень додатків)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:161
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:165
 msgid "Update found"
 msgstr "Знайдено поновлення"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:164
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:168
 msgid "updated plugins"
 msgstr "оновлені додатки"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:192
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:197
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:196
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:201
 msgid "Plugin Updates"
 msgstr "Оновлення додатків"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:195
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:199
 #, python-format
 msgid "There are %d plugin updates available"
 msgstr "Доступні %d оновлень додатків"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:199
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:203
 msgid "Install and configure user plugins"
 msgstr "Встановлення і налаштування додатків користувача"
 
@@ -19099,7 +19100,7 @@ msgstr "Змінити"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:413
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:417
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:676
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:676
 msgid "Reset"
 msgstr "Скинути"
 
@@ -20013,7 +20014,7 @@ msgid "< &Back"
 msgstr "< &Назад"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:856
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:667
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:667
 msgid "Cancel"
 msgstr "Скасувати"
 
@@ -20550,7 +20551,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Застосування: формат виведення BIBTEX"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/csv_xml.py:32
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/csv_xml.py:33
 #, python-format
 msgid ""
 "The fields to output when cataloging books in the database.  Should be a "
@@ -20569,7 +20570,7 @@ msgstr ""
 "Типові поля: «%%default»\n"
 "Застосування: формати виведення CSV, XML"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/csv_xml.py:45
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/csv_xml.py:46
 #, python-format
 msgid ""
 "Output field to sort on.\n"
@@ -20582,7 +20583,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Застосування: формати виведення CSV, XML"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:42
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:43
 #, python-format
 msgid ""
 "Title of generated catalog used as title in metadata.\n"
@@ -20593,7 +20594,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Застосування: формати виведення AZW3, ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:49
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:50
 #, python-format
 msgid ""
 "Create cross-references in Authors section for books with multiple authors.\n"
@@ -20605,7 +20606,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Застосовується до таких форматів виведення даних: AZW3, ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:56
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:57
 #, python-format
 msgid ""
 "Save the output from different stages of the conversion pipeline to the "
@@ -20620,7 +20621,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Застосування: формати виведення AZW3, ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:66
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:67
 #, python-format
 msgid ""
 "Regex describing tags to exclude as genres.\n"
@@ -20633,7 +20634,7 @@ msgstr ""
 "«[Project Gutenberg]», та «+», типову мітку прочитаних книг.\n"
 "Застосування: формати виведення AZW3, ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:73
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:74
 msgid ""
 "Specifies the rules used to exclude books from the generated catalog.\n"
 "The model for an exclusion rule is either\n"
@@ -20656,7 +20657,7 @@ msgstr ""
 "Якщо визначено декілька правил, буде застосовано всі з них.\n"
 "Типове значення: \n"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:86
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:87
 #, python-format
 msgid ""
 "Include 'Authors' section in catalog.\n"
@@ -20667,7 +20668,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Застосування: формати виведення AZW3, ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:93
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:94
 #, python-format
 msgid ""
 "Include 'Descriptions' section in catalog.\n"
@@ -20678,7 +20679,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Застосування: формати виведення AZW3, ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:100
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:101
 #, python-format
 msgid ""
 "Include 'Genres' section in catalog.\n"
@@ -20689,7 +20690,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Застосування: формати виведення AZW3, ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:107
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:108
 #, python-format
 msgid ""
 "Include 'Titles' section in catalog.\n"
@@ -20700,7 +20701,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Застосування: формати виведення AZW3, ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:114
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:115
 #, python-format
 msgid ""
 "Include 'Series' section in catalog.\n"
@@ -20711,7 +20712,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Застосування: формати виведення AZW3, ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:121
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:122
 #, python-format
 msgid ""
 "Include 'Recently Added' section in catalog.\n"
@@ -20722,7 +20723,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Застосування: формати виведення AZW3, ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:128
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:129
 #, python-format
 msgid ""
 "Source field for Genres section.\n"
@@ -20733,7 +20734,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Стосується таких форматів виведення даних: AZW3, ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:135
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:136
 #, python-format
 msgid ""
 "Custom field containing note text to insert in Description header.\n"
@@ -20744,7 +20745,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Застосування: формати виведення AZW3, ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:142
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:143
 #, python-format
 msgid ""
 "#<custom field>:[before|after]:[True|False] specifying:\n"
@@ -20764,7 +20765,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Застосування: формати виведення AZW3, ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:152
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:153
 #, python-format
 msgid ""
 "Specifies the output profile.  In some cases, an output profile is required "
@@ -20781,7 +20782,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Застосування: формати виведення даних AZW3, ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:159
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:160
 msgid ""
 "Specifies the rules used to include prefixes indicating read books, wishlist "
 "items and other user-specified prefixes.\n"
@@ -20799,7 +20800,7 @@ msgstr ""
 "відповідне з них.\n"
 "Типове значення:\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:168
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:169
 #, python-format
 msgid ""
 "Replace existing cover when generating the catalog.\n"
@@ -20810,7 +20811,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Застосування: формати виведення AZW3, ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:175
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:176
 #, python-format
 msgid ""
 "Size hint (in inches) for book covers in catalog.\n"
@@ -20823,7 +20824,7 @@ msgstr ""
 "Типове значення: «%default»\n"
 "Застосування: формати виведення AZW3, ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:286
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:287
 msgid ""
 "\n"
 "*** Adding 'By Authors' Section required for MOBI output ***"
@@ -20831,65 +20832,65 @@ msgstr ""
 "\n"
 "*** Для виведення даних у форматі MOBI потрібне додавання розділу авторів ***"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:56
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:57
 msgid "Symbols"
 msgstr "Символи"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:284
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:288
 msgid "No genres to catalog.\n"
 msgstr "У каталозі не виявлено жанрів.\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:286
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:290
 msgid "Check 'Excluded genres' regex in E-book options.\n"
 msgstr ""
 "Спробуйте змінити формальний вираз «Виключені книги» у параметрах книг.\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:288
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:292
 msgid "No books available to catalog"
 msgstr "У каталозі немає книг"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:301
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2437
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:305
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2477
 msgid "Titles"
 msgstr "Назви"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:305
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:309
 msgid "Genres"
 msgstr "Жанри"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:307
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:1740
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:311
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:1780
 msgid "Recently Added"
 msgstr "Нещодавно додані"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:309
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:1939
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:313
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:1979
 msgid "Recently Read"
 msgstr "Нещодавно прочитані"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:311
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:315
 msgid "Descriptions"
 msgstr "Описи"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:538
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:542
 msgid "<p>Inconsistent Author Sort values for Author<br/>"
 msgstr "<p>Різні формати впорядкування записів авторів для автора<br/>"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:555
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:559
 msgid "Warning: Inconsistent Author Sort values for Author '{!s}':\n"
 msgstr ""
 "Попередження: різні формати впорядкування записів авторів для автора "
 "«{!s}»:\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:727
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:744
 msgid "Sorting database"
 msgstr "Впорядковування бази даних"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:808
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:846
 msgid "Sorting titles"
 msgstr "Впорядковуємо назви"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:820
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:858
 msgid ""
 "No books to catalog.\n"
 "Check 'Excluded books' rules in E-book options.\n"
@@ -20897,107 +20898,107 @@ msgstr ""
 "У каталозі не виявлено книг.\n"
 "Спробуйте змінити правила «Виключені книги» у параметрах книг.\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:822
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:860
 msgid "No books available to include in catalog"
 msgstr "Немає книг для включення до каталогу"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2020
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2060
 msgid "Genres HTML"
 msgstr "HTML жанрів"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2417
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2457
 msgid "Titles HTML"
 msgstr "HTML назв"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2614
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2616
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2618
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2654
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2656
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2658
 msgid "by "
 msgstr "від "
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2755
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2795
 msgid "Descriptions HTML"
 msgstr "HTML описів"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2759
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2799
 msgid "Description HTML"
 msgstr "HTML опису"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2892
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2932
 msgid "NCX header"
 msgstr "Заголовок NCX"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2971
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3009
 msgid "NCX for Descriptions"
 msgstr "NCX для описів"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3098
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3136
 msgid "NCX for Series"
 msgstr "NCX для серій"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3180
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3221
 #, python-format
 msgid "Series beginning with %s"
 msgstr "Серії, що починаються з %s"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3182
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3223
 #, python-format
 msgid "Series beginning with '%s'"
 msgstr "Серії, що починаються з «%s»"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3226
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3267
 msgid "NCX for Titles"
 msgstr "NCX для назв"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3310
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3354
 #, python-format
 msgid "Titles beginning with %s"
 msgstr "Назви, що починаються з %s"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3312
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3356
 #, python-format
 msgid "Titles beginning with '%s'"
 msgstr "Назви, що починаються з «%s»"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3354
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3398
 msgid "NCX for Authors"
 msgstr "NCX для авторів"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3430
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3477
 #, python-format
 msgid "Authors beginning with %s"
 msgstr "Автори, імена яких починаються з «%s»"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3432
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3479
 #, python-format
 msgid "Authors beginning with '%s'"
 msgstr "Автори з іменами, що починаються з «%s»"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3473
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3520
 msgid "NCX for Recently Added"
 msgstr "NCX для нещодавно доданих"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3666
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3713
 msgid "NCX for Recently Read"
 msgstr "NCX для нещодавно прочитаних"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3808
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3855
 msgid "NCX for Genres"
 msgstr "NCX для жанрів"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3931
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3980
 msgid "Generating OPF"
 msgstr "Створення OPF"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4311
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4357
 msgid "Thumbnails"
 msgstr "Мініатюри"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4317
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4363
 msgid "Thumbnail"
 msgstr "Мініатюра"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4852
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4897
 msgid "Saving NCX"
 msgstr "Збереження NCX"
 
@@ -22190,127 +22191,127 @@ msgstr ""
 "проксі-сервер на цей сервер з Apache/nginx тощо."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/ajax.py:317
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:342
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:626
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:343
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:627
 msgid "All books"
 msgstr "Всі книги"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/ajax.py:318
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:341
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:625
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:342
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:626
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:584
 msgid "Newest"
 msgstr "Найновіші"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:64
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:498
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:65
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:499
 msgid "Loading, please wait"
 msgstr "Завантажую… Будь ласка, зачекайте…"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:90
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:111
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:91
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:112
 msgid "Go to"
 msgstr "Перейти до"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:107
 msgid "First"
 msgstr "Перша"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:107
 msgid "Last"
 msgstr "Остання"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:109
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:110
 #, python-format
 msgid "Browsing %d books"
 msgstr "Перегляд %d книг"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:126
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:256
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:127
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:257
 msgid "Average rating"
 msgstr "Середня оцінка"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:127
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:128
 #, python-format
 msgid "%(prefix)s: %(rating).1f stars"
 msgstr "%(prefix)s: %(rating).1f зірок"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:164
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:165
 #, python-format
 msgid "%d stars"
 msgstr "%d зірок"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:257
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:258
 msgid "Popularity"
 msgstr "Популярність"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:279
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:280
 msgid "library"
 msgstr "бібліотека"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:280
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:281
 msgid "home"
 msgstr "домівка"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:387
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:452
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:388
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:453
 msgid "Browse books by"
 msgstr "Переглянути книги за"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:392
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:393
 msgid "Choose a category to browse by:"
 msgstr "Виберіть категорію для перегляду:"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:523
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:524
 msgid "Browsing by"
 msgstr "Перегляд за"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:524
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:525
 msgid "Up"
 msgstr "Вгору"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:661
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:662
 msgid "in"
 msgstr "у"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:664
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:665
 msgid "Books in"
 msgstr "Книги у"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:758
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:759
 msgid "Other formats"
 msgstr "Інші формати"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:765
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:766
 #, python-format
 msgid "Read %(title)s in the %(fmt)s format"
 msgstr "Читати %(title)s у форматі %(fmt)s"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:770
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:771
 msgid "Get"
 msgstr "Отримати"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:783
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:784
 msgid "Details"
 msgstr "Подробиці"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:785
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:786
 msgid "Permalink"
 msgstr "Стале посилання"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:786
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:787
 msgid "A permanent link to this book"
 msgstr "Стале посилання на цю книгу"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:798
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:799
 msgid "This book has been deleted"
 msgstr "Цю книгу було вилучено"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:886
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:897
 msgid "in search"
 msgstr "у пошуку"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:888
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:899
 msgid "Matching books"
 msgstr "Встановлення відповідності книг"
 
@@ -23995,67 +23996,67 @@ msgstr ""
 msgid "Do not download CSS stylesheets."
 msgstr "Не завантажено CSS стилі."
 
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:658
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:658
 msgid "OK"
 msgstr "Гаразд"
 
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:661
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "Save"
 msgstr "Зберегти"
 
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:664
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:664
 msgid "Open"
 msgstr "Відкрити"
 
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:673
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:673
 msgid "Apply"
 msgstr "Застосувати"
 
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:683
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:683
 msgid "Don't Save"
 msgstr "Не зберігати"
 
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:685
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:685
 msgid "Close without Saving"
 msgstr "Закрити без збереження"
 
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:687
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:687
 msgid "Discard"
 msgstr "Відкинути"
 
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:690
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:690
 msgid "&Yes"
 msgstr "&Так"
 
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:693
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:693
 msgid "Yes to &All"
 msgstr "Так для всі&х"
 
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:696
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:696
 msgid "&No"
 msgstr "&Ні"
 
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:699
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:699
 msgid "N&o to All"
 msgstr "Н&і для всіх"
 
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:702
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:702
 msgid "Save All"
 msgstr "Зберегти всі"
 
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:705
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:705
 msgid "Abort"
 msgstr "Перервати"
 
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:708
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:708
 msgid "Retry"
 msgstr "Спробувати ще раз"
 
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:711
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:711
 msgid "Ignore"
 msgstr "Ігнорувати"
 
-#: /usr/src/qt-everywhere-opensource-src-4.8.2/src/gui/widgets/qdialogbuttonbox.cpp:714
+#: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:714
 msgid "Restore Defaults"
 msgstr "Відновити типові параметри"
 
