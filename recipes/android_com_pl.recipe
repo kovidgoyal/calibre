@@ -3,11 +3,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Android_com_pl(BasicNewsRecipe):
     title          = u'Android.com.pl'
     __author__        = 'fenuks'
-    description   = 'Android.com.pl - biggest polish Android site'
+    description   = u'Android.com.pl - to największe w Polsce centrum Android OS. Znajdziesz tu: nowości, forum, pomoc, recenzje, gry, aplikacje.'
     category       = 'Android, mobile'
     language       = 'pl'
     use_embedded_content=True
-    cover_url =u'http://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Android_robot.svg/220px-Android_robot.svg.png'
+    cover_url =u'http://android.com.pl/wp-content/themes/android/images/logo.png'
     oldest_article = 8
     max_articles_per_feed = 100
-    feeds          = [(u'Android', u'http://android.com.pl/component/content/frontpage/frontpage.feed?type=rss')]
+    feeds          = [(u'Android', u'http://android.com.pl/feed/')]
