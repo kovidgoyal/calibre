@@ -297,7 +297,6 @@ class PdfEngine(QPaintEngine):
                              stroke=self.do_stroke, fill=self.do_fill)
 
     def drawTextItem(self, point, text_item):
-        # TODO: Add support for underline, overline, strike through and fonts
         # super(PdfEngine, self).drawTextItem(point, text_item)
         f = text_item.font()
         px, pt = f.pixelSize(), f.pointSizeF()
