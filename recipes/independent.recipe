@@ -84,9 +84,12 @@ class TheIndependentNew(BasicNewsRecipe):
                                .column-1 h3 { color: #444444}
                                .subtitle { color: #777777; font-size: medium;}
                                .column-1 a,h1,h2,h3 { margin: 0; }
-                               .column-1 div{color:#888888; margin: 0;}
+                               .column-1 div{margin: 0;}
                                .articleContent {display: block; clear:left;}
-                               .articleContent p {color: #000000; font-size: medium;}
+                               .articleContent {color: #000000; font-size: medium;}
+                               .ivDrip-section {color: #000000; font-size: medium;}
+                               .datetime {color: #888888}
+                               .title {font-weight:bold;}
                                .storyTop{}
                                .pictureContainer img { max-width: 400px; max-height: 400px;}
                                .image img { max-width: 400px; max-height: 400px;}
@@ -518,6 +521,9 @@ class TheIndependentNew(BasicNewsRecipe):
          ),
         (u'Opinion',
          u'http://www.independent.co.uk/opinion/?service=rss'),
+        (u'Voices',
+         u'http://www.independent.co.uk/voices/?service=rss'
+         ),
         (u'Environment',
          u'http://www.independent.co.uk/environment/?service=rss'),
         (u'Sport - Athletics',
