@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-12-07 04:42+0000\n"
+"POT-Creation-Date: 2012-12-14 04:21+0000\n"
 "PO-Revision-Date: 2012-10-15 05:31+0000\n"
 "Last-Translator: mozillazg <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
@@ -17,8 +17,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-12-08 04:56+0000\n"
-"X-Generator: Launchpad (build 16341)\n"
+"X-Launchpad-Export-Date: 2012-12-14 05:33+0000\n"
+"X-Generator: Launchpad (build 16369)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
 
@@ -169,8 +169,8 @@ msgstr "不做任何处理"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:250
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:261
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:402
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:174
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:178
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:182
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:202
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/google_books_plugin.py:107
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:191
@@ -1098,15 +1098,15 @@ msgstr "更新设备元数据列表..."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:497
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1143
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1190
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3293
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3335
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3292
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3334
 #, python-format
 msgid "%(num)d of %(tot)d"
 msgstr "第 %(num)d 个，共 %(tot)d 个"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:505
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1195
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3342
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3341
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:110
 msgid "finished"
 msgstr "完成"
@@ -1129,7 +1129,7 @@ msgstr ""
 "无法转换部分封面图像。\n"
 "点击“查看详情”查看列表。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2817
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2816
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:106
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:448
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:471
@@ -1152,13 +1152,13 @@ msgstr ""
 msgid "News"
 msgstr "新闻"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2818
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2817
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3342
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3360
 msgid "Catalog"
 msgstr "分类"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3185
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3184
 msgid "Communicate with iTunes."
 msgstr "与 iTunes 通信。"
 
@@ -4169,7 +4169,7 @@ msgstr "否"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:222
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1074
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:162
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/models.py:23
@@ -4259,7 +4259,7 @@ msgstr "时间戳"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:782
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:63
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:305
 msgid "Published"
 msgstr "出版日期"
@@ -5626,23 +5626,23 @@ msgid "None of the selected books are on the device"
 msgstr "设备上没有选定的书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:263
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:361
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:363
 msgid "Deleting books from device."
 msgstr "从设备删除书籍。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:319
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:321
 msgid ""
 "Some of the selected books are on the attached device. <b>Where</b> do you "
 "want the selected files deleted from?"
 msgstr "选中的书籍中的一部分同时存在于连接的设备上。你希望删除其中的 <b>哪一部分</b>？"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:331
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:333
 msgid ""
 "The selected books will be <b>permanently deleted</b> and the files removed "
 "from your calibre library. Are you sure?"
 msgstr "选定书籍将被<b>永久删除</b>，同时对应的文件也会从你的calibre书库中移除。你确定吗？"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:353
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:355
 msgid ""
 "The selected books will be <b>permanently deleted</b> from your device. Are "
 "you sure?"
@@ -5797,8 +5797,8 @@ msgstr "下载元数据失败"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:84
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:514
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:826
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:518
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:830
 msgid "Download failed"
 msgstr "下载失败"
 
@@ -5834,7 +5834,7 @@ msgid "Download complete"
 msgstr "下载完成"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:123
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:888
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:892
 msgid "Download log"
 msgstr "下载日志"
 
@@ -9360,7 +9360,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:141
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:881
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:885
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:344
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:220
 msgid "Copy to clipboard"
@@ -10017,7 +10017,7 @@ msgstr "链接"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:523
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:527
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:721
 msgid "No matches found"
 msgstr "无匹配项"
@@ -10196,8 +10196,8 @@ msgstr "已复制"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:196
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:251
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:946
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1055
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:950
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1059
 #: /home/kovid/work/calibre/src/calibre/gui2/proceed.py:48
 msgid "View log"
 msgstr "查看日志"
@@ -12984,7 +12984,7 @@ msgid "Previous Page"
 msgstr "上一页"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:133
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:943
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:947
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:208
 msgid "Back"
@@ -13467,7 +13467,7 @@ msgid "Edit Metadata"
 msgstr "编辑元数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:63
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:936
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:940
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:108
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:219
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:410
@@ -13615,15 +13615,15 @@ msgstr "注释(&C)"
 msgid "Basic metadata"
 msgstr "基本元数据"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 msgid "Has cover"
 msgstr "包含封面"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 msgid "Has summary"
 msgstr "包含简介"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:203
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:207
 msgid ""
 "The has cover indication is not fully\n"
 "reliable. Sometimes results marked as not\n"
@@ -13635,27 +13635,27 @@ msgstr ""
 "面的项在下载封面阶段时可\n"
 "能会发现封面，反之亦然。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:288
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:292
 msgid "See at"
 msgstr "参阅"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:442
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:446
 msgid "calibre is downloading metadata from: "
 msgstr "calibre 正在从下列位置下载元数据： "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:464
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:468
 msgid "Please wait"
 msgstr "请稍候"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:496
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:500
 msgid "Query: "
 msgstr "查询： "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:515
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:519
 msgid "Failed to download metadata. Click Show Details to see details"
 msgstr "无法下载元数据。请点击“显示详情”获取更多信息。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:524
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:528
 msgid ""
 "Failed to find any books that match your search. Try making the search "
 "<b>less specific</b>. For example, use only the author's last name and a "
@@ -13665,38 +13665,38 @@ msgstr ""
 "无法为您找到书籍元数据。请尝试<b>扩大搜索范围</b>。比如：只使用作者的名字或只包含标题中具有特征性的词组。<p>要查看完整的日志，请点击“查看详情”"
 "。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:632
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:636
 msgid "Current cover"
 msgstr "当前封面"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:635
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:639
 msgid "Searching..."
 msgstr "正在查找……"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:796
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:800
 #, python-format
 msgid "Downloading covers for <b>%s</b>, please wait..."
 msgstr "正在从 <b>%s</b> 下载封面，请稍候……"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:827
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:831
 msgid "Failed to download any covers, click \"Show details\" for details."
 msgstr "无法下载封面，请点击“查看详情”查看详细的出错信息。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:833
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:837
 #, python-format
 msgid "Could not find any covers for <b>%s</b>"
 msgstr "无法为 <b>%s</b> 找到封面"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:835
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:839
 #, python-format
 msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
 msgstr "为书籍 %(title)s 找到了 <b>%(num)d</b> 个封面图像，请选择您最喜欢的一个。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:924
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:928
 msgid "Downloading metadata..."
 msgstr "正在下载元数据……"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1039
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1043
 msgid "Downloading cover..."
 msgstr "正在下载封面..."
 

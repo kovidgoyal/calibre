@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-12-07 04:42+0000\n"
+"POT-Creation-Date: 2012-12-14 04:21+0000\n"
 "PO-Revision-Date: 2012-05-28 15:00+0000\n"
 "Last-Translator: Vibhav Pant <vibhavp@gmail.com>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-08 04:55+0000\n"
-"X-Generator: Launchpad (build 16341)\n"
+"X-Launchpad-Export-Date: 2012-12-14 05:32+0000\n"
+"X-Generator: Launchpad (build 16369)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -165,8 +165,8 @@ msgstr "Does absolutely nothing"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:250
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:261
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:402
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:174
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:178
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:182
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:202
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/google_books_plugin.py:107
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:191
@@ -1144,15 +1144,15 @@ msgstr "Updating device metadata listing..."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:497
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1143
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1190
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3293
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3335
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3292
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3334
 #, python-format
 msgid "%(num)d of %(tot)d"
 msgstr "%(num)d of %(tot)d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:505
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1195
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3342
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3341
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:110
 msgid "finished"
 msgstr "finished"
@@ -1175,7 +1175,7 @@ msgstr ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2817
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2816
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:106
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:448
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:471
@@ -1198,13 +1198,13 @@ msgstr ""
 msgid "News"
 msgstr "News"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2818
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2817
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3342
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3360
 msgid "Catalog"
 msgstr "Catalogue"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3185
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3184
 msgid "Communicate with iTunes."
 msgstr "Communicate with iTunes."
 
@@ -4579,7 +4579,7 @@ msgstr "No"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:222
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1074
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:162
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/models.py:23
@@ -4670,7 +4670,7 @@ msgstr "Timestamp"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:782
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:63
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:305
 msgid "Published"
 msgstr "Published"
@@ -6106,11 +6106,11 @@ msgid "None of the selected books are on the device"
 msgstr "None of the selected books are on the device"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:263
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:361
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:363
 msgid "Deleting books from device."
 msgstr "Deleting books from device."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:319
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:321
 msgid ""
 "Some of the selected books are on the attached device. <b>Where</b> do you "
 "want the selected files deleted from?"
@@ -6118,7 +6118,7 @@ msgstr ""
 "Some of the selected books are on the attached device. <b>Where</b> do you "
 "want the selected files deleted from?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:331
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:333
 msgid ""
 "The selected books will be <b>permanently deleted</b> and the files removed "
 "from your calibre library. Are you sure?"
@@ -6126,7 +6126,7 @@ msgstr ""
 "The selected books will be <b>permanently deleted</b> and the files removed "
 "from your calibre library. Are you sure?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:353
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:355
 msgid ""
 "The selected books will be <b>permanently deleted</b> from your device. Are "
 "you sure?"
@@ -6283,8 +6283,8 @@ msgstr "Failed to download metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:84
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:514
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:826
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:518
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:830
 msgid "Download failed"
 msgstr "Download failed"
 
@@ -6324,7 +6324,7 @@ msgid "Download complete"
 msgstr "Download complete"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:123
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:888
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:892
 msgid "Download log"
 msgstr "Download log"
 
@@ -9965,7 +9965,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:141
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:881
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:885
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:344
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:220
 msgid "Copy to clipboard"
@@ -10670,7 +10670,7 @@ msgstr "Link"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:523
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:527
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:721
 msgid "No matches found"
 msgstr "No matches found"
@@ -10854,8 +10854,8 @@ msgstr "Copied"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:196
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:251
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:946
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1055
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:950
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1059
 #: /home/kovid/work/calibre/src/calibre/gui2/proceed.py:48
 msgid "View log"
 msgstr "View log"
@@ -13749,7 +13749,7 @@ msgid "Previous Page"
 msgstr "Previous Page"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:133
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:943
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:947
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:208
 msgid "Back"
@@ -14259,7 +14259,7 @@ msgid "Edit Metadata"
 msgstr "Edit Metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:63
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:936
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:940
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:108
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:219
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:410
@@ -14416,15 +14416,15 @@ msgstr "&Comments"
 msgid "Basic metadata"
 msgstr "Basic metadata"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 msgid "Has cover"
 msgstr "Has cover"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 msgid "Has summary"
 msgstr "Has summary"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:203
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:207
 msgid ""
 "The has cover indication is not fully\n"
 "reliable. Sometimes results marked as not\n"
@@ -14436,27 +14436,27 @@ msgstr ""
 "having a cover will find a cover in the download\n"
 "cover stage, and vice versa."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:288
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:292
 msgid "See at"
 msgstr "See at"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:442
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:446
 msgid "calibre is downloading metadata from: "
 msgstr "Calibre is downloading metadata from: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:464
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:468
 msgid "Please wait"
 msgstr "Please wait"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:496
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:500
 msgid "Query: "
 msgstr "Query: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:515
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:519
 msgid "Failed to download metadata. Click Show Details to see details"
 msgstr "Failed to download metadata. Click \"Show Details\" to see details."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:524
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:528
 msgid ""
 "Failed to find any books that match your search. Try making the search "
 "<b>less specific</b>. For example, use only the author's last name and a "
@@ -14468,39 +14468,39 @@ msgstr ""
 "single distinctive word from the title.<p>To see the full log, click \"Show "
 "Details\"."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:632
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:636
 msgid "Current cover"
 msgstr "Current cover"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:635
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:639
 msgid "Searching..."
 msgstr "Searching..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:796
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:800
 #, python-format
 msgid "Downloading covers for <b>%s</b>, please wait..."
 msgstr "Downloading covers for <b>%s</b>, please wait..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:827
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:831
 msgid "Failed to download any covers, click \"Show details\" for details."
 msgstr "Failed to download any covers, click \"Show details\" for details."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:833
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:837
 #, python-format
 msgid "Could not find any covers for <b>%s</b>"
 msgstr "Could not find any covers for <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:835
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:839
 #, python-format
 msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
 msgstr ""
 "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:924
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:928
 msgid "Downloading metadata..."
 msgstr "Downloading metadata..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1039
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1043
 msgid "Downloading cover..."
 msgstr "Downloading cover..."
 
