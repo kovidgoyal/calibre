@@ -47,9 +47,10 @@ class TheIndependentNew(BasicNewsRecipe):
                                dict(name='img',attrs={'alt' : ['Get Adobe Flash player']}),
                                dict(name='img',attrs={'alt' : ['view gallery']}),
                                dict(attrs={'style' : re.compile('.*')}),
+                               dict(attrs={'class':lambda x: x and 'voicesRelatedTopics' in x.split()}),
                              ]
 
-    keep_only_tags          =[dict(attrs={'id':'main'})]
+    keep_only_tags          =[dict(attrs={'id':['main','top']})]
     recursions = 0
 
     # fixes non compliant html nesting and 'marks' article graphics links
@@ -69,7 +70,7 @@ class TheIndependentNew(BasicNewsRecipe):
                         }
 
     extra_css             = """
-                               h1{font-family: Georgia,serif }
+                               h1{font-family: Georgia,serif ; font-size: x-large; }
                                body{font-family: Verdana,Arial,Helvetica,sans-serif}
                                img{margin-bottom: 0.4em; display:block}
                                .starRating img {float: left}
@@ -77,16 +78,18 @@ class TheIndependentNew(BasicNewsRecipe):
                                .image {clear:left; font-size: x-small; color:#888888;}
                                .articleByTimeLocation {font-size: x-small; color:#888888;
                                 margin-bottom:0.2em ; margin-top:0.2em ; display:block}
-                                .subtitle {clear:left}
+                                .subtitle {clear:left ;}
                                .column-1 h1 { color: #191919}
                                .column-1 h2 { color: #333333}
                                .column-1 h3 { color: #444444}
-                               .column-1 p { color: #777777}
-                               .column-1 p,a,h1,h2,h3 { margin: 0; }
+                               .subtitle { color: #777777; font-size: medium;}
+                               .column-1 a,h1,h2,h3 { margin: 0; }
                                .column-1 div{color:#888888; margin: 0;}
                                .articleContent {display: block; clear:left;}
+                               .articleContent p {color: #000000; font-size: medium;}
                                .storyTop{}
                                .pictureContainer img { max-width: 400px; max-height: 400px;}
+                               .image img { max-width: 400px; max-height: 400px;}
                             """
 
     oldest_article = 1
@@ -325,6 +328,20 @@ class TheIndependentNew(BasicNewsRecipe):
         item.contents[0] = ''
 
     def postprocess_html(self,soup, first_fetch):
+
+        #mark subtitle parent as non-compliant nesting causes
+        # p's to be 'popped out' of the h3 tag they are nested in.
+        subtitle = soup.find('h3', attrs={'class' : 'subtitle'})
+        subtitle_div = None
+        if subtitle:
+            subtitle_div = subtitle.parent
+        if subtitle_div:
+            clazz = ''
+            if 'class' in subtitle_div:
+                clazz = subtitle_div['class'] + ' '
+            clazz = clazz + 'subtitle'
+            subtitle_div['class'] = clazz    
+
         #find broken images and remove captions
         items_to_extract = []
         for item in soup.findAll('div', attrs={'class' : 'image'}):
