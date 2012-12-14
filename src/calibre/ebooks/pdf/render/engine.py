@@ -202,8 +202,9 @@ class PdfEngine(QPaintEngine):
 
     @property
     def features(self):
-        # TODO: Remove unsupported features from this
-        return QPaintEngine.AllFeatures
+        return (QPaintEngine.Antialiasing | QPaintEngine.PainterPaths |
+                QPaintEngine.PaintOutsidePaintEvent | QPaintEngine.PorterDuff |
+                QPaintEngine.PrimitiveTransform)
 
     def begin(self, device):
         try:
