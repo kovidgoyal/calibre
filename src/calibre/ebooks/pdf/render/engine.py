@@ -30,7 +30,7 @@ Point = namedtuple('Point', 'x y')
 def set_transform(transform, func):
     func(transform.m11(), transform.m12(), transform.m21(), transform.m22(), transform.dx(), transform.dy())
 
-class GraphicsState(object):
+class GraphicsState(object): # {{{
 
     def __init__(self, state=None):
         self.ops = {}
@@ -98,19 +98,21 @@ class GraphicsState(object):
             # Since we have reset the stack we need to re-apply all previous
             # operations
             ops = engine.graphics_state.ops.copy()
-            if 'clip' in ops and 'clip' not in self.ops:
-                # Re-apply previous clip, we do so before applying the
-                # transform as the transform could also have changed
-                prev_clip = ops.pop('clip', (None, None))[1]
-                engine.set_clip(prev_clip)
+            ops.pop('clip', None) # Prev clip is handled separately
             ops.update(self.ops)
             self.ops = ops
 
+        # We apply clip before transform as the clip may have to be merged with
+        # the previous clip path so it is easiest to work with clips that are
+        # pre-transformed
+        prev_clip_path = engine.graphics_state.ops.get('clip', (None, None))[1]
         if 'clip' in ops:
-            prev_clip_path = engine.graphics_state.ops.get('clip', (None, None))[1]
             op, path = ops['clip']
             if current_transform is not None and path is not None:
+                # Pre transform the clip path
                 path = current_transform.map(path)
+                ops['clip'] = (op, path)
+
             if op == Qt.ReplaceClip:
                 pass
             elif op == Qt.IntersectClip:
@@ -124,8 +126,13 @@ class GraphicsState(object):
             path = ops['clip'][1]
             if path is not None:
                 engine.set_clip(path)
+        elif prev_clip_path is not None:
+            # Re-apply the previous clip path since no clipping operation was
+            # specified
+            engine.set_clip(prev_clip_path)
+            ops['clip'] = (Qt.ReplaceClip, prev_clip_path)
 
-        # Apply operations
+        # Apply transform
         if current_transform is not None:
             engine.qt_system = current_transform
             set_transform(current_transform, canvas.transform)
@@ -156,7 +163,7 @@ class GraphicsState(object):
             self.ops = ops
 
         return self
-
+# }}}
 
 class PdfEngine(QPaintEngine):
 
@@ -412,9 +419,6 @@ if __name__ == '__main__':
         p.begin(dev)
         xmax, ymax = p.viewport().width(), p.viewport().height()
         try:
-            cp = QPainterPath()
-            cp.addRect(0, 0, xmax, 1000)
-            p.setClipPath(cp)
             p.drawRect(0, 0, xmax, ymax)
             p.drawPolyline(QPoint(0, 0), QPoint(xmax, 0), QPoint(xmax, ymax),
                            QPoint(0, ymax), QPoint(0, 0))
