@@ -126,6 +126,7 @@ class EXTHHeader(object): # {{{
         elif idx == 113: # ASIN or other id
             try:
                 self.uuid = content.decode('ascii')
+                self.mi.set_identifier('mobi-asin', self.uuid)
             except:
                 self.uuid = None
         elif idx == 116:
