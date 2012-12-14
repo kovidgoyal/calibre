@@ -89,23 +89,28 @@ class GraphicsState(object):
     def __call__(self, engine):
         canvas = engine.canvas
         ops = self.ops
-        if self.stack_reset_needed:
+        current_transform = ops.get('transform', None)
+        srn = self.stack_reset_needed
+
+        if srn:
             canvas.restoreState()
             canvas.saveState()
             # Since we have reset the stack we need to re-apply all previous
             # operations
             ops = engine.graphics_state.ops.copy()
+            if 'clip' in ops and 'clip' not in self.ops:
+                # Re-apply previous clip, we do so before applying the
+                # transform as the transform could also have changed
+                prev_clip = ops.pop('clip', (None, None))[1]
+                engine.set_clip(prev_clip)
             ops.update(self.ops)
             self.ops = ops
-
-        # Apply operations
-        if 'transform' in ops:
-            engine.qt_system = ops['transform']
-            set_transform(ops['transform'], canvas.transform)
 
         if 'clip' in ops:
             prev_clip_path = engine.graphics_state.ops.get('clip', (None, None))[1]
             op, path = ops['clip']
+            if current_transform is not None and path is not None:
+                path = current_transform.map(path)
             if op == Qt.ReplaceClip:
                 pass
             elif op == Qt.IntersectClip:
@@ -119,6 +124,11 @@ class GraphicsState(object):
             path = ops['clip'][1]
             if path is not None:
                 engine.set_clip(path)
+
+        # Apply operations
+        if current_transform is not None:
+            engine.qt_system = current_transform
+            set_transform(current_transform, canvas.transform)
 
         if 'fill_color' in ops:
             canvas.setFillColor(ops['fill_color'])
@@ -137,7 +147,7 @@ class GraphicsState(object):
         if 'line_join' in ops:
             canvas.setLineJoin(ops['line_join'])
 
-        if not self.stack_reset_needed:
+        if not srn:
             # Add the operations from the previous state object that were not
             # updated in this state object. This is needed to allow stack
             # resetting to work.
