@@ -39,7 +39,7 @@ class GraphicsState(object):
 
     @property
     def stack_reset_needed(self):
-        return 'transform' in self.ops
+        return 'transform' in self.ops or 'clip' in self.ops
 
     def read_state(self, state):
         flags = state.state()
@@ -76,7 +76,15 @@ class GraphicsState(object):
             self.ops['line_join'] = {Qt.MiterJoin:0, Qt.RoundJoin:1,
                                      Qt.BevelJoin:2}.get(pen.joinStyle(), 0)
 
-        # TODO: Handle clipping
+        if flags & QPaintEngine.DirtyClipPath:
+            self.ops['clip'] = (state.clipOperation(), state.clipPath())
+        elif flags & QPaintEngine.DirtyClipRegion:
+            path = QPainterPath()
+            for rect in state.clipRegion().rects():
+                path.addRect(rect)
+            self.ops['clip'] = (state.clipOperation(), path)
+
+        # TODO: Add support for opacity
 
     def __call__(self, engine):
         canvas = engine.canvas
@@ -94,6 +102,24 @@ class GraphicsState(object):
         if 'transform' in ops:
             engine.qt_system = ops['transform']
             set_transform(ops['transform'], canvas.transform)
+
+        if 'clip' in ops:
+            prev_clip_path = engine.graphics_state.ops.get('clip', (None, None))[1]
+            op, path = ops['clip']
+            if op == Qt.ReplaceClip:
+                pass
+            elif op == Qt.IntersectClip:
+                if prev_clip_path is not None:
+                    ops['clip'] = (op, path.intersected(prev_clip_path))
+            elif op == Qt.UniteClip:
+                if prev_clip_path is not None:
+                    path.addPath(prev_clip_path)
+            else:
+                ops['clip'] = (Qt.NoClip, None)
+            path = ops['clip'][1]
+            if path is not None:
+                engine.set_clip(path)
+
         if 'fill_color' in ops:
             canvas.setFillColor(ops['fill_color'])
         if 'stroke_color' in ops:
@@ -203,7 +229,7 @@ class PdfEngine(QPaintEngine):
         state = GraphicsState(state)
         self.graphics_state = state(self)
 
-    def drawPath(self, path):
+    def convert_path(self, path):
         p = self.canvas.beginPath()
         path = path.simplified()
         i = 0
@@ -221,11 +247,24 @@ class PdfEngine(QPaintEngine):
                         path.elementAt(j).x, path.elementAt(j)), (i, i+1))
                     i += 2
                     p.curveTo(*(c1 + c2 + em))
-        with self:
-            self.canvas._fillMode = {Qt.OddEvenFill:FILL_EVEN_ODD,
-                                     Qt.WindingFill:FILL_NON_ZERO}[path.fillRule()]
-            self.canvas.drawPath(p, stroke=self.do_stroke,
-                                 fill=self.do_fill)
+        return p
+
+    def drawPath(self, path):
+        p = self.convert_path(path)
+        old = self.canvas._fillMode
+        self.canvas._fillMode = {Qt.OddEvenFill:FILL_EVEN_ODD,
+                                    Qt.WindingFill:FILL_NON_ZERO}[path.fillRule()]
+        self.canvas.drawPath(p, stroke=self.do_stroke,
+                                fill=self.do_fill)
+        self.canvas._fillMode = old
+
+    def set_clip(self, path):
+        p = self.convert_path(path)
+        old = self.canvas._fillMode
+        self.canvas._fillMode = {Qt.OddEvenFill:FILL_EVEN_ODD,
+                                    Qt.WindingFill:FILL_NON_ZERO}[path.fillRule()]
+        self.canvas.clipPath(p, fill=0, stroke=0)
+        self.canvas._fillMode = old
 
     def drawPoints(self, points):
         for point in points:
@@ -304,12 +343,13 @@ class PdfEngine(QPaintEngine):
         for point in points[1:]:
             p.lineTo(*point)
         p.close()
-        with self:
-            self.canvas._fillMode = {self.OddEvenMode:FILL_EVEN_ODD,
-                                    self.WindingMode:FILL_NON_ZERO}.get(mode,
-                                                                    FILL_EVEN_ODD)
-            self.canvas.drawPath(p, fill=(mode in (self.OddEvenMode,
-                                            self.WindingMode, self.ConvexMode)))
+        old = self.canvas._fillMode
+        self.canvas._fillMode = {self.OddEvenMode:FILL_EVEN_ODD,
+                                self.WindingMode:FILL_NON_ZERO}.get(mode,
+                                                                FILL_EVEN_ODD)
+        self.canvas.drawPath(p, fill=(mode in (self.OddEvenMode,
+                                        self.WindingMode, self.ConvexMode)))
+        self.canvas._fillMode = old
 
     def __enter__(self):
         self.canvas.saveState()
@@ -362,6 +402,9 @@ if __name__ == '__main__':
         p.begin(dev)
         xmax, ymax = p.viewport().width(), p.viewport().height()
         try:
+            cp = QPainterPath()
+            cp.addRect(0, 0, xmax, 1000)
+            p.setClipPath(cp)
             p.drawRect(0, 0, xmax, ymax)
             p.drawPolyline(QPoint(0, 0), QPoint(xmax, 0), QPoint(xmax, ymax),
                            QPoint(0, ymax), QPoint(0, 0))
