@@ -19,6 +19,37 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.10
+  date: 2012-12-14
+
+  new features:
+    - title: "Drivers for Nextbook Premium 8 se, HTC Desire X and Emerson EM 543"
+      tickets: [1088149, 1088112, 1087978]
+ 
+  bug fixes:
+    - title: "Fix rich text delegate not working with Qt compiled in debug mode."
+      tickets: [1089011]
+
+    - title: "When deleting all books in the library, blank the book details panel"
+
+    - title: "Conversion: Fix malformed values in the bgcolor attribute causing conversion to abort"
+
+    - title: "Conversion: Fix heuristics applying incorrect style in some circumstances"
+      tickets: [1066507]
+
+    - title: "Possible fix for 64bit calibre not starting up on some Windows systems"
+      tickets: [1087816]
+
+  improved recipes:
+    - Sivil Dusunce
+    - Anchorage Daily News
+    - Le Monde
+    - Harpers
+
+  new recipes:
+    - title: Titanic 
+      author: Krittika Goyal
+
 - version: 0.9.9
   date: 2012-12-07
 
