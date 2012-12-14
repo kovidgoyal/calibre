@@ -2440,13 +2440,13 @@ class ITUNES(DriverBase):
             as_binding = "dynamic"
             try:
                 # Try dynamic binding - works with iTunes <= 10.6.1
-                foo = self.iTunes.name()
+                self.iTunes.name()
             except:
                 # Try static binding
                 import itunes
                 self.iTunes = appscript.app('iTunes', terms=itunes)
                 try:
-                    foo = self.iTunes.name()
+                    self.iTunes.name()
                     as_binding = "static"
                 except:
                     self.iTunes = None
