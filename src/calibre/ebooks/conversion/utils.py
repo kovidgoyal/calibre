@@ -365,9 +365,9 @@ class HeuristicProcessor(object):
             unwrap_regex = lookahead+txt_line_wrap
             em_en_unwrap_regex = em_en_lookahead+txt_line_wrap
             shy_unwrap_regex = soft_hyphen+txt_line_wrap
-            content = unwrap.sub(' ', content)
-            content = em_en_unwrap.sub('', content)
-            content = shy_unwrap.sub('', content)
+            content = unwrap_regex.sub(' ', content)
+            content = em_en_unwrap_regex.sub('', content)
+            content = shy_unwrap_regex.sub('', content)
         else:
             unwrap = re.compile(u"%s" % unwrap_regex, re.UNICODE)
             em_en_unwrap = re.compile(u"%s" % em_en_unwrap_regex, re.UNICODE)
