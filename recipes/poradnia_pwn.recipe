@@ -1,6 +1,5 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 class PoradniaPWN(BasicNewsRecipe):
     title          = u'Poradnia Językowa PWN'
     __author__        = 'fenuks'
