@@ -271,12 +271,10 @@ class PdfEngine(QPaintEngine):
         return QPaintEngine.Pdf
 
     def drawPixmap(self, rect, pixmap, source_rect):
-        print ('drawPixmap() currently unimplemented')
-        pass # TODO: Implement me
+        print ('TODO: drawPixmap() currently unimplemented')
 
     def drawImage(self, rect, image, source_rect, flags=Qt.AutoColor):
-        print ('drawImage() currently unimplemented')
-        pass # TODO: Implement me
+        print ('TODO: drawImage() currently unimplemented')
 
     def updateState(self, state):
         self.graphics_state.read(state)
