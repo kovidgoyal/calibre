@@ -10,11 +10,14 @@ __docformat__ = 'restructuredtext en'
 import codecs, zlib, hashlib
 from io import BytesIO
 from future_builtins import map
+from collections import namedtuple
 
 from calibre.constants import (__appname__, __version__)
 
 PDFVER = b'%PDF-1.6'
 EOL = b'\n'
+
+Color = namedtuple('Color', 'red green blue opacity')
 
 # Sizes {{{
 inch = 72.0
@@ -45,6 +48,8 @@ B2 = (_BW*2, _BH*2)
 B1 = (_BH*4, _BW*2)
 B0 = (_BW*4, _BH*4)
 # }}}
+
+# Basic PDF datatypes {{{
 
 def serialize(o, stream):
     if hasattr(o, 'pdf_serialize'):
@@ -150,6 +155,7 @@ class Reference(object):
     def pdf_serialize(self, stream):
         raw = '%d 0 R'%self.num
         stream.write(raw.encode('ascii'))
+# }}}
 
 class IndirectObjects(object):
 
@@ -215,11 +221,30 @@ class Page(Stream):
             'Type': Name('Page'),
             'Parent': parentref,
         })
+        self.opacities = {}
+
+    def set_opacity(self, opref):
+        if opref not in self.opacities:
+            self.opacities[opref] = 'Opa%d'%len(self.opacities)
+        name = self.opacities[opref]
+        serialize(Name(name), self)
+        self.write(b' gs ')
+
+    def add_resources(self):
+        r = Dictionary()
+        if self.opacities:
+            extgs = Dictionary()
+            for opref, name in self.opacities.iteritems():
+                extgs[name] = opref
+            r['ExtGState'] = extgs
+        if r:
+            self.page_dict['Resources'] = r
 
     def end(self, objects, stream):
         contents = objects.add(self)
         objects.commit(contents, stream)
         self.page_dict['Contents'] = contents
+        self.add_resources()
         ret = objects.add(self.page_dict)
         objects.commit(ret, stream)
         return ret
@@ -299,6 +324,7 @@ class PDFStream(object):
         self.current_page = Page(self.page_tree, compress=self.compress)
         self.info = Dictionary({'Creator':String(creator),
                                 'Producer':String(creator)})
+        self.stroke_opacities, self.fill_opacities = {}, {}
 
     @property
     def page_tree(self):
@@ -373,6 +399,22 @@ class PDFStream(object):
     def set_line_join(self, style):
         serialize({'miter':0, 'round':1, 'bevel':2}[style], self.current_page)
         self.current_page.write_line(' j')
+
+    def set_stroke_color(self, color):
+        opacity = color.opacity
+        if opacity not in self.stroke_opacities:
+            op = Dictionary({'Type':Name('ExtGState'), 'CA': opacity})
+            self.stroke_opacities[opacity] = self.objects.add(op)
+        self.current_page.set_opacity(self.stroke_opacities[opacity])
+        self.current_page.write_line(' '.join(map(type(u''), color[:3])) + ' SC')
+
+    def set_fill_color(self, color):
+        opacity = color.opacity
+        if opacity not in self.fill_opacities:
+            op = Dictionary({'Type':Name('ExtGState'), 'ca': opacity})
+            self.fill_opacities[opacity] = self.objects.add(op)
+        self.current_page.set_opacity(self.fill_opacities[opacity])
+        self.current_page.write_line(' '.join(map(type(u''), color[:3])) + ' sc')
 
     def end_page(self):
         pageref = self.current_page.end(self.objects, self.stream)
