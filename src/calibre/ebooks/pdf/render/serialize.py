@@ -133,7 +133,7 @@ class Stream(BytesIO):
 
         d = InlineDictionary({'Length':len(raw), 'DL':dl})
         if filters:
-            d['Filters'] = filters
+            d['Filter'] = filters
         serialize(d, stream)
         stream.write(EOL+b'stream'+EOL)
         stream.write(raw)

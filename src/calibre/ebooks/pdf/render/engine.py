@@ -243,7 +243,7 @@ class PdfEngine(QPaintEngine):
         try:
             self.pdf = PDFStream(self.file_object, (self.page_width,
                                                     self.page_height),
-                                compress=0 if DEBUG else 1)
+                                compress=not DEBUG)
             self.init_page()
         except:
             traceback.print_exc()
@@ -271,9 +271,11 @@ class PdfEngine(QPaintEngine):
         return QPaintEngine.Pdf
 
     def drawPixmap(self, rect, pixmap, source_rect):
+        print ('drawPixmap() currently unimplemented')
         pass # TODO: Implement me
 
     def drawImage(self, rect, image, source_rect, flags=Qt.AutoColor):
+        print ('drawImage() currently unimplemented')
         pass # TODO: Implement me
 
     def updateState(self, state):
