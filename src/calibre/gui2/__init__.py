@@ -1034,7 +1034,9 @@ def build_forms(srcdir, info=None):
             dat = dat.replace('from widgets import', 'from calibre.gui2.widgets import')
             dat = dat.replace('from convert.xpath_wizard import',
                 'from calibre.gui2.convert.xpath_wizard import')
-            dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
+            dat = re.sub(r'^ {4}def _translate\(.+:\s+return.*$', '    pass', dat,
+                         flags=re.M)
+            dat = re.compile(r'(?:QtGui.QApplication.translate|(?<!def )_translate)\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
             dat = dat.replace('_("MMM yyyy")', '"MMM yyyy"')
             dat = pat.sub(sub, dat)
             dat = dat.replace('from QtWebKit.QWebView import QWebView',
