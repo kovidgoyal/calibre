@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-14 04:21+0000\n"
-"PO-Revision-Date: 2012-12-13 16:56+0000\n"
+"PO-Revision-Date: 2012-12-14 10:22+0000\n"
 "Last-Translator: André Glória <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-14 05:26+0000\n"
-"X-Generator: Launchpad (build 16369)\n"
+"X-Launchpad-Export-Date: 2012-12-15 04:53+0000\n"
+"X-Generator: Launchpad (build 16372)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -2043,22 +2043,22 @@ msgstr "%s removido"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:458
 msgid "All books removed"
-msgstr ""
+msgstr "Todos os livros removidos"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:198
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:313
 msgid "Unknown MTP device"
-msgstr ""
+msgstr "Dispositivo MTP desconhecido"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:216
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:220
 #, python-format
 msgid "Found object: %s"
-msgstr ""
+msgstr "Encontrado o objecto: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:61
 msgid "MTP devices are not supported on Windows XP"
-msgstr ""
+msgstr "Dispositivos MTP não são suportados pelo Windows XP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:69
 msgid ""
@@ -2066,11 +2066,14 @@ msgid ""
 "may need to install Windows Media Player 11 or newer and/or restart your "
 "computer"
 msgstr ""
+"O serviço Dispositivos Portáteis Windows não está disponível no seu "
+"computador. Poderá ser necessário instalar o Windows Media Player, versão 11 "
+"ou mais recente, e/ou reiniciar o seu computador"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:222
 #, python-format
 msgid "Found id: %s"
-msgstr ""
+msgstr "Id encontrado: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2094,7 +2097,7 @@ msgstr "Comunicar com o leitor Nook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:85
 msgid "Communicate with the Nook Color, TSR and Tablet eBook readers."
-msgstr ""
+msgstr "Comunicar com os leitores Nook Color, TSR e Tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -2102,11 +2105,11 @@ msgstr "Comunica com o leitor Nuut2."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
-msgstr ""
+msgstr "Comunicar com os leitores Sony mais antigos que o PRST1."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
-msgstr ""
+msgstr "Comentários foram removidos porque atrapalham o leitor da SONY"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:66
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:264
@@ -2134,6 +2137,9 @@ msgid ""
 "%(aba)s:%(abav)s. Add  these values to the list to enable them. The "
 "collections will be given the name provided after the \":\" character."
 msgstr ""
+". Existem duas coleções especiais disponíveis: %(abt)s:%(abtv)s and "
+"%(aba)s:%(abav)s. Adicione estes valores à lista para as ativar. As coleções "
+"terão o nome que se encontra depois do caráter \":\" ."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:77
 msgid "Upload separate cover thumbnails for books (newer readers)"
