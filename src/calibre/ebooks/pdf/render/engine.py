@@ -313,10 +313,11 @@ class PdfEngine(QPaintEngine):
         self.pdf.add_clip(p, fill_rule=fill_rule)
 
     def drawPoints(self, points):
+        p = Path()
         for point in points:
-            point = self.current_transform.map(point)
-            self.canvas.circle(point.x(), point.y(), 0.1,
-                               stroke=self.do_stroke, fill=self.do_fill)
+            p.move_to(point.x(), point.y())
+            p.line_to(point.x(), point.y() + 0.001)
+        self.pdf.draw_path(p, stroke=self.do_stroke, fill=False)
 
     def drawRects(self, rects):
         for rect in rects:
