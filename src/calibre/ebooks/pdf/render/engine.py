@@ -11,19 +11,31 @@ import sys, traceback
 from math import sqrt
 from collections import namedtuple
 from future_builtins import map
+from functools import wraps
 
 from PyQt4.Qt import (QPaintEngine, QPaintDevice, Qt, QApplication, QPainter,
-                      QTransform, QPainterPath)
+                      QTransform, QPainterPath, QFontMetricsF)
 
 from calibre.constants import DEBUG
-from calibre.ebooks.pdf.render.serialize import (Color, inch, A4, PDFStream,
-                                                 Path)
+from calibre.ebooks.pdf.render.serialize import (Color, PDFStream, Path, Text)
+from calibre.ebooks.pdf.render.common import inch, A4
 
 XDPI = 1200
 YDPI = 1200
 
 Point = namedtuple('Point', 'x y')
 ColorState = namedtuple('ColorState', 'color opacity do')
+
+def store_error(func):
+
+    @wraps(func)
+    def errh(self, *args, **kwargs):
+        try:
+            func(self, *args, **kwargs)
+        except:
+            self.errors.append(traceback.format_exc())
+
+    return errh
 
 class GraphicsState(object): # {{{
 
@@ -156,8 +168,9 @@ class GraphicsState(object): # {{{
 
         # Now apply the new operations
         for op, val in ops.iteritems():
-            self.apply(op, val, engine, pdf)
-            self.current_state[op] = val
+            if op != 'clip':
+                self.apply(op, val, engine, pdf)
+                self.current_state[op] = val
 
     def apply(self, op, val, engine, pdf):
         getattr(self, 'apply_'+op)(val, engine, pdf)
@@ -219,8 +232,9 @@ class PdfEngine(QPaintEngine):
         self.do_stroke = True
         self.do_fill = False
         self.scale = sqrt(sy**2 + sx**2)
-        self.yscale = sy
+        self.xscale, self.yscale = sx, sy
         self.graphics_state = GraphicsState()
+        self.errors = []
 
     def init_page(self):
         self.pdf.transform(self.pdf_system)
@@ -246,7 +260,7 @@ class PdfEngine(QPaintEngine):
                                 compress=not DEBUG)
             self.init_page()
         except:
-            traceback.print_exc()
+            self.errors.append(traceback.format_exc())
             return False
         return True
 
@@ -261,7 +275,7 @@ class PdfEngine(QPaintEngine):
             self.end_page(start_new=False)
             self.pdf.end()
         except:
-            traceback.print_exc()
+            self.errors.append(traceback.format_exc())
             return False
         finally:
             self.pdf = self.file_object = None
@@ -270,12 +284,15 @@ class PdfEngine(QPaintEngine):
     def type(self):
         return QPaintEngine.Pdf
 
+    @store_error
     def drawPixmap(self, rect, pixmap, source_rect):
         print ('TODO: drawPixmap() currently unimplemented')
 
+    @store_error
     def drawImage(self, rect, image, source_rect, flags=Qt.AutoColor):
         print ('TODO: drawImage() currently unimplemented')
 
+    @store_error
     def updateState(self, state):
         self.graphics_state.read(state)
         self.graphics_state(self)
@@ -299,6 +316,7 @@ class PdfEngine(QPaintEngine):
                     p.curve_to(*(c1 + c2 + em))
         return p
 
+    @store_error
     def drawPath(self, path):
         p = self.convert_path(path)
         fill_rule = {Qt.OddEvenFill:'evenodd',
@@ -312,6 +330,7 @@ class PdfEngine(QPaintEngine):
                     Qt.WindingFill:'winding'}[path.fillRule()]
         self.pdf.add_clip(p, fill_rule=fill_rule)
 
+    @store_error
     def drawPoints(self, points):
         p = Path()
         for point in points:
@@ -319,14 +338,16 @@ class PdfEngine(QPaintEngine):
             p.line_to(point.x(), point.y() + 0.001)
         self.pdf.draw_path(p, stroke=self.do_stroke, fill=False)
 
+    @store_error
     def drawRects(self, rects):
         for rect in rects:
             bl = rect.topLeft()
             self.pdf.draw_rect(bl.x(), bl.y(), rect.width(), rect.height(),
                              stroke=self.do_stroke, fill=self.do_fill)
 
+    @store_error
     def drawTextItem(self, point, text_item):
-        # super(PdfEngine, self).drawTextItem(point, text_item)
+        # super(PdfEngine, self).drawTextItem(point+QPoint(0, 300), text_item)
         f = text_item.font()
         px, pt = f.pixelSize(), f.pointSizeF()
         if px == -1:
@@ -343,37 +364,46 @@ class PdfEngine(QPaintEngine):
             self.do_fill, self.do_stroke = f, s
             return
 
-        to = self.canvas.beginText()
-        # set_transform(QTransform(1, 0, 0, -1, point.x(), point.y()), to.setTextTransform)
-        fontname = 'Times-Roman'
-        to.setFont(fontname, sz) # TODO: Embed font
+        to = Text()
+        to.size = sz
+        to.set_transform(1, 0, 0, -1, point.x(), point.y())
         stretch = f.stretch()
         if stretch != 100:
-            to.setHorizontalScale(stretch)
+            to.horizontal_scale = stretch
         ws = f.wordSpacing()
         if ws != 0:
-            to.setWordSpacing(self.map_dx(ws))
+            to.word_spacing = ws
         spacing = f.letterSpacing()
         st = f.letterSpacingType()
         if st == f.AbsoluteSpacing and spacing != 0:
-            to.setCharSpace(spacing)
-        # TODO: Handle percentage letter spacing
+            to.char_space = spacing/self.scale
+        if st == f.PercentageSpacing and spacing not in {100, 0}:
+            # TODO: Implement this with the TJ operator
+            avg_char_width = QFontMetricsF(f).averageCharWidth()
+            to.char_space = (spacing - 100) * avg_char_width / 100
         text = type(u'')(text_item.text())
-        to.textOut(text)
-        # TODO: handle colors
-        self.canvas.drawText(to)
+        to.text = text
+        with self:
+            self.graphics_state.apply_fill(self.graphics_state.current_state['stroke'],
+                                           self, self.pdf)
+            self.pdf.draw_text(to)
 
         def draw_line(kind='underline'):
-            tw = self.canvas.stringWidth(text, fontname, sz)
-            p = self.canvas.beginPath()
+            m = QFontMetricsF(f)
+            tw = m.width(text)
+            p = Path()
             if kind == 'underline':
-                dy = -text_item.descent()
+                dy = m.underlinePos()
             elif kind == 'overline':
-                dy = text_item.ascent()
+                dy = -m.overlinePos()
             elif kind == 'strikeout':
-                dy = text_item.ascent()/2
-            p.moveTo(point.x, point.y+dy)
-            p.lineTo(point.x+tw, point.y+dy)
+                dy = -m.strikeOutPos()
+            p.move_to(point.x(), point.y()+dy)
+            p.line_to(point.x()+tw, point.y()+dy)
+            with self:
+                self.graphics_state.apply_line_width(m.lineWidth(),
+                        self, self.pdf)
+                self.pdf.draw_path(p, stroke=True, fill=False)
 
         if f.underline():
             draw_line()
@@ -382,6 +412,7 @@ class PdfEngine(QPaintEngine):
         if f.strikeOut():
             draw_line('strikeout')
 
+    @store_error
     def drawPolygon(self, points, mode):
         if not points: return
         p = Path()
@@ -397,8 +428,10 @@ class PdfEngine(QPaintEngine):
 
     def __enter__(self):
         self.pdf.save_stack()
+        self.saved_ps = (self.do_stroke, self.do_fill)
 
     def __exit__(self, *args):
+        self.do_stroke, self.do_fill = self.saved_ps
         self.pdf.restore_stack()
 
 class PdfDevice(QPaintDevice): # {{{
@@ -470,13 +503,18 @@ if __name__ == '__main__':
             p.drawLine(0, 0, 5000, 0)
             p.restore()
 
-            # f = p.font()
-            # f.setPointSize(24)
-            # f.setFamily('Times New Roman')
-            # p.setFont(f)
-            # # p.scale(2, 2)
-            # p.rotate(45)
-            # p.drawText(QPoint(100, 300), 'Some text')
+            f = p.font()
+            f.setPointSize(24)
+            f.setUnderline(True)
+            f.setFamily('Times New Roman')
+            p.setFont(f)
+            # p.scale(2, 2)
+            p.rotate(45)
+            p.setPen(QColor(0, 255, 0))
+            p.drawText(QPoint(100, 300), 'Some text')
         finally:
             p.end()
+        if dev.engine.errors:
+            for err in dev.engine.errors: print (err)
+            raise SystemExit(1)
 
