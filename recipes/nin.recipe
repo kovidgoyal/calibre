@@ -15,7 +15,7 @@ class Nin(BasicNewsRecipe):
     publisher              = 'NIN d.o.o. - Ringier d.o.o.'
     category               = 'news, politics, Serbia'
     no_stylesheets         = True
-    oldest_article         = 15
+    oldest_article         = 180
     encoding               = 'utf-8'
     needs_subscription     = True
     remove_empty_feeds     = True
@@ -25,7 +25,7 @@ class Nin(BasicNewsRecipe):
     use_embedded_content   = False
     language               = 'sr'
     publication_type       = 'magazine'
-    masthead_url           = 'http://www.nin.co.rs/img/head/logo.jpg'
+    masthead_url           = 'http://www.nin.co.rs/img/logo_print.jpg'
     extra_css              = """
                                  @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                  body{font-family: Verdana, Lucida, sans1, sans-serif}
@@ -42,11 +42,11 @@ class Nin(BasicNewsRecipe):
                         , 'tags'      : category
                         , 'publisher' : publisher
                         , 'language'  : language
+                        , 'linearize_tables': True
                         }
 
     preprocess_regexps = [
-                           (re.compile(r'</body>.*?<html>', re.DOTALL|re.IGNORECASE),lambda match: '</body>')
-                          ,(re.compile(r'</html>.*?</html>', re.DOTALL|re.IGNORECASE),lambda match: '</html>')
+                          (re.compile(r'<div class="standardFont">.*', re.DOTALL|re.IGNORECASE),lambda match: '')
                           ,(re.compile(u'\u0110'), lambda match: u'\u00D0')
                          ]
 
@@ -60,42 +60,21 @@ class Nin(BasicNewsRecipe):
             br.submit()
         return br
 
-    keep_only_tags    =[dict(name='td', attrs={'width':'520'})]
-    remove_tags_before =dict(name='span', attrs={'class':'izjava'})
-    remove_tags_after =dict(name='html')
-    remove_tags = [
-                     dict(name=['object','link','iframe','meta','base'])
-                    ,dict(attrs={'class':['fb-like','twitter-share-button']})
-                    ,dict(attrs={'rel':'nofollow'})
-                  ]
-    remove_attributes=['border','background','height','width','align','valign']
+    remove_tags_before = dict(name='div', attrs={'class':'titleFont'})
+    remove_tags_after  = dict(name='div', attrs={'class':'standardFont'})
+    remove_tags        = [dict(name=['object','link','iframe','meta','base'])]
+    remove_attributes  = ['border','background','height','width','align','valign']
 
     def get_cover_url(self):
         cover_url = None
         soup = self.index_to_soup(self.INDEX)
-        for item in soup.findAll('a', href=True):
-            if item['href'].startswith('/pages/issue.php?id='):
-               simg = item.find('img')
-               if simg:
-                   return self.PREFIX + item.img['src']
+        cover = soup.find('img', attrs={'class':'issueImg'})
+        if cover:
+           return self.PREFIX + cover['src']
         return cover_url
 
     feeds          = [(u'NIN Online', u'http://www.nin.co.rs/misc/rss.php?feed=RSS2.0')]
 
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll('div'):
-            if len(item.contents) == 0:
-               item.extract()
-        for item in soup.findAll(['td','tr']):
-            item.name='div'
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):
-               item['alt'] = 'image'
-        for tbl in soup.findAll('table'):
-            img = tbl.find('img')
-            if img:
-               img.extract()
-               tbl.replaceWith(img)
-        return soup
+    def print_version(self, url):
+        return url + '&pf=1'
+        
