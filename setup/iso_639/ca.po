@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-12-09 19:32+0000\n"
+"PO-Revision-Date: 2012-12-15 13:54+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-12-10 04:35+0000\n"
-"X-Generator: Launchpad (build 16341)\n"
+"X-Launchpad-Export-Date: 2012-12-16 04:43+0000\n"
+"X-Generator: Launchpad (build 16372)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -2048,7 +2048,7 @@ msgstr "Atta; Faire"
 
 #. name for azz
 msgid "Nahuatl; Highland Puebla"
-msgstr "Nahuatl; serra de Puebla"
+msgstr "Nàhuatl; Puebla serra"
 
 #. name for baa
 msgid "Babatana"
@@ -6156,7 +6156,7 @@ msgstr "Desano"
 
 #. name for deu
 msgid "German"
-msgstr "Espanyol"
+msgstr "Alemany"
 
 #. name for dev
 msgid "Domung"
@@ -8052,7 +8052,7 @@ msgstr "Francès crioll; Guaiana"
 
 #. name for gct
 msgid "German; Colonia Tovar"
-msgstr "Espanyol; Colonia Tovar"
+msgstr "Alemany; Colonial Tovar"
 
 #. name for gda
 msgid "Lohar; Gade"
@@ -10836,7 +10836,7 @@ msgstr "Jumleli"
 
 #. name for jmn
 msgid "Naga; Makuri"
-msgstr ""
+msgstr "Naga; Makuri"
 
 #. name for jmr
 msgid "Kamara"
@@ -11624,7 +11624,7 @@ msgstr "Kurmukar"
 
 #. name for kfw
 msgid "Naga; Kharam"
-msgstr ""
+msgstr "Naga; Kharam"
 
 #. name for kfx
 msgid "Pahari; Kullu"
@@ -11932,7 +11932,7 @@ msgstr "Kiwai; Septentrional"
 
 #. name for kix
 msgid "Naga; Khiamniungan"
-msgstr ""
+msgstr "Naga; Khiamniungan"
 
 #. name for kiy
 msgid "Kirikiri"
@@ -14692,7 +14692,7 @@ msgstr "Lepki"
 
 #. name for lpn
 msgid "Naga; Long Phuri"
-msgstr ""
+msgstr "Naga; Long Phuri"
 
 #. name for lpo
 msgid "Lipo"
@@ -15016,7 +15016,7 @@ msgstr "Litzlitz"
 
 #. name for lzn
 msgid "Naga; Leinong"
-msgstr ""
+msgstr "Naga; Leinong"
 
 #. name for lzz
 msgid "Laz"
@@ -17616,15 +17616,15 @@ msgstr "Narak"
 
 #. name for nad
 msgid "Nijadali"
-msgstr ""
+msgstr "Nijadali"
 
 #. name for nae
 msgid "Naka'ela"
-msgstr ""
+msgstr "Naka'ela"
 
 #. name for naf
 msgid "Nabak"
-msgstr ""
+msgstr "Nabac"
 
 #. name for nag
 msgid "Naga Pidgin"
@@ -17632,19 +17632,19 @@ msgstr "Naga; parla mixta"
 
 #. name for naj
 msgid "Nalu"
-msgstr ""
+msgstr "Nalu"
 
 #. name for nak
 msgid "Nakanai"
-msgstr ""
+msgstr "Nakanai"
 
 #. name for nal
 msgid "Nalik"
-msgstr ""
+msgstr "Nalik"
 
 #. name for nam
 msgid "Nangikurrunggurr"
-msgstr ""
+msgstr "Nangikurrunggurr"
 
 #. name for nan
 msgid "Chinese; Min Nan"
@@ -17652,15 +17652,15 @@ msgstr "Xinès; Min Nan"
 
 #. name for nao
 msgid "Naaba"
-msgstr ""
+msgstr "Naapa Sherpa"
 
 #. name for nap
 msgid "Neapolitan"
-msgstr ""
+msgstr "Napolità-calabrès"
 
 #. name for naq
 msgid "Nama (Namibia)"
-msgstr ""
+msgstr "Nama (Namíbia)"
 
 #. name for nar
 msgid "Iguta"
@@ -17668,7 +17668,7 @@ msgstr ""
 
 #. name for nas
 msgid "Naasioi"
-msgstr ""
+msgstr "Nasioi"
 
 #. name for nat
 msgid "Hungworo"
@@ -17680,71 +17680,71 @@ msgstr "nauruà"
 
 #. name for nav
 msgid "Navajo"
-msgstr ""
+msgstr "Navaho"
 
 #. name for naw
 msgid "Nawuri"
-msgstr ""
+msgstr "Nawuri"
 
 #. name for nax
 msgid "Nakwi"
-msgstr ""
+msgstr "Nakwi"
 
 #. name for nay
 msgid "Narrinyeri"
-msgstr ""
+msgstr "Narrinyeri"
 
 #. name for naz
 msgid "Nahuatl; Coatepec"
-msgstr ""
+msgstr "Nàhuatl; Coatepec"
 
 #. name for nba
 msgid "Nyemba"
-msgstr ""
+msgstr "Nyemba"
 
 #. name for nbb
 msgid "Ndoe"
-msgstr ""
+msgstr "Ndoe"
 
 #. name for nbc
 msgid "Naga; Chang"
-msgstr ""
+msgstr "Naga; Chang"
 
 #. name for nbd
 msgid "Ngbinda"
-msgstr ""
+msgstr "Ngbinda"
 
 #. name for nbe
 msgid "Naga; Konyak"
-msgstr ""
+msgstr "Naga; Konyak"
 
 #. name for nbg
 msgid "Nagarchal"
-msgstr ""
+msgstr "Nagarchal"
 
 #. name for nbh
 msgid "Ngamo"
-msgstr ""
+msgstr "Ngamo"
 
 #. name for nbi
 msgid "Naga; Mao"
-msgstr ""
+msgstr "Naga; Mao"
 
 #. name for nbj
 msgid "Ngarinman"
-msgstr ""
+msgstr "Ngarinman"
 
 #. name for nbk
 msgid "Nake"
-msgstr ""
+msgstr "Nake"
 
 #. name for nbl
 msgid "Ndebele; South"
-msgstr ""
+msgstr "Ndebele (Sudàfrica)"
 
 #. name for nbm
 msgid "Ngbaka Ma'bo"
-msgstr ""
+msgstr "Ngbaka Ma'bo"
 
 #. name for nbn
 msgid "Kuri"
@@ -17772,27 +17772,27 @@ msgstr "Llenguatge de signes namibi"
 
 #. name for nbt
 msgid "Na"
-msgstr ""
+msgstr "Na"
 
 #. name for nbu
 msgid "Naga; Rongmei"
-msgstr ""
+msgstr "Naga; Rongmei"
 
 #. name for nbv
 msgid "Ngamambo"
-msgstr ""
+msgstr "Ngamambo"
 
 #. name for nbw
 msgid "Ngbandi; Southern"
-msgstr ""
+msgstr "Ngbandi; Meridional"
 
 #. name for nbx
 msgid "Ngura"
-msgstr ""
+msgstr "Ngura"
 
 #. name for nby
 msgid "Ningera"
-msgstr ""
+msgstr "Ningera"
 
 #. name for nca
 msgid "Iyo"
@@ -17808,7 +17808,7 @@ msgstr ""
 
 #. name for ncd
 msgid "Nachering"
-msgstr ""
+msgstr "Nachering"
 
 #. name for nce
 msgid "Yale"
@@ -17816,39 +17816,39 @@ msgstr ""
 
 #. name for ncf
 msgid "Notsi"
-msgstr ""
+msgstr "Notsi"
 
 #. name for ncg
 msgid "Nisga'a"
-msgstr ""
+msgstr "Nisga'a"
 
 #. name for nch
 msgid "Nahuatl; Central Huasteca"
-msgstr ""
+msgstr "Nàhuatl; Huasteca Central"
 
 #. name for nci
 msgid "Nahuatl; Classical"
-msgstr ""
+msgstr "Nàhuatl Clàssic"
 
 #. name for ncj
 msgid "Nahuatl; Northern Puebla"
-msgstr ""
+msgstr "Nàhuatl; Puebla septentrional"
 
 #. name for nck
 msgid "Nakara"
-msgstr ""
+msgstr "Nakara"
 
 #. name for ncl
 msgid "Nahuatl; Michoacán"
-msgstr ""
+msgstr "Nàhuatl; Michoacan"
 
 #. name for ncm
 msgid "Nambo"
-msgstr ""
+msgstr "Nambu"
 
 #. name for ncn
 msgid "Nauna"
-msgstr ""
+msgstr "Nauna"
 
 #. name for nco
 msgid "Sibe"
@@ -17856,11 +17856,11 @@ msgstr ""
 
 #. name for ncp
 msgid "Ndaktup"
-msgstr ""
+msgstr "Ndaktup"
 
 #. name for ncr
 msgid "Ncane"
-msgstr ""
+msgstr "Ncane"
 
 #. name for ncs
 msgid "Nicaraguan Sign Language"
@@ -17868,7 +17868,7 @@ msgstr "Llenguatge de signes nicaragüenc"
 
 #. name for nct
 msgid "Naga; Chothe"
-msgstr ""
+msgstr "Naga; Chothe"
 
 #. name for ncu
 msgid "Chumburung"
@@ -17876,15 +17876,15 @@ msgstr ""
 
 #. name for ncx
 msgid "Nahuatl; Central Puebla"
-msgstr ""
+msgstr "Nàhuatl; Puebla Central"
 
 #. name for ncz
 msgid "Natchez"
-msgstr ""
+msgstr "Natchez"
 
 #. name for nda
 msgid "Ndasa"
-msgstr ""
+msgstr "Ndasa"
 
 #. name for ndb
 msgid "Kenswei Nsei"
@@ -17892,27 +17892,27 @@ msgstr ""
 
 #. name for ndc
 msgid "Ndau"
-msgstr ""
+msgstr "Ndau"
 
 #. name for ndd
 msgid "Nde-Nsele-Nta"
-msgstr ""
+msgstr "Nde-Nsele-Nta"
 
 #. name for nde
 msgid "Ndebele; North"
-msgstr ""
+msgstr "Ndebele (Zimbawe)"
 
 #. name for ndf
 msgid "Nadruvian"
-msgstr ""
+msgstr "Nadruvià"
 
 #. name for ndg
 msgid "Ndengereko"
-msgstr ""
+msgstr "Ndengereko"
 
 #. name for ndh
 msgid "Ndali"
-msgstr ""
+msgstr "Ndali"
 
 #. name for ndi
 msgid "Samba Leko"
@@ -17920,47 +17920,47 @@ msgstr ""
 
 #. name for ndj
 msgid "Ndamba"
-msgstr ""
+msgstr "Ndamba"
 
 #. name for ndk
 msgid "Ndaka"
-msgstr ""
+msgstr "Ndaka"
 
 #. name for ndl
 msgid "Ndolo"
-msgstr ""
+msgstr "Ndolo"
 
 #. name for ndm
 msgid "Ndam"
-msgstr ""
+msgstr "Ndam"
 
 #. name for ndn
 msgid "Ngundi"
-msgstr ""
+msgstr "Ngundi"
 
 #. name for ndo
 msgid "Ndonga"
-msgstr ""
+msgstr "Ndonga"
 
 #. name for ndp
 msgid "Ndo"
-msgstr ""
+msgstr "Ndo"
 
 #. name for ndq
 msgid "Ndombe"
-msgstr ""
+msgstr "Ndombe"
 
 #. name for ndr
 msgid "Ndoola"
-msgstr ""
+msgstr "Ndoola"
 
 #. name for nds
 msgid "German; Low"
-msgstr ""
+msgstr "Alemany; Baix"
 
 #. name for ndt
 msgid "Ndunga"
-msgstr ""
+msgstr "Ndunga"
 
 #. name for ndu
 msgid "Dugun"
@@ -17968,15 +17968,15 @@ msgstr ""
 
 #. name for ndv
 msgid "Ndut"
-msgstr ""
+msgstr "Ndut"
 
 #. name for ndw
 msgid "Ndobo"
-msgstr ""
+msgstr "Ndobo"
 
 #. name for ndx
 msgid "Nduga"
-msgstr ""
+msgstr "Nduga"
 
 #. name for ndy
 msgid "Lutos"
@@ -17984,11 +17984,11 @@ msgstr ""
 
 #. name for ndz
 msgid "Ndogo"
-msgstr ""
+msgstr "Ndogo"
 
 #. name for nea
 msgid "Ngad'a; Eastern"
-msgstr ""
+msgstr "Ngada; Oriental"
 
 #. name for neb
 msgid "Toura (Côte d'Ivoire)"
@@ -17996,55 +17996,55 @@ msgstr "Toura (Costa d'Ivori)"
 
 #. name for nec
 msgid "Nedebang"
-msgstr ""
+msgstr "Nedebang"
 
 #. name for ned
 msgid "Nde-Gbite"
-msgstr ""
+msgstr "Nde-Gbite"
 
 #. name for nee
 msgid "Nêlêmwa-Nixumwak"
-msgstr ""
+msgstr "kumak"
 
 #. name for nef
 msgid "Nefamese"
-msgstr ""
+msgstr "Nefamese"
 
 #. name for neg
 msgid "Negidal"
-msgstr ""
+msgstr "Negidal"
 
 #. name for neh
 msgid "Nyenkha"
-msgstr ""
+msgstr "Nyenkha"
 
 #. name for nei
 msgid "Hittite; Neo-"
-msgstr ""
+msgstr "Neo-Hittita"
 
 #. name for nej
 msgid "Neko"
-msgstr ""
+msgstr "Neko"
 
 #. name for nek
 msgid "Neku"
-msgstr ""
+msgstr "Neku"
 
 #. name for nem
 msgid "Nemi"
-msgstr ""
+msgstr "Nemi"
 
 #. name for nen
 msgid "Nengone"
-msgstr ""
+msgstr "Nengone"
 
 #. name for neo
 msgid "Ná-Meo"
-msgstr ""
+msgstr "Na-Meo"
 
 #. name for nep
 msgid "Nepali"
-msgstr ""
+msgstr "Nepalès"
 
 #. name for neq
 msgid "Mixe; North Central"
@@ -18060,11 +18060,11 @@ msgstr "Kinnauri; Bhoti"
 
 #. name for net
 msgid "Nete"
-msgstr ""
+msgstr "Nete"
 
 #. name for nev
 msgid "Nyaheun"
-msgstr ""
+msgstr "Nyaheun"
 
 #. name for new
 msgid "Bhasa; Nepal"
@@ -18072,15 +18072,15 @@ msgstr ""
 
 #. name for nex
 msgid "Neme"
-msgstr ""
+msgstr "Neme"
 
 #. name for ney
 msgid "Neyo"
-msgstr ""
+msgstr "Neyo"
 
 #. name for nez
 msgid "Nez Perce"
-msgstr ""
+msgstr "Nez"
 
 #. name for nfa
 msgid "Dhao"
@@ -18096,7 +18096,7 @@ msgstr ""
 
 #. name for nfr
 msgid "Nafaanra"
-msgstr ""
+msgstr "Nafaanra"
 
 #. name for nfu
 msgid "Mfumte"
@@ -18104,43 +18104,43 @@ msgstr ""
 
 #. name for nga
 msgid "Ngbaka"
-msgstr ""
+msgstr "Ngbaka"
 
 #. name for ngb
 msgid "Ngbandi; Northern"
-msgstr ""
+msgstr "Ngbandi; Septentrional"
 
 #. name for ngc
 msgid "Ngombe (Democratic Republic of Congo)"
-msgstr ""
+msgstr "Ngombe (República Democràtica del Congo)"
 
 #. name for ngd
 msgid "Ngando (Central African Republic)"
-msgstr ""
+msgstr "Ngando (República Centrafricana)"
 
 #. name for nge
 msgid "Ngemba"
-msgstr ""
+msgstr "Ngemba"
 
 #. name for ngg
 msgid "Ngbaka Manza"
-msgstr ""
+msgstr "Ngbaka Manza"
 
 #. name for ngh
 msgid "N/u"
-msgstr ""
+msgstr "N'u"
 
 #. name for ngi
 msgid "Ngizim"
-msgstr ""
+msgstr "Ngizim"
 
 #. name for ngj
 msgid "Ngie"
-msgstr ""
+msgstr "Ngie"
 
 #. name for ngk
 msgid "Ngalkbun"
-msgstr ""
+msgstr "Ngalkbun"
 
 #. name for ngl
 msgid "Lomwe"
@@ -18152,23 +18152,23 @@ msgstr "Crioll dels homes Ngatik"
 
 #. name for ngn
 msgid "Ngwo"
-msgstr ""
+msgstr "Ngwo"
 
 #. name for ngo
 msgid "Ngoni"
-msgstr ""
+msgstr "Ngoní"
 
 #. name for ngp
 msgid "Ngulu"
-msgstr ""
+msgstr "Ngulu"
 
 #. name for ngq
 msgid "Ngurimi"
-msgstr ""
+msgstr "Ngurimi"
 
 #. name for ngr
 msgid "Nanggu"
-msgstr ""
+msgstr "Nanggu"
 
 #. name for ngs
 msgid "Gvoko"
@@ -18176,23 +18176,23 @@ msgstr ""
 
 #. name for ngt
 msgid "Ngeq"
-msgstr ""
+msgstr "Ngeq"
 
 #. name for ngu
 msgid "Nahuatl; Guerrero"
-msgstr ""
+msgstr "Nàhuatl; Guerrero"
 
 #. name for ngv
 msgid "Nagumi"
-msgstr ""
+msgstr "Nagumi"
 
 #. name for ngw
 msgid "Ngwaba"
-msgstr ""
+msgstr "Ngwaba"
 
 #. name for ngx
 msgid "Nggwahyi"
-msgstr ""
+msgstr "Nggwahyi"
 
 #. name for ngy
 msgid "Tibea"
@@ -18200,7 +18200,7 @@ msgstr ""
 
 #. name for ngz
 msgid "Ngungwel"
-msgstr ""
+msgstr "Ngungwel"
 
 #. name for nha
 msgid "Nhanda"
@@ -18212,7 +18212,7 @@ msgstr ""
 
 #. name for nhc
 msgid "Nahuatl; Tabasco"
-msgstr ""
+msgstr "Nàhuatl; Tabasco"
 
 #. name for nhd
 msgid "Guaraní; Ava"
@@ -18220,35 +18220,35 @@ msgstr "Guaraní; Ava"
 
 #. name for nhe
 msgid "Nahuatl; Eastern Huasteca"
-msgstr ""
+msgstr "Nàhuatl; Huastec oriental"
 
 #. name for nhf
 msgid "Nhuwala"
-msgstr ""
+msgstr "Nhuwala"
 
 #. name for nhg
 msgid "Nahuatl; Tetelcingo"
-msgstr ""
+msgstr "Nàhuatl; Tetelcingo"
 
 #. name for nhh
 msgid "Nahari"
-msgstr ""
+msgstr "Nahali"
 
 #. name for nhi
 msgid "Nahuatl; Zacatlán-Ahuacatlán-Tepetzintla"
-msgstr ""
+msgstr "Nàhuatl; Tenango"
 
 #. name for nhk
 msgid "Nahuatl; Isthmus-Cosoleacaque"
-msgstr ""
+msgstr "Nàhuatl; Cosoleacaque"
 
 #. name for nhm
 msgid "Nahuatl; Morelos"
-msgstr ""
+msgstr "Nàhuatl; Morelos"
 
 #. name for nhn
 msgid "Nahuatl; Central"
-msgstr ""
+msgstr "Nàhuatl; Central"
 
 #. name for nho
 msgid "Takuu"
@@ -18256,79 +18256,79 @@ msgstr ""
 
 #. name for nhp
 msgid "Nahuatl; Isthmus-Pajapan"
-msgstr ""
+msgstr "Nàhuatl; Pajapan"
 
 #. name for nhq
 msgid "Nahuatl; Huaxcaleca"
-msgstr ""
+msgstr "Nàhuatl; Huaxcalec"
 
 #. name for nhr
 msgid "Naro"
-msgstr ""
+msgstr "Naro"
 
 #. name for nht
 msgid "Nahuatl; Ometepec"
-msgstr ""
+msgstr "Nàhuatl; Ometepec"
 
 #. name for nhu
 msgid "Noone"
-msgstr ""
+msgstr "Noone"
 
 #. name for nhv
 msgid "Nahuatl; Temascaltepec"
-msgstr ""
+msgstr "Nàhuatl; Temascaltepec"
 
 #. name for nhw
 msgid "Nahuatl; Western Huasteca"
-msgstr ""
+msgstr "Nàhuatl; Huastec occidental"
 
 #. name for nhx
 msgid "Nahuatl; Isthmus-Mecayapan"
-msgstr ""
+msgstr "Nàhuatl; Mecayapan"
 
 #. name for nhy
 msgid "Nahuatl; Northern Oaxaca"
-msgstr ""
+msgstr "Nàhuatl; Oaxaca Septentrional"
 
 #. name for nhz
 msgid "Nahuatl; Santa María La Alta"
-msgstr ""
+msgstr "Nàhuatl; Santa Maria"
 
 #. name for nia
 msgid "Nias"
-msgstr ""
+msgstr "Nias"
 
 #. name for nib
 msgid "Nakame"
-msgstr ""
+msgstr "Nakama"
 
 #. name for nid
 msgid "Ngandi"
-msgstr ""
+msgstr "Ngandi"
 
 #. name for nie
 msgid "Niellim"
-msgstr ""
+msgstr "Niellim"
 
 #. name for nif
 msgid "Nek"
-msgstr ""
+msgstr "Nek"
 
 #. name for nig
 msgid "Ngalakan"
-msgstr ""
+msgstr "Ngalakan"
 
 #. name for nih
 msgid "Nyiha (Tanzania)"
-msgstr ""
+msgstr "Nyiha (Tanzània)"
 
 #. name for nii
 msgid "Nii"
-msgstr ""
+msgstr "Nii"
 
 #. name for nij
 msgid "Ngaju"
-msgstr ""
+msgstr "Ngaju"
 
 #. name for nik
 msgid "Nicobarese; Southern"
@@ -18336,31 +18336,31 @@ msgstr "Nicobarès; meridional"
 
 #. name for nil
 msgid "Nila"
-msgstr ""
+msgstr "Nila"
 
 #. name for nim
 msgid "Nilamba"
-msgstr ""
+msgstr "Nilamba"
 
 #. name for nin
 msgid "Ninzo"
-msgstr ""
+msgstr "Ninzam"
 
 #. name for nio
 msgid "Nganasan"
-msgstr ""
+msgstr "Nganassan"
 
 #. name for niq
 msgid "Nandi"
-msgstr ""
+msgstr "Nandí"
 
 #. name for nir
 msgid "Nimboran"
-msgstr ""
+msgstr "Nimboran"
 
 #. name for nis
 msgid "Nimi"
-msgstr ""
+msgstr "Nimi"
 
 #. name for nit
 msgid "Kolami; Southeastern"
@@ -18368,7 +18368,7 @@ msgstr "Kolami; Meridional"
 
 #. name for niu
 msgid "Niuean"
-msgstr ""
+msgstr "Niueà"
 
 #. name for niv
 msgid "Gilyak"
@@ -18376,7 +18376,7 @@ msgstr ""
 
 #. name for niw
 msgid "Nimo"
-msgstr ""
+msgstr "Nimo"
 
 #. name for nix
 msgid "Hema"
@@ -18384,27 +18384,27 @@ msgstr ""
 
 #. name for niy
 msgid "Ngiti"
-msgstr ""
+msgstr "Ngiti"
 
 #. name for niz
 msgid "Ningil"
-msgstr ""
+msgstr "Ningil"
 
 #. name for nja
 msgid "Nzanyi"
-msgstr ""
+msgstr "Nzanyi"
 
 #. name for njb
 msgid "Naga; Nocte"
-msgstr ""
+msgstr "Naga; Nocte"
 
 #. name for njd
 msgid "Ndonde Hamba"
-msgstr ""
+msgstr "Ndonde"
 
 #. name for njh
 msgid "Naga; Lotha"
-msgstr ""
+msgstr "Naga; Lotha"
 
 #. name for nji
 msgid "Gudanji"
@@ -18412,31 +18412,31 @@ msgstr ""
 
 #. name for njj
 msgid "Njen"
-msgstr ""
+msgstr "Njen"
 
 #. name for njl
 msgid "Njalgulgule"
-msgstr ""
+msgstr "Njalgulgule"
 
 #. name for njm
 msgid "Naga; Angami"
-msgstr ""
+msgstr "Naga; Angami"
 
 #. name for njn
 msgid "Naga; Liangmai"
-msgstr ""
+msgstr "Naga; Liangmai"
 
 #. name for njo
 msgid "Naga; Ao"
-msgstr ""
+msgstr "Naga; Ao"
 
 #. name for njr
 msgid "Njerep"
-msgstr ""
+msgstr "Njerep"
 
 #. name for njs
 msgid "Nisa"
-msgstr ""
+msgstr "Nisa"
 
 #. name for njt
 msgid "Ndyuka-Trio Pidgin"
@@ -18444,7 +18444,7 @@ msgstr "Ndyuka-Trio; parla mixta"
 
 #. name for nju
 msgid "Ngadjunmaya"
-msgstr ""
+msgstr "Ngadjunmaya"
 
 #. name for njx
 msgid "Kunyi"
@@ -18452,19 +18452,19 @@ msgstr ""
 
 #. name for njy
 msgid "Njyem"
-msgstr ""
+msgstr "Ndjem"
 
 #. name for nka
 msgid "Nkoya"
-msgstr ""
+msgstr "Nkoya"
 
 #. name for nkb
 msgid "Naga; Khoibu"
-msgstr ""
+msgstr "Naga; Khoibu"
 
 #. name for nkc
 msgid "Nkongho"
-msgstr ""
+msgstr "Nkongho"
 
 #. name for nkd
 msgid "Koireng"
@@ -18476,43 +18476,43 @@ msgstr ""
 
 #. name for nkf
 msgid "Naga; Inpui"
-msgstr ""
+msgstr "Naga; Inpui"
 
 #. name for nkg
 msgid "Nekgini"
-msgstr ""
+msgstr "Nekgini"
 
 #. name for nkh
 msgid "Naga; Khezha"
-msgstr ""
+msgstr "Naga; Khezha"
 
 #. name for nki
 msgid "Naga; Thangal"
-msgstr ""
+msgstr "Naga; Thangal"
 
 #. name for nkj
 msgid "Nakai"
-msgstr ""
+msgstr "Nakai"
 
 #. name for nkk
 msgid "Nokuku"
-msgstr ""
+msgstr "Nokuku"
 
 #. name for nkm
 msgid "Namat"
-msgstr ""
+msgstr "Namat"
 
 #. name for nkn
 msgid "Nkangala"
-msgstr ""
+msgstr "Nkangala"
 
 #. name for nko
 msgid "Nkonya"
-msgstr ""
+msgstr "Nkonya"
 
 #. name for nkp
 msgid "Niuatoputapu"
-msgstr ""
+msgstr "Niuatoputapu"
 
 #. name for nkq
 msgid "Nkami"
@@ -18520,7 +18520,7 @@ msgstr ""
 
 #. name for nkr
 msgid "Nukuoro"
-msgstr ""
+msgstr "Nukuoro"
 
 #. name for nks
 msgid "Asmat; North"
@@ -18540,23 +18540,23 @@ msgstr ""
 
 #. name for nkw
 msgid "Nkutu"
-msgstr ""
+msgstr "Nkutu"
 
 #. name for nkx
 msgid "Nkoroo"
-msgstr ""
+msgstr "Nkoro"
 
 #. name for nkz
 msgid "Nkari"
-msgstr ""
+msgstr "Nkari"
 
 #. name for nla
 msgid "Ngombale"
-msgstr ""
+msgstr "Ngombale"
 
 #. name for nlc
 msgid "Nalca"
-msgstr ""
+msgstr "Nalca"
 
 #. name for nld
 msgid "Dutch"
@@ -18564,7 +18564,7 @@ msgstr "Holandès"
 
 #. name for nle
 msgid "Nyala; East"
-msgstr ""
+msgstr "Nyala"
 
 #. name for nlg
 msgid "Gela"
@@ -18576,7 +18576,7 @@ msgstr ""
 
 #. name for nlj
 msgid "Nyali"
-msgstr ""
+msgstr "Nyali"
 
 #. name for nlk
 msgid "Yali; Ninia"
@@ -18584,31 +18584,31 @@ msgstr ""
 
 #. name for nll
 msgid "Nihali"
-msgstr ""
+msgstr "Nihali"
 
 #. name for nln
 msgid "Nahuatl; Durango"
-msgstr ""
+msgstr "Nàhuatl; Durango"
 
 #. name for nlo
 msgid "Ngul"
-msgstr ""
+msgstr "Ngul"
 
 #. name for nlr
 msgid "Ngarla"
-msgstr ""
+msgstr "Ngarla"
 
 #. name for nlu
 msgid "Nchumbulu"
-msgstr ""
+msgstr "Nchumbulu"
 
 #. name for nlv
 msgid "Nahuatl; Orizaba"
-msgstr ""
+msgstr "Nàhuatl; Orizaba"
 
 #. name for nlx
 msgid "Nahali"
-msgstr ""
+msgstr "Nahali"
 
 #. name for nly
 msgid "Nyamal"
@@ -18620,7 +18620,7 @@ msgstr ""
 
 #. name for nma
 msgid "Naga; Maram"
-msgstr ""
+msgstr "Naga; Maram"
 
 #. name for nmb
 msgid "Nambas; Big"
@@ -18636,11 +18636,11 @@ msgstr ""
 
 #. name for nme
 msgid "Naga; Mzieme"
-msgstr ""
+msgstr "Naga; Mzieme"
 
 #. name for nmf
 msgid "Naga; Tangkhul"
-msgstr ""
+msgstr "Naga; Tangkhul"
 
 #. name for nmg
 msgid "Kwasio"
@@ -18648,7 +18648,7 @@ msgstr ""
 
 #. name for nmh
 msgid "Naga; Monsang"
-msgstr ""
+msgstr "Naga; Monsang"
 
 #. name for nmi
 msgid "Nyam"
@@ -18656,7 +18656,7 @@ msgstr ""
 
 #. name for nmj
 msgid "Ngombe (Central African Republic)"
-msgstr ""
+msgstr "Ngombe (República Centrafricana)"
 
 #. name for nmk
 msgid "Namakura"
@@ -18676,7 +18676,7 @@ msgstr ""
 
 #. name for nmo
 msgid "Naga; Moyon"
-msgstr ""
+msgstr "Naga; Moyon"
 
 #. name for nmp
 msgid "Nimanbur"
@@ -18712,7 +18712,7 @@ msgstr ""
 
 #. name for nmx
 msgid "Nama (Papua New Guinea)"
-msgstr ""
+msgstr "Nama (Papua Nova Guinea)"
 
 #. name for nmy
 msgid "Namuyi"
@@ -18748,7 +18748,7 @@ msgstr ""
 
 #. name for nng
 msgid "Naga; Maring"
-msgstr ""
+msgstr "Naga; Maring"
 
 #. name for nnh
 msgid "Ngiemboon"
@@ -18768,7 +18768,7 @@ msgstr ""
 
 #. name for nnl
 msgid "Naga; Northern Rengma"
-msgstr ""
+msgstr "Naga; Rengma septentrional"
 
 #. name for nnm
 msgid "Namia"
@@ -18784,7 +18784,7 @@ msgstr "Noruec; Nynorsk"
 
 #. name for nnp
 msgid "Naga; Wancho"
-msgstr ""
+msgstr "Naga; Wancho"
 
 #. name for nnq
 msgid "Ngindo"
@@ -18928,11 +18928,11 @@ msgstr ""
 
 #. name for nph
 msgid "Naga; Phom"
-msgstr ""
+msgstr "Naga; Phom"
 
 #. name for npl
 msgid "Nahuatl; Southeastern Puebla"
-msgstr ""
+msgstr "Nàhuatl; Puebla sudoriental"
 
 #. name for npn
 msgid "Mondropolon"
@@ -18940,7 +18940,7 @@ msgstr ""
 
 #. name for npo
 msgid "Naga; Pochuri"
-msgstr ""
+msgstr "Naga; Pochuri"
 
 #. name for nps
 msgid "Nipsan"
@@ -18948,7 +18948,7 @@ msgstr ""
 
 #. name for npu
 msgid "Naga; Puimei"
-msgstr ""
+msgstr "Naga; Puimei"
 
 #. name for npy
 msgid "Napu"
@@ -18988,7 +18988,7 @@ msgstr ""
 
 #. name for nre
 msgid "Naga; Southern Rengma"
-msgstr ""
+msgstr "Naga; Rengma meridional"
 
 #. name for nrg
 msgid "Narango"
@@ -18996,7 +18996,7 @@ msgstr ""
 
 #. name for nri
 msgid "Naga; Chokri"
-msgstr ""
+msgstr "Naga; Chokri"
 
 #. name for nrl
 msgid "Ngarluma"
@@ -19036,7 +19036,7 @@ msgstr ""
 
 #. name for nsa
 msgid "Naga; Sangtam"
-msgstr ""
+msgstr "Naga; Sangtam"
 
 #. name for nsc
 msgid "Nshi"
@@ -19072,7 +19072,7 @@ msgstr "Llenguatge de signes noruec"
 
 #. name for nsm
 msgid "Naga; Sumi"
-msgstr ""
+msgstr "Naga; Sumi"
 
 #. name for nsn
 msgid "Nehan"
@@ -19100,11 +19100,11 @@ msgstr ""
 
 #. name for nst
 msgid "Naga; Tase"
-msgstr ""
+msgstr "Naga; Tase"
 
 #. name for nsu
 msgid "Nahuatl; Sierra Negra"
-msgstr ""
+msgstr "Nàhuatl; Sierra Negra"
 
 #. name for nsv
 msgid "Nisu; Southwestern"
@@ -19276,7 +19276,7 @@ msgstr ""
 
 #. name for nuz
 msgid "Nahuatl; Tlamacazapa"
-msgstr ""
+msgstr "Nàhuatl; Tlamacazapa"
 
 #. name for nvh
 msgid "Nasarian"
@@ -19328,7 +19328,7 @@ msgstr ""
 
 #. name for nxd
 msgid "Ngando (Democratic Republic of Congo)"
-msgstr ""
+msgstr "Ngando (República Democràtica del Congo)"
 
 #. name for nxe
 msgid "Nage"
@@ -19336,7 +19336,7 @@ msgstr ""
 
 #. name for nxg
 msgid "Ngad'a"
-msgstr ""
+msgstr "Ngada; Central"
 
 #. name for nxi
 msgid "Nindi"
@@ -19488,7 +19488,7 @@ msgstr ""
 
 #. name for nzm
 msgid "Naga; Zeme"
-msgstr ""
+msgstr "Naga; Zeme"
 
 #. name for nzs
 msgid "New Zealand Sign Language"
@@ -19628,7 +19628,7 @@ msgstr ""
 
 #. name for oht
 msgid "Hittite; Old"
-msgstr ""
+msgstr "Hittita; antic"
 
 #. name for ohu
 msgid "Hungarian; Old"
@@ -20408,7 +20408,7 @@ msgstr ""
 
 #. name for pdc
 msgid "German; Pennsylvania"
-msgstr "Alemany; Pennsylvania"
+msgstr "Alemany; Pensilvàmia"
 
 #. name for pdi
 msgid "Pa Di"
@@ -20936,7 +20936,7 @@ msgstr "Miwok; plana"
 
 #. name for pmx
 msgid "Naga; Poumei"
-msgstr ""
+msgstr "Naga; Poumei"
 
 #. name for pmy
 msgid "Malay; Papuan"
@@ -21480,7 +21480,7 @@ msgstr ""
 
 #. name for puz
 msgid "Naga; Purum"
-msgstr ""
+msgstr "Naga; Purum"
 
 #. name for pwa
 msgid "Pawaia"
@@ -21548,7 +21548,7 @@ msgstr ""
 
 #. name for pzn
 msgid "Naga; Para"
-msgstr ""
+msgstr "Naga; Para"
 
 #. name for qua
 msgid "Quapaw"
@@ -25876,7 +25876,7 @@ msgstr ""
 
 #. name for tro
 msgid "Naga; Tarao"
-msgstr ""
+msgstr "Naga; Tarao"
 
 #. name for trp
 msgid "Kok Borok"
@@ -26256,7 +26256,7 @@ msgstr ""
 
 #. name for tvt
 msgid "Naga; Tutsa"
-msgstr ""
+msgstr "Naga; Tutsa"
 
 #. name for tvw
 msgid "Sedoa"
@@ -26744,7 +26744,7 @@ msgstr ""
 
 #. name for umn
 msgid "Naga; Makyan"
-msgstr ""
+msgstr "Naga; Makyan"
 
 #. name for umo
 msgid "Umotína"
@@ -29568,7 +29568,7 @@ msgstr ""
 
 #. name for yim
 msgid "Naga; Yimchungru"
-msgstr ""
+msgstr "Naga; Yimchungru"
 
 #. name for yin
 msgid "Yinchia"
