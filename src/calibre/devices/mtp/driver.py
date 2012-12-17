@@ -59,8 +59,23 @@ class MTP_DEVICE(BASE):
             p.defaults['blacklist'] = []
             p.defaults['history'] = {}
             p.defaults['rules'] = []
+            p.defaults['ignored_folders'] = {}
 
         return self._prefs
+
+    def is_folder_ignored(self, storage_or_storage_id, name,
+                          ignored_folders=None):
+        storage_id = unicode(getattr(storage_or_storage_id, 'object_id',
+                             storage_or_storage_id))
+        name = icu_lower(name)
+        if ignored_folders is None:
+            ignored_folders = self.get_pref('ignored_folders')
+        if storage_id in ignored_folders:
+            return name in {icu_lower(x) for x in ignored_folders[storage_id]}
+
+        return name in {
+            'alarms', 'android', 'dcim', 'movies', 'music', 'notifications',
+            'pictures', 'ringtones', 'samsung', 'sony', 'htc'}
 
     def configure_for_kindle_app(self):
         proxy = self.prefs

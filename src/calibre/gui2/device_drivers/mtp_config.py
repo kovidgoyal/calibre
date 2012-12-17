@@ -19,7 +19,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.utils.date import parse_date
-from calibre.gui2.device_drivers.mtp_folder_browser import Browser
+from calibre.gui2.device_drivers.mtp_folder_browser import Browser, TopLevel
 
 class FormatsConfig(QWidget): # {{{
 
@@ -373,23 +373,29 @@ class MTPConfig(QTabWidget):
                 _('&Ignore the %s in calibre')%device.current_friendly_name,
                 self.base)
             b.clicked.connect(self.ignore_device)
+            self.config_ign_folders_button = cif = QPushButton(
+                QIcon(I('tb_folder.png')), _('Change scanned &folders'))
             self.show_debug_button = bd = QPushButton(QIcon(I('debug.png')),
                     _('Show device information'))
             bd.clicked.connect(self.show_debug_info)
+            cif.clicked.connect(self.change_ignored_folders)
 
             l.addWidget(b, 0, 0, 1, 2)
             l.addWidget(la, 1, 0, 1, 1)
-            l.addWidget(self.formats, 2, 0, 4, 1)
+            l.addWidget(self.formats, 2, 0, 5, 1)
             l.addWidget(self.send_to, 2, 1, 1, 1)
             l.addWidget(self.template, 3, 1, 1, 1)
-            l.addWidget(self.show_debug_button, 4, 1, 1, 1)
-            l.setRowStretch(5, 10)
-            l.addWidget(r, 6, 0, 1, 2)
-            l.setRowStretch(6, 100)
+            l.addWidget(cif, 4, 1, 1, 1)
+            l.addWidget(self.show_debug_button, 5, 1, 1, 1)
+            l.setRowStretch(6, 10)
+            l.addWidget(r, 7, 0, 1, 2)
+            l.setRowStretch(7, 100)
 
         self.igntab = IgnoredDevices(self.device.prefs['history'],
                 self.device.prefs['blacklist'])
         self.addTab(self.igntab, _('Ignored devices'))
+        self.current_ignored_folders = self.get_pref('ignored_folders')
+        self.initial_ignored_folders = self.current_ignored_folders
 
         self.setCurrentIndex(1 if msg else 0)
 
@@ -412,6 +418,12 @@ class MTPConfig(QTabWidget):
         bb.clicked.connect(lambda :
                 QApplication.clipboard().setText(v.toPlainText()))
         d.exec_()
+
+    def change_ignored_folders(self):
+        d = TopLevel(self.device,
+                     self.current_ignored_folders, parent=self)
+        if d.exec_() == d.Accepted:
+            self.current_ignored_folders = d.ignored_folders
 
     def ignore_device(self):
         self.igntab.ignore_device(self.device.current_serial_num)
@@ -463,6 +475,9 @@ class MTPConfig(QTabWidget):
             r = list(self.rules.rules)
             if r and r != self.device.prefs['rules']:
                 p['rules'] = r
+
+            if self.current_ignored_folders != self.initial_ignored_folders:
+                p['ignored_folders'] = self.current_ignored_folders
 
             self.device.prefs[self.current_device_key] = p
 
