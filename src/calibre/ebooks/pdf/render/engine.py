@@ -10,15 +10,16 @@ __docformat__ = 'restructuredtext en'
 import sys, traceback
 from math import sqrt
 from collections import namedtuple
-from future_builtins import map
 from functools import wraps
 
 from PyQt4.Qt import (QPaintEngine, QPaintDevice, Qt, QApplication, QPainter,
-                      QTransform, QPainterPath, QFontMetricsF)
+                      QTransform, QPainterPath, QRawFont)
 
 from calibre.constants import DEBUG
 from calibre.ebooks.pdf.render.serialize import (Color, PDFStream, Path, Text)
 from calibre.ebooks.pdf.render.common import inch, A4
+from calibre.utils.fonts.sfnt.container import Sfnt
+from calibre.utils.fonts.sfnt.metrics import FontMetrics
 
 XDPI = 1200
 YDPI = 1200
@@ -309,11 +310,16 @@ class PdfEngine(QPaintEngine):
             elif elem.isLineTo():
                 p.line_to(*em)
             elif elem.isCurveTo():
+                added = False
                 if path.elementCount() > i+1:
-                    c1, c2 = map(lambda j:(
-                        path.elementAt(j).x, path.elementAt(j).y), (i, i+1))
-                    i += 2
-                    p.curve_to(*(c1 + c2 + em))
+                    c1, c2 = path.elementAt(i), path.elementAt(i+1)
+                    if (c1.type == path.CurveToDataElement and c2.type ==
+                        path.CurveToDataElement):
+                        i += 2
+                        p.curve_to(em[0], em[1], c1.x, c1.y, c2.x, c2.y)
+                        added = True
+                if not added:
+                    raise ValueError('Invalid curve to operation')
         return p
 
     @store_error
@@ -355,15 +361,8 @@ class PdfEngine(QPaintEngine):
         else:
             sz = px
 
-        q = self.qt_system
-        if not q.isIdentity() and q.type() > q.TxShear:
-            # We cant map this transform to a PDF text transform operator
-            f, s = self.do_fill, self.do_stroke
-            self.do_fill, self.do_stroke = True, False
-            super(PdfEngine, self).drawTextItem(point, text_item)
-            self.do_fill, self.do_stroke = f, s
-            return
-
+        r = QRawFont.fromFont(f)
+        metrics = FontMetrics(Sfnt(r))
         to = Text()
         to.size = sz
         to.set_transform(1, 0, 0, -1, point.x(), point.y())
@@ -375,42 +374,23 @@ class PdfEngine(QPaintEngine):
             to.word_spacing = ws
         spacing = f.letterSpacing()
         st = f.letterSpacingType()
+        text = type(u'')(text_item.text())
         if st == f.AbsoluteSpacing and spacing != 0:
             to.char_space = spacing/self.scale
         if st == f.PercentageSpacing and spacing not in {100, 0}:
-            # TODO: Implement this with the TJ operator
-            avg_char_width = QFontMetricsF(f).averageCharWidth()
-            to.char_space = (spacing - 100) * avg_char_width / 100
-        text = type(u'')(text_item.text())
+            # TODO: Figure out why the results from uncommenting the super
+            # class call above differ. The advance widths are the same as those
+            # reported by QRawfont, so presumably, Qt use some other
+            # algorithm, I can't be bothered to track it down. This behavior is
+            # correct as per the Qt docs' description of PercentageSpacing
+            widths = [w*-1 for w in metrics.advance_widths(text,
+                                            sz, f.stretch()/100.)]
+            to.glyph_adjust = ((spacing-100)/100., widths)
         to.text = text
         with self:
             self.graphics_state.apply_fill(self.graphics_state.current_state['stroke'],
                                            self, self.pdf)
             self.pdf.draw_text(to)
-
-        def draw_line(kind='underline'):
-            m = QFontMetricsF(f)
-            tw = m.width(text)
-            p = Path()
-            if kind == 'underline':
-                dy = m.underlinePos()
-            elif kind == 'overline':
-                dy = -m.overlinePos()
-            elif kind == 'strikeout':
-                dy = -m.strikeOutPos()
-            p.move_to(point.x(), point.y()+dy)
-            p.line_to(point.x()+tw, point.y()+dy)
-            with self:
-                self.graphics_state.apply_line_width(m.lineWidth(),
-                        self, self.pdf)
-                self.pdf.draw_path(p, stroke=True, fill=False)
-
-        if f.underline():
-            draw_line()
-        if f.overline():
-            draw_line('overline')
-        if f.strikeOut():
-            draw_line('strikeout')
 
     @store_error
     def drawPolygon(self, points, mode):
@@ -419,8 +399,7 @@ class PdfEngine(QPaintEngine):
         p.move_to(points[0].x(), points[0].y())
         for point in points[1:]:
             p.line_to(point.x(), point.y())
-        if points[-1] != points[0]:
-            p.line_to(points[0].x(), points[0].y())
+        p.close()
         fill_rule = {self.OddEvenMode:'evenodd',
                     self.WindingMode:'winding'}.get(mode, 'evenodd')
         self.pdf.draw_path(p, stroke=True, fill_rule=fill_rule,
@@ -504,13 +483,16 @@ if __name__ == '__main__':
             p.restore()
 
             f = p.font()
-            f.setPointSize(24)
-            f.setUnderline(True)
+            f.setPointSize(48)
+            f.setLetterSpacing(f.PercentageSpacing, 200)
+            # f.setUnderline(True)
+            # f.setOverline(True)
+            # f.setStrikeOut(True)
             f.setFamily('Times New Roman')
             p.setFont(f)
             # p.scale(2, 2)
-            p.rotate(45)
-            p.setPen(QColor(0, 255, 0))
+            # p.rotate(45)
+            p.setPen(QColor(0, 0, 255))
             p.drawText(QPoint(100, 300), 'Some text')
         finally:
             p.end()

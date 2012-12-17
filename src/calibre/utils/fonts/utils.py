@@ -41,7 +41,7 @@ def get_table(raw, name):
             return table, table_index, table_offset, table_checksum
     return None, None, None, None
 
-def get_font_characteristics(raw, raw_is_table=False):
+def get_font_characteristics(raw, raw_is_table=False, return_all=False):
     '''
     Return (weight, is_italic, is_bold, is_regular, fs_type, panose, width,
     is_oblique, is_wws). These
@@ -79,6 +79,13 @@ def get_font_characteristics(raw, raw_is_table=False):
     is_regular = (selection & (1 << 6)) != 0
     is_wws = (selection & (1 << 8)) != 0
     is_oblique = (selection & (1 << 9)) != 0
+    if return_all:
+        return (version, char_width, weight, width, fs_type, subscript_x_size,
+            subscript_y_size, subscript_x_offset, subscript_y_offset,
+            superscript_x_size, superscript_y_size, superscript_x_offset,
+            superscript_y_offset, strikeout_size, strikeout_position,
+            family_class, panose, selection, is_italic, is_bold, is_regular)
+
     return weight, is_italic, is_bold, is_regular, fs_type, panose, width, is_oblique, is_wws, version
 
 def panose_to_css_generic_family(panose):

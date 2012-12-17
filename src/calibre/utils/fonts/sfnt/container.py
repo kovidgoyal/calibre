@@ -16,7 +16,8 @@ from calibre.utils.fonts.utils import (get_tables, checksum_of_block,
 from calibre.utils.fonts.sfnt import align_block, UnknownTable, max_power_of_two
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 
-from calibre.utils.fonts.sfnt.head import HeadTable
+from calibre.utils.fonts.sfnt.head import (HeadTable, HorizontalHeader,
+                                           OS2Table, PostTable)
 from calibre.utils.fonts.sfnt.maxp import MaxpTable
 from calibre.utils.fonts.sfnt.loca import LocaTable
 from calibre.utils.fonts.sfnt.glyf import GlyfTable
@@ -29,26 +30,42 @@ from calibre.utils.fonts.sfnt.cff.table import CFFTable
 
 class Sfnt(object):
 
-    def __init__(self, raw):
-        self.sfnt_version = raw[:4]
-        if self.sfnt_version not in {b'\x00\x01\x00\x00', b'OTTO', b'true',
-                b'type1'}:
-            raise UnsupportedFont('Font has unknown sfnt version: %r'%self.sfnt_version)
-        self.read_tables(raw)
+    TABLE_MAP = {
+        b'head' : HeadTable,
+        b'hhea' : HorizontalHeader,
+        b'maxp' : MaxpTable,
+        b'loca' : LocaTable,
+        b'glyf' : GlyfTable,
+        b'cmap' : CmapTable,
+        b'CFF ' : CFFTable,
+        b'kern' : KernTable,
+        b'GSUB' : GSUBTable,
+        b'OS/2' : OS2Table,
+        b'post' : PostTable,
+    }
 
-    def read_tables(self, raw):
+    def __init__(self, raw_or_qrawfont):
         self.tables = {}
-        for table_tag, table, table_index, table_offset, table_checksum in get_tables(raw):
-            self.tables[table_tag] = {
-                    b'head' : HeadTable,
-                    b'maxp' : MaxpTable,
-                    b'loca' : LocaTable,
-                    b'glyf' : GlyfTable,
-                    b'cmap' : CmapTable,
-                    b'CFF ' : CFFTable,
-                    b'kern' : KernTable,
-                    b'GSUB' : GSUBTable,
-                    }.get(table_tag, UnknownTable)(table)
+        if isinstance(raw_or_qrawfont, bytes):
+            raw = raw_or_qrawfont
+            self.sfnt_version = raw[:4]
+            if self.sfnt_version not in {b'\x00\x01\x00\x00', b'OTTO', b'true',
+                    b'type1'}:
+                raise UnsupportedFont('Font has unknown sfnt version: %r'%self.sfnt_version)
+            for table_tag, table, table_index, table_offset, table_checksum in get_tables(raw):
+                self.tables[table_tag] = self.TABLE_MAP.get(
+                    table_tag, UnknownTable)(table)
+        else:
+            for table_tag in {
+                b'cmap', b'hhea', b'head', b'hmtx', b'maxp', b'name', b'OS/2',
+                b'post', b'cvt ', b'fpgm', b'glyf', b'loca', b'prep', b'CFF ',
+                b'VORG', b'EBDT', b'EBLC', b'EBSC', b'BASE', b'GSUB', b'GPOS',
+                b'GDEF', b'JSTF', b'gasp', b'hdmx', b'kern', b'LTSH', b'PCLT',
+                b'VDMX', b'vhea', b'vmtx', b'MATH'}:
+                table = bytes(raw_or_qrawfont.fontTable(table_tag))
+                if table:
+                    self.tables[table_tag] = self.TABLE_MAP.get(
+                        table_tag, UnknownTable)(table)
 
     def __getitem__(self, key):
         return self.tables[key]
@@ -140,7 +157,8 @@ def test_roundtrip(ff=None):
     if data[:12] != rd[:12]:
         raise ValueError('Roundtripping failed, font header not the same')
     if len(data) != len(rd):
-        raise ValueError('Roundtripping failed, size different')
+        raise ValueError('Roundtripping failed, size different (%d vs. %d)'%
+                         (len(data), len(rd)))
 
 if __name__ == '__main__':
     import sys

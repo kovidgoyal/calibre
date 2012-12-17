@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import hashlib
 from future_builtins import map
+from itertools import izip
 from collections import namedtuple
 
 from calibre.constants import (__appname__, __version__)
@@ -137,6 +138,9 @@ class Path(object):
     def curve_to(self, x1, y1, x2, y2, x, y):
         self.ops.append((x1, y1, x2, y2, x, y, 'c'))
 
+    def close(self):
+        self.ops.append(('h',))
+
 class Text(object):
 
     def __init__(self):
@@ -146,6 +150,7 @@ class Text(object):
         self.horizontal_scale = self.default_horizontal_scale = 100
         self.word_spacing = self.default_word_spacing = 0
         self.char_space = self.default_char_space = 0
+        self.glyph_adjust = self.default_glyph_adjust = None
         self.size = 12
         self.text = ''
 
@@ -170,8 +175,17 @@ class Text(object):
         if self.char_space != self.default_char_space:
             stream.write('%g Tc '%self.char_space)
         stream.write_line()
-        serialize(String(self.text), stream)
-        stream.write(' Tj ')
+        if self.glyph_adjust is self.default_glyph_adjust:
+            serialize(String(self.text), stream)
+            stream.write(' Tj ')
+        else:
+            chars = Array()
+            frac, widths = self.glyph_adjust
+            for c, width in izip(self.text, widths):
+                chars.append(String(c))
+                chars.append(int(width * frac))
+            serialize(chars, stream)
+            stream.write(' TJ ')
         stream.write_line('ET')
 
 
