@@ -212,8 +212,13 @@ class MTP_DEVICE(MTPDeviceBase):
         ans += pprint.pformat(storage)
         return ans
 
-    def _filesystem_callback(self, entry):
-        self.filesystem_callback(_('Found object: %s')%entry.get('name', ''))
+    def _filesystem_callback(self, entry, level):
+        name = entry.get('name', '')
+        self.filesystem_callback(_('Found object: %s')%name)
+        if (level == 0 and
+            self.is_folder_ignored(self._currently_getting_sid, name)):
+            return False
+        return True
 
     @property
     def filesystem_cache(self):
@@ -234,6 +239,7 @@ class MTP_DEVICE(MTPDeviceBase):
                     storage.append({'id':sid, 'size':capacity,
                         'is_folder':True, 'name':name, 'can_delete':False,
                         'is_system':True})
+                    self._currently_getting_sid = unicode(sid)
                     items, errs = self.dev.get_filesystem(sid,
                             self._filesystem_callback)
                     all_items.extend(items), all_errs.extend(errs)
