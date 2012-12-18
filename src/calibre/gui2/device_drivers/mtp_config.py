@@ -13,7 +13,7 @@ from PyQt4.Qt import (QWidget, QListWidgetItem, Qt, QToolButton, QLabel,
         QTabWidget, QGridLayout, QListWidget, QIcon, QLineEdit, QVBoxLayout,
         QPushButton, QGroupBox, QScrollArea, QHBoxLayout, QComboBox,
         pyqtSignal, QSizePolicy, QDialog, QDialogButtonBox, QPlainTextEdit,
-        QApplication)
+        QApplication, QSize)
 
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import error_dialog
@@ -328,7 +328,7 @@ class FormatRules(QGroupBox):
 
 class MTPConfig(QTabWidget):
 
-    def __init__(self, device, parent=None):
+    def __init__(self, device, parent=None, highlight_ignored_folders=False):
         QTabWidget.__init__(self, parent)
         self._device = weakref.ref(device)
 
@@ -375,6 +375,10 @@ class MTPConfig(QTabWidget):
             b.clicked.connect(self.ignore_device)
             self.config_ign_folders_button = cif = QPushButton(
                 QIcon(I('tb_folder.png')), _('Change scanned &folders'))
+            cif.setStyleSheet(
+                    'QPushButton { font-weight: bold; }')
+            if highlight_ignored_folders:
+                cif.setIconSize(QSize(64, 64))
             self.show_debug_button = bd = QPushButton(QIcon(I('debug.png')),
                     _('Show device information'))
             bd.clicked.connect(self.show_debug_info)
@@ -383,9 +387,9 @@ class MTPConfig(QTabWidget):
             l.addWidget(b, 0, 0, 1, 2)
             l.addWidget(la, 1, 0, 1, 1)
             l.addWidget(self.formats, 2, 0, 5, 1)
-            l.addWidget(self.send_to, 2, 1, 1, 1)
+            l.addWidget(cif, 2, 1, 1, 1)
             l.addWidget(self.template, 3, 1, 1, 1)
-            l.addWidget(cif, 4, 1, 1, 1)
+            l.addWidget(self.send_to, 4, 1, 1, 1)
             l.addWidget(self.show_debug_button, 5, 1, 1, 1)
             l.setRowStretch(6, 10)
             l.addWidget(r, 7, 0, 1, 2)
@@ -481,6 +485,37 @@ class MTPConfig(QTabWidget):
 
             self.device.prefs[self.current_device_key] = p
 
+class SendError(QDialog):
+
+    def __init__(self, gui, error):
+        QDialog.__init__(self, gui)
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+        self.la = la = QLabel('<p>'+
+            _('You are trying to send books into the <b>%s</b> folder. This '
+              'folder is currently ignored by calibre when scanning the '
+              'device. You have tell calibre you want this folder scanned '
+              'in order to be able to send books to it. Click the '
+              '<b>configure</b> button below to send books to it.')%error.folder)
+        la.setWordWrap(True)
+        la.setMinimumWidth(500)
+        l.addWidget(la)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Close)
+        self.b = bb.addButton(_('Configure'), bb.AcceptRole)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        l.addWidget(bb)
+        self.setWindowTitle(_('Cannot send to %s')%error.folder)
+        self.setWindowIcon(QIcon(I('dialog_error.png')))
+
+        self.resize(self.sizeHint())
+
+    def accept(self):
+        QDialog.accept(self)
+        dev = self.parent().device_manager.connected_device
+        dev.highlight_ignored_folders = True
+        self.parent().configure_connected_device()
+        dev.highlight_ignored_folders = False
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
