@@ -430,7 +430,7 @@ end:
     return values;
 } // }}}
 
-static bool get_files_and_folders(unsigned int level, IPortableDevice *device, IPortableDeviceContent *content, IPortableDevicePropertiesBulk *bulk_properties, const wchar_t *parent_id, PyObject *callback, PyObject *ans) {
+static bool get_files_and_folders(unsigned int level, IPortableDevice *device, IPortableDeviceContent *content, IPortableDevicePropertiesBulk *bulk_properties, const wchar_t *parent_id, PyObject *callback, PyObject *ans) { // {{{
     bool ok = true;
     IPortableDevicePropVariantCollection *object_ids = NULL;
     PyObject *subfolders = NULL;
@@ -462,7 +462,7 @@ end:
     if (object_ids != NULL) object_ids->Release();
     Py_XDECREF(subfolders);
     return ok;
-}
+} // }}}
 
 PyObject* wpd::get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortableDevicePropertiesBulk *bulk_properties, PyObject *callback) { // {{{
     PyObject *ans = NULL;
