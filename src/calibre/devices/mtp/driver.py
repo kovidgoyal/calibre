@@ -75,7 +75,8 @@ class MTP_DEVICE(BASE):
 
         return name in {
             'alarms', 'android', 'dcim', 'movies', 'music', 'notifications',
-            'pictures', 'ringtones', 'samsung', 'sony', 'htc'}
+            'pictures', 'ringtones', 'samsung', 'sony', 'htc', 'bluetooth',
+            'games', 'lost.dir', 'video', 'whatsapp', 'image'}
 
     def configure_for_kindle_app(self):
         proxy = self.prefs
