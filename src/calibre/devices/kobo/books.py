@@ -199,6 +199,11 @@ class KTCollectionsBookList(CollectionsBookList):
                                 ('series' in collection_attributes and
                                  book.get('series', None) == category):
                             is_series = True
+
+                    # The category should not be None, but, it has happened.
+                    if not category:
+                        continue
+
                     cat_name = category.strip(' ,')
 
                     if cat_name not in collections:
