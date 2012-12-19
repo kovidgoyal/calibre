@@ -8,6 +8,7 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from future_builtins import map
+from calibre.utils.fonts.utils import get_all_font_names
 
 class FontMetrics(object):
 
@@ -32,6 +33,13 @@ class FontMetrics(object):
         self.os2.read_data()
         self.post = self.sfnt[b'post']
         self.post.read_data()
+        self.names = get_all_font_names(self.sfnt[b'name'].raw, raw_is_table=True)
+
+    @property
+    def postscript_name(self):
+        if 'postscript_name' in self.names:
+            return self.names['postscript_name']
+        return self.names['full_name'].replace(' ', '')
 
     def underline_thickness(self, pixel_size=12.0):
         'Thickness for lines (in pixels) at the specified size'

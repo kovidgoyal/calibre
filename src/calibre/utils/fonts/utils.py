@@ -208,6 +208,36 @@ def get_font_names2(raw, raw_is_table=False):
     return (family_name, subfamily_name, full_name, preferred_family_name,
             preferred_subfamily_name, wws_family_name, wws_subfamily_name)
 
+def get_all_font_names(raw, raw_is_table=False):
+    records = _get_font_names(raw, raw_is_table)
+    ans = {}
+
+    for name, num in {'family_name':1, 'subfamily_name':2, 'full_name':4,
+            'preferred_family_name':16, 'preferred_subfamily_name':17,
+            'wws_family_name':21, 'wws_subfamily_name':22}.iteritems():
+        try:
+            ans[name] = decode_name_record(records[num])
+        except (IndexError, KeyError, ValueError):
+            continue
+        if not ans[name]:
+            del ans[name]
+
+    for platform_id, encoding_id, language_id, src in records[6]:
+        if (platform_id, encoding_id, language_id) == (1, 0, 0):
+            try:
+                ans['postscript_name'] = src.decode('utf-8')
+                break
+            except ValueError:
+                continue
+        elif (platform_id, encoding_id, language_id) == (3, 1, 1033):
+            try:
+                ans['postscript_name'] = src.decode('utf-16-be')
+                break
+            except ValueError:
+                continue
+
+    return ans
+
 def checksum_of_block(raw):
     extra = 4 - len(raw)%4
     raw += b'\0'*extra
