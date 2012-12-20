@@ -115,7 +115,7 @@ class Font(object):
         self.font_stream = FontStream(metrics.is_otf, compress=compress)
         self.font_descriptor = Dictionary({
             'Type': Name('FontDescriptor'),
-            'FontName': Name(metrics.postscript_name),
+            'FontName': Name('%s+%s'%(self.subset_tag, metrics.postscript_name)),
             'Flags': 0b100, # Symbolic font
             'FontBBox': Array(metrics.pdf_bbox),
             'ItalicAngle': metrics.post.italic_angle,
