@@ -27,6 +27,7 @@ from calibre import strftime, isbytestring
 from calibre.constants import filesystem_encoding, DEBUG
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.utils.localization import calibre_langcode_to_name
+from calibre.library.coloring import color_row_key
 
 def human_readable(size, precision=1):
     """ Convert a size in bytes into megabytes """
@@ -84,6 +85,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.headers = {}
         self.alignment_map = {}
         self.color_cache = defaultdict(dict)
+        self.color_row_fmt_cache = None
         self.buffer_size = buffer
         self.metadata_backup = None
         self.bool_yes_icon = QIcon(I('ok.png'))
@@ -169,12 +171,14 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def refresh_ids(self, ids, current_row=-1):
         self.color_cache = defaultdict(dict)
+        self.color_row_fmt_cache = None
         rows = self.db.refresh_ids(ids)
         if rows:
             self.refresh_rows(rows, current_row=current_row)
 
     def refresh_rows(self, rows, current_row=-1):
         self.color_cache = defaultdict(dict)
+        self.color_row_fmt_cache = None
         for row in rows:
             if row == current_row:
                 self.new_bookdisplay_data.emit(
@@ -206,6 +210,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def count_changed(self, *args):
         self.color_cache = defaultdict(dict)
+        self.color_row_fmt_cache = None
         self.count_changed_signal.emit(self.db.count())
 
     def row_indices(self, index):
@@ -337,6 +342,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def reset(self):
         self.color_cache = defaultdict(dict)
+        self.color_row_fmt_cache = None
         QAbstractTableModel.reset(self)
 
     def resort(self, reset=True):
@@ -728,10 +734,15 @@ class BooksModel(QAbstractTableModel): # {{{
         elif role == Qt.ForegroundRole:
             key = self.column_map[col]
             mi = None
+            id_ = self.id(index)
+
+            if self.color_row_fmt_cache is None:
+                d = dict(self.db.prefs['column_color_rules'])
+                self.color_row_fmt_cache = d.get(color_row_key, '')
+
             for k, fmt in self.db.prefs['column_color_rules']:
                 if k != key:
                     continue
-                id_ = self.id(index)
                 if id_ in self.color_cache:
                     if key in self.color_cache[id_]:
                         return self.color_cache[id_][key]
@@ -747,6 +758,7 @@ class BooksModel(QAbstractTableModel): # {{{
                             return color
                 except:
                     continue
+
             if self.is_custom_column(key) and \
                         self.custom_columns[key]['datatype'] == 'enumeration':
                 cc = self.custom_columns[self.column_map[col]]['display']
@@ -760,6 +772,28 @@ class BooksModel(QAbstractTableModel): # {{{
                             return QVariant(color)
                     except:
                         pass
+
+            # There is cloned code below. Done for performance.
+            if self.color_row_fmt_cache:
+                key = color_row_key
+                if id_ in self.color_cache:
+                    if key in self.color_cache[id_]:
+                        return self.color_cache[id_][key]
+                try:
+                    if mi is None:
+                        mi = self.db.get_metadata(id_, index_is_id=True)
+                    color = self.formatter.safe_format(self.color_row_fmt_cache,
+                                                       mi, '', mi)
+                    if color in self.colors:
+                        color = QColor(color)
+                        if color.isValid():
+                            color = QVariant(color)
+                            self.color_cache[id_][key] = color
+                            return color
+                except:
+                    pass
+                self.color_cache[id_][key] = None
+
             return NONE
         elif role == Qt.DecorationRole:
             if self.column_to_dc_decorator_map[col] is not None:
