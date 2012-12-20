@@ -62,6 +62,8 @@ class ConditionEditor(QWidget): # {{{
             ),
     }
 
+    all_columns_string = _('All Columns')
+
     for x in ('float', 'rating', 'datetime'):
         ACTION_MAP[x] = ACTION_MAP['int']
 
@@ -316,7 +318,7 @@ class RuleEditor(QDialog): # {{{
                 displayable_columns(fm),
                 key=sort_key):
             if key == color_row_key:
-                name = _('Entire row')
+                name = self.all_columns_string
                 self.column_box.addItem(name, key)
             else:
                 name = fm[key]['name']
@@ -432,7 +434,7 @@ class RulesModel(QAbstractListModel): # {{{
         except:
             return None
         if col == color_row_key:
-            col = _('Entire row')
+            col = self.all_columns_string
         if role == Qt.DisplayRole:
             return self.rule_to_html(col, rule)
         if role == Qt.UserRole:
