@@ -514,6 +514,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 if (not tag.is_hierarchical) and (in_uc or
                         (fm['is_custom'] and fm['display'].get('is_names', False)) or
                         not category_is_hierarchical or len(components) == 1):
+                    tag.icon = self.category_custom_icons[key]
                     n = self.create_node(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
                     if tag.id_set is not None:
@@ -550,6 +551,7 @@ class TagsModel(QAbstractItemModel): # {{{
                             t.is_hierarchical = \
                                 '5state' if t.category != 'search' else '3state'
                             t.name = comp
+                            t.icon = self.category_custom_icons[key]
                             node_parent = self.create_node(parent=node_parent, data=t,
                                             tooltip=tt, icon_map=self.icon_state_map)
                             child_map[(comp,tag.category)] = node_parent
