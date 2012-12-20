@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-12-07 04:42+0000\n"
-"PO-Revision-Date: 2012-12-12 16:04+0000\n"
+"POT-Creation-Date: 2012-12-14 04:21+0000\n"
+"PO-Revision-Date: 2012-12-15 17:41+0000\n"
 "Last-Translator: Hisbro <talnl357@gmail.com>\n"
 "Language-Team: Hebrew <he@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-13 04:40+0000\n"
-"X-Generator: Launchpad (build 16361)\n"
+"X-Launchpad-Export-Date: 2012-12-16 04:43+0000\n"
+"X-Generator: Launchpad (build 16372)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -165,8 +165,8 @@ msgstr "לא עושה דבר"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:250
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:261
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:402
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:174
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:178
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:182
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:202
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/google_books_plugin.py:107
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:191
@@ -326,7 +326,7 @@ msgstr "כתוב תגיות מטא מ- %s קבצים"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Add books to calibre or the connected device"
-msgstr "הוסף ספרים לקליבר או למכשיר המחובר"
+msgstr "הוסף ספרים ל-calibre או למכשיר המחובר"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Fetch annotations from a connected Kindle (experimental)"
@@ -334,7 +334,7 @@ msgstr "יבא הערות ממכשיר קינדל מחובר (ניסיוני)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Generate a catalog of the books in your calibre library"
-msgstr "אתחל קטלוג של הספרים שבספריית הקליברה שלך"
+msgstr "אתחל קטלוג של הספרים שבספריית ה-calibre שלך"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Convert books to various ebook formats"
@@ -342,15 +342,15 @@ msgstr "להמיר ספרים לתצורות שונות"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Delete books from your calibre library or connected device"
-msgstr "למחוק ספרים מספריית הקליברה או מהמכשיר שלך"
+msgstr "למחוק ספרים מספריית ה-calibre או מהמכשיר שלך"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid "Edit the metadata of books in your calibre library"
-msgstr "לערוך את הנתונים של הספרים בספריית הקליברה שלך"
+msgstr "לערוך את הנתונים של הספרים בספריית ה-calibre שלך"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:805
 msgid "Read books in your calibre library"
-msgstr "לקרוא ספרים בספריית הקליברה שלך"
+msgstr "לקרוא ספרים בספריית ה-calibre שלך"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:810
 msgid "Download news from the internet in ebook form"
@@ -370,7 +370,7 @@ msgstr "הצג פרטי הספר בחלון נפרד"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:830
 msgid "Restart calibre"
-msgstr "לאתחל קליברה"
+msgstr "אתחל את calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:835
 msgid "Open the folder that contains the book files in your calibre library"
@@ -391,11 +391,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:852
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr "עיין במדריך קליבר למשתמש"
+msgstr "עיין במדריך של calibre למשתמש"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:857
 msgid "Customize calibre"
-msgstr "התאם את קליבר"
+msgstr "התאם את calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:862
 msgid "Easily find books similar to the currently selected one"
@@ -539,23 +539,23 @@ msgstr "שלוט בצורה שקליבר קורא מידע מטא מקבצים �
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1043
 msgid "Saving books to disk"
-msgstr "שומר ספרים לדיסק"
+msgstr "שמירת ספרים לדיסק"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1049
 msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
-"קבע איך calibre מיצא קבצים ממסד הנתונים לדיסק הקשיח בבחירת \"שמירה לדיסק "
+"קבע איך calibre מייצא קבצים ממסד הנתונים לדיסק הקשיח בבחירת \"שמירה לדיסק "
 "הקשיח\""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1055
 msgid "Sending books to devices"
-msgstr "שולח ספרים להתקנים"
+msgstr "שליחת ספרים להתקנים"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1061
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr "שלוט בצורת ההעברה של קליבר לקורא הספרים שלך"
+msgstr "שלוט כיצד calibre מעביר את הקבצים לקורא הספרים הדיגיטליים  שלך"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1067
 msgid "Metadata plugboards"
@@ -918,6 +918,8 @@ msgid ""
 "plugin. This command will automatically zip up the plugin and update it in "
 "calibre."
 msgstr ""
+"למפתחי רכיבים: נתיב לספריה שבה אתם מפתחים את הרכיב. פקודה זו תכווץ באופן "
+"אוטומטי את הרכיב ותעדכן אותו ב-calibre."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:626
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
@@ -1077,7 +1079,7 @@ msgstr "תקשר עם אייטונס/אייבוקס"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:212
 msgid "Apple iDevice detected, launching iTunes, please wait ..."
-msgstr ""
+msgstr "iDevice של אפל אותר, מפעיל iTunes, אנא המתן..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:214
 msgid ""
@@ -1110,15 +1112,15 @@ msgstr "מעדכן רישום נתוני מטא של החומרה"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:497
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1143
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1190
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3293
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3335
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3292
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3334
 #, python-format
 msgid "%(num)d of %(tot)d"
 msgstr "%(num)d מתוך %(tot)d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:505
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1195
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3342
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3341
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:110
 msgid "finished"
 msgstr "הסתיים"
@@ -1141,7 +1143,7 @@ msgstr ""
 "לא היה אפשר להמיר חלק מתמונות השער.\n"
 "לחץ על 'הצג פרטים' לקבלת רשימה."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2817
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2816
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:106
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:448
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:471
@@ -1164,13 +1166,13 @@ msgstr ""
 msgid "News"
 msgstr "חדשות"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2818
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2817
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3342
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3360
 msgid "Catalog"
 msgstr "קטלוג"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3185
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3184
 msgid "Communicate with iTunes."
 msgstr "תקשר עם אייטונס"
 
@@ -4068,7 +4070,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:222
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1074
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:162
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/models.py:23
@@ -4076,14 +4078,14 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:375
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:585
 msgid "Title"
-msgstr ""
+msgstr "כותרת"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:770
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1075
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/models.py:23
 msgid "Author(s)"
-msgstr ""
+msgstr "מחבר/ים"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:771
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:65
@@ -4127,7 +4129,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:201
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:780
 msgid "Tags"
-msgstr ""
+msgstr "תוויות"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:777
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:184
@@ -4142,8 +4144,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:140
 msgid "Series"
 msgid_plural "Series"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "סדרות"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:778
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:69
@@ -4159,10 +4160,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:782
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:63
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:305
 msgid "Published"
-msgstr ""
+msgstr "פורסם"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:784
 msgid "Rights"
@@ -4516,7 +4517,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:176
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:778
 msgid "Rating"
-msgstr ""
+msgstr "דירוג"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/split.py:34
 #, python-format
@@ -5080,7 +5081,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:129
 #, python-format
 msgid "%d books"
-msgstr "%d ספרים"
+msgstr "ספרים %d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:175
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:92
@@ -5505,23 +5506,23 @@ msgid "None of the selected books are on the device"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:263
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:361
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:363
 msgid "Deleting books from device."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:319
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:321
 msgid ""
 "Some of the selected books are on the attached device. <b>Where</b> do you "
 "want the selected files deleted from?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:331
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:333
 msgid ""
 "The selected books will be <b>permanently deleted</b> and the files removed "
 "from your calibre library. Are you sure?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:353
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:355
 msgid ""
 "The selected books will be <b>permanently deleted</b> from your device. Are "
 "you sure?"
@@ -5541,7 +5542,7 @@ msgstr "התחבר לתיקיה"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:43
 msgid "Connect to iTunes"
-msgstr ""
+msgstr "התחבר ל-iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:49
 msgid "Connect to Bambook"
@@ -5676,8 +5677,8 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:84
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:514
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:826
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:518
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:830
 msgid "Download failed"
 msgstr ""
 
@@ -5713,7 +5714,7 @@ msgid "Download complete"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:123
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:888
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:892
 msgid "Download log"
 msgstr ""
 
@@ -5876,7 +5877,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:22
 msgid "Change calibre behavior"
-msgstr ""
+msgstr "שנה את ההתנהגות של calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:208
@@ -6170,7 +6171,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:234
 #: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:667
 msgid "&Cancel"
-msgstr ""
+msgstr "&ביטול"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:106
 msgid "&Rebuild Book"
@@ -6255,7 +6256,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "View"
-msgstr ""
+msgstr "הצג"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:48
 msgid "View specific format"
@@ -8225,7 +8226,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:98
 msgid "Preview"
-msgstr ""
+msgstr "תצוגה מקדימה"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:19
 msgid ""
@@ -8774,7 +8775,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:627
 msgid "Apply changes"
-msgstr ""
+msgstr "החל שינויים"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:820
 msgid "Remove series"
@@ -8927,7 +8928,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:918
 msgid "Running jobs"
-msgstr ""
+msgstr "עבודות רצות"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:919
 msgid "Cannot configure the device while there are running device jobs."
@@ -9194,7 +9195,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:141
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:881
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:885
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:344
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:220
 msgid "Copy to clipboard"
@@ -9792,7 +9793,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:523
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:527
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:721
 msgid "No matches found"
 msgstr ""
@@ -9899,7 +9900,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:72
 msgid "Active Jobs"
-msgstr ""
+msgstr "עבודות פעילות"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:73
 msgid "Find next match"
@@ -9916,11 +9917,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:76
 msgid "&Stop selected jobs"
-msgstr ""
+msgstr "&עצור עבודות נבחרות"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:77
 msgid "&Hide selected jobs"
-msgstr ""
+msgstr "&הסתר עבודות נבחרות"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:78
 msgid "Show job &details"
@@ -9971,8 +9972,8 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:196
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:251
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:946
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1055
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:950
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1059
 #: /home/kovid/work/calibre/src/calibre/gui2/proceed.py:48
 msgid "View log"
 msgstr ""
@@ -10159,7 +10160,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:554
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1059
 msgid "&Rating:"
-msgstr ""
+msgstr "&דירוג:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:555
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:556
@@ -11509,7 +11510,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:164
 msgid "Publishers"
-msgstr ""
+msgstr "מוציאים לאור"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:143
 msgid " (not on any book)"
@@ -12530,7 +12531,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:61
 msgid "Size (MB)"
-msgstr ""
+msgstr "גודל (מ\"ב)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:68
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:275
@@ -12693,7 +12694,7 @@ msgid "Previous Page"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:133
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:943
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:947
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:208
 msgid "Back"
@@ -13167,7 +13168,7 @@ msgid "Edit Metadata"
 msgstr "ערוך מטא-נתונים"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:63
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:936
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:940
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:108
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:219
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:410
@@ -13313,15 +13314,15 @@ msgstr ""
 msgid "Basic metadata"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 msgid "Has cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 msgid "Has summary"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:203
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:207
 msgid ""
 "The has cover indication is not fully\n"
 "reliable. Sometimes results marked as not\n"
@@ -13329,27 +13330,27 @@ msgid ""
 "cover stage, and vice versa."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:288
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:292
 msgid "See at"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:442
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:446
 msgid "calibre is downloading metadata from: "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:464
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:468
 msgid "Please wait"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:496
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:500
 msgid "Query: "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:515
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:519
 msgid "Failed to download metadata. Click Show Details to see details"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:524
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:528
 msgid ""
 "Failed to find any books that match your search. Try making the search "
 "<b>less specific</b>. For example, use only the author's last name and a "
@@ -13357,38 +13358,38 @@ msgid ""
 "Details."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:632
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:636
 msgid "Current cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:635
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:639
 msgid "Searching..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:796
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:800
 #, python-format
 msgid "Downloading covers for <b>%s</b>, please wait..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:827
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:831
 msgid "Failed to download any covers, click \"Show details\" for details."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:833
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:837
 #, python-format
 msgid "Could not find any covers for <b>%s</b>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:835
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:839
 #, python-format
 msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:924
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:928
 msgid "Downloading metadata..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1039
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1043
 msgid "Downloading cover..."
 msgstr ""
 
@@ -14016,7 +14017,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:152
 msgid "Formats"
-msgstr ""
+msgstr "פורמטים"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:68
 msgid "ISBN"
@@ -14549,7 +14550,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:259
 msgid "User interface &style (needs restart):"
-msgstr ""
+msgstr "סגנון ממשק &משתמש (מצריך איתחול):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:260
 msgid "Show &tooltips in the book list"
@@ -14557,7 +14558,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:261
 msgid "Main Interface"
-msgstr ""
+msgstr "ממשק ראשי"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:262
 msgid ""
@@ -14685,7 +14686,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:231
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:123
 msgid "&Apply"
-msgstr ""
+msgstr "&החל"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:238
 msgid "Restore &defaults"
@@ -15931,7 +15932,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:19
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:93
 msgid "(all books)"
-msgstr ""
+msgstr "(כל הספרים)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:21
 msgid ""
@@ -16378,7 +16379,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:858
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:495
 msgid "Searches"
-msgstr ""
+msgstr "חיפושים"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:935
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:955
@@ -16710,7 +16711,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:205
 msgid "&Donate to support calibre"
-msgstr "&תרום כדי לתמוך בקליבר"
+msgstr "&תרום כדי לתמוך ב-calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:241
 msgid "&Restore"
@@ -17773,7 +17774,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:856
 #: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:667
 msgid "Cancel"
-msgstr ""
+msgstr "ביטול"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:857
 msgid "&Finish"
@@ -17794,7 +17795,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:47
 msgid "Welcome to calibre"
-msgstr "ברוך הבא ! לקליבר"
+msgstr "ברוך הבא ל-calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:48
@@ -20948,7 +20949,7 @@ msgstr ""
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:673
 msgid "Apply"
-msgstr ""
+msgstr "החל"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:683
 msgid "Don't Save"
