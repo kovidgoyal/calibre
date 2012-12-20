@@ -13,10 +13,10 @@ from collections import namedtuple
 from functools import wraps
 
 from PyQt4.Qt import (QPaintEngine, QPaintDevice, Qt, QApplication, QPainter,
-                      QTransform, QPainterPath, QRawFont)
+                      QTransform, QPainterPath, QTextOption, QTextLayout)
 
 from calibre.constants import DEBUG
-from calibre.ebooks.pdf.render.serialize import (Color, PDFStream, Path, Text)
+from calibre.ebooks.pdf.render.serialize import (Color, PDFStream, Path)
 from calibre.ebooks.pdf.render.common import inch, A4
 from calibre.utils.fonts.sfnt.container import Sfnt
 from calibre.utils.fonts.sfnt.metrics import FontMetrics
@@ -236,6 +236,9 @@ class PdfEngine(QPaintEngine):
         self.xscale, self.yscale = sx, sy
         self.graphics_state = GraphicsState()
         self.errors = []
+        self.text_option = QTextOption()
+        self.text_option.setWrapMode(QTextOption.NoWrap)
+        self.fonts = {}
 
     def init_page(self):
         self.pdf.transform(self.pdf_system)
@@ -353,44 +356,41 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def drawTextItem(self, point, text_item):
-        # super(PdfEngine, self).drawTextItem(point+QPoint(0, 300), text_item)
-        f = text_item.font()
-        px, pt = f.pixelSize(), f.pointSizeF()
-        if px == -1:
-            sz = pt/self.yscale
-        else:
-            sz = px
+        # super(PdfEngine, self).drawTextItem(point+QPoint(0, 0), text_item)
+        text = type(u'')(text_item.text()).replace('\n', ' ')
+        tl = QTextLayout(text, text_item.font(), self.paintDevice())
+        self.text_option.setTextDirection(Qt.RightToLeft if
+            text_item.renderFlags() & text_item.RightToLeft else Qt.LeftToRight)
+        tl.setTextOption(self.text_option)
+        tl.setPosition(point)
+        tl.beginLayout()
+        line = tl.createLine()
+        if not line.isValid():
+            tl.endLayout()
+            return
+        line.setLineWidth(int(1e12))
+        tl.endLayout()
+        for run in tl.glyphRuns():
+            rf = run.rawFont()
+            name = hash(bytes(rf.fontTable('name')))
+            if name not in self.fonts:
+                self.fonts[name] = FontMetrics(Sfnt(rf))
+            metrics = self.fonts[name]
+            indices = run.glyphIndexes()
+            glyphs = []
+            pdf_pos = point
+            first_baseline = None
+            for i, pos in enumerate(run.positions()):
+                if first_baseline is None:
+                    first_baseline = pos.y()
+                glyph_pos = point + pos
+                delta = glyph_pos - pdf_pos
+                glyphs.append((delta.x(), pos.y()-first_baseline, indices[i]))
+                pdf_pos = glyph_pos
 
-        r = QRawFont.fromFont(f)
-        metrics = FontMetrics(Sfnt(r))
-        to = Text()
-        to.size = sz
-        to.set_transform(1, 0, 0, -1, point.x(), point.y())
-        stretch = f.stretch()
-        if stretch != 100:
-            to.horizontal_scale = stretch
-        ws = f.wordSpacing()
-        if ws != 0:
-            to.word_spacing = ws
-        spacing = f.letterSpacing()
-        st = f.letterSpacingType()
-        text = type(u'')(text_item.text())
-        if st == f.AbsoluteSpacing and spacing != 0:
-            to.char_space = spacing/self.scale
-        if st == f.PercentageSpacing and spacing not in {100, 0}:
-            # TODO: Figure out why the results from uncommenting the super
-            # class call above differ. The advance widths are the same as those
-            # reported by QRawfont, so presumably, Qt use some other
-            # algorithm, I can't be bothered to track it down. This behavior is
-            # correct as per the Qt docs' description of PercentageSpacing
-            widths = [w*-1 for w in metrics.advance_widths(text,
-                                            sz, f.stretch()/100.)]
-            to.glyph_adjust = ((spacing-100)/100., widths)
-        to.text = text
-        with self:
-            self.graphics_state.apply_fill(self.graphics_state.current_state['stroke'],
-                                           self, self.pdf)
-            self.pdf.draw_text(to)
+            self.pdf.draw_glyph_run([1, 0, 0, -1, point.x(),
+                point.y()], rf.pixelSize(), metrics, glyphs)
+
 
     @store_error
     def drawPolygon(self, points, mode):
@@ -460,40 +460,40 @@ if __name__ == '__main__':
         xmax, ymax = p.viewport().width(), p.viewport().height()
         try:
             p.drawRect(0, 0, xmax, ymax)
-            p.drawPolyline(QPoint(0, 0), QPoint(xmax, 0), QPoint(xmax, ymax),
-                           QPoint(0, ymax), QPoint(0, 0))
-            pp = QPainterPath()
-            pp.addRect(0, 0, xmax, ymax)
-            p.drawPath(pp)
-            p.save()
-            for i in xrange(3):
-                col = [0, 0, 0, 200]
-                col[i] = 255
-                p.setOpacity(0.3)
-                p.setBrush(QBrush(QColor(*col)))
-                p.drawRect(0, 0, xmax/10, xmax/10)
-                p.translate(xmax/10, xmax/10)
-                p.scale(1, 1.5)
-            p.restore()
+            # p.drawPolyline(QPoint(0, 0), QPoint(xmax, 0), QPoint(xmax, ymax),
+            #                QPoint(0, ymax), QPoint(0, 0))
+            # pp = QPainterPath()
+            # pp.addRect(0, 0, xmax, ymax)
+            # p.drawPath(pp)
+            # p.save()
+            # for i in xrange(3):
+            #     col = [0, 0, 0, 200]
+            #     col[i] = 255
+            #     p.setOpacity(0.3)
+            #     p.setBrush(QBrush(QColor(*col)))
+            #     p.drawRect(0, 0, xmax/10, xmax/10)
+            #     p.translate(xmax/10, xmax/10)
+            #     p.scale(1, 1.5)
+            # p.restore()
 
-            p.save()
-            p.drawLine(0, 0, 5000, 0)
-            p.rotate(45)
-            p.drawLine(0, 0, 5000, 0)
-            p.restore()
+            # p.save()
+            # p.drawLine(0, 0, 5000, 0)
+            # p.rotate(45)
+            # p.drawLine(0, 0, 5000, 0)
+            # p.restore()
 
             f = p.font()
-            f.setPointSize(48)
-            f.setLetterSpacing(f.PercentageSpacing, 200)
+            f.setPointSize(24)
+            # f.setLetterSpacing(f.PercentageSpacing, 200)
             # f.setUnderline(True)
             # f.setOverline(True)
             # f.setStrikeOut(True)
-            f.setFamily('Times New Roman')
+            f.setFamily('Calibri')
             p.setFont(f)
             # p.scale(2, 2)
             # p.rotate(45)
-            p.setPen(QColor(0, 0, 255))
-            p.drawText(QPoint(100, 300), 'Some text')
+            # p.setPen(QColor(0, 0, 255))
+            p.drawText(QPoint(100, 300), 'Some text ū --- Д AV')
         finally:
             p.end()
         if dev.engine.errors:

@@ -8,7 +8,7 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from itertools import izip
-from struct import unpack_from, pack
+from struct import unpack_from, pack, calcsize
 
 from calibre.utils.fonts.sfnt import UnknownTable, DateTimeProperty, FixedProperty
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
@@ -32,10 +32,10 @@ class HeadTable(UnknownTable):
                 'units_per_em' , 'H',
                 '_created' , 'q',
                 '_modified' , 'q',
-                'x_min' , 'H',
-                'y_min' , 'H',
-                'x_max' , 'H',
-                'y_max' , 'H',
+                'x_min' , 'h',
+                'y_min' , 'h',
+                'x_max' , 'h',
+                'y_max' , 'h',
                 'mac_style' , 'H',
                 'lowest_rec_ppem' , 'H',
                 'font_direction_hint' , 'h',
@@ -99,21 +99,58 @@ class HorizontalHeader(UnknownTable):
 
 class OS2Table(UnknownTable):
 
-    version_number = FixedProperty('_version')
-
     def read_data(self):
         if hasattr(self, 'char_width'): return
-        from calibre.utils.fonts.utils import get_font_characteristics
-        vals = get_font_characteristics(self.raw, raw_is_table=True,
-                                        return_all=True)
-        for i, attr in enumerate((
-            '_version', 'char_width', 'weight', 'width', 'fs_type',
-            'subscript_x_size', 'subscript_y_size', 'subscript_x_offset',
-            'subscript_y_offset', 'superscript_x_size', 'superscript_y_size',
-            'superscript_x_offset', 'superscript_y_offset', 'strikeout_size',
-            'strikeout_position', 'family_class', 'panose', 'selection',
-            'is_italic', 'is_bold', 'is_regular')):
-            setattr(self, attr, vals[i])
+        ver, = unpack_from(b'>H', self.raw)
+        field_types = [
+            'version' , 'H',
+            'average_char_width', 'h',
+            'weight_class', 'H',
+            'width_class', 'H',
+            'fs_type', 'H',
+            'subscript_x_size', 'h',
+            'subscript_y_size', 'h',
+            'subscript_x_offset', 'h',
+            'subscript_y_offset', 'h',
+            'superscript_x_size', 'h',
+            'superscript_y_size', 'h',
+            'superscript_x_offset', 'h',
+            'superscript_y_offset', 'h',
+            'strikeout_size', 'h',
+            'strikeout_position', 'h',
+            'family_class', 'h',
+            'panose', '10s',
+            'ranges', '16s',
+            'vendor_id', '4s',
+            'selection', 'H',
+            'first_char_index', 'H',
+            'last_char_index', 'H',
+            'typo_ascender', 'h',
+            'typo_descender', 'h',
+            'typo_line_gap', 'h',
+            'win_ascent', 'H',
+            'win_descent', 'H',
+        ]
+        if ver > 1:
+            field_types += [
+                'code_page_range', '8s',
+                'x_height', 'h',
+                'cap_height', 'h',
+                'default_char', 'H',
+                'break_char', 'H',
+                'max_context', 'H',
+            ]
+
+        self._fmt = ('>%s'%(''.join(field_types[1::2]))).encode('ascii')
+        self._fields = field_types[0::2]
+
+        for f, val in izip(self._fields, unpack_from(self._fmt, self.raw)):
+            setattr(self, f, val)
+
+    def zero_fstype(self):
+        prefix = calcsize(b'>HhHH')
+        self.raw = self.raw[:prefix] + b'\0\0' + self.raw[prefix+2:]
+        self.fs_type = 0
 
 class PostTable(UnknownTable):
 

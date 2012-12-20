@@ -14,7 +14,8 @@ from collections import namedtuple
 
 from calibre.constants import (__appname__, __version__)
 from calibre.ebooks.pdf.render.common import (
-    Reference, EOL, serialize, Stream, Dictionary, String, Name, Array)
+    Reference, EOL, serialize, Stream, Dictionary, String, Name, Array,
+    GlyphIndex)
 from calibre.ebooks.pdf.render.fonts import FontManager
 
 PDFVER = b'%PDF-1.6'
@@ -357,9 +358,24 @@ class PDFStream(object):
         name = self.current_page.add_font(fontref)
         text_object.pdf_serialize(self.current_page, name)
 
+    def draw_glyph_run(self, transform, size, font_metrics, glyphs):
+        glyph_ids = {x[-1] for x in glyphs}
+        fontref = self.font_manager.add_font(font_metrics, glyph_ids)
+        name = self.current_page.add_font(fontref)
+        self.current_page.write(b'BT ')
+        serialize(Name(name), self.current_page)
+        self.current_page.write(' %g Tf '%size)
+        self.current_page.write('%s Tm '%' '.join(map(type(u''), transform)))
+        for x, y, glyph_id in glyphs:
+            self.current_page.write('%g %g Td '%(x, y))
+            serialize(GlyphIndex(glyph_id, self.compress), self.current_page)
+            self.current_page.write(' Tj ')
+        self.current_page.write_line(b' ET')
+
     def end(self):
         if self.current_page.getvalue():
             self.end_page()
+        self.font_manager.embed_fonts()
         inforef = self.objects.add(self.info)
         self.objects.pdf_serialize(self.stream)
         self.write_line()
