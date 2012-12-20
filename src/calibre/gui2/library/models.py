@@ -46,6 +46,31 @@ def default_image():
         _default_image = QImage(I('default_cover.png'))
     return _default_image
 
+class ColumnColor(object):
+
+    def __init__(self):
+        self.mi = None
+
+    def __call__(self, id_, key, fmt, db, formatter, color_cache, colors):
+        if id_ in color_cache:
+            if key in color_cache[id_]:
+                self.mi = None
+                return color_cache[id_][key]
+        try:
+            if self.mi is None:
+                self.mi = db.get_metadata(id_, index_is_id=True)
+            color = formatter.safe_format(fmt, self.mi, '', self.mi)
+            if color in colors:
+                color = QColor(color)
+                if color.isValid():
+                    color = QVariant(color)
+                    color_cache[id_][key] = color
+                    self.mi = None
+                    return color
+        except:
+            pass
+
+
 class BooksModel(QAbstractTableModel): # {{{
 
     about_to_be_sorted   = pyqtSignal(object, name='aboutToBeSorted')
@@ -73,6 +98,7 @@ class BooksModel(QAbstractTableModel): # {{{
     def __init__(self, parent=None, buffer=40):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
+        self.column_color = ColumnColor()
         self.book_on_device = None
         self.editable_cols = ['title', 'authors', 'rating', 'publisher',
                               'tags', 'series', 'timestamp', 'pubdate',
@@ -733,36 +759,19 @@ class BooksModel(QAbstractTableModel): # {{{
                 return QVariant(QColor('lightgreen'))
         elif role == Qt.ForegroundRole:
             key = self.column_map[col]
-            self._mi_for_col_color = None
             id_ = self.id(index)
+            self.column_color.mi = None
 
             if self.color_row_fmt_cache is None:
                 d = dict(self.db.prefs['column_color_rules'])
                 self.color_row_fmt_cache = d.get(color_row_key, '')
 
-            def get_column_color(key, fmt):
-                if id_ in self.color_cache:
-                    if key in self.color_cache[id_]:
-                        return self.color_cache[id_][key]
-                try:
-                    if self._mi_for_col_color is None:
-                        self._mi_for_col_color = self.db.get_metadata(id_, index_is_id=True)
-                    mi = self._mi_for_col_color
-                    color = self.formatter.safe_format(fmt, mi, '', mi)
-                    if color in self.colors:
-                        color = QColor(color)
-                        if color.isValid():
-                            color = QVariant(color)
-                            self.color_cache[id_][key] = color
-                            return color
-                except:
-                    pass
 
             for k, fmt in self.db.prefs['column_color_rules']:
                 if k == key:
-                    col = get_column_color(key, fmt)
+                    col = self.column_color(id_, key, fmt, self.db,
+                                self.formatter, self.color_cache, self.colors)
                     if col is not None:
-                        self._mi_for_col_color = None
                         return col
 
             if self.is_custom_column(key) and \
@@ -775,19 +784,19 @@ class BooksModel(QAbstractTableModel): # {{{
                     try:
                         color = QColor(colors[values.index(txt)])
                         if color.isValid():
-                            self._mi_for_col_color = None
+                            self.column_color.mi = None
                             return QVariant(color)
                     except:
                         pass
 
             if self.color_row_fmt_cache:
                 key = color_row_key
-                col = get_column_color(key, self.color_row_fmt_cache)
+                col = self.column_color(id_, key, self.color_row_fmt_cache,
+                        self.db, self.formatter, self.color_cache, self.colors)
                 if col is not None:
-                    self._mi_for_col_color = None
                     return col
 
-            self._mi_for_col_color = None
+            self.column_color.mi = None
             return NONE
         elif role == Qt.DecorationRole:
             if self.column_to_dc_decorator_map[col] is not None:
