@@ -15,6 +15,7 @@ from future_builtins import map
 
 from calibre.ebooks.pdf.render.common import (Array, String, Stream,
     Dictionary, Name)
+from calibre.utils.fonts.sfnt.subset import pdf_subset
 
 STANDARD_FONTS = {
     'Times-Roman', 'Helvetica', 'Courier', 'Symbol', 'Times-Bold',
@@ -152,12 +153,13 @@ class Font(object):
         # TODO: Subsetting and OpenType
         self.font_descriptor['FontFile2'] = objects.add(self.font_stream)
         self.write_widths(objects)
-        self.write_to_unicode(objects)
+        glyph_map = self.metrics.sfnt['cmap'].get_char_codes(self.used_glyphs)
+        self.write_to_unicode(objects, glyph_map)
+        pdf_subset(self.metrics.sfnt, set(glyph_map))
         self.metrics.os2.zero_fstype()
         self.metrics.sfnt(self.font_stream)
 
-    def write_to_unicode(self, objects):
-        glyph_map = self.metrics.sfnt['cmap'].get_char_codes(self.used_glyphs)
+    def write_to_unicode(self, objects, glyph_map):
         glyph_map = {k:unicodedata.normalize('NFKC', unichr(v)) for k, v in
                      glyph_map.iteritems()}
         cmap = CMap(self.metrics.postscript_name, glyph_map, compress=self.compress)
