@@ -483,8 +483,8 @@ def identify(log, abort, # {{{
 
     log('The identify phase took %.2f seconds'%(time.time() - start_time))
     log('The longest time (%f) was taken by:'%longest, lp)
-    log('Merging results from different sources and finding earliest',
-            'publication dates from the xisbn service')
+    log('Merging results from different sources and finding earliest ',
+            'publication dates from the worldcat.org service')
     start_time = time.time()
     results = merge_identify_results(results, log)
 

@@ -435,7 +435,7 @@ class Worker(Thread): # Get details {{{
 
 
     def parse_cover(self, root):
-        imgs = root.xpath('//img[@id="prodImage" and @src]')
+        imgs = root.xpath('//img[(@id="prodImage" or @id="original-main-image") and @src]')
         if imgs:
             src = imgs[0].get('src')
             if '/no-image-avail' not in src:

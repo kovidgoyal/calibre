@@ -41,7 +41,7 @@ def get_table(raw, name):
             return table, table_index, table_offset, table_checksum
     return None, None, None, None
 
-def get_font_characteristics(raw, raw_is_table=False):
+def get_font_characteristics(raw, raw_is_table=False, return_all=False):
     '''
     Return (weight, is_italic, is_bold, is_regular, fs_type, panose, width,
     is_oblique, is_wws). These
@@ -79,6 +79,13 @@ def get_font_characteristics(raw, raw_is_table=False):
     is_regular = (selection & (1 << 6)) != 0
     is_wws = (selection & (1 << 8)) != 0
     is_oblique = (selection & (1 << 9)) != 0
+    if return_all:
+        return (version, char_width, weight, width, fs_type, subscript_x_size,
+            subscript_y_size, subscript_x_offset, subscript_y_offset,
+            superscript_x_size, superscript_y_size, superscript_x_offset,
+            superscript_y_offset, strikeout_size, strikeout_position,
+            family_class, panose, selection, is_italic, is_bold, is_regular)
+
     return weight, is_italic, is_bold, is_regular, fs_type, panose, width, is_oblique, is_wws, version
 
 def panose_to_css_generic_family(panose):
@@ -200,6 +207,36 @@ def get_font_names2(raw, raw_is_table=False):
 
     return (family_name, subfamily_name, full_name, preferred_family_name,
             preferred_subfamily_name, wws_family_name, wws_subfamily_name)
+
+def get_all_font_names(raw, raw_is_table=False):
+    records = _get_font_names(raw, raw_is_table)
+    ans = {}
+
+    for name, num in {'family_name':1, 'subfamily_name':2, 'full_name':4,
+            'preferred_family_name':16, 'preferred_subfamily_name':17,
+            'wws_family_name':21, 'wws_subfamily_name':22}.iteritems():
+        try:
+            ans[name] = decode_name_record(records[num])
+        except (IndexError, KeyError, ValueError):
+            continue
+        if not ans[name]:
+            del ans[name]
+
+    for platform_id, encoding_id, language_id, src in records[6]:
+        if (platform_id, encoding_id, language_id) == (1, 0, 0):
+            try:
+                ans['postscript_name'] = src.decode('utf-8')
+                break
+            except ValueError:
+                continue
+        elif (platform_id, encoding_id, language_id) == (3, 1, 1033):
+            try:
+                ans['postscript_name'] = src.decode('utf-16-be')
+                break
+            except ValueError:
+                continue
+
+    return ans
 
 def checksum_of_block(raw):
     extra = 4 - len(raw)%4

@@ -13,6 +13,7 @@ from itertools import izip
 
 from calibre import prints
 from calibre.constants import iswindows, numeric_version
+from calibre.devices.errors import PathError
 from calibre.devices.mtp.base import debug
 from calibre.devices.mtp.defaults import DeviceDefaults
 from calibre.ptempfile import SpooledTemporaryFile, PersistentTemporaryDirectory
@@ -22,6 +23,12 @@ from calibre.utils.filenames import shorten_components_to
 
 BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
     'windows' if iswindows else 'unix')).MTP_DEVICE
+
+class MTPInvalidSendPathError(PathError):
+
+    def __init__(self, folder):
+        PathError.__init__(self, 'Trying to send to ignored folder: %s'%folder)
+        self.folder = folder
 
 class MTP_DEVICE(BASE):
 
@@ -46,6 +53,7 @@ class MTP_DEVICE(BASE):
         self._prefs = None
         self.device_defaults = DeviceDefaults()
         self.current_device_defaults = {}
+        self.highlight_ignored_folders = False
 
     @property
     def prefs(self):
@@ -59,8 +67,24 @@ class MTP_DEVICE(BASE):
             p.defaults['blacklist'] = []
             p.defaults['history'] = {}
             p.defaults['rules'] = []
+            p.defaults['ignored_folders'] = {}
 
         return self._prefs
+
+    def is_folder_ignored(self, storage_or_storage_id, name,
+                          ignored_folders=None):
+        storage_id = unicode(getattr(storage_or_storage_id, 'object_id',
+                             storage_or_storage_id))
+        name = icu_lower(name)
+        if ignored_folders is None:
+            ignored_folders = self.get_pref('ignored_folders')
+        if storage_id in ignored_folders:
+            return name in {icu_lower(x) for x in ignored_folders[storage_id]}
+
+        return name in {
+            'alarms', 'android', 'dcim', 'movies', 'music', 'notifications',
+            'pictures', 'ringtones', 'samsung', 'sony', 'htc', 'bluetooth',
+            'games', 'lost.dir', 'video', 'whatsapp', 'image'}
 
     def configure_for_kindle_app(self):
         proxy = self.prefs
@@ -371,6 +395,8 @@ class MTP_DEVICE(BASE):
 
         for infile, fname, mi in izip(files, names, metadata):
             path = self.create_upload_path(prefix, mi, fname, routing)
+            if path and self.is_folder_ignored(storage, path[0]):
+                raise MTPInvalidSendPathError(path[0])
             parent = self.ensure_parent(storage, path)
             if hasattr(infile, 'read'):
                 pos = infile.tell()
@@ -472,7 +498,7 @@ class MTP_DEVICE(BASE):
 
     def config_widget(self):
         from calibre.gui2.device_drivers.mtp_config import MTPConfig
-        return MTPConfig(self)
+        return MTPConfig(self, highlight_ignored_folders=self.highlight_ignored_folders)
 
     def save_settings(self, cw):
         cw.commit()

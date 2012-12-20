@@ -1,9 +1,11 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+import re
+import mechanize
+
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title          = u'Birmingham post'
     description = 'Author D.Asbury. News for Birmingham UK'
     #timefmt = ''
-    # last update 8/9/12
     __author__ = 'Dave Asbury'
     cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/161987_9010212100_2035706408_n.jpg'
     oldest_article = 2
@@ -15,8 +17,30 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     #auto_cleanup = True
     language = 'en_GB'
 
+    cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/161987_9010212100_2035706408_n.jpg'
 
-    masthead_url        = 'http://www.pressgazette.co.uk/Pictures/web/t/c/g/birmingham_post.jpg'
+    masthead_url        = 'http://www.trinitymirror.com/images/birminghampost-logo.gif'
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.birminghampost.net')
+        # look for the block containing the sun button and url
+        cov = soup.find(attrs={'height' : re.compile('3'), 'alt' : re.compile('Birmingham Post')})
+        print
+        print '%%%%%%%%%%%%%%%',cov
+        print
+        cov2 = str(cov['src'])
+       # cov2=cov2[7:]
+        print '88888888 ',cov2,' 888888888888'
+
+        #cover_url=cov2
+        #return cover_url
+        br = mechanize.Browser()
+        br.set_handle_redirect(False)
+        try:
+            br.open_novisit(cov2)
+            cover_url = cov2
+        except:
+            cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/161987_9010212100_2035706408_n.jpg'
+        return cover_url
 
 
     keep_only_tags = [

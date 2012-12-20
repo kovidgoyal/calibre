@@ -248,6 +248,7 @@ def main(args=sys.argv):
     except:
         if outbox is not None:
             outbox.add(msg)
+            outbox.close()
             print 'Delivery failed. Message saved to', opts.outbox
         raise
     return 0

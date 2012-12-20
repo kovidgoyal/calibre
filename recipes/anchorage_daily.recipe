@@ -5,14 +5,16 @@ class AdvancedUserRecipe1278347258(BasicNewsRecipe):
     __author__ = 'rty'
     oldest_article = 7
     max_articles_per_feed = 100
+    auto_cleanup = True
+
 
     feeds          = [(u'Alaska News', u'http://www.adn.com/news/alaska/index.xml'),
-	(u'Business', u'http://www.adn.com/money/index.xml'),
-	(u'Sports', u'http://www.adn.com/sports/index.xml'),
-	(u'Politics', u'http://www.adn.com/politics/index.xml'),
-	(u'Lifestyles', u'http://www.adn.com/life/index.xml'),
-	(u'Iditarod', u'http://www.adn.com/iditarod/index.xml')
-	]
+    (u'Business', u'http://www.adn.com/money/index.xml'),
+    (u'Sports', u'http://www.adn.com/sports/index.xml'),
+    (u'Politics', u'http://www.adn.com/politics/index.xml'),
+    (u'Lifestyles', u'http://www.adn.com/life/index.xml'),
+    (u'Iditarod', u'http://www.adn.com/iditarod/index.xml')
+    ]
     description           = ''''Alaska's Newspaper'''
     publisher             = 'http://www.adn.com'
     category              = 'news, Alaska, Anchorage'
@@ -28,13 +30,13 @@ class AdvancedUserRecipe1278347258(BasicNewsRecipe):
     conversion_options = {'linearize_tables':True}
     masthead_url = 'http://media.adn.com/includes/assets/images/adn_logo.2.gif'
 
-    keep_only_tags = [
-                              dict(name='div', attrs={'class':'left_col story_mainbar'}),
-                               ]
-    remove_tags = [
-                              dict(name='div', attrs={'class':'story_tools'}),
-                              dict(name='p', attrs={'class':'ad_label'}),
-                               ]
-    remove_tags_after = [
-                              dict(name='div', attrs={'class':'advertisement'}),
-                               ]
+    #keep_only_tags = [
+                              #dict(name='div', attrs={'class':'left_col story_mainbar'}),
+                               #]
+    #remove_tags = [
+                              #dict(name='div', attrs={'class':'story_tools'}),
+                              #dict(name='p', attrs={'class':'ad_label'}),
+                               #]
+    #remove_tags_after = [
+                              #dict(name='div', attrs={'class':'advertisement'}),
+                               #]

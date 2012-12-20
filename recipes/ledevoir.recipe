@@ -32,26 +32,28 @@ class ledevoir(BasicNewsRecipe):
     recursion             = 10
     needs_subscription    = 'optional'
 
-    filterDuplicates = False
     url_list = []
 
     remove_javascript     = True
     no_stylesheets        = True
+    auto_cleanup = True
 
     preprocess_regexps = [(re.compile(r'(title|alt)=".*?>.*?"', re.DOTALL), lambda m: '')]
 
-    keep_only_tags  = [
-                        dict(name='div', attrs={'id':'article'}),
-                        dict(name='div', attrs={'id':'colonne_principale'})
-                    ]
+    #keep_only_tags  = [
+                        #dict(name='div', attrs={'id':'article_detail'}),
+                        #dict(name='div', attrs={'id':'colonne_principale'})
+                    #]
 
-    remove_tags     = [
-                        dict(name='div', attrs={'id':'dialog'}),
-                        dict(name='div', attrs={'class':['interesse_actions','reactions']}),
-                        dict(name='ul', attrs={'class':'mots_cles'}),
-                        dict(name='a', attrs={'class':'haut'}),
-                        dict(name='h5', attrs={'class':'interesse_actions'})
-                    ]
+    #remove_tags     = [
+                        #dict(name='div', attrs={'id':'dialog'}),
+                        #dict(name='div', attrs={'class':['interesse_actions','reactions','taille_du_texte right clearfix','partage_sociaux clearfix']}),
+                        #dict(name='aside', attrs={'class':['article_actions clearfix','reactions','partage_sociaux_wrapper']}),
+                        #dict(name='ul', attrs={'class':'mots_cles'}),
+                        #dict(name='ul', attrs={'id':'commentaires'}),
+                        #dict(name='a', attrs={'class':'haut'}),
+                        #dict(name='h5', attrs={'class':'interesse_actions'})
+                    #]
 
     feeds          = [
                        (u'A la une', 'http://www.ledevoir.com/rss/manchettes.xml'),
@@ -95,10 +97,4 @@ class ledevoir(BasicNewsRecipe):
             br.submit()
         return br
 
-    def print_version(self, url):
-        if self.filterDuplicates:
-            if url in self.url_list:
-                return
-        self.url_list.append(url)
-        return url
 

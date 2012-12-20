@@ -48,7 +48,7 @@ class ConnectedWorker(Thread):
             try:
                 eintr_retry_call(conn.send, self.args)
                 self.res = eintr_retry_call(conn.recv)
-            except:
+            except BaseException:
                 self.tb = traceback.format_exc()
 
 def communicate(ans, worker, listener, args, timeout=300, heartbeat=None,
@@ -77,6 +77,8 @@ def communicate(ans, worker, listener, args, timeout=300, heartbeat=None,
 
     if cw.tb:
         raise WorkerError('Failed to communicate with worker process')
+    if cw.res is None:
+        raise WorkerError('Something strange happened. The worker process was aborted without an exception.')
     if cw.res.get('tb', None):
         raise WorkerError('Worker failed', cw.res['tb'])
     ans['result'] = cw.res['result']

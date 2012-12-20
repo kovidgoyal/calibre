@@ -19,6 +19,81 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.10
+  date: 2012-12-14
+
+  new features:
+    - title: "Drivers for Nextbook Premium 8 se, HTC Desire X and Emerson EM 543"
+      tickets: [1088149, 1088112, 1087978]
+ 
+  bug fixes:
+    - title: "Fix rich text delegate not working with Qt compiled in debug mode."
+      tickets: [1089011]
+
+    - title: "When deleting all books in the library, blank the book details panel"
+
+    - title: "Conversion: Fix malformed values in the bgcolor attribute causing conversion to abort"
+
+    - title: "Conversion: Fix heuristics applying incorrect style in some circumstances"
+      tickets: [1066507]
+
+    - title: "Possible fix for 64bit calibre not starting up on some Windows systems"
+      tickets: [1087816]
+
+  improved recipes:
+    - Sivil Dusunce
+    - Anchorage Daily News
+    - Le Monde
+    - Harpers
+
+  new recipes:
+    - title: Titanic 
+      author: Krittika Goyal
+
+- version: 0.9.9
+  date: 2012-12-07
+
+  new features:
+    - title: "64 bit build for windows"
+      type: major
+      description: "calibre now has a 64 bit version for windows, available at: http://calibre-ebook.com/download_windows64 The 64bit build is not limited to using only 3GB of RAM when converting large/complex documents. It may also be slightly faster for some tasks. You can have both the 32 bit and the 64 bit build installed at the same time, they will use the same libraries, plugins and settings."
+
+    - title: "Content server: Make the identifiers in each books metadata clickable."
+      tickets: [1085726]
+ 
+  bug fixes:
+    - title: "EPUB Input: Fix an infinite loop while trying to recover a damaged EPUB file."
+      tickets: [1086917]
+
+    - title: "KF8 Input: Fix handling of links in files that link to the obsolete <a name> tags instead of tags with an id attribute."
+      tickets: [1086705]
+
+    - title: "Conversion: Fix a bug in removal of invalid entries from the spine, where not all invalid entries were removed, causing conversion to fail."
+      tickets: [1086054]
+
+    - title: "KF8 Input: Ignore invalid flow references in the KF8 document instead of erroring out on them."
+      tickets: [1085306]
+
+    - title: "Fix command line output on linux systems with incorrect LANG/LC_TYPE env vars."
+      tickets: [1085103]
+
+    - title: "KF8 Input: Fix page breaks specified using the data-AmznPageBreak attribute being ignored by calibre."
+
+    - title: "PDF Output: Fix custom size field not accepting fractional numbers as sizes"
+
+    - title: "Get Books: Update libre.de and publio for website changes"
+
+    - title: "Wireless driver: Increase timeout interval, and when allocating a random port try 9090 first"
+
+  improved recipes:
+    - New York Times
+    - Weblogs SL
+    - Zaman Gazetesi
+    - Aksiyon Dergisi
+    - Endgadget
+    - Metro UK
+    - Heise Online
+
 - version: 0.9.8
   date: 2012-11-30
 

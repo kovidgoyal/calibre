@@ -60,9 +60,9 @@ class PublioStore(BasicStoreConfig, StorePlugin):
                         series = ''.join(data.xpath('./div[@class="desc"]/div[@class="detailShortList"]/div[last()]/a/@title'))
                         title = title + ' (seria ' + series + ')'
                     author = ', '.join(data.xpath('./div[@class="desc"]/div[@class="detailShortList"]/div[@class="row"][1]/a/@title'))
-                    price = ''.join(data.xpath('.//div[@class="priceBoxContener "]/div/ins/text()'))
+                    price = ''.join(data.xpath('.//div[@class="priceBox tk-museo-slab"]/ins/text()'))
                     if not price:
-                        price = ''.join(data.xpath('.//div[@class="priceBoxContener "]/div/text()'))
+                        price = ''.join(data.xpath('.//div[@class="priceBox tk-museo-slab"]/text()')).strip()
                     formats = ', '.join(data.xpath('.//div[@class="formats"]/a/img/@alt'))
 
                     counter -= 1
