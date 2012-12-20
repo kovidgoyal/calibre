@@ -306,7 +306,7 @@ def remove_embed_restriction(raw):
     verify_checksums(raw)
     return raw
 
-def get_bmp_glyph_ids(table, bmp, codes):
+def read_bmp_prefix(table, bmp):
     length, language, segcount = struct.unpack_from(b'>3H', table, bmp+2)
     array_len = segcount //2
     offset = bmp + 7*2
@@ -324,6 +324,12 @@ def get_bmp_glyph_ids(table, bmp, codes):
     glyph_id_len = (length + bmp - (offset + array_sz))//2
     glyph_id_map = struct.unpack_from(b'>%dH'%glyph_id_len, table, offset +
             array_sz)
+    return (start_count, end_count, range_offset, id_delta, glyph_id_len,
+            glyph_id_map, array_len)
+
+def get_bmp_glyph_ids(table, bmp, codes):
+    (start_count, end_count, range_offset, id_delta, glyph_id_len,
+     glyph_id_map, array_len) = read_bmp_prefix(table, bmp)
 
     for code in codes:
         found = False

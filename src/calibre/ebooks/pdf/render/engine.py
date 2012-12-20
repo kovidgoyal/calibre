@@ -493,7 +493,7 @@ if __name__ == '__main__':
             # p.scale(2, 2)
             # p.rotate(45)
             # p.setPen(QColor(0, 0, 255))
-            p.drawText(QPoint(100, 300), 'Some text ū --- Д AV')
+            p.drawText(QPoint(100, 300), 'Some text ū --- Д AV ﬀ ff')
         finally:
             p.end()
         if dev.engine.errors:

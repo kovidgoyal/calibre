@@ -7,10 +7,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, unicodedata
 from itertools import izip, groupby
 from operator import itemgetter
-from collections import Counter
+from collections import Counter, OrderedDict
 from future_builtins import map
 
 from calibre.ebooks.pdf.render.common import (Array, String, Stream,
@@ -43,10 +43,12 @@ first. Each number gets mapped to a glyph id equal to itself by the
 
 '''
 
+import textwrap
+
 class FontStream(Stream):
 
-    def __init__(self, is_otf):
-        Stream.__init__(self)
+    def __init__(self, is_otf, compress=False):
+        Stream.__init__(self, compress=compress)
         self.is_otf = is_otf
 
     def add_extra_keys(self, d):
@@ -54,13 +56,62 @@ class FontStream(Stream):
         if self.is_otf:
             d['Subtype'] = Name('OpenType')
 
+def to_hex_string(c):
+    return bytes(hex(c)[2:]).rjust(4, b'0').decode('ascii')
+
+class CMap(Stream):
+
+    skeleton = textwrap.dedent('''\
+        /CIDInit /ProcSet findresource begin
+        12 dict begin
+        begincmap
+        /CMapName {name}-cmap def
+        /CMapType 2 def
+        /CIDSystemInfo <<
+        /Registry (Adobe)
+        /Ordering (UCS)
+        /Supplement 0
+        >> def
+        1 begincodespacerange
+        <0000> <FFFF>
+        endcodespacerange
+        {mapping}
+        endcmap
+        CMapName currentdict /CMap defineresource pop
+        end
+        end
+        ''')
+
+
+    def __init__(self, name, glyph_map, compress=False):
+        Stream.__init__(self, compress)
+        current_map = OrderedDict()
+        maps = []
+        for glyph_id in sorted(glyph_map):
+            if len(current_map) > 99:
+                maps.append(current_map)
+                current_map = OrderedDict()
+            val = []
+            for c in glyph_map[glyph_id]:
+                c = ord(c)
+                val.append(to_hex_string(c))
+            glyph_id = '<%s>'%to_hex_string(glyph_id)
+            current_map[glyph_id] = '<%s>'%''.join(val)
+        if current_map:
+            maps.append(current_map)
+        mapping = []
+        for m in maps:
+            meat = '\n'.join('%s %s'%(k, v) for k, v in m.iteritems())
+            mapping.append('%d beginbfchar\n%s\nendbfchar'%(len(m), meat))
+        self.write(self.skeleton.format(name=name, mapping='\n'.join(mapping)))
+
 class Font(object):
 
-    def __init__(self, metrics, num, objects):
-        self.metrics = metrics
+    def __init__(self, metrics, num, objects, compress):
+        self.metrics, self.compress = metrics, compress
         self.subset_tag = bytes(re.sub('.', lambda m: chr(int(m.group())+ord('A')),
                                   oct(num))).rjust(6, b'A').decode('ascii')
-        self.font_stream = FontStream(metrics.is_otf)
+        self.font_stream = FontStream(metrics.is_otf, compress=compress)
         self.font_descriptor = Dictionary({
             'Type': Name('FontDescriptor'),
             'FontName': Name(metrics.postscript_name),
@@ -101,8 +152,16 @@ class Font(object):
         # TODO: Subsetting and OpenType
         self.font_descriptor['FontFile2'] = objects.add(self.font_stream)
         self.write_widths(objects)
+        self.write_to_unicode(objects)
         self.metrics.os2.zero_fstype()
         self.metrics.sfnt(self.font_stream)
+
+    def write_to_unicode(self, objects):
+        glyph_map = self.metrics.sfnt['cmap'].get_char_codes(self.used_glyphs)
+        glyph_map = {k:unicodedata.normalize('NFKC', unichr(v)) for k, v in
+                     glyph_map.iteritems()}
+        cmap = CMap(self.metrics.postscript_name, glyph_map, compress=self.compress)
+        self.font_dict['ToUnicode'] = objects.add(cmap)
 
     def write_widths(self, objects):
         glyphs = sorted(self.used_glyphs|{0})
@@ -129,8 +188,9 @@ class Font(object):
 
 class FontManager(object):
 
-    def __init__(self, objects):
+    def __init__(self, objects, compress):
         self.objects = objects
+        self.compress = compress
         self.std_map = {}
         self.font_map = {}
         self.fonts = []
@@ -138,7 +198,7 @@ class FontManager(object):
     def add_font(self, font_metrics, glyph_ids):
         if font_metrics not in self.font_map:
             self.fonts.append(Font(font_metrics, len(self.fonts),
-                                   self.objects))
+                                   self.objects, self.compress))
             d = self.objects.add(self.fonts[-1].font_dict)
             self.font_map[font_metrics] = (d, self.fonts[-1])
 

@@ -252,7 +252,7 @@ class PDFStream(object):
         self.info = Dictionary({'Creator':String(creator),
                                 'Producer':String(creator)})
         self.stroke_opacities, self.fill_opacities = {}, {}
-        self.font_manager = FontManager(self.objects)
+        self.font_manager = FontManager(self.objects, self.compress)
 
     @property
     def page_tree(self):
