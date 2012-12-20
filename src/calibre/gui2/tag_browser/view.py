@@ -13,11 +13,12 @@ from itertools import izip
 
 from PyQt4.Qt import (QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize,
         QIcon, QApplication, QMenu, QPoint, QModelIndex, QToolTip, QCursor,
-        QDrag)
+        QDrag, QFileDialog)
 
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel)
 from calibre.gui2 import config, gprefs
+from calibre.utils.resources import get_image_path
 from calibre.utils.search_query_parser import saved_searches
 from calibre.utils.icu import sort_key
 
@@ -296,6 +297,22 @@ class TagsView(QTreeView): # {{{
         if not action:
             return
         try:
+            if action == 'set_icon':
+                try:
+                    path = QFileDialog.getOpenFileName(self, 'New Icon', get_image_path(None),
+                                        filter='*.png *.jpg')
+                    if path:
+                        self._model.set_custom_category_icon(key, unicode(path))
+                        self.recount()
+                except:
+                    import traceback
+                    traceback.print_exc()
+                return
+            if action == 'clear_icon':
+                self._model.set_custom_category_icon(key, None)
+                self.recount()
+                return
+
             if action == 'edit_item':
                 self.edit(index)
                 return
@@ -533,6 +550,12 @@ class TagsView(QTreeView): # {{{
                         partial(self.context_menu_handler, action='manage_searches',
                                 category=tag.name if tag else None))
 
+                self.context_menu.addSeparator()
+                self.context_menu.addAction(_('Change category icon'),
+                        partial(self.context_menu_handler, action='set_icon', key=key))
+                self.context_menu.addAction(_('Restore default icon'),
+                        partial(self.context_menu_handler, action='clear_icon', key=key))
+
                 # Always show the user categories editor
                 self.context_menu.addSeparator()
                 if key.startswith('@') and \
@@ -550,6 +573,7 @@ class TagsView(QTreeView): # {{{
                 self.context_menu.addSeparator()
             self.context_menu.addAction(_('Show all categories'),
                         partial(self.context_menu_handler, action='defaults'))
+
 
         m = self.context_menu.addMenu(_('Change sub-categorization scheme'))
         da = m.addAction(_('Disable'),

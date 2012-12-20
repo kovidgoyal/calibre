@@ -106,6 +106,7 @@ gprefs.defaults['tag_browser_old_look'] = False
 gprefs.defaults['book_list_tooltips'] = True
 gprefs.defaults['bd_show_cover'] = True
 gprefs.defaults['bd_overlay_cover_size'] = False
+gprefs.defaults['tags_browser_category_icons'] = {}
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models

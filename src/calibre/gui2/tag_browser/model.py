@@ -214,6 +214,10 @@ class TagsModel(QAbstractItemModel): # {{{
             iconmap[key] = QIcon(I(category_icon_map[key]))
         self.category_icon_map = TagsIcons(iconmap)
         self.category_custom_icons = dict()
+        for k,v in gprefs['tags_browser_category_icons'].items():
+            icon = QIcon(v)
+            if len(icon.availableSizes()) > 0:
+                self.category_custom_icons[k] = icon
         self.categories_with_ratings = ['authors', 'series', 'publisher', 'tags']
         self.icon_state_map = [None, QIcon(I('plus.png')), QIcon(I('plusplus.png')),
                              QIcon(I('minus.png')), QIcon(I('minusminus.png'))]
@@ -231,6 +235,16 @@ class TagsModel(QAbstractItemModel): # {{{
     @property
     def gui_parent(self):
         return QObject.parent(self)
+
+    def set_custom_category_icon(self, key, path):
+        d = gprefs['tags_browser_category_icons']
+        if path:
+            d[key] = path
+            self.category_custom_icons[key] = QIcon(path)
+        else:
+            del d[key]
+            del self.category_custom_icons[key]
+        gprefs['tags_browser_category_icons'] = d
 
     def reread_collapse_model(self, state_map, rebuild=True):
         if gprefs['tags_browser_collapse_at'] == 0:
@@ -312,16 +326,9 @@ class TagsModel(QAbstractItemModel): # {{{
             else:
                 tt = _(u'The lookup/search name is "{0}"').format(key)
 
-            # Get any customized icons. Done here to account for columns
-            # coming and going. Should be done only once per model instantiation
             if self.category_custom_icons.get(key, None) is None:
-                icon = QIcon(I('tbci_' + key))
-                if len(icon.availableSizes()) > 0:
-                    self.category_custom_icons[key] = icon
-                else:
-                    self.category_custom_icons[key] = \
-                            self.category_icon_map['gst'] if is_gst else \
-                                                    self.category_icon_map[key]
+                self.category_custom_icons[key] = \
+                    self.category_icon_map['gst'] if is_gst else self.category_icon_map[key]
 
             if key.startswith('@'):
                 path_parts = [p for p in key.split('.')]
