@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, traceback
+import sys, traceback, unicodedata
 from math import sqrt
 from collections import namedtuple
 from functools import wraps
@@ -358,6 +358,7 @@ class PdfEngine(QPaintEngine):
     def drawTextItem(self, point, text_item):
         # super(PdfEngine, self).drawTextItem(point+QPoint(0, 0), text_item)
         text = type(u'')(text_item.text()).replace('\n', ' ')
+        text = unicodedata.normalize('NFKC', text)
         tl = QTextLayout(text, text_item.font(), self.paintDevice())
         self.text_option.setTextDirection(Qt.RightToLeft if
             text_item.renderFlags() & text_item.RightToLeft else Qt.LeftToRight)
@@ -488,7 +489,7 @@ if __name__ == '__main__':
             # f.setUnderline(True)
             # f.setOverline(True)
             # f.setStrikeOut(True)
-            f.setFamily('Calibri')
+            f.setFamily('OpenDyslexic')
             p.setFont(f)
             # p.scale(2, 2)
             # p.rotate(45)

@@ -55,7 +55,7 @@ class FontStream(Stream):
     def add_extra_keys(self, d):
         d['Length1'] = d['DL']
         if self.is_otf:
-            d['Subtype'] = Name('OpenType')
+            d['Subtype'] = Name('CIDFontType0C')
 
 def to_hex_string(c):
     return bytes(hex(c)[2:]).rjust(4, b'0').decode('ascii')
@@ -110,6 +110,7 @@ class Font(object):
 
     def __init__(self, metrics, num, objects, compress):
         self.metrics, self.compress = metrics, compress
+        self.is_otf = self.metrics.is_otf
         self.subset_tag = bytes(re.sub('.', lambda m: chr(int(m.group())+ord('A')),
                                   oct(num))).rjust(6, b'A').decode('ascii')
         self.font_stream = FontStream(metrics.is_otf, compress=compress)
@@ -136,7 +137,7 @@ class Font(object):
                 'Supplement':0,
             }),
         })
-        if not metrics.is_otf:
+        if not self.is_otf:
             self.descendant_font['CIDToGIDMap'] = Name('Identity')
 
         self.font_dict = Dictionary({
@@ -150,14 +151,17 @@ class Font(object):
         self.used_glyphs = set()
 
     def embed(self, objects):
-        # TODO: Subsetting and OpenType
-        self.font_descriptor['FontFile2'] = objects.add(self.font_stream)
+        self.font_descriptor['FontFile'+('3' if self.is_otf else '2')
+                             ] = objects.add(self.font_stream)
         self.write_widths(objects)
         glyph_map = self.metrics.sfnt['cmap'].get_char_codes(self.used_glyphs)
         self.write_to_unicode(objects, glyph_map)
         pdf_subset(self.metrics.sfnt, set(glyph_map))
-        self.metrics.os2.zero_fstype()
-        self.metrics.sfnt(self.font_stream)
+        if self.is_otf:
+            self.font_stream.write(self.metrics.sfnt['CFF '].raw)
+        else:
+            self.metrics.os2.zero_fstype()
+            self.metrics.sfnt(self.font_stream)
 
     def write_to_unicode(self, objects, glyph_map):
         glyph_map = {k:unicodedata.normalize('NFKC', unichr(v)) for k, v in

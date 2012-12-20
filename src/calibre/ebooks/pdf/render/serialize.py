@@ -18,7 +18,7 @@ from calibre.ebooks.pdf.render.common import (
     GlyphIndex)
 from calibre.ebooks.pdf.render.fonts import FontManager
 
-PDFVER = b'%PDF-1.6'
+PDFVER = b'%PDF-1.3'
 
 Color = namedtuple('Color', 'red green blue opacity')
 
