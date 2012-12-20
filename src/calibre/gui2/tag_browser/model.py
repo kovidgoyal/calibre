@@ -8,7 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback, cPickle, copy
+import traceback, cPickle, copy, os
 
 from PyQt4.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
         QMimeData, QModelIndex, pyqtSignal, QObject)
@@ -213,6 +213,7 @@ class TagsModel(QAbstractItemModel): # {{{
         for key in category_icon_map:
             iconmap[key] = QIcon(I(category_icon_map[key]))
         self.category_icon_map = TagsIcons(iconmap)
+        self.category_custom_icons = dict()
         self.categories_with_ratings = ['authors', 'series', 'publisher', 'tags']
         self.icon_state_map = [None, QIcon(I('plus.png')), QIcon(I('plusplus.png')),
                              QIcon(I('minus.png')), QIcon(I('minusminus.png'))]
@@ -304,12 +305,23 @@ class TagsModel(QAbstractItemModel): # {{{
                     continue
             is_gst = False
             if key.startswith('@') and key[1:] in gst:
-                tt = _(u'The grouped search term name is "{0}"').format(key[1:])
+                tt = _(u'The grouped search term name is "{0}"').format(key)
                 is_gst = True
             elif key == 'news':
                 tt = ''
             else:
                 tt = _(u'The lookup/search name is "{0}"').format(key)
+
+            # Get any customized icons. Done here to account for columns
+            # coming and going. Should be done only once per model instantiation
+            if self.category_custom_icons.get(key, None) is None:
+                icon = QIcon(I('tbci_' + key))
+                if len(icon.availableSizes()) > 0:
+                    self.category_custom_icons[key] = icon
+                else:
+                    self.category_custom_icons[key] = \
+                            self.category_icon_map['gst'] if is_gst else \
+                                                    self.category_icon_map[key]
 
             if key.startswith('@'):
                 path_parts = [p for p in key.split('.')]
@@ -319,14 +331,12 @@ class TagsModel(QAbstractItemModel): # {{{
                 for i,p in enumerate(path_parts):
                     path += p
                     if path not in category_node_map:
-                        icon = self.category_icon_map['gst'] if is_gst else \
-                                                    self.category_icon_map[key]
                         node = self.create_node(parent=last_category_node,
-                                           data=p[1:] if i == 0 else p,
-                                           category_icon=icon,
-                                           tooltip=tt if path == key else path,
-                                           category_key=path,
-                                           icon_map=self.icon_state_map)
+                                   data=p[1:] if i == 0 else p,
+                                   category_icon=self.category_custom_icons[key],
+                                   tooltip=tt if path == key else path,
+                                   category_key=path,
+                                   icon_map=self.icon_state_map)
                         last_category_node = node
                         category_node_map[path] = node
                         self.category_nodes.append(node)
@@ -343,7 +353,7 @@ class TagsModel(QAbstractItemModel): # {{{
             else:
                 node = self.create_node(parent=self.root_item,
                                    data=self.categories[key],
-                                   category_icon=self.category_icon_map[key],
+                                   category_icon=self.category_custom_icons[key],
                                    tooltip=tt, category_key=key,
                                    icon_map=self.icon_state_map)
                 node.is_gst = False
