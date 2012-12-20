@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-14 04:21+0000\n"
-"PO-Revision-Date: 2012-11-01 22:26+0000\n"
-"Last-Translator: oguz selek <aoselek@gmail.com>\n"
+"PO-Revision-Date: 2012-12-19 16:40+0000\n"
+"Last-Translator: Emre Sülün <emresulun93@gmail.com>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-12-15 04:58+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2012-12-20 04:41+0000\n"
+"X-Generator: Launchpad (build 16378)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -202,7 +202,7 @@ msgstr "Temel"
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:397
 msgid "Customize"
-msgstr "Özelleştir"
+msgstr "Kişiselleştir"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:54
@@ -1122,7 +1122,7 @@ msgstr "iTunes/iBooks ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:212
 msgid "Apple iDevice detected, launching iTunes, please wait ..."
-msgstr ""
+msgstr "Apple iDevice tespit edildi, iTunes başlatılıyor, lütfen bekleyin..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:214
 msgid ""
@@ -1558,7 +1558,7 @@ msgstr "<b>Konum %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:289
 msgid "Communicate with the Kindle 2/3/4/Touch/PaperWhite eBook reader."
-msgstr ""
+msgstr "Kindle 2/3/4/Touch/PaperWhite ekitap okuyucuya bağlan."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:301
 msgid "Send page number information when sending books"
@@ -1697,7 +1697,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:88
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1248
 msgid "Attempt to support newer firmware"
-msgstr ""
+msgstr "Daha yeni aygıt yazılımlarını (firmware) desteklemeyi dene."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:89
 msgid ""
@@ -1714,7 +1714,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:617
 msgid "Kobo database version unsupported - See details"
-msgstr ""
+msgstr "Kobo veritabanı sürümü desteklenmiyor - Detaylara bakın"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:618
 msgid ""
@@ -1846,7 +1846,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1243
 msgid "Set Series information"
-msgstr ""
+msgstr "Seri bilgisini ayarla"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1244
 msgid ""
@@ -1939,7 +1939,7 @@ msgstr "Ex124G ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:414
 msgid "Communicate with the WayteQ Reader"
-msgstr ""
+msgstr "WayteQ Reader'a bağlan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
@@ -1957,68 +1957,68 @@ msgstr "Aygıt bilgisini al..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:166
 msgid "Listing files, this can take a while"
-msgstr ""
+msgstr "Dosyalar listeleniyor, biraz zaman alabilir."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:181
 msgid "Reading ebook metadata"
-msgstr ""
+msgstr "Ekitabın metadata'sı okunuyor."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:214
 #, python-format
 msgid "Reading metadata from %s"
-msgstr ""
+msgstr "%s  dökümanından metadata okunuyor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:233
 msgid "Updating metadata cache on device"
-msgstr ""
+msgstr "Cihazın metadata belleği güncelleniyor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:235
 msgid "Finished reading metadata from device"
-msgstr ""
+msgstr "Cihazdan metadata okunması tamamlandı"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:393
 #, python-format
 msgid "Transferred %s to device"
-msgstr ""
+msgstr "%s cihaza aktarıldı."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:395
 msgid "Transfer to device finished..."
-msgstr ""
+msgstr "Cihaza aktarma işlemi bitti."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:416
 #, python-format
 msgid "Added %s"
-msgstr ""
+msgstr "%s eklendi."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:418
 msgid "Adding complete"
-msgstr ""
+msgstr "Ekleme tamamlandı"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:434
 msgid "Deleting books from device..."
-msgstr ""
+msgstr "Kitaplar cihazdan siliniyor..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:440
 #, python-format
 msgid "Deleted %s"
-msgstr ""
+msgstr "%s silindi."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:441
 msgid "All books deleted"
-msgstr ""
+msgstr "Tüm kitaplar silindi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:444
 msgid "Removing books from metadata"
-msgstr ""
+msgstr "Kitaplar metadata'dan kaldırılıyor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:456
 #, python-format
 msgid "Removed %s"
-msgstr ""
+msgstr "%s kaldırıldı"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:458
 msgid "All books removed"
-msgstr ""
+msgstr "Tüm kitapların kaldırılma işlemi bitti"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:198
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:313
@@ -2029,7 +2029,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:220
 #, python-format
 msgid "Found object: %s"
-msgstr ""
+msgstr "Bulunan ögeler: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:61
 msgid "MTP devices are not supported on Windows XP"
@@ -2073,7 +2073,7 @@ msgstr "Nook Color, TSR veTablet eKitap okuyucular ile iletişime geçin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
-msgstr "Nuut2 eBook"
+msgstr "Nuut2 ekitap okuyucuya bağlan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
@@ -2245,7 +2245,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:272
 msgid "Security password"
-msgstr ""
+msgstr "Güvenlik şifresi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:273
 msgid "Enter a password that the device app must use to connect to calibre"

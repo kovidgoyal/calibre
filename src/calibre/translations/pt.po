@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-14 04:21+0000\n"
-"PO-Revision-Date: 2012-12-18 01:05+0000\n"
+"PO-Revision-Date: 2012-12-19 15:09+0000\n"
 "Last-Translator: André Glória <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-19 05:13+0000\n"
+"X-Launchpad-Export-Date: 2012-12-20 04:40+0000\n"
 "X-Generator: Launchpad (build 16378)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -2336,14 +2336,16 @@ msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device."
 msgstr ""
+"Lista de campos de meta-dados , separados por vírgulas, para transformar em "
+"coleções no dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:285
 msgid "Possibilities include: series, tags, authors, etc"
-msgstr ""
+msgstr "As possibilidades incluem: séries, etiquetas, autores, etc"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:293
 msgid "Enable the no-activity timeout"
-msgstr ""
+msgstr "Ativar o tempo-limite de inatividade"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:294
 #, python-format
@@ -2352,10 +2354,14 @@ msgid ""
 "device does nothing for %d minutes. Unchecking this  box disables this "
 "timeout, so calibre will never automatically disconnect."
 msgstr ""
+"Se selecionar esta opção, o calibre irá desligar-se automaticamente do "
+"dispositivo se este estiver inativo durante %d minutos. Não selecionar esta "
+"opção, desativa o tempo-limite de inatividade, fazendo com que o calibre "
+"nunca se desligue, automaticamente, de um dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:298
 msgid "Use this IP address"
-msgstr ""
+msgstr "Usar este endereço IP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:299
 msgid ""
@@ -2363,25 +2369,28 @@ msgid ""
 "address. The driver will listen only on the entered address, and this "
 "address will be the one advertized over mDNS (bonjour)."
 msgstr ""
+"Use esta opção se pretender forçar o driver a escutar num endereço IP em "
+"particular. O driver irá escutar apenas nesse endereço e irá publicitá-lo "
+"através de mDNS (bonjour)."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:768
 #, python-format
 msgid "Too many connection attempts from %s"
-msgstr ""
+msgstr "Demasiadas tentativas de ligação do %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1273
 #, python-format
 msgid "Invalid port in options: %s"
-msgstr ""
+msgstr "Porta inválida, nas opções: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1281
 #, python-format
 msgid "Failed to connect to port %d. Try a different value."
-msgstr ""
+msgstr "Falha ao ligar à porta %d. Tente um outro valor."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1293
 msgid "Failed to allocate a random port"
-msgstr ""
+msgstr "Falha ao alocar uma porta aleatória"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -2463,7 +2472,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:809
 msgid "Unable to mount the device"
-msgstr ""
+msgstr "Incapaz de montar o dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:12
 msgid "Configure Device"
@@ -2510,6 +2519,11 @@ msgid ""
 "cable/USB port on your computer. If you device has a \"Reset to factory "
 "defaults\" type of setting somewhere, use it. Underlying error: %s"
 msgstr ""
+"Incapaz de aceder a ficheiros na memória interna do seu dispositivo. Deve "
+"contactar o fabricante e expor a situação. Soluções prováveis: usar um "
+"diferente cabo USB e/ou porta do seu computador; Usar a opção, \"Restaurar "
+"opções de fábrica\", se disponível.\r\n"
+"Erro subjacente: %s."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:114
 #, python-format
@@ -2520,11 +2534,18 @@ msgid ""
 "your SD card using the FAT32 filesystem. Also make sure there are not too "
 "many files in the root of your SD card. Underlying error: %s"
 msgstr ""
+"Incapaz de aceder a ficheiros no cartão de memória do seu dispositivo. Isto "
+"pode suceder por inúmeras razões. O cartão pode estar corrompido, ser "
+"demasiado grande para o seu dispositivo, estar protegido contra escrita, "
+"etc. Reformate-o com o sistema de ficheiros FAT32 ou tente um outro cartão. "
+"Certifique-se ainda que não tem demasiados ficheiros na raiz do seu "
+"cartão.\r\n"
+"Erro subjacente: %s."
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
 msgid "USB Vendor ID (in hex)"
-msgstr ""
+msgstr "ID USB do fabricante (em hexadecimal)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:38
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:41
@@ -2533,11 +2554,13 @@ msgid ""
 "Get this ID using Preferences -> Misc -> Get information to set up the user-"
 "defined device"
 msgstr ""
+"Obtenha este ID usando \"Preferências -> Variadas -> Obter informação para o "
+"utilizador configurar um dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
 msgid "USB Product ID (in hex)"
-msgstr ""
+msgstr "ID USB do produto (em hexadecimal)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
