@@ -91,7 +91,7 @@ class GlyphIndex(object):
         else:
             byts = bytearray(pack(b'>H', self.code))
             stream.write('<%s>'%''.join(map(
-                lambda x: bytes(hex(x)[2:]).rjust(2, b'0'), byts)))
+                lambda x: bytes(hex(int(x))[2:]).rjust(2, b'0'), byts)))
 
 class Dictionary(dict):
 

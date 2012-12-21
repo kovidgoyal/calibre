@@ -205,6 +205,12 @@ class GraphicsState(object): # {{{
 
 # }}}
 
+class Font(FontMetrics):
+
+    def __init__(self, sfnt):
+        FontMetrics.__init__(self, sfnt)
+        self.glyph_map = {}
+
 class PdfEngine(QPaintEngine):
 
     def __init__(self, file_object, page_width, page_height, left_margin,
@@ -235,7 +241,7 @@ class PdfEngine(QPaintEngine):
         self.scale = sqrt(sy**2 + sx**2)
         self.xscale, self.yscale = sx, sy
         self.graphics_state = GraphicsState()
-        self.errors = []
+        self.errors, self.debug = [], []
         self.text_option = QTextOption()
         self.text_option.setWrapMode(QTextOption.NoWrap)
         self.fonts = {}
@@ -354,15 +360,67 @@ class PdfEngine(QPaintEngine):
             self.pdf.draw_rect(bl.x(), bl.y(), rect.width(), rect.height(),
                              stroke=self.do_stroke, fill=self.do_fill)
 
+    def get_text_layout(self, text_item, text):
+        tl = QTextLayout(text, text_item.font(), self.paintDevice())
+        self.text_option.setTextDirection(Qt.RightToLeft if
+            text_item.renderFlags() & text_item.RightToLeft else Qt.LeftToRight)
+        tl.setTextOption(self.text_option)
+        return tl
+
+    def update_glyph_map(self, text, indices, text_item, glyph_map):
+        '''
+        Map glyphs back to the unicode text they represent.
+        '''
+        pos = 0
+        tl = self.get_text_layout(text_item, '')
+        indices = list(indices)
+
+        def get_glyphs(string):
+            tl.setText(string)
+            tl.beginLayout()
+            line = tl.createLine()
+            if not line.isValid():
+                tl.endLayout()
+                return []
+            line.setLineWidth(int(1e12))
+            tl.endLayout()
+            ans = []
+            for run in tl.glyphRuns():
+                ans.extend(run.glyphIndexes())
+            return ans
+
+        ipos = 0
+        while ipos < len(indices):
+            if indices[ipos] in glyph_map:
+                t = glyph_map[indices[ipos]]
+                if t == text[pos:pos+len(t)]:
+                    pos += len(t)
+                    ipos += 1
+                    continue
+
+            found = False
+            for l in xrange(1, 10):
+                string = text[pos:pos+l]
+                g = get_glyphs(string)
+                if g and g[0] == indices[ipos]:
+                    found = True
+                    glyph_map[g[0]] = string
+                    break
+            if not found:
+                self.debug.append(
+                    'Failed to find glyph->unicode mapping for text: %s'%text)
+                break
+            ipos += 1
+            pos += l
+
+        return text[pos:]
+
     @store_error
     def drawTextItem(self, point, text_item):
         # super(PdfEngine, self).drawTextItem(point+QPoint(0, 0), text_item)
         text = type(u'')(text_item.text()).replace('\n', ' ')
         text = unicodedata.normalize('NFKC', text)
-        tl = QTextLayout(text, text_item.font(), self.paintDevice())
-        self.text_option.setTextDirection(Qt.RightToLeft if
-            text_item.renderFlags() & text_item.RightToLeft else Qt.LeftToRight)
-        tl.setTextOption(self.text_option)
+        tl = self.get_text_layout(text_item, text)
         tl.setPosition(point)
         tl.beginLayout()
         line = tl.createLine()
@@ -375,9 +433,10 @@ class PdfEngine(QPaintEngine):
             rf = run.rawFont()
             name = hash(bytes(rf.fontTable('name')))
             if name not in self.fonts:
-                self.fonts[name] = FontMetrics(Sfnt(rf))
+                self.fonts[name] = Font(Sfnt(rf))
             metrics = self.fonts[name]
             indices = run.glyphIndexes()
+            text = self.update_glyph_map(text, indices, text_item, metrics.glyph_map)
             glyphs = []
             pdf_pos = point
             first_baseline = None
@@ -489,7 +548,7 @@ if __name__ == '__main__':
             # f.setUnderline(True)
             # f.setOverline(True)
             # f.setStrikeOut(True)
-            f.setFamily('OpenDyslexic')
+            f.setFamily('Calibri')
             p.setFont(f)
             # p.scale(2, 2)
             # p.rotate(45)
@@ -497,6 +556,8 @@ if __name__ == '__main__':
             p.drawText(QPoint(100, 300), 'Some text ū --- Д AV ﬀ ff')
         finally:
             p.end()
+        for line in dev.engine.debug:
+            print (line)
         if dev.engine.errors:
             for err in dev.engine.errors: print (err)
             raise SystemExit(1)

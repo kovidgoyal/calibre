@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, unicodedata
+import re
 from itertools import izip, groupby
 from operator import itemgetter
 from collections import Counter, OrderedDict
@@ -58,7 +58,7 @@ class FontStream(Stream):
             d['Subtype'] = Name('CIDFontType0C')
 
 def to_hex_string(c):
-    return bytes(hex(c)[2:]).rjust(4, b'0').decode('ascii')
+    return bytes(hex(int(c))[2:]).rjust(4, b'0').decode('ascii')
 
 class CMap(Stream):
 
@@ -154,19 +154,17 @@ class Font(object):
         self.font_descriptor['FontFile'+('3' if self.is_otf else '2')
                              ] = objects.add(self.font_stream)
         self.write_widths(objects)
-        glyph_map = self.metrics.sfnt['cmap'].get_char_codes(self.used_glyphs)
-        self.write_to_unicode(objects, glyph_map)
-        pdf_subset(self.metrics.sfnt, set(glyph_map))
+        self.write_to_unicode(objects)
+        pdf_subset(self.metrics.sfnt, self.used_glyphs)
         if self.is_otf:
             self.font_stream.write(self.metrics.sfnt['CFF '].raw)
         else:
             self.metrics.os2.zero_fstype()
             self.metrics.sfnt(self.font_stream)
 
-    def write_to_unicode(self, objects, glyph_map):
-        glyph_map = {k:unicodedata.normalize('NFKC', unichr(v)) for k, v in
-                     glyph_map.iteritems()}
-        cmap = CMap(self.metrics.postscript_name, glyph_map, compress=self.compress)
+    def write_to_unicode(self, objects):
+        cmap = CMap(self.metrics.postscript_name, self.metrics.glyph_map,
+                    compress=self.compress)
         self.font_dict['ToUnicode'] = objects.add(cmap)
 
     def write_widths(self, objects):

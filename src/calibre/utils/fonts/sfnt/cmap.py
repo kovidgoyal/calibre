@@ -13,7 +13,7 @@ __docformat__ = 'restructuredtext en'
 from struct import unpack_from, calcsize, pack
 from collections import OrderedDict
 
-from calibre.utils.fonts.utils import get_bmp_glyph_ids, read_bmp_prefix
+from calibre.utils.fonts.utils import get_bmp_glyph_ids
 from calibre.utils.fonts.sfnt import UnknownTable, max_power_of_two
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 
@@ -163,33 +163,6 @@ class CmapTable(UnknownTable):
             chars)):
             if glyph_id > 0:
                 ans[chars[i]] = glyph_id
-        return ans
-
-    def get_char_codes(self, glyph_ids):
-        if self.bmp_table is None:
-            raise UnsupportedFont('This font has no Windows BMP cmap subtable.'
-                    ' Most likely a special purpose font.')
-        ans = {}
-        (start_count, end_count, range_offset, id_delta, glyph_id_len,
-        glyph_id_map, array_len) = read_bmp_prefix(self.bmp_table, 0)
-
-        glyph_ids = frozenset(glyph_ids)
-
-        for i, ec in enumerate(end_count):
-            sc = start_count[i]
-            ro = range_offset[i]
-            for code in xrange(sc, ec+1):
-                if ro == 0:
-                    glyph_id = id_delta[i] + code
-                else:
-                    idx = ro//2 + (code - sc) + i - array_len
-                    glyph_id = glyph_id_map[idx]
-                    if glyph_id != 0:
-                        glyph_id += id_delta[i]
-                glyph_id %= 0x1000
-                if glyph_id in glyph_ids:
-                    ans[glyph_id] = code
-
         return ans
 
     def set_character_map(self, cmap):
