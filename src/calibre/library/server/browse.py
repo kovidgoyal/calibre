@@ -11,11 +11,11 @@ from collections import OrderedDict
 
 import cherrypy
 
-from calibre.constants import filesystem_encoding
-from calibre import isbytestring, force_unicode, fit_image, \
-        prepare_string_for_xml
+from calibre.constants import filesystem_encoding, config_dir
+from calibre import (isbytestring, force_unicode, fit_image,
+        prepare_string_for_xml, sanitize_file_name2)
 from calibre.utils.filenames import ascii_filename
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, JSONConfig
 from calibre.utils.icu import sort_key
 from calibre.utils.magick import Image
 from calibre.library.comments import comments_to_html
@@ -242,6 +242,8 @@ class BrowseServer(object):
         connect('browse_category_icon', base_href+'/icon/{name}',
                 self.browse_icon)
 
+        self.icon_map = JSONConfig('gui').get('tags_browser_category_icons', {})
+
     # Templates {{{
     def browse_template(self, sort, category=True, initial_search=''):
 
@@ -321,10 +323,18 @@ class BrowseServer(object):
         if not hasattr(self, '__browse_icon_cache__'):
             self.__browse_icon_cache__ = {}
         if name not in self.__browse_icon_cache__:
-            try:
-                data = I(name, data=True)
-            except:
-                raise cherrypy.HTTPError(404, 'no icon named: %r'%name)
+            if name.startswith('_'):
+                name = sanitize_file_name2(name[1:])
+                try:
+                    with open(os.path.join(config_dir, 'tb_icons', name), 'rb') as f:
+                        data = f.read()
+                except:
+                    raise cherrypy.HTTPError(404, 'no icon named: %r'%name)
+            else:
+                try:
+                    data = I(name, data=True)
+                except:
+                    raise cherrypy.HTTPError(404, 'no icon named: %r'%name)
             img = Image()
             img.load(data)
             width, height = img.size
@@ -359,7 +369,9 @@ class BrowseServer(object):
             if meta['is_custom'] and category not in displayed_custom_fields:
                 continue
             # get the icon files
-            if category in category_icon_map:
+            if category in self.icon_map:
+                icon = '_'+quote(self.icon_map[category])
+            elif category in category_icon_map:
                 icon = category_icon_map[category]
             elif meta['is_custom']:
                 icon = category_icon_map['custom:']
