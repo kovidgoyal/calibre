@@ -34,6 +34,7 @@
     - title: "Allow setting the color of all columns with a single rule in Preferences->Look & Feel->Column Coloring"
 
     - title: "MOBI: When reading metadata from mobi files, put the contents of the ASIN field into an identifier named mobi-asin. Note that this value is not used when downloading metadata as it is not possible to know which (country specific) amazon website the ASIN comes from."
+      tickets: [1090394]
  
   bug fixes:
     - title: "Windows build: Fix a regression in 0.9.9 that caused calibre to not start on some windows system that were missing the VC.90 dlls (some older XP systems)"
