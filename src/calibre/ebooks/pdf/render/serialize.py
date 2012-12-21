@@ -419,8 +419,9 @@ class PDFStream(object):
     def write_image(self, data, w, h, depth, dct=False, mask=None,
                     soft_mask=None, cache_key=None):
         imgobj = Image(data, w, h, depth, mask, soft_mask, dct)
-        self.image_cache[cache_key] = self.objects.add(imgobj)
-        return self.image_cache[cache_key]
+        self.image_cache[cache_key] = r = self.objects.add(imgobj)
+        self.objects.commit(r, self.stream)
+        return r
 
     def draw_image(self, x, y, w, h, imgref):
         name = self.current_page.add_image(imgref)
