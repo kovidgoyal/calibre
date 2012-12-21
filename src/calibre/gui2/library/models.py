@@ -769,10 +769,10 @@ class BooksModel(QAbstractTableModel): # {{{
 
             for k, fmt in self.db.prefs['column_color_rules']:
                 if k == key:
-                    col = self.column_color(id_, key, fmt, self.db,
+                    ccol = self.column_color(id_, key, fmt, self.db,
                                 self.formatter, self.color_cache, self.colors)
-                    if col is not None:
-                        return col
+                    if ccol is not None:
+                        return ccol
 
             if self.is_custom_column(key) and \
                         self.custom_columns[key]['datatype'] == 'enumeration':
@@ -791,10 +791,10 @@ class BooksModel(QAbstractTableModel): # {{{
 
             if self.color_row_fmt_cache:
                 key = color_row_key
-                col = self.column_color(id_, key, self.color_row_fmt_cache,
+                ccol = self.column_color(id_, key, self.color_row_fmt_cache,
                         self.db, self.formatter, self.color_cache, self.colors)
-                if col is not None:
-                    return col
+                if ccol is not None:
+                    return ccol
 
             self.column_color.mi = None
             return NONE
