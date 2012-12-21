@@ -132,6 +132,7 @@ class Stream(BytesIO):
     def __init__(self, compress=False):
         BytesIO.__init__(self)
         self.compress = compress
+        self.filters = Array()
 
     def add_extra_keys(self, d):
         pass
@@ -139,7 +140,7 @@ class Stream(BytesIO):
     def pdf_serialize(self, stream):
         raw = self.getvalue()
         dl = len(raw)
-        filters = Array()
+        filters = self.filters
         if self.compress:
             filters.append(Name('FlateDecode'))
             raw = zlib.compress(raw)

@@ -13,7 +13,8 @@ from collections import namedtuple
 from functools import wraps
 
 from PyQt4.Qt import (QPaintEngine, QPaintDevice, Qt, QApplication, QPainter,
-                      QTransform, QPainterPath, QTextOption, QTextLayout)
+                      QTransform, QPainterPath, QTextOption, QTextLayout,
+                      QImage, QByteArray, QBuffer, qRgba)
 
 from calibre.constants import DEBUG
 from calibre.ebooks.pdf.render.serialize import (Color, PDFStream, Path)
@@ -245,6 +246,9 @@ class PdfEngine(QPaintEngine):
         self.text_option = QTextOption()
         self.text_option.setWrapMode(QTextOption.NoWrap)
         self.fonts = {}
+        i = QImage(1, 1, QImage.Format_ARGB32)
+        i.fill(qRgba(0, 0, 0, 255))
+        self.alpha_bit = i.constBits().asstring(4).find(b'\xff')
 
     def init_page(self):
         self.pdf.transform(self.pdf_system)
@@ -296,11 +300,88 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def drawPixmap(self, rect, pixmap, source_rect):
-        print ('TODO: drawPixmap() currently unimplemented')
+        source_rect = source_rect.toRect()
+        pixmap = (pixmap if source_rect == pixmap.rect() else
+                  pixmap.copy(source_rect))
+        image = pixmap.toImage()
+        ref = self.add_image(image, pixmap.cacheKey())
+        if ref is not None:
+            self.pdf.draw_image(rect.x(), rect.y(), rect.width(), rect.height(),
+                            ref)
 
     @store_error
     def drawImage(self, rect, image, source_rect, flags=Qt.AutoColor):
-        print ('TODO: drawImage() currently unimplemented')
+        source_rect = source_rect.toRect()
+        image = (image if source_rect == image.rect() else
+                 image.copy(source_rect))
+        ref = self.add_image(image, image.cacheKey())
+        if ref is not None:
+            self.pdf.draw_image(rect.x(), rect.y(), rect.width(), rect.height(),
+                            ref)
+
+    def add_image(self, img, cache_key):
+        if img.isNull(): return
+        ref = self.pdf.get_image(cache_key)
+        if ref is not None:
+            return ref
+
+        fmt = img.format()
+        image = QImage(img)
+        if (image.depth() == 1 and img.colorTable().size() == 2 and
+            img.colorTable().at(0) == QColor(Qt.black).rgba() and
+            img.colorTable().at(1) == QColor(Qt.white).rgba()):
+            if fmt == QImage.Format_MonoLSB:
+                image = image.convertToFormat(QImage.Format_Mono)
+            fmt = QImage.Format_Mono
+        else:
+            if (fmt != QImage.Format_RGB32 and fmt != QImage.Format_ARGB32):
+                image = image.convertToFormat(QImage.Format_ARGB32)
+                fmt = QImage.Format_ARGB32
+
+        w = image.width()
+        h = image.height()
+        d = image.depth()
+
+        if fmt == QImage.Format_Mono:
+            bytes_per_line = (w + 7) >> 3
+            data = image.constBits().asstring(bytes_per_line * h)
+            return self.pdf.write_image(data, w, h, d, cache_key=cache_key)
+
+        ba = QByteArray()
+        buf = QBuffer(ba)
+        image.save(buf, 'jpeg', 94)
+        data = bytes(ba.data())
+        has_alpha = has_mask = False
+        soft_mask = mask = None
+
+        if fmt == QImage.Format_ARGB32:
+            tmask = image.constBits().asstring(4*w*h)[self.alpha_bit::4]
+            sdata = bytearray(tmask)
+            vals = set(sdata)
+            vals.discard(255)
+            has_mask = bool(vals)
+            vals.discard(0)
+            has_alpha = bool(vals)
+
+        if has_alpha:
+            soft_mask = self.pdf.write_image(tmask, w, h, 8)
+        elif has_mask:
+            # dither the soft mask to 1bit and add it. This also helps PDF
+            # viewers without transparency support
+            bytes_per_line = (w + 7) >> 3
+            mdata = bytearray(0 for i in xrange(bytes_per_line * h))
+            spos = mpos = 0
+            for y in xrange(h):
+                for x in xrange(w):
+                    if sdata[spos]:
+                        mdata[mpos + x>>3] |= (0x80 >> (x&7))
+                    spos += 1
+                mpos += bytes_per_line
+            mdata = bytes(mdata)
+            mask = self.pdf.write_image(mdata, w, h, 1)
+
+        return self.pdf.write_image(data, w, h, 32, mask=mask, dct=True,
+                                    soft_mask=soft_mask, cache_key=cache_key)
 
     @store_error
     def updateState(self, state):
@@ -510,8 +591,8 @@ class PdfDevice(QPaintDevice): # {{{
 # }}}
 
 if __name__ == '__main__':
-    from PyQt4.Qt import (QBrush, QColor, QPoint)
-    QBrush, QColor, QPoint
+    from PyQt4.Qt import (QBrush, QColor, QPoint, QPixmap)
+    QBrush, QColor, QPoint, QPixmap
     app = QApplication([])
     p = QPainter()
     with open('/tmp/painter.pdf', 'wb') as f:
@@ -525,16 +606,21 @@ if __name__ == '__main__':
             # pp = QPainterPath()
             # pp.addRect(0, 0, xmax, ymax)
             # p.drawPath(pp)
-            # p.save()
-            # for i in xrange(3):
-            #     col = [0, 0, 0, 200]
-            #     col[i] = 255
-            #     p.setOpacity(0.3)
-            #     p.setBrush(QBrush(QColor(*col)))
-            #     p.drawRect(0, 0, xmax/10, xmax/10)
-            #     p.translate(xmax/10, xmax/10)
-            #     p.scale(1, 1.5)
-            # p.restore()
+            p.save()
+            for i in xrange(3):
+                col = [0, 0, 0, 200]
+                col[i] = 255
+                p.setOpacity(0.3)
+                p.setBrush(QBrush(QColor(*col)))
+                p.drawRect(0, 0, xmax/10, xmax/10)
+                p.translate(xmax/10, xmax/10)
+                p.scale(1, 1.5)
+            p.restore()
+
+            # p.scale(2, 2)
+            # p.rotate(45)
+            p.drawPixmap(0, 0, 2048, 2048, QPixmap(I('library.png')))
+            p.drawRect(0, 0, 2048, 2048)
 
             # p.save()
             # p.drawLine(0, 0, 5000, 0)
@@ -542,18 +628,18 @@ if __name__ == '__main__':
             # p.drawLine(0, 0, 5000, 0)
             # p.restore()
 
-            f = p.font()
-            f.setPointSize(24)
+            # f = p.font()
+            # f.setPointSize(24)
             # f.setLetterSpacing(f.PercentageSpacing, 200)
             # f.setUnderline(True)
             # f.setOverline(True)
             # f.setStrikeOut(True)
-            f.setFamily('Calibri')
-            p.setFont(f)
+            # f.setFamily('Calibri')
+            # p.setFont(f)
+            # p.setPen(QColor(0, 0, 255))
             # p.scale(2, 2)
             # p.rotate(45)
-            # p.setPen(QColor(0, 0, 255))
-            p.drawText(QPoint(100, 300), 'Some text ū --- Д AV ﬀ ff')
+            # p.drawText(QPoint(100, 300), 'Some text ū --- Д AV ﬀ ff')
         finally:
             p.end()
         for line in dev.engine.debug:
