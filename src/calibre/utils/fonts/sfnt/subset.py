@@ -83,7 +83,7 @@ def do_warn(warnings, *args):
 
 def pdf_subset(sfnt, glyphs):
     for tag in tuple(sfnt.tables):
-        if tag not in {b'hhea', b'head', b'hmtx', b'maxp', b'name',
+        if tag not in {b'hhea', b'head', b'hmtx', b'maxp',
                        b'OS/2', b'post', b'cvt', b'fpgm', b'glyf', b'loca',
                        b'prep', b'CFF ', b'VORG'}:
             # Remove non core tables since they are unused in PDF rendering
