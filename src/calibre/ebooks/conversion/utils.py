@@ -357,21 +357,24 @@ class HeuristicProcessor(object):
         line_opening = "<(p|div)[^>]*>\s*(?P<style_open><(span|[iub])[^>]*>)?\s*"
         txt_line_wrap = u"((\u0020|\u0009)*\n){1,4}"
 
-        unwrap_regex = lookahead+line_ending+blanklines+line_opening
-        em_en_unwrap_regex = em_en_lookahead+line_ending+blanklines+line_opening
-        shy_unwrap_regex = soft_hyphen+line_ending+blanklines+line_opening
-
         if format == 'txt':
             unwrap_regex = lookahead+txt_line_wrap
             em_en_unwrap_regex = em_en_lookahead+txt_line_wrap
             shy_unwrap_regex = soft_hyphen+txt_line_wrap
-            content = unwrap_regex.sub(' ', content)
-            content = em_en_unwrap_regex.sub('', content)
-            content = shy_unwrap_regex.sub('', content)
         else:
-            unwrap = re.compile(u"%s" % unwrap_regex, re.UNICODE)
-            em_en_unwrap = re.compile(u"%s" % em_en_unwrap_regex, re.UNICODE)
-            shy_unwrap = re.compile(u"%s" % shy_unwrap_regex, re.UNICODE)
+            unwrap_regex = lookahead+line_ending+blanklines+line_opening
+            em_en_unwrap_regex = em_en_lookahead+line_ending+blanklines+line_opening
+            shy_unwrap_regex = soft_hyphen+line_ending+blanklines+line_opening
+
+        unwrap = re.compile(u"%s" % unwrap_regex, re.UNICODE)
+        em_en_unwrap = re.compile(u"%s" % em_en_unwrap_regex, re.UNICODE)
+        shy_unwrap = re.compile(u"%s" % shy_unwrap_regex, re.UNICODE)
+
+        if format == 'txt':
+            content = unwrap.sub(' ', content)
+            content = em_en_unwrap.sub('', content)
+            content = shy_unwrap.sub('', content)
+        else:
             content = unwrap.sub(style_unwrap, content)
             content = em_en_unwrap.sub(style_unwrap, content)
             content = shy_unwrap.sub(style_unwrap, content)

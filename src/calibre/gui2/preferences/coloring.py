@@ -19,9 +19,11 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.library.coloring import (Rule, conditionable_columns,
-    displayable_columns, rule_from_template)
+    displayable_columns, rule_from_template, color_row_key)
 from calibre.utils.localization import lang_map
 from calibre.utils.icu import lower
+
+all_columns_string = _('All Columns')
 
 class ConditionEditor(QWidget): # {{{
 
@@ -312,12 +314,10 @@ class RuleEditor(QDialog): # {{{
             b.setSizeAdjustPolicy(b.AdjustToMinimumContentsLengthWithIcon)
             b.setMinimumContentsLength(15)
 
-        for key in sorted(
-                displayable_columns(fm),
-                key=sort_key):
-            name = fm[key]['name']
+        for key in sorted(displayable_columns(fm), key=sort_key):
+            name = all_columns_string if key == color_row_key else fm[key]['name']
             if name:
-                self.column_box.addItem(key, key)
+                self.column_box.addItem(name, key)
         self.column_box.setCurrentIndex(0)
 
         self.color_box.addItems(QColor.colorNames())
@@ -427,7 +427,8 @@ class RulesModel(QAbstractListModel): # {{{
             col, rule = self.rules[row]
         except:
             return None
-
+        if col == color_row_key:
+            col = all_columns_string
         if role == Qt.DisplayRole:
             return self.rule_to_html(col, rule)
         if role == Qt.UserRole:

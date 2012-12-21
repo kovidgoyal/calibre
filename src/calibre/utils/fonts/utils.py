@@ -41,7 +41,7 @@ def get_table(raw, name):
             return table, table_index, table_offset, table_checksum
     return None, None, None, None
 
-def get_font_characteristics(raw, raw_is_table=False):
+def get_font_characteristics(raw, raw_is_table=False, return_all=False):
     '''
     Return (weight, is_italic, is_bold, is_regular, fs_type, panose, width,
     is_oblique, is_wws). These
@@ -64,11 +64,8 @@ def get_font_characteristics(raw, raw_is_table=False):
     offset = struct.calcsize(common_fields)
     panose = struct.unpack_from(b'>10B', os2_table, offset)
     offset += 10
-    (range1,) = struct.unpack_from(b'>L', os2_table, offset)
-    offset += struct.calcsize(b'>L')
-    if version > 0:
-        range2, range3, range4 = struct.unpack_from(b'>3L', os2_table, offset)
-        offset += struct.calcsize(b'>3L')
+    (range1, range2, range3, range4) = struct.unpack_from(b'>4L', os2_table, offset)
+    offset += struct.calcsize(b'>4L')
     vendor_id = os2_table[offset:offset+4]
     vendor_id
     offset += 4
@@ -79,6 +76,13 @@ def get_font_characteristics(raw, raw_is_table=False):
     is_regular = (selection & (1 << 6)) != 0
     is_wws = (selection & (1 << 8)) != 0
     is_oblique = (selection & (1 << 9)) != 0
+    if return_all:
+        return (version, char_width, weight, width, fs_type, subscript_x_size,
+            subscript_y_size, subscript_x_offset, subscript_y_offset,
+            superscript_x_size, superscript_y_size, superscript_x_offset,
+            superscript_y_offset, strikeout_size, strikeout_position,
+            family_class, panose, selection, is_italic, is_bold, is_regular)
+
     return weight, is_italic, is_bold, is_regular, fs_type, panose, width, is_oblique, is_wws, version
 
 def panose_to_css_generic_family(panose):
@@ -201,6 +205,36 @@ def get_font_names2(raw, raw_is_table=False):
     return (family_name, subfamily_name, full_name, preferred_family_name,
             preferred_subfamily_name, wws_family_name, wws_subfamily_name)
 
+def get_all_font_names(raw, raw_is_table=False):
+    records = _get_font_names(raw, raw_is_table)
+    ans = {}
+
+    for name, num in {'family_name':1, 'subfamily_name':2, 'full_name':4,
+            'preferred_family_name':16, 'preferred_subfamily_name':17,
+            'wws_family_name':21, 'wws_subfamily_name':22}.iteritems():
+        try:
+            ans[name] = decode_name_record(records[num])
+        except (IndexError, KeyError, ValueError):
+            continue
+        if not ans[name]:
+            del ans[name]
+
+    for platform_id, encoding_id, language_id, src in records[6]:
+        if (platform_id, encoding_id, language_id) == (1, 0, 0):
+            try:
+                ans['postscript_name'] = src.decode('utf-8')
+                break
+            except ValueError:
+                continue
+        elif (platform_id, encoding_id, language_id) == (3, 1, 1033):
+            try:
+                ans['postscript_name'] = src.decode('utf-16-be')
+                break
+            except ValueError:
+                continue
+
+    return ans
+
 def checksum_of_block(raw):
     extra = 4 - len(raw)%4
     raw += b'\0'*extra
@@ -272,7 +306,7 @@ def remove_embed_restriction(raw):
     verify_checksums(raw)
     return raw
 
-def get_bmp_glyph_ids(table, bmp, codes):
+def read_bmp_prefix(table, bmp):
     length, language, segcount = struct.unpack_from(b'>3H', table, bmp+2)
     array_len = segcount //2
     offset = bmp + 7*2
@@ -290,6 +324,12 @@ def get_bmp_glyph_ids(table, bmp, codes):
     glyph_id_len = (length + bmp - (offset + array_sz))//2
     glyph_id_map = struct.unpack_from(b'>%dH'%glyph_id_len, table, offset +
             array_sz)
+    return (start_count, end_count, range_offset, id_delta, glyph_id_len,
+            glyph_id_map, array_len)
+
+def get_bmp_glyph_ids(table, bmp, codes):
+    (start_count, end_count, range_offset, id_delta, glyph_id_len,
+     glyph_id_map, array_len) = read_bmp_prefix(table, bmp)
 
     for code in codes:
         found = False

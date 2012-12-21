@@ -239,12 +239,12 @@ class TestDeviceInteraction(unittest.TestCase):
 
         # Test get_filesystem
         used_by_one = self.measure_memory_usage(1,
-                self.dev.dev.get_filesystem, self.storage.object_id, lambda x:
-                x)
+                self.dev.dev.get_filesystem, self.storage.object_id,
+                                                lambda x, l:True)
 
         used_by_many = self.measure_memory_usage(5,
-                self.dev.dev.get_filesystem, self.storage.object_id, lambda x:
-                x)
+                self.dev.dev.get_filesystem, self.storage.object_id,
+                                                 lambda x, l: True)
 
         self.check_memory(used_by_one, used_by_many,
                 'Memory consumption during get_filesystem')

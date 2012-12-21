@@ -7,25 +7,30 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     #cover_url = 'http://www.countryfile.com/sites/default/files/imagecache/160px_wide/cover/2_1.jpg'
     __author__ = 'Dave Asbury'
     description           = 'The official website of Countryfile Magazine'
-    # last updated 7/10/12
+    # last updated 8/12/12
     language = 'en_GB'
     oldest_article = 30
     max_articles_per_feed = 25
     remove_empty_feeds = True
     no_stylesheets = True
     auto_cleanup = True
+    ignore_duplicate_articles = {'title', 'url'}
     #articles_are_obfuscated = True
-    ignore_duplicate_articles = {'title'}
+    #article_already_exists = False
+    #feed_hash = ''
     def get_cover_url(self):
-            soup = self.index_to_soup('http://www.countryfile.com/')
+            soup = self.index_to_soup('http://www.countryfile.com/magazine')
+            cov = soup.find(attrs={'class' : re.compile('imagecache imagecache-250px_wide')})#'width' : '160',
+            print '&&&&&&&& ',cov,' ***'
+            cov=str(cov)
+            #cov2 =  re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
+            cov2 =  re.findall('/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
 
-            cov = soup.find(attrs={'width' : '160', 'class' : re.compile('imagecache imagecache-160px_wide')})
-            print '******** ',cov,' ***'
-            cov2 = str(cov)
-            cov2=cov2[10:101]
+            cov2 = str(cov2)
+            cov2= "http://www.countryfile.com"+cov2[2:len(cov2)-8]
+
             print '******** ',cov2,' ***'
-            #cov2='http://www.countryfile.com/sites/default/files/imagecache/160px_wide/cover/1b_0.jpg'
-            # try to get cover - if can't get known cover
+             # try to get cover - if can't get known cover
             br = browser()
 
             br.set_handle_redirect(False)
@@ -44,6 +49,4 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     (u'Country News', u'http://www.countryfile.com/rss/news'),
             (u'Countryside', u'http://www.countryfile.com/rss/countryside'),
             ]
-
-
 

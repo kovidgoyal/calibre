@@ -5,6 +5,7 @@ class AdvancedUserRecipe1341650280(BasicNewsRecipe):
 
     title          = u'Empire Magazine'
     description = 'Author D.Asbury. Film articles from Empire Mag. '
+    language = 'en'
     __author__ = 'Dave Asbury'
     # last updated 7/7/12
     remove_empty_feeds = True
@@ -15,7 +16,7 @@ class AdvancedUserRecipe1341650280(BasicNewsRecipe):
     cover_url = 'http://www.empireonline.com/images/magazine/cover.jpg'
     conversion_options = {
             'linearize_tables' : True,
-	}
+    }
     #auto_cleanup = True
     preprocess_regexps = [
         (re.compile(r'<a href="http://twitter.com/share.*?</a>', re.IGNORECASE | re.DOTALL), lambda match: ''),
@@ -32,20 +33,20 @@ class AdvancedUserRecipe1341650280(BasicNewsRecipe):
         (re.compile(r'<!-- USER REVIEWS: START -->.*?<!-- USER REVIEWS: END -->', re.IGNORECASE | re.DOTALL), lambda match: '<!-- USER REVIEWS: START --><!-- USER REVIEWS: END -->'),
         (re.compile(r'Advertisement', re.IGNORECASE | re.DOTALL), lambda match: ''),
         (re.compile(r'<a name="haveyoursay".*?now to have your say.', re.IGNORECASE | re.DOTALL), lambda match: ''),
-	]
+    ]
     keep_only_tags = [
                              # dict(name='h1'),
-	         # dict(attrs={'class' : 'mediumblack'}),
+             # dict(attrs={'class' : 'mediumblack'}),
                               ]
     remove_tags = [dict(name='td', attrs={'width':'200', 'valign' : 'top'}),
                             dict(name='b'),
                             dict(name='a',attrs={'name' : 'haveyoursay'}),
                             dict(attrs={'class' : 'newslink'}),
-		]
+        ]
 
 
     feeds          = [(u'News', u'http://feed43.com/7338478755673147.xml'),
-	      (u'Recent Features',u'http://feed43.com/4346347750304760.xml'),
+          (u'Recent Features',u'http://feed43.com/4346347750304760.xml'),
                           (u'Interviews',u'http://feed43.com/3418350077724081.xml'),
-	      (u'Film Reviews',u'http://feed43.com/2643703076510627.xml'),
-	]
+          (u'Film Reviews',u'http://feed43.com/2643703076510627.xml'),
+    ]

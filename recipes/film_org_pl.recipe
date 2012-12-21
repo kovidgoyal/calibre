@@ -1,0 +1,19 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+class FilmOrgPl(BasicNewsRecipe):
+    title          = u'Film.org.pl'
+    __author__        = 'fenuks'
+    description   = u"Recenzje, analizy, artykuły, rankingi - wszystko o filmie dla miłośników kina. Opisy efektów specjalnych, wersji reżyserskich, remake'ów, sequeli. No i forum filmowe. Jedne z największych w Polsce."
+    category       = 'film'
+    language       = 'pl'
+    cover_url = 'http://film.org.pl/wp-content/themes/KMF/images/logo_kmf10.png'
+    ignore_duplicate_articles = {'title', 'url'}
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    use_embedded_content = True
+    preprocess_regexps     = [(re.compile(ur'<h3>Przeczytaj także:</h3>.*', re.IGNORECASE|re.DOTALL), lambda m: '</body>'), (re.compile(ur'<div>Artykuł</div>', re.IGNORECASE), lambda m: ''), (re.compile(ur'<div>Ludzie filmu</div>', re.IGNORECASE), lambda m: '')]
+    remove_tags = [dict(name='img', attrs={'alt':['Ludzie filmu', u'Artykuł']})]
+    feeds          = [(u'Recenzje', u'http://film.org.pl/r/recenzje/feed/'), (u'Artyku\u0142', u'http://film.org.pl/a/artykul/feed/'), (u'Analiza', u'http://film.org.pl/a/analiza/feed/'), (u'Ranking', u'http://film.org.pl/a/ranking/feed/'), (u'Blog', u'http://film.org.pl/kmf/blog/feed/'), (u'Ludzie', u'http://film.org.pl/a/ludzie/feed/'), (u'Seriale', u'http://film.org.pl/a/seriale/feed/'), (u'Oceanarium', u'http://film.org.pl/a/ocenarium/feed/'), (u'VHS', u'http://film.org.pl/a/vhs-a/feed/')]
