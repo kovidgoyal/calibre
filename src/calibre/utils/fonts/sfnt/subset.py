@@ -81,6 +81,23 @@ def do_warn(warnings, *args):
     else:
         warnings.append('')
 
+def pdf_subset(sfnt, glyphs):
+    for tag in tuple(sfnt.tables):
+        if tag not in {b'hhea', b'head', b'hmtx', b'maxp',
+                       b'OS/2', b'post', b'cvt', b'fpgm', b'glyf', b'loca',
+                       b'prep', b'CFF ', b'VORG'}:
+            # Remove non core tables since they are unused in PDF rendering
+            del sfnt[tag]
+    if b'loca' in sfnt and b'glyf' in sfnt:
+        # TrueType Outlines
+        subset_truetype(sfnt, {}, glyphs)
+    elif b'CFF ' in sfnt:
+        # PostScript Outlines
+        subset_postscript(sfnt, {}, glyphs)
+    else:
+        raise UnsupportedFont('This font does not contain TrueType '
+                'or PostScript outlines')
+
 def subset(raw, individual_chars, ranges=(), warnings=None):
     warn = partial(do_warn, warnings)
 

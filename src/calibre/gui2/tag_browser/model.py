@@ -13,6 +13,7 @@ import traceback, cPickle, copy, os
 from PyQt4.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
         QMimeData, QModelIndex, pyqtSignal, QObject)
 
+from calibre.constants import config_dir
 from calibre.gui2 import NONE, gprefs, config, error_dialog
 from calibre.library.database2 import Tag
 from calibre.utils.config import tweaks
@@ -214,8 +215,8 @@ class TagsModel(QAbstractItemModel): # {{{
             iconmap[key] = QIcon(I(category_icon_map[key]))
         self.category_icon_map = TagsIcons(iconmap)
         self.category_custom_icons = dict()
-        for k,v in gprefs['tags_browser_category_icons'].items():
-            icon = QIcon(v)
+        for k, v in gprefs['tags_browser_category_icons'].iteritems():
+            icon = QIcon(os.path.join(config_dir, 'tb_icons', v))
             if len(icon.availableSizes()) > 0:
                 self.category_custom_icons[k] = icon
         self.categories_with_ratings = ['authors', 'series', 'publisher', 'tags']
@@ -240,8 +241,15 @@ class TagsModel(QAbstractItemModel): # {{{
         d = gprefs['tags_browser_category_icons']
         if path:
             d[key] = path
-            self.category_custom_icons[key] = QIcon(path)
+            self.category_custom_icons[key] = QIcon(os.path.join(config_dir,
+                                                            'tb_icons', path))
         else:
+            if key in d:
+                path = os.path.join(config_dir, 'tb_icons', d[key])
+                try:
+                    os.remove(path)
+                except:
+                    pass
             del d[key]
             del self.category_custom_icons[key]
         gprefs['tags_browser_category_icons'] = d
@@ -327,8 +335,9 @@ class TagsModel(QAbstractItemModel): # {{{
                 tt = _(u'The lookup/search name is "{0}"').format(key)
 
             if self.category_custom_icons.get(key, None) is None:
-                self.category_custom_icons[key] = \
-                    self.category_icon_map['gst'] if is_gst else self.category_icon_map[key]
+                self.category_custom_icons[key] = (
+                    self.category_icon_map['gst'] if is_gst else
+                    self.category_icon_map.get(key, self.category_icon_map['custom:']))
 
             if key.startswith('@'):
                 path_parts = [p for p in key.split('.')]

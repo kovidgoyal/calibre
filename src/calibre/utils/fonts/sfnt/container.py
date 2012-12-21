@@ -66,6 +66,8 @@ class Sfnt(object):
                 if table:
                     self.tables[table_tag] = self.TABLE_MAP.get(
                         table_tag, UnknownTable)(table)
+                self.sfnt_version = (b'\0\x01\0\0' if b'glyf' in self.tables
+                                     else b'OTTO')
 
     def __getitem__(self, key):
         return self.tables[key]
@@ -102,8 +104,8 @@ class Sfnt(object):
             ans[tag] = len(self[tag])
         return ans
 
-    def __call__(self):
-        stream = BytesIO()
+    def __call__(self, stream=None):
+        stream = BytesIO() if stream is None else stream
 
         def spack(*args):
             stream.write(pack(*args))

@@ -64,11 +64,8 @@ def get_font_characteristics(raw, raw_is_table=False, return_all=False):
     offset = struct.calcsize(common_fields)
     panose = struct.unpack_from(b'>10B', os2_table, offset)
     offset += 10
-    (range1,) = struct.unpack_from(b'>L', os2_table, offset)
-    offset += struct.calcsize(b'>L')
-    if version > 0:
-        range2, range3, range4 = struct.unpack_from(b'>3L', os2_table, offset)
-        offset += struct.calcsize(b'>3L')
+    (range1, range2, range3, range4) = struct.unpack_from(b'>4L', os2_table, offset)
+    offset += struct.calcsize(b'>4L')
     vendor_id = os2_table[offset:offset+4]
     vendor_id
     offset += 4
@@ -309,7 +306,7 @@ def remove_embed_restriction(raw):
     verify_checksums(raw)
     return raw
 
-def get_bmp_glyph_ids(table, bmp, codes):
+def read_bmp_prefix(table, bmp):
     length, language, segcount = struct.unpack_from(b'>3H', table, bmp+2)
     array_len = segcount //2
     offset = bmp + 7*2
@@ -327,6 +324,12 @@ def get_bmp_glyph_ids(table, bmp, codes):
     glyph_id_len = (length + bmp - (offset + array_sz))//2
     glyph_id_map = struct.unpack_from(b'>%dH'%glyph_id_len, table, offset +
             array_sz)
+    return (start_count, end_count, range_offset, id_delta, glyph_id_len,
+            glyph_id_map, array_len)
+
+def get_bmp_glyph_ids(table, bmp, codes):
+    (start_count, end_count, range_offset, id_delta, glyph_id_len,
+     glyph_id_map, array_len) = read_bmp_prefix(table, bmp)
 
     for code in codes:
         found = False

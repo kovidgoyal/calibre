@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import codecs, zlib
 from io import BytesIO
+from struct import pack
 
 EOL = b'\n'
 
@@ -49,7 +50,7 @@ def serialize(o, stream):
         o.pdf_serialize(stream)
     elif isinstance(o, bool):
         stream.write(b'true' if o else b'false')
-    elif isinstance(o, (int, float)):
+    elif isinstance(o, (int, long, float)):
         stream.write(type(u'')(o).encode('ascii'))
     elif o is None:
         stream.write(b'null')
@@ -78,14 +79,30 @@ class String(unicode):
             raw = codecs.BOM_UTF16_BE + s.encode('utf-16-be')
         stream.write(b'('+raw+b')')
 
+class GlyphIndex(object):
+
+    def __init__(self, code, compress):
+        self.code = code
+        self.compress = compress
+
+    def pdf_serialize(self, stream):
+        if self.compress:
+            stream.write(pack(b'>sHs', b'(', self.code, b')'))
+        else:
+            byts = bytearray(pack(b'>H', self.code))
+            stream.write('<%s>'%''.join(map(
+                lambda x: bytes(hex(int(x))[2:]).rjust(2, b'0'), byts)))
+
 class Dictionary(dict):
 
     def pdf_serialize(self, stream):
         stream.write(b'<<' + EOL)
-        for k, v in self.iteritems():
+        sorted_keys = sorted(self.iterkeys(),
+                    key=lambda x:((' ' if x == 'Type' else '')+x))
+        for k in sorted_keys:
             serialize(Name(k), stream)
             stream.write(b' ')
-            serialize(v, stream)
+            serialize(self[k], stream)
             stream.write(EOL)
         stream.write(b'>>' + EOL)
 
@@ -115,16 +132,21 @@ class Stream(BytesIO):
     def __init__(self, compress=False):
         BytesIO.__init__(self)
         self.compress = compress
+        self.filters = Array()
+
+    def add_extra_keys(self, d):
+        pass
 
     def pdf_serialize(self, stream):
         raw = self.getvalue()
         dl = len(raw)
-        filters = Array()
+        filters = self.filters
         if self.compress:
             filters.append(Name('FlateDecode'))
             raw = zlib.compress(raw)
 
         d = InlineDictionary({'Length':len(raw), 'DL':dl})
+        self.add_extra_keys(d)
         if filters:
             d['Filter'] = filters
         serialize(d, stream)

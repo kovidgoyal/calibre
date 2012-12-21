@@ -7,16 +7,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, traceback
+import sys, traceback, unicodedata
 from math import sqrt
 from collections import namedtuple
 from functools import wraps
 
 from PyQt4.Qt import (QPaintEngine, QPaintDevice, Qt, QApplication, QPainter,
-                      QTransform, QPainterPath, QRawFont)
+                      QTransform, QPainterPath, QTextOption, QTextLayout,
+                      QImage, QByteArray, QBuffer, qRgba)
 
 from calibre.constants import DEBUG
-from calibre.ebooks.pdf.render.serialize import (Color, PDFStream, Path, Text)
+from calibre.ebooks.pdf.render.serialize import (Color, PDFStream, Path)
 from calibre.ebooks.pdf.render.common import inch, A4
 from calibre.utils.fonts.sfnt.container import Sfnt
 from calibre.utils.fonts.sfnt.metrics import FontMetrics
@@ -205,6 +206,12 @@ class GraphicsState(object): # {{{
 
 # }}}
 
+class Font(FontMetrics):
+
+    def __init__(self, sfnt):
+        FontMetrics.__init__(self, sfnt)
+        self.glyph_map = {}
+
 class PdfEngine(QPaintEngine):
 
     def __init__(self, file_object, page_width, page_height, left_margin,
@@ -235,7 +242,13 @@ class PdfEngine(QPaintEngine):
         self.scale = sqrt(sy**2 + sx**2)
         self.xscale, self.yscale = sx, sy
         self.graphics_state = GraphicsState()
-        self.errors = []
+        self.errors, self.debug = [], []
+        self.text_option = QTextOption()
+        self.text_option.setWrapMode(QTextOption.NoWrap)
+        self.fonts = {}
+        i = QImage(1, 1, QImage.Format_ARGB32)
+        i.fill(qRgba(0, 0, 0, 255))
+        self.alpha_bit = i.constBits().asstring(4).find(b'\xff')
 
     def init_page(self):
         self.pdf.transform(self.pdf_system)
@@ -287,11 +300,88 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def drawPixmap(self, rect, pixmap, source_rect):
-        print ('TODO: drawPixmap() currently unimplemented')
+        source_rect = source_rect.toRect()
+        pixmap = (pixmap if source_rect == pixmap.rect() else
+                  pixmap.copy(source_rect))
+        image = pixmap.toImage()
+        ref = self.add_image(image, pixmap.cacheKey())
+        if ref is not None:
+            self.pdf.draw_image(rect.x(), rect.y(), rect.width(), rect.height(),
+                            ref)
 
     @store_error
     def drawImage(self, rect, image, source_rect, flags=Qt.AutoColor):
-        print ('TODO: drawImage() currently unimplemented')
+        source_rect = source_rect.toRect()
+        image = (image if source_rect == image.rect() else
+                 image.copy(source_rect))
+        ref = self.add_image(image, image.cacheKey())
+        if ref is not None:
+            self.pdf.draw_image(rect.x(), rect.y(), rect.width(), rect.height(),
+                            ref)
+
+    def add_image(self, img, cache_key):
+        if img.isNull(): return
+        ref = self.pdf.get_image(cache_key)
+        if ref is not None:
+            return ref
+
+        fmt = img.format()
+        image = QImage(img)
+        if (image.depth() == 1 and img.colorTable().size() == 2 and
+            img.colorTable().at(0) == QColor(Qt.black).rgba() and
+            img.colorTable().at(1) == QColor(Qt.white).rgba()):
+            if fmt == QImage.Format_MonoLSB:
+                image = image.convertToFormat(QImage.Format_Mono)
+            fmt = QImage.Format_Mono
+        else:
+            if (fmt != QImage.Format_RGB32 and fmt != QImage.Format_ARGB32):
+                image = image.convertToFormat(QImage.Format_ARGB32)
+                fmt = QImage.Format_ARGB32
+
+        w = image.width()
+        h = image.height()
+        d = image.depth()
+
+        if fmt == QImage.Format_Mono:
+            bytes_per_line = (w + 7) >> 3
+            data = image.constBits().asstring(bytes_per_line * h)
+            return self.pdf.write_image(data, w, h, d, cache_key=cache_key)
+
+        ba = QByteArray()
+        buf = QBuffer(ba)
+        image.save(buf, 'jpeg', 94)
+        data = bytes(ba.data())
+        has_alpha = has_mask = False
+        soft_mask = mask = None
+
+        if fmt == QImage.Format_ARGB32:
+            tmask = image.constBits().asstring(4*w*h)[self.alpha_bit::4]
+            sdata = bytearray(tmask)
+            vals = set(sdata)
+            vals.discard(255)
+            has_mask = bool(vals)
+            vals.discard(0)
+            has_alpha = bool(vals)
+
+        if has_alpha:
+            soft_mask = self.pdf.write_image(tmask, w, h, 8)
+        elif has_mask:
+            # dither the soft mask to 1bit and add it. This also helps PDF
+            # viewers without transparency support
+            bytes_per_line = (w + 7) >> 3
+            mdata = bytearray(0 for i in xrange(bytes_per_line * h))
+            spos = mpos = 0
+            for y in xrange(h):
+                for x in xrange(w):
+                    if sdata[spos]:
+                        mdata[mpos + x>>3] |= (0x80 >> (x&7))
+                    spos += 1
+                mpos += bytes_per_line
+            mdata = bytes(mdata)
+            mask = self.pdf.write_image(mdata, w, h, 1)
+
+        return self.pdf.write_image(data, w, h, 32, mask=mask, dct=True,
+                                    soft_mask=soft_mask, cache_key=cache_key)
 
     @store_error
     def updateState(self, state):
@@ -351,46 +441,97 @@ class PdfEngine(QPaintEngine):
             self.pdf.draw_rect(bl.x(), bl.y(), rect.width(), rect.height(),
                              stroke=self.do_stroke, fill=self.do_fill)
 
+    def get_text_layout(self, text_item, text):
+        tl = QTextLayout(text, text_item.font(), self.paintDevice())
+        self.text_option.setTextDirection(Qt.RightToLeft if
+            text_item.renderFlags() & text_item.RightToLeft else Qt.LeftToRight)
+        tl.setTextOption(self.text_option)
+        return tl
+
+    def update_glyph_map(self, text, indices, text_item, glyph_map):
+        '''
+        Map glyphs back to the unicode text they represent.
+        '''
+        pos = 0
+        tl = self.get_text_layout(text_item, '')
+        indices = list(indices)
+
+        def get_glyphs(string):
+            tl.setText(string)
+            tl.beginLayout()
+            line = tl.createLine()
+            if not line.isValid():
+                tl.endLayout()
+                return []
+            line.setLineWidth(int(1e12))
+            tl.endLayout()
+            ans = []
+            for run in tl.glyphRuns():
+                ans.extend(run.glyphIndexes())
+            return ans
+
+        ipos = 0
+        while ipos < len(indices):
+            if indices[ipos] in glyph_map:
+                t = glyph_map[indices[ipos]]
+                if t == text[pos:pos+len(t)]:
+                    pos += len(t)
+                    ipos += 1
+                    continue
+
+            found = False
+            for l in xrange(1, 10):
+                string = text[pos:pos+l]
+                g = get_glyphs(string)
+                if g and g[0] == indices[ipos]:
+                    found = True
+                    glyph_map[g[0]] = string
+                    break
+            if not found:
+                self.debug.append(
+                    'Failed to find glyph->unicode mapping for text: %s'%text)
+                break
+            ipos += 1
+            pos += l
+
+        return text[pos:]
+
     @store_error
     def drawTextItem(self, point, text_item):
-        # super(PdfEngine, self).drawTextItem(point+QPoint(0, 300), text_item)
-        f = text_item.font()
-        px, pt = f.pixelSize(), f.pointSizeF()
-        if px == -1:
-            sz = pt/self.yscale
-        else:
-            sz = px
+        # super(PdfEngine, self).drawTextItem(point+QPoint(0, 0), text_item)
+        text = type(u'')(text_item.text()).replace('\n', ' ')
+        text = unicodedata.normalize('NFKC', text)
+        tl = self.get_text_layout(text_item, text)
+        tl.setPosition(point)
+        tl.beginLayout()
+        line = tl.createLine()
+        if not line.isValid():
+            tl.endLayout()
+            return
+        line.setLineWidth(int(1e12))
+        tl.endLayout()
+        for run in tl.glyphRuns():
+            rf = run.rawFont()
+            name = hash(bytes(rf.fontTable('name')))
+            if name not in self.fonts:
+                self.fonts[name] = Font(Sfnt(rf))
+            metrics = self.fonts[name]
+            indices = run.glyphIndexes()
+            text = self.update_glyph_map(text, indices, text_item, metrics.glyph_map)
+            glyphs = []
+            pdf_pos = point
+            first_baseline = None
+            for i, pos in enumerate(run.positions()):
+                if first_baseline is None:
+                    first_baseline = pos.y()
+                glyph_pos = point + pos
+                delta = glyph_pos - pdf_pos
+                glyphs.append((delta.x(), pos.y()-first_baseline, indices[i]))
+                pdf_pos = glyph_pos
 
-        r = QRawFont.fromFont(f)
-        metrics = FontMetrics(Sfnt(r))
-        to = Text()
-        to.size = sz
-        to.set_transform(1, 0, 0, -1, point.x(), point.y())
-        stretch = f.stretch()
-        if stretch != 100:
-            to.horizontal_scale = stretch
-        ws = f.wordSpacing()
-        if ws != 0:
-            to.word_spacing = ws
-        spacing = f.letterSpacing()
-        st = f.letterSpacingType()
-        text = type(u'')(text_item.text())
-        if st == f.AbsoluteSpacing and spacing != 0:
-            to.char_space = spacing/self.scale
-        if st == f.PercentageSpacing and spacing not in {100, 0}:
-            # TODO: Figure out why the results from uncommenting the super
-            # class call above differ. The advance widths are the same as those
-            # reported by QRawfont, so presumably, Qt use some other
-            # algorithm, I can't be bothered to track it down. This behavior is
-            # correct as per the Qt docs' description of PercentageSpacing
-            widths = [w*-1 for w in metrics.advance_widths(text,
-                                            sz, f.stretch()/100.)]
-            to.glyph_adjust = ((spacing-100)/100., widths)
-        to.text = text
-        with self:
-            self.graphics_state.apply_fill(self.graphics_state.current_state['stroke'],
-                                           self, self.pdf)
-            self.pdf.draw_text(to)
+            self.pdf.draw_glyph_run([1, 0, 0, -1, point.x(),
+                point.y()], rf.pixelSize(), metrics, glyphs)
+
 
     @store_error
     def drawPolygon(self, points, mode):
@@ -450,8 +591,8 @@ class PdfDevice(QPaintDevice): # {{{
 # }}}
 
 if __name__ == '__main__':
-    from PyQt4.Qt import (QBrush, QColor, QPoint)
-    QBrush, QColor, QPoint
+    from PyQt4.Qt import (QBrush, QColor, QPoint, QPixmap)
+    QBrush, QColor, QPoint, QPixmap
     app = QApplication([])
     p = QPainter()
     with open('/tmp/painter.pdf', 'wb') as f:
@@ -460,11 +601,11 @@ if __name__ == '__main__':
         xmax, ymax = p.viewport().width(), p.viewport().height()
         try:
             p.drawRect(0, 0, xmax, ymax)
-            p.drawPolyline(QPoint(0, 0), QPoint(xmax, 0), QPoint(xmax, ymax),
-                           QPoint(0, ymax), QPoint(0, 0))
-            pp = QPainterPath()
-            pp.addRect(0, 0, xmax, ymax)
-            p.drawPath(pp)
+            # p.drawPolyline(QPoint(0, 0), QPoint(xmax, 0), QPoint(xmax, ymax),
+            #                QPoint(0, ymax), QPoint(0, 0))
+            # pp = QPainterPath()
+            # pp.addRect(0, 0, xmax, ymax)
+            # p.drawPath(pp)
             p.save()
             for i in xrange(3):
                 col = [0, 0, 0, 200]
@@ -476,26 +617,33 @@ if __name__ == '__main__':
                 p.scale(1, 1.5)
             p.restore()
 
-            p.save()
-            p.drawLine(0, 0, 5000, 0)
-            p.rotate(45)
-            p.drawLine(0, 0, 5000, 0)
-            p.restore()
+            # p.scale(2, 2)
+            # p.rotate(45)
+            p.drawPixmap(0, 0, 2048, 2048, QPixmap(I('library.png')))
+            p.drawRect(0, 0, 2048, 2048)
 
-            f = p.font()
-            f.setPointSize(48)
-            f.setLetterSpacing(f.PercentageSpacing, 200)
+            # p.save()
+            # p.drawLine(0, 0, 5000, 0)
+            # p.rotate(45)
+            # p.drawLine(0, 0, 5000, 0)
+            # p.restore()
+
+            # f = p.font()
+            # f.setPointSize(24)
+            # f.setLetterSpacing(f.PercentageSpacing, 200)
             # f.setUnderline(True)
             # f.setOverline(True)
             # f.setStrikeOut(True)
-            f.setFamily('Times New Roman')
-            p.setFont(f)
+            # f.setFamily('Calibri')
+            # p.setFont(f)
+            # p.setPen(QColor(0, 0, 255))
             # p.scale(2, 2)
             # p.rotate(45)
-            p.setPen(QColor(0, 0, 255))
-            p.drawText(QPoint(100, 300), 'Some text')
+            # p.drawText(QPoint(100, 300), 'Some text ū --- Д AV ﬀ ff')
         finally:
             p.end()
+        for line in dev.engine.debug:
+            print (line)
         if dev.engine.errors:
             for err in dev.engine.errors: print (err)
             raise SystemExit(1)

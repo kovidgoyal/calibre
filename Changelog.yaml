@@ -19,6 +19,47 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.11
+  date: 2012-12-21
+
+  new features:
+    - title: "Merry Christmas and Happy Holidays to all ☺"
+
+    - title: "When connecting to MTP devices such as the Kindle Fire HD or the Nook HD, speed up the process by ignoring some folders."
+      description: "calibre will now ignore folders for music, video, pictures, etc. when scanning the device. This can substantially speed up the connection process if you have thousands of non-ebook files on the device. The list of folders to be ignored can be customized by right clicking on the device icon in calibre and selecting 'Configure this device'."
+
+    - title: "Allow changing the icons for categories in the Tag Browser. Right click on a category and choose 'Change category icon'."
+      tickets: [1092098]
+
+    - title: "Allow setting the color of all columns with a single rule in Preferences->Look & Feel->Column Coloring"
+
+    - title: "MOBI: When reading metadata from mobi files, put the contents of the ASIN field into an identifier named mobi-asin. Note that this value is not used when downloading metadata as it is not possible to know which (country specific) amazon website the ASIN comes from."
+      tickets: [1090394]
+ 
+  bug fixes:
+    - title: "Windows build: Fix a regression in 0.9.9 that caused calibre to not start on some windows system that were missing the VC.90 dlls (some older XP systems)"
+
+    - title: "Kobo driver: Workaround for invalid shelves created by bugs in the Kobo server"
+      tickets: [1091932]
+
+    - title: "Metadata download: Fix cover downloading from non-US amazon sites broken by a website change."
+      tickets: [1090765]
+
+  improved recipes:
+    - Le Devoir
+    - Nin online
+    - countryfile
+    - Birmingham Post
+    - The Independent
+    - Various Polish news sources
+
+  new recipes:
+    - title: MobileBulgaria 
+      author: Martin Tsanchev
+
+    - title: Various Polish news sources
+      author: fenuks
+
 - version: 0.9.10
   date: 2012-12-14
 

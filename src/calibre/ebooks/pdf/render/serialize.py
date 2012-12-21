@@ -14,10 +14,11 @@ from collections import namedtuple
 
 from calibre.constants import (__appname__, __version__)
 from calibre.ebooks.pdf.render.common import (
-    Reference, EOL, serialize, Stream, Dictionary, String, Name, Array)
+    Reference, EOL, serialize, Stream, Dictionary, String, Name, Array,
+    GlyphIndex)
 from calibre.ebooks.pdf.render.fonts import FontManager
 
-PDFVER = b'%PDF-1.6'
+PDFVER = b'%PDF-1.3'
 
 Color = namedtuple('Color', 'red green blue opacity')
 
@@ -87,6 +88,7 @@ class Page(Stream):
         })
         self.opacities = {}
         self.fonts = {}
+        self.xobjects = {}
 
     def set_opacity(self, opref):
         if opref not in self.opacities:
@@ -100,6 +102,11 @@ class Page(Stream):
             self.fonts[fontref] = 'F%d'%len(self.fonts)
         return self.fonts[fontref]
 
+    def add_image(self, imgref):
+        if imgref not in self.xobjects:
+            self.xobjects[imgref] = 'Image%d'%len(self.xobjects)
+        return self.xobjects[imgref]
+
     def add_resources(self):
         r = Dictionary()
         if self.opacities:
@@ -112,6 +119,11 @@ class Page(Stream):
             for ref, name in self.fonts.iteritems():
                 fonts[name] = ref
             r['Font'] = fonts
+        if self.xobjects:
+            xobjects = Dictionary()
+            for ref, name in self.xobjects.iteritems():
+                xobjects[name] = ref
+            r['XObject'] = xobjects
         if r:
             self.page_dict['Resources'] = r
 
@@ -222,6 +234,35 @@ class HashingStream(object):
         if raw:
             self.last_char = raw[-1]
 
+class Image(Stream):
+
+    def __init__(self, data, w, h, depth, mask, soft_mask, dct):
+        Stream.__init__(self)
+        self.width, self.height, self.depth = w, h, depth
+        self.mask, self.soft_mask = mask, soft_mask
+        if dct:
+            self.filters.append(Name('DCTDecode'))
+        else:
+            self.compress = True
+        self.write(data)
+
+    def add_extra_keys(self, d):
+        d['Type'] = Name('XObject')
+        d['Subtype']=  Name('Image')
+        d['Width'] = self.width
+        d['Height'] = self.height
+        if self.depth == 1:
+            d['ImageMask'] = True
+            d['Decode'] = Array([1, 0])
+        else:
+            d['BitsPerComponent'] = 8
+            d['ColorSpace'] = Name('Device' + ('RGB' if self.depth == 32 else
+                                               'Gray'))
+        if self.mask is not None:
+            d['Mask'] = self.mask
+        if self.soft_mask is not None:
+            d['SMask'] = self.soft_mask
+
 class PDFStream(object):
 
     PATH_OPS = {
@@ -251,7 +292,8 @@ class PDFStream(object):
         self.info = Dictionary({'Creator':String(creator),
                                 'Producer':String(creator)})
         self.stroke_opacities, self.fill_opacities = {}, {}
-        self.font_manager = FontManager(self.objects)
+        self.font_manager = FontManager(self.objects, self.compress)
+        self.image_cache = {}
 
     @property
     def page_tree(self):
@@ -357,9 +399,41 @@ class PDFStream(object):
         name = self.current_page.add_font(fontref)
         text_object.pdf_serialize(self.current_page, name)
 
+    def draw_glyph_run(self, transform, size, font_metrics, glyphs):
+        glyph_ids = {x[-1] for x in glyphs}
+        fontref = self.font_manager.add_font(font_metrics, glyph_ids)
+        name = self.current_page.add_font(fontref)
+        self.current_page.write(b'BT ')
+        serialize(Name(name), self.current_page)
+        self.current_page.write(' %g Tf '%size)
+        self.current_page.write('%s Tm '%' '.join(map(type(u''), transform)))
+        for x, y, glyph_id in glyphs:
+            self.current_page.write('%g %g Td '%(x, y))
+            serialize(GlyphIndex(glyph_id, self.compress), self.current_page)
+            self.current_page.write(' Tj ')
+        self.current_page.write_line(b' ET')
+
+    def get_image(self, cache_key):
+        return self.image_cache.get(cache_key, None)
+
+    def write_image(self, data, w, h, depth, dct=False, mask=None,
+                    soft_mask=None, cache_key=None):
+        imgobj = Image(data, w, h, depth, mask, soft_mask, dct)
+        self.image_cache[cache_key] = r = self.objects.add(imgobj)
+        self.objects.commit(r, self.stream)
+        return r
+
+    def draw_image(self, x, y, w, h, imgref):
+        name = self.current_page.add_image(imgref)
+        sx, sy = w, h
+        self.current_page.write('q %g 0 0 %g %g %g cm '%(sx, -sy, x, y+h))
+        serialize(Name(name), self.current_page)
+        self.current_page.write_line(' Do Q')
+
     def end(self):
         if self.current_page.getvalue():
             self.end_page()
+        self.font_manager.embed_fonts()
         inforef = self.objects.add(self.info)
         self.objects.pdf_serialize(self.stream)
         self.write_line()
