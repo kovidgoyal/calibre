@@ -14,16 +14,12 @@ from functools import wraps
 
 from PyQt4.Qt import (QPaintEngine, QPaintDevice, Qt, QApplication, QPainter,
                       QTransform, QPainterPath, QTextOption, QTextLayout,
-                      QImage, QByteArray, QBuffer, qRgba)
+                      QImage, QByteArray, QBuffer, qRgba, QRectF)
 
-from calibre.constants import DEBUG
 from calibre.ebooks.pdf.render.serialize import (Color, PDFStream, Path)
 from calibre.ebooks.pdf.render.common import inch, A4
 from calibre.utils.fonts.sfnt.container import Sfnt
 from calibre.utils.fonts.sfnt.metrics import FontMetrics
-
-XDPI = 1200
-YDPI = 1200
 
 Point = namedtuple('Point', 'x y')
 ColorState = namedtuple('ColorState', 'color opacity do')
@@ -35,7 +31,8 @@ def store_error(func):
         try:
             func(self, *args, **kwargs)
         except:
-            self.errors.append(traceback.format_exc())
+            self.errors_occurred = True
+            self.errors(traceback.format_exc())
 
     return errh
 
@@ -115,7 +112,7 @@ class GraphicsState(object): # {{{
         elif flags & QPaintEngine.DirtyClipRegion:
             path = QPainterPath()
             for rect in state.clipRegion().rects():
-                path.addRect(rect)
+                path.addRect(QRectF(rect))
             self.ops['clip'] = (state.clipOperation(), path)
 
     def __call__(self, engine):
@@ -215,9 +212,11 @@ class Font(FontMetrics):
 class PdfEngine(QPaintEngine):
 
     def __init__(self, file_object, page_width, page_height, left_margin,
-                 top_margin, right_margin, bottom_margin, width, height):
+                 top_margin, right_margin, bottom_margin, width, height,
+                 errors=print, debug=print, compress=True):
         QPaintEngine.__init__(self, self.features)
         self.file_object = file_object
+        self.compress = compress
         self.page_height, self.page_width = page_height, page_width
         self.left_margin, self.top_margin = left_margin, top_margin
         self.right_margin, self.bottom_margin = right_margin, bottom_margin
@@ -242,18 +241,20 @@ class PdfEngine(QPaintEngine):
         self.scale = sqrt(sy**2 + sx**2)
         self.xscale, self.yscale = sx, sy
         self.graphics_state = GraphicsState()
-        self.errors, self.debug = [], []
+        self.errors_occurred = False
+        self.errors, self.debug = errors, debug
         self.text_option = QTextOption()
         self.text_option.setWrapMode(QTextOption.NoWrap)
         self.fonts = {}
         i = QImage(1, 1, QImage.Format_ARGB32)
         i.fill(qRgba(0, 0, 0, 255))
         self.alpha_bit = i.constBits().asstring(4).find(b'\xff')
+        self.current_page_num = 1
 
     def init_page(self):
         self.pdf.transform(self.pdf_system)
         self.pdf.set_rgb_colorspace()
-        width = self.painter.pen().widthF() if self.isActive() else 0
+        width = self.painter().pen().widthF() if self.isActive() else 0
         self.pdf.set_line_width(width)
         self.do_stroke = True
         self.do_fill = False
@@ -271,7 +272,7 @@ class PdfEngine(QPaintEngine):
         try:
             self.pdf = PDFStream(self.file_object, (self.page_width,
                                                     self.page_height),
-                                compress=not DEBUG)
+                                compress=self.compress)
             self.init_page()
         except:
             self.errors.append(traceback.format_exc())
@@ -281,6 +282,7 @@ class PdfEngine(QPaintEngine):
     def end_page(self, start_new=True):
         self.pdf.restore_stack()
         self.pdf.end_page()
+        self.current_page_num += 1
         if start_new:
             self.init_page()
 
@@ -488,7 +490,7 @@ class PdfEngine(QPaintEngine):
                     glyph_map[g[0]] = string
                     break
             if not found:
-                self.debug.append(
+                self.debug(
                     'Failed to find glyph->unicode mapping for text: %s'%text)
                 break
             ipos += 1
@@ -546,6 +548,9 @@ class PdfEngine(QPaintEngine):
         self.pdf.draw_path(p, stroke=True, fill_rule=fill_rule,
             fill=(mode in (self.OddEvenMode, self.WindingMode, self.ConvexMode)))
 
+    def set_metadata(self, *args, **kwargs):
+        self.pdf.set_metadata(*args, **kwargs)
+
     def __enter__(self):
         self.pdf.save_stack()
         self.saved_ps = (self.do_stroke, self.do_fill)
@@ -558,23 +563,26 @@ class PdfDevice(QPaintDevice): # {{{
 
 
     def __init__(self, file_object, page_size=A4, left_margin=inch,
-                 top_margin=inch, right_margin=inch, bottom_margin=inch):
+                 top_margin=inch, right_margin=inch, bottom_margin=inch,
+                 xdpi=1200, ydpi=1200, errors=print, debug=print, compress=True):
         QPaintDevice.__init__(self)
+        self.xdpi, self.ydpi = xdpi, ydpi
         self.page_width, self.page_height = page_size
         self.body_width = self.page_width - left_margin - right_margin
         self.body_height = self.page_height - top_margin - bottom_margin
         self.engine = PdfEngine(file_object, self.page_width, self.page_height,
                                 left_margin, top_margin, right_margin,
-                                bottom_margin, self.width(), self.height())
+                                bottom_margin, self.width(), self.height(),
+                                errors=errors, debug=debug, compress=compress)
 
     def paintEngine(self):
         return self.engine
 
     def metric(self, m):
         if m in (self.PdmDpiX, self.PdmPhysicalDpiX):
-            return XDPI
+            return self.xdpi
         if m in (self.PdmDpiY, self.PdmPhysicalDpiY):
-            return YDPI
+            return self.ydpi
         if m == self.PdmDepth:
             return 32
         if m == self.PdmNumColors:
@@ -584,10 +592,32 @@ class PdfDevice(QPaintDevice): # {{{
         if m == self.PdmHeightMM:
             return int(round(self.body_height * 0.35277777777778))
         if m == self.PdmWidth:
-            return int(round(self.body_width * XDPI / 72.0))
+            return int(round(self.body_width * self.xdpi / 72.0))
         if m == self.PdmHeight:
-            return int(round(self.body_height * YDPI / 72.0))
+            return int(round(self.body_height * self.ydpi / 72.0))
         return 0
+
+    def end_page(self, start_new=True):
+        self.engine.end_page(start_new=start_new)
+
+    def init_page(self):
+        self.engine.init_page()
+
+    @property
+    def current_page_num(self):
+        return self.engine.current_page_num
+
+    @property
+    def errors_occurred(self):
+        return self.engine.errors_occurred
+
+    def to_px(self, pt, vertical=True):
+        return pt * (self.height()/self.page_height if vertical else
+                     self.width()/self.page_width)
+
+    def set_metadata(self, *args, **kwargs):
+        self.engine.set_metadata(*args, **kwargs)
+
 # }}}
 
 if __name__ == '__main__':
@@ -596,7 +626,7 @@ if __name__ == '__main__':
     app = QApplication([])
     p = QPainter()
     with open('/tmp/painter.pdf', 'wb') as f:
-        dev = PdfDevice(f)
+        dev = PdfDevice(f, compress=False)
         p.begin(dev)
         xmax, ymax = p.viewport().width(), p.viewport().height()
         try:
@@ -642,9 +672,6 @@ if __name__ == '__main__':
             # p.drawText(QPoint(100, 300), 'Some text ū --- Д AV ﬀ ff')
         finally:
             p.end()
-        for line in dev.engine.debug:
-            print (line)
-        if dev.engine.errors:
-            for err in dev.engine.errors: print (err)
+        if dev.engine.errors_occurred:
             raise SystemExit(1)
 

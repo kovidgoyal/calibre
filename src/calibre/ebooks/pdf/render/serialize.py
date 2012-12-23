@@ -303,6 +303,14 @@ class PDFStream(object):
     def catalog(self):
         return self.objects[1]
 
+    def set_metadata(self, title=None, author=None, tags=None):
+        if title:
+            self.info['Title'] = String(title)
+        if author:
+            self.info['Author'] = String(author)
+        if tags:
+            self.info['Keywords'] = String(tags)
+
     def write_line(self, byts=b''):
         byts = byts if isinstance(byts, bytes) else byts.encode('ascii')
         self.stream.write(byts + EOL)
@@ -409,7 +417,7 @@ class PDFStream(object):
         self.current_page.write('%s Tm '%' '.join(map(type(u''), transform)))
         for x, y, glyph_id in glyphs:
             self.current_page.write('%g %g Td '%(x, y))
-            serialize(GlyphIndex(glyph_id, self.compress), self.current_page)
+            serialize(GlyphIndex(glyph_id), self.current_page)
             self.current_page.write(' Tj ')
         self.current_page.write_line(b' ET')
 
