@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-21 05:12+0000\n"
-"PO-Revision-Date: 2012-12-22 00:43+0000\n"
+"PO-Revision-Date: 2012-12-23 01:40+0000\n"
 "Last-Translator: Danilo Cominotti Marques <danilo.cominotti@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-12-22 04:57+0000\n"
+"X-Launchpad-Export-Date: 2012-12-23 04:38+0000\n"
 "X-Generator: Launchpad (build 16378)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3130,12 +3130,18 @@ msgid ""
 "external: Use an external CSS file that is linked in the document.\n"
 "inline: Place the CSS in the head section of the document."
 msgstr ""
+"Como lidar com o CSS ao usar css-type = 'class'.\n"
+"O padrão é external.\n"
+"external: Usa um arquivo CSS externo que seja vinculado ao documento.\n"
+"inline: Coloca o CSS no cabeçalho do documento."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/htmlz_output.py:42
 msgid ""
 "If set this option causes the file name of the html file inside the htmlz "
 "archive to be based on the book title."
 msgstr ""
+"Se escolhida, esta opção faz com que o nome de arquivo do arquivo html "
+"dentro do arquivo htmlz seja baseado no título do livro."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:95
 msgid "Enable autorotation of images that are wider than the screen width."
@@ -3297,6 +3303,12 @@ msgid ""
 "6 and the new KF8 format, or only the new KF8 format. KF8 has more features "
 "than MOBI 6, but only works with newer Kindles."
 msgstr ""
+"Por padrão, o calibre gera arquivos MOBI que contêm o antigo formato MOBI 6. "
+"Esse formato é compatível com todos os dispositivos. No entanto, ao alterar "
+"esta configuração, você pode dizer ao calibre para gerar arquivos MOBI que "
+"contenham tanto o formato MOBI 6 quanto o novo KF8, ou apenas o novo formato "
+"KF8. O KF8 tem mais funcionalidades do que o MOBI 6, mas funciona apenas com "
+"os Kindles mais recentes."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:136
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:125
@@ -3382,24 +3394,24 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:94
 msgid "The font family used to render serif fonts"
-msgstr ""
+msgstr "A família de fontes usada para renderizar fontes serif"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:97
 msgid "The font family used to render sans-serif fonts"
-msgstr ""
+msgstr "A família de fontes usada para renderizar fontes sans-serif"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:100
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:104
 msgid "The font family used to render monospaced fonts"
-msgstr ""
+msgstr "A família de fontes usada para renderizar fontes mono-espaçadas"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:107
 msgid "The default font size"
-msgstr ""
+msgstr "O tamanho de fonte padrão"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:110
 msgid "The default font size for monospaced text"
-msgstr ""
+msgstr "O tamanho de fonte padrão para texto mono-espaçado"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -3559,6 +3571,15 @@ msgid ""
 "* markdown: Processing using markdown formatting. To learn more about "
 "markdown see"
 msgstr ""
+"Formatação usada no documento.* auto: Decide automaticamente qual "
+"processador de formatação usar.\n"
+"* plain: Não processa a formatação de documento. Tudo é um parágrafo, e "
+"nenhum estilo é aplicado.\n"
+"* heuristic: Processa usando heurísticas para determinar formatações como "
+"cabeçalhos de capítulo e texto em itálico.\n"
+"* textile: Processa usando formatação textil.\n"
+"* markdown: Processa usando formatação de remarcação. Para aprender mais "
+"sobre remarcação, ver"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_input.py:45
 msgid ""
@@ -4401,7 +4422,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:91
 msgid "Add linked files in breadth first order"
-msgstr ""
+msgstr "Adicionar arquivos vinculados em ordem de busca em largura"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:92
 msgid ""
@@ -6535,7 +6556,7 @@ msgstr "Lendo novas notícias de "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:83
 msgid " fetched."
-msgstr ""
+msgstr " buscado(a)(s)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "F1"
@@ -8319,7 +8340,7 @@ msgstr "Processamento Heurístico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:116
 msgid "Unwrap lines"
-msgstr ""
+msgstr "Desquebrar linhas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:117
 msgid "Line &un-wrap factor :"
@@ -9696,7 +9717,7 @@ msgstr "Memória Principal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:722
 msgid "Send specific format to"
-msgstr "Envia um formato específico para"
+msgstr "Enviar formato específico para"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:723
 msgid "Send and delete from library"
@@ -12109,7 +12130,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:219
 msgid "&Keep at most:"
-msgstr ""
+msgstr "&Manter no máximo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:220
 msgid ""
@@ -12697,7 +12718,7 @@ msgstr "Valor do modelo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:114
 msgid "The value of the template using the current book in the library view"
-msgstr ""
+msgstr "O valor do modelo usando o livro atual na perspectiva de biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:115
 msgid "Function &name:"
@@ -13874,6 +13895,8 @@ msgid ""
 " The green color indicates that the current title sort matches the current "
 "title"
 msgstr ""
+" A cor verde significa que a ordenação por título atual corresponde ao "
+"título atual."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:156
 msgid ""

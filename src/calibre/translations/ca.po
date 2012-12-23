@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-12-21 05:12+0000\n"
-"PO-Revision-Date: 2012-12-07 19:09+0000\n"
+"PO-Revision-Date: 2012-12-22 12:38+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-22 04:39+0000\n"
+"X-Launchpad-Export-Date: 2012-12-23 04:36+0000\n"
 "X-Generator: Launchpad (build 16378)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -10322,7 +10322,7 @@ msgstr "&Ignora %s al calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:377
 msgid "Change scanned &folders"
-msgstr ""
+msgstr "&Canvia les carpetes examinades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:383
 msgid "Show device information"
@@ -10349,6 +10349,10 @@ msgid ""
 "you want this folder scanned in order to be able to send books to it. Click "
 "the <b>configure</b> button below to send books to it."
 msgstr ""
+"Esteu intentant enviar llibres a la carpeta <b>%s</b>. El calibre ignora "
+"aquesta carpeta en examinar el dispositiu en l'actualitat. Li heu de dir al "
+"calibre que voleu que examini aquesta carpeta per tal que hi pugui enviar "
+"llibres. Feu clic al botó <b>configura</b> més avall per enviar-hi llibres."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:504
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:137
@@ -10358,7 +10362,7 @@ msgstr "Configura"
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:508
 #, python-format
 msgid "Cannot send to %s"
-msgstr ""
+msgstr "No es pot enviar a %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:92
 msgid "Choose folder on device"
@@ -10366,25 +10370,27 @@ msgstr "Trieu una carpeta del dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:105
 msgid "<b>Scanned folders:</b>"
-msgstr ""
+msgstr "<b>Carpetes examinades:</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:106
 msgid ""
 "You can select which top level folders calibre will scan when searching this "
 "device for books."
 msgstr ""
+"Podeu seleccionar quines carpetes de nivell superior examinarà el calibre "
+"quan cerqui llibres en aquest dispositiu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:131
 msgid "Select &All"
-msgstr ""
+msgstr "Seleccion&a-ho tot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:133
 msgid "Select &None"
-msgstr ""
+msgstr "&No en seleccionis cap"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:136
 msgid "Choose folders to scan"
-msgstr ""
+msgstr "Trieu les carpetes que s'han d'examinar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:19
 msgid "How many empty books?"
@@ -15393,7 +15399,7 @@ msgstr "Reinicia tots els diàlegs de &confirmació que s'hagin desactivat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:26
 msgid "All Columns"
-msgstr ""
+msgstr "Totes les columnes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:37
@@ -18749,7 +18755,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:304
 #, python-format
 msgid "Change Icon for: %s"
-msgstr ""
+msgstr "Canvia la icona per a: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:442
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:481
@@ -18835,11 +18841,11 @@ msgstr "Gestiona %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:566
 msgid "Change category icon"
-msgstr ""
+msgstr "Canvia la icona de la categoria"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:568
 msgid "Restore default icon"
-msgstr ""
+msgstr "Restaura la icona per defecte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:586
 msgid "Show all categories"
