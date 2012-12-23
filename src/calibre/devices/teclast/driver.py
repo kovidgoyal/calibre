@@ -19,7 +19,8 @@ class TECLAST_K3(USBMS):
     PRODUCT_ID  = [0x3203]
     BCD         = [0x0000, 0x0100]
 
-    VENDOR_NAME      = ['TECLAST', 'IMAGIN', 'RK28XX', 'PER3274B', 'BEBOOK']
+    VENDOR_NAME      = ['TECLAST', 'IMAGIN', 'RK28XX', 'PER3274B', 'BEBOOK',
+                        'RK2728']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['DIGITAL_PLAYER', 'TL-K5',
             'EREADER', 'USB-MSC', 'PER3274B', 'BEBOOK']
 
