@@ -227,7 +227,7 @@ p, li { white-space: pre-wrap; }
                       <number>1</number>
                      </property>
                      <property name="maximum">
-                      <number>365</number>
+                      <number>36500</number>
                      </property>
                      <property name="value">
                       <number>7</number>
