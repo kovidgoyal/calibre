@@ -306,8 +306,8 @@ class PdfEngine(QPaintEngine):
         image = pixmap.toImage()
         ref = self.add_image(image, pixmap.cacheKey())
         if ref is not None:
-            self.pdf.draw_image(rect.x(), rect.y(), rect.width(), rect.height(),
-                            ref)
+            self.pdf.draw_image(rect.x(), rect.height()+rect.y(), rect.width(),
+                                -rect.height(), ref)
 
     @store_error
     def drawImage(self, rect, image, source_rect, flags=Qt.AutoColor):
@@ -316,8 +316,8 @@ class PdfEngine(QPaintEngine):
                  image.copy(source_rect))
         ref = self.add_image(image, image.cacheKey())
         if ref is not None:
-            self.pdf.draw_image(rect.x(), rect.y(), rect.width(), rect.height(),
-                            ref)
+            self.pdf.draw_image(rect.x(), rect.height()+rect.y(), rect.width(),
+                                -rect.height(), ref)
 
     def add_image(self, img, cache_key):
         if img.isNull(): return

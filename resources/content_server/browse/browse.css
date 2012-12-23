@@ -81,6 +81,7 @@ body {
   background-color: #39a9cf;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
+  border-radius: 5px;
   text-shadow: #27211b 1px 1px 1px;
   -moz-box-shadow: 5px 5px 5px #222;
   -webkit-box-shadow: 5px 5px 5px #222;

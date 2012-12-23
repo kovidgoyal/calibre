@@ -423,10 +423,9 @@ class PDFStream(object):
         self.objects.commit(r, self.stream)
         return r
 
-    def draw_image(self, x, y, w, h, imgref):
+    def draw_image(self, x, y, xscale, yscale, imgref):
         name = self.current_page.add_image(imgref)
-        sx, sy = w, h
-        self.current_page.write('q %g 0 0 %g %g %g cm '%(sx, -sy, x, y+h))
+        self.current_page.write('q %g 0 0 %g %g %g cm '%(xscale, yscale, x, y))
         serialize(Name(name), self.current_page)
         self.current_page.write_line(' Do Q')
 

@@ -49,7 +49,7 @@ All the |app| python code is in the ``calibre`` package. This package contains t
         * Metadata reading, writing, and downloading is all in ebooks.metadata
         * Conversion happens in a pipeline, for the structure of the pipeline,
           see :ref:`conversion-introduction`. The pipeline consists of an input
-          plugin, various transforms and an output plugin. The code constructs
+          plugin, various transforms and an output plugin. The that code constructs
           and drives the pipeline is in plumber.py. The pipeline works on a
           representation of an ebook that is like an unzipped epub, with
           manifest, spine, toc, guide, html content, etc. The
@@ -74,10 +74,6 @@ After installing Bazaar, you can get the |app| source code with the command::
 
 On Windows you will need the complete path name, that will be something like :file:`C:\\Program Files\\Bazaar\\bzr.exe`. 
 
-To update a branch to the latest code, use the command::
-
-    bzr merge
-
 |app| is a very large project with a very long source control history, so the
 above can take a while (10mins to an hour depending on your internet speed).
 
@@ -87,6 +83,11 @@ You can also use bzr to just download the source code, without the history,
 using::
 
   bzr branch --stacked lp:calibre
+
+
+To update a branch to the latest code, use the command::
+
+    bzr merge
 
 Submitting your changes to be included
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
