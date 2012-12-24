@@ -7,15 +7,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-12-21 05:12+0000\n"
-"PO-Revision-Date: 2012-12-09 08:53+0000\n"
-"Last-Translator: Baz <_baz_@rambler.ru>\n"
+"PO-Revision-Date: 2012-12-23 13:53+0000\n"
+"Last-Translator: Eugene Marshal <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-12-22 04:51+0000\n"
+"X-Launchpad-Export-Date: 2012-12-24 04:37+0000\n"
 "X-Generator: Launchpad (build 16378)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -10238,6 +10238,11 @@ msgid ""
 "you want this folder scanned in order to be able to send books to it. Click "
 "the <b>configure</b> button below to send books to it."
 msgstr ""
+"Вы пытаетесь отправить книги в папку <b>%s</b>. В настоящее время эта папка "
+"пропускается программой calibre во время проверки устройства. Вы можете "
+"позволить calibre проверить папку, чтобы использовать возможность отправлять "
+"книги в эту папку. Щёлкните на кнопке <b>настроить</b>, чтобы отправить "
+"книги в папку."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:504
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:137
@@ -10247,7 +10252,7 @@ msgstr "Настроить"
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:508
 #, python-format
 msgid "Cannot send to %s"
-msgstr ""
+msgstr "Невозможно отправить в %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:92
 msgid "Choose folder on device"
@@ -10255,7 +10260,7 @@ msgstr "Выберите папку на устройстве"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:105
 msgid "<b>Scanned folders:</b>"
-msgstr ""
+msgstr "<b>Проверенные папки:</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:106
 msgid ""
@@ -10265,7 +10270,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:131
 msgid "Select &All"
-msgstr ""
+msgstr "Выде&лить все"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:133
 msgid "Select &None"
@@ -10273,7 +10278,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:136
 msgid "Choose folders to scan"
-msgstr ""
+msgstr "Выберите папки для проверки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:19
 msgid "How many empty books?"
@@ -15201,7 +15206,7 @@ msgstr "Восстановить все отключённые подтверж�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:26
 msgid "All Columns"
-msgstr ""
+msgstr "Все столбцы"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:37
@@ -18502,7 +18507,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:304
 #, python-format
 msgid "Change Icon for: %s"
-msgstr ""
+msgstr "Изменить значок: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:442
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:481
@@ -18588,11 +18593,11 @@ msgstr "Управление %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:566
 msgid "Change category icon"
-msgstr ""
+msgstr "Изменить значок категории"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:568
 msgid "Restore default icon"
-msgstr ""
+msgstr "Восстановить значок по умолчанию"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:586
 msgid "Show all categories"
