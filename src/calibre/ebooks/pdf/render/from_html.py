@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json
+import json, os
 from future_builtins import map
 from math import floor
 
@@ -141,23 +141,25 @@ class PDFWriter(QObject):
         for x in (Qt.Horizontal, Qt.Vertical):
             self.view.page().mainFrame().setScrollBarPolicy(x,
                     Qt.ScrollBarAlwaysOff)
+        self.report_progress = lambda x, y: x
 
     def dump(self, items, out_stream, pdf_metadata):
         opts = self.opts
         self.outline = Outline(self.toc, items)
         page_size = get_page_size(self.opts)
-        dpi = min(self.opts.input_profile.dpi, 150)
+        xdpi, ydpi = self.view.logicalDpiX(), self.view.logicalDpiY()
         ml, mr = opts.margin_left, opts.margin_right
         margin_side = min(ml, mr)
         ml, mr = ml - margin_side, mr - margin_side
         self.doc = PdfDevice(out_stream, page_size=page_size, left_margin=ml,
                              top_margin=0, right_margin=mr, bottom_margin=0,
-                             xdpi=dpi, ydpi=dpi, errors=self.log.error,
+                             xdpi=xdpi, ydpi=ydpi, errors=self.log.error,
                              debug=self.log.debug, compress=not
                              opts.uncompressed_pdf)
 
         self.page.setViewportSize(QSize(self.doc.width(), self.doc.height()))
         self.render_queue = items
+        self.total_items = len(items)
         self.first_page = True
 
         # TODO: Test margins
@@ -223,6 +225,9 @@ class PDFWriter(QObject):
             self.logger.error('Document cannot be rendered.')
             self.loop.exit(1)
             return
+        done = self.total_items - len(self.render_queue)
+        self.report_progress(done/self.total_items,
+                        _('Rendered %s'%os.path.basename(self.current_item)))
         self.render_book()
 
     @property

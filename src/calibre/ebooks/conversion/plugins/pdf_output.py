@@ -215,6 +215,7 @@ class PDFOutput(OutputFormatPlugin):
     def write(self, Writer, items, toc):
         writer = Writer(self.opts, self.log, cover_data=self.cover_data,
                 toc=toc)
+        writer.report_progress = self.report_progress
 
         close = False
         if not hasattr(self.output_path, 'write'):
