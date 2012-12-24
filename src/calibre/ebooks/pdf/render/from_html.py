@@ -160,7 +160,6 @@ class PDFWriter(QObject):
         self.page.setViewportSize(QSize(self.doc.width(), self.doc.height()))
         self.render_queue = items
         self.total_items = len(items)
-        self.first_page = True
 
         # TODO: Test margins
         mt, mb = map(self.doc.to_px, (opts.margin_top, opts.margin_bottom))
@@ -260,20 +259,18 @@ class PDFWriter(QObject):
 
         mf = self.view.page().mainFrame()
         start_page = self.current_page_num
+        dx = 0
         while True:
-            if not self.first_page:
-                self.doc.init_page()
-            self.first_page = False
+            self.doc.init_page()
             self.painter.save()
-            try:
-                mf.render(self.painter)
-                nsl = evaljs('paged_display.next_screen_location()').toInt()
-                if not nsl[1] or nsl[0] <= 0:
-                    break
-                evaljs('window.scrollTo(%d, 0)'%nsl[0])
-                self.doc.end_page()
-            finally:
-                self.painter.restore()
+            mf.render(self.painter)
+            self.painter.restore()
+            nsl = evaljs('paged_display.next_screen_location()').toInt()
+            self.doc.end_page()
+            if not nsl[1] or nsl[0] <= 0:
+                break
+            dx = nsl[0]
+            evaljs('window.scrollTo(%d, 0)'%dx)
             if self.doc.errors_occurred:
                 break
 
