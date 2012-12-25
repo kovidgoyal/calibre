@@ -183,6 +183,13 @@ extensions = [
                 sip_files = ['calibre/gui2/progress_indicator/QProgressIndicator.sip']
                 ),
 
+    Extension('qt_hack',
+                ['calibre/ebooks/pdf/render/qt_hack.cpp'],
+                inc_dirs = ['calibre/ebooks/pdf/render', 'qt-harfbuzz/src'],
+                headers = ['calibre/ebooks/pdf/render/qt_hack.h'],
+                sip_files = ['calibre/ebooks/pdf/render/qt_hack.sip']
+                ),
+
     Extension('unrar',
               ['unrar/%s.cpp'%(x.partition('.')[0]) for x in '''
                rar.o strlist.o strfn.o pathfn.o savepos.o smallfn.o global.o file.o
@@ -545,6 +552,9 @@ class Build(Command):
                 VERSION  = 1.0.0
                 CONFIG   += %s
             ''')%(ext.name, ' '.join(ext.headers), ' '.join(ext.sources), archs)
+            if ext.inc_dirs:
+                idir = ' '.join(ext.inc_dirs)
+                pro += 'INCLUDEPATH = %s\n'%idir
             pro = pro.replace('\\', '\\\\')
             open(ext.name+'.pro', 'wb').write(pro)
             qmc = [QMAKE, '-o', 'Makefile']

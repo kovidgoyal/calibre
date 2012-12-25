@@ -100,6 +100,7 @@ class Plugins(collections.Mapping):
                 'freetype',
                 'woff',
                 'unrar',
+                'qt_hack',
             ]
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])
