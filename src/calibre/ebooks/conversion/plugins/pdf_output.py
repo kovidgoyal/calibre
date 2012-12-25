@@ -14,50 +14,32 @@ import os
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ptempfile import TemporaryDirectory
-from calibre.constants import iswindows
 
-UNITS = [
-            'millimeter',
-            'point',
-            'inch' ,
-            'pica' ,
-            'didot',
-            'cicero',
-            'devicepixel',
-        ]
+UNITS = ['millimeter', 'centimeter', 'point', 'inch' , 'pica' , 'didot',
+         'cicero', 'devicepixel']
 
-PAPER_SIZES = ['b2',
-     'a9',
-     'executive',
-     'tabloid',
-     'b4',
-     'b5',
-     'b6',
-     'b7',
-     'b0',
-     'b1',
-     'letter',
-     'b3',
-     'a7',
-     'a8',
-     'b8',
-     'b9',
-     'a3',
-     'a1',
-     'folio',
-     'c5e',
-     'dle',
-     'a0',
-     'ledger',
-     'legal',
-     'a6',
-     'a2',
-     'b10',
-     'a5',
-     'comm10e',
-     'a4']
+PAPER_SIZES = ['b2', 'b4', 'b5', 'b6', 'b0', 'b1', 'letter', 'b3', 'a3', 'a1',
+               'a0', 'legal', 'a6', 'a2', 'a5', 'a4']
 
-ORIENTATIONS = ['portrait', 'landscape']
+class PDFMetadata(object): # {{{
+    def __init__(self, oeb_metadata=None):
+        from calibre import force_unicode
+        from calibre.ebooks.metadata import authors_to_string
+        self.title = _(u'Unknown')
+        self.author = _(u'Unknown')
+        self.tags = u''
+
+        if oeb_metadata != None:
+            if len(oeb_metadata.title) >= 1:
+                self.title = oeb_metadata.title[0].value
+            if len(oeb_metadata.creator) >= 1:
+                self.author = authors_to_string([x.value for x in oeb_metadata.creator])
+            if oeb_metadata.subject:
+                self.tags = u', '.join(map(unicode, oeb_metadata.subject))
+
+        self.title = force_unicode(self.title)
+        self.author = force_unicode(self.author)
+# }}}
 
 class PDFOutput(OutputFormatPlugin):
 
@@ -66,9 +48,14 @@ class PDFOutput(OutputFormatPlugin):
     file_type = 'pdf'
 
     options = set([
+        OptionRecommendation(name='override_profile_size', recommended_value=False,
+            help=_('Normally, the PDF page size is set by the output profile'
+                   ' chosen under page options. This option will cause the '
+                   ' page size settings under PDF Output to override the '
+                   ' size specified by the output profile.')),
         OptionRecommendation(name='unit', recommended_value='inch',
             level=OptionRecommendation.LOW, short_switch='u', choices=UNITS,
-            help=_('The unit of measure. Default is inch. Choices '
+            help=_('The unit of measure for page sizes. Default is inch. Choices '
             'are %s '
             'Note: This does not override the unit for margins!') % UNITS),
         OptionRecommendation(name='paper_size', recommended_value='letter',
@@ -80,10 +67,6 @@ class PDFOutput(OutputFormatPlugin):
             help=_('Custom size of the document. Use the form widthxheight '
             'EG. `123x321` to specify the width and height. '
             'This overrides any specified paper-size.')),
-        OptionRecommendation(name='orientation', recommended_value='portrait',
-            level=OptionRecommendation.LOW, choices=ORIENTATIONS,
-            help=_('The orientation of the page. Default is portrait. Choices '
-            'are %s') % ORIENTATIONS),
         OptionRecommendation(name='preserve_cover_aspect_ratio',
             recommended_value=False,
             help=_('Preserve the aspect ratio of the cover, instead'
@@ -108,6 +91,11 @@ class PDFOutput(OutputFormatPlugin):
         OptionRecommendation(name='pdf_mono_font_size',
             recommended_value=16, help=_(
                 'The default font size for monospaced text')),
+        OptionRecommendation(name='uncompressed_pdf',
+            recommended_value=False, help=_(
+                'Generate an uncompressed PDF (useful for debugging)')),
+        OptionRecommendation(name='old_pdf_engine', recommended_value=False,
+            help=_('Use the old, less capable engine to generate the PDF')),
         ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
@@ -200,33 +188,18 @@ class PDFOutput(OutputFormatPlugin):
                     if k in family_map:
                         val[i].value = family_map[k]
 
-    def remove_font_specification(self):
-        # Qt produces image based pdfs on windows when non-generic fonts are specified
-        # This might change in Qt WebKit 2.3+ you will have to test.
-        for item in self.oeb.manifest:
-            if not hasattr(item.data, 'cssRules'): continue
-            for i, rule in enumerate(item.data.cssRules):
-                if rule.type != rule.STYLE_RULE: continue
-                ff = rule.style.getProperty('font-family')
-                if ff is None: continue
-                val = ff.propertyValue
-                for i in xrange(val.length):
-                    k = icu_lower(val[i].value)
-                    if k not in {'serif', 'sans', 'sans-serif', 'sansserif',
-                            'monospace', 'cursive', 'fantasy'}:
-                        val[i].value = ''
-
     def convert_text(self, oeb_book):
-        from calibre.ebooks.pdf.writer import PDFWriter
+        if self.opts.old_pdf_engine:
+            from calibre.ebooks.pdf.writer import PDFWriter
+            PDFWriter
+        else:
+            from calibre.ebooks.pdf.render.from_html import PDFWriter
         from calibre.ebooks.metadata.opf2 import OPF
 
         self.log.debug('Serializing oeb input to disk for processing...')
         self.get_cover_data()
 
-        if iswindows:
-            self.remove_font_specification()
-        else:
-            self.handle_embedded_fonts()
+        self.handle_embedded_fonts()
 
         with TemporaryDirectory('_pdf_out') as oeb_dir:
             from calibre.customize.ui import plugin_for_output_format
@@ -240,9 +213,9 @@ class PDFOutput(OutputFormatPlugin):
                 'toc', None))
 
     def write(self, Writer, items, toc):
-        from calibre.ebooks.pdf.writer import PDFMetadata
         writer = Writer(self.opts, self.log, cover_data=self.cover_data,
                 toc=toc)
+        writer.report_progress = self.report_progress
 
         close = False
         if not hasattr(self.output_path, 'write'):
