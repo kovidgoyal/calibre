@@ -161,7 +161,6 @@ class PDFWriter(QObject):
         self.render_queue = items
         self.total_items = len(items)
 
-        # TODO: Test margins
         mt, mb = map(self.doc.to_px, (opts.margin_top, opts.margin_bottom))
         ms = self.doc.to_px(margin_side, vertical=False)
         self.margin_top, self.margin_size, self.margin_bottom = map(
