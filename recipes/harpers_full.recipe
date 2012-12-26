@@ -1,18 +1,22 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 harpers.org - paid subscription/ printed issue articles
 This recipe only get's article's published in text format
 images and pdf's are ignored
+If you have institutional subscription based on access IP you do not need to enter
+anything in username/password fields
 '''
 
+import time
+import urllib
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Harpers_full(BasicNewsRecipe):
     title                 = "Harper's Magazine - articles from printed edition"
     __author__            = 'Darko Miletic'
-    description           = "Harper's Magazine: Founded June 1850."
+    description           = "Harper's Magazine, the oldest general-interest monthly in America, explores the issues that drive our national conversation, through long-form narrative journalism and essays, and such celebrated features as the iconic Harper's Index."
     publisher             = "Harpers's"
     category              = 'news, politics, USA'
     oldest_article        = 30
@@ -21,52 +25,69 @@ class Harpers_full(BasicNewsRecipe):
     use_embedded_content  = False
     delay                 = 1
     language              = 'en'
-    needs_subscription    = True
-    masthead_url          = 'http://www.harpers.org/media/image/Harpers_305x100.gif'
-    publication_type      = 'magazine'    
-    INDEX                 = strftime('http://www.harpers.org/archive/%Y/%m')
-    LOGIN                 = 'http://www.harpers.org'
-    cover_url             = strftime('http://www.harpers.org/media/pages/%Y/%m/gif/0001.gif')
-    extra_css             = ' body{font-family: "Georgia",serif} '
+    encoding              = 'utf8'
+    needs_subscription    = 'optional'
+    masthead_url          = 'http://harpers.org/wp-content/themes/harpers/images/pheader.gif'
+    publication_type      = 'magazine'
+    INDEX                 = strftime('http://harpers.org/archive/%Y/%m')
+    LOGIN                 = 'http://harpers.org/wp-content/themes/harpers/ajax_login.php'
+    extra_css             = """
+                                body{font-family: adobe-caslon-pro,serif}
+                                .category{font-size: small}
+                                .articlePost p:first-letter{display: inline; font-size: xx-large; font-weight: bold}
+                            """
 
     conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
                         }
 
-    keep_only_tags = [ dict(name='div', attrs={'id':'cached'}) ]
+    keep_only_tags = [ dict(name='div', attrs={'class':['postdetailFull','articlePost']}) ]
     remove_tags = [
-                     dict(name='table', attrs={'class':['rcnt','rcnt topline']})
-                    ,dict(name='link')
+                     dict(name='div', attrs={'class':'fRight rightDivPad'})
+                    ,dict(name=['link','meta','object','embed','iframe'])
                   ]
-    remove_attributes=['xmlns']              
+    remove_attributes=['xmlns']
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
+        br.open('http://harpers.org/')
         if self.username is not None and self.password is not None:
-            br.open(self.LOGIN)
-            br.select_form(nr=1)
-            br['handle'  ] = self.username
-            br['password'] = self.password
-            br.submit()
+            tt = time.localtime()*1000
+            data = urllib.urlencode({ 'm':self.username
+                                     ,'p':self.password
+                                     ,'rt':'http://harpers.org/'
+                                     ,'tt':tt
+                                   })
+            br.open(self.LOGIN, data)
         return br
 
     def parse_index(self):
         articles = []
         print 'Processing ' + self.INDEX
         soup = self.index_to_soup(self.INDEX)
-        for item in soup.findAll('div', attrs={'class':'title'}):
-            text_link = item.parent.find('img',attrs={'alt':'Text'})
-            if text_link:
-                url   = self.LOGIN + item.a['href']
-                title = item.a.contents[0]
-                date  = strftime(' %B %Y')
-                articles.append({
-                                  'title'      :title
-                                 ,'date'       :date
-                                 ,'url'        :url
-                                 ,'description':''
-                                })
+        count = 0
+        for item in soup.findAll('div', attrs={'class':'articleData'}):
+            text_links = item.findAll('h2')
+            for text_link in text_links:
+                if count == 0:
+                   lcover_url = item.find(attrs={'class':'dwpdf'})
+                   if lcover_url:
+                      self.cover_url = lcover_url.a['href']
+                   count = 1
+                else:
+                   url   = text_link.a['href']
+                   title = text_link.a.contents[0]
+                   date  = strftime(' %B %Y')
+                   articles.append({
+                                      'title'      :title
+                                     ,'date'       :date
+                                     ,'url'        :url
+                                     ,'description':''
+                                    })
         return [(soup.head.title.string, articles)]
+
+    def print_version(self, url):
+        return url + '?single=1'
