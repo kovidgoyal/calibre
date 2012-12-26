@@ -18,7 +18,7 @@ from setup.build_environment import (chmlib_inc_dirs,
         msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
         icu_lib_dirs, win_ddk_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs,
-        zlib_libs, zlib_lib_dirs, zlib_inc_dirs, is64bit)
+        zlib_libs, zlib_lib_dirs, zlib_inc_dirs, is64bit, qt_private_inc)
 MT
 isunix = islinux or isosx or isbsd
 
@@ -185,7 +185,7 @@ extensions = [
 
     Extension('qt_hack',
                 ['calibre/ebooks/pdf/render/qt_hack.cpp'],
-                inc_dirs = ['calibre/ebooks/pdf/render', 'qt-harfbuzz/src'],
+                inc_dirs = qt_private_inc + ['calibre/ebooks/pdf/render', 'qt-harfbuzz/src'],
                 headers = ['calibre/ebooks/pdf/render/qt_hack.h'],
                 sip_files = ['calibre/ebooks/pdf/render/qt_hack.sip']
                 ),
