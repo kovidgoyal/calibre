@@ -8,7 +8,9 @@
 
 #define UNICODE
 #include <Python.h>
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <libmtp.h>
 
@@ -728,7 +730,20 @@ initlibmtp(void) {
     if (MTPError == NULL) return;
     PyModule_AddObject(m, "MTPError", MTPError);
 
+    // Redirect stdout to get rid of the annoying message about mtpz. Really,
+    // who designs a library without anyway to control/redirect the debugging
+    // output, and hardcoded paths that cannot be changed?
+    int bak, new;
+    fflush(stdout);
+    bak = dup(STDOUT_FILENO);
+    new = open("/dev/null", O_WRONLY);
+    dup2(new, STDOUT_FILENO);
+    close(new);
     LIBMTP_Init();
+    fflush(stdout);
+    dup2(bak, STDOUT_FILENO);
+    close(bak);
+
     LIBMTP_Set_Debug(LIBMTP_DEBUG_NONE);
 
     Py_INCREF(&DeviceType);
