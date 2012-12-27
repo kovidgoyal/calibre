@@ -20,7 +20,6 @@ from calibre.ebooks.oeb.display.webview import load_html
 from calibre.ebooks.pdf.render.engine import PdfDevice
 from calibre.ebooks.pdf.render.common import (inch, cm, mm, pica, cicero,
                                               didot, PAPER_SIZES)
-from calibre.ebooks.pdf.outline_writer import Outline
 
 def get_page_size(opts, for_comic=False): # {{{
     use_profile = not (opts.override_profile_size or
@@ -145,7 +144,6 @@ class PDFWriter(QObject):
 
     def dump(self, items, out_stream, pdf_metadata):
         opts = self.opts
-        self.outline = Outline(self.toc, items)
         page_size = get_page_size(self.opts)
         xdpi, ydpi = self.view.logicalDpiX(), self.view.logicalDpiY()
         ml, mr = opts.margin_left, opts.margin_right
@@ -254,11 +252,14 @@ class PDFWriter(QObject):
         paged_display.set_geometry(1, %d, %d, %d);
         paged_display.layout();
         paged_display.fit_images();
+        py_bridge.value = book_indexing.all_links_and_anchors();
         '''%(self.margin_top, self.margin_size, self.margin_bottom))
 
+        amap = self.bridge_value
+        if not isinstance(amap, dict):
+            amap = {'links':[], 'anchors':{}} # Some javascript error occurred
+
         mf = self.view.page().mainFrame()
-        start_page = self.current_page_num
-        dx = 0
         while True:
             self.doc.init_page()
             self.painter.save()
@@ -268,18 +269,7 @@ class PDFWriter(QObject):
             self.doc.end_page()
             if not nsl[1] or nsl[0] <= 0:
                 break
-            dx = nsl[0]
-            evaljs('window.scrollTo(%d, 0)'%dx)
+            evaljs('window.scrollTo(%d, 0)'%nsl[0])
             if self.doc.errors_occurred:
                 break
-
-        self.bridge_value = tuple(self.outline.anchor_map[self.current_item])
-        evaljs('py_bridge.value = book_indexing.anchor_positions(py_bridge.value)')
-        amap = self.bridge_value
-        if not isinstance(amap, dict):
-            amap = {} # Some javascript error occurred
-        self.outline.set_pos(self.current_item, None, start_page, 0)
-        for anchor, x in amap.iteritems():
-            pagenum, ypos = x
-            self.outline.set_pos(self.current_item, anchor, start_page + pagenum, ypos)
 
