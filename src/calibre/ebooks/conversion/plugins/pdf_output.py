@@ -18,8 +18,8 @@ from calibre.ptempfile import TemporaryDirectory
 UNITS = ['millimeter', 'centimeter', 'point', 'inch' , 'pica' , 'didot',
          'cicero', 'devicepixel']
 
-PAPER_SIZES = ['b2', 'b4', 'b5', 'b6', 'b0', 'b1', 'letter', 'b3', 'a3', 'a1',
-               'a0', 'legal', 'a6', 'a2', 'a5', 'a4']
+PAPER_SIZES = [u'a0', u'a1', u'a2', u'a3', u'a4', u'a5', u'a6', u'b0', u'b1',
+               u'b2', u'b3', u'b4', u'b5', u'b6', u'legal', u'letter']
 
 class PDFMetadata(object): # {{{
     def __init__(self, oeb_metadata=None):
