@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-12-14 04:21+0000\n"
-"PO-Revision-Date: 2012-12-14 07:03+0000\n"
+"POT-Creation-Date: 2012-12-21 05:12+0000\n"
+"PO-Revision-Date: 2012-12-25 04:47+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-12-15 05:01+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2012-12-26 04:38+0000\n"
+"X-Generator: Launchpad (build 16378)\n"
 "Language: zh_TW\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -36,8 +36,8 @@ msgstr "完全不做任何事"
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:667
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/books.py:45
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/books.py:69
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:229
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:237
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:234
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:238
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:71
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:72
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:661
@@ -109,8 +109,8 @@ msgstr "完全不做任何事"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/txt.py:18
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:27
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:95
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:153
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:192
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:154
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:193
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/mobi6.py:615
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/utils.py:316
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:463
@@ -134,8 +134,8 @@ msgstr "完全不做任何事"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ztxt/writer.py:27
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:108
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:109
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:446
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:454
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:447
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:455
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:414
@@ -146,8 +146,8 @@ msgstr "完全不做任何事"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:124
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:145
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1410
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1413
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1416
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1419
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:128
@@ -156,12 +156,12 @@ msgstr "完全不做任何事"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:380
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:193
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:208
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:408
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1069
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1285
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1288
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1291
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1379
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:440
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1106
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1322
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1325
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1328
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1416
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:85
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:250
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:261
@@ -612,7 +612,7 @@ msgid "Control how calibre downloads ebook metadata from the net"
 msgstr "控制 calibre 如何從網路下載電子書元數據"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1125
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:392
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:400
 msgid "Ignored devices"
 msgstr "忽略裝置"
 
@@ -1146,8 +1146,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/utils.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:469
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1197
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1199
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1225
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1227
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:372
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:385
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3386
@@ -1210,7 +1210,7 @@ msgstr "Bambook"
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1325
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1329
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1333
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1683
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1687
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:155
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:144
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:147
@@ -1224,7 +1224,7 @@ msgstr "從裝置中取得書籍列表"
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:264
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:268
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:324
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:367
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:391
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1097
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1099
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:277
@@ -1236,7 +1236,7 @@ msgstr "正在傳送書籍到裝置中..."
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:344
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:491
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:525
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:404
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:430
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1110
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1121
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:301
@@ -1849,84 +1849,84 @@ msgstr "MTP 裝置"
 msgid "Communicate with MTP devices"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:143
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:167
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:914
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:95
 msgid "Get device information..."
 msgstr "取得裝置資訊..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:166
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:190
 msgid "Listing files, this can take a while"
 msgstr "列出檔案，這可能會花上一陣子"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:181
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:205
 msgid "Reading ebook metadata"
 msgstr "讀取電子書元數據"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:214
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:238
 #, python-format
 msgid "Reading metadata from %s"
 msgstr "從 %s 讀取元數據"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:233
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:257
 msgid "Updating metadata cache on device"
 msgstr "更新裝置上的元數據快取"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:235
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:259
 msgid "Finished reading metadata from device"
 msgstr "結束從裝置讀取元數據"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:393
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:419
 #, python-format
 msgid "Transferred %s to device"
 msgstr "傳輸 %s 到裝置"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:395
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:421
 msgid "Transfer to device finished..."
 msgstr "傳輸到裝置結束…"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:416
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:442
 #, python-format
 msgid "Added %s"
 msgstr "已加入 %s"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:418
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:444
 msgid "Adding complete"
 msgstr "加入完成"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:434
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:460
 msgid "Deleting books from device..."
 msgstr "從裝置刪除書籍…"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:440
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:466
 #, python-format
 msgid "Deleted %s"
 msgstr "已刪除 %s"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:441
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:467
 msgid "All books deleted"
 msgstr "已刪除所有書籍"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:444
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:470
 msgid "Removing books from metadata"
 msgstr "從元數據移除書籍"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:456
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:482
 #, python-format
 msgid "Removed %s"
 msgstr "已移除 %s"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:458
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:484
 msgid "All books removed"
 msgstr "已移除所有書籍"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:198
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:313
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:315
 msgid "Unknown MTP device"
 msgstr "不明的 MTP 裝置"
 
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:216
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:220
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:217
+#: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:219
 #, python-format
 msgid "Found object: %s"
 msgstr "找到物件：%s"
@@ -1941,11 +1941,6 @@ msgid ""
 "may need to install Windows Media Player 11 or newer and/or restart your "
 "computer"
 msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:222
-#, python-format
-msgid "Found id: %s"
-msgstr "發現 id：%s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -4159,8 +4154,8 @@ msgstr "否"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:85
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:222
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:58
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1074
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:84
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1111
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:162
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:39
@@ -4172,14 +4167,14 @@ msgid "Title"
 msgstr "書名"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:770
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:60
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1075
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:86
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1112
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/models.py:23
 msgid "Author(s)"
 msgstr "作者"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:771
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:65
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:159
 msgid "Publisher"
 msgstr "出版社"
@@ -4212,7 +4207,7 @@ msgstr "評論"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:535
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:842
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:66
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:161
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:982
@@ -4227,7 +4222,7 @@ msgstr "標籤"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:224
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:67
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:163
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:307
@@ -4238,7 +4233,7 @@ msgid_plural "Series"
 msgstr[0] "系列"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:778
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:69
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:127
 msgid "Languages"
@@ -4250,7 +4245,7 @@ msgstr "時間戳記"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:782
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:183
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:63
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:305
 msgid "Published"
@@ -4620,7 +4615,7 @@ msgid "HTML TOC generation options."
 msgstr "HTML 目錄頁產生選項。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:185
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:64
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:160
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:176
@@ -4672,165 +4667,165 @@ msgstr "找不到 pdftohtml，請檢查您的 PATH 是否有它"
 msgid "Table of Contents:"
 msgstr "目錄："
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:120
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:121
 msgid "Send file to storage card instead of main memory by default"
 msgstr "預設傳送檔案到記憶卡而非主記憶體"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:122
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:123
 msgid "Confirm before deleting"
 msgstr "刪除前確認"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:124
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:125
 msgid "Main window geometry"
 msgstr "主視窗位置大小"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:126
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:127
 msgid "Notify when a new version is available"
 msgstr "當有新版本可用時通知"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:128
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:129
 msgid "Use Roman numerals for series number"
 msgstr "在系列編號中使用羅馬數字"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:130
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:131
 msgid "Sort tags list by name, popularity, or rating"
 msgstr "依名稱、熱門程度或評等排序標籤清單"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:133
 msgid "Match tags by any or all."
 msgstr "以任何或全部項目比對標籤。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:134
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:135
 msgid "Number of covers to show in the cover browsing mode"
 msgstr "在封面瀏覽模式中要顯示的封面數量"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:136
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:137
 msgid "Defaults for conversion to LRF"
 msgstr "轉換為 LRF 的預設值"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:138
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:139
 msgid "Options for the LRF ebook viewer"
 msgstr "LRF 電子書檢視器的選項"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:142
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:143
 msgid "Formats that are viewed using the internal viewer"
 msgstr "使用內部檢視器觀看的格式"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:144
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:145
 msgid "Columns to be displayed in the book list"
 msgstr "在書籍清單中顯示的欄位"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:145
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:146
 msgid "Automatically launch content server on application startup"
 msgstr "應用程式啟動時自動執行內容伺服器"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:147
 msgid "Oldest news kept in database"
 msgstr "保留在資料庫中最舊的新聞"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:147
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:148
 msgid "Show system tray icon"
 msgstr "顯示系統匣圖示"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:149
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:150
 msgid "Upload downloaded news to device"
 msgstr "將下載的新聞上傳到裝置"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:151
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:152
 msgid "Delete news books from library after uploading to device"
 msgstr "上傳到裝置後從書庫剛除新聞書籍"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:153
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:154
 msgid ""
 "Show the cover flow in a separate window instead of in the main calibre "
 "window"
 msgstr "在個別視窗中顯示 cover flow 而非在主 calibre 視窗中顯示"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:155
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:156
 msgid "Disable notifications from the system tray icon"
 msgstr "停用系統匣圖示的通知"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:157
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:158
 msgid "Default action to perform when send to device button is clicked"
 msgstr "當按下「傳送到裝置」按鈕時的預設動作"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:162
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:163
 msgid ""
 "Start searching as you type. If this is disabled then search will only take "
 "place when the Enter or Return key is pressed."
 msgstr "輸入時即開始搜尋。如果停用此項，搜尋只有在按下 Enter 或 Return 鍵後才會開始。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:165
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:166
 msgid ""
 "When searching, show all books with search results highlighted instead of "
 "showing only the matches. You can use the N or F3 keys to go to the next "
 "match."
 msgstr "搜尋時，將搜尋結果在所有書籍中以強調方式顯示，而不是只顯示符合項。您可以使用 N 或 F3 鍵移至下一個符合項。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:190
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:191
 msgid ""
 "Maximum number of simultaneous conversion/news download jobs. This number is "
 "twice the actual value for historical reasons."
 msgstr "同時轉換/新聞下載工作的最大數量。由於歷史因素這個數量為實際值的兩倍。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:193
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:194
 msgid "Download social metadata (tags/rating/etc.)"
 msgstr "下載社交網路元數據（標籤/評等/其他）"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:195
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:196
 msgid "Overwrite author and title with new metadata"
 msgstr "以新的元數據覆蓋作者和書名"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:197
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:198
 msgid "Automatically download the cover, if available"
 msgstr "自動下載封面，如果有的話"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:199
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:200
 msgid "Limit max simultaneous jobs to number of CPUs"
 msgstr "限制最大同時工作不超過的 CPU 數目"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:202
 msgid ""
 "The layout of the user interface. Wide has the book details panel on the "
 "right and narrow has it at the bottom."
 msgstr "使用者介面的配置。寬模式會把書籍詳細資料窗格放在右側而窄模式會把它放在底部。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:205
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:206
 msgid "Show the average rating per item indication in the tag browser"
 msgstr "在標籤瀏覽器中顯示每個項目的平均評等指示"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:207
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:208
 msgid "Disable UI animations"
 msgstr "停用 UI 動畫"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:213
 msgid "tag browser categories not to display"
 msgstr "標籤瀏覽器不顯示的分類"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:278
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:279
 msgid "WARNING:"
 msgstr "警告："
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:288
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:289
 msgid "ERROR:"
 msgstr "錯誤："
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:300
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:301
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:258
 msgid "Show this confirmation again"
 msgstr "再次顯示這個確認"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:339
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:340
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:134
 msgid "Restart needed"
 msgstr "需要重新啟動"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:341
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:342
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:741
 msgid "Restart calibre now"
 msgstr "立即重新啟動 calibre"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:572
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:573
 msgid "Choose Files"
 msgstr "選擇檔案"
 
@@ -6189,7 +6184,7 @@ msgid "this book"
 msgstr "這本書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:469
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:498
 #, python-format
 msgid "Search for %s"
 msgstr "搜尋 %s"
@@ -6469,7 +6464,7 @@ msgid "The specified directory could not be processed."
 msgstr "指定的目錄無法處理。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:283
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1131
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1137
 msgid "No books"
 msgstr "沒有書籍"
 
@@ -6648,7 +6643,7 @@ msgstr "這個資料夾和它的子資料夾都會被掃描以將書籍匯入 ca
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:277
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:279
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:280
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:162
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:171
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:89
@@ -6718,7 +6713,7 @@ msgid "Book %(sidx)s of <span class=\"series_name\">%(series)s</span>"
 msgstr "<span class=\"series_name\">%(series)s</span> 的書籍 %(sidx)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:233
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1078
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1115
 msgid "Collections"
 msgstr "藏書"
 
@@ -6843,7 +6838,7 @@ msgstr "輸出"
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:128
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:125
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:146
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/conversion_ui.py:54
@@ -9078,7 +9073,7 @@ msgid "Detected the <b>%s</b>. Do you want calibre to manage it?"
 msgstr "偵測到 <b>%s</b>。您想要 calibre 管理它嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:884
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1460
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1466
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:262
 msgid "No suitable formats"
 msgstr "沒有合適的格式"
@@ -9116,89 +9111,89 @@ msgid ""
 "reconnect the device or reboot."
 msgstr "與裝置溝通時發生暫時的錯誤。請拔除接頭後重新連接裝置或重開機。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1027
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1033
 msgid "Device: "
 msgstr "裝置： "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1029
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1035
 msgid " detected."
 msgstr " 被偵測到。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1132
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1138
 msgid "selected to send"
 msgstr "選擇要傳送的項目"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1139
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1169
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1145
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1175
 msgid "No device"
 msgstr "沒有裝置"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1140
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1146
 msgid "No device connected"
 msgstr "尚未連接裝置"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1156
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1162
 #, python-format
 msgid "%(num)i of %(total)i Books"
 msgstr "%(total)i  本書中的 %(num)i"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1160
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1166
 #, python-format
 msgid "0 of %i Books"
 msgstr "0 / %i 本書"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1161
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1167
 msgid "Choose format to send to device"
 msgstr "選擇要傳送到裝置的格式"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1170
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1176
 msgid "Cannot send: No device is connected"
 msgstr "不能傳送：沒有連線中的裝置"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1173
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1177
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1179
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1183
 msgid "No card"
 msgstr "沒有記憶卡"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1174
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1178
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1180
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1184
 msgid "Cannot send: Device has no storage card"
 msgstr "不能傳送：裝置沒有記憶卡"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1239
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1322
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1454
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1245
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1328
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1460
 msgid "Auto convert the following books before uploading to the device?"
 msgstr "是否在上傳到裝置前自動轉換下列書籍？"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1268
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1274
 msgid "Sending catalogs to device."
 msgstr "正在傳送分類到裝置。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1367
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1373
 msgid "Sending news to device."
 msgstr "正在傳送新聞到裝置。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1421
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1427
 msgid "Sending books to device."
 msgstr "正在傳送書籍到裝置。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1461
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1467
 msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found. Convert the book(s) to a format supported by your device first."
 msgstr "無法上傳下列書籍到裝置，因為找不到適合的格式。請先將書籍轉換為您的裝置支援的格式。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1534
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1540
 msgid "No space on device"
 msgstr "裝置上已無空間"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1535
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1541
 msgid ""
 "<p>Cannot upload books to device there is no more free space available "
 msgstr "<p>不能上傳書籍到裝置，因為已無更多可用空間 "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1540
+#: /home/kovid/work/calibre/src/calibre/gui2/device.py:1546
 msgid "Incorrect destination"
 msgstr "不正確的目的地"
 
@@ -9358,10 +9353,14 @@ msgid "&Ignore the %s in calibre"
 msgstr "在 cal&ibre 中忽略 %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:377
+msgid "Change scanned &folders"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:383
 msgid "Show device information"
 msgstr "顯示裝置資訊"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:411
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:421
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:141
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:885
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:344
@@ -9369,14 +9368,55 @@ msgstr "顯示裝置資訊"
 msgid "Copy to clipboard"
 msgstr "複製到剪貼簿"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:419
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:435
 #, python-format
 msgid "The %s will be ignored in calibre"
 msgstr "%s 會被 calibre 忽略"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:91
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:495
+#, python-format
+msgid ""
+"You are trying to send books into the <b>%s</b> folder. This folder is "
+"currently ignored by calibre when scanning the device. You have tell calibre "
+"you want this folder scanned in order to be able to send books to it. Click "
+"the <b>configure</b> button below to send books to it."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:504
+#: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:137
+msgid "Configure"
+msgstr "設定"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:508
+#, python-format
+msgid "Cannot send to %s"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:92
 msgid "Choose folder on device"
 msgstr "選擇裝置上的資料夾"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:105
+msgid "<b>Scanned folders:</b>"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:106
+msgid ""
+"You can select which top level folders calibre will scan when searching this "
+"device for books."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:131
+msgid "Select &All"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:133
+msgid "Select &None"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:136
+msgid "Choose folders to scan"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:19
 msgid "How many empty books?"
@@ -9861,8 +9901,8 @@ msgid "Location"
 msgstr "位置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:77
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:62
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1076
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:88
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1113
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:35
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:76
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:365
@@ -9881,13 +9921,13 @@ msgstr "%(curr)s (原本是 %(initial)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:209
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:929
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:957
 msgid "Item is blank"
 msgstr "項目是空的"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:210
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:930
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:958
 msgid "An item cannot be set to nothing. Delete it instead."
 msgstr "項目不能設為沒有。請刪除它來代替。"
 
@@ -10019,12 +10059,12 @@ msgid "Copy to author"
 msgstr "複製到作者"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:313
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:979
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1007
 msgid "Invalid author name"
 msgstr "無效的作者姓名"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:314
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:980
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1008
 msgid "Author names cannot contain & characters."
 msgstr "作者姓名不能包含 & 字元。"
 
@@ -11939,7 +11979,7 @@ msgid "The template box cannot be empty"
 msgstr "範本方塊不可以留空"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:110
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:264
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:266
 msgid "Set the color of the column:"
 msgstr "設定欄的顏色："
 
@@ -12287,7 +12327,7 @@ msgstr "無法寄出書籍"
 msgid "sent"
 msgstr "已傳送"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/email.py:298
+#: /home/kovid/work/calibre/src/calibre/gui2/email.py:301
 msgid "Sent news to"
 msgstr "傳送新聞到"
 
@@ -12746,32 +12786,32 @@ msgstr "顆星"
 msgid "Y"
 msgstr "Y"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:59
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:85
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:285
 msgid "On Device"
 msgstr "在裝置"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:61
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:87
 msgid "Size (MB)"
 msgstr "大小 (MB)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:68
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:94
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:275
 msgid "Modified"
 msgstr "已修改"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:785
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1417
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:312
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:822
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1454
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:335
 msgid "The lookup/search name is \"{0}\""
 msgstr "尋找/搜尋的名稱是「{0}」"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:791
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1419
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:828
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1456
 msgid "This book's UUID is \"{0}\""
 msgstr "這本書的 UUID 為「{0}」"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:878
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:915
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:280
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:324
@@ -12779,7 +12819,7 @@ msgstr "這本書的 UUID 為「{0}」"
 msgid "Permission denied"
 msgstr "權限不足"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:879
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:916
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:281
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:455
@@ -12788,30 +12828,30 @@ msgid ""
 "program?"
 msgstr "無法改變這本書的磁碟位置。它是否被其他程式開啟了？"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:883
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:889
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:920
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:926
 msgid "Failed to set data"
 msgstr "無法設定資料"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:884
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:890
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:921
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:927
 msgid "Could not set data, click Show Details to see why."
 msgstr "無法設定資料，點選顯示詳細資料以查看為什麼。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1073
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1110
 msgid "In Library"
 msgstr "於書庫"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1077
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1114
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:355
 msgid "Size"
 msgstr "大小"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1399
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1436
 msgid "Marked for deletion"
 msgstr "標記成要刪除"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1402
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1439
 msgid "Double click to <b>edit</b> me<br><br>"
 msgstr "請雙擊以<b>編輯</b>我<br><br>"
 
@@ -12935,10 +12975,6 @@ msgstr "下一個符合項"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:216
 msgid "Open ebook"
 msgstr "開啟電子書"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:137
-msgid "Configure"
-msgstr "設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:35
 msgid "Use the library located at the specified path."
@@ -13675,7 +13711,7 @@ msgid ""
 "after being added to calibre. Are you sure?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:126
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:135
 msgid ""
 "Automerge: If books with similar titles and authors found, merge the "
 "incoming formats automatically into\n"
@@ -13688,11 +13724,11 @@ msgid ""
 "punctuation, case, etc. Author match is exact."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:131
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:140
 msgid "&Automerge added books if they already exist in the calibre library:"
 msgstr "如果加入的書籍已存在 calibre 書庫中則自動會併(&A):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:141
 msgid ""
 "Automerge: If books with similar titles and authors found, merge the "
 "incoming formats automatically into\n"
@@ -13712,56 +13748,72 @@ msgid ""
 "Author matching is exact."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:142
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:151
 msgid ""
 "Here you can control how calibre will read metadata from the files you add "
 "to it. calibre can either read metadata from the contents of the file, or "
 "from the filename."
 msgstr "您可以在這裡控制 calibre 如何從加入的檔案中讀取元數據。calibre 可以從檔案的內容或檔案名稱中讀取資料。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:143
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:152
 msgid "Read &metadata from file contents rather than file name"
 msgstr "從檔案內容而非檔案名稱讀取元數據(&M)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:144
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:153
 msgid ""
 "Swap the firstname and lastname of the author. This affects only metadata "
 "read from file names."
 msgstr "交換作者的姓氏及名字順序。這只會影響從檔案名稱讀取的元數據。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:145
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:154
 msgid "&Swap author firstname and lastname"
 msgstr "交換作者的姓氏及名字順序(&S)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:155
 msgid "&Tags to apply when adding a book:"
 msgstr "加入書籍時要套用的標籤(&T):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:147
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:156
 msgid ""
 "A comma-separated list of tags that will be applied to books added to the "
 "library"
 msgstr "要套用到加入這個書庫的書籍的標籤清單，以逗號分隔"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:148
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:157
 msgid "&Configure metadata from file name"
 msgstr "從檔案名稱設定元數據(&C)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:149
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:158
 msgid ""
 "When using the  \"&Copy to library\" action to copy books between libraries, "
 "preserve the date"
 msgstr "當使用「複製到書庫(&C)」動作來在書庫之間複製書籍時，保留書的日期"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:150
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:159
 msgid "Automatically &convert added books to the current output format"
 msgstr "自動將加入的書籍轉換為目前的輸出格式(&C)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:151
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:160
 msgid "The Add &Process"
 msgstr "加入程序(&P)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:152
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:161
+msgid "Ignore files with the following extensions when automatically adding "
+msgstr "自動加入時忽略具有以下延伸檔名的檔案 "
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:162
+msgid ""
+"Specify a folder. Any files you put into this folder will be automatically "
+"added to calibre (restart required)."
+msgstr "指定一個資料夾。您放到這個資料夾的所有檔案都會自動加入到 calibre (需要重新啟動)。"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:163
+msgid ""
+"<b>WARNING:</b> Files in the above folder will be deleted after being added "
+"to calibre."
+msgstr "<b>警告：</b>上列資料夾中的檔案在加入 calibre 後都會被刪除。"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:164
 msgid ""
 "If set, this option will causes calibre to check if a file\n"
 " being auto-added is already in the calibre library.\n"
@@ -13769,39 +13821,23 @@ msgid ""
 " you want to add it anyway."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:156
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:168
 msgid "Check for &duplicates when auto-adding files"
 msgstr "當自動加入檔案時檢查有無重複(&D)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:157
-msgid ""
-"Specify a folder. Any files you put into this folder will be automatically "
-"added to calibre (restart required)."
-msgstr "指定一個資料夾。您放到這個資料夾的所有檔案都會自動加入到 calibre (需要重新啟動)。"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:158
-msgid ""
-"<b>WARNING:</b> Files in the above folder will be deleted after being added "
-"to calibre."
-msgstr "<b>警告：</b>上列資料夾中的檔案在加入 calibre 後都會被刪除。"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:159
-msgid "Ignore files with the following extensions when automatically adding "
-msgstr "自動加入時忽略具有以下延伸檔名的檔案 "
-
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:160
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:169
 msgid "Folder to auto-add files from"
 msgstr "要自動加入檔案的資料夾"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:161
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:170
 msgid "Browse for folder"
 msgstr "瀏覽資料夾"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:163
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:172
 msgid "Automatically &convert added files to the current output format"
 msgstr "自動將加入的檔案轉換為目前的輸出格式(&C)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:164
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:173
 msgid "&Automatic Adding"
 msgstr "自動加入(&A)"
 
@@ -13915,93 +13951,97 @@ msgstr "使用內部檢視器於(&V):"
 msgid "Reset all disabled &confirmation dialogs"
 msgstr "重設所有停用與確認的對話盒(&C)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:30
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:35
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:26
+msgid "All Columns"
+msgstr "所有欄位"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:37
 msgid "is true"
 msgstr "為是(true)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:31
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:36
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:33
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:38
 msgid "is false"
 msgstr "為否(false)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:34
 msgid "is undefined"
 msgstr "為未定義"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:39
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:41
 msgid "has id"
 msgstr "具有 id"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:40
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:42
 msgid "does not have id"
 msgstr "沒有 id"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:43
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:45
 msgid "is equal to"
 msgstr "等於"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:44
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:46
 msgid "is less than"
 msgstr "小於"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:45
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:47
 msgid "is greater than"
 msgstr "大於"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:48
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:50
 msgid "has"
 msgstr "有"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:49
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:51
 msgid "does not have"
 msgstr "沒有"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:50
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:52
 msgid "has pattern"
 msgstr "具有模式"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:51
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:53
 msgid "does not have pattern"
 msgstr "沒有模式"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:52
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:60
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:54
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:62
 msgid "is set"
 msgstr "已設定"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:53
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:61
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:55
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:63
 msgid "is not set"
 msgstr "未設定"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:56
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:58
 msgid "is"
 msgstr "是"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:57
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:59
 msgid "is not"
 msgstr "不是"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:58
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:60
 msgid "matches pattern"
 msgstr "符合模式"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:59
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:61
 msgid "does not match pattern"
 msgstr "不符合模式"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:78
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:80
 msgid "If the ___ column ___ values"
 msgstr "如果 ___ 欄 ___ 數值"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:217
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:219
 msgid ""
 "Enter either an identifier type or an identifier type and value of the form "
 "identifier:value"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:220
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:222
 msgid ""
 "Enter a 3 letter ISO language code, like fra for French or deu for German or "
 "eng for English. You can also use the full language name, in which case "
@@ -14010,48 +14050,48 @@ msgstr ""
 "輸入三個字的 ISO 語言代碼，例如法文使用 fra、德文使用 deu、英文使用 eng。您也可以使用完整的語言名稱，這樣 calibre "
 "會嘗試自動將它轉換為語言代碼。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:225
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:227
 msgid "Enter a number"
 msgstr "請輸入數字"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:230
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:232
 msgid "Enter a date in the format YYYY-MM-DD"
 msgstr "請以 YYYY-MM-DD 格式輸入日期"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:232
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:234
 msgid "Enter a string."
 msgstr "請輸入數字。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:234
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:236
 msgid "Enter a regular expression"
 msgstr "輸入正規表示式)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:236
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:238
 #, python-format
 msgid "You can match multiple values by separating them with %s"
 msgstr "您可以輸入多組數值，只要以 %s 分隔它們"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:251
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:253
 msgid "Create/edit a column coloring rule"
 msgstr "建立/編輯欄位著色規則"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:256
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:258
 msgid "Create a coloring rule by filling in the boxes below"
 msgstr "填好下列方塊以完成著色規則"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:270
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:272
 msgid "to"
 msgstr "到"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:281
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:283
 msgid "Only if the following conditions are all satisfied:"
 msgstr "只有在下列條件全部滿足時："
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:291
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:293
 msgid "Add another condition"
 msgstr "加入另一個條件"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:295
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:297
 msgid "You can disable a condition by blanking all of its boxes"
 msgstr "您可以將所有方塊留空來停用條件"
 
@@ -14076,7 +14116,7 @@ msgstr "沒有條件"
 msgid "You must specify at least one non-empty condition for this rule"
 msgstr "您必須為這個規則指定至少一項條件"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:475
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:476
 #, python-format
 msgid ""
 "\n"
@@ -14089,7 +14129,7 @@ msgstr ""
 "            <pre>%(rule)s</pre>\n"
 "            "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:480
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:481
 #, python-format
 msgid ""
 "            <p>Set the color of <b>%(col)s</b> to <b>%(color)s</b> if the "
@@ -14103,13 +14143,13 @@ msgstr ""
 "            <ul>%(rule)s</ul>\n"
 "            "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:495
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:496
 #, python-format
 msgid ""
 "<li>If the <b>%(col)s</b> column <b>%(action)s</b> value: <b>%(val)s</b>"
 msgstr "<li>如果 <b>%(col)s</b> 欄位 <b>%(action)s</b> 數值； <b>%(val)s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:511
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:512
 msgid ""
 "You can control the color of columns in the book list by creating \"rules\" "
 "that tell calibre what color to use. Click the Add Rule button below to get "
@@ -14118,36 +14158,36 @@ msgstr ""
 "您可以控制在書籍清單中欄位的顏色，只要建立告訴 calibre 要使用什麼顏色的「規則」。點選下面的。加入規則就可以開始。<p>您可以使用雙擊來 "
 "<b>改變現有的規則</b>。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:519
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:520
 msgid "Add Rule"
 msgstr "加入規則"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:522
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:523
 msgid "Remove Rule"
 msgstr "移除規則"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:539
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:540
 msgid "Move the selected rule up"
 msgstr "將選取的規則上移"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:544
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:545
 msgid "Move the selected rule down"
 msgstr "將選取的規則下移"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:552
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:553
 msgid "Add Advanced Rule"
 msgstr "加入進階的規則"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:600
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:601
 msgid "No rule selected"
 msgstr "尚未選擇規則"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:601
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:602
 #, python-format
 msgid "No rule selected for %s."
 msgstr "尚未選擇 %s 的規則。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:606
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:607
 msgid "removal"
 msgstr "移除"
 
@@ -14387,7 +14427,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:287
 msgid ""
 "The value \"{0}\" is in the list more than once, perhaps with different case"
-msgstr ""
+msgstr "數值「{0}」在清單中已出現一次以上，也許是不同大小寫的項目"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:295
 msgid ""
@@ -14575,7 +14615,7 @@ msgstr "裝置已經偵測到"
 msgid ""
 "A device (%s) is already detected by calibre. If you wish to debug the "
 "detection of another device, first disconnect this device."
-msgstr ""
+msgstr "calibre 已偵測到一臺裝置 (%s)。如果您想要除錯的是對別臺裝置的偵測，請先將這臺裝置斷線。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:57
 msgid "Debugging failed"
@@ -14585,7 +14625,7 @@ msgstr "除錯失敗"
 msgid ""
 "Running debug device detection failed. Click Show Details for more "
 "information."
-msgstr ""
+msgstr "執行除錯裝置偵測失敗。點選顯示詳細資料以獲取更多資訊。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:31
 msgid "Getting device information"
@@ -14649,7 +14689,7 @@ msgstr "主旨"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Alias"
-msgstr ""
+msgstr "別名"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Auto send"
@@ -14674,7 +14714,7 @@ msgstr "如果核取這個選項，已下載的新聞就會自動寄到這個<br
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:42
 msgid "Friendly name to use for this email address"
-msgstr ""
+msgstr "這個電子郵件位址的易記名稱"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:128
 msgid "new email address"
@@ -14684,7 +14724,7 @@ msgstr "新電子郵件位址"
 msgid ""
 "The list of devices that you have asked calibre to ignore. Uncheck a device "
 "to have calibre stop ignoring it."
-msgstr ""
+msgstr "您要求 calibre 忽略的裝置清單。取消核取某臺裝置會讓 calibre 停止忽略它。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:103
 msgid "Narrow"
@@ -14731,7 +14771,7 @@ msgid "Never"
 msgstr "永不"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:149
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:557
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:593
 msgid "By first letter"
 msgstr "依第一個字母"
 
@@ -14851,15 +14891,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:273
 msgid "Show &cover in the book details panel"
-msgstr ""
+msgstr "在書籍詳細資料面板上顯示封面(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:274
 msgid "Show the size of the book's cover in pixels"
-msgstr ""
+msgstr "以像素顯示書籍的封面尺寸"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:275
 msgid "Show cover &size"
-msgstr ""
+msgstr "顯示封面尺寸(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:277
 msgid ""
@@ -14918,7 +14958,7 @@ msgstr "有階層項目的分類(&H):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:300
 msgid "Use &alternating row colors in the Tag Browser"
-msgstr ""
+msgstr "在標籤瀏覽器中每列使用交替的顏色(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:302
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -14968,7 +15008,7 @@ msgstr "您進行的變更中有部分需要重新啟動。請儘快重新啟動
 msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed to set any more preferences, until you restart."
-msgstr ""
+msgstr "您進行的變更要求 calibre 立即重新啟動。您將不能再設定任何偏好設定，除非您重新啟動。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:48
 msgid "Source"
@@ -15048,7 +15088,7 @@ msgstr "全部清除(&C)"
 msgid ""
 "Restore your own subset of checked fields that you define using the 'Set as "
 "default' button"
-msgstr ""
+msgstr "使用「設為預設值」按鈕來還原您所定義的核取欄位子集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:129
 msgid "&Select default"
@@ -15107,7 +15147,7 @@ msgstr "偏好較少的標籤(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:142
 msgid "Use published date of \"first edition\" (from worldcat.org)"
-msgstr ""
+msgstr "使用「初版」的發行日期 (來自 worldcat.org)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:36
 msgid ""
@@ -15232,7 +15272,7 @@ msgstr "{0} 裝置不支援 {1} 格式。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:261
 msgid "The {0} device supports only the {1} format(s)."
-msgstr ""
+msgstr "{0} 裝置只支援 {1} 格式。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:294
 msgid "Invalid destination"
@@ -15321,6 +15361,9 @@ msgid ""
 "\n"
 "This plugin has been disabled"
 msgstr ""
+"\n"
+"\n"
+"這佪外掛程式已停用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:238
 msgid "Search for plugin"
@@ -15355,7 +15398,7 @@ msgstr "選擇實際的外掛程式於 <b>%s</b> 以自訂"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:368
 #, python-format
 msgid "Are you sure you want to remove the plugin: %s?"
-msgstr ""
+msgstr "您確定要移除外掛程式：%s？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:373
 msgid "Plugin <b>{0}</b> successfully removed"
@@ -15377,7 +15420,7 @@ msgstr "您可以在這裡自訂 Caligre 的行為，控制它使用何種外掛
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:112
 msgid "Show only those plugins that have been installed by you"
-msgstr ""
+msgstr "只顯示那些由您安裝的外掛程式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Show only &user installed plugins"
@@ -15636,7 +15679,7 @@ msgstr "清除搜尋歷史紀錄(&H)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:194
 msgid "What to search when searching similar books"
-msgstr ""
+msgstr "當搜尋到類似書籍時要搜尋什麼"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:195
 msgid ""
@@ -15650,19 +15693,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:200
 msgid "Similar authors: "
-msgstr ""
+msgstr "類似的作者： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:201
 msgid "Similar series: "
-msgstr ""
+msgstr "類似的系列： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:202
 msgid "Similar tags: "
-msgstr ""
+msgstr "類似的標籤： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:203
 msgid "Similar publishers: "
-msgstr ""
+msgstr "類似的出版商： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:70
@@ -15681,7 +15724,7 @@ msgstr "自動管理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:36
 msgid "Cannot change metadata management while a device is connected"
-msgstr ""
+msgstr "當裝置連線時不能改變元數據管理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:69
 msgid "Metadata &management:"
@@ -15697,6 +15740,9 @@ msgid ""
 "<li><b>Automatic management</b>: Calibre automatically keeps metadata on the "
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
+"<li><b>手動管理</b>：Calibre 只有在傳送書籍時更新元數據與加入收藏。使用這個選項，calibre 將不再移除收藏。</li>\n"
+"<li><b>只有傳送時</b>: Calibre 只有在傳送到裝置時更新元數據與加入/移除收藏。</li>\n"
+"<li><b>自動管理</b>：Calibre 會在每次連線時自動保持裝置與 calibre 書庫元數據的同步</li></ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:77
 msgid ""
@@ -15778,7 +15824,7 @@ msgstr "密碼與部分裝置不相容"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:155
 msgid "&URL Prefix:"
-msgstr ""
+msgstr "&URL 前綴："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:156
 msgid ""
@@ -15921,7 +15967,7 @@ msgstr "名稱 %s 已使用"
 msgid ""
 "Argument count should be -1 or greater than zero. Setting it to zero means "
 "that this function cannot be used in single function mode."
-msgstr ""
+msgstr "引數統計應為 -1 或大於 0。將它設為 0 表示這個函式不能在單一函式模式中使用。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:174
 msgid "Exception while compiling function"
@@ -15966,7 +16012,7 @@ msgstr "程式碼(&P): （請確定依循 python 縮排規則）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:35
 msgid "Location Manager"
-msgstr ""
+msgstr "位置管理程式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
@@ -16071,7 +16117,7 @@ msgstr "將選取的動作下移"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:347
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:126
 msgid "This tweak has it default value"
@@ -16355,7 +16401,7 @@ msgstr "這間商店只散布沒有 DRM 的電子書。"
 msgid ""
 "This store distributes ebooks with DRM. It may have some titles without DRM, "
 "but you will need to check on a per title basis."
-msgstr ""
+msgstr "這間商店的電子書具有 DRM。也可能會有些書籍是不使用 DRM 的，但是您可能需要一本一本去檢查才知道。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:140
 #, python-format
@@ -16418,7 +16464,7 @@ msgstr "要使用的快取更新執行緒的數量"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:108
 msgid "Number of cover download threads to use"
-msgstr ""
+msgstr "封面下載要使用的執行緒數量"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:109
 msgid "Number of details threads to use"
@@ -16455,7 +16501,7 @@ msgid ""
 "Detected price as: %s. Check with the store before making a purchase to "
 "verify this price is correct. This price often does not include promotions "
 "the store may be running."
-msgstr ""
+msgstr "找到價格為：%s。在進行付款前請先到商店確認價格是否正確。這個價格通常沒有包含商店正在進行的促銷折扣。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:235
 msgid ""
@@ -16499,11 +16545,11 @@ msgstr "從這間支援 calibre 開發的商店購買：%s</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:177
 msgid "No query"
-msgstr ""
+msgstr "沒有查詢"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:178
 msgid "You must enter a title, author or keyword to search for."
-msgstr ""
+msgstr "您必須輸入要搜尋的書名、作者或關鍵字。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:300
 msgid "Customize get books search"
@@ -16527,19 +16573,19 @@ msgstr "取得書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:171
 msgid "Search by title"
-msgstr ""
+msgstr "依書名搜尋"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:173
 msgid "Search by author"
-msgstr ""
+msgstr "依作者搜尋"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:175
 msgid "&Keyword:"
-msgstr ""
+msgstr "關鍵字(&K):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:176
 msgid "Search by any keyword"
-msgstr ""
+msgstr "依關鍵字搜尋"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:182
 msgid "Open a selected book in the system's web browser"
@@ -16637,46 +16683,46 @@ msgstr "重新載入"
 msgid "%p%"
 msgstr "%p%"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:307
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:330
 msgid "The grouped search term name is \"{0}\""
 msgstr "群組搜尋字詞名稱為「{0}」"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:766
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:794
 msgid ""
 "Changing the authors for several books can take a while. Are you sure?"
 msgstr "改變多本書籍的作者會花上一些時間。您確定嗎？"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:771
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:799
 msgid ""
 "Changing the metadata for that many books can take a while. Are you sure?"
 msgstr "改變許多書籍的元數據會花上一些時間。您確定嗎？"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:858
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:886
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:495
 msgid "Searches"
 msgstr "搜尋"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:935
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:955
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:964
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:963
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:983
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:992
 msgid "Rename user category"
 msgstr "重新命名使用者分類"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:936
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:964
 msgid "You cannot use periods in the name when renaming user categories"
 msgstr "在重新命名使用者分類時不能在名稱使用句點"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:956
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:965
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:984
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:993
 #, python-format
 msgid "The name %s is already used"
 msgstr "這個名稱 %s 已經使用了"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:984
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1012
 msgid "Duplicate search name"
 msgstr "重複的搜尋名稱"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:985
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1013
 #, python-format
 msgid "The saved search name %s is already used."
 msgstr "已儲存搜尋名稱 %s 已經使用了。"
@@ -16698,13 +16744,13 @@ msgid "Manage Tags"
 msgstr "管理標籤"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:57
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:540
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:544
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:575
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:579
 msgid "Manage User Categories"
 msgstr "管理使用者分類"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:59
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:532
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:561
 msgid "Manage Saved Searches"
 msgstr "管理已儲存的搜尋"
 
@@ -16755,12 +16801,12 @@ msgstr "使用者分類 %s 不存在"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:253
 msgid "Delete item"
-msgstr ""
+msgstr "刪除項目"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:255
 #, python-format
 msgid "%s will be deleted from all books. Are you sure?"
-msgstr ""
+msgstr "%s 會從所有書籍中刪除。您確定嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:333
 msgid "Find item in tag browser"
@@ -16842,105 +16888,118 @@ msgid ""
 "the tag browser above"
 msgstr "這些 category_managers 全部都可以在上面的標籤瀏覽器的項目中按右鍵取得"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:413
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:452
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:482
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:304
+#, python-format
+msgid "Change Icon for: %s"
+msgstr "變更圖示：%s"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:442
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:481
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:511
 #, python-format
 msgid "Rename %s"
 msgstr "重新命名 %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:419
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:448
 #, python-format
 msgid "Delete %s"
-msgstr ""
+msgstr "刪除 %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:423
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:452
 #, python-format
 msgid "Edit sort for %s"
 msgstr "編輯 %s 的排序"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:426
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:455
 #, python-format
 msgid "Edit link for %s"
 msgstr "編輯 %s 的連結"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:433
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:462
 #, python-format
 msgid "Add %s to user category"
 msgstr "加入 %s 到使用者分類"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:446
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:475
 #, python-format
 msgid "Children of %s"
 msgstr "%s 的子項"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:456
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:485
 #, python-format
 msgid "Delete search %s"
 msgstr "刪除搜尋 %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:461
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:490
 #, python-format
 msgid "Remove %(item)s from category %(cat)s"
 msgstr "從分類 %(cat)s 移除 %(item)s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:474
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:503
 #, python-format
 msgid "Search for everything but %s"
 msgstr "搜尋 %s 以外的項目"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:486
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:515
 #, python-format
 msgid "Add sub-category to %s"
 msgstr "加入子分類到 %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:490
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:519
 #, python-format
 msgid "Delete user category %s"
 msgstr "刪除使用者分類 %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:495
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:524
 #, python-format
 msgid "Hide category %s"
 msgstr "隱藏分類 %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:499
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:528
 msgid "Show category"
 msgstr "顯示所有的分類"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:509
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:538
 #, python-format
 msgid "Search for books in category %s"
 msgstr "搜尋分類 %s 的書籍"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:515
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:544
 #, python-format
 msgid "Search for books not in category %s"
 msgstr "搜尋不在分類 %s 中的書籍"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:524
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:553
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:558
 #, python-format
 msgid "Manage %s"
 msgstr "管理 %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:551
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:566
+msgid "Change category icon"
+msgstr "變更分類圖示"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:568
+msgid "Restore default icon"
+msgstr "還原預設圖示"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:586
 msgid "Show all categories"
 msgstr "顯示所有的分類"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:554
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:590
 msgid "Change sub-categorization scheme"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:555
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:591
 msgid "Disable"
-msgstr ""
+msgstr "停用"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:559
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:595
 msgid "Partition"
-msgstr ""
+msgstr "分區"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:574
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:610
 msgid "First letter is usable only when sorting by name"
 msgstr "第一個字母只用於依名稱排序時"
 
@@ -17024,7 +17083,7 @@ msgstr "您已經以除錯模式啟動 calibre。在您結束 calibre 後，除�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:409
 msgid "Failed to start Content Server"
-msgstr ""
+msgstr "無法啟動內容伺服器"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:410
 #, python-format
@@ -17033,6 +17092,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"無法啟動內容伺服器。錯誤：\n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:541
 #, python-format
@@ -17049,7 +17111,7 @@ msgstr "轉換時發生錯誤"
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:646
 #, python-format
 msgid "<p><b>Failed to convert: %s"
-msgstr ""
+msgstr "<p><b>無法轉換：%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:647
 msgid ""
@@ -17076,7 +17138,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:661
 msgid "Conversion Failed"
-msgstr ""
+msgstr "轉換失敗"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:673
 msgid "Recipe Disabled"
@@ -17116,6 +17178,8 @@ msgid ""
 "New version <b>%(ver)s</b> of %(app)s is available for download. See the <a "
 "href=\"http://calibre-ebook.com/whats-new\">new features</a>."
 msgstr ""
+"%(app)s 的新版本 <b>%(ver)s</b> 已經可以下載。請參閱<a href=\"http://calibre-"
+"ebook.com/whats-new\">新功能</a>。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:92
 msgid "Update available!"
@@ -17272,23 +17336,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:57
 msgid "Show a clock in fullscreen mode."
-msgstr ""
+msgstr "在全螢幕模式顯示時鐘。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:59
 msgid "Show reading position in fullscreen mode."
-msgstr ""
+msgstr "在全螢幕模式顯示閱讀位置。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:61
 msgid "Show the scrollbar in fullscreen mode."
-msgstr ""
+msgstr "在全螢幕模式顯示捲軸。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:63
 msgid "Start viewer in full screen mode"
-msgstr ""
+msgstr "在全螢幕模式啟動檢視器"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:65
 msgid "Show full screen usage help"
-msgstr ""
+msgstr "顯示全螢幕模式使用說明"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:74
 msgid "Font options"
@@ -17320,30 +17384,30 @@ msgstr "標準字型類型"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:141
 msgid "Theme name"
-msgstr ""
+msgstr "主題名稱"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:142
 msgid "Choose a name for this theme"
-msgstr ""
+msgstr "選擇這個主題的名稱"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:151
 #, python-format
 msgid "Saved settings as the theme named: %s"
-msgstr ""
+msgstr "將設定值以布景主題名稱儲存：%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:167
 #, python-format
 msgid "Loaded settings from the theme %s"
-msgstr ""
+msgstr "載入布景主題 %s 的設定值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:174
 #, python-format
 msgid "Deleted the theme named: %s"
-msgstr ""
+msgstr "刪除命名的布景主題：%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:234
 msgid "Choose text color"
-msgstr ""
+msgstr "選擇文字顏色"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:254
 msgid "Still editing"
@@ -17387,7 +17451,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:388
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:389
 msgid "&Font options"
@@ -17402,31 +17466,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:391
 msgid "The number of &pages of text to show on screen "
-msgstr ""
+msgstr "螢幕上顯示文字的頁數(&P) "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:392
 msgid " page(s)"
-msgstr ""
+msgstr " 頁"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:393
 msgid "&Override the page margin settings specified in the book"
-msgstr ""
+msgstr "覆蓋書籍中指定的頁面邊界設定值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:394
 msgid "&Top margin"
-msgstr ""
+msgstr "頂端邊界(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:396
 msgid "&Side margin"
-msgstr ""
+msgstr "側邊界(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:398
 msgid "&Bottom margin"
-msgstr ""
+msgstr "底部邊界(&B)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:400
 msgid "Text &layout in paged mode"
-msgstr ""
+msgstr "頁面模式中文字配置(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:401
 msgid "Maximum text width in &fullscreen:"
@@ -17434,49 +17498,49 @@ msgstr "全螢幕最大文字寬度(&F):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:404
 msgid "Show &clock in full screen mode"
-msgstr ""
+msgstr "在全螢幕模式中顯示時鐘(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:405
 msgid "Show reading &position in full screen mode"
-msgstr ""
+msgstr "在全螢幕模式中顯示閱讀位置(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:406
 msgid "Show &scrollbar in full screen mode"
-msgstr ""
+msgstr "在全螢幕模式中顯示捲軸(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:407
 msgid "&Start viewer in full screen mode"
-msgstr ""
+msgstr "在全螢幕模式中啟動檢視器(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:408
 msgid "Show &help message when starting full screen mode"
-msgstr ""
+msgstr "啟動全螢幕模式時顯示求助訊息(&H)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:409
 msgid "F&ull  screen options"
-msgstr ""
+msgstr "全螢幕選項(&U)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:410
 msgid "Background color:"
-msgstr ""
+msgstr "背景顏色："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:415
 msgid "Sample"
-msgstr ""
+msgstr "範例"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:412
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:416
 msgid "Change"
-msgstr ""
+msgstr "變更"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:414
 msgid "Text color:"
-msgstr ""
+msgstr "文字顏色："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:418
 msgid "Colors and backgrounds"
-msgstr ""
+msgstr "顏色與背景"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:419
 msgid "Page flip &duration:"
@@ -17492,7 +17556,7 @@ msgstr "滑鼠滾輪翻頁(&W)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:423
 msgid "Line &scrolling stops at page breaks"
-msgstr ""
+msgstr "線性捲動停止於頁面中斷處(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:424
 msgid "&Resize images larger than the viewer window (needs restart)"
@@ -17500,7 +17564,7 @@ msgstr "重訂大於檢視器視窗的圖片尺寸（需重新啟動）(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:425
 msgid "Page Fl&ip options"
-msgstr ""
+msgstr "翻頁選項(&I)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:426
 msgid "H&yphenate (break line in the middle of large words)"
@@ -17526,7 +17590,7 @@ msgstr "結束時記住目前的頁面(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:431
 msgid "&Miscellaneous options"
-msgstr ""
+msgstr "雜項選項(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:432
 msgid "&General"
@@ -17555,23 +17619,23 @@ msgstr "使用者樣式表(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:437
 msgid "You can save and load the viewer settings as <i>themes</i>"
-msgstr ""
+msgstr "您可以儲存與載入設為 <i>布景主題</i> 的檢視器設定值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:438
 msgid "Save current settings as a theme:"
-msgstr ""
+msgstr "將目前的設定值儲存為布景主題："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:440
 msgid "Load a previously saved theme:"
-msgstr ""
+msgstr "載入前一次儲存的布景主題："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:442
 msgid "Delete a saved theme:"
-msgstr ""
+msgstr "刪除已儲存的布景主題："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:444
 msgid "&Theming"
-msgstr ""
+msgstr "布景主題(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"
@@ -17583,15 +17647,15 @@ msgstr "在字典中查詢(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:507
 msgid "View &image..."
-msgstr ""
+msgstr "檢視影像(&I)…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:509
 msgid "View &table..."
-msgstr ""
+msgstr "檢視表格(&T)…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:512
 msgid "&Search for next occurrence"
-msgstr ""
+msgstr "搜尋下次出現處(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:517
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:141
@@ -17624,39 +17688,39 @@ msgstr "章節結尾"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:547
 msgid "Normal font size"
-msgstr ""
+msgstr "一般字型大小"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:614
 #, python-format
 msgid "S&earch Google for '%s'"
-msgstr ""
+msgstr "用 Googl&e 搜尋「%s」"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:28
 msgid "Zoom &in"
-msgstr ""
+msgstr "放大(&I)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:29
 msgid "Zoom &out"
-msgstr ""
+msgstr "縮小(&O)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:40
 msgid "&Save as"
-msgstr ""
+msgstr "另存為(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:41
 msgid "&Rotate"
-msgstr ""
+msgstr "旋轉(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:67
 msgid "Choose a file to save to"
-msgstr ""
+msgstr "選擇要儲存的檔案"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:100
 #, python-format
 msgid "View Image: %s"
-msgstr ""
+msgstr "檢視影像：%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
@@ -17710,7 +17774,7 @@ msgstr "向右捲動"
 msgid ""
 "This ebook is corrupted and cannot be opened. If you downloaded it from "
 "somewhere, try downloading it again."
-msgstr ""
+msgstr "這本電子書已損壞且不能開啟。如果您從某處下載它，請嘗試再下載一次。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:99
 msgid "Book format"
@@ -17730,11 +17794,11 @@ msgstr ""
 msgid ""
 "Switch to paged mode - where the text is broken up into pages like a paper "
 "book"
-msgstr ""
+msgstr "切換到頁面模式 - 會將文字打散到各頁面，以符合紙本書的感覺"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:160
 msgid "Switch to flow mode - where the text is not broken up into pages"
-msgstr ""
+msgstr "切換到直流模式 - 文字不會以頁面形式區分"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:206
 msgid "Search for text in book"
@@ -17743,11 +17807,11 @@ msgstr "搜尋書籍中的文字"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:246
 #, python-format
 msgid "Toggle full screen (%s)"
-msgstr ""
+msgstr "切換全螢幕 (%s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:286
 msgid "Full screen mode"
-msgstr ""
+msgstr "全螢幕模式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:287
 msgid "Right click to show controls"
@@ -21060,7 +21124,7 @@ msgstr "取得 SSH 作業階段的協議失敗： "
 msgid "Failed to authenticate with server: %s"
 msgstr "無法驗證伺服器：%s"
 
-#: /home/kovid/work/calibre/src/calibre/utils/smtp.py:257
+#: /home/kovid/work/calibre/src/calibre/utils/smtp.py:258
 msgid "Control email delivery"
 msgstr "控制郵件遞送"
 
