@@ -17,9 +17,11 @@ from PyQt4.QtWebKit import QWebView, QWebPage, QWebSettings
 
 from calibre import fit_image
 from calibre.ebooks.oeb.display.webview import load_html
-from calibre.ebooks.pdf.render.engine import PdfDevice
 from calibre.ebooks.pdf.render.common import (inch, cm, mm, pica, cicero,
                                               didot, PAPER_SIZES)
+from calibre.ebooks.pdf.render.engine import PdfDevice
+from calibre.ebooks.pdf.render.links import Links
+
 
 def get_page_size(opts, for_comic=False): # {{{
     use_profile = not (opts.override_profile_size or
@@ -141,6 +143,7 @@ class PDFWriter(QObject):
             self.view.page().mainFrame().setScrollBarPolicy(x,
                     Qt.ScrollBarAlwaysOff)
         self.report_progress = lambda x, y: x
+        self.links = Links()
 
     def dump(self, items, out_stream, pdf_metadata):
         opts = self.opts
@@ -258,6 +261,8 @@ class PDFWriter(QObject):
         amap = self.bridge_value
         if not isinstance(amap, dict):
             amap = {'links':[], 'anchors':{}} # Some javascript error occurred
+        self.links.add(self.current_item, self.current_page_num, amap['links'],
+                       amap['anchors'])
 
         mf = self.view.page().mainFrame()
         while True:
