@@ -44,10 +44,10 @@ class Sfnt(object):
         b'post' : PostTable,
     }
 
-    def __init__(self, raw_or_qrawfont):
+    def __init__(self, raw_or_get_table):
         self.tables = {}
-        if isinstance(raw_or_qrawfont, bytes):
-            raw = raw_or_qrawfont
+        if isinstance(raw_or_get_table, bytes):
+            raw = raw_or_get_table
             self.sfnt_version = raw[:4]
             if self.sfnt_version not in {b'\x00\x01\x00\x00', b'OTTO', b'true',
                     b'type1'}:
@@ -62,7 +62,7 @@ class Sfnt(object):
                 b'VORG', b'EBDT', b'EBLC', b'EBSC', b'BASE', b'GSUB', b'GPOS',
                 b'GDEF', b'JSTF', b'gasp', b'hdmx', b'kern', b'LTSH', b'PCLT',
                 b'VDMX', b'vhea', b'vmtx', b'MATH'}:
-                table = bytes(raw_or_qrawfont.fontTable(table_tag))
+                table = bytes(raw_or_get_table(table_tag))
                 if table:
                     self.tables[table_tag] = self.TABLE_MAP.get(
                         table_tag, UnknownTable)(table)

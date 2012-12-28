@@ -18,6 +18,8 @@ inch = 72.0
 cm = inch / 2.54
 mm = cm * 0.1
 pica = 12.0
+didot = 0.375 * mm
+cicero = 12 * didot
 
 _W, _H = (21*cm, 29.7*cm)
 
@@ -41,6 +43,10 @@ B3 = (_BH*2, _BW)
 B2 = (_BW*2, _BH*2)
 B1 = (_BH*4, _BW*2)
 B0 = (_BW*4, _BH*4)
+
+PAPER_SIZES = {k:globals()[k.upper()] for k in ('a0 a1 a2 a3 a4 a5 a6 b0 b1 b2'
+               ' b3 b4 b5 b6 letter legal').split()}
+
 # }}}
 
 # Basic PDF datatypes {{{
@@ -79,19 +85,12 @@ class String(unicode):
             raw = codecs.BOM_UTF16_BE + s.encode('utf-16-be')
         stream.write(b'('+raw+b')')
 
-class GlyphIndex(object):
-
-    def __init__(self, code, compress):
-        self.code = code
-        self.compress = compress
+class GlyphIndex(int):
 
     def pdf_serialize(self, stream):
-        if self.compress:
-            stream.write(pack(b'>sHs', b'(', self.code, b')'))
-        else:
-            byts = bytearray(pack(b'>H', self.code))
-            stream.write('<%s>'%''.join(map(
-                lambda x: bytes(hex(int(x))[2:]).rjust(2, b'0'), byts)))
+        byts = bytearray(pack(b'>H', self))
+        stream.write('<%s>'%''.join(map(
+            lambda x: bytes(hex(x)[2:]).rjust(2, b'0'), byts)))
 
 class Dictionary(dict):
 
@@ -132,6 +131,7 @@ class Stream(BytesIO):
     def __init__(self, compress=False):
         BytesIO.__init__(self)
         self.compress = compress
+        self.filters = Array()
 
     def add_extra_keys(self, d):
         pass
@@ -139,7 +139,7 @@ class Stream(BytesIO):
     def pdf_serialize(self, stream):
         raw = self.getvalue()
         dl = len(raw)
-        filters = Array()
+        filters = self.filters
         if self.compress:
             filters.append(Name('FlateDecode'))
             raw = zlib.compress(raw)

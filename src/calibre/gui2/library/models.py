@@ -52,10 +52,9 @@ class ColumnColor(object):
         self.mi = None
 
     def __call__(self, id_, key, fmt, db, formatter, color_cache, colors):
-        if id_ in color_cache:
-            if key in color_cache[id_]:
-                self.mi = None
-                return color_cache[id_][key]
+        if id_ in color_cache and key in color_cache[id_]:
+            self.mi = None
+            return color_cache[id_][key]
         try:
             if self.mi is None:
                 self.mi = db.get_metadata(id_, index_is_id=True)
@@ -763,16 +762,15 @@ class BooksModel(QAbstractTableModel): # {{{
             self.column_color.mi = None
 
             if self.color_row_fmt_cache is None:
-                d = dict(self.db.prefs['column_color_rules'])
-                self.color_row_fmt_cache = d.get(color_row_key, '')
-
+                self.color_row_fmt_cache = tuple(fmt for key, fmt in
+                    self.db.prefs['column_color_rules'] if key == color_row_key)
 
             for k, fmt in self.db.prefs['column_color_rules']:
                 if k == key:
-                    col = self.column_color(id_, key, fmt, self.db,
+                    ccol = self.column_color(id_, key, fmt, self.db,
                                 self.formatter, self.color_cache, self.colors)
-                    if col is not None:
-                        return col
+                    if ccol is not None:
+                        return ccol
 
             if self.is_custom_column(key) and \
                         self.custom_columns[key]['datatype'] == 'enumeration':
@@ -789,12 +787,11 @@ class BooksModel(QAbstractTableModel): # {{{
                     except:
                         pass
 
-            if self.color_row_fmt_cache:
-                key = color_row_key
-                col = self.column_color(id_, key, self.color_row_fmt_cache,
-                        self.db, self.formatter, self.color_cache, self.colors)
-                if col is not None:
-                    return col
+            for fmt in self.color_row_fmt_cache:
+                ccol = self.column_color(id_, color_row_key, fmt, self.db,
+                            self.formatter, self.color_cache, self.colors)
+                if ccol is not None:
+                    return ccol
 
             self.column_color.mi = None
             return NONE

@@ -12,7 +12,7 @@ from calibre.utils.config import tweaks
 
 class AddEmptyBookDialog(QDialog):
 
-    def __init__(self, parent, db, author):
+    def __init__(self, parent, db, author, series=None):
         QDialog.__init__(self, parent)
         self.db = db
 
@@ -45,6 +45,22 @@ class AddEmptyBookDialog(QDialog):
         self.clear_button.clicked.connect(self.reset_author)
         self._layout.addWidget(self.clear_button, 3, 1, 1, 1)
 
+        self.series_label = QLabel(_('Set the series of the new books to:'))
+        self._layout.addWidget(self.series_label, 4, 0, 1, 2)
+
+        self.series_combo = EditWithComplete(self)
+        self.authors_combo.setSizeAdjustPolicy(
+                self.authors_combo.AdjustToMinimumContentsLengthWithIcon)
+        self.series_combo.setEditable(True)
+        self._layout.addWidget(self.series_combo, 5, 0, 1, 1)
+        self.initialize_series(db, series)
+
+        self.sclear_button = QToolButton(self)
+        self.sclear_button.setIcon(QIcon(I('trash.png')))
+        self.sclear_button.setToolTip(_('Reset series'))
+        self.sclear_button.clicked.connect(self.reset_series)
+        self._layout.addWidget(self.sclear_button, 5, 1, 1, 1)
+
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -53,6 +69,9 @@ class AddEmptyBookDialog(QDialog):
 
     def reset_author(self, *args):
         self.authors_combo.setEditText(_('Unknown'))
+
+    def reset_series(self):
+        self.series_combo.setEditText('')
 
     def initialize_authors(self, db, author):
         au = author
@@ -65,6 +84,11 @@ class AddEmptyBookDialog(QDialog):
         self.authors_combo.set_add_separator(tweaks['authors_completer_append_separator'])
         self.authors_combo.update_items_cache(db.all_author_names())
 
+    def initialize_series(self, db, series):
+        self.series_combo.show_initial_value(series or '')
+        self.series_combo.update_items_cache(db.all_series_names())
+        self.series_combo.set_separator(None)
+
     @property
     def qty_to_add(self):
         return self.qty_spinbox.value()
@@ -72,6 +96,10 @@ class AddEmptyBookDialog(QDialog):
     @property
     def selected_authors(self):
         return string_to_authors(unicode(self.authors_combo.text()))
+
+    @property
+    def selected_series(self):
+        return unicode(self.series_combo.text())
 
 if __name__ == '__main__':
     app = QApplication([])

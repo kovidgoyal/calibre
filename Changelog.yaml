@@ -19,6 +19,46 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.12
+  date: 2012-12-28
+
+  new features:
+    - title: "Drivers for Kibano e-reader and Slick ER-700-2"
+      tickets: [1093570, 1093732]
+
+    - title: "Add support for downloading metadata from Amazon Brazil."
+      tickets: [1092594]
+
+    - title: "Copy to library: Allow specifying the destination library by path."
+      tickets: [1093231]
+
+    - title: "When adding empty books, allow setting of the series for the new books. Also select the newly added book records after adding."
+
+    - title: "PDF Output: Add a checkbox to override the page size defined by the output profile. This allows you to specify a custom page size even if the output profile is not set to default."
+
+    - title: "Add usb ids for newer kindle fire to the linux mtp driver"
+ 
+  bug fixes:
+    - title: "Linux: Temporarily redirect stdout to get rid of the annoying and pointless message about mtpz during libmtp initialization"
+
+    - title: "Fix multiple 'All column' coloring rules not being applied"
+      tickets: [1093574]
+
+    - title: "Use custom icons in the content server as well."
+      tickets: [1092098]
+
+  improved recipes:
+    - La Voce
+    - Harpers Magazine (printed edition)
+    - Pajamas Media
+    - NSFW corp
+    - The Hindu
+    - Nikkei News
+
+  new recipes:
+    - title: Various Ukranian news sources 
+      author: rpalyvoda
+
 - version: 0.9.11
   date: 2012-12-21
 
@@ -34,6 +74,7 @@
     - title: "Allow setting the color of all columns with a single rule in Preferences->Look & Feel->Column Coloring"
 
     - title: "MOBI: When reading metadata from mobi files, put the contents of the ASIN field into an identifier named mobi-asin. Note that this value is not used when downloading metadata as it is not possible to know which (country specific) amazon website the ASIN comes from."
+      tickets: [1090394]
  
   bug fixes:
     - title: "Windows build: Fix a regression in 0.9.9 that caused calibre to not start on some windows system that were missing the VC.90 dlls (some older XP systems)"

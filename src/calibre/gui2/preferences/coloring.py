@@ -106,8 +106,8 @@ class ConditionEditor(QWidget): # {{{
         self.column_box.addItem('', '')
         for key in sorted(
                 conditionable_columns(fm),
-                key=sort_key):
-            self.column_box.addItem(key, key)
+                key=lambda(key): sort_key(fm[key]['name'])):
+            self.column_box.addItem(fm[key]['name'], key)
         self.column_box.setCurrentIndex(0)
 
         self.column_box.currentIndexChanged.connect(self.init_action_box)
@@ -314,7 +314,8 @@ class RuleEditor(QDialog): # {{{
             b.setSizeAdjustPolicy(b.AdjustToMinimumContentsLengthWithIcon)
             b.setMinimumContentsLength(15)
 
-        for key in sorted(displayable_columns(fm), key=sort_key):
+        for key in sorted(displayable_columns(fm),
+                          key=lambda(k): sort_key(fm[k]['name']) if k != color_row_key else 0):
             name = all_columns_string if key == color_row_key else fm[key]['name']
             if name:
                 self.column_box.addItem(name, key)
@@ -427,9 +428,11 @@ class RulesModel(QAbstractListModel): # {{{
             col, rule = self.rules[row]
         except:
             return None
-        if col == color_row_key:
-            col = all_columns_string
         if role == Qt.DisplayRole:
+            if col == color_row_key:
+                col = all_columns_string
+            else:
+                col = self.fm[col]['name']
             return self.rule_to_html(col, rule)
         if role == Qt.UserRole:
             return (col, rule)
@@ -486,6 +489,7 @@ class RulesModel(QAbstractListModel): # {{{
 
     def condition_to_html(self, condition):
         c, a, v = condition
+        c = self.fm[c]['name']
         action_name = a
         for actions in ConditionEditor.ACTION_MAP.itervalues():
             for trans, ac in actions:
@@ -569,9 +573,9 @@ class EditRules(QWidget): # {{{
                 self.changed.emit()
 
     def add_rule(self):
-            d = RuleEditor(self.model.fm)
-            d.add_blank_condition()
-            self._add_rule(d)
+        d = RuleEditor(self.model.fm)
+        d.add_blank_condition()
+        self._add_rule(d)
 
     def add_advanced(self):
         td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, color_field='')

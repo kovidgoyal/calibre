@@ -242,6 +242,18 @@ class PagedDisplay
         # Return the number of the column that contains xpos
         return Math.floor(xpos/this.page_width)
 
+    column_location: (elem) ->
+        # Return the location of elem relative to its containing column
+        br = elem.getBoundingClientRect()
+        [left, top] = calibre_utils.viewport_to_document(br.left, br.top, elem.ownerDocument)
+        c = this.column_at(left)
+        width = Math.min(br.right, (c+1)*this.page_width) - br.left
+        if br.bottom < br.top
+            br.bottom = window.innerHeight
+        height = Math.min(br.bottom, window.innerHeight) - br.top
+        left -= c*this.page_width
+        return {'column':c, 'left':left, 'top':top, 'width':width, 'height':height}
+
     column_boundaries: () ->
         # Return the column numbers at the left edge and after the right edge
         # of the viewport
