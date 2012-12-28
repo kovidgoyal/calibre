@@ -50,7 +50,7 @@ def get_pdf_printer(opts, for_comic=False, output_file_name=None): # {{{
         printer.setPaperSize(paper_size(opts.paper_size))
     else:
         if opts.output_profile.short_name == 'default' or \
-                opts.output_profile.width > 9999:
+                opts.output_profile.width > 9999 or opts.override_profile_size:
             if custom_size is None:
                 printer.setPaperSize(paper_size(opts.paper_size))
             else:
