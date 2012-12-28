@@ -2,7 +2,7 @@
 __license__   = 'GPL v3'
 __author__    = 'Gabriele Marini, based on Darko Miletic'
 __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
-__description__ = 'La Stampa 05/05/2010'
+__description__ = 'La Stampa 28/12/2012'
 
 '''
 http://www.lastampa.it/
@@ -14,10 +14,11 @@ class LaStampa(BasicNewsRecipe):
  title                 = u'La Stampa'
  language = 'it'
  __author__ = 'Gabriele Marini'
- oldest_article        = 15
+ #oldest_article        = 15
+ oldest_articlce       = 7 #for daily schedule
  max_articles_per_feed = 50
  recursion             = 100
- cover_url             = 'http://www.lastampa.it/edicola/PDF/1.pdf'
+ cover_url             = 'http://www1.lastampa.it/edicola/PDF/1.pdf'
  use_embedded_content  = False
  remove_javascript     = True
  no_stylesheets        = True
@@ -33,35 +34,41 @@ class LaStampa(BasicNewsRecipe):
     if link:
        return link[0]['href']
 
- keep_only_tags = [dict(attrs={'class':['boxocchiello2','titoloRub','titologir','catenaccio','sezione','articologirata']}),
+ keep_only_tags = [dict(attrs={'class':['boxocchiello2','titoloRub','titologir','autore-girata','luogo-girata','catenaccio','sezione','articologirata','bodytext','news-single-img','ls-articoloCorpo','ls-blog-list-1col']}),
                    dict(name='div', attrs={'id':'corpoarticolo'})
                   ]
 
- remove_tags = [dict(name='div', attrs={'id':'menutop'}),
-                dict(name='div', attrs={'id':'fwnetblocco'}),
-                dict(name='table', attrs={'id':'strumenti'}),
-                dict(name='table', attrs={'id':'imgesterna'}),
-                dict(name='a', attrs={'class':'linkblu'}),
-                dict(name='a', attrs={'class':'link'}),
+
+ remove_tags = [dict(name='div', attrs={'id':['menutop','fwnetblocco']}),
+                dict(attrs={'class':['ls-toolbarCommenti','ls-boxCommentsBlog']}),
+                dict(name='table', attrs={'id':['strumenti','imgesterna']}),
+                dict(name='a', attrs={'class':['linkblu','link']}),
                 dict(name='span', attrs={'class':['boxocchiello','boxocchiello2','sezione']})
                ]
-
- feeds    = [
-             (u'Home', u'http://www.lastampa.it/redazione/rss_home.xml'),
-             (u'Editoriali', u'http://www.lastampa.it/cmstp/rubriche/oggetti/rss.asp?ID_blog=25'),
-             (u'Politica', u'http://www.lastampa.it/redazione/cmssezioni/politica/rss_politica.xml'),
-             (u'ArciItaliana', u'http://www.lastampa.it/cmstp/rubriche/oggetti/rss.asp?ID_blog=14'),
-             (u'Cronache', u'http://www.lastampa.it/redazione/cmssezioni/cronache/rss_cronache.xml'),
-             (u'Esteri', u'http://www.lastampa.it/redazione/cmssezioni/esteri/rss_esteri.xml'),
-             (u'Danni Collaterali', u'http://www.lastampa.it/cmstp/rubriche/oggetti/rss.asp?ID_blog=90'),
-             (u'Economia', u'http://www.lastampa.it/redazione/cmssezioni/economia/rss_economia.xml'),
-             (u'Tecnologia ', u'http://www.lastampa.it/cmstp/rubriche/oggetti/rss.asp?ID_blog=30'),
-             (u'Spettacoli', u'http://www.lastampa.it/redazione/cmssezioni/spettacoli/rss_spettacoli.xml'),
-             (u'Sport', u'http://www.lastampa.it/sport/rss_home.xml'),
-             (u'Torino', u'http://rss.feedsportal.com/c/32418/f/466938/index.rss'),
-             (u'Motori', u'http://www.lastampa.it/cmstp/rubriche/oggetti/rss.asp?ID_blog=57'),
-             (u'Scienza', u'http://www.lastampa.it/cmstp/rubriche/oggetti/rss.asp?ID_blog=38'),
-             (u'Fotografia', u'http://rss.feedsportal.com/c/32418/f/478449/index.rss'),
-             (u'Scuola', u'http://www.lastampa.it/cmstp/rubriche/oggetti/rss.asp?ID_blog=60'),
-             (u'Tempo Libero', u'http://www.lastampa.it/tempolibero/rss_home.xml')
+ feeds    = [(u'BuonGiorno',u'http://www.lastampa.it/cultura/opinioni/buongiorno/rss.xml'),
+             (u'Jena', u'http://www.lastampa.it/cultura/opinioni/jena/rss.xml'),
+             (u'Editoriali', u'http://www.lastampa.it/cultura/opinioni/editoriali'),
+			 (u'Finestra sull America', u'http://lastampa.feedsportal.com/c/32418/f/625713/index.rss'),
+             (u'HomePage', u'http://www.lastampa.it/rss.xml'),
+             (u'Politica Italia', u'http://www.lastampa.it/italia/politica/rss.xml'),
+             (u'ArciItaliana', u'http://www.lastampa.it/rss/blog/arcitaliana'),
+             (u'Cronache', u'http://www.lastampa.it/italia/cronache/rss.xml'),
+             (u'Esteri', u'http://www.lastampa.it/esteri/rss.xml'),
+             (u'Danni Collaterali', u'http://www.lastampa.it/rss/blog/danni-collaterali'),
+             (u'Economia', u'http://www.lastampa.it/economia/rss.xml'),
+             (u'Tecnologia ', u'http://www.lastampa.it/tecnologia/rss.xml'),
+             (u'Spettacoli', u'http://www.lastampa.it/spettacoli/rss.xml'),
+             (u'Sport', u'http://www.lastampa.it/sport/rss.xml'),
+             (u'Torino', u'http://www.lastampa.it/cronaca/rss.xml'),
+             (u'Motori', u'http://www.lastampa.it/motori/rss.xml'),
+             (u'Scienza', u'http://www.lastampa.it/scienza/rss.xml'),
+             (u'Cultura', u'http://www.lastampa.it/cultura/rss.xml'),
+             (u'Scuola', u'http://www.lastampa.it/cultura/scuola/rss.xml'),
+             (u'Benessere', u'http://www.lastampa.it/scienza/benessere/rss.xml'),
+             (u'Cucina', u'http://www.lastampa.it/societa/cucina/rss.xml'),			 
+			 (u'Casa', u'http://www.lastampa.it/societa/casa/rss.xml'),
+			 (u'Moda',u'http://www.lastampa.it/societa/moda/rss.xml'),
+			 (u'Giochi',u'http://www.lastampa.it/tecnologia/giochi/rss.xml'),
+             (u'Viaggi',u'http://www.lastampa.it/societa/viaggi/rss.xml'),
+             (u'Ambiente', u'http://www.lastampa.it/scienza/ambiente/rss.xml')
             ]
