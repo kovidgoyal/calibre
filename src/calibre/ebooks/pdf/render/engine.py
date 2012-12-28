@@ -188,10 +188,11 @@ class PdfEngine(QPaintEngine):
 
     def __init__(self, file_object, page_width, page_height, left_margin,
                  top_margin, right_margin, bottom_margin, width, height,
-                 errors=print, debug=print, compress=True):
+                 errors=print, debug=print, compress=True,
+                 mark_links=False):
         QPaintEngine.__init__(self, self.features)
         self.file_object = file_object
-        self.compress = compress
+        self.compress, self.mark_links = compress, mark_links
         self.page_height, self.page_width = page_height, page_width
         self.left_margin, self.top_margin = left_margin, top_margin
         self.right_margin, self.bottom_margin = right_margin, bottom_margin
@@ -249,10 +250,10 @@ class PdfEngine(QPaintEngine):
         if not hasattr(self, 'pdf'):
             try:
                 self.pdf = PDFStream(self.file_object, (self.page_width,
-                                                        self.page_height),
-                                    compress=self.compress)
+                        self.page_height), compress=self.compress,
+                                     mark_links=self.mark_links)
             except:
-                self.errors.append(traceback.format_exc())
+                self.errors(traceback.format_exc())
                 return False
         return True
 
@@ -268,7 +269,7 @@ class PdfEngine(QPaintEngine):
             self.end_page()
             self.pdf.end()
         except:
-            self.errors.append(traceback.format_exc())
+            self.errors(traceback.format_exc())
             return False
         finally:
             self.pdf = self.file_object = None
@@ -484,6 +485,24 @@ class PdfEngine(QPaintEngine):
     def set_metadata(self, *args, **kwargs):
         self.pdf.set_metadata(*args, **kwargs)
 
+    def add_outline(self, toc):
+        self.pdf.links.add_outline(toc)
+
+    def add_links(self, current_item, start_page, links, anchors):
+        for pos in anchors.itervalues():
+            pos['left'], pos['top'] = self.pdf_system.map(pos['left'], pos['top'])
+        for link in links:
+            pos = link[1]
+            llx = pos['left']
+            lly = pos['top'] + pos['height']
+            urx = pos['left'] + pos['width']
+            ury = pos['top']
+            llx, lly = self.pdf_system.map(llx, lly)
+            urx, ury = self.pdf_system.map(urx, ury)
+            link[1] = pos['column'] + start_page
+            link.append((llx, lly, urx, ury))
+        self.pdf.links.add(current_item, start_page, links, anchors)
+
     def __enter__(self):
         self.pdf.save_stack()
         self.saved_ps = (self.do_stroke, self.do_fill)
@@ -497,7 +516,8 @@ class PdfDevice(QPaintDevice): # {{{
 
     def __init__(self, file_object, page_size=A4, left_margin=inch,
                  top_margin=inch, right_margin=inch, bottom_margin=inch,
-                 xdpi=1200, ydpi=1200, errors=print, debug=print, compress=True):
+                 xdpi=1200, ydpi=1200, errors=print, debug=print,
+                 compress=True, mark_links=False):
         QPaintDevice.__init__(self)
         self.xdpi, self.ydpi = xdpi, ydpi
         self.page_width, self.page_height = page_size
@@ -506,7 +526,10 @@ class PdfDevice(QPaintDevice): # {{{
         self.engine = PdfEngine(file_object, self.page_width, self.page_height,
                                 left_margin, top_margin, right_margin,
                                 bottom_margin, self.width(), self.height(),
-                                errors=errors, debug=debug, compress=compress)
+                                errors=errors, debug=debug, compress=compress,
+                                mark_links=mark_links)
+        self.add_outline = self.engine.add_outline
+        self.add_links = self.engine.add_links
 
     def paintEngine(self):
         return self.engine

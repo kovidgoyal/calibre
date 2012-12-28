@@ -17,6 +17,7 @@ from calibre.ebooks.pdf.render.common import (
     Reference, EOL, serialize, Stream, Dictionary, String, Name, Array,
     GlyphIndex)
 from calibre.ebooks.pdf.render.fonts import FontManager
+from calibre.ebooks.pdf.render.links import Links
 
 PDFVER = b'%PDF-1.3'
 
@@ -219,6 +220,9 @@ class PageTree(Dictionary):
         self['Kids'].append(pageref)
         self['Count'] += 1
 
+    def get_ref(self, num):
+        return self['Kids'][num-1]
+
 class HashingStream(object):
 
     def __init__(self, f):
@@ -277,7 +281,7 @@ class PDFStream(object):
         ( True,  True,  'evenodd')  : 'B*',
     }
 
-    def __init__(self, stream, page_size, compress=False):
+    def __init__(self, stream, page_size, compress=False, mark_links=False):
         self.stream = HashingStream(stream)
         self.compress = compress
         self.write_line(PDFVER)
@@ -294,6 +298,7 @@ class PDFStream(object):
         self.stroke_opacities, self.fill_opacities = {}, {}
         self.font_manager = FontManager(self.objects, self.compress)
         self.image_cache = {}
+        self.links = Links(self, mark_links)
 
     @property
     def page_tree(self):
@@ -302,6 +307,9 @@ class PDFStream(object):
     @property
     def catalog(self):
         return self.objects[1]
+
+    def get_pageref(self, pagenum):
+        return self.page_tree.obj.get_ref(pagenum)
 
     def set_metadata(self, title=None, author=None, tags=None):
         if title:
@@ -442,6 +450,7 @@ class PDFStream(object):
             self.end_page()
         self.font_manager.embed_fonts()
         inforef = self.objects.add(self.info)
+        self.links.add_links()
         self.objects.pdf_serialize(self.stream)
         self.write_line()
         startxref = self.objects.write_xref(self.stream)

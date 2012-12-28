@@ -97,7 +97,8 @@ class Dictionary(dict):
     def pdf_serialize(self, stream):
         stream.write(b'<<' + EOL)
         sorted_keys = sorted(self.iterkeys(),
-                    key=lambda x:((' ' if x == 'Type' else '')+x))
+                             key=lambda x:({'Type':'1', 'Subtype':'2'}.get(
+                                 x, x)+x))
         for k in sorted_keys:
             serialize(Name(k), stream)
             stream.write(b' ')
@@ -169,5 +170,11 @@ class Reference(object):
     def pdf_serialize(self, stream):
         raw = '%d 0 R'%self.num
         stream.write(raw.encode('ascii'))
+
+    def __repr__(self):
+        return '%d 0 R'%self.num
+
+    def __str__(self):
+        return repr(self)
 # }}}
 
