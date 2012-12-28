@@ -6,6 +6,9 @@ __docformat__ = 'restructuredtext en'
 import socket, time, atexit
 from collections import defaultdict
 
+from calibre.utils.filenames import ascii_text
+from calibre import force_unicode
+
 _server = None
 
 def get_all_ips():
@@ -82,12 +85,16 @@ def start_server():
 def create_service(desc, type, port, properties, add_hostname, use_ip_address=None):
     port = int(port)
     try:
-        hostname = socket.gethostname().partition('.')[0]
+        hostname = ascii_text(force_unicode(socket.gethostname())).partition('.')[0]
     except:
         hostname = 'Unknown'
 
     if add_hostname:
-        desc += ' (on %s)'%hostname
+        try:
+            desc += b' (on %s)'%hostname
+        except:
+            pass
+
     if use_ip_address:
         local_ip = use_ip_address
     else:
