@@ -7,15 +7,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, traceback, unicodedata
+import sys, traceback
 from math import sqrt
 from collections import namedtuple
-from functools import wraps
+from functools import wraps, partial
 
+import sip
 from PyQt4.Qt import (QPaintEngine, QPaintDevice, Qt, QApplication, QPainter,
-                      QTransform, QPainterPath, QTextOption, QTextLayout,
-                      QImage, QByteArray, QBuffer, qRgba)
+                      QTransform, QPainterPath, QImage, QByteArray, QBuffer,
+                      qRgba)
 
+from calibre.constants import plugins
 from calibre.ebooks.pdf.render.serialize import (Color, PDFStream, Path)
 from calibre.ebooks.pdf.render.common import inch, A4
 from calibre.utils.fonts.sfnt.container import Sfnt
@@ -215,14 +217,15 @@ class PdfEngine(QPaintEngine):
         self.graphics_state = GraphicsState()
         self.errors_occurred = False
         self.errors, self.debug = errors, debug
-        self.text_option = QTextOption()
-        self.text_option.setWrapMode(QTextOption.NoWrap)
         self.fonts = {}
         i = QImage(1, 1, QImage.Format_ARGB32)
         i.fill(qRgba(0, 0, 0, 255))
         self.alpha_bit = i.constBits().asstring(4).find(b'\xff')
         self.current_page_num = 1
         self.current_page_inited = False
+        self.qt_hack, err = plugins['qt_hack']
+        if err:
+            raise RuntimeError('Failed to load qt_hack with err: %s'%err)
 
     def init_page(self):
         self.pdf.transform(self.pdf_system)
@@ -421,98 +424,48 @@ class PdfEngine(QPaintEngine):
             self.pdf.draw_rect(bl.x(), bl.y(), rect.width(), rect.height(),
                              stroke=self.do_stroke, fill=self.do_fill)
 
-    def get_text_layout(self, text_item, text):
-        tl = QTextLayout(text, text_item.font(), self.paintDevice())
-        self.text_option.setTextDirection(Qt.RightToLeft if
-            text_item.renderFlags() & text_item.RightToLeft else Qt.LeftToRight)
-        tl.setTextOption(self.text_option)
-        return tl
-
-    def update_glyph_map(self, text, indices, text_item, glyph_map):
-        '''
-        Map glyphs back to the unicode text they represent.
-        '''
-        pos = 0
-        tl = self.get_text_layout(text_item, '')
-        indices = list(indices)
-
-        def get_glyphs(string):
-            tl.setText(string)
-            tl.beginLayout()
-            line = tl.createLine()
-            if not line.isValid():
-                tl.endLayout()
-                return []
-            line.setLineWidth(int(1e12))
-            tl.endLayout()
-            ans = []
-            for run in tl.glyphRuns():
-                ans.extend(run.glyphIndexes())
-            return ans
-
-        ipos = 0
-        while ipos < len(indices):
-            if indices[ipos] in glyph_map:
-                t = glyph_map[indices[ipos]]
-                if t == text[pos:pos+len(t)]:
-                    pos += len(t)
-                    ipos += 1
-                    continue
-
-            found = False
-            for l in xrange(1, 10):
-                string = text[pos:pos+l]
-                g = get_glyphs(string)
-                if g and g[0] == indices[ipos]:
-                    found = True
-                    glyph_map[g[0]] = string
-                    break
-            if not found:
-                self.debug(
-                    'Failed to find glyph->unicode mapping for text: %s'%text)
-                break
-            ipos += 1
-            pos += l
-
-        return text[pos:]
+    def create_sfnt(self, text_item):
+        get_table = partial(self.qt_hack.get_sfnt_table, text_item)
+        ans = Font(Sfnt(get_table))
+        glyph_map = self.qt_hack.get_glyph_map(text_item)
+        gm = {}
+        for uc, glyph_id in enumerate(glyph_map):
+            if glyph_id not in gm:
+                gm[glyph_id] = unichr(uc)
+        ans.full_glyph_map = gm
+        return ans
 
     @store_error
     def drawTextItem(self, point, text_item):
         # super(PdfEngine, self).drawTextItem(point, text_item)
         self.graphics_state(self)
-        text = type(u'')(text_item.text()).replace('\n', ' ')
-        text = unicodedata.normalize('NFKC', text)
-        tl = self.get_text_layout(text_item, text)
-        tl.setPosition(point)
-        tl.beginLayout()
-        line = tl.createLine()
-        if not line.isValid():
-            tl.endLayout()
+        gi = self.qt_hack.get_glyphs(point, text_item)
+        if not gi.indices:
+            sip.delete(gi)
             return
-        line.setLineWidth(int(1e12))
-        tl.endLayout()
-        for run in tl.glyphRuns():
-            rf = run.rawFont()
-            name = hash(bytes(rf.fontTable('name')))
-            if name not in self.fonts:
-                self.fonts[name] = Font(Sfnt(rf))
-            metrics = self.fonts[name]
-            indices = run.glyphIndexes()
-            text = self.update_glyph_map(text, indices, text_item, metrics.glyph_map)
-            glyphs = []
-            pdf_pos = point
-            first_baseline = None
-            for i, pos in enumerate(run.positions()):
-                if first_baseline is None:
-                    first_baseline = pos.y()
-                glyph_pos = point + pos
-                delta = glyph_pos - pdf_pos
-                glyphs.append((delta.x(), pos.y()-first_baseline, indices[i]))
-                pdf_pos = glyph_pos
+        name = hash(bytes(gi.name))
+        if name not in self.fonts:
+            self.fonts[name] = self.create_sfnt(text_item)
+        metrics = self.fonts[name]
+        for glyph_id in gi.indices:
+            try:
+                metrics.glyph_map[glyph_id] = metrics.full_glyph_map[glyph_id]
+            except (KeyError, ValueError):
+                pass
+        glyphs = []
+        pdf_pos = point
+        first_baseline = None
+        for i, pos in enumerate(gi.positions):
+            if first_baseline is None:
+                first_baseline = pos.y()
+            glyph_pos = pos
+            delta = glyph_pos - pdf_pos
+            glyphs.append((delta.x(), pos.y()-first_baseline, gi.indices[i]))
+            pdf_pos = glyph_pos
 
-            self.pdf.draw_glyph_run([1, 0, 0, -1, point.x(),
-                point.y()], rf.pixelSize(), metrics, glyphs)
-
+        self.pdf.draw_glyph_run([1, 0, 0, -1, point.x(),
+            point.y()], gi.size, metrics, glyphs)
+        sip.delete(gi)
 
     @store_error
     def drawPolygon(self, points, mode):
@@ -645,12 +598,12 @@ if __name__ == '__main__':
             # f.setUnderline(True)
             # f.setOverline(True)
             # f.setStrikeOut(True)
-            f.setFamily('DejaVu Sans')
+            f.setFamily('Calibri')
             p.setFont(f)
             # p.setPen(QColor(0, 0, 255))
             # p.scale(2, 2)
             # p.rotate(45)
-            p.drawText(QPoint(0, 300), 'Some—text not By’s ū --- Д AV ﬀ ff')
+            p.drawText(QPoint(300, 300), 'Some—text not By’s ū --- Д AV ﬀ ff')
         finally:
             p.end()
         if dev.engine.errors_occurred:

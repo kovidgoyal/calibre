@@ -133,7 +133,7 @@ class Page(Stream):
         self.page_dict['Contents'] = contents
         self.add_resources()
         ret = objects.add(self.page_dict)
-        objects.commit(ret, stream)
+        # objects.commit(ret, stream)
         return ret
 
 class Path(object):

@@ -18,7 +18,7 @@ from setup.build_environment import (chmlib_inc_dirs,
         msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
         icu_lib_dirs, win_ddk_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs,
-        zlib_libs, zlib_lib_dirs, zlib_inc_dirs, is64bit)
+        zlib_libs, zlib_lib_dirs, zlib_inc_dirs, is64bit, qt_private_inc)
 MT
 isunix = islinux or isosx or isbsd
 
@@ -181,6 +181,13 @@ extensions = [
                 inc_dirs = ['calibre/gui2/progress_indicator'],
                 headers = ['calibre/gui2/progress_indicator/QProgressIndicator.h'],
                 sip_files = ['calibre/gui2/progress_indicator/QProgressIndicator.sip']
+                ),
+
+    Extension('qt_hack',
+                ['calibre/ebooks/pdf/render/qt_hack.cpp'],
+                inc_dirs = qt_private_inc + ['calibre/ebooks/pdf/render', 'qt-harfbuzz/src'],
+                headers = ['calibre/ebooks/pdf/render/qt_hack.h'],
+                sip_files = ['calibre/ebooks/pdf/render/qt_hack.sip']
                 ),
 
     Extension('unrar',
@@ -545,6 +552,9 @@ class Build(Command):
                 VERSION  = 1.0.0
                 CONFIG   += %s
             ''')%(ext.name, ' '.join(ext.headers), ' '.join(ext.sources), archs)
+            if ext.inc_dirs:
+                idir = ' '.join(ext.inc_dirs)
+                pro += 'INCLUDEPATH = %s\n'%idir
             pro = pro.replace('\\', '\\\\')
             open(ext.name+'.pro', 'wb').write(pro)
             qmc = [QMAKE, '-o', 'Makefile']

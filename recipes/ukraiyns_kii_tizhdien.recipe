@@ -1,0 +1,13 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1356283265(BasicNewsRecipe):
+    title          = u'\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0438\u0439 \u0422\u0438\u0436\u0434\u0435\u043d\u044c'
+    __author__ = 'rpalyvoda'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    language               = 'uk'
+    cover_url = 'http://tyzhden.ua/Images/Style1/tyzhden.ua-logo2.gif'
+    masthead_url = 'http://tyzhden.ua/Images/Style1/tyzhden.ua-logo2.gif'
+    auto_cleanup = True
+
+    feeds          = [(u'\u041d\u043e\u0432\u0438\u043d\u0438', u'http://tyzhden.ua/RSS/News/'), (u'\u041e\u0440\u0438\u0433\u0456\u043d\u0430\u043b\u044c\u043d\u0456 \u043d\u043e\u0432\u0438\u043d\u0438', u'http://tyzhden.ua/RSS/News.Original/'), (u'\u041f\u0443\u0431\u043b\u0456\u043a\u0430\u0446\u0456\u0457', u'http://tyzhden.ua/RSS/Publications/')]

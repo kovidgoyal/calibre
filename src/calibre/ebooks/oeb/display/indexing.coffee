@@ -92,6 +92,31 @@ class BookIndexing
         this.last_check = [body.scrollWidth, body.scrollHeight]
         return ans
 
+    all_links_and_anchors: () ->
+        body = document.body
+        links = []
+        anchors = {}
+        for a in document.querySelectorAll("body a[href], body [id], body a[name]")
+            if window.paged_display?.in_paged_mode
+                geom = window.paged_display.column_location(a)
+            else
+                br = a.getBoundingClientRect()
+                [left, top] = viewport_to_document(br.left, br.top, a.ownerDocument)
+                geom = {'left':left, 'top':top, 'width':br.right-br.left, 'height':br.bottom-br.top}
+
+            href = a.getAttribute('href')
+            if href
+                links.push([href, geom])
+            id = a.getAttribute("id")
+            if id and id not in anchors
+                anchors[id] = geom
+            if a.tagName in ['A', "a"]
+                name = a.getAttribute("name")
+                if name and name not in anchors
+                    anchors[name] = geom
+
+        return {'links':links, 'anchors':anchors}
+
 if window?
     window.book_indexing = new BookIndexing()
 

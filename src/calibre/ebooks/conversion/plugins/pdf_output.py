@@ -18,8 +18,8 @@ from calibre.ptempfile import TemporaryDirectory
 UNITS = ['millimeter', 'centimeter', 'point', 'inch' , 'pica' , 'didot',
          'cicero', 'devicepixel']
 
-PAPER_SIZES = ['b2', 'b4', 'b5', 'b6', 'b0', 'b1', 'letter', 'b3', 'a3', 'a1',
-               'a0', 'legal', 'a6', 'a2', 'a5', 'a4']
+PAPER_SIZES = [u'a0', u'a1', u'a2', u'a3', u'a4', u'a5', u'a6', u'b0', u'b1',
+               u'b2', u'b3', u'b4', u'b5', u'b6', u'legal', u'letter']
 
 class PDFMetadata(object): # {{{
     def __init__(self, oeb_metadata=None):
@@ -91,11 +91,12 @@ class PDFOutput(OutputFormatPlugin):
         OptionRecommendation(name='pdf_mono_font_size',
             recommended_value=16, help=_(
                 'The default font size for monospaced text')),
-        OptionRecommendation(name='uncompressed_pdf',
-            recommended_value=False, help=_(
-                'Generate an uncompressed PDF (useful for debugging)')),
-        OptionRecommendation(name='old_pdf_engine', recommended_value=False,
-            help=_('Use the old, less capable engine to generate the PDF')),
+        # OptionRecommendation(name='old_pdf_engine', recommended_value=False,
+        #     help=_('Use the old, less capable engine to generate the PDF')),
+        # OptionRecommendation(name='uncompressed_pdf',
+        #     recommended_value=False, help=_(
+        #         'Generate an uncompressed PDF, useful for debugging, '
+        #         'only works with the new PDF engine.')),
         ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
@@ -189,11 +190,12 @@ class PDFOutput(OutputFormatPlugin):
                         val[i].value = family_map[k]
 
     def convert_text(self, oeb_book):
-        if self.opts.old_pdf_engine:
-            from calibre.ebooks.pdf.writer import PDFWriter
+        from calibre.utils.config import tweaks
+        if tweaks.get('new_pdf_engine', False):
+            from calibre.ebooks.pdf.render.from_html import PDFWriter
             PDFWriter
         else:
-            from calibre.ebooks.pdf.render.from_html import PDFWriter
+            from calibre.ebooks.pdf.writer import PDFWriter
         from calibre.ebooks.metadata.opf2 import OPF
 
         self.log.debug('Serializing oeb input to disk for processing...')

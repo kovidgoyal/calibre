@@ -198,7 +198,7 @@
      <normaloff>:/images/font_size_larger.png</normaloff>:/images/font_size_larger.png</iconset>
    </property>
    <property name="text">
-    <string>Font size larger</string>
+    <string>Increase font size</string>
    </property>
   </action>
   <action name="action_font_size_smaller">
@@ -207,7 +207,7 @@
      <normaloff>:/images/font_size_smaller.png</normaloff>:/images/font_size_smaller.png</iconset>
    </property>
    <property name="text">
-    <string>Font size smaller</string>
+    <string>Decrease font size</string>
    </property>
   </action>
   <action name="action_table_of_contents">

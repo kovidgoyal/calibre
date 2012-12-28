@@ -20,9 +20,9 @@ class TECLAST_K3(USBMS):
     BCD         = [0x0000, 0x0100]
 
     VENDOR_NAME      = ['TECLAST', 'IMAGIN', 'RK28XX', 'PER3274B', 'BEBOOK',
-                        'RK2728']
+                        'RK2728', 'MR700']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['DIGITAL_PLAYER', 'TL-K5',
-            'EREADER', 'USB-MSC', 'PER3274B', 'BEBOOK']
+            'EREADER', 'USB-MSC', 'PER3274B', 'BEBOOK', 'USER']
 
     MAIN_MEMORY_VOLUME_LABEL  = 'K3 Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'K3 Storage Card'
