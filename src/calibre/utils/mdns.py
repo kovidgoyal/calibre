@@ -91,7 +91,7 @@ def create_service(desc, type, port, properties, add_hostname, use_ip_address=No
 
     if add_hostname:
         try:
-            desc += b' (on %s)'%hostname
+            desc += ' (on %s)'%hostname
         except:
             pass
 
