@@ -300,7 +300,7 @@ class PDFStream(object):
         self.font_manager = FontManager(self.objects, self.compress)
         self.image_cache = {}
         self.debug = debug
-        self.links = Links(self, mark_links)
+        self.links = Links(self, mark_links, page_size)
 
     @property
     def page_tree(self):

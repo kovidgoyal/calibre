@@ -24,10 +24,10 @@ class Destination(Array):
 
 class Links(object):
 
-    def __init__(self, pdf, mark_links):
+    def __init__(self, pdf, mark_links, page_size):
         self.anchors = {}
         self.links = []
-        self.start = {'top':0, 'column':0, 'left':0}
+        self.start = {'top':page_size[1], 'column':0, 'left':0}
         self.pdf = pdf
         self.mark_links = mark_links
 
