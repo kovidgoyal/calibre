@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-28 04:12+0000\n"
-"PO-Revision-Date: 2012-12-19 15:09+0000\n"
-"Last-Translator: André Glória <Unknown>\n"
+"PO-Revision-Date: 2012-12-28 23:23+0000\n"
+"Last-Translator: RavenMaster <ravenmaster@sapo.pt>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-28 05:02+0000\n"
+"X-Launchpad-Export-Date: 2012-12-29 04:52+0000\n"
 "X-Generator: Launchpad (build 16378)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -217,11 +217,11 @@ msgstr "Tipo de ficheiro"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:368
 msgid "Metadata reader"
-msgstr "Leitor de detalhes"
+msgstr "Leitor de metadados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:398
 msgid "Metadata writer"
-msgstr "Editor de detalhes"
+msgstr "Editor de metadados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:428
 msgid "Catalog generator"
@@ -239,7 +239,7 @@ msgstr "Ação de interface do utilizador"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:311
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:221
 msgid "Preferences"
-msgstr "Preferências"
+msgstr "Opções"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:637
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:39
@@ -248,7 +248,7 @@ msgstr "Loja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:641
 msgid "An ebook store."
-msgstr "Uma loja de \"ebooks\""
+msgstr "Uma loja de ebooks."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:21
 msgid ""
@@ -298,15 +298,15 @@ msgstr "Extrai a capa dos ficheiros de banda desenhada"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:400
 #, python-format
 msgid "Read metadata from %s files"
-msgstr "Ler detalhes de %s ficheiros"
+msgstr "Ler metadados de %s ficheiros"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:337
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Ler detalhes dos \"ebooks\" em arquivos RAR"
+msgstr "Ler metadados de ebooks em arquivos RAR"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:411
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Ler detalhes dos \"ebooks\" em arquivos ZIP"
+msgstr "Ler metadados de ebooks em arquivos ZIP"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:428
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:438
@@ -317,7 +317,7 @@ msgstr "Ler detalhes dos \"ebooks\" em arquivos ZIP"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:512
 #, python-format
 msgid "Set metadata in %s files"
-msgstr "Definir detalhes em ficheiros %s"
+msgstr "Definir metadados em %s ficheiros"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:448
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:480
@@ -1474,7 +1474,7 @@ msgstr "Comunicar com o leitor Hanvon N520."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:48
 msgid "Communicate with the Kibano eBook reader."
-msgstr ""
+msgstr "Comunicar com o Kibano eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:61
 msgid "Communicate with The Book reader."
@@ -2267,6 +2267,10 @@ msgid ""
 "the T1 sets it. This means it will only show the first author for books with "
 "multiple authors. Leave this disabled if you use Metadata Plugboards."
 msgstr ""
+"Ative esta opção se pretende que o autor apareça no Sony da forma definida "
+"pelo T1. Isto significa que irá mostrar apenas o primeiro autor em livros "
+"que tenham múltiplos autores. Deixe esta opção desativada se utiliza "
+"metadados Plugboards."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:176
 msgid "Wireless Device"
@@ -2278,7 +2282,7 @@ msgstr "Comunicar com aplicações de Dispositivos Inteligentes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:266
 msgid "All by something"
-msgstr ""
+msgstr "Tudo por algo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:269
 msgid "Enable connections at startup"
@@ -2564,7 +2568,7 @@ msgstr "ID USB do produto (em hexadecimal)"
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
 msgid "USB Revision ID (in hex)"
-msgstr ""
+msgstr "ID da Revisão USB (em hexadecimal)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
@@ -2579,6 +2583,9 @@ msgid ""
 "This field is used only on windows. Get this ID using Preferences -> Misc -> "
 "Get information to set up the user-defined device"
 msgstr ""
+"Este campo é utilizado apenas no Windows. Obtenha este ID em Preferências -> "
+"Vários -> Obter informação para configurar o dispositivo definido pelo "
+"utilizador"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:81
@@ -2597,7 +2604,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
-msgstr ""
+msgstr "Pasta de memória principal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:64
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:67
@@ -3073,6 +3080,8 @@ msgstr ""
 #, python-format
 msgid "Multiple HTML files found in the archive. Only %s will be used."
 msgstr ""
+"Foram encontrados vários ficheiros HTML no arquivo. Vão ser utilizados "
+"apenas %s."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/htmlz_input.py:69
 msgid "No top level HTML file found."
@@ -4827,10 +4836,12 @@ msgid ""
 "Downloads metadata and covers from Douban.com. Useful only for chinese "
 "language books."
 msgstr ""
+"Descarregar metadados e capas de Douban.com. Útil apenas para livros em "
+"chinês."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:162
 msgid "Downloads metadata and covers from Google Books"
-msgstr ""
+msgstr "Descarregar metadados e capas do Google Books"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:24
 msgid "Downloads metadata from isbndb.com"
@@ -4865,11 +4876,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:41
 msgid "Download all metadata (slow)"
-msgstr ""
+msgstr "Baixar todos os metadados (demorado)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:42
 msgid "Enable this option to gather all metadata available from Overdrive."
 msgstr ""
+"Ative esta opção para descarregar todos os metadados disponíveis no "
+"Overdrive."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:45
 msgid ""
@@ -5131,6 +5144,7 @@ msgstr "Carregar as notícias descarregadas para o aparelho"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:152
 msgid "Delete news books from library after uploading to device"
 msgstr ""
+"Apagar livros de notícias da biblioteca após envio para o dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:154
 msgid ""
@@ -6663,6 +6677,8 @@ msgid ""
 "Calibre helps you find the ebooks you want by searching the websites of "
 "various commercial and public domain book sources for you."
 msgstr ""
+"O Calibre ajuda-o a encontrar os ebooks que deseja procurando em vários "
+"sites de livros de domínio público e comerciais."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:138
 msgid ""
@@ -6670,6 +6686,9 @@ msgid ""
 "are looking for, at the best price. You also get DRM status and other useful "
 "information."
 msgstr ""
+"Utilizando a busca integrada poderá facilmente encontrar a loja que tem o "
+"livro que procura ao melhor preço. Consegue também visualizar informação "
+"como o estado DRM entre outras."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:142
 msgid ""
@@ -10415,7 +10434,7 @@ msgstr "Item está em branco"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:210
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:958
 msgid "An item cannot be set to nothing. Delete it instead."
-msgstr ""
+msgstr "Um item não pode ser definido para nada. Em vez disso apague-o."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:227
@@ -13508,6 +13527,8 @@ msgid ""
 "Ignore custom plugins, useful if you installed a plugin that is preventing "
 "calibre from starting"
 msgstr ""
+"Ignore plugins personalizados, útil se instalou algum plugin que está a "
+"impedir que o Calibre arranque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:75
 msgid "Path too long"
@@ -14174,6 +14195,8 @@ msgid ""
 "Restore settings to default values. You have to click Apply to actually save "
 "the default settings."
 msgstr ""
+"Restaura as definições aos valores de origem. Tem de pressionar Aplicar para "
+"guardar realmente as definições pré-definidas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:340
 msgid "Configure "

@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-28 04:12+0000\n"
-"PO-Revision-Date: 2012-12-21 05:49+0000\n"
+"PO-Revision-Date: 2012-12-28 05:18+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-12-28 05:06+0000\n"
+"X-Launchpad-Export-Date: 2012-12-29 04:56+0000\n"
 "X-Generator: Launchpad (build 16378)\n"
 "Language: uk\n"
 
@@ -1470,7 +1470,7 @@ msgstr "Зв’язується з Hanvon N520 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:48
 msgid "Communicate with the Kibano eBook reader."
-msgstr ""
+msgstr "Обмін даними з пристроєм для читання електронних книг Kibano."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:61
 msgid "Communicate with The Book reader."
@@ -3394,6 +3394,9 @@ msgid ""
 "options. This option will cause the  page size settings under PDF Output to "
 "override the  size specified by the output profile."
 msgstr ""
+"Зазвичай, розмір сторінки PDF визначається вибраним у параметрах сторінки "
+"профілем. За допомогою цього параметра ви можете перевизначити розміри "
+"сторінки у виведених даних PDF, вказані у профілі виведення даних."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:58
 #, python-format
@@ -3401,6 +3404,9 @@ msgid ""
 "The unit of measure for page sizes. Default is inch. Choices are %s Note: "
 "This does not override the unit for margins!"
 msgstr ""
+"Одиниця виміру розмірів сторінки. Типовою одиницею є дюйм. Можливі варіанти: "
+"%s. Значення цього параметра не змінює значення відповідного параметра для "
+"полів сторінки!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:63
 #, python-format
@@ -5057,7 +5063,7 @@ msgstr "Іспанія"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:525
 msgid "Brazil"
-msgstr ""
+msgstr "Бразилія"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:529
 msgid "Amazon website to use:"
@@ -6160,15 +6166,15 @@ msgstr "Вибрати бібліотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:138
 msgid "Library &path:"
-msgstr ""
+msgstr "&Шлях до бібліотеки:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:146
 msgid "Browse for library"
-msgstr ""
+msgstr "Вказати бібліотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:149
 msgid "&Delete after copy"
-msgstr ""
+msgstr "Ви&лучити після копіювання"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:172
 msgid "Copy to library"
@@ -6184,7 +6190,7 @@ msgstr "(Вилучення після копіювання)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:210
 msgid "Choose library by path..."
-msgstr ""
+msgstr "Вказати шлях до бібліотеки…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:227
@@ -6193,7 +6199,7 @@ msgstr "Не вдається скопіювати"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:221
 msgid "Cannot copy to current library."
-msgstr ""
+msgstr "Не можна копіювати до поточної бібліотеки."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:232
 msgid "No library"
@@ -9158,10 +9164,13 @@ msgid ""
 "the \"Override\" checkbox below. Otherwise the size from the output profile "
 "will be used."
 msgstr ""
+"<b>Зауваження:</b> вказані нижче розміри сторінки набудуть чинності, лише "
+"якщо ви позначите пункт перевизначення, розташований нижче. Якщо цей пункт "
+"не буде позначено, буде використано параметри з профілю виведення даних."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:116
 msgid "&Override paper size set in output profile"
-msgstr ""
+msgstr "П&еревизначити розміри сторінки, визначення профілем виведення"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:117
 msgid "&Paper Size:"
@@ -9173,7 +9182,7 @@ msgstr "&Нетиповий розмір:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:119
 msgid "&Unit:"
-msgstr ""
+msgstr "&Одиниця виміру:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:120
 msgid "Preserve &aspect ratio of cover"
@@ -10441,11 +10450,11 @@ msgstr "Записати у полі автора «Невідомий»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:48
 msgid "Set the series of the new books to:"
-msgstr ""
+msgstr "Серією для нових книг є:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:60
 msgid "Reset series"
-msgstr ""
+msgstr "Скинути серію"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:72
 msgid "Some invalid ISBNs"
@@ -19651,7 +19660,7 @@ msgstr "Кінець розділу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:547
 msgid "Default font size"
-msgstr ""
+msgstr "Типовий розмір символів"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:614
 #, python-format
@@ -19838,14 +19847,16 @@ msgid ""
 "%(which)s font size\n"
 "Current magnification: %(mag).1f"
 msgstr ""
+"Розмір символів %(which)s\n"
+"Поточний масштаб: %(mag).1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:702
 msgid "Increase"
-msgstr ""
+msgstr "Збільшити"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:704
 msgid "Decrease"
-msgstr ""
+msgstr "Зменшити"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:722
 #, python-format

@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-28 04:12+0000\n"
-"PO-Revision-Date: 2012-12-27 18:15+0000\n"
-"Last-Translator: Daisuke Muro <dicekmuro@gmail.com>\n"
+"PO-Revision-Date: 2012-12-29 02:18+0000\n"
+"Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-12-28 04:58+0000\n"
+"X-Launchpad-Export-Date: 2012-12-29 04:48+0000\n"
 "X-Generator: Launchpad (build 16378)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1405,7 +1405,7 @@ msgstr "Hanvon N520 電子書籍リーダ─と通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:48
 msgid "Communicate with the Kibano eBook reader."
-msgstr ""
+msgstr "Kibano eBook リーダーと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:61
 msgid "Communicate with The Book reader."
@@ -4975,7 +4975,7 @@ msgstr "再起動が必要です。"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:342
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:741
 msgid "Restart calibre now"
-msgstr ""
+msgstr "Calibreを再起動する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:573
 msgid "Choose Files"
@@ -8370,7 +8370,7 @@ msgstr "左(&L):"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:136
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:139
 msgid "No margin"
-msgstr ""
+msgstr "余白なし"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:132
 msgid "&Top:"
@@ -9294,7 +9294,7 @@ msgstr "デバイスとして開くフォルダーを選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:918
 msgid "Running jobs"
-msgstr ""
+msgstr "ジョブ実行中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:919
 msgid "Cannot configure the device while there are running device jobs."
@@ -18565,7 +18565,7 @@ msgstr "Calibreのライブラリには空のフォルダーを選択する必�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:854
 msgid "&Next >"
-msgstr ""
+msgstr "次へ(&N) >"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:855
 msgid "< &Back"
@@ -18578,7 +18578,7 @@ msgstr "キャンセル"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:857
 msgid "&Finish"
-msgstr ""
+msgstr "完了(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:858
 msgid "Commit"
