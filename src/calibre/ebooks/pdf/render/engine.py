@@ -241,9 +241,10 @@ class PdfEngine(QPaintEngine):
 
     @property
     def features(self):
+        # gradient_flags = self.MaskedBrush | self.PatternBrush | self.PatternTransform
         return (self.Antialiasing | self.AlphaBlend | self.ConstantOpacity |
                 self.PainterPaths | self.PaintOutsidePaintEvent |
-                self.PrimitiveTransform)
+                self.PrimitiveTransform) #| gradient_flags
 
     def begin(self, device):
         if not hasattr(self, 'pdf'):
