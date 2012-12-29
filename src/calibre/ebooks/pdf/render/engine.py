@@ -241,10 +241,9 @@ class PdfEngine(QPaintEngine):
 
     @property
     def features(self):
-        return (QPaintEngine.Antialiasing | QPaintEngine.AlphaBlend |
-                QPaintEngine.ConstantOpacity | QPaintEngine.PainterPaths |
-                QPaintEngine.PaintOutsidePaintEvent |
-                QPaintEngine.PrimitiveTransform)
+        return (self.Antialiasing | self.AlphaBlend | self.ConstantOpacity |
+                self.PainterPaths | self.PaintOutsidePaintEvent |
+                self.PrimitiveTransform)
 
     def begin(self, device):
         if not hasattr(self, 'pdf'):
