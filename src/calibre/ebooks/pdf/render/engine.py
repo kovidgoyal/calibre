@@ -251,9 +251,11 @@ class PdfEngine(QPaintEngine):
             try:
                 self.pdf = PDFStream(self.file_object, (self.page_width,
                         self.page_height), compress=self.compress,
-                                     mark_links=self.mark_links)
+                                     mark_links=self.mark_links,
+                                     debug=self.debug)
             except:
                 self.errors(traceback.format_exc())
+                self.errors_occurred = True
                 return False
         return True
 
@@ -270,6 +272,7 @@ class PdfEngine(QPaintEngine):
             self.pdf.end()
         except:
             self.errors(traceback.format_exc())
+            self.errors_occurred = True
             return False
         finally:
             self.pdf = self.file_object = None
@@ -581,7 +584,7 @@ if __name__ == '__main__':
     QBrush, QColor, QPoint, QPixmap
     app = QApplication([])
     p = QPainter()
-    with open('/tmp/painter.pdf', 'wb') as f:
+    with open('/t/painter.pdf', 'wb') as f:
         dev = PdfDevice(f, compress=False)
         p.begin(dev)
         dev.init_page()

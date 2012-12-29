@@ -281,7 +281,8 @@ class PDFStream(object):
         ( True,  True,  'evenodd')  : 'B*',
     }
 
-    def __init__(self, stream, page_size, compress=False, mark_links=False):
+    def __init__(self, stream, page_size, compress=False, mark_links=False,
+                 debug=print):
         self.stream = HashingStream(stream)
         self.compress = compress
         self.write_line(PDFVER)
@@ -298,6 +299,7 @@ class PDFStream(object):
         self.stroke_opacities, self.fill_opacities = {}, {}
         self.font_manager = FontManager(self.objects, self.compress)
         self.image_cache = {}
+        self.debug = debug
         self.links = Links(self, mark_links)
 
     @property
