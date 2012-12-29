@@ -179,14 +179,14 @@ class Text(object):
         if not self.text: return
         stream.write_line('BT ')
         serialize(Name(font_name), stream)
-        stream.write(' %g Tf '%self.size)
+        stream.write(' %s Tf '%fmtnum(self.size))
         stream.write(' '.join(map(fmtnum, self.transform)) + ' Tm ')
         if self.horizontal_scale != self.default_horizontal_scale:
-            stream.write('%g Tz '%self.horizontal_scale)
+            stream.write('%s Tz '%fmtnum(self.horizontal_scale))
         if self.word_spacing != self.default_word_spacing:
-            stream.write('%g Tw '%self.word_spacing)
+            stream.write('%s Tw '%fmtnum(self.word_spacing))
         if self.char_space != self.default_char_space:
-            stream.write('%g Tc '%self.char_space)
+            stream.write('%s Tc '%fmtnum(self.char_space))
         stream.write_line()
         if self.glyph_adjust is self.default_glyph_adjust:
             serialize(String(self.text), stream)
@@ -347,7 +347,7 @@ class PDFStream(object):
         self.current_page.write_line('Q q')
 
     def draw_rect(self, x, y, width, height, stroke=True, fill=False):
-        self.current_page.write('%g %g %g %g re '%(x, y, width, height))
+        self.current_page.write('%s re '%' '.join(map(fmtnum, (x, y, width, height))))
         self.current_page.write_line(self.PATH_OPS[(stroke, fill, 'winding')])
 
     def write_path(self, path):
@@ -424,10 +424,10 @@ class PDFStream(object):
         name = self.current_page.add_font(fontref)
         self.current_page.write(b'BT ')
         serialize(Name(name), self.current_page)
-        self.current_page.write(' %g Tf '%size)
+        self.current_page.write(' %s Tf '%fmtnum(size))
         self.current_page.write('%s Tm '%' '.join(map(fmtnum, transform)))
         for x, y, glyph_id in glyphs:
-            self.current_page.write('%g %g Td '%(x, y))
+            self.current_page.write('%s %s Td '%(fmtnum(x), fmtnum(y)))
             serialize(GlyphIndex(glyph_id), self.current_page)
             self.current_page.write(' Tj ')
         self.current_page.write_line(b' ET')
@@ -444,7 +444,8 @@ class PDFStream(object):
 
     def draw_image(self, x, y, xscale, yscale, imgref):
         name = self.current_page.add_image(imgref)
-        self.current_page.write('q %g 0 0 %g %g %g cm '%(xscale, yscale, x, y))
+        self.current_page.write('q %s 0 0 %s %s %s cm '%(fmtnum(xscale),
+                            fmtnum(yscale), fmtnum(x), fmtnum(y)))
         serialize(Name(name), self.current_page)
         self.current_page.write_line(' Do Q')
 
