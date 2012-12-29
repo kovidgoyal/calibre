@@ -51,7 +51,7 @@ class Links(object):
             is_local = not href or combined_path in self.anchors
             annot = Dictionary({
                 'Type':Name('Annot'), 'Subtype':Name('Link'),
-                'Rect':rect,
+                'Rect':rect, 'Border':Array([0,0,0]),
             })
             if self.mark_links:
                 annot.update({'Border':Array([16, 16, 1]), 'C':Array([1.0, 0,
