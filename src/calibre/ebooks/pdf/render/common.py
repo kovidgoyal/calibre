@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import codecs, zlib
 from io import BytesIO
 from struct import pack
+from decimal import Decimal
 
 EOL = b'\n'
 
@@ -51,13 +52,30 @@ PAPER_SIZES = {k:globals()[k.upper()] for k in ('a0 a1 a2 a3 a4 a5 a6 b0 b1 b2'
 
 # Basic PDF datatypes {{{
 
+def format_float(f):
+    if abs(f) < 1e-7:
+        return '0'
+    places = 6
+    a, b = type(u'')(Decimal(f).quantize(Decimal(10)**-places)).partition('.')[0::2]
+    b = b.rstrip('0')
+    if not b:
+        return '0' if a == '-0' else a
+    return '%s.%s'%(a, b)
+
+def fmtnum(o):
+    if isinstance(o, (int, long)):
+        return type(u'')(o)
+    return format_float(o)
+
 def serialize(o, stream):
     if hasattr(o, 'pdf_serialize'):
         o.pdf_serialize(stream)
     elif isinstance(o, bool):
         stream.write(b'true' if o else b'false')
-    elif isinstance(o, (int, long, float)):
+    elif isinstance(o, (int, long)):
         stream.write(type(u'')(o).encode('ascii'))
+    elif isinstance(o, float):
+        stream.write(format_float(o).encode('ascii'))
     elif o is None:
         stream.write(b'null')
     else:

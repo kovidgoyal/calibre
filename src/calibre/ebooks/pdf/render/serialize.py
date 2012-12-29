@@ -15,7 +15,7 @@ from collections import namedtuple
 from calibre.constants import (__appname__, __version__)
 from calibre.ebooks.pdf.render.common import (
     Reference, EOL, serialize, Stream, Dictionary, String, Name, Array,
-    GlyphIndex)
+    GlyphIndex, fmtnum)
 from calibre.ebooks.pdf.render.fonts import FontManager
 from calibre.ebooks.pdf.render.links import Links
 
@@ -180,7 +180,7 @@ class Text(object):
         stream.write_line('BT ')
         serialize(Name(font_name), stream)
         stream.write(' %g Tf '%self.size)
-        stream.write(' '.join(map(type(u''), self.transform)) + ' Tm ')
+        stream.write(' '.join(map(fmtnum, self.transform)) + ' Tm ')
         if self.horizontal_scale != self.default_horizontal_scale:
             stream.write('%g Tz '%self.horizontal_scale)
         if self.word_spacing != self.default_word_spacing:
@@ -331,7 +331,7 @@ class PDFStream(object):
             vals = [m.m11(), m.m12(), m.m21(), m.m22(), m.dx(), m.dy()]
         else:
             vals = args
-        cm = ' '.join(map(type(u''), vals))
+        cm = ' '.join(map(fmtnum, vals))
         self.current_page.write_line(cm + ' cm')
 
     def set_rgb_colorspace(self):
@@ -355,7 +355,8 @@ class PDFStream(object):
             if i != 0:
                 self.current_page.write_line()
             for x in op:
-                self.current_page.write(type(u'')(x) + ' ')
+                self.current_page.write(
+                (fmtnum(x) if isinstance(x, (int, long, float)) else x) + ' ')
 
     def draw_path(self, path, stroke=True, fill=False, fill_rule='winding'):
         if not path.ops: return
@@ -394,7 +395,7 @@ class PDFStream(object):
             op = Dictionary({'Type':Name('ExtGState'), 'CA': opacity})
             self.stroke_opacities[opacity] = self.objects.add(op)
         self.current_page.set_opacity(self.stroke_opacities[opacity])
-        self.current_page.write_line(' '.join(map(type(u''), color[:3])) + ' SC')
+        self.current_page.write_line(' '.join(map(fmtnum, color[:3])) + ' SC')
 
     def set_fill_color(self, color):
         opacity = color.opacity
@@ -402,7 +403,7 @@ class PDFStream(object):
             op = Dictionary({'Type':Name('ExtGState'), 'ca': opacity})
             self.fill_opacities[opacity] = self.objects.add(op)
         self.current_page.set_opacity(self.fill_opacities[opacity])
-        self.current_page.write_line(' '.join(map(type(u''), color[:3])) + ' sc')
+        self.current_page.write_line(' '.join(map(fmtnum, color[:3])) + ' sc')
 
     def end_page(self):
         pageref = self.current_page.end(self.objects, self.stream)
@@ -424,7 +425,7 @@ class PDFStream(object):
         self.current_page.write(b'BT ')
         serialize(Name(name), self.current_page)
         self.current_page.write(' %g Tf '%size)
-        self.current_page.write('%s Tm '%' '.join(map(type(u''), transform)))
+        self.current_page.write('%s Tm '%' '.join(map(fmtnum, transform)))
         for x, y, glyph_id in glyphs:
             self.current_page.write('%g %g Td '%(x, y))
             serialize(GlyphIndex(glyph_id), self.current_page)

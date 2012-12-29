@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import sys, traceback
 from collections import namedtuple
 from functools import wraps, partial
+from future_builtins import map
 
 import sip
 from PyQt4.Qt import (QPaintEngine, QPaintDevice, Qt, QApplication, QPainter,
@@ -18,12 +19,16 @@ from PyQt4.Qt import (QPaintEngine, QPaintDevice, Qt, QApplication, QPainter,
 
 from calibre.constants import plugins
 from calibre.ebooks.pdf.render.serialize import (Color, PDFStream, Path)
-from calibre.ebooks.pdf.render.common import inch, A4
+from calibre.ebooks.pdf.render.common import inch, A4, fmtnum
 from calibre.utils.fonts.sfnt.container import Sfnt
 from calibre.utils.fonts.sfnt.metrics import FontMetrics
 
 Point = namedtuple('Point', 'x y')
 ColorState = namedtuple('ColorState', 'color opacity do')
+
+def repr_transform(t):
+    vals = map(fmtnum, (t.m11(), t.m12(), t.m21(), t.m22(), t.dx(), t.dy()))
+    return '[%s]'%' '.join(vals)
 
 def store_error(func):
 
