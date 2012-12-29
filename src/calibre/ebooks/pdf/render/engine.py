@@ -8,7 +8,6 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, traceback
-from math import sqrt
 from collections import namedtuple
 from functools import wraps, partial
 
@@ -213,8 +212,6 @@ class PdfEngine(QPaintEngine):
         self.pdf_system = QTransform(sx, 0, 0, -sy, dx, dy)
         self.do_stroke = True
         self.do_fill = False
-        self.scale = sqrt(sy**2 + sx**2)
-        self.xscale, self.yscale = sx, sy
         self.graphics_state = GraphicsState()
         self.errors_occurred = False
         self.errors, self.debug = errors, debug
@@ -244,7 +241,7 @@ class PdfEngine(QPaintEngine):
         # gradient_flags = self.MaskedBrush | self.PatternBrush | self.PatternTransform
         return (self.Antialiasing | self.AlphaBlend | self.ConstantOpacity |
                 self.PainterPaths | self.PaintOutsidePaintEvent |
-                self.PrimitiveTransform) #| gradient_flags
+                self.PrimitiveTransform | self.PixmapTransform) #| gradient_flags
 
     def begin(self, device):
         if not hasattr(self, 'pdf'):
@@ -280,6 +277,8 @@ class PdfEngine(QPaintEngine):
 
     def type(self):
         return QPaintEngine.Pdf
+
+    # TODO: Tiled pixmap
 
     @store_error
     def drawPixmap(self, rect, pixmap, source_rect):
