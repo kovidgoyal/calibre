@@ -32,7 +32,7 @@ class NYTimes(BasicNewsRecipe):
     # number of days old an article can be for inclusion. If oldest_web_article = None all articles
     # will be included. Note: oldest_web_article is ignored if webEdition = False
     webEdition = False
-    oldest_web_article = 7
+    oldest_web_article = None
 
     # download higher resolution images than the small thumbnails typically included in the article
     # the down side of having large beautiful images is the file size is much larger, on the order of 7MB per paper
@@ -153,7 +153,7 @@ class NYTimes(BasicNewsRecipe):
 
     timefmt = ''
 
-    simultaneous_downloads = 1
+    #simultaneous_downloads = 1 # no longer required to deal with ads
 
     cover_margins = (18,18,'grey99')
 
@@ -204,7 +204,8 @@ class NYTimes(BasicNewsRecipe):
                                         re.compile('^subNavigation'),
                                         re.compile('^leaderboard'),
                                         re.compile('^module'),
-                                        re.compile('commentCount')
+                                        re.compile('commentCount'),
+                                        'credit'
                                         ]}),
                     dict(name='div', attrs={'class':re.compile('toolsList')}),  # bits
                     dict(name='div', attrs={'class':re.compile('postNavigation')}),  # bits
@@ -291,11 +292,11 @@ class NYTimes(BasicNewsRecipe):
                 del ans[idx]
                 idx_max = idx_max-1
                 continue
-            if self.verbose:
+            if True: #self.verbose
                 self.log("Section %s: %d articles" % (ans[idx][0], len(ans[idx][1])) )
             for article in ans[idx][1]:
                 total_article_count += 1
-                if self.verbose:
+                if True: #self.verbose
                     self.log("\t%-40.40s... \t%-60.60s..." % (article['title'].encode('cp1252','replace'),
                               article['url'].encode('cp1252','replace')))
             idx = idx+1
@@ -351,23 +352,8 @@ class NYTimes(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser()
         return br
 
-##    This doesn't work (and probably never did). It either gets another serve of the advertisement,
-##    or if it gets the article then get_soup (from which it is invoked) traps trying to do xml decoding.
-##
-##    def skip_ad_pages(self, soup):
-##        # Skip ad pages served before actual article
-##        skip_tag = soup.find(True, {'name':'skip'})
-##        if skip_tag is not None:
-##            self.log.warn("Found forwarding link: %s" % skip_tag.parent['href'])
-##            url = 'http://www.nytimes.com' + re.sub(r'\?.*', '', skip_tag.parent['href'])
-##            url += '?pagewanted=all'
-##            self.log.warn("Skipping ad to article at '%s'" % url)
-##            return self.index_to_soup(url, raw=True)
-
-
     cover_tag = 'NY_NYT'
     def get_cover_url(self):
-        from datetime import timedelta, date
         cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg'+str(date.today().day)+'/lg/'+self.cover_tag+'.jpg'
         br = BasicNewsRecipe.get_browser()
         daysback=1
@@ -745,11 +731,12 @@ class NYTimes(BasicNewsRecipe):
 
 
     def preprocess_html(self, soup):
-        print("PREPROCESS TITLE="+self.tag_to_string(soup.title))
+        #print("PREPROCESS TITLE="+self.tag_to_string(soup.title))
         skip_tag = soup.find(True, {'name':'skip'})
         if skip_tag is not None:
-            url = 'http://www.nytimes.com' + re.sub(r'\?.*', '', skip_tag.parent['href'])
-            url += '?pagewanted=all'
+            #url = 'http://www.nytimes.com' + re.sub(r'\?.*', '', skip_tag.parent['href'])
+            url = 'http://www.nytimes.com' + skip_tag.parent['href']
+            #url += '?pagewanted=all'
             self.log.warn("Skipping ad to article at '%s'" % url)
             sleep(5)
             soup = self.handle_tags(self.article_to_soup(url))
@@ -969,121 +956,121 @@ class NYTimes(BasicNewsRecipe):
                     self.log("ERROR: One picture per article in postprocess_html")
 
             try:
-                    # Change captions to italic
-                    for caption in soup.findAll(True, {'class':'caption'}) :
-                            if caption and len(caption) > 0:
-                                    cTag = Tag(soup, "p", [("class", "caption")])
-                                    c = self.fixChars(self.tag_to_string(caption,use_alt=False)).strip()
-                                    mp_off = c.find("More Photos")
-                                    if mp_off >= 0:
-                                            c = c[:mp_off]
-                                    cTag.insert(0, c)
-                                    caption.replaceWith(cTag)
+                # Change captions to italic
+                for caption in soup.findAll(True, {'class':'caption'}) :
+                        if caption and len(caption) > 0:
+                                cTag = Tag(soup, "p", [("class", "caption")])
+                                c = self.fixChars(self.tag_to_string(caption,use_alt=False)).strip()
+                                mp_off = c.find("More Photos")
+                                if mp_off >= 0:
+                                        c = c[:mp_off]
+                                cTag.insert(0, c)
+                                caption.replaceWith(cTag)
             except:
-                    self.log("ERROR:  Problem in change captions to italic")
+                self.log("ERROR:  Problem in change captions to italic")
 
             try:
-                    # Change <nyt_headline> to <h2>
-                    h1 = soup.find('h1')
-                    blogheadline = str(h1) #added for dealbook
-                    if h1:
-                            headline = h1.find("nyt_headline")
-                            if headline:
-                                    tag = Tag(soup, "h2")
-                                    tag['class'] = "headline"
-                                    tag.insert(0, self.fixChars(headline.contents[0]))
-                                    h1.replaceWith(tag)
-                            elif blogheadline.find('entry-title'):#added for dealbook
-                                    tag = Tag(soup, "h2")#added for dealbook
-                                    tag['class'] = "headline"#added for dealbook
-                                    tag.insert(0, self.fixChars(h1.contents[0]))#added for dealbook
-                                    h1.replaceWith(tag)#added for dealbook
+                # Change <nyt_headline> to <h2>
+                h1 = soup.find('h1')
+                blogheadline = str(h1) #added for dealbook
+                if h1:
+                        headline = h1.find("nyt_headline")
+                        if headline:
+                                tag = Tag(soup, "h2")
+                                tag['class'] = "headline"
+                                tag.insert(0, self.fixChars(headline.contents[0]))
+                                h1.replaceWith(tag)
+                        elif blogheadline.find('entry-title'):#added for dealbook
+                                tag = Tag(soup, "h2")#added for dealbook
+                                tag['class'] = "headline"#added for dealbook
+                                tag.insert(0, self.fixChars(h1.contents[0]))#added for dealbook
+                                h1.replaceWith(tag)#added for dealbook
 
-                    else:
-                            # Blog entry - replace headline, remove <hr> tags  - BCC I think this is no longer functional 1-18-2011
-                            headline = soup.find('title')
-                            if headline:
-                                    tag = Tag(soup, "h2")
-                                    tag['class'] = "headline"
-                                    tag.insert(0, self.fixChars(headline.renderContents()))
-                                    soup.insert(0, tag)
-                                    hrs = soup.findAll('hr')
-                                    for hr in hrs:
-                                            hr.extract()
+                else:
+                        # Blog entry - replace headline, remove <hr> tags  - BCC I think this is no longer functional 1-18-2011
+                        headline = soup.find('title')
+                        if headline:
+                                tag = Tag(soup, "h2")
+                                tag['class'] = "headline"
+                                tag.insert(0, self.fixChars(self.tag_to_string(headline,False)))
+                                soup.insert(0, tag)
+                                hrs = soup.findAll('hr')
+                                for hr in hrs:
+                                        hr.extract()
             except:
-                    self.log("ERROR:  Problem in Change <nyt_headline> to <h2>")
+                self.log("ERROR:  Problem in Change <nyt_headline> to <h2>")
 
             try:
-                    #if this is from a blog (dealbook, fix the byline format
-                    bylineauthor = soup.find('address',attrs={'class':'byline author vcard'})
-                    if bylineauthor:
-                        tag = Tag(soup, "h6")
-                        tag['class'] = "byline"
-                        tag.insert(0, self.fixChars(bylineauthor.renderContents()))
-                        bylineauthor.replaceWith(tag)
+                #if this is from a blog (dealbook, fix the byline format
+                bylineauthor = soup.find('address',attrs={'class':'byline author vcard'})
+                if bylineauthor:
+                    tag = Tag(soup, "h6")
+                    tag['class'] = "byline"
+                    tag.insert(0, self.fixChars(self.tag_to_string(bylineauthor,False)))
+                    bylineauthor.replaceWith(tag)
             except:
                 self.log("ERROR:  fixing byline author format")
 
             try:
-                    #if this is a blog (dealbook) fix the credit style for the pictures
-                    blogcredit = soup.find('div',attrs={'class':'credit'})
-                    if blogcredit:
-                        tag = Tag(soup, "h6")
-                        tag['class'] = "credit"
-                        tag.insert(0, self.fixChars(blogcredit.renderContents()))
-                        blogcredit.replaceWith(tag)
+                #if this is a blog (dealbook) fix the credit style for the pictures
+                blogcredit = soup.find('div',attrs={'class':'credit'})
+                if blogcredit:
+                    tag = Tag(soup, "h6")
+                    tag['class'] = "credit"
+                    tag.insert(0, self.fixChars(self.tag_to_string(blogcredit,False)))
+                    blogcredit.replaceWith(tag)
             except:
                 self.log("ERROR:  fixing credit format")
 
 
             try:
-                    # Change <h1> to <h3> - used in editorial blogs
-                    masthead = soup.find("h1")
-                    if masthead:
-                            # Nuke the href
-                            if masthead.a:
-                                    del(masthead.a['href'])
-                            tag = Tag(soup, "h3")
-                            tag.insert(0, self.fixChars(masthead.contents[0]))
-                            masthead.replaceWith(tag)
+                # Change <h1> to <h3> - used in editorial blogs
+                masthead = soup.find("h1")
+                if masthead:
+                        # Nuke the href
+                        if masthead.a:
+                                del(masthead.a['href'])
+                        tag = Tag(soup, "h3")
+                        tag.insert(0, self.fixChars(masthead.contents[0]))
+                        masthead.replaceWith(tag)
             except:
-                    self.log("ERROR:  Problem in Change <h1> to <h3> - used in editorial blogs")
+                self.log("ERROR:  Problem in Change <h1> to <h3> - used in editorial blogs")
 
             try:
-                    # Change <span class="bold"> to <b>
-                    for subhead in soup.findAll(True, {'class':'bold'}) :
-                            if subhead.contents:
-                                    bTag = Tag(soup, "b")
-                                    bTag.insert(0, subhead.contents[0])
-                                    subhead.replaceWith(bTag)
+                # Change <span class="bold"> to <b>
+                for subhead in soup.findAll(True, {'class':'bold'}) :
+                        if subhead.contents:
+                                bTag = Tag(soup, "b")
+                                bTag.insert(0, subhead.contents[0])
+                                subhead.replaceWith(bTag)
             except:
-                    self.log("ERROR:  Problem in Change <h1> to <h3> - used in editorial blogs")
+                self.log("ERROR:  Problem in Change <h1> to <h3> - used in editorial blogs")
             try:
-                    #remove the <strong> update tag
-                    blogupdated = soup.find('span', {'class':'update'})
-                    if blogupdated:
-                        blogupdated.replaceWith("")
+                #remove the <strong> update tag
+                blogupdated = soup.find('span', {'class':'update'})
+                if blogupdated:
+                    blogupdated.replaceWith("")
             except:
-                    self.log("ERROR:  Removing strong tag")
+                self.log("ERROR:  Removing strong tag")
 
             try:
-                    divTag = soup.find('div',attrs={'id':'articleBody'})
-                    if divTag:
-                            divTag['class'] = divTag['id']
+                divTag = soup.find('div',attrs={'id':'articleBody'})
+                if divTag:
+                        divTag['class'] = divTag['id']
             except:
-                    self.log("ERROR:  Problem in soup.find(div,attrs={id:articleBody})")
+                self.log("ERROR:  Problem in soup.find(div,attrs={id:articleBody})")
 
             try:
-                    # Add class="authorId" to <div> so we can format with CSS
-                    divTag = soup.find('div',attrs={'id':'authorId'})
-                    if divTag and divTag.contents[0]:
-                            tag = Tag(soup, "p")
-                            tag['class'] = "authorId"
-                            tag.insert(0, self.fixChars(self.tag_to_string(divTag.contents[0],
-                                                             use_alt=False)))
-                            divTag.replaceWith(tag)
+                # Add class="authorId" to <div> so we can format with CSS
+                divTag = soup.find('div',attrs={'id':'authorId'})
+                if divTag and divTag.contents[0]:
+                        tag = Tag(soup, "p")
+                        tag['class'] = "authorId"
+                        tag.insert(0, self.fixChars(self.tag_to_string(divTag.contents[0],
+                                                         use_alt=False)))
+                        divTag.replaceWith(tag)
             except:
-                    self.log("ERROR:  Problem in Add class=authorId to <div> so we can format with CSS")
+                self.log("ERROR:  Problem in Add class=authorId to <div> so we can format with CSS")
 
         return soup
 
