@@ -670,6 +670,9 @@ There are three possible things I know of, that can cause this:
       the blacklist of programs inside RoboForm to fix this. Or uninstall
       RoboForm.
 
+    * The Logitech SetPoint Settings application causes random crashes in
+      |app| when it is open. Close it before starting |app|.
+
 |app| is not starting on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
