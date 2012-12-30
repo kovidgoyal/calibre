@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-12-28 04:12+0000\n"
-"PO-Revision-Date: 2012-12-22 12:38+0000\n"
+"PO-Revision-Date: 2012-12-29 11:05+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-29 04:41+0000\n"
+"X-Launchpad-Export-Date: 2012-12-30 05:18+0000\n"
 "X-Generator: Launchpad (build 16378)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1491,7 +1491,7 @@ msgstr "Comunica't amb un lector Hanvon N520."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:48
 msgid "Communicate with the Kibano eBook reader."
-msgstr ""
+msgstr "Comunica't amb el lector Kibano."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:61
 msgid "Communicate with The Book reader."
@@ -3395,6 +3395,10 @@ msgid ""
 "options. This option will cause the  page size settings under PDF Output to "
 "override the  size specified by the output profile."
 msgstr ""
+"Normalment la mida de la pàgina d'un PDF l'estableix el perfil de sortida "
+"escollit a les opcions de pàgina. Aquesta opció farà que el paràmetres de "
+"mida de pàgina de «Sortida PDF» substitueixin la mida especificada al perfil "
+"de sortida."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:58
 #, python-format
@@ -3402,6 +3406,8 @@ msgid ""
 "The unit of measure for page sizes. Default is inch. Choices are %s Note: "
 "This does not override the unit for margins!"
 msgstr ""
+"Unitat de mesura per a les mides de pàgina. Per defecte és la polzada. Les "
+"opcions són %s. Nota: això no sobreescriu la unitat per als marges."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:63
 #, python-format
@@ -5059,7 +5065,7 @@ msgstr "Espanya"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:525
 msgid "Brazil"
-msgstr ""
+msgstr "Brasil"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:529
 msgid "Amazon website to use:"
@@ -6166,15 +6172,15 @@ msgstr "Tria la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:138
 msgid "Library &path:"
-msgstr ""
+msgstr "&Camí a la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:146
 msgid "Browse for library"
-msgstr ""
+msgstr "Cerca una biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:149
 msgid "&Delete after copy"
-msgstr ""
+msgstr "Suprimeix &després de copiar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:172
 msgid "Copy to library"
@@ -6190,7 +6196,7 @@ msgstr "(suprimeix després de copiar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:210
 msgid "Choose library by path..."
-msgstr ""
+msgstr "Tria la biblioteca pel camí..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:227
@@ -6199,7 +6205,7 @@ msgstr "No es pot copiar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:221
 msgid "Cannot copy to current library."
-msgstr ""
+msgstr "No es pot copiar a la biblioteca actual."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:232
 msgid "No library"
@@ -9164,10 +9170,13 @@ msgid ""
 "the \"Override\" checkbox below. Otherwise the size from the output profile "
 "will be used."
 msgstr ""
+"<b>Nota:</b> Els paràmetres de mida de la pàgina de més avall només "
+"s'apliquen si habiliteu la casella de selecció «Substitueix». En cas "
+"contrari s'utilitza la mida del perfil de sortida."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:116
 msgid "&Override paper size set in output profile"
-msgstr ""
+msgstr "&Substitueix la mida de la pàgina establert al perfil de sortida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:117
 msgid "&Paper Size:"
@@ -9179,7 +9188,7 @@ msgstr "Mida &personalitzada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:119
 msgid "&Unit:"
-msgstr ""
+msgstr "&Unitat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:120
 msgid "Preserve &aspect ratio of cover"
@@ -10447,11 +10456,11 @@ msgstr "Restableix l'autor a «Desconegut»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:48
 msgid "Set the series of the new books to:"
-msgstr ""
+msgstr "Estableix la sèrie dels llibres nous a:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:60
 msgid "Reset series"
-msgstr ""
+msgstr "Reinicia la sèrie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:72
 msgid "Some invalid ISBNs"
@@ -19649,7 +19658,7 @@ msgstr "Final de la secció"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:547
 msgid "Default font size"
-msgstr ""
+msgstr "Mida de lletra per defecte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:614
 #, python-format
@@ -19832,14 +19841,16 @@ msgid ""
 "%(which)s font size\n"
 "Current magnification: %(mag).1f"
 msgstr ""
+"%(which)s la mida de lletra\n"
+"Escala actual: %(mag).1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:702
 msgid "Increase"
-msgstr ""
+msgstr "Augmenta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:704
 msgid "Decrease"
-msgstr ""
+msgstr "Redueix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:722
 #, python-format
@@ -25342,44 +25353,3 @@ msgstr ""
 "abans de prémer la tecla de retorn. La tècnica que preferiu depèn de "
 "l'estat\n"
 "de les metadades de la biblioteca i el vostre estil d'edició personal."
-
-#~ msgid "&Orientation:"
-#~ msgstr "&Orientació:"
-
-#, python-format
-#~ msgid "The orientation of the page. Default is portrait. Choices are %s"
-#~ msgstr "Orientació de la pàgina. Vertical per defecte. Les opcions són %s"
-
-#, python-format
-#~ msgid ""
-#~ "The unit of measure. Default is inch. Choices are %s Note: This does not "
-#~ "override the unit for margins!"
-#~ msgstr ""
-#~ "La unitat de mesura. Polzada per defecte. Les opcions són %s Nota: no "
-#~ "sobreescriu la unitat per als marges!"
-
-#~ msgid "smaller"
-#~ msgstr "més petit"
-
-#~ msgid "larger"
-#~ msgstr "més gran"
-
-#, python-format
-#~ msgid ""
-#~ "Make font size %(which)s\n"
-#~ "Current magnification: %(mag).1f"
-#~ msgstr ""
-#~ "Fes la mida de lletra %(which)s\n"
-#~ "Escala actual: %(mag).1f"
-
-#~ msgid ""
-#~ "<b>Note:</b> The paper size settings below only take effect if you have set "
-#~ "the output profile to the default output profile. Otherwise the output "
-#~ "profile will override these settings."
-#~ msgstr ""
-#~ "<b>Nota:</b> Els paràmetres de mida de paper només tindran efecte si heu "
-#~ "establert el perfil de sortida al perfil per defecte. En cas contrari el "
-#~ "perfil de sortida tindrà prioritat sobre aquests paràmetres."
-
-#~ msgid "Normal font size"
-#~ msgstr "Mida de lletra normal"

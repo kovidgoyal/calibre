@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-12-29 04:48+0000\n"
+"X-Launchpad-Export-Date: 2012-12-30 05:19+0000\n"
 "X-Generator: Launchpad (build 16378)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -22949,30 +22949,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "smaller"
-#~ msgstr "小さく"
-
-#~ msgid "larger"
-#~ msgstr "大きく"
-
-#, python-format
-#~ msgid ""
-#~ "Make font size %(which)s\n"
-#~ "Current magnification: %(mag).1f"
-#~ msgstr ""
-#~ "フォントサイズを %(which)s にする\n"
-#~ "現在の拡大率: %(mag).1f"
-
-#~ msgid "&Orientation:"
-#~ msgstr "ページの向き(&O):"
-
-#, python-format
-#~ msgid "The orientation of the page. Default is portrait. Choices are %s"
-#~ msgstr "ページの方向。デフォルトはポートレート(縦長)。選択肢: %s"
-
-#, python-format
-#~ msgid ""
-#~ "The unit of measure. Default is inch. Choices are %s Note: This does not "
-#~ "override the unit for margins!"
-#~ msgstr "指定する単位。デフォルトはインチです。選択肢: %s 注: マージンの単位を置き換えません。"

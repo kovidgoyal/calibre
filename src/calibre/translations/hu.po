@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-28 04:12+0000\n"
-"PO-Revision-Date: 2012-12-24 08:42+0000\n"
+"PO-Revision-Date: 2012-12-30 04:16+0000\n"
 "Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-29 04:46+0000\n"
+"X-Launchpad-Export-Date: 2012-12-30 05:18+0000\n"
 "X-Generator: Launchpad (build 16378)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1144,6 +1144,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes' ***"
 msgstr ""
+"*** Nem támogatott közvetlen kapcsolati mód. További információk:  "
+"http://www.mobileread.com/forums/showthread.php?t=118559, itt találhat "
+"úumutatót a 'Kapcsolódás az iTuneshoz' témakörben ***"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:221
 msgid ""
@@ -6285,7 +6288,7 @@ msgstr "Tartalomkiszolgáló indítása/leállítása"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:96
 #, python-format
 msgid " [%(ip)s, port %(port)d]"
-msgstr ""
+msgstr " [%(ip)s, port %(port)d]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:100
 msgid "Stop Content Server"
@@ -19404,6 +19407,8 @@ msgid ""
 "%(which)s font size\n"
 "Current magnification: %(mag).1f"
 msgstr ""
+"%(which)s betű méret\n"
+"Jelenlegi nagyítás: %(mag).1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:702
 msgid "Increase"
@@ -24634,11 +24639,9 @@ msgid ""
 "your library and your personal editing style."
 msgstr ""
 
-#, python-format
 #~ msgid "The orientation of the page. Default is portrait. Choices are %s"
 #~ msgstr "A lap tájolása. Alapértelmezett: álló. Lehetőségek: %s"
 
-#, python-format
 #~ msgid ""
 #~ "The unit of measure. Default is inch. Choices are %s Note: This does not "
 #~ "override the unit for margins!"
@@ -24646,7 +24649,6 @@ msgstr ""
 #~ "Mértékegység. Alapértelmezett az inch. A lehetőségek: %s. Figyelem: ez nem "
 #~ "írja felül a margók mértékegységét!"
 
-#, python-format
 #~ msgid ""
 #~ "Make font size %(which)s\n"
 #~ "Current magnification: %(mag).1f"
