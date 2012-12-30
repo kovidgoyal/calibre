@@ -14,12 +14,13 @@ from future_builtins import map
 
 import sip
 from PyQt4.Qt import (QPaintEngine, QPaintDevice, Qt, QApplication, QPainter,
-                      QTransform, QPainterPath, QImage, QByteArray, QBuffer,
+                      QTransform, QImage, QByteArray, QBuffer,
                       qRgba)
 
 from calibre.constants import plugins
-from calibre.ebooks.pdf.render.serialize import (Color, PDFStream, Path)
+from calibre.ebooks.pdf.render.serialize import (PDFStream, Path)
 from calibre.ebooks.pdf.render.common import inch, A4, fmtnum
+from calibre.ebooks.pdf.render.graphics import convert_path, Graphics
 from calibre.utils.fonts.sfnt.container import Sfnt
 from calibre.utils.fonts.sfnt.metrics import FontMetrics
 
@@ -41,146 +42,6 @@ def store_error(func):
             self.errors(traceback.format_exc())
 
     return errh
-
-class GraphicsState(object): # {{{
-
-    def __init__(self):
-        self.ops = {}
-        self.initial_state = {
-            'fill': ColorState(Color(0., 0., 0., 1.), 1.0, False),
-            'transform': QTransform(),
-            'dash': [],
-            'line_width': 0,
-            'stroke': ColorState(Color(0., 0., 0., 1.), 1.0, True),
-            'line_cap': 'flat',
-            'line_join': 'miter',
-            'clip': (Qt.NoClip, QPainterPath()),
-        }
-        self.current_state = self.initial_state.copy()
-
-    def reset(self):
-        self.current_state = self.initial_state.copy()
-
-    def update_color_state(self, which, color=None, opacity=None,
-                           brush_style=None, pen_style=None):
-        current = self.ops.get(which, self.current_state[which])
-        n = ColorState(*current)
-        if color is not None:
-            n = n._replace(color=Color(*color.getRgbF()))
-        if opacity is not None:
-            n = n._replace(opacity=opacity)
-        if opacity is not None:
-            opacity *= n.color.opacity
-        if brush_style is not None:
-            if which == 'fill':
-                do = (False if opacity == 0.0 or brush_style == Qt.NoBrush else
-                    True)
-            else:
-                do = (False if opacity == 0.0 or brush_style == Qt.NoBrush or
-                    pen_style == Qt.NoPen else True)
-            n = n._replace(do=do)
-        self.ops[which] = n
-
-    def read(self, state):
-        flags = state.state()
-
-        if flags & QPaintEngine.DirtyTransform:
-            self.ops['transform'] = state.transform()
-
-        # TODO: Add support for brush patterns
-        if flags & QPaintEngine.DirtyBrush:
-            brush = state.brush()
-            color = brush.color()
-            self.update_color_state('fill', color=color,
-                                    brush_style=brush.style())
-
-        if flags & QPaintEngine.DirtyPen:
-            pen = state.pen()
-            brush = pen.brush()
-            color = pen.color()
-            self.update_color_state('stroke', color, brush_style=brush.style(),
-                                    pen_style=pen.style())
-            ps = {Qt.DashLine:[3], Qt.DotLine:[1,2], Qt.DashDotLine:[3,2,1,2],
-                  Qt.DashDotDotLine:[3, 2, 1, 2, 1, 2]}.get(pen.style(), [])
-            self.ops['dash'] = ps
-            self.ops['line_width'] = pen.widthF()
-            self.ops['line_cap'] = {Qt.FlatCap:'flat', Qt.RoundCap:'round',
-                            Qt.SquareCap:'square'}.get(pen.capStyle(), 'flat')
-            self.ops['line_join'] = {Qt.MiterJoin:'miter', Qt.RoundJoin:'round',
-                            Qt.BevelJoin:'bevel'}.get(pen.joinStyle(), 'miter')
-
-        if flags & QPaintEngine.DirtyOpacity:
-            self.update_color_state('fill', opacity=state.opacity())
-            self.update_color_state('stroke', opacity=state.opacity())
-
-        if flags & QPaintEngine.DirtyClipPath or flags & QPaintEngine.DirtyClipRegion:
-            self.ops['clip'] = True
-
-    def __call__(self, engine):
-        if not self.ops:
-            return
-        pdf = engine.pdf
-        ops = self.ops
-        current_transform = self.current_state['transform']
-        transform_changed = 'transform' in ops and ops['transform'] != current_transform
-        reset_stack = transform_changed or 'clip' in ops
-
-        if reset_stack:
-            pdf.restore_stack()
-            pdf.save_stack()
-            # Since we have reset the stack we need to re-apply all previous
-            # operations, that are different from the default value (clip is
-            # handled separately).
-            for op in set(self.initial_state) - {'clip'}:
-                if op in ops: # These will be applied below
-                    self.current_state[op] = self.initial_state[op]
-                elif self.current_state[op] != self.initial_state[op]:
-                    self.apply(op, self.current_state[op], engine, pdf)
-
-        # Now apply the new operations
-        for op, val in ops.iteritems():
-            if op != 'clip' and self.current_state[op] != val:
-                self.apply(op, val, engine, pdf)
-                self.current_state[op] = val
-
-        if 'clip' in ops:
-            # Get the current clip
-            path = engine.painter().clipPath()
-            if not path.isEmpty():
-                engine.add_clip(path)
-        self.ops = {}
-
-    def apply(self, op, val, engine, pdf):
-        getattr(self, 'apply_'+op)(val, engine, pdf)
-
-    def apply_transform(self, val, engine, pdf):
-        if not val.isIdentity():
-            pdf.transform(val)
-
-    def apply_stroke(self, val, engine, pdf):
-        self.apply_color_state('stroke', val, engine, pdf)
-
-    def apply_fill(self, val, engine, pdf):
-        self.apply_color_state('fill', val, engine, pdf)
-
-    def apply_color_state(self, which, val, engine, pdf):
-        color = val.color._replace(opacity=val.opacity*val.color.opacity)
-        getattr(pdf, 'set_%s_color'%which)(color)
-        setattr(engine, 'do_%s'%which, val.do)
-
-    def apply_dash(self, val, engine, pdf):
-        pdf.set_dash(val)
-
-    def apply_line_width(self, val, engine, pdf):
-        pdf.set_line_width(val)
-
-    def apply_line_cap(self, val, engine, pdf):
-        pdf.set_line_cap(val)
-
-    def apply_line_join(self, val, engine, pdf):
-        pdf.set_line_join(val)
-
-# }}}
 
 class Font(FontMetrics):
 
@@ -215,9 +76,7 @@ class PdfEngine(QPaintEngine):
                             self.bottom_margin) / self.pixel_height
 
         self.pdf_system = QTransform(sx, 0, 0, -sy, dx, dy)
-        self.do_stroke = True
-        self.do_fill = False
-        self.graphics_state = GraphicsState()
+        self.graphics = Graphics()
         self.errors_occurred = False
         self.errors, self.debug = errors, debug
         self.fonts = {}
@@ -230,14 +89,21 @@ class PdfEngine(QPaintEngine):
         if err:
             raise RuntimeError('Failed to load qt_hack with err: %s'%err)
 
+    def apply_graphics_state(self):
+        self.graphics(self.pdf, self.pdf_system, self.painter())
+
+    @property
+    def do_fill(self):
+        return self.graphics.current_state.do_fill
+
+    @property
+    def do_stroke(self):
+        return self.graphics.current_state.do_stroke
+
     def init_page(self):
         self.pdf.transform(self.pdf_system)
         self.pdf.set_rgb_colorspace()
-        width = self.painter().pen().widthF() if self.isActive() else 0
-        self.pdf.set_line_width(width)
-        self.do_stroke = True
-        self.do_fill = False
-        self.graphics_state.reset()
+        self.graphics.reset()
         self.pdf.save_stack()
         self.current_page_inited = True
 
@@ -287,7 +153,7 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def drawPixmap(self, rect, pixmap, source_rect):
-        self.graphics_state(self)
+        self.apply_graphics_state()
         source_rect = source_rect.toRect()
         pixmap = (pixmap if source_rect == pixmap.rect() else
                   pixmap.copy(source_rect))
@@ -299,7 +165,7 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def drawImage(self, rect, image, source_rect, flags=Qt.AutoColor):
-        self.graphics_state(self)
+        self.apply_graphics_state()
         source_rect = source_rect.toRect()
         image = (image if source_rect == image.rect() else
                  image.copy(source_rect))
@@ -374,50 +240,20 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def updateState(self, state):
-        self.graphics_state.read(state)
-
-    def convert_path(self, path):
-        p = Path()
-        i = 0
-        while i < path.elementCount():
-            elem = path.elementAt(i)
-            em = (elem.x, elem.y)
-            i += 1
-            if elem.isMoveTo():
-                p.move_to(*em)
-            elif elem.isLineTo():
-                p.line_to(*em)
-            elif elem.isCurveTo():
-                added = False
-                if path.elementCount() > i+1:
-                    c1, c2 = path.elementAt(i), path.elementAt(i+1)
-                    if (c1.type == path.CurveToDataElement and c2.type ==
-                        path.CurveToDataElement):
-                        i += 2
-                        p.curve_to(em[0], em[1], c1.x, c1.y, c2.x, c2.y)
-                        added = True
-                if not added:
-                    raise ValueError('Invalid curve to operation')
-        return p
+        self.graphics.update_state(state, self.painter())
 
     @store_error
     def drawPath(self, path):
-        self.graphics_state(self)
-        p = self.convert_path(path)
+        self.apply_graphics_state()
+        p = convert_path(path)
         fill_rule = {Qt.OddEvenFill:'evenodd',
                     Qt.WindingFill:'winding'}[path.fillRule()]
         self.pdf.draw_path(p, stroke=self.do_stroke,
                                 fill=self.do_fill, fill_rule=fill_rule)
 
-    def add_clip(self, path):
-        p = self.convert_path(path)
-        fill_rule = {Qt.OddEvenFill:'evenodd',
-                    Qt.WindingFill:'winding'}[path.fillRule()]
-        self.pdf.add_clip(p, fill_rule=fill_rule)
-
     @store_error
     def drawPoints(self, points):
-        self.graphics_state(self)
+        self.apply_graphics_state()
         p = Path()
         for point in points:
             p.move_to(point.x(), point.y())
@@ -426,7 +262,7 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def drawRects(self, rects):
-        self.graphics_state(self)
+        self.apply_graphics_state()
         for rect in rects:
             bl = rect.topLeft()
             self.pdf.draw_rect(bl.x(), bl.y(), rect.width(), rect.height(),
@@ -446,7 +282,7 @@ class PdfEngine(QPaintEngine):
     @store_error
     def drawTextItem(self, point, text_item):
         # super(PdfEngine, self).drawTextItem(point, text_item)
-        self.graphics_state(self)
+        self.apply_graphics_state()
         gi = self.qt_hack.get_glyphs(point, text_item)
         if not gi.indices:
             sip.delete(gi)
@@ -477,7 +313,7 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def drawPolygon(self, points, mode):
-        self.graphics_state(self)
+        self.apply_graphics_state()
         if not points: return
         p = Path()
         p.move_to(points[0].x(), points[0].y())
@@ -509,14 +345,6 @@ class PdfEngine(QPaintEngine):
             link[1] = pos['column'] + start_page
             link.append((llx, lly, urx, ury))
         self.pdf.links.add(current_item, start_page, links, anchors)
-
-    def __enter__(self):
-        self.pdf.save_stack()
-        self.saved_ps = (self.do_stroke, self.do_fill)
-
-    def __exit__(self, *args):
-        self.do_stroke, self.do_fill = self.saved_ps
-        self.pdf.restore_stack()
 
 class PdfDevice(QPaintDevice): # {{{
 
@@ -584,8 +412,8 @@ class PdfDevice(QPaintDevice): # {{{
 # }}}
 
 if __name__ == '__main__':
-    from PyQt4.Qt import (QBrush, QColor, QPoint, QPixmap)
-    QBrush, QColor, QPoint, QPixmap
+    from PyQt4.Qt import (QBrush, QColor, QPoint, QPixmap, QPainterPath)
+    QBrush, QColor, QPoint, QPixmap, QPainterPath
     app = QApplication([])
     p = QPainter()
     with open('/t/painter.pdf', 'wb') as f:
@@ -593,6 +421,7 @@ if __name__ == '__main__':
         p.begin(dev)
         dev.init_page()
         xmax, ymax = p.viewport().width(), p.viewport().height()
+        b = p.brush()
         try:
             p.drawRect(0, 0, xmax, ymax)
             # p.drawPolyline(QPoint(0, 0), QPoint(xmax, 0), QPoint(xmax, ymax),
@@ -600,27 +429,22 @@ if __name__ == '__main__':
             # pp = QPainterPath()
             # pp.addRect(0, 0, xmax, ymax)
             # p.drawPath(pp)
-            # p.save()
-            # for i in xrange(3):
-            #     col = [0, 0, 0, 200]
-            #     col[i] = 255
-            #     p.setOpacity(0.3)
-            #     p.setBrush(QBrush(QColor(*col)))
-            #     p.drawRect(0, 0, xmax/10, xmax/10)
-            #     p.translate(xmax/10, xmax/10)
-            #     p.scale(1, 1.5)
-            # p.restore()
+            p.save()
+            for i in xrange(3):
+                col = [0, 0, 0, 200]
+                col[i] = 255
+                p.setOpacity(0.3)
+                p.fillRect(0, 0, xmax/10, xmax/10, QBrush(QColor(*col)))
+                p.setOpacity(1)
+                p.drawRect(0, 0, xmax/10, xmax/10)
+                p.translate(xmax/10, xmax/10)
+                p.scale(1, 1.5)
+            p.restore()
 
-            # # p.scale(2, 2)
-            # # p.rotate(45)
-            # p.drawPixmap(0, 0, 2048, 2048, QPixmap(I('library.png')))
-            # p.drawRect(0, 0, 2048, 2048)
-
-            # p.save()
-            # p.drawLine(0, 0, 5000, 0)
+            # p.scale(2, 2)
             # p.rotate(45)
-            # p.drawLine(0, 0, 5000, 0)
-            # p.restore()
+            p.drawPixmap(0, 0, 2048, 2048, QPixmap(I('library.png')))
+            p.drawRect(0, 0, 2048, 2048)
 
             f = p.font()
             f.setPointSize(20)

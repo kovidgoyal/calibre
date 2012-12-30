@@ -369,25 +369,8 @@ class PDFStream(object):
         op = 'W' if fill_rule == 'winding' else 'W*'
         self.current_page.write_line(op + ' ' + 'n')
 
-    def set_dash(self, array, phase=0):
-        array = Array(array)
-        serialize(array, self.current_page)
-        self.current_page.write(b' ')
-        serialize(phase, self.current_page)
-        self.current_page.write_line(' d')
-
-    def set_line_width(self, width):
-        serialize(width, self.current_page)
-        self.current_page.write_line(' w')
-
-    def set_line_cap(self, style):
-        serialize({'flat':0, 'round':1, 'square':2}.get(style),
-                  self.current_page)
-        self.current_page.write_line(' J')
-
-    def set_line_join(self, style):
-        serialize({'miter':0, 'round':1, 'bevel':2}[style], self.current_page)
-        self.current_page.write_line(' j')
+    def serialize(self, o):
+        serialize(o, self.current_page)
 
     def set_stroke_color(self, color):
         opacity = color.opacity
