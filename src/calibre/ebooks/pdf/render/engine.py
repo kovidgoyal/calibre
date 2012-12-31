@@ -93,7 +93,11 @@ class PdfEngine(QPaintEngine):
             raise RuntimeError('Failed to load qt_hack with err: %s'%err)
 
     def apply_graphics_state(self):
-        self.graphics(self.pdf, self.pdf_system, self.painter())
+        self.graphics(self.pdf_system, self.painter())
+
+    def resolve_fill(self, rect):
+        self.graphics.resolve_fill(rect, self.pdf_system,
+                                   self.painter().transform())
 
     @property
     def do_fill(self):
@@ -117,6 +121,7 @@ class PdfEngine(QPaintEngine):
                         self.page_height), compress=self.compress,
                                      mark_links=self.mark_links,
                                      debug=self.debug)
+                self.graphics.begin(self.pdf)
             except:
                 self.errors(traceback.format_exc())
                 self.errors_occurred = True
@@ -155,7 +160,7 @@ class PdfEngine(QPaintEngine):
         brush = QBrush(pixmap)
         bl = rect.topLeft()
         color, opacity, pattern, do_fill = self.graphics.convert_brush(
-            brush, bl-point, 1.0, self.pdf, self.pdf_system,
+            brush, bl-point, 1.0, self.pdf_system,
             self.painter().transform())
         self.pdf.save_stack()
         self.pdf.apply_fill(color, pattern)
@@ -211,10 +216,12 @@ class PdfEngine(QPaintEngine):
     @store_error
     def drawRects(self, rects):
         self.apply_graphics_state()
-        for rect in rects:
-            bl = rect.topLeft()
-            self.pdf.draw_rect(bl.x(), bl.y(), rect.width(), rect.height(),
-                             stroke=self.do_stroke, fill=self.do_fill)
+        with self.graphics:
+            for rect in rects:
+                self.resolve_fill(rect)
+                bl = rect.topLeft()
+                self.pdf.draw_rect(bl.x(), bl.y(), rect.width(), rect.height(),
+                                stroke=self.do_stroke, fill=self.do_fill)
 
     def create_sfnt(self, text_item):
         get_table = partial(self.qt_hack.get_sfnt_table, text_item)
