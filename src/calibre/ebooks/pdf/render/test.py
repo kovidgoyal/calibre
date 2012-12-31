@@ -82,12 +82,22 @@ def run(dev, func):
         if dev.engine.errors_occurred:
             raise SystemExit(1)
 
+def brush(p, xmax, ymax):
+    x = y = 0
+    w = xmax/3 + 10
+    g = QLinearGradient(QPointF(0, 0), QPointF(0, w))
+    g.setSpread(g.RepeatSpread)
+    g.setColorAt(0, QColor('#00f'))
+    g.setColorAt(1, QColor('#fff'))
+    p.fillRect(x, y, w, w, QBrush(g))
+    p.drawRect(x, y, w, w)
+
 def main():
     app = QApplication([])
     app
     tdir = gettempdir()
     pdf = os.path.join(tdir, 'painter.pdf')
-    func = full
+    func = brush
     with open(pdf, 'wb') as f:
         dev = PdfDevice(f, xdpi=100, ydpi=100, compress=False)
         img = QImage(dev.width(), dev.height(),
