@@ -1529,6 +1529,15 @@ class StoreNextoStore(StoreBase):
     formats = ['EPUB', 'MOBI', 'PDF']
     affiliate = True
 
+class StoreNookUKStore(StoreBase):
+    name = 'Nook UK'
+    author = 'John Schember'
+    description = u'Barnes & Noble S.Ã  r.l, a subsidiary of Barnes & Noble, Inc., a leading retailer of content, digital media and educational products, is proud to bring the award-winning NOOKÂ® reading experience and a leading digital bookstore to the UK.'
+    actual_plugin = 'calibre.gui2.store.stores.nook_uk_plugin:NookUKStore'
+
+    headquarters = 'UK'
+    formats = ['NOOK']
+
 class StoreOpenBooksStore(StoreBase):
     name = 'Open Books'
     description = u'Comprehensive listing of DRM free ebooks from a variety of sources provided by users of calibre.'
@@ -1660,7 +1669,7 @@ plugins += [
     StoreAmazonITKindleStore,
     StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore,
-    StoreBNStore, StoreSonyStore,
+    StoreBNStore,
     StoreBeWriteStore,
     StoreBiblioStore,
     StoreBookotekaStore,
@@ -1686,12 +1695,14 @@ plugins += [
     StoreMillsBoonUKStore,
     StoreMobileReadStore,
     StoreNextoStore,
+    StoreNookUKStore,
     StoreOpenBooksStore,
     StoreOzonRUStore,
     StorePragmaticBookshelfStore,
     StorePublioStore,
     StoreRW2010Store,
     StoreSmashwordsStore,
+    StoreSonyStore,
     StoreVirtualoStore,
     StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
