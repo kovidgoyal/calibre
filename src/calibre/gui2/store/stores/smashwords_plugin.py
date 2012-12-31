@@ -76,7 +76,7 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
                 
                 title = ''.join(data.xpath('//a[@class="bookTitle"]/text()'))
                 subnote = ''.join(data.xpath('//span[@class="subnote"]/text()'))
-                author = ''.join(data.xpath('//span[@class="subnote"]/a/text()'))
+                author = ''.join(data.xpath('//span[@class="subnote"]//a[1]//text()'))
                 if '$' in subnote:
                     price = subnote.partition('$')[2]
                     price = price.split(u'\xa0')[0]
