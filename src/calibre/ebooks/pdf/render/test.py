@@ -98,12 +98,13 @@ def main():
     tdir = gettempdir()
     pdf = os.path.join(tdir, 'painter.pdf')
     func = brush
+    dpi = 100
     with open(pdf, 'wb') as f:
-        dev = PdfDevice(f, xdpi=100, ydpi=100, compress=False)
+        dev = PdfDevice(f, xdpi=dpi, ydpi=dpi, compress=False)
         img = QImage(dev.width(), dev.height(),
                      QImage.Format_ARGB32_Premultiplied)
-        img.setDotsPerMeterX(100*39.37)
-        img.setDotsPerMeterY(100*39.37)
+        img.setDotsPerMeterX(dpi*39.37)
+        img.setDotsPerMeterY(dpi*39.37)
         img.fill(Qt.white)
         run(dev, func)
     run(img, func)
