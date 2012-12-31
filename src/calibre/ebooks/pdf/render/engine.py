@@ -109,7 +109,6 @@ class PdfEngine(QPaintEngine):
 
     def init_page(self):
         self.pdf.transform(self.pdf_system)
-        self.pdf.set_rgb_colorspace()
         self.graphics.reset()
         self.pdf.save_stack()
         self.current_page_inited = True

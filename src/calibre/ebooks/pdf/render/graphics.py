@@ -15,7 +15,7 @@ from PyQt4.Qt import (
 
 from calibre.ebooks.pdf.render.common import (
     Name, Array, fmtnum, Stream, Dictionary)
-from calibre.ebooks.pdf.render.serialize import Path, Color
+from calibre.ebooks.pdf.render.serialize import Path
 
 def convert_path(path): # {{{
     p = Path()
@@ -392,8 +392,6 @@ class Graphics(object):
         return color, opacity, pattern, do_fill
 
     def apply_stroke(self, state, pdf_system, painter):
-        # TODO: Handle pens with non solid brushes by setting the colorspace
-        # for stroking to a pattern
         # TODO: Support miter limit by using QPainterPathStroker
         pen = state.stroke
         self.pending_state.do_stroke = True
@@ -427,14 +425,10 @@ class Graphics(object):
             pdf.current_page.write(' 0 d ')
 
         # Stroke fill
-        b = pen.brush()
-        vals = list(b.color().getRgbF())
-        vals[-1] *= state.opacity
-        color = Color(*vals)
-        pdf.set_stroke_color(color)
-
-        if vals[-1] < 1e-5 or b.style() == Qt.NoBrush:
-            self.pending_state.do_stroke = False
+        color, opacity, pattern, self.pending_state.do_stroke = self.convert_brush(
+            pen.brush(), state.brush_origin, state.opacity, pdf_system,
+            painter.transform())
+        self.pdf.apply_stroke(color, pattern, opacity)
 
     def apply_fill(self, state, pdf_system, painter):
         self.pending_state.do_fill = True
@@ -458,7 +452,7 @@ class Graphics(object):
         the brush origin before painting an object. While not perfect, this is
         better than nothing.
         '''
-        if not self.current_state.do_fill:
+        if not hasattr(self, 'last_fill') or not self.current_state.do_fill:
             return
 
         if isinstance(self.last_fill.brush, TexturePattern):

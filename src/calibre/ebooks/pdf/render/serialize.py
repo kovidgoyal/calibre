@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 import hashlib
 from future_builtins import map
 from itertools import izip
-from collections import namedtuple
 
 from PyQt4.Qt import QBuffer, QByteArray, QImage, Qt, QColor, qRgba
 
@@ -22,8 +21,6 @@ from calibre.ebooks.pdf.render.fonts import FontManager
 from calibre.ebooks.pdf.render.links import Links
 
 PDFVER = b'%PDF-1.3'
-
-Color = namedtuple('Color', 'red green blue opacity')
 
 class IndirectObjects(object):
 
@@ -353,9 +350,6 @@ class PDFStream(object):
         cm = ' '.join(map(fmtnum, vals))
         self.current_page.write_line(cm + ' cm')
 
-    def set_rgb_colorspace(self):
-        self.current_page.write_line('/DeviceRGB CS /DeviceRGB cs')
-
     def save_stack(self):
         self.current_page.write_line('q')
 
@@ -391,13 +385,11 @@ class PDFStream(object):
     def serialize(self, o):
         serialize(o, self.current_page)
 
-    def set_stroke_color(self, color):
-        opacity = color.opacity
+    def set_stroke_opacity(self, opacity):
         if opacity not in self.stroke_opacities:
             op = Dictionary({'Type':Name('ExtGState'), 'CA': opacity})
             self.stroke_opacities[opacity] = self.objects.add(op)
         self.current_page.set_opacity(self.stroke_opacities[opacity])
-        self.current_page.write_line(' '.join(map(fmtnum, color[:3])) + ' SC')
 
     def set_fill_opacity(self, opacity):
         opacity = float(opacity)
@@ -518,17 +510,27 @@ class PDFStream(object):
         serialize(Name(name), self.current_page)
         self.current_page.write_line(' Do Q')
 
+    def apply_color_space(self, color, pattern, stroke=False):
+        wl = self.current_page.write_line
+        if color is not None and pattern is None:
+            wl(' '.join(map(fmtnum, color)) + (' RG' if stroke else ' rg'))
+        elif color is None and pattern is not None:
+            wl('/Pattern %s /%s %s'%('CS' if stroke else 'cs', pattern,
+                                     'SCN' if stroke else 'scn'))
+        elif color is not None and pattern is not None:
+            col = ' '.join(map(fmtnum, color))
+            wl('/PCSp %s %s /%s %s'%('CS' if stroke else 'cs', col, pattern,
+                                     'SCN' if stroke else 'scn'))
+
     def apply_fill(self, color=None, pattern=None, opacity=None):
         if opacity is not None:
             self.set_fill_opacity(opacity)
-        wl = self.current_page.write_line
-        if color is not None and pattern is None:
-            wl(' '.join(map(fmtnum, color)) + ' rg')
-        elif color is None and pattern is not None:
-            wl('/Pattern cs /%s scn'%pattern)
-        elif color is not None and pattern is not None:
-            col = ' '.join(map(fmtnum, color))
-            wl('/PCSp cs %s /%s scn'%(col, pattern))
+        self.apply_color_space(color, pattern)
+
+    def apply_stroke(self, color=None, pattern=None, opacity=None):
+        if opacity is not None:
+            self.set_stroke_opacity(opacity)
+        self.apply_color_space(color, pattern, stroke=True)
 
     def end(self):
         if self.current_page.getvalue():

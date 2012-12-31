@@ -12,7 +12,7 @@ from tempfile import gettempdir
 
 from PyQt4.Qt import (QBrush, QColor, QPoint, QPixmap, QPainterPath, QRectF,
                       QApplication, QPainter, Qt, QImage, QLinearGradient,
-                      QPointF)
+                      QPointF, QPen)
 QBrush, QColor, QPoint, QPixmap, QPainterPath, QRectF, Qt, QPointF
 
 from calibre.ebooks.pdf.render.engine import PdfDevice
@@ -69,6 +69,14 @@ def full(p, xmax, ymax):
     g.setColorAt(1, QColor('#fff'))
     p.fillRect(x, y, w, w, QBrush(g))
 
+    pen = QPen(QBrush(Qt.blue))
+    pen.setWidth(xmax/3)
+    p.setPen(pen)
+    x += w + w/10
+    y += w
+    p.drawLine(x, y, x+w, y)
+
+
 def run(dev, func):
     p = QPainter(dev)
     if isinstance(dev, PdfDevice):
@@ -91,12 +99,18 @@ def brush(p, xmax, ymax):
 
     p.fillRect(0, y+xmax/1.9, w, w, QBrush(pix))
 
+def pen(p, xmax, ymax):
+    pix = QPixmap(I('console.png'))
+    pen = QPen(QBrush(pix), 60)
+    p.setPen(pen)
+    p.drawRect(0, xmax/3, xmax/3, xmax/2)
+
 def main():
     app = QApplication([])
     app
     tdir = gettempdir()
     pdf = os.path.join(tdir, 'painter.pdf')
-    func = full
+    func = pen
     dpi = 100
     with open(pdf, 'wb') as f:
         dev = PdfDevice(f, xdpi=dpi, ydpi=dpi, compress=False)
