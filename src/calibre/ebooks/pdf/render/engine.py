@@ -153,12 +153,12 @@ class PdfEngine(QPaintEngine):
     def drawTiledPixmap(self, rect, pixmap, point):
         self.apply_graphics_state()
         brush = QBrush(pixmap)
+        bl = rect.topLeft()
         color, opacity, pattern, do_fill = self.graphics.convert_brush(
-            brush, -point, 1.0, self.pdf, self.pdf_system,
+            brush, bl-point, 1.0, self.pdf, self.pdf_system,
             self.painter().transform())
         self.pdf.save_stack()
         self.pdf.apply_fill(color, pattern)
-        bl = rect.topLeft()
         self.pdf.draw_rect(bl.x(), bl.y(), rect.width(), rect.height(),
                             stroke=False, fill=True)
         self.pdf.restore_stack()

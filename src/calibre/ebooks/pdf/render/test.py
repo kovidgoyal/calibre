@@ -11,8 +11,9 @@ import os
 from tempfile import gettempdir
 
 from PyQt4.Qt import (QBrush, QColor, QPoint, QPixmap, QPainterPath, QRectF,
-                      QApplication, QPainter, Qt, QImage)
-QBrush, QColor, QPoint, QPixmap, QPainterPath, QRectF, Qt
+                      QApplication, QPainter, Qt, QImage, QLinearGradient,
+                      QPointF)
+QBrush, QColor, QPoint, QPixmap, QPainterPath, QRectF, Qt, QPointF
 
 from calibre.ebooks.pdf.render.engine import PdfDevice
 
@@ -66,7 +67,14 @@ def full(dev):
         w = xmax/4
         p.fillRect(0, ymax/3, w, w, b)
         p.fillRect(xmax/3, ymax/3, w, w, QBrush(pix))
-        p.drawTiledPixmap(QRectF(2*xmax/3, ymax/3, w, w), pix)
+        x, y = 2*xmax/3, ymax/3
+        p.drawTiledPixmap(QRectF(x, y, w, w), pix, QPointF(10, 10))
+
+        x, y = 1, ymax/1.9
+        g = QLinearGradient(QPointF(x, y), QPointF(x+w, y+w))
+        g.setColorAt(0, QColor('#00f'))
+        g.setColorAt(1, QColor('#006'))
+        p.fillRect(x, y, w, w, QBrush(g))
     finally:
         p.end()
     if isinstance(dev, PdfDevice):
