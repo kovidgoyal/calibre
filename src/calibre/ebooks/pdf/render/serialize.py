@@ -12,6 +12,8 @@ from future_builtins import map
 from itertools import izip
 from collections import namedtuple
 
+from PyQt4.Qt import QBuffer, QByteArray, QImage, Qt, QColor, qRgba
+
 from calibre.constants import (__appname__, __version__)
 from calibre.ebooks.pdf.render.common import (
     Reference, EOL, serialize, Stream, Dictionary, String, Name, Array,
@@ -90,6 +92,7 @@ class Page(Stream):
         self.opacities = {}
         self.fonts = {}
         self.xobjects = {}
+        self.patterns = {}
 
     def set_opacity(self, opref):
         if opref not in self.opacities:
@@ -108,6 +111,11 @@ class Page(Stream):
             self.xobjects[imgref] = 'Image%d'%len(self.xobjects)
         return self.xobjects[imgref]
 
+    def add_pattern(self, patternref):
+        if patternref not in self.patterns:
+            self.patterns[patternref] = 'Pat%d'%len(self.patterns)
+        return self.patterns[patternref]
+
     def add_resources(self):
         r = Dictionary()
         if self.opacities:
@@ -125,6 +133,13 @@ class Page(Stream):
             for ref, name in self.xobjects.iteritems():
                 xobjects[name] = ref
             r['XObject'] = xobjects
+        if self.patterns:
+            r['ColorSpace'] = Dictionary({'PCSp':Array(
+                [Name('Pattern'), Name('DeviceRGB')])})
+            patterns = Dictionary()
+            for ref, name in self.patterns.iteritems():
+                patterns[name] = ref
+            r['Pattern'] = patterns
         if r:
             self.page_dict['Resources'] = r
 
@@ -299,8 +314,12 @@ class PDFStream(object):
         self.stroke_opacities, self.fill_opacities = {}, {}
         self.font_manager = FontManager(self.objects, self.compress)
         self.image_cache = {}
+        self.pattern_cache = {}
         self.debug = debug
         self.links = Links(self, mark_links, page_size)
+        i = QImage(1, 1, QImage.Format_ARGB32)
+        i.fill(qRgba(0, 0, 0, 255))
+        self.alpha_bit = i.constBits().asstring(4).find(b'\xff')
 
     @property
     def page_tree(self):
@@ -380,13 +399,12 @@ class PDFStream(object):
         self.current_page.set_opacity(self.stroke_opacities[opacity])
         self.current_page.write_line(' '.join(map(fmtnum, color[:3])) + ' SC')
 
-    def set_fill_color(self, color):
-        opacity = color.opacity
+    def set_fill_opacity(self, opacity):
+        opacity = float(opacity)
         if opacity not in self.fill_opacities:
             op = Dictionary({'Type':Name('ExtGState'), 'ca': opacity})
             self.fill_opacities[opacity] = self.objects.add(op)
         self.current_page.set_opacity(self.fill_opacities[opacity])
-        self.current_page.write_line(' '.join(map(fmtnum, color[:3])) + ' sc')
 
     def end_page(self):
         pageref = self.current_page.end(self.objects, self.stream)
@@ -425,12 +443,92 @@ class PDFStream(object):
         self.objects.commit(r, self.stream)
         return r
 
-    def draw_image(self, x, y, xscale, yscale, imgref):
+    def add_image(self, img, cache_key):
+        ref = self.get_image(cache_key)
+        if ref is not None:
+            return ref
+
+        fmt = img.format()
+        image = QImage(img)
+        if (image.depth() == 1 and img.colorTable().size() == 2 and
+            img.colorTable().at(0) == QColor(Qt.black).rgba() and
+            img.colorTable().at(1) == QColor(Qt.white).rgba()):
+            if fmt == QImage.Format_MonoLSB:
+                image = image.convertToFormat(QImage.Format_Mono)
+            fmt = QImage.Format_Mono
+        else:
+            if (fmt != QImage.Format_RGB32 and fmt != QImage.Format_ARGB32):
+                image = image.convertToFormat(QImage.Format_ARGB32)
+                fmt = QImage.Format_ARGB32
+
+        w = image.width()
+        h = image.height()
+        d = image.depth()
+
+        if fmt == QImage.Format_Mono:
+            bytes_per_line = (w + 7) >> 3
+            data = image.constBits().asstring(bytes_per_line * h)
+            return self.write_image(data, w, h, d, cache_key=cache_key)
+
+        ba = QByteArray()
+        buf = QBuffer(ba)
+        image.save(buf, 'jpeg', 94)
+        data = bytes(ba.data())
+        has_alpha = has_mask = False
+        soft_mask = mask = None
+
+        if fmt == QImage.Format_ARGB32:
+            tmask = image.constBits().asstring(4*w*h)[self.alpha_bit::4]
+            sdata = bytearray(tmask)
+            vals = set(sdata)
+            vals.discard(255)
+            has_mask = bool(vals)
+            vals.discard(0)
+            has_alpha = bool(vals)
+
+        if has_alpha:
+            soft_mask = self.write_image(tmask, w, h, 8)
+        elif has_mask:
+            # dither the soft mask to 1bit and add it. This also helps PDF
+            # viewers without transparency support
+            bytes_per_line = (w + 7) >> 3
+            mdata = bytearray(0 for i in xrange(bytes_per_line * h))
+            spos = mpos = 0
+            for y in xrange(h):
+                for x in xrange(w):
+                    if sdata[spos]:
+                        mdata[mpos + x>>3] |= (0x80 >> (x&7))
+                    spos += 1
+                mpos += bytes_per_line
+            mdata = bytes(mdata)
+            mask = self.write_image(mdata, w, h, 1)
+
+        return self.write_image(data, w, h, 32, mask=mask, dct=True,
+                                    soft_mask=soft_mask, cache_key=cache_key)
+
+    def add_pattern(self, pattern):
+        if pattern.cache_key not in self.pattern_cache:
+            self.pattern_cache[pattern.cache_key] = self.objects.add(pattern)
+        return self.current_page.add_pattern(self.pattern_cache[pattern.cache_key])
+
+    def draw_image(self, x, y, width, height, imgref):
         name = self.current_page.add_image(imgref)
-        self.current_page.write('q %s 0 0 %s %s %s cm '%(fmtnum(xscale),
-                            fmtnum(yscale), fmtnum(x), fmtnum(y)))
+        self.current_page.write('q %s 0 0 %s %s %s cm '%(fmtnum(width),
+                            fmtnum(-height), fmtnum(x), fmtnum(y+height)))
         serialize(Name(name), self.current_page)
         self.current_page.write_line(' Do Q')
+
+    def apply_fill(self, color=None, pattern=None, opacity=None):
+        if opacity is not None:
+            self.set_fill_opacity(opacity)
+        wl = self.current_page.write_line
+        if color is not None and pattern is None:
+            wl(' '.join(map(fmtnum, color)) + ' rg')
+        elif color is None and pattern is not None:
+            wl('/Pattern cs /%s scn'%pattern)
+        elif color is not None and pattern is not None:
+            col = ' '.join(map(fmtnum, color))
+            wl('/PCSp cs %s /%s scn'%(col, pattern))
 
     def end(self):
         if self.current_page.getvalue():
