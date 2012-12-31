@@ -91,6 +91,7 @@ class Win32Freeze(Command, WixMixIn):
         if not is64bit:
             self.build_portable()
             self.build_portable_installer()
+        self.sign_installers()
 
     def remove_CRT_from_manifests(self):
         '''
@@ -101,7 +102,8 @@ class Win32Freeze(Command, WixMixIn):
         repl_pat = re.compile(
             r'(?is)<dependency>.*?Microsoft\.VC\d+\.CRT.*?</dependency>')
 
-        for dll in glob.glob(self.j(self.dll_dir, '*.dll')):
+        for dll in (glob.glob(self.j(self.dll_dir, '*.dll')) +
+                    glob.glob(self.j(self.plugins_dir, '*.pyd'))):
             bn = self.b(dll)
             with open(dll, 'rb') as f:
                 raw = f.read()
@@ -488,6 +490,17 @@ class Win32Freeze(Command, WixMixIn):
 
         subprocess.check_call([LZMA + r'\bin\elzma.exe', '-9', '--lzip', name])
 
+    def sign_installers(self):
+        self.info('Signing installers...')
+        files = glob.glob(self.j('dist', '*.msi')) + glob.glob(self.j('dist',
+                                                                      '*.exe'))
+        if not files:
+            raise ValueError('No installers found')
+        subprocess.check_call(['signtool.exe', 'sign', '/a', '/d',
+            'calibre - E-book management', '/du',
+            'http://calibre-ebook.com', '/t',
+            'http://timestamp.verisign.com/scripts/timstamp.dll'] + files)
+
     def add_dir_to_zip(self, zf, path, prefix=''):
         '''
         Add a directory recursively to the zip file with an optional prefix.
@@ -586,6 +599,10 @@ class Win32Freeze(Command, WixMixIn):
                         # from files
                         'unrar.pyd', 'wpd.pyd', 'podofo.pyd',
                         'progress_indicator.pyd',
+                        # As per this https://bugs.launchpad.net/bugs/1087816
+                        # on some systems magick.pyd fails to load from memory
+                        # on 64 bit
+                        'magick.pyd',
                         }:
                         self.add_to_zipfile(zf, pyd, x)
                         os.remove(self.j(x, pyd))

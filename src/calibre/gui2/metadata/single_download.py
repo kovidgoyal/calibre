@@ -17,10 +17,12 @@ from Queue import Queue, Empty
 from io import BytesIO
 
 from PyQt4.Qt import (QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt,
-        QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QStyle,
-        QStackedWidget, QWidget, QTableView, QGridLayout, QFontInfo, QPalette,
-        QTimer, pyqtSignal, QAbstractTableModel, QVariant, QSize, QListView,
-        QPixmap, QAbstractListModel, QColor, QRect, QTextBrowser, QModelIndex)
+                      QApplication, QDialog, QVBoxLayout, QLabel,
+                      QDialogButtonBox, QStyle, QStackedWidget, QWidget,
+                      QTableView, QGridLayout, QFontInfo, QPalette, QTimer,
+                      pyqtSignal, QAbstractTableModel, QVariant, QSize,
+                      QListView, QPixmap, QAbstractListModel, QColor, QRect,
+                      QTextBrowser, QStringListModel)
 from PyQt4.QtWebKit import QWebView
 
 from calibre.customize.ui import metadata_plugins
@@ -44,6 +46,8 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
     def __init__(self, parent=None, max_width=160):
         QStyledItemDelegate.__init__(self, parent)
         self.max_width = max_width
+        self.dummy_model = QStringListModel([' '], self)
+        self.dummy_index = self.dummy_model.index(0)
 
     def to_doc(self, index, option=None):
         doc = QTextDocument()
@@ -66,7 +70,7 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
         return ans
 
     def paint(self, painter, option, index):
-        QStyledItemDelegate.paint(self, painter, option, QModelIndex())
+        QStyledItemDelegate.paint(self, painter, option, self.dummy_index)
         painter.save()
         painter.setClipRect(QRectF(option.rect))
         painter.translate(option.rect.topLeft())

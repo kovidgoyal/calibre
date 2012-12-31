@@ -74,11 +74,12 @@ def remove_kindlegen_markup(parts):
         part = "".join(srcpieces)
         parts[i] = part
 
-    # we can safely remove all of the Kindlegen generated data-AmznPageBreak tags
+    # we can safely remove all of the Kindlegen generated data-AmznPageBreak
+    # attributes
     find_tag_with_AmznPageBreak_pattern = re.compile(
             r'''(<[^>]*\sdata-AmznPageBreak=[^>]*>)''', re.IGNORECASE)
     within_tag_AmznPageBreak_position_pattern = re.compile(
-            r'''\sdata-AmznPageBreak=['"][^'"]*['"]''')
+            r'''\sdata-AmznPageBreak=['"]([^'"]*)['"]''')
 
     for i in xrange(len(parts)):
         part = parts[i]
@@ -86,10 +87,8 @@ def remove_kindlegen_markup(parts):
         for j in range(len(srcpieces)):
             tag = srcpieces[j]
             if tag.startswith('<'):
-                for m in within_tag_AmznPageBreak_position_pattern.finditer(tag):
-                    replacement = ''
-                    tag = within_tag_AmznPageBreak_position_pattern.sub(replacement, tag, 1)
-                srcpieces[j] = tag
+                srcpieces[j] = within_tag_AmznPageBreak_position_pattern.sub(
+                    lambda m:' style="page-break-after:%s"'%m.group(1), tag)
         part = "".join(srcpieces)
         parts[i] = part
 

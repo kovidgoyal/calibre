@@ -1,0 +1,20 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
+from calibre.web.feeds.news import BasicNewsRecipe
+class TVPINFO(BasicNewsRecipe):
+    title          = u'TVP.INFO'
+    __author__        = 'fenuks'
+    description   = u'Serwis informacyjny TVP.INFO'
+    category       = 'news'
+    language       = 'pl'
+    cover_url = 'http://s.v3.tvp.pl/files/tvp-info/gfx/logo.png'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    remove_javascript = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'title', 'url'}
+    keep_only_tags = [dict(id='contentNews')]
+    remove_tags = [dict(attrs={'class':['toolbox', 'modulBox read', 'modulBox social', 'videoPlayerBox']}), dict(id='belka')]
+    feeds          = [(u'Wiadomo\u015bci', u'http://tvp.info/informacje?xslt=tvp-info/news/rss.xslt&src_id=191865'),
+		(u'\u015awiat', u'http://tvp.info/informacje/swiat?xslt=tvp-info/news/rss.xslt&src_id=191867'), (u'Biznes', u'http://tvp.info/informacje/biznes?xslt=tvp-info/news/rss.xslt&src_id=191868'), (u'Nauka', u'http://tvp.info/informacje/nauka?xslt=tvp-info/news/rss.xslt&src_id=191870'), (u'Kultura', u'http://tvp.info/informacje/kultura?xslt=tvp-info/news/rss.xslt&src_id=191869'), (u'Rozmaito\u015bci', u'http://tvp.info/informacje/rozmaitosci?xslt=tvp-info/news/rss.xslt&src_id=191872'), (u'Opinie', u'http://tvp.info/opinie?xslt=tvp-info/news/rss.xslt&src_id=191875'), (u'Komentarze', u'http://tvp.info/opinie/komentarze?xslt=tvp-info/news/rss.xslt&src_id=238200'), (u'Wywiady', u'http://tvp.info/opinie/wywiady?xslt=tvp-info/news/rss.xslt&src_id=236644')]

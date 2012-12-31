@@ -1,0 +1,20 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class CzasGentlemanow(BasicNewsRecipe):
+    title          = u'Czas Gentlemanów'
+    __author__        = 'fenuks'
+    description   = u'Historia mężczyzn z dala od wielkiej polityki'
+    category       = 'blog'
+    language       = 'pl'
+    cover_url = 'http://czasgentlemanow.pl/wp-content/uploads/2012/10/logo-Czas-Gentlemanow1.jpg'
+    ignore_duplicate_articles = {'title', 'url'}
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    use_embedded_content = False
+    keep_only_tags = [dict(name='div', attrs={'class':'content'})]
+    remove_tags = [dict(attrs={'class':'meta_comments'})]
+    remove_tags_after = dict(name='div', attrs={'class':'fblikebutton_button'})
+    feeds          = [(u'M\u0119ski \u015awiat', u'http://czasgentlemanow.pl/category/meski-swiat/feed/'), (u'Styl', u'http://czasgentlemanow.pl/category/styl/feed/'), (u'Vademecum Gentlemana', u'http://czasgentlemanow.pl/category/vademecum/feed/'), (u'Dom i rodzina', u'http://czasgentlemanow.pl/category/dom-i-rodzina/feed/'), (u'Honor', u'http://czasgentlemanow.pl/category/honor/feed/'), (u'Gad\u017cety Gentlemana', u'http://czasgentlemanow.pl/category/gadzety-gentlemana/feed/')]

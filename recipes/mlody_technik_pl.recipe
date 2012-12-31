@@ -2,7 +2,7 @@
 
 from calibre.web.feeds.news import BasicNewsRecipe
 class Mlody_technik(BasicNewsRecipe):
-    title          = u'Mlody technik'
+    title          = u'Młody technik'
     __author__        = 'fenuks'
     description   = u'Młody technik'
     category       = 'science'

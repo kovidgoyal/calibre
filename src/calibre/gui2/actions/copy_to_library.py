@@ -10,12 +10,14 @@ from functools import partial
 from threading import Thread
 from contextlib import closing
 
-from PyQt4.Qt import QToolButton
+from PyQt4.Qt import (QToolButton, QDialog, QGridLayout, QIcon, QLabel,
+                      QCheckBox, QDialogButtonBox)
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import (error_dialog, Dispatcher, warning_dialog, gprefs,
-        info_dialog)
+        info_dialog, choose_dir)
 from calibre.gui2.dialogs.progress import ProgressDialog
+from calibre.gui2.widgets import HistoryLineEdit
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import now
 
@@ -125,6 +127,45 @@ class Worker(Thread): # {{{
 
 # }}}
 
+class ChooseLibrary(QDialog): # {{{
+
+    def __init__(self, parent):
+        super(ChooseLibrary, self).__init__(parent)
+        d = self
+        d.l = l = QGridLayout()
+        d.setLayout(l)
+        d.setWindowTitle(_('Choose library'))
+        la = d.la = QLabel(_('Library &path:'))
+        l.addWidget(la, 0, 0)
+        le = d.le = HistoryLineEdit(d)
+        le.initialize('choose_library_for_copy')
+        l.addWidget(le, 0, 1)
+        la.setBuddy(le)
+        b = d.b = QToolButton(d)
+        b.setIcon(QIcon(I('document_open.png')))
+        b.setToolTip(_('Browse for library'))
+        b.clicked.connect(self.browse)
+        l.addWidget(b, 0, 2)
+        self.c = c = QCheckBox(_('&Delete after copy'))
+        l.addWidget(c, 1, 0, 1, 3)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        l.addWidget(bb, 2, 0, 1, 3)
+        le.setMinimumWidth(350)
+        self.resize(self.sizeHint())
+
+    def browse(self):
+        d = choose_dir(self, 'choose_library_for_copy',
+                       _('Choose Library'))
+        if d:
+            self.le.setText(d)
+
+    @property
+    def args(self):
+        return (unicode(self.le.text()), self.c.isChecked())
+# }}}
+
 class CopyToLibraryAction(InterfaceAction):
 
     name = 'Copy To Library'
@@ -166,7 +207,19 @@ class CopyToLibraryAction(InterfaceAction):
                     partial(self.copy_to_library,  loc, delete_after=True))
             self.menu.addSeparator()
 
+        self.menu.addAction(_('Choose library by path...'), self.choose_library)
         self.qaction.setVisible(bool(locations))
+
+    def choose_library(self):
+        d = ChooseLibrary(self.gui)
+        if d.exec_() == d.Accepted:
+            path, delete_after = d.args
+            db = self.gui.library_view.model().db
+            current = os.path.normcase(os.path.abspath(db.library_path))
+            if current == os.path.normcase(os.path.abspath(path)):
+                return error_dialog(self.gui, _('Cannot copy'),
+                    _('Cannot copy to current library.'), show=True)
+            self.copy_to_library(path, delete_after)
 
     def copy_to_library(self, loc, delete_after=False):
         rows = self.gui.library_view.selectionModel().selectedRows()

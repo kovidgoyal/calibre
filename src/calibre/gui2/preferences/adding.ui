@@ -158,36 +158,6 @@ Author matching is exact.</string>
        <string>&amp;Automatic Adding</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="3" column="0" colspan="2">
-        <widget class="QCheckBox" name="opt_auto_add_check_for_duplicates">
-         <property name="toolTip">
-          <string>If set, this option will causes calibre to check if a file
- being auto-added is already in the calibre library.
- If it is, a message will pop up asking you whether
- you want to add it anyway.</string>
-         </property>
-         <property name="text">
-          <string>Check for &amp;duplicates when auto-adding files</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0" colspan="2">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Specify a folder. Any files you put into this folder will be automatically added to calibre (restart required).</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>&lt;b&gt;WARNING:&lt;/b&gt; Files in the above folder will be deleted after being added to calibre.</string>
-         </property>
-        </widget>
-       </item>
        <item row="5" column="0">
         <widget class="QGroupBox" name="groupBox">
          <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -212,6 +182,36 @@ Author matching is exact.</string>
            </widget>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Specify a folder. Any files you put into this folder will be automatically added to calibre (restart required).</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>&lt;b&gt;WARNING:&lt;/b&gt; Files in the above folder will be deleted after being added to calibre.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_auto_add_check_for_duplicates">
+         <property name="toolTip">
+          <string>If set, this option will causes calibre to check if a file
+ being auto-added is already in the calibre library.
+ If it is, a message will pop up asking you whether
+ you want to add it anyway.</string>
+         </property>
+         <property name="text">
+          <string>Check for &amp;duplicates when auto-adding files</string>
+         </property>
         </widget>
        </item>
        <item row="5" column="1">
@@ -258,6 +258,19 @@ Author matching is exact.</string>
           <string>Automatically &amp;convert added files to the current output format</string>
          </property>
         </widget>
+       </item>
+       <item row="6" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>

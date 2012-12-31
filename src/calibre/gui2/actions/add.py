@@ -151,7 +151,7 @@ class AddAction(InterfaceAction):
         Add an empty book item to the library. This does not import any formats
         from a book file.
         '''
-        author = None
+        author = series = None
         index = self.gui.library_view.currentIndex()
         if index.isValid():
             raw = index.model().db.authors(index.row())
@@ -159,16 +159,27 @@ class AddAction(InterfaceAction):
                 authors = [a.strip().replace('|', ',') for a in raw.split(',')]
                 if authors:
                     author = authors[0]
-        dlg = AddEmptyBookDialog(self.gui, self.gui.library_view.model().db, author)
+            series = index.model().db.series(index.row())
+        dlg = AddEmptyBookDialog(self.gui, self.gui.library_view.model().db,
+                                 author, series)
         if dlg.exec_() == dlg.Accepted:
             num = dlg.qty_to_add
+            series = dlg.selected_series
+            db = self.gui.library_view.model().db
+            ids = []
             for x in xrange(num):
                 mi = MetaInformation(_('Unknown'), dlg.selected_authors)
-                self.gui.library_view.model().db.import_book(mi, [])
+                if series:
+                    mi.series = series
+                    mi.series_index = db.get_next_series_num_for(series)
+                ids.append(db.import_book(mi, []))
             self.gui.library_view.model().books_added(num)
             if hasattr(self.gui, 'db_images'):
                 self.gui.db_images.reset()
             self.gui.tags_view.recount()
+            if ids:
+                ids.reverse()
+                self.gui.library_view.select_rows(ids)
 
     def add_isbns(self, books, add_tags=[]):
         self.isbn_books = list(books)

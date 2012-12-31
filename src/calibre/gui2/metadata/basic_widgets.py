@@ -1094,6 +1094,9 @@ class RatingEdit(QSpinBox): # {{{
         db.set_rating(id_, 2*self.current_val, notify=False, commit=False)
         return True
 
+    def zero(self):
+        self.setValue(0)
+
 # }}}
 
 class TagsEdit(EditWithComplete): # {{{

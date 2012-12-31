@@ -102,7 +102,8 @@ class Check(Command):
                     errors = True
             if errors:
                 cPickle.dump(cache, open(self.CACHE, 'wb'), -1)
-                subprocess.call(['gvim', '-f', f])
+                subprocess.call(['gvim', '-S',
+                                 self.j(self.SRC, '../session.vim'), '-f', f])
                 raise SystemExit(1)
             cache[f] = mtime
         for x in builtins:

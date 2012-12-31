@@ -7,9 +7,9 @@ class AdvancedUserRecipe1324114228(BasicNewsRecipe):
     max_articles_per_feed = 100
     auto_cleanup = True
     masthead_url            = 'http://www.lavoce.info/binary/la_voce/testata/lavoce.1184661635.gif'
-    feeds          = [(u'La Voce', u'http://www.lavoce.info/feed_rss.php?id_feed=1')]
+    feeds          = [(u'La Voce', u'http://www.lavoce.info/feed/')]
     __author__    = 'faber1971'
-    description   = 'Italian website on Economy - v1.01 (17, December 2011)'
+    description   = 'Italian website on Economy - v1.02 (27, December 2012)'
     language = 'it'
 
 

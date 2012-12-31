@@ -544,7 +544,7 @@ class DocumentView(QWebView): # {{{
         self.goto_location_action.setMenu(self.goto_location_menu)
         self.grabGesture(Qt.SwipeGesture)
 
-        self.restore_fonts_action = QAction(_('Normal font size'), self)
+        self.restore_fonts_action = QAction(_('Default font size'), self)
         self.restore_fonts_action.setCheckable(True)
         self.restore_fonts_action.triggered.connect(self.restore_font_size)
 

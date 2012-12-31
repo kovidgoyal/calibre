@@ -75,6 +75,20 @@ class Worker(Thread): # Get details {{{
             9: ['sept'],
             12: ['déc'],
             },
+            'br': {
+                1: ['janeiro'],
+                2: ['fevereiro'],
+                3: ['março'],
+                4: ['abril'],
+                5: ['maio'],
+                6: ['junho'],
+                7: ['julho'],
+                8: ['agosto'],
+                9: ['setembro'],
+                10: ['outubro'],
+                11: ['novembro'],
+                12: ['dezembro'],
+            },
             'es': {
                 1: ['enero'],
                 2: ['febrero'],
@@ -89,7 +103,7 @@ class Worker(Thread): # Get details {{{
                 11: ['noviembre'],
                 12: ['diciembre'],
             },
-                'jp': {
+            'jp': {
             1: [u'1月'],
             2: [u'2月'],
             3: [u'3月'],
@@ -117,6 +131,7 @@ class Worker(Thread): # Get details {{{
                  text()="Product details" or \
                  text()="Détails sur le produit" or \
                  text()="Detalles del producto" or \
+                 text()="Detalhes do produto" or \
                  text()="登録情報"]/../div[@class="content"]
             '''
         # Editor: is for Spanish
@@ -126,6 +141,7 @@ class Worker(Thread): # Get details {{{
                     starts-with(text(), "Editore:") or \
                     starts-with(text(), "Editeur") or \
                     starts-with(text(), "Editor:") or \
+                    starts-with(text(), "Editora:") or \
                     starts-with(text(), "出版社:")]
             '''
         self.language_xpath =    '''
@@ -141,7 +157,7 @@ class Worker(Thread): # Get details {{{
             '''
 
         self.ratings_pat = re.compile(
-            r'([0-9.]+) ?(out of|von|su|étoiles sur|つ星のうち|de un máximo de) ([\d\.]+)( (stars|Sternen|stelle|estrellas)){0,1}')
+            r'([0-9.]+) ?(out of|von|su|étoiles sur|つ星のうち|de un máximo de|de) ([\d\.]+)( (stars|Sternen|stelle|estrellas|estrelas)){0,1}')
 
         lm = {
                 'eng': ('English', 'Englisch'),
@@ -150,6 +166,7 @@ class Worker(Thread): # Get details {{{
                 'deu': ('German', 'Deutsch'),
                 'spa': ('Spanish', 'Espa\xf1ol', 'Espaniol'),
                 'jpn': ('Japanese', u'日本語'),
+                'por': ('Portuguese', 'Português'),
                 }
         self.lang_map = {}
         for code, names in lm.iteritems():
@@ -435,7 +452,7 @@ class Worker(Thread): # Get details {{{
 
 
     def parse_cover(self, root):
-        imgs = root.xpath('//img[@id="prodImage" and @src]')
+        imgs = root.xpath('//img[(@id="prodImage" or @id="original-main-image") and @src]')
         if imgs:
             src = imgs[0].get('src')
             if '/no-image-avail' not in src:
@@ -505,6 +522,7 @@ class Amazon(Source):
             'it' : _('Italy'),
             'jp' : _('Japan'),
             'es' : _('Spain'),
+            'br' : _('Brazil'),
     }
 
     options = (
@@ -570,6 +588,8 @@ class Amazon(Source):
                 url = 'http://amzn.com/'+asin
             elif domain == 'uk':
                 url = 'http://www.amazon.co.uk/dp/'+asin
+            elif domain == 'br':
+                url = 'http://www.amazon.com.br/dp/'+asin
             else:
                 url = 'http://www.amazon.%s/dp/%s'%(domain, asin)
             if url:
@@ -629,7 +649,7 @@ class Amazon(Source):
             q['field-isbn'] = isbn
         else:
             # Only return book results
-            q['search-alias'] = 'stripbooks'
+            q['search-alias'] = 'digital-text' if domain == 'br' else 'stripbooks'
             if title:
                 title_tokens = list(self.get_title_tokens(title))
                 if title_tokens:
@@ -661,6 +681,8 @@ class Amazon(Source):
             udomain = 'co.uk'
         elif domain == 'jp':
             udomain = 'co.jp'
+        elif domain == 'br':
+            udomain = 'com.br'
         url = 'http://www.amazon.%s/s/?'%udomain + urlencode(encoded_q)
         return url, domain
 
@@ -978,6 +1000,16 @@ if __name__ == '__main__': # tests {{{
             ),
     ] # }}}
 
+    br_tests = [ # {{{
+            (
+                {'title':'Guerra dos Tronos'},
+                [title_test('A Guerra dos Tronos - As Crônicas de Gelo e Fogo',
+                    exact=True), authors_test(['George R. R. Martin'])
+                 ]
+
+            ),
+    ] # }}}
+
     def do_test(domain, start=0, stop=None):
         tests = globals().get(domain+'_tests')
         if stop is None:
@@ -988,7 +1020,7 @@ if __name__ == '__main__': # tests {{{
 
     do_test('com')
 
-    #do_test('de')
+    # do_test('de')
 
 # }}}
 

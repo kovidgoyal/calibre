@@ -106,6 +106,7 @@ gprefs.defaults['tag_browser_old_look'] = False
 gprefs.defaults['book_list_tooltips'] = True
 gprefs.defaults['bd_show_cover'] = True
 gprefs.defaults['bd_overlay_cover_size'] = False
+gprefs.defaults['tags_browser_category_icons'] = {}
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -1034,7 +1035,9 @@ def build_forms(srcdir, info=None):
             dat = dat.replace('from widgets import', 'from calibre.gui2.widgets import')
             dat = dat.replace('from convert.xpath_wizard import',
                 'from calibre.gui2.convert.xpath_wizard import')
-            dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
+            dat = re.sub(r'^ {4}def _translate\(context, text, disambig\):\s+return.*$', '    pass', dat,
+                         flags=re.M)
+            dat = re.compile(r'(?:QtGui.QApplication.translate|(?<!def )_translate)\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
             dat = dat.replace('_("MMM yyyy")', '"MMM yyyy"')
             dat = pat.sub(sub, dat)
             dat = dat.replace('from QtWebKit.QWebView import QWebView',

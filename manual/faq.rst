@@ -162,6 +162,8 @@ Follow these steps to find the problem:
     * If you are connecting an Apple iDevice (iPad, iPod Touch, iPhone), use the 'Connect to iTunes' method in the 'Getting started' instructions in `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
     * Make sure you are running the latest version of |app|. The latest version can always be downloaded from `the calibre website <http://calibre-ebook.com/download>`_.
     * Ensure your operating system is seeing the device. That is, the device should show up in Windows Explorer (in Windows) or Finder (in OS X).
+    * In |app|, go to Preferences->Ignored Devices and check that your device
+      is not being ignored
     * In |app|, go to Preferences->Plugins->Device Interface plugin and make sure the plugin for your device is enabled, the plugin icon next to it should be green when it is enabled.
     * If all the above steps fail, go to Preferences->Miscellaneous and click debug device detection with your device attached and post the output as a ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
 
@@ -667,6 +669,9 @@ There are three possible things I know of, that can cause this:
     * If you use RoboForm, it is known to cause |app| to crash. Add |app| to
       the blacklist of programs inside RoboForm to fix this. Or uninstall
       RoboForm.
+
+    * The Logitech SetPoint Settings application causes random crashes in
+      |app| when it is open. Close it before starting |app|.
 
 |app| is not starting on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
