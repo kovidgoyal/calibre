@@ -6,6 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import re
 import urllib
 from contextlib import closing
 
@@ -50,12 +51,17 @@ class BNStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
 
-                cover_url = ''.join(data.xpath('.//img[contains(@class, "product-image")]/@src'))
+                cover_url = ''
+                cover_id = ''.join(data.xpath('.//img[contains(@class, "product-image")]/@id'))
+                m = re.search(r"%s'.*?srcUrl: '(?P<iurl>.*?)'.*?}" % cover_id, raw)
+                if m:
+                    cover_url = m.group('iurl')
 
                 title = ''.join(data.xpath('descendant::p[@class="title"]//span[@class="name"]//text()')).strip()
-                if not title: continue
+                if not title:
+                    continue
 
-                author = ', '.join(data.xpath('.//ul[@class="contributors"]//a[@class="subtle"]//text()')).strip()
+                author = ', '.join(data.xpath('.//ul[contains(@class, "contributors")]//a[contains(@class, "subtle")]//text()')).strip()
                 price = ''.join(data.xpath('.//a[contains(@class, "bn-price")]//text()'))
 
                 counter -= 1
