@@ -12,13 +12,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-12-22 17:18+0000\n"
+"PO-Revision-Date: 2012-12-31 12:50+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-12-23 04:38+0000\n"
+"X-Launchpad-Export-Date: 2013-01-01 04:45+0000\n"
 "X-Generator: Launchpad (build 16378)\n"
 "Language: ca\n"
 
@@ -1744,7 +1744,7 @@ msgstr "Asu (Nigèria)"
 
 #. name for aun
 msgid "One; Molmo"
-msgstr "One; Molmo"
+msgstr "Oneià; Molmo"
 
 #. name for auo
 msgid "Auyokawa"
@@ -1964,7 +1964,7 @@ msgstr "Leyigha"
 
 #. name for ayk
 msgid "Akuku"
-msgstr "Akuku"
+msgstr "Okpe-Idesa-Akuku; Akuku"
 
 #. name for ayl
 msgid "Arabic; Libyan"
@@ -9984,7 +9984,7 @@ msgstr "Indri"
 
 #. name for ids
 msgid "Idesa"
-msgstr "Idesa"
+msgstr "Okpe-Idesa-Akuku; Idesa"
 
 #. name for idt
 msgid "Idaté"
@@ -19524,7 +19524,7 @@ msgstr ""
 
 #. name for obi
 msgid "Obispeño"
-msgstr ""
+msgstr "Obispeño"
 
 #. name for obk
 msgid "Bontok; Southern"
@@ -19532,7 +19532,7 @@ msgstr "Bontoc; meridional"
 
 #. name for obl
 msgid "Oblo"
-msgstr ""
+msgstr "Oblo"
 
 #. name for obm
 msgid "Moabite"
@@ -19552,11 +19552,11 @@ msgstr "Bretó; antic"
 
 #. name for obu
 msgid "Obulom"
-msgstr ""
+msgstr "Obulom"
 
 #. name for oca
 msgid "Ocaina"
-msgstr ""
+msgstr "Ocaina"
 
 #. name for och
 msgid "Chinese; Old"
@@ -19576,11 +19576,11 @@ msgstr "Matlazinca; Atzingo"
 
 #. name for oda
 msgid "Odut"
-msgstr ""
+msgstr "Odut"
 
 #. name for odk
 msgid "Od"
-msgstr ""
+msgstr "Od"
 
 #. name for odt
 msgid "Dutch; Old"
@@ -19588,11 +19588,11 @@ msgstr "Holandès; antic"
 
 #. name for odu
 msgid "Odual"
-msgstr ""
+msgstr "Odual"
 
 #. name for ofo
 msgid "Ofo"
-msgstr ""
+msgstr "Ofo"
 
 #. name for ofs
 msgid "Frisian; Old"
@@ -19604,11 +19604,11 @@ msgstr ""
 
 #. name for ogb
 msgid "Ogbia"
-msgstr ""
+msgstr "Ogbia"
 
 #. name for ogc
 msgid "Ogbah"
-msgstr ""
+msgstr "Ogbah"
 
 #. name for oge
 msgid "Georgian; Old"
@@ -19616,7 +19616,7 @@ msgstr ""
 
 #. name for ogg
 msgid "Ogbogolo"
-msgstr ""
+msgstr "Ogbogolo"
 
 #. name for ogo
 msgid "Khana"
@@ -19624,7 +19624,7 @@ msgstr ""
 
 #. name for ogu
 msgid "Ogbronuagum"
-msgstr ""
+msgstr "Ogbronuagum"
 
 #. name for oht
 msgid "Hittite; Old"
@@ -19636,27 +19636,27 @@ msgstr "Hongarès; antic"
 
 #. name for oia
 msgid "Oirata"
-msgstr ""
+msgstr "Oirata"
 
 #. name for oin
 msgid "One; Inebu"
-msgstr ""
+msgstr "Oneià; Inebu"
 
 #. name for ojb
 msgid "Ojibwa; Northwestern"
-msgstr ""
+msgstr "Ojibwa; Nordoccidental"
 
 #. name for ojc
 msgid "Ojibwa; Central"
-msgstr ""
+msgstr "Ojibwa; Central"
 
 #. name for ojg
 msgid "Ojibwa; Eastern"
-msgstr ""
+msgstr "Ojibwa; Oriental"
 
 #. name for oji
 msgid "Ojibwa"
-msgstr ""
+msgstr "Ojibwa; Occidental"
 
 #. name for ojp
 msgid "Japanese; Old"
@@ -19664,11 +19664,11 @@ msgstr "Japonès; antic"
 
 #. name for ojs
 msgid "Ojibwa; Severn"
-msgstr ""
+msgstr "Ojibwa; Severn"
 
 #. name for ojv
 msgid "Ontong Java"
-msgstr ""
+msgstr "Ontong Java"
 
 #. name for ojw
 msgid "Ojibwa; Western"
@@ -19676,19 +19676,19 @@ msgstr ""
 
 #. name for oka
 msgid "Okanagan"
-msgstr ""
+msgstr "Colville-Okanagà"
 
 #. name for okb
 msgid "Okobo"
-msgstr ""
+msgstr "Okobo"
 
 #. name for okd
 msgid "Okodia"
-msgstr ""
+msgstr "Okodia"
 
 #. name for oke
 msgid "Okpe (Southwestern Edo)"
-msgstr ""
+msgstr "Okpe"
 
 #. name for okh
 msgid "Koresh-e Rostam"
@@ -19696,15 +19696,15 @@ msgstr ""
 
 #. name for oki
 msgid "Okiek"
-msgstr ""
+msgstr "Okiek"
 
 #. name for okj
 msgid "Oko-Juwoi"
-msgstr ""
+msgstr "Oko-Juwoi"
 
 #. name for okk
 msgid "One; Kwamtim"
-msgstr ""
+msgstr "Oneià; Kwamtim"
 
 #. name for okl
 msgid "Kentish Sign Language; Old"
@@ -19716,7 +19716,7 @@ msgstr ""
 
 #. name for okn
 msgid "Oki-No-Erabu"
-msgstr ""
+msgstr "Oki-No-Erabu"
 
 #. name for oko
 msgid "Korean; Old (3rd-9th cent.)"
@@ -19728,19 +19728,19 @@ msgstr ""
 
 #. name for oks
 msgid "Oko-Eni-Osayen"
-msgstr ""
+msgstr "Oko-Eni-Osayen"
 
 #. name for oku
 msgid "Oku"
-msgstr ""
+msgstr "Oku"
 
 #. name for okv
 msgid "Orokaiva"
-msgstr ""
+msgstr "Orokaiwa"
 
 #. name for okx
 msgid "Okpe (Northwestern Edo)"
-msgstr ""
+msgstr "Okpe-Idesa-Akuku; Okpe"
 
 #. name for ola
 msgid "Walungge"
@@ -19752,11 +19752,11 @@ msgstr ""
 
 #. name for ole
 msgid "Olekha"
-msgstr ""
+msgstr "Olekha"
 
 #. name for olm
 msgid "Oloma"
-msgstr ""
+msgstr "Oloma"
 
 #. name for olo
 msgid "Livvi"
@@ -19768,7 +19768,7 @@ msgstr ""
 
 #. name for oma
 msgid "Omaha-Ponca"
-msgstr ""
+msgstr "Omaha-Ponca"
 
 #. name for omb
 msgid "Ambae; East"
@@ -19780,23 +19780,23 @@ msgstr ""
 
 #. name for ome
 msgid "Omejes"
-msgstr ""
+msgstr "Omejes"
 
 #. name for omg
 msgid "Omagua"
-msgstr ""
+msgstr "Omagua"
 
 #. name for omi
 msgid "Omi"
-msgstr ""
+msgstr "Omi"
 
 #. name for omk
 msgid "Omok"
-msgstr ""
+msgstr "Omok"
 
 #. name for oml
 msgid "Ombo"
-msgstr ""
+msgstr "Ombo"
 
 #. name for omn
 msgid "Minoan"
@@ -19816,11 +19816,11 @@ msgstr ""
 
 #. name for omt
 msgid "Omotik"
-msgstr ""
+msgstr "Omotik"
 
 #. name for omu
 msgid "Omurano"
-msgstr ""
+msgstr "Omurano"
 
 #. name for omw
 msgid "Tairora; South"
@@ -19832,7 +19832,7 @@ msgstr ""
 
 #. name for ona
 msgid "Ona"
-msgstr ""
+msgstr "Ona"
 
 #. name for onb
 msgid "Lingao"
@@ -19840,31 +19840,31 @@ msgstr ""
 
 #. name for one
 msgid "Oneida"
-msgstr ""
+msgstr "Oneida"
 
 #. name for ong
 msgid "Olo"
-msgstr ""
+msgstr "Olo"
 
 #. name for oni
 msgid "Onin"
-msgstr ""
+msgstr "Onin"
 
 #. name for onj
 msgid "Onjob"
-msgstr ""
+msgstr "Onjob"
 
 #. name for onk
 msgid "One; Kabore"
-msgstr ""
+msgstr "Oneià; Kabore"
 
 #. name for onn
 msgid "Onobasulu"
-msgstr ""
+msgstr "Onobasulu"
 
 #. name for ono
 msgid "Onondaga"
-msgstr ""
+msgstr "Onondaga"
 
 #. name for onp
 msgid "Sartang"
@@ -19872,15 +19872,15 @@ msgstr ""
 
 #. name for onr
 msgid "One; Northern"
-msgstr ""
+msgstr "Oneià; Septentrional"
 
 #. name for ons
 msgid "Ono"
-msgstr ""
+msgstr "Ono"
 
 #. name for ont
 msgid "Ontenu"
-msgstr ""
+msgstr "Ontenu"
 
 #. name for onu
 msgid "Unua"
@@ -19900,23 +19900,23 @@ msgstr ""
 
 #. name for oog
 msgid "Ong"
-msgstr ""
+msgstr "Ong"
 
 #. name for oon
 msgid "Önge"
-msgstr ""
+msgstr "Onge"
 
 #. name for oor
 msgid "Oorlams"
-msgstr ""
+msgstr "Oorlams"
 
 #. name for oos
 msgid "Ossetic; Old"
-msgstr ""
+msgstr "Osset"
 
 #. name for opa
 msgid "Okpamheri"
-msgstr ""
+msgstr "Okpamheri"
 
 #. name for opk
 msgid "Kopkaka"
@@ -19924,39 +19924,39 @@ msgstr ""
 
 #. name for opm
 msgid "Oksapmin"
-msgstr ""
+msgstr "Oksapmin"
 
 #. name for opo
 msgid "Opao"
-msgstr ""
+msgstr "Opao"
 
 #. name for opt
 msgid "Opata"
-msgstr ""
+msgstr "Opata"
 
 #. name for opy
 msgid "Ofayé"
-msgstr ""
+msgstr "Opaie"
 
 #. name for ora
 msgid "Oroha"
-msgstr ""
+msgstr "Oroha"
 
 #. name for orc
 msgid "Orma"
-msgstr ""
+msgstr "Orma"
 
 #. name for ore
 msgid "Orejón"
-msgstr ""
+msgstr "Orejon"
 
 #. name for org
 msgid "Oring"
-msgstr ""
+msgstr "Oring"
 
 #. name for orh
 msgid "Oroqen"
-msgstr ""
+msgstr "Orotxen"
 
 #. name for ori
 msgid "Oriya"
@@ -19968,19 +19968,19 @@ msgstr "Oromo"
 
 #. name for orn
 msgid "Orang Kanaq"
-msgstr ""
+msgstr "Orang; Kanaq"
 
 #. name for oro
 msgid "Orokolo"
-msgstr ""
+msgstr "Orocolo"
 
 #. name for orr
 msgid "Oruma"
-msgstr ""
+msgstr "Oruma"
 
 #. name for ors
 msgid "Orang Seletar"
-msgstr ""
+msgstr "Orang; Seletar"
 
 #. name for ort
 msgid "Oriya; Adivasi"
@@ -19988,7 +19988,7 @@ msgstr "Oriya; Adivasi"
 
 #. name for oru
 msgid "Ormuri"
-msgstr ""
+msgstr "Ormuri"
 
 #. name for orv
 msgid "Russian; Old"
@@ -19996,31 +19996,31 @@ msgstr "Rus; antic"
 
 #. name for orw
 msgid "Oro Win"
-msgstr ""
+msgstr "Oro Win"
 
 #. name for orx
 msgid "Oro"
-msgstr ""
+msgstr "Oro"
 
 #. name for orz
 msgid "Ormu"
-msgstr ""
+msgstr "Ormu"
 
 #. name for osa
 msgid "Osage"
-msgstr ""
+msgstr "Osage"
 
 #. name for osc
 msgid "Oscan"
-msgstr ""
+msgstr "Osc"
 
 #. name for osi
 msgid "Osing"
-msgstr ""
+msgstr "Osing"
 
 #. name for oso
 msgid "Ososo"
-msgstr ""
+msgstr "Ososo"
 
 #. name for osp
 msgid "Spanish; Old"
@@ -20028,15 +20028,15 @@ msgstr "Espanyol; antic"
 
 #. name for oss
 msgid "Ossetian"
-msgstr ""
+msgstr "Osset"
 
 #. name for ost
 msgid "Osatu"
-msgstr ""
+msgstr "Osatu"
 
 #. name for osu
 msgid "One; Southern"
-msgstr ""
+msgstr "One; Meridional"
 
 #. name for osx
 msgid "Saxon; Old"
@@ -20052,15 +20052,15 @@ msgstr ""
 
 #. name for otd
 msgid "Ot Danum"
-msgstr ""
+msgstr "Dohoi"
 
 #. name for ote
 msgid "Otomi; Mezquital"
-msgstr ""
+msgstr "Otomí; Mezquital"
 
 #. name for oti
 msgid "Oti"
-msgstr ""
+msgstr "Oti"
 
 #. name for otk
 msgid "Turkish; Old"
@@ -20068,43 +20068,43 @@ msgstr "Turc; antic"
 
 #. name for otl
 msgid "Otomi; Tilapa"
-msgstr ""
+msgstr "Otomí; Tilapa"
 
 #. name for otm
 msgid "Otomi; Eastern Highland"
-msgstr ""
+msgstr "Otomí; Oriental"
 
 #. name for otn
 msgid "Otomi; Tenango"
-msgstr ""
+msgstr "Otomí; Tenango"
 
 #. name for otq
 msgid "Otomi; Querétaro"
-msgstr ""
+msgstr "Otomí; Queretaro"
 
 #. name for otr
 msgid "Otoro"
-msgstr ""
+msgstr "Otoro"
 
 #. name for ots
 msgid "Otomi; Estado de México"
-msgstr ""
+msgstr "Otomí; Estat de Mèxic"
 
 #. name for ott
 msgid "Otomi; Temoaya"
-msgstr ""
+msgstr "Otomí; Temoaya"
 
 #. name for otu
 msgid "Otuke"
-msgstr ""
+msgstr "Otuke"
 
 #. name for otw
 msgid "Ottawa"
-msgstr ""
+msgstr "Ottawa"
 
 #. name for otx
 msgid "Otomi; Texcatepec"
-msgstr ""
+msgstr "Otomí; Texcatepec"
 
 #. name for oty
 msgid "Tamil; Old"
@@ -20112,7 +20112,7 @@ msgstr ""
 
 #. name for otz
 msgid "Otomi; Ixtenco"
-msgstr ""
+msgstr "Otomí; Ixtenc"
 
 #. name for oua
 msgid "Tagargrent"
@@ -20124,7 +20124,7 @@ msgstr ""
 
 #. name for oue
 msgid "Oune"
-msgstr ""
+msgstr "Oune"
 
 #. name for oui
 msgid "Uighur; Old"
@@ -20132,15 +20132,15 @@ msgstr ""
 
 #. name for oum
 msgid "Ouma"
-msgstr ""
+msgstr "Ouma"
 
 #. name for oun
 msgid "!O!ung"
-msgstr ""
+msgstr "Oung"
 
 #. name for owi
 msgid "Owiniga"
-msgstr ""
+msgstr "Owiniga"
 
 #. name for owl
 msgid "Welsh; Old"
@@ -20148,11 +20148,11 @@ msgstr "Gal·lès; antic"
 
 #. name for oyb
 msgid "Oy"
-msgstr ""
+msgstr "Oy"
 
 #. name for oyd
 msgid "Oyda"
-msgstr ""
+msgstr "Oyda"
 
 #. name for oym
 msgid "Wayampi"
@@ -20160,7 +20160,7 @@ msgstr ""
 
 #. name for oyy
 msgid "Oya'oya"
-msgstr ""
+msgstr "Oya'oya"
 
 #. name for ozm
 msgid "Koonzime"
@@ -20168,27 +20168,27 @@ msgstr ""
 
 #. name for pab
 msgid "Parecís"
-msgstr ""
+msgstr "Pareci"
 
 #. name for pac
 msgid "Pacoh"
-msgstr ""
+msgstr "Pacoh"
 
 #. name for pad
 msgid "Paumarí"
-msgstr ""
+msgstr "Paumarí"
 
 #. name for pae
 msgid "Pagibete"
-msgstr ""
+msgstr "Pagibete"
 
 #. name for paf
 msgid "Paranawát"
-msgstr ""
+msgstr "Paranawat"
 
 #. name for pag
 msgid "Pangasinan"
-msgstr ""
+msgstr "Pangasi"
 
 #. name for pah
 msgid "Tenharim"
@@ -20196,19 +20196,19 @@ msgstr ""
 
 #. name for pai
 msgid "Pe"
-msgstr ""
+msgstr "Pe"
 
 #. name for pak
 msgid "Parakanã"
-msgstr ""
+msgstr "Akwawa; Parakanà"
 
 #. name for pal
 msgid "Pahlavi"
-msgstr ""
+msgstr "Pahlavi"
 
 #. name for pam
 msgid "Pampanga"
-msgstr ""
+msgstr "Pampangà"
 
 #. name for pan
 msgid "Panjabi"
@@ -20220,63 +20220,63 @@ msgstr ""
 
 #. name for pap
 msgid "Papiamento"
-msgstr ""
+msgstr "Papiament"
 
 #. name for paq
 msgid "Parya"
-msgstr ""
+msgstr "Parya"
 
 #. name for par
 msgid "Panamint"
-msgstr ""
+msgstr "Panamint"
 
 #. name for pas
 msgid "Papasena"
-msgstr ""
+msgstr "Papasena"
 
 #. name for pat
 msgid "Papitalai"
-msgstr ""
+msgstr "Papitalai"
 
 #. name for pau
 msgid "Palauan"
-msgstr ""
+msgstr "Palavà"
 
 #. name for pav
 msgid "Pakaásnovos"
-msgstr ""
+msgstr "Pakaa Nova"
 
 #. name for paw
 msgid "Pawnee"
-msgstr ""
+msgstr "Pawnee"
 
 #. name for pax
 msgid "Pankararé"
-msgstr ""
+msgstr "Pankararé"
 
 #. name for pay
 msgid "Pech"
-msgstr ""
+msgstr "Pech"
 
 #. name for paz
 msgid "Pankararú"
-msgstr ""
+msgstr "Pankarurú"
 
 #. name for pbb
 msgid "Páez"
-msgstr ""
+msgstr "Páez"
 
 #. name for pbc
 msgid "Patamona"
-msgstr ""
+msgstr "Patamona"
 
 #. name for pbe
 msgid "Popoloca; Mezontla"
-msgstr ""
+msgstr "Popoloca; Mezontla"
 
 #. name for pbf
 msgid "Popoloca; Coyotepec"
-msgstr ""
+msgstr "Popoloca; Coyotepec"
 
 #. name for pbg
 msgid "Paraujano"
@@ -20288,7 +20288,7 @@ msgstr ""
 
 #. name for pbi
 msgid "Parkwa"
-msgstr ""
+msgstr "Parkwa"
 
 #. name for pbl
 msgid "Mak (Nigeria)"
@@ -20300,7 +20300,7 @@ msgstr ""
 
 #. name for pbo
 msgid "Papel"
-msgstr ""
+msgstr "Papel"
 
 #. name for pbp
 msgid "Badyara"
@@ -20336,7 +20336,7 @@ msgstr ""
 
 #. name for pca
 msgid "Popoloca; Santa Inés Ahuatempan"
-msgstr ""
+msgstr "Popoloca; Ahuatempan"
 
 #. name for pcb
 msgid "Pear"
@@ -20832,7 +20832,7 @@ msgstr "Senufo; Palaka"
 
 #. name for pls
 msgid "Popoloca; San Marcos Tlalcoyalco"
-msgstr ""
+msgstr "Popoloca; Tlalcoyalc"
 
 #. name for plt
 msgid "Malagasy; Plateau"
@@ -21040,7 +21040,7 @@ msgstr ""
 
 #. name for poe
 msgid "Popoloca; San Juan Atzingo"
-msgstr ""
+msgstr "Popoloca; Atzingo"
 
 #. name for pof
 msgid "Poke"
@@ -21104,7 +21104,7 @@ msgstr ""
 
 #. name for pow
 msgid "Popoloca; San Felipe Otlaltepec"
-msgstr ""
+msgstr "Popoloca; Otlaltepec"
 
 #. name for pox
 msgid "Polabian"
@@ -21160,7 +21160,7 @@ msgstr ""
 
 #. name for pps
 msgid "Popoloca; San Luís Temalacayuca"
-msgstr ""
+msgstr "Popoloca; Temalacayuca"
 
 #. name for ppt
 msgid "Pare"
