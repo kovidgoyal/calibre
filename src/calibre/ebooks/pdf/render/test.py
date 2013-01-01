@@ -105,12 +105,15 @@ def pen(p, xmax, ymax):
     p.setPen(pen)
     p.drawRect(0, xmax/3, xmax/3, xmax/2)
 
+def text(p, xmax, ymax):
+    p.drawText(QPoint(0, ymax/3), 'Text')
+
 def main():
     app = QApplication([])
     app
     tdir = gettempdir()
     pdf = os.path.join(tdir, 'painter.pdf')
-    func = pen
+    func = full
     dpi = 100
     with open(pdf, 'wb') as f:
         dev = PdfDevice(f, xdpi=dpi, ydpi=dpi, compress=False)

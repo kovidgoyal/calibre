@@ -9,14 +9,13 @@ __docformat__ = 'restructuredtext en'
 
 import hashlib
 from future_builtins import map
-from itertools import izip
 
 from PyQt4.Qt import QBuffer, QByteArray, QImage, Qt, QColor, qRgba
 
 from calibre.constants import (__appname__, __version__)
 from calibre.ebooks.pdf.render.common import (
     Reference, EOL, serialize, Stream, Dictionary, String, Name, Array,
-    GlyphIndex, fmtnum)
+    fmtnum)
 from calibre.ebooks.pdf.render.fonts import FontManager
 from calibre.ebooks.pdf.render.links import Links
 
@@ -166,54 +165,6 @@ class Path(object):
     def close(self):
         self.ops.append(('h',))
 
-class Text(object):
-
-    def __init__(self):
-        self.transform = self.default_transform = [1, 0, 0, 1, 0, 0]
-        self.font_name = 'Times-Roman'
-        self.font_path = None
-        self.horizontal_scale = self.default_horizontal_scale = 100
-        self.word_spacing = self.default_word_spacing = 0
-        self.char_space = self.default_char_space = 0
-        self.glyph_adjust = self.default_glyph_adjust = None
-        self.size = 12
-        self.text = ''
-
-    def set_transform(self, *args):
-        if len(args) == 1:
-            m = args[0]
-            vals = [m.m11(), m.m12(), m.m21(), m.m22(), m.dx(), m.dy()]
-        else:
-            vals = args
-        self.transform = vals
-
-    def pdf_serialize(self, stream, font_name):
-        if not self.text: return
-        stream.write_line('BT ')
-        serialize(Name(font_name), stream)
-        stream.write(' %s Tf '%fmtnum(self.size))
-        stream.write(' '.join(map(fmtnum, self.transform)) + ' Tm ')
-        if self.horizontal_scale != self.default_horizontal_scale:
-            stream.write('%s Tz '%fmtnum(self.horizontal_scale))
-        if self.word_spacing != self.default_word_spacing:
-            stream.write('%s Tw '%fmtnum(self.word_spacing))
-        if self.char_space != self.default_char_space:
-            stream.write('%s Tc '%fmtnum(self.char_space))
-        stream.write_line()
-        if self.glyph_adjust is self.default_glyph_adjust:
-            serialize(String(self.text), stream)
-            stream.write(' Tj ')
-        else:
-            chars = Array()
-            frac, widths = self.glyph_adjust
-            for c, width in izip(self.text, widths):
-                chars.append(String(c))
-                chars.append(int(width * frac))
-            serialize(chars, stream)
-            stream.write(' TJ ')
-        stream.write_line('ET')
-
-
 class Catalog(Dictionary):
 
     def __init__(self, pagetree):
@@ -244,7 +195,9 @@ class HashingStream(object):
         self.last_char = b''
 
     def write(self, raw):
-        raw = raw if isinstance(raw, bytes) else raw.encode('ascii')
+        self.write_raw(raw if isinstance(raw, bytes) else raw.encode('ascii'))
+
+    def write_raw(self, raw):
         self.f.write(raw)
         self.hashobj.update(raw)
         if raw:
@@ -420,9 +373,8 @@ class PDFStream(object):
         self.current_page.write(' %s Tf '%fmtnum(size))
         self.current_page.write('%s Tm '%' '.join(map(fmtnum, transform)))
         for x, y, glyph_id in glyphs:
-            self.current_page.write('%s %s Td '%(fmtnum(x), fmtnum(y)))
-            serialize(GlyphIndex(glyph_id), self.current_page)
-            self.current_page.write(' Tj ')
+            self.current_page.write_raw(('%s %s Td <%04X> Tj '%(
+                fmtnum(x), fmtnum(y), glyph_id)).encode('ascii'))
         self.current_page.write_line(b' ET')
 
     def get_image(self, cache_key):

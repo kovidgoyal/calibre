@@ -232,7 +232,15 @@ class PDFOutput(OutputFormatPlugin):
         out_stream.seek(0)
         out_stream.truncate()
         self.log.debug('Rendering pages to PDF...')
-        writer.dump(items, out_stream, PDFMetadata(self.metadata))
+        import time
+        st = time.time()
+        if False:
+            import cProfile
+            cProfile.runctx('writer.dump(items, out_stream, PDFMetadata(self.metadata))',
+                        globals(), locals(), '/tmp/profile')
+        else:
+            writer.dump(items, out_stream, PDFMetadata(self.metadata))
+        self.log('Rendered PDF in %g seconds:'%(time.time()-st))
 
         if close:
             out_stream.close()

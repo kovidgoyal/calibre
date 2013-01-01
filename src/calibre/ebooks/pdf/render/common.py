@@ -9,8 +9,10 @@ __docformat__ = 'restructuredtext en'
 
 import codecs, zlib
 from io import BytesIO
-from struct import pack
-from decimal import Decimal
+
+from calibre.constants import plugins, ispy3
+
+pdf_float = plugins['speedup'][0].pdf_float
 
 EOL = b'\n'
 
@@ -52,32 +54,25 @@ PAPER_SIZES = {k:globals()[k.upper()] for k in ('a0 a1 a2 a3 a4 a5 a6 b0 b1 b2'
 
 # Basic PDF datatypes {{{
 
-def format_float(f):
-    if abs(f) < 1e-7:
-        return '0'
-    places = 6
-    a, b = type(u'')(Decimal(f).quantize(Decimal(10)**-places)).partition('.')[0::2]
-    b = b.rstrip('0')
-    if not b:
-        return '0' if a == '-0' else a
-    return '%s.%s'%(a, b)
+ic = str if ispy3 else unicode
+icb = (lambda x: str(x).encode('ascii')) if ispy3 else bytes
 
 def fmtnum(o):
-    if isinstance(o, (int, long)):
-        return type(u'')(o)
-    return format_float(o)
+    if isinstance(o, float):
+        return pdf_float(o)
+    return ic(o)
 
 def serialize(o, stream):
-    if hasattr(o, 'pdf_serialize'):
-        o.pdf_serialize(stream)
-    elif isinstance(o, bool):
-        stream.write(b'true' if o else b'false')
+    if isinstance(o, float):
+        stream.write_raw(pdf_float(o).encode('ascii'))
     elif isinstance(o, (int, long)):
-        stream.write(type(u'')(o).encode('ascii'))
-    elif isinstance(o, float):
-        stream.write(format_float(o).encode('ascii'))
+        stream.write_raw(icb(o))
+    elif hasattr(o, 'pdf_serialize'):
+        o.pdf_serialize(stream)
     elif o is None:
-        stream.write(b'null')
+        stream.write_raw(b'null')
+    elif isinstance(o, bool):
+        stream.write_raw(b'true' if o else b'false')
     else:
         raise ValueError('Unknown object: %r'%o)
 
@@ -102,13 +97,6 @@ class String(unicode):
         except UnicodeEncodeError:
             raw = codecs.BOM_UTF16_BE + s.encode('utf-16-be')
         stream.write(b'('+raw+b')')
-
-class GlyphIndex(int):
-
-    def pdf_serialize(self, stream):
-        byts = bytearray(pack(b'>H', self))
-        stream.write('<%s>'%''.join(map(
-            lambda x: bytes(hex(x)[2:]).rjust(2, b'0'), byts)))
 
 class Dictionary(dict):
 
@@ -179,6 +167,9 @@ class Stream(BytesIO):
     def write(self, raw):
         super(Stream, self).write(raw if isinstance(raw, bytes) else
                                   raw.encode('ascii'))
+
+    def write_raw(self, raw):
+        BytesIO.write(self, raw)
 
 class Reference(object):
 
