@@ -396,8 +396,6 @@ class Graphics(object):
         pen = state.stroke
         self.pending_state.do_stroke = True
         pdf = self.pdf
-        if pen.style() == Qt.NoPen:
-            self.pending_state.do_stroke = False
 
         # Width
         w = pen.widthF()
@@ -429,6 +427,8 @@ class Graphics(object):
             pen.brush(), state.brush_origin, state.opacity, pdf_system,
             painter.transform())
         self.pdf.apply_stroke(color, pattern, opacity)
+        if pen.style() == Qt.NoPen:
+            self.pending_state.do_stroke = False
 
     def apply_fill(self, state, pdf_system, painter):
         self.pending_state.do_fill = True

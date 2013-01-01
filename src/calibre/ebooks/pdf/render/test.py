@@ -69,13 +69,6 @@ def full(p, xmax, ymax):
     g.setColorAt(1, QColor('#fff'))
     p.fillRect(x, y, w, w, QBrush(g))
 
-    pen = QPen(QBrush(Qt.blue))
-    pen.setWidth(xmax/3)
-    p.setPen(pen)
-    x += w + w/10
-    y += w
-    p.drawLine(x, y, x+w, y)
-
 
 def run(dev, func):
     p = QPainter(dev)
