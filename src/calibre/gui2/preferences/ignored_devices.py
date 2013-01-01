@@ -7,7 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (QLabel, QVBoxLayout, QListWidget, QListWidgetItem, Qt)
+from PyQt4.Qt import (QLabel, QVBoxLayout, QListWidget, QListWidgetItem, Qt,
+                      QIcon)
 
 from calibre.customize.ui import enable_plugin
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
@@ -66,6 +67,7 @@ class ConfigWidget(ConfigWidgetBase):
             item.setData(Qt.UserRole, dev)
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
             item.setCheckState(Qt.Checked)
+            item.setIcon(QIcon(I('plugins.png')))
         self.device_plugins.sortItems()
         self.device_plugins.blockSignals(False)
 
