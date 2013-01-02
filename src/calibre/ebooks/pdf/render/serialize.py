@@ -356,14 +356,6 @@ class PDFStream(object):
         self.page_tree.obj.add_page(pageref)
         self.current_page = Page(self.page_tree, compress=self.compress)
 
-    def draw_text(self, text_object):
-        if text_object.font_path is None:
-            fontref = self.font_manager.add_standard_font(text_object.font_name)
-        else:
-            raise NotImplementedError()
-        name = self.current_page.add_font(fontref)
-        text_object.pdf_serialize(self.current_page, name)
-
     def draw_glyph_run(self, transform, size, font_metrics, glyphs):
         glyph_ids = {x[-1] for x in glyphs}
         fontref = self.font_manager.add_font(font_metrics, glyph_ids)
