@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools, re, os, traceback, errno
+import functools, re, os, traceback, errno, time
 from collections import defaultdict
 
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
@@ -1419,7 +1419,11 @@ class DeviceBooksModel(BooksModel): # {{{
                 return QVariant(human_readable(size))
             elif cname == 'timestamp':
                 dt = self.db[self.map[row]].datetime
-                dt = dt_factory(dt, assume_utc=True, as_utc=False)
+                try:
+                    dt = dt_factory(dt, assume_utc=True, as_utc=False)
+                except OverflowError:
+                    dt = dt_factory(time.gmtime(), assume_utc=True,
+                                    as_utc=False)
                 return QVariant(strftime(TIME_FMT, dt.timetuple()))
             elif cname == 'collections':
                 tags = self.db[self.map[row]].device_collections

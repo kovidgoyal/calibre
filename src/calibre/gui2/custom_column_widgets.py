@@ -372,7 +372,7 @@ class Series(Base):
 
         self.widgets.append(QLabel('&'+self.col_metadata['name']+_(' index:'), parent))
         w = QDoubleSpinBox(parent)
-        w.setRange(-100., float(100000000))
+        w.setRange(-10000., float(100000000))
         w.setDecimals(2)
         w.setSingleStep(1)
         self.idx_widget=w
