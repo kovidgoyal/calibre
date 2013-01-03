@@ -110,7 +110,7 @@ def main():
     app
     tdir = os.path.abspath('.')
     pdf = os.path.join(tdir, 'painter.pdf')
-    func = text
+    func = full
     dpi = 100
     with open(pdf, 'wb') as f:
         dev = PdfDevice(f, xdpi=dpi, ydpi=dpi, compress=False)
