@@ -8,11 +8,13 @@ __docformat__ = 'restructuredtext en'
 Convert OEB ebook format to PDF.
 '''
 
-import glob
-import os
+import glob, os
 
-from calibre.customize.conversion import OutputFormatPlugin, \
-    OptionRecommendation
+from PyQt4.Qt import QRawFont, QFont
+
+from calibre.constants import iswindows
+from calibre.customize.conversion import (OutputFormatPlugin,
+    OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
 
 UNITS = ['millimeter', 'centimeter', 'point', 'inch' , 'pica' , 'didot',
@@ -136,7 +138,7 @@ class PDFOutput(OutputFormatPlugin):
         '''
         from calibre.ebooks.oeb.base import urlnormalize
         from calibre.gui2 import must_use_qt
-        from calibre.utils.fonts.utils import get_font_names, remove_embed_restriction
+        from calibre.utils.fonts.utils import remove_embed_restriction
         from PyQt4.Qt import QFontDatabase, QByteArray
 
         # First find all @font-face rules and remove them, adding the embedded
@@ -166,11 +168,13 @@ class PDFOutput(OutputFormatPlugin):
                     except:
                         continue
                     must_use_qt()
-                    QFontDatabase.addApplicationFontFromData(QByteArray(raw))
-                    try:
-                        family_name = get_font_names(raw)[0]
-                    except:
-                        family_name = None
+                    fid = QFontDatabase.addApplicationFontFromData(QByteArray(raw))
+                    family_name = None
+                    if fid > -1:
+                        try:
+                            family_name = unicode(QFontDatabase.applicationFontFamilies(fid)[0])
+                        except (IndexError, KeyError):
+                            pass
                     if family_name:
                         family_map[icu_lower(font_family)] = family_name
 
@@ -190,6 +194,19 @@ class PDFOutput(OutputFormatPlugin):
                     k = icu_lower(val[i].value)
                     if k in family_map:
                         val[i].value = family_map[k]
+                if iswindows:
+                    # On windows, Qt uses GDI which does not support OpenType
+                    # (CFF) fonts, so we need to nuke references to OpenType
+                    # fonts. Note that you could compile QT with configure
+                    # -directwrite, but that requires atleast Vista SP2
+                    for i in xrange(val.length):
+                        if val[i].value:
+                            f = QRawFont.fromFont(QFont(val[i].value))
+                            if len(f.fontTable('head')) == 0:
+                                self.log.warn('Ignoring unsupported font: %s'
+                                              %val[i].value)
+                                # Either a bitmap or (more likely) a CFF font
+                                val[i].value = 'serif'
 
     def convert_text(self, oeb_book):
         from calibre.ebooks.metadata.opf2 import OPF

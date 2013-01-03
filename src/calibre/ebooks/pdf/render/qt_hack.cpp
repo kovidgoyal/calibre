@@ -21,6 +21,8 @@ GlyphInfo* get_glyphs(QPointF &p, const QTextItem &text_item) {
         // This is used in the Qt sourcecode, but it gives incorrect results,
         // so I have disabled it. I dont understand how it works in qpdf.cpp
         QFontEngineWin *fe = static_cast<QFontEngineWin *>(ti.fontEngine);
+        // I think this should be tmHeight - tmInternalLeading, but pixelSize
+        // seems to work on windows as well, so leave it as pixelSize
         size = fe->tm.tmHeight;
     }
 #endif
