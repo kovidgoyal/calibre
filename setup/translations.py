@@ -227,10 +227,22 @@ class GetTranslations(Translations): # {{{
                 ans.append(line.split()[-1])
         return ans
 
+    def resolve_conflicts(self):
+        conflict = False
+        for line in subprocess.check_output(['bzr', 'status']).splitlines():
+            if line == 'conflicts:':
+                conflict = True
+                break
+        if not conflict:
+            raise Exception('bzr merge failed and no conflicts found')
+        subprocess.check_call(['bzr', 'resolve', '--take-other'])
+
     def run(self, opts):
         if not self.modified_translations:
-            subprocess.check_call(['bzr', 'merge', self.BRANCH])
-        subprocess.check_call(['bzr', 'resolve', '--take-other'])
+            try:
+                subprocess.check_call(['bzr', 'merge', self.BRANCH])
+            except subprocess.CalledProcessError:
+                self.resolve_conflicts()
         self.check_for_errors()
 
         if self.modified_translations:
