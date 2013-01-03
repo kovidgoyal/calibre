@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-12-28 04:12+0000\n"
-"PO-Revision-Date: 2012-12-20 07:11+0000\n"
+"PO-Revision-Date: 2013-01-02 22:48+0000\n"
 "Last-Translator: Franck <Unknown>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-12-29 04:44+0000\n"
-"X-Generator: Launchpad (build 16378)\n"
+"X-Launchpad-Export-Date: 2013-01-03 04:47+0000\n"
+"X-Generator: Launchpad (build 16393)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -5158,7 +5158,7 @@ msgstr "Espagne"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:525
 msgid "Brazil"
-msgstr ""
+msgstr "Brésil"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:529
 msgid "Amazon website to use:"
@@ -19867,7 +19867,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:438
 msgid "Save current settings as a theme:"
-msgstr "Sauver les réglages acutels en tant que thèmes :"
+msgstr "Sauver les réglages actuels en tant que thèmes :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:440
 msgid "Load a previously saved theme:"
@@ -25716,44 +25716,3 @@ msgstr ""
 "dépendra\n"
 "de l'état des métadonnées dans votre bibliothèque et de votre style "
 "d'édition personnel."
-
-#~ msgid "smaller"
-#~ msgstr "plus petit"
-
-#~ msgid "larger"
-#~ msgstr "plus grand"
-
-#, python-format
-#~ msgid ""
-#~ "Make font size %(which)s\n"
-#~ "Current magnification: %(mag).1f"
-#~ msgstr ""
-#~ "Modifie la taille de fonte %(which)s\n"
-#~ "Agrandissement courant: %(mag).1f"
-
-#, python-format
-#~ msgid ""
-#~ "The unit of measure. Default is inch. Choices are %s Note: This does not "
-#~ "override the unit for margins!"
-#~ msgstr ""
-#~ "L’unité de mesure. Par défaut : pouce (inch). Les choix sont %s. Note : cela "
-#~ "n’écrase pas l’unité des marges !"
-
-#, python-format
-#~ msgid "The orientation of the page. Default is portrait. Choices are %s"
-#~ msgstr "L’orientation de la page. Par défaut : portrait. Les choix sont %s"
-
-#~ msgid "&Orientation:"
-#~ msgstr "&Orientation :"
-
-#~ msgid ""
-#~ "<b>Note:</b> The paper size settings below only take effect if you have set "
-#~ "the output profile to the default output profile. Otherwise the output "
-#~ "profile will override these settings."
-#~ msgstr ""
-#~ "<b>Note :</b> Les réglages de taille de papier ci-dessous prennent seulement "
-#~ "effet si vous avez défini le profil de sortie au profile de sortie par "
-#~ "défaut. Sinon, le profil de sortie passera outre ces réglages."
-
-#~ msgid "Normal font size"
-#~ msgstr "Taille de police normale"
