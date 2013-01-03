@@ -230,6 +230,7 @@ class GetTranslations(Translations): # {{{
     def run(self, opts):
         if not self.modified_translations:
             subprocess.check_call(['bzr', 'merge', self.BRANCH])
+        subprocess.check_call(['bzr', 'resolve', '--take-other'])
         self.check_for_errors()
 
         if self.modified_translations:
