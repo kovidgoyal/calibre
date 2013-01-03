@@ -183,6 +183,7 @@ class PDFOutput(OutputFormatPlugin):
 
         # Now map the font family name specified in the css to the actual
         # family name of the embedded font (they may be different in general).
+        font_warnings = set()
         for item in self.oeb.manifest:
             if not hasattr(item.data, 'cssRules'): continue
             for i, rule in enumerate(item.data.cssRules):
@@ -200,13 +201,16 @@ class PDFOutput(OutputFormatPlugin):
                     # fonts. Note that you could compile QT with configure
                     # -directwrite, but that requires atleast Vista SP2
                     for i in xrange(val.length):
-                        if val[i].value:
-                            f = QRawFont.fromFont(QFont(val[i].value))
+                        family = val[i].value
+                        if family:
+                            f = QRawFont.fromFont(QFont(family))
                             if len(f.fontTable('head')) == 0:
-                                self.log.warn('Ignoring unsupported font: %s'
-                                              %val[i].value)
+                                if family not in font_warnings:
+                                    self.log.warn('Ignoring unsupported font: %s'
+                                                %family)
+                                    font_warnings.add(family)
                                 # Either a bitmap or (more likely) a CFF font
-                                val[i].value = 'serif'
+                                val[i].value = 'times'
 
     def convert_text(self, oeb_book):
         from calibre.ebooks.metadata.opf2 import OPF
