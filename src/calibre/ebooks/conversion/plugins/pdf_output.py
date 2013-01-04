@@ -10,8 +10,6 @@ Convert OEB ebook format to PDF.
 
 import glob, os
 
-from PyQt4.Qt import QRawFont, QFont
-
 from calibre.constants import iswindows
 from calibre.customize.conversion import (OutputFormatPlugin,
     OptionRecommendation)
@@ -139,7 +137,7 @@ class PDFOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.base import urlnormalize
         from calibre.gui2 import must_use_qt
         from calibre.utils.fonts.utils import remove_embed_restriction
-        from PyQt4.Qt import QFontDatabase, QByteArray
+        from PyQt4.Qt import QFontDatabase, QByteArray, QRawFont, QFont
 
         # First find all @font-face rules and remove them, adding the embedded
         # fonts to Qt
