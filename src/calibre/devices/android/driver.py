@@ -191,7 +191,7 @@ class ANDROID(USBMS):
             0x10a9 : { 0x6050 : [0x227] },
 
             # Prestigio
-            0x2207 : { 0 : [0x222] },
+            0x2207 : { 0 : [0x222], 0x10 : [0x222] },
 
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books',
