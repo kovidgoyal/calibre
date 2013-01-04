@@ -29,7 +29,7 @@
 
     - title: "Show disabled device plugins in Preferences->Ignored Devices"
 
-    - title: "Get Books: Fix Smashwords, Google boks and B&N stores. Add Nook UK store"
+    - title: "Get Books: Fix Smashwords, Google books and B&N stores. Add Nook UK store"
 
     - title: "Allow series numbers lower than -100 for custom series columns."
       tickets: [1094475]
