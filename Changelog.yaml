@@ -19,6 +19,57 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.13
+  date: 2013-01-04
+
+  new features:
+    - title: "Complete rewrite of the PDF Output engine, to support links and fix various bugs"
+      type: major
+      description: "calibre now has a new PDF output engine that supports links in the text. It also fixes various bugs, detailed below. In order to implement support for links and fix these bugs, the engine had to be completely rewritten, so there may be some regressions."
+
+    - title: "Show disabled device plugins in Preferences->Ignored Devices"
+
+    - title: "Get Books: Fix Smashwords, Google boks and B&N stores. Add Nook UK store"
+
+    - title: "Allow series numbers lower than -100 for custom series columns."
+      tickets: [1094475]
+
+    - title: "Add mass storage driver for rockhip based android smart phones"
+      tickets: [1087809]
+
+    - title: "Add a clear ratings button to the edit metadata dialog"
+ 
+  bug fixes:
+    - title: "PDF Output: Fix custom page sizes not working on OS X"
+
+    - title: "PDF Output: Fix embedding of many fonts not supported (note that embedding of OpenType fonts with Postscript outlines is still not supported on windows, though it is supported on other operating systems)"
+
+    - title: "PDF Output: Fix crashes converting some books to PDF on OS X"
+      tickets: [1087688]
+
+    - title: "HTML Input: Handle entities inside href attributes when following the links in an HTML file."
+      tickets: [1094203]
+
+    - title: "Content server: Fix custom icons not used for sub categories"
+      tickets: [1095016]
+
+    - title: "Force use of non-unicode constants in compiled templates. Fixes a problem with regular expression character classes and probably other things."
+
+    - title: "Kobo driver: Do not error out if there are invalid dates in the device database"
+      tickets: [1094597]
+
+    - title: "Content server: Fix for non-unicode hostnames when using mDNS"
+      tickets: [1094063]
+
+  improved recipes:
+    - Today's Zaman
+    - The Economist
+    - Foreign Affairs
+    - New York Times
+    - Alternet
+    - Harper's Magazine
+    - La Stampa
+
 - version: 0.9.12
   date: 2012-12-28
 
