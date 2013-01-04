@@ -176,6 +176,7 @@ class PDFWriter(QObject):
                 p = QPixmap()
                 p.loadFromData(self.cover_data)
                 if not p.isNull():
+                    self.doc.init_page()
                     draw_image_page(QRect(0, 0, self.doc.width(), self.doc.height()),
                             self.painter, p,
                             preserve_aspect_ratio=self.opts.preserve_cover_aspect_ratio)
