@@ -9,7 +9,10 @@ __docformat__ = 'restructuredtext en'
 
 import codecs, zlib
 from io import BytesIO
-from struct import pack
+
+from calibre.constants import plugins, ispy3
+
+pdf_float = plugins['speedup'][0].pdf_float
 
 EOL = b'\n'
 
@@ -51,15 +54,25 @@ PAPER_SIZES = {k:globals()[k.upper()] for k in ('a0 a1 a2 a3 a4 a5 a6 b0 b1 b2'
 
 # Basic PDF datatypes {{{
 
+ic = str if ispy3 else unicode
+icb = (lambda x: str(x).encode('ascii')) if ispy3 else bytes
+
+def fmtnum(o):
+    if isinstance(o, float):
+        return pdf_float(o)
+    return ic(o)
+
 def serialize(o, stream):
-    if hasattr(o, 'pdf_serialize'):
+    if isinstance(o, float):
+        stream.write_raw(pdf_float(o).encode('ascii'))
+    elif isinstance(o, (int, long)):
+        stream.write_raw(icb(o))
+    elif hasattr(o, 'pdf_serialize'):
         o.pdf_serialize(stream)
-    elif isinstance(o, bool):
-        stream.write(b'true' if o else b'false')
-    elif isinstance(o, (int, long, float)):
-        stream.write(type(u'')(o).encode('ascii'))
     elif o is None:
-        stream.write(b'null')
+        stream.write_raw(b'null')
+    elif isinstance(o, bool):
+        stream.write_raw(b'true' if o else b'false')
     else:
         raise ValueError('Unknown object: %r'%o)
 
@@ -85,19 +98,13 @@ class String(unicode):
             raw = codecs.BOM_UTF16_BE + s.encode('utf-16-be')
         stream.write(b'('+raw+b')')
 
-class GlyphIndex(int):
-
-    def pdf_serialize(self, stream):
-        byts = bytearray(pack(b'>H', self))
-        stream.write('<%s>'%''.join(map(
-            lambda x: bytes(hex(x)[2:]).rjust(2, b'0'), byts)))
-
 class Dictionary(dict):
 
     def pdf_serialize(self, stream):
         stream.write(b'<<' + EOL)
         sorted_keys = sorted(self.iterkeys(),
-                    key=lambda x:((' ' if x == 'Type' else '')+x))
+                             key=lambda x:({'Type':'1', 'Subtype':'2'}.get(
+                                 x, x)+x))
         for k in sorted_keys:
             serialize(Name(k), stream)
             stream.write(b' ')
@@ -161,6 +168,9 @@ class Stream(BytesIO):
         super(Stream, self).write(raw if isinstance(raw, bytes) else
                                   raw.encode('ascii'))
 
+    def write_raw(self, raw):
+        BytesIO.write(self, raw)
+
 class Reference(object):
 
     def __init__(self, num, obj):
@@ -169,5 +179,11 @@ class Reference(object):
     def pdf_serialize(self, stream):
         raw = '%d 0 R'%self.num
         stream.write(raw.encode('ascii'))
+
+    def __repr__(self):
+        return '%d 0 R'%self.num
+
+    def __str__(self):
+        return repr(self)
 # }}}
 

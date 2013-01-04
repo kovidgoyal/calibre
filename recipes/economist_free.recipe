@@ -9,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag, NavigableString
 from collections import OrderedDict
 
-import time, re
+import re
 
 class Economist(BasicNewsRecipe):
 
@@ -37,7 +37,6 @@ class Economist(BasicNewsRecipe):
             padding: 7px 0px 9px;
         }
         '''
-
     oldest_article = 7.0
     remove_tags = [
             dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
@@ -46,7 +45,6 @@ class Economist(BasicNewsRecipe):
             {'class': lambda x: x and 'share-links-header' in x},
     ]
     keep_only_tags = [dict(id='ec-article-body')]
-    needs_subscription = False
     no_stylesheets = True
     preprocess_regexps = [(re.compile('</html>.*', re.DOTALL),
         lambda x:'</html>')]
@@ -55,28 +53,26 @@ class Economist(BasicNewsRecipe):
     # downloaded with connection reset by peer (104) errors.
     delay = 1
 
-    def get_cover_url(self):
-        soup = self.index_to_soup('http://www.economist.com/printedition/covers')
-        div = soup.find('div', attrs={'class':lambda x: x and
-            'print-cover-links' in x})
-        a = div.find('a', href=True)
-        url = a.get('href')
-        if url.startswith('/'):
-            url = 'http://www.economist.com' + url
-        soup = self.index_to_soup(url)
-        div = soup.find('div', attrs={'class':'cover-content'})
-        img = div.find('img', src=True)
-        return img.get('src')
+    needs_subscription = False
+    '''
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username and self.password:
+            br.open('http://www.economist.com/user/login')
+            br.select_form(nr=1)
+            br['name'] = self.username
+            br['pass'] = self.password
+            res = br.submit()
+            raw = res.read()
+            if '>Log out<' not in raw:
+                raise ValueError('Failed to login to economist.com. '
+                        'Check your username and password.')
+        return br
+    '''
+
 
     def parse_index(self):
-        try:
-            return self.economist_parse_index()
-        except:
-            raise
-            self.log.warn(
-                'Initial attempt to parse index failed, retrying in 30 seconds')
-            time.sleep(30)
-            return self.economist_parse_index()
+        return self.economist_parse_index()
 
     def economist_parse_index(self):
         soup = self.index_to_soup(self.INDEX)
@@ -84,7 +80,7 @@ class Economist(BasicNewsRecipe):
         if div is not None:
             img = div.find('img', src=True)
             if img is not None:
-                self.cover_url = img['src']
+                self.cover_url = re.sub('thumbnail','full',img['src'])
         feeds = OrderedDict()
         for section in soup.findAll(attrs={'class':lambda x: x and 'section' in
             x}):
@@ -151,154 +147,3 @@ class Economist(BasicNewsRecipe):
             div.insert(2, img)
             table.replaceWith(div)
         return soup
-
-'''
-from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.utils.threadpool import ThreadPool, makeRequests
-from calibre.ebooks.BeautifulSoup import Tag, NavigableString
-import time, string, re
-from datetime import datetime
-from lxml import html
-
-class Economist(BasicNewsRecipe):
-
-    title = 'The Economist (RSS)'
-    language = 'en'
-
-    __author__ = "Kovid Goyal"
-    description = ('Global news and current affairs from a European'
-            ' perspective. Best downloaded on Friday mornings (GMT).'
-            ' Much slower than the print edition based version.')
-    extra_css      = '.headline {font-size: x-large;} \n h2 { font-size: small;  } \n h1 { font-size: medium;  }'
-    oldest_article = 7.0
-    cover_url = 'http://media.economist.com/sites/default/files/imagecache/print-cover-thumbnail/print-covers/currentcoverus_large.jpg'
-    #cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
-    remove_tags = [
-            dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
-            dict(attrs={'class':['dblClkTrk', 'ec-article-info',
-                'share_inline_header', 'related-items']}),
-            {'class': lambda x: x and 'share-links-header' in x},
-    ]
-    keep_only_tags = [dict(id='ec-article-body')]
-    no_stylesheets = True
-    preprocess_regexps = [(re.compile('</html>.*', re.DOTALL),
-        lambda x:'</html>')]
-
-    def parse_index(self):
-        from calibre.web.feeds.feedparser import parse
-        if self.test:
-            self.oldest_article = 14.0
-        raw = self.index_to_soup(
-                'http://feeds.feedburner.com/economist/full_print_edition',
-                raw=True)
-        entries = parse(raw).entries
-        pool = ThreadPool(10)
-        self.feed_dict = {}
-        requests = []
-        for i, item in enumerate(entries):
-            title       = item.get('title', _('Untitled article'))
-            published = item.date_parsed
-            if not published:
-                published = time.gmtime()
-            utctime = datetime(*published[:6])
-            delta = datetime.utcnow() - utctime
-            if delta.days*24*3600 + delta.seconds > 24*3600*self.oldest_article:
-                self.log.debug('Skipping article %s as it is too old.'%title)
-                continue
-            link        = item.get('link', None)
-            description = item.get('description', '')
-            author      = item.get('author', '')
-
-            requests.append([i, link, title, description, author, published])
-        if self.test:
-            requests = requests[:4]
-        requests = makeRequests(self.process_eco_feed_article, requests, self.eco_article_found,
-                self.eco_article_failed)
-        for r in requests: pool.putRequest(r)
-        pool.wait()
-
-        return self.eco_sort_sections([(t, a) for t, a in
-            self.feed_dict.items()])
-
-    def eco_sort_sections(self, feeds):
-        if not feeds:
-            raise ValueError('No new articles found')
-        order = {
-            'The World This Week': 1,
-            'Leaders': 2,
-            'Letters': 3,
-            'Briefing': 4,
-            'Business': 5,
-            'Finance And Economics': 6,
-            'Science & Technology': 7,
-            'Books & Arts': 8,
-            'International': 9,
-            'United States': 10,
-            'Asia': 11,
-            'Europe': 12,
-            'The Americas': 13,
-            'Middle East & Africa': 14,
-            'Britain': 15,
-            'Obituary': 16,
-        }
-        return sorted(feeds, cmp=lambda x,y:cmp(order.get(x[0], 100),
-            order.get(y[0], 100)))
-
-    def process_eco_feed_article(self, args):
-        from calibre import browser
-        i, url, title, description, author, published = args
-        br = browser()
-        ret = br.open(url)
-        raw = ret.read()
-        url = br.geturl().split('?')[0]+'/print'
-        root = html.fromstring(raw)
-        matches = root.xpath('//*[@class = "ec-article-info"]')
-        feedtitle = 'Miscellaneous'
-        if matches:
-            feedtitle = string.capwords(html.tostring(matches[-1], method='text',
-                    encoding=unicode).split('|')[-1].strip())
-        return (i, feedtitle, url, title, description, author, published)
-
-    def eco_article_found(self, req, result):
-        from calibre.web.feeds import Article
-        i, feedtitle, link, title, description, author, published = result
-        self.log('Found print version for article:', title, 'in', feedtitle,
-                'at', link)
-
-        a = Article(i, title, link, author, description, published, '')
-
-        article = dict(title=a.title, description=a.text_summary,
-            date=time.strftime(self.timefmt, a.date), author=a.author, url=a.url)
-        if feedtitle not in self.feed_dict:
-            self.feed_dict[feedtitle] = []
-        self.feed_dict[feedtitle].append(article)
-
-    def eco_article_failed(self, req, tb):
-        self.log.error('Failed to download %s with error:'%req.args[0][2])
-        self.log.debug(tb)
-
-    def eco_find_image_tables(self, soup):
-        for x in soup.findAll('table', align=['right', 'center']):
-            if len(x.findAll('font')) in (1,2) and len(x.findAll('img')) == 1:
-                yield x
-
-    def postprocess_html(self, soup, first):
-        body = soup.find('body')
-        for name, val in body.attrs:
-            del body[name]
-        for table in list(self.eco_find_image_tables(soup)):
-            caption = table.find('font')
-            img = table.find('img')
-            div = Tag(soup, 'div')
-            div['style'] = 'text-align:left;font-size:70%'
-            ns = NavigableString(self.tag_to_string(caption))
-            div.insert(0, ns)
-            div.insert(1, Tag(soup, 'br'))
-            img.extract()
-            del img['width']
-            del img['height']
-            div.insert(2, img)
-            table.replaceWith(div)
-        return soup
-'''
-

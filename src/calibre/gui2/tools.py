@@ -88,20 +88,35 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, # {{{
 
                 changed = True
                 d.break_cycles()
-        except NoSupportedInputFormats:
-            bad.append(book_id)
+        except NoSupportedInputFormats as nsif:
+            bad.append((book_id, nsif.available_formats))
 
     if bad and show_no_format_warning:
-        res = []
-        for id in bad:
-            title = db.title(id, True)
-            res.append('%s'%title)
+        if len(bad) == 1 and not bad[0][1]:
+            title = db.title(bad[0][0], True)
+            warning_dialog(parent, _('Could not convert'), '<p>'+
+                _('Could not convert <b>%s</b> as it has no ebook files. If you '
+                  'think it should have files, but calibre is not finding '
+                  'them, that is most likely because you moved the book\'s '
+                  'files around outside of calibre. You will need to find those files '
+                  'and re-add them to calibre.')%title, show=True)
+        else:
+            res = []
+            for id, available_formats in bad:
+                title = db.title(id, True)
+                if available_formats:
+                    msg = _('No supported formats (Available formats: %s)')%(
+                        ', '.join(available_formats))
+                else:
+                    msg = _('This book has no actual ebook files')
+                res.append('%s - %s'%(title, msg))
 
-        msg = '%s' % '\n'.join(res)
-        warning_dialog(parent, _('Could not convert some books'),
-            _('Could not convert %(num)d of %(tot)d books, because no suitable source'
-               ' format was found.') % dict(num=len(res), tot=total),
-            msg).exec_()
+
+            msg = '%s' % '\n'.join(res)
+            warning_dialog(parent, _('Could not convert some books'),
+                _('Could not convert %(num)d of %(tot)d books, because no supported source'
+                ' formats were found.') % dict(num=len(res), tot=total),
+                msg).exec_()
 
     return jobs, changed, bad
 # }}}

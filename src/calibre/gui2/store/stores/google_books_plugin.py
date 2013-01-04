@@ -59,7 +59,7 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//ol[@id="rso"]/li'):
+            for data in doc.xpath('//ol/li'):
                 if counter <= 0:
                     break
 
@@ -68,7 +68,7 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
                     continue
 
                 title = ''.join(data.xpath('.//h3/a//text()'))
-                authors = data.xpath('.//div[@class="f"]//a//text()')
+                authors = data.xpath('.//span[contains(@class, "f")]//a//text()')
                 while authors and authors[-1].strip().lower() in ('preview', 'read', 'more editions'):
                     authors = authors[:-1]
                 if not authors:

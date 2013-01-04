@@ -441,7 +441,11 @@ class BrowseServer(object):
             cat_len = len(category)
             if not (len(ucat) > cat_len and ucat.startswith(category+'.')):
                 continue
-            icon = category_icon_map['user:']
+
+            if ucat in self.icon_map:
+                icon = '_'+quote(self.icon_map[ucat])
+            else:
+                icon = category_icon_map['user:']
             # we have a subcategory. Find any further dots (further subcats)
             cat_len += 1
             cat = ucat[cat_len:]

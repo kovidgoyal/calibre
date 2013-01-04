@@ -734,6 +734,7 @@ initlibmtp(void) {
     // who designs a library without anyway to control/redirect the debugging
     // output, and hardcoded paths that cannot be changed?
     int bak, new;
+    fprintf(stdout, "\n"); // This is needed, without it, for some odd reason the code below causes stdout to buffer all output after it is restored, rather than using line buffering, and setlinebuf does not work.
     fflush(stdout);
     bak = dup(STDOUT_FILENO);
     new = open("/dev/null", O_WRONLY);

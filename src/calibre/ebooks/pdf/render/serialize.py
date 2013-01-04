@@ -9,18 +9,17 @@ __docformat__ = 'restructuredtext en'
 
 import hashlib
 from future_builtins import map
-from itertools import izip
-from collections import namedtuple
+
+from PyQt4.Qt import QBuffer, QByteArray, QImage, Qt, QColor, qRgba
 
 from calibre.constants import (__appname__, __version__)
 from calibre.ebooks.pdf.render.common import (
     Reference, EOL, serialize, Stream, Dictionary, String, Name, Array,
-    GlyphIndex)
+    fmtnum)
 from calibre.ebooks.pdf.render.fonts import FontManager
+from calibre.ebooks.pdf.render.links import Links
 
 PDFVER = b'%PDF-1.3'
-
-Color = namedtuple('Color', 'red green blue opacity')
 
 class IndirectObjects(object):
 
@@ -89,6 +88,7 @@ class Page(Stream):
         self.opacities = {}
         self.fonts = {}
         self.xobjects = {}
+        self.patterns = {}
 
     def set_opacity(self, opref):
         if opref not in self.opacities:
@@ -107,6 +107,11 @@ class Page(Stream):
             self.xobjects[imgref] = 'Image%d'%len(self.xobjects)
         return self.xobjects[imgref]
 
+    def add_pattern(self, patternref):
+        if patternref not in self.patterns:
+            self.patterns[patternref] = 'Pat%d'%len(self.patterns)
+        return self.patterns[patternref]
+
     def add_resources(self):
         r = Dictionary()
         if self.opacities:
@@ -124,6 +129,13 @@ class Page(Stream):
             for ref, name in self.xobjects.iteritems():
                 xobjects[name] = ref
             r['XObject'] = xobjects
+        if self.patterns:
+            r['ColorSpace'] = Dictionary({'PCSp':Array(
+                [Name('Pattern'), Name('DeviceRGB')])})
+            patterns = Dictionary()
+            for ref, name in self.patterns.iteritems():
+                patterns[name] = ref
+            r['Pattern'] = patterns
         if r:
             self.page_dict['Resources'] = r
 
@@ -153,54 +165,6 @@ class Path(object):
     def close(self):
         self.ops.append(('h',))
 
-class Text(object):
-
-    def __init__(self):
-        self.transform = self.default_transform = [1, 0, 0, 1, 0, 0]
-        self.font_name = 'Times-Roman'
-        self.font_path = None
-        self.horizontal_scale = self.default_horizontal_scale = 100
-        self.word_spacing = self.default_word_spacing = 0
-        self.char_space = self.default_char_space = 0
-        self.glyph_adjust = self.default_glyph_adjust = None
-        self.size = 12
-        self.text = ''
-
-    def set_transform(self, *args):
-        if len(args) == 1:
-            m = args[0]
-            vals = [m.m11(), m.m12(), m.m21(), m.m22(), m.dx(), m.dy()]
-        else:
-            vals = args
-        self.transform = vals
-
-    def pdf_serialize(self, stream, font_name):
-        if not self.text: return
-        stream.write_line('BT ')
-        serialize(Name(font_name), stream)
-        stream.write(' %g Tf '%self.size)
-        stream.write(' '.join(map(type(u''), self.transform)) + ' Tm ')
-        if self.horizontal_scale != self.default_horizontal_scale:
-            stream.write('%g Tz '%self.horizontal_scale)
-        if self.word_spacing != self.default_word_spacing:
-            stream.write('%g Tw '%self.word_spacing)
-        if self.char_space != self.default_char_space:
-            stream.write('%g Tc '%self.char_space)
-        stream.write_line()
-        if self.glyph_adjust is self.default_glyph_adjust:
-            serialize(String(self.text), stream)
-            stream.write(' Tj ')
-        else:
-            chars = Array()
-            frac, widths = self.glyph_adjust
-            for c, width in izip(self.text, widths):
-                chars.append(String(c))
-                chars.append(int(width * frac))
-            serialize(chars, stream)
-            stream.write(' TJ ')
-        stream.write_line('ET')
-
-
 class Catalog(Dictionary):
 
     def __init__(self, pagetree):
@@ -219,6 +183,9 @@ class PageTree(Dictionary):
         self['Kids'].append(pageref)
         self['Count'] += 1
 
+    def get_ref(self, num):
+        return self['Kids'][num-1]
+
 class HashingStream(object):
 
     def __init__(self, f):
@@ -228,7 +195,9 @@ class HashingStream(object):
         self.last_char = b''
 
     def write(self, raw):
-        raw = raw if isinstance(raw, bytes) else raw.encode('ascii')
+        self.write_raw(raw if isinstance(raw, bytes) else raw.encode('ascii'))
+
+    def write_raw(self, raw):
         self.f.write(raw)
         self.hashobj.update(raw)
         if raw:
@@ -277,7 +246,8 @@ class PDFStream(object):
         ( True,  True,  'evenodd')  : 'B*',
     }
 
-    def __init__(self, stream, page_size, compress=False):
+    def __init__(self, stream, page_size, compress=False, mark_links=False,
+                 debug=print):
         self.stream = HashingStream(stream)
         self.compress = compress
         self.write_line(PDFVER)
@@ -294,6 +264,12 @@ class PDFStream(object):
         self.stroke_opacities, self.fill_opacities = {}, {}
         self.font_manager = FontManager(self.objects, self.compress)
         self.image_cache = {}
+        self.pattern_cache = {}
+        self.debug = debug
+        self.links = Links(self, mark_links, page_size)
+        i = QImage(1, 1, QImage.Format_ARGB32)
+        i.fill(qRgba(0, 0, 0, 255))
+        self.alpha_bit = i.constBits().asstring(4).find(b'\xff')
 
     @property
     def page_tree(self):
@@ -302,6 +278,9 @@ class PDFStream(object):
     @property
     def catalog(self):
         return self.objects[1]
+
+    def get_pageref(self, pagenum):
+        return self.page_tree.obj.get_ref(pagenum)
 
     def set_metadata(self, title=None, author=None, tags=None):
         if title:
@@ -321,11 +300,8 @@ class PDFStream(object):
             vals = [m.m11(), m.m12(), m.m21(), m.m22(), m.dx(), m.dy()]
         else:
             vals = args
-        cm = ' '.join(map(type(u''), vals))
+        cm = ' '.join(map(fmtnum, vals))
         self.current_page.write_line(cm + ' cm')
-
-    def set_rgb_colorspace(self):
-        self.current_page.write_line('/DeviceRGB CS /DeviceRGB cs')
 
     def save_stack(self):
         self.current_page.write_line('q')
@@ -337,7 +313,7 @@ class PDFStream(object):
         self.current_page.write_line('Q q')
 
     def draw_rect(self, x, y, width, height, stroke=True, fill=False):
-        self.current_page.write('%g %g %g %g re '%(x, y, width, height))
+        self.current_page.write('%s re '%' '.join(map(fmtnum, (x, y, width, height))))
         self.current_page.write_line(self.PATH_OPS[(stroke, fill, 'winding')])
 
     def write_path(self, path):
@@ -345,7 +321,8 @@ class PDFStream(object):
             if i != 0:
                 self.current_page.write_line()
             for x in op:
-                self.current_page.write(type(u'')(x) + ' ')
+                self.current_page.write(
+                (fmtnum(x) if isinstance(x, (int, long, float)) else x) + ' ')
 
     def draw_path(self, path, stroke=True, fill=False, fill_rule='winding'):
         if not path.ops: return
@@ -358,54 +335,26 @@ class PDFStream(object):
         op = 'W' if fill_rule == 'winding' else 'W*'
         self.current_page.write_line(op + ' ' + 'n')
 
-    def set_dash(self, array, phase=0):
-        array = Array(array)
-        serialize(array, self.current_page)
-        self.current_page.write(b' ')
-        serialize(phase, self.current_page)
-        self.current_page.write_line(' d')
+    def serialize(self, o):
+        serialize(o, self.current_page)
 
-    def set_line_width(self, width):
-        serialize(width, self.current_page)
-        self.current_page.write_line(' w')
-
-    def set_line_cap(self, style):
-        serialize({'flat':0, 'round':1, 'square':2}.get(style),
-                  self.current_page)
-        self.current_page.write_line(' J')
-
-    def set_line_join(self, style):
-        serialize({'miter':0, 'round':1, 'bevel':2}[style], self.current_page)
-        self.current_page.write_line(' j')
-
-    def set_stroke_color(self, color):
-        opacity = color.opacity
+    def set_stroke_opacity(self, opacity):
         if opacity not in self.stroke_opacities:
             op = Dictionary({'Type':Name('ExtGState'), 'CA': opacity})
             self.stroke_opacities[opacity] = self.objects.add(op)
         self.current_page.set_opacity(self.stroke_opacities[opacity])
-        self.current_page.write_line(' '.join(map(type(u''), color[:3])) + ' SC')
 
-    def set_fill_color(self, color):
-        opacity = color.opacity
+    def set_fill_opacity(self, opacity):
+        opacity = float(opacity)
         if opacity not in self.fill_opacities:
             op = Dictionary({'Type':Name('ExtGState'), 'ca': opacity})
             self.fill_opacities[opacity] = self.objects.add(op)
         self.current_page.set_opacity(self.fill_opacities[opacity])
-        self.current_page.write_line(' '.join(map(type(u''), color[:3])) + ' sc')
 
     def end_page(self):
         pageref = self.current_page.end(self.objects, self.stream)
         self.page_tree.obj.add_page(pageref)
         self.current_page = Page(self.page_tree, compress=self.compress)
-
-    def draw_text(self, text_object):
-        if text_object.font_path is None:
-            fontref = self.font_manager.add_standard_font(text_object.font_name)
-        else:
-            raise NotImplementedError()
-        name = self.current_page.add_font(fontref)
-        text_object.pdf_serialize(self.current_page, name)
 
     def draw_glyph_run(self, transform, size, font_metrics, glyphs):
         glyph_ids = {x[-1] for x in glyphs}
@@ -413,12 +362,11 @@ class PDFStream(object):
         name = self.current_page.add_font(fontref)
         self.current_page.write(b'BT ')
         serialize(Name(name), self.current_page)
-        self.current_page.write(' %g Tf '%size)
-        self.current_page.write('%s Tm '%' '.join(map(type(u''), transform)))
+        self.current_page.write(' %s Tf '%fmtnum(size))
+        self.current_page.write('%s Tm '%' '.join(map(fmtnum, transform)))
         for x, y, glyph_id in glyphs:
-            self.current_page.write('%g %g Td '%(x, y))
-            serialize(GlyphIndex(glyph_id), self.current_page)
-            self.current_page.write(' Tj ')
+            self.current_page.write_raw(('%s %s Td <%04X> Tj '%(
+                fmtnum(x), fmtnum(y), glyph_id)).encode('ascii'))
         self.current_page.write_line(b' ET')
 
     def get_image(self, cache_key):
@@ -431,17 +379,109 @@ class PDFStream(object):
         self.objects.commit(r, self.stream)
         return r
 
-    def draw_image(self, x, y, xscale, yscale, imgref):
+    def add_image(self, img, cache_key):
+        ref = self.get_image(cache_key)
+        if ref is not None:
+            return ref
+
+        fmt = img.format()
+        image = QImage(img)
+        if (image.depth() == 1 and img.colorTable().size() == 2 and
+            img.colorTable().at(0) == QColor(Qt.black).rgba() and
+            img.colorTable().at(1) == QColor(Qt.white).rgba()):
+            if fmt == QImage.Format_MonoLSB:
+                image = image.convertToFormat(QImage.Format_Mono)
+            fmt = QImage.Format_Mono
+        else:
+            if (fmt != QImage.Format_RGB32 and fmt != QImage.Format_ARGB32):
+                image = image.convertToFormat(QImage.Format_ARGB32)
+                fmt = QImage.Format_ARGB32
+
+        w = image.width()
+        h = image.height()
+        d = image.depth()
+
+        if fmt == QImage.Format_Mono:
+            bytes_per_line = (w + 7) >> 3
+            data = image.constBits().asstring(bytes_per_line * h)
+            return self.write_image(data, w, h, d, cache_key=cache_key)
+
+        ba = QByteArray()
+        buf = QBuffer(ba)
+        image.save(buf, 'jpeg', 94)
+        data = bytes(ba.data())
+        has_alpha = has_mask = False
+        soft_mask = mask = None
+
+        if fmt == QImage.Format_ARGB32:
+            tmask = image.constBits().asstring(4*w*h)[self.alpha_bit::4]
+            sdata = bytearray(tmask)
+            vals = set(sdata)
+            vals.discard(255)
+            has_mask = bool(vals)
+            vals.discard(0)
+            has_alpha = bool(vals)
+
+        if has_alpha:
+            soft_mask = self.write_image(tmask, w, h, 8)
+        elif has_mask:
+            # dither the soft mask to 1bit and add it. This also helps PDF
+            # viewers without transparency support
+            bytes_per_line = (w + 7) >> 3
+            mdata = bytearray(0 for i in xrange(bytes_per_line * h))
+            spos = mpos = 0
+            for y in xrange(h):
+                for x in xrange(w):
+                    if sdata[spos]:
+                        mdata[mpos + x>>3] |= (0x80 >> (x&7))
+                    spos += 1
+                mpos += bytes_per_line
+            mdata = bytes(mdata)
+            mask = self.write_image(mdata, w, h, 1)
+
+        return self.write_image(data, w, h, 32, mask=mask, dct=True,
+                                    soft_mask=soft_mask, cache_key=cache_key)
+
+    def add_pattern(self, pattern):
+        if pattern.cache_key not in self.pattern_cache:
+            self.pattern_cache[pattern.cache_key] = self.objects.add(pattern)
+        return self.current_page.add_pattern(self.pattern_cache[pattern.cache_key])
+
+    def draw_image(self, x, y, width, height, imgref):
         name = self.current_page.add_image(imgref)
-        self.current_page.write('q %g 0 0 %g %g %g cm '%(xscale, yscale, x, y))
+        self.current_page.write('q %s 0 0 %s %s %s cm '%(fmtnum(width),
+                            fmtnum(-height), fmtnum(x), fmtnum(y+height)))
         serialize(Name(name), self.current_page)
         self.current_page.write_line(' Do Q')
+
+    def apply_color_space(self, color, pattern, stroke=False):
+        wl = self.current_page.write_line
+        if color is not None and pattern is None:
+            wl(' '.join(map(fmtnum, color)) + (' RG' if stroke else ' rg'))
+        elif color is None and pattern is not None:
+            wl('/Pattern %s /%s %s'%('CS' if stroke else 'cs', pattern,
+                                     'SCN' if stroke else 'scn'))
+        elif color is not None and pattern is not None:
+            col = ' '.join(map(fmtnum, color))
+            wl('/PCSp %s %s /%s %s'%('CS' if stroke else 'cs', col, pattern,
+                                     'SCN' if stroke else 'scn'))
+
+    def apply_fill(self, color=None, pattern=None, opacity=None):
+        if opacity is not None:
+            self.set_fill_opacity(opacity)
+        self.apply_color_space(color, pattern)
+
+    def apply_stroke(self, color=None, pattern=None, opacity=None):
+        if opacity is not None:
+            self.set_stroke_opacity(opacity)
+        self.apply_color_space(color, pattern, stroke=True)
 
     def end(self):
         if self.current_page.getvalue():
             self.end_page()
         self.font_manager.embed_fonts()
         inforef = self.objects.add(self.info)
+        self.links.add_links()
         self.objects.pdf_serialize(self.stream)
         self.write_line()
         startxref = self.objects.write_xref(self.stream)

@@ -13,9 +13,10 @@ class GlyphInfo {
 public:
     QByteArray name;
     qreal size;
+    qreal stretch;
     QVector<QPointF> &positions;
     QVector<unsigned int> indices;
-    GlyphInfo(const QByteArray &name, qreal size, const QVector<QPointF> &positions, const QVector<unsigned int> &indices);
+    GlyphInfo(const QByteArray &name, qreal size, qreal stretch, const QVector<QPointF> &positions, const QVector<unsigned int> &indices);
 private:
     GlyphInfo(const GlyphInfo& g);
 

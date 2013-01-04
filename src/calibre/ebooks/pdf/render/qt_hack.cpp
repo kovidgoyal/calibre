@@ -17,18 +17,25 @@ GlyphInfo* get_glyphs(QPointF &p, const QTextItem &text_item) {
     QFontEngine *fe = ti.fontEngine;
     qreal size = ti.fontEngine->fontDef.pixelSize;
 #ifdef Q_WS_WIN
-    if (ti.fontEngine->type() == QFontEngine::Win) {
+    if (false && ti.fontEngine->type() == QFontEngine::Win) {
+        // This is used in the Qt sourcecode, but it gives incorrect results,
+        // so I have disabled it. I dont understand how it works in qpdf.cpp
         QFontEngineWin *fe = static_cast<QFontEngineWin *>(ti.fontEngine);
+        // I think this should be tmHeight - tmInternalLeading, but pixelSize
+        // seems to work on windows as well, so leave it as pixelSize
         size = fe->tm.tmHeight;
     }
 #endif
+    int synthesized = ti.fontEngine->synthesized();
+    qreal stretch = synthesized & QFontEngine::SynthesizedStretch ? ti.fontEngine->fontDef.stretch/100. : 1.;
+
     QVarLengthArray<glyph_t> glyphs;
     QVarLengthArray<QFixedPoint> positions;
     QTransform m = QTransform::fromTranslate(p.x(), p.y());
     fe->getGlyphPositions(ti.glyphs, m, ti.flags, glyphs, positions);
     QVector<QPointF> points = QVector<QPointF>(positions.count());
     for (int i = 0; i < positions.count(); i++) {
-        points[i].setX(positions[i].x.toReal());
+        points[i].setX(positions[i].x.toReal()/stretch);
         points[i].setY(positions[i].y.toReal());
     }
 
@@ -38,10 +45,10 @@ GlyphInfo* get_glyphs(QPointF &p, const QTextItem &text_item) {
 
     const quint32 *tag = reinterpret_cast<const quint32 *>("name");
 
-    return new GlyphInfo(fe->getSfntTable(qToBigEndian(*tag)), size, points, indices);
+    return new GlyphInfo(fe->getSfntTable(qToBigEndian(*tag)), size, stretch, points, indices);
 }
 
-GlyphInfo::GlyphInfo(const QByteArray& name, qreal size, const QVector<QPointF> &positions, const QVector<unsigned int> &indices) :name(name), positions(positions), size(size), indices(indices) {
+GlyphInfo::GlyphInfo(const QByteArray& name, qreal size, qreal stretch, const QVector<QPointF> &positions, const QVector<unsigned int> &indices) :name(name), positions(positions), size(size), stretch(stretch), indices(indices) {
 }
 
 QByteArray get_sfnt_table(const QTextItem &text_item, const char* tag_name) {
