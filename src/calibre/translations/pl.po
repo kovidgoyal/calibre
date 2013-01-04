@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-28 04:12+0000\n"
-"PO-Revision-Date: 2012-11-22 20:14+0000\n"
+"PO-Revision-Date: 2013-01-03 19:14+0000\n"
 "Last-Translator: Tomasz Długosz <tomek3d@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-12-29 04:51+0000\n"
-"X-Generator: Launchpad (build 16378)\n"
+"X-Launchpad-Export-Date: 2013-01-04 04:42+0000\n"
+"X-Generator: Launchpad (build 16393)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -24951,32 +24951,3 @@ msgstr ""
 "Enter. Sposób wykorzystania autouzupełniania zależy od metadanych w "
 "bibliotece\n"
 "oraz oczywiście od osobistych preferencji."
-
-#, python-format
-#~ msgid "The orientation of the page. Default is portrait. Choices are %s"
-#~ msgstr "Orientacja strony. Domyślnie pionowo. Aktualnie %s"
-
-#, python-format
-#~ msgid ""
-#~ "The unit of measure. Default is inch. Choices are %s Note: This does not "
-#~ "override the unit for margins!"
-#~ msgstr ""
-#~ "Jednostka miary. Domyślnie cale. Aktualnie to %s. Uwaga: Ta opcja nie "
-#~ "zmienia jednostek miar dla marginesów!"
-
-#~ msgid "&Orientation:"
-#~ msgstr "&Orientacja:"
-
-#~ msgid "larger"
-#~ msgstr "Zwiększ"
-
-#~ msgid "smaller"
-#~ msgstr "Zmniejsz"
-
-#, python-format
-#~ msgid ""
-#~ "Make font size %(which)s\n"
-#~ "Current magnification: %(mag).1f"
-#~ msgstr ""
-#~ "Ustaw wielkość czcionki %(which)s\n"
-#~ "Aktualne powiększenie: %(mag).1f"

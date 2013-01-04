@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-12-28 04:12+0000\n"
-"PO-Revision-Date: 2012-12-28 09:06+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2013-01-03 19:12+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-29 04:54+0000\n"
-"X-Generator: Launchpad (build 16378)\n"
+"X-Launchpad-Export-Date: 2013-01-04 04:44+0000\n"
+"X-Generator: Launchpad (build 16393)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:533
 msgid ""
@@ -25272,46 +25272,3 @@ msgstr ""
 "Intro. Dependiendo del estado de los metadatos en la biblioteca y del "
 "estilo\n"
 "personal de edición que tenga, preferirá una u otra opción."
-
-#~ msgid "&Orientation:"
-#~ msgstr "&Orientación:"
-
-#, python-format
-#~ msgid "The orientation of the page. Default is portrait. Choices are %s"
-#~ msgstr ""
-#~ "La orientación de la página. El valor predeterminado es vertical (portrait). "
-#~ "Las opciones son %s"
-
-#, python-format
-#~ msgid ""
-#~ "The unit of measure. Default is inch. Choices are %s Note: This does not "
-#~ "override the unit for margins!"
-#~ msgstr ""
-#~ "Unidad de medida. De manera predeterminada es la pulgada. Las posibilidades "
-#~ "son %s Nota: ¡Esta opción no afecta a las unidades de los márgenes!"
-
-#~ msgid "smaller"
-#~ msgstr "Reducir"
-
-#~ msgid "larger"
-#~ msgstr "Aumentar"
-
-#, python-format
-#~ msgid ""
-#~ "Make font size %(which)s\n"
-#~ "Current magnification: %(mag).1f"
-#~ msgstr ""
-#~ "%(which)s el tamaño de letra\n"
-#~ "Escala actual: %(mag).1f"
-
-#~ msgid ""
-#~ "<b>Note:</b> The paper size settings below only take effect if you have set "
-#~ "the output profile to the default output profile. Otherwise the output "
-#~ "profile will override these settings."
-#~ msgstr ""
-#~ "<b>Nota:</b> Las opciones de tamaño de página de más abajo sólo tiene efecto "
-#~ "si establece el perfil de salida al perfil determinado. En caso contrario el "
-#~ "perfil de salida tiene prioridad sobre estas opciones."
-
-#~ msgid "Normal font size"
-#~ msgstr "Tamaño de letra normal"

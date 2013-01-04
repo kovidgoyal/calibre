@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-28 04:12+0000\n"
-"PO-Revision-Date: 2012-12-28 05:18+0000\n"
+"PO-Revision-Date: 2013-01-03 19:02+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,8 +17,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-12-29 04:56+0000\n"
-"X-Generator: Launchpad (build 16378)\n"
+"X-Launchpad-Export-Date: 2013-01-04 04:45+0000\n"
+"X-Generator: Launchpad (build 16393)\n"
 "Language: uk\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -25324,45 +25324,3 @@ msgstr ""
 "натиснути клавішу Enter. Бажаний спосіб роботи залежить від стану метаданих "
 "у вашій\n"
 "бібліотеці та особистих уподобань у редагуванні."
-
-#~ msgid "&Orientation:"
-#~ msgstr "&Орієнтація:"
-
-#~ msgid "larger"
-#~ msgstr "більше"
-
-#~ msgid "smaller"
-#~ msgstr "менше"
-
-#, python-format
-#~ msgid ""
-#~ "The unit of measure. Default is inch. Choices are %s Note: This does not "
-#~ "override the unit for margins!"
-#~ msgstr ""
-#~ "Одиниця виміру (типово дюйм). Можливі варіанти: %s Зауваження: це не змінить "
-#~ "одиниці виміру для полів!"
-
-#, python-format
-#~ msgid "The orientation of the page. Default is portrait. Choices are %s"
-#~ msgstr "Орієнтація сторінки (типово книжкова). Можливі варіанти: %s"
-
-#, python-format
-#~ msgid ""
-#~ "Make font size %(which)s\n"
-#~ "Current magnification: %(mag).1f"
-#~ msgstr ""
-#~ "Зробити розмір шрифту %(which)s\n"
-#~ "Поточне збільшення: %(mag).1f"
-
-#~ msgid ""
-#~ "<b>Note:</b> The paper size settings below only take effect if you have set "
-#~ "the output profile to the default output profile. Otherwise the output "
-#~ "profile will override these settings."
-#~ msgstr ""
-#~ "<b>Зауваження:</b> визначені нижче параметри розміру аркушів паперу "
-#~ "братимуться до уваги, лише якщо використано типовий профіль виведення даних. "
-#~ "Якщо використано нетиповий профіль, буде взято до уваги параметри цього "
-#~ "профілю."
-
-#~ msgid "Normal font size"
-#~ msgstr "Звичайний розмір шрифту"

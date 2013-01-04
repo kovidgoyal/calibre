@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-28 04:12+0000\n"
-"PO-Revision-Date: 2012-07-13 17:59+0000\n"
+"PO-Revision-Date: 2013-01-03 19:44+0000\n"
 "Last-Translator: Jens Holm <Jens@far-out.dk>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-29 04:42+0000\n"
-"X-Generator: Launchpad (build 16378)\n"
+"X-Launchpad-Export-Date: 2013-01-04 04:38+0000\n"
+"X-Generator: Launchpad (build 16393)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -22694,24 +22694,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#, python-format
-#~ msgid ""
-#~ "The unit of measure. Default is inch. Choices are %s Note: This does not "
-#~ "override the unit for margins!"
-#~ msgstr ""
-#~ "Længdemålenhed. Standard er US tomme. Valgmuligheder er %s Bemærk: Dette "
-#~ "tilsidesætter margenenheden!"
-
-#, python-format
-#~ msgid "The orientation of the page. Default is portrait. Choices are %s"
-#~ msgstr "Sideorientering. Standard er portræt. Valgmuligheder er %s"
-
-#~ msgid "&Orientation:"
-#~ msgstr "&Orientering:"
-
-#~ msgid "smaller"
-#~ msgstr "mindre"
-
-#~ msgid "larger"
-#~ msgstr "større"
