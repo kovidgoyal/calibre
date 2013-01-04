@@ -28,12 +28,15 @@ class IlMessaggero(BasicNewsRecipe):
     recursion             = 10
 
     remove_javascript = True
+    extra_css = ' .bianco31lucida{color: black} '						 
 
-
-    keep_only_tags     = [dict(name='h1', attrs={'class':'titoloLettura2'}),
-                          dict(name='h2', attrs={'class':'sottotitLettura'}),
-                          dict(name='span', attrs={'class':'testoArticoloG'})
+    keep_only_tags     = [dict(name='h1', attrs={'class':['titoloLettura2','titoloart','bianco31lucida']}),
+                          dict(name='h2', attrs={'class':['sottotitLettura','grigio16']}),
+                          dict(name='span', attrs={'class':'testoArticoloG'}),
+                          dict(name='div',  attrs={'id':'testodim'})
                          ]
+						 
+
     def get_cover_url(self):
         cover = None
         st = time.localtime()
@@ -55,17 +58,16 @@ class IlMessaggero(BasicNewsRecipe):
     feeds          = [
                        (u'HomePage', u'http://www.ilmessaggero.it/rss/home.xml'),
                        (u'Primo Piano', u'http://www.ilmessaggero.it/rss/initalia_primopiano.xml'),
-                       (u'Cronaca Bianca', u'http://www.ilmessaggero.it/rss/initalia_cronacabianca.xml'),
-                       (u'Cronaca Nera', u'http://www.ilmessaggero.it/rss/initalia_cronacanera.xml'),
                        (u'Economia e Finanza', u'http://www.ilmessaggero.it/rss/economia.xml'),
                        (u'Politica', u'http://www.ilmessaggero.it/rss/initalia_politica.xml'),
-                       (u'Scienza e Tecnologia', u'http://www.ilmessaggero.it/rss/scienza.xml'),
-                       (u'Cinema', u'http://www.ilmessaggero.it/rss.php?refresh_ce#'),
-                       (u'Viaggi', u'http://www.ilmessaggero.it/rss.php?refresh_ce#'),
+                       (u'Cultura', u'http://www.ilmessaggero.it/rss/cultura.xml'),
+                       (u'Tecnologia', u'http://www.ilmessaggero.it/rss/tecnologia.xml'),
+                       (u'Spettacoli', u'http://www.ilmessaggero.it/rss/spettacoli.xml'),
+                       (u'Edizioni Locali', u'http://www.ilmessaggero.it/rss/edlocali.xml'),
                        (u'Roma', u'http://www.ilmessaggero.it/rss/roma.xml'),
-                       (u'Cultura e Tendenze', u'http://www.ilmessaggero.it/rss/roma_culturaspet.xml'),
+                       (u'Benessere', u'http://www.ilmessaggero.it/rss/benessere.xml'),
                        (u'Sport', u'http://www.ilmessaggero.it/rss/sport.xml'),
-                       (u'Calcio', u'http://www.ilmessaggero.it/rss/sport_calcio.xml'),
-                       (u'Motori', u'http://www.ilmessaggero.it/rss/sport_motori.xml')
+                       (u'Moda', u'http://www.ilmessaggero.it/rss/moda.xml')
                       ]
+
 
