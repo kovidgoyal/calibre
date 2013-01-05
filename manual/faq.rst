@@ -672,6 +672,18 @@ There are three possible things I know of, that can cause this:
     * The Logitech SetPoint Settings application causes random crashes in
       |app| when it is open. Close it before starting |app|.
 
+If none of the above apply to you, then there is some other program on your
+computer that is interfering with |app|. First reboot your computer is safe
+mode, to have as few running programs as possible, and see if the crashes still
+happen. If they do not, then you know it is some program causing the problem.
+The most likely such culprit is a program that modifies other programs'
+behavior, such as an antivirus, a device driver, something like RoboForm (an
+automatic form filling app). 
+
+The only way to find the culprit is to eliminate the programs one by one and
+see which one is causing the issue. Basically, stop a program, run calibre,
+check for crashes. If they still happen, stop another program and repeat.
+
 |app| is not starting on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
