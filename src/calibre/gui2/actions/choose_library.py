@@ -169,6 +169,10 @@ class ChooseLibraryAction(InterfaceAction):
 
         self.choose_menu = self.qaction.menu()
 
+        ac = self.create_action(spec=(_('Pick a random book'), 'random.png',
+            None, None), attr='action_pick_random')
+        ac.triggered.connect(self.pick_random)
+
         if not os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
             self.choose_menu.addAction(self.action_choose)
 
@@ -176,13 +180,11 @@ class ChooseLibraryAction(InterfaceAction):
             self.quick_menu_action = self.choose_menu.addMenu(self.quick_menu)
             self.rename_menu = QMenu(_('Rename library'))
             self.rename_menu_action = self.choose_menu.addMenu(self.rename_menu)
+            self.choose_menu.addAction(ac)
             self.delete_menu = QMenu(_('Remove library'))
             self.delete_menu_action = self.choose_menu.addMenu(self.delete_menu)
-
-        ac = self.create_action(spec=(_('Pick a random book'), 'random.png',
-            None, None), attr='action_pick_random')
-        ac.triggered.connect(self.pick_random)
-        self.choose_menu.addAction(ac)
+        else:
+            self.choose_menu.addAction(ac)
 
         self.rename_separator = self.choose_menu.addSeparator()
 
