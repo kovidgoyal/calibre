@@ -58,7 +58,13 @@ class Links(object):
                                                                       0])})
             if is_local:
                 path = combined_path if href else path
-                annot['Dest'] = self.anchors[path][frag]
+                try:
+                    annot['Dest'] = self.anchors[path][frag]
+                except KeyError:
+                    try:
+                        annot['Dest'] = self.anchors[path][None]
+                    except KeyError:
+                        pass
             else:
                 url = href + (('#'+frag) if frag else '')
                 purl = urlparse(url)
