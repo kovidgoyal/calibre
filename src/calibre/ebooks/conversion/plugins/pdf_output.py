@@ -190,7 +190,10 @@ class PDFOutput(OutputFormatPlugin):
                 if ff is None: continue
                 val = ff.propertyValue
                 for i in xrange(val.length):
-                    k = icu_lower(val[i].value)
+                    try:
+                        k = icu_lower(val[i].value)
+                    except (AttributeError, TypeError):
+                        val[i].value = k = 'times'
                     if k in family_map:
                         val[i].value = family_map[k]
                 if iswindows:
