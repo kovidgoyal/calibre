@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-01-04 05:12+0000\n"
-"PO-Revision-Date: 2013-01-03 18:53+0000\n"
+"PO-Revision-Date: 2013-01-05 14:57+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-01-05 04:51+0000\n"
+"X-Launchpad-Export-Date: 2013-01-06 04:44+0000\n"
 "X-Generator: Launchpad (build 16393)\n"
 "Language: it\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
@@ -1489,7 +1489,7 @@ msgstr "Comunica con il lettore Hanvon N520."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:48
 msgid "Communicate with the Kibano eBook reader."
-msgstr ""
+msgstr "Comunica con il lettore di ebook Kibano."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:61
 msgid "Communicate with The Book reader."
@@ -1920,6 +1920,11 @@ msgid ""
 "factory defaults and testing software. This driver supports firmware V2.x.x "
 "and DBVersion up to "
 msgstr ""
+"Kobo aggiorna regolarmente la versione del firmware e del database. Con "
+"questa opzione, calibre proverà a eseguire le funzionalità complete di "
+"lettura-scrittura. Qui serve coraggio! Abilitala solo se sai come "
+"ripristinare le impostazioni di fabbrica del tuo Kobo e provare il software. "
+"Questo driver supporta firmware V2.x.x e DBVersion fino a "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1255
 msgid "Title to test when debugging"
@@ -3385,6 +3390,10 @@ msgid ""
 "options. This option will cause the  page size settings under PDF Output to "
 "override the  size specified by the output profile."
 msgstr ""
+"Di solito, la dimensione della pagina del PDF è impostata dal profilo di "
+"output scelto nelle opzioni di pagina. Questa opzione farà in modo che le "
+"impostazioni delle dimensioni di pagina in Output PDF ignorino la dimensione "
+"specificata dal profilo di output."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:60
 #, python-format
@@ -3392,6 +3401,9 @@ msgid ""
 "The unit of measure for page sizes. Default is inch. Choices are %s Note: "
 "This does not override the unit for margins!"
 msgstr ""
+"L'unità di misura delle dimensioni della pagina. L'unità predefinita è il "
+"pollice. Le possibili scelte sono %s. Nota: ciò non ignora l'unità relativa "
+"ai margini!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:65
 #, python-format
@@ -3451,16 +3463,19 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:97
 msgid "Surround all links with a red box, useful for debugging."
 msgstr ""
+"Circonda tutti i collegamenti con un riquadro rosso, utile per il debug."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:99
 msgid "Use the old, less capable engine to generate the PDF"
-msgstr ""
+msgstr "Utilizza il vecchio e meno capace motore per generare il PDF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:102
 msgid ""
 "Generate an uncompressed PDF, useful for debugging, only works with the new "
 "PDF engine."
 msgstr ""
+"Genera un PDF non compresso, utile per il debug, funziona solo con il nuovo "
+"motore PDF."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -5067,7 +5082,7 @@ msgstr "Spagna"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:525
 msgid "Brazil"
-msgstr ""
+msgstr "Brasile"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:529
 msgid "Amazon website to use:"
@@ -6169,15 +6184,15 @@ msgstr "Seleziona biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:138
 msgid "Library &path:"
-msgstr ""
+msgstr "&Percorso della biblioteca:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:146
 msgid "Browse for library"
-msgstr ""
+msgstr "Cerca le biblioteche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:149
 msgid "&Delete after copy"
-msgstr ""
+msgstr "Eli&mina dopo la copia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:172
 msgid "Copy to library"
@@ -6193,7 +6208,7 @@ msgstr "(elimina dopo la copia)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:210
 msgid "Choose library by path..."
-msgstr ""
+msgstr "Scegli la biblioteca da percorso..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:227
@@ -6202,7 +6217,7 @@ msgstr "Impossibile copiare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:221
 msgid "Cannot copy to current library."
-msgstr ""
+msgstr "Impossibile copiare la biblioteca attuale."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:232
 msgid "No library"
@@ -9136,14 +9151,17 @@ msgid ""
 "the \"Override\" checkbox below. Otherwise the size from the output profile "
 "will be used."
 msgstr ""
+"<b>Nota:</b> le seguenti impostazioni delle dimensioni del foglio avranno "
+"effetto solo se abiliti la casella \"Ignora\" qui sotto. Altrimenti sarà "
+"utilizzata la dimensione del profilo di output."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:116
 msgid "&Override paper size set in output profile"
-msgstr ""
+msgstr "Ign&ora le dimensioni del foglio impostate nel profilo di output"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:117
 msgid "&Paper Size:"
-msgstr "Formato &pagina:"
+msgstr "Dimensioni del fo&glio:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:118
 msgid "&Custom size:"
@@ -9151,7 +9169,7 @@ msgstr "Dimensione &personalizzata:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:119
 msgid "&Unit:"
-msgstr ""
+msgstr "&Unità:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:120
 msgid "Preserve &aspect ratio of cover"
@@ -10334,7 +10352,7 @@ msgstr "&Ignora il %s in calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:377
 msgid "Change scanned &folders"
-msgstr ""
+msgstr "Cam&bia le cartelle analizzate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:383
 msgid "Show device information"
@@ -10361,6 +10379,11 @@ msgid ""
 "you want this folder scanned in order to be able to send books to it. Click "
 "the <b>configure</b> button below to send books to it."
 msgstr ""
+"Stai provando a inviare libri alla cartella <b>%s</b>. Questa cartella è "
+"attualmente ignorata da calibre durante la scansione del dispositivo. Devi "
+"dire a calibre di analizzare questa cartella per poter aggiungere dei libri. "
+"Fai clic sul pulsante <b>Configura</b>\r\n"
+"qui sotto per abilitare l'invio."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:504
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:137
@@ -10370,7 +10393,7 @@ msgstr "Configurazione"
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:508
 #, python-format
 msgid "Cannot send to %s"
-msgstr ""
+msgstr "Impossibile inviare a %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:92
 msgid "Choose folder on device"
@@ -10378,25 +10401,27 @@ msgstr "Scegli cartella sul dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:105
 msgid "<b>Scanned folders:</b>"
-msgstr ""
+msgstr "<b>Cartella analizzate:</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:106
 msgid ""
 "You can select which top level folders calibre will scan when searching this "
 "device for books."
 msgstr ""
+"Puoi selezionare le cartelle principali che calibre analizzerà durante la "
+"ricerca di libri su questo dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:131
 msgid "Select &All"
-msgstr ""
+msgstr "Selezion&a &tutto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:133
 msgid "Select &None"
-msgstr ""
+msgstr "&Nessuna selezione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:136
 msgid "Choose folders to scan"
-msgstr ""
+msgstr "Scegli le cartella da analizzare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:19
 msgid "How many empty books?"
@@ -10416,11 +10441,11 @@ msgstr "Reimposta autore a Sconosciuto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:48
 msgid "Set the series of the new books to:"
-msgstr ""
+msgstr "Imposta la serie del nuovo libro a:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:60
 msgid "Reset series"
-msgstr ""
+msgstr "Ripristina la serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:72
 msgid "Some invalid ISBNs"
@@ -14839,7 +14864,7 @@ msgstr "Cancella serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:185
 msgid "Clear rating"
-msgstr ""
+msgstr "Cancella la valutazione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:197
 msgid "Clear all tags"
@@ -15350,7 +15375,7 @@ msgstr "Ripristina tutti i dialoghi di &conferma disattivati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:26
 msgid "All Columns"
-msgstr ""
+msgstr "Tutte le colonne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:37
@@ -18641,7 +18666,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:304
 #, python-format
 msgid "Change Icon for: %s"
-msgstr ""
+msgstr "Cambia l'icona per: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:442
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:481
@@ -18727,11 +18752,11 @@ msgstr "Gestione %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:566
 msgid "Change category icon"
-msgstr ""
+msgstr "Cambia l'icona della categoria"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:568
 msgid "Restore default icon"
-msgstr ""
+msgstr "Ripristina l'icona predefinita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:586
 msgid "Show all categories"
@@ -18760,7 +18785,7 @@ msgstr "Converti libro %(num)d di %(total)d (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:97
 msgid "Could not convert"
-msgstr ""
+msgstr "Impossibile convertire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:98
 #, python-format
@@ -18774,11 +18799,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:108
 #, python-format
 msgid "No supported formats (Available formats: %s)"
-msgstr ""
+msgstr "Nessun formato supportato (formati disponibili: %s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:111
 msgid "This book has no actual ebook files"
-msgstr ""
+msgstr "Questo libro non ha file di ebook"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:242
@@ -19512,7 +19537,7 @@ msgstr "Fine sezione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:547
 msgid "Default font size"
-msgstr ""
+msgstr "Dimensione del carattere predefinita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:614
 #, python-format
@@ -19698,11 +19723,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:702
 msgid "Increase"
-msgstr ""
+msgstr "Aumenta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:704
 msgid "Decrease"
-msgstr ""
+msgstr "Riduci"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:722
 #, python-format
@@ -19811,11 +19836,11 @@ msgstr "Pagina precedente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:219
 msgid "Increase font size"
-msgstr ""
+msgstr "Aumenta la dimensione del carattere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:220
 msgid "Decrease font size"
-msgstr ""
+msgstr "Riduci la dimensione del carattere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:224
 msgid "Find next"
@@ -21098,7 +21123,7 @@ msgstr "Imposta il numero della serie dei libri aggiunti"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:341
 msgid "Path to the cover to use for the added book"
-msgstr ""
+msgstr "Percorso della copertina da utilizzare per il libro aggiunto"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:377
 msgid "You must specify at least one file to add"
