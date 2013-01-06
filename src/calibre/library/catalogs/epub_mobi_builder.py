@@ -4422,14 +4422,12 @@ class CatalogBuilder(object):
         Generate a legal XHTML anchor from unicode character.
 
         Args:
-         c (unicode): character
+         c (unicode): character(s)
 
         Return:
          (str): legal XHTML anchor string of unicode character name
         """
-        fullname = ''
-        for cc in c:
-            fullname += unicodedata.name(unicode(cc))
+        fullname = u''.join(unicodedata.name(unicode(cc)) for cc in c)
         terms = fullname.split()
         return "_".join(terms)
 
