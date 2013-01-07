@@ -678,7 +678,8 @@ mode, to have as few running programs as possible, and see if the crashes still
 happen. If they do not, then you know it is some program causing the problem.
 The most likely such culprit is a program that modifies other programs'
 behavior, such as an antivirus, a device driver, something like RoboForm (an
-automatic form filling app). 
+automatic form filling app) or an assistive technology like Voice Control or a
+Screen Reader.
 
 The only way to find the culprit is to eliminate the programs one by one and
 see which one is causing the issue. Basically, stop a program, run calibre,
