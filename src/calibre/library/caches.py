@@ -1106,6 +1106,7 @@ class SortKeyGenerator(object):
         self.library_order = tweaks['title_series_sorting'] == 'library_order'
         self.data = data
         self.string_sort_key = sort_key
+        self.lang_idx = field_metadata['languages']['rec_index']
 
     def __call__(self, record):
         values = tuple(self.itervals(self.data[record]))
@@ -1159,7 +1160,12 @@ class SortKeyGenerator(object):
                     val = ('', 1)
                 else:
                     if self.library_order:
-                        val = title_sort(val)
+                        try:
+                            lang = record[self.lang_idx].partition(u',')[0]
+                        except (AttributeError, ValueError, KeyError,
+                                IndexError, TypeError):
+                            lang = None
+                        val = title_sort(val, order='library_order', lang=lang)
                     sidx_fm = self.field_metadata[name + '_index']
                     sidx = record[sidx_fm['rec_index']]
                     val = (self.string_sort_key(val), sidx)
