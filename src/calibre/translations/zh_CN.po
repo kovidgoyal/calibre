@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-01-04 05:12+0000\n"
-"PO-Revision-Date: 2013-01-03 19:43+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2013-01-06 06:45+0000\n"
+"Last-Translator: xbingo <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-01-05 05:02+0000\n"
-"X-Generator: Launchpad (build 16393)\n"
+"X-Launchpad-Export-Date: 2013-01-07 04:43+0000\n"
+"X-Generator: Launchpad (build 16402)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
 
@@ -837,7 +837,7 @@ msgstr "该配置文件适用 Amazon Kindle DX。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:661
 msgid "This profile is intended for the Amazon Kindle PaperWhite"
-msgstr ""
+msgstr "该配置文件适用 Amazon Kindle PaperWhite"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:672
 msgid "This profile is intended for the Amazon Kindle Fire."
@@ -2642,7 +2642,7 @@ msgstr "图像不转换为灰度(黑白)"
 msgid ""
 "Specify the image size as widthxheight pixels. Normally, an image size is "
 "automatically calculated from the output profile, this option overrides it."
-msgstr "用宽 * 长（单位为像素）的形式指定图像大小。通常来说，图片的大小是通过输出档案来自动计算的，该选项会覆盖自动计算的值。"
+msgstr "用 宽x长（单位为像素）的形式指定图像大小。通常来说，图片的大小是通过输出档案来自动计算的，该选项会覆盖自动计算的值。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:69
 msgid ""
