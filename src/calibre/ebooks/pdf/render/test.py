@@ -8,7 +8,6 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from tempfile import gettempdir
 
 from PyQt4.Qt import (QBrush, QColor, QPoint, QPixmap, QPainterPath, QRectF,
                       QApplication, QPainter, Qt, QImage, QLinearGradient,
@@ -99,12 +98,17 @@ def pen(p, xmax, ymax):
     p.drawRect(0, xmax/3, xmax/3, xmax/2)
 
 def text(p, xmax, ymax):
-    p.drawText(QPoint(0, ymax/3), 'Text')
+    f = p.font()
+    f.setPixelSize(24)
+    f.setFamily('Candara')
+    p.setFont(f)
+    p.drawText(QPoint(0, 100),
+        'Test intra glyph spacing ffagain imceo')
 
 def main():
     app = QApplication([])
     app
-    tdir = gettempdir()
+    tdir = os.path.abspath('.')
     pdf = os.path.join(tdir, 'painter.pdf')
     func = full
     dpi = 100

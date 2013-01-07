@@ -26,28 +26,33 @@ class TodaysZaman_en(BasicNewsRecipe):
    # remove_attributes = ['width','height']
 
     feeds          = [
-                      ( u'Home', u'http://www.todayszaman.com/rss?sectionId=0'),
-                      ( u'News', u'http://www.todayszaman.com/rss?sectionId=100'),
-                      ( u'Business', u'http://www.todayszaman.com/rss?sectionId=105'),
-                      ( u'Interviews', u'http://www.todayszaman.com/rss?sectionId=8'),
-                      ( u'Columnists', u'http://www.todayszaman.com/rss?sectionId=6'),
-                      ( u'Op-Ed', u'http://www.todayszaman.com/rss?sectionId=109'),
-                      ( u'Arts & Culture', u'http://www.todayszaman.com/rss?sectionId=110'),
-                      ( u'Expat Zone', u'http://www.todayszaman.com/rss?sectionId=132'),
-                      ( u'Sports', u'http://www.todayszaman.com/rss?sectionId=5'),
-                      ( u'Features', u'http://www.todayszaman.com/rss?sectionId=116'),
-                      ( u'Travel', u'http://www.todayszaman.com/rss?sectionId=117'),
-                      ( u'Leisure', u'http://www.todayszaman.com/rss?sectionId=118'),
-                      ( u'Weird But True', u'http://www.todayszaman.com/rss?sectionId=134'),
-                      ( u'Life', u'http://www.todayszaman.com/rss?sectionId=133'),
-                      ( u'Health', u'http://www.todayszaman.com/rss?sectionId=126'),
-                      ( u'Press Review', u'http://www.todayszaman.com/rss?sectionId=130'),
-                      ( u'Todays think tanks', u'http://www.todayszaman.com/rss?sectionId=159'),
-
-                        ]
+                      ( u'Home', u'http://www.todayszaman.com/0.rss'),
+                      ( u'Sports', u'http://www.todayszaman.com/5.rss'),
+                      ( u'Columnists', u'http://www.todayszaman.com/6.rss'),
+                      ( u'Interviews', u'http://www.todayszaman.com/9.rss'),
+                      ( u'News', u'http://www.todayszaman.com/100.rss'),
+                      ( u'National', u'http://www.todayszaman.com/101.rss'),
+                      ( u'Diplomacy', u'http://www.todayszaman.com/102.rss'),
+                      ( u'World', u'http://www.todayszaman.com/104.rss'),
+                      ( u'Business', u'http://www.todayszaman.com/105.rss'),
+                      ( u'Op-Ed', u'http://www.todayszaman.com/109.rss'),
+                      ( u'Arts & Culture', u'http://www.todayszaman.com/110.rss'),
+                      ( u'Features', u'http://www.todayszaman.com/116.rss'),
+                      ( u'Travel', u'http://www.todayszaman.com/117.rss'),
+                      ( u'Food', u'http://www.todayszaman.com/124.rss'),
+                      ( u'Press Review', u'http://www.todayszaman.com/130.rss'),
+                      ( u'Expat Zone', u'http://www.todayszaman.com/132.rss'),
+                      ( u'Life', u'http://www.todayszaman.com/133.rss'),
+                      ( u'Think Tanks', u'http://www.todayszaman.com/159.rss'),
+                      ( u'Almanac', u'http://www.todayszaman.com/161.rss'),
+                      ( u'Health', u'http://www.todayszaman.com/162.rss'),
+                      ( u'Fashion & Beauty', u'http://www.todayszaman.com/163.rss'),
+                      ( u'Science & Technology', u'http://www.todayszaman.com/349.rss'),
+                     ]
 
     #def preprocess_html(self, soup):
      #   return self.adeify_images(soup)
     #def print_version(self, url):       #there is a probem caused by table format
      #return url.replace('http://www.todayszaman.com/newsDetail_getNewsById.action?load=detay&', 'http://www.todayszaman.com/newsDetail_openPrintPage.action?')
+
 

@@ -19,7 +19,7 @@ from calibre.constants import plugins
 from calibre.ebooks.pdf.render.serialize import (PDFStream, Path)
 from calibre.ebooks.pdf.render.common import inch, A4, fmtnum
 from calibre.ebooks.pdf.render.graphics import convert_path, Graphics
-from calibre.utils.fonts.sfnt.container import Sfnt
+from calibre.utils.fonts.sfnt.container import Sfnt, UnsupportedFont
 from calibre.utils.fonts.sfnt.metrics import FontMetrics
 
 Point = namedtuple('Point', 'x y')
@@ -224,7 +224,11 @@ class PdfEngine(QPaintEngine):
 
     def create_sfnt(self, text_item):
         get_table = partial(self.qt_hack.get_sfnt_table, text_item)
-        ans = Font(Sfnt(get_table))
+        try:
+            ans = Font(Sfnt(get_table))
+        except UnsupportedFont as e:
+            raise UnsupportedFont('The font %s is not a valid sfnt. Error: %s'%(
+                text_item.font().family(), e))
         glyph_map = self.qt_hack.get_glyph_map(text_item)
         gm = {}
         for uc, glyph_id in enumerate(glyph_map):
@@ -251,18 +255,14 @@ class PdfEngine(QPaintEngine):
             except (KeyError, ValueError):
                 pass
         glyphs = []
-        pdf_pos = point
-        first_baseline = None
+        last_x = last_y = 0
         for i, pos in enumerate(gi.positions):
-            if first_baseline is None:
-                first_baseline = pos.y()
-            glyph_pos = pos
-            delta = glyph_pos - pdf_pos
-            glyphs.append((delta.x(), pos.y()-first_baseline, gi.indices[i]))
-            pdf_pos = glyph_pos
+            x, y = pos.x(), pos.y()
+            glyphs.append((x-last_x, last_y - y, gi.indices[i]))
+            last_x, last_y = x, y
 
-        self.pdf.draw_glyph_run([1, 0, 0, -1, point.x(),
-            point.y()], gi.size, metrics, glyphs)
+        self.pdf.draw_glyph_run([gi.stretch, 0, 0, -1, 0, 0], gi.size, metrics,
+                                glyphs)
         sip.delete(gi)
 
     @store_error
