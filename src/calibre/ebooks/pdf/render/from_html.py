@@ -147,9 +147,10 @@ class PDFWriter(QObject):
         opts = self.opts
         page_size = get_page_size(self.opts)
         xdpi, ydpi = self.view.logicalDpiX(), self.view.logicalDpiY()
+        # We cannot set the side margins in the webview as there is no right
+        # margin for the last page (the margins are implemented with
+        # -webkit-column-gap)
         ml, mr = opts.margin_left, opts.margin_right
-        margin_side = min(ml, mr)
-        ml, mr = ml - margin_side, mr - margin_side
         self.doc = PdfDevice(out_stream, page_size=page_size, left_margin=ml,
                              top_margin=0, right_margin=mr, bottom_margin=0,
                              xdpi=xdpi, ydpi=ydpi, errors=self.log.error,
@@ -162,9 +163,7 @@ class PDFWriter(QObject):
         self.total_items = len(items)
 
         mt, mb = map(self.doc.to_px, (opts.margin_top, opts.margin_bottom))
-        ms = self.doc.to_px(margin_side, vertical=False)
-        self.margin_top, self.margin_size, self.margin_bottom = map(
-            lambda x:int(floor(x)), (mt, ms, mb))
+        self.margin_top, self.margin_bottom = map(lambda x:int(floor(x)), (mt, mb))
 
         self.painter = QPainter(self.doc)
         self.doc.set_metadata(title=pdf_metadata.title,
@@ -185,7 +184,8 @@ class PDFWriter(QObject):
             self.painter.restore()
 
         QTimer.singleShot(0, self.render_book)
-        self.loop.exec_()
+        if self.loop.exec_() == 1:
+            raise Exception('PDF Output failed, see log for details')
 
         if self.toc is not None and len(self.toc) > 0:
             self.doc.add_outline(self.toc)
@@ -258,7 +258,7 @@ class PDFWriter(QObject):
         paged_display.layout();
         paged_display.fit_images();
         py_bridge.value = book_indexing.all_links_and_anchors();
-        '''%(self.margin_top, self.margin_size, self.margin_bottom))
+        '''%(self.margin_top, 0, self.margin_bottom))
 
         amap = self.bridge_value
         if not isinstance(amap, dict):

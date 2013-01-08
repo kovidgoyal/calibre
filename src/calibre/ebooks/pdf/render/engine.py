@@ -239,7 +239,7 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def drawTextItem(self, point, text_item):
-        # super(PdfEngine, self).drawTextItem(point, text_item)
+        # return super(PdfEngine, self).drawTextItem(point, text_item)
         self.apply_graphics_state()
         gi = self.qt_hack.get_glyphs(point, text_item)
         if not gi.indices:
@@ -247,7 +247,10 @@ class PdfEngine(QPaintEngine):
             return
         name = hash(bytes(gi.name))
         if name not in self.fonts:
-            self.fonts[name] = self.create_sfnt(text_item)
+            try:
+                self.fonts[name] = self.create_sfnt(text_item)
+            except UnsupportedFont:
+                return super(PdfEngine, self).drawTextItem(point, text_item)
         metrics = self.fonts[name]
         for glyph_id in gi.indices:
             try:

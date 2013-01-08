@@ -1109,8 +1109,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>205</width>
-                <height>66</height>
+                <width>934</width>
+                <height>213</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">
@@ -1269,8 +1269,8 @@ not multiple and the destination field is multiple</string>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>252</x>
-     <y>382</y>
+     <x>258</x>
+     <y>638</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -1285,12 +1285,44 @@ not multiple and the destination field is multiple</string>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>320</x>
-     <y>382</y>
+     <x>326</x>
+     <y>638</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>remove_all_tags</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>remove_tags</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>888</x>
+     <y>266</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>814</x>
+     <y>268</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clear_languages</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>languages</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>874</x>
+     <y>418</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>817</x>
+     <y>420</y>
     </hint>
    </hints>
   </connection>
