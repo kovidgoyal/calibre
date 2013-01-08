@@ -279,6 +279,7 @@ class PDFWriter(QObject):
             if self.doc.errors_occurred:
                 break
 
-        self.doc.add_links(self.current_item, start_page, amap['links'],
-                           amap['anchors'])
+        if not self.doc.errors_occurred:
+            self.doc.add_links(self.current_item, start_page, amap['links'],
+                            amap['anchors'])
 

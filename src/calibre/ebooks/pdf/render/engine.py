@@ -345,8 +345,8 @@ class PdfDevice(QPaintDevice): # {{{
             return int(round(self.body_height * self.ydpi / 72.0))
         return 0
 
-    def end_page(self):
-        self.engine.end_page()
+    def end_page(self, *args, **kwargs):
+        self.engine.end_page(*args, **kwargs)
 
     def init_page(self):
         self.engine.init_page()
