@@ -184,7 +184,8 @@ class PDFWriter(QObject):
             self.painter.restore()
 
         QTimer.singleShot(0, self.render_book)
-        self.loop.exec_()
+        if self.loop.exec_() == 1:
+            raise Exception('PDF Output failed, see log for details')
 
         if self.toc is not None and len(self.toc) > 0:
             self.doc.add_outline(self.toc)
