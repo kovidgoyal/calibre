@@ -11,7 +11,7 @@ from math import sqrt
 from collections import namedtuple
 
 from PyQt4.Qt import (
-    QBrush, QPen, Qt, QPointF, QTransform, QPainterPath, QPaintEngine, QImage)
+    QBrush, QPen, Qt, QPointF, QTransform, QPaintEngine, QImage)
 
 from calibre.ebooks.pdf.render.common import (
     Name, Array, fmtnum, Stream, Dictionary)
@@ -248,7 +248,7 @@ class TexturePattern(TilingPattern):
 class GraphicsState(object):
 
     FIELDS = ('fill', 'stroke', 'opacity', 'transform', 'brush_origin',
-                  'clip', 'do_fill', 'do_stroke')
+                  'clip_updated', 'do_fill', 'do_stroke')
 
     def __init__(self):
         self.fill = QBrush()
@@ -256,7 +256,7 @@ class GraphicsState(object):
         self.opacity = 1.0
         self.transform = QTransform()
         self.brush_origin = QPointF()
-        self.clip = QPainterPath()
+        self.clip_updated = False
         self.do_fill = False
         self.do_stroke = True
         self.qt_pattern_cache = {}
@@ -274,7 +274,7 @@ class GraphicsState(object):
         ans.opacity = self.opacity
         ans.transform = self.transform * QTransform()
         ans.brush_origin = QPointF(self.brush_origin)
-        ans.clip = self.clip
+        ans.clip_updated = self.clip_updated
         ans.do_fill, ans.do_stroke = self.do_fill, self.do_stroke
         return ans
 
@@ -311,7 +311,7 @@ class Graphics(object):
             s.opacity = state.opacity()
 
         if flags & QPaintEngine.DirtyClipPath or flags & QPaintEngine.DirtyClipRegion:
-            s.clip = painter.clipPath()
+            s.clip_updated = True
 
     def reset(self):
         self.current_state = GraphicsState()
@@ -326,7 +326,7 @@ class Graphics(object):
         ps = self.pending_state
         pdf = self.pdf
 
-        if (ps.transform != pdf_state.transform or ps.clip != pdf_state.clip):
+        if ps.transform != pdf_state.transform or ps.clip_updated:
             pdf.restore_stack()
             pdf.save_stack()
             pdf_state = self.base_state
@@ -341,11 +341,14 @@ class Graphics(object):
             pdf_state.brush_origin != ps.brush_origin):
             self.apply_fill(ps, pdf_system, painter)
 
-        if (pdf_state.clip != ps.clip):
-            p = convert_path(ps.clip)
-            fill_rule = {Qt.OddEvenFill:'evenodd',
-                        Qt.WindingFill:'winding'}[ps.clip.fillRule()]
-            pdf.add_clip(p, fill_rule=fill_rule)
+        if ps.clip_updated:
+            ps.clip_updated = False
+            path = painter.clipPath()
+            if not path.isEmpty():
+                p = convert_path(path)
+                fill_rule = {Qt.OddEvenFill:'evenodd',
+                            Qt.WindingFill:'winding'}[path.fillRule()]
+                pdf.add_clip(p, fill_rule=fill_rule)
 
         self.current_state = self.pending_state
         self.pending_state = None
