@@ -66,6 +66,7 @@ def serialize(o, stream):
     if isinstance(o, float):
         stream.write_raw(pdf_float(o).encode('ascii'))
     elif isinstance(o, bool):
+        # Must check bool before int as bools are subclasses of int
         stream.write_raw(b'true' if o else b'false')
     elif isinstance(o, (int, long)):
         stream.write_raw(icb(o))
