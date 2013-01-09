@@ -82,7 +82,7 @@ class PdfEngine(QPaintEngine):
                             self.bottom_margin) / self.pixel_height
 
         self.pdf_system = QTransform(sx, 0, 0, -sy, dx, dy)
-        self.graphics = Graphics()
+        self.graphics = Graphics(self.pixel_width, self.pixel_height)
         self.errors_occurred = False
         self.errors, self.debug = errors, debug
         self.fonts = {}

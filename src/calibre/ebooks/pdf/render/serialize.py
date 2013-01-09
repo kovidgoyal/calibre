@@ -264,7 +264,7 @@ class PDFStream(object):
         self.stroke_opacities, self.fill_opacities = {}, {}
         self.font_manager = FontManager(self.objects, self.compress)
         self.image_cache = {}
-        self.pattern_cache = {}
+        self.pattern_cache, self.shader_cache = {}, {}
         self.debug = debug
         self.links = Links(self, mark_links, page_size)
         i = QImage(1, 1, QImage.Format_ARGB32)
@@ -446,6 +446,11 @@ class PDFStream(object):
         if pattern.cache_key not in self.pattern_cache:
             self.pattern_cache[pattern.cache_key] = self.objects.add(pattern)
         return self.current_page.add_pattern(self.pattern_cache[pattern.cache_key])
+
+    def add_shader(self, shader):
+        if shader.cache_key not in self.shader_cache:
+            self.shader_cache[shader.cache_key] = self.objects.add(shader)
+        return self.shader_cache[shader.cache_key]
 
     def draw_image(self, x, y, width, height, imgref):
         name = self.current_page.add_image(imgref)
