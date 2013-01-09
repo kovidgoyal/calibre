@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-01-04 05:12+0000\n"
-"PO-Revision-Date: 2012-12-29 11:05+0000\n"
+"PO-Revision-Date: 2013-01-08 18:11+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-01-05 04:45+0000\n"
-"X-Generator: Launchpad (build 16393)\n"
+"X-Launchpad-Export-Date: 2013-01-09 05:01+0000\n"
+"X-Generator: Launchpad (build 16412)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -3462,17 +3462,19 @@ msgstr "Mida de lletra per defecte per al text monoespaiat"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:97
 msgid "Surround all links with a red box, useful for debugging."
-msgstr ""
+msgstr "Envolta tots els enllaços amb un quadre vermell, útil per depurar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:99
 msgid "Use the old, less capable engine to generate the PDF"
-msgstr ""
+msgstr "Utilitza el motor antic, menys potent, per generar el PDF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:102
 msgid ""
 "Generate an uncompressed PDF, useful for debugging, only works with the new "
 "PDF engine."
 msgstr ""
+"Genera un PDF sense comprimir, útil per depurar. Només funciona amb el motor "
+"PDF nou."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -14926,7 +14928,7 @@ msgstr "Suprimeix la sèrie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:185
 msgid "Clear rating"
-msgstr ""
+msgstr "Neteja la valoració"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:197
 msgid "Clear all tags"
@@ -16342,6 +16344,9 @@ msgid ""
 "The list of device plugins you have disabled. Uncheck an entry to enable the "
 "plugin. calibre cannot detect devices that are managed by disabled plugins."
 msgstr ""
+"Llista dels connectors de dispositiu inhabilitats. Desmarqueu una entrada "
+"per habilitar el connector, el calibre no detecta el dispositius gestionats "
+"per connectors inhabilitats."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:103
 msgid "Narrow"
@@ -18949,7 +18954,7 @@ msgstr "S'ha convertit el llibre %(num)d de %(total)d (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:97
 msgid "Could not convert"
-msgstr ""
+msgstr "No s'ha pogut convertir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:98
 #, python-format
@@ -18959,15 +18964,19 @@ msgid ""
 "moved the book's files around outside of calibre. You will need to find "
 "those files and re-add them to calibre."
 msgstr ""
+"No s'ha pogut convertir <b>%s</b> perquè no té fitxers de llibre. Si penseu "
+"que n'hi hauria d'haver però el calibre no els troba, el més fàcil és que "
+"hagueu mogut els fitxers a algun lloc des de fora del calibre. Haureu de "
+"trobar aquests fitxers i tornar-los a afegir al calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:108
 #, python-format
 msgid "No supported formats (Available formats: %s)"
-msgstr ""
+msgstr "No hi ha formats compatibles (formats disponibles: %s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:111
 msgid "This book has no actual ebook files"
-msgstr ""
+msgstr "Aquest llibre no té fitxers de llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:242
@@ -18980,6 +18989,8 @@ msgid ""
 "Could not convert %(num)d of %(tot)d books, because no supported source "
 "formats were found."
 msgstr ""
+"No s'ha pogut convertir %(num)d of %(tot)d llibres perquè no s'ha trobat cap "
+"format font compatible."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:151
 msgid "Queueing books for bulk conversion"
@@ -20011,11 +20022,11 @@ msgstr "Pàgina anterior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:219
 msgid "Increase font size"
-msgstr ""
+msgstr "Augmenta la mida de la lletra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:220
 msgid "Decrease font size"
-msgstr ""
+msgstr "Redueix la mida de la lletra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:224
 msgid "Find next"
