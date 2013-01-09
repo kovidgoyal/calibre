@@ -47,7 +47,7 @@ def get_page_size(opts, for_comic=False): # {{{
                     if opts.unit == 'devicepixel':
                         factor = 72.0 / opts.output_profile.dpi
                     else:
-                        {'point':1.0, 'inch':inch, 'cicero':cicero,
+                        factor = {'point':1.0, 'inch':inch, 'cicero':cicero,
                          'didot':didot, 'pica':pica, 'millimeter':mm,
                          'centimeter':cm}[opts.unit]
                     page_size = (factor*width, factor*height)
