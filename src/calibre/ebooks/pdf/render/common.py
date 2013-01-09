@@ -65,14 +65,14 @@ def fmtnum(o):
 def serialize(o, stream):
     if isinstance(o, float):
         stream.write_raw(pdf_float(o).encode('ascii'))
+    elif isinstance(o, bool):
+        stream.write_raw(b'true' if o else b'false')
     elif isinstance(o, (int, long)):
         stream.write_raw(icb(o))
     elif hasattr(o, 'pdf_serialize'):
         o.pdf_serialize(stream)
     elif o is None:
         stream.write_raw(b'null')
-    elif isinstance(o, bool):
-        stream.write_raw(b'true' if o else b'false')
     else:
         raise ValueError('Unknown object: %r'%o)
 

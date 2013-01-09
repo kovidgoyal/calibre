@@ -52,7 +52,6 @@ class PdfEngine(QPaintEngine):
     FEATURES = QPaintEngine.AllFeatures & ~(
         QPaintEngine.PorterDuff | QPaintEngine.PerspectiveTransform
         | QPaintEngine.ObjectBoundingModeGradients
-        | QPaintEngine.LinearGradientFill
         | QPaintEngine.RadialGradientFill
         | QPaintEngine.ConicalGradientFill
     )

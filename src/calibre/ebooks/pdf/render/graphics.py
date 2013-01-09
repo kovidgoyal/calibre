@@ -16,6 +16,7 @@ from PyQt4.Qt import (
 from calibre.ebooks.pdf.render.common import (
     Name, Array, fmtnum, Stream, Dictionary)
 from calibre.ebooks.pdf.render.serialize import Path
+from calibre.ebooks.pdf.render.gradients import LinearGradientPattern
 
 def convert_path(path): # {{{
     p = Path()
@@ -382,8 +383,7 @@ class Graphics(object):
                 opacity *= vals[-1]
                 color = vals[:3]
 
-        elif False and style == Qt.LinearGradientPattern:
-            from calibre.ebooks.pdf.render.gradients import LinearGradientPattern
+        elif style == Qt.LinearGradientPattern:
             pat = LinearGradientPattern(brush, matrix, pdf, self.page_width_px,
                                         self.page_height_px)
             opacity *= pat.const_opacity
