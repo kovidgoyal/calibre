@@ -16,7 +16,6 @@ from PyQt4.Qt import (
 from calibre.ebooks.pdf.render.common import (
     Name, Array, fmtnum, Stream, Dictionary)
 from calibre.ebooks.pdf.render.serialize import Path
-from calibre.ebooks.pdf.render.gradients import LinearGradientPattern
 
 def convert_path(path): # {{{
     p = Path()
@@ -384,6 +383,7 @@ class Graphics(object):
                 color = vals[:3]
 
         elif False and style == Qt.LinearGradientPattern:
+            from calibre.ebooks.pdf.render.gradients import LinearGradientPattern
             pat = LinearGradientPattern(brush, matrix, pdf, self.page_width_px,
                                         self.page_height_px)
             opacity *= pat.const_opacity
@@ -456,7 +456,10 @@ class Graphics(object):
         TexturePatterns and it also uses TexturePatterns to emulate gradients,
         leading to brokenness. So this method allows the paint engine to update
         the brush origin before painting an object. While not perfect, this is
-        better than nothing.
+        better than nothing. The problem is that if the rect being filled has a
+        border, then QtWebKit generates an image of the rect size - border but
+        fills the full rect, and there's no way for the paint engine to know
+        that and adjust the brush origin.
         '''
         if not hasattr(self, 'last_fill') or not self.current_state.do_fill:
             return
