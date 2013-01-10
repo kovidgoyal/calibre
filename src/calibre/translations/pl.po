@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-01-04 05:12+0000\n"
-"PO-Revision-Date: 2013-01-03 19:14+0000\n"
-"Last-Translator: Tomasz Długosz <tomek3d@gmail.com>\n"
+"PO-Revision-Date: 2013-01-10 00:57+0000\n"
+"Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-01-05 04:55+0000\n"
-"X-Generator: Launchpad (build 16393)\n"
+"X-Launchpad-Export-Date: 2013-01-10 04:46+0000\n"
+"X-Generator: Launchpad (build 16412)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1147,6 +1147,8 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes' ***"
 msgstr ""
+"***Niewspierany tryb bezpośreniego połączenia. Więcej informacji na temat "
+"podłączenia iTunes:  http://www.mobileread.com/forums/showthread.php?t=118559"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:221
 msgid ""
@@ -1467,7 +1469,7 @@ msgstr "Umożliwia komunikację z czytnikiem książek Hanvon N520."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:48
 msgid "Communicate with the Kibano eBook reader."
-msgstr ""
+msgstr "Umożliwia komunikację z czytnikem Kibano eBook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:61
 msgid "Communicate with The Book reader."
@@ -1576,7 +1578,7 @@ msgstr "<b>Lokacja %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:289
 msgid "Communicate with the Kindle 2/3/4/Touch/PaperWhite eBook reader."
-msgstr ""
+msgstr "Umożliwia komunikację z czytnikiem Kindle 2/3/4Touch/PaperWhite"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:301
 msgid "Send page number information when sending books"
@@ -1818,7 +1820,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1216
 msgid "Specify a tags type column for automatic management"
-msgstr ""
+msgstr "Określ kolumnę typu etykiety na potrzeby automatycznego zarządzania"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1217
 msgid "Create Bookshelves"
@@ -1838,7 +1840,7 @@ msgstr ""
 msgid ""
 "Delete any empty bookshelves from the Kobo Touch when syncing is finished. "
 "This is only for firmware V2.0.0 or later."
-msgstr ""
+msgstr "Usuń pui"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1221
 msgid "Upload covers for books"
@@ -1885,7 +1887,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1255
 msgid "Title to test when debugging"
-msgstr ""
+msgstr "Tytuł do testów w czasie debugowania"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1256
 msgid ""
@@ -1957,7 +1959,7 @@ msgstr "Umożliwia komunikację z Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:414
 msgid "Communicate with the WayteQ Reader"
-msgstr ""
+msgstr "Umożliwia komunikację z WayteQ Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
@@ -1975,7 +1977,7 @@ msgstr "Pobierz informacje o urządzeniu..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:190
 msgid "Listing files, this can take a while"
-msgstr ""
+msgstr "Wypisywanie plików, to może chwilę potrwać."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:205
 msgid "Reading ebook metadata"
@@ -2047,7 +2049,7 @@ msgstr "Nieznane urządzenie MTP"
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:219
 #, python-format
 msgid "Found object: %s"
-msgstr ""
+msgstr "Znaleziono obiekt: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:61
 msgid "MTP devices are not supported on Windows XP"
@@ -2244,7 +2246,7 @@ msgstr "Urządzenie bezprzewodowe"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:180
 msgid "Communicate with Smart Device apps"
-msgstr ""
+msgstr "Umożliwia komunikację z urządzeniami Smart Device"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:266
 msgid "All by something"
@@ -4975,7 +4977,7 @@ msgstr "hiszpański"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:525
 msgid "Brazil"
-msgstr ""
+msgstr "Brazylia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:529
 msgid "Amazon website to use:"
@@ -6067,15 +6069,15 @@ msgstr "Wybierz bibliotekę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:138
 msgid "Library &path:"
-msgstr ""
+msgstr "Ścieżka do &biblioteki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:146
 msgid "Browse for library"
-msgstr ""
+msgstr "Szukaj biblioteki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:149
 msgid "&Delete after copy"
-msgstr ""
+msgstr "&Usuń po skopiowaniu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:172
 msgid "Copy to library"
@@ -6091,7 +6093,7 @@ msgstr "(po skopiowaniu skasuj)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:210
 msgid "Choose library by path..."
-msgstr ""
+msgstr "Wybierz bibliotekę wg ścieżki..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:227
@@ -6100,7 +6102,7 @@ msgstr "Nie można skopiować"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:221
 msgid "Cannot copy to current library."
-msgstr ""
+msgstr "Nie można kopiować do bieżącej biblioteki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:232
 msgid "No library"
@@ -6349,7 +6351,7 @@ msgstr "Zatrzymaj/uruchom serwer zawartości"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:96
 #, python-format
 msgid " [%(ip)s, port %(port)d]"
-msgstr ""
+msgstr " [%(ip)s, port %(port)d]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:100
 msgid "Stop Content Server"
@@ -7798,7 +7800,7 @@ msgstr "&Gatunki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Field containing Genre information"
-msgstr ""
+msgstr "Pole zawierające informację o rodzaju"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "&Recently Added"
@@ -7850,7 +7852,7 @@ msgstr "Wykluczone gatunki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:306
 msgid "Genres to &exclude (regex):"
-msgstr ""
+msgstr "Rodzaje do &wykluczenia (regex):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:307
 msgid "Reset to default"
@@ -7933,7 +7935,7 @@ msgstr "Szerokość miniaturki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
 msgid "Size hint for cover thumbnails included in Descriptions section."
-msgstr ""
+msgstr "Podpowiedź wymiarów miniatury okładek w sekcji Opis."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:327
 msgid " inch"
@@ -7941,11 +7943,11 @@ msgstr " cal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid "Author cross-references:"
-msgstr ""
+msgstr "Odsyłacze do autorów:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:329
 msgid "For books with multiple authors, list each author separately"
-msgstr ""
+msgstr "Dla prac zbiorowych wypisz każdego autora oddzielnie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -8713,7 +8715,7 @@ msgstr "Wysokość wiersza:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:240
 msgid "&Embed font family:"
-msgstr ""
+msgstr "&Osadź czcionkę:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:241
 msgid "&Disable font size rescaling"
@@ -9041,7 +9043,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:116
 msgid "&Override paper size set in output profile"
-msgstr ""
+msgstr "&"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:117
 msgid "&Paper Size:"
@@ -9053,7 +9055,7 @@ msgstr "Niestandardowy rozmiar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:119
 msgid "&Unit:"
-msgstr ""
+msgstr "&Jednostka:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:120
 msgid "Preserve &aspect ratio of cover"
@@ -9146,7 +9148,7 @@ msgstr "Otwórz książkę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:215
 msgid "Click the Open button below to open a ebook to use for testing."
-msgstr ""
+msgstr "Kliknij przycisk Otwórz poniżej by otworzyć książkę do testowania."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:90
 msgid "Regex Builder"
@@ -10177,7 +10179,7 @@ msgstr "Usuń &regułę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:273
 msgid "Format specific sending"
-msgstr ""
+msgstr "Wysyłanie zależne od formatu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:278
 msgid ""
@@ -10186,6 +10188,9 @@ msgid ""
 "over\n"
 "            the folders specified above."
 msgstr ""
+"Możesz stworzyć reguły określające gdzie książki w określonych formatach\n"
+"           będą umieszczane na urządzeniu. Foldery wyznaczone regułami mają\n"
+"           pierwszeństwo przed folderami określonymi wyżej."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:300
 msgid "Add a &new rule"
@@ -10225,7 +10230,7 @@ msgstr "Ignoruj %s w calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:377
 msgid "Change scanned &folders"
-msgstr ""
+msgstr "Zmień przeszukiwane &foldery"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:383
 msgid "Show device information"
@@ -10252,6 +10257,10 @@ msgid ""
 "you want this folder scanned in order to be able to send books to it. Click "
 "the <b>configure</b> button below to send books to it."
 msgstr ""
+"Próbujesz wysłać książkę do folderu <b>%s</b>. Ten folder jest ignorowany "
+"przez calibre przy przeszukiwaniu urządzenia. Musisz ustawić w calibre, że "
+"ten folder ma być przeszukiwany jeśli chcesz umieścić w nim książki. Kliknij "
+"przycisk <b>konfiguruj</b> poniżej aby zmienić ustawienia."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:504
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:137
@@ -10261,7 +10270,7 @@ msgstr "Ustawienia"
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:508
 #, python-format
 msgid "Cannot send to %s"
-msgstr ""
+msgstr "Nie można wysłać do %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:92
 msgid "Choose folder on device"
@@ -10269,25 +10278,27 @@ msgstr "Wybierz folder na urządzeniu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:105
 msgid "<b>Scanned folders:</b>"
-msgstr ""
+msgstr "<b>Przeszukane foldery</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:106
 msgid ""
 "You can select which top level folders calibre will scan when searching this "
 "device for books."
 msgstr ""
+"Możesz wybrać które foldery najwyższego poziomu calibre będzie przeszukiwał "
+"w poszukiwaniu książek na urządzeniu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:131
 msgid "Select &All"
-msgstr ""
+msgstr "Wybierz wszystkie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:133
 msgid "Select &None"
-msgstr ""
+msgstr "Wyczyść wszystkie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:136
 msgid "Choose folders to scan"
-msgstr ""
+msgstr "Wybierz foldery do przeszukania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:19
 msgid "How many empty books?"
@@ -10307,11 +10318,11 @@ msgstr "Zresetuj autora do Nieznanego"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:48
 msgid "Set the series of the new books to:"
-msgstr ""
+msgstr "Ustaw serię nowej książki na:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:60
 msgid "Reset series"
-msgstr ""
+msgstr "Resetuj serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:72
 msgid "Some invalid ISBNs"
@@ -13085,11 +13096,11 @@ msgstr "Sortowanie po autorze"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:227
 msgid "Tag 1"
-msgstr ""
+msgstr "Etykieta 1"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:227
 msgid "Tag 2"
-msgstr ""
+msgstr "Etykieta 2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:269
 msgid "Template language tutorial"
@@ -13598,7 +13609,7 @@ msgstr "Wybór rodziny czcionek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:195
 msgid "Add &fonts"
-msgstr ""
+msgstr "Dodaj &czcionki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:199
 msgid "Choose a font family from the list below:"
@@ -13606,11 +13617,11 @@ msgstr "Wybierz rodzinę czcionek z poniższej listy:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:205
 msgid "Find Next"
-msgstr ""
+msgstr "Znajdź następny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:208
 msgid "Find Previous"
-msgstr ""
+msgstr "Znajdź poprzedni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:258
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:377
@@ -13629,7 +13640,7 @@ msgstr "Brak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:264
 msgid "Select font files"
-msgstr ""
+msgstr "Wybierz pliki czcionek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:264
 msgid "TrueType/OpenType Fonts"
@@ -13655,11 +13666,11 @@ msgstr "Dodano rodziny czcionek: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:320
 msgid "Choose &font family"
-msgstr ""
+msgstr "Wybierz &krój czcionki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:329
 msgid "Clear the font family"
-msgstr ""
+msgstr "Wyczyść krój czcionki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:306
@@ -14719,7 +14730,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:197
 msgid "Clear all tags"
-msgstr ""
+msgstr "Usuń wszystkie etykiety"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:206
 msgid "Clear Ids"
@@ -15245,7 +15256,7 @@ msgstr "Zresetuj wszystkie wyłączone zapytania o potwierdzenie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:26
 msgid "All Columns"
-msgstr ""
+msgstr "Wszystkie kolumny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:37
@@ -16280,11 +16291,11 @@ msgstr "Pokaż &okładkę w panelu szczegółów książki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:274
 msgid "Show the size of the book's cover in pixels"
-msgstr ""
+msgstr "Pokaż wymiary okładki w pikselach"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:275
 msgid "Show cover &size"
-msgstr ""
+msgstr "Pokaż wymiary okładki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:277
 msgid ""
@@ -16579,7 +16590,7 @@ msgstr "Wybierz mniejsze etykiety"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:149
 msgid "Use published date of \"first edition\" (from worldcat.org)"
-msgstr ""
+msgstr "Użyj daty pierwszej publikacji (z worldcat.org)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:36
 msgid ""
@@ -18558,7 +18569,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:304
 #, python-format
 msgid "Change Icon for: %s"
-msgstr ""
+msgstr "Zmień ikonę dla %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:442
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:481
@@ -18644,11 +18655,11 @@ msgstr "Zarządzaj %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:566
 msgid "Change category icon"
-msgstr ""
+msgstr "Zmień ikonę kategorii"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:568
 msgid "Restore default icon"
-msgstr ""
+msgstr "Przywróć domyślną ikonę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:586
 msgid "Show all categories"
@@ -19084,11 +19095,11 @@ msgstr "Pokaż pasek przewijania w trybie pełnoekranowym"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:63
 msgid "Start viewer in full screen mode"
-msgstr ""
+msgstr "Uruchom przeglądarkę w trybie pełnoekranowym"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:65
 msgid "Show full screen usage help"
-msgstr ""
+msgstr "Pokaż pomoc trybu pełnoekranowego"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:74
 msgid "Font options"
@@ -19249,15 +19260,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:406
 msgid "Show &scrollbar in full screen mode"
-msgstr ""
+msgstr "Pokaż pasek przewijania w trybie pełnoekranowym"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:407
 msgid "&Start viewer in full screen mode"
-msgstr ""
+msgstr "Uruchom przeglądarkę w trybie pełnoekranowym"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:408
 msgid "Show &help message when starting full screen mode"
-msgstr ""
+msgstr "Pokaż pomoc przy uruchomieniu w trybie pełnoekranowym"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:409
 msgid "F&ull  screen options"
@@ -19436,12 +19447,12 @@ msgstr "Koniec sekcji"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:547
 msgid "Default font size"
-msgstr ""
+msgstr "Domyślna wielkość czcionki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:614
 #, python-format
 msgid "S&earch Google for '%s'"
-msgstr ""
+msgstr "Szukaj %s w Google"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:28
@@ -19459,7 +19470,7 @@ msgstr "Zapisz jako"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:41
 msgid "&Rotate"
-msgstr ""
+msgstr "Ob&róć"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:67
 msgid "Choose a file to save to"
@@ -19618,14 +19629,16 @@ msgid ""
 "%(which)s font size\n"
 "Current magnification: %(mag).1f"
 msgstr ""
+"%(which)s wielkość czcionki\n"
+"Aktualne powiększenie: %(mag).1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:702
 msgid "Increase"
-msgstr ""
+msgstr "Zwiększ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:704
 msgid "Decrease"
-msgstr ""
+msgstr "Zmniejsz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:722
 #, python-format
@@ -19797,11 +19810,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:72
 msgid "No table found"
-msgstr ""
+msgstr "Nie znaleziono tabeli"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/table_popup.py:73
 msgid "No table was found"
-msgstr ""
+msgstr "Nie znaleziono tabeli"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:100
 msgid "Test name invalid"
@@ -20461,6 +20474,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Utwórz odsyłacze w sekcji autorów dla prac zbiorowych.\n"
+"Domyślnie: '%default'\n"
+"Dotyczy formatów: AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:57
 #, python-format
@@ -20901,6 +20917,8 @@ msgid ""
 "Do not notify the running calibre GUI (if any) that the database has "
 "changed. Use with care, as it can lead to database corruption!"
 msgstr ""
+"Nie informuj uruchomionego GUI calibre (jeśli takie istnieje) o zmianach w "
+"bazie. Używać ostrożnie - może prowadzić do uszkodzenia bazy danych!"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:149
 msgid ""
@@ -21058,7 +21076,7 @@ msgstr "Określ numer w serii dla dodanych książek"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:341
 msgid "Path to the cover to use for the added book"
-msgstr ""
+msgstr "Ścieżka do okładki, która zostanie użyta dla dodanej książki."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:377
 msgid "You must specify at least one file to add"
@@ -22827,6 +22845,10 @@ msgid ""
 "function to get the path for a specific format. Note that format names are "
 "always uppercase, as in EPUB."
 msgstr ""
+"formats_paths() -- zwraca oddzielaną przecinkami listę elementów, które "
+"składają się z nazwy formatu i ścieżki, oddzielonych średnikami. Dzięki tej "
+"funkcji można uzyskać ścieżkę do konkretnego formatu. Nazwy formatów są "
+"zawsze pisane wielkimi literami np. EPUB."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:671
 msgid ""
@@ -23179,6 +23201,9 @@ msgid ""
 "This function can be called in template program mode using the template "
 "\"{:'current_library_path()'}\"."
 msgstr ""
+"current_library_path() -- zwraca ścieżkę do aktualnie używanej biblioteki. "
+"Ta funkcja może być wywołana w szablonie w trybie programu za pomocą  "
+"\"{:'current_library_path()'}\"."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1200
 msgid ""
@@ -23316,7 +23341,7 @@ msgstr "Angielski (Hong Kong)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:164
 msgid "English (Hungary)"
-msgstr ""
+msgstr "Angielski (Węgry)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:165
 msgid "English (Indonesia)"
@@ -25004,3 +25029,9 @@ msgstr ""
 "Enter. Sposób wykorzystania autouzupełniania zależy od metadanych w "
 "bibliotece\n"
 "oraz oczywiście od osobistych preferencji."
+
+#~ msgid "Font size larger"
+#~ msgstr "Większy rozmiar czcionki"
+
+#~ msgid "Font size smaller"
+#~ msgstr "Mniejszy rozmiar czcionki"
