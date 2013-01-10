@@ -7,11 +7,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import sys
 from future_builtins import map
 from collections import namedtuple
 
 import sip
-from PyQt4.Qt import QLinearGradient
+from PyQt4.Qt import QLinearGradient, QPointF
 
 from calibre.ebooks.pdf.render.common import Name, Array, Dictionary
 
@@ -24,16 +25,8 @@ class LinearGradientPattern(Dictionary):
                        matrix.dx(), matrix.dy())
         gradient = sip.cast(brush.gradient(), QLinearGradient)
 
-        # TODO: Handle spreads other than PadSpread by adding more stops to
-        # cover the entire page_rect
-        # inv = matrix.inverted()[0]
-        # page_rect = tuple(map(inv.map, (
-        #     QPointF(0, 0), QPointF(pixel_page_width, 0), QPointF(0, pixel_page_height),
-        #     QPointF(pixel_page_width, pixel_page_height))))
-
-        start = gradient.start()
-        stop = gradient.finalStop()
-        stops = tuple(map(lambda x: Stop(x[0], x[1].getRgbF()), gradient.stops()))
+        start, stop, stops = self.spread_gradient(gradient, pixel_page_width,
+                                                  pixel_page_height, matrix)
 
         # TODO: Handle colors with different opacities
         self.const_opacity = stops[0].color[-1]
@@ -83,4 +76,50 @@ class LinearGradientPattern(Dictionary):
 
         self.cache_key = (self.__class__.__name__, self.matrix,
                           tuple(shader['Coords']), stops)
+
+    def spread_gradient(self, gradient, pixel_page_width, pixel_page_height,
+                        matrix):
+        start = gradient.start()
+        stop = gradient.finalStop()
+        stops = list(map(lambda x: [x[0], x[1].getRgbF()], gradient.stops()))
+        spread = gradient.spread()
+        if False and spread != gradient.PadSpread:
+            # TODO: Finish this implementation
+            inv = matrix.inverted()[0]
+            page_rect = tuple(map(inv.map, (
+                QPointF(0, 0), QPointF(pixel_page_width, 0), QPointF(0, pixel_page_height),
+                QPointF(pixel_page_width, pixel_page_height))))
+            maxx = maxy = -sys.maxint-1
+            minx = miny = sys.maxint
+
+            for p in page_rect:
+                minx, maxx = min(minx, p.x()), max(maxx, p.x())
+                miny, maxy = min(miny, p.y()), max(maxy, p.y())
+
+            def in_page(point):
+                return (minx <= point.x() <= maxx and miny <= point.y() <= maxy)
+
+            offset = stop - start
+            llimit, rlimit = start, stop
+
+            reflect = False
+            base_stops = list(stops)
+            reversed_stops = list(reversed(stops))
+            do_reflect = spread == gradient.ReflectSpread
+            # totl = abs(stops[-1][0] - stops[0][0])
+            # intervals = [abs(stops[i+1] - stops[i])/totl for i in xrange(len(stops)-1)]
+
+            while in_page(llimit):
+                reflect ^= True
+                llimit -= offset
+                estops = reversed_stops if (reflect and do_reflect) else base_stops
+                stops = estops + stops
+
+            while in_page(rlimit):
+                reflect ^= True
+                rlimit += offset
+                estops = reversed_stops if (reflect and do_reflect) else base_stops
+                stops = stops + estops
+
+        return start, stop, tuple(Stop(s[0], s[1]) for s in stops)
 
