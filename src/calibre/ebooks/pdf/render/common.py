@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import codecs, zlib
 from io import BytesIO
+from datetime import datetime
 
 from calibre.constants import plugins, ispy3
 
@@ -74,6 +75,11 @@ def serialize(o, stream):
         o.pdf_serialize(stream)
     elif o is None:
         stream.write_raw(b'null')
+    elif isinstance(o, datetime):
+        val = o.strftime("D:%Y%m%d%H%M%%02d%z")%min(59, o.second)
+        if datetime.tzinfo is not None:
+            val = "(%s'%s')"%(val[:-2], val[-2:])
+        stream.write(val.encode('ascii'))
     else:
         raise ValueError('Unknown object: %r'%o)
 

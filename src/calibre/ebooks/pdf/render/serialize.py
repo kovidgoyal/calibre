@@ -18,6 +18,7 @@ from calibre.ebooks.pdf.render.common import (
     fmtnum)
 from calibre.ebooks.pdf.render.fonts import FontManager
 from calibre.ebooks.pdf.render.links import Links
+from calibre.utils.date import utcnow
 
 PDFVER = b'%PDF-1.3'
 
@@ -259,8 +260,11 @@ class PDFStream(object):
         self.objects.add(PageTree(page_size))
         self.objects.add(Catalog(self.page_tree))
         self.current_page = Page(self.page_tree, compress=self.compress)
-        self.info = Dictionary({'Creator':String(creator),
-                                'Producer':String(creator)})
+        self.info = Dictionary({
+            'Creator':String(creator),
+            'Producer':String(creator),
+            'CreationDate': utcnow(),
+                                })
         self.stroke_opacities, self.fill_opacities = {}, {}
         self.font_manager = FontManager(self.objects, self.compress)
         self.image_cache = {}
