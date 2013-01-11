@@ -13,7 +13,7 @@ from collections import namedtuple
 from functools import partial
 
 from calibre import prints, as_unicode
-from calibre.constants import plugins
+from calibre.constants import plugins, islinux
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous, debug
@@ -44,6 +44,17 @@ class MTP_DEVICE(MTPDeviceBase):
         self.blacklisted_devices = set()
         self.ejected_devices = set()
         self.currently_connected_dev = None
+        self._is_device_mtp = None
+        if islinux:
+            from calibre.devices.mtp.unix.sysfs import MTPDetect
+            self._is_device_mtp = MTPDetect()
+
+    def is_device_mtp(self, d, debug=None):
+        ''' Returns True iff the _is_device_mtp check returns True and libmtp
+        is able to probe the device successfully. '''
+        if self._is_device_mtp is None: return False
+        return (self._is_device_mtp(d, debug=debug) and
+                self.libmtp.is_mtp_device(d.busnum, d.devnum))
 
     def set_debug_level(self, lvl):
         self.libmtp.set_debug_level(lvl)
@@ -77,7 +88,9 @@ class MTP_DEVICE(MTPDeviceBase):
         for d in devs:
             ans = cache.get(d, None)
             if ans is None:
-                ans = (d.vendor_id, d.product_id) in self.known_devices
+                ans = (
+                    (d.vendor_id, d.product_id) in self.known_devices or
+                    self.is_device_mtp(d))
                 cache[d] = ans
             if ans:
                 return d
@@ -95,12 +108,13 @@ class MTP_DEVICE(MTPDeviceBase):
                 err = 'startup() not called on this device driver'
             p(err)
             return False
-        devs = [d for d in devices_on_system if (d.vendor_id, d.product_id)
-                in self.known_devices and d.vendor_id != APPLE]
+        devs = [d for d in devices_on_system if
+            ( (d.vendor_id, d.product_id) in self.known_devices or
+               self.is_device_mtp(d, debug=p)) and d.vendor_id != APPLE]
         if not devs:
-            p('No known MTP devices connected to system')
+            p('No MTP devices connected to system')
             return False
-        p('Known MTP devices connected:')
+        p('MTP devices connected:')
         for d in devs: p(d)
 
         for d in devs:
