@@ -133,8 +133,8 @@ class CSV_XML(CatalogPlugin):
                     elif field in ['authors', 'tags']:
                         item = ', '.join(item)
                     elif field == 'isbn':
-                        # Could be 9, 10 or 13 digits
-                        item = u'%s' % re.sub(r'[\D]', '', item)
+                        # Could be 9, 10 or 13 digits, with hyphens, possibly ending in 'X'
+                        item = u'%s' % re.sub(r'[^\dX-]', '', item)
                     elif field in ['pubdate', 'timestamp']:
                         item = isoformat(item)
                     elif field == 'comments':
