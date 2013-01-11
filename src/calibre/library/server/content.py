@@ -236,7 +236,7 @@ class ContentServer(object):
                 newmi = mi.deepcopy_metadata()
                 newmi.template_to_attribute(mi, cpb)
 
-        if format in ('MOBI', 'EPUB'):
+        if format in {'MOBI', 'EPUB', 'AZW3'}:
             # Write the updated file
             from calibre.ebooks.metadata.meta import set_metadata
             set_metadata(fmt, newmi, format.lower())
