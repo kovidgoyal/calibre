@@ -6,7 +6,6 @@ class PhilosophyNow(BasicNewsRecipe):
 
     title       = 'Philosophy Now'
     __author__  = 'Rick Shang'
-
     description = '''Philosophy Now is a lively magazine for everyone
     interested in ideas. It isn't afraid to tackle all the major questions of
     life, the universe and everything. Published every two months, it tries to
@@ -27,7 +26,7 @@ class PhilosophyNow(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
         br.open('https://philosophynow.org/auth/login')
-        br.select_form(nr = 1)
+        br.select_form(name="loginForm")
         br['username'] = self.username
         br['password'] = self.password
         br.submit()
@@ -50,19 +49,20 @@ class PhilosophyNow(BasicNewsRecipe):
         #Go to the main body
         current_issue_url = 'http://philosophynow.org/issues/' + issuenum
         soup = self.index_to_soup(current_issue_url)
-        div = soup.find ('div', attrs={'class':'articlesColumn'})
+        div = soup.find ('div', attrs={'class':'contentsColumn'})
 
         feeds = OrderedDict()
 
-        for post in div.findAll('h3'):
+
+        for post in div.findAll('h1'):
             articles = []
             a=post.find('a',href=True)
             if a is not None:
                 url="http://philosophynow.org" + a['href']
                 title=self.tag_to_string(a).strip()
-                s=post.findPrevious('h4')
+                s=post.findPrevious('h3')
                 section_title = self.tag_to_string(s).strip()
-                d=post.findNext('p')
+                d=post.findNext('h2')
                 desc = self.tag_to_string(d).strip()
                 articles.append({'title':title, 'url':url, 'description':desc, 'date':''})
 
@@ -73,3 +73,5 @@ class PhilosophyNow(BasicNewsRecipe):
         ans = [(key, val) for key, val in feeds.iteritems()]
         return ans
 
+    def cleanup(self):
+        self.browser.open('http://philosophynow.org/auth/logout')
