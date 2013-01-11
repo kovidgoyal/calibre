@@ -17,10 +17,14 @@ from calibre.ebooks.pdf.render.common import Array, Name, Dictionary, String
 class Destination(Array):
 
     def __init__(self, start_page, pos, get_pageref):
-        super(Destination, self).__init__(
-            [get_pageref(start_page + pos['column']), Name('XYZ'), pos['left'],
-             pos['top'], None]
-        )
+        pnum = start_page + pos['column']
+        try:
+            pref = get_pageref(pnum)
+        except IndexError:
+            pref = get_pageref(pnum-1)
+        super(Destination, self).__init__([
+            pref, Name('XYZ'), pos['left'], pos['top'], None
+        ])
 
 class Links(object):
 
@@ -58,7 +62,13 @@ class Links(object):
                                                                       0])})
             if is_local:
                 path = combined_path if href else path
-                annot['Dest'] = self.anchors[path][frag]
+                try:
+                    annot['Dest'] = self.anchors[path][frag]
+                except KeyError:
+                    try:
+                        annot['Dest'] = self.anchors[path][None]
+                    except KeyError:
+                        pass
             else:
                 url = href + (('#'+frag) if frag else '')
                 purl = urlparse(url)

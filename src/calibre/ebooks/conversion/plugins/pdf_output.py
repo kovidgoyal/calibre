@@ -10,9 +10,7 @@ Convert OEB ebook format to PDF.
 
 import glob, os
 
-from PyQt4.Qt import QRawFont, QFont
-
-from calibre.constants import iswindows
+from calibre.constants import iswindows, islinux
 from calibre.customize.conversion import (OutputFormatPlugin,
     OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
@@ -75,13 +73,13 @@ class PDFOutput(OutputFormatPlugin):
                 ' of stretching it to fill the full first page of the'
                 ' generated pdf.')),
         OptionRecommendation(name='pdf_serif_family',
-            recommended_value='Times New Roman', help=_(
+            recommended_value='Liberation Serif' if islinux else 'Times New Roman', help=_(
                 'The font family used to render serif fonts')),
         OptionRecommendation(name='pdf_sans_family',
-            recommended_value='Helvetica', help=_(
+            recommended_value='Liberation Sans' if islinux else 'Helvetica', help=_(
                 'The font family used to render sans-serif fonts')),
         OptionRecommendation(name='pdf_mono_family',
-            recommended_value='Courier New', help=_(
+            recommended_value='Liberation Mono' if islinux else 'Courier New', help=_(
                 'The font family used to render monospaced fonts')),
         OptionRecommendation(name='pdf_standard_font', choices=['serif',
             'sans', 'mono'],
@@ -104,6 +102,10 @@ class PDFOutput(OutputFormatPlugin):
         ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        from calibre.gui2 import must_use_qt, load_builtin_fonts
+        must_use_qt()
+        load_builtin_fonts()
+
         self.oeb = oeb_book
         self.input_plugin, self.opts, self.log = input_plugin, opts, log
         self.output_path = output_path
@@ -137,9 +139,8 @@ class PDFOutput(OutputFormatPlugin):
         If you ever move to Qt WebKit 2.3+ then this will be unnecessary.
         '''
         from calibre.ebooks.oeb.base import urlnormalize
-        from calibre.gui2 import must_use_qt
         from calibre.utils.fonts.utils import remove_embed_restriction
-        from PyQt4.Qt import QFontDatabase, QByteArray
+        from PyQt4.Qt import QFontDatabase, QByteArray, QRawFont, QFont
 
         # First find all @font-face rules and remove them, adding the embedded
         # fonts to Qt
@@ -167,7 +168,6 @@ class PDFOutput(OutputFormatPlugin):
                         raw = remove_embed_restriction(raw)
                     except:
                         continue
-                    must_use_qt()
                     fid = QFontDatabase.addApplicationFontFromData(QByteArray(raw))
                     family_name = None
                     if fid > -1:
@@ -192,7 +192,10 @@ class PDFOutput(OutputFormatPlugin):
                 if ff is None: continue
                 val = ff.propertyValue
                 for i in xrange(val.length):
-                    k = icu_lower(val[i].value)
+                    try:
+                        k = icu_lower(val[i].value)
+                    except (AttributeError, TypeError):
+                        val[i].value = k = 'times'
                     if k in family_map:
                         val[i].value = family_map[k]
                 if iswindows:

@@ -83,13 +83,15 @@ def run(dev, func):
             raise SystemExit(1)
 
 def brush(p, xmax, ymax):
-    x = xmax/3
+    x = 0
     y = 0
     w = xmax/2
-    pix = QPixmap(I('console.png'))
-    p.fillRect(x, y, w, w, QBrush(pix))
-
-    p.fillRect(0, y+xmax/1.9, w, w, QBrush(pix))
+    g = QLinearGradient(QPointF(x, y), QPointF(x, y+w))
+    g.setColorAt(0, QColor('#f00'))
+    g.setColorAt(0.5, QColor('#fff'))
+    g.setColorAt(1, QColor('#00f'))
+    p.fillRect(x, y, w, w, QBrush(g))
+    p.drawRect(x, y, w, w)
 
 def pen(p, xmax, ymax):
     pix = QPixmap(I('console.png'))

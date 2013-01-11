@@ -18,6 +18,7 @@ from calibre.ebooks.pdf.render.common import (
     fmtnum)
 from calibre.ebooks.pdf.render.fonts import FontManager
 from calibre.ebooks.pdf.render.links import Links
+from calibre.utils.date import utcnow
 
 PDFVER = b'%PDF-1.3'
 
@@ -259,12 +260,15 @@ class PDFStream(object):
         self.objects.add(PageTree(page_size))
         self.objects.add(Catalog(self.page_tree))
         self.current_page = Page(self.page_tree, compress=self.compress)
-        self.info = Dictionary({'Creator':String(creator),
-                                'Producer':String(creator)})
+        self.info = Dictionary({
+            'Creator':String(creator),
+            'Producer':String(creator),
+            'CreationDate': utcnow(),
+                                })
         self.stroke_opacities, self.fill_opacities = {}, {}
         self.font_manager = FontManager(self.objects, self.compress)
         self.image_cache = {}
-        self.pattern_cache = {}
+        self.pattern_cache, self.shader_cache = {}, {}
         self.debug = debug
         self.links = Links(self, mark_links, page_size)
         i = QImage(1, 1, QImage.Format_ARGB32)
@@ -446,6 +450,11 @@ class PDFStream(object):
         if pattern.cache_key not in self.pattern_cache:
             self.pattern_cache[pattern.cache_key] = self.objects.add(pattern)
         return self.current_page.add_pattern(self.pattern_cache[pattern.cache_key])
+
+    def add_shader(self, shader):
+        if shader.cache_key not in self.shader_cache:
+            self.shader_cache[shader.cache_key] = self.objects.add(shader)
+        return self.shader_cache[shader.cache_key]
 
     def draw_image(self, x, y, width, height, imgref):
         name = self.current_page.add_image(imgref)

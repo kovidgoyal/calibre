@@ -662,13 +662,6 @@ is_mtp_device(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "ii", &busnum, &devnum)) return NULL;
 
-    /*
-     * LIBMTP_Check_Specific_Device does not seem to work at least on my linux
-     * system. Need to investigate why later. Most devices are in the device
-     * table so this is not terribly important.
-     */
-    /* LIBMTP_Set_Debug(LIBMTP_DEBUG_ALL); */
-    /* printf("Calling check: %d %d\n", busnum, devnum); */
     Py_BEGIN_ALLOW_THREADS;
     ans = LIBMTP_Check_Specific_Device(busnum, devnum);
     Py_END_ALLOW_THREADS;

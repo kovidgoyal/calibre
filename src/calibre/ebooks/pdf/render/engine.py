@@ -52,7 +52,6 @@ class PdfEngine(QPaintEngine):
     FEATURES = QPaintEngine.AllFeatures & ~(
         QPaintEngine.PorterDuff | QPaintEngine.PerspectiveTransform
         | QPaintEngine.ObjectBoundingModeGradients
-        | QPaintEngine.LinearGradientFill
         | QPaintEngine.RadialGradientFill
         | QPaintEngine.ConicalGradientFill
     )
@@ -82,7 +81,7 @@ class PdfEngine(QPaintEngine):
                             self.bottom_margin) / self.pixel_height
 
         self.pdf_system = QTransform(sx, 0, 0, -sy, dx, dy)
-        self.graphics = Graphics()
+        self.graphics = Graphics(self.pixel_width, self.pixel_height)
         self.errors_occurred = False
         self.errors, self.debug = errors, debug
         self.fonts = {}
@@ -239,7 +238,7 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def drawTextItem(self, point, text_item):
-        # super(PdfEngine, self).drawTextItem(point, text_item)
+        # return super(PdfEngine, self).drawTextItem(point, text_item)
         self.apply_graphics_state()
         gi = self.qt_hack.get_glyphs(point, text_item)
         if not gi.indices:
@@ -247,7 +246,10 @@ class PdfEngine(QPaintEngine):
             return
         name = hash(bytes(gi.name))
         if name not in self.fonts:
-            self.fonts[name] = self.create_sfnt(text_item)
+            try:
+                self.fonts[name] = self.create_sfnt(text_item)
+            except UnsupportedFont:
+                return super(PdfEngine, self).drawTextItem(point, text_item)
         metrics = self.fonts[name]
         for glyph_id in gi.indices:
             try:
@@ -342,8 +344,8 @@ class PdfDevice(QPaintDevice): # {{{
             return int(round(self.body_height * self.ydpi / 72.0))
         return 0
 
-    def end_page(self):
-        self.engine.end_page()
+    def end_page(self, *args, **kwargs):
+        self.engine.end_page(*args, **kwargs)
 
     def init_page(self):
         self.engine.init_page()

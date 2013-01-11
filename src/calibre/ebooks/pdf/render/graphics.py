@@ -11,11 +11,12 @@ from math import sqrt
 from collections import namedtuple
 
 from PyQt4.Qt import (
-    QBrush, QPen, Qt, QPointF, QTransform, QPainterPath, QPaintEngine, QImage)
+    QBrush, QPen, Qt, QPointF, QTransform, QPaintEngine, QImage)
 
 from calibre.ebooks.pdf.render.common import (
     Name, Array, fmtnum, Stream, Dictionary)
 from calibre.ebooks.pdf.render.serialize import Path
+from calibre.ebooks.pdf.render.gradients import LinearGradientPattern
 
 def convert_path(path): # {{{
     p = Path()
@@ -248,7 +249,7 @@ class TexturePattern(TilingPattern):
 class GraphicsState(object):
 
     FIELDS = ('fill', 'stroke', 'opacity', 'transform', 'brush_origin',
-                  'clip', 'do_fill', 'do_stroke')
+                  'clip_updated', 'do_fill', 'do_stroke')
 
     def __init__(self):
         self.fill = QBrush()
@@ -256,7 +257,7 @@ class GraphicsState(object):
         self.opacity = 1.0
         self.transform = QTransform()
         self.brush_origin = QPointF()
-        self.clip = QPainterPath()
+        self.clip_updated = False
         self.do_fill = False
         self.do_stroke = True
         self.qt_pattern_cache = {}
@@ -274,16 +275,17 @@ class GraphicsState(object):
         ans.opacity = self.opacity
         ans.transform = self.transform * QTransform()
         ans.brush_origin = QPointF(self.brush_origin)
-        ans.clip = self.clip
+        ans.clip_updated = self.clip_updated
         ans.do_fill, ans.do_stroke = self.do_fill, self.do_stroke
         return ans
 
 class Graphics(object):
 
-    def __init__(self):
+    def __init__(self, page_width_px, page_height_px):
         self.base_state = GraphicsState()
         self.current_state = GraphicsState()
         self.pending_state = None
+        self.page_width_px, self.page_height_px = (page_width_px, page_height_px)
 
     def begin(self, pdf):
         self.pdf = pdf
@@ -311,7 +313,7 @@ class Graphics(object):
             s.opacity = state.opacity()
 
         if flags & QPaintEngine.DirtyClipPath or flags & QPaintEngine.DirtyClipRegion:
-            s.clip = painter.clipPath()
+            s.clip_updated = True
 
     def reset(self):
         self.current_state = GraphicsState()
@@ -326,7 +328,7 @@ class Graphics(object):
         ps = self.pending_state
         pdf = self.pdf
 
-        if (ps.transform != pdf_state.transform or ps.clip != pdf_state.clip):
+        if ps.transform != pdf_state.transform or ps.clip_updated:
             pdf.restore_stack()
             pdf.save_stack()
             pdf_state = self.base_state
@@ -341,11 +343,14 @@ class Graphics(object):
             pdf_state.brush_origin != ps.brush_origin):
             self.apply_fill(ps, pdf_system, painter)
 
-        if (pdf_state.clip != ps.clip):
-            p = convert_path(ps.clip)
-            fill_rule = {Qt.OddEvenFill:'evenodd',
-                        Qt.WindingFill:'winding'}[ps.clip.fillRule()]
-            pdf.add_clip(p, fill_rule=fill_rule)
+        if ps.clip_updated:
+            ps.clip_updated = False
+            path = painter.clipPath()
+            if not path.isEmpty():
+                p = convert_path(path)
+                fill_rule = {Qt.OddEvenFill:'evenodd',
+                            Qt.WindingFill:'winding'}[path.fillRule()]
+                pdf.add_clip(p, fill_rule=fill_rule)
 
         self.current_state = self.pending_state
         self.pending_state = None
@@ -357,7 +362,7 @@ class Graphics(object):
         pdf = self.pdf
 
         pattern = color = pat = None
-        opacity = 1.0
+        opacity = global_opacity
         do_fill = True
 
         matrix = (QTransform.fromTranslate(brush_origin.x(), brush_origin.y())
@@ -366,29 +371,30 @@ class Graphics(object):
         self.brushobj = None
 
         if style <= Qt.DiagCrossPattern:
-            opacity = global_opacity * vals[-1]
+            opacity *= vals[-1]
             color = vals[:3]
 
             if style > Qt.SolidPattern:
                 pat = QtPattern(style, matrix)
-                pattern = pdf.add_pattern(pat)
-
-            if opacity < 1e-4 or style == Qt.NoBrush:
-                do_fill = False
 
         elif style == Qt.TexturePattern:
             pat = TexturePattern(brush.texture(), matrix, pdf)
-            opacity = global_opacity
             if pat.paint_type == 2:
                 opacity *= vals[-1]
                 color = vals[:3]
-            pattern = pdf.add_pattern(pat)
 
-            if opacity < 1e-4 or style == Qt.NoBrush:
-                do_fill = False
+        elif style == Qt.LinearGradientPattern:
+            pat = LinearGradientPattern(brush, matrix, pdf, self.page_width_px,
+                                        self.page_height_px)
+            opacity *= pat.const_opacity
+        # TODO: Add support for radial/conical gradient fills
 
+        if opacity < 1e-4 or style == Qt.NoBrush:
+            do_fill = False
         self.brushobj = Brush(brush_origin, pat, color)
-        # TODO: Add support for gradient fills
+
+        if pat is not None:
+            pattern = pdf.add_pattern(pat)
         return color, opacity, pattern, do_fill
 
     def apply_stroke(self, state, pdf_system, painter):
@@ -450,7 +456,10 @@ class Graphics(object):
         TexturePatterns and it also uses TexturePatterns to emulate gradients,
         leading to brokenness. So this method allows the paint engine to update
         the brush origin before painting an object. While not perfect, this is
-        better than nothing.
+        better than nothing. The problem is that if the rect being filled has a
+        border, then QtWebKit generates an image of the rect size - border but
+        fills the full rect, and there's no way for the paint engine to know
+        that and adjust the brush origin.
         '''
         if not hasattr(self, 'last_fill') or not self.current_state.do_fill:
             return

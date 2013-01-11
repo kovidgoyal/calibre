@@ -37,7 +37,7 @@ class KOBO(USBMS):
 
     dbversion = 0
     fwversion = 0
-    supported_dbversion = 65
+    supported_dbversion = 75
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
