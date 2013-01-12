@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-01-04 05:12+0000\n"
+"POT-Creation-Date: 2013-01-11 06:12+0000\n"
 "PO-Revision-Date: 2013-01-03 19:02+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-01-05 04:58+0000\n"
-"X-Generator: Launchpad (build 16393)\n"
+"X-Launchpad-Export-Date: 2013-01-12 04:50+0000\n"
+"X-Generator: Launchpad (build 16420)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
 
@@ -28,8 +28,8 @@ msgstr "Gör absolut ingenting"
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:106
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:109
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:120
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:378
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:379
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:380
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:114
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:115
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -55,8 +55,8 @@ msgstr "Gör absolut ingenting"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/html_input.py:121
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdb_input.py:27
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:30
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:31
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:28
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/rtf_input.py:289
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/rtf_input.py:291
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:140
@@ -135,7 +135,7 @@ msgstr "Gör absolut ingenting"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/writer.py:174
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/palmdoc/writer.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ztxt/writer.py:27
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/render/links.py:119
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/render/links.py:129
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:447
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:455
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:171
@@ -966,7 +966,7 @@ msgstr "Inaktivera namngivet tillägg"
 
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:322
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:331
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:320
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:322
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:747
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:136
@@ -978,7 +978,7 @@ msgstr "Sökväg till biblioteket för lång. Måste vara mindre än tecken %d."
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:134
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:666
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:67
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:668
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:676
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1063
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:887
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:910
@@ -1035,11 +1035,11 @@ msgstr ""
 "Kommaseparerad lista av kataloger att skicka e-böcker till på enhetens kort "
 "<b> lagring </b>. Den första som existerar kommer att användas"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:318
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:319
 msgid "Communicate with S60 phones."
 msgstr "Kommunicera med S60-telefoner"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:337
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:338
 msgid "Communicate with WebOS tablets."
 msgstr "Kommunicera med WebOS-surfplattor."
 
@@ -2588,7 +2588,7 @@ msgid "There is insufficient free space on the storage card"
 msgstr "Det finns tillräckligt med plats på minneskortet"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:210
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/render/from_html.py:230
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/render/from_html.py:231
 #, python-format
 msgid "Rendered %s"
 msgstr "Renderade %s"
@@ -3267,28 +3267,28 @@ msgstr ""
 msgid "Use the new PDF conversion engine."
 msgstr "Använd den nya PDF-konverteringsmotorn."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:54
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:52
 msgid ""
 "Normally, the PDF page size is set by the output profile chosen under page "
 "options. This option will cause the  page size settings under PDF Output to "
 "override the  size specified by the output profile."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:60
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:58
 #, python-format
 msgid ""
 "The unit of measure for page sizes. Default is inch. Choices are %s Note: "
 "This does not override the unit for margins!"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:65
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:63
 #, python-format
 msgid ""
 "The size of the paper. This size will be overridden when a non default "
 "output profile is used. Default is letter. Choices are %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:69
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:67
 msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
@@ -3297,7 +3297,7 @@ msgstr ""
 "\"123x321\" för att ange bredd och höjd. Detta åsidosätter angiven "
 "pappersstorlek."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:74
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:72
 msgid ""
 "Preserve the aspect ratio of the cover, instead of stretching it to fill the "
 "full first page of the generated pdf."
@@ -3305,36 +3305,36 @@ msgstr ""
 "Bevara proportioner av omslaget, i stället för sträcka och det fylla hela "
 "första sidan av den genererade pdf."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:79
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:77
 msgid "The font family used to render serif fonts"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:82
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:80
 msgid "The font family used to render sans-serif fonts"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:85
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:89
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:83
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:87
 msgid "The font family used to render monospaced fonts"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:92
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:90
 msgid "The default font size"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:95
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:93
 msgid "The default font size for monospaced text"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:97
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:95
 msgid "Surround all links with a red box, useful for debugging."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:99
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:97
 msgid "Use the old, less capable engine to generate the PDF"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:102
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:100
 msgid ""
 "Generate an uncompressed PDF, useful for debugging, only works with the new "
 "PDF engine."
@@ -4627,7 +4627,7 @@ msgstr "MALL FEL"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:666
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:67
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:668
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:676
 msgid "No"
 msgstr "Nej"
 
@@ -5722,93 +5722,93 @@ msgstr "Byt/skapa bibliotek..."
 msgid "%d books"
 msgstr "%d böcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:175
-#: /home/kovid/work/calibre/src/calibre/gui2/layout.py:92
-msgid "Quick switch"
-msgstr "Snabb växling"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:177
-#: /home/kovid/work/calibre/src/calibre/gui2/layout.py:93
-msgid "Rename library"
-msgstr "Byt namn på biblioteket"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:179
-msgid "Remove library"
-msgstr "Ta bort biblioteket"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:182
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/random.py:17
 msgid "Pick a random book"
 msgstr "Välj en slumpmässig bok"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:202
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:179
+#: /home/kovid/work/calibre/src/calibre/gui2/layout.py:92
+msgid "Quick switch"
+msgstr "Snabb växling"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:181
+#: /home/kovid/work/calibre/src/calibre/gui2/layout.py:93
+msgid "Rename library"
+msgstr "Byt namn på biblioteket"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:184
+msgid "Remove library"
+msgstr "Ta bort biblioteket"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:204
 msgid "Library Maintenance"
 msgstr "Bibliotekunderhåll"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:203
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:205
 msgid "Library metadata backup status"
 msgstr "Säkerhetskopieringsstatus metadatabiblioteket"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:207
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:209
 msgid "Start backing up metadata of all books"
 msgstr "Börjar säkerhetskopiera metadata för alla böcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:211
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:213
 msgid "Check library"
 msgstr "Kontrollera biblioteket"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:215
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:217
 msgid "Restore database"
 msgstr "Återställ databasen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:305
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:307
 msgid "Rename"
 msgstr "Byt namn"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:306
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:308
 #, python-format
 msgid "Choose a new name for the library <b>%s</b>. "
 msgstr "Välj ett nytt namn på biblioteket <b>%s </b>. "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:307
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:309
 msgid "Note that the actual library folder will be renamed."
 msgstr "Observera dock att själva bibliotekamappen kommer att döpas om."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:314
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:316
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:729
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:312
 msgid "Already exists"
 msgstr "Finns redan"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:315
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:317
 #, python-format
 msgid "The folder %s already exists. Delete it first."
 msgstr "Mappen %s finns redan. Ta bort den först."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:319
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:381
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:321
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:383
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:746
 msgid "Too long"
 msgstr "För lång"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:324
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:326
 msgid "Not found"
 msgstr "Hittades integrerade"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:325
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:327
 #, python-format
 msgid ""
 "Cannot rename as no library was found at %s. Try switching to this library "
 "first, then switch back and retry the renaming."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:335
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:337
 msgid "Rename failed"
 msgstr "Namnbyte misslyckades"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:336
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:338
 #, python-format
 msgid ""
 "Failed to rename the library at %s. The most common cause for this is if one "
@@ -5817,11 +5817,11 @@ msgstr ""
 "Misslyckades med att byta namn på biblioteket på %s. Den vanligaste orsaken "
 "till detta är om en av filerna i biblioteket är öppen i ett annat program."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:350
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:352
 msgid "Library removed"
 msgstr "Bibliotek flyttat"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:351
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:353
 #, python-format
 msgid ""
 "The library %s has been removed from calibre. The files remain on your "
@@ -5830,24 +5830,24 @@ msgstr ""
 "Biblioteket %s har tagits bort från calibre. Filerna finns kvar på din "
 "dator, om du vill ta bort dem, måste du att göra det manuellt."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:364
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:366
 msgid "none"
 msgstr "inga"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:365
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:367
 msgid "Backup status"
 msgstr "Säkerhetskoperingsstatus ..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:366
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:368
 #, python-format
 msgid "Book metadata files remaining to be written: %s"
 msgstr "Bokmetadatafiler som återstår att skrivas:%s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:372
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:374
 msgid "Backup metadata"
 msgstr "Säkerhetskopiera metadata"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:373
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:375
 msgid ""
 "Metadata will be backed up while calibre is running, at the rate of "
 "approximately 1 book every three seconds."
@@ -5855,7 +5855,7 @@ msgstr ""
 "Metadata kommer att backas upp medan caliber är igång, till en kurs av cirka "
 "1 bok var tredje sekund."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:382
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:384
 #, python-format
 msgid ""
 "Path to library too long. Must be less than %d characters. Move your library "
@@ -5866,7 +5866,7 @@ msgstr ""
 "biblioteket till en plats med en kortare bana med Utforskaren i Windows, led "
 "calibre till den nya platsen och försök igen."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:417
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:419
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:736
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:88
@@ -5875,7 +5875,7 @@ msgstr ""
 msgid "Success"
 msgstr "Lyckades"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:418
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:420
 msgid ""
 "Found no errors in your calibre library database. Do you want calibre to "
 "check if the files in your  library match the information in the database?"
@@ -5884,7 +5884,7 @@ msgstr ""
 "kontrollera om filerna i biblioteket överensstämmer med de uppgifter i "
 "databasen?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:423
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:425
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:250
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:975
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1007
@@ -5895,32 +5895,32 @@ msgstr ""
 msgid "Failed"
 msgstr "Misslyckades"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:424
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:426
 msgid "Database integrity check failed, click Show details for details."
 msgstr ""
 "Databasintegritet misslyckades, klicka på Visa detaljer för mer information."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:428
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:430
 msgid "Starting library scan, this may take a while"
 msgstr "Starta bibliotekgenomsökning, detta Håkan ta en stund"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:434
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:436
 msgid "No problems found"
 msgstr "Hittade inga problem"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:435
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:437
 msgid "The files in your library match the information in the database."
 msgstr "Inga problem upptäcktes"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:534
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:539
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:536
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:541
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:278
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:1016
 msgid "Not allowed"
 msgstr "Tillåẗs ej"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:535
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:537
 msgid ""
 "You cannot change libraries while using the environment variable "
 "CALIBRE_OVERRIDE_DATABASE_PATH."
@@ -5928,7 +5928,7 @@ msgstr ""
 "Du kan inte ändra bibliotek medan du använder CALIBRE_OVERRIDE_DATABASE_PATH "
 "miljövariabeln."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:540
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:542
 msgid "You cannot change libraries while jobs are running."
 msgstr "Du kan inte ändra bibliotek medan jobb körs."
 
@@ -5967,9 +5967,8 @@ msgid "Empty output file, probably the conversion process crashed"
 msgstr "Tom utfil, förmodligen kraschade konverteringsprocessen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:86
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:401
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:405
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:221
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:68
 #, python-format
 msgid "%(title)s by %(author)s"
 msgstr ""
@@ -7135,38 +7134,19 @@ msgstr ""
 "Calibre och lägga till böcker i mindre steg, tills du hittar boken som ger "
 "upphov till problemet."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:396
-msgid "Already in calibre:"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:404
-msgid "You are trying to add:"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:409
-#: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:223
-msgid "Duplicates found!"
-msgstr "Dubbletter hittades!"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:410
-msgid ""
-"Books with the same title as the following already exist in calibre. Add "
-"them anyway?"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:413
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:398
 msgid "Adding duplicates..."
 msgstr "Lägger till dubbletter ..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:482
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:467
 msgid "Saving..."
 msgstr "Sparar..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:489
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:474
 msgid "Collecting data, please wait..."
 msgstr "Insamling av data, var god vänta ..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:561
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:546
 msgid "Saved"
 msgstr "Sparat"
 
@@ -7268,8 +7248,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:88
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor_ui.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor_ui.py:82
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:584
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:589
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:593
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:598
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:103
@@ -7326,6 +7306,11 @@ msgstr ""
 msgid ""
 "&Multiple books per folder, assumes every ebook file is a different book"
 msgstr "Flera böcker per &mapp, antar varje ebokfil är en annorlunda bok"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:21
+msgid "Duplicates found!"
+msgstr "Dubbletter hittades!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:224
 msgid ""
@@ -7500,7 +7485,7 @@ msgstr "utdata"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:68
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:138
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:124
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:114
@@ -8474,7 +8459,7 @@ msgstr ""
 "alternativ bestämmer storleken på detta indrag."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:213
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:557
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:566
 msgid "No change"
 msgstr "Ingen ändring"
 
@@ -8729,7 +8714,7 @@ msgid "Change the title of this book"
 msgstr "Ändra titeln på denna bok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:166
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:549
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:558
 msgid "&Author(s): "
 msgstr "Författare: "
 
@@ -8746,7 +8731,7 @@ msgstr ""
 "kommatecken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:169
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:559
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:568
 msgid "&Publisher: "
 msgstr "Förlag: "
 
@@ -8755,7 +8740,7 @@ msgid "Ta&gs: "
 msgstr "Etiketter: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:171
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:561
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:570
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1104
 msgid ""
 "Tags categorize the book. This is particularly useful while searching. "
@@ -8766,7 +8751,7 @@ msgstr ""
 "kommatecken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:172
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:568
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:577
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:198
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:458
 msgid "&Series:"
@@ -8774,8 +8759,8 @@ msgstr "&Serier:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:174
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:569
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:570
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:578
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:579
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:457
 msgid "List of known series. You can add new series."
 msgstr "Lista över kända serier. Du kan lägga till nya serier."
@@ -9561,10 +9546,10 @@ msgstr "Omslagsbläddraren kunde inte laddas"
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:153
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:187
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:672
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:713
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:736
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:787
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:680
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:721
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:744
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:795
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:348
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:356
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:83
@@ -9577,23 +9562,23 @@ msgid "Undefined"
 msgstr "Odefinierad"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:130
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:744
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:752
 msgid "star(s)"
 msgstr "stjärna (or)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:131
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:745
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:753
 msgid "Unrated"
 msgstr "Ej Rankat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:174
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:774
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:782
 #, python-format
 msgid "Set '%s' to today"
 msgstr "Sätt '%s' till i dag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:176
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:776
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:784
 #, python-format
 msgid "Clear '%s'"
 msgstr "Rensa '%s'"
@@ -9612,11 +9597,11 @@ msgid ""
 "discard or apply these changes. Apply changes?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:373
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:374
 msgid " index:"
 msgstr " index:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:436
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:444
 msgid ""
 "The enumeration \"{0}\" contains an invalid value that will be set to the "
 "default"
@@ -9624,23 +9609,23 @@ msgstr ""
 "Uppräkningen \"{0}\" innehåller ett ogiltigt värde som kommer att sättas "
 "till standard"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:627
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:635
 msgid "Apply changes"
 msgstr "Verkställ ändringar"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:820
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:828
 msgid "Remove series"
 msgstr "Ta bort serie"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:823
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:831
 msgid "Automatically number books"
 msgstr "Automatiskt numrera böcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:826
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:834
 msgid "Force numbers to start with "
 msgstr "Tvinga nummerstart att börja med "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:896
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:904
 msgid ""
 "The enumeration \"{0}\" contains invalid values that will not appear in the "
 "list"
@@ -9648,15 +9633,15 @@ msgstr ""
 "Uppräkningen \"{0}\" innehåller ogiltiga värden som inte kommer att visas i "
 "listan"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:940
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:948
 msgid "Remove all tags"
 msgstr "Ta bort alla taggar"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:960
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:968
 msgid "tags to add"
 msgstr "taggar för att lägga till"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:967
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:975
 msgid "tags to remove"
 msgstr "taggar för att ta bort"
 
@@ -10808,6 +10793,24 @@ msgstr ""
 "          finns på <a href=\"http://drmfree.calibre-ebook.com\"> öppna "
 "böcker </a>."
 
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:27
+msgid ""
+"Books with the same titles as the following already exist in calibre. Select "
+"which books you want added anyway."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:45
+msgid "Select &all"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:47
+msgid "Select &none"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:89
+msgid "Already in calibre:"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:52
 msgid "Author sort"
 msgstr "Författarsortering"
@@ -10881,7 +10884,7 @@ msgid "Manage authors"
 msgstr "Hantera författare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:88
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:629
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:638
 msgid "&Search for:"
 msgstr "&Sök efter:"
 
@@ -11163,7 +11166,7 @@ msgstr ""
 "Fas {0} {1}%%."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1023
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:619
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:628
 msgid "Delete saved search/replace"
 msgstr "Ta bort sparade sök och ersätt"
 
@@ -11193,23 +11196,23 @@ msgstr ""
 "Det sparade sök / ersätt finns redan och kommer att skrivas över. Är du "
 "säker?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:548
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:557
 msgid "Edit Meta information"
 msgstr "Redigera metainformation"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:550
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:559
 msgid "A&utomatically set author sort"
 msgstr "Ställ in författarsortering a&utomatiskt"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:551
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:560
 msgid "&Swap title and author"
 msgstr "Byt plats på titel och författare"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:552
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:561
 msgid "Author s&ort: "
 msgstr "Författars&ortering "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:553
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:562
 msgid ""
 "Specify how the author(s) of this book should be sorted. For example Charles "
 "Dickens should be sorted as Dickens, Charles."
@@ -11217,57 +11220,57 @@ msgstr ""
 "Ange hur författaren till denna bok ska sorteras. Exempel: Charles Dickens "
 "ska sorteras som Dickens, Charles."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:554
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:563
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1059
 msgid "&Rating:"
 msgstr "Betyg:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:555
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:556
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:564
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:565
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1060
 msgid "Rating of this book. 0-5 stars"
 msgstr "Betyg på boken: 0-5 stjärnor"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:558
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:567
 msgid " stars"
 msgstr " stjärnor"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:560
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:569
 msgid "Add ta&gs: "
 msgstr "Lägg till etiketter: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:562
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:563
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:571
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:572
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:193
 msgid "Open Tag Editor"
 msgstr "Öppna etikettredigeraren"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:564
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:573
 msgid "&Remove tags:"
 msgstr "Ta bo&rt etiketter:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:565
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:574
 msgid "Comma separated list of tags to remove from the books. "
 msgstr "Kommaseparerad lista med etiketter att ta bort från böckerna. "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:566
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:575
 msgid "Check this box to remove all tags from the books."
 msgstr "Markera den här rutan för att ta bort alla taggar från böckerna."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:567
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:592
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:576
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:601
 msgid "Remove &all"
 msgstr "Ta bort &alla"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:571
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:580
 msgid "If checked, the series will be cleared"
 msgstr "Om markerad, kommer serien rensas"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:572
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:581
 msgid "&Clear series"
 msgstr "&Rensa serie"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:573
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:582
 msgid ""
 "If not checked, the series number for the books will be set to 1.\n"
 "If checked, selected books will be automatically numbered, in the order\n"
@@ -11279,11 +11282,11 @@ msgstr ""
 "du valde dem. Så om du valt Bok A och sedan bok B,\n"
 "kommer Bok A ha serie nummer 1 och Bok B serie nummer 2."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:577
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:586
 msgid "&Automatically number books in this series"
 msgstr "&Automatiskt numrera böcker i denna serie"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:578
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:587
 msgid ""
 "Series will normally be renumbered from the highest number in the database\n"
 "for that series. Checking this box will tell calibre to start numbering\n"
@@ -11293,42 +11296,42 @@ msgstr ""
 "för den serien. Kryssa i denna ruta kommer att Calibre ska börja numrering\n"
 "från värdet i rutan"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:581
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:590
 msgid "&Force numbers to start with:"
 msgstr "&Tvinga nummer att börja med:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:582
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:591
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1398
 msgid "&Date:"
 msgstr "&Datum:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:583
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:592
 msgid "d MMM yyyy"
 msgstr "d MMM yyyy"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:585
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:590
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:594
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:599
 msgid "&Apply date"
 msgstr "&Tillämpa datum"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:586
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:595
 msgid "&Published:"
 msgstr "&Utgiven:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:588
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:597
 msgid "Clear published date"
 msgstr "Klart utgivningsdatum"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:591
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:600
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1167
 msgid "&Languages:"
 msgstr "&Språk:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:593
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:602
 msgid "Remove &format:"
 msgstr "Ta bort &format:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:594
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:603
 msgid ""
 "When doing a same format to same format conversion, \n"
 "for e.g., EPUB to EPUB, calibre saves the original EPUB\n"
@@ -11337,11 +11340,11 @@ msgid ""
 " conversion of a large number of books and something went wrong."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:599
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:608
 msgid "Restore pre conversion &originals, if available"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:600
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:609
 msgid ""
 "Force the title to be in title case. If both this and swap authors are "
 "checked,\n"
@@ -11350,11 +11353,11 @@ msgstr ""
 "Tvinga titel till titelmod. Om både denna och växlade författare är vald,\n"
 "växlas titel och författare före rubrikmod sätts"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:602
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:611
 msgid "Change title to title &case"
 msgstr "Ändra titel till titelformat"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:603
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:612
 msgid ""
 "Update title sort based on the current title. This will be applied only "
 "after other changes to title."
@@ -11362,11 +11365,11 @@ msgstr ""
 "Uppdatera titelsortering baserat på den aktuella titeln. Detta kommer att "
 "tillämpas först efter andra ändringar av titel."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:604
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:613
 msgid "Update &title sort"
 msgstr "Uppdatera &titelsortering"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:605
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:614
 msgid ""
 "Remove stored conversion settings for the selected books.\n"
 "\n"
@@ -11377,71 +11380,71 @@ msgstr ""
 "Framtida omvandling av dessa böcker kommer att använda "
 "standardinställningarna."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:608
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:617
 msgid "Remove &stored conversion settings for the selected books"
 msgstr "Ta bort &lagrade inställningar omställning för de valda böckerna"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:609
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:618
 msgid "Change &cover"
 msgstr "Ändra &omslag"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:610
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:619
 msgid "&Generate default cover"
 msgstr "&Generera standard omslag"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:611
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:620
 msgid "&Remove cover"
 msgstr "&Ta bort omslag"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:612
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:621
 msgid "Set from &ebook file(s)"
 msgstr "Ställ in från & ebokfil(er)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:613
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:622
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:580
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:747
 msgid "&Basic metadata"
 msgstr "&Grundläggande metadata"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:614
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:623
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:587
 msgid "&Custom metadata"
 msgstr "&Anpassat metadata"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:615
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:624
 msgid "Load searc&h/replace:"
 msgstr "Fyll Sökning/ersätt:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:616
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:625
 msgid "Select saved search/replace to load."
 msgstr "Välj laddning av sparade sökning / ersättning."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:617
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:626
 msgid "Save current search/replace"
 msgstr "Spara aktuell sökning / ersättning"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:618
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:627
 msgid "Sa&ve"
 msgstr "&Spara"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:620
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:629
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:64
 msgid "Delete"
 msgstr "Ta bort"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:621
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:630
 msgid "Search &field:"
 msgstr "Sök&fält:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:622
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:631
 msgid "The name of the field that you want to search"
 msgstr "Namnet på fältet som du vill söka"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:623
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:632
 msgid "Search &mode:"
 msgstr "Sök &läge:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:624
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:633
 msgid ""
 "Choose whether to use basic text matching or advanced regular expression "
 "matching"
@@ -11449,31 +11452,31 @@ msgstr ""
 "Välj om du vill använda grundläggande text jämförda eller avancerade "
 "reguljära uttryck som passar"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:625
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:647
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:634
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:656
 msgid "Identifier type:"
 msgstr "Identifierartyp:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:626
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:648
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:635
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:657
 msgid "Choose which identifier type to operate upon"
 msgstr "Välj vilken identifierartyp att tillämpa på"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:627
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:636
 msgid "Te&mplate:"
 msgstr "&Mall"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:628
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:637
 msgid "Enter a template to be used as the source for the search/replace"
 msgstr "Ange en mall som ska användas som källa för sök / ersätt"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:630
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:639
 msgid ""
 "Enter what you are looking for, either plain text or a regular expression, "
 "depending on the mode"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:631
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:640
 msgid ""
 "Check this box if the search string must match exactly upper and lower case. "
 "Uncheck it if case is to be ignored"
@@ -11481,15 +11484,15 @@ msgstr ""
 "Markera denna ruta om söksträngen måste passa exakt versaler och gemener. "
 "Avmarkera den om skiftläget inte skall beaktas"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:632
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:641
 msgid "Cas&e sensitive"
 msgstr "Kastläges känslig"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:633
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:642
 msgid "&Replace with:"
 msgstr "E&rsätt med:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:634
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:643
 msgid ""
 "The replacement text. The matched search text will be replaced with this "
 "string"
@@ -11497,11 +11500,11 @@ msgstr ""
 "Ersättningstexten. Den passande söktexten kommer att ersättas med den här "
 "strängen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:635
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:644
 msgid "&Apply function after replace:"
 msgstr "&Verkställ funktion efter ersätta:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:636
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:645
 msgid ""
 "Specify how the text is to be processed after matching and replacement. In "
 "character mode, the entire\n"
@@ -11512,11 +11515,11 @@ msgstr ""
 "teckenläge, behandlas hela\n"
 "området. I reguljär uttrycksläge bearbetas endast den jämförda texten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:638
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:647
 msgid "&Destination field:"
 msgstr "&Destinationsfält:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:639
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:648
 msgid ""
 "The field that the text will be put into after all replacements.\n"
 "If blank, the source field is used if the field is modifiable"
@@ -11524,15 +11527,15 @@ msgstr ""
 "Det område som i texten kommer att användasi efter alla byten.\n"
 "Om tomt, används  källfält på fältet som kan förändras"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:641
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:650
 msgid "M&ode:"
 msgstr "&Läge:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:642
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:651
 msgid "Specify how the text should be copied into the destination."
 msgstr "Ange hur texten ska kopieras till destinationen."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:643
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:652
 msgid ""
 "Specifies whether result items should be split into multiple values or\n"
 "left as single values. This option has the most effect when the source field "
@@ -11543,23 +11546,23 @@ msgstr ""
 "kvar som enskilda värden. Detta alternativ har mest effekt när källfältet\n"
 "inte är en flera och målfältet är flera"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:646
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:655
 msgid "Split &result"
 msgstr "Dela upp &resultat"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:649
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:658
 msgid "For multiple-valued fields, sho&w"
 msgstr "För flera värdefulla områden, &visa"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:650
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:659
 msgid "values starting a&t"
 msgstr "värden startar &på"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:651
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:660
 msgid "with values separated b&y"
 msgstr "med värden avgränsade &med"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:652
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:661
 msgid ""
 "Used when displaying test results to separate values in multiple-valued "
 "fields"
@@ -11567,19 +11570,19 @@ msgstr ""
 "Används vid visning av testresultat för att separera värden i "
 "flervärderadesområden"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:653
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:662
 msgid "Test text"
 msgstr "Testtext"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:654
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:663
 msgid "Test result"
 msgstr "Testresultat"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:655
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:664
 msgid "Your test:"
 msgstr "Ditt test:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:656
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:665
 msgid "&Search and replace"
 msgstr "&Sök och ersätt"
 
@@ -11589,14 +11592,14 @@ msgstr "Lösenord krävs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:211
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:147
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:133
 msgid "&Username:"
 msgstr "Användarnamn:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:212
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:139
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:146
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:135
 msgid "&Password:"
 msgstr "Lösenord:"
@@ -11604,7 +11607,7 @@ msgstr "Lösenord:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:213
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:94
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:148
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:155
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:81
 msgid "&Show password"
 msgstr "Vi&sa lösenord"
@@ -13699,19 +13702,19 @@ msgstr ""
 "<p>Sök i listan med böcker efter titel, författare, förlag, taggar, "
 "kommentarer, m.m. <br><br>Ord separerade med mellanslag får relationen OCH"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/layout.py:208
+#: /home/kovid/work/calibre/src/calibre/gui2/layout.py:209
 msgid "&Go!"
 msgstr "&Kör!"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/layout.py:214
+#: /home/kovid/work/calibre/src/calibre/gui2/layout.py:215
 msgid "Do Quick Search (you can also press the Enter key)"
 msgstr "Utför snabbsökning (du kan också trycka på Enter)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/layout.py:220
+#: /home/kovid/work/calibre/src/calibre/gui2/layout.py:221
 msgid "Reset Quick Search"
 msgstr "Återställ snabbsökning"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/layout.py:236
+#: /home/kovid/work/calibre/src/calibre/gui2/layout.py:237
 msgid "Copy current search text (instead of search name)"
 msgstr "Kopiera aktuell söktext (i stället för söknamn)"
 
@@ -16990,7 +16993,7 @@ msgstr "Åtkomstlogg:"
 msgid "You need to restart the server for changes to take effect"
 msgstr "Du måste starta om servern för att ändringarna ska gälla"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:140
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:147
 msgid ""
 "<p>If you leave the password blank, anyone will be able to\n"
 " access your book collection using the web interface.\n"
@@ -17000,7 +17003,7 @@ msgid ""
 "password."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:144
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:151
 msgid ""
 "The maximum size (widthxheight) for displayed covers. Larger covers are "
 "resized. "
@@ -17008,27 +17011,27 @@ msgstr ""
 "Den maximala storleken (breddxhöjd) som omslag får visas i. Större omslag "
 "skalas ned. "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:145
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:152
 msgid "Max. &cover size:"
 msgstr "Största omslagsstorlek:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:153
 msgid "Server &port:"
 msgstr "Server&port:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:149
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:156
 msgid "Max. &OPDS items per query:"
 msgstr "Max. &OPDS-poster per fråga:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:150
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:157
 msgid "Max. OPDS &ungrouped items:"
 msgstr "Max. antal ogr&upperade OPDS-poster"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:151
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:158
 msgid "Restriction (saved search) to apply:"
 msgstr "Begränsning (sparad sökning) gäller:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:152
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:159
 msgid ""
 "This restriction (based on a saved search) will restrict the books the "
 "content server makes available to those matching the search. This setting is "
@@ -17039,41 +17042,41 @@ msgstr ""
 "sökningen. Denna inställning är per bibliotek (dvs du kan ha en annan "
 "begränsning per bibliotek)."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:153
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:160
 msgid ""
 "<p>Some devices have browsers that do not support authentication. If you are "
 "having trouble downloading files from the content server, trying removing "
 "the password."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:161
 msgid "Password incompatible with some devices"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:155
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:162
 msgid "&URL Prefix:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:156
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:163
 msgid ""
 "A prefix that is applied to all URLs in the content server. Useful only if "
 "you plan to put the server behind another server like Apache, with a reverse "
 "proxy."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:157
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:164
 msgid "&Start Server"
 msgstr "&Starta servern"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:158
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:165
 msgid "St&op Server"
 msgstr "St&oppa servern"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:159
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:166
 msgid "&Test Server"
 msgstr "&Testa servern"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:160
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:167
 msgid ""
 "calibre contains a network server that allows you to access your book "
 "collection using a browser from anywhere in the world. Any changes to the "
@@ -17083,22 +17086,23 @@ msgstr ""
 "var som helst i världen med hjälp av en webbläsare. Eventuella ändringar i "
 "inställningarna träder i kraft först efter en serveromstart."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:161
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:168
 msgid "Run server &automatically when calibre starts"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:162
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:169
 msgid "View &server logs"
 msgstr "Visa &serverloggar"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:163
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:170
 msgid ""
 "<p>Remember to leave calibre running as the server only runs as long as "
 "calibre is running.\n"
 "<p>To connect to the calibre server from your device you should use a URL of "
-"the form <b>http://myhostname:8080</b> as a new catalog in the Stanza reader "
-"on your iPhone. Here myhostname should be either the fully qualified "
-"hostname or the IP address of the computer calibre is running on."
+"the form <b>http://myhostname:8080</b>. Here myhostname should be either the "
+"fully qualified hostname or the IP address of the computer calibre is "
+"running on. If you want to access the server from anywhere in the world, you "
+"will have to setup port forwarding for it on your router."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:25
@@ -20222,7 +20226,7 @@ msgid ""
 "Applies to AZW3, ePub, MOBI output formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:287
+#: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:288
 msgid ""
 "\n"
 "*** Adding 'By Authors' Section required for MOBI output ***"
@@ -21196,11 +21200,11 @@ msgstr ""
 "\n"
 "För hjälp med ett enskilt kommando: %%prog command --help\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:661
+#: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:663
 msgid "No label was provided"
 msgstr "Ingen etikett angavs"
 
-#: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:663
+#: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:665
 msgid ""
 "The label must contain only lower case letters, digits and underscores, and "
 "start with a letter"
