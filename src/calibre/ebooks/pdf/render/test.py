@@ -83,13 +83,16 @@ def run(dev, func):
             raise SystemExit(1)
 
 def brush(p, xmax, ymax):
-    x = xmax/3
+    x = 0
     y = 0
     w = xmax/2
-    pix = QPixmap(I('console.png'))
-    p.fillRect(x, y, w, w, QBrush(pix))
-
-    p.fillRect(0, y+xmax/1.9, w, w, QBrush(pix))
+    g = QLinearGradient(QPointF(x, y+w/3), QPointF(x, y+(2*w/3)))
+    g.setColorAt(0, QColor('#f00'))
+    g.setColorAt(0.5, QColor('#fff'))
+    g.setColorAt(1, QColor('#00f'))
+    g.setSpread(g.ReflectSpread)
+    p.fillRect(x, y, w, w, QBrush(g))
+    p.drawRect(x, y, w, w)
 
 def pen(p, xmax, ymax):
     pix = QPixmap(I('console.png'))
@@ -110,7 +113,7 @@ def main():
     app
     tdir = os.path.abspath('.')
     pdf = os.path.join(tdir, 'painter.pdf')
-    func = full
+    func = brush
     dpi = 100
     with open(pdf, 'wb') as f:
         dev = PdfDevice(f, xdpi=dpi, ydpi=dpi, compress=False)

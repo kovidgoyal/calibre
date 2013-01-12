@@ -37,16 +37,17 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
 
     if attachment_data is not None:
         from email.mime.base import MIMEBase
+        from email.header import Header
         assert attachment_data and attachment_name
         try:
             maintype, subtype = attachment_type.split('/', 1)
         except AttributeError:
             maintype, subtype = 'application', 'octet-stream'
-        msg = MIMEBase(maintype, subtype)
+        msg = MIMEBase(maintype, subtype, name=Header(attachment_name, 'utf-8').encode())
         msg.set_payload(attachment_data)
         encoders.encode_base64(msg)
         msg.add_header('Content-Disposition', 'attachment',
-                       filename=attachment_name)
+                       filename=Header(attachment_name, 'utf-8').encode())
         outer.attach(msg)
 
     return outer.as_string()

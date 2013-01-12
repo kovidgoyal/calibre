@@ -16,6 +16,7 @@ from PyQt4.Qt import (
 from calibre.ebooks.pdf.render.common import (
     Name, Array, fmtnum, Stream, Dictionary)
 from calibre.ebooks.pdf.render.serialize import Path
+from calibre.ebooks.pdf.render.gradients import LinearGradientPattern
 
 def convert_path(path): # {{{
     p = Path()
@@ -280,10 +281,11 @@ class GraphicsState(object):
 
 class Graphics(object):
 
-    def __init__(self):
+    def __init__(self, page_width_px, page_height_px):
         self.base_state = GraphicsState()
         self.current_state = GraphicsState()
         self.pending_state = None
+        self.page_width_px, self.page_height_px = (page_width_px, page_height_px)
 
     def begin(self, pdf):
         self.pdf = pdf
@@ -360,7 +362,7 @@ class Graphics(object):
         pdf = self.pdf
 
         pattern = color = pat = None
-        opacity = 1.0
+        opacity = global_opacity
         do_fill = True
 
         matrix = (QTransform.fromTranslate(brush_origin.x(), brush_origin.y())
@@ -369,29 +371,30 @@ class Graphics(object):
         self.brushobj = None
 
         if style <= Qt.DiagCrossPattern:
-            opacity = global_opacity * vals[-1]
+            opacity *= vals[-1]
             color = vals[:3]
 
             if style > Qt.SolidPattern:
                 pat = QtPattern(style, matrix)
-                pattern = pdf.add_pattern(pat)
-
-            if opacity < 1e-4 or style == Qt.NoBrush:
-                do_fill = False
 
         elif style == Qt.TexturePattern:
             pat = TexturePattern(brush.texture(), matrix, pdf)
-            opacity = global_opacity
             if pat.paint_type == 2:
                 opacity *= vals[-1]
                 color = vals[:3]
-            pattern = pdf.add_pattern(pat)
 
-            if opacity < 1e-4 or style == Qt.NoBrush:
-                do_fill = False
+        elif style == Qt.LinearGradientPattern:
+            pat = LinearGradientPattern(brush, matrix, pdf, self.page_width_px,
+                                        self.page_height_px)
+            opacity *= pat.const_opacity
+        # TODO: Add support for radial/conical gradient fills
 
+        if opacity < 1e-4 or style == Qt.NoBrush:
+            do_fill = False
         self.brushobj = Brush(brush_origin, pat, color)
-        # TODO: Add support for gradient fills
+
+        if pat is not None:
+            pattern = pdf.add_pattern(pat)
         return color, opacity, pattern, do_fill
 
     def apply_stroke(self, state, pdf_system, painter):
@@ -453,7 +456,10 @@ class Graphics(object):
         TexturePatterns and it also uses TexturePatterns to emulate gradients,
         leading to brokenness. So this method allows the paint engine to update
         the brush origin before painting an object. While not perfect, this is
-        better than nothing.
+        better than nothing. The problem is that if the rect being filled has a
+        border, then QtWebKit generates an image of the rect size - border but
+        fills the full rect, and there's no way for the paint engine to know
+        that and adjust the brush origin.
         '''
         if not hasattr(self, 'last_fill') or not self.current_state.do_fill:
             return

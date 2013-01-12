@@ -88,13 +88,16 @@ class DateDelegate(QStyledItemDelegate): # {{{
 
 class PubDateDelegate(QStyledItemDelegate): # {{{
 
+    def __init__(self, *args, **kwargs):
+        QStyledItemDelegate.__init__(self, *args, **kwargs)
+        self.format = tweaks['gui_pubdate_display_format']
+        if self.format is None:
+            self.format = 'MMM yyyy'
+
     def displayText(self, val, locale):
         d = val.toDateTime()
         if d <= UNDEFINED_QDATETIME:
             return ''
-        self.format = tweaks['gui_pubdate_display_format']
-        if self.format is None:
-            self.format = 'MMM yyyy'
         return format_date(qt_to_dt(d, as_utc=False), self.format)
 
     def createEditor(self, parent, option, index):

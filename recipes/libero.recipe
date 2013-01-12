@@ -15,7 +15,7 @@ class LiberoNews(BasicNewsRecipe):
     description   = 'Italian daily newspaper'
 
     #cover_url      = 'http://www.liberoquotidiano.it/images/Libero%20Quotidiano.jpg'
-	cover_url      = 'http://www.edicola.liberoquotidiano.it/vnlibero/fpcut.jsp?testata=milano'
+    cover_url      = 'http://www.edicola.liberoquotidiano.it/vnlibero/fpcut.jsp?testata=milano'
     title          = u'Libero '
     publisher      = 'EDITORIALE LIBERO s.r.l 2006'
     category       = 'News, politics, culture, economy, general interest'

@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import codecs, zlib
 from io import BytesIO
+from datetime import datetime
 
 from calibre.constants import plugins, ispy3
 
@@ -65,14 +66,20 @@ def fmtnum(o):
 def serialize(o, stream):
     if isinstance(o, float):
         stream.write_raw(pdf_float(o).encode('ascii'))
+    elif isinstance(o, bool):
+        # Must check bool before int as bools are subclasses of int
+        stream.write_raw(b'true' if o else b'false')
     elif isinstance(o, (int, long)):
         stream.write_raw(icb(o))
     elif hasattr(o, 'pdf_serialize'):
         o.pdf_serialize(stream)
     elif o is None:
         stream.write_raw(b'null')
-    elif isinstance(o, bool):
-        stream.write_raw(b'true' if o else b'false')
+    elif isinstance(o, datetime):
+        val = o.strftime("D:%Y%m%d%H%M%%02d%z")%min(59, o.second)
+        if datetime.tzinfo is not None:
+            val = "(%s'%s')"%(val[:-2], val[-2:])
+        stream.write(val.encode('ascii'))
     else:
         raise ValueError('Unknown object: %r'%o)
 

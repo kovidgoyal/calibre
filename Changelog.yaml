@@ -5,7 +5,7 @@
 # Also, each release can have new and improved recipes.
 
 # - version: ?.?.?
-#   date: 2012-??-??
+#   date: 2013-??-??
 #
 #   new features:
 #     - title: 
@@ -18,6 +18,68 @@
 #
 #   new recipes:
 #     - title: 
+
+- version: 0.9.14
+  date: 2013-01-11
+
+  new features:
+    - title: "When adding multiple books and duplicates are found, allow the user to select which of the duplicate books will be added anyway."
+      tickets: [1095256]
+
+    - title: "Device drivers for Kobo Arc on linux, Polaroid Android tablet" 
+      tickets: [1098049]
+
+    - title: "When sorting by series, use the language of the book to decide what leading articles to remove, just as is done for sorting by title"
+ 
+  bug fixes:
+    - title: "PDF Output: Do not error out when the input document contains links with anchors not present in the document."
+      tickets: [1096428]
+
+    - title: "Add support for upgraded db on newest Kobo firmware"
+      tickets: [1095617]
+
+    - title: "PDF Output: Fix typo that broke use of custom paper sizes."
+      tickets: [1097563]
+
+    - title: "PDF Output: Handle empty anchors present at the end of a page"
+
+    - title: "PDF Output: Fix side margins of last page in a flow being incorrect when large side margins are used."
+      tickets: [1096290]
+
+    - title: "Edit metadata dialog: Allow setting the series number for custom series type columns to zero"
+
+    - title: "When bulk editing custom series-type columns and not provding a series number use 1 as the default, instead of None"
+
+    - title: "Catalogs: Fix issue with catalog generation using Hungarian UI and author_sort beginning with multiple letter groups."
+      tickets: [1091581]
+
+    - title: "PDF Output: Dont error out on files that have invalid font-family declarations."
+      tickets: [1096279]
+
+    - title: "Do not load QRawFont at global level, to allow calibre installation on systems with missing dependencies"
+      tickets: [1096170]
+
+    - title: "PDF Output: Fix cover not present in generated PDF files"
+      tickets: [1096098]
+
+  improved recipes:
+    - Sueddeutsche Zeitung mobil
+    - Boerse Online
+    - TidBits
+    - New York Review of Books
+    - Fleshbot
+    - Il Messaggero
+    - Libero
+
+  new recipes:
+    - title: Spectator Magazine, Oxford Mail and Outside Magazine
+      author: Krittika Goyal
+
+    - title: Libartes 
+      author: Darko Miletic
+
+    - title: El Diplo 
+      author: Tomas De Domenico
 
 - version: 0.9.13
   date: 2013-01-04
