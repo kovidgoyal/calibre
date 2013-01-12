@@ -26,7 +26,7 @@
     - title: "When adding multiple books and duplicates are found, allow the user to select which of the duplicate books will be added anyway."
       tickets: [1095256]
 
-    - title: "Device drivers for Kobo Arc on linux, Polaroid Abdroid tablet" 
+    - title: "Device drivers for Kobo Arc on linux, Polaroid Android tablet" 
       tickets: [1098049]
 
     - title: "When sorting by series, use the language of the book to decide what leading articles to remove, just as is done for sorting by title"
