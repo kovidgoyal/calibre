@@ -458,6 +458,7 @@ def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8))
     from calibre.utils.config import to_json
     from calibre.ebooks.metadata.book.json_codec import (object_to_unicode,
                                                          encode_is_multiple)
+
     for name, fm in all_user_metadata.items():
         try:
             fm = copy.copy(fm)
@@ -959,12 +960,13 @@ class OPF(object): # {{{
         def fset(self, val):
             matches = self.uuid_id_path(self.metadata)
             if not matches:
-                attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'uuid', 'id':'uuid_id'}
+                attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'uuid'}
                 matches = [self.create_metadata_element('identifier',
                                                         attrib=attrib)]
             self.set_text(matches[0], unicode(val))
 
         return property(fget=fget, fset=fset)
+
 
     @dynamic_property
     def language(self):
@@ -978,6 +980,7 @@ class OPF(object): # {{{
             self.languages = [val]
 
         return property(fget=fget, fset=fset)
+
 
     @dynamic_property
     def languages(self):
@@ -1002,6 +1005,7 @@ class OPF(object): # {{{
                 self.set_text(l, unicode(lang))
 
         return property(fget=fget, fset=fset)
+
 
     @dynamic_property
     def book_producer(self):
@@ -1148,17 +1152,19 @@ class OPF(object): # {{{
         for attr in ('title', 'authors', 'author_sort', 'title_sort',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'category', 'comments', 'book_producer',
-                     'pubdate', 'user_categories', 'author_link_map','uuid'):
+                     'pubdate', 'user_categories', 'author_link_map'):
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)
         langs = getattr(mi, 'languages', [])
         if langs and langs != ['und']:
             self.languages = langs
-        self.get_identifiers = mi.get_identifiers
         temp = self.to_book_metadata()
         temp.smart_update(mi, replace_metadata=replace_metadata)
         self._user_metadata_ = temp.get_all_user_metadata(True)
+
+    def add_uuid_identifier(self,uuid):
+        setattr(self,'uuid',uuid)
 
 # }}}
 

@@ -289,8 +289,9 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
             langs.append(lc)
         mi.languages = langs
 
-
     reader.opf.smart_update(mi)
+    reader.opf.add_uuid_identifier(mi.uuid)
+
     if apply_null:
         if not getattr(mi, 'series', None):
             reader.opf.series = None
