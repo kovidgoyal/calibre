@@ -6,8 +6,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import re
-
 from contextlib import closing
 from lxml import html
 
@@ -53,7 +51,7 @@ class AmazonUKKindleStore(StorePlugin):
 
             data_xpath = '//div[contains(@class, "prod")]'
             format_xpath = './/ul[contains(@class, "rsltL")]//span[contains(@class, "lrg") and not(contains(@class, "bld"))]/text()'
-            asin_xpath = './/div[@class="image"]/a[1]'
+            asin_xpath = '@name'
             cover_xpath = './/img[@class="productImage"]/@src'
             title_xpath = './/h3[@class="newaps"]/a//text()'
             author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]/text()'
@@ -73,15 +71,9 @@ class AmazonUKKindleStore(StorePlugin):
 
                 # We must have an asin otherwise we can't easily reference the
                 # book later.
-                asin_href = None
-                asin_a = data.xpath(asin_xpath)
-                if asin_a:
-                    asin_href = asin_a[0].get('href', '')
-                    m = re.search(r'/dp/(?P<asin>.+?)(/|$)', asin_href)
-                    if m:
-                        asin = m.group('asin')
-                    else:
-                        continue
+                asin = data.xpath(asin_xpath)
+                if asin:
+                    asin = asin[0]
                 else:
                     continue
 
