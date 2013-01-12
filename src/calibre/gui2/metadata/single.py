@@ -181,6 +181,11 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.basic_metadata_widgets.append(self.comments)
 
         self.rating = RatingEdit(self)
+        self.clear_ratings_button = QToolButton(self)
+        self.clear_ratings_button.setToolTip(_('Clear rating'))
+        self.clear_ratings_button.setIcon(QIcon(I('trash.png')))
+        self.clear_ratings_button.clicked.connect(self.rating.zero)
+
         self.basic_metadata_widgets.append(self.rating)
 
         self.tags = TagsEdit(self)
@@ -659,8 +664,9 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
                 QSizePolicy.Expanding)
         l.addItem(self.tabs[0].spc_one, 1, 0, 1, 3)
         sto(self.cover.buttons[-1], self.rating)
-        create_row2(1, self.rating)
-        sto(self.rating, self.tags_editor_button)
+        create_row2(1, self.rating, self.clear_ratings_button)
+        sto(self.rating, self.clear_ratings_button)
+        sto(self.clear_ratings_button, self.tags_editor_button)
         sto(self.tags_editor_button, self.tags)
         create_row2(2, self.tags, self.clear_tags_button, front_button=self.tags_editor_button)
         sto(self.clear_tags_button, self.paste_isbn_button)
@@ -780,7 +786,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
                    button=self.clear_series_button, icon='trash.png')
         create_row(5, self.series_index, self.tags)
         create_row(6, self.tags, self.rating, button=self.clear_tags_button)
-        create_row(7, self.rating, self.pubdate)
+        create_row(7, self.rating, self.pubdate, button=self.clear_ratings_button)
         create_row(8, self.pubdate, self.publisher,
                    button=self.pubdate.clear_button, icon='trash.png')
         create_row(9, self.publisher, self.languages)
@@ -917,7 +923,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
                    button=self.clear_series_button, icon='trash.png')
         create_row(5, self.series_index, self.tags)
         create_row(6, self.tags, self.rating, button=self.clear_tags_button)
-        create_row(7, self.rating, self.pubdate)
+        create_row(7, self.rating, self.pubdate, button=self.clear_ratings_button)
         create_row(8, self.pubdate, self.publisher,
                    button=self.pubdate.clear_button, icon='trash.png')
         create_row(9, self.publisher, self.languages)

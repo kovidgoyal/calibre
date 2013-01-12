@@ -37,7 +37,7 @@ class KOBO(USBMS):
 
     dbversion = 0
     fwversion = 0
-    supported_dbversion = 65
+    supported_dbversion = 75
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -1537,7 +1537,11 @@ class KOBOTOUCH(KOBO):
                 return bookshelves
 
             cursor = connection.cursor()
-            query = "select ShelfName from ShelfContent where ContentId = ? and _IsDeleted = 'false'"
+            query = "select ShelfName "         \
+                    "from ShelfContent "        \
+                    "where ContentId = ? "      \
+                    "and _IsDeleted = 'false' " \
+                    "and ShelfName is not null"         # This should never be nulll, but it is protection against an error cause by a sync to the Kobo server
             values = (ContentID, )
             cursor.execute(query, values)
             for i, row in enumerate(cursor):

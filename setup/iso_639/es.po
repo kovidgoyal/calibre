@@ -9,14 +9,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-08-15 10:30+0000\n"
+"PO-Revision-Date: 2012-12-28 09:13+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-08-16 04:40+0000\n"
-"X-Generator: Launchpad (build 15810)\n"
+"X-Launchpad-Export-Date: 2012-12-29 05:00+0000\n"
+"X-Generator: Launchpad (build 16378)\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -9584,27 +9584,27 @@ msgstr "Holikachuk"
 
 #. name for hoj
 msgid "Hadothi"
-msgstr ""
+msgstr "Hadoti"
 
 #. name for hol
 msgid "Holu"
-msgstr ""
+msgstr "Holu"
 
 #. name for hom
 msgid "Homa"
-msgstr ""
+msgstr "Homa"
 
 #. name for hoo
 msgid "Holoholo"
-msgstr ""
+msgstr "Holoholo"
 
 #. name for hop
 msgid "Hopi"
-msgstr ""
+msgstr "Hopi"
 
 #. name for hor
 msgid "Horo"
-msgstr ""
+msgstr "Horo"
 
 #. name for hos
 msgid "Ho Chi Minh City Sign Language"
@@ -9612,27 +9612,27 @@ msgstr "Lengua de signos de Ho Chi Minh"
 
 #. name for hot
 msgid "Hote"
-msgstr ""
+msgstr "Hote"
 
 #. name for hov
 msgid "Hovongan"
-msgstr ""
+msgstr "Hovongan"
 
 #. name for how
 msgid "Honi"
-msgstr ""
+msgstr "Honi"
 
 #. name for hoy
 msgid "Holiya"
-msgstr ""
+msgstr "Holiya"
 
 #. name for hoz
 msgid "Hozo"
-msgstr ""
+msgstr "Hozo"
 
 #. name for hpo
 msgid "Hpon"
-msgstr ""
+msgstr "Hpon"
 
 #. name for hps
 msgid "Hawai'i Pidgin Sign Language"
@@ -9640,15 +9640,15 @@ msgstr "Lengua de signos pidyin hawaiana"
 
 #. name for hra
 msgid "Hrangkhol"
-msgstr ""
+msgstr "Hrangkhol"
 
 #. name for hre
 msgid "Hre"
-msgstr ""
+msgstr "Hre"
 
 #. name for hrk
 msgid "Haruku"
-msgstr ""
+msgstr "Haruku"
 
 #. name for hrm
 msgid "Miao; Horned"
@@ -9656,19 +9656,19 @@ msgstr ""
 
 #. name for hro
 msgid "Haroi"
-msgstr ""
+msgstr "Haroi"
 
 #. name for hrr
 msgid "Horuru"
-msgstr ""
+msgstr "Horuru"
 
 #. name for hrt
 msgid "Hértevin"
-msgstr ""
+msgstr "Hértevin"
 
 #. name for hru
 msgid "Hruso"
-msgstr ""
+msgstr "Hruso"
 
 #. name for hrv
 msgid "Croatian"
@@ -11796,7 +11796,7 @@ msgstr ""
 
 #. name for khq
 msgid "Songhay; Koyra Chiini"
-msgstr ""
+msgstr "Songhay koyra chiini"
 
 #. name for khr
 msgid "Kharia"

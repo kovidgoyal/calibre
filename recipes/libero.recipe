@@ -14,7 +14,8 @@ class LiberoNews(BasicNewsRecipe):
     __author__    = 'Marini Gabriele'
     description   = 'Italian daily newspaper'
 
-    cover_url      = 'http://www.libero-news.it/images/logo.png'
+    #cover_url      = 'http://www.liberoquotidiano.it/images/Libero%20Quotidiano.jpg'
+    cover_url      = 'http://www.edicola.liberoquotidiano.it/vnlibero/fpcut.jsp?testata=milano'
     title          = u'Libero '
     publisher      = 'EDITORIALE LIBERO s.r.l 2006'
     category       = 'News, politics, culture, economy, general interest'
@@ -32,10 +33,11 @@ class LiberoNews(BasicNewsRecipe):
     remove_javascript = True
 
     keep_only_tags     = [
-                            dict(name='div', attrs={'class':'Articolo'})
+                            dict(name='div', attrs={'class':'Articolo'}),
+                            dict(name='article')
                          ]
     remove_tags        = [
-                            dict(name='div', attrs={'class':['CommentaFoto','Priva2']}),
+                            dict(name='div', attrs={'class':['CommentaFoto','Priva2','login_commenti','box_16']}),
                             dict(name='div', attrs={'id':['commentigenerale']})
                          ]
     feeds = [

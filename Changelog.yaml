@@ -5,7 +5,7 @@
 # Also, each release can have new and improved recipes.
 
 # - version: ?.?.?
-#   date: 2012-??-??
+#   date: 2013-??-??
 #
 #   new features:
 #     - title: 
@@ -18,6 +18,275 @@
 #
 #   new recipes:
 #     - title: 
+
+- version: 0.9.14
+  date: 2013-01-11
+
+  new features:
+    - title: "When adding multiple books and duplicates are found, allow the user to select which of the duplicate books will be added anyway."
+      tickets: [1095256]
+
+    - title: "Device drivers for Kobo Arc on linux, Polaroid Android tablet" 
+      tickets: [1098049]
+
+    - title: "When sorting by series, use the language of the book to decide what leading articles to remove, just as is done for sorting by title"
+ 
+  bug fixes:
+    - title: "PDF Output: Do not error out when the input document contains links with anchors not present in the document."
+      tickets: [1096428]
+
+    - title: "Add support for upgraded db on newest Kobo firmware"
+      tickets: [1095617]
+
+    - title: "PDF Output: Fix typo that broke use of custom paper sizes."
+      tickets: [1097563]
+
+    - title: "PDF Output: Handle empty anchors present at the end of a page"
+
+    - title: "PDF Output: Fix side margins of last page in a flow being incorrect when large side margins are used."
+      tickets: [1096290]
+
+    - title: "Edit metadata dialog: Allow setting the series number for custom series type columns to zero"
+
+    - title: "When bulk editing custom series-type columns and not provding a series number use 1 as the default, instead of None"
+
+    - title: "Catalogs: Fix issue with catalog generation using Hungarian UI and author_sort beginning with multiple letter groups."
+      tickets: [1091581]
+
+    - title: "PDF Output: Dont error out on files that have invalid font-family declarations."
+      tickets: [1096279]
+
+    - title: "Do not load QRawFont at global level, to allow calibre installation on systems with missing dependencies"
+      tickets: [1096170]
+
+    - title: "PDF Output: Fix cover not present in generated PDF files"
+      tickets: [1096098]
+
+  improved recipes:
+    - Sueddeutsche Zeitung mobil
+    - Boerse Online
+    - TidBits
+    - New York Review of Books
+    - Fleshbot
+    - Il Messaggero
+    - Libero
+
+  new recipes:
+    - title: Spectator Magazine, Oxford Mail and Outside Magazine
+      author: Krittika Goyal
+
+    - title: Libartes 
+      author: Darko Miletic
+
+    - title: El Diplo 
+      author: Tomas De Domenico
+
+- version: 0.9.13
+  date: 2013-01-04
+
+  new features:
+    - title: "Complete rewrite of the PDF Output engine, to support links and fix various bugs"
+      type: major
+      description: "calibre now has a new PDF output engine that supports links in the text. It also fixes various bugs, detailed below. In order to implement support for links and fix these bugs, the engine had to be completely rewritten, so there may be some regressions."
+
+    - title: "Show disabled device plugins in Preferences->Ignored Devices"
+
+    - title: "Get Books: Fix Smashwords, Google books and B&N stores. Add Nook UK store"
+
+    - title: "Allow series numbers lower than -100 for custom series columns."
+      tickets: [1094475]
+
+    - title: "Add mass storage driver for rockhip based android smart phones"
+      tickets: [1087809]
+
+    - title: "Add a clear ratings button to the edit metadata dialog"
+ 
+  bug fixes:
+    - title: "PDF Output: Fix custom page sizes not working on OS X"
+
+    - title: "PDF Output: Fix embedding of many fonts not supported (note that embedding of OpenType fonts with Postscript outlines is still not supported on windows, though it is supported on other operating systems)"
+
+    - title: "PDF Output: Fix crashes converting some books to PDF on OS X"
+      tickets: [1087688]
+
+    - title: "HTML Input: Handle entities inside href attributes when following the links in an HTML file."
+      tickets: [1094203]
+
+    - title: "Content server: Fix custom icons not used for sub categories"
+      tickets: [1095016]
+
+    - title: "Force use of non-unicode constants in compiled templates. Fixes a problem with regular expression character classes and probably other things."
+
+    - title: "Kobo driver: Do not error out if there are invalid dates in the device database"
+      tickets: [1094597]
+
+    - title: "Content server: Fix for non-unicode hostnames when using mDNS"
+      tickets: [1094063]
+
+  improved recipes:
+    - Today's Zaman
+    - The Economist
+    - Foreign Affairs
+    - New York Times
+    - Alternet
+    - Harper's Magazine
+    - La Stampa
+
+- version: 0.9.12
+  date: 2012-12-28
+
+  new features:
+    - title: "Drivers for Kibano e-reader and Slick ER-700-2"
+      tickets: [1093570, 1093732]
+
+    - title: "Add support for downloading metadata from Amazon Brazil."
+      tickets: [1092594]
+
+    - title: "Copy to library: Allow specifying the destination library by path."
+      tickets: [1093231]
+
+    - title: "When adding empty books, allow setting of the series for the new books. Also select the newly added book records after adding."
+
+    - title: "PDF Output: Add a checkbox to override the page size defined by the output profile. This allows you to specify a custom page size even if the output profile is not set to default."
+
+    - title: "Add usb ids for newer kindle fire to the linux mtp driver"
+ 
+  bug fixes:
+    - title: "Linux: Temporarily redirect stdout to get rid of the annoying and pointless message about mtpz during libmtp initialization"
+
+    - title: "Fix multiple 'All column' coloring rules not being applied"
+      tickets: [1093574]
+
+    - title: "Use custom icons in the content server as well."
+      tickets: [1092098]
+
+  improved recipes:
+    - La Voce
+    - Harpers Magazine (printed edition)
+    - Pajamas Media
+    - NSFW corp
+    - The Hindu
+    - Nikkei News
+
+  new recipes:
+    - title: Various Ukranian news sources 
+      author: rpalyvoda
+
+- version: 0.9.11
+  date: 2012-12-21
+
+  new features:
+    - title: "Merry Christmas and Happy Holidays to all ☺"
+
+    - title: "When connecting to MTP devices such as the Kindle Fire HD or the Nook HD, speed up the process by ignoring some folders."
+      description: "calibre will now ignore folders for music, video, pictures, etc. when scanning the device. This can substantially speed up the connection process if you have thousands of non-ebook files on the device. The list of folders to be ignored can be customized by right clicking on the device icon in calibre and selecting 'Configure this device'."
+
+    - title: "Allow changing the icons for categories in the Tag Browser. Right click on a category and choose 'Change category icon'."
+      tickets: [1092098]
+
+    - title: "Allow setting the color of all columns with a single rule in Preferences->Look & Feel->Column Coloring"
+
+    - title: "MOBI: When reading metadata from mobi files, put the contents of the ASIN field into an identifier named mobi-asin. Note that this value is not used when downloading metadata as it is not possible to know which (country specific) amazon website the ASIN comes from."
+      tickets: [1090394]
+ 
+  bug fixes:
+    - title: "Windows build: Fix a regression in 0.9.9 that caused calibre to not start on some windows system that were missing the VC.90 dlls (some older XP systems)"
+
+    - title: "Kobo driver: Workaround for invalid shelves created by bugs in the Kobo server"
+      tickets: [1091932]
+
+    - title: "Metadata download: Fix cover downloading from non-US amazon sites broken by a website change."
+      tickets: [1090765]
+
+  improved recipes:
+    - Le Devoir
+    - Nin online
+    - countryfile
+    - Birmingham Post
+    - The Independent
+    - Various Polish news sources
+
+  new recipes:
+    - title: MobileBulgaria 
+      author: Martin Tsanchev
+
+    - title: Various Polish news sources
+      author: fenuks
+
+- version: 0.9.10
+  date: 2012-12-14
+
+  new features:
+    - title: "Drivers for Nextbook Premium 8 se, HTC Desire X and Emerson EM 543"
+      tickets: [1088149, 1088112, 1087978]
+ 
+  bug fixes:
+    - title: "Fix rich text delegate not working with Qt compiled in debug mode."
+      tickets: [1089011]
+
+    - title: "When deleting all books in the library, blank the book details panel"
+
+    - title: "Conversion: Fix malformed values in the bgcolor attribute causing conversion to abort"
+
+    - title: "Conversion: Fix heuristics applying incorrect style in some circumstances"
+      tickets: [1066507]
+
+    - title: "Possible fix for 64bit calibre not starting up on some Windows systems"
+      tickets: [1087816]
+
+  improved recipes:
+    - Sivil Dusunce
+    - Anchorage Daily News
+    - Le Monde
+    - Harpers
+
+  new recipes:
+    - title: Titanic 
+      author: Krittika Goyal
+
+- version: 0.9.9
+  date: 2012-12-07
+
+  new features:
+    - title: "64 bit build for windows"
+      type: major
+      description: "calibre now has a 64 bit version for windows, available at: http://calibre-ebook.com/download_windows64 The 64bit build is not limited to using only 3GB of RAM when converting large/complex documents. It may also be slightly faster for some tasks. You can have both the 32 bit and the 64 bit build installed at the same time, they will use the same libraries, plugins and settings."
+
+    - title: "Content server: Make the identifiers in each books metadata clickable."
+      tickets: [1085726]
+ 
+  bug fixes:
+    - title: "EPUB Input: Fix an infinite loop while trying to recover a damaged EPUB file."
+      tickets: [1086917]
+
+    - title: "KF8 Input: Fix handling of links in files that link to the obsolete <a name> tags instead of tags with an id attribute."
+      tickets: [1086705]
+
+    - title: "Conversion: Fix a bug in removal of invalid entries from the spine, where not all invalid entries were removed, causing conversion to fail."
+      tickets: [1086054]
+
+    - title: "KF8 Input: Ignore invalid flow references in the KF8 document instead of erroring out on them."
+      tickets: [1085306]
+
+    - title: "Fix command line output on linux systems with incorrect LANG/LC_TYPE env vars."
+      tickets: [1085103]
+
+    - title: "KF8 Input: Fix page breaks specified using the data-AmznPageBreak attribute being ignored by calibre."
+
+    - title: "PDF Output: Fix custom size field not accepting fractional numbers as sizes"
+
+    - title: "Get Books: Update libre.de and publio for website changes"
+
+    - title: "Wireless driver: Increase timeout interval, and when allocating a random port try 9090 first"
+
+  improved recipes:
+    - New York Times
+    - Weblogs SL
+    - Zaman Gazetesi
+    - Aksiyon Dergisi
+    - Endgadget
+    - Metro UK
+    - Heise Online
 
 - version: 0.9.8
   date: 2012-11-30

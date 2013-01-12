@@ -41,6 +41,20 @@ class N516(USBMS):
     def can_handle(self, device_info, debug=False):
         return not is_alex(device_info)
 
+class KIBANO(N516):
+
+    name = 'Kibano driver'
+    gui_name = 'Kibano'
+    description    = _('Communicate with the Kibano eBook reader.')
+    FORMATS     = ['epub', 'pdf', 'txt']
+    BCD         = [0x323]
+
+    VENDOR_NAME      = 'EBOOK'
+    # We use EXTERNAL_SD_CARD for main mem as some devices have not working
+    # main memories
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['INTERNAL_SD_CARD',
+                                             'EXTERNAL_SD_CARD']
+
 class THEBOOK(N516):
     name = 'The Book driver'
     gui_name = 'The Book'

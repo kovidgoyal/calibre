@@ -17,7 +17,7 @@ from urllib import unquote
 
 from calibre.ebooks.chardet import detect_xml_encoding
 from calibre.constants import iswindows
-from calibre import unicode_path, as_unicode
+from calibre import unicode_path, as_unicode, replace_entities
 
 class Link(object):
     '''
@@ -147,6 +147,7 @@ class HTMLFile(object):
                 url = match.group(i)
                 if url:
                     break
+            url = replace_entities(url)
             try:
                 link = self.resolve(url)
             except ValueError:

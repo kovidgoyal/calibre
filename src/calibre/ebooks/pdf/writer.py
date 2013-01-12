@@ -9,18 +9,16 @@ Write content to PDF.
 '''
 
 import os, shutil, json
-from future_builtins import map
 
 from PyQt4.Qt import (QEventLoop, QObject, QPrinter, QSizeF, Qt, QPainter,
         QPixmap, QTimer, pyqtProperty, QString, QSize)
 from PyQt4.QtWebKit import QWebView, QWebPage, QWebSettings
 
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.ebooks.pdf.pageoptions import (unit, paper_size, orientation)
+from calibre.ebooks.pdf.pageoptions import (unit, paper_size)
 from calibre.ebooks.pdf.outline_writer import Outline
-from calibre.ebooks.metadata import authors_to_string
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre import (__appname__, __version__, fit_image, isosx, force_unicode)
+from calibre import (__appname__, __version__, fit_image, isosx)
 from calibre.ebooks.oeb.display.webview import load_html
 
 def get_custom_size(opts):
@@ -52,7 +50,7 @@ def get_pdf_printer(opts, for_comic=False, output_file_name=None): # {{{
         printer.setPaperSize(paper_size(opts.paper_size))
     else:
         if opts.output_profile.short_name == 'default' or \
-                opts.output_profile.width > 9999:
+                opts.output_profile.width > 9999 or opts.override_profile_size:
             if custom_size is None:
                 printer.setPaperSize(paper_size(opts.paper_size))
             else:
@@ -72,7 +70,6 @@ def get_pdf_printer(opts, for_comic=False, output_file_name=None): # {{{
     else:
         printer.setPageMargins(opts.margin_left, opts.margin_top,
                 opts.margin_right, opts.margin_bottom, QPrinter.Point)
-    printer.setOrientation(orientation(opts.orientation))
     printer.setOutputFormat(QPrinter.PdfFormat)
     printer.setFullPage(for_comic)
     if output_file_name:
@@ -102,24 +99,6 @@ def draw_image_page(printer, painter, p, preserve_aspect_ratio=True):
         page_rect.setWidth(nnw)
     painter.drawPixmap(page_rect, p, p.rect())
 
-
-class PDFMetadata(object): # {{{
-    def __init__(self, oeb_metadata=None):
-        self.title = _(u'Unknown')
-        self.author = _(u'Unknown')
-        self.tags = u''
-
-        if oeb_metadata != None:
-            if len(oeb_metadata.title) >= 1:
-                self.title = oeb_metadata.title[0].value
-            if len(oeb_metadata.creator) >= 1:
-                self.author = authors_to_string([x.value for x in oeb_metadata.creator])
-            if oeb_metadata.subject:
-                self.tags = u', '.join(map(unicode, oeb_metadata.subject))
-
-        self.title = force_unicode(self.title)
-        self.author = force_unicode(self.author)
-# }}}
 
 class Page(QWebPage): # {{{
 

@@ -1,33 +1,36 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
 class AdvancedUserRecipe1303841067(BasicNewsRecipe):
 
-    title          = u'Börse-online'
-    __author__  = 'schuster'
-    oldest_article = 1
+    title                 = u'Börse-online'
+    __author__            = 'schuster, Armin Geller'
+    oldest_article        = 1
     max_articles_per_feed = 100
-    no_stylesheets         = True
-    use_embedded_content   = False
-    language               = 'de'
-    remove_javascript      = True
-    cover_url = 'http://www.dpv.de/images/1995/source.gif'
-    masthead_url = 'http://www.zeitschriften-cover.de/cover/boerse-online-cover-januar-2010-x1387.jpg'
-    extra_css = '''
-                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
-                    h4{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
-                    img {min-width:300px; max-width:600px; min-height:300px; max-height:800px}
-                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-	'''
-    remove_tags_bevor = [dict(name='h3')]
-    remove_tags_after = [dict(name='div', attrs={'class':'artikelfuss'})]
-    remove_tags = [dict(attrs={'class':['moduleTopNav', 'moduleHeaderNav', 'text', 'blau', 'poll1150']}),
-                dict(id=['newsletterlayer', 'newsletterlayerClose', 'newsletterlayer_body', 'newsletterarray_error', 'newsletterlayer_emailadress', 'newsletterlayer_submit', 'kommentar']),
-                dict(name=['h2', 'Gesamtranking', 'h3',''])]
+    no_stylesheets        = True
+    use_embedded_content  = False
+    language              = 'de'
+    remove_javascript     = True
+    encoding              = 'iso-8859-1'
+    timefmt               = ' [%a, %d %b %Y]'
+    
+    
+    cover_url = 'http://www.wirtschaftsmedien-shop.de/s/media/coverimages/7576_2013107.jpg'
+    masthead_url = 'http://upload.wikimedia.org/wikipedia/de/5/56/B%C3%B6rse_Online_Logo.svg'
 
+    remove_tags_after = [dict(name='div', attrs={'class':['artikelfuss', 'rahmen600']})]
+    
+    remove_tags = [
+                    dict(name='div', attrs={'id':['breadcrumb', 'rightCol', 'clearall']}),
+                    dict(name='div', attrs={'class':['footer', 'artikelfuss']}),
+                  ]
+
+    keep_only_tags    = [
+                          dict(name='div', attrs={'id':['contentWrapper']})
+                        ]
+
+    feeds          = [(u'Börsennachrichten', u'http://www.boerse-online.de/rss/')]
+    
     def print_version(self, url):
         return url.replace('.html#nv=rss', '.html?mode=print')
 
 
-
-    feeds          = [(u'Börsennachrichten', u'http://www.boerse-online.de/rss/')]
 

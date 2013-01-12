@@ -369,10 +369,11 @@ class Series(Base):
         w.setMinimumContentsLength(25)
         self.name_widget = w
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), w]
+        w.editTextChanged.connect(self.series_changed)
 
         self.widgets.append(QLabel('&'+self.col_metadata['name']+_(' index:'), parent))
         w = QDoubleSpinBox(parent)
-        w.setRange(-100., float(100000000))
+        w.setRange(-10000., float(100000000))
         w.setDecimals(2)
         w.setSingleStep(1)
         self.idx_widget=w
@@ -389,13 +390,26 @@ class Series(Base):
         self.initial_index = s_index
         self.initial_val = val
         val = self.normalize_db_val(val)
+        self.name_widget.blockSignals(True)
         self.name_widget.update_items_cache(values)
         self.name_widget.show_initial_value(val)
+        self.name_widget.blockSignals(False)
 
     def getter(self):
         n = unicode(self.name_widget.currentText()).strip()
         i = self.idx_widget.value()
         return n, i
+
+    def series_changed(self, val):
+        val, s_index = self.gui_val
+        if tweaks['series_index_auto_increment'] == 'no_change':
+            pass
+        elif tweaks['series_index_auto_increment'] == 'const':
+            s_index = 1.0
+        else:
+            s_index = self.db.get_next_cc_series_num_for(val,
+                                                     num=self.col_id)
+        self.idx_widget.setValue(s_index)
 
     def commit(self, book_id, notify=False):
         val, s_index = self.gui_val
@@ -403,12 +417,6 @@ class Series(Base):
         if val != self.initial_val or s_index != self.initial_index:
             if val == '':
                 val = s_index = None
-            elif s_index == 0.0:
-                if tweaks['series_index_auto_increment'] != 'const':
-                    s_index = self.db.get_next_cc_series_num_for(val,
-                                                             num=self.col_id)
-                else:
-                    s_index = None
             return self.db.set_custom(book_id, val, extra=s_index, num=self.col_id,
                                notify=notify, commit=False, allow_case_change=True)
         else:

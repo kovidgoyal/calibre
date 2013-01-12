@@ -13,8 +13,11 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
     max_articles_per_feed = 30
     language        = 'ja'
     no_stylesheets  = True
-    cover_url       = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
-    masthead_url    = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
+    #cover_url       = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
+    cover_url       = 'http://cdn.nikkei.co.jp/parts/ds/images/common/st_nikkei_r1_20101003_1.gif'
+    #masthead_url    = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
+    masthead_url    = 'http://cdn.nikkei.co.jp/parts/ds/images/common/st_nikkei_r1_20101003_1.gif'
+    cover_margins   = (10, 188, '#ffffff')
 
     remove_tags_before = {'class':"cmn-indent"}
     remove_tags = [
@@ -40,8 +43,11 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
             print "-------------------------open top page-------------------------------------"
             br.open('http://www.nikkei.com/')
             print "-------------------------open first login form-----------------------------"
-            link = br.links(url_regex="www.nikkei.com/etc/accounts/login").next()
-            br.follow_link(link)
+            try: 
+                url = br.links(url_regex="www.nikkei.com/etc/accounts/login").next().url
+            except StopIteration:
+                url = 'http://www.nikkei.com/etc/accounts/login?dps=3&pageflag=top&url=http%3A%2F%2Fwww.nikkei.com%2F'
+            br.open(url)     #br.follow_link(link)
             #response = br.response()
             #print response.get_data()
             print "-------------------------JS redirect(send autoPostForm)--------------------"

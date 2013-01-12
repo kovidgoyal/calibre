@@ -335,32 +335,50 @@ class HeuristicProcessor(object):
         This function intentionally leaves hyphenated content alone as that is handled by the
         dehyphenate routine in a separate step
         '''
+        def style_unwrap(match):
+            style_close = match.group('style_close')
+            style_open = match.group('style_open')
+            if style_open and style_close:
+                return style_close+' '+style_open
+            elif style_open and not style_close:
+                return ' '+style_open
+            elif not style_open and style_close:
+                return style_close+' '
+            else:
+                return ' '
+
 
         # define the pieces of the regex
         lookahead = "(?<=.{"+str(length)+u"}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
         em_en_lookahead = "(?<=.{"+str(length)+u"}[\u2013\u2014])"
         soft_hyphen = u"\xad"
-        line_ending = "\s*</(span|[iubp]|div)>\s*(</(span|[iubp]|div)>)?"
+        line_ending = "\s*(?P<style_close></(span|[iub])>)?\s*(</(p|div)>)?"
         blanklines = "\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*"
-        line_opening = "<(span|[iubp]|div)[^>]*>\s*(<(span|[iubp]|div)[^>]*>)?\s*"
+        line_opening = "<(p|div)[^>]*>\s*(?P<style_open><(span|[iub])[^>]*>)?\s*"
         txt_line_wrap = u"((\u0020|\u0009)*\n){1,4}"
-
-        unwrap_regex = lookahead+line_ending+blanklines+line_opening
-        em_en_unwrap_regex = em_en_lookahead+line_ending+blanklines+line_opening
-        shy_unwrap_regex = soft_hyphen+line_ending+blanklines+line_opening
 
         if format == 'txt':
             unwrap_regex = lookahead+txt_line_wrap
             em_en_unwrap_regex = em_en_lookahead+txt_line_wrap
             shy_unwrap_regex = soft_hyphen+txt_line_wrap
+        else:
+            unwrap_regex = lookahead+line_ending+blanklines+line_opening
+            em_en_unwrap_regex = em_en_lookahead+line_ending+blanklines+line_opening
+            shy_unwrap_regex = soft_hyphen+line_ending+blanklines+line_opening
 
         unwrap = re.compile(u"%s" % unwrap_regex, re.UNICODE)
         em_en_unwrap = re.compile(u"%s" % em_en_unwrap_regex, re.UNICODE)
         shy_unwrap = re.compile(u"%s" % shy_unwrap_regex, re.UNICODE)
 
-        content = unwrap.sub(' ', content)
-        content = em_en_unwrap.sub('', content)
-        content = shy_unwrap.sub('', content)
+        if format == 'txt':
+            content = unwrap.sub(' ', content)
+            content = em_en_unwrap.sub('', content)
+            content = shy_unwrap.sub('', content)
+        else:
+            content = unwrap.sub(style_unwrap, content)
+            content = em_en_unwrap.sub(style_unwrap, content)
+            content = shy_unwrap.sub(style_unwrap, content)
+
         return content
 
     def txt_process(self, match):

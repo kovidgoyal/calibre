@@ -14,7 +14,27 @@
    <string>Form</string>
   </property>
   <layout class="QFormLayout" name="formLayout">
-   <item row="1" column="0">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::ExpandingFieldsGrow</enum>
+   </property>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>&lt;b&gt;Note:&lt;/b&gt; The paper size settings below only take effect if you enable the &quot;Override&quot; checkbox below. Otherwise the size from the output profile will be used.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_override_profile_size">
+     <property name="text">
+      <string>&amp;Override paper size set in output profile</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>&amp;Paper Size:</string>
@@ -24,21 +44,8 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QComboBox" name="opt_paper_size"/>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>&amp;Orientation:</string>
-     </property>
-     <property name="buddy">
-      <cstring>opt_orientation</cstring>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="1">
-    <widget class="QComboBox" name="opt_orientation"/>
+    <widget class="QComboBox" name="opt_paper_size"/>
    </item>
    <item row="3" column="0">
     <widget class="QLabel" name="label_3">
@@ -51,7 +58,24 @@
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="QLineEdit" name="opt_custom_size"/>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLineEdit" name="opt_custom_size"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_11">
+       <property name="text">
+        <string>&amp;Unit:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_unit</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="opt_unit"/>
+     </item>
+    </layout>
    </item>
    <item row="4" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_preserve_cover_aspect_ratio">
@@ -59,19 +83,6 @@
       <string>Preserve &amp;aspect ratio of cover</string>
      </property>
     </widget>
-   </item>
-   <item row="11" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>213</height>
-      </size>
-     </property>
-    </spacer>
    </item>
    <item row="5" column="0">
     <widget class="QLabel" name="label_4">
@@ -159,15 +170,18 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="label_10">
-     <property name="text">
-      <string>&lt;b&gt;Note:&lt;/b&gt; The paper size settings below only take effect if you have set the output profile to the default output profile. Otherwise the output profile will override these settings.</string>
+   <item row="11" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-     <property name="wordWrap">
-      <bool>true</bool>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>213</height>
+      </size>
      </property>
-    </widget>
+    </spacer>
    </item>
   </layout>
  </widget>

@@ -106,6 +106,7 @@ gprefs.defaults['tag_browser_old_look'] = False
 gprefs.defaults['book_list_tooltips'] = True
 gprefs.defaults['bd_show_cover'] = True
 gprefs.defaults['bd_overlay_cover_size'] = False
+gprefs.defaults['tags_browser_category_icons'] = {}
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -765,6 +766,26 @@ class Translator(QTranslator):
 gui_thread = None
 
 qt_app = None
+
+def load_builtin_fonts():
+    global _rating_font
+    # Load the builtin fonts and any fonts added to calibre by the user to
+    # Qt
+    for ff in glob.glob(P('fonts/liberation/*.?tf')) + \
+            [P('fonts/calibreSymbols.otf')] + \
+            glob.glob(os.path.join(config_dir, 'fonts', '*.?tf')):
+        if ff.rpartition('.')[-1].lower() in {'ttf', 'otf'}:
+            with open(ff, 'rb') as s:
+                # Windows requires font files to be executable for them to be
+                # loaded successfully, so we use the in memory loader
+                fid = QFontDatabase.addApplicationFontFromData(s.read())
+                if fid > -1:
+                    fam = QFontDatabase.applicationFontFamilies(fid)
+                    fam = set(map(unicode, fam))
+                    if u'calibre Symbols' in fam:
+                        _rating_font = u'calibre Symbols'
+
+
 class Application(QApplication):
 
     def __init__(self, args, force_calibre_style=False,
@@ -797,27 +818,12 @@ class Application(QApplication):
                 return ret
 
     def load_builtin_fonts(self, scan_for_fonts=False):
-        global _rating_font
         if scan_for_fonts:
             from calibre.utils.fonts.scanner import font_scanner
             # Start scanning the users computer for fonts
             font_scanner
 
-        # Load the builtin fonts and any fonts added to calibre by the user to
-        # Qt
-        for ff in glob.glob(P('fonts/liberation/*.?tf')) + \
-                [P('fonts/calibreSymbols.otf')] + \
-                glob.glob(os.path.join(config_dir, 'fonts', '*.?tf')):
-            if ff.rpartition('.')[-1].lower() in {'ttf', 'otf'}:
-                with open(ff, 'rb') as s:
-                    # Windows requires font files to be executable for them to be
-                    # loaded successfully, so we use the in memory loader
-                    fid = QFontDatabase.addApplicationFontFromData(s.read())
-                    if fid > -1:
-                        fam = QFontDatabase.applicationFontFamilies(fid)
-                        fam = set(map(unicode, fam))
-                        if u'calibre Symbols' in fam:
-                            _rating_font = u'calibre Symbols'
+        load_builtin_fonts()
 
     def load_calibre_style(self):
         # On OS X QtCurve resets the palette, so we preserve it explicitly
@@ -1034,7 +1040,9 @@ def build_forms(srcdir, info=None):
             dat = dat.replace('from widgets import', 'from calibre.gui2.widgets import')
             dat = dat.replace('from convert.xpath_wizard import',
                 'from calibre.gui2.convert.xpath_wizard import')
-            dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
+            dat = re.sub(r'^ {4}def _translate\(context, text, disambig\):\s+return.*$', '    pass', dat,
+                         flags=re.M)
+            dat = re.compile(r'(?:QtGui.QApplication.translate|(?<!def )_translate)\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
             dat = dat.replace('_("MMM yyyy")', '"MMM yyyy"')
             dat = pat.sub(sub, dat)
             dat = dat.replace('from QtWebKit.QWebView import QWebView',

@@ -8,19 +8,19 @@ Fetch sueddeutsche.de
 from calibre.web.feeds.news import BasicNewsRecipe
 class Sueddeutsche(BasicNewsRecipe):
 
-    title                 = u'Süddeutsche.de'                 # 2012-01-26 AGe Correct Title
-    description           = 'News from Germany, Access to online content' # 2012-01-26 AGe
-    __author__            = 'Oliver Niesner and Armin Geller' #Update AGe 2012-01-26
-    publisher             = u'Süddeutsche Zeitung'             # 2012-01-26 AGe add
-    category              = 'news, politics, Germany'         # 2012-01-26 AGe add
-    timefmt               = ' [%a, %d %b %Y]'                 # 2012-01-26 AGe add %a
+    title                 = u'Süddeutsche.de'
+    description           = 'News from Germany, Access to online content'
+    __author__            = 'Oliver Niesner and Armin Geller' #Update AGe 2012-12-05
+    publisher             = u'Süddeutsche Zeitung'
+    category              = 'news, politics, Germany'
+    timefmt               = ' [%a, %d %b %Y]'
     oldest_article        = 7
     max_articles_per_feed = 100
     language              = 'de'
     encoding              = 'utf-8'
-    publication_type      = 'newspaper'                         # 2012-01-26 add
+    publication_type      = 'newspaper'
     cover_source          = 'http://www.sueddeutsche.de/verlag' # 2012-01-26 AGe add from Darko Miletic paid content source
-    masthead_url          = 'http://www.sueddeutsche.de/static_assets/build/img/sdesiteheader/logo_homepage.441d531c.png' # 2012-01-26 AGe add
+    masthead_url          = 'http://www.sueddeutsche.de/static_assets/img/sdesiteheader/logo_standard.a152b0df.png' # 2012-12-05 AGe add
 
     use_embedded_content  = False
     no_stylesheets        = True
@@ -40,9 +40,9 @@ class Sueddeutsche(BasicNewsRecipe):
               (u'Sport', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5ESport%24?output=rss'),
               (u'Leben', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5ELeben%24?output=rss'),
               (u'Karriere', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EKarriere%24?output=rss'),
-              (u'Bildung', u'http://rss.sueddeutsche.de/rss/bildung'),         #2012-01-26 AGe New
-              (u'Gesundheit', u'http://rss.sueddeutsche.de/rss/gesundheit'),   #2012-01-26 AGe New
-              (u'Stil', u'http://rss.sueddeutsche.de/rss/stil'),               #2012-01-26 AGe New
+              (u'Bildung', u'http://rss.sueddeutsche.de/rss/bildung'),
+              (u'Gesundheit', u'http://rss.sueddeutsche.de/rss/gesundheit'),
+              (u'Stil', u'http://rss.sueddeutsche.de/rss/stil'),
               (u'München & Region', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EMünchen&Region%24?output=rss'),
               (u'Bayern', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EBayern%24?output=rss'),
               (u'Medien', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EMedien%24?output=rss'),

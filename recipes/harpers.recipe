@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 harpers.org
 '''
@@ -16,6 +16,7 @@ class Harpers(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
+    masthead_url          = 'http://harpers.org/wp-content/themes/harpers/images/pheader.gif'
 
     conversion_options = {
                           'comment'   : description
@@ -31,27 +32,9 @@ class Harpers(BasicNewsRecipe):
                 .caption{font-family:Verdana,sans-serif;font-size:x-small;color:#666666;}
                 '''
 
-    keep_only_tags = [ dict(name='div', attrs={'id':'cached'}) ]
-    remove_tags = [
-                     dict(name='table', attrs={'class':['rcnt','rcnt topline']})
-                    ,dict(name=['link','object','embed','meta','base'])
-                  ]
+    keep_only_tags = [ dict(name='div', attrs={'class':['postdetailFull', 'articlePost']}) ]
+    remove_tags = [dict(name=['link','object','embed','meta','base'])]
     remove_attributes = ['width','height']
 
-    feeds       = [(u"Harper's Magazine", u'http://www.harpers.org/rss/frontpage-rss20.xml')]
+    feeds       = [(u"Harper's Magazine", u'http://harpers.org/feed/')]
 
-    def get_cover_url(self):
-        cover_url = None
-        index = 'http://harpers.org/'
-        soup = self.index_to_soup(index)
-        link_item = soup.find(name = 'img',attrs= {'class':"cover"})
-        if link_item:
-           cover_url = 'http://harpers.org' + link_item['src']
-        return cover_url
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll(xmlns=True):
-            del item['xmlns']
-        return soup

@@ -9,11 +9,12 @@ class Adventure_zone(BasicNewsRecipe):
     no_stylesheets = True
     oldest_article = 20
     max_articles_per_feed = 100
+    cover_url = 'http://www.adventure-zone.info/inne/logoaz_2012.png'
     index='http://www.adventure-zone.info/fusion/'
     use_embedded_content=False
     preprocess_regexps     = [(re.compile(r"<td class='capmain'>Komentarze</td>", re.IGNORECASE), lambda m: ''),
-    (re.compile(r'\<table .*?\>'), lambda match: ''),
-    (re.compile(r'\<tbody\>'), lambda match: '')]
+    (re.compile(r'</?table.*?>'), lambda match: ''),
+    (re.compile(r'</?tbody.*?>'), lambda match: '')]
     remove_tags_before= dict(name='td', attrs={'class':'main-bg'})
     remove_tags= [dict(name='img', attrs={'alt':'Drukuj'})]
     remove_tags_after= dict(id='comments')
@@ -36,11 +37,11 @@ class Adventure_zone(BasicNewsRecipe):
       return feeds
 
 
-    def get_cover_url(self):
+    '''def get_cover_url(self):
         soup = self.index_to_soup('http://www.adventure-zone.info/fusion/news.php')
         cover=soup.find(id='box_OstatninumerAZ')
         self.cover_url='http://www.adventure-zone.info/fusion/'+ cover.center.a.img['src']
-        return getattr(self, 'cover_url', self.cover_url)
+        return getattr(self, 'cover_url', self.cover_url)'''
 
 
     def skip_ad_pages(self, soup):

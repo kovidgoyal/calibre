@@ -8,7 +8,9 @@
 
 #define UNICODE
 #include <Python.h>
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <libmtp.h>
 
@@ -122,7 +124,7 @@ static PyObject* build_file_metadata(LIBMTP_file_t *nf, uint32_t storage_id) {
     PyObject *ans = NULL;
 
     ans = Py_BuildValue("{s:s, s:k, s:k, s:k, s:K, s:L, s:O}", 
-            "name", (unsigned long)nf->filename,
+            "name", nf->filename,
             "id", (unsigned long)nf->item_id,
             "parent_id", (unsigned long)nf->parent_id,
             "storage_id", (unsigned long)storage_id,
@@ -357,10 +359,10 @@ Device_storage_info(Device *self, void *closure) {
 
 // Device.get_filesystem {{{
 
-static int recursive_get_files(LIBMTP_mtpdevice_t *dev, uint32_t storage_id, uint32_t parent_id, PyObject *ans, PyObject *errs, PyObject *callback) {
+static int recursive_get_files(LIBMTP_mtpdevice_t *dev, uint32_t storage_id, uint32_t parent_id, PyObject *ans, PyObject *errs, PyObject *callback, unsigned int level) {
     LIBMTP_file_t *f, *files;
-    PyObject *entry;
-    int ok = 1;
+    PyObject *entry, *r;
+    int ok = 1, recurse;
 
     Py_BEGIN_ALLOW_THREADS;
     files = LIBMTP_Get_Files_And_Folders(dev, storage_id, parent_id);
@@ -372,13 +374,15 @@ static int recursive_get_files(LIBMTP_mtpdevice_t *dev, uint32_t storage_id, uin
         entry = build_file_metadata(f, storage_id);
         if (entry == NULL) { ok = 0; }
         else {
-            Py_XDECREF(PyObject_CallFunctionObjArgs(callback, entry, NULL));
+            r = PyObject_CallFunction(callback, "OI", entry, level);
+            recurse = (r != NULL && PyObject_IsTrue(r)) ? 1 : 0;
+            Py_XDECREF(r);
             if (PyList_Append(ans, entry) != 0) { ok = 0; }
             Py_DECREF(entry); 
         }
 
-        if (ok && f->filetype == LIBMTP_FILETYPE_FOLDER) {
-            if (!recursive_get_files(dev, storage_id, f->item_id, ans, errs, callback)) {
+        if (ok && recurse && f->filetype == LIBMTP_FILETYPE_FOLDER) {
+            if (!recursive_get_files(dev, storage_id, f->item_id, ans, errs, callback, level+1)) {
                 ok = 0; 
             }
         }
@@ -408,7 +412,7 @@ Device_get_filesystem(Device *self, PyObject *args) {
     if (errs == NULL || ans == NULL) { PyErr_NoMemory(); return NULL; }
 
     LIBMTP_Clear_Errorstack(self->device);
-    ok = recursive_get_files(self->device, (uint32_t)storage_id, 0, ans, errs, callback);
+    ok = recursive_get_files(self->device, (uint32_t)storage_id, 0xFFFFFFFF, ans, errs, callback, 0);
     dump_errorstack(self->device, errs);
     if (!ok) {
         Py_DECREF(ans);
@@ -537,7 +541,7 @@ static PyMethodDef Device_methods[] = {
     },
 
     {"get_filesystem", (PyCFunction)Device_get_filesystem, METH_VARARGS,
-     "get_filesystem(storage_id, callback) -> Get the list of files and folders on the device in storage_id. Returns files, errors. callback must be a callable that accepts a single argument. It is called with every found object."
+     "get_filesystem(storage_id, callback) -> Get the list of files and folders on the device in storage_id. Returns files, errors. callback must be a callable that is called as with (entry, level). It is called with every found object. If callback returns False and the object is a folder, it is not recursed into."
     },
 
     {"get_file", (PyCFunction)Device_get_file, METH_VARARGS,
@@ -658,13 +662,6 @@ is_mtp_device(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "ii", &busnum, &devnum)) return NULL;
 
-    /*
-     * LIBMTP_Check_Specific_Device does not seem to work at least on my linux
-     * system. Need to investigate why later. Most devices are in the device
-     * table so this is not terribly important.
-     */
-    /* LIBMTP_Set_Debug(LIBMTP_DEBUG_ALL); */
-    /* printf("Calling check: %d %d\n", busnum, devnum); */
     Py_BEGIN_ALLOW_THREADS;
     ans = LIBMTP_Check_Specific_Device(busnum, devnum);
     Py_END_ALLOW_THREADS;
@@ -726,7 +723,21 @@ initlibmtp(void) {
     if (MTPError == NULL) return;
     PyModule_AddObject(m, "MTPError", MTPError);
 
+    // Redirect stdout to get rid of the annoying message about mtpz. Really,
+    // who designs a library without anyway to control/redirect the debugging
+    // output, and hardcoded paths that cannot be changed?
+    int bak, new;
+    fprintf(stdout, "\n"); // This is needed, without it, for some odd reason the code below causes stdout to buffer all output after it is restored, rather than using line buffering, and setlinebuf does not work.
+    fflush(stdout);
+    bak = dup(STDOUT_FILENO);
+    new = open("/dev/null", O_WRONLY);
+    dup2(new, STDOUT_FILENO);
+    close(new);
     LIBMTP_Init();
+    fflush(stdout);
+    dup2(bak, STDOUT_FILENO);
+    close(bak);
+
     LIBMTP_Set_Debug(LIBMTP_DEBUG_NONE);
 
     Py_INCREF(&DeviceType);

@@ -1,0 +1,27 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1329123365(BasicNewsRecipe):
+    title          = u'Mobilebulgaria.com'
+    __author__ = 'M3 Web'
+    description = 'The biggest Bulgarian site covering mobile consumer electronics. Offers detailed reviews, popular discussion forum, shop and platform for selling new and second hand phones and gadgets.'
+    category = 'News, Reviews, Offers, Forum'
+    oldest_article = 45
+    max_articles_per_feed = 10
+    language  = 'bg'
+    encoding = 'windows-1251'
+    no_stylesheets        = False
+    remove_javascript = True
+    keep_only_tags    = [dict(name='div', attrs={'class':'bigblock'}),
+dict(name='div', attrs={'class':'verybigblock'}),
+dict(name='table', attrs={'class':'obiaviresults'}),
+dict(name='div', attrs={'class':'forumblock'}),
+dict(name='div', attrs={'class':'forumblock_b1'}),
+dict(name='div', attrs={'class':'block2_2colswrap'})]
+
+    feeds = [(u'News', u'http://www.mobilebulgaria.com/rss_full.php'),
+(u'Reviews', u'http://www.mobilebulgaria.com/rss_reviews.php'),
+(u'Offers', u'http://www.mobilebulgaria.com/obiavi/rss.php'),
+(u'Forum', u'http://www.mobilebulgaria.com/rss_forum_last10.php')]
+
+    extra_css = '''
+    #gallery1 div{display: block;  float: left; margin: 0 10px 10px 0;}  '''

@@ -11,21 +11,21 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
     by Chen Wei weichen302@gmx.com, 2012-02-05'''
 
     __license__  = 'GPL v3'
-    __author__ = 'kwetal'
+    __author__ = 'Rick Shang, kwetal'
     language = 'en'
     version = 1.01
 
-    title = u'Foreign Affairs (Subcription or (free) Registration)'
+    title = u'Foreign Affairs (Subcription)'
     publisher = u'Council on Foreign Relations'
     category = u'USA, Foreign Affairs'
     description = u'The leading forum for serious discussion of American foreign policy and international affairs.'
 
     no_stylesheets = True
     remove_javascript = True
+    needs_subscription = True
 
     INDEX = 'http://www.foreignaffairs.com'
     FRONTPAGE = 'http://www.foreignaffairs.com/magazine'
-    INCLUDE_PREMIUM = False
 
 
     remove_tags = []
@@ -68,43 +68,57 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
 
 
     def parse_index(self):
+
         answer = []
         soup = self.index_to_soup(self.FRONTPAGE)
-        sec_start = soup.findAll('div', attrs={'class':'panel-separator'})
+        #get dates
+        date = re.split('\s\|\s',self.tag_to_string(soup.head.title.string))[0]
+        self.timefmt =  u' [%s]'%date
+
+        sec_start = soup.findAll('div', attrs= {'class':'panel-pane'})
         for sec in sec_start:
-            content = sec.nextSibling
-            if content:
-                section = self.tag_to_string(content.find('h2'))
-                articles = []
-
-                tags = []
-                for div in content.findAll('div', attrs = {'class': re.compile(r'view-row\s+views-row-[0-9]+\s+views-row-[odd|even].*')}):
-                    tags.append(div)
-                for li in content.findAll('li'):
-                    tags.append(li)
-
-                for div in tags:
-                    title = url = description = author = None
-
-                    if self.INCLUDE_PREMIUM:
-                        found_premium = False
-                    else:
-                        found_premium = div.findAll('span', attrs={'class':
-                                                               'premium-icon'})
-                    if not found_premium:
-                        tag = div.find('div', attrs={'class': 'views-field-title'})
-
-                        if tag:
-                            a = tag.find('a')
-                            if a:
-                                title = self.tag_to_string(a)
-                                url = self.INDEX + a['href']
-                            author = self.tag_to_string(div.find('div', attrs = {'class': 'views-field-field-article-display-authors-value'}))
-                            tag_summary = div.find('span', attrs = {'class': 'views-field-field-article-summary-value'})
-                            description = self.tag_to_string(tag_summary)
-                            articles.append({'title':title, 'date':None, 'url':url,
-                                     'description':description, 'author':author})
-                if articles:
+            articles = []
+            section = self.tag_to_string(sec.find('h2'))
+            if 'Books' in section:
+                reviewsection=sec.find('div', attrs = {'class': 'item-list'})
+                for subsection in reviewsection.findAll('div'):
+                    subsectiontitle=self.tag_to_string(subsection.span.a)
+                    subsectionurl=self.INDEX + subsection.span.a['href']
+                    soup1 = self.index_to_soup(subsectionurl)
+                    for div in soup1.findAll('div', attrs = {'class': 'views-field-title'}):
+                        if div.find('a') is not None:
+                            originalauthor=self.tag_to_string(div.findNext('div', attrs = {'class':'views-field-field-article-book-nid'}).div.a)
+                            title=subsectiontitle+': '+self.tag_to_string(div.span.a)+' by '+originalauthor
+                            url=self.INDEX+div.span.a['href']
+                            atr=div.findNext('div', attrs = {'class': 'views-field-field-article-display-authors-value'})
+                            if atr is not None:
+                                author=self.tag_to_string(atr.span.a)
+                            else:
+                                author=''
+                            desc=div.findNext('span', attrs = {'class': 'views-field-field-article-summary-value'})
+                            if desc is not None:
+                                description=self.tag_to_string(desc.div.p)
+                            else:
+                                description=''
+                            articles.append({'title':title, 'date':None, 'url':url, 'description':description, 'author':author})
+                    subsectiontitle=''
+            else:
+                for div in sec.findAll('div', attrs = {'class': 'views-field-title'}):
+                    if div.find('a') is not None:
+                        title=self.tag_to_string(div.span.a)
+                        url=self.INDEX+div.span.a['href']
+                        atr=div.findNext('div', attrs = {'class': 'views-field-field-article-display-authors-value'})
+                        if atr is not None:
+                            author=self.tag_to_string(atr.span.a)
+                        else:
+                            author=''
+                        desc=div.findNext('span', attrs = {'class': 'views-field-field-article-summary-value'})
+                        if desc is not None:
+                            description=self.tag_to_string(desc.div.p)
+                        else:
+                            description=''
+                        articles.append({'title':title, 'date':None, 'url':url, 'description':description, 'author':author})
+            if articles:
                     answer.append((section, articles))
         return answer
 
@@ -115,15 +129,17 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
 
         return soup
 
-    needs_subscription = True
+
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
         if self.username is not None and self.password is not None:
-            br.open('https://www.foreignaffairs.com/user?destination=home')
+            br.open('https://www.foreignaffairs.com/user?destination=user%3Fop%3Dlo')
             br.select_form(nr = 1)
             br['name']   = self.username
             br['pass'] = self.password
             br.submit()
         return br
 
+    def cleanup(self):
+        self.browser.open('http://www.foreignaffairs.com/logout?destination=user%3Fop=lo')
