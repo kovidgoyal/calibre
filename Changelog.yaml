@@ -5,7 +5,7 @@
 # Also, each release can have new and improved recipes.
 
 # - version: ?.?.?
-#   date: 2012-??-??
+#   date: 2013-??-??
 #
 #   new features:
 #     - title: 
@@ -20,7 +20,7 @@
 #     - title: 
 
 - version: 0.9.14
-  date: 2012-01-11
+  date: 2013-01-11
 
   new features:
     - title: "When adding multiple books and duplicates are found, allow the user to select which of the duplicate books will be added anyway."
