@@ -86,10 +86,11 @@ def brush(p, xmax, ymax):
     x = 0
     y = 0
     w = xmax/2
-    g = QLinearGradient(QPointF(x, y), QPointF(x, y+w))
+    g = QLinearGradient(QPointF(x, y+w/3), QPointF(x, y+(2*w/3)))
     g.setColorAt(0, QColor('#f00'))
     g.setColorAt(0.5, QColor('#fff'))
     g.setColorAt(1, QColor('#00f'))
+    g.setSpread(g.ReflectSpread)
     p.fillRect(x, y, w, w, QBrush(g))
     p.drawRect(x, y, w, w)
 
@@ -112,7 +113,7 @@ def main():
     app
     tdir = os.path.abspath('.')
     pdf = os.path.join(tdir, 'painter.pdf')
-    func = full
+    func = brush
     dpi = 100
     with open(pdf, 'wb') as f:
         dev = PdfDevice(f, xdpi=dpi, ydpi=dpi, compress=False)

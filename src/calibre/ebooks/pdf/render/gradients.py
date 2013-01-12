@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys
+import sys, copy
 from future_builtins import map
 from collections import namedtuple
 
@@ -83,8 +83,7 @@ class LinearGradientPattern(Dictionary):
         stop = gradient.finalStop()
         stops = list(map(lambda x: [x[0], x[1].getRgbF()], gradient.stops()))
         spread = gradient.spread()
-        if False and spread != gradient.PadSpread:
-            # TODO: Finish this implementation
+        if spread != gradient.PadSpread:
             inv = matrix.inverted()[0]
             page_rect = tuple(map(inv.map, (
                 QPointF(0, 0), QPointF(pixel_page_width, 0), QPointF(0, pixel_page_height),
@@ -103,23 +102,52 @@ class LinearGradientPattern(Dictionary):
             llimit, rlimit = start, stop
 
             reflect = False
-            base_stops = list(stops)
+            base_stops = copy.deepcopy(stops)
             reversed_stops = list(reversed(stops))
             do_reflect = spread == gradient.ReflectSpread
-            # totl = abs(stops[-1][0] - stops[0][0])
-            # intervals = [abs(stops[i+1] - stops[i])/totl for i in xrange(len(stops)-1)]
+            totl = abs(stops[-1][0] - stops[0][0])
+            intervals = [abs(stops[i+1][0] - stops[i][0])/totl
+                         for i in xrange(len(stops)-1)]
 
             while in_page(llimit):
                 reflect ^= True
                 llimit -= offset
                 estops = reversed_stops if (reflect and do_reflect) else base_stops
-                stops = estops + stops
+                stops = copy.deepcopy(estops) + stops
+
+            first_is_reflected = reflect
+            reflect = False
 
             while in_page(rlimit):
                 reflect ^= True
                 rlimit += offset
                 estops = reversed_stops if (reflect and do_reflect) else base_stops
-                stops = stops + estops
+                stops = stops + copy.deepcopy(estops)
+
+            start, stop = llimit, rlimit
+
+            num = len(stops) // len(base_stops)
+            if num > 1:
+                # Adjust the stop parameter values
+                t = base_stops[0][0]
+                rlen = totl/num
+                reflect = first_is_reflected ^ True
+                intervals = [i*rlen for i in intervals]
+                rintervals = list(reversed(intervals))
+
+                for i in xrange(num):
+                    reflect ^= True
+                    pos = i * len(base_stops)
+                    tvals = [t]
+                    for ival in (rintervals if reflect and do_reflect else
+                                 intervals):
+                        tvals.append(tvals[-1] + ival)
+                    for j in xrange(len(base_stops)):
+                        stops[pos+j][0] = tvals[j]
+                    t = tvals[-1]
+
+                # In case there were rounding errors
+                stops[-1][0] = base_stops[-1][0]
 
         return start, stop, tuple(Stop(s[0], s[1]) for s in stops)
 
