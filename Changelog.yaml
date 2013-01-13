@@ -5,7 +5,7 @@
 # Also, each release can have new and improved recipes.
 
 # - version: ?.?.?
-#   date: 2012-??-??
+#   date: 2013-??-??
 #
 #   new features:
 #     - title: 
@@ -20,13 +20,13 @@
 #     - title: 
 
 - version: 0.9.14
-  date: 2012-01-11
+  date: 2013-01-11
 
   new features:
     - title: "When adding multiple books and duplicates are found, allow the user to select which of the duplicate books will be added anyway."
       tickets: [1095256]
 
-    - title: "Device drivers for Kobo Arc on linux, Polaroid Abdroid tablet" 
+    - title: "Device drivers for Kobo Arc on linux, Polaroid Android tablet" 
       tickets: [1098049]
 
     - title: "When sorting by series, use the language of the book to decide what leading articles to remove, just as is done for sorting by title"
