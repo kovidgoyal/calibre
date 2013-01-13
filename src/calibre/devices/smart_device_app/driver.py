@@ -385,6 +385,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         fname = sanitize(fname)
         ext = os.path.splitext(fname)[1]
 
+        try:
+            # If the device asked for it, try to use the UUID as the file name.
+            # Fall back to the template if the UUID doesn't exist.
+            if self.client_wants_uuid_file_names and mdata.uuid:
+                return (mdata.uuid + ext)
+        except:
+            pass
+
         maxlen = (self.MAX_PATH_LEN - (self.PATH_FUDGE_FACTOR +
                    self.exts_path_lengths.get(ext, self.PATH_FUDGE_FACTOR)))
 
@@ -845,6 +853,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._close_device_socket()
                 return False
 
+            self.client_wants_uuid_file_names = result.get('useUuidFileNames', False)
+            self._debug('Device wants UUID file names', self.client_wants_uuid_file_names)
+
+
             config = self._configProxy()
             config['format_map'] = exts
             self._debug('selected formats', config['format_map'])
@@ -1253,6 +1265,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.connection_attempts = {}
         self.client_can_stream_books = False
         self.client_can_stream_metadata = False
+        self.client_wants_uuid_file_names = False
 
         self._debug("All IP addresses", get_all_ips())
 
