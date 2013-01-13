@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-01-11 06:12+0000\n"
-"PO-Revision-Date: 2013-01-08 18:11+0000\n"
+"PO-Revision-Date: 2013-01-12 13:43+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-01-12 04:38+0000\n"
+"X-Launchpad-Export-Date: 2013-01-13 04:36+0000\n"
 "X-Generator: Launchpad (build 16420)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -11162,14 +11162,16 @@ msgid ""
 "Books with the same titles as the following already exist in calibre. Select "
 "which books you want added anyway."
 msgstr ""
+"Ja hi ha llibres al calibre amb el mateix nom que els següents. Seleccioneu "
+"els que voleu que s'afegeixin de totes maneres."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:45
 msgid "Select &all"
-msgstr ""
+msgstr "Selecciona'ls &tots"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:47
 msgid "Select &none"
-msgstr ""
+msgstr "No en seleccionis &cap"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:89
 msgid "Already in calibre:"
@@ -17679,6 +17681,14 @@ msgid ""
 "running on. If you want to access the server from anywhere in the world, you "
 "will have to setup port forwarding for it on your router."
 msgstr ""
+"<p>No oblideu deixar el calibre en execució, ja que el servidor només "
+"funciona si el calibre s'està executant.\n"
+"<p>Per connectar des del vostre dispositiu al servidor del calibre podeu "
+"utilitzar una URL del tipus <b>http://nomdelmeu ordinador:8080</b>. "
+"«nomdelmeuordinador» pot ser el nom complert de l'amfitrió o l'adreça IP de "
+"l'equip en què s'executa el calibre. Si voleu accedir al servidor des de "
+"qualsevol lloc del món haureu de configurar el reenviament de ports a "
+"l'encaminador per poder-ho fer."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:25
 msgid ""

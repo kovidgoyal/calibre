@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-01-11 06:12+0000\n"
-"PO-Revision-Date: 2013-01-05 09:03+0000\n"
+"PO-Revision-Date: 2013-01-12 08:08+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-01-12 04:50+0000\n"
+"X-Launchpad-Export-Date: 2013-01-13 04:37+0000\n"
 "X-Generator: Launchpad (build 16420)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:533
@@ -11142,14 +11142,16 @@ msgid ""
 "Books with the same titles as the following already exist in calibre. Select "
 "which books you want added anyway."
 msgstr ""
+"Ya existen libros en calibre con el mismo título que los siguientes. "
+"Seleccione qué libros desea añadir de todas formas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:45
 msgid "Select &all"
-msgstr ""
+msgstr "Seleccionar &todo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:47
 msgid "Select &none"
-msgstr ""
+msgstr "No seleccionar &nada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:89
 msgid "Already in calibre:"
@@ -17657,6 +17659,14 @@ msgid ""
 "running on. If you want to access the server from anywhere in the world, you "
 "will have to setup port forwarding for it on your router."
 msgstr ""
+"<p>Acuérdese de dejar calibre corriendo, pues el servidor sólo funciona "
+"mientras calibre esté corriendo.\n"
+"<p>Para conectar con el servidor de calibre desde su dispositivo debe usar "
+"un URL de la forma <b>http://nombredeequipo:8080</b>. Aquí «nombredeequipo» "
+"debe ser un nombre de equipo totalmente cualificado o bien la dirección IP "
+"del equipo donde calibre está corriendo. Si quiere poder acceder al servidor "
+"desde cualquier lugar del mundo, debe configurar el redireccionamiento de "
+"puertos en el enrutador."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:25
 msgid ""
