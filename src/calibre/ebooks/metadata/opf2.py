@@ -1163,9 +1163,6 @@ class OPF(object): # {{{
         temp.smart_update(mi, replace_metadata=replace_metadata)
         self._user_metadata_ = temp.get_all_user_metadata(True)
 
-    def add_uuid_identifier(self,uuid):
-        setattr(self,'uuid',uuid)
-
 # }}}
 
 class OPFCreator(Metadata):
