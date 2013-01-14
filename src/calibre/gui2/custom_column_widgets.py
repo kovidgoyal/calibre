@@ -383,12 +383,12 @@ class Series(Base):
         values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
-        s_index = self.db.get_custom_extra(book_id, num=self.col_id, index_is_id=True)
-        if s_index is None:
-            s_index = 0.0
-        self.idx_widget.setValue(s_index)
-        self.initial_index = s_index
         self.initial_val = val
+        s_index = self.db.get_custom_extra(book_id, num=self.col_id, index_is_id=True)
+        self.initial_index = s_index
+        if s_index is None or not isinstance(s_index, float):
+            s_index = 1.0
+        self.idx_widget.setValue(s_index)
         val = self.normalize_db_val(val)
         self.name_widget.blockSignals(True)
         self.name_widget.update_items_cache(values)
