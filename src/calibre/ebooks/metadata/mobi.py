@@ -390,6 +390,8 @@ class MetadataUpdater(object):
                 not added_501 and not share_not_sync):
             from uuid import uuid4
             update_exth_record((113, str(uuid4())))
+        # Add a 112 record with actual UUID
+        update_exth_record((112, str("calibre:%s" % mi.uuid)))
         if 503 in self.original_exth_records:
             update_exth_record((503, mi.title.encode(self.codec, 'replace')))
 
