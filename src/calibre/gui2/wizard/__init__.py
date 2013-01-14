@@ -245,6 +245,13 @@ class PocketBook900(PocketBook):
     id = 'pocketbook900'
     output_profile = 'pocketbook_900'
 
+class PocketBookPro912(PocketBook):
+
+    name = 'PocketBook Pro 912'
+    id = 'pocketbookpro912'
+    output_profile = 'pocketbook_pro_912'
+
+
 class iPhone(Device):
 
     name = 'iPhone/iTouch'
