@@ -110,6 +110,12 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         exth.write(uuid)
         nrecs += 1
 
+    # Write UUID as SOURCE
+    c_uuid = b'calibre:%s' % uuid
+    exth.write(pack(b'>II', 112, len(c_uuid) + 8))
+    exth.write(c_uuid)
+    nrecs += 1
+
     # Write cdetype
     if not is_periodical:
         if not share_not_sync:
