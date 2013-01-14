@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 1 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -26,7 +27,7 @@ class ManyBooksStore(BasicStoreConfig, OpenSearchOPDSStore):
     def search(self, query, max_results=10, timeout=60):
         '''
         Manybooks uses a very strange opds feed. The opds
-        main feed is structured like a stanza feed. The 
+        main feed is structured like a stanza feed. The
         search result entries give very little information
         and requires you to go to a detail link. The detail
         link has the wrong type specified (text/html instead
@@ -45,7 +46,7 @@ class ManyBooksStore(BasicStoreConfig, OpenSearchOPDSStore):
         oquery.searchTerms = query
         oquery.count = max_results
         url = oquery.url()
-        
+
         counter = max_results
         br = browser()
         with closing(br.open(url, timeout=timeout)) as f:
@@ -55,11 +56,11 @@ class ManyBooksStore(BasicStoreConfig, OpenSearchOPDSStore):
             for data in doc.xpath('//*[local-name() = "entry"]'):
                 if counter <= 0:
                     break
-            
+
                 counter -= 1
-    
+
                 s = SearchResult()
-                
+
                 detail_links = data.xpath('./*[local-name() = "link" and @type = "text/html"]')
                 if not detail_links:
                     continue
@@ -73,7 +74,7 @@ class ManyBooksStore(BasicStoreConfig, OpenSearchOPDSStore):
                 # just in case.
                 s.title = ''.join(data.xpath('./*[local-name() = "title"]//text()')).strip()
                 s.author = ', '.join(data.xpath('./*[local-name() = "author"]//text()')).strip()
-                
+
                 # Follow the detail link to get the rest of the info.
                 with closing(br.open(detail_href, timeout=timeout/4)) as df:
                     ddoc = etree.fromstring(df.read())
@@ -89,9 +90,9 @@ class ManyBooksStore(BasicStoreConfig, OpenSearchOPDSStore):
                             s.author = s.author[1:]
                         if s.author.endswith(','):
                             s.author = s.author[:-1]
-                        
+
                         s.cover_url = ''.join(ddata.xpath('./*[local-name() = "link" and @rel = "http://opds-spec.org/thumbnail"][1]/@href')).strip()
-                        
+
                         for link in ddata.xpath('./*[local-name() = "link" and @rel = "http://opds-spec.org/acquisition"]'):
                             type = link.get('type')
                             href = link.get('href')

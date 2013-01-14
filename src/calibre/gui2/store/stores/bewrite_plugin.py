@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 1 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -71,7 +72,7 @@ class BeWriteStore(BasicStoreConfig, StorePlugin):
 
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())
-            
+
             price = ''.join(idata.xpath('//div[@id="content"]//td[contains(text(), "ePub")]/text()'))
             if not price:
                 price = ''.join(idata.xpath('//div[@id="content"]//td[contains(text(), "MOBI")]/text()'))
@@ -79,7 +80,7 @@ class BeWriteStore(BasicStoreConfig, StorePlugin):
                 price = ''.join(idata.xpath('//div[@id="content"]//td[contains(text(), "PDF")]/text()'))
             price = '$' + price.split('$')[-1]
             search_result.price = price.strip()
-            
+
             cover_img = idata.xpath('//div[@id="content"]//img/@src')
             if cover_img:
                 for i in cover_img:
@@ -87,7 +88,7 @@ class BeWriteStore(BasicStoreConfig, StorePlugin):
                         cover_url = 'http://www.bewrite.net/mm5/' + i
                         search_result.cover_url = cover_url.strip()
                         break
-            
+
             formats = set([])
             if idata.xpath('boolean(//div[@id="content"]//td[contains(text(), "ePub")])'):
                 formats.add('EPUB')
