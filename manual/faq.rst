@@ -164,7 +164,6 @@ Follow these steps to find the problem:
     * Ensure your operating system is seeing the device. That is, the device should show up in Windows Explorer (in Windows) or Finder (in OS X).
     * In |app|, go to Preferences->Ignored Devices and check that your device
       is not being ignored
-    * In |app|, go to Preferences->Plugins->Device Interface plugin and make sure the plugin for your device is enabled, the plugin icon next to it should be green when it is enabled.
     * If all the above steps fail, go to Preferences->Miscellaneous and click debug device detection with your device attached and post the output as a ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
 
 My device is non-standard or unusual. What can I do to connect to it?
@@ -438,10 +437,10 @@ that allows you to create collections on your Kindle from the |app| metadata. It
 
 .. note:: Amazon have removed the ability to manipulate collections completely in their newer models, like the Kindle Touch and Kindle Fire, making even the above plugin useless. If you really want the ability to manage collections on your Kindle via a USB connection, we encourage you to complain to Amazon about it, or get a reader where this is supported, like the SONY or Kobo Readers.
 
-I am getting an error when I try to use |app| with my Kobo Touch?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I am getting an error when I try to use |app| with my Kobo Touch/Glo/etc.?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Kobo Touch has very buggy firmware. Connecting to it has been known to fail at random. Certain combinations of motherboard, USB ports/cables/hubs can exacerbate this tendency to fail. If you are getting an error when connecting to your touch with |app| try the following, each of which has solved the problem for *some* |app| users.
+The Kobo has very buggy firmware. Connecting to it has been known to fail at random. Certain combinations of motherboard, USB ports/cables/hubs can exacerbate this tendency to fail. If you are getting an error when connecting to your touch with |app| try the following, each of which has solved the problem for *some* |app| users.
 
   * Connect the Kobo directly to your computer, not via USB Hub
   * Try a different USB cable and a different USB port on your computer
@@ -672,6 +671,19 @@ There are three possible things I know of, that can cause this:
 
     * The Logitech SetPoint Settings application causes random crashes in
       |app| when it is open. Close it before starting |app|.
+
+If none of the above apply to you, then there is some other program on your
+computer that is interfering with |app|. First reboot your computer is safe
+mode, to have as few running programs as possible, and see if the crashes still
+happen. If they do not, then you know it is some program causing the problem.
+The most likely such culprit is a program that modifies other programs'
+behavior, such as an antivirus, a device driver, something like RoboForm (an
+automatic form filling app) or an assistive technology like Voice Control or a
+Screen Reader.
+
+The only way to find the culprit is to eliminate the programs one by one and
+see which one is causing the issue. Basically, stop a program, run calibre,
+check for crashes. If they still happen, stop another program and repeat.
 
 |app| is not starting on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

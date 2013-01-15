@@ -663,9 +663,9 @@ class CatalogBuilder(object):
         # Hack to force the cataloged leading letter to be
         # an unadorned character if the accented version sorts before the unaccented
         exceptions = {
-                        u'Ä': u'A',
-                        u'Ö': u'O',
-                        u'Ü': u'U'
+                        u'Ä':   u'A',
+                        u'Ö':   u'O',
+                        u'Ü':   u'U'
                      }
 
         if key is not None:
@@ -3473,7 +3473,7 @@ class CatalogBuilder(object):
             self.play_order += 1
             navLabelTag = Tag(ncx_soup, 'navLabel')
             textTag = Tag(ncx_soup, 'text')
-            if len(authors_by_letter[1]) > 1:
+            if authors_by_letter[1] == self.SYMBOLS:
                 fmt_string = _(u"Authors beginning with %s")
             else:
                 fmt_string = _(u"Authors beginning with '%s'")
@@ -4422,12 +4422,12 @@ class CatalogBuilder(object):
         Generate a legal XHTML anchor from unicode character.
 
         Args:
-         c (unicode): character
+         c (unicode): character(s)
 
         Return:
-         (str): legal XHTML anchor string of unicode charactar name
+         (str): legal XHTML anchor string of unicode character name
         """
-        fullname = unicodedata.name(unicode(c))
+        fullname = u''.join(unicodedata.name(unicode(cc)) for cc in c)
         terms = fullname.split()
         return "_".join(terms)
 

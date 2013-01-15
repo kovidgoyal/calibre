@@ -48,10 +48,14 @@ class Smithsonian(BasicNewsRecipe):
                 link=post.find('a',href=True)
                 url=link['href']+'?c=y&story=fullstory'
                 if subsection is not None:
-                    subsection_title = self.tag_to_string(subsection)
+                    subsection_title = self.tag_to_string(subsection).strip()
                     prefix = (subsection_title+': ')
                     description=self.tag_to_string(post('p', limit=2)[1]).strip()
                 else:
+                    if post.find('img') is not None:
+                        subsection_title = self.tag_to_string(post.findPrevious('div', attrs={'class':'departments plainModule'}).find('p', attrs={'class':'article-cat'})).strip()
+                        prefix = (subsection_title+': ')
+
                     description=self.tag_to_string(post.find('p')).strip()
                 desc=re.sub('\sBy\s.*', '', description, re.DOTALL)
                 author=re.sub('.*By\s', '', description, re.DOTALL)
@@ -64,4 +68,3 @@ class Smithsonian(BasicNewsRecipe):
                 feeds[section_title] += articles
         ans = [(key, val) for key, val in feeds.iteritems()]
         return ans
-

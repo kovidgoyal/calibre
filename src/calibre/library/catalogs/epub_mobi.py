@@ -17,7 +17,7 @@ from calibre.ebooks import calibre_cover
 from calibre.library import current_library_name
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.localization import get_lang
+from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang, get_lang
 
 Option = namedtuple('Option', 'option, default, dest, action, help')
 
@@ -223,7 +223,8 @@ class EPUB_MOBI(CatalogPlugin):
              self.fmt,
              'for %s ' % opts.output_profile if opts.output_profile else '',
              'CLI' if opts.cli_environment else 'GUI',
-             get_lang()))
+             calibre_langcode_to_name(canonicalize_lang(get_lang()), localize=False))
+             )
 
         # If exclude_genre is blank, assume user wants all tags as genres
         if opts.exclude_genre.strip() == '':

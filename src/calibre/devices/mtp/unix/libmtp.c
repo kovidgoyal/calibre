@@ -662,13 +662,6 @@ is_mtp_device(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "ii", &busnum, &devnum)) return NULL;
 
-    /*
-     * LIBMTP_Check_Specific_Device does not seem to work at least on my linux
-     * system. Need to investigate why later. Most devices are in the device
-     * table so this is not terribly important.
-     */
-    /* LIBMTP_Set_Debug(LIBMTP_DEBUG_ALL); */
-    /* printf("Calling check: %d %d\n", busnum, devnum); */
     Py_BEGIN_ALLOW_THREADS;
     ans = LIBMTP_Check_Specific_Device(busnum, devnum);
     Py_END_ALLOW_THREADS;
@@ -734,6 +727,7 @@ initlibmtp(void) {
     // who designs a library without anyway to control/redirect the debugging
     // output, and hardcoded paths that cannot be changed?
     int bak, new;
+    fprintf(stdout, "\n"); // This is needed, without it, for some odd reason the code below causes stdout to buffer all output after it is restored, rather than using line buffering, and setlinebuf does not work.
     fflush(stdout);
     bak = dup(STDOUT_FILENO);
     new = open("/dev/null", O_WRONLY);

@@ -239,6 +239,8 @@ class BrowseServer(object):
                 self.browse_details)
         connect('browse_book', base_href+'/book/{id}',
                 self.browse_book)
+        connect('browse_random', base_href+'/random',
+                self.browse_random)
         connect('browse_category_icon', base_href+'/icon/{name}',
                 self.browse_icon)
 
@@ -351,6 +353,7 @@ class BrowseServer(object):
         cats = [
                 (_('Newest'), 'newest', 'forward.png'),
                 (_('All books'), 'allbooks', 'book.png'),
+                (_('Random book'), 'randombook', 'random.png'),
                 ]
 
         def getter(x):
@@ -441,7 +444,11 @@ class BrowseServer(object):
             cat_len = len(category)
             if not (len(ucat) > cat_len and ucat.startswith(category+'.')):
                 continue
-            icon = category_icon_map['user:']
+
+            if ucat in self.icon_map:
+                icon = '_'+quote(self.icon_map[ucat])
+            else:
+                icon = category_icon_map['user:']
             # we have a subcategory. Find any further dots (further subcats)
             cat_len += 1
             cat = ucat[cat_len:]
@@ -595,6 +602,9 @@ class BrowseServer(object):
         elif category == 'allbooks':
             raise cherrypy.InternalRedirect(prefix +
                     '/browse/matches/allbooks/dummy')
+        elif category == 'randombook':
+            raise cherrypy.InternalRedirect(prefix +
+                    '/browse/random')
         else:
             ans = self.browse_category(category, category_sort)
 
@@ -881,6 +891,13 @@ class BrowseServer(object):
 
         return json.dumps(ans, ensure_ascii=False)
 
+    @Endpoint()
+    def browse_random(self, *args, **kwargs):
+        import random
+        book_id = random.choice(tuple(self.db.all_ids()))
+        ans = self.browse_render_details(book_id)
+        return self.browse_template('').format(
+                title='', script='book();', main=ans)
 
     @Endpoint()
     def browse_book(self, id=None, category_sort=None):

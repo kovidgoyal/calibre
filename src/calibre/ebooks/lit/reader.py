@@ -11,13 +11,17 @@ import struct, os, functools, re
 from urlparse import urldefrag
 from cStringIO import StringIO
 from urllib import unquote as urlunquote
+
+from lxml import etree
+
 from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
 import calibre.ebooks.lit.mssha1 as mssha1
-from calibre.ebooks.oeb.base import urlnormalize
+from calibre.ebooks.oeb.base import urlnormalize, xpath
 from calibre.ebooks.oeb.reader import OEBReader
 from calibre.ebooks import DRMError
 from calibre import plugins
+
 lzx, lxzerror = plugins['lzx']
 msdes, msdeserror = plugins['msdes']
 
@@ -906,4 +910,17 @@ class LitContainer(object):
 class LitReader(OEBReader):
     Container = LitContainer
     DEFAULT_PROFILE = 'MSReader'
+
+    def _spine_from_opf(self, opf):
+        manifest = self.oeb.manifest
+        for elem in xpath(opf, '/o2:package/o2:spine/o2:itemref'):
+            idref = elem.get('idref')
+            if idref not in manifest.ids:
+                continue
+            item = manifest.ids[idref]
+            if (item.media_type.lower() == 'application/xml' and
+                hasattr(item.data, 'xpath') and item.data.xpath('/html')):
+                item.media_type = 'application/xhtml+xml'
+                item.data = item._parse_xhtml(etree.tostring(item.data))
+        super(LitReader, self)._spine_from_opf(opf)
 

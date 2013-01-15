@@ -1,0 +1,65 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class NYTimes(BasicNewsRecipe):
+
+    title       = 'Outside Magazine'
+    __author__  = 'Krittika Goyal'
+    description = 'Outside Magazine - Free 1 Month Old Issue'
+    timefmt = ' [%d %b, %Y]'
+    needs_subscription = False
+    language = 'en'
+
+    no_stylesheets = True
+    #auto_cleanup = True
+    #auto_cleanup_keep = '//div[@class="thumbnail"]'
+
+    keep_only_tags = dict(name='div', attrs={'class':'masonry-box width-four'})
+    remove_tags = [
+       dict(name='div', attrs={'id':['share-bar', 'outbrain_widget_0', 'outbrain_widget_1', 'livefyre']}),
+       #dict(name='div', attrs={'id':['qrformdiv', 'inSection', 'alpha-inner']}),
+       #dict(name='form', attrs={'onsubmit':''}),
+       dict(name='section', attrs={'id':['article-quote', 'article-navigation']}),
+    ]
+    #TO GET ARTICLE TOC
+    def out_get_index(self):
+        super_url = 'http://www.outsideonline.com/magazine/'
+        super_soup = self.index_to_soup(super_url)
+        div = super_soup.find(attrs={'class':'masonry-box width-four'})
+        issue = div.findAll(name='article')[1]
+        super_a = issue.find('a', href=True)
+        return super_a.get('href')
+
+
+    # To parse artice toc
+    def parse_index(self):
+        parse_soup = self.index_to_soup(self.out_get_index())
+
+        feeds = []
+        feed_title = 'Articles'
+
+        articles = []
+        self.log('Found section:', feed_title)
+        div = parse_soup.find(attrs={'class':'print clearfix'})
+        for art in div.findAll(name='p'):
+            art_info = art.find(name = 'a')
+            if art_info is None:
+                continue
+            art_title = self.tag_to_string(art_info)
+            url = art_info.get('href') + '?page=all'
+            self.log.info('\tFound article:', art_title, 'at', url)
+            article = {'title':art_title, 'url':url, 'date':''}
+            #au = art.find(attrs={'class':'articleAuthors'})
+            #if au is not None:
+                #article['author'] = self.tag_to_string(au)
+            #desc = art.find(attrs={'class':'hover_text'})
+            #if desc is not None:
+                #desc = self.tag_to_string(desc)
+                #if 'author' in article:
+                    #desc = ' by ' + article['author'] + ' ' +desc
+                #article['description'] = desc
+            articles.append(article)
+        if articles:
+            feeds.append((feed_title, articles))
+
+        return feeds
+

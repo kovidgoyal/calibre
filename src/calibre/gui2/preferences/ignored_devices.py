@@ -7,8 +7,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (QLabel, QVBoxLayout, QListWidget, QListWidgetItem, Qt)
+from PyQt4.Qt import (QLabel, QVBoxLayout, QListWidget, QListWidgetItem, Qt,
+                      QIcon)
 
+from calibre.customize.ui import enable_plugin
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 
 class ConfigWidget(ConfigWidgetBase):
@@ -31,6 +33,18 @@ class ConfigWidget(ConfigWidgetBase):
         f.itemChanged.connect(self.changed_signal)
         f.itemDoubleClicked.connect(self.toggle_item)
 
+        self.la2 = la = QLabel(_(
+            'The list of device plugins you have disabled. Uncheck an entry '
+            'to enable the plugin. calibre cannot detect devices that are '
+            'managed by disabled plugins.'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+
+        self.device_plugins = f = QListWidget(f)
+        l.addWidget(f)
+        f.itemChanged.connect(self.changed_signal)
+        f.itemDoubleClicked.connect(self.toggle_item)
+
     def toggle_item(self, item):
         item.setCheckState(Qt.Checked if item.checkState() == Qt.Unchecked else
                 Qt.Unchecked)
@@ -45,6 +59,17 @@ class ConfigWidget(ConfigWidgetBase):
                 item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
                 item.setCheckState(Qt.Checked)
         self.devices.blockSignals(False)
+
+        self.device_plugins.blockSignals(True)
+        for dev in self.gui.device_manager.disabled_device_plugins:
+            n = dev.get_gui_name()
+            item = QListWidgetItem(n, self.device_plugins)
+            item.setData(Qt.UserRole, dev)
+            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
+            item.setCheckState(Qt.Checked)
+            item.setIcon(QIcon(I('plugins.png')))
+        self.device_plugins.sortItems()
+        self.device_plugins.blockSignals(False)
 
     def restore_defaults(self):
         if self.devices.count() > 0:
@@ -62,6 +87,12 @@ class ConfigWidget(ConfigWidgetBase):
 
         for dev, bl in devs.iteritems():
             dev.set_user_blacklisted_devices(bl)
+
+        for i in xrange(self.device_plugins.count()):
+            e = self.device_plugins.item(i)
+            dev = e.data(Qt.UserRole).toPyObject()
+            if e.checkState() == Qt.Unchecked:
+                enable_plugin(dev)
 
         return True # Restart required
 

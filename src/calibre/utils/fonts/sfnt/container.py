@@ -66,8 +66,10 @@ class Sfnt(object):
                 if table:
                     self.tables[table_tag] = self.TABLE_MAP.get(
                         table_tag, UnknownTable)(table)
-                self.sfnt_version = (b'\0\x01\0\0' if b'glyf' in self.tables
-                                     else b'OTTO')
+            if not self.tables:
+                raise UnsupportedFont('This font has no tables')
+            self.sfnt_version = (b'\0\x01\0\0' if b'glyf' in self.tables
+                                    else b'OTTO')
 
     def __getitem__(self, key):
         return self.tables[key]

@@ -18,7 +18,7 @@ class Fleshbot(BasicNewsRecipe):
     encoding              = 'utf-8'
     use_embedded_content  = True
     language              = 'en'
-    masthead_url          = 'http://cache.gawkerassets.com/assets/kotaku.com/img/logo.png'
+    masthead_url          = 'http://fbassets.s3.amazonaws.com/images/uploads/2012/01/fleshbot-logo.png'
     extra_css             = '''
 	body{font-family: "Lucida Grande",Helvetica,Arial,sans-serif}
 	img{margin-bottom: 1em}
@@ -31,7 +31,7 @@ class Fleshbot(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    feeds = [(u'Articles', u'http://feeds.gawker.com/fleshbot/vip?format=xml')]
+    feeds = [(u'Articles', u'http://www.fleshbot.com/feed')]
 
     remove_tags = [
             {'class': 'feedflare'},

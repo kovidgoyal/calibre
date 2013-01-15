@@ -10,14 +10,12 @@ class Alternet(BasicNewsRecipe):
     category = 'News, Magazine'
     description = 'News magazine and online community'
     feeds          = [
-        (u'Front Page', u'http://feeds.feedblitz.com/alternet'),
-        (u'Breaking News', u'http://feeds.feedblitz.com/alternet_breaking_news'),
-        (u'Top Ten Campaigns', u'http://feeds.feedblitz.com/alternet_top_10_campaigns'),
-        (u'Special Coverage Areas', u'http://feeds.feedblitz.com/alternet_coverage')
+        (u'Front Page', u'http://feeds.feedblitz.com/alternet')
         ]
+
     remove_attributes = ['width', 'align','cellspacing']
     remove_javascript = True
-    use_embedded_content   = False
+    use_embedded_content   = True
     no_stylesheets = True
     language = 'en'
     encoding               = 'UTF-8'

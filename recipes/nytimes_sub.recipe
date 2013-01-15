@@ -15,6 +15,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, BeautifulStoneSoup
 class NYTimes(BasicNewsRecipe):
 
     recursions=1 # set this to zero to omit Related articles lists
+    match_regexps=[r'/[12][0-9][0-9][0-9]/[0-9]+/'] # speeds up processing by preventing index page links from being followed
 
     # set getTechBlogs to True to include the technology blogs
     # set tech_oldest_article to control article age
@@ -23,6 +24,14 @@ class NYTimes(BasicNewsRecipe):
     remove_empty_feeds = True
     tech_oldest_article = 14
     tech_max_articles_per_feed = 25
+
+    # set getPopularArticles to False if you don't want the Most E-mailed and Most Viewed articles
+    # otherwise you will get up to 20 of the most popular e-mailed and viewed articles (in each category)
+    getPopularArticles = True
+    popularPeriod = '1' # set this to the number of days to include in the measurement
+                        # e.g. 7 will get the most popular measured over the last 7 days
+                        # and 30 will get the most popular measured over 30 days.
+                        # you still only get up to 20 articles in each category
 
 
     # set headlinesOnly to True for the headlines-only version. If True, webEdition is ignored.
@@ -115,19 +124,19 @@ class NYTimes(BasicNewsRecipe):
     if headlinesOnly:
         title='New York Times Headlines'
         description = 'Headlines from the New York Times'
-        needs_subscription = False
+        needs_subscription = True
     elif webEdition:
         title='New York Times (Web)'
         description = 'New York Times on the Web'
-        needs_subscription = False
+        needs_subscription = True
     elif replaceKindleVersion:
         title='The New York Times'
         description = 'Today\'s New York Times'
-        needs_subscription = False
+        needs_subscription = True
     else:
         title='New York Times'
         description = 'Today\'s New York Times'
-        needs_subscription = False
+        needs_subscription = True
 
     def decode_url_date(self,url):
         urlitems = url.split('/')
@@ -350,6 +359,14 @@ class NYTimes(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://www.nytimes.com/auth/login')
+            br.form = br.forms().next()
+            br['userid']   = self.username
+            br['password'] = self.password
+            raw = br.submit().read()
+            if 'Please try again' in raw:
+                raise Exception('Your username and password are incorrect')
         return br
 
     cover_tag = 'NY_NYT'
@@ -376,6 +393,7 @@ class NYTimes(BasicNewsRecipe):
 
     masthead_url = 'http://graphics8.nytimes.com/images/misc/nytlogo379x64.gif'
 
+
     def short_title(self):
         return self.title
 
@@ -384,6 +402,7 @@ class NYTimes(BasicNewsRecipe):
         from contextlib import closing
         import copy
         from calibre.ebooks.chardet import xml_to_unicode
+        print("ARTICLE_TO_SOUP "+url_or_raw)
         if re.match(r'\w+://', url_or_raw):
             br = self.clone_browser(self.browser)
             open_func = getattr(br, 'open_novisit', br.open)
@@ -475,6 +494,67 @@ class NYTimes(BasicNewsRecipe):
                             description=description, author=author,
                             content=''))
 
+    def get_popular_articles(self,ans):
+        if self.getPopularArticles:
+            popular_articles = {}
+            key_list = []
+
+            def handleh3(h3tag):
+                try:
+                    url = h3tag.a['href']
+                except:
+                    return ('','','','')
+                url = re.sub(r'\?.*', '', url)
+                if self.exclude_url(url):
+                    return ('','','','')
+                url += '?pagewanted=all'
+                title = self.tag_to_string(h3tag.a,False)
+                h6tag = h3tag.findNextSibling('h6')
+                if h6tag is not None:
+                    author = self.tag_to_string(h6tag,False)
+                else:
+                    author = ''
+                ptag = h3tag.findNextSibling('p')
+                if ptag is not None:
+                    desc = self.tag_to_string(ptag,False)
+                else:
+                    desc = ''
+                return(title,url,author,desc)
+
+
+            have_emailed = False
+            emailed_soup = self.index_to_soup('http://www.nytimes.com/most-popular-emailed?period='+self.popularPeriod)
+            for h3tag in emailed_soup.findAll('h3'):
+                (title,url,author,desc) = handleh3(h3tag)
+                if url=='':
+                    continue
+                if not have_emailed:
+                    key_list.append('Most E-Mailed')
+                    popular_articles['Most E-Mailed'] = []
+                    have_emailed = True
+                popular_articles['Most E-Mailed'].append(
+                    dict(title=title, url=url, date=strftime('%a, %d %b'),
+                        description=desc, author=author,
+                        content=''))
+            have_viewed = False
+            viewed_soup = self.index_to_soup('http://www.nytimes.com/most-popular-viewed?period='+self.popularPeriod)
+            for h3tag in viewed_soup.findAll('h3'):
+                (title,url,author,desc) = handleh3(h3tag)
+                if url=='':
+                    continue
+                if not have_viewed:
+                    key_list.append('Most Viewed')
+                    popular_articles['Most Viewed'] = []
+                    have_viewed = True
+                popular_articles['Most Viewed'].append(
+                    dict(title=title, url=url, date=strftime('%a, %d %b'),
+                        description=desc, author=author,
+                        content=''))
+            viewed_ans = [(k, popular_articles[k]) for k in key_list if popular_articles.has_key(k)]
+            for x in viewed_ans:
+                ans.append(x)
+        return ans
+
     def get_tech_feeds(self,ans):
         if self.getTechBlogs:
             tech_articles = {}
@@ -536,7 +616,7 @@ class NYTimes(BasicNewsRecipe):
                         self.handle_article(lidiv)
 
         self.ans = [(k, self.articles[k]) for k in self.ans if self.articles.has_key(k)]
-        return self.filter_ans(self.get_tech_feeds(self.ans))
+        return self.filter_ans(self.get_tech_feeds(self.get_popular_articles(self.ans)))
 
 
     def parse_todays_index(self):
@@ -569,7 +649,7 @@ class NYTimes(BasicNewsRecipe):
                         self.handle_article(lidiv)
 
         self.ans = [(k, self.articles[k]) for k in self.ans if self.articles.has_key(k)]
-        return self.filter_ans(self.get_tech_feeds(self.ans))
+        return self.filter_ans(self.get_tech_feeds(self.get_popular_articles(self.ans)))
 
     def parse_headline_index(self):
 
@@ -643,7 +723,7 @@ class NYTimes(BasicNewsRecipe):
                         self.articles[section_name].append(dict(title=title, url=url, date=pubdate, description=description, author=author, content=''))
 
         self.ans = [(k, self.articles[k]) for k in self.ans if self.articles.has_key(k)]
-        return self.filter_ans(self.get_tech_feeds(self.ans))
+        return self.filter_ans(self.get_tech_feeds(self.get_popular_articles(self.ans)))
 
     def parse_index(self):
         if self.headlinesOnly:
@@ -731,7 +811,7 @@ class NYTimes(BasicNewsRecipe):
 
 
     def preprocess_html(self, soup):
-        #print("PREPROCESS TITLE="+self.tag_to_string(soup.title))
+        #print(strftime("%H:%M:%S")+" --  PREPROCESS TITLE="+self.tag_to_string(soup.title))
         skip_tag = soup.find(True, {'name':'skip'})
         if skip_tag is not None:
             #url = 'http://www.nytimes.com' + re.sub(r'\?.*', '', skip_tag.parent['href'])
@@ -907,6 +987,7 @@ class NYTimes(BasicNewsRecipe):
             for aside in soup.findAll('div','aside'):
                 aside.extract()
             soup = self.strip_anchors(soup,True)
+            #print("RECURSIVE: "+self.tag_to_string(soup.title))
 
         if soup.find('div',attrs={'id':'blogcontent'}) is None:
             if first_fetch:
@@ -1071,7 +1152,7 @@ class NYTimes(BasicNewsRecipe):
                         divTag.replaceWith(tag)
             except:
                 self.log("ERROR:  Problem in Add class=authorId to <div> so we can format with CSS")
-
+        #print(strftime("%H:%M:%S")+" -- POSTPROCESS TITLE="+self.tag_to_string(soup.title))
         return soup
 
     def populate_article_metadata(self, article, soup, first):

@@ -194,6 +194,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         query = self.clean_query(query)
         shuffle(store_names)
         # Add plugins that the user has checked to the search pool's work queue.
+        self.gui.istores.join(4.0) # Wait for updated plugins to load
         for n in store_names:
             if self.store_checks[n].isChecked():
                 self.search_pool.add_task(query, n, self.gui.istores[n], self.max_results, self.timeout)

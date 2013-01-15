@@ -5,7 +5,7 @@
 # Also, each release can have new and improved recipes.
 
 # - version: ?.?.?
-#   date: 2012-??-??
+#   date: 2013-??-??
 #
 #   new features:
 #     - title: 
@@ -18,6 +18,119 @@
 #
 #   new recipes:
 #     - title: 
+
+- version: 0.9.14
+  date: 2013-01-11
+
+  new features:
+    - title: "When adding multiple books and duplicates are found, allow the user to select which of the duplicate books will be added anyway."
+      tickets: [1095256]
+
+    - title: "Device drivers for Kobo Arc on linux, Polaroid Android tablet" 
+      tickets: [1098049]
+
+    - title: "When sorting by series, use the language of the book to decide what leading articles to remove, just as is done for sorting by title"
+ 
+  bug fixes:
+    - title: "PDF Output: Do not error out when the input document contains links with anchors not present in the document."
+      tickets: [1096428]
+
+    - title: "Add support for upgraded db on newest Kobo firmware"
+      tickets: [1095617]
+
+    - title: "PDF Output: Fix typo that broke use of custom paper sizes."
+      tickets: [1097563]
+
+    - title: "PDF Output: Handle empty anchors present at the end of a page"
+
+    - title: "PDF Output: Fix side margins of last page in a flow being incorrect when large side margins are used."
+      tickets: [1096290]
+
+    - title: "Edit metadata dialog: Allow setting the series number for custom series type columns to zero"
+
+    - title: "When bulk editing custom series-type columns and not provding a series number use 1 as the default, instead of None"
+
+    - title: "Catalogs: Fix issue with catalog generation using Hungarian UI and author_sort beginning with multiple letter groups."
+      tickets: [1091581]
+
+    - title: "PDF Output: Dont error out on files that have invalid font-family declarations."
+      tickets: [1096279]
+
+    - title: "Do not load QRawFont at global level, to allow calibre installation on systems with missing dependencies"
+      tickets: [1096170]
+
+    - title: "PDF Output: Fix cover not present in generated PDF files"
+      tickets: [1096098]
+
+  improved recipes:
+    - Sueddeutsche Zeitung mobil
+    - Boerse Online
+    - TidBits
+    - New York Review of Books
+    - Fleshbot
+    - Il Messaggero
+    - Libero
+
+  new recipes:
+    - title: Spectator Magazine, Oxford Mail and Outside Magazine
+      author: Krittika Goyal
+
+    - title: Libartes 
+      author: Darko Miletic
+
+    - title: El Diplo 
+      author: Tomas De Domenico
+
+- version: 0.9.13
+  date: 2013-01-04
+
+  new features:
+    - title: "Complete rewrite of the PDF Output engine, to support links and fix various bugs"
+      type: major
+      description: "calibre now has a new PDF output engine that supports links in the text. It also fixes various bugs, detailed below. In order to implement support for links and fix these bugs, the engine had to be completely rewritten, so there may be some regressions."
+
+    - title: "Show disabled device plugins in Preferences->Ignored Devices"
+
+    - title: "Get Books: Fix Smashwords, Google books and B&N stores. Add Nook UK store"
+
+    - title: "Allow series numbers lower than -100 for custom series columns."
+      tickets: [1094475]
+
+    - title: "Add mass storage driver for rockhip based android smart phones"
+      tickets: [1087809]
+
+    - title: "Add a clear ratings button to the edit metadata dialog"
+ 
+  bug fixes:
+    - title: "PDF Output: Fix custom page sizes not working on OS X"
+
+    - title: "PDF Output: Fix embedding of many fonts not supported (note that embedding of OpenType fonts with Postscript outlines is still not supported on windows, though it is supported on other operating systems)"
+
+    - title: "PDF Output: Fix crashes converting some books to PDF on OS X"
+      tickets: [1087688]
+
+    - title: "HTML Input: Handle entities inside href attributes when following the links in an HTML file."
+      tickets: [1094203]
+
+    - title: "Content server: Fix custom icons not used for sub categories"
+      tickets: [1095016]
+
+    - title: "Force use of non-unicode constants in compiled templates. Fixes a problem with regular expression character classes and probably other things."
+
+    - title: "Kobo driver: Do not error out if there are invalid dates in the device database"
+      tickets: [1094597]
+
+    - title: "Content server: Fix for non-unicode hostnames when using mDNS"
+      tickets: [1094063]
+
+  improved recipes:
+    - Today's Zaman
+    - The Economist
+    - Foreign Affairs
+    - New York Times
+    - Alternet
+    - Harper's Magazine
+    - La Stampa
 
 - version: 0.9.12
   date: 2012-12-28

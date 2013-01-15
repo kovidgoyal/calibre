@@ -33,7 +33,10 @@ from calibre.utils.config import prefs
 from calibre.utils.logging import Log
 
 class NoSupportedInputFormats(Exception):
-    pass
+
+    def __init__(self, available_formats):
+        Exception.__init__(self)
+        self.available_formats = available_formats
 
 def sort_formats_by_preference(formats, prefs):
     uprefs = [x.upper() for x in prefs]
@@ -86,7 +89,7 @@ def get_supported_input_formats_for_book(db, book_id):
     input_formats = set([x.lower() for x in supported_input_formats()])
     input_formats = sorted(available_formats.intersection(input_formats))
     if not input_formats:
-        raise NoSupportedInputFormats
+        raise NoSupportedInputFormats(tuple(x for x in available_formats if x))
     return input_formats
 
 

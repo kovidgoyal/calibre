@@ -1,0 +1,118 @@
+# Copyright 2013 Tomás Di Domenico
+#
+# This is a news fetching recipe for the Calibre ebook software, for
+# fetching the Cono Sur edition of Le Monde Diplomatique (www.eldiplo.org).
+#
+# This recipe is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This software is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this recipe.  If not, see <http://www.gnu.org/licenses/>.
+
+import re
+from contextlib import closing
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.magick import Image
+
+class ElDiplo_Recipe(BasicNewsRecipe):
+    title = u'El Diplo'
+    __author__ = 'Tomas Di Domenico'
+    description = 'Publicacion mensual de Le Monde Diplomatique, edicion Argentina'
+    langauge = 'es_AR'
+    needs_subscription = True
+    auto_cleanup = True
+
+    def get_cover(self,url):
+        tmp_cover = PersistentTemporaryFile(suffix = ".jpg", prefix = "eldiplo_")
+        self.cover_url = tmp_cover.name
+
+        with closing(self.browser.open(url)) as r:
+            imgdata = r.read()
+
+        img = Image()
+        img.load(imgdata)
+        img.crop(img.size[0],img.size[1]/2,0,0)
+
+        img.save(tmp_cover.name)
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://www.eldiplo.org/index.php/login/-/do_login/index.html')
+            br.select_form(nr=3)
+            br['uName']   = self.username
+            br['uPassword'] = self.password
+            br.submit()
+        self.browser = br
+        return br
+
+    def parse_index(self):
+        default_sect = 'General'
+        articles = {default_sect:[]}
+        ans = [default_sect]
+        sectionsmarker = 'DOSSIER_TITLE: '
+        sectionsre = re.compile('^'+sectionsmarker)
+
+        soup = self.index_to_soup('http://www.eldiplo.org/index.php')
+
+        coverdivs = soup.findAll(True,attrs={'id':['lmd-foto']})
+        a = coverdivs[0].find('a', href=True)
+        coverurl = a['href'].split("?imagen=")[1]
+        self.get_cover(coverurl)
+
+        thedivs = soup.findAll(True,attrs={'class':['lmd-leermas']})
+        for div in thedivs:
+            a = div.find('a', href=True)
+            if 'Sumario completo' in self.tag_to_string(a, use_alt=True):
+                summaryurl = re.sub(r'\?.*', '', a['href'])
+                summaryurl = 'http://www.eldiplo.org' + summaryurl
+
+        for pagenum in xrange(1,10):
+            soup = self.index_to_soup('{0}/?cms1_paging_p_b32={1}'.format(summaryurl,pagenum))
+            thedivs = soup.findAll(True,attrs={'class':['interna']})
+
+            if len(thedivs) == 0:
+                break
+
+            for div in thedivs:
+                section = div.find(True,text=sectionsre).replace(sectionsmarker,'')
+                if section == '':
+                    section = default_sect
+
+                if section not in articles.keys():
+                        articles[section] = []
+                        ans.append(section)
+
+                nota = div.find(True,attrs={'class':['lmd-pl-titulo-nota-dossier']})
+                a = nota.find('a', href=True)
+                if not a:
+                    continue
+
+                url = re.sub(r'\?.*', '', a['href'])
+                url = 'http://www.eldiplo.org' + url
+                title = self.tag_to_string(a, use_alt=True).strip()
+
+                summary = div.find(True, attrs={'class':'lmd-sumario-descript'}).find('p')
+                if summary:
+                    description = self.tag_to_string(summary, use_alt=False)
+
+                aut = div.find(True, attrs={'class':'lmd-autor-sumario'})
+                if aut:
+                    auth = self.tag_to_string(aut, use_alt=False).strip()
+
+                if not articles.has_key(section):
+                    articles[section] = []
+
+                articles[section].append(dict(title=title,author=auth,url=url,date=None,description=description,content=''))
+
+        #ans = self.sort_index_by(ans, {'The Front Page':-1, 'Dining In, Dining Out':1, 'Obituaries':2})
+        ans = [(section, articles[section]) for section in ans if articles.has_key(section)]
+        return ans

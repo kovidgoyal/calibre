@@ -41,7 +41,6 @@ def find_custom_fonts(options, logger):
     if options.serif_family:
         f = family(options.serif_family)
         fonts['serif'] = font_scanner.legacy_fonts_for_family(f)
-        print (111111, fonts['serif'])
         if not fonts['serif']:
             logger.warn('Unable to find serif family %s'%f)
     if options.sans_family:
