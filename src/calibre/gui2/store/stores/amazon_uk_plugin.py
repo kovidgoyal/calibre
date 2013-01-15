@@ -17,19 +17,12 @@ from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 
-class AmazonUKKindleStore(StorePlugin):
-    aff_id = {'tag': 'calcharles-21'}
-    store_link = ('http://www.amazon.co.uk/gp/redirect.html?ie=UTF8&'
-                  'location=http://www.amazon.co.uk/Kindle-eBooks/b?'
-                  'ie=UTF8&node=341689031&ref_=sa_menu_kbo2&tag=%(tag)s&'
-                  'linkCode=ur2&camp=1634&creative=19450')
-    store_link_details = ('http://www.amazon.co.uk/gp/redirect.html?ie=UTF8&'
-                          'location=http://www.amazon.co.uk/dp/%(asin)s&tag=%(tag)s&'
-                          'linkCode=ur2&camp=1634&creative=6738')
-    search_url = 'http://www.amazon.co.uk/s/?url=search-alias%3Ddigital-text&field-keywords='
 
-    author_article = 'by '
+# This class is copy/pasted from amason_uk_plugin. Do not modify it in any
+# other amazon EU plugin. Be sure to paste it into all other amazon EU plugins
+# when modified.
 
+class AmazonEUBase(StorePlugin):
     '''
     For comments on the implementation, please see amazon_plugin.py
     '''
@@ -105,3 +98,17 @@ class AmazonUKKindleStore(StorePlugin):
 
     def get_details(self, search_result, timeout):
         pass
+
+class AmazonUKKindleStore(AmazonEUBase):
+    aff_id = {'tag': 'calcharles-21'}
+    store_link = ('http://www.amazon.co.uk/gp/redirect.html?ie=UTF8&'
+                  'location=http://www.amazon.co.uk/Kindle-eBooks/b?'
+                  'ie=UTF8&node=341689031&ref_=sa_menu_kbo2&tag=%(tag)s&'
+                  'linkCode=ur2&camp=1634&creative=19450')
+    store_link_details = ('http://www.amazon.co.uk/gp/redirect.html?ie=UTF8&'
+                          'location=http://www.amazon.co.uk/dp/%(asin)s&tag=%(tag)s&'
+                          'linkCode=ur2&camp=1634&creative=6738')
+    search_url = 'http://www.amazon.co.uk/s/?url=search-alias%3Ddigital-text&field-keywords='
+
+    author_article = 'by '
+
