@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-01-11 06:12+0000\n"
-"PO-Revision-Date: 2013-01-14 03:03+0000\n"
+"PO-Revision-Date: 2013-01-14 07:20+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-01-14 04:35+0000\n"
+"X-Launchpad-Export-Date: 2013-01-15 04:47+0000\n"
 "X-Generator: Launchpad (build 16420)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
@@ -3445,9 +3445,10 @@ msgid ""
 "options. This option will cause the  page size settings under PDF Output to "
 "override the  size specified by the output profile."
 msgstr ""
-"Normalement la taille de papier du PDF est choisie par l'option du profil de "
-"sortie. Cette option laisse la taille de papier de Sortie PDF supplanter "
-"celle du profil de sortie."
+"Normalement, la taille de la page PDF est définie par le profil de sortie "
+"choisi dans la page Options. Cette option entraînera le remplacement de la "
+"taille spécifiée par le profil de sortie par les paramètres de taille de la "
+"sortie PDF."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:58
 #, python-format
@@ -6308,7 +6309,7 @@ msgstr "Choisissez la bibliothèque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:138
 msgid "Library &path:"
-msgstr "Bibliothèque &path:"
+msgstr "&Chemin de la bibliothèque[nnbsp]:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:146
 msgid "Browse for library"
@@ -6332,7 +6333,7 @@ msgstr "(supprimer après copie)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:210
 msgid "Choose library by path..."
-msgstr "Choisir la biliothèque selon son emplacement..."
+msgstr "Choisir la bibliothèque par chemin..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:227
@@ -6341,7 +6342,7 @@ msgstr "Impossible de copier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:221
 msgid "Cannot copy to current library."
-msgstr "Copie impossible vers la bibliothèque actuelle."
+msgstr "Impossible de copier vers la bibliothèque actuelle."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:232
 msgid "No library"
@@ -9320,13 +9321,13 @@ msgid ""
 "the \"Override\" checkbox below. Otherwise the size from the output profile "
 "will be used."
 msgstr ""
-"<b>Note:</b> Le paramètre de taille du papier ci-dessous prend uniquement "
-"effet si la case \"supplanter\" ci-dessous est cochée. Dans le cas contraire "
-"la taille spécifiée dans le profil de sortie sera utilisée."
+"<b>Note :</b> Les réglages de taille de papier ci-dessous ne prendrons effet "
+"que si vous cochez la case \"Supplanter\" ci-dessous. Dans le cas contraire, "
+"la taille du profil de sortie sera utilisée."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:116
 msgid "&Override paper size set in output profile"
-msgstr "&Supplanter la taille du papier dans le profile de sortie"
+msgstr "&Supplanter la taille du papier définie dans le profile de sortie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:117
 msgid "&Paper Size:"
@@ -10540,7 +10541,7 @@ msgstr "&Ignorer le %s dans Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:377
 msgid "Change scanned &folders"
-msgstr "Changer les &repertoires scannés"
+msgstr "Changer les &dossiers scannés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:383
 msgid "Show device information"
@@ -10567,11 +10568,11 @@ msgid ""
 "you want this folder scanned in order to be able to send books to it. Click "
 "the <b>configure</b> button below to send books to it."
 msgstr ""
-"Vous essayer d'envoyer des livres vers le répertoire <b>%s</b>. Ce "
-"répertoire est actuellement ignoré par Calibre pendant le scan de "
-"l'appareil. Vous devez spécifier que ce répertoire doit être scanné pour "
-"pouvoir y envoyer des livres. Utilisez le bouton \"configuration\" ci-"
-"dessous pour y envoyer des livres."
+"Vous essayez d'envoyer des livres vers le dossier <b>%s</b>. Ce dossier est "
+"actuellement ignoré par Calibre lors du scan de l'appareil. Vous devez dire "
+"à Calibre que vous voulez parcourir ce dossier pour être en mesure d'envoyer "
+"des livres vers celui-ci. Cliquer le bouton <b>configurer</b> ci-dessous "
+"pour envoyer des livres vers celui-ci."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:504
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:137
@@ -10596,12 +10597,12 @@ msgid ""
 "You can select which top level folders calibre will scan when searching this "
 "device for books."
 msgstr ""
-"Vous pouvez sélectionner quels répertoires supérieurs Calibre va scanner "
-"pour chercher les livres dans cet appareil."
+"Vous pouvez sélectionner quels dossiers racine Calibre va scanner lors de la "
+"recherche des livres sur cet appareil."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:131
 msgid "Select &All"
-msgstr "&Tout sélectionner"
+msgstr "Tout &Sélectionner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:133
 msgid "Select &None"
@@ -10629,7 +10630,7 @@ msgstr "Réinitialiser l’auteur à Inconnu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:48
 msgid "Set the series of the new books to:"
-msgstr "Spécifie pour les nouveau livres la série :"
+msgstr "FIxer la valeur de série pour les nouveaux livres à :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:60
 msgid "Reset series"
@@ -11332,8 +11333,8 @@ msgid ""
 "Books with the same titles as the following already exist in calibre. Select "
 "which books you want added anyway."
 msgstr ""
-"Des livres ayant les même titres que les suivants existent déjà dans "
-"calibre. Sélectionnez ceux que vous voulez ajouter quand même."
+"Des livres avec les mêmes titres que les suivants existent déjà dans "
+"Calibre. Indiquez quels livres vous souhaitez ajouter."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:45
 msgid "Select &all"
@@ -11341,7 +11342,7 @@ msgstr "&Tout sélectionner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:47
 msgid "Select &none"
-msgstr "Tout &déselectionner"
+msgstr "Tout &désélectionner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:89
 msgid "Already in calibre:"
@@ -15145,7 +15146,7 @@ msgstr "Effacer la série"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:185
 msgid "Clear rating"
-msgstr "effacer la notation"
+msgstr "Effacer la notation"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:197
 msgid "Clear all tags"
@@ -16573,9 +16574,9 @@ msgid ""
 "The list of device plugins you have disabled. Uncheck an entry to enable the "
 "plugin. calibre cannot detect devices that are managed by disabled plugins."
 msgstr ""
-"Liste des extensions désactivées. Décochez un élément de la liste pour "
-"réactiver l'extension. Calibre ne peux pas détecter un appareil dont "
-"l'extension est désactivée."
+"La liste des extensions d'appareil que vous avez désactivé. Décochez une "
+"entrée pour activer l'extension. Calibre ne peut pas détecter les "
+"périphériques qui sont gérés par des extensions désactivées."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:103
 msgid "Narrow"
@@ -19249,10 +19250,11 @@ msgid ""
 "moved the book's files around outside of calibre. You will need to find "
 "those files and re-add them to calibre."
 msgstr ""
-"Conversion de <b>%s</b> impossible car il n'a pas de fichier. Si vous pensez "
-"qu'il devrait avoir des fichiers, mais que Calibre ne les trouve pas, c'est "
-"probablement que vous les avez déplacé hors de la bibliothèque. Vous devrez "
-"les retrouver et les ajoutter à la bibliothèque à nouveau."
+"Impossible de convertir <b>%s</b> car il ne contient aucun fichier ebook. Si "
+"vous pensez qu'il devrait y avoir des fichiers, mais que Calibre ne les "
+"trouve pas, c'est probablement parce que vous avez déplacé les fichiers du "
+"livre en dehors de Calibre. Vous devrez trouver ces fichiers et les ajouter "
+"à Calibre à nouveau."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:108
 #, python-format
@@ -19261,7 +19263,7 @@ msgstr "Formats non supportés (Formats disponibles : %s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:111
 msgid "This book has no actual ebook files"
-msgstr "The livre n'a pas de fichiers."
+msgstr "Ce livre ne comporte aucun fichier ebook réel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:242
@@ -19274,7 +19276,7 @@ msgid ""
 "Could not convert %(num)d of %(tot)d books, because no supported source "
 "formats were found."
 msgstr ""
-"Conversion de %(num)d livres sur %(tot)d impossible, car aucun format "
+"Impossible de convertir %(num)d livres sur %(tot)d, car aucun format "
 "supporté n'a été trouvé."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:151
