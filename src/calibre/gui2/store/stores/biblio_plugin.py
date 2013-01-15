@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 1 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2012, Alex Stanev <alex@stanev.org>'
@@ -26,7 +27,7 @@ class BiblioStore(BasicStoreConfig, OpenSearchOPDSStore):
 
         for s in OpenSearchOPDSStore.search(self, query, max_results, timeout):
             yield s
-            
+
     def get_details(self, search_result, timeout):
         # get format and DRM status
         from calibre import browser
@@ -39,13 +40,13 @@ class BiblioStore(BasicStoreConfig, OpenSearchOPDSStore):
             search_result.formats = ''
             if idata.xpath('.//span[@class="format epub"]'):
                 search_result.formats = 'EPUB'
- 
+
             if idata.xpath('.//span[@class="format pdf"]'):
                 if search_result.formats == '':
                     search_result.formats = 'PDF'
                 else:
                     search_result.formats.join(', PDF')
-                
+
             if idata.xpath('.//span[@class="format nodrm-icon"]'):
                 search_result.drm = SearchResult.DRM_UNLOCKED
             else:
