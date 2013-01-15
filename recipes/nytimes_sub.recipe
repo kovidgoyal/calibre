@@ -124,19 +124,19 @@ class NYTimes(BasicNewsRecipe):
     if headlinesOnly:
         title='New York Times Headlines'
         description = 'Headlines from the New York Times'
-        needs_subscription = False
+        needs_subscription = True
     elif webEdition:
         title='New York Times (Web)'
         description = 'New York Times on the Web'
-        needs_subscription = False
+        needs_subscription = True
     elif replaceKindleVersion:
         title='The New York Times'
         description = 'Today\'s New York Times'
-        needs_subscription = False
+        needs_subscription = True
     else:
         title='New York Times'
         description = 'Today\'s New York Times'
-        needs_subscription = False
+        needs_subscription = True
 
     def decode_url_date(self,url):
         urlitems = url.split('/')
@@ -359,6 +359,14 @@ class NYTimes(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://www.nytimes.com/auth/login')
+            br.form = br.forms().next()
+            br['userid']   = self.username
+            br['password'] = self.password
+            raw = br.submit().read()
+            if 'Please try again' in raw:
+                raise Exception('Your username and password are incorrect')
         return br
 
     cover_tag = 'NY_NYT'

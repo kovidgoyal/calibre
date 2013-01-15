@@ -291,6 +291,8 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
 
 
     reader.opf.smart_update(mi)
+    if getattr(mi, 'uuid', None):
+        reader.opf.application_id = mi.uuid
     if apply_null:
         if not getattr(mi, 'series', None):
             reader.opf.series = None

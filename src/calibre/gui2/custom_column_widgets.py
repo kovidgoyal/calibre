@@ -386,7 +386,9 @@ class Series(Base):
         self.initial_val = val
         s_index = self.db.get_custom_extra(book_id, num=self.col_id, index_is_id=True)
         self.initial_index = s_index
-        if s_index is None or not isinstance(s_index, float):
+        try:
+            s_index = float(s_index)
+        except (ValueError, TypeError):
             s_index = 1.0
         self.idx_widget.setValue(s_index)
         val = self.normalize_db_val(val)

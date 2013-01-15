@@ -26,6 +26,7 @@ def create_opf_file(db, book_id):
     mi.application_id = uuid.uuid4()
     old_cover = mi.cover
     mi.cover = None
+    mi.application_id = mi.uuid
     raw = metadata_to_opf(mi)
     mi.cover = old_cover
     opf_file = PersistentTemporaryFile('.opf')

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 1 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -135,11 +136,11 @@ class AmazonKindleStore(StorePlugin):
             title_xpath = './/h3[@class="newaps"]/a//text()'
             author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]/text()'
             price_xpath = './/ul[contains(@class, "rsltL")]//span[contains(@class, "lrg") and contains(@class, "bld")]/text()'
-            
+
             for data in doc.xpath(data_xpath):
                 if counter <= 0:
                     break
-                
+
                 # Even though we are searching digital-text only Amazon will still
                 # put in results for non Kindle books (author pages). Se we need
                 # to explicitly check if the item is a Kindle book and ignore it
@@ -147,7 +148,7 @@ class AmazonKindleStore(StorePlugin):
                 format = ''.join(data.xpath(format_xpath))
                 if 'kindle' not in format.lower():
                     continue
-                
+
                 # We must have an asin otherwise we can't easily reference the
                 # book later.
                 asin_href = None
@@ -161,7 +162,7 @@ class AmazonKindleStore(StorePlugin):
                         continue
                 else:
                     continue
-                
+
                 cover_url = ''.join(data.xpath(cover_xpath))
 
                 title = ''.join(data.xpath(title_xpath))
@@ -172,9 +173,9 @@ class AmazonKindleStore(StorePlugin):
                     pass
 
                 price = ''.join(data.xpath(price_xpath))
-                
+
                 counter -= 1
-    
+
                 s = SearchResult()
                 s.cover_url = cover_url.strip()
                 s.title = title.strip()

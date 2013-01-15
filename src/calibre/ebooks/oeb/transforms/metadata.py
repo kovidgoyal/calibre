@@ -115,8 +115,11 @@ class MergeMetadata(object):
         if mi.uuid is not None:
             m.filter('identifier', lambda x:x.id=='uuid_id')
             self.oeb.metadata.add('identifier', mi.uuid, id='uuid_id',
-                                    scheme='uuid')
+                                  scheme='uuid')
             self.oeb.uid = self.oeb.metadata.identifier[-1]
+        if mi.application_id is not None:
+            m.filter('identifier', lambda x:x.scheme=='calibre')
+            self.oeb.metadata.add('identifier', mi.application_id, scheme='calibre')
 
     def set_cover(self, mi, prefer_metadata_cover):
         cdata, ext = '', 'jpg'
