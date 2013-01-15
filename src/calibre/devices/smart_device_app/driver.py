@@ -391,7 +391,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         try:
             # If we have already seen this book's UUID, use the existing path
             if self.settings().extra_customization[self.OPT_OVERWRITE_BOOKS_UUID]:
-                existing_book = self._uuid_already_on_device(mdata.uuid)
+                existing_book = self._uuid_already_on_device(mdata.uuid, ext)
                 if existing_book and existing_book.lpath:
                     return existing_book.lpath
 
@@ -688,20 +688,24 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 return not v_thumb or v_thumb[1] == b_thumb[1]
         return False
 
-    def _uuid_already_on_device(self, uuid):
-        return self.known_uuids.get(uuid, None)
+    def _uuid_already_on_device(self, uuid, ext):
+        try:
+            return self.known_uuids.get(uuid + ext, None)
+        except:
+            return None
 
     def _set_known_metadata(self, book, remove=False):
         lpath = book.lpath
+        ext = os.path.splitext(lpath)[1]
         uuid = book.get('uuid', None)
         if remove:
             self.known_metadata.pop(lpath, None)
-            if uuid:
-                self.known_uuids.pop(uuid, None)
+            if uuid and ext:
+                self.known_uuids.pop(uuid+ext, None)
         else:
             new_book = self.known_metadata[lpath] = book.deepcopy()
-            if uuid:
-                self.known_uuids[uuid] = new_book
+            if uuid and ext:
+                self.known_uuids[uuid+ext] = new_book
 
     def _close_device_socket(self):
         if self.device_socket is not None:
