@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 1 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2012, Tomasz Długosz <tomek3d@gmail.com>'
@@ -68,7 +69,7 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
                 counter -= 1
 
                 s = SearchResult()
-                s.cover_url = cover_url 
+                s.cover_url = cover_url
                 s.title = title.strip() + ' ' + formats
                 s.author = author.strip()
                 s.price = price

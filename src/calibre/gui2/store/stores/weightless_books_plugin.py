@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 1 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -35,9 +36,9 @@ class WeightlessBooksStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://weightlessbooks.com/?s=' + urllib.quote_plus(query)
-        
+
         br = browser()
-        
+
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
@@ -50,20 +51,20 @@ class WeightlessBooksStore(BasicStoreConfig, StorePlugin):
                     continue
 
                 cover_url = ''.join(data.xpath('.//div[@class="cover"]/a/img/@src'))
-                
+
                 price = ''.join(data.xpath('.//div[@class="buy_buttons"]/b[1]/text()'))
                 if not price:
                     continue
-                
+
                 formats = ', '.join(data.xpath('.//select[@class="eStore_variation"]//option//text()'))
                 formats = formats.upper()
-                
+
                 title = ''.join(data.xpath('.//h3/a/text()'))
                 author = ''.join(data.xpath('.//h3//text()'))
                 author = author.replace(title, '')
 
                 counter -= 1
-                
+
                 s = SearchResult()
                 s.cover_url = cover_url
                 s.title = title.strip()
@@ -72,5 +73,5 @@ class WeightlessBooksStore(BasicStoreConfig, StorePlugin):
                 s.detail_item = id.strip()
                 s.drm = SearchResult.DRM_UNLOCKED
                 s.formats = formats
-                
+
                 yield s

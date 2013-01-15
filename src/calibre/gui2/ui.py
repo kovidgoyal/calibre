@@ -155,7 +155,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             acmap[ac.name] = ac
 
     def load_store_plugins(self):
-        self.istores = OrderedDict()
+        from calibre.gui2.store.loader import Stores
+        self.istores = Stores()
         for store in available_store_plugins():
             if self.opts.ignore_plugins and store.plugin_path is not None:
                 continue
@@ -169,6 +170,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 if store.plugin_path is None:
                     raise
                 continue
+        self.istores.builtins_loaded()
 
     def init_istore(self, store):
         st = store.load_actual_plugin(self)
@@ -790,6 +792,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         except KeyboardInterrupt:
             pass
         time.sleep(2)
+        self.istores.join()
         self.hide_windows()
         # Do not report any errors that happen after the shutdown
         sys.excepthook = sys.__excepthook__

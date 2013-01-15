@@ -43,14 +43,16 @@ class StoreAction(InterfaceAction):
         icon.addFile(I('donate.png'), QSize(16, 16))
         for n, p in sorted(self.gui.istores.items(), key=lambda x: x[0].lower()):
             if p.base_plugin.affiliate:
-                self.store_list_menu.addAction(icon, n, partial(self.open_store, p))
+                self.store_list_menu.addAction(icon, n,
+                                               partial(self.open_store, n))
             else:
-                self.store_list_menu.addAction(n, partial(self.open_store, p))
+                self.store_list_menu.addAction(n, partial(self.open_store, n))
 
     def do_search(self):
         return self.search()
 
     def search(self, query=''):
+        self.gui.istores.check_for_updates()
         self.show_disclaimer()
         from calibre.gui2.store.search.search import SearchDialog
         sd = SearchDialog(self.gui, self.gui, query)
@@ -125,9 +127,13 @@ class StoreAction(InterfaceAction):
         self.gui.load_store_plugins()
         self.load_menu()
 
-    def open_store(self, store_plugin):
+    def open_store(self, store_plugin_name):
+        self.gui.istores.check_for_updates()
         self.show_disclaimer()
-        store_plugin.open(self.gui)
+        # It's not too important that the updated plugin have finished loading
+        # at this point
+        self.gui.istores.join(1.0)
+        self.gui.istores[store_plugin_name].open(self.gui)
 
     def show_disclaimer(self):
         confirm(('<p>' +

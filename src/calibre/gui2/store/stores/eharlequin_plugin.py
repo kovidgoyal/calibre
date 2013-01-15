@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 1 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -36,9 +37,9 @@ class EHarlequinStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://ebooks.eharlequin.com/BANGSearch.dll?Type=FullText&FullTextField=All&FullTextCriteria=' + urllib2.quote(query)
-        
+
         br = browser()
-        
+
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
@@ -64,19 +65,19 @@ class EHarlequinStore(BasicStoreConfig, StorePlugin):
                 s.price = price.strip()
                 s.detail_item = 'http://ebooks.eharlequin.com/' + id.strip()
                 s.formats = 'EPUB'
-                
+
                 yield s
-                
+
     def get_details(self, search_result, timeout):
         url = 'http://ebooks.eharlequin.com/en/ContentDetails.htm?ID='
-        
+
         mo = re.search(r'\?ID=(?P<id>.+)', search_result.detail_item)
         if mo:
             id = mo.group('id')
         if not id:
             return
-        
-        
+
+
         br = browser()
         with closing(br.open(url + id, timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())
