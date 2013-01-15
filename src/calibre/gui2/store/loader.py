@@ -107,6 +107,7 @@ class Stores(OrderedDict):
             return
         if time.time() - self.last_check_time < self.CHECK_INTERVAL:
             return
+        self.last_check_time = time.time()
         try:
             self.update_thread.start()
         except (RuntimeError, AttributeError):
