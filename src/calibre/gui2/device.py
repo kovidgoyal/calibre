@@ -985,6 +985,12 @@ class DeviceMixin(object): # {{{
                 return
         except:
             pass
+        if getattr(job, 'exception', None).__class__.__name__ == 'MTPInvalidSendPathError':
+            try:
+                from calibre.gui2.device_drivers.mtp_config import SendError
+                return SendError(self, job.exception).exec_()
+            except:
+                traceback.print_exc()
         try:
             prints(job.details, file=sys.stderr)
         except:

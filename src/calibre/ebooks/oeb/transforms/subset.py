@@ -36,7 +36,15 @@ class SubsetFonts(object):
             self.oeb.manifest.remove(font['item'])
             font['rule'].parentStyleSheet.deleteRule(font['rule'])
 
+        fonts = {}
         for font in self.embedded_fonts:
+            item, chars = font['item'], font['chars']
+            if item.href in fonts:
+                fonts[item.href]['chars'] |= chars
+            else:
+                fonts[item.href] = font
+
+        for font in fonts.itervalues():
             if not font['chars']:
                 self.log('The font %s is unused. Removing it.'%font['src'])
                 remove(font)

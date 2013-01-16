@@ -1,0 +1,16 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
+from calibre.web.feeds.news import BasicNewsRecipe
+class ZTS(BasicNewsRecipe):
+    title          = u'Zaufana Trzecia Strona'
+    __author__        = 'fenuks'
+    description   = u'Niezależne źródło wiadomości o świecie bezpieczeństwa IT'
+    category       = 'IT, security'
+    language       = 'pl'
+    cover_url = 'http://www.zaufanatrzeciastrona.pl/wp-content/uploads/2012/08/z3s_h100.png'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    keep_only_tags = [dict(name='div', attrs={'class':'post postcontent'})]
+    remove_tags = [dict(name='div', attrs={'class':'dolna-ramka'})]
+    feeds          = [(u'Strona g\u0142\xf3wna', u'http://feeds.feedburner.com/ZaufanaTrzeciaStronaGlowna'), (u'Drobiazgi', u'http://feeds.feedburner.com/ZaufanaTrzeciaStronaDrobiazgi')]

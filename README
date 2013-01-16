@@ -1,7 +1,7 @@
-calibre is an e-book library manager. It can view, convert and catalog e-books \
-in most of the major e-book formats. It can also talk to e-book reader \
-devices. It can go out to the internet and fetch metadata for your books. \
-It can download newspapers and convert them into e-books for convenient \
+calibre is an e-book library manager. It can view, convert and catalog e-books 
+in most of the major e-book formats. It can also talk to e-book reader 
+devices. It can go out to the internet and fetch metadata for your books. 
+It can download newspapers and convert them into e-books for convenient 
 reading. It is cross platform, running on Linux, Windows and OS X.
 
 For screenshots: https://calibre-ebook.com/demo
@@ -15,5 +15,5 @@ bzr branch lp:calibre
 To update your copy of the source code:
 bzr merge
 
-Tarballs of the source code for each release are now available \
+Tarballs of the source code for each release are now available 
 at http://code.google.com/p/calibre-ebook

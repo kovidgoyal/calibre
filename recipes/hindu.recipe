@@ -16,9 +16,13 @@ class TheHindu(BasicNewsRecipe):
 
     keep_only_tags = [dict(id='content')]
     remove_tags = [dict(attrs={'class':['article-links', 'breadcr']}),
-            dict(id=['email-section', 'right-column', 'printfooter'])]
+            dict(id=['email-section', 'right-column', 'printfooter', 'topover',
+                     'slidebox', 'th_footer'])]
 
     extra_css = '.photo-caption { font-size: smaller }'
+
+    def preprocess_raw_html(self, raw, url):
+        return raw.replace('<body><p>', '<p>').replace('</p></body>', '</p>')
 
     def postprocess_html(self, soup, first_fetch):
         for t in soup.findAll(['table', 'tr', 'td','center']):

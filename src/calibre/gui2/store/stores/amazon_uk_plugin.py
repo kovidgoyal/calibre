@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 1 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
-
-import re
 
 from contextlib import closing
 from lxml import html
@@ -18,19 +17,12 @@ from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 
-class AmazonUKKindleStore(StorePlugin):
-    aff_id = {'tag': 'calcharles-21'}
-    store_link = ('http://www.amazon.co.uk/gp/redirect.html?ie=UTF8&'
-                  'location=http://www.amazon.co.uk/Kindle-eBooks/b?'
-                  'ie=UTF8&node=341689031&ref_=sa_menu_kbo2&tag=%(tag)s&'
-                  'linkCode=ur2&camp=1634&creative=19450')
-    store_link_details = ('http://www.amazon.co.uk/gp/redirect.html?ie=UTF8&'
-                          'location=http://www.amazon.co.uk/dp/%(asin)s&tag=%(tag)s&'
-                          'linkCode=ur2&camp=1634&creative=6738')
-    search_url = 'http://www.amazon.co.uk/s/?url=search-alias%3Ddigital-text&field-keywords='
 
-    author_article = 'by '
+# This class is copy/pasted from amason_uk_plugin. Do not modify it in any
+# other amazon EU plugin. Be sure to paste it into all other amazon EU plugins
+# when modified.
 
+class AmazonEUBase(StorePlugin):
     '''
     For comments on the implementation, please see amazon_plugin.py
     '''
@@ -53,7 +45,7 @@ class AmazonUKKindleStore(StorePlugin):
 
             data_xpath = '//div[contains(@class, "prod")]'
             format_xpath = './/ul[contains(@class, "rsltL")]//span[contains(@class, "lrg") and not(contains(@class, "bld"))]/text()'
-            asin_xpath = './/div[@class="image"]/a[1]'
+            asin_xpath = '@name'
             cover_xpath = './/img[@class="productImage"]/@src'
             title_xpath = './/h3[@class="newaps"]/a//text()'
             author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]/text()'
@@ -73,15 +65,9 @@ class AmazonUKKindleStore(StorePlugin):
 
                 # We must have an asin otherwise we can't easily reference the
                 # book later.
-                asin_href = None
-                asin_a = data.xpath(asin_xpath)
-                if asin_a:
-                    asin_href = asin_a[0].get('href', '')
-                    m = re.search(r'/dp/(?P<asin>.+?)(/|$)', asin_href)
-                    if m:
-                        asin = m.group('asin')
-                    else:
-                        continue
+                asin = data.xpath(asin_xpath)
+                if asin:
+                    asin = asin[0]
                 else:
                     continue
 
@@ -112,3 +98,17 @@ class AmazonUKKindleStore(StorePlugin):
 
     def get_details(self, search_result, timeout):
         pass
+
+class AmazonUKKindleStore(AmazonEUBase):
+    aff_id = {'tag': 'calcharles-21'}
+    store_link = ('http://www.amazon.co.uk/gp/redirect.html?ie=UTF8&'
+                  'location=http://www.amazon.co.uk/Kindle-eBooks/b?'
+                  'ie=UTF8&node=341689031&ref_=sa_menu_kbo2&tag=%(tag)s&'
+                  'linkCode=ur2&camp=1634&creative=19450')
+    store_link_details = ('http://www.amazon.co.uk/gp/redirect.html?ie=UTF8&'
+                          'location=http://www.amazon.co.uk/dp/%(asin)s&tag=%(tag)s&'
+                          'linkCode=ur2&camp=1634&creative=6738')
+    search_url = 'http://www.amazon.co.uk/s/?url=search-alias%3Ddigital-text&field-keywords='
+
+    author_article = 'by '
+

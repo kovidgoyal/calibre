@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 1 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -38,7 +39,7 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
                 'ganpub': 'k352583',
                 'ganclk': 'GOOG_1335335464',
             }
-            
+
         url = 'http://gan.doubleclick.net/gan_click?lid=%(lid)s&pubid=%(pubid)s' % aff_id
         if detail_item:
             detail_item += '&ganpub=%(ganpub)s&ganclk=%(ganclk)s' % aff_id
@@ -53,13 +54,13 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.google.com/search?tbm=bks&q=' + urllib.quote_plus(query)
-        
+
         br = browser()
-        
+
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//ol[@id="rso"]/li'):
+            for data in doc.xpath('//ol/li'):
                 if counter <= 0:
                     break
 
@@ -68,7 +69,7 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
                     continue
 
                 title = ''.join(data.xpath('.//h3/a//text()'))
-                authors = data.xpath('.//div[@class="f"]//a//text()')
+                authors = data.xpath('.//span[contains(@class, "f")]//a//text()')
                 while authors and authors[-1].strip().lower() in ('preview', 'read', 'more editions'):
                     authors = authors[:-1]
                 if not authors:
@@ -76,22 +77,22 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
                 author = ', '.join(authors)
 
                 counter -= 1
-                
+
                 s = SearchResult()
                 s.title = title.strip()
                 s.author = author.strip()
                 s.detail_item = id.strip()
                 s.drm = SearchResult.DRM_UNKNOWN
-                
+
                 yield s
-                
+
     def get_details(self, search_result, timeout):
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             doc = html.fromstring(nf.read())
-            
+
             search_result.cover_url = ''.join(doc.xpath('//div[@class="sidebarcover"]//img/@src'))
-            
+
             # Try to get the set price.
             price = ''.join(doc.xpath('//div[@id="gb-get-book-container"]//a/text()'))
             if 'read' in price.lower():
@@ -101,10 +102,10 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
             elif '-' in price:
                 a, b, price = price.partition(' - ')
             search_result.price = price.strip()
-            
+
             search_result.formats = ', '.join(doc.xpath('//div[contains(@class, "download-panel-div")]//a/text()')).upper()
             if not search_result.formats:
                 search_result.formats = _('Unknown')
-            
+
         return True
 

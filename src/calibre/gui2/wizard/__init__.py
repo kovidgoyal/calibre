@@ -197,7 +197,7 @@ class NookColor(Nook):
 
 class NookTablet(NookColor):
     id = 'nook_tablet'
-    name = 'Nook Tablet'
+    name = 'Nook Tablet/HD'
 
 class CybookG3(Device):
 
@@ -244,6 +244,13 @@ class PocketBook900(PocketBook):
     name = 'PocketBook 900'
     id = 'pocketbook900'
     output_profile = 'pocketbook_900'
+
+class PocketBookPro912(PocketBook):
+
+    name = 'PocketBook Pro 912'
+    id = 'pocketbookpro912'
+    output_profile = 'pocketbook_pro_912'
+
 
 class iPhone(Device):
 

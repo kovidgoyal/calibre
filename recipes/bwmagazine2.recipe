@@ -11,16 +11,15 @@ class BusinessWeekMagazine(BasicNewsRecipe):
     category = 'news'
     encoding = 'UTF-8'
     keep_only_tags = [
-            dict(name='div', attrs={'id':'article_body_container'}),
-            ]
-    remove_tags = [dict(name='ui'),dict(name='li')]
+			dict(name='div', attrs={'id':'article_body_container'}),
+			]
+    remove_tags = [dict(name='ui'),dict(name='li'),dict(name='div', attrs={'id':['share-email']})]
     no_javascript = True
     no_stylesheets = True
 
     cover_url             = 'http://images.businessweek.com/mz/covers/current_120x160.jpg'
 
     def parse_index(self):
-
         #Go to the issue
         soup = self.index_to_soup('http://www.businessweek.com/magazine/news/articles/business_news.htm')
 
@@ -47,7 +46,6 @@ class BusinessWeekMagazine(BasicNewsRecipe):
                 if section_title not in feeds:
                     feeds[section_title] = []
                 feeds[section_title] += articles
-
         div1 = soup.find ('div', attrs={'class':'column center'})
         section_title = ''
         for div in div1.findAll('h5'):

@@ -10,7 +10,8 @@ __docformat__ = 'restructuredtext en'
 from operator import attrgetter
 
 from PyQt4.Qt import (QTabWidget, QTreeWidget, QTreeWidgetItem, Qt, QDialog,
-        QDialogButtonBox, QVBoxLayout, QSize, pyqtSignal, QIcon)
+        QDialogButtonBox, QVBoxLayout, QSize, pyqtSignal, QIcon, QLabel,
+        QListWidget, QListWidgetItem)
 
 from calibre.gui2 import file_icon_provider
 
@@ -95,25 +96,105 @@ class Browser(QDialog):
     def current_item(self):
         return self.folders.current_item
 
-def browse():
-    from calibre.gui2 import Application
+class TopLevel(QDialog):
+
+    def __init__(self, dev, ignored_folders=None, parent=None):
+        QDialog.__init__(self, parent)
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+        self.la = la = QLabel('<p>'+ _('<b>Scanned folders:</b>') + ' ' +
+            _('You can select which top level folders calibre will '
+              'scan when searching this device for books.'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.tabs = QTabWidget(self)
+        l.addWidget(self.tabs)
+        self.widgets = []
+
+        for storage in dev.filesystem_cache.entries:
+            w = QListWidget(self)
+            w.storage = storage
+            self.tabs.addTab(w, storage.name)
+            self.widgets.append(w)
+            for child in sorted(storage.folders, key=attrgetter('name')):
+                i = QListWidgetItem(child.name)
+                i.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+                i.setCheckState(Qt.Unchecked if
+                    dev.is_folder_ignored(storage, child.name,
+                            ignored_folders=ignored_folders) else Qt.Checked)
+                w.addItem(i)
+
+        self.bb = QDialogButtonBox(QDialogButtonBox.Ok |
+                                   QDialogButtonBox.Cancel)
+        self.bb.accepted.connect(self.accept)
+        self.bb.rejected.connect(self.reject)
+        self.sab = self.bb.addButton(_('Select &All'), self.bb.ActionRole)
+        self.sab.clicked.connect(self.select_all)
+        self.snb = self.bb.addButton(_('Select &None'), self.bb.ActionRole)
+        self.snb.clicked.connect(self.select_none)
+        l.addWidget(self.bb)
+        self.setWindowTitle(_('Choose folders to scan'))
+        self.setWindowIcon(QIcon(I('devices/tablet.png')))
+
+        self.resize(500, 500)
+
+    def select_all(self):
+        w = self.tabs.currentWidget()
+        for i in xrange(w.count()):
+            x = w.item(i)
+            x.setCheckState(Qt.Checked)
+
+    def select_none(self):
+        w = self.tabs.currentWidget()
+        for i in xrange(w.count()):
+            x = w.item(i)
+            x.setCheckState(Qt.Unchecked)
+
+    @property
+    def ignored_folders(self):
+        ans = {}
+        for w in self.widgets:
+            ans[unicode(w.storage.object_id)] = folders = []
+            for i in xrange(w.count()):
+                x = w.item(i)
+                if x.checkState() != Qt.Checked:
+                    folders.append(unicode(x.text()))
+        return ans
+
+def setup_device():
     from calibre.devices.mtp.driver import MTP_DEVICE
     from calibre.devices.scanner import DeviceScanner
     s = DeviceScanner()
     s.scan()
-    app = Application([])
-    app
     dev = MTP_DEVICE(None)
     dev.startup()
     cd = dev.detect_managed_devices(s.devices)
     if cd is None:
         raise ValueError('No MTP device found')
     dev.open(cd, 'test')
+    return dev
+
+def browse():
+    from calibre.gui2 import Application
+    app = Application([])
+    app
+    dev = setup_device()
     d = Browser(dev.filesystem_cache)
     d.exec_()
     dev.shutdown()
     return d.current_item
 
+def top_level():
+    from calibre.gui2 import Application
+    app = Application([])
+    app
+    dev = setup_device()
+    d = TopLevel(dev, None)
+    d.exec_()
+    dev.shutdown()
+    return d.ignored_folders
+
 if __name__ == '__main__':
-    print (browse())
+    # print (browse())
+    print ('Ignored:', top_level())
 

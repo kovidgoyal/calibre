@@ -1,27 +1,27 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class PajamasMedia(BasicNewsRecipe):
     title          = u'Pajamas Media'
     description = u'Provides exclusive news and opinion for forty countries.'
     language       = 'en'
     __author__     = 'Krittika Goyal'
-    oldest_article = 1 #days
+    oldest_article = 2 #days
     max_articles_per_feed = 25
     recursions = 1
     match_regexps = [r'http://pajamasmedia.com/blog/.*/2/$']
     #encoding = 'latin1'
 
     remove_stylesheets = True
-    #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
-    remove_tags_after  = dict(name='div', attrs={'class':'paged-nav'})
-    remove_tags = [
-       dict(name='iframe'),
-       dict(name='div', attrs={'class':['pages']}),
-       #dict(name='div', attrs={'id':['bookmark']}),
-       #dict(name='span', attrs={'class':['related_link', 'slideshowcontrols']}),
-       #dict(name='ul', attrs={'class':'articleTools'}),
-    ]
+    auto_cleanup = True
+    ##remove_tags_before = dict(name='h1', attrs={'class':'heading'})
+    #remove_tags_after  = dict(name='div', attrs={'class':'paged-nav'})
+    #remove_tags = [
+       #dict(name='iframe'),
+       #dict(name='div', attrs={'class':['pages']}),
+       ##dict(name='div', attrs={'id':['bookmark']}),
+       ##dict(name='span', attrs={'class':['related_link', 'slideshowcontrols']}),
+       ##dict(name='ul', attrs={'class':'articleTools'}),
+    #]
 
     feeds          = [
 ('pajamas Media',
@@ -29,20 +29,20 @@ class PajamasMedia(BasicNewsRecipe):
 
 ]
 
-    def preprocess_html(self, soup):
-        story = soup.find(name='div', attrs={'id':'innerpage-content'})
-        #td = heading.findParent(name='td')
-        #td.extract()
+    #def preprocess_html(self, soup):
+        #story = soup.find(name='div', attrs={'id':'innerpage-content'})
+        ##td = heading.findParent(name='td')
+        ##td.extract()
 
-        soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
-        body = soup.find(name='body')
-        body.insert(0, story)
-        return soup
+        #soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
+        #body = soup.find(name='body')
+        #body.insert(0, story)
+        #return soup
 
-    def postprocess_html(self, soup, first):
-        if not first:
-            h = soup.find(attrs={'class':'innerpage-header'})
-            if h: h.extract()
-            auth = soup.find(attrs={'class':'author'})
-            if auth: auth.extract()
-        return soup
+    #def postprocess_html(self, soup, first):
+        #if not first:
+            #h = soup.find(attrs={'class':'innerpage-header'})
+            #if h: h.extract()
+            #auth = soup.find(attrs={'class':'author'})
+            #if auth: auth.extract()
+        #return soup

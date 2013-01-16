@@ -164,7 +164,7 @@ static PyMethodDef Device_methods[] = {
     },
 
     {"get_filesystem", (PyCFunction)py_get_filesystem, METH_VARARGS,
-     "get_filesystem(storage_id, callback) -> Get all files/folders on the storage identified by storage_id. Tries to use bulk operations when possible. callback must be a callable that accepts a single argument. It is called with every found id and then with the metadata for every id."
+     "get_filesystem(storage_id, callback) -> Get all files/folders on the storage identified by storage_id. Tries to use bulk operations when possible. callback must be a callable that is called as (object, level). It is called with every found object. If the callback returns False and the object is a folder, it is not recursed into."
     },
 
     {"get_file", (PyCFunction)py_get_file, METH_VARARGS,

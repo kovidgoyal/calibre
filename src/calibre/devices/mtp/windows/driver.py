@@ -214,13 +214,14 @@ class MTP_DEVICE(MTPDeviceBase):
 
         return True
 
-    def _filesystem_callback(self, obj):
-        if isinstance(obj, dict):
-            n = obj.get('name', '')
-            msg = _('Found object: %s')%n
-        else:
-            msg = _('Found id: %s')%obj
+    def _filesystem_callback(self, obj, level):
+        n = obj.get('name', '')
+        msg = _('Found object: %s')%n
+        if (level == 0 and
+            self.is_folder_ignored(self._currently_getting_sid, n)):
+            return False
         self.filesystem_callback(msg)
+        return obj.get('is_folder', False)
 
     @property
     def filesystem_cache(self):
@@ -241,6 +242,7 @@ class MTP_DEVICE(MTPDeviceBase):
                         break
                 storage = {'id':storage_id, 'size':capacity, 'name':name,
                         'is_folder':True, 'can_delete':False, 'is_system':True}
+                self._currently_getting_sid = unicode(storage_id)
                 id_map = self.dev.get_filesystem(storage_id,
                         self._filesystem_callback)
                 for x in id_map.itervalues(): x['storage_id'] = storage_id

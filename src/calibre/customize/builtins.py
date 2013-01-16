@@ -661,7 +661,7 @@ from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
 from calibre.devices.hanvon.driver import (N516, EB511, ALEX, AZBOOKA, THEBOOK,
-        LIBREAIR, ODYSSEY)
+        LIBREAIR, ODYSSEY, KIBANO)
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import (TECLAST_K3, NEWSMY, IPAPYRUS,
         SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O, STASH, WEXLER)
@@ -712,7 +712,7 @@ plugins += [
     BOOQ,
     EB600,
     README,
-    N516,
+    N516, KIBANO,
     THEBOOK, LIBREAIR,
     EB511,
     ELONEX,
@@ -1471,9 +1471,9 @@ class StoreLegimiStore(StoreBase):
     affiliate = True
 
 class StoreLibreDEStore(StoreBase):
-    name = 'Libri DE'
+    name = 'ebook.de'
     author = 'Charles Haley'
-    description = u'Sicher Bücher, Hörbücher und Downloads online bestellen.'
+    description = u'All Ihre Bücher immer dabei. Suchen, finden, kaufen: so einfach wie nie. ebook.de war libre.de'
     actual_plugin = 'calibre.gui2.store.stores.libri_de_plugin:LibreDEStore'
 
     headquarters = 'DE'
@@ -1528,6 +1528,15 @@ class StoreNextoStore(StoreBase):
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF']
     affiliate = True
+
+class StoreNookUKStore(StoreBase):
+    name = 'Nook UK'
+    author = 'John Schember'
+    description = u'Barnes & Noble S.Ã  r.l, a subsidiary of Barnes & Noble, Inc., a leading retailer of content, digital media and educational products, is proud to bring the award-winning NOOKÂ® reading experience and a leading digital bookstore to the UK.'
+    actual_plugin = 'calibre.gui2.store.stores.nook_uk_plugin:NookUKStore'
+
+    headquarters = 'UK'
+    formats = ['NOOK']
 
 class StoreOpenBooksStore(StoreBase):
     name = 'Open Books'
@@ -1660,7 +1669,7 @@ plugins += [
     StoreAmazonITKindleStore,
     StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore,
-    StoreBNStore, StoreSonyStore,
+    StoreBNStore,
     StoreBeWriteStore,
     StoreBiblioStore,
     StoreBookotekaStore,
@@ -1686,12 +1695,14 @@ plugins += [
     StoreMillsBoonUKStore,
     StoreMobileReadStore,
     StoreNextoStore,
+    StoreNookUKStore,
     StoreOpenBooksStore,
     StoreOzonRUStore,
     StorePragmaticBookshelfStore,
     StorePublioStore,
     StoreRW2010Store,
     StoreSmashwordsStore,
+    StoreSonyStore,
     StoreVirtualoStore,
     StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,

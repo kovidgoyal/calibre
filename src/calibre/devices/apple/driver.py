@@ -1130,6 +1130,7 @@ class ITUNES(DriverBase):
                                    metadata[i].uuid))
                 self.cached_books[this_book.path] = {
                    'author': authors_to_string(metadata[i].authors),
+                  'authors': metadata[i].authors,
                  'dev_book': db_added,
                    'format': format,
                  'lib_book': lb_added,
@@ -1176,6 +1177,7 @@ class ITUNES(DriverBase):
                                        metadata[i].uuid))
                     self.cached_books[this_book.path] = {
                        'author': authors_to_string(metadata[i].authors),
+                      'authors': metadata[i].authors,
                      'dev_book': db_added,
                        'format': format,
                      'lib_book': lb_added,
@@ -1393,21 +1395,18 @@ class ITUNES(DriverBase):
         db_added = None
         lb_added = None
 
-        # If using iTunes_local_storage, copy the file, redirect iTunes to use local copy
-        if not self.settings().extra_customization[self.USE_ITUNES_STORAGE]:
-            local_copy = os.path.join(self.iTunes_local_storage, str(metadata.uuid) + os.path.splitext(fpath)[1])
-            shutil.copyfile(fpath, local_copy)
-            fpath = local_copy
-
         if self.manual_sync_mode:
             '''
-            Unsupported direct-connect mode.
+            DC mode. Add to iBooks only.
             '''
             db_added = self._add_device_book(fpath, metadata)
-            lb_added = self._add_library_book(fpath, metadata)
-            if not lb_added and DEBUG:
-                logger().warn("  failed to add '%s' to iTunes, iTunes Media folder inaccessible" % metadata.title)
         else:
+            # If using iTunes_local_storage, copy the file, redirect iTunes to use local copy
+            if not self.settings().extra_customization[self.USE_ITUNES_STORAGE]:
+                local_copy = os.path.join(self.iTunes_local_storage, str(metadata.uuid) + os.path.splitext(fpath)[1])
+                shutil.copyfile(fpath, local_copy)
+                fpath = local_copy
+
             lb_added = self._add_library_book(fpath, metadata)
             if not lb_added:
                 raise UserFeedback("iTunes Media folder inaccessible",
@@ -2441,13 +2440,13 @@ class ITUNES(DriverBase):
             as_binding = "dynamic"
             try:
                 # Try dynamic binding - works with iTunes <= 10.6.1
-                foo = self.iTunes.name()
+                self.iTunes.name()
             except:
                 # Try static binding
                 import itunes
                 self.iTunes = appscript.app('iTunes', terms=itunes)
                 try:
-                    foo = self.iTunes.name()
+                    self.iTunes.name()
                     as_binding = "static"
                 except:
                     self.iTunes = None
@@ -2500,8 +2499,8 @@ class ITUNES(DriverBase):
                 self.iTunes = win32com.client.Dispatch("iTunes.Application")
             except:
                 self.iTunes = None
-                raise UserFeedback(' %s._launch_iTunes(): unable to find installed iTunes'
-                                    % self.__class__.__name__, details=None, level=UserFeedback.WARN)
+                raise OpenFeedback('Unable to launch iTunes.\n' +
+                                   'Try launching calibre as Administrator')
 
             if not DEBUG:
                 self.iTunes.Windows[0].Minimized = True
@@ -2509,8 +2508,7 @@ class ITUNES(DriverBase):
 
             try:
                 # Pre-emptive test to confirm functional iTunes automation interface
-                foo = self.iTunes.Version
-                foo
+                logger().info("  automation interface with iTunes %s established" % self.iTunes.Version)
             except:
                 self.iTunes = None
                 raise OpenFeedback('Unable to connect to iTunes.\n' +
@@ -3118,7 +3116,7 @@ class ITUNES(DriverBase):
 
     def _wait_for_writable_metadata(self, db_added, delay=2.0):
         '''
-        Ensure iDevice metadata is writable. Direct connect mode only
+        Ensure iDevice metadata is writable. DC mode only
         '''
         if DEBUG:
             logger().info(" %s._wait_for_writable_metadata()" % self.__class__.__name__)

@@ -770,13 +770,25 @@ class PocketBook900Output(OutputProfile):
     dpi                       = 150.0
     comic_screen_size         = screen_size
 
+class PocketBookPro912Output(OutputProfile):
+
+    author = 'Daniele Pizzolli'
+    name = 'PocketBook Pro 912'
+    short_name = 'pocketbook_pro_912'
+    description = _('This profile is intended for the PocketBook Pro 912 series of devices.')
+
+    # According to http://download.pocketbook-int.com/user-guides/E_Ink/912/User_Guide_PocketBook_912(EN).pdf
+    screen_size               = (825, 1200)
+    dpi                       = 155.0
+    comic_screen_size         = screen_size
+
 output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReader900Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
         HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,
         iPadOutput, iPad3Output, KoboReaderOutput, TabletOutput, SamsungGalaxy,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
-        BambookOutput, NookColorOutput, PocketBook900Output, GenericEink,
-        GenericEinkLarge, KindleFireOutput, KindlePaperWhiteOutput]
+        BambookOutput, NookColorOutput, PocketBook900Output, PocketBookPro912Output,
+        GenericEink, GenericEinkLarge, KindleFireOutput, KindlePaperWhiteOutput]
 
 output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))

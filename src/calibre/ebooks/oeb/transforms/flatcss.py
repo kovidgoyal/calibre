@@ -356,7 +356,7 @@ class CSSFlattener(object):
         if 'bgcolor' in node.attrib:
             try:
                 cssdict['background-color'] = Property('background-color', node.attrib['bgcolor']).value
-            except ValueError:
+            except (ValueError, SyntaxErr):
                 pass
             del node.attrib['bgcolor']
         if cssdict.get('font-weight', '').lower() == 'medium':

@@ -697,11 +697,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view.shrink_fonts()
 
     def magnification_changed(self, val):
-        tt = _('Make font size %(which)s\nCurrent magnification: %(mag).1f')
+        tt = _('%(which)s font size\nCurrent magnification: %(mag).1f')
         self.action_font_size_larger.setToolTip(
-                tt %dict(which=_('larger'), mag=val))
+                tt %dict(which=_('Increase'), mag=val))
         self.action_font_size_smaller.setToolTip(
-                tt %dict(which=_('smaller'), mag=val))
+                tt %dict(which=_('Decrease'), mag=val))
         self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
         self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
 
@@ -758,7 +758,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                     self.view.scroll_to(frag)
                 else:
                     # Scroll to top
-                    self.view.scroll_to('#')
+                    self.view.scroll_to(0)
                 if self.view.document.ypos == oldpos:
                     # If we are coming from goto_next_section() call this will
                     # cause another goto next section call with the next toc

@@ -1,0 +1,13 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1345802300(BasicNewsRecipe):
+    title          = u'Online-Zeitung Schattenblick'
+    language   = 'de'
+    __author__ = 'ThB'
+    publisher = u'MA-Verlag'
+    category = u'Nachrichten'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    cover_url = 'http://www.schattenblick.de/mobi/rss/cover.jpg'
+    feeds          = [(u'Schattenblick Tagesausgabe', u'http://www.schattenblick.de/mobi/rss/rss.xml')]
+

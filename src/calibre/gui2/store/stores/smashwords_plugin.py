@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 1 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -36,7 +37,7 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
         if detail_item:
             detail_url = url + detail_item + aff_id
         url = url + aff_id
-            
+
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
         else:
@@ -47,9 +48,9 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.smashwords.com/books/search?query=' + urllib2.quote(query)
-        
+
         br = browser()
-        
+
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
@@ -57,7 +58,7 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
                 data = html.fromstring(html.tostring(data))
-                
+
                 id = None
                 id_a = data.xpath('//a[@class="bookTitle"]')
                 if id_a:
@@ -66,17 +67,17 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
                         id = id.split('/')[-1]
                 if not id:
                     continue
-                
+
                 cover_url = ''
                 c_url = data.get('style', None)
                 if c_url:
                     mo = re.search(r'http://[^\'"]+', c_url)
                     if mo:
                         cover_url = mo.group()
-                
+
                 title = ''.join(data.xpath('//a[@class="bookTitle"]/text()'))
                 subnote = ''.join(data.xpath('//span[@class="subnote"]/text()'))
-                author = ''.join(data.xpath('//span[@class="subnote"]/a/text()'))
+                author = ''.join(data.xpath('//span[@class="subnote"]//a[1]//text()'))
                 if '$' in subnote:
                     price = subnote.partition('$')[2]
                     price = price.split(u'\xa0')[0]
@@ -85,7 +86,7 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
                     price = '$0.00'
 
                 counter -= 1
-                
+
                 s = SearchResult()
                 s.cover_url = cover_url
                 s.title = title.strip()
@@ -93,12 +94,12 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
                 s.price = price.strip()
                 s.detail_item = '/books/view/' + id.strip()
                 s.drm = SearchResult.DRM_UNLOCKED
-                
+
                 yield s
 
     def get_details(self, search_result, timeout):
         url = 'http://www.smashwords.com/'
-        
+
         br = browser()
         with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())

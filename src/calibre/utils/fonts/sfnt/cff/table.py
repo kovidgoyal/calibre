@@ -194,7 +194,7 @@ class CFFTable(UnknownTable):
                 glyph_id in character_map.iteritems()}
         charset = set(charset_map.itervalues())
         charset.discard(None)
-        if not charset:
+        if not charset and character_map:
             raise NoGlyphs('This font has no glyphs for the specified characters')
         charset |= {
             self.cff.charset.safe_lookup(glyph_id) for glyph_id in extra_glyphs}

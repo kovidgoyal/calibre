@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools, re, os, traceback, errno
+import functools, re, os, traceback, errno, time
 from collections import defaultdict
 
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
@@ -27,6 +27,7 @@ from calibre import strftime, isbytestring
 from calibre.constants import filesystem_encoding, DEBUG
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.utils.localization import calibre_langcode_to_name
+from calibre.library.coloring import color_row_key
 
 def human_readable(size, precision=1):
     """ Convert a size in bytes into megabytes """
@@ -44,6 +45,30 @@ def default_image():
     if _default_image is None:
         _default_image = QImage(I('default_cover.png'))
     return _default_image
+
+class ColumnColor(object):
+
+    def __init__(self):
+        self.mi = None
+
+    def __call__(self, id_, key, fmt, db, formatter, color_cache, colors):
+        if id_ in color_cache and key in color_cache[id_]:
+            self.mi = None
+            return color_cache[id_][key]
+        try:
+            if self.mi is None:
+                self.mi = db.get_metadata(id_, index_is_id=True)
+            color = formatter.safe_format(fmt, self.mi, '', self.mi)
+            if color in colors:
+                color = QColor(color)
+                if color.isValid():
+                    color = QVariant(color)
+                    color_cache[id_][key] = color
+                    self.mi = None
+                    return color
+        except:
+            pass
+
 
 class BooksModel(QAbstractTableModel): # {{{
 
@@ -72,6 +97,7 @@ class BooksModel(QAbstractTableModel): # {{{
     def __init__(self, parent=None, buffer=40):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
+        self.column_color = ColumnColor()
         self.book_on_device = None
         self.editable_cols = ['title', 'authors', 'rating', 'publisher',
                               'tags', 'series', 'timestamp', 'pubdate',
@@ -84,6 +110,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.headers = {}
         self.alignment_map = {}
         self.color_cache = defaultdict(dict)
+        self.color_row_fmt_cache = None
         self.buffer_size = buffer
         self.metadata_backup = None
         self.bool_yes_icon = QIcon(I('ok.png'))
@@ -169,12 +196,14 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def refresh_ids(self, ids, current_row=-1):
         self.color_cache = defaultdict(dict)
+        self.color_row_fmt_cache = None
         rows = self.db.refresh_ids(ids)
         if rows:
             self.refresh_rows(rows, current_row=current_row)
 
     def refresh_rows(self, rows, current_row=-1):
         self.color_cache = defaultdict(dict)
+        self.color_row_fmt_cache = None
         for row in rows:
             if row == current_row:
                 self.new_bookdisplay_data.emit(
@@ -206,6 +235,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def count_changed(self, *args):
         self.color_cache = defaultdict(dict)
+        self.color_row_fmt_cache = None
         self.count_changed_signal.emit(self.db.count())
 
     def row_indices(self, index):
@@ -337,6 +367,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def reset(self):
         self.color_cache = defaultdict(dict)
+        self.color_row_fmt_cache = None
         QAbstractTableModel.reset(self)
 
     def resort(self, reset=True):
@@ -727,26 +758,20 @@ class BooksModel(QAbstractTableModel): # {{{
                 return QVariant(QColor('lightgreen'))
         elif role == Qt.ForegroundRole:
             key = self.column_map[col]
-            mi = None
+            id_ = self.id(index)
+            self.column_color.mi = None
+
+            if self.color_row_fmt_cache is None:
+                self.color_row_fmt_cache = tuple(fmt for key, fmt in
+                    self.db.prefs['column_color_rules'] if key == color_row_key)
+
             for k, fmt in self.db.prefs['column_color_rules']:
-                if k != key:
-                    continue
-                id_ = self.id(index)
-                if id_ in self.color_cache:
-                    if key in self.color_cache[id_]:
-                        return self.color_cache[id_][key]
-                try:
-                    if mi is None:
-                        mi = self.db.get_metadata(id_, index_is_id=True)
-                    color = self.formatter.safe_format(fmt, mi, '', mi)
-                    if color in self.colors:
-                        color = QColor(color)
-                        if color.isValid():
-                            color = QVariant(color)
-                            self.color_cache[id_][key] = color
-                            return color
-                except:
-                    continue
+                if k == key:
+                    ccol = self.column_color(id_, key, fmt, self.db,
+                                self.formatter, self.color_cache, self.colors)
+                    if ccol is not None:
+                        return ccol
+
             if self.is_custom_column(key) and \
                         self.custom_columns[key]['datatype'] == 'enumeration':
                 cc = self.custom_columns[self.column_map[col]]['display']
@@ -757,9 +782,18 @@ class BooksModel(QAbstractTableModel): # {{{
                     try:
                         color = QColor(colors[values.index(txt)])
                         if color.isValid():
+                            self.column_color.mi = None
                             return QVariant(color)
                     except:
                         pass
+
+            for fmt in self.color_row_fmt_cache:
+                ccol = self.column_color(id_, color_row_key, fmt, self.db,
+                            self.formatter, self.color_cache, self.colors)
+                if ccol is not None:
+                    return ccol
+
+            self.column_color.mi = None
             return NONE
         elif role == Qt.DecorationRole:
             if self.column_to_dc_decorator_map[col] is not None:
@@ -1385,7 +1419,11 @@ class DeviceBooksModel(BooksModel): # {{{
                 return QVariant(human_readable(size))
             elif cname == 'timestamp':
                 dt = self.db[self.map[row]].datetime
-                dt = dt_factory(dt, assume_utc=True, as_utc=False)
+                try:
+                    dt = dt_factory(dt, assume_utc=True, as_utc=False)
+                except OverflowError:
+                    dt = dt_factory(time.gmtime(), assume_utc=True,
+                                    as_utc=False)
                 return QVariant(strftime(TIME_FMT, dt.timetuple()))
             elif cname == 'collections':
                 tags = self.db[self.map[row]].device_collections
