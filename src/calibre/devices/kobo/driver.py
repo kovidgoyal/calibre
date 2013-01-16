@@ -33,7 +33,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 0, 4)
+    version = (2, 0, 5)
 
     dbversion = 0
     fwversion = 0
@@ -2353,10 +2353,17 @@ class KOBOTOUCH(KOBO):
             debug_print('KoboTouch:set_series book.series="%s"'%book.series)
             debug_print('KoboTouch:set_series book.series_index=', book.series_index)
 
-        if book.series == book.kobo_series and book.series_index == book.kobo_series_number:
-            if show_debug:
-                debug_print('KoboTouch:set_series - series info the same - not changing')
-            return
+        if book.series == book.kobo_series:
+            kobo_series_number = None
+            if book.kobo_series_number is not None:
+                try:
+                    kobo_series_number = float(book.kobo_series_number)
+                except:
+                    kobo_series_number = None
+            if kobo_series_number == book.series_index:
+                if show_debug:
+                    debug_print('KoboTouch:set_series - series info the same - not changing')
+                return
 
         update_query = 'UPDATE content SET Series=?, SeriesNumber==? where BookID is Null and ContentID = ?'
         if book.series is None:

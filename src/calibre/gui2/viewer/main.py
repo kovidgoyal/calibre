@@ -758,7 +758,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                     self.view.scroll_to(frag)
                 else:
                     # Scroll to top
-                    self.view.scroll_to('#')
+                    self.view.scroll_to(0)
                 if self.view.document.ypos == oldpos:
                     # If we are coming from goto_next_section() call this will
                     # cause another goto next section call with the next toc

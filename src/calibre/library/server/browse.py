@@ -894,7 +894,8 @@ class BrowseServer(object):
     @Endpoint()
     def browse_random(self, *args, **kwargs):
         import random
-        book_id = random.choice(tuple(self.db.all_ids()))
+        book_id = random.choice(self.db.search_getting_ids(
+            '', self.search_restriction))
         ans = self.browse_render_details(book_id)
         return self.browse_template('').format(
                 title='', script='book();', main=ans)
