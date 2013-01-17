@@ -68,7 +68,7 @@ class LigatureSubstitution(UnknownLookupSubTable):
         ans = set()
         for start_glyph_id, index in gid_index_map.iteritems():
             for glyph_id, components in self.coverage_to_lig_map[index]:
-                components = (start_glyph_id,) + (components)
+                components = (start_glyph_id,) + components
                 if set(components).issubset(glyph_ids):
                     ans.add(glyph_id)
         return ans
