@@ -58,9 +58,9 @@ class CHMInput(InputFormatPlugin):
 
             metadata = get_metadata_from_reader(self._chm_reader)
             self._chm_reader.CloseCHM()
-            #print tdir
-            #from calibre import ipython
-            #ipython()
+            # print tdir, mainpath
+            # from calibre import ipython
+            # ipython()
 
             options.debug_pipeline = None
             options.input_encoding = 'utf-8'
@@ -143,6 +143,8 @@ class CHMInput(InputFormatPlugin):
 
     def _create_html_root(self, hhcpath, log):
         from lxml import html
+        from urllib import unquote as _unquote
+        from calibre.ebooks.oeb.base import urlquote
         hhcdata = self._read_file(hhcpath)
         hhcroot = html.fromstring(hhcdata)
         chapters = self._process_nodes(hhcroot)
@@ -152,23 +154,41 @@ class CHMInput(InputFormatPlugin):
         #print "============================="
         log.debug('Found %d section nodes' % len(chapters))
         htmlpath = os.path.splitext(hhcpath)[0] + ".html"
+        base = os.path.dirname(os.path.abspath(htmlpath))
+
+        def unquote(x):
+            if isinstance(x, unicode):
+                x = x.encode('utf-8')
+            return _unquote(x).decode('utf-8')
+
+        def unquote_path(x):
+            y = unquote(x)
+            if (not os.path.exists(os.path.join(base, x)) and
+                os.path.exists(os.path.join(base, y))):
+                x = y
+            return x
+
         with open(htmlpath, 'wb') as f:
             if chapters:
                 f.write('<html><head><meta http-equiv="Content-type"'
                     ' content="text/html;charset=UTF-8" /></head><body>\n')
                 path0 = chapters[0][1]
+                path0 = unquote_path(path0)
                 subpath = os.path.dirname(path0)
                 base = os.path.dirname(f.name)
 
                 for chapter in chapters:
                     title = chapter[0]
-                    rsrcname = os.path.basename(chapter[1])
+                    raw = unquote_path(chapter[1])
+                    rsrcname = os.path.basename(raw)
                     rsrcpath = os.path.join(subpath, rsrcname)
                     if (not os.path.exists(os.path.join(base, rsrcpath)) and
-                            os.path.exists(os.path.join(base, chapter[1]))):
-                        rsrcpath = chapter[1]
+                            os.path.exists(os.path.join(base, raw))):
+                        rsrcpath = raw
 
                     # title should already be url encoded
+                    if '%' not in rsrcpath:
+                        rsrcpath = urlquote(rsrcpath)
                     url = "<br /><a href=" + rsrcpath + ">" + title + " </a>\n"
                     if isinstance(url, unicode):
                         url = url.encode('utf-8')
