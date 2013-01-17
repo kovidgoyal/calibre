@@ -1711,7 +1711,7 @@ class KOBOTOUCH(KOBO):
         result = super(KOBOTOUCH, self).upload_books(files, names, on_card, end_session, metadata)
 #        debug_print('KoboTouch:upload_books - result=', result)
 
-        if self.dbversion >= 53 and prefs['manage_device_metadata'] == 'on_connect':
+        if self.dbversion >= 53:
             import sqlite3 as sqlite
             try:
                 with closing(sqlite.connect(self.normalize_path(self._main_prefix +
