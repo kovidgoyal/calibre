@@ -70,6 +70,7 @@ def config(defaults=None):
     c.add_opt('bottom_margin', default=20)
     c.add_opt('text_color', default=None)
     c.add_opt('background_color', default=None)
+    c.add_opt('show_controls', default=True)
 
     fonts = c.add_group('FONTS', _('Font options'))
     fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif',
@@ -221,6 +222,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         for x in ('text', 'background'):
             setattr(self, 'current_%s_color'%x, getattr(opts, '%s_color'%x))
         self.update_sample_colors()
+        self.opt_show_controls.setChecked(opts.show_controls)
 
     def change_color(self, which, reset=False):
         if reset:
@@ -292,6 +294,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 self.opt_override_book_margins.isChecked())
         c.set('text_color', self.current_text_color)
         c.set('background_color', self.current_background_color)
+        c.set('show_controls', self.opt_show_controls.isChecked())
         for x in ('top', 'bottom', 'side'):
             c.set(x+'_margin', int(getattr(self, 'opt_%s_margin'%x).value()))
 
