@@ -25,15 +25,10 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class EmpikStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        plain_url = 'http://www.empik.com/ebooki'
-        url = 'https://ssl.afiliant.com/affskrypt,,2f9de2,,23c7f,,,?u=(' + plain_url + ')'
-        detail_url = None
-
-        if detail_item:
-            detail_url = 'https://ssl.afiliant.com/affskrypt,,2f9de2,,23c7f,,,?u=(' + detail_item + ')'
+        url = 'http://www.empik.com/ebooki'
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
+            open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
