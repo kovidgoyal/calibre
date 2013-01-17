@@ -249,7 +249,7 @@ class MobiReader(object):
         head.insert(0, m)
         if not title:
             title = head.makeelement('title', {})
-            title.text = self.book_header.title
+            title.text = clean_ascii_chars(self.book_header.title)
             title.tail = '\n\t'
             head.insert(0, title)
             head.text = '\n\t'
