@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import cStringIO, ctypes, datetime, os, platform, re, shutil, sys, tempfile, time
 
-from calibre.constants import __appname__, __version__, DEBUG
+from calibre.constants import __appname__, __version__, DEBUG as CALIBRE_DEBUG
 from calibre import fit_image, confirm_config_name, strftime as _strftime
 from calibre.constants import isosx, iswindows
 from calibre.devices.errors import OpenFeedback, UserFeedback
@@ -20,6 +20,8 @@ from calibre.utils.config import config_dir, dynamic, prefs
 from calibre.utils.date import now, parse_date
 from calibre.utils.zipfile import ZipFile
 
+DEBUG = False
+#DEBUG = CALIBRE_DEBUG
 
 def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
 
@@ -881,8 +883,9 @@ class ITUNES(DriverBase):
                     logger().info(" %s" % self.UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE)
 
         # Log supported DEVICE_IDs and BCDs
-        logger().info(" BCD: %s" % ['0x%x' % x for x in sorted(self.BCD)])
-        logger().info(" PRODUCT_ID: %s" % ['0x%x' % x for x in sorted(self.PRODUCT_ID)])
+        if DEBUG:
+            logger().info(" BCD: %s" % ['0x%x' % x for x in sorted(self.BCD)])
+            logger().info(" PRODUCT_ID: %s" % ['0x%x' % x for x in sorted(self.PRODUCT_ID)])
 
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):
@@ -1667,7 +1670,8 @@ class ITUNES(DriverBase):
                 except:
                     self.manual_sync_mode = False
 
-        logger().info("   iTunes.manual_sync_mode: %s" % self.manual_sync_mode)
+        if DEBUG:
+            logger().info("   iTunes.manual_sync_mode: %s" % self.manual_sync_mode)
 
     def _dump_booklist(self, booklist, header=None, indent=0):
         '''
