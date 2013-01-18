@@ -373,7 +373,7 @@ class BrowseServer(object):
                 continue
             # get the icon files
             if category in self.icon_map:
-                icon = '_'+quote(self.icon_map[category])
+                icon = '_'+quote(self.icon_map[category.partition('.')[0]])
             elif category in category_icon_map:
                 icon = category_icon_map[category]
             elif meta['is_custom']:
