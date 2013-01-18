@@ -56,7 +56,7 @@ class TOCItem(QStandardItem):
         self.title = text
         self.parent = parent
         QStandardItem.__init__(self, text if text else '')
-        self.abspath = toc.abspath
+        self.abspath = toc.abspath if toc.href else None
         self.fragment = toc.fragment
         all_items.append(self)
         self.bold_font = QFont(self.font())
@@ -70,11 +70,13 @@ class TOCItem(QStandardItem):
             if si == self.abspath:
                 spos = i
                 break
-        try:
-            am = getattr(spine[i], 'anchor_map', {})
-        except UnboundLocalError:
-            # Spine was empty?
-            am = {}
+        am = {}
+        if self.abspath is not None:
+            try:
+                am = getattr(spine[i], 'anchor_map', {})
+            except UnboundLocalError:
+                # Spine was empty?
+                pass
         frag = self.fragment if (self.fragment and self.fragment in am) else None
         self.starts_at = spos
         self.start_anchor = frag
