@@ -919,6 +919,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self.connection_attempts[peer] = 0
             except:
                 pass
+
+            self.known_metadata = {}
+            self.known_uuids = {}
             return True
         except socket.timeout:
             self._close_device_socket()

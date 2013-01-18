@@ -41,7 +41,7 @@ class WaterstonesUKStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.waterstones.com/waterstonesweb/advancedSearch.do?buttonClicked=1&format=3757&bookkeywords=' + urllib2.quote(query)
+        url = 'http://www.waterstones.com/waterstonesweb/simpleSearch.do?simpleSearchString=ebook+' + urllib2.quote(query)
 
         br = browser()
 
@@ -56,6 +56,8 @@ class WaterstonesUKStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
                 cover_url = ''.join(data.xpath('.//div[@class="image"]/a/img/@src'))
+                if not cover_url.startswith("http"):
+                    cover_url = 'http://www.waterstones.com' + cover_url
                 title = ''.join(data.xpath('./div/div/h2/a/text()'))
                 author = ', '.join(data.xpath('.//p[@class="byAuthor"]/a/text()'))
                 price = ''.join(data.xpath('.//p[@class="price"]/span[@class="priceRed2"]/text()'))

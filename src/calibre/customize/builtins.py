@@ -1402,7 +1402,6 @@ class StoreEmpikStore(StoreBase):
 
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF']
-    affiliate = True
 
 class StoreEscapeMagazineStore(StoreBase):
     name = 'EscapeMagazine'
@@ -1471,9 +1470,9 @@ class StoreLegimiStore(StoreBase):
     affiliate = True
 
 class StoreLibreDEStore(StoreBase):
-    name = 'Libri DE'
+    name = 'ebook.de'
     author = 'Charles Haley'
-    description = u'Sicher Bücher, Hörbücher und Downloads online bestellen.'
+    description = u'All Ihre Bücher immer dabei. Suchen, finden, kaufen: so einfach wie nie. ebook.de war libre.de'
     actual_plugin = 'calibre.gui2.store.stores.libri_de_plugin:LibreDEStore'
 
     headquarters = 'DE'
