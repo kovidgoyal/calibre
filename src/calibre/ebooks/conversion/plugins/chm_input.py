@@ -7,8 +7,6 @@ import os
 
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
-from calibre.utils.localization import get_lang
-from calibre.utils.filenames import ascii_filename
 from calibre.constants import filesystem_encoding
 
 class CHMInput(InputFormatPlugin):
@@ -57,6 +55,7 @@ class CHMInput(InputFormatPlugin):
             mainpath = os.path.join(tdir, mainname)
 
             metadata = get_metadata_from_reader(self._chm_reader)
+            encoding = self._chm_reader.get_encoding() or options.input_encoding or 'cp1252'
             self._chm_reader.CloseCHM()
             # print tdir, mainpath
             # from calibre import ipython
@@ -64,14 +63,30 @@ class CHMInput(InputFormatPlugin):
 
             options.debug_pipeline = None
             options.input_encoding = 'utf-8'
-            # try a custom conversion:
-            #oeb = self._create_oebbook(mainpath, tdir, options, log, metadata)
-            # try using html converter:
-            htmlpath = self._create_html_root(mainpath, log)
+            htmlpath, toc = self._create_html_root(mainpath, log, encoding)
             oeb = self._create_oebbook_html(htmlpath, tdir, options, log, metadata)
             options.debug_pipeline = odi
-            #log.debug('DEBUG: Not removing tempdir %s' % tdir)
+            if toc.count() > 1:
+                oeb.toc = self.parse_html_toc(oeb.spine[0])
+                oeb.manifest.remove(oeb.spine[0])
+                oeb.auto_generated_toc = False
         return oeb
+
+    def parse_html_toc(self, item):
+        from calibre.ebooks.oeb.base import TOC, XPath
+        dx = XPath('./h:div')
+        ax = XPath('./h:a[1]')
+
+        def do_node(parent, div):
+            for child in dx(div):
+                a = ax(child)[0]
+                c = parent.add(a.text, a.attrib['href'])
+                do_node(c, child)
+
+        toc = TOC()
+        root = XPath('//h:div[1]')(item.data)[0]
+        do_node(toc, root)
+        return toc
 
     def _create_oebbook_html(self, htmlpath, basedir, opts, log, mi):
         # use HTMLInput plugin to generate book
@@ -81,78 +96,22 @@ class CHMInput(InputFormatPlugin):
         oeb = htmlinput.create_oebbook(htmlpath, basedir, opts, log, mi)
         return oeb
 
-
-    def _create_oebbook(self, hhcpath, basedir, opts, log, mi):
-        import uuid
-        from lxml import html
-        from calibre.ebooks.conversion.plumber import create_oebbook
-        from calibre.ebooks.oeb.base import DirContainer
-        oeb = create_oebbook(log, None, opts,
-                encoding=opts.input_encoding, populate=False)
-        self.oeb = oeb
-
-        metadata = oeb.metadata
-        if mi.title:
-            metadata.add('title', mi.title)
-        if mi.authors:
-            for a in mi.authors:
-                metadata.add('creator', a, attrib={'role':'aut'})
-        if mi.publisher:
-            metadata.add('publisher', mi.publisher)
-        if mi.isbn:
-            metadata.add('identifier', mi.isbn, attrib={'scheme':'ISBN'})
-        if not metadata.language:
-            oeb.logger.warn(u'Language not specified')
-            metadata.add('language', get_lang().replace('_', '-'))
-        if not metadata.creator:
-            oeb.logger.warn('Creator not specified')
-            metadata.add('creator', _('Unknown'))
-        if not metadata.title:
-            oeb.logger.warn('Title not specified')
-            metadata.add('title', _('Unknown'))
-
-        bookid = str(uuid.uuid4())
-        metadata.add('identifier', bookid, id='uuid_id', scheme='uuid')
-        for ident in metadata.identifier:
-            if 'id' in ident.attrib:
-                self.oeb.uid = metadata.identifier[0]
-                break
-
-        hhcdata = self._read_file(hhcpath)
-        hhcroot = html.fromstring(hhcdata)
-        chapters = self._process_nodes(hhcroot)
-        #print "============================="
-        #print "Printing hhcroot"
-        #print etree.tostring(hhcroot, pretty_print=True)
-        #print "============================="
-        log.debug('Found %d section nodes' % len(chapters))
-
-        if len(chapters) > 0:
-            path0 = chapters[0][1]
-            subpath = os.path.dirname(path0)
-            htmlpath = os.path.join(basedir, subpath)
-
-            oeb.container = DirContainer(htmlpath, log)
-            for chapter in chapters:
-                title = chapter[0]
-                basename = os.path.basename(chapter[1])
-                self._add_item(oeb, title, basename)
-
-            oeb.container = DirContainer(htmlpath, oeb.log)
-        return oeb
-
-    def _create_html_root(self, hhcpath, log):
+    def _create_html_root(self, hhcpath, log, encoding):
         from lxml import html
         from urllib import unquote as _unquote
         from calibre.ebooks.oeb.base import urlquote
+        from calibre.ebooks.chardet import xml_to_unicode
         hhcdata = self._read_file(hhcpath)
+        hhcdata = hhcdata.decode(encoding)
+        hhcdata = xml_to_unicode(hhcdata, verbose=True,
+                            strip_encoding_pats=True, resolve_entities=True)[0]
         hhcroot = html.fromstring(hhcdata)
-        chapters = self._process_nodes(hhcroot)
+        toc = self._process_nodes(hhcroot)
         #print "============================="
         #print "Printing hhcroot"
         #print etree.tostring(hhcroot, pretty_print=True)
         #print "============================="
-        log.debug('Found %d section nodes' % len(chapters))
+        log.debug('Found %d section nodes' % toc.count())
         htmlpath = os.path.splitext(hhcpath)[0] + ".html"
         base = os.path.dirname(os.path.abspath(htmlpath))
 
@@ -168,37 +127,40 @@ class CHMInput(InputFormatPlugin):
                 x = y
             return x
 
+        def donode(item, parent, base, subpath):
+            for child in item:
+                title = child.title
+                if not title: continue
+                raw = unquote_path(child.href or '')
+                rsrcname = os.path.basename(raw)
+                rsrcpath = os.path.join(subpath, rsrcname)
+                if (not os.path.exists(os.path.join(base, rsrcpath)) and
+                        os.path.exists(os.path.join(base, raw))):
+                    rsrcpath = raw
+
+                if '%' not in rsrcpath:
+                    rsrcpath = urlquote(rsrcpath)
+                if not raw:
+                    rsrcpath = ''
+                c = DIV(A(title, href=rsrcpath))
+                donode(child, c, base, subpath)
+                parent.append(c)
+
         with open(htmlpath, 'wb') as f:
-            if chapters:
-                f.write('<html><head><meta http-equiv="Content-type"'
-                    ' content="text/html;charset=UTF-8" /></head><body>\n')
-                path0 = chapters[0][1]
+            if toc.count() > 1:
+                from lxml.html.builder import HTML, BODY, DIV, A
+                path0 = toc[0].href
                 path0 = unquote_path(path0)
                 subpath = os.path.dirname(path0)
                 base = os.path.dirname(f.name)
-
-                for chapter in chapters:
-                    title = chapter[0]
-                    raw = unquote_path(chapter[1])
-                    rsrcname = os.path.basename(raw)
-                    rsrcpath = os.path.join(subpath, rsrcname)
-                    if (not os.path.exists(os.path.join(base, rsrcpath)) and
-                            os.path.exists(os.path.join(base, raw))):
-                        rsrcpath = raw
-
-                    # title should already be url encoded
-                    if '%' not in rsrcpath:
-                        rsrcpath = urlquote(rsrcpath)
-                    url = "<br /><a href=" + rsrcpath + ">" + title + " </a>\n"
-                    if isinstance(url, unicode):
-                        url = url.encode('utf-8')
-                    f.write(url)
-
-                f.write("</body></html>")
+                root = DIV()
+                donode(toc, root, base, subpath)
+                raw = html.tostring(HTML(BODY(root)), encoding='utf-8',
+                                   pretty_print=True)
+                f.write(raw)
             else:
                 f.write(hhcdata)
-        return htmlpath
-
+        return htmlpath, toc
 
     def _read_file(self, name):
         f = open(name, 'rb')
@@ -206,41 +168,27 @@ class CHMInput(InputFormatPlugin):
         f.close()
         return data
 
-    def _visit_node(self, node, chapters, depth):
-        # check that node is a normal node (not a comment, DOCTYPE, etc.)
-        # (normal nodes have string tags)
-        if isinstance(node.tag, basestring):
-            from calibre.ebooks.chm.reader import match_string
-
-            chapter_path = None
-            if match_string(node.tag, 'object') and match_string(node.attrib['type'], 'text/sitemap'):
-                chapter_title = None
-                for child in node:
-                    if match_string(child.tag,'param') and match_string(child.attrib['name'], 'name'):
-                        chapter_title = child.attrib['value']
-                    if match_string(child.tag,'param') and match_string(child.attrib['name'],'local'):
-                        chapter_path = child.attrib['value']
-                if chapter_title is not None and chapter_path is not None:
-                    chapter = [chapter_title, chapter_path, depth]
-                    chapters.append(chapter)
-            if node.tag=="UL":
-                depth = depth + 1
-            if node.tag=="/UL":
-                depth = depth - 1
+    def add_node(self, node, toc, ancestor_map):
+        from calibre.ebooks.chm.reader import match_string
+        if match_string(node.attrib['type'], 'text/sitemap'):
+            p = node.xpath('ancestor::ul[1]/ancestor::li[1]/object[1]')
+            parent = p[0] if p else None
+            toc = ancestor_map.get(parent, toc)
+            title = href = u''
+            for param in node.xpath('./param'):
+                if match_string(param.attrib['name'], 'name'):
+                    title = param.attrib['value']
+                elif match_string(param.attrib['name'], 'local'):
+                    href = param.attrib['value']
+            child = toc.add(title or _('Unknown'), href)
+            ancestor_map[node] = child
 
     def _process_nodes(self, root):
-        chapters = []
-        depth = 0
-        for node in root.iter():
-            self._visit_node(node, chapters, depth)
-        return chapters
+        from calibre.ebooks.oeb.base import TOC
+        toc = TOC()
+        ancestor_map = {}
+        for node in root.xpath('//object'):
+            self.add_node(node, toc, ancestor_map)
+        return toc
 
-    def _add_item(self, oeb, title, path):
-        bname = os.path.basename(path)
-        id, href = oeb.manifest.generate(id='html',
-                href=ascii_filename(bname))
-        item = oeb.manifest.add(id, href, 'text/html')
-        item.html_input_href = bname
-        oeb.spine.add(item, True)
-        oeb.toc.add(title, item.href)
 
