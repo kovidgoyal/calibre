@@ -372,8 +372,10 @@ class BrowseServer(object):
             if meta['is_custom'] and category not in displayed_custom_fields:
                 continue
             # get the icon files
-            if category in self.icon_map:
-                icon = '_'+quote(self.icon_map[category.partition('.')[0]])
+            main_cat = (category.partition('.')[0]) if hasattr(category,
+                                                    'partition') else category
+            if main_cat in self.icon_map:
+                icon = '_'+quote(self.icon_map[main_cat])
             elif category in category_icon_map:
                 icon = category_icon_map[category]
             elif meta['is_custom']:
