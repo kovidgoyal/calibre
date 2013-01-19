@@ -151,7 +151,7 @@ class ManyToManyTable(ManyToOneTable):
 
     def read_maps(self, db):
         for row in db.conn.execute(
-                'SELECT book, {0} FROM {1}'.format(
+                'SELECT book, {0} FROM {1} ORDER BY id'.format(
                     self.metadata['link_column'], self.link_table)):
             if row[1] not in self.col_book_map:
                 self.col_book_map[row[1]] = []
