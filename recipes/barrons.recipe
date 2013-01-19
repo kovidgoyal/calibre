@@ -64,8 +64,8 @@ class Barrons(BasicNewsRecipe):
             br = BasicNewsRecipe.get_browser()
             if self.username is not None and self.password is not None:
                 br.open('http://commerce.barrons.com/auth/login')
-                br.select_form(name='login_form')
-                br['user']   = self.username
+                br.select_form(nr=0)
+                br['username']   = self.username
                 br['password'] = self.password
                 br.submit()
             return br
