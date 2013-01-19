@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-01-18 04:31+0000\n"
-"PO-Revision-Date: 2013-01-12 08:08+0000\n"
+"PO-Revision-Date: 2013-01-18 12:10+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-01-18 05:00+0000\n"
+"X-Launchpad-Export-Date: 2013-01-19 05:05+0000\n"
 "X-Generator: Launchpad (build 16430)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:533
@@ -922,6 +922,7 @@ msgstr ""
 msgid ""
 "This profile is intended for the PocketBook Pro 912 series of devices."
 msgstr ""
+"Este perfil está pensado para la serie de dispositivos PocketBook Pro 912."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Mapping for filetype plugins"
@@ -1433,7 +1434,7 @@ msgstr "Comunicarse con el lector PocketBook 301."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:237
 msgid "Communicate with the PocketBook 602/603/902/903/Pro 912 reader."
-msgstr ""
+msgstr "Comunicar con el lector PocketBook 602/603/902/093/Pro 912."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
@@ -2414,7 +2415,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:303
 msgid "Replace books with the same calibre identifier"
-msgstr ""
+msgstr "Sustituir libros con el mismo identificador de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:304
 msgid ""
@@ -2423,6 +2424,11 @@ msgid ""
 "not change even if the save template produces a different result. Using this "
 "option in most cases prevents having multiple copies of a book on the device."
 msgstr ""
+"Use esta opción para sobreescribir los libros del dispositivo si tienen en "
+"el mismo identificador de calibre que los libros que se están enviando. El "
+"nombre de archivo del libro no se cambiará aunque la plantilla de guardado "
+"produzca un resultado diferente. El uso de esta opción evita la existencia "
+"de varias copias del mismo libro en el dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:797
 #, python-format
@@ -8889,6 +8895,7 @@ msgstr "&Desactivar la modificación del tamaño de letra"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:249
 msgid "&Subset all embedded fonts"
 msgstr ""
+"Crear subconjuntos de caracteres para todos los tipos de letra incrustados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:16
 msgid "LRF Output"
@@ -19591,7 +19598,7 @@ msgstr "Recordar la página &actual al salir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:441
 msgid "Show &controls in the viewer window"
-msgstr ""
+msgstr "Mostrar &controles en la ventana del visor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:442
 msgid "&Miscellaneous options"
@@ -22401,7 +22408,7 @@ msgstr "inicio"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:356
 msgid "Random book"
-msgstr ""
+msgstr "Libro aleatorio"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:403
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:472
@@ -25365,10 +25372,3 @@ msgstr ""
 "Intro. Dependiendo del estado de los metadatos en la biblioteca y del "
 "estilo\n"
 "personal de edición que tenga, preferirá una u otra opción."
-
-#~ msgid "Communicate with the PocketBook 602/603/902/903 reader."
-#~ msgstr "Comunicar con el lector PocketBook 602/603/902/903."
-
-#~ msgid "&Subset all embedded fonts (Experimental)"
-#~ msgstr ""
-#~ "&Reducir caracteres en todos los tipos de letra incrustados (experimental)"

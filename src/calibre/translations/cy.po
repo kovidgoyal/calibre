@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=n==1 ? 0 : n==2 ? 1 : (n != 8 && n != 11) ? "
 "2 : 3;\n"
-"X-Launchpad-Export-Date: 2013-01-18 05:03+0000\n"
+"X-Launchpad-Export-Date: 2013-01-19 05:08+0000\n"
 "X-Generator: Launchpad (build 16430)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -21838,6 +21838,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "Communicate with the PocketBook 602/603/902/903 reader."
-#~ msgstr "Cyfathrebwch gyda'r porïwr PocketBook 602/603/902/903"

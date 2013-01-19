@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-01-18 04:48+0000\n"
+"X-Launchpad-Export-Date: 2013-01-19 04:53+0000\n"
 "X-Generator: Launchpad (build 16430)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -25447,10 +25447,3 @@ msgstr ""
 "abans de prémer la tecla de retorn. La tècnica que preferiu depèn de "
 "l'estat\n"
 "de les metadades de la biblioteca i el vostre estil d'edició personal."
-
-#~ msgid "Communicate with the PocketBook 602/603/902/903 reader."
-#~ msgstr "Comunica't amb un lector PocketBook 602/603/902/903."
-
-#~ msgid "&Subset all embedded fonts (Experimental)"
-#~ msgstr ""
-#~ "Fes un &subconjunt de totes els tipus de lletra incrustats (experimental)"
