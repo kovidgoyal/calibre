@@ -63,7 +63,7 @@ class ReadingTest(BaseTest):
                     'sort': 'One',
                     'authors': ('Author One',),
                     'author_sort': 'One, Author',
-                    'series' : 'Series One',
+                    'series' : 'A Series One',
                     'series_index': 1.0,
                     'tags':('Tag Two', 'Tag One'),
                     'formats': (),
@@ -92,7 +92,7 @@ class ReadingTest(BaseTest):
                     'sort': 'Title Two',
                     'authors': ('Author Two', 'Author One'),
                     'author_sort': 'Two, Author & One, Author',
-                    'series' : 'Series One',
+                    'series' : 'A Series One',
                     'series_index': 2.0,
                     'rating': 6.0,
                     'tags': ('Tag One',),
@@ -130,30 +130,31 @@ class ReadingTest(BaseTest):
         'Test sorting'
         cache = self.init_cache(self.library_path)
         for field, order in {
-                'title'  : [2, 1, 3],
-                'authors': [2, 1, 3],
-                'series' : [3, 2, 1],
-                'tags'   : [3, 1, 2],
-                'rating' : [3, 2, 1],
-                # 'identifiers': [3, 2, 1], There is no stable sort since 1 and
-                # 2 have the same identifier keys
-                # TODO: Add an empty book to the db and ensure that empty
-                # fields sort the same as they do in db2
-                'timestamp': [2, 1, 3],
-                'pubdate'  : [1, 2, 3],
-                'publisher': [3, 2, 1],
-                'last_modified': [2, 1, 3],
-                'languages': [3, 2, 1],
-                'comments': [3, 2, 1],
-                '#enum' : [3, 2, 1],
-                '#authors' : [3, 2, 1],
-                '#date': [3, 1, 2],
-                '#rating':[3, 2, 1],
-                '#series':[3, 2, 1],
-                '#tags':[3, 2, 1],
-                '#yesno':[3, 1, 2],
-                '#comments':[3, 2, 1],
-            }.iteritems():
+            'title'  : [2, 1, 3],
+            'authors': [2, 1, 3],
+            'series' : [3, 1, 2],
+            'tags'   : [3, 1, 2],
+            'rating' : [3, 2, 1],
+            # 'identifiers': [3, 2, 1], There is no stable sort since 1 and
+            # 2 have the same identifier keys
+            # 'last_modified': [3, 2, 1], There is no stable sort as two
+            # records have the exact same value
+            'timestamp': [2, 1, 3],
+            'pubdate'  : [1, 2, 3],
+            'publisher': [3, 2, 1],
+            'languages': [3, 2, 1],
+            'comments': [3, 2, 1],
+            '#enum' : [3, 2, 1],
+            '#authors' : [3, 2, 1],
+            '#date': [3, 1, 2],
+            '#rating':[3, 2, 1],
+            '#series':[3, 2, 1],
+            '#tags':[3, 2, 1],
+            '#yesno':[3, 1, 2],
+            '#comments':[3, 2, 1],
+            # TODO: Add an empty book to the db and ensure that empty
+            # fields sort the same as they do in db2
+        }.iteritems():
             x = list(reversed(order))
             self.assertEqual(order, cache.multisort([(field, True)],
                 ids_to_sort=x),

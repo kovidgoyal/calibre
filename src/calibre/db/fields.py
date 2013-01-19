@@ -11,6 +11,8 @@ __docformat__ = 'restructuredtext en'
 from threading import Lock
 
 from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY
+from calibre.ebooks.metadata import title_sort
+from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.localization import calibre_langcode_to_name
@@ -72,7 +74,7 @@ class Field(object):
         '''
         return iter(())
 
-    def sort_keys_for_books(self, get_metadata, all_book_ids):
+    def sort_keys_for_books(self, get_metadata, get_lang, all_book_ids):
         '''
         Return a mapping of book_id -> sort_key. The sort key is suitable for
         use in sorting the list of all books by this field, via the python cmp
@@ -96,7 +98,7 @@ class OneToOneField(Field):
     def __iter__(self):
         return self.table.book_col_map.iterkeys()
 
-    def sort_keys_for_books(self, get_metadata, all_book_ids):
+    def sort_keys_for_books(self, get_metadata, get_lang, all_book_ids):
         return {id_ : self._sort_key(self.table.book_col_map.get(id_,
             self._default_sort_key)) for id_ in all_book_ids}
 
@@ -133,7 +135,7 @@ class CompositeField(OneToOneField):
             ans = mi.get('#'+self.metadata['label'])
         return ans
 
-    def sort_keys_for_books(self, get_metadata, all_book_ids):
+    def sort_keys_for_books(self, get_metadata, get_lang, all_book_ids):
         return {id_ : sort_key(self.get_value_with_cache(id_, get_metadata)) for id_ in
                 all_book_ids}
 
@@ -170,7 +172,7 @@ class OnDeviceField(OneToOneField):
     def __iter__(self):
         return iter(())
 
-    def sort_keys_for_books(self, get_metadata, all_book_ids):
+    def sort_keys_for_books(self, get_metadata, get_lang, all_book_ids):
         return {id_ : self.for_book(id_) for id_ in
                 all_book_ids}
 
@@ -196,7 +198,7 @@ class ManyToOneField(Field):
     def __iter__(self):
         return self.table.id_map.iterkeys()
 
-    def sort_keys_for_books(self, get_metadata, all_book_ids):
+    def sort_keys_for_books(self, get_metadata, get_lang, all_book_ids):
         ans = {id_ : self.table.book_col_map.get(id_, None)
                 for id_ in all_book_ids}
         sk_map = {cid : (self._default_sort_key if cid is None else
@@ -227,7 +229,7 @@ class ManyToManyField(Field):
     def __iter__(self):
         return self.table.id_map.iterkeys()
 
-    def sort_keys_for_books(self, get_metadata, all_book_ids):
+    def sort_keys_for_books(self, get_metadata, get_lang, all_book_ids):
         ans = {id_ : self.table.book_col_map.get(id_, ())
                 for id_ in all_book_ids}
         all_cids = set()
@@ -248,7 +250,7 @@ class IdentifiersField(ManyToManyField):
             ids = default_value
         return ids
 
-    def sort_keys_for_books(self, get_metadata, all_book_ids):
+    def sort_keys_for_books(self, get_metadata, get_lang, all_book_ids):
         'Sort by identifier keys'
         ans = {id_ : self.table.book_col_map.get(id_, ())
                 for id_ in all_book_ids}
@@ -274,6 +276,21 @@ class FormatsField(ManyToManyField):
     def format_fname(self, book_id, fmt):
         return self.table.fname_map[book_id][fmt.upper()]
 
+class SeriesField(ManyToOneField):
+
+    def sort_key_for_series(self, book_id, get_lang, series_sort_order):
+        sid = self.table.book_col_map.get(book_id, None)
+        if sid is None:
+            return self._default_sort_key
+        return self._sort_key(title_sort(self.table.id_map[sid],
+                                         order=series_sort_order,
+                                         lang=get_lang(book_id)))
+
+    def sort_keys_for_books(self, get_metadata, get_lang, all_book_ids):
+        sso = tweaks['title_series_sorting']
+        return {book_id:self.sort_key_for_series(book_id, get_lang, sso) for book_id
+                in all_book_ids}
+
 def create_field(name, table):
     cls = {
             ONE_ONE : OneToOneField,
@@ -290,5 +307,7 @@ def create_field(name, table):
         cls = IdentifiersField
     elif table.metadata['datatype'] == 'composite':
         cls = CompositeField
+    elif table.metadata['datatype'] == 'series':
+        cls = SeriesField
     return cls(name, table)
 
