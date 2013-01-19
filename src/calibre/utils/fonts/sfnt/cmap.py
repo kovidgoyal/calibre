@@ -13,7 +13,7 @@ __docformat__ = 'restructuredtext en'
 from struct import unpack_from, calcsize, pack
 from collections import OrderedDict
 
-from calibre.utils.fonts.utils import get_bmp_glyph_ids
+from calibre.utils.fonts.utils import read_bmp_prefix
 from calibre.utils.fonts.sfnt import UnknownTable, max_power_of_two
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 
@@ -117,6 +117,53 @@ def set_id_delta(id_delta): # {{{
     return id_delta
 # }}}
 
+class BMPTable(object):
+
+    def __init__(self, raw):
+        self.raw = raw
+        (self.start_count, self.end_count, self.range_offset, self.id_delta,
+         self.glyph_id_len, self.glyph_id_map, self.array_len) = \
+                read_bmp_prefix(raw, 0)
+
+    def get_glyph_ids(self, codes):
+        for code in codes:
+            found = False
+            for i, ec in enumerate(self.end_count):
+                if ec >= code:
+                    sc = self.start_count[i]
+                    if sc <= code:
+                        found = True
+                        ro = self.range_offset[i]
+                        if ro == 0:
+                            glyph_id = self.id_delta[i] + code
+                        else:
+                            idx = ro//2 + (code - sc) + i - self.array_len
+                            glyph_id = self.glyph_id_map[idx]
+                            if glyph_id != 0:
+                                glyph_id += self.id_delta[i]
+                        yield glyph_id % 0x1000
+                        break
+            if not found:
+                yield 0
+
+    def get_glyph_map(self, glyph_ids):
+        ans = {}
+        for i, ec in enumerate(self.end_count):
+            sc = self.start_count[i]
+            for code in xrange(sc, ec+1):
+                ro = self.range_offset[i]
+                if ro == 0:
+                    glyph_id = self.id_delta[i] + code
+                else:
+                    idx = ro//2 + (code - sc) + i - self.array_len
+                    glyph_id = self.glyph_id_map[idx]
+                    if glyph_id != 0:
+                        glyph_id += self.id_delta[i]
+                glyph_id %= 0x1000
+                if glyph_id in glyph_ids and code not in ans:
+                    ans[code] = glyph_id
+        return ans
+
 class CmapTable(UnknownTable):
 
     def __init__(self, *args, **kwargs):
@@ -147,7 +194,7 @@ class CmapTable(UnknownTable):
             if table:
                 fmt = unpack_from(b'>H', table)[0]
                 if platform == 3 and encoding == 1 and fmt == 4:
-                    self.bmp_table = table
+                    self.bmp_table = BMPTable(table)
 
     def get_character_map(self, chars):
         '''
@@ -159,11 +206,21 @@ class CmapTable(UnknownTable):
         chars = list(set(chars))
         chars.sort()
         ans = OrderedDict()
-        for i, glyph_id in enumerate(get_bmp_glyph_ids(self.bmp_table, 0,
-            chars)):
+        for i, glyph_id in enumerate(self.bmp_table.get_glyph_ids(chars)):
             if glyph_id > 0:
                 ans[chars[i]] = glyph_id
         return ans
+
+    def get_glyph_map(self, glyph_ids):
+        '''
+        Get a mapping of character codes to glyph ids for the specified glyph
+        ids.
+        '''
+        if self.bmp_table is None:
+            raise UnsupportedFont('This font has no Windows BMP cmap subtable.'
+                    ' Most likely a special purpose font.')
+        glyph_ids = frozenset(glyph_ids)
+        return self.bmp_table.get_glyph_map(glyph_ids)
 
     def set_character_map(self, cmap):
         self.version, self.num_tables = 0, 1

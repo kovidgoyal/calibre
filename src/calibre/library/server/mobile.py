@@ -77,7 +77,7 @@ def build_navigation(start, num, total, url_base): # {{{
     right_buttons = TD(CLASS('button', style='text-align:right'))
 
     if start > 1:
-        for t,s in [('First', 1), ('Previous', max(start-(num+1),1))]:
+        for t,s in [('First', 1), ('Previous', max(start-num,1))]:
             left_buttons.append(A(t, href='%s;start=%d'%(url_base, s)))
 
     if total > start + num:

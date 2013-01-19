@@ -303,6 +303,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.toggle_toolbar_action = QAction(_('Show/hide controls'), self)
         self.toggle_toolbar_action.setCheckable(True)
         self.toggle_toolbar_action.triggered.connect(self.toggle_toolbars)
+        self.toolbar_hidden = None
         self.addAction(self.toggle_toolbar_action)
         self.full_screen_label_anim = QPropertyAnimation(
                 self.full_screen_label, 'size')
@@ -359,7 +360,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 # continue to function even when the toolbars are hidden
                 self.addAction(action)
 
+        self.view.document.settings_changed.connect(self.settings_changed)
+
         self.restore_state()
+        self.settings_changed()
         self.action_toggle_paged_mode.toggled[bool].connect(self.toggle_paged_mode)
         if (start_in_fullscreen or self.view.document.start_in_fullscreen):
             self.action_full_screen.trigger()
@@ -372,6 +376,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 self.PAGED_MODE_TT)
         if at_start: return
         self.reload()
+
+    def settings_changed(self):
+        for x in ('', '2'):
+            x = getattr(self, 'tool_bar'+x)
+            x.setVisible(self.view.document.show_controls)
 
     def reload(self):
         if hasattr(self, 'current_index') and self.current_index > -1:
@@ -575,8 +584,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.vertical_scrollbar.setVisible(True)
         self.window_mode_changed = 'normal'
         self.esc_full_screen_action.setEnabled(False)
-        self.tool_bar.setVisible(True)
-        self.tool_bar2.setVisible(True)
+        self.settings_changed()
         self.full_screen_label.setVisible(False)
         if hasattr(self, '_original_frame_margins'):
             om = self._original_frame_margins
