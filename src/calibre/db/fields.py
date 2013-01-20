@@ -9,6 +9,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from threading import Lock
+from collections import defaultdict
 
 from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY
 from calibre.ebooks.metadata import title_sort
@@ -83,6 +84,15 @@ class Field(object):
         '''
         raise NotImplementedError()
 
+    def iter_searchable_values(self, get_metadata, candidates, default_value=None):
+        '''
+        Return a generator that yields items of the form (value, set of books
+        ids that have this value). Here, value is a searchable value. For
+        OneToOneField the set of books ids will contain only a single id, but for
+        other fields it will generally have more than one id. Returned books_ids
+        are restricted to the set of ids in candidates.
+        '''
+        raise NotImplementedError()
 
 class OneToOneField(Field):
 
@@ -101,6 +111,11 @@ class OneToOneField(Field):
     def sort_keys_for_books(self, get_metadata, get_lang, all_book_ids):
         return {id_ : self._sort_key(self.table.book_col_map.get(id_,
             self._default_sort_key)) for id_ in all_book_ids}
+
+    def iter_searchable_values(self, get_metadata, candidates, default_value=None):
+        cbm = self.table.book_col_map
+        for book_id in candidates:
+            yield cbm.get(book_id, default_value), {book_id}
 
 class CompositeField(OneToOneField):
 
@@ -139,6 +154,9 @@ class CompositeField(OneToOneField):
         return {id_ : sort_key(self.get_value_with_cache(id_, get_metadata)) for id_ in
                 all_book_ids}
 
+    def iter_searchable_values(self, get_metadata, candidates, default_value=None):
+        for book_id in candidates:
+            yield self.get_value_with_cache(book_id, get_metadata), {book_id}
 
 class OnDeviceField(OneToOneField):
 
@@ -176,6 +194,10 @@ class OnDeviceField(OneToOneField):
         return {id_ : self.for_book(id_) for id_ in
                 all_book_ids}
 
+    def iter_searchable_values(self, get_metadata, candidates, default_value=None):
+        for book_id in candidates:
+            yield self.for_book(book_id, default_value=default_value), {book_id}
+
 class ManyToOneField(Field):
 
     def for_book(self, book_id, default_value=None):
@@ -205,6 +227,13 @@ class ManyToOneField(Field):
                 self._sort_key(self.table.id_map[cid]))
                 for cid in ans.itervalues()}
         return {id_ : sk_map[cid] for id_, cid in ans.iteritems()}
+
+    def iter_searchable_values(self, get_metadata, candidates, default_value=None):
+        cbm = self.table.col_book_map
+        for item_id, val in self.table.id_map.iteritems():
+            book_ids = set(cbm.get(item_id, ())).intersection(candidates)
+            if book_ids:
+                yield val, book_ids
 
 class ManyToManyField(Field):
 
@@ -241,6 +270,12 @@ class ManyToManyField(Field):
                         (self._default_sort_key,))
                 for id_, cids in ans.iteritems()}
 
+    def iter_searchable_values(self, get_metadata, candidates, default_value=None):
+        cbm = self.table.col_book_map
+        for item_id, val in self.table.id_map.iteritems():
+            book_ids = set(cbm.get(item_id, ())).intersection(candidates)
+            if book_ids:
+                yield val, book_ids
 
 class IdentifiersField(ManyToManyField):
 
@@ -275,6 +310,17 @@ class FormatsField(ManyToManyField):
 
     def format_fname(self, book_id, fmt):
         return self.table.fname_map[book_id][fmt.upper()]
+
+    def iter_searchable_values(self, get_metadata, candidates, default_value=None):
+        val_map = defaultdict(set)
+        cbm = self.table.book_col_map
+        for book_id in candidates:
+            vals = cbm.get(book_id, ())
+            for val in vals:
+                val_map[val].add(book_id)
+
+        for val, book_ids in val_map.iteritems():
+            yield val, book_ids
 
 class SeriesField(ManyToOneField):
 

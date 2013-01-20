@@ -13,6 +13,7 @@ from functools import wraps, partial
 
 from calibre.db.locking import create_locks, RecordLock
 from calibre.db.fields import create_field
+from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
 from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.ebooks.metadata.book.base import Metadata
@@ -50,6 +51,7 @@ class Cache(object):
         self.record_lock = RecordLock(self.read_lock)
         self.format_metadata_cache = defaultdict(dict)
         self.formatter_template_cache = {}
+        self._search_api = Search(self.field_metadata.get_search_terms())
 
         # Implement locking for all simple read/write API methods
         # An unlocked version of the method is stored with the name starting
@@ -408,6 +410,10 @@ class Cache(object):
                     fields[0][1])
         else:
             return sorted(all_book_ids, key=partial(SortKey, fields, sort_keys))
+
+    @read_api
+    def search(self, query, restriction):
+        return self._search_api(self, query, restriction)
 
     # }}}
 

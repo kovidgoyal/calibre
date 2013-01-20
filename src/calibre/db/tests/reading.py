@@ -191,6 +191,26 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_searching(self): # {{{
+        'Test searching returns the same data for both backends'
+        from calibre.library.database2 import LibraryDatabase2
+        old = LibraryDatabase2(self.library_path)
+        oldvals = {query:set(old.search_getting_ids(query, '')) for query in (
+            'date:9/6/2011', 'date:true', 'date:false', 'pubdate:9/2011',
+            '#date:true', 'date:<100daysago', 'date:>9/6/2011',
+            '#date:>9/1/2011', '#date:=2011',
+        )}
+        old = None
+
+        cache = self.init_cache(self.library_path)
+        for query, ans in oldvals.iteritems():
+            nr = cache.search(query, '')
+            self.assertEqual(ans, nr,
+                'Old result: %r != New result: %r for search: %s'%(
+                    ans, nr, query))
+
+    # }}}
+
 def tests():
     return unittest.TestLoader().loadTestsFromTestCase(ReadingTest)
 
