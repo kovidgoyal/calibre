@@ -18,13 +18,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-01-18 10:57+0000\n"
+"PO-Revision-Date: 2013-01-19 18:12+0000\n"
 "Last-Translator: Dennis Baudys <Unknown>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-01-19 05:11+0000\n"
+"X-Launchpad-Export-Date: 2013-01-20 04:36+0000\n"
 "X-Generator: Launchpad (build 16430)\n"
 "Language: de\n"
 
@@ -17702,15 +17702,15 @@ msgstr ""
 
 #. name for nau
 msgid "Nauru"
-msgstr "Nauruanisch"
+msgstr "Nauruisch"
 
 #. name for nav
 msgid "Navajo"
-msgstr ""
+msgstr "Navajo"
 
 #. name for naw
 msgid "Nawuri"
-msgstr ""
+msgstr "Nawuri"
 
 #. name for nax
 msgid "Nakwi"
@@ -29894,7 +29894,7 @@ msgstr ""
 
 #. name for yor
 msgid "Yoruba"
-msgstr "Joruba"
+msgstr "Yoruba"
 
 #. name for yos
 msgid "Yos"

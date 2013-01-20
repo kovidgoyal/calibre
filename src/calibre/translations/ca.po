@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-01-18 04:31+0000\n"
-"PO-Revision-Date: 2013-01-12 13:43+0000\n"
+"PO-Revision-Date: 2013-01-19 18:12+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-01-19 04:53+0000\n"
+"X-Launchpad-Export-Date: 2013-01-20 04:35+0000\n"
 "X-Generator: Launchpad (build 16430)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -913,6 +913,7 @@ msgstr ""
 msgid ""
 "This profile is intended for the PocketBook Pro 912 series of devices."
 msgstr ""
+"Aquest perfil està pensat per als dispositius de la sèrie PocketBook Pro 912."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -1427,7 +1428,7 @@ msgstr "Comunica't amb un lector PocketBook 301"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:237
 msgid "Communicate with the PocketBook 602/603/902/903/Pro 912 reader."
-msgstr ""
+msgstr "Comunica't amb el lector PocketBook 602/603/902/093/Pro 912."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
@@ -2411,7 +2412,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:303
 msgid "Replace books with the same calibre identifier"
-msgstr ""
+msgstr "Reemplaça els llibres amb el mateix identificador del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:304
 msgid ""
@@ -2420,6 +2421,11 @@ msgid ""
 "not change even if the save template produces a different result. Using this "
 "option in most cases prevents having multiple copies of a book on the device."
 msgstr ""
+"Utilitzeu aquesta opció per sobreescriure un llibre del dispositiu si té el "
+"mateix identificador del calibre que el llibre que s'està enviant. El nom "
+"del fitxer del llibre no canviarà encara que la plantilla de desar doni un "
+"altre resultat. Amb aquesta opció s'evita en la majoria de casos que hi hagi "
+"múltiples còpies d'un llibre al dispositiu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:797
 #, python-format
@@ -8869,7 +8875,7 @@ msgstr "In&habilita el redimensionat de tipus de lletra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:249
 msgid "&Subset all embedded fonts"
-msgstr ""
+msgstr "Crea &subconjunts de tots els tipus de lletra incrustats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:16
 msgid "LRF Output"
@@ -19645,7 +19651,7 @@ msgstr "Recorda la pàgina a&ctual en sortir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:441
 msgid "Show &controls in the viewer window"
-msgstr ""
+msgstr "Mostra els &controls a la finestra del visor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:442
 msgid "&Miscellaneous options"
@@ -22453,7 +22459,7 @@ msgstr "inici"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:356
 msgid "Random book"
-msgstr ""
+msgstr "Llibre aleatori"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:403
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:472

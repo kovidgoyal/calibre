@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-01-18 04:31+0000\n"
-"PO-Revision-Date: 2012-05-02 00:16+0000\n"
-"Last-Translator: Kaur Alasoo <kauralasoo@gmail.com>\n"
+"PO-Revision-Date: 2013-01-19 23:39+0000\n"
+"Last-Translator: Vapsik <toniskasekamp@gmail.com>\n"
 "Language-Team: Estonian <et@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-01-19 04:54+0000\n"
+"X-Launchpad-Export-Date: 2013-01-20 04:35+0000\n"
 "X-Generator: Launchpad (build 16430)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -193,7 +193,7 @@ msgstr "Ei tee midagi"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:45
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:53
 msgid "Unknown"
-msgstr "Tundmatu"
+msgstr "Teadmata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
@@ -272,7 +272,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:131
 msgid "Extract cover from comic files"
-msgstr "Paki failist lahti koomiksi kaas"
+msgstr "Eemalda kaas koomiksi failidest"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:168
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:179
@@ -340,7 +340,7 @@ msgstr "Loo calibre raamatukogust kataloog"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Convert books to various ebook formats"
-msgstr "Konverdi raamatud erinevatesse e-raamatu formaatidesse"
+msgstr "Teisenda raamatud erinevatesse e-raamatu formaatidesse"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Delete books from your calibre library or connected device"
@@ -376,7 +376,7 @@ msgstr "Taaskäivita calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:835
 msgid "Open the folder that contains the book files in your calibre library"
-msgstr "Ava calibre kogus olevaid raamatuid sisaldav kaust"
+msgstr "Ava kaust, kus asuvad calibre kogu raamatud"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:841
 msgid "Send books to the connected device"
@@ -401,7 +401,7 @@ msgstr "Seadista calibret"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:862
 msgid "Easily find books similar to the currently selected one"
-msgstr "Leia hetkel valituga sarnased raamatuid"
+msgstr "Leia hetkel valituga sarnaseid raamatuid"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:867
 msgid ""
@@ -443,7 +443,7 @@ msgstr "Otsi raamatuid erinevatelt müüjatelt"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:922
 msgid "Get new calibre plugins or update your existing ones"
-msgstr "Hangi uusi calibre pluginaid või uuenda olemasolevaid"
+msgstr "Hangi uusi calibre pistikprogramme või uuenda olemasolevaid"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:941
 msgid "Look and Feel"
@@ -553,8 +553,8 @@ msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
-"Kontrolli kuidas calibre ekspordib faile andmebaasist kettale, kui "
-"kasutatakse \"Salvesta kettale\""
+"Kontrolli, kuidas calibre ekspordib faile andmebaasist kettale kasutades "
+"\"Salvesta kettale\""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1055
 msgid "Sending books to devices"
@@ -570,11 +570,11 @@ msgstr "Metaandmete sisselülitamistahvel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1073
 msgid "Change metadata fields before saving/sending"
-msgstr "Muuda meta-andme välju enne salvestamist/edastamist"
+msgstr "Muuda meta-andmeid enne salvestamist/edastamist"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1078
 msgid "Template Functions"
-msgstr ""
+msgstr "Malli funktsioonid"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1080
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1140
@@ -586,7 +586,7 @@ msgstr "Täpsemad"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1084
 msgid "Create your own template functions"
-msgstr ""
+msgstr "Loo enda malli funktsioonid"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1089
 msgid "Sharing books by email"
@@ -604,7 +604,7 @@ msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
 msgstr ""
-"Raamatute jagamine e-post teel seadistus. Seda võib kasutada, kui on soov "
+"Seadista raamatute jagamine e-posti teel. Seda võib kasutada, kui on soov "
 "saata automaatselt allalaetud uudiseid oma seadmesse"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1101
@@ -630,13 +630,13 @@ msgstr "Halda e-raamatute metaandmete  allalaadimisviisi internetist"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1125
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:400
 msgid "Ignored devices"
-msgstr ""
+msgstr "Eiratud seaded"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1131
 msgid ""
 "Control which devices calibre will ignore when they are connected to the "
 "computer."
-msgstr ""
+msgstr "Kontrolli, milliseid seadeid ühendades arvuti neid eirab"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1138
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:296
@@ -645,7 +645,7 @@ msgstr "Pluginad"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1144
 msgid "Add/remove/customize various bits of calibre functionality"
-msgstr ""
+msgstr "Lisa/eemalda/seadista calibre funktsionaalsuse osasid"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1150
 msgid "Tweaks"
@@ -653,7 +653,7 @@ msgstr "Täpsemad seadistused"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1156
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr ""
+msgstr "Seadista calibre käitumist erinevates olukordades"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1161
 msgid "Keyboard"
@@ -674,15 +674,15 @@ msgstr "Muud täiustatud seadistused"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:108
 msgid "Options specific to the output format."
-msgstr ""
+msgstr "Suvandid eriomased väljundformaadile."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:118
 msgid "Options specific to the input format."
-msgstr ""
+msgstr "Suvandid eriomased sisendformaadile."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:133
 msgid "Conversion Input"
-msgstr "Konverdingu sisend"
+msgstr "Teisendamise sisend"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:165
 msgid ""
@@ -691,10 +691,13 @@ msgid ""
 "useful for documents that do not declare an encoding or that have erroneous "
 "encoding declarations."
 msgstr ""
+"Täpsusta sisenddokumendi kodeering. Kasutab dokumendi kodeeringu asemel "
+"valitud kodeeringut. Kasulik dokumentide puhul, milles ei ole märgitud "
+"kodeeringut või millel on eksitavad kodeeringu deklaratsioonid."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:280
 msgid "Conversion Output"
-msgstr "Konderdingu väljund"
+msgstr "Teisendamise väljund"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:294
 msgid ""
@@ -718,6 +721,8 @@ msgid ""
 "This profile tries to provide sane defaults and is useful if you know "
 "nothing about the input document."
 msgstr ""
+"See profiil üritab kasutada mõistlikke vaikeseadeid. On kasulik, kui sa ei "
+"tea midagi sisenddokumendist."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:59
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:459
@@ -1051,7 +1056,7 @@ msgstr "Tõmba vahemällu kaanepildid iTunesist/iBooksist"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:126
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr "Luba vahemällu tõmmata ja kuvada kaanepilte iTunesist/ I"
+msgstr "Luba vahemällu tõmmata ja kuvada kaanepilte iTunesist/ iBooksist"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:127
 #, python-format
@@ -5946,11 +5951,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:20
 msgid "Save to disk"
-msgstr ""
+msgstr "Salvesta kettale"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:29
 msgid "Save to disk in a single directory"
-msgstr ""
+msgstr "Salvesta kettal ühte kataloogi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:48
@@ -5971,11 +5976,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:81
 msgid "Cannot save to disk"
-msgstr ""
+msgstr "Ei saa salvestada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:63
 msgid "Choose format to save to disk"
-msgstr ""
+msgstr "Vali salvestamise formaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:84
 msgid "Choose destination directory"
@@ -5987,6 +5992,8 @@ msgid ""
 "corruption of your library. Save to disk is meant to export files from your "
 "calibre library elsewhere."
 msgstr ""
+"Sa üritad salvestada faile calibre kogusse. See võib probleeme tekitada. "
+"\"Salvesta kettale\" on mõeldud failide eksportimiseks calibre kogust mujale."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:134
 msgid "Error while saving"
@@ -15284,6 +15291,8 @@ msgid ""
 "Here you can control how calibre will save your books when you click the "
 "Save to Disk button:"
 msgstr ""
+"Siin saad muuta, kuidas calibre salvestab su raamatud, kui vajutad "
+"\"Salvesta kettale\":"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:72
 msgid "Save &cover separately"
@@ -16447,7 +16456,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:88
 msgid "File is not a supported ebook type. Save to disk?"
-msgstr ""
+msgstr "Fail ei ole toetatud e-raamatu kujul. Salvestada ikkagi?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:59
 msgid "Home"
@@ -19563,6 +19572,8 @@ msgid ""
 "Failed to calculate path for save to disk. Template: %(templ)s\n"
 "Error: %(err)s"
 msgstr ""
+"Ei suutnud leida rada salvestamiseks. Mall: %(templ)s\n"
+"Viga: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:316
 #, python-format
