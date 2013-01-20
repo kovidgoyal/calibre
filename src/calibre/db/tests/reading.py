@@ -205,7 +205,8 @@ class ReadingTest(BaseTest):
             'rating:3', 'rating:>2', 'rating:=2', 'rating:true',
             'rating:false', 'rating:>4', 'tags:#<2', 'tags:#>7',
             'cover:false', 'cover:true', '#float:>11', '#float:<1k',
-            '#float:10.01', 'series_index:1', 'series_index:<3',
+            '#float:10.01', 'series_index:1', 'series_index:<3', 'id:1',
+            'id:>2',
 
             # TODO: Tests for searching the size column and
             # cover:true|false
