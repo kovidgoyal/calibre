@@ -89,10 +89,8 @@ class Field(object):
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         '''
         Return a generator that yields items of the form (value, set of books
-        ids that have this value). Here, value is a searchable value. For
-        OneToOneField the set of books ids will contain only a single id, but for
-        other fields it will generally have more than one id. Returned books_ids
-        are restricted to the set of ids in candidates.
+        ids that have this value). Here, value is a searchable value. Returned
+        books_ids are restricted to the set of ids in candidates.
         '''
         raise NotImplementedError()
 
@@ -116,8 +114,17 @@ class OneToOneField(Field):
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         cbm = self.table.book_col_map
-        for book_id in candidates:
-            yield cbm.get(book_id, default_value), {book_id}
+        if (self.name in {'id', 'uuid', 'title'} or
+            self.metadata['datatype'] == 'datetime'):
+            # Values are likely to be unique
+            for book_id in candidates:
+                yield cbm.get(book_id, default_value), {book_id}
+        else:
+            val_map = defaultdict(set)
+            for book_id in candidates:
+                val_map[cbm.get(book_id, default_value)].add(book_id)
+            for val, book_ids in val_map.iteritems():
+                yield val, book_ids
 
 class CompositeField(OneToOneField):
 
@@ -157,8 +164,11 @@ class CompositeField(OneToOneField):
                 all_book_ids}
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
+        val_map = defaultdict(set)
         for book_id in candidates:
-            yield self.get_value_with_cache(book_id, get_metadata), {book_id}
+            val_map[self.get_value_with_cache(book_id, get_metadata)].add(book_id)
+        for val, book_ids in val_map.iteritems():
+            yield val, book_ids
 
 class OnDeviceField(OneToOneField):
 
@@ -197,8 +207,11 @@ class OnDeviceField(OneToOneField):
                 all_book_ids}
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
+        val_map = defaultdict(set)
         for book_id in candidates:
-            yield self.for_book(book_id, default_value=default_value), {book_id}
+            val_map[self.for_book(book_id, default_value=default_value)].add(book_id)
+        for val, book_ids in val_map.iteritems():
+            yield val, book_ids
 
 class ManyToOneField(Field):
 
