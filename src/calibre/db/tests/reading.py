@@ -65,7 +65,7 @@ class ReadingTest(BaseTest):
                     'author_sort': 'One, Author',
                     'series' : 'A Series One',
                     'series_index': 1.0,
-                    'tags':('Tag Two', 'Tag One'),
+                    'tags':('Tag One', 'Tag Two'),
                     'formats': (),
                     'rating': 4.0,
                     'identifiers': {'test':'one'},
@@ -196,9 +196,19 @@ class ReadingTest(BaseTest):
         from calibre.library.database2 import LibraryDatabase2
         old = LibraryDatabase2(self.library_path)
         oldvals = {query:set(old.search_getting_ids(query, '')) for query in (
+            # Date tests
             'date:9/6/2011', 'date:true', 'date:false', 'pubdate:9/2011',
             '#date:true', 'date:<100daysago', 'date:>9/6/2011',
             '#date:>9/1/2011', '#date:=2011',
+
+            # Number tests
+            'rating:3', 'rating:>2', 'rating:=2', 'rating:true',
+            'rating:false', 'rating:>4', 'tags:#<2', 'tags:#>7',
+            'cover:false', 'cover:true', '#float:>11', '#float:<1k',
+            '#float:10.01',
+
+            # TODO: Tests for searching the size column and
+            # cover:true|false
         )}
         old = None
 

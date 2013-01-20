@@ -138,14 +138,101 @@ class DateSearch(object): # {{{
         return matches
 # }}}
 
+class NumericSearch(object): # {{{
+
+    def __init__(self):
+        self.operators = {
+            '=':( 1, lambda r, q: r == q ),
+            '>':( 1, lambda r, q: r is not None and r > q ),
+            '<':( 1, lambda r, q: r is not None and r < q ),
+            '!=':( 2, lambda r, q: r != q ),
+            '>=':( 2, lambda r, q: r is not None and r >= q ),
+            '<=':( 2, lambda r, q: r is not None and r <= q )
+        }
+
+    def __call__(self, query, field_iter, location, datatype, candidates, is_many=False):
+        matches = set()
+        if not query:
+            return matches
+
+        q = ''
+        cast = adjust = lambda x: x
+        dt = datatype
+
+        if is_many and query in {'true', 'false'}:
+            valcheck = lambda x: True
+            if datatype == 'rating':
+                valcheck = lambda x: x is not None and x > 0
+            found = set()
+            for val, book_ids in field_iter():
+                if valcheck(val):
+                    found |= book_ids
+            return found if query == 'true' else candidates - found
+
+        if query == 'false':
+            if location == 'cover':
+                relop = lambda x,y: not bool(x)
+            else:
+                relop = lambda x,y: x is None
+        elif query == 'true':
+            if location == 'cover':
+                relop = lambda x,y: bool(x)
+            else:
+                relop = lambda x,y: x is not None
+        else:
+            relop = None
+            for k, op in self.operators.iteritems():
+                if query.startswith(k):
+                    p, relop = op
+                    query = query[p:]
+            if relop is None:
+                p, relop = self.operators['=']
+
+            cast = int
+            if  dt == 'rating':
+                cast = lambda x: 0 if x is None else int(x)
+                adjust = lambda x: x/2
+            elif dt in ('float', 'composite'):
+                cast = float
+
+            mult = 1.0
+            if len(query) > 1:
+                mult = query[-1].lower()
+                mult = {'k': 1024.,'m': 1024.**2, 'g': 1024.**3}.get(mult, 1.0)
+                if mult != 1.0:
+                    query = query[:-1]
+            else:
+                mult = 1.0
+
+            try:
+                q = cast(query) * mult
+            except:
+                raise ParseException(query, len(query),
+                                     'Non-numeric value in query: %r'%query)
+
+        for val, book_ids in field_iter():
+            if val is None:
+                continue
+            try:
+                v = cast(val)
+            except:
+                v = None
+            if v:
+                v = adjust(v)
+            if relop(v, q):
+                matches |= book_ids
+        return matches
+
+# }}}
+
 class Parser(SearchQueryParser):
 
-    def __init__(self, dbcache, all_book_ids, gst, date_search,
+    def __init__(self, dbcache, all_book_ids, gst, date_search, num_search,
                  limit_search_columns, limit_search_columns_to, locations):
         self.dbcache, self.all_book_ids = dbcache, all_book_ids
         self.all_search_locations = frozenset(locations)
         self.grouped_search_terms = gst
-        self.date_search = date_search
+        self.date_search, self.num_search = date_search, num_search
         self.limit_search_columns, self.limit_search_columns_to = (
             limit_search_columns, limit_search_columns_to)
         super(Parser, self).__init__(locations, optimize=True)
@@ -230,14 +317,32 @@ class Parser(SearchQueryParser):
 
         if location in self.field_metadata:
             fm = self.field_metadata[location]
+            dt = fm['datatype']
+
             # take care of dates special case
-            if (fm['datatype'] == 'datetime' or
-                    (fm['datatype'] == 'composite' and
-                     fm['display'].get('composite_sort', '') == 'date')):
+            if (dt == 'datetime' or (
+                dt == 'composite' and
+                fm['display'].get('composite_sort', '') == 'date')):
                 if location == 'date':
                     location = 'timestamp'
                 return self.date_search(
                     icu_lower(query), partial(self.field_iter, location, candidates))
+
+            # take care of numbers special case
+            if (dt in ('rating', 'int', 'float') or
+                    (dt == 'composite' and
+                     fm['display'].get('composite_sort', '') == 'number')):
+                field = self.dbcache.fields[location]
+                return self.num_search(
+                    icu_lower(query), partial(self.field_iter, location, candidates),
+                    location, dt, candidates, is_many=field.is_many)
+
+            # take care of the 'count' operator for is_multiples
+            if (fm['is_multiple'] and
+                len(query) > 1 and query[0] == '#' and query[1] in '=<>!'):
+                return self.num_search(icu_lower(query[1:]), partial(
+                        self.dbcache.fields[location].iter_counts, candidates),
+                    location, dt, candidates)
 
         return matches
 
@@ -247,6 +352,7 @@ class Search(object):
     def __init__(self, all_search_locations):
         self.all_search_locations = all_search_locations
         self.date_search = DateSearch()
+        self.num_search = NumericSearch()
 
     def change_locations(self, newlocs):
         self.all_search_locations = newlocs
@@ -274,7 +380,7 @@ class Search(object):
         # 0.000974 seconds.
         sqp = Parser(
             dbcache, all_book_ids, dbcache.pref('grouped_search_terms'),
-            self.date_search, prefs[ 'limit_search_columns' ],
+            self.date_search, self.num_search, prefs[ 'limit_search_columns' ],
             prefs[ 'limit_search_columns_to' ], self.all_search_locations)
         try:
             ret = sqp.parse(query)

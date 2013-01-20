@@ -20,6 +20,8 @@ from calibre.utils.localization import calibre_langcode_to_name
 
 class Field(object):
 
+    is_many = False
+
     def __init__(self, name, table):
         self.name, self.table = name, table
         self.has_text_data = self.metadata['datatype'] in ('text', 'comments',
@@ -200,6 +202,8 @@ class OnDeviceField(OneToOneField):
 
 class ManyToOneField(Field):
 
+    is_many = True
+
     def for_book(self, book_id, default_value=None):
         ids = self.table.book_col_map.get(book_id, None)
         if ids is not None:
@@ -236,6 +240,8 @@ class ManyToOneField(Field):
                 yield val, book_ids
 
 class ManyToManyField(Field):
+
+    is_many = True
 
     def __init__(self, *args, **kwargs):
         Field.__init__(self, *args, **kwargs)
@@ -276,6 +282,14 @@ class ManyToManyField(Field):
             book_ids = set(cbm.get(item_id, ())).intersection(candidates)
             if book_ids:
                 yield val, book_ids
+
+    def iter_counts(self, candidates):
+        val_map = defaultdict(set)
+        cbm = self.table.book_col_map
+        for book_id in candidates:
+            val_map[len(cbm.get(book_id, ()))].add(book_id)
+        for count, book_ids in val_map.iteritems():
+            yield count, book_ids
 
 class IdentifiersField(ManyToManyField):
 
