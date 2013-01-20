@@ -208,6 +208,10 @@ class ReadingTest(BaseTest):
             '#float:10.01', 'series_index:1', 'series_index:<3', 'id:1',
             'id:>2',
 
+            # Bool tests
+            '#yesno:true', '#yesno:false', '#yesno:yes', '#yesno:no',
+            '#yesno:empty',
+
             # TODO: Tests for searching the size column and
             # cover:true|false
         )}

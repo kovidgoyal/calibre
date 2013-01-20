@@ -17,6 +17,22 @@ from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 
 # TODO: Thread safety of saved searches
 
+def force_to_bool(val):
+    if isinstance(val, (str, unicode)):
+        try:
+            val = icu_lower(val)
+            if not val:
+                val = None
+            elif val in [_('yes'), _('checked'), 'true', 'yes']:
+                val = True
+            elif val in [_('no'), _('unchecked'), 'false', 'no']:
+                val = False
+            else:
+                val = bool(int(val))
+        except:
+            val = None
+    return val
+
 class DateSearch(object): # {{{
 
     def __init__(self):
@@ -225,14 +241,57 @@ class NumericSearch(object): # {{{
 
 # }}}
 
+class BoolenSearch(object): # {{{
+
+    def __init__(self):
+        self.local_no        = icu_lower(_('no'))
+        self.local_yes       = icu_lower(_('yes'))
+        self.local_unchecked = icu_lower(_('unchecked'))
+        self.local_checked   = icu_lower(_('checked'))
+        self.local_empty     = icu_lower(_('empty'))
+        self.local_blank     = icu_lower(_('blank'))
+        self.local_bool_values = {
+            self.local_no, self.local_unchecked, '_no', 'false', 'no',
+            self.local_yes, self.local_checked, '_yes', 'true', 'yes',
+            self.local_empty, self.local_blank, '_empty', 'empty'}
+
+    def __call__(self, query, field_iter, bools_are_tristate):
+        matches = set()
+        if query not in self.local_bool_values:
+            raise ParseException(_('Invalid boolean query "{0}"').format(query))
+        for val, book_ids in field_iter():
+            val = force_to_bool(val)
+            if not bools_are_tristate:
+                if val is None or not val: # item is None or set to false
+                    if query in { self.local_no, self.local_unchecked, 'no', '_no', 'false' }:
+                        matches |= book_ids
+                else: # item is explicitly set to true
+                    if query in { self.local_yes, self.local_checked, 'yes', '_yes', 'true' }:
+                        matches |= book_ids
+            else:
+                if val is None:
+                    if query in { self.local_empty, self.local_blank, 'empty', '_empty', 'false' }:
+                        matches |= book_ids
+                elif not val: # is not None and false
+                    if query in { self.local_no, self.local_unchecked, 'no', '_no', 'true' }:
+                        matches |= book_ids
+                else: # item is not None and true
+                    if query in { self.local_yes, self.local_checked, 'yes', '_yes', 'true' }:
+                        matches |= book_ids
+        return matches
+
+# }}}
+
 class Parser(SearchQueryParser):
 
     def __init__(self, dbcache, all_book_ids, gst, date_search, num_search,
-                 limit_search_columns, limit_search_columns_to, locations):
+                 bool_search, limit_search_columns, limit_search_columns_to,
+                 locations):
         self.dbcache, self.all_book_ids = dbcache, all_book_ids
         self.all_search_locations = frozenset(locations)
         self.grouped_search_terms = gst
         self.date_search, self.num_search = date_search, num_search
+        self.bool_search = bool_search
         self.limit_search_columns, self.limit_search_columns_to = (
             limit_search_columns, limit_search_columns_to)
         super(Parser, self).__init__(locations, optimize=True)
@@ -344,6 +403,12 @@ class Parser(SearchQueryParser):
                         self.dbcache.fields[location].iter_counts, candidates),
                     location, dt, candidates)
 
+            # take care of boolean special case
+            if dt == 'bool':
+                return self.bool_search(icu_lower(query),
+                                partial(self.field_iter, location, candidates),
+                                self.dbcache.pref('bools_are_tristate'))
+
         return matches
 
 
@@ -353,6 +418,7 @@ class Search(object):
         self.all_search_locations = all_search_locations
         self.date_search = DateSearch()
         self.num_search = NumericSearch()
+        self.bool_search = BoolenSearch()
 
     def change_locations(self, newlocs):
         self.all_search_locations = newlocs
@@ -380,7 +446,8 @@ class Search(object):
         # 0.000974 seconds.
         sqp = Parser(
             dbcache, all_book_ids, dbcache.pref('grouped_search_terms'),
-            self.date_search, self.num_search, prefs[ 'limit_search_columns' ],
+            self.date_search, self.num_search, self.bool_search,
+            prefs[ 'limit_search_columns' ],
             prefs[ 'limit_search_columns_to' ], self.all_search_locations)
         try:
             ret = sqp.parse(query)
