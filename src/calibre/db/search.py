@@ -13,9 +13,15 @@ from datetime import timedelta
 
 from calibre.utils.config_base import prefs
 from calibre.utils.date import parse_date, UNDEFINED_DATE, now
+from calibre.utils.icu import primary_find
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 
 # TODO: Thread safety of saved searches
+CONTAINS_MATCH = 0
+EQUALS_MATCH   = 1
+REGEXP_MATCH   = 2
+
+# Utils {{{
 
 def force_to_bool(val):
     if isinstance(val, (str, unicode)):
@@ -32,6 +38,45 @@ def force_to_bool(val):
         except:
             val = None
     return val
+
+def _match(query, value, matchkind, use_primary_find_in_search=True):
+    if query.startswith('..'):
+        query = query[1:]
+        sq = query[1:]
+        internal_match_ok = True
+    else:
+        internal_match_ok = False
+    for t in value:
+        try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
+            t = icu_lower(t)
+            if (matchkind == EQUALS_MATCH):
+                if internal_match_ok:
+                    if query == t:
+                        return True
+                    comps = [c.strip() for c in t.split('.') if c.strip()]
+                    for comp in comps:
+                        if sq == comp:
+                            return True
+                elif query[0] == '.':
+                    if t.startswith(query[1:]):
+                        ql = len(query) - 1
+                        if (len(t) == ql) or (t[ql:ql+1] == '.'):
+                            return True
+                elif query == t:
+                    return True
+            elif matchkind == REGEXP_MATCH:
+                if re.search(query, t, re.I|re.UNICODE):
+                    return True
+            elif matchkind == CONTAINS_MATCH:
+                if use_primary_find_in_search:
+                    if primary_find(query, t)[0] != -1:
+                        return True
+                elif query in t:
+                        return True
+        except re.error:
+            pass
+    return False
+# }}}
 
 class DateSearch(object): # {{{
 
