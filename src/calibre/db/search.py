@@ -557,6 +557,9 @@ class Search(object):
         if not q:
             return all_book_ids
 
+        if not isinstance(q, type(u'')):
+            q = q.decode('utf-8')
+
         # We construct a new parser instance per search as pyparsing is not
         # thread safe. On my desktop, constructing a SearchQueryParser instance
         # takes 0.000975 seconds and restoring it from a pickle takes
@@ -567,8 +570,9 @@ class Search(object):
             self.keypair_search,
             prefs[ 'limit_search_columns' ],
             prefs[ 'limit_search_columns_to' ], self.all_search_locations)
+
         try:
-            ret = sqp.parse(query)
+            ret = sqp.parse(q)
         finally:
             sqp.dbcache = None
         return ret
