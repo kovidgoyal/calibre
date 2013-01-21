@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-01-18 04:31+0000\n"
-"PO-Revision-Date: 2013-01-19 23:39+0000\n"
+"PO-Revision-Date: 2013-01-20 22:03+0000\n"
 "Last-Translator: Vapsik <toniskasekamp@gmail.com>\n"
 "Language-Team: Estonian <et@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-01-20 04:35+0000\n"
+"X-Launchpad-Export-Date: 2013-01-21 04:39+0000\n"
 "X-Generator: Launchpad (build 16430)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -804,6 +804,8 @@ msgid ""
 "produce a document intended to be read at a computer or on a range of "
 "devices."
 msgstr ""
+"See profiil üritab kasutada mõistlikke vaikeseadeid. On kasulik, kui "
+"dokument on mõeldud arvutis või teistes seadmetes lugemiseks."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:275
 msgid ""
@@ -817,17 +819,19 @@ msgstr "Mõeldud iPad 3-le ja teistele 1536x2048 eraldusvõimega seadmetele"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:443
 msgid "Intended for generic tablet devices, does no resizing of images"
-msgstr ""
+msgstr "Mõeldud kasutuseks tavalisel tahvelarvutil, ei muuda piltide suurust"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:451
 msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"Mõeldud kasutuseks Samsung Galaxy'il ja teistel 600x1280 resolutsiooniga "
+"seadmetel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:477
 msgid "This profile is intended for the Kobo Reader."
-msgstr ""
+msgstr "See profiil on mõeldud Kobo Readerile."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:490
 msgid "This profile is intended for the SONY PRS-300."
@@ -857,7 +861,7 @@ msgstr "See profiil on mõeldud Amazon Kindle DX-le."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:661
 msgid "This profile is intended for the Amazon Kindle PaperWhite"
-msgstr ""
+msgstr "See profiil on mõeldud Amazon Kindle Paperwhite'le"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:672
 msgid "This profile is intended for the Amazon Kindle Fire."
@@ -879,7 +883,7 @@ msgstr "See profiil on mõeldud PocketBook Pro 900 seeria seadmetele."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:778
 msgid ""
 "This profile is intended for the PocketBook Pro 912 series of devices."
-msgstr ""
+msgstr "See profiil on mõeldud PocketBook Pro 912 seeria seadmetele."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -2626,6 +2630,8 @@ msgid ""
 "Specify the image size as widthxheight pixels. Normally, an image size is "
 "automatically calculated from the output profile, this option overrides it."
 msgstr ""
+"Täpsusta pildi suurus laius*kõrgus pikslitena. Tavaliselt arvutab pildi "
+"suuruse automaatselt väljundi profiil, kuid see valik teeb seda ise."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:69
 msgid ""
@@ -2925,6 +2931,9 @@ msgid ""
 "Using this feature means that  the book will not auto sync its last read "
 "position  on multiple devices. Complain to Amazon."
 msgstr ""
+"Võimalda Kindle'l raamatu sisu jagamine Facebookis jne. HOIATUS: Selle "
+"võimaluse kasutamine peatab raamatu järjehoidja automaatse sünkronisatsiooni "
+"teiste seadmetega. Kaebused edasta Amazonile."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:85
 msgid ""
@@ -2987,6 +2996,9 @@ msgid ""
 "options. This option will cause the  page size settings under PDF Output to "
 "override the  size specified by the output profile."
 msgstr ""
+"Tavaliselt otsustab PDF lehe suuruse väljundiprofiil, mida saab muuta lehe "
+"seadete juures. See valik kasutab väljundiprofiili asemel PDF väljundi "
+"seadeid."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:58
 #, python-format
@@ -3001,6 +3013,8 @@ msgid ""
 "The size of the paper. This size will be overridden when a non default "
 "output profile is used. Default is letter. Choices are %s"
 msgstr ""
+"Paberi suurus. See suurus tühistatakse, kui ei kasutata vaikeprofiili. "
+"Vaikeprofiil on \"kiri\". Valikud on %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:67
 msgid ""
@@ -3251,6 +3265,9 @@ msgid ""
 "For example resolution dependent lengths (i.e. lengths in pixels). Choices "
 "are:"
 msgstr ""
+"Täpsusta sisendprofiil. Sisendprofiil annab teisendussüsteemile teavet, "
+"kuidas suhtuda sisenddokumendi erinevasse informatsiooni. Näiteks "
+"resolutsioonist sõltuv pikkus (pikkus pikslites). Valikud on:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:133
 msgid ""
@@ -3259,6 +3276,10 @@ msgid ""
 "cases, an output profile is required to produce documents that will work on "
 "a device. For example EPUB on the SONY reader. Choices are:"
 msgstr ""
+"Täpsusta väljundprofiil. Väljundprofiil ütleb teisendussüsteemile, kuidas "
+"optimiseerida dokument täpsustatud seadmele. Mõnel juhul on vajalik valida "
+"väljundprofiil, et dokument töötaks seadmel. Näiteks EPUB formaat SONY "
+"lugejal. Valikud on:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:144
 msgid ""
@@ -3267,6 +3288,9 @@ msgid ""
 "fonts in the output bigger and vice versa. By default, the base font size is "
 "chosen based on the output profile you chose."
 msgstr ""
+"Baasfondi suurus. Kõik selle raamatu fondisuurused skaleeritakse vastavalt "
+"sellele väärtusele. Suurema väärtusega on väljundi fondid suuremad ning "
+"vastupidi. Tavaliselt otustab fondi suuruse valitud väljundiprofiil."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:154
 msgid ""
@@ -3276,6 +3300,11 @@ msgid ""
 "algorithm uses these sizes to intelligently rescale fonts. The default is to "
 "use a mapping based on the output profile you chose."
 msgstr ""
+"CSS fondi nimede vastendamine fondi suurusele. Näiteseadistus on "
+"12,12,14,16,18,20,22,24. Need vastendamised on xx-väike kuni xx-suur ning "
+"viimane on kõige suurema fondi suurus. Fontide skaleerimise algoritm kasutab "
+"neid suurusi, et mõistlikult fonte skaleerida. Vaikeseadistuse otsustab "
+"valitud väljundiprofiil."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:166
 msgid "Disable all rescaling of font sizes."
@@ -4287,7 +4316,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:508
 msgid "Downloads metadata and covers from Amazon"
-msgstr ""
+msgstr "Lae alla meta-andmed ja küljed Amazonist"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:518
 msgid "US"
@@ -4323,16 +4352,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:529
 msgid "Amazon website to use:"
-msgstr ""
+msgstr "Amazoni veebileht, mida kasutada:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:530
 msgid ""
 "Metadata from Amazon will be fetched using this country's Amazon website."
-msgstr ""
+msgstr "Amazoni meta-andmed võetakse selle riigi Amazoni lehelt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:775
 msgid "Amazon timed out. Try again later."
-msgstr ""
+msgstr "Amazon ei saatnud andmeid. Proovi hiljem uuesti."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:190
 msgid "Metadata source"
@@ -4404,7 +4433,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/mobi6.py:75
 msgid "This is an Amazon Topaz book. It cannot be processed."
-msgstr ""
+msgstr "See on Amazon Topaz raamat. Seda ei saa töödelda."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:46
 msgid "This is not a MOBI file. It is a Topaz file."
@@ -4424,6 +4453,9 @@ msgid ""
 "from Amazon. calibre can only tweak MOBI files that contain KF8 books. Older "
 "MOBI files without KF8 are not tweakable."
 msgstr ""
+"See MOBI fail ei sisalda KF8 formaadis raamatut. KF8 on Amazoni uus formaat. "
+"calibre suudab muuta ainult MOBI faile, mis sisaldavad KF8 raamatuid. "
+"Vanemad MOBI failid ilma KF8-ta ei ole muudetavad."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:65
 msgid ""
@@ -7486,6 +7518,17 @@ msgid ""
 "size-rescaling\">User Manual</a> for a discussion of how font size rescaling "
 "works.</p>"
 msgstr ""
+"<p>See viisard aitab sul valida sobiliku fondi suuruse võtme. Lihtsalt "
+"sisesta sisenddokumendi kehateksti suurus ning siis soovitud fondi suurus. "
+"Viisard näitab, mis fondi suurusega see vastendatakse. Sa võid seadistada "
+"skaleerimise algoritmi muutes väljundi kehateksti suurust ning fondi võtit. "
+"Kui leiad sobivad väärtused, siis vajuta OK.</p>\n"
+"<p>Vaikeseadistusena, kui väljundi kehateksti suurus on 0 ja/või fondi võtme "
+"suurust ei ole täpsustatud, kasutab calibre väärtusi praegusest "
+"väljundprofiilist. </p>\n"
+"<p>See the <a href=\"http://manual.calibre-ebook.com/conversion.html#font-"
+"size-rescaling\">User Manual</a> for a discussion of how font size rescaling "
+"works.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:108
 msgid "&Output document"
@@ -8020,15 +8063,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:125
 msgid "&Output profile:"
-msgstr ""
+msgstr "&Väljundprofiil:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:126
 msgid "Profile description"
-msgstr ""
+msgstr "Profiili kirjeldus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:127
 msgid "&Input profile:"
-msgstr ""
+msgstr "&Sisendprofiil:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:128
 msgid "Margins"
@@ -8102,10 +8145,13 @@ msgid ""
 "the \"Override\" checkbox below. Otherwise the size from the output profile "
 "will be used."
 msgstr ""
+"<b>Märkus:</b> Paberi suuruse muutmine toimub ainult siis, kui märgid "
+"\"Kirjuta üle\" kastikese. Vastasel juhul kasutatakse väljundprofiili "
+"suurust."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:116
 msgid "&Override paper size set in output profile"
-msgstr ""
+msgstr "&Kirjuta üle väljundprofiili paberi suurus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:117
 msgid "&Paper Size:"
@@ -9710,7 +9756,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:100
 msgid "&Profile:"
-msgstr ""
+msgstr "&Profiil:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:24
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:247
@@ -17993,6 +18039,11 @@ msgid ""
 "button below. You will also have to register your gmail address in your "
 "Amazon account."
 msgstr ""
+"<p>calibre võib automaatselt meili teel saata raamatu sinu Kindle'sse. "
+"Selleks pead allpool võimaldama e-kirjade saatmise. Lihtsaim võimalus on "
+"registreerida tasuta <a href=\"http://gmail.com\">gmaili konto</a> ja "
+"vajutada \"Kasuta gmaili\". Sa pead veel registreerima gmaili aadressi oma "
+"Amazoni konto juures."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:50
 msgid "&Kindle email:"
@@ -18060,6 +18111,9 @@ msgid ""
 "your %s email address to the allowed email addresses in your Amazon.com "
 "Kindle management page."
 msgstr ""
+"Kui sa kavatsed kasutada e-kirju raamatute saatmiseks Kindle'sse, siis pea "
+"meeles lisada %s emaili aadress Amazon.com Kindle haldamise lehel lubatud "
+"aadresside nimekirja."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:95
 msgid "Setup"
@@ -18514,6 +18568,11 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Täpsustab väljundprofiili. Mõnedel juhtudel on vajalik väljundprofiili "
+"muuta, et optimiseerida kataloogi seadme jaoks.  Näiteks 'kindle' või "
+"'kindle_dx' tekitavad sisukorra paragraafide ja artiklitega.\n"
+"Vaikeseade: '%default'\n"
+"Käib AZW3, ePub, MOBI väljundformaatide kohta"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:160
 msgid ""
