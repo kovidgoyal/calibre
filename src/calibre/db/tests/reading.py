@@ -227,7 +227,7 @@ class ReadingTest(BaseTest):
             # User categories
             '@Good Authors:One', '@Good Series.good tags:two',
 
-            # TODO: Tests for searching the size column and
+            # TODO: Tests for searching the size and #formats columns and
             # cover:true|false
         )}
         old = None
