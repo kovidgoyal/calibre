@@ -114,17 +114,8 @@ class OneToOneField(Field):
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         cbm = self.table.book_col_map
-        if (self.name in {'id', 'uuid', 'title'} or
-            self.metadata['datatype'] == 'datetime'):
-            # Values are likely to be unique
-            for book_id in candidates:
-                yield cbm.get(book_id, default_value), {book_id}
-        else:
-            val_map = defaultdict(set)
-            for book_id in candidates:
-                val_map[cbm.get(book_id, default_value)].add(book_id)
-            for val, book_ids in val_map.iteritems():
-                yield val, book_ids
+        for book_id in candidates:
+            yield cbm.get(book_id, default_value), {book_id}
 
 class CompositeField(OneToOneField):
 
