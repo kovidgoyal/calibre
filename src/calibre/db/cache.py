@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, traceback
 from collections import defaultdict
 from functools import wraps, partial
 
@@ -18,6 +18,7 @@ from calibre.db.tables import VirtualTable
 from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import now
+from calibre.utils.icu import sort_key
 
 def api(f):
     f.is_cache_api = True
@@ -66,6 +67,36 @@ class Cache(object):
                 # Wrap it in a lock
                 lock = self.read_lock if ira else self.write_lock
                 setattr(self, name, wrap_simple(lock, func))
+
+        self.initialize_dynamic()
+
+    def initialize_dynamic(self):
+        # Reconstruct the user categories, putting them into field_metadata
+        # Assumption is that someone else will fix them if they change.
+        self.field_metadata.remove_dynamic_categories()
+        for user_cat in sorted(self.pref('user_categories', {}).iterkeys(), key=sort_key):
+            cat_name = '@' + user_cat # add the '@' to avoid name collision
+            self.field_metadata.add_user_category(label=cat_name, name=user_cat)
+
+        # add grouped search term user categories
+        muc = frozenset(self.pref('grouped_search_make_user_categories', []))
+        for cat in sorted(self.pref('grouped_search_terms', {}).iterkeys(), key=sort_key):
+            if cat in muc:
+                # There is a chance that these can be duplicates of an existing
+                # user category. Print the exception and continue.
+                try:
+                    self.field_metadata.add_user_category(label=u'@' + cat, name=cat)
+                except:
+                    traceback.print_exc()
+
+        # TODO: Saved searches
+        # if len(saved_searches().names()):
+        #     self.field_metadata.add_search_category(label='search', name=_('Searches'))
+
+        self.field_metadata.add_grouped_search_terms(
+                                    self.pref('grouped_search_terms', {}))
+
+        self._search_api.change_locations(self.field_metadata.get_search_terms())
 
     @property
     def field_metadata(self):
@@ -319,8 +350,8 @@ class Cache(object):
         return ans
 
     @read_api
-    def pref(self, name):
-        return self.backend.prefs[name]
+    def pref(self, name, default=None):
+        return self.backend.prefs.get(name, default)
 
     @api
     def get_metadata(self, book_id,

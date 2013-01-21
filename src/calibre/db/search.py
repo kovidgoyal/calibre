@@ -650,7 +650,7 @@ class Parser(SearchQueryParser):
 
 class Search(object):
 
-    def __init__(self, all_search_locations):
+    def __init__(self, all_search_locations=()):
         self.all_search_locations = all_search_locations
         self.date_search = DateSearch()
         self.num_search = NumericSearch()

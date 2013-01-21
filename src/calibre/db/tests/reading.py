@@ -222,13 +222,13 @@ class ReadingTest(BaseTest):
             'title:="Title One"', 'title:~title', '#enum:=one', '#enum:tw',
             '#enum:false', '#enum:true', 'series:one', 'tags:one', 'tags:true',
             'tags:false', '2', 'one', '20.02', '"publisher one"',
+            '"my comments one"',
 
             # User categories
-            # '@Good Authors:One',
+            '@Good Authors:One', '@Good Series.good tags:two',
 
             # TODO: Tests for searching the size column and
             # cover:true|false
-            # TODO: Tests for user categories searching
         )}
         old = None
 
