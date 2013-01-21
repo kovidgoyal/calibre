@@ -11,13 +11,13 @@ from operator import attrgetter
 from PyQt4.Qt import (Qt, QAbstractItemModel, QModelIndex, QVariant, pyqtSignal)
 
 from calibre.gui2 import NONE
-from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
-    REGEXP_MATCH
+from calibre.db.search import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
+from calibre.utils.config_base import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
 
 class BooksModel(QAbstractItemModel):
-    
+
     total_changed = pyqtSignal(int)
 
     HEADERS = [_('Title'), _('Author(s)'), _('Format')]
@@ -37,8 +37,8 @@ class BooksModel(QAbstractItemModel):
             return self.books[row]
         else:
             return None
-    
-    def search(self, filter):        
+
+    def search(self, filter):
         self.filter = filter.strip()
         if not self.filter:
             self.books = self.all_books
@@ -50,7 +50,7 @@ class BooksModel(QAbstractItemModel):
         self.layoutChanged.emit()
         self.sort(self.sort_col, self.sort_order)
         self.total_changed.emit(self.rowCount())
-    
+
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)
 
@@ -64,7 +64,7 @@ class BooksModel(QAbstractItemModel):
 
     def columnCount(self, *args):
         return len(self.HEADERS)
-    
+
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
             return NONE
@@ -112,7 +112,7 @@ class BooksModel(QAbstractItemModel):
 
 
 class SearchFilter(SearchQueryParser):
-    
+
     USABLE_LOCATIONS = [
         'all',
         'author',
@@ -161,6 +161,7 @@ class SearchFilter(SearchQueryParser):
         }
         for x in ('author', 'format'):
             q[x+'s'] = q[x]
+        upf = prefs['use_primary_find_in_search']
         for sr in self.srs:
             for locvalue in locations:
                 accessor = q[locvalue]
@@ -182,7 +183,7 @@ class SearchFilter(SearchQueryParser):
                         m = matchkind
 
                     vals = [accessor(sr)]
-                    if _match(query, vals, m):
+                    if _match(query, vals, m, use_primary_find_in_search=upf):
                         matches.add(sr)
                         break
                 except ValueError: # Unicode errors
