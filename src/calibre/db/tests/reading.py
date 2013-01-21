@@ -218,6 +218,14 @@ class ReadingTest(BaseTest):
             'identifiers:t:n', 'identifiers:=test:=two', 'identifiers:x:y',
             'identifiers:z',
 
+            # Text tests
+            'title:="Title One"', 'title:~title', '#enum:=one', '#enum:tw',
+            '#enum:false', '#enum:true', 'series:one', 'tags:one', 'tags:true',
+            'tags:false', '2', 'one', '20.02', '"publisher one"',
+
+            # User categories
+            # '@Good Authors:One',
+
             # TODO: Tests for searching the size column and
             # cover:true|false
             # TODO: Tests for user categories searching

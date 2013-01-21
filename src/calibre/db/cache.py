@@ -412,8 +412,9 @@ class Cache(object):
             return sorted(all_book_ids, key=partial(SortKey, fields, sort_keys))
 
     @read_api
-    def search(self, query, restriction):
-        return self._search_api(self, query, restriction)
+    def search(self, query, restriction, virtual_fields=None):
+        return self._search_api(self, query, restriction,
+                                virtual_fields=virtual_fields)
 
     # }}}
 
