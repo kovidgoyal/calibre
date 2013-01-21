@@ -525,8 +525,35 @@ class Parser(SearchQueryParser):
                                         candidates, upf)
                 return self.keypair_search(query, field_iter, candidates, upf)
 
+        # check for user categories
+        if len(location) >= 2 and location.startswith('@'):
+            return self.get_user_category_matches(location[1:], icu_lower(query), candidates)
+
         return matches
 
+    def get_user_category_matches(self, location, query, candidates):
+        matches = set()
+        if len(query) < 2:
+            return matches
+
+        user_cats = self.dbcache.pref('user_categories')
+        c = set(candidates)
+
+        if query.startswith('.'):
+            check_subcats = True
+            query = query[1:]
+        else:
+            check_subcats = False
+
+        for key in user_cats:
+            if key == location or (check_subcats and key.startswith(location + '.')):
+                for (item, category, ign) in user_cats[key]:
+                    s = self.get_matches(category, '=' + item, candidates=c)
+                    c -= s
+                    matches |= s
+        if query == 'false':
+            return candidates - matches
+        return matches
 
 class Search(object):
 

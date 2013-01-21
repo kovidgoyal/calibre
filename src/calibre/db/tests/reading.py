@@ -220,6 +220,7 @@ class ReadingTest(BaseTest):
 
             # TODO: Tests for searching the size column and
             # cover:true|false
+            # TODO: Tests for user categories searching
         )}
         old = None
 
