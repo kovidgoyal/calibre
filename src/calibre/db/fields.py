@@ -311,6 +311,12 @@ class IdentifiersField(ManyToManyField):
                         (self._default_sort_key,))
                 for id_, cids in ans.iteritems()}
 
+    def iter_searchable_values(self, get_metadata, candidates, default_value=()):
+        bcm = self.table.book_col_map
+        for book_id in candidates:
+            val = bcm.get(book_id, default_value)
+            if val:
+                yield val, {book_id}
 
 class AuthorsField(ManyToManyField):
 

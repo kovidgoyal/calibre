@@ -39,6 +39,23 @@ def force_to_bool(val):
             val = None
     return val
 
+def _matchkind(query):
+    matchkind = CONTAINS_MATCH
+    if (len(query) > 1):
+        if query.startswith('\\'):
+            query = query[1:]
+        elif query.startswith('='):
+            matchkind = EQUALS_MATCH
+            query = query[1:]
+        elif query.startswith('~'):
+            matchkind = REGEXP_MATCH
+            query = query[1:]
+
+    if matchkind != REGEXP_MATCH:
+        # leave case in regexps because it can be significant e.g. \S \W \D
+        query = icu_lower(query)
+    return matchkind, query
+
 def _match(query, value, matchkind, use_primary_find_in_search=True):
     if query.startswith('..'):
         query = query[1:]
@@ -286,7 +303,7 @@ class NumericSearch(object): # {{{
 
 # }}}
 
-class BoolenSearch(object): # {{{
+class BooleanSearch(object): # {{{
 
     def __init__(self):
         self.local_no        = icu_lower(_('no'))
@@ -327,16 +344,60 @@ class BoolenSearch(object): # {{{
 
 # }}}
 
+class KeyPairSearch(object): # {{{
+
+    def __call__(self, query, field_iter, candidates, use_primary_find):
+        matches = set()
+        if ':' in query:
+            q = [q.strip() for q in query.split(':')]
+            if len(q) != 2:
+                raise ParseException(query, len(query),
+                        'Invalid query format for colon-separated search')
+            keyq, valq = q
+            keyq_mkind, keyq = _matchkind(keyq)
+            valq_mkind, valq = _matchkind(valq)
+        else:
+            keyq = keyq_mkind = ''
+            valq_mkind, valq = _matchkind(query)
+            keyq_mkind
+
+        if valq in {'true', 'false'}:
+            found = set()
+            if keyq:
+                for val, book_ids in field_iter():
+                    if val and val.get(keyq, False):
+                        found |= book_ids
+            else:
+                for val, book_ids in field_iter():
+                    if val:
+                        found |= book_ids
+            return found if valq == 'true' else candidates - found
+
+        for m, book_ids in field_iter():
+            for key, val in m.iteritems():
+                if (keyq and not _match(keyq, (key,), keyq_mkind,
+                                        use_primary_find_in_search=use_primary_find)):
+                    continue
+                if (valq and not _match(valq, (val,), valq_mkind,
+                                        use_primary_find_in_search=use_primary_find)):
+                    continue
+                matches |= book_ids
+                break
+
+        return matches
+
+# }}}
+
 class Parser(SearchQueryParser):
 
     def __init__(self, dbcache, all_book_ids, gst, date_search, num_search,
-                 bool_search, limit_search_columns, limit_search_columns_to,
+                 bool_search, keypair_search, limit_search_columns, limit_search_columns_to,
                  locations):
         self.dbcache, self.all_book_ids = dbcache, all_book_ids
         self.all_search_locations = frozenset(locations)
         self.grouped_search_terms = gst
         self.date_search, self.num_search = date_search, num_search
-        self.bool_search = bool_search
+        self.bool_search, self.keypair_search = bool_search, keypair_search
         self.limit_search_columns, self.limit_search_columns_to = (
             limit_search_columns, limit_search_columns_to)
         super(Parser, self).__init__(locations, optimize=True)
@@ -372,7 +433,7 @@ class Parser(SearchQueryParser):
 
         # get metadata key associated with the search term. Eliminates
         # dealing with plurals and other aliases
-        # original_location = location
+        original_location = location
         location = self.field_metadata.search_term_to_field_key(
             icu_lower(location.strip()))
         # grouped search terms
@@ -454,6 +515,16 @@ class Parser(SearchQueryParser):
                                 partial(self.field_iter, location, candidates),
                                 self.dbcache.pref('bools_are_tristate'))
 
+            # special case: colon-separated fields such as identifiers. isbn
+            # is a special case within the case
+            if fm.get('is_csp', False):
+                field_iter = partial(self.field_iter, location, candidates)
+                upf = prefs['use_primary_find_in_search']
+                if location == 'identifiers' and original_location == 'isbn':
+                    return self.keypair_search('=isbn:'+query, field_iter,
+                                        candidates, upf)
+                return self.keypair_search(query, field_iter, candidates, upf)
+
         return matches
 
 
@@ -463,7 +534,8 @@ class Search(object):
         self.all_search_locations = all_search_locations
         self.date_search = DateSearch()
         self.num_search = NumericSearch()
-        self.bool_search = BoolenSearch()
+        self.bool_search = BooleanSearch()
+        self.keypair_search = KeyPairSearch()
 
     def change_locations(self, newlocs):
         self.all_search_locations = newlocs
@@ -492,6 +564,7 @@ class Search(object):
         sqp = Parser(
             dbcache, all_book_ids, dbcache.pref('grouped_search_terms'),
             self.date_search, self.num_search, self.bool_search,
+            self.keypair_search,
             prefs[ 'limit_search_columns' ],
             prefs[ 'limit_search_columns_to' ], self.all_search_locations)
         try:

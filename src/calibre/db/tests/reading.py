@@ -212,6 +212,12 @@ class ReadingTest(BaseTest):
             '#yesno:true', '#yesno:false', '#yesno:yes', '#yesno:no',
             '#yesno:empty',
 
+            # Keypair tests
+            'identifiers:true', 'identifiers:false', 'identifiers:test',
+            'identifiers:test:false', 'identifiers:test:one',
+            'identifiers:t:n', 'identifiers:=test:=two', 'identifiers:x:y',
+            'identifiers:z',
+
             # TODO: Tests for searching the size column and
             # cover:true|false
         )}
