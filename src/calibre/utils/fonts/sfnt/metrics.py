@@ -20,6 +20,10 @@ class FontMetrics(object):
     '''
 
     def __init__(self, sfnt):
+        for table in (b'head', b'hhea', b'hmtx', b'cmap', b'OS/2', b'post',
+                      b'name'):
+            if table not in sfnt:
+                raise UnsupportedFont('This font has no %s table'%table)
         self.sfnt = sfnt
 
         self.head = self.sfnt[b'head']
@@ -32,10 +36,7 @@ class FontMetrics(object):
         self._advance_widths = hhea.advance_widths
         self.cmap = self.sfnt[b'cmap']
         self.units_per_em = self.head.units_per_em
-        try:
-            self.os2 = self.sfnt[b'OS/2']
-        except KeyError:
-            raise UnsupportedFont('This font has no OS/2 table')
+        self.os2 = self.sfnt[b'OS/2']
         self.os2.read_data()
         self.post = self.sfnt[b'post']
         self.post.read_data()
