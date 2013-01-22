@@ -13,14 +13,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-10-20 00:57+0000\n"
-"Last-Translator: Ida Leter <iatheia@yandex.ru>\n"
+"PO-Revision-Date: 2013-01-21 14:06+0000\n"
+"Last-Translator: Don Miguel <bmv@mail.ru>\n"
 "Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-10-21 04:41+0000\n"
-"X-Generator: Launchpad (build 16165)\n"
+"X-Launchpad-Export-Date: 2013-01-22 04:46+0000\n"
+"X-Generator: Launchpad (build 16430)\n"
 "Language: ru\n"
 
 #. name for aaa
@@ -181,7 +181,7 @@ msgstr "Айта; Абенлен"
 
 #. name for abq
 msgid "Abaza"
-msgstr ""
+msgstr "Абазинский"
 
 #. name for abr
 msgid "Abron"
@@ -189,7 +189,7 @@ msgstr "Аброн"
 
 #. name for abs
 msgid "Malay; Ambonese"
-msgstr ""
+msgstr "Малайский"
 
 #. name for abt
 msgid "Ambulas"
@@ -205,31 +205,31 @@ msgstr ""
 
 #. name for abw
 msgid "Pal"
-msgstr ""
+msgstr "Палский"
 
 #. name for abx
 msgid "Inabaknon"
-msgstr ""
+msgstr "Абакнонский"
 
 #. name for aby
 msgid "Aneme Wake"
-msgstr ""
+msgstr "Анеме Ваке"
 
 #. name for abz
 msgid "Abui"
-msgstr ""
+msgstr "Абуи"
 
 #. name for aca
 msgid "Achagua"
-msgstr ""
+msgstr "Ачагуа"
 
 #. name for acb
 msgid "Áncá"
-msgstr ""
+msgstr "Анка"
 
 #. name for acd
 msgid "Gikyode"
-msgstr ""
+msgstr "Гикиод"
 
 #. name for ace
 msgid "Achinese"
@@ -261,7 +261,7 @@ msgstr ""
 
 #. name for acn
 msgid "Achang"
-msgstr ""
+msgstr "Ачанг"
 
 #. name for acp
 msgid "Acipa; Eastern"

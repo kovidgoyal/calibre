@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-01-18 04:31+0000\n"
-"PO-Revision-Date: 2013-01-14 07:20+0000\n"
-"Last-Translator: sengian <Unknown>\n"
+"PO-Revision-Date: 2013-01-21 18:54+0000\n"
+"Last-Translator: Marc_dm <mdemaillard@gmail.com>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-01-19 04:55+0000\n"
+"X-Launchpad-Export-Date: 2013-01-22 04:45+0000\n"
 "X-Generator: Launchpad (build 16430)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
@@ -926,7 +926,7 @@ msgstr "Ce profil est prévu pour la gamme des appareils PocketBook Pro 900"
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:778
 msgid ""
 "This profile is intended for the PocketBook Pro 912 series of devices."
-msgstr ""
+msgstr "Ce profil est prévu pour la gamme d'appareils PocketBook Pro 912"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -1445,7 +1445,7 @@ msgstr "Communiquer avec le lecteur PocketBook 301"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:237
 msgid "Communicate with the PocketBook 602/603/902/903/Pro 912 reader."
-msgstr ""
+msgstr "Communique avec la liseuse PocketBook 602/603/902/903/Pro 912"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
@@ -2446,7 +2446,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:303
 msgid "Replace books with the same calibre identifier"
-msgstr ""
+msgstr "Remplace les livres possédant le même identifiant calibre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:304
 msgid ""
@@ -2455,6 +2455,11 @@ msgid ""
 "not change even if the save template produces a different result. Using this "
 "option in most cases prevents having multiple copies of a book on the device."
 msgstr ""
+"Utilisez cette option pour écraser un livre sur l'appareil si ce livre a le "
+"même identifiant calibre que le livre envoyé. Le nom de fichier du livre ne "
+"changera pas même si le modèle de sauvegarde produit un résultat différent. "
+"L'usage de cette option évite dans la plupart des cas d'avoir des copies "
+"multiples de livres sur un appareil."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:797
 #, python-format
@@ -19935,7 +19940,7 @@ msgstr "Se souvenir de la page courante lors de l’arrêt de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:441
 msgid "Show &controls in the viewer window"
-msgstr ""
+msgstr "Afficher les contrôles dans la fenêtre du visioneur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:442
 msgid "&Miscellaneous options"
@@ -22770,7 +22775,7 @@ msgstr "accueil"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:356
 msgid "Random book"
-msgstr ""
+msgstr "Livre au hasard"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:403
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:472

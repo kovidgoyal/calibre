@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-01-18 04:31+0000\n"
-"PO-Revision-Date: 2013-01-12 13:27+0000\n"
+"PO-Revision-Date: 2013-01-21 19:00+0000\n"
 "Last-Translator: Marc_dm <mdemaillard@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-01-19 04:56+0000\n"
+"X-Launchpad-Export-Date: 2013-01-22 04:45+0000\n"
 "X-Generator: Launchpad (build 16430)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -909,7 +909,7 @@ msgstr "Dieses Profil ist für die Geräteserie PocketBook Pro 900 gedacht."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:778
 msgid ""
 "This profile is intended for the PocketBook Pro 912 series of devices."
-msgstr ""
+msgstr "Dieses Profil ist für die Geräte der PocketBook 912 Serie gedacht."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -1421,7 +1421,7 @@ msgstr "Kommunikation mit dem PocketBook 301 Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:237
 msgid "Communicate with the PocketBook 602/603/902/903/Pro 912 reader."
-msgstr ""
+msgstr "Kommuniziert mit dem PocketBook 602/603/902/903/Pro 912 Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
@@ -1902,6 +1902,9 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
+"Kobo zeigt Empfehlungen auf den Gerät. In einige Fälle sind die Dateien, in "
+"andere Fälle bloß Zeiger auf Internetseiten um zu kaufen. Aktivieren um zu "
+"sehen/löschen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1243
 msgid "Set Series information"
@@ -1914,6 +1917,11 @@ msgid ""
 "only be added to the device after the book has been processed by the device. "
 "Enable if you wish to set series information."
 msgstr ""
+"Die Bücher Liste auf den Kobo Gerät können Serien Information darstellen. Es "
+"wird nicht vom Gerät gelesen von der Seitlich-geladene Bücher. Serien "
+"Information können erst auf den Gerät zugeführt werden wenn die Bücher vom "
+"Gerät verarbeitet gewesen worden sind. Aktivieren um die Serien Information "
+"zu setzen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1249
 msgid ""
@@ -1923,6 +1931,11 @@ msgid ""
 "factory defaults and testing software. This driver supports firmware V2.x.x "
 "and DBVersion up to "
 msgstr ""
+"Kobo aktualisiert regelmäßig Firmware- und Datenbank-Version. Mit dieser "
+"Option wird Calibre versuchen die vollständige Lese-Schreib Zugriff Funktion "
+"zu implementieren - Hochachtung !! Aktivieren nur wenn sie damit vertraut "
+"sind, die Werkseinstellung der Kobo zurückzusetzen und Programme zu testen. "
+"Dieser Treiber unterstützt Firmware V2.x.x und DBVersion bis zu "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1255
 msgid "Title to test when debugging"
@@ -10469,6 +10482,11 @@ msgid ""
 "you want this folder scanned in order to be able to send books to it. Click "
 "the <b>configure</b> button below to send books to it."
 msgstr ""
+"Sie versuchen Ebooks in der Ordner <b>%s</b> zu senden. Dieser Ordner wird "
+"derzeit von Calibre ignoriert wenn das Gerät gescannt wird. Calibre muss "
+"eingestellt werden sodass diese Ordner gescannt wird, bevor Bücher darauf "
+"gesendet werden können. <b>Einstellungen</b> Knopf nützen um Bücher darauf "
+"zu senden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:504
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:137
@@ -10493,6 +10511,8 @@ msgid ""
 "You can select which top level folders calibre will scan when searching this "
 "device for books."
 msgstr ""
+"Sie können auswählen, welchen Hauptordner Calibre scannen soll, wenn es "
+"dieses Gerät noch Büchern durchsucht."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:131
 msgid "Select &All"
@@ -19752,7 +19772,7 @@ msgstr "&Aktuelle Seite beim Verlassen speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:441
 msgid "Show &controls in the viewer window"
-msgstr ""
+msgstr "Steuerung im Betra&chter-Fenster anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:442
 msgid "&Miscellaneous options"
@@ -20898,6 +20918,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Eine Kreuz-Referenz in der Autoren Rubrik für Bücher mit unterschiedlichen "
+"Autoren erstellen.\n"
+"Standard: '%default'\n"
+"Gilt für: AZW3, ePub, MOBI Ausgabeformate"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:57
 #, python-format
@@ -21025,6 +21049,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Feld für die Quelle in der Genere Rubrik\n"
+"Standard: '%default'\n"
+"Gilt für: AZW3, ePub, MOBI Ausgabeformate"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:136
 #, python-format
@@ -22542,7 +22569,7 @@ msgstr "Startseite"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:356
 msgid "Random book"
-msgstr ""
+msgstr "Zufälliges Buch"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:403
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:472
