@@ -303,6 +303,10 @@ class Browser(QObject, FormsMixin):
         self.nam = NetworkAccessManager(log, use_disk_cache=use_disk_cache, parent=self)
         self.page.setNetworkAccessManager(self.nam)
 
+    @property
+    def user_agent(self):
+        return self.page.user_agent
+
     def _wait_for_load(self, timeout, url=None):
         loop = QEventLoop(self)
         start_time = time.time()
@@ -421,4 +425,10 @@ class Browser(QObject, FormsMixin):
         except Timeout:
             pass
         self.nam = self.page = None
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, *args):
+        self.close()
 

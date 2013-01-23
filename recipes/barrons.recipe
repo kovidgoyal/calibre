@@ -28,6 +28,8 @@ class Barrons(BasicNewsRecipe):
 
         ## Don't grab articles more than 7 days old
         oldest_article = 7
+        use_javascript_to_login = True
+        requires_version = (0, 9, 16)
 
         extra_css = '''
                     .datestamp{font-family:Verdana,Geneva,Kalimati,sans-serif; font-size:x-small;}
@@ -40,7 +42,7 @@ class Barrons(BasicNewsRecipe):
                     .insettipUnit{font-size: x-small;}
                     '''
         remove_tags = [
-                           dict(name ='div', attrs={'class':['tabContainer artTabbedNav','rssToolBox hidden','articleToolbox']}),
+                           dict(name ='div', attrs={'class':['sTools sTools-t', 'tabContainer artTabbedNav','rssToolBox hidden','articleToolbox']}),
                            dict(name = 'a', attrs ={'class':'insetClose'})
                         ]
 
@@ -60,21 +62,17 @@ class Barrons(BasicNewsRecipe):
                 ]
         ]
 
-        def get_browser(self):
-            br = BasicNewsRecipe.get_browser()
-            if self.username is not None and self.password is not None:
-                br.open('http://commerce.barrons.com/auth/login')
-                br.select_form(nr=0)
-                br['username']   = self.username
-                br['password'] = self.password
-                br.submit()
-            return br
+        def javascript_login(self, br, username, password):
+            br.visit('http://commerce.barrons.com/auth/login')
+            f = br.select_form(nr=0)
+            f['username'] = username
+            f['password'] = password
+            br.submit(timeout=120)
 
         ## Use the print version of a page when available.
-
         def print_version(self, url):
                main, sep, rest = url.rpartition('?')
-               return main + '#printmode'
+               return main + '#text.print'
 
         def postprocess_html(self, soup, first):
 
