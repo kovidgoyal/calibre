@@ -6,10 +6,12 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import os
 from threading import Lock
 
 from PyQt4.Qt import (QUrl, QCoreApplication)
 
+from calibre.constants import cache_dir
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
@@ -19,12 +21,20 @@ from calibre.gui2.store.stores.mobileread.models import SearchFilter
 from calibre.gui2.store.stores.mobileread.cache_progress_dialog import CacheProgressDialog
 from calibre.gui2.store.stores.mobileread.cache_update_thread import CacheUpdateThread
 from calibre.gui2.store.stores.mobileread.store_dialog import MobileReadStoreDialog
+from calibre.utils.config import JSONConfig
+
+class Cache(JSONConfig):
+
+    def __init__(self):
+        JSONConfig.__init__(self, 'mobileread_store')
+        self.file_path = os.path.join(cache_dir(), 'mobileread_get_books.json')
 
 class MobileReadStore(BasicStoreConfig, StorePlugin):
 
     def __init__(self, *args, **kwargs):
         StorePlugin.__init__(self, *args, **kwargs)
         self.lock = Lock()
+        self.cache = Cache()
 
     def open(self, parent=None, detail_item=None, external=False):
         url = 'http://www.mobileread.com/'
@@ -61,7 +71,7 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
             suppress_progress=False):
         if self.lock.acquire(False):
             try:
-                update_thread = CacheUpdateThread(self.config, self.seralize_books, timeout)
+                update_thread = CacheUpdateThread(self.cache, self.seralize_books, timeout)
                 if not suppress_progress:
                     progress = CacheProgressDialog(parent)
                     progress.set_message(_('Updating MobileRead book cache...'))
@@ -85,7 +95,7 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
                 self.lock.release()
 
     def get_book_list(self):
-        return self.deseralize_books(self.config.get('book_list', []))
+        return self.deseralize_books(self.cache.get('book_list', []))
 
     def seralize_books(self, books):
         sbooks = []
