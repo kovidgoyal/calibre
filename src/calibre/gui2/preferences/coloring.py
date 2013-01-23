@@ -413,6 +413,7 @@ class RulesModel(QAbstractListModel): # {{{
         rules = list(prefs['column_color_rules'])
         self.rules = []
         for col, template in rules:
+            if col not in self.fm: continue
             try:
                 rule = rule_from_template(self.fm, template)
             except:
