@@ -21,20 +21,22 @@ from calibre.gui2.store.stores.mobileread.models import SearchFilter
 from calibre.gui2.store.stores.mobileread.cache_progress_dialog import CacheProgressDialog
 from calibre.gui2.store.stores.mobileread.cache_update_thread import CacheUpdateThread
 from calibre.gui2.store.stores.mobileread.store_dialog import MobileReadStoreDialog
-from calibre.utils.config import JSONConfig
-
-class Cache(JSONConfig):
-
-    def __init__(self):
-        JSONConfig.__init__(self, 'mobileread_store')
-        self.file_path = os.path.join(cache_dir(), 'mobileread_get_books.json')
 
 class MobileReadStore(BasicStoreConfig, StorePlugin):
 
     def __init__(self, *args, **kwargs):
         StorePlugin.__init__(self, *args, **kwargs)
         self.lock = Lock()
-        self.cache = Cache()
+
+    @property
+    def cache(self):
+        if not hasattr(self, '_mr_cache'):
+            from calibre.utils.config import JSONConfig
+            self._mr_cache = JSONConfig('mobileread_get_books')
+            self._mr_cache.file_path = os.path.join(cache_dir(),
+                                                 'mobileread_get_books.json')
+            self._mr_cache.refresh()
+        return self._mr_cache
 
     def open(self, parent=None, detail_item=None, external=False):
         url = 'http://www.mobileread.com/'
