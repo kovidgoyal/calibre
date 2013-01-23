@@ -200,7 +200,7 @@ class Source(Plugin):
     #: during the identify phase
     touched_fields = frozenset()
 
-    #: Set this to True if your plugin return HTML formatted comments
+    #: Set this to True if your plugin returns HTML formatted comments
     has_html_comments = False
 
     #: Setting this to True means that the browser object will add

@@ -291,9 +291,7 @@ class ITUNES(DriverBase):
 
     # Properties
     cached_books = {}
-    cache_dir = os.path.join(config_dir, 'caches', 'itunes')
     calibre_library_path = prefs['library_path']
-    archive_path = os.path.join(cache_dir, "thumbs.zip")
     description_prefix = "added by calibre"
     ejected = False
     iTunes = None
@@ -887,6 +885,8 @@ class ITUNES(DriverBase):
             logger().info(" BCD: %s" % ['0x%x' % x for x in sorted(self.BCD)])
             logger().info(" PRODUCT_ID: %s" % ['0x%x' % x for x in sorted(self.PRODUCT_ID)])
 
+        self.cache_dir = os.path.join(cache_dir(), 'itunes')
+        self.archive_path = os.path.join(self.cache_dir, "thumbs.zip")
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):
             if DEBUG:

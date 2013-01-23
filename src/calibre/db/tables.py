@@ -148,11 +148,11 @@ class ManyToManyTable(ManyToOneTable):
     '''
 
     table_type = MANY_MANY
+    selectq = 'SELECT book, {0} FROM {1}'
 
     def read_maps(self, db):
         for row in db.conn.execute(
-                'SELECT book, {0} FROM {1}'.format(
-                    self.metadata['link_column'], self.link_table)):
+            self.selectq.format(self.metadata['link_column'], self.link_table)):
             if row[1] not in self.col_book_map:
                 self.col_book_map[row[1]] = []
             self.col_book_map[row[1]].append(row[0])
@@ -167,6 +167,8 @@ class ManyToManyTable(ManyToOneTable):
             self.book_col_map[key] = tuple(self.book_col_map[key])
 
 class AuthorsTable(ManyToManyTable):
+
+    selectq = 'SELECT book, {0} FROM {1} ORDER BY id'
 
     def read_id_maps(self, db):
         self.alink_map = {}

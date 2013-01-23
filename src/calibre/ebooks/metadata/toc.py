@@ -194,12 +194,11 @@ class TOC(list):
                 content = content_path(np)
                 if content and text:
                     content = content[0]
-                    src = get_attr(content, attr='src')
-                    if src:
-                        purl = urlparse(content.get('src'))
-                        href, fragment = unquote(purl[2]), unquote(purl[5])
-                        nd = dest.add_item(href, fragment, text)
-                        nd.play_order = play_order
+                    # if get_attr(content, attr='src'):
+                    purl = urlparse(content.get('src'))
+                    href, fragment = unquote(purl[2]), unquote(purl[5])
+                    nd = dest.add_item(href, fragment, text)
+                    nd.play_order = play_order
 
             for c in np_path(np):
                 process_navpoint(c, nd)

@@ -886,10 +886,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('extension path lengths', self.exts_path_lengths)
 
             self.THUMBNAIL_HEIGHT = result.get('coverHeight', self.DEFAULT_THUMBNAIL_HEIGHT)
+            self._debug('cover height', self.THUMBNAIL_HEIGHT)
             if 'coverWidth' in result:
                 # Setting this field forces the aspect ratio
                 self.THUMBNAIL_WIDTH = result.get('coverWidth',
                                       (self.DEFAULT_THUMBNAIL_HEIGHT/3) * 4)
+                self._debug('cover width', self.THUMBNAIL_WIDTH)
             elif hasattr(self, 'THUMBNAIL_WIDTH'):
                     delattr(self, 'THUMBNAIL_WIDTH')
 
@@ -1023,14 +1025,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     if '_series_sort_' in result:
                         del result['_series_sort_']
                     book = self.json_codec.raw_to_book(result, SDBook, self.PREFIX)
-
-                    # If the thumbnail is the wrong size, zero the last mod date
-                    # so the metadata will be resent
-                    thumbnail = book.get('thumbnail', None)
-                    if thumbnail and not (thumbnail[0] == self.THUMBNAIL_HEIGHT or
-                                          thumbnail[1] == self.THUMBNAIL_HEIGHT):
-                        book.set('last_modified', UNDEFINED_DATE)
-
                     bl.add_book(book, replace_metadata=True)
                     if '_new_book_' in result:
                         book.set('_new_book_', True)
@@ -1086,7 +1080,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
         if count:
             for i,book in enumerate(books_to_send):
-                self._debug('sending metadata for book', book.lpath)
+                self._debug('sending metadata for book', book.lpath, book.title)
                 self._set_known_metadata(book)
                 opcode, result = self._call_client(
                         'SEND_BOOK_METADATA',

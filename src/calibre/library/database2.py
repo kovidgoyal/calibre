@@ -1220,7 +1220,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 loc.append(_('Card A'))
             if b is not None:
                 loc.append(_('Card B'))
-        return ', '.join(loc) + ((' (%s books)'%count) if count > 1 else '')
+        return ', '.join(loc) + ((_(' (%s books)')%count) if count > 1 else '')
 
     def set_book_on_device_func(self, func):
         self.book_on_device_func = func

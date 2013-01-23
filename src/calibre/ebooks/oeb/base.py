@@ -98,6 +98,9 @@ _self_closing_pat = re.compile(
 def close_self_closing_tags(raw):
     return _self_closing_pat.sub(r'<\g<tag>\g<arg>></\g<tag>>', raw)
 
+def uuid_id():
+    return 'u'+unicode(uuid.uuid4())
+
 def iterlinks(root, find_links_in_css=True):
     '''
     Iterate over all links in a OEB Document.
@@ -1528,7 +1531,7 @@ class TOC(object):
         if parent is None:
             parent = etree.Element(NCX('navMap'))
         for node in self.nodes:
-            id = node.id or unicode(uuid.uuid4())
+            id = node.id or uuid_id()
             po = node.play_order
             if po == 0:
                 po = 1
@@ -1634,10 +1637,10 @@ class PageList(object):
         return self.pages.remove(page)
 
     def to_ncx(self, parent=None):
-        plist = element(parent, NCX('pageList'), id=str(uuid.uuid4()))
+        plist = element(parent, NCX('pageList'), id=uuid_id())
         values = dict((t, count(1)) for t in ('front', 'normal', 'special'))
         for page in self.pages:
-            id = page.id or unicode(uuid.uuid4())
+            id = page.id or uuid_id()
             type = page.type
             value = str(values[type].next())
             attrib = {'id': id, 'value': value, 'type': type, 'playOrder': '0'}
