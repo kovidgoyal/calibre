@@ -1032,7 +1032,7 @@ class ITUNES(DriverBase):
         self.plugboard_func = pb_func
 
     def shutdown(self):
-        if DEBUG:
+        if False and DEBUG:
             logger().info("%s.shutdown()\n" % self.__class__.__name__)
 
     def sync_booklists(self, booklists, end_session=True):
