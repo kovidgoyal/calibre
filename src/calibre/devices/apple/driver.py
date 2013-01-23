@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import cStringIO, ctypes, datetime, os, platform, re, shutil, sys, tempfile, time
 
-from calibre.constants import __appname__, __version__, DEBUG
+from calibre.constants import __appname__, __version__, DEBUG, cache_dir
 from calibre import fit_image, confirm_config_name, strftime as _strftime
 from calibre.constants import isosx, iswindows
 from calibre.devices.errors import OpenFeedback, UserFeedback
@@ -289,9 +289,7 @@ class ITUNES(DriverBase):
 
     # Properties
     cached_books = {}
-    cache_dir = os.path.join(config_dir, 'caches', 'itunes')
     calibre_library_path = prefs['library_path']
-    archive_path = os.path.join(cache_dir, "thumbs.zip")
     description_prefix = "added by calibre"
     ejected = False
     iTunes = None
@@ -884,6 +882,8 @@ class ITUNES(DriverBase):
         logger().info(" BCD: %s" % ['0x%x' % x for x in sorted(self.BCD)])
         logger().info(" PRODUCT_ID: %s" % ['0x%x' % x for x in sorted(self.PRODUCT_ID)])
 
+        self.cache_dir = os.path.join(cache_dir(), 'itunes')
+        self.archive_path = os.path.join(self.cache_dir, "thumbs.zip")
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):
             if DEBUG:

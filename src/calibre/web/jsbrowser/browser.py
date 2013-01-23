@@ -16,7 +16,7 @@ from PyQt4.Qt import (QObject, QNetworkAccessManager, QNetworkDiskCache,
 from PyQt4.QtWebKit import QWebPage, QWebSettings, QWebView, QWebElement
 
 from calibre import USER_AGENT, prints, get_proxies, get_proxy_info
-from calibre.constants import ispy3, config_dir
+from calibre.constants import ispy3, cache_dir
 from calibre.utils.logging import ThreadSafeLog
 from calibre.gui2 import must_use_qt
 from calibre.web.jsbrowser.forms import FormsMixin
@@ -44,7 +44,7 @@ class WebPage(QWebPage): # {{{
         settings = self.settings()
         if enable_developer_tools:
             settings.setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
-        QWebSettings.enablePersistentStorage(os.path.join(config_dir, 'caches',
+        QWebSettings.enablePersistentStorage(os.path.join(cache_dir(),
                 'webkit-persistence'))
         QWebSettings.setMaximumPagesInCache(0)
 
@@ -135,8 +135,7 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
         self.log = log
         if use_disk_cache:
             self.cache = QNetworkDiskCache(self)
-            self.cache.setCacheDirectory(os.path.join(config_dir, 'caches',
-                'jsbrowser'))
+            self.cache.setCacheDirectory(os.path.join(cache_dir(), 'jsbrowser'))
             self.setCache(self.cache)
         self.sslErrors.connect(self.on_ssl_errors)
         self.pf = ProxyFactory(log)
