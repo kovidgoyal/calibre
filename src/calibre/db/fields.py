@@ -9,7 +9,8 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from threading import Lock
-from collections import defaultdict
+from collections import defaultdict, Counter
+from operator import attrgetter
 
 from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY
 from calibre.ebooks.metadata import title_sort
@@ -24,22 +25,28 @@ class Field(object):
 
     def __init__(self, name, table):
         self.name, self.table = name, table
-        self.has_text_data = self.metadata['datatype'] in ('text', 'comments',
-                'series', 'enumeration')
-        self.table_type = self.table.table_type
         dt = self.metadata['datatype']
+        self.has_text_data = dt in {'text', 'comments', 'series', 'enumeration'}
+        self.table_type = self.table.table_type
         self._sort_key = (sort_key if dt in ('text', 'series', 'enumeration') else lambda x: x)
         self._default_sort_key = ''
-        if self.metadata['datatype'] in ('int', 'float', 'rating'):
+        if dt in { 'int', 'float', 'rating' }:
             self._default_sort_key = 0
-        elif self.metadata['datatype'] == 'bool':
+        elif dt == 'bool':
             self._default_sort_key = None
-        elif self.metadata['datatype'] == 'datetime':
+        elif dt == 'datetime':
             self._default_sort_key = UNDEFINED_DATE
         if self.name == 'languages':
             self._sort_key = lambda x:sort_key(calibre_langcode_to_name(x))
         self.is_multiple = (bool(self.metadata['is_multiple']) or self.name ==
                 'formats')
+        self.category_formatter = type(u'')
+        self.category_sort_reverse = False
+        if dt == 'rating':
+            self.category_formatter = lambda x:'\u2605'*int(x/2)
+            self.category_sort_reverse = True
+        elif name == 'languages':
+            self.category_formatter = calibre_langcode_to_name
 
     @property
     def metadata(self):
@@ -63,7 +70,7 @@ class Field(object):
     def books_for(self, item_id):
         '''
         Return the ids of all books associated with the item identified by
-        item_id as a tuple. An empty tuple is returned if no books are found.
+        item_id as a set. An empty set is returned if no books are found.
         '''
         raise NotImplementedError()
 
@@ -94,6 +101,34 @@ class Field(object):
         '''
         raise NotImplementedError()
 
+    def get_categories(self, tag_class, book_rating_map, sort, lang_field, book_ids=None):
+        ans = []
+        if not self.is_many:
+            return ans
+
+        special_sort = hasattr(self, 'category_sort_value')
+        for item_id, item_book_ids in self.table.col_book_map.iteritems():
+            if book_ids is not None:
+                item_book_ids = item_book_ids.intersection(book_ids)
+            if item_book_ids:
+                ratings = tuple(r for r in (book_rating_map.get(book_id, 0) for
+                                            book_id in item_book_ids) if r > 0)
+                avg = sum(ratings)/len(ratings)
+                name = self.category_formatter(self.table.id_map[item_id])
+                sval = (self.category_sort_value(item_id, item_book_ids, lang_field)
+                        if special_sort else name)
+                c = tag_class(name, id=item_id, sort=sval, avg=avg,
+                              id_set=item_book_ids, count=len(item_book_ids))
+                ans.append(c)
+        if sort == 'popularity':
+            key=attrgetter('count')
+        elif sort == 'rating':
+            key=attrgetter('avg_rating')
+        else:
+            key=lambda x:sort_key(x.sort or x.name)
+        ans.sort(key=key, reverse=self.category_sort_reverse)
+        return ans
+
 class OneToOneField(Field):
 
     def for_book(self, book_id, default_value=None):
@@ -103,7 +138,7 @@ class OneToOneField(Field):
         return (book_id,)
 
     def books_for(self, item_id):
-        return (item_id,)
+        return {item_id}
 
     def __iter__(self):
         return self.table.book_col_map.iterkeys()
@@ -223,7 +258,7 @@ class ManyToOneField(Field):
         return (id_,)
 
     def books_for(self, item_id):
-        return self.table.col_book_map.get(item_id, ())
+        return self.table.col_book_map.get(item_id, set())
 
     def __iter__(self):
         return self.table.id_map.iterkeys()
@@ -238,10 +273,16 @@ class ManyToOneField(Field):
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         cbm = self.table.col_book_map
+        empty = set()
         for item_id, val in self.table.id_map.iteritems():
-            book_ids = set(cbm.get(item_id, ())).intersection(candidates)
+            book_ids = cbm.get(item_id, empty).intersection(candidates)
             if book_ids:
                 yield val, book_ids
+
+    @property
+    def book_value_map(self):
+        return {book_id:self.table.id_map[item_id] for book_id, item_id in
+                self.book_col_map.iteritems()}
 
 class ManyToManyField(Field):
 
@@ -263,7 +304,7 @@ class ManyToManyField(Field):
         return self.table.book_col_map.get(book_id, ())
 
     def books_for(self, item_id):
-        return self.table.col_book_map.get(item_id, ())
+        return self.table.col_book_map.get(item_id, set())
 
     def __iter__(self):
         return self.table.id_map.iterkeys()
@@ -282,8 +323,9 @@ class ManyToManyField(Field):
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         cbm = self.table.col_book_map
+        empty = set()
         for item_id, val in self.table.id_map.iteritems():
-            book_ids = set(cbm.get(item_id, ())).intersection(candidates)
+            book_ids = cbm.get(item_id, empty).intersection(candidates)
             if book_ids:
                 yield val, book_ids
 
@@ -327,6 +369,9 @@ class AuthorsField(ManyToManyField):
             'link' : self.table.alink_map[author_id],
         }
 
+    def category_sort_value(self, item_id, book_ids, language_field):
+        return self.table.asort_map[item_id]
+
 class FormatsField(ManyToManyField):
 
     def for_book(self, book_id, default_value=None):
@@ -360,6 +405,23 @@ class SeriesField(ManyToOneField):
         sso = tweaks['title_series_sorting']
         return {book_id:self.sort_key_for_series(book_id, get_lang, sso) for book_id
                 in all_book_ids}
+
+    def category_sort_value(self, item_id, book_ids, language_field):
+        lang = None
+        tss = tweaks['title_series_sorting']
+        if tss != 'strictly_alphabetic':
+            lang_map = language_field.book_col_map
+            c = Counter()
+
+            for book_id in book_ids:
+                l = lang_map.get(book_id, None)
+                if l:
+                    c[l[0]] += 1
+
+            if c:
+                lang = c.most_common(1)[0][0]
+        val = self.table.id_map[item_id]
+        return title_sort(val, order=tss, lang=lang)
 
 def create_field(name, table):
     cls = {

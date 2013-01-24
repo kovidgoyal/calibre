@@ -293,13 +293,13 @@ class Cache(object):
         Return all the books associated with the item identified by
         ``item_id``, where the item belongs to the field ``name``.
 
-        Returned value is a tuple of book ids, or the empty tuple if the item
+        Returned value is a set of book ids, or the empty set if the item
         or the field does not exist.
         '''
         try:
             return self.fields[name].books_for(item_id)
         except (KeyError, IndexError):
-            return ()
+            return set()
 
     @read_api
     def all_book_ids(self, type=frozenset):
