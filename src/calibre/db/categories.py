@@ -14,7 +14,7 @@ from calibre.library.field_metadata import TagsIcons
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 
-CATEGORY_SORTS = { 'name', 'popularity', 'rating' }
+CATEGORY_SORTS = ('name', 'popularity', 'rating') # This has to be a tuple not a set
 
 class Tag(object):
 
