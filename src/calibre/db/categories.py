@@ -127,6 +127,8 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
                 categories['rating'].remove(x)
                 break
 
+    # TODO: User categories and saved searches
+
     return categories
 
 
