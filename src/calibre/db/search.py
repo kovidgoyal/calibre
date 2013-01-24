@@ -14,6 +14,7 @@ from datetime import timedelta
 from calibre.utils.config_base import prefs
 from calibre.utils.date import parse_date, UNDEFINED_DATE, now
 from calibre.utils.icu import primary_find
+from calibre.utils.localization import lang_map, canonicalize_lang
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 
 # TODO: Thread safety of saved searches
@@ -392,7 +393,7 @@ class Parser(SearchQueryParser):
 
     def __init__(self, dbcache, all_book_ids, gst, date_search, num_search,
                  bool_search, keypair_search, limit_search_columns, limit_search_columns_to,
-                 locations):
+                 locations, virtual_fields):
         self.dbcache, self.all_book_ids = dbcache, all_book_ids
         self.all_search_locations = frozenset(locations)
         self.grouped_search_terms = gst
@@ -400,6 +401,9 @@ class Parser(SearchQueryParser):
         self.bool_search, self.keypair_search = bool_search, keypair_search
         self.limit_search_columns, self.limit_search_columns_to = (
             limit_search_columns, limit_search_columns_to)
+        self.virtual_fields = virtual_fields or {}
+        if 'marked' not in self.virtual_fields:
+            self.virtual_fields['marked'] = self
         super(Parser, self).__init__(locations, optimize=True)
 
     @property
@@ -411,8 +415,15 @@ class Parser(SearchQueryParser):
 
     def field_iter(self, name, candidates):
         get_metadata = partial(self.dbcache._get_metadata, get_user_categories=False)
-        return self.dbcache.fields[name].iter_searchable_values(get_metadata,
-                                                                candidates)
+        try:
+            field = self.dbcache.fields[name]
+        except KeyError:
+            field = self.virtual_fields[name]
+        return field.iter_searchable_values(get_metadata, candidates)
+
+    def iter_searchable_values(self, *args, **kwargs):
+        for x in []:
+            yield x, set()
 
     def get_matches(self, location, query, candidates=None,
                     allow_recursion=True):
@@ -480,6 +491,8 @@ class Parser(SearchQueryParser):
                         pass
                 return matches
 
+        upf = prefs['use_primary_find_in_search']
+
         if location in self.field_metadata:
             fm = self.field_metadata[location]
             dt = fm['datatype']
@@ -519,7 +532,6 @@ class Parser(SearchQueryParser):
             # is a special case within the case
             if fm.get('is_csp', False):
                 field_iter = partial(self.field_iter, location, candidates)
-                upf = prefs['use_primary_find_in_search']
                 if location == 'identifiers' and original_location == 'isbn':
                     return self.keypair_search('=isbn:'+query, field_iter,
                                         candidates, upf)
@@ -528,6 +540,87 @@ class Parser(SearchQueryParser):
         # check for user categories
         if len(location) >= 2 and location.startswith('@'):
             return self.get_user_category_matches(location[1:], icu_lower(query), candidates)
+
+        # Everything else (and 'all' matches)
+        matchkind, query = _matchkind(query)
+        all_locs = set()
+        text_fields = set()
+        field_metadata = {}
+
+        for x, fm in self.field_metadata.iteritems():
+            if x.startswith('@'): continue
+            if fm['search_terms'] and x != 'series_sort':
+                all_locs.add(x)
+                field_metadata[x] = fm
+                if fm['datatype'] in { 'composite', 'text', 'comments', 'series', 'enumeration' }:
+                    text_fields.add(x)
+
+        locations = all_locs if location == 'all' else {location}
+
+        current_candidates = set(candidates)
+
+        try:
+            rating_query = int(float(query)) * 2
+        except:
+            rating_query = None
+
+        try:
+            int_query = int(float(query))
+        except:
+            int_query = None
+
+        try:
+            float_query = float(query)
+        except:
+            float_query = None
+
+        for location in locations:
+            current_candidates -= matches
+            q = query
+            if location == 'languages':
+                q = canonicalize_lang(query)
+                if q is None:
+                    lm = lang_map()
+                    rm = {v.lower():k for k,v in lm.iteritems()}
+                    q = rm.get(query, query)
+
+            if matchkind == CONTAINS_MATCH and q in {'true', 'false'}:
+                found = set()
+                for val, book_ids in self.field_iter(location, current_candidates):
+                    if val and (not hasattr(val, 'strip') or val.strip()):
+                        found |= book_ids
+                matches |= (found if q == 'true' else (current_candidates-found))
+                continue
+
+            dt = field_metadata.get(location, {}).get('datatype', None)
+            if dt == 'rating':
+                if rating_query is not None:
+                    for val, book_ids in self.field_iter(location, current_candidates):
+                        if val == rating_query:
+                            matches |= book_ids
+                continue
+
+            if dt == 'float':
+                if float_query is not None:
+                    for val, book_ids in self.field_iter(location, current_candidates):
+                        if val == float_query:
+                            matches |= book_ids
+                continue
+
+            if dt == 'int':
+                if int_query is not None:
+                    for val, book_ids in self.field_iter(location, current_candidates):
+                        if val == int_query:
+                            matches |= book_ids
+                continue
+
+            if location in text_fields:
+                for val, book_ids in self.field_iter(location, current_candidates):
+                    if val is not None:
+                        if isinstance(val, basestring):
+                            val = (val,)
+                        if _match(q, val, matchkind, use_primary_find_in_search=upf):
+                            matches |= book_ids
 
         return matches
 
@@ -557,7 +650,7 @@ class Parser(SearchQueryParser):
 
 class Search(object):
 
-    def __init__(self, all_search_locations):
+    def __init__(self, all_search_locations=()):
         self.all_search_locations = all_search_locations
         self.date_search = DateSearch()
         self.num_search = NumericSearch()
@@ -567,7 +660,7 @@ class Search(object):
     def change_locations(self, newlocs):
         self.all_search_locations = newlocs
 
-    def __call__(self, dbcache, query, search_restriction):
+    def __call__(self, dbcache, query, search_restriction, virtual_fields=None):
         '''
         Return the set of ids of all records that match the specified
         query and restriction
@@ -596,7 +689,8 @@ class Search(object):
             self.date_search, self.num_search, self.bool_search,
             self.keypair_search,
             prefs[ 'limit_search_columns' ],
-            prefs[ 'limit_search_columns_to' ], self.all_search_locations)
+            prefs[ 'limit_search_columns_to' ], self.all_search_locations,
+            virtual_fields)
 
         try:
             ret = sqp.parse(q)

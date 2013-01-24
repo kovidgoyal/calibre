@@ -79,6 +79,42 @@ def debug():
     global DEBUG
     DEBUG = True
 
+_cache_dir = None
+
+def _get_cache_dir():
+    confcache = os.path.join(config_dir, u'caches')
+    if isportable:
+        return confcache
+    if os.environ.has_key('CALIBRE_CACHE_DIRECTORY'):
+        return os.path.abspath(os.environ['CALIBRE_CACHE_DIRECTORY'])
+
+    if iswindows:
+        w = plugins['winutil'][0]
+        candidate = os.path.join(w.special_folder_path(w.CSIDL_LOCAL_APPDATA), u'%s-cache'%__appname__)
+    elif isosx:
+        candidate = os.path.join(os.path.expanduser(u'~/Library/Caches'), __appname__)
+    else:
+        candidate = os.environ.get('XDG_CACHE_HOME', u'~/.cache')
+        candidate = os.path.join(os.path.expanduser(candidate),
+                                    __appname__)
+        if isinstance(candidate, bytes):
+            try:
+                candidate = candidate.decode(filesystem_encoding)
+            except ValueError:
+                candidate = confcache
+    if not os.path.exists(candidate):
+        try:
+            os.makedirs(candidate)
+        except:
+            candidate = confcache
+    return candidate
+
+def cache_dir():
+    global _cache_dir
+    if _cache_dir is None:
+        _cache_dir = _get_cache_dir()
+    return _cache_dir
+
 # plugins {{{
 
 class Plugins(collections.Mapping):

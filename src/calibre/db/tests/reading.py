@@ -218,9 +218,17 @@ class ReadingTest(BaseTest):
             'identifiers:t:n', 'identifiers:=test:=two', 'identifiers:x:y',
             'identifiers:z',
 
-            # TODO: Tests for searching the size column and
+            # Text tests
+            'title:="Title One"', 'title:~title', '#enum:=one', '#enum:tw',
+            '#enum:false', '#enum:true', 'series:one', 'tags:one', 'tags:true',
+            'tags:false', '2', 'one', '20.02', '"publisher one"',
+            '"my comments one"',
+
+            # User categories
+            '@Good Authors:One', '@Good Series.good tags:two',
+
+            # TODO: Tests for searching the size and #formats columns and
             # cover:true|false
-            # TODO: Tests for user categories searching
         )}
         old = None
 
@@ -230,6 +238,18 @@ class ReadingTest(BaseTest):
             self.assertEqual(ans, nr,
                 'Old result: %r != New result: %r for search: %s'%(
                     ans, nr, query))
+
+    # }}}
+
+    def test_get_categories(self): # {{{
+        'Check that get_categories() returns the same data for both backends'
+        from calibre.library.database2 import LibraryDatabase2
+        old = LibraryDatabase2(self.library_path)
+        old_categories = old.get_categories()
+        cache = self.init_cache(self.library_path)
+        import pprint
+        pprint.pprint(old_categories)
+        pprint.pprint(cache.get_categories())
 
     # }}}
 
