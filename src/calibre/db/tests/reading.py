@@ -241,6 +241,18 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_get_categories(self): # {{{
+        'Check that get_categories() returns the same data for both backends'
+        from calibre.library.database2 import LibraryDatabase2
+        old = LibraryDatabase2(self.library_path)
+        old_categories = old.get_categories()
+        cache = self.init_cache(self.library_path)
+        import pprint
+        pprint.pprint(old_categories)
+        pprint.pprint(cache.get_categories())
+
+    # }}}
+
 def tests():
     return unittest.TestLoader().loadTestsFromTestCase(ReadingTest)
 

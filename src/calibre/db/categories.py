@@ -53,8 +53,8 @@ class Tag(object):
 
 def find_categories(field_metadata):
     for category, cat in field_metadata.iteritems():
-        if (cat['is_category'] and cat['kind'] not in { 'user', 'search' } and
-            category not in {'news', 'formats'}):
+        if (cat['is_category'] and cat['kind'] not in {'user', 'search'} and
+            category != 'news'):
             yield (category, cat['is_multiple'].get('cache_to_list', None), False)
         elif (cat['datatype'] == 'composite' and
               cat['display'].get('make_category', False)):
@@ -63,7 +63,7 @@ def find_categories(field_metadata):
 def create_tag_class(category, fm, icon_map):
     cat = fm[category]
     icon = None
-    tooltip = None if category == 'identifiers' else ('(' + category + ')')
+    tooltip = None if category in {'formats', 'identifiers'} else ('(' + category + ')')
     label = fm.key_to_label(category)
     if icon_map:
         if not fm.is_custom_field(category):
@@ -72,7 +72,8 @@ def create_tag_class(category, fm, icon_map):
         else:
             icon = icon_map['custom:']
             icon_map[category] = icon
-    is_editable = category not in { 'news', 'rating', 'languages' }
+    is_editable = category not in {'news', 'rating', 'languages', 'formats',
+                                   'identifiers'}
 
     if (tweaks['categories_use_field_for_author_name'] == 'author_sort' and
             (category == 'authors' or
@@ -86,7 +87,6 @@ def create_tag_class(category, fm, icon_map):
     return partial(Tag, use_sort_as_name=use_sort_as_name, icon=icon,
                         tooltip=tooltip, is_editable=is_editable,
                         category=category)
-
 
 def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
     if icon_map is not None and type(icon_map) != TagsIcons:

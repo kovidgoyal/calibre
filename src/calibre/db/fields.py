@@ -362,8 +362,7 @@ class IdentifiersField(ManyToManyField):
             if book_ids is not None:
                 item_book_ids = item_book_ids.intersection(book_ids)
             if item_book_ids:
-                name = id_key
-                c = tag_class(name, id_set=item_book_ids, count=len(item_book_ids))
+                c = tag_class(id_key, id_set=item_book_ids, count=len(item_book_ids))
                 ans.append(c)
         return ans
 
@@ -397,6 +396,17 @@ class FormatsField(ManyToManyField):
 
         for val, book_ids in val_map.iteritems():
             yield val, book_ids
+
+    def get_categories(self, tag_class, book_rating_map, lang_map, book_ids=None):
+        ans = []
+
+        for fmt, item_book_ids in self.table.col_book_map.iteritems():
+            if book_ids is not None:
+                item_book_ids = item_book_ids.intersection(book_ids)
+            if item_book_ids:
+                c = tag_class(fmt, id_set=item_book_ids, count=len(item_book_ids))
+                ans.append(c)
+        return ans
 
 class SeriesField(ManyToOneField):
 
