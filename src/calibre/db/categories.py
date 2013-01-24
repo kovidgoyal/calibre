@@ -53,8 +53,7 @@ class Tag(object):
 
 def find_categories(field_metadata):
     for category, cat in field_metadata.iteritems():
-        if (cat['is_category'] and cat['kind'] not in {'user', 'search'} and
-            category != 'news'):
+        if (cat['is_category'] and cat['kind'] not in {'user', 'search'}):
             yield (category, cat['is_multiple'].get('cache_to_list', None), False)
         elif (cat['datatype'] == 'composite' and
               cat['display'].get('make_category', False)):
@@ -102,8 +101,11 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
     book_ids = frozenset(book_ids) if book_ids else book_ids
     for category, is_multiple, is_composite in find_categories(fm):
         tag_class = create_tag_class(category, fm, icon_map)
-        cats = dbcache.fields[category].get_categories(
-            tag_class, book_rating_map, lang_map, book_ids)
+        if category == 'news':
+            cats = dbcache.fields['tags'].get_news_category(tag_class, book_ids)
+        else:
+            cats = dbcache.fields[category].get_categories(
+                tag_class, book_rating_map, lang_map, book_ids)
         if sort == 'popularity':
             key=attrgetter('count')
         elif sort == 'rating':
