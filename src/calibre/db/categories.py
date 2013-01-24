@@ -101,6 +101,8 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
     book_ids = frozenset(book_ids) if book_ids else book_ids
     for category, is_multiple, is_composite in find_categories(fm):
         tag_class = create_tag_class(category, fm, icon_map)
+        # TODO: Handle composite column based categories (both is_multiple and
+        # not is_multiple)
         if category == 'news':
             cats = dbcache.fields['tags'].get_news_category(tag_class, book_ids)
         else:
