@@ -18,6 +18,8 @@ class MichelleMalkin(BasicNewsRecipe):
 
     remove_javascript     = True
     no_stylesheets        = True
+    auto_cleanup = True
+    use_embedded_content = False
 
 
     conversion_options = {
@@ -29,16 +31,16 @@ class MichelleMalkin(BasicNewsRecipe):
                         }
 
 
-    keep_only_tags = [
-      dict(name='div', attrs={'class':'article'})
-    ]
+    #keep_only_tags = [
+      #dict(name='div', attrs={'class':'article'})
+    #]
 
-    remove_tags  = [
-       dict(name=['iframe', 'embed', 'object']),
-       dict(name='div', attrs={'id':['comments', 'commentForm']}),
-       dict(name='div', attrs={'class':['postCategories', 'comments', 'blogInfo', 'postInfo']})
+    #remove_tags  = [
+       #dict(name=['iframe', 'embed', 'object']),
+       #dict(name='div', attrs={'id':['comments', 'commentForm']}),
+       #dict(name='div', attrs={'class':['postCategories', 'comments', 'blogInfo', 'postInfo']})
 
-    ]
+    #]
 
 
     feeds = [(u'http://feeds.feedburner.com/michellemalkin/posts')]

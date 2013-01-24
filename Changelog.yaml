@@ -19,6 +19,81 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.15
+  date: 2013-01-18
+
+  new features:
+    - title: "Linux MTP driver: Detect devices that have MTP interfaces even if their USB ids are not known"
+
+    - title: "Content server: Allow picking a random book by clicking the 'Random book' link on the start page. You can also refresh the random book page to get a new random book"
+
+    - title: "E-book viewer: Add an option to hide the toolbars in the viewer window (Preferences->Miscellaneous->Show controls in the viewr preferences). You can unhide them by right clicking in the viewer window."
+
+    - title: "Kobo driver: Speedup initial connect by avoiding unnecessary update of series metadata in some situations."
+      tickets: [1099190]
+
+    - title: "Get Books: Allow the store plugins to be dynamically loaded so that future website changes of a store dont require a calibre update to fix Get Books."
+
+    - title: "Wireless driver: Always replace file when resending a previously sent book to the device, even if the title/author have changed."
+
+    - title: "Add PocketBook Pro 912 driver."
+      tickets: [1099571]
+
+    - title: "When creating/exporting epub and mobi files, add the calibre book identifier as a special field in the book's metadata. This allows third party tools to identify the book record in calibre to which the file belongs."
+
+    - title: "Wireless driver: Add support for using the book uuid as the filename"
+
+    - title: "Remove the experimental tag from the subset fonts feature, since there has been only one reported problem (now fixed) with it in the two months since it was released"
+ 
+  bug fixes:
+    - title: "Get Books: Update the amazon, waterstones and libri.de plugins to account for website changes"
+
+    - title: "MOBI Input: Do not choke on MOBI files with incorrectly encoded titles."
+      tickets: [1100601]
+
+    - title: "Font subsetting: Fix a bug in the parsing of the GSUB table that could cause some ligatures to not be included in the subset font"
+
+    - title: "E-book-viewer: Fix TOC links without anchors not scrolling to the top of the current flow"
+
+    - title: "LIT Input: Handle lit files that set an incorrect XML mimetype for their text."
+      tickets: [1099621]
+
+    - title: "Catalogs: Fix 'X' being droppen from isbns on export"
+      tickets: [1098325]
+
+    - title: "Fix an error when editing date in the main book list and all visible dates are blank."
+      tickets: [1098675]
+
+    - title: "Fix calibre-smtp using incorrect escaping for non-ascii attachment filenames"
+      tickets: [1098478]
+
+    - title: "Conversion: When subsetting fonts, handle multiple @font-face rules referring to the same physical font"
+
+    - title: "Content server: Update metadata when serving azw3 files"
+
+    - title: "CHM Input: Handle chm files that contain files with url unsafe filenames."
+      tickets: [1100610]
+
+    - title: "Content server: Fix custom icons for top level categories incorrect."
+      tickets: [1095016]
+
+    - title: "Kobo driver: When resending a file to the device, update the filesize in the Kobo db to prevent the device from deleting the file."
+      tickets: [1100607]
+
+  improved recipes:
+    - The Chronicle of Higher Education
+    - Smithsonian Magazine
+    - Philosophy Now
+    - The Economist
+    - Business Week Magazine
+
+  new recipes:
+    - title: Asco de Vida 
+      author: Krittika Goyal
+
+    - title: Schattenblick 
+      author: ThB
+
 - version: 0.9.14
   date: 2013-01-11
 

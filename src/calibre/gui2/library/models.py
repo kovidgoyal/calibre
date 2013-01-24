@@ -16,12 +16,12 @@ from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import SafeFormat
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.config import tweaks, device_prefs
+from calibre.utils.config import tweaks, device_prefs, prefs
 from calibre.utils.date import dt_factory, qt_to_dt, as_local_time
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
-from calibre.library.caches import (_match, CONTAINS_MATCH, EQUALS_MATCH,
-    REGEXP_MATCH, MetadataBackup, force_to_bool)
+from calibre.db.search import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
+from calibre.library.caches import (MetadataBackup, force_to_bool)
 from calibre.library.save_to_disk import find_plugboard
 from calibre import strftime, isbytestring
 from calibre.constants import filesystem_encoding, DEBUG
@@ -1037,6 +1037,7 @@ class OnDeviceSearch(SearchQueryParser): # {{{
              }
         for x in ('author', 'format'):
             q[x+'s'] = q[x]
+        upf = prefs['use_primary_find_in_search']
         for index, row in enumerate(self.model.db):
             for locvalue in locations:
                 accessor = q[locvalue]
@@ -1063,7 +1064,7 @@ class OnDeviceSearch(SearchQueryParser): # {{{
                         vals = accessor(row).split(',')
                     else:
                         vals = [accessor(row)]
-                    if _match(query, vals, m):
+                    if _match(query, vals, m, use_primary_find_in_search=upf):
                         matches.add(index)
                         break
                 except ValueError: # Unicode errors

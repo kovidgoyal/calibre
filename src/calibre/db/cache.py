@@ -7,16 +7,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, traceback
 from collections import defaultdict
 from functools import wraps, partial
 
+from calibre.db.categories import get_categories
 from calibre.db.locking import create_locks, RecordLock
 from calibre.db.fields import create_field
+from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
 from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import now
+from calibre.utils.icu import sort_key
 
 def api(f):
     f.is_cache_api = True
@@ -50,6 +53,7 @@ class Cache(object):
         self.record_lock = RecordLock(self.read_lock)
         self.format_metadata_cache = defaultdict(dict)
         self.formatter_template_cache = {}
+        self._search_api = Search(self.field_metadata.get_search_terms())
 
         # Implement locking for all simple read/write API methods
         # An unlocked version of the method is stored with the name starting
@@ -64,6 +68,36 @@ class Cache(object):
                 # Wrap it in a lock
                 lock = self.read_lock if ira else self.write_lock
                 setattr(self, name, wrap_simple(lock, func))
+
+        self.initialize_dynamic()
+
+    def initialize_dynamic(self):
+        # Reconstruct the user categories, putting them into field_metadata
+        # Assumption is that someone else will fix them if they change.
+        self.field_metadata.remove_dynamic_categories()
+        for user_cat in sorted(self.pref('user_categories', {}).iterkeys(), key=sort_key):
+            cat_name = '@' + user_cat # add the '@' to avoid name collision
+            self.field_metadata.add_user_category(label=cat_name, name=user_cat)
+
+        # add grouped search term user categories
+        muc = frozenset(self.pref('grouped_search_make_user_categories', []))
+        for cat in sorted(self.pref('grouped_search_terms', {}).iterkeys(), key=sort_key):
+            if cat in muc:
+                # There is a chance that these can be duplicates of an existing
+                # user category. Print the exception and continue.
+                try:
+                    self.field_metadata.add_user_category(label=u'@' + cat, name=cat)
+                except:
+                    traceback.print_exc()
+
+        # TODO: Saved searches
+        # if len(saved_searches().names()):
+        #     self.field_metadata.add_search_category(label='search', name=_('Searches'))
+
+        self.field_metadata.add_grouped_search_terms(
+                                    self.pref('grouped_search_terms', {}))
+
+        self._search_api.change_locations(self.field_metadata.get_search_terms())
 
     @property
     def field_metadata(self):
@@ -260,20 +294,20 @@ class Cache(object):
         Return all the books associated with the item identified by
         ``item_id``, where the item belongs to the field ``name``.
 
-        Returned value is a tuple of book ids, or the empty tuple if the item
+        Returned value is a set of book ids, or the empty set if the item
         or the field does not exist.
         '''
         try:
             return self.fields[name].books_for(item_id)
         except (KeyError, IndexError):
-            return ()
+            return set()
 
     @read_api
-    def all_book_ids(self):
+    def all_book_ids(self, type=frozenset):
         '''
         Frozen set of all known book ids.
         '''
-        return frozenset(self.fields['uuid'])
+        return type(self.fields['uuid'])
 
     @read_api
     def all_field_ids(self, name):
@@ -315,6 +349,10 @@ class Cache(object):
             ans = self.backend.format_metadata(book_id, fmt, name, path)
             self.format_metadata_cache[book_id][fmt] = ans
         return ans
+
+    @read_api
+    def pref(self, name, default=None):
+        return self.backend.prefs.get(name, default)
 
     @api
     def get_metadata(self, book_id,
@@ -378,17 +416,19 @@ class Cache(object):
         all_book_ids = frozenset(self._all_book_ids() if ids_to_sort is None
                 else ids_to_sort)
         get_metadata = partial(self._get_metadata, get_user_categories=False)
+        lang_map = self.fields['languages'].book_value_map
 
         fm = {'title':'sort', 'authors':'author_sort'}
 
         def sort_key(field):
             'Handle series type fields'
-            ans = self.fields[fm.get(field, field)].sort_keys_for_books(get_metadata,
-                                                        all_book_ids)
             idx = field + '_index'
-            if idx in self.fields:
-                idx_ans = self.fields[idx].sort_keys_for_books(get_metadata,
-                    all_book_ids)
+            is_series = idx in self.fields
+            ans = self.fields[fm.get(field, field)].sort_keys_for_books(
+                get_metadata, lang_map, all_book_ids,)
+            if is_series:
+                idx_ans = self.fields[idx].sort_keys_for_books(
+                    get_metadata, lang_map, all_book_ids)
                 ans = {k:(v, idx_ans[k]) for k, v in ans.iteritems()}
             return ans
 
@@ -400,6 +440,16 @@ class Cache(object):
                     fields[0][1])
         else:
             return sorted(all_book_ids, key=partial(SortKey, fields, sort_keys))
+
+    @read_api
+    def search(self, query, restriction, virtual_fields=None):
+        return self._search_api(self, query, restriction,
+                                virtual_fields=virtual_fields)
+
+    @read_api
+    def get_categories(self, sort='name', book_ids=None, icon_map=None):
+        return get_categories(self, sort=sort, book_ids=book_ids,
+                              icon_map=icon_map)
 
     # }}}
 

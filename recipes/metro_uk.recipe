@@ -8,13 +8,16 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title          = u'Metro UK'
     description = 'News as provided by The Metro -UK'
     #timefmt = ''
-    __author__ = 'Dave Asbury'
-    #last update 9/6/12
-    cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/276636_117118184990145_2132092232_n.jpg'
-    oldest_article = 1
+    __author__ = 'fleclerc & Dave Asbury'
+    #last update 20/1/13
+    #cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/276636_117118184990145_2132092232_n.jpg'
+
+    cover_url = 'https://twimg0-a.akamaihd.net/profile_images/1638332595/METRO_LETTERS-01.jpg'
     remove_empty_feeds = True
     remove_javascript     = True
     auto_cleanup = True
+    max_articles_per_feed = 12
+    ignore_duplicate_articles = {'title', 'url'}
     encoding = 'UTF-8'
 
     language = 'en_GB'

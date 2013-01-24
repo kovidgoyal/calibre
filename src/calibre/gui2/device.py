@@ -1661,9 +1661,11 @@ class DeviceMixin(object): # {{{
         update_metadata = device_prefs['manage_device_metadata'] == 'on_connect'
 
         get_covers = False
+        desired_thumbnail_height = 0
         if update_metadata and self.device_manager.is_device_connected:
             if self.device_manager.device.WANTS_UPDATED_THUMBNAILS:
                 get_covers = True
+                desired_thumbnail_height = self.device_manager.device.THUMBNAIL_HEIGHT
 
         # Force a reset if the caches are not initialized
         if reset or not hasattr(self, 'db_book_title_cache'):
@@ -1698,17 +1700,28 @@ class DeviceMixin(object): # {{{
         # will be used by books_on_device to indicate matches. While we are
         # going by, update the metadata for a book if automatic management is on
 
+        def update_book(id_, book) :
+            if not update_metadata:
+                return
+            mi = db.get_metadata(id_, index_is_id=True, get_cover=get_covers)
+            book.smart_update(mi, replace_metadata=True)
+            if get_covers:
+                if book.cover and os.access(book.cover, os.R_OK):
+                    book.thumbnail = self.cover_to_thumbnail(open(book.cover, 'rb').read())
+                else:
+                    book.thumbnail = self.default_thumbnail
+
         for booklist in booklists:
             for book in booklist:
                 book.in_library = None
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
                     id_ = db_book_uuid_cache[book.uuid]
-                    if (update_metadata and
-                            db.metadata_last_modified(id_, index_is_id=True) !=
-                                        getattr(book, 'last_modified', None)):
-                        mi = db.get_metadata(id_, index_is_id=True,
-                                             get_cover=get_covers)
-                        book.smart_update(mi, replace_metadata=True)
+                    if (db.metadata_last_modified(id_, index_is_id=True) !=
+                                        getattr(book, 'last_modified', None)
+                            or (not book.thumbnail
+                                    or max(book.thumbnail[0], book.thumbnail[1]) !=
+                                            desired_thumbnail_height)):
+                        update_book(id_, book)
                     book.in_library = 'UUID'
                     # ensure that the correct application_id is set
                     book.application_id = id_
@@ -1721,23 +1734,15 @@ class DeviceMixin(object): # {{{
                     # will match if any of the db_id, author, or author_sort
                     # also match.
                     if getattr(book, 'application_id', None) in d['db_ids']:
-                        if update_metadata:
-                            id_ = getattr(book, 'application_id', None)
-                            book.smart_update(db.get_metadata(id_,
-                                                              index_is_id=True,
-                                                              get_cover=get_covers),
-                                              replace_metadata=True)
+                        id_ = getattr(book, 'application_id', None)
+                        update_book(id_, book)
                         book.in_library = 'APP_ID'
                         # app_id already matches a db_id. No need to set it.
                         continue
                     # Sonys know their db_id independent of the application_id
                     # in the metadata cache. Check that as well.
                     if getattr(book, 'db_id', None) in d['db_ids']:
-                        if update_metadata:
-                            book.smart_update(db.get_metadata(book.db_id,
-                                                              index_is_id=True,
-                                                              get_cover=get_covers),
-                                              replace_metadata=True)
+                        update_book(book.db_id, book)
                         book.in_library = 'DB_ID'
                         book.application_id = book.db_id
                         continue
@@ -1752,20 +1757,12 @@ class DeviceMixin(object): # {{{
                         book_authors = clean_string(authors_to_string(book.authors))
                         if book_authors in d['authors']:
                             id_ = d['authors'][book_authors]
-                            if update_metadata:
-                                book.smart_update(db.get_metadata(id_,
-                                                              index_is_id=True,
-                                                              get_cover=get_covers),
-                                              replace_metadata=True)
+                            update_book(id_, book)
                             book.in_library = 'AUTHOR'
                             book.application_id = id_
                         elif book_authors in d['author_sort']:
                             id_ = d['author_sort'][book_authors]
-                            if update_metadata:
-                                book.smart_update(db.get_metadata(id_,
-                                                              index_is_id=True,
-                                                              get_cover=get_covers),
-                                                  replace_metadata=True)
+                            update_book(id_, book)
                             book.in_library = 'AUTH_SORT'
                             book.application_id = id_
                 else:
@@ -1779,12 +1776,6 @@ class DeviceMixin(object): # {{{
 
         if update_metadata:
             if self.device_manager.is_device_connected:
-                if self.device_manager.device.WANTS_UPDATED_THUMBNAILS:
-                    for blist in booklists:
-                        for book in blist:
-                            if book.cover and os.access(book.cover, os.R_OK):
-                                book.thumbnail = \
-                                    self.cover_to_thumbnail(open(book.cover, 'rb').read())
                 plugboards = self.library_view.model().db.prefs.get('plugboards', {})
                 self.device_manager.sync_booklists(
                                     FunctionDispatcher(self.metadata_synced), booklists,

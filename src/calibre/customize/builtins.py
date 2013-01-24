@@ -1413,7 +1413,6 @@ class StoreEmpikStore(StoreBase):
 
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF']
-    affiliate = True
 
 class StoreEscapeMagazineStore(StoreBase):
     name = 'EscapeMagazine'

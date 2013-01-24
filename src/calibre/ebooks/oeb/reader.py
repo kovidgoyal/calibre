@@ -373,16 +373,12 @@ class OEBReader(object):
             if not title:
                 self._toc_from_navpoint(item, toc, child)
                 continue
-            if not href:
-                gc = xpath(child, 'ncx:navPoint')
-                if not gc:
-                    # This node is useless
-                    continue
-                href = 'missing.html'
-
-            href = item.abshref(urlnormalize(href[0]))
+            if (not href or not href[0]) and not xpath(child, 'ncx:navPoint'):
+                # This node is useless
+                continue
+            href = item.abshref(urlnormalize(href[0])) if href and href[0] else ''
             path, _ = urldefrag(href)
-            if path not in self.oeb.manifest.hrefs:
+            if href and path not in self.oeb.manifest.hrefs:
                 self.logger.warn('TOC reference %r not found' % href)
                 gc = xpath(child, 'ncx:navPoint')
                 if not gc:

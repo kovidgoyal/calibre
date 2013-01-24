@@ -124,19 +124,19 @@ class NYTimes(BasicNewsRecipe):
     if headlinesOnly:
         title='New York Times Headlines'
         description = 'Headlines from the New York Times'
-        needs_subscription = True
+        needs_subscription = 'optional'
     elif webEdition:
         title='New York Times (Web)'
         description = 'New York Times on the Web'
-        needs_subscription = True
+        needs_subscription = 'optional'
     elif replaceKindleVersion:
         title='The New York Times'
         description = 'Today\'s New York Times'
-        needs_subscription = True
+        needs_subscription = 'optional'
     else:
         title='New York Times'
         description = 'Today\'s New York Times'
-        needs_subscription = True
+        needs_subscription = 'optional'
 
     def decode_url_date(self,url):
         urlitems = url.split('/')
