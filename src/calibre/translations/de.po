@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-01-22 04:51+0000\n"
-"PO-Revision-Date: 2013-01-21 19:00+0000\n"
-"Last-Translator: Marc_dm <mdemaillard@gmail.com>\n"
+"PO-Revision-Date: 2013-01-23 18:45+0000\n"
+"Last-Translator: SimonFS <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-01-23 04:41+0000\n"
-"X-Generator: Launchpad (build 16441)\n"
+"X-Launchpad-Export-Date: 2013-01-24 04:34+0000\n"
+"X-Generator: Launchpad (build 16445)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -5558,7 +5558,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:158
 msgid "Default action to perform when send to device button is clicked"
 msgstr ""
-"Voreingestellte Übertragungsart beim Verwenden der \"An Reader übertragen\" "
+"Voreingestellte Übertragungsart beim Verwenden der \"An Reader senden\" "
 "Schaltfläche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:163
@@ -6301,7 +6301,7 @@ msgstr "Bibliothek wählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:138
 msgid "Library &path:"
-msgstr "Bibliothek &path:"
+msgstr "Bibliothek &Pfad:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:146
 msgid "Browse for library"
@@ -6614,7 +6614,7 @@ msgstr "G"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:162
 msgid "Send to device"
-msgstr "An Reader übertragen"
+msgstr "An Reader senden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:180
 msgid "Connect/share"
@@ -8912,11 +8912,11 @@ msgstr "&Padding"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:230
 msgid "Convert floating images/text into static images/text"
-msgstr "Wandel Fließtext / Bilder in statischen Text / Bilder"
+msgstr "Fließtext/Bilder in statischen Text/Bilder konvertieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:231
 msgid "F&loats"
-msgstr "fließt"
+msgstr "Fließtext"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:232
 msgid "Removes foreground and background colors"
@@ -9306,13 +9306,13 @@ msgid ""
 "the \"Override\" checkbox below. Otherwise the size from the output profile "
 "will be used."
 msgstr ""
-"<b>Notiz:</b> Die untere Papiergröße Parameter wird nur benützt falls die "
-"\"Überschreiben\" Kontrollkästchen gesetzt ist. Andersfall die Papiergröße "
-"vom Output Profile wird benützt."
+"<b>Notiz:</b> Die unten stehenden Einstellungen der Papiergröße werden nur "
+"verwendet, wenn Sie das \"Überschreiben\" Kontrollkästchen aktivieren. "
+"Andersfalls wird die Papiergröße vom Ausgabeprofil verwendet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:116
 msgid "&Override paper size set in output profile"
-msgstr "&Override Papiergröße in Output Profile"
+msgstr "Papiergröße des Ausgabepr&ofils überschreiben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:117
 msgid "&Paper Size:"
@@ -9324,7 +9324,7 @@ msgstr "&Custom size:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:119
 msgid "&Unit:"
-msgstr "&Unit:"
+msgstr "Einheit:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:120
 msgid "Preserve &aspect ratio of cover"
@@ -10178,7 +10178,7 @@ msgstr "Hauptspeicher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:722
 msgid "Send specific format to"
-msgstr "Schicke spezifisches Format an"
+msgstr "Bestimmtes Format senden an"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:723
 msgid "Send and delete from library"
@@ -11323,11 +11323,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:45
 msgid "Select &all"
-msgstr "&all selektieren"
+msgstr "&Alles auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:47
 msgid "Select &none"
-msgstr "&none selektieren"
+msgstr "&nichts auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:89
 msgid "Already in calibre:"
@@ -14282,7 +14282,7 @@ msgstr "Dieses Gerät konfigurieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:74
 msgid "Show books in calibre library"
-msgstr "Zeige Bücher in Calibre Bibliothek"
+msgstr "Bücher der Calibre Bibliothek anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:76
 msgid "Show books in the main memory of the device"
@@ -16535,9 +16535,9 @@ msgid ""
 "The list of device plugins you have disabled. Uncheck an entry to enable the "
 "plugin. calibre cannot detect devices that are managed by disabled plugins."
 msgstr ""
-"Liste der ausgeschaltete Plugins. Entfernen sie das Häkchen um den Plugin "
-"wieder anzuschalten. Calibre kann keine Gerät entdecken deren Plugin "
-"ausgeschaltet ist."
+"Liste der ausgeschaltete Plugins die Sie deaktiviert haben. Entfernen Sie "
+"das Häkchen um das Plugin wieder anzuschalten. Calibre kann keine Geräte "
+"erkennen, die von ausgeschalteten Plugins verwaltet werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:103
 msgid "Narrow"
@@ -19175,9 +19175,9 @@ msgid ""
 msgstr ""
 "Konvertierung von <b>%s</b> fehlgeschlagen da es keine Ebook Dateien "
 "enthält. Falls sie denken, dass es Dateien enthalten sollte, aber Calibre "
-"findet die nicht, ist es höchstwahrscheinlich weil sie die Dateien außer "
-"Calibre Bibliothek bewegt haben. Sie werden die Datieen ausfinden und neu in "
-"Calibre hinfügen müssen."
+"findet sie nicht findet, liegt es höchstwahrscheinlich daran, dass Sie die "
+"Dateien außerhalb der Calibre Bibliothek bewegt haben. Sie werden die "
+"Dateien aufinden und neu in Calibre hinfügen müssen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:108
 #, python-format
@@ -20131,7 +20131,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:710
 msgid "Increase"
-msgstr "Erhöhen"
+msgstr "Vergrößern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:712
 msgid "Decrease"
@@ -20242,7 +20242,7 @@ msgstr "Vorherige Seite"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:219
 msgid "Increase font size"
-msgstr "Schriftgröße erhöhen"
+msgstr "Schrift vergrößern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:220
 msgid "Decrease font size"
@@ -22220,7 +22220,7 @@ msgstr "Erstelle benutzerdefinierte Spalte "
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1223
 #, python-format
 msgid " (%s books)"
-msgstr ""
+msgstr " (%s Bücher)"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3698
 #, python-format

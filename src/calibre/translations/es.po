@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-01-22 04:51+0000\n"
-"PO-Revision-Date: 2013-01-22 22:15+0000\n"
+"PO-Revision-Date: 2013-01-23 19:15+0000\n"
 "Last-Translator: dario <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-01-23 04:50+0000\n"
-"X-Generator: Launchpad (build 16441)\n"
+"X-Launchpad-Export-Date: 2013-01-24 04:35+0000\n"
+"X-Generator: Launchpad (build 16445)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:533
 msgid ""
@@ -2161,7 +2161,7 @@ msgstr "Eliminando libros de los metadatos"
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:482
 #, python-format
 msgid "Removed %s"
-msgstr "%s eliminado"
+msgstr "Eliminado %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:484
 msgid "All books removed"
@@ -2194,7 +2194,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr "Comunicarse son la tableta de internet Nokia 770."
+msgstr "Comunicarse con la tableta de internet Nokia 770."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
@@ -2463,7 +2463,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:298
 msgid "Use this IP address"
-msgstr "Usar esta dirección IP"
+msgstr "Utilizar esta dirección IP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:299
 msgid ""
@@ -2471,8 +2471,8 @@ msgid ""
 "address. The driver will listen only on the entered address, and this "
 "address will be the one advertized over mDNS (bonjour)."
 msgstr ""
-"Use esta opción si quiere forzar el controlador a escuchar en una dirección "
-"IP específica. El controlador escuchará sólo en la dirección intrducida, y "
+"Use esta opción si quiere forzar al controlador a escuchar en una dirección "
+"IP específica. El controlador escuchará sólo en la dirección introducida, y "
 "esta dirección será la única anunciada en mDNS (bonjour)."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:303
@@ -2529,7 +2529,7 @@ msgstr "Comunicar con el lector Archos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:59
 msgid "Communicate with the Pico reader."
-msgstr "Póngase en contacto con Pico reader."
+msgstr "Comunicarse con el lector Pico."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:71
 msgid "Communicate with the iPapyrus reader."
@@ -2666,7 +2666,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
 msgid "USB Vendor ID (in hex)"
-msgstr "Identificador USB del fabricante (hexadecimal)"
+msgstr "Identificador USB del fabricante (en hexadecimal)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:38
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:41
@@ -2686,7 +2686,7 @@ msgstr "Identificador USB del producto (hexadecimal)"
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
 msgid "USB Revision ID (in hex)"
-msgstr "Identificador USB de la revisión (hexadecimal)"
+msgstr "Identificador USB de la revisión (en hexadecimal)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
@@ -2730,8 +2730,8 @@ msgid ""
 "Enter the folder where the books are to be stored. This folder is prepended "
 "to any send_to_device template"
 msgstr ""
-"Introduzca la corpeta donde se almacenarán los libros. Esta carpeta se añade "
-"al principio de cualquier plantilla para enviar al dispositivo."
+"Introduzca la carpeta donde se almacenarán los libros. Esta carpeta se "
+"antepone al principio de cualquier plantilla para enviar al dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
@@ -3012,7 +3012,7 @@ msgstr "Dejar imágenes sin procesar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:63
 msgid "Do not convert the image to grayscale (black and white)"
-msgstr "No convertir la imagen a escalas de gris (blanco y negro)"
+msgstr "No convertir la imagen a escalas de grises (blanco y negro)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:65
 msgid ""
@@ -3084,9 +3084,6 @@ msgid ""
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
 msgstr ""
-"Normalmente, si el archivo de entrada no tiene portada y no especifica una, "
-"se generará una portada con el título, autores, etc. Esta opción desactiva "
-"la generación de esta portada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/epub_output.py:84
 msgid ""
@@ -3108,12 +3105,12 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
-"Cuando se use una portada SVG esta opción hace que la portada se escale para "
-"cubrir el área disponible de pantalla, pero conserva su relación de aspecto "
-"(la relación entre la anchura y la altura). Esto supone que puede haber "
-"márgenes blancos a los lados o arriba y abajo de la imagen, pero la imagen "
-"no se distorsionará. Sin esta opción la imagen puede distorsionarse "
-"ligeramente pero no tendrá margenes en blanco."
+"Cuando se utilice una portada con un archivo en formato SVG esta opción hace "
+"que la portada se escale para cubrir el área disponible de pantalla, pero "
+"conserva su relación de aspecto (la relación entre la anchura y la altura). "
+"Esto supone que puede haber márgenes blancos a los lados o arriba y abajo de "
+"la imagen, pero la imagen no se distorsionará. Sin esta opción la imagen "
+"puede distorsionarse ligeramente pero no tendrá margenes en blanco."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/epub_output.py:103
 msgid ""
@@ -3128,7 +3125,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/epub_output.py:200
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:208
 msgid "Start"
-msgstr "Iniciar"
+msgstr "Inicio"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/fb2_input.py:31
 msgid "Do not insert a Table of Contents at the beginning of the book."
@@ -3366,7 +3363,7 @@ msgstr "Título para cualquier índice generado en el texto."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:56
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:281
 msgid "Disable compression of the file contents."
-msgstr "Desactivar la compresión del archivo."
+msgstr "Desactiar la compresión de los contenidos del archivo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:59
 msgid "Tag marking book to be filed with Personal Docs"
@@ -3391,7 +3388,7 @@ msgid ""
 "book instead of the end. Not recommended."
 msgstr ""
 "Al añadir un Índice al libro, hacerlo al principio del libro y no al final. "
-"No se recomienda."
+"No recomendado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:73
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:289
@@ -3399,7 +3396,7 @@ msgid ""
 "Extract the contents of the MOBI file to the specified directory. If the "
 "directory already exists, it will be deleted."
 msgstr ""
-"Estraer el contenido del archivo MOBI en el directorio especificado. Si el "
+"Extraer el contenido del archivo MOBI en el directorio especificado. Si el "
 "directorio ya existe, se borrará"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:78
@@ -3466,7 +3463,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/rb_output.py:20
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_output.py:37
 msgid "Add Table of Contents to beginning of the book."
-msgstr "Añadir Índice al principio del libro"
+msgstr "Añadir Índice al principio del libro."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_input.py:20
 msgid "Do not extract images from the document"
@@ -3514,7 +3511,7 @@ msgid ""
 "output profile is used. Default is letter. Choices are %s"
 msgstr ""
 "Tamaño de la página. El tamaño especificado en un perfil de salida tiene "
-"preferencia. Valor predeterminado: tamaño folio (letter). Las opciones son %s"
+"preferencia. Valor predeterminado: tamaño carta. Las opciones son %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:67
 msgid ""
@@ -3655,7 +3652,7 @@ msgstr ""
 msgid ""
 "Specify whether or not to insert an empty line between two paragraphs."
 msgstr ""
-"Especifique si desea insertar o no una línea en blanco entre párrafos."
+"Especifique si desea insertar o no una línea en blanco entre dos párrafos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:37
 msgid ""
@@ -3663,7 +3660,7 @@ msgid ""
 "line of each paragraph."
 msgstr ""
 "Especifique si desea o no insertar dos espacios para sangrar la primera "
-"línea de cada párrafo"
+"línea de cada párrafo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:41
 msgid ""
@@ -3675,7 +3672,8 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:45
 msgid "Resize all the images for full screen view. "
-msgstr "Redimensionar todas las imágenes para visión a pantalla completa. "
+msgstr ""
+"Redimensionar todas las imágenes para visualizarlas a pantalla completa. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:127
 msgid "Start Page"
@@ -3748,7 +3746,7 @@ msgid ""
 "all spaces will be displayed."
 msgstr ""
 "Normalmente los espacios adicionales se condensan en uno solo. Con esta "
-"opción se muestran todos los espacios."
+"opción se mostrarán todos los espacios."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_input.py:48
 msgid ""
@@ -3842,8 +3840,8 @@ msgid ""
 "conversion process a bug is occurring."
 msgstr ""
 "Guardar la salida de las distintas etapas del proceso de conversión en el "
-"directorio especificado. Útil si no está seguro de en qué punto del proceso "
-"de conversión ocurre un error."
+"directorio especificado. Útil si no está seguro en qué punto del proceso de "
+"conversión está ocurriendo un error."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:122
 msgid ""

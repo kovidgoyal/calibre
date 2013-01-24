@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-01-22 04:51+0000\n"
-"PO-Revision-Date: 2013-01-21 18:54+0000\n"
-"Last-Translator: Marc_dm <mdemaillard@gmail.com>\n"
+"PO-Revision-Date: 2013-01-24 01:01+0000\n"
+"Last-Translator: Hélion du Mas des Bourboux <helion331990@gmail.com>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-01-23 04:40+0000\n"
-"X-Generator: Launchpad (build 16441)\n"
+"X-Launchpad-Export-Date: 2013-01-24 04:34+0000\n"
+"X-Generator: Launchpad (build 16445)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -9089,7 +9089,7 @@ msgstr "&Désactiver le redimensionnement de la taille de la police"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:249
 msgid "&Subset all embedded fonts"
-msgstr ""
+msgstr "&Sous-ensemble de toutes les polices incorporées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:16
 msgid "LRF Output"
@@ -22424,7 +22424,7 @@ msgstr "crée des colonnes personnalisées "
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1223
 #, python-format
 msgid " (%s books)"
-msgstr ""
+msgstr " (%s livres)"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3698
 #, python-format
