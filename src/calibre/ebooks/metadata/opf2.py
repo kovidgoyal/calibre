@@ -1430,7 +1430,10 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
         elem = metadata.makeelement(tag, attrib=attrib)
         elem.tail = '\n'+(' '*8)
         if text:
-            elem.text = text.strip()
+            try:
+                elem.text = text.strip()
+            except ValueError:
+                elem.text = clean_ascii_chars(text.strip())
         metadata.append(elem)
 
     factory(DC('title'), mi.title)
