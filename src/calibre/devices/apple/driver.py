@@ -307,6 +307,14 @@ class ITUNES(DriverBase):
     update_msg = None
     update_needed = False
 
+    @property
+    def cache_dir(self):
+        return os.path.join(cache_dir(), 'itunes')
+
+    @property
+    def archive_path(self):
+        return os.path.join(self.cache_dir, "thumbs.zip")
+
     # Public methods
     def add_books_to_metadata(self, locations, metadata, booklists):
         '''
@@ -882,8 +890,6 @@ class ITUNES(DriverBase):
         logger().info(" BCD: %s" % ['0x%x' % x for x in sorted(self.BCD)])
         logger().info(" PRODUCT_ID: %s" % ['0x%x' % x for x in sorted(self.PRODUCT_ID)])
 
-        self.cache_dir = os.path.join(cache_dir(), 'itunes')
-        self.archive_path = os.path.join(self.cache_dir, "thumbs.zip")
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):
             if DEBUG:
