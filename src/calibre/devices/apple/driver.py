@@ -311,6 +311,14 @@ class ITUNES(DriverBase):
     update_msg = None
     update_needed = False
 
+    @property
+    def cache_dir(self):
+        return os.path.join(cache_dir(), 'itunes')
+
+    @property
+    def archive_path(self):
+        return os.path.join(self.cache_dir, "thumbs.zip")
+
     # Public methods
     def add_books_to_metadata(self, locations, metadata, booklists):
         '''

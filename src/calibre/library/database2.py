@@ -44,46 +44,12 @@ from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.db.errors import NoSuchFormat
 from calibre.db.lazy import FormatMetadata, FormatsList
+from calibre.db.categories import Tag
 from calibre.utils.localization import (canonicalize_lang,
         calibre_langcode_to_name)
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 SPOOL_SIZE = 30*1024*1024
-
-class Tag(object):
-
-    def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
-                 tooltip=None, icon=None, category=None, id_set=None,
-                 is_editable = True, is_searchable=True, use_sort_as_name=False):
-        self.name = self.original_name = name
-        self.id = id
-        self.count = count
-        self.state = state
-        self.is_hierarchical = ''
-        self.is_editable = is_editable
-        self.is_searchable = is_searchable
-        self.id_set = id_set if id_set is not None else set([])
-        self.avg_rating = avg/2.0 if avg is not None else 0
-        self.sort = sort
-        self.use_sort_as_name = use_sort_as_name
-        if self.avg_rating > 0:
-            if tooltip:
-                tooltip = tooltip + ': '
-            tooltip = _('%(tt)sAverage rating is %(rating)3.1f')%dict(
-                    tt=tooltip, rating=self.avg_rating)
-        self.tooltip = tooltip
-        self.icon = icon
-        self.category = category
-
-    def __unicode__(self):
-        return u'%s:%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state,
-                                  self.category, self.tooltip)
-
-    def __str__(self):
-        return unicode(self).encode('utf-8')
-
-    def __repr__(self):
-        return str(self)
 
 class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     '''

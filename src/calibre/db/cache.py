@@ -11,6 +11,7 @@ import os, traceback
 from collections import defaultdict
 from functools import wraps, partial
 
+from calibre.db.categories import get_categories
 from calibre.db.locking import create_locks, RecordLock
 from calibre.db.fields import create_field
 from calibre.db.search import Search
@@ -293,13 +294,13 @@ class Cache(object):
         Return all the books associated with the item identified by
         ``item_id``, where the item belongs to the field ``name``.
 
-        Returned value is a tuple of book ids, or the empty tuple if the item
+        Returned value is a set of book ids, or the empty set if the item
         or the field does not exist.
         '''
         try:
             return self.fields[name].books_for(item_id)
         except (KeyError, IndexError):
-            return ()
+            return set()
 
     @read_api
     def all_book_ids(self, type=frozenset):
@@ -415,9 +416,7 @@ class Cache(object):
         all_book_ids = frozenset(self._all_book_ids() if ids_to_sort is None
                 else ids_to_sort)
         get_metadata = partial(self._get_metadata, get_user_categories=False)
-        def get_lang(book_id):
-            ans = self._field_for('languages', book_id)
-            return ans[0] if ans else None
+        lang_map = self.fields['languages'].book_value_map
 
         fm = {'title':'sort', 'authors':'author_sort'}
 
@@ -426,10 +425,10 @@ class Cache(object):
             idx = field + '_index'
             is_series = idx in self.fields
             ans = self.fields[fm.get(field, field)].sort_keys_for_books(
-                get_metadata, get_lang, all_book_ids,)
+                get_metadata, lang_map, all_book_ids,)
             if is_series:
                 idx_ans = self.fields[idx].sort_keys_for_books(
-                    get_metadata, get_lang, all_book_ids)
+                    get_metadata, lang_map, all_book_ids)
                 ans = {k:(v, idx_ans[k]) for k, v in ans.iteritems()}
             return ans
 
@@ -446,6 +445,11 @@ class Cache(object):
     def search(self, query, restriction, virtual_fields=None):
         return self._search_api(self, query, restriction,
                                 virtual_fields=virtual_fields)
+
+    @read_api
+    def get_categories(self, sort='name', book_ids=None, icon_map=None):
+        return get_categories(self, sort=sort, book_ids=book_ids,
+                              icon_map=icon_map)
 
     # }}}
 
