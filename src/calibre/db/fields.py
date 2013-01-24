@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 
 from threading import Lock
 from collections import defaultdict, Counter
-from operator import attrgetter
 
 from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY
 from calibre.ebooks.metadata import title_sort
@@ -41,10 +40,8 @@ class Field(object):
         self.is_multiple = (bool(self.metadata['is_multiple']) or self.name ==
                 'formats')
         self.category_formatter = type(u'')
-        self.category_sort_reverse = False
         if dt == 'rating':
             self.category_formatter = lambda x:'\u2605'*int(x/2)
-            self.category_sort_reverse = True
         elif name == 'languages':
             self.category_formatter = calibre_langcode_to_name
 
@@ -101,7 +98,7 @@ class Field(object):
         '''
         raise NotImplementedError()
 
-    def get_categories(self, tag_class, book_rating_map, sort, lang_map, book_ids=None):
+    def get_categories(self, tag_class, book_rating_map, lang_map, book_ids=None):
         ans = []
         if not self.is_many:
             return ans
@@ -113,20 +110,13 @@ class Field(object):
             if item_book_ids:
                 ratings = tuple(r for r in (book_rating_map.get(book_id, 0) for
                                             book_id in item_book_ids) if r > 0)
-                avg = sum(ratings)/len(ratings)
+                avg = sum(ratings)/len(ratings) if ratings else 0
                 name = self.category_formatter(self.table.id_map[item_id])
                 sval = (self.category_sort_value(item_id, item_book_ids, lang_map)
                         if special_sort else name)
                 c = tag_class(name, id=item_id, sort=sval, avg=avg,
                               id_set=item_book_ids, count=len(item_book_ids))
                 ans.append(c)
-        if sort == 'popularity':
-            key=attrgetter('count')
-        elif sort == 'rating':
-            key=attrgetter('avg_rating')
-        else:
-            key=lambda x:sort_key(x.sort or x.name)
-        ans.sort(key=key, reverse=self.category_sort_reverse)
         return ans
 
 class OneToOneField(Field):
@@ -282,7 +272,7 @@ class ManyToOneField(Field):
     @property
     def book_value_map(self):
         return {book_id:self.table.id_map[item_id] for book_id, item_id in
-                self.book_col_map.iteritems()}
+                self.table.book_col_map.iteritems()}
 
 class ManyToManyField(Field):
 
@@ -364,6 +354,18 @@ class IdentifiersField(ManyToManyField):
             val = bcm.get(book_id, default_value)
             if val:
                 yield val, {book_id}
+
+    def get_categories(self, tag_class, book_rating_map, lang_map, book_ids=None):
+        ans = []
+
+        for id_key, item_book_ids in self.table.col_book_map.iteritems():
+            if book_ids is not None:
+                item_book_ids = item_book_ids.intersection(book_ids)
+            if item_book_ids:
+                name = id_key
+                c = tag_class(name, id_set=item_book_ids, count=len(item_book_ids))
+                ans.append(c)
+        return ans
 
 class AuthorsField(ManyToManyField):
 

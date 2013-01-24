@@ -11,6 +11,7 @@ import os, traceback
 from collections import defaultdict
 from functools import wraps, partial
 
+from calibre.db.categories import get_categories
 from calibre.db.locking import create_locks, RecordLock
 from calibre.db.fields import create_field
 from calibre.db.search import Search
@@ -444,6 +445,11 @@ class Cache(object):
     def search(self, query, restriction, virtual_fields=None):
         return self._search_api(self, query, restriction,
                                 virtual_fields=virtual_fields)
+
+    @read_api
+    def get_categories(self, sort='name', book_ids=None, icon_map=None):
+        return get_categories(self, sort=sort, book_ids=book_ids,
+                              icon_map=icon_map)
 
     # }}}
 

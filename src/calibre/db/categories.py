@@ -8,9 +8,11 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from functools import partial
+from operator import attrgetter
 
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.config_base import tweaks
+from calibre.utils.icu import sort_key
 
 CATEGORY_SORTS = { 'name', 'popularity', 'rating' }
 
@@ -52,7 +54,7 @@ class Tag(object):
 def find_categories(field_metadata):
     for category, cat in field_metadata.iteritems():
         if (cat['is_category'] and cat['kind'] not in { 'user', 'search' } and
-            category not in {'news', 'formats'} and not cat.get('is_csp', False)):
+            category not in {'news', 'formats'}):
             yield (category, cat['is_multiple'].get('cache_to_list', None), False)
         elif (cat['datatype'] == 'composite' and
               cat['display'].get('make_category', False)):
@@ -61,7 +63,7 @@ def find_categories(field_metadata):
 def create_tag_class(category, fm, icon_map):
     cat = fm[category]
     icon = None
-    tooltip = '(' + category + ')'
+    tooltip = None if category == 'identifiers' else ('(' + category + ')')
     label = fm.key_to_label(category)
     if icon_map:
         if not fm.is_custom_field(category):
@@ -94,13 +96,23 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
 
     fm = dbcache.field_metadata
     book_rating_map = dbcache.fields['rating'].book_value_map
-    lang_map = dbcache.fileds['languages'].book_value_map
+    lang_map = dbcache.fields['languages'].book_value_map
 
     categories = {}
-    book_ids = frozenset(book_ids)
+    book_ids = frozenset(book_ids) if book_ids else book_ids
     for category, is_multiple, is_composite in find_categories(fm):
         tag_class = create_tag_class(category, fm, icon_map)
-        categories[category] = dbcache.fields[category].get_categories(
-            tag_class, book_rating_map, sort, lang_map, book_ids)
+        cats = dbcache.fields[category].get_categories(
+            tag_class, book_rating_map, lang_map, book_ids)
+        if sort == 'popularity':
+            key=attrgetter('count')
+        elif sort == 'rating':
+            key=attrgetter('avg_rating')
+        else:
+            key=lambda x:sort_key(x.sort or x.name)
+        cats.sort(key=key)
+        categories[category] = cats
+
+    return categories
 
 
