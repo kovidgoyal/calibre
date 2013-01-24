@@ -94,12 +94,13 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
 
     fm = dbcache.field_metadata
     book_rating_map = dbcache.fields['rating'].book_value_map
+    lang_map = dbcache.fileds['languages'].book_value_map
 
     categories = {}
     book_ids = frozenset(book_ids)
     for category, is_multiple, is_composite in find_categories(fm):
         tag_class = create_tag_class(category, fm, icon_map)
         categories[category] = dbcache.fields[category].get_categories(
-            tag_class, book_rating_map, sort, dbcache.fields['language'], book_ids)
+            tag_class, book_rating_map, sort, lang_map, book_ids)
 
 

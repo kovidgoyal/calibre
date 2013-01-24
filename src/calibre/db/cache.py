@@ -415,9 +415,7 @@ class Cache(object):
         all_book_ids = frozenset(self._all_book_ids() if ids_to_sort is None
                 else ids_to_sort)
         get_metadata = partial(self._get_metadata, get_user_categories=False)
-        def get_lang(book_id):
-            ans = self._field_for('languages', book_id)
-            return ans[0] if ans else None
+        lang_map = self.fields['languages'].book_value_map
 
         fm = {'title':'sort', 'authors':'author_sort'}
 
@@ -426,10 +424,10 @@ class Cache(object):
             idx = field + '_index'
             is_series = idx in self.fields
             ans = self.fields[fm.get(field, field)].sort_keys_for_books(
-                get_metadata, get_lang, all_book_ids,)
+                get_metadata, lang_map, all_book_ids,)
             if is_series:
                 idx_ans = self.fields[idx].sort_keys_for_books(
-                    get_metadata, get_lang, all_book_ids)
+                    get_metadata, lang_map, all_book_ids)
                 ans = {k:(v, idx_ans[k]) for k, v in ans.iteritems()}
             return ans
 
