@@ -113,6 +113,16 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
         cats.sort(key=key)
         categories[category] = cats
 
+    # Needed for legacy databases that have multiple ratings that
+    # map to n stars
+    for r in categories['rating']:
+        for x in tuple(categories['rating']):
+            if r.name == x.name and r.id != x.id:
+                r.id_set |= x.id_set
+                r.count = r.count + x.count
+                categories['rating'].remove(x)
+                break
+
     return categories
 
 
