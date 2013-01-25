@@ -98,10 +98,10 @@ class CompositeTable(OneToOneTable):
         self.book_col_map = {}
         d = self.metadata['display']
         self.composite_template = ['composite_template']
-        self.contains_html = d['contains_html']
-        self.make_category = d['make_category']
-        self.composite_sort = d['composite_sort']
-        self.use_decorations = d['use_decorations']
+        self.contains_html = d.get('contains_html', False)
+        self.make_category = d.get('make_category', False)
+        self.composite_sort = d.get('composite_sort', False)
+        self.use_decorations = d.get('use_decorations', False)
 
 class ManyToOneTable(Table):
 

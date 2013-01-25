@@ -354,6 +354,10 @@ class Cache(object):
     def pref(self, name, default=None):
         return self.backend.prefs.get(name, default)
 
+    @write_api
+    def set_pref(self, name, val):
+        self.backend.prefs.set(name, val)
+
     @api
     def get_metadata(self, book_id,
             get_cover=False, get_user_categories=True, cover_as_data=False):
