@@ -7,8 +7,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import copy
 from functools import partial
 from operator import attrgetter
+from future_builtins import map
 
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.config_base import tweaks
@@ -87,6 +89,39 @@ def create_tag_class(category, fm, icon_map):
                         tooltip=tooltip, is_editable=is_editable,
                         category=category)
 
+def clean_user_categories(dbcache):
+    user_cats = dbcache.pref('user_categories', {})
+    new_cats = {}
+    for k in user_cats:
+        comps = [c.strip() for c in k.split('.') if c.strip()]
+        if len(comps) == 0:
+            i = 1
+            while True:
+                if unicode(i) not in user_cats:
+                    new_cats[unicode(i)] = user_cats[k]
+                    break
+                i += 1
+        else:
+            new_cats['.'.join(comps)] = user_cats[k]
+    try:
+        if new_cats != user_cats:
+            dbcache.set_pref('user_categories', new_cats)
+    except:
+        pass
+    return new_cats
+
+def sort_categories(items, sort):
+    reverse = True
+    if sort == 'popularity':
+        key=attrgetter('count')
+    elif sort == 'rating':
+        key=attrgetter('avg_rating')
+    else:
+        key=lambda x:sort_key(x.sort or x.name)
+        reverse=False
+    items.sort(key=key, reverse=reverse)
+    return items
+
 def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
     if icon_map is not None and type(icon_map) != TagsIcons:
         raise TypeError('icon_map passed to get_categories must be of type TagIcons')
@@ -108,13 +143,7 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
         else:
             cats = dbcache.fields[category].get_categories(
                 tag_class, book_rating_map, lang_map, book_ids)
-        if sort == 'popularity':
-            key=attrgetter('count')
-        elif sort == 'rating':
-            key=attrgetter('avg_rating')
-        else:
-            key=lambda x:sort_key(x.sort or x.name)
-        cats.sort(key=key)
+        sort_categories(cats, sort)
         categories[category] = cats
 
     # Needed for legacy databases that have multiple ratings that
@@ -127,7 +156,57 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
                 categories['rating'].remove(x)
                 break
 
-    # TODO: User categories and saved searches
+    # User categories
+    user_categories = clean_user_categories(dbcache).copy()
+    # We want to use same node in the user category as in the source
+    # category. To do that, we need to find the original Tag node. There is
+    # a time/space tradeoff here. By converting the tags into a map, we can
+    # do the verification in the category loop much faster, at the cost of
+    # temporarily duplicating the categories lists.
+    taglist = {}
+    for c, items in categories.iteritems():
+        taglist[c] = dict(map(lambda t:(icu_lower(t.name), t), items))
+
+    muc = dbcache.pref('grouped_search_make_user_categories', [])
+    gst = dbcache.pref('grouped_search_terms', {})
+    for c in gst:
+        if c not in muc:
+            continue
+        user_categories[c] = []
+        for sc in gst[c]:
+            if sc in categories.keys():
+                for t in categories[sc]:
+                    user_categories[c].append([t.name, sc, 0])
+
+    gst_icon = icon_map['gst'] if icon_map else None
+    for user_cat in sorted(user_categories.iterkeys(), key=sort_key):
+        items = []
+        names_seen = {}
+        for name, label, ign in user_categories[user_cat]:
+            n = icu_lower(name)
+            if label in taglist and n in taglist[label]:
+                if user_cat in gst:
+                    # for gst items, make copy and consolidate the tags by name.
+                    if n in names_seen:
+                        t = names_seen[n]
+                        t.id_set |= taglist[label][n].id_set
+                        t.count += taglist[label][n].count
+                        t.tooltip = t.tooltip.replace(')', ', ' + label + ')')
+                    else:
+                        t = copy.copy(taglist[label][n])
+                        t.icon = gst_icon
+                        names_seen[t.name] = t
+                        items.append(t)
+                else:
+                    items.append(taglist[label][n])
+            # else: do nothing, to not include nodes w zero counts
+        cat_name = '@' + user_cat # add the '@' to avoid name collision
+        # Not a problem if we accumulate entries in the icon map
+        if icon_map is not None:
+            icon_map[cat_name] = icon_map['user:']
+        categories[cat_name] = sort_categories(items, sort)
+
+    # TODO: saved searches
 
     return categories
 
