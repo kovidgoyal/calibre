@@ -135,11 +135,19 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
 
     categories = {}
     book_ids = frozenset(book_ids) if book_ids else book_ids
+    get_metadata = partial(dbcache._get_metadata, get_user_categories=False)
+    bids = None
+
     for category, is_multiple, is_composite in find_categories(fm):
         tag_class = create_tag_class(category, fm, icon_map)
         # TODO: Handle composite column based categories (both is_multiple and
         # not is_multiple)
-        if category == 'news':
+        if is_composite:
+            if bids is None:
+                bids = dbcache._all_book_ids() if book_ids is None else book_ids
+            cats = dbcache.fields[category].get_composite_categories(
+                tag_class, book_rating_map, bids, is_multiple, get_metadata)
+        elif category == 'news':
             cats = dbcache.fields['tags'].get_news_category(tag_class, book_ids)
         else:
             cats = dbcache.fields[category].get_categories(
