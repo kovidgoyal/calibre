@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-01-22 04:51+0000\n"
-"PO-Revision-Date: 2013-01-23 19:15+0000\n"
-"Last-Translator: dario <Unknown>\n"
+"PO-Revision-Date: 2013-01-24 18:46+0000\n"
+"Last-Translator: fjuarez <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-01-24 04:35+0000\n"
+"X-Launchpad-Export-Date: 2013-01-25 05:23+0000\n"
 "X-Generator: Launchpad (build 16445)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:533
@@ -447,6 +447,7 @@ msgstr "Copiar un libro de una biblioteca de calibre a otra"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:888
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
+"Hacer pequeños retoques a los archivos epub o htmlz en su biblioteca calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:893
 msgid ""
@@ -675,7 +676,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1138
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:296
 msgid "Plugins"
-msgstr ""
+msgstr "Extensiones"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1144
 msgid "Add/remove/customize various bits of calibre functionality"
@@ -923,7 +924,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Mapping for filetype plugins"
-msgstr ""
+msgstr "Asociaciones de tipos de archivos por complemento"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:33
 msgid "Local plugin customization"
@@ -1057,7 +1058,7 @@ msgstr "yes"
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:574
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:229
 msgid "no"
-msgstr ""
+msgstr "No"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:35
 #: /home/kovid/work/calibre/src/calibre/db/search.py:312
@@ -1449,7 +1450,7 @@ msgstr "El SDK Bambook no está instalado."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
-msgstr ""
+msgstr "Comunicar con el lector de libros electrónicos Binatone Readme."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
@@ -1528,7 +1529,7 @@ msgstr "Comunicar con el lector ESlick"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:49
 msgid "Communicate with the Sigmatek eBook reader."
-msgstr ""
+msgstr "Comunicar con el lector de libros electrónicos Sigmatek."
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:17
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:33
@@ -2029,7 +2030,7 @@ msgstr "Comunicarse con el Palm Pre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:39
 msgid "Communicate with the Bq Avant"
-msgstr ""
+msgstr "Comunicar con el lector de libros electrónicos Bq Avant."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:60
 msgid "Communicate with the Sweex/Kogan/Q600/Wink"
@@ -3084,6 +3085,9 @@ msgid ""
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
 msgstr ""
+"Normalmente, si el archivo de entrada no tiene portada y no especifica una, "
+"se generará una portada con el título, autores, etc. Esta opción desactiva "
+"la generación de esta portada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/epub_output.py:84
 msgid ""

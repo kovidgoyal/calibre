@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-01-22 04:51+0000\n"
-"PO-Revision-Date: 2013-01-14 20:41+0000\n"
-"Last-Translator: Isamu715 <isamu715@gmail.com>\n"
+"PO-Revision-Date: 2013-01-24 10:16+0000\n"
+"Last-Translator: Tomasz Długosz <tomek3d@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-01-23 04:48+0000\n"
-"X-Generator: Launchpad (build 16441)\n"
+"X-Launchpad-Export-Date: 2013-01-25 05:23+0000\n"
+"X-Generator: Launchpad (build 16445)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -241,7 +241,7 @@ msgstr "Akcja interfejsu użytkownika."
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:311
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:228
 msgid "Preferences"
-msgstr "Preferencje"
+msgstr "Ustawienia"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:637
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:39
@@ -1174,8 +1174,8 @@ msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
 msgstr ""
-"\"Kopiowanie plików do katalogu iTunes Media %s\" jest aktywne w iTunes "
-"Preferences|Advanced"
+"\"Kopiowanie plików do katalogu iTunes Media %s\" jest aktywne w "
+"Preferencje|Zaawansowane iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:129
 msgid ""
@@ -2604,7 +2604,7 @@ msgid ""
 "Get this ID using Preferences -> Misc -> Get information to set up the user-"
 "defined device"
 msgstr ""
-"Pobierz ID za pomocą Preferencje -> Różne -> Pobierz informacje do "
+"Pobierz ID za pomocą Ustawienia -> Różne -> Pobierz informacje do "
 "skonfigurowania własnego urządzenia"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
@@ -2630,7 +2630,7 @@ msgid ""
 "This field is used only on windows. Get this ID using Preferences -> Misc -> "
 "Get information to set up the user-defined device"
 msgstr ""
-"To pole jest używane tylko przez Windows. Użyj Preferencje -> Różne -> "
+"To pole jest używane tylko przez Windows. Użyj Ustawienia -> Różne -> "
 "Informacje aby skonfigurować własne urządzenie"
 
 # Nie tłumaczone - termin techniczny
@@ -3473,10 +3473,11 @@ msgstr "Domyślny rozmiar czcionki dla tekstu o równej szerokości"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:95
 msgid "Surround all links with a red box, useful for debugging."
 msgstr ""
+"Otocz wszyskie odnośniki czerwonym prostokątem, przydatne do debugowania"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:97
 msgid "Use the old, less capable engine to generate the PDF"
-msgstr ""
+msgstr "Wykorzystaj starszy, mniej rozbudowany silnik do generowania PDF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:100
 msgid ""
@@ -6218,7 +6219,7 @@ msgid ""
 msgstr ""
 "Niektóre książki zostały automatycznie połączone z istniejącymi rekordami w "
 "bibliotece. Kliknij Pokaż szczegóły, by zobaczyć jakie to książki. "
-"Automatyczne łączenie książek może być ustawiane w Preferencje -> Dodawanie "
+"Automatyczne łączenie książek może być ustawiane w Ustawienia -> Dodawanie "
 "książek."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:279
@@ -10872,7 +10873,7 @@ msgid ""
 "You can also customise the plugin locations using <b>Preferences -> "
 "Customise the toolbar</b>"
 msgstr ""
-"Możesz również dostosować lokalizacje wtyczek używając <b>Preferencje -> "
+"Możesz również dostosować lokalizacje wtyczek używając <b>Ustawienia -> "
 "Dostosuj pasek narzędzi</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:33
@@ -11073,11 +11074,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:45
 msgid "Select &all"
-msgstr ""
+msgstr "&Zaznacz wszystko"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:47
 msgid "Select &none"
-msgstr ""
+msgstr "&Odznacz wszystko"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:89
 msgid "Already in calibre:"
@@ -11182,7 +11183,7 @@ msgstr ""
 "Skasuj wszystkie wartości sortowania po autorze, aby zbierać wartości "
 "automatycznie\n"
 "generowane z autora. Tę automatyczną wartość można kontrolować\n"
-"poprzez Preferencje->Zaawansowane->Parametry"
+"poprzez Ustawienia->Zaawansowane->Parametry"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:95
 msgid "Recalculate all author sort values"
@@ -11195,7 +11196,7 @@ msgid ""
 msgstr ""
 "Skopiuj sortowanie po autorze dla każdego autora. Zwykle użyj tego przycisku "
 "po zmianach\n"
-"w Preferencje->Zaawansowane->Parametry->Algorytm sortowania nazwy autora"
+"w Ustawienia->Zaawansowane->Parametry->Algorytm sortowania nazwy autora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:98
 msgid "Copy all author sort values to author"
@@ -14402,7 +14403,7 @@ msgstr "Nie udało się zamknąć uruchomionej instancji calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:94
 msgid "&Preferences"
-msgstr "&Preferencje"
+msgstr "&Ustawienia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:212
@@ -14808,7 +14809,7 @@ msgstr "Wyczyść serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:185
 msgid "Clear rating"
-msgstr ""
+msgstr "Usuń oceny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:197
 msgid "Clear all tags"
@@ -16104,7 +16105,7 @@ msgid ""
 "put. You must restart calibre for your changes to take effect.\n"
 msgstr ""
 "Skopiuj te dane do schowka, wklej do edytora, a następnie wprowadź je do "
-"konfiguracji urządzenia użytkownika wybierając Preferencje->Wtyczki-"
+"konfiguracji urządzenia użytkownika wybierając Ustawienia->Wtyczki-"
 ">Interfejs urządzenia->User defined USB driver. Pamiętaj żeby podać również "
 "foldery, w których mają być umieszczane książki. Po konfiguracji wymagane "
 "jest ponowne uruchomienie calibre.\n"
@@ -17374,7 +17375,7 @@ msgstr ""
 "Tutaj możesz ustalić zachowanie calibre odnośnie zapisywania twoich książek "
 "gdy klikniesz w przycisk Wyślij na Urządzenie. Te ustawienia mogą zostać "
 "uchylone dla indywidualnych urządzeń poprzez dostosowanie wtyczek interfejsu "
-"urzadzenia w Preferencje->Zaawansowane->Wtyczki"
+"urzadzenia w Ustawienia->Zaawansowane->Wtyczki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:74
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:479
@@ -21745,7 +21746,7 @@ msgstr "%(tt)sŚrednia ocena: %(rating)3.1f"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:221
 msgid "restored preference "
-msgstr "odzyskane preferencje "
+msgstr "odzyskane ustawienia "
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:226
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:234
@@ -21786,23 +21787,23 @@ msgstr "Tytuł sort."
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:122
 msgid "Starting restoring preferences and column metadata"
-msgstr "Zaczynam odzyskiwanie preferencji i metadanych kolumn"
+msgstr "Zaczynam odzyskiwanie ustawień i metadanych kolumn"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:125
 msgid "Cannot restore preferences. Backup file not found."
-msgstr "Nie można odtworzyć preferencji. Brak pliku kopii zapasowej."
+msgstr "Nie można odtworzyć ustawień. Brak pliku kopii zapasowej."
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:136
 msgid "Finished restoring preferences and column metadata"
-msgstr "Zakończono odzyskiwanie preferencji i metadanych kolumn"
+msgstr "Zakończono odzyskiwanie ustawień metadanych kolumn"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:138
 msgid "Finished restoring preferences"
-msgstr "Odzyskiwanie preferencji zakończone"
+msgstr "Odzyskiwanie ustawień zakończone"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:143
 msgid "Restoring preferences and column metadata failed"
-msgstr "Odzyskiwanie preferencji i metadanych kolumn nie udało się"
+msgstr "Odzyskiwanie ustawień i metadanych kolumn nie udało się"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:162
 msgid "Processed"
