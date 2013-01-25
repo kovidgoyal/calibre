@@ -30,7 +30,7 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
     remove_tags_after = {'class':"cmn-indent"}
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
 
         #pp.pprint(self.parse_index())
         #exit(1)

@@ -115,7 +115,7 @@ class AdvancedUserRecipe1277129332(BasicNewsRecipe):
         month = time.strftime('%m')
         day = time.strftime('%d')
         cover = 'http://paper.people.com.cn/rmrb/page/'+year+'-'+month+'/'+day+'/01/RMRB'+year+month+day+'B001_b.jpg'
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
         except:

@@ -26,7 +26,7 @@ class elet_es_irodalom(BasicNewsRecipe):
 
 #Nem ide a kódba kell beleírni a hozzáférés adatait, hanem azt akkor adod meg, ha le akarod tölteni!
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('http://www.es.hu/')
             br.select_form(name='userfrmlogin')

@@ -102,7 +102,7 @@ class STHKRecipe(BasicNewsRecipe):
         diff = todaydate - date(2011, 12, 29)
         base = base + int(diff.total_seconds()/(3600*24))
         cover = 'http://singtao.com/media/a/a(' + str(base) +').jpg'
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
         except:

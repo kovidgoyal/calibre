@@ -24,7 +24,7 @@ class PhilosophyNow(BasicNewsRecipe):
     needs_subscription = True
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.open('https://philosophynow.org/auth/login')
         br.select_form(name="loginForm")
         br['username'] = self.username

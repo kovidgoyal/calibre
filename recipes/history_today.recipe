@@ -21,7 +21,7 @@ class HistoryToday(BasicNewsRecipe):
     needs_subscription = True
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('http://www.historytoday.com/user/login')
             br.select_form(nr=1)

@@ -24,7 +24,7 @@ class TheAge(BasicNewsRecipe):
     remove_tags       = [dict(name=['table', 'script', 'noscript', 'style']), dict(name='a', attrs={'href':'/'}), dict(name='a', attrs={'href':'/text/'})]
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.set_handle_refresh(False)
         return br
 

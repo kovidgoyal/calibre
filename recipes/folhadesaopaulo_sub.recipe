@@ -40,7 +40,7 @@ class FSP(BasicNewsRecipe):
                                       re.DOTALL|re.IGNORECASE), lambda match: r'')]
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('https://acesso.uol.com.br/login.html')
             br.form = br.forms().next()

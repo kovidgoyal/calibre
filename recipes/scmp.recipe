@@ -34,7 +34,7 @@ class SCMP(BasicNewsRecipe):
                         }
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         #br.set_debug_http(True)
         #br.set_debug_responses(True)
         #br.set_debug_redirects(True)

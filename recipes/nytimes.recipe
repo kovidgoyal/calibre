@@ -358,20 +358,20 @@ class NYTimes(BasicNewsRecipe):
         return fixed
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         return br
 
     cover_tag = 'NY_NYT'
     def get_cover_url(self):
         cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg'+str(date.today().day)+'/lg/'+self.cover_tag+'.jpg'
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         daysback=1
         try:
             br.open(cover)
         except:
             while daysback<7:
                 cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg'+str((date.today() - timedelta(days=daysback)).day)+'/lg/'+self.cover_tag+'.jpg'
-                br = BasicNewsRecipe.get_browser()
+                br = BasicNewsRecipe.get_browser(self)
                 try:
                     br.open(cover)
                 except:
