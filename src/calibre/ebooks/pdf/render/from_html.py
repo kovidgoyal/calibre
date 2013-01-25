@@ -87,6 +87,10 @@ class Page(QWebPage): # {{{
 
     def javaScriptAlert(self, frame, msg):
         self.log(unicode(msg))
+
+    def shouldInterruptJavaScript(self):
+        return False
+
 # }}}
 
 def draw_image_page(page_rect, painter, p, preserve_aspect_ratio=True):
