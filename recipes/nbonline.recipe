@@ -18,7 +18,7 @@ class NBOnline(BasicNewsRecipe):
         return 'http://business.nikkeibp.co.jp/images/nbo/200804/parts/logo.gif'
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('https://signon.nikkeibp.co.jp/front/login/?ct=p&ts=nbo')
             br.select_form(name='loginActionForm')

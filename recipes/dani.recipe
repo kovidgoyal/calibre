@@ -40,7 +40,7 @@ class BHDani(BasicNewsRecipe):
     remove_attributes = ['height','width','align']
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open(self.INDEX)
             br.select_form(name='form')

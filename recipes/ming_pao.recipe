@@ -252,7 +252,7 @@ class MPRecipe(BasicNewsRecipe):
             cover = 'http://www.mingpaovan.com/ftp/News/' + self.get_fetchdate() + '/' + self.get_fetchday() + 'pgva1s.jpg'
         elif __Region__ == 'Toronto':
             cover = 'http://www.mingpaotor.com/ftp/News/' + self.get_fetchdate() + '/' + self.get_fetchday() + 'pgtas.jpg'
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
         except:

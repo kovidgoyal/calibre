@@ -44,7 +44,7 @@ class ElDiplo_Recipe(BasicNewsRecipe):
         img.save(tmp_cover.name)
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('http://www.eldiplo.org/index.php/login/-/do_login/index.html')
             br.select_form(nr=3)

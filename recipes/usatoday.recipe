@@ -52,7 +52,7 @@ class USAToday(BasicNewsRecipe):
 
     def get_masthead_url(self):
         masthead = 'http://i.usatoday.net/mobile/_common/_images/565x73_usat_mobile.gif'
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(masthead)
         except:
