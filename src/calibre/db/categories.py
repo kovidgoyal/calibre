@@ -15,6 +15,7 @@ from future_builtins import map
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
+from calibre.utils.search_query_parser import saved_searches
 
 CATEGORY_SORTS = ('name', 'popularity', 'rating') # This has to be a tuple not a set
 
@@ -158,55 +159,67 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
 
     # User categories
     user_categories = clean_user_categories(dbcache).copy()
-    # We want to use same node in the user category as in the source
-    # category. To do that, we need to find the original Tag node. There is
-    # a time/space tradeoff here. By converting the tags into a map, we can
-    # do the verification in the category loop much faster, at the cost of
-    # temporarily duplicating the categories lists.
-    taglist = {}
-    for c, items in categories.iteritems():
-        taglist[c] = dict(map(lambda t:(icu_lower(t.name), t), items))
+    if user_categories:
+        # We want to use same node in the user category as in the source
+        # category. To do that, we need to find the original Tag node. There is
+        # a time/space tradeoff here. By converting the tags into a map, we can
+        # do the verification in the category loop much faster, at the cost of
+        # temporarily duplicating the categories lists.
+        taglist = {}
+        for c, items in categories.iteritems():
+            taglist[c] = dict(map(lambda t:(icu_lower(t.name), t), items))
 
-    muc = dbcache.pref('grouped_search_make_user_categories', [])
-    gst = dbcache.pref('grouped_search_terms', {})
-    for c in gst:
-        if c not in muc:
-            continue
-        user_categories[c] = []
-        for sc in gst[c]:
-            if sc in categories.keys():
-                for t in categories[sc]:
-                    user_categories[c].append([t.name, sc, 0])
+        muc = dbcache.pref('grouped_search_make_user_categories', [])
+        gst = dbcache.pref('grouped_search_terms', {})
+        for c in gst:
+            if c not in muc:
+                continue
+            user_categories[c] = []
+            for sc in gst[c]:
+                if sc in categories.keys():
+                    for t in categories[sc]:
+                        user_categories[c].append([t.name, sc, 0])
 
-    gst_icon = icon_map['gst'] if icon_map else None
-    for user_cat in sorted(user_categories.iterkeys(), key=sort_key):
-        items = []
-        names_seen = {}
-        for name, label, ign in user_categories[user_cat]:
-            n = icu_lower(name)
-            if label in taglist and n in taglist[label]:
-                if user_cat in gst:
-                    # for gst items, make copy and consolidate the tags by name.
-                    if n in names_seen:
-                        t = names_seen[n]
-                        t.id_set |= taglist[label][n].id_set
-                        t.count += taglist[label][n].count
-                        t.tooltip = t.tooltip.replace(')', ', ' + label + ')')
+        gst_icon = icon_map['gst'] if icon_map else None
+        for user_cat in sorted(user_categories.iterkeys(), key=sort_key):
+            items = []
+            names_seen = {}
+            for name, label, ign in user_categories[user_cat]:
+                n = icu_lower(name)
+                if label in taglist and n in taglist[label]:
+                    if user_cat in gst:
+                        # for gst items, make copy and consolidate the tags by name.
+                        if n in names_seen:
+                            t = names_seen[n]
+                            t.id_set |= taglist[label][n].id_set
+                            t.count += taglist[label][n].count
+                            t.tooltip = t.tooltip.replace(')', ', ' + label + ')')
+                        else:
+                            t = copy.copy(taglist[label][n])
+                            t.icon = gst_icon
+                            names_seen[t.name] = t
+                            items.append(t)
                     else:
-                        t = copy.copy(taglist[label][n])
-                        t.icon = gst_icon
-                        names_seen[t.name] = t
-                        items.append(t)
-                else:
-                    items.append(taglist[label][n])
-            # else: do nothing, to not include nodes w zero counts
-        cat_name = '@' + user_cat # add the '@' to avoid name collision
-        # Not a problem if we accumulate entries in the icon map
-        if icon_map is not None:
-            icon_map[cat_name] = icon_map['user:']
-        categories[cat_name] = sort_categories(items, sort)
+                        items.append(taglist[label][n])
+                # else: do nothing, to not include nodes w zero counts
+            cat_name = '@' + user_cat # add the '@' to avoid name collision
+            # Not a problem if we accumulate entries in the icon map
+            if icon_map is not None:
+                icon_map[cat_name] = icon_map['user:']
+            categories[cat_name] = sort_categories(items, sort)
 
-    # TODO: saved searches
+    #### Finally, the saved searches category ####
+    items = []
+    icon = None
+    if icon_map and 'search' in icon_map:
+        icon = icon_map['search']
+    ss = saved_searches()
+    for srch in ss.names():
+        items.append(Tag(srch, tooltip=ss.lookup(srch),
+                            sort=srch, icon=icon, category='search',
+                            is_editable=False))
+    if len(items):
+        categories['search'] = items
 
     return categories
 
