@@ -26,7 +26,8 @@ class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
     def open(self, parent=None, detail_item=None, external=False):
         url = 'http://klick.affiliwelt.net/klick.php?bannerid=10072&pid=32307&prid=908'
         url_details = ('http://klick.affiliwelt.net/klick.php?'
-                       'bannerid=66820&pid=32307&prid=908&feedid=27&prdid={0}')
+                       'bannerid=66830&pid=32307&prid=908&'
+                       'url=http://www.beam-ebooks.de/ebook/{0}')
 
         if external or self.config.get('open_external', False):
             if detail_item:
