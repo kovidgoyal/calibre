@@ -637,7 +637,7 @@ class BooksModel(QAbstractTableModel): # {{{
             if val is None:
                 if not bool_cols_are_tristate:
                     return self.bool_no_icon
-                return None
+                return NONE
             if val:
                 return self.bool_yes_icon
             return self.bool_no_icon

@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-12-31 12:50+0000\n"
+"PO-Revision-Date: 2013-01-19 20:28+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-01-01 04:45+0000\n"
-"X-Generator: Launchpad (build 16378)\n"
+"X-Launchpad-Export-Date: 2013-01-20 04:36+0000\n"
+"X-Generator: Launchpad (build 16430)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -20216,7 +20216,7 @@ msgstr "Panjabi"
 
 #. name for pao
 msgid "Paiute; Northern"
-msgstr ""
+msgstr "Paiute Nord"
 
 #. name for pap
 msgid "Papiamento"
@@ -20280,7 +20280,7 @@ msgstr "Popoloca; Coyotepec"
 
 #. name for pbg
 msgid "Paraujano"
-msgstr ""
+msgstr "Paraujano"
 
 #. name for pbh
 msgid "E'ñapa Woromaipu"
@@ -20308,31 +20308,31 @@ msgstr ""
 
 #. name for pbr
 msgid "Pangwa"
-msgstr ""
+msgstr "Pangwa"
 
 #. name for pbs
 msgid "Pame; Central"
-msgstr ""
+msgstr "Pame; Central"
 
 #. name for pbt
 msgid "Pashto; Southern"
-msgstr ""
+msgstr "Paixtú; Meridional"
 
 #. name for pbu
 msgid "Pashto; Northern"
-msgstr ""
+msgstr "Paixtú; Septentrional"
 
 #. name for pbv
 msgid "Pnar"
-msgstr ""
+msgstr "Pnar"
 
 #. name for pby
 msgid "Pyu"
-msgstr ""
+msgstr "Pyu (Nova Guinea Papua)"
 
 #. name for pbz
 msgid "Palu"
-msgstr ""
+msgstr "Palu"
 
 #. name for pca
 msgid "Popoloca; Santa Inés Ahuatempan"
@@ -20340,7 +20340,7 @@ msgstr "Popoloca; Ahuatempan"
 
 #. name for pcb
 msgid "Pear"
-msgstr ""
+msgstr "Pear"
 
 #. name for pcc
 msgid "Bouyei"
@@ -20348,23 +20348,23 @@ msgstr ""
 
 #. name for pcd
 msgid "Picard"
-msgstr ""
+msgstr "Picard"
 
 #. name for pce
 msgid "Palaung; Ruching"
-msgstr ""
+msgstr "Palaung; Pale"
 
 #. name for pcf
 msgid "Paliyan"
-msgstr ""
+msgstr "Paliyà"
 
 #. name for pcg
 msgid "Paniya"
-msgstr ""
+msgstr "Paniya"
 
 #. name for pch
 msgid "Pardhan"
-msgstr ""
+msgstr "Pardhan"
 
 #. name for pci
 msgid "Duruwa"
@@ -20372,7 +20372,7 @@ msgstr ""
 
 #. name for pcj
 msgid "Parenga"
-msgstr ""
+msgstr "Parenga"
 
 #. name for pck
 msgid "Chin; Paite"
@@ -20380,7 +20380,7 @@ msgstr "Chin; Paite"
 
 #. name for pcl
 msgid "Pardhi"
-msgstr ""
+msgstr "Pardhi"
 
 #. name for pcm
 msgid "Pidgin; Nigerian"
@@ -20388,19 +20388,19 @@ msgstr "Crioll nigerià"
 
 #. name for pcn
 msgid "Piti"
-msgstr ""
+msgstr "Piti"
 
 #. name for pcp
 msgid "Pacahuara"
-msgstr ""
+msgstr "Pacahuara"
 
 #. name for pcr
 msgid "Panang"
-msgstr ""
+msgstr "Panang"
 
 #. name for pcw
 msgid "Pyapun"
-msgstr ""
+msgstr "Pyapun"
 
 #. name for pda
 msgid "Anam"
@@ -20412,19 +20412,19 @@ msgstr "Alemany; Pensilvàmia"
 
 #. name for pdi
 msgid "Pa Di"
-msgstr ""
+msgstr "Padi"
 
 #. name for pdn
 msgid "Podena"
-msgstr ""
+msgstr "Podena"
 
 #. name for pdo
 msgid "Padoe"
-msgstr ""
+msgstr "Padoe"
 
 #. name for pdt
 msgid "Plautdietsch"
-msgstr ""
+msgstr "Plautdeitsch"
 
 #. name for pdu
 msgid "Kayan"
@@ -20436,7 +20436,7 @@ msgstr ""
 
 #. name for peb
 msgid "Pomo; Eastern"
-msgstr ""
+msgstr "Pomo; Oriental"
 
 #. name for ped
 msgid "Mala (Papua New Guinea)"
@@ -20448,11 +20448,11 @@ msgstr ""
 
 #. name for pef
 msgid "Pomo; Northeastern"
-msgstr ""
+msgstr "Pomo; Nordoriental"
 
 #. name for peg
 msgid "Pengo"
-msgstr ""
+msgstr "Pengo"
 
 #. name for peh
 msgid "Bonan"
@@ -20464,23 +20464,23 @@ msgstr ""
 
 #. name for pej
 msgid "Pomo; Northern"
-msgstr ""
+msgstr "Pomo; Septentrional"
 
 #. name for pek
 msgid "Penchal"
-msgstr ""
+msgstr "Penchal"
 
 #. name for pel
 msgid "Pekal"
-msgstr ""
+msgstr "Pekal"
 
 #. name for pem
 msgid "Phende"
-msgstr ""
+msgstr "Phende"
 
 #. name for peo
 msgid "Persian; Old (ca. 600-400 B.C.)"
-msgstr ""
+msgstr "Persa Antic"
 
 #. name for pep
 msgid "Kunja"
@@ -20488,39 +20488,39 @@ msgstr ""
 
 #. name for peq
 msgid "Pomo; Southern"
-msgstr ""
+msgstr "Pomo; Meridional"
 
 #. name for pes
 msgid "Persian; Iranian"
-msgstr ""
+msgstr "Farsi; Occidental"
 
 #. name for pev
 msgid "Pémono"
-msgstr ""
+msgstr "Pemono"
 
 #. name for pex
 msgid "Petats"
-msgstr ""
+msgstr "Petats"
 
 #. name for pey
 msgid "Petjo"
-msgstr ""
+msgstr "Petjo"
 
 #. name for pez
 msgid "Penan; Eastern"
-msgstr ""
+msgstr "Penan; Oriental"
 
 #. name for pfa
 msgid "Pááfang"
-msgstr ""
+msgstr "Paafang"
 
 #. name for pfe
 msgid "Peere"
-msgstr ""
+msgstr "Peere"
 
 #. name for pfl
 msgid "Pfaelzisch"
-msgstr ""
+msgstr "Pfaelzisch"
 
 #. name for pga
 msgid "Creole Arabic; Sudanese"
@@ -20528,11 +20528,11 @@ msgstr "Àrab crioll; sudanès"
 
 #. name for pgg
 msgid "Pangwali"
-msgstr ""
+msgstr "Pangwali"
 
 #. name for pgi
 msgid "Pagi"
-msgstr ""
+msgstr "Pagi"
 
 #. name for pgk
 msgid "Rerep"
@@ -20544,83 +20544,83 @@ msgstr "Irlandès; primitiu"
 
 #. name for pgn
 msgid "Paelignian"
-msgstr ""
+msgstr "Paelignià"
 
 #. name for pgs
 msgid "Pangseng"
-msgstr ""
+msgstr "Pangseng"
 
 #. name for pgu
 msgid "Pagu"
-msgstr ""
+msgstr "Pagu"
 
 #. name for pgy
 msgid "Pongyong"
-msgstr ""
+msgstr "Pongyong"
 
 #. name for pha
 msgid "Pa-Hng"
-msgstr ""
+msgstr "Baheng"
 
 #. name for phd
 msgid "Phudagi"
-msgstr ""
+msgstr "Phudagi"
 
 #. name for phg
 msgid "Phuong"
-msgstr ""
+msgstr "Phuong"
 
 #. name for phh
 msgid "Phukha"
-msgstr ""
+msgstr "Phula"
 
 #. name for phk
 msgid "Phake"
-msgstr ""
+msgstr "Phake"
 
 #. name for phl
 msgid "Phalura"
-msgstr ""
+msgstr "Phalura"
 
 #. name for phm
 msgid "Phimbi"
-msgstr ""
+msgstr "Phimbi"
 
 #. name for phn
 msgid "Phoenician"
-msgstr ""
+msgstr "Fenici"
 
 #. name for pho
 msgid "Phunoi"
-msgstr ""
+msgstr "Phunoi"
 
 #. name for phq
 msgid "Phana'"
-msgstr ""
+msgstr "Phana"
 
 #. name for phr
 msgid "Pahari-Potwari"
-msgstr ""
+msgstr "Pahari; Potwari"
 
 #. name for pht
 msgid "Phu Thai"
-msgstr ""
+msgstr "Phu Thai"
 
 #. name for phu
 msgid "Phuan"
-msgstr ""
+msgstr "Phuan"
 
 #. name for phv
 msgid "Pahlavani"
-msgstr ""
+msgstr "Pahlavani"
 
 #. name for phw
 msgid "Phangduwali"
-msgstr ""
+msgstr "Phangduwali"
 
 #. name for pia
 msgid "Pima Bajo"
-msgstr ""
+msgstr "Pima Baix"
 
 #. name for pib
 msgid "Yine"
@@ -20628,35 +20628,35 @@ msgstr ""
 
 #. name for pic
 msgid "Pinji"
-msgstr ""
+msgstr "Pinji"
 
 #. name for pid
 msgid "Piaroa"
-msgstr ""
+msgstr "Piaroa"
 
 #. name for pie
 msgid "Piro"
-msgstr ""
+msgstr "Piro"
 
 #. name for pif
 msgid "Pingelapese"
-msgstr ""
+msgstr "Pingelapès"
 
 #. name for pig
 msgid "Pisabo"
-msgstr ""
+msgstr "Pisabo"
 
 #. name for pih
 msgid "Pitcairn-Norfolk"
-msgstr ""
+msgstr "Pitcairn-Norfolk"
 
 #. name for pii
 msgid "Pini"
-msgstr ""
+msgstr "Pini"
 
 #. name for pij
 msgid "Pijao"
-msgstr ""
+msgstr "Pijao"
 
 #. name for pil
 msgid "Yom"
@@ -20664,59 +20664,59 @@ msgstr ""
 
 #. name for pim
 msgid "Powhatan"
-msgstr ""
+msgstr "Powhatan"
 
 #. name for pin
 msgid "Piame"
-msgstr ""
+msgstr "Piame"
 
 #. name for pio
 msgid "Piapoco"
-msgstr ""
+msgstr "Piapoco"
 
 #. name for pip
 msgid "Pero"
-msgstr ""
+msgstr "Pero"
 
 #. name for pir
 msgid "Piratapuyo"
-msgstr ""
+msgstr "Piratapuyo"
 
 #. name for pis
 msgid "Pijin"
-msgstr ""
+msgstr "Pijin"
 
 #. name for pit
 msgid "Pitta Pitta"
-msgstr ""
+msgstr "Pita Pita"
 
 #. name for piu
 msgid "Pintupi-Luritja"
-msgstr ""
+msgstr "Pintupi-Luritja"
 
 #. name for piv
 msgid "Pileni"
-msgstr ""
+msgstr "Pileni"
 
 #. name for piw
 msgid "Pimbwe"
-msgstr ""
+msgstr "Pimbwe"
 
 #. name for pix
 msgid "Piu"
-msgstr ""
+msgstr "Piu"
 
 #. name for piy
 msgid "Piya-Kwonci"
-msgstr ""
+msgstr "Piya-Kwonci"
 
 #. name for piz
 msgid "Pije"
-msgstr ""
+msgstr "Pije"
 
 #. name for pjt
 msgid "Pitjantjatjara"
-msgstr ""
+msgstr "Pitjantjatjara"
 
 #. name for pka
 msgid "Prākrit; Ardhamāgadhī"
@@ -20724,31 +20724,31 @@ msgstr ""
 
 #. name for pkb
 msgid "Pokomo"
-msgstr ""
+msgstr "Pokomo"
 
 #. name for pkc
 msgid "Paekche"
-msgstr ""
+msgstr "Paekche"
 
 #. name for pkg
 msgid "Pak-Tong"
-msgstr ""
+msgstr "Pak-Tong"
 
 #. name for pkh
 msgid "Pankhu"
-msgstr ""
+msgstr "Pankhu"
 
 #. name for pkn
 msgid "Pakanha"
-msgstr ""
+msgstr "Pakanha"
 
 #. name for pko
 msgid "Pökoot"
-msgstr ""
+msgstr "Pokoot"
 
 #. name for pkp
 msgid "Pukapuka"
-msgstr ""
+msgstr "Pukapuka"
 
 #. name for pkr
 msgid "Kurumba; Attapady"
@@ -20764,7 +20764,7 @@ msgstr ""
 
 #. name for pku
 msgid "Paku"
-msgstr ""
+msgstr "Paku"
 
 #. name for pla
 msgid "Miani"
@@ -20772,7 +20772,7 @@ msgstr ""
 
 #. name for plb
 msgid "Polonombauk"
-msgstr ""
+msgstr "Polonombauk"
 
 #. name for plc
 msgid "Palawano; Central"
@@ -20808,7 +20808,7 @@ msgstr ""
 
 #. name for pll
 msgid "Palaung; Shwe"
-msgstr ""
+msgstr "Palaung; Shwe"
 
 #. name for pln
 msgid "Palenquero"
@@ -20900,7 +20900,7 @@ msgstr ""
 
 #. name for pmm
 msgid "Pomo"
-msgstr ""
+msgstr "Pol"
 
 #. name for pmn
 msgid "Pam"
@@ -20912,7 +20912,7 @@ msgstr ""
 
 #. name for pmq
 msgid "Pame; Northern"
-msgstr ""
+msgstr "Pame; Septentrional"
 
 #. name for pmr
 msgid "Paynamar"
@@ -20944,7 +20944,7 @@ msgstr "Malai; Papua"
 
 #. name for pmz
 msgid "Pame; Southern"
-msgstr ""
+msgstr "Pame; Meridional"
 
 #. name for pna
 msgid "Punan Bah-Biau"
@@ -20960,7 +20960,7 @@ msgstr ""
 
 #. name for pne
 msgid "Penan; Western"
-msgstr ""
+msgstr "Penan; Occidental"
 
 #. name for png
 msgid "Pongu"
@@ -21068,7 +21068,7 @@ msgstr "Polonès"
 
 #. name for pom
 msgid "Pomo; Southeastern"
-msgstr ""
+msgstr "Pomo; Sudoriental"
 
 #. name for pon
 msgid "Pohnpeian"
@@ -21076,7 +21076,7 @@ msgstr ""
 
 #. name for poo
 msgid "Pomo; Central"
-msgstr ""
+msgstr "Pomo; Central"
 
 #. name for pop
 msgid "Pwapwa"
@@ -21244,7 +21244,7 @@ msgstr ""
 
 #. name for prs
 msgid "Persian; Afghan"
-msgstr ""
+msgstr "Farsi; Oriental"
 
 #. name for prt
 msgid "Phai"
@@ -21332,7 +21332,7 @@ msgstr ""
 
 #. name for pst
 msgid "Pashto; Central"
-msgstr ""
+msgstr "Paixtú; Central"
 
 #. name for psu
 msgid "Prākrit; Sauraseni"
@@ -21884,7 +21884,7 @@ msgstr ""
 
 #. name for rbb
 msgid "Palaung; Rumai"
-msgstr ""
+msgstr "Palaung; Rumai"
 
 #. name for rbk
 msgid "Bontok; Northern"

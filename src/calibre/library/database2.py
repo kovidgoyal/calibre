@@ -44,7 +44,7 @@ from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.db.errors import NoSuchFormat
 from calibre.db.lazy import FormatMetadata, FormatsList
-from calibre.db.categories import Tag
+from calibre.db.categories import Tag, CATEGORY_SORTS
 from calibre.utils.localization import (canonicalize_lang,
         calibre_langcode_to_name)
 
@@ -1644,7 +1644,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
 ########## data structures for get_categories
 
-    CATEGORY_SORTS = ('name', 'popularity', 'rating')
+    CATEGORY_SORTS = CATEGORY_SORTS
     MATCH_TYPE = ('any', 'all')
 
     class TCat_Tag(object):

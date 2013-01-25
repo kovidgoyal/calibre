@@ -186,6 +186,25 @@ class CompositeField(OneToOneField):
         for val, book_ids in val_map.iteritems():
             yield val, book_ids
 
+    def get_composite_categories(self, tag_class, book_rating_map, book_ids,
+                                 is_multiple, get_metadata):
+        ans = []
+        id_map = defaultdict(set)
+        for book_id in book_ids:
+            val = self.get_value_with_cache(book_id, get_metadata)
+            vals = [x.strip() for x in val.split(is_multiple)] if is_multiple else [val]
+            for val in vals:
+                if val:
+                    id_map[val].add(book_id)
+        for item_id, item_book_ids in id_map.iteritems():
+            ratings = tuple(r for r in (book_rating_map.get(book_id, 0) for
+                                        book_id in item_book_ids) if r > 0)
+            avg = sum(ratings)/len(ratings) if ratings else 0
+            c = tag_class(item_id, id=item_id, sort=item_id, avg=avg,
+                            id_set=item_book_ids, count=len(item_book_ids))
+            ans.append(c)
+        return ans
+
 class OnDeviceField(OneToOneField):
 
     def __init__(self, name, table):
@@ -441,6 +460,34 @@ class SeriesField(ManyToOneField):
         val = self.table.id_map[item_id]
         return title_sort(val, order=tss, lang=lang)
 
+class TagsField(ManyToManyField):
+
+    def get_news_category(self, tag_class, book_ids=None):
+        news_id = None
+        ans = []
+        for item_id, val in self.table.id_map.iteritems():
+            if val == _('News'):
+                news_id = item_id
+                break
+        if news_id is None:
+            return ans
+
+        news_books = self.table.col_book_map[news_id]
+        if book_ids is not None:
+            news_books = news_books.intersection(book_ids)
+        if not news_books:
+            return ans
+        for item_id, item_book_ids in self.table.col_book_map.iteritems():
+            item_book_ids = item_book_ids.intersection(news_books)
+            if item_book_ids:
+                name = self.category_formatter(self.table.id_map[item_id])
+                if name == _('News'):
+                    continue
+                c = tag_class(name, id=item_id, sort=name,
+                              id_set=item_book_ids, count=len(item_book_ids))
+                ans.append(c)
+        return ans
+
 def create_field(name, table):
     cls = {
             ONE_ONE : OneToOneField,
@@ -455,6 +502,8 @@ def create_field(name, table):
         cls = FormatsField
     elif name == 'identifiers':
         cls = IdentifiersField
+    elif name == 'tags':
+        cls = TagsField
     elif table.metadata['datatype'] == 'composite':
         cls = CompositeField
     elif table.metadata['datatype'] == 'series':
