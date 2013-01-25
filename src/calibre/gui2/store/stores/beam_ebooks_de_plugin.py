@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 2 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -43,7 +43,8 @@ class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.beam-ebooks.de/suchergebnis.php?Type=&sw=' + urllib2.quote(query)
+        url = 'http://www.beam-ebooks.de/suchergebnis.php?Type=&limit={0}&sw={1}'.format(
+                                                    max_results, urllib2.quote(query))
         br = browser()
 
         counter = max_results
