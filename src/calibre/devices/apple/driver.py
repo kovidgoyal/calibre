@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import cStringIO, ctypes, datetime, os, platform, re, shutil, sys, tempfile, time
 
-from calibre.constants import __appname__, __version__, DEBUG as CALIBRE_DEBUG
+from calibre.constants import __appname__, __version__, cache_dir, DEBUG as CALIBRE_DEBUG
 from calibre import fit_image, confirm_config_name, strftime as _strftime
 from calibre.constants import isosx, iswindows, cache_dir as _cache_dir
 from calibre.devices.errors import OpenFeedback, UserFeedback
