@@ -24,7 +24,7 @@ class ScienceAAS(BasicNewsRecipe):
     LOGIN = 'http://www.sciencemag.org/cgi/login?uri=%2Findex.dtl'
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open(self.LOGIN)
             br.select_form(nr=0)

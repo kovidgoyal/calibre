@@ -47,7 +47,7 @@ class LeMondeAbonne(BasicNewsRecipe):
     article_url_format = 'http://www.lemonde.fr/journalelectronique/donnees/protege/%Y%m%d/html/'
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open(self.login_url)
             br.select_form(nr=0)

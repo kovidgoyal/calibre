@@ -17,7 +17,6 @@ from calibre.utils.icu import primary_find
 from calibre.utils.localization import lang_map, canonicalize_lang
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 
-# TODO: Thread safety of saved searches
 CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
 REGEXP_MATCH   = 2

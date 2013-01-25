@@ -634,13 +634,12 @@ class BooksModel(QAbstractTableModel): # {{{
 
         def bool_type_decorator(r, idx=-1, bool_cols_are_tristate=True):
             val = force_to_bool(self.db.data[r][idx])
-            if not bool_cols_are_tristate:
-                if val is None or not val:
+            if val is None:
+                if not bool_cols_are_tristate:
                     return self.bool_no_icon
+                return NONE
             if val:
                 return self.bool_yes_icon
-            if val is None:
-                return self.bool_blank_icon
             return self.bool_no_icon
 
         def ondevice_decorator(r, idx=-1):

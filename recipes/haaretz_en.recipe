@@ -65,7 +65,7 @@ class Haaretz_en(BasicNewsRecipe):
             ]
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.open(self.PREFIX)
         if self.username is not None and self.password is not None:
             data = urllib.urlencode({ 'cb':'parseEngReply'

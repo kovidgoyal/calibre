@@ -95,7 +95,7 @@ class ReadingTest(BaseTest):
                     'series' : 'A Series One',
                     'series_index': 2.0,
                     'rating': 6.0,
-                    'tags': ('Tag One',),
+                    'tags': ('Tag One', 'News'),
                     'formats':(),
                     'identifiers': {'test':'two'},
                     'timestamp': datetime.datetime(2011, 9, 6, 6, 0,

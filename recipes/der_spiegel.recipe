@@ -42,7 +42,7 @@ class DerSpiegel(BasicNewsRecipe):
             else:
                 return True
 
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open(self.PREFIX + '/meinspiegel/login.html')
             br.select_form(predicate=has_login_name)

@@ -11,7 +11,7 @@ class BasicUserRecipe1318619832(BasicNewsRecipe):
 
     def get_masthead_url(self):
         masthead = 'http://cdn.omgubuntu.co.uk/wp-content/themes/omgubuntu/images/logo.png'
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(masthead)
         except:

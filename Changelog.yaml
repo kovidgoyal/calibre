@@ -19,6 +19,64 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.16
+  date: 2013-01-25
+
+  new features:
+    - title: "News download: Add support for logging in to sites that require javascript for their logins."
+      tickets: [1101809]
+
+    - title: "News download: Do not convert all downloaded images to JPG format. This fixes the problem of PNG images with transparent backgrounds being rendered with black backgrounds"
+
+    - title: "CHM Input: Support hierarchical table of contents. Do not generate an inline table of contents when a metadata table of contents is present. Also correctly decode the text in the table of contents"
+
+    - title: "Get Books: Add the beam-ebooks.de store"
+
+    - title: "Make custom yes/no columns using icons put text values under the icons."
+
+    - title: "Driver for LG E400 and SayCoolA710"
+      tickets: [1103741,1104528]
+
+    - title: "Speed up device connection when there are lots of books on the device by not generating cover thumbnails unless they are actually needed."
+
+    - title: "Have the metadata download dialog remember its last used size."
+      tickets: [1101150]
+ 
+  bug fixes:
+    - title: "Fix deleting a custom column that was used in a column coloring rule makes the column coloring preferences panel unusable"
+      tickets: [1103504]
+
+    - title: "Store caches outside the config directory for non-portable calibre installs"
+
+    - title: "PDF Output: Dont crash if the user has a font on his system that is missing the OS/2 table"
+      tickets: [1102403] 
+
+    - title: "Conversion: Do not error out because of an error in user supplied search replace rules."
+      tickets: [1102647]
+
+    - title: "Conversion: Replace all non-ascii characters in CSS class names, as they cause problems with some broken EPUB renderers."
+      tickets: [1102587]
+
+    - title: "Do not choke when reading metadata from MOBI files with incorrectly encoded metadata fields"
+
+    - title: "Conversion: Preserve ToC entries that point nowhere instead of causing them to point to a non-existent file"
+
+    - title: "E-book viewer: Allow entries in the Table of Contents that do not point anywhere, instead of just ignoring them."
+
+    - title: "Content server: Fix the 'Previous' link in the mobile version of the content server webpage skipping an entry"
+      tickets: [1101124] 
+
+  improved recipes:
+    - TSN
+    - St. Louis Post Dispatch
+    - Metro UK
+    - Michelle Malkin
+    - Barrons
+
+  new recipes:
+    - title: Contemporary Argentine Writers
+      author: Darko Miletic
+
 - version: 0.9.15
   date: 2013-01-18
 

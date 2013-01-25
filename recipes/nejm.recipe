@@ -16,7 +16,7 @@ class NYTimes(BasicNewsRecipe):
 
     #TO LOGIN
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.open('http://www.nejm.org/action/showLogin?uri=http://www.nejm.org/')
         br.select_form(name='frmLogin')
         br['login'] = self.username

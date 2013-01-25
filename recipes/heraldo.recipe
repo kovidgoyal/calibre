@@ -53,7 +53,7 @@ class heraldo(BasicNewsRecipe):
        day = "%.2d" % st.tm_mday
 		#[url]http://oldorigin-www.heraldo.es/20101211/primeras/portada_aragon.pdf[/url]
        cover='http://oldorigin-www.heraldo.es/'+ year +  month + day +'/primeras/portada_aragon.pdf'
-       br = BasicNewsRecipe.get_browser()
+       br = BasicNewsRecipe.get_browser(self)
        try:
            br.open(cover)
        except:

@@ -89,7 +89,7 @@ class expansion_spanish(BasicNewsRecipe):
        day = "%.2d" % st.tm_mday
 		#[url]http://img5.kiosko.net/2011/11/14/es/expansion.750.jpg[/url]
        cover='http://img5.kiosko.net/'+ year + '/' +  month + '/' + day +'/es/expansion.750.jpg'
-       br = BasicNewsRecipe.get_browser()
+       br = BasicNewsRecipe.get_browser(self)
        try:
            br.open(cover)
        except:

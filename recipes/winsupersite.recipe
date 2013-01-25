@@ -21,7 +21,7 @@ class Winsupersite(BasicNewsRecipe):
     lambda match: '</body>'),
 ]
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.open('http://www.winsupersite.com')
         return br
 

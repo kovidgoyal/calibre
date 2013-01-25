@@ -62,7 +62,7 @@ class ilCorriere(BasicNewsRecipe):
         day = "%.2d" % st.tm_mday
 		#http://images.corriere.it/primapagina/storico/2010_05_17/images/prima_pagina_grande.png
         cover='http://images.corriere.it/primapagina/storico/'+ year + '_' +  month +'_' + day +'/images/prima_pagina_grande.png'
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
         except:
