@@ -786,10 +786,11 @@ class BooksModel(QAbstractTableModel): # {{{
             self.column_icon.mi = None
             for kind, k, fmt in self.db.prefs['column_color_rules']:
                 if k == key and kind == 'icon_only':
-                    ccicon = self.column_icon(id_, key, fmt, kind, self.db,
+                    ccicon = self.column_icon(id_, key, fmt, 'icon_only', self.db,
                                 self.formatter, self.icon_cache)
                     if ccicon is not None:
                         return NONE
+            self.icon_cache[id_][key+'icon_only'] = None
             return self.column_to_dc_map[col](index.row())
         elif role in (Qt.EditRole, Qt.ToolTipRole):
             return self.column_to_dc_map[col](index.row())
@@ -848,13 +849,16 @@ class BooksModel(QAbstractTableModel): # {{{
             need_icon_with_text = False
             for kind, k, fmt in self.db.prefs['column_color_rules']:
                 if k == key and kind in ('icon', 'icon_only'):
-                    need_icon_with_text = True
-                    ccicon = self.column_icon(id_, key, fmt, kind, self.db,
+                    if kind == 'icon':
+                        need_icon_with_text = True
+                    ccicon = self.column_icon(id_, key, fmt, 'icon', self.db,
                                 self.formatter, self.icon_cache)
                     if ccicon is not None:
                         return ccicon
             if need_icon_with_text:
+                self.icon_cache[id_][key+'icon'] = self.bool_blank_icon
                 return self.bool_blank_icon
+            self.icon_cache[id_][key+'icon'] = None
         elif role == Qt.TextAlignmentRole:
             cname = self.column_map[index.column()]
             ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,

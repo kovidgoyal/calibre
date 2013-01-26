@@ -28,6 +28,10 @@ from calibre.utils.icu import lower
 
 all_columns_string = _('All Columns')
 
+rule_kinds = [(_('color'), 'color'),
+              (_('icon with text'), 'icon'),
+              (_('icon with no text'), 'icon_only') ]
+
 class ConditionEditor(QWidget): # {{{
 
     ACTION_MAP = {
@@ -270,9 +274,8 @@ class RuleEditor(QDialog): # {{{
         l.addWidget(l2, 2, 0)
 
         self.kind_box = QComboBox(self)
-        self.kind_box.addItem(_('color'), 'color')
-        self.kind_box.addItem(_('icon'), 'icon')
-        self.kind_box.addItem(_('icon with no text'), 'icon_only')
+        for tt, t in rule_kinds:
+            self.kind_box.addItem(tt, t)
         l.addWidget(self.kind_box, 2, 1)
 
         self.l3 = l3 = QLabel(_('of the column:'))
@@ -569,11 +572,18 @@ class RulesModel(QAbstractListModel): # {{{
             <pre>%(rule)s</pre>
             ''')%dict(col=col, rule=prepare_string_for_xml(rule))
         conditions = [self.condition_to_html(c) for c in rule.conditions]
+
+        trans_kind = 'not found'
+        for tt, t in rule_kinds:
+            if kind == t:
+                trans_kind = tt
+                break
+
         return _('''\
             <p>Set the <b>%(kind)s</b> of <b>%(col)s</b> to <b>%(color)s</b> if the following
             conditions are met:</p>
             <ul>%(rule)s</ul>
-            ''') % dict(kind=kind, col=col, color=rule.color, rule=''.join(conditions))
+            ''') % dict(kind=trans_kind, col=col, color=rule.color, rule=''.join(conditions))
 
     def condition_to_html(self, condition):
         c, a, v = condition
