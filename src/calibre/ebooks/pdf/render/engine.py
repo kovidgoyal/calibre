@@ -108,6 +108,7 @@ class PdfEngine(QPaintEngine):
 
     def init_page(self):
         self.pdf.transform(self.pdf_system)
+        self.pdf.apply_fill(color=(1, 1, 1)) # QPainter has a default background brush of white
         self.graphics.reset()
         self.pdf.save_stack()
         self.current_page_inited = True
