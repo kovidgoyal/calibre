@@ -22,18 +22,18 @@ class Vreme(BasicNewsRecipe):
     use_embedded_content = False
     encoding             = 'utf-8'
     language             = 'sr'
-    publication_type     = 'magazine'    
+    publication_type     = 'magazine'
     masthead_url         = 'http://www.vreme.com/g/vreme-logo.gif'
-    extra_css            = """ 
+    extra_css            = """
                               @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
-                              @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} 
-                              body{font-family: serif1, serif} 
-                              .article_description{font-family: serif1, serif} 
-                              .heading1{font-family: sans1, sans-serif; font-size: x-large; font-weight: bold} .heading2{font-family: sans1, sans-serif; font-size: large; font-weight: bold} .toc-heading{font-family: sans1, sans-serif; font-size: small} 
-                              .column-heading2{font-family: sans1, sans-serif; font-size: large} 
-                              .column-heading1{font-family: sans1, sans-serif; font-size: x-large} 
-                              .column-normal{font-family: sans1, sans-serif; font-size: medium} 
-                              .large{font-family: sans1, sans-serif; font-size: large} 
+                              @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+                              body{font-family: serif1, serif}
+                              .article_description{font-family: serif1, serif}
+                              .heading1{font-family: sans1, sans-serif; font-size: x-large; font-weight: bold} .heading2{font-family: sans1, sans-serif; font-size: large; font-weight: bold} .toc-heading{font-family: sans1, sans-serif; font-size: small}
+                              .column-heading2{font-family: sans1, sans-serif; font-size: large}
+                              .column-heading1{font-family: sans1, sans-serif; font-size: x-large}
+                              .column-normal{font-family: sans1, sans-serif; font-size: medium}
+                              .large{font-family: sans1, sans-serif; font-size: large}
                            """
 
     conversion_options = {
@@ -50,7 +50,7 @@ class Vreme(BasicNewsRecipe):
     remove_tags_after  = dict(attrs={'class':'footer'     })
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open(self.LOGIN)
             br.select_form(name='f')
@@ -64,7 +64,7 @@ class Vreme(BasicNewsRecipe):
         soup = self.index_to_soup(self.INDEX)
         cover_item = soup.find('div',attrs={'id':'najava'})
         if cover_item:
-           self.cover_url = self.INDEX + cover_item.img['src']      
+           self.cover_url = self.INDEX + cover_item.img['src']
         for item in soup.findAll(['h3','h4']):
             description = u''
             title_prefix = u''

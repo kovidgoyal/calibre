@@ -31,7 +31,7 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
         m:'<head></head>')]
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.open('http://www.nybooks.com/account/signin/')
         br.select_form(nr = 1)
         br['username'] = self.username

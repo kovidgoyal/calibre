@@ -47,7 +47,7 @@ class NoviStandard(BasicNewsRecipe):
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.open(self.INDEX)
         if self.username is not None and self.password is not None:
             br.select_form(name='login')

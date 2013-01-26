@@ -73,7 +73,7 @@ class CNN(BasicNewsRecipe):
 
     def get_masthead_url(self):
         masthead = 'http://i.cdn.turner.com/cnn/.element/img/3.0/global/header/intl/hdr-globe-central.gif'
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(masthead)
         except:

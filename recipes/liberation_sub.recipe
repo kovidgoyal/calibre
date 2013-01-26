@@ -61,7 +61,7 @@ class Liberation(BasicNewsRecipe):
     index           = 'http://www.liberation.fr/abonnes/'
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('http://www.liberation.fr/jogger/login/')
             br.select_form(nr=0)

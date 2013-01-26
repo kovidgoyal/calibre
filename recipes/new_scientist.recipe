@@ -68,7 +68,7 @@ class NewScientist(BasicNewsRecipe):
     url_list = []   # This list is used to check if an article had already been included.
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.open('http://www.newscientist.com/')
         if self.username is not None and self.password is not None:
             br.open('https://www.newscientist.com/user/login')

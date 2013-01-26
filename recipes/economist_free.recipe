@@ -57,7 +57,7 @@ class Economist(BasicNewsRecipe):
     needs_subscription = False
     '''
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username and self.password:
             br.open('http://www.economist.com/user/login')
             br.select_form(nr=1)

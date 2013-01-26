@@ -45,7 +45,7 @@ class Thenation(BasicNewsRecipe):
         return url.replace('.thenation.com/','.thenation.com/print/')
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.open('http://www.thenation.com/')
         if self.username is not None and self.password is not None:
             br.open(self.login_url)

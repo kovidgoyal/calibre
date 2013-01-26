@@ -25,7 +25,7 @@ class JBPress(BasicNewsRecipe):
 <input id="rememberme" name="rememberme" type="checkbox"/>
 </form>
 '''
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('http://jbpress.ismedia.jp/articles/print/5549')
             response = br.response()

@@ -36,7 +36,7 @@ class NikkeiNet_sub_shakai(BasicNewsRecipe):
         ]
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
 
         cj = mechanize.LWPCookieJar()
         br.set_cookiejar(cj)

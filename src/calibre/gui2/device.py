@@ -1705,22 +1705,31 @@ class DeviceMixin(object): # {{{
                 return
             mi = db.get_metadata(id_, index_is_id=True, get_cover=get_covers)
             book.smart_update(mi, replace_metadata=True)
-            if get_covers:
+            if get_covers and desired_thumbnail_height != 0:
                 if book.cover and os.access(book.cover, os.R_OK):
                     book.thumbnail = self.cover_to_thumbnail(open(book.cover, 'rb').read())
                 else:
                     book.thumbnail = self.default_thumbnail
+
+        def updateq(id_, book):
+            try:
+                return (update_metadata and
+                        (db.metadata_last_modified(id_, index_is_id=True) !=
+                         getattr(book, 'last_modified', None) or
+                         (isinstance(getattr(book, 'thumbnail', None), (list, tuple))
+                          and max(book.thumbnail[0], book.thumbnail[1]) != desired_thumbnail_height
+                         )
+                        )
+                       )
+            except:
+                return True
 
         for booklist in booklists:
             for book in booklist:
                 book.in_library = None
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
                     id_ = db_book_uuid_cache[book.uuid]
-                    if (db.metadata_last_modified(id_, index_is_id=True) !=
-                                        getattr(book, 'last_modified', None)
-                            or (not book.thumbnail
-                                    or max(book.thumbnail[0], book.thumbnail[1]) !=
-                                            desired_thumbnail_height)):
+                    if updateq(id_, book):
                         update_book(id_, book)
                     book.in_library = 'UUID'
                     # ensure that the correct application_id is set
