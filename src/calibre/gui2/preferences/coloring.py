@@ -7,15 +7,18 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
+
 from PyQt4.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, QColor, Qt, QIcon,
         QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
         QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem,
-        QApplication)
+        QApplication, QHBoxLayout)
 
-from calibre import prepare_string_for_xml
+from calibre import prepare_string_for_xml, sanitize_file_name_unicode
+from calibre.constants import config_dir
 from calibre.utils.icu import sort_key
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, choose_files, pixmap_to_data
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.library.coloring import (Rule, conditionable_columns,
@@ -257,52 +260,67 @@ class RuleEditor(QDialog): # {{{
 
         self.l1 = l1 = QLabel(_('Create a coloring rule by'
             ' filling in the boxes below'))
-        l.addWidget(l1, 0, 0, 1, 5)
+        l.addWidget(l1, 0, 0, 1, 8)
 
         self.f1 = QFrame(self)
         self.f1.setFrameShape(QFrame.HLine)
-        l.addWidget(self.f1, 1, 0, 1, 5)
+        l.addWidget(self.f1, 1, 0, 1, 8)
 
-        self.l2 = l2 = QLabel(_('Set the color of the column:'))
+        self.l2 = l2 = QLabel(_('Set the'))
         l.addWidget(l2, 2, 0)
 
-        self.column_box = QComboBox(self)
-        l.addWidget(self.column_box, 2, 1)
+        self.kind_box = QComboBox(self)
+        self.kind_box.addItem(_('color'), 'color')
+        self.kind_box.addItem(_('icon'), 'icon')
+        self.kind_box.addItem(_('icon with no text'), 'icon_only')
+        l.addWidget(self.kind_box, 2, 1)
 
-        self.l3 = l3 = QLabel(_('to'))
+        self.l3 = l3 = QLabel(_('of the column:'))
         l.addWidget(l3, 2, 2)
+
+        self.column_box = QComboBox(self)
+        l.addWidget(self.column_box, 2, 3)
+
+        self.l4 = l4 = QLabel(_('to'))
+        l.addWidget(l4, 2, 4)
 
         self.color_box = QComboBox(self)
         self.color_label = QLabel('Sample text Sample text')
         self.color_label.setTextFormat(Qt.RichText)
-        l.addWidget(self.color_box, 2, 3)
-        l.addWidget(self.color_label, 2, 4)
-        l.addItem(QSpacerItem(10, 10, QSizePolicy.Expanding), 2, 5)
+        l.addWidget(self.color_box, 2, 5)
+        l.addWidget(self.color_label, 2, 6)
 
-        self.l4 = l4 = QLabel(
+        self.filename_box = QLabel()
+        l.addWidget(self.filename_box, 2, 5)
+        self.filename_button = QPushButton(_('Choose icon'))
+        l.addWidget(self.filename_button, 2, 6)
+
+        l.addItem(QSpacerItem(10, 10, QSizePolicy.Expanding), 2, 7)
+
+        self.l5 = l5 = QLabel(
             _('Only if the following conditions are all satisfied:'))
-        l.addWidget(l4, 3, 0, 1, 6)
+        l.addWidget(l5, 3, 0, 1, 7)
 
         self.scroll_area = sa = QScrollArea(self)
         sa.setMinimumHeight(300)
         sa.setMinimumWidth(950)
         sa.setWidgetResizable(True)
-        l.addWidget(sa, 4, 0, 1, 6)
+        l.addWidget(sa, 4, 0, 1, 8)
 
         self.add_button = b = QPushButton(QIcon(I('plus.png')),
                 _('Add another condition'))
-        l.addWidget(b, 5, 0, 1, 6)
+        l.addWidget(b, 5, 0, 1, 8)
         b.clicked.connect(self.add_blank_condition)
 
-        self.l5 = l5 = QLabel(_('You can disable a condition by'
+        self.l6 = l6 = QLabel(_('You can disable a condition by'
             ' blanking all of its boxes'))
-        l.addWidget(l5, 6, 0, 1, 6)
+        l.addWidget(l6, 6, 0, 1, 8)
 
         self.bb = bb = QDialogButtonBox(
                 QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
-        l.addWidget(bb, 7, 0, 1, 6)
+        l.addWidget(bb, 7, 0, 1, 8)
 
         self.conditions_widget = QWidget(self)
         sa.setWidget(self.conditions_widget)
@@ -326,7 +344,11 @@ class RuleEditor(QDialog): # {{{
 
         self.update_color_label()
         self.color_box.currentIndexChanged.connect(self.update_color_label)
+        self.kind_box.currentIndexChanged[int].connect(self.kind_index_changed)
+        self.filename_button.clicked.connect(self.filename_button_clicked)
         self.resize(self.sizeHint())
+
+        self.icon_path = None
 
     def update_color_label(self):
         pal = QApplication.palette()
@@ -338,13 +360,58 @@ class RuleEditor(QDialog): # {{{
             <span style="color: {c}; background-color: {bg2}">&nbsp;{st}&nbsp;</span>
             '''.format(c=c, bg1=bg1, bg2=bg2, st=_('Sample Text')))
 
+    def kind_index_changed(self, dex):
+        if dex != 0:
+            self.color_label.setVisible(False)
+            self.color_box.setVisible(False)
+            self.filename_box.setVisible(True)
+            self.filename_button.setVisible(True)
+        else:
+            self.color_label.setVisible(True)
+            self.color_box.setVisible(True)
+            self.filename_box.setVisible(False)
+            self.filename_button.setVisible(False)
+
+    def filename_button_clicked(self):
+        try:
+            path = choose_files(self, 'choose_category_icon',
+                        _('Select Icon'), filters=[
+                        ('Images', ['png', 'gif', 'jpg', 'jpeg'])],
+                    all_files=False, select_only_single_file=True)
+            if path:
+                self.icon_path = path[0]
+                self.filename_box.setText(
+                      sanitize_file_name_unicode(
+                             os.path.splitext(
+                                   os.path.basename(self.icon_path))[0]+'.png'))
+                self.filename_box.adjustSize()
+            else:
+                self.icon_path = ''
+        except:
+            import traceback
+            traceback.print_exc()
+        return
 
     def add_blank_condition(self):
         c = ConditionEditor(self.fm, parent=self.conditions_widget)
         self.conditions.append(c)
         self.conditions_widget.layout().addWidget(c)
 
-    def apply_rule(self, col, rule):
+    def apply_rule(self, kind, col, rule):
+        if kind == 'color':
+            self.kind_box.setCurrentIndex(0)
+            self.filename_box.setVisible(False)
+            self.filename_button.setVisible(False)
+            if rule.color:
+                idx = self.color_box.findText(rule.color)
+                if idx >= 0:
+                    self.color_box.setCurrentIndex(idx)
+        else:
+            self.kind_box.setCurrentIndex(1 if kind == 'icon' else 2)
+            self.color_box.setVisible(False)
+            self.color_label.setVisible(False)
+            self.filename_box.setText(rule.color)
+
         for i in range(self.column_box.count()):
             c = unicode(self.column_box.itemData(i).toString())
             if col == c:
@@ -354,6 +421,8 @@ class RuleEditor(QDialog): # {{{
             idx = self.color_box.findText(rule.color)
             if idx >= 0:
                 self.color_box.setCurrentIndex(idx)
+            self.filename_box.setText(rule.color)
+
         for c in rule.conditions:
             ce = ConditionEditor(self.fm, parent=self.conditions_widget)
             self.conditions.append(ce)
@@ -366,6 +435,20 @@ class RuleEditor(QDialog): # {{{
 
 
     def accept(self):
+        if self.kind_box.currentIndex() != 0:
+            path = self.icon_path
+            if path:
+                try:
+                    fname = unicode(self.filename_box.text())
+                    p = QIcon(path).pixmap(QSize(128, 128))
+                    d = os.path.join(config_dir, 'cc_icons')
+                    if not os.path.exists(d):
+                        os.makedirs(d)
+                    with open(os.path.join(d, fname), 'wb') as f:
+                        f.write(pixmap_to_data(p, format='PNG'))
+                except:
+                    import traceback
+                    traceback.print_exc()
         if self.validate():
             QDialog.accept(self)
 
@@ -393,7 +476,11 @@ class RuleEditor(QDialog): # {{{
     @property
     def rule(self):
         r = Rule(self.fm)
-        r.color = unicode(self.color_box.currentText())
+        kind = unicode(self.kind_box.itemData(self.kind_box.currentIndex()).toString())
+        if kind != 'color':
+            r.color = unicode(self.filename_box.text())
+        else:
+            r.color = unicode(self.color_box.currentText())
         idx = self.column_box.currentIndex()
         col = unicode(self.column_box.itemData(idx).toString())
         for c in self.conditions:
@@ -401,7 +488,7 @@ class RuleEditor(QDialog): # {{{
             if condition is not None:
                 r.add_condition(*condition)
 
-        return col, r
+        return kind, col, r
 # }}}
 
 class RulesModel(QAbstractListModel): # {{{
@@ -412,13 +499,13 @@ class RulesModel(QAbstractListModel): # {{{
         self.fm = fm
         rules = list(prefs['column_color_rules'])
         self.rules = []
-        for col, template in rules:
+        for kind, col, template in rules:
             if col not in self.fm: continue
             try:
                 rule = rule_from_template(self.fm, template)
             except:
                 rule = template
-            self.rules.append((col, rule))
+            self.rules.append((kind, col, rule))
 
     def rowCount(self, *args):
         return len(self.rules)
@@ -426,7 +513,7 @@ class RulesModel(QAbstractListModel): # {{{
     def data(self, index, role):
         row = index.row()
         try:
-            col, rule = self.rules[row]
+            kind, col, rule = self.rules[row]
         except:
             return None
         if role == Qt.DisplayRole:
@@ -434,17 +521,17 @@ class RulesModel(QAbstractListModel): # {{{
                 col = all_columns_string
             else:
                 col = self.fm[col]['name']
-            return self.rule_to_html(col, rule)
+            return self.rule_to_html(kind, col, rule)
         if role == Qt.UserRole:
-            return (col, rule)
+            return (kind, col, rule)
 
-    def add_rule(self, col, rule):
-        self.rules.append((col, rule))
+    def add_rule(self, kind, col, rule):
+        self.rules.append((kind, col, rule))
         self.reset()
         return self.index(len(self.rules)-1)
 
-    def replace_rule(self, index, col, r):
-        self.rules[index.row()] = (col, r)
+    def replace_rule(self, index, kind, col, r):
+        self.rules[index.row()] = (kind, col, r)
         self.dataChanged.emit(index, index)
 
     def remove_rule(self, index):
@@ -453,11 +540,11 @@ class RulesModel(QAbstractListModel): # {{{
 
     def commit(self, prefs):
         rules = []
-        for col, r in self.rules:
+        for kind, col, r in self.rules:
             if isinstance(r, Rule):
                 r = r.template
             if r is not None:
-                rules.append((col, r))
+                rules.append((kind, col, r))
         prefs['column_color_rules'] = rules
 
     def move(self, idx, delta):
@@ -475,7 +562,7 @@ class RulesModel(QAbstractListModel): # {{{
         self.rules = []
         self.reset()
 
-    def rule_to_html(self, col, rule):
+    def rule_to_html(self, kind, col, rule):
         if not isinstance(rule, Rule):
             return _('''
             <p>Advanced Rule for column <b>%(col)s</b>:
@@ -483,10 +570,10 @@ class RulesModel(QAbstractListModel): # {{{
             ''')%dict(col=col, rule=prepare_string_for_xml(rule))
         conditions = [self.condition_to_html(c) for c in rule.conditions]
         return _('''\
-            <p>Set the color of <b>%(col)s</b> to <b>%(color)s</b> if the following
+            <p>Set the <b>%(kind)s</b> of <b>%(col)s</b> to <b>%(color)s</b> if the following
             conditions are met:</p>
             <ul>%(rule)s</ul>
-            ''') % dict(col=col, color=rule.color, rule=''.join(conditions))
+            ''') % dict(kind=kind, col=col, color=rule.color, rule=''.join(conditions))
 
     def condition_to_html(self, condition):
         c, a, v = condition
@@ -567,9 +654,9 @@ class EditRules(QWidget): # {{{
 
     def _add_rule(self, dlg):
         if dlg.exec_() == dlg.Accepted:
-            col, r = dlg.rule
-            if r and col:
-                idx = self.model.add_rule(col, r)
+            kind, col, r = dlg.rule
+            if kind and r and col:
+                idx = self.model.add_rule(kind, col, r)
                 self.rules_view.scrollTo(idx)
                 self.changed.emit()
 
@@ -584,18 +671,18 @@ class EditRules(QWidget): # {{{
 
     def edit_rule(self, index):
         try:
-            col, rule = self.model.data(index, Qt.UserRole)
+            kind, col, rule = self.model.data(index, Qt.UserRole)
         except:
             return
         if isinstance(rule, Rule):
             d = RuleEditor(self.model.fm)
-            d.apply_rule(col, rule)
+            d.apply_rule(kind, col, rule)
         else:
             d = TemplateDialog(self, rule, mi=self.mi, fm=self.fm, color_field=col)
         if d.exec_() == d.Accepted:
-            col, r = d.rule
-            if r is not None and col:
-                self.model.replace_rule(index, col, r)
+            kind, col, r = d.rule
+            if kind and r is not None and col:
+                self.model.replace_rule(index, kind, col, r)
                 self.rules_view.scrollTo(index)
                 self.changed.emit()
 

@@ -253,6 +253,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if old_rules:
                 self.prefs['column_color_rules'] += old_rules
 
+        new_rules = []
+        must_save_new_rules = False
+        for tup in self.prefs['column_color_rules']:
+            if len(tup) == 2:
+                must_save_new_rules = True;
+                new_rules.append( ('color', tup[0], tup[1]) )
+            else:
+                new_rules.append(tup)
+        if must_save_new_rules:
+            self.prefs['column_color_rules'] = new_rules
+
         # Migrate saved search and user categories to db preference scheme
         def migrate_preference(key, default):
             oldval = prefs[key]
