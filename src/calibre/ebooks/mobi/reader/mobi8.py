@@ -464,7 +464,7 @@ class Mobi8Reader(object):
             start = None
             reached = True
         if frag:
-            elems = XPath('//*[@id="%s"]'%frag)
+            elems = XPath('//*[@id="%s"]'%frag)(root)
             if elems:
                 start = elems[0]
 

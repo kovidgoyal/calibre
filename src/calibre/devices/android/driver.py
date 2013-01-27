@@ -191,7 +191,7 @@ class ANDROID(USBMS):
             # Pantech
             0x10a9 : { 0x6050 : [0x227] },
 
-            # Prestigio
+            # Prestigio and Teclast
             0x2207 : { 0 : [0x222], 0x10 : [0x222] },
 
             }
@@ -215,7 +215,7 @@ class ANDROID(USBMS):
             'POCKET', 'ONDA_MID', 'ZENITHIN', 'INGENIC', 'PMID701C', 'PD',
             'PMP5097C', 'MASS', 'NOVO7', 'ZEKI', 'COBY', 'SXZ', 'USB_2.0',
             'COBY_MID', 'VS', 'AINOL', 'TOPWISE', 'PAD703', 'NEXT8D12',
-            'MEDIATEK', 'KEENHI']
+            'MEDIATEK', 'KEENHI', 'TECLAST']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID',
