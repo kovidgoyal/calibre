@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
  Modified by Tony Stegall
  on 10/10/10 to include function to grab print version of articles
 '''
-
 from datetime import date
 from calibre.web.feeds.news import BasicNewsRecipe
 '''
@@ -42,9 +41,16 @@ class AdvancedUserRecipe1249039563(BasicNewsRecipe):
    #######################################################################################################
     temp_files = []
     articles_are_obfuscated = True
+    use_javascript_to_login = True
+
+    def javascript_login(self, br, username, password):
+        'Volksrant wants the user to explicitly allow cookies'
+        if not br.visit('http://www.volkskrant.nl'):
+            raise Exception('Failed to connect to volksrant website')
+        br.click('#pop_cookie_text a[onclick]', wait_for_load=True, timeout=120)
 
     def get_obfuscated_article(self, url):
-        br = self.get_browser()
+        br = self.browser.clone_browser()
         print 'THE CURRENT URL IS: ', url
         br.open(url)
         year = date.today().year
