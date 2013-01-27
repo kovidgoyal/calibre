@@ -136,7 +136,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             item.setFlags (item.flags() & ~Qt.ItemIsSelectable)
             self.table.setItem(row, 1, item)
             item = QTableWidgetItem('')
-            item.setFlags (item.flags() & ~Qt.ItemIsSelectable)
+            item.setFlags (item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
             self.table.setItem(row, 2, item)
 
         # Scroll to the selected item if there is one
