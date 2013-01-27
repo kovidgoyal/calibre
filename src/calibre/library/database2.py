@@ -1881,7 +1881,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # icon_map is not None if get_categories is to store an icon and
             # possibly a tooltip in the tag structure.
             icon = None
-            tooltip = '(' + category + ')'
             label = tb_cats.key_to_label(category)
             if icon_map:
                 if not tb_cats.is_custom_field(category):
@@ -1935,7 +1934,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             is_editable = category not in ['news', 'rating', 'languages']
             categories[category] = [tag_class(formatter(r.n), count=r.c, id=r.id,
                                         avg=avgr(r), sort=r.s, icon=icon,
-                                        tooltip=tooltip, category=category,
+                                        tooltip=u'({0}:{1})'.format(category,
+                                                                    formatter(r.n)),
+                                        category=category,
                                         id_set=r.id_set, is_editable=is_editable,
                                         use_sort_as_name=use_sort_as_name)
                                     for r in items]
