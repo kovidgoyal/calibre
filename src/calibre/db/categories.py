@@ -35,6 +35,8 @@ class Tag(object):
         self.avg_rating = avg/2.0 if avg is not None else 0
         self.sort = sort
         self.use_sort_as_name = use_sort_as_name
+        if tooltip is None:
+            tooltip = '(%s:%s)'%(category, name)
         if self.avg_rating > 0:
             if tooltip:
                 tooltip = tooltip + ': '
@@ -65,7 +67,6 @@ def find_categories(field_metadata):
 def create_tag_class(category, fm, icon_map):
     cat = fm[category]
     icon = None
-    tooltip = None if category in {'formats', 'identifiers'} else ('(' + category + ')')
     label = fm.key_to_label(category)
     if icon_map:
         if not fm.is_custom_field(category):
@@ -87,8 +88,7 @@ def create_tag_class(category, fm, icon_map):
         use_sort_as_name = False
 
     return partial(Tag, use_sort_as_name=use_sort_as_name, icon=icon,
-                        tooltip=tooltip, is_editable=is_editable,
-                        category=category)
+                        is_editable=is_editable, category=category)
 
 def clean_user_categories(dbcache):
     user_cats = dbcache.pref('user_categories', {})
