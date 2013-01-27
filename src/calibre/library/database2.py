@@ -211,6 +211,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
         defs['column_color_rules'] = []
+        defs['column_icon_rules'] = []
         defs['grouped_search_make_user_categories'] = []
         defs['similar_authors_search_key'] = 'authors'
         defs['similar_authors_match_kind'] = 'match_any'
@@ -252,17 +253,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         pass
             if old_rules:
                 self.prefs['column_color_rules'] += old_rules
-
-        new_rules = []
-        must_save_new_rules = False
-        for tup in self.prefs['column_color_rules']:
-            if len(tup) == 2:
-                must_save_new_rules = True;
-                new_rules.append( ('color', tup[0], tup[1]) )
-            else:
-                new_rules.append(tup)
-        if must_save_new_rules:
-            self.prefs['column_color_rules'] = new_rules
 
         # Migrate saved search and user categories to db preference scheme
         def migrate_preference(key, default):
