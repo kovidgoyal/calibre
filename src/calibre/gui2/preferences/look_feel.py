@@ -185,7 +185,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.icon_rules = EditRules(self.tabWidget)
         self.icon_rules.changed.connect(self.changed_signal)
         self.tabWidget.addTab(self.icon_rules,
-                QIcon(I('format-fill-color.png')), _('Column icons'))
+                QIcon(I('icon_choose.png')), _('Column icons'))
 
         self.tabWidget.setCurrentIndex(0)
         keys = [QKeySequence('F11', QKeySequence.PortableText), QKeySequence(

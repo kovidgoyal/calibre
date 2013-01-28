@@ -253,14 +253,21 @@ class RuleEditor(QDialog): # {{{
         QDialog.__init__(self, parent)
         self.fm = fm
 
+        if pref_name == 'column_color_rules':
+            self.rule_kind = 'color'
+            rule_text = _('coloring')
+        else:
+            self.rule_kind = 'icon'
+            rule_text = _('icon')
+
         self.setWindowIcon(QIcon(I('format-fill-color.png')))
-        self.setWindowTitle(_('Create/edit a column coloring rule'))
+        self.setWindowTitle(_('Create/edit a column {0} rule').format(rule_text))
 
         self.l = l = QGridLayout(self)
         self.setLayout(l)
 
-        self.l1 = l1 = QLabel(_('Create a coloring rule by'
-            ' filling in the boxes below'))
+        self.l1 = l1 = QLabel(_('Create a column {0} rule by'
+            ' filling in the boxes below'.format(rule_text)))
         l.addWidget(l1, 0, 0, 1, 8)
 
         self.f1 = QFrame(self)
@@ -270,11 +277,9 @@ class RuleEditor(QDialog): # {{{
         self.l2 = l2 = QLabel(_('Set the'))
         l.addWidget(l2, 2, 0)
 
-        if pref_name == 'column_color_rules':
-            self.rule_kind = 'color'
+        if self.rule_kind == 'color':
             l.addWidget(QLabel(_('color')))
         else:
-            self.rule_kind = 'icon'
             self.kind_box = QComboBox(self)
             for tt, t in icon_rule_kinds:
                 self.kind_box.addItem(tt, t)
@@ -626,12 +631,7 @@ class EditRules(QWidget): # {{{
         self.l = l = QGridLayout(self)
         self.setLayout(l)
 
-        self.l1 = l1 = QLabel('<p>'+_(
-            'You can control the color of columns in the'
-            ' book list by creating "rules" that tell calibre'
-            ' what color to use. Click the Add Rule button below'
-            ' to get started.<p>You can <b>change an existing rule</b> by double'
-            ' clicking it.'))
+        self.l1 = l1 = QLabel('')
         l1.setWordWrap(True)
         l.addWidget(l1, 0, 0, 1, 2)
 
@@ -678,6 +678,21 @@ class EditRules(QWidget): # {{{
         self.rules_view.setModel(self.model)
         self.fm = fm
         self.mi = mi
+        if pref_name == 'column_color_rules':
+            self.l1.setText('<p>'+_(
+                'You can control the color of columns in the'
+                ' book list by creating "rules" that tell calibre'
+                ' what color to use. Click the Add Rule button below'
+                ' to get started.<p>You can <b>change an existing rule</b> by'
+                ' double clicking it.'))
+        else:
+            self.l1.setText('<p>'+_(
+                'You can add icons to columns in the'
+                ' book list by creating "rules" that tell calibre'
+                ' what icon to use. Click the Add Rule button below'
+                ' to get started.<p>You can <b>change an existing rule</b> by'
+                ' double clicking it.'))
+            self.add_advanced_button.setVisible(False)
 
     def _add_rule(self, dlg):
         if dlg.exec_() == dlg.Accepted:
