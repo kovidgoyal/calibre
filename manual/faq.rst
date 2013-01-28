@@ -158,13 +158,23 @@ My device is not being detected by |app|?
 
 Follow these steps to find the problem:
 
-    * Make sure that you are connecting only a single device to your computer at a time. Do not have another |app| supported device like an iPhone/iPad etc. at the same time.
-    * If you are connecting an Apple iDevice (iPad, iPod Touch, iPhone), use the 'Connect to iTunes' method in the 'Getting started' instructions in `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
-    * Make sure you are running the latest version of |app|. The latest version can always be downloaded from `the calibre website <http://calibre-ebook.com/download>`_.
-    * Ensure your operating system is seeing the device. That is, the device should show up in Windows Explorer (in Windows) or Finder (in OS X).
+    * Make sure that you are connecting only a single device to your computer
+      at a time. Do not have another |app| supported device like an iPhone/iPad
+      etc. at the same time.
+    * If you are connecting an Apple iDevice (iPad, iPod Touch, iPhone), use
+      the 'Connect to iTunes' method in the 'Getting started' instructions in
+      `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
+    * Make sure you are running the latest version of |app|. The latest version
+      can always be downloaded from `the calibre website <http://calibre-ebook.com/download>`_.
+      You can tell what version of |app| you are currently running by looking
+      at the bottom line of the main |app| window.
+    * Ensure your operating system is seeing the device. That is, the device
+      should show up in Windows Explorer (in Windows) or Finder (in OS X).
     * In |app|, go to Preferences->Ignored Devices and check that your device
       is not being ignored
-    * If all the above steps fail, go to Preferences->Miscellaneous and click debug device detection with your device attached and post the output as a ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
+    * If all the above steps fail, go to Preferences->Miscellaneous and click
+      debug device detection with your device attached and post the output as a
+      ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
 
 My device is non-standard or unusual. What can I do to connect to it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
