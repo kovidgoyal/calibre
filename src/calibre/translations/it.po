@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-01-25 05:26+0000\n"
-"PO-Revision-Date: 2013-01-05 14:57+0000\n"
+"PO-Revision-Date: 2013-01-27 10:48+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-01-26 04:51+0000\n"
+"X-Launchpad-Export-Date: 2013-01-28 05:12+0000\n"
 "X-Generator: Launchpad (build 16451)\n"
 "Language: it\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
@@ -915,6 +915,7 @@ msgstr ""
 msgid ""
 "This profile is intended for the PocketBook Pro 912 series of devices."
 msgstr ""
+"Questo profilo è pensato per la serie di dispositivi PocketBook Pro 912."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -1495,7 +1496,7 @@ msgstr "Comunica con il lettore PocketBook 301."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:237
 msgid "Communicate with the PocketBook 602/603/902/903/Pro 912 reader."
-msgstr ""
+msgstr "Comunica con il lettore PocketBook 602/603/902/903/Pro 912."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
@@ -2474,7 +2475,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:303
 msgid "Replace books with the same calibre identifier"
-msgstr ""
+msgstr "Sostituisci i libri con lo stesso identificatore di calibre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:304
 msgid ""
@@ -2483,6 +2484,11 @@ msgid ""
 "not change even if the save template produces a different result. Using this "
 "option in most cases prevents having multiple copies of a book on the device."
 msgstr ""
+"Usa questa opzione per sovrascrivere un libro sul dispositivo se il libro ha "
+"lo stesso identificatore di calibre di quello da inviare. Il nome del file "
+"del libro non cambierà anche se il modello di salvataggio produce un "
+"risultato diverso. L'utilizzo di questa opzione evita nella maggior parte "
+"dei casi di avere diverse copie di un libro sul dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:797
 #, python-format
@@ -7198,6 +7204,29 @@ msgid ""
 "            library.</li>\n"
 "            </ol>"
 msgstr ""
+"            <h2>Informazioni su Ottimizza libro</h2>\n"
+"            <p>Tweak Book ti permette di modificare l'aspetto di un ebook\n"
+"           operando piccoli cambiamenti al suo interno. Per utilizzare "
+"Ottimizza libro,\n"
+"            occorre avere una minima conoscenza di HTML e CSS,  che sono "
+"tecnologie\n"
+"            usate negli ebook. I passi da seguire sono:</p>\n"
+"            <br>\n"
+"            <ol>\n"
+"            <li>Fare clic \"Esplodi libro\": questa funzione scomporrà il "
+"libro nelle sue\n"
+"            componenti interne.<br></li>\n"
+"            <li>Fare clic con il tasto destro su un qualunque file "
+"visualizzato and selezionare \"Apri con...\" per\n"
+"            modificarlo nell'editor di testo preferito.<br></li>\n"
+"            <li>Una volta terminata l'ottimizzazione: <b>chiudere la "
+"finestra di visualizzazione file\n"
+"            e la finestra dell'editor usato per fare le modifiche</b>. Fare "
+"poi clic con \n"
+"            Il pulsante \"Rigenera libro\", per aggiornare il libro nella "
+"libreria di\n"
+"            calibre.</li>\n"
+"            </ol>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:103
 msgid "&Explode Book"
@@ -11212,14 +11241,16 @@ msgid ""
 "Books with the same titles as the following already exist in calibre. Select "
 "which books you want added anyway."
 msgstr ""
+"In calibre esistono già libri con gli stessi titoli. Seleziona quali libri "
+"vuoi aggiungere comunque."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:45
 msgid "Select &all"
-msgstr ""
+msgstr "Selezion&a tutto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:47
 msgid "Select &none"
-msgstr ""
+msgstr "&Nessuna selezione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:89
 msgid "Already in calibre:"
@@ -11763,6 +11794,11 @@ msgid ""
 " the EPUB from ORIGINAL_EPUB. Useful if you did a bulk\n"
 " conversion of a large number of books and something went wrong."
 msgstr ""
+"Quando si esegue una conversione nello stesso formato, \n"
+"ad esempio, da EPUB a EPUB, calibre salva l'EPUB originale\n"
+"come ORIGINAL_EPUB. Questa opzione fa in modo che calibre ripristini\n"
+"l'EPUB dal file ORIGINAL_EPUB. È utile hai effettuato una conversione\n"
+"sequenziale di un gran numero di libri e qualcosa non è andato a buon fine."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:608
 msgid "Restore pre conversion &originals, if available"
@@ -16309,6 +16345,9 @@ msgid ""
 "The list of device plugins you have disabled. Uncheck an entry to enable the "
 "plugin. calibre cannot detect devices that are managed by disabled plugins."
 msgstr ""
+"L'elenco dei plugin dei dispositivi disabilitati. Togli la spunta su una "
+"voce per abilitare il relativo plugin. calibre non può riconoscere i "
+"dispositivi gestiti da plugin disabilitati."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:103
 msgid "Narrow"
@@ -18878,6 +18917,10 @@ msgid ""
 "moved the book's files around outside of calibre. You will need to find "
 "those files and re-add them to calibre."
 msgstr ""
+"Impossibile convertire <b>%s</b> poiché non ha alcun file di ebook. Se pensi "
+"di avere i file, ma calibre non riesce a trovarli, molto probabilmente è "
+"perché hai spostato i file fuori da calibre. È necessario trovare i file e "
+"riaggiungerli a calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:108
 #, python-format
@@ -18899,6 +18942,8 @@ msgid ""
 "Could not convert %(num)d of %(tot)d books, because no supported source "
 "formats were found."
 msgstr ""
+"Impossibile convertire %(num)d di %(tot)d libri, poiché non sono stati "
+"trovati formati di origine supportati."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:151
 msgid "Queueing books for bulk conversion"
@@ -19031,6 +19076,27 @@ msgid ""
 "                your ebook reader may have trouble with the EPUB.\n"
 "                        "
 msgstr ""
+"\n"
+"                Molti vecchi dispositivi di lettura non possono leggere\n"
+"                EPUB che hanno componenti interne oltre una certa "
+"dimensione.\n"
+"                Perciò, nella conversione in EPUB, calibre cerca "
+"automaticamente\n"
+"                di suddividere l'EPUB in pezzi più piccoli.  Per alcuni\n"
+"                file che hanno grandi blocchi di testo indifferenziati, "
+"questa\n"
+"                suddivisione può non andare a buon fine.\n"
+"                <p>Puoi <b>ovviare al problema</b> o incrementando la "
+"dimensione\n"
+"                massima della suddivisione nella schermata di conversione in "
+"EPUB Output,\n"
+"                o abilitando l'elaborazione euristica sempre nella schermata "
+"di\n"
+"                conversione. Nota che se aumenti troppo la dimensione della "
+"suddivisione,\n"
+"                il dispositivo di lettura potrebbe avere preoblemi nel "
+"leggere l'EPUB.\n"
+"                        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:663
 msgid "Conversion Failed"
@@ -19520,7 +19586,7 @@ msgstr "Ricorda la pagina &corrente all'uscita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:441
 msgid "Show &controls in the viewer window"
-msgstr ""
+msgstr "Mostra i &controlli nella finestra del visualizzatore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:442
 msgid "&Miscellaneous options"

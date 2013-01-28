@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-01-25 05:26+0000\n"
-"PO-Revision-Date: 2013-01-19 18:12+0000\n"
+"PO-Revision-Date: 2013-01-27 11:09+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-01-26 04:46+0000\n"
+"X-Launchpad-Export-Date: 2013-01-28 05:12+0000\n"
 "X-Generator: Launchpad (build 16451)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -22114,7 +22114,7 @@ msgstr "s'està creant una columna personalitzada "
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1189
 #, python-format
 msgid " (%s books)"
-msgstr ""
+msgstr " (%s llibres)"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3664
 #, python-format
