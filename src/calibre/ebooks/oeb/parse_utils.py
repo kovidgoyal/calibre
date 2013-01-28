@@ -340,6 +340,11 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
             nroot.append(elem)
         data = nroot
 
+    fnsmap = {k:v for k, v in data.nsmap.iteritems() if v != XHTML_NS}
+    fnsmap[None] = XHTML_NS
+    if fnsmap != dict(data.nsmap):
+        # Remove non default prefixes referring to the XHTML namespace
+        data = clone_element(data, nsmap=fnsmap, in_context=False)
 
     data = merge_multiple_html_heads_and_bodies(data, log)
     # Ensure has a <head/>
