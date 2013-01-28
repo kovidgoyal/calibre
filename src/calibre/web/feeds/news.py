@@ -422,7 +422,7 @@ class BasicNewsRecipe(Recipe):
         Times recipe to login for full access::
 
             def get_browser(self):
-                br = BasicNewsRecipe.get_browser()
+                br = BasicNewsRecipe.get_browser(self)
                 if self.username is not None and self.password is not None:
                     br.open('http://www.nytimes.com/auth/login')
                     br.select_form(name='login')
