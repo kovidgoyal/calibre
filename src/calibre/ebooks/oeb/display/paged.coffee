@@ -29,6 +29,10 @@ class PagedDisplay
         this.current_page_height = null
         this.document_margins = null
         this.use_document_margins = false
+        this.footer_template = null
+        this.header_template = null
+        this.header = null
+        this.footer = null
 
     read_document_margins: () ->
         # Read page margins from the document. First checks for an @page rule.
@@ -102,6 +106,7 @@ class PagedDisplay
             # than max_col_width
             sm += Math.ceil( (col_width - this.max_col_width) / 2*n )
             col_width = Math.max(100, ((ww - adjust)/n) - 2*sm)
+        this.col_width = col_width
         this.page_width = col_width + 2*sm
         this.screen_width = this.page_width * this.cols_per_screen
         this.current_page_height = window.innerHeight - this.margin_top - this.margin_bottom
@@ -170,6 +175,30 @@ class PagedDisplay
         this.current_margin_side = sm
         # log('Time to layout:', new Date().getTime() - start_time)
         return sm
+
+    create_header_footer: () ->
+        if this.header_template != null
+            this.header = document.createElement('div')
+            this.header.setAttribute('style', "overflow:hidden; display:block; position:absolute; left:#{ this.side_margin }px; top: 0px; height: #{ this.margin_top }px; width: #{ this.col_width }px; margin: 0; padding: 0")
+            document.body.appendChild(this.header)
+        if this.footer_template != null
+            this.footer = document.createElement('div')
+            this.footer.setAttribute('style', "overflow:hidden; display:block; position:absolute; left:#{ this.side_margin }px; top: #{ window.innerHeight - this.margin_bottom }px; height: #{ this.margin_bottom }px; width: #{ this.col_width }px; margin: 0; padding: 0")
+            document.body.appendChild(this.footer)
+        this.update_header_footer(1)
+
+    position_header_footer: () ->
+        [left, top] = calibre_utils.viewport_to_document(0, 0, document.body.ownerDocument)
+        if this.header != null
+            this.header.style.setProperty('left', left+'px')
+        if this.footer != null
+            this.footer.style.setProperty('left', left+'px')
+
+    update_header_footer: (pagenum) ->
+        if this.header != null
+            this.header.innerHTML = this.header_template.replace(/_PAGENUM_/g, pagenum+"")
+        if this.footer != null
+            this.footer.innerHTML = this.footer_template.replace(/_PAGENUM_/g, pagenum+"")
 
     fit_images: () ->
         # Ensure no images are wider than the available width in a column. Note
