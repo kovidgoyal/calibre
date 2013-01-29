@@ -110,6 +110,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('bd_overlay_cover_size', gprefs)
 
         r('cover_flow_queue_length', config, restart_required=True)
+        r('cover_browser_reflections', gprefs)
 
         def get_esc_lang(l):
             if l == 'en':
@@ -289,6 +290,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.update_font_display()
         gui.tags_view.reread_collapse_parameters()
         gui.library_view.refresh_book_details()
+        if gui.cover_flow is not None:
+            gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
