@@ -1932,7 +1932,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 use_sort_as_name = True
             else:
                 use_sort_as_name = False
-            is_editable = category not in ['news', 'rating', 'languages']
+            is_editable = (category not in ['news', 'rating', 'languages'] and
+                                datatype != "composite")
             categories[category] = [tag_class(formatter(r.n), count=r.c, id=r.id,
                                         avg=avgr(r), sort=r.s, icon=icon,
                                         category=category,
