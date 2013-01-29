@@ -614,10 +614,14 @@ class Amazon(Source):
         return domain
 
     def clean_downloaded_metadata(self, mi):
-        if mi.title and self.domain in ('com', 'uk'):
+        docase = (
+            mi.language == 'eng' or
+            (mi.is_null('language') and self.domain in {'com', 'uk'})
+        )
+        if mi.title and docase:
             mi.title = fixcase(mi.title)
         mi.authors = fixauthors(mi.authors)
-        if self.domain in ('com', 'uk'):
+        if mi.tags and docase:
             mi.tags = list(map(fixcase, mi.tags))
         mi.isbn = check_isbn(mi.isbn)
 
