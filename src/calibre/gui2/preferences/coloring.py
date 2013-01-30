@@ -300,13 +300,25 @@ class RuleEditor(QDialog): # {{{
             self.color_label.setTextFormat(Qt.RichText)
             l.addWidget(self.color_box, 2, 5)
             l.addWidget(self.color_label, 2, 6)
+            l.addItem(QSpacerItem(10, 10, QSizePolicy.Expanding), 2, 7)
         else:
-            self.filename_box = QLabel()
+            self.filename_box = QComboBox()
+            self.filename_box.setInsertPolicy(self.filename_box.InsertAlphabetically)
+            d = os.path.join(config_dir, 'cc_icons')
+            self.icon_file_names = []
+            for icon_file in os.listdir(d):
+                icon_file = lower(icon_file)
+                if os.path.exists(os.path.join(d, icon_file)):
+                    if icon_file.endswith('.png'):
+                        self.icon_file_names.append(icon_file)
+                self.icon_file_names.sort(key=sort_key)
+            self.filename_box.addItem('')
+            self.filename_box.addItems(self.icon_file_names)
             l.addWidget(self.filename_box, 2, 5)
-            self.filename_button = QPushButton(_('Choose icon'))
+            self.filename_button = QPushButton(_('Icon file'))
             l.addWidget(self.filename_button, 2, 6)
-
-        l.addItem(QSpacerItem(10, 10, QSizePolicy.Expanding), 2, 7)
+            l.addWidget(QLabel(_('Icons should be square or landscape')), 2, 7)
+            l.setColumnStretch(7, 10)
 
         self.l5 = l5 = QLabel(
             _('Only if the following conditions are all satisfied:'))
@@ -383,10 +395,16 @@ class RuleEditor(QDialog): # {{{
                     all_files=False, select_only_single_file=True)
             if path:
                 self.icon_path = path[0]
-                self.filename_box.setText(
-                      sanitize_file_name_unicode(
+                icon_name = sanitize_file_name_unicode(
                              os.path.splitext(
-                                   os.path.basename(self.icon_path))[0]+'.png'))
+                                   os.path.basename(self.icon_path))[0]+'.png')
+                if icon_name not in self.icon_file_names:
+                    self.icon_file_names.append(icon_name)
+                    self.icon_file_names.sort(key=sort_key)
+                    self.filename_box.clear()
+                    self.filename_box.addItem('')
+                    self.filename_box.addItems(self.icon_file_names)
+                self.filename_box.setCurrentIndex(self.filename_box.findText(icon_name))
                 self.filename_box.adjustSize()
             else:
                 self.icon_path = ''
@@ -408,20 +426,18 @@ class RuleEditor(QDialog): # {{{
                     self.color_box.setCurrentIndex(idx)
         else:
             self.kind_box.setCurrentIndex(0 if kind == 'icon' else 1)
-            self.filename_box.setText(rule.color)
+            if rule.color:
+                idx = self.filename_box.findText(rule.color)
+                if idx >= 0:
+                    self.filename_box.setCurrentIndex(idx)
+                else:
+                    self.filename_box.setCurrentIndex(0)
 
         for i in range(self.column_box.count()):
             c = unicode(self.column_box.itemData(i).toString())
             if col == c:
                 self.column_box.setCurrentIndex(i)
                 break
-        if rule.color:
-            if kind == 'color':
-                idx = self.color_box.findText(rule.color)
-                if idx >= 0:
-                    self.color_box.setCurrentIndex(idx)
-            else:
-                self.filename_box.setText(rule.color)
 
         for c in rule.conditions:
             ce = ConditionEditor(self.fm, parent=self.conditions_widget)
@@ -436,16 +452,21 @@ class RuleEditor(QDialog): # {{{
 
     def accept(self):
         if self.rule_kind != 'color':
+            fname = lower(unicode(self.filename_box.currentText()))
+            if not fname:
+                error_dialog(self, _('No icon selected'),
+                        _('You must choose an icon for this rule'), show=True)
+                return
             path = self.icon_path
             if path:
                 try:
-                    fname = unicode(self.filename_box.text())
                     p = QIcon(path).pixmap(QSize(128, 128))
                     d = os.path.join(config_dir, 'cc_icons')
-                    if not os.path.exists(d):
-                        os.makedirs(d)
-                    with open(os.path.join(d, fname), 'wb') as f:
-                        f.write(pixmap_to_data(p, format='PNG'))
+                    if not os.path.exists(os.path.join(d, fname)):
+                        if not os.path.exists(d):
+                            os.makedirs(d)
+                        with open(os.path.join(d, fname), 'wb') as f:
+                            f.write(pixmap_to_data(p, format='PNG'))
                 except:
                     import traceback
                     traceback.print_exc()
@@ -477,7 +498,7 @@ class RuleEditor(QDialog): # {{{
     def rule(self):
         r = Rule(self.fm)
         if self.rule_kind != 'color':
-            r.color = unicode(self.filename_box.text())
+            r.color = unicode(self.filename_box.currentText())
         else:
             r.color = unicode(self.color_box.currentText())
         idx = self.column_box.currentIndex()
