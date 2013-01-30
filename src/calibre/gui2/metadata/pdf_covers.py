@@ -22,6 +22,7 @@ from calibre.gui2 import error_dialog, file_icon_provider
 from calibre.ptempfile import PersistentTemporaryDirectory
 
 class PDFCovers(QDialog):
+    'Choose a cover from the first few pages of a PDF'
 
     rendering_done = pyqtSignal()
 
