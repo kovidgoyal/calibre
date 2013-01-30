@@ -311,9 +311,9 @@ class RuleEditor(QDialog): # {{{
                 if os.path.exists(os.path.join(d, icon_file)):
                     if icon_file.endswith('.png'):
                         self.icon_file_names.append(icon_file)
-                self.icon_file_names.sort(key=sort_key)
-            self.filename_box.addItem('')
-            self.filename_box.addItems(self.icon_file_names)
+            self.icon_file_names.sort(key=sort_key)
+            self.update_filename_box()
+
             l.addWidget(self.filename_box, 2, 5)
             self.filename_button = QPushButton(QIcon(I('document_open.png')),
                                                _('&Choose icon'))
@@ -376,7 +376,14 @@ class RuleEditor(QDialog): # {{{
 
         self.resize(self.sizeHint())
 
-        self.icon_path = None
+    def update_filename_box(self):
+        self.filename_box.clear()
+        self.icon_file_names.sort(key=sort_key)
+        self.filename_box.addItem('')
+        self.filename_box.addItems(self.icon_file_names)
+        for i,filename in enumerate(self.icon_file_names):
+            icon = QIcon(os.path.join(config_dir, 'cc_icons', filename))
+            self.filename_box.setItemIcon(i+1, icon)
 
     def update_color_label(self):
         pal = QApplication.palette()
@@ -395,20 +402,26 @@ class RuleEditor(QDialog): # {{{
                         ('Images', ['png', 'gif', 'jpg', 'jpeg'])],
                     all_files=False, select_only_single_file=True)
             if path:
-                self.icon_path = path[0]
+                icon_path = path[0]
                 icon_name = sanitize_file_name_unicode(
                              os.path.splitext(
-                                   os.path.basename(self.icon_path))[0]+'.png')
+                                   os.path.basename(icon_path))[0]+'.png')
                 if icon_name not in self.icon_file_names:
                     self.icon_file_names.append(icon_name)
-                    self.icon_file_names.sort(key=sort_key)
-                    self.filename_box.clear()
-                    self.filename_box.addItem('')
-                    self.filename_box.addItems(self.icon_file_names)
+                    self.update_filename_box()
+                    try:
+                        p = QIcon(icon_path).pixmap(QSize(128, 128))
+                        d = os.path.join(config_dir, 'cc_icons')
+                        if not os.path.exists(os.path.join(d, icon_name)):
+                            if not os.path.exists(d):
+                                os.makedirs(d)
+                            with open(os.path.join(d, icon_name), 'wb') as f:
+                                f.write(pixmap_to_data(p, format='PNG'))
+                    except:
+                        import traceback
+                        traceback.print_exc()
                 self.filename_box.setCurrentIndex(self.filename_box.findText(icon_name))
                 self.filename_box.adjustSize()
-            else:
-                self.icon_path = ''
         except:
             import traceback
             traceback.print_exc()
@@ -458,19 +471,6 @@ class RuleEditor(QDialog): # {{{
                 error_dialog(self, _('No icon selected'),
                         _('You must choose an icon for this rule'), show=True)
                 return
-            path = self.icon_path
-            if path:
-                try:
-                    p = QIcon(path).pixmap(QSize(128, 128))
-                    d = os.path.join(config_dir, 'cc_icons')
-                    if not os.path.exists(os.path.join(d, fname)):
-                        if not os.path.exists(d):
-                            os.makedirs(d)
-                        with open(os.path.join(d, fname), 'wb') as f:
-                            f.write(pixmap_to_data(p, format='PNG'))
-                except:
-                    import traceback
-                    traceback.print_exc()
         if self.validate():
             QDialog.accept(self)
 
