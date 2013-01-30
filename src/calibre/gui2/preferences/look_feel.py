@@ -290,7 +290,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.update_font_display()
         gui.tags_view.reread_collapse_parameters()
         gui.library_view.refresh_book_details()
-        if gui.cover_flow is not None:
+        if hasattr(gui.cover_flow, 'setShowReflections'):
             gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
 
 if __name__ == '__main__':
