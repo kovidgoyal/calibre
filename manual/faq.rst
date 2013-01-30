@@ -794,7 +794,7 @@ Why doesn't |app| have an automatic update?
 For many reasons:
 
   * *There is no need to update every week*. If you are happy with how |app| works turn off the update notification and be on your merry way. Check back to see if you want to update once a year or so.
-  * Pre downloading the updates for all users in the background would mean require about 80TB of bandwidth *every week*. That costs thousands of dollars a month. And |app| is currently growing at 300,000 new users every month.
+  * Pre downloading the updates for all users in the background would require about 80TB of bandwidth *every week*. That costs thousands of dollars a month. And |app| is currently growing at 300,000 new users every month.
   * If I implement a dialog that downloads the update and launches it, instead of going to the website as it does now, that would save the most ardent |app| updater, *at most five clicks a week*. There are far higher priority things to do in |app| development.
   * If you really, really hate downloading |app| every week but still want to be up to the latest, I encourage you to run from source, which makes updating trivial. Instructions are :ref:`available here <develop>`.
 
