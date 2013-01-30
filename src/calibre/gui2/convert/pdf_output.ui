@@ -84,7 +84,7 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item row="6" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>Se&amp;rif family:</string>
@@ -94,10 +94,10 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
+   <item row="6" column="1">
     <widget class="QFontComboBox" name="opt_pdf_serif_family"/>
    </item>
-   <item row="6" column="0">
+   <item row="7" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
       <string>&amp;Sans family:</string>
@@ -107,10 +107,10 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="7" column="1">
     <widget class="QFontComboBox" name="opt_pdf_sans_family"/>
    </item>
-   <item row="7" column="0">
+   <item row="8" column="0">
     <widget class="QLabel" name="label_6">
      <property name="text">
       <string>&amp;Monospace family:</string>
@@ -120,10 +120,10 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
+   <item row="8" column="1">
     <widget class="QFontComboBox" name="opt_pdf_mono_family"/>
    </item>
-   <item row="8" column="0">
+   <item row="9" column="0">
     <widget class="QLabel" name="label_7">
      <property name="text">
       <string>S&amp;tandard font:</string>
@@ -133,10 +133,10 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
+   <item row="9" column="1">
     <widget class="QComboBox" name="opt_pdf_standard_font"/>
    </item>
-   <item row="9" column="0">
+   <item row="10" column="0">
     <widget class="QLabel" name="label_8">
      <property name="text">
       <string>Default font si&amp;ze:</string>
@@ -146,14 +146,14 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="1">
+   <item row="10" column="1">
     <widget class="QSpinBox" name="opt_pdf_default_font_size">
      <property name="suffix">
       <string> px</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="0">
+   <item row="11" column="0">
     <widget class="QLabel" name="label_9">
      <property name="text">
       <string>Monospace &amp;font size:</string>
@@ -163,14 +163,14 @@
      </property>
     </widget>
    </item>
-   <item row="10" column="1">
+   <item row="11" column="1">
     <widget class="QSpinBox" name="opt_pdf_mono_font_size">
      <property name="suffix">
       <string> px</string>
      </property>
     </widget>
    </item>
-   <item row="11" column="0">
+   <item row="12" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -182,6 +182,13 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_pdf_page_numbers">
+     <property name="text">
+      <string>Add page &amp;numbers to the bottom of every page</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

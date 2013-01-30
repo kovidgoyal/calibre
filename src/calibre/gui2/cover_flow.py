@@ -106,6 +106,8 @@ if pictureflow is not None:
             self.setContextMenuPolicy(Qt.DefaultContextMenu)
             if hasattr(self, 'setSubtitleFont'):
                 self.setSubtitleFont(QFont(rating_font()))
+            if not gprefs['cover_browser_reflections']:
+                self.setShowReflections(False)
 
         def set_context_menu(self, cm):
             self.context_menu = cm

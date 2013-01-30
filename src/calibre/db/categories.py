@@ -66,6 +66,7 @@ def find_categories(field_metadata):
 
 def create_tag_class(category, fm, icon_map):
     cat = fm[category]
+    dt = cat['datatype']
     icon = None
     label = fm.key_to_label(category)
     if icon_map:
@@ -76,13 +77,13 @@ def create_tag_class(category, fm, icon_map):
             icon = icon_map['custom:']
             icon_map[category] = icon
     is_editable = category not in {'news', 'rating', 'languages', 'formats',
-                                   'identifiers'}
+                                   'identifiers'} and dt != 'composite'
 
     if (tweaks['categories_use_field_for_author_name'] == 'author_sort' and
             (category == 'authors' or
                 (cat['display'].get('is_names', False) and
                 cat['is_custom'] and cat['is_multiple'] and
-                cat['datatype'] == 'text'))):
+                dt == 'text'))):
         use_sort_as_name = True
     else:
         use_sort_as_name = False
