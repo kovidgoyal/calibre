@@ -48,9 +48,9 @@ class HBR(BasicNewsRecipe):
             pass
         br.click('#accordion div[tabindex="0"]', wait_for_load=False)
         f = br.select_form('#signin-form')
-        f['signin-form:username'] = 'test-account'
-        f['signin-form:password'] = 'testaccount'
-        f.submit_control().qwe.evaluateJavaScript('this.click()')
+        f['signin-form:username'] = username
+        f['signin-form:password'] = password
+        br.submit(wait_for_load=False)
         br.run_for_a_time(30)
 
     def map_url(self, url):
