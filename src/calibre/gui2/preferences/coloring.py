@@ -315,7 +315,8 @@ class RuleEditor(QDialog): # {{{
             self.filename_box.addItem('')
             self.filename_box.addItems(self.icon_file_names)
             l.addWidget(self.filename_box, 2, 5)
-            self.filename_button = QPushButton(_('Icon file'))
+            self.filename_button = QPushButton(QIcon(I('document_open.png')),
+                                               _('&Choose icon'))
             l.addWidget(self.filename_button, 2, 6)
             l.addWidget(QLabel(_('Icons should be square or landscape')), 2, 7)
             l.setColumnStretch(7, 10)
