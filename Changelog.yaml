@@ -19,6 +19,51 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.17
+  date: 2013-02-01
+
+  new features:
+    - title: "Allow adding user specified icons to the main book list for books whose metadata matches specific criteria. Go to Preferences->Look & Feel->Column icons to setup these icons. They work in the same way as the column coloring rules."
+      type: major
+
+    - title: "Allow choosing which page of a PDF to use as the cover."
+      description: "To access this functionality add the PDF to calibre then click the edit metadata button. In the top right area of the edit metadata dialog there is a button to get the cover from the ebook file, this will now allow you to choose which page (from the first ten pages) of the pdf to use as the cover."
+      tickets: [1110019]
+
+    - title: "Add option to turn off reflections in the cover browser (Preferences->Look & Feel->Cover Browser)"
+
+    - title: "PDF Output: Add an option to add page numbers to the bottom of every page in the generated PDF file (look in the PDF Output section of the conversion dialog)"
+
+    - title: "Add the full item name to the tool tip of a leaf item displayed in the tag browser."
+      tickets: [1106231]
+ 
+  bug fixes:
+    - title: "Fix out-of-bounds data causing errors in the Tag Browser"
+      tickets: [1108017]
+
+    - title: "Conversion: Handle input documents that use multiple prefixes referring to the XHTML namespace correctly."
+      tickets: [1107220]
+
+    - title: "PDF Output: Fix regression that caused some svg images to be rendered as black rectangles."
+      tickets: [1105294]
+
+    - title: "Metadata download: Only normalize title case if the result has no language set or its language is English"
+
+  improved recipes:
+    - Baltimore Sun
+    - Harvard Business Review
+    - Victoria Times
+    - South China Morning Post
+    - Volksrant
+    - Seattle Times
+
+  new recipes:
+    - title: Dob NeviNosti 
+      author: Darko Miletic
+
+    - title: La Nacion (CR) 
+      author: Douglas Delgado
+
 - version: 0.9.16
   date: 2013-01-25
 
