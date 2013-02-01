@@ -1,0 +1,65 @@
+__license__   = 'GPL v3'
+__copyright__ = '2013, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.libertaddigital.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class LibertadDigital(BasicNewsRecipe):
+    title                 = 'Libertad Digital'
+    __author__            = 'Darko Miletic'
+    description           = 'En Libertad Digital encontraras noticias y opinion sobre: España, el Mundo, Internet, sociedad, economia y deportes'
+    publisher             = 'Libertad Digital S.A.'
+    category              = 'noticias, ultima hora, españa, internet, mundo, economia, sociedad, Libertad Digital'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'cp1252'
+    use_embedded_content  = False
+    language              = 'es'
+    remove_empty_feeds    = True
+    publication_type      = 'website'
+    masthead_url          = 'http://s.libertaddigital.com/images/logo.gif'
+    extra_css             = """
+                               body{font-family: Verdana,sans-serif }
+                               img{margin-bottom: 0.4em; display:block}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags = [
+                     dict(name=['meta','link','iframe','embed','object'])
+                    ,dict(name='p', attrs={'class':'copyright'})
+                  ]
+    remove_attributes=['lang']
+
+
+    feeds = [
+              (u'Portada'      , u'http://feeds2.feedburner.com/libertaddigital/deportes'     )
+             ,(u'Opinion'      , u'http://feeds2.feedburner.com/libertaddigital/opinion'      )
+             ,(u'España'       , u'http://feeds2.feedburner.com/libertaddigital/nacional'     )
+             ,(u'Internacional', u'http://feeds2.feedburner.com/libertaddigital/internacional')
+             ,(u'Libre Mercado', u'http://feeds2.feedburner.com/libertaddigital/economia'     )
+             ,(u'Chic'         , u'http://feeds2.feedburner.com/libertaddigital/el-candelabro')
+             ,(u'Internet'     , u'http://feeds2.feedburner.com/libertaddigital/internet'     )
+             ,(u'Deportes'     , u'http://feeds2.feedburner.com/libertaddigital/deportes'     )
+            ]
+
+    def get_article_url(self, article):
+        return article.get('guid',  None)
+            
+    def print_version(self, url):
+        art, sep, rest = url.rpartition('/')
+        aart, asep, artid = art.rpartition('-')
+        return 'http://www.libertaddigital.com/c.php?op=imprimir&id=' + artid
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
