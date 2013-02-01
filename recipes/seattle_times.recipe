@@ -23,6 +23,7 @@ class SeattleTimes(BasicNewsRecipe):
     language = 'en'
     auto_cleanup          = True
     auto_cleanup_keep     = '//div[@id="PhotoContainer"]'
+    cover_url = 'http://seattletimes.com/PDF/frontpage.pdf'
 
     feeds              = [
                           (u'Top Stories',

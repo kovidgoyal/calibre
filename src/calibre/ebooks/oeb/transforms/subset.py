@@ -280,7 +280,7 @@ class SubsetFonts(object):
         return ans
 
     def find_usage_in(self, elem, inherited_style):
-        style = self.elem_style(elem.get('class', ''), inherited_style)
+        style = self.elem_style(elem.get('class', '') or '', inherited_style)
         for child in elem:
             self.find_usage_in(child, style)
         font = self.used_font(style)

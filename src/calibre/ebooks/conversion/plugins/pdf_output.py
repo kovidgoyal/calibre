@@ -99,6 +99,18 @@ class PDFOutput(OutputFormatPlugin):
             recommended_value=False, help=_(
                 'Generate an uncompressed PDF, useful for debugging, '
                 'only works with the new PDF engine.')),
+        OptionRecommendation(name='pdf_page_numbers', recommended_value=False,
+            help=_('Add page numbers to the bottom of every page in the generated PDF file. If you '
+                   'specify a footer template, it will take precedence '
+                   'over this option.')),
+        OptionRecommendation(name='pdf_footer_template', recommended_value=None,
+            help=_('An HTML template used to generate footers on every page.'
+                   ' The string _PAGENUM_ will be replaced by the current page'
+                   ' number.')),
+        OptionRecommendation(name='pdf_header_template', recommended_value=None,
+            help=_('An HTML template used to generate headers on every page.'
+                   ' The string _PAGENUM_ will be replaced by the current page'
+                   ' number.')),
         ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):

@@ -158,13 +158,23 @@ My device is not being detected by |app|?
 
 Follow these steps to find the problem:
 
-    * Make sure that you are connecting only a single device to your computer at a time. Do not have another |app| supported device like an iPhone/iPad etc. at the same time.
-    * If you are connecting an Apple iDevice (iPad, iPod Touch, iPhone), use the 'Connect to iTunes' method in the 'Getting started' instructions in `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
-    * Make sure you are running the latest version of |app|. The latest version can always be downloaded from `the calibre website <http://calibre-ebook.com/download>`_.
-    * Ensure your operating system is seeing the device. That is, the device should show up in Windows Explorer (in Windows) or Finder (in OS X).
+    * Make sure that you are connecting only a single device to your computer
+      at a time. Do not have another |app| supported device like an iPhone/iPad
+      etc. at the same time.
+    * If you are connecting an Apple iDevice (iPad, iPod Touch, iPhone), use
+      the 'Connect to iTunes' method in the 'Getting started' instructions in
+      `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
+    * Make sure you are running the latest version of |app|. The latest version
+      can always be downloaded from `the calibre website <http://calibre-ebook.com/download>`_.
+      You can tell what version of |app| you are currently running by looking
+      at the bottom line of the main |app| window.
+    * Ensure your operating system is seeing the device. That is, the device
+      should show up in Windows Explorer (in Windows) or Finder (in OS X).
     * In |app|, go to Preferences->Ignored Devices and check that your device
       is not being ignored
-    * If all the above steps fail, go to Preferences->Miscellaneous and click debug device detection with your device attached and post the output as a ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
+    * If all the above steps fail, go to Preferences->Miscellaneous and click
+      debug device detection with your device attached and post the output as a
+      ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
 
 My device is non-standard or unusual. What can I do to connect to it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -540,9 +550,9 @@ Yes, you can. Follow the instructions in the answer above for adding custom colu
 
 How do I move my |app| library from one computer to another?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking the calibre icon in the toolbar. The very first item is the path to the library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder. If the computer you are transferring to already has a calibre installation, then the Welcome wizard wont run. In that case, click the calibre icon in the tooolbar and point it to the newly copied directory. You will now have two calibre libraries on your computer and you can switch between them by clicking the calibre icon on the toolbar.
+Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking the calibre icon in the toolbar. The very first item is the path to the library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder. If the computer you are transferring to already has a calibre installation, then the Welcome wizard wont run. In that case, right-click the |app| icon in the tooolbar and point it to the newly copied directory. You will now have two calibre libraries on your computer and you can switch between them by clicking the |app| icon on the toolbar. Transferring your library in this manner preserver all your metadata, tags, custom columns, etc.
 
-Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also right-click the calibre icon on the tool bar, select Library Maintenance and run the Check Library action. It will warn you about any problems in your library, which you should fix by hand.
+Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also right-click the |app| icon on the tool bar, select Library Maintenance and run the Check Library action. It will warn you about any problems in your library, which you should fix by hand.
 
 .. note:: A |app| library is just a folder which contains all the book files and their metadata. All the metadata is stored in a single file called metadata.db, in the top level folder. If this file gets corrupted, you may see an empty list of books in |app|. In this case you can ask |app| to restore your books by doing a right-click on the |app| icon in the toolbar and selecting Library Maintenance->Restore Library.
 
@@ -672,8 +682,11 @@ There are three possible things I know of, that can cause this:
     * The Logitech SetPoint Settings application causes random crashes in
       |app| when it is open. Close it before starting |app|.
 
+    * Constant Guard Protection by Xfinity causes crashes in |app|. You have to
+      manually allow |app| in it or uninstall Constant Guard Protection.
+
 If none of the above apply to you, then there is some other program on your
-computer that is interfering with |app|. First reboot your computer is safe
+computer that is interfering with |app|. First reboot your computer in safe
 mode, to have as few running programs as possible, and see if the crashes still
 happen. If they do not, then you know it is some program causing the problem.
 The most likely such culprit is a program that modifies other programs'
@@ -784,7 +797,7 @@ Why doesn't |app| have an automatic update?
 For many reasons:
 
   * *There is no need to update every week*. If you are happy with how |app| works turn off the update notification and be on your merry way. Check back to see if you want to update once a year or so.
-  * Pre downloading the updates for all users in the background would mean require about 80TB of bandwidth *every week*. That costs thousands of dollars a month. And |app| is currently growing at 300,000 new users every month.
+  * Pre downloading the updates for all users in the background would require about 80TB of bandwidth *every week*. That costs thousands of dollars a month. And |app| is currently growing at 300,000 new users every month.
   * If I implement a dialog that downloads the update and launches it, instead of going to the website as it does now, that would save the most ardent |app| updater, *at most five clicks a week*. There are far higher priority things to do in |app| development.
   * If you really, really hate downloading |app| every week but still want to be up to the latest, I encourage you to run from source, which makes updating trivial. Instructions are :ref:`available here <develop>`.
 
