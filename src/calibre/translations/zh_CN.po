@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-01-25 05:26+0000\n"
-"PO-Revision-Date: 2013-01-21 08:46+0000\n"
+"PO-Revision-Date: 2013-01-31 14:27+0000\n"
 "Last-Translator: Wylmer Wang <Unknown>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-01-26 05:02+0000\n"
-"X-Generator: Launchpad (build 16451)\n"
+"X-Launchpad-Export-Date: 2013-02-01 04:47+0000\n"
+"X-Generator: Launchpad (build 16455)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
 
@@ -412,7 +412,7 @@ msgstr "把书籍从设备复到到 calibre 书库中"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:878
 msgid "Edit the collections in which books are placed on your device"
-msgstr "修改您的设备上的书籍分类"
+msgstr "修改书籍位于您设备上的合集"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:883
 msgid "Copy a book from one calibre library to another"
@@ -1088,7 +1088,7 @@ msgstr "待发送到设备<b>内部存储空间</b>的电子书目录列表，�
 msgid ""
 "Comma separated list of directories to send e-books to on the device's "
 "<b>storage cards</b>. The first one that exists will be used"
-msgstr ""
+msgstr "将要发送到设备<b>存储卡</b>上的电子书目录列表，以英文逗号分隔。将使用其中第一个有效目录"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:320
 msgid "Communicate with S60 phones."
@@ -1167,7 +1167,7 @@ msgstr "与 iTunes/iBooks 通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:212
 msgid "Apple iDevice detected, launching iTunes, please wait ..."
-msgstr ""
+msgstr "检测到 Apple iDevice，正在启动 iTunes，请稍候..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:214
 msgid ""
@@ -1181,6 +1181,8 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes' ***"
 msgstr ""
+"*** 不支持的直连方式。请查看 http://www.mobileread.com/forums/showthread.php?t=118559 "
+"了解如何使用“连接到 iTunes”功能 ***"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:221
 msgid ""
@@ -1188,6 +1190,9 @@ msgid ""
 "href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
 "forum post</a> for more information.</p><p></p>"
 msgstr ""
+"<p>无法与 iTunes 通信。</p><p>查看这个 <a "
+"href=\"http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3\">"
+"帖子</a> 了解更多信息。</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:381
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:384
@@ -1241,7 +1246,7 @@ msgstr "与 iTunes 通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr "与盛大锦书阅读器通信。"
+msgstr "与盛大锦书电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
@@ -1399,11 +1404,11 @@ msgstr "与 PocketBook 301 阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:237
 msgid "Communicate with the PocketBook 602/603/902/903/Pro 912 reader."
-msgstr ""
+msgstr "与 PocketBook 602/603/902/903/Pro 912 阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
-msgstr ""
+msgstr "与 PocketBook 622 阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:270
 msgid "Communicate with the PocketBook 360+ reader."
@@ -1467,7 +1472,7 @@ msgstr "与 Hanvon N520 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:48
 msgid "Communicate with the Kibano eBook reader."
-msgstr ""
+msgstr "与 Kibano eBook 阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:61
 msgid "Communicate with The Book reader."
@@ -1575,7 +1580,7 @@ msgstr "<b>位置 %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:289
 msgid "Communicate with the Kindle 2/3/4/Touch/PaperWhite eBook reader."
-msgstr ""
+msgstr "与 Kindle 2/3/4/Touch/PaperWhite 电子书阅读器通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:301
 msgid "Send page number information when sending books"
@@ -1607,7 +1612,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:314
 msgid "Custom column name to retrieve page counts from"
-msgstr ""
+msgstr "自定义获取页数的列名"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:316
 msgid ""
@@ -1615,7 +1620,7 @@ msgid ""
 "count of books, you can have calibre use that information, instead of "
 "calculating a page count. Specify the name of the custom column here, for "
 "example, #pages. "
-msgstr ""
+msgstr "如果您在库中有自定义的一列用来存储书籍页数，您可以将它提供给 calire，而不是去计算。在这里指定自定义列的名称，如 #pages。 "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:455
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1631,7 +1636,7 @@ msgstr "与 Kobo Reader 通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
 msgid "The Kobo supports several collections including "
-msgstr "Kobo 设备接口支持多种分类，包括： "
+msgstr "Kobo 设备接口支持多种合集，包括： "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:68
 msgid "Create tags for automatic management"
@@ -1682,7 +1687,7 @@ msgid ""
 "Kobo previews are included on the Touch and some other versions by default "
 "they are no longer displayed as there is no good reason to see them.  Enable "
 "if you wish to see/delete them."
-msgstr ""
+msgstr "Touch 和其他一些版本上默认带有 Kobo 预览。将不再显示它们，因为没有意义。如果您想查看/删除它们，可以启用此选项。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:84
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1239
@@ -1694,12 +1699,12 @@ msgid ""
 "Kobo now shows recommendations on the device.  In some case these have files "
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
-msgstr ""
+msgstr "Kobo 现在会在设备上显示推荐。有时候这些推荐有对应文件，有时候它们只是指向购买网站的链接。如果您想查看/删除它们，可以启用此选项。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:88
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1248
 msgid "Attempt to support newer firmware"
-msgstr ""
+msgstr "尝试支持更新的固件"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:89
 msgid ""
@@ -1708,10 +1713,12 @@ msgid ""
 "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
 "factory defaults and testing software"
 msgstr ""
+"Kobo 定期更新固件和数据库版本。这一选项让 Calibre 尝试执行完全的读写功能 - "
+"有风险哦！如果您不怕恢复出厂设置，或想测试软件，可以启用此选项。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:617
 msgid "Kobo database version unsupported - See details"
-msgstr ""
+msgstr "不支持的 Kobo 数据库版本 - 见详情"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:618
 msgid ""
@@ -1725,6 +1732,9 @@ msgid ""
 "firmware\" option. Doing so may require you to perform a factory reset of "
 "your Kobo."
 msgstr ""
+"您的 Kobo 运行了升级了的固件/数据库版本。由于 calibre 不知道更新的固件，为避免破坏，数据库编辑已经禁用。您依然可以向 Kobo "
+"发送电子书，但禁止删除书籍和管理合集。如果您想尝试，并且知道如何将 Kobo 重置为出厂设置，您可以通过右击 calibre "
+"中的设备图标，选择“配置此设备”→“尝试支持新固件”选项来覆盖此检查。这样做可能需要您将 Kobo 恢复为出厂设置。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:646
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:404
@@ -1762,6 +1772,8 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><hr />"
 msgstr ""
+"<b>章节 %(chapter)d：</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>章节进度：</b> %(chapter_progress)s%%<br /><b>高亮：</b> %(text)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1137
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1147
@@ -1771,24 +1783,27 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />"
 msgstr ""
+"<b>章节 %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>章节进度：</b> %(chapter_progress)s%%<br /><b>高亮：</b> %(text)s<br "
+"/><b>批注：</b> %(annotation)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1214
 msgid "The Kobo Touch from firmware V2.0.0 supports bookshelves."
-msgstr ""
+msgstr "Kobo Touch 从 V2.0.0 版本固件开始支持书架。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1216
 msgid "Specify a tags type column for automatic management"
-msgstr ""
+msgstr "指定一个用于自动管理的标签类型列"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1217
 msgid "Create Bookshelves"
-msgstr ""
+msgstr "创建书架"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1218
 msgid ""
 "Create new bookshelves on the Kobo Touch if they do not exist. This is only "
 "for firmware V2.0.0 or later."
-msgstr ""
+msgstr "(如果不存在)在 Kobo Touch 上创建新书架。只针对 V2.0.0 及更新的固件。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1219
 msgid "Delete Empty Bookshelves"
@@ -1824,7 +1839,7 @@ msgstr "Kobo 会在设备上显示推荐。有时这些推荐中有实际文件�
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1243
 msgid "Set Series information"
-msgstr ""
+msgstr "设置丛书信息"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1244
 msgid ""
@@ -1833,6 +1848,8 @@ msgid ""
 "only be added to the device after the book has been processed by the device. "
 "Enable if you wish to set series information."
 msgstr ""
+"Kobo "
+"设备上的书籍列表可以显示丛书信息。设备不会读取到设备外书籍的丛书信息。只有书籍经设备处理过，其丛书信息才会添加到设备。如果您想设置丛书信息，请启用此选项。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1249
 msgid ""
@@ -1842,6 +1859,8 @@ msgid ""
 "factory defaults and testing software. This driver supports firmware V2.x.x "
 "and DBVersion up to "
 msgstr ""
+"Kobo 会经常更新固件和数据库版本。这一选项让 Calibre 尝试执行完全的读写功能 - "
+"有风险哦！如果您不怕恢复出厂设置，或想测试软件，可以启用此选项。此驱动支持 V2.x.x 系列固件和最高以下版本的 DBVersion "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1255
 msgid "Title to test when debugging"
@@ -1852,7 +1871,7 @@ msgid ""
 "Part of title of a book that can be used when doing some tests for "
 "debugging. The test is to see if the string is contained in the title of a "
 "book. The better the match, the less extraneous output."
-msgstr ""
+msgstr "可用于某些测试和调试的书籍标题片段。测试是看字符串是否包含在标题或书籍中。匹配越好，无关输出越少。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
@@ -2073,7 +2092,7 @@ msgstr "按作者"
 msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device. Possibilities include: "
-msgstr "逗号间隔的元数据域列表，用以在设备形成合集。可能性包括： "
+msgstr "逗号间隔的元数据域列表，用以在设备形成合集。可能包括： "
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 #, python-format
@@ -2082,8 +2101,8 @@ msgid ""
 "%(aba)s:%(abav)s. Add  these values to the list to enable them. The "
 "collections will be given the name provided after the \":\" character."
 msgstr ""
-"。支持两种分类：%(abt)s:%(abtv)s 和 %(aba)s:%(abav)s。 "
-"把这些值加入列表以便启用它们。这些分类会被命名为\":\"后的名字。"
+"。支持两种特殊合集：%(abt)s:%(abtv)s 和 %(aba)s:%(abav)s。 "
+"把这些值加入列表以便启用它们。这些合集会被命名为\":\"后的名字。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:77
 msgid "Upload separate cover thumbnails for books (newer readers)"
@@ -2174,6 +2193,8 @@ msgid ""
 "the T1 sets it. This means it will only show the first author for books with "
 "multiple authors. Leave this disabled if you use Metadata Plugboards."
 msgstr ""
+"如果您想让 Sony 上的作者和 T1 "
+"设置的一样，请选择这一选项。这意味着在书籍有多位作者的情况下它将只显示第一作者。如果您使用元数据映射规则，请保持禁用状态。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:176
 msgid "Wireless Device"
@@ -2235,11 +2256,11 @@ msgstr "如果报告问题时要求，请勾选此框"
 msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device."
-msgstr ""
+msgstr "要转换成设备上合集的元数据字段列表，以英文逗号分隔。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:285
 msgid "Possibilities include: series, tags, authors, etc"
-msgstr ""
+msgstr "可能值有：series，tags，authors等"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:293
 msgid "Enable the no-activity timeout"
@@ -2276,6 +2297,8 @@ msgid ""
 "not change even if the save template produces a different result. Using this "
 "option in most cases prevents having multiple copies of a book on the device."
 msgstr ""
+"如果书籍与 calibre 所发送的有相同的 calibre "
+"标识，使用这一选项来覆盖设备上的书。书籍名将不会更改，即使保存模板生成了不同的名字。这一选项能在很大程度上避免设备上一本书有多份副本的问题。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:797
 #, python-format
@@ -2298,7 +2321,7 @@ msgstr "分配随机端口失败"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
-msgstr "与三星 SNE 通信。"
+msgstr "与三星 SNE 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3/K5 reader."
@@ -2310,7 +2333,7 @@ msgstr "与 Newsmy 阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:49
 msgid "Communicate with the Archos reader."
-msgstr "和 Archos 读者交流"
+msgstr "和 Archos 阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:59
 msgid "Communicate with the Pico reader."
@@ -2330,11 +2353,11 @@ msgstr "与 Sunstech EB700 阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:103
 msgid "Communicate with the Stash W950 reader."
-msgstr "和 Stash W950 读者交流"
+msgstr "和 Stash W950 阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:115
 msgid "Communicate with the Wexler reader."
-msgstr "与Wexler阅读器通讯"
+msgstr "与 Wexler 阅读器通讯"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:287
 #, python-format
@@ -2752,7 +2775,7 @@ msgstr "页"
 msgid ""
 "Try to use the djvutxt program and fall back to pure python implementation "
 "if it fails or is not available"
-msgstr ""
+msgstr "尝试使用 djvutxt 程序，纯 python 实现在其失败或不可用时替补"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/epub_output.py:54
 msgid ""
@@ -2837,6 +2860,8 @@ msgid ""
 "\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
 "of Contents\")."
 msgstr ""
+"指定元素的分节。值“nothing”(无)将书籍转换为一节。值“files”(文件)将每个文件转换为一节；如果设备有问题请使用此项。值“Table of "
+"Contents”(目录)将目录中的条目转换为标题并分节；如果失败，请调整“结构检测”和/或“目录”设置(开启“强制使用自动生成的目录”选项)。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/fb2_output.py:157
 #, python-format
@@ -2874,6 +2899,7 @@ msgid ""
 "can result in various nasty side effects in the rest of the conversion "
 "pipeline."
 msgstr ""
+"正常情况下这一输入插件会将所有输入文件重新调整成标准的文件夹层次结构。除非您了解它的后果，否则不要使用这一选项；它会对转换管道其他部分产生各种不良影响。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/html_output.py:21
 msgid "CSS file used for the output instead of the default file"
@@ -2939,7 +2965,7 @@ msgstr ""
 msgid ""
 "If set this option causes the file name of the html file inside the htmlz "
 "archive to be based on the book title."
-msgstr ""
+msgstr "如果设置，此选项将使 htmlz 归档中的 html 文件名基于书籍名(来命名)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:95
 msgid "Enable autorotation of images that are wider than the screen width."
@@ -3067,6 +3093,8 @@ msgid ""
 "Useful if your document contains lots of GIF/PNG images that become very "
 "large when converted to JPEG."
 msgstr ""
+"calibre 默认将所有图像转换成 JPEG 格式放到输出的 MOBI 文件中。这是为了尽量保证兼容，因为一些旧的 MOBI "
+"查看器显示其他图像格式有问题。这一选项禁止 calibre 这样做。如果您的文档包含大量 GIF/PNG 图像，转换成 JPEG 会很大，这一选项会有用。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:93
 msgid ""
@@ -3076,6 +3104,8 @@ msgid ""
 "6 and the new KF8 format, or only the new KF8 format. KF8 has more features "
 "than MOBI 6, but only works with newer Kindles."
 msgstr ""
+"默认情况下 calibre 生成包含旧的 MOBI 6 格式的 MOBI 文件。这一格式与所有设备兼容。但是，通过修改这一设置，您可以让 calibre "
+"生成同时包含 MOBI 6 和新的 KF8 格式的 MOBI 文件。KF8 比 MOBI 6 功能丰富，但只能用在新的 Kindle 上。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:136
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:125
@@ -3119,21 +3149,21 @@ msgid ""
 "Normally, the PDF page size is set by the output profile chosen under page "
 "options. This option will cause the  page size settings under PDF Output to "
 "override the  size specified by the output profile."
-msgstr ""
+msgstr "通常，PDF 页面尺寸是由页面选项中所选择的输出配置来设置的。此选项会使 PDF 输出中的页面尺寸设置覆盖输出配置中指定的尺寸。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:58
 #, python-format
 msgid ""
 "The unit of measure for page sizes. Default is inch. Choices are %s Note: "
 "This does not override the unit for margins!"
-msgstr ""
+msgstr "页面尺寸的单位。默认为英寸。可选的有 %s 注意：这不会覆盖边距的单位！"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:63
 #, python-format
 msgid ""
 "The size of the paper. This size will be overridden when a non default "
 "output profile is used. Default is letter. Choices are %s"
-msgstr ""
+msgstr "页面尺寸。如果使用了非默认的输出配置，该尺寸会被覆盖。默认为 letter。选项有 %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:67
 msgid ""
@@ -3473,6 +3503,8 @@ msgid ""
 "to remove fonts from the input document. Note that font embedding only works "
 "with some output formats, principally EPUB and AZW3."
 msgstr ""
+"将指定的字体族嵌入书籍。这会指定该书使用的“基调”字体。如果输入文档指定了自己的字体，会覆盖这一基调字体。您可以使用 过滤样式信息 "
+"选项来移除输出文档中的字体。注意，字体嵌入只支持部分输出格式，主要是 EPUB 和 AZW3。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:210
 msgid ""
@@ -3481,6 +3513,7 @@ msgid ""
 "Useful if you are embedding a particularly large font with lots of unused "
 "glyphs."
 msgstr ""
+"嵌入所有字体中用到的字。每种嵌入字体缩减到只包含文档中用到的字型。这能减小字体文件的体积。在嵌入某个特别大的，包含大量未使用字的字体时有用(如中文)。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:218
 msgid ""
@@ -3498,6 +3531,7 @@ msgid ""
 "other forms of auto-detection. See the XPath Tutorial in the calibre User "
 "Manual for examples."
 msgstr ""
+"指定应添加到目录级别1的所有标签的 XPath 表达式。如果指定此项，它会优先于其他自动检测形式。可查阅 calibre 用户手册中的 XPath 向导。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:238
 msgid ""
@@ -8804,7 +8838,7 @@ msgstr "章节开始(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:74
 msgid "&Force use of auto-generated Table of Contents"
-msgstr "强制使用自动生成目录(&F)"
+msgstr "强制使用自动生成的目录(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:75
 msgid "TOC &Filter:"
@@ -15031,11 +15065,11 @@ msgstr "宽"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "Calibre style"
-msgstr ""
+msgstr "Calibre 风格"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "System default"
-msgstr ""
+msgstr "系统默认"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:141
 msgid "Off"
@@ -15072,11 +15106,11 @@ msgstr "首字母"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:149
 msgid "Disabled"
-msgstr "已禁用"
+msgstr "禁用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:150
 msgid "Partitioned"
-msgstr "已分区"
+msgstr "分区"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:183
 msgid "Column coloring"
@@ -15099,7 +15133,7 @@ msgstr "显示系统托盘图标, 需重启生效(&t)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:249
 msgid "User Interface &layout (needs restart):"
-msgstr "用户界面风格(&L)(须重启生效):"
+msgstr "用户界面布局(须重启生效)(&L):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:250
 msgid "Disable all animations. Useful if you have a slow/old computer."
@@ -15135,15 +15169,15 @@ msgstr "界面字体："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:258
 msgid "Change &font (needs restart)"
-msgstr "改变字体(&F)(需要重启)"
+msgstr "改变字体(需要重启)(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:259
 msgid "User interface &style (needs restart):"
-msgstr ""
+msgstr "用户界面风格(需要重新启动)(&S)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:260
 msgid "Show &tooltips in the book list"
-msgstr ""
+msgstr "在书籍列表中显示提示(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:261
 msgid "Main Interface"
@@ -15183,18 +15217,21 @@ msgid ""
 "Manage Authors. You can use the values {author} and\n"
 "{author_sort}, and any template function."
 msgstr ""
+"<p>输入一个用于为书籍信息对话框中的作者创建链接的模板。\n"
+"该模板将在使用“管理作者”功能，某位作者没有链接时使用。\n"
+"您可以使用值 {author} 和 {author_sort}，及任意模板函数。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:273
 msgid "Show &cover in the book details panel"
-msgstr ""
+msgstr "在书籍详情面板显示封面(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:274
 msgid "Show the size of the book's cover in pixels"
-msgstr ""
+msgstr "显示书籍封面尺寸(像素)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:275
 msgid "Show cover &size"
-msgstr ""
+msgstr "显示封面尺寸(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:277
 msgid ""
@@ -15205,6 +15242,10 @@ msgid ""
 "both under 'Mystery'. If 'tags' is not in this box,\n"
 "then the tags will be displayed each on their own line."
 msgstr ""
+"一个以英文逗号分隔的分类列表。列表中包含.的项目将显示在\n"
+"树中。例如，如果这个框中包含“tags”(标签)，那么“Mystery.English”\n"
+"和“Mystery.Thriller”形式的标签会将 English 和 Thriller 显示为\n"
+"“Mystery”的子项。如果“tags”不在此框中，则标签将显示为独立的行。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:283
 msgid "Tags browser category &partitioning method:"
@@ -15233,6 +15274,8 @@ msgid ""
 "up into subcategories. If the partition method is set to disable, this value "
 "is ignored."
 msgstr ""
+"如果标签浏览器中的项目超过这个数量，它会被分为子类。若分区方法设置为\n"
+"禁用，这个值被忽略。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:292
 msgid "Categories not to partition:"
@@ -15257,7 +15300,7 @@ msgstr "具有层次关系的分类(&H)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:300
 msgid "Use &alternating row colors in the Tag Browser"
-msgstr ""
+msgstr "在标签浏览器中的使用交替颜色显示各行"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:302
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -17933,7 +17976,7 @@ msgstr "翻页时长(&D):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:430
 msgid "disabled"
-msgstr "已禁用"
+msgstr "禁用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:432
 msgid "Mouse &wheel flips pages"
@@ -22112,7 +22155,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:268
 msgid "Specify renaming rules for SONY collections"
-msgstr ""
+msgstr "指定 SONY 合集的重命名规则"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:269
 msgid ""
@@ -22187,7 +22230,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:321
 msgid "Specify how SONY collections are sorted"
-msgstr ""
+msgstr "指定如何排序 SONY 合集"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:322
 msgid ""
