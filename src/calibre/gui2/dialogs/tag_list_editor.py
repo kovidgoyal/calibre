@@ -133,7 +133,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 select_item = item
             item = CountTableWidgetItem(self.counts[tag])
             # only the name column can be selected
-            item.setFlags (item.flags() & ~Qt.ItemIsSelectable)
+            item.setFlags (item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
             self.table.setItem(row, 1, item)
             item = QTableWidgetItem('')
             item.setFlags (item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
