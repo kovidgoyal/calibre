@@ -306,11 +306,12 @@ class RuleEditor(QDialog): # {{{
             self.filename_box.setInsertPolicy(self.filename_box.InsertAlphabetically)
             d = os.path.join(config_dir, 'cc_icons')
             self.icon_file_names = []
-            for icon_file in os.listdir(d):
-                icon_file = lower(icon_file)
-                if os.path.exists(os.path.join(d, icon_file)):
-                    if icon_file.endswith('.png'):
-                        self.icon_file_names.append(icon_file)
+            if os.path.exists(d):
+                for icon_file in os.listdir(d):
+                    icon_file = lower(icon_file)
+                    if os.path.exists(os.path.join(d, icon_file)):
+                        if icon_file.endswith('.png'):
+                            self.icon_file_names.append(icon_file)
             self.icon_file_names.sort(key=sort_key)
             self.update_filename_box()
 

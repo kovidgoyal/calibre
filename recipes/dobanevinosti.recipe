@@ -4,7 +4,7 @@ __copyright__ = '2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
 dobanevinosti.blogspot.com
 '''
-
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class DobaNevinosti(BasicNewsRecipe):

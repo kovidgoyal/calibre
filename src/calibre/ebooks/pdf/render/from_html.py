@@ -236,6 +236,7 @@ class PDFWriter(QObject):
             except:
                 self.log.exception('Rendering failed')
                 self.loop.exit(1)
+                return
         else:
             # The document is so corrupt that we can't render the page.
             self.logger.error('Document cannot be rendered.')

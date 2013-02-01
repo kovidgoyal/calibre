@@ -322,7 +322,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         pdfpath = self.formats_manager.get_format_path(self.db, self.book_id,
                                                        'pdf')
         from calibre.gui2.metadata.pdf_covers import PDFCovers
-        d = self.__pdf_covers = PDFCovers(pdfpath, parent=self)
+        d = PDFCovers(pdfpath, parent=self)
         if d.exec_() == d.Accepted:
             cpath = d.cover_path
             if cpath:

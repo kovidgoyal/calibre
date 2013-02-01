@@ -11,6 +11,7 @@ import sys, shutil, os
 from threading import Thread
 from glob import glob
 
+import sip
 from PyQt4.Qt import (QDialog, QApplication, QLabel, QGridLayout,
                       QDialogButtonBox, Qt, pyqtSignal, QListWidget,
                       QListWidgetItem, QSize, QIcon)
@@ -21,6 +22,7 @@ from calibre.gui2 import error_dialog, file_icon_provider
 from calibre.ptempfile import PersistentTemporaryDirectory
 
 class PDFCovers(QDialog):
+    'Choose a cover from the first few pages of a PDF'
 
     rendering_done = pyqtSignal()
 
@@ -76,7 +78,7 @@ class PDFCovers(QDialog):
             page_images(self.pdfpath, self.tdir, last=10)
         except Exception as e:
             self.error = as_unicode(e)
-        if self.isVisible():
+        if not sip.isdeleted(self) and self.isVisible():
             self.rendering_done.emit()
 
     def show_pages(self):
