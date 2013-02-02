@@ -98,7 +98,7 @@ class ColumnIcon(object):
                     icon_cache[id_][dex] = icon_bitmap
                     icon_bitmap_cache[icon] = icon_bitmap
                     self.mi = None
-                    return icon
+                    return icon_bitmap
         except:
             pass
 
