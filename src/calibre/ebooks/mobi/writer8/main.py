@@ -241,6 +241,11 @@ class KF8Writer(object):
             j = 0
             for tag in root.iterdescendants(etree.Element):
                 id_ = tag.attrib.get('id', None)
+                if id_ is None:
+                    # Can happen during tweaking
+                    id_ = tag.attrib.get('name', None)
+                    if id_ is not None:
+                        tag.attrib['id'] = id_
                 if id_ is not None or barename(tag.tag).lower() in aid_able_tags:
                     aid = aidbase + j
                     tag.attrib['aid'] = to_base(aid, base=32)

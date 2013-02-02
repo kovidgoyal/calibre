@@ -663,7 +663,7 @@ Post any output you see in a help message on the `Forum <http://www.mobileread.c
 |app| freezes/crashes occasionally?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are three possible things I know of, that can cause this:
+There are five possible things I know of, that can cause this:
 
     * You recently connected an external monitor or TV to your computer. In
       this case, whenever |app| opens a new window like the edit metadata
