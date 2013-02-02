@@ -240,7 +240,7 @@ class ConditionEditor(QWidget): # {{{
         elif dt == 'datetime':
             if action == 'count_days':
                 self.value_box.setValidator(QIntValidator(self.value_box))
-                tt = _('Enter the number of days old the item can be')
+                tt = _('Enter the number of days old the item can be. Zero is today')
             else:
                 self.value_box.setInputMask('9999-99-99')
                 tt = _('Enter a date in the format YYYY-MM-DD')
