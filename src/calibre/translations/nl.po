@@ -57,14 +57,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-01 04:57+0000\n"
-"PO-Revision-Date: 2013-01-30 11:32+0000\n"
-"Last-Translator: Jeroen <Unknown>\n"
+"PO-Revision-Date: 2013-02-02 20:30+0000\n"
+"Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-02 04:49+0000\n"
+"X-Launchpad-Export-Date: 2013-02-03 04:48+0000\n"
 "X-Generator: Launchpad (build 16462)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -951,6 +951,7 @@ msgstr ""
 msgid ""
 "This profile is intended for the PocketBook Pro 912 series of devices."
 msgstr ""
+"Dit profiel is bedoeld voor apparaten uit de  PocketBook Pro 912 Serie."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -1532,7 +1533,7 @@ msgstr "Communiceer met PocketBook 301 e-reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:237
 msgid "Communicate with the PocketBook 602/603/902/903/Pro 912 reader."
-msgstr ""
+msgstr "Communiceer met de PocketBook 602/603/902/903/Pro 912 E-reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
@@ -1889,7 +1890,7 @@ msgstr ""
 "collecties is uitgeschakeld. Als je geen bezwaar hebt tegen een experiment "
 "en je weet hoe je de fabrieksinstellingen van je Kobo kan herstellen, kan je "
 "de blokkering omzeilen. Dit doe je door in calibre te rechtsklikken op het "
-"icoontje van je toestel en 'Stel dit toestel in' te selecteren. Selecteer "
+"pictogram van je toestel en 'Stel dit toestel in' te selecteren. Selecteer "
 "daarin 'Probeer nieuwere firmware te gebruiken'. Door dit te doen, is het "
 "mogelijk dat je de fabrieksinstellingen van je Kobo moet herstellen."
 
@@ -2502,7 +2503,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:303
 msgid "Replace books with the same calibre identifier"
-msgstr ""
+msgstr "Vervang boeken met hetzelfde calibre ID."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:304
 msgid ""
@@ -3512,6 +3513,8 @@ msgid ""
 "The unit of measure for page sizes. Default is inch. Choices are %s Note: "
 "This does not override the unit for margins!"
 msgstr ""
+"De eenheid voor pagina-formaat maten. Standaard is inch. Keuzes zijn %s NB: "
+"Dit vervangt niet de eenheid voor marges!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:63
 #, python-format
@@ -3568,35 +3571,47 @@ msgstr "De standaard lettergrootte van niet-proportionele text (monospaced)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:95
 msgid "Surround all links with a red box, useful for debugging."
-msgstr ""
+msgstr "Alle links in een rood kader plaatsen, nuttig voor debugging."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:97
 msgid "Use the old, less capable engine to generate the PDF"
 msgstr ""
+"Gebruik de oude, minder functionele methode voor het genereren van de PDF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:100
 msgid ""
 "Generate an uncompressed PDF, useful for debugging, only works with the new "
 "PDF engine."
 msgstr ""
+"Maak een ongecomprimeerde PDF, nuttig voor debugging, werkt enkel met de "
+"nieuwe PDF generator."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:103
 msgid ""
 "Add page numbers to the bottom of every page in the generated PDF file. If "
 "you specify a footer template, it will take precedence over this option."
 msgstr ""
+"Voeg pagina nummers toe aan de onderkant van iedere pagina in het aangemaakt "
+"PDF bestand. Als u een voettekst sjabloon heeft gespecificeerd, krijgt dat "
+"voorrang op deze optie."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:107
 msgid ""
 "An HTML template used to generate footers on every page. The string "
 "_PAGENUM_ will be replaced by the current page number."
 msgstr ""
+"Een HTML sjabloon te gebruiken om voetteksten te genereren op iedere pagina. "
+"De string _PAGENUM_ zal worden vervangen door het  nummer van de huidige "
+"pagina."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:111
 msgid ""
 "An HTML template used to generate headers on every page. The string "
 "_PAGENUM_ will be replaced by the current page number."
 msgstr ""
+"Een HTML sjabloon te gebruiken om kopteksten te genereren voor iedere "
+"pagina. De string _PAGENUM_ zal worden vervangen door het  nummer van de "
+"huidige pagina."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -5432,10 +5447,12 @@ msgid ""
 "This MOBI file contains both KF8 and older Mobi6 data. calibre can only edit "
 "MOBI files that contain only KF8 data."
 msgstr ""
+"Dit MOBI bestand bevat zowel KF8 als oudere Mobi6 data. Calibre kan enkel "
+"MOBI bestanden bewerken welke uitsluitend KF8 data bevat."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/errors.py:17
 msgid "This file is locked with DRM. It cannot be edited."
-msgstr ""
+msgstr "Dit bestand is geblokkeerd met DRM. Het kan niet worden bewerkt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
@@ -6325,15 +6342,15 @@ msgstr "Bibliotheek kiezen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:138
 msgid "Library &path:"
-msgstr ""
+msgstr "Bibliotheek &pad:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:146
 msgid "Browse for library"
-msgstr ""
+msgstr "Zoek een bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:149
 msgid "&Delete after copy"
-msgstr ""
+msgstr "&Wis na kopie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:172
 msgid "Copy to library"
@@ -6349,7 +6366,7 @@ msgstr "(Verwijder na kopiëren)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:210
 msgid "Choose library by path..."
-msgstr ""
+msgstr "Kies bibliotheek pad..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:227
@@ -6358,7 +6375,7 @@ msgstr "Kan niet kopiëren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:221
 msgid "Cannot copy to current library."
-msgstr ""
+msgstr "Kan niet kopiëren naar huidige bibliotheek."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:232
 msgid "No library"
@@ -8989,7 +9006,7 @@ msgstr "&Deactiveer lettergrootteherschaling"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:249
 msgid "&Subset all embedded fonts"
-msgstr ""
+msgstr "&Subset alle ingesloten lettertypen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:16
 msgid "LRF Output"
@@ -9307,10 +9324,13 @@ msgid ""
 "the \"Override\" checkbox below. Otherwise the size from the output profile "
 "will be used."
 msgstr ""
+"<b>NB:</b> Het papierformaat welke hieronder wordt ingesteld, is enkel van "
+"toepassing als u het \"Overschrijven\" vinkje onderaan plaatst. Anders "
+"zullen de instellen van het uitvoer profiel worden gebruikt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:119
 msgid "&Override paper size set in output profile"
-msgstr ""
+msgstr "Papierformaat van uitvoer profiel &overschrijven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:120
 msgid "&Paper Size:"
@@ -9322,7 +9342,7 @@ msgstr "&Aangepaste omvang:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:122
 msgid "&Unit:"
-msgstr ""
+msgstr "&Eenheid:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:123
 msgid "Preserve &aspect ratio of cover"
@@ -9370,7 +9390,7 @@ msgstr "&Lettergrootte niet-proportionele letters:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:132
 msgid "Add page &numbers to the bottom of every page"
-msgstr ""
+msgstr "Voeg pagina &nummers toe aan de onderkant van iedere pagina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -10507,7 +10527,7 @@ msgstr "&Negeer de %s in calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:377
 msgid "Change scanned &folders"
-msgstr ""
+msgstr "Wijzig doorzochte &mappen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:383
 msgid "Show device information"
@@ -10543,7 +10563,7 @@ msgstr "Configureren"
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:508
 #, python-format
 msgid "Cannot send to %s"
-msgstr ""
+msgstr "Kan niet versturen naar %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:92
 msgid "Choose folder on device"
@@ -10551,25 +10571,27 @@ msgstr "Kies map op het apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:105
 msgid "<b>Scanned folders:</b>"
-msgstr ""
+msgstr "<b>Doorzochte mappen:</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:106
 msgid ""
 "You can select which top level folders calibre will scan when searching this "
 "device for books."
 msgstr ""
+"U kan aangeven welke mappen calibre als hoofdniveau moet zien bij het zoeken "
+"naar boeken op dit apparaat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:131
 msgid "Select &All"
-msgstr ""
+msgstr "Selecteer &alles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:133
 msgid "Select &None"
-msgstr ""
+msgstr "Selecteer &niets"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:136
 msgid "Choose folders to scan"
-msgstr ""
+msgstr "Kies te doorzoeken mappen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:19
 msgid "How many empty books?"
@@ -10589,11 +10611,11 @@ msgstr "Auteur terugzetten naar Onbekend"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:48
 msgid "Set the series of the new books to:"
-msgstr ""
+msgstr "Stel series voor nieuwe boeken in op:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:60
 msgid "Reset series"
-msgstr ""
+msgstr "Series herstellen (resetten)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:72
 msgid "Some invalid ISBNs"
@@ -11285,14 +11307,16 @@ msgid ""
 "Books with the same titles as the following already exist in calibre. Select "
 "which books you want added anyway."
 msgstr ""
+"Boeken met dezelfde titels als hieronder zijn al aanwezig in calibre. "
+"Selecteer welke boeken u toch wilt toevoegen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:45
 msgid "Select &all"
-msgstr ""
+msgstr "Selecteren &allemaal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:47
 msgid "Select &none"
-msgstr ""
+msgstr "Selecteer &geen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:89
 msgid "Already in calibre:"
@@ -14960,15 +14984,15 @@ msgstr "Gedownloade metadata-velden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:35
 msgid "Choose a cover from the list of PDF pages below"
-msgstr ""
+msgstr "Kies een omslag voor de onderstaande lijst van pdf-pagina's"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:37
 msgid "Rendering PDF pages, please wait..."
-msgstr ""
+msgstr "PDF pagina's aanmaken, een moment geduld..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:58
 msgid "Choose cover from PDF"
-msgstr ""
+msgstr "Kies omslag van PDF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:94
@@ -14978,11 +15002,11 @@ msgstr "Weergeven mislukt (render probleem)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:88
 msgid "Could not render this PDF file"
-msgstr ""
+msgstr "Dit PDF bestand kon niet worden gegenereerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:95
 msgid "This PDF has no pages"
-msgstr ""
+msgstr "Dit PDF-bestand heeft geen pagina's"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:31
 msgid "Edit Metadata"
@@ -15059,7 +15083,7 @@ msgstr "Wis reeksen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:185
 msgid "Clear rating"
-msgstr ""
+msgstr "Wis beoordeling"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:197
 msgid "Clear all tags"
@@ -15594,15 +15618,15 @@ msgstr "Alle uitges&chakelde meldingen terugzetten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:29
 msgid "All Columns"
-msgstr ""
+msgstr "Alle kolommen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:31
 msgid "icon with text"
-msgstr ""
+msgstr "pictogram met tekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
 msgid "icon with no text"
-msgstr ""
+msgstr "pictogram zonder tekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:43
@@ -15726,32 +15750,32 @@ msgstr "U kunt met meerdere waardes zoeken door deze met %s te scheiden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:258
 msgid "coloring"
-msgstr ""
+msgstr "kleur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:261
 msgid "icon"
-msgstr ""
+msgstr "pictogram"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:264
 msgid "Create/edit a column {0} rule"
-msgstr ""
+msgstr "Maak/bewerk een kolom {0} regel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:269
 msgid "Create a column {0} rule by filling in the boxes below"
-msgstr ""
+msgstr "Maak een kolom {0} regel door onderstaande velden in te vullen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:277
 msgid "Set the"
-msgstr ""
+msgstr "Bepaal de"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:281
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:618
 msgid "color"
-msgstr ""
+msgstr "kleur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:288
 msgid "of the column:"
-msgstr ""
+msgstr "van de kolom:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:294
 msgid "to"
@@ -15759,11 +15783,11 @@ msgstr "naar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:319
 msgid "&Add icon"
-msgstr ""
+msgstr "Pictogram &toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:321
 msgid "Icons should be square or landscape"
-msgstr ""
+msgstr "Pictogrammen moeten vierkant of liggend zijn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:325
 msgid "Only if the following conditions are all satisfied:"
@@ -15783,15 +15807,15 @@ msgstr "Voorbeeldtekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:401
 msgid "Select Icon"
-msgstr ""
+msgstr "Kies pictogram"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:471
 msgid "No icon selected"
-msgstr ""
+msgstr "Geen pictogram geselecteerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:472
 msgid "You must choose an icon for this rule"
-msgstr ""
+msgstr "U moet een pictogram kiezen voor deze regel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:486
 msgid "Invalid condition"
@@ -15833,6 +15857,11 @@ msgid ""
 "            <ul>%(rule)s</ul>\n"
 "            "
 msgstr ""
+"            <p>Stel de <b>%(kind)s</b> van <b>%(col)s</b> in op "
+"<b>%(color)s</b> als aan\n"
+"            deze voorwaarden is voldaan:</p>\n"
+"            <ul>%(rule)s</ul>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:641
 #, python-format
@@ -15878,6 +15907,10 @@ msgid ""
 "tell calibre what icon to use. Click the Add Rule button below to get "
 "started.<p>You can <b>change an existing rule</b> by double clicking it."
 msgstr ""
+"U kan pictogrammen toevoegen aan kolommen in de boeken lijst door 'regels' "
+"aan te maken die calibre vertellen welk pictogram moet worden gebruikt. Klik "
+"de 'Regel toevoegen' knop hieronder om te beginnen.<p>U kan <b>een bestaande "
+"regel wijzigen</b> door er dubbel op te klikken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:757
 msgid "No rule selected"
@@ -16505,6 +16538,9 @@ msgid ""
 "The list of device plugins you have disabled. Uncheck an entry to enable the "
 "plugin. calibre cannot detect devices that are managed by disabled plugins."
 msgstr ""
+"De lijst van apparaten plugins die u heeft uitgeschakeld. Haal een vinkje "
+"weg om de plugin te activeren. Calibre kan geen apparaten detecteren welke "
+"worden herkend door uitgeschakelde plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:103
 msgid "Narrow"
@@ -16569,7 +16605,7 @@ msgstr "Kolomkleuring"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:189
 msgid "Column icons"
-msgstr ""
+msgstr "Kolom pictogrammen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:196
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:132
@@ -16584,7 +16620,7 @@ msgstr "Taa&l kiezen (herstart vereist):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:258
 msgid "Enable system &tray icon (needs restart)"
-msgstr "Sys&teemvakicoon activeren (herstart vereist)"
+msgstr "Sys&teemvakpictogram activeren (herstart vereist)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:259
 msgid "User Interface &layout (needs restart):"
@@ -16794,7 +16830,7 @@ msgstr "Druk op de %s toets om te wisselen naar volledig scherm."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:316
 msgid "Show &reflections in the cover browser"
-msgstr ""
+msgstr "Toon &reflecties in de omslag browser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:231
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:123
@@ -17829,6 +17865,13 @@ msgid ""
 "running on. If you want to access the server from anywhere in the world, you "
 "will have to setup port forwarding for it on your router."
 msgstr ""
+"<p>Laat calibre aan staan, aangezien de server alleen werkt zolang calibre "
+"werkt.\n"
+"<p>Om verbinding te maken met de calibre server van uw apparaat, dietn u een "
+"URL te gebruiken van de vorm: <b>http://mijnhostnaam:8080</b>. Hierbij is "
+"mijnhostnaam danwel de volledige hostnaam of het IP-adres van de computer "
+"waar calibre op draait. Als u toegang wilt hebben tot uw bibliotheeek over "
+"de hele wereld, diet u poorten te openen (port forwarding) in uw router."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:25
 msgid ""
@@ -18974,7 +19017,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:304
 #, python-format
 msgid "Change Icon for: %s"
-msgstr ""
+msgstr "Wijzig pictogram voor: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:442
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:481
@@ -19060,11 +19103,11 @@ msgstr "%s beheren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:566
 msgid "Change category icon"
-msgstr ""
+msgstr "Wijzig categorie-pictogram"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:568
 msgid "Restore default icon"
-msgstr ""
+msgstr "Standaard pictogram herstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:586
 msgid "Show all categories"
@@ -19093,7 +19136,7 @@ msgstr "Boek %(num)d van %(total)d (%(title)s) converteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:97
 msgid "Could not convert"
-msgstr ""
+msgstr "Omzetten mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:98
 #, python-format
@@ -19103,15 +19146,20 @@ msgid ""
 "moved the book's files around outside of calibre. You will need to find "
 "those files and re-add them to calibre."
 msgstr ""
+"Omzetten van <b>%s</b> mislukt aangezien geen Ebook bestanden aanwezig zijn. "
+"Als u denkt dat er toch bestanden moeten zijn, maar calibre ze niet kan "
+"vinden, is er een grote kans dat dit is gebeurd doordat de bestanden buiten "
+"calibre om zijn verplaatst. U zult die bestanden moeten opsporen opnieuw "
+"moeten toevoegen via calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:108
 #, python-format
 msgid "No supported formats (Available formats: %s)"
-msgstr ""
+msgstr "Geen ondersteunde formaten (Beschikbare formaten: %s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:111
 msgid "This book has no actual ebook files"
-msgstr ""
+msgstr "Dit boek bevat geen boek-inhoudelijke bestanden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:242
@@ -19124,6 +19172,8 @@ msgid ""
 "Could not convert %(num)d of %(tot)d books, because no supported source "
 "formats were found."
 msgstr ""
+"Omzetten van %(num)d van %(tot)d boeken mislukt, omdat geen ondersteunde "
+"bron formaten werden gevonden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:151
 msgid "Queueing books for bulk conversion"
@@ -19621,8 +19671,8 @@ msgid ""
 msgstr ""
 "<p>Deze opties gelden alleen in \"pagina\" mode, wanneer de tekst is "
 "opgesplitst in pagina's, zoals in een papieren boek. Om in deze mode te "
-"geraken, gebruik de knop met het gele blader icoon in de rechter bovenhoek "
-"van het lezer venster.</p>"
+"geraken, gebruik de knop met het gele blader pictogram in de rechter "
+"bovenhoek van het weergave venster.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:401
 msgid "The number of &pages of text to show on screen "
@@ -19753,7 +19803,7 @@ msgstr "&Huidige pagina bij afsluiten onthouden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:441
 msgid "Show &controls in the viewer window"
-msgstr ""
+msgstr "Toon &bediening in het weergave venster"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:442
 msgid "&Miscellaneous options"
@@ -19857,7 +19907,7 @@ msgstr "Einde van paragraaf"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:550
 msgid "Default font size"
-msgstr ""
+msgstr "Standaard lettertype formaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:617
 #, python-format
@@ -20041,14 +20091,16 @@ msgid ""
 "%(which)s font size\n"
 "Current magnification: %(mag).1f"
 msgstr ""
+"%(which)s lettertype formaat\n"
+"Huidige vergroting: %(mag).1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:710
 msgid "Increase"
-msgstr ""
+msgstr "Vergroten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:712
 msgid "Decrease"
-msgstr ""
+msgstr "Verkleinen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:730
 #, python-format
@@ -20155,11 +20207,11 @@ msgstr "Vorige pagina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:219
 msgid "Increase font size"
-msgstr ""
+msgstr "Lettertype vergroten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:220
 msgid "Decrease font size"
-msgstr ""
+msgstr "Lettertype verkleinen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:224
 msgid "Find next"
@@ -20964,6 +21016,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Bron veld voor Genres sectie.\n"
+"standaard: '%default'\n"
+"Van toepassing op: AZW3, ePub, MOBI uitvoer formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:136
 #, python-format
@@ -21450,7 +21505,7 @@ msgstr "Stel het nummer in de serie in voor toegevoegde boek(en)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:341
 msgid "Path to the cover to use for the added book"
-msgstr ""
+msgstr "Pad naar de omslag voor het toegevoegde boek"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:377
 msgid "You must specify at least one file to add"
@@ -22124,7 +22179,7 @@ msgstr "aangepaste kolom aanmaken "
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1190
 #, python-format
 msgid " (%s books)"
-msgstr ""
+msgstr " (%s boeken)"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3665
 #, python-format
@@ -22482,7 +22537,7 @@ msgstr "thuis"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:356
 msgid "Random book"
-msgstr ""
+msgstr "Willekeurig boek"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:405
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:474
@@ -23810,7 +23865,7 @@ msgstr "Spaans (Argentinië)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:176
 msgid "Spanish (Costa Rica)"
-msgstr ""
+msgstr "Spaans (Costa Rica)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:177
 msgid "Spanish (Mexico)"
