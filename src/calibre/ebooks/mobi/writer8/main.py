@@ -241,7 +241,7 @@ class KF8Writer(object):
             j = 0
             for tag in root.iterdescendants(etree.Element):
                 id_ = tag.attrib.get('id', None)
-                if id_ is None:
+                if id_ is None and tag.tag == XHTML('a'):
                     # Can happen during tweaking
                     id_ = tag.attrib.get('name', None)
                     if id_ is not None:
