@@ -497,6 +497,18 @@ class FieldMetadata(dict):
     def is_custom_field(self, key):
         return key.startswith(self.custom_field_prefix)
 
+    def is_ignorable_field(self, key):
+        return self.is_custom_field(key) or key.startswith('@')
+
+    def ignorable_field_keys(self):
+        res = []
+        for k in self._tb_cats.keys():
+            fm = self._tb_cats[k]
+            if fm['kind'] == 'user' or (fm['kind']=='field' and fm['is_custom'] and \
+                   (fm['datatype'] != 'composite')):
+                res.append(k)
+        return res
+
     def is_series_index(self, key):
         m = self[key]
         return (m['datatype'] == 'float' and key.endswith('_index') and
