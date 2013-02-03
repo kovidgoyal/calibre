@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, posixpath, logging, sys, hashlib, uuid
+import os, logging, sys, hashlib, uuid
 from urllib import unquote as urlunquote
 
 from lxml import etree
@@ -56,7 +56,7 @@ class Container(object):
                 # Special case if we have stumbled onto the opf
                 if path == opfpath:
                     self.opf_name = name
-                    self.opf_dir = posixpath.dirname(path)
+                    self.opf_dir = os.path.dirname(path)
                     self.mime_map[name] = guess_type('a.opf')[0]
 
         # Update mime map with data from the OPF
@@ -66,13 +66,25 @@ class Container(object):
             href = item.get('href')
             self.mime_map[self.href_to_name(href)] = item.get('media-type')
 
+    def abspath_to_name(self, fullpath):
+        return self.relpath(os.path.abspath(fullpath)).replace(os.sep, '/')
 
     def href_to_name(self, href, base=None):
+        '''
+        Convert an href (relative to base) to a name (i.e. a path
+        relative to self.root with POSIX separators).
+
+        base must be an absolute path with OS separators or None, in which case
+        the href is interpreted relative to the dir containing the OPF.
+        '''
         if base is None:
             base = self.opf_dir
         href = urlunquote(href.partition('#')[0])
-        fullpath = posixpath.abspath(posixpath.join(base, href))
-        return self.relpath(fullpath)
+        fullpath = os.path.join(base, *href.split('/'))
+        return self.abspath_to_name(fullpath)
+
+    def has_name(self, name):
+        return name in self.name_path_map
 
     def relpath(self, path):
         return relpath(path, self.root)
@@ -345,10 +357,14 @@ class AZW3Container(Container):
         super(AZW3Container, self).__init__(tdir, opf_path, log)
         self.obfuscated_fonts = {x.replace(os.sep, '/') for x in obfuscated_fonts}
 
+def get_container(path, log=None):
+    if log is None: log = default_log
+    ebook = (AZW3Container if path.rpartition('.')[-1].lower() in {'azw3', 'mobi'}
+            else EpubContainer)(path, log)
+    return ebook
+
 if __name__ == '__main__':
-    f = sys.argv[-1]
-    ebook = (AZW3Container if f.rpartition('.')[-1].lower() in {'azw3', 'mobi'}
-            else EpubContainer)(f, default_log)
+    ebook = get_container(sys.argv[-1])
     for s in ebook.spine_items:
         print (ebook.relpath(s))
 
