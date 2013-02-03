@@ -501,13 +501,7 @@ class FieldMetadata(dict):
         return self.is_custom_field(key) or key.startswith('@')
 
     def ignorable_field_keys(self):
-        res = []
-        for k in self._tb_cats.keys():
-            fm = self._tb_cats[k]
-            if fm['kind'] == 'user' or (fm['kind']=='field' and fm['is_custom'] and \
-                   (fm['datatype'] != 'composite')):
-                res.append(k)
-        return res
+        return [k for k in self._tb_cats.iterkeys() if self.is_ignorable_field(k)]
 
     def is_series_index(self, key):
         m = self[key]
