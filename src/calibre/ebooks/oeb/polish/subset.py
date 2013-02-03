@@ -71,4 +71,6 @@ def subset_all_fonts(container, font_stats, report):
                         if remove_font_face_rules(container, sheet, remove):
                             style.text = sheet.cssText
                             container.dirty(name)
+    report('Reduced total font size to %.1f%% of original'%(
+        total_new/total_old*100))
 

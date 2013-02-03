@@ -237,15 +237,13 @@ class Container(object):
 
     def compare_to(self, other):
         if set(self.name_path_map) != set(other.name_path_map):
-            return ['Set of files is not the same']
+            return 'Set of files is not the same'
         mismatches = []
         for name, path in self.name_path_map.iteritems():
             opath = other.name_path_map[name]
             with open(path, 'rb') as f1, open(opath, 'rb') as f2:
                 if f1.read() != f2.read():
                     mismatches.append('The file %s is not the same'%name)
-                    import subprocess
-                    subprocess.call(['kompare', path, opath])
         return '\n'.join(mismatches)
 
 # EPUB {{{
