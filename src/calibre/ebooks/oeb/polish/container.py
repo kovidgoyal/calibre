@@ -193,7 +193,7 @@ class Container(object):
 
     def remove_item(self, name):
         '''
-        Remove the item identified by name from this container. This remove all
+        Remove the item identified by name from this container. This removes all
         references to the item in the OPF manifest, guide and spine as well as from
         any internal caches.
         '''
