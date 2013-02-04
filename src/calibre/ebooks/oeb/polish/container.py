@@ -205,17 +205,20 @@ class Container(object):
                 if id_ is not None:
                     removed.add(id_)
                 elem.getparent().remove(elem)
+                self.dirty(self.opf_name)
         if removed:
             for item in self.opf.xpath('//opf:spine/opf:itemref[@idref]',
                                     namespaces={'opf':OPF2_NS}):
                 idref = item.get('idref')
                 if idref in removed:
                     item.getparent().remove(item)
+                    self.dirty(self.opf_name)
 
         for item in self.opf.xpath('//opf:guide/opf:reference[@href]',
                                     namespaces={'opf':OPF2_NS}):
             if self.href_to_name(item.get('href')) == name:
                 item.getparent().remove(item)
+                self.dirty(self.opf_name)
 
         path = self.name_path_map.pop(name)
         if os.path.exists(path):
@@ -228,10 +231,10 @@ class Container(object):
         self.dirtied.add(name)
 
     def commit(self, outpath=None):
-        for name in self.dirtied:
+        for name in tuple(self.dirtied):
             self.dirtied.remove(name)
             data = self.parsed_cache.pop(name)
-            data = serialize(data)
+            data = serialize(data, self.mime_map[name])
             with open(self.name_path_map[name], 'wb') as f:
                 f.write(data)
 
@@ -365,6 +368,8 @@ class EpubContainer(Container):
         if outpath is None:
             outpath = self.pathtoepub
         from calibre.ebooks.tweak import zip_rebuilder
+        with open(join(self.root, 'mimetype'), 'wb') as f:
+            f.write(guess_type('a.epub')[0])
         zip_rebuilder(self.root, outpath)
 
 # }}}

@@ -7,10 +7,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, sys
 
+from calibre import prints
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS, XPath
-from calibre.ebooks.oeb.polish import OEB_FONTS
+from calibre.ebooks.oeb.polish.container import OEB_FONTS
 from calibre.utils.fonts.sfnt.subset import subset
 
 def remove_font_face_rules(container, sheet, remove_names):
@@ -73,4 +74,23 @@ def subset_all_fonts(container, font_stats, report):
                             container.dirty(name)
     report('Reduced total font size to %.1f%% of original'%(
         total_new/total_old*100))
+
+if __name__ == '__main__':
+    from calibre.ebooks.oeb.polish.container import get_container
+    from calibre.ebooks.oeb.polish.stats import StatsCollector
+    from calibre.utils.logging import default_log
+    default_log.filter_level = default_log.DEBUG
+    inbook = sys.argv[-1]
+    ebook = get_container(inbook, default_log)
+    report = []
+    stats = StatsCollector(ebook).font_stats
+    subset_all_fonts(ebook, stats, report.append)
+    outbook, ext = inbook.rpartition('.')[0::2]
+    outbook += '_subset.'+ext
+    ebook.commit(outbook)
+    prints('\nReport:')
+    for msg in report:
+        prints(msg)
+    print()
+    prints('Output written to:', outbook)
 
