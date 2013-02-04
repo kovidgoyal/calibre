@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-01 04:57+0000\n"
-"PO-Revision-Date: 2013-01-27 11:09+0000\n"
+"PO-Revision-Date: 2013-02-03 11:03+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-02 04:48+0000\n"
+"X-Launchpad-Export-Date: 2013-02-04 05:11+0000\n"
 "X-Generator: Launchpad (build 16462)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3575,18 +3575,25 @@ msgid ""
 "Add page numbers to the bottom of every page in the generated PDF file. If "
 "you specify a footer template, it will take precedence over this option."
 msgstr ""
+"Afegeix nombres al peu de cada pàgina del fitxer PDF generat. Si "
+"especifiqueu una plantilla de peu de pàgina tindrà preferència per damunt "
+"d'aquesta opció."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:107
 msgid ""
 "An HTML template used to generate footers on every page. The string "
 "_PAGENUM_ will be replaced by the current page number."
 msgstr ""
+"Una plantilla HTML utilitzada per generar peus de pàgina a cada pàgina. Es "
+"substituirà la cadena _PAGENUM_ pel nombre de pàgina actual."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:111
 msgid ""
 "An HTML template used to generate headers on every page. The string "
 "_PAGENUM_ will be replaced by the current page number."
 msgstr ""
+"Una plantilla HTML utilitzada per generar encapçalaments de pàgina a cada "
+"pàgina. Es substituirà la cadena _PAGENUM_ pel nombre de pàgina actual."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -5416,16 +5423,21 @@ msgid ""
 "from Amazon. calibre can only edit MOBI files that contain KF8 books. Older "
 "MOBI files without KF8 are not editable."
 msgstr ""
+"Aquest fitxer MOBI no conté un llibre de format KF8. El KF8 és el nou format "
+"d'Amazon. El calibre només pot editar fitxers MOBI que contenen llibres KF8. "
+"No es pot editar els fitxers MOBI antics sense KF8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:334
 msgid ""
 "This MOBI file contains both KF8 and older Mobi6 data. calibre can only edit "
 "MOBI files that contain only KF8 data."
 msgstr ""
+"Aquest fitxer MOBI conté tant dades KF8 i com dades antigues Mobi6. El "
+"calibre només pot editar fitxers MOBI que contenen dades KF8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/errors.py:17
 msgid "This file is locked with DRM. It cannot be edited."
-msgstr ""
+msgstr "Aquest fitxer està bloquejat amb DRM. No es pot editar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
@@ -9367,7 +9379,7 @@ msgstr "Mida del &tipus de lletra Monoespai:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:132
 msgid "Add page &numbers to the bottom of every page"
-msgstr ""
+msgstr "Afegeix &nombres de pàgina al peu de cada pàgina."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -14993,15 +15005,15 @@ msgstr "Camps de metadades descarregats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:35
 msgid "Choose a cover from the list of PDF pages below"
-msgstr ""
+msgstr "Trieu una portada de la llista de pàgines PDF de sota"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:37
 msgid "Rendering PDF pages, please wait..."
-msgstr ""
+msgstr "S'està generant les pàgines PDF, espereu..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:58
 msgid "Choose cover from PDF"
-msgstr ""
+msgstr "Tria portada des de PDF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:94
@@ -15011,11 +15023,11 @@ msgstr "No s'ha pogut renderitzar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:88
 msgid "Could not render this PDF file"
-msgstr ""
+msgstr "No s'ha pogut renderitzar el fitxer PDF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:95
 msgid "This PDF has no pages"
-msgstr ""
+msgstr "El PDF no té cap pàgina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:31
 msgid "Edit Metadata"
@@ -15643,11 +15655,11 @@ msgstr "Totes les columnes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:31
 msgid "icon with text"
-msgstr ""
+msgstr "icona amb text"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
 msgid "icon with no text"
-msgstr ""
+msgstr "icona sense text"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:43
@@ -15771,32 +15783,32 @@ msgstr "Podeu fer coincidir múltiples valors si els separeu amb %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:258
 msgid "coloring"
-msgstr ""
+msgstr "acolorir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:261
 msgid "icon"
-msgstr ""
+msgstr "icona"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:264
 msgid "Create/edit a column {0} rule"
-msgstr ""
+msgstr "Crea/edita una regla de columna {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:269
 msgid "Create a column {0} rule by filling in the boxes below"
-msgstr ""
+msgstr "Creeu una regla de columna {0} omplint els requadres de sota"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:277
 msgid "Set the"
-msgstr ""
+msgstr "Estableix el"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:281
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:618
 msgid "color"
-msgstr ""
+msgstr "color"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:288
 msgid "of the column:"
-msgstr ""
+msgstr "de la columna:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:294
 msgid "to"
@@ -15804,11 +15816,11 @@ msgstr "a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:319
 msgid "&Add icon"
-msgstr ""
+msgstr "&Afegeix una icona"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:321
 msgid "Icons should be square or landscape"
-msgstr ""
+msgstr "Les icones han de ser quadrades o apaïsades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:325
 msgid "Only if the following conditions are all satisfied:"
@@ -15829,15 +15841,15 @@ msgstr "Text d'exemple"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:401
 msgid "Select Icon"
-msgstr ""
+msgstr "Seleccioneu una icona"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:471
 msgid "No icon selected"
-msgstr ""
+msgstr "No s'ha seleccionat cap icona"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:472
 msgid "You must choose an icon for this rule"
-msgstr ""
+msgstr "Heu de triar una icona per a aquesta regla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:486
 msgid "Invalid condition"
@@ -15880,6 +15892,11 @@ msgid ""
 "            <ul>%(rule)s</ul>\n"
 "            "
 msgstr ""
+"            <p>Estableix el <b>%(kind)s</b> de <b>%(col)s</b> a "
+"<b>%(color)s</b> si es compleixen\n"
+"            les condicions següents:</p>\n"
+"            <ul>%(rule)s</ul>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:641
 #, python-format
@@ -15925,6 +15942,10 @@ msgid ""
 "tell calibre what icon to use. Click the Add Rule button below to get "
 "started.<p>You can <b>change an existing rule</b> by double clicking it."
 msgstr ""
+"Podeu afegir icones a les columnes de la llista de llibres creant «regles» "
+"que li diuen al calibre quina icona ha d'utilitzar. Feu clic al botó "
+"«Afegeix regla» de sota per començar.<p>Podeu <b>canviar una regla "
+"existent</b> fent-hi doble clic."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:757
 msgid "No rule selected"
@@ -16627,7 +16648,7 @@ msgstr "Pintat de columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:189
 msgid "Column icons"
-msgstr ""
+msgstr "Icones de columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:196
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:132
@@ -16854,7 +16875,7 @@ msgstr "Premeu les tecles %s per commutar el mode de pantalla completa."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:316
 msgid "Show &reflections in the cover browser"
-msgstr ""
+msgstr "Mostra &reflexos al navegador de portades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:231
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:123
@@ -23909,7 +23930,7 @@ msgstr "Espanyol (Argentina)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:176
 msgid "Spanish (Costa Rica)"
-msgstr ""
+msgstr "Espanyol (Costa Rica)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:177
 msgid "Spanish (Mexico)"
