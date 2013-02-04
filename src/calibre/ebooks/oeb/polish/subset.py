@@ -13,6 +13,7 @@ from calibre import prints
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS, XPath
 from calibre.ebooks.oeb.polish.container import OEB_FONTS
 from calibre.utils.fonts.sfnt.subset import subset
+from calibre.utils.fonts.utils import get_font_names
 
 def remove_font_face_rules(container, sheet, remove_names):
     changed = False
@@ -43,8 +44,9 @@ def subset_all_fonts(container, font_stats, report):
                 continue
             with open(path, 'r+b') as f:
                 raw = f.read()
+                font_name = get_font_names(raw)[-1]
                 warnings = []
-                container.log('Subsetting font: %s'%name)
+                container.log('Subsetting font: %s'%font_name)
                 nraw, old_sizes, new_sizes = subset(raw, chars,
                                                    warnings=warnings)
                 for w in warnings:
@@ -53,7 +55,7 @@ def subset_all_fonts(container, font_stats, report):
                 nlen = sum(new_sizes.itervalues())
                 total_new += len(nraw)
                 report('Decreased the font %s to %.1f%% of its original size'%
-                       (name, nlen/olen * 100))
+                       (font_name, nlen/olen * 100))
                 f.seek(0), f.truncate(), f.write(nraw)
 
     for name in remove:
