@@ -7,6 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os.path
+
 from PyQt4.Qt import (QDialog, QGridLayout, QIcon, QLabel, QTreeWidget,
                       QTreeWidgetItem, Qt, QFont, QDialogButtonBox)
 
@@ -65,15 +67,20 @@ class DuplicatesQuestion(QDialog):
         QDialog.reject(self)
 
     def process_duplicates(self, db, duplicates):
-        ta = _('%(title)s by %(author)s')
+        ta = _('%(title)s by %(author)s [%(formats)s]')
         bf = QFont(self.dup_list.font())
         bf.setBold(True)
         itf = QFont(self.dup_list.font())
         itf.setItalic(True)
 
         for mi, cover, formats in duplicates:
+            # formats is a list of file paths
+            # Grab just the extension and display to the user
+            # Based only off the file name, no file type tests are done.
+            incoming_formats = ', '.join(os.path.splitext(path)[-1].replace('.', '').upper() for path in formats)
             item = QTreeWidgetItem([ta%dict(
-                title=mi.title, author=mi.format_field('authors')[1])] , 0)
+                title=mi.title, author=mi.format_field('authors')[1],
+                formats=incoming_formats)] , 0)
             item.setCheckState(0, Qt.Checked)
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable)
             item.setData(0, Qt.FontRole, bf)
@@ -93,7 +100,8 @@ class DuplicatesQuestion(QDialog):
                     index_is_id=True) or '').split(',')]
                 add_child(ta%dict(
                     title=db.title(book_id, index_is_id=True),
-                    author=authors_to_string(aut)))
+                    author=authors_to_string(aut),
+                    formats=db.formats(book_id, index_is_id=True)))
             add_child('')
 
             yield item
