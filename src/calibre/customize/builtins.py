@@ -789,6 +789,11 @@ class ActionConvert(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.convert:ConvertAction'
     description = _('Convert books to various ebook formats')
 
+# class ActionPolish(InterfaceActionBase):
+#     name = 'Polish Books'
+#     actual_plugin = 'calibre.gui2.actions.polish:PolishAction'
+#     description = _('Fine tune your ebooks')
+#
 class ActionDelete(InterfaceActionBase):
     name = 'Remove Books'
     actual_plugin = 'calibre.gui2.actions.delete:DeleteAction'
@@ -924,7 +929,7 @@ class ActionPluginUpdater(InterfaceActionBase):
 
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
-        ActionFetchNews, ActionSaveToDisk, ActionQuickview,
+        ActionFetchNews, ActionSaveToDisk, ActionQuickview, #ActionPolish,
         ActionShowBookDetails,ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
