@@ -11,8 +11,8 @@ import json, sys, os
 from urllib import unquote
 
 from cssutils import parseStyle
-from PyQt4.Qt import (QWebPage, pyqtProperty, QString, QEventLoop, QWebView,
-                      Qt, QSize, QTimer)
+from PyQt4.Qt import (pyqtProperty, QString, QEventLoop, Qt, QSize, QTimer)
+from PyQt4.QtWebKit import QWebPage, QWebView
 
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.display.webview import load_html
