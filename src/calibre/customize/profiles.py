@@ -457,7 +457,7 @@ class NookHD(TabletOutput):
     short_name = 'nook_hd_plus'
     description = _('Intended for the Nook HD+ and similar tablet devices with '
             'a resolution of 1080x1920')
-    screen_size = comic_screen_size = (1080, 1920)
+    screen_size = comic_screen_size = (1280, 1920)
 
 class SonyReaderOutput(OutputProfile):
 
