@@ -236,6 +236,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_copy.triggered[bool].connect(self.copy)
         self.action_font_size_larger.triggered.connect(self.font_size_larger)
         self.action_font_size_smaller.triggered.connect(self.font_size_smaller)
+        self.action_font_size_larger.setShortcut(Qt.CTRL+Qt.Key_Equal)
+        self.action_font_size_smaller.setShortcut(Qt.CTRL+Qt.Key_Minus)
         self.action_open_ebook.triggered[bool].connect(self.open_ebook)
         self.action_next_page.triggered.connect(self.view.next_page)
         self.action_previous_page.triggered.connect(self.view.previous_page)
@@ -705,11 +707,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view.shrink_fonts()
 
     def magnification_changed(self, val):
-        tt = _('%(which)s font size\nCurrent magnification: %(mag).1f')
+        tt = _('%(which)s font size [%(sc)s]\nCurrent magnification: %(mag).1f')
+        sc = unicode(self.action_font_size_larger.shortcut().toString())
         self.action_font_size_larger.setToolTip(
-                tt %dict(which=_('Increase'), mag=val))
+                tt %dict(which=_('Increase'), mag=val, sc=sc))
+        sc = unicode(self.action_font_size_smaller.shortcut().toString())
         self.action_font_size_smaller.setToolTip(
-                tt %dict(which=_('Decrease'), mag=val))
+                tt %dict(which=_('Decrease'), mag=val, sc=sc))
         self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
         self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
 
