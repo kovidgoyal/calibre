@@ -376,6 +376,13 @@ class Comments(QWebView): # {{{
         <html>
         '''%(fam, f, c)
         self.setHtml(templ%html)
+
+    def sizeHint(self):
+        # This is needed, because on windows the dialog cannot be resized to
+        # so that this widgets height become < sizeHint().height(). Qt sets the
+        # sizeHint to (800, 600), which makes the dialog unusable on smaller
+        # screens.
+        return QSize(800, 300)
 # }}}
 
 class IdentifyWorker(Thread): # {{{
@@ -976,12 +983,6 @@ class FullFetch(QDialog): # {{{
         geom = gprefs.get('metadata_single_gui_geom', None)
         if geom is not None and geom:
             self.restoreGeometry(geom)
-
-        # Workaround for Qt 4.8.0 bug that causes the frame of the window to go
-        # off the top of the screen if a max height is not set for the
-        # QWebView. Seems to only happen on windows, but keep it for all
-        # platforms just in case.
-        self.identify_widget.comments_view.setMaximumHeight(self.height()-100)
 
         self.finished.connect(self.cleanup)
 
