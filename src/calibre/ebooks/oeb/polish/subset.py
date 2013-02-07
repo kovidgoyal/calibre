@@ -74,8 +74,11 @@ def subset_all_fonts(container, font_stats, report):
                         if remove_font_face_rules(container, sheet, remove):
                             style.text = sheet.cssText
                             container.dirty(name)
-    report('Reduced total font size to %.1f%% of original'%(
-        total_new/total_old*100))
+    if total_old > 0:
+        report('Reduced total font size to %.1f%% of original'%(
+            total_new/total_old*100))
+    else:
+        report('No embedded fonts found')
 
 if __name__ == '__main__':
     from calibre.ebooks.oeb.polish.container import get_container
