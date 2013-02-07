@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-01 04:57+0000\n"
-"PO-Revision-Date: 2013-01-30 22:39+0000\n"
+"PO-Revision-Date: 2013-02-06 21:33+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-02-02 04:59+0000\n"
-"X-Generator: Launchpad (build 16462)\n"
+"X-Launchpad-Export-Date: 2013-02-07 04:42+0000\n"
+"X-Generator: Launchpad (build 16477)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -3525,18 +3525,25 @@ msgid ""
 "Add page numbers to the bottom of every page in the generated PDF file. If "
 "you specify a footer template, it will take precedence over this option."
 msgstr ""
+"Добавить номера страниц внизу каждой страницы в создаваемом PDF файле. Если "
+"вы укажете шаблон нижнего колонтитула, то он будет иметь приоритет над этой "
+"опцией."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:107
 msgid ""
 "An HTML template used to generate footers on every page. The string "
 "_PAGENUM_ will be replaced by the current page number."
 msgstr ""
+"Шаблон HTML используемый для создания нижних колонтитулов на каждой "
+"странице. Строка _PAGENUM_ буде заменена на текущий номер страницы."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:111
 msgid ""
 "An HTML template used to generate headers on every page. The string "
 "_PAGENUM_ will be replaced by the current page number."
 msgstr ""
+"Шаблон HTML используемый для создания верхних колонтитулов на каждой "
+"странице. Строка _PAGENUM_ буде заменена на текущий номер страницы."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -5343,16 +5350,21 @@ msgid ""
 "from Amazon. calibre can only edit MOBI files that contain KF8 books. Older "
 "MOBI files without KF8 are not editable."
 msgstr ""
+"MOBI файл не содержит книгу в формате KF8. KF8 - это новый формат Amazon. "
+"calibre может редактировать  только MOBI файлы которые содержат KF8. Старые "
+"MOBI файлы без KF8 не редактируются."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:334
 msgid ""
 "This MOBI file contains both KF8 and older Mobi6 data. calibre can only edit "
 "MOBI files that contain only KF8 data."
 msgstr ""
+"MOBI файл содержит данные в двух форматах: KF8 и старый Mobi6. calibre может "
+"редактировать MOBI файлы содержащие только KF8 данные."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/errors.py:17
 msgid "This file is locked with DRM. It cannot be edited."
-msgstr ""
+msgstr "Этот файл заблокирован DRM. Он не может быть изменён."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
@@ -9264,7 +9276,7 @@ msgstr "&Размер моноширинного шрифта :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:132
 msgid "Add page &numbers to the bottom of every page"
-msgstr ""
+msgstr "Добавить номера страниц внизу каждой страницы"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -14811,15 +14823,15 @@ msgstr "Загружаемые поля метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:35
 msgid "Choose a cover from the list of PDF pages below"
-msgstr ""
+msgstr "Выберите обложку из списка PDF страниц ниже"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:37
 msgid "Rendering PDF pages, please wait..."
-msgstr ""
+msgstr "Отрисовка PDF страниц, пожалуйста подождите..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:58
 msgid "Choose cover from PDF"
-msgstr ""
+msgstr "Выберите обложку из PDF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:94
@@ -14829,11 +14841,11 @@ msgstr "Не удалось отобразить"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:88
 msgid "Could not render this PDF file"
-msgstr ""
+msgstr "Не удалось отобразить этот PDF файл"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:95
 msgid "This PDF has no pages"
-msgstr ""
+msgstr "Этот PDF файл не содержит страниц"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:31
 msgid "Edit Metadata"
@@ -15450,11 +15462,11 @@ msgstr "Все столбцы"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:31
 msgid "icon with text"
-msgstr ""
+msgstr "значок с текстом"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
 msgid "icon with no text"
-msgstr ""
+msgstr "значок без текста"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:43
@@ -15578,32 +15590,32 @@ msgstr "Вы можете указать несколько значений, р
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:258
 msgid "coloring"
-msgstr ""
+msgstr "раскраска"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:261
 msgid "icon"
-msgstr ""
+msgstr "значок"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:264
 msgid "Create/edit a column {0} rule"
-msgstr ""
+msgstr "Создать/редактировать правило столбца {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:269
 msgid "Create a column {0} rule by filling in the boxes below"
-msgstr ""
+msgstr "Создать правило столбца {0}, заполняя поля ниже"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:277
 msgid "Set the"
-msgstr ""
+msgstr "Установить"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:281
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:618
 msgid "color"
-msgstr ""
+msgstr "цвет"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:288
 msgid "of the column:"
-msgstr ""
+msgstr "для столбца:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:294
 msgid "to"
@@ -15611,11 +15623,11 @@ msgstr "на"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:319
 msgid "&Add icon"
-msgstr ""
+msgstr "Добавить значок"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:321
 msgid "Icons should be square or landscape"
-msgstr ""
+msgstr "Значок должен быть квадратным или горизонтальным"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:325
 msgid "Only if the following conditions are all satisfied:"
@@ -15635,15 +15647,15 @@ msgstr "Пример текста"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:401
 msgid "Select Icon"
-msgstr ""
+msgstr "Выберите значок"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:471
 msgid "No icon selected"
-msgstr ""
+msgstr "Значок не выбран"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:472
 msgid "You must choose an icon for this rule"
-msgstr ""
+msgstr "Вы должны выбрать значок для этого правила"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:486
 msgid "Invalid condition"
@@ -15684,6 +15696,11 @@ msgid ""
 "            <ul>%(rule)s</ul>\n"
 "            "
 msgstr ""
+"            <p>Установить <b>%(kind)s</b> <b>%(col)s</b> равным "
+"<b>%(color)s</b> если следующие \n"
+"            условия выполняются: </p>\n"
+"            <ul>%(rule)s</ul>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:641
 #, python-format
@@ -15729,6 +15746,10 @@ msgid ""
 "tell calibre what icon to use. Click the Add Rule button below to get "
 "started.<p>You can <b>change an existing rule</b> by double clicking it."
 msgstr ""
+"Вы можете добавить значки столбцам в списке книг создавая \"правила\" "
+"которые будут указывать calibre какие значки использовать. Ниже, нажмите "
+"кнопку Добавить Правило, что бы начать. <p>Вы можете <b>изменить "
+"существующее правило</b> двойным нажатием на нём."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:757
 msgid "No rule selected"
@@ -16423,7 +16444,7 @@ msgstr "Окраска столбцов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:189
 msgid "Column icons"
-msgstr ""
+msgstr "Значки стобца"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:196
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:132
@@ -16645,7 +16666,7 @@ msgstr "Вы можете нажать клавишу %s для переключ
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:316
 msgid "Show &reflections in the cover browser"
-msgstr ""
+msgstr "Показывать отражения в обозревателе обложек"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:231
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:123
@@ -23613,7 +23634,7 @@ msgstr "Испанский (Аргентина)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:176
 msgid "Spanish (Costa Rica)"
-msgstr ""
+msgstr "Испанский (Коста-Рика)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:177
 msgid "Spanish (Mexico)"
