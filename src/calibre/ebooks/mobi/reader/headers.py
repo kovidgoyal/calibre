@@ -123,6 +123,12 @@ class EXTHHeader(object): # {{{
                     raw = check_isbn(content[len(isig):])
                     if raw and not self.mi.isbn:
                         self.mi.isbn = raw
+                elif content.startswith('calibre:'):
+                    # calibre book uuid is stored here by recent calibre
+                    # releases
+                    cid = content[len('calibre:'):]
+                    if cid:
+                        self.mi.application_id = self.mi.uuid = cid
             except:
                 pass
         elif idx == 113: # ASIN or other id

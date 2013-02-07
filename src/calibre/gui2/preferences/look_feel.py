@@ -111,6 +111,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         r('cover_flow_queue_length', config, restart_required=True)
         r('cover_browser_reflections', gprefs)
+        r('extra_row_spacing', gprefs)
 
         def get_esc_lang(l):
             if l == 'en':
@@ -292,6 +293,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         gui.library_view.refresh_book_details()
         if hasattr(gui.cover_flow, 'setShowReflections'):
             gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
+        gui.library_view.refresh_row_sizing()
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

@@ -209,7 +209,7 @@ class SubsetFonts(object):
         no match is found ( can happen if not family matches).
         '''
         ff = style.get('font-family', [])
-        lnames = {x.lower() for x in ff}
+        lnames = {unicode(x).lower() for x in ff}
         matching_set = []
 
         # Filter on font-family

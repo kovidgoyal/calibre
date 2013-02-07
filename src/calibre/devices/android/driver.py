@@ -10,7 +10,7 @@ import cStringIO
 
 from calibre.devices.usbms.driver import USBMS
 
-HTC_BCDS = [0x100, 0x0222, 0x0226, 0x227, 0x228, 0x229, 0x0231, 0x9999]
+HTC_BCDS = [0x100, 0x0222, 0x0224, 0x0226, 0x227, 0x228, 0x229, 0x0231, 0x9999]
 
 class ANDROID(USBMS):
 
@@ -236,7 +236,7 @@ class ANDROID(USBMS):
             'ADVANCED', 'SGH-I727', 'USB_FLASH_DRIVER', 'ANDROID',
             'S5830I_CARD', 'MID7042', 'LINK-CREATE', '7035', 'VIEWPAD_7E',
             'NOVO7', 'MB526', '_USB#WYK7MSF8KE', 'TABLET_PC', 'F', 'MT65XX_MS',
-            'ICS', 'E400']
+            'ICS', 'E400', '__FILE-STOR_GADG']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',

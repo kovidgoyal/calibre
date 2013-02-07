@@ -13,17 +13,20 @@ from urllib import unquote as urlunquote
 from lxml import etree
 
 from calibre import guess_type, CurrentDir
+from calibre.customize.ui import (plugin_for_input_format,
+        plugin_for_output_format)
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.plugins.epub_input import (
     ADOBE_OBFUSCATION, IDPF_OBFUSCATION, decrypt_font)
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor, CSSPreProcessor
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.reader.headers import MetadataHeader
-from calibre.ebooks.oeb.base import OEB_DOCS, _css_logger, OEB_STYLES, OPF2_NS
+from calibre.ebooks.mobi.tweak import set_cover
+from calibre.ebooks.oeb.base import (serialize, OEB_DOCS, _css_logger,
+                                     OEB_STYLES, OPF2_NS)
 from calibre.ebooks.oeb.polish.errors import InvalidBook, DRMError
 from calibre.ebooks.oeb.parse_utils import NotHTML, parse_html, RECOVER_PARSER
-from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.fonts.sfnt.container import Sfnt
+from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.utils.ipc.simple_worker  import fork_job, WorkerError
 from calibre.utils.logging import default_log
 from calibre.utils.zipfile import ZipFile
@@ -43,6 +46,7 @@ class Container(object):
         self.parsed_cache = {}
         self.mime_map = {}
         self.name_path_map = {}
+        self.dirtied = set()
 
         # Map of relative paths with '/' separators from root of unzipped ePub
         # to absolute paths on filesystem with os-specific separators
@@ -141,8 +145,6 @@ class Container(object):
             data = self.parse_xml(data)
         elif mime in OEB_STYLES:
             data = self.parse_css(data, self.relpath(path))
-        elif mime in OEB_FONTS or path.rpartition('.')[-1].lower() in {'ttf', 'otf'}:
-            data = Sfnt(data)
         return data
 
     def parse_css(self, data, fname):
@@ -189,6 +191,65 @@ class Container(object):
         for path in non_linear:
             yield path
 
+    def remove_item(self, name):
+        '''
+        Remove the item identified by name from this container. This removes all
+        references to the item in the OPF manifest, guide and spine as well as from
+        any internal caches.
+        '''
+        removed = set()
+        for elem in self.opf.xpath('//opf:manifest/opf:item[@href]',
+                                   namespaces={'opf':OPF2_NS}):
+            if self.href_to_name(elem.get('href')) == name:
+                id_ = elem.get('id', None)
+                if id_ is not None:
+                    removed.add(id_)
+                elem.getparent().remove(elem)
+                self.dirty(self.opf_name)
+        if removed:
+            for item in self.opf.xpath('//opf:spine/opf:itemref[@idref]',
+                                    namespaces={'opf':OPF2_NS}):
+                idref = item.get('idref')
+                if idref in removed:
+                    item.getparent().remove(item)
+                    self.dirty(self.opf_name)
+
+        for item in self.opf.xpath('//opf:guide/opf:reference[@href]',
+                                    namespaces={'opf':OPF2_NS}):
+            if self.href_to_name(item.get('href')) == name:
+                item.getparent().remove(item)
+                self.dirty(self.opf_name)
+
+        path = self.name_path_map.pop(name)
+        if os.path.exists(path):
+            os.remove(path)
+        self.mime_map.pop(name, None)
+        self.parsed_cache.pop(name, None)
+        self.dirtied.discard(name)
+
+    def dirty(self, name):
+        self.dirtied.add(name)
+
+    def commit(self, outpath=None):
+        for name in tuple(self.dirtied):
+            self.dirtied.remove(name)
+            data = self.parsed_cache.pop(name)
+            data = serialize(data, self.mime_map[name])
+            with open(self.name_path_map[name], 'wb') as f:
+                f.write(data)
+
+    def compare_to(self, other):
+        if set(self.name_path_map) != set(other.name_path_map):
+            return 'Set of files is not the same'
+        mismatches = []
+        for name, path in self.name_path_map.iteritems():
+            opath = other.name_path_map[name]
+            with open(path, 'rb') as f1, open(opath, 'rb') as f2:
+                if f1.read() != f2.read():
+                    mismatches.append('The file %s is not the same'%name)
+        return '\n'.join(mismatches)
+
+# EPUB {{{
 class InvalidEpub(InvalidBook):
     pass
 
@@ -294,8 +355,26 @@ class EpubContainer(Container):
             if not tkey:
                 raise InvalidBook('Failed to find obfuscation key')
             decrypt_font(tkey, path, alg)
-            self.obfuscated_fonts[name] = (alg, tkey)
+            self.obfuscated_fonts[font] = (alg, tkey)
 
+    def commit(self, outpath=None):
+        super(EpubContainer, self).commit()
+        for name in self.obfuscated_fonts:
+            if name not in self.name_path_map:
+                continue
+            alg, key = self.obfuscated_fonts[name]
+            # Decrypting and encrypting are the same operation (XOR with key)
+            decrypt_font(key, self.name_path_map[name], alg)
+        if outpath is None:
+            outpath = self.pathtoepub
+        from calibre.ebooks.tweak import zip_rebuilder
+        with open(join(self.root, 'mimetype'), 'wb') as f:
+            f.write(guess_type('a.epub')[0])
+        zip_rebuilder(self.root, outpath)
+
+# }}}
+
+# AZW3 {{{
 class InvalidMobi(InvalidBook):
     pass
 
@@ -357,14 +436,40 @@ class AZW3Container(Container):
         super(AZW3Container, self).__init__(tdir, opf_path, log)
         self.obfuscated_fonts = {x.replace(os.sep, '/') for x in obfuscated_fonts}
 
+    def commit(self, outpath=None):
+        super(AZW3Container, self).commit()
+        if outpath is None:
+            outpath = self.pathtoazw3
+        from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
+        opf = self.name_path_map[self.opf_name]
+        plumber = Plumber(opf, outpath, self.log)
+        plumber.setup_options()
+        inp = plugin_for_input_format('azw3')
+        outp = plugin_for_output_format('azw3')
+        plumber.opts.mobi_passthrough = True
+        oeb = create_oebbook(default_log, opf, plumber.opts)
+        set_cover(oeb)
+        outp.convert(oeb, outpath, inp, plumber.opts, default_log)
+# }}}
+
 def get_container(path, log=None):
     if log is None: log = default_log
     ebook = (AZW3Container if path.rpartition('.')[-1].lower() in {'azw3', 'mobi'}
             else EpubContainer)(path, log)
     return ebook
 
-if __name__ == '__main__':
+def test_roundtrip():
     ebook = get_container(sys.argv[-1])
-    for s in ebook.spine_items:
-        print (ebook.relpath(s))
+    p = PersistentTemporaryFile(suffix='.'+sys.argv[-1].rpartition('.')[-1])
+    p.close()
+    ebook.commit(outpath=p.name)
+    ebook2 = get_container(p.name)
+    ebook3 = get_container(p.name)
+    diff = ebook3.compare_to(ebook2)
+    if diff is not None:
+        print (diff)
+
+if __name__ == '__main__':
+    test_roundtrip()
+
 

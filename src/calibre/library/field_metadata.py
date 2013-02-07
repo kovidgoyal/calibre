@@ -498,6 +498,7 @@ class FieldMetadata(dict):
         return key.startswith(self.custom_field_prefix)
 
     def is_ignorable_field(self, key):
+        'Custom fields and user categories are ignorable'
         return self.is_custom_field(key) or key.startswith('@')
 
     def ignorable_field_keys(self):
