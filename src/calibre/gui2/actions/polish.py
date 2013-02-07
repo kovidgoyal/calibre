@@ -159,7 +159,7 @@ class Polish(QDialog):
 class PolishAction(InterfaceAction):
 
     name = 'Polish Books'
-    action_spec = (_('Polish books'), 'polish.png', None, None)
+    action_spec = (_('Polish books'), 'polish.png', None, _('P'))
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
