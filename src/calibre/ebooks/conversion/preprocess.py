@@ -626,7 +626,10 @@ class HTMLPreProcessor(object):
 
         if getattr(self.extra_opts, 'asciiize', False):
             from calibre.utils.localization import get_udc
+            from calibre.utils.mreplace import MReplace
             unihandecoder = get_udc()
+            mr = MReplace(data={u'«':u'&lt;'*3, u'»':u'&gt;'*3})
+            html = mr.mreplace(html)
             html = unihandecoder.decode(html)
 
         if getattr(self.extra_opts, 'enable_heuristics', False):
