@@ -663,7 +663,7 @@ Post any output you see in a help message on the `Forum <http://www.mobileread.c
 |app| freezes/crashes occasionally?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are three possible things I know of, that can cause this:
+There are five possible things I know of, that can cause this:
 
     * You recently connected an external monitor or TV to your computer. In
       this case, whenever |app| opens a new window like the edit metadata
@@ -671,7 +671,7 @@ There are three possible things I know of, that can cause this:
       you dont notice it and so you think |app| has frozen. Disconnect your
       second monitor and restart calibre.
 
-    * You are using a Wacom branded mouse. There is an incompatibility between
+    * You are using a Wacom branded USB mouse. There is an incompatibility between
       Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom
       mouse.
 

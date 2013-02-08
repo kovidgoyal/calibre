@@ -452,6 +452,13 @@ class SamsungGalaxy(TabletOutput):
             'a resolution of 600x1280')
     screen_size = comic_screen_size = (600, 1280)
 
+class NookHD(TabletOutput):
+    name = 'Nook HD+'
+    short_name = 'nook_hd_plus'
+    description = _('Intended for the Nook HD+ and similar tablet devices with '
+            'a resolution of 1280x1920')
+    screen_size = comic_screen_size = (1280, 1920)
+
 class SonyReaderOutput(OutputProfile):
 
     name        = 'Sony Reader'
@@ -786,7 +793,7 @@ output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReader900Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
         HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,
         iPadOutput, iPad3Output, KoboReaderOutput, TabletOutput, SamsungGalaxy,
-        SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
+        SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput, NookHD,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
         BambookOutput, NookColorOutput, PocketBook900Output, PocketBookPro912Output,
         GenericEink, GenericEinkLarge, KindleFireOutput, KindlePaperWhiteOutput]

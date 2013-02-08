@@ -62,7 +62,8 @@ class HBR(BasicNewsRecipe):
 
         today = date.today()
         future = today + timedelta(days=30)
-        for x in [x.strftime('%y%m') for x in (future, today)]:
+        past = today - timedelta(days=30)
+        for x in [x.strftime('%y%m') for x in (future, today, past)]:
             url = self.INDEX + x
             soup = self.index_to_soup(url)
             if (not soup.find(text='Issue Not Found') and not soup.find(

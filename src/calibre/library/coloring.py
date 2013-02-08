@@ -133,13 +133,16 @@ class Rule(object): # {{{
         return "cmp(field('%s'), %s, '%s', '%s', '%s')" % (col, val, lt, eq, gt)
 
     def date_condition(self, col, action, val):
+        if action == 'count_days':
+            return (("cmp(add(%s, 1), days_between(today(), format_date(raw_field('%s'), 'yyyy-MM-dd')), '', '1', '1')")
+                     %(val, col))
         lt, eq, gt = {
                 'eq': ('', '1', ''),
                 'lt': ('1', '', ''),
                 'gt': ('', '', '1')
         }[action]
-        return "strcmp(format_date(raw_field('%s'), 'yyyy-MM-dd'), '%s', '%s', '%s', '%s')" % (col,
-                val, lt, eq, gt)
+        return ("strcmp(format_date(raw_field('%s'), 'yyyy-MM-dd'), '%s', '%s', '%s', '%s')" %
+            (col, val, lt, eq, gt))
 
     def multiple_condition(self, col, action, val, sep):
         if not sep or sep == '|':

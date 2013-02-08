@@ -52,6 +52,12 @@ class ConditionEditor(QWidget): # {{{
                 (_('is less than'), 'lt'),
                 (_('is greater than'), 'gt')
             ),
+            'datetime' : (
+                (_('is equal to'), 'eq'),
+                (_('is less than'), 'lt'),
+                (_('is greater than'), 'gt'),
+                (_('is not more days ago than'), 'count_days')
+            ),
             'multiple' : (
                 (_('has'), 'has'),
                 (_('does not have'), 'does not have'),
@@ -70,7 +76,7 @@ class ConditionEditor(QWidget): # {{{
             ),
     }
 
-    for x in ('float', 'rating', 'datetime'):
+    for x in ('float', 'rating'):
         ACTION_MAP[x] = ACTION_MAP['int']
 
 
@@ -232,8 +238,12 @@ class ConditionEditor(QWidget): # {{{
             v = QIntValidator if dt == 'int' else QDoubleValidator
             self.value_box.setValidator(v(self.value_box))
         elif dt == 'datetime':
-            self.value_box.setInputMask('9999-99-99')
-            tt = _('Enter a date in the format YYYY-MM-DD')
+            if action == 'count_days':
+                self.value_box.setValidator(QIntValidator(self.value_box))
+                tt = _('Enter the number of days old the item can be. Zero is today')
+            else:
+                self.value_box.setInputMask('9999-99-99')
+                tt = _('Enter a date in the format YYYY-MM-DD')
         else:
             tt = _('Enter a string.')
             if 'pattern' in action:

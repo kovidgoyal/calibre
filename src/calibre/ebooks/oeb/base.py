@@ -337,6 +337,24 @@ def xml2unicode(root, pretty_print=False):
 def xml2text(elem):
     return etree.tostring(elem, method='text', encoding=unicode, with_tail=False)
 
+def serialize(data, media_type, pretty_print=False):
+    if isinstance(data, etree._Element):
+        ans = xml2str(data, pretty_print=pretty_print)
+        if media_type in OEB_DOCS:
+            # Convert self closing div|span|a|video|audio|iframe|etc tags
+            # to normally closed ones, as they are interpreted
+            # incorrectly by some browser based renderers
+            ans = close_self_closing_tags(ans)
+        return ans
+    if isinstance(data, unicode):
+        return data.encode('utf-8')
+    if hasattr(data, 'cssText'):
+        data = data.cssText
+        if isinstance(data, unicode):
+            data = data.encode('utf-8')
+        return data + b'\n'
+    return bytes(data)
+
 ASCII_CHARS   = set(chr(x) for x in xrange(128))
 UNIBYTE_CHARS = set(chr(x) for x in xrange(256))
 URL_SAFE      = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -960,23 +978,7 @@ class Manifest(object):
                 self._data = None
 
         def __str__(self):
-            data = self.data
-            if isinstance(data, etree._Element):
-                ans = xml2str(data, pretty_print=self.oeb.pretty_print)
-                if self.media_type in OEB_DOCS:
-                    # Convert self closing div|span|a|video|audio|iframe|etc tags
-                    # to normally closed ones, as they are interpreted
-                    # incorrectly by some browser based renderers
-                    ans = close_self_closing_tags(ans)
-                return ans
-            if isinstance(data, unicode):
-                return data.encode('utf-8')
-            if hasattr(data, 'cssText'):
-                data = data.cssText
-                if isinstance(data, unicode):
-                    data = data.encode('utf-8')
-                return data + b'\n'
-            return str(data)
+            return serialize(self.data, self.media_type, pretty_print=self.oeb.pretty_print)
 
         def __unicode__(self):
             data = self.data
