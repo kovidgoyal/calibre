@@ -19,6 +19,56 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.18
+  date: 2013-02-08
+
+  new features:
+      - title: "New metadata source: Edelweiss, a catalog of books that is updated directly by publishers. To enable it, go to Preferences->Metadata download and enable the Edelweiss plugin."
+        tickets: [1091073]
+
+      - title: "Add an option to add extra spacing between rows in the book list. (Preferences->Look & Feel)"
+        tickets: [1117907]
+
+      - title: "Column coloring/icons: Add a 'days ago' condition, useable with columns that store dates to set colors/icons based on the number of days before today"
+
+      - title: "E-book viewer: Add shortcuts Ctrl+= and Ctrl+- to increase/decrease text size."
+        tickets: [ 1117524 ] 
+
+      - title: "When showing possible duplicates after adding books, also show the file formats."
+
+      - title: "Driver for Trekstor Ventos Tablet" 
+ 
+  bug fixes:
+    - title: "Conversion: When transliterating unicode characters, handle « and » correctly."
+      tickets: [1117270]
+
+    - title: "Fix adding books from multiple directories with multiple books per directory treating opf files as an ebook"
+
+    - title: "Fix download metadata window not resizable on smaller screens"
+      tickets: [1116849]
+
+    - title: "Tweak Book: When rebuilding azw3 files handle <a> tags that have name but not id attribute, these are apparently produced by kindlegen."
+      tickets: [ 1112934 ] 
+
+    - title: "Fix regression in advanced column color rules."
+      tickets: [1118678] 
+
+  improved recipes:
+    - El Mundo today
+    - fluter.de
+    - Birmingham Post
+    - Japan Times
+    - The Toronto Star
+    - Le Monde (subscription version)
+    - Globe and Mail
+
+  new recipes:
+    - title: VICE Magazine Deutschland 
+      author: Alex
+
+    - title: Libertad Digital 
+      author: Darko Miletic
+
 - version: 0.9.17
   date: 2013-02-01
 
