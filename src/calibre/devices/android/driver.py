@@ -54,6 +54,9 @@ class ANDROID(USBMS):
             # Eken
             0x040d : { 0x8510 : [0x0001], 0x0851 : [0x1] },
 
+            # Trekstor
+            0x1e68 : { 0x006a : [0x0231] },
+
             # Motorola
             0x22b8 : { 0x41d9 : [0x216], 0x2d61 : [0x100], 0x2d67 : [0x100],
                        0x2de8 : [0x229],
@@ -215,7 +218,7 @@ class ANDROID(USBMS):
             'POCKET', 'ONDA_MID', 'ZENITHIN', 'INGENIC', 'PMID701C', 'PD',
             'PMP5097C', 'MASS', 'NOVO7', 'ZEKI', 'COBY', 'SXZ', 'USB_2.0',
             'COBY_MID', 'VS', 'AINOL', 'TOPWISE', 'PAD703', 'NEXT8D12',
-            'MEDIATEK', 'KEENHI', 'TECLAST']
+            'MEDIATEK', 'KEENHI', 'TECLAST', 'SURFTAB']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'A953', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -236,7 +239,7 @@ class ANDROID(USBMS):
             'ADVANCED', 'SGH-I727', 'USB_FLASH_DRIVER', 'ANDROID',
             'S5830I_CARD', 'MID7042', 'LINK-CREATE', '7035', 'VIEWPAD_7E',
             'NOVO7', 'MB526', '_USB#WYK7MSF8KE', 'TABLET_PC', 'F', 'MT65XX_MS',
-            'ICS', 'E400', '__FILE-STOR_GADG']
+            'ICS', 'E400', '__FILE-STOR_GADG', 'ST80208-1']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
@@ -247,7 +250,7 @@ class ANDROID(USBMS):
             'FILE-CD_GADGET', 'GT-I9001_CARD', 'USB_2.0', 'XT875',
             'UMS_COMPOSITE', 'PRO', '.KOBO_VOX', 'SGH-T989_CARD', 'SGH-I727',
             'USB_FLASH_DRIVER', 'ANDROID', 'MID7042', '7035', 'VIEWPAD_7E',
-            'NOVO7', 'ADVANCED', 'TABLET_PC', 'F', 'E400_SD_CARD']
+            'NOVO7', 'ADVANCED', 'TABLET_PC', 'F', 'E400_SD_CARD', 'ST80208-1']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 
