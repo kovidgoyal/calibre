@@ -14,7 +14,7 @@ _server = None
 
 _all_ip_addresses = dict()
 
-class AllIpAddressesGetter (Thread):
+class AllIpAddressesGetter(Thread):
 
     def get_all_ips(self):
         ''' Return a mapping of interface names to the configuration of the
@@ -37,13 +37,20 @@ class AllIpAddressesGetter (Thread):
     def run(self):
         global _all_ip_addresses
 #        print 'sleeping'
-#        time.sleep(10)
+#        time.sleep(15)
 #        print 'slept'
         _all_ip_addresses = self.get_all_ips()
 
-AllIpAddressesGetter().start()
+_ip_address_getter_thread = None
 
-def get_all_ips():
+def get_all_ips(reinitialize=False):
+    global _all_ip_addresses, _ip_address_getter_thread
+    if not _ip_address_getter_thread or (reinitialize and not
+                                         _ip_address_getter_thread.is_alive()):
+        _all_ip_addresses = dict()
+        _ip_address_getter_thread = AllIpAddressesGetter()
+        _ip_address_getter_thread.setDaemon(True)
+        _ip_address_getter_thread.start()
     return _all_ip_addresses
 
 def _get_external_ip():

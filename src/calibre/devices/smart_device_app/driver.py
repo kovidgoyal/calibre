@@ -71,6 +71,8 @@ class ConnectionListener (Thread):
     def run(self):
         queue_not_serviced_count = 0
         device_socket = None
+        get_all_ips(reinitialize=True)
+
         while self.keep_running:
             try:
                 time.sleep(1)
