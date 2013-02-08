@@ -134,8 +134,8 @@ class Rule(object): # {{{
 
     def date_condition(self, col, action, val):
         if action == 'count_days':
-            return (("cmp(add(%s, 1), days_between(today(), format_date(raw_field('%s'), 'yyyy-MM-dd')), '', '1', '1')")
-                     %(val, col))
+            return (("test(field('%s'), cmp(%s, days_between(today(), format_date(raw_field('%s'), 'yyyy-MM-dd')), '', '1', '1'), '')")
+                     %(col, str(int(val)+1), col))
         lt, eq, gt = {
                 'eq': ('', '1', ''),
                 'lt': ('1', '', ''),
