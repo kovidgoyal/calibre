@@ -182,6 +182,7 @@ class ConnectShareAction(InterfaceAction):
 
     def genesis(self):
         self.share_conn_menu = ShareConnMenu(self.gui)
+        self.share_conn_menu.aboutToShow.connect(self.set_smartdevice_action_state)
         self.share_conn_menu.toggle_server.connect(self.toggle_content_server)
         self.share_conn_menu.control_smartdevice.connect(self.control_smartdevice)
         self.share_conn_menu.config_email.connect(partial(
