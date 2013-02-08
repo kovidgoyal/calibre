@@ -197,7 +197,8 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
 class TemplateDialog(QDialog, Ui_TemplateDialog):
 
-    def __init__(self, parent, text, mi=None, fm=None, color_field=None):
+    def __init__(self, parent, text, mi=None, fm=None, color_field=None,
+                 rule_kind='color'):
         QDialog.__init__(self, parent)
         Ui_TemplateDialog.__init__(self)
         self.setupUi(self)
@@ -264,7 +265,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.function.setCurrentIndex(0)
         self.function.currentIndexChanged[str].connect(self.function_changed)
         self.textbox_changed()
-        self.rule = (None, '')
+        self.rule = (rule_kind, None, '')
+        self.rule_kind = rule_kind
 
         tt = _('Template language tutorial')
         self.template_tutorial.setText(
@@ -323,5 +325,5 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                     _('The template box cannot be empty'), show=True)
                 return
 
-        self.rule = (unicode(self.colored_field.currentText()), txt)
+        self.rule = (self.rule_kind, unicode(self.colored_field.currentText()), txt)
         QDialog.accept(self)
