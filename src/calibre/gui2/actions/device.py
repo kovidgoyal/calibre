@@ -182,6 +182,7 @@ class ConnectShareAction(InterfaceAction):
 
     def genesis(self):
         self.share_conn_menu = ShareConnMenu(self.gui)
+        self.share_conn_menu.aboutToShow.connect(self.set_smartdevice_action_state)
         self.share_conn_menu.toggle_server.connect(self.toggle_content_server)
         self.share_conn_menu.control_smartdevice.connect(self.control_smartdevice)
         self.share_conn_menu.config_email.connect(partial(
@@ -258,7 +259,10 @@ class ConnectShareAction(InterfaceAction):
             show_port = True
         else:
             all_ips = get_all_ip_addresses()
-            if len(all_ips) > 3:
+            if len(all_ips) == 0:
+                formatted_addresses = _('Still looking for IP addresses')
+                show_port = False
+            elif len(all_ips) > 3:
                 formatted_addresses = _('Many IP addresses. See Start/Stop dialog.')
                 show_port = False
             else:

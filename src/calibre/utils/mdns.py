@@ -5,29 +5,53 @@ __docformat__ = 'restructuredtext en'
 
 import socket, time, atexit
 from collections import defaultdict
+from threading import Thread
 
 from calibre.utils.filenames import ascii_text
 from calibre import force_unicode
 
 _server = None
 
-def get_all_ips():
-    ''' Return a mapping of interface names to the configuration of the
-    interface, which includes the ip address, netmask and broadcast addresses
-    '''
-    import netifaces
-    all_ips = defaultdict(list)
-    if hasattr(netifaces, 'AF_INET'):
-        for x in netifaces.interfaces():
-            try:
-                for c in netifaces.ifaddresses(x).get(netifaces.AF_INET, []):
-                    all_ips[x].append(c)
-            except ValueError:
-                from calibre import prints
-                prints('Failed to get IP addresses for interface', x)
-                import traceback
-                traceback.print_exc()
-    return dict(all_ips)
+_all_ip_addresses = dict()
+
+class AllIpAddressesGetter(Thread):
+
+    def get_all_ips(self):
+        ''' Return a mapping of interface names to the configuration of the
+        interface, which includes the ip address, netmask and broadcast addresses
+        '''
+        import netifaces
+        all_ips = defaultdict(list)
+        if hasattr(netifaces, 'AF_INET'):
+            for x in netifaces.interfaces():
+                try:
+                    for c in netifaces.ifaddresses(x).get(netifaces.AF_INET, []):
+                        all_ips[x].append(c)
+                except ValueError:
+                    from calibre import prints
+                    prints('Failed to get IP addresses for interface', x)
+                    import traceback
+                    traceback.print_exc()
+        return dict(all_ips)
+
+    def run(self):
+        global _all_ip_addresses
+#        print 'sleeping'
+#        time.sleep(15)
+#        print 'slept'
+        _all_ip_addresses = self.get_all_ips()
+
+_ip_address_getter_thread = None
+
+def get_all_ips(reinitialize=False):
+    global _all_ip_addresses, _ip_address_getter_thread
+    if not _ip_address_getter_thread or (reinitialize and not
+                                         _ip_address_getter_thread.is_alive()):
+        _all_ip_addresses = dict()
+        _ip_address_getter_thread = AllIpAddressesGetter()
+        _ip_address_getter_thread.setDaemon(True)
+        _ip_address_getter_thread.start()
+    return _all_ip_addresses
 
 def _get_external_ip():
     'Get IP address of interface used to connect to the outside world'
