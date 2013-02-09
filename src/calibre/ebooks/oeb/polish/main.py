@@ -111,7 +111,7 @@ def option_parser():
 
     return parser
 
-def cli_polish():
+def main():
     parser = option_parser()
     opts, args = parser.parse_args()
     log = Log(level=Log.DEBUG if opts.verbose else Log.INFO)
@@ -156,5 +156,5 @@ def cli_polish():
     log('Output written to:', outbook)
 
 if __name__ == '__main__':
-    cli_polish()
+    main()
 
