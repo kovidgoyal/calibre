@@ -742,7 +742,7 @@ class EditRules(QWidget): # {{{
 
     def add_advanced(self):
         td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, color_field='')
-        self._add_rule(td)
+        self._add_rule(('color', td[0], td[1]))
 
     def edit_rule(self, index):
         try:
@@ -755,6 +755,8 @@ class EditRules(QWidget): # {{{
         else:
             d = TemplateDialog(self, rule, mi=self.mi, fm=self.fm, color_field=col)
         if d.exec_() == d.Accepted:
+            if len(d.rule) == 2: # Convert template dialog rules to a triple
+                d.rule = ('color', d.rule[0], d.rule[1])
             kind, col, r = d.rule
             if kind and r is not None and col:
                 self.model.replace_rule(index, kind, col, r)
