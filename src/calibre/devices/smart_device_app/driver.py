@@ -52,9 +52,7 @@ def synchronous(tlockname):
     return _synched
 
 
-class ConnectionListener (Thread):
-
-    all_ip_addresses = dict()
+class ConnectionListener(Thread):
 
     NOT_SERVICED_COUNT = 6
 
@@ -63,7 +61,7 @@ class ConnectionListener (Thread):
         self.daemon = True
         self.driver = driver
         self.keep_running = True
-        all_ip_addresses = dict()
+        self.all_ip_addresses = dict()
 
     def stop(self):
         self.keep_running = False
