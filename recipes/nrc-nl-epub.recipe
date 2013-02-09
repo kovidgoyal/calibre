@@ -29,7 +29,7 @@ class NRCHandelsblad(BasicNewsRecipe):
     }
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('http://login.nrc.nl/login')
             br.select_form(nr=0)

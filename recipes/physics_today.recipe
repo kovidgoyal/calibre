@@ -27,7 +27,7 @@ class Physicstoday(BasicNewsRecipe):
 ]
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('http://ptonline.aip.org/journals/doc/PHTOAD-home/pt_login.jsp?fl=f')
             br.select_form(name='login_form')

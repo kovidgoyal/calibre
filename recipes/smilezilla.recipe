@@ -34,7 +34,7 @@ class SmileZilla(BasicNewsRecipe):
             f.close()
             return BeautifulSoup(html, fromEncoding=self.encoding)
 
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         response = br.open(url)
         html = response.read()
         soup = BeautifulSoup(html, fromEncoding=self.encoding)

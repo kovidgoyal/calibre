@@ -9,6 +9,19 @@ from itertools import cycle
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 
 ADOBE_OBFUSCATION =  'http://ns.adobe.com/pdf/enc#RC'
+IDPF_OBFUSCATION = 'http://www.idpf.org/2008/embedding'
+
+def decrypt_font(key, path, algorithm):
+    is_adobe = algorithm == ADOBE_OBFUSCATION
+    crypt_len = 1024 if is_adobe else 1040
+    with open(path, 'rb') as f:
+        raw = f.read()
+    crypt = bytearray(raw[:crypt_len])
+    key = cycle(iter(bytearray(key)))
+    decrypt = bytes(bytearray(x^key.next() for x in crypt))
+    with open(path, 'wb') as f:
+        f.write(decrypt)
+        f.write(raw[crypt_len:])
 
 class EPUBInput(InputFormatPlugin):
 
@@ -19,18 +32,6 @@ class EPUBInput(InputFormatPlugin):
     output_encoding = None
 
     recommendations = set([('page_breaks_before', '/', OptionRecommendation.MED)])
-
-    def decrypt_font(self, key, path, algorithm):
-        is_adobe = algorithm == ADOBE_OBFUSCATION
-        crypt_len = 1024 if is_adobe else 1040
-        with open(path, 'rb') as f:
-            raw = f.read()
-        crypt = bytearray(raw[:crypt_len])
-        key = cycle(iter(bytearray(key)))
-        decrypt = bytes(bytearray(x^key.next() for x in crypt))
-        with open(path, 'wb') as f:
-            f.write(decrypt)
-            f.write(raw[crypt_len:])
 
     def process_encryption(self, encfile, opf, log):
         from lxml import etree
@@ -58,8 +59,7 @@ class EPUBInput(InputFormatPlugin):
             root = etree.parse(encfile)
             for em in root.xpath('descendant::*[contains(name(), "EncryptionMethod")]'):
                 algorithm = em.get('Algorithm', '')
-                if algorithm not in {ADOBE_OBFUSCATION,
-                        'http://www.idpf.org/2008/embedding'}:
+                if algorithm not in {ADOBE_OBFUSCATION, IDPF_OBFUSCATION}:
                     return False
                 cr = em.getparent().xpath('descendant::*[contains(name(), "CipherReference")]')[0]
                 uri = cr.get('URI')
@@ -67,7 +67,7 @@ class EPUBInput(InputFormatPlugin):
                 tkey = (key if algorithm == ADOBE_OBFUSCATION else idpf_key)
                 if (tkey and os.path.exists(path)):
                     self._encrypted_font_uris.append(uri)
-                    self.decrypt_font(tkey, path, algorithm)
+                    decrypt_font(tkey, path, algorithm)
             return True
         except:
             import traceback

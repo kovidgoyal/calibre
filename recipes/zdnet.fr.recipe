@@ -59,7 +59,7 @@ class zdnet(BasicNewsRecipe):
 
     def get_masthead_url(self):
         masthead = 'http://www.zdnet.fr/images/base/logo.png'
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(masthead)
         except:

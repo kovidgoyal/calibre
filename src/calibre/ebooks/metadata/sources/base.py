@@ -200,7 +200,7 @@ class Source(Plugin):
     #: during the identify phase
     touched_fields = frozenset()
 
-    #: Set this to True if your plugin return HTML formatted comments
+    #: Set this to True if your plugin returns HTML formatted comments
     has_html_comments = False
 
     #: Setting this to True means that the browser object will add
@@ -418,10 +418,12 @@ class Source(Plugin):
         before putting the Metadata object into result_queue. You can of
         course, use a custom algorithm suited to your metadata source.
         '''
-        if mi.title:
+        docase = mi.language == 'eng' or mi.is_null('language')
+        if docase and mi.title:
             mi.title = fixcase(mi.title)
         mi.authors = fixauthors(mi.authors)
-        mi.tags = list(map(fixcase, mi.tags))
+        if mi.tags and docase:
+            mi.tags = list(map(fixcase, mi.tags))
         mi.isbn = check_isbn(mi.isbn)
 
     # }}}

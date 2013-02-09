@@ -11,11 +11,11 @@ class HBR(BasicNewsRecipe):
     timefmt                = ' [%B %Y]'
     language = 'en'
     no_stylesheets = True
-    recipe_disabled = ('hbr.org has started requiring the use of javascript'
-            ' to log into their website. This is unsupported in calibre, so'
-            ' this recipe has been disabled. If you would like to see '
-            ' HBR supported in calibre, contact hbr.org and ask them'
-            ' to provide a javascript free login method.')
+    # recipe_disabled = ('hbr.org has started requiring the use of javascript'
+    #         ' to log into their website. This is unsupported in calibre, so'
+    #         ' this recipe has been disabled. If you would like to see '
+    #         ' HBR supported in calibre, contact hbr.org and ask them'
+    #         ' to provide a javascript free login method.')
 
     LOGIN_URL = 'https://hbr.org/login?request_url=/'
     LOGOUT_URL = 'https://hbr.org/logout?request_url=/'
@@ -38,46 +38,38 @@ class HBR(BasicNewsRecipe):
                 #articleAuthors{font-family:Georgia,"Times New Roman",Times,serif; font-style:italic; color:#000000;font-size:x-small;}
                 #summaryText{font-family:Georgia,"Times New Roman",Times,serif; font-weight:bold; font-size:x-small;}
                 '''
+    use_javascript_to_login = True
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        self.logout_url = None
-
-        #'''
-        br.open(self.LOGIN_URL)
-        br.select_form(name='signin-form')
-        br['signin-form:username'] = self.username
-        br['signin-form:password'] = self.password
-        raw = br.submit().read()
-        if '>Sign out<' not in raw:
-            raise Exception('Failed to login, are you sure your username and password are correct?')
+    def javascript_login(self, br, username, password):
+        from calibre.web.jsbrowser.browser import Timeout
         try:
-            link = br.find_link(text='Sign out')
-            if link:
-                self.logout_url = link.absolute_url
-        except:
-            self.logout_url = self.LOGOUT_URL
-        #'''
-        return br
-
-    def cleanup(self):
-        if self.logout_url is not None:
-            self.browser.open(self.logout_url)
+            br.visit('https://hbr.org/login?request_url=/', timeout=20)
+        except Timeout:
+            pass
+        br.click('#accordion div[tabindex="0"]', wait_for_load=False)
+        f = br.select_form('#signin-form')
+        f['signin-form:username'] = username
+        f['signin-form:password'] = password
+        br.submit(wait_for_load=False)
+        br.run_for_a_time(30)
 
     def map_url(self, url):
         if url.endswith('/ar/1'):
             return url[:-1]+'pr'
 
-
     def hbr_get_toc(self):
-        #return self.index_to_soup(open('/t/hbr.html').read())
+        # return self.index_to_soup(open('/t/toc.html').read())
 
         today = date.today()
         future = today + timedelta(days=30)
-        for x in [x.strftime('%y%m') for x in (future, today)]:
+        past = today - timedelta(days=30)
+        for x in [x.strftime('%y%m') for x in (future, today, past)]:
             url = self.INDEX + x
             soup = self.index_to_soup(url)
-            if not soup.find(text='Issue Not Found'):
+            if (not soup.find(text='Issue Not Found') and not soup.find(
+                text="We're Sorry.  There was an error processing your request")
+                and 'Exception: java.io.FileNotFoundException' not in
+                unicode(soup)):
                 return soup
         raise Exception('Could not find current issue')
 
@@ -85,8 +77,9 @@ class HBR(BasicNewsRecipe):
         feeds = []
         current_section = None
         articles = []
-        for x in soup.find(id='archiveToc').findAll(['h3', 'h4']):
-            if x.name == 'h3':
+        for x in soup.find(id='issueFeaturesContent').findAll(['li', 'h4']):
+            if x.name == 'h4':
+                if x.get('class', None) == 'basic':continue
                 if current_section is not None and articles:
                     feeds.append((current_section, articles))
                 current_section = self.tag_to_string(x).capitalize()
@@ -102,7 +95,7 @@ class HBR(BasicNewsRecipe):
                 if url.startswith('/'):
                     url = 'http://hbr.org' + url
                 url = self.map_url(url)
-                p = x.parent.find('p')
+                p = x.find('p', attrs={'class':'author'})
                 desc = ''
                 if p is not None:
                     desc = self.tag_to_string(p)
@@ -114,10 +107,9 @@ class HBR(BasicNewsRecipe):
                     'date':''})
         return feeds
 
-
     def parse_index(self):
         soup = self.hbr_get_toc()
-        #open('/t/hbr.html', 'wb').write(unicode(soup).encode('utf-8'))
+        # open('/t/hbr.html', 'wb').write(unicode(soup).encode('utf-8'))
         feeds = self.hbr_parse_toc(soup)
         return feeds
 

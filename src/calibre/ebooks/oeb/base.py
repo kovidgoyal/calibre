@@ -98,6 +98,9 @@ _self_closing_pat = re.compile(
 def close_self_closing_tags(raw):
     return _self_closing_pat.sub(r'<\g<tag>\g<arg>></\g<tag>>', raw)
 
+def uuid_id():
+    return 'u'+unicode(uuid.uuid4())
+
 def iterlinks(root, find_links_in_css=True):
     '''
     Iterate over all links in a OEB Document.
@@ -333,6 +336,24 @@ def xml2unicode(root, pretty_print=False):
 
 def xml2text(elem):
     return etree.tostring(elem, method='text', encoding=unicode, with_tail=False)
+
+def serialize(data, media_type, pretty_print=False):
+    if isinstance(data, etree._Element):
+        ans = xml2str(data, pretty_print=pretty_print)
+        if media_type in OEB_DOCS:
+            # Convert self closing div|span|a|video|audio|iframe|etc tags
+            # to normally closed ones, as they are interpreted
+            # incorrectly by some browser based renderers
+            ans = close_self_closing_tags(ans)
+        return ans
+    if isinstance(data, unicode):
+        return data.encode('utf-8')
+    if hasattr(data, 'cssText'):
+        data = data.cssText
+        if isinstance(data, unicode):
+            data = data.encode('utf-8')
+        return data + b'\n'
+    return bytes(data)
 
 ASCII_CHARS   = set(chr(x) for x in xrange(128))
 UNIBYTE_CHARS = set(chr(x) for x in xrange(256))
@@ -957,23 +978,7 @@ class Manifest(object):
                 self._data = None
 
         def __str__(self):
-            data = self.data
-            if isinstance(data, etree._Element):
-                ans = xml2str(data, pretty_print=self.oeb.pretty_print)
-                if self.media_type in OEB_DOCS:
-                    # Convert self closing div|span|a|video|audio|iframe|etc tags
-                    # to normally closed ones, as they are interpreted
-                    # incorrectly by some browser based renderers
-                    ans = close_self_closing_tags(ans)
-                return ans
-            if isinstance(data, unicode):
-                return data.encode('utf-8')
-            if hasattr(data, 'cssText'):
-                data = data.cssText
-                if isinstance(data, unicode):
-                    data = data.encode('utf-8')
-                return data + b'\n'
-            return str(data)
+            return serialize(self.data, self.media_type, pretty_print=self.oeb.pretty_print)
 
         def __unicode__(self):
             data = self.data
@@ -1528,7 +1533,7 @@ class TOC(object):
         if parent is None:
             parent = etree.Element(NCX('navMap'))
         for node in self.nodes:
-            id = node.id or unicode(uuid.uuid4())
+            id = node.id or uuid_id()
             po = node.play_order
             if po == 0:
                 po = 1
@@ -1634,10 +1639,10 @@ class PageList(object):
         return self.pages.remove(page)
 
     def to_ncx(self, parent=None):
-        plist = element(parent, NCX('pageList'), id=str(uuid.uuid4()))
+        plist = element(parent, NCX('pageList'), id=uuid_id())
         values = dict((t, count(1)) for t in ('front', 'normal', 'special'))
         for page in self.pages:
-            id = page.id or unicode(uuid.uuid4())
+            id = page.id or uuid_id()
             type = page.type
             value = str(values[type].next())
             attrib = {'id': id, 'value': value, 'type': type, 'playOrder': '0'}

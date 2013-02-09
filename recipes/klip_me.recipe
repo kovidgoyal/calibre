@@ -29,7 +29,7 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
 
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None:
             br.open(self.LOGIN)
             br.select_form(nr=0)

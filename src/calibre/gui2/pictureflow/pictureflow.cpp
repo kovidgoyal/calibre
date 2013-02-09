@@ -340,6 +340,9 @@ public:
   int currentSlide() const;
   void setCurrentSlide(int index);
 
+  bool showReflections() const;
+  void setShowReflections(bool show);
+
   int getTarget() const;
 
   void showPrevious();
@@ -378,6 +381,7 @@ private:
   int slideHeight;
   int fontSize;
   int queueLength;
+  bool doReflections;
 
   int centerIndex;
   SlideInfo centerSlide;
@@ -416,6 +420,7 @@ PictureFlowPrivate::PictureFlowPrivate(PictureFlow* w, int queueLength_)
   slideWidth = 200;
   slideHeight = 200;
   fontSize = 10;
+  doReflections = true;
 
   centerIndex = 0;
   queueLength = queueLength_;
@@ -492,6 +497,15 @@ void PictureFlowPrivate::setCurrentSlide(int index)
   resetSlides();
   triggerRender();
   widget->emitcurrentChanged(centerIndex);
+}
+
+bool PictureFlowPrivate::showReflections() const {
+    return doReflections;
+}
+
+void PictureFlowPrivate::setShowReflections(bool show) {
+    doReflections = show;
+    triggerRender();
 }
 
 void PictureFlowPrivate::showPrevious()
@@ -584,7 +598,7 @@ void PictureFlowPrivate::resetSlides()
   }
 }
 
-static QImage prepareSurface(QImage img, int w, int h)
+static QImage prepareSurface(QImage img, int w, int h, bool doReflections)
 {
   img = img.scaled(w, h, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
@@ -602,19 +616,21 @@ static QImage prepareSurface(QImage img, int w, int h)
     for(int y = 0; y < h; y++)
       result.setPixel(y, x, img.pixel(x, y));
 
-  // create the reflection
-  int ht = hs - h;
-  for(int x = 0; x < w; x++)
-    for(int y = 0; y < ht; y++)
-    {
-      QRgb color = img.pixel(x, img.height()-y-1);
-      //QRgb565 color = img.scanLine(img.height()-y-1) + x*sizeof(QRgb565); //img.pixel(x, img.height()-y-1);
-      int a = qAlpha(color);
-      int r = qRed(color)   * a / 256 * (ht - y) / ht * 3/5;
-      int g = qGreen(color) * a / 256 * (ht - y) / ht * 3/5;
-      int b = qBlue(color)  * a / 256 * (ht - y) / ht * 3/5;
-      result.setPixel(h+y, x, qRgb(r, g, b));
-    }
+  if (doReflections) {
+    // create the reflection
+    int ht = hs - h;
+    for(int x = 0; x < w; x++)
+        for(int y = 0; y < ht; y++)
+        {
+        QRgb color = img.pixel(x, img.height()-y-1);
+        //QRgb565 color = img.scanLine(img.height()-y-1) + x*sizeof(QRgb565); //img.pixel(x, img.height()-y-1);
+        int a = qAlpha(color);
+        int r = qRed(color)   * a / 256 * (ht - y) / ht * 3/5;
+        int g = qGreen(color) * a / 256 * (ht - y) / ht * 3/5;
+        int b = qBlue(color)  * a / 256 * (ht - y) / ht * 3/5;
+        result.setPixel(h+y, x, qRgb(r, g, b));
+        }
+  }
 
   return result;
 }
@@ -652,12 +668,12 @@ QImage* PictureFlowPrivate::surface(int slideIndex)
       painter.setBrush(QBrush());
       painter.drawRect(2, 2, slideWidth-3, slideHeight-3);
       painter.end();
-      blankSurface = prepareSurface(blankSurface, slideWidth, slideHeight);
+      blankSurface = prepareSurface(blankSurface, slideWidth, slideHeight, doReflections);
     }
     return &blankSurface;
   }
 
-  surfaceCache.insert(slideIndex, new QImage(prepareSurface(img, slideWidth, slideHeight)));
+  surfaceCache.insert(slideIndex, new QImage(prepareSurface(img, slideWidth, slideHeight, doReflections)));
   return surfaceCache[slideIndex];
 }
 
@@ -1196,6 +1212,13 @@ QImage PictureFlow::slide(int index) const
   return d->slide(index);
 }
 
+bool PictureFlow::showReflections() const {
+    return d->showReflections();
+}
+
+void PictureFlow::setShowReflections(bool show) {
+    d->setShowReflections(show);
+}
 
 void PictureFlow::setImages(FlowImages *images) 
 {

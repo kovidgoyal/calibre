@@ -1706,6 +1706,7 @@ class KOBOTOUCH(KOBO):
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
         debug_print('KoboTouch:upload_books - %d books'%(len(files)))
+        debug_print('KoboTouch:upload_books - files=', files)
 
         result = super(KOBOTOUCH, self).upload_books(files, names, on_card, end_session, metadata)
 #        debug_print('KoboTouch:upload_books - result=', result)
@@ -1717,7 +1718,7 @@ class KOBOTOUCH(KOBO):
                                                                 '.kobo/KoboReader.sqlite'))) as connection:
                     connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
                     cursor = connection.cursor()
-                    query = "DELETE FROM content WHERE ContentID = ? AND Accessibility = 1 AND IsDownloaded = 'false'"
+                    cleanup_query = "DELETE FROM content WHERE ContentID = ? AND Accessibility = 1 AND IsDownloaded = 'false'"
 
                     for fname, cycle in result:
                         show_debug = self.is_debugging_title(fname)
@@ -1726,9 +1727,11 @@ class KOBOTOUCH(KOBO):
                             debug_print('KoboTouch:upload_books: fname=', fname)
                             debug_print('KoboTouch:upload_books: contentID=', contentID)
 
-                        t = (contentID,)
+                        cleanup_values = (contentID,)
 #                        debug_print('KoboTouch:upload_books: Delete record left if deleted on Touch')
-                        cursor.execute(query, t)
+                        cursor.execute(cleanup_query, cleanup_values)
+                        
+                        self.set_filesize_in_device_database(connection, contentID, fname)
 
                     connection.commit()
 
@@ -2182,6 +2185,43 @@ class KOBOTOUCH(KOBO):
         cursor.execute(query, values)
         connection.commit()
         cursor.close()
+
+    def set_filesize_in_device_database(self, connection, contentID, fpath):
+        show_debug = self.is_debugging_title(fpath)
+        if show_debug:
+            debug_print('KoboTouch:set_filesize_in_device_database contentID="%s"'%contentID)
+
+        test_query = 'SELECT ___FileSize '     \
+                        'FROM content '        \
+                        'WHERE ContentID = ? ' \
+                        ' AND ContentType = 6'
+        test_values = (contentID, )
+
+        updatequery = 'UPDATE content '         \
+                        'SET ___FileSize = ? '  \
+                        'WHERE ContentId = ? '  \
+                        'AND ContentType = 6'
+
+        cursor = connection.cursor()
+        cursor.execute(test_query, test_values)
+        result = cursor.fetchone()
+        if result is None:
+            if show_debug:
+                debug_print('        Did not find a record - new book on device')
+        elif os.path.exists(fpath):
+            file_size = os.stat(self.normalize_path(fpath)).st_size
+            if show_debug:
+                debug_print('        Found a record - will update - ___FileSize=', result[0], ' file_size=', file_size)
+            if file_size != int(result[0]):
+                update_values = (file_size, contentID, )
+                cursor.execute(updatequery, update_values)
+                if show_debug:
+                    debug_print('        Size updated.')
+
+        connection.commit()
+        cursor.close()
+
+#        debug_print("KoboTouch:set_filesize_in_device_database - end")
 
     def delete_empty_bookshelves(self, connection):
         debug_print("KoboTouch:delete_empty_bookshelves - start")

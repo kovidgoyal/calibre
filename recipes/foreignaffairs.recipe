@@ -132,7 +132,7 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
 
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('https://www.foreignaffairs.com/user?destination=user%3Fop%3Dlo')
             br.select_form(nr = 1)

@@ -17,7 +17,7 @@ class TechTarget(BasicNewsRecipe):
     LOGIN = u'http://searchservervirtualization.techtarget.com/login'
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None:
             br.open(self.LOGIN)
             br.select_form(nr=1)

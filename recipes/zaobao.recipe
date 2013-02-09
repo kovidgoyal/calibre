@@ -155,6 +155,6 @@ class ZAOBAO(BasicNewsRecipe):
         return parsed_feeds
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.addheaders.append(('Pragma', 'no-cache'))
         return br

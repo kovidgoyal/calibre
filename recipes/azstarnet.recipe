@@ -31,7 +31,7 @@ class Azstarnet(BasicNewsRecipe):
 
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.open('http://azstarnet.com/')
         if self.username is not None and self.password is not None:
             data = urllib.urlencode({ 'm':'login'

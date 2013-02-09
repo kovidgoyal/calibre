@@ -110,6 +110,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('bd_overlay_cover_size', gprefs)
 
         r('cover_flow_queue_length', config, restart_required=True)
+        r('cover_browser_reflections', gprefs)
+        r('extra_row_spacing', gprefs)
 
         def get_esc_lang(l):
             if l == 'en':
@@ -181,6 +183,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.edit_rules.changed.connect(self.changed_signal)
         self.tabWidget.addTab(self.edit_rules,
                 QIcon(I('format-fill-color.png')), _('Column coloring'))
+
+        self.icon_rules = EditRules(self.tabWidget)
+        self.icon_rules.changed.connect(self.changed_signal)
+        self.tabWidget.addTab(self.icon_rules,
+                QIcon(I('icon_choose.png')), _('Column icons'))
+
         self.tabWidget.setCurrentIndex(0)
         keys = [QKeySequence('F11', QKeySequence.PortableText), QKeySequence(
             'Ctrl+Shift+F', QKeySequence.PortableText)]
@@ -203,7 +211,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             mi = db.get_metadata(idx, index_is_id=False)
         except:
             mi=None
-        self.edit_rules.initialize(db.field_metadata, db.prefs, mi)
+        self.edit_rules.initialize(db.field_metadata, db.prefs, mi, 'column_color_rules')
+        self.icon_rules.initialize(db.field_metadata, db.prefs, mi, 'column_icon_rules')
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
@@ -214,6 +223,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.update_font_display()
         self.display_model.restore_defaults()
         self.edit_rules.clear()
+        self.icon_rules.clear()
         self.changed_signal.emit()
 
     def build_font_obj(self):
@@ -273,6 +283,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             rr = True
         self.display_model.commit()
         self.edit_rules.commit(self.gui.current_db.prefs)
+        self.icon_rules.commit(self.gui.current_db.prefs)
         return rr
 
     def refresh_gui(self, gui):
@@ -280,6 +291,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.update_font_display()
         gui.tags_view.reread_collapse_parameters()
         gui.library_view.refresh_book_details()
+        if hasattr(gui.cover_flow, 'setShowReflections'):
+            gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
+        gui.library_view.refresh_row_sizing()
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

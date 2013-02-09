@@ -188,12 +188,14 @@ class TagTreeItem(object): # {{{
 
     def child_tags(self):
         res = []
-        def recurse(nodes, res):
+        def recurse(nodes, res, depth):
+            if depth > 100:
+                return
             for t in nodes:
                 if t.type != TagTreeItem.CATEGORY:
                     res.append(t)
-                recurse(t.children, res)
-        recurse(self.children, res)
+                recurse(t.children, res, depth+1)
+        recurse(self.children, res, 1)
         return res
     # }}}
 

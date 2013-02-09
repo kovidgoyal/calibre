@@ -63,7 +63,7 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
 
     def print_version(self, url):
 #remove from here
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.open(url)
         br.follow_link(mechanize.Link(base_url = '', url =url, text = '', tag = 'a', attrs = [{'id':'buzzerATop'}]))
 #to here to stop supporting ynet...

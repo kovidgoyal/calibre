@@ -332,6 +332,12 @@ class BasicNewsRecipe(Recipe):
     #: ignore_duplicate_articles = {'title', 'url'}
     ignore_duplicate_articles = None
 
+    #: If you set this True, then calibre will use javascript to login to the
+    #: website. This is needed for some websites that require the use of
+    #: javascript to login. If you set this to True you must implement the
+    #: :meth:`javascript_login` method, to do the actual logging in.
+    use_javascript_to_login = False
+
     # See the built-in profiles for examples of these settings.
 
     def short_title(self):
@@ -404,8 +410,7 @@ class BasicNewsRecipe(Recipe):
         '''
         return url
 
-    @classmethod
-    def get_browser(cls, *args, **kwargs):
+    def get_browser(self, *args, **kwargs):
         '''
         Return a browser instance used to fetch documents from the web. By default
         it returns a `mechanize <http://wwwsearch.sourceforge.net/mechanize/>`_
@@ -417,7 +422,7 @@ class BasicNewsRecipe(Recipe):
         Times recipe to login for full access::
 
             def get_browser(self):
-                br = BasicNewsRecipe.get_browser()
+                br = BasicNewsRecipe.get_browser(self)
                 if self.username is not None and self.password is not None:
                     br.open('http://www.nytimes.com/auth/login')
                     br.select_form(name='login')
@@ -427,9 +432,47 @@ class BasicNewsRecipe(Recipe):
                 return br
 
         '''
-        br = browser(*args, **kwargs)
-        br.addheaders += [('Accept', '*/*')]
-        return br
+        if self.use_javascript_to_login:
+            if getattr(self, 'browser', None) is not None:
+                return self.clone_browser(self.browser)
+            from calibre.web.jsbrowser.browser import Browser
+            br = Browser()
+            with br:
+                self.javascript_login(br, self.username, self.password)
+                kwargs['user_agent'] = br.user_agent
+                ans = browser(*args, **kwargs)
+                ans.copy_cookies_from_jsbrowser(br)
+            return ans
+        else:
+            br = browser(*args, **kwargs)
+            br.addheaders += [('Accept', '*/*')]
+            return br
+
+    def javascript_login(self, browser, username, password):
+        '''
+        This method is used to login to a website that uses javascript for its
+        login form. After the login is complete, the cookies returned from the
+        website are copied to a normal (non-javascript) browser and the
+        download proceeds using those cookies.
+
+        An example implementation::
+
+            def javascript_login(self, browser, username, password):
+                browser.visit('http://some-page-that-has-a-login')
+                form = browser.select_form(nr=0) # Select the first form on the page
+                form['username'] = username
+                form['password'] = password
+                browser.submit(timeout=120) # Submit the form and wait at most two minutes for loading to complete
+
+        Note that you can also select forms with CSS2 selectors, like this::
+
+            browser.select_form('form#login_form')
+            browser.select_from('form[name="someform"]')
+
+        '''
+        raise NotImplementedError('You must implement the javascript_login()'
+                                  ' method if you set use_javascript_to_login'
+                                  ' to True')
 
     def clone_browser(self, br):
         '''

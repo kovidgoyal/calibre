@@ -269,7 +269,7 @@ class BrowseServer(object):
             for x in fm.sortable_field_keys():
                 if x in ('ondevice', 'formats', 'sort'):
                     continue
-                if fm[x]['is_custom'] and x not in displayed_custom_fields:
+                if fm.is_ignorable_field(x) and x not in displayed_custom_fields:
                     continue
                 if x == 'comments' or fm[x]['datatype'] == 'comments':
                     continue
@@ -369,11 +369,14 @@ class BrowseServer(object):
             meta = category_meta.get(category, None)
             if meta is None:
                 continue
-            if meta['is_custom'] and category not in displayed_custom_fields:
+            if self.db.field_metadata.is_ignorable_field(category) and \
+                        category not in displayed_custom_fields:
                 continue
             # get the icon files
-            if category in self.icon_map:
-                icon = '_'+quote(self.icon_map[category])
+            main_cat = (category.partition('.')[0]) if hasattr(category,
+                                                    'partition') else category
+            if main_cat in self.icon_map:
+                icon = '_'+quote(self.icon_map[main_cat])
             elif category in category_icon_map:
                 icon = category_icon_map[category]
             elif meta['is_custom']:
@@ -834,7 +837,8 @@ class BrowseServer(object):
             displayed_custom_fields = custom_fields_to_display(self.db)
             for field, m in list(mi.get_all_standard_metadata(False).items()) + \
                     list(mi.get_all_user_metadata(False).items()):
-                if m['is_custom'] and field not in displayed_custom_fields:
+                if self.db.field_metadata.is_ignorable_field(field) and \
+                                field not in displayed_custom_fields:
                     continue
                 if m['datatype'] == 'comments' or field == 'comments' or (
                         m['datatype'] == 'composite' and \

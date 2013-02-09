@@ -37,7 +37,7 @@ class NikkeiNet_sub_main(BasicNewsRecipe):
     feeds = [ (u'NIKKEI', 	u'http://www.zou3.net/php/rss/nikkei2rss.php?head=main')]
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
 
         cj = mechanize.LWPCookieJar()
         br.set_cookiejar(cj)

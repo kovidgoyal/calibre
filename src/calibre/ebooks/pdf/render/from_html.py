@@ -87,6 +87,10 @@ class Page(QWebPage): # {{{
 
     def javaScriptAlert(self, frame, msg):
         self.log(unicode(msg))
+
+    def shouldInterruptJavaScript(self):
+        return False
+
 # }}}
 
 def draw_image_page(page_rect, painter, p, preserve_aspect_ratio=True):
@@ -157,6 +161,17 @@ class PDFWriter(QObject):
                              debug=self.log.debug, compress=not
                              opts.uncompressed_pdf,
                              mark_links=opts.pdf_mark_links)
+        self.footer = opts.pdf_footer_template
+        if self.footer is None and opts.pdf_page_numbers:
+            self.footer = '<p style="text-align:center; text-indent: 0">_PAGENUM_</p>'
+        self.header = opts.pdf_header_template
+        min_margin = 36
+        if self.footer and opts.margin_bottom < min_margin:
+            self.log.warn('Bottom margin is too small for footer, increasing it.')
+            opts.margin_bottom = min_margin
+        if self.header and opts.margin_top < min_margin:
+            self.log.warn('Top margin is too small for header, increasing it.')
+            opts.margin_top = min_margin
 
         self.page.setViewportSize(QSize(self.doc.width(), self.doc.height()))
         self.render_queue = items
@@ -221,6 +236,7 @@ class PDFWriter(QObject):
             except:
                 self.log.exception('Rendering failed')
                 self.loop.exit(1)
+                return
         else:
             # The document is so corrupt that we can't render the page.
             self.logger.error('Document cannot be rendered.')
@@ -260,6 +276,15 @@ class PDFWriter(QObject):
         py_bridge.value = book_indexing.all_links_and_anchors();
         '''%(self.margin_top, 0, self.margin_bottom))
 
+        if self.header:
+            self.bridge_value = self.header
+            evaljs('paged_display.header_template = py_bridge.value')
+        if self.footer:
+            self.bridge_value = self.footer
+            evaljs('paged_display.footer_template = py_bridge.value')
+        if self.header or self.footer:
+            evaljs('paged_display.create_header_footer();')
+
         amap = self.bridge_value
         if not isinstance(amap, dict):
             amap = {'links':[], 'anchors':{}} # Some javascript error occurred
@@ -268,6 +293,8 @@ class PDFWriter(QObject):
         mf = self.view.page().mainFrame()
         while True:
             self.doc.init_page()
+            if self.header or self.footer:
+                evaljs('paged_display.update_header_footer(%d)'%self.current_page_num)
             self.painter.save()
             mf.render(self.painter)
             self.painter.restore()
@@ -275,7 +302,7 @@ class PDFWriter(QObject):
             self.doc.end_page()
             if not nsl[1] or nsl[0] <= 0:
                 break
-            evaljs('window.scrollTo(%d, 0)'%nsl[0])
+            evaljs('window.scrollTo(%d, 0); paged_display.position_header_footer();'%nsl[0])
             if self.doc.errors_occurred:
                 break
 

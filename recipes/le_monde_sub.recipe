@@ -1,15 +1,16 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2012, Rémi Vanicat <vanicat at debian.org>'
+__copyright__ = '2012, 2013, Rémi Vanicat <vanicat at debian.org>'
 '''
 Lemonde.fr: Version abonnée
 '''
 
 
 import os, zipfile, re, time
+from urllib2 import HTTPError
+from calibre.constants import preferred_encoding
 
-from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ptempfile import PersistentTemporaryFile
@@ -20,34 +21,44 @@ class LeMondeAbonne(BasicNewsRecipe):
     __author__            = u'Rémi Vanicat'
     description           = u'Actualités'
     category              = u'Actualités, France, Monde'
+    publisher             = 'Le Monde'
     language              = 'fr'
     needs_subscription    = True
+    no_stylesheets        = True
+    smarten_punctuation   = True
+    remove_attributes     = [ 'border', 'cellspacing', 'display', 'align', 'cellpadding', 'colspan', 'valign', 'vscape', 'hspace', 'alt', 'width', 'height']
+    extra_css = ''' li{margin:6pt 0}
+                    ul{margin:0}
 
-    no_stylesheets         = True
+                    div.photo img{max-width:100%; border:0px transparent solid;}
+                    div.photo{font-family:inherit; color:#333; text-align:center;}
+                    div.photo p{text-align:justify;font-size:.9em; line-height:.9em;}
 
-    extra_css = u'''
-                    h1{font-size:130%;}
-                    .ariane{font-size:xx-small;}
-                    .source{font-size:xx-small;}
-                    .href{font-size:xx-small;}
-                    .LM_caption{color:#666666; font-size:x-small;}
-                    .main-article-info{font-family:Arial,Helvetica,sans-serif;}
-                    #full-contents{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}
-                    #match-stats-summary{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}
-                '''
+                    @page{margin:10pt}
+                    .ar-txt {color:#000; text-align:justify;}
+                    h1{text-align:left; font-size:1.25em;}
+
+                    .auteur{text-align:right; font-weight:bold}
+                    .feed{text-align:right; font-weight:bold}
+                    .po-ti2{font-weight:bold}
+                    .fen-tt{font-weight:bold;font-size:1.1em}
+    '''
 
     zipurl_format = 'http://medias.lemonde.fr/abonnes/editionelectronique/%Y%m%d/html/%y%m%d.zip'
     coverurl_format = '/img/%y%m%d01.jpg'
     path_format = "%y%m%d"
     login_url = 'http://www.lemonde.fr/web/journal_electronique/identification/1,56-0,45-0,0.html'
 
-    keep_only_tags = [ dict(name="div", attrs={ 'class': 'po-prti' }),  dict(name=['h1']), dict(name='div', attrs={ 'class': 'photo' }), dict(name='div', attrs={ 'class': 'po-ti2' }), dict(name='div', attrs={ 'class': 'ar-txt' }), dict(name='div', attrs={ 'class': 'po_rtcol' }) ]
+    keep_only_tags = [dict(name=['h1']), dict(name='div', attrs={ 'class': 'photo' }), dict(name='div', attrs={ 'class': 'po-ti2' }), dict(name='div', attrs={ 'class': 'ar-txt' }), dict(name='div', attrs={ 'class': 'po_rtcol' }) ]
+
+
+    remove_tags = [ dict(name='div', attrs={ 'class': 'po-ti' }),dict(name='div', attrs={ 'class': 'po-copy' })]
 
     article_id_pattern = re.compile("[0-9]+\\.html")
     article_url_format = 'http://www.lemonde.fr/journalelectronique/donnees/protege/%Y%m%d/html/'
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open(self.login_url)
             br.select_form(nr=0)
@@ -67,12 +78,16 @@ class LeMondeAbonne(BasicNewsRecipe):
 
         second = time.time()
         second += self.decalage
-        ltime = self.ltime = time.gmtime(second)
-        url = time.strftime(self.zipurl_format, ltime)
 
-        self.timefmt=strftime(" %A %d %B %Y", ltime)
-
-        response = browser.open(url)
+        for i in range(7):
+            self.ltime = time.gmtime(second)
+            self.timefmt=time.strftime(" %A %d %B %Y",self.ltime).decode(preferred_encoding)
+            url = time.strftime(self.zipurl_format,self.ltime)
+            try:
+                response = browser.open(url)
+                continue
+            except HTTPError:
+                second -= 24*60*60
 
         tmp = PersistentTemporaryFile(suffix='.zip')
         self.report_progress(0.1,_('downloading zip file'))
@@ -85,7 +100,7 @@ class LeMondeAbonne(BasicNewsRecipe):
         zfile.extractall(self.output_dir)
         zfile.close()
 
-        path = os.path.join(self.output_dir, time.strftime(self.path_format, ltime), "data")
+        path = os.path.join(self.output_dir, time.strftime(self.path_format, self.ltime), "data")
 
         self.articles_path = path
 
@@ -95,13 +110,33 @@ class LeMondeAbonne(BasicNewsRecipe):
 
         flux = []
 
-        article_url = time.strftime(self.article_url_format, ltime)
+        article_url = time.strftime(self.article_url_format, self.ltime)
 
         for i in range(nb_index_files):
             filename = os.path.join(path, "selection_%d.html" % (i + 1))
             tmp = open(filename,'r')
-            soup=BeautifulSoup(tmp)
+            soup=BeautifulSoup(tmp,convertEntities=BeautifulSoup.HTML_ENTITIES)
             title=soup.find('span').contents[0]
+            if title=="Une":
+                title="À la une"
+            if title=="Evenement":
+                title="L'événement"
+            if title=="Planete":
+                title="Planète"
+            if title=="Economie - Entreprises":
+                title="Économie"
+            if title=="L'Oeil du Monde":
+                title="L'œil du Monde"
+            if title=="Enquete":
+                title="Enquête"
+            if title=="Editorial - Analyses":
+                title="Analyses"
+            if title=="Le Monde Economie":
+                title="Économie"
+            if title=="Le Monde Culture et idées":
+                title="Idées"
+            if title=="Le Monde Géo et politique":
+                title="Géopolitique"
             tmp.close()
 
             filename = os.path.join(path, "frame_gauche_%d.html" % (i + 1))
@@ -114,7 +149,7 @@ class LeMondeAbonne(BasicNewsRecipe):
                 article = {
                     'title': link.contents[0],
                     'url': article_url + article_id,
-                    'descripion': '',
+                    'description': '',
                     'content': ''
                     }
                 articles.append(article)
@@ -129,4 +164,3 @@ class LeMondeAbonne(BasicNewsRecipe):
 # Local Variables:
 # mode: python
 # End:
-

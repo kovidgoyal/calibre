@@ -53,7 +53,7 @@ class NoviList_hr(BasicNewsRecipe):
     remove_attributes=['border', 'lang', 'size', 'face', 'bgcolor']
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open(self.index + 'loginnow.asp')
             br.select_form(nr=0)

@@ -60,7 +60,7 @@ class Nowa_Fantastyka(BasicNewsRecipe):
         return getattr(self, 'cover_url', self.cover_url)
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('http://www.fantastyka.pl/')
             br.select_form(nr=0)

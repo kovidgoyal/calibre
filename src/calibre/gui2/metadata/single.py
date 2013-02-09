@@ -318,7 +318,23 @@ class MetadataSingleDialogBase(ResizableDialog):
         if mi is not None:
             self.update_from_mi(mi)
 
+    def get_pdf_cover(self):
+        pdfpath = self.formats_manager.get_format_path(self.db, self.book_id,
+                                                       'pdf')
+        from calibre.gui2.metadata.pdf_covers import PDFCovers
+        d = PDFCovers(pdfpath, parent=self)
+        if d.exec_() == d.Accepted:
+            cpath = d.cover_path
+            if cpath:
+                with open(cpath, 'rb') as f:
+                    self.update_cover(f.read(), 'PDF')
+        d.cleanup()
+
     def cover_from_format(self, *args):
+        ext = self.formats_manager.get_selected_format()
+        if ext is None: return
+        if ext == 'pdf':
+            return self.get_pdf_cover()
         try:
             mi, ext = self.formats_manager.get_selected_format_metadata(self.db,
                     self.book_id)
@@ -343,12 +359,15 @@ class MetadataSingleDialogBase(ResizableDialog):
             error_dialog(self, _('Could not read cover'),
                          _('Could not read cover from %s format')%ext).exec_()
             return
+        self.update_cover(cdata, ext)
+
+    def update_cover(self, cdata, fmt):
         orig = self.cover.current_val
         self.cover.current_val = cdata
         if self.cover.current_val is None:
             self.cover.current_val = orig
             return error_dialog(self, _('Could not read cover'),
-                         _('The cover in the %s format is invalid')%ext,
+                         _('The cover in the %s format is invalid')%fmt,
                          show=True)
             return
 
