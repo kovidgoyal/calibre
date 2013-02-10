@@ -61,9 +61,8 @@ def get_matching_rules(rules, font):
     # Filter on font stretch
     width = widths[font.get('font-stretch', 'normal')]
 
-    min_dist = min(abs(width-f['width']) for f in matches)
-    nearest = [f for f in matches if abs(width-f['width']) ==
-        min_dist]
+    min_dist = min(abs(width-y['width']) for y in matches)
+    nearest = [x for x in matches if abs(width-x['width']) == min_dist]
     if width <= 4:
         lmatches = [f for f in nearest if f['width'] <= width]
     else:
@@ -199,6 +198,22 @@ class StatsCollector(object):
 
         self.render_book()
 
+    def href_to_name(self, href, warn_name):
+        if not href.startswith('file://'):
+            self.log.warn('Non-local URI in', warn_name, ':', href, 'ignoring')
+            return None
+        src = href[len('file://'):]
+        if iswindows and src.startswith('/'):
+            src = src[1:]
+        src = src.replace('/', os.sep)
+        src = unquote(src)
+        name = self.container.abspath_to_name(src)
+        if not self.container.has_name(name):
+            self.log.warn('Missing resource', href, 'in', warn_name,
+                          'ignoring')
+            return None
+        return name
+
     def collect_font_stats(self):
         self.page.evaljs('window.font_stats.get_font_face_rules()')
         font_face_rules = self.page.bridge_value
@@ -220,19 +235,7 @@ class StatsCollector(object):
             if not src: continue
             style = parseStyle('background-image:%s'%src, validate=False)
             src = style.getProperty('background-image').propertyValue[0].uri
-            if not src.startswith('file://'):
-                self.log.warn('Unknown URI in @font-face: %r'%src)
-                continue
-            src = src[len('file://'):]
-            if iswindows and src.startswith('/'):
-                src = src[1:]
-            src = src.replace('/', os.sep)
-            src = unquote(src)
-            name = self.container.abspath_to_name(src)
-            if not self.container.has_name(name):
-                self.log.warn('Font %r referenced in @font-face rule not found'
-                              %name)
-                continue
+            name = self.href_to_name(src, '@font-face rule')
             rule['src'] = name
             normalize_font_properties(rule)
             rule['width'] = widths[rule['font-stretch']]
