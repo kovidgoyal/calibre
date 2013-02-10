@@ -49,6 +49,9 @@ class Container(object):
           directory. They always contain POSIX separators and are unquoted. They
           can be thought of as canonical identifiers for files in the book.
           Most methods on the container object work with names.
+
+    When converting between hrefs and names use the methods provided by this
+    class, they assume all hrefs are quoted.
     '''
 
     book_type = 'oeb'
