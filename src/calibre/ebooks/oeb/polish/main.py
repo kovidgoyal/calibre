@@ -14,6 +14,7 @@ from functools import partial
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.stats import StatsCollector
 from calibre.ebooks.oeb.polish.subset import subset_all_fonts
+from calibre.ebooks.oeb.polish.cover import set_cover
 from calibre.utils.logging import Log
 
 ALL_OPTS = {
@@ -72,6 +73,7 @@ CLI_HELP = {x:hfix(x, re.sub('<.*?>', '', y)) for x, y in HELP.iteritems()}
 # }}}
 
 def polish(file_map, opts, log, report):
+    rt = lambda x: report('\n### ' + x)
     for inbook, outbook in file_map.iteritems():
         report('Polishing: %s'%(inbook.rpartition('.')[-1].upper()))
         ebook = get_container(inbook, log)
@@ -80,8 +82,13 @@ def polish(file_map, opts, log, report):
             stats = StatsCollector(ebook)
 
         if opts.subset:
-            report('\n### Subsetting embedded fonts')
+            rt('Subsetting embedded fonts')
             subset_all_fonts(ebook, stats.font_stats, report)
+            report('')
+
+        if opts.cover:
+            rt('Setting cover')
+            set_cover(ebook, opts.cover, report)
             report('')
 
         ebook.commit(outbook)
@@ -105,8 +112,12 @@ def option_parser():
     USAGE = '%prog [options] input_file [output_file]\n\n' + re.sub(
         r'<.*?>', '', CLI_HELP['about'])
     parser = OptionParser(usage=USAGE)
-    o = partial(parser.add_option, default=False, action='store_true')
+    a = parser.add_option
+    o = partial(a, default=False, action='store_true')
     o('--subset-fonts', '-f', dest='subset', help=CLI_HELP['subset'])
+    a('--cover', help=_(
+        'Path to a cover image. Changes the cover specified in the ebook. '
+        'If no cover is present, inserts a new cover.'))
     o('--verbose', help=_('Produce more verbose output, useful for debugging.'))
 
     return parser
@@ -139,7 +150,7 @@ def main():
     report = []
     something = False
     for name in ALL_OPTS:
-        if name not in {'opf', 'cover'}:
+        if name not in {'opf', }:
             if getattr(popts, name):
                 something = True
 
