@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-08 06:37+0000\n"
-"PO-Revision-Date: 2013-02-08 09:25+0000\n"
+"PO-Revision-Date: 2013-02-09 08:41+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-09 04:49+0000\n"
+"X-Launchpad-Export-Date: 2013-02-10 04:49+0000\n"
 "X-Generator: Launchpad (build 16482)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:540
@@ -879,6 +879,8 @@ msgid ""
 "Intended for the Nook HD+ and similar tablet devices with a resolution of "
 "1280x1920"
 msgstr ""
+"Pensado para el Nook HD+ y dispositivos de tableta similares con una "
+"resolución de 1280×1920"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:484
 msgid "This profile is intended for the Kobo Reader."
@@ -5263,6 +5265,8 @@ msgid ""
 "Downloads metadata and covers from Edelweiss - A catalog updated by book "
 "publishers"
 msgstr ""
+"Descarga metadatos y portadas de Edelweiss, un catálogo actualizado por las "
+"editoriales"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:162
 msgid "Downloads metadata and covers from Google Books"
@@ -5492,6 +5496,20 @@ msgid ""
 "\n"
 "<p>Note that polishing only works on files in the <b>%s</b> formats.</p>\n"
 msgstr ""
+"<p><i>Pulir libros</i> le permite poner un toque de perfección en los libros "
+"creados con esmero.</p>\n"
+"\n"
+"<p>Al pulir se intenta mantener al mínimo los cambios en el código interno "
+"del libro. Al contrario que la conversión, <i>no</i> aplana la estructura "
+"CSS, ni renombra ficheros, ni cambia tamaños de letra, ni ajusta los "
+"márgenes, etc. Toda acción se realiza con el menor conjunto de cambios "
+"necesario par obtener el efecto deseado.</p>\n"
+"\n"
+"<p>Debería usar esta herramienta como el último paso en el proceso de "
+"creación de un libro.</p>\n"
+"\n"
+"<p>Tenga en cuenta que la acción de pulir sólo funciona con archivos en los "
+"formatos <b>%s</b>.</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:194
@@ -5521,22 +5539,39 @@ msgid ""
 "date you decide to add more text to your books, the newly added\n"
 "text might not be covered by the subset font.</p>\n"
 msgstr ""
+"<p>Reducir caracteres significa que se eliminan los caracteres sin usar de "
+"un tipo de letra incrustado, de manera que sólo se mantienen los caracteres "
+"de ese tipo de letra que se usan en el libro. Esto puede reducir "
+"considerablemente el tamaño de los archivos de tipo de letra (una reducción "
+"del 50% es normal).</p>\n"
+"\n"
+"<p>Por ejemplo, si el libro usa un tipo de letra determinado para los "
+"encabezamientos, la reducción de caracteres mantendrá sólo los caracteres "
+"presentes en los encabezamientos del libro. O si un libro incluye las "
+"versiones negrita y cursiva de un tipo de letra, pero los textos en negrita "
+"o cursiva son infrecuentes o inexistentes, entonces los archivos "
+"correspondientes a las versiones negrita y cursiva pueden reducirse a unos "
+"pocos caracteres o incluso eliminarse por completo.</p>\n"
+"\n"
+"<p>La única desventaja de reducir los caracteres de los tipos de letra es "
+"que si más adelante decide añadir más texto a los libros, el nuevo texto "
+"puede no estar cubierto por el tipo de letra reducido.</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:110
 msgid "Produce more verbose output, useful for debugging."
-msgstr ""
+msgstr "Proporciona una salida más detallada, útil para depurar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:120
 msgid "You must provide the input file to polish"
-msgstr ""
+msgstr "Debe proporcionar el fichero de entrada para pulir"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:124
 msgid "Unknown extra arguments"
-msgstr ""
+msgstr "Argumentos adicionales desconocidos"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:148
 msgid "You must specify at least one action to perform"
-msgstr ""
+msgstr "Debe especificar al menos una acción para realizar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
@@ -7072,69 +7107,69 @@ msgstr "Actualizador de complementos"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:33
 #, python-format
 msgid "Polish %d books"
-msgstr ""
+msgstr "Pulir %d libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:36
 #, python-format
 msgid "<h3>About Polishing books</h3>%s"
-msgstr ""
+msgstr "<h3>Acerca de pulir libros</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:38
 #, python-format
 msgid "<h3>Subsetting fonts</h3>%s"
-msgstr ""
+msgstr "<h3>Reducir caracteres en los tipos de letra</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:44
 msgid "Select actions to perform:"
-msgstr ""
+msgstr "Seleccione acciones para realizar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:49
 msgid "Subset all embedded fonts"
-msgstr ""
+msgstr "Reducir caracteres en todos los tipos de letra incrustados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:56
 msgid "About"
-msgstr ""
+msgstr "Acerca de"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:94
 msgid "No actions selected"
-msgstr ""
+msgstr "No hay acciones seleccionadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:95
 msgid "You must select at least one action, or click Cancel."
-msgstr ""
+msgstr "Debe seleccionar al menos una acción o pulsar «Cancelar»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:108
 msgid "Queueing books for polishing"
-msgstr ""
+msgstr "Poniendo libros en cola para pulir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:149
 #, python-format
 msgid "Polish %s"
-msgstr ""
+msgstr "Pulir %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:150
 #, python-format
 msgid "Polish book %(nums)s of %(tot)s (%(title)s)"
-msgstr ""
+msgstr "Pulir libro %(nums)s de %(tot)s (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:154
 #, python-format
 msgid "Queueing book %(nums)s of %(tot)s (%(title)s)"
-msgstr ""
+msgstr "Poniendo en cola libro %(nums)s de %(tot)s (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:162
 msgid "P"
-msgstr ""
+msgstr "P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:162
 msgid "Polish books"
-msgstr ""
+msgstr "Pulir libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:191
 msgid "Cannot polish"
-msgstr ""
+msgstr "No se puede pulir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:192
 #, python-format
@@ -7142,6 +7177,8 @@ msgid ""
 "Polishing is only supported for books in the %s formats. Convert to one of "
 "those formats before polishing."
 msgstr ""
+"Sólo se pueden pulir libros en los formatos %s. Convierta el libro a uno de "
+"esos formatos antes de pulir."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 msgid "Ctrl+P"
@@ -9170,8 +9207,7 @@ msgstr "&Desactivar la modificación del tamaño de letra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:249
 msgid "&Subset all embedded fonts"
-msgstr ""
-"Crear subconjuntos de caracteres para todos los tipos de letra incrustados"
+msgstr "&Reducir caracteres en todos los tipos de letra incrustados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:16
 msgid "LRF Output"
@@ -11460,7 +11496,7 @@ msgstr "No seleccionar &nada"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:70
 #, python-format
 msgid "%(title)s by %(author)s [%(formats)s]"
-msgstr ""
+msgstr "%(title)s de %(author)s [%(formats)s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:96
 msgid "Already in calibre:"
@@ -15841,7 +15877,7 @@ msgstr "es mayor que"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:59
 msgid "is not more days ago than"
-msgstr ""
+msgstr "no tiene más días de antigüedad que"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:62
 msgid "has"
@@ -15915,6 +15951,8 @@ msgstr "Introduzca un número"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:243
 msgid "Enter the number of days old the item can be. Zero is today"
 msgstr ""
+"Introduzca el número de días de antigüedad que puede tener un elemento. Cero "
+"es hoy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:246
 msgid "Enter a date in the format YYYY-MM-DD"
@@ -16860,7 +16898,7 @@ msgstr "Mostrar &ayudas emergentes en la lista de libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:278
 msgid "Extra &spacing to add between rows in the book list:"
-msgstr ""
+msgstr "&Espacio extra para añadir entre filas en la lista de libros:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:281
 msgid "Main Interface"
@@ -20275,6 +20313,8 @@ msgid ""
 "%(which)s font size [%(sc)s]\n"
 "Current magnification: %(mag).1f"
 msgstr ""
+"%(which)s el tamaño de letra [%(sc)s]\n"
+"Escala actual: %(mag).1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:713
 msgid "Increase"
