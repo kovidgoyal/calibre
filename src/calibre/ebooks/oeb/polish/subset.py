@@ -15,7 +15,7 @@ from calibre.ebooks.oeb.polish.container import OEB_FONTS
 from calibre.utils.fonts.sfnt.subset import subset
 from calibre.utils.fonts.utils import get_font_names
 
-def remove_font_face_rules(container, sheet, remove_names):
+def remove_font_face_rules(container, sheet, remove_names, base):
     changed = False
     for rule in tuple(sheet.cssRules):
         if rule.type != rule.FONT_FACE_RULE:
@@ -24,7 +24,7 @@ def remove_font_face_rules(container, sheet, remove_names):
             uri = rule.style.getProperty('src').propertyValue[0].uri
         except (IndexError, KeyError, AttributeError, TypeError, ValueError):
             continue
-        name = container.href_to_name(uri)
+        name = container.href_to_name(uri, base)
         if name in remove_names:
             sheet.deleteRule(rule)
             changed = True
@@ -65,13 +65,13 @@ def subset_all_fonts(container, font_stats, report):
         for name, mt in container.mime_map.iteritems():
             if mt in OEB_STYLES:
                 sheet = container.parsed(name)
-                if remove_font_face_rules(container, sheet, remove):
+                if remove_font_face_rules(container, sheet, remove, name):
                     container.dirty(name)
             elif mt in OEB_DOCS:
                 for style in XPath('//h:style')(container.parsed(name)):
                     if style.get('type', 'text/css') == 'text/css' and style.text:
                         sheet = container.parse_css(style.text, name)
-                        if remove_font_face_rules(container, sheet, remove):
+                        if remove_font_face_rules(container, sheet, remove, name):
                             style.text = sheet.cssText
                             container.dirty(name)
     if total_old > 0:
