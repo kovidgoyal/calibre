@@ -95,6 +95,9 @@ def polish(file_map, opts, log, report):
 
 def gui_polish(data):
     files = data.pop('files')
+    if not data.pop('metadata'):
+        data.pop('opf')
+        data.pop('cover')
     file_map = {x:x for x in files}
     opts = ALL_OPTS.copy()
     opts.update(data)

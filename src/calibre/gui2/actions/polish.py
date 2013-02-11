@@ -36,6 +36,13 @@ class Polish(QDialog):
             'polish': _('<h3>About Polishing books</h3>%s')%HELP['about'],
 
             'subset':_('<h3>Subsetting fonts</h3>%s')%HELP['subset'],
+
+            'metadata':_('<h3>Updating metadata</h3>'
+                         '<p>This will update all metadata and covers in the'
+                         ' ebook files to match the current metadata in the'
+                         ' calibre library.</p><p>Note that most ebook'
+                         ' formats are not capable of supporting all the'
+                         ' metadata in calibre.</p>'),
         }
 
         self.l = l = QGridLayout()
@@ -47,6 +54,7 @@ class Polish(QDialog):
         count = 0
         self.actions = OrderedDict([
             ('subset', _('Subset all embedded fonts')),
+            ('metadata', _('Update metadata in book files')),
         ])
         for name, text in self.actions.iteritems():
             count += 1
