@@ -51,7 +51,7 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
 
-                cover_url = ''.join(data.xpath('.//div[@class="productBox-450Pic"]/a/img/@src'))
+                cover_url = ''.join(data.xpath('.//div[@class="productBox-450Pic"]/a/img/@data-original'))
                 title = ''.join(data.xpath('.//a[@class="productBox-450Title"]/text()'))
                 title = re.sub(r' \(ebook\)', '', title)
                 author = ''.join(data.xpath('.//div[@class="productBox-450Author"]/a/text()'))
