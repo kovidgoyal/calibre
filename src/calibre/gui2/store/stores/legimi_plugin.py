@@ -61,8 +61,6 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
                 cover_url = ''.join(data.xpath('.//img[1]/@src'))
                 title = ''.join(data.xpath('.//span[@class="bookListTitle ellipsis"]/text()'))
                 author = ''.join(data.xpath('.//span[@class="bookListAuthor ellipsis"]/text()'))
-                author = re.sub(',','',author)
-                author = re.sub(';',',',author)
                 price = ''.join(data.xpath('.//div[@class="bookListPrice"]/span/text()'))
                 formats = []
                 with closing(br.open(id.strip(), timeout=timeout/4)) as nf:
