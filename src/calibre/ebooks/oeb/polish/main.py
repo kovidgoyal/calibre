@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, sys
 from collections import namedtuple
 from functools import partial
 
@@ -122,9 +122,9 @@ def option_parser():
 
     return parser
 
-def main():
+def main(args=None):
     parser = option_parser()
-    opts, args = parser.parse_args()
+    opts, args = parser.parse_args(args or sys.argv[1:])
     log = Log(level=Log.DEBUG if opts.verbose else Log.INFO)
     if not args:
         parser.print_help()

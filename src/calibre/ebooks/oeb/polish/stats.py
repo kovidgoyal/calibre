@@ -107,6 +107,8 @@ class Page(QWebPage): # {{{
         self.js = None
         self.evaljs = self.mainFrame().evaluateJavaScript
         self.bridge_value = None
+        nam = self.networkAccessManager()
+        nam.setNetworkAccessible(nam.NotAccessible)
 
     def javaScriptConsoleMessage(self, msg, lineno, msgid):
         self.log(u'JS:', unicode(msg))
@@ -203,7 +205,7 @@ class StatsCollector(object):
             self.log.warn('Non-local URI in', warn_name, ':', href, 'ignoring')
             return None
         src = href[len('file://'):]
-        if iswindows and src.startswith('/'):
+        if iswindows and len(src) > 2 and (src[0], src[2]) == ('/', ':'):
             src = src[1:]
         src = src.replace('/', os.sep)
         src = unquote(src)
