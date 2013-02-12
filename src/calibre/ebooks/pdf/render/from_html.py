@@ -268,11 +268,11 @@ class PDFWriter(QObject):
 
     def do_paged_render(self):
         if self.paged_js is None:
-            from calibre.utils.resources import compiled_coffeescript
-            self.paged_js =  compiled_coffeescript('ebooks.oeb.display.utils')
-            self.paged_js += compiled_coffeescript('ebooks.oeb.display.indexing')
-            self.paged_js += compiled_coffeescript('ebooks.oeb.display.paged')
-            self.paged_js += compiled_coffeescript('ebooks.oeb.display.mathjax')
+            from calibre.utils.resources import compiled_coffeescript as cc
+            self.paged_js =  cc('ebooks.oeb.display.utils')
+            self.paged_js += cc('ebooks.oeb.display.indexing')
+            self.paged_js += cc('ebooks.oeb.display.paged')
+            self.paged_js += cc('ebooks.oeb.display.mathjax')
 
         self.view.page().mainFrame().addToJavaScriptWindowObject("py_bridge", self)
         evaljs = self.view.page().mainFrame().evaluateJavaScript
