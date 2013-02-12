@@ -39,27 +39,27 @@ All the |app| python code is in the ``calibre`` package. This package contains t
 
     * devices - All the device drivers. Just look through some of the built-in drivers to get an idea for how they work.
 
-      * For details, see: devices.interface which defines the interface supported by device drivers and devices.usbms which
+      * For details, see: devices.interface which defines the interface supported by device drivers and ``devices.usbms`` which
         defines a generic driver that connects to a USBMS device. All USBMS based drivers in |app| inherit from it.
 
     * ebooks  - All the ebook conversion/metadata code. A good starting point is ``calibre.ebooks.conversion.cli`` which is the
       module powering the :command:`ebook-convert` command. The conversion process is controlled via ``conversion.plumber``.
-      The format independent code is all in ebooks.oeb and the format dependent code is in ebooks.format_name.
+      The format independent code is all in ``ebooks.oeb`` and the format dependent code is in ``ebooks.format_name``.
 
-        * Metadata reading, writing, and downloading is all in ebooks.metadata
+        * Metadata reading, writing, and downloading is all in ``ebooks.metadata``
         * Conversion happens in a pipeline, for the structure of the pipeline,
           see :ref:`conversion-introduction`. The pipeline consists of an input
           plugin, various transforms and an output plugin. The that code constructs
-          and drives the pipeline is in plumber.py. The pipeline works on a
+          and drives the pipeline is in :file:`plumber.py`. The pipeline works on a
           representation of an ebook that is like an unzipped epub, with
           manifest, spine, toc, guide, html content, etc. The
-          class that manages this representation is OEBBook in oeb/base.py. The
+          class that manages this representation is OEBBook in ``ebooks.oeb.base``. The
           various transformations that are applied to the book during
-          conversions live in `oeb/transforms/*.py`. And the input and output
-          plugins live in `conversion/plugins/*.py`.
+          conversions live in :file:`oeb/transforms/*.py`. And the input and output
+          plugins live in :file:`conversion/plugins/*.py`.
 
-    * library - The database back-end and the content server. See library.database2 for the interface to the |app| library. library.server is the |app| Content Server.
-    * gui2 - The Graphical User Interface. GUI initialization happens in gui2.main and gui2.ui. The ebook-viewer is in gui2.viewer.
+    * library - The database back-end and the content server. See ``library.database2`` for the interface to the |app| library. ``library.server`` is the |app| Content Server.
+    * gui2 - The Graphical User Interface. GUI initialization happens in ``gui2.main`` and ``gui2.ui``. The ebook-viewer is in ``gui2.viewer``.
 
 If you need help understanding the code, post in the `development forum <http://www.mobileread.com/forums/forumdisplay.php?f=240>`_
 and you will most likely get help from one of |app|'s many developers.
