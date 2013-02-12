@@ -16,6 +16,7 @@ from PyQt4.Qt import (QObject, QPainter, Qt, QSize, QString, QTimer,
 from PyQt4.QtWebKit import QWebView, QWebPage, QWebSettings
 
 from calibre import fit_image
+from calibre.constants import iswindows
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.ebooks.pdf.render.common import (inch, cm, mm, pica, cicero,
                                               didot, PAPER_SIZES)
@@ -251,16 +252,33 @@ class PDFWriter(QObject):
     def current_page_num(self):
         return self.doc.current_page_num
 
+    def load_mathjax(self):
+        evaljs = self.view.page().mainFrame().evaluateJavaScript
+        mjpath = P(u'viewer/mathjax').replace(os.sep, '/')
+        if iswindows:
+            mjpath = u'/' + mjpath
+        if evaljs('''
+                    window.mathjax.base = %s;
+                    mathjax.check_for_math(); mathjax.math_present
+                    '''%(json.dumps(mjpath, ensure_ascii=False))).toBool():
+            self.log.debug('Math present, loading MathJax')
+            while not evaljs('mathjax.math_loaded').toBool():
+                self.loop.processEvents(self.loop.ExcludeUserInputEvents)
+            evaljs('document.getElementById("MathJax_Message").style.display="none";')
+
     def do_paged_render(self):
         if self.paged_js is None:
             from calibre.utils.resources import compiled_coffeescript
             self.paged_js =  compiled_coffeescript('ebooks.oeb.display.utils')
             self.paged_js += compiled_coffeescript('ebooks.oeb.display.indexing')
             self.paged_js += compiled_coffeescript('ebooks.oeb.display.paged')
+            self.paged_js += compiled_coffeescript('ebooks.oeb.display.mathjax')
 
         self.view.page().mainFrame().addToJavaScriptWindowObject("py_bridge", self)
         evaljs = self.view.page().mainFrame().evaluateJavaScript
         evaljs(self.paged_js)
+        self.load_mathjax()
+
         evaljs('''
         py_bridge.__defineGetter__('value', function() {
             return JSON.parse(this._pass_json_value);
