@@ -96,6 +96,7 @@ def init_qt(args):
     QCoreApplication.setApplicationName(APP_UID)
     override = 'calibre-gui' if islinux else None
     app = Application(args, override_program_name=override)
+    app.file_event_hook = EventAccumulator()
     actions = tuple(Main.create_application_menubar())
     app.setWindowIcon(QIcon(I('lt.png')))
     return app, opts, args, actions
@@ -150,6 +151,14 @@ def repair_library(library_path):
     from calibre.gui2.dialogs.restore_library import repair_library_at
     return repair_library_at(library_path)
 
+class EventAccumulator(object):
+
+    def __init__(self):
+        self.events = []
+
+    def __call__(self, ev):
+        self.events.append(ev)
+
 class GuiRunner(QObject):
     '''Make sure an event loop is running before starting the main work of
     initialization'''
@@ -187,6 +196,8 @@ class GuiRunner(QObject):
                 prints('Ignoring directories passed as command line arguments')
             if files:
                 add_filesystem_book(files)
+        for event in self.app.file_event_hook.events:
+            add_filesystem_book(event)
         self.app.file_event_hook = add_filesystem_book
         self.main = main
 
