@@ -118,9 +118,9 @@ def option_parser():
     a = parser.add_option
     o = partial(a, default=False, action='store_true')
     o('--subset-fonts', '-f', dest='subset', help=CLI_HELP['subset'])
-    a('--cover', help=_(
+    a('--cover', '-c', help=_(
         'Path to a cover image. Changes the cover specified in the ebook. '
-        'If no cover is present, inserts a new cover.'))
+        'If no cover is present, or the cover is not properly identified, inserts a new cover.'))
     o('--verbose', help=_('Produce more verbose output, useful for debugging.'))
 
     return parser

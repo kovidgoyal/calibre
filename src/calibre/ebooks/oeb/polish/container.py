@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, logging, sys, hashlib, uuid
 from urllib import unquote as urlunquote, quote as urlquote
+from urlparse import urlparse
 
 from lxml import etree
 
@@ -96,16 +97,22 @@ class Container(object):
     def name_to_abspath(self, name):
         return os.path.abspath(join(self.root, *name.split('/')))
 
+    def exists(self, name):
+        return os.path.exists(self.name_to_abspath(name))
+
     def href_to_name(self, href, base=None):
         '''
         Convert an href (relative to base) to a name. base must be a name or
-        None, in which self.root is used.
+        None, in which case self.root is used.
         '''
         if base is None:
             base = self.root
         else:
             base = os.path.dirname(self.name_to_abspath(base))
-        href = urlunquote(href.partition('#')[0])
+        purl = urlparse(href)
+        if purl.scheme or not purl.path or purl.path.startswith('/'):
+            return None
+        href = urlunquote(purl.path)
         fullpath = os.path.join(base, *href.split('/'))
         return self.abspath_to_name(fullpath)
 
@@ -208,9 +215,18 @@ class Container(object):
         return self.parsed(self.opf_name)
 
     @property
-    def spine_items(self):
-        manifest_id_map = {item.get('id'):self.href_to_name(item.get('href'), self.opf_name)
+    def manifest_id_map(self):
+        return {item.get('id'):self.href_to_name(item.get('href'), self.opf_name)
             for item in self.opf_xpath('//opf:manifest/opf:item[@href and @id]')}
+
+    @property
+    def guide_type_map(self):
+        return {item.get('type', ''):self.href_to_name(item.get('href'), self.opf_name)
+            for item in self.opf_xpath('//opf:guide/opf:reference[@href and @type]')}
+
+    @property
+    def spine_items(self):
+        manifest_id_map = self.manifest_id_map
 
         linear, non_linear = [], []
         for item in self.opf_xpath('//opf:spine/opf:itemref[@idref]'):
@@ -251,8 +267,8 @@ class Container(object):
                 self.remove_from_xml(item)
                 self.dirty(self.opf_name)
 
-        path = self.name_path_map.pop(name)
-        if os.path.exists(path):
+        path = self.name_path_map.pop(name, None)
+        if path and os.path.exists(path):
             os.remove(path)
         self.mime_map.pop(name, None)
         self.parsed_cache.pop(name, None)
@@ -301,15 +317,24 @@ class Container(object):
             if idx == len(parent)-1:
                 parent[idx-1].tail = parent.text
 
+    def opf_get_or_create(self, name):
+        ans = self.opf_xpath('//opf:'+name)
+        if ans:
+            return ans[0]
+        self.dirty(self.opf_name)
+        package = self.opf_xpath('//opf:package')[0]
+        item = package.makeelement(OPF(name))
+        item.tail = '\n'
+        package.append(item)
+        return item
+
     def generate_item(self, name, id_prefix=None, media_type=None):
         '''Add an item to the manifest with href derived from the given
         name. Ensures uniqueness of href and id automatically. Returns
         generated item.'''
         id_prefix = id_prefix or 'id'
         media_type = media_type or guess_type(name)[0]
-        path = self.name_to_abspath(name)
-        relpath = self.relpath(path, base=self.opf_dir)
-        href = urlquote(relpath)
+        href = self.name_to_href(name, self.opf_name)
         base, ext = href.rpartition('.')[0::2]
         all_ids = {x.get('id') for x in self.opf_xpath('//*[@id]')}
         c = 0
@@ -319,8 +344,12 @@ class Container(object):
             item_id = id_prefix + '%d'%c
         all_names = {x.get('href') for x in self.opf_xpath(
                 '//opf:manifest/opf:item[@href]')}
+
+        def exists(h):
+            return self.exists(self.href_to_name(h, self.opf_name))
+
         c = 0
-        while href in all_names:
+        while href in all_names or exists(href):
             c += 1
             href = '%s_%d.%s'%(base, c, ext)
         manifest = self.opf_xpath('//opf:manifest')[0]
@@ -329,15 +358,26 @@ class Container(object):
         item.set('media-type', media_type)
         self.insert_into_xml(manifest, item)
         self.dirty(self.opf_name)
+        name = self.href_to_name(href, self.opf_name)
+        self.name_path_map[name] = self.name_to_abspath(name)
+        self.mime_map[name] = media_type
         return item
+
+    def commit_item(self, name):
+        self.dirtied.remove(name)
+        data = self.parsed_cache.pop(name)
+        data = serialize(data, self.mime_map[name])
+        with open(self.name_path_map[name], 'wb') as f:
+            f.write(data)
+
+    def open(self, name, mode='rb'):
+        if name in self.dirtied:
+            self.commit_item(name)
+        return open(self.name_to_abspath(name), mode)
 
     def commit(self, outpath=None):
         for name in tuple(self.dirtied):
-            self.dirtied.remove(name)
-            data = self.parsed_cache.pop(name)
-            data = serialize(data, self.mime_map[name])
-            with open(self.name_path_map[name], 'wb') as f:
-                f.write(data)
+            self.commit_item(name)
 
     def compare_to(self, other):
         if set(self.name_path_map) != set(other.name_path_map):
