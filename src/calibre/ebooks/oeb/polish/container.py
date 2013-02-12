@@ -373,7 +373,11 @@ class Container(object):
     def open(self, name, mode='rb'):
         if name in self.dirtied:
             self.commit_item(name)
-        return open(self.name_to_abspath(name), mode)
+        path = self.name_to_abspath(name)
+        base = os.path.dirname(path)
+        if not os.path.exists(base):
+            os.makedirs(base)
+        return open(path, mode)
 
     def commit(self, outpath=None):
         for name in tuple(self.dirtied):

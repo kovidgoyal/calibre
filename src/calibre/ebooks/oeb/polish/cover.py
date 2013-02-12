@@ -27,7 +27,8 @@ def set_azw3_cover(container, cover_path, report):
     guide = container.opf_xpath('//opf:guide')[0]
     container.insert_into_xml(guide, guide.makeelement(
         OPF('reference'), href=href, type='cover'))
-    shutil.copyfile(cover_path, container.name_to_abspath(name))
+    with open(cover_path, 'rb') as src, container.open(name, 'wb') as dest:
+        shutil.copyfileobj(src, dest)
     container.dirty(container.opf_name)
     report('Cover updated' if found else 'Cover inserted')
 
