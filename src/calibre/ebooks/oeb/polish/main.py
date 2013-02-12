@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, sys
+import re, sys, os, time
 from collections import namedtuple
 from functools import partial
 
@@ -72,14 +72,36 @@ def hfix(name, raw):
 CLI_HELP = {x:hfix(x, re.sub('<.*?>', '', y)) for x, y in HELP.iteritems()}
 # }}}
 
+def update_metadata(ebook, new_opf):
+    from calibre.ebooks.metadata.opf2 import OPF
+    from calibre.ebooks.metadata.epub import update_metadata
+    opfpath = ebook.name_to_abspath(ebook.opf_name)
+    with ebook.open(ebook.opf_name, 'r+b') as stream, open(new_opf, 'rb') as ns:
+        opf = OPF(stream, basedir=os.path.dirname(opfpath), populate_spine=False,
+                  unquote_urls=False)
+        mi = OPF(ns, unquote_urls=False,
+                      populate_spine=False).to_book_metadata()
+        mi.cover, mi.cover_data = None, (None, None)
+
+        update_metadata(opf, mi, apply_null=True, update_timestamp=True)
+        stream.seek(0)
+        stream.truncate()
+        stream.write(opf.render())
+
 def polish(file_map, opts, log, report):
     rt = lambda x: report('\n### ' + x)
+    st = time.time()
     for inbook, outbook in file_map.iteritems():
         report('Polishing: %s'%(inbook.rpartition('.')[-1].upper()))
         ebook = get_container(inbook, log)
 
         if opts.subset:
             stats = StatsCollector(ebook)
+
+        if opts.opf:
+            rt('Updating metadata')
+            update_metadata(ebook, opts.opf)
+            report('Metadata updated\n')
 
         if opts.subset:
             rt('Subsetting embedded fonts')
@@ -92,6 +114,9 @@ def polish(file_map, opts, log, report):
             report('')
 
         ebook.commit(outbook)
+        report('Polishing took: %.1f seconds'%(time.time()-st))
+
+REPORT = '{0} REPORT {0}'.format('-'*30)
 
 def gui_polish(data):
     files = data.pop('files')
@@ -106,7 +131,8 @@ def gui_polish(data):
     log = Log(level=Log.DEBUG)
     report = []
     polish(file_map, opts, log, report.append)
-    log('\n', '-'*30, ' REPORT ', '-'*30)
+    log('')
+    log(REPORT)
     for msg in report:
         log(msg)
 
@@ -121,6 +147,9 @@ def option_parser():
     a('--cover', '-c', help=_(
         'Path to a cover image. Changes the cover specified in the ebook. '
         'If no cover is present, or the cover is not properly identified, inserts a new cover.'))
+    a('--opf', '-o', help=_(
+        'Path to an OPF file. The metadata in the book is updated from the OPF file.'))
+
     o('--verbose', help=_('Produce more verbose output, useful for debugging.'))
 
     return parser
@@ -151,19 +180,14 @@ def main(args=None):
     O = namedtuple('Options', ' '.join(popts.iterkeys()))
     popts = O(**popts)
     report = []
-    something = False
-    for name in ALL_OPTS:
-        if name not in {'opf', }:
-            if getattr(popts, name):
-                something = True
-
-    if not something:
+    if not tuple(filter(None, (getattr(popts, name) for name in ALL_OPTS))):
         parser.print_help()
         log.error(_('You must specify at least one action to perform'))
         raise SystemExit(1)
 
     polish({inbook:outbook}, popts, log, report.append)
-    log('\n', '-'*30, ' REPORT ', '-'*30)
+    log('')
+    log(REPORT)
     for msg in report:
         log(msg)
 

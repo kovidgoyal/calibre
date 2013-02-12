@@ -371,8 +371,13 @@ class Container(object):
             f.write(data)
 
     def open(self, name, mode='rb'):
+        ''' Open the file pointed to by name for direct read/write. Note that
+        this will commit the file if it is dirtied and remove it from the parse
+        cache. You must finish with this file before accessing the parsed
+        version of it again, or bad things will happen. '''
         if name in self.dirtied:
             self.commit_item(name)
+        self.parsed_cache.pop(name, False)
         path = self.name_to_abspath(name)
         base = os.path.dirname(path)
         if not os.path.exists(base):
