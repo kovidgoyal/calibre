@@ -95,10 +95,9 @@ class Check(Command):
                     errors = True
                     self.report_errors(w)
             else:
-                from calibre.utils.serve_coffee import compile_coffeescript
+                from calibre.utils.serve_coffee import check_coffeescript
                 try:
-                    with open(f, 'rb') as stream:
-                        compile_coffeescript(stream.read(), f)
+                   check_coffeescript(f)
                 except:
                     errors = True
             if errors:
