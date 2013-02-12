@@ -43,7 +43,7 @@ All the |app| python code is in the ``calibre`` package. This package contains t
         defines a generic driver that connects to a USBMS device. All USBMS based drivers in |app| inherit from it.
 
     * ebooks  - All the ebook conversion/metadata code. A good starting point is ``calibre.ebooks.conversion.cli`` which is the
-      module powering the :command:`ebook-convert` command. The conversion process is controlled via conversion.plumber.
+      module powering the :command:`ebook-convert` command. The conversion process is controlled via ``conversion.plumber``.
       The format independent code is all in ebooks.oeb and the format dependent code is in ebooks.format_name.
 
         * Metadata reading, writing, and downloading is all in ebooks.metadata
