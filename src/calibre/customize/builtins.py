@@ -624,12 +624,6 @@ from calibre.library.catalogs.epub_mobi import EPUB_MOBI
 plugins += [CSV_XML, BIBTEX, EPUB_MOBI]
 # }}}
 
-# EPUB Fix plugins {{{
-from calibre.ebooks.epub.fix.unmanifested import Unmanifested
-from calibre.ebooks.epub.fix.epubcheck import Epubcheck
-plugins += [Unmanifested, Epubcheck]
-# }}}
-
 # Profiles {{{
 from calibre.customize.profiles import input_profiles, output_profiles
 plugins += input_profiles + output_profiles
