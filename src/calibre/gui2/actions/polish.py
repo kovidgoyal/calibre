@@ -40,7 +40,9 @@ class Polish(QDialog):
             'metadata':_('<h3>Updating metadata</h3>'
                          '<p>This will update all metadata and covers in the'
                          ' ebook files to match the current metadata in the'
-                         ' calibre library.</p><p>Note that most ebook'
+                         ' calibre library.</p><p>If the ebook file does not have'
+                         ' an identifiable cover, a new cover is inserted.</p>'
+                         ' <p>Note that most ebook'
                          ' formats are not capable of supporting all the'
                          ' metadata in calibre.</p>'),
         }
@@ -52,11 +54,11 @@ class Polish(QDialog):
         l.addWidget(la, 0, 0, 1, 2)
 
         count = 0
-        self.actions = OrderedDict([
+        self.all_actions = OrderedDict([
             ('subset', _('Subset all embedded fonts')),
             ('metadata', _('Update metadata in book files')),
         ])
-        for name, text in self.actions.iteritems():
+        for name, text in self.all_actions.iteritems():
             count += 1
             x = QCheckBox(text, self)
             l.addWidget(x, count, 0, 1, 1)
@@ -94,7 +96,7 @@ class Polish(QDialog):
     def accept(self):
         self.actions = ac = {}
         something = False
-        for action in self.actions:
+        for action in self.all_actions:
             ac[action] = bool(getattr(self, 'opt_'+action).isChecked())
             if ac[action]:
                 something = True
@@ -156,7 +158,7 @@ class Polish(QDialog):
 
         desc = ngettext(_('Polish %s')%mi.title,
                         _('Polish book %(nums)s of %(tot)s (%(title)s)')%dict(
-                            num=num, tot=len(self.book_id_map),
+                            nums=num, tot=len(self.book_id_map),
                             title=mi.title), len(self.book_id_map))
         if hasattr(self, 'pd'):
             self.pd.set_msg(_('Queueing book %(nums)s of %(tot)s (%(title)s)')%dict(
@@ -213,7 +215,7 @@ class PolishAction(InterfaceAction):
             return
         d = Polish(self.gui.library_view.model().db, book_id_map, parent=self.gui)
         if d.exec_() == d.Accepted and d.jobs:
-            for desc, data, book_id, base, files in reversed(d.jobs):
+            for desc, data, book_id, base in reversed(d.jobs):
                 job = self.gui.job_manager.run_job(
                     Dispatcher(self.book_polished), 'gui_polish', args=(data,),
                     description=desc)

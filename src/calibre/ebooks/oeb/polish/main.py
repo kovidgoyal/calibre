@@ -126,7 +126,7 @@ def gui_polish(data):
     file_map = {x:x for x in files}
     opts = ALL_OPTS.copy()
     opts.update(data)
-    O = namedtuple('Options', ' '.join(data.iterkeys()))
+    O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
     opts = O(**opts)
     log = Log(level=Log.DEBUG)
     report = []
