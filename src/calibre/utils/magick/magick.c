@@ -494,6 +494,7 @@ typedef struct {
 
 // Method declarations {{{
 static PyObject* magick_Image_compose(magick_Image *self, PyObject *args);
+static PyObject* magick_Image_compare(magick_Image *self, PyObject *args);
 static PyObject* magick_Image_copy(magick_Image *self, PyObject *args);
 static PyObject* magick_Image_texture(magick_Image *self, PyObject *args);
 // }}}
@@ -1196,6 +1197,10 @@ static PyMethodDef magick_Image_methods[] = {
      "compose(img, left, top, op) \n\n Compose img using operation op at (left, top)"
     },
 
+    {"compare", (PyCFunction)magick_Image_compare, METH_VARARGS,
+     "compose(img, metric) \n\n Compare images using the specified metric. (One of AbsoluteErrorMetric, MeanAbsoluteErrorMetric, MeanErrorPerPixelMetric, MeanSquaredErrorMetric, PeakAbsoluteErrorMetric, PeakSignalToNoiseRatioMetric, RootMeanSquaredErrorMetric, NormalizedCrossCorrelationErrorMetric, FuzzErrorMetric)"
+    },
+
     {"texture", (PyCFunction)magick_Image_texture, METH_VARARGS,
      "texture(img)) \n\n Repeatedly tile img across and down the canvas."
     },
@@ -1377,6 +1382,26 @@ magick_Image_compose(magick_Image *self, PyObject *args)
     if (!res) return magick_set_exception(self->wand);
 
     Py_RETURN_NONE;
+}
+// }}}
+
+// Image.compose {{{
+static PyObject *
+magick_Image_compare(magick_Image *self, PyObject *args)
+{
+    PyObject *img;
+    MetricType metric;
+    magick_Image *src;
+    double distortion = 0;
+
+    NULL_CHECK(NULL)
+
+    if (!PyArg_ParseTuple(args, "O!i", &magick_ImageType, &img, &metric)) return NULL;
+    src = (magick_Image*)img;
+    if (!IsMagickWand(src->wand)) {PyErr_SetString(PyExc_TypeError, "Not a valid ImageMagick wand"); return NULL;}
+
+    MagickCompareImages(self->wand, src->wand, metric, &distortion);
+    return Py_BuildValue("d", distortion);
 }
 // }}}
 
