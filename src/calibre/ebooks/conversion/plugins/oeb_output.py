@@ -82,8 +82,8 @@ class OEBOutput(OutputFormatPlugin):
                     self.log.warn('The cover image has an id != "cover". Renaming'
                             ' to work around bug in Nook Color')
 
-                    import uuid
-                    newid = str(uuid.uuid4())
+                    from calibre.ebooks.oeb.base import uuid_id
+                    newid = uuid_id()
 
                     for item in manifest_items_with_id('cover'):
                         item.set('id', newid)

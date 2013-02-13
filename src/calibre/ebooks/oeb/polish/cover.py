@@ -157,6 +157,17 @@ def create_epub_cover(container, cover_path):
     with container.open(titlepage, 'wb') as f:
         f.write(raw)
 
+    # We have to make sure the raster cover item has id="cover" for the moron
+    # that wrote the Nook firmware
+    if raster_cover_item.get('id') != 'cover':
+        from calibre.ebooks.oeb.base import uuid_id
+        newid = uuid_id()
+        for item in container.opf_xpath('//*[@id="cover"]'):
+            item.set('id', newid)
+        for item in container.opf_xpath('//*[@idref="cover"]'):
+            item.set('idref', newid)
+        raster_cover_item.set('id', 'cover')
+
     spine = container.opf_xpath('//opf:spine')[0]
     ref = spine.makeelement(OPF('itemref'), idref=titlepage_item.get('id'))
     container.insert_into_xml(spine, ref, index=0)
