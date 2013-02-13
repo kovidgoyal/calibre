@@ -92,7 +92,7 @@ def polish(file_map, opts, log, report):
     rt = lambda x: report('\n### ' + x)
     st = time.time()
     for inbook, outbook in file_map.iteritems():
-        report('Polishing: %s'%(inbook.rpartition('.')[-1].upper()))
+        report('## Polishing: %s'%(inbook.rpartition('.')[-1].upper()))
         ebook = get_container(inbook, log)
 
         if opts.subset:
@@ -135,6 +135,7 @@ def gui_polish(data):
     log(REPORT)
     for msg in report:
         log(msg)
+    return '\n\n'.join(report)
 
 def option_parser():
     from calibre.utils.config import OptionParser

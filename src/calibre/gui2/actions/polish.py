@@ -12,7 +12,7 @@ from collections import OrderedDict
 
 from PyQt4.Qt import (QDialog, QGridLayout, QIcon, QCheckBox, QLabel, QFrame,
                       QApplication, QDialogButtonBox, Qt, QSize, QSpacerItem,
-                      QSizePolicy, QTimer, QModelIndex)
+                      QSizePolicy, QTimer, QModelIndex, QTextEdit)
 
 from calibre.gui2 import error_dialog, Dispatcher
 from calibre.gui2.actions import InterfaceAction
@@ -21,8 +21,7 @@ from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.config_base import tweaks
 
-
-class Polish(QDialog):
+class Polish(QDialog): # {{{
 
     def __init__(self, db, book_id_map, parent=None):
         from calibre.ebooks.oeb.polish.main import HELP
@@ -165,6 +164,77 @@ class Polish(QDialog):
                             num=num, tot=len(self.book_id_map), title=mi.title))
 
         self.jobs.append((desc, data, book_id, base))
+# }}}
+
+class Report(QDialog): # {{{
+
+    def __init__(self, parent):
+        QDialog.__init__(self, parent)
+        self.gui = parent
+        self.setAttribute(Qt.WA_DeleteOnClose, False)
+        self.setWindowIcon(QIcon(I('polish.png')))
+        self.reports = []
+
+        self.l = l = QGridLayout()
+        self.setLayout(l)
+        self.view = v = QTextEdit(self)
+        v.setReadOnly(True)
+        l.addWidget(self.view, 0, 0, 1, 2)
+
+        self.ign_msg = _('Ignore remaining %d reports')
+        self.ign = QCheckBox(self.ign_msg, self)
+        l.addWidget(self.ign, 1, 0)
+
+        bb = self.bb = QDialogButtonBox(QDialogButtonBox.Close)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        l.addWidget(bb, 1, 1)
+
+        self.finished.connect(self.show_next, type=Qt.QueuedConnection)
+
+        self.resize(QSize(800, 600))
+
+    def setup_ign(self):
+        self.ign.setText(self.ign_msg%len(self.reports))
+        self.ign.setVisible(bool(self.reports))
+        self.ign.setChecked(False)
+
+    def __call__(self, *args):
+        self.reports.append(args)
+        self.setup_ign()
+        if not self.isVisible():
+            self.show_next()
+
+    def show_report(self, book_title, book_id, fmts, report):
+        from calibre.ebooks.markdown.markdown import markdown
+        self.setWindowTitle(_('Polishing of %s')%book_title)
+        self.view.setText(markdown('# %s\n\n'%book_title + report,
+                                   output_format='html4'))
+
+    def show_next(self, *args):
+        if not self.reports:
+            return
+        if not self.isVisible():
+            self.show()
+        self.show_report(*self.reports.pop(0))
+        self.setup_ign()
+
+    def accept(self):
+        if self.ign.isChecked():
+            self.reports = []
+        if self.reports:
+            self.show_next()
+            return
+        super(Report, self).accept()
+
+    def reject(self):
+        if self.ign.isChecked():
+            self.reports = []
+        if self.reports:
+            self.show_next()
+            return
+        super(Report, self).reject()
+# }}}
 
 class PolishAction(InterfaceAction):
 
@@ -175,6 +245,7 @@ class PolishAction(InterfaceAction):
 
     def genesis(self):
         self.qaction.triggered.connect(self.polish_books)
+        self.report = Report(self.gui)
 
     def location_selected(self, loc):
         enabled = loc == 'library'
@@ -227,9 +298,11 @@ class PolishAction(InterfaceAction):
             return
         db = self.gui.current_db
         book_id, base, files = job.polish_args
+        fmts = set()
         for path in files:
             fmt = path.rpartition('.')[-1].upper()
             if tweaks['save_original_format']:
+                fmts.add(fmt)
                 db.save_original_format(book_id, fmt, notify=False)
             with open(path, 'rb') as f:
                 db.add_format(book_id, fmt, f, index_is_id=True)
@@ -246,7 +319,7 @@ class PolishAction(InterfaceAction):
             current = self.gui.library_view.currentIndex()
             if current.isValid():
                 self.gui.library_view.model().current_changed(current, QModelIndex())
-
+        self.report(db.title(book_id, index_is_id=True), book_id, fmts, job.result)
 
 if __name__ == '__main__':
     app = QApplication([])
