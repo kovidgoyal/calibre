@@ -188,6 +188,9 @@ class Report(QDialog): # {{{
         bb = self.bb = QDialogButtonBox(QDialogButtonBox.Close)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
+        b = self.log_button = bb.addButton(_('View full &log'), bb.ActionRole)
+        b.clicked.connect(self.view_log)
+        bb.button(bb.Close).setDefault(True)
         l.addWidget(bb, 1, 1)
 
         self.finished.connect(self.show_next, type=Qt.QueuedConnection)
@@ -205,11 +208,17 @@ class Report(QDialog): # {{{
         if not self.isVisible():
             self.show_next()
 
-    def show_report(self, book_title, book_id, fmts, report):
+    def show_report(self, book_title, book_id, fmts, job, report):
         from calibre.ebooks.markdown.markdown import markdown
+        self.current_log = job.details
         self.setWindowTitle(_('Polishing of %s')%book_title)
         self.view.setText(markdown('# %s\n\n'%book_title + report,
                                    output_format='html4'))
+        self.bb.button(self.bb.Close).setFocus(Qt.OtherFocusReason)
+
+    def view_log(self):
+        self.view.setPlainText(self.current_log)
+        self.view.verticalScrollBar().setValue(0)
 
     def show_next(self, *args):
         if not self.reports:
@@ -319,7 +328,7 @@ class PolishAction(InterfaceAction):
             current = self.gui.library_view.currentIndex()
             if current.isValid():
                 self.gui.library_view.model().current_changed(current, QModelIndex())
-        self.report(db.title(book_id, index_is_id=True), book_id, fmts, job.result)
+        self.report(db.title(book_id, index_is_id=True), book_id, fmts, job, job.result)
 
 if __name__ == '__main__':
     app = QApplication([])
