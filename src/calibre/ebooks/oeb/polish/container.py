@@ -363,7 +363,22 @@ class Container(object):
         self.mime_map[name] = media_type
         return item
 
+    def format_opf(self):
+        mdata = self.opf_xpath('//opf:metadata')[0]
+        mdata.text = '\n    '
+        remove = set()
+        for child in mdata:
+            child.tail = '\n    '
+            if (child.get('name', '').startswith('calibre:') and
+                child.get('content', '').strip() in {'{}', ''}):
+                remove.add(child)
+        for child in remove: mdata.remove(child)
+        if len(mdata) > 0:
+            mdata[-1].tail = '\n  '
+
     def commit_item(self, name):
+        if name == self.opf_name:
+            self.format_opf()
         self.dirtied.remove(name)
         data = self.parsed_cache.pop(name)
         data = serialize(data, self.mime_map[name])
