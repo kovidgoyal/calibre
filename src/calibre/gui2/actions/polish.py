@@ -300,6 +300,10 @@ class PolishAction(InterfaceAction):
                     Dispatcher(self.book_polished), 'gui_polish', args=(data,),
                     description=desc)
                 job.polish_args = (book_id, base, data['files'])
+            if d.jobs:
+                self.gui.jobs_pointer.start()
+                self.gui.status_bar.show_message(
+                    _('Starting polishing of %d book(s)') % len(d.jobs), 2000)
 
     def book_polished(self, job):
         if job.failed:
