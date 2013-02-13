@@ -114,6 +114,7 @@ def polish(file_map, opts, log, report):
             report('')
 
         ebook.commit(outbook)
+        report('-'*70)
     report('Polishing took: %.1f seconds'%(time.time()-st))
 
 REPORT = '{0} REPORT {0}'.format('-'*30)
