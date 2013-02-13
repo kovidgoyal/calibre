@@ -353,7 +353,7 @@ class Container(object):
             c += 1
             href = '%s_%d.%s'%(base, c, ext)
         manifest = self.opf_xpath('//opf:manifest')[0]
-        item = manifest.makeelement(OPF('item'), nsmap=OPF_NAMESPACES,
+        item = manifest.makeelement(OPF('item'),
                                     id=item_id, href=href)
         item.set('media-type', media_type)
         self.insert_into_xml(manifest, item)
