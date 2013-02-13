@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, logging, sys, hashlib, uuid
+import os, logging, sys, hashlib, uuid, re
 from urllib import unquote as urlunquote, quote as urlquote
 from urlparse import urlparse
 
@@ -367,6 +367,11 @@ class Container(object):
         self.dirtied.remove(name)
         data = self.parsed_cache.pop(name)
         data = serialize(data, self.mime_map[name])
+        if name == self.opf_name:
+            # Needed as I can't get lxml to output opf:role and
+            # not output <opf:metadata> as well
+            data = re.sub(br'(<[/]{0,1})opf:', r'\1', data)
+
         with open(self.name_path_map[name], 'wb') as f:
             f.write(data)
 
