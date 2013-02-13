@@ -12,7 +12,7 @@ from collections import OrderedDict
 
 from PyQt4.Qt import (QDialog, QGridLayout, QIcon, QCheckBox, QLabel, QFrame,
                       QApplication, QDialogButtonBox, Qt, QSize, QSpacerItem,
-                      QSizePolicy, QTimer)
+                      QSizePolicy, QTimer, QModelIndex)
 
 from calibre.gui2 import error_dialog, Dispatcher
 from calibre.gui2.actions import InterfaceAction
@@ -241,6 +241,12 @@ class PolishAction(InterfaceAction):
             os.rmdir(parent)
         except:
             pass
+        self.gui.tags_view.recount()
+        if self.gui.current_view() is self.gui.library_view:
+            current = self.gui.library_view.currentIndex()
+            if current.isValid():
+                self.gui.library_view.model().current_changed(current, QModelIndex())
+
 
 if __name__ == '__main__':
     app = QApplication([])
