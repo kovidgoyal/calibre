@@ -182,6 +182,14 @@ def create_epub_cover(container, cover_path):
 
     return raster_cover, titlepage
 
+def remove_cover_image_in_page(container, page, cover_images):
+    for img in container.parsed(page).xpath('//*[local-name()="img" and @src]'):
+        href = img.get('src')
+        name = container.href_to_name(href, page)
+        if name in cover_images:
+            img.getparent.remove(img)
+        break
+
 def set_epub_cover(container, cover_path, report):
     cover_image = find_cover_image(container)
     cover_page = find_cover_page(container)
@@ -214,6 +222,11 @@ def set_epub_cover(container, cover_path, report):
                     container.remove_item(c)
                     extra_cover_page = c
                     spine_items = spine_items[:1] + spine_items[2:]
+                elif candidate is None:
+                    # Remove the cover image if it is the first image in this
+                    # page
+                    remove_cover_image_in_page(container, c, {wrapped_image,
+                                                          cover_image})
 
         if wrapped_image is not None:
             # The cover page is a simple wrapper around a single cover image,
