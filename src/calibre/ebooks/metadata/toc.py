@@ -5,7 +5,7 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, glob, re, functools
 from urlparse import urlparse
 from urllib import unquote
-from uuid import uuid4
+from collections import Counter
 
 from lxml import etree
 from lxml.builder import ElementMaker
@@ -194,12 +194,11 @@ class TOC(list):
                 content = content_path(np)
                 if content and text:
                     content = content[0]
-                    src = get_attr(content, attr='src')
-                    if src:
-                        purl = urlparse(content.get('src'))
-                        href, fragment = unquote(purl[2]), unquote(purl[5])
-                        nd = dest.add_item(href, fragment, text)
-                        nd.play_order = play_order
+                    # if get_attr(content, attr='src'):
+                    purl = urlparse(content.get('src'))
+                    href, fragment = unquote(purl[2]), unquote(purl[5])
+                    nd = dest.add_item(href, fragment, text)
+                    nd.play_order = play_order
 
             for c in np_path(np):
                 process_navpoint(c, nd)
@@ -250,16 +249,19 @@ class TOC(list):
         navmap = E.navMap()
         root.append(navmap)
         root.set('{http://www.w3.org/XML/1998/namespace}lang', 'en')
+        c = Counter()
 
         def navpoint(parent, np):
             text = np.text
             if not text:
                 text = ''
+            c[1] += 1
+            item_id = 'num_%d'%c[1]
             elem = E.navPoint(
                     E.navLabel(E.text(re.sub(r'\s+', ' ', text))),
                     E.content(src=unicode(np.href)+(('#' + unicode(np.fragment))
                         if np.fragment else '')),
-                    id=str(uuid4()),
+                    id=item_id,
                     playOrder=str(np.play_order)
             )
             au = getattr(np, 'author', None)

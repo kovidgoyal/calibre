@@ -51,7 +51,7 @@ def server_config(defaults=None):
     return c
 
 def custom_fields_to_display(db):
-    ckeys = db.custom_field_keys()
+    ckeys = db.field_metadata.ignorable_field_keys()
     yes_fields = set(tweaks['content_server_will_display'])
     no_fields = set(tweaks['content_server_wont_display'])
     if '*' in yes_fields:

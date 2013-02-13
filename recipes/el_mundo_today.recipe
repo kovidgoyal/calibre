@@ -3,29 +3,34 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class ElMundoTodayRecipe(BasicNewsRecipe):
     title = 'El Mundo Today'
-    __author__ = 'atordo'
-    description = u'La actualidad del mañana'
+    description = u'La actualidad del ma\u00f1ana'
     category = 'Noticias, humor'
     cover_url = 'http://www.elmundotoday.com/wp-content/themes/EarthlyTouch/images/logo.png'
-    oldest_article = 30
+    oldest_article = 15
     max_articles_per_feed = 60
     auto_cleanup = False
     no_stylesheets = True
     remove_javascript = True
     language = 'es'
     use_embedded_content  = False
+    publication_type = 'blog'
 
     preprocess_regexps = [
         (re.compile(r'</title>.*<!--Begin Article Single-->', re.DOTALL),
-        lambda match: '</title><body>'),
-        #(re.compile(r'^\t{5}<a href.*Permanent Link to ">$'), lambda match: ''),
-        #(re.compile(r'\t{5}</a>$'), lambda match: ''),
-        (re.compile(r'<div class="social4i".*</body>', re.DOTALL),
-        lambda match: '</body>'),
+        lambda match: '</title></head><body>'),
+        (re.compile(r'<img alt="" src="http://www.elmundotoday.com/wp-content/themes/emt/images/otrassecciones-line.gif">'),
+        lambda match: ''),
+        (re.compile(r'<div style="clear: both;"></div>.*</body>', re.DOTALL),
+        lambda match: '</body>')
     ]
 
     keep_only_tags = [
-        dict(name='div', attrs={'class':'post-wrapper'})
+        dict(name='div', attrs={'class':'post-wrapper '})
+    ]
+
+    remove_tags = [
+        dict(name='div', attrs={'class':'social4i'}),
+        dict(name='span', attrs={'class':'num-comentarios'})
     ]
 
     remove_attributes = [ 'href', 'title', 'alt' ]
@@ -36,8 +41,3 @@ class ElMundoTodayRecipe(BasicNewsRecipe):
     '''
 
     feeds = [('El Mundo Today', 'http://www.elmundotoday.com/feed/')]
-
-    def get_broser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        br.set_handle_gzip(True)
-        return br

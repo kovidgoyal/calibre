@@ -45,7 +45,7 @@ class Nspm(BasicNewsRecipe):
     remove_attributes  = ['width','height','lang','xmlns:fb','xmlns:og','vspace','hspace','type','start','size']
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.open(self.INDEX)
         return br
 

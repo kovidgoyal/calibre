@@ -28,6 +28,7 @@
 import array
 import string
 import sys
+import codecs
 
 import calibre.utils.chm.chmlib as chmlib
 from calibre.constants import plugins
@@ -184,7 +185,7 @@ locale_table = {
     0x0420 : ('iso8859_6', "Urdu", "Arabic"),
     0x0443 : ('iso8859_9', "Uzbek_Latin", "Turkish"),
     0x0843 : ('cp1251',    "Uzbek_Cyrillic", "Cyrillic"),
-    0x042a : (None,        "Vietnamese", "Vietnamese")
+    0x042a : ('cp1258',        "Vietnamese", "Vietnamese")
 }
 
 class CHMFile:
@@ -433,6 +434,19 @@ class CHMFile:
             return locale_table[self.lcid]
         else:
             return None
+
+    def get_encoding(self):
+        ans = self.GetEncoding()
+        if ans is None:
+            lcid = self.GetLCID()
+            if lcid is not None:
+                ans = lcid[0]
+        if ans:
+            try:
+                codecs.lookup(ans)
+            except:
+                ans = None
+        return ans
 
     def GetDWORD(self, buff, idx=0):
         '''Internal method.

@@ -14,7 +14,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets = True
-    #auto_cleanup = True
+    auto_cleanup = True
     language = 'en_GB'
 
     cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/161987_9010212100_2035706408_n.jpg'
@@ -23,7 +23,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.birminghampost.net')
         # look for the block containing the sun button and url
-        cov = soup.find(attrs={'height' : re.compile('3'), 'alt' : re.compile('Birmingham Post')})
+        cov = soup.find(attrs={'height' : re.compile('3'), 'alt' : re.compile('Post')})
         print
         print '%%%%%%%%%%%%%%%',cov
         print
@@ -43,20 +43,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
         return cover_url
 
 
-    keep_only_tags = [
-        dict(attrs={'id' : 'article-header'}),
-            #dict(name='h1',attrs={'id' : 'article-header'}),
-                        dict(attrs={'class':['article-meta-author','article-meta-date','article main','art-o art-align-center otm-1 ']}),
-        dict(name='div',attrs={'class' : 'article-image full'}),
-        dict(attrs={'clas' : 'art-o art-align-center otm-1 '}),
-            dict(name='div',attrs={'class' : 'article main'}),
-#dict(name='p')
-    #dict(attrs={'id' : 'three-col'})
-        ]
-    remove_tags    = [
-             # dict(name='div',attrs={'class' : 'span-33 last header-links'})
 
-                               ]
     feeds          = [
         #(u'News',u'http://www.birminghampost.net/news/rss.xml'),
         (u'West Mids. News', u'http://www.birminghampost.net/news/west-midlands-news/rss.xml'),
@@ -65,9 +52,3 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
         (u'Bloggs & Comments',u'http://www.birminghampost.net/comment/rss.xml')
 
          ]
-    extra_css = '''
-                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;text-align:center;}
-                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
-                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-        '''

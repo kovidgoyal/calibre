@@ -33,13 +33,14 @@ class Document(QWebPage): # {{{
 
     page_turn = pyqtSignal(object)
     mark_element = pyqtSignal(QWebElement)
+    settings_changed = pyqtSignal()
 
     def set_font_settings(self, opts):
         settings = self.settings()
         settings.setFontSize(QWebSettings.DefaultFontSize, opts.default_font_size)
         settings.setFontSize(QWebSettings.DefaultFixedFontSize, opts.mono_font_size)
-        settings.setFontSize(QWebSettings.MinimumLogicalFontSize, 8)
-        settings.setFontSize(QWebSettings.MinimumFontSize, 8)
+        settings.setFontSize(QWebSettings.MinimumLogicalFontSize, opts.minimum_font_size)
+        settings.setFontSize(QWebSettings.MinimumFontSize, opts.minimum_font_size)
         settings.setFontFamily(QWebSettings.StandardFont, {'serif':opts.serif_family, 'sans':opts.sans_family, 'mono':opts.mono_family}[opts.standard_font])
         settings.setFontFamily(QWebSettings.SerifFont, opts.serif_family)
         settings.setFontFamily(QWebSettings.SansSerifFont, opts.sans_family)
@@ -57,6 +58,7 @@ class Document(QWebPage): # {{{
             self.set_font_settings(opts)
             self.set_user_stylesheet(opts)
             self.misc_config(opts)
+            self.settings_changed.emit()
             self.after_load()
 
     def __init__(self, shortcuts, parent=None, debug_javascript=False):
@@ -153,6 +155,7 @@ class Document(QWebPage): # {{{
         self.cols_per_screen = opts.cols_per_screen
         self.side_margin = opts.side_margin
         self.top_margin, self.bottom_margin = opts.top_margin, opts.bottom_margin
+        self.show_controls = opts.show_controls
 
     def fit_images(self):
         if self.do_fit_images and not self.in_paged_mode:
@@ -676,7 +679,7 @@ class DocumentView(QWebView): # {{{
 
         if not text and img.isNull() and self.manager is not None:
             menu.addSeparator()
-            if self.document.in_fullscreen_mode and self.manager is not None:
+            if (not self.document.show_controls or self.document.in_fullscreen_mode) and self.manager is not None:
                 menu.addAction(self.manager.toggle_toolbar_action)
             menu.addAction(self.manager.action_full_screen)
 

@@ -16,15 +16,15 @@ from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import SafeFormat
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.config import tweaks, device_prefs
+from calibre.utils.config import tweaks, device_prefs, prefs
 from calibre.utils.date import dt_factory, qt_to_dt, as_local_time
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
-from calibre.library.caches import (_match, CONTAINS_MATCH, EQUALS_MATCH,
-    REGEXP_MATCH, MetadataBackup, force_to_bool)
+from calibre.db.search import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
+from calibre.library.caches import (MetadataBackup, force_to_bool)
 from calibre.library.save_to_disk import find_plugboard
 from calibre import strftime, isbytestring
-from calibre.constants import filesystem_encoding, DEBUG
+from calibre.constants import filesystem_encoding, DEBUG, config_dir
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.coloring import color_row_key
@@ -48,18 +48,20 @@ def default_image():
 
 class ColumnColor(object):
 
-    def __init__(self):
+    def __init__(self, formatter, colors):
         self.mi = None
+        self.formatter = formatter
+        self.colors = colors
 
-    def __call__(self, id_, key, fmt, db, formatter, color_cache, colors):
+    def __call__(self, id_, key, fmt, db, color_cache):
         if id_ in color_cache and key in color_cache[id_]:
             self.mi = None
             return color_cache[id_][key]
         try:
             if self.mi is None:
                 self.mi = db.get_metadata(id_, index_is_id=True)
-            color = formatter.safe_format(fmt, self.mi, '', self.mi)
-            if color in colors:
+            color = self.formatter.safe_format(fmt, self.mi, '', self.mi)
+            if color in self.colors:
                 color = QColor(color)
                 if color.isValid():
                     color = QVariant(color)
@@ -69,6 +71,36 @@ class ColumnColor(object):
         except:
             pass
 
+
+class ColumnIcon(object):
+
+    def __init__(self, formatter):
+        self.mi = None
+        self.formatter = formatter
+
+    def __call__(self, id_, key, fmt, kind, db, icon_cache, icon_bitmap_cache):
+        dex = key+kind
+        if id_ in icon_cache and dex in icon_cache[id_]:
+            self.mi = None
+            return icon_cache[id_][dex]
+        try:
+            if self.mi is None:
+                self.mi = db.get_metadata(id_, index_is_id=True)
+            icon = self.formatter.safe_format(fmt, self.mi, '', self.mi)
+            if icon:
+                if icon in icon_bitmap_cache:
+                    icon_bitmap = icon_bitmap_cache[icon]
+                    icon_cache[id_][dex] = icon_bitmap
+                    return icon_bitmap
+                d = os.path.join(config_dir, 'cc_icons', icon)
+                if (os.path.exists(d)):
+                    icon_bitmap = QIcon(d)
+                    icon_cache[id_][dex] = icon_bitmap
+                    icon_bitmap_cache[icon] = icon_bitmap
+                    self.mi = None
+                    return icon_bitmap
+        except:
+            pass
 
 class BooksModel(QAbstractTableModel): # {{{
 
@@ -97,7 +129,13 @@ class BooksModel(QAbstractTableModel): # {{{
     def __init__(self, parent=None, buffer=40):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
-        self.column_color = ColumnColor()
+
+        self.formatter = SafeFormat()
+        self.colors = frozenset([unicode(c) for c in QColor.colorNames()])
+        self._clear_caches()
+        self.column_color = ColumnColor(self.formatter, self.colors)
+        self.column_icon = ColumnIcon(self.formatter)
+
         self.book_on_device = None
         self.editable_cols = ['title', 'authors', 'rating', 'publisher',
                               'tags', 'series', 'timestamp', 'pubdate',
@@ -109,8 +147,6 @@ class BooksModel(QAbstractTableModel): # {{{
         self.column_map = []
         self.headers = {}
         self.alignment_map = {}
-        self.color_cache = defaultdict(dict)
-        self.color_row_fmt_cache = None
         self.buffer_size = buffer
         self.metadata_backup = None
         self.bool_yes_icon = QIcon(I('ok.png'))
@@ -121,9 +157,13 @@ class BooksModel(QAbstractTableModel): # {{{
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None
         self.highlight_only = False
-        self.colors = frozenset([unicode(c) for c in QColor.colorNames()])
-        self.formatter = SafeFormat()
         self.read_config()
+
+    def _clear_caches(self):
+        self.color_cache = defaultdict(dict)
+        self.icon_cache = defaultdict(dict)
+        self.icon_bitmap_cache = {}
+        self.color_row_fmt_cache = None
 
     def change_alignment(self, colname, alignment):
         if colname in self.column_map and alignment in ('left', 'right', 'center'):
@@ -195,15 +235,13 @@ class BooksModel(QAbstractTableModel): # {{{
 
 
     def refresh_ids(self, ids, current_row=-1):
-        self.color_cache = defaultdict(dict)
-        self.color_row_fmt_cache = None
+        self._clear_caches()
         rows = self.db.refresh_ids(ids)
         if rows:
             self.refresh_rows(rows, current_row=current_row)
 
     def refresh_rows(self, rows, current_row=-1):
-        self.color_cache = defaultdict(dict)
-        self.color_row_fmt_cache = None
+        self._clear_caches()
         for row in rows:
             if row == current_row:
                 self.new_bookdisplay_data.emit(
@@ -234,8 +272,7 @@ class BooksModel(QAbstractTableModel): # {{{
         return ret
 
     def count_changed(self, *args):
-        self.color_cache = defaultdict(dict)
-        self.color_row_fmt_cache = None
+        self._clear_caches()
         self.count_changed_signal.emit(self.db.count())
 
     def row_indices(self, index):
@@ -366,8 +403,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.resort(reset=reset)
 
     def reset(self):
-        self.color_cache = defaultdict(dict)
-        self.color_row_fmt_cache = None
+        self._clear_caches()
         QAbstractTableModel.reset(self)
 
     def resort(self, reset=True):
@@ -634,13 +670,12 @@ class BooksModel(QAbstractTableModel): # {{{
 
         def bool_type_decorator(r, idx=-1, bool_cols_are_tristate=True):
             val = force_to_bool(self.db.data[r][idx])
-            if not bool_cols_are_tristate:
-                if val is None or not val:
+            if val is None:
+                if not bool_cols_are_tristate:
                     return self.bool_no_icon
+                return NONE
             if val:
                 return self.bool_yes_icon
-            if val is None:
-                return self.bool_blank_icon
             return self.bool_no_icon
 
         def ondevice_decorator(r, idx=-1):
@@ -751,7 +786,23 @@ class BooksModel(QAbstractTableModel): # {{{
         # we will get asked to display columns we don't know about. Must test for this.
         if col >= len(self.column_to_dc_map):
             return NONE
-        if role in (Qt.DisplayRole, Qt.EditRole, Qt.ToolTipRole):
+        if role == Qt.DisplayRole:
+            rules = self.db.prefs['column_icon_rules']
+            if rules:
+                key = self.column_map[col]
+                id_ = None
+                for kind, k, fmt in rules:
+                    if k == key and kind == 'icon_only':
+                        if id_ is None:
+                            id_ = self.id(index)
+                            self.column_icon.mi = None
+                        ccicon = self.column_icon(id_, key, fmt, 'icon_only', self.db,
+                                              self.icon_cache, self.icon_bitmap_cache)
+                        if ccicon is not None:
+                            return NONE
+                self.icon_cache[id_][key+'icon_only'] = None
+            return self.column_to_dc_map[col](index.row())
+        elif role in (Qt.EditRole, Qt.ToolTipRole):
             return self.column_to_dc_map[col](index.row())
         elif role == Qt.BackgroundRole:
             if self.id(index) in self.ids_to_highlight_set:
@@ -768,7 +819,7 @@ class BooksModel(QAbstractTableModel): # {{{
             for k, fmt in self.db.prefs['column_color_rules']:
                 if k == key:
                     ccol = self.column_color(id_, key, fmt, self.db,
-                                self.formatter, self.color_cache, self.colors)
+                                             self.color_cache)
                     if ccol is not None:
                         return ccol
 
@@ -789,7 +840,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
             for fmt in self.color_row_fmt_cache:
                 ccol = self.column_color(id_, color_row_key, fmt, self.db,
-                            self.formatter, self.color_cache, self.colors)
+                                         self.color_cache)
                 if ccol is not None:
                     return ccol
 
@@ -797,7 +848,30 @@ class BooksModel(QAbstractTableModel): # {{{
             return NONE
         elif role == Qt.DecorationRole:
             if self.column_to_dc_decorator_map[col] is not None:
-                return self.column_to_dc_decorator_map[index.column()](index.row())
+                ccicon = self.column_to_dc_decorator_map[index.column()](index.row())
+                if ccicon != NONE:
+                    return ccicon
+
+            rules = self.db.prefs['column_icon_rules']
+            if rules:
+                key = self.column_map[col]
+                id_ = None
+                need_icon_with_text = False
+                for kind, k, fmt in rules:
+                    if k == key and kind in ('icon', 'icon_only'):
+                        if id_ is None:
+                            id_ = self.id(index)
+                            self.column_icon.mi = None
+                        if kind == 'icon':
+                            need_icon_with_text = True
+                        ccicon = self.column_icon(id_, key, fmt, kind, self.db,
+                                          self.icon_cache, self.icon_bitmap_cache)
+                        if ccicon is not None:
+                            return ccicon
+                if need_icon_with_text:
+                    self.icon_cache[id_][key+'icon'] = self.bool_blank_icon
+                    return self.bool_blank_icon
+                self.icon_cache[id_][key+'icon'] = None
         elif role == Qt.TextAlignmentRole:
             cname = self.column_map[index.column()]
             ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
@@ -1037,6 +1111,7 @@ class OnDeviceSearch(SearchQueryParser): # {{{
              }
         for x in ('author', 'format'):
             q[x+'s'] = q[x]
+        upf = prefs['use_primary_find_in_search']
         for index, row in enumerate(self.model.db):
             for locvalue in locations:
                 accessor = q[locvalue]
@@ -1063,7 +1138,7 @@ class OnDeviceSearch(SearchQueryParser): # {{{
                         vals = accessor(row).split(',')
                     else:
                         vals = [accessor(row)]
-                    if _match(query, vals, m):
+                    if _match(query, vals, m, use_primary_find_in_search=upf):
                         matches.add(index)
                         break
                 except ValueError: # Unicode errors

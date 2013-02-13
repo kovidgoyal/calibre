@@ -44,7 +44,7 @@ class IlMessaggero(BasicNewsRecipe):
         month = "%.2d" % st.tm_mon
         day = "%.2d" % st.tm_mday
         cover='http://carta.ilmessaggero.it/' + year +  month + day + '/jpeg/MSGR_20_CITTA_1.jpg'
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
         except:

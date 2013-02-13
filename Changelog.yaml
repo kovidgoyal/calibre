@@ -19,6 +19,234 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.18
+  date: 2013-02-08
+
+  new features:
+      - title: "New metadata source: Edelweiss, a catalog of books that is updated directly by publishers. To enable it, go to Preferences->Metadata download and enable the Edelweiss plugin."
+        tickets: [1091073]
+
+      - title: "Add an option to add extra spacing between rows in the book list. (Preferences->Look & Feel)"
+        tickets: [1117907]
+
+      - title: "Column coloring/icons: Add a 'days ago' condition, useable with columns that store dates to set colors/icons based on the number of days before today"
+
+      - title: "E-book viewer: Add shortcuts Ctrl+= and Ctrl+- to increase/decrease text size."
+        tickets: [ 1117524 ] 
+
+      - title: "When showing possible duplicates after adding books, also show the file formats."
+
+      - title: "Driver for Trekstor Ventos Tablet" 
+ 
+  bug fixes:
+    - title: "Conversion: When transliterating unicode characters, handle « and » correctly."
+      tickets: [1117270]
+
+    - title: "Fix adding books from multiple directories with multiple books per directory treating opf files as an ebook"
+
+    - title: "Fix download metadata window not resizable on smaller screens"
+      tickets: [1116849]
+
+    - title: "Tweak Book: When rebuilding azw3 files handle <a> tags that have name but not id attribute, these are apparently produced by kindlegen."
+      tickets: [ 1112934 ] 
+
+    - title: "Fix regression in advanced column color rules."
+      tickets: [1118678] 
+
+  improved recipes:
+    - El Mundo today
+    - fluter.de
+    - Birmingham Post
+    - Japan Times
+    - The Toronto Star
+    - Le Monde (subscription version)
+    - Globe and Mail
+
+  new recipes:
+    - title: VICE Magazine Deutschland 
+      author: Alex
+
+    - title: Libertad Digital 
+      author: Darko Miletic
+
+- version: 0.9.17
+  date: 2013-02-01
+
+  new features:
+    - title: "Allow adding user specified icons to the main book list for books whose metadata matches specific criteria. Go to Preferences->Look & Feel->Column icons to setup these icons. They work in the same way as the column coloring rules."
+      type: major
+
+    - title: "Allow choosing which page of a PDF to use as the cover."
+      description: "To access this functionality add the PDF to calibre then click the edit metadata button. In the top right area of the edit metadata dialog there is a button to get the cover from the ebook file, this will now allow you to choose which page (from the first ten pages) of the pdf to use as the cover."
+      tickets: [1110019]
+
+    - title: "Add option to turn off reflections in the cover browser (Preferences->Look & Feel->Cover Browser)"
+
+    - title: "PDF Output: Add an option to add page numbers to the bottom of every page in the generated PDF file (look in the PDF Output section of the conversion dialog)"
+
+    - title: "Add the full item name to the tool tip of a leaf item displayed in the tag browser."
+      tickets: [1106231]
+ 
+  bug fixes:
+    - title: "Fix out-of-bounds data causing errors in the Tag Browser"
+      tickets: [1108017]
+
+    - title: "Conversion: Handle input documents that use multiple prefixes referring to the XHTML namespace correctly."
+      tickets: [1107220]
+
+    - title: "PDF Output: Fix regression that caused some svg images to be rendered as black rectangles."
+      tickets: [1105294]
+
+    - title: "Metadata download: Only normalize title case if the result has no language set or its language is English"
+
+  improved recipes:
+    - Baltimore Sun
+    - Harvard Business Review
+    - Victoria Times
+    - South China Morning Post
+    - Volksrant
+    - Seattle Times
+
+  new recipes:
+    - title: Dob NeviNosti 
+      author: Darko Miletic
+
+    - title: La Nacion (CR) 
+      author: Douglas Delgado
+
+- version: 0.9.16
+  date: 2013-01-25
+
+  new features:
+    - title: "News download: Add support for logging in to sites that require javascript for their logins."
+      tickets: [1101809]
+
+    - title: "News download: Do not convert all downloaded images to JPG format. This fixes the problem of PNG images with transparent backgrounds being rendered with black backgrounds"
+
+    - title: "CHM Input: Support hierarchical table of contents. Do not generate an inline table of contents when a metadata table of contents is present. Also correctly decode the text in the table of contents"
+
+    - title: "Get Books: Add the beam-ebooks.de store"
+
+    - title: "Make custom yes/no columns using icons put text values under the icons."
+
+    - title: "Driver for LG E400 and SayCoolA710"
+      tickets: [1103741,1104528]
+
+    - title: "Speed up device connection when there are lots of books on the device by not generating cover thumbnails unless they are actually needed."
+
+    - title: "Have the metadata download dialog remember its last used size."
+      tickets: [1101150]
+ 
+  bug fixes:
+    - title: "Fix deleting a custom column that was used in a column coloring rule makes the column coloring preferences panel unusable"
+      tickets: [1103504]
+
+    - title: "Store caches outside the config directory for non-portable calibre installs"
+
+    - title: "PDF Output: Dont crash if the user has a font on his system that is missing the OS/2 table"
+      tickets: [1102403] 
+
+    - title: "Conversion: Do not error out because of an error in user supplied search replace rules."
+      tickets: [1102647]
+
+    - title: "Conversion: Replace all non-ascii characters in CSS class names, as they cause problems with some broken EPUB renderers."
+      tickets: [1102587]
+
+    - title: "Do not choke when reading metadata from MOBI files with incorrectly encoded metadata fields"
+
+    - title: "Conversion: Preserve ToC entries that point nowhere instead of causing them to point to a non-existent file"
+
+    - title: "E-book viewer: Allow entries in the Table of Contents that do not point anywhere, instead of just ignoring them."
+
+    - title: "Content server: Fix the 'Previous' link in the mobile version of the content server webpage skipping an entry"
+      tickets: [1101124] 
+
+  improved recipes:
+    - TSN
+    - St. Louis Post Dispatch
+    - Metro UK
+    - Michelle Malkin
+    - Barrons
+
+  new recipes:
+    - title: Contemporary Argentine Writers
+      author: Darko Miletic
+
+- version: 0.9.15
+  date: 2013-01-18
+
+  new features:
+    - title: "Linux MTP driver: Detect devices that have MTP interfaces even if their USB ids are not known"
+
+    - title: "Content server: Allow picking a random book by clicking the 'Random book' link on the start page. You can also refresh the random book page to get a new random book"
+
+    - title: "E-book viewer: Add an option to hide the toolbars in the viewer window (Preferences->Miscellaneous->Show controls in the viewr preferences). You can unhide them by right clicking in the viewer window."
+
+    - title: "Kobo driver: Speedup initial connect by avoiding unnecessary update of series metadata in some situations."
+      tickets: [1099190]
+
+    - title: "Get Books: Allow the store plugins to be dynamically loaded so that future website changes of a store dont require a calibre update to fix Get Books."
+
+    - title: "Wireless driver: Always replace file when resending a previously sent book to the device, even if the title/author have changed."
+
+    - title: "Add PocketBook Pro 912 driver."
+      tickets: [1099571]
+
+    - title: "When creating/exporting epub and mobi files, add the calibre book identifier as a special field in the book's metadata. This allows third party tools to identify the book record in calibre to which the file belongs."
+
+    - title: "Wireless driver: Add support for using the book uuid as the filename"
+
+    - title: "Remove the experimental tag from the subset fonts feature, since there has been only one reported problem (now fixed) with it in the two months since it was released"
+ 
+  bug fixes:
+    - title: "Get Books: Update the amazon, waterstones and libri.de plugins to account for website changes"
+
+    - title: "MOBI Input: Do not choke on MOBI files with incorrectly encoded titles."
+      tickets: [1100601]
+
+    - title: "Font subsetting: Fix a bug in the parsing of the GSUB table that could cause some ligatures to not be included in the subset font"
+
+    - title: "E-book-viewer: Fix TOC links without anchors not scrolling to the top of the current flow"
+
+    - title: "LIT Input: Handle lit files that set an incorrect XML mimetype for their text."
+      tickets: [1099621]
+
+    - title: "Catalogs: Fix 'X' being droppen from isbns on export"
+      tickets: [1098325]
+
+    - title: "Fix an error when editing date in the main book list and all visible dates are blank."
+      tickets: [1098675]
+
+    - title: "Fix calibre-smtp using incorrect escaping for non-ascii attachment filenames"
+      tickets: [1098478]
+
+    - title: "Conversion: When subsetting fonts, handle multiple @font-face rules referring to the same physical font"
+
+    - title: "Content server: Update metadata when serving azw3 files"
+
+    - title: "CHM Input: Handle chm files that contain files with url unsafe filenames."
+      tickets: [1100610]
+
+    - title: "Content server: Fix custom icons for top level categories incorrect."
+      tickets: [1095016]
+
+    - title: "Kobo driver: When resending a file to the device, update the filesize in the Kobo db to prevent the device from deleting the file."
+      tickets: [1100607]
+
+  improved recipes:
+    - The Chronicle of Higher Education
+    - Smithsonian Magazine
+    - Philosophy Now
+    - The Economist
+    - Business Week Magazine
+
+  new recipes:
+    - title: Asco de Vida 
+      author: Krittika Goyal
+
+    - title: Schattenblick 
+      author: ThB
+
 - version: 0.9.14
   date: 2013-01-11
 

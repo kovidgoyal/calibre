@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from future_builtins import map
 from calibre.utils.fonts.utils import get_all_font_names
+from calibre.utils.fonts.sfnt.container import UnsupportedFont
 
 class FontMetrics(object):
 
@@ -19,6 +20,10 @@ class FontMetrics(object):
     '''
 
     def __init__(self, sfnt):
+        for table in (b'head', b'hhea', b'hmtx', b'cmap', b'OS/2', b'post',
+                      b'name'):
+            if table not in sfnt:
+                raise UnsupportedFont('This font has no %s table'%table)
         self.sfnt = sfnt
 
         self.head = self.sfnt[b'head']

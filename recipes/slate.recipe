@@ -85,7 +85,7 @@ class Slate(BasicNewsRecipe):
 
     def get_masthead_url(self):
         masthead = 'http://img.slate.com/images/redesign2008/slate_logo.gif'
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(masthead)
         except:

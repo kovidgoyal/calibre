@@ -116,7 +116,7 @@ class ElMundo(BasicNewsRecipe):
        day = "%.2d" % st.tm_mday
 		#http://img.kiosko.net/2011/11/19/es/elmundo.750.jpg
        cover='http://img.kiosko.net/'+ year + '/' +  month + '/' + day +'/es/elmundo.750.jpg'
-       br = BasicNewsRecipe.get_browser()
+       br = BasicNewsRecipe.get_browser(self)
        try:
            br.open(cover)
        except:

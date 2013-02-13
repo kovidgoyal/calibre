@@ -252,7 +252,7 @@ class GraphicsState(object):
                   'clip_updated', 'do_fill', 'do_stroke')
 
     def __init__(self):
-        self.fill = QBrush()
+        self.fill = QBrush(Qt.white)
         self.stroke = QPen()
         self.opacity = 1.0
         self.transform = QTransform()

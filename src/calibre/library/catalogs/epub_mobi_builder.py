@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape
 
 from calibre import (prepare_string_for_xml, strftime, force_unicode,
         isbytestring)
-from calibre.constants import isosx
+from calibre.constants import isosx, cache_dir
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
@@ -18,7 +18,6 @@ from calibre.ebooks.metadata import author_to_author_sort
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException, \
                                      InvalidGenresSourceFieldException
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.config import config_dir
 from calibre.utils.date import format_date, is_date_undefined, now as nowf
 from calibre.utils.filenames import ascii_text, shorten_components_to
 from calibre.utils.icu import capitalize, collation_order, sort_key
@@ -109,7 +108,7 @@ class CatalogBuilder(object):
         self.plugin = plugin
         self.reporter = report_progress
         self.stylesheet = stylesheet
-        self.cache_dir = os.path.join(config_dir, 'caches', 'catalog')
+        self.cache_dir = os.path.join(cache_dir(), 'catalog')
         self.catalog_path = PersistentTemporaryDirectory("_epub_mobi_catalog", prefix='')
         self.content_dir = os.path.join(self.catalog_path, "content")
         self.excluded_tags = self.get_excluded_tags()

@@ -17,7 +17,7 @@ class JournalofHospitalMedicine(BasicNewsRecipe):
 
    # TO LOGIN
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.open('http://www3.interscience.wiley.com/cgi-bin/home')
         br.select_form(nr=0)
         br['j_username'] = self.username

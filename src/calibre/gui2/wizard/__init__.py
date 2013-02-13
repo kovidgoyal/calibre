@@ -198,6 +198,7 @@ class NookColor(Nook):
 class NookTablet(NookColor):
     id = 'nook_tablet'
     name = 'Nook Tablet/HD'
+    output_profile = 'nook_hd_plus'
 
 class CybookG3(Device):
 

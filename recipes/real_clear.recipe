@@ -128,7 +128,7 @@ class RealClear(BasicNewsRecipe):
     def get_browser(self):
         if self.debugMessages == True :
             print("In get_browser")
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         return br
 
     def parseRSS(self, index) :

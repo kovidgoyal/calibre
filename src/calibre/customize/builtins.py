@@ -624,12 +624,6 @@ from calibre.library.catalogs.epub_mobi import EPUB_MOBI
 plugins += [CSV_XML, BIBTEX, EPUB_MOBI]
 # }}}
 
-# EPUB Fix plugins {{{
-from calibre.ebooks.epub.fix.unmanifested import Unmanifested
-from calibre.ebooks.epub.fix.epubcheck import Epubcheck
-plugins += [Unmanifested, Epubcheck]
-# }}}
-
 # Profiles {{{
 from calibre.customize.profiles import input_profiles, output_profiles
 plugins += input_profiles + output_profiles
@@ -757,13 +751,14 @@ plugins += [
 # New metadata download plugins {{{
 from calibre.ebooks.metadata.sources.google import GoogleBooks
 from calibre.ebooks.metadata.sources.amazon import Amazon
+from calibre.ebooks.metadata.sources.edelweiss import Edelweiss
 from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
 from calibre.ebooks.metadata.sources.isbndb import ISBNDB
 from calibre.ebooks.metadata.sources.overdrive import OverDrive
 from calibre.ebooks.metadata.sources.douban import Douban
 from calibre.ebooks.metadata.sources.ozon import Ozon
 
-plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive, Douban, Ozon]
+plugins += [GoogleBooks, Amazon, Edelweiss, OpenLibrary, ISBNDB, OverDrive, Douban, Ozon]
 
 # }}}
 
@@ -788,6 +783,11 @@ class ActionConvert(InterfaceActionBase):
     name = 'Convert Books'
     actual_plugin = 'calibre.gui2.actions.convert:ConvertAction'
     description = _('Convert books to various ebook formats')
+
+class ActionPolish(InterfaceActionBase):
+    name = 'Polish Books'
+    actual_plugin = 'calibre.gui2.actions.polish:PolishAction'
+    description = _('Fine tune your ebooks')
 
 class ActionDelete(InterfaceActionBase):
     name = 'Remove Books'
@@ -924,7 +924,7 @@ class ActionPluginUpdater(InterfaceActionBase):
 
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
-        ActionFetchNews, ActionSaveToDisk, ActionQuickview,
+        ActionFetchNews, ActionSaveToDisk, ActionQuickview, ActionPolish,
         ActionShowBookDetails,ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
@@ -1280,6 +1280,17 @@ class StoreBNStore(StoreBase):
     headquarters = 'US'
     formats = ['NOOK']
 
+class StoreBeamEBooksDEStore(StoreBase):
+    name = 'Beam EBooks DE'
+    author = 'Charles Haley'
+    description = u'Bei uns finden Sie: Tausende deutschsprachige eBooks; Alle eBooks ohne hartes DRM; PDF, ePub und Mobipocket Format; Sofortige Verfügbarkeit - 24 Stunden am Tag; Günstige Preise; eBooks für viele Lesegeräte, PC,Mac und Smartphones; Viele Gratis eBooks'
+    actual_plugin = 'calibre.gui2.store.stores.beam_ebooks_de_plugin:BeamEBooksDEStore'
+
+    drm_free_only = True
+    headquarters = 'DE'
+    formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
+
 class StoreBeWriteStore(StoreBase):
     name = 'BeWrite Books'
     description = u'Publishers of fine books. Highly selective and editorially driven. Does not offer: books for children or exclusively YA, erotica, swords-and-sorcery fantasy and space-opera-style science fiction. All other genres are represented.'
@@ -1402,7 +1413,6 @@ class StoreEmpikStore(StoreBase):
 
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF']
-    affiliate = True
 
 class StoreEscapeMagazineStore(StoreBase):
     name = 'EscapeMagazine'
@@ -1670,6 +1680,7 @@ plugins += [
     StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore,
     StoreBNStore,
+    StoreBeamEBooksDEStore,
     StoreBeWriteStore,
     StoreBiblioStore,
     StoreBookotekaStore,

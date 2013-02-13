@@ -21,6 +21,10 @@ class AdvancedUserRecipe1287083651(BasicNewsRecipe):
     encoding               = 'utf8'
     publisher              = 'Globe & Mail'
     language               = 'en_CA'
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
     extra_css = 'p.meta {font-size:75%}\n .redtext {color: red;}\n .byline {font-size: 70%}'
 
     feeds          = [
@@ -44,12 +48,12 @@ class AdvancedUserRecipe1287083651(BasicNewsRecipe):
         (re.compile(r'<script.*?</script>', re.DOTALL), lambda m: ''),
         ]
 
-    remove_tags_before = dict(name='h1')
-    remove_tags = [
-            dict(name='div', attrs={'id':['ShareArticles', 'topStories']}),
-            dict(href=lambda x: x and 'tracking=' in x),
-            {'class':['articleTools', 'pagination', 'Ads', 'topad',
-                'breadcrumbs', 'footerNav', 'footerUtil', 'downloadlinks']}]
+    #remove_tags_before = dict(name='h1')
+    #remove_tags = [
+            #dict(name='div', attrs={'id':['ShareArticles', 'topStories']}),
+            #dict(href=lambda x: x and 'tracking=' in x),
+            #{'class':['articleTools', 'pagination', 'Ads', 'topad',
+                #'breadcrumbs', 'footerNav', 'footerUtil', 'downloadlinks']}]
 
     def populate_article_metadata(self, article, soup, first):
         if first and hasattr(self, 'add_toc_thumbnail'):

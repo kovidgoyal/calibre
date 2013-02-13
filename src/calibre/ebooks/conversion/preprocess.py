@@ -515,6 +515,7 @@ class HTMLPreProcessor(object):
         if not getattr(self.extra_opts, 'keep_ligatures', False):
             html = _ligpat.sub(lambda m:LIGATURES[m.group()], html)
 
+        user_sr_rules = {}
         # Function for processing search and replace
         def do_search_replace(search_pattern, replace_txt):
             try:
@@ -522,6 +523,7 @@ class HTMLPreProcessor(object):
                 if not replace_txt:
                     replace_txt = ''
                 rules.insert(0, (search_re, replace_txt))
+                user_sr_rules[(search_re, replace_txt)] = search_pattern
             except Exception as e:
                 self.log.error('Failed to parse %r regexp because %s' %
                         (search, as_unicode(e)))
@@ -587,7 +589,16 @@ class HTMLPreProcessor(object):
         #dump(html, 'pre-preprocess')
 
         for rule in rules + end_rules:
-            html = rule[0].sub(rule[1], html)
+            try:
+                html = rule[0].sub(rule[1], html)
+            except re.error as e:
+                if rule in user_sr_rules:
+                    self.log.error(
+                        'User supplied search & replace rule: %s -> %s '
+                        'failed with error: %s, ignoring.'%(
+                            user_sr_rules[rule], rule[1], e))
+                else:
+                    raise
 
         if is_pdftohtml and length > -1:
             # Dehyphenate
@@ -615,7 +626,10 @@ class HTMLPreProcessor(object):
 
         if getattr(self.extra_opts, 'asciiize', False):
             from calibre.utils.localization import get_udc
+            from calibre.utils.mreplace import MReplace
             unihandecoder = get_udc()
+            mr = MReplace(data={u'«':u'&lt;'*3, u'»':u'&gt;'*3})
+            html = mr.mreplace(html)
             html = unihandecoder.decode(html)
 
         if getattr(self.extra_opts, 'enable_heuristics', False):

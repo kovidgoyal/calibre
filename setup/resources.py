@@ -26,7 +26,7 @@ def get_opts_from_parser(parser):
 class Coffee(Command): # {{{
 
     description = 'Compile coffeescript files into javascript'
-    COFFEE_DIRS = ('ebooks/oeb/display',)
+    COFFEE_DIRS = ('ebooks/oeb/display', 'ebooks/oeb/polish')
 
     def add_options(self, parser):
         parser.add_option('--watch', '-w', action='store_true', default=False,

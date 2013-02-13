@@ -43,7 +43,7 @@ class WeeklyLWN(BasicNewsRecipe):
     needs_subscription = 'optional'
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('https://lwn.net/login')
             br.select_form(name='loginform')
