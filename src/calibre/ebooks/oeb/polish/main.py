@@ -42,8 +42,8 @@ changes needed for the desired effect.</p>
 
 <p>You should use this tool as the last step in your ebook creation process.</p>
 
-<p>Note that polishing only works on files in the <b>%s</b> formats.</p>
-''')%_(' or ').join(SUPPORTED),
+<p>Note that polishing only works on files in the %s formats.</p>
+''')%_(' or ').join('<b>%s</b>'%x for x in SUPPORTED),
 
 'subset': _('''\
 <p>Subsetting fonts means reducing an embedded font to contain
