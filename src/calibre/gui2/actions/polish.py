@@ -28,8 +28,10 @@ class Polish(QDialog): # {{{
         QDialog.__init__(self, parent)
         self.db, self.book_id_map = weakref.ref(db), book_id_map
         self.setWindowIcon(QIcon(I('polish.png')))
-        self.setWindowTitle(ngettext(
-            'Polish book', _('Polish %d books')%len(book_id_map), len(book_id_map)))
+        title = _('Polish book')
+        if len(book_id_map) > 1:
+            title = _('Polish %d books')%len(book_id_map)
+        self.setWindowTitle(title)
 
         self.help_text = {
             'polish': _('<h3>About Polishing books</h3>%s')%HELP['about'],
@@ -44,6 +46,8 @@ class Polish(QDialog): # {{{
                          ' <p>Note that most ebook'
                          ' formats are not capable of supporting all the'
                          ' metadata in calibre.</p>'),
+            'jacket':_('<h3>Book Jacket</h3>%s')%HELP['jacket'],
+            'remove_jacket':_('<h3>Remove Book Jacket</h3>%s')%HELP['jacket'],
         }
 
         self.l = l = QGridLayout()
@@ -56,6 +60,8 @@ class Polish(QDialog): # {{{
         self.all_actions = OrderedDict([
             ('subset', _('Subset all embedded fonts')),
             ('metadata', _('Update metadata in book files')),
+            ('jacket', _('Add metadata as a "book jacket" page')),
+            ('remove_jacket', _('Remove a previously inserted book jacket')),
         ])
         for name, text in self.all_actions.iteritems():
             count += 1

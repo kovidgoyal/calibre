@@ -195,6 +195,7 @@ def set_epub_cover(container, cover_path, report):
     cover_page = find_cover_page(container)
     wrapped_image = extra_cover_page = None
     updated = False
+    log = container.log
 
     possible_removals = set(clean_opf(container))
     possible_removals
@@ -209,6 +210,7 @@ def set_epub_cover(container, cover_path, report):
             cover_page = candidate
 
     if cover_page is not None:
+        log('Found existing cover page')
         wrapped_image = find_cover_image_in_page(container, cover_page)
 
         if len(spine_items) > 1:
@@ -217,6 +219,7 @@ def set_epub_cover(container, cover_path, report):
             if c != cover_page:
                 candidate = find_cover_image_in_page(container, c)
                 if candidate and candidate in {wrapped_image, cover_image}:
+                    log('Found an extra cover page that is a simple wrapper, removing it')
                     # This page has only a single image and that image is the
                     # cover image, remove it.
                     container.remove_item(c)
@@ -231,6 +234,7 @@ def set_epub_cover(container, cover_path, report):
         if wrapped_image is not None:
             # The cover page is a simple wrapper around a single cover image,
             # we can remove it safely.
+            log('Existing cover page is a simple wrapper, removing it')
             container.remove_item(cover_page)
             container.remove_item(wrapped_image)
             updated = True

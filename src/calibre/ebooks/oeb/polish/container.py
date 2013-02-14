@@ -8,6 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, logging, sys, hashlib, uuid, re
+from io import BytesIO
 from urllib import unquote as urlunquote, quote as urlquote
 from urlparse import urlparse
 
@@ -215,6 +216,13 @@ class Container(object):
         return self.parsed(self.opf_name)
 
     @property
+    def mi(self):
+        from calibre.ebooks.metadata.opf2 import OPF as O
+        mi = self.serialize_item(self.opf_name)
+        return O(BytesIO(mi), basedir=self.opf_dir, unquote_urls=False,
+                populate_spine=False).to_book_metadata()
+
+    @property
     def manifest_id_map(self):
         return {item.get('id'):self.href_to_name(item.get('href'), self.opf_name)
             for item in self.opf_xpath('//opf:manifest/opf:item[@href and @id]')}
@@ -376,17 +384,23 @@ class Container(object):
         if len(mdata) > 0:
             mdata[-1].tail = '\n  '
 
-    def commit_item(self, name):
+    def serialize_item(self, name):
+        data = self.parsed(name)
         if name == self.opf_name:
             self.format_opf()
-        self.dirtied.remove(name)
-        data = self.parsed_cache.pop(name)
         data = serialize(data, self.mime_map[name])
         if name == self.opf_name:
             # Needed as I can't get lxml to output opf:role and
             # not output <opf:metadata> as well
             data = re.sub(br'(<[/]{0,1})opf:', r'\1', data)
+        return data
 
+    def commit_item(self, name):
+        if name not in self.parsed_cache:
+            return
+        data = self.serialize_item(name)
+        self.dirtied.remove(name)
+        self.parsed_cache.pop(name)
         with open(self.name_path_map[name], 'wb') as f:
             f.write(data)
 

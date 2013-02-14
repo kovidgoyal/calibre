@@ -15,12 +15,16 @@ from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.stats import StatsCollector
 from calibre.ebooks.oeb.polish.subset import subset_all_fonts
 from calibre.ebooks.oeb.polish.cover import set_cover
+from calibre.ebooks.oeb.polish.jacket import (
+    replace_jacket, add_or_replace_jacket, find_existing_jacket, remove_jacket)
 from calibre.utils.logging import Log
 
 ALL_OPTS = {
     'subset': False,
     'opf': None,
     'cover': None,
+    'jacket': False,
+    'remove_jacket':False,
 }
 
 SUPPORTED = {'EPUB', 'AZW3'}
@@ -59,6 +63,15 @@ characters or completely removed.</p>
 date you decide to add more text to your books, the newly added
 text might not be covered by the subset font.</p>
 '''),
+
+'jacket': _('''\
+<p>Insert a "book jacket" page at the start of the book that contains
+all the book metadata such as title, tags, authors, series, commets,
+etc.</p>'''),
+
+'remove_jacket': _('''\
+<p>Remove a previous inserted book jacket page.</p>
+'''),
 }
 
 def hfix(name, raw):
@@ -92,30 +105,54 @@ def polish(file_map, opts, log, report):
     rt = lambda x: report('\n### ' + x)
     st = time.time()
     for inbook, outbook in file_map.iteritems():
-        report('## Polishing: %s'%(inbook.rpartition('.')[-1].upper()))
+        report(_('## Polishing: %s')%(inbook.rpartition('.')[-1].upper()))
         ebook = get_container(inbook, log)
+        jacket = None
 
         if opts.subset:
             stats = StatsCollector(ebook)
 
         if opts.opf:
-            rt('Updating metadata')
+            rt(_('Updating metadata'))
             update_metadata(ebook, opts.opf)
-            report('Metadata updated\n')
+            jacket = find_existing_jacket(ebook)
+            if jacket is not None:
+                replace_jacket(ebook, jacket)
+                report(_('Updated metadata jacket'))
+            report(_('Metadata updated\n'))
 
         if opts.subset:
-            rt('Subsetting embedded fonts')
+            rt(_('Subsetting embedded fonts'))
             subset_all_fonts(ebook, stats.font_stats, report)
             report('')
 
         if opts.cover:
-            rt('Setting cover')
+            rt(_('Setting cover'))
             set_cover(ebook, opts.cover, report)
+            report('')
+
+        if opts.jacket:
+            rt(_('Inserting metadata jacket'))
+            if jacket is None:
+                if add_or_replace_jacket(ebook):
+                    report(_('Existing metadata jacket replaced'))
+                else:
+                    report(_('Metadata jacket inserted'))
+            else:
+                report(_('Existing metadata jacket replaced'))
+            report('')
+
+        if opts.remove_jacket:
+            rt(_('Removing metadata jacket'))
+            if remove_jacket(ebook):
+                report(_('Metadata jacket removed'))
+            else:
+                report(_('No metadata jacket found'))
             report('')
 
         ebook.commit(outbook)
         report('-'*70)
-    report('Polishing took: %.1f seconds'%(time.time()-st))
+    report(_('Polishing took: %.1f seconds')%(time.time()-st))
 
 REPORT = '{0} REPORT {0}'.format('-'*30)
 
@@ -151,6 +188,8 @@ def option_parser():
         'If no cover is present, or the cover is not properly identified, inserts a new cover.'))
     a('--opf', '-o', help=_(
         'Path to an OPF file. The metadata in the book is updated from the OPF file.'))
+    o('--jacket', '-j', help=CLI_HELP['jacket'])
+    o('--remove-jacket', help=CLI_HELP['remove_jacket'])
 
     o('--verbose', help=_('Produce more verbose output, useful for debugging.'))
 
