@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, weakref, shutil
 from collections import OrderedDict
+from functools import partial
 
 from PyQt4.Qt import (QDialog, QGridLayout, QIcon, QCheckBox, QLabel, QFrame,
                       QApplication, QDialogButtonBox, Qt, QSize, QSpacerItem,
@@ -66,6 +67,7 @@ class Polish(QDialog): # {{{
         for name, text in self.all_actions.iteritems():
             count += 1
             x = QCheckBox(text, self)
+            x.stateChanged.connect(partial(self.option_toggled, name))
             l.addWidget(x, count, 0, 1, 1)
             setattr(self, 'opt_'+name, x)
             la = QLabel(' <a href="#%s">%s</a>'%(name, _('About')))
@@ -93,6 +95,10 @@ class Polish(QDialog): # {{{
         l.addWidget(bb, count+1, 0, 1, -1)
 
         self.resize(QSize(800, 600))
+
+    def option_toggled(self, name, *args):
+        if getattr(self, 'opt_'+name).isChecked():
+            self.help_label.setText(self.help_text[name])
 
     def help_link_activated(self, link):
         link = unicode(link)[1:]
