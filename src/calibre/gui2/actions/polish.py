@@ -98,10 +98,21 @@ class Polish(QDialog): # {{{
         self.load_button = lb = bb.addButton(_('&Load Settings'), bb.ActionRole)
         self.load_menu = QMenu(lb)
         lb.setMenu(self.load_menu)
+        self.all_button = b = bb.addButton(_('Select &all'), bb.ActionRole)
+        b.clicked.connect(partial(self.select_all, True))
+        self.none_button = b = bb.addButton(_('Select &none'), bb.ActionRole)
+        b.clicked.connect(partial(self.select_all, False))
         l.addWidget(bb, count+1, 0, 1, -1)
         self.setup_load_button()
 
         self.resize(QSize(900, 600))
+
+    def select_all(self, enable):
+        for action in self.all_actions:
+            x = getattr(self, 'opt_'+action)
+            x.blockSignals(True)
+            x.setChecked(enable)
+            x.blockSignals(False)
 
     def save_settings(self):
         if not self.something_selected:
