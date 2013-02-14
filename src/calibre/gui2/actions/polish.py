@@ -376,7 +376,7 @@ class PolishAction(InterfaceAction):
             if d.jobs:
                 self.gui.jobs_pointer.start()
                 self.gui.status_bar.show_message(
-                    _('Starting polishing of %d book(s)') % len(d.jobs), 2000)
+                    _('Start polishing of %d book(s)') % len(d.jobs), 2000)
 
     def book_polished(self, job):
         if job.failed:
