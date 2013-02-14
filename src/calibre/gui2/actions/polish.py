@@ -254,9 +254,14 @@ class Report(QDialog): # {{{
         v.setReadOnly(True)
         l.addWidget(self.view, 0, 0, 1, 2)
 
+        self.backup_msg = la = QLabel('')
+        l.addWidget(la, 1, 0, 1, 2)
+        la.setVisible(False)
+        la.setWordWrap(True)
+
         self.ign_msg = _('Ignore remaining %d reports')
         self.ign = QCheckBox(self.ign_msg, self)
-        l.addWidget(self.ign, 1, 0)
+        l.addWidget(self.ign, 2, 0)
 
         bb = self.bb = QDialogButtonBox(QDialogButtonBox.Close)
         bb.accepted.connect(self.accept)
@@ -264,7 +269,7 @@ class Report(QDialog): # {{{
         b = self.log_button = bb.addButton(_('View full &log'), bb.ActionRole)
         b.clicked.connect(self.view_log)
         bb.button(bb.Close).setDefault(True)
-        l.addWidget(bb, 1, 1)
+        l.addWidget(bb, 2, 1)
 
         self.finished.connect(self.show_next, type=Qt.QueuedConnection)
 
@@ -288,6 +293,15 @@ class Report(QDialog): # {{{
         self.view.setText(markdown('# %s\n\n'%book_title + report,
                                    output_format='html4'))
         self.bb.button(self.bb.Close).setFocus(Qt.OtherFocusReason)
+        self.backup_msg.setVisible(bool(fmts))
+        if fmts:
+            m = ngettext('The original file has been saved as %s.',
+                     'The original files have been saved as %s.', len(fmts))%(
+                _(' and ').join('ORIGINAL_'+f for f in fmts)
+                     )
+            self.backup_msg.setText(m + ' ' + _(
+                'If you polish again, the polishing will run on the originals.')%(
+                ))
 
     def view_log(self):
         self.view.setPlainText(self.current_log)
