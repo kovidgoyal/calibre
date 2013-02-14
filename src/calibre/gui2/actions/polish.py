@@ -13,9 +13,10 @@ from functools import partial
 
 from PyQt4.Qt import (QDialog, QGridLayout, QIcon, QCheckBox, QLabel, QFrame,
                       QApplication, QDialogButtonBox, Qt, QSize, QSpacerItem,
-                      QSizePolicy, QTimer, QModelIndex, QTextEdit)
+                      QSizePolicy, QTimer, QModelIndex, QTextEdit,
+                      QInputDialog, QMenu)
 
-from calibre.gui2 import error_dialog, Dispatcher
+from calibre.gui2 import error_dialog, Dispatcher, gprefs
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.convert.metadata import create_opf_file
 from calibre.gui2.dialogs.progress import ProgressDialog
@@ -92,9 +93,51 @@ class Polish(QDialog): # {{{
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
+        self.save_button = sb = bb.addButton(_('&Save Settings'), bb.ActionRole)
+        sb.clicked.connect(self.save_settings)
+        self.load_button = lb = bb.addButton(_('&Load Settings'), bb.ActionRole)
+        self.load_menu = QMenu(lb)
+        lb.setMenu(self.load_menu)
         l.addWidget(bb, count+1, 0, 1, -1)
+        self.setup_load_button()
 
         self.resize(QSize(900, 600))
+
+    def save_settings(self):
+        if not self.something_selected:
+            return error_dialog(self, _('No actions selected'),
+                _('You must select at least one action before saving'),
+                                show=True)
+        name, ok = QInputDialog.getText(self, _('Choose name'),
+                _('Choose a name for these settings'))
+        if ok:
+            name = unicode(name).strip()
+            if name:
+                settings = {ac:getattr(self, 'opt_'+ac).isChecked() for ac in
+                            self.all_actions}
+                saved = gprefs.get('polish_settings', {})
+                saved[name] = settings
+                gprefs.set('polish_settings', saved)
+                self.setup_load_button()
+
+    def setup_load_button(self):
+        saved = gprefs.get('polish_settings', {})
+        m = self.load_menu
+        m.clear()
+        self.__actions = []
+        for name in sorted(saved):
+            self.__actions.append(m.addAction(name, partial(self.load_settings,
+                                                            name)))
+        self.load_button.setEnabled(bool(saved))
+
+    def load_settings(self, name):
+        saved = gprefs.get('polish_settings', {}).get(name, {})
+        for action in self.all_actions:
+            checked = saved.get(action, False)
+            x = getattr(self, 'opt_'+action)
+            x.blockSignals(True)
+            x.setChecked(checked)
+            x.blockSignals(False)
 
     def option_toggled(self, name, state):
         if state == Qt.Checked:
@@ -103,6 +146,13 @@ class Polish(QDialog): # {{{
     def help_link_activated(self, link):
         link = unicode(link)[1:]
         self.help_label.setText(self.help_text[link])
+
+    @property
+    def something_selected(self):
+        for action in self.all_actions:
+            if getattr(self, 'opt_'+action).isChecked():
+                return True
+        return False
 
     def accept(self):
         self.actions = ac = {}
