@@ -94,7 +94,7 @@ class Polish(QDialog): # {{{
         bb.rejected.connect(self.reject)
         l.addWidget(bb, count+1, 0, 1, -1)
 
-        self.resize(QSize(800, 600))
+        self.resize(QSize(900, 600))
 
     def option_toggled(self, name, state):
         if state == Qt.Checked:
