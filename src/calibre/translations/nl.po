@@ -57,15 +57,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-08 06:37+0000\n"
-"PO-Revision-Date: 2013-02-09 15:03+0000\n"
-"Last-Translator: Daniel S. Joffe <afspraken@tandzorgsteenwijk.nl>\n"
+"PO-Revision-Date: 2013-02-13 18:52+0000\n"
+"Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-10 04:48+0000\n"
-"X-Generator: Launchpad (build 16482)\n"
+"X-Launchpad-Export-Date: 2013-02-14 04:36+0000\n"
+"X-Generator: Launchpad (build 16491)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -5262,6 +5262,8 @@ msgid ""
 "Downloads metadata and covers from Edelweiss - A catalog updated by book "
 "publishers"
 msgstr ""
+"Download metadata en omslagen van Edelweiss - Een catalogus bijgewerkt door "
+"uitgevers"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:162
 msgid "Downloads metadata and covers from Google Books"
@@ -5455,6 +5457,9 @@ msgid ""
 "from Amazon. calibre can only edit MOBI files that contain KF8 books. Older "
 "MOBI files without KF8 are not editable."
 msgstr ""
+"Dit MOBI bestand bevat geen boek in KF8-formaat. KF8 is het nieuwe formaat "
+"van Amazon. Calibre kan enkel MOBI bestanden bewerken in KF8-formaat. Oudere "
+"MOBI bestanden zonder KF8 zijn niet te bewerken."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:425
 msgid ""
@@ -5518,19 +5523,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:110
 msgid "Produce more verbose output, useful for debugging."
-msgstr ""
+msgstr "Geef uitgebreidere uitvoer, nuttig bij foutopsporing."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:120
 msgid "You must provide the input file to polish"
-msgstr ""
+msgstr "U dient een bestand op te geven om bij te schaven"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:124
 msgid "Unknown extra arguments"
-msgstr ""
+msgstr "Onbekende extra parameter"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:148
 msgid "You must specify at least one action to perform"
-msgstr ""
+msgstr "U dient minimaal één taak op te geven om uit te voeren"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
@@ -7056,69 +7061,69 @@ msgstr "Plugin bijwerken"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:33
 #, python-format
 msgid "Polish %d books"
-msgstr ""
+msgstr "%d boeken bijschaven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:36
 #, python-format
 msgid "<h3>About Polishing books</h3>%s"
-msgstr ""
+msgstr "<h3>Over het bijschaven van boeken</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:38
 #, python-format
 msgid "<h3>Subsetting fonts</h3>%s"
-msgstr ""
+msgstr "<h3>Lettertypes als deelverzameling</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:44
 msgid "Select actions to perform:"
-msgstr ""
+msgstr "Selecteer taken om uit te voeren:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:49
 msgid "Subset all embedded fonts"
-msgstr ""
+msgstr "Deelverzameling van alle ingesloten lettertypes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:56
 msgid "About"
-msgstr ""
+msgstr "Over"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:94
 msgid "No actions selected"
-msgstr ""
+msgstr "Geen taken geselecteerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:95
 msgid "You must select at least one action, or click Cancel."
-msgstr ""
+msgstr "U dient minimaal één taak te selecteren, of klik Annuleren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:108
 msgid "Queueing books for polishing"
-msgstr ""
+msgstr "Boeken doorlopen voor bijschaving"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:149
 #, python-format
 msgid "Polish %s"
-msgstr ""
+msgstr "%s bijschaven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:150
 #, python-format
 msgid "Polish book %(nums)s of %(tot)s (%(title)s)"
-msgstr ""
+msgstr "Boek %(nums)s van %(tot)s bijschaven (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:154
 #, python-format
 msgid "Queueing book %(nums)s of %(tot)s (%(title)s)"
-msgstr ""
+msgstr "Boek %(nums)s van %(tot)s (%(title)s) in wachtrij zetten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:162
 msgid "P"
-msgstr ""
+msgstr "B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:162
 msgid "Polish books"
-msgstr ""
+msgstr "Boeken bijschaven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:191
 msgid "Cannot polish"
-msgstr ""
+msgstr "Bijschaven onmogelijk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:192
 #, python-format
@@ -7126,6 +7131,8 @@ msgid ""
 "Polishing is only supported for books in the %s formats. Convert to one of "
 "those formats before polishing."
 msgstr ""
+"Bijschaven wordt enkel ondersteund voor boeken in de %s formaten. Zet het "
+"boek om naar één van deze formaten voor het bijschaven."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 msgid "Ctrl+P"
@@ -11474,7 +11481,7 @@ msgstr "Selecteer &geen"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:70
 #, python-format
 msgid "%(title)s by %(author)s [%(formats)s]"
-msgstr ""
+msgstr "%(title)s door %(author)s [%(formats)s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:96
 msgid "Already in calibre:"
@@ -15826,7 +15833,7 @@ msgstr "groter is dan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:59
 msgid "is not more days ago than"
-msgstr ""
+msgstr "is niet langer geleden dan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:62
 msgid "has"
@@ -15899,7 +15906,7 @@ msgstr "Vul een getal in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:243
 msgid "Enter the number of days old the item can be. Zero is today"
-msgstr ""
+msgstr "Geef leeftijd (dagen) dat een item mag zijn. Nul is vandaag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:246
 msgid "Enter a date in the format YYYY-MM-DD"
@@ -16836,7 +16843,7 @@ msgstr "Toon &tekstballonen in de boekenlijst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:278
 msgid "Extra &spacing to add between rows in the book list:"
-msgstr ""
+msgstr "Extra & spatiëring om tussen rijen toe te voegen in de boekenlijst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:281
 msgid "Main Interface"

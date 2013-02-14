@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-08 06:37+0000\n"
-"PO-Revision-Date: 2013-02-09 12:25+0000\n"
+"PO-Revision-Date: 2013-02-13 18:22+0000\n"
 "Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-02-10 04:48+0000\n"
-"X-Generator: Launchpad (build 16482)\n"
+"X-Launchpad-Export-Date: 2013-02-14 04:37+0000\n"
+"X-Generator: Launchpad (build 16491)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -578,7 +578,7 @@ msgstr "Zmień pola metadanych przed zapisaniem/wysłaniem"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1084
 msgid "Template Functions"
-msgstr "Szablony funkcji"
+msgstr "Funkcje szablonów"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1086
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1146
@@ -590,7 +590,7 @@ msgstr "Zaawansowane"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1090
 msgid "Create your own template functions"
-msgstr "Stwórz własne Szablony Funkcji"
+msgstr "Stwórz własne funkcje szablonów"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1095
 msgid "Sharing books by email"
@@ -5392,6 +5392,19 @@ msgid ""
 "\n"
 "<p>Note that polishing only works on files in the <b>%s</b> formats.</p>\n"
 msgstr ""
+"<p><i>Dopracowywanie książek</i> jest wygładzaniem do połysku twoich "
+"starannie przygotowanych książek.</p>\n"
+"\n"
+"<p>Dopracowywanie jest ograniczone do samego kodu książki.\n"
+"W odróżnieniu od konwersji <i>nie jest</i> zmieniany arkusz CSS\n"
+"nie są zmieniane nazwy plików, wielkość czcionki, marginesy itp.\n"
+"Każde działanie jest ograniczone do minimum zmian potrzebnych do \n"
+"uzyskania pożądanego efektu.\n"
+"\n"
+"<p>Należy używać tego narzędzia jako ostatniej czynności przygotowania "
+"książki</p>\n"
+"\n"
+"<p>Dopracowanie działa tylko dla formatów <b>%s</b></p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:194
@@ -5421,22 +5434,37 @@ msgid ""
 "date you decide to add more text to your books, the newly added\n"
 "text might not be covered by the subset font.</p>\n"
 msgstr ""
+"<p>Podzbiór jest tworzony aby zredukować osadzoną czcionkę jedynie\n"
+"do znaków użytych w książce. Może to znacznie ograniczyć wielkość\n"
+"pliku czcionki (zazwyczaj do około połowy)</p>\n"
+"\n"
+"<p>Jeśli na przykład w książce użyto specjalnej czcionki dla tytułów\n"
+"podzbiór będzie zawierać wyłącznie znaki użyte w tytułach. Albo jeżeli\n"
+"w książce jest osadzona czcionka w odmianie zwykłej i pogrubionej oraz "
+"pochylonej\n"
+"ale pogrubienie i pochylenie używane jest rzadko albo nie używane zupełnie\n"
+"to czcionki w odmianie pogrubionej i pochylonej mogą zostać ograniczone do\n"
+"zaledwie kilku znaków albo usunięte całkowicie.</p>\n"
+"\n"
+"<p>Jedyną niedogodnością takiego rozwiązania jest to, że jeśli później\n"
+"zdecydujesz się dodać dodatkowy tekst do książki to może się okazać, \n"
+"że brakuje niektórych znaków</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:110
 msgid "Produce more verbose output, useful for debugging."
-msgstr ""
+msgstr "Podaj więcej informacji, przydatne przy debugowaniu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:120
 msgid "You must provide the input file to polish"
-msgstr ""
+msgstr "Musisz podać plik do dopracowania"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:124
 msgid "Unknown extra arguments"
-msgstr ""
+msgstr "Nieznane nadmiarowe argumenty"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:148
 msgid "You must specify at least one action to perform"
-msgstr ""
+msgstr "Musisz wybać co najmniej jedną czynność"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
@@ -6951,69 +6979,69 @@ msgstr "Aktualizacja wtyczek"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:33
 #, python-format
 msgid "Polish %d books"
-msgstr ""
+msgstr "Dopracuj %d książek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:36
 #, python-format
 msgid "<h3>About Polishing books</h3>%s"
-msgstr ""
+msgstr "<h3>O dopracowywaniu  książek</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:38
 #, python-format
 msgid "<h3>Subsetting fonts</h3>%s"
-msgstr ""
+msgstr "<h3>Podzbiór czcionki</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:44
 msgid "Select actions to perform:"
-msgstr ""
+msgstr "Wybierz czynność"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:49
 msgid "Subset all embedded fonts"
-msgstr ""
+msgstr "Podzbiór wszystkich osadzonych czcionek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:56
 msgid "About"
-msgstr ""
+msgstr "O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:94
 msgid "No actions selected"
-msgstr ""
+msgstr "Nie wybrano czynności"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:95
 msgid "You must select at least one action, or click Cancel."
-msgstr ""
+msgstr "Musisz wybrać co najmniej jedną czynność albo kliknąć Anuluj"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:108
 msgid "Queueing books for polishing"
-msgstr ""
+msgstr "Kolejkowanie książek do dopracowania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:149
 #, python-format
 msgid "Polish %s"
-msgstr ""
+msgstr "Dopracuj %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:150
 #, python-format
 msgid "Polish book %(nums)s of %(tot)s (%(title)s)"
-msgstr ""
+msgstr "Dopracowywanie książki %(nums)s z %(tot)s (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:154
 #, python-format
 msgid "Queueing book %(nums)s of %(tot)s (%(title)s)"
-msgstr ""
+msgstr "Kolejkowanie książki %(nums)s z %(tot)s (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:162
 msgid "P"
-msgstr ""
+msgstr "P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:162
 msgid "Polish books"
-msgstr ""
+msgstr "Dopracuj książki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:191
 msgid "Cannot polish"
-msgstr ""
+msgstr "Nie da się dopracować"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:192
 #, python-format
@@ -7021,6 +7049,8 @@ msgid ""
 "Polishing is only supported for books in the %s formats. Convert to one of "
 "those formats before polishing."
 msgstr ""
+"Dopracowywanie jest możliwe tylko dla formatów %s. Przekonwertuj książki do "
+"jednego z tych formatów aby je doszlifować."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 msgid "Ctrl+P"
@@ -11339,7 +11369,7 @@ msgstr "&Odznacz wszystko"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:70
 #, python-format
 msgid "%(title)s by %(author)s [%(formats)s]"
-msgstr ""
+msgstr "%(title)s autorstwa %(author)s [%(formats)s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:96
 msgid "Already in calibre:"
@@ -15685,7 +15715,7 @@ msgstr "jest większe niż"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:59
 msgid "is not more days ago than"
-msgstr ""
+msgstr "nie jest starsza niż dni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:62
 msgid "has"
@@ -15757,7 +15787,7 @@ msgstr "Podaj numer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:243
 msgid "Enter the number of days old the item can be. Zero is today"
-msgstr ""
+msgstr "Podaj sprzed ilu dni mogą być elementy. Zero to dzień dzisiejszy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:246
 msgid "Enter a date in the format YYYY-MM-DD"
@@ -16685,7 +16715,7 @@ msgstr "Pokaż dymki na liście książek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:278
 msgid "Extra &spacing to add between rows in the book list:"
-msgstr ""
+msgstr "Dodatkowy odstęp dodany między"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:281
 msgid "Main Interface"
@@ -22134,7 +22164,7 @@ msgstr "tworzenie kolumny użytkownika "
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1190
 #, python-format
 msgid " (%s books)"
-msgstr ""
+msgstr " (%s books)"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3665
 #, python-format
