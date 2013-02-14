@@ -250,42 +250,71 @@ If you don't want to uninstall it altogether, there are a couple of tricks you c
 simplest is to simply re-name the executable file that launches the library program. More detail
 `in the forums <http://www.mobileread.com/forums/showthread.php?t=65809>`_.
 
-How do I use |app| with my iPad/iPhone/iTouch?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How do I use |app| with my iPad/iPhone/iPod touch?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Over the air
 ^^^^^^^^^^^^^^
 
-The easiest way to browse your |app| collection on your Apple device (iPad/iPhone/iPod) is by using the calibre content server, which makes your collection available over the net. First perform the following steps in |app|
+The easiest way to browse your |app| collection on your Apple device
+(iPad/iPhone/iPod) is by using the |app| content server, which makes your
+collection available over the net. First perform the following steps in |app|
 
-  * Set the Preferred Output Format in |app| to EPUB (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
-  * Set the output profile to iPad (this will work for iPhone/iPods as well), under :guilabel:`Preferences->Conversion->Common Options->Page Setup`
-  * Convert the books you want to read on your iPhone to EPUB format by selecting them and clicking the Convert button.
-  * Turn on the Content Server in |app|'s preferences and leave |app| running.
+  * Set the Preferred Output Format in |app| to EPUB (The output format can be
+    set under :guilabel:`Preferences->Interface->Behavior`)
+  * Set the output profile to iPad (this will work for iPhone/iPods as well),
+    under :guilabel:`Preferences->Conversion->Common Options->Page Setup`
+  * Convert the books you want to read on your iDevice to EPUB format by
+    selecting them and clicking the Convert button.
+  * Turn on the Content Server by clicking the :guilabel:`Connect/Share` button
+    and leave |app| running. You can also tell |app| to automatically start the
+    content server via :guilabel:`Preferences->Sharing over the net`.
 
-Now on your iPad/iPhone you have two choices, use either iBooks (version 1.2 and later) or Stanza (version 3.0 and later). Both are available free from the app store.
+There are many apps for your iDevice that can connect to |app|. Here we
+describe using two of them, iBooks and Stanza.
 
 Using Stanza
 ***************
 
-Now you should be able to access your books on your iPhone by opening Stanza. Go to "Get Books" and then click the "Shared" tab. Under Shared you will see an entry "Books in calibre". If you don't, make sure your iPad/iPhone is connected using the WiFi network in your house, not 3G. If the |app| catalog is still not detected in Stanza, you can add it manually in Stanza. To do this, click the "Shared" tab, then click the "Edit" button and then click "Add book source" to add a new book source. In the Add Book Source screen enter whatever name you like and in the URL field, enter the following::
+You should be able to access your books on your iPhone by opening Stanza. Go to
+"Get Books" and then click the "Shared" tab. Under Shared you will see an entry
+"Books in calibre". If you don't, make sure your iPad/iPhone is connected using
+the WiFi network in your house, not 3G. If the |app| catalog is still not
+detected in Stanza, you can add it manually in Stanza. To do this, click the
+"Shared" tab, then click the "Edit" button and then click "Add book source" to
+add a new book source. In the Add Book Source screen enter whatever name you
+like and in the URL field, enter the following::
 
     http://192.168.1.2:8080/
 
-Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port. The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address.   Now click "Save" and you are done.
+Replace ``192.168.1.2`` with the local IP address of the computer running
+|app|. If you have changed the port the |app| content server is running on, you
+will have to change ``8080`` as well to the new port. The local IP address is
+the IP address you computer is assigned on your home network. A quick Google
+search will tell you how to find out your local IP address.   Now click "Save"
+and you are done.
 
-If you get timeout errors while browsing the calibre catalog in Stanza, try increasing the connection timeout value in the stanza settings. Go to Info->Settings and increase the value of Download Timeout.
+If you get timeout errors while browsing the calibre catalog in Stanza, try
+increasing the connection timeout value in the stanza settings. Go to
+Info->Settings and increase the value of Download Timeout.
 
 Using iBooks
 **************
 
-Start the Safari browser and type in the IP address and port of the computer running the calibre server, like this::
+Start the Safari browser and type in the IP address and port of the computer
+running the calibre server, like this::
 
     http://192.168.1.2:8080/
 
-Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port. The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address.
+Replace ``192.168.1.2`` with the local IP address of the computer running
+|app|. If you have changed the port the |app| content server is running on, you
+will have to change ``8080`` as well to the new port. The local IP address is
+the IP address you computer is assigned on your home network. A quick Google
+search will tell you how to find out your local IP address.
 
-You will see a list of books in Safari, just click on the epub link for whichever book you want to read, Safari will then prompt you to open it with iBooks.
+You will see a list of books in Safari, just click on the epub link for
+whichever book you want to read, Safari will then prompt you to open it with
+iBooks.
 
 
 With the USB cable + iTunes
