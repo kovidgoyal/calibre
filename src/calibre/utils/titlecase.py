@@ -15,7 +15,7 @@ __all__ = ['titlecase']
 __version__ = '0.5'
 
 SMALL = 'a|an|and|as|at|but|by|en|for|if|in|of|on|or|the|to|v\.?|via|vs\.?'
-PUNCT = r"""!"#$%&'‘()*+,‒\–—―./:;?@[\\\]_`{|}~"""
+PUNCT = r"""!"#$%&'‘()*+,\-‒–—―./:;?@[\\\]_`{|}~"""
 
 SMALL_WORDS = re.compile(r'^(%s)$' % SMALL, re.I)
 INLINE_PERIOD = re.compile(r'[a-z][.][a-z]', re.I)
