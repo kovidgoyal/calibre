@@ -401,7 +401,7 @@ class PolishAction(InterfaceAction):
         fmts = set()
         for path in files:
             fmt = path.rpartition('.')[-1].upper()
-            if tweaks['save_original_format']:
+            if tweaks['save_original_format_when_polishing']:
                 fmts.add(fmt)
                 db.save_original_format(book_id, fmt, notify=False)
             with open(path, 'rb') as f:
