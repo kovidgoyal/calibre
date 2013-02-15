@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, weakref, shutil
+import os, weakref, shutil, textwrap
 from collections import OrderedDict
 from functools import partial
 
@@ -90,6 +90,11 @@ class Polish(QDialog): # {{{
         l.addWidget(la, 0, 2, count+1, 1)
         l.setColumnStretch(2, 1)
 
+        self.show_reports = sr = QCheckBox(_('Show &report'), self)
+        sr.setChecked(gprefs.get('polish_show_reports', True))
+        sr.setToolTip(textwrap.fill(_('Show a report of all the actions performed'
+                        ' after polishing is completed')))
+        l.addWidget(sr, count+1, 0, 1, 1)
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
@@ -102,7 +107,7 @@ class Polish(QDialog): # {{{
         b.clicked.connect(partial(self.select_all, True))
         self.none_button = b = bb.addButton(_('Select &none'), bb.ActionRole)
         b.clicked.connect(partial(self.select_all, False))
-        l.addWidget(bb, count+1, 0, 1, -1)
+        l.addWidget(bb, count+1, 1, 1, -1)
         self.setup_load_button()
 
         self.resize(QSize(900, 600))
@@ -167,6 +172,7 @@ class Polish(QDialog): # {{{
 
     def accept(self):
         self.actions = ac = {}
+        gprefs['polish_show_reports'] = bool(self.show_reports.isChecked())
         something = False
         for action in self.all_actions:
             ac[action] = bool(getattr(self, 'opt_'+action).isChecked())
@@ -382,11 +388,12 @@ class PolishAction(InterfaceAction):
             return
         d = Polish(self.gui.library_view.model().db, book_id_map, parent=self.gui)
         if d.exec_() == d.Accepted and d.jobs:
+            show_reports = bool(d.show_reports.isChecked())
             for desc, data, book_id, base in reversed(d.jobs):
                 job = self.gui.job_manager.run_job(
                     Dispatcher(self.book_polished), 'gui_polish', args=(data,),
                     description=desc)
-                job.polish_args = (book_id, base, data['files'])
+                job.polish_args = (book_id, base, data['files'], show_reports)
             if d.jobs:
                 self.gui.jobs_pointer.start()
                 self.gui.status_bar.show_message(
@@ -397,7 +404,7 @@ class PolishAction(InterfaceAction):
             self.gui.job_exception(job)
             return
         db = self.gui.current_db
-        book_id, base, files = job.polish_args
+        book_id, base, files, show_reports = job.polish_args
         fmts = set()
         for path in files:
             fmt = path.rpartition('.')[-1].upper()
@@ -419,7 +426,8 @@ class PolishAction(InterfaceAction):
             current = self.gui.library_view.currentIndex()
             if current.isValid():
                 self.gui.library_view.model().current_changed(current, QModelIndex())
-        self.report(db.title(book_id, index_is_id=True), book_id, fmts, job, job.result)
+        if show_reports:
+            self.report(db.title(book_id, index_is_id=True), book_id, fmts, job, job.result)
 
 if __name__ == '__main__':
     app = QApplication([])
