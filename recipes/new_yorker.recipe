@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
 newyorker.com
 '''
@@ -44,20 +44,18 @@ class NewYorker(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    keep_only_tags = [
-                        dict(name='div', attrs={'class':'headers'})
-                       ,dict(name='div', attrs={'id':['articleheads','items-container','articleRail','articletext','photocredits']})
-                     ]
+    keep_only_tags = [dict(name='div', attrs={'id':'pagebody'})]
     remove_tags    = [
                          dict(name=['meta','iframe','base','link','embed','object'])
-                        ,dict(attrs={'class':['utils','socialUtils','articleRailLinks','icons'] })
+                        ,dict(attrs={'class':['utils','socialUtils','articleRailLinks','icons','social-utils-top','entry-keywords','entry-categories','utilsPrintEmail'] })
                         ,dict(attrs={'id':['show-header','show-footer'] })
                      ]
+    remove_tags_after = dict(attrs={'class':'entry-content'}) 
     remove_attributes = ['lang']
     feeds             = [(u'The New Yorker', u'http://www.newyorker.com/services/mrss/feeds/everything.xml')]
 
     def print_version(self, url):
-        return url + '?printable=true'
+        return url + '?printable=true&currentPage=all'
 
     def image_url_processor(self, baseurl, url):
         return url.strip()
