@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-08 06:37+0000\n"
-"PO-Revision-Date: 2013-02-12 11:51+0000\n"
+"PO-Revision-Date: 2013-02-14 16:23+0000\n"
 "Last-Translator: pedro jorge oliveira <pedrojorgeoliveira93@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-13 04:36+0000\n"
+"X-Launchpad-Export-Date: 2013-02-15 04:38+0000\n"
 "X-Generator: Launchpad (build 16491)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -906,7 +906,7 @@ msgstr ""
 msgid ""
 "This profile is intended for the PocketBook Pro 912 series of devices."
 msgstr ""
-"este perfil é destinado para os dispositivos de série  PocketBook Pro 912"
+"Este perfil é destinado para os dispositivos de série  PocketBook Pro 912"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -3221,6 +3221,8 @@ msgid ""
 "If set this option causes the file name of the html file inside the htmlz "
 "archive to be based on the book title."
 msgstr ""
+"Se aplicar estas opções ira fazer com que o nome do ficheiro html dentro do "
+"arquivo htmlz  seja baseado no titulo do livro."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:95
 msgid "Enable autorotation of images that are wider than the screen width."
@@ -3434,6 +3436,8 @@ msgid ""
 "The unit of measure for page sizes. Default is inch. Choices are %s Note: "
 "This does not override the unit for margins!"
 msgstr ""
+"O tamanho das paginas é definido por uma unidade. O padrão é polegadas. As "
+"opções são %s Nota: Isso não substituir na unidade as suas margens!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:63
 #, python-format
@@ -3651,6 +3655,18 @@ msgid ""
 "* off: Don't modify the paragraph structure. This is useful when combined "
 "with Markdown or Textile formatting to ensure no formatting is lost."
 msgstr ""
+"Estrutura do paragrafo.\n"
+"As escolhas são ['auto', 'block', 'single', 'print', 'unformatted', 'off']\n"
+"* auto: Tenta detectar automaticamente o paragrafo tipo.\n"
+"* block: Trata uma linha em branco como uma quebra de parágrafo.\n"
+"* single: Assume que cada linha é um paragrafo.\n"
+"* print:  Assume  que cada linha que começa com mais de 2 espaços ou um tab "
+"é o incio do paragrafo .\n"
+"* unformatted: A maioria das linhas tem duras quebras de linha ,  "
+"poucas/nenhuma  linha em branco ou recuos. Esta opção  Tenta determinar a "
+"estrutura e reformata  os elementos de diferenciação.\n"
+"* off: Não modifica a estrutura do parágrafo. Isto é útil quando combinado "
+"com Markdown ou texto formatado  para garantir que não formatação é perdida."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_input.py:35
 msgid ""
@@ -7503,7 +7519,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:245
 #, python-format
 msgid "Added %(num)d book(s) automatically from %(src)s"
-msgstr ""
+msgstr "Adicionado %(num)d livro(s) atomaticamente do %(src)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/bars.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:304
@@ -8930,6 +8946,8 @@ msgid ""
 "Do not convert all images to &JPEG (may result in images not working in "
 "older viewers)"
 msgstr ""
+"não converta todas as imagens em & JPEG (pode resultar na incapacidade de "
+"abrir ficheiros em programas antigos  )"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:87
 msgid "Kindle options"
@@ -10573,6 +10591,8 @@ msgid ""
 "You should not create a library inside the Calibre folder as this folder is "
 "automatically deleted during upgrades."
 msgstr ""
+"Você não deve criar uma biblioteca dentro da pasta do Calibre, porque esta "
+"pasta será eliminada automaticamente durante as actualizações do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:78
 #, python-format
@@ -11063,7 +11083,7 @@ msgstr "Copiado"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1075
 #: /home/kovid/work/calibre/src/calibre/gui2/proceed.py:48
 msgid "View log"
-msgstr ""
+msgstr "Ver registo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:322
 #, python-format
@@ -11315,7 +11335,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:586
 msgid "&Automatically number books in this series"
-msgstr ""
+msgstr "&Numero automático de livros nestas series"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:587
 msgid ""
@@ -11424,7 +11444,7 @@ msgstr "estabelecer para &ficheiro(s) ebook"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:599
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:766
 msgid "&Basic metadata"
-msgstr ""
+msgstr "& Meta-dados essenciais"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:623
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:606
@@ -11971,7 +11991,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:71
 msgid "Quickview"
-msgstr ""
+msgstr "Visualização Rápida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:72
 msgid "Items"
@@ -12162,7 +12182,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:200
 #, python-format
 msgid "%s news sources"
-msgstr ""
+msgstr "%s fontes de noticias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:220
 msgid "&Download now"
@@ -12235,7 +12255,7 @@ msgstr "Adicionar uma fonte de notícias personalizada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:453
 msgid "Download all scheduled news sources"
-msgstr ""
+msgstr "Descarregar todas as fontes de noticias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:204
 msgid "Go"
@@ -12338,7 +12358,7 @@ msgstr " dias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:231
 msgid "Download all scheduled news sources at once"
-msgstr ""
+msgstr "Descarregar todas as fontes de noticias de uma vez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:232
 msgid "Download &all scheduled"
@@ -12625,7 +12645,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:98
 msgid "&Automatically allow connections at calibre startup"
-msgstr ""
+msgstr "&Permitir ligações  automáticas quando o calibre inicia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:164
@@ -14156,7 +14176,7 @@ msgstr "É impossível ler os metadados do formato %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:897
 msgid "&Browse"
-msgstr ""
+msgstr "&Escolher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:899
 msgid "T&rim"
@@ -14512,7 +14532,7 @@ msgstr "&Comentários"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:903
 msgid "Basic metadata"
-msgstr ""
+msgstr "Meta-dados essenciais"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 msgid "Has cover"
@@ -14532,7 +14552,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:301
 msgid "See at"
-msgstr ""
+msgstr "ver em"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:462
 msgid "calibre is downloading metadata from: "
@@ -14780,7 +14800,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:173
 msgid "&Automatic Adding"
-msgstr ""
+msgstr "&Adicionar automaticamente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
@@ -15246,6 +15266,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:24
 msgid "Comma separated text, like tags, shown in the tag browser"
 msgstr ""
+"virgulas separam texto, bem como etiquetas, mostrados no navegador de "
+"etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:27
 msgid "Long text, like comments, not shown in the tag browser"
@@ -15558,7 +15580,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:253
 msgid "Show in tags browser"
-msgstr ""
+msgstr "Mostrar no navegador de etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:254
 msgid "Show as HTML in book details"
@@ -15955,7 +15977,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:318
 msgid "Show &average ratings in the tags browser"
-msgstr ""
+msgstr "Mostar &media de classificações  no navegador de etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:319
 msgid "Categories with &hierarchical items:"
@@ -16031,11 +16053,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:77
 msgid "This source is configured and ready to go"
-msgstr ""
+msgstr "Esta fonte está configurada e pronta pata avançar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:78
 msgid "This source needs configuration"
-msgstr ""
+msgstr "Esta fonte precisa de ser configurada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:94
 msgid ""
@@ -16054,15 +16076,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:323
 msgid "No source selected"
-msgstr ""
+msgstr "Nenhuma fonte selecionada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:324
 msgid "No source selected, cannot configure."
-msgstr ""
+msgstr "Nenhuma fonte seleccionada, não é possível configurar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:126
 msgid "Metadata sources"
-msgstr ""
+msgstr "fonte de meta-dados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:127
 msgid ""
@@ -16079,7 +16101,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:130
 msgid "Configure selected source"
-msgstr ""
+msgstr "configurar  fonte seleccionada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:132
 msgid ""
@@ -17004,7 +17026,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:202
 msgid "function source code not available"
-msgstr ""
+msgstr "função fonte não está disponível"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:96
 msgid "&Function:"
@@ -17045,7 +17067,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
-msgstr ""
+msgstr "Alternar entre biblioteca e visualização de dispositivos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:42
 msgid "Separator"
@@ -17475,7 +17497,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:104
 msgid "Open search result in system browser"
-msgstr ""
+msgstr "Pesquisa aberta de resultados no navegador do sistema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:105
 msgid "Threads"
@@ -17616,11 +17638,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:182
 msgid "Open a selected book in the system's web browser"
-msgstr ""
+msgstr "Abrir o livro seleccionado no navegador da web do sistema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:183
 msgid "Open in &external browser"
-msgstr ""
+msgstr "Abrir no &navegador externo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:77
@@ -17863,7 +17885,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:391
 msgid "Alter Tag Browser"
-msgstr ""
+msgstr "Alterar navegador de etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:397
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:281
@@ -18078,6 +18100,8 @@ msgid ""
 "Could not convert %(num)d of %(tot)d books, because no suitable source "
 "format was found."
 msgstr ""
+"Não foi possível converter  %(num)d de %(tot)d livros, porque foi encontrado "
+"nenhuma fonte em formato adequado ."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:288
 msgid "Fetch news from "
@@ -18348,6 +18372,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:38
 msgid "Resize images larger than the viewer window to fit inside it"
 msgstr ""
+"Redimensionar imagens maiores do que a janela de visualização para caber nela"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:39
 msgid "Hyphenate text"
@@ -18394,7 +18419,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:63
 msgid "Start viewer in full screen mode"
-msgstr ""
+msgstr "Iniciar visualização em modo de ecrã inteiro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:65
 msgid "Show full screen usage help"
@@ -18556,7 +18581,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:417
 msgid "&Start viewer in full screen mode"
-msgstr ""
+msgstr "&Iniciar visualização em modo de ecrã inteiro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:418
 msgid "Show &help message when starting full screen mode"
@@ -18607,6 +18632,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:434
 msgid "&Resize images larger than the viewer window (needs restart)"
 msgstr ""
+"&Redimensionar imagens maiores do que a janela de visualização (necessário "
+"reiniciar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:435
 msgid "Page Fl&ip options"
@@ -18639,7 +18666,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:441
 msgid "Show &controls in the viewer window"
-msgstr ""
+msgstr "Mostrar controlos na &  janela de visualização"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:442
 msgid "&Miscellaneous options"
@@ -18682,7 +18709,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:453
 msgid "Delete a saved theme:"
-msgstr ""
+msgstr "Eliminar tema guardado:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:455
 msgid "&Theming"
@@ -18698,11 +18725,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:510
 msgid "View &image..."
-msgstr ""
+msgstr "Visualizar &imagem..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:512
 msgid "View &table..."
-msgstr ""
+msgstr "Visualizar &tabela..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:515
 msgid "&Search for next occurrence"
@@ -18758,7 +18785,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:40
 msgid "&Save as"
-msgstr ""
+msgstr "&Guardar como"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:41
 msgid "&Rotate"
@@ -18771,7 +18798,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/image_popup.py:100
 #, python-format
 msgid "View Image: %s"
-msgstr ""
+msgstr "Visualizar &imagem: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
@@ -18983,6 +19010,8 @@ msgstr ""
 msgid ""
 "If specified, viewer window will try to open full screen when started."
 msgstr ""
+"Se especificado a janela do Visualizador vai tentar abrir em modo de ecrã "
+"inteiro quando iniciada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:1130
 msgid "Print javascript alert and console messages to the console"
@@ -19006,7 +19035,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:211
 msgid "E-book Viewer"
-msgstr ""
+msgstr "Visualizador de livros digitais"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:212
 msgid "Close dictionary"
@@ -21027,11 +21056,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:406
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:475
 msgid "Browse books by"
-msgstr ""
+msgstr "Pesquisar livros por"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:411
 msgid "Choose a category to browse by:"
-msgstr ""
+msgstr "escolher categoria para pesquisar livros por:"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:546
 msgid "Browsing by"
@@ -22446,7 +22475,7 @@ msgstr ""
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "Save"
-msgstr ""
+msgstr "Guardar"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:664
 msgid "Open"
@@ -22458,7 +22487,7 @@ msgstr ""
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:683
 msgid "Don't Save"
-msgstr ""
+msgstr "Não Guardar"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:685
 msgid "Close without Saving"
@@ -22486,7 +22515,7 @@ msgstr ""
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:702
 msgid "Save All"
-msgstr ""
+msgstr "Guardar Tudo"
 
 #: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:705
 msgid "Abort"
@@ -22603,7 +22632,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:85
 msgid "Use author sort in Tag Browser"
-msgstr ""
+msgstr "Usar autor tipo na pesquisa por etiquetas"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:86
 msgid ""
@@ -22658,7 +22687,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:122
 msgid "Control order of categories in the tag browser"
-msgstr ""
+msgstr "Controlar ordem  das categorias no navegador de conteudos"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:123
 msgid ""

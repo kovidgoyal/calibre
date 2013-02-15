@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-08 06:37+0000\n"
-"PO-Revision-Date: 2013-02-13 21:10+0000\n"
-"Last-Translator: Simon Schütte <simonschuette@arcor.de>\n"
+"PO-Revision-Date: 2013-02-14 22:15+0000\n"
+"Last-Translator: Susan Gottwald <susan.gottwald@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-14 04:36+0000\n"
+"X-Launchpad-Export-Date: 2013-02-15 04:38+0000\n"
 "X-Generator: Launchpad (build 16491)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -3590,18 +3590,24 @@ msgid ""
 "Add page numbers to the bottom of every page in the generated PDF file. If "
 "you specify a footer template, it will take precedence over this option."
 msgstr ""
+"Die Seitenzahlen werden unter jeder Seite in der generierten PDF-Datei "
+"ergänzt. Ein von Ihnen festgelegtes Template hat vor dieser Option Vorrang."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:107
 msgid ""
 "An HTML template used to generate footers on every page. The string "
 "_PAGENUM_ will be replaced by the current page number."
 msgstr ""
+"Die Fußzeilen auf jeder Seite werden durch ein HTML-Template generiert. Die "
+"Zeichenkette _PAGENUM_ wird durch die aktuelle Seitennummer ersetzt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:111
 msgid ""
 "An HTML template used to generate headers on every page. The string "
 "_PAGENUM_ will be replaced by the current page number."
 msgstr ""
+"Die Kopfzeile auf jeder Seite werden durch ein HTML-Template generiert. Die "
+"Zeichenkette _PAGENUM_ wird durch die aktuelle Seitennummer ersetzt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -5517,7 +5523,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:120
 msgid "You must provide the input file to polish"
-msgstr ""
+msgstr "You must provide the input file to polish"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:124
 msgid "Unknown extra arguments"
@@ -16044,7 +16050,7 @@ msgstr "Durch Trennung mit %s können Sie mehrere Werte auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:268
 msgid "coloring"
-msgstr ""
+msgstr "Farbton"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:271
 msgid "icon"
@@ -24179,7 +24185,7 @@ msgstr "Spanisch (Argentinien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:176
 msgid "Spanish (Costa Rica)"
-msgstr ""
+msgstr "Spanisch (Costa Rica)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:177
 msgid "Spanish (Mexico)"
