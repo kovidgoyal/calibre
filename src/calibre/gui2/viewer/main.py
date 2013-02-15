@@ -68,11 +68,11 @@ class History(list):
         if self.back_pos is None:
             return None
         item = self[self.back_pos]
-        # The next forward must go to from_pos
         self.forward_pos = self.back_pos+1
-        if self.forward_pos >= len(self) or self[self.forward_pos] != from_pos:
-            self.insert(self.forward_pos, from_pos)
-        self.insert_pos = self.forward_pos
+        if self.forward_pos >= len(self):
+            self.append(from_pos)
+            self.forward_pos = len(self) - 1
+        self.insert_pos = self.forward_pos or len(self)
         self.back_pos = None if self.back_pos == 0 else self.back_pos - 1
         self.set_actions()
         return item
