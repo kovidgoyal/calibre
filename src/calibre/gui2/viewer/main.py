@@ -72,7 +72,7 @@ class History(list):
         if self.forward_pos >= len(self):
             self.append(from_pos)
             self.forward_pos = len(self) - 1
-        self.insert_pos = self.forward_pos or len(self)
+        self.insert_pos = self.forward_pos
         self.back_pos = None if self.back_pos == 0 else self.back_pos - 1
         self.set_actions()
         return item
