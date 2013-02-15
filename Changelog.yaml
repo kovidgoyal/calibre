@@ -19,6 +19,49 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.19
+  date: 2013-02-15
+
+  new features:
+    - title: "New tool: \"Polish books\" that allows you to perform various automated cleanup actions on EPUB and AZW3 files without doing a full conversion."
+      type: major
+      description: "Polishing books is all about putting the shine of perfection on your ebook files. You can use it to subset embedded fonts, update the metadata in the book files from the metadata in the calibre library, manipulate the book jacket, etc. More features will be added in the future. To use this tool, go to Preferences->Toolbar and add the Polish books tool to the main toolbar. Then simply select the books you want to be polished and click the Polish books button. Polishing, unlike conversion, does not change the internal structure/markup of your book, it performs only the minimal set of actions needed to achieve its goals. Note that polish books is a completely new codebase, so there may well be bugs, polishing a book backs up the original as ORIGINAL_EPUB or ORIGINAL_AZW3, unless you have turned off this feature in Preferences->Tweaks, in which case you should backup your files manually. You can also use this tool from the command line with ebook-polish.exe."
+
+    - title: "Driver for the Trekstor Pyrus Mini."
+      tickets: [1124120]
+
+    - title: "E-book viewer: Add an option to change the minimum font size."
+      tickets: [1122333]
+ 
+    - title: "PDF Output: Add support for converting documents with math typesetting, as described here: http://manual.calibre-ebook.com/typesetting_math.html"
+
+    - title: "Column coloring/icons: Add more conditions when using date based columns with reference to 'today'."
+
+  bug fixes:
+    - title: "Transforming to titlecase - handle typographic hyphens in all caps phrases"
+
+    - title: "Dont ignore file open events that occur before the GUI is initialized on OS X"
+      tickets: [1122713]
+
+    - title: "News download: Handle feeds that have entries with empty ids"
+
+    - title: "Fix a regression that broke using the template editor"
+
+    - title: "Do not block startup while scanning the computer for available network interfaces. Speeds up startup time on some windows computers with lots of spurious network interfaces."
+
+  improved recipes:
+    - New Yorker
+    - Kommersant
+    - Le Monde (Subscription version)
+    - NZ Herald
+
+  new recipes:
+    - title: Navegalo 
+      author: Douglas Delgado
+
+    - title: El Guardian and More Intelligent Life
+      author: Darko Miletic
+
 - version: 0.9.18
   date: 2013-02-08
 
