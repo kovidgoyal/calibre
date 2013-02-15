@@ -31,10 +31,15 @@ def is_current_jacket(root):
 def find_existing_jacket(container):
     for item in container.spine_items:
         name = container.abspath_to_name(item)
-        if name.rpartition('/')[-1].startswith('jacket') and name.endswith('.xhtml'):
+        if container.book_type == 'azw3':
             root = container.parsed(name)
-            if is_current_jacket(root) or is_legacy_jacket(root):
+            if is_current_jacket(root):
                 return name
+        else:
+            if name.rpartition('/')[-1].startswith('jacket') and name.endswith('.xhtml'):
+                root = container.parsed(name)
+                if is_current_jacket(root) or is_legacy_jacket(root):
+                    return name
 
 def replace_jacket(container, name):
     root = render_jacket(container.mi)
