@@ -65,9 +65,11 @@ class Polish(QDialog): # {{{
             ('jacket', _('Add metadata as a "book jacket" page')),
             ('remove_jacket', _('Remove a previously inserted book jacket')),
         ])
+        prefs = gprefs.get('polishing_settings', {})
         for name, text in self.all_actions.iteritems():
             count += 1
             x = QCheckBox(text, self)
+            x.setChecked(prefs.get(name, False))
             x.stateChanged.connect(partial(self.option_toggled, name))
             l.addWidget(x, count, 0, 1, 1)
             setattr(self, 'opt_'+name, x)
@@ -110,7 +112,7 @@ class Polish(QDialog): # {{{
         l.addWidget(bb, count+1, 1, 1, -1)
         self.setup_load_button()
 
-        self.resize(QSize(900, 600))
+        self.resize(QSize(950, 600))
 
     def select_all(self, enable):
         for action in self.all_actions:
@@ -172,16 +174,18 @@ class Polish(QDialog): # {{{
 
     def accept(self):
         self.actions = ac = {}
+        saved_prefs = {}
         gprefs['polish_show_reports'] = bool(self.show_reports.isChecked())
         something = False
         for action in self.all_actions:
-            ac[action] = bool(getattr(self, 'opt_'+action).isChecked())
+            ac[action] = saved_prefs[action] = bool(getattr(self, 'opt_'+action).isChecked())
             if ac[action]:
                 something = True
         if not something:
             return error_dialog(self, _('No actions selected'),
                 _('You must select at least one action, or click Cancel.'),
                                 show=True)
+        gprefs['polishing_settings'] = saved_prefs
         self.queue_files()
         return super(Polish, self).accept()
 
