@@ -105,7 +105,7 @@ class EPUBInput(InputFormatPlugin):
             removed = guide_cover
         else:
             # Ensure the cover is displayed as the first item in the book, some
-            # epub files have it set with liner='no' which causes the cover to
+            # epub files have it set with linear='no' which causes the cover to
             # display in the end
             spine[0].attrib.pop('linear', None)
             opf.spine[0].is_linear = True
