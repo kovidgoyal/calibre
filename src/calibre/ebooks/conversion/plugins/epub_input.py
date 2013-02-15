@@ -80,7 +80,7 @@ class EPUBInput(InputFormatPlugin):
         guide_cover, guide_elem = None, None
         for guide_elem in opf.iterguide():
             if guide_elem.get('type', '').lower() == 'cover':
-                guide_cover = guide_elem.get('href', '')
+                guide_cover = guide_elem.get('href', '').partition('#')[0]
                 break
         if not guide_cover:
             return
