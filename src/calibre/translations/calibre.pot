@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.9.19\n"
-"POT-Creation-Date: 2013-02-15 10:14+IST\n"
-"PO-Revision-Date: 2013-02-15 10:14+IST\n"
+"POT-Creation-Date: 2013-02-15 12:35+IST\n"
+"PO-Revision-Date: 2013-02-15 12:35+IST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -3963,7 +3963,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:67
 msgid ""
 "<p>Insert a \"book jacket\" page at the start of the book that contains\n"
-"all the book metadata such as title, tags, authors, series, commets,\n"
+"all the book metadata such as title, tags, authors, series, comments,\n"
 "etc.</p>"
 msgstr ""
 
@@ -13142,7 +13142,7 @@ msgid "Enter the maximum days in the future the item can be. Zero is today. Date
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:260
-msgid "Enter the mimimum days in the future the item can be. Zero is today. Dates in the past never match"
+msgid "Enter the minimum days in the future the item can be. Zero is today. Dates in the past never match"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:264

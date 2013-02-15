@@ -257,7 +257,7 @@ class ConditionEditor(QWidget): # {{{
                        'Zero is today. Dates in the past always match')
             elif action == 'newer future days':
                 self.value_box.setValidator(QIntValidator(self.value_box))
-                tt = _('Enter the mimimum days in the future the item can be. '
+                tt = _('Enter the minimum days in the future the item can be. '
                        'Zero is today. Dates in the past never match')
             else:
                 self.value_box.setInputMask('9999-99-99')

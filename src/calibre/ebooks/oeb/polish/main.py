@@ -66,7 +66,7 @@ text might not be covered by the subset font.</p>
 
 'jacket': _('''\
 <p>Insert a "book jacket" page at the start of the book that contains
-all the book metadata such as title, tags, authors, series, commets,
+all the book metadata such as title, tags, authors, series, comments,
 etc.</p>'''),
 
 'remove_jacket': _('''\
