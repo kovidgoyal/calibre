@@ -11,6 +11,7 @@ import shutil, re, os
 
 from calibre.ebooks.oeb.base import OPF, OEB_DOCS, XPath, XLINK, xml2text
 from calibre.ebooks.oeb.polish.replace import replace_links
+from calibre.utils.magick.draw import identify
 
 def set_azw3_cover(container, cover_path, report):
     name = None
@@ -144,6 +145,10 @@ def create_epub_cover(container, cover_path):
         templ = CoverManager.NONSVG_TEMPLATE.replace('__style__', style)
     else:
         width, height = 600, 800
+        try:
+            width, height = identify(cover_path)[:2]
+        except:
+            container.log.exception("Failed to get width and height of cover")
         ar = 'xMidYMid meet' if keep_aspect else 'none'
         templ = CoverManager.SVG_TEMPLATE.replace('__ar__', ar)
         templ = templ.replace('__viewbox__', '0 0 %d %d'%(width, height))
