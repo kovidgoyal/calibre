@@ -49,7 +49,7 @@ class Polish(QDialog): # {{{
                          ' formats are not capable of supporting all the'
                          ' metadata in calibre.</p>'),
             'jacket':_('<h3>Book Jacket</h3>%s')%HELP['jacket'],
-            'remove_jacket':_('<h3>Remove Book Jacket</h3>%s')%HELP['jacket'],
+            'remove_jacket':_('<h3>Remove Book Jacket</h3>%s')%HELP['remove_jacket'],
         }
 
         self.l = l = QGridLayout()
