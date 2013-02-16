@@ -117,8 +117,7 @@ class Split(object):
                 continue
 
         page_breaks = list(page_breaks)
-        page_breaks.sort(cmp=
-              lambda x,y : cmp(int(x.get('pb_order')), int(y.get('pb_order'))))
+        page_breaks.sort(key=lambda x:int(x.get('pb_order')))
         page_break_ids, page_breaks_ = [], []
         for i, x in enumerate(page_breaks):
             x.set('id', x.get('id', 'calibre_pb_%d'%i))
