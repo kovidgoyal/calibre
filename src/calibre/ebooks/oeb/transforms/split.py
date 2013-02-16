@@ -310,6 +310,8 @@ class FlowSplitter(object):
 
 
         def nix_element(elem, top=True):
+            # Remove elem unless top is False in which case replace elem by its
+            # children
             parent = elem.getparent()
             if top:
                 parent.remove(elem)
@@ -319,27 +321,38 @@ class FlowSplitter(object):
 
         # Tree 1
         hit_split_point = False
-        for elem in list(body.iterdescendants()):
+        keep_descendants = False
+        split_point_descendants = frozenset(split_point.iterdescendants())
+        for elem in tuple(body.iterdescendants()):
             if elem is split_point:
                 hit_split_point = True
                 if before:
                     nix_element(elem)
+                else:
+                    # We want to keep the descendants of the split point in
+                    # Tree 1
+                    keep_descendants = True
 
                 continue
             if hit_split_point:
+                if keep_descendants:
+                    if elem in split_point_descendants:
+                        # elem is a descendant keep it
+                        continue
+                    else:
+                        # We are out of split_point, so prevent further set
+                        # lookups of split_point_descendants
+                        keep_descendants = False
                 nix_element(elem)
 
-
         # Tree 2
-        hit_split_point = False
-        for elem in list(body2.iterdescendants()):
+        for elem in tuple(body2.iterdescendants()):
             if elem is split_point2:
-                hit_split_point = True
                 if not before:
-                    nix_element(elem, top=False)
-                continue
-            if not hit_split_point:
-                nix_element(elem, top=False)
+                    nix_element(elem)
+                break
+            nix_element(elem, top=False)
+
         body2.text = '\n'
 
         return tree, tree2
