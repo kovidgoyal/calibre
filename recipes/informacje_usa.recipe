@@ -1,5 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 class Informacje_USA(BasicNewsRecipe):
     title          = u'Informacje USA'
     oldest_article = 7
@@ -8,11 +7,10 @@ class Informacje_USA(BasicNewsRecipe):
     description   = u'portal wiadomości amerykańskich'
     category       = 'news'
     language       = 'pl'
-    masthead_url= 'http://www.informacjeusa.com/wp-content/add_images/top_logo_5_2010.jpg'
-    cover_url='http://www.informacjeusa.com/wp-content/add_images/top_logo_5_2010.jpg'
+    cover_url='http://www.informacjeusa.com/wp-content/uploads/2013/01/V3BANNER420-90new.jpg'
     no_stylesheets = True
-    preprocess_regexps = [(re.compile(ur'<p>Zobacz:.*?</p>', re.DOTALL), lambda match: ''), (re.compile(ur'<p><a href=".*?Zobacz także:.*?</a></p>', re.DOTALL), lambda match: ''), (re.compile(ur'<p><p>Zobacz też:.*?</a></p>', re.DOTALL), lambda match: '')]
-    keep_only_tags=[dict(name='div', attrs={'class':'box box-single'})]
-    remove_tags_after= dict(attrs={'class':'tags'})
-    remove_tags= [dict(attrs={'class':['postmetadata', 'tags', 'banner']}), dict(name='a', attrs={'title':['Drukuj', u'Wyślij']})]
+    use_embedded_content = False
+    keep_only_tags=[dict(id='post-area')]
+    remove_tags_after= dict(id='content-area')
+    remove_tags= [dict(attrs={'class':['breadcrumb']}), dict(id=['social-box', 'social-box-vert'])]
     feeds          = [(u'Informacje', u'http://www.informacjeusa.com/feed/')]
