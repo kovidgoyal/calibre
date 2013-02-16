@@ -1,0 +1,14 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class KDEFamilyPl(BasicNewsRecipe):
+    title          = u'KDEFamily.pl'
+    __author__        = 'fenuks'
+    description   = u'KDE w Polsce'
+    category       = 'open source, KDE'
+    language       = 'pl'
+    cover_url = 'http://www.mykde.home.pl/kdefamily/wp-content/uploads/2012/07/logotype-e1341585198616.jpg'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    use_embedded_content = True
+    feeds          = [(u'Wszystko', u'http://kdefamily.pl/feed/')]

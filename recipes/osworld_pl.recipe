@@ -1,0 +1,33 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+class OSWorld(BasicNewsRecipe):
+    title          = u'OSWorld.pl'
+    __author__        = 'fenuks'
+    description   = u'OSWorld.pl to serwis internetowy, dzięki któremu poznasz czym naprawdę jest Open Source. Serwis poświęcony jest wolnemu oprogramowaniu jak linux mint, centos czy ubunty. Znajdziecie u nasz artykuły, unity oraz informacje o certyfikatach CACert. OSWorld to mały świat wielkich systemów!'
+    category       = 'OS, IT, open source, Linux'
+    language       = 'pl'
+    cover_url = 'http://osworld.pl/wp-content/uploads/osworld-kwadrat-128x111.png'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    use_embedded_content = False
+    keep_only_tags = [dict(id=['dzial', 'posts'])]
+    remove_tags = [dict(attrs={'class':'post-comments'})]
+    remove_tags_after = dict(attrs={'class':'entry clr'})
+    feeds          = [(u'Artyku\u0142y', u'http://osworld.pl/category/artykuly/feed/'), (u'Nowe wersje', u'http://osworld.pl/category/nowe-wersje/feed/')]
+
+    def append_page(self, soup, appendtag):
+        tag = appendtag.find(attrs={'id':'paginacja'})
+        if tag:
+            for nexturl in tag.findAll('a'):
+                soup2 = self.index_to_soup(nexturl['href'])
+                pagetext = soup2.find(attrs={'class':'entry clr'})
+                pos = len(appendtag.contents)
+                appendtag.insert(pos, pagetext)
+            for r in appendtag.findAll(attrs={'id':'paginacja'}):
+                r.extract()
+
+
+    def preprocess_html(self, soup):
+         self.append_page(soup, soup.body)
+         return soup
