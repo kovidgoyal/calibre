@@ -215,6 +215,7 @@ class Polish(QDialog): # {{{
             self.do_book(num, book_id, self.book_id_map[book_id])
         except:
             self.pd.reject()
+            raise
         else:
             self.pd.set_value(num)
             QTimer.singleShot(0, self.do_one)
@@ -244,7 +245,7 @@ class Polish(QDialog): # {{{
                             title=mi.title), len(self.book_id_map))
         if hasattr(self, 'pd'):
             self.pd.set_msg(_('Queueing book %(nums)s of %(tot)s (%(title)s)')%dict(
-                            num=num, tot=len(self.book_id_map), title=mi.title))
+                            nums=num, tot=len(self.book_id_map), title=mi.title))
 
         self.jobs.append((desc, data, book_id, base))
 # }}}
