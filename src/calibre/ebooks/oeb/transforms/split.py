@@ -234,7 +234,8 @@ class FlowSplitter(object):
         for pattern, before in ordered_ids:
             elem = pattern(tree)
             if elem:
-                self.log.debug('\t\tSplitting on page-break')
+                self.log.debug('\t\tSplitting on page-break at %s'%
+                               elem[0].get('id'))
                 before, after = self.do_split(tree, elem[0], before)
                 self.trees.append(before)
                 tree = after
@@ -291,8 +292,6 @@ class FlowSplitter(object):
 
         return npath
 
-
-
     def do_split(self, tree, split_point, before):
         '''
         Split ``tree`` into a *before* and *after* tree at ``split_point``,
@@ -315,7 +314,6 @@ class FlowSplitter(object):
 
         def nix_element(elem, top=True):
             parent = elem.getparent()
-            index = parent.index(elem)
             if top:
                 parent.remove(elem)
             else:
