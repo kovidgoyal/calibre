@@ -323,6 +323,8 @@ def run_gui(opts, args, actions, listener, app, gui_debug=None):
                 app = os.path.dirname(os.path.dirname(sys.frameworks_dir))
                 subprocess.Popen('sleep 3s; open '+app, shell=True)
             else:
+                if iswindows and hasattr(winutil, 'prepare_for_restart'):
+                    winutil.prepare_for_restart()
                 subprocess.Popen([e] + sys.argv[1:])
     else:
         if iswindows:
