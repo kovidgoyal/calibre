@@ -294,10 +294,7 @@ class FlowSplitter(object):
 
     def do_split(self, tree, split_point, before):
         '''
-        Split ``tree`` into a *before* and *after* tree at ``split_point``,
-        preserving tag structure, but not duplicating any text.
-        All tags that have had their text and tail
-        removed have the attribute ``calibre_split`` set to 1.
+        Split ``tree`` into a *before* and *after* tree at ``split_point``.
 
         :param before: If True tree is split before split_point, otherwise after split_point
         :return: before_tree, after_tree
@@ -475,8 +472,7 @@ class FlowSplitter(object):
 
     def commit(self):
         '''
-        Commit all changes caused by the split. This removes the previously
-        introduced ``calibre_split`` attribute and calculates an *anchor_map* for
+        Commit all changes caused by the split. Calculates an *anchor_map* for
         all anchors in the original tree. Internal links are re-directed. The
         original file is deleted and the split files are saved.
         '''
