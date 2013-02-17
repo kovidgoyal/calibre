@@ -143,10 +143,16 @@ class Polish(QDialog): # {{{
         m = self.load_menu
         m.clear()
         self.__actions = []
+        a = self.__actions.append
         for name in sorted(saved):
-            self.__actions.append(m.addAction(name, partial(self.load_settings,
-                                                            name)))
+            a(m.addAction(name, partial(self.load_settings, name)))
+        m.addSeparator()
+        a(m.addAction(_('Remove saved settings'), self.clear_settings))
         self.load_button.setEnabled(bool(saved))
+
+    def clear_settings(self):
+        gprefs.set('polish_settings', {})
+        self.setup_load_button()
 
     def load_settings(self, name):
         saved = gprefs.get('polish_settings', {}).get(name, {})
