@@ -15,6 +15,7 @@ from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.stats import StatsCollector
 from calibre.ebooks.oeb.polish.subset import subset_all_fonts
 from calibre.ebooks.oeb.polish.cover import set_cover
+from calibre.ebooks.oeb.polish.replace import smarten_punctuation
 from calibre.ebooks.oeb.polish.jacket import (
     replace_jacket, add_or_replace_jacket, find_existing_jacket, remove_jacket)
 from calibre.utils.logging import Log
@@ -25,6 +26,7 @@ ALL_OPTS = {
     'cover': None,
     'jacket': False,
     'remove_jacket':False,
+    'smarten_punctuation':False,
 }
 
 SUPPORTED = {'EPUB', 'AZW3'}
@@ -71,6 +73,13 @@ etc.</p>'''),
 
 'remove_jacket': _('''\
 <p>Remove a previous inserted book jacket page.</p>
+'''),
+
+'smarten_punctuation': _('''\
+<p>Convert plain text, dashes, ellipsis, multiple hyphens, etc. into their
+typographically correct equivalents.</p>
+<p>Note that the algorithm can sometimes generate incorrect results, especially
+when single quotes at the start of contractions are involved.</p>
 '''),
 }
 
@@ -121,11 +130,6 @@ def polish(file_map, opts, log, report):
                 report(_('Updated metadata jacket'))
             report(_('Metadata updated\n'))
 
-        if opts.subset:
-            rt(_('Subsetting embedded fonts'))
-            subset_all_fonts(ebook, stats.font_stats, report)
-            report('')
-
         if opts.cover:
             rt(_('Setting cover'))
             set_cover(ebook, opts.cover, report)
@@ -148,6 +152,16 @@ def polish(file_map, opts, log, report):
                 report(_('Metadata jacket removed'))
             else:
                 report(_('No metadata jacket found'))
+            report('')
+
+        if opts.smarten_punctuation:
+            rt(_('Smartening punctuation'))
+            smarten_punctuation(ebook, report)
+            report('')
+
+        if opts.subset:
+            rt(_('Subsetting embedded fonts'))
+            subset_all_fonts(ebook, stats.font_stats, report)
             report('')
 
         ebook.commit(outbook)
@@ -190,6 +204,7 @@ def option_parser():
         'Path to an OPF file. The metadata in the book is updated from the OPF file.'))
     o('--jacket', '-j', help=CLI_HELP['jacket'])
     o('--remove-jacket', help=CLI_HELP['remove_jacket'])
+    o('--smarten-punctuation', '-p', help=CLI_HELP['smarten_punctuation'])
 
     o('--verbose', help=_('Produce more verbose output, useful for debugging.'))
 

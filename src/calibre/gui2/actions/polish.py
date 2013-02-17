@@ -40,6 +40,9 @@ class Polish(QDialog): # {{{
 
             'subset':_('<h3>Subsetting fonts</h3>%s')%HELP['subset'],
 
+            'smarten_punctuation':
+            _('<h3>Smarten punctuation</h3>%s')%HELP['smarten_punctuation'],
+
             'metadata':_('<h3>Updating metadata</h3>'
                          '<p>This will update all metadata and covers in the'
                          ' ebook files to match the current metadata in the'
@@ -61,6 +64,7 @@ class Polish(QDialog): # {{{
         count = 0
         self.all_actions = OrderedDict([
             ('subset', _('Subset all embedded fonts')),
+            ('smarten_punctuation', _('Smarten punctuation')),
             ('metadata', _('Update metadata in book files')),
             ('jacket', _('Add metadata as a "book jacket" page')),
             ('remove_jacket', _('Remove a previously inserted book jacket')),

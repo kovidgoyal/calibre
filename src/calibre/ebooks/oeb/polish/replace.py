@@ -7,10 +7,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import codecs
 from urlparse import urlparse
 
 from cssutils import replaceUrls
 
+from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.oeb.polish.container import guess_type
 from calibre.ebooks.oeb.base import (OEB_DOCS, OEB_STYLES, rewrite_links)
 
@@ -58,4 +60,26 @@ def replace_links(container, link_map, frag_map=lambda name, frag:frag):
         if repl.replaced:
             container.dirty(name)
 
+def smarten_punctuation(container, report):
+    from calibre.ebooks.conversion.preprocess import smarten_punctuation
+    for path in container.spine_items:
+        name = container.abspath_to_name(path)
+        changed = False
+        with container.open(name, 'r+b') as f:
+            html = container.decode(f.read())
+            newhtml = smarten_punctuation(html, container.log)
+            if newhtml != html:
+                changed = True
+                report(_('Smartened punctuation in: %s')%name)
+                newhtml = strip_encoding_declarations(newhtml)
+                f.seek(0)
+                f.truncate()
+                f.write(codecs.BOM_UTF8 + newhtml.encode('utf-8'))
+        if changed:
+            # Add an encoding declaration (it will be added automatically when
+            # serialized)
+            root = container.parsed(name)
+            for m in root.xpath('descendant::*[local-name()="meta" and @http-equiv]'):
+                m.getparent().remove(m)
+            container.dirty(name)
 
