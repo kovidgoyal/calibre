@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-15 07:12+0000\n"
-"PO-Revision-Date: 2013-02-09 20:43+0000\n"
+"PO-Revision-Date: 2013-02-16 22:05+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-16 04:37+0000\n"
+"X-Launchpad-Export-Date: 2013-02-17 04:36+0000\n"
 "X-Generator: Launchpad (build 16491)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -347,7 +347,7 @@ msgstr "Converteix llibres a diversos formats de llibre electrònic"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Fine tune your ebooks"
-msgstr ""
+msgstr "Ajustament fi dels llibres"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Delete books from your calibre library or connected device"
@@ -5412,6 +5412,22 @@ msgid ""
 "\n"
 "<p>Note that polishing only works on files in the %s formats.</p>\n"
 msgstr ""
+"<p><i>Polit de llibres</i> us permet aconseguir un toc de perfecció als "
+"llibres\n"
+"que heu creat tant acuradament.</p>\n"
+"\n"
+"<p>El polit intenta minimitzar els canvis al codi intern del vostre llibre.\n"
+"A diferència de la conversió <i>no</i> aplana el CSS, reanomena fitxers, "
+"canvia\n"
+"mides de lletra, ajusta marges... Cada acció fa només el mínim de canvis "
+"que\n"
+"cal per aconseguir l'efecte desitjat.</p>\n"
+"\n"
+"<p>Hauríeu d'utilitzar aquesta eina com al darrer pas del procés de creació\n"
+"d'un llibre.</p>\n"
+"\n"
+"<p>Tingueu en compte que el polit només funciona en fitxers dels formats "
+"%s.</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:46
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:371
@@ -5464,76 +5480,84 @@ msgid ""
 "all the book metadata such as title, tags, authors, series, comments,\n"
 "etc.</p>"
 msgstr ""
+"<p>Insereix una pàgina de «sobrecoberta» al començament del llibre\n"
+"que conté totes les metadades com el títol, etiquetes, autors, sèrie,\n"
+"comentaris...</p>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:72
 msgid "<p>Remove a previous inserted book jacket page.</p>\n"
-msgstr ""
+msgstr "<p>Suprimeix una pàgina de sobrecoberta inserida prèviament.</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:108
 #, python-format
 msgid "## Polishing: %s"
-msgstr ""
+msgstr "## S'està polint: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:116
 msgid "Updating metadata"
-msgstr ""
+msgstr "S'està actualitzant les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:121
 msgid "Updated metadata jacket"
-msgstr ""
+msgstr "S'ha actualitzar la sobrecoberta de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:122
 msgid "Metadata updated\n"
-msgstr ""
+msgstr "S'ha actualitzat les metadades\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:125
 msgid "Subsetting embedded fonts"
-msgstr ""
+msgstr "S'està fent un subconjunt de les fonts incrustades"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:130
 msgid "Setting cover"
-msgstr ""
+msgstr "S'està establint la portada"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:135
 msgid "Inserting metadata jacket"
-msgstr ""
+msgstr "S'està inserint la sobrecoberta de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:138
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:142
 msgid "Existing metadata jacket replaced"
-msgstr ""
+msgstr "S'ha reemplaçat la sobrecoberta existent"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:140
 msgid "Metadata jacket inserted"
-msgstr ""
+msgstr "S'ha inserit la sobrecoberta de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:146
 msgid "Removing metadata jacket"
-msgstr ""
+msgstr "S'està suprimint la sobrecoberta de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:148
 msgid "Metadata jacket removed"
-msgstr ""
+msgstr "S'ha suprimit la sobrecoberta de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:150
 msgid "No metadata jacket found"
-msgstr ""
+msgstr "No s'ha trobat cap sobrecoberta de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:155
 #, python-format
 msgid "Polishing took: %.1f seconds"
-msgstr ""
+msgstr "El polit ha durat: %.1f segons"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:187
 msgid ""
 "Path to a cover image. Changes the cover specified in the ebook. If no cover "
 "is present, or the cover is not properly identified, inserts a new cover."
 msgstr ""
+"Camí a la imatge de portada. Canvia la portada especificada al llibre. Si no "
+"hi ha cap portada o no està identificada correctament, n'insereix una de "
+"nova."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:190
 msgid ""
 "Path to an OPF file. The metadata in the book is updated from the OPF file."
 msgstr ""
+"Camí a un fitxer OPF. Les metadades del llibre s'actualitzen des del fitxer "
+"OPF."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:194
 msgid "Produce more verbose output, useful for debugging."
@@ -6784,7 +6808,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:263
 msgid "Still looking for IP addresses"
-msgstr ""
+msgstr "Encara s'està cercant adreces IP"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:266
 msgid "Many IP addresses. See Start/Stop dialog."
@@ -7081,7 +7105,7 @@ msgstr "Actualitzador de connectors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:33
 msgid "Polish book"
-msgstr ""
+msgstr "Polit de llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:35
 #, python-format
@@ -7106,16 +7130,22 @@ msgid ""
 "inserted.</p> <p>Note that most ebook formats are not capable of supporting "
 "all the metadata in calibre.</p>"
 msgstr ""
+"<h3>Actualització de metadades</h3><p>S'actualitzarà totes les metadades i "
+"portades del llibre perquè coincideixin amb les metadades actuals de la "
+"biblioteca del calibre.</p><p>Si el fitxer de llibre no té una portada "
+"identificable, s'insereix una nova portada.</p> <p>Tingueu en compte que la "
+"majoria dels formats de llibre no són compatibles amb totes les metadades "
+"del calibre.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:51
 #, python-format
 msgid "<h3>Book Jacket</h3>%s"
-msgstr ""
+msgstr "<h3>Sobrecoberta de metadades</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:52
 #, python-format
 msgid "<h3>Remove Book Jacket</h3>%s"
-msgstr ""
+msgstr "<h3>Suprimeix la sobrecoberta de metadades</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:58
 msgid "Select actions to perform:"
@@ -7127,15 +7157,15 @@ msgstr "Fes un subconjunt de tots els tipus lletra incrustades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:64
 msgid "Update metadata in book files"
-msgstr ""
+msgstr "Actualitza les metadades dels fitxers de llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:65
 msgid "Add metadata as a \"book jacket\" page"
-msgstr ""
+msgstr "Afegeix les metadades a una pàgina de «sobrecoberta»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:66
 msgid "Remove a previously inserted book jacket"
-msgstr ""
+msgstr "Suprimeix una sobrecoberta inserida anteriorment"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:74
 msgid "About"
@@ -7143,11 +7173,11 @@ msgstr "Quant a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:96
 msgid "&Save Settings"
-msgstr ""
+msgstr "De&sa la configuració"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:98
 msgid "&Load Settings"
-msgstr ""
+msgstr "Carrega &la configuració"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:47
@@ -7166,15 +7196,15 @@ msgstr "No s'ha seleccionat cap acció"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:120
 msgid "You must select at least one action before saving"
-msgstr ""
+msgstr "Heu de seleccionar almenys una acció abans de desar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:122
 msgid "Choose name"
-msgstr ""
+msgstr "Tria de nom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:123
 msgid "Choose a name for these settings"
-msgstr ""
+msgstr "Trieu un nom per a aquesta configuració"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:177
 msgid "You must select at least one action, or click Cancel."
@@ -7202,31 +7232,31 @@ msgstr "S'està posant a la cua el llibre %(nums)s de %(tot)s (%(title)s)"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:262
 #, python-format
 msgid "Ignore remaining %d reports"
-msgstr ""
+msgstr "Ignora els %d informes que resten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:269
 msgid "View full &log"
-msgstr ""
+msgstr "Visua&litza el registre complet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:292
 #, python-format
 msgid "Polishing of %s"
-msgstr ""
+msgstr "S'està polint %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:298
 #, python-format
 msgid "The original file has been saved as %s."
 msgid_plural "The original files have been saved as %s."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "El fitxer original s'ha desat com a %s."
+msgstr[1] "Els fitxers originals s'han desat com a %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:300
 msgid " and "
-msgstr ""
+msgstr " i "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:303
 msgid "If you polish again, the polishing will run on the originals."
-msgstr ""
+msgstr "Si torneu a polir, el polit es farà en els originals."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:338
 msgid "P"
@@ -7253,7 +7283,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:393
 #, python-format
 msgid "Start polishing of %d book(s)"
-msgstr ""
+msgstr "Inicia el polit de %d llibre(s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 msgid "Ctrl+P"
@@ -13870,12 +13900,12 @@ msgstr "El canal ha de tenir un títol"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:198
 msgid "Feed must have a URL"
-msgstr "El canal ha de tenir una URL"
+msgstr "El canal ha de tenir un URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:199
 #, python-format
 msgid "The feed %s must have a URL"
-msgstr "El canal %s ha de tenir una URL"
+msgstr "El canal %s ha de tenir un URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:205
 msgid "This feed has already been added to the recipe"
@@ -16004,19 +16034,19 @@ msgstr "no està establert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:61
 msgid "is more days ago than"
-msgstr ""
+msgstr "és de fa més dies que"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:62
 msgid "is fewer days ago than"
-msgstr ""
+msgstr "és de fa menys dies que"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:63
 msgid "is more days from now than"
-msgstr ""
+msgstr "és de fa més dies des d'ara que"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:64
 msgid "is fewer days from now than"
-msgstr ""
+msgstr "és de fa menys dies des d'ara que"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:67
 msgid "has"
@@ -16082,24 +16112,32 @@ msgid ""
 "Enter the maximum days old the item can be. Zero is today. Dates in the "
 "future always match"
 msgstr ""
+"Introduïu l'antiguitat màxima en dies que pot ser un element. Zero és avui. "
+"Les dates del futur coincideixen sempre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:252
 msgid ""
 "Enter the minimum days old the item can be. Zero is today. Dates in the "
 "future never match"
 msgstr ""
+"Introduïu l'antiguitat mínima en dies que pot ser un element. Zero és avui. "
+"Les dates del futur no coincideixen mai."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:256
 msgid ""
 "Enter the maximum days in the future the item can be. Zero is today. Dates "
 "in the past always match"
 msgstr ""
+"Introduïu el màxim de dies en el futur que pot ser un element. Zero és avui. "
+"Les dates del passat coincideixen sempre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:260
 msgid ""
 "Enter the minimum days in the future the item can be. Zero is today. Dates "
 "in the past never match"
 msgstr ""
+"Introduïu el mínim de dies en el futur que pot ser un element. Zero és avui. "
+"Les dates del passat no coincideixen mai."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:264
 msgid "Enter a date in the format YYYY-MM-DD"
@@ -18211,9 +18249,9 @@ msgid ""
 "you plan to put the server behind another server like Apache, with a reverse "
 "proxy."
 msgstr ""
-"El prefix que s'aplicarà a totes les URL del servidor de continguts. Només "
-"és útil si penseu posar el servidor darrera d'un altre servidor com Apache "
-"amb un servidor intermediari invers."
+"El prefix que s'aplicarà a tots els URL del servidor de continguts. Només és "
+"útil si penseu posar el servidor darrera d'un altre servidor com Apache amb "
+"un servidor intermediari invers."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:164
 msgid "&Start Server"
@@ -18259,7 +18297,7 @@ msgstr ""
 "<p>No oblideu deixar el calibre en execució, ja que el servidor només "
 "funciona si el calibre s'està executant.\n"
 "<p>Per connectar des del vostre dispositiu al servidor del calibre podeu "
-"utilitzar una URL del tipus <b>http://nomdelmeu ordinador:8080</b>. "
+"utilitzar un URL del tipus <b>http://nomdelmeu ordinador:8080</b>. "
 "«nomdelmeuordinador» pot ser el nom complert de l'amfitrió o l'adreça IP de "
 "l'equip en què s'executa el calibre. Si voleu accedir al servidor des de "
 "qualsevol lloc del món haureu de configurar el reenviament de ports a "
@@ -19985,7 +20023,7 @@ msgstr "Tipus de lletra estàndard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:85
 msgid "The minimum font size in px"
-msgstr ""
+msgstr "La mida mínima de lletra en px"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:143
 msgid "Theme name"
@@ -20064,11 +20102,11 @@ msgstr "%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:407
 msgid "M&inimum font size:"
-msgstr ""
+msgstr "Mida mín&ima de lletra:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:408
 msgid "The minimum font size in pixels"
-msgstr ""
+msgstr "La mida mínima de lletra en píxels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:410
 msgid "&Font options"
@@ -21119,6 +21157,12 @@ msgid ""
 "directly on the device. To do this you have to turn on the calibre content "
 "server."
 msgstr ""
+"<p>Si utilitzeu l'aplicació de lectura <a "
+"href=\"http://www.lexcycle.com/download\">Stanza</a> o <a "
+"href=\"http://marvinapp.com/\">Marvin</a> a l'i-Dispositiu Apple, podreu "
+"accedir directament a la col·lecció de llibres del calibre amb la connexió "
+"sense fils, directament al dispositiu. Per fer-ho heu d'engegar el servidor "
+"de contingut del calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:57
 msgid "Turn on the &content server"
@@ -21135,6 +21179,15 @@ msgid ""
 "href=\"http://manual.calibre-ebook.com/faq.html#how-do-i-use-app-with-my-"
 "ipad-iphone-ipod-touch\">the User Manual</a> for more information."
 msgstr ""
+"<p>Recordeu-vos de deixar el calibre en execució ja que el servidor només "
+"funciona amb el calibre engegat.\n"
+"<p>L'aplicació del lector hauria de veure la col·lecció del calibre "
+"automàticament. Si no és així, intenteu afegir l'URL "
+"http://elmeuordinador:8080 com a catàleg nou al lector del l'iDispositiu. "
+"Aquí «elmeuordinador» ha de ser el nom de l'amfitrió totalment qualificat o "
+"l'adreça IP des d'on s'està executant el calibre. Vegeu el <a "
+"href=\"http://manual.calibre-ebook.com/faq.html#how-do-i-use-app-with-my-"
+"ipad-iphone-ipod-touch\">Manual d'usuari</a> per a més informació."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:36
 #, python-format
@@ -22895,7 +22948,7 @@ msgid ""
 "Prefix to prepend to all URLs. Useful for reverseproxying to this server "
 "from Apache/nginx/etc."
 msgstr ""
-"Prefix per posar abans de totes les URL. Útil per fer servir un servidor "
+"Prefix per posar abans de tots els URL. Útil per fer servir un servidor "
 "intermediari de retorn a aquest servidor des d'Apache, nginx..."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/ajax.py:318
@@ -24592,7 +24645,7 @@ msgid ""
 msgstr ""
 "%prog URL\n"
 "\n"
-"Amb una URL com http://google.com, per exemple"
+"Amb un URL com http://google.com, per exemple"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:532
 #, python-format

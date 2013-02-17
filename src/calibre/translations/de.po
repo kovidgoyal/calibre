@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-15 07:12+0000\n"
-"PO-Revision-Date: 2013-02-14 22:15+0000\n"
-"Last-Translator: Susan Gottwald <susan.gottwald@arcor.de>\n"
+"PO-Revision-Date: 2013-02-16 22:44+0000\n"
+"Last-Translator: Christian Schulz <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-16 04:40+0000\n"
+"X-Launchpad-Export-Date: 2013-02-17 04:36+0000\n"
 "X-Generator: Launchpad (build 16491)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -5484,7 +5484,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:122
 msgid "Metadata updated\n"
-msgstr ""
+msgstr "Metadaten aktualisiert\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:125
 msgid "Subsetting embedded fonts"
@@ -5537,7 +5537,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:194
 msgid "Produce more verbose output, useful for debugging."
-msgstr ""
+msgstr "Produziere eine umfangreichere Ausgabe, nützlich fürs Debuggen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:204
 msgid "You must provide the input file to polish"
@@ -7186,11 +7186,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:122
 msgid "Choose name"
-msgstr ""
+msgstr "Namen auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:123
 msgid "Choose a name for these settings"
-msgstr ""
+msgstr "Wähle einen Namen für diese Einstellungen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:177
 msgid "You must select at least one action, or click Cancel."
@@ -7233,8 +7233,8 @@ msgstr ""
 #, python-format
 msgid "The original file has been saved as %s."
 msgid_plural "The original files have been saved as %s."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Die originale Datei wurde als %s gespeichert."
+msgstr[1] "Die originalen Dateien wurden als %s gespeichert."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:300
 msgid " and "
@@ -20088,7 +20088,7 @@ msgstr "Standardschriftart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:85
 msgid "The minimum font size in px"
-msgstr ""
+msgstr "Die minimale Schriftgröße in px"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:143
 msgid "Theme name"
@@ -20171,7 +20171,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:408
 msgid "The minimum font size in pixels"
-msgstr ""
+msgstr "Die minimale Schriftgröße in Pixel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:410
 msgid "&Font options"

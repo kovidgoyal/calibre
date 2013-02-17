@@ -57,14 +57,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-15 07:12+0000\n"
-"PO-Revision-Date: 2013-02-15 22:37+0000\n"
+"PO-Revision-Date: 2013-02-16 13:48+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-16 04:38+0000\n"
+"X-Launchpad-Export-Date: 2013-02-17 04:36+0000\n"
 "X-Generator: Launchpad (build 16491)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -5529,11 +5529,16 @@ msgid ""
 "Path to a cover image. Changes the cover specified in the ebook. If no cover "
 "is present, or the cover is not properly identified, inserts a new cover."
 msgstr ""
+"Pad naar omslag afbeelding. Wijzigt de omslag gespecificeerd in het E-boek. "
+"Als geen omslag beschikbaar is, of de omslag is niet goed herkend, wordt een "
+"nieuwe omslag toegevoegd."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:190
 msgid ""
 "Path to an OPF file. The metadata in the book is updated from the OPF file."
 msgstr ""
+"Pad naar een OPF bestand. De metadata in het boek is bijgewerkt vanuit het "
+"OPF bestand."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:194
 msgid "Produce more verbose output, useful for debugging."
@@ -7128,11 +7133,11 @@ msgstr "Metadata in boek-bestanden bijwerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:65
 msgid "Add metadata as a \"book jacket\" page"
-msgstr ""
+msgstr "Metatdata als inlegpagina toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:66
 msgid "Remove a previously inserted book jacket"
-msgstr ""
+msgstr "Een eerdere toegevoegde inlegpagina verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:74
 msgid "About"
@@ -7140,11 +7145,11 @@ msgstr "Over"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:96
 msgid "&Save Settings"
-msgstr ""
+msgstr "Instellingen op&slaan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:98
 msgid "&Load Settings"
-msgstr ""
+msgstr "Instellingen &laden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:47
@@ -7163,15 +7168,15 @@ msgstr "Geen taken geselecteerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:120
 msgid "You must select at least one action before saving"
-msgstr ""
+msgstr "U moet minimaal één taak selecteren voor het opslaan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:122
 msgid "Choose name"
-msgstr ""
+msgstr "Kies naam"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:123
 msgid "Choose a name for these settings"
-msgstr ""
+msgstr "Kies een naam voor deze instellingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:177
 msgid "You must select at least one action, or click Cancel."
@@ -7199,31 +7204,33 @@ msgstr "Boek %(nums)s van %(tot)s (%(title)s) in wachtrij zetten"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:262
 #, python-format
 msgid "Ignore remaining %d reports"
-msgstr ""
+msgstr "Negeer hernoemen %d reapporten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:269
 msgid "View full &log"
-msgstr ""
+msgstr "Toon volledig &log"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:292
 #, python-format
 msgid "Polishing of %s"
-msgstr ""
+msgstr "Bijschaven van %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:298
 #, python-format
 msgid "The original file has been saved as %s."
 msgid_plural "The original files have been saved as %s."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Het originele bestand is opgeslagen als %s."
+msgstr[1] "De originele bestanden zijn opgeslagen als %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:300
 msgid " and "
-msgstr ""
+msgstr " en "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:303
 msgid "If you polish again, the polishing will run on the originals."
 msgstr ""
+"Als u nogmaals bijschaaft, zal het bijschaven worden uitgevoerd op de "
+"originelen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:338
 msgid "P"
@@ -7250,7 +7257,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:393
 #, python-format
 msgid "Start polishing of %d book(s)"
-msgstr ""
+msgstr "Start bijschaven van %d boek(en)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 msgid "Ctrl+P"
@@ -15956,19 +15963,19 @@ msgstr "niet ingesteld is"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:61
 msgid "is more days ago than"
-msgstr ""
+msgstr "is meer dagen geleden dan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:62
 msgid "is fewer days ago than"
-msgstr ""
+msgstr "is minder dagen geleden dan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:63
 msgid "is more days from now than"
-msgstr ""
+msgstr "is meer dagen van nu dan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:64
 msgid "is fewer days from now than"
-msgstr ""
+msgstr "is minder dagen van nu dan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:67
 msgid "has"
@@ -19905,7 +19912,7 @@ msgstr "Het standaardlettertype"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:85
 msgid "The minimum font size in px"
-msgstr ""
+msgstr "Het minimale lettertype formaat in px"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:143
 msgid "Theme name"
@@ -19984,11 +19991,11 @@ msgstr "%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:407
 msgid "M&inimum font size:"
-msgstr ""
+msgstr "M&inimale lettertype formaat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:408
 msgid "The minimum font size in pixels"
-msgstr ""
+msgstr "Het minimale lettertype formaat in pixels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:410
 msgid "&Font options"
