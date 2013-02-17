@@ -44,7 +44,6 @@ class AdvancedUserRecipe1249039563(BasicNewsRecipe):
 
     def get_obfuscated_article(self, url):
         br = self.browser.clone_browser()
-        print 'THE CURRENT URL IS: ', url
         br.open(url)
         year = date.today().year
 
