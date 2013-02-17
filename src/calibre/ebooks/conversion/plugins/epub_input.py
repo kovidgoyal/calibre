@@ -80,7 +80,7 @@ class EPUBInput(InputFormatPlugin):
         guide_cover, guide_elem = None, None
         for guide_elem in opf.iterguide():
             if guide_elem.get('type', '').lower() == 'cover':
-                guide_cover = guide_elem.get('href', '')
+                guide_cover = guide_elem.get('href', '').partition('#')[0]
                 break
         if not guide_cover:
             return
@@ -103,6 +103,12 @@ class EPUBInput(InputFormatPlugin):
         if not self.for_viewer:
             spine[0].getparent().remove(spine[0])
             removed = guide_cover
+        else:
+            # Ensure the cover is displayed as the first item in the book, some
+            # epub files have it set with linear='no' which causes the cover to
+            # display in the end
+            spine[0].attrib.pop('linear', None)
+            opf.spine[0].is_linear = True
         guide_elem.set('href', 'calibre_raster_cover.jpg')
         from calibre.ebooks.oeb.base import OPF
         t = etree.SubElement(elem[0].getparent(), OPF('item'),

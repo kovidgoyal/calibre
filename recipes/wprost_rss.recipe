@@ -1,0 +1,71 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, matek09, matek09@gmail.com'
+__copyright__ = 'Modified 2011,  Mariusz Wolek <mariusz_dot_wolek @ gmail dot com>'
+__copyright__ = 'Modified 2012,  Artur Stachecki <artur.stachecki@gmail.com>'
+
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class Wprost(BasicNewsRecipe):
+    title = u'Wprost (RSS)'
+    __author__ = 'matek09'
+    description = 'Weekly magazine'
+    encoding = 'ISO-8859-2'
+    no_stylesheets = True
+    language = 'pl'
+    remove_javascript = True
+    recursions = 0
+    use_embedded_content = False
+    remove_empty_feeds = True
+    remove_tags_before = dict(dict(name = 'div', attrs = {'id' : 'print-layer'}))
+    remove_tags_after = dict(dict(name = 'div', attrs = {'id' : 'print-layer'}))
+    '''
+    keep_only_tags =[]
+    keep_only_tags.append(dict(name = 'table', attrs = {'id' : 'title-table'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'div-header'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'div-content'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'def element-autor'}))
+    '''
+
+    preprocess_regexps = [(re.compile(r'style="display: none;"'), lambda match: ''),
+        (re.compile(r'display: block;'), lambda match: ''),
+        (re.compile(r'\<td\>\<tr\>\<\/table\>'), lambda match: ''),
+        (re.compile(r'\<table .*?\>'), lambda match: ''),
+        (re.compile(r'\<tr>'), lambda match: ''),
+        (re.compile(r'\<td .*?\>'), lambda match: ''),
+        (re.compile(r'\<div id="footer"\>.*?\</footer\>'), lambda match: '')]
+
+    remove_tags =[]
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'def element-date'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'def silver'}))
+    remove_tags.append(dict(name = 'div', attrs = {'id' : 'content-main-column-right'}))
+
+
+    extra_css = '''.div-header {font-size: x-small; font-weight: bold}'''
+    #h2 {font-size: x-large; font-weight: bold}
+
+    feeds = [(u'Tylko u nas', u'http://www.wprost.pl/rss/rss_wprostextra.php'),
+	(u'Wydarzenia', u'http://www.wprost.pl/rss/rss.php'),
+	(u'Komentarze', u'http://www.wprost.pl/rss/rss_komentarze.php'),
+	(u'Wydarzenia: Kraj', u'http://www.wprost.pl/rss/rss_kraj.php'),
+	(u'Komentarze: Kraj', u'http://www.wprost.pl/rss/rss_komentarze_kraj.php'),
+	(u'Wydarzenia: Świat', u'http://www.wprost.pl/rss/rss_swiat.php'),
+	(u'Komentarze: Świat', u'http://www.wprost.pl/rss/rss_komentarze_swiat.php'),
+	(u'Wydarzenia: Gospodarka', u'http://www.wprost.pl/rss/rss_gospodarka.php'),
+	(u'Komentarze: Gospodarka', u'http://www.wprost.pl/rss/rss_komentarze_gospodarka.php'),
+	(u'Wydarzenia: Życie', u'http://www.wprost.pl/rss/rss_zycie.php'),
+	(u'Komentarze: Życie', u'http://www.wprost.pl/rss/rss_komentarze_zycie.php'),
+	(u'Wydarzenia: Sport', u'http://www.wprost.pl/rss/rss_sport.php'),
+	(u'Komentarze: Sport', u'http://www.wprost.pl/rss/rss_komentarze_sport.php'),
+	(u'Przegląd prasy', u'http://www.wprost.pl/rss/rss_prasa.php')
+	]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.wprost.pl/tygodnik')
+        cover = soup.find(attrs={'class':'wprost-cover'})
+        if cover:
+            self.cover_url = cover['src']
+        return getattr(self, 'cover_url', self.cover_url)

@@ -386,7 +386,7 @@ class RecursiveFetcher(object):
             else:
                 try:
                     if itype not in {'png', 'jpg', 'jpeg'}:
-                        itype == 'png' if itype == 'gif' else 'jpg'
+                        itype = 'png' if itype == 'gif' else 'jpg'
                         im = Image()
                         im.load(data)
                         data = im.export(itype)

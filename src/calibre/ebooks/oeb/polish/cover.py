@@ -11,6 +11,7 @@ import shutil, re, os
 
 from calibre.ebooks.oeb.base import OPF, OEB_DOCS, XPath, XLINK, xml2text
 from calibre.ebooks.oeb.polish.replace import replace_links
+from calibre.utils.magick.draw import identify
 
 def set_azw3_cover(container, cover_path, report):
     name = None
@@ -144,6 +145,10 @@ def create_epub_cover(container, cover_path):
         templ = CoverManager.NONSVG_TEMPLATE.replace('__style__', style)
     else:
         width, height = 600, 800
+        try:
+            width, height = identify(cover_path)[:2]
+        except:
+            container.log.exception("Failed to get width and height of cover")
         ar = 'xMidYMid meet' if keep_aspect else 'none'
         templ = CoverManager.SVG_TEMPLATE.replace('__ar__', ar)
         templ = templ.replace('__viewbox__', '0 0 %d %d'%(width, height))
@@ -156,6 +161,17 @@ def create_epub_cover(container, cover_path):
     raw = templ%container.name_to_href(raster_cover).encode('utf-8')
     with container.open(titlepage, 'wb') as f:
         f.write(raw)
+
+    # We have to make sure the raster cover item has id="cover" for the moron
+    # that wrote the Nook firmware
+    if raster_cover_item.get('id') != 'cover':
+        from calibre.ebooks.oeb.base import uuid_id
+        newid = uuid_id()
+        for item in container.opf_xpath('//*[@id="cover"]'):
+            item.set('id', newid)
+        for item in container.opf_xpath('//*[@idref="cover"]'):
+            item.set('idref', newid)
+        raster_cover_item.set('id', 'cover')
 
     spine = container.opf_xpath('//opf:spine')[0]
     ref = spine.makeelement(OPF('itemref'), idref=titlepage_item.get('id'))
@@ -171,11 +187,20 @@ def create_epub_cover(container, cover_path):
 
     return raster_cover, titlepage
 
+def remove_cover_image_in_page(container, page, cover_images):
+    for img in container.parsed(page).xpath('//*[local-name()="img" and @src]'):
+        href = img.get('src')
+        name = container.href_to_name(href, page)
+        if name in cover_images:
+            img.getparent.remove(img)
+        break
+
 def set_epub_cover(container, cover_path, report):
     cover_image = find_cover_image(container)
     cover_page = find_cover_page(container)
     wrapped_image = extra_cover_page = None
     updated = False
+    log = container.log
 
     possible_removals = set(clean_opf(container))
     possible_removals
@@ -190,6 +215,7 @@ def set_epub_cover(container, cover_path, report):
             cover_page = candidate
 
     if cover_page is not None:
+        log('Found existing cover page')
         wrapped_image = find_cover_image_in_page(container, cover_page)
 
         if len(spine_items) > 1:
@@ -198,15 +224,22 @@ def set_epub_cover(container, cover_path, report):
             if c != cover_page:
                 candidate = find_cover_image_in_page(container, c)
                 if candidate and candidate in {wrapped_image, cover_image}:
+                    log('Found an extra cover page that is a simple wrapper, removing it')
                     # This page has only a single image and that image is the
                     # cover image, remove it.
                     container.remove_item(c)
                     extra_cover_page = c
                     spine_items = spine_items[:1] + spine_items[2:]
+                elif candidate is None:
+                    # Remove the cover image if it is the first image in this
+                    # page
+                    remove_cover_image_in_page(container, c, {wrapped_image,
+                                                          cover_image})
 
         if wrapped_image is not None:
             # The cover page is a simple wrapper around a single cover image,
             # we can remove it safely.
+            log('Existing cover page is a simple wrapper, removing it')
             container.remove_item(cover_page)
             container.remove_item(wrapped_image)
             updated = True

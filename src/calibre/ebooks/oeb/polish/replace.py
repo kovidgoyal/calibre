@@ -11,7 +11,7 @@ from urlparse import urlparse
 
 from cssutils import replaceUrls
 
-from calibre import guess_type
+from calibre.ebooks.oeb.polish.container import guess_type
 from calibre.ebooks.oeb.base import (OEB_DOCS, OEB_STYLES, rewrite_links)
 
 class LinkReplacer(object):
@@ -41,7 +41,7 @@ class LinkReplacer(object):
         return href
 
 def replace_links(container, link_map, frag_map=lambda name, frag:frag):
-    ncx_type = guess_type('toc.ncx')[0]
+    ncx_type = guess_type('toc.ncx')
     for name, media_type in container.mime_map.iteritems():
         repl = LinkReplacer(name, container, link_map, frag_map)
         if media_type.lower() in OEB_DOCS:

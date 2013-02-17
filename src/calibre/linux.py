@@ -250,8 +250,12 @@ class PostInstall:
                 f.write('# calibre Bash Shell Completion\n')
                 f.write(opts_and_exts('calibre', guiop, BOOK_EXTENSIONS))
                 f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
-                f.write(opts_and_exts('ebook-meta', metaop, list(meta_filetypes())))
-                f.write(opts_and_exts('ebook-polish', polish_op, [x.lower() for x in SUPPORTED]))
+                f.write(opts_and_exts('ebook-meta', metaop,
+                    list(meta_filetypes()), cover_opts=['--cover', '-c'],
+                    opf_opts=['--to-opf', '--from-opf']))
+                f.write(opts_and_exts('ebook-polish', polish_op,
+                    [x.lower() for x in SUPPORTED], cover_opts=['--cover', '-c'],
+                    opf_opts=['--opf', '-o']))
                 f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
                 f.write(opts_and_exts('ebook-viewer', viewer_op, input_formats))
                 f.write(opts_and_words('fetch-ebook-metadata', fem_op, []))
@@ -478,11 +482,23 @@ def opts_and_words(name, op, words):
 complete -F _'''%(opts, words) + fname + ' ' + name +"\n\n").encode('utf-8')
 
 
-def opts_and_exts(name, op, exts):
+def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=()):
     opts = ' '.join(options(op))
     exts.extend([i.upper() for i in exts])
     exts='|'.join(exts)
     fname = name.replace('-', '_')
+    special_exts_template = '''\
+      %s )
+           _filedir %s
+           return 0
+         ;;
+    '''
+    extras = []
+    for eopts, eexts in ((cover_opts, "${pics}"), (opf_opts, "'@(opf)'")):
+        for opt in eopts:
+            extras.append(special_exts_template%(opt, eexts))
+    extras = '\n'.join(extras)
+
     return '_'+fname+'()'+\
 '''
 {
@@ -490,33 +506,28 @@ def opts_and_exts(name, op, exts):
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="%s"
+    opts="%(opts)s"
     pics="@(jpg|jpeg|png|gif|bmp|JPG|JPEG|PNG|GIF|BMP)"
 
     case "${prev}" in
-      --cover )
-           _filedir "${pics}"
-           return 0
-           ;;
+%(extras)s
     esac
 
     case "${cur}" in
-      --cover )
-         _filedir "${pics}"
-         return 0
-         ;;
+%(extras)s
       -* )
          COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
          return 0
          ;;
       *  )
-        _filedir '@(%s)'
+        _filedir '@(%(exts)s)'
         return 0
         ;;
     esac
 
 }
-complete -o filenames -F _'''%(opts,exts) + fname + ' ' + name +"\n\n"
+complete -o filenames -F _'''%dict(
+    opts=opts, extras=extras, exts=exts) + fname + ' ' + name +"\n\n"
 
 
 VIEWER = '''\

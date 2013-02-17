@@ -7,13 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, logging, sys, hashlib, uuid
+import os, logging, sys, hashlib, uuid, re
+from io import BytesIO
 from urllib import unquote as urlunquote, quote as urlquote
 from urlparse import urlparse
 
 from lxml import etree
 
-from calibre import guess_type, CurrentDir
+from calibre import guess_type as _guess_type, CurrentDir
 from calibre.customize.ui import (plugin_for_input_format,
         plugin_for_output_format)
 from calibre.ebooks.chardet import xml_to_unicode
@@ -34,7 +35,10 @@ from calibre.utils.zipfile import ZipFile
 
 exists, join, relpath = os.path.exists, os.path.join, os.path.relpath
 
-OEB_FONTS = {guess_type('a.ttf')[0], guess_type('b.ttf')[0]}
+def guess_type(x):
+    return _guess_type(x)[0] or 'application/octet-stream'
+
+OEB_FONTS = {guess_type('a.ttf'), guess_type('b.ttf')}
 OPF_NAMESPACES = {'opf':OPF2_NS, 'dc':DC11_NS}
 
 class Container(object):
@@ -76,12 +80,12 @@ class Container(object):
                 path = join(dirpath, f)
                 name = self.abspath_to_name(path)
                 self.name_path_map[name] = path
-                self.mime_map[name] = guess_type(path)[0]
+                self.mime_map[name] = guess_type(path)
                 # Special case if we have stumbled onto the opf
                 if path == opfpath:
                     self.opf_name = name
                     self.opf_dir = os.path.dirname(path)
-                    self.mime_map[name] = guess_type('a.opf')[0]
+                    self.mime_map[name] = guess_type('a.opf')
 
         if not hasattr(self, 'opf_name'):
             raise InvalidBook('Book has no OPF file')
@@ -205,7 +209,7 @@ class Container(object):
     def parsed(self, name):
         ans = self.parsed_cache.get(name, None)
         if ans is None:
-            mime = self.mime_map.get(name, guess_type(name)[0])
+            mime = self.mime_map.get(name, guess_type(name))
             ans = self.parse(self.name_path_map[name], mime)
             self.parsed_cache[name] = ans
         return ans
@@ -213,6 +217,13 @@ class Container(object):
     @property
     def opf(self):
         return self.parsed(self.opf_name)
+
+    @property
+    def mi(self):
+        from calibre.ebooks.metadata.opf2 import OPF as O
+        mi = self.serialize_item(self.opf_name)
+        return O(BytesIO(mi), basedir=self.opf_dir, unquote_urls=False,
+                populate_spine=False).to_book_metadata()
 
     @property
     def manifest_id_map(self):
@@ -333,7 +344,7 @@ class Container(object):
         name. Ensures uniqueness of href and id automatically. Returns
         generated item.'''
         id_prefix = id_prefix or 'id'
-        media_type = media_type or guess_type(name)[0]
+        media_type = media_type or guess_type(name)
         href = self.name_to_href(name, self.opf_name)
         base, ext = href.rpartition('.')[0::2]
         all_ids = {x.get('id') for x in self.opf_xpath('//*[@id]')}
@@ -353,7 +364,7 @@ class Container(object):
             c += 1
             href = '%s_%d.%s'%(base, c, ext)
         manifest = self.opf_xpath('//opf:manifest')[0]
-        item = manifest.makeelement(OPF('item'), nsmap=OPF_NAMESPACES,
+        item = manifest.makeelement(OPF('item'),
                                     id=item_id, href=href)
         item.set('media-type', media_type)
         self.insert_into_xml(manifest, item)
@@ -363,10 +374,36 @@ class Container(object):
         self.mime_map[name] = media_type
         return item
 
-    def commit_item(self, name):
-        self.dirtied.remove(name)
-        data = self.parsed_cache.pop(name)
+    def format_opf(self):
+        mdata = self.opf_xpath('//opf:metadata')[0]
+        mdata.text = '\n    '
+        remove = set()
+        for child in mdata:
+            child.tail = '\n    '
+            if (child.get('name', '').startswith('calibre:') and
+                child.get('content', '').strip() in {'{}', ''}):
+                remove.add(child)
+        for child in remove: mdata.remove(child)
+        if len(mdata) > 0:
+            mdata[-1].tail = '\n  '
+
+    def serialize_item(self, name):
+        data = self.parsed(name)
+        if name == self.opf_name:
+            self.format_opf()
         data = serialize(data, self.mime_map[name])
+        if name == self.opf_name:
+            # Needed as I can't get lxml to output opf:role and
+            # not output <opf:metadata> as well
+            data = re.sub(br'(<[/]{0,1})opf:', r'\1', data)
+        return data
+
+    def commit_item(self, name):
+        if name not in self.parsed_cache:
+            return
+        data = self.serialize_item(name)
+        self.dirtied.remove(name)
+        self.parsed_cache.pop(name)
         with open(self.name_path_map[name], 'wb') as f:
             f.write(data)
 
@@ -442,7 +479,7 @@ class EpubContainer(Container):
         self.container = etree.fromstring(open(container_path, 'rb').read())
         opf_files = self.container.xpath((
             r'child::ocf:rootfiles/ocf:rootfile'
-            '[@media-type="%s" and @full-path]'%guess_type('a.opf')[0]
+            '[@media-type="%s" and @full-path]'%guess_type('a.opf')
             ), namespaces={'ocf':OCF_NS}
         )
         if not opf_files:
@@ -521,7 +558,7 @@ class EpubContainer(Container):
             outpath = self.pathtoepub
         from calibre.ebooks.tweak import zip_rebuilder
         with open(join(self.root, 'mimetype'), 'wb') as f:
-            f.write(guess_type('a.epub')[0])
+            f.write(guess_type('a.epub'))
         zip_rebuilder(self.root, outpath)
 
 # }}}

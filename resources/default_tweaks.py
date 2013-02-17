@@ -464,12 +464,15 @@ server_listen_on = '0.0.0.0'
 # on at your own risk!
 unified_title_toolbar_on_osx = False
 
-#: Save original file when converting from same format to same format
+#: Save original file when converting/polishing from same format to same format
 # When calibre does a conversion from the same format to the same format, for
 # example, from EPUB to EPUB, the original file is saved, so that in case the
 # conversion is poor, you can tweak the settings and run it again. By setting
 # this to False you can prevent calibre from saving the original file.
+# Similarly, by setting save_original_format_when_polishing to False you can
+# prevent calibre from saving the original file when polishing.
 save_original_format = True
+save_original_format_when_polishing = True
 
 #: Number of recently viewed books to show
 # Right-clicking the View button shows a list of recently viewed books. Control
