@@ -790,7 +790,8 @@ class DocumentView(QWebView): # {{{
                 self.manager.load_started()
 
         load_html(path, self, codec=getattr(path, 'encoding', 'utf-8'), mime_type=getattr(path,
-            'mime_type', 'text/html'), pre_load_callback=callback)
+            'mime_type', 'text/html'), pre_load_callback=callback,
+                  force_as_html=True)
         entries = set()
         for ie in getattr(path, 'index_entries', []):
             if ie.start_anchor:
