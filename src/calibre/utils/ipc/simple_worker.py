@@ -76,7 +76,7 @@ def communicate(ans, worker, listener, args, timeout=300, heartbeat=None,
         raise WorkerError('Failed to connect to worker process', cw.tb)
 
     if cw.tb:
-        raise WorkerError('Failed to communicate with worker process')
+        raise WorkerError('Failed to communicate with worker process', cw.tb)
     if cw.res is None:
         raise WorkerError('Something strange happened. The worker process was aborted without an exception.')
     if cw.res.get('tb', None):
