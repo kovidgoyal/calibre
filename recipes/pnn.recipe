@@ -1,0 +1,54 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+'''Calibre recipe to convert the RSS feeds of the PNN to an ebook.'''
+
+class SportsIllustratedRecipe(BasicNewsRecipe) :
+    __author__    = 'n.kucklaender'
+    __copyright__ = 'a.peter'
+    __license__   = 'GPL v3'
+    language      = 'de'
+    description   = 'PNN RSS'
+    version       = 1
+    title         = u'PNN'
+    timefmt       = ' [%d.%m.%Y]'
+
+    oldest_article = 7.0
+    no_stylesheets = True
+    remove_javascript = True
+    use_embedded_content = False
+    publication_type = 'newspaper'
+
+    remove_empty_feeds = True
+    remove_tags = [dict(attrs={'class':['um-weather um-header-weather','um-has-sub um-mainnav','um-box','ts-products','um-meta-nav','um-box um-last','um-footer','um-footer-links','share hidden','um-buttons']}),dict(id=['dinsContainer'])]
+   # remove_tags_before = [dict(name='div', attrs={'class':'um-first'})]
+   # remove_tags_after = [dict(name='div', attrs={'class':'um-metabar'})]
+
+    feeds = [(u'Titelseite', u'http://www.pnn.de/rss.xml'),
+ 	         (u'Dritte Seite', u'http://www.pnn.de/dritte-seite/rss.xml'),
+ 	         (u'Politik', u'http://www.pnn.de/politik/rss.xml'),
+ 	         (u'Meinung', u'http://www.pnn.de/meinung/rss.xml'),
+             (u'Potsdam', u'http://www.pnn.de/potsdam/rss.xml'),
+             (u'Havel-Spree', u'http://www.pnn.de/havel-spree/rss.xml'),
+             (u'Potsdam-Mittelmark', u'http://www.pnn.de/pm/rss.xml'),
+             (u'Berlin-Brandenburg', u'http://www.pnn.de/brandenburg-berlin/rss.xml'),
+ 	         (u'Wirtschaft', u'http://www.pnn.de/wirtschaft/rss.xml'),
+             (u'Sport', u'http://www.pnn.de/sport/rss.xml'),
+             (u'Regionalsport', u'http://www.pnn.de/regionalsport/rss.xml'),
+ 	         (u'Kultur', u'http://www.pnn.de/kultur/rss.xml'),
+             (u'Potsdam-Kultur', u'http://www.pnn.de/potsdam-kultur/rss.xml'),
+             (u'Wissen', u'http://www.pnn.de/wissen/rss.xml'),
+	         (u'Medien', u'http://www.pnn.de/medien/rss.xml'),
+             (u'Weltspiegel', u'http://www.pnn.de/weltspiegel/rss.xml'),
+             (u'Wissenschaft', u'http://www.pnn.de/campus/rss.xml'),
+             (u'Mobil', u'http://www.pnn.de/mobil/rss.xml'),
+             (u'Reise', u'http://www.pnn.de/reise/rss.xml'),
+             (u'Ratgeber', u'http://www.pnn.de/ratgeber/rss.xml'),
+             (u'Fragen des Tages', u'http://www.pnn.de/fragen-des-tages/rss.xml'),
+           # (u'Potsdam bin ich', u'http://www.pnn.de/potsdam-bin-ich/rss.xml'),
+             (u'Leserbriefe', u'http://www.pnn.de/leserbriefe/rss.xml')]
+
+    def get_masthead_url(self):
+        return 'http://www.pnn.de/app/base/img/pnn_logo.png'
+
+    def print_version(self, url):
+        return url.replace('.html', ',view,printVersion.html')
