@@ -24,20 +24,20 @@ class SportsIllustratedRecipe(BasicNewsRecipe) :
    # remove_tags_after = [dict(name='div', attrs={'class':'um-metabar'})]
 
     feeds = [(u'Titelseite', u'http://www.pnn.de/rss.xml'),
- 	         (u'Dritte Seite', u'http://www.pnn.de/dritte-seite/rss.xml'),
- 	         (u'Politik', u'http://www.pnn.de/politik/rss.xml'),
- 	         (u'Meinung', u'http://www.pnn.de/meinung/rss.xml'),
+             (u'Dritte Seite', u'http://www.pnn.de/dritte-seite/rss.xml'),
+             (u'Politik', u'http://www.pnn.de/politik/rss.xml'),
+             (u'Meinung', u'http://www.pnn.de/meinung/rss.xml'),
              (u'Potsdam', u'http://www.pnn.de/potsdam/rss.xml'),
              (u'Havel-Spree', u'http://www.pnn.de/havel-spree/rss.xml'),
              (u'Potsdam-Mittelmark', u'http://www.pnn.de/pm/rss.xml'),
              (u'Berlin-Brandenburg', u'http://www.pnn.de/brandenburg-berlin/rss.xml'),
- 	         (u'Wirtschaft', u'http://www.pnn.de/wirtschaft/rss.xml'),
+             (u'Wirtschaft', u'http://www.pnn.de/wirtschaft/rss.xml'),
              (u'Sport', u'http://www.pnn.de/sport/rss.xml'),
              (u'Regionalsport', u'http://www.pnn.de/regionalsport/rss.xml'),
- 	         (u'Kultur', u'http://www.pnn.de/kultur/rss.xml'),
+             (u'Kultur', u'http://www.pnn.de/kultur/rss.xml'),
              (u'Potsdam-Kultur', u'http://www.pnn.de/potsdam-kultur/rss.xml'),
              (u'Wissen', u'http://www.pnn.de/wissen/rss.xml'),
-	         (u'Medien', u'http://www.pnn.de/medien/rss.xml'),
+             (u'Medien', u'http://www.pnn.de/medien/rss.xml'),
              (u'Weltspiegel', u'http://www.pnn.de/weltspiegel/rss.xml'),
              (u'Wissenschaft', u'http://www.pnn.de/campus/rss.xml'),
              (u'Mobil', u'http://www.pnn.de/mobil/rss.xml'),
@@ -52,3 +52,4 @@ class SportsIllustratedRecipe(BasicNewsRecipe) :
 
     def print_version(self, url):
         return url.replace('.html', ',view,printVersion.html')
+
