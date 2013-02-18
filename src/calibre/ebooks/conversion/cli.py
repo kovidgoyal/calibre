@@ -67,6 +67,8 @@ def check_command_line_options(parser, args, log):
             ('-h' in args or '--help' in args):
         log.error('Cannot read from', input)
         raise SystemExit(1)
+    if input.endswith('.recipe') and not os.access(input, os.R_OK):
+        input = args[1]
 
     output = args[2]
     if (output.startswith('.') and output[:2] not in {'..', '.'} and '/' not in

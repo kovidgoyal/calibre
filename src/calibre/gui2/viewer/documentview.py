@@ -39,8 +39,8 @@ class Document(QWebPage): # {{{
         settings = self.settings()
         settings.setFontSize(QWebSettings.DefaultFontSize, opts.default_font_size)
         settings.setFontSize(QWebSettings.DefaultFixedFontSize, opts.mono_font_size)
-        settings.setFontSize(QWebSettings.MinimumLogicalFontSize, 8)
-        settings.setFontSize(QWebSettings.MinimumFontSize, 8)
+        settings.setFontSize(QWebSettings.MinimumLogicalFontSize, opts.minimum_font_size)
+        settings.setFontSize(QWebSettings.MinimumFontSize, opts.minimum_font_size)
         settings.setFontFamily(QWebSettings.StandardFont, {'serif':opts.serif_family, 'sans':opts.sans_family, 'mono':opts.mono_family}[opts.standard_font])
         settings.setFontFamily(QWebSettings.SerifFont, opts.serif_family)
         settings.setFontFamily(QWebSettings.SansSerifFont, opts.sans_family)
@@ -790,7 +790,8 @@ class DocumentView(QWebView): # {{{
                 self.manager.load_started()
 
         load_html(path, self, codec=getattr(path, 'encoding', 'utf-8'), mime_type=getattr(path,
-            'mime_type', 'text/html'), pre_load_callback=callback)
+            'mime_type', 'text/html'), pre_load_callback=callback,
+                  force_as_html=True)
         entries = set()
         for ie in getattr(path, 'index_entries', []):
             if ie.start_anchor:

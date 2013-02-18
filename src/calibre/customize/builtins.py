@@ -624,12 +624,6 @@ from calibre.library.catalogs.epub_mobi import EPUB_MOBI
 plugins += [CSV_XML, BIBTEX, EPUB_MOBI]
 # }}}
 
-# EPUB Fix plugins {{{
-from calibre.ebooks.epub.fix.unmanifested import Unmanifested
-from calibre.ebooks.epub.fix.epubcheck import Epubcheck
-plugins += [Unmanifested, Epubcheck]
-# }}}
-
 # Profiles {{{
 from calibre.customize.profiles import input_profiles, output_profiles
 plugins += input_profiles + output_profiles
@@ -790,11 +784,11 @@ class ActionConvert(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.convert:ConvertAction'
     description = _('Convert books to various ebook formats')
 
-# class ActionPolish(InterfaceActionBase):
-#     name = 'Polish Books'
-#     actual_plugin = 'calibre.gui2.actions.polish:PolishAction'
-#     description = _('Fine tune your ebooks')
-#
+class ActionPolish(InterfaceActionBase):
+    name = 'Polish Books'
+    actual_plugin = 'calibre.gui2.actions.polish:PolishAction'
+    description = _('Fine tune your ebooks')
+
 class ActionDelete(InterfaceActionBase):
     name = 'Remove Books'
     actual_plugin = 'calibre.gui2.actions.delete:DeleteAction'
@@ -930,7 +924,7 @@ class ActionPluginUpdater(InterfaceActionBase):
 
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
-        ActionFetchNews, ActionSaveToDisk, ActionQuickview, #ActionPolish,
+        ActionFetchNews, ActionSaveToDisk, ActionQuickview, ActionPolish,
         ActionShowBookDetails,ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,

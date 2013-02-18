@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 2 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2013, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -55,10 +55,10 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                     continue
 
                 price = ''.join(data.xpath('.//span[@class="price"]/text() | .//span[@class="price abbr"]/text()'))
-                cover_url = ''.join(data.xpath('.//div[@class="list_middle_left"]//a/img/@src'))
+                cover_url = ''.join(data.xpath('.//div[@class="list_middle_left"]//a//img/@src'))
                 title = ''.join(data.xpath('.//div[@class="list_title list_text_left"]/a/text()'))
                 author = ', '.join(data.xpath('.//div[@class="list_authors list_text_left"]/a/text()'))
-                formats = [ form.split('_')[-1].replace('.png', '') for form in data.xpath('.//div[@style="width:55%;float:left;text-align:left;height:18px;"]//img/@src')]
+                formats = [ form.split('_')[-1].replace('.png', '') for form in data.xpath('.//div[@style="width:55%;float:left;text-align:left;height:18px;"]//a/img/@src')]
                 nodrm = no_drm_pattern.search(''.join(data.xpath('.//div[@style="width:45%;float:right;text-align:right;height:18px;"]/div/div/text()')))
 
                 counter -= 1

@@ -1,0 +1,23 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ESO(BasicNewsRecipe):
+    title          = u'ESO PL'
+    __author__        = 'fenuks'
+    description   = u'ESO, Europejskie Obserwatorium Południowe, buduje i obsługuje najbardziej zaawansowane naziemne teleskopy astronomiczne na świecie'
+    category       = 'astronomy'
+    language       = 'pl'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    use_embedded_content = False
+    cover_url = 'https://twimg0-a.akamaihd.net/profile_images/1922519424/eso-twitter-logo.png'
+    keep_only_tags = [dict(attrs={'class':'subcl'})]
+    remove_tags = [dict(id='lang_row'), dict(attrs={'class':['pr_typeid', 'pr_news_feature_link', 'outreach_usage', 'hidden']})]
+    feeds          = [(u'Wiadomo\u015bci', u'http://www.eso.org/public/poland/news/feed/'), (u'Og\u0142oszenia', u'http://www.eso.org/public/poland/announcements/feed/'), (u'Zdj\u0119cie tygodnia', u'http://www.eso.org/public/poland/images/potw/feed/')]
+
+    def preprocess_html(self, soup):
+        for a in soup.findAll('a', href=True):
+            if a['href'].startswith('/'):
+                a['href'] = 'http://www.eso.org' + a['href']
+        return soup

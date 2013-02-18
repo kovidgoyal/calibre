@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>530</width>
+    <height>316</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;p&gt;If you use the &lt;a href=&quot;http://www.lexcycle.com/download&quot;&gt;Stanza&lt;/a&gt; e-book app on your iPhone/iTouch, you can access your calibre book collection directly on the device. To do this you have to turn on the calibre content server.</string>
+      <string>&lt;p&gt;If you use the &lt;a href=&quot;http://www.lexcycle.com/download&quot;&gt;Stanza&lt;/a&gt; or &lt;a href=&quot;http://marvinapp.com/&quot;&gt;Marvin&lt;/a&gt; e-book reading app on your Apple iDevice, you can access your calibre book collection wirelessly, directly on the device. To do this you have to turn on the calibre content server.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -70,7 +70,7 @@
     <widget class="QLabel" name="instructions">
      <property name="text">
       <string>&lt;p&gt;Remember to leave calibre running as the server only runs as long as calibre is running.
-&lt;p&gt;Stanza should see your calibre collection automatically. If not, try adding the URL http://myhostname:8080 as a new catalog in the Stanza reader on your iPhone. Here myhostname should be the fully qualified hostname or the IP address of the computer calibre is running on.</string>
+&lt;p&gt;The reader app should see your calibre collection automatically. If not, try adding the URL http://myhostname:8080 as a new catalog in the reader on your iDevice. Here myhostname should be the fully qualified hostname or the IP address of the computer calibre is running on. See &lt;a href=&quot;http://manual.calibre-ebook.com/faq.html#how-do-i-use-app-with-my-ipad-iphone-ipod-touch&quot;&gt;the User Manual&lt;/a&gt; for more information.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

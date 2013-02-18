@@ -1,0 +1,67 @@
+__license__   = 'GPL v3'
+__copyright__ = '2013, Darko Miletic <darko.miletic at gmail.com>'
+'''
+moreintelligentlife.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class MoreIntelligentLife(BasicNewsRecipe):
+    title                 = 'More Intelligent Life'
+    __author__            = 'Darko Miletic'
+    description           = "More Intelligent Life (moreintelligentlife.com) is the online version of Intelligent Life, a lifestyle and culture magazine from The Economist. The website offers not only content from the print edition, trickled out over the course of its shelf-life, but also the Editors' Blog, which carries daily posts from the editorial team-quickfire observations and opinions that allow readers to eavesdrop on the conversation in the office."
+    publisher             = 'The Economist Newspaper ltd'
+    category              = 'arts,lifestyle,intelligent life,the economist,ideas,style,culture'
+    oldest_article        = 60
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'en'
+    remove_empty_feeds    = True
+    publication_type      = 'website'
+    extra_css             = """
+                               body{font-family: Arial,"Helvetica neue","Bitstream Vera Sans",sans-serif}
+                               img{margin-bottom: 0.4em; display:block}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    keep_only_tags    = [dict(attrs={'class':'node'})]
+    remove_tags_after = dict(attrs={'class':'tags'})
+    remove_tags       = [dict(name=['meta','link','iframe','embed','object'])]
+    remove_attributes = ['lang']
+
+    feeds = [(u'Articles', u'http://feeds.feedburner.com/MoreintelligentlifeTotal')]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://moreintelligentlife.com/')
+        for image in soup.findAll('img', src=True):
+           if image['src'].startswith('http://moreintelligentlife.com/files/covers/current_issue_'):
+              return image['src']
+        return None
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  item.attrs = []
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup

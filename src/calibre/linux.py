@@ -19,6 +19,7 @@ entry_points = {
              'ebook-device       = calibre.devices.cli:main',
              'ebook-meta         = calibre.ebooks.metadata.cli:main',
              'ebook-convert      = calibre.ebooks.conversion.cli:main',
+             'ebook-polish       = calibre.ebooks.oeb.polish.main:main',
              'markdown-calibre   = calibre.ebooks.markdown.markdown:main',
              'web2disk           = calibre.web.fetch.simple:main',
              'calibre-server     = calibre.library.server.main:main',
@@ -30,7 +31,6 @@ entry_points = {
              'calibre-customize  = calibre.customize.ui:main',
              'calibre-complete   = calibre.utils.complete:main',
              'fetch-ebook-metadata = calibre.ebooks.metadata.sources.cli:main',
-             'epub-fix           = calibre.ebooks.epub.fix.main:main',
              'calibre-smtp = calibre.utils.smtp:main',
         ],
         'gui_scripts'    : [
@@ -226,7 +226,7 @@ class PostInstall:
             from calibre.gui2.main import option_parser as guiop
             from calibre.utils.smtp import option_parser as smtp_op
             from calibre.library.server.main import option_parser as serv_op
-            from calibre.ebooks.epub.fix.main import option_parser as fix_op
+            from calibre.ebooks.oeb.polish.main import option_parser as polish_op, SUPPORTED
             from calibre.ebooks import BOOK_EXTENSIONS
             input_formats = sorted(all_input_formats())
             bc = os.path.join(os.path.dirname(self.opts.staging_sharedir),
@@ -250,13 +250,17 @@ class PostInstall:
                 f.write('# calibre Bash Shell Completion\n')
                 f.write(opts_and_exts('calibre', guiop, BOOK_EXTENSIONS))
                 f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
-                f.write(opts_and_exts('ebook-meta', metaop, list(meta_filetypes())))
+                f.write(opts_and_exts('ebook-meta', metaop,
+                    list(meta_filetypes()), cover_opts=['--cover', '-c'],
+                    opf_opts=['--to-opf', '--from-opf']))
+                f.write(opts_and_exts('ebook-polish', polish_op,
+                    [x.lower() for x in SUPPORTED], cover_opts=['--cover', '-c'],
+                    opf_opts=['--opf', '-o']))
                 f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
                 f.write(opts_and_exts('ebook-viewer', viewer_op, input_formats))
                 f.write(opts_and_words('fetch-ebook-metadata', fem_op, []))
                 f.write(opts_and_words('calibre-smtp', smtp_op, []))
                 f.write(opts_and_words('calibre-server', serv_op, []))
-                f.write(opts_and_exts('epub-fix', fix_op, ['epub']))
                 f.write(textwrap.dedent('''
                 _ebook_device_ls()
                 {
@@ -478,11 +482,23 @@ def opts_and_words(name, op, words):
 complete -F _'''%(opts, words) + fname + ' ' + name +"\n\n").encode('utf-8')
 
 
-def opts_and_exts(name, op, exts):
+def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=()):
     opts = ' '.join(options(op))
     exts.extend([i.upper() for i in exts])
     exts='|'.join(exts)
     fname = name.replace('-', '_')
+    special_exts_template = '''\
+      %s )
+           _filedir %s
+           return 0
+         ;;
+    '''
+    extras = []
+    for eopts, eexts in ((cover_opts, "${pics}"), (opf_opts, "'@(opf)'")):
+        for opt in eopts:
+            extras.append(special_exts_template%(opt, eexts))
+    extras = '\n'.join(extras)
+
     return '_'+fname+'()'+\
 '''
 {
@@ -490,33 +506,28 @@ def opts_and_exts(name, op, exts):
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="%s"
+    opts="%(opts)s"
     pics="@(jpg|jpeg|png|gif|bmp|JPG|JPEG|PNG|GIF|BMP)"
 
     case "${prev}" in
-      --cover )
-           _filedir "${pics}"
-           return 0
-           ;;
+%(extras)s
     esac
 
     case "${cur}" in
-      --cover )
-         _filedir "${pics}"
-         return 0
-         ;;
+%(extras)s
       -* )
          COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
          return 0
          ;;
       *  )
-        _filedir '@(%s)'
+        _filedir '@(%(exts)s)'
         return 0
         ;;
     esac
 
 }
-complete -o filenames -F _'''%(opts,exts) + fname + ' ' + name +"\n\n"
+complete -o filenames -F _'''%dict(
+    opts=opts, extras=extras, exts=exts) + fname + ' ' + name +"\n\n"
 
 
 VIEWER = '''\
