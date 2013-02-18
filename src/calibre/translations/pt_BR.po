@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-15 07:12+0000\n"
-"PO-Revision-Date: 2013-01-03 18:59+0000\n"
-"Last-Translator: Danilo Cominotti Marques <danilo.cominotti@gmail.com>\n"
+"PO-Revision-Date: 2013-02-18 03:02+0000\n"
+"Last-Translator: Neliton Pereira Jr. <nelitonpjr@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-02-16 04:54+0000\n"
+"X-Launchpad-Export-Date: 2013-02-18 04:48+0000\n"
 "X-Generator: Launchpad (build 16491)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -344,7 +344,7 @@ msgstr "Converter livros para vários formatos de e-book"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Fine tune your ebooks"
-msgstr ""
+msgstr "Ajuste fino nos seus ebooks"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Delete books from your calibre library or connected device"
@@ -584,7 +584,7 @@ msgstr "Alterar campos de metadados antes de salvar/enviar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1078
 msgid "Template Functions"
-msgstr "Funções Modelo"
+msgstr "Funções para modelos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1080
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1140
@@ -596,7 +596,7 @@ msgstr "Avançado"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1084
 msgid "Create your own template functions"
-msgstr "Criar suas próprias funções modelo"
+msgstr "Criar suas próprias funções para modelos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1089
 msgid "Sharing books by email"
@@ -910,7 +910,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:785
 msgid ""
 "This profile is intended for the PocketBook Pro 912 series of devices."
-msgstr ""
+msgstr "Este perfil é destinado ao dispositivo da série PocketBook Pro 912"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:30
 msgid "Installed plugins"
@@ -1015,7 +1015,7 @@ msgstr "Sim"
 #: /home/kovid/work/calibre/src/calibre/db/categories.py:43
 #, python-format
 msgid "%(tt)sAverage rating is %(rating)3.1f"
-msgstr ""
+msgstr "%(tt)sA avaliação média é %(rating)3.1f"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:230
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1185
@@ -1562,7 +1562,7 @@ msgstr "Comunica-se com o leitor Hanvon N520."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:48
 msgid "Communicate with the Kibano eBook reader."
-msgstr ""
+msgstr "Comunicar-se com o leitor e eBook Kibano."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:61
 msgid "Communicate with The Book reader."
@@ -2472,7 +2472,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:311
 msgid "Replace books with the same calibre identifier"
-msgstr ""
+msgstr "Substituir livros com o mesmo identificador do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:312
 msgid ""
@@ -2679,7 +2679,7 @@ msgstr "ID da Revisão USB"
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
 msgid "Windows main memory vendor string"
-msgstr "Fabricante da memória principal do Windows"
+msgstr "Texto do fabricante da memória principal do Windows"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:48
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:52
@@ -2709,7 +2709,7 @@ msgstr "Frase de identificação (ID string) do cartão Windows A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
-msgstr "Pasta principal de memória"
+msgstr "Pasta da memória principal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:64
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:67
@@ -3462,6 +3462,10 @@ msgid ""
 "options. This option will cause the  page size settings under PDF Output to "
 "override the  size specified by the output profile."
 msgstr ""
+"Normalmente, o tamanho da página do PDF é configurada por um perfil de saída "
+"escolhido por opções de página. Esta opção opção irá fazer com que as "
+"configurações de saída PDF sejam substituídas pelo tamanho especificado pelo "
+"perfil de saída."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:58
 #, python-format
@@ -3523,13 +3527,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:97
 msgid "Use the old, less capable engine to generate the PDF"
-msgstr ""
+msgstr "Use o mecanismo antigo e menos capaz para gerar o PDF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:100
 msgid ""
 "Generate an uncompressed PDF, useful for debugging, only works with the new "
 "PDF engine."
 msgstr ""
+"Gerar um PDF não comprimido, útil para depuração, só funciona com o "
+"mecanismo de PDF novo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:103
 msgid ""
@@ -7318,7 +7324,7 @@ msgstr "Mostrar esta mensagem novamente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:159
 msgid "About Get Books"
-msgstr "Sobre Obter Livros"
+msgstr "Sobre obtenção de livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:288
@@ -10391,7 +10397,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:92
 msgid "&Template editor"
-msgstr ""
+msgstr "Edi&tor de modelos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
@@ -11269,7 +11275,7 @@ msgstr "Detalhes do trabalho"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:72
 msgid "Active Jobs"
-msgstr "Tarefas Ativas"
+msgstr "Tarefas ativas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:73
 msgid "Find next match"
@@ -11286,11 +11292,11 @@ msgstr "Encontra uma ocorrência prévia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:76
 msgid "&Stop selected jobs"
-msgstr "&Para as tarefas selecionadas"
+msgstr "&Parar as tarefas selecionadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:77
 msgid "&Hide selected jobs"
-msgstr "&Esconde tarefas selecionadas"
+msgstr "&Esconder tarefas selecionadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:78
 msgid "Show job &details"
@@ -11298,7 +11304,7 @@ msgstr "Mostrar &detalhes da tarefa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:79
 msgid "Show &all jobs"
-msgstr "Mostra &todas as tarefas"
+msgstr "Mostrar &todas as tarefas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:80
 msgid "Stop &all non device jobs"
@@ -11306,7 +11312,7 @@ msgstr "Parar tod&as as tarefas que não são de dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:81
 msgid "&Hide all jobs"
-msgstr "&Esconde todas as tarefas"
+msgstr "Es&conder todas as tarefas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:298
@@ -12513,7 +12519,7 @@ msgstr "nunca"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:395
 #, python-format
 msgid "%(days)d days, %(hours)d hours and %(mins)d minutes ago"
-msgstr ""
+msgstr "%(days)d dias, %(hours)d horas e %(mins)d minutos atrás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:411
 msgid "Last downloaded:"
@@ -13203,7 +13209,7 @@ msgstr "Remova qualquer modelo da caixa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:32
 msgid "Open Template Editor"
-msgstr "Abrir o editor de modelo"
+msgstr "Abrir o editor de modelos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:56
 msgid "Test email settings"
@@ -13730,7 +13736,7 @@ msgstr "Shift+Alt+D"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:67
 msgid "Job"
-msgstr "Trabalho"
+msgstr "Tarefa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:69
 msgid "Progress"
@@ -13743,7 +13749,7 @@ msgstr "Tempo de execução"
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:82
 #, python-format
 msgid "There are %d running jobs:"
-msgstr "Existem %d tarefas sendo executadas:"
+msgstr "Há %d tarefas sendo executadas:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:93
@@ -13754,7 +13760,7 @@ msgstr "Tarefa desconhecida"
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:89
 #, python-format
 msgid "There are %d waiting jobs:"
-msgstr "Existem %d tarefas em aguardo:"
+msgstr "Há %d tarefas esperendo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:274
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:277
@@ -13767,15 +13773,15 @@ msgstr "Não foi possível parar o trabalho."
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:275
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:289
 msgid "Cannot kill jobs that communicate with the device"
-msgstr "Não consigo parar tarefas que comunicam-se com o aparelho"
+msgstr "Não é possível parar tarefas que se comunicam com o dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:278
 msgid "Job has already run"
-msgstr "O trabalho já foi executado"
+msgstr "A tarefa já foi executada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:281
 msgid "This job cannot be stopped"
-msgstr "Este processo não pode ser parado"
+msgstr "Esta tarefa não pode ser parada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:296
 msgid ""
@@ -13807,27 +13813,28 @@ msgstr " - Tarefas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:546
 msgid "Search for a job by name"
-msgstr "Procurar um processo pelo nome"
+msgstr "Procurar uma tarefa pelo nome"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:595
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:617
 msgid "No job"
-msgstr "Nenhum processo"
+msgstr "Nenhuma tarefa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:596
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:618
 msgid "No job selected"
-msgstr "Nenhum processo selecionado"
+msgstr "Nenhuma tarefa selecionada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:598
 msgid "Do you really want to stop the selected job?"
 msgid_plural "Do you really want to stop all the selected jobs?"
-msgstr[0] "Você realmente deseja parar o processo selecionado?"
-msgstr[1] "Você realmente deseja parar todos os processos selecionados?"
+msgstr[0] "Você realmente deseja parar a tarefa selecionada?"
+msgstr[1] "Você realmente deseja parar todas as tarefas selecionadas?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:608
 msgid "Do you really want to stop all non-device jobs?"
 msgstr ""
+"Você realmente quer parar todos as tarefas que não são de dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:365
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:86
@@ -14537,6 +14544,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Editar os identificadores para este livro. Por exemplo: \n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1290
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1352
@@ -14748,8 +14758,8 @@ msgid ""
 "Paste the contents of the clipboard into the identifiers box prefixed with "
 "isbn:"
 msgstr ""
-"Cola os conteúdos da prancheta para a caixa de identificadores com prefixo "
-"isbn:"
+"Cola o conteúdo da área de transferência para a caixa de identificadores com "
+"prefixo isbn:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:223
 msgid "&Download metadata"
@@ -15170,7 +15180,7 @@ msgstr " segundos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:157
 msgid "Job &priority:"
-msgstr "&prioridade do trabalho:"
+msgstr "&prioridade da tarefa:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:161
 msgid "Restriction to apply when the current library is opened:"
@@ -16559,7 +16569,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:76
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"
 msgstr ""
-"Limitar o máx. número de tarefas simultâneos ao número de nú&cleos da CPU"
+"Limitar o máx. número de tarefas simultâneas ao número de nú&cleos da CPU"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:77
 msgid "Debug &device detection"
@@ -16579,15 +16589,15 @@ msgstr "&Instalar ferramentas de linhas de comando"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:81
 msgid "&Abort conversion jobs that take more than:"
-msgstr ""
+msgstr "&Abortar tarefas de conversão que levarem mais do que:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:82
 msgid "Never abort"
-msgstr ""
+msgstr "Nunca abortar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:83
 msgid " minutes"
-msgstr ""
+msgstr " minutos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:53
 msgid "Device currently connected: "
@@ -16830,7 +16840,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:57
 msgid "Save &template"
-msgstr "Salvar &modelo"
+msgstr "&Modelo de gravação"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:58
 msgid ""
@@ -16852,7 +16862,7 @@ msgstr "Variáveis disponíveis:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:60
 msgid "Template Editor"
-msgstr ""
+msgstr "Editor de modelos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:71
 msgid ""
@@ -17933,7 +17943,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:301
 msgid "Customize get books search"
-msgstr "Personaliza a busca por livros"
+msgstr "Personalizar a busca por livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:311
 msgid "Configure search"
@@ -17950,7 +17960,7 @@ msgstr "Escolha qual formato baixar para sua biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:170
 msgid "Get Books"
-msgstr "Compre Livros"
+msgstr "Obter livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:171
 msgid "Search by title"
@@ -18111,7 +18121,7 @@ msgstr "O nome da pesquisa salva %s já está sendo usado."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:49
 msgid "Manage Authors"
-msgstr "Organiza Autores"
+msgstr "Organizar autores"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:51
 msgid "Manage Series"
@@ -18571,7 +18581,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:747
 msgid "Active jobs"
-msgstr ""
+msgstr "Tarefas ativas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:818
 msgid ""
@@ -19641,7 +19651,7 @@ msgstr "&Kindle e-mail:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:57
 msgid "Choose your &language:"
-msgstr "Escolha sua &linguagem:"
+msgstr "Escolha seu &idioma:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:58
 msgid ""
@@ -21623,7 +21633,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:387
 msgid "The language in which to display the user interface"
-msgstr "A linguagem pela qual irá mostrar a interface do usuário."
+msgstr "O idioma em que a interface do usuário será exibida."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:389
 msgid "The default output format for ebook conversions."
