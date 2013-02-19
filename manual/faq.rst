@@ -692,7 +692,7 @@ Post any output you see in a help message on the `Forum <http://www.mobileread.c
 |app| freezes/crashes occasionally?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are five possible things I know of, that can cause this:
+There are six possible things I know of, that can cause this:
 
     * You recently connected an external monitor or TV to your computer. In
       this case, whenever |app| opens a new window like the edit metadata
@@ -715,7 +715,7 @@ There are five possible things I know of, that can cause this:
       manually allow |app| in it or uninstall Constant Guard Protection.
 
     * On some 64 bit versions of Windows there are security software/settings
-      that prevent 64-bit |app| from working. If you are using the 64-bit
+      that prevent 64-bit |app| from working properly. If you are using the 64-bit
       version of |app| try switching to the 32-bit version.
 
 If none of the above apply to you, then there is some other program on your
