@@ -714,6 +714,10 @@ There are five possible things I know of, that can cause this:
     * Constant Guard Protection by Xfinity causes crashes in |app|. You have to
       manually allow |app| in it or uninstall Constant Guard Protection.
 
+    * On some 64 bit versions of Windows there are security software/settings
+      that prevent 64-bit |app| from working. If you are using the 64-bit
+      version of |app| try switching to the 32-bit version.
+
 If none of the above apply to you, then there is some other program on your
 computer that is interfering with |app|. First reboot your computer in safe
 mode, to have as few running programs as possible, and see if the crashes still
