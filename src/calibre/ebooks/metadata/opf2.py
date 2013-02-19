@@ -941,12 +941,11 @@ class OPF(object): # {{{
                 return self.get_text(match) or None
 
         def fset(self, val):
-            matches = self.application_id_path(self.metadata)
-            if not matches:
-                attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'calibre'}
-                matches = [self.create_metadata_element('identifier',
-                                                        attrib=attrib)]
-            self.set_text(matches[0], unicode(val))
+            for x in tuple(self.application_id_path(self.metadata)):
+                x.getparent().remove(x)
+            attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'calibre'}
+            self.set_text(self.create_metadata_element(
+                'identifier', attrib=attrib), unicode(val))
 
         return property(fget=fget, fset=fset)
 
@@ -1431,7 +1430,10 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
         elem = metadata.makeelement(tag, attrib=attrib)
         elem.tail = '\n'+(' '*8)
         if text:
-            elem.text = text.strip()
+            try:
+                elem.text = text.strip()
+            except ValueError:
+                elem.text = clean_ascii_chars(text.strip())
         metadata.append(elem)
 
     factory(DC('title'), mi.title)

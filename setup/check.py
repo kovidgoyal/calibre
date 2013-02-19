@@ -95,14 +95,15 @@ class Check(Command):
                     errors = True
                     self.report_errors(w)
             else:
+                from calibre.utils.serve_coffee import check_coffeescript
                 try:
-                    subprocess.check_call(['coffee', '-c', '-p', f],
-                            stdout=open(os.devnull, 'wb'))
+                   check_coffeescript(f)
                 except:
                     errors = True
             if errors:
                 cPickle.dump(cache, open(self.CACHE, 'wb'), -1)
-                subprocess.call(['gvim', '-f', f])
+                subprocess.call(['gvim', '-S',
+                                 self.j(self.SRC, '../session.vim'), '-f', f])
                 raise SystemExit(1)
             cache[f] = mtime
         for x in builtins:

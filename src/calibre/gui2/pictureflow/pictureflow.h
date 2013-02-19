@@ -122,6 +122,12 @@ public:
   void setSlideSize(QSize size);
 
   /*!
+    Turn the reflections on/off.
+  */  
+  void setShowReflections(bool show);
+  bool showReflections() const;
+
+  /*!
     Returns the font used to render subtitles
   */  
   QFont subtitleFont() const;

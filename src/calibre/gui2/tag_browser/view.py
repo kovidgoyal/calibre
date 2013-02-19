@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import cPickle
+import cPickle, os
 from functools import partial
 from itertools import izip
 
@@ -15,9 +15,11 @@ from PyQt4.Qt import (QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize,
         QIcon, QApplication, QMenu, QPoint, QModelIndex, QToolTip, QCursor,
         QDrag)
 
+from calibre import sanitize_file_name_unicode
+from calibre.constants import config_dir
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel)
-from calibre.gui2 import config, gprefs
+from calibre.gui2 import config, gprefs, choose_files, pixmap_to_data
 from calibre.utils.search_query_parser import saved_searches
 from calibre.utils.icu import sort_key
 
@@ -296,6 +298,33 @@ class TagsView(QTreeView): # {{{
         if not action:
             return
         try:
+            if action == 'set_icon':
+                try:
+                    path = choose_files(self, 'choose_category_icon',
+                                _('Change Icon for: %s')%key, filters=[
+                                ('Images', ['png', 'gif', 'jpg', 'jpeg'])],
+                            all_files=False, select_only_single_file=True)
+                    if path:
+                        path = path[0]
+                        p = QIcon(path).pixmap(QSize(128, 128))
+                        d = os.path.join(config_dir, 'tb_icons')
+                        if not os.path.exists(d):
+                            os.makedirs(d)
+                        with open(os.path.join(d, 'icon_'+
+                            sanitize_file_name_unicode(key)+'.png'), 'wb') as f:
+                            f.write(pixmap_to_data(p, format='PNG'))
+                            path = os.path.basename(f.name)
+                        self._model.set_custom_category_icon(key, unicode(path))
+                        self.recount()
+                except:
+                    import traceback
+                    traceback.print_exc()
+                return
+            if action == 'clear_icon':
+                self._model.set_custom_category_icon(key, None)
+                self.recount()
+                return
+
             if action == 'edit_item':
                 self.edit(index)
                 return
@@ -520,7 +549,8 @@ class TagsView(QTreeView): # {{{
                 # Offer specific editors for tags/series/publishers/saved searches
                 self.context_menu.addSeparator()
                 if key in ['tags', 'publisher', 'series'] or \
-                            self.db.field_metadata[key]['is_custom']:
+                            (self.db.field_metadata[key]['is_custom'] and
+                             self.db.field_metadata[key]['datatype'] != 'composite'):
                     self.context_menu.addAction(_('Manage %s')%category,
                             partial(self.context_menu_handler, action='open_editor',
                                     category=tag.original_name if tag else None,
@@ -532,6 +562,12 @@ class TagsView(QTreeView): # {{{
                     self.context_menu.addAction(_('Manage Saved Searches'),
                         partial(self.context_menu_handler, action='manage_searches',
                                 category=tag.name if tag else None))
+
+                self.context_menu.addSeparator()
+                self.context_menu.addAction(_('Change category icon'),
+                        partial(self.context_menu_handler, action='set_icon', key=key))
+                self.context_menu.addAction(_('Restore default icon'),
+                        partial(self.context_menu_handler, action='clear_icon', key=key))
 
                 # Always show the user categories editor
                 self.context_menu.addSeparator()
@@ -550,6 +586,7 @@ class TagsView(QTreeView): # {{{
                 self.context_menu.addSeparator()
             self.context_menu.addAction(_('Show all categories'),
                         partial(self.context_menu_handler, action='defaults'))
+
 
         m = self.context_menu.addMenu(_('Change sub-categorization scheme'))
         da = m.addAction(_('Disable'),

@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
  Modified by Tony Stegall
  on 10/10/10 to include function to grab print version of articles
 '''
-
 from datetime import date
 from calibre.web.feeds.news import BasicNewsRecipe
 '''
@@ -44,8 +43,7 @@ class AdvancedUserRecipe1249039563(BasicNewsRecipe):
     articles_are_obfuscated = True
 
     def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        print 'THE CURRENT URL IS: ', url
+        br = self.browser.clone_browser()
         br.open(url)
         year = date.today().year
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 1 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -14,7 +15,7 @@ class PragmaticBookshelfStore(BasicStoreConfig, OpenSearchOPDSStore):
 
     open_search_url = 'http://pragprog.com/catalog/search-description'
     web_url = 'http://pragprog.com/'
-    
+
     # http://pragprog.com/catalog.opds
 
     def search(self, query, max_results=10, timeout=60):

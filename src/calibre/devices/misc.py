@@ -209,8 +209,9 @@ class ALURATEK_COLOR(USBMS):
 
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'books'
 
-    VENDOR_NAME = ['USB_2.0', 'EZREADER']
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['USB_FLASH_DRIVER', '.']
+    VENDOR_NAME = ['USB_2.0', 'EZREADER', 'C4+']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['USB_FLASH_DRIVER', '.', 'TOUCH']
+    SCAN_FROM_ROOT = True
 
 class TREKSTOR(USBMS):
 
@@ -225,6 +226,7 @@ class TREKSTOR(USBMS):
 
     VENDOR_ID   = [0x1e68]
     PRODUCT_ID  = [0x0041, 0x0042, 0x0052, 0x004e, 0x0056,
+            0x0067, # This is for the Pyrus Mini
             0x003e, # This is for the EBOOK_PLAYER_5M https://bugs.launchpad.net/bugs/792091
             0x5cL, # This is for the 4ink http://www.mobileread.com/forums/showthread.php?t=191318
             ]
@@ -234,7 +236,7 @@ class TREKSTOR(USBMS):
 
     VENDOR_NAME = 'TREKSTOR'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOK_PLAYER_7',
-            'EBOOK_PLAYER_5M', 'EBOOK-READER_3.0', 'EREADER_PYRUS']
+            'EBOOK_PLAYER_5M', 'EBOOK-READER_3.0', 'EREADER_PYRUS', 'PYRUS_MINI']
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_SUB_DIRS_DEFAULT = False
 

@@ -1,0 +1,63 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
+from calibre.web.feeds.news import BasicNewsRecipe
+class PoradniaPWN(BasicNewsRecipe):
+    title          = u'Poradnia Językowa PWN'
+    __author__        = 'fenuks'
+    description   = u'Internetowa poradnia językowa Wydawnictwa Naukowego PWN. Poradnię prowadzi Redaktor Naczelny Słowników Języka Polskiego, prof. Mirosław Bańko. Pomagają mu eksperci - znani polscy językoznawcy. Współpracuje z nami m.in. prof. Jerzy Bralczyk oraz dr Jan Grzenia.'
+    category       = 'language'
+    language       = 'pl'
+    #cover_url = ''
+    oldest_article = 14
+    max_articles_per_feed = 100000
+    INDEX = "http://poradnia.pwn.pl/"
+    no_stylesheets = True
+    remove_attributes = ['style']
+    remove_javascript = True
+    use_embedded_content = False
+    #preprocess_regexps     = [(re.compile('<li|ul', re.IGNORECASE), lambda m: '<div'),(re.compile('</li>', re.IGNORECASE), lambda m: '</div>'), (re.compile('</ul>', re.IGNORECASE), lambda m: '</div>')]
+    keep_only_tags = [dict(name="div", attrs={"class":"searchhi"})]
+    feeds          = [(u'Poradnia', u'http://rss.pwn.pl/poradnia.rss')]
+
+    '''def find_articles(self, url):
+        articles = []
+        soup=self.index_to_soup(url)
+        counter = int(soup.find(name='p', attrs={'class':'count'}).findAll('b')[-1].string)
+        counter = 500
+        pos = 0
+        next = url
+        while next:
+            soup=self.index_to_soup(next)
+            tag=soup.find(id="listapytan")
+            art=tag.findAll(name='li')
+            for i in art:
+                if i.h4:
+                    title=i.h4.a.string
+                    url=self.INDEX+i.h4.a['href']
+                    #date=soup.find(id='footer').ul.li.string[41:-1]
+                    articles.append({'title' : title,
+                       'url'   : url,
+                       'date'  : '',
+                       'description' : ''
+                        })
+            pos += 10
+            if not pos >=counter:
+                next = 'http://poradnia.pwn.pl/lista.php?kat=18&od=' + str(pos)
+                print u'Tworzenie listy artykułów dla', next
+            else:
+                next = None
+        print articles
+        return articles
+
+    def parse_index(self):
+         feeds = []
+         feeds.append((u"Poradnia", self.find_articles('http://poradnia.pwn.pl/lista.php')))
+
+         return feeds'''
+
+    def preprocess_html(self, soup):
+        for i in soup.findAll(name=['ul', 'li']):
+            i.name="div"
+        for z in soup.findAll(name='a'):
+            if not z['href'].startswith('http'):
+                z['href'] = 'http://poradnia.pwn.pl/' + z['href']
+        return soup

@@ -18,16 +18,17 @@ class PluginWidget(Widget, Ui_Form):
     ICON = I('mimetypes/pdf.png')
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
-        Widget.__init__(self, parent, ['paper_size', 'custom_size',
-            'orientation', 'preserve_cover_aspect_ratio', 'pdf_serif_family',
+        Widget.__init__(self, parent, [
+            'override_profile_size', 'paper_size', 'custom_size',
+            'preserve_cover_aspect_ratio', 'pdf_serif_family', 'unit',
             'pdf_sans_family', 'pdf_mono_family', 'pdf_standard_font',
-            'pdf_default_font_size', 'pdf_mono_font_size'])
+            'pdf_default_font_size', 'pdf_mono_font_size', 'pdf_page_numbers'])
         self.db, self.book_id = db, book_id
 
         for x in get_option('paper_size').option.choices:
             self.opt_paper_size.addItem(x)
-        for x in get_option('orientation').option.choices:
-            self.opt_orientation.addItem(x)
+        for x in get_option('unit').option.choices:
+            self.opt_unit.addItem(x)
         for x in get_option('pdf_standard_font').option.choices:
             self.opt_pdf_standard_font.addItem(x)
 

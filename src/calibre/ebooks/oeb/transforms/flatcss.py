@@ -18,7 +18,7 @@ from calibre import guess_type
 from calibre.ebooks.oeb.base import (XHTML, XHTML_NS, CSS_MIME, OEB_STYLES,
         namespace, barename, XPath)
 from calibre.ebooks.oeb.stylizer import Stylizer
-from calibre.utils.filenames import ascii_filename
+from calibre.utils.filenames import ascii_filename, ascii_text
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 STRIPNUM = re.compile(r'[-0-9]+$')
@@ -356,7 +356,7 @@ class CSSFlattener(object):
         if 'bgcolor' in node.attrib:
             try:
                 cssdict['background-color'] = Property('background-color', node.attrib['bgcolor']).value
-            except ValueError:
+            except (ValueError, SyntaxErr):
                 pass
             del node.attrib['bgcolor']
         if cssdict.get('font-weight', '').lower() == 'medium':
@@ -437,7 +437,7 @@ class CSSFlattener(object):
                 items.sort()
                 css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
                 classes = node.get('class', '').strip() or 'calibre'
-                klass = STRIPNUM.sub('', classes.split()[0].replace('_', ''))
+                klass = ascii_text(STRIPNUM.sub('', classes.split()[0].replace('_', '')))
                 if css in styles:
                     match = styles[css]
                 else:

@@ -25,7 +25,7 @@ class NewZealandHerald(BasicNewsRecipe):
                 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000466.xml'),
             ('Life & Style',
                 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000006.xml'),
-            ('Technology'
+            ('Technology',
                 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000005.xml'),
             ('Sport',
                 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000004.xml'),

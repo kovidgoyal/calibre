@@ -76,7 +76,7 @@ class ESPN(BasicNewsRecipe):
         return soup
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username and self.password:
             br.set_handle_refresh(False)
             url = ('https://r.espn.go.com/members/v3_1/login')

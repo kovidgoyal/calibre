@@ -4,9 +4,10 @@ import re
 class Gildia(BasicNewsRecipe):
     title          = u'Gildia.pl'
     __author__        = 'fenuks'
-    description   = 'Gildia - cultural site'
+    description   = u'Fantastyczny Portal Kulturalny - newsy, recenzje, galerie, wywiady. Literatura, film, gry komputerowe i planszowe, komiks, RPG, sklep. Nie lekceważ potęgi wyobraźni!'
     cover_url      = 'http://www.film.gildia.pl/_n_/portal/redakcja/logo/logo-gildia.pl-500.jpg'
     category       = 'culture'
+    cover_url = 'http://gildia.pl/images/logo-main.png'
     language       = 'pl'
     oldest_article = 8
     max_articles_per_feed = 100
@@ -23,10 +24,13 @@ class Gildia(BasicNewsRecipe):
         content = soup.find('div', attrs={'class':'news'})
         if 'recenzj' in soup.title.string.lower():
             for link in content.findAll(name='a'):
-                if 'recenzj' in link['href']:
-                    self.log.warn('odnosnik')
-                    self.log.warn(link['href'])
+                if 'recenzj' in link['href'] or 'muzyka/plyty' in link['href']:
                     return self.index_to_soup(link['href'], raw=True)
+        if 'fragmen' in soup.title.string.lower():
+            for link in content.findAll(name='a'):
+                if 'fragment' in link['href']:
+                    return self.index_to_soup(link['href'], raw=True)
+
 
     def preprocess_html(self, soup):
         for a in soup('a'):

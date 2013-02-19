@@ -6,7 +6,6 @@ www.nsfwcorp.com
 '''
 
 import urllib
-from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class NotSafeForWork(BasicNewsRecipe):
@@ -21,8 +20,9 @@ class NotSafeForWork(BasicNewsRecipe):
     needs_subscription     = True
     auto_cleanup           = False
     INDEX                  = 'https://www.nsfwcorp.com'
-    LOGIN                  = INDEX + '/login'
-    use_embedded_content   = False
+    LOGIN                  = INDEX + '/login/target/'
+    SETTINGS               = INDEX + '/settings/'
+    use_embedded_content   = True
     language               = 'en'
     publication_type       = 'magazine'
     masthead_url           = 'http://assets.nsfwcorp.com/media/headers/nsfw_banner.jpg'
@@ -46,17 +46,8 @@ class NotSafeForWork(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    remove_tags_before = dict(attrs={'id':'fromToLine'})
-    remove_tags_after  = dict(attrs={'id':'unlockButtonDiv'})
-    remove_tags=[
-                   dict(name=['meta', 'link', 'iframe', 'embed', 'object'])
-                  ,dict(name='a', attrs={'class':'switchToDeskNotes'})
-                  ,dict(attrs={'id':'unlockButtonDiv'})
-                ]
-    remove_attributes = ['lang']
-
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.open(self.LOGIN)
         if self.username is not None and self.password is not None:
             data = urllib.urlencode({ 'email':self.username
@@ -65,30 +56,12 @@ class NotSafeForWork(BasicNewsRecipe):
             br.open(self.LOGIN, data)
         return br
 
-    def parse_index(self):
-        articles = []
-        soup = self.index_to_soup(self.INDEX)
-        dispatches = soup.find(attrs={'id':'dispatches'})
-        if dispatches:
-            for item in dispatches.findAll('h3'):
-                description = u''
-                title_link = item.find('span', attrs={'class':'dispatchTitle'})
-                description_link = item.find('span', attrs={'class':'dispatchSubtitle'})
-                feed_link = item.find('a', href=True)
-                if feed_link:
-                    url         = self.INDEX + feed_link['href']
-                    title       = self.tag_to_string(title_link)
-                    description = self.tag_to_string(description_link)
-                    date        = strftime(self.timefmt)
-                    articles.append({
-                                      'title'      :title
-                                     ,'date'       :date
-                                     ,'url'        :url
-                                     ,'description':description
-                                    })
-        return [('Dispatches', articles)]
+    def get_feeds(self):
+        self.feeds = []
+        soup = self.index_to_soup(self.SETTINGS)
+        for item in soup.findAll('input', attrs={'type':'text'}):
+            if item.has_key('value') and item['value'].startswith('http://www.nsfwcorp.com/feed/'):
+               self.feeds.append(item['value'])
+               return self.feeds
+        return self.feeds
 
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup

@@ -31,7 +31,7 @@ class JASN(BasicNewsRecipe):
 
     #TO LOGIN
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         self.kidney_toc_soup = BeautifulSoup(br.open(self.INDEX).read())
         toc = self.kidney_toc_soup.find(id='tocTable')
         t = toc.find(text=lambda x: x and '[Full&nbsp;Text]' in x)

@@ -53,12 +53,12 @@ class LeggoIT(BasicNewsRecipe):
         month = "%.2d" % st.tm_mon
         day = "%.2d" % st.tm_mday
         cover='http://www.leggo.it/'+ year +  month + day + '/jpeg/LEGGO_ROMA_1.jpg'
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
         except:
             cover='http://www.leggo.it/'+ year +  month + day + '/jpeg/LEGGO_ROMA_3.jpg'
-            br = BasicNewsRecipe.get_browser()
+            br = BasicNewsRecipe.get_browser(self)
             try:
                 br.open(cover)
             except:

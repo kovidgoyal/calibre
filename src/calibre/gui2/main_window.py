@@ -7,9 +7,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import StringIO, traceback, sys, gc
 
-from PyQt4.Qt import QMainWindow, QString, Qt, QFont, QTimer, \
-                     QAction, QMenu, QMenuBar, QIcon, pyqtSignal, QObject
-from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
+from PyQt4.Qt import (QMainWindow, QTimer, QAction, QMenu, QMenuBar, QIcon,
+                      pyqtSignal, QObject)
 from calibre.utils.config import OptionParser
 from calibre.gui2 import error_dialog
 from calibre import prints

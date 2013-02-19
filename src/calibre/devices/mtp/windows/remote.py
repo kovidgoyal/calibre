@@ -12,24 +12,24 @@ pprint, io
 
 def build(mod='wpd'):
     master = subprocess.Popen('ssh -MN getafix'.split())
-    master2 = subprocess.Popen('ssh -MN xp_build'.split())
+    master2 = subprocess.Popen('ssh -MN win64'.split())
     try:
-        while not glob.glob(os.path.expanduser('~/.ssh/*kovid@xp_build*')):
+        while not glob.glob(os.path.expanduser('~/.ssh/*kovid@win64*')):
             time.sleep(0.05)
-        builder = subprocess.Popen('ssh xp_build ~/build-wpd'.split())
+        builder = subprocess.Popen('ssh win64 ~/build-wpd'.split())
         if builder.wait() != 0:
             raise Exception('Failed to build plugin')
         while not glob.glob(os.path.expanduser('~/.ssh/*kovid@getafix*')):
             time.sleep(0.05)
-        syncer = subprocess.Popen('ssh getafix ~/test-wpd'.split())
+        syncer = subprocess.Popen('ssh getafix ~/update-calibre'.split())
         if syncer.wait() != 0:
             raise Exception('Failed to rsync to getafix')
         subprocess.check_call(
-            ('scp xp_build:build/calibre/src/calibre/plugins/%s.pyd /tmp'%mod).split())
+            ('scp win64:build/calibre/src/calibre/plugins/%s.pyd /tmp'%mod).split())
         subprocess.check_call(
-            ('scp /tmp/%s.pyd getafix:calibre/src/calibre/devices/mtp/windows'%mod).split())
+            ('scp /tmp/%s.pyd getafix:calibre-src/src/calibre/devices/mtp/windows'%mod).split())
         p = subprocess.Popen(
-            'ssh getafix calibre-debug -e calibre/src/calibre/devices/mtp/windows/remote.py'.split())
+            'ssh getafix calibre-debug -e calibre-src/src/calibre/devices/mtp/windows/remote.py'.split())
         p.wait()
         print()
     finally:
@@ -59,7 +59,7 @@ def main():
     # return
 
     from calibre.devices.scanner import win_scanner
-    from calibre.devices.mtp.windows.driver import MTP_DEVICE
+    from calibre.devices.mtp.driver import MTP_DEVICE
     dev = MTP_DEVICE(None)
     dev.startup()
     print (dev.wpd, dev.wpd_error)

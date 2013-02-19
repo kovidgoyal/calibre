@@ -195,7 +195,7 @@ class PRST1(USBMS):
                 for i, row in enumerate(cursor):
                     try:
                         comp_date = int(os.path.getmtime(self.normalize_path(prefix + row[0])) * 1000);
-                    except (OSError, IOError):
+                    except (OSError, IOError, TypeError):
                         # In case the db has incorrect path info
                         continue
                     device_date = int(row[1]);
@@ -380,7 +380,7 @@ class PRST1(USBMS):
         # Record what the max id being used is as well.
         db_books = {}
         for i, row in enumerate(cursor):
-            if row[0] is None:
+            if not hasattr(row[0], 'replace'):
                 continue
             lpath = row[0].replace('\\', '/')
             db_books[lpath] = row[1]

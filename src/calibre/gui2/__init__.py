@@ -22,89 +22,95 @@ from calibre.utils.date import UNDEFINED_DATE
 
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')
+defs = gprefs.defaults
 
 if isosx:
-    gprefs.defaults['action-layout-menubar'] = (
+    defs['action-layout-menubar'] = (
         'Add Books', 'Edit Metadata', 'Convert Books',
         'Choose Library', 'Save To Disk', 'Preferences',
         'Help',
         )
-    gprefs.defaults['action-layout-menubar-device'] = (
+    defs['action-layout-menubar-device'] = (
         'Add Books', 'Edit Metadata', 'Convert Books',
         'Location Manager', 'Send To Device',
         'Save To Disk', 'Preferences', 'Help',
         )
-    gprefs.defaults['action-layout-toolbar'] = (
+    defs['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
         'Choose Library', 'Donate', None, 'Fetch News', 'Store', 'Save To Disk',
         'Connect Share', None, 'Remove Books',
         )
-    gprefs.defaults['action-layout-toolbar-device'] = (
+    defs['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
         'Send To Device', None, None, 'Location Manager', None, None,
         'Fetch News', 'Store', 'Save To Disk', 'Connect Share', None,
         'Remove Books',
         )
 else:
-    gprefs.defaults['action-layout-menubar'] = ()
-    gprefs.defaults['action-layout-menubar-device'] = ()
-    gprefs.defaults['action-layout-toolbar'] = (
+    defs['action-layout-menubar'] = ()
+    defs['action-layout-menubar-device'] = ()
+    defs['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
         'Store', 'Donate', 'Fetch News', 'Help', None,
         'Remove Books', 'Choose Library', 'Save To Disk',
         'Connect Share', 'Preferences',
         )
-    gprefs.defaults['action-layout-toolbar-device'] = (
+    defs['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
         'Send To Device', None, None, 'Location Manager', None, None,
         'Fetch News', 'Save To Disk', 'Store', 'Connect Share', None,
         'Remove Books', None, 'Help', 'Preferences',
         )
 
-gprefs.defaults['action-layout-toolbar-child'] = ()
+defs['action-layout-toolbar-child'] = ()
 
-gprefs.defaults['action-layout-context-menu'] = (
+defs['action-layout-context-menu'] = (
         'Edit Metadata', 'Send To Device', 'Save To Disk',
         'Connect Share', 'Copy To Library', None,
         'Convert Books', 'View', 'Open Folder', 'Show Book Details',
         'Similar Books', 'Tweak ePub', None, 'Remove Books',
         )
 
-gprefs.defaults['action-layout-context-menu-device'] = (
+defs['action-layout-context-menu-device'] = (
         'View', 'Save To Disk', None, 'Remove Books', None,
         'Add To Library', 'Edit Collections',
         )
 
-gprefs.defaults['action-layout-context-menu-cover-browser'] = (
+defs['action-layout-context-menu-cover-browser'] = (
         'Edit Metadata', 'Send To Device', 'Save To Disk',
         'Connect Share', 'Copy To Library', None,
         'Convert Books', 'View', 'Open Folder', 'Show Book Details',
         'Similar Books', 'Tweak ePub', None, 'Remove Books',
         )
 
-gprefs.defaults['show_splash_screen'] = True
-gprefs.defaults['toolbar_icon_size'] = 'medium'
-gprefs.defaults['automerge'] = 'ignore'
-gprefs.defaults['toolbar_text'] = 'always'
-gprefs.defaults['font'] = None
-gprefs.defaults['tags_browser_partition_method'] = 'first letter'
-gprefs.defaults['tags_browser_collapse_at'] = 100
-gprefs.defaults['tag_browser_dont_collapse'] = []
-gprefs.defaults['edit_metadata_single_layout'] = 'default'
-gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
-gprefs.defaults['preserve_date_on_ctl'] = True
-gprefs.defaults['manual_add_auto_convert'] = False
-gprefs.defaults['cb_fullscreen'] = False
-gprefs.defaults['worker_max_time'] = 0
-gprefs.defaults['show_files_after_save'] = True
-gprefs.defaults['auto_add_path'] = None
-gprefs.defaults['auto_add_check_for_duplicates'] = False
-gprefs.defaults['blocked_auto_formats'] = []
-gprefs.defaults['auto_add_auto_convert'] = True
-gprefs.defaults['ui_style'] = 'calibre' if iswindows or isosx else 'system'
-gprefs.defaults['tag_browser_old_look'] = False
-gprefs.defaults['book_list_tooltips'] = True
-gprefs.defaults['bd_show_cover'] = True
+defs['show_splash_screen'] = True
+defs['toolbar_icon_size'] = 'medium'
+defs['automerge'] = 'ignore'
+defs['toolbar_text'] = 'always'
+defs['font'] = None
+defs['tags_browser_partition_method'] = 'first letter'
+defs['tags_browser_collapse_at'] = 100
+defs['tag_browser_dont_collapse'] = []
+defs['edit_metadata_single_layout'] = 'default'
+defs['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
+defs['preserve_date_on_ctl'] = True
+defs['manual_add_auto_convert'] = False
+defs['cb_fullscreen'] = False
+defs['worker_max_time'] = 0
+defs['show_files_after_save'] = True
+defs['auto_add_path'] = None
+defs['auto_add_check_for_duplicates'] = False
+defs['blocked_auto_formats'] = []
+defs['auto_add_auto_convert'] = True
+defs['ui_style'] = 'calibre' if iswindows or isosx else 'system'
+defs['tag_browser_old_look'] = False
+defs['book_list_tooltips'] = True
+defs['bd_show_cover'] = True
+defs['bd_overlay_cover_size'] = False
+defs['tags_browser_category_icons'] = {}
+defs['cover_browser_reflections'] = True
+defs['extra_row_spacing'] = 0
+del defs
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -465,6 +471,8 @@ class FileIconProvider(QFileIconProvider):
              'gif'     : 'gif',
              'png'     : 'png',
              'bmp'     : 'bmp',
+             'cbz'     : 'cbz',
+             'cbr'     : 'cbr',
              'svg'     : 'svg',
              'html'    : 'html',
              'htmlz'   : 'html',
@@ -762,6 +770,26 @@ class Translator(QTranslator):
 gui_thread = None
 
 qt_app = None
+
+def load_builtin_fonts():
+    global _rating_font
+    # Load the builtin fonts and any fonts added to calibre by the user to
+    # Qt
+    for ff in glob.glob(P('fonts/liberation/*.?tf')) + \
+            [P('fonts/calibreSymbols.otf')] + \
+            glob.glob(os.path.join(config_dir, 'fonts', '*.?tf')):
+        if ff.rpartition('.')[-1].lower() in {'ttf', 'otf'}:
+            with open(ff, 'rb') as s:
+                # Windows requires font files to be executable for them to be
+                # loaded successfully, so we use the in memory loader
+                fid = QFontDatabase.addApplicationFontFromData(s.read())
+                if fid > -1:
+                    fam = QFontDatabase.applicationFontFamilies(fid)
+                    fam = set(map(unicode, fam))
+                    if u'calibre Symbols' in fam:
+                        _rating_font = u'calibre Symbols'
+
+
 class Application(QApplication):
 
     def __init__(self, args, force_calibre_style=False,
@@ -794,27 +822,12 @@ class Application(QApplication):
                 return ret
 
     def load_builtin_fonts(self, scan_for_fonts=False):
-        global _rating_font
         if scan_for_fonts:
             from calibre.utils.fonts.scanner import font_scanner
             # Start scanning the users computer for fonts
             font_scanner
 
-        # Load the builtin fonts and any fonts added to calibre by the user to
-        # Qt
-        for ff in glob.glob(P('fonts/liberation/*.?tf')) + \
-                [P('fonts/calibreSymbols.otf')] + \
-                glob.glob(os.path.join(config_dir, 'fonts', '*.?tf')):
-            if ff.rpartition('.')[-1].lower() in {'ttf', 'otf'}:
-                with open(ff, 'rb') as s:
-                    # Windows requires font files to be executable for them to be
-                    # loaded successfully, so we use the in memory loader
-                    fid = QFontDatabase.addApplicationFontFromData(s.read())
-                    if fid > -1:
-                        fam = QFontDatabase.applicationFontFamilies(fid)
-                        fam = set(map(unicode, fam))
-                        if u'calibre Symbols' in fam:
-                            _rating_font = u'calibre Symbols'
+        load_builtin_fonts()
 
     def load_calibre_style(self):
         # On OS X QtCurve resets the palette, so we preserve it explicitly
@@ -1031,7 +1044,9 @@ def build_forms(srcdir, info=None):
             dat = dat.replace('from widgets import', 'from calibre.gui2.widgets import')
             dat = dat.replace('from convert.xpath_wizard import',
                 'from calibre.gui2.convert.xpath_wizard import')
-            dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
+            dat = re.sub(r'^ {4}def _translate\(context, text, disambig\):\s+return.*$', '    pass', dat,
+                         flags=re.M)
+            dat = re.compile(r'(?:QtGui.QApplication.translate|(?<!def )_translate)\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
             dat = dat.replace('_("MMM yyyy")', '"MMM yyyy"')
             dat = pat.sub(sub, dat)
             dat = dat.replace('from QtWebKit.QWebView import QWebView',

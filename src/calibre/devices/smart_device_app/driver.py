@@ -35,7 +35,7 @@ from calibre.library.server import server_config as content_server_config
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.config import from_json, tweaks
-from calibre.utils.date import isoformat, now, UNDEFINED_DATE
+from calibre.utils.date import isoformat, now
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
         unpublish_zeroconf, get_all_ips)
@@ -52,13 +52,16 @@ def synchronous(tlockname):
     return _synched
 
 
-class ConnectionListener (Thread):
+class ConnectionListener(Thread):
+
+    NOT_SERVICED_COUNT = 6
 
     def __init__(self, driver):
         Thread.__init__(self)
         self.daemon = True
         self.driver = driver
         self.keep_running = True
+        self.all_ip_addresses = dict()
 
     def stop(self):
         self.keep_running = False
@@ -66,6 +69,8 @@ class ConnectionListener (Thread):
     def run(self):
         queue_not_serviced_count = 0
         device_socket = None
+        get_all_ips(reinitialize=True)
+
         while self.keep_running:
             try:
                 time.sleep(1)
@@ -76,10 +81,15 @@ class ConnectionListener (Thread):
             if not self.keep_running:
                 break
 
+            if not self.all_ip_addresses:
+                self.all_ip_addresses = get_all_ips()
+                if self.all_ip_addresses:
+                    self.driver._debug("All IP addresses", self.all_ip_addresses)
+
             if not self.driver.connection_queue.empty():
                 queue_not_serviced_count += 1
-                if queue_not_serviced_count >= 3:
-                    self.driver._debug('queue not serviced')
+                if queue_not_serviced_count >= self.NOT_SERVICED_COUNT:
+                    self.driver._debug('queue not serviced', queue_not_serviced_count)
                     try:
                         sock = self.driver.connection_queue.get_nowait()
                         s = self.driver._json_encode(
@@ -298,19 +308,21 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
               'particular IP address. The driver will listen only on the '
               'entered address, and this address will be the one advertized '
               'over mDNS (bonjour).') + '</p>',
+        _('Replace books with the same calibre identifier') + ':::<p>' +
+            _('Use this option to overwrite a book on the device if that book '
+              'has the same calibre identifier as the book being sent. The file name of the '
+              'book will not change even if the save template produces a '
+              'different result. Using this option in most cases prevents '
+              'having multiple copies of a book on the device.') + '</p>',
         ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
-                False,
-                '',
-                '',
-                '',
+                False, '',
+                '',    '',
                 False, '9090',
-                False,
-                '',
-                '',
-                '',
-                True,
-                ''
+                False, '',
+                '',    '',
+                True,  '',
+                True
     ]
     OPT_AUTOSTART               = 0
     OPT_PASSWORD                = 2
@@ -320,6 +332,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     OPT_COLLECTIONS             = 8
     OPT_AUTODISCONNECT          = 10
     OPT_FORCE_IP_ADDRESS        = 11
+    OPT_OVERWRITE_BOOKS_UUID    = 12
 
 
     def __init__(self, path):
@@ -382,6 +395,20 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def _create_upload_path(self, mdata, fname, create_dirs=True):
         fname = sanitize(fname)
         ext = os.path.splitext(fname)[1]
+
+        try:
+            # If we have already seen this book's UUID, use the existing path
+            if self.settings().extra_customization[self.OPT_OVERWRITE_BOOKS_UUID]:
+                existing_book = self._uuid_already_on_device(mdata.uuid, ext)
+                if existing_book and existing_book.lpath:
+                    return existing_book.lpath
+
+            # If the device asked for it, try to use the UUID as the file name.
+            # Fall back to the ch if the UUID doesn't exist.
+            if self.client_wants_uuid_file_names and mdata.uuid:
+                return (mdata.uuid + ext)
+        except:
+            pass
 
         maxlen = (self.MAX_PATH_LEN - (self.PATH_FUDGE_FACTOR +
                    self.exts_path_lengths.get(ext, self.PATH_FUDGE_FACTOR)))
@@ -669,12 +696,24 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 return not v_thumb or v_thumb[1] == b_thumb[1]
         return False
 
+    def _uuid_already_on_device(self, uuid, ext):
+        try:
+            return self.known_uuids.get(uuid + ext, None)
+        except:
+            return None
+
     def _set_known_metadata(self, book, remove=False):
         lpath = book.lpath
+        ext = os.path.splitext(lpath)[1]
+        uuid = book.get('uuid', None)
         if remove:
             self.known_metadata.pop(lpath, None)
+            if uuid and ext:
+                self.known_uuids.pop(uuid+ext, None)
         else:
-            self.known_metadata[lpath] = book.deepcopy()
+            new_book = self.known_metadata[lpath] = book.deepcopy()
+            if uuid and ext:
+                self.known_uuids[uuid+ext] = new_book
 
     def _close_device_socket(self):
         if self.device_socket is not None:
@@ -843,6 +882,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._close_device_socket()
                 return False
 
+            self.client_wants_uuid_file_names = result.get('useUuidFileNames', False)
+            self._debug('Device wants UUID file names', self.client_wants_uuid_file_names)
+
+
             config = self._configProxy()
             config['format_map'] = exts
             self._debug('selected formats', config['format_map'])
@@ -851,10 +894,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('extension path lengths', self.exts_path_lengths)
 
             self.THUMBNAIL_HEIGHT = result.get('coverHeight', self.DEFAULT_THUMBNAIL_HEIGHT)
+            self._debug('cover height', self.THUMBNAIL_HEIGHT)
             if 'coverWidth' in result:
                 # Setting this field forces the aspect ratio
                 self.THUMBNAIL_WIDTH = result.get('coverWidth',
                                       (self.DEFAULT_THUMBNAIL_HEIGHT/3) * 4)
+                self._debug('cover width', self.THUMBNAIL_WIDTH)
             elif hasattr(self, 'THUMBNAIL_WIDTH'):
                     delattr(self, 'THUMBNAIL_WIDTH')
 
@@ -884,6 +929,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self.connection_attempts[peer] = 0
             except:
                 pass
+
+            self.known_metadata = {}
+            self.known_uuids = {}
             return True
         except socket.timeout:
             self._close_device_socket()
@@ -985,14 +1033,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     if '_series_sort_' in result:
                         del result['_series_sort_']
                     book = self.json_codec.raw_to_book(result, SDBook, self.PREFIX)
-
-                    # If the thumbnail is the wrong size, zero the last mod date
-                    # so the metadata will be resent
-                    thumbnail = book.get('thumbnail', None)
-                    if thumbnail and not (thumbnail[0] == self.THUMBNAIL_HEIGHT or
-                                          thumbnail[1] == self.THUMBNAIL_HEIGHT):
-                        book.set('last_modified', UNDEFINED_DATE)
-
                     bl.add_book(book, replace_metadata=True)
                     if '_new_book_' in result:
                         book.set('_new_book_', True)
@@ -1048,7 +1088,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
         if count:
             for i,book in enumerate(books_to_send):
-                self._debug('sending metadata for book', book.lpath)
+                self._debug('sending metadata for book', book.lpath, book.title)
                 self._set_known_metadata(book)
                 opcode, result = self._call_client(
                         'SEND_BOOK_METADATA',
@@ -1083,6 +1123,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         for i, infile in enumerate(files):
             mdata, fname = metadata.next(), names.next()
             lpath = self._create_upload_path(mdata, fname, create_dirs=False)
+            self._debug('lpath', lpath)
             if not hasattr(infile, 'read'):
                 infile = USBMS.normalize_path(infile)
             book = SDBook(self.PREFIX, lpath, other=mdata)
@@ -1244,6 +1285,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.device_socket = None
         self.json_codec = JsonCodec()
         self.known_metadata = {}
+        self.known_uuids = {}
         self.debug_time = time.time()
         self.debug_start_time = time.time()
         self.max_book_packet_len = 0
@@ -1251,8 +1293,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.connection_attempts = {}
         self.client_can_stream_books = False
         self.client_can_stream_metadata = False
-
-        self._debug("All IP addresses", get_all_ips())
+        self.client_wants_uuid_file_names = False
 
         message = None
         try:
@@ -1281,10 +1322,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._close_listen_socket()
                 return message
         else:
-            while i < 100: # try up to 100 random port numbers
+            while i < 100: # try 9090 then up to 99 random port numbers
                 i += 1
                 port = self._attach_to_port(self.listen_socket,
-                                            random.randint(8192, 32000))
+                                9090 if i == 1 else random.randint(8192, 32000))
                 if port != 0:
                     break
             if port == 0:

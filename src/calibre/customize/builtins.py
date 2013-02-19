@@ -8,7 +8,7 @@ from calibre import guess_type
 from calibre.customize import (FileTypePlugin, MetadataReaderPlugin,
     MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase, StoreBase)
 from calibre.constants import numeric_version
-from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
+from calibre.ebooks.metadata.archive import ArchiveExtract, get_comic_metadata
 from calibre.ebooks.html.to_zip import HTML2ZIP
 
 plugins = []
@@ -140,7 +140,7 @@ class ComicMetadataReader(MetadataReaderPlugin):
             elif id_.startswith(b'PK'):
                 ftype = 'cbz'
         if ftype == 'cbr':
-            from calibre.libunrar import extract_first_alphabetically as extract_first
+            from calibre.utils.unrar import extract_first_alphabetically as extract_first
             extract_first
         else:
             from calibre.libunzip import extract_member
@@ -150,9 +150,9 @@ class ComicMetadataReader(MetadataReaderPlugin):
         ret = extract_first(stream)
         mi = MetaInformation(None, None)
         stream.seek(0)
-        if ftype == 'cbz':
+        if ftype in {'cbr', 'cbz'}:
             try:
-                mi.smart_update(get_cbz_metadata(stream))
+                mi.smart_update(get_comic_metadata(stream, ftype))
             except:
                 pass
         if ret is not None:
@@ -624,12 +624,6 @@ from calibre.library.catalogs.epub_mobi import EPUB_MOBI
 plugins += [CSV_XML, BIBTEX, EPUB_MOBI]
 # }}}
 
-# EPUB Fix plugins {{{
-from calibre.ebooks.epub.fix.unmanifested import Unmanifested
-from calibre.ebooks.epub.fix.epubcheck import Epubcheck
-plugins += [Unmanifested, Epubcheck]
-# }}}
-
 # Profiles {{{
 from calibre.customize.profiles import input_profiles, output_profiles
 plugins += input_profiles + output_profiles
@@ -661,7 +655,7 @@ from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
 from calibre.devices.hanvon.driver import (N516, EB511, ALEX, AZBOOKA, THEBOOK,
-        LIBREAIR, ODYSSEY)
+        LIBREAIR, ODYSSEY, KIBANO)
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import (TECLAST_K3, NEWSMY, IPAPYRUS,
         SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O, STASH, WEXLER)
@@ -712,7 +706,7 @@ plugins += [
     BOOQ,
     EB600,
     README,
-    N516,
+    N516, KIBANO,
     THEBOOK, LIBREAIR,
     EB511,
     ELONEX,
@@ -757,13 +751,14 @@ plugins += [
 # New metadata download plugins {{{
 from calibre.ebooks.metadata.sources.google import GoogleBooks
 from calibre.ebooks.metadata.sources.amazon import Amazon
+from calibre.ebooks.metadata.sources.edelweiss import Edelweiss
 from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
 from calibre.ebooks.metadata.sources.isbndb import ISBNDB
 from calibre.ebooks.metadata.sources.overdrive import OverDrive
 from calibre.ebooks.metadata.sources.douban import Douban
 from calibre.ebooks.metadata.sources.ozon import Ozon
 
-plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive, Douban, Ozon]
+plugins += [GoogleBooks, Amazon, Edelweiss, OpenLibrary, ISBNDB, OverDrive, Douban, Ozon]
 
 # }}}
 
@@ -788,6 +783,11 @@ class ActionConvert(InterfaceActionBase):
     name = 'Convert Books'
     actual_plugin = 'calibre.gui2.actions.convert:ConvertAction'
     description = _('Convert books to various ebook formats')
+
+class ActionPolish(InterfaceActionBase):
+    name = 'Polish Books'
+    actual_plugin = 'calibre.gui2.actions.polish:PolishAction'
+    description = _('Fine tune your ebooks')
 
 class ActionDelete(InterfaceActionBase):
     name = 'Remove Books'
@@ -924,7 +924,7 @@ class ActionPluginUpdater(InterfaceActionBase):
 
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
-        ActionFetchNews, ActionSaveToDisk, ActionQuickview,
+        ActionFetchNews, ActionSaveToDisk, ActionQuickview, ActionPolish,
         ActionShowBookDetails,ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
@@ -1280,6 +1280,17 @@ class StoreBNStore(StoreBase):
     headquarters = 'US'
     formats = ['NOOK']
 
+class StoreBeamEBooksDEStore(StoreBase):
+    name = 'Beam EBooks DE'
+    author = 'Charles Haley'
+    description = u'Bei uns finden Sie: Tausende deutschsprachige eBooks; Alle eBooks ohne hartes DRM; PDF, ePub und Mobipocket Format; Sofortige Verfügbarkeit - 24 Stunden am Tag; Günstige Preise; eBooks für viele Lesegeräte, PC,Mac und Smartphones; Viele Gratis eBooks'
+    actual_plugin = 'calibre.gui2.store.stores.beam_ebooks_de_plugin:BeamEBooksDEStore'
+
+    drm_free_only = True
+    headquarters = 'DE'
+    formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
+
 class StoreBeWriteStore(StoreBase):
     name = 'BeWrite Books'
     description = u'Publishers of fine books. Highly selective and editorially driven. Does not offer: books for children or exclusively YA, erotica, swords-and-sorcery fantasy and space-opera-style science fiction. All other genres are represented.'
@@ -1402,7 +1413,6 @@ class StoreEmpikStore(StoreBase):
 
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF']
-    affiliate = True
 
 class StoreEscapeMagazineStore(StoreBase):
     name = 'EscapeMagazine'
@@ -1471,9 +1481,9 @@ class StoreLegimiStore(StoreBase):
     affiliate = True
 
 class StoreLibreDEStore(StoreBase):
-    name = 'Libri DE'
+    name = 'ebook.de'
     author = 'Charles Haley'
-    description = u'Sicher Bücher, Hörbücher und Downloads online bestellen.'
+    description = u'All Ihre Bücher immer dabei. Suchen, finden, kaufen: so einfach wie nie. ebook.de war libre.de'
     actual_plugin = 'calibre.gui2.store.stores.libri_de_plugin:LibreDEStore'
 
     headquarters = 'DE'
@@ -1529,6 +1539,15 @@ class StoreNextoStore(StoreBase):
     formats = ['EPUB', 'MOBI', 'PDF']
     affiliate = True
 
+class StoreNookUKStore(StoreBase):
+    name = 'Nook UK'
+    author = 'John Schember'
+    description = u'Barnes & Noble S.Ã  r.l, a subsidiary of Barnes & Noble, Inc., a leading retailer of content, digital media and educational products, is proud to bring the award-winning NOOKÂ® reading experience and a leading digital bookstore to the UK.'
+    actual_plugin = 'calibre.gui2.store.stores.nook_uk_plugin:NookUKStore'
+
+    headquarters = 'UK'
+    formats = ['NOOK']
+
 class StoreOpenBooksStore(StoreBase):
     name = 'Open Books'
     description = u'Comprehensive listing of DRM free ebooks from a variety of sources provided by users of calibre.'
@@ -1565,6 +1584,7 @@ class StorePublioStore(StoreBase):
 
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
 
 class StoreRW2010Store(StoreBase):
     name = 'RW2010'
@@ -1659,7 +1679,8 @@ plugins += [
     StoreAmazonITKindleStore,
     StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore,
-    StoreBNStore, StoreSonyStore,
+    StoreBNStore,
+    StoreBeamEBooksDEStore,
     StoreBeWriteStore,
     StoreBiblioStore,
     StoreBookotekaStore,
@@ -1685,12 +1706,14 @@ plugins += [
     StoreMillsBoonUKStore,
     StoreMobileReadStore,
     StoreNextoStore,
+    StoreNookUKStore,
     StoreOpenBooksStore,
     StoreOzonRUStore,
     StorePragmaticBookshelfStore,
     StorePublioStore,
     StoreRW2010Store,
     StoreSmashwordsStore,
+    StoreSonyStore,
     StoreVirtualoStore,
     StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,

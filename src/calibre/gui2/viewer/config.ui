@@ -210,6 +210,29 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="label_22">
+             <property name="text">
+              <string>M&amp;inimum font size:</string>
+             </property>
+             <property name="buddy">
+              <cstring>minimum_font_size</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="1">
+            <widget class="QSpinBox" name="minimum_font_size">
+             <property name="toolTip">
+              <string>The minimum font size in pixels</string>
+             </property>
+             <property name="suffix">
+              <string> px</string>
+             </property>
+             <property name="minimum">
+              <number>8</number>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="page_5">
@@ -347,8 +370,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>811</width>
-            <height>352</height>
+            <width>352</width>
+            <height>176</height>
            </rect>
           </property>
           <attribute name="label">
@@ -574,7 +597,7 @@ QToolBox::tab:hover {
             <x>0</x>
             <y>0</y>
             <width>352</width>
-            <height>123</height>
+            <height>151</height>
            </rect>
           </property>
           <attribute name="label">
@@ -605,17 +628,24 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
-           <item row="2" column="0" colspan="2">
+           <item row="3" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_remember_window_size">
              <property name="text">
               <string>Remember last used &amp;window size and layout</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="2">
+           <item row="4" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_remember_current_page">
              <property name="text">
               <string>Remember the &amp;current page when quitting</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_show_controls">
+             <property name="text">
+              <string>Show &amp;controls in the viewer window</string>
              </property>
             </widget>
            </item>

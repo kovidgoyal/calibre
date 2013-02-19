@@ -181,6 +181,11 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.basic_metadata_widgets.append(self.comments)
 
         self.rating = RatingEdit(self)
+        self.clear_ratings_button = QToolButton(self)
+        self.clear_ratings_button.setToolTip(_('Clear rating'))
+        self.clear_ratings_button.setIcon(QIcon(I('trash.png')))
+        self.clear_ratings_button.clicked.connect(self.rating.zero)
+
         self.basic_metadata_widgets.append(self.rating)
 
         self.tags = TagsEdit(self)
@@ -313,7 +318,23 @@ class MetadataSingleDialogBase(ResizableDialog):
         if mi is not None:
             self.update_from_mi(mi)
 
+    def get_pdf_cover(self):
+        pdfpath = self.formats_manager.get_format_path(self.db, self.book_id,
+                                                       'pdf')
+        from calibre.gui2.metadata.pdf_covers import PDFCovers
+        d = PDFCovers(pdfpath, parent=self)
+        if d.exec_() == d.Accepted:
+            cpath = d.cover_path
+            if cpath:
+                with open(cpath, 'rb') as f:
+                    self.update_cover(f.read(), 'PDF')
+        d.cleanup()
+
     def cover_from_format(self, *args):
+        ext = self.formats_manager.get_selected_format()
+        if ext is None: return
+        if ext == 'pdf':
+            return self.get_pdf_cover()
         try:
             mi, ext = self.formats_manager.get_selected_format_metadata(self.db,
                     self.book_id)
@@ -338,12 +359,15 @@ class MetadataSingleDialogBase(ResizableDialog):
             error_dialog(self, _('Could not read cover'),
                          _('Could not read cover from %s format')%ext).exec_()
             return
+        self.update_cover(cdata, ext)
+
+    def update_cover(self, cdata, fmt):
         orig = self.cover.current_val
         self.cover.current_val = cdata
         if self.cover.current_val is None:
             self.cover.current_val = orig
             return error_dialog(self, _('Could not read cover'),
-                         _('The cover in the %s format is invalid')%ext,
+                         _('The cover in the %s format is invalid')%fmt,
                          show=True)
             return
 
@@ -659,8 +683,9 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
                 QSizePolicy.Expanding)
         l.addItem(self.tabs[0].spc_one, 1, 0, 1, 3)
         sto(self.cover.buttons[-1], self.rating)
-        create_row2(1, self.rating)
-        sto(self.rating, self.tags_editor_button)
+        create_row2(1, self.rating, self.clear_ratings_button)
+        sto(self.rating, self.clear_ratings_button)
+        sto(self.clear_ratings_button, self.tags_editor_button)
         sto(self.tags_editor_button, self.tags)
         create_row2(2, self.tags, self.clear_tags_button, front_button=self.tags_editor_button)
         sto(self.clear_tags_button, self.paste_isbn_button)
@@ -780,7 +805,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
                    button=self.clear_series_button, icon='trash.png')
         create_row(5, self.series_index, self.tags)
         create_row(6, self.tags, self.rating, button=self.clear_tags_button)
-        create_row(7, self.rating, self.pubdate)
+        create_row(7, self.rating, self.pubdate, button=self.clear_ratings_button)
         create_row(8, self.pubdate, self.publisher,
                    button=self.pubdate.clear_button, icon='trash.png')
         create_row(9, self.publisher, self.languages)
@@ -917,7 +942,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
                    button=self.clear_series_button, icon='trash.png')
         create_row(5, self.series_index, self.tags)
         create_row(6, self.tags, self.rating, button=self.clear_tags_button)
-        create_row(7, self.rating, self.pubdate)
+        create_row(7, self.rating, self.pubdate, button=self.clear_ratings_button)
         create_row(8, self.pubdate, self.publisher,
                    button=self.pubdate.clear_button, icon='trash.png')
         create_row(9, self.publisher, self.languages)

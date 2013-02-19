@@ -320,13 +320,11 @@ class OEBReader(object):
                 self.logger.warn(u'Spine item %r not found' % idref)
                 continue
             item = manifest.ids[idref]
-            spine.add(item, elem.get('linear'))
-        for item in spine:
-            if item.media_type.lower() not in OEB_DOCS:
-                if not hasattr(item.data, 'xpath'):
-                    self.oeb.log.warn('The item %s is not a XML document.'
-                            ' Removing it from spine.'%item.href)
-                    spine.remove(item)
+            if item.media_type.lower() in OEB_DOCS and hasattr(item.data, 'xpath'):
+                spine.add(item, elem.get('linear'))
+            else:
+                self.oeb.log.warn('The item %s is not a XML document.'
+                        ' Removing it from spine.'%item.href)
         if len(spine) == 0:
             raise OEBError("Spine is empty")
         self._spine_add_extra()
@@ -375,16 +373,12 @@ class OEBReader(object):
             if not title:
                 self._toc_from_navpoint(item, toc, child)
                 continue
-            if not href:
-                gc = xpath(child, 'ncx:navPoint')
-                if not gc:
-                    # This node is useless
-                    continue
-                href = 'missing.html'
-
-            href = item.abshref(urlnormalize(href[0]))
+            if (not href or not href[0]) and not xpath(child, 'ncx:navPoint'):
+                # This node is useless
+                continue
+            href = item.abshref(urlnormalize(href[0])) if href and href[0] else ''
             path, _ = urldefrag(href)
-            if path not in self.oeb.manifest.hrefs:
+            if href and path not in self.oeb.manifest.hrefs:
                 self.logger.warn('TOC reference %r not found' % href)
                 gc = xpath(child, 'ncx:navPoint')
                 if not gc:

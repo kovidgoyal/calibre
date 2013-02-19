@@ -121,6 +121,8 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
             out('\nDisabled plugins:', textwrap.fill(' '.join([x.__class__.__name__ for x in
                 disabled_plugins])))
             out(' ')
+        else:
+            out('\nNo disabled plugins')
         found_dev = False
         for dev in devplugins:
             if not dev.MANAGES_DEVICE_PRESENCE: continue
@@ -182,7 +184,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
                     out(ioreg)
 
         if hasattr(buf, 'getvalue'):
-            return buf.getvalue().decode('utf-8')
+            return buf.getvalue().decode('utf-8', 'replace')
     finally:
         sys.stdout = oldo
         sys.stderr = olde

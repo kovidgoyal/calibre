@@ -9,14 +9,15 @@ __docformat__ = 'restructuredtext en'
 
 import os, pprint, time
 from cookielib import Cookie
+from threading import current_thread
 
 from PyQt4.Qt import (QObject, QNetworkAccessManager, QNetworkDiskCache,
-        QNetworkProxy, QNetworkProxyFactory, QEventLoop, QUrl,
-        QDialog, QVBoxLayout, QSize, QNetworkCookieJar)
+        QNetworkProxy, QNetworkProxyFactory, QEventLoop, QUrl, pyqtSignal,
+        QDialog, QVBoxLayout, QSize, QNetworkCookieJar, Qt)
 from PyQt4.QtWebKit import QWebPage, QWebSettings, QWebView, QWebElement
 
 from calibre import USER_AGENT, prints, get_proxies, get_proxy_info
-from calibre.constants import ispy3, config_dir
+from calibre.constants import ispy3, cache_dir
 from calibre.utils.logging import ThreadSafeLog
 from calibre.gui2 import must_use_qt
 from calibre.web.jsbrowser.forms import FormsMixin
@@ -44,7 +45,7 @@ class WebPage(QWebPage): # {{{
         settings = self.settings()
         if enable_developer_tools:
             settings.setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
-        QWebSettings.enablePersistentStorage(os.path.join(config_dir, 'caches',
+        QWebSettings.enablePersistentStorage(os.path.join(cache_dir(),
                 'webkit-persistence'))
         QWebSettings.setMaximumPagesInCache(0)
 
@@ -128,6 +129,7 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
             x.upper() for x in ('Head', 'Get', 'Put', 'Post', 'Delete',
                 'Custom')
     }
+    report_reply_signal = pyqtSignal(object)
 
     def __init__(self, log, use_disk_cache=True, parent=None):
         QNetworkAccessManager.__init__(self, parent)
@@ -135,8 +137,7 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
         self.log = log
         if use_disk_cache:
             self.cache = QNetworkDiskCache(self)
-            self.cache.setCacheDirectory(os.path.join(config_dir, 'caches',
-                'jsbrowser'))
+            self.cache.setCacheDirectory(os.path.join(cache_dir(), 'jsbrowser'))
             self.setCache(self.cache)
         self.sslErrors.connect(self.on_ssl_errors)
         self.pf = ProxyFactory(log)
@@ -144,6 +145,8 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
         self.finished.connect(self.on_finished)
         self.cookie_jar = QNetworkCookieJar()
         self.setCookieJar(self.cookie_jar)
+        self.main_thread = current_thread()
+        self.report_reply_signal.connect(self.report_reply, type=Qt.QueuedConnection)
 
     def on_ssl_errors(self, reply, errors):
         reply.ignoreSslErrors()
@@ -173,6 +176,17 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
                 data)
 
     def on_finished(self, reply):
+        if current_thread() is not self.main_thread:
+            # This method was called in a thread created by Qt. The python
+            # interpreter may not be in a safe state, so dont do anything
+            # more. This signal is queued which means the reply wont be
+            # reported unless someone spins the event loop. So far, I have only
+            # seen this happen when doing Ctrl+C in the console.
+            self.report_reply_signal.emit(reply)
+        else:
+            self.report_reply(reply)
+
+    def report_reply(self, reply):
         reply_url = unicode(reply.url().toString())
         self.reply_count += 1
 
@@ -303,6 +317,10 @@ class Browser(QObject, FormsMixin):
         self.nam = NetworkAccessManager(log, use_disk_cache=use_disk_cache, parent=self)
         self.page.setNetworkAccessManager(self.nam)
 
+    @property
+    def user_agent(self):
+        return self.page.user_agent
+
     def _wait_for_load(self, timeout, url=None):
         loop = QEventLoop(self)
         start_time = time.time()
@@ -421,4 +439,10 @@ class Browser(QObject, FormsMixin):
         except Timeout:
             pass
         self.nam = self.page = None
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, *args):
+        self.close()
 

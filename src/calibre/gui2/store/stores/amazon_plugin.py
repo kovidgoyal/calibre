@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 1 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import random
-import re
 from contextlib import closing
 
 from lxml import html
@@ -130,16 +130,16 @@ class AmazonKindleStore(StorePlugin):
 
             data_xpath = '//div[contains(@class, "prod")]'
             format_xpath = './/ul[contains(@class, "rsltL")]//span[contains(@class, "lrg") and not(contains(@class, "bld"))]/text()'
-            asin_xpath = './/div[@class="image"]/a[1]'
+            asin_xpath = '@name'
             cover_xpath = './/img[@class="productImage"]/@src'
             title_xpath = './/h3[@class="newaps"]/a//text()'
             author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]/text()'
             price_xpath = './/ul[contains(@class, "rsltL")]//span[contains(@class, "lrg") and contains(@class, "bld")]/text()'
-            
+
             for data in doc.xpath(data_xpath):
                 if counter <= 0:
                     break
-                
+
                 # Even though we are searching digital-text only Amazon will still
                 # put in results for non Kindle books (author pages). Se we need
                 # to explicitly check if the item is a Kindle book and ignore it
@@ -147,21 +147,15 @@ class AmazonKindleStore(StorePlugin):
                 format = ''.join(data.xpath(format_xpath))
                 if 'kindle' not in format.lower():
                     continue
-                
+
                 # We must have an asin otherwise we can't easily reference the
                 # book later.
-                asin_href = None
-                asin_a = data.xpath(asin_xpath)
-                if asin_a:
-                    asin_href = asin_a[0].get('href', '')
-                    m = re.search(r'/dp/(?P<asin>.+?)(/|$)', asin_href)
-                    if m:
-                        asin = m.group('asin')
-                    else:
-                        continue
+                asin = data.xpath(asin_xpath)
+                if asin:
+                    asin = asin[0]
                 else:
                     continue
-                
+
                 cover_url = ''.join(data.xpath(cover_xpath))
 
                 title = ''.join(data.xpath(title_xpath))
@@ -172,9 +166,9 @@ class AmazonKindleStore(StorePlugin):
                     pass
 
                 price = ''.join(data.xpath(price_xpath))
-                
+
                 counter -= 1
-    
+
                 s = SearchResult()
                 s.cover_url = cover_url.strip()
                 s.title = title.strip()

@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-10-24 18:16+0000\n"
+"PO-Revision-Date: 2013-02-04 07:01+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <vertaling@vrijschrift.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-10-25 05:35+0000\n"
-"X-Generator: Launchpad (build 16179)\n"
+"X-Launchpad-Export-Date: 2013-02-05 04:44+0000\n"
+"X-Generator: Launchpad (build 16468)\n"
 "Language: nl\n"
 
 #. name for aaa
@@ -728,7 +728,7 @@ msgstr "Aimol"
 
 #. name for ain
 msgid "Ainu (Japan)"
-msgstr ""
+msgstr "Ainu (Japan)"
 
 #. name for aio
 msgid "Aiton"
@@ -2496,7 +2496,7 @@ msgstr "Wit-Russisch; Belarussisch"
 
 #. name for bem
 msgid "Bemba (Zambia)"
-msgstr ""
+msgstr "Bemba (Zambia)"
 
 #. name for ben
 msgid "Bengali"
@@ -2892,7 +2892,7 @@ msgstr "Bimoba"
 
 #. name for bin
 msgid "Bini"
-msgstr "Bini"
+msgstr "Bini; Edo"
 
 #. name for bio
 msgid "Nai"
@@ -4684,7 +4684,7 @@ msgstr ""
 
 #. name for car
 msgid "Carib; Galibi"
-msgstr ""
+msgstr "Caribische talen"
 
 #. name for cas
 msgid "Tsimané"
@@ -6360,7 +6360,7 @@ msgstr ""
 
 #. name for div
 msgid "Dhivehi"
-msgstr ""
+msgstr "Divehi"
 
 #. name for diw
 msgid "Dinka; Northwestern"
@@ -6604,7 +6604,7 @@ msgstr "Vietnamese dong"
 
 #. name for doi
 msgid "Dogri (macrolanguage)"
-msgstr ""
+msgstr "Dogri"
 
 #. name for dok
 msgid "Dondo"
@@ -7508,7 +7508,7 @@ msgstr ""
 
 #. name for fan
 msgid "Fang (Equatorial Guinea)"
-msgstr ""
+msgstr "Fang"
 
 #. name for fao
 msgid "Faroese"
@@ -7584,7 +7584,7 @@ msgstr "Fijisch"
 
 #. name for fil
 msgid "Filipino"
-msgstr ""
+msgstr "Filipijns"
 
 #. name for fin
 msgid "Finnish"
@@ -8192,7 +8192,7 @@ msgstr ""
 
 #. name for gez
 msgid "Geez"
-msgstr "Geez"
+msgstr "Ge'ez"
 
 #. name for gfk
 msgid "Patpatar"
@@ -9016,7 +9016,7 @@ msgstr ""
 
 #. name for gwi
 msgid "Gwichʼin"
-msgstr ""
+msgstr "Gwichʼin"
 
 #. name for gwj
 msgid "/Gwi"
@@ -10076,7 +10076,7 @@ msgstr ""
 
 #. name for iii
 msgid "Yi; Sichuan"
-msgstr ""
+msgstr "Yi; Sichuan - Nuosu"
 
 #. name for ijc
 msgid "Izon"
@@ -11076,11 +11076,11 @@ msgstr ""
 
 #. name for kal
 msgid "Kalaallisut"
-msgstr ""
+msgstr "Groenlands"
 
 #. name for kam
 msgid "Kamba (Kenya)"
-msgstr ""
+msgstr "Kamba (Kenya)"
 
 #. name for kan
 msgid "Kannada"
@@ -11784,7 +11784,7 @@ msgstr ""
 
 #. name for khm
 msgid "Khmer; Central"
-msgstr ""
+msgstr "Khmer, Cambodjaans"
 
 #. name for khn
 msgid "Khandesi"
@@ -12488,7 +12488,7 @@ msgstr ""
 
 #. name for kok
 msgid "Konkani (macrolanguage)"
-msgstr ""
+msgstr "Konkani"
 
 #. name for kol
 msgid "Kol (Papua New Guinea)"
@@ -12500,7 +12500,7 @@ msgstr "Komi"
 
 #. name for kon
 msgid "Kongo"
-msgstr "Kongo"
+msgstr "Kikongo"
 
 #. name for koo
 msgid "Konzo"
@@ -13736,7 +13736,7 @@ msgstr ""
 
 #. name for lao
 msgid "Lao"
-msgstr "Lao"
+msgstr "Laotiaans"
 
 #. name for lap
 msgid "Laka (Chad)"
@@ -14872,7 +14872,7 @@ msgstr ""
 
 #. name for lug
 msgid "Ganda"
-msgstr "Ganda"
+msgstr "Luganda"
 
 #. name for lui
 msgid "Luiseno"
@@ -15468,7 +15468,7 @@ msgstr ""
 
 #. name for men
 msgid "Mende (Sierra Leone)"
-msgstr ""
+msgstr "Mende"
 
 #. name for meo
 msgid "Malay; Kedah"
@@ -15832,7 +15832,7 @@ msgstr ""
 
 #. name for mic
 msgid "Mi'kmaq"
-msgstr ""
+msgstr "Mi'kmaq; Micmac"
 
 #. name for mid
 msgid "Mandaic"
@@ -16812,7 +16812,7 @@ msgstr ""
 
 #. name for msa
 msgid "Malay (macrolanguage)"
-msgstr ""
+msgstr "Maleis"
 
 #. name for msb
 msgid "Masbatenyo"
@@ -17680,7 +17680,7 @@ msgstr "Nauruaans"
 
 #. name for nav
 msgid "Navajo"
-msgstr ""
+msgstr "Navajo"
 
 #. name for naw
 msgid "Nawuri"
@@ -18068,7 +18068,7 @@ msgstr ""
 
 #. name for new
 msgid "Bhasa; Nepal"
-msgstr ""
+msgstr "Newari; Nepal"
 
 #. name for nex
 msgid "Neme"
@@ -18296,7 +18296,7 @@ msgstr ""
 
 #. name for nia
 msgid "Nias"
-msgstr "Niaas"
+msgstr "Nias"
 
 #. name for nib
 msgid "Nakame"
@@ -18972,7 +18972,7 @@ msgstr ""
 
 #. name for nqo
 msgid "N'Ko"
-msgstr "Nko"
+msgstr "N'Ko"
 
 #. name for nra
 msgid "Ngom"
@@ -19080,7 +19080,7 @@ msgstr ""
 
 #. name for nso
 msgid "Sotho; Northern"
-msgstr ""
+msgstr "Pedi; Sepedi; Noord-Sothotisch"
 
 #. name for nsp
 msgid "Nepalese Sign Language"
@@ -19296,7 +19296,7 @@ msgstr ""
 
 #. name for nwc
 msgid "Newari; Old"
-msgstr ""
+msgstr "Newari; Klassiek Nepal"
 
 #. name for nwe
 msgid "Ngwe"
@@ -19372,7 +19372,7 @@ msgstr ""
 
 #. name for nya
 msgid "Nyanja"
-msgstr ""
+msgstr "Nyanja"
 
 #. name for nyb
 msgid "Nyangbo"
@@ -20028,7 +20028,7 @@ msgstr "Spaans; oud"
 
 #. name for oss
 msgid "Ossetian"
-msgstr ""
+msgstr "Ossetisch"
 
 #. name for ost
 msgid "Osatu"
@@ -20212,7 +20212,7 @@ msgstr "Pampanga"
 
 #. name for pan
 msgid "Panjabi"
-msgstr ""
+msgstr "Punjabi"
 
 #. name for pao
 msgid "Paiute; Northern"
@@ -21848,7 +21848,7 @@ msgstr ""
 
 #. name for rar
 msgid "Maori; Cook Islands"
-msgstr ""
+msgstr "Rarotongan; Cookeilanden Maori"
 
 #. name for ras
 msgid "Tegali"
@@ -22220,7 +22220,7 @@ msgstr ""
 
 #. name for rom
 msgid "Romany"
-msgstr "Roma"
+msgstr "Romani"
 
 #. name for ron
 msgid "Romanian"
@@ -23380,7 +23380,7 @@ msgstr ""
 
 #. name for sma
 msgid "Sami; Southern"
-msgstr ""
+msgstr "Samisch; zuid, Laps; zuid"
 
 #. name for smb
 msgid "Simbari"
@@ -23396,7 +23396,7 @@ msgstr ""
 
 #. name for sme
 msgid "Sami; Northern"
-msgstr ""
+msgstr "Samisch; noord, Laps; noord"
 
 #. name for smf
 msgid "Auwe"
@@ -23428,7 +23428,7 @@ msgstr ""
 
 #. name for smn
 msgid "Sami; Inari"
-msgstr ""
+msgstr "Sami; Inari, Laps; Inari"
 
 #. name for smo
 msgid "Samoan"
@@ -23448,7 +23448,7 @@ msgstr ""
 
 #. name for sms
 msgid "Sami; Skolt"
-msgstr ""
+msgstr "Sami; Skolt, Laps; Skolt"
 
 #. name for smt
 msgid "Simte"
@@ -24188,7 +24188,7 @@ msgstr ""
 
 #. name for swa
 msgid "Swahili (macrolanguage)"
-msgstr ""
+msgstr "Swahili"
 
 #. name for swb
 msgid "Comorian; Maore"
@@ -24344,7 +24344,7 @@ msgstr ""
 
 #. name for syc
 msgid "Syriac; Classical"
-msgstr ""
+msgstr "Syriac; Klassiek"
 
 #. name for syi
 msgid "Seki"
@@ -25332,7 +25332,7 @@ msgstr ""
 
 #. name for tlh
 msgid "Klingon"
-msgstr ""
+msgstr "Klingon; tlhIngan-Hol"
 
 #. name for tli
 msgid "Tlingit"
@@ -27412,7 +27412,7 @@ msgstr ""
 
 #. name for wal
 msgid "Wolaytta"
-msgstr ""
+msgstr "Walamo"
 
 #. name for wam
 msgid "Wampanoag"
@@ -27436,7 +27436,7 @@ msgstr ""
 
 #. name for war
 msgid "Waray (Philippines)"
-msgstr ""
+msgstr "Waray (Filipijns)"
 
 #. name for was
 msgid "Washo"
@@ -28240,7 +28240,7 @@ msgstr ""
 
 #. name for xal
 msgid "Kalmyk"
-msgstr ""
+msgstr "Kalmyk"
 
 #. name for xam
 msgid "/Xam"
@@ -30144,7 +30144,7 @@ msgstr ""
 
 #. name for zab
 msgid "Zapotec; San Juan Guelavía"
-msgstr ""
+msgstr "Zapotec"
 
 #. name for zac
 msgid "Zapotec; Ocotlán"
@@ -30308,7 +30308,7 @@ msgstr ""
 
 #. name for zha
 msgid "Zhuang"
-msgstr ""
+msgstr "Zhuang, Tsjoeang"
 
 #. name for zhb
 msgid "Zhaba"

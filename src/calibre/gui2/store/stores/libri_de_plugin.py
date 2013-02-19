@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 1 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -72,8 +73,8 @@ class LibreDEStore(BasicStoreConfig, StorePlugin):
                 mobi = details.xpath(
                         'boolean(.//span[@class="bindername" and contains(text(), "mobipocket")]/text())')
 
-                cover_url = ''.join(data.xpath('.//div[@class="coverImg"]/a/img/@src'))
-                price = ''.join(data.xpath('.//span[@class="preis"]/text()')).replace('*', '').strip()
+                cover_url = ''.join(data.xpath('.//div[@class="coverimg"]/a/img/@src'))
+                price = ''.join(data.xpath('.//div[@class="preis"]/text()')).replace('*', '').strip()
 
                 counter -= 1
 

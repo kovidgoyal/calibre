@@ -41,10 +41,11 @@ class Economist(BasicNewsRecipe):
     remove_tags = [
             dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
             dict(attrs={'class':['dblClkTrk', 'ec-article-info',
-                'share_inline_header', 'related-items']}),
+                'share_inline_header', 'related-items',
+                                 'main-content-container']}),
             {'class': lambda x: x and 'share-links-header' in x},
     ]
-    keep_only_tags = [dict(id='ec-article-body')]
+    keep_only_tags = [dict(name='article')]
     no_stylesheets = True
     preprocess_regexps = [(re.compile('</html>.*', re.DOTALL),
         lambda x:'</html>')]
@@ -56,7 +57,7 @@ class Economist(BasicNewsRecipe):
     needs_subscription = False
     '''
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username and self.password:
             br.open('http://www.economist.com/user/login')
             br.select_form(nr=1)
@@ -70,18 +71,6 @@ class Economist(BasicNewsRecipe):
         return br
     '''
 
-    def get_cover_url(self):
-        soup = self.index_to_soup('http://www.economist.com/printedition/covers')
-        div = soup.find('div', attrs={'class':lambda x: x and
-            'print-cover-links' in x})
-        a = div.find('a', href=True)
-        url = a.get('href')
-        if url.startswith('/'):
-            url = 'http://www.economist.com' + url
-        soup = self.index_to_soup(url)
-        div = soup.find('div', attrs={'class':'cover-content'})
-        img = div.find('img', src=True)
-        return img.get('src')
 
     def parse_index(self):
         return self.economist_parse_index()
@@ -92,7 +81,7 @@ class Economist(BasicNewsRecipe):
         if div is not None:
             img = div.find('img', src=True)
             if img is not None:
-                self.cover_url = img['src']
+                self.cover_url = re.sub('thumbnail','full',img['src'])
         feeds = OrderedDict()
         for section in soup.findAll(attrs={'class':lambda x: x and 'section' in
             x}):

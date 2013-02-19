@@ -4,7 +4,6 @@ __copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
 scmp.com
 '''
 
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class SCMP(BasicNewsRecipe):
@@ -18,10 +17,11 @@ class SCMP(BasicNewsRecipe):
     max_articles_per_feed = 200
     no_stylesheets        = True
     encoding              = 'utf-8'
+    auto_cleanup = True
     use_embedded_content  = False
     language              = 'en_CN'
     remove_empty_feeds    = True
-    needs_subscription    = True
+    needs_subscription    = 'optional'
     publication_type      = 'newspaper'
     masthead_url          = 'http://www.scmp.com/images/logo_scmp_home.gif'
     extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } '
@@ -34,7 +34,7 @@ class SCMP(BasicNewsRecipe):
                         }
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         #br.set_debug_http(True)
         #br.set_debug_responses(True)
         #br.set_debug_redirects(True)
@@ -46,17 +46,17 @@ class SCMP(BasicNewsRecipe):
            br.submit()
         return br
 
-    remove_attributes=['width','height','border']
+    #remove_attributes=['width','height','border']
 
-    keep_only_tags = [
-                        dict(attrs={'id':['ART','photoBox']})
-                       ,dict(attrs={'class':['article_label','article_byline','article_body']})
-                     ]
+    #keep_only_tags = [
+                        #dict(attrs={'id':['ART','photoBox']})
+                       #,dict(attrs={'class':['article_label','article_byline','article_body']})
+                     #]
 
-    preprocess_regexps = [
-       (re.compile(r'<P><table((?!<table).)*class="embscreen"((?!</table>).)*</table>', re.DOTALL|re.IGNORECASE),
-        lambda match: ''),
-    ]
+    #preprocess_regexps = [
+       #(re.compile(r'<P><table((?!<table).)*class="embscreen"((?!</table>).)*</table>', re.DOTALL|re.IGNORECASE),
+        #lambda match: ''),
+    #]
 
     feeds = [
               (u'Business'     , u'http://www.scmp.com/rss/business.xml'       )
@@ -68,13 +68,13 @@ class SCMP(BasicNewsRecipe):
              ,(u'Sport'        , u'http://www.scmp.com/rss/sport.xml'          )
             ]
 
-    def print_version(self, url):
-        rpart, sep, rest = url.rpartition('&')
-        return rpart #+ sep + urllib.quote_plus(rest)
+    #def print_version(self, url):
+        #rpart, sep, rest = url.rpartition('&')
+        #return rpart #+ sep + urllib.quote_plus(rest)
 
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        items = soup.findAll(src="/images/label_icon.gif")
-        [item.extract() for item in items]
-        return self.adeify_images(soup)
+    #def preprocess_html(self, soup):
+        #for item in soup.findAll(style=True):
+            #del item['style']
+        #items = soup.findAll(src="/images/label_icon.gif")
+        #[item.extract() for item in items]
+        #return self.adeify_images(soup)

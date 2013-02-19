@@ -73,7 +73,7 @@ class heraldo(BasicNewsRecipe):
                 #[url]http://info.elcorreo.com/pdf/06012011-viz.pdf[/url]
         cover='http://info.elcorreo.com/pdf/'+ day + month + year +'-viz.pdf'
 
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
         except:

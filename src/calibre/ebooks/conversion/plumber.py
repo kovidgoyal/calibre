@@ -1125,7 +1125,7 @@ OptionRecommendation(name='search_replace',
         RemoveFakeMargins()(self.oeb, self.log, self.opts)
         RemoveAdobeMargins()(self.oeb, self.log, self.opts)
 
-        if self.opts.subset_embedded_fonts:
+        if self.opts.subset_embedded_fonts and self.output_plugin.file_type != 'pdf':
             from calibre.ebooks.oeb.transforms.subset import SubsetFonts
             SubsetFonts()(self.oeb, self.log, self.opts)
 

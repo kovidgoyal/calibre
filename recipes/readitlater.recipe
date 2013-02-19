@@ -34,7 +34,7 @@ class Pocket(BasicNewsRecipe):
 
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None:
             br.open(self.LOGIN)
             br.select_form(nr=0)

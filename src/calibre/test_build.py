@@ -87,9 +87,8 @@ def test_imaging():
     print ('PIL OK!')
 
 def test_unrar():
-    from calibre.libunrar import _libunrar
-    if not _libunrar:
-        raise RuntimeError('Failed to load libunrar')
+    from calibre.utils.unrar import test_basic
+    test_basic()
     print ('Unrar OK!')
 
 def test_icu():

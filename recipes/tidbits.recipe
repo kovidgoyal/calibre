@@ -16,8 +16,9 @@ class TidBITS(BasicNewsRecipe):
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
+    #auto_cleanup = True
     encoding              = 'utf-8'
-    use_embedded_content  = True
+    use_embedded_content  = False
     language              = 'en'
     remove_empty_feeds    = True
     masthead_url          = 'http://db.tidbits.com/images/tblogo9.gif'
@@ -30,9 +31,11 @@ class TidBITS(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    remove_attributes = ['width','height']
-    remove_tags       = [dict(name='small')]
-    remove_tags_after = dict(name='small')
+    #remove_attributes = ['width','height']
+    #remove_tags       = [dict(name='small')]
+    #remove_tags_after = dict(name='small')
+    keep_only_tags = [dict(name='div', attrs={'id':'center_ajax_sub'})]
+    remove_tags    = [dict(name='div', attrs={'id':'social-media'})]
 
     feeds = [
                (u'Business Apps'              , u'http://db.tidbits.com/feeds/business.rss'     )

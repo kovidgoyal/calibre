@@ -28,16 +28,6 @@
        <string>Main Interface</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_7">
-         <property name="text">
-          <string>Choose &amp;language (requires restart):</string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_language</cstring>
-         </property>
-        </widget>
-       </item>
        <item row="2" column="1">
         <widget class="QComboBox" name="opt_language">
          <property name="sizeAdjustPolicy">
@@ -54,6 +44,19 @@
           <string>Enable system &amp;tray icon (needs restart)</string>
          </property>
         </widget>
+       </item>
+       <item row="9" column="0">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="label_17">
@@ -105,54 +108,6 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox_2">
-         <property name="title">
-          <string>&amp;Toolbar</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_8">
-          <item row="0" column="1">
-           <widget class="QComboBox" name="opt_toolbar_icon_size"/>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>&amp;Icon size:</string>
-            </property>
-            <property name="buddy">
-             <cstring>opt_toolbar_icon_size</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="opt_toolbar_text"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_8">
-            <property name="text">
-             <string>Show &amp;text under icons:</string>
-            </property>
-            <property name="buddy">
-             <cstring>opt_toolbar_text</cstring>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="8" column="0">
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
        <item row="6" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
@@ -191,6 +146,51 @@
          </property>
         </widget>
        </item>
+       <item row="7" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>&amp;Toolbar</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_8">
+          <item row="0" column="1">
+           <widget class="QComboBox" name="opt_toolbar_icon_size"/>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>&amp;Icon size:</string>
+            </property>
+            <property name="buddy">
+             <cstring>opt_toolbar_icon_size</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="opt_toolbar_text"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Show &amp;text under icons:</string>
+            </property>
+            <property name="buddy">
+             <cstring>opt_toolbar_text</cstring>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Choose &amp;language (requires restart):</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_language</cstring>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="1">
         <widget class="QComboBox" name="opt_ui_style"/>
        </item>
@@ -198,6 +198,26 @@
         <widget class="QCheckBox" name="opt_book_list_tooltips">
          <property name="text">
           <string>Show &amp;tooltips in the book list</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Extra &amp;spacing to add between rows in the book list:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_extra_row_spacing</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QSpinBox" name="opt_extra_row_spacing">
+         <property name="specialValueText">
+          <string>None</string>
+         </property>
+         <property name="suffix">
+          <string> px</string>
          </property>
         </widget>
        </item>
@@ -309,11 +329,38 @@ Manage Authors. You can use the values {author} and
         </layout>
        </item>
        <item row="1" column="0" colspan="2">
-        <widget class="QCheckBox" name="opt_bd_show_cover">
-         <property name="text">
-          <string>Show &amp;cover in the book details panel</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="QCheckBox" name="opt_bd_show_cover">
+           <property name="text">
+            <string>Show &amp;cover in the book details panel</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="opt_bd_overlay_cover_size">
+           <property name="toolTip">
+            <string>Show the size of the book's cover in pixels</string>
+           </property>
+           <property name="text">
+            <string>Show cover &amp;size</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_bd1">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -469,10 +516,7 @@ a few top-level elements.</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QSpinBox" name="opt_cover_flow_queue_length"/>
-       </item>
-       <item row="4" column="0" colspan="2">
+       <item row="5" column="0" colspan="2">
         <spacer name="verticalSpacer_4">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -485,14 +529,17 @@ a few top-level elements.</string>
          </property>
         </spacer>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="opt_cover_flow_queue_length"/>
+       </item>
+       <item row="3" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_cb_fullscreen">
          <property name="text">
           <string>When showing cover browser in separate window, show it &amp;fullscreen</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
+       <item row="4" column="0" colspan="2">
         <widget class="QLabel" name="fs_help_msg">
          <property name="styleSheet">
           <string notr="true">margin-left: 1.5em</string>
@@ -502,6 +549,13 @@ a few top-level elements.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QCheckBox" name="opt_cover_browser_reflections">
+         <property name="text">
+          <string>Show &amp;reflections in the cover browser</string>
          </property>
         </widget>
        </item>

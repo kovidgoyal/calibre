@@ -532,6 +532,8 @@ class CustomColumns(object):
 
         if data['datatype'] == 'series' and extra is None:
             (val, extra) = self._get_series_values(val)
+            if extra is None:
+                extra = 1.0
 
         books_to_refresh = set([])
         if data['normalized']:

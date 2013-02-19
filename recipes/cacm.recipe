@@ -17,7 +17,7 @@ class AdvancedUserRecipe1286242553(BasicNewsRecipe):
     cover_url_pattern = 'http://cacm.acm.org/magazines/%d/%d'
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('https://cacm.acm.org/login')
             br.select_form(nr=1)

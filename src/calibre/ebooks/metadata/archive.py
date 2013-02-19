@@ -48,12 +48,13 @@ class ArchiveExtract(FileTypePlugin):
     def run(self, archive):
         is_rar = archive.lower().endswith('.rar')
         if is_rar:
-            from calibre.libunrar import extract_member, names
+            from calibre.utils.unrar import extract_member, names
         else:
             zf = ZipFile(archive, 'r')
 
         if is_rar:
-            fnames = names(archive)
+            with open(archive, 'rb') as rf:
+                fnames = list(names(rf))
         else:
             fnames = zf.namelist()
 
@@ -76,7 +77,8 @@ class ArchiveExtract(FileTypePlugin):
         of = self.temporary_file('_archive_extract.'+ext)
         with closing(of):
             if is_rar:
-                data = extract_member(archive, match=None, name=fname)[1]
+                with open(archive, 'rb') as f:
+                    data = extract_member(f, match=None, name=fname)[1]
                 of.write(data)
             else:
                 of.write(zf.read(fname))
@@ -108,21 +110,44 @@ def get_comic_book_info(d, mi):
                 authors.append(x)
     if authors:
         mi.authors = authors
+    comments = d.get('comments', '')
+    if comments and comments.strip():
+        mi.comments = comments.strip()
+    pubm, puby = d.get('publicationMonth', None), d.get('publicationYear', None)
+    if puby is not None:
+        from calibre.utils.date import parse_only_date
+        from datetime import date
+        try:
+            dt = date(puby, 6 if pubm is None else pubm, 15)
+            dt = parse_only_date(str(dt))
+            mi.pubdate = dt
+        except:
+            pass
 
-
-
-def get_cbz_metadata(stream):
+def get_comic_metadata(stream, stream_type):
     # See http://code.google.com/p/comicbookinfo/wiki/Example
-    from calibre.utils.zipfile import ZipFile
     from calibre.ebooks.metadata import MetaInformation
-    import json
 
-    zf = ZipFile(stream)
+    comment = None
+
     mi = MetaInformation(None, None)
-    if zf.comment:
-        m = json.loads(zf.comment)
-        if hasattr(m, 'keys'):
-            for cat in m.keys():
+
+    if stream_type == 'cbz':
+        from calibre.utils.zipfile import ZipFile
+        zf = ZipFile(stream)
+        comment = zf.comment
+    elif stream_type == 'cbr':
+        from calibre.utils.unrar import RARFile
+        f = RARFile(stream, get_comment=True)
+        comment = f.comment
+
+    if comment:
+        import json
+        m = json.loads(comment)
+        if hasattr(m, 'iterkeys'):
+            for cat in m.iterkeys():
                 if cat.startswith('ComicBookInfo'):
                     get_comic_book_info(m[cat], mi)
+                    break
     return mi
+

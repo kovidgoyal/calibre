@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 1 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, Tomasz Długosz <tomek3d@gmail.com>'
@@ -73,5 +74,5 @@ class RW2010Store(BasicStoreConfig, StorePlugin):
                 s.detail_item = re.sub(r'%3D', '=', id)
                 s.drm = SearchResult.DRM_UNLOCKED
                 s.formats = formats[0:-2].upper()
-                
+
                 yield s

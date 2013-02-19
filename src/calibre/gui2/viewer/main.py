@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import traceback, os, sys, functools, collections, textwrap
+import traceback, os, sys, functools, textwrap
 from functools import partial
 from threading import Thread
 
@@ -48,39 +48,57 @@ class Worker(Thread):
             self.exception = err
             self.traceback = traceback.format_exc()
 
-class History(collections.deque):
+class History(list):
 
     def __init__(self, action_back, action_forward):
         self.action_back = action_back
         self.action_forward = action_forward
-        collections.deque.__init__(self)
-        self.pos = 0
+        super(History, self).__init__(self)
+        self.insert_pos = 0
+        self.back_pos = None
+        self.forward_pos = None
         self.set_actions()
 
     def set_actions(self):
-        self.action_back.setDisabled(self.pos < 1)
-        self.action_forward.setDisabled(self.pos + 1 >= len(self))
+        self.action_back.setDisabled(self.back_pos is None)
+        self.action_forward.setDisabled(self.forward_pos is None)
 
     def back(self, from_pos):
-        if self.pos - 1 < 0: return None
-        if self.pos == len(self):
-            self.append([])
-        self[self.pos] = from_pos
-        self.pos -= 1
+        # Back clicked
+        if self.back_pos is None:
+            return None
+        item = self[self.back_pos]
+        self.forward_pos = self.back_pos+1
+        if self.forward_pos >= len(self):
+            self.append(from_pos)
+            self.forward_pos = len(self) - 1
+        self.insert_pos = self.forward_pos
+        self.back_pos = None if self.back_pos == 0 else self.back_pos - 1
         self.set_actions()
-        return self[self.pos]
+        return item
 
-    def forward(self):
-        if self.pos + 1 >= len(self): return None
-        self.pos += 1
+    def forward(self, from_pos):
+        if self.forward_pos is None:
+            return None
+        item = self[self.forward_pos]
+        self.back_pos = self.forward_pos - 1
+        if self.back_pos < 0: self.back_pos = None
+        self.insert_pos = self.back_pos or 0
+        self.forward_pos = None if self.forward_pos > len(self) - 2 else self.forward_pos + 1
         self.set_actions()
-        return self[self.pos]
+        return item
 
     def add(self, item):
-        while len(self) > self.pos+1:
-            self.pop()
-        self.append(item)
-        self.pos += 1
+        self[self.insert_pos:] = []
+        while self.insert_pos > 0 and self[self.insert_pos-1] == item:
+            self.insert_pos -= 1
+            self[self.insert_pos:] = []
+        self.insert(self.insert_pos, item)
+        # The next back must go to item
+        self.back_pos = self.insert_pos
+        self.insert_pos += 1
+        # There can be no forward
+        self.forward_pos = None
         self.set_actions()
 
 class Metadata(QLabel):
@@ -236,6 +254,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_copy.triggered[bool].connect(self.copy)
         self.action_font_size_larger.triggered.connect(self.font_size_larger)
         self.action_font_size_smaller.triggered.connect(self.font_size_smaller)
+        self.action_font_size_larger.setShortcut(Qt.CTRL+Qt.Key_Equal)
+        self.action_font_size_smaller.setShortcut(Qt.CTRL+Qt.Key_Minus)
         self.action_open_ebook.triggered[bool].connect(self.open_ebook)
         self.action_next_page.triggered.connect(self.view.next_page)
         self.action_previous_page.triggered.connect(self.view.previous_page)
@@ -303,6 +323,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.toggle_toolbar_action = QAction(_('Show/hide controls'), self)
         self.toggle_toolbar_action.setCheckable(True)
         self.toggle_toolbar_action.triggered.connect(self.toggle_toolbars)
+        self.toolbar_hidden = None
         self.addAction(self.toggle_toolbar_action)
         self.full_screen_label_anim = QPropertyAnimation(
                 self.full_screen_label, 'size')
@@ -359,7 +380,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 # continue to function even when the toolbars are hidden
                 self.addAction(action)
 
+        self.view.document.settings_changed.connect(self.settings_changed)
+
         self.restore_state()
+        self.settings_changed()
         self.action_toggle_paged_mode.toggled[bool].connect(self.toggle_paged_mode)
         if (start_in_fullscreen or self.view.document.start_in_fullscreen):
             self.action_full_screen.trigger()
@@ -372,6 +396,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 self.PAGED_MODE_TT)
         if at_start: return
         self.reload()
+
+    def settings_changed(self):
+        for x in ('', '2'):
+            x = getattr(self, 'tool_bar'+x)
+            x.setVisible(self.view.document.show_controls)
 
     def reload(self):
         if hasattr(self, 'current_index') and self.current_index > -1:
@@ -575,8 +604,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.vertical_scrollbar.setVisible(True)
         self.window_mode_changed = 'normal'
         self.esc_full_screen_action.setEnabled(False)
-        self.tool_bar.setVisible(True)
-        self.tool_bar2.setVisible(True)
+        self.settings_changed()
         self.full_screen_label.setVisible(False)
         if hasattr(self, '_original_frame_margins'):
             om = self._original_frame_margins
@@ -655,7 +683,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.goto_page(num)
 
     def forward(self, x):
-        pos = self.history.forward()
+        pos = self.history.forward(self.pos.value())
         if pos is not None:
             self.goto_page(pos)
 
@@ -697,11 +725,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view.shrink_fonts()
 
     def magnification_changed(self, val):
-        tt = _('Make font size %(which)s\nCurrent magnification: %(mag).1f')
+        tt = _('%(which)s font size [%(sc)s]\nCurrent magnification: %(mag).1f')
+        sc = unicode(self.action_font_size_larger.shortcut().toString())
         self.action_font_size_larger.setToolTip(
-                tt %dict(which=_('larger'), mag=val))
+                tt %dict(which=_('Increase'), mag=val, sc=sc))
+        sc = unicode(self.action_font_size_smaller.shortcut().toString())
         self.action_font_size_smaller.setToolTip(
-                tt %dict(which=_('smaller'), mag=val))
+                tt %dict(which=_('Decrease'), mag=val, sc=sc))
         self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
         self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
 
@@ -758,7 +788,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                     self.view.scroll_to(frag)
                 else:
                     # Scroll to top
-                    self.view.scroll_to('#')
+                    self.view.scroll_to(0)
                 if self.view.document.ypos == oldpos:
                     # If we are coming from goto_next_section() call this will
                     # cause another goto next section call with the next toc

@@ -21,7 +21,7 @@ class insider(BasicNewsRecipe):
     needs_subscription = True
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.open('http://www.denikinsider.cz/')
         br.select_form(nr=0)
         br['login-name'] = self.username

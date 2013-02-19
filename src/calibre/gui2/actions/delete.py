@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 from collections import Counter
 
-from PyQt4.Qt import QObject, QTimer
+from PyQt4.Qt import QObject, QTimer, QModelIndex
 
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.dialogs.delete_matching_from_device import DeleteMatchingFromDeviceDialog
@@ -285,6 +285,8 @@ class DeleteAction(InterfaceAction):
                 # Current row is after the last row, set it to the last row
                 current_row = view.row_count() - 1
             view.set_current_row(current_row)
+        if view.model().rowCount(QModelIndex()) < 1:
+            self.gui.book_details.reset_info()
 
     def library_ids_deleted2(self, ids_deleted, next_id=None):
         view = self.gui.library_view

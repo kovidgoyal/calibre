@@ -249,6 +249,30 @@ def _write_new_cover(new_cdata, cpath):
     save_cover_data_to(new_cdata, new_cover.name)
     return new_cover
 
+def update_metadata(opf, mi, apply_null=False, update_timestamp=False):
+    for x in ('guide', 'toc', 'manifest', 'spine'):
+        setattr(mi, x, None)
+    if mi.languages:
+        langs = []
+        for lc in mi.languages:
+            lc2 = lang_as_iso639_1(lc)
+            if lc2: lc = lc2
+            langs.append(lc)
+        mi.languages = langs
+
+    opf.smart_update(mi)
+    if getattr(mi, 'uuid', None):
+        opf.application_id = mi.uuid
+    if apply_null:
+        if not getattr(mi, 'series', None):
+            opf.series = None
+        if not getattr(mi, 'tags', []):
+            opf.tags = []
+        if not getattr(mi, 'isbn', None):
+            opf.isbn = None
+    if update_timestamp and mi.timestamp is not None:
+        opf.timestamp = mi.timestamp
+
 def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
     stream.seek(0)
     reader = get_zip_reader(stream, root=os.getcwdu())
@@ -279,27 +303,8 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
             import traceback
             traceback.print_exc()
 
-    for x in ('guide', 'toc', 'manifest', 'spine'):
-        setattr(mi, x, None)
-    if mi.languages:
-        langs = []
-        for lc in mi.languages:
-            lc2 = lang_as_iso639_1(lc)
-            if lc2: lc = lc2
-            langs.append(lc)
-        mi.languages = langs
-
-
-    reader.opf.smart_update(mi)
-    if apply_null:
-        if not getattr(mi, 'series', None):
-            reader.opf.series = None
-        if not getattr(mi, 'tags', []):
-            reader.opf.tags = []
-        if not getattr(mi, 'isbn', None):
-            reader.opf.isbn = None
-    if update_timestamp and mi.timestamp is not None:
-        reader.opf.timestamp = mi.timestamp
+    update_metadata(reader.opf, mi, apply_null=apply_null,
+                    update_timestamp=update_timestamp)
 
     newopf = StringIO(reader.opf.render())
     if isinstance(reader.archive, LocalZipFile):

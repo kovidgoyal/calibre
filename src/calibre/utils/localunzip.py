@@ -24,6 +24,7 @@ HEADER_BYTE_SIG = pack(b'<L', HEADER_SIG)
 local_header_fmt = b'<L5HL2L2H'
 local_header_sz = calcsize(local_header_fmt)
 ZIP_STORED, ZIP_DEFLATED = 0, 8
+DATA_DESCRIPTOR_SIG = pack(b'<L', 0x08074b50)
 
 LocalHeader = namedtuple('LocalHeader',
         'signature min_version flags compression_method mod_time mod_date '
@@ -61,6 +62,27 @@ def find_local_header(f):
         return header
     f.seek(pos)
 
+def find_data_descriptor(f):
+    pos = f.tell()
+    DD = namedtuple('DataDescriptor', 'crc32 compressed_size uncompressed_size')
+    raw = b'a'*16
+    try:
+        while len(raw) >= 16:
+            raw = f.read(50*1024)
+            idx = raw.find(DATA_DESCRIPTOR_SIG)
+            if idx != -1:
+                f.seek(f.tell() - len(raw) + idx + len(DATA_DESCRIPTOR_SIG))
+                return DD(*unpack(b'<LLL', f.read(12)))
+            # Rewind to handle the case of the signature being cut off
+            # by the 50K boundary
+            f.seek(f.tell()-len(DATA_DESCRIPTOR_SIG))
+
+        raise ValueError('Failed to find data descriptor signature. '
+                         'Data descriptors without signatures are not '
+                         'supported.')
+    finally:
+        f.seek(pos)
+
 def read_local_file_header(f):
     pos = f.tell()
     raw = f.read(local_header_sz)
@@ -77,12 +99,11 @@ def read_local_file_header(f):
         raise ValueError('This ZIP file uses unsupported features')
     if header.flags & 0b1:
         raise ValueError('This ZIP file is encrypted')
-    if header.flags & (1 << 3):
-        raise ValueError('This ZIP file uses data descriptors. This is unsupported')
     if header.flags & (1 << 13):
         raise ValueError('This ZIP file uses masking, unsupported.')
     if header.compression_method not in {ZIP_STORED, ZIP_DEFLATED}:
         raise ValueError('This ZIP file uses an unsupported compression method')
+    has_data_descriptors = header.flags & (1 << 3)
     fname = extra = None
     if header.filename_length > 0:
         fname = f.read(header.filename_length)
@@ -97,10 +118,16 @@ def read_local_file_header(f):
                 except UnicodeDecodeError:
                     pass
         fname = decode_arcname(fname).replace('\\', '/')
+
     if header.extra_length > 0:
         extra = f.read(header.extra_length)
         if len(extra) != header.extra_length:
             return
+    if has_data_descriptors:
+        desc = find_data_descriptor(f)
+        header = header._replace(crc32=desc.crc32,
+                                 compressed_size=desc.compressed_size,
+                                 uncompressed_size=desc.uncompressed_size)
     return LocalHeader(*(
         header[:-2] + (fname, extra)
         ))
@@ -125,6 +152,8 @@ def copy_compressed_file(src, size, dest):
     amt = min(size, 20*1024)
     while read < size:
         raw = src.read(min(size-read, amt))
+        if not raw and read < size:
+            raise ValueError('Invalid ZIP file, local header is damaged')
         read += len(raw)
         dest.write(d.decompress(raw, 200*1024))
         count = 0
@@ -142,11 +171,13 @@ def _extractall(f, path=None, file_info=None):
         header = read_local_file_header(f)
         if not header:
             break
+        has_data_descriptors = header.flags & (1 << 3)
+        seekval = header.compressed_size + (16 if has_data_descriptors else 0)
         found = True
         parts = header.filename.split('/')
         if header.uncompressed_size == 0:
             # Directory
-            f.seek(f.tell() + header.compressed_size)
+            f.seek(f.tell()+seekval)
             if path is not None:
                 bdir = os.path.join(path, *parts)
                 if not os.path.exists(bdir):
@@ -167,7 +198,7 @@ def _extractall(f, path=None, file_info=None):
                 else:
                     copy_compressed_file(f, header.compressed_size, o)
         else:
-            f.seek(f.tell() + header.compressed_size)
+            f.seek(f.tell()+seekval)
 
     if not found:
         raise ValueError('Not a ZIP file')

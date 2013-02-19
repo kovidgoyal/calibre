@@ -29,6 +29,10 @@ class PagedDisplay
         this.current_page_height = null
         this.document_margins = null
         this.use_document_margins = false
+        this.footer_template = null
+        this.header_template = null
+        this.header = null
+        this.footer = null
 
     read_document_margins: () ->
         # Read page margins from the document. First checks for an @page rule.
@@ -102,6 +106,7 @@ class PagedDisplay
             # than max_col_width
             sm += Math.ceil( (col_width - this.max_col_width) / 2*n )
             col_width = Math.max(100, ((ww - adjust)/n) - 2*sm)
+        this.col_width = col_width
         this.page_width = col_width + 2*sm
         this.screen_width = this.page_width * this.cols_per_screen
         this.current_page_height = window.innerHeight - this.margin_top - this.margin_bottom
@@ -116,6 +121,18 @@ class PagedDisplay
         # above the columns, which causes them to effectively be added to the
         # page margins (the margin collapse algorithm)
         bs.setProperty('-webkit-margin-collapse', 'separate')
+        # Remove any webkit specified default margin from the first child of body
+        # Otherwise, you could end up with an effective negative margin, I dont
+        # understand exactly why, but see:
+        # https://bugs.launchpad.net/calibre/+bug/1082640 for an example
+        c = document.body.firstChild
+        count = 0
+        while c?.nodeType != 1 and count < 20
+            c = c?.nextSibling
+            count += 1
+        if c?.nodeType == 1
+            c.style.setProperty('-webkit-margin-before', '0')
+
 
         bs.setProperty('overflow', 'visible')
         bs.setProperty('height', (window.innerHeight - this.margin_top - this.margin_bottom) + 'px')
@@ -158,6 +175,30 @@ class PagedDisplay
         this.current_margin_side = sm
         # log('Time to layout:', new Date().getTime() - start_time)
         return sm
+
+    create_header_footer: () ->
+        if this.header_template != null
+            this.header = document.createElement('div')
+            this.header.setAttribute('style', "overflow:hidden; display:block; position:absolute; left:#{ this.side_margin }px; top: 0px; height: #{ this.margin_top }px; width: #{ this.col_width }px; margin: 0; padding: 0")
+            document.body.appendChild(this.header)
+        if this.footer_template != null
+            this.footer = document.createElement('div')
+            this.footer.setAttribute('style', "overflow:hidden; display:block; position:absolute; left:#{ this.side_margin }px; top: #{ window.innerHeight - this.margin_bottom }px; height: #{ this.margin_bottom }px; width: #{ this.col_width }px; margin: 0; padding: 0")
+            document.body.appendChild(this.footer)
+        this.update_header_footer(1)
+
+    position_header_footer: () ->
+        [left, top] = calibre_utils.viewport_to_document(0, 0, document.body.ownerDocument)
+        if this.header != null
+            this.header.style.setProperty('left', left+'px')
+        if this.footer != null
+            this.footer.style.setProperty('left', left+'px')
+
+    update_header_footer: (pagenum) ->
+        if this.header != null
+            this.header.innerHTML = this.header_template.replace(/_PAGENUM_/g, pagenum+"")
+        if this.footer != null
+            this.footer.innerHTML = this.footer_template.replace(/_PAGENUM_/g, pagenum+"")
 
     fit_images: () ->
         # Ensure no images are wider than the available width in a column. Note
@@ -229,6 +270,18 @@ class PagedDisplay
     column_at: (xpos) ->
         # Return the number of the column that contains xpos
         return Math.floor(xpos/this.page_width)
+
+    column_location: (elem) ->
+        # Return the location of elem relative to its containing column
+        br = elem.getBoundingClientRect()
+        [left, top] = calibre_utils.viewport_to_document(br.left, br.top, elem.ownerDocument)
+        c = this.column_at(left)
+        width = Math.min(br.right, (c+1)*this.page_width) - br.left
+        if br.bottom < br.top
+            br.bottom = window.innerHeight
+        height = Math.min(br.bottom, window.innerHeight) - br.top
+        left -= c*this.page_width
+        return {'column':c, 'left':left, 'top':top, 'width':width, 'height':height}
 
     column_boundaries: () ->
         # Return the column numbers at the left edge and after the right edge

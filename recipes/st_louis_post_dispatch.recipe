@@ -7,12 +7,16 @@ class AdvancedUserRecipe1282093204(BasicNewsRecipe):
 
     oldest_article = 1
     max_articles_per_feed = 15
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
     masthead_url = 'http://farm5.static.flickr.com/4118/4929686950_0e22e2c88a.jpg'
 
     feeds          = [
          (u'News-Bill McClellan', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Flocal%2fcolumns%2Fbill-mclellan&f=rss&t=article'),
          (u'News-Columns', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Flocal%2Fcolumns*&l=50&f=rss&t=article'),
-         (u'News-Crime & Courtshttp://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Flocal%2Fcrime-and-courts&l=50&f=rss&t=article'),
+         (u'News-Crime & Courts', 'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Flocal%2Fcrime-and-courts&l=50&f=rss&t=article'),
          (u'News-Deb Peterson', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Flocal%2fcolumns%2Fdeb-peterson&f=rss&t=article'),
          (u'News-Education', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Flocal%2feducation&f=rss&t=article'),
          (u'News-Government & Politics', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=news%2Flocal%2fgovt-and-politics&f=rss&t=article'),
@@ -62,9 +66,9 @@ class AdvancedUserRecipe1282093204(BasicNewsRecipe):
          (u'Entertainment-House-O-Fun', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=entertainment%2Fhouse-o-fun&l=100&f=rss&t=article'),
          (u'Entertainment-Kevin C. Johnson', u'http://www2.stltoday.com/search/?q=&d1=&d2=&s=start_time&sd=desc&c=entertainment%2Fmusic%2Fkevin-johnson&l=100&f=rss&t=article')
          ]
-    remove_empty_feeds = True
-    remove_tags = [dict(name='div', attrs={'id':'blox-logo'}),dict(name='a')]
-    keep_only_tags = [dict(name='h1'), dict(name='p', attrs={'class':'byline'}), dict(name="div", attrs={'id':'blox-story-text'})]
+    #remove_empty_feeds = True
+    #remove_tags = [dict(name='div', attrs={'id':'blox-logo'}),dict(name='a')]
+    #keep_only_tags = [dict(name='h1'), dict(name='p', attrs={'class':'byline'}), dict(name="div", attrs={'id':'blox-story-text'})]
     extra_css = 'p {text-align: left;}'
 
 

@@ -13,6 +13,7 @@ from calibre.utils.date import parse_date
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.metadata import MetaInformation, check_isbn
 from calibre.ebooks.mobi.langcodes import main_language, sub_language, mobi2iana
+from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.localization import canonicalize_lang
 
 NULL_INDEX = 0xffffffff
@@ -30,6 +31,8 @@ class EXTHHeader(object): # {{{
         left = self.num_items
         self.kf8_header = None
         self.uuid = self.cdetype = None
+
+        self.decode = lambda x : clean_ascii_chars(x.decode(codec, 'replace'))
 
         while left > 0:
             left -= 1
@@ -66,7 +69,7 @@ class EXTHHeader(object): # {{{
                 # title contains non ASCII chars or non filename safe chars
                 # they are messed up in the PDB header
                 try:
-                    title = content.decode(codec)
+                    title = self.decode(content)
                 except:
                     pass
             elif idx == 524: # Lang code
@@ -80,31 +83,30 @@ class EXTHHeader(object): # {{{
             #else:
             #    print 'unknown record', idx, repr(content)
         if title:
-            self.mi.title = replace_entities(title)
+            self.mi.title = replace_entities(clean_ascii_chars(title))
 
     def process_metadata(self, idx, content, codec):
         if idx == 100:
             if self.mi.is_null('authors'):
                 self.mi.authors = []
-            au = content.decode(codec, 'ignore').strip()
+            au = self.decode(content).strip()
             self.mi.authors.append(au)
             if self.mi.is_null('author_sort') and re.match(r'\S+?\s*,\s+\S+', au.strip()):
                 self.mi.author_sort = au.strip()
         elif idx == 101:
-            self.mi.publisher = content.decode(codec, 'ignore').strip()
+            self.mi.publisher = self.decode(content).strip()
             if self.mi.publisher in {'Unknown', _('Unknown')}:
                 self.mi.publisher = None
         elif idx == 103:
-            self.mi.comments  = content.decode(codec, 'ignore')
+            self.mi.comments  = self.decode(content).strip()
         elif idx == 104:
-            raw = check_isbn(content.decode(codec, 'ignore').strip().replace('-', ''))
+            raw = check_isbn(self.decode(content).strip().replace('-', ''))
             if raw:
                 self.mi.isbn = raw
         elif idx == 105:
             if not self.mi.tags:
                 self.mi.tags = []
-            self.mi.tags.extend([x.strip() for x in content.decode(codec,
-                'ignore').split(';')])
+            self.mi.tags.extend([x.strip() for x in self.decode(content).split(';')])
             self.mi.tags = list(set(self.mi.tags))
         elif idx == 106:
             try:
@@ -112,7 +114,7 @@ class EXTHHeader(object): # {{{
             except:
                 pass
         elif idx == 108:
-            self.mi.book_producer = content.decode(codec, 'ignore').strip()
+            self.mi.book_producer = self.decode(content).strip()
         elif idx == 112: # dc:source set in some EBSP amazon samples
             try:
                 content = content.decode(codec).strip()
@@ -121,11 +123,18 @@ class EXTHHeader(object): # {{{
                     raw = check_isbn(content[len(isig):])
                     if raw and not self.mi.isbn:
                         self.mi.isbn = raw
+                elif content.startswith('calibre:'):
+                    # calibre book uuid is stored here by recent calibre
+                    # releases
+                    cid = content[len('calibre:'):]
+                    if cid:
+                        self.mi.application_id = self.mi.uuid = cid
             except:
                 pass
         elif idx == 113: # ASIN or other id
             try:
                 self.uuid = content.decode('ascii')
+                self.mi.set_identifier('mobi-asin', self.uuid)
             except:
                 self.uuid = None
         elif idx == 116:

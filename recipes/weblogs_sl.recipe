@@ -2,8 +2,8 @@
 __license__     = 'GPL v3'
 __copyright__   = '4 February 2011, desUBIKado'
 __author__      = 'desUBIKado'
-__version__     = 'v0.08'
-__date__        = '30, June 2012'
+__version__     = 'v0.09'
+__date__        = '02, December 2012'
 '''
 http://www.weblogssl.com/
 '''
@@ -37,6 +37,7 @@ class weblogssl(BasicNewsRecipe):
                           ,(u'Xataka Mexico', u'http://feeds.weblogssl.com/xatakamx')
                           ,(u'Xataka M\xf3vil', u'http://feeds.weblogssl.com/xatakamovil')
                           ,(u'Xataka Android', u'http://feeds.weblogssl.com/xatakandroid')
+                          ,(u'Xataka Windows', u'http://feeds.weblogssl.com/xatakawindows')
                           ,(u'Xataka Foto', u'http://feeds.weblogssl.com/xatakafoto')
                           ,(u'Xataka ON', u'http://feeds.weblogssl.com/xatakaon')
                           ,(u'Xataka Ciencia', u'http://feeds.weblogssl.com/xatakaciencia')
@@ -80,18 +81,30 @@ class weblogssl(BasicNewsRecipe):
 
     keep_only_tags     = [dict(name='div', attrs={'id':'infoblock'}),
                           dict(name='div', attrs={'class':'post'}),
-                          dict(name='div', attrs={'id':'blog-comments'})
+                          dict(name='div', attrs={'id':'blog-comments'}),
+                          dict(name='div', attrs={'class':'container'})   #m.xataka.com
                          ]
 
-    remove_tags        = [dict(name='div', attrs={'id':'comment-nav'})]
+    remove_tags        = [dict(name='div', attrs={'id':'comment-nav'}),
+                          dict(name='menu', attrs={'class':'social-sharing'}),    #m.xataka.com
+                          dict(name='section' , attrs={'class':'comments'}),      #m.xataka.com
+                          dict(name='div' , attrs={'class':'article-comments'}),  #m.xataka.com
+                          dict(name='nav' , attrs={'class':'article-taxonomy'})   #m.xataka.com
+			 ]
+
+    remove_tags_after  = dict(name='section' , attrs={'class':'comments'})
 
     def print_version(self, url):
           return url.replace('http://www.', 'http://m.')
 
     preprocess_regexps = [
                             # Para poner una linea en blanco entre un comentario y el siguiente
-                           (re.compile(r'<li id="c', re.DOTALL|re.IGNORECASE), lambda match: '<br><br><li id="c')
+                           (re.compile(r'<li id="c', re.DOTALL|re.IGNORECASE), lambda match: '<br><br><li id="c'),
+                            # Para ver las imágenes en las noticias de m.xataka.com
+                           (re.compile(r'<noscript>', re.DOTALL|re.IGNORECASE), lambda m: ''),
+                           (re.compile(r'</noscript>', re.DOTALL|re.IGNORECASE), lambda m: '')
                          ]
+
 
     # Para sustituir el video incrustado de YouTube por una imagen
 
@@ -108,14 +121,16 @@ class weblogssl(BasicNewsRecipe):
 
     # Para obtener la url original del articulo a partir de la de "feedsportal"
     # El siguiente código es gracias al usuario "bosplans" de www.mobileread.com
-    # http://www.mobileread.com/forums/sho...d.php?t=130297
+    # http://www.mobileread.com/forums/showthread.php?t=130297
 
     def get_article_url(self, article):
        link = article.get('link', None)
        if link is None:
            return article
+       # if link.split('/')[-4]=="xataka2":
+       #     return article.get('feedburner_origlink', article.get('link', article.get('guid')))
        if link.split('/')[-4]=="xataka2":
-           return article.get('feedburner_origlink', article.get('link', article.get('guid')))
+           return article.get('guid', None)
        if link.split('/')[-1]=="story01.htm":
            link=link.split('/')[-2]
            a=['0B','0C','0D','0E','0F','0G','0N'  ,'0L0S','0A']

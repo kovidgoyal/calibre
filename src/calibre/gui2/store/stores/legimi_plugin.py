@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 2 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2013, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -24,7 +25,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class LegimiStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        
+
         plain_url = 'http://www.legimi.com/pl/ebooki/'
         url = 'https://ssl.afiliant.com/affskrypt,,2f9de2,,11483,,,?u=(' + plain_url + ')'
         detail_url = None
@@ -42,17 +43,17 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.legimi.com/pl/ebooki/?szukaj=' + urllib.quote_plus(query)
-        
+
         br = browser()
         drm_pattern = re.compile("zabezpieczona DRM")
-        
+
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
             for data in doc.xpath('//div[@id="listBooks"]/div'):
                 if counter <= 0:
                     break
-                
+
                 id = ''.join(data.xpath('.//a[@class="plainLink"]/@href'))
                 if not id:
                     continue
@@ -60,8 +61,6 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
                 cover_url = ''.join(data.xpath('.//img[1]/@src'))
                 title = ''.join(data.xpath('.//span[@class="bookListTitle ellipsis"]/text()'))
                 author = ''.join(data.xpath('.//span[@class="bookListAuthor ellipsis"]/text()'))
-                author = re.sub(',','',author)
-                author = re.sub(';',',',author)
                 price = ''.join(data.xpath('.//div[@class="bookListPrice"]/span/text()'))
                 formats = []
                 with closing(br.open(id.strip(), timeout=timeout/4)) as nf:
@@ -73,7 +72,7 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
                     drm = drm_pattern.search(''.join(idata.xpath('.//div[@id="fullBookFormats"]/p/text()')))
 
                 counter -= 1
-                
+
                 s = SearchResult()
                 s.cover_url = 'http://www.legimi.com/' + cover_url
                 s.title = title.strip()
@@ -82,5 +81,5 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
                 s.detail_item = 'http://www.legimi.com/' + id.strip()
                 s.formats = ', '.join(formats)
                 s.drm = SearchResult.DRM_LOCKED if drm else SearchResult.DRM_UNLOCKED
-                
+
                 yield s

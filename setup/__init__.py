@@ -215,6 +215,8 @@ class Command(object):
         sys.stdout.flush()
 
 def installer_name(ext, is64bit=False):
+    if is64bit and ext == 'msi':
+        return 'dist/%s-64bit-%s.msi'%(__appname__, __version__)
     if ext in ('exe', 'msi'):
         return 'dist/%s-%s.%s'%(__appname__, __version__, ext)
     if ext == 'dmg':

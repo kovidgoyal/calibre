@@ -12,10 +12,10 @@ class Chronicle(BasicNewsRecipe):
     category = 'news'
     encoding = 'UTF-8'
     keep_only_tags = [
-            dict(name='div', attrs={'class':'article'}),
+            dict(name='div', attrs={'class':['article','blog-mod']}),
             ]
-    remove_tags = [dict(name='div',attrs={'class':['related module1','maintitle']}),
-            dict(name='div', attrs={'id':['section-nav','icon-row', 'enlarge-popup']}),
+    remove_tags = [dict(name='div',attrs={'class':['related module1','maintitle','entry-utility','object-meta']}),
+            dict(name='div', attrs={'id':['section-nav','icon-row', 'enlarge-popup','confirm-popup']}),
             dict(name='a', attrs={'class':'show-enlarge enlarge'})]
     no_javascript = True
     no_stylesheets = True
@@ -23,7 +23,7 @@ class Chronicle(BasicNewsRecipe):
 
     needs_subscription = True
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('http://chronicle.com/myaccount/login')
             br.select_form(nr=1)

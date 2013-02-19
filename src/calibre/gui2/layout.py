@@ -201,6 +201,7 @@ class SearchBar(QWidget): # {{{
         x.setObjectName("search")
         x.setToolTip(_("<p>Search the list of books by title, author, publisher, "
                        "tags, comments, etc.<br><br>Words separated by spaces are ANDed"))
+        x.setMinimumContentsLength(10)
         l.addWidget(x)
 
         self.search_button = QToolButton()
@@ -225,7 +226,7 @@ class SearchBar(QWidget): # {{{
 
         x = parent.saved_search = SavedSearchBox(self)
         x.setMaximumSize(QSize(150, 16777215))
-        x.setMinimumContentsLength(15)
+        x.setMinimumContentsLength(10)
         x.setObjectName("saved_search")
         l.addWidget(x)
 

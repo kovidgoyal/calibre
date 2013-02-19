@@ -11,6 +11,8 @@ __docformat__ = 'restructuredtext en'
 import binascii, re, json
 from textwrap import dedent
 
+color_row_key = '*row'
+
 class Rule(object): # {{{
 
     SIGNATURE = '# BasicColorRule():'
@@ -131,13 +133,37 @@ class Rule(object): # {{{
         return "cmp(field('%s'), %s, '%s', '%s', '%s')" % (col, val, lt, eq, gt)
 
     def date_condition(self, col, action, val):
+        if action == 'count_days':
+            return (("test(field('%s'), cmp(%s, "
+                            "days_between(format_date(today(), 'yyyy-MM-dd'),"
+                            "format_date(raw_field('%s'), 'yyyy-MM-dd')), '', '1', '1'), '')")
+                     %(col, val, col))
+        if action == 'older count days':
+            return (("test(field('%s'), cmp(%s, "
+                            "days_between(format_date(today(), 'yyyy-MM-dd'),"
+                            "format_date(raw_field('%s'), 'yyyy-MM-dd')), '1', '', ''), '')")
+                     %(col, val, col))
+        if action == 'older future days':
+            return (("test(field('%s'), cmp(%s, "
+                            "days_between(format_date(raw_field('%s'), 'yyyy-MM-dd'), "
+                            "format_date(today(), 'yyyy-MM-dd')), '', '1', '1'), '')")
+                     %(col, val, col))
+        if action == 'newer future days':
+            return (("test(field('%s'), cmp(%s, "
+                            "days_between(format_date(raw_field('%s'), 'yyyy-MM-dd'), "
+                            "format_date(today(), 'yyyy-MM-dd')), '1', '', ''), '')")
+                     %(col, val, col))
+        if action == 'is set':
+            return (("test(field('%s'), '1', '')"%(col)))
+        if action == 'is not set':
+            return (("test(field('%s'), '', '1')"%(col)))
         lt, eq, gt = {
                 'eq': ('', '1', ''),
                 'lt': ('1', '', ''),
                 'gt': ('', '', '1')
         }[action]
-        return "strcmp(format_date(raw_field('%s'), 'yyyy-MM-dd'), '%s', '%s', '%s', '%s')" % (col,
-                val, lt, eq, gt)
+        return ("strcmp(format_date(raw_field('%s'), 'yyyy-MM-dd'), '%s', '%s', '%s', '%s')" %
+            (col, val, lt, eq, gt))
 
     def multiple_condition(self, col, action, val, sep):
         if not sep or sep == '|':
@@ -205,6 +231,7 @@ def conditionable_columns(fm):
                 yield key
 
 def displayable_columns(fm):
+    yield color_row_key
     for key in fm.displayable_field_keys():
         if key not in ('sort', 'author_sort', 'comments', 'formats',
                 'identifiers', 'path'):

@@ -39,7 +39,7 @@ PDFDoc_load(PDFDoc *self, PyObject *args) {
 
     if (PyArg_ParseTuple(args, "s#", &buffer, &size)) {
         try {
-            self->doc->Load(buffer, size);
+            self->doc->Load(buffer, (long)size);
         } catch(const PdfError & err) {
             podofo_set_exception(err);
             return NULL;

@@ -8,11 +8,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback, cPickle, copy
+import traceback, cPickle, copy, os
 
 from PyQt4.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
         QMimeData, QModelIndex, pyqtSignal, QObject)
 
+from calibre.constants import config_dir
 from calibre.gui2 import NONE, gprefs, config, error_dialog
 from calibre.library.database2 import Tag
 from calibre.utils.config import tweaks
@@ -187,12 +188,14 @@ class TagTreeItem(object): # {{{
 
     def child_tags(self):
         res = []
-        def recurse(nodes, res):
+        def recurse(nodes, res, depth):
+            if depth > 100:
+                return
             for t in nodes:
                 if t.type != TagTreeItem.CATEGORY:
                     res.append(t)
-                recurse(t.children, res)
-        recurse(self.children, res)
+                recurse(t.children, res, depth+1)
+        recurse(self.children, res, 1)
         return res
     # }}}
 
@@ -213,6 +216,11 @@ class TagsModel(QAbstractItemModel): # {{{
         for key in category_icon_map:
             iconmap[key] = QIcon(I(category_icon_map[key]))
         self.category_icon_map = TagsIcons(iconmap)
+        self.category_custom_icons = dict()
+        for k, v in gprefs['tags_browser_category_icons'].iteritems():
+            icon = QIcon(os.path.join(config_dir, 'tb_icons', v))
+            if len(icon.availableSizes()) > 0:
+                self.category_custom_icons[k] = icon
         self.categories_with_ratings = ['authors', 'series', 'publisher', 'tags']
         self.icon_state_map = [None, QIcon(I('plus.png')), QIcon(I('plusplus.png')),
                              QIcon(I('minus.png')), QIcon(I('minusminus.png'))]
@@ -230,6 +238,23 @@ class TagsModel(QAbstractItemModel): # {{{
     @property
     def gui_parent(self):
         return QObject.parent(self)
+
+    def set_custom_category_icon(self, key, path):
+        d = gprefs['tags_browser_category_icons']
+        if path:
+            d[key] = path
+            self.category_custom_icons[key] = QIcon(os.path.join(config_dir,
+                                                            'tb_icons', path))
+        else:
+            if key in d:
+                path = os.path.join(config_dir, 'tb_icons', d[key])
+                try:
+                    os.remove(path)
+                except:
+                    pass
+            del d[key]
+            del self.category_custom_icons[key]
+        gprefs['tags_browser_category_icons'] = d
 
     def reread_collapse_model(self, state_map, rebuild=True):
         if gprefs['tags_browser_collapse_at'] == 0:
@@ -304,12 +329,17 @@ class TagsModel(QAbstractItemModel): # {{{
                     continue
             is_gst = False
             if key.startswith('@') and key[1:] in gst:
-                tt = _(u'The grouped search term name is "{0}"').format(key[1:])
+                tt = _(u'The grouped search term name is "{0}"').format(key)
                 is_gst = True
             elif key == 'news':
                 tt = ''
             else:
                 tt = _(u'The lookup/search name is "{0}"').format(key)
+
+            if self.category_custom_icons.get(key, None) is None:
+                self.category_custom_icons[key] = (
+                    self.category_icon_map['gst'] if is_gst else
+                    self.category_icon_map.get(key, self.category_icon_map['custom:']))
 
             if key.startswith('@'):
                 path_parts = [p for p in key.split('.')]
@@ -319,14 +349,12 @@ class TagsModel(QAbstractItemModel): # {{{
                 for i,p in enumerate(path_parts):
                     path += p
                     if path not in category_node_map:
-                        icon = self.category_icon_map['gst'] if is_gst else \
-                                                    self.category_icon_map[key]
                         node = self.create_node(parent=last_category_node,
-                                           data=p[1:] if i == 0 else p,
-                                           category_icon=icon,
-                                           tooltip=tt if path == key else path,
-                                           category_key=path,
-                                           icon_map=self.icon_state_map)
+                                   data=p[1:] if i == 0 else p,
+                                   category_icon=self.category_custom_icons[key],
+                                   tooltip=tt if path == key else path,
+                                   category_key=path,
+                                   icon_map=self.icon_state_map)
                         last_category_node = node
                         category_node_map[path] = node
                         self.category_nodes.append(node)
@@ -343,7 +371,7 @@ class TagsModel(QAbstractItemModel): # {{{
             else:
                 node = self.create_node(parent=self.root_item,
                                    data=self.categories[key],
-                                   category_icon=self.category_icon_map[key],
+                                   category_icon=self.category_custom_icons[key],
                                    tooltip=tt, category_key=key,
                                    icon_map=self.icon_state_map)
                 node.is_gst = False
@@ -504,6 +532,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 if (not tag.is_hierarchical) and (in_uc or
                         (fm['is_custom'] and fm['display'].get('is_names', False)) or
                         not category_is_hierarchical or len(components) == 1):
+                    tag.icon = self.category_custom_icons[key]
                     n = self.create_node(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
                     if tag.id_set is not None:
@@ -540,6 +569,7 @@ class TagsModel(QAbstractItemModel): # {{{
                             t.is_hierarchical = \
                                 '5state' if t.category != 'search' else '3state'
                             t.name = comp
+                            t.icon = self.category_custom_icons[key]
                             node_parent = self.create_node(parent=node_parent, data=t,
                                             tooltip=tt, icon_map=self.icon_state_map)
                             child_map[(comp,tag.category)] = node_parent

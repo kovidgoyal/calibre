@@ -1,0 +1,25 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+class EkologiaPl(BasicNewsRecipe):
+    title          = u'Ekologia.pl'
+    __author__        = 'fenuks'
+    description   = u'Portal ekologiczny - eko, ekologia, ochrona przyrody, ochrona środowiska, przyroda, środowisko online. Ekologia i ochrona środowiska. Ekologia dla dzieci.'
+    category       = 'ecology'
+    language       = 'pl'
+    cover_url = 'http://www.ekologia.pl/assets/images/logo/ekologia_pl_223x69.png'
+    ignore_duplicate_articles = {'title', 'url'}
+    extra_css = '.title {font-size: 200%;}'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    use_embedded_content = False
+    remove_attrs = ['style']
+    remove_tags = [dict(attrs={'class':['ekoLogo', 'powrocArt', 'butonDrukuj', 'widget-social-buttons']})]
+
+    feeds          = [(u'Wiadomo\u015bci', u'http://www.ekologia.pl/rss/20,53,0'), (u'\u015arodowisko', u'http://www.ekologia.pl/rss/20,56,0'), (u'Styl \u017cycia', u'http://www.ekologia.pl/rss/20,55,0')]
+
+    def print_version(self, url):
+        id = re.search(r',(?P<id>\d+)\.html', url).group('id')
+        return 'http://drukuj.ekologia.pl/artykul/' + id

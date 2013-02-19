@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 2 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2012, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2013, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -24,17 +25,12 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class EmpikStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        plain_url = 'http://www.empik.com/ebooki'
-        url = 'https://ssl.afiliant.com/affskrypt,,2f9de2,,23c7f,,,?u=(' + plain_url + ')'
-        detail_url = None
-
-        if detail_item:
-            detail_url = 'https://ssl.afiliant.com/affskrypt,,2f9de2,,23c7f,,,?u=(' + detail_item + ')'
+        url = 'http://www.empik.com/ebooki'
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
+            open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
         else:
-            d = WebStoreDialog(self.gui, url, parent, detail_url)
+            d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
@@ -55,7 +51,7 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
 
-                cover_url = ''.join(data.xpath('.//div[@class="productBox-450Pic"]/a/img/@src'))
+                cover_url = ''.join(data.xpath('.//div[@class="productBox-450Pic"]/a/img/@data-original'))
                 title = ''.join(data.xpath('.//a[@class="productBox-450Title"]/text()'))
                 title = re.sub(r' \(ebook\)', '', title)
                 author = ''.join(data.xpath('.//div[@class="productBox-450Author"]/a/text()'))
@@ -68,7 +64,7 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
                 counter -= 1
 
                 s = SearchResult()
-                s.cover_url = cover_url 
+                s.cover_url = cover_url
                 s.title = title.strip() + ' ' + formats
                 s.author = author.strip()
                 s.price = price

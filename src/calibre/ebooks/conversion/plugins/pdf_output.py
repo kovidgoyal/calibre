@@ -8,56 +8,38 @@ __docformat__ = 'restructuredtext en'
 Convert OEB ebook format to PDF.
 '''
 
-import glob
-import os
+import glob, os
 
-from calibre.customize.conversion import OutputFormatPlugin, \
-    OptionRecommendation
+from calibre.constants import iswindows, islinux
+from calibre.customize.conversion import (OutputFormatPlugin,
+    OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
-from calibre.constants import iswindows
 
-UNITS = [
-            'millimeter',
-            'point',
-            'inch' ,
-            'pica' ,
-            'didot',
-            'cicero',
-            'devicepixel',
-        ]
+UNITS = ['millimeter', 'centimeter', 'point', 'inch' , 'pica' , 'didot',
+         'cicero', 'devicepixel']
 
-PAPER_SIZES = ['b2',
-     'a9',
-     'executive',
-     'tabloid',
-     'b4',
-     'b5',
-     'b6',
-     'b7',
-     'b0',
-     'b1',
-     'letter',
-     'b3',
-     'a7',
-     'a8',
-     'b8',
-     'b9',
-     'a3',
-     'a1',
-     'folio',
-     'c5e',
-     'dle',
-     'a0',
-     'ledger',
-     'legal',
-     'a6',
-     'a2',
-     'b10',
-     'a5',
-     'comm10e',
-     'a4']
+PAPER_SIZES = [u'a0', u'a1', u'a2', u'a3', u'a4', u'a5', u'a6', u'b0', u'b1',
+               u'b2', u'b3', u'b4', u'b5', u'b6', u'legal', u'letter']
 
-ORIENTATIONS = ['portrait', 'landscape']
+class PDFMetadata(object): # {{{
+    def __init__(self, oeb_metadata=None):
+        from calibre import force_unicode
+        from calibre.ebooks.metadata import authors_to_string
+        self.title = _(u'Unknown')
+        self.author = _(u'Unknown')
+        self.tags = u''
+
+        if oeb_metadata != None:
+            if len(oeb_metadata.title) >= 1:
+                self.title = oeb_metadata.title[0].value
+            if len(oeb_metadata.creator) >= 1:
+                self.author = authors_to_string([x.value for x in oeb_metadata.creator])
+            if oeb_metadata.subject:
+                self.tags = u', '.join(map(unicode, oeb_metadata.subject))
+
+        self.title = force_unicode(self.title)
+        self.author = force_unicode(self.author)
+# }}}
 
 class PDFOutput(OutputFormatPlugin):
 
@@ -66,9 +48,14 @@ class PDFOutput(OutputFormatPlugin):
     file_type = 'pdf'
 
     options = set([
+        OptionRecommendation(name='override_profile_size', recommended_value=False,
+            help=_('Normally, the PDF page size is set by the output profile'
+                   ' chosen under page options. This option will cause the '
+                   ' page size settings under PDF Output to override the '
+                   ' size specified by the output profile.')),
         OptionRecommendation(name='unit', recommended_value='inch',
             level=OptionRecommendation.LOW, short_switch='u', choices=UNITS,
-            help=_('The unit of measure. Default is inch. Choices '
+            help=_('The unit of measure for page sizes. Default is inch. Choices '
             'are %s '
             'Note: This does not override the unit for margins!') % UNITS),
         OptionRecommendation(name='paper_size', recommended_value='letter',
@@ -80,23 +67,19 @@ class PDFOutput(OutputFormatPlugin):
             help=_('Custom size of the document. Use the form widthxheight '
             'EG. `123x321` to specify the width and height. '
             'This overrides any specified paper-size.')),
-        OptionRecommendation(name='orientation', recommended_value='portrait',
-            level=OptionRecommendation.LOW, choices=ORIENTATIONS,
-            help=_('The orientation of the page. Default is portrait. Choices '
-            'are %s') % ORIENTATIONS),
         OptionRecommendation(name='preserve_cover_aspect_ratio',
             recommended_value=False,
             help=_('Preserve the aspect ratio of the cover, instead'
                 ' of stretching it to fill the full first page of the'
                 ' generated pdf.')),
         OptionRecommendation(name='pdf_serif_family',
-            recommended_value='Times New Roman', help=_(
+            recommended_value='Liberation Serif' if islinux else 'Times New Roman', help=_(
                 'The font family used to render serif fonts')),
         OptionRecommendation(name='pdf_sans_family',
-            recommended_value='Helvetica', help=_(
+            recommended_value='Liberation Sans' if islinux else 'Helvetica', help=_(
                 'The font family used to render sans-serif fonts')),
         OptionRecommendation(name='pdf_mono_family',
-            recommended_value='Courier New', help=_(
+            recommended_value='Liberation Mono' if islinux else 'Courier New', help=_(
                 'The font family used to render monospaced fonts')),
         OptionRecommendation(name='pdf_standard_font', choices=['serif',
             'sans', 'mono'],
@@ -108,9 +91,33 @@ class PDFOutput(OutputFormatPlugin):
         OptionRecommendation(name='pdf_mono_font_size',
             recommended_value=16, help=_(
                 'The default font size for monospaced text')),
+        OptionRecommendation(name='pdf_mark_links', recommended_value=False,
+            help=_('Surround all links with a red box, useful for debugging.')),
+        OptionRecommendation(name='old_pdf_engine', recommended_value=False,
+            help=_('Use the old, less capable engine to generate the PDF')),
+        OptionRecommendation(name='uncompressed_pdf',
+            recommended_value=False, help=_(
+                'Generate an uncompressed PDF, useful for debugging, '
+                'only works with the new PDF engine.')),
+        OptionRecommendation(name='pdf_page_numbers', recommended_value=False,
+            help=_('Add page numbers to the bottom of every page in the generated PDF file. If you '
+                   'specify a footer template, it will take precedence '
+                   'over this option.')),
+        OptionRecommendation(name='pdf_footer_template', recommended_value=None,
+            help=_('An HTML template used to generate footers on every page.'
+                   ' The string _PAGENUM_ will be replaced by the current page'
+                   ' number.')),
+        OptionRecommendation(name='pdf_header_template', recommended_value=None,
+            help=_('An HTML template used to generate headers on every page.'
+                   ' The string _PAGENUM_ will be replaced by the current page'
+                   ' number.')),
         ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        from calibre.gui2 import must_use_qt, load_builtin_fonts
+        must_use_qt()
+        load_builtin_fonts()
+
         self.oeb = oeb_book
         self.input_plugin, self.opts, self.log = input_plugin, opts, log
         self.output_path = output_path
@@ -144,9 +151,8 @@ class PDFOutput(OutputFormatPlugin):
         If you ever move to Qt WebKit 2.3+ then this will be unnecessary.
         '''
         from calibre.ebooks.oeb.base import urlnormalize
-        from calibre.gui2 import must_use_qt
-        from calibre.utils.fonts.utils import get_font_names, remove_embed_restriction
-        from PyQt4.Qt import QFontDatabase, QByteArray
+        from calibre.utils.fonts.utils import remove_embed_restriction
+        from PyQt4.Qt import QFontDatabase, QByteArray, QRawFont, QFont
 
         # First find all @font-face rules and remove them, adding the embedded
         # fonts to Qt
@@ -174,12 +180,13 @@ class PDFOutput(OutputFormatPlugin):
                         raw = remove_embed_restriction(raw)
                     except:
                         continue
-                    must_use_qt()
-                    QFontDatabase.addApplicationFontFromData(QByteArray(raw))
-                    try:
-                        family_name = get_font_names(raw)[0]
-                    except:
-                        family_name = None
+                    fid = QFontDatabase.addApplicationFontFromData(QByteArray(raw))
+                    family_name = None
+                    if fid > -1:
+                        try:
+                            family_name = unicode(QFontDatabase.applicationFontFamilies(fid)[0])
+                        except (IndexError, KeyError):
+                            pass
                     if family_name:
                         family_map[icu_lower(font_family)] = family_name
 
@@ -188,6 +195,7 @@ class PDFOutput(OutputFormatPlugin):
 
         # Now map the font family name specified in the css to the actual
         # family name of the embedded font (they may be different in general).
+        font_warnings = set()
         for item in self.oeb.manifest:
             if not hasattr(item.data, 'cssRules'): continue
             for i, rule in enumerate(item.data.cssRules):
@@ -196,37 +204,41 @@ class PDFOutput(OutputFormatPlugin):
                 if ff is None: continue
                 val = ff.propertyValue
                 for i in xrange(val.length):
-                    k = icu_lower(val[i].value)
+                    try:
+                        k = icu_lower(val[i].value)
+                    except (AttributeError, TypeError):
+                        val[i].value = k = 'times'
                     if k in family_map:
                         val[i].value = family_map[k]
-
-    def remove_font_specification(self):
-        # Qt produces image based pdfs on windows when non-generic fonts are specified
-        # This might change in Qt WebKit 2.3+ you will have to test.
-        for item in self.oeb.manifest:
-            if not hasattr(item.data, 'cssRules'): continue
-            for i, rule in enumerate(item.data.cssRules):
-                if rule.type != rule.STYLE_RULE: continue
-                ff = rule.style.getProperty('font-family')
-                if ff is None: continue
-                val = ff.propertyValue
-                for i in xrange(val.length):
-                    k = icu_lower(val[i].value)
-                    if k not in {'serif', 'sans', 'sans-serif', 'sansserif',
-                            'monospace', 'cursive', 'fantasy'}:
-                        val[i].value = ''
+                if iswindows:
+                    # On windows, Qt uses GDI which does not support OpenType
+                    # (CFF) fonts, so we need to nuke references to OpenType
+                    # fonts. Note that you could compile QT with configure
+                    # -directwrite, but that requires atleast Vista SP2
+                    for i in xrange(val.length):
+                        family = val[i].value
+                        if family:
+                            f = QRawFont.fromFont(QFont(family))
+                            if len(f.fontTable('head')) == 0:
+                                if family not in font_warnings:
+                                    self.log.warn('Ignoring unsupported font: %s'
+                                                %family)
+                                    font_warnings.add(family)
+                                # Either a bitmap or (more likely) a CFF font
+                                val[i].value = 'times'
 
     def convert_text(self, oeb_book):
-        from calibre.ebooks.pdf.writer import PDFWriter
         from calibre.ebooks.metadata.opf2 import OPF
+        if self.opts.old_pdf_engine:
+            from calibre.ebooks.pdf.writer import PDFWriter
+            PDFWriter
+        else:
+            from calibre.ebooks.pdf.render.from_html import PDFWriter
 
         self.log.debug('Serializing oeb input to disk for processing...')
         self.get_cover_data()
 
-        if iswindows:
-            self.remove_font_specification()
-        else:
-            self.handle_embedded_fonts()
+        self.handle_embedded_fonts()
 
         with TemporaryDirectory('_pdf_out') as oeb_dir:
             from calibre.customize.ui import plugin_for_output_format
@@ -240,9 +252,9 @@ class PDFOutput(OutputFormatPlugin):
                 'toc', None))
 
     def write(self, Writer, items, toc):
-        from calibre.ebooks.pdf.writer import PDFMetadata
         writer = Writer(self.opts, self.log, cover_data=self.cover_data,
                 toc=toc)
+        writer.report_progress = self.report_progress
 
         close = False
         if not hasattr(self.output_path, 'write'):
@@ -256,7 +268,15 @@ class PDFOutput(OutputFormatPlugin):
         out_stream.seek(0)
         out_stream.truncate()
         self.log.debug('Rendering pages to PDF...')
-        writer.dump(items, out_stream, PDFMetadata(self.metadata))
+        import time
+        st = time.time()
+        if False:
+            import cProfile
+            cProfile.runctx('writer.dump(items, out_stream, PDFMetadata(self.metadata))',
+                        globals(), locals(), '/tmp/profile')
+        else:
+            writer.dump(items, out_stream, PDFMetadata(self.metadata))
+        self.log('Rendered PDF in %g seconds:'%(time.time()-st))
 
         if close:
             out_stream.close()

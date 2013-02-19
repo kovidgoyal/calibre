@@ -234,7 +234,7 @@ class POCKETBOOK301(USBMS):
 class POCKETBOOK602(USBMS):
 
     name = 'PocketBook Pro 602/902 Device Interface'
-    description    = _('Communicate with the PocketBook 602/603/902/903 reader.')
+    description    = _('Communicate with the PocketBook 602/603/902/903/Pro 912 reader.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
     FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm',
@@ -249,7 +249,7 @@ class POCKETBOOK602(USBMS):
 
     VENDOR_NAME = ''
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['PB602', 'PB603', 'PB902',
-            'PB903', 'PB']
+            'PB903', 'Pocket912', 'PB']
 
 class POCKETBOOK622(POCKETBOOK602):
 

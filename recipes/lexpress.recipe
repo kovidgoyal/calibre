@@ -64,7 +64,7 @@ class lepoint(BasicNewsRecipe):
 
     def get_masthead_url(self):
         masthead = 'http://static.lexpress.fr/imgstat/logo_lexpress.gif'
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(masthead)
         except:

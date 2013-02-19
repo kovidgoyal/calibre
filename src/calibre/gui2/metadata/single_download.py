@@ -17,10 +17,12 @@ from Queue import Queue, Empty
 from io import BytesIO
 
 from PyQt4.Qt import (QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt,
-        QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QStyle,
-        QStackedWidget, QWidget, QTableView, QGridLayout, QFontInfo, QPalette,
-        QTimer, pyqtSignal, QAbstractTableModel, QVariant, QSize, QListView,
-        QPixmap, QAbstractListModel, QColor, QRect, QTextBrowser, QModelIndex)
+                      QApplication, QDialog, QVBoxLayout, QLabel,
+                      QDialogButtonBox, QStyle, QStackedWidget, QWidget,
+                      QTableView, QGridLayout, QFontInfo, QPalette, QTimer,
+                      pyqtSignal, QAbstractTableModel, QVariant, QSize,
+                      QListView, QPixmap, QAbstractListModel, QColor, QRect,
+                      QTextBrowser, QStringListModel)
 from PyQt4.QtWebKit import QWebView
 
 from calibre.customize.ui import metadata_plugins
@@ -29,7 +31,7 @@ from calibre.utils.logging import GUILog as Log
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.gui2 import error_dialog, NONE, rating_font
+from calibre.gui2 import error_dialog, NONE, rating_font, gprefs
 from calibre.utils.date import (utcnow, fromordinal, format_date,
         UNDEFINED_DATE, as_utc)
 from calibre.library.comments import comments_to_html
@@ -44,6 +46,8 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
     def __init__(self, parent=None, max_width=160):
         QStyledItemDelegate.__init__(self, parent)
         self.max_width = max_width
+        self.dummy_model = QStringListModel([' '], self)
+        self.dummy_index = self.dummy_model.index(0)
 
     def to_doc(self, index, option=None):
         doc = QTextDocument()
@@ -66,7 +70,7 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
         return ans
 
     def paint(self, painter, option, index):
-        QStyledItemDelegate.paint(self, painter, option, QModelIndex())
+        QStyledItemDelegate.paint(self, painter, option, self.dummy_index)
         painter.save()
         painter.setClipRect(QRectF(option.rect))
         painter.translate(option.rect.topLeft())
@@ -260,6 +264,15 @@ class ResultsView(QTableView): # {{{
             sm = self.selectionModel()
             sm.select(idx, sm.ClearAndSelect|sm.Rows)
 
+    def resize_delegate(self):
+        self.rt_delegate.max_width = int(self.width()/2.1)
+        self.resizeColumnsToContents()
+
+    def resizeEvent(self, ev):
+        ret = super(ResultsView, self).resizeEvent(ev)
+        self.resize_delegate()
+        return ret
+
     def currentChanged(self, current, previous):
         ret = QTableView.currentChanged(self, current, previous)
         self.show_details(current)
@@ -363,6 +376,13 @@ class Comments(QWebView): # {{{
         <html>
         '''%(fam, f, c)
         self.setHtml(templ%html)
+
+    def sizeHint(self):
+        # This is needed, because on windows the dialog cannot be resized to
+        # so that this widgets height become < sizeHint().height(). Qt sets the
+        # sizeHint to (800, 600), which makes the dialog unusable on smaller
+        # screens.
+        return QSize(800, 300)
 # }}}
 
 class IdentifyWorker(Thread): # {{{
@@ -381,7 +401,7 @@ class IdentifyWorker(Thread): # {{{
 
     def sample_results(self):
         m1 = Metadata('The Great Gatsby', ['Francis Scott Fitzgerald'])
-        m2 = Metadata('The Great Gatsby', ['F. Scott Fitzgerald'])
+        m2 = Metadata('The Great Gatsby - An extra long title to test resizing', ['F. Scott Fitzgerald'])
         m1.has_cached_cover_url = True
         m2.has_cached_cover_url = False
         m1.comments  = 'Some comments '*10
@@ -959,12 +979,10 @@ class FullFetch(QDialog): # {{{
         self.covers_widget.chosen.connect(self.ok_clicked)
         self.stack.addWidget(self.covers_widget)
 
-        # Workaround for Qt 4.8.0 bug that causes the frame of the window to go
-        # off the top of the screen if a max height is not set for the
-        # QWebView. Seems to only happen on windows, but keep it for all
-        # platforms just in case.
-        self.identify_widget.comments_view.setMaximumHeight(500)
         self.resize(850, 600)
+        geom = gprefs.get('metadata_single_gui_geom', None)
+        if geom is not None and geom:
+            self.restoreGeometry(geom)
 
         self.finished.connect(self.cleanup)
 
@@ -991,12 +1009,14 @@ class FullFetch(QDialog): # {{{
         self.covers_widget.reset_covers()
 
     def accept(self):
+        gprefs['metadata_single_gui_geom'] = bytearray(self.saveGeometry())
         if self.stack.currentIndex() == 1:
             return QDialog.accept(self)
         # Prevent the usual dialog accept mechanisms from working
         pass
 
     def reject(self):
+        gprefs['metadata_single_gui_geom'] = bytearray(self.saveGeometry())
         self.identify_widget.cancel()
         self.covers_widget.cancel()
         return QDialog.reject(self)

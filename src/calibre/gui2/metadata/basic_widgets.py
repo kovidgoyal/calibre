@@ -819,6 +819,27 @@ class FormatsManager(QWidget):
     def show_format(self, item, *args):
         self.dialog.do_view_format(item.path, item.ext)
 
+    def get_selected_format(self):
+        row = self.formats.currentRow()
+        fmt = self.formats.item(row)
+        if fmt is None:
+            if self.formats.count() == 1:
+                fmt = self.formats.item(0)
+            if fmt is None:
+                error_dialog(self, _('No format selected'),
+                    _('No format selected')).exec_()
+                return None
+        return fmt.ext.lower()
+
+    def get_format_path(self, db, id_, fmt):
+        for i in xrange(self.formats.count()):
+            f = self.formats.item(i)
+            ext = f.ext.lower()
+            if ext == fmt:
+                if f.path is None:
+                    return db.format(id_, ext, as_path=True, index_is_id=True)
+                return f.path
+
     def get_selected_format_metadata(self, db, id_):
         old = prefs['read_file_metadata']
         if not old:
@@ -1093,6 +1114,9 @@ class RatingEdit(QSpinBox): # {{{
     def commit(self, db, id_):
         db.set_rating(id_, 2*self.current_val, notify=False, commit=False)
         return True
+
+    def zero(self):
+        self.setValue(0)
 
 # }}}
 

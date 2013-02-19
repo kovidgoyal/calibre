@@ -1,4 +1,3 @@
-import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -32,12 +31,12 @@ class KrytykaPolitycznaRecipe(BasicNewsRecipe):
     extra_css = '''
                     body {font-family: verdana, arial, helvetica, geneva, sans-serif ;}
                     td.contentheading{font-size: large; font-weight: bold;}
-                    '''    
+                    '''
 
     feeds          = [
                             ('Wszystkie', 'http://www.krytykapolityczna.pl/rss.xml')
                           ]
-      
+
     def print_version(self, url):
         soup = self.index_to_soup(url)
         print_ico = soup.find(attrs = {'class' : 'print-page'})

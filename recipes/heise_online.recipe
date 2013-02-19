@@ -15,23 +15,12 @@ class AdvancedUserRecipe(BasicNewsRecipe):
     timeout = 5
     no_stylesheets = True
 
+    keep_only_tags = [dict(name='div', attrs={'id':'mitte_news'}),
+                               dict(name='h1', attrs={'class':'clear'}),
+                               dict(name='div', attrs={'class':'meldung_wrapper'})]
 
-    remove_tags_after = dict(name ='p', attrs={'class':'editor'})
     remove_tags = [dict(id='navi_top_container'),
-                            dict(id='navi_bottom'),
-                            dict(id='mitte_rechts'),
-                            dict(id='navigation'),
-                            dict(id='subnavi'),
-                            dict(id='social_bookmarks'),
-                            dict(id='permalink'),
-                            dict(id='content_foren'),
-                            dict(id='seiten_navi'),
-                            dict(id='adbottom'),
-                            dict(id='sitemap'),
-                            dict(name='div', attrs={'id':'sitemap'}),
-                            dict(name='ul', attrs={'class':'erste_zeile'}),
-                            dict(name='ul', attrs={'class':'zweite_zeile'}),
-                            dict(name='div', attrs={'class':'navi_top_container'})]
+                            dict(name='p', attrs={'class':'size80'})]
 
     feeds =  [
                    ('Newsticker', 'http://www.heise.de/newsticker/heise.rdf'),
@@ -54,5 +43,3 @@ class AdvancedUserRecipe(BasicNewsRecipe):
 
     def print_version(self, url):
         return url + '?view=print'
-
-

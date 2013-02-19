@@ -117,8 +117,7 @@ class Split(object):
                 continue
 
         page_breaks = list(page_breaks)
-        page_breaks.sort(cmp=
-              lambda x,y : cmp(int(x.get('pb_order')), int(y.get('pb_order'))))
+        page_breaks.sort(key=lambda x:int(x.get('pb_order')))
         page_break_ids, page_breaks_ = [], []
         for i, x in enumerate(page_breaks):
             x.set('id', x.get('id', 'calibre_pb_%d'%i))
@@ -235,7 +234,8 @@ class FlowSplitter(object):
         for pattern, before in ordered_ids:
             elem = pattern(tree)
             if elem:
-                self.log.debug('\t\tSplitting on page-break')
+                self.log.debug('\t\tSplitting on page-break at %s'%
+                               elem[0].get('id'))
                 before, after = self.do_split(tree, elem[0], before)
                 self.trees.append(before)
                 tree = after
@@ -292,14 +292,9 @@ class FlowSplitter(object):
 
         return npath
 
-
-
     def do_split(self, tree, split_point, before):
         '''
-        Split ``tree`` into a *before* and *after* tree at ``split_point``,
-        preserving tag structure, but not duplicating any text.
-        All tags that have had their text and tail
-        removed have the attribute ``calibre_split`` set to 1.
+        Split ``tree`` into a *before* and *after* tree at ``split_point``.
 
         :param before: If True tree is split before split_point, otherwise after split_point
         :return: before_tree, after_tree
@@ -315,8 +310,9 @@ class FlowSplitter(object):
 
 
         def nix_element(elem, top=True):
+            # Remove elem unless top is False in which case replace elem by its
+            # children
             parent = elem.getparent()
-            index = parent.index(elem)
             if top:
                 parent.remove(elem)
             else:
@@ -325,27 +321,38 @@ class FlowSplitter(object):
 
         # Tree 1
         hit_split_point = False
-        for elem in list(body.iterdescendants()):
+        keep_descendants = False
+        split_point_descendants = frozenset(split_point.iterdescendants())
+        for elem in tuple(body.iterdescendants()):
             if elem is split_point:
                 hit_split_point = True
                 if before:
                     nix_element(elem)
+                else:
+                    # We want to keep the descendants of the split point in
+                    # Tree 1
+                    keep_descendants = True
 
                 continue
             if hit_split_point:
+                if keep_descendants:
+                    if elem in split_point_descendants:
+                        # elem is a descendant keep it
+                        continue
+                    else:
+                        # We are out of split_point, so prevent further set
+                        # lookups of split_point_descendants
+                        keep_descendants = False
                 nix_element(elem)
 
-
         # Tree 2
-        hit_split_point = False
-        for elem in list(body2.iterdescendants()):
+        for elem in tuple(body2.iterdescendants()):
             if elem is split_point2:
-                hit_split_point = True
                 if not before:
-                    nix_element(elem, top=False)
-                continue
-            if not hit_split_point:
-                nix_element(elem, top=False)
+                    nix_element(elem)
+                break
+            nix_element(elem, top=False)
+
         body2.text = '\n'
 
         return tree, tree2
@@ -478,8 +485,7 @@ class FlowSplitter(object):
 
     def commit(self):
         '''
-        Commit all changes caused by the split. This removes the previously
-        introduced ``calibre_split`` attribute and calculates an *anchor_map* for
+        Commit all changes caused by the split. Calculates an *anchor_map* for
         all anchors in the original tree. Internal links are re-directed. The
         original file is deleted and the split files are saved.
         '''

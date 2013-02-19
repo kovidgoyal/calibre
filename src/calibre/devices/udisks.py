@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, dbus, re
+import os, re
 
 def node_mountpoint(node):
 
@@ -25,6 +25,7 @@ class NoUDisks1(Exception):
 class UDisks(object):
 
     def __init__(self):
+        import dbus
         self.bus = dbus.SystemBus()
         try:
             self.main = dbus.Interface(self.bus.get_object('org.freedesktop.UDisks',
@@ -35,6 +36,7 @@ class UDisks(object):
             raise
 
     def device(self, device_node_path):
+        import dbus
         devpath = self.main.FindDeviceByDeviceFile(device_node_path)
         return dbus.Interface(self.bus.get_object('org.freedesktop.UDisks',
                         devpath), 'org.freedesktop.UDisks.Device')
@@ -73,6 +75,7 @@ class UDisks2(object):
     DRIVE = 'org.freedesktop.UDisks2.Drive'
 
     def __init__(self):
+        import dbus
         self.bus = dbus.SystemBus()
         try:
             self.bus.get_object('org.freedesktop.UDisks2',

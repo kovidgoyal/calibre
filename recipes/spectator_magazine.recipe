@@ -1,0 +1,60 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class NYTimes(BasicNewsRecipe):
+
+    title       = 'Spectator Magazine'
+    __author__  = 'Krittika Goyal'
+    description = 'Magazine'
+    timefmt = ' [%d %b, %Y]'
+    needs_subscription = False
+    language = 'en'
+
+    no_stylesheets = True
+    #auto_cleanup = True
+    #auto_cleanup_keep = '//div[@class="thumbnail"]'
+
+    keep_only_tags = dict(name='div', attrs={'id':'content'})
+    remove_tags = [
+       dict(name='div', attrs={'id':['disqus_thread']}),
+       ##dict(name='div', attrs={'id':['qrformdiv', 'inSection', 'alpha-inner']}),
+       ##dict(name='form', attrs={'onsubmit':''}),
+       #dict(name='section', attrs={'id':['article-quote', 'article-navigation']}),
+    ]
+
+    #TO GET ARTICLE TOC
+    def spec_get_index(self):
+            return self.index_to_soup('http://www.spectator.co.uk/')
+
+    # To parse artice toc
+    def parse_index(self):
+        parse_soup = self.index_to_soup('http://www.spectator.co.uk/')
+
+        feeds = []
+        feed_title = 'Spectator Magazine Articles'
+
+        articles = []
+        self.log('Found section:', feed_title)
+        div = parse_soup.find(attrs={'class':'one-col-tax-widget magazine-list columns-1 post-8 taxonomy-category full-width widget section-widget icit-taxonomical-listings'})
+        for art in div.findAll(name='h2'):
+            art_info = art.find(name = 'a')
+            if art_info is None:
+                continue
+            art_title = self.tag_to_string(art_info)
+            url = art_info.get('href')
+            self.log.info('\tFound article:', art_title, 'at', url)
+            article = {'title':art_title, 'url':url, 'date':''}
+            #au = art.find(attrs={'class':'articleAuthors'})
+            #if au is not None:
+                #article['author'] = self.tag_to_string(au)
+            #desc = art.find(attrs={'class':'hover_text'})
+            #if desc is not None:
+                #desc = self.tag_to_string(desc)
+                #if 'author' in article:
+                    #desc = ' by ' + article['author'] + ' ' +desc
+                #article['description'] = desc
+            articles.append(article)
+        if articles:
+            feeds.append((feed_title, articles))
+
+        return feeds
+

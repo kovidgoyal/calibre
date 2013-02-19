@@ -294,11 +294,11 @@ class _CompileParser(_Parser):
                             self.parent_book, self.parent_locals, *args)
         elif self.token_is_constant():
             # String or number
-            v = self.token()
+            v = unicode(self.token())
             if self.compile_text:
                 tv = v.replace("\\", "\\\\")
                 tv = tv.replace("'", "\\'")
-                self.compile_text += "\targs[%d].append('%s')\n"%(level, tv)
+                self.compile_text += "\targs[%d].append(unicode('%s'))\n"%(level, tv)
             return v
         else:
             self.error(_('expression is not function or constant'))
@@ -526,6 +526,8 @@ class ValidateFormatter(TemplateFormatter):
         return self._validation_string
 
     def validate(self, x):
+        from calibre.ebooks.metadata.book.base import Metadata
+        self.book = Metadata('');
         return self.vformat(x, [], {})
 
 validation_formatter = ValidateFormatter()

@@ -9,6 +9,21 @@ class Kosmonauta(BasicNewsRecipe):
     language       = 'pl'
     cover_url='http://bi.gazeta.pl/im/4/10393/z10393414X,Kosmonauta-net.jpg'
     no_stylesheets = True
+    INDEX = 'http://www.kosmonauta.net'
     oldest_article = 7
+    no_stylesheets = True
     max_articles_per_feed = 100
-    feeds          = [(u'Kosmonauta.net', u'http://www.kosmonauta.net/index.php/feed/rss.html')]
+    keep_only_tags = [dict(name='div', attrs={'class':'item-page'})]
+    remove_tags = [dict(attrs={'class':['article-tools clearfix', 'cedtag', 'nav clearfix', 'jwDisqusForm']})]
+    remove_tags_after = dict(name='div', attrs={'class':'cedtag'})
+    feeds          = [(u'Kosmonauta.net', u'http://www.kosmonauta.net/?format=feed&type=atom')]
+
+    def preprocess_html(self, soup):
+        for a in soup.findAll(name='a'):
+           if a.has_key('href'):
+               href = a['href']
+               if not href.startswith('http'):
+                   a['href'] = self.INDEX + href
+                   print '%%%%%%%%%%%%%%%%%%%%%%%%%', a['href']
+        return soup
+            

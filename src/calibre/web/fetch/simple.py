@@ -10,8 +10,6 @@ UTF-8 encoding with any charset declarations removed.
 import sys, socket, os, urlparse, re, time, copy, urllib2, threading, traceback, imghdr
 from urllib import url2pathname, quote
 from httplib import responses
-from PIL import Image
-from cStringIO import StringIO
 from base64 import b64decode
 
 from calibre import browser, relpath, unicode_path
@@ -21,6 +19,8 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
+from calibre.utils.magick import Image
+from calibre.utils.magick.draw import identify_data
 
 class FetchError(Exception):
     pass
@@ -374,8 +374,8 @@ class RecursiveFetcher(object):
             fname = ascii_filename('img'+str(c))
             if isinstance(fname, unicode):
                 fname = fname.encode('ascii', 'replace')
-            imgpath = os.path.join(diskpath, fname+'.jpg')
-            if (imghdr.what(None, data) is None and b'<svg' in data[:1024]):
+            itype = imghdr.what(None, data)
+            if itype is None and b'<svg' in data[:1024]:
                 # SVG image
                 imgpath = os.path.join(diskpath, fname+'.svg')
                 with self.imagemap_lock:
@@ -385,11 +385,18 @@ class RecursiveFetcher(object):
                 tag['src'] = imgpath
             else:
                 try:
-                    im = Image.open(StringIO(data)).convert('RGBA')
+                    if itype not in {'png', 'jpg', 'jpeg'}:
+                        itype = 'png' if itype == 'gif' else 'jpg'
+                        im = Image()
+                        im.load(data)
+                        data = im.export(itype)
+                    else:
+                        identify_data(data)
+                    imgpath = os.path.join(diskpath, fname+'.'+itype)
                     with self.imagemap_lock:
                         self.imagemap[iurl] = imgpath
                     with open(imgpath, 'wb') as x:
-                        im.save(x, 'JPEG')
+                        x.write(data)
                     tag['src'] = imgpath
                 except:
                     traceback.print_exc()

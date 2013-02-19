@@ -29,6 +29,7 @@ STAGING_DIR = '/root/staging'
 def installers():
     installers = list(map(installer_name, ('dmg', 'msi', 'tar.bz2')))
     installers.append(installer_name('tar.bz2', is64bit=True))
+    installers.append(installer_name('msi', is64bit=True))
     installers.insert(0, 'dist/%s-%s.tar.xz'%(__appname__, __version__))
     installers.append('dist/%s-portable-installer-%s.exe'%(__appname__, __version__))
     return installers
@@ -40,7 +41,7 @@ def installer_description(fname):
         bits = '32' if 'i686' in fname else '64'
         return bits + 'bit Linux binary'
     if fname.endswith('.msi'):
-        return 'Windows installer'
+        return 'Windows %sinstaller'%('64bit ' if '64bit' in fname else '')
     if fname.endswith('.dmg'):
         return 'OS X dmg'
     if fname.endswith('.exe'):

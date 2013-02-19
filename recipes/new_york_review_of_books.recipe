@@ -31,7 +31,7 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
         m:'<head></head>')]
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         br.open('http://www.nybooks.com/account/signin/')
         br.select_form(nr = 1)
         br['username'] = self.username
@@ -66,21 +66,22 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
                 self.log('Issue date:', date)
 
         # Find TOC
-        toc = soup.find('ul', attrs={'class':'issue-article-list'})
+        tocs = soup.findAll('ul', attrs={'class':'issue-article-list'})
         articles = []
-        for li in toc.findAll('li'):
-            h3 = li.find('h3')
-            title = self.tag_to_string(h3)
-            author = self.tag_to_string(li.find('h4'))
-            title = title + u' (%s)'%author
-            url = 'http://www.nybooks.com'+h3.find('a', href=True)['href']
-            desc = ''
-            for p in li.findAll('p'):
-                desc += self.tag_to_string(p)
-            self.log('Found article:', title)
-            self.log('\t', url)
-            self.log('\t', desc)
-            articles.append({'title':title, 'url':url, 'date':'',
+        for toc in tocs:
+            for li in toc.findAll('li'):
+                h3 = li.find('h3')
+                title = self.tag_to_string(h3)
+                author = self.tag_to_string(li.find('h4'))
+                title = title + u' (%s)'%author
+                url = 'http://www.nybooks.com'+h3.find('a', href=True)['href']
+                desc = ''
+                for p in li.findAll('p'):
+                    desc += self.tag_to_string(p)
+                self.log('Found article:', title)
+                self.log('\t', url)
+                self.log('\t', desc)
+                articles.append({'title':title, 'url':url, 'date':'',
                 'description':desc})
 
         return [('Current Issue', articles)]

@@ -519,6 +519,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.description.setFrameStyle(QFrame.Panel | QFrame.Sunken)
         self.description.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         self.description.setMinimumHeight(40)
+        self.description.setWordWrap(True)
         layout.addWidget(self.description)
 
         self.button_box = QDialogButtonBox(QDialogButtonBox.Close)

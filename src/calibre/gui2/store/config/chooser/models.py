@@ -10,8 +10,8 @@ from PyQt4.Qt import (Qt, QAbstractItemModel, QIcon, QVariant, QModelIndex, QSiz
 
 from calibre.gui2 import NONE
 from calibre.customize.ui import is_disabled, disable_plugin, enable_plugin
-from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
-    REGEXP_MATCH
+from calibre.db.search import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
+from calibre.utils.config_base import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
 
@@ -60,13 +60,13 @@ class Matches(QAbstractItemModel):
             index = self.createIndex(i, 0)
             data = QVariant(True)
             self.setData(index, data, Qt.CheckStateRole)
-    
+
     def enable_none(self):
         for i in xrange(len(self.matches)):
             index = self.createIndex(i, 0)
             data = QVariant(False)
             self.setData(index, data, Qt.CheckStateRole)
-    
+
     def enable_invert(self):
         for i in xrange(len(self.matches)):
             self.toggle_plugin(self.createIndex(i, 0))
@@ -243,6 +243,7 @@ class SearchFilter(SearchQueryParser):
              'name': lambda x : x.name.lower(),
         }
         q['formats'] = q['format']
+        upf = prefs['use_primary_find_in_search']
         for sr in self.srs:
             for locvalue in locations:
                 accessor = q[locvalue]
@@ -276,7 +277,7 @@ class SearchFilter(SearchQueryParser):
                         vals = accessor(sr).split(',')
                     else:
                         vals = [accessor(sr)]
-                    if _match(query, vals, m):
+                    if _match(query, vals, m, use_primary_find_in_search=upf):
                         matches.add(sr)
                         break
                 except ValueError: # Unicode errors

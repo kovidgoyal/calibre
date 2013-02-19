@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 9, 7)
+numeric_version = (0, 9, 19)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -28,6 +28,7 @@ isunix = isosx or islinux
 isportable = os.environ.get('CALIBRE_PORTABLE_BUILD', None) is not None
 ispy3 = sys.version_info.major > 2
 isxp = iswindows and sys.getwindowsversion().major < 6
+is64bit = sys.maxsize > (1 << 32)
 isworker = os.environ.has_key('CALIBRE_WORKER') or os.environ.has_key('CALIBRE_SIMPLE_WORKER')
 if isworker:
     os.environ.pop('CALIBRE_FORCE_ANSI', None)
@@ -42,6 +43,19 @@ win32event = importlib.import_module('win32event') if iswindows else None
 winerror   = importlib.import_module('winerror') if iswindows else None
 win32api   = importlib.import_module('win32api') if iswindows else None
 fcntl      = None if iswindows else importlib.import_module('fcntl')
+
+_osx_ver = None
+def get_osx_version():
+    global _osx_ver
+    if _osx_ver is None:
+        import platform
+        from collections import namedtuple
+        OSX = namedtuple('OSX', 'major minor tertiary')
+        try:
+            _osx_ver = OSX(*(map(int, platform.mac_ver()[0].split('.'))))
+        except:
+            _osx_ver = OSX(0, 0, 0)
+    return _osx_ver
 
 filesystem_encoding = sys.getfilesystemencoding()
 if filesystem_encoding is None: filesystem_encoding = 'utf-8'
@@ -65,6 +79,42 @@ def debug():
     global DEBUG
     DEBUG = True
 
+_cache_dir = None
+
+def _get_cache_dir():
+    confcache = os.path.join(config_dir, u'caches')
+    if isportable:
+        return confcache
+    if os.environ.has_key('CALIBRE_CACHE_DIRECTORY'):
+        return os.path.abspath(os.environ['CALIBRE_CACHE_DIRECTORY'])
+
+    if iswindows:
+        w = plugins['winutil'][0]
+        candidate = os.path.join(w.special_folder_path(w.CSIDL_LOCAL_APPDATA), u'%s-cache'%__appname__)
+    elif isosx:
+        candidate = os.path.join(os.path.expanduser(u'~/Library/Caches'), __appname__)
+    else:
+        candidate = os.environ.get('XDG_CACHE_HOME', u'~/.cache')
+        candidate = os.path.join(os.path.expanduser(candidate),
+                                    __appname__)
+        if isinstance(candidate, bytes):
+            try:
+                candidate = candidate.decode(filesystem_encoding)
+            except ValueError:
+                candidate = confcache
+    if not os.path.exists(candidate):
+        try:
+            os.makedirs(candidate)
+        except:
+            candidate = confcache
+    return candidate
+
+def cache_dir():
+    global _cache_dir
+    if _cache_dir is None:
+        _cache_dir = _get_cache_dir()
+    return _cache_dir
+
 # plugins {{{
 
 class Plugins(collections.Mapping):
@@ -85,6 +135,8 @@ class Plugins(collections.Mapping):
                 'speedup',
                 'freetype',
                 'woff',
+                'unrar',
+                'qt_hack',
             ]
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])
@@ -171,6 +223,9 @@ def get_version():
     v = __version__
     if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
         v += '*'
+    if iswindows and is64bit:
+        v += ' [64bit]'
+
     return v
 
 def get_portable_base():

@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, uuid, re
+import os, re
 
 from PyQt4.Qt import QPixmap, SIGNAL
 
@@ -21,14 +21,15 @@ from calibre.utils.icu import sort_key
 from calibre.library.comments import comments_to_html
 from calibre.utils.config import tweaks
 
-def create_opf_file(db, book_id):
+def create_opf_file(db, book_id, opf_file=None):
     mi = db.get_metadata(book_id, index_is_id=True)
-    mi.application_id = uuid.uuid4()
     old_cover = mi.cover
     mi.cover = None
+    mi.application_id = mi.uuid
     raw = metadata_to_opf(mi)
     mi.cover = old_cover
-    opf_file = PersistentTemporaryFile('.opf')
+    if opf_file is None:
+        opf_file = PersistentTemporaryFile('.opf')
     opf_file.write(raw)
     opf_file.close()
     return mi, opf_file

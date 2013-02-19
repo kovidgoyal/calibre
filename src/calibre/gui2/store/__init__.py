@@ -49,13 +49,16 @@ class StorePlugin(object): # {{{
     See declined.txt for a list of stores that do not want to be included.
     '''
 
-    def __init__(self, gui, name):
-        from calibre.gui2 import JSONConfig
+    minimum_calibre_version = (0, 9, 14)
 
+    def __init__(self, gui, name, config=None, base_plugin=None):
         self.gui = gui
         self.name = name
-        self.base_plugin = None
-        self.config = JSONConfig('store/stores/' + ascii_filename(self.name))
+        self.base_plugin = base_plugin
+        if config is None:
+            from calibre.gui2 import JSONConfig
+            config = JSONConfig('store/stores/' + ascii_filename(self.name))
+        self.config = config
 
     def open(self, gui, parent=None, detail_item=None, external=False):
         '''

@@ -14,26 +14,17 @@ class AdvancedUserRecipe1313693926(BasicNewsRecipe):
     language = 'de'
     encoding = 'UTF-8'
 
-    __author__ = 'Armin Geller' # 2011-08-19
+    __author__ = 'Armin Geller' # 2013-02-05 V3
 
     oldest_article = 7
     max_articles_per_feed = 50
-
-
-    remove_tags = [
-                        dict(name='div', attrs={'id':["comments"]}),
-                        dict(attrs={'class':['commentlink']}),
-                    ]
-
-
-    keep_only_tags = [
-                        dict(name='div', attrs={'class':["grid_8 articleText"]}),
-                        dict(name='div', attrs={'class':["articleTextInnerText"]}),
-                      ]
 
     feeds =  [
                (u'Inhalt:', u'http://www.fluter.de/de/?tpl=907'),
               ]
 
     extra_css = '.cs_img {margin-right: 10pt;}'
+
+    def print_version(self, url):
+        return url + '?tpl=1260'
 

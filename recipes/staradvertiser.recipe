@@ -52,7 +52,7 @@ class Starbulletin(BasicNewsRecipe):
                   ]
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
+        br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('http://www.staradvertiser.com/manage/Login/')
             br.select_form(name='loginForm')

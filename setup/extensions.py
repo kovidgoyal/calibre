@@ -18,7 +18,7 @@ from setup.build_environment import (chmlib_inc_dirs,
         msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
         icu_lib_dirs, win_ddk_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs,
-        zlib_libs, zlib_lib_dirs, zlib_inc_dirs, is64bit)
+        zlib_libs, zlib_lib_dirs, zlib_inc_dirs, is64bit, qt_private_inc)
 MT
 isunix = islinux or isosx or isbsd
 
@@ -47,6 +47,13 @@ class Extension(object):
         self.ldflags = kwargs.get('ldflags', [])
         self.optional = kwargs.get('optional', False)
         self.needs_ddk = kwargs.get('needs_ddk', False)
+        of = kwargs.get('optimize_level', None)
+        if of is None:
+            of = '/Ox' if iswindows else '-O3'
+        else:
+            flag = '/O%d' if iswindows else '-O%d'
+            of = flag % of
+        self.cflags.insert(0, of)
 
     def preflight(self, obj_dir, compiler, linker, builder, cflags, ldflags):
         pass
@@ -176,6 +183,31 @@ extensions = [
                 sip_files = ['calibre/gui2/progress_indicator/QProgressIndicator.sip']
                 ),
 
+    Extension('qt_hack',
+                ['calibre/ebooks/pdf/render/qt_hack.cpp'],
+                inc_dirs = qt_private_inc + ['calibre/ebooks/pdf/render', 'qt-harfbuzz/src'],
+                headers = ['calibre/ebooks/pdf/render/qt_hack.h'],
+                sip_files = ['calibre/ebooks/pdf/render/qt_hack.sip']
+                ),
+
+    Extension('unrar',
+              ['unrar/%s.cpp'%(x.partition('.')[0]) for x in '''
+               rar.o strlist.o strfn.o pathfn.o savepos.o smallfn.o global.o file.o
+               filefn.o filcreat.o archive.o arcread.o unicode.o system.o
+               isnt.o crypt.o crc.o rawread.o encname.o resource.o match.o
+               timefn.o rdwrfn.o consio.o options.o ulinks.o errhnd.o rarvm.o
+               secpassword.o rijndael.o getbits.o sha1.o extinfo.o extract.o
+               volume.o list.o find.o unpack.o cmddata.o filestr.o scantree.o
+               '''.split()] + ['calibre/utils/unrar.cpp'],
+              inc_dirs=['unrar'],
+              cflags = [('/' if iswindows else '-') + x for x in (
+                  'DSILENT', 'DRARDLL', 'DUNRAR')] + (
+                  [] if iswindows else ['-D_FILE_OFFSET_BITS=64',
+                                        '-D_LARGEFILE_SOURCE']),
+              optimize_level=2,
+              libraries=['User32', 'Advapi32', 'kernel32', 'Shell32'] if iswindows else []
+              ),
+
     ]
 
 
@@ -239,7 +271,7 @@ if isunix:
     cxx = os.environ.get('CXX', 'g++')
     cflags = os.environ.get('OVERRIDE_CFLAGS',
         # '-Wall -DNDEBUG -ggdb -fno-strict-aliasing -pipe')
-        '-O3 -Wall -DNDEBUG -fno-strict-aliasing -pipe')
+        '-Wall -DNDEBUG -fno-strict-aliasing -pipe')
     cflags = shlex.split(cflags) + ['-fPIC']
     ldflags = os.environ.get('OVERRIDE_LDFLAGS', '-Wall')
     ldflags = shlex.split(ldflags)
@@ -274,7 +306,7 @@ if isosx:
 
 if iswindows:
     cc = cxx = msvc.cc
-    cflags = '/c /nologo /Ox /MD /W3 /EHsc /DNDEBUG'.split()
+    cflags = '/c /nologo /MD /W3 /EHsc /DNDEBUG'.split()
     ldflags = '/DLL /nologo /INCREMENTAL:NO /NODEFAULTLIB:libcmt.lib'.split()
     #cflags = '/c /nologo /Ox /MD /W3 /EHsc /Zi'.split()
     #ldflags = '/DLL /nologo /INCREMENTAL:NO /DEBUG'.split()
@@ -520,6 +552,9 @@ class Build(Command):
                 VERSION  = 1.0.0
                 CONFIG   += %s
             ''')%(ext.name, ' '.join(ext.headers), ' '.join(ext.sources), archs)
+            if ext.inc_dirs:
+                idir = ' '.join(ext.inc_dirs)
+                pro += 'INCLUDEPATH = %s\n'%idir
             pro = pro.replace('\\', '\\\\')
             open(ext.name+'.pro', 'wb').write(pro)
             qmc = [QMAKE, '-o', 'Makefile']

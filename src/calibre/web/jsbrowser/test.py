@@ -11,6 +11,7 @@ import unittest, pprint, threading, time
 
 import cherrypy
 
+from calibre import browser
 from calibre.web.jsbrowser.browser import Browser
 from calibre.library.server.utils import (cookie_max_age_to_expires,
         cookie_time_fmt)
@@ -104,6 +105,12 @@ class Server(object):
         except:
             import traceback
             traceback.print_exc()
+
+    @cherrypy.expose
+    def receive_cookies(self):
+        self.received_cookies = {n:(c.value, dict(c)) for n, c in
+                    dict(cherrypy.request.cookie).iteritems()}
+        return pprint.pformat(self.received_cookies)
 
 class Test(unittest.TestCase):
 
@@ -202,6 +209,26 @@ class Test(unittest.TestCase):
             if fexp:
                 self.assertEqual(fexp, cexp)
 
+    def test_cookie_copy(self):
+        'Test copying of cookies from jsbrowser to mechanize'
+        self.assertEqual(self.browser.visit('http://127.0.0.1:%d/cookies'%self.port),
+                True)
+        sent_cookies = self.server.sent_cookies.copy()
+        self.browser.visit('http://127.0.0.1:%d/receive_cookies'%self.port)
+        orig_rc = self.server.received_cookies.copy()
+        br = browser(user_agent=self.browser.user_agent)
+        br.copy_cookies_from_jsbrowser(self.browser)
+        br.open('http://127.0.0.1:%d/receive_cookies'%self.port)
+        for name, vals in sent_cookies.iteritems():
+            val = vals[0]
+            try:
+                rval = self.server.received_cookies[name][0]
+            except:
+                self.fail('The cookie: %s was not received by the server')
+            self.assertEqual(val, rval,
+                'The received value for the cookie: %s, %s != %s'%(
+                    name, rval, val))
+        self.assertEqual(orig_rc, self.server.received_cookies)
 
 def tests():
     return unittest.TestLoader().loadTestsFromTestCase(Test)

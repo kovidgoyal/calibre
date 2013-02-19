@@ -100,7 +100,7 @@ class CHMReader(CHMFile):
     def ExtractFiles(self, output_dir=os.getcwdu(), debug_dump=False):
         html_files = set([])
         try:
-            x = self.GetEncoding()
+            x = self.get_encoding()
             codecs.lookup(x)
             enc = x
         except:

@@ -6,17 +6,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, socket, struct, subprocess, sys, glob
+import os, socket, struct, subprocess, glob
 from distutils.spawn import find_executable
 
 from PyQt4 import pyqtconfig
 
-from setup import isosx, iswindows, islinux
+from setup import isosx, iswindows, islinux, is64bit
+is64bit
 
 OSX_SDK = '/Developer/SDKs/MacOSX10.5.sdk'
 
 os.environ['MACOSX_DEPLOYMENT_TARGET'] = '10.5'
-is64bit = sys.maxsize > 2**32
 
 NMAKE = RC = msvc = MT = win_inc = win_lib = win_ddk = win_ddk_lib_dirs = None
 if iswindows:
@@ -82,6 +82,7 @@ def consolidate(envvar, default):
 pyqt = pyqtconfig.Configuration()
 
 qt_inc = pyqt.qt_inc_dir
+qt_private_inc = []
 qt_lib = pyqt.qt_lib_dir
 ft_lib_dirs = []
 ft_libs = []
@@ -141,6 +142,8 @@ elif isosx:
     png_libs = ['png12']
     ft_libs = ['freetype']
     ft_inc_dirs = ['/sw/include/freetype2']
+    bq = glob.glob('/sw/build/qt-*/include')[-1]
+    qt_private_inc = ['%s/%s'%(bq, m) for m in ('QtGui', 'QtCore')]
 else:
     # Include directories
     png_inc_dirs = pkgconfig_include_dirs('libpng', 'PNG_INC_DIR',
