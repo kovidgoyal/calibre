@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-15 07:12+0000\n"
-"PO-Revision-Date: 2013-02-15 06:07+0000\n"
+"PO-Revision-Date: 2013-02-18 15:47+0000\n"
 "Last-Translator: YichangLiu <lyc001wow@gmail.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-02-16 04:55+0000\n"
+"X-Launchpad-Export-Date: 2013-02-19 04:56+0000\n"
 "X-Generator: Launchpad (build 16491)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -4752,7 +4752,7 @@ msgid ""
 "from Amazon. calibre can only edit MOBI files that contain KF8 books. Older "
 "MOBI files without KF8 are not editable."
 msgstr ""
-"这个 MOBI 文件并不包含 KF8 格式的图书。 KF8是来自 Amazon 的新格式。 calibre 只能编辑包含 KF8 图书的 MOBI "
+"这个 MOBI 文件并不包含 KF8 格式的书籍。 KF8是来自 Amazon 的新格式。 calibre 只能编辑包含 KF8 图书的 MOBI "
 "文件。旧的不含 KF8 的 MOBI 文件是无法编辑的。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:613
@@ -4783,6 +4783,17 @@ msgid ""
 "\n"
 "<p>Note that polishing only works on files in the %s formats.</p>\n"
 msgstr ""
+"<p><i>润饰书籍</i>可以使你精心打造的电子书\n"
+"锦上添花。</p>\n"
+"\n"
+"<p>润饰操作力图避免改动电子书的内部代码。\n"
+"不同于转换，它 <i>不会有</i>破坏 CSS， 重命名文件，改变字体大小，\n"
+"调整页边距等操作。每项操作只会做出最低限度的改变\n"
+"以达到预期的效果。</p>\n"
+"\n"
+"<p>这个工具应该用作电子书制作过程的最后一步。</p>\n"
+"\n"
+"<p>请注意润饰只能用于 %s 格式的文件。</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:46
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:371
@@ -4827,7 +4838,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:108
 #, python-format
 msgid "## Polishing: %s"
-msgstr ""
+msgstr "## 正在润饰: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:116
 msgid "Updating metadata"
@@ -4877,7 +4888,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:155
 #, python-format
 msgid "Polishing took: %.1f seconds"
-msgstr ""
+msgstr "润饰用时: %.1f秒"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:187
 msgid ""
@@ -4896,7 +4907,7 @@ msgstr "产生更详细的输出，有利于调试。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:204
 msgid "You must provide the input file to polish"
-msgstr ""
+msgstr "你需要指定待润饰的文件"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:208
 msgid "Unknown extra arguments"
@@ -5266,7 +5277,7 @@ msgstr "您确定吗"
 msgid ""
 "Are you sure you want to add the same files to all %d books? If the format "
 "already exists for a book, it will be replaced."
-msgstr "你确定要将相同的文件加入全部 %d 本图书？如果那本书已经有这种格式，原文件将会被覆盖。"
+msgstr "你确定要将相同的文件加入全部 %d 本书籍？如果那本书已经有这种格式，原文件将会被覆盖。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:107
 msgid "Select book files"
@@ -5303,7 +5314,7 @@ msgid ""
 "The following %d duplicate books were found and incoming book formats were "
 "processed and merged into your Calibre database according to your automerge "
 "settings:"
-msgstr "发现下列 %d 本重复的图书，而新加入图书格式已根据自动合并设定处理并合并到您的 Calibre 数据库中："
+msgstr "发现下列 %d 本重复的书籍，而新加入图书格式已根据自动合并设定处理并合并到您的 Calibre 数据库中："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:365
 msgid "Failed to read metadata"
@@ -6325,17 +6336,17 @@ msgstr "插件更新"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:33
 msgid "Polish book"
-msgstr ""
+msgstr "润饰书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:35
 #, python-format
 msgid "Polish %d books"
-msgstr ""
+msgstr "润饰  %d 本书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:39
 #, python-format
 msgid "<h3>About Polishing books</h3>%s"
-msgstr ""
+msgstr "<h3>关于润饰书籍</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:41
 #, python-format
@@ -6371,7 +6382,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:64
 msgid "Update metadata in book files"
-msgstr ""
+msgstr "更新书籍文件中的元数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:65
 msgid "Add metadata as a \"book jacket\" page"
@@ -6410,7 +6421,7 @@ msgstr "没有已选操作"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:120
 msgid "You must select at least one action before saving"
-msgstr ""
+msgstr "保存前必须至少选择一项操作"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:122
 msgid "Choose name"
@@ -6422,16 +6433,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:177
 msgid "You must select at least one action, or click Cancel."
-msgstr ""
+msgstr "你必须选择至少一项操作，或点击取消"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:190
 msgid "Queueing books for polishing"
-msgstr ""
+msgstr "待润饰书籍排序中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:231
 #, python-format
 msgid "Polish %s"
-msgstr ""
+msgstr "润饰 %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:232
 #, python-format
@@ -6461,16 +6472,15 @@ msgstr ""
 #, python-format
 msgid "The original file has been saved as %s."
 msgid_plural "The original files have been saved as %s."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "原文件被另存为 %s。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:300
 msgid " and "
-msgstr ""
+msgstr " 以及 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:303
 msgid "If you polish again, the polishing will run on the originals."
-msgstr ""
+msgstr "如果再次润饰，润饰操作将基于原文件。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:338
 msgid "P"
@@ -6478,24 +6488,24 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:338
 msgid "Polish books"
-msgstr ""
+msgstr "润饰书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:355
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:368
 msgid "Cannot polish"
-msgstr ""
+msgstr "无法润饰"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:369
 #, python-format
 msgid ""
 "Polishing is only supported for books in the %s formats. Convert to one of "
 "those formats before polishing."
-msgstr ""
+msgstr "润饰操作仅支持 %s 格式的书籍。请在润饰前将书籍转换成上述格式之一。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:393
 #, python-format
 msgid "Start polishing of %d book(s)"
-msgstr ""
+msgstr "开始润饰 %d 本书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 msgid "Ctrl+P"
@@ -6883,7 +6893,7 @@ msgstr "无法优化调整书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:310
 msgid "Cannot Tweak Book"
-msgstr "无法调整图书"
+msgstr "无法调整书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:311
 msgid ""
@@ -6891,6 +6901,9 @@ msgid ""
 "\n"
 "First convert the book to one of these formats."
 msgstr ""
+"要优化调整的书籍必须是ePub，HTMLZ 或 AZW3 格式。\n"
+"\n"
+"请先将书籍转换成上述格式之一。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -7199,7 +7212,7 @@ msgstr "数据库中已有标题相同的书籍。确定继续添加？"
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:245
 #, python-format
 msgid "Added %(num)d book(s) automatically from %(src)s"
-msgstr ""
+msgstr "已自动从 %(src)s 导入了 %(num)d 本书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/bars.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:304
@@ -7426,7 +7439,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:99
 msgid "Read book"
-msgstr "阅读图书"
+msgstr "阅读书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:105
 msgid "Wishlist item"
@@ -15334,7 +15347,7 @@ msgstr "在标签浏览器中显示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:254
 msgid "Show as HTML in book details"
-msgstr "图书详情以 HTML 格式显示"
+msgstr "书籍详情以 HTML 格式显示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:255
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:260
@@ -17416,7 +17429,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:301
 msgid "Customize get books search"
-msgstr "自定义获取图书搜索"
+msgstr "自定义获取书籍搜索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:311
 msgid "Configure search"
@@ -22964,7 +22977,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:473
 msgid "Number of recently viewed books to show"
-msgstr ""
+msgstr "要显示的最近查看书籍数目"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:474
 msgid ""
@@ -22972,10 +22985,12 @@ msgid ""
 "Control\n"
 "how many should be shown, here."
 msgstr ""
+"右键点击查看按钮显示最近查看书籍。控制\n"
+"这里应显示多少本数据。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:478
 msgid "Change the font size of book details in the interface"
-msgstr ""
+msgstr "改变界面中书籍详细信息的字体大小"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:479
 msgid ""

@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-15 07:12+0000\n"
-"PO-Revision-Date: 2013-02-18 03:02+0000\n"
+"PO-Revision-Date: 2013-02-18 17:16+0000\n"
 "Last-Translator: Neliton Pereira Jr. <nelitonpjr@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-02-18 04:48+0000\n"
+"X-Launchpad-Export-Date: 2013-02-19 04:55+0000\n"
 "X-Generator: Launchpad (build 16491)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -946,7 +946,7 @@ msgid ""
 msgstr ""
 "    opções %prog\n"
 "\n"
-"     customiza o calibre usando plugins externos\n"
+"     personaliza o calibre usando plugins externos\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:610
@@ -3605,8 +3605,8 @@ msgid ""
 "first and then try it.\n"
 "%s"
 msgstr ""
-"Este arquivo RTF possui uma funcionalidade que o calibre não tem suporte "
-"para. Converta o arquivo para HTML e então tente novamente.\n"
+"Este arquivo RTF possui uma funcionalidade para as quais o calibre não tem "
+"suporte. Converta o arquivo para HTML e então tente novamente.\n"
 "%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:22
@@ -5633,7 +5633,7 @@ msgstr "Reinício é necessário"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:346
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:742
 msgid "Restart calibre now"
-msgstr ""
+msgstr "Reiniciar o Calibre agora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:577
 msgid "Choose Files"
@@ -5993,7 +5993,7 @@ msgstr "Nova localidade da biblioteca"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:141
 #, python-format
 msgid "No existing calibre library found at %s"
-msgstr "Nenhuma biblioteca calibre encontrada em %s"
+msgstr "Nenhuma biblioteca do Calibre encontrada em %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:152
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:160
@@ -6002,7 +6002,7 @@ msgstr "Escolher biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:153
 msgid "Choose calibre library to work with"
-msgstr "Escolha a biblioteca do calibre para trabalhar com"
+msgstr "Escolher uma biblioteca do Calibre para trabalhar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:156
 msgid "Switch/create library..."
@@ -9517,12 +9517,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:102
 msgid "Load Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Carregar arquivo de definições de pesquisa-e-substituição do Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:122
 msgid "Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Arquivo de definições de pesquisa-e-substituição do Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:113
 msgid "Failed to read"
@@ -9535,7 +9535,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:120
 msgid "Save Calibre Search-Replace definitions file"
-msgstr ""
+msgstr "Salvar arquivo de definições de pesquisa-e-substituição do Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:196
 msgid "Unused Search & Replace definition"
@@ -10225,7 +10225,7 @@ msgstr "Configura %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:939
 #, python-format
 msgid "Restart calibre for the changes to %s to be applied."
-msgstr ""
+msgstr "Reiniciar o Calibre para que as alterações em %s sejam aplicadas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:981
 msgid "Error talking to device"
@@ -11156,7 +11156,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:96
 msgid "Already in calibre:"
-msgstr ""
+msgstr "Já existentes no Calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:52
 msgid "Author sort"
@@ -13472,7 +13472,7 @@ msgstr "Notícias:"
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:146
 #, python-format
 msgid "Attached is the %s periodical downloaded by calibre."
-msgstr "Anexos são %s baixados periodicamente pelo calibre."
+msgstr "Em anexo está o  %s periódico baixado pelo Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:201
 msgid "E-book:"
@@ -14327,7 +14327,7 @@ msgstr "%s já está em execução."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:382
 msgid "No running calibre found"
-msgstr ""
+msgstr "Nenhum Calibre em execução encontrado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:386
 msgid "Shutdown command sent, waiting for shutdown..."
@@ -14335,7 +14335,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:391
 msgid "Failed to shutdown running calibre instance"
-msgstr ""
+msgstr "Falha ao fechar instância do Calibre em execução"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:94
 msgid "&Preferences"
@@ -14771,7 +14771,7 @@ msgstr "Configura o download de metadados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:239
 msgid "Change how calibre downloads metadata"
-msgstr "Muda como o calibre baixa metadados"
+msgstr "Alterar a maneira que o Calibre baixa os metadados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:301
 #, python-format
@@ -16106,7 +16106,7 @@ msgstr "Amplo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "Calibre style"
-msgstr ""
+msgstr "Estilo do Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:105
 msgid "System default"
@@ -17782,6 +17782,8 @@ msgstr ""
 msgid ""
 "This store is currently enabled and can be used in other parts of calibre."
 msgstr ""
+"Esta loja está atualmente ativada e pode ser usada em outras partes do "
+"Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:136
 msgid "This store only distributes ebooks without DRM."
@@ -17806,6 +17808,7 @@ msgstr ""
 #, python-format
 msgid "Buying from this store supports the calibre developer: %s."
 msgstr ""
+"Comprando desta loja você dá suporte ao desenvolvedor do Calibre: %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:145
 #, python-format
@@ -17931,7 +17934,8 @@ msgstr "Ir para Loja..."
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:128
 #, python-format
 msgid "Buying from this store supports the calibre developer: %s</p>"
-msgstr "Comprar dessa loja apoia os desenvolvedores do Calibre: %s</p>"
+msgstr ""
+"Comprando desta loja você dá suporte ao desenvolvedor do Calibre: %s</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:177
 msgid "No query"
@@ -18483,7 +18487,7 @@ msgstr "&Ejetar dispositivo conectado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:252
 msgid "Quit calibre"
-msgstr ""
+msgstr "Sair do Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:265
 msgid "Clear the current search"

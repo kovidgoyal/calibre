@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-15 07:12+0000\n"
-"PO-Revision-Date: 2013-02-15 13:36+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2013-02-18 20:10+0000\n"
+"Last-Translator: dario <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-16 04:50+0000\n"
+"X-Launchpad-Export-Date: 2013-02-19 04:55+0000\n"
 "X-Generator: Launchpad (build 16491)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:540
@@ -4189,7 +4189,7 @@ msgid ""
 "margins. Sometimes, this can cause the removal of margins that should not "
 "have been removed. In this case you can disable the removal."
 msgstr ""
-"Algunos documentos especificas los márgenes de página añadiendo márgenes a "
+"Algunos documentos especifican los márgenes de página añadiendo márgenes a "
 "la izquierda y derecha de cada párrafo, calibre intentará detectar y "
 "eliminar estos márgenes. A veces esto puede ocasionar que se eliminen "
 "márgenes que deberían mantenerse. En tal caso, puede desactivar la "
@@ -4256,9 +4256,9 @@ msgid ""
 "1.5em. Spacing removal will not work if the source file does not use "
 "paragraphs (<p> or <div> tags)."
 msgstr ""
-"Eliminar el espacio entre párrafos. También establece sangrado en la primera "
-"línea de cada párrafo de 1,5em. La eliminación del espacio no funciona si el "
-"archivo de origen no define párrafos (etiquetas <p> o <div>)."
+"Eliminar el espacio entre párrafos. También establece sangrado en cada "
+"párrafo de 1,5em. La eliminación del espacio no funciona si el archivo de "
+"origen no define párrafos (etiquetas <p> o <div>)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:417
 msgid ""
@@ -4331,8 +4331,6 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:471
 msgid "Convert fancy quotes, dashes and ellipsis to their plain equivalents."
 msgstr ""
-"Convertir comillas, rayas y puntos suspensivos tipográficos en sus "
-"equivalentes simples."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:479
 msgid ""
@@ -4379,12 +4377,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:513
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
 msgid "Set the title."
-msgstr "Establecer el título."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:517
 msgid "Set the authors. Multiple authors should be separated by ampersands."
 msgstr ""
-"Establecer los autores. Si hay varios autores deben separarse por «&»."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:522
 msgid "The version of the title to be used for sorting. "
@@ -4396,7 +4393,7 @@ msgstr "Texto que se usará para ordenar por autor. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:530
 msgid "Set the cover to the specified file or URL"
-msgstr "Establecer la portada desde el archivo o el URL especificados"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:534
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:54
@@ -4432,7 +4429,7 @@ msgstr "Establecer el ISBN del libro."
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:68
 msgid "Set the tags for the book. Should be a comma separated list."
 msgstr ""
-"Establecer etiquetas para el libro. Debe ser una lista separada por comas"
+"Establecer etiquetas para el libro. Debe ser una lista separada por comas."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:562
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:70
@@ -4474,8 +4471,7 @@ msgstr ""
 msgid ""
 "Look for common words and patterns that denote italics and italicize them."
 msgstr ""
-"Buscar palabras y patrones que habitualmente estén en cursiva y ponerlos en "
-"cursiva."
+"Buscar palabras y patrones que denotan cursiva y ponerlos en cursiva."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:595
 msgid ""
@@ -4483,7 +4479,7 @@ msgid ""
 "indents."
 msgstr ""
 "Convertir los sangrados creados a partir de varios espacios duros en "
-"sangrados de CSS."
+"sangrados en código CSS."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:600
 msgid ""
@@ -4506,7 +4502,8 @@ msgid ""
 "Remove empty paragraphs from the document when they exist between every "
 "other paragraph"
 msgstr ""
-"Eliminar del documento los párrafos vacíos que hay entre otros párrafos"
+"Eliminar los párrafos vacíos del documento cuando existen entre otros "
+"párrafos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:617
 msgid ""
@@ -4531,8 +4528,8 @@ msgid ""
 "used as a dictionary to determine whether hyphens should be retained or "
 "removed."
 msgstr ""
-"Analiza las palabras con guion en todo el documento. El propio documento se "
-"usa como un diccionario para determinar si cada guion debe mantenerse o "
+"Analiza las palabras con guión en todo el documento. El propio documento se "
+"utiliza como un diccionario para determinar si cada guión debe mantenerse o "
 "eliminarse."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:634
@@ -4564,7 +4561,7 @@ msgstr "Texto de sustitución para el texto encontrado con sr2-search."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:658
 msgid "Search pattern (regular expression) to be replaced with sr3-replace."
 msgstr ""
-"Patrón de búsqueda (expresión regular) que se sustituirá por sr3-replace."
+"Patrón de búsqueda (expresión regular) a ser reemplazado con sr3-replace."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:663
 msgid "Replacement to replace the text found with sr3-search."
@@ -4623,8 +4620,6 @@ msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "cp1251, latin1 and utf-8."
 msgstr ""
-"Codificación de caracteres para los archivos HTML de entrada. Algunas "
-"posibilidades comunes son: cp1252, cp1251, latin1 y utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:91
 msgid "Add linked files in breadth first order"
@@ -4637,10 +4632,10 @@ msgid ""
 "the order A, B, D, C.  With this option, they will instead be added as A, B, "
 "C, D"
 msgstr ""
-"Normalmente, al seguir los enlaces en los archivos HTML calibre va siguiendo "
-"primero la máxima profundidad; esto es, si el archivo A enlaza a B y C, pero "
-"B enlaza a D, los archivos se añadirán en el orden A, B, D, C. Con esta "
-"opción se añadirán en el orden A, B, C, D"
+"Normalmente, al seguir los enlaces en los archivos HTML, calibre va "
+"siguiendo primero aquellos de máxima profundidad; esto es, si el archivo A "
+"enlaza a B y C, pero B enlaza a D, los archivos se añadirán en el orden A, "
+"B, D, C. Con esta opción se añadirán en el orden A, B, C, D"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -4730,7 +4725,7 @@ msgstr "No se pudo leer la imagen de portada: %s"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1868
 #, python-format
 msgid "Cannot read from: %s"
-msgstr "No se pudo leer de: %s"
+msgstr "No se pudo leer desde: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1997
 msgid "Failed to process opf file"
@@ -5185,7 +5180,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:779
 msgid "Amazon timed out. Try again later."
 msgstr ""
-"El tiempo de espera de Amazon ha expirado. Vuelva a intentarlo más tarde"
+"El tiempo de espera de Amazon ha expirado. Vuelva a intentarlo más tarde."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:190
 msgid "Metadata source"
@@ -5197,7 +5192,7 @@ msgid ""
 "language books."
 msgstr ""
 "Descarga metadatos y portadas de Douban.com. Sólo es útil para libros en "
-"chino."
+"idioma chino."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/edelweiss.py:165
 msgid ""
@@ -5209,7 +5204,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:162
 msgid "Downloads metadata and covers from Google Books"
-msgstr "Descarga metadatos y portadas de Google Books"
+msgstr "Descarga metadatos y portadas desde Google Books"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:24
 msgid "Downloads metadata from isbndb.com"
@@ -5253,7 +5248,7 @@ msgstr "Descargar todos los metadatos (lento)"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:42
 msgid "Enable this option to gather all metadata available from Overdrive."
 msgstr ""
-"Active esta opción para recopilar todos los metadatos disponibles en "
+"Active esta opción para recopilar todos los metadatos disponibles desde "
 "Overdrive."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:45
@@ -5273,7 +5268,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/ozon.py:20
 msgid "Downloads metadata and covers from OZON.ru"
-msgstr "Descargar metadatos y portadas de OZON.ru"
+msgstr "Descargar metadatos y portadas desde OZON.ru"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:61
 msgid "Sample Book"
@@ -5286,16 +5281,16 @@ msgstr "Este es un libro Topaz de Amazon. No se puede procesar."
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:46
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:594
 msgid "This is not a MOBI file. It is a Topaz file."
-msgstr "Éste no es un archivo MOBI, es un archivo Topaz."
+msgstr "Este no es un archivo MOBI, es un archivo Topaz."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:51
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:599
 msgid "This is not a MOBI file."
-msgstr "Éste no es un archivo MOBI."
+msgstr "Este no es un archivo MOBI."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:54
 msgid "This file is locked with DRM. It cannot be tweaked."
-msgstr "Este archivo está bloqueado con DRM, no puede ser retocado."
+msgstr "Este archivo está bloqueado con DRM, no puede ser manipulado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:59
 msgid ""
@@ -5313,9 +5308,10 @@ msgid ""
 "remove the Mobi6 data, which means the file will not be usable on older "
 "Kindles. Are you sure?"
 msgstr ""
-"Este archivos MOBI contiene libros en formato KF8 y en el formato antiguo "
+"Este archivos MOBI contiene información en formato KF8 y en el antiguo "
 "Mobi6. Al retocar se eliminará el formato Mobi6, lo que significa que el "
-"archivo no podrá usarse en los Kindles más antiguos. ¿Está seguro?"
+"archivo no podrá usarse en los dispositivos Kindles más antiguos. ¿Está "
+"seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:464
 msgid "No details available"
@@ -5343,7 +5339,7 @@ msgstr "Glosario"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1289
 msgid "Acknowledgements"
-msgstr "Agradecimientos"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1290
 msgid "Bibliography"
@@ -5506,8 +5502,8 @@ msgid ""
 "all the book metadata such as title, tags, authors, series, comments,\n"
 "etc.</p>"
 msgstr ""
-"<p>Insertar una página de «sobrecubierta» al principio del libr que "
-"contiene\n"
+"<p>Insertar una página de «sobrecubierta» al principio del libro "
+"conteniendo\n"
 "todos los metadatos del libro, como título, etiquetas, autores, serie,\n"
 "comentarios, etc.</p>"
 
@@ -5522,7 +5518,7 @@ msgstr "## Puliendo: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:116
 msgid "Updating metadata"
-msgstr "Actualizando metados"
+msgstr "Actualizando metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:121
 msgid "Updated metadata jacket"
@@ -5649,11 +5645,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:128
 msgid "Footnotes"
-msgstr "Notas al pie"
+msgstr "Notas a pie de página"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:139
 msgid "Sidebar"
-msgstr "Recuadro"
+msgstr "Barra lateral"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/outline_writer.py:49
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/outline_writer.py:60
