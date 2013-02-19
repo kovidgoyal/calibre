@@ -247,9 +247,34 @@ class ReadingTest(BaseTest):
         old = LibraryDatabase2(self.library_path)
         old_categories = old.get_categories()
         cache = self.init_cache(self.library_path)
-        import pprint
-        pprint.pprint(old_categories)
-        pprint.pprint(cache.get_categories())
+        new_categories = cache.get_categories()
+        self.assertEqual(set(old_categories), set(new_categories),
+            'The set of old categories is not the same as the set of new categories')
+
+        def compare_category(category, old, new):
+            for attr in ('name', 'original_name', 'id', 'count',
+                         'is_hierarchical', 'is_editable', 'is_searchable',
+                         'id_set', 'avg_rating', 'sort', 'use_sort_as_name',
+                         'tooltip', 'icon', 'category'):
+                oval, nval = getattr(old, attr), getattr(new, attr)
+                if oval != nval:
+                    if (
+                        (category in {'rating', '#rating'} and attr in {'id_set', 'sort'}) or
+                        (category == 'series' and attr == 'sort') or # Sorting is wrong in old
+                        (category == 'identifiers' and attr == 'id_set') or
+                        (category == '@Good Series') or # Sorting is wrong in old
+                        (category == 'news' and attr in {'count', 'id_set'})
+                    ):
+                        continue
+                    self.assertTrue(False,
+                        'The attribute %s for %s in category %s does not match. Old is %r, New is %r'
+                                    %(attr, old.name, category, oval, nval))
+        for category in old_categories:
+            old, new = old_categories[category], new_categories[category]
+            self.assertEqual(len(old), len(new),
+                'The number of items in the category %s is not the same'%category)
+            for o, n in zip(old, new):
+                compare_category(category, o, n)
 
     # }}}
 
