@@ -257,18 +257,18 @@ class ReadingTest(BaseTest):
                          'id_set', 'avg_rating', 'sort', 'use_sort_as_name',
                          'tooltip', 'icon', 'category'):
                 oval, nval = getattr(old, attr), getattr(new, attr)
-                if oval != nval:
-                    if (
-                        (category in {'rating', '#rating'} and attr in {'id_set', 'sort'}) or
-                        (category == 'series' and attr == 'sort') or # Sorting is wrong in old
-                        (category == 'identifiers' and attr == 'id_set') or
-                        (category == '@Good Series') or # Sorting is wrong in old
-                        (category == 'news' and attr in {'count', 'id_set'})
-                    ):
-                        continue
-                    self.assertTrue(False,
-                        'The attribute %s for %s in category %s does not match. Old is %r, New is %r'
-                                    %(attr, old.name, category, oval, nval))
+                if (
+                    (category in {'rating', '#rating'} and attr in {'id_set', 'sort'}) or
+                    (category == 'series' and attr == 'sort') or # Sorting is wrong in old
+                    (category == 'identifiers' and attr == 'id_set') or
+                    (category == '@Good Series') or # Sorting is wrong in old
+                    (category == 'news' and attr in {'count', 'id_set'})
+                ):
+                    continue
+                self.assertEqual(oval, nval,
+                    'The attribute %s for %s in category %s does not match. Old is %r, New is %r'
+                                %(attr, old.name, category, oval, nval))
+
         for category in old_categories:
             old, new = old_categories[category], new_categories[category]
             self.assertEqual(len(old), len(new),
