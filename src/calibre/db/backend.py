@@ -16,15 +16,14 @@ import apsw
 from calibre import isbytestring, force_unicode, prints
 from calibre.constants import (iswindows, filesystem_encoding,
         preferred_encoding)
-from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile
-from calibre.db import SPOOL_SIZE
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.db.schema_upgrades import SchemaUpgrade
 from calibre.library.field_metadata import FieldMetadata
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.icu import strcmp
 from calibre.utils.config import to_json, from_json, prefs, tweaks
 from calibre.utils.date import utcfromtimestamp, parse_date
-from calibre.utils.filenames import is_case_sensitive
+from calibre.utils.filenames import (is_case_sensitive, samefile, hardlink_file)
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable,
         CompositeTable, LanguagesTable)
@@ -863,34 +862,39 @@ class DB(object):
     def has_format(self, book_id, fmt):
         return self.format_abspath(book_id, fmt) is not None
 
-    def cover(self, path, as_file=False, as_image=False,
-            as_path=False):
+    def copy_cover_to(self, path, dest, windows_atomic_move=None, use_hardlink=False):
         path = os.path.join(self.library_path, path, 'cover.jpg')
-        ret = None
-        if os.access(path, os.R_OK):
-            try:
+        if windows_atomic_move is not None:
+            if not isinstance(dest, basestring):
+                raise Exception("Error, you must pass the dest as a path when"
+                        " using windows_atomic_move")
+            if os.access(path, os.R_OK) and dest and not samefile(dest, path):
+                windows_atomic_move.copy_path_to(path, dest)
+                return True
+        else:
+            if os.access(path, os.R_OK):
+                try:
+                    f = lopen(path, 'rb')
+                except (IOError, OSError):
+                    time.sleep(0.2)
                 f = lopen(path, 'rb')
-            except (IOError, OSError):
-                time.sleep(0.2)
-                f = lopen(path, 'rb')
-            with f:
-                if as_path:
-                    pt = PersistentTemporaryFile('_dbcover.jpg')
-                    with pt:
-                        shutil.copyfileobj(f, pt)
-                    return pt.name
-                if as_file:
-                    ret = SpooledTemporaryFile(SPOOL_SIZE)
-                    shutil.copyfileobj(f, ret)
-                    ret.seek(0)
-                else:
-                    ret = f.read()
-                    if as_image:
-                        from PyQt4.Qt import QImage
-                        i = QImage()
-                        i.loadFromData(ret)
-                        ret = i
-        return ret
+                with f:
+                    if hasattr(dest, 'write'):
+                        shutil.copyfileobj(f, dest)
+                        if hasattr(dest, 'flush'):
+                            dest.flush()
+                        return True
+                    elif dest and not samefile(dest, path):
+                        if use_hardlink:
+                            try:
+                                hardlink_file(path, dest)
+                                return True
+                            except:
+                                pass
+                        with lopen(dest, 'wb') as d:
+                            shutil.copyfileobj(f, d)
+                        return True
+        return False
 
    # }}}
 

@@ -8,9 +8,11 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, traceback
+from io import BytesIO
 from collections import defaultdict
 from functools import wraps, partial
 
+from calibre.db import SPOOL_SIZE
 from calibre.db.categories import get_categories
 from calibre.db.locking import create_locks, RecordLock
 from calibre.db.fields import create_field
@@ -18,6 +20,7 @@ from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
 from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile
 from calibre.utils.date import now
 from calibre.utils.icu import sort_key
 
@@ -397,15 +400,43 @@ class Cache(object):
         :param as_path: If True return the image as a path pointing to a
                         temporary file
         '''
+        if as_file:
+            ret = SpooledTemporaryFile(SPOOL_SIZE)
+            if not self.copy_cover_to(book_id, ret): return
+            ret.seek(0)
+        elif as_path:
+            pt = PersistentTemporaryFile('_dbcover.jpg')
+            with pt:
+                if not self.copy_cover_to(book_id, pt): return
+            ret = pt.name
+        else:
+            buf = BytesIO()
+            if not self.copy_cover_to(book_id, buf): return
+            ret = buf.getvalue()
+            if as_image:
+                from PyQt4.Qt import QImage
+                i = QImage()
+                i.loadFromData(ret)
+                ret = i
+        return ret
+
+    @api
+    def copy_cover_to(self, book_id, dest):
+        '''
+        Copy the cover to the file like object ``dest``. Returns False
+        if no cover exists or dest is the same file as the current cover.
+        dest can also be a path in which case the cover is
+        copied to it iff the path is different from the current path (taking
+        case sensitivity into account).
+        '''
         with self.read_lock:
             try:
                 path = self._field_for('path', book_id).replace('/', os.sep)
             except:
-                return None
+                return False
 
         with self.record_lock.lock(book_id):
-            return self.backend.cover(path, as_file=as_file, as_image=as_image,
-                    as_path=as_path)
+            return self.backend.copy_cover_to(path, dest)
 
     @read_api
     def multisort(self, fields, ids_to_sort=None):

@@ -176,6 +176,10 @@ class ReadingTest(BaseTest):
         old_metadata = {i:old.get_metadata(
             i, index_is_id=True, get_cover=True, cover_as_data=True) for i in
                 xrange(1, 4)}
+        for mi in old_metadata.itervalues():
+            mi.format_metadata = dict(mi.format_metadata)
+            if mi.formats:
+                mi.formats = tuple(mi.formats)
         old = None
 
         cache = self.init_cache(self.library_path)
@@ -185,6 +189,24 @@ class ReadingTest(BaseTest):
         cache = None
         for mi2, mi1 in zip(new_metadata.values(), old_metadata.values()):
             self.compare_metadata(mi1, mi2)
+
+    def test_get_cover(self): # {{{
+        'Test cover() returns the same data for both backends'
+        from calibre.library.database2 import LibraryDatabase2
+        old = LibraryDatabase2(self.library_path)
+        covers = {i: old.cover(i, index_is_id=True) for i in (1, 2, 3)}
+        old = None
+        cache = self.init_cache(self.library_path)
+        for book_id, cdata in covers.iteritems():
+            self.assertEqual(cdata, cache.cover(book_id), 'Reading of cover failed')
+            f = cache.cover(book_id, as_file=True)
+            self.assertEqual(cdata, f.read() if f else f, 'Reading of cover as file failed')
+            if cdata:
+                with open(cache.cover(book_id, as_path=True), 'rb') as f:
+                    self.assertEqual(cdata, f.read(), 'Reading of cover as path failed')
+            else:
+                self.assertEqual(cdata, cache.cover(book_id, as_path=True),
+                                 'Reading of null cover as path failed')
 
     # }}}
 
