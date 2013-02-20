@@ -189,6 +189,7 @@ class ReadingTest(BaseTest):
         cache = None
         for mi2, mi1 in zip(new_metadata.values(), old_metadata.values()):
             self.compare_metadata(mi1, mi2)
+    # }}}
 
     def test_get_cover(self): # {{{
         'Test cover() returns the same data for both backends'
