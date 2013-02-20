@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-15 07:12+0000\n"
-"PO-Revision-Date: 2013-02-06 21:33+0000\n"
+"PO-Revision-Date: 2013-02-19 16:30+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-02-16 04:49+0000\n"
+"X-Launchpad-Export-Date: 2013-02-20 04:48+0000\n"
 "X-Generator: Launchpad (build 16491)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -349,7 +349,7 @@ msgstr "Конвертировать книги в различные форма
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Fine tune your ebooks"
-msgstr ""
+msgstr "Точная настройка ваших книг"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Delete books from your calibre library or connected device"
@@ -852,6 +852,8 @@ msgid ""
 "Intended for the Nook HD+ and similar tablet devices with a resolution of "
 "1280x1920"
 msgstr ""
+"Предназначено для Nook HD+ и похожих планшетных устройств с разрешением "
+"1280x1920"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:484
 msgid "This profile is intended for the Kobo Reader."
@@ -5113,6 +5115,8 @@ msgid ""
 "Downloads metadata and covers from Edelweiss - A catalog updated by book "
 "publishers"
 msgstr ""
+"Загрузить метаданные и обложки из Edelweiss - Каталога обновляемого "
+"издателями книг"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:162
 msgid "Downloads metadata and covers from Google Books"
@@ -5386,7 +5390,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:116
 msgid "Updating metadata"
-msgstr ""
+msgstr "Обновление метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:121
 msgid "Updated metadata jacket"

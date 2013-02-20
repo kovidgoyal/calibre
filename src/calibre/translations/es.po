@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-15 07:12+0000\n"
-"PO-Revision-Date: 2013-02-18 20:10+0000\n"
+"PO-Revision-Date: 2013-02-19 20:11+0000\n"
 "Last-Translator: dario <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-19 04:55+0000\n"
+"X-Launchpad-Export-Date: 2013-02-20 04:49+0000\n"
 "X-Generator: Launchpad (build 16491)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:540
@@ -5659,7 +5659,9 @@ msgstr "Página %d"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:71
 msgid "Could not find pdftohtml, check it is in your PATH"
-msgstr "No fue posible encontrar pdftohtml, compruebe que está en el PATH"
+msgstr ""
+"No fue posible encontrar pdftohtml, compruebe que está presente en su "
+"computadora."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:97
@@ -5685,7 +5687,7 @@ msgstr "Notificar cuando haya una nueva versión disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:133
 msgid "Use Roman numerals for series number"
-msgstr "Usar números romanos para los número de series"
+msgstr "Usar números romanos para los números de series"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:135
 msgid "Sort tags list by name, popularity, or rating"
@@ -5714,7 +5716,7 @@ msgstr "Formatos que se visualizan usando el visor interno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:149
 msgid "Columns to be displayed in the book list"
-msgstr "Columnas mostradas en la lista de libros"
+msgstr "Columnas a ser mostradas en la lista de libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:150
 msgid "Automatically launch content server on application startup"
@@ -5727,7 +5729,7 @@ msgstr "Antigüedad máxima de las noticias guardadas en la base de datos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:152
 msgid "Show system tray icon"
-msgstr "Mostrar el icono en la bandeja del sistema"
+msgstr "Mostrar icono en el área de notificación del sistema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:154
 msgid "Upload downloaded news to device"
@@ -5784,7 +5786,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:198
 msgid "Download social metadata (tags/rating/etc.)"
-msgstr "Descargar metadatos sociales (etiquetas/valoración/etc...)"
+msgstr "Descargar metadatos sociales (etiquetas/valoración/etc.)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:200
 msgid "Overwrite author and title with new metadata"
@@ -5796,7 +5798,8 @@ msgstr "Descargar automáticamente la portada, si está disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:204
 msgid "Limit max simultaneous jobs to number of CPUs"
-msgstr "Limitar el número de tareas al número de CPU"
+msgstr ""
+"Limitar el número de tareas máximas simultáneas respecto al número de CPUs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:206
 msgid ""
@@ -5874,7 +5877,7 @@ msgstr "Libros en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:34
 msgid "Topaz books"
-msgstr "Libros en formato topaz"
+msgstr "Libros en formato Topaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:35
 msgid "Text books"
@@ -5882,7 +5885,7 @@ msgstr "Libros en formato texto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:36
 msgid "PDF Books"
-msgstr "Libros en PDF"
+msgstr "Libros en formato PDF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:37
 msgid "SNB Books"
@@ -5938,7 +5941,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:67
 msgid "Add Empty book. (Book entry with no formats)"
-msgstr "Añadir libro en blanco. (Entrada de libro sin ningún formato)"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:68
 msgid "Shift+Ctrl+E"
@@ -5977,7 +5980,7 @@ msgstr "No hay libros seleccionados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:96
 msgid "Cannot add files as no books are selected"
-msgstr "No ne pueden añadir archivos porque no hay libros seleccionados"
+msgstr "No se pueden añadir archivos porque no hay libros seleccionados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:120
@@ -5990,8 +5993,8 @@ msgid ""
 "Are you sure you want to add the same files to all %d books? If the format "
 "already exists for a book, it will be replaced."
 msgstr ""
-"¿Está seguro de que quiere añadir los mismos archivos a todos los %d libros? "
-"Si ya existiera el formato para algún libro, se reemplazará."
+"¿Está seguro que quiere añadir los mismos archivos a todos los %d libros? Si "
+"ya existiera el formato para algún libro, se reemplazará."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:107
 msgid "Select book files"
@@ -5999,11 +6002,11 @@ msgstr "Seleccione los archivos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:189
 msgid "Adding"
-msgstr "Añadiendo"
+msgstr "Agregando"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:190
 msgid "Creating book records from ISBNs"
-msgstr "Creando registros de libros a partir de los ISBN"
+msgstr "Creando registros de libros a partir de sus ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:281
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:330
@@ -6056,7 +6059,7 @@ msgstr "Añadir a la biblioteca"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:183
 msgid "No book selected"
-msgstr "No hay libros seleccionados"
+msgstr "No se ha seleccionado un libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:405
 msgid ""
@@ -6087,11 +6090,11 @@ msgstr "No se pudieron descargar algunos ficheros del dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:444
 msgid "Could not download files"
-msgstr "No se pudieron descargar los ficheros"
+msgstr "No se pudieron descargar archivos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:13
 msgid "Add books to library"
-msgstr "Añadir libros a la biblioteca"
+msgstr "Agregar libros a la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
@@ -6182,7 +6185,7 @@ msgid ""
 "select its new location below. Otherwise calibre will forget this library."
 msgstr ""
 "No se encontró una biblioteca de calibre en %s. Si la biblioteca ha sido "
-"movido, seleccione la nueva ubicación abajo. En caso contrario, calibre "
+"movida, seleccione la nueva ubicación abajo. En caso contrario, calibre "
 "olvidará esta biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:109
@@ -6278,7 +6281,8 @@ msgstr "Elija un nuevo nombre para la biblioteca <b>%s</b>. "
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:309
 msgid "Note that the actual library folder will be renamed."
 msgstr ""
-"Tenga en cuenta que se cambiará el nombre de la carpeta de la biblioteca."
+"Tenga en cuenta que el actual nombre de la carpeta de la biblioteca será "
+"renombrada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:316
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:730
@@ -6719,7 +6723,7 @@ msgstr "Ninguno de los libros seleccionados está en el dispositivo"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:263
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:363
 msgid "Deleting books from device."
-msgstr "Eliminando libros del dispositivo"
+msgstr "Eliminando libros del dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:321
 msgid ""
@@ -6727,7 +6731,7 @@ msgid ""
 "want the selected files deleted from?"
 msgstr ""
 "Algunos de los libros seleccionados están en el dispositivo conectado. ¿De "
-"<b>dónde</b> quiere borrar los libros seleccionades?"
+"<b>dónde</b> quiere borrar los libros seleccionados?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:333
 msgid ""
@@ -7066,7 +7070,7 @@ msgstr "F"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:19
 msgid "Fetch news"
-msgstr "Descargar noticias (RSS)"
+msgstr "Descargar noticias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:54
 msgid "Fetching news from "
@@ -7306,8 +7310,6 @@ msgid ""
 "Polishing is only supported for books in the %s formats. Convert to one of "
 "those formats before polishing."
 msgstr ""
-"Sólo se pueden pulir libros en los formatos %s. Convierta el libro a uno de "
-"esos formatos antes de pulir."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:393
 #, python-format

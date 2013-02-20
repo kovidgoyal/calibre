@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-15 07:12+0000\n"
-"PO-Revision-Date: 2013-02-13 18:22+0000\n"
+"PO-Revision-Date: 2013-02-19 18:36+0000\n"
 "Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-02-16 04:48+0000\n"
+"X-Launchpad-Export-Date: 2013-02-20 04:48+0000\n"
 "X-Generator: Launchpad (build 16491)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
@@ -347,7 +347,7 @@ msgstr "Konwertuj książki na różne formaty"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Fine tune your ebooks"
-msgstr ""
+msgstr "Doszlifuj swoje książki"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Delete books from your calibre library or connected device"
@@ -5332,6 +5332,20 @@ msgid ""
 "\n"
 "<p>Note that polishing only works on files in the %s formats.</p>\n"
 msgstr ""
+"<p><i>Dopraccowywanie książek</i> oznacza dodanie ostatniego szlifu\n"
+"twoim książkom.</p>\n"
+"<p>Wprowadzane są drobne zmiany w kodzie książki. W odróżnieniu od "
+"konwersji\n"
+"<i>nie</i> są zmieniane arkusze stylów, nazwy plików, rozmiar czcionki, "
+"marginesy itp.\n"
+"Każda czynność zmienia tylko tyle ile jest potrzebne do uzyskania "
+"oczekiwanego efektu.</p>\n"
+"\n"
+"<p>To narzedzie powinno zostać użyte na ostatnim etapie tworzenia "
+"książki.</p>\n"
+"\n"
+"<p>Należy pamiętać, że dopracowywane mogą być jedynie książki w formatach "
+"%s.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:46
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:371
@@ -5383,76 +5397,84 @@ msgid ""
 "all the book metadata such as title, tags, authors, series, comments,\n"
 "etc.</p>"
 msgstr ""
+"<p>Umieszcza na początku książki stronę z \"metryczką\", zawierającą\n"
+"wszystkie metadane takie jak tytuł, etykiety, autora(ów), serię, komentarz "
+"itp."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:72
 msgid "<p>Remove a previous inserted book jacket page.</p>\n"
-msgstr ""
+msgstr "<p>Usuń poprzednią metryczkę</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:108
 #, python-format
 msgid "## Polishing: %s"
-msgstr ""
+msgstr "## Dopracowywanie: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:116
 msgid "Updating metadata"
-msgstr ""
+msgstr "Uaktualnianie metadanych"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:121
 msgid "Updated metadata jacket"
-msgstr ""
+msgstr "Metryczka książki uaktualniona"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:122
 msgid "Metadata updated\n"
-msgstr ""
+msgstr "Metadane uaktualnione\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:125
 msgid "Subsetting embedded fonts"
-msgstr ""
+msgstr "Ograniczanie osadzonych czcionek"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:130
 msgid "Setting cover"
-msgstr ""
+msgstr "Ustawianie okładki"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:135
 msgid "Inserting metadata jacket"
-msgstr ""
+msgstr "Umieszczanie metryczki"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:138
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:142
 msgid "Existing metadata jacket replaced"
-msgstr ""
+msgstr "Istniejąca metryczka została zamieniona"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:140
 msgid "Metadata jacket inserted"
-msgstr ""
+msgstr "Metryczka została umieszczona"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:146
 msgid "Removing metadata jacket"
-msgstr ""
+msgstr "Usuwanie metryczki"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:148
 msgid "Metadata jacket removed"
-msgstr ""
+msgstr "Metryczka została usunięta"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:150
 msgid "No metadata jacket found"
-msgstr ""
+msgstr "Nie znaleziono metryczki"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:155
 #, python-format
 msgid "Polishing took: %.1f seconds"
-msgstr ""
+msgstr "Dopracowanie zajęło  %.1f sekund"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:187
 msgid ""
 "Path to a cover image. Changes the cover specified in the ebook. If no cover "
 "is present, or the cover is not properly identified, inserts a new cover."
 msgstr ""
+"Ścieżka do pliku okładki. Okłada zaznaczonej książki zostanie zmieniona. "
+"Jeśli nie ma okładki lub okładka nie jest prawidłowo identyfikowana to jest "
+"wstawiana nowa."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:190
 msgid ""
 "Path to an OPF file. The metadata in the book is updated from the OPF file."
 msgstr ""
+"Ścieżka do pliku OPF. Metadane książki są uaktualniane na podstawie pliku "
+"OPF."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:194
 msgid "Produce more verbose output, useful for debugging."
@@ -6692,7 +6714,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:263
 msgid "Still looking for IP addresses"
-msgstr ""
+msgstr "Wciąż szukam adresu IP"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:266
 msgid "Many IP addresses. See Start/Stop dialog."
@@ -6986,7 +7008,7 @@ msgstr "Aktualizacja wtyczek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:33
 msgid "Polish book"
-msgstr ""
+msgstr "Dopracuj książkę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:35
 #, python-format
@@ -7011,16 +7033,21 @@ msgid ""
 "inserted.</p> <p>Note that most ebook formats are not capable of supporting "
 "all the metadata in calibre.</p>"
 msgstr ""
+"<h3>Uaktualnianie metadanych</h3><p>Dzięki temu metadane i okładki w plikach "
+"będą takie same jak w bibliotece calibre.</p><p>Jeśli plik książki nie "
+"zawiera możliwej do zidentyfikowania okładki to zostanie wstawiona nowa "
+"okładka</p><p>Należy pamiętać, że większość formatów książek nie obsługuje "
+"wszystkich metadanych zawartych w bibliotece calibre.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:51
 #, python-format
 msgid "<h3>Book Jacket</h3>%s"
-msgstr ""
+msgstr "<h3>Metryczka książki<?h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:52
 #, python-format
 msgid "<h3>Remove Book Jacket</h3>%s"
-msgstr ""
+msgstr "<h3>Usuń metryczkę</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:58
 msgid "Select actions to perform:"
@@ -7032,27 +7059,27 @@ msgstr "Podzbiór wszystkich osadzonych czcionek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:64
 msgid "Update metadata in book files"
-msgstr ""
+msgstr "Uaktualnij metadane w plikach książki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:65
 msgid "Add metadata as a \"book jacket\" page"
-msgstr ""
+msgstr "Dodaj metadane jako \"metryczkę\" książki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:66
 msgid "Remove a previously inserted book jacket"
-msgstr ""
+msgstr "Usuń poprzednio dodaną metryczkę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:74
 msgid "About"
-msgstr "O"
+msgstr "Więcej"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:96
 msgid "&Save Settings"
-msgstr ""
+msgstr "&Zapisz ustawienia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:98
 msgid "&Load Settings"
-msgstr ""
+msgstr "&Wczytaj ustawienia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:47
@@ -7071,15 +7098,15 @@ msgstr "Nie wybrano czynności"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:120
 msgid "You must select at least one action before saving"
-msgstr ""
+msgstr "Musisz wybrać przynajmniej jedną czynność przed zapisaniem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:122
 msgid "Choose name"
-msgstr ""
+msgstr "Wybierz nazwę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:123
 msgid "Choose a name for these settings"
-msgstr ""
+msgstr "Wybierz nazwę dla tych ustawień"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:177
 msgid "You must select at least one action, or click Cancel."
@@ -7107,31 +7134,34 @@ msgstr "Kolejkowanie książki %(nums)s z %(tot)s (%(title)s)"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:262
 #, python-format
 msgid "Ignore remaining %d reports"
-msgstr ""
+msgstr "Pomiń ostatnich %d zapisów"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:269
 msgid "View full &log"
-msgstr ""
+msgstr "Pokaż cały log"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:292
 #, python-format
 msgid "Polishing of %s"
-msgstr ""
+msgstr "Dopracowywanie %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:298
 #, python-format
 msgid "The original file has been saved as %s."
 msgid_plural "The original files have been saved as %s."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Oryginalny plik został zapisany jako %s."
+msgstr[1] "Oryginalne pliki zostały zapisane jako %s."
+msgstr[2] "Oryginalne pliki zostały zapisane jako %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:300
 msgid " and "
-msgstr ""
+msgstr " i "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:303
 msgid "If you polish again, the polishing will run on the originals."
 msgstr ""
+"Jeśli ponownie będziesz dopracowywać książkę to operacja będzie "
+"przeprowadzona na oryginale."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:338
 msgid "P"
@@ -7158,7 +7188,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:393
 #, python-format
 msgid "Start polishing of %d book(s)"
-msgstr ""
+msgstr "Rozpoczynam dopracowywanie %d książek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 msgid "Ctrl+P"
@@ -15828,19 +15858,19 @@ msgstr "nie jest ustawiona"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:61
 msgid "is more days ago than"
-msgstr ""
+msgstr "więcej dni temu niż"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:62
 msgid "is fewer days ago than"
-msgstr ""
+msgstr "mniej dni temu niż"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:63
 msgid "is more days from now than"
-msgstr ""
+msgstr "więcej dni od teraz niż"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:64
 msgid "is fewer days from now than"
-msgstr ""
+msgstr "mniej dni od teraz niż"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:67
 msgid "has"
@@ -15905,24 +15935,32 @@ msgid ""
 "Enter the maximum days old the item can be. Zero is today. Dates in the "
 "future always match"
 msgstr ""
+"Podaj maksymalny wiek elementu w dniach. Zero oznacza dzisiaj. Daty w "
+"przyszłości oznaczają wszystkie elementy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:252
 msgid ""
 "Enter the minimum days old the item can be. Zero is today. Dates in the "
 "future never match"
 msgstr ""
+"Podaj minimalny wiek elementu w dniach. Zero oznacza dzisiaj. Daty w "
+"przyszłości oznaczają \"żaden element\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:256
 msgid ""
 "Enter the maximum days in the future the item can be. Zero is today. Dates "
 "in the past always match"
 msgstr ""
+"Podaj maksymalną liczbę dni w przyszłości. Zero oznacza dziś. Daty w "
+"przeszłości oznaczają wszystkie elementy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:260
 msgid ""
 "Enter the minimum days in the future the item can be. Zero is today. Dates "
 "in the past never match"
 msgstr ""
+"Podaj minimalną liczbę dni w przyszłości. Zero oznacza dzisiaj. Daty w "
+"przeszłości oznaczają \"żaden element\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:264
 msgid "Enter a date in the format YYYY-MM-DD"
@@ -16049,6 +16087,11 @@ msgid ""
 "            <ul>%(rule)s</ul>\n"
 "            "
 msgstr ""
+"            <p>Ustaw <b>%(kind)s</b> dla kolumny <b>%(col)s</b> na "
+"<b>%(color)s</b> jeśli następujące warunki\n"
+"            są spełnione:</p>\n"
+"            <ul>%(rule)s</ul>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:688
 #, python-format
@@ -19756,7 +19799,7 @@ msgstr "Standardowy typ czcionki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:85
 msgid "The minimum font size in px"
-msgstr ""
+msgstr "Minimalny rozmiar czcionki w px"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:143
 msgid "Theme name"
@@ -19835,11 +19878,11 @@ msgstr "%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:407
 msgid "M&inimum font size:"
-msgstr ""
+msgstr "M&inimalny rozmiar czcionki:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:408
 msgid "The minimum font size in pixels"
-msgstr ""
+msgstr "Minimalny rozmiar czcionki w pikselach"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:410
 msgid "&Font options"
@@ -20873,6 +20916,11 @@ msgid ""
 "directly on the device. To do this you have to turn on the calibre content "
 "server."
 msgstr ""
+"<p>Jeśli używasz aplikacji <a "
+"href=\"http://www.lexcycle.com/download\">Stanza</a> lub <a "
+"href=\"http://marvinapp.com/\">Marvin</a> możesz podłączyć się do biblioteki "
+"bezprzewodowo, bezpośrednio na urządzeniu. W tym celu musisz włączyć serwer "
+"calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:57
 msgid "Turn on the &content server"
@@ -20889,6 +20937,15 @@ msgid ""
 "href=\"http://manual.calibre-ebook.com/faq.html#how-do-i-use-app-with-my-"
 "ipad-iphone-ipod-touch\">the User Manual</a> for more information."
 msgstr ""
+"<p>Pamiętaj by zostawić calibre włączony gdyż serwer działa tylko wtedy, "
+"gdzy działa calibre.</p>\n"
+"<p>Biblioteka calibre powinna być automatycznie widoczna dla aplikacji "
+"czytnika. Jeśli tak nie jest spróbuj dodać adres http://mojserwer:8080 jako "
+"nowy katalog w aplikacji czytnika w iDevice gdzie mojserwer jest pełną nazwą "
+"serwera lub adres IP komputera, na którym jest uruchomiony calibre. Więcej "
+"informacji znajdziesz w <a href=\"http://manual.calibre-"
+"ebook.com/faq.html#how-do-i-use-app-with-my-ipad-iphone-ipod-"
+"touch\">podręczniku użytkownika</a>."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:36
 #, python-format
@@ -21904,6 +21961,22 @@ msgid ""
 "that a new OPF has been createdsince the column was added). You will see the "
 "JSON for the\"display\" for the new column in the OPF."
 msgstr ""
+"Słownik opcji określających jak będą interpretowane dane w tej kolumnie. "
+"Dane są w formacie JSON. Do wypisania kolumn należy użyć  --display=\"{\\"
+"\"enum_values\\\":[\\\"val1\\\", \\\"val2\\\"]}\"\n"
+"Jest wiele opcji, które można przypisać parametrowi display. Według rodzaju "
+"kolumny:\n"
+"composite: composite_template, composite_sort, make_category,contains_html, "
+"use_decorations\n"
+"data/czas: date_format\n"
+"wyliczenie: enum_values, enum_colors, use_decorations\n"
+"liczba: number_format\n"
+"tekst: is_names, use_decorations\n"
+"\n"
+"Najlepszym sposobem na znalezienie dopuszczalnych kombinacji jest stworzenie "
+"własnej kolumny odpowiedniego typu, a następnie zajrzenie do pliku OPF "
+"książki (upewniając się, że w momencie dodania kolumny został stworzony nowy "
+"plik OPF). Tam można znaleźć ciąg JSON dla nowej kolumny."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:735
 msgid "You must specify label, name and datatype"

@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-15 07:12+0000\n"
-"PO-Revision-Date: 2013-02-18 15:47+0000\n"
-"Last-Translator: YichangLiu <lyc001wow@gmail.com>\n"
+"PO-Revision-Date: 2013-02-20 03:56+0000\n"
+"Last-Translator: wwj402 <wwj402@gmail.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-02-19 04:56+0000\n"
+"X-Launchpad-Export-Date: 2013-02-20 04:49+0000\n"
 "X-Generator: Launchpad (build 16491)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -344,7 +344,7 @@ msgstr "转换成其它电子书格式"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Fine tune your ebooks"
-msgstr ""
+msgstr "微调你的ebooks"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Delete books from your calibre library or connected device"
@@ -3232,13 +3232,13 @@ msgstr "在生成的 PDF 文件里的每一页底部添加页码。如果有指�
 msgid ""
 "An HTML template used to generate footers on every page. The string "
 "_PAGENUM_ will be replaced by the current page number."
-msgstr ""
+msgstr "一个HTML模板用于生成每个页面的页脚。字符串_PAGENUM_ 将被替换为当前页号。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:111
 msgid ""
 "An HTML template used to generate headers on every page. The string "
 "_PAGENUM_ will be replaced by the current page number."
-msgstr ""
+msgstr "一个HTML模板用于生成每个页面的页眉。字符串_PAGENUM_ 将被替换为当前页号。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -3566,14 +3566,14 @@ msgid ""
 "XPath expression that specifies all tags that should be added to the Table "
 "of Contents at level two. Each entry is added under the previous level one "
 "entry. See the XPath Tutorial in the calibre User Manual for examples."
-msgstr ""
+msgstr "XPath表达式指定所有标签应添加在二级目录表。每个条目加入到一级目录条目下。请参阅calibre用户手册中XPath教程的例子。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:247
 msgid ""
 "XPath expression that specifies all tags that should be added to the Table "
 "of Contents at level three. Each entry is added under the previous level two "
 "entry. See the XPath Tutorial in the calibre User Manual for examples."
-msgstr ""
+msgstr "XPath表达式指定所有标签应添加在三级目录表。每个条目加入到二级目录条目下。请参阅calibre用户手册中XPath教程的例子。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:256
 msgid ""
@@ -3680,28 +3680,28 @@ msgstr ""
 msgid ""
 "Set the top margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
-msgstr ""
+msgstr "以pts为单位设定上边距。默认值是%default。将其设置为小于零的值，将没有边距被设置。注：72 pts等于1 inch"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:381
 #, python-format
 msgid ""
 "Set the bottom margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
-msgstr ""
+msgstr "以pts为单位设定下边距。默认值是%default。将其设置为小于零的值，将没有边距被设置。注：72 pts等于1 inch"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:387
 #, python-format
 msgid ""
 "Set the left margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
-msgstr ""
+msgstr "以pts为单位设定左边距。默认值是%default。将其设置为小于零的值，将没有边距被设置。注：72 pts等于1 inch"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:393
 #, python-format
 msgid ""
 "Set the right margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
-msgstr ""
+msgstr "以pts为单位设定右边距。默认值是%default。将其设置为小于零的值，将没有边距被设置。注：72 pts等于1 inch"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:400
 msgid ""
@@ -3729,6 +3729,8 @@ msgid ""
 "negative, then the indent specified in the input document is used, that is, "
 "calibre does not change the indentation."
 msgstr ""
+"当calibre删除段落之间空行时，它会自动设置一个段落缩进，以确保该段可以很容易区分。此选项控制缩进的宽度（单位em）。如果你将此值设置为负数，则在使用"
+"输入文件中指定的缩进，也就是，calibre不改变缩进。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:426
 msgid ""
@@ -22613,7 +22615,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:258
 msgid "Specify a folder calibre should connect to at startup"
-msgstr ""
+msgstr "指定 calibre 启动时要打开的文件夹"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:259
 msgid ""
@@ -22627,6 +22629,13 @@ msgid ""
 "auto_connect_to_folder = 'C:\\\\Users\\\\someone\\\\Desktop\\\\testlib'\n"
 "auto_connect_to_folder = '/home/dropbox/My Dropbox/someone/library'"
 msgstr ""
+"在 connect_to_folder 字段指定 calibre 启动时要打开的文件夹。\n"
+"必须为文件夹的完整路径。\n"
+"若 calibre 启动时文件夹不存在，则将被忽略。\n"
+"若路径中存在 '\\' 字符 (如 Windows 路径中)，则必须双写转义。\n"
+"示例:\n"
+"auto_connect_to_folder = 'C:\\\\Users\\\\someone\\\\Desktop\\\\testlib'\n"
+"auto_connect_to_folder = '/home/dropbox/My Dropbox/someone/library'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:268
 msgid "Specify renaming rules for SONY collections"

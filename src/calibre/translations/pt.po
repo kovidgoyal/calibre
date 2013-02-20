@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-15 07:12+0000\n"
-"PO-Revision-Date: 2013-02-18 20:25+0000\n"
+"PO-Revision-Date: 2013-02-19 14:47+0000\n"
 "Last-Translator: pedro jorge oliveira <pedrojorgeoliveira93@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-19 04:55+0000\n"
+"X-Launchpad-Export-Date: 2013-02-20 04:48+0000\n"
 "X-Generator: Launchpad (build 16491)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -5219,7 +5219,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:116
 msgid "Updating metadata"
-msgstr ""
+msgstr "A atualizar os metadados"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:121
 msgid "Updated metadata jacket"
@@ -5227,7 +5227,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:122
 msgid "Metadata updated\n"
-msgstr ""
+msgstr "Meta-dados actualizados\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:125
 msgid "Subsetting embedded fonts"
@@ -5235,7 +5235,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:130
 msgid "Setting cover"
-msgstr ""
+msgstr "Definir capa"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:135
 msgid "Inserting metadata jacket"
@@ -5299,7 +5299,7 @@ msgstr "Você deve pelo menos especificar uma acção para ser executada"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:988
 #, python-format
 msgid "Book %(sidx)s of %(series)s"
-msgstr ""
+msgstr "livro %(sidx)s de %(series)s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:55
 msgid "HTML TOC generation options."
@@ -5388,7 +5388,7 @@ msgstr "Ordenar lista de etiquetas por nome, popularidade ou classificação"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:137
 msgid "Match tags by any or all."
-msgstr ""
+msgstr "Corresponder as etiquetas por qualquer ou todos."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:139
 msgid "Number of covers to show in the cover browsing mode"
@@ -5645,7 +5645,7 @@ msgstr "Shift+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:74
 msgid "Control the adding of books"
-msgstr ""
+msgstr "Controlar a adição de livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:120
@@ -5975,7 +5975,7 @@ msgstr "A pasta %s já existe. Apague-a primeiro"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:748
 msgid "Too long"
-msgstr ""
+msgstr "Muito longo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:326
 msgid "Not found"
@@ -6489,7 +6489,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:263
 msgid "Still looking for IP addresses"
-msgstr ""
+msgstr "Ainda à procura do endereço IP"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:266
 msgid "Many IP addresses. See Start/Stop dialog."
@@ -7188,11 +7188,11 @@ msgstr "Acerca de obter livros"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:288
 msgid "Tweak Book"
-msgstr ""
+msgstr "Ajustar livro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:64
 msgid "Choose the format to tweak:"
-msgstr ""
+msgstr "Escolher formato para ajustar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:74
 msgid ""
@@ -7247,7 +7247,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:111
 msgid "Preview the result of your tweaks"
-msgstr ""
+msgstr "Pré-visualizar os resultados dos seus ajustes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:113
 msgid "Abort without saving any changes"
@@ -7303,11 +7303,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:300
 msgid "Cannot tweak Book"
-msgstr ""
+msgstr "Não é possível ajustar o livro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:310
 msgid "Cannot Tweak Book"
-msgstr ""
+msgstr "Não é possível alterar o livro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:311
 msgid ""
@@ -17323,7 +17323,7 @@ msgstr "Identificação (ID)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:126
 msgid "This tweak has it default value"
-msgstr ""
+msgstr "Ajustar livro para o  valor padrão"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:128
 msgid "This tweak has been customized"
@@ -17338,7 +17338,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:331
 msgid "Search for tweak"
-msgstr ""
+msgstr "Procurar por ajustes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:367
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:407
@@ -17349,7 +17349,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:420
 msgid "Invalid tweaks"
-msgstr ""
+msgstr "Alterações invalidas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:421
 msgid ""
@@ -17374,7 +17374,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:119
 msgid "Edit tweak"
-msgstr ""
+msgstr "Editar alterações"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:120
 msgid "Restore this tweak to its default value"
