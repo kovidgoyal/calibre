@@ -1134,6 +1134,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             base_path = os.path.join(self.library_path, self.path(id,
                 index_is_id=True))
             self.dirtied([id])
+            if not os.path.exists(base_path):
+                os.makedirs(base_path)
 
         path = os.path.join(base_path, 'cover.jpg')
 

@@ -178,13 +178,15 @@ class ReadingTest(BaseTest):
             old.add_format(i, 'text%d'%i, StringIO(b'random%d'%i),
                     index_is_id=True)
 
-        old_metadata = {i:old.get_metadata(i, index_is_id=True) for i in
+        old_metadata = {i:old.get_metadata(
+            i, index_is_id=True, get_cover=True, cover_as_data=True) for i in
                 xrange(1, 4)}
         old = None
 
         cache = self.init_cache(self.library_path)
 
-        new_metadata = {i:cache.get_metadata(i) for i in xrange(1, 4)}
+        new_metadata = {i:cache.get_metadata(
+            i, get_cover=True, cover_as_data=True) for i in xrange(1, 4)}
         cache = None
         for mi2, mi1 in zip(new_metadata.values(), old_metadata.values()):
             self.compare_metadata(mi1, mi2)
