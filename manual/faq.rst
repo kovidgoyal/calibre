@@ -692,17 +692,13 @@ Post any output you see in a help message on the `Forum <http://www.mobileread.c
 |app| freezes/crashes occasionally?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are six possible things I know of, that can cause this:
+There are several possible things I know of, that can cause this:
 
     * You recently connected an external monitor or TV to your computer. In
       this case, whenever |app| opens a new window like the edit metadata
       window or the conversion dialog, it appears on the second monitor where
       you dont notice it and so you think |app| has frozen. Disconnect your
       second monitor and restart calibre.
-
-    * You are using a Wacom branded USB mouse. There is an incompatibility between
-      Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom
-      mouse.
 
     * If you use RoboForm, it is known to cause |app| to crash. Add |app| to
       the blacklist of programs inside RoboForm to fix this. Or uninstall
@@ -713,6 +709,13 @@ There are six possible things I know of, that can cause this:
 
     * Constant Guard Protection by Xfinity causes crashes in |app|. You have to
       manually allow |app| in it or uninstall Constant Guard Protection.
+
+    * Spybot - Search & Destroy blocks |app| from accessing its temporary files
+      breaking viewing and converting of books.
+
+    * You are using a Wacom branded USB mouse. There is an incompatibility between
+      Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom
+      mouse.
 
     * On some 64 bit versions of Windows there are security software/settings
       that prevent 64-bit |app| from working properly. If you are using the 64-bit
