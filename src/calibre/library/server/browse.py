@@ -590,7 +590,7 @@ class BrowseServer(object):
         entries = get_category_items(category, entries,
                 self.search_restriction_name, datatype,
                 self.opts.url_prefix)
-        return json.dumps(entries, ensure_ascii=False)
+        return json.dumps(entries, ensure_ascii=True)
 
 
     @Endpoint()
@@ -814,7 +814,7 @@ class BrowseServer(object):
             summs.append(self.browse_summary_template.format(**args))
 
 
-        raw = json.dumps('\n'.join(summs), ensure_ascii=False)
+        raw = json.dumps('\n'.join(summs), ensure_ascii=True)
         return raw
 
     def browse_render_details(self, id_):
@@ -828,9 +828,8 @@ class BrowseServer(object):
             args['formats'] = ''
             if fmts:
                 ofmts = [u'<a href="{4}/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
-                        .format(fmt, fname, id_, fmt.upper(),
-                            self.opts.url_prefix) for fmt in
-                        fmts]
+                        .format(xfmt, fname, id_, xfmt.upper(),
+                            self.opts.url_prefix) for xfmt in fmts]
                 ofmts = ', '.join(ofmts)
                 args['formats'] = ofmts
             fields, comments = [], []
@@ -893,7 +892,7 @@ class BrowseServer(object):
 
         ans = self.browse_render_details(id_)
 
-        return json.dumps(ans, ensure_ascii=False)
+        return json.dumps(ans, ensure_ascii=True)
 
     @Endpoint()
     def browse_random(self, *args, **kwargs):
