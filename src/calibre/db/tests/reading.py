@@ -195,7 +195,7 @@ class ReadingTest(BaseTest):
         'Test cover() returns the same data for both backends'
         from calibre.library.database2 import LibraryDatabase2
         old = LibraryDatabase2(self.library_path)
-        covers = {i: old.cover(i, index_is_id=True) for i in (1, 2, 3)}
+        covers = {i: old.cover(i, index_is_id=True) for i in old.all_ids()}
         old = None
         cache = self.init_cache(self.library_path)
         for book_id, cdata in covers.iteritems():
@@ -300,6 +300,38 @@ class ReadingTest(BaseTest):
                 'The number of items in the category %s is not the same'%category)
             for o, n in zip(old, new):
                 compare_category(category, o, n)
+
+    # }}}
+
+    def test_get_formats(self): # {{{
+        'Test reading ebook formats using the format() method'
+        from calibre.library.database2 import LibraryDatabase2
+        old = LibraryDatabase2(self.library_path)
+        ids = old.all_ids()
+        lf = {i:set(old.formats(i, index_is_id=True).split(',')) if old.formats(
+            i, index_is_id=True) else set() for i in ids}
+        formats = {i:{f:old.format(i, f, index_is_id=True) for f in fmts} for
+                   i, fmts in lf.iteritems()}
+        old = None
+        cache = self.init_cache(self.library_path)
+        for book_id, fmts in lf.iteritems():
+            self.assertEqual(fmts, set(cache.formats(book_id)),
+                             'Set of formats is not the same')
+            for fmt in fmts:
+                old = formats[book_id][fmt]
+                self.assertEqual(old, cache.format(book_id, fmt),
+                                 'Old and new format disagree')
+                f = cache.format(book_id, fmt, as_file=True)
+                self.assertEqual(old, f.read(),
+                                 'Failed to read format as file')
+                with open(cache.format(book_id, fmt, as_path=True,
+                                       preserve_filename=True), 'rb') as f:
+                    self.assertEqual(old, f.read(),
+                                 'Failed to read format as path')
+                with open(cache.format(book_id, fmt, as_path=True), 'rb') as f:
+                    self.assertEqual(old, f.read(),
+                                 'Failed to read format as path')
+
 
     # }}}
 

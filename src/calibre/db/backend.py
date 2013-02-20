@@ -859,8 +859,8 @@ class DB(object):
             ans['mtime'] = utcfromtimestamp(stat.st_mtime)
         return ans
 
-    def has_format(self, book_id, fmt):
-        return self.format_abspath(book_id, fmt) is not None
+    def has_format(self, book_id, fmt, fname, path):
+        return self.format_abspath(book_id, fmt, fname, path) is not None
 
     def copy_cover_to(self, path, dest, windows_atomic_move=None, use_hardlink=False):
         path = os.path.join(self.library_path, path, 'cover.jpg')
@@ -895,6 +895,34 @@ class DB(object):
                             shutil.copyfileobj(f, d)
                         return True
         return False
+
+    def copy_format_to(self, book_id, fmt, fname, path, dest,
+                       windows_atomic_move=None, use_hardlink=False):
+        path = self.format_abspath(book_id, fmt, fname, path)
+        if path is None:
+            return False
+        if windows_atomic_move is not None:
+            if not isinstance(dest, basestring):
+                raise Exception("Error, you must pass the dest as a path when"
+                        " using windows_atomic_move")
+            if dest and not samefile(dest, path):
+                windows_atomic_move.copy_path_to(path, dest)
+        else:
+            if hasattr(dest, 'write'):
+                with lopen(path, 'rb') as f:
+                    shutil.copyfileobj(f, dest)
+                if hasattr(dest, 'flush'):
+                    dest.flush()
+            elif dest and not samefile(dest, path):
+                if use_hardlink:
+                    try:
+                        hardlink_file(path, dest)
+                        return True
+                    except:
+                        pass
+                with lopen(path, 'rb') as f, lopen(dest, 'wb') as d:
+                    shutil.copyfileobj(f, d)
+        return True
 
    # }}}
 
