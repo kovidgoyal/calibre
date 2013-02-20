@@ -46,7 +46,7 @@ class BaseTest(unittest.TestCase):
                     'ondevice_col', 'last_modified', 'has_cover',
                     'cover_data'}.union(allfk1)
         for attr in all_keys:
-            if attr == 'user_metadata': continue # TODO:
+            if attr == 'user_metadata': continue
             attr1, attr2 = getattr(mi1, attr), getattr(mi2, attr)
             if attr == 'formats':
                 attr1, attr2 = map(lambda x:tuple(x) if x else (), (attr1, attr2))
