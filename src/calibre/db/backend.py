@@ -855,9 +855,13 @@ class DB(object):
         ans = {}
         if path is not None:
             stat = os.stat(path)
+            ans['path'] = path
             ans['size'] = stat.st_size
             ans['mtime'] = utcfromtimestamp(stat.st_mtime)
         return ans
+
+    def has_format(self, book_id, fmt):
+        return self.format_abspath(book_id, fmt) is not None
 
     def cover(self, path, as_file=False, as_image=False,
             as_path=False):

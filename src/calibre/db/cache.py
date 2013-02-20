@@ -162,7 +162,7 @@ class Cache(object):
         if not formats:
             good_formats = None
         else:
-            mi.format_metadata = FormatMetadata(self, id, formats)
+            mi.format_metadata = FormatMetadata(self, book_id, formats)
             good_formats = FormatsList(formats, mi.format_metadata)
         mi.formats = good_formats
         mi.has_cover = _('Yes') if self._field_for('cover', book_id,

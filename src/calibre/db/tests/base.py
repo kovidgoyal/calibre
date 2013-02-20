@@ -8,6 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import unittest, os, shutil
+from io import BytesIO
 from future_builtins import map
 
 class BaseTest(unittest.TestCase):
@@ -22,6 +23,9 @@ class BaseTest(unittest.TestCase):
         db = LibraryDatabase2(library_path)
         db.set_cover(1, I('lt.png', data=True))
         db.set_cover(2, I('polish.png', data=True))
+        db.add_format(1, 'FMT1', BytesIO(b'book1fmt1'), index_is_id=True)
+        db.add_format(1, 'FMT2', BytesIO(b'book1fmt2'), index_is_id=True)
+        db.add_format(2, 'FMT1', BytesIO(b'book2fmt1'), index_is_id=True)
         return dest
 
     def init_cache(self, library_path):
@@ -42,11 +46,9 @@ class BaseTest(unittest.TestCase):
                     'ondevice_col', 'last_modified', 'has_cover',
                     'cover_data'}.union(allfk1)
         for attr in all_keys:
-            if attr == 'user_metadata': continue
-            if attr == 'format_metadata': continue # TODO: Not implemented yet
+            if attr == 'user_metadata': continue # TODO:
             attr1, attr2 = getattr(mi1, attr), getattr(mi2, attr)
             if attr == 'formats':
-                continue # TODO: Not implemented yet
                 attr1, attr2 = map(lambda x:tuple(x) if x else (), (attr1, attr2))
             self.assertEqual(attr1, attr2,
                     '%s not the same: %r != %r'%(attr, attr1, attr2))

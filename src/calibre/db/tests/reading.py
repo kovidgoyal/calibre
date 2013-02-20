@@ -8,7 +8,6 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import shutil, unittest, tempfile, datetime
-from cStringIO import StringIO
 
 from calibre.utils.date import utc_tz
 from calibre.db.tests.base import BaseTest
@@ -55,7 +54,7 @@ class ReadingTest(BaseTest):
                     '#tags':(),
                     '#yesno':None,
                     '#comments': None,
-
+                    'size':None,
                 },
 
                 2 : {
@@ -66,7 +65,7 @@ class ReadingTest(BaseTest):
                     'series' : 'A Series One',
                     'series_index': 1.0,
                     'tags':('Tag One', 'Tag Two'),
-                    'formats': (),
+                    'formats': ('FMT1',),
                     'rating': 4.0,
                     'identifiers': {'test':'one'},
                     'timestamp': datetime.datetime(2011, 9, 5, 21, 6,
@@ -86,6 +85,7 @@ class ReadingTest(BaseTest):
                     '#tags':('My Tag One', 'My Tag Two'),
                     '#yesno':True,
                     '#comments': '<div>My Comments One<p></p></div>',
+                    'size':9,
                 },
                 1  : {
                     'title': 'Title Two',
@@ -96,7 +96,7 @@ class ReadingTest(BaseTest):
                     'series_index': 2.0,
                     'rating': 6.0,
                     'tags': ('Tag One', 'News'),
-                    'formats':(),
+                    'formats':('FMT1', 'FMT2'),
                     'identifiers': {'test':'two'},
                     'timestamp': datetime.datetime(2011, 9, 6, 6, 0,
                         tzinfo=utc_tz),
@@ -115,6 +115,7 @@ class ReadingTest(BaseTest):
                     '#tags':('My Tag Two',),
                     '#yesno':False,
                     '#comments': '<div>My Comments Two<p></p></div>',
+                    'size':9,
 
                 },
         }
@@ -172,12 +173,6 @@ class ReadingTest(BaseTest):
         'Test get_metadata() returns the same data for both backends'
         from calibre.library.database2 import LibraryDatabase2
         old = LibraryDatabase2(self.library_path)
-        for i in xrange(1, 3):
-            old.add_format(i, 'txt%d'%i, StringIO(b'random%d'%i),
-                    index_is_id=True)
-            old.add_format(i, 'text%d'%i, StringIO(b'random%d'%i),
-                    index_is_id=True)
-
         old_metadata = {i:old.get_metadata(
             i, index_is_id=True, get_cover=True, cover_as_data=True) for i in
                 xrange(1, 4)}
@@ -229,8 +224,12 @@ class ReadingTest(BaseTest):
             # User categories
             '@Good Authors:One', '@Good Series.good tags:two',
 
-            # TODO: Tests for searching the size and #formats columns and
-            # cover:true|false
+            # Cover/Formats
+            'cover:true', 'cover:false', 'formats:true', 'formats:false',
+            'formats:#>1', 'formats:#=1', 'formats:=fmt1', 'formats:=fmt2',
+            'formats:=fmt1 or formats:fmt2', '#formats:true', '#formats:false',
+            '#formats:fmt1', '#formats:fmt2', '#formats:fmt1 and #formats:fmt2',
+
         )}
         old = None
 
@@ -264,7 +263,8 @@ class ReadingTest(BaseTest):
                     (category == 'series' and attr == 'sort') or # Sorting is wrong in old
                     (category == 'identifiers' and attr == 'id_set') or
                     (category == '@Good Series') or # Sorting is wrong in old
-                    (category == 'news' and attr in {'count', 'id_set'})
+                    (category == 'news' and attr in {'count', 'id_set'}) or
+                    (category == 'formats' and attr == 'id_set')
                 ):
                     continue
                 self.assertEqual(oval, nval,
