@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-15 07:12+0000\n"
-"PO-Revision-Date: 2013-02-16 22:44+0000\n"
-"Last-Translator: Christian Schulz <Unknown>\n"
+"PO-Revision-Date: 2013-02-20 17:07+0000\n"
+"Last-Translator: Simon Schütte <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-18 04:48+0000\n"
+"X-Launchpad-Export-Date: 2013-02-21 05:13+0000\n"
 "X-Generator: Launchpad (build 16491)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -274,7 +274,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:131
 msgid "Extract cover from comic files"
-msgstr "Umschlagbild aus Comic-Dateien extrahieren"
+msgstr "Coverbild aus Comic-Dateien extrahieren"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:168
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:179
@@ -348,7 +348,7 @@ msgstr "Bücher in verschiedene E-Book-Formate umwandeln"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Fine tune your ebooks"
-msgstr ""
+msgstr "eBook feinabstimmung"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Delete books from your calibre library or connected device"
@@ -1217,12 +1217,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:124
 msgid "Cache covers from iTunes/iBooks"
-msgstr "Umschlagbilder von iTunes/iBooks zwischenspeichern"
+msgstr "Coverbild von iTunes/iBooks zwischenspeichern"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:126
 msgid "Enable to cache and display covers from iTunes/iBooks"
 msgstr ""
-"Ermöglicht das Zwischenspeichern und anzeigen von Umschlägen aus "
+"Ermöglicht das Zwischenspeichern und anzeigen von Coverbildern aus "
 "iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:127
@@ -1325,7 +1325,7 @@ msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
-"Einige Umschlagbilder konnten nicht konvertiert werden.\n"
+"Einige Coverbilder konnten nicht konvertiert werden.\n"
 "Klicken Sie 'Details anzeigen' für eine Liste."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2823
@@ -1756,7 +1756,7 @@ msgstr "Etiketten für automatische Verwaltung erstellen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:69
 msgid "Upload covers for books (newer readers)"
-msgstr "Bücherumschläge hochladen (neuere Reader)"
+msgstr "Coverbilder hochladen (neuere Reader)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1222
@@ -1765,14 +1765,14 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
-"Normalerweise holen sich die KOBO-Reader die Bücherumschläge von der E-Book-"
-"Datei selbst. Mit dieser Option sendet Calibre einen seperaten Buchumschlag "
-"zu dem Reader. Das ist nützlich, wenn Sie das Cover verändert haben."
+"Normalerweise holen sich die KOBO-Reader die Coverbilder aus der eBook-"
+"Datei. Mit dieser Option sendet Calibre ein seperates Coverbild zu dem "
+"Reader. Das ist nützlich, wenn Sie das Coverbild verändert haben."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:74
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1226
 msgid "Upload Black and White Covers"
-msgstr "Schwarz-Weiß Umschläge hochladen"
+msgstr "Schwarz-Weiß Coverbild hochladen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:75
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1230
@@ -1962,11 +1962,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1221
 msgid "Upload covers for books"
-msgstr "Buchcover hochladen"
+msgstr "Coverbild hochladen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1227
 msgid "Always upload covers"
-msgstr "Buchcover immer hochladen"
+msgstr "Coverbild immer hochladen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1228
 msgid ""
@@ -1974,10 +1974,10 @@ msgid ""
 "already on the device. Select this option if you want covers uploaded the "
 "first time you send the book to the device."
 msgstr ""
-"Wenn die \"Buchcover hochladen\" Option ausgewählt ist, wird der Treiber nur "
-"die Cover ersetzen, die bereits auf dem Gerät vorhanden sind. Wählen Sie "
-"diese Option wenn beim erstmaligen Senden eines Buches ein Cover hochgeladen "
-"werden soll."
+"Wenn die \"Coverbild hochladen\" Option ausgewählt ist, wird der Treiber nur "
+"die Coverbilder ersetzen, die bereits auf dem Gerät vorhanden sind. Wählen "
+"Sie diese Option wenn beim erstmaligen Senden eines Buches ein Coverbild "
+"hochgeladen werden soll."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
 msgid ""
@@ -2271,7 +2271,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:77
 msgid "Upload separate cover thumbnails for books (newer readers)"
-msgstr "Separaten Cover-Thumbnail für Bücher überspielen (neuere Reader)"
+msgstr "Separaten Coverbild-Vorschau für Bücher überspielen (neuere Reader)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:78
 msgid ""
@@ -2283,7 +2283,7 @@ msgid ""
 msgstr ""
 "Normalerweise laden SONY Reader die Coverbilder aus den E-Book-Dateien. Mit "
 "dieser Option sendet Calibre eine separates Coverbild an den Reader, was "
-"nützlich ist wenn man DRM-geschütze Bücher überträgt, in welchen das Cover "
+"nützlich ist wenn man DRM-geschütze Bücher überträgt, in denen das Coverbild "
 "nicht geändert werden kann. ACHTUNG: Diese Option sollte nur mit neuer "
 "Readern genutzt werden: 350, 650, 950 und neuer."
 
@@ -2291,7 +2291,7 @@ msgstr ""
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
-"Aktualisiere separate Cover wenn automatisches Management genutzt wird "
+"Aktualisiere separates Coverbild wenn automatisches Management genutzt wird "
 "(neuere Reader)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:86
@@ -2301,15 +2301,16 @@ msgid ""
 "your device. Unset this option if you have so many books on the reader that "
 "performance is unacceptable."
 msgstr ""
-"Aktivieren Sie diese Option um bei jedem Anschliessen Ihr Gerätes die "
-"separaten Cover zu übertragen. Deaktivieren Sie diese Option wenn Sie so "
-"viele Bücher auf ihrem Reader haben das die Performance inakzeptabel wird."
+"Aktivieren Sie diese Option um bei jedem Anschließen Ihres Gerätes die "
+"separaten Coverbilder zu übertragen. Deaktivieren Sie diese Option wenn Sie "
+"so viele Bücher auf ihrem Reader haben das die Performance inakzeptabel wird."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:90
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:82
 msgid "Preserve cover aspect ratio when building thumbnails"
 msgstr ""
-"Behalte Seitenverhältnis des Umschlags beim Erstellen von Vorschaubildern bei"
+"Behalte Seitenverhältnis des Coverbildes beim Erstellen von Vorschaubildern "
+"bei"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:84
@@ -2318,10 +2319,10 @@ msgid ""
 "ratio (width to height) as the cover. Unset it if you want the thumbnail to "
 "be the maximum size, ignoring aspect ratio."
 msgstr ""
-"Wählen Sie diese Option, wenn sie die Vorschaubilder der Umschläge im "
-"gleichen Seitenverhältnis (Breite zu Höhe) wie das Umschlagbild erhalten "
-"möchten. Ist diese Option abgewählt, werden die Vorschaubilder mit der "
-"maximal möglichen Größe erstellt, unabhängig vom Seitenverhältnis."
+"Wählen Sie diese Option, wenn Sie die Vorschaubilder der Coverbilder im "
+"gleichen Seitenverhältnis (Breite zu Höhe) wie das Coverbild erhalten "
+"möchten. Ist diese Option abgewählt, werden die Vorschaubilder unabhängig "
+"vom Seitenverhältnis in der maximal möglichen Größe erstellt."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:96
 msgid "Search for books in all folders"
@@ -2349,7 +2350,7 @@ msgstr "Kommuniziert mit PRST1 und neueren Sony eBook-Readern"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:71
 msgid "Upload separate cover thumbnails for books"
-msgstr "Andere Umschlagvorschau für Bücher hochladen"
+msgstr "Andere Coverbild-Vorschau für Bücher hochladen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:72
 msgid ""
@@ -2357,15 +2358,15 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you are sending DRMed books in which you cannot change the cover."
 msgstr ""
-"Normalerweise holen sich die SONY Reader die Buchumschläge von der E-Book "
-"Datei selbst. Mit dieser Option sendet Calibre ein anderen Umschlag zum "
-"Reader. Das ist nützlich, wenn Sie DRM-Bücher hochladen, bei denen Sie den "
-"Umschlag nicht ändern können."
+"Normalerweise holen sich die SONY Reader die Coverbilder aus der E-Book "
+"Datei selbst. Mit dieser Option sendet Calibre ein anderes Coverbild zum "
+"Reader. Das ist nützlich, wenn Sie DRM-Bücher hochladen, bei denen Sie das "
+"Coverbild nicht ändern können."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:76
 msgid "Refresh separate covers when using automatic management"
 msgstr ""
-"Erneuere verschiedene Umschläge, wenn das automatische Management genutzt "
+"Erneuere verschiedene Coverbilder, wenn das automatische Management genutzt "
 "wird"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:88
@@ -3096,10 +3097,9 @@ msgid ""
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
 msgstr ""
-"Normalerweise wird, falls die Eingabe-Datei kein Umschlagbild hat und Sie "
-"keines angeben, ein voreingestelltes Umschlagbild mit Titel, Autoren, usw. "
-"erstellt. Diese Einstellung schaltet die Erstellung dieses Umschlagbildes "
-"aus."
+"Normalerweise wird, falls die Eingabe-Datei kein Coverbild hat und Sie "
+"keines angeben, ein voreingestelltes Coverbild mit Titel, Autoren, usw. "
+"erstellt. Diese Einstellung schaltet die Erstellung dieses Coverbildes aus."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/epub_output.py:84
 msgid ""
@@ -3108,10 +3108,10 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
-"SVG nicht für Umschlagbild benutzen. Aktivieren Sie diese Option falls Ihre "
+"SVG nicht für Coverbilder benutzen. Aktivieren Sie diese Option falls Ihre "
 "EPUB-Datei auf einem Gerät benutzt werden soll, welches SVG nicht "
 "unterstützt (z.B. iPhone oder JetBook Lite). Ohne diese Option werden solche "
-"Geräte eine leere Seite als Umschlagbild anzeigen."
+"Geräte eine leere Seite als Coverbild anzeigen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/epub_output.py:93
 msgid ""
@@ -3121,13 +3121,12 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
-"Bei Verwendung eines SVG Umschlagbildes führt diese Einstellung dazu, dass "
-"das Umschlagbild auf die verfügbare Bildschirmgröße skaliert wird, aber "
-"dennoch sein Seitenverhältnis (Verhältnis von Breite zu Höhe) erhalten "
-"bleibt. Das heißt, es können weiße Ränder an den Seiten oder oben und unten "
-"auf dem Bild sein, aber das Bild wird nie verzerrt werden. Ohne diese "
-"Einstellung kann das Bild leicht verzerrt sein, aber es gibt dafür keine "
-"Ränder."
+"Bei Verwendung eines SVG Coverbildes führt diese Einstellung dazu, dass das "
+"Coverbild auf die verfügbare Bildschirmgröße skaliert wird, aber dennoch "
+"sein Seitenverhältnis (Verhältnis von Breite zu Höhe) erhalten bleibt. Das "
+"heißt, es können weiße Ränder an den Seiten oder oben und unten auf dem Bild "
+"sein, aber das Bild wird nie verzerrt werden. Ohne diese Einstellung kann "
+"das Bild leicht verzerrt sein, aber es gibt dafür keine Ränder."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/epub_output.py:103
 msgid ""
@@ -3545,8 +3544,8 @@ msgid ""
 "Preserve the aspect ratio of the cover, instead of stretching it to fill the "
 "full first page of the generated pdf."
 msgstr ""
-"Seitenverhältnis des Umschlagbildes beibehalten, statt es auf die volle "
-"erste Seite des erzeugten PDFs zu skalieren."
+"Seitenverhältnis des Coverbildes beibehalten, statt es auf die volle erste "
+"Seite des erzeugten PDFs zu skalieren."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:77
 msgid "The font family used to render serif fonts"
@@ -4267,8 +4266,8 @@ msgid ""
 "Use the cover detected from the source file in preference to the specified "
 "cover."
 msgstr ""
-"Verwendet bevorzugt das aus der Ursprungsdatei gewonnene Umschlagbild "
-"anstatt des angegebenen Umschlagbildes."
+"Verwendet bevorzugt das aus der Ursprungsdatei gewonnene Coverbild anstatt "
+"des angegebenen Coverbildes."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:432
 msgid ""
@@ -4295,7 +4294,7 @@ msgid ""
 "images if you do not specify this option."
 msgstr ""
 "Entferne das erste Bild vom eingefügten eBook. Hilfreich, wenn das Dokument "
-"ein Coverbild hat, welches nicht als Coverbild erkannt wrude. Sonst würde "
+"ein Coverbild hat, welches nicht als Coverbild erkannt wurde. Sonst würde "
 "durch das Hinzufügen eines Coverbildes in Calibre das eBook dann zwei "
 "Coverbilder haben."
 
@@ -4386,7 +4385,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:530
 msgid "Set the cover to the specified file or URL"
-msgstr "Geben Sie das Umschlagbild für die angegebene Datei oder URL an"
+msgstr "Geben Sie das Coverbild für die angegebene Datei oder URL an"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:534
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:54
@@ -4717,7 +4716,7 @@ msgstr "Tabelle enthält Zelle, die zu groß ist"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1865
 #, python-format
 msgid "Could not read cover image: %s"
-msgstr "Konnte Umschlagbild nicht lesen: %s"
+msgstr "Konnte Coverbild nicht lesen: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1868
 #, python-format
@@ -4856,9 +4855,8 @@ msgid ""
 "Extract cover from LRF file. Note that the LRF format has no defined cover, "
 "so we use some heuristics to guess the cover."
 msgstr ""
-"Umschlagbild aus LRF-Datei extrahieren. Da im LRF-Format kein Umschlagbild "
-"festgelegt ist, werden Suchmethoden verwendet, um das Umschlagbild zu "
-"erraten."
+"Coverbild aus LRF-Datei extrahieren. Da im LRF-Format kein Coverbild "
+"festgelegt ist, werden Suchmethoden verwendet, um das Coverbild zu erraten."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:643
 msgid "Set book ID"
@@ -5050,7 +5048,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:52
 msgid "Set the cover to the specified file."
-msgstr "Geben Sie das Umschlagbild für die angegebene Datei an."
+msgstr "Geben Sie das Coverbild für die angegebene Datei an."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:58
 msgid "Set the book category."
@@ -5062,7 +5060,7 @@ msgstr "Geben Sie das Erscheinungsdatum an."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:77
 msgid "Get the cover from the ebook and save it at as the specified file."
-msgstr "Umschlagbild des E-Book holen und als angegebene Datei speichern."
+msgstr "Coverbild des E-Book holen und als angegebene Datei speichern."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:80
 msgid ""
@@ -5104,11 +5102,11 @@ msgstr "OPF erstellt in"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:203
 msgid "Cover saved to"
-msgstr "Umschlagbild gespeichert unter"
+msgstr "Coverbild gespeichert unter"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:205
 msgid "No cover found"
-msgstr "Kein Umschlagbild gefunden"
+msgstr "Kein Coverbild gefunden"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:64
 msgid ""
@@ -5121,7 +5119,7 @@ msgstr ""
 "\n"
 "%prog [options] ISBN\n"
 "\n"
-"Umschlagbild/soziale Metadaten für das durch ISBN identifizierte Buch von "
+"Coverbild/soziale Metadaten für das durch ISBN identifizierte Buch von "
 "LibraryThing.com laden.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1489
@@ -5130,11 +5128,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:994
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:39
 msgid "Cover"
-msgstr "Umschlagbild"
+msgstr "Coverbild"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:508
 msgid "Downloads metadata and covers from Amazon"
-msgstr "Lädt Metadaten und Cover von Amazon"
+msgstr "Lädt Metadaten und Coverbild von Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:518
 msgid "US"
@@ -5192,7 +5190,7 @@ msgid ""
 "Downloads metadata and covers from Douban.com. Useful only for chinese "
 "language books."
 msgstr ""
-"Metadaten und Umschlagbilder von Douban.com herunterladen. Nur für "
+"Metadaten und Coverbilder von Douban.com herunterladen. Nur für "
 "chinesischsprachige Bücher sinnvoll."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/edelweiss.py:165
@@ -5200,12 +5198,12 @@ msgid ""
 "Downloads metadata and covers from Edelweiss - A catalog updated by book "
 "publishers"
 msgstr ""
-"Metadaten und Cover von Edelweiss herunterladen - Dieser Katalog wird von "
-"Verlagen aktualisiert"
+"Metadaten und Coverbilder von Edelweiss herunterladen - Dieser Katalog wird "
+"von Verlagen aktualisiert"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:162
 msgid "Downloads metadata and covers from Google Books"
-msgstr "Lädt Metadaten und Cover von Google Books"
+msgstr "Lädt Metadaten und Coverbilder von Google Books"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:24
 msgid "Downloads metadata from isbndb.com"
@@ -5236,11 +5234,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads covers from The Open Library"
-msgstr "Umschläge von The Open Library herunterladen"
+msgstr "Coverbilder von The Open Library herunterladen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:29
 msgid "Downloads metadata and covers from Overdrive's Content Reserve"
-msgstr "Lädt Metadaten und Cover von Overdrive's Content Reserve"
+msgstr "Lädt Metadaten und Coverbilder von Overdrive's Content Reserve"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:41
 msgid "Download all metadata (slow)"
@@ -5269,7 +5267,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/ozon.py:20
 msgid "Downloads metadata and covers from OZON.ru"
-msgstr "Lade Metadaten und Cover von OZON.ru"
+msgstr "Lade Metadaten und Coverbild von OZON.ru"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:61
 msgid "Sample Book"
@@ -5396,6 +5394,9 @@ msgid ""
 "from Amazon. calibre can only edit MOBI files that contain KF8 books. Older "
 "MOBI files without KF8 are not editable."
 msgstr ""
+"Diese MOBI-Datei enthält kein KF8-formatiertes Buch. KF8 ist das neue Format "
+"von Amazon. Calibre kann nur MOBI-Dateien bearbeiten, welche KF8-Bücher "
+"enthalten. Ältere MOBI-Dateien ohne KF8 sind nicht bearbeitet werden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:613
 msgid ""
@@ -5428,6 +5429,22 @@ msgid ""
 "\n"
 "<p>Note that polishing only works on files in the %s formats.</p>\n"
 msgstr ""
+"<p>Unter <i>Bücher perfektionieren</i> können Sie Ihrem sorgfältig "
+"gestalteten eBook \n"
+"den letzten Feinschliff verpassen.\n"
+"\n"
+"<p>Hier unter Bücher perfektionieren wird versucht, \n"
+"die Änderungen am internen Codes Ihres Buches zu minimieren. \n"
+"Im Gegensatz zum Konvertieren werden CSS-Style, Dateiname, \n"
+"Schrift, Größe, eingestellte Ränder, usw. <i>NICHT</i> verändert. \n"
+"Jede Aktion führt nur die minimalst notwendigen Änderdungen durch,\n"
+"die zum Erzielen des gewünschten Resultats erforderlich sind.</p>\n"
+"\n"
+"<p>Sie sollten dieses Werkzeug im Letzten Schritt des eBook- "
+"Erstellungsprozesses verwenden.</p>\n"
+"\n"
+"<p>Beachten Sie, dass nur Dateien in den Formaten %s perfektioniert werden "
+"können.</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:46
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:371
@@ -5464,23 +5481,26 @@ msgid ""
 "all the book metadata such as title, tags, authors, series, comments,\n"
 "etc.</p>"
 msgstr ""
+"<p>Fügt eine \"Buchumschlag\"-Seite zu Beginn des Buches ein, \n"
+"die alle Buch-Metadaten wie Titel, Tags, Autoren, Serien, Kommentare\n"
+"usw. enthält.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:72
 msgid "<p>Remove a previous inserted book jacket page.</p>\n"
-msgstr ""
+msgstr "<p>Entfernen einer zuvor erstellten Buchumschlag-Seite</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:108
 #, python-format
 msgid "## Polishing: %s"
-msgstr ""
+msgstr "## Perfektioniere: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:116
 msgid "Updating metadata"
-msgstr ""
+msgstr "Metadaten werden aktualisiert"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:121
 msgid "Updated metadata jacket"
-msgstr ""
+msgstr "Metadaten-Umschlag aktualisieren"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:122
 msgid "Metadata updated\n"
@@ -5492,48 +5512,53 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:130
 msgid "Setting cover"
-msgstr ""
+msgstr "Coverbild wird festgelegt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:135
 msgid "Inserting metadata jacket"
-msgstr ""
+msgstr "Metadaten Umschlag wird eingefügt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:138
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:142
 msgid "Existing metadata jacket replaced"
-msgstr ""
+msgstr "Vorhandene Metadaten-Umschlag ersetzt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:140
 msgid "Metadata jacket inserted"
-msgstr ""
+msgstr "Metadaten-Umschlag eingefügt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:146
 msgid "Removing metadata jacket"
-msgstr ""
+msgstr "Metadaten-Umschlag wird entfernt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:148
 msgid "Metadata jacket removed"
-msgstr ""
+msgstr "Metadaten-Umschlag wurde entfernt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:150
 msgid "No metadata jacket found"
-msgstr ""
+msgstr "Es wurde kein Metadaten-Umschlag gefunden"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:155
 #, python-format
 msgid "Polishing took: %.1f seconds"
-msgstr ""
+msgstr "Perfektionieren dauerte: %.1f Sekunden"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:187
 msgid ""
 "Path to a cover image. Changes the cover specified in the ebook. If no cover "
 "is present, or the cover is not properly identified, inserts a new cover."
 msgstr ""
+"Pfad zu einem Coverbild. Ändert das im eBook festgelegte Titelbild. Wenn "
+"kein Coverbild vorhanden ist, oder dieses nicht vollständig identifiziert "
+"ist, fügt es ein neues Coverbild ein."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:190
 msgid ""
 "Path to an OPF file. The metadata in the book is updated from the OPF file."
 msgstr ""
+"Pfad zu einer OPF Datei. Die Metadaten in dem Buch werden aus der OPF Datei "
+"aktualisiert."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:194
 msgid "Produce more verbose output, useful for debugging."
@@ -5541,7 +5566,7 @@ msgstr "Produziere eine umfangreichere Ausgabe, nützlich fürs Debuggen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:204
 msgid "You must provide the input file to polish"
-msgstr "You must provide the input file to polish"
+msgstr "Sie müssen die zu perfektionierende Datei angeben"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:208
 msgid "Unknown extra arguments"
@@ -5549,7 +5574,7 @@ msgstr "Unbekannte extra Argumente"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:226
 msgid "You must specify at least one action to perform"
-msgstr ""
+msgstr "Sie müssen mindestens eine durchzuführende Aktion festlegen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
@@ -5655,7 +5680,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:139
 msgid "Number of covers to show in the cover browsing mode"
 msgstr ""
-"Anzahl der Umschlagbilder, die im Cover-Ansicht Modus angezeit werden"
+"Anzahl der Coverbilder, die im Coverbild-Ansicht Modus angezeigt werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:141
 msgid "Defaults for conversion to LRF"
@@ -5698,7 +5723,7 @@ msgid ""
 "Show the cover flow in a separate window instead of in the main calibre "
 "window"
 msgstr ""
-"Zeige Cover-Ansicht in einem eigenen Fenster anstatt im Hauptfenster von "
+"Zeige Coverbild-Ansicht in einem eigenen Fenster anstatt im Hauptfenster von "
 "Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:160
@@ -5750,7 +5775,7 @@ msgstr "Autor und Titel mit neuen Metadaten überschreiben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:202
 msgid "Automatically download the cover, if available"
-msgstr "Läd das Cover, wenn möglich, automatisch herunter"
+msgstr "Läd das Coverbild, wenn möglich, automatisch herunter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:204
 msgid "Limit max simultaneous jobs to number of CPUs"
@@ -6605,7 +6630,7 @@ msgstr "Alle Formate der ausgewählten Bücher entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:105
 msgid "Remove covers from selected books"
-msgstr "Umschlagbilder der ausgewählten Bücher entfernen"
+msgstr "Coverbilder der ausgewählten Bücher entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:109
 msgid "Remove matching books from device"
@@ -6796,7 +6821,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:263
 msgid "Still looking for IP addresses"
-msgstr ""
+msgstr "Immer noch auf der Suche nach IP-Adressen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:266
 msgid "Many IP addresses. See Start/Stop dialog."
@@ -6828,7 +6853,7 @@ msgstr "Metadaten auf einmal bearbeiten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:39
 msgid "Download metadata and covers"
-msgstr "Metadaten und Umschlagbilder laden"
+msgstr "Metadaten und Coverbilder laden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:46
 msgid "Merge into first selected book - delete others"
@@ -6870,8 +6895,8 @@ msgstr "Herunterladen gescheitert"
 #, python-format
 msgid "Failed to download metadata or covers for any of the %d book(s)."
 msgstr ""
-"Das Herunterladen der Metadaten oder Umschlagbilder für eines der %d Bücher "
-"ist gescheitert."
+"Das Herunterladen der Metadaten oder Coverbilder für eines der %d Bücher ist "
+"gescheitert."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:105
 msgid "Metadata download completed"
@@ -6892,7 +6917,7 @@ msgid ""
 "Could not download metadata and/or covers for %d of the books. Click \"Show "
 "details\" to see which books."
 msgstr ""
-"Für %d der Bücher konnten Metadaten und/oder Umschlagbilder nicht "
+"Für %d der Bücher konnten Metadaten und/oder Coverbilder nicht "
 "heruntergeladen werden. Klicken Sie auf \"Details anzeigen\", um betroffene "
 "Bücher anzuzeigen."
 
@@ -7097,17 +7122,17 @@ msgstr "Plugins aktualisieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:33
 msgid "Polish book"
-msgstr ""
+msgstr "Buch perfektionieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:35
 #, python-format
 msgid "Polish %d books"
-msgstr ""
+msgstr "Perfektioniere %d Bücher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:39
 #, python-format
 msgid "<h3>About Polishing books</h3>%s"
-msgstr ""
+msgstr "<h3>Über \"Bücher perfektionieren\"</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:41
 #, python-format
@@ -7126,16 +7151,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:51
 #, python-format
 msgid "<h3>Book Jacket</h3>%s"
-msgstr ""
+msgstr "<h3>Buchumschlag</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:52
 #, python-format
 msgid "<h3>Remove Book Jacket</h3>%s"
-msgstr ""
+msgstr "<h3>Buchumschlag entfernen</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:58
 msgid "Select actions to perform:"
-msgstr ""
+msgstr "Wählen Sie durchzuführende Aktionen aus:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:63
 msgid "Subset all embedded fonts"
@@ -7143,15 +7168,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:64
 msgid "Update metadata in book files"
-msgstr ""
+msgstr "Metadaten in Buch-Dateien aktualisieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:65
 msgid "Add metadata as a \"book jacket\" page"
-msgstr ""
+msgstr "Metadaten als eine \"Buchumschlag\"-Seite hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:66
 msgid "Remove a previously inserted book jacket"
-msgstr ""
+msgstr "Entfernen eines zuvor eingefügten Buchumschlages"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:74
 msgid "About"
@@ -7159,11 +7184,11 @@ msgstr "Über"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:96
 msgid "&Save Settings"
-msgstr ""
+msgstr "Einstellungen &speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:98
 msgid "&Load Settings"
-msgstr ""
+msgstr "Einstellungen &Laden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:47
@@ -7182,7 +7207,7 @@ msgstr "Keine Aktionen gewählt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:120
 msgid "You must select at least one action before saving"
-msgstr ""
+msgstr "Sie müssen mindestens eine Aktion auswählen, bevor Sie speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:122
 msgid "Choose name"
@@ -7198,36 +7223,36 @@ msgstr "Sie müssen mindestens eine Aktion auswählen oder Abbrechen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:190
 msgid "Queueing books for polishing"
-msgstr ""
+msgstr "Bücher zum Perfektionieren sammeln"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:231
 #, python-format
 msgid "Polish %s"
-msgstr ""
+msgstr "Perfektioniere %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:232
 #, python-format
 msgid "Polish book %(nums)s of %(tot)s (%(title)s)"
-msgstr ""
+msgstr "Buch %(nums)s von %(tot)s (%(title)s) perfektioniert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:236
 #, python-format
 msgid "Queueing book %(nums)s of %(tot)s (%(title)s)"
-msgstr ""
+msgstr "Es werden %(nums)s von %(tot)s (%(title)s) Büchern gesammelt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:262
 #, python-format
 msgid "Ignore remaining %d reports"
-msgstr ""
+msgstr "Ignoriere %d verbleibende Berichte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:269
 msgid "View full &log"
-msgstr ""
+msgstr "Kompletten &Log anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:292
 #, python-format
 msgid "Polishing of %s"
-msgstr ""
+msgstr "Perfektionieren von %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:298
 #, python-format
@@ -7238,11 +7263,12 @@ msgstr[1] "Die originalen Dateien wurden als %s gespeichert."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:300
 msgid " and "
-msgstr ""
+msgstr " und "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:303
 msgid "If you polish again, the polishing will run on the originals."
 msgstr ""
+"Wenn Sie erneut perfektionieren, wird der Vorgang auf das Original angewandt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:338
 msgid "P"
@@ -7250,12 +7276,12 @@ msgstr "P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:338
 msgid "Polish books"
-msgstr ""
+msgstr "Bücher perfektionieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:355
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:368
 msgid "Cannot polish"
-msgstr ""
+msgstr "Perfektionieren kann nicht durchgeführt werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:369
 #, python-format
@@ -7263,11 +7289,14 @@ msgid ""
 "Polishing is only supported for books in the %s formats. Convert to one of "
 "those formats before polishing."
 msgstr ""
+"Bücher perfektionieren wird nur für eBooks in den Formaten %s unterstützt. "
+"Konvertieren Sie zu einem dieser Formate, bevor Sie dieses Buch "
+"perfektionieren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:393
 #, python-format
 msgid "Start polishing of %d book(s)"
-msgstr ""
+msgstr "Buch perfektionieren für %d starten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 msgid "Ctrl+P"
@@ -8058,16 +8087,16 @@ msgstr "Sammlungen"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:348
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:253
 msgid "Paste Cover"
-msgstr "Umschlag einfügen"
+msgstr "Coverbild einfügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:349
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:254
 msgid "Copy Cover"
-msgstr "Umschlag kopieren"
+msgstr "Coverbild kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:350
 msgid "Remove Cover"
-msgstr "Cover entfernen"
+msgstr "Coverbild entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:393
 msgid "Double-click to open Book Details window"
@@ -8083,7 +8112,7 @@ msgstr "Pfad"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 #, python-format
 msgid "Cover size: %(width)d x %(height)d"
-msgstr "Umschlagsbild-Größe: %(width)d x %(height)d"
+msgstr "Coverbild-Größe: %(width)d x %(height)d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:481
 #, python-format
@@ -8485,15 +8514,15 @@ msgstr "Mit Kommentaren &zusammenführen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:320
 msgid "Catalog cover:"
-msgstr "Katalog-Titelblatt"
+msgstr "Katalog-Coverbild"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
 msgid "Generate new cover"
-msgstr "Neues Cover generieren"
+msgstr "Neues Coverbild generieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:322
 msgid "Use existing cover"
-msgstr "Vorhandenes Cover verwenden"
+msgstr "Vorhandenes Coverbild verwenden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
 msgid "E&xtra Description note:"
@@ -8511,7 +8540,7 @@ msgstr "&Vorlagen Weite:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
 msgid "Size hint for cover thumbnails included in Descriptions section."
-msgstr "Größe der Coverthumbnails im Beschreibungsabschnitt"
+msgstr "Größe der Coverbild-Vorschau im Beschreibungsabschnitt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:327
 msgid " inch"
@@ -8906,15 +8935,15 @@ msgstr "Bei &Seitenwechseln nicht aufteilen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:58
 msgid "No default &cover"
-msgstr "Kein voreingestelltes &Cover"
+msgstr "Kein voreingestelltes &Coverbild"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:59
 msgid "No &SVG cover"
-msgstr "Kein &SVG Umschlagbild"
+msgstr "Kein &SVG Coverbild"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:60
 msgid "Preserve cover &aspect ratio"
-msgstr "Seitenverhältnis des Umschl&agbildes beibehalten"
+msgstr "Seitenverhältnis des Coverbildes beibeh&alten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:61
 msgid "Split files &larger than:"
@@ -9319,7 +9348,7 @@ msgstr "Schriftgrößen&skalierung ausschalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:249
 msgid "&Subset all embedded fonts"
-msgstr ""
+msgstr "Alle eingebetteten Schriftarten unter&setzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:16
 msgid "LRF Output"
@@ -9390,18 +9419,18 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1030
 msgid "This book has no cover"
-msgstr "Dieses Buch hat keinen Umschlag"
+msgstr "Dieses Buch hat kein Coverbild"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1032
 #, python-format
 msgid "Cover size: %(width)d x %(height)d pixels"
-msgstr "Umschlagbild-Größe: %(width)d x %(height)d Pixel"
+msgstr "Coverbild-Größe: %(width)d x %(height)d Pixel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:931
 msgid "Choose cover for "
-msgstr "Wählen Sie das Umschlagbild für "
+msgstr "Wählen Sie das Coverbild für "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:939
@@ -9431,19 +9460,19 @@ msgstr " ist kein gültiges Bild"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:159
 msgid "Book Cover"
-msgstr "Umschlagbild"
+msgstr "Coverbild"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:160
 msgid "Change &cover image:"
-msgstr "&Umschlagbild ändern:"
+msgstr "Coverbild ändern:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:161
 msgid "Browse for an image to use as the cover of this book."
-msgstr "Nach Umschlagbild durchsuchen..."
+msgstr "Nach Coverbild durchsuchen..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:163
 msgid "Use cover from &source file"
-msgstr "Um&schlagbild der Quelldatei verwenden"
+msgstr "Coverbild der Quelldatei verwenden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:164
 msgid "&Title: "
@@ -9659,7 +9688,7 @@ msgstr "Einheit:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:123
 msgid "Preserve &aspect ratio of cover"
-msgstr "Seitenverhältnis des Umschl&agbildes beibehalten"
+msgstr "Seitenverhältnis des Coverbildes beibeh&alten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:124
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:392
@@ -10325,11 +10354,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:151
 msgid "Browse by covers"
-msgstr "Umschlagbilder durchsuchen"
+msgstr "Coverbilder durchsuchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:223
 msgid "Cover browser could not be loaded"
-msgstr "Cover-Browser konnte nicht geladen werden"
+msgstr "Coverbild-Browser konnte nicht geladen werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:67
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:92
@@ -10995,7 +11024,7 @@ msgid ""
 msgstr ""
 "<p>Geben Sie eine Liste von ISBN- Nummern im linken Eingabefeld ein. Calibre "
 "wird automatisch Bucheinträge anhand der ISBN- Nummern erzeugen und "
-"Metadaten sowie Umschläge herunterladen.</p>\n"
+"Metadaten sowie Coverbilder herunterladen.</p>\n"
 "<p>Ungültige ISBN- Nummbern werden ignoriert.</p>\n"
 "<p>Sie können auch eine zu jedem Eintrag hinzuzufügende Datei angeben. Geben "
 "Sie dazu den vollen Pfad zur Datei nach einem <code>>></code> an. "
@@ -11008,7 +11037,7 @@ msgstr "E&tiketten für neue Bücher auswäheln:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:71
 msgid "Fit &cover within view"
-msgstr "Ums&chlagbild in Ansicht einpassen"
+msgstr "Coverbild in Ansicht einpassen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:32
 msgid "My Books"
@@ -11150,7 +11179,7 @@ msgstr ""
 "        <h1>Hilfe</h1>\n"
 "\n"
 "        <p>Calibre speichert die Liste Ihrer Bücher sowie deren Metadaten\n"
-"        in einer Datenbank. Die eigentlichen Buchdateien und Buchdeckel\n"
+"        in einer Datenbank. Die eigentlichen Buchdateien und Coverbilder\n"
 "        werden als normale Dateien im Calibre-Verzeichnis gespeichert. Die\n"
 "        Datenbank beinhaltet eine Liste der Dateien und Buchdeckel für "
 "jeden\n"
@@ -11184,18 +11213,18 @@ msgstr ""
 "         im Verzeichnis gefunden, nicht jedoch in der Datenbank.</li>\n"
 "         <li><b>Unbekannte Dateien bei Büchern</b>: Dies sind zusätzliche "
 "Dateien im\n"
-"         Verzeichnis, die weder einem Buch-Format noch einem Buchdeckel "
+"         Verzeichnis, die weder einem Buch-Format noch einem Coverbild "
 "zuzuordnen\n"
 "         sind.</li>\n"
-"         <li><b>Fehlende Buchumschlagsdateien</b>: Diese repräsentieren "
-"Bücher, bei\n"
+"         <li><b>Fehlende Coverbild-Dateien</b>: Diese repräsentieren Bücher, "
+"bei\n"
 "         denen in der Datenbank hinterlegt ist, dass sie Buchumschläge habe, "
 "die dazugehörigen\n"
 "         Dateien jedoch fehlen.</li>\n"
-"         <li><b>Buchumschlagsdateien nicht in Datenbank</b>: Dies sind "
-"Bücher, die zwar\n"
-"         in Buchumschlagdateien haben, in der Datenbank jedoch hinterlegt "
-"ist, dass sie\n"
+"         <li><b>Coverbild-Dateien nicht in Datenbank</b>: Dies sind Bücher, "
+"die zwar\n"
+"         in Coverbild-Dateien haben, in der Datenbank jedoch hinterlegt ist, "
+"dass sie\n"
 "         keine haben.</li>\n"
 "         <li><b>Verzeichnisausnahme</b>: Dies repräsentiert Verzeichnisse "
 "der\n"
@@ -11209,27 +11238,27 @@ msgstr ""
 "         und <i>Repariere markierte</i>.</p>\n"
 "         <p><i>Lösche markierte</i> wird genutzt, um zusätzliche "
 "Dateien/Verzeichnisse/\n"
-"         Buchumschläge die keine Einträge in der Datenbank haben, zu "
-"löschen. Wählen\n"
+"        Coverbilder die keine Einträge in der Datenbank haben, zu löschen. "
+"Wählen\n"
 "         Sie das Markierungsfeld in der Nähe des zu löschenden Elements. Mit "
 "Vorsicht\n"
 "         verwenden</p>\n"
 "\n"
-"         <p><i>Repariere markierte</i> kann nur auf Buchumschläge und "
+"         <p><i>Repariere markierte</i> kann nur auf Coverbilder und "
 "fehlende\n"
 "         Formate angewendet werden (siehe Zeilen mit Markierung "
 "'reparierbar'). Im Fall\n"
-"         fehlender Buchumschläge, signalisiert die Markierung des "
+"         fehlender Coverbilder, signalisiert die Markierung des "
 "Auswahlfeldes reparierbar und\n"
-"         das Drücken dieses Knopfes Calibre, dass es keine Buchumschläge für "
+"         das Drücken dieses Knopfes Calibre, dass es keine Coverbilder für "
 "die\n"
-"         gelisteten Bücher gibt. Nutzen Sie diese Option, wenn sie die "
-"Buchumschläge nicht\n"
+"         gelisteten Bücher gibt. Nutzen Sie diese Option, wenn Sie die "
+"Coverbilder nicht\n"
 "         aus einem Backup wieder herstellen. Im Fall zusätzlicher "
-"Buchumschläge signalisiert\n"
+"Coverbilder signalisiert\n"
 "         die Markierung des Auswahlfeldes und das Drücken des Knopfes "
 "Calibre, dass die\n"
-"         Buchumschlagsdateien die gefunden wurden für alle gelisteten Bücher "
+"         Coverbild-Dateien die gefunden wurden für alle gelisteten Bücher "
 "korrekt sind.\n"
 "         Nutzen Sie diese Option, wenn wenn Sie die Datei(en) nicht löschen "
 "werden.\n"
@@ -12259,15 +12288,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:618
 msgid "Change &cover"
-msgstr "&Cover ändern"
+msgstr "&Coverbild ändern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:619
 msgid "&Generate default cover"
-msgstr "Standardcover &generieren"
+msgstr "Standard-Coverbild &generieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:620
 msgid "&Remove cover"
-msgstr "Umschläge entfe&rnen"
+msgstr "Coverbilder entfe&rnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:621
 msgid "Set from &ebook file(s)"
@@ -14392,7 +14421,7 @@ msgstr "Schriftfamilie zurücksetzen"
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:327
 msgid "Cover Browser"
-msgstr "Cover-Browser"
+msgstr "Coverbild-Browser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:113
 msgid "Shift+Alt+B"
@@ -15145,7 +15174,7 @@ msgstr "%s aus dem Original wiederherstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:667
 msgid "Set the cover for the book from the selected format"
-msgstr "Umschlagbild des Buches aus dem gewählten Format festlegen"
+msgstr "Coverbild des Buches aus dem gewählten Format festlegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:675
 msgid "Set metadata for the book from the selected format"
@@ -15197,7 +15226,7 @@ msgstr "Umschlagbild herunterladen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:908
 msgid "&Generate cover"
-msgstr "Umschla&gbild erstellen"
+msgstr "Coverbild erstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:958
 msgid "Not a valid picture"
@@ -15210,16 +15239,15 @@ msgstr "Geben Sie Titel und Autor an"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:983
 msgid "You must specify a title and author before generating a cover"
 msgstr ""
-"Sie müssen vor dem Erstellen eines Umschlagbildes einen Titel und Autor "
-"angeben"
+"Sie müssen vor dem Erstellen eines Coverbildes einen Titel und Autor angeben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1002
 msgid "Invalid cover"
-msgstr "Ungültiges Umschlagbild"
+msgstr "Ungültiges Coverbild"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1003
 msgid "Could not change cover as the image is invalid."
-msgstr "Konnte Umschlagbild nicht ändern, da das Bild ungültig ist."
+msgstr "Konnte Coverbild nicht ändern, da das Bild ungültig ist."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1160
 msgid "Tags changed"
@@ -15334,7 +15362,7 @@ msgstr "Nur &Metadaten laden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:86
 msgid "Download only &covers"
-msgstr "Nur &Umschlagbilder laden"
+msgstr "Nur &Coverbilder laden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:90
 msgid "&Configure download"
@@ -15359,7 +15387,7 @@ msgstr "(Fehlerhafte Metadaten)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:149
 msgid "(Failed cover)"
-msgstr "(Fehlerhafter Umschlag)"
+msgstr "(Fehlerhaftes Coverbild)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:200
 #, python-format
@@ -15373,7 +15401,7 @@ msgstr "Metadaten-Felder heruntergeladen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:35
 msgid "Choose a cover from the list of PDF pages below"
-msgstr "Wählen Sie einen Umschlag aus der folgenden  Liste der PDF Seiten"
+msgstr "Wählen Sie eine Coverbild aus der folgenden  Liste der PDF Seiten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:37
 msgid "Rendering PDF pages, please wait..."
@@ -15381,7 +15409,7 @@ msgstr "PDF Seiten werden gerendert, bitte warten Sie..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:58
 msgid "Choose cover from PDF"
-msgstr "Wählen Sie einen Umschlag aus der PDF Datei"
+msgstr "Wählen Sie ein Coverbild aus der PDF Datei"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:94
@@ -15517,17 +15545,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:359
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:369
 msgid "Could not read cover"
-msgstr "Konnte Umschlagbild nicht lesen"
+msgstr "Konnte Coverbild nicht lesen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:360
 #, python-format
 msgid "Could not read cover from %s format"
-msgstr "Konnte Umschlagbild des Formats %s nicht lesen"
+msgstr "Konnte Coverbild des Formats %s nicht lesen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:370
 #, python-format
 msgid "The cover in the %s format is invalid"
-msgstr "Das Umschlagbild im Format %s ist ungültig"
+msgstr "Das Coverbild im Format %s ist ungültig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:546
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:551
@@ -15538,7 +15566,7 @@ msgstr "Änderungen speichern und Metadaten von %s bearbeiten"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:649
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:856
 msgid "Change cover"
-msgstr "Umschlag ändern"
+msgstr "Coverbild ändern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:709
 msgid "Co&mments"
@@ -15551,7 +15579,7 @@ msgstr "&Metadaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:754
 msgid "&Cover and formats"
-msgstr "&Umschlag und Formate"
+msgstr "Coverbild und Formate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:826
 msgid "C&ustom metadata"
@@ -15567,7 +15595,7 @@ msgstr "Basis Metadaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 msgid "Has cover"
-msgstr "Enthält Umschlagbild"
+msgstr "Enthält Coverbild"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:150
 msgid "Has summary"
@@ -15580,10 +15608,10 @@ msgid ""
 "having a cover will find a cover in the download\n"
 "cover stage, and vice versa."
 msgstr ""
-"Die Indikation 'Enthält Umschlagbild' ist nicht\n"
+"Die Indikation 'Enthält Coverbild' ist nicht\n"
 "absolut verläßlich. Manche Ergebnisse, die als\n"
-"ohne Umschlagbild markiert sind, werden beim\n"
-"Herunterladen Umschlagbilder erhalten, und\n"
+"ohne Coverbild markiert sind, werden beim\n"
+"Herunterladen Coverbilder erhalten, und\n"
 "umgekehrt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:301
@@ -15622,7 +15650,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:652
 msgid "Current cover"
-msgstr "Aktuelles Umschlagbild"
+msgstr "Aktuelles Coverbild"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:655
 msgid "Searching..."
@@ -15631,25 +15659,25 @@ msgstr "Suche..."
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:816
 #, python-format
 msgid "Downloading covers for <b>%s</b>, please wait..."
-msgstr "Umschlagbilder für <b>%s</b> werden geladen, bitte warten..."
+msgstr "Coverbilder für <b>%s</b> werden geladen, bitte warten..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:847
 msgid "Failed to download any covers, click \"Show details\" for details."
 msgstr ""
-"Herunterladen von Umschlagbildern fehlgeschlagen, wählen Sie \"Details "
+"Herunterladen von Coverbildern fehlgeschlagen, wählen Sie \"Details "
 "anzeigen\" für Details."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:853
 #, python-format
 msgid "Could not find any covers for <b>%s</b>"
-msgstr "Es wurden für <b>%s</b> keine Umschlagbilder gefunden"
+msgstr "Es wurden für <b>%s</b> keine Coverbilder gefunden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:855
 #, python-format
 msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
 msgstr ""
-"<b>%(num)d</b> Umschlagbilder für %(title)s gefunden. Wählen Sie aus, "
-"welches Ihnen am besten gefällt."
+"<b>%(num)d</b> Coverbilder für %(title)s gefunden. Wählen Sie aus, welches "
+"Ihnen am besten gefällt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:944
 msgid "Downloading metadata..."
@@ -15657,7 +15685,7 @@ msgstr "Lade Metadaten herunter..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1059
 msgid "Downloading cover..."
-msgstr "Lade Umschlagbild..."
+msgstr "Lade Coverbild..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:38
 msgid ""
@@ -16004,7 +16032,7 @@ msgid ""
 msgstr ""
 "Wählt ein anderes Layout für den \"Metadaten bearbeiten\"-Dialog. Das "
 "kompakte Metadaten-Layout bevorzugt das Bearbeiten von Metadaten gegenüber "
-"dem Ändern von Umschlagbildern und Formaten."
+"dem Ändern von Coverbildern und Formaten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:165
 msgid "Preferred &input format order:"
@@ -17174,15 +17202,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:293
 msgid "Show &cover in the book details panel"
-msgstr "Zeige das &Cover in der Buchdetailansicht"
+msgstr "Zeige das &Coverbild in der Buchdetailansicht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:294
 msgid "Show the size of the book's cover in pixels"
-msgstr "Die Anzahl der Pixel des Buch-Covers in Pixel anzeigen"
+msgstr "Die größe des Coverbildes in Pixel anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:295
 msgid "Show cover &size"
-msgstr "Cover anzeigen &Größe"
+msgstr "Größe des Coverbildes anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:297
 msgid ""
@@ -17270,18 +17298,19 @@ msgstr "&Abwechselnde Spaltenfarbe im Tag-Browser verwenden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:322
 msgid "Show cover &browser in a separate window (needs restart)"
-msgstr "Zeige Cover-Ansicht in einem eigenen Fenster (Neustart erforderlich)"
+msgstr ""
+"Zeige Coverbild-Ansicht in einem eigenen Fenster (Neustart erforderlich)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:323
 msgid "&Number of covers to show in browse mode (needs restart):"
 msgstr ""
-"A&nzahl der anzuzeigenden Umschlagbilder in der Cover-Ansicht (Neustart "
+"A&nzahl der dargestellten Coverbilder in der Coverbild-Ansicht (Neustart "
 "erforderlich):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:324
 msgid "When showing cover browser in separate window, show it &fullscreen"
 msgstr ""
-"Den Coverbrowser im &Vollbildmodus anzeigen, wenn er in einem separaten "
+"Den Coverbild-Browser im &Vollbildmodus anzeigen, wenn er in einem separaten "
 "Fenster geöffnet wird."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:325
@@ -17292,7 +17321,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:326
 msgid "Show &reflections in the cover browser"
-msgstr "Spiegelungen im Cove&rbrowser anzeigen"
+msgstr "Spiegelungen im Cove&rbild-Browser anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:231
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:123
@@ -17337,7 +17366,7 @@ msgstr "Quelle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:50
 msgid "Cover priority"
-msgstr "Umschlagbild-Priorität"
+msgstr "Coverbild-Priorität"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:77
 msgid "This source is configured and ready to go"
@@ -17384,8 +17413,8 @@ msgid ""
 "(smaller) priority will be preferred when bulk downloading metadata.\n"
 msgstr ""
 "Wählen Sie die Metadaten-Quellen die Sie nicht benutzen wollen ab. Sie "
-"können auch die Priorität der Umschlagbilder festlegen. Umschlagbilder mit "
-"höherer Priorität (kleinere Zahl) werden beim Herunterladen der Metadaten "
+"können auch die Priorität der Coverbilder festlegen. Coverbilder mit höherer "
+"Priorität (kleinere Zahl) werden beim Herunterladen der Metadaten "
 "bevorzugt.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:129
@@ -17463,7 +17492,7 @@ msgstr " Sekunden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:144
 msgid "Max. time to wait after first &cover is found:"
-msgstr "Max. Wartezeit nachdem das erste &Umschlagbild gefunden wurde:"
+msgstr "Max. Wartezeit nachdem das erste Coverbild gef&unden wurde:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:146
 msgid ""
@@ -17877,7 +17906,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:72
 msgid "Save &cover separately"
-msgstr "Ums&chlagbild getrennt speichern"
+msgstr "Coverbild seperat speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:73
 msgid "Replace space with &underscores"
@@ -18250,12 +18279,12 @@ msgid ""
 "The maximum size (widthxheight) for displayed covers. Larger covers are "
 "resized. "
 msgstr ""
-"Maximale Größe (BreitexHöhe) der angezeigten Umschlagbilder. Größere "
-"Umschlagbilder werden verkleinert. "
+"Maximale Größe (BreitexHöhe) der angezeigten Coverbilder. Größere "
+"Coverbilder werden verkleinert. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:152
 msgid "Max. &cover size:"
-msgstr "Maximale Ums&chlagbild-Größe:"
+msgstr "Maximale Coverbild-Größe:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:153
 msgid "Server &port:"
@@ -18612,7 +18641,7 @@ msgstr "Kontextmenü für Bücher auf dem Gerät"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:229
 msgid "The context menu for the cover browser"
-msgstr "Das Kontextmenü für den Umschlagsbild Browser"
+msgstr "Das Kontextmenü für den Coverbild-Browser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:235
 msgid "Click to choose toolbar or menu to customize"
@@ -19051,7 +19080,7 @@ msgstr "Anzahl der zu nutzenden Threads für Cacheaktualisierung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:108
 msgid "Number of cover download threads to use"
-msgstr "Anzahl der gleichzeitigen Cover-Downloads"
+msgstr "Anzahl der gleichzeitigen Coverbild-Downloads"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:109
 msgid "Number of details threads to use"
@@ -19679,7 +19708,7 @@ msgstr "Bücher sammeln und zusammen konvertieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:216
 msgid "Queueing "
-msgstr "Sammle "
+msgstr "Sammeln "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:217
 #, python-format
@@ -20167,7 +20196,7 @@ msgstr "%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:407
 msgid "M&inimum font size:"
-msgstr ""
+msgstr "M&inimale Schriftgröße:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:408
 msgid "The minimum font size in pixels"
@@ -21609,7 +21638,7 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
-"Ersetze das existierende Cover mit einem aus dem Katalog.\n"
+"Ersetze das existierende Coverbild mit einem aus dem Katalog.\n"
 "Standard: '%default'\n"
 "Betrifft: AZW3, ePub, MOBI Ausgabeformat"
 
@@ -21621,7 +21650,7 @@ msgid ""
 "Default: '%default'\n"
 "Applies to AZW3, ePub, MOBI output formats"
 msgstr ""
-"Größe (in inch) für Buchcover im Katalog\n"
+"Größe (in inch) für Coverbilder im Katalog\n"
 "Zulässige Werte: 1.0 - 2.0\n"
 "Standard: '%default'\n"
 "Wird andewandt bei AZW3, ePub und MOBI-Ausgabeformaten"
@@ -21833,11 +21862,11 @@ msgstr "Unbekannte Dateien bei Büchern"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:33
 msgid "Missing covers files"
-msgstr "Fehlende Cover-Dateien"
+msgstr "Fehlende Coverbild-Dateien"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:34
 msgid "Cover files not in database"
-msgstr "Cover-Dateien nicht in der Datenbank"
+msgstr "Coverbild-Dateien nicht in der Datenbank"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:35
 msgid "Folders raising exception"
@@ -22022,7 +22051,7 @@ msgstr "Serien Nummer der hinzugefügten Bücher festlegen"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:341
 msgid "Path to the cover to use for the added book"
-msgstr "Pfad zum Cover des hinzugefügten Buches"
+msgstr "Pfad zum Coverbild des hinzugefügten Buches"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:377
 msgid "You must specify at least one file to add"
@@ -22205,9 +22234,9 @@ msgstr ""
 "\n"
 "Exportiert die durch IDs (eine durch Kommata getrennte Liste) angegebenen "
 "Bücher in das Dateisystem.\n"
-"Der Exportvorgang speichert alle Formate der Bücher, ihre Umschlagbilder und "
-"Metadaten (in\n"
-"einer opf Datei). Die ID Nummern erhalten Sie mit dem Befehl list.\n"
+"Der Exportvorgang speichert alle Formate der Bücher, ihre Coverbilder und "
+"Metadaten (ineiner opf Datei). \n"
+"Die ID Nummern erhalten Sie mit dem Befehl list.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:646
 msgid "Export all books in database, ignoring the list of ids."
@@ -22827,7 +22856,7 @@ msgid ""
 "Normally, calibre will save the cover in a separate file along with the "
 "actual e-book file(s)."
 msgstr ""
-"Normalerweise speichert Calibre das Umschlagbild in einer gesonderten Datei "
+"Normalerweise speichert Calibre das Coverbild in einer seperaten Datei "
 "zusammen mit den eigentlichen E-Book Dateien."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:93
@@ -22957,7 +22986,7 @@ msgstr "Benutzername für den Zugriff. Standardmäßig ist es: %default"
 #, python-format
 msgid "The maximum size for displayed covers. Default is %default."
 msgstr ""
-"Maximale Größe für angezeigte Umschlagbilder. Voreinstellung ist %default."
+"Maximale Größe für angezeigte Coverbilder. Voreinstellung ist %default."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:39
 msgid ""
@@ -23969,7 +23998,7 @@ msgid ""
 "has_cover() -- return Yes if the book has a cover, otherwise return the "
 "empty string"
 msgstr ""
-"has_cover() -- gibt Yes zurück, wenn das Buch einen Umschlag hat, "
+"has_cover() -- gibt Yes zurück, wenn das Buch einen Coverbild hat, "
 "andernfalls einen leeren String"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:917
@@ -24548,7 +24577,7 @@ msgstr "Feeds der Index-Seite erhalten"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1116
 msgid "Trying to download cover..."
-msgstr "Umschlagbild versuchen herunterzuladen ..."
+msgstr "Es wird versucht ein Coverbild herunterzuladen ..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1118
 msgid "Generating masthead..."
@@ -24567,12 +24596,12 @@ msgstr "Feeds wurden nach %s heruntergeladen"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1223
 #, python-format
 msgid "Could not download cover: %s"
-msgstr "Umschlagbild konnte nicht heruntergeladen werden: %s"
+msgstr "Coverbild konnte nicht heruntergeladen werden: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1232
 #, python-format
 msgid "Downloading cover from %s"
-msgstr "Umschlagbild von %s herunterladen"
+msgstr "Coverbild von %s herunterladen"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1278
 msgid "Masthead image downloaded"
@@ -25116,6 +25145,41 @@ msgid ""
 "timestamp default if not set: dd MMM yyyy\n"
 "last_modified_display_format if not set: dd MMM yyyy"
 msgstr ""
+"Darstellungsformat für das Erscheinungsdatum und den Zeitstempel (Datum).\n"
+"Ein String regelt die Darstellung des Erscheinungsdatums im GUI\n"
+"d     der Tag als Zahl ohne vorangestellte Null (1 bis 31)\n"
+"dd    der Tag als Zahl ohne vorangestellte Null (01 bis 31)\n"
+"ddd   die Abkürzung des lokalen Wochentages (z.B. 'Mon' bis 'Son').\n"
+"dddd  der ausgeschriebene Wochentag (z.B. 'Montag' bis 'Qt::Sonntag').\n"
+"M     der Monat als Zahl ohne vorangestellte Null (1-12)\n"
+"MM    der Monat als Zahl mit vorangestellter Null (01-12)\n"
+"MMM   die Abkürzung des Monats (z.B. 'Jan' bis 'Dez').\n"
+"MMMM  der ausgeschriebene Monat (z.B. 'Januar' bis 'Dezember').\n"
+"yy    das Jahr als zweistellige Zahl (00-99)\n"
+"yyyy  das Jahr als vierstellige Zahl\n"
+"h     die Stunden ohne vorangestellte Null 0 (0 bis 11 oder 0 bis 23, "
+"abhängig von am/pm) '\n"
+"hh    die Stunden mit einer vorangestellten Null (00 bis 11 oder 00 bis 23, "
+"depending on am/pm) '\n"
+"m     die Minuten ohne vorangestellte Null (0 to 59) '\n"
+"mm    die Minuten mit vorangestellter Null (00 to 59) '\n"
+"s     die Sekunden ohne vorangestellter Null (0 to 59) '\n"
+"ss    die Sekunden mit vorangestellter Null (00 to 59) '\n"
+"ap    verwende eine 12 Stunden Anzeige statt einer 24, mit \"ap\"\n"
+"wird der lokalisierte String auf am oder pm gesetzt '\n"
+"AP    verwende eine 12 Stunden Anzeige statt einer 24, mit \"AP\"\n"
+"wird der lokalisierte String auf AM oder PM gesetzt '\n"
+"iso   das Datum mit Zeit und Zeitzone. Muss das einzig vorhandene Format "
+"sein.\n"
+"Ist z.B. das Datum 9 Jan 2010 gegeben, wird folgendes angezeigt:\n"
+"MMM yyyy ==> Jan 2010    yyyy ==> 2010       dd MMM yyyy ==> 09 Jan 2010\n"
+"MM/yyyy ==> 01/2010      d/M/yy ==> 9/1/10   yy ==> 10\n"
+"Das Erscheinungsdatum wird, wenn nicht anders festgelegt so angegeben: MMM "
+"yyyy\n"
+"Der Zeitstempel wird, wenn nicht anders festgelegt so angegeben: dd MMM "
+"yyyy\n"
+"last_modified_display_format /zuletzt bearbeitet Datum wird, wenn nicht "
+"anders festgelegt so angegeben: dd MMM yyyy"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:177
 msgid "Control sorting of titles and series in the library display"
@@ -25519,8 +25583,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:379
 msgid "Specify which font to use when generating a default cover or masthead"
 msgstr ""
-"Festlegen, welche Schrift beim Generieren eines Standard-Covers oder "
-"Impressum verwendet wird"
+"Festlegen, welche Schrift beim Generieren eines Standard-Coverbildes oder "
+"dem Impressum verwendet wird"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:380
 msgid ""
@@ -25530,7 +25594,7 @@ msgid ""
 "the books in your library."
 msgstr ""
 "Absoluter Pfad zu der .ttf-Schriftart, die für den Titel, Autor\n"
-"und die Fußzeile beim Generieren von Standardcovern oder Titelbildern "
+"und die Fußzeile beim Generieren von Standardcover- oder Impressum-bildern "
 "benutzt werden. Nützlich, wenn\n"
 "die Standardschriftart (Liberation Serif) Sonderzeichen der Sprache der "
 "Bücher in der Bibliothek\n"
@@ -25666,7 +25730,7 @@ msgstr ""
 msgid "The maximum width and height for covers saved in the calibre library"
 msgstr ""
 "Die maximale Breite und Höhe für in der Calibre-Bibliothek gespeicherte "
-"Umschlagbilder"
+"Coverbilder"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:437
 msgid ""
@@ -25674,9 +25738,9 @@ msgid ""
 "to fit within this size. This is to prevent slowdowns caused by extremely\n"
 "large covers"
 msgstr ""
-"Alle Umschlagbilder innerhalb der Calibre-Bibliothek werden auf diese \n"
+"Alle Coverbilder innerhalb der Calibre-Bibliothek werden auf diese \n"
 "Maximalgröße skaliert, wobei ihr Seitenverhältnis unverändert bleibt. \n"
-"Das soll Verlangsamungen durch extrem große Umschlagbilder vermeiden."
+"Das soll Verlangsamungen durch extrem große Coverbilder vermeiden."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:442
 msgid "Where to send downloaded news"

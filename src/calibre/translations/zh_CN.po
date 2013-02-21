@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-15 07:12+0000\n"
-"PO-Revision-Date: 2013-02-20 03:56+0000\n"
+"PO-Revision-Date: 2013-02-20 14:28+0000\n"
 "Last-Translator: wwj402 <wwj402@gmail.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-02-20 04:49+0000\n"
+"X-Launchpad-Export-Date: 2013-02-21 05:13+0000\n"
 "X-Generator: Launchpad (build 16491)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -4848,7 +4848,7 @@ msgstr "元数据更新中"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:121
 msgid "Updated metadata jacket"
-msgstr ""
+msgstr "更新元数据封面"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:122
 msgid "Metadata updated\n"
@@ -4856,7 +4856,7 @@ msgstr "元数据已更新\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:125
 msgid "Subsetting embedded fonts"
-msgstr ""
+msgstr "嵌入字体子集"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:130
 msgid "Setting cover"
@@ -4864,28 +4864,28 @@ msgstr "封面设置中"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:135
 msgid "Inserting metadata jacket"
-msgstr ""
+msgstr "插入元数据封面"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:138
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:142
 msgid "Existing metadata jacket replaced"
-msgstr ""
+msgstr "存在的元数据封面已替换"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:140
 msgid "Metadata jacket inserted"
-msgstr ""
+msgstr "元数据封面已插入"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:146
 msgid "Removing metadata jacket"
-msgstr ""
+msgstr "移除元数据封面"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:148
 msgid "Metadata jacket removed"
-msgstr ""
+msgstr "元数据封面已移除"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:150
 msgid "No metadata jacket found"
-msgstr ""
+msgstr "没有找到元数据封面"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:155
 #, python-format
@@ -4896,12 +4896,12 @@ msgstr "润饰用时: %.1f秒"
 msgid ""
 "Path to a cover image. Changes the cover specified in the ebook. If no cover "
 "is present, or the cover is not properly identified, inserts a new cover."
-msgstr ""
+msgstr "图片封面路径。更改指定的ebook封面。如果提供封面，或者封面没有正确识别，插入一个新的封面。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:190
 msgid ""
 "Path to an OPF file. The metadata in the book is updated from the OPF file."
-msgstr ""
+msgstr "OPF文件路径。从OPF文件更新书中的元数据。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:194
 msgid "Produce more verbose output, useful for debugging."
