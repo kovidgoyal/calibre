@@ -40,8 +40,6 @@ def multiple_text(sep, x):
 def adapt_datetime(x):
     if isinstance(x, (unicode, bytes)):
         x = parse_date(x, assume_utc=False, as_utc=False)
-    if x is None:
-        x = UNDEFINED_DATE
     return x
 
 def adapt_date(x):
@@ -99,9 +97,11 @@ def get_adapter(name, metadata):
         ans = lambda x: x
 
     if name == 'title':
-        ans = lambda x: ans(x) or _('Unknown')
-    elif name == 'authors':
-        ans = lambda x: ans(x) or (_('Unknown'),)
+        return lambda x: ans(x) or _('Unknown')
+    if name == 'authors':
+        return lambda x: ans(x) or (_('Unknown'),)
+    if name in {'timestamp', 'last_modified'}:
+        return lambda x: ans(x) or UNDEFINED_DATE
 
     return ans
 # }}}
