@@ -7,19 +7,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import shutil, unittest, tempfile, datetime
+import unittest, datetime
 
 from calibre.utils.date import utc_tz
 from calibre.db.tests.base import BaseTest
 
 class ReadingTest(BaseTest):
-
-    def setUp(self):
-        self.library_path = tempfile.mkdtemp()
-        self.create_db(self.library_path)
-
-    def tearDown(self):
-        shutil.rmtree(self.library_path)
 
     def test_read(self): # {{{
         'Test the reading of data from the database'

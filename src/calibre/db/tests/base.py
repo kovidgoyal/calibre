@@ -7,11 +7,21 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, os, shutil
+import unittest, os, shutil, tempfile, atexit
+from functools import partial
 from io import BytesIO
 from future_builtins import map
 
+rmtree = partial(shutil.rmtree, ignore_errors=True)
+
 class BaseTest(unittest.TestCase):
+
+    def setUp(self):
+        self.library_path = self.mkdtemp()
+        self.create_db(self.library_path)
+
+    def tearDown(self):
+        shutil.rmtree(self.library_path)
 
     def create_db(self, library_path):
         from calibre.library.database2 import LibraryDatabase2
@@ -35,6 +45,25 @@ class BaseTest(unittest.TestCase):
         cache = Cache(backend)
         cache.init()
         return cache
+
+    def mkdtemp(self):
+        ans = tempfile.mkdtemp(prefix='db_test_')
+        atexit.register(rmtree, ans)
+        return ans
+
+    def init_old(self, library_path):
+        from calibre.library.database2 import LibraryDatabase2
+        return LibraryDatabase2(library_path)
+
+    def clone_library(self, library_path):
+        if not hasattr(self, 'clone_dir'):
+            self.clone_dir = tempfile.mkdtemp()
+            atexit.register(rmtree, self.clone_dir)
+            self.clone_count = 0
+        self.clone_count += 1
+        dest = os.path.join(self.clone_dir, str(self.clone_count))
+        shutil.copytree(library_path, dest)
+        return dest
 
     def compare_metadata(self, mi1, mi2):
         allfk1 = mi1.all_field_keys()

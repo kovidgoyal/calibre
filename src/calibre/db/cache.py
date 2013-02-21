@@ -608,6 +608,14 @@ class Cache(object):
         return get_categories(self, sort=sort, book_ids=book_ids,
                               icon_map=icon_map)
 
+    @write_api
+    def set_field(self, name, book_id_to_val_map):
+        # TODO: Specialize title/authors to also update path
+        # TODO: Handle updating caches used by composite fields
+        dirtied = self.fields[name].writer.set_books(
+            book_id_to_val_map, self.backend)
+        return dirtied
+
     # }}}
 
 class SortKey(object):
