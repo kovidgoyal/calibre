@@ -144,7 +144,7 @@ class Writer(object):
         self.name = field.name
         self.field = field
         dt = field.metadata['datatype']
-        self.filter_vals = lambda x: x
+        self.accept_vals = lambda x: True
         if dt == 'composite' or field.name in {'cover', 'size', 'path'}:
             self.set_books_func = dummy
         elif field.is_many:
@@ -154,11 +154,11 @@ class Writer(object):
             self.set_books_func = (one_one_in_books if field.metadata['table']
                                    == 'books' else one_one_in_other)
             if self.name in {'timestamp', 'uuid'}:
-                self.filter_vals = bool
+                self.accept_vals = bool
 
     def set_books(self, book_id_val_map, db):
         book_id_val_map = {k:self.adapter(v) for k, v in
-                           book_id_val_map.iteritems() if self.filter_vals(v)}
+                           book_id_val_map.iteritems() if self.accept_vals(v)}
         if not book_id_val_map:
             return set()
         dirtied = self.set_books_func(book_id_val_map, db, self.field)

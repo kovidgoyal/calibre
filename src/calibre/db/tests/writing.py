@@ -73,7 +73,7 @@ class WritingTest(BaseTest):
         for name, getter, setter in (
             ('pubdate', 'pubdate', 'set_pubdate'),
             ('timestamp', 'timestamp', 'set_timestamp'),
-            ('#date', None, None)
+            ('#date', None, None),
         ):
             tests.append(self.create_test(
                 name, ('2011-1-12', UNDEFINED_DATE, None), getter, setter))
