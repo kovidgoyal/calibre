@@ -46,6 +46,7 @@ class Field(object):
         elif name == 'languages':
             self.category_formatter = calibre_langcode_to_name
         self.writer = Writer(self)
+        self.series_field = None
 
     @property
     def metadata(self):

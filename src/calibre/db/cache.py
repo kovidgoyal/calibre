@@ -211,6 +211,12 @@ class Cache(object):
             self.fields['ondevice'] = create_field('ondevice',
                     VirtualTable('ondevice'))
 
+            for name, field in self.fields.iteritems():
+                if name[0] == '#' and name.endswith('_index'):
+                    field.series_field = self.fields[name[:-len('_index')]]
+                elif name == 'series_index':
+                    field.series_field = self.fields['series']
+
     @read_api
     def field_for(self, name, book_id, default_value=None):
         '''

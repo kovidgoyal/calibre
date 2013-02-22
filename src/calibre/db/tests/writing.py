@@ -22,7 +22,11 @@ class WritingTest(BaseTest):
 
     def create_getter(self, name, getter=None):
         if getter is None:
-            ans = lambda db:partial(db.get_custom, label=name[1:],
+            if name.endswith('_index'):
+                ans = lambda db:partial(db.get_custom_extra, index_is_id=True,
+                                        label=name[1:].replace('_index', ''))
+            else:
+                ans = lambda db:partial(db.get_custom, label=name[1:],
                                        index_is_id=True)
         else:
             ans = lambda db:partial(getattr(db, getter), index_is_id=True)
@@ -53,22 +57,29 @@ class WritingTest(BaseTest):
                 db = self.init_old(cl)
                 getter = test.getter(db)
                 sqlite_res = getter(1)
-                test.setter(db)(1, val)
-                old_cached_res = getter(1)
-                self.assertEqual(old_cached_res, cached_res,
-                                 'Failed setting for %s with value %r, cached value not the same. Old: %r != New: %r'%(
-                        test.name, val, old_cached_res, cached_res))
-                db.refresh()
-                old_sqlite_res = getter(1)
-                self.assertEqual(old_sqlite_res, sqlite_res,
-                    'Failed setting for %s, sqlite value not the same: %r != %r'%(
-                        test.name, old_sqlite_res, sqlite_res))
+                if test.name.endswith('_index'):
+                    val = float(val) if val is not None else 1.0
+                    self.assertEqual(sqlite_res, val,
+                        'Failed setting for %s with value %r, sqlite value not the same. val: %r != sqlite_val: %r'%(
+                            test.name, val, val, sqlite_res))
+                else:
+                    test.setter(db)(1, val)
+                    old_cached_res = getter(1)
+                    self.assertEqual(old_cached_res, cached_res,
+                                    'Failed setting for %s with value %r, cached value not the same. Old: %r != New: %r'%(
+                            test.name, val, old_cached_res, cached_res))
+                    db.refresh()
+                    old_sqlite_res = getter(1)
+                    self.assertEqual(old_sqlite_res, sqlite_res,
+                        'Failed setting for %s, sqlite value not the same: %r != %r'%(
+                            test.name, old_sqlite_res, sqlite_res))
                 del db
 
     def test_one_one(self):
         'Test setting of values in one-one fields'
         tests = [self.create_test('#yesno', (True, False, 'true', 'false', None))]
         for name, getter, setter in (
+            ('#series_index', None, None),
             ('series_index', 'series_index', 'set_series_index'),
             ('#float', None, None),
         ):

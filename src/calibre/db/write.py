@@ -138,6 +138,21 @@ def one_one_in_other(book_id_val_map, db, field, *args):
         field.table.book_col_map.update(updated)
     return set(book_id_val_map)
 
+def custom_series_index(book_id_val_map, db, field, *args):
+    series_field = field.series_field
+    sequence = []
+    for book_id, sidx in book_id_val_map.iteritems():
+        if sidx is None:
+            sidx = 1.0
+        ids = series_field.ids_for_book(book_id)
+        if ids:
+            sequence.append((sidx, book_id, ids[0]))
+            field.table.book_col_map[book_id] = sidx
+    if sequence:
+        db.conn.executemany('UPDATE %s SET %s=? WHERE book=? AND value=?'%(
+                field.metadata['table'], field.metadata['column']), sequence)
+    return {s[0] for s in sequence}
+
 def dummy(book_id_val_map, *args):
     return set()
 
@@ -153,8 +168,7 @@ class Writer(object):
             'id', 'cover', 'size', 'path', 'formats', 'news'}:
             self.set_books_func = dummy
         elif self.name[0] == '#' and self.name.endswith('_index'):
-            # TODO: Implement this
-            pass
+            self.set_books_func = custom_series_index
         elif field.is_many:
             # TODO: Implement this
             pass
