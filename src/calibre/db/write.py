@@ -98,10 +98,14 @@ def get_adapter(name, metadata):
 
     if name == 'title':
         return lambda x: ans(x) or _('Unknown')
+    if name == 'author_sort':
+        return lambda x: ans(x) or ''
     if name == 'authors':
         return lambda x: ans(x) or (_('Unknown'),)
     if name in {'timestamp', 'last_modified'}:
         return lambda x: ans(x) or UNDEFINED_DATE
+    if name == 'series_index':
+        return lambda x: 1.0 if ans(x) is None else ans(x)
 
     return ans
 # }}}
@@ -134,6 +138,21 @@ def one_one_in_other(book_id_val_map, db, field, *args):
         field.table.book_col_map.update(updated)
     return set(book_id_val_map)
 
+def custom_series_index(book_id_val_map, db, field, *args):
+    series_field = field.series_field
+    sequence = []
+    for book_id, sidx in book_id_val_map.iteritems():
+        if sidx is None:
+            sidx = 1.0
+        ids = series_field.ids_for_book(book_id)
+        if ids:
+            sequence.append((sidx, book_id, ids[0]))
+            field.table.book_col_map[book_id] = sidx
+    if sequence:
+        db.conn.executemany('UPDATE %s SET %s=? WHERE book=? AND value=?'%(
+                field.metadata['table'], field.metadata['column']), sequence)
+    return {s[0] for s in sequence}
+
 def dummy(book_id_val_map, *args):
     return set()
 
@@ -148,13 +167,16 @@ class Writer(object):
         if dt == 'composite' or field.name in {
             'id', 'cover', 'size', 'path', 'formats', 'news'}:
             self.set_books_func = dummy
+        elif self.name[0] == '#' and self.name.endswith('_index'):
+            self.set_books_func = custom_series_index
         elif field.is_many:
             # TODO: Implement this
             pass
+            # TODO: Remember to change commas to | when writing authors to sqlite
         else:
             self.set_books_func = (one_one_in_books if field.metadata['table']
                                    == 'books' else one_one_in_other)
-            if self.name in {'timestamp', 'uuid'}:
+            if self.name in {'timestamp', 'uuid', 'sort'}:
                 self.accept_vals = bool
 
     def set_books(self, book_id_val_map, db):

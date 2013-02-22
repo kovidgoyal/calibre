@@ -55,20 +55,14 @@ class WallStreetJournal(BasicNewsRecipe):
                     ]
     remove_tags_after = [dict(id="article_story_body"), {'class':"article story"},]
 
+    use_javascript_to_login = True
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        if self.username is not None and self.password is not None:
-            br.open('http://commerce.wsj.com/auth/login')
-            br.select_form(nr=1)
-            br['user']   = self.username
-            br['password'] = self.password
-            res = br.submit()
-            raw = res.read()
-            if 'Welcome,' not in raw and '>Logout<' not in raw and '>Log Out<' not in raw:
-                raise ValueError('Failed to log in to wsj.com, check your '
-                        'username and password')
-        return br
+    def javascript_login(self, br, username, password):
+        br.visit('https://id.wsj.com/access/pages/wsj/us/login_standalone.html?mg=com-wsj', timeout=120)
+        f = br.select_form(nr=0)
+        f['username'] = username
+        f['password'] = password
+        br.submit(timeout=120)
 
     def populate_article_metadata(self, article, soup, first):
         if first and hasattr(self, 'add_toc_thumbnail'):
