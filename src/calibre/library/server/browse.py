@@ -590,7 +590,7 @@ class BrowseServer(object):
         entries = get_category_items(category, entries,
                 self.search_restriction_name, datatype,
                 self.opts.url_prefix)
-        return json.dumps(entries, ensure_ascii=False)
+        return json.dumps(entries, ensure_ascii=True)
 
 
     @Endpoint()
@@ -772,6 +772,7 @@ class BrowseServer(object):
                 continue
             args, fmt, fmts, fname = self.browse_get_book_args(mi, id_)
             args['other_formats'] = ''
+            args['fmt'] = fmt
             if fmts and fmt:
                 other_fmts = [x for x in fmts if x.lower() != fmt.lower()]
                 if other_fmts:
@@ -794,8 +795,9 @@ class BrowseServer(object):
                 args['get_button'] = \
                         '<a href="%s" class="read" title="%s">%s</a>' % \
                         (xml(href, True), rt, xml(_('Get')))
+                args['get_url'] = xml(href, True)
             else:
-                args['get_button'] = ''
+                args['get_button'] = args['get_url'] = ''
             args['comments'] = comments_to_html(mi.comments)
             args['stars'] = ''
             if mi.rating:
@@ -814,7 +816,7 @@ class BrowseServer(object):
             summs.append(self.browse_summary_template.format(**args))
 
 
-        raw = json.dumps('\n'.join(summs), ensure_ascii=False)
+        raw = json.dumps('\n'.join(summs), ensure_ascii=True)
         return raw
 
     def browse_render_details(self, id_):
@@ -825,12 +827,17 @@ class BrowseServer(object):
         else:
             args, fmt, fmts, fname = self.browse_get_book_args(mi, id_,
                     add_category_links=True)
+            args['fmt'] = fmt
+            if fmt:
+                args['get_url'] = xml(self.opts.url_prefix + '/get/%s/%s_%d.%s'%(
+                    fmt, fname, id_, fmt), True)
+            else:
+                args['get_url'] = ''
             args['formats'] = ''
             if fmts:
                 ofmts = [u'<a href="{4}/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
-                        .format(fmt, fname, id_, fmt.upper(),
-                            self.opts.url_prefix) for fmt in
-                        fmts]
+                        .format(xfmt, fname, id_, xfmt.upper(),
+                            self.opts.url_prefix) for xfmt in fmts]
                 ofmts = ', '.join(ofmts)
                 args['formats'] = ofmts
             fields, comments = [], []
@@ -880,9 +887,10 @@ class BrowseServer(object):
                              c[1]) for c in comments]
             comments = u'<div class="comments">%s</div>'%('\n\n'.join(comments))
 
-            return self.browse_details_template.format(id=id_,
-                    title=xml(mi.title, True), fields=fields,
-                    formats=args['formats'], comments=comments)
+            return self.browse_details_template.format(
+                id=id_, title=xml(mi.title, True), fields=fields,
+                get_url=args['get_url'], fmt=args['fmt'],
+                formats=args['formats'], comments=comments)
 
     @Endpoint(mimetype='application/json; charset=utf-8')
     def browse_details(self, id=None):
@@ -893,7 +901,7 @@ class BrowseServer(object):
 
         ans = self.browse_render_details(id_)
 
-        return json.dumps(ans, ensure_ascii=False)
+        return json.dumps(ans, ensure_ascii=True)
 
     @Endpoint()
     def browse_random(self, *args, **kwargs):

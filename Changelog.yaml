@@ -19,6 +19,74 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.20
+  date: 2013-02-22
+
+  new features:
+    - title: "Book polishing: Add an option to smarten punctuation in the book when polishing"
+
+    - title: "Book polishing: Add an option to delete all saved settings to the load saved settings button"
+
+    - title: "Book polishing: Remember the last used settings"
+
+    - title: "Book polishing: Add a checkbox to enable/disable the detailed polishing report"
+
+    - title: "Add a separate tweak in Preferences-Tweaks for saving backups of files when polishing. That way you can have calibre save backups while converting EPUB->EPUB and not while polishing, if you so desire."
+
+    - title: "Content server: Allow clicking on the book cover to download it. Useful on small screen devices where clicking the Get button may be difficult"
+
+    - title: "Driver for Energy Systems C4 Touch."
+      tickets: [1127477]
+ 
+  bug fixes:
+    - title: "E-book viewer: Fix a bug that could cause the back button in the viewer to skip a location"
+
+    - title: "When tweaking/polishing an azw3 file that does not have an identified content ToC, do not auto-generate one."
+      tickets: [1130729]
+
+    - title: "Book polishing: Use the actual cover image dimensions when creating the svg wrapper for the cover image."
+      tickets: [1127273]
+
+    - title: "Book polishing: Do not error out on epub files containing an iTunesMetadata.plist file."
+      tickets: [1127308]
+
+    - title: "Book polishing: Fix trying to polish more than 5 books at a time not working"
+
+    - title: "Content server: Add workaround for bug in latest release of Google Chrome that causes it to not work with book lists containing some utf-8 characters"
+      tickets: [1130478]
+
+    - title: "E-book viewer: When viewing EPUB files, do not parse html as xhtml even if it has svg tags embedded. This allows malformed XHTML files to still be viewed."
+
+    - title: "Bulk metadata edit Search & recplace: Update the sample values when changing the type of identifier to search on"
+
+    - title: "Fix recipes with the / character in their names not useable from the command line"
+      tickets: [1127666]
+
+    - title: "News download: Fix regression that broke downloading of images in gif format"
+
+    - title: "EPUB/AZW3 Output: When splitting the output html on page breaks, handle page-break-after rules correctly, the pre split point html should contain the full element"
+
+    - title: "Fix stdout/stderr redirection temp files not being deleted when restarting calibre from within calibre on windows"
+
+    - title: "E-book viewer: When viewing epub files that have their cover marked as non-linear, show the cover at the start of the book instead of the end."
+      tickets: [1126030]
+
+    - title: "EPUB Input: Fix handling of cover references with fragments in the urls"
+
+  improved recipes:
+    - Fronda
+    - Various Polish news sources
+
+  new recipes:
+    - title: Pravda 
+      author: Darko Miletic
+
+    - title: PNN 
+      author: n.kucklaender
+
+    - title: Various Polish news sources 
+      author: fenuks
+
 - version: 0.9.19
   date: 2013-02-15
 

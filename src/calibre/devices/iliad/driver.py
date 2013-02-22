@@ -14,7 +14,7 @@ class ILIAD(USBMS):
 
     name           = 'IRex Iliad Device Interface'
     description    = _('Communicate with the IRex Iliad eBook reader.')
-    author         = _('John Schember')
+    author         = 'John Schember'
     supported_platforms = ['windows', 'linux']
 
     # Ordered list of supported formats
