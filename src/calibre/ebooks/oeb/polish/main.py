@@ -76,7 +76,7 @@ etc.</p>'''),
 '''),
 
 'smarten_punctuation': _('''\
-<p>Convert plain text, dashes, ellipsis, multiple hyphens, etc. into their
+<p>Convert plain text dashes, ellipsis, multiple hyphens, etc. into their
 typographically correct equivalents.</p>
 <p>Note that the algorithm can sometimes generate incorrect results, especially
 when single quotes at the start of contractions are involved.</p>

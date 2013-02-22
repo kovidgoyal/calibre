@@ -145,7 +145,7 @@ class Writer(object):
         self.field = field
         dt = field.metadata['datatype']
         self.accept_vals = lambda x: True
-        if dt == 'composite' or field.name in {'cover', 'size', 'path'}:
+        if dt == 'composite' or field.name in {'id', 'cover', 'size', 'path'}:
             self.set_books_func = dummy
         elif field.is_many:
             # TODO: Implement this
