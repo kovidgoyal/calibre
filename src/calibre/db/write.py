@@ -98,10 +98,14 @@ def get_adapter(name, metadata):
 
     if name == 'title':
         return lambda x: ans(x) or _('Unknown')
+    if name == 'author_sort':
+        return lambda x: ans(x) or ''
     if name == 'authors':
         return lambda x: ans(x) or (_('Unknown'),)
     if name in {'timestamp', 'last_modified'}:
         return lambda x: ans(x) or UNDEFINED_DATE
+    if name == 'series_index':
+        return lambda x: 1.0 if ans(x) is None else ans(x)
 
     return ans
 # }}}
@@ -148,13 +152,17 @@ class Writer(object):
         if dt == 'composite' or field.name in {
             'id', 'cover', 'size', 'path', 'formats', 'news'}:
             self.set_books_func = dummy
+        elif self.name[0] == '#' and self.name.endswith('_index'):
+            # TODO: Implement this
+            pass
         elif field.is_many:
             # TODO: Implement this
             pass
+            # TODO: Remember to change commas to | when writing authors to sqlite
         else:
             self.set_books_func = (one_one_in_books if field.metadata['table']
                                    == 'books' else one_one_in_other)
-            if self.name in {'timestamp', 'uuid'}:
+            if self.name in {'timestamp', 'uuid', 'sort'}:
                 self.accept_vals = bool
 
     def set_books(self, book_id_val_map, db):

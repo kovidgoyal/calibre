@@ -41,11 +41,11 @@ class WritingTest(BaseTest):
                  self.create_setter(name, setter))
 
     def run_tests(self, tests):
-        cl = self.cloned_library
         results = {}
         for test in tests:
             results[test] = []
             for val in test.vals:
+                cl = self.cloned_library
                 cache = self.init_cache(cl)
                 cache.set_field(test.name, {1: val})
                 cached_res = cache.field_for(test.name, 1)
@@ -65,11 +65,16 @@ class WritingTest(BaseTest):
                         test.name, old_sqlite_res, sqlite_res))
                 del db
 
-
-
     def test_one_one(self):
         'Test setting of values in one-one fields'
-        tests = []
+        tests = [self.create_test('#yesno', (True, False, 'true', 'false', None))]
+        for name, getter, setter in (
+            ('series_index', 'series_index', 'set_series_index'),
+            ('#float', None, None),
+        ):
+            vals = ['1.5', None, 0, 1.0]
+            tests.append(self.create_test(name, tuple(vals), getter, setter))
+
         for name, getter, setter in (
             ('pubdate', 'pubdate', 'set_pubdate'),
             ('timestamp', 'timestamp', 'set_timestamp'),
@@ -77,6 +82,25 @@ class WritingTest(BaseTest):
         ):
             tests.append(self.create_test(
                 name, ('2011-1-12', UNDEFINED_DATE, None), getter, setter))
+
+        for name, getter, setter in (
+            ('title', 'title', 'set_title'),
+            ('uuid', 'uuid', 'set_uuid'),
+            ('author_sort', 'author_sort', 'set_author_sort'),
+            ('sort', 'title_sort', 'set_title_sort'),
+            ('#comments', None, None),
+            ('comments', 'comments', 'set_comment'),
+        ):
+            vals = ['something', None]
+            if name not in {'comments', '#comments'}:
+                # Setting text column to '' returns None in the new backend
+                # and '' in the old. I think None is more correct.
+                vals.append('')
+            if name == 'comments':
+                # Again new behavior of deleting comment rather than setting
+                # empty string is more correct.
+                vals.remove(None)
+            tests.append(self.create_test(name, tuple(vals), getter, setter))
 
         self.run_tests(tests)
 
