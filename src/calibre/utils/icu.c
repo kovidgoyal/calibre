@@ -59,7 +59,6 @@ icu_Collator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyErr_SetString(PyExc_Exception, "Failed to create collator.");
         return NULL;
     }
-    ucol_setAttribute(collator, UCOL_NUMERIC_COLLATION, UCOL_ON, &status);
 
     self = (icu_Collator *)type->tp_alloc(type, 0);
     if (self != NULL) {
