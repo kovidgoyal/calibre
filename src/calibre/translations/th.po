@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-02-22 05:07+0000\n"
+"X-Launchpad-Export-Date: 2013-02-23 05:14+0000\n"
 "X-Generator: Launchpad (build 16506)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:428
@@ -22493,6 +22493,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "John Schember"
-#~ msgstr "john Schember"

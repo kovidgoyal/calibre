@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-22 04:51+0000\n"
-"PO-Revision-Date: 2013-02-22 04:23+0000\n"
+"PO-Revision-Date: 2013-02-23 04:43+0000\n"
 "Last-Translator: wwj402 <wwj402@gmail.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-02-22 05:10+0000\n"
+"X-Launchpad-Export-Date: 2013-02-23 05:18+0000\n"
 "X-Generator: Launchpad (build 16506)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -3659,7 +3659,7 @@ msgstr ""
 msgid ""
 "An XPath expression. Page breaks are inserted before the specified elements. "
 "To disable use the expression: /"
-msgstr ""
+msgstr "XPath表达式。在指定的元素之前插入分页符。禁止使用表达式: /"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:364
 msgid ""
@@ -4828,10 +4828,12 @@ msgid ""
 "all the book metadata such as title, tags, authors, series, comments,\n"
 "etc.</p>"
 msgstr ""
+"<P>在这本书的开始处插入“书籍封面”页\n"
+"包含书所有的元数据，如标题，标签，作者，系列，注释，等等。</ P>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:74
 msgid "<p>Remove a previous inserted book jacket page.</p>\n"
-msgstr ""
+msgstr "<P>删除以前插入的书籍封面页。</ P>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:78
 msgid ""
@@ -6368,7 +6370,7 @@ msgstr "<h3>关于润饰书籍</h3>%s"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:41
 #, python-format
 msgid "<h3>Subsetting fonts</h3>%s"
-msgstr ""
+msgstr "<h3>字体子集</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:44
 #, python-format
@@ -6387,12 +6389,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:54
 #, python-format
 msgid "<h3>Book Jacket</h3>%s"
-msgstr ""
+msgstr "<h3>书籍封面</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:55
 #, python-format
 msgid "<h3>Remove Book Jacket</h3>%s"
-msgstr ""
+msgstr "<h3>移除书籍封面</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:61
 msgid "Select actions to perform:"
@@ -6416,7 +6418,7 @@ msgstr "添加元数据作为\"书的封皮\"页"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:70
 msgid "Remove a previously inserted book jacket"
-msgstr ""
+msgstr "移除以前插入的书籍封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:80
 msgid "About"
@@ -7503,7 +7505,7 @@ msgstr "未指定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:185
 msgid "No genres will be excluded"
-msgstr ""
+msgstr "不排除任何类型"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:202
 #, python-format
@@ -7522,7 +7524,7 @@ msgstr "您確定要刪除「%s」？"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:699
 #, python-format
 msgid "Are you sure you want to delete rules #%(first)d-%(last)d?"
-msgstr ""
+msgstr "你确定要删除规则#%(first)d-%(last)d？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:700
 msgid "Delete Rule"
@@ -7550,7 +7552,7 @@ msgstr "名称"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:876
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:968
 msgid "Field"
-msgstr ""
+msgstr "字段"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:877
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:969
@@ -7563,7 +7565,7 @@ msgstr "前缀"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:290
 msgid "Enabled sections will be included in the generated catalog."
-msgstr ""
+msgstr "启用的部分将包含在生成目录中。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:291
 msgid "Included sections"
@@ -7587,7 +7589,7 @@ msgstr "类型(&G)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Field containing Genre information"
-msgstr ""
+msgstr "字段包含类型信息"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "&Recently Added"
@@ -7611,7 +7613,7 @@ msgstr "前缀"
 msgid ""
 "Books matching any of the exclusion rules will be excluded from the "
 "generated catalog. "
-msgstr ""
+msgstr "任何匹配排除规则的书籍，将被排除在生成目录之外。 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:302
 msgid "Excluded books"
@@ -7631,7 +7633,7 @@ msgstr "排除流派"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:306
 msgid "Genres to &exclude (regex):"
-msgstr ""
+msgstr "要排除的类型(&e)(正则表达式):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:307
 msgid "Reset to default"
@@ -7639,7 +7641,7 @@ msgstr "重设为默认值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:309
 msgid "Results of regex:"
-msgstr ""
+msgstr "正则表达式结果:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:310
 msgid "Tags that will be excluded as genres"
@@ -7678,23 +7680,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:318
 msgid "Include &Separator"
-msgstr ""
+msgstr "包括分隔符(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "&Merge with Comments:"
-msgstr ""
+msgstr "合并评论(&M):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:320
 msgid "Catalog cover:"
-msgstr ""
+msgstr "分类封面:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
 msgid "Generate new cover"
-msgstr ""
+msgstr "生成新的封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:322
 msgid "Use existing cover"
-msgstr ""
+msgstr "使用存在的封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
 msgid "E&xtra Description note:"
@@ -7883,11 +7885,11 @@ msgstr "创建链接"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:215
 msgid "Enter &URL:"
-msgstr ""
+msgstr "输入URL(&U):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:216
 msgid "Enter name (optional):"
-msgstr ""
+msgstr "输入名称(可选):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:577
 msgid "Normal view"
@@ -8714,7 +8716,7 @@ msgstr "左(&L):"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:136
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:139
 msgid "No margin"
-msgstr ""
+msgstr "无页边距"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:132
 msgid "&Top:"
@@ -8788,7 +8790,7 @@ msgstr "自定义页面尺寸(&C)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:122
 msgid "&Unit:"
-msgstr ""
+msgstr "单位(&U):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:123
 msgid "Preserve &aspect ratio of cover"
@@ -8816,7 +8818,7 @@ msgstr "标准字体(&T)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:128
 msgid "Default font si&ze:"
-msgstr ""
+msgstr "默认字体大小(&z):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:129
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:131
@@ -8876,7 +8878,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:181
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:185
 msgid "Failed to generate preview"
-msgstr ""
+msgstr "生成预览失败"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:191
 msgid "Open book"
@@ -8946,11 +8948,11 @@ msgstr "查找正则表达式(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:56
 msgid "Replacement Text"
-msgstr ""
+msgstr "替换文本"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:56
 msgid "Search Regular Expression"
-msgstr ""
+msgstr "搜索正则表达式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:102
 msgid "Load Calibre Search-Replace definitions file"
@@ -8963,7 +8965,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:113
 msgid "Failed to read"
-msgstr ""
+msgstr "读取失败"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:114
 #, python-format
@@ -9017,7 +9019,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:149
 msgid "&Add"
-msgstr ""
+msgstr "添加(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:150
 msgid "Edit the currently selected expression"
@@ -9044,7 +9046,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:155
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:463
 msgid "&Load"
-msgstr ""
+msgstr "加载(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:156
 msgid "Save this list of expressions so that you can re-use it easily"
@@ -9059,11 +9061,11 @@ msgstr "保存(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:158
 msgid "Move expression up."
-msgstr ""
+msgstr "表达式上移"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:159
 msgid "Move expression down."
-msgstr ""
+msgstr "表达式下移"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:160
 msgid ""
@@ -9469,11 +9471,11 @@ msgstr "清除 '%s'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:241
 msgid "Open Item Editor"
-msgstr ""
+msgstr "打开项目编辑器"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:347
 msgid "Values changed"
-msgstr ""
+msgstr "值已改变"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:348
 msgid ""
@@ -9627,7 +9629,7 @@ msgstr "与设备通信发生错误"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:860
 #, python-format
 msgid "Manage the %s?"
-msgstr ""
+msgstr "管理 %s？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:861
 #, python-format
@@ -9827,7 +9829,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:92
 msgid "&Template editor"
-msgstr ""
+msgstr "模板编辑器(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
@@ -9845,7 +9847,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:226
 msgid "Browse for a folder on the device"
-msgstr ""
+msgstr "浏览设备上的一个文件夹"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:167
 msgid ""
@@ -9860,7 +9862,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:220
 msgid "Folder on the device"
-msgstr ""
+msgstr "设备上的文件夹"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:228
 msgid "&Remove rule"
@@ -9911,11 +9913,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:377
 msgid "Change scanned &folders"
-msgstr ""
+msgstr "更改扫描的文件夹(&f)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:383
 msgid "Show device information"
-msgstr ""
+msgstr "显示设备信息"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:421
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:141
@@ -9928,7 +9930,7 @@ msgstr "复制到剪贴板"
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:435
 #, python-format
 msgid "The %s will be ignored in calibre"
-msgstr ""
+msgstr "%s 在calibre中将被忽略"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:495
 #, python-format
@@ -9947,15 +9949,15 @@ msgstr "配置"
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:508
 #, python-format
 msgid "Cannot send to %s"
-msgstr ""
+msgstr "不能发送到 %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:92
 msgid "Choose folder on device"
-msgstr ""
+msgstr "选择设备上的文件夹"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:105
 msgid "<b>Scanned folders:</b>"
-msgstr ""
+msgstr "<b>扫描的文件夹:</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:106
 msgid ""
@@ -9965,15 +9967,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:131
 msgid "Select &All"
-msgstr ""
+msgstr "全选(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:133
 msgid "Select &None"
-msgstr ""
+msgstr "全不选(&N)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:136
 msgid "Choose folders to scan"
-msgstr ""
+msgstr "选择要扫描的文件夹"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:19
 msgid "How many empty books?"
@@ -10056,7 +10058,7 @@ msgstr "我的书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:190
 msgid "No help available"
-msgstr ""
+msgstr "没有可用的帮助"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:191
 msgid "No help available for this output format."
@@ -10249,7 +10251,7 @@ msgstr "完成(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:240
 msgid "Delete &marked"
-msgstr ""
+msgstr "删除标记(&m)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:241
 msgid "Delete marked files (checked subitems)"
@@ -10257,7 +10259,7 @@ msgstr "删除标记文件(检查子项)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:244
 msgid "&Fix marked"
-msgstr ""
+msgstr "修复标记(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:247
 msgid "Fix marked sections (checked fixable items)"
@@ -10768,7 +10770,7 @@ msgstr "中止选定的任务(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:77
 msgid "&Hide selected jobs"
-msgstr ""
+msgstr "隐藏选定的作业(&H)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:78
 msgid "Show job &details"
@@ -10776,7 +10778,7 @@ msgstr "显示任务信息(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:79
 msgid "Show &all jobs"
-msgstr ""
+msgstr "显示所有作业(&a)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:80
 msgid "Stop &all non device jobs"
@@ -10784,7 +10786,7 @@ msgstr "停止所有非设备任务"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:81
 msgid "&Hide all jobs"
-msgstr ""
+msgstr "隐藏所有作业(&H)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:298
@@ -10983,7 +10985,7 @@ msgstr "搜索/替换名称："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1059
 msgid "You must provide a name."
-msgstr ""
+msgstr "你必须提供一个名称。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1064
 msgid ""
@@ -11970,7 +11972,7 @@ msgstr "创建者： "
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:384
 #, python-format
 msgid "Download %s now"
-msgstr ""
+msgstr "现在下载 %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:388
 msgid "Last downloaded: never"
@@ -12337,31 +12339,31 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:124
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:129
 msgid "Invalid port number"
-msgstr ""
+msgstr "无效的端口号"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:119
 msgid "You must provide a port number."
-msgstr ""
+msgstr "你必须提供一个端口号。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:130
 msgid "The port must be a number between 8000 and 32000."
-msgstr ""
+msgstr "端口号必须在8000到32000之间。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:394
 msgid "Problem starting the wireless device"
-msgstr ""
+msgstr "启动无线设备时出现问题"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:146
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:395
 #, python-format
 msgid "The wireless device driver did not start. It said \"%s\""
-msgstr ""
+msgstr "无线设备的驱动没有启动。 \"%s\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:86
 msgid "Smart device control"
-msgstr ""
+msgstr "智能设备控制"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:87
 msgid ""
@@ -12375,7 +12377,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:90
 msgid "Calibre IP addresses:"
-msgstr ""
+msgstr "Calibre IP地址:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:91
 msgid "Possibe IP addresses:"
@@ -12383,7 +12385,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:92
 msgid "Optional &password:"
-msgstr ""
+msgstr "可选密码(&p):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:93
 msgid "Optional password for security"
@@ -12563,11 +12565,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:182
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:75
 msgid "Find"
-msgstr ""
+msgstr "查找"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:167
 msgid "You must enter some text to search for"
-msgstr ""
+msgstr "你必须输入搜索文本"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:182
 msgid "No tag found"
@@ -23096,18 +23098,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "John Schember"
-#~ msgstr "John Schember"
-
-#~ msgid "Save original file when converting from same format to same format"
-#~ msgstr "将文件从某种格式转换为相同格式时备份原始文件"
-
-#~ msgid ""
-#~ "When calibre does a conversion from the same format to the same format, for\n"
-#~ "example, from EPUB to EPUB, the original file is saved, so that in case the\n"
-#~ "conversion is poor, you can tweak the settings and run it again. By setting\n"
-#~ "this to False you can prevent calibre from saving the original file."
-#~ msgstr ""
-#~ "当 calibre 把文件从一种格式转换到相同的格式，比如，从 EPUB 转为 "
-#~ "EPUB，原始文件将被保存，以便当转换结果不满意时，可以调整设置后重新转换。把本选项设置为 Fasle 就可以让 calibre 不再保存原始文件。"

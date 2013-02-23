@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-22 04:51+0000\n"
-"PO-Revision-Date: 2013-02-18 17:16+0000\n"
-"Last-Translator: Neliton Pereira Jr. <nelitonpjr@gmail.com>\n"
+"PO-Revision-Date: 2013-02-23 03:36+0000\n"
+"Last-Translator: Fabiano Santiago <fabiano_santiago@ymail.com>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-02-22 05:09+0000\n"
+"X-Launchpad-Export-Date: 2013-02-23 05:17+0000\n"
 "X-Generator: Launchpad (build 16506)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -853,7 +853,7 @@ msgstr ""
 msgid ""
 "Intended for the Nook HD+ and similar tablet devices with a resolution of "
 "1280x1920"
-msgstr ""
+msgstr "Feito para o Nook HD+ e tablets similares com a resolução 1280x1920"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:484
 msgid "This profile is intended for the Kobo Reader."
@@ -1124,7 +1124,7 @@ msgstr "espaço em branco"
 #: /home/kovid/work/calibre/src/calibre/db/search.py:323
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:591
 msgid "Invalid boolean query \"{0}\""
-msgstr ""
+msgstr "Consulta boolean inválida \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:47
@@ -1494,7 +1494,7 @@ msgstr "Comunica-se com o leitor PocketBook 301"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:237
 msgid "Communicate with the PocketBook 602/603/902/903/Pro 912 reader."
-msgstr ""
+msgstr "Comunicar-se com o leitor PocketBook 602/603/902/903/Pro 912."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
 msgid "Communicate with the PocketBook 622 reader."
@@ -2477,6 +2477,11 @@ msgid ""
 "not change even if the save template produces a different result. Using this "
 "option in most cases prevents having multiple copies of a book on the device."
 msgstr ""
+"Use esta opção para sobrescrever um livro no dispositivo se este livro tem o "
+"mesmo identificador do calibre que o livro que você está tentando enviar. O "
+"nome do arquivo do livro não será mudado mesmo se o modelo salvo produzir um "
+"resultado diferente. Usar esta opção previne, na maioria das vezes, ter mais "
+"de uma cópia do mesmo livro no dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:805
 #, python-format
@@ -3469,6 +3474,8 @@ msgid ""
 "The unit of measure for page sizes. Default is inch. Choices are %s Note: "
 "This does not override the unit for margins!"
 msgstr ""
+"A unidade de medida para o tamanho das páginas. O padrão é polegada. Opções "
+"são %s. Nota: Isso não altera a unidade de medida das margens."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:63
 #, python-format
@@ -3520,6 +3527,8 @@ msgstr "O tamanho de fonte padrão para texto mono-espaçado"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:95
 msgid "Surround all links with a red box, useful for debugging."
 msgstr ""
+"Insere uma caixa vermelha em torno dos links, prático para resolver "
+"problemas."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:97
 msgid "Use the old, less capable engine to generate the PDF"
@@ -3538,18 +3547,24 @@ msgid ""
 "Add page numbers to the bottom of every page in the generated PDF file. If "
 "you specify a footer template, it will take precedence over this option."
 msgstr ""
+"Adiciona o número de página ao fim de cada página no arquivo PDF gerado. Se "
+"você especificar um modelo de rodapé ele terá prioridade sobre este item."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:107
 msgid ""
 "An HTML template used to generate footers on every page. The string "
 "_PAGENUM_ will be replaced by the current page number."
 msgstr ""
+"Um modelo HTML usado para gerar rodapés em todas as páginas. A linha "
+"_PAGENUM_ será substituída pelo número da página atual."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:111
 msgid ""
 "An HTML template used to generate headers on every page. The string "
 "_PAGENUM_ will be replaced by the current page number."
 msgstr ""
+"Um modelo HTML usado para gerar cabeçalhos em todas as páginas. A linha "
+"_PAGENUM_ será substituída pelo número da página atual."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -23756,23 +23771,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "John Schember"
-#~ msgstr "John Schember"
-
-#~ msgid "Save original file when converting from same format to same format"
-#~ msgstr ""
-#~ "Salvar arquivo original qualquer convertendo de um formato para o mesmo "
-#~ "formato"
-
-#~ msgid ""
-#~ "When calibre does a conversion from the same format to the same format, for\n"
-#~ "example, from EPUB to EPUB, the original file is saved, so that in case the\n"
-#~ "conversion is poor, you can tweak the settings and run it again. By setting\n"
-#~ "this to False you can prevent calibre from saving the original file."
-#~ msgstr ""
-#~ "Quando o Calibre faz uma conversão entre formatos iguais, por\n"
-#~ "exemplo, de EPUB para EPUB, o arquivo original é salvo, para que caso a \n"
-#~ "conversão seja ruim, você poderá ajustar as configurações e tentar "
-#~ "novamente. Ao configurar\n"
-#~ "isto para Falso você pode impedir o Calibre de salvar o arquivo original."

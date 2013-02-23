@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-02-22 05:10+0000\n"
+"X-Launchpad-Export-Date: 2013-02-23 05:18+0000\n"
 "X-Generator: Launchpad (build 16506)\n"
 "Language: zh_TW\n"
 
@@ -22791,9 +22791,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "John Schember"
-#~ msgstr "John Schember"
-
-#~ msgid "Save original file when converting from same format to same format"
-#~ msgstr "當轉換的格式和來源格式相同時儲存原始的檔案"

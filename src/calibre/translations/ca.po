@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-22 04:51+0000\n"
-"PO-Revision-Date: 2013-02-16 22:05+0000\n"
+"PO-Revision-Date: 2013-02-22 15:18+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-22 04:54+0000\n"
+"X-Launchpad-Export-Date: 2013-02-23 05:00+0000\n"
 "X-Generator: Launchpad (build 16506)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -5493,6 +5493,13 @@ msgid ""
 "especially\n"
 "when single quotes at the start of contractions are involved.</p>\n"
 msgstr ""
+"<p>Converteix els guions, punts suspensius, cometes, guions múltiples... de "
+"text net\n"
+"en els equivalents tipogràfics correctes.</p>\n"
+"<p>Tingueu en compte que l'algorisme pot generar algun cop resultats "
+"incorrectes,\n"
+"especialment quan hi ha cometes senzilles al començament de "
+"contraccions.</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:117
 #, python-format
@@ -5542,7 +5549,7 @@ msgstr "No s'ha trobat cap sobrecoberta de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:158
 msgid "Smartening punctuation"
-msgstr ""
+msgstr "S'està embellint la puntuació"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:163
 msgid "Subsetting embedded fonts"
@@ -5588,7 +5595,7 @@ msgstr "Heu d'especificar almenys una acció a realitzar"
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/replace.py:73
 #, python-format
 msgid "Smartened punctuation in: %s"
-msgstr ""
+msgstr "Puntuació embellida a: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
@@ -7140,7 +7147,7 @@ msgstr "<h3>Subconjunts de tipus de lletra</h3>%s"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:44
 #, python-format
 msgid "<h3>Smarten punctuation</h3>%s"
-msgstr ""
+msgstr "<h3>Embelleix la puntuació</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:46
 msgid ""
@@ -7177,7 +7184,7 @@ msgstr "Fes un subconjunt de tots els tipus lletra incrustades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:67
 msgid "Smarten punctuation"
-msgstr ""
+msgstr "Embelleix la puntuació"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:68
 msgid "Update metadata in book files"
@@ -7197,12 +7204,13 @@ msgstr "Quant a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:99
 msgid "Show &report"
-msgstr ""
+msgstr "Mostra l'info&rme"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:101
 msgid ""
 "Show a report of all the actions performed after polishing is completed"
 msgstr ""
+"Mostra un informe de totes les accions realitzades després d'acabar el polit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:107
 msgid "&Save Settings"
@@ -7241,7 +7249,7 @@ msgstr "Trieu un nom per a aquesta configuració"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:154
 msgid "Remove saved settings"
-msgstr ""
+msgstr "Suprimeix els paràmetres desats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:196
 msgid "You must select at least one action, or click Cancel."
@@ -25921,6 +25929,7 @@ msgstr ""
 msgid ""
 "Save original file when converting/polishing from same format to same format"
 msgstr ""
+"Desa el fitxer original en convertir/polir d'un format al mateix format"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:467
 msgid ""
@@ -25931,6 +25940,15 @@ msgid ""
 "Similarly, by setting save_original_format_when_polishing to False you can\n"
 "prevent calibre from saving the original file when polishing."
 msgstr ""
+"Quan el calibre fa una conversió d'un format al mateix format, per exemple,\n"
+"d'EPUB a EPUB, es desa el fitxer original per tal que si la conversió és "
+"dolenta\n"
+"es pugui ajustar els paràmetres i tornar-ho a executar. Si ho establiu a "
+"«False»\n"
+"eviteu que el calibre desi el fitxer original.\n"
+"De la mateixa manera, si establiu setting "
+"save_original_format_when_polishing\n"
+"a «False», eviteu que el calibre desi el fitxer original en polir."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:476
 msgid "Number of recently viewed books to show"
@@ -26048,22 +26066,3 @@ msgstr ""
 "abans de prémer la tecla de retorn. La tècnica que preferiu depèn de "
 "l'estat\n"
 "de les metadades de la biblioteca i el vostre estil d'edició personal."
-
-#~ msgid "John Schember"
-#~ msgstr "John Schember"
-
-#~ msgid "Save original file when converting from same format to same format"
-#~ msgstr "Desa el fitxer original en convertir-lo d'un format al mateix format"
-
-#~ msgid ""
-#~ "When calibre does a conversion from the same format to the same format, for\n"
-#~ "example, from EPUB to EPUB, the original file is saved, so that in case the\n"
-#~ "conversion is poor, you can tweak the settings and run it again. By setting\n"
-#~ "this to False you can prevent calibre from saving the original file."
-#~ msgstr ""
-#~ "Quan el calibre fa una conversió al mateix format, per exemple d'EPUB a "
-#~ "EPUB,\n"
-#~ "es desa el fitxer original. Si la conversió no és bona es pot ajustar les "
-#~ "opcions\n"
-#~ "i repetir-ho. Si s'estableix a «False» s'evita que el calibre desi el fitxer "
-#~ "original."

@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-02-22 05:00+0000\n"
+"X-Launchpad-Export-Date: 2013-02-23 05:06+0000\n"
 "X-Generator: Launchpad (build 16506)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -23542,18 +23542,3 @@ msgid ""
 "Enter. Which technique you prefer will depend on the state of metadata in\n"
 "your library and your personal editing style."
 msgstr ""
-
-#~ msgid "John Schember"
-#~ msgstr "John Schember"
-
-#~ msgid ""
-#~ "When calibre does a conversion from the same format to the same format, for\n"
-#~ "example, from EPUB to EPUB, the original file is saved, so that in case the\n"
-#~ "conversion is poor, you can tweak the settings and run it again. By setting\n"
-#~ "this to False you can prevent calibre from saving the original file."
-#~ msgstr ""
-#~ "calibreが、例えばEPUBからEPUBのように、同じフォーマットから同じフォーマットへ変換する場合、元のファイルを穂損します。なので、変換がおかしい"
-#~ "場合このtweakを使ってもう一度実行することができます。これをFalseにするとcalibreは元のファイルを保存しなくなります。"
-
-#~ msgid "Save original file when converting from same format to same format"
-#~ msgstr "同じフォーマットから同じフォーマットへ変換する場合、オリジナルのファイルを保存しておく。"

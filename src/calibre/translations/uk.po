@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-22 04:51+0000\n"
-"PO-Revision-Date: 2013-02-15 08:47+0000\n"
+"PO-Revision-Date: 2013-02-22 06:53+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-02-22 05:08+0000\n"
+"X-Launchpad-Export-Date: 2013-02-23 05:15+0000\n"
 "X-Generator: Launchpad (build 16506)\n"
 "Language: uk\n"
 
@@ -5498,6 +5498,11 @@ msgid ""
 "especially\n"
 "when single quotes at the start of contractions are involved.</p>\n"
 msgstr ""
+"<p>Виконати перетворення звичайних дефісів, багатокрапок, тире з декількох "
+"дефісів тощо відповідно до типографських стандартів.</p>\n"
+"<p>Зауважте, що використання цього алгоритму може іноді призводити до "
+"некоректних результатів, особливо якщо на початку фрагментів тексту "
+"використано одинарні лапки.</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:117
 #, python-format
@@ -5547,7 +5552,7 @@ msgstr "Не знайдено суперобкладинки з метадани
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:158
 msgid "Smartening punctuation"
-msgstr ""
+msgstr "Удосконалення пунктуації"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:163
 msgid "Subsetting embedded fonts"
@@ -5592,7 +5597,7 @@ msgstr "Вам слід вказати принаймні одну дію для
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/replace.py:73
 #, python-format
 msgid "Smartened punctuation in: %s"
-msgstr ""
+msgstr "Удосконалено пунктуацію у %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
@@ -7136,7 +7141,7 @@ msgstr "<h3>Обрізання шрифтів до підмножин</h3>%s"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:44
 #, python-format
 msgid "<h3>Smarten punctuation</h3>%s"
-msgstr ""
+msgstr "<h3>Удосконалення пунктуації</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:46
 msgid ""
@@ -7173,7 +7178,7 @@ msgstr "Обрізати всі вбудовані шрифти"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:67
 msgid "Smarten punctuation"
-msgstr ""
+msgstr "Удосконалення пунктуації"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:68
 msgid "Update metadata in book files"
@@ -7193,12 +7198,13 @@ msgstr "Про модуль"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:99
 msgid "Show &report"
-msgstr ""
+msgstr "Показати з&віт"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:101
 msgid ""
 "Show a report of all the actions performed after polishing is completed"
 msgstr ""
+"Після завершення покращення тексту показати звіт щодо всіх виконаних дій"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:107
 msgid "&Save Settings"
@@ -7237,7 +7243,7 @@ msgstr "Виберіть назву для цього набору параме�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:154
 msgid "Remove saved settings"
-msgstr ""
+msgstr "Вилучити збережені параметри"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:196
 msgid "You must select at least one action, or click Cancel."
@@ -25898,6 +25904,8 @@ msgstr ""
 msgid ""
 "Save original file when converting/polishing from same format to same format"
 msgstr ""
+"Зберігати початковий файл, якщо під час перетворення/покращення формат не "
+"змінюється"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:467
 msgid ""
@@ -25908,6 +25916,13 @@ msgid ""
 "Similarly, by setting save_original_format_when_polishing to False you can\n"
 "prevent calibre from saving the original file when polishing."
 msgstr ""
+"Якщо calibre виконує перетворення даних без зміни формату, наприклад\n"
+"з EPUB до EPUB, програма може зберігати початковий файл. Якщо\n"
+"перетворення призведе до небажаних змін, ви зможете просто змінити\n"
+"його параметри і повторити спробу. Якщо для цього параметра буде\n"
+"встановлено значення False, calibre не зберігатиме початковий файл.\n"
+"Так само, якщо встановити для параметра save_original_format_when_polishing\n"
+"значення False, calibre не зберігатиме початковий файл під час покращення."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:476
 msgid "Number of recently viewed books to show"
@@ -26022,23 +26037,3 @@ msgstr ""
 "натиснути клавішу Enter. Бажаний спосіб роботи залежить від стану метаданих "
 "у вашій\n"
 "бібліотеці та особистих уподобань у редагуванні."
-
-#~ msgid "John Schember"
-#~ msgstr "Джон Шембер"
-
-#~ msgid "Save original file when converting from same format to same format"
-#~ msgstr "Зберігати початкові файли при перетворенні у той же ж самий формат"
-
-#~ msgid ""
-#~ "When calibre does a conversion from the same format to the same format, for\n"
-#~ "example, from EPUB to EPUB, the original file is saved, so that in case the\n"
-#~ "conversion is poor, you can tweak the settings and run it again. By setting\n"
-#~ "this to False you can prevent calibre from saving the original file."
-#~ msgstr ""
-#~ "Під час перетворення у calibre даних без зміни формату, наприклад з формату\n"
-#~ "EPUB на формат EPUB, програма зберігає початковий файл. Якщо під час\n"
-#~ "перетворення стануться якісь помилки, ви можете змінити параметри "
-#~ "перетворення\n"
-#~ "і повторити спробу. Встановленням для цього параметра значення False ви "
-#~ "можете\n"
-#~ "наказати calibre не зберігати початковий файл."
