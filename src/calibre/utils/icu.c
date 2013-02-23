@@ -59,6 +59,7 @@ icu_Collator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyErr_SetString(PyExc_Exception, "Failed to create collator.");
         return NULL;
     }
+    ucol_setAttribute(collator, UCOL_NUMERIC_COLLATION, UCOL_ON, &status);
 
     self = (icu_Collator *)type->tp_alloc(type, 0);
     if (self != NULL) {
@@ -106,6 +107,21 @@ icu_Collator_set_strength(icu_Collator *self, PyObject *val, void *closure) {
         return -1;
     }
     ucol_setStrength(self->collator, (int)PyInt_AS_LONG(val));
+    return 0;
+}
+// }}}
+
+// Collator.numeric {{{
+static PyObject *
+icu_Collator_get_numeric(icu_Collator *self, void *closure) {
+    UErrorCode status = U_ZERO_ERROR;
+    return Py_BuildValue("O", (ucol_getAttribute(self->collator, UCOL_NUMERIC_COLLATION, &status) == UCOL_ON) ? Py_True : Py_False);
+}
+
+static int
+icu_Collator_set_numeric(icu_Collator *self, PyObject *val, void *closure) {
+    UErrorCode status = U_ZERO_ERROR;
+    ucol_setAttribute(self->collator, UCOL_NUMERIC_COLLATION, (PyObject_IsTrue(val)) ? UCOL_ON : UCOL_OFF, &status);
     return 0;
 }
 // }}}
@@ -415,6 +431,10 @@ static PyGetSetDef  icu_Collator_getsetters[] = {
      (char *)"The strength of this collator.",
      NULL},
 
+    {(char *)"numeric",
+     (getter)icu_Collator_get_numeric, (setter)icu_Collator_set_numeric,
+     (char *)"If True the collator sorts contiguous digits as numbers rather than strings, so 2 will sort before 10.",
+     NULL},
 
     {NULL}  /* Sentinel */
 };

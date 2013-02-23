@@ -46,6 +46,8 @@ def load_collator():
         icu = load_icu()
         if icu is not None:
             _collator = icu.Collator(get_locale())
+            if not tweaks['numeric_collation']:
+                _collator.numeric = False
     return _collator
 
 def primary_collator():

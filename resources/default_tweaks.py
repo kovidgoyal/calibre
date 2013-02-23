@@ -517,3 +517,11 @@ default_tweak_format = None
 # your library and your personal editing style.
 preselect_first_completion = False
 
+#: Recognize numbers inside text when sorting
+# This means that when sorting on text fields like title the text "Book 2"
+# will sort before the text "Book 100". This is how humans usually expect
+# things to sort. If you prefer the computer sort (which is a little faster,
+# but will cause Book 100 to sort before Book 2), then set numeric_collation
+# to False.
+numeric_collation = True
+
