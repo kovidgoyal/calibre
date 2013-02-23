@@ -622,8 +622,7 @@ class BulkBase(Base):
             return
         val = self.gui_val
         val = self.normalize_ui_val(val)
-        if val != self.initial_val:
-            self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
+        self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
 
     def make_widgets(self, parent, main_widget_class, extra_label_text=''):
         w = QWidget(parent)
@@ -1030,8 +1029,7 @@ class BulkText(BulkBase):
         else:
             val = self.gui_val
             val = self.normalize_ui_val(val)
-            if val != self.initial_val:
-                self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
+            self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
 
     def getter(self):
         if self.col_metadata['is_multiple']:
