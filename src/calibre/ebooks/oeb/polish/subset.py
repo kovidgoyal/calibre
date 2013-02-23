@@ -9,10 +9,11 @@ __docformat__ = 'restructuredtext en'
 
 import os, sys
 
-from calibre import prints
+from calibre import prints, as_unicode
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS, XPath
 from calibre.ebooks.oeb.polish.container import OEB_FONTS
 from calibre.utils.fonts.sfnt.subset import subset
+from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 from calibre.utils.fonts.utils import get_font_names
 
 def remove_font_face_rules(container, sheet, remove_names, base):
@@ -46,9 +47,16 @@ def subset_all_fonts(container, font_stats, report):
                 raw = f.read()
                 font_name = get_font_names(raw)[-1]
                 warnings = []
-                container.log('Subsetting font: %s'%font_name)
-                nraw, old_sizes, new_sizes = subset(raw, chars,
+                container.log('Subsetting font: %s'%(font_name or name))
+                try:
+                    nraw, old_sizes, new_sizes = subset(raw, chars,
                                                    warnings=warnings)
+                except UnsupportedFont as e:
+                    container.log.warning(
+                        'Unsupported font: %s, ignoring.  Error: %s'%(
+                            name, as_unicode(e)))
+                    continue
+
                 for w in warnings:
                     container.log.warn(w)
                 olen = sum(old_sizes.itervalues())
