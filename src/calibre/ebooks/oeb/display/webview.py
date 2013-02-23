@@ -45,13 +45,13 @@ def load_html(path, view, codec='utf-8', mime_type=None,
             html = f.read().decode(codec, 'replace')
 
     html = EntityDeclarationProcessor(html).processed_html
-    self_closing_pat = re.compile(r'<\s*([:A-Za-z1-6]+)([^>]*)/\s*>')
+    self_closing_pat = re.compile(r'<\s*([:A-Za-z0-9-]+)([^>]*)/\s*>')
     html = self_closing_pat.sub(self_closing_sub, html)
 
     loading_url = QUrl.fromLocalFile(path)
     pre_load_callback(loading_url)
 
-    if force_as_html or re.search(r'<[:a-zA-Z]*svg', html) is None:
+    if force_as_html or re.search(r'<[:a-zA-Z0-9-]*svg', html) is None:
         view.setHtml(html, loading_url)
     else:
         view.setContent(QByteArray(html.encode(codec)), mime_type,
