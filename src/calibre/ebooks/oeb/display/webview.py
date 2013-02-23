@@ -31,7 +31,7 @@ def self_closing_sub(match):
     return '<%s%s></%s>'%(match.group(1), match.group(2), match.group(1))
 
 def load_html(path, view, codec='utf-8', mime_type=None,
-        pre_load_callback=lambda x:None, path_is_html=False,
+              pre_load_callback=lambda x:None, path_is_html=False,
               force_as_html=False):
     from PyQt4.Qt import QUrl, QByteArray
     if mime_type is None:
@@ -45,7 +45,7 @@ def load_html(path, view, codec='utf-8', mime_type=None,
             html = f.read().decode(codec, 'replace')
 
     html = EntityDeclarationProcessor(html).processed_html
-    self_closing_pat = re.compile(r'<\s*([A-Za-z1-6]+)([^>]*)/\s*>')
+    self_closing_pat = re.compile(r'<\s*([:A-Za-z1-6]+)([^>]*)/\s*>')
     html = self_closing_pat.sub(self_closing_sub, html)
 
     loading_url = QUrl.fromLocalFile(path)
