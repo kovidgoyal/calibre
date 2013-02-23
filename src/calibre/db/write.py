@@ -13,11 +13,13 @@ from datetime import datetime
 from calibre.constants import preferred_encoding, ispy3
 from calibre.utils.date import (parse_only_date, parse_date, UNDEFINED_DATE,
                                 isoformat)
+if ispy3:
+    unicode = str
 
 # Convert data into values suitable for the db {{{
 
-if ispy3:
-    unicode = str
+def sqlite_datetime(x):
+    return isoformat(x, sep=' ') if isinstance(x, datetime) else x
 
 def single_text(x):
     if x is None:
@@ -110,9 +112,7 @@ def get_adapter(name, metadata):
     return ans
 # }}}
 
-def sqlite_datetime(x):
-    return isoformat(x, sep=' ') if isinstance(x, datetime) else x
-
+# One-One fields {{{
 def one_one_in_books(book_id_val_map, db, field, *args):
     'Set a one-one field in the books table'
     if book_id_val_map:
@@ -152,6 +152,7 @@ def custom_series_index(book_id_val_map, db, field, *args):
         db.conn.executemany('UPDATE %s SET %s=? WHERE book=? AND value=?'%(
                 field.metadata['table'], field.metadata['column']), sequence)
     return {s[0] for s in sequence}
+# }}}
 
 def dummy(book_id_val_map, *args):
     return set()
