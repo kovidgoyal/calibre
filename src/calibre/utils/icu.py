@@ -341,6 +341,7 @@ pêché'''
 
     german = create(german)
     c = _icu.Collator('de')
+    c.numeric = True
     gs = list(sorted(german, key=c.sort_key))
     if gs != create(german_good):
         print 'German sorting failed'
@@ -348,6 +349,7 @@ pêché'''
     print
     french = create(french)
     c = _icu.Collator('fr')
+    c.numeric = True
     fs = list(sorted(french, key=c.sort_key))
     if fs != create(french_good):
         print 'French sorting failed (note that French fails with icu < 4.6)'
@@ -395,6 +397,25 @@ pêché'''
             not p('x', '')):
         print 'startswith() failed'
         return
+
+    print '\nTesting collation_order()'
+    for group in [
+        ('Šaa', 'Smith', 'Solženicyn', 'Štepánek'),
+        ('calibre', 'Charon', 'Collins'),
+        ('01', '1'),
+        ('1', '11', '13'),
+    ]:
+        last = None
+        for x in group:
+            val = icu_collation_order(sort_collator(), x)
+            if val[1] != 1:
+                prints('collation_order() returned incorrect length for', x)
+            if last is None:
+                last = val
+            else:
+                if val != last:
+                    prints('collation_order() returned incorrect value for', x)
+            last = val
 
 # }}}
 
