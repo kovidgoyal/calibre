@@ -1,0 +1,27 @@
+# coding=utf-8
+# https://github.com/iemejia/calibrecolombia
+
+'''
+http://www.elmalpensante.com/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ElMalpensante(BasicNewsRecipe):
+    title                 = u'El Malpensante'
+    language              = 'es_CO'
+    __author__            = 'Ismael Mejia <iemejia@gmail.com>'
+    cover_url             = 'http://elmalpensante.com/img/layout/logo.gif'
+    description           = 'El Malpensante'
+    oldest_article        = 30
+    simultaneous_downloads = 20
+    #tags = 'news, sport, blog'
+    use_embedded_content = True
+    remove_empty_feeds = True
+    max_articles_per_feed = 100
+    feeds          = [(u'Artículos', u'http://www.elmalpensante.com/articulosRSS.php'),
+                      (u'Malpensantías', u'http://www.elmalpensante.com/malpensantiasRSS.php'),
+                      (u'Margaritas', u'http://www.elmalpensante.com/margaritasRSS.php'),
+# This one is almost the same as articulos so we leave articles
+#              (u'Noticias', u'http://www.elmalpensante.com/noticiasRSS.php'),
+                      ]

@@ -537,6 +537,8 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Merge selected records, keeping originals
     * - :kbd:`O`
       - Open containing folder
+    * - :kbd:`P`
+      - Polish books
     * - :kbd:`S`
       - Save to Disk
     * - :kbd:`V`

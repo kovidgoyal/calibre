@@ -19,6 +19,117 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.20
+  date: 2013-02-22
+
+  new features:
+    - title: "Book polishing: Add an option to smarten punctuation in the book when polishing"
+
+    - title: "Book polishing: Add an option to delete all saved settings to the load saved settings button"
+
+    - title: "Book polishing: Remember the last used settings"
+
+    - title: "Book polishing: Add a checkbox to enable/disable the detailed polishing report"
+
+    - title: "Add a separate tweak in Preferences-Tweaks for saving backups of files when polishing. That way you can have calibre save backups while converting EPUB->EPUB and not while polishing, if you so desire."
+
+    - title: "Content server: Allow clicking on the book cover to download it. Useful on small screen devices where clicking the Get button may be difficult"
+
+    - title: "Driver for Energy Systems C4 Touch."
+      tickets: [1127477]
+ 
+  bug fixes:
+    - title: "E-book viewer: Fix a bug that could cause the back button in the viewer to skip a location"
+
+    - title: "When tweaking/polishing an azw3 file that does not have an identified content ToC, do not auto-generate one."
+      tickets: [1130729]
+
+    - title: "Book polishing: Use the actual cover image dimensions when creating the svg wrapper for the cover image."
+      tickets: [1127273]
+
+    - title: "Book polishing: Do not error out on epub files containing an iTunesMetadata.plist file."
+      tickets: [1127308]
+
+    - title: "Book polishing: Fix trying to polish more than 5 books at a time not working"
+
+    - title: "Content server: Add workaround for bug in latest release of Google Chrome that causes it to not work with book lists containing some utf-8 characters"
+      tickets: [1130478]
+
+    - title: "E-book viewer: When viewing EPUB files, do not parse html as xhtml even if it has svg tags embedded. This allows malformed XHTML files to still be viewed."
+
+    - title: "Bulk metadata edit Search & recplace: Update the sample values when changing the type of identifier to search on"
+
+    - title: "Fix recipes with the / character in their names not useable from the command line"
+      tickets: [1127666]
+
+    - title: "News download: Fix regression that broke downloading of images in gif format"
+
+    - title: "EPUB/AZW3 Output: When splitting the output html on page breaks, handle page-break-after rules correctly, the pre split point html should contain the full element"
+
+    - title: "Fix stdout/stderr redirection temp files not being deleted when restarting calibre from within calibre on windows"
+
+    - title: "E-book viewer: When viewing epub files that have their cover marked as non-linear, show the cover at the start of the book instead of the end."
+      tickets: [1126030]
+
+    - title: "EPUB Input: Fix handling of cover references with fragments in the urls"
+
+  improved recipes:
+    - Fronda
+    - Various Polish news sources
+
+  new recipes:
+    - title: Pravda 
+      author: Darko Miletic
+
+    - title: PNN 
+      author: n.kucklaender
+
+    - title: Various Polish news sources 
+      author: fenuks
+
+- version: 0.9.19
+  date: 2013-02-15
+
+  new features:
+    - title: "New tool: \"Polish books\" that allows you to perform various automated cleanup actions on EPUB and AZW3 files without doing a full conversion."
+      type: major
+      description: "Polishing books is all about putting the shine of perfection on your ebook files. You can use it to subset embedded fonts, update the metadata in the book files from the metadata in the calibre library, manipulate the book jacket, etc. More features will be added in the future. To use this tool, go to Preferences->Toolbar and add the Polish books tool to the main toolbar. Then simply select the books you want to be polished and click the Polish books button. Polishing, unlike conversion, does not change the internal structure/markup of your book, it performs only the minimal set of actions needed to achieve its goals. Note that polish books is a completely new codebase, so there may well be bugs, polishing a book backs up the original as ORIGINAL_EPUB or ORIGINAL_AZW3, unless you have turned off this feature in Preferences->Tweaks, in which case you should backup your files manually. You can also use this tool from the command line with ebook-polish.exe."
+
+    - title: "Driver for the Trekstor Pyrus Mini."
+      tickets: [1124120]
+
+    - title: "E-book viewer: Add an option to change the minimum font size."
+      tickets: [1122333]
+ 
+    - title: "PDF Output: Add support for converting documents with math typesetting, as described here: http://manual.calibre-ebook.com/typesetting_math.html"
+
+    - title: "Column coloring/icons: Add more conditions when using date based columns with reference to 'today'."
+
+  bug fixes:
+    - title: "Transforming to titlecase - handle typographic hyphens in all caps phrases"
+
+    - title: "Dont ignore file open events that occur before the GUI is initialized on OS X"
+      tickets: [1122713]
+
+    - title: "News download: Handle feeds that have entries with empty ids"
+
+    - title: "Fix a regression that broke using the template editor"
+
+    - title: "Do not block startup while scanning the computer for available network interfaces. Speeds up startup time on some windows computers with lots of spurious network interfaces."
+
+  improved recipes:
+    - New Yorker
+    - Kommersant
+    - Le Monde (Subscription version)
+    - NZ Herald
+
+  new recipes:
+    - title: Navegalo 
+      author: Douglas Delgado
+
+    - title: El Guardian and More Intelligent Life
+      author: Darko Miletic
+
 - version: 0.9.18
   date: 2013-02-08
 

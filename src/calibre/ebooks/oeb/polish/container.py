@@ -7,12 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, logging, sys, hashlib, uuid
+import os, logging, sys, hashlib, uuid, re
+from io import BytesIO
 from urllib import unquote as urlunquote, quote as urlquote
+from urlparse import urlparse
 
 from lxml import etree
 
-from calibre import guess_type, CurrentDir
+from calibre import guess_type as _guess_type, CurrentDir
 from calibre.customize.ui import (plugin_for_input_format,
         plugin_for_output_format)
 from calibre.ebooks.chardet import xml_to_unicode
@@ -33,7 +35,10 @@ from calibre.utils.zipfile import ZipFile
 
 exists, join, relpath = os.path.exists, os.path.join, os.path.relpath
 
-OEB_FONTS = {guess_type('a.ttf')[0], guess_type('b.ttf')[0]}
+def guess_type(x):
+    return _guess_type(x)[0] or 'application/octet-stream'
+
+OEB_FONTS = {guess_type('a.ttf'), guess_type('b.ttf')}
 OPF_NAMESPACES = {'opf':OPF2_NS, 'dc':DC11_NS}
 
 class Container(object):
@@ -49,6 +54,9 @@ class Container(object):
           directory. They always contain POSIX separators and are unquoted. They
           can be thought of as canonical identifiers for files in the book.
           Most methods on the container object work with names.
+
+    When converting between hrefs and names use the methods provided by this
+    class, they assume all hrefs are quoted.
     '''
 
     book_type = 'oeb'
@@ -72,12 +80,12 @@ class Container(object):
                 path = join(dirpath, f)
                 name = self.abspath_to_name(path)
                 self.name_path_map[name] = path
-                self.mime_map[name] = guess_type(path)[0]
+                self.mime_map[name] = guess_type(path)
                 # Special case if we have stumbled onto the opf
                 if path == opfpath:
                     self.opf_name = name
                     self.opf_dir = os.path.dirname(path)
-                    self.mime_map[name] = guess_type('a.opf')[0]
+                    self.mime_map[name] = guess_type('a.opf')
 
         if not hasattr(self, 'opf_name'):
             raise InvalidBook('Book has no OPF file')
@@ -93,16 +101,22 @@ class Container(object):
     def name_to_abspath(self, name):
         return os.path.abspath(join(self.root, *name.split('/')))
 
+    def exists(self, name):
+        return os.path.exists(self.name_to_abspath(name))
+
     def href_to_name(self, href, base=None):
         '''
         Convert an href (relative to base) to a name. base must be a name or
-        None, in which self.root is used.
+        None, in which case self.root is used.
         '''
         if base is None:
             base = self.root
         else:
             base = os.path.dirname(self.name_to_abspath(base))
-        href = urlunquote(href.partition('#')[0])
+        purl = urlparse(href)
+        if purl.scheme or not purl.path or purl.path.startswith('/'):
+            return None
+        href = urlunquote(purl.path)
         fullpath = os.path.join(base, *href.split('/'))
         return self.abspath_to_name(fullpath)
 
@@ -195,7 +209,7 @@ class Container(object):
     def parsed(self, name):
         ans = self.parsed_cache.get(name, None)
         if ans is None:
-            mime = self.mime_map.get(name, guess_type(name)[0])
+            mime = self.mime_map.get(name, guess_type(name))
             ans = self.parse(self.name_path_map[name], mime)
             self.parsed_cache[name] = ans
         return ans
@@ -205,9 +219,25 @@ class Container(object):
         return self.parsed(self.opf_name)
 
     @property
-    def spine_items(self):
-        manifest_id_map = {item.get('id'):self.href_to_name(item.get('href'), self.opf_name)
+    def mi(self):
+        from calibre.ebooks.metadata.opf2 import OPF as O
+        mi = self.serialize_item(self.opf_name)
+        return O(BytesIO(mi), basedir=self.opf_dir, unquote_urls=False,
+                populate_spine=False).to_book_metadata()
+
+    @property
+    def manifest_id_map(self):
+        return {item.get('id'):self.href_to_name(item.get('href'), self.opf_name)
             for item in self.opf_xpath('//opf:manifest/opf:item[@href and @id]')}
+
+    @property
+    def guide_type_map(self):
+        return {item.get('type', ''):self.href_to_name(item.get('href'), self.opf_name)
+            for item in self.opf_xpath('//opf:guide/opf:reference[@href and @type]')}
+
+    @property
+    def spine_items(self):
+        manifest_id_map = self.manifest_id_map
 
         linear, non_linear = [], []
         for item in self.opf_xpath('//opf:spine/opf:itemref[@idref]'):
@@ -248,8 +278,8 @@ class Container(object):
                 self.remove_from_xml(item)
                 self.dirty(self.opf_name)
 
-        path = self.name_path_map.pop(name)
-        if os.path.exists(path):
+        path = self.name_path_map.pop(name, None)
+        if path and os.path.exists(path):
             os.remove(path)
         self.mime_map.pop(name, None)
         self.parsed_cache.pop(name, None)
@@ -298,15 +328,24 @@ class Container(object):
             if idx == len(parent)-1:
                 parent[idx-1].tail = parent.text
 
+    def opf_get_or_create(self, name):
+        ans = self.opf_xpath('//opf:'+name)
+        if ans:
+            return ans[0]
+        self.dirty(self.opf_name)
+        package = self.opf_xpath('//opf:package')[0]
+        item = package.makeelement(OPF(name))
+        item.tail = '\n'
+        package.append(item)
+        return item
+
     def generate_item(self, name, id_prefix=None, media_type=None):
         '''Add an item to the manifest with href derived from the given
         name. Ensures uniqueness of href and id automatically. Returns
         generated item.'''
         id_prefix = id_prefix or 'id'
-        media_type = media_type or guess_type(name)[0]
-        path = self.name_to_abspath(name)
-        relpath = self.relpath(path, base=self.opf_dir)
-        href = urlquote(relpath)
+        media_type = media_type or guess_type(name)
+        href = self.name_to_href(name, self.opf_name)
         base, ext = href.rpartition('.')[0::2]
         all_ids = {x.get('id') for x in self.opf_xpath('//*[@id]')}
         c = 0
@@ -316,25 +355,75 @@ class Container(object):
             item_id = id_prefix + '%d'%c
         all_names = {x.get('href') for x in self.opf_xpath(
                 '//opf:manifest/opf:item[@href]')}
+
+        def exists(h):
+            return self.exists(self.href_to_name(h, self.opf_name))
+
         c = 0
-        while href in all_names:
+        while href in all_names or exists(href):
             c += 1
             href = '%s_%d.%s'%(base, c, ext)
         manifest = self.opf_xpath('//opf:manifest')[0]
-        item = manifest.makeelement(OPF('item'), nsmap=OPF_NAMESPACES,
+        item = manifest.makeelement(OPF('item'),
                                     id=item_id, href=href)
         item.set('media-type', media_type)
         self.insert_into_xml(manifest, item)
         self.dirty(self.opf_name)
+        name = self.href_to_name(href, self.opf_name)
+        self.name_path_map[name] = self.name_to_abspath(name)
+        self.mime_map[name] = media_type
         return item
+
+    def format_opf(self):
+        mdata = self.opf_xpath('//opf:metadata')[0]
+        mdata.text = '\n    '
+        remove = set()
+        for child in mdata:
+            child.tail = '\n    '
+            if (child.get('name', '').startswith('calibre:') and
+                child.get('content', '').strip() in {'{}', ''}):
+                remove.add(child)
+        for child in remove: mdata.remove(child)
+        if len(mdata) > 0:
+            mdata[-1].tail = '\n  '
+
+    def serialize_item(self, name):
+        data = self.parsed(name)
+        if name == self.opf_name:
+            self.format_opf()
+        data = serialize(data, self.mime_map[name])
+        if name == self.opf_name:
+            # Needed as I can't get lxml to output opf:role and
+            # not output <opf:metadata> as well
+            data = re.sub(br'(<[/]{0,1})opf:', r'\1', data)
+        return data
+
+    def commit_item(self, name):
+        if name not in self.parsed_cache:
+            return
+        data = self.serialize_item(name)
+        self.dirtied.remove(name)
+        self.parsed_cache.pop(name)
+        with open(self.name_path_map[name], 'wb') as f:
+            f.write(data)
+
+    def open(self, name, mode='rb'):
+        ''' Open the file pointed to by name for direct read/write. Note that
+        this will commit the file if it is dirtied and remove it from the parse
+        cache. You must finish with this file before accessing the parsed
+        version of it again, or bad things will happen. '''
+        if name in self.dirtied:
+            self.commit_item(name)
+        self.parsed_cache.pop(name, False)
+        path = self.name_to_abspath(name)
+        base = os.path.dirname(path)
+        if not os.path.exists(base):
+            os.makedirs(base)
+        return open(path, mode)
 
     def commit(self, outpath=None):
         for name in tuple(self.dirtied):
-            self.dirtied.remove(name)
-            data = self.parsed_cache.pop(name)
-            data = serialize(data, self.mime_map[name])
-            with open(self.name_path_map[name], 'wb') as f:
-                f.write(data)
+            self.commit_item(name)
 
     def compare_to(self, other):
         if set(self.name_path_map) != set(other.name_path_map):
@@ -390,7 +479,7 @@ class EpubContainer(Container):
         self.container = etree.fromstring(open(container_path, 'rb').read())
         opf_files = self.container.xpath((
             r'child::ocf:rootfiles/ocf:rootfile'
-            '[@media-type="%s" and @full-path]'%guess_type('a.opf')[0]
+            '[@media-type="%s" and @full-path]'%guess_type('a.opf')
             ), namespaces={'ocf':OCF_NS}
         )
         if not opf_files:
@@ -469,7 +558,7 @@ class EpubContainer(Container):
             outpath = self.pathtoepub
         from calibre.ebooks.tweak import zip_rebuilder
         with open(join(self.root, 'mimetype'), 'wb') as f:
-            f.write(guess_type('a.epub')[0])
+            f.write(guess_type('a.epub'))
         zip_rebuilder(self.root, outpath)
 
 # }}}

@@ -283,6 +283,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         urn = self.current_urn
         if urn is not None:
             self.initialize_detail_box(urn)
+        self.recipes.scrollTo(current)
 
     def accept(self):
         if not self.commit():

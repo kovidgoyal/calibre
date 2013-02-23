@@ -95,9 +95,9 @@ class Check(Command):
                     errors = True
                     self.report_errors(w)
             else:
+                from calibre.utils.serve_coffee import check_coffeescript
                 try:
-                    subprocess.check_call(['coffee', '-c', '-p', f],
-                            stdout=open(os.devnull, 'wb'))
+                   check_coffeescript(f)
                 except:
                     errors = True
             if errors:

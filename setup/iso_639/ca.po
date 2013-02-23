@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-01-19 20:28+0000\n"
+"PO-Revision-Date: 2013-02-19 18:01+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-01-20 04:36+0000\n"
-"X-Generator: Launchpad (build 16430)\n"
+"X-Launchpad-Export-Date: 2013-02-20 04:50+0000\n"
+"X-Generator: Launchpad (build 16491)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -1920,7 +1920,7 @@ msgstr "Arára; Mato Grosso"
 
 #. name for axk
 msgid "Yaka (Central African Republic)"
-msgstr "Yaka (República Centreafricana)"
+msgstr "Yaka (República Centrafricana)"
 
 #. name for axm
 msgid "Armenian; Middle"
@@ -3528,7 +3528,7 @@ msgstr "Buamu"
 
 #. name for boy
 msgid "Bodo (Central African Republic)"
-msgstr "Bodo (República Centreafricana)"
+msgstr "Bodo (República Centrafricana)"
 
 #. name for boz
 msgid "Bozo; Tiéyaxo"
@@ -7928,7 +7928,7 @@ msgstr "Oromo; occidental"
 
 #. name for gba
 msgid "Gbaya (Central African Republic)"
-msgstr "Gbaya (República Centreafricana)"
+msgstr "Gbaya (República Centrafricana)"
 
 #. name for gbb
 msgid "Kaytetye"
@@ -11184,7 +11184,7 @@ msgstr ""
 
 #. name for kbn
 msgid "Kare (Central African Republic)"
-msgstr "Kare (República Centreafricana)"
+msgstr "Kare (República Centrafricana)"
 
 #. name for kbo
 msgid "Keliko"
@@ -20720,7 +20720,7 @@ msgstr "Pitjantjatjara"
 
 #. name for pka
 msgid "Prākrit; Ardhamāgadhī"
-msgstr ""
+msgstr "Pràcrit; Ardhamagadhi"
 
 #. name for pkb
 msgid "Pokomo"
@@ -20776,31 +20776,31 @@ msgstr "Polonombauk"
 
 #. name for plc
 msgid "Palawano; Central"
-msgstr ""
+msgstr "Palawà; Central"
 
 #. name for pld
 msgid "Polari"
-msgstr ""
+msgstr "Polari"
 
 #. name for ple
 msgid "Palu'e"
-msgstr ""
+msgstr "Palue"
 
 #. name for plg
 msgid "Pilagá"
-msgstr ""
+msgstr "Pilagà"
 
 #. name for plh
 msgid "Paulohi"
-msgstr ""
+msgstr "Paulohi"
 
 #. name for pli
 msgid "Pali"
-msgstr ""
+msgstr "Pali"
 
 #. name for plj
 msgid "Polci"
-msgstr ""
+msgstr "Polci"
 
 #. name for plk
 msgid "Shina; Kohistani"
@@ -20812,19 +20812,19 @@ msgstr "Palaung; Shwe"
 
 #. name for pln
 msgid "Palenquero"
-msgstr ""
+msgstr "Palenquero"
 
 #. name for plo
 msgid "Popoluca; Oluta"
-msgstr ""
+msgstr "Popoluca; Oluta"
 
 #. name for plp
 msgid "Palpa"
-msgstr ""
+msgstr "Palpa"
 
 #. name for plq
 msgid "Palaic"
-msgstr ""
+msgstr "Palaic"
 
 #. name for plr
 msgid "Senoufo; Palaka"
@@ -20840,15 +20840,15 @@ msgstr "Malgaix; Plateau"
 
 #. name for plu
 msgid "Palikúr"
-msgstr ""
+msgstr "Palikur"
 
 #. name for plv
 msgid "Palawano; Southwest"
-msgstr ""
+msgstr "Palawà; Sudoccidental"
 
 #. name for plw
 msgid "Palawano; Brooke's Point"
-msgstr ""
+msgstr "Palawà; Brooke"
 
 #. name for ply
 msgid "Bolyu"
@@ -20856,43 +20856,43 @@ msgstr ""
 
 #. name for plz
 msgid "Paluan"
-msgstr ""
+msgstr "Paluà"
 
 #. name for pma
 msgid "Paama"
-msgstr ""
+msgstr "Paama"
 
 #. name for pmb
 msgid "Pambia"
-msgstr ""
+msgstr "Pambia"
 
 #. name for pmc
 msgid "Palumata"
-msgstr ""
+msgstr "Palumata"
 
 #. name for pme
 msgid "Pwaamei"
-msgstr ""
+msgstr "Pwaamei"
 
 #. name for pmf
 msgid "Pamona"
-msgstr ""
+msgstr "Pamona"
 
 #. name for pmh
 msgid "Prākrit; Māhārāṣṭri"
-msgstr ""
+msgstr "Pràcrit; Maharastri"
 
 #. name for pmi
 msgid "Pumi; Northern"
-msgstr ""
+msgstr "Pumi; Septentrional"
 
 #. name for pmj
 msgid "Pumi; Southern"
-msgstr ""
+msgstr "Pumi; Meridional"
 
 #. name for pmk
 msgid "Pamlico"
-msgstr ""
+msgstr "Algonquí Carolina"
 
 #. name for pml
 msgid "Lingua Franca"
@@ -20904,11 +20904,11 @@ msgstr "Pol"
 
 #. name for pmn
 msgid "Pam"
-msgstr ""
+msgstr "Pam"
 
 #. name for pmo
 msgid "Pom"
-msgstr ""
+msgstr "Pom"
 
 #. name for pmq
 msgid "Pame; Northern"
@@ -20916,11 +20916,11 @@ msgstr "Pame; Septentrional"
 
 #. name for pmr
 msgid "Paynamar"
-msgstr ""
+msgstr "Paynamar"
 
 #. name for pms
 msgid "Piemontese"
-msgstr ""
+msgstr "Piemontès"
 
 #. name for pmt
 msgid "Tuamotuan"
@@ -20956,7 +20956,7 @@ msgstr "Panjabi; Occidental"
 
 #. name for pnc
 msgid "Pannei"
-msgstr ""
+msgstr "Pannei"
 
 #. name for pne
 msgid "Penan; Western"
@@ -20964,11 +20964,11 @@ msgstr "Penan; Occidental"
 
 #. name for png
 msgid "Pongu"
-msgstr ""
+msgstr "Pongu"
 
 #. name for pnh
 msgid "Penrhyn"
-msgstr ""
+msgstr "Penrhyn"
 
 #. name for pni
 msgid "Aoheng"
@@ -20976,27 +20976,27 @@ msgstr ""
 
 #. name for pnm
 msgid "Punan Batu 1"
-msgstr ""
+msgstr "Punan Batu"
 
 #. name for pnn
 msgid "Pinai-Hagahai"
-msgstr ""
+msgstr "Pinai-Hagahai"
 
 #. name for pno
 msgid "Panobo"
-msgstr ""
+msgstr "Panobo"
 
 #. name for pnp
 msgid "Pancana"
-msgstr ""
+msgstr "Pancana"
 
 #. name for pnq
 msgid "Pana (Burkina Faso)"
-msgstr ""
+msgstr "Pana (Burkina Faso)"
 
 #. name for pnr
 msgid "Panim"
-msgstr ""
+msgstr "Panim"
 
 #. name for pns
 msgid "Ponosakan"
@@ -21028,7 +21028,7 @@ msgstr ""
 
 #. name for pnz
 msgid "Pana (Central African Republic)"
-msgstr ""
+msgstr "Pana (República Centrafricana)"
 
 #. name for poc
 msgid "Poqomam"
@@ -21056,7 +21056,7 @@ msgstr ""
 
 #. name for poi
 msgid "Popoluca; Highland"
-msgstr ""
+msgstr "Popoluca; Muntanya"
 
 #. name for pok
 msgid "Pokangá"
@@ -21084,7 +21084,7 @@ msgstr ""
 
 #. name for poq
 msgid "Popoluca; Texistepec"
-msgstr ""
+msgstr "Popoluca; Texistepec"
 
 #. name for por
 msgid "Portuguese"
@@ -21092,7 +21092,7 @@ msgstr "Portuguès"
 
 #. name for pos
 msgid "Popoluca; Sayula"
-msgstr ""
+msgstr "Popoluca; Sayula"
 
 #. name for pot
 msgid "Potawatomi"
@@ -21336,7 +21336,7 @@ msgstr "Paixtú; Central"
 
 #. name for psu
 msgid "Prākrit; Sauraseni"
-msgstr ""
+msgstr "Pràcrit; Sauraseni"
 
 #. name for psw
 msgid "Port Sandwich"

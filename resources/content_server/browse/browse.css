@@ -356,6 +356,10 @@ h2.library_name {
     color: red;
 }
 
+#booklist a.summary_thumb img {
+    border: none
+}
+
 #booklist > #pagelist { display: none; }
 
 #goto_page_dialog ul {
@@ -472,6 +476,10 @@ h2.library_name {
 
 .details a.details_category_link:hover {
     color: red
+}
+
+.details a.details_thumb img {
+    border: none
 }
 
 /* }}} */

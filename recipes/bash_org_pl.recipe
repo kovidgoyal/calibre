@@ -35,8 +35,8 @@ class Bash_org_pl(BasicNewsRecipe):
              soup=self.index_to_soup(u'http://bash.org.pl/random/')
              #date=soup.find('div', attrs={'class':'right'}).string
              url=soup.find('a', attrs={'class':'qid click'})
-             title=url.string
-             url='http://bash.org.pl' +url['href']
+             title=''
+             url='http://bash.org.pl/random/'
              articles.append({'title' : title,
 	               'url'   : url,
 	               'date'  : '',
@@ -44,6 +44,8 @@ class Bash_org_pl(BasicNewsRecipe):
 	                })
          return articles
 
+    def populate_article_metadata(self, article, soup, first):
+        article.title = soup.find(attrs={'class':'qid click'}).string
 
     def parse_index(self):
          feeds          = []

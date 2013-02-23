@@ -15,7 +15,7 @@ class Control(object):
 
     def __init__(self, qwe):
         self.qwe = qwe
-        self.name = unicode(qwe.attribute('name'))
+        self.name = unicode(qwe.attribute('name')) or unicode(qwe.attribute('id'))
         self.type = unicode(qwe.attribute('type'))
 
     def __repr__(self):
@@ -108,10 +108,10 @@ class Form(object):
         self.attributes = {unicode(x):unicode(qwe.attribute(x)) for x in
                 qwe.attributeNames()}
         self.input_controls = list(map(Control, qwe.findAll('input')))
-        rc = [x for x in self.input_controls if x.type == 'radio']
-        self.input_controls = [x for x in self.input_controls if x.type != 'radio']
+        rc = [y for y in self.input_controls if y.type == 'radio']
+        self.input_controls = [ic for ic in self.input_controls if ic.type != 'radio']
         rc_names = {x.name for x in rc}
-        self.radio_controls = {name:RadioControl(name, [x.qwe for x in rc if x.name == name]) for name in rc_names}
+        self.radio_controls = {name:RadioControl(name, [z.qwe for z in rc if z.name == name]) for name in rc_names}
         selects = list(map(SelectControl, qwe.findAll('select')))
         self.select_controls = {x.name:x for x in selects}
 
@@ -234,7 +234,7 @@ class FormsMixin(object):
         if sc is None:
             raise ValueError('No submit control found in the current form')
         self.current_form = None
-        self.click(sc.qwe, wait_for_load=wait_for_load,
+        self.click(getattr(sc, 'qwe', sc), wait_for_load=wait_for_load,
                 ajax_replies=ajax_replies, timeout=timeout)
 
     def ajax_submit(self, submit_control_selector=None,

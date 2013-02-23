@@ -1,0 +1,22 @@
+# -*- coding: utf-8 -*-
+# https://github.com/iemejia/calibrecolombia
+
+'''
+http://www.unperiodico.unal.edu.co/
+'''
+
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class UNPeriodico(BasicNewsRecipe):
+    title                 = u'UN Periodico'
+    language = 'es_CO'
+    __author__            = 'Ismael Mejia <iemejia@gmail.com>'
+    cover_url             = 'http://www.unperiodico.unal.edu.co/fileadmin/templates/periodico/img/logoperiodico.png'
+    description           = 'UN Periodico'
+    oldest_article        = 30
+    max_articles_per_feed = 100
+    publication_type      = 'newspaper'
+    feeds          = [
+    		   (u'UNPeriodico', u'http://www.unperiodico.unal.edu.co/rss/type/rss2/')
+		   ]

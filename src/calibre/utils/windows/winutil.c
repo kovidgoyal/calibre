@@ -815,6 +815,15 @@ winutil_internet_connected(PyObject *self, PyObject *args) {
     Py_RETURN_FALSE;
 }
 
+static PyObject *
+winutil_prepare_for_restart(PyObject *self, PyObject *args) {
+    FILE *f1 = NULL, *f2 = NULL;
+    if (stdout != NULL) fclose(stdout);
+    if (stderr != NULL) fclose(stderr);
+    _wfreopen_s(&f1, L"NUL", L"a+t", stdout);
+    _wfreopen_s(&f2, L"NUL", L"a+t", stderr);
+    Py_RETURN_NONE;
+}
 
 static PyObject *
 winutil_strftime(PyObject *self, PyObject *args)
@@ -976,6 +985,10 @@ be a unicode string. Returns unicode strings."
 
     {"internet_connected", winutil_internet_connected, METH_VARARGS,
         "internet_connected()\n\nReturn True if there is an active internet connection"
+    },
+
+    {"prepare_for_restart", winutil_prepare_for_restart, METH_VARARGS,
+        "prepare_for_restart()\n\nRedirect output streams so that the child process does not lock the temp files"
     },
 
     {NULL, NULL, 0, NULL}
