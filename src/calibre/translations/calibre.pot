@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.9.20\n"
-"POT-Creation-Date: 2013-02-24 10:04+IST\n"
-"PO-Revision-Date: 2013-02-24 10:04+IST\n"
+"POT-Creation-Date: 2013-02-24 10:08+IST\n"
+"PO-Revision-Date: 2013-02-24 10:08+IST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -19354,6 +19354,18 @@ msgstr ""
 #. NOTE: Post Meridian (i.e. like 10:00 pm)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:203
 msgid "pm"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:204
+msgid "&Copy"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:205
+msgid "Select All"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:206
+msgid "Copy &Link location"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
