@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-22 04:51+0000\n"
-"PO-Revision-Date: 2013-02-19 18:36+0000\n"
-"Last-Translator: Piotr Parafiniuk <Unknown>\n"
+"PO-Revision-Date: 2013-02-23 11:46+0000\n"
+"Last-Translator: Marcin Ostajewski (panszpik) <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-02-23 05:10+0000\n"
+"X-Launchpad-Export-Date: 2013-02-24 04:40+0000\n"
 "X-Generator: Launchpad (build 16506)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
@@ -7143,7 +7143,7 @@ msgstr "Wybierz nazwę dla tych ustawień"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:154
 msgid "Remove saved settings"
-msgstr ""
+msgstr "Usuń zapisane ustawienia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:196
 msgid "You must select at least one action, or click Cancel."
@@ -14150,7 +14150,7 @@ msgstr "Wybierz rodzinę czcionek"
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:136
 #, python-format
 msgid "Available faces for %s"
-msgstr ""
+msgstr "Dostępne okładki dla %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:171
 msgid "Choose font family"
@@ -25610,6 +25610,8 @@ msgstr ""
 msgid ""
 "Save original file when converting/polishing from same format to same format"
 msgstr ""
+"Zachowaj oryginał przy konwersji do tego samego formatu w celu ulepszenia "
+"pliku"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:467
 msgid ""
@@ -25620,6 +25622,11 @@ msgid ""
 "Similarly, by setting save_original_format_when_polishing to False you can\n"
 "prevent calibre from saving the original file when polishing."
 msgstr ""
+"Kiedy Calibre konwertuje plik do tego samego formatu \n"
+" (np. z EPUB do EPUB), oryginalny plik jest zachowywany na wypadek\n"
+"nieudanej konwersji. W takim wypadku można zmodyfikować ustawienia i "
+"spróbowac ponownie.\n"
+"Wyłączenie funkcji zapobiegnie zachowaniu oryginału."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:476
 msgid "Number of recently viewed books to show"

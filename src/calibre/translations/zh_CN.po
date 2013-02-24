@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-02-22 04:51+0000\n"
-"PO-Revision-Date: 2013-02-23 04:43+0000\n"
+"PO-Revision-Date: 2013-02-23 10:08+0000\n"
 "Last-Translator: wwj402 <wwj402@gmail.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-02-23 05:18+0000\n"
+"X-Launchpad-Export-Date: 2013-02-24 04:41+0000\n"
 "X-Generator: Launchpad (build 16506)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -7720,11 +7720,11 @@ msgstr " 英寸"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid "Author cross-references:"
-msgstr ""
+msgstr "作者相互参考:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:329
 msgid "For books with multiple authors, list each author separately"
-msgstr ""
+msgstr "对于有多个作者的书籍，每个作者分别列出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -8370,7 +8370,7 @@ msgstr "选择你想要彻底移除的样式信息："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:224
 msgid "Removes the font-family CSS property"
-msgstr ""
+msgstr "移除字体族CSS属性"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:225
 msgid "&Fonts"
@@ -8396,7 +8396,7 @@ msgstr "填充(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:230
 msgid "Convert floating images/text into static images/text"
-msgstr ""
+msgstr "浮动图像/文本转换成静态图像/文本"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:231
 msgid "F&loats"
@@ -8404,7 +8404,7 @@ msgstr "浮动(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:232
 msgid "Removes foreground and background colors"
-msgstr ""
+msgstr "移除前景色和背景色"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:233
 msgid "&Colors"
@@ -8674,7 +8674,7 @@ msgstr "Kindle 选项"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:88
 msgid "MOBI file &type:"
-msgstr ""
+msgstr "MOBI文件类型(&t):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:89
 msgid "Personal Doc tag:"
@@ -8778,7 +8778,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:119
 msgid "&Override paper size set in output profile"
-msgstr ""
+msgstr "覆盖输出配置文件中纸张大小的设置(&O)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:120
 msgid "&Paper Size:"
@@ -8840,7 +8840,7 @@ msgstr "等宽字体大小(&F)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:132
 msgid "Add page &numbers to the bottom of every page"
-msgstr ""
+msgstr "每一页的底部添加页号(&n)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -8873,7 +8873,7 @@ msgstr "无法打开文件，请确认该文件是否处于被别的应用程序
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:175
 msgid ""
 "Failed to generate markup for testing. Click \"Show Details\" to learn more."
-msgstr ""
+msgstr "无法生成测试标记。单击“显示详细信息”了解更多。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:181
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:185
@@ -8886,7 +8886,7 @@ msgstr "打开书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:215
 msgid "Click the Open button below to open a ebook to use for testing."
-msgstr ""
+msgstr "单击下面的“打开”按钮，打开一个ebook进行测试。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:90
 msgid "Regex Builder"
@@ -9481,7 +9481,7 @@ msgstr "值已改变"
 msgid ""
 "You have changed the values. In order to use this editor, you must either "
 "discard or apply these changes. Apply changes?"
-msgstr ""
+msgstr "你已经修改了值。为了使用此编辑器，你必须放弃或应用这些更改。应用更改吗？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:374
 msgid " index:"
@@ -9634,7 +9634,7 @@ msgstr "管理 %s？"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:861
 #, python-format
 msgid "Detected the <b>%s</b>. Do you want calibre to manage it?"
-msgstr ""
+msgstr "检测 <b>%s</b>。你要 calibre 来管理它吗？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:884
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1466
@@ -9648,22 +9648,22 @@ msgstr "选择一个将做为设备打开的文件夹"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:918
 msgid "Running jobs"
-msgstr ""
+msgstr "正在运行的作业"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:919
 msgid "Cannot configure the device while there are running device jobs."
-msgstr ""
+msgstr "当有正在运行的设备工作时，无法配置设备。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:924
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:360
 #, python-format
 msgid "Configure %s"
-msgstr ""
+msgstr "配置 %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:939
 #, python-format
 msgid "Restart calibre for the changes to %s to be applied."
-msgstr ""
+msgstr "重新启动 calibre 以使更改 %s 被应用。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:981
 msgid "Error talking to device"
@@ -9673,7 +9673,7 @@ msgstr "设备通讯错误。"
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device or reboot."
-msgstr ""
+msgstr "和设备交互时有一个临时性错误。请拔下并重新连接设备或重新启动。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1033
 msgid "Device: "
@@ -9694,7 +9694,7 @@ msgstr "无设备"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1146
 msgid "No device connected"
-msgstr ""
+msgstr "没有设备连接"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1162
 #, python-format
@@ -9759,7 +9759,7 @@ msgstr "<p>由于设备存储空间不足无法将书籍传送到设备上 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1546
 msgid "Incorrect destination"
-msgstr ""
+msgstr "不正确的目标"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:142
 msgid "Unknown formats"
@@ -9815,11 +9815,11 @@ msgstr "保存模板(&T)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:57
 msgid "No formats selected"
-msgstr ""
+msgstr "没有格式被选择"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:58
 msgid "You must choose at least one format to send to the device"
-msgstr ""
+msgstr "你必须至少选择一种格式发送到设备"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:86
 msgid ""
@@ -9882,7 +9882,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:300
 msgid "Add a &new rule"
-msgstr ""
+msgstr "添加一个新规则(&n)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:338
 #, python-format
@@ -9904,12 +9904,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:370
 #, python-format
 msgid "Choose the formats to send to the %s"
-msgstr ""
+msgstr "选择发送到 %s 的格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:373
 #, python-format
 msgid "&Ignore the %s in calibre"
-msgstr ""
+msgstr "忽略 calibre 中的 %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:377
 msgid "Change scanned &folders"
@@ -10003,7 +10003,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:72
 msgid "Some invalid ISBNs"
-msgstr ""
+msgstr "一些无效的ISBNs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:73
 msgid ""
@@ -10013,7 +10013,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:79
 msgid "All invalid ISBNs"
-msgstr ""
+msgstr "所有无效的ISBNs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:80
 msgid "All the ISBNs you entered were invalid. No books can be added."
@@ -12381,7 +12381,7 @@ msgstr "Calibre IP地址:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:91
 msgid "Possibe IP addresses:"
-msgstr ""
+msgstr "可能的IP地址:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:92
 msgid "Optional &password:"
@@ -12389,23 +12389,23 @@ msgstr "可选密码(&p):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:93
 msgid "Optional password for security"
-msgstr ""
+msgstr "可选的密码安全"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:95
 msgid "Optional &fixed port:"
-msgstr ""
+msgstr "可选的固定端口(&f):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:96
 msgid "Optional port number"
-msgstr ""
+msgstr "可选的端口号"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:97
 msgid "&Use a fixed port"
-msgstr ""
+msgstr "与使用一个固定端口(&U)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice_ui.py:98
 msgid "&Automatically allow connections at calibre startup"
-msgstr ""
+msgstr "在 calibre 启动时允许自动连接"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:164

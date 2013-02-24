@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-22 04:51+0000\n"
-"PO-Revision-Date: 2013-02-21 17:59+0000\n"
+"PO-Revision-Date: 2013-02-23 17:23+0000\n"
 "Last-Translator: Simon Schütte <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-23 05:03+0000\n"
+"X-Launchpad-Export-Date: 2013-02-24 04:40+0000\n"
 "X-Generator: Launchpad (build 16506)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -5430,13 +5430,13 @@ msgstr ""
 "den letzten Feinschliff verpassen.\n"
 "\n"
 "<p>Hier unter Bücher perfektionieren wird versucht, \n"
-"die Änderungen am internen Codes Ihres Buches zu minimieren. \n"
+"die Änderungen am internen Code Ihres Buches zu minimieren. \n"
 "Im Gegensatz zum Konvertieren werden CSS-Style, Dateiname, \n"
 "Schrift, Größe, eingestellte Ränder, usw. <i>NICHT</i> verändert. \n"
 "Jede Aktion führt nur die minimalst notwendigen Änderdungen durch,\n"
 "die zum Erzielen des gewünschten Resultats erforderlich sind.</p>\n"
 "\n"
-"<p>Sie sollten dieses Werkzeug im Letzten Schritt des eBook- "
+"<p>Sie sollten dieses Werkzeug im letzten Schritt des eBook- "
 "Erstellungsprozesses verwenden.</p>\n"
 "\n"
 "<p>Beachten Sie, dass nur Dateien in den Formaten %s perfektioniert werden "
@@ -7186,7 +7186,7 @@ msgstr "<h3>Buchumschlag entfernen</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:61
 msgid "Select actions to perform:"
-msgstr "Wählen Sie durchzuführende Aktionen aus:"
+msgstr "Wählen Sie die Aktionen aus, die durchgeführt werden sollen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:66
 msgid "Subset all embedded fonts"
@@ -7198,7 +7198,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:68
 msgid "Update metadata in book files"
-msgstr "Metadaten in Buch-Dateien aktualisieren"
+msgstr "Metadaten in der Buch-Dateien aktualisieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:69
 msgid "Add metadata as a \"book jacket\" page"
@@ -7237,7 +7237,7 @@ msgstr "&Alles auswählen"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:49
 msgid "Select &none"
-msgstr "&nichts auswählen"
+msgstr "&Nichts auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:130
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:195
@@ -15265,7 +15265,7 @@ msgstr "&Schneiden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:907
 msgid "Download co&ver"
-msgstr "Umschlagbild herunterladen"
+msgstr "Co&verbild herunterladen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:908
 msgid "&Generate cover"
