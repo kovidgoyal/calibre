@@ -725,13 +725,15 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view.shrink_fonts()
 
     def magnification_changed(self, val):
-        tt = _('%(which)s font size [%(sc)s]\nCurrent magnification: %(mag).1f')
+        tt = '%(action)s [%(sc)s]\n'+_('Current magnification: %(mag).1f')
         sc = unicode(self.action_font_size_larger.shortcut().toString())
         self.action_font_size_larger.setToolTip(
-                tt %dict(which=_('Increase'), mag=val, sc=sc))
+                tt %dict(action=unicode(self.action_font_size_larger.text()),
+                         mag=val, sc=sc))
         sc = unicode(self.action_font_size_smaller.shortcut().toString())
         self.action_font_size_smaller.setToolTip(
-                tt %dict(which=_('Decrease'), mag=val, sc=sc))
+                tt %dict(action=unicode(self.action_font_size_smaller.text()),
+                         mag=val, sc=sc))
         self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
         self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
 
