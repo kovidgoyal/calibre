@@ -75,6 +75,13 @@ class PagedDisplay
             this.margin_side = margin_side
             this.margin_bottom = margin_bottom
 
+    handle_rtl_body: (body_style) ->
+        if body_style.direction == "rtl"
+            for node in document.body.childNodes
+                if node.nodeType == node.ELEMENT_NODE and window.getComputedStyle(node).direction == "rtl"
+                    node.style.setProperty("direction", "rtl")
+            document.body.style.direction = "ltr"
+
     layout: (is_single_page=false) ->
         # start_time = new Date().getTime()
         body_style = window.getComputedStyle(document.body)
@@ -84,6 +91,7 @@ class PagedDisplay
             # Check if the current document is a full screen layout like
             # cover, if so we treat it specially.
             single_screen = (document.body.scrollHeight < window.innerHeight + 75)
+            this.handle_rtl_body(body_style)
             first_layout = true
 
         ww = window.innerWidth
