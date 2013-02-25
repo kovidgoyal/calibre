@@ -180,7 +180,7 @@ class Writer(object):
             if self.name in {'timestamp', 'uuid', 'sort'}:
                 self.accept_vals = bool
 
-    def set_books(self, book_id_val_map, db):
+    def set_books(self, book_id_val_map, db, allow_case_change=True):
         book_id_val_map = {k:self.adapter(v) for k, v in
                            book_id_val_map.iteritems() if self.accept_vals(v)}
         if not book_id_val_map:
