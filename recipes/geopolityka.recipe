@@ -1,0 +1,12 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class BasicUserRecipe1361379046(BasicNewsRecipe):
+    title          = u'Geopolityka.org'
+    language = 'pl'
+    __author__ = 'chemik111'
+    oldest_article = 15
+    max_articles_per_feed = 100
+    auto_cleanup = True
+
+    feeds          = [(u'Rss', u'http://geopolityka.org/index.php?format=feed&type=rss')]
+
