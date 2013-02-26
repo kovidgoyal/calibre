@@ -1,0 +1,27 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class AdvancedUserRecipe1361743898(BasicNewsRecipe):
+    title = u'Democracy Journal'
+    description = '''A journal of ideas. Published quarterly.'''
+    __author__ = u'David Nye'
+    language = 'en'
+    oldest_article = 90
+    max_articles_per_feed = 30
+    no_stylesheets = True
+    auto_cleanup = True
+
+    def parse_index(self):
+        articles = []
+        feeds = []
+        soup = self.index_to_soup("http://www.democracyjournal.org")
+        for x in soup.findAll(href=re.compile("http://www\.democracyjournal\.org/\d*/.*php$")):
+            url = x.get('href')
+            title = self.tag_to_string(x)
+            articles.append({'title':title, 'url':url, 'description':'', 'date':''})
+        feeds.append(('Articles', articles))
+        return feeds
+
+    def print_version(self, url):
+        return url + '?page=all'
+

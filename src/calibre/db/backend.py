@@ -20,7 +20,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.db.schema_upgrades import SchemaUpgrade
 from calibre.library.field_metadata import FieldMetadata
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
-from calibre.utils.icu import strcmp
+from calibre.utils.icu import sort_key
 from calibre.utils.config import to_json, from_json, prefs, tweaks
 from calibre.utils.date import utcfromtimestamp, parse_date
 from calibre.utils.filenames import (is_case_sensitive, samefile, hardlink_file)
@@ -172,7 +172,9 @@ def _author_to_author_sort(x):
     return author_to_author_sort(x.replace('|', ','))
 
 def icu_collator(s1, s2):
-    return strcmp(force_unicode(s1, 'utf-8'), force_unicode(s2, 'utf-8'))
+    return cmp(sort_key(force_unicode(s1, 'utf-8')),
+               sort_key(force_unicode(s2, 'utf-8')))
+
 # }}}
 
 # Unused aggregators {{{

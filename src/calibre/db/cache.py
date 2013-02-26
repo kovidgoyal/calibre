@@ -211,6 +211,12 @@ class Cache(object):
             self.fields['ondevice'] = create_field('ondevice',
                     VirtualTable('ondevice'))
 
+            for name, field in self.fields.iteritems():
+                if name[0] == '#' and name.endswith('_index'):
+                    field.series_field = self.fields[name[:-len('_index')]]
+                elif name == 'series_index':
+                    field.series_field = self.fields['series']
+
     @read_api
     def field_for(self, name, book_id, default_value=None):
         '''
@@ -609,11 +615,11 @@ class Cache(object):
                               icon_map=icon_map)
 
     @write_api
-    def set_field(self, name, book_id_to_val_map):
+    def set_field(self, name, book_id_to_val_map, allow_case_change=True):
         # TODO: Specialize title/authors to also update path
         # TODO: Handle updating caches used by composite fields
         dirtied = self.fields[name].writer.set_books(
-            book_id_to_val_map, self.backend)
+            book_id_to_val_map, self.backend, allow_case_change=allow_case_change)
         return dirtied
 
     # }}}
