@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-24 04:42+0000\n"
-"PO-Revision-Date: 2013-02-24 08:13+0000\n"
-"Last-Translator: Adolfo Jayme Barrientos <fitoschido@gmail.com>\n"
+"PO-Revision-Date: 2013-02-26 01:42+0000\n"
+"Last-Translator: Miguel Angel del Olmo <silinio45@gmail.com>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-25 05:01+0000\n"
+"X-Launchpad-Export-Date: 2013-02-26 04:56+0000\n"
 "X-Generator: Launchpad (build 16506)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:540
@@ -7237,11 +7237,11 @@ msgstr "Actualizar la &carátula en los archivos de libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:75
 msgid "Add metadata as a \"book &jacket\" page"
-msgstr ""
+msgstr "Añadir metadata como una página \"&sobrecubierta de libro\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:76
 msgid "&Remove a previously inserted book jacket"
-msgstr ""
+msgstr "&Eliminar una sobrecubierta previamente insertada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:86
 msgid "About"
@@ -11945,8 +11945,8 @@ msgid ""
 "Immediately make all changes without closing the dialog. This operation "
 "cannot be canceled or undone"
 msgstr ""
-"Hacer todos los cambios inmediatamente sin cerrar el diálogo. Esta operación "
-"no se puede cancelar ni deshacer"
+"Hacer todos los cambios inmediatamente sin cerrar el cuadro de diálogo. Esta "
+"operación no se puede cancelar ni deshacer."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:436
 #, python-format
@@ -11964,11 +11964,11 @@ msgid ""
 "your library before proceeding.<p>Search and replace in text fields using "
 "character matching or regular expressions. "
 msgstr ""
-"<b>Puede destruir su biblioteca usando esta funcionalidad.</b> Los cambios "
-"son permanentes. No hay función de deshacer. Se le recomienda "
-"encarecidamente a realizar una copia de respaldo de su biblioteca antes de "
-"continuar.<p>Busca y reemplaza en campos de texto usando emparejamiento de "
-"caracteres o expresiones regulares. "
+"<b>Puede destruir su biblioteca usando esta función.</b> Los cambios son "
+"permanentes. No hay vuelta atrás. Se recomienda encarecidamente realizar una "
+"copia de respaldo de su biblioteca antes de continuar.<p>Busque y reemplace "
+"en los campos de texto utilizando emparejamiento de caracteres o expresiones "
+"regulares. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:468
 msgid ""
@@ -12019,7 +12019,7 @@ msgstr "ERROR DE PLANTILLA"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:710
 msgid "You must specify a destination when source is a composite field"
-msgstr "Debe especificar un destino cuando la fuente es un campo compuesto"
+msgstr "Debe especificar un destino cuando el orgien es un campo compuesto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:716
 msgid "You must specify a destination identifier type"
@@ -12077,7 +12077,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:557
 msgid "Edit Meta information"
-msgstr "Editar metadatos"
+msgstr "Editar infomación de metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:559
 msgid "A&utomatically set author sort"
@@ -12289,7 +12289,7 @@ msgstr "&Eliminar portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:621
 msgid "Set from &ebook file(s)"
-msgstr "Establecer a partir del (los) &archivo(s)"
+msgstr "Establecer a partir del (los) &archivo(s) del libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:622
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:599
@@ -12447,7 +12447,7 @@ msgstr "Dividir &resultado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:658
 msgid "For multiple-valued fields, sho&w"
-msgstr "Para campos con &valores múltiples, mostrar"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:659
 msgid "values starting a&t"
@@ -12875,7 +12875,7 @@ msgstr "Vista rápida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:72
 msgid "Items"
-msgstr "Elementos"
+msgstr "Ítems"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:201
@@ -13050,7 +13050,7 @@ msgstr "Lista de días del mes, separados por comas. Por ejemplo: 1, 15"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:112
 msgid "Download &after:"
-msgstr "D&escargar después de:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:145
 msgid ""
@@ -13092,7 +13092,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:200
 #, python-format
 msgid "%s news sources"
-msgstr "%s Fuentes de noticias"
+msgstr "%s fuentes de noticias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:220
 msgid "&Download now"
@@ -13149,7 +13149,7 @@ msgstr "Descargado por última vez:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:432
 msgid "Cannot download news as no internet connection is active"
 msgstr ""
-"No se pueden bajar las noticias porque no hay conexión activa al internet"
+"No se pueden descargar las noticias porque no hay conexión activa a internet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:435
 msgid "No internet connection"
@@ -13178,7 +13178,7 @@ msgstr "publicidad"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:206
 msgid "&Schedule for download:"
-msgstr "P&lanificación de la descarga:"
+msgstr "P&lanificación de descarga:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
 msgid "Days of  week"
@@ -13255,7 +13255,7 @@ msgstr " ejemplares"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:225
 msgid "&Advanced"
-msgstr "&Avanzada"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:226
 msgid "Delete downloaded news &older than:"
@@ -13492,9 +13492,6 @@ msgid ""
 "interface when calibre starts. You should not do this if you are using a "
 "network that is not secure and you are not setting a password."
 msgstr ""
-"Marque esta casilla si quiere que calibre inicie automáticamente la "
-"comunicación con dispositivos inteligentes al iniciarse. No debe hacer esto "
-"si está usando una red no segura y no establece una contraseña."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:57
 msgid ""
@@ -13544,7 +13541,7 @@ msgstr "Debe escribir un número de puerto."
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:130
 msgid "The port must be a number between 8000 and 32000."
-msgstr "El número de puerto debe ser un entero entre 8000 y 32000."
+msgstr "El puerto debe ser un número entre 8000 y 32000."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:394
@@ -13664,7 +13661,7 @@ msgstr "Nombre de la categoría: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:168
 msgid "Select a category to edit"
-msgstr "Seleccione una categoria para editar"
+msgstr "Seleccione una categoria a editar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:169
 msgid "Delete this selected tag category"
@@ -13739,7 +13736,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:132
 msgid "Apply tag to current book"
-msgstr "Aplicar etiqueta al libro actual"
+msgstr "Aplicar etiqueta al actual libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:134
 msgid "A&pplied tags"
@@ -13935,16 +13932,16 @@ msgstr "El canal debe tener un título"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:194
 msgid "The feed must have a title"
-msgstr "El canal debe tener un título"
+msgstr "El canal RSS debe tener un título"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:198
 msgid "Feed must have a URL"
-msgstr "El canal debe tener un URL"
+msgstr "Canal RSS debe tener un URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:199
 #, python-format
 msgid "The feed %s must have a URL"
-msgstr "El canal %s debe tener una URL"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:205
 msgid "This feed has already been added to the recipe"
@@ -14118,7 +14115,7 @@ msgstr "Descargar %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:54
 #, python-format
 msgid "Downloading <b>%(fname)s</b> from %(url)s"
-msgstr "Descargando <b>%(fname)s</b> de %(url)s"
+msgstr "Descargando <b>%(fname)s</b> desde %(url)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:85
 #, python-format
@@ -14131,7 +14128,7 @@ msgstr "Sin archivo especificado para descargar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:70
 msgid "Not a support ebook format."
-msgstr "No es un formato de elibro soportado"
+msgstr "No es un formato de libro electrónico soportado."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:91
 #, python-format
@@ -14144,7 +14141,7 @@ msgstr "Descargando"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:107
 msgid "Failed to download ebook"
-msgstr "No se pudo descargar el elibro"
+msgstr "No se pudo descargar el libro electrónico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:125
 #, python-format
@@ -14754,7 +14751,7 @@ msgstr "Marcado para borrarlo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1515
 msgid "Double click to <b>edit</b> me<br><br>"
-msgstr "Pulse dos veces para <b>editarme</b><br><br>"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:211
 #, python-format
@@ -14995,7 +14992,7 @@ msgstr "Iniciando %s: Cargando libros..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:347
 msgid "If you are sure it is not running"
-msgstr "Si está seguro de que no está en ejecución"
+msgstr "Si está seguro de que no está ejecutándose"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:350
 msgid "may be running in the system tray, in the"
@@ -26017,3 +26014,9 @@ msgid ""
 "numeric_collation = True note that doing so will cause problems with text\n"
 "that starts with numbers and is a little slower."
 msgstr ""
+"Esto significa que cuando se ordenan en los campos de texto, como el título "
+"del texto \"Libro 2\"\n"
+"va a clasificar antes de que el texto \"Libro 100\". Si busca este proceder, "
+"establezca\n"
+"numeric_collation = True Nota: al hacerlo causará problemas con textos\n"
+"que comienzan con números, más aun, un tanto lento."
