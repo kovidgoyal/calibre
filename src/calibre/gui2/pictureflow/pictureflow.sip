@@ -51,6 +51,10 @@ public :
 
   int currentSlide() const;
 
+  bool showReflections() const;
+
+  void setShowReflections(bool show);
+
 public slots:
 
   void setCurrentSlide(int index);

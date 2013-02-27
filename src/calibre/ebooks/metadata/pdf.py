@@ -15,6 +15,14 @@ from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 
 #_isbn_pat = re.compile(r'ISBN[: ]*([-0-9Xx]+)')
 
+def get_tools():
+    from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
+    base = os.path.dirname(PDFTOHTML)
+    suffix = '.exe' if iswindows else ''
+    pdfinfo = os.path.join(base, 'pdfinfo') + suffix
+    pdftoppm = os.path.join(base, 'pdftoppm') + suffix
+    return pdfinfo, pdftoppm
+
 def read_info(outputdir, get_cover):
     ''' Read info dict and cover from a pdf file named src.pdf in outputdir.
     Note that this function changes the cwd to outputdir and is therefore not
@@ -22,13 +30,8 @@ def read_info(outputdir, get_cover):
     way to pass unicode paths via command line arguments. This also ensures
     that if poppler crashes, no stale file handles are left for the original
     file, only for src.pdf.'''
-
-    from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
     os.chdir(outputdir)
-    base = os.path.dirname(PDFTOHTML)
-    suffix = '.exe' if iswindows else ''
-    pdfinfo = os.path.join(base, 'pdfinfo') + suffix
-    pdftoppm = os.path.join(base, 'pdftoppm') + suffix
+    pdfinfo, pdftoppm = get_tools()
 
     try:
         raw = subprocess.check_output([pdfinfo, '-enc', 'UTF-8', 'src.pdf'])
@@ -57,6 +60,20 @@ def read_info(outputdir, get_cover):
             prints('pdftoppm errored out with return code: %d'%e.returncode)
 
     return ans
+
+def page_images(pdfpath, outputdir, first=1, last=1):
+    pdftoppm = get_tools()[1]
+    outputdir = os.path.abspath(outputdir)
+    args = {}
+    if iswindows:
+        import win32process as w
+        args['creationflags'] = w.HIGH_PRIORITY_CLASS | w.CREATE_NO_WINDOW
+    try:
+        subprocess.check_call([pdftoppm, '-jpeg', '-f', unicode(first),
+                               '-l', unicode(last), pdfpath,
+                               os.path.join(outputdir, 'page-images')], **args)
+    except subprocess.CalledProcessError as e:
+        raise ValueError('Failed to render PDF, pdftoppm errorcode: %s'%e.returncode)
 
 def get_metadata(stream, cover=True):
     with TemporaryDirectory('_pdf_metadata_read') as pdfpath:

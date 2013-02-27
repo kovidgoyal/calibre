@@ -19,6 +19,212 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.20
+  date: 2013-02-22
+
+  new features:
+    - title: "Book polishing: Add an option to smarten punctuation in the book when polishing"
+
+    - title: "Book polishing: Add an option to delete all saved settings to the load saved settings button"
+
+    - title: "Book polishing: Remember the last used settings"
+
+    - title: "Book polishing: Add a checkbox to enable/disable the detailed polishing report"
+
+    - title: "Add a separate tweak in Preferences-Tweaks for saving backups of files when polishing. That way you can have calibre save backups while converting EPUB->EPUB and not while polishing, if you so desire."
+
+    - title: "Content server: Allow clicking on the book cover to download it. Useful on small screen devices where clicking the Get button may be difficult"
+
+    - title: "Driver for Energy Systems C4 Touch."
+      tickets: [1127477]
+ 
+  bug fixes:
+    - title: "E-book viewer: Fix a bug that could cause the back button in the viewer to skip a location"
+
+    - title: "When tweaking/polishing an azw3 file that does not have an identified content ToC, do not auto-generate one."
+      tickets: [1130729]
+
+    - title: "Book polishing: Use the actual cover image dimensions when creating the svg wrapper for the cover image."
+      tickets: [1127273]
+
+    - title: "Book polishing: Do not error out on epub files containing an iTunesMetadata.plist file."
+      tickets: [1127308]
+
+    - title: "Book polishing: Fix trying to polish more than 5 books at a time not working"
+
+    - title: "Content server: Add workaround for bug in latest release of Google Chrome that causes it to not work with book lists containing some utf-8 characters"
+      tickets: [1130478]
+
+    - title: "E-book viewer: When viewing EPUB files, do not parse html as xhtml even if it has svg tags embedded. This allows malformed XHTML files to still be viewed."
+
+    - title: "Bulk metadata edit Search & recplace: Update the sample values when changing the type of identifier to search on"
+
+    - title: "Fix recipes with the / character in their names not useable from the command line"
+      tickets: [1127666]
+
+    - title: "News download: Fix regression that broke downloading of images in gif format"
+
+    - title: "EPUB/AZW3 Output: When splitting the output html on page breaks, handle page-break-after rules correctly, the pre split point html should contain the full element"
+
+    - title: "Fix stdout/stderr redirection temp files not being deleted when restarting calibre from within calibre on windows"
+
+    - title: "E-book viewer: When viewing epub files that have their cover marked as non-linear, show the cover at the start of the book instead of the end."
+      tickets: [1126030]
+
+    - title: "EPUB Input: Fix handling of cover references with fragments in the urls"
+
+  improved recipes:
+    - Fronda
+    - Various Polish news sources
+
+  new recipes:
+    - title: Pravda 
+      author: Darko Miletic
+
+    - title: PNN 
+      author: n.kucklaender
+
+    - title: Various Polish news sources 
+      author: fenuks
+
+- version: 0.9.19
+  date: 2013-02-15
+
+  new features:
+    - title: "New tool: \"Polish books\" that allows you to perform various automated cleanup actions on EPUB and AZW3 files without doing a full conversion."
+      type: major
+      description: "Polishing books is all about putting the shine of perfection on your ebook files. You can use it to subset embedded fonts, update the metadata in the book files from the metadata in the calibre library, manipulate the book jacket, etc. More features will be added in the future. To use this tool, go to Preferences->Toolbar and add the Polish books tool to the main toolbar. Then simply select the books you want to be polished and click the Polish books button. Polishing, unlike conversion, does not change the internal structure/markup of your book, it performs only the minimal set of actions needed to achieve its goals. Note that polish books is a completely new codebase, so there may well be bugs, polishing a book backs up the original as ORIGINAL_EPUB or ORIGINAL_AZW3, unless you have turned off this feature in Preferences->Tweaks, in which case you should backup your files manually. You can also use this tool from the command line with ebook-polish.exe."
+
+    - title: "Driver for the Trekstor Pyrus Mini."
+      tickets: [1124120]
+
+    - title: "E-book viewer: Add an option to change the minimum font size."
+      tickets: [1122333]
+ 
+    - title: "PDF Output: Add support for converting documents with math typesetting, as described here: http://manual.calibre-ebook.com/typesetting_math.html"
+
+    - title: "Column coloring/icons: Add more conditions when using date based columns with reference to 'today'."
+
+  bug fixes:
+    - title: "Transforming to titlecase - handle typographic hyphens in all caps phrases"
+
+    - title: "Dont ignore file open events that occur before the GUI is initialized on OS X"
+      tickets: [1122713]
+
+    - title: "News download: Handle feeds that have entries with empty ids"
+
+    - title: "Fix a regression that broke using the template editor"
+
+    - title: "Do not block startup while scanning the computer for available network interfaces. Speeds up startup time on some windows computers with lots of spurious network interfaces."
+
+  improved recipes:
+    - New Yorker
+    - Kommersant
+    - Le Monde (Subscription version)
+    - NZ Herald
+
+  new recipes:
+    - title: Navegalo 
+      author: Douglas Delgado
+
+    - title: El Guardian and More Intelligent Life
+      author: Darko Miletic
+
+- version: 0.9.18
+  date: 2013-02-08
+
+  new features:
+      - title: "New metadata source: Edelweiss, a catalog of books that is updated directly by publishers. To enable it, go to Preferences->Metadata download and enable the Edelweiss plugin."
+        tickets: [1091073]
+
+      - title: "Add an option to add extra spacing between rows in the book list. (Preferences->Look & Feel)"
+        tickets: [1117907]
+
+      - title: "Column coloring/icons: Add a 'days ago' condition, useable with columns that store dates to set colors/icons based on the number of days before today"
+
+      - title: "E-book viewer: Add shortcuts Ctrl+= and Ctrl+- to increase/decrease text size."
+        tickets: [ 1117524 ] 
+
+      - title: "When showing possible duplicates after adding books, also show the file formats."
+
+      - title: "Driver for Trekstor Ventos Tablet" 
+ 
+  bug fixes:
+    - title: "Conversion: When transliterating unicode characters, handle « and » correctly."
+      tickets: [1117270]
+
+    - title: "Fix adding books from multiple directories with multiple books per directory treating opf files as an ebook"
+
+    - title: "Fix download metadata window not resizable on smaller screens"
+      tickets: [1116849]
+
+    - title: "Tweak Book: When rebuilding azw3 files handle <a> tags that have name but not id attribute, these are apparently produced by kindlegen."
+      tickets: [ 1112934 ] 
+
+    - title: "Fix regression in advanced column color rules."
+      tickets: [1118678] 
+
+  improved recipes:
+    - El Mundo today
+    - fluter.de
+    - Birmingham Post
+    - Japan Times
+    - The Toronto Star
+    - Le Monde (subscription version)
+    - Globe and Mail
+
+  new recipes:
+    - title: VICE Magazine Deutschland 
+      author: Alex
+
+    - title: Libertad Digital 
+      author: Darko Miletic
+
+- version: 0.9.17
+  date: 2013-02-01
+
+  new features:
+    - title: "Allow adding user specified icons to the main book list for books whose metadata matches specific criteria. Go to Preferences->Look & Feel->Column icons to setup these icons. They work in the same way as the column coloring rules."
+      type: major
+
+    - title: "Allow choosing which page of a PDF to use as the cover."
+      description: "To access this functionality add the PDF to calibre then click the edit metadata button. In the top right area of the edit metadata dialog there is a button to get the cover from the ebook file, this will now allow you to choose which page (from the first ten pages) of the pdf to use as the cover."
+      tickets: [1110019]
+
+    - title: "Add option to turn off reflections in the cover browser (Preferences->Look & Feel->Cover Browser)"
+
+    - title: "PDF Output: Add an option to add page numbers to the bottom of every page in the generated PDF file (look in the PDF Output section of the conversion dialog)"
+
+    - title: "Add the full item name to the tool tip of a leaf item displayed in the tag browser."
+      tickets: [1106231]
+ 
+  bug fixes:
+    - title: "Fix out-of-bounds data causing errors in the Tag Browser"
+      tickets: [1108017]
+
+    - title: "Conversion: Handle input documents that use multiple prefixes referring to the XHTML namespace correctly."
+      tickets: [1107220]
+
+    - title: "PDF Output: Fix regression that caused some svg images to be rendered as black rectangles."
+      tickets: [1105294]
+
+    - title: "Metadata download: Only normalize title case if the result has no language set or its language is English"
+
+  improved recipes:
+    - Baltimore Sun
+    - Harvard Business Review
+    - Victoria Times
+    - South China Morning Post
+    - Volksrant
+    - Seattle Times
+
+  new recipes:
+    - title: Dob NeviNosti 
+      author: Darko Miletic
+
+    - title: La Nacion (CR) 
+      author: Douglas Delgado
+
 - version: 0.9.16
   date: 2013-01-25
 

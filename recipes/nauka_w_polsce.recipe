@@ -1,0 +1,47 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+class NaukawPolsce(BasicNewsRecipe):
+    title          = u'Nauka w Polsce'
+    __author__        = 'fenuks'
+    description   = u'Serwis Nauka w Polsce ma za zadanie popularyzację polskiej nauki. Można na nim znaleźć wiadomości takie jak:  osiągnięcia polskich naukowców, wydarzenia na polskich uczelniach, osiągnięcia studentów, konkursy dla badaczy, staże i stypendia naukowe, wydarzenia w polskiej nauce, kalendarium wydarzeń w nauce, materiały wideo o nauce.'
+    category       = 'science'
+    language       = 'pl'
+    cover_url = 'http://www.naukawpolsce.pap.pl/Themes/Pap/images/logo-pl.gif'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    index = 'http://www.naukawpolsce.pl'
+    keep_only_tags = [dict(name='div', attrs={'class':'margines wiadomosc'})]
+    remove_tags = [dict(name='div', attrs={'class':'tagi'})]
+
+    def find_articles(self, url):
+        articles = []
+        soup=self.index_to_soup(url)
+        for i in soup.findAll(name='div', attrs={'class':'aktualnosci-margines lista-depesz information-content'}):
+            title = i.h1.a.string
+            url = self.index + i.h1.a['href']
+            date = '' #i.span.string
+            articles.append({'title' : title,
+                   'url'   : url,
+                   'date'  : date,
+                   'description' : ''
+                    })
+        return articles
+
+    def parse_index(self):
+         feeds = []
+         feeds.append((u"Historia i kultura", self.find_articles('http://www.naukawpolsce.pl/historia-i-kultura/')))
+         feeds.append((u"Kosmos", self.find_articles('http://www.naukawpolsce.pl/kosmos/')))
+         feeds.append((u"Przyroda", self.find_articles('http://www.naukawpolsce.pl/przyroda/')))
+         feeds.append((u"Społeczeństwo", self.find_articles('http://www.naukawpolsce.pl/spoleczenstwo/')))
+         feeds.append((u"Technologie", self.find_articles('http://www.naukawpolsce.pl/technologie/')))
+         feeds.append((u"Uczelnie", self.find_articles('http://www.naukawpolsce.pl/uczelnie/')))
+         feeds.append((u"Nauki medyczne", self.find_articles('http://www.naukawpolsce.pl/zdrowie/')))
+
+         return feeds
+
+    def preprocess_html(self, soup):
+        for p in soup.findAll(name='p', text=re.compile('&nbsp;')):
+            p.extract()
+        return soup

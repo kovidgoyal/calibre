@@ -23,7 +23,6 @@ class Fronda(BasicNewsRecipe):
     extra_css = '''
         h1 {font-size:150%}
         .body {text-align:left;}
-        div.headline {font-weight:bold}
     '''
 
     earliest_date = date.today() - timedelta(days=oldest_article)
@@ -72,7 +71,7 @@ class Fronda(BasicNewsRecipe):
             feeds.append((genName, articles[genName]))
         return feeds
 
-    keep_only_tags = [ 
+    keep_only_tags = [
         dict(name='div', attrs={'class':'yui-g'})
         ]
 
@@ -84,5 +83,7 @@ class Fronda(BasicNewsRecipe):
         dict(name='ul', attrs={'class':'comment-list'}),
         dict(name='ul', attrs={'class':'category'}),
         dict(name='p', attrs={'id':'comments-disclaimer'}),
+        dict(name='div', attrs={'style':'text-align: left; margin-bottom: 15px;'}),
+        dict(name='div', attrs={'style':'text-align: left; margin-top: 15px;'}),
         dict(name='div', attrs={'id':'comment-form'})
         ]

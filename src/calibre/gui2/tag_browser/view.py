@@ -549,7 +549,8 @@ class TagsView(QTreeView): # {{{
                 # Offer specific editors for tags/series/publishers/saved searches
                 self.context_menu.addSeparator()
                 if key in ['tags', 'publisher', 'series'] or \
-                            self.db.field_metadata[key]['is_custom']:
+                            (self.db.field_metadata[key]['is_custom'] and
+                             self.db.field_metadata[key]['datatype'] != 'composite'):
                     self.context_menu.addAction(_('Manage %s')%category,
                             partial(self.context_menu_handler, action='open_editor',
                                     category=tag.original_name if tag else None,

@@ -100,6 +100,14 @@ def compile_coffeescript(raw, filename=None):
         return fork_job('calibre.utils.serve_coffee', 'do_compile',
                 args=(raw,), no_output=True)['result']
 
+def check_coffeescript(filename):
+    with open(filename, 'rb') as f:
+        raw = f.read()
+    cs, errs = compile_coffeescript(raw, filename)
+    if errs:
+        print('\n'.join(errs))
+        raise Exception('Compilation failed')
+
 class HTTPRequestHandler(SimpleHTTPRequestHandler): # {{{
     '''
     Handle Range headers, as browsers insist on using range for <video> tags.

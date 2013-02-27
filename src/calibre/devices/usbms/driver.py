@@ -40,7 +40,7 @@ class USBMS(CLI, Device):
     '''
 
     description    = _('Communicate with an eBook reader.')
-    author         = _('John Schember')
+    author         = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Store type instances of BookList and Book. We must do this because

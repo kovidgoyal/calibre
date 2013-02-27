@@ -19,6 +19,7 @@ class BaltimoreSun(BasicNewsRecipe):
     use_embedded_content = False
     no_stylesheets       = True
     remove_javascript    = True
+    #auto_cleanup = True
     recursions           = 1
 
     ignore_duplicate_articles = {'title'}
@@ -77,6 +78,7 @@ class BaltimoreSun(BasicNewsRecipe):
          #(u'NBA', u'http://www.baltimoresun.com/sports/nba/rss2.0.xml'),
          #(u'High School', u'http://www.baltimoresun.com/sports/high-school/rss2.0.xml'),
          #(u'Outdoors', u'http://www.baltimoresun.com/sports/outdoors/rss2.0.xml'),
+
 
 ## Entertainment ##
          (u'Celebrity News', u'http://www.baltimoresun.com/entertainment/celebrities/rss2.0.xml'),
@@ -142,12 +144,12 @@ class BaltimoreSun(BasicNewsRecipe):
          (u'Read Street', u'http://www.baltimoresun.com/features/books/read-street/rss2.0.xml'),
          (u'Z on TV', u'http://www.baltimoresun.com/entertainment/tv/z-on-tv-blog/rss2.0.xml'),
 
-## Life Blogs ##
-         (u'BMore Green', u'http://weblogs.baltimoresun.com/features/green/index.xml'),
-         (u'Baltimore Insider',u'http://www.baltimoresun.com/features/baltimore-insider-blog/rss2.0.xml'),
-         (u'Homefront', u'http://www.baltimoresun.com/features/parenting/homefront/rss2.0.xml'),
-         (u'Picture of Health', u'http://www.baltimoresun.com/health/blog/rss2.0.xml'),
-         (u'Unleashed', u'http://weblogs.baltimoresun.com/features/mutts/blog/index.xml'),
+### Life Blogs ##
+         #(u'BMore Green', u'http://weblogs.baltimoresun.com/features/green/index.xml'),
+         #(u'Baltimore Insider',u'http://www.baltimoresun.com/features/baltimore-insider-blog/rss2.0.xml'),
+         #(u'Homefront', u'http://www.baltimoresun.com/features/parenting/homefront/rss2.0.xml'),
+         #(u'Picture of Health', u'http://www.baltimoresun.com/health/blog/rss2.0.xml'),
+         #(u'Unleashed', u'http://weblogs.baltimoresun.com/features/mutts/blog/index.xml'),
 
 ## b the site blogs ##
          (u'Game Cache', u'http://www.baltimoresun.com/entertainment/bthesite/game-cache/rss2.0.xml'),
@@ -165,6 +167,7 @@ class BaltimoreSun(BasicNewsRecipe):
          #(u'Tracking the Terps', u'http://weblogs.baltimoresun.com/sports/college/maryland_terps/blog/index.xml'),
          #(u'Varsity Letters', u'http://weblogs.baltimoresun.com/sports/highschool/varsityletters/index.xml'),
              ]
+
 
 
     def get_article_url(self, article):

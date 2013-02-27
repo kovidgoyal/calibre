@@ -1,0 +1,40 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class crnews(BasicNewsRecipe):
+    __author__     = 'Douglas Delgado'
+    title          = u'La Nacion'
+    publisher      = 'GRUPO NACION GN, S. A.'
+    description    = 'Diario de circulacion nacional de Costa Rica. Recipe creado por Douglas Delgado (doudelgado@gmail.com) para su uso con Calibre por Kovid Goyal'
+    category       = 'Spanish, Entertainment'
+    masthead_url   = 'http://www.nacion.com/App_Themes/nacioncom/Images/logo_nacioncom.png'
+
+    oldest_article = 7
+    delay          = 1
+    max_articles_per_feed = 100
+    auto_cleanup = True
+    encoding       = 'utf-8'
+    language       = 'es_CR'
+    use_embedded_content  = False
+    remove_empty_feeds    = True
+    remove_javascript = True
+    no_stylesheets = True
+
+
+    feeds          = [(u'Portada', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=portada'), (u'Ultima Hora', u'http://www.nacion.com/Generales/RSS/UltimaHoraRss.aspx'), (u'Nacionales', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=elpais'), (u'Entretenimiento', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=entretenimiento'), (u'Sucesos', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=sucesos'), (u'Deportes', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=deportes'), (u'Internacionales', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=mundo'), (u'Economia', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=economia'), (u'Aldea Global', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=aldeaglobal'), (u'Tecnologia', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=tecnologia'), (u'Opinion', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=opinion')]
+
+    def get_cover_url(self):
+        index = 'http://kiosko.net/cr/np/cr_nacion.html'
+        soup = self.index_to_soup(index)
+        for image in soup.findAll('img',src=True):
+           if image['src'].endswith('cr_nacion.750.jpg'):
+              return image['src']
+        return None
+
+    def get_article_url(self, article):
+        url = article.get('guid', None)
+        return url
+
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:30px;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal; font-style:italic; font-size:18px;}
+                '''

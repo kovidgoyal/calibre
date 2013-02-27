@@ -12,6 +12,7 @@ from functools import partial
 from operator import attrgetter
 from future_builtins import map
 
+from calibre.ebooks.metadata import author_to_author_sort
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
@@ -35,6 +36,8 @@ class Tag(object):
         self.avg_rating = avg/2.0 if avg is not None else 0
         self.sort = sort
         self.use_sort_as_name = use_sort_as_name
+        if tooltip is None:
+            tooltip = '(%s:%s)'%(category, name)
         if self.avg_rating > 0:
             if tooltip:
                 tooltip = tooltip + ': '
@@ -64,8 +67,8 @@ def find_categories(field_metadata):
 
 def create_tag_class(category, fm, icon_map):
     cat = fm[category]
+    dt = cat['datatype']
     icon = None
-    tooltip = None if category in {'formats', 'identifiers'} else ('(' + category + ')')
     label = fm.key_to_label(category)
     if icon_map:
         if not fm.is_custom_field(category):
@@ -75,20 +78,19 @@ def create_tag_class(category, fm, icon_map):
             icon = icon_map['custom:']
             icon_map[category] = icon
     is_editable = category not in {'news', 'rating', 'languages', 'formats',
-                                   'identifiers'}
+                                   'identifiers'} and dt != 'composite'
 
     if (tweaks['categories_use_field_for_author_name'] == 'author_sort' and
             (category == 'authors' or
                 (cat['display'].get('is_names', False) and
                 cat['is_custom'] and cat['is_multiple'] and
-                cat['datatype'] == 'text'))):
+                dt == 'text'))):
         use_sort_as_name = True
     else:
         use_sort_as_name = False
 
     return partial(Tag, use_sort_as_name=use_sort_as_name, icon=icon,
-                        tooltip=tooltip, is_editable=is_editable,
-                        category=category)
+                        is_editable=is_editable, category=category)
 
 def clean_user_categories(dbcache):
     user_cats = dbcache.pref('user_categories', {})
@@ -148,8 +150,16 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
         elif category == 'news':
             cats = dbcache.fields['tags'].get_news_category(tag_class, book_ids)
         else:
+            cat = fm[category]
+            brm = book_rating_map
+            if cat['datatype'] == 'rating' and category != 'rating':
+                brm = dbcache.fields[category].book_value_map
             cats = dbcache.fields[category].get_categories(
-                tag_class, book_rating_map, lang_map, book_ids)
+                tag_class, brm, lang_map, book_ids)
+            if (category != 'authors' and cat['datatype'] == 'text' and
+                cat['is_multiple'] and cat['display'].get('is_names', False)):
+                for item in cats:
+                    item.sort = author_to_author_sort(item.sort)
         sort_categories(cats, sort)
         categories[category] = cats
 

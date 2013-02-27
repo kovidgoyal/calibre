@@ -52,7 +52,7 @@ def synchronous(tlockname):
     return _synched
 
 
-class ConnectionListener (Thread):
+class ConnectionListener(Thread):
 
     NOT_SERVICED_COUNT = 6
 
@@ -61,6 +61,7 @@ class ConnectionListener (Thread):
         self.daemon = True
         self.driver = driver
         self.keep_running = True
+        self.all_ip_addresses = dict()
 
     def stop(self):
         self.keep_running = False
@@ -68,6 +69,8 @@ class ConnectionListener (Thread):
     def run(self):
         queue_not_serviced_count = 0
         device_socket = None
+        get_all_ips(reinitialize=True)
+
         while self.keep_running:
             try:
                 time.sleep(1)
@@ -77,6 +80,11 @@ class ConnectionListener (Thread):
 
             if not self.keep_running:
                 break
+
+            if not self.all_ip_addresses:
+                self.all_ip_addresses = get_all_ips()
+                if self.all_ip_addresses:
+                    self.driver._debug("All IP addresses", self.all_ip_addresses)
 
             if not self.driver.connection_queue.empty():
                 queue_not_serviced_count += 1
@@ -1286,8 +1294,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.client_can_stream_books = False
         self.client_can_stream_metadata = False
         self.client_wants_uuid_file_names = False
-
-        self._debug("All IP addresses", get_all_ips())
 
         message = None
         try:

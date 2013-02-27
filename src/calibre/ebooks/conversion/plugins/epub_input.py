@@ -9,6 +9,19 @@ from itertools import cycle
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 
 ADOBE_OBFUSCATION =  'http://ns.adobe.com/pdf/enc#RC'
+IDPF_OBFUSCATION = 'http://www.idpf.org/2008/embedding'
+
+def decrypt_font(key, path, algorithm):
+    is_adobe = algorithm == ADOBE_OBFUSCATION
+    crypt_len = 1024 if is_adobe else 1040
+    with open(path, 'rb') as f:
+        raw = f.read()
+    crypt = bytearray(raw[:crypt_len])
+    key = cycle(iter(bytearray(key)))
+    decrypt = bytes(bytearray(x^key.next() for x in crypt))
+    with open(path, 'wb') as f:
+        f.write(decrypt)
+        f.write(raw[crypt_len:])
 
 class EPUBInput(InputFormatPlugin):
 
@@ -19,18 +32,6 @@ class EPUBInput(InputFormatPlugin):
     output_encoding = None
 
     recommendations = set([('page_breaks_before', '/', OptionRecommendation.MED)])
-
-    def decrypt_font(self, key, path, algorithm):
-        is_adobe = algorithm == ADOBE_OBFUSCATION
-        crypt_len = 1024 if is_adobe else 1040
-        with open(path, 'rb') as f:
-            raw = f.read()
-        crypt = bytearray(raw[:crypt_len])
-        key = cycle(iter(bytearray(key)))
-        decrypt = bytes(bytearray(x^key.next() for x in crypt))
-        with open(path, 'wb') as f:
-            f.write(decrypt)
-            f.write(raw[crypt_len:])
 
     def process_encryption(self, encfile, opf, log):
         from lxml import etree
@@ -58,8 +59,7 @@ class EPUBInput(InputFormatPlugin):
             root = etree.parse(encfile)
             for em in root.xpath('descendant::*[contains(name(), "EncryptionMethod")]'):
                 algorithm = em.get('Algorithm', '')
-                if algorithm not in {ADOBE_OBFUSCATION,
-                        'http://www.idpf.org/2008/embedding'}:
+                if algorithm not in {ADOBE_OBFUSCATION, IDPF_OBFUSCATION}:
                     return False
                 cr = em.getparent().xpath('descendant::*[contains(name(), "CipherReference")]')[0]
                 uri = cr.get('URI')
@@ -67,7 +67,7 @@ class EPUBInput(InputFormatPlugin):
                 tkey = (key if algorithm == ADOBE_OBFUSCATION else idpf_key)
                 if (tkey and os.path.exists(path)):
                     self._encrypted_font_uris.append(uri)
-                    self.decrypt_font(tkey, path, algorithm)
+                    decrypt_font(tkey, path, algorithm)
             return True
         except:
             import traceback
@@ -80,7 +80,7 @@ class EPUBInput(InputFormatPlugin):
         guide_cover, guide_elem = None, None
         for guide_elem in opf.iterguide():
             if guide_elem.get('type', '').lower() == 'cover':
-                guide_cover = guide_elem.get('href', '')
+                guide_cover = guide_elem.get('href', '').partition('#')[0]
                 break
         if not guide_cover:
             return
@@ -103,6 +103,12 @@ class EPUBInput(InputFormatPlugin):
         if not self.for_viewer:
             spine[0].getparent().remove(spine[0])
             removed = guide_cover
+        else:
+            # Ensure the cover is displayed as the first item in the book, some
+            # epub files have it set with linear='no' which causes the cover to
+            # display in the end
+            spine[0].attrib.pop('linear', None)
+            opf.spine[0].is_linear = True
         guide_elem.set('href', 'calibre_raster_cover.jpg')
         from calibre.ebooks.oeb.base import OPF
         t = etree.SubElement(elem[0].getparent(), OPF('item'),

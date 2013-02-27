@@ -16,6 +16,7 @@ from PyQt4.Qt import (QObject, QPainter, Qt, QSize, QString, QTimer,
 from PyQt4.QtWebKit import QWebView, QWebPage, QWebSettings
 
 from calibre import fit_image
+from calibre.constants import iswindows
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.ebooks.pdf.render.common import (inch, cm, mm, pica, cicero,
                                               didot, PAPER_SIZES)
@@ -161,6 +162,17 @@ class PDFWriter(QObject):
                              debug=self.log.debug, compress=not
                              opts.uncompressed_pdf,
                              mark_links=opts.pdf_mark_links)
+        self.footer = opts.pdf_footer_template
+        if self.footer is None and opts.pdf_page_numbers:
+            self.footer = '<p style="text-align:center; text-indent: 0">_PAGENUM_</p>'
+        self.header = opts.pdf_header_template
+        min_margin = 36
+        if self.footer and opts.margin_bottom < min_margin:
+            self.log.warn('Bottom margin is too small for footer, increasing it.')
+            opts.margin_bottom = min_margin
+        if self.header and opts.margin_top < min_margin:
+            self.log.warn('Top margin is too small for header, increasing it.')
+            opts.margin_top = min_margin
 
         self.page.setViewportSize(QSize(self.doc.width(), self.doc.height()))
         self.render_queue = items
@@ -225,6 +237,7 @@ class PDFWriter(QObject):
             except:
                 self.log.exception('Rendering failed')
                 self.loop.exit(1)
+                return
         else:
             # The document is so corrupt that we can't render the page.
             self.logger.error('Document cannot be rendered.')
@@ -239,16 +252,33 @@ class PDFWriter(QObject):
     def current_page_num(self):
         return self.doc.current_page_num
 
+    def load_mathjax(self):
+        evaljs = self.view.page().mainFrame().evaluateJavaScript
+        mjpath = P(u'viewer/mathjax').replace(os.sep, '/')
+        if iswindows:
+            mjpath = u'/' + mjpath
+        if evaljs('''
+                    window.mathjax.base = %s;
+                    mathjax.check_for_math(); mathjax.math_present
+                    '''%(json.dumps(mjpath, ensure_ascii=False))).toBool():
+            self.log.debug('Math present, loading MathJax')
+            while not evaljs('mathjax.math_loaded').toBool():
+                self.loop.processEvents(self.loop.ExcludeUserInputEvents)
+            evaljs('document.getElementById("MathJax_Message").style.display="none";')
+
     def do_paged_render(self):
         if self.paged_js is None:
-            from calibre.utils.resources import compiled_coffeescript
-            self.paged_js =  compiled_coffeescript('ebooks.oeb.display.utils')
-            self.paged_js += compiled_coffeescript('ebooks.oeb.display.indexing')
-            self.paged_js += compiled_coffeescript('ebooks.oeb.display.paged')
+            from calibre.utils.resources import compiled_coffeescript as cc
+            self.paged_js =  cc('ebooks.oeb.display.utils')
+            self.paged_js += cc('ebooks.oeb.display.indexing')
+            self.paged_js += cc('ebooks.oeb.display.paged')
+            self.paged_js += cc('ebooks.oeb.display.mathjax')
 
         self.view.page().mainFrame().addToJavaScriptWindowObject("py_bridge", self)
         evaljs = self.view.page().mainFrame().evaluateJavaScript
         evaljs(self.paged_js)
+        self.load_mathjax()
+
         evaljs('''
         py_bridge.__defineGetter__('value', function() {
             return JSON.parse(this._pass_json_value);
@@ -264,6 +294,15 @@ class PDFWriter(QObject):
         py_bridge.value = book_indexing.all_links_and_anchors();
         '''%(self.margin_top, 0, self.margin_bottom))
 
+        if self.header:
+            self.bridge_value = self.header
+            evaljs('paged_display.header_template = py_bridge.value')
+        if self.footer:
+            self.bridge_value = self.footer
+            evaljs('paged_display.footer_template = py_bridge.value')
+        if self.header or self.footer:
+            evaljs('paged_display.create_header_footer();')
+
         amap = self.bridge_value
         if not isinstance(amap, dict):
             amap = {'links':[], 'anchors':{}} # Some javascript error occurred
@@ -272,6 +311,8 @@ class PDFWriter(QObject):
         mf = self.view.page().mainFrame()
         while True:
             self.doc.init_page()
+            if self.header or self.footer:
+                evaljs('paged_display.update_header_footer(%d)'%self.current_page_num)
             self.painter.save()
             mf.render(self.painter)
             self.painter.restore()
@@ -279,7 +320,7 @@ class PDFWriter(QObject):
             self.doc.end_page()
             if not nsl[1] or nsl[0] <= 0:
                 break
-            evaljs('window.scrollTo(%d, 0)'%nsl[0])
+            evaljs('window.scrollTo(%d, 0); paged_display.position_header_footer();'%nsl[0])
             if self.doc.errors_occurred:
                 break
 

@@ -22,91 +22,96 @@ from calibre.utils.date import UNDEFINED_DATE
 
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')
+defs = gprefs.defaults
 
 if isosx:
-    gprefs.defaults['action-layout-menubar'] = (
+    defs['action-layout-menubar'] = (
         'Add Books', 'Edit Metadata', 'Convert Books',
         'Choose Library', 'Save To Disk', 'Preferences',
         'Help',
         )
-    gprefs.defaults['action-layout-menubar-device'] = (
+    defs['action-layout-menubar-device'] = (
         'Add Books', 'Edit Metadata', 'Convert Books',
         'Location Manager', 'Send To Device',
         'Save To Disk', 'Preferences', 'Help',
         )
-    gprefs.defaults['action-layout-toolbar'] = (
+    defs['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
         'Choose Library', 'Donate', None, 'Fetch News', 'Store', 'Save To Disk',
         'Connect Share', None, 'Remove Books',
         )
-    gprefs.defaults['action-layout-toolbar-device'] = (
+    defs['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
         'Send To Device', None, None, 'Location Manager', None, None,
         'Fetch News', 'Store', 'Save To Disk', 'Connect Share', None,
         'Remove Books',
         )
 else:
-    gprefs.defaults['action-layout-menubar'] = ()
-    gprefs.defaults['action-layout-menubar-device'] = ()
-    gprefs.defaults['action-layout-toolbar'] = (
+    defs['action-layout-menubar'] = ()
+    defs['action-layout-menubar-device'] = ()
+    defs['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
         'Store', 'Donate', 'Fetch News', 'Help', None,
         'Remove Books', 'Choose Library', 'Save To Disk',
         'Connect Share', 'Preferences',
         )
-    gprefs.defaults['action-layout-toolbar-device'] = (
+    defs['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
         'Send To Device', None, None, 'Location Manager', None, None,
         'Fetch News', 'Save To Disk', 'Store', 'Connect Share', None,
         'Remove Books', None, 'Help', 'Preferences',
         )
 
-gprefs.defaults['action-layout-toolbar-child'] = ()
+defs['action-layout-toolbar-child'] = ()
 
-gprefs.defaults['action-layout-context-menu'] = (
+defs['action-layout-context-menu'] = (
         'Edit Metadata', 'Send To Device', 'Save To Disk',
         'Connect Share', 'Copy To Library', None,
         'Convert Books', 'View', 'Open Folder', 'Show Book Details',
         'Similar Books', 'Tweak ePub', None, 'Remove Books',
         )
 
-gprefs.defaults['action-layout-context-menu-device'] = (
+defs['action-layout-context-menu-device'] = (
         'View', 'Save To Disk', None, 'Remove Books', None,
         'Add To Library', 'Edit Collections',
         )
 
-gprefs.defaults['action-layout-context-menu-cover-browser'] = (
+defs['action-layout-context-menu-cover-browser'] = (
         'Edit Metadata', 'Send To Device', 'Save To Disk',
         'Connect Share', 'Copy To Library', None,
         'Convert Books', 'View', 'Open Folder', 'Show Book Details',
         'Similar Books', 'Tweak ePub', None, 'Remove Books',
         )
 
-gprefs.defaults['show_splash_screen'] = True
-gprefs.defaults['toolbar_icon_size'] = 'medium'
-gprefs.defaults['automerge'] = 'ignore'
-gprefs.defaults['toolbar_text'] = 'always'
-gprefs.defaults['font'] = None
-gprefs.defaults['tags_browser_partition_method'] = 'first letter'
-gprefs.defaults['tags_browser_collapse_at'] = 100
-gprefs.defaults['tag_browser_dont_collapse'] = []
-gprefs.defaults['edit_metadata_single_layout'] = 'default'
-gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
-gprefs.defaults['preserve_date_on_ctl'] = True
-gprefs.defaults['manual_add_auto_convert'] = False
-gprefs.defaults['cb_fullscreen'] = False
-gprefs.defaults['worker_max_time'] = 0
-gprefs.defaults['show_files_after_save'] = True
-gprefs.defaults['auto_add_path'] = None
-gprefs.defaults['auto_add_check_for_duplicates'] = False
-gprefs.defaults['blocked_auto_formats'] = []
-gprefs.defaults['auto_add_auto_convert'] = True
-gprefs.defaults['ui_style'] = 'calibre' if iswindows or isosx else 'system'
-gprefs.defaults['tag_browser_old_look'] = False
-gprefs.defaults['book_list_tooltips'] = True
-gprefs.defaults['bd_show_cover'] = True
-gprefs.defaults['bd_overlay_cover_size'] = False
-gprefs.defaults['tags_browser_category_icons'] = {}
+defs['show_splash_screen'] = True
+defs['toolbar_icon_size'] = 'medium'
+defs['automerge'] = 'ignore'
+defs['toolbar_text'] = 'always'
+defs['font'] = None
+defs['tags_browser_partition_method'] = 'first letter'
+defs['tags_browser_collapse_at'] = 100
+defs['tag_browser_dont_collapse'] = []
+defs['edit_metadata_single_layout'] = 'default'
+defs['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
+defs['preserve_date_on_ctl'] = True
+defs['manual_add_auto_convert'] = False
+defs['cb_fullscreen'] = False
+defs['worker_max_time'] = 0
+defs['show_files_after_save'] = True
+defs['auto_add_path'] = None
+defs['auto_add_check_for_duplicates'] = False
+defs['blocked_auto_formats'] = []
+defs['auto_add_auto_convert'] = True
+defs['ui_style'] = 'calibre' if iswindows or isosx else 'system'
+defs['tag_browser_old_look'] = False
+defs['book_list_tooltips'] = True
+defs['bd_show_cover'] = True
+defs['bd_overlay_cover_size'] = False
+defs['tags_browser_category_icons'] = {}
+defs['cover_browser_reflections'] = True
+defs['extra_row_spacing'] = 0
+defs['many_libraries'] = False
+del defs
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models

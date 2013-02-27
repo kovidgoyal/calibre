@@ -15,7 +15,7 @@ class IREXDR1000(USBMS):
     name           = 'IRex Digital Reader 1000 Device Interface'
     description    = _('Communicate with the IRex Digital Reader 1000 eBook ' \
         'reader.')
-    author         = _('John Schember')
+    author         = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats

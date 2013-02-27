@@ -29,6 +29,10 @@ class PagedDisplay
         this.current_page_height = null
         this.document_margins = null
         this.use_document_margins = false
+        this.footer_template = null
+        this.header_template = null
+        this.header = null
+        this.footer = null
 
     read_document_margins: () ->
         # Read page margins from the document. First checks for an @page rule.
@@ -71,6 +75,13 @@ class PagedDisplay
             this.margin_side = margin_side
             this.margin_bottom = margin_bottom
 
+    handle_rtl_body: (body_style) ->
+        if body_style.direction == "rtl"
+            for node in document.body.childNodes
+                if node.nodeType == node.ELEMENT_NODE and window.getComputedStyle(node).direction == "rtl"
+                    node.style.setProperty("direction", "rtl")
+            document.body.style.direction = "ltr"
+
     layout: (is_single_page=false) ->
         # start_time = new Date().getTime()
         body_style = window.getComputedStyle(document.body)
@@ -80,6 +91,7 @@ class PagedDisplay
             # Check if the current document is a full screen layout like
             # cover, if so we treat it specially.
             single_screen = (document.body.scrollHeight < window.innerHeight + 75)
+            this.handle_rtl_body(body_style)
             first_layout = true
 
         ww = window.innerWidth
@@ -102,6 +114,7 @@ class PagedDisplay
             # than max_col_width
             sm += Math.ceil( (col_width - this.max_col_width) / 2*n )
             col_width = Math.max(100, ((ww - adjust)/n) - 2*sm)
+        this.col_width = col_width
         this.page_width = col_width + 2*sm
         this.screen_width = this.page_width * this.cols_per_screen
         this.current_page_height = window.innerHeight - this.margin_top - this.margin_bottom
@@ -170,6 +183,30 @@ class PagedDisplay
         this.current_margin_side = sm
         # log('Time to layout:', new Date().getTime() - start_time)
         return sm
+
+    create_header_footer: () ->
+        if this.header_template != null
+            this.header = document.createElement('div')
+            this.header.setAttribute('style', "overflow:hidden; display:block; position:absolute; left:#{ this.side_margin }px; top: 0px; height: #{ this.margin_top }px; width: #{ this.col_width }px; margin: 0; padding: 0")
+            document.body.appendChild(this.header)
+        if this.footer_template != null
+            this.footer = document.createElement('div')
+            this.footer.setAttribute('style', "overflow:hidden; display:block; position:absolute; left:#{ this.side_margin }px; top: #{ window.innerHeight - this.margin_bottom }px; height: #{ this.margin_bottom }px; width: #{ this.col_width }px; margin: 0; padding: 0")
+            document.body.appendChild(this.footer)
+        this.update_header_footer(1)
+
+    position_header_footer: () ->
+        [left, top] = calibre_utils.viewport_to_document(0, 0, document.body.ownerDocument)
+        if this.header != null
+            this.header.style.setProperty('left', left+'px')
+        if this.footer != null
+            this.footer.style.setProperty('left', left+'px')
+
+    update_header_footer: (pagenum) ->
+        if this.header != null
+            this.header.innerHTML = this.header_template.replace(/_PAGENUM_/g, pagenum+"")
+        if this.footer != null
+            this.footer.innerHTML = this.footer_template.replace(/_PAGENUM_/g, pagenum+"")
 
     fit_images: () ->
         # Ensure no images are wider than the available width in a column. Note
@@ -373,7 +410,22 @@ class PagedDisplay
         elem.scrollIntoView()
         if this.in_paged_mode
             # Ensure we are scrolled to the column containing elem
-            this.scroll_to_xpos(calibre_utils.absleft(elem) + 5)
+
+            # Because of a bug in WebKit's getBoundingClientRect() in column
+            # mode, this position can be inaccurate, see
+            # https://bugs.launchpad.net/calibre/+bug/1132641 for a test case.
+            # The usual symptom of the inaccuracy is br.top is highly negative.
+            br = elem.getBoundingClientRect()
+            if br.top < -1000
+                # This only works because of the preceding call to
+                # elem.scrollIntoView(). However, in some cases it gives
+                # inaccurate results, so we prefer the bounding client rect,
+                # when possible.
+                left = elem.scrollLeft
+            else
+                left = br.left
+            this.scroll_to_xpos(calibre_utils.viewport_to_document(
+                left+this.margin_side, elem.scrollTop, elem.ownerDocument)[0])
 
     snap_to_selection: () ->
         # Ensure that the viewport is positioned at the start of the column

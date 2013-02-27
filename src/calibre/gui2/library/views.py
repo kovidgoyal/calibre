@@ -528,11 +528,16 @@ class BooksView(QTableView): # {{{
 
         self.was_restored = True
 
+    def refresh_row_sizing(self):
+        self.row_sizing_done = False
+        self.do_row_sizing()
+
     def do_row_sizing(self):
         # Resize all rows to have the correct height
         if not self.row_sizing_done and self.model().rowCount(QModelIndex()) > 0:
             self.resizeRowToContents(0)
-            self.verticalHeader().setDefaultSectionSize(self.rowHeight(0))
+            self.verticalHeader().setDefaultSectionSize(self.rowHeight(0) +
+                                            gprefs['extra_row_spacing'])
             self.row_sizing_done = True
 
     def resize_column_to_fit(self, column):

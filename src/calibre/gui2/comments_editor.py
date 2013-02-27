@@ -327,6 +327,13 @@ class EditorWidget(QWebView): # {{{
         else:
             return QWebView.keyReleaseEvent(self, ev)
 
+    def contextMenuEvent(self, ev):
+        menu = self.page().createStandardContextMenu()
+        paste = self.pageAction(QWebPage.Paste)
+        for action in menu.actions():
+            if action == paste:
+                menu.insertAction(action, self.pageAction(QWebPage.PasteAndMatchStyle))
+        menu.exec_(ev.globalPos())
 
 # }}}
 

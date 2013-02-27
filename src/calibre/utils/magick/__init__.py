@@ -200,6 +200,9 @@ class Image(_magick.Image): # {{{
             raise ValueError('left and/or top out of bounds')
         _magick.Image.compose(self, img, int(left), int(top), op)
 
+    def compare(self, img, metric='RootMeanSquaredErrorMetric'):
+        return _magick.Image.compare(self, img, getattr(_magick, metric))
+
     def font_metrics(self, drawing_wand, text):
         if isinstance(text, unicode):
             text = text.encode('UTF-8')

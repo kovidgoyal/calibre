@@ -1,0 +1,17 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+class BadaniaNet(BasicNewsRecipe):
+    title          = u'badania.net'
+    __author__ = 'fenuks'
+    description   = u'chcesz wiedzieć więcej?'
+    category       = 'science'
+    language       = 'pl'
+    cover_url = 'http://badania.net/wp-content/badanianet_green_transparent.png'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    use_embedded_content = False
+    remove_tags = [dict(attrs={'class':['omc-flex-category', 'omc-comment-count', 'omc-single-tags']})]
+    remove_tags_after = dict(attrs={'class':'omc-single-tags'})
+    keep_only_tags = [dict(id='omc-full-article')]
+    feeds          = [(u'Psychologia', u'http://badania.net/category/psychologia/feed/'), (u'Technologie', u'http://badania.net/category/technologie/feed/'), (u'Biologia', u'http://badania.net/category/biologia/feed/'), (u'Chemia', u'http://badania.net/category/chemia/feed/'), (u'Zdrowie', u'http://badania.net/category/zdrowie/'), (u'Seks', u'http://badania.net/category/psychologia-ewolucyjna-tematyka-seks/feed/')]

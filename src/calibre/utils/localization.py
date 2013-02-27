@@ -173,6 +173,7 @@ _extra_lang_codes = {
         'es_PY' : _('Spanish (Paraguay)'),
         'es_UY' : _('Spanish (Uruguay)'),
         'es_AR' : _('Spanish (Argentina)'),
+        'es_CR' : _('Spanish (Costa Rica)'),
         'es_MX' : _('Spanish (Mexico)'),
         'es_CU' : _('Spanish (Cuba)'),
         'es_CL' : _('Spanish (Chile)'),
@@ -200,6 +201,9 @@ if False:
     _('am')
     # NOTE: Post Meridian (i.e. like 10:00 pm)
     _('pm')
+    _('&Copy')
+    _('Select All')
+    _('Copy &Link location')
 
 _lcase_map = {}
 for k in _extra_lang_codes:

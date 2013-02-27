@@ -11,7 +11,7 @@ import os, tempfile, time
 from Queue import Queue, Empty
 from threading import Event
 
-from calibre.customize.ui import metadata_plugins
+from calibre.customize.ui import all_metadata_plugins
 from calibre import prints, sanitize_file_name2
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import (create_log,
@@ -92,6 +92,16 @@ def comments_test(sentinel):
             return True
         prints('comments test failed. %s not in comments'%sentinel)
         return False
+    return test
+
+def pubdate_test(year, month, day):
+
+    def test(mi):
+        p = mi.pubdate
+        if p is not None and p.year == year and p.month == month and p.day == day:
+            return True
+        return False
+
     return test
 
 def init_test(tdir_name):
@@ -178,8 +188,8 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
                   test.
     '''
     plugin = None
-    for x in metadata_plugins(['identify']):
-        if x.name == name:
+    for x in all_metadata_plugins():
+        if x.name == name and 'identify' in x.capabilities:
             plugin = x
             break
     modify_plugin(plugin)

@@ -9,43 +9,43 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2011-09-27 16:56+0000\n"
-"Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
+"PO-Revision-Date: 2013-02-15 06:39+0000\n"
+"Last-Translator: baduong <Unknown>\n"
 "Language-Team: Vietnamese <gnomevi-list@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-11-26 05:44+0000\n"
-"X-Generator: Launchpad (build 14381)\n"
+"X-Launchpad-Export-Date: 2013-02-16 04:56+0000\n"
+"X-Generator: Launchpad (build 16491)\n"
 "Language: vi\n"
 
 #. name for aaa
 msgid "Ghotuo"
-msgstr ""
+msgstr "Ghotuo"
 
 #. name for aab
 msgid "Alumu-Tesu"
-msgstr ""
+msgstr "Alumu-Tesu"
 
 #. name for aac
 msgid "Ari"
-msgstr ""
+msgstr "Ari"
 
 #. name for aad
 msgid "Amal"
-msgstr ""
+msgstr "Amal"
 
 #. name for aae
 msgid "Albanian; Arbëreshë"
-msgstr ""
+msgstr "An-ba-ni"
 
 #. name for aaf
 msgid "Aranadan"
-msgstr ""
+msgstr "Aranadan"
 
 #. name for aag
 msgid "Ambrak"
-msgstr ""
+msgstr "Ambrak"
 
 #. name for aah
 msgid "Arapesh; Abu'"
@@ -30817,7 +30817,7 @@ msgstr ""
 
 #. name for zxx
 msgid "No linguistic content"
-msgstr ""
+msgstr "Không có nội dung kiểu ngôn ngữ"
 
 #. name for zyb
 msgid "Zhuang; Yongbei"
@@ -30829,11 +30829,11 @@ msgstr ""
 
 #. name for zyj
 msgid "Zhuang; Youjiang"
-msgstr ""
+msgstr "Zhuang; Youjiang"
 
 #. name for zyn
 msgid "Zhuang; Yongnan"
-msgstr ""
+msgstr "Zhuang; Yongnan"
 
 #. name for zyp
 msgid "Zyphe"

@@ -146,7 +146,7 @@ class MergeMetadata(object):
                     return item.id
                 self.remove_old_cover(item)
             elif not cdata:
-                id = self.oeb.manifest.generate(id='cover')
+                id = self.oeb.manifest.generate(id='cover')[0]
                 self.oeb.manifest.add(id, old_cover.href, 'image/jpeg')
                 return id
         if cdata:

@@ -34,7 +34,7 @@ from calibre import isbytestring
 from calibre.utils.filenames import (ascii_filename, samefile,
         WindowsAtomicFolderMove, hardlink_file)
 from calibre.utils.date import (utcnow, now as nowf, utcfromtimestamp,
-        parse_only_date, UNDEFINED_DATE)
+        parse_only_date, UNDEFINED_DATE, parse_date)
 from calibre.utils.config import prefs, tweaks, from_json, to_json
 from calibre.utils.icu import sort_key, strcmp, lower
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
@@ -211,6 +211,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
         defs['column_color_rules'] = []
+        defs['column_icon_rules'] = []
         defs['grouped_search_make_user_categories'] = []
         defs['similar_authors_search_key'] = 'authors'
         defs['similar_authors_match_kind'] = 'match_any'
@@ -1133,6 +1134,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             base_path = os.path.join(self.library_path, self.path(id,
                 index_is_id=True))
             self.dirtied([id])
+            if not os.path.exists(base_path):
+                os.makedirs(base_path)
 
         path = os.path.join(base_path, 'cover.jpg')
 
@@ -1881,7 +1884,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # icon_map is not None if get_categories is to store an icon and
             # possibly a tooltip in the tag structure.
             icon = None
-            tooltip = '(' + category + ')'
             label = tb_cats.key_to_label(category)
             if icon_map:
                 if not tb_cats.is_custom_field(category):
@@ -1932,10 +1934,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 use_sort_as_name = True
             else:
                 use_sort_as_name = False
-            is_editable = category not in ['news', 'rating', 'languages']
+            is_editable = (category not in ['news', 'rating', 'languages'] and
+                                datatype != "composite")
             categories[category] = [tag_class(formatter(r.n), count=r.c, id=r.id,
                                         avg=avgr(r), sort=r.s, icon=icon,
-                                        tooltip=tooltip, category=category,
+                                        category=category,
                                         id_set=r.id_set, is_editable=is_editable,
                                         use_sort_as_name=use_sort_as_name)
                                     for r in items]
@@ -2564,6 +2567,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_timestamp(self, id, dt, notify=True, commit=True):
         if dt:
+            if isinstance(dt, (unicode, bytes)):
+                dt = parse_date(dt, as_utc=True, assume_utc=False)
             self.conn.execute('UPDATE books SET timestamp=? WHERE id=?', (dt, id))
             self.data.set(id, self.FIELD_MAP['timestamp'], dt, row_is_id=True)
             self.dirtied([id], commit=False)
@@ -3738,7 +3743,7 @@ books_series_link      feeds
                 if not ext:
                     continue
                 ext = ext[1:].lower()
-                if ext not in BOOK_EXTENSIONS and ext != 'opf':
+                if ext not in BOOK_EXTENSIONS:
                     continue
 
                 key = os.path.splitext(path)[0]

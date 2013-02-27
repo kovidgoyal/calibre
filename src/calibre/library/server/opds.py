@@ -594,7 +594,7 @@ class OPDSServer(object):
             meta = category_meta.get(category, None)
             if meta is None:
                 continue
-            if category_meta.is_custom_field(category) and \
+            if category_meta.is_ignorable_field(category) and \
                                 category not in custom_fields_to_display(self.db):
                 continue
             cats.append((meta['name'], meta['name'], 'N'+category))

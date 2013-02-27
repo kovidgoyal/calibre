@@ -198,6 +198,7 @@ class NookColor(Nook):
 class NookTablet(NookColor):
     id = 'nook_tablet'
     name = 'Nook Tablet/HD'
+    output_profile = 'nook_hd_plus'
 
 class CybookG3(Device):
 
@@ -254,17 +255,11 @@ class PocketBookPro912(PocketBook):
 
 class iPhone(Device):
 
-    name = 'iPhone/iTouch'
+    name = 'iPhone/iPad/iPod Touch'
     output_format = 'EPUB'
     manufacturer = 'Apple'
     id = 'iphone'
     supports_color = True
-    output_profile = 'ipad'
-
-class iPad(iPhone):
-
-    name = 'iPad'
-    id = 'ipad'
     output_profile = 'ipad3'
 
 class Android(Device):

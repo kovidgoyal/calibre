@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import traceback, os, sys, functools, collections, textwrap
+import traceback, os, sys, functools, textwrap
 from functools import partial
 from threading import Thread
 
@@ -48,39 +48,57 @@ class Worker(Thread):
             self.exception = err
             self.traceback = traceback.format_exc()
 
-class History(collections.deque):
+class History(list):
 
     def __init__(self, action_back, action_forward):
         self.action_back = action_back
         self.action_forward = action_forward
-        collections.deque.__init__(self)
-        self.pos = 0
+        super(History, self).__init__(self)
+        self.insert_pos = 0
+        self.back_pos = None
+        self.forward_pos = None
         self.set_actions()
 
     def set_actions(self):
-        self.action_back.setDisabled(self.pos < 1)
-        self.action_forward.setDisabled(self.pos + 1 >= len(self))
+        self.action_back.setDisabled(self.back_pos is None)
+        self.action_forward.setDisabled(self.forward_pos is None)
 
     def back(self, from_pos):
-        if self.pos - 1 < 0: return None
-        if self.pos == len(self):
-            self.append([])
-        self[self.pos] = from_pos
-        self.pos -= 1
+        # Back clicked
+        if self.back_pos is None:
+            return None
+        item = self[self.back_pos]
+        self.forward_pos = self.back_pos+1
+        if self.forward_pos >= len(self):
+            self.append(from_pos)
+            self.forward_pos = len(self) - 1
+        self.insert_pos = self.forward_pos
+        self.back_pos = None if self.back_pos == 0 else self.back_pos - 1
         self.set_actions()
-        return self[self.pos]
+        return item
 
-    def forward(self):
-        if self.pos + 1 >= len(self): return None
-        self.pos += 1
+    def forward(self, from_pos):
+        if self.forward_pos is None:
+            return None
+        item = self[self.forward_pos]
+        self.back_pos = self.forward_pos - 1
+        if self.back_pos < 0: self.back_pos = None
+        self.insert_pos = self.back_pos or 0
+        self.forward_pos = None if self.forward_pos > len(self) - 2 else self.forward_pos + 1
         self.set_actions()
-        return self[self.pos]
+        return item
 
     def add(self, item):
-        while len(self) > self.pos+1:
-            self.pop()
-        self.append(item)
-        self.pos += 1
+        self[self.insert_pos:] = []
+        while self.insert_pos > 0 and self[self.insert_pos-1] == item:
+            self.insert_pos -= 1
+            self[self.insert_pos:] = []
+        self.insert(self.insert_pos, item)
+        # The next back must go to item
+        self.back_pos = self.insert_pos
+        self.insert_pos += 1
+        # There can be no forward
+        self.forward_pos = None
         self.set_actions()
 
 class Metadata(QLabel):
@@ -236,6 +254,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_copy.triggered[bool].connect(self.copy)
         self.action_font_size_larger.triggered.connect(self.font_size_larger)
         self.action_font_size_smaller.triggered.connect(self.font_size_smaller)
+        self.action_font_size_larger.setShortcut(Qt.CTRL+Qt.Key_Equal)
+        self.action_font_size_smaller.setShortcut(Qt.CTRL+Qt.Key_Minus)
         self.action_open_ebook.triggered[bool].connect(self.open_ebook)
         self.action_next_page.triggered.connect(self.view.next_page)
         self.action_previous_page.triggered.connect(self.view.previous_page)
@@ -663,7 +683,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.goto_page(num)
 
     def forward(self, x):
-        pos = self.history.forward()
+        pos = self.history.forward(self.pos.value())
         if pos is not None:
             self.goto_page(pos)
 
@@ -705,11 +725,15 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view.shrink_fonts()
 
     def magnification_changed(self, val):
-        tt = _('%(which)s font size\nCurrent magnification: %(mag).1f')
+        tt = '%(action)s [%(sc)s]\n'+_('Current magnification: %(mag).1f')
+        sc = unicode(self.action_font_size_larger.shortcut().toString())
         self.action_font_size_larger.setToolTip(
-                tt %dict(which=_('Increase'), mag=val))
+                tt %dict(action=unicode(self.action_font_size_larger.text()),
+                         mag=val, sc=sc))
+        sc = unicode(self.action_font_size_smaller.shortcut().toString())
         self.action_font_size_smaller.setToolTip(
-                tt %dict(which=_('Decrease'), mag=val))
+                tt %dict(action=unicode(self.action_font_size_smaller.text()),
+                         mag=val, sc=sc))
         self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
         self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
 

@@ -1,2 +1,0 @@
-winfonts.exe : winfonts.cpp
-	cl.exe /nologo /Ox /MD /W3 /EHsc winfonts.cpp

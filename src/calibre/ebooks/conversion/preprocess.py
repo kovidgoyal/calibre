@@ -62,6 +62,26 @@ def wrap_lines(match):
     else:
         return ital+' '
 
+def smarten_punctuation(html, log):
+    from calibre.utils.smartypants import smartyPants
+    from calibre.ebooks.chardet import substitute_entites
+    from calibre.ebooks.conversion.utils import HeuristicProcessor
+    preprocessor = HeuristicProcessor(log=log)
+    from uuid import uuid4
+    start = 'calibre-smartypants-'+str(uuid4())
+    stop = 'calibre-smartypants-'+str(uuid4())
+    html = html.replace('<!--', start)
+    html = html.replace('-->', stop)
+    html = preprocessor.fix_nbsp_indents(html)
+    html = smartyPants(html)
+    html = html.replace(start, '<!--')
+    html = html.replace(stop, '-->')
+    # convert ellipsis to entities to prevent wrapping
+    html = re.sub(r'(?u)(?<=\w)\s?(\.\s?){2}\.', '&hellip;', html)
+    # convert double dashes to em-dash
+    html = re.sub(r'\s--\s', u'\u2014', html)
+    return substitute_entites(html)
+
 class DocAnalysis(object):
     '''
     Provides various text analysis functions to determine how the document is structured.
@@ -626,7 +646,10 @@ class HTMLPreProcessor(object):
 
         if getattr(self.extra_opts, 'asciiize', False):
             from calibre.utils.localization import get_udc
+            from calibre.utils.mreplace import MReplace
             unihandecoder = get_udc()
+            mr = MReplace(data={u'«':u'&lt;'*3, u'»':u'&gt;'*3})
+            html = mr.mreplace(html)
             html = unihandecoder.decode(html)
 
         if getattr(self.extra_opts, 'enable_heuristics', False):
@@ -635,7 +658,7 @@ class HTMLPreProcessor(object):
             html = preprocessor(html)
 
         if getattr(self.extra_opts, 'smarten_punctuation', False):
-            html = self.smarten_punctuation(html)
+            html = smarten_punctuation(html, self.log)
 
         try:
             unsupported_unicode_chars = self.extra_opts.output_profile.unsupported_unicode_chars
@@ -650,23 +673,4 @@ class HTMLPreProcessor(object):
 
         return html
 
-    def smarten_punctuation(self, html):
-        from calibre.utils.smartypants import smartyPants
-        from calibre.ebooks.chardet import substitute_entites
-        from calibre.ebooks.conversion.utils import HeuristicProcessor
-        preprocessor = HeuristicProcessor(self.extra_opts, self.log)
-        from uuid import uuid4
-        start = 'calibre-smartypants-'+str(uuid4())
-        stop = 'calibre-smartypants-'+str(uuid4())
-        html = html.replace('<!--', start)
-        html = html.replace('-->', stop)
-        html = preprocessor.fix_nbsp_indents(html)
-        html = smartyPants(html)
-        html = html.replace(start, '<!--')
-        html = html.replace(stop, '-->')
-        # convert ellipsis to entities to prevent wrapping
-        html = re.sub(r'(?u)(?<=\w)\s?(\.\s?){2}\.', '&hellip;', html)
-        # convert double dashes to em-dash
-        html = re.sub(r'\s--\s', u'\u2014', html)
-        return substitute_entites(html)
 

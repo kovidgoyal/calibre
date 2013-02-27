@@ -158,13 +158,23 @@ My device is not being detected by |app|?
 
 Follow these steps to find the problem:
 
-    * Make sure that you are connecting only a single device to your computer at a time. Do not have another |app| supported device like an iPhone/iPad etc. at the same time.
-    * If you are connecting an Apple iDevice (iPad, iPod Touch, iPhone), use the 'Connect to iTunes' method in the 'Getting started' instructions in `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
-    * Make sure you are running the latest version of |app|. The latest version can always be downloaded from `the calibre website <http://calibre-ebook.com/download>`_.
-    * Ensure your operating system is seeing the device. That is, the device should show up in Windows Explorer (in Windows) or Finder (in OS X).
+    * Make sure that you are connecting only a single device to your computer
+      at a time. Do not have another |app| supported device like an iPhone/iPad
+      etc. at the same time.
+    * If you are connecting an Apple iDevice (iPad, iPod Touch, iPhone), use
+      the 'Connect to iTunes' method in the 'Getting started' instructions in
+      `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
+    * Make sure you are running the latest version of |app|. The latest version
+      can always be downloaded from `the calibre website <http://calibre-ebook.com/download>`_.
+      You can tell what version of |app| you are currently running by looking
+      at the bottom line of the main |app| window.
+    * Ensure your operating system is seeing the device. That is, the device
+      should show up in Windows Explorer (in Windows) or Finder (in OS X).
     * In |app|, go to Preferences->Ignored Devices and check that your device
       is not being ignored
-    * If all the above steps fail, go to Preferences->Miscellaneous and click debug device detection with your device attached and post the output as a ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
+    * If all the above steps fail, go to Preferences->Miscellaneous and click
+      debug device detection with your device attached and post the output as a
+      ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
 
 My device is non-standard or unusual. What can I do to connect to it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -240,42 +250,71 @@ If you don't want to uninstall it altogether, there are a couple of tricks you c
 simplest is to simply re-name the executable file that launches the library program. More detail
 `in the forums <http://www.mobileread.com/forums/showthread.php?t=65809>`_.
 
-How do I use |app| with my iPad/iPhone/iTouch?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How do I use |app| with my iPad/iPhone/iPod touch?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Over the air
 ^^^^^^^^^^^^^^
 
-The easiest way to browse your |app| collection on your Apple device (iPad/iPhone/iPod) is by using the calibre content server, which makes your collection available over the net. First perform the following steps in |app|
+The easiest way to browse your |app| collection on your Apple device
+(iPad/iPhone/iPod) is by using the |app| content server, which makes your
+collection available over the net. First perform the following steps in |app|
 
-  * Set the Preferred Output Format in |app| to EPUB (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
-  * Set the output profile to iPad (this will work for iPhone/iPods as well), under :guilabel:`Preferences->Conversion->Common Options->Page Setup`
-  * Convert the books you want to read on your iPhone to EPUB format by selecting them and clicking the Convert button.
-  * Turn on the Content Server in |app|'s preferences and leave |app| running.
+  * Set the Preferred Output Format in |app| to EPUB (The output format can be
+    set under :guilabel:`Preferences->Interface->Behavior`)
+  * Set the output profile to iPad (this will work for iPhone/iPods as well),
+    under :guilabel:`Preferences->Conversion->Common Options->Page Setup`
+  * Convert the books you want to read on your iDevice to EPUB format by
+    selecting them and clicking the Convert button.
+  * Turn on the Content Server by clicking the :guilabel:`Connect/Share` button
+    and leave |app| running. You can also tell |app| to automatically start the
+    content server via :guilabel:`Preferences->Sharing over the net`.
 
-Now on your iPad/iPhone you have two choices, use either iBooks (version 1.2 and later) or Stanza (version 3.0 and later). Both are available free from the app store.
+There are many apps for your iDevice that can connect to |app|. Here we
+describe using two of them, iBooks and Stanza.
 
 Using Stanza
 ***************
 
-Now you should be able to access your books on your iPhone by opening Stanza. Go to "Get Books" and then click the "Shared" tab. Under Shared you will see an entry "Books in calibre". If you don't, make sure your iPad/iPhone is connected using the WiFi network in your house, not 3G. If the |app| catalog is still not detected in Stanza, you can add it manually in Stanza. To do this, click the "Shared" tab, then click the "Edit" button and then click "Add book source" to add a new book source. In the Add Book Source screen enter whatever name you like and in the URL field, enter the following::
+You should be able to access your books on your iPhone by opening Stanza. Go to
+"Get Books" and then click the "Shared" tab. Under Shared you will see an entry
+"Books in calibre". If you don't, make sure your iPad/iPhone is connected using
+the WiFi network in your house, not 3G. If the |app| catalog is still not
+detected in Stanza, you can add it manually in Stanza. To do this, click the
+"Shared" tab, then click the "Edit" button and then click "Add book source" to
+add a new book source. In the Add Book Source screen enter whatever name you
+like and in the URL field, enter the following::
 
     http://192.168.1.2:8080/
 
-Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port. The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address.   Now click "Save" and you are done.
+Replace ``192.168.1.2`` with the local IP address of the computer running
+|app|. If you have changed the port the |app| content server is running on, you
+will have to change ``8080`` as well to the new port. The local IP address is
+the IP address you computer is assigned on your home network. A quick Google
+search will tell you how to find out your local IP address.   Now click "Save"
+and you are done.
 
-If you get timeout errors while browsing the calibre catalog in Stanza, try increasing the connection timeout value in the stanza settings. Go to Info->Settings and increase the value of Download Timeout.
+If you get timeout errors while browsing the calibre catalog in Stanza, try
+increasing the connection timeout value in the stanza settings. Go to
+Info->Settings and increase the value of Download Timeout.
 
 Using iBooks
 **************
 
-Start the Safari browser and type in the IP address and port of the computer running the calibre server, like this::
+Start the Safari browser and type in the IP address and port of the computer
+running the calibre server, like this::
 
     http://192.168.1.2:8080/
 
-Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port. The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address.
+Replace ``192.168.1.2`` with the local IP address of the computer running
+|app|. If you have changed the port the |app| content server is running on, you
+will have to change ``8080`` as well to the new port. The local IP address is
+the IP address you computer is assigned on your home network. A quick Google
+search will tell you how to find out your local IP address.
 
-You will see a list of books in Safari, just click on the epub link for whichever book you want to read, Safari will then prompt you to open it with iBooks.
+You will see a list of books in Safari, just click on the epub link for
+whichever book you want to read, Safari will then prompt you to open it with
+iBooks.
 
 
 With the USB cable + iTunes
@@ -540,9 +579,9 @@ Yes, you can. Follow the instructions in the answer above for adding custom colu
 
 How do I move my |app| library from one computer to another?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking the calibre icon in the toolbar. The very first item is the path to the library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder. If the computer you are transferring to already has a calibre installation, then the Welcome wizard wont run. In that case, click the calibre icon in the tooolbar and point it to the newly copied directory. You will now have two calibre libraries on your computer and you can switch between them by clicking the calibre icon on the toolbar.
+Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking the calibre icon in the toolbar. The very first item is the path to the library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder. If the computer you are transferring to already has a calibre installation, then the Welcome wizard wont run. In that case, right-click the |app| icon in the tooolbar and point it to the newly copied directory. You will now have two calibre libraries on your computer and you can switch between them by clicking the |app| icon on the toolbar. Transferring your library in this manner preserver all your metadata, tags, custom columns, etc.
 
-Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also right-click the calibre icon on the tool bar, select Library Maintenance and run the Check Library action. It will warn you about any problems in your library, which you should fix by hand.
+Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also right-click the |app| icon on the tool bar, select Library Maintenance and run the Check Library action. It will warn you about any problems in your library, which you should fix by hand.
 
 .. note:: A |app| library is just a folder which contains all the book files and their metadata. All the metadata is stored in a single file called metadata.db, in the top level folder. If this file gets corrupted, you may see an empty list of books in |app|. In this case you can ask |app| to restore your books by doing a right-click on the |app| icon in the toolbar and selecting Library Maintenance->Restore Library.
 
@@ -577,7 +616,10 @@ or a Remote Desktop solution.
 If you must share the actual library, use a file syncing tool like
 DropBox or rsync or Microsoft SkyDrive instead of a networked drive. Even with
 these tools there is danger of data corruption/loss, so only do this if you are
-willing to live with that risk.
+willing to live with that risk. In particular, be aware that **Google Drive**
+is incompatible with |app|, if you put your |app| library in Google Drive, you
+*will* suffer data loss. See
+`this thread <http://www.mobileread.com/forums/showthread.php?t=205581>`_ for details.
 
 Content From The Web
 ---------------------
@@ -653,17 +695,13 @@ Post any output you see in a help message on the `Forum <http://www.mobileread.c
 |app| freezes/crashes occasionally?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are three possible things I know of, that can cause this:
+There are several possible things I know of, that can cause this:
 
     * You recently connected an external monitor or TV to your computer. In
       this case, whenever |app| opens a new window like the edit metadata
       window or the conversion dialog, it appears on the second monitor where
       you dont notice it and so you think |app| has frozen. Disconnect your
       second monitor and restart calibre.
-
-    * You are using a Wacom branded mouse. There is an incompatibility between
-      Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom
-      mouse.
 
     * If you use RoboForm, it is known to cause |app| to crash. Add |app| to
       the blacklist of programs inside RoboForm to fix this. Or uninstall
@@ -672,8 +710,22 @@ There are three possible things I know of, that can cause this:
     * The Logitech SetPoint Settings application causes random crashes in
       |app| when it is open. Close it before starting |app|.
 
+    * Constant Guard Protection by Xfinity causes crashes in |app|. You have to
+      manually allow |app| in it or uninstall Constant Guard Protection.
+
+    * Spybot - Search & Destroy blocks |app| from accessing its temporary files
+      breaking viewing and converting of books.
+
+    * You are using a Wacom branded USB mouse. There is an incompatibility between
+      Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom
+      mouse.
+
+    * On some 64 bit versions of Windows there are security software/settings
+      that prevent 64-bit |app| from working properly. If you are using the 64-bit
+      version of |app| try switching to the 32-bit version.
+
 If none of the above apply to you, then there is some other program on your
-computer that is interfering with |app|. First reboot your computer is safe
+computer that is interfering with |app|. First reboot your computer in safe
 mode, to have as few running programs as possible, and see if the crashes still
 happen. If they do not, then you know it is some program causing the problem.
 The most likely such culprit is a program that modifies other programs'
@@ -784,7 +836,7 @@ Why doesn't |app| have an automatic update?
 For many reasons:
 
   * *There is no need to update every week*. If you are happy with how |app| works turn off the update notification and be on your merry way. Check back to see if you want to update once a year or so.
-  * Pre downloading the updates for all users in the background would mean require about 80TB of bandwidth *every week*. That costs thousands of dollars a month. And |app| is currently growing at 300,000 new users every month.
+  * Pre downloading the updates for all users in the background would require about 80TB of bandwidth *every week*. That costs thousands of dollars a month. And |app| is currently growing at 300,000 new users every month.
   * If I implement a dialog that downloads the update and launches it, instead of going to the website as it does now, that would save the most ardent |app| updater, *at most five clicks a week*. There are far higher priority things to do in |app| development.
   * If you really, really hate downloading |app| every week but still want to be up to the latest, I encourage you to run from source, which makes updating trivial. Instructions are :ref:`available here <develop>`.
 

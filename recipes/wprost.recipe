@@ -10,89 +10,89 @@ from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
 class Wprost(BasicNewsRecipe):
-        EDITION = 0
-        FIND_LAST_FULL_ISSUE = True
-        EXCLUDE_LOCKED = True
-        ICO_BLOCKED = 'http://www.wprost.pl/G/layout2/ico_blocked.png'
+    EDITION = 0
+    FIND_LAST_FULL_ISSUE = True
+    EXCLUDE_LOCKED = True
+    ICO_BLOCKED = 'http://www.wprost.pl/G/layout2/ico_blocked.png'
+    title = u'Wprost'
+    __author__ = 'matek09'
+    description = 'Weekly magazine'
+    encoding = 'ISO-8859-2'
+    no_stylesheets = True
+    language = 'pl'
+    remove_javascript = True
+    recursions = 0  
+    remove_tags_before = dict(dict(name = 'div', attrs = {'id' : 'print-layer'}))
+    remove_tags_after = dict(dict(name = 'div', attrs = {'id' : 'print-layer'}))
+    '''
+    keep_only_tags =[]
+    keep_only_tags.append(dict(name = 'table', attrs = {'id' : 'title-table'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'div-header'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'div-content'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'def element-autor'}))
+    '''
 
-        title = u'Wprost'
-        __author__ = 'matek09'
-        description = 'Weekly magazine'
-        encoding = 'ISO-8859-2'
-        no_stylesheets = True
-        language = 'pl'
-        remove_javascript = True
-	recursions = 0	
-
-        remove_tags_before = dict(dict(name = 'div', attrs = {'id' : 'print-layer'}))
-        remove_tags_after = dict(dict(name = 'div', attrs = {'id' : 'print-layer'}))
-
-        '''keep_only_tags =[]
-        keep_only_tags.append(dict(name = 'table', attrs = {'id' : 'title-table'}))
-        keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'div-header'}))
-        keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'div-content'}))
-        keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'def element-autor'}))'''
-
-        preprocess_regexps = [(re.compile(r'style="display: none;"'), lambda match: ''),
+    preprocess_regexps = [(re.compile(r'style="display: none;"'), lambda match: ''),
         (re.compile(r'display: block;'), lambda match: ''),
         (re.compile(r'\<td\>\<tr\>\<\/table\>'), lambda match: ''),
         (re.compile(r'\<table .*?\>'), lambda match: ''),
         (re.compile(r'\<tr>'), lambda match: ''),
         (re.compile(r'\<td .*?\>'), lambda match: ''),
-	(re.compile(r'\<div id="footer"\>.*?\</footer\>'), lambda match: '')]
+        (re.compile(r'\<div id="footer"\>.*?\</footer\>'), lambda match: '')]
 
-        remove_tags =[]
-        remove_tags.append(dict(name = 'div', attrs = {'class' : 'def element-date'}))
-        remove_tags.append(dict(name = 'div', attrs = {'class' : 'def silver'}))
-        remove_tags.append(dict(name = 'div', attrs = {'id' : 'content-main-column-right'}))
-
-
-        extra_css = '''
-                                        .div-header {font-size: x-small; font-weight: bold}
-                                        '''
-#h2 {font-size: x-large; font-weight: bold}
-        def is_blocked(self, a):
-                if a.findNextSibling('img') is None:
-                        return False
-                else:
-                        return True
+    remove_tags =[]
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'def element-date'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'def silver'}))
+    remove_tags.append(dict(name = 'div', attrs = {'id' : 'content-main-column-right'}))
 
 
+    extra_css = '''.div-header {font-size: x-small; font-weight: bold}'''
+    #h2 {font-size: x-large; font-weight: bold}
+    def is_blocked(self, a):
+        if a.findNextSibling('img') is None:
+            return False
+        else:
+            return True
 
-        def find_last_issue(self):
-                soup = self.index_to_soup('http://www.wprost.pl/archiwum/')
-                a = 0
-                if self.FIND_LAST_FULL_ISSUE:
-                        ico_blocked = soup.findAll('img', attrs={'src' : self.ICO_BLOCKED})
-                        a = ico_blocked[-1].findNext('a', attrs={'title' : re.compile(r'Spis *', re.IGNORECASE | re.DOTALL)})
-                else:
-                        a = soup.find('a', attrs={'title' : re.compile(r'Spis *', re.IGNORECASE | re.DOTALL)})
-                self.EDITION = a['href'].replace('/tygodnik/?I=', '')
-		self.EDITION_SHORT = a['href'].replace('/tygodnik/?I=15', '')
-		self.cover_url = a.img['src']
 
-        def parse_index(self):
-                self.find_last_issue()
-                soup = self.index_to_soup('http://www.wprost.pl/tygodnik/?I=' + self.EDITION)
-                feeds = []
-                for main_block in soup.findAll(attrs={'id': 'content-main-column-element-content'}):
-                        articles = list(self.find_articles(main_block))
-                        if len(articles) > 0:
-                                section = self.tag_to_string(main_block.find('h3'))
-                                feeds.append((section, articles))
-                return feeds
+    def find_last_issue(self):
+        soup = self.index_to_soup('http://www.wprost.pl/archiwum/')
+        a = 0
+        if self.FIND_LAST_FULL_ISSUE:
+            ico_blocked = soup.findAll('img', attrs={'src' : self.ICO_BLOCKED})
+            a = ico_blocked[-1].findNext('a', attrs={'title' : re.compile(r'Spis *', re.IGNORECASE | re.DOTALL)})
+        else:
+            a = soup.find('a', attrs={'title' : re.compile(r'Spis *', re.IGNORECASE | re.DOTALL)})
+        self.EDITION = a['href'].replace('/tygodnik/?I=', '')
+        self.EDITION_SHORT = a['href'].replace('/tygodnik/?I=15', '')
+        self.cover_url = a.img['src']
 
-        def find_articles(self, main_block):
-                for a in main_block.findAll('a'):
-                        if a.name in "td":
-                                break
-                        if self.EXCLUDE_LOCKED & self.is_blocked(a):
-                                continue
-                        yield {
-                                'title' : self.tag_to_string(a),
-                                'url'   : 'http://www.wprost.pl' + a['href'],
-                                'date'  : '',
-                                'description' : ''
-                                }
+    def parse_index(self):
+        self.find_last_issue()
+        soup = self.index_to_soup('http://www.wprost.pl/tygodnik/?I=' + self.EDITION)
+        feeds = []
+        headers = soup.findAll(attrs={'class':'block-header block-header-left mtop20 mbottom20'})
+        articles_list = soup.findAll(attrs={'class':'standard-box'})
+        for i in range(len(headers)):
+            articles = self.find_articles(articles_list[i])
+            if len(articles) > 0:
+                section = headers[i].find('a').string
+                feeds.append((section, articles))
+        return feeds
+
+    def find_articles(self, main_block):
+        articles = []
+        for a in main_block.findAll('a'):
+            if a.name in "td":
+                break
+            if self.EXCLUDE_LOCKED and self.is_blocked(a):
+                continue
+            articles.append({
+                'title' : self.tag_to_string(a),
+                'url'   : 'http://www.wprost.pl' + a['href'],
+                'date'  : '',
+                'description' : ''
+            })
+        return articles
 
 

@@ -31,6 +31,9 @@ PARALLEL_FUNCS = {
       'gui_convert'     :
         ('calibre.gui2.convert.gui_conversion', 'gui_convert', 'notification'),
 
+      'gui_polish'     :
+        ('calibre.ebooks.oeb.polish.main', 'gui_polish', None),
+
       'gui_convert_override'     :
         ('calibre.gui2.convert.gui_conversion', 'gui_convert_override', 'notification'),
 

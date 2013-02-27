@@ -300,7 +300,8 @@ class AjaxServer(object):
             meta = category_meta.get(category, None)
             if meta is None:
                 continue
-            if meta['is_custom'] and category not in displayed_custom_fields:
+            if category_meta.is_ignorable_field(category) and \
+                        category not in displayed_custom_fields:
                 continue
             display_name = meta['name']
             if category.startswith('@'):

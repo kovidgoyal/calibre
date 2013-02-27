@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
 japantimes.co.jp
 '''
@@ -13,59 +13,41 @@ class JapanTimes(BasicNewsRecipe):
     language              = 'en_JP'
     category              = 'news, politics, japan'
     publisher             = 'The Japan Times'
-    oldest_article        = 5
+    oldest_article        = 2
     max_articles_per_feed = 150
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf8'
     publication_type      = 'newspaper'
-    masthead_url          = 'http://search.japantimes.co.jp/images/header_title.gif'
+    masthead_url          = 'http://www.japantimes.co.jp/wp-content/themes/jt_theme/library/img/logo-japan-times.png'
     extra_css             = 'body{font-family: Geneva,Arial,Helvetica,sans-serif}'
 
     conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
-                        , 'linearize_tables' : True
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
                         }
 
-
-    keep_only_tags    = [dict(name='div', attrs={'id':'printresult'})]
-    remove_tags       = [
-                          dict(name=['iframe','meta','link','embed','object','base'])
-                         ,dict(attrs={'id':'searchfooter'})
-                        ]
-    feeds             = [(u'The Japan Times', u'http://feeds.feedburner.com/japantimes')]
-    remove_attributes = ['border']
+    remove_tags_after  = dict(name='div', attrs={'class':'entry'})
+    keep_only_tags     = [dict(name='div', attrs={'class':'padding_block'})]
+    remove_tags        = [
+                           dict(name=['iframe','embed','object','base'])
+                          ,dict(attrs={'class':['meta_extras','related_articles']})
+                          ,dict(attrs={'id':'content_footer_menu'})
+                         ]
+    feeds              = [
+                            (u'News'     , u'http://www.japantimes.co.jp/news/feed/'     )
+                           ,(u'Opinion'  , u'http://www.japantimes.co.jp/opinion/feed/'  )
+                           ,(u'Life'     , u'http://www.japantimes.co.jp/opinion/feed/'  )
+                           ,(u'Community', u'http://www.japantimes.co.jp/community/feed/')
+                           ,(u'Culture'  , u'http://www.japantimes.co.jp/culture/feed/'  )
+                           ,(u'Sports'   , u'http://www.japantimes.co.jp/sports/feed/'   )
+                         ]
 
     def get_article_url(self, article):
         rurl = BasicNewsRecipe.get_article_url(self, article)
         return rurl.partition('?')[0]
-
-    def print_version(self, url):
-        if '/rss/' in url:
-            return url.replace('.jp/rss/','.jp/print/')
-        if '/text/' in url:
-            return url.replace('.jp/text/','.jp/print/')
-        return url
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):
-               item['alt'] = 'image'
-        for item in soup.findAll('photo'):
-            item.name = 'div'
-        for item in soup.head.findAll('paragraph'):
-            item.extract()
-        for item in soup.findAll('wwfilename'):
-            item.extract()
-        for item in soup.findAll('jtcategory'):
-            item.extract()
-        for item in soup.findAll('nomooter'):
-            item.extract()
-        for item in soup.body.findAll('paragraph'):
-            item.name = 'p'
-        return soup
+        
+    def preprocess_raw_html(self, raw, url):
+       return '<html><head>'+raw[raw.find('</head>'):]
