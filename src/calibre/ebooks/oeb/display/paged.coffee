@@ -410,7 +410,7 @@ class PagedDisplay
         elem.scrollIntoView()
         if this.in_paged_mode
             # Ensure we are scrolled to the column containing elem
-            this.scroll_to_xpos(calibre_utils.absleft(elem) + 5)
+            this.scroll_to_xpos(calibre_utils.viewport_to_document(elem.scrollLeft+this.margin_side, elem.scrollTop, elem.ownerDocument)[0])
 
     snap_to_selection: () ->
         # Ensure that the viewport is positioned at the start of the column
