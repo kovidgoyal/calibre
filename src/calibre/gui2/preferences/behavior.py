@@ -60,7 +60,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             signal.connect(self.internally_viewed_formats_changed)
 
         r('bools_are_tristate', db.prefs, restart_required=True)
-        r('many_libraries', gprefs, restart_required=True)
         r = self.register
         choices = [(_('Default'), 'default'), (_('Compact Metadata'), 'alt1'),
                    (_('All on 1 tab'), 'alt2')]

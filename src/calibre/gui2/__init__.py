@@ -110,7 +110,6 @@ defs['bd_overlay_cover_size'] = False
 defs['tags_browser_category_icons'] = {}
 defs['cover_browser_reflections'] = True
 defs['extra_row_spacing'] = 0
-defs['many_libraries'] = False
 del defs
 # }}}
 

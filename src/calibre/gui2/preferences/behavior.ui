@@ -284,18 +284,6 @@ If not checked, the values can be Yes or No.</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
-    <widget class="QCheckBox" name="opt_many_libraries">
-     <property name="toolTip">
-      <string>Optimizes the interface for use with a large number of libraries. calibre will
-now remeber unlimited numbers of libraries in its Quick Switch and Copy to Library
-menus, and the libraries will be sorted alphabetically.</string>
-     </property>
-     <property name="text">
-      <string>Optimize for use with many &amp;libraries (Requires restart)</string>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <resources>
