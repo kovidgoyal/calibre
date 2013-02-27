@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-24 04:42+0000\n"
-"PO-Revision-Date: 2013-02-26 01:42+0000\n"
-"Last-Translator: Miguel Angel del Olmo <silinio45@gmail.com>\n"
+"PO-Revision-Date: 2013-02-26 21:19+0000\n"
+"Last-Translator: dario hereñu <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-26 04:56+0000\n"
+"X-Launchpad-Export-Date: 2013-02-27 04:35+0000\n"
 "X-Generator: Launchpad (build 16506)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:540
@@ -15119,7 +15119,7 @@ msgid ""
 " The red color indicates that the current author sort does not match the "
 "current author. No action is required if this is what you want."
 msgstr ""
-" El color rojo indica que el orden de autor actual no corresponde al autor "
+" El color rojo indica que el orden de autor actual no coincide con el autor "
 "actual. No es necesaria ninguna acción si es esto lo que desea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:511
@@ -15220,7 +15220,7 @@ msgstr "No se pudo cambiar la portada porque la imagen no es válida."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1160
 msgid "Tags changed"
-msgstr "Tags Cambiadas"
+msgstr "Etiquetas modificadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1161
 msgid ""
@@ -15641,8 +15641,6 @@ msgstr "No se encontró ninguna portada para <b>%s</b>"
 #, python-format
 msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
 msgstr ""
-"Se encontraron <b>%(num)d</b> portadas para %(title)s. Escoja la que más le "
-"guste."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:944
 msgid "Downloading metadata..."
@@ -16134,9 +16132,9 @@ msgid ""
 "eng for English. You can also use the full language name, in which case "
 "calibre will try to automatically convert it to the language code."
 msgstr ""
-"Introduzca un código ISO de idioma de tres letras, como «fra» para francés, "
+"Ingrese el código de tres letras ISO de idioma, como «fra» para francés, "
 "«deu» para alemán o «spa» para español. También puede usar el nombre "
-"completo del idioma, en tal caso calibre intentará convertirlo "
+"completo del idioma, en tal caso, calibre intentará convertirlo "
 "automáticamente al código de idioma."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:242
@@ -16457,7 +16455,7 @@ msgstr "Enteros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:41
 msgid "Ratings, shown with stars"
-msgstr "Valoraciones, se mostrarán con estrellas"
+msgstr "Valoraciones, representadas con estrellas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:69
@@ -16836,7 +16834,7 @@ msgstr "Colores"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:24
 msgid "Getting debug information, please wait"
-msgstr "Obteniendo información de depuración, espere"
+msgstr "Obteniendo información de depuración, por favor espere:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:32
@@ -16935,7 +16933,7 @@ msgstr "Correo electrónico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:28
 msgid "Subject"
-msgstr "Tema"
+msgstr "Asunto:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:29
 msgid "Alias"
@@ -17543,7 +17541,7 @@ msgstr "&Abrir el directorio de configuración de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:80
 msgid "&Install command line tools"
-msgstr "Instalar &herramientas de línea de órdenes"
+msgstr "&Instalar las herramientas de línea de comando"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:81
 msgid "&Abort conversion jobs that take more than:"
@@ -17735,7 +17733,7 @@ msgstr "Buscar complemento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:252
 msgid "Could not find any matching plugins"
-msgstr "No se encontró ningún complemento que coincida con la búsqueda"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:294
 msgid "files"
@@ -18228,8 +18226,6 @@ msgid ""
 "The maximum size (widthxheight) for displayed covers. Larger covers are "
 "resized. "
 msgstr ""
-"El tamaño máximo (anchura × altura) con el que se mostrarán las portadas. "
-"Las portadas mayores se redimensionarán. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:152
 msgid "Max. &cover size:"
@@ -19004,19 +19000,19 @@ msgstr "Procesos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:106
 msgid "Number of search threads to use"
-msgstr "Número de procesos de búsqueda para usar"
+msgstr "Número de procesos de búsqueda a usar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:107
 msgid "Number of cache update threads to use"
-msgstr "Número de procesos de actualización de caché para usar"
+msgstr "Número de procesos de actualización de caché a usar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:108
 msgid "Number of cover download threads to use"
-msgstr "Número de procesos de descarga de portadas para usar"
+msgstr "Número de procesos de descarga de portadas a usar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:109
 msgid "Number of details threads to use"
-msgstr "Número de procesos de detalles para usar"
+msgstr "Número de procesos de detalles a usar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:222
 msgid "&Price:"
@@ -19147,7 +19143,7 @@ msgstr "&Palabra clave:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:176
 msgid "Search by any keyword"
-msgstr "Buscar cualquier palabra clave"
+msgstr "Buscar por cualquier palabra clave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:182
 msgid "Open a selected book in the system's web browser"
@@ -19482,7 +19478,7 @@ msgstr "Eliminar %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:452
 #, python-format
 msgid "Edit sort for %s"
-msgstr "Modificar orden para %s"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:455
 #, python-format
@@ -19541,7 +19537,7 @@ msgstr "Buscar libros en la categoría %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:544
 #, python-format
 msgid "Search for books not in category %s"
-msgstr "Buscar libros fuera de la categoría %s"
+msgstr "Buscar libros no en la categoría %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:554
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:559
@@ -19606,7 +19602,7 @@ msgstr "No hay formatos soportados (Formatos disponibles: %s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:111
 msgid "This book has no actual ebook files"
-msgstr "Este libro no tiene archivos reales de libro"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:242
