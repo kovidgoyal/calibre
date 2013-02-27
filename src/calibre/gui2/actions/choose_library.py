@@ -15,7 +15,7 @@ from PyQt4.Qt import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
 from calibre import isbytestring, sanitize_file_name_unicode
 from calibre.constants import (filesystem_encoding, iswindows,
         get_portable_base)
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
 from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
     question_dialog, info_dialog, open_local_file, choose_dir)
@@ -73,7 +73,7 @@ class LibraryUsageStats(object): # {{{
         locs = list(self.stats.keys())
         if lpath in locs:
             locs.remove(lpath)
-        limit = 10
+        limit = tweaks['many_libraries']
         key = sort_key if len(locs) > limit else lambda x:self.stats[x]
         locs.sort(key=key, reverse=len(locs)<=limit)
         for loc in locs:
