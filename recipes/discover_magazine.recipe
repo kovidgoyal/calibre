@@ -33,6 +33,21 @@ class DiscoverMagazine(BasicNewsRecipe):
 
     remove_tags_after = [dict(name='div', attrs={'class':'listingBar'})]
 
+    # Login stuff
+    needs_subscription = True
+    use_javascript_to_login = True
+    requires_version = (0, 9, 20)
+
+    def javascript_login(self, br, username, password):
+        br.visit('http://discovermagazine.com', timeout=120)
+        f = br.select_form('div.login.section div.form')
+        f['username'] = username
+        f['password'] = password
+        br.submit('input[id="signInButton"]', timeout=120)
+        br.run_for_a_time(20)
+    # End login stuff
+
+
     def append_page(self, soup, appendtag, position):
         pager = soup.find('span',attrs={'class':'next'})
         if pager:

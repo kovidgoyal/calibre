@@ -488,7 +488,7 @@ class PDFStream(object):
     def end(self):
         if self.current_page.getvalue():
             self.end_page()
-        self.font_manager.embed_fonts()
+        self.font_manager.embed_fonts(self.debug)
         inforef = self.objects.add(self.info)
         self.links.add_links()
         self.objects.pdf_serialize(self.stream)

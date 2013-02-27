@@ -1,0 +1,85 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
+__license__   = 'GPL v3'
+__copyright__ = '2013, Darko Miletic <darko.miletic at gmail.com>'
+
+'''
+www.pravda.rs
+'''
+
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class Pravda_rs(BasicNewsRecipe):
+    title                 = 'Dnevne novine Pravda'
+    __author__            = 'Darko Miletic'
+    description           = '24 sata portal vesti iz Srbije'
+    publisher             = 'Dnevne novine Pravda'
+    category              = 'news, politics, entertainment, Serbia'
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    encoding              = 'utf-8'
+    use_embedded_content  = False
+    language              = 'sr'
+    publication_type      = 'newspaper'
+    remove_empty_feeds    = True    
+    PREFIX                = 'http://www.pravda.rs'
+    FEEDPR                = PREFIX + '/category/'
+    LANGLAT               = '?lng=lat'
+    FEEDSU                = '/feed/' + LANGLAT
+    INDEX                 = PREFIX + LANGLAT
+    masthead_url          = 'http://www.pravda.rs/wp-content/uploads/2012/09/logoof.png'
+    extra_css             = """
+                               @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
+                               body{font-family: Georgia,"Times New Roman",Times,serif1,serif;}
+                               img{display: block}
+                            """
+
+    conversion_options = {
+                          'comment'  : description
+                        , 'tags'     : category
+                        , 'publisher': publisher
+                        , 'language' : language
+                        }
+
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+
+    keep_only_tags    = [dict(name='div', attrs={'class':'post'})]
+    remove_tags       = [dict(name='h3')]
+    remove_tags_after = dict(name='h3')
+    
+    feeds = [
+              (u'Politika' , FEEDPR + 'politika/' + FEEDSU),
+              (u'Tema Dana', FEEDPR + 'tema-dana/' + FEEDSU),
+              (u'Hronika'  , FEEDPR + 'hronika/' + FEEDSU),
+              (u'Društvo'  , FEEDPR + 'drustvo/' + FEEDSU),
+              (u'Ekonomija', FEEDPR + 'ekonomija/' + FEEDSU),
+              (u'Srbija'   , FEEDPR + 'srbija/' + FEEDSU),
+              (u'Beograd'  , FEEDPR + 'beograd/' + FEEDSU),
+              (u'Kultura'  , FEEDPR + 'kultura/' + FEEDSU),
+              (u'Zabava'   , FEEDPR + 'zabava/' + FEEDSU),
+              (u'Sport'    , FEEDPR + 'sport/' + FEEDSU),
+              (u'Svet'     , FEEDPR + 'svet/' + FEEDSU),
+              (u'Porodica' , FEEDPR + 'porodica/' + FEEDSU),
+              (u'Vremeplov', FEEDPR + 'vremeplov/' + FEEDSU),
+              (u'IT'       , FEEDPR + 'it/' + FEEDSU),
+              (u'Republika Srpska', FEEDPR + 'republika-srpska/' + FEEDSU),
+              (u'Crna Gora', FEEDPR + 'crna-gora/' + FEEDSU),
+              (u'EX YU'    , FEEDPR + 'eks-ju/' + FEEDSU),
+              (u'Dijaspora', FEEDPR + 'dijaspora/' + FEEDSU),
+              (u'Kolumna'  , FEEDPR + 'kolumna/' + FEEDSU),
+              (u'Afere'    , FEEDPR + 'afere/' + FEEDSU),
+              (u'Feljton'  , FEEDPR + 'feljton/' + FEEDSU),
+              (u'Intervju' , FEEDPR + 'intervju/' + FEEDSU),
+              (u'Reportaža', FEEDPR + 'reportaza/' + FEEDSU),
+              (u'Zanimljivosti', FEEDPR + 'zanimljivosti/' + FEEDSU),
+              (u'Sa trga'  , FEEDPR + 'sa-trga/' + FEEDSU)
+            ]
+
+    def print_version(self, url):
+        return url + self.LANGLAT
+
+    def preprocess_raw_html(self, raw, url):
+       return '<html><head><title>title</title>'+raw[raw.find('</head>'):]
+        

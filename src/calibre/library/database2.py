@@ -34,7 +34,7 @@ from calibre import isbytestring
 from calibre.utils.filenames import (ascii_filename, samefile,
         WindowsAtomicFolderMove, hardlink_file)
 from calibre.utils.date import (utcnow, now as nowf, utcfromtimestamp,
-        parse_only_date, UNDEFINED_DATE)
+        parse_only_date, UNDEFINED_DATE, parse_date)
 from calibre.utils.config import prefs, tweaks, from_json, to_json
 from calibre.utils.icu import sort_key, strcmp, lower
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
@@ -1134,6 +1134,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             base_path = os.path.join(self.library_path, self.path(id,
                 index_is_id=True))
             self.dirtied([id])
+            if not os.path.exists(base_path):
+                os.makedirs(base_path)
 
         path = os.path.join(base_path, 'cover.jpg')
 
@@ -2565,6 +2567,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_timestamp(self, id, dt, notify=True, commit=True):
         if dt:
+            if isinstance(dt, (unicode, bytes)):
+                dt = parse_date(dt, as_utc=True, assume_utc=False)
             self.conn.execute('UPDATE books SET timestamp=? WHERE id=?', (dt, id))
             self.data.set(id, self.FIELD_MAP['timestamp'], dt, row_is_id=True)
             self.dirtied([id], commit=False)

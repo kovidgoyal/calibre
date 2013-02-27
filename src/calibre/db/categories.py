@@ -12,6 +12,7 @@ from functools import partial
 from operator import attrgetter
 from future_builtins import map
 
+from calibre.ebooks.metadata import author_to_author_sort
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
@@ -149,8 +150,16 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
         elif category == 'news':
             cats = dbcache.fields['tags'].get_news_category(tag_class, book_ids)
         else:
+            cat = fm[category]
+            brm = book_rating_map
+            if cat['datatype'] == 'rating' and category != 'rating':
+                brm = dbcache.fields[category].book_value_map
             cats = dbcache.fields[category].get_categories(
-                tag_class, book_rating_map, lang_map, book_ids)
+                tag_class, brm, lang_map, book_ids)
+            if (category != 'authors' and cat['datatype'] == 'text' and
+                cat['is_multiple'] and cat['display'].get('is_names', False)):
+                for item in cats:
+                    item.sort = author_to_author_sort(item.sort)
         sort_categories(cats, sort)
         categories[category] = cats
 

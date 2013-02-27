@@ -616,7 +616,10 @@ or a Remote Desktop solution.
 If you must share the actual library, use a file syncing tool like
 DropBox or rsync or Microsoft SkyDrive instead of a networked drive. Even with
 these tools there is danger of data corruption/loss, so only do this if you are
-willing to live with that risk.
+willing to live with that risk. In particular, be aware that **Google Drive**
+is incompatible with |app|, if you put your |app| library in Google Drive, you
+*will* suffer data loss. See
+`this thread <http://www.mobileread.com/forums/showthread.php?t=205581>`_ for details.
 
 Content From The Web
 ---------------------
@@ -692,17 +695,13 @@ Post any output you see in a help message on the `Forum <http://www.mobileread.c
 |app| freezes/crashes occasionally?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are five possible things I know of, that can cause this:
+There are several possible things I know of, that can cause this:
 
     * You recently connected an external monitor or TV to your computer. In
       this case, whenever |app| opens a new window like the edit metadata
       window or the conversion dialog, it appears on the second monitor where
       you dont notice it and so you think |app| has frozen. Disconnect your
       second monitor and restart calibre.
-
-    * You are using a Wacom branded USB mouse. There is an incompatibility between
-      Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom
-      mouse.
 
     * If you use RoboForm, it is known to cause |app| to crash. Add |app| to
       the blacklist of programs inside RoboForm to fix this. Or uninstall
@@ -713,6 +712,17 @@ There are five possible things I know of, that can cause this:
 
     * Constant Guard Protection by Xfinity causes crashes in |app|. You have to
       manually allow |app| in it or uninstall Constant Guard Protection.
+
+    * Spybot - Search & Destroy blocks |app| from accessing its temporary files
+      breaking viewing and converting of books.
+
+    * You are using a Wacom branded USB mouse. There is an incompatibility between
+      Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom
+      mouse.
+
+    * On some 64 bit versions of Windows there are security software/settings
+      that prevent 64-bit |app| from working properly. If you are using the 64-bit
+      version of |app| try switching to the 32-bit version.
 
 If none of the above apply to you, then there is some other program on your
 computer that is interfering with |app|. First reboot your computer in safe

@@ -369,7 +369,7 @@ def build_pipe(print_error=True):
     t.start()
     t.join(3.0)
     if t.is_alive():
-        if iswindows():
+        if iswindows:
             cant_start()
         else:
             f = os.path.expanduser('~/.calibre_calibre GUI.lock')

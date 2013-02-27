@@ -68,10 +68,15 @@ class RecipeInput(InputFormatPlugin):
                 recipe = compile_recipe(self.recipe_source)
                 log('Using custom recipe')
             else:
-                from calibre.web.feeds.recipes.collection import \
-                        get_builtin_recipe_by_title
+                from calibre.web.feeds.recipes.collection import (
+                        get_builtin_recipe_by_title, get_builtin_recipe_titles)
                 title = getattr(opts, 'original_recipe_input_arg', recipe_or_file)
                 title = os.path.basename(title).rpartition('.')[0]
+                titles = frozenset(get_builtin_recipe_titles())
+                if title not in titles:
+                    title = getattr(opts, 'original_recipe_input_arg', recipe_or_file)
+                    title = title.rpartition('.')[0]
+
                 raw = get_builtin_recipe_by_title(title, log=log,
                         download_recipe=not opts.dont_download_recipe)
                 builtin = False
