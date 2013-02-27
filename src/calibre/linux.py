@@ -137,9 +137,12 @@ class ZshCompleter(object): # {{{
 
     def get_options(self, parser, cover_opts=('--cover',), opf_opts=('--opf',),
                     file_map={}):
-        options = parser.option_list
-        for group in parser.option_groups:
-            options += group.option_list
+        if hasattr(parser, 'option_list'):
+            options = parser.option_list
+            for group in parser.option_groups:
+                options += group.option_list
+        else:
+            options = parser
         for opt in options:
             lo, so = opt._long_opts, opt._short_opts
             if opt.takes_value():
@@ -160,7 +163,7 @@ class ZshCompleter(object): # {{{
             arg = ''
             if opt.takes_value():
                 arg = ':"%s":'%h
-                if opt.dest in {'to_dir', 'outbox', 'with_library', 'library_path'}:
+                if opt.dest in {'debug_pipeline', 'to_dir', 'outbox', 'with_library', 'library_path'}:
                     arg += "'_path_files -/'"
                 elif opt.choices:
                     arg += "(%s)"%'|'.join(opt.choices)
@@ -200,6 +203,98 @@ class ZshCompleter(object): # {{{
         opts = '\\\n  '.join(tuple(self.get_options(op())) + extra)
         txt = '_arguments -s \\\n  ' + opts
         self.commands[name] = txt
+
+    def do_ebook_convert(self, f):
+        from calibre.ebooks.conversion.plumber import supported_input_formats
+        from calibre.web.feeds.recipes.collection import get_builtin_recipe_titles
+        from calibre.customize.ui import available_output_formats
+        from calibre.ebooks.conversion.cli import create_option_parser, group_titles
+        from calibre.utils.logging import DevNull
+        input_fmts = set(supported_input_formats())
+        output_fmts = set(available_output_formats())
+        iexts = {x.upper() for x in input_fmts}.union(input_fmts)
+        oexts = {x.upper() for x in output_fmts}.union(output_fmts)
+        w = lambda x: f.write(x if isinstance(x, bytes) else x.encode('utf-8'))
+        # Arg 1
+        w('\n_ebc_input_args() {')
+        w('\n  local extras; extras=(')
+        w('\n    {-h,--help}":Show Help"')
+        w('\n    "--version:Show program version"')
+        w('\n    "--list-recipes:List builtin recipe names"')
+        for recipe in sorted(set(get_builtin_recipe_titles())):
+            recipe = recipe.replace(':', '\\:').replace('"', '\\"')
+            w(u'\n    "%s.recipe"'%(recipe))
+        w('\n  ); _describe -t recipes "ebook-convert builtin recipes" extras')
+        w('\n  _files -g "%s"'%' '.join(('*.%s'%x for x in iexts)))
+        w('\n}\n')
+
+        # Arg 2
+        w('\n_ebc_output_args() {')
+        w('\n  local extras; extras=(')
+        for x in output_fmts:
+            w('\n    ".{0}:Convert to a .{0} file with the same name as the input file"'.format(x))
+        w('\n  ); _describe -t output "ebook-convert output" extras')
+        w('\n  _files -g "%s"'%' '.join(('*.%s'%x for x in oexts)))
+        w('\n  _path_files -/')
+        w('\n}\n')
+
+        log = DevNull()
+        def get_parser(input_fmt='epub', output_fmt=None):
+            of = ('dummy2.'+output_fmt) if output_fmt else 'dummy'
+            return create_option_parser(('ec', 'dummy1.'+input_fmt, of, '-h'), log)[0]
+
+        # Common options
+        input_group, output_group = group_titles()
+        p = get_parser()
+        opts = p.option_list
+        for group in p.option_groups:
+            if group.title not in {input_group, output_group}:
+                opts += group.option_list
+        opts.append(p.get_option('--pretty-print'))
+        opts.append(p.get_option('--input-encoding'))
+        opts = '\\\n  '.join(tuple(
+            self.get_options(opts, file_map={'--search-replace':()})))
+        w('\n_ebc_common_opts() {')
+        w('\n  _arguments -s \\\n  ' + opts)
+        w('\n}\n')
+
+        # Input/Output format options
+        for fmts, group_title, func in (
+            (input_fmts, input_group, '_ebc_input_opts_%s'),
+            (output_fmts, output_group, '_ebc_output_opts_%s'),
+        ):
+            for fmt in fmts:
+                is_input = group_title == input_group
+                if is_input and fmt in {'rar', 'zip', 'oebzip'}: continue
+                p = (get_parser(input_fmt=fmt) if is_input
+                     else get_parser(output_fmt=fmt))
+                opts = None
+                for group in p.option_groups:
+                    if group.title == group_title:
+                        opts = [o for o in group.option_list if
+                                '--pretty-print' not in o._long_opts and
+                                '--input-encoding' not in o._long_opts]
+                if not opts: continue
+                opts = '\\\n  '.join(tuple(self.get_options(opts)))
+                w('\n%s() {'%(func%fmt))
+                w('\n  _arguments -s \\\n  ' + opts)
+                w('\n}\n')
+
+        w('\n_ebook_convert() {')
+        w('\n  local iarg oarg context state_descr state line\n  typeset -A opt_args\n  local ret=1')
+        w("\n  _arguments '1: :_ebc_input_args' '*::ebook-convert output:->args' && ret=0")
+        w("\n  case $state in \n  (args)")
+        w('\n    iarg=${line[1]##*.}; ')
+        w("\n    _arguments '1: :_ebc_output_args' '*::ebook-convert options:->args' && ret=0")
+        w("\n     case $state in \n    (args)")
+
+        w('\n      oarg=${line[1]##*.}')
+        w('\n      iarg="_ebc_input_opts_${(L)iarg}"; oarg="_ebc_output_opts_${(L)oarg}"')
+        w('\n      _call_function - $iarg; _call_function - $oarg; _ebc_common_opts; ret=0')
+        w('\n    ;;\n    esac')
+
+        w("\n  ;;\n  esac\n  return ret")
+        w('\n}\n')
 
     def do_calibredb(self, f):
         import calibre.library.cli as cli
@@ -246,13 +341,13 @@ class ZshCompleter(object): # {{{
         f.write('\n_calibredb() {')
         f.write(
             r'''
-    local context curcontext="$curcontext" state line
+    local state line state_descr context
     typeset -A opt_args
     local ret=1
 
-    _arguments -C \
+    _arguments \
         '1: :_calibredb_cmds' \
-        '*::arg:->args' \
+        '*::calibredb subcommand options:->args' \
         && ret=0
 
     case $state in
@@ -273,8 +368,10 @@ class ZshCompleter(object): # {{{
     def write(self):
         if self.dest:
             self.commands['calibredb'] = '  _calibredb "$@"'
+            self.commands['ebook-convert'] = '  _ebook_convert "$@"'
             with open(self.dest, 'wb') as f:
                 f.write('#compdef ' + ' '.join(self.commands)+'\n')
+                self.do_ebook_convert(f)
                 self.do_calibredb(f)
                 f.write('case $service in\n')
                 for c, txt in self.commands.iteritems():
@@ -380,7 +477,7 @@ class PostInstall:
 
     def setup_completion(self): # {{{
         try:
-            self.info('Setting up bash/zsh completion...')
+            self.info('Setting up command-line completion...')
             from calibre.ebooks.metadata.cli import option_parser as metaop, filetypes as meta_filetypes
             from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
             from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
@@ -807,4 +904,5 @@ def main():
 
 
 if __name__ == '__main__':
+    sys.exit(main())
     sys.exit(main())

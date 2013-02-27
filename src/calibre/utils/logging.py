@@ -28,7 +28,6 @@ class Stream(object):
     def flush(self):
         self.stream.flush()
 
-
 class ANSIStream(Stream):
 
     def __init__(self, stream=sys.stdout):
@@ -163,6 +162,12 @@ class Log(object):
 
     def __call__(self, *args, **kwargs):
         self.prints(INFO, *args, **kwargs)
+
+class DevNull(Log):
+
+    def __init__(self):
+        Log.__init__(self, level=Log.ERROR)
+        self.outputs = []
 
 class ThreadSafeLog(Log):
 
