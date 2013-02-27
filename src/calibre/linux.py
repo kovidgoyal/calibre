@@ -129,11 +129,19 @@ class ZshCompleter(object): # {{{
         self.opts = opts
         self.dest = None
         base = os.path.dirname(self.opts.staging_sharedir)
+        self.detect_zsh(base)
+        if not self.dest and base == '/usr/share':
+            # Ubuntu puts site-functions in /usr/local/share
+            self.detect_zsh('/usr/local/share')
+
+        self.commands = {}
+
+    def detect_zsh(self, base):
         for x in ('vendor-completions', 'vendor-functions', 'site-functions'):
             c = os.path.join(base, 'zsh', x)
             if os.path.isdir(c) and os.access(c, os.W_OK):
                 self.dest = os.path.join(c, '_calibre')
-        self.commands = {}
+                break
 
     def get_options(self, parser, cover_opts=('--cover',), opf_opts=('--opf',),
                     file_map={}):
