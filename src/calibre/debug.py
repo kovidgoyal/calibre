@@ -58,7 +58,7 @@ on.
     parser.add_option('-m', '--inspect-mobi', action='store_true',
             default=False,
             help='Inspect the MOBI file(s) at the specified path(s)')
-    parser.add_option('--tweak-book', default=None,
+    parser.add_option('-t', '--tweak-book', default=None,
             help='Tweak the book (exports the book as a collection of HTML '
             'files and metadata, which you can edit using standard HTML '
             'editing tools, and then rebuilds the file from the edited HTML. '
