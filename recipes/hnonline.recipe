@@ -1,5 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class HNonlineRecipe(BasicNewsRecipe):
     __license__  = 'GPL v3'
