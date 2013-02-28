@@ -27,7 +27,7 @@ on.
     parser.add_option('-e', '--exec-file', help='Run the python code in file.')
     parser.add_option('-f', '--subset-font', help='Subset the specified font')
     parser.add_option('-d', '--debug-device-driver', default=False, action='store_true',
-                      help='Debug the specified device driver.')
+                      help='Debug device detection')
     parser.add_option('-g', '--gui',  default=False, action='store_true',
                       help='Run the GUI with debugging enabled. Debug output is '
                       'printed to stdout and stderr.')
