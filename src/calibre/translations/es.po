@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-24 04:42+0000\n"
-"PO-Revision-Date: 2013-02-26 21:19+0000\n"
+"PO-Revision-Date: 2013-02-27 16:27+0000\n"
 "Last-Translator: dario hereñu <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-27 04:35+0000\n"
+"X-Launchpad-Export-Date: 2013-02-28 04:47+0000\n"
 "X-Generator: Launchpad (build 16506)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:540
@@ -19855,7 +19855,7 @@ msgstr "Instalar y configurar complementos de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:44
 msgid "Edit bookmark"
-msgstr "Editar marcador"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:44
 msgid "New title for bookmark:"
@@ -20127,7 +20127,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:412
 msgid "The number of &pages of text to show on screen "
-msgstr "El número de &páginas de texto que se mostrarán en pantalla "
+msgstr "El número de &páginas de texto a mostrar en pantalla "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:413
 msgid " page(s)"
@@ -20566,7 +20566,7 @@ msgstr "Añadir marcador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:953
 msgid "Enter title for bookmark:"
-msgstr "Introducir el título del marcador:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:964
 msgid "Manage Bookmarks"
@@ -20685,7 +20685,7 @@ msgstr "Encontrar incidencia anterior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:236
 msgid "Toggle Paged mode"
-msgstr "Alternar módo de página"
+msgstr "Alternar a modo paginado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:237
 msgid "Load theme"
