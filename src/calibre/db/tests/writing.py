@@ -115,6 +115,52 @@ class WritingTest(BaseTest):
 
         self.run_tests(tests)
 
+    def test_many_one_basic(self):
+        'Test the different code paths for writing to a many-one field'
+        cl = self.cloned_library
+        cache = self.init_cache(cl)
+        f = cache.fields['publisher']
+        item_ids = {f.ids_for_book(1)[0], f.ids_for_book(2)[0]}
+        val = 'Changed'
+        self.assertEqual(cache.set_field('publisher', {1:val, 2:val}), {1, 2})
+        cache2 = self.init_cache(cl)
+        for book_id in (1, 2):
+            for c in (cache, cache2):
+                self.assertEqual(c.field_for('publisher', book_id), val)
+                self.assertFalse(item_ids.intersection(set(c.fields['publisher'].table.id_map)))
+        del cache2
+        self.assertFalse(cache.set_field('publisher', {1:val, 2:val}))
+        val = val.lower()
+        self.assertFalse(cache.set_field('publisher', {1:val, 2:val},
+                                         allow_case_change=False))
+        self.assertEqual(cache.set_field('publisher', {1:val, 2:val}), {1, 2})
+        cache2 = self.init_cache(cl)
+        for book_id in (1, 2):
+            for c in (cache, cache2):
+                self.assertEqual(c.field_for('publisher', book_id), val)
+        del cache2
+        self.assertEqual(cache.set_field('publisher', {1:'new', 2:'New'}), {1, 2})
+        self.assertEqual(cache.field_for('publisher', 1).lower(), 'new')
+        self.assertEqual(cache.field_for('publisher', 2).lower(), 'new')
+        self.assertEqual(cache.set_field('publisher', {1:None, 2:'NEW'}), {1, 2})
+        self.assertEqual(len(f.table.id_map), 1)
+        self.assertEqual(cache.set_field('publisher', {2:None}), {2})
+        self.assertEqual(len(f.table.id_map), 0)
+        cache2 = self.init_cache(cl)
+        self.assertEqual(len(cache2.fields['publisher'].table.id_map), 0)
+        del cache2
+        self.assertEqual(cache.set_field('publisher', {1:'one', 2:'two',
+                                                       3:'three'}), {1, 2, 3})
+        self.assertEqual(cache.set_field('publisher', {1:''}), set([1]))
+        self.assertEqual(cache.set_field('publisher', {1:'two'}), set([1]))
+        self.assertEqual(tuple(map(f.for_book, (1,2,3))), ('two', 'two', 'three'))
+        self.assertEqual(cache.set_field('publisher', {1:'Two'}), {1, 2})
+        cache2 = self.init_cache(cl)
+        self.assertEqual(tuple(map(f.for_book, (1,2,3))), ('Two', 'Two', 'three'))
+        del cache2
+
+        # TODO: Test different column types
+
 def tests():
     return unittest.TestLoader().loadTestsFromTestCase(WritingTest)
 

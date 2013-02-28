@@ -156,56 +156,94 @@ def custom_series_index(book_id_val_map, db, field, *args):
 
 # Many-One fields {{{
 
+def safe_lower(x):
+    try:
+        return icu_lower(x)
+    except (TypeError, ValueError, KeyError, AttributeError):
+        return x
+
 def many_one(book_id_val_map, db, field, allow_case_change, *args):
     dirtied = set()
     m = field.metadata
+    table = field.table
     dt = m['datatype']
-    kmap = icu_lower if dt == 'text' else lambda x:x
-    rid_map = {kmap(v):k for k, v in field.table.id_map.iteritems()}
-    book_id_item_id_map = {k:rid_map.get(kmap(v), None) if v is not None else
-                           None for k, v in book_id_val_map.iteritems()}
+
+    # Map values to their canonical form for later comparison
+    kmap = safe_lower if dt == 'text' else lambda x:x
+
+    # Ignore those items whose value is the same as the current value
+    no_changes = {k:nval for k, nval in book_id_val_map.iteritems() if
+                  kmap(nval) == kmap(field.for_book(k, default_value=None))}
+    for book_id in no_changes:
+        del book_id_val_map[book_id]
+
+    # If we are allowed case changes check that none of the ignored items are
+    # case changes. If they are, update the item's case in the db.
     if allow_case_change:
-        for book_id, item_id in book_id_item_id_map.iteritems():
-            nval = book_id_val_map[book_id]
-            if (item_id is not None and nval != field.table.id_map[item_id]):
+        for book_id, nval in no_changes.iteritems():
+            if nval is not None and nval != field.for_book(
+                book_id, default_value=None):
                 # Change of case
+                item_id = table.book_col_map[book_id]
                 db.conn.execute('UPDATE %s SET %s=? WHERE id=?'%(
                     m['table'], m['column']), (nval, item_id))
-                field.table.id_map[item_id] = nval
-                dirtied |= field.table.col_book_map[item_id]
+                table.id_map[item_id] = nval
+                dirtied |= table.col_book_map[item_id]
 
     deleted = {k:v for k, v in book_id_val_map.iteritems() if v is None}
     updated = {k:v for k, v in book_id_val_map.iteritems() if v is not None}
+    link_table = table.link_table
 
     if deleted:
-        db.conn.executemany('DELETE FROM %s WHERE book=?'%m['link_table'],
+        db.conn.executemany('DELETE FROM %s WHERE book=?'%link_table,
             tuple((book_id,) for book_id in deleted))
         for book_id in deleted:
-            field.table.book_col_map.pop(book_id, None)
-            field.table.col_book_map.discard(book_id)
+            item_id = table.book_col_map.pop(book_id, None)
+            if item_id is not None:
+                table.col_book_map[item_id].discard(book_id)
         dirtied |= set(deleted)
 
     if updated:
+        rid_map = {kmap(v):k for k, v in table.id_map.iteritems()}
+        book_id_item_id_map = {k:rid_map.get(kmap(v), None) for k, v in
+                               book_id_val_map.iteritems()}
+
+        # items that dont yet exist
         new_items = {k:v for k, v in updated.iteritems() if
                      book_id_item_id_map[k] is None}
+        # items that already exist
         changed_items = {k:book_id_item_id_map[k] for k in updated if
                          book_id_item_id_map[k] is not None}
         def sql_update(imap):
             db.conn.executemany(
                 'DELETE FROM {0} WHERE book=?; INSERT INTO {0}(book,{1}) VALUES(?, ?)'
-                .format(m['link_table'], m['link_column']),
+                .format(link_table, m['link_column']),
                 tuple((book_id, book_id, item_id) for book_id, item_id in
                        imap.iteritems()))
 
         if new_items:
+            item_ids = {}
+            val_map = {}
+            for val in set(new_items.itervalues()):
+                lval = kmap(val)
+                if lval in val_map:
+                    item_id = val_map[lval]
+                else:
+                    db.conn.execute('INSERT INTO %s(%s) VALUES (?)'%(
+                        m['table'], m['column']), (val,))
+                    item_id = val_map[lval] = db.conn.last_insert_rowid()
+                item_ids[val] = item_id
+                table.id_map[item_id] = val
             imap = {}
             for book_id, val in new_items.iteritems():
-                db.conn.execute('INSERT INTO %s(%s) VALUES (?)'%(
-                    m['table'], m['column']), (val,))
-                imap[book_id] = item_id = db.conn.last_insert_rowid()
-                field.table.id_map[item_id] = val
-                field.table.col_book_map[item_id] = {book_id}
-                field.table.book_col_map[book_id] = item_id
+                item_id = item_ids[val]
+                old_item_id = table.book_col_map.get(book_id, None)
+                if old_item_id is not None:
+                    table.col_book_map[old_item_id].discard(book_id)
+                if item_id not in table.col_book_map:
+                    table.col_book_map[item_id] = set()
+                table.col_book_map[item_id].add(book_id)
+                table.book_col_map[book_id] = imap[book_id] = item_id
             sql_update(imap)
             dirtied |= set(imap)
 
@@ -213,24 +251,25 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
             imap = {}
             sql_update(changed_items)
             for book_id, item_id in changed_items.iteritems():
-                old_item_id = field.table.book_col_map[book_id]
+                old_item_id = table.book_col_map.get(book_id, None)
                 if old_item_id != item_id:
-                    field.table.book_col_map[book_id] = item_id
-                    field.table.col_book_map[item_id].add(book_id)
-                    field.table.col_book_map[old_item_id].discard(book_id)
+                    table.book_col_map[book_id] = item_id
+                    table.col_book_map[item_id].add(book_id)
+                    if old_item_id is not None:
+                        table.col_book_map[old_item_id].discard(book_id)
                     imap[book_id] = item_id
             sql_update(imap)
             dirtied |= set(imap)
 
     # Remove no longer used items
-    remove = {item_id for item_id, book_ids in
-              field.table.col_book_map.iteritems() if not book_ids}
+    remove = {item_id for item_id in table.id_map if not
+              table.col_book_map.get(item_id, False)}
     if remove:
         db.conn.executemany('DELETE FROM %s WHERE id=?'%m['table'],
             tuple((item_id,) for item_id in remove))
         for item_id in remove:
-            del field.table.id_map[item_id]
-            del field.table.col_book_map[item_id]
+            del table.id_map[item_id]
+            table.col_book_map.pop(item_id, None)
 
     return dirtied
 # }}}
