@@ -256,8 +256,7 @@ class Writer(object):
             pass
             # TODO: Remember to change commas to | when writing authors to sqlite
         elif field.is_many:
-            # TODO: Implement this
-            pass
+            self.set_books_func = many_one
         else:
             self.set_books_func = (one_one_in_books if field.metadata['table']
                                    == 'books' else one_one_in_other)
