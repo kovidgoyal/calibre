@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import division
 
 __license__   = 'GPL v3'
 __copyright__ = '2010-2012, Timothy Legge <timlegge@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net> and David Forrester <davidfor@internode.on.net>'
@@ -13,6 +14,7 @@ Extended to support Touch firmware 2.0.0 and later and newer devices by David Fo
 '''
 
 import os, time
+
 from contextlib import closing
 from calibre.devices.usbms.books import BookList
 from calibre.devices.usbms.books import CollectionsBookList
@@ -33,7 +35,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 0, 5)
+    version = (2, 0, 6)
 
     dbversion = 0
     fwversion = 0
@@ -1196,10 +1198,11 @@ class KOBO(USBMS):
 
 
 class KOBOTOUCH(KOBO):
-    name = 'KoboTouch'
-    gui_name = 'Kobo Touch'
-    author = 'David Forrester'
+    name        = 'KoboTouch'
+    gui_name    = 'Kobo Touch'
+    author      = 'David Forrester'
     description = 'Communicate with the Kobo Touch, Glo and Mini firmware. Based on the existing Kobo driver by %s.' % (KOBO.author)
+#    icon        = I('devices/kobotouch.jpg')
 
     supported_dbversion     = 75
     min_supported_dbversion = 53
@@ -1219,14 +1222,11 @@ class KOBOTOUCH(KOBO):
             _('Delete Empty Bookshelves') +
             ':::'+_('Delete any empty bookshelves from the Kobo Touch when syncing is finished. This is only for firmware V2.0.0 or later.'),
             _('Upload covers for books') +
-            ':::'+_('Normally, the KOBO readers get the cover image from the'
-                ' ebook file itself. With this option, calibre will send a '
-                'separate cover image to the reader, useful if you '
-                'have modified the cover.'),
+            ':::'+_('Upload cover images from the calibre library when sending books to the device.'),
             _('Upload Black and White Covers'),
-            _('Always upload covers') +
-            ':::'+_('If the Upload covers option is selected, the driver will only replace covers already on the device.'
-                    ' Select this option if you want covers uploaded the first time you send the book to the device.'),
+            _('Keep cover aspect ratio') +
+            ':::'+_('When uploading covers, do not change the aspect ratio when resizing for the device.'
+                    ' This is for firmware versions 2.3.1 and later.'),
             _('Show expired books') +
             ':::'+_('A bug in an earlier version left non kepubs book records'
                 ' in the database.  With this option Calibre will show the '
@@ -1278,7 +1278,7 @@ class KOBOTOUCH(KOBO):
     OPT_DELETE_BOOKSHELVES          = 2
     OPT_UPLOAD_COVERS               = 3
     OPT_UPLOAD_GRAYSCALE_COVERS     = 4
-    OPT_ALWAYS_UPLOAD_COVERS        = 5
+    OPT_KEEP_COVER_ASPECT_RATIO     = 5
     OPT_SHOW_EXPIRED_BOOK_RECORDS   = 6
     OPT_SHOW_PREVIEWS               = 7
     OPT_SHOW_RECOMMENDATIONS        = 8
@@ -1290,16 +1290,27 @@ class KOBOTOUCH(KOBO):
 
     TIMESTAMP_STRING = "%Y-%m-%dT%H:%M:%SZ"
 
-    PRODUCT_ID  = [0x4163, 0x4173, 0x4183]
-    BCD         = [0x0110, 0x0326]
+    GLO_PRODUCT_ID   = [0x4173]
+    MINI_PRODUCT_ID  = [0x4183]
+    TOUCH_PRODUCT_ID = [0x4163]
+    PRODUCT_ID = GLO_PRODUCT_ID + MINI_PRODUCT_ID + TOUCH_PRODUCT_ID
+
+    BCD        = [0x0110, 0x0326]
 
     # Image file name endings. Made up of: image size, min_dbversion, max_dbversion,
     COVER_FILE_ENDINGS = {
-                          ' - N3_LIBRARY_FULL.parsed':[(355,473),0, 99,],   # Used for Details screen
-                          ' - N3_LIBRARY_GRID.parsed':[(149,198),0, 99,],   # Used for library lists
-                          ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,],
+                          ' - N3_FULL.parsed':[(600,800),0, 99,True,],            # Used for screensaver, home screen
+                          ' - N3_LIBRARY_FULL.parsed':[(355,473),0, 99,False,],   # Used for Details screen
+                          ' - N3_LIBRARY_GRID.parsed':[(149,198),0, 99,False,],   # Used for library lists
+                          ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,False,],
 #                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
-                          ' - N3_FULL.parsed':[(600,800),0, 99,],           # Used for screensaver, home screen
+                          }
+    GLO_COVER_FILE_ENDINGS = {
+                          ' - N3_FULL.parsed':[(758,1024),0, 99,True,],           # Used for screensaver, home screen
+                          ' - N3_LIBRARY_FULL.parsed':[(355,479),0, 99,False,],   # Used for Details screen
+                          ' - N3_LIBRARY_GRID.parsed':[(149,201),0, 99,False,],   # Used for library lists
+#                          ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,],
+#                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
                           }
     #Following are the sizes used with pre2.1.4 firmware
 #    COVER_FILE_ENDINGS = {
@@ -1310,6 +1321,7 @@ class KOBOTOUCH(KOBO):
 #                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
 #                          ' - N3_FULL.parsed':[(600,800),0, 99,],           # Used for screensaver if "Full screen" is checked.
 #                          }
+
 
     def initialize(self):
         super(KOBOTOUCH, self).initialize()
@@ -1691,7 +1703,7 @@ class KOBOTOUCH(KOBO):
     def imagefilename_from_imageID(self, ImageID):
         show_debug = self.is_debugging_title(ImageID)
 
-        for ending, cover_options in self.COVER_FILE_ENDINGS.items():
+        for ending, cover_options in self.cover_file_endings().items():
             fpath = self._main_prefix + '.kobo/images/' + ImageID + ending
             fpath = self.normalize_path(fpath.replace('/', os.sep))
             if os.path.exists(fpath):
@@ -1733,11 +1745,15 @@ class KOBOTOUCH(KOBO):
                         
                         self.set_filesize_in_device_database(connection, contentID, fname)
 
+                        if not self.copying_covers():
+                            imageID = self.imageid_from_contentid(contentID)
+                            self.delete_images(imageID)
                     connection.commit()
 
                     cursor.close()
             except Exception as e:
                 debug_print('KoboTouch:upload_books - Exception:  %s'%str(e))
+
 
         return result
 
@@ -1794,7 +1810,7 @@ class KOBOTOUCH(KOBO):
             path_prefix = '.kobo/images/'
             path = self._main_prefix + path_prefix + ImageID
 
-            for ending in self.COVER_FILE_ENDINGS.keys():
+            for ending in self.cover_file_endings().keys():
                 fpath = path + ending
                 fpath = self.normalize_path(fpath)
 
@@ -2049,23 +2065,23 @@ class KOBOTOUCH(KOBO):
 #        debug_print("KoboTouch:upload_cover - path='%s' filename='%s'"%(path, filename))
 
         opts = self.settings()
-        if not opts.extra_customization[self.OPT_UPLOAD_COVERS]:
+        if not self.copying_covers():
             # Building thumbnails disabled
 #            debug_print('KoboTouch: not uploading cover')
+            return
+
+        # Don't upload covers if book is on the SD card
+        if self._card_a_prefix and path.startswith(self._card_a_prefix):
             return
 
         if not opts.extra_customization[self.OPT_UPLOAD_GRAYSCALE_COVERS]:
             uploadgrayscale = False
         else:
             uploadgrayscale = True
-        if not opts.extra_customization[self.OPT_ALWAYS_UPLOAD_COVERS]:
-            always_upload_covers = False
-        else:
-            always_upload_covers = True
 
 #        debug_print('KoboTouch: uploading cover')
         try:
-            self._upload_cover(path, filename, metadata, filepath, uploadgrayscale, always_upload_covers)
+            self._upload_cover(path, filename, metadata, filepath, uploadgrayscale, self.keep_cover_aspect())
         except Exception as e:
             debug_print('KoboTouch: FAILED to upload cover=%s Exception=%s'%(filepath, str(e)))
 
@@ -2077,9 +2093,9 @@ class KOBOTOUCH(KOBO):
         ImageID = ImageID.replace('.', '_')
         return ImageID
 
-    def _upload_cover(self, path, filename, metadata, filepath, uploadgrayscale, always_upload_covers=False):
-        from calibre.utils.magick.draw import save_cover_data_to
-        debug_print("KoboTouch:_upload_cover - filename='%s' uploadgrayscale='%s' always_upload_covers='%s'"%(filename, uploadgrayscale, always_upload_covers))
+    def _upload_cover(self, path, filename, metadata, filepath, uploadgrayscale, keep_cover_aspect=False):
+        from calibre.utils.magick.draw import save_cover_data_to, identify_data
+        debug_print("KoboTouch:_upload_cover - filename='%s' uploadgrayscale='%s' "%(filename, uploadgrayscale))
 
         if metadata.cover:
             show_debug = self.is_debugging_title(filename)
@@ -2122,8 +2138,8 @@ class KOBOTOUCH(KOBO):
                         if show_debug:
                             debug_print("KoboTouch:_upload_cover - About to loop over cover endings")
 
-                        for ending, cover_options in self.COVER_FILE_ENDINGS.items():
-                            resize, min_dbversion, max_dbversion = cover_options
+                        for ending, cover_options in self.cover_file_endings().items():
+                            resize, min_dbversion, max_dbversion, isFullsize = cover_options
                             if show_debug:
                                 debug_print("KoboTouch:_upload_cover - resize=%s min_dbversion=%d max_dbversion=%d" % (resize, min_dbversion, max_dbversion))
                             if self.dbversion >= min_dbversion and self.dbversion <= max_dbversion:
@@ -2132,19 +2148,28 @@ class KOBOTOUCH(KOBO):
                                 fpath = path + ending
                                 fpath = self.normalize_path(fpath.replace('/', os.sep))
 
-                                if os.path.exists(fpath) or always_upload_covers:
-                                    debug_print("KoboTouch:_upload_cover - path exists or always_upload_covers%s"% always_upload_covers)
-                                    with open(cover, 'rb') as f:
-                                        data = f.read()
+                                with open(cover, 'rb') as f:
+                                    data = f.read()
 
-                                    # Return the data resized and in Grayscale if
-                                    # required
-                                    data = save_cover_data_to(data, 'dummy.jpg',
-                                            grayscale=uploadgrayscale,
-                                            resize_to=resize, return_data=True)
+                                if keep_cover_aspect:
+                                    if isFullsize:
+                                        resize = None
+                                    else:
+                                        width, height, fmt = identify_data(data)
+                                        cover_aspect = width / height
+                                        if cover_aspect > 1:
+                                            resize = (resize[0], int(resize[0] / cover_aspect ))
+                                        elif cover_aspect < 1:
+                                            resize = (int(cover_aspect * resize[1]), resize[1] )
+                                        
+                                # Return the data resized and in Grayscale if
+                                # required
+                                data = save_cover_data_to(data, 'dummy.jpg',
+                                        grayscale=uploadgrayscale,
+                                        resize_to=resize, return_data=True)
 
-                                    with open(fpath, 'wb') as f:
-                                        f.write(data)
+                                with open(fpath, 'wb') as f:
+                                    f.write(data)
                 except Exception as e:
                     err = str(e)
                     debug_print("KoboTouch:_upload_cover - Exception string: %s"%err)
@@ -2453,21 +2478,30 @@ class KOBOTOUCH(KOBO):
         return opts
 
 
+    def isGlo(self):
+        return self.detected_device.idProduct in self.GLO_PRODUCT_ID 
+    def isMini(self):
+        return self.detected_device.idProduct in self.MINI_PRODUCT_ID 
+    def isTouch(self):
+        return self.detected_device.idProduct in self.TOUCH_PRODUCT_ID 
+
+    def cover_file_endings(self):
+        return self.GLO_COVER_FILE_ENDINGS if self.isGlo() else self.COVER_FILE_ENDINGS
+
+    def copying_covers(self):
+        opts = self.settings()
+        return opts.extra_customization[self.OPT_UPLOAD_COVERS] or opts.extra_customization[self.OPT_KEEP_COVER_ASPECT_RATIO]
+
+    def keep_cover_aspect(self):
+        opts = self.settings()
+        return opts.extra_customization[self.OPT_KEEP_COVER_ASPECT_RATIO]
+
     def supports_bookshelves(self):
         return self.dbversion >= self.min_supported_dbversion
 
     def supports_series(self):
         return self.dbversion >= self.min_dbversion_series
 
-#    def is_debugging_title(self, title):
-##        debug_print("KoboTouch:is_debugging - title=", title)
-#        is_debugging = False
-#        opts = self.settings()
-#        if opts.extra_customization:
-#            debugging_title = opts.extra_customization[self.OPT_DEBUGGING_TITLE]
-#            is_debugging = len(debugging_title) > 0 and title.find(debugging_title) >= 0 or len(title) == 0
-#
-#        return is_debugging
 
     @classmethod
     def is_debugging_title(cls, title):
