@@ -41,7 +41,7 @@ class FoylesUKStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://ebooks.foyles.co.uk/search_for-' + urllib2.quote(query)
+        url = 'http://ebooks.foyles.co.uk/catalog/search/?query=' + urllib2.quote(query)
 
         br = browser()
 
@@ -58,7 +58,7 @@ class FoylesUKStore(BasicStoreConfig, StorePlugin):
                 cover_url = ''.join(data.xpath('.//p[@class="doc-cover"]/a/img/@src'))
                 title = ''.join(data.xpath('.//span[@class="title"]/a/text()'))
                 author = ', '.join(data.xpath('.//span[@class="author"]/span[@class="author"]/text()'))
-                price = ''.join(data.xpath('.//span[@class="price"]/text()'))
+                price = ''.join(data.xpath('.//span[@itemprop="price"]/text()'))
                 format_ = ''.join(data.xpath('.//p[@class="doc-meta-format"]/span[last()]/text()'))
                 format_, ign, drm = format_.partition(' ')
                 drm = SearchResult.DRM_LOCKED if 'DRM' in drm else SearchResult.DRM_UNLOCKED
