@@ -618,6 +618,7 @@ class Cache(object):
     def set_field(self, name, book_id_to_val_map, allow_case_change=True):
         # TODO: Specialize title/authors to also update path
         # TODO: Handle updating caches used by composite fields
+        # TODO: Ensure the sort fields are updated for title/author/series?
         dirtied = self.fields[name].writer.set_books(
             book_id_to_val_map, self.backend, allow_case_change=allow_case_change)
         return dirtied
