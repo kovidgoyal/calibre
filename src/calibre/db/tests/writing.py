@@ -75,7 +75,7 @@ class WritingTest(BaseTest):
                             test.name, old_sqlite_res, sqlite_res))
                 del db
 
-    def test_one_one(self):
+    def test_one_one(self): # {{{
         'Test setting of values in one-one fields'
         tests = [self.create_test('#yesno', (True, False, 'true', 'false', None))]
         for name, getter, setter in (
@@ -114,8 +114,9 @@ class WritingTest(BaseTest):
             tests.append(self.create_test(name, tuple(vals), getter, setter))
 
         self.run_tests(tests)
+    # }}}
 
-    def test_many_one_basic(self):
+    def test_many_one_basic(self): # {{{
         'Test the different code paths for writing to a many-one field'
         cl = self.cloned_library
         cache = self.init_cache(cl)
@@ -159,8 +160,6 @@ class WritingTest(BaseTest):
         self.assertEqual(tuple(map(f.for_book, (1,2,3))), ('Two', 'Two', 'three'))
         del cache2
 
-        # TODO: Test different column types series, #series,
-
         # Enum
         self.assertFalse(cache.set_field('#enum', {1:'Not allowed'}))
         self.assertEqual(cache.set_field('#enum', {1:'One', 2:'One', 3:'Three'}), {1, 3})
@@ -182,6 +181,29 @@ class WritingTest(BaseTest):
             for i, val in {1:None, 2:4, 3:8}.iteritems():
                 self.assertEqual(c.field_for('#rating', i), val)
         del cache2
+
+        # Series
+        self.assertFalse(cache.set_field('series',
+                {1:'a series one', 2:'a series one'}, allow_case_change=False))
+        self.assertEqual(cache.set_field('series', {3:'Series [3]'}), set([3]))
+        self.assertEqual(cache.set_field('#series', {1:'Series', 3:'Series'}),
+                                         {1, 3})
+        self.assertEqual(cache.set_field('#series', {2:'Series [0]'}), set([2]))
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            for i, val in {1:'A Series One', 2:'A Series One', 3:'Series'}.iteritems():
+                self.assertEqual(c.field_for('series', i), val)
+            for i in (1, 2, 3):
+                self.assertEqual(c.field_for('#series', i), 'Series')
+            for i, val in {1:2, 2:1, 3:3}.iteritems():
+                self.assertEqual(c.field_for('series_index', i), val)
+            for i, val in {1:1, 2:0, 3:1}.iteritems():
+                self.assertEqual(c.field_for('#series_index', i), val)
+        del cache2
+
+    # }}}
+
+
 
 def tests():
     return unittest.TestLoader().loadTestsFromTestCase(WritingTest)

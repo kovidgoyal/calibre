@@ -7,6 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import re
 from functools import partial
 from datetime import datetime
 
@@ -28,6 +29,21 @@ def single_text(x):
         x = x.decode(preferred_encoding, 'replace')
     x = x.strip()
     return x if x else None
+
+series_index_pat = re.compile(r'(.*)\s+\[([.0-9]+)\]$')
+
+def get_series_values(val):
+    if not val:
+        return (val, None)
+    match = series_index_pat.match(val.strip())
+    if match is not None:
+        idx = match.group(2)
+        try:
+            idx = float(idx)
+            return (match.group(1).strip(), idx)
+        except:
+            pass
+    return (val, None)
 
 def multiple_text(sep, x):
     if x is None:
@@ -151,7 +167,7 @@ def custom_series_index(book_id_val_map, db, field, *args):
     if sequence:
         db.conn.executemany('UPDATE %s SET %s=? WHERE book=? AND value=?'%(
                 field.metadata['table'], field.metadata['column']), sequence)
-    return {s[0] for s in sequence}
+    return {s[1] for s in sequence}
 # }}}
 
 # Many-One fields {{{
@@ -167,9 +183,10 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
     m = field.metadata
     table = field.table
     dt = m['datatype']
+    is_custom_series = dt == 'series' and table.name.startswith('#')
 
     # Map values to their canonical form for later comparison
-    kmap = safe_lower if dt == 'text' else lambda x:x
+    kmap = safe_lower if dt in {'text', 'series'} else lambda x:x
 
     # Ignore those items whose value is the same as the current value
     no_changes = {k:nval for k, nval in book_id_val_map.iteritems() if
@@ -215,9 +232,12 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
         changed_items = {k:book_id_item_id_map[k] for k in updated if
                          book_id_item_id_map[k] is not None}
         def sql_update(imap):
-            db.conn.executemany(
+            sql = (
+                'DELETE FROM {0} WHERE book=?; INSERT INTO {0}(book,{1},extra) VALUES(?, ?, 1.0)'
+                if is_custom_series else
                 'DELETE FROM {0} WHERE book=?; INSERT INTO {0}(book,{1}) VALUES(?, ?)'
-                .format(link_table, m['link_column']),
+            )
+            db.conn.executemany(sql.format(link_table, m['link_column']),
                 tuple((book_id, book_id, item_id) for book_id, item_id in
                        imap.iteritems()))
 
