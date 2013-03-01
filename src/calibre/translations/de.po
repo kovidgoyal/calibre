@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-24 04:42+0000\n"
-"PO-Revision-Date: 2013-02-27 15:39+0000\n"
-"Last-Translator: MilliMarg <mirian.margiani@gmail.com>\n"
+"PO-Revision-Date: 2013-02-28 16:07+0000\n"
+"Last-Translator: Simon Schütte <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-28 04:46+0000\n"
-"X-Generator: Launchpad (build 16506)\n"
+"X-Launchpad-Export-Date: 2013-03-01 04:42+0000\n"
+"X-Generator: Launchpad (build 16514)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -726,7 +726,7 @@ msgid ""
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
 "Falls angegeben, versucht das Ausgabe-Plugin ein für Menschen verständliches "
-"Ergebnis zu erzeugen. Das heißt aber nicht, daß das auch gelingen muß."
+"Ergebnis zu erzeugen. Das heißt aber nicht, dass das auch gelingen muss."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:310
 #, python-format
@@ -5548,7 +5548,7 @@ msgstr "Es wurde kein Metadaten-Umschlag gefunden"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:158
 msgid "Smartening punctuation"
-msgstr ""
+msgstr "Intelligente Satzzeichen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:163
 msgid "Subsetting embedded fonts"
@@ -7179,6 +7179,9 @@ msgid ""
 "calibre library.</p><p>If the ebook file does not have an identifiable "
 "cover, a new cover is inserted.</p>"
 msgstr ""
+"<p>Die Coverbilder in den eBook-Dateien aktualisieren, damit sie mit den "
+"Coverbildern der Calibre Bibliothek übereinstimmen.</p><p>Wenn die eBook-"
+"Datei kein zu identifizierendes Coverbild hat, wird ein neues eingefügt.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:59
 #, python-format
@@ -7232,6 +7235,8 @@ msgstr "Be&richt anzeigen"
 msgid ""
 "Show a report of all the actions performed after polishing is completed"
 msgstr ""
+"Einen Bericht aller durchgeführter Aktionen anzeigen, nachdem Perfektioniert "
+"wurde."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:113
 msgid "&Save Settings"
@@ -12041,7 +12046,7 @@ msgstr ""
 "Text wird an allen Fundorten im ausgewählten Feld durch den eingegebenen "
 "Ersetzungstext ersetzt. Nach dem Ersetzen kann der Text in Groß- oder "
 "Kleinschrift oder aber Titel- Großschreibung geändert werden. Wenn die Box "
-"Groß/Kleinschreibung ausgewählt ist, muß der Suchtext genau übereinstimmen, "
+"Groß/Kleinschreibung ausgewählt ist, muss der Suchtext genau übereinstimmen, "
 "ist sie nicht ausgewählt, werden sowohl groß- als auch kleingeschriebene "
 "Vorkommen gefunden."
 
@@ -13415,7 +13420,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:171
 msgid "Equals: the word or phrase must match the entire metadata field"
 msgstr ""
-"Entspricht: Das Wort oder der Satz muß dem Metadaten- Feld genau entsprechen."
+"Entspricht: Das Wort oder der Satz muss dem Metadaten- Feld genau "
+"entsprechen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:210
@@ -15732,7 +15738,7 @@ msgstr "Lade Metadaten herunter..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:1059
 msgid "Downloading cover..."
-msgstr "Lade Coverbild..."
+msgstr "Coverbilder werden geladen..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:38
 msgid ""
@@ -15740,7 +15746,7 @@ msgid ""
 "the default settings."
 msgstr ""
 "Einstellungen auf Standardwerte zurücksetzen. Zum tatsächlichen Speichern "
-"der Standardeinstellungen muß \"Anwenden\" geklickt werden."
+"der Standardeinstellungen muss auf \"Anwenden\" geklickt werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:340
 msgid "Configure "
@@ -16317,7 +16323,7 @@ msgstr "Icon hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:350
 msgid "Icons should be square or landscape"
-msgstr ""
+msgstr "Icons sollten quadratisch oder im Querformat sein"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:354
 msgid "Only if the following conditions are all satisfied:"
@@ -16434,6 +16440,10 @@ msgid ""
 "tell calibre what icon to use. Click the Add Rule button below to get "
 "started.<p>You can <b>change an existing rule</b> by double clicking it."
 msgstr ""
+"Sie können Icons zu Spalten in der Buchliste hinzufügen, indem Sie durch "
+"\"Regeln\" Calibre mitteilen, welches Icon verwendet werden soll. Klicken "
+"Sie auf die \"Regel hinzufügen\" Schaltfläche um zu beginnen.<p>Sie können "
+"<b>eine vorhandene Relgel ändern</b> indem Sie darauf doppelklicken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:806
 msgid "No rule selected"
@@ -16679,7 +16689,7 @@ msgid ""
 "underscores, and start with a letter"
 msgstr ""
 "Der Suchname darf nur Kleinbuchstaben, Zahlen und Unterstriche enthalten und "
-"muß mit einem Buchstaben anfangen"
+"muss mit einem Buchstaben anfangen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:228
 msgid ""
@@ -17206,7 +17216,7 @@ msgstr "Zeigt &Tooltip in der Bücherliste an"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:278
 msgid "Extra &spacing to add between rows in the book list:"
-msgstr ""
+msgstr "Extra Abstand zwischen den Reihen in der Buchli&ste einfügen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:281
 msgid "Main Interface"
@@ -20690,7 +20700,7 @@ msgstr "E-Books"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:728
 #, python-format
 msgid "Current magnification: %(mag).1f"
-msgstr ""
+msgstr "Aktuelle Vergrößerung: %(mag).1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:754
 #, python-format
@@ -20888,7 +20898,7 @@ msgstr "Anzeigen"
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:958
 #, python-format
 msgid "Hide %(label)s %(shortcut)s"
-msgstr ""
+msgstr "%(label)s %(shortcut)s ausblenden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:995
 msgid "Toggle"
@@ -22745,7 +22755,7 @@ msgid ""
 "start with a letter"
 msgstr ""
 "Der Suchname darf ausschließlich Kleinbuchstaben, Zahlen und Unterstriche "
-"enthalten und muß mit einem Buchstaben anfangen."
+"enthalten und muss mit einem Buchstaben anfangen."
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:187
 msgid "restored preference "
@@ -25312,7 +25322,7 @@ msgid ""
 msgstr ""
 "Ändern der Wortliste, die beim Erstellen von Titelsortierungen als Artikel \n"
 "angesehen werden. DIe Artikel sind sprachabhängig. Standardmäßig nutzt "
-"calibre\n"
+"Calibre\n"
 "eine Kombination aus englischen Artikeln und Artikeln der Sprache, in der "
 "die \n"
 "Benutzeroberfläche eingestellt ist. Zusätzlich können unter Umständen "
@@ -25320,11 +25330,11 @@ msgstr ""
 "der Sprache des Buches verwendet werden. Sie können die Artikel für eine "
 "Sprache\n"
 "durch Bearbeiten von per_language_title_sort_articles ändern oder eine neue\n"
-"Sprache hinzufügen. Um calibre zum Verwenden einer anderen Sprache als der "
+"Sprache hinzufügen. Um Calibre zum Verwenden einer anderen Sprache als der "
 "der\n"
 "Benutzeroberfläche zu zwingen, bearbeiten sie "
 "default_language_for_title_sort. Für \n"
-"Deutsch muß beispielsweise der Wert 'deu' eingestellt werden. Ein Wert None "
+"Deutsch muss beispielsweise der Wert 'deu' eingestellt werden. Ein Wert None "
 "führt\n"
 "dazu, dass die Sprache der Benutzeroberfläche genutzt wird. Die Einstellung\n"
 "title_sort_articles wird ignoriert (nur aus Kompatibilitätsgründen "
@@ -25878,6 +25888,8 @@ msgstr ""
 msgid ""
 "Save original file when converting/polishing from same format to same format"
 msgstr ""
+"Die Originaldatei speichern, wenn in das selbe Format "
+"konvertiert/perfektioniert wird"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:467
 msgid ""
@@ -25888,6 +25900,18 @@ msgid ""
 "Similarly, by setting save_original_format_when_polishing to False you can\n"
 "prevent calibre from saving the original file when polishing."
 msgstr ""
+"Wenn Calibre von einem Format in das Selbe Format konvertiert, zum Beispiel "
+"\n"
+"von EPUB zu EPUB, wird die Originaldatei gespeichert. So können im Falle "
+"einer\n"
+"schlechten Konvertierung die Einstellungen angepasst und die Datei erneut \n"
+"konvertiert werden. Durch das Abwählen dieser Einstellung können Sie "
+"Calibre\n"
+"daran hindern, die Originaldatei zu speichern.\n"
+"Ähnlich dazu können Sie durch das Setzen von "
+"save_original_format_when_polishing\n"
+"auf False (deaktiviert) Calibre daran hindern, die Originaldatei beim "
+"Perfektionieren zu speichern."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:476
 msgid "Number of recently viewed books to show"

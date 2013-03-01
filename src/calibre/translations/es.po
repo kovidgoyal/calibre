@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-02-24 04:42+0000\n"
-"PO-Revision-Date: 2013-02-27 16:27+0000\n"
-"Last-Translator: dario hereñu <Unknown>\n"
+"PO-Revision-Date: 2013-03-01 01:33+0000\n"
+"Last-Translator: Hugo Fernández Barciela <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-02-28 04:47+0000\n"
-"X-Generator: Launchpad (build 16506)\n"
+"X-Launchpad-Export-Date: 2013-03-01 04:42+0000\n"
+"X-Generator: Launchpad (build 16514)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:540
 msgid ""
@@ -20736,7 +20736,7 @@ msgstr "Mostrar"
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:958
 #, python-format
 msgid "Hide %(label)s %(shortcut)s"
-msgstr "Ocultar %(label)s %(shortcut)s"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:995
 msgid "Toggle"
@@ -20923,7 +20923,7 @@ msgstr "Enviando..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:44
 msgid "Mail successfully sent"
-msgstr "Correo enviado con éxito"
+msgstr "Correo enviado exitosamente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:59
 msgid "Setup sending email using"
@@ -21109,7 +21109,8 @@ msgstr "&TLS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:148
 msgid "Use SSL encryption when connecting to the mail server."
-msgstr "Usar cifrado SSL al conectar con el servidor de correo."
+msgstr ""
+"Utilizar encriptación SSL cuando se conecta con el servidor de correo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:149
 msgid "&SSL"
@@ -21782,7 +21783,7 @@ msgstr "Portadas inexistentes"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:34
 msgid "Cover files not in database"
-msgstr "Portadas que no están en la base de datos"
+msgstr "Portadas de archivos que no están en la base de datos"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:35
 msgid "Folders raising exception"
@@ -21866,8 +21867,8 @@ msgid ""
 "The maximum width of a single line in the output. Defaults to detecting "
 "screen size."
 msgstr ""
-"La longitud máxima de las líneas en la salida. De manera predeterminada se "
-"toma la anchura de la pantalla."
+"La longitud máxima de una línea en el archivo de salida. De manera "
+"predeterminada para determinar el tamaño de la pantalla."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:170
 msgid "The string used to separate fields. Default is a space."
