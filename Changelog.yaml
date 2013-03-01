@@ -19,6 +19,73 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.21
+  date: 2013-03-01
+
+  new features:
+    - title: "Content server: When browsing random books, add a button to the book page to get another random book."
+      tickets: [1134958]
+
+    - title: "Kobo driver: Update cover uploading for Kobo firmware 2.3.1 and later."
+      tickets: [1135649]
+
+    - title: "Add a tweak under Preferences->Tweaks to try to recoginze numbers inside text fields like title when sorting. This will cause Book 2 to sort before Book 100. However, it is slower and can have trouble when the text starts with a number. If you want numeric sorting you should use the series field for it."
+      tickets: [1132025]
+
+    - titles: "Get Books: Update the Amazon and Foyles store plugins"
+
+    - titles: "Add a setting in Preferences->Tweaks that controls the sorting of the Copy to Library and Quick Switch menus. If the number of libraries is larger than the set value, the lists are sorted alphabetically instead of by frequency of use."
+      tickets: [1133691]
+
+    - title: "Driver for Iriver Story EB12."
+      tickets: [1132583]
+
+    - title: "Edit metadata dialog: When pasting in copied text into the comments area, you can now choose to discard all formatting. Right click on the comments area and select 'Paste and Match style' which will paste the copied text as plain text formatted in the current style."
+
+    - title: "Book polishing: Make updating cover a separate option, so you can now update metadata without updating the cover."
+
+    - titles: "Linux build: Install zsh completion for the calibre command line utilities"
+ 
+  bug fixes:
+    - title: "Conversion: Do not rescale fonts sizes/adjust line heights for text based drop caps defined using a separate <span> tag (drop caps defined using :first-letter were already handled correctly)"
+
+    - title: "E-book viewer: Fix clicking links going to slightly incorrect locations in some books."
+      tickets: [1132641]
+
+    - title: "E-book viewer: Fix rendering of pages for right-to-left text in paged mode is reversed."
+      tickets: [1132626]
+
+    - title: "E-book viewer: Fix bug in rendering prefixed svg tags in the cover pages of some EPUB files."
+
+    - title: "PDF Output: Do not error out when embedding a font that calibre cannot subset, instead embed the full font"
+
+    - title: "Book polishing: Fix bug that caused the ORIGINAL_EPUB format to be replaced by the EPUB format when polishing a book with both ORIGINA_EPUB and EPUB"
+
+    - title: "Polishing books: Ignore unsupported fonts instead of erroring out on them."
+      tickets: [1132085]
+
+    - title: 'Make bulk edit of custom columns respect the "apply changes" checkbox even if the value to set has not changed'
+
+  improved recipes:
+    - Science News
+    - Die Zeit (subscription version)
+
+  new recipes:
+    - title: Financial Times (US subscription version) and Nezavisne Novine 
+      author: Darko Miletic
+
+    - title: Geopolityka 
+      author: chemik111
+
+    - title: Democracy Journal 
+      author: David Nye
+
+    - title: HNOnline 
+      author: Ladislav Lencucha
+
+    - title: Various Colombian news sources 
+      author: Ismael Mejia
+
 - version: 0.9.20
   date: 2013-02-22
 
