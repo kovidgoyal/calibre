@@ -295,7 +295,8 @@ class Writer(object):
             pass
             # TODO: Remember to change commas to | when writing authors to sqlite
         elif field.is_many:
-            self.set_books_func = many_one
+            self.set_books_func = (self.set_books_for_enum if dt ==
+                                   'enumeration' else many_one)
         else:
             self.set_books_func = (one_one_in_books if field.metadata['table']
                                    == 'books' else one_one_in_other)
@@ -310,4 +311,14 @@ class Writer(object):
         dirtied = self.set_books_func(book_id_val_map, db, self.field,
                                       allow_case_change)
         return dirtied
+
+    def set_books_for_enum(self, book_id_val_map, db, field,
+                           allow_case_change):
+        allowed = set(field.metadata['display']['enum_values'])
+        book_id_val_map = {k:v for k, v in book_id_val_map.iteritems() if v is
+                           None or v in allowed}
+        if not book_id_val_map:
+            return set()
+        return many_one(book_id_val_map, db, field, False)
+
 

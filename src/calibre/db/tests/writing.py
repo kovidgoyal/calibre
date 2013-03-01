@@ -159,7 +159,17 @@ class WritingTest(BaseTest):
         self.assertEqual(tuple(map(f.for_book, (1,2,3))), ('Two', 'Two', 'three'))
         del cache2
 
-        # TODO: Test different column types
+        # TODO: Test different column types rating, #rating, series, #series,
+
+        # Enum
+        self.assertFalse(cache.set_field('#enum', {1:'Not allowed'}))
+        self.assertEqual(cache.set_field('#enum', {1:'One', 2:'One', 3:'Three'}), {1, 3})
+        self.assertEqual(cache.set_field('#enum', {1:None}), set([1]))
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            for i, val in {1:None, 2:'One', 3:'Three'}.iteritems():
+                self.assertEqual(c.field_for('#enum', i), val)
+        del cache2
 
 def tests():
     return unittest.TestLoader().loadTestsFromTestCase(WritingTest)
