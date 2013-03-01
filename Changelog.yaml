@@ -32,9 +32,9 @@
     - title: "Add a tweak under Preferences->Tweaks to try to recoginze numbers inside text fields like title when sorting. This will cause Book 2 to sort before Book 100. However, it is slower and can have trouble when the text starts with a number. If you want numeric sorting you should use the series field for it."
       tickets: [1132025]
 
-    - titles: "Get Books: Update the Amazon and Foyles store plugins"
+    - title: "Get Books: Update the Amazon and Foyles store plugins"
 
-    - titles: "Add a setting in Preferences->Tweaks that controls the sorting of the Copy to Library and Quick Switch menus. If the number of libraries is larger than the set value, the lists are sorted alphabetically instead of by frequency of use."
+    - title: "Add a setting in Preferences->Tweaks that controls the sorting of the Copy to Library and Quick Switch menus. If the number of libraries is larger than the set value, the lists are sorted alphabetically instead of by frequency of use."
       tickets: [1133691]
 
     - title: "Driver for Iriver Story EB12."
@@ -44,7 +44,7 @@
 
     - title: "Book polishing: Make updating cover a separate option, so you can now update metadata without updating the cover."
 
-    - titles: "Linux build: Install zsh completion for the calibre command line utilities"
+    - title: "Linux build: Install zsh completion for the calibre command line utilities"
  
   bug fixes:
     - title: "Conversion: Do not rescale fonts sizes/adjust line heights for text based drop caps defined using a separate <span> tag (drop caps defined using :first-letter were already handled correctly)"
