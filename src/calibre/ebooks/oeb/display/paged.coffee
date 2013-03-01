@@ -410,7 +410,22 @@ class PagedDisplay
         elem.scrollIntoView()
         if this.in_paged_mode
             # Ensure we are scrolled to the column containing elem
-            this.scroll_to_xpos(calibre_utils.absleft(elem) + 5)
+
+            # Because of a bug in WebKit's getBoundingClientRect() in column
+            # mode, this position can be inaccurate, see
+            # https://bugs.launchpad.net/calibre/+bug/1132641 for a test case.
+            # The usual symptom of the inaccuracy is br.top is highly negative.
+            br = elem.getBoundingClientRect()
+            if br.top < -1000
+                # This only works because of the preceding call to
+                # elem.scrollIntoView(). However, in some cases it gives
+                # inaccurate results, so we prefer the bounding client rect,
+                # when possible.
+                left = elem.scrollLeft
+            else
+                left = br.left
+            this.scroll_to_xpos(calibre_utils.viewport_to_document(
+                left+this.margin_side, elem.scrollTop, elem.ownerDocument)[0])
 
     snap_to_selection: () ->
         # Ensure that the viewport is positioned at the start of the column

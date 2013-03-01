@@ -75,7 +75,7 @@ class WritingTest(BaseTest):
                             test.name, old_sqlite_res, sqlite_res))
                 del db
 
-    def test_one_one(self):
+    def test_one_one(self): # {{{
         'Test setting of values in one-one fields'
         tests = [self.create_test('#yesno', (True, False, 'true', 'false', None))]
         for name, getter, setter in (
@@ -114,6 +114,96 @@ class WritingTest(BaseTest):
             tests.append(self.create_test(name, tuple(vals), getter, setter))
 
         self.run_tests(tests)
+    # }}}
+
+    def test_many_one_basic(self): # {{{
+        'Test the different code paths for writing to a many-one field'
+        cl = self.cloned_library
+        cache = self.init_cache(cl)
+        f = cache.fields['publisher']
+        item_ids = {f.ids_for_book(1)[0], f.ids_for_book(2)[0]}
+        val = 'Changed'
+        self.assertEqual(cache.set_field('publisher', {1:val, 2:val}), {1, 2})
+        cache2 = self.init_cache(cl)
+        for book_id in (1, 2):
+            for c in (cache, cache2):
+                self.assertEqual(c.field_for('publisher', book_id), val)
+                self.assertFalse(item_ids.intersection(set(c.fields['publisher'].table.id_map)))
+        del cache2
+        self.assertFalse(cache.set_field('publisher', {1:val, 2:val}))
+        val = val.lower()
+        self.assertFalse(cache.set_field('publisher', {1:val, 2:val},
+                                         allow_case_change=False))
+        self.assertEqual(cache.set_field('publisher', {1:val, 2:val}), {1, 2})
+        cache2 = self.init_cache(cl)
+        for book_id in (1, 2):
+            for c in (cache, cache2):
+                self.assertEqual(c.field_for('publisher', book_id), val)
+        del cache2
+        self.assertEqual(cache.set_field('publisher', {1:'new', 2:'New'}), {1, 2})
+        self.assertEqual(cache.field_for('publisher', 1).lower(), 'new')
+        self.assertEqual(cache.field_for('publisher', 2).lower(), 'new')
+        self.assertEqual(cache.set_field('publisher', {1:None, 2:'NEW'}), {1, 2})
+        self.assertEqual(len(f.table.id_map), 1)
+        self.assertEqual(cache.set_field('publisher', {2:None}), {2})
+        self.assertEqual(len(f.table.id_map), 0)
+        cache2 = self.init_cache(cl)
+        self.assertEqual(len(cache2.fields['publisher'].table.id_map), 0)
+        del cache2
+        self.assertEqual(cache.set_field('publisher', {1:'one', 2:'two',
+                                                       3:'three'}), {1, 2, 3})
+        self.assertEqual(cache.set_field('publisher', {1:''}), set([1]))
+        self.assertEqual(cache.set_field('publisher', {1:'two'}), set([1]))
+        self.assertEqual(tuple(map(f.for_book, (1,2,3))), ('two', 'two', 'three'))
+        self.assertEqual(cache.set_field('publisher', {1:'Two'}), {1, 2})
+        cache2 = self.init_cache(cl)
+        self.assertEqual(tuple(map(f.for_book, (1,2,3))), ('Two', 'Two', 'three'))
+        del cache2
+
+        # Enum
+        self.assertFalse(cache.set_field('#enum', {1:'Not allowed'}))
+        self.assertEqual(cache.set_field('#enum', {1:'One', 2:'One', 3:'Three'}), {1, 3})
+        self.assertEqual(cache.set_field('#enum', {1:None}), set([1]))
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            for i, val in {1:None, 2:'One', 3:'Three'}.iteritems():
+                self.assertEqual(c.field_for('#enum', i), val)
+        del cache2
+
+        # Rating
+        self.assertFalse(cache.set_field('rating', {1:6, 2:4}))
+        self.assertEqual(cache.set_field('rating', {1:0, 3:2}), {1, 3})
+        self.assertEqual(cache.set_field('#rating', {1:None, 2:4, 3:8}), {1, 2, 3})
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            for i, val in {1:None, 2:4, 3:2}.iteritems():
+                self.assertEqual(c.field_for('rating', i), val)
+            for i, val in {1:None, 2:4, 3:8}.iteritems():
+                self.assertEqual(c.field_for('#rating', i), val)
+        del cache2
+
+        # Series
+        self.assertFalse(cache.set_field('series',
+                {1:'a series one', 2:'a series one'}, allow_case_change=False))
+        self.assertEqual(cache.set_field('series', {3:'Series [3]'}), set([3]))
+        self.assertEqual(cache.set_field('#series', {1:'Series', 3:'Series'}),
+                                         {1, 3})
+        self.assertEqual(cache.set_field('#series', {2:'Series [0]'}), set([2]))
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            for i, val in {1:'A Series One', 2:'A Series One', 3:'Series'}.iteritems():
+                self.assertEqual(c.field_for('series', i), val)
+            for i in (1, 2, 3):
+                self.assertEqual(c.field_for('#series', i), 'Series')
+            for i, val in {1:2, 2:1, 3:3}.iteritems():
+                self.assertEqual(c.field_for('series_index', i), val)
+            for i, val in {1:1, 2:0, 3:1}.iteritems():
+                self.assertEqual(c.field_for('#series_index', i), val)
+        del cache2
+
+    # }}}
+
+
 
 def tests():
     return unittest.TestLoader().loadTestsFromTestCase(WritingTest)

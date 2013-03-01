@@ -15,7 +15,8 @@ from PyQt4.Qt import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
 from calibre import isbytestring, sanitize_file_name_unicode
 from calibre.constants import (filesystem_encoding, iswindows,
         get_portable_base)
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
+from calibre.utils.icu import sort_key
 from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
     question_dialog, info_dialog, open_local_file, choose_dir)
 from calibre.library.database2 import LibraryDatabase2
@@ -46,7 +47,7 @@ class LibraryUsageStats(object): # {{{
         locs = list(self.stats.keys())
         locs.sort(cmp=lambda x, y: cmp(self.stats[x], self.stats[y]),
                 reverse=True)
-        for key in locs[25:]:
+        for key in locs[500:]:
             self.stats.pop(key)
         gprefs.set('library_usage_stats', self.stats)
 
@@ -72,8 +73,9 @@ class LibraryUsageStats(object): # {{{
         locs = list(self.stats.keys())
         if lpath in locs:
             locs.remove(lpath)
-        locs.sort(cmp=lambda x, y: cmp(self.stats[x], self.stats[y]),
-                reverse=True)
+        limit = tweaks['many_libraries']
+        key = sort_key if len(locs) > limit else lambda x:self.stats[x]
+        locs.sort(key=key, reverse=len(locs)<=limit)
         for loc in locs:
             yield self.pretty(loc), loc
 

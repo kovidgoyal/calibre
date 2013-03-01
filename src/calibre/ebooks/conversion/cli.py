@@ -100,6 +100,9 @@ def option_recommendation_to_cli_option(add_option, rec):
         switches = ['--disable-'+opt.long_switch]
     add_option(Option(*switches, **attrs))
 
+def group_titles():
+    return _('INPUT OPTIONS'), _('OUTPUT OPTIONS')
+
 def add_input_output_options(parser, plumber):
     input_options, output_options = \
                                 plumber.input_options, plumber.output_options
@@ -109,14 +112,14 @@ def add_input_output_options(parser, plumber):
             option_recommendation_to_cli_option(group, opt)
 
     if input_options:
-        title = _('INPUT OPTIONS')
+        title = group_titles()[0]
         io = OptionGroup(parser, title, _('Options to control the processing'
                           ' of the input %s file')%plumber.input_fmt)
         add_options(io.add_option, input_options)
         parser.add_option_group(io)
 
     if output_options:
-        title = _('OUTPUT OPTIONS')
+        title = group_titles()[1]
         oo = OptionGroup(parser, title, _('Options to control the processing'
                           ' of the output %s')%plumber.output_fmt)
         add_options(oo.add_option, output_options)

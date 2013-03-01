@@ -1,0 +1,182 @@
+__license__   = 'GPL v3'
+__copyright__ = '2013, Darko Miletic <darko.miletic at gmail.com>'
+'''
+http://www.ft.com/intl/us-edition
+'''
+
+import datetime
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class FinancialTimes(BasicNewsRecipe):
+    title                 = 'Financial Times (US) printed edition'
+    __author__            = 'Darko Miletic'
+    description           = "The Financial Times (FT) is one of the world's leading business news and information organisations, recognised internationally for its authority, integrity and accuracy."
+    publisher             = 'The Financial Times Ltd.'
+    category              = 'news, finances, politics, UK, World'
+    oldest_article        = 2
+    language              = 'en'
+    max_articles_per_feed = 250
+    no_stylesheets        = True
+    use_embedded_content  = False
+    needs_subscription    = True
+    encoding              = 'utf8'
+    publication_type      = 'newspaper'
+    articles_are_obfuscated = True
+    temp_files              = []
+    masthead_url          = 'http://im.media.ft.com/m/img/masthead_main.jpg'
+    LOGIN                 = 'https://registration.ft.com/registration/barrier/login'
+    LOGIN2                = 'http://media.ft.com/h/subs3.html'
+    INDEX                 = 'http://www.ft.com/intl/us-edition'
+    PREFIX                = 'http://www.ft.com'
+
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : language
+                        , 'linearize_tables' : True
+                        }
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.open(self.INDEX)
+        if self.username is not None and self.password is not None:
+            br.open(self.LOGIN2)
+            br.select_form(name='loginForm')
+            br['username'] = self.username
+            br['password'] = self.password
+            br.submit()
+        return br
+
+    keep_only_tags = [
+                        dict(name='div' , attrs={'class':['fullstory fullstoryHeader', 'ft-story-header']})
+                       ,dict(name='div' , attrs={'class':'standfirst'})
+                       ,dict(name='div' , attrs={'id'   :'storyContent'})
+                       ,dict(name='div' , attrs={'class':['ft-story-body','index-detail']})
+                       ,dict(name='h2'  , attrs={'class':'entry-title'} )
+                       ,dict(name='span', attrs={'class':lambda x: x and 'posted-on' in x.split()} )
+                       ,dict(name='span', attrs={'class':'author_byline'} )
+                       ,dict(name='div' , attrs={'class':'entry-content'} )
+                     ]
+    remove_tags = [
+                      dict(name='div', attrs={'id':'floating-con'})
+                     ,dict(name=['meta','iframe','base','object','embed','link'])
+                     ,dict(attrs={'class':['storyTools','story-package','screen-copy','story-package separator','expandable-image']})
+                  ]
+    remove_attributes = ['width','height','lang']
+
+    extra_css = """
+                body{font-family: Georgia,Times,"Times New Roman",serif}
+                h2{font-size:large}
+                .ft-story-header{font-size: x-small}
+                .container{font-size:x-small;}
+                h3{font-size:x-small;color:#003399;}
+                .copyright{font-size: x-small}
+                img{margin-top: 0.8em; display: block}
+                .lastUpdated{font-family: Arial,Helvetica,sans-serif; font-size: x-small}
+                .byline,.ft-story-body,.ft-story-header{font-family: Arial,Helvetica,sans-serif}
+                """
+
+    def get_artlinks(self, elem):
+        articles = []
+        count = 0
+        for item in elem.findAll('a',href=True):
+            count = count + 1
+            if self.test and count > 2:
+               return articles
+            rawlink = item['href']
+            url = rawlink
+            if not rawlink.startswith('http://'):
+               url = self.PREFIX + rawlink
+            try:
+                urlverified = self.browser.open_novisit(url).geturl() # resolve redirect.
+            except:
+                continue 
+            title = self.tag_to_string(item)
+            date = strftime(self.timefmt)
+            articles.append({
+                              'title'      :title
+                             ,'date'       :date
+                             ,'url'        :urlverified
+                             ,'description':''
+                            })
+        return articles
+
+    def parse_index(self):
+        feeds = []
+        soup = self.index_to_soup(self.INDEX)
+        dates= self.tag_to_string(soup.find('div', attrs={'class':'btm-links'}).find('div'))
+        self.timefmt = ' [%s]'%dates
+        wide = soup.find('div',attrs={'class':'wide'})
+        if not wide:
+           return feeds
+        allsections = wide.findAll(attrs={'class':lambda x: x and 'footwell' in x.split()})
+        if not allsections:
+           return feeds
+        count = 0
+        for item in allsections:
+            count = count + 1
+            if self.test and count > 2:
+               return feeds
+            fitem = item.h3
+            if not fitem:
+               fitem = item.h4
+            ftitle = self.tag_to_string(fitem)   
+            self.report_progress(0, _('Fetching feed')+' %s...'%(ftitle))
+            feedarts = self.get_artlinks(item.ul)
+            feeds.append((ftitle,feedarts))
+        return feeds
+
+    def preprocess_html(self, soup):
+        items = ['promo-box','promo-title',
+                 'promo-headline','promo-image',
+                 'promo-intro','promo-link','subhead']
+        for item in items:
+            for it in soup.findAll(item):
+                it.name = 'div'
+                it.attrs = []
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  item.attrs = []
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup
+
+    def get_cover_url(self):
+        cdate = datetime.date.today()
+        if cdate.isoweekday() == 7:
+            cdate -= datetime.timedelta(days=1)
+        return cdate.strftime('http://specials.ft.com/vtf_pdf/%d%m%y_FRONT1_USA.pdf')
+
+    def get_obfuscated_article(self, url):
+        count = 0
+        while (count < 10):
+            try:
+                response = self.browser.open(url)
+                html = response.read()
+                count = 10
+            except:
+                print "Retrying download..."
+            count += 1
+        tfile = PersistentTemporaryFile('_fa.html')
+        tfile.write(html)
+        tfile.close()        
+        self.temp_files.append(tfile)
+        return tfile.name
+
+    def cleanup(self):
+        self.browser.open('https://registration.ft.com/registration/login/logout?location=')

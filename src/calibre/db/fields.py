@@ -22,6 +22,7 @@ from calibre.utils.localization import calibre_langcode_to_name
 class Field(object):
 
     is_many = False
+    is_many_many = False
 
     def __init__(self, name, table):
         self.name, self.table = name, table
@@ -299,6 +300,7 @@ class ManyToOneField(Field):
 class ManyToManyField(Field):
 
     is_many = True
+    is_many_many = True
 
     def __init__(self, *args, **kwargs):
         Field.__init__(self, *args, **kwargs)
