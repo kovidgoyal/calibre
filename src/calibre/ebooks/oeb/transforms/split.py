@@ -228,16 +228,20 @@ class FlowSplitter(object):
                 ordered_ids[elem_id] = self.page_breaks[
                     self.page_break_ids.index(elem_id)]
 
-        self.trees = []
-        tree = orig_tree
-        for pattern, before in ordered_ids.itervalues():
-            elem = pattern(tree)
-            if elem:
-                self.log.debug('\t\tSplitting on page-break at %s'%
+        self.trees = [orig_tree]
+        while ordered_ids:
+            pb_id, (pattern, before) = ordered_ids.iteritems().next()
+            del ordered_ids[pb_id]
+            for i in xrange(len(self.trees)-1, -1, -1):
+                tree = self.trees[i]
+                elem = pattern(tree)
+                if not elem:
+                    continue
+                self.log.debug('\t\tSplitting on page-break at id=%s'%
                                elem[0].get('id'))
                 before_tree, after_tree = self.do_split(tree, elem[0], before)
-                self.trees.append(before_tree)
-                tree = after_tree
+                self.trees[i:i+1] = [before_tree, after_tree]
+
         self.trees.append(tree)
         trees, ids = [], set([])
         for tree in self.trees:
