@@ -235,12 +235,12 @@ class FlowSplitter(object):
             for i in xrange(len(self.trees)-1, -1, -1):
                 tree = self.trees[i]
                 elem = pattern(tree)
-                if not elem:
-                    continue
-                self.log.debug('\t\tSplitting on page-break at id=%s'%
-                               elem[0].get('id'))
-                before_tree, after_tree = self.do_split(tree, elem[0], before)
-                self.trees[i:i+1] = [before_tree, after_tree]
+                if elem:
+                    self.log.debug('\t\tSplitting on page-break at id=%s'%
+                                elem[0].get('id'))
+                    before_tree, after_tree = self.do_split(tree, elem[0], before)
+                    self.trees[i:i+1] = [before_tree, after_tree]
+                    break
 
         self.trees.append(tree)
         trees, ids = [], set([])
