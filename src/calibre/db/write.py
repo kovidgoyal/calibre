@@ -350,7 +350,6 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
 
     return dirtied
 
-
 # }}}
 
 def dummy(book_id_val_map, *args):
