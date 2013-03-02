@@ -10,6 +10,7 @@ assumes a prior call to the flatcss transform.
 '''
 
 import os, math, functools, collections, re, copy
+from collections import OrderedDict
 
 from lxml.etree import XPath as _XPath
 from lxml import etree
@@ -106,8 +107,7 @@ class Split(object):
                 continue
             for elem in selector(body[0]):
                 if elem not in body:
-                    if before:
-                        elem.set('pb_before', '1')
+                    elem.set('pb_before', '1' if before else '0')
                     page_breaks.add(elem)
 
         for i, elem in enumerate(item.data.iter()):
@@ -134,14 +134,12 @@ class Split(object):
                     id = 'calibre_pb_%d'%i
                     x.set('id', id)
                     xp = XPath('//*[@id=%r]'%id)
-            page_breaks_.append((xp,
-                x.get('pb_before', False)))
+            page_breaks_.append((xp, x.get('pb_before', '0') == '1'))
             page_break_ids.append(id)
 
         for elem in item.data.iter():
             elem.attrib.pop('pb_order', False)
-            if elem.get('pb_before', False):
-                elem.attrib.pop('pb_before')
+            elem.attrib.pop('pb_before', False)
 
         return page_breaks_, page_break_ids
 
@@ -223,22 +221,23 @@ class FlowSplitter(object):
         self.commit()
 
     def split_on_page_breaks(self, orig_tree):
-        ordered_ids = []
-        for elem in orig_tree.xpath('//*[@id]'):
-            id = elem.get('id')
-            if id in self.page_break_ids:
-                ordered_ids.append(self.page_breaks[self.page_break_ids.index(id)])
+        ordered_ids = OrderedDict()
+        all_page_break_ids = frozenset(self.page_break_ids)
+        for elem_id in orig_tree.xpath('//*/@id'):
+            if elem_id in all_page_break_ids:
+                ordered_ids[elem_id] = self.page_breaks[
+                    self.page_break_ids.index(elem_id)]
 
         self.trees = []
         tree = orig_tree
-        for pattern, before in ordered_ids:
+        for pattern, before in ordered_ids.itervalues():
             elem = pattern(tree)
             if elem:
                 self.log.debug('\t\tSplitting on page-break at %s'%
                                elem[0].get('id'))
-                before, after = self.do_split(tree, elem[0], before)
-                self.trees.append(before)
-                tree = after
+                before_tree, after_tree = self.do_split(tree, elem[0], before)
+                self.trees.append(before_tree)
+                tree = after_tree
         self.trees.append(tree)
         trees, ids = [], set([])
         for tree in self.trees:
@@ -289,7 +288,6 @@ class FlowSplitter(object):
         if self.opts.verbose > 3 and npath != path:
             self.log.debug('\t\t\tMoved split point %s to %s'%(path, npath))
 
-
         return npath
 
     def do_split(self, tree, split_point, before):
@@ -304,7 +302,11 @@ class FlowSplitter(object):
         root         = tree.getroot()
         root2        = tree2.getroot()
         body, body2  = map(self.get_body, (root, root2))
-        path = self.adjust_split_point(root, path)
+        if before:
+            # We cannot adjust for after since moving an after split point to a
+            # parent will cause breakage if the parent contains any content
+            # after the original split point
+            path = self.adjust_split_point(root, path)
         split_point  = root.xpath(path)[0]
         split_point2 = root2.xpath(path)[0]
 
