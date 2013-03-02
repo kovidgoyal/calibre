@@ -45,14 +45,18 @@ def get_series_values(val):
             pass
     return (val, None)
 
-def multiple_text(sep, x):
-    if x is None:
+def multiple_text(sep, ui_sep, x):
+    if not x:
         return ()
     if isinstance(x, bytes):
         x = x.decode(preferred_encoding, 'replce')
     if isinstance(x, unicode):
         x = x.split(sep)
-    x = (y.strip() for y in x if y.strip())
+    else:
+        x = (y.decode(preferred_encoding, 'replace') if isinstance(y, bytes)
+             else y for y in x)
+    repsep = ',' if ui_sep == ';' else ';'
+    x = (y.strip().replace(ui_sep, repsep) for y in x if y.strip())
     return tuple(' '.join(y.split()) for y in x if y)
 
 def adapt_datetime(x):
@@ -92,7 +96,8 @@ def get_adapter(name, metadata):
     dt = metadata['datatype']
     if dt == 'text':
         if metadata['is_multiple']:
-            ans = partial(multiple_text, metadata['is_multiple']['ui_to_list'])
+            m = metadata['is_multiple']
+            ans = partial(multiple_text, m['ui_to_list'], m['list_to_ui'])
         else:
             ans = single_text
     elif dt == 'series':
