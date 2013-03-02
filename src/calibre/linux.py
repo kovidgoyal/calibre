@@ -171,7 +171,7 @@ class ZshCompleter(object): # {{{
             arg = ''
             if opt.takes_value():
                 arg = ':"%s":'%h
-                if opt.dest in {'debug_pipeline', 'to_dir', 'outbox', 'with_library', 'library_path'}:
+                if opt.dest in {'extract_to', 'debug_pipeline', 'to_dir', 'outbox', 'with_library', 'library_path'}:
                     arg += "'_path_files -/'"
                 elif opt.choices:
                     arg += "(%s)"%'|'.join(opt.choices)
