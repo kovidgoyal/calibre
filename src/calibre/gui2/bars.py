@@ -123,6 +123,15 @@ class ToolBar(QToolBar): # {{{
            md.hasFormat("application/calibre+from_device"):
             event.setDropAction(Qt.CopyAction)
             event.accept()
+
+        elif self.added_actions:
+            # Give added_actions an opportunity to process the drag&drop event
+            # This calls the first QMenu object that accepts drops, rather than the
+            # specific one that was dropped on
+            for aa in self.added_actions:
+                if aa.menu() is not None and aa.menu().acceptDrops():
+                    aa.menu().dragEnterEvent(event)
+                    break
         else:
             event.ignore()
 
@@ -141,6 +150,15 @@ class ToolBar(QToolBar): # {{{
                     break
         if allowed:
             event.acceptProposedAction()
+
+        elif self.added_actions:
+            # Give added_actions an opportunity to process the drag&drop event
+            # This calls the first QMenu object that accepts drops, rather than the
+            # specific one that was dropped on
+            for aa in self.added_actions:
+                if aa.menu() is not None and aa.menu().acceptDrops():
+                    aa.menu().dragMoveEvent(event)
+                    break
         else:
             event.ignore()
 
@@ -168,6 +186,15 @@ class ToolBar(QToolBar): # {{{
                 self.gui.iactions['Add Books'].add_books_from_device(
                         self.gui.current_view(), paths=paths)
                 event.accept()
+
+        # Give added_actions an opportunity to process the drag&drop event
+        # This calls the first QMenu object that accepts drops, rather than the
+        # specific one that was dropped on
+        if self.added_actions:
+            for aa in self.added_actions:
+                if aa.menu() is not None and aa.menu().acceptDrops():
+                    aa.menu().dropEvent(event)
+                    break
 
 # }}}
 
