@@ -204,6 +204,10 @@ class WritingTest(BaseTest):
     # }}}
 
 
+    def test_many_many_basic(self): # {{{
+        'Test the different code paths for writing to a many-one field'
+        # Fields: identifiers, authors, tags, languages, #authors, #tags
+    # }}}
 
 def tests():
     return unittest.TestLoader().loadTestsFromTestCase(WritingTest)

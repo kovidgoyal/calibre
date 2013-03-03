@@ -137,7 +137,7 @@ def get_adapter(name, metadata):
 def one_one_in_books(book_id_val_map, db, field, *args):
     'Set a one-one field in the books table'
     if book_id_val_map:
-        sequence = tuple((sqlite_datetime(v), k) for k, v in book_id_val_map.iteritems())
+        sequence = ((sqlite_datetime(v), k) for k, v in book_id_val_map.iteritems())
         db.conn.executemany(
             'UPDATE books SET %s=? WHERE id=?'%field.metadata['column'], sequence)
         field.table.book_col_map.update(book_id_val_map)
@@ -155,7 +155,7 @@ def one_one_in_other(book_id_val_map, db, field, *args):
     if updated:
         db.conn.executemany('INSERT OR REPLACE INTO %s(book,%s) VALUES (?,?)'%(
             field.metadata['table'], field.metadata['column']),
-            tuple((k, sqlite_datetime(v)) for k, v in updated.iteritems()))
+            ((k, sqlite_datetime(v)) for k, v in updated.iteritems()))
         field.table.book_col_map.update(updated)
     return set(book_id_val_map)
 
@@ -202,7 +202,7 @@ def get_db_id(val, db, m, table, kmap, rid_map, allow_case_changes,
 def change_case(case_changes, dirtied, db, table, m, sql_val_map=lambda x:x):
     db.conn.executemany(
         'UPDATE %s SET %s=? WHERE id=?'%(m['table'], m['column']),
-        tuple((sql_val_map(val), item_id) for item_id, val in case_changes.iteritems()))
+        ((sql_val_map(val), item_id) for item_id, val in case_changes.iteritems()))
     for item_id, val in case_changes.iteritems():
         table.id_map[item_id] = val
         dirtied.update(table.col_book_map[item_id])
@@ -252,7 +252,7 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
     # Update the db link table
     if deleted:
         db.conn.executemany('DELETE FROM %s WHERE book=?'%table.link_table,
-                            tuple((k,) for k in deleted))
+                            ((k,) for k in deleted))
     if updated:
         sql = (
             'DELETE FROM {0} WHERE book=?; INSERT INTO {0}(book,{1},extra) VALUES(?, ?, 1.0)'
@@ -260,7 +260,7 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
             'DELETE FROM {0} WHERE book=?; INSERT INTO {0}(book,{1}) VALUES(?, ?)'
         )
         db.conn.executemany(sql.format(table.link_table, m['link_column']),
-            tuple((book_id, book_id, item_id) for book_id, item_id in
+            ((book_id, book_id, item_id) for book_id, item_id in
                     updated.iteritems()))
 
     # Remove no longer used items
@@ -268,7 +268,7 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
               table.col_book_map.get(item_id, False)}
     if remove:
         db.conn.executemany('DELETE FROM %s WHERE id=?'%m['table'],
-            tuple((item_id,) for item_id in remove))
+            ((item_id,) for item_id in remove))
         for item_id in remove:
             del table.id_map[item_id]
             table.col_book_map.pop(item_id, None)
@@ -327,9 +327,9 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
     # Update the db link table
     if deleted:
         db.conn.executemany('DELETE FROM %s WHERE book=?'%table.link_table,
-                            tuple((k,) for k in deleted))
+                            ((k,) for k in deleted))
     if updated:
-        vals = tuple(
+        vals = (
             (book_id, book_id, val) for book_id, vals in updated.iteritems()
             for val in vals
         )
@@ -343,7 +343,7 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
               table.col_book_map.get(item_id, False)}
     if remove:
         db.conn.executemany('DELETE FROM %s WHERE id=?'%m['table'],
-            tuple((item_id,) for item_id in remove))
+            ((item_id,) for item_id in remove))
         for item_id in remove:
             del table.id_map[item_id]
             table.col_book_map.pop(item_id, None)
