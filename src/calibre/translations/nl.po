@@ -57,14 +57,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-01 05:01+0000\n"
-"PO-Revision-Date: 2013-02-16 13:48+0000\n"
+"PO-Revision-Date: 2013-03-02 14:51+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-02 04:38+0000\n"
+"X-Launchpad-Export-Date: 2013-03-03 04:58+0000\n"
 "X-Generator: Launchpad (build 16514)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -2003,7 +2003,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1227
 msgid "Keep cover aspect ratio"
-msgstr ""
+msgstr "Bewaar verhoudingen omslag"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1228
 msgid ""
@@ -5523,7 +5523,7 @@ msgstr "Geen metadata omslag gevonden"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:158
 msgid "Smartening punctuation"
-msgstr ""
+msgstr "Interpunctie verbeteren"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:163
 msgid "Subsetting embedded fonts"
@@ -5569,7 +5569,7 @@ msgstr "U dient minimaal één taak op te geven om uit te voeren"
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/replace.py:73
 #, python-format
 msgid "Smartened punctuation in: %s"
-msgstr ""
+msgstr "Interpunctie verbeterd naar: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
@@ -7118,7 +7118,7 @@ msgstr "<h3>Lettertypes als deelverzameling</h3>%s"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:44
 #, python-format
 msgid "<h3>Smarten punctuation</h3>%s"
-msgstr ""
+msgstr "<h3>Verbeter interpunctie</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:46
 msgid ""
@@ -7162,19 +7162,19 @@ msgstr "Inter&punctie verbeteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:73
 msgid "Update &metadata in the book files"
-msgstr ""
+msgstr "&Metadata in boekbestand bijwerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:74
 msgid "Update the &cover in the book files"
-msgstr ""
+msgstr "&Omslag in boekbestand bijwerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:75
 msgid "Add metadata as a \"book &jacket\" page"
-msgstr ""
+msgstr "Metadata als een \"Inleg&vel\" toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:76
 msgid "&Remove a previously inserted book jacket"
-msgstr ""
+msgstr "&Verwijder een eerder gemaakt inlegvel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:86
 msgid "About"

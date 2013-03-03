@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-03-01 05:01+0000\n"
-"PO-Revision-Date: 2013-02-22 15:18+0000\n"
+"PO-Revision-Date: 2013-03-02 12:01+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-02 04:37+0000\n"
+"X-Launchpad-Export-Date: 2013-03-03 04:58+0000\n"
 "X-Generator: Launchpad (build 16514)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1969,16 +1969,20 @@ msgid ""
 "Upload cover images from the calibre library when sending books to the "
 "device."
 msgstr ""
+"Puja les imatges de portades des de la biblioteca del calibre en enviar "
+"llibres al dispositiu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1227
 msgid "Keep cover aspect ratio"
-msgstr ""
+msgstr "Manté la relació s'aspecte de la portada"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1228
 msgid ""
 "When uploading covers, do not change the aspect ratio when resizing for the "
 "device. This is for firmware versions 2.3.1 and later."
 msgstr ""
+"En pujar portades, no canviïs la relació d'aspecte en ajustar-ne la mida per "
+"al dispositiu. Per a versions de microprogramari 2.3.1 i posteriors."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
 msgid ""
@@ -7157,6 +7161,12 @@ msgid ""
 "all the metadata in calibre.</p><p>There is a separate option to update the "
 "cover.</p>"
 msgstr ""
+"<h3>Actualització de metadades</h3><p>S'actualitzaran totes les metadades "
+"<i>excepte</i> la portada als fitxers de llibre per fer-les coincidir amb "
+"les metadades actuals de la biblioteca del calibre.</p> <p>Tingueu en compte "
+"que la majoria de formats de llibre no són capaços d'admetre totes les "
+"metadades del calibre.</p><p>Hi ha una opció per separat per actualitzar la "
+"portada.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:54
 msgid ""
@@ -7164,6 +7174,9 @@ msgid ""
 "calibre library.</p><p>If the ebook file does not have an identifiable "
 "cover, a new cover is inserted.</p>"
 msgstr ""
+"<p>Actualitza les portades als fitxers de llibre perquè coincideixi amb la "
+"portada actual de la biblioteca del calibre.</p><p>Si el fitxer de llibre no "
+"té una portada identificable, s'insereix una portada nova.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:59
 #, python-format
@@ -7191,19 +7204,19 @@ msgstr "Embelleix la &puntuació"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:73
 msgid "Update &metadata in the book files"
-msgstr ""
+msgstr "Actualitza les metadades als fitxers de llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:74
 msgid "Update the &cover in the book files"
-msgstr ""
+msgstr "Actualitza la &portada als fitxers de llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:75
 msgid "Add metadata as a \"book &jacket\" page"
-msgstr ""
+msgstr "Afegeix les metadades com a pàgina de «sobre&coberta»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:76
 msgid "&Remove a previously inserted book jacket"
-msgstr ""
+msgstr "&Suprimeix una sobrecoberta inserida prèviament"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:86
 msgid "About"
@@ -20581,7 +20594,7 @@ msgstr "Llibres"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:728
 #, python-format
 msgid "Current magnification: %(mag).1f"
-msgstr ""
+msgstr "Ampliació actual: %(mag).1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:754
 #, python-format
@@ -20780,7 +20793,7 @@ msgstr "Mostra"
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:958
 #, python-format
 msgid "Hide %(label)s %(shortcut)s"
-msgstr ""
+msgstr "Amaga %(label)s %(shortcut)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:995
 msgid "Toggle"
@@ -23108,11 +23121,11 @@ msgstr "S'ha suprimit el llibre"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:894
 msgid "Choose another random book"
-msgstr ""
+msgstr "Tria un altre llibre a l'atzar"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:895
 msgid "Another random book"
-msgstr ""
+msgstr "Un altre llibre a l'atzar"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:946
 msgid "in search"
@@ -24440,15 +24453,15 @@ msgstr "pm"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:204
 msgid "&Copy"
-msgstr ""
+msgstr "&Copia"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:205
 msgid "Select All"
-msgstr ""
+msgstr "Selecciona-ho tot"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:206
 msgid "Copy &Link location"
-msgstr ""
+msgstr "Copia &la ubicació de l'enllaç"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
@@ -26078,7 +26091,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:519
 msgid "Recognize numbers inside text when sorting"
-msgstr ""
+msgstr "Reconeix els nombres a dins del text en ordenar"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:520
 msgid ""
@@ -26087,10 +26100,14 @@ msgid ""
 "numeric_collation = True note that doing so will cause problems with text\n"
 "that starts with numbers and is a little slower."
 msgstr ""
+"Significa que en ordenar camps de text com el títol de text «Llibre 2»\n"
+"s'ordenarà abans que «Llibre 100». Si voleu aquest comportament establiu\n"
+"«numeric_collation = True». Tingueu en compte que en fer-ho hi haurà\n"
+"problemes amb textos que comencen amb nombres i és una mica més lent."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:526
 msgid "Sort the list of libraries alphabetically"
-msgstr ""
+msgstr "Ordena la llista de biblioteques alfabèticament"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:527
 msgid ""
@@ -26099,3 +26116,7 @@ msgid ""
 "number of such libraries, the sorting becomes alphabetic. You can set that\n"
 "number here. The default is ten libraries."
 msgstr ""
+"La llista de biblioteques als menús «Copia a la biblioteca» i «Canvi ràpid»\n"
+"s'ordenen normalment per freqüència d'ús. Tanmateix, si hi ha més d'un\n"
+"nombre concret de biblioteques l'ordre esdevé alfabètic. Aquí podeu\n"
+"establir aquest nombre. Per defecte és 10 biblioteques."

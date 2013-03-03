@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-01 05:01+0000\n"
-"PO-Revision-Date: 2013-02-23 10:08+0000\n"
+"PO-Revision-Date: 2013-03-02 14:29+0000\n"
 "Last-Translator: wwj402 <wwj402@gmail.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-03-02 04:55+0000\n"
+"X-Launchpad-Export-Date: 2013-03-03 04:59+0000\n"
 "X-Generator: Launchpad (build 16514)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -1828,17 +1828,17 @@ msgstr "上传书籍封面"
 msgid ""
 "Upload cover images from the calibre library when sending books to the "
 "device."
-msgstr ""
+msgstr "当发送书籍到设备时，从 calibre  库中上传封面图片。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1227
 msgid "Keep cover aspect ratio"
-msgstr ""
+msgstr "保持封面的长宽比"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1228
 msgid ""
 "When uploading covers, do not change the aspect ratio when resizing for the "
 "device. This is for firmware versions 2.3.1 and later."
-msgstr ""
+msgstr "当上传图片，为设备调整尺寸时不改变长宽比。这是针对固件版本2.3.1和更高的版本。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
 msgid ""
@@ -3625,6 +3625,9 @@ msgid ""
 "See the XPath Tutorial in the calibre User Manual for further help on using "
 "this feature."
 msgstr ""
+"XPath表达式来检测章节标题。默认考虑<h1>或<h2>标签，包含“章节”，“书籍”，“分段”，“前言”，“结束语”，或“部分”为章节标题以及任何标签有"
+"级别 =“章节”。使用的表达式必须评估到元素列表。要禁用章检测，用表达式“/”。请参阅 calibre "
+"用户手册中XPath教程获取使用此功能的进一步帮助。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:319
 msgid ""
@@ -6414,7 +6417,7 @@ msgstr "选择要进行的操作："
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:249
 msgid "&Subset all embedded fonts"
-msgstr ""
+msgstr "所有嵌入字体子集(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:240
@@ -6423,11 +6426,11 @@ msgstr "压缩标点(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:73
 msgid "Update &metadata in the book files"
-msgstr ""
+msgstr "更新这本书文件中的元数据(&m)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:74
 msgid "Update the &cover in the book files"
-msgstr ""
+msgstr "更新这本书文件中的封面(&c)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:75
 msgid "Add metadata as a \"book &jacket\" page"
@@ -8405,7 +8408,7 @@ msgstr "边距(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:228
 msgid "Removes the padding CSS properties"
-msgstr ""
+msgstr "移除填充CSS属性"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:229
 msgid "&Padding"
@@ -14985,6 +14988,8 @@ msgid ""
 "tell calibre what icon to use. Click the Add Rule button below to get "
 "started.<p>You can <b>change an existing rule</b> by double clicking it."
 msgstr ""
+"你可以在图书清单中增加图标列，通过创建“规则”告诉 calibre "
+"使用什么样的图标。单击下面的添加规则按钮开始创建。<p>你可以<b>改变现有的规则</b>双击它。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:806
 msgid "No rule selected"
@@ -15630,7 +15635,7 @@ msgstr "栏目着色"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:190
 msgid "Column icons"
-msgstr ""
+msgstr "列图标"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:264
 msgid "Enable system &tray icon (needs restart)"
@@ -15690,7 +15695,7 @@ msgstr "在书籍列表中显示提示(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:278
 msgid "Extra &spacing to add between rows in the book list:"
-msgstr ""
+msgstr "图书清单中的行之间增加额外间距(&s)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:281
 msgid "Main Interface"
@@ -15834,7 +15839,7 @@ msgstr "按 %s 键切换全屏模式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:326
 msgid "Show &reflections in the cover browser"
-msgstr ""
+msgstr "在封面浏览器中显示反光(&r)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:231
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:123
@@ -16471,7 +16476,7 @@ msgstr "输入的同时进行查找(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:169
 msgid "Unaccented characters match accented characters"
-msgstr ""
+msgstr "无重音字符匹配重音字符"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:170
 msgid ""
@@ -16558,7 +16563,7 @@ msgstr "清除搜索历史记录(&H)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:194
 msgid "What to search when searching similar books"
-msgstr ""
+msgstr "搜索类似的书籍时，搜索什么"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:195
 msgid ""
@@ -16569,22 +16574,27 @@ msgid ""
 "         By changing the lookup name to a grouped search term you can\n"
 "         search multiple columns at once.</p>"
 msgstr ""
+"<p>当你搜索类似的书籍时，\n"
+"         右键点击书籍并选择“类似的书籍……” ，\n"
+"         calibre 使用下面指定的列查找名称构造一个搜索。\n"
+"         通过改变一组搜索词的查找名称你可以\n"
+"         一次搜索多个列。</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:200
 msgid "Similar authors: "
-msgstr ""
+msgstr "类似的作者: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:201
 msgid "Similar series: "
-msgstr ""
+msgstr "类似的系列: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:202
 msgid "Similar tags: "
-msgstr ""
+msgstr "类似的标签: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:203
 msgid "Similar publishers: "
-msgstr ""
+msgstr "类似的出版商: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:70
@@ -17793,7 +17803,7 @@ msgstr "设置标签浏览器中内容的排序规则"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:413
 msgid "Match type"
-msgstr ""
+msgstr "匹配类型"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:425
 msgid ""
