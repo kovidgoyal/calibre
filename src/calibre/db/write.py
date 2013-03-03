@@ -12,8 +12,11 @@ from functools import partial
 from datetime import datetime
 
 from calibre.constants import preferred_encoding, ispy3
+from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.date import (parse_only_date, parse_date, UNDEFINED_DATE,
                                 isoformat)
+from calibre.utils.icu import strcmp
+
 if ispy3:
     unicode = str
 
@@ -185,28 +188,42 @@ def safe_lower(x):
         return x
 
 def get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,
-              case_changes, val_map, sql_val_map=lambda x:x):
+              case_changes, val_map, is_authors=False):
     ''' Get the db id for the value val. If val does not exist in the db it is
     inserted into the db. '''
     kval = kmap(val)
     item_id = rid_map.get(kval, None)
     if item_id is None:
-        db.conn.execute('INSERT INTO %s(%s) VALUES (?)'%(
-            m['table'], m['column']), (sql_val_map(val),))
+        if is_authors:
+            aus = author_to_author_sort(val)
+            db.conn.execute('INSERT INTO authors(name,sort) VALUES (?,?)',
+                            (val.replace(',', '|'), aus))
+        else:
+            db.conn.execute('INSERT INTO %s(%s) VALUES (?)'%(
+                m['table'], m['column']), (val,))
         item_id = rid_map[kval] = db.conn.last_insert_rowid()
         table.id_map[item_id] = val
         table.col_book_map[item_id] = set()
+        if is_authors:
+            table.asort_map[item_id] = aus
+            table.alink_map[item_id] = ''
     elif allow_case_change and val != table.id_map[item_id]:
         case_changes[item_id] = val
     val_map[val] = item_id
 
-def change_case(case_changes, dirtied, db, table, m, sql_val_map=lambda x:x):
+def change_case(case_changes, dirtied, db, table, m, is_authors=False):
+    if is_authors:
+        vals = ((val.replace(',', '|'), item_id) for item_id, val in
+                case_changes.iteritems())
+    else:
+        vals = ((val, item_id) for item_id, val in case_changes.iteritems())
     db.conn.executemany(
-        'UPDATE %s SET %s=? WHERE id=?'%(m['table'], m['column']),
-        ((sql_val_map(val), item_id) for item_id, val in case_changes.iteritems()))
+        'UPDATE %s SET %s=? WHERE id=?'%(m['table'], m['column']), vals)
     for item_id, val in case_changes.iteritems():
         table.id_map[item_id] = val
         dirtied.update(table.col_book_map[item_id])
+        if is_authors:
+            table.asort_map[item_id] = author_to_author_sort(val)
 
 def many_one(book_id_val_map, db, field, allow_case_change, *args):
     dirtied = set()
@@ -288,17 +305,24 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
     # Map values to db ids, including any new values
     kmap = safe_lower if dt == 'text' else lambda x:x
     rid_map = {kmap(item):item_id for item_id, item in table.id_map.iteritems()}
-    sql_val_map = (lambda x:x.replace(',', '|')) if is_authors else lambda x:x
     val_map = {}
     case_changes = {}
     for vals in book_id_val_map.itervalues():
         for val in vals:
             get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,
-                      case_changes, val_map, sql_val_map=sql_val_map)
+                      case_changes, val_map, is_authors=is_authors)
 
     if case_changes:
-        change_case(case_changes, dirtied, db, table, m,
-                    sql_val_map=sql_val_map)
+        change_case(case_changes, dirtied, db, table, m, is_authors=is_authors)
+        if is_authors:
+            for item_id, val in case_changes.iteritems():
+                for book_id in table.col_book_map[item_id]:
+                    current_sort = field.db_author_sort_for_book(book_id)
+                    new_sort = field.author_sort_for_book(book_id)
+                    if strcmp(current_sort, new_sort) == 0:
+                        # The sort strings differ only by case, update the db
+                        # sort
+                        field.author_sort_field.writer.set_books({book_id:new_sort}, db)
 
     book_id_item_id_map = {k:tuple(val_map[v] for v in vals)
                            for k, vals in book_id_val_map.iteritems()}
@@ -338,6 +362,10 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
                             ((k,) for k in updated))
         db.conn.executemany('INSERT INTO {0}(book,{1}) VALUES(?, ?)'.format(
             table.link_table, m['link_column']), vals)
+        if is_authors:
+            aus_map = {book_id:field.author_sort_for_book(book_id) for book_id
+                       in updated}
+            field.author_sort_field.writer.set_books(aus_map, db)
 
     # Remove no longer used items
     remove = {item_id for item_id in table.id_map if not
@@ -348,6 +376,9 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
         for item_id in remove:
             del table.id_map[item_id]
             table.col_book_map.pop(item_id, None)
+            if is_authors:
+                table.asort_map.pop(item_id, None)
+                table.alink_map.pop(item_id, None)
 
     return dirtied
 

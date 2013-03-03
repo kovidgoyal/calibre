@@ -217,6 +217,8 @@ class Cache(object):
                     field.series_field = self.fields[name[:-len('_index')]]
                 elif name == 'series_index':
                     field.series_field = self.fields['series']
+                elif name == 'authors':
+                    field.author_sort_field = self.fields['author_sort']
 
     @read_api
     def field_for(self, name, book_id, default_value=None):
