@@ -88,7 +88,7 @@ class Container(object):
                     self.mime_map[name] = guess_type('a.opf')
 
         if not hasattr(self, 'opf_name'):
-            raise InvalidBook('Book has no OPF file')
+            raise InvalidBook('Could not locate opf file: %r'%opfpath)
 
         # Update mime map with data from the OPF
         for item in self.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):

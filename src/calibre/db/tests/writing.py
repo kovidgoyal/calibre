@@ -203,10 +203,63 @@ class WritingTest(BaseTest):
 
     # }}}
 
+    def test_many_many_basic(self): # {{{
+        'Test the different code paths for writing to a many-many field'
+        cl = self.cloned_library
+        cache = self.init_cache(cl)
+        ae, af, sf = self.assertEqual, self.assertFalse, cache.set_field
 
+        # Tags
+        ae(sf('#tags', {1:cache.field_for('tags', 1), 2:cache.field_for('tags', 2)}),
+            {1, 2})
+        for name in ('tags', '#tags'):
+            f = cache.fields[name]
+            af(sf(name, {1:('tag one', 'News')}, allow_case_change=False))
+            ae(sf(name, {1:'tag one, News'}), {1, 2})
+            ae(sf(name, {3:('tag two', 'sep,sep2')}), {2, 3})
+            ae(len(f.table.id_map), 4)
+            ae(sf(name, {1:None}), set([1]))
+            cache2 = self.init_cache(cl)
+            for c in (cache, cache2):
+                ae(c.field_for(name, 3), ('tag two', 'sep;sep2'))
+                ae(len(c.fields[name].table.id_map), 3)
+                ae(len(c.fields[name].table.id_map), 3)
+                ae(c.field_for(name, 1), ())
+                ae(c.field_for(name, 2), ('tag one', 'tag two'))
+            del cache2
+
+        # Authors
+        ae(sf('#authors', {k:cache.field_for('authors', k) for k in (1,2,3)}),
+           {1,2,3})
+
+        for name in ('authors', '#authors'):
+            f = cache.fields[name]
+            ae(len(f.table.id_map), 3)
+            af(cache.set_field(name, {3:None if name == 'authors' else 'Unknown'}))
+            ae(cache.set_field(name, {3:'Kovid Goyal & Divok Layog'}), set([3]))
+            ae(cache.set_field(name, {1:'', 2:'An, Author'}), {1,2})
+            cache2 = self.init_cache(cl)
+            for c in (cache, cache2):
+                ae(len(c.fields[name].table.id_map), 4 if name =='authors' else 3)
+                ae(c.field_for(name, 3), ('Kovid Goyal', 'Divok Layog'))
+                ae(c.field_for(name, 2), ('An, Author',))
+                ae(c.field_for(name, 1), ('Unknown',) if name=='authors' else ())
+                ae(c.field_for('author_sort', 1), 'Unknown')
+                ae(c.field_for('author_sort', 2), 'An, Author')
+                ae(c.field_for('author_sort', 3), 'Goyal, Kovid & Layog, Divok')
+            del cache2
+        ae(cache.set_field('authors', {1:'KoviD GoyaL'}), {1, 3})
+        ae(cache.field_for('author_sort', 1), 'GoyaL, KoviD')
+        ae(cache.field_for('author_sort', 3), 'GoyaL, KoviD & Layog, Divok')
+
+        # TODO: identifiers, languages
+
+    # }}}
 
 def tests():
-    return unittest.TestLoader().loadTestsFromTestCase(WritingTest)
+    tl = unittest.TestLoader()
+    # return tl.loadTestsFromName('writing.WritingTest.test_many_many_basic')
+    return tl.loadTestsFromTestCase(WritingTest)
 
 def run():
     unittest.TextTestRunner(verbosity=2).run(tests())

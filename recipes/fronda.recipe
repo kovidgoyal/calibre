@@ -1,7 +1,7 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = u'2010-2012, Tomasz Dlugosz <tomek3d@gmail.com>'
+__copyright__ = u'2010-2013, Tomasz Dlugosz <tomek3d@gmail.com>'
 '''
 fronda.pl
 '''
@@ -68,7 +68,8 @@ class Fronda(BasicNewsRecipe):
                 article_url = 'http://www.fronda.pl' + article_a['href']
                 article_title = self.tag_to_string(article_a)
                 articles[genName].append( { 'title' : article_title, 'url' : article_url, 'date' : article_date })
-            feeds.append((genName, articles[genName]))
+            if articles[genName]:
+                feeds.append((genName, articles[genName]))
         return feeds
 
     keep_only_tags = [
@@ -82,8 +83,10 @@ class Fronda(BasicNewsRecipe):
         dict(name='h3', attrs={'class':'block-header article comments'}),
         dict(name='ul', attrs={'class':'comment-list'}),
         dict(name='ul', attrs={'class':'category'}),
+        dict(name='ul', attrs={'class':'tag-list'}),
         dict(name='p', attrs={'id':'comments-disclaimer'}),
         dict(name='div', attrs={'style':'text-align: left; margin-bottom: 15px;'}),
-        dict(name='div', attrs={'style':'text-align: left; margin-top: 15px;'}),
+        dict(name='div', attrs={'style':'text-align: left; margin-top: 15px; margin-bottom: 30px;'}),
+        dict(name='div', attrs={'class':'related-articles content'}),
         dict(name='div', attrs={'id':'comment-form'})
         ]
