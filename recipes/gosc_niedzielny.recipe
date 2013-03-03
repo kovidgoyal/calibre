@@ -2,7 +2,8 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2011, Piotr Kontek, piotr.kontek@gmail.com'
+__copyright__ = '2011, Piotr Kontek, piotr.kontek@gmail.com \
+                 2013, Tomasz Długosz, tomek3d@gmail.com'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
@@ -12,9 +13,9 @@ import re
 class GN(BasicNewsRecipe):
         EDITION = 0
 
-        __author__ = 'Piotr Kontek'
-        title = u'Gość niedzielny'
-        description = 'Weekly magazine'
+        __author__ = 'Piotr Kontek, Tomasz Długosz'
+        title = u'Gość Niedzielny'
+        description = 'Ogólnopolski tygodnik katolicki'
         encoding = 'utf-8'
         no_stylesheets = True
         language = 'pl'
@@ -38,17 +39,25 @@ class GN(BasicNewsRecipe):
             first = True
             for p in main_section.findAll('p', attrs={'class':None}, recursive=False):
                 if first and p.find('img') != None:
-                    article = article + '<p>'
-                    article = article + str(p.find('img')).replace('src="/files/','src="http://www.gosc.pl/files/')
-                    article = article + '<font size="-2">'
+                    article += '<p>'
+                    article += str(p.find('img')).replace('src="/files/','src="http://www.gosc.pl/files/')
+                    article += '<font size="-2">'
                     for s in p.findAll('span'):
-                        article = article + self.tag_to_string(s)
-                    article = article + '</font></p>'
+                        article += self.tag_to_string(s)
+                    article += '</font></p>'
                 else:
-                    article = article + str(p).replace('src="/files/','src="http://www.gosc.pl/files/')
+                    article += str(p).replace('src="/files/','src="http://www.gosc.pl/files/')
                 first = False
+            limiter = main_section.find('p', attrs={'class' : 'limiter'})
+            if limiter:
+                article += str(limiter)
 
-            html =  unicode(title) + unicode(authors) + unicode(article)
+            html = unicode(title)
+            #sometimes authors are not filled in:
+            if authors:
+                html += unicode(authors) + unicode(article)
+            else:
+                html += unicode(article)
 
             self.temp_files.append(PersistentTemporaryFile('_temparse.html'))
             self.temp_files[-1].write(html)
@@ -65,7 +74,8 @@ class GN(BasicNewsRecipe):
                     if img != None:
                         a = img.parent
                         self.EDITION = a['href']
-                        self.title = img['alt']
+                        #this was preventing kindles from moving old issues to 'Back Issues'  category:
+                        #self.title = img['alt']
                         self.cover_url = 'http://www.gosc.pl' + img['src']
                         if year != date.today().year or not first:
                             break
