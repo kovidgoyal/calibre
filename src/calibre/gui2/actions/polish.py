@@ -44,13 +44,18 @@ class Polish(QDialog): # {{{
             _('<h3>Smarten punctuation</h3>%s')%HELP['smarten_punctuation'],
 
             'metadata':_('<h3>Updating metadata</h3>'
-                         '<p>This will update all metadata and covers in the'
+                         '<p>This will update all metadata <i>except</i> the cover in the'
                          ' ebook files to match the current metadata in the'
-                         ' calibre library.</p><p>If the ebook file does not have'
-                         ' an identifiable cover, a new cover is inserted.</p>'
+                         ' calibre library.</p>'
                          ' <p>Note that most ebook'
                          ' formats are not capable of supporting all the'
-                         ' metadata in calibre.</p>'),
+                         ' metadata in calibre.</p><p>There is a separate option to'
+                         ' update the cover.</p>'),
+            'do_cover':  _('<p>Update the covers in the ebook files to match the'
+                        ' current cover in the calibre library.</p>'
+                        '<p>If the ebook file does not have'
+                        ' an identifiable cover, a new cover is inserted.</p>'
+                        ),
             'jacket':_('<h3>Book Jacket</h3>%s')%HELP['jacket'],
             'remove_jacket':_('<h3>Remove Book Jacket</h3>%s')%HELP['remove_jacket'],
         }
@@ -63,11 +68,12 @@ class Polish(QDialog): # {{{
 
         count = 0
         self.all_actions = OrderedDict([
-            ('subset', _('Subset all embedded fonts')),
-            ('smarten_punctuation', _('Smarten punctuation')),
-            ('metadata', _('Update metadata in book files')),
-            ('jacket', _('Add metadata as a "book jacket" page')),
-            ('remove_jacket', _('Remove a previously inserted book jacket')),
+            ('subset', _('&Subset all embedded fonts')),
+            ('smarten_punctuation', _('Smarten &punctuation')),
+            ('metadata', _('Update &metadata in the book files')),
+            ('do_cover', _('Update the &cover in the book files')),
+            ('jacket', _('Add metadata as a "book &jacket" page')),
+            ('remove_jacket', _('&Remove a previously inserted book jacket')),
         ])
         prefs = gprefs.get('polishing_settings', {})
         for name, text in self.all_actions.iteritems():
@@ -243,8 +249,10 @@ class Polish(QDialog): # {{{
         cover = os.path.join(base, 'cover.jpg')
         if db.copy_cover_to(book_id, cover, index_is_id=True):
             data['cover'] = cover
+        is_orig = {}
         for fmt in formats:
             ext = fmt.replace('ORIGINAL_', '').lower()
+            is_orig[ext.upper()] = 'ORIGINAL_' in fmt
             with open(os.path.join(base, '%s.%s'%(book_id, ext)), 'wb') as f:
                 db.copy_format_to(book_id, fmt, f, index_is_id=True)
                 data['files'].append(f.name)
@@ -257,7 +265,7 @@ class Polish(QDialog): # {{{
             self.pd.set_msg(_('Queueing book %(nums)s of %(tot)s (%(title)s)')%dict(
                             nums=num, tot=len(self.book_id_map), title=mi.title))
 
-        self.jobs.append((desc, data, book_id, base))
+        self.jobs.append((desc, data, book_id, base, is_orig))
 # }}}
 
 class Report(QDialog): # {{{
@@ -404,11 +412,11 @@ class PolishAction(InterfaceAction):
         d = Polish(self.gui.library_view.model().db, book_id_map, parent=self.gui)
         if d.exec_() == d.Accepted and d.jobs:
             show_reports = bool(d.show_reports.isChecked())
-            for desc, data, book_id, base in reversed(d.jobs):
+            for desc, data, book_id, base, is_orig in reversed(d.jobs):
                 job = self.gui.job_manager.run_job(
                     Dispatcher(self.book_polished), 'gui_polish', args=(data,),
                     description=desc)
-                job.polish_args = (book_id, base, data['files'], show_reports)
+                job.polish_args = (book_id, base, data['files'], show_reports, is_orig)
             if d.jobs:
                 self.gui.jobs_pointer.start()
                 self.gui.status_bar.show_message(
@@ -419,11 +427,11 @@ class PolishAction(InterfaceAction):
             self.gui.job_exception(job)
             return
         db = self.gui.current_db
-        book_id, base, files, show_reports = job.polish_args
+        book_id, base, files, show_reports, is_orig = job.polish_args
         fmts = set()
         for path in files:
             fmt = path.rpartition('.')[-1].upper()
-            if tweaks['save_original_format_when_polishing']:
+            if tweaks['save_original_format_when_polishing'] and not is_orig[fmt]:
                 fmts.add(fmt)
                 db.save_original_format(book_id, fmt, notify=False)
             with open(path, 'rb') as f:

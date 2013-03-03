@@ -12,6 +12,7 @@ from threading import Lock
 from collections import defaultdict, Counter
 
 from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY
+from calibre.db.write import Writer
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
@@ -21,6 +22,7 @@ from calibre.utils.localization import calibre_langcode_to_name
 class Field(object):
 
     is_many = False
+    is_many_many = False
 
     def __init__(self, name, table):
         self.name, self.table = name, table
@@ -44,6 +46,8 @@ class Field(object):
             self.category_formatter = lambda x:'\u2605'*int(x/2)
         elif name == 'languages':
             self.category_formatter = calibre_langcode_to_name
+        self.writer = Writer(self)
+        self.series_field = None
 
     @property
     def metadata(self):
@@ -296,6 +300,7 @@ class ManyToOneField(Field):
 class ManyToManyField(Field):
 
     is_many = True
+    is_many_many = True
 
     def __init__(self, *args, **kwargs):
         Field.__init__(self, *args, **kwargs)

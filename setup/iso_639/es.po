@@ -9,14 +9,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-01-12 08:34+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2013-02-26 12:21+0000\n"
+"Last-Translator: Miguel Angel del Olmo <silinio45@gmail.com>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-01-13 04:37+0000\n"
-"X-Generator: Launchpad (build 16420)\n"
+"X-Launchpad-Export-Date: 2013-02-27 04:37+0000\n"
+"X-Generator: Launchpad (build 16506)\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -9708,7 +9708,7 @@ msgstr ""
 
 #. name for hto
 msgid "Huitoto; Minica"
-msgstr ""
+msgstr "Huitoto; Meneca"
 
 #. name for hts
 msgid "Hadza"
@@ -9736,7 +9736,7 @@ msgstr ""
 
 #. name for hue
 msgid "Huave; San Francisco Del Mar"
-msgstr ""
+msgstr "Huave; San Francisco Del Mar"
 
 #. name for huf
 msgid "Humene"
@@ -9792,7 +9792,7 @@ msgstr ""
 
 #. name for hus
 msgid "Huastec"
-msgstr ""
+msgstr "Huasteco"
 
 #. name for hut
 msgid "Humla"
@@ -9800,11 +9800,11 @@ msgstr ""
 
 #. name for huu
 msgid "Huitoto; Murui"
-msgstr ""
+msgstr "Huitoto; Murui"
 
 #. name for huv
 msgid "Huave; San Mateo Del Mar"
-msgstr ""
+msgstr "Huave; San Mateo Del Mar"
 
 #. name for huw
 msgid "Hukumina"
@@ -9812,7 +9812,7 @@ msgstr ""
 
 #. name for hux
 msgid "Huitoto; Nüpode"
-msgstr ""
+msgstr "Huitoto; Nipode"
 
 #. name for huy
 msgid "Hulaulá"
@@ -9828,7 +9828,7 @@ msgstr ""
 
 #. name for hve
 msgid "Huave; San Dionisio Del Mar"
-msgstr ""
+msgstr "Huave; San Dionisio Del Mar"
 
 #. name for hvk
 msgid "Haveke"
@@ -9840,7 +9840,7 @@ msgstr ""
 
 #. name for hvv
 msgid "Huave; Santa María Del Mar"
-msgstr ""
+msgstr "Huave; Santa María Del Mar"
 
 #. name for hwa
 msgid "Wané"
@@ -9884,7 +9884,7 @@ msgstr "Iban"
 
 #. name for ibb
 msgid "Ibibio"
-msgstr ""
+msgstr "Ibibio"
 
 #. name for ibd
 msgid "Iwaidja"
@@ -9964,7 +9964,7 @@ msgstr ""
 
 #. name for ide
 msgid "Idere"
-msgstr ""
+msgstr "Idere"
 
 #. name for idi
 msgid "Idi"
@@ -9976,7 +9976,7 @@ msgstr "Ido"
 
 #. name for idr
 msgid "Indri"
-msgstr ""
+msgstr "Indri"
 
 #. name for ids
 msgid "Idesa"
@@ -9988,7 +9988,7 @@ msgstr ""
 
 #. name for idu
 msgid "Idoma"
-msgstr ""
+msgstr "Idoma"
 
 #. name for ifa
 msgid "Ifugao; Amganad"
@@ -9996,7 +9996,7 @@ msgstr ""
 
 #. name for ifb
 msgid "Ifugao; Batad"
-msgstr ""
+msgstr "Ifugao; Batad"
 
 #. name for ife
 msgid "Ifè"
@@ -10004,7 +10004,7 @@ msgstr ""
 
 #. name for iff
 msgid "Ifo"
-msgstr ""
+msgstr "Ifo"
 
 #. name for ifk
 msgid "Ifugao; Tuwali"
@@ -10064,7 +10064,7 @@ msgstr ""
 
 #. name for ihi
 msgid "Ihievbe"
-msgstr ""
+msgstr "Ihievbe"
 
 #. name for ihp
 msgid "Iha"
@@ -10288,15 +10288,15 @@ msgstr ""
 
 #. name for iou
 msgid "Tuma-Irumu"
-msgstr ""
+msgstr "Tuma-Irumu"
 
 #. name for iow
 msgid "Iowa-Oto"
-msgstr ""
+msgstr "Iowa-Oto"
 
 #. name for ipi
 msgid "Ipili"
-msgstr ""
+msgstr "Ipili"
 
 #. name for ipk
 msgid "Inupiaq"
@@ -10304,7 +10304,7 @@ msgstr "Iñupiaq"
 
 #. name for ipo
 msgid "Ipiko"
-msgstr ""
+msgstr "Ipiko"
 
 #. name for iqu
 msgid "Iquito"
@@ -30768,7 +30768,7 @@ msgstr ""
 
 #. name for zts
 msgid "Zapotec; Tilquiapan"
-msgstr ""
+msgstr "Zapoteco; Tilquiapan"
 
 #. name for ztt
 msgid "Zapotec; Tejalapan"

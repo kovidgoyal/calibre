@@ -76,7 +76,7 @@ etc.</p>'''),
 '''),
 
 'smarten_punctuation': _('''\
-<p>Convert plain text, dashes, ellipsis, multiple hyphens, etc. into their
+<p>Convert plain text dashes, ellipsis, quotes, multiple hyphens, etc. into their
 typographically correct equivalents.</p>
 <p>Note that the algorithm can sometimes generate incorrect results, especially
 when single quotes at the start of contractions are involved.</p>
@@ -174,6 +174,7 @@ def gui_polish(data):
     files = data.pop('files')
     if not data.pop('metadata'):
         data.pop('opf')
+    if not data.pop('do_cover'):
         data.pop('cover')
     file_map = {x:x for x in files}
     opts = ALL_OPTS.copy()

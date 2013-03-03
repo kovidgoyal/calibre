@@ -13,7 +13,7 @@ from calibre.devices.interface import BookList as _BookList
 from calibre.constants import preferred_encoding
 from calibre import isbytestring, force_unicode
 from calibre.utils.config import device_prefs, tweaks
-from calibre.utils.icu import strcmp
+from calibre.utils.icu import sort_key
 from calibre.utils.formatter import EvalFormatter
 
 class Book(Metadata):
@@ -281,9 +281,8 @@ class CollectionsBookList(BookList):
             if y is None:
                 return -1
             if isinstance(x, basestring) and isinstance(y, basestring):
-                c = strcmp(force_unicode(x), force_unicode(y))
-            else:
-                c = cmp(x, y)
+                x, y = sort_key(force_unicode(x)), sort_key(force_unicode(y))
+            c = cmp(x, y)
             if c != 0:
                 return c
             # same as above -- no sort_key needed here

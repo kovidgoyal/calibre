@@ -1,0 +1,59 @@
+__license__   = 'GPL v3'
+__copyright__ = '2013, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.nezavisne.com
+'''
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class NezavisneNovine(BasicNewsRecipe):
+    title                 = 'Nezavisne novine'
+    __author__            = 'Darko Miletic'
+    description           = 'Nezavisne novine - Najnovije vijesti iz BiH, Srbije, Hrvatske, Crne Gore i svijeta'
+    publisher             = 'NIGP "DNN"'
+    category              = 'news, politics, Bosnia, Balcans'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'sr'
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    cover_url             = strftime('http://pdf.nezavisne.com/slika/novina/nezavisne_novine.jpg?v=%Y%m%d')
+    masthead_url          = 'http://www.nezavisne.com/slika/osnova/nezavisne-novine-logo.gif'
+    extra_css             = """
+                               body{font-family: Arial,Helvetica,sans-serif }
+                               img{margin-bottom: 0.4em; display:block}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+    keep_only_tags = [dict(name='div', attrs={'class':'vijest'})]
+    remove_tags_after = dict(name='div', attrs={'id':'wrap'})
+    remove_tags = [
+                     dict(name=['meta','link','iframe','object'])
+                    ,dict(name='div', attrs={'id':'wrap'})
+                  ]
+    remove_attributes=['lang','xmlns:fb','xmlns:og']
+
+
+    feeds = [
+              (u'Novosti'            , u'http://feeds.feedburner.com/Novosti-NezavisneNovine'          )
+             ,(u'Posao'              , u'http://feeds.feedburner.com/Posao-NezavisneNovine'            )
+             ,(u'Sport'              , u'http://feeds.feedburner.com/Sport-NezavisneNovine'            )
+             ,(u'Komentar'           , u'http://feeds.feedburner.com/Komentari-NezavisneNovine'        )
+             ,(u'Umjetnost i zabava' , u'http://feeds.feedburner.com/UmjetnostIZabava-NezavisneNovine' )
+             ,(u'Život i stil'       , u'http://feeds.feedburner.com/ZivotIStil-NezavisneNovine'       )
+             ,(u'Auto'               , u'http://feeds.feedburner.com/Auto-NezavisneNovine'             )
+             ,(u'Nauka i tehnologija', u'http://feeds.feedburner.com/NaukaITehnologija-NezavisneNovine')
+            ]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup

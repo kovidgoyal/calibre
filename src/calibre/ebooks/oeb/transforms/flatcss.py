@@ -363,7 +363,10 @@ class CSSFlattener(object):
             cssdict['font-weight'] = 'normal' # ADE chokes on font-weight medium
 
         fsize = font_size
-        if not self.context.disable_font_rescaling:
+        is_drop_cap = (cssdict.get('float', None) == 'left' and 'font-size' in
+                       cssdict and len(node) == 0 and node.text and
+                       len(node.text) == 1)
+        if not self.context.disable_font_rescaling and not is_drop_cap:
             _sbase = self.sbase if self.sbase is not None else \
                 self.context.source.fbase
             dyn_rescale = dynamic_rescale_factor(node)
@@ -382,7 +385,7 @@ class CSSFlattener(object):
 
         try:
             minlh = self.context.minimum_line_height / 100.
-            if style['line-height'] < minlh * fsize:
+            if not is_drop_cap and style['line-height'] < minlh * fsize:
                 cssdict['line-height'] = str(minlh)
         except:
             self.oeb.logger.exception('Failed to set minimum line-height')

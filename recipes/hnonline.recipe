@@ -1,0 +1,67 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class HNonlineRecipe(BasicNewsRecipe):
+    __license__  = 'GPL v3'
+    __author__ = 'lacike'
+    language = 'sk'
+    version = 1
+
+    title = u'HNonline'
+    publisher = u'HNonline'
+    category = u'News, Newspaper'
+    description = u'News from Slovakia'
+    cover_url = u'http://hnonline.sk/img/sk/_relaunch/logo2.png'
+
+    oldest_article = 1
+    max_articles_per_feed = 100
+    use_embedded_content = False
+    remove_empty_feeds = True
+
+    no_stylesheets = True
+    remove_javascript = True
+
+    # Feeds from: http://rss.hnonline.sk, for listing see http://rss.hnonline.sk/prehlad
+    feeds = []
+    feeds.append((u'HNonline|Ekonomika a firmy', u'http://rss.hnonline.sk/?p=kC1000'))
+    feeds.append((u'HNonline|Slovensko', u'http://rss.hnonline.sk/?p=kC2000'))
+    feeds.append((u'HNonline|Svet', u'http://rss.hnonline.sk/?p=kC3000'))
+    feeds.append((u'HNonline|\u0160port', u'http://rss.hnonline.sk/?p=kC4000'))
+    feeds.append((u'HNonline|Online rozhovor', u'http://rss.hnonline.sk/?p=kCR000'))
+
+    feeds.append((u'FinWeb|Spr\u00E1vy zo sveta financi\u00ED', u'http://rss.finweb.hnonline.sk/spravodajstvo'))
+    feeds.append((u'FinWeb|Koment\u00E1re a anal\u00FDzy', u'http://rss.finweb.hnonline.sk/?p=kPC200'))
+    feeds.append((u'FinWeb|Invest\u00EDcie', u'http://rss.finweb.hnonline.sk/?p=kPC300'))
+    feeds.append((u'FinWeb|Svet akci\u00ED', u'http://rss.finweb.hnonline.sk/?p=kPC400'))
+    feeds.append((u'FinWeb|Rozhovory', u'http://rss.finweb.hnonline.sk/?p=kPC500'))
+    feeds.append((u'FinWeb|T\u00E9ma t\u00FD\u017Ed\u0148a', u'http://rss.finweb.hnonline.sk/?p=kPC600'))
+    feeds.append((u'FinWeb|Rebr\u00ED\u010Dky', u'http://rss.finweb.hnonline.sk/?p=kPC700'))
+
+    feeds.append((u'HNstyle|Kult\u00FAra', u'http://style.hnonline.sk/?p=kTC100'))
+    feeds.append((u'HNstyle|Auto-moto', u'http://style.hnonline.sk/?p=kTC200'))
+    feeds.append((u'HNstyle|Digit\u00E1l', u'http://style.hnonline.sk/?p=kTC300'))
+    feeds.append((u'HNstyle|Veda', u'http://style.hnonline.sk/?p=kTCV00'))
+    feeds.append((u'HNstyle|Dizajn', u'http://style.hnonline.sk/?p=kTC400'))
+    feeds.append((u'HNstyle|Cestovanie', u'http://style.hnonline.sk/?p=kTCc00'))
+    feeds.append((u'HNstyle|V\u00EDkend', u'http://style.hnonline.sk/?p=kTC800'))
+    feeds.append((u'HNstyle|Gastro', u'http://style.hnonline.sk/?p=kTC600'))
+    feeds.append((u'HNstyle|M\u00F3da', u'http://style.hnonline.sk/?p=kTC700'))
+    feeds.append((u'HNstyle|Modern\u00E1 \u017Eena', u'http://style.hnonline.sk/?p=kTCA00'))
+    feeds.append((u'HNstyle|Pre\u010Do nie?!', u'http://style.hnonline.sk/?p=k7C000'))
+
+    keep_only_tags = []
+    keep_only_tags.append(dict(name = 'h1', attrs = {'class': 'detail-titulek'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'detail-podtitulek'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'detail-perex'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'detail-text'}))
+
+    remove_tags = []
+    #remove_tags.append(dict(name = 'div', attrs = {'id': re.compile('smeplayer.*')}))
+
+    remove_tags_after = []
+    #remove_tags_after = [dict(name = 'p', attrs = {'class': 'autor_line'})]
+
+    extra_css = '''
+                @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
+                @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/LiberationSans.ttf)}
+                body {font-family: sans1, serif1;}
+                '''

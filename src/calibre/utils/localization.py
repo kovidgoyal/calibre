@@ -201,6 +201,9 @@ if False:
     _('am')
     # NOTE: Post Meridian (i.e. like 10:00 pm)
     _('pm')
+    _('&Copy')
+    _('Select All')
+    _('Copy &Link location')
 
 _lcase_map = {}
 for k in _extra_lang_codes:
