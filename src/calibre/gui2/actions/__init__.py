@@ -101,12 +101,26 @@ class InterfaceAction(QObject):
     #: on calibre as a whole
     action_type = 'global'
 
+    #: If True, the action may inspect the event at accept_enter_event() and
+    #: accept_drag_move_event(), returning True or False if it wants to handle the event.
+    #: drop_event() will be called in the subclass from calibre.gui2.bars
+    accepts_drops = False
+
     def __init__(self, parent, site_customization):
         QObject.__init__(self, parent)
         self.setObjectName(self.name)
         self.gui = parent
         self.site_customization = site_customization
         self.interface_action_base_plugin = None
+
+    def accept_enter_event(self, mime_data):
+        return False
+
+    def accept_drag_move_event(self, mime_data):
+        return False
+
+    def drop_event(self, event):
+        pass
 
     def do_genesis(self):
         self.Dispatcher = partial(Dispatcher, parent=self)
@@ -131,6 +145,7 @@ class InterfaceAction(QObject):
         else:
             action = QAction(text, self.gui)
         if attr == 'qaction':
+            action.associated_interface_action = self
             mt = (action.text() if self.action_menu_clone_qaction is True else
                     unicode(self.action_menu_clone_qaction))
             self.menuless_qaction = ma = QAction(action.icon(), mt, self.gui)

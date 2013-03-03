@@ -8,8 +8,8 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import (QObject, QToolBar, Qt, QSize, QToolButton, QVBoxLayout,
-        QLabel, QWidget, QAction, QMenuBar, QMenu)
+from PyQt4.Qt import (Qt, QAction, QLabel, QMenu, QMenuBar, QObject,
+    QToolBar, QToolButton, QSize, QVBoxLayout, QWidget)
 
 from calibre.constants import isosx
 from calibre.gui2 import gprefs
@@ -116,29 +116,29 @@ class ToolBar(QToolBar): # {{{
             ch.setPopupMode(menu_mode)
         return ch
 
-    #support drag&drop from/to library from/to reader/card
+    # support drag&drop from/to library, from/to reader/card, enabled plugins
     def dragEnterEvent(self, event):
         md = event.mimeData()
         if md.hasFormat("application/calibre+from_library") or \
            md.hasFormat("application/calibre+from_device"):
             event.setDropAction(Qt.CopyAction)
             event.accept()
-
         elif self.added_actions:
-            # Give added_actions an opportunity to process the drag&drop event
-            # This calls the first QMenu object that accepts drops, rather than the
-            # specific one that was dropped on
             for aa in self.added_actions:
-                if aa.menu() is not None and aa.menu().acceptDrops():
-                    aa.menu().dragEnterEvent(event)
-                    break
+                if (getattr(aa.associated_interface_action, 'accepts_drops', False) and
+                    aa.menu().geometry().contains(event.pos())):
+                    if aa.associated_interface_action.accept_enter_event(md):
+                        event.accept()
+                        break
+            else:
+                event.ignore()
         else:
             event.ignore()
 
     def dragMoveEvent(self, event):
         allowed = False
         md = event.mimeData()
-        #Drop is only allowed in the location manager widget's different from the selected one
+        # Drop is only allowed in the location manager widget's different from the selected one
         for ac in self.location_manager.available_actions:
             w = self.widgetForAction(ac)
             if w is not None:
@@ -150,21 +150,22 @@ class ToolBar(QToolBar): # {{{
                     break
         if allowed:
             event.acceptProposedAction()
+            return
 
-        elif self.added_actions:
-            # Give added_actions an opportunity to process the drag&drop event
-            # This calls the first QMenu object that accepts drops, rather than the
-            # specific one that was dropped on
+        if self.added_actions:
             for aa in self.added_actions:
-                if aa.menu() is not None and aa.menu().acceptDrops():
-                    aa.menu().dragMoveEvent(event)
-                    break
+                if (getattr(aa.associated_interface_action, 'accepts_drops', False) and
+                    aa.menu().geometry().contains(event.pos())):
+                    if aa.associated_interface_action.accept_drag_move_event(md):
+                        event.acceptProposedAction()
+                        break
+            else:
+                event.ignore()
         else:
             event.ignore()
 
     def dropEvent(self, event):
         data = event.mimeData()
-
         mime = 'application/calibre+from_library'
         if data.hasFormat(mime):
             ids = list(map(int, str(data.data(mime)).split()))
@@ -178,6 +179,7 @@ class ToolBar(QToolBar): # {{{
                     tgt = None
                 self.gui.sync_to_device(tgt, False, send_ids=ids)
                 event.accept()
+                return
 
         mime = 'application/calibre+from_device'
         if data.hasFormat(mime):
@@ -186,15 +188,16 @@ class ToolBar(QToolBar): # {{{
                 self.gui.iactions['Add Books'].add_books_from_device(
                         self.gui.current_view(), paths=paths)
                 event.accept()
+                return
 
         # Give added_actions an opportunity to process the drag&drop event
-        # This calls the first QMenu object that accepts drops, rather than the
-        # specific one that was dropped on
-        if self.added_actions:
-            for aa in self.added_actions:
-                if aa.menu() is not None and aa.menu().acceptDrops():
-                    aa.menu().dropEvent(event)
-                    break
+        for aa in self.added_actions:
+            if (getattr(aa.associated_interface_action, 'accepts_drops', False) and
+                aa.menu().geometry().contains(event.pos())):
+                aa.associated_interface_action.drop_event(event)
+                event.accept()
+        else:
+            event.ignore()
 
 # }}}
 
