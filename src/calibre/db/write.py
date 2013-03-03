@@ -55,6 +55,7 @@ def multiple_text(sep, ui_sep, x):
     else:
         x = (y.decode(preferred_encoding, 'replace') if isinstance(y, bytes)
              else y for y in x)
+    ui_sep = ui_sep.strip()
     repsep = ',' if ui_sep == ';' else ';'
     x = (y.strip().replace(ui_sep, repsep) for y in x if y.strip())
     return tuple(' '.join(y.split()) for y in x if y)
@@ -183,7 +184,7 @@ def safe_lower(x):
     except (TypeError, ValueError, KeyError, AttributeError):
         return x
 
-def get_db_id(val, db, m, table, kmap, rid_map, allow_case_changes,
+def get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,
               case_changes, val_map, sql_val_map=lambda x:x):
     ''' Get the db id for the value val. If val does not exist in the db it is
     inserted into the db. '''
@@ -195,7 +196,7 @@ def get_db_id(val, db, m, table, kmap, rid_map, allow_case_changes,
         item_id = rid_map[kval] = db.conn.last_insert_rowid()
         table.id_map[item_id] = val
         table.col_book_map[item_id] = set()
-    elif allow_case_changes and val != table.id_map[item_id]:
+    elif allow_case_change and val != table.id_map[item_id]:
         case_changes[item_id] = val
     val_map[val] = item_id
 
@@ -287,7 +288,7 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
     # Map values to db ids, including any new values
     kmap = safe_lower if dt == 'text' else lambda x:x
     rid_map = {kmap(item):item_id for item_id, item in table.id_map.iteritems()}
-    sql_val_map = lambda x:x.replace(',', '|') if is_authors else lambda x:x
+    sql_val_map = (lambda x:x.replace(',', '|')) if is_authors else lambda x:x
     val_map = {}
     case_changes = {}
     for vals in book_id_val_map.itervalues():
@@ -330,13 +331,13 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
                             ((k,) for k in deleted))
     if updated:
         vals = (
-            (book_id, book_id, val) for book_id, vals in updated.iteritems()
+            (book_id, val) for book_id, vals in updated.iteritems()
             for val in vals
         )
-        sql = (
-            'DELETE FROM {0} WHERE book=?; INSERT INTO {0}(book,{1}) VALUES(?, ?)'
-        )
-        db.conn.executemany(sql.format(table.link_table, m['link_column']), vals)
+        db.conn.executemany('DELETE FROM %s WHERE book=?'%table.link_table,
+                            ((k,) for k in updated))
+        db.conn.executemany('INSERT INTO {0}(book,{1}) VALUES(?, ?)'.format(
+            table.link_table, m['link_column']), vals)
 
     # Remove no longer used items
     remove = {item_id for item_id in table.id_map if not
