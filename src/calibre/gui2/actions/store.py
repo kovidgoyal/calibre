@@ -17,7 +17,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 class StoreAction(InterfaceAction):
 
     name = 'Store'
-    action_spec = (_('Get books'), 'store.png', None, _('G'))
+    action_spec = (_('Get books'), 'store.png', _('Search dozens of online ebook retailers for the cheapest books'), _('G'))
     action_add_menu = True
     action_menu_clone_qaction = _('Search for ebooks')
 

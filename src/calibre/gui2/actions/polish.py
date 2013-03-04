@@ -365,7 +365,8 @@ class Report(QDialog): # {{{
 class PolishAction(InterfaceAction):
 
     name = 'Polish Books'
-    action_spec = (_('Polish books'), 'polish.png', None, _('P'))
+    action_spec = (_('Polish books'), 'polish.png',
+                   _('Apply the shine of perfection to your books'), _('P'))
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
     accepts_drops = True
