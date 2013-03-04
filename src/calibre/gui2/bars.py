@@ -125,10 +125,10 @@ class ToolBar(QToolBar): # {{{
                     aa = iac.qaction
                     w = self.widgetForAction(aa)
                     m = aa.menu()
-                    func = getattr(iac, func)
+                    cfunc = getattr(iac, func)
                     if (( (w is not None and w.geometry().contains(pos)) or
                           (m is not None and m.isVisible() and m.geometry().contains(pos)) ) and
-                         func(event, md)):
+                         cfunc(event, md)):
                         return True
         return False
 
