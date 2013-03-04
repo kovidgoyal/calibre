@@ -124,9 +124,11 @@ class ToolBar(QToolBar): # {{{
                 if iac.accepts_drops:
                     aa = iac.qaction
                     w = self.widgetForAction(aa)
+                    m = aa.menu()
                     func = getattr(iac, func)
                     if (( (w is not None and w.geometry().contains(pos)) or
-                         aa.menu().geometry().contains(pos)) and func(event, md)):
+                          (m is not None and m.geometry().contains(pos)) ) and
+                         func(event, md)):
                         return True
         return False
 
