@@ -50,9 +50,10 @@ class EditMetadataAction(InterfaceAction):
     def do_drop(self):
         book_ids = self.dropped_ids
         del self.dropped_ids
-        db = self.gui.library_view.model().db
-        rows = [db.row(i) for i in book_ids]
-        self.edit_metadata_for(rows, book_ids)
+        if book_ids:
+            db = self.gui.library_view.model().db
+            rows = [db.row(i) for i in book_ids]
+            self.edit_metadata_for(rows, book_ids)
 
     def genesis(self):
         md = self.qaction.menu()
