@@ -12,13 +12,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-03-02 13:07+0000\n"
+"PO-Revision-Date: 2013-03-03 18:41+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-03-03 05:00+0000\n"
+"X-Launchpad-Export-Date: 2013-03-04 05:26+0000\n"
 "X-Generator: Launchpad (build 16514)\n"
 "Language: ca\n"
 
@@ -21792,11 +21792,11 @@ msgstr ""
 
 #. name for rac
 msgid "Rasawa"
-msgstr ""
+msgstr "Rasawa"
 
 #. name for rad
 msgid "Rade"
-msgstr ""
+msgstr "Rade"
 
 #. name for raf
 msgid "Meohang; Western"
@@ -21808,11 +21808,11 @@ msgstr ""
 
 #. name for rah
 msgid "Rabha"
-msgstr ""
+msgstr "Rabha"
 
 #. name for rai
 msgid "Ramoaaina"
-msgstr ""
+msgstr "Ramoaaina"
 
 #. name for raj
 msgid "Rajasthani"
@@ -21824,7 +21824,7 @@ msgstr ""
 
 #. name for ral
 msgid "Ralte"
-msgstr ""
+msgstr "Ralte"
 
 #. name for ram
 msgid "Canela"
@@ -21832,15 +21832,15 @@ msgstr ""
 
 #. name for ran
 msgid "Riantana"
-msgstr ""
+msgstr "Riantana"
 
 #. name for rao
 msgid "Rao"
-msgstr ""
+msgstr "Rao"
 
 #. name for rap
 msgid "Rapanui"
-msgstr ""
+msgstr "Rapanui"
 
 #. name for raq
 msgid "Saam"
@@ -21856,11 +21856,11 @@ msgstr ""
 
 #. name for rat
 msgid "Razajerdi"
-msgstr ""
+msgstr "Razajerdi"
 
 #. name for rau
 msgid "Raute"
-msgstr ""
+msgstr "Raute"
 
 #. name for rav
 msgid "Sampang"
@@ -21868,19 +21868,19 @@ msgstr ""
 
 #. name for raw
 msgid "Rawang"
-msgstr ""
+msgstr "Ravang"
 
 #. name for rax
 msgid "Rang"
-msgstr ""
+msgstr "Rang"
 
 #. name for ray
 msgid "Rapa"
-msgstr ""
+msgstr "Rapa"
 
 #. name for raz
 msgid "Rahambuu"
-msgstr ""
+msgstr "Rahambuu"
 
 #. name for rbb
 msgid "Palaung; Rumai"
@@ -21900,15 +21900,15 @@ msgstr "Francès crioll; Réunion"
 
 #. name for rdb
 msgid "Rudbari"
-msgstr ""
+msgstr "Rudbari"
 
 #. name for rea
 msgid "Rerau"
-msgstr ""
+msgstr "Rerau"
 
 #. name for reb
 msgid "Rembong"
-msgstr ""
+msgstr "Rembong"
 
 #. name for ree
 msgid "Kayan; Rejang"
@@ -21920,43 +21920,43 @@ msgstr ""
 
 #. name for rei
 msgid "Reli"
-msgstr ""
+msgstr "Reli"
 
 #. name for rej
 msgid "Rejang"
-msgstr ""
+msgstr "Rejang"
 
 #. name for rel
 msgid "Rendille"
-msgstr ""
+msgstr "Rendille"
 
 #. name for rem
 msgid "Remo"
-msgstr ""
+msgstr "Remo"
 
 #. name for ren
 msgid "Rengao"
-msgstr ""
+msgstr "Rengao"
 
 #. name for rer
 msgid "Rer Bare"
-msgstr ""
+msgstr "Rer Bare"
 
 #. name for res
 msgid "Reshe"
-msgstr ""
+msgstr "Reshe"
 
 #. name for ret
 msgid "Retta"
-msgstr ""
+msgstr "Retta"
 
 #. name for rey
 msgid "Reyesano"
-msgstr ""
+msgstr "Reyesano"
 
 #. name for rga
 msgid "Roria"
-msgstr ""
+msgstr "Roria"
 
 #. name for rge
 msgid "Romano-Greek"
@@ -21964,7 +21964,7 @@ msgstr "Romano-grec"
 
 #. name for rgk
 msgid "Rangkas"
-msgstr ""
+msgstr "Rangkas"
 
 #. name for rgn
 msgid "Romagnol"
@@ -21972,19 +21972,19 @@ msgstr ""
 
 #. name for rgr
 msgid "Resígaro"
-msgstr ""
+msgstr "Resígaro"
 
 #. name for rgs
 msgid "Roglai; Southern"
-msgstr ""
+msgstr "Roglai; Meridional"
 
 #. name for rgu
 msgid "Ringgou"
-msgstr ""
+msgstr "Roti; Ringgou"
 
 #. name for rhg
 msgid "Rohingya"
-msgstr ""
+msgstr "Chittagoni; Rohingya"
 
 #. name for rhp
 msgid "Yahang"
@@ -21992,11 +21992,11 @@ msgstr ""
 
 #. name for ria
 msgid "Riang (India)"
-msgstr ""
+msgstr "Tripurí; Riang"
 
 #. name for rie
 msgid "Rien"
-msgstr ""
+msgstr "Rien"
 
 #. name for rif
 msgid "Tarifit"
@@ -22004,7 +22004,7 @@ msgstr ""
 
 #. name for ril
 msgid "Riang (Myanmar)"
-msgstr ""
+msgstr "Riang (Myanmar)"
 
 #. name for rim
 msgid "Nyaturu"
@@ -22016,27 +22016,27 @@ msgstr ""
 
 #. name for rir
 msgid "Ribun"
-msgstr ""
+msgstr "Ribun"
 
 #. name for rit
 msgid "Ritarungo"
-msgstr ""
+msgstr "Ritarungo"
 
 #. name for riu
 msgid "Riung"
-msgstr ""
+msgstr "Riung"
 
 #. name for rjg
 msgid "Rajong"
-msgstr ""
+msgstr "Rajong"
 
 #. name for rji
 msgid "Raji"
-msgstr ""
+msgstr "Raji"
 
 #. name for rjs
 msgid "Rajbanshi"
-msgstr ""
+msgstr "Rajbanshi"
 
 #. name for rka
 msgid "Kraol"
@@ -22044,15 +22044,15 @@ msgstr ""
 
 #. name for rkb
 msgid "Rikbaktsa"
-msgstr ""
+msgstr "Rikbaktsa"
 
 #. name for rkh
 msgid "Rakahanga-Manihiki"
-msgstr ""
+msgstr "Rakahanga-Manihiki"
 
 #. name for rki
 msgid "Rakhine"
-msgstr ""
+msgstr "Rakhine"
 
 #. name for rkm
 msgid "Marka"
@@ -22064,11 +22064,11 @@ msgstr ""
 
 #. name for rma
 msgid "Rama"
-msgstr ""
+msgstr "Rama"
 
 #. name for rmb
 msgid "Rembarunga"
-msgstr ""
+msgstr "Rembarrunga"
 
 #. name for rmc
 msgid "Romani; Carpathian"
@@ -22100,7 +22100,7 @@ msgstr ""
 
 #. name for rmk
 msgid "Romkun"
-msgstr ""
+msgstr "Romkun"
 
 #. name for rml
 msgid "Romani; Baltic"
@@ -22108,7 +22108,7 @@ msgstr "Romaní; Bàltic"
 
 #. name for rmm
 msgid "Roma"
-msgstr ""
+msgstr "Roma"
 
 #. name for rmn
 msgid "Romani; Balkan"
@@ -22120,7 +22120,7 @@ msgstr "Romaní; Sinte"
 
 #. name for rmp
 msgid "Rempi"
-msgstr ""
+msgstr "Rempi"
 
 #. name for rmq
 msgid "Caló"
@@ -22140,7 +22140,7 @@ msgstr "Romaní; Tavringer"
 
 #. name for rmv
 msgid "Romanova"
-msgstr ""
+msgstr "Romanova"
 
 #. name for rmw
 msgid "Romani; Welsh"
@@ -22148,7 +22148,7 @@ msgstr "Romani; gal·lès"
 
 #. name for rmx
 msgid "Romam"
-msgstr ""
+msgstr "Romam"
 
 #. name for rmy
 msgid "Romani; Vlax"
@@ -22160,23 +22160,23 @@ msgstr ""
 
 #. name for rna
 msgid "Runa"
-msgstr ""
+msgstr "Runa"
 
 #. name for rnd
 msgid "Ruund"
-msgstr ""
+msgstr "Ruund"
 
 #. name for rng
 msgid "Ronga"
-msgstr ""
+msgstr "Ronga"
 
 #. name for rnl
 msgid "Ranglong"
-msgstr ""
+msgstr "Chin; Ranglong"
 
 #. name for rnn
 msgid "Roon"
-msgstr ""
+msgstr "Roon"
 
 #. name for rnp
 msgid "Rongpo"
@@ -22192,7 +22192,7 @@ msgstr ""
 
 #. name for roc
 msgid "Roglai; Cacgia"
-msgstr ""
+msgstr "Roglai; Cacgia"
 
 #. name for rod
 msgid "Rogo"
@@ -22208,7 +22208,7 @@ msgstr ""
 
 #. name for rog
 msgid "Roglai; Northern"
-msgstr ""
+msgstr "Roglai; Septentrional"
 
 #. name for roh
 msgid "Romansh"
