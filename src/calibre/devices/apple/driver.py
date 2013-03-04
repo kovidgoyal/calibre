@@ -21,7 +21,6 @@ from calibre.utils.config import config_dir, dynamic, prefs
 from calibre.utils.date import now, parse_date
 from calibre.utils.zipfile import ZipFile
 
-# DEBUG = False
 DEBUG = CALIBRE_DEBUG
 
 def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
@@ -861,7 +860,6 @@ class ITUNES(DriverBase):
         Note that most of the initialization is necessarily performed in can_handle(), as
         we need to talk to iTunes to discover if there's a connected iPod
         '''
-
         if self.iTunes is None:
             raise OpenFeedback(self.ITUNES_SANDBOX_LOCKOUT_MESSAGE)
 
@@ -2156,27 +2154,28 @@ class ITUNES(DriverBase):
             if 'iPod' in self.sources:
                 connected_device = self.sources['iPod']
                 device = self.iTunes.sources[connected_device]
-                dev_books = None
-                for pl in device.playlists():
-                    if pl.special_kind() == appscript.k.Books:
-                        if DEBUG:
-                            logger().info("  Book playlist: '%s'" % (pl.name()))
-                        dev_books = pl.file_tracks()
-                        break
-                else:
-                    logger().error("  book_playlist not found")
-
-                for book in dev_books:
-                    if book.kind() in self.Audiobooks:
-                        if DEBUG:
-                            logger().info("   ignoring '%s' of type '%s'" % (book.name(), book.kind()))
+                if device.playlists() is not None:
+                    dev_books = None
+                    for pl in device.playlists():
+                        if pl.special_kind() == appscript.k.Books:
+                            if DEBUG:
+                                logger().info("  Book playlist: '%s'" % (pl.name()))
+                            dev_books = pl.file_tracks()
+                            break
                     else:
-                        if DEBUG:
-                            logger().info("  %-40.40s %-30.30s %-40.40s [%s]" %
-                                          (book.name(), book.artist(), book.composer(), book.kind()))
-                        device_books.append(book)
-                if DEBUG:
-                    logger().info()
+                        logger().error("  book_playlist not found")
+
+                    for book in dev_books:
+                        if book.kind() in self.Audiobooks:
+                            if DEBUG:
+                                logger().info("   ignoring '%s' of type '%s'" % (book.name(), book.kind()))
+                        else:
+                            if DEBUG:
+                                logger().info("  %-40.40s %-30.30s %-40.40s [%s]" %
+                                              (book.name(), book.artist(), book.composer(), book.kind()))
+                            device_books.append(book)
+                    if DEBUG:
+                        logger().info()
 
         elif iswindows:
             import pythoncom
@@ -2186,29 +2185,29 @@ class ITUNES(DriverBase):
                     pythoncom.CoInitialize()
                     connected_device = self.sources['iPod']
                     device = self.iTunes.sources.ItemByName(connected_device)
-
-                    dev_books = None
-                    for pl in device.Playlists:
-                        if pl.Kind == self.PlaylistKind.index('User') and \
-                           pl.SpecialKind == self.PlaylistSpecialKind.index('Books'):
-                            if DEBUG:
-                                logger().info("  Books playlist: '%s'" % (pl.Name))
-                            dev_books = pl.Tracks
-                            break
-                    else:
-                        if DEBUG:
-                            logger().info("  no Books playlist found")
-
-                    for book in dev_books:
-                        if book.KindAsString in self.Audiobooks:
-                            if DEBUG:
-                                logger().info("   ignoring '%s' of type '%s'" % (book.Name, book.KindAsString))
+                    if device.Playlists is not None:
+                        dev_books = None
+                        for pl in device.Playlists:
+                            if pl.Kind == self.PlaylistKind.index('User') and \
+                               pl.SpecialKind == self.PlaylistSpecialKind.index('Books'):
+                                if DEBUG:
+                                    logger().info("  Books playlist: '%s'" % (pl.Name))
+                                dev_books = pl.Tracks
+                                break
                         else:
                             if DEBUG:
-                                logger().info("   %-40.40s %-30.30s %-40.40s [%s]" % (book.Name, book.Artist, book.Composer, book.KindAsString))
-                            device_books.append(book)
-                    if DEBUG:
-                        logger().info()
+                                logger().info("  no Books playlist found")
+
+                        for book in dev_books:
+                            if book.KindAsString in self.Audiobooks:
+                                if DEBUG:
+                                    logger().info("   ignoring '%s' of type '%s'" % (book.Name, book.KindAsString))
+                            else:
+                                if DEBUG:
+                                    logger().info("   %-40.40s %-30.30s %-40.40s [%s]" % (book.Name, book.Artist, book.Composer, book.KindAsString))
+                                device_books.append(book)
+                        if DEBUG:
+                            logger().info()
 
                 finally:
                     pythoncom.CoUninitialize()

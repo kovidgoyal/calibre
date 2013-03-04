@@ -672,6 +672,7 @@ Some limitations of PDF input are:
     * Links and Tables of Contents are not supported
     * PDFs that use embedded non-unicode fonts to represent non-English characters will result in garbled output for those characters
     * Some PDFs are made up of photographs of the page with OCRed text behind them. In such cases |app| uses the OCRed text, which can be very different from what you see when you view the PDF file
+    * PDFs that are used to display complex text, like right to left languages and math typesetting will not convert correctly
 
 To re-iterate **PDF is a really, really bad** format to use as input. If you absolutely must use PDF, then be prepared for an
 output ranging anywhere from decent to unusable, depending on the input PDF.
