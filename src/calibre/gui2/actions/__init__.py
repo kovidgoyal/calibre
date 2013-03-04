@@ -129,7 +129,9 @@ class InterfaceAction(QObject):
         ''' This method should perform some useful action and return True
         iff this interface action is capable of handling the drag event. Do not
         call accept/ignore on the event, that will be taken care of by the
-        calibre UI.'''
+        calibre UI. You should not perform blocking/long operations in this
+        function. Instead emit a signal or use QTimer.singleShot and return
+        quickly. See the builtin actions for examples.'''
         return False
 
     def do_genesis(self):
