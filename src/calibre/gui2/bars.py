@@ -117,21 +117,30 @@ class ToolBar(QToolBar): # {{{
         return ch
 
     # support drag&drop from/to library, from/to reader/card, enabled plugins
+    def check_iactions_for_drag(self, event, md, func):
+        if self.added_actions:
+            pos = event.pos()
+            for iac in self.gui.iactions.itervalues():
+                if iac.accepts_drops:
+                    aa = iac.qaction
+                    w = self.widgetForAction(aa)
+                    m = aa.menu()
+                    if (( (w is not None and w.geometry().contains(pos)) or
+                          (m is not None and m.isVisible() and m.geometry().contains(pos)) ) and
+                         getattr(iac, func)(event, md)):
+                        return True
+        return False
+
     def dragEnterEvent(self, event):
         md = event.mimeData()
         if md.hasFormat("application/calibre+from_library") or \
            md.hasFormat("application/calibre+from_device"):
             event.setDropAction(Qt.CopyAction)
             event.accept()
-        elif self.added_actions:
-            for aa in self.added_actions:
-                if (getattr(aa.associated_interface_action, 'accepts_drops', False) and
-                    aa.menu().geometry().contains(event.pos())):
-                    if aa.associated_interface_action.accept_enter_event(md):
-                        event.accept()
-                        break
-            else:
-                event.ignore()
+            return
+
+        if self.check_iactions_for_drag(event, md, 'accept_enter_event'):
+            event.accept()
         else:
             event.ignore()
 
@@ -152,15 +161,8 @@ class ToolBar(QToolBar): # {{{
             event.acceptProposedAction()
             return
 
-        if self.added_actions:
-            for aa in self.added_actions:
-                if (getattr(aa.associated_interface_action, 'accepts_drops', False) and
-                    aa.menu().geometry().contains(event.pos())):
-                    if aa.associated_interface_action.accept_drag_move_event(md):
-                        event.acceptProposedAction()
-                        break
-            else:
-                event.ignore()
+        if self.check_iactions_for_drag(event, md, 'accept_drag_move_event'):
+            event.acceptProposedAction()
         else:
             event.ignore()
 
@@ -191,11 +193,8 @@ class ToolBar(QToolBar): # {{{
                 return
 
         # Give added_actions an opportunity to process the drag&drop event
-        for aa in self.added_actions:
-            if (getattr(aa.associated_interface_action, 'accepts_drops', False) and
-                aa.menu().geometry().contains(event.pos())):
-                aa.associated_interface_action.drop_event(event)
-                event.accept()
+        if self.check_iactions_for_drag(event, data, 'drop_event'):
+            event.accept()
         else:
             event.ignore()
 

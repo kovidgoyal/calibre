@@ -31,11 +31,6 @@ class tvn24(BasicNewsRecipe):
                 #(u'Polska', u'www.tvn24.pl/polska.xml'), (u'\u015awiat', u'http://www.tvn24.pl/swiat.xml'), (u'Sport', u'http://www.tvn24.pl/sport.xml'), (u'Biznes', u'http://www.tvn24.pl/biznes.xml'), (u'Meteo', u'http://www.tvn24.pl/meteo.xml'), (u'Micha\u0142ki', u'http://www.tvn24.pl/michalki.xml'), (u'Kultura', u'http://www.tvn24.pl/kultura.xml')]
 
     def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup
-
-    def preprocess_html(self, soup):
         for alink in soup.findAll('a'):
             if alink.string is not None:
                 tstr = alink.string

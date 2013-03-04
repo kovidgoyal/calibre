@@ -101,9 +101,9 @@ class InterfaceAction(QObject):
     #: on calibre as a whole
     action_type = 'global'
 
-    #: If True, the action may inspect the event at accept_enter_event() and
-    #: accept_drag_move_event(), returning True or False if it wants to handle the event.
-    #: drop_event() will be called in the subclass from calibre.gui2.bars
+    #: If True, then this InterfaceAction will have the opportunity to interact
+    #: with drag and drop events. See the methods, :meth:`accept_enter_event`,
+    #: :meth`:accept_drag_move_event`, :meth:`drop_event` for details.
     accepts_drops = False
 
     def __init__(self, parent, site_customization):
@@ -113,14 +113,26 @@ class InterfaceAction(QObject):
         self.site_customization = site_customization
         self.interface_action_base_plugin = None
 
-    def accept_enter_event(self, mime_data):
+    def accept_enter_event(self, event, mime_data):
+        ''' This method should return True iff this interface action is capable
+        of handling the drag event. Do not call accept/ignore on the event,
+        that will be taken care of by the calibre UI.'''
         return False
 
-    def accept_drag_move_event(self, mime_data):
+    def accept_drag_move_event(self, event, mime_data):
+        ''' This method should return True iff this interface action is capable
+        of handling the drag event. Do not call accept/ignore on the event,
+        that will be taken care of by the calibre UI.'''
         return False
 
-    def drop_event(self, event):
-        pass
+    def drop_event(self, event, mime_data):
+        ''' This method should perform some useful action and return True
+        iff this interface action is capable of handling the drop event. Do not
+        call accept/ignore on the event, that will be taken care of by the
+        calibre UI. You should not perform blocking/long operations in this
+        function. Instead emit a signal or use QTimer.singleShot and return
+        quickly. See the builtin actions for examples.'''
+        return False
 
     def do_genesis(self):
         self.Dispatcher = partial(Dispatcher, parent=self)
@@ -145,7 +157,6 @@ class InterfaceAction(QObject):
         else:
             action = QAction(text, self.gui)
         if attr == 'qaction':
-            action.associated_interface_action = self
             mt = (action.text() if self.action_menu_clone_qaction is True else
                     unicode(self.action_menu_clone_qaction))
             self.menuless_qaction = ma = QAction(action.icon(), mt, self.gui)

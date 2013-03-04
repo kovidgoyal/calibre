@@ -235,6 +235,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="help_text">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QWidget" name="spacer_widget" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_5">
       <item>
