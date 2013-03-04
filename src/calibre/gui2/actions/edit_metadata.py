@@ -23,7 +23,7 @@ from calibre.db.errors import NoSuchFormat
 class EditMetadataAction(InterfaceAction):
 
     name = 'Edit Metadata'
-    action_spec = (_('Edit metadata'), 'edit_input.png', _('Change the title/author/cover etc. of various books'), _('E'))
+    action_spec = (_('Edit metadata'), 'edit_input.png', _('Change the title/author/cover etc. of books'), _('E'))
     action_type = 'current'
     action_add_menu = True
 
