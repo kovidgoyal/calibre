@@ -47,12 +47,12 @@ class GazetaPomorska(BasicNewsRecipe):
              # # PomorskaRSS - wiadomosci kazdego typu, zakomentuj znakiem "#"
              # # przed odkomentowaniem wiadomosci wybranego typu:
              (u'PomorskaRSS', u'http://www.pomorska.pl/rss.xml')
-             
+
              # # wiadomosci z regionu nie przypisane do okreslonego miasta:
              # (u'Region', u'http://www.pomorska.pl/region.xml'),
-             
+
              # # wiadomosci przypisane do miast:
-             # (u'Bydgoszcz', u'http://www.pomorska.pl/bydgoszcz.xml'), 
+             # (u'Bydgoszcz', u'http://www.pomorska.pl/bydgoszcz.xml'),
              # (u'Nak\u0142o', u'http://www.pomorska.pl/naklo.xml'),
              # (u'Koronowo', u'http://www.pomorska.pl/koronowo.xml'),
              # (u'Solec Kujawski', u'http://www.pomorska.pl/soleckujawski.xml'),
@@ -73,9 +73,9 @@ class GazetaPomorska(BasicNewsRecipe):
              # (u'\u015awiecie', u'http://www.pomorska.pl/swiecie.xml'),
              # (u'Tuchola', u'http://www.pomorska.pl/tuchola.xml'),
              # (u'\u017bnin', u'http://www.pomorska.pl/znin.xml')
-             
+
              # # wiadomosci tematyczne (redundancja z region/miasta):
-             # (u'Sport', u'http://www.pomorska.pl/sport.xml'), 
+             # (u'Sport', u'http://www.pomorska.pl/sport.xml'),
              # (u'Zdrowie', u'http://www.pomorska.pl/zdrowie.xml'),
              # (u'Auto', u'http://www.pomorska.pl/moto.xml'),
              # (u'Dom', u'http://www.pomorska.pl/dom.xml'),
@@ -100,5 +100,3 @@ class GazetaPomorska(BasicNewsRecipe):
 
     extra_css = '''h1 { font-size: 1.4em; }
                         h2 { font-size: 1.0em; }'''
-
-
