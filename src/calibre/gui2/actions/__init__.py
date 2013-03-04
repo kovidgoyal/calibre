@@ -115,17 +115,21 @@ class InterfaceAction(QObject):
 
     def accept_enter_event(self, event, mime_data):
         ''' This method should return True iff this interface action is capable
-        of handling the drag event. '''
+        of handling the drag event. Do not call accept/ignore on the event,
+        that will be taken care of by the calibre UI.'''
         return False
 
     def accept_drag_move_event(self, event, mime_data):
         ''' This method should return True iff this interface action is capable
-        of handling the drag event. '''
+        of handling the drag event. Do not call accept/ignore on the event,
+        that will be taken care of by the calibre UI.'''
         return False
 
     def drop_event(self, event, mime_data):
         ''' This method should perform some useful action and return True
-        iff this interface action is capable of handling the drag event. '''
+        iff this interface action is capable of handling the drag event. Do not
+        call accept/ignore on the event, that will be taken care of by the
+        calibre UI.'''
         return False
 
     def do_genesis(self):
