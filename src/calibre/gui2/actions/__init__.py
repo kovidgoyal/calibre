@@ -127,7 +127,7 @@ class InterfaceAction(QObject):
 
     def drop_event(self, event, mime_data):
         ''' This method should perform some useful action and return True
-        iff this interface action is capable of handling the drag event. Do not
+        iff this interface action is capable of handling the drop event. Do not
         call accept/ignore on the event, that will be taken care of by the
         calibre UI. You should not perform blocking/long operations in this
         function. Instead emit a signal or use QTimer.singleShot and return
