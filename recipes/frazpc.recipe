@@ -20,7 +20,7 @@ class FrazPC(BasicNewsRecipe):
     no_stylesheets = True
     cover_url='http://www.frazpc.pl/images/logo.png'
     feeds          = [
-        (u'Aktualno\u015bci', u'http://www.frazpc.pl/feed/aktualnosci'), 
+        (u'Aktualno\u015bci', u'http://www.frazpc.pl/feed/aktualnosci'),
         (u'Artyku\u0142y', u'http://www.frazpc.pl/feed/artykuly')
     ]
 

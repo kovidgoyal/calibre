@@ -1,6 +1,6 @@
 #!/usr/bin/env  python
 
-__license__	= 'GPL v3'
+__license__     = 'GPL v3'
 __author__ = 'Mori'
 __version__ = 'v. 0.5'
 '''
@@ -11,56 +11,56 @@ from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
 class DziennikInternautowRecipe(BasicNewsRecipe):
-	__author__ = 'Mori'
-	language = 'pl'
+    __author__ = 'Mori'
+    language = 'pl'
 
-	title = u'Dziennik Internautow'
-	publisher = u'Dziennik Internaut\u00f3w Sp. z o.o.'
-	description = u'Internet w \u017cyciu i biznesie. Porady, wywiady, interwencje, bezpiecze\u0144stwo w Sieci, technologia.'
+    title = u'Dziennik Internautow'
+    publisher = u'Dziennik Internaut\u00f3w Sp. z o.o.'
+    description = u'Internet w \u017cyciu i biznesie. Porady, wywiady, interwencje, bezpiecze\u0144stwo w Sieci, technologia.'
 
-	max_articles_per_feed = 100
-	oldest_article = 7
-	cover_url = 'http://di.com.pl/pic/logo_di_norm.gif'
-	
-	no_stylesheets = True
-	remove_javascript = True
-	encoding = 'utf-8'
-	
-	extra_css = '''
-		.fotodesc{font-size: 75%;}
-		.pub_data{font-size: 75%;}
-		.fotonews{clear: both; padding-top: 10px; padding-bottom: 10px;}
-		#pub_foto{font-size: 75%; float: left; padding-right: 10px;}
-	'''
-	
-	feeds = [
-		(u'Dziennik Internaut\u00f3w', u'http://feeds.feedburner.com/glowny-di')
-	]
-	
-	keep_only_tags = [
-		dict(name = 'div', attrs = {'id' : 'pub_head'}),
-		dict(name = 'div', attrs = {'id' : 'pub_content'})
-	]
-	
-	remove_tags = [
-		dict(name = 'div', attrs = {'class' : 'poradniki_context'}),
-		dict(name = 'div', attrs = {'class' : 'uniBox'}),
-		dict(name = 'object', attrs = {}),
-		dict(name = 'h3', attrs = {}),
-		dict(attrs={'class':'twitter-share-button'})
-	]
-	
-	preprocess_regexps = [
-		(re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
-		[
-			(r', <a href="http://di.com.pl/komentarze,.*?</div>', lambda match: '</div>'),
-			(r'<div class="fotonews".*?">', lambda match: '<div class="fotonews">'),
-			(r'http://di.com.pl/pic/photo/mini/', lambda match: 'http://di.com.pl/pic/photo/oryginal/'),
-			(r'\s*</', lambda match: '</'),
-		]
-	]
+    max_articles_per_feed = 100
+    oldest_article = 7
+    cover_url = 'http://di.com.pl/pic/logo_di_norm.gif'
 
-	def skip_ad_pages(self, soup):
-		if 'Advertisement' in soup.title:
-			nexturl=soup.find('a')['href']
-			return self.index_to_soup(nexturl, raw=True)
+    no_stylesheets = True
+    remove_javascript = True
+    encoding = 'utf-8'
+
+    extra_css = '''
+            .fotodesc{font-size: 75%;}
+            .pub_data{font-size: 75%;}
+            .fotonews{clear: both; padding-top: 10px; padding-bottom: 10px;}
+            #pub_foto{font-size: 75%; float: left; padding-right: 10px;}
+    '''
+
+    feeds = [
+            (u'Dziennik Internaut\u00f3w', u'http://feeds.feedburner.com/glowny-di')
+    ]
+
+    keep_only_tags = [
+            dict(name = 'div', attrs = {'id' : 'pub_head'}),
+            dict(name = 'div', attrs = {'id' : 'pub_content'})
+    ]
+
+    remove_tags = [
+            dict(name = 'div', attrs = {'class' : 'poradniki_context'}),
+            dict(name = 'div', attrs = {'class' : 'uniBox'}),
+            dict(name = 'object', attrs = {}),
+            dict(name = 'h3', attrs = {}),
+            dict(attrs={'class':'twitter-share-button'})
+    ]
+
+    preprocess_regexps = [
+            (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
+            [
+                    (r', <a href="http://di.com.pl/komentarze,.*?</div>', lambda match: '</div>'),
+                    (r'<div class="fotonews".*?">', lambda match: '<div class="fotonews">'),
+                    (r'http://di.com.pl/pic/photo/mini/', lambda match: 'http://di.com.pl/pic/photo/oryginal/'),
+                    (r'\s*</', lambda match: '</'),
+            ]
+    ]
+
+    def skip_ad_pages(self, soup):
+        if 'Advertisement' in soup.title:
+            nexturl=soup.find('a')['href']
+            return self.index_to_soup(nexturl, raw=True)

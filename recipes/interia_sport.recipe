@@ -20,13 +20,13 @@ class InteriaSport(BasicNewsRecipe):
     remove_javascript = True
     max_articles_per_feed = 100
 
-    feeds          = [(u'Wydarzenia sportowe', u'http://kanaly.rss.interia.pl/sport.xml'), 
-                      (u'Pi\u0142ka no\u017cna', u'http://kanaly.rss.interia.pl/pilka_nozna.xml'), 
-                      (u'Siatk\xf3wka', u'http://kanaly.rss.interia.pl/siatkowka.xml'), 
-                      (u'Koszyk\xf3wka', u'http://kanaly.rss.interia.pl/koszykowka.xml'), 
-                      (u'NBA', u'http://kanaly.rss.interia.pl/nba.xml'), 
-                      (u'Kolarstwo', u'http://kanaly.rss.interia.pl/kolarstwo.xml'), 
-                      (u'\u017bu\u017cel', u'http://kanaly.rss.interia.pl/zuzel.xml'), 
+    feeds          = [(u'Wydarzenia sportowe', u'http://kanaly.rss.interia.pl/sport.xml'),
+                      (u'Pi\u0142ka no\u017cna', u'http://kanaly.rss.interia.pl/pilka_nozna.xml'),
+                      (u'Siatk\xf3wka', u'http://kanaly.rss.interia.pl/siatkowka.xml'),
+                      (u'Koszyk\xf3wka', u'http://kanaly.rss.interia.pl/koszykowka.xml'),
+                      (u'NBA', u'http://kanaly.rss.interia.pl/nba.xml'),
+                      (u'Kolarstwo', u'http://kanaly.rss.interia.pl/kolarstwo.xml'),
+                      (u'\u017bu\u017cel', u'http://kanaly.rss.interia.pl/zuzel.xml'),
                       (u'Tenis', u'http://kanaly.rss.interia.pl/tenis.xml')]
 
     keep_only_tags = [dict(name='div', attrs={'id':'article'})]
@@ -63,7 +63,7 @@ class InteriaSport(BasicNewsRecipe):
         '''
 
     preprocess_regexps = [
-        (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
+        (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
         [
             (r'<p><a href.*?</a></p>', lambda match: ''),
            # FIXME

@@ -20,16 +20,16 @@ class f1ultra(BasicNewsRecipe):
     remove_tags.append(dict(attrs = {'title' : ['PDF', 'Drukuj', 'Email']}))
     remove_tags.append(dict(name = 'form', attrs = {'method' : 'post'}))
     remove_tags.append(dict(name = 'hr', attrs = {'size' : '2'}))
-    
+
     preprocess_regexps = [(re.compile(r'align="left"'), lambda match: ''),
-		          (re.compile(r'align="right"'), lambda match: ''),
-		          (re.compile(r'width=\"*\"'), lambda match: ''),
-        		  (re.compile(r'\<table .*?\>'), lambda match: '')]
-  
+                          (re.compile(r'align="right"'), lambda match: ''),
+                          (re.compile(r'width=\"*\"'), lambda match: ''),
+                          (re.compile(r'\<table .*?\>'), lambda match: '')]
+
 
     extra_css = '''.contentheading { font-size: 1.4em; font-weight: bold; }
-	           img { display: block; clear: both;}
-	        '''
+                   img { display: block; clear: both;}
+                '''
     remove_attributes = ['width','height','position','float','padding-left','padding-right','padding','text-align']
 
     feeds = [(u'F1 Ultra', u'http://www.f1ultra.pl/index.php?option=com_rd_rss&id=1&Itemid=245')]
