@@ -12,7 +12,7 @@ from functools import partial
 from calibre.constants import plugins
 from calibre.utils.config_base import tweaks
 
-_icu = _collator = _primary_collator = _secondary_collator = None
+_icu = _collator = _primary_collator = _sort_collator = None
 _locale = None
 
 _none = u''
@@ -41,6 +41,7 @@ def load_icu():
     return _icu
 
 def load_collator():
+    'The default collator for most locales takes both case and accented letters into account'
     global _collator
     if _collator is None:
         icu = load_icu()
@@ -49,18 +50,25 @@ def load_collator():
     return _collator
 
 def primary_collator():
+    'Ignores case differences and accented characters'
     global _primary_collator
     if _primary_collator is None:
         _primary_collator = _collator.clone()
         _primary_collator.strength = _icu.UCOL_PRIMARY
     return _primary_collator
 
-def secondary_collator():
-    global _secondary_collator
-    if _secondary_collator is None:
-        _secondary_collator = _collator.clone()
-        _secondary_collator.strength = _icu.UCOL_SECONDARY
-    return _secondary_collator
+def sort_collator():
+    'Ignores case differences and recognizes numbers in strings'
+    global _sort_collator
+    if _sort_collator is None:
+        _sort_collator = _collator.clone()
+        _sort_collator.strength = _icu.UCOL_SECONDARY
+        if tweaks['numeric_collation']:
+            try:
+                _sort_collator.numeric = True
+            except AttributeError:
+                pass
+    return _sort_collator
 
 def py_sort_key(obj):
     if not obj:
@@ -72,15 +80,15 @@ def icu_sort_key(collator, obj):
         return _none2
     try:
         try:
-            return _secondary_collator.sort_key(obj)
+            return _sort_collator.sort_key(obj)
         except AttributeError:
-            return secondary_collator().sort_key(obj)
+            return sort_collator().sort_key(obj)
     except TypeError:
         if isinstance(obj, unicode):
             obj = obj.replace(u'\0', u'')
         else:
             obj = obj.replace(b'\0', b'')
-        return _secondary_collator.sort_key(obj)
+        return _sort_collator.sort_key(obj)
 
 def icu_change_case(upper, locale, obj):
     func = _icu.upper if upper else _icu.lower
@@ -233,9 +241,9 @@ def collation_order(a):
     if _icu_not_ok:
         return (ord(a[0]), 1) if a else (0, 0)
     try:
-        return icu_collation_order(_secondary_collator, a)
+        return icu_collation_order(_sort_collator, a)
     except AttributeError:
-        return icu_collation_order(secondary_collator(), a)
+        return icu_collation_order(sort_collator(), a)
 
 ################################################################################
 
@@ -333,6 +341,7 @@ pêché'''
 
     german = create(german)
     c = _icu.Collator('de')
+    c.numeric = True
     gs = list(sorted(german, key=c.sort_key))
     if gs != create(german_good):
         print 'German sorting failed'
@@ -340,6 +349,7 @@ pêché'''
     print
     french = create(french)
     c = _icu.Collator('fr')
+    c.numeric = True
     fs = list(sorted(french, key=c.sort_key))
     if fs != create(french_good):
         print 'French sorting failed (note that French fails with icu < 4.6)'
@@ -387,6 +397,25 @@ pêché'''
             not p('x', '')):
         print 'startswith() failed'
         return
+
+    print '\nTesting collation_order()'
+    for group in [
+        ('Šaa', 'Smith', 'Solženicyn', 'Štepánek'),
+        ('calibre', 'Charon', 'Collins'),
+        ('01', '1'),
+        ('1', '11', '13'),
+    ]:
+        last = None
+        for x in group:
+            val = icu_collation_order(sort_collator(), x)
+            if val[1] != 1:
+                prints('collation_order() returned incorrect length for', x)
+            if last is None:
+                last = val
+            else:
+                if val != last:
+                    prints('collation_order() returned incorrect value for', x)
+            last = val
 
 # }}}
 

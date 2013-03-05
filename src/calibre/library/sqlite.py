@@ -20,7 +20,7 @@ from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.date import parse_date, isoformat, local_tz, UNDEFINED_DATE
 from calibre import isbytestring, force_unicode
 from calibre.constants import iswindows, DEBUG, plugins
-from calibre.utils.icu import strcmp
+from calibre.utils.icu import sort_key
 from calibre import prints
 
 from dateutil.tz import tzoffset
@@ -189,7 +189,8 @@ def pynocase(one, two, encoding='utf-8'):
     return cmp(one.lower(), two.lower())
 
 def icu_collator(s1, s2):
-    return strcmp(force_unicode(s1, 'utf-8'), force_unicode(s2, 'utf-8'))
+    return cmp(sort_key(force_unicode(s1, 'utf-8')),
+               sort_key(force_unicode(s2, 'utf-8')))
 
 def load_c_extensions(conn, debug=DEBUG):
     try:

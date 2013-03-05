@@ -123,9 +123,8 @@ class ManyToOneTable(Table):
 
     def read_id_maps(self, db):
         for row in db.conn.execute('SELECT id, {0} FROM {1}'.format(
-            self.metadata['column'], self.metadata['table'])):
-            if row[1]:
-                self.id_map[row[0]] = self.unserialize(row[1])
+                self.metadata['column'], self.metadata['table'])):
+            self.id_map[row[0]] = self.unserialize(row[1])
 
     def read_maps(self, db):
         for row in db.conn.execute(
@@ -169,7 +168,7 @@ class AuthorsTable(ManyToManyTable):
         self.asort_map  = {}
         for row in db.conn.execute(
                 'SELECT id, name, sort, link FROM authors'):
-            self.id_map[row[0]] = row[1]
+            self.id_map[row[0]] = self.unserialize(row[1])
             self.asort_map[row[0]] = (row[2] if row[2] else
                     author_to_author_sort(row[1]))
             self.alink_map[row[0]] = row[3]
@@ -218,3 +217,4 @@ class LanguagesTable(ManyToManyTable):
         ManyToManyTable.read_id_maps(self, db)
         lm = lang_map()
         self.lang_name_map = {x:lm.get(x, x) for x in self.id_map.itervalues()}
+

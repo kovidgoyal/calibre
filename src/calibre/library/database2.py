@@ -2272,7 +2272,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # force_changes has no effect on cover manipulation
         if mi.cover_data[1] is not None:
             doit(self.set_cover, id, mi.cover_data[1], commit=False)
-        elif mi.cover is not None:
+        elif isinstance(mi.cover, basestring) and mi.cover:
             if os.access(mi.cover, os.R_OK):
                 with lopen(mi.cover, 'rb') as f:
                     raw = f.read()

@@ -24,4 +24,3 @@ class app_funds(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds          = [(u'blog', u'http://feeds.feedburner.com/blogspot/etVI')]
-    

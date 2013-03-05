@@ -123,6 +123,274 @@ os.remove(os.path.abspath(__file__))
 
 # }}}
 
+class ZshCompleter(object): # {{{
+
+    def __init__(self, opts):
+        self.opts = opts
+        self.dest = None
+        base = os.path.dirname(self.opts.staging_sharedir)
+        self.detect_zsh(base)
+        if not self.dest and base == '/usr/share':
+            # Ubuntu puts site-functions in /usr/local/share
+            self.detect_zsh('/usr/local/share')
+
+        self.commands = {}
+
+    def detect_zsh(self, base):
+        for x in ('vendor-completions', 'vendor-functions', 'site-functions'):
+            c = os.path.join(base, 'zsh', x)
+            if os.path.isdir(c) and os.access(c, os.W_OK):
+                self.dest = os.path.join(c, '_calibre')
+                break
+
+    def get_options(self, parser, cover_opts=('--cover',), opf_opts=('--opf',),
+                    file_map={}):
+        if hasattr(parser, 'option_list'):
+            options = parser.option_list
+            for group in parser.option_groups:
+                options += group.option_list
+        else:
+            options = parser
+        for opt in options:
+            lo, so = opt._long_opts, opt._short_opts
+            if opt.takes_value():
+                lo = [x+'=' for x in lo]
+                so = [x+'+' for x in so]
+            ostrings = lo + so
+            if len(ostrings) > 1:
+                ostrings = u'{%s}'%','.join(ostrings)
+            else:
+                ostrings = ostrings[0]
+            exclude = u''
+            if opt.dest is None:
+                exclude = u"'(- *)'"
+            h = opt.help or ''
+            h = h.replace('"', "'").replace('[', '(').replace(
+                ']', ')').replace('\n', ' ').replace(':', '\\:')
+            h = h.replace('%default', type(u'')(opt.default))
+            arg = ''
+            if opt.takes_value():
+                arg = ':"%s":'%h
+                if opt.dest in {'extract_to', 'debug_pipeline', 'to_dir', 'outbox', 'with_library', 'library_path'}:
+                    arg += "'_path_files -/'"
+                elif opt.choices:
+                    arg += "(%s)"%'|'.join(opt.choices)
+                elif set(file_map).intersection(set(opt._long_opts)):
+                    k = set(file_map).intersection(set(opt._long_opts))
+                    exts = file_map[tuple(k)[0]]
+                    if exts:
+                        arg += "'_files -g \"%s\"'"%(' '.join('*.%s'%x for x in
+                                tuple(exts) + tuple(x.upper() for x in exts)))
+                    else:
+                        arg += "_files"
+                elif (opt.dest in {'pidfile', 'attachment'}):
+                    arg += "_files"
+                elif set(opf_opts).intersection(set(opt._long_opts)):
+                    arg += "'_files -g \"*.opf\"'"
+                elif set(cover_opts).intersection(set(opt._long_opts)):
+                    arg += "'_files -g \"%s\"'"%(' '.join('*.%s'%x for x in
+                                tuple(pics) + tuple(x.upper() for x in pics)))
+
+            help_txt = u'"[%s]"'%h
+            yield u'%s%s%s%s '%(exclude, ostrings, help_txt, arg)
+
+    def opts_and_exts(self, name, op, exts, cover_opts=('--cover',),
+                      opf_opts=('--opf',), file_map={}):
+        if not self.dest: return
+        exts = set(exts).union(x.upper() for x in exts)
+        pats = ('*.%s'%x for x in exts)
+        extra = ("'*:filename:_files -g \"%s\"' "%' '.join(pats),)
+        opts = '\\\n  '.join(tuple(self.get_options(
+            op(), cover_opts=cover_opts, opf_opts=opf_opts, file_map=file_map)) + extra)
+        txt = '_arguments -s \\\n  ' + opts
+        self.commands[name] = txt
+
+    def opts_and_words(self, name, op, words, takes_files=False):
+        if not self.dest: return
+        extra = ("'*:filename:_files' ",) if takes_files else ()
+        opts = '\\\n  '.join(tuple(self.get_options(op())) + extra)
+        txt = '_arguments -s \\\n  ' + opts
+        self.commands[name] = txt
+
+    def do_ebook_convert(self, f):
+        from calibre.ebooks.conversion.plumber import supported_input_formats
+        from calibre.web.feeds.recipes.collection import get_builtin_recipe_titles
+        from calibre.customize.ui import available_output_formats
+        from calibre.ebooks.conversion.cli import create_option_parser, group_titles
+        from calibre.utils.logging import DevNull
+        input_fmts = set(supported_input_formats())
+        output_fmts = set(available_output_formats())
+        iexts = {x.upper() for x in input_fmts}.union(input_fmts)
+        oexts = {x.upper() for x in output_fmts}.union(output_fmts)
+        w = lambda x: f.write(x if isinstance(x, bytes) else x.encode('utf-8'))
+        # Arg 1
+        w('\n_ebc_input_args() {')
+        w('\n  local extras; extras=(')
+        w('\n    {-h,--help}":Show Help"')
+        w('\n    "--version:Show program version"')
+        w('\n    "--list-recipes:List builtin recipe names"')
+        for recipe in sorted(set(get_builtin_recipe_titles())):
+            recipe = recipe.replace(':', '\\:').replace('"', '\\"')
+            w(u'\n    "%s.recipe"'%(recipe))
+        w('\n  ); _describe -t recipes "ebook-convert builtin recipes" extras')
+        w('\n  _files -g "%s"'%' '.join(('*.%s'%x for x in iexts)))
+        w('\n}\n')
+
+        # Arg 2
+        w('\n_ebc_output_args() {')
+        w('\n  local extras; extras=(')
+        for x in output_fmts:
+            w('\n    ".{0}:Convert to a .{0} file with the same name as the input file"'.format(x))
+        w('\n  ); _describe -t output "ebook-convert output" extras')
+        w('\n  _files -g "%s"'%' '.join(('*.%s'%x for x in oexts)))
+        w('\n  _path_files -/')
+        w('\n}\n')
+
+        log = DevNull()
+        def get_parser(input_fmt='epub', output_fmt=None):
+            of = ('dummy2.'+output_fmt) if output_fmt else 'dummy'
+            return create_option_parser(('ec', 'dummy1.'+input_fmt, of, '-h'), log)[0]
+
+        # Common options
+        input_group, output_group = group_titles()
+        p = get_parser()
+        opts = p.option_list
+        for group in p.option_groups:
+            if group.title not in {input_group, output_group}:
+                opts += group.option_list
+        opts.append(p.get_option('--pretty-print'))
+        opts.append(p.get_option('--input-encoding'))
+        opts = '\\\n  '.join(tuple(
+            self.get_options(opts, file_map={'--search-replace':()})))
+        w('\n_ebc_common_opts() {')
+        w('\n  _arguments -s \\\n  ' + opts)
+        w('\n}\n')
+
+        # Input/Output format options
+        for fmts, group_title, func in (
+            (input_fmts, input_group, '_ebc_input_opts_%s'),
+            (output_fmts, output_group, '_ebc_output_opts_%s'),
+        ):
+            for fmt in fmts:
+                is_input = group_title == input_group
+                if is_input and fmt in {'rar', 'zip', 'oebzip'}: continue
+                p = (get_parser(input_fmt=fmt) if is_input
+                     else get_parser(output_fmt=fmt))
+                opts = None
+                for group in p.option_groups:
+                    if group.title == group_title:
+                        opts = [o for o in group.option_list if
+                                '--pretty-print' not in o._long_opts and
+                                '--input-encoding' not in o._long_opts]
+                if not opts: continue
+                opts = '\\\n  '.join(tuple(self.get_options(opts)))
+                w('\n%s() {'%(func%fmt))
+                w('\n  _arguments -s \\\n  ' + opts)
+                w('\n}\n')
+
+        w('\n_ebook_convert() {')
+        w('\n  local iarg oarg context state_descr state line\n  typeset -A opt_args\n  local ret=1')
+        w("\n  _arguments '1: :_ebc_input_args' '*::ebook-convert output:->args' && ret=0")
+        w("\n  case $state in \n  (args)")
+        w('\n    iarg=${line[1]##*.}; ')
+        w("\n    _arguments '1: :_ebc_output_args' '*::ebook-convert options:->args' && ret=0")
+        w("\n     case $state in \n    (args)")
+
+        w('\n      oarg=${line[1]##*.}')
+        w('\n      iarg="_ebc_input_opts_${(L)iarg}"; oarg="_ebc_output_opts_${(L)oarg}"')
+        w('\n      _call_function - $iarg; _call_function - $oarg; _ebc_common_opts; ret=0')
+        w('\n    ;;\n    esac')
+
+        w("\n  ;;\n  esac\n  return ret")
+        w('\n}\n')
+
+    def do_calibredb(self, f):
+        import calibre.library.cli as cli
+        from calibre.customize.ui import available_catalog_formats
+        parsers, descs = {}, {}
+        for command in cli.COMMANDS:
+            op = getattr(cli, '%s_option_parser'%command)
+            args = [['t.epub']] if command == 'catalog' else []
+            p = op(*args)
+            if isinstance(p, tuple):
+                p = p[0]
+            parsers[command] = p
+            lines = [x.strip().partition('.')[0] for x in p.usage.splitlines() if x.strip() and
+                     not x.strip().startswith('%prog')]
+            descs[command] = lines[0]
+
+        f.write('\n_calibredb_cmds() {\n  local commands; commands=(\n')
+        f.write('    {-h,--help}":Show help"\n')
+        f.write('    "--version:Show version"\n')
+        for command, desc in descs.iteritems():
+            f.write('    "%s:%s"\n'%(
+                command, desc.replace(':', '\\:').replace('"', '\'')))
+        f.write('  )\n  _describe -t commands "calibredb command" commands \n}\n')
+
+        subcommands = []
+        for command, parser in parsers.iteritems():
+            exts = []
+            if command == 'catalog':
+                exts = [x.lower() for x in available_catalog_formats()]
+            elif command == 'set_metadata':
+                exts = ['opf']
+            exts = set(exts).union(x.upper() for x in exts)
+            pats = ('*.%s'%x for x in exts)
+            extra = ("'*:filename:_files -g \"%s\"' "%' '.join(pats),) if exts else ()
+            if command in {'add', 'add_format'}:
+                extra = ("'*:filename:_files' ",)
+            opts = '\\\n        '.join(tuple(self.get_options(
+                parser)) + extra)
+            txt = '  _arguments -s \\\n        ' + opts
+            subcommands.append('(%s)'%command)
+            subcommands.append(txt)
+            subcommands.append(';;')
+
+        f.write('\n_calibredb() {')
+        f.write(
+            r'''
+    local state line state_descr context
+    typeset -A opt_args
+    local ret=1
+
+    _arguments \
+        '1: :_calibredb_cmds' \
+        '*::calibredb subcommand options:->args' \
+        && ret=0
+
+    case $state in
+    (args)
+    case $line[1] in
+      (-h|--help|--version)
+          _message 'no more arguments' && ret=0
+      ;;
+    %s
+    esac
+    ;;
+    esac
+
+    return ret
+    '''%'\n    '.join(subcommands))
+        f.write('\n}\n\n')
+
+    def write(self):
+        if self.dest:
+            self.commands['calibredb'] = '  _calibredb "$@"'
+            self.commands['ebook-convert'] = '  _ebook_convert "$@"'
+            with open(self.dest, 'wb') as f:
+                f.write('#compdef ' + ' '.join(self.commands)+'\n')
+                self.do_ebook_convert(f)
+                self.do_calibredb(f)
+                f.write('case $service in\n')
+                for c, txt in self.commands.iteritems():
+                    if isinstance(txt, type(u'')):
+                        txt = txt.encode('utf-8')
+                    if isinstance(c, type(u'')):
+                        c = c.encode('utf-8')
+                    f.write(b'%s)\n%s\n;;\n'%(c, txt))
+                f.write('esac\n')
+# }}}
+
 class PostInstall:
 
     def task_failed(self, msg):
@@ -217,7 +485,7 @@ class PostInstall:
 
     def setup_completion(self): # {{{
         try:
-            self.info('Setting up bash completion...')
+            self.info('Setting up command-line completion...')
             from calibre.ebooks.metadata.cli import option_parser as metaop, filetypes as meta_filetypes
             from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
             from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
@@ -227,8 +495,11 @@ class PostInstall:
             from calibre.utils.smtp import option_parser as smtp_op
             from calibre.library.server.main import option_parser as serv_op
             from calibre.ebooks.oeb.polish.main import option_parser as polish_op, SUPPORTED
+            from calibre.debug import option_parser as debug_op
             from calibre.ebooks import BOOK_EXTENSIONS
+            from calibre.customize.ui import available_input_formats
             input_formats = sorted(all_input_formats())
+            zsh = ZshCompleter(self.opts)
             bc = os.path.join(os.path.dirname(self.opts.staging_sharedir),
                 'bash-completion')
             if os.path.exists(bc):
@@ -240,6 +511,9 @@ class PostInstall:
                     f = os.path.join(self.opts.staging_etc, 'bash_completion.d/calibre')
             if not os.path.exists(os.path.dirname(f)):
                 os.makedirs(os.path.dirname(f))
+            if zsh.dest:
+                self.info('Installing zsh completion to:', zsh.dest)
+                self.manifest.append(zsh.dest)
             self.manifest.append(f)
             complete = 'calibre-complete'
             if getattr(sys, 'frozen_path', None):
@@ -247,20 +521,35 @@ class PostInstall:
 
             self.info('Installing bash completion to', f)
             with open(f, 'wb') as f:
+                def o_and_e(*args, **kwargs):
+                    f.write(opts_and_exts(*args, **kwargs))
+                    zsh.opts_and_exts(*args, **kwargs)
+                def o_and_w(*args, **kwargs):
+                    f.write(opts_and_words(*args, **kwargs))
+                    zsh.opts_and_words(*args, **kwargs)
+
                 f.write('# calibre Bash Shell Completion\n')
-                f.write(opts_and_exts('calibre', guiop, BOOK_EXTENSIONS))
-                f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
-                f.write(opts_and_exts('ebook-meta', metaop,
-                    list(meta_filetypes()), cover_opts=['--cover', '-c'],
-                    opf_opts=['--to-opf', '--from-opf']))
-                f.write(opts_and_exts('ebook-polish', polish_op,
-                    [x.lower() for x in SUPPORTED], cover_opts=['--cover', '-c'],
-                    opf_opts=['--opf', '-o']))
-                f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
-                f.write(opts_and_exts('ebook-viewer', viewer_op, input_formats))
-                f.write(opts_and_words('fetch-ebook-metadata', fem_op, []))
-                f.write(opts_and_words('calibre-smtp', smtp_op, []))
-                f.write(opts_and_words('calibre-server', serv_op, []))
+                o_and_e('calibre', guiop, BOOK_EXTENSIONS)
+                o_and_e('lrf2lrs', lrf2lrsop, ['lrf'], file_map={'--output':['lrs']})
+                o_and_e('ebook-meta', metaop,
+                        list(meta_filetypes()), cover_opts=['--cover', '-c'],
+                        opf_opts=['--to-opf', '--from-opf'])
+                o_and_e('ebook-polish', polish_op,
+                        [x.lower() for x in SUPPORTED], cover_opts=['--cover', '-c'],
+                        opf_opts=['--opf', '-o'])
+                o_and_e('lrfviewer', lrfviewerop, ['lrf'])
+                o_and_e('ebook-viewer', viewer_op, input_formats)
+                o_and_w('fetch-ebook-metadata', fem_op, [])
+                o_and_w('calibre-smtp', smtp_op, [])
+                o_and_w('calibre-server', serv_op, [])
+                o_and_e('calibre-debug', debug_op, ['py', 'recipe'], file_map={
+                    '--tweak-book':['epub', 'azw3', 'mobi'],
+                    '--subset-font':['ttf', 'otf'],
+                    '--exec-file':['py', 'recipe'],
+                    '--add-simple-plugin':['py'],
+                    '--inspect-mobi':['mobi', 'azw', 'azw3'],
+                    '--viewer':list(available_input_formats()),
+                })
                 f.write(textwrap.dedent('''
                 _ebook_device_ls()
                 {
@@ -335,6 +624,7 @@ class PostInstall:
 
                 complete -o nospace -C %s ebook-convert
                 ''')%complete)
+            zsh.write()
         except TypeError as err:
             if 'resolve_entities' in str(err):
                 print 'You need python-lxml >= 2.0.5 for calibre'
@@ -451,7 +741,7 @@ def options(option_parser):
         opts.extend(opt._long_opts)
     return opts
 
-def opts_and_words(name, op, words):
+def opts_and_words(name, op, words, takes_files=False):
     opts  = '|'.join(options(op))
     words = '|'.join([w.replace("'", "\\'") for w in words])
     fname = name.replace('-', '_')
@@ -481,12 +771,15 @@ def opts_and_words(name, op, words):
 }
 complete -F _'''%(opts, words) + fname + ' ' + name +"\n\n").encode('utf-8')
 
+pics = {'jpg', 'jpeg', 'gif', 'png', 'bmp'}
 
-def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=()):
+def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),
+                  file_map={}):
     opts = ' '.join(options(op))
     exts.extend([i.upper() for i in exts])
     exts='|'.join(exts)
     fname = name.replace('-', '_')
+    spics = '|'.join(tuple(pics) + tuple(x.upper() for x in pics))
     special_exts_template = '''\
       %s )
            _filedir %s
@@ -507,7 +800,7 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=()):
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     opts="%(opts)s"
-    pics="@(jpg|jpeg|png|gif|bmp|JPG|JPEG|PNG|GIF|BMP)"
+    pics="@(%(pics)s)"
 
     case "${prev}" in
 %(extras)s
@@ -526,7 +819,7 @@ def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=()):
     esac
 
 }
-complete -o filenames -F _'''%dict(
+complete -o filenames -F _'''%dict(pics=spics,
     opts=opts, extras=extras, exts=exts) + fname + ' ' + name +"\n\n"
 
 
@@ -626,7 +919,6 @@ def main():
     opts, args = p.parse_args()
     PostInstall(opts)
     return 0
-
 
 if __name__ == '__main__':
     sys.exit(main())

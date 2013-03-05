@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import operator, os, json, re
+import operator, os, json, re, time
 from binascii import hexlify, unhexlify
 from collections import OrderedDict
 
@@ -819,7 +819,7 @@ class BrowseServer(object):
         raw = json.dumps('\n'.join(summs), ensure_ascii=True)
         return raw
 
-    def browse_render_details(self, id_):
+    def browse_render_details(self, id_, add_random_button=False):
         try:
             mi = self.db.get_metadata(id_, index_is_id=True)
         except:
@@ -886,11 +886,18 @@ class BrowseServer(object):
                          u'<div class="comment">%s</div></div>') % (xml(c[0]),
                              c[1]) for c in comments]
             comments = u'<div class="comments">%s</div>'%('\n\n'.join(comments))
+            random = ''
+            if add_random_button:
+                href = '%s/browse/random?v=%s'%(
+                    self.opts.url_prefix, time.time())
+                random = '<a href="%s" id="random_button" title="%s">%s</a>' % (
+                    xml(href, True), xml(_('Choose another random book'), True),
+                    xml(_('Another random book')))
 
             return self.browse_details_template.format(
                 id=id_, title=xml(mi.title, True), fields=fields,
                 get_url=args['get_url'], fmt=args['fmt'],
-                formats=args['formats'], comments=comments)
+                formats=args['formats'], comments=comments, random=random)
 
     @Endpoint(mimetype='application/json; charset=utf-8')
     def browse_details(self, id=None):
@@ -908,7 +915,7 @@ class BrowseServer(object):
         import random
         book_id = random.choice(self.db.search_getting_ids(
             '', self.search_restriction))
-        ans = self.browse_render_details(book_id)
+        ans = self.browse_render_details(book_id, add_random_button=True)
         return self.browse_template('').format(
                 title='', script='book();', main=ans)
 

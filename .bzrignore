@@ -37,7 +37,7 @@ nbproject/
 calibre_plugins/
 recipes/.git
 recipes/.gitignore
-recipes/README
+recipes/README.md
 recipes/katalog_egazeciarz.recipe
 recipes/tv_axnscifi.recipe
 recipes/tv_comedycentral.recipe

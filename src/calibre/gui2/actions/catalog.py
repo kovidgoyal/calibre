@@ -18,7 +18,8 @@ from calibre import sanitize_file_name_unicode
 class GenerateCatalogAction(InterfaceAction):
 
     name = 'Generate Catalog'
-    action_spec = (_('Create catalog'), 'catalog.png', 'Catalog builder', ())
+    action_spec = (_('Create catalog'), 'catalog.png',
+                   _('Create a catalog of the books in your calibre library in different formats'), ())
     dont_add_to = frozenset(['context-menu-device'])
 
     def genesis(self):

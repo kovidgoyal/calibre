@@ -616,7 +616,10 @@ or a Remote Desktop solution.
 If you must share the actual library, use a file syncing tool like
 DropBox or rsync or Microsoft SkyDrive instead of a networked drive. Even with
 these tools there is danger of data corruption/loss, so only do this if you are
-willing to live with that risk.
+willing to live with that risk. In particular, be aware that **Google Drive**
+is incompatible with |app|, if you put your |app| library in Google Drive, you
+*will* suffer data loss. See
+`this thread <http://www.mobileread.com/forums/showthread.php?t=205581>`_ for details.
 
 Content From The Web
 ---------------------

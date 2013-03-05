@@ -22,6 +22,7 @@ from calibre.utils.localization import calibre_langcode_to_name
 class Field(object):
 
     is_many = False
+    is_many_many = False
 
     def __init__(self, name, table):
         self.name, self.table = name, table
@@ -299,6 +300,7 @@ class ManyToOneField(Field):
 class ManyToManyField(Field):
 
     is_many = True
+    is_many_many = True
 
     def __init__(self, *args, **kwargs):
         Field.__init__(self, *args, **kwargs)
@@ -399,6 +401,13 @@ class AuthorsField(ManyToManyField):
 
     def category_sort_value(self, item_id, book_ids, lang_map):
         return self.table.asort_map[item_id]
+
+    def db_author_sort_for_book(self, book_id):
+        return self.author_sort_field.for_book(book_id)
+
+    def author_sort_for_book(self, book_id):
+        return ' & '.join(self.table.asort_map[k] for k in
+                          self.table.book_col_map[book_id])
 
 class FormatsField(ManyToManyField):
 

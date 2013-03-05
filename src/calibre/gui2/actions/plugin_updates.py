@@ -15,7 +15,7 @@ from calibre.gui2.dialogs.plugin_updater import (PluginUpdaterDialog,
 class PluginUpdaterAction(InterfaceAction):
 
     name = 'Plugin Updater'
-    action_spec = (_('Plugin Updater'), None, None, ())
+    action_spec = (_('Plugin Updater'), None, _('Update any plugins you have installed in calibre'), ())
     action_type = 'current'
 
     def genesis(self):

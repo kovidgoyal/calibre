@@ -8,6 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, logging, sys, hashlib, uuid, re
+from collections import defaultdict
 from io import BytesIO
 from urllib import unquote as urlunquote, quote as urlquote
 from urlparse import urlparse
@@ -88,7 +89,7 @@ class Container(object):
                     self.mime_map[name] = guess_type('a.opf')
 
         if not hasattr(self, 'opf_name'):
-            raise InvalidBook('Book has no OPF file')
+            raise InvalidBook('Could not locate opf file: %r'%opfpath)
 
         # Update mime map with data from the OPF
         for item in self.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
@@ -229,6 +230,14 @@ class Container(object):
     def manifest_id_map(self):
         return {item.get('id'):self.href_to_name(item.get('href'), self.opf_name)
             for item in self.opf_xpath('//opf:manifest/opf:item[@href and @id]')}
+
+    @property
+    def manifest_type_map(self):
+        ans = defaultdict(list)
+        for item in self.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
+            ans[item.get('media-type').lower()].append(self.href_to_name(
+                item.get('href'), self.opf_name))
+        return {mt:tuple(v) for mt, v in ans.iteritems()}
 
     @property
     def guide_type_map(self):

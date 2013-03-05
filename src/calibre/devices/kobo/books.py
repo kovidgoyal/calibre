@@ -6,7 +6,7 @@ import os, time, sys
 
 from calibre.constants import preferred_encoding, DEBUG
 from calibre import isbytestring, force_unicode
-from calibre.utils.icu import strcmp
+from calibre.utils.icu import sort_key
 
 from calibre.devices.usbms.books import Book as Book_
 from calibre.devices.usbms.books import CollectionsBookList
@@ -239,9 +239,8 @@ class KTCollectionsBookList(CollectionsBookList):
             if y is None:
                 return -1
             if isinstance(x, basestring) and isinstance(y, basestring):
-                c = strcmp(force_unicode(x), force_unicode(y))
-            else:
-                c = cmp(x, y)
+                x, y = sort_key(force_unicode(x)), sort_key(force_unicode(y))
+            c = cmp(x, y)
             if c != 0:
                 return c
             # same as above -- no sort_key needed here

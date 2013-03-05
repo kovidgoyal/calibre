@@ -8,8 +8,8 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import (QObject, QToolBar, Qt, QSize, QToolButton, QVBoxLayout,
-        QLabel, QWidget, QAction, QMenuBar, QMenu)
+from PyQt4.Qt import (Qt, QAction, QLabel, QMenu, QMenuBar, QObject,
+    QToolBar, QToolButton, QSize, QVBoxLayout, QWidget)
 
 from calibre.constants import isosx
 from calibre.gui2 import gprefs
@@ -116,12 +116,30 @@ class ToolBar(QToolBar): # {{{
             ch.setPopupMode(menu_mode)
         return ch
 
-    #support drag&drop from/to library from/to reader/card
+    # support drag&drop from/to library, from/to reader/card, enabled plugins
+    def check_iactions_for_drag(self, event, md, func):
+        if self.added_actions:
+            pos = event.pos()
+            for iac in self.gui.iactions.itervalues():
+                if iac.accepts_drops:
+                    aa = iac.qaction
+                    w = self.widgetForAction(aa)
+                    m = aa.menu()
+                    if (( (w is not None and w.geometry().contains(pos)) or
+                          (m is not None and m.isVisible() and m.geometry().contains(pos)) ) and
+                         getattr(iac, func)(event, md)):
+                        return True
+        return False
+
     def dragEnterEvent(self, event):
         md = event.mimeData()
         if md.hasFormat("application/calibre+from_library") or \
            md.hasFormat("application/calibre+from_device"):
             event.setDropAction(Qt.CopyAction)
+            event.accept()
+            return
+
+        if self.check_iactions_for_drag(event, md, 'accept_enter_event'):
             event.accept()
         else:
             event.ignore()
@@ -129,7 +147,7 @@ class ToolBar(QToolBar): # {{{
     def dragMoveEvent(self, event):
         allowed = False
         md = event.mimeData()
-        #Drop is only allowed in the location manager widget's different from the selected one
+        # Drop is only allowed in the location manager widget's different from the selected one
         for ac in self.location_manager.available_actions:
             w = self.widgetForAction(ac)
             if w is not None:
@@ -141,12 +159,15 @@ class ToolBar(QToolBar): # {{{
                     break
         if allowed:
             event.acceptProposedAction()
+            return
+
+        if self.check_iactions_for_drag(event, md, 'accept_drag_move_event'):
+            event.acceptProposedAction()
         else:
             event.ignore()
 
     def dropEvent(self, event):
         data = event.mimeData()
-
         mime = 'application/calibre+from_library'
         if data.hasFormat(mime):
             ids = list(map(int, str(data.data(mime)).split()))
@@ -160,6 +181,7 @@ class ToolBar(QToolBar): # {{{
                     tgt = None
                 self.gui.sync_to_device(tgt, False, send_ids=ids)
                 event.accept()
+                return
 
         mime = 'application/calibre+from_device'
         if data.hasFormat(mime):
@@ -168,6 +190,13 @@ class ToolBar(QToolBar): # {{{
                 self.gui.iactions['Add Books'].add_books_from_device(
                         self.gui.current_view(), paths=paths)
                 event.accept()
+                return
+
+        # Give added_actions an opportunity to process the drag&drop event
+        if self.check_iactions_for_drag(event, data, 'drop_event'):
+            event.accept()
+        else:
+            event.ignore()
 
 # }}}
 

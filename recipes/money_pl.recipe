@@ -60,7 +60,7 @@ class FocusRecipe(BasicNewsRecipe):
                            ]
 
     def print_version(self, url):
-     if url.count ('money.pl.feedsportal.com'):
+        if url.count ('money.pl.feedsportal.com'):
             u = url.find('0Cartykul0C')
             u = 'http://www.m.money.pl/wiadomosci/artykul/' + url[u + 21:]
             u = u.replace('0C', '/')
@@ -71,6 +71,6 @@ class FocusRecipe(BasicNewsRecipe):
             u = u.replace ('0B','.')
             u = u.replace (',0,',',-1,')
             u = u.replace('0Tutm0Isource0Frss0Gutm0Imedium0Frss0Gutm0Icampaign0Frss/story01.htm', '')
-     else:
+        else:
             u = url.replace('/nc/1','/do-druku/1')
-     return u
+        return u

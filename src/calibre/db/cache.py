@@ -19,6 +19,7 @@ from calibre.db.errors import NoSuchFormat
 from calibre.db.fields import create_field
 from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
+from calibre.db.write import get_series_values
 from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ptempfile import (base_dir, PersistentTemporaryFile,
@@ -216,6 +217,8 @@ class Cache(object):
                     field.series_field = self.fields[name[:-len('_index')]]
                 elif name == 'series_index':
                     field.series_field = self.fields['series']
+                elif name == 'authors':
+                    field.author_sort_field = self.fields['author_sort']
 
     @read_api
     def field_for(self, name, book_id, default_value=None):
@@ -615,11 +618,34 @@ class Cache(object):
                               icon_map=icon_map)
 
     @write_api
-    def set_field(self, name, book_id_to_val_map):
+    def set_field(self, name, book_id_to_val_map, allow_case_change=True):
         # TODO: Specialize title/authors to also update path
         # TODO: Handle updating caches used by composite fields
-        dirtied = self.fields[name].writer.set_books(
-            book_id_to_val_map, self.backend)
+        # TODO: Ensure the sort fields are updated for title/author/series?
+        f = self.fields[name]
+        is_series = f.metadata['datatype'] == 'series'
+
+        if is_series:
+            bimap, simap = {}, {}
+            for k, v in book_id_to_val_map.iteritems():
+                if isinstance(v, basestring):
+                    v, sid = get_series_values(v)
+                else:
+                    v = sid = None
+                if name.startswith('#') and sid is None:
+                    sid = 1.0 # The value will be set to 1.0 in the db table
+                bimap[k] = v
+                if sid is not None:
+                    simap[k] = sid
+            book_id_to_val_map = bimap
+
+        dirtied = f.writer.set_books(
+            book_id_to_val_map, self.backend, allow_case_change=allow_case_change)
+
+        if is_series and simap:
+            sf = self.fields[f.name+'_index']
+            dirtied |= sf.writer.set_books(simap, self.backend, allow_case_change=False)
+
         return dirtied
 
     # }}}

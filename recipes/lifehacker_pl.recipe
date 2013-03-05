@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+
+__license__ = 'GPL v3'
+__copyright__ = 'MrStefan'
+
+'''
+www.lifehacking.pl
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class lifehacking(BasicNewsRecipe):
+    title = u'Lifehacker Polska'
+    __author__ = 'MrStefan <mrstefaan@gmail.com>'
+    language = 'pl'
+    description =u'Lifehacking - sposoby na zwiększanie własnej wydajności. Ułatwiaj sobie życie, wykorzystując wiedzę, metody, technologie, przydatne strony ...'
+    masthead_url='http://lifehacking.pl/wp-content/themes/lifehacking/images/lifehackerlogo.png'
+    remove_empty_feeds= True
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_javascript=True
+    no_stylesheets=True
+
+    feeds = [(u'Lifehacker polska', u'http://feeds.feedburner.com/pl_lh')]

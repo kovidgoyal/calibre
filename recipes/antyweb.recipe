@@ -43,6 +43,6 @@ class AntywebRecipe(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for alink in soup.findAll('a'):
             if alink.string is not None:
-               tstr = alink.string
-               alink.replaceWith(tstr)
-	return soup
+                tstr = alink.string
+                alink.replaceWith(tstr)
+        return soup

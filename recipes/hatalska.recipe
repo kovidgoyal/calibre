@@ -1,0 +1,28 @@
+#!/usr/bin/env  python
+
+__license__ = 'GPL v3'
+__copyright__ = 'teepel 2012'
+
+'''
+hatalska.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class hatalska(BasicNewsRecipe):
+    title          = u'Hatalska'
+    __author__ = 'teepel <teepel44@gmail.com>'
+    language       = 'pl'
+    description    = u'Blog specjalistki z branży mediowo-reklamowej - Natalii Hatalskiej'
+    oldest_article = 7
+    masthead_url='http://hatalska.com/wp-content/themes/jamel/images/logo.png'
+    max_articles_per_feed = 100
+    simultaneous_downloads = 5
+    remove_javascript=True
+    no_stylesheets=True
+
+    remove_tags =[]
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'feedflare'}))
+
+    feeds          = [(u'Blog', u'http://feeds.feedburner.com/hatalskacom')]

@@ -13,9 +13,10 @@ from operator import itemgetter
 from collections import Counter, OrderedDict
 from future_builtins import map
 
+from calibre import as_unicode
 from calibre.ebooks.pdf.render.common import (Array, String, Stream,
     Dictionary, Name)
-from calibre.utils.fonts.sfnt.subset import pdf_subset
+from calibre.utils.fonts.sfnt.subset import pdf_subset, UnsupportedFont
 
 STANDARD_FONTS = {
     'Times-Roman', 'Helvetica', 'Courier', 'Symbol', 'Times-Bold',
@@ -150,12 +151,16 @@ class Font(object):
 
         self.used_glyphs = set()
 
-    def embed(self, objects):
+    def embed(self, objects, debug):
         self.font_descriptor['FontFile'+('3' if self.is_otf else '2')
                              ] = objects.add(self.font_stream)
         self.write_widths(objects)
         self.write_to_unicode(objects)
-        pdf_subset(self.metrics.sfnt, self.used_glyphs)
+        try:
+            pdf_subset(self.metrics.sfnt, self.used_glyphs)
+        except UnsupportedFont as e:
+            debug('Subsetting of %s not supported, embedding full font. Error: %s'%(
+                self.metrics.names.get('full_name', 'Unknown'), as_unicode(e)))
         if self.is_otf:
             self.font_stream.write(self.metrics.sfnt['CFF '].raw)
         else:
@@ -221,7 +226,7 @@ class FontManager(object):
             }))
         return self.std_map[name]
 
-    def embed_fonts(self):
+    def embed_fonts(self, debug):
         for font in self.fonts:
-            font.embed(self.objects)
+            font.embed(self.objects, debug)
 
