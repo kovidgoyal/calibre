@@ -94,7 +94,9 @@ class Container(object):
         # Update mime map with data from the OPF
         for item in self.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
             href = item.get('href')
-            self.mime_map[self.href_to_name(href, self.opf_name)] = item.get('media-type')
+            name = self.href_to_name(href, self.opf_name)
+            if name in self.mime_map:
+                self.mime_map[name] = item.get('media-type')
 
     def abspath_to_name(self, fullpath):
         return self.relpath(os.path.abspath(fullpath)).replace(os.sep, '/')
