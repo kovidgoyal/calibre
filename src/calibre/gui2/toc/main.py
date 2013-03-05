@@ -21,6 +21,8 @@ from calibre.gui2 import Application
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.logging import GUILog
 
+ICON_SIZE = 24
+
 class ItemView(QFrame): # {{{
 
     add_new_item = pyqtSignal(object, object)
@@ -38,9 +40,12 @@ class ItemView(QFrame): # {{{
         s.addWidget(rp)
         s.addWidget(ip)
 
-        self.l1 = la = QLabel(_(
+        self.l1 = la = QLabel('<p>'+_(
             'You can edit existing entries in the Table of Contents by clicking them'
-            ' in the panel to the left.'))
+            ' in the panel to the left.')+'<p>'+_(
+            'Entries with a green tick next to them point to a location that has '
+            'been verified to exist. Entries with a red dot are broken and may need'
+            ' to be fixed.'))
         la.setWordWrap(True)
         l = QVBoxLayout()
         rp.setLayout(l)
@@ -70,15 +75,14 @@ class TOCView(QWidget): # {{{
         self.setLayout(l)
         self.tocw = t = QTreeWidget(self)
         t.setHeaderLabel(_('Table of Contents'))
-        icon_size = 32
-        t.setIconSize(QSize(icon_size, icon_size))
+        t.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         t.setDragEnabled(True)
         t.setSelectionMode(t.ExtendedSelection)
         t.viewport().setAcceptDrops(True)
         t.setDropIndicatorShown(True)
         t.setDragDropMode(t.InternalMove)
         t.setAutoScroll(True)
-        t.setAutoScrollMargin(icon_size*2)
+        t.setAutoScrollMargin(ICON_SIZE*2)
         t.setDefaultDropAction(Qt.MoveAction)
         t.setAutoExpandDelay(1000)
         t.setAnimated(True)
@@ -86,18 +90,21 @@ class TOCView(QWidget): # {{{
         l.addWidget(t, 0, 0, 5, 3)
         self.up_button = b = QToolButton(self)
         b.setIcon(QIcon(I('arrow-up.png')))
+        b.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         l.addWidget(b, 0, 3)
-        b.setToolTip(_('Move current item up'))
+        b.setToolTip(_('Move current entry up'))
         b.clicked.connect(self.move_up)
         self.del_button = b = QToolButton(self)
         b.setIcon(QIcon(I('trash.png')))
+        b.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         l.addWidget(b, 2, 3)
-        b.setToolTip(_('Remove all selected items'))
+        b.setToolTip(_('Remove all selected entries'))
         b.clicked.connect(self.del_items)
         self.down_button = b = QToolButton(self)
         b.setIcon(QIcon(I('arrow-down.png')))
+        b.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         l.addWidget(b, 4, 3)
-        b.setToolTip(_('Move current item down'))
+        b.setToolTip(_('Move current entry down'))
         b.clicked.connect(self.move_down)
         self.expand_all_button = b = QPushButton(_('&Expand all'))
         col = 5
@@ -129,14 +136,17 @@ class TOCView(QWidget): # {{{
             p = item.parent() or self.root
             p.removeChild(item)
 
+    def highlight_item(self, item):
+        self.tocw.setCurrentItem(item, 0, QItemSelectionModel.ClearAndSelect)
+        self.tocw.scrollToItem(item)
+
     def move_down(self):
         item = self.tocw.currentItem()
         if item is None:
             if self.root.childCount() == 0:
                 return
             item = self.root.child(0)
-            self.tocw.setCurrentItem(item, 0, QItemSelectionModel.ClearAndSelect)
-            self.tocw.scrollToItem(item)
+            self.highlight_item(item)
             return
         parent = item.parent() or self.root
         idx = parent.indexOfChild(item)
@@ -151,8 +161,7 @@ class TOCView(QWidget): # {{{
             sibling = parent.child(idx+1)
             parent.removeChild(item)
             sibling.insertChild(0, item)
-        self.tocw.setCurrentItem(item, 0, QItemSelectionModel.ClearAndSelect)
-        self.tocw.scrollToItem(item)
+        self.highlight_item(item)
 
     def move_up(self):
         item = self.tocw.currentItem()
@@ -160,8 +169,7 @@ class TOCView(QWidget): # {{{
             if self.root.childCount() == 0:
                 return
             item = self.root.child(self.root.childCount()-1)
-            self.tocw.setCurrentItem(item, 0, QItemSelectionModel.ClearAndSelect)
-            self.tocw.scrollToItem(item)
+            self.highlight_item(item)
             return
         parent = item.parent() or self.root
         idx = parent.indexOfChild(item)
@@ -176,8 +184,7 @@ class TOCView(QWidget): # {{{
             sibling = parent.child(idx-1)
             parent.removeChild(item)
             sibling.addChild(item)
-        self.tocw.setCurrentItem(item, 0, QItemSelectionModel.ClearAndSelect)
-        self.tocw.scrollToItem(item)
+        self.highlight_item(item)
 
     def update_status_tip(self, item):
         c = item.data(0, Qt.UserRole).toPyObject()
@@ -200,6 +207,9 @@ class TOCView(QWidget): # {{{
         self.ebook = ebook
         self.toc = get_toc(self.ebook)
         blank = self.blank = QIcon(I('blank.png'))
+        ok = self.ok = QIcon(I('ok.png'))
+        err = self.err = QIcon(I('dot_red.png'))
+        icon_map = {None:blank, True:ok, False:err}
 
         def process_item(node, parent):
             for child in node:
@@ -208,7 +218,12 @@ class TOCView(QWidget): # {{{
                 c.setData(0, Qt.UserRole, child)
                 c.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsEditable|Qt.ItemIsEnabled|
                            Qt.ItemIsSelectable|Qt.ItemIsDropEnabled)
-                c.setData(0, Qt.DecorationRole, blank)
+                c.setData(0, Qt.DecorationRole, icon_map[child.dest_exists])
+                if child.dest_exists is False:
+                    c.setData(0, Qt.ToolTipRole, _(
+                        'The location this entry point to does not exist:\n%s')
+                        %child.dest_error)
+
                 self.update_status_tip(c)
                 process_item(child, c)
 
