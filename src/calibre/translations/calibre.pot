@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.9.21\n"
-"POT-Creation-Date: 2013-03-04 14:23+IST\n"
-"PO-Revision-Date: 2013-03-04 14:23+IST\n"
+"POT-Creation-Date: 2013-03-05 10:04+IST\n"
+"PO-Revision-Date: 2013-03-05 10:04+IST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -82,8 +82,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:476
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:478
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/mobi.py:480
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1183
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1294
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1193
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1304
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdb.py:44
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:105
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/plucker.py:25
@@ -3684,7 +3684,7 @@ msgid ""
 "Fetch a cover image/social metadata for the book identified by ISBN from LibraryThing.com\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1489
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1499
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1284
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/cover.py:181
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:994
@@ -19442,7 +19442,55 @@ msgid "Select All"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:206
+msgid "&Select All"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:207
 msgid "Copy &Link location"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:208
+msgid "&Undo"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:209
+msgid "&Redo"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:210
+msgid "Cu&t"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:211
+msgid "&Paste"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:212
+msgid "Paste and Match Style"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:213
+msgid "Directions"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:214
+msgid "Left to Right"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:215
+msgid "Right to Left"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:216
+msgid "Fonts"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:217
+msgid "&Step up"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:218
+msgid "Step &down"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
