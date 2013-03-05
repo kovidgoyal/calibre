@@ -22,5 +22,5 @@ class samcik(BasicNewsRecipe):
 
     remove_tags =[]
     remove_tags.append(dict(name = 'table', attrs = {'border' : '0'}))
-      
+
     feeds          = [(u'Wpisy', u'http://samcik.blox.pl/rss2')]

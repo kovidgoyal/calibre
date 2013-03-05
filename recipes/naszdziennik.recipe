@@ -15,7 +15,7 @@ class naszdziennik(BasicNewsRecipe):
     no_stylesheets = True
 
     keep_only_tags =[dict(attrs = {'id' : 'article'})]
-    
+
     #definiujemy nową funkcje; musi zwracać listę feedów wraz z artykułami
     def parse_index(self):
         #adres do parsowania artykułów
@@ -28,7 +28,7 @@ class naszdziennik(BasicNewsRecipe):
         sections = []
         #deklaracja pierwszej sekcji jako pusty string
         section = ''
-        
+
         #pętla for, która analizuje po kolei każdy tag "news-article"
         for item in soup.findAll(attrs = {'class' : 'news-article'}) :
             #w tagu "news-article szukamy pierwszego taga h4"
@@ -51,7 +51,7 @@ class naszdziennik(BasicNewsRecipe):
             #jako tytuł użyty będzie tekst pomiędzy tagami <a>
             article_title = self.tag_to_string(article_a)
             #a data będzie tekstem z pierwszego taga h4 znalezionego w tagu title-datetime
-            article_date = self.tag_to_string(article_title_datetime.find('h4')) 
+            article_date = self.tag_to_string(article_title_datetime.find('h4'))
             #zebrane elementy dodajemy do listy zadeklarowanej w linijce 44
             articles[section].append( { 'title' : article_title,  'url' : article_url, 'date' : article_date })
         #po dodaniu wszystkich artykułów dodajemy sekcje do listy feedów, korzystając z list sekcji znajdujących się w słowniku
