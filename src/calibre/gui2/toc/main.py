@@ -92,7 +92,7 @@ class TOCEditor(QDialog):
         pi.setDisplaySize(200)
         pi.startAnimation()
         ll.addWidget(pi, alignment=Qt.AlignHCenter|Qt.AlignCenter)
-        la = QLabel(_('Loading %s, please wait...')%t)
+        la = self.la = QLabel(_('Loading %s, please wait...')%t)
         la.setStyleSheet('QLabel { font-size: 20pt }')
         ll.addWidget(la, alignment=Qt.AlignHCenter|Qt.AlignTop)
         self.toc_view = TOCView(self)
