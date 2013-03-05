@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import sys, os
 from threading import Thread
 
-from PyQt4.Qt import (QPushButton,
+from PyQt4.Qt import (QPushButton, QFrame,
     QDialog, QVBoxLayout, QDialogButtonBox, QSize, QStackedWidget, QWidget,
     QLabel, Qt, pyqtSignal, QIcon, QTreeWidget, QGridLayout, QTreeWidgetItem,
     QToolButton, QItemSelectionModel)
@@ -21,7 +21,48 @@ from calibre.gui2 import Application
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.logging import GUILog
 
-class TOCView(QWidget):
+class ItemView(QFrame): # {{{
+
+    add_new_item = pyqtSignal(object, object)
+
+    def __init__(self, parent):
+        QFrame.__init__(self, parent)
+        self.setFrameShape(QFrame.StyledPanel)
+        self.setMinimumWidth(250)
+        self.stack = s = QStackedWidget(self)
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+        l.addWidget(s)
+        self.root_pane = rp = QWidget(self)
+        self.item_pane = ip = QWidget(self)
+        s.addWidget(rp)
+        s.addWidget(ip)
+
+        self.l1 = la = QLabel(_(
+            'You can edit existing entries in the Table of Contents by clicking them'
+            ' in the panel to the left.'))
+        la.setWordWrap(True)
+        l = QVBoxLayout()
+        rp.setLayout(l)
+        l.addWidget(la, alignment=Qt.AlignTop)
+        self.add_new_to_root_button = b = QPushButton(_('Create a &new entry'))
+        b.clicked.connect(self.add_new_to_root)
+        l.addWidget(b, alignment=Qt.AlignTop)
+
+    def add_new_to_root(self):
+        self.add_new_item.emit(None, None)
+
+    def __call__(self, item):
+        if item is None:
+            self.stack.setCurrentIndex(0)
+        else:
+            self.stack.setCurrentIndex(1)
+
+# }}}
+
+class TOCView(QWidget): # {{{
+
+    add_new_item = pyqtSignal(object, object)
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -32,7 +73,7 @@ class TOCView(QWidget):
         icon_size = 32
         t.setIconSize(QSize(icon_size, icon_size))
         t.setDragEnabled(True)
-        t.setSelectionMode(t.SingleSelection)
+        t.setSelectionMode(t.ExtendedSelection)
         t.viewport().setAcceptDrops(True)
         t.setDropIndicatorShown(True)
         t.setDragDropMode(t.InternalMove)
@@ -42,29 +83,37 @@ class TOCView(QWidget):
         t.setAutoExpandDelay(1000)
         t.setAnimated(True)
         t.setMouseTracking(True)
-        l.addWidget(t, 0, 0, 3, 3)
+        l.addWidget(t, 0, 0, 5, 3)
         self.up_button = b = QToolButton(self)
         b.setIcon(QIcon(I('arrow-up.png')))
         l.addWidget(b, 0, 3)
-        b.setToolTip(_('Move item up'))
+        b.setToolTip(_('Move current item up'))
         b.clicked.connect(self.move_up)
+        self.del_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('trash.png')))
+        l.addWidget(b, 2, 3)
+        b.setToolTip(_('Remove all selected items'))
+        b.clicked.connect(self.del_items)
         self.down_button = b = QToolButton(self)
         b.setIcon(QIcon(I('arrow-down.png')))
-        l.addWidget(b, 2, 3)
-        b.setToolTip(_('Move item down'))
+        l.addWidget(b, 4, 3)
+        b.setToolTip(_('Move current item down'))
         b.clicked.connect(self.move_down)
         self.expand_all_button = b = QPushButton(_('&Expand all'))
-        l.addWidget(b, 3, 0)
+        col = 5
+        l.addWidget(b, col, 0)
         b.clicked.connect(self.tocw.expandAll)
         self.collapse_all_button = b = QPushButton(_('&Collapse all'))
         b.clicked.connect(self.tocw.collapseAll)
-        l.addWidget(b, 3, 1)
+        l.addWidget(b, col, 1)
         self.default_msg = _('Double click on an entry to change the text')
         self.hl = hl = QLabel(self.default_msg)
-        l.addWidget(hl, 3, 2)
+        l.addWidget(hl, col, 2, 1, -1)
+        self.item_view = i = ItemView(self)
+        i.add_new_item.connect(self.add_new_item)
+        l.addWidget(i, 0, 4, col, 1)
 
         l.setColumnStretch(2, 10)
-        l.setRowStretch(1, 10)
 
     def event(self, e):
         if e.type() == e.StatusTip:
@@ -74,6 +123,11 @@ class TOCView(QWidget):
 
     def item_title(self, item):
         return unicode(item.data(0, Qt.DisplayRole).toString())
+
+    def del_items(self):
+        for item in self.tocw.selectedItems():
+            p = item.parent() or self.root
+            p.removeChild(item)
 
     def move_down(self):
         item = self.tocw.currentItem()
@@ -162,8 +216,14 @@ class TOCView(QWidget):
         root.setData(0, Qt.UserRole, self.toc)
         process_item(self.toc, root)
         self.tocw.model().dataChanged.connect(self.data_changed)
+        self.tocw.currentItemChanged.connect(self.current_item_changed)
 
-class TOCEditor(QDialog):
+    def current_item_changed(self, current, previous):
+        self.item_view(current)
+
+# }}}
+
+class TOCEditor(QDialog): # {{{
 
     explode_done = pyqtSignal()
 
@@ -219,6 +279,8 @@ class TOCEditor(QDialog):
         self.pi.stopAnimation()
         self.toc_view(self.ebook)
         self.stacks.setCurrentIndex(1)
+
+# }}}
 
 if __name__ == '__main__':
     app = Application([], force_calibre_style=True)
