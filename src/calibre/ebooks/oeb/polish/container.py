@@ -391,9 +391,12 @@ class Container(object):
         remove = set()
         for child in mdata:
             child.tail = '\n    '
-            if (child.get('name', '').startswith('calibre:') and
-                child.get('content', '').strip() in {'{}', ''}):
-                remove.add(child)
+            try:
+                if (child.get('name', '').startswith('calibre:') and
+                    child.get('content', '').strip() in {'{}', ''}):
+                    remove.add(child)
+            except AttributeError:
+                continue # Happens for XML comments
         for child in remove: mdata.remove(child)
         if len(mdata) > 0:
             mdata[-1].tail = '\n  '
