@@ -21,6 +21,7 @@ class TOC(object):
 
     def __init__(self, title=None, dest=None, frag=None):
         self.title, self.dest, self.frag = title, dest, frag
+        if self.title: self.title = self.title.strip()
         self.parent = None
         self.children = []
 

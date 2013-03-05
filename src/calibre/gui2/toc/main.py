@@ -10,9 +10,10 @@ __docformat__ = 'restructuredtext en'
 import sys, os
 from threading import Thread
 
-from PyQt4.Qt import (QDialog, QVBoxLayout, QDialogButtonBox, QSize,
-                      QStackedWidget, QWidget, QLabel, Qt, pyqtSignal, QIcon,
-                      QTreeWidget, QHBoxLayout, QTreeWidgetItem)
+from PyQt4.Qt import (QPushButton,
+    QDialog, QVBoxLayout, QDialogButtonBox, QSize, QStackedWidget, QWidget,
+    QLabel, Qt, pyqtSignal, QIcon, QTreeWidget, QGridLayout, QTreeWidgetItem,
+    QToolButton, QItemSelectionModel)
 
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.toc import get_toc
@@ -24,11 +25,11 @@ class TOCView(QWidget):
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        l = self.l = QHBoxLayout()
+        l = self.l = QGridLayout()
         self.setLayout(l)
         self.tocw = t = QTreeWidget(self)
         t.setHeaderLabel(_('Table of Contents'))
-        icon_size = 16
+        icon_size = 32
         t.setIconSize(QSize(icon_size, icon_size))
         t.setDragEnabled(True)
         t.setSelectionMode(t.SingleSelection)
@@ -38,7 +39,99 @@ class TOCView(QWidget):
         t.setAutoScroll(True)
         t.setAutoScrollMargin(icon_size*2)
         t.setDefaultDropAction(Qt.MoveAction)
-        l.addWidget(t)
+        t.setAutoExpandDelay(1000)
+        t.setAnimated(True)
+        t.setMouseTracking(True)
+        l.addWidget(t, 0, 0, 3, 3)
+        self.up_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('arrow-up.png')))
+        l.addWidget(b, 0, 3)
+        b.setToolTip(_('Move item up'))
+        b.clicked.connect(self.move_up)
+        self.down_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('arrow-down.png')))
+        l.addWidget(b, 2, 3)
+        b.setToolTip(_('Move item down'))
+        b.clicked.connect(self.move_down)
+        self.expand_all_button = b = QPushButton(_('&Expand all'))
+        l.addWidget(b, 3, 0)
+        b.clicked.connect(self.tocw.expandAll)
+        self.collapse_all_button = b = QPushButton(_('&Collapse all'))
+        b.clicked.connect(self.tocw.collapseAll)
+        l.addWidget(b, 3, 1)
+        self.default_msg = _('Double click on an entry to change the text')
+        self.hl = hl = QLabel(self.default_msg)
+        l.addWidget(hl, 3, 2)
+
+        l.setColumnStretch(2, 10)
+        l.setRowStretch(1, 10)
+
+    def event(self, e):
+        if e.type() == e.StatusTip:
+            txt = unicode(e.tip()) or self.default_msg
+            self.hl.setText(txt)
+        return super(TOCView, self).event(e)
+
+    def item_title(self, item):
+        return unicode(item.data(0, Qt.DisplayRole).toString())
+
+    def move_down(self):
+        item = self.tocw.currentItem()
+        if item is None:
+            if self.root.childCount() == 0:
+                return
+            item = self.root.child(0)
+            self.tocw.setCurrentItem(item, 0, QItemSelectionModel.ClearAndSelect)
+            self.tocw.scrollToItem(item)
+            return
+        parent = item.parent() or self.root
+        idx = parent.indexOfChild(item)
+        if idx == parent.childCount() - 1:
+            # At end of parent, need to become sibling of parent
+            if parent is self.root:
+                return
+            gp = parent.parent() or self.root
+            parent.removeChild(item)
+            gp.insertChild(gp.indexOfChild(parent)+1, item)
+        else:
+            sibling = parent.child(idx+1)
+            parent.removeChild(item)
+            sibling.insertChild(0, item)
+        self.tocw.setCurrentItem(item, 0, QItemSelectionModel.ClearAndSelect)
+        self.tocw.scrollToItem(item)
+
+    def move_up(self):
+        item = self.tocw.currentItem()
+        if item is None:
+            if self.root.childCount() == 0:
+                return
+            item = self.root.child(self.root.childCount()-1)
+            self.tocw.setCurrentItem(item, 0, QItemSelectionModel.ClearAndSelect)
+            self.tocw.scrollToItem(item)
+            return
+        parent = item.parent() or self.root
+        idx = parent.indexOfChild(item)
+        if idx == 0:
+            # At end of parent, need to become sibling of parent
+            if parent is self.root:
+                return
+            gp = parent.parent() or self.root
+            parent.removeChild(item)
+            gp.insertChild(gp.indexOfChild(parent), item)
+        else:
+            sibling = parent.child(idx-1)
+            parent.removeChild(item)
+            sibling.addChild(item)
+        self.tocw.setCurrentItem(item, 0, QItemSelectionModel.ClearAndSelect)
+        self.tocw.scrollToItem(item)
+
+    def update_status_tip(self, item):
+        c = item.data(0, Qt.UserRole).toPyObject()
+        frag = c.frag or ''
+        if frag:
+            frag = '#'+frag
+        item.setStatusTip(0, _('<b>Title</b>: {0} <b>Dest</b>: {1}{2}').format(
+            c.title, c.dest, frag))
 
     def data_changed(self, top_left, bottom_right):
         for r in xrange(top_left.row(), bottom_right.row()+1):
@@ -46,11 +139,13 @@ class TOCView(QWidget):
             new_title = unicode(idx.data(Qt.DisplayRole).toString()).strip()
             toc = idx.data(Qt.UserRole).toPyObject()
             toc.title = new_title or _('(Untitled)')
+            item = self.tocw.itemFromIndex(idx)
+            self.update_status_tip(item)
 
     def __call__(self, ebook):
         self.ebook = ebook
         self.toc = get_toc(self.ebook)
-        blank = QIcon(I('blank.png'))
+        blank = self.blank = QIcon(I('blank.png'))
 
         def process_item(node, parent):
             for child in node:
@@ -60,9 +155,10 @@ class TOCView(QWidget):
                 c.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsEditable|Qt.ItemIsEnabled|
                            Qt.ItemIsSelectable|Qt.ItemIsDropEnabled)
                 c.setData(0, Qt.DecorationRole, blank)
+                self.update_status_tip(c)
                 process_item(child, c)
 
-        root = self.tocw.invisibleRootItem()
+        root = self.root = self.tocw.invisibleRootItem()
         root.setData(0, Qt.UserRole, self.toc)
         process_item(self.toc, root)
         self.tocw.model().dataChanged.connect(self.data_changed)
@@ -86,7 +182,7 @@ class TOCEditor(QDialog):
         l.addWidget(s)
         self.loading_widget = lw = QWidget(self)
         s.addWidget(lw)
-        ll = QVBoxLayout()
+        ll = self.ll = QVBoxLayout()
         lw.setLayout(ll)
         self.pi = pi = ProgressIndicator()
         pi.setDisplaySize(200)
@@ -120,6 +216,7 @@ class TOCEditor(QDialog):
         self.explode_done.emit()
 
     def read_toc(self):
+        self.pi.stopAnimation()
         self.toc_view(self.ebook)
         self.stacks.setCurrentIndex(1)
 
@@ -129,4 +226,5 @@ if __name__ == '__main__':
     d = TOCEditor(sys.argv[-1])
     d.start()
     d.exec_()
+    del d # Needed to prevent sigsegv in exit cleanup
 
