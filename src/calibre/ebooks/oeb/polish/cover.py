@@ -192,7 +192,7 @@ def remove_cover_image_in_page(container, page, cover_images):
         href = img.get('src')
         name = container.href_to_name(href, page)
         if name in cover_images:
-            img.getparent.remove(img)
+            img.getparent().remove(img)
         break
 
 def set_epub_cover(container, cover_path, report):
