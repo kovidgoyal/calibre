@@ -1,8 +1,6 @@
 #!/usr/bin/env  python
 
 __license__     = 'GPL v3'
-__author__ = 'Mori'
-__version__ = 'v. 0.1'
 '''
 blog.eclicto.pl
 '''
@@ -11,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
 class BlogeClictoRecipe(BasicNewsRecipe):
-    __author__ = 'Mori'
+    __author__ = 'Mori, Tomasz Długosz'
     language = 'pl'
 
     title = u'Blog eClicto'
@@ -34,10 +32,10 @@ class BlogeClictoRecipe(BasicNewsRecipe):
     ]
 
     remove_tags = [
-            dict(name = 'span', attrs = {'id' : 'tags'})
+            dict(name = 'div', attrs = {'class' : 'social_bookmark'}),
     ]
 
-    remove_tags_after = [
+    keep_only_tags = [
             dict(name = 'div', attrs = {'class' : 'post'})
     ]
 
