@@ -712,7 +712,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         dest_mode = self.replace_mode.currentIndex()
 
         if self.destination_field_fm['is_csp']:
-            if not unicode(self.s_r_dst_ident.text()):
+            dest_ident = unicode(self.s_r_dst_ident.text())
+            if not dest_ident or (src == 'identifiers' and dest_ident == '*'):
                 raise Exception(_('You must specify a destination identifier type'))
 
         if self.destination_field_fm['is_multiple']:
@@ -816,13 +817,18 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 # convert the colon-separated pair strings back into a dict,
                 # which is what set_identifiers wants
                 dst_id_type = unicode(self.s_r_dst_ident.text())
-                if dst_id_type:
+                if dst_id_type and dst_id_type != '*':
                     v = ''.join(val)
                     ids = mi.get(dest)
                     ids[dst_id_type] = v
                     val = ids
                 else:
-                    val = dict([(t.split(':')) for t in val])
+                    try:
+                        val = dict([(t.split(':')) for t in val])
+                    except:
+                        raise Exception(_('Invalid identifier string. It must be a '
+                                          'comma-separated list of pairs of '
+                                          'strings separated by a colon'))
         else:
             val = self.s_r_replace_mode_separator().join(val)
             if dest == 'title' and len(val) == 0:
