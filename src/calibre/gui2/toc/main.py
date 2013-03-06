@@ -19,6 +19,7 @@ from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.gui2 import Application
 from calibre.gui2.progress_indicator import ProgressIndicator
+from calibre.gui2.toc.location import ItemEdit
 from calibre.utils.logging import GUILog
 
 ICON_SIZE = 24
@@ -46,13 +47,15 @@ class ItemView(QFrame): # {{{
             'Entries with a green tick next to them point to a location that has '
             'been verified to exist. Entries with a red dot are broken and may need'
             ' to be fixed.'))
+        la.setStyleSheet('QLabel { margin-bottom: 20px }')
         la.setWordWrap(True)
         l = QVBoxLayout()
         rp.setLayout(l)
-        l.addWidget(la, alignment=Qt.AlignTop)
+        l.addWidget(la)
         self.add_new_to_root_button = b = QPushButton(_('Create a &new entry'))
         b.clicked.connect(self.add_new_to_root)
-        l.addWidget(b, alignment=Qt.AlignTop)
+        l.addWidget(b)
+        l.addStretch()
 
     def add_new_to_root(self):
         self.add_new_item.emit(None, None)
@@ -267,7 +270,10 @@ class TOCEditor(QDialog): # {{{
         la.setStyleSheet('QLabel { font-size: 20pt }')
         ll.addWidget(la, alignment=Qt.AlignHCenter|Qt.AlignTop)
         self.toc_view = TOCView(self)
+        self.toc_view.add_new_item.connect(self.add_new_item)
         s.addWidget(self.toc_view)
+        self.item_edit = ItemEdit(self)
+        s.addWidget(self.item_edit)
 
         bb = self.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         l.addWidget(bb)
@@ -277,6 +283,23 @@ class TOCEditor(QDialog): # {{{
         self.explode_done.connect(self.read_toc, type=Qt.QueuedConnection)
 
         self.resize(950, 630)
+
+    def add_new_item(self, item, where):
+        self.item_edit(item, where)
+        self.stacks.setCurrentIndex(2)
+
+    def accept(self):
+        if self.stacks.currentIndex() == 2:
+            self.toc_view.update_item(self.item_edit.result)
+            self.stacks.setCurrentIndex(1)
+        else:
+            super(TOCEditor, self).accept()
+
+    def reject(self):
+        if self.stacks.currentIndex() == 2:
+            self.stacks.setCurrentIndex(1)
+        else:
+            super(TOCEditor, self).accept()
 
     def start(self):
         t = Thread(target=self.explode)
@@ -293,6 +316,7 @@ class TOCEditor(QDialog): # {{{
     def read_toc(self):
         self.pi.stopAnimation()
         self.toc_view(self.ebook)
+        self.item_edit.load(self.ebook)
         self.stacks.setCurrentIndex(1)
 
 # }}}

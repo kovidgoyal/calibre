@@ -72,6 +72,7 @@ class Container(object):
         self.mime_map = {}
         self.name_path_map = {}
         self.dirtied = set()
+        self.encoding_map = {}
 
         # Map of relative paths with '/' separators from root of unzipped ePub
         # to absolute paths on filesystem with os-specific separators
@@ -162,27 +163,29 @@ class Container(object):
             data = data[3:]
         if bom_enc is not None:
             try:
+                self.used_encoding = bom_enc
                 return fix_data(data.decode(bom_enc))
             except UnicodeDecodeError:
                 pass
         try:
+            self.used_encoding = 'utf-8'
             return fix_data(data.decode('utf-8'))
         except UnicodeDecodeError:
             pass
-        data, _ = xml_to_unicode(data)
+        data, self.used_encoding = xml_to_unicode(data)
         return fix_data(data)
 
     def parse_xml(self, data):
-        data = xml_to_unicode(data, strip_encoding_pats=True, assume_utf8=True,
-                             resolve_entities=True)[0].strip()
+        data, self.used_encoding = xml_to_unicode(
+            data, strip_encoding_pats=True, assume_utf8=True, resolve_entities=True)
         return etree.fromstring(data, parser=RECOVER_PARSER)
 
     def parse_xhtml(self, data, fname):
         try:
-            return parse_html(data, log=self.log,
-                    decoder=self.decode,
-                    preprocessor=self.html_preprocessor,
-                    filename=fname, non_html_file_tags={'ncx'})
+            return parse_html(
+                data, log=self.log, decoder=self.decode,
+                preprocessor=self.html_preprocessor, filename=fname,
+                non_html_file_tags={'ncx'})
         except NotHTML:
             return self.parse_xml(data)
 
@@ -212,9 +215,11 @@ class Container(object):
     def parsed(self, name):
         ans = self.parsed_cache.get(name, None)
         if ans is None:
+            self.used_encoding = None
             mime = self.mime_map.get(name, guess_type(name))
             ans = self.parse(self.name_path_map[name], mime)
             self.parsed_cache[name] = ans
+            self.encoding_map[name] = self.used_encoding
         return ans
 
     @property
