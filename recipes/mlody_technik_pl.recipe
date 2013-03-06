@@ -7,7 +7,7 @@ class Mlody_technik(BasicNewsRecipe):
     description   = u'Młody technik'
     category       = 'science'
     language       = 'pl'
-    cover_url='http://science-everywhere.pl/wp-content/uploads/2011/10/mt12.jpg'
+    #cover_url = 'http://science-everywhere.pl/wp-content/uploads/2011/10/mt12.jpg'
     no_stylesheets = True
     preprocess_regexps = [(re.compile(r"<h4>Podobne</h4>", re.IGNORECASE), lambda m: '')]
     oldest_article = 7
@@ -18,10 +18,17 @@ class Mlody_technik(BasicNewsRecipe):
     remove_tags = [dict(attrs={'class':'st-related-posts'})]
     remove_tags_after = dict(attrs={'class':'entry-content clearfix'})
     feeds          = [(u'Wszystko', u'http://www.mt.com.pl/feed'), 
-		(u'MT NEWS 24/7', u'http://www.mt.com.pl/kategoria/mt-newsy-24-7/feed'),
+		#(u'MT NEWS 24/7', u'http://www.mt.com.pl/kategoria/mt-newsy-24-7/feed'),
 		(u'Info zoom', u'http://www.mt.com.pl/kategoria/info-zoom/feed'),
 		(u'm.technik', u'http://www.mt.com.pl/kategoria/m-technik/feed'),
 		(u'Szkoła', u'http://www.mt.com.pl/kategoria/szkola-2/feed'),
 		(u'Na Warsztacie', u'http://www.mt.com.pl/kategoria/na-warsztacie/feed'),
 		(u'Z pasji do...', u'http://www.mt.com.pl/kategoria/z-pasji-do/feed'),
 		(u'MT testuje', u'http://www.mt.com.pl/kategoria/mt-testuje/feed')]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.mt.com.pl/')
+        tag = soup.find(attrs={'class':'xoxo'})
+        if tag:
+            self.cover_url = tag.find('img')['src']
+        return getattr(self, 'cover_url', self.cover_url)

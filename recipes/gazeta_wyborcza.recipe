@@ -6,7 +6,7 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
     title = u'Gazeta.pl'
     __author__ = 'fenuks, Artur Stachecki'
     language = 'pl'
-    description = 'news from gazeta.pl'
+    description = 'Wiadomości z Polski i ze świata. Serwisy tematyczne i lokalne w 20 miastach.'
     category = 'newspaper'
     publication_type = 'newspaper'
     masthead_url = 'http://bi.gazeta.pl/im/5/10285/z10285445AA.jpg'

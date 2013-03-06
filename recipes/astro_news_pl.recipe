@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class AstroNEWS(BasicNewsRecipe):
     title          = u'AstroNEWS'
     __author__        = 'fenuks'
-    description   = 'AstroNEWS- astronomy every day'
+    description   = u'AstroNEWS regularnie dostarcza wiadomości o wydarzeniach związanych z astronomią i astronautyką. Informujemy o aktualnych odkryciach i wydarzeniach naukowych, zapowiadamy ciekawe zjawiska astronomiczne. Serwis jest częścią portalu astronomicznego AstroNET prowadzonego przez miłośników astronomii i zawodowych astronomów.'
     category       = 'astronomy, science'
     language       = 'pl'
     oldest_article = 8

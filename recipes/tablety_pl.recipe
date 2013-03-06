@@ -3,7 +3,7 @@ import re
 class Tablety_pl(BasicNewsRecipe):
     title          = u'Tablety.pl'
     __author__        = 'fenuks'
-    description   = u'tablety.pl - latest tablet news'
+    description   = u'Tablety, gry i aplikacje na tablety.'
     masthead_url= 'http://www.tablety.pl/wp-content/themes/kolektyw/img/logo.png'
     cover_url      = 'http://www.tablety.pl/wp-content/themes/kolektyw/img/logo.png'
     category       = 'IT'

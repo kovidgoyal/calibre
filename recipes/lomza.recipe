@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Lomza(BasicNewsRecipe):
     title          = u'4Lomza'
     __author__        = 'fenuks'
-    description   = u'4Łomża - regional site'
+    description   = u'Regionalny portal. Najświeższe informacje z regionu, kulturalne, sportowe. Ogłoszenia, baza biznesu, forum.'
     cover_url      = 'http://www.4lomza.pl/i/logo4lomza_m.jpg'
     language       = 'pl'
     oldest_article = 15
