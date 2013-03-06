@@ -1,0 +1,51 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+__license__ = 'GPL v3'
+__copyright__ = u'Łukasz Grąbczewski 2011'
+__version__ = '2.0'
+
+import re, os
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ebooks.conversion.cli import main
+
+class biweekly(BasicNewsRecipe):
+	__author__ = u'Łukasz Grąbczewski'
+	title = 'Biweekly'
+	language = 'en_EN'
+	publisher = 'National Audiovisual Institute'
+	publication_type = 'magazine'
+	description = u'link with culture [English edition of Polish magazine]: literature, theatre, film, art, music, views, talks'
+
+	conversion_options = {
+		'authors' : 'Biweekly.pl'
+		,'publisher' : publisher
+		,'language' : language
+		,'comments' : description
+		,'no_default_epub_cover' : True
+		,'preserve_cover_aspect_ratio': True
+	}
+
+	def build_index(self):
+		browser = self.get_browser()
+		rc = browser.open('http://www.biweekly.pl/')
+
+		# find the link
+		epublink = browser.find_link(text_regex=re.compile('ePUB VERSION'))
+
+		# download ebook
+		self.report_progress(0,_('Downloading ePUB'))
+		response = browser.follow_link(epublink)
+		book_file = PersistentTemporaryFile(suffix='.epub')
+		book_file.write(response.read())
+		book_file.close()
+
+		# convert
+		self.report_progress(0.2,_('Converting to OEB'))
+		oebdir = self.output_dir + '/INPUT/'
+		main(['ebook-convert', book_file.name, oebdir])
+
+		# feed calibre
+		index = os.path.join(oebdir, 'content.opf')
+		
+		return index
