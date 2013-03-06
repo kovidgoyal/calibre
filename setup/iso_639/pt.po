@@ -10,13 +10,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-03-04 15:16+0000\n"
+"PO-Revision-Date: 2013-03-06 01:04+0000\n"
 "Last-Translator: pedro jorge oliveira <pedrojorgeoliveira93@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-03-05 05:07+0000\n"
+"X-Launchpad-Export-Date: 2013-03-06 05:35+0000\n"
 "X-Generator: Launchpad (build 16514)\n"
 "Language: pt\n"
 
@@ -7354,11 +7354,11 @@ msgstr ""
 
 #. name for esn
 msgid "Salvadoran Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual de El Salvador"
 
 #. name for eso
 msgid "Estonian Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual da Estónia"
 
 #. name for esq
 msgid "Esselen"
@@ -7386,7 +7386,7 @@ msgstr ""
 
 #. name for eth
 msgid "Ethiopian Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual Etíope"
 
 #. name for etn
 msgid "Eton (Vanuatu)"
@@ -7550,7 +7550,7 @@ msgstr ""
 
 #. name for fcs
 msgid "Quebec Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual do Quebeque"
 
 #. name for fer
 msgid "Feroge"
@@ -7734,15 +7734,15 @@ msgstr ""
 
 #. name for fse
 msgid "Finnish Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual"
 
 #. name for fsl
 msgid "French Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual francesa"
 
 #. name for fss
 msgid "Finland-Swedish Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual Finlandesa-Sueca"
 
 #. name for fub
 msgid "Fulfulde; Adamawa"
@@ -8790,11 +8790,11 @@ msgstr ""
 
 #. name for gse
 msgid "Ghanaian Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual ganense"
 
 #. name for gsg
 msgid "German Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual Alemã"
 
 #. name for gsl
 msgid "Gusilay"
@@ -8802,7 +8802,7 @@ msgstr ""
 
 #. name for gsm
 msgid "Guatemalan Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual guatemalteca"
 
 #. name for gsn
 msgid "Gusan"
@@ -8818,7 +8818,7 @@ msgstr ""
 
 #. name for gss
 msgid "Greek Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual grega"
 
 #. name for gsw
 msgid "German; Swiss"
@@ -8878,7 +8878,7 @@ msgstr ""
 
 #. name for gul
 msgid "Creole English; Sea Island"
-msgstr ""
+msgstr "Inglês Crioulo;Sea Island"
 
 #. name for gum
 msgid "Guambiano"
@@ -8906,7 +8906,7 @@ msgstr ""
 
 #. name for gus
 msgid "Guinean Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual guineense"
 
 #. name for gut
 msgid "Maléku Jaíka"
@@ -9086,7 +9086,7 @@ msgstr ""
 
 #. name for gyn
 msgid "Creole English; Guyanese"
-msgstr ""
+msgstr "Inglês Crioulo; Guiana"
 
 #. name for gyr
 msgid "Guarayu"
@@ -9114,7 +9114,7 @@ msgstr ""
 
 #. name for hab
 msgid "Hanoi Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual de Hanoi"
 
 #. name for hac
 msgid "Gurani"
@@ -9130,7 +9130,7 @@ msgstr ""
 
 #. name for haf
 msgid "Haiphong Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual de Haiphong"
 
 #. name for hag
 msgid "Hanga"
@@ -9250,7 +9250,7 @@ msgstr ""
 
 #. name for hds
 msgid "Honduras Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual Hondurenhas"
 
 #. name for hdy
 msgid "Hadiyya"
@@ -9390,7 +9390,7 @@ msgstr ""
 
 #. name for hks
 msgid "Hong Kong Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual de Hong Kong"
 
 #. name for hla
 msgid "Halia"
@@ -9610,7 +9610,7 @@ msgstr ""
 
 #. name for hos
 msgid "Ho Chi Minh City Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual da Cidade de Ho Chi Minh"
 
 #. name for hot
 msgid "Hote"
@@ -9638,7 +9638,7 @@ msgstr ""
 
 #. name for hps
 msgid "Hawai'i Pidgin Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual de Hawai'i Pidgin"
 
 #. name for hra
 msgid "Hrangkhol"
@@ -9690,11 +9690,11 @@ msgstr ""
 
 #. name for hsh
 msgid "Hungarian Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual húngara"
 
 #. name for hsl
 msgid "Hausa Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual de Hausa"
 
 #. name for hsn
 msgid "Chinese; Xiang"
@@ -9850,7 +9850,7 @@ msgstr ""
 
 #. name for hwc
 msgid "Creole English; Hawai'i"
-msgstr ""
+msgstr "Inglês Crioulo; Hawai'i"
 
 #. name for hwo
 msgid "Hwana"
@@ -9942,11 +9942,11 @@ msgstr ""
 
 #. name for icl
 msgid "Icelandic Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual islandesa"
 
 #. name for icr
 msgid "Creole English; Islander"
-msgstr ""
+msgstr "Inglês Crioulo;  Islander"
 
 #. name for ida
 msgid "Idakho-Isukha-Tiriki"
@@ -10254,7 +10254,7 @@ msgstr ""
 
 #. name for inl
 msgid "Indonesian Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual da Indonésia"
 
 #. name for inm
 msgid "Minaean"
@@ -10274,7 +10274,7 @@ msgstr ""
 
 #. name for ins
 msgid "Indian Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual indiana"
 
 #. name for int
 msgid "Intha"
@@ -10362,11 +10362,11 @@ msgstr ""
 
 #. name for ise
 msgid "Italian Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual italiana"
 
 #. name for isg
 msgid "Irish Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual irlandesa"
 
 #. name for ish
 msgid "Esan"
@@ -10398,7 +10398,7 @@ msgstr ""
 
 #. name for isr
 msgid "Israeli Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual israelita"
 
 #. name for ist
 msgid "Istriot"
@@ -10574,7 +10574,7 @@ msgstr ""
 
 #. name for jam
 msgid "Creole English; Jamaican"
-msgstr ""
+msgstr "Inglês Crioulo;Jamaica"
 
 #. name for jao
 msgid "Yanyuwa"
@@ -10646,7 +10646,7 @@ msgstr ""
 
 #. name for jcs
 msgid "Jamaican Country Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual do País Jamaica"
 
 #. name for jct
 msgid "Krymchak"
@@ -10726,7 +10726,7 @@ msgstr ""
 
 #. name for jhs
 msgid "Jhankot Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual de Jhankot"
 
 #. name for jia
 msgid "Jina"
@@ -10806,7 +10806,7 @@ msgstr ""
 
 #. name for jls
 msgid "Jamaican Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual jamaicana"
 
 #. name for jma
 msgid "Dima"
@@ -10890,7 +10890,7 @@ msgstr ""
 
 #. name for jos
 msgid "Jordanian Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual jordaniana"
 
 #. name for jow
 msgid "Jowulu"
@@ -10934,7 +10934,7 @@ msgstr ""
 
 #. name for jsl
 msgid "Japanese Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual Japonesa"
 
 #. name for jua
 msgid "Júma"
@@ -10986,7 +10986,7 @@ msgstr ""
 
 #. name for jus
 msgid "Jumla Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual de Jumla"
 
 #. name for jut
 msgid "Jutish"
@@ -11670,7 +11670,7 @@ msgstr ""
 
 #. name for kgi
 msgid "Selangor Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual de Selangor"
 
 #. name for kgj
 msgid "Kham; Gamale"
@@ -13202,7 +13202,7 @@ msgstr ""
 
 #. name for kvk
 msgid "Korean Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual Coreana"
 
 #. name for kvl
 msgid "Karen; Brek"
@@ -14242,7 +14242,7 @@ msgstr ""
 
 #. name for lir
 msgid "English; Liberian"
-msgstr ""
+msgstr "Inglês; Libéria"
 
 #. name for lis
 msgid "Lisu"
@@ -14418,7 +14418,7 @@ msgstr ""
 
 #. name for lls
 msgid "Lithuanian Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual lituana"
 
 #. name for llu
 msgid "Lau"
@@ -14770,7 +14770,7 @@ msgstr ""
 
 #. name for lsg
 msgid "Lyons Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual de Lyons"
 
 #. name for lsh
 msgid "Lish"
@@ -14782,7 +14782,7 @@ msgstr ""
 
 #. name for lsl
 msgid "Latvian Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual letã(da Letónia)"
 
 #. name for lsm
 msgid "Saamia"
@@ -14790,7 +14790,7 @@ msgstr ""
 
 #. name for lso
 msgid "Laos Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual de Laos"
 
 #. name for lsp
 msgid "Panamanian Sign Language"
@@ -17938,7 +17938,7 @@ msgstr ""
 
 #. name for ndo
 msgid "Ndonga"
-msgstr "dongo"
+msgstr "Ndonga"
 
 #. name for ndp
 msgid "Ndo"
@@ -18042,7 +18042,7 @@ msgstr ""
 
 #. name for nep
 msgid "Nepali"
-msgstr ""
+msgstr "Nepalês"
 
 #. name for neq
 msgid "Mixe; North Central"
@@ -18850,7 +18850,7 @@ msgstr ""
 
 #. name for nog
 msgid "Nogai"
-msgstr ""
+msgstr "Nogai"
 
 #. name for noh
 msgid "Nomu"
@@ -24162,7 +24162,7 @@ msgstr ""
 
 #. name for svc
 msgid "Creole English; Vincentian"
-msgstr ""
+msgstr "Inglês Crioulo; vicentino"
 
 #. name for sve
 msgid "Serili"
@@ -24658,7 +24658,7 @@ msgstr ""
 
 #. name for tch
 msgid "Creole English; Turks And Caicos"
-msgstr ""
+msgstr "Inglês Crioulo; Turks And Caicos"
 
 #. name for tci
 msgid "Wára"
@@ -24954,7 +24954,7 @@ msgstr ""
 
 #. name for tgh
 msgid "Creole English; Tobagonian"
-msgstr ""
+msgstr "Inglês Crioulo; Tobago"
 
 #. name for tgi
 msgid "Lawunuia"
@@ -25842,7 +25842,7 @@ msgstr ""
 
 #. name for trf
 msgid "Creole English; Trinidadian"
-msgstr ""
+msgstr "Inglês Crioulo; Trindade"
 
 #. name for trg
 msgid "Lishán Didán"
@@ -27118,7 +27118,7 @@ msgstr ""
 
 #. name for vic
 msgid "Creole English; Virgin Islands"
-msgstr ""
+msgstr "Inglês Crioulo;Ilhas Virgens( Britânicas)"
 
 #. name for vid
 msgid "Vidunda"

@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-05 04:46+0000\n"
-"PO-Revision-Date: 2013-03-03 23:36+0000\n"
+"PO-Revision-Date: 2013-03-05 11:55+0000\n"
 "Last-Translator: Tiago S. <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-05 04:59+0000\n"
+"X-Launchpad-Export-Date: 2013-03-06 05:27+0000\n"
 "X-Generator: Launchpad (build 16514)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3985,6 +3985,10 @@ msgid ""
 "of Contents at level three. Each entry is added under the previous level two "
 "entry. See the XPath Tutorial in the calibre User Manual for examples."
 msgstr ""
+"Expressão XPath que especifica todas as estiquetas que deverão ser "
+"adicionadas no sumário do terceiro nível. Cada entrada será adicionada "
+"abaixo da entrada anterior no nível dois. Consulte o tutorial do XPath no "
+"Manual do Usuário do calibre para exemplos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:256
 msgid ""
@@ -4035,6 +4039,9 @@ msgid ""
 "entries, i.e. allow more than one entry with the same text, provided that "
 "they point to a different location."
 msgstr ""
+"Quando criar um TOC das ligações a partir de documentos de entrada, permita "
+"entradas duplicadas, por ex: permite mais de uma entrada com o mesmo texto,  "
+"desde que apontem para localizações diferentes."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:305
 msgid ""
@@ -4105,6 +4112,10 @@ msgid ""
 "margins. Sometimes, this can cause the removal of margins that should not "
 "have been removed. In this case you can disable the removal."
 msgstr ""
+"Alguns documentos especificam tamanhos de margem direita e esquerda "
+"individualmente para cada parágrafo. O calibre tentará detectar e remover "
+"estas margens. Alguma vezes, isso pode causar a remoção indevida de margens. "
+"Neste caso, você pode desativar a remoção."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:375
 #, python-format
@@ -4179,6 +4190,11 @@ msgid ""
 "negative, then the indent specified in the input document is used, that is, "
 "calibre does not change the indentation."
 msgstr ""
+"Quando calibre remove linhas em branco entre parágrafos, ele insere "
+"automaticamente um recuo de linha, para garantir que parágrafos sejam "
+"facilmente distinguíveis. Esta opção controla o tamanho da quebra de linha "
+"(em \"em\"). Se inserir um valor negativo, o recuo especificado no documento "
+"será utilizado, o que significa que calibre não modificará o recuo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:426
 msgid ""
@@ -4210,6 +4226,10 @@ msgid ""
 "set a cover in calibre, the output document will end up with two cover "
 "images if you do not specify this option."
 msgstr ""
+"Remover a primeira imagem do livro especificado. Útil se o documento "
+"especificado possui uma imagem de capa não reconhecida como tal. Desta forma "
+"quando você definir uma capa no calibre, o documento gerado irá possuir duas "
+"imagens de capa, no caso desta opção não ter sido especificada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:455
 msgid ""
@@ -4231,6 +4251,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:471
 msgid "Convert fancy quotes, dashes and ellipsis to their plain equivalents."
 msgstr ""
+"Converter citações extravagantes, traços e reticências aos seus equivalentes "
+"simples."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:479
 msgid ""
@@ -4260,6 +4282,12 @@ msgid ""
 "corresponding pair of normal characters. This option will preserve them "
 "instead."
 msgstr ""
+"Preserva as ligações presentes no documento de entrada. Uma ligação é um "
+"formato especial para mostrar um par de caracteres como ff, fi, fl, etc. A "
+"maioria dos leitores não tem suporte para ligaduras nas suas fontes padrões, "
+"e não conseguem mostrá-las correctamente. Por padrão, o calibe irá "
+"transformar uma ligadura no seu par correspondente de caracteres normais. "
+"Esta opção irá preservar as ligaduras."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:513
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
@@ -16940,11 +16968,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:124
 msgid "Edit existing plugboard"
-msgstr ""
+msgstr "Editar plugboard existente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:125
 msgid "Existing plugboards"
-msgstr ""
+msgstr "Plugboards existentes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:126
 msgid "Source template"
@@ -16956,11 +16984,11 @@ msgstr "Campo de destino"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:128
 msgid "Save plugboard"
-msgstr ""
+msgstr "Guardar plugboard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:129
 msgid "Delete plugboard"
-msgstr ""
+msgstr "Apagar plugboard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:194
 #, python-format
@@ -17020,6 +17048,7 @@ msgstr "%s não é um caminho válido para o extra"
 #, python-format
 msgid "Select an actual plugin under <b>%s</b> to customize"
 msgstr ""
+"Selecionar um complemento propriamente dito em <b>%s</b> para o personalizar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:368
 #, python-format
@@ -17053,7 +17082,7 @@ msgstr "Mostrar apenas os plugins que foram instalados por mim"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Show only &user installed plugins"
-msgstr ""
+msgstr "Mostrar apenas complementos instalados pelo &utilizador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:117
 msgid "Get &new plugins"
@@ -17061,11 +17090,11 @@ msgstr "Obter &novo plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:118
 msgid "Check for &updated plugins"
-msgstr ""
+msgstr "Verificar e &actualizar complementos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:119
 msgid "&Load plugin from file"
-msgstr ""
+msgstr "&Carregar complementos a partir de um ficheiro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:34
 msgid "Any custom field"
@@ -17074,10 +17103,12 @@ msgstr "Qualquer campo personalizado"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:35
 msgid "The lookup name of any custom field (these names begin with \"#\")."
 msgstr ""
+"O nome de pesquisa de qualquer campo personalizado (estes nomes começam com "
+"\"#\")."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:66
 msgid "Constant template"
-msgstr ""
+msgstr "Modelo de constante"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:67
 msgid ""
@@ -17155,6 +17186,7 @@ msgstr "Guardar os metadados no ficheiro &OPF"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:80
 msgid "&Show files in file browser after saving to disk"
 msgstr ""
+"E&xibir ficheiro no explorador de ficheiros depois de guardar no disco"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:37
 msgid ""
@@ -17218,7 +17250,7 @@ msgstr "A caixa de valor não pode estar vazia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:173
 msgid "The empty grouped search term cannot be deleted"
-msgstr ""
+msgstr "O termo de pesquisa agrupada vazio não pode ser apagádo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:168
 msgid "Search as you &type"
@@ -17226,16 +17258,18 @@ msgstr "Pesquisa enquanto você &digita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:169
 msgid "Unaccented characters match accented characters"
-msgstr ""
+msgstr "Corresponder caractéres sem acentuação a caractéres acentuados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:170
 msgid ""
 "&Highlight search results instead of restricting the book list to the results"
 msgstr ""
+"&Destacar resultados de pesquisa em vez de restringir a lista de livros aos "
+"resultados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:171
 msgid "What to search by default"
-msgstr ""
+msgstr "O que pesquisar por padrão"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:172
 msgid ""
@@ -17244,6 +17278,11 @@ msgid ""
 "search not just authors but title/tags/series/comments/etc. Use these "
 "options if you would like to change this behavior."
 msgstr ""
+"Quando você introduzir um termo de pesquisa sem um prefixo, por padrão o "
+"calibre irá pesquisar em todos os meta-dados. Por exemplo, introduzir "
+"\"asimov\" irá pesquisar não só por autores mas também em títulos, "
+"etiquetas, séries, comentários, etc. Use estas opções se quer mudar este "
+"comportamento."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:173
 msgid "&Limit the searched metadata"
@@ -17251,7 +17290,7 @@ msgstr "&Limitar os metadados pesquisados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:174
 msgid "&Columns that non-prefixed searches are limited to:"
-msgstr ""
+msgstr "&Colunas às quais as pesquisas não-prefixadas estão limitadas:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:175
 msgid ""
@@ -17260,6 +17299,11 @@ msgid ""
 "you always use prefixes in your saved searches. For example, use "
 "\"series:Foundation\" rather than just \"Foundation\" in  a saved search"
 msgstr ""
+"Note que esta opção afecta todas as pesquisas, inclusivé pesquisas guardadas "
+"e restrições. Portanto, se usar esta opção, assegure-se de que irá sempre "
+"usar prefixos nas suas pesquisas guardadas. Por exemplo, use "
+"\"series:Foundation\" em vez de somente \"Foundation\" numa pesquisa "
+"guardada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:177
 msgid "&Names:"
@@ -17273,6 +17317,12 @@ msgid ""
 "changing the name and pressing Save. Change the value of\n"
 "a search term by changing the value box then pressing Save."
 msgstr ""
+"Contém os nomes dos termos de pesquisa agrupada definidos\n"
+"atualmente. Crie um novo nome introduzindo-o numa caixa vazia,\n"
+"e carregue em Guardar. Renomeie um termo de pesquisa\n"
+"selecionando-o, alterando-o e carregando em Guardar.\n"
+"Altere o valor de um termo de pesquisa alterando a caixa\n"
+"do valor e então carregando em Guardar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:183
 msgid "Delete the current search term"
@@ -17294,6 +17344,8 @@ msgid ""
 "Enter the names of any grouped search terms you wish\n"
 "to be shown as user categories"
 msgstr ""
+"Introduza os nomes dos termos de pesquisa agrupada que\n"
+"que deseja exibir como categorias de utilizador."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:192
 msgid ""
@@ -17320,6 +17372,12 @@ msgid ""
 "         By changing the lookup name to a grouped search term you can\n"
 "         search multiple columns at once.</p>"
 msgstr ""
+"<p>Quando pesquisar livros semelhantes carregando no livro\n"
+"         com o botão direito do rato e selecionando \"Livros similares...\"\n"
+"         o calibre constrói uma pesquisa usando a coluna para procurar\n"
+"         os nomes especificados abaixo. Alterando o nome de pesquisa para\n"
+"         um termo de pesquisa agrupada, poderá pesquisar várias\n"
+"         colunas de uma só vez.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:200
 msgid "Similar authors: "
@@ -17388,6 +17446,10 @@ msgid ""
 "Send to Device button. This setting can be overriden for individual devices "
 "by customizing the device interface plugins in Preferences->Advanced->Plugins"
 msgstr ""
+"Aqui pode controlar como o calibre guardará os seus livros quando carregar "
+"no botão \"Enviar para Dispositivo\". Esta configuração pode ser sobreposta "
+"para dispositivos individuais através da personalização dos complementos da "
+"interface do dispositivo, em Preferências->Avançado->Complementos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:74
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:479
@@ -17439,7 +17501,7 @@ msgstr "Max. items &OPDS por pesquisa:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:157
 msgid "Max. OPDS &ungrouped items:"
-msgstr ""
+msgstr "Máx. de itens OPDS desagr&upados:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:158
 msgid "Restriction (saved search) to apply:"
@@ -17469,7 +17531,7 @@ msgstr "Password incompatível com alguns dispositivos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:162
 msgid "&URL Prefix:"
-msgstr ""
+msgstr "Prefixo &URL:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:163
 msgid ""
@@ -17477,6 +17539,9 @@ msgid ""
 "you plan to put the server behind another server like Apache, with a reverse "
 "proxy."
 msgstr ""
+"Um prefixo que é aplicado a todos os URLs do seu servidor de conteúdos. Útil "
+"se planear colocar o servidos atrás de outro servidor Apache, com um proxy "
+"invertido."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:164
 msgid "&Start Server"
@@ -17598,7 +17663,7 @@ msgstr "Funções Modelo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:137
 msgid "You cannot delete a built-in function"
-msgstr ""
+msgstr "Não pode eliminar uma função imbutida."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:147
 msgid "Function not defined"
@@ -17633,11 +17698,12 @@ msgstr "Digite o nome da função para criar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:98
 msgid "Arg &count:"
-msgstr ""
+msgstr "&Contagem de Arg:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:99
 msgid "Set this to -1 if the function takes a variable number of arguments"
 msgstr ""
+"Definir isto para -1 se a função aceitar um número variável de argumentos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:465
@@ -17655,10 +17721,12 @@ msgstr "&Criar"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:105
 msgid "&Program Code: (be sure to follow python indenting rules)"
 msgstr ""
+"Código de &Programa: (tenha a certeza que segue as regras de identação do "
+"Python)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:33
 msgid "Donate to support the development of calibre"
-msgstr ""
+msgstr "Fazer uma doação para apoiar a equipa de desenvolvimento do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Location Manager"
@@ -17674,7 +17742,7 @@ msgstr "Separador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:221
 msgid "The main toolbar"
-msgstr ""
+msgstr "A barra de ferramenta principal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:222
 msgid "The main toolbar when a device is connected"
@@ -17694,15 +17762,15 @@ msgstr "A barra de menu quando um dispositivo é ligado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:226
 msgid "The context menu for the books in the calibre library"
-msgstr ""
+msgstr "O menu de contexto para os livros dentro da biblioteca do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:228
 msgid "The context menu for the books on the device"
-msgstr ""
+msgstr "O menu de contexto para os livros no dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:230
 msgid "The context menu for the cover browser"
-msgstr ""
+msgstr "Menu de contexto para o navegador de capas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:236
 msgid "Click to choose toolbar or menu to customize"
@@ -17732,6 +17800,9 @@ msgid ""
 "<p>The toolbar in calibre is different depending on whether a device is "
 "connected or not. Choose <b>which toolbar</b> you would like to customize:"
 msgstr ""
+"<p>A barra de ferramenta no calibre é diferente dependendo de um dispositivo "
+"estar conectado ou não. Selecione <b>qual barra de ferramentas</b> que "
+"gostaria de personalizar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:136
 msgid "Choose the toolbar to customize"
@@ -17772,7 +17843,7 @@ msgstr "Ajustar livro para o  valor padrão"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:128
 msgid "This tweak has been customized"
-msgstr ""
+msgstr "Este ajuste foi personalizado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:298
 msgid ""
@@ -17791,6 +17862,8 @@ msgid ""
 "There was a syntax error in your tweak. Click the show details button for "
 "details."
 msgstr ""
+"Existe um erro de síntaxe no ajuste. Carregue no botão \"Mostrar detalhes\" "
+"para mais detalhes."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:420
 msgid "Invalid tweaks"
@@ -17801,6 +17874,8 @@ msgid ""
 "The tweaks you entered are invalid, try resetting the tweaks to default and "
 "changing them one by one until you find the invalid setting."
 msgstr ""
+"Os ajustes que introduziu são inválidos, tente anular os ajustes para os "
+"valores padrão e mudá-los um a um até encontrar a definição inválida."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:115
 msgid ""
@@ -22195,15 +22270,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:397
 msgid "strcat_max requires 2 or more arguments"
-msgstr ""
+msgstr "strcat_max requer 2 ou mais argumentos"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:399
 msgid "strcat_max requires an even number of arguments"
-msgstr ""
+msgstr "strcat_max requer um número par de argumentos"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:403
 msgid "first argument to strcat_max must be an integer"
-msgstr ""
+msgstr "o primeiro argumento de strcat_max deve ser inteiro"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:421
 msgid ""
@@ -22252,6 +22327,8 @@ msgid ""
 "ifempty(val, text if empty) -- return val if val is not empty, otherwise "
 "return `text if empty`"
 msgstr ""
+"ifempty(val, texto se vazio) -- devolve val se val não estiver vazio, caso "
+"contrário devolve o texto definido para \"texto se vazio\""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:523
 msgid ""
@@ -22331,6 +22408,8 @@ msgid ""
 "human_readable(v) -- return a string representing the number v in KB, MB, "
 "GB, etc."
 msgstr ""
+"human_readable(v) -- devolve o string que representa o número v em KB, MB, "
+"GB, etc."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:685
 msgid ""
@@ -22396,39 +22475,44 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:832
 msgid "uppercase(val) -- return value of the field in upper case"
-msgstr ""
+msgstr "uppercase(val) -- devolve o valor do campo em maiúsculas"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:841
 msgid "lowercase(val) -- return value of the field in lower case"
-msgstr ""
+msgstr "lowercase(val) -- devolve o valor do campo em minúsculas"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:850
 msgid "titlecase(val) -- return value of the field in title case"
 msgstr ""
+"titlecase(val) -- devolve o valor do campo com capitulação de títulos"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:859
 msgid "capitalize(val) -- return value of the field capitalized"
-msgstr ""
+msgstr "capitalize(val) -- devolve o valor do campo capitalizado"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:868
 msgid "booksize() -- return value of the size field"
-msgstr ""
+msgstr "booksize() -- devolve o valor do campo de tamanho"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:882
 msgid ""
 "ondevice() -- return Yes if ondevice is set, otherwise return the empty "
 "string"
 msgstr ""
+"ondevice() -- devolve Sim se ondevice está definido, caso contrário devovle "
+"um string vazio"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:894
 msgid "series_sort() -- return the series sort value"
-msgstr ""
+msgstr "series_sort() -- devolve o valor de ordenação da série"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:905
 msgid ""
 "has_cover() -- return Yes if the book has a cover, otherwise return the "
 "empty string"
 msgstr ""
+"has_cover() -- devolve Sim se o livro tiver capa, caso contrário devolve um "
+"string vazio"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:917
 msgid ""
@@ -22515,6 +22599,9 @@ msgid ""
 "format_date or days_between, but can be manipulated like any other string. "
 "The date is in ISO format."
 msgstr ""
+"today() -- devolve um string com a data de hoje. Este valor é destinado ao "
+"uso em format_date e days_between, mas pode ser manipulado como cualquer "
+"outro string. A data está em formato ISO."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1115
 msgid ""
@@ -22538,6 +22625,10 @@ msgid ""
 "passed in lang_strings. The strings must be in the language of the current "
 "locale. Lang_strings is a comma-separated list."
 msgstr ""
+"language_codes(lang_strings) -- mostra os códigos da língua para os "
+"\"strings\" enviados a lang_strings. Estes strings tem de ser da mesma "
+"linguagem da localização actual. Lang_strings é uma lista separada por "
+"vírgulas."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1176
 msgid ""
@@ -22568,7 +22659,7 @@ msgstr "À espera..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:54
 msgid "Aborted, taking too long"
-msgstr ""
+msgstr "Abortou, a demorar demasiado tempo"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:56
 msgid "Stopped"
@@ -22620,7 +22711,7 @@ msgstr "Inglês (Japão)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:148
 msgid "English (Germany)"
-msgstr ""
+msgstr "Inglês (Alemanha)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:149
 msgid "English (Bulgaria)"
@@ -22640,7 +22731,7 @@ msgstr "Inglês (Canadá)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:153
 msgid "English (Greece)"
-msgstr ""
+msgstr "Inglês (Grécia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:154
 msgid "English (India)"
@@ -22656,7 +22747,7 @@ msgstr "Inglês (Tailândia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:157
 msgid "English (Turkey)"
-msgstr ""
+msgstr "Inglês (Turquia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:158
 msgid "English (Cyprus)"
@@ -22789,22 +22880,22 @@ msgstr "Neerlandês (BE)"
 #. NOTE: Ante Meridian (i.e. like 10:00 AM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:197
 msgid "AM"
-msgstr ""
+msgstr "AM"
 
 #. NOTE: Post Meridian (i.e. like 10:00 PM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:199
 msgid "PM"
-msgstr ""
+msgstr "PM"
 
 #. NOTE: Ante Meridian (i.e. like 10:00 am)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:201
 msgid "am"
-msgstr ""
+msgstr "am"
 
 #. NOTE: Post Meridian (i.e. like 10:00 pm)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:203
 msgid "pm"
-msgstr ""
+msgstr "pm"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:204
 msgid "&Copy"
@@ -22816,55 +22907,55 @@ msgstr "Selecionar tudo"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:206
 msgid "&Select All"
-msgstr ""
+msgstr "&Seleccionar Tudo"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:207
 msgid "Copy &Link location"
-msgstr ""
+msgstr "Copiar a Localização da &Ligação"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:208
 msgid "&Undo"
-msgstr ""
+msgstr "Desfa&zer"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:209
 msgid "&Redo"
-msgstr ""
+msgstr "&Refazer"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:210
 msgid "Cu&t"
-msgstr ""
+msgstr "Cor&tar"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:211
 msgid "&Paste"
-msgstr ""
+msgstr "C&olar"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:212
 msgid "Paste and Match Style"
-msgstr ""
+msgstr "Colar e Corresponder ao Estilo"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:213
 msgid "Directions"
-msgstr ""
+msgstr "Direcções"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:214
 msgid "Left to Right"
-msgstr ""
+msgstr "Esquerda para a Direita"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:215
 msgid "Right to Left"
-msgstr ""
+msgstr "Direita para a Esquerda"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:216
 msgid "Fonts"
-msgstr ""
+msgstr "Fontes"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:217
 msgid "&Step up"
-msgstr ""
+msgstr "S&ubir um passo"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:218
 msgid "Step &down"
-msgstr ""
+msgstr "&Descer um passo"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
@@ -22950,7 +23041,7 @@ msgstr "Fonte de Notícias desconhecida"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:732
 #, python-format
 msgid "Failed to download %s"
-msgstr ""
+msgstr "Falhou ao descarregar %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:828
 #, python-format
@@ -22979,11 +23070,11 @@ msgstr "\tAtalhos falhados:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1050
 msgid "Could not fetch article."
-msgstr ""
+msgstr "Não foi possível obter o artigo."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1052
 msgid "The debug traceback is available earlier in this log"
-msgstr ""
+msgstr "O rasto de depuração está disponível acima neste registo."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1054
 msgid "Run with -vv to see the reason"
@@ -23031,7 +23122,7 @@ msgstr "Imagem do mastro transferida"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1360
 msgid "Articles in this issue: "
-msgstr ""
+msgstr "Artigos nesta edição: "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1432
 msgid "Untitled Article"
@@ -23310,7 +23401,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:52
 msgid "Author sort name algorithm"
-msgstr ""
+msgstr "Algoritmo de ordenação de nome de autores"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:53
 msgid ""
@@ -23337,7 +23428,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:77
 msgid "Splitting multiple author names"
-msgstr ""
+msgstr "Dividir nomes múltiplos de autores"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:78
 msgid ""
@@ -23374,7 +23465,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:100
 msgid "Control partitioning of Tag Browser"
-msgstr ""
+msgstr "Controlar o particionamento do Navegador de Etiquetas"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:101
 msgid ""
@@ -23424,6 +23515,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:133
 msgid "Specify columns to sort the booklist by on startup"
 msgstr ""
+"Especificar as colunas usadas para ordenar a lista de livros ao iniciar"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:134
 msgid ""
@@ -23477,7 +23569,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:177
 msgid "Control sorting of titles and series in the library display"
-msgstr ""
+msgstr "Controlar a ordenação de títulos e séries na vista de biblioteca"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:178
 msgid ""
@@ -23501,7 +23593,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:191
 msgid "Control formatting of title and series when used in templates"
-msgstr ""
+msgstr "Controlar a formatação de títulos e séries quando usada em modelos"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:192
 msgid ""
@@ -23526,6 +23618,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:206
 msgid "Set the list of words considered to be \"articles\" for sort strings"
 msgstr ""
+"Define a lista de palavras a serem consideradas \"artigos\" por strings de "
+"ordenação"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:207
 msgid ""
@@ -23853,7 +23947,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:450
 msgid "What interfaces should the content server listen on"
-msgstr ""
+msgstr "Quais as interfaces que o servidor de conteúdos deve escutar"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:451
 msgid ""
@@ -23868,7 +23962,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:458
 msgid "Unified toolbar on OS X"
-msgstr ""
+msgstr "Barra de ferramentas unificado no OS X"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:459
 msgid ""
@@ -23886,6 +23980,8 @@ msgstr ""
 msgid ""
 "Save original file when converting/polishing from same format to same format"
 msgstr ""
+"Guardar o ficheiro original quando converter/polir para de um formato para o "
+"mesmo formato"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:467
 msgid ""
@@ -23907,6 +24003,9 @@ msgid ""
 "Control\n"
 "how many should be shown, here."
 msgstr ""
+"Carregar com o botão direito do rate no botão \"Ver\" mostra a lista dos "
+"livros vistos recentemente.\n"
+"Controle quantos livros podem ser mostrados, aqui."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:481
 msgid "Change the font size of book details in the interface"
@@ -23922,7 +24021,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:487
 msgid "Compile General Program Mode templates to Python"
-msgstr ""
+msgstr "Compilar modelios de Modo Geral de Programas para Python."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:488
 msgid ""
@@ -23939,6 +24038,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:497
 msgid "What format to default to when using the Tweak feature"
 msgstr ""
+"Qual o formato a tornor padrão quando utilizar quando usar a função Ajustar"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:498
 msgid ""
@@ -23959,6 +24059,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:511
 msgid "Do not preselect a completion when editing authors/tags/series/etc."
 msgstr ""
+"Não pre-seleccionar um preenchimento quando editar "
+"autores/etiquetas/series/etc."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:512
 msgid ""
