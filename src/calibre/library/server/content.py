@@ -211,7 +211,8 @@ class ContentServer(object):
         if not fm:
             raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
         update_metadata = format in {'MOBI', 'EPUB', 'AZW3'}
-        mi = newmi = self.db.get_metadata(id, index_is_id=True, cover_as_data=True, get_cover=update_metadata)
+        mi = newmi = self.db.get_metadata(
+            id, index_is_id=True, cover_as_data=True, get_cover=update_metadata)
 
         cherrypy.response.headers['Last-Modified'] = \
             self.last_modified(max(fm['mtime'], mi.last_modified))
