@@ -8,8 +8,8 @@ class tvn24(BasicNewsRecipe):
     description   = u'Sport, Biznes, Gospodarka, Informacje, Wiadomości Zawsze aktualne wiadomości z Polski i ze świata'
     category       = 'news'
     language       = 'pl'
-    masthead_url= 'http://www.tvn24.pl/_d/topmenu/logo2.gif'
-    cover_url= 'http://www.tvn24.pl/_d/topmenu/logo2.gif'
+    #masthead_url= 'http://www.tvn24.pl/_d/topmenu/logo2.gif'
+    cover_url= 'http://www.qzdrowiu.pl/Upload/KnowQZdrowiu_PressOffice/TVN24_logo_575702b7-edce-4b6f-a41b-4395f9456f96_ff6d6ccf-528a-4b94-9e61-2fed727aba35.png'
     extra_css= 'ul {list-style: none; padding: 0; margin: 0;} li {float: left;margin: 0 0.15em;}'
     remove_empty_feeds = True
     remove_javascript = True

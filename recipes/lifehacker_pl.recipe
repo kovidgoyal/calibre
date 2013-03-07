@@ -8,7 +8,6 @@ www.lifehacking.pl
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class lifehacking(BasicNewsRecipe):
     title = u'Lifehacker Polska'

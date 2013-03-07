@@ -7,7 +7,7 @@ class Kosmonauta(BasicNewsRecipe):
     description   = u'polskojęzyczny portal w całości dedykowany misjom kosmicznym i badaniom kosmosu.'
     category       = 'astronomy'
     language       = 'pl'
-    cover_url='http://bi.gazeta.pl/im/4/10393/z10393414X,Kosmonauta-net.jpg'
+    cover_url = 'http://bi.gazeta.pl/im/4/10393/z10393414X,Kosmonauta-net.jpg'
     no_stylesheets = True
     INDEX = 'http://www.kosmonauta.net'
     oldest_article = 7
@@ -24,6 +24,5 @@ class Kosmonauta(BasicNewsRecipe):
                href = a['href']
                if not href.startswith('http'):
                    a['href'] = self.INDEX + href
-                   print '%%%%%%%%%%%%%%%%%%%%%%%%%', a['href']
         return soup
             

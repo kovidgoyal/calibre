@@ -3,7 +3,7 @@ import re
 class Astronomia_pl(BasicNewsRecipe):
     title          = u'Astronomia.pl'
     __author__        = 'fenuks'
-    description   = 'Astronomia - polish astronomy site'
+    description   = u'Astronomia.pl jest edukacyjnym portalem skierowanym do uczniów, studentów i miłośników astronomii. Przedstawiamy gwiazdy, planety, galaktyki, czarne dziury i wiele innych tajemnic Wszechświata.'
     masthead_url      = 'http://www.astronomia.pl/grafika/logo.gif'
     cover_url      = 'http://www.astronomia.pl/grafika/logo.gif'
     category       = 'astronomy, science'

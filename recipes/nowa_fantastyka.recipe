@@ -9,7 +9,7 @@ class Nowa_Fantastyka(BasicNewsRecipe):
     __modified_by__   = 'zaslav'
     language       = 'pl'
     encoding='latin2'
-    description ='site for fantasy readers'
+    description = u'Strona dla miłośników fantastyki'
     category='fantasy'
     masthead_url='http://farm5.static.flickr.com/4133/4956658792_7ba7fbf562.jpg'
     #extra_css='.tytul {font-size: 20px;}' #not working

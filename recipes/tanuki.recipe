@@ -4,6 +4,7 @@ class tanuki(BasicNewsRecipe):
     title          = u'Tanuki'
     oldest_article = 7
     __author__        = 'fenuks'
+    description = u'Tanuki - portal o anime i mandze.'
     category       = 'anime, manga'
     language       = 'pl'
     max_articles_per_feed = 100

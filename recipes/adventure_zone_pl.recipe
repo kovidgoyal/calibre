@@ -3,7 +3,7 @@ import re
 class Adventure_zone(BasicNewsRecipe):
     title          = u'Adventure Zone'
     __author__        = 'fenuks'
-    description   = u'Adventure zone - adventure games from A to Z'
+    description   = u'Czytaj więcej o przygodzie - codzienne nowinki. Szukaj u nas solucji i poradników, czytaj recenzje i zapowiedzi. Także galeria, pliki oraz forum dla wszystkich fanów gier przygodowych.'
     category       = 'games'
     language       = 'pl'
     no_stylesheets = True

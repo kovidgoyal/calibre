@@ -5,6 +5,7 @@ class Archeowiesci(BasicNewsRecipe):
     __author__        = 'fenuks'
     category       = 'archeology'
     language       = 'pl'
+    description = u'Z pasją o przeszłości'
     cover_url='http://archeowiesci.pl/wp-content/uploads/2011/05/Archeowiesci2-115x115.jpg'
     oldest_article = 7
     needs_subscription='optional'

@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Dzieje(BasicNewsRecipe):
     title          = u'dzieje.pl'
     __author__        = 'fenuks'
-    description   = 'Dzieje - history of Poland'
+    description   = 'Dzieje.pl - najlepszy portal informacyjno-edukacyjny dotyczący historii Polski XX wieku. Archiwalne fotografie, filmy, katalog postaci, quizy i konkursy.'
     cover_url      = 'http://www.dzieje.pl/sites/default/files/dzieje_logo.png'
     category       = 'history'
     language       = 'pl'

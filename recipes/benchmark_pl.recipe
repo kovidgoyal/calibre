@@ -3,14 +3,15 @@ import re
 class BenchmarkPl(BasicNewsRecipe):
     title          = u'Benchmark.pl'
     __author__        = 'fenuks'
-    description   = u'benchmark.pl -IT site'
+    description   = u'benchmark.pl, recenzje i testy sprzętu, aktualności, rankingi, sterowniki, porady, opinie'
     masthead_url = 'http://www.benchmark.pl/i/logo-footer.png'
-    cover_url      = 'http://www.ieaddons.pl/benchmark/logo_benchmark_new.gif'
+    cover_url      = 'http://www.benchmark.pl/i/logo-dark.png'
     category       = 'IT'
     language       = 'pl'
     oldest_article = 8
     max_articles_per_feed = 100
-    no_stylesheets=True
+    no_stylesheets = True
+    remove_attributes = ['style']
     preprocess_regexps = [(re.compile(ur'<h3><span style="font-size: small;">&nbsp;Zobacz poprzednie <a href="http://www.benchmark.pl/news/zestawienie/grupa_id/135">Opinie dnia:</a></span>.*</body>', re.DOTALL|re.IGNORECASE), lambda match: '</body>'), (re.compile(ur'Więcej o .*?</ul>', re.DOTALL|re.IGNORECASE), lambda match: '')]
     keep_only_tags=[dict(name='div', attrs={'class':['m_zwykly', 'gallery']}), dict(id='article')]
     remove_tags_after=dict(name='div', attrs={'class':'body'})
@@ -21,17 +22,18 @@ class BenchmarkPl(BasicNewsRecipe):
 
 
     def append_page(self, soup, appendtag):
-        nexturl = soup.find('span', attrs={'class':'next'})
-        while nexturl is not None:
-            nexturl= self.INDEX + nexturl.parent['href']
-            soup2 = self.index_to_soup(nexturl)
-            nexturl=soup2.find('span', attrs={'class':'next'})
+        nexturl = soup.find(attrs={'class':'next'})
+        while nexturl:
+            soup2 = self.index_to_soup(nexturl['href'])
+            nexturl = soup2.find(attrs={'class':'next'})
             pagetext = soup2.find(name='div', attrs={'class':'body'})
             appendtag.find('div', attrs={'class':'k_ster'}).extract()
             pos = len(appendtag.contents)
             appendtag.insert(pos, pagetext)
-        if appendtag.find('div', attrs={'class':'k_ster'}) is not None:
+        if appendtag.find('div', attrs={'class':'k_ster'}):
             appendtag.find('div', attrs={'class':'k_ster'}).extract()
+        for r in appendtag.findAll(attrs={'class':'changePage'}):
+            r.extract()
 
 
     def image_article(self, soup, appendtag):

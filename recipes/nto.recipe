@@ -1,0 +1,63 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class NTO(BasicNewsRecipe):
+    title          = u'Nowa Trybuna Opolska'
+    __author__        = 'fenuks'
+    description   = u'Nowa Trybuna Opolska - portal regionalny województwa opolskiego.'
+    category       = 'newspaper'
+    language       = 'pl'
+    encoding = 'iso-8859-2'
+    extra_css = 'ul {list-style: none; padding:0; margin:0;}'
+    INDEX = 'http://www.nto.pl'
+    masthead_url = INDEX + '/images/top_logo.png'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_empty_feeds = True
+    no_stylesheets = True
+    ignore_duplicate_articles = {'title', 'url'}
+
+    preprocess_regexps = [(re.compile(ur'Czytaj:.*?</a>', re.DOTALL), lambda match: ''), (re.compile(ur'Przeczytaj także:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''), 
+                          (re.compile(ur'Przeczytaj również:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''), (re.compile(ur'Zobacz też:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: '')]
+    
+    keep_only_tags = [dict(id=['article', 'cover', 'photostory'])]
+    remove_tags = [dict(id=['articleTags', 'articleMeta', 'boxReadIt', 'articleGalleries', 'articleConnections',
+                  'ForumArticleComments', 'articleRecommend', 'jedynkiLinks', 'articleGalleryConnections', 
+                  'photostoryConnections', 'articleEpaper', 'articlePoll', 'articleAlarm', 'articleByline']), 
+                  dict(attrs={'class':'articleFunctions'})]
+
+    feeds          = [(u'Wszystkie', u'http://www.nto.pl/rss.xml'), (u'Region', u'http://www.nto.pl/region.xml'), (u'Brzeg', u'http://www.nto.pl/brzeg.xml'), (u'G\u0142ubczyce', u'http://www.nto.pl/glubczyce.xml'), (u'K\u0119dzierzyn-Ko\u017ale', u'http://www.nto.pl/kedzierzynkozle.xml'), (u'Kluczbork', u'http://www.nto.pl/kluczbork.xml'), (u'Krapkowice', u'http://www.nto.pl/krapkowice.xml'), (u'Namys\u0142\xf3w', u'http://www.nto.pl/namyslow.xml'), (u'Nysa', u'http://www.nto.pl/nysa.xml'), (u'Olesno', u'http://www.nto.pl/olesno.xml'), (u'Opole', u'http://www.nto.pl/opole.xml'), (u'Prudnik', u'http://www.nto.pl/prudnik.xml'), (u'Strzelce Opolskie', u'http://www.nto.pl/strzelceopolskie.xml'), (u'Sport', u'http://www.nto.pl/sport.xml'), (u'Polska i \u015bwiat', u'http://www.nto.pl/apps/pbcs.dll/section?Category=RSS&channel=KRAJSWIAT'), (u'Zdrowy styl', u'http://www.nto.pl/apps/pbcs.dll/section?Category=rss_zdrowystyl'), (u'Reporta\u017c', u'http://www.nto.pl/reportaz.xml'), (u'Studia', u'http://www.nto.pl/akademicka.xml')]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup(self.INDEX + '/apps/pbcs.dll/section?Category=JEDYNKI')
+        nexturl = self.INDEX + soup.find(id='covers').find('a')['href']
+        soup = self.index_to_soup(nexturl)
+        self.cover_url = self.INDEX + soup.find(id='cover').find(name='img')['src']
+        return getattr(self, 'cover_url', self.cover_url)
+
+    def append_page(self, soup, appendtag):
+        tag = soup.find('span', attrs={'class':'photoNavigationPages'})
+        if tag:
+            number = int(tag.string.rpartition('/')[-1].replace('&nbsp;', ''))
+            baseurl = self.INDEX + soup.find(attrs={'class':'photoNavigationNext'})['href'][:-1]
+
+            for r in appendtag.findAll(attrs={'class':'photoNavigation'}):
+                r.extract()
+            for nr in range(2, number+1):
+                soup2 = self.index_to_soup(baseurl + str(nr))
+                pagetext = soup2.find(id='photoContainer')
+                if pagetext:
+                    pos = len(appendtag.contents)
+                    appendtag.insert(pos, pagetext)
+                pagetext = soup2.find(attrs={'class':'photoMeta'})
+                if pagetext:
+                    pos = len(appendtag.contents)
+                    appendtag.insert(pos, pagetext)
+                pagetext = soup2.find(attrs={'class':'photoStoryText'})
+                if pagetext:
+                    pos = len(appendtag.contents)
+                    appendtag.insert(pos, pagetext)
+
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        return soup

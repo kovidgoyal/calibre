@@ -1,0 +1,64 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class GazetaLubuska(BasicNewsRecipe):
+    title          = u'Gazeta Lubuska'
+    __author__        = 'fenuks'
+    description   = u'Gazeta Lubuska - portal regionalny województwa lubuskiego.'
+    category       = 'newspaper'
+    language       = 'pl'
+    encoding = 'iso-8859-2'
+    extra_css = 'ul {list-style: none; padding:0; margin:0;}'
+    INDEX = 'http://www.gazetalubuska.pl'
+    masthead_url = INDEX + '/images/top_logo.png'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_empty_feeds = True
+    no_stylesheets = True
+    ignore_duplicate_articles = {'title', 'url'}
+
+    preprocess_regexps = [(re.compile(ur'Czytaj:.*?</a>', re.DOTALL), lambda match: ''), (re.compile(ur'Przeczytaj także:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''), 
+                          (re.compile(ur'Przeczytaj również:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''), (re.compile(ur'Zobacz też:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: '')]
+    
+    keep_only_tags = [dict(id=['article', 'cover', 'photostory'])]
+    remove_tags = [dict(id=['articleTags', 'articleMeta', 'boxReadIt', 'articleGalleries', 'articleConnections',
+                  'ForumArticleComments', 'articleRecommend', 'jedynkiLinks', 'articleGalleryConnections', 
+                  'photostoryConnections', 'articleEpaper', 'articlePoll', 'articleAlarm', 'articleByline']), 
+                  dict(attrs={'class':'articleFunctions'})]
+
+    feeds          = [(u'Wszystkie', u'http://www.gazetalubuska.pl/rss.xml'), (u'Dreznenko', u'http://www.gazetalubuska.pl/drezdenko.xml'), (u'G\u0142og\xf3w', u'http://www.gazetalubuska.pl/glogow.xml'), (u'Gorz\xf3w Wielkopolski', u'http://www.gazetalubuska.pl/gorzow-wielkopolski.xml'), (u'Gubin', u'http://www.gazetalubuska.pl/gubin.xml'), (u'Kostrzyn', u'http://www.gazetalubuska.pl/kostrzyn.xml'), (u'Krosno Odrza\u0144skie', u'http://www.gazetalubuska.pl/krosno-odrzanskie.xml'), (u'Lubsko', u'http://www.gazetalubuska.pl/lubsko.xml'), (u'Mi\u0119dzych\xf3d', u'http://www.gazetalubuska.pl/miedzychod.xml'), (u'Mi\u0119dzyrzecz', u'http://www.gazetalubuska.pl/miedzyrzecz.xml'), (u'Nowa S\xf3l', u'http://www.gazetalubuska.pl/nowa-sol.xml'), (u'S\u0142ubice', u'http://www.gazetalubuska.pl/slubice.xml'), (u'Strzelce Kraje\u0144skie', u'http://www.gazetalubuska.pl/strzelce-krajenskie.xml'), (u'Sulech\xf3w', u'http://www.gazetalubuska.pl/sulechow.xml'), (u'Sul\u0119cin', u'http://www.gazetalubuska.pl/sulecin.xml'), (u'\u015awi\u0119bodzin', u'http://www.gazetalubuska.pl/swiebodzin.xml'), (u'Wolsztyn', u'http://www.gazetalubuska.pl/wolsztyn.xml'), (u'Wschowa', u'http://www.gazetalubuska.pl/wschowa.xml'), (u'Zielona G\xf3ra', u'http://www.gazetalubuska.pl/zielona-gora.xml'), (u'\u017baga\u0144', u'http://www.gazetalubuska.pl/zagan.xml'), (u'\u017bary', u'http://www.gazetalubuska.pl/zary.xml'), (u'Sport', u'http://www.gazetalubuska.pl/sport.xml'), (u'Auto', u'http://www.gazetalubuska.pl/auto.xml'), (u'Dom', u'http://www.gazetalubuska.pl/dom.xml'), (u'Praca', u'http://www.gazetalubuska.pl/praca.xml'), (u'Zdrowie', u'http://www.gazetalubuska.pl/zdrowie.xml')]
+
+
+    def get_cover_url(self):
+        soup = self.index_to_soup(self.INDEX + '/apps/pbcs.dll/section?Category=JEDYNKI')
+        nexturl = self.INDEX + soup.find(id='covers').find('a')['href']
+        soup = self.index_to_soup(nexturl)
+        self.cover_url = self.INDEX + soup.find(id='cover').find(name='img')['src']
+        return getattr(self, 'cover_url', self.cover_url)
+
+    def append_page(self, soup, appendtag):
+        tag = soup.find('span', attrs={'class':'photoNavigationPages'})
+        if tag:
+            number = int(tag.string.rpartition('/')[-1].replace('&nbsp;', ''))
+            baseurl = self.INDEX + soup.find(attrs={'class':'photoNavigationNext'})['href'][:-1]
+
+            for r in appendtag.findAll(attrs={'class':'photoNavigation'}):
+                r.extract()
+            for nr in range(2, number+1):
+                soup2 = self.index_to_soup(baseurl + str(nr))
+                pagetext = soup2.find(id='photoContainer')
+                if pagetext:
+                    pos = len(appendtag.contents)
+                    appendtag.insert(pos, pagetext)
+                pagetext = soup2.find(attrs={'class':'photoMeta'})
+                if pagetext:
+                    pos = len(appendtag.contents)
+                    appendtag.insert(pos, pagetext)
+                pagetext = soup2.find(attrs={'class':'photoStoryText'})
+                if pagetext:
+                    pos = len(appendtag.contents)
+                    appendtag.insert(pos, pagetext)
+
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        return soup

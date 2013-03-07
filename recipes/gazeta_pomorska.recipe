@@ -1,102 +1,91 @@
-#!/usr/bin/env  python
-
-# # Przed uzyciem przeczytaj komentarz w sekcji "feeds"
-
-__license__   = 'GPL v3'
-__copyright__ = u'2010, Richard z forum.eksiazki.org'
-'''pomorska.pl'''
-
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class GazetaPomorska(BasicNewsRecipe):
     title          = u'Gazeta Pomorska'
-    publisher      = u'Gazeta Pomorska'
-    description    = u'Kujawy i Pomorze - wiadomo\u015bci'
+    __author__        = 'Richard z forum.eksiazki.org, fenuks'
+    description   = u'Gazeta Pomorska - portal regionalny'
+    category       = 'newspaper'
     language       = 'pl'
-    __author__     = u'Richard z forum.eksiazki.org'
-                      # # (dziekuje t3d z forum.eksiazki.org za testy)
-    oldest_article = 2
-    max_articles_per_feed = 20
+    encoding = 'iso-8859-2'
+    extra_css = 'ul {list-style: none; padding:0; margin:0;}'
+    INDEX = 'http://www.pomorska.pl'
+    masthead_url = INDEX + '/images/top_logo.png'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_empty_feeds = True
     no_stylesheets = True
-    remove_javascript = True
-    preprocess_regexps     = [
-         (re.compile(r'<a href="http://maps.google[^>]*>[^<]*</a>\.*', re.DOTALL|re.IGNORECASE), lambda m: ''),
-         (re.compile(r'[<Bb >]*Poznaj opinie[^<]*[</Bb >]*[^<]*<a href[^>]*>[^<]*</a>\.*', re.DOTALL|re.IGNORECASE), lambda m: ''),
-         (re.compile(r'[<Bb >]*Przeczytaj[^<]*[</Bb >]*[^<]*<a href[^>]*>[^<]*</a>\.*', re.DOTALL|re.IGNORECASE), lambda m: ''),
-         (re.compile(r'[<Bb >]*Wi.cej informacji[^<]*[</Bb >]*[^<]*<a href[^>]*>[^<]*</a>\.*', re.DOTALL|re.IGNORECASE), lambda m: ''),
-         (re.compile(r'<a href[^>]*>[<Bb >]*Wideo[^<]*[</Bb >]*[^<]*</a>\.*', re.DOTALL|re.IGNORECASE), lambda m: ''),
-         (re.compile(r'<a href[^>]*>[<Bb >]*KLIKNIJ TUTAJ[^<]*[</Bb >]*[^<]*</a>\.*', re.DOTALL|re.IGNORECASE), lambda m: '')
-      ]
+    ignore_duplicate_articles = {'title', 'url'}
 
-    feeds = [
-# # Tutaj jest wymieniona lista kategorii jakie mozemy otrzymywac z Gazety
-# # Pomorskiej, po jednej kategorii w wierszu. Jesli na poczatku danego wiersza
-# # znajduje sie jeden znak "#", oznacza to ze kategoria jest zakomentowana
-# # i nie bedziemy jej otrzymywac. Jesli chcemy ja otrzymywac nalezy usunac
-# # znak # z jej wiersza.
-# # Jesli subskrybujemy wiecej niz jedna kategorie, na koncu wiersza z kazda
-# # kategoria musi sie znajdowac niezakomentowany przecinek, z wyjatkiem
-# # ostatniego wiersza - ma byc bez przecinka na koncu.
-# # Rekomendowane opcje wyboru kategorii:
-# # 1. PomorskaRSS - wiadomosci kazdego typu, lub
-# # 2. Region + wybrane miasta, lub
-# # 3. Wiadomosci tematyczne.
-# # Lista kategorii:
+    preprocess_regexps = [(re.compile(ur'Czytaj:.*?</a>', re.DOTALL), lambda match: ''), (re.compile(ur'Przeczytaj także:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''), 
+                          (re.compile(ur'Przeczytaj również:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''), (re.compile(ur'Zobacz też:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: '')]
 
-             # # PomorskaRSS - wiadomosci kazdego typu, zakomentuj znakiem "#"
-             # # przed odkomentowaniem wiadomosci wybranego typu:
-             (u'PomorskaRSS', u'http://www.pomorska.pl/rss.xml')
+    keep_only_tags = [dict(id=['article', 'cover', 'photostory'])]
+    remove_tags = [dict(id=['articleTags', 'articleMeta', 'boxReadIt', 'articleGalleries', 'articleConnections',
+                  'ForumArticleComments', 'articleRecommend', 'jedynkiLinks', 'articleGalleryConnections', 
+                  'photostoryConnections', 'articleEpaper', 'articlePoll', 'articleAlarm', 'articleByline']), 
+                  dict(attrs={'class':'articleFunctions'})]
 
-             # # wiadomosci z regionu nie przypisane do okreslonego miasta:
-             # (u'Region', u'http://www.pomorska.pl/region.xml'),
+    feeds          = [(u'Wszystkie', u'http://www.pomorska.pl/rss.xml'), 
+                      (u'Region', u'http://www.pomorska.pl/region.xml'), 
+                      (u'Bydgoszcz', u'http://www.pomorska.pl/bydgoszcz.xml'),
+                      (u'Nakło', u'http://www.pomorska.pl/naklo.xml'),
+                      (u'Koronowo', u'http://www.pomorska.pl/koronowo.xml'),
+                      (u'Solec Kujawski', u'http://www.pomorska.pl/soleckujawski.xml'),
+                      (u'Grudziądz', u'http://www.pomorska.pl/grudziadz.xml'),
+                      (u'Inowrocław', u'http://www.pomorska.pl/inowroclaw.xml'),
+                      (u'Toruń', u'http://www.pomorska.pl/torun.xml'),
+                      (u'Włocławek', u'http://www.pomorska.pl/wloclawek.xml'),
+                      (u'Aleksandrów Kujawski', u'http://www.pomorska.pl/aleksandrow.xml'),
+                      (u'Brodnica', u'http://www.pomorska.pl/brodnica.xml'),
+                      (u'Chełmno', u'http://www.pomorska.pl/chelmno.xml'),
+                      (u'Chojnice', u'http://www.pomorska.pl/chojnice.xml'),
+                      (u'Ciechocinek', u'http://www.pomorska.pl/ciechocinek.xml'),
+                      (u'Golub-Dobrzyń', u'http://www.pomorska.pl/golubdobrzyn.xml'),
+                      (u'Mogilno', u'http://www.pomorska.pl/mogilno.xml'),
+                      (u'Radziejów', u'http://www.pomorska.pl/radziejow.xml'),
+                      (u'Rypin', u'http://www.pomorska.pl/rypin.xml'),
+                      (u'Sępólno', u'http://www.pomorska.pl/sepolno.xml'),
+                      (u'Świecie', u'http://www.pomorska.pl/swiecie.xml'),
+                      (u'Tuchola', u'http://www.pomorska.pl/tuchola.xml'),
+                      (u'Żnin', u'http://www.pomorska.pl/znin.xml'),
+                      (u'Sport', u'http://www.pomorska.pl/sport.xml'), 
+                      (u'Zdrowie', u'http://www.pomorska.pl/zdrowie.xml'), 
+                      (u'Auto', u'http://www.pomorska.pl/moto.xml'), 
+                      (u'Dom', u'http://www.pomorska.pl/dom.xml'), 
+                     #(u'Reporta\u017c', u'http://www.pomorska.pl/reportaz.xml'), 
+                      (u'Gospodarka', u'http://www.pomorska.pl/gospodarka.xml')]
 
-             # # wiadomosci przypisane do miast:
-             # (u'Bydgoszcz', u'http://www.pomorska.pl/bydgoszcz.xml'),
-             # (u'Nak\u0142o', u'http://www.pomorska.pl/naklo.xml'),
-             # (u'Koronowo', u'http://www.pomorska.pl/koronowo.xml'),
-             # (u'Solec Kujawski', u'http://www.pomorska.pl/soleckujawski.xml'),
-             # (u'Grudzi\u0105dz', u'http://www.pomorska.pl/grudziadz.xml'),
-             # (u'Inowroc\u0142aw', u'http://www.pomorska.pl/inowroclaw.xml'),
-             # (u'Toru\u0144', u'http://www.pomorska.pl/torun.xml'),
-             # (u'W\u0142oc\u0142awek', u'http://www.pomorska.pl/wloclawek.xml'),
-             # (u'Aleksandr\u00f3w Kujawski', u'http://www.pomorska.pl/aleksandrow.xml'),
-             # (u'Brodnica', u'http://www.pomorska.pl/brodnica.xml'),
-             # (u'Che\u0142mno', u'http://www.pomorska.pl/chelmno.xml'),
-             # (u'Chojnice', u'http://www.pomorska.pl/chojnice.xml'),
-             # (u'Ciechocinek', u'http://www.pomorska.pl/ciechocinek.xml'),
-             # (u'Golub Dobrzy\u0144', u'http://www.pomorska.pl/golubdobrzyn.xml'),
-             # (u'Mogilno', u'http://www.pomorska.pl/mogilno.xml'),
-             # (u'Radziej\u00f3w', u'http://www.pomorska.pl/radziejow.xml'),
-             # (u'Rypin', u'http://www.pomorska.pl/rypin.xml'),
-             # (u'S\u0119p\u00f3lno', u'http://www.pomorska.pl/sepolno.xml'),
-             # (u'\u015awiecie', u'http://www.pomorska.pl/swiecie.xml'),
-             # (u'Tuchola', u'http://www.pomorska.pl/tuchola.xml'),
-             # (u'\u017bnin', u'http://www.pomorska.pl/znin.xml')
+    def get_cover_url(self):
+        soup = self.index_to_soup(self.INDEX + '/apps/pbcs.dll/section?Category=JEDYNKI')
+        nexturl = self.INDEX + soup.find(id='covers').find('a')['href']
+        soup = self.index_to_soup(nexturl)
+        self.cover_url = self.INDEX + soup.find(id='cover').find(name='img')['src']
+        return getattr(self, 'cover_url', self.cover_url)
 
-             # # wiadomosci tematyczne (redundancja z region/miasta):
-             # (u'Sport', u'http://www.pomorska.pl/sport.xml'),
-             # (u'Zdrowie', u'http://www.pomorska.pl/zdrowie.xml'),
-             # (u'Auto', u'http://www.pomorska.pl/moto.xml'),
-             # (u'Dom', u'http://www.pomorska.pl/dom.xml'),
-             # (u'Reporta\u017c', u'http://www.pomorska.pl/reportaz.xml'),
-             # (u'Gospodarka', u'http://www.pomorska.pl/gospodarka.xml')
-           ]
+    def append_page(self, soup, appendtag):
+        tag = soup.find('span', attrs={'class':'photoNavigationPages'})
+        if tag:
+            number = int(tag.string.rpartition('/')[-1].replace('&nbsp;', ''))
+            baseurl = self.INDEX + soup.find(attrs={'class':'photoNavigationNext'})['href'][:-1]
 
-    keep_only_tags = [dict(name='div', attrs={'id':'article'})]
+            for r in appendtag.findAll(attrs={'class':'photoNavigation'}):
+                r.extract()
+            for nr in range(2, number+1):
+                soup2 = self.index_to_soup(baseurl + str(nr))
+                pagetext = soup2.find(id='photoContainer')
+                if pagetext:
+                    pos = len(appendtag.contents)
+                    appendtag.insert(pos, pagetext)
+                pagetext = soup2.find(attrs={'class':'photoMeta'})
+                if pagetext:
+                    pos = len(appendtag.contents)
+                    appendtag.insert(pos, pagetext)
+                pagetext = soup2.find(attrs={'class':'photoStoryText'})
+                if pagetext:
+                    pos = len(appendtag.contents)
+                    appendtag.insert(pos, pagetext)
 
-    remove_tags = [
-        dict(name='p', attrs={'id':'articleTags'}),
-        dict(name='div', attrs={'id':'articleEpaper'}),
-        dict(name='div', attrs={'id':'articleConnections'}),
-        dict(name='div', attrs={'class':'articleFacts'}),
-        dict(name='div', attrs={'id':'articleExternalLink'}),
-        dict(name='div', attrs={'id':'articleMultimedia'}),
-        dict(name='div', attrs={'id':'articleGalleries'}),
-        dict(name='div', attrs={'id':'articleAlarm'}),
-        dict(name='div', attrs={'id':'adholder_srodek1'}),
-        dict(name='div', attrs={'id':'articleVideo'}),
-        dict(name='a', attrs={'name':'fb_share'})]
-
-    extra_css = '''h1 { font-size: 1.4em; }
-                        h2 { font-size: 1.0em; }'''
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        return soup
