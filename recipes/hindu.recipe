@@ -41,13 +41,16 @@ class TheHindu(BasicNewsRecipe):
             if current_section and x.get('class', '') == 'tpaper':
                 a = x.find('a', href=True)
                 if a is not None:
+                    title = self.tag_to_string(a)
+                    self.log('\tFound article:', title)
                     current_articles.append({'url':a['href']+'?css=print',
-                        'title':self.tag_to_string(a), 'date': '',
+                        'title':title, 'date': '',
                         'description':''})
             if x.name == 'h3':
                 if current_section and current_articles:
                     feeds.append((current_section, current_articles))
                 current_section = self.tag_to_string(x)
+                self.log('Found section:', current_section)
                 current_articles = []
         return feeds
 
