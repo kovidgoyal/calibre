@@ -203,7 +203,19 @@ if False:
     _('pm')
     _('&Copy')
     _('Select All')
+    _('&Select All')
     _('Copy &Link location')
+    _('&Undo')
+    _('&Redo')
+    _('Cu&t')
+    _('&Paste')
+    _('Paste and Match Style')
+    _('Directions')
+    _('Left to Right')
+    _('Right to Left')
+    _('Fonts')
+    _('&Step up')
+    _('Step &down')
 
 _lcase_map = {}
 for k in _extra_lang_codes:

@@ -168,7 +168,7 @@ class AuthorsTable(ManyToManyTable):
         self.asort_map  = {}
         for row in db.conn.execute(
                 'SELECT id, name, sort, link FROM authors'):
-            self.id_map[row[0]] = row[1]
+            self.id_map[row[0]] = self.unserialize(row[1])
             self.asort_map[row[0]] = (row[2] if row[2] else
                     author_to_author_sort(row[1]))
             self.alink_map[row[0]] = row[3]

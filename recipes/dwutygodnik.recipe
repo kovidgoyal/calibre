@@ -6,46 +6,51 @@ __copyright__ = u'Łukasz Grąbczewski 2011'
 __version__ = '2.0'
 
 import re, os
+from calibre import walk
+from calibre.utils.zipfile import ZipFile
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.ebooks.conversion.cli import main
+from calibre.web.feeds.news import BasicNewsRecipe
 
 class dwutygodnik(BasicNewsRecipe):
-	__author__ = u'Łukasz Grąbczewski'
-	title = 'Dwutygodnik'
-	language = 'pl_PL'
-	publisher = 'Narodowy Instytut Audiowizualny'
-	publication_type = 'magazine'
-	description = u'Strona Kultury: literatura, teatr, film, sztuka, muzyka, felietony, rozmowy'
-	
-	conversion_options = {
-		'authors' : 'Dwutygodnik.com'
-		,'publisher' : publisher
-		,'language' : language
-		,'comments' : description
-		,'no_default_epub_cover' : True
-		,'preserve_cover_aspect_ratio': True
-	}
+    __author__ = u'Łukasz Grąbczewski'
+    title = 'Dwutygodnik'
+    language = 'pl'
+    publisher = 'Narodowy Instytut Audiowizualny'
+    publication_type = 'magazine'
+    description = u'Strona Kultury: literatura, teatr, film, sztuka, muzyka, felietony, rozmowy'
 
-	def build_index(self):
-		browser = self.get_browser()
-		rc = browser.open('http://www.dwutygodnik.com/')
+    conversion_options = {
+        'authors' : 'Dwutygodnik.com'
+        ,'publisher' : publisher
+        ,'language' : language
+        ,'comments' : description
+        ,'no_default_epub_cover' : True
+        ,'preserve_cover_aspect_ratio': True
+    }
 
-		# find the link
-		epublink = browser.find_link(text_regex=re.compile('Wersja ePub'))
+    def build_index(self):
+        browser = self.get_browser()
+        browser.open('http://www.dwutygodnik.com/')
 
-		# download ebook
-		self.report_progress(0,_('Downloading ePUB'))
-		response = browser.follow_link(epublink)
-		book_file = PersistentTemporaryFile(suffix='.epub')
-		book_file.write(response.read())
-		book_file.close()
+        # find the link
+        epublink = browser.find_link(text_regex=re.compile('Wersja ePub'))
 
-		# convert
-		self.report_progress(0.2,_('Converting to OEB'))
-		oebdir = self.output_dir + '/INPUT/'
-		main(['ebook-convert', book_file.name, oebdir])
+        # download ebook
+        self.report_progress(0,_('Downloading ePUB'))
+        response = browser.follow_link(epublink)
+        book_file = PersistentTemporaryFile(suffix='.epub')
+        book_file.write(response.read())
+        book_file.close()
 
-		# feed calibre
-		index = os.path.join(oebdir, 'content.opf')
-		
-		return index
+        # convert
+        self.report_progress(0.2,_('Converting to OEB'))
+        oeb = self.output_dir + '/INPUT/'
+        if not os.path.exists(oeb):
+            os.makedirs(oeb)
+        with ZipFile(book_file.name) as f:
+            f.extractall(path=oeb)
+
+        for f in walk(oeb):
+            if f.endswith('.opf'):
+                return f
+

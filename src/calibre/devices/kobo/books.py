@@ -62,6 +62,7 @@ class Book(Book_):
         self.kobo_collections   = []
         self.kobo_series        = None
         self.kobo_series_number = None
+        self.can_put_on_shelves = True
 
         if thumbnail_name is not None:
             self.thumbnail = ImageWrapper(thumbnail_name)
@@ -141,7 +142,7 @@ class KTCollectionsBookList(CollectionsBookList):
                     if show_debug:
                         debug_print("KTCollectionsBookList:get_collections - adding book.device_collections", book.device_collections)
                 # If the book is not in the current library, we don't want to use the metadtaa for the collections
-                elif book.application_id is None:
+                elif book.application_id is None or not book.can_put_on_shelves:
 #                    debug_print("KTCollectionsBookList:get_collections - Book not in current library")
                     continue
                 else:

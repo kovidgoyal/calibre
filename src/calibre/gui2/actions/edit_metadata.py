@@ -23,9 +23,37 @@ from calibre.db.errors import NoSuchFormat
 class EditMetadataAction(InterfaceAction):
 
     name = 'Edit Metadata'
-    action_spec = (_('Edit metadata'), 'edit_input.png', None, _('E'))
+    action_spec = (_('Edit metadata'), 'edit_input.png', _('Change the title/author/cover etc. of books'), _('E'))
     action_type = 'current'
     action_add_menu = True
+
+    accepts_drops = True
+
+    def accept_enter_event(self, event, mime_data):
+        if mime_data.hasFormat("application/calibre+from_library"):
+            return True
+        return False
+
+    def accept_drag_move_event(self, event, mime_data):
+        if mime_data.hasFormat("application/calibre+from_library"):
+            return True
+        return False
+
+    def drop_event(self, event, mime_data):
+        mime = 'application/calibre+from_library'
+        if mime_data.hasFormat(mime):
+            self.dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+            QTimer.singleShot(1, self.do_drop)
+            return True
+        return False
+
+    def do_drop(self):
+        book_ids = self.dropped_ids
+        del self.dropped_ids
+        if book_ids:
+            db = self.gui.library_view.model().db
+            rows = [db.row(i) for i in book_ids]
+            self.edit_metadata_for(rows, book_ids)
 
     def genesis(self):
         md = self.qaction.menu()
@@ -186,18 +214,23 @@ class EditMetadataAction(InterfaceAction):
         Edit metadata of selected books in library.
         '''
         rows = self.gui.library_view.selectionModel().selectedRows()
-        previous = self.gui.library_view.currentIndex()
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot edit metadata'),
                              _('No books selected'))
             d.exec_()
             return
-
-        if bulk or (bulk is None and len(rows) > 1):
-            return self.edit_bulk_metadata(checked)
-
         row_list = [r.row() for r in rows]
+        m = self.gui.library_view.model()
+        ids = [m.id(r) for r in rows]
+        self.edit_metadata_for(row_list, ids, bulk=bulk)
+
+    def edit_metadata_for(self, rows, book_ids, bulk=None):
+        previous = self.gui.library_view.currentIndex()
+        if bulk or (bulk is None and len(rows) > 1):
+            return self.do_edit_bulk_metadata(rows, book_ids)
+
         current_row = 0
+        row_list = rows
 
         if len(row_list) == 1:
             cr = row_list[0]
@@ -242,7 +275,6 @@ class EditMetadataAction(InterfaceAction):
             db = self.gui.library_view.model().db
             view.view_format(db.row(id_), fmt)
 
-
     def edit_bulk_metadata(self, checked):
         '''
         Edit metadata of selected books in library in bulk.
@@ -256,6 +288,9 @@ class EditMetadataAction(InterfaceAction):
                     _('No books selected'))
             d.exec_()
             return
+        self.do_edit_bulk_metadata(rows, ids)
+
+    def do_edit_bulk_metadata(self, rows, book_ids):
         # Prevent the TagView from updating due to signals from the database
         self.gui.tags_view.blockSignals(True)
         changed = False
@@ -278,7 +313,7 @@ class EditMetadataAction(InterfaceAction):
             self.gui.tags_view.recount()
             if self.gui.cover_flow:
                 self.gui.cover_flow.dataChanged()
-            self.gui.library_view.select_rows(ids)
+            self.gui.library_view.select_rows(book_ids)
 
     # Merge books {{{
     def merge_books(self, safe_merge=False, merge_only_formats=False):

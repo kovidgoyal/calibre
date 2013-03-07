@@ -17,7 +17,7 @@ from calibre.constants import DEBUG, isosx
 class PreferencesAction(InterfaceAction):
 
     name = 'Preferences'
-    action_spec = (_('Preferences'), 'config.png', None, _('Ctrl+P'))
+    action_spec = (_('Preferences'), 'config.png', _('Configure calibre'), _('Ctrl+P'))
     action_add_menu = True
     action_menu_clone_qaction = _('Change calibre behavior')
 

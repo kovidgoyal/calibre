@@ -8,7 +8,6 @@ hatalska.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class hatalska(BasicNewsRecipe):
     title          = u'Hatalska'

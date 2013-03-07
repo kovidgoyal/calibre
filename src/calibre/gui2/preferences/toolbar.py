@@ -28,9 +28,10 @@ class BaseModel(QAbstractListModel):
 
     def name_to_action(self, name, gui):
         if name == 'Donate':
-            return FakeAction('Donate', _('Donate'), 'donate.png',
-                    dont_add_to=frozenset(['context-menu',
-                        'context-menu-device']))
+            return FakeAction(
+                'Donate', _('Donate'), 'donate.png', tooltip=
+                _('Donate to support the development of calibre'),
+                dont_add_to=frozenset(['context-menu', 'context-menu-device']))
         if name == 'Location Manager':
             return FakeAction('Location Manager', _('Location Manager'), 'reader.png',
                     _('Switch between library and device views'),
@@ -247,6 +248,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.remove_action_button.clicked.connect(self.remove_action)
         self.action_up_button.clicked.connect(partial(self.move, -1))
         self.action_down_button.clicked.connect(partial(self.move, 1))
+        self.all_actions.setMouseTracking(True)
+        self.current_actions.setMouseTracking(True)
+        self.all_actions.entered.connect(self.all_entered)
+        self.current_actions.entered.connect(self.current_entered)
+
+    def all_entered(self, index):
+        tt = self.all_actions.model().data(index, Qt.ToolTipRole).toString()
+        self.help_text.setText(tt)
+
+    def current_entered(self, index):
+       tt = self.current_actions.model().data(index, Qt.ToolTipRole).toString()
+       self.help_text.setText(tt)
 
     def what_changed(self, idx):
         key = unicode(self.what.itemData(idx).toString())
@@ -264,7 +277,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         names = self.all_actions.model().names(x)
         if names:
             not_added = self.current_actions.model().add(names)
-            ns = set([x.name for x in not_added])
+            ns = set([y.name for y in not_added])
             added = set(names) - ns
             self.all_actions.model().remove(x, added)
             if not_added:
@@ -283,7 +296,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         names = self.current_actions.model().names(x)
         if names:
             not_removed = self.current_actions.model().remove(x)
-            ns = set([x.name for x in not_removed])
+            ns = set([y.name for y in not_removed])
             removed = set(names) - ns
             self.all_actions.model().add(removed)
             if not_removed:

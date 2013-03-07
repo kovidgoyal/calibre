@@ -5,46 +5,51 @@ __license__ = 'GPL v3'
 __copyright__ = u'Łukasz Grąbczewski 2011-2013'
 __version__ = '2.0'
 
-import re, zipfile, os
+import re, os
+from calibre import walk
+from calibre.utils.zipfile import ZipFile
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.ebooks.conversion.cli import main
+from calibre.web.feeds.news import BasicNewsRecipe
 
 class jazzpress(BasicNewsRecipe):
-	__author__ = u'Łukasz Grąbczewski'
-	title = 'JazzPRESS'
-	language = 'pl'
-	publisher = 'Fundacja Popularyzacji Muzyki Jazzowej EuroJAZZ'
-	publication_type = 'magazine'
-	description = u'Internetowa gazeta poświęcona muzyce improwizowanej'
-	
-	conversion_options = {
-		'authors' : 'Fundacja Popularyzacji Muzyki Jazzowej EuroJAZZ'
-		,'publisher' : publisher
-		,'language' : language
-		,'preserve_cover_aspect_ratio': True
-		,'remove_first_image': True
-	}
-	
-	def build_index(self):
-		browser = self.get_browser()
-		rc = browser.open('http://radiojazz.fm/')
+    __author__ = u'Łukasz Grąbczewski'
+    title = 'JazzPRESS'
+    language = 'pl'
+    publisher = 'Fundacja Popularyzacji Muzyki Jazzowej EuroJAZZ'
+    publication_type = 'magazine'
+    description = u'Internetowa gazeta poświęcona muzyce improwizowanej'
 
-		# find the link
-		epublink = browser.find_link(url_regex=re.compile('e_jazzpress\d\d\d\d\_epub'))
+    conversion_options = {
+        'authors' : 'Fundacja Popularyzacji Muzyki Jazzowej EuroJAZZ'
+        ,'publisher' : publisher
+        ,'language' : language
+        ,'preserve_cover_aspect_ratio': True
+        ,'remove_first_image': True
+    }
 
-		# download ebook
-		self.report_progress(0,_('Downloading ePUB'))
-		response = browser.follow_link(epublink)
-		book_file = PersistentTemporaryFile(suffix='.epub')
-		book_file.write(response.read())
-		book_file.close()
+    def build_index(self):
+        browser = self.get_browser()
+        browser.open('http://radiojazz.fm/')
 
-		# convert
-		self.report_progress(0.2,_('Converting to OEB'))
-		oebdir = self.output_dir + '/INPUT/'
-		main(['ebook-convert', book_file.name, oebdir])
+        # find the link
+        epublink = browser.find_link(url_regex=re.compile('e_jazzpress\d\d\d\d\_epub'))
 
-		# feed calibre
-		index = os.path.join(oebdir, 'content.opf')
-		
-		return index
+        # download ebook
+        self.report_progress(0,_('Downloading ePUB'))
+        response = browser.follow_link(epublink)
+        book_file = PersistentTemporaryFile(suffix='.epub')
+        book_file.write(response.read())
+        book_file.close()
+
+        # convert
+        self.report_progress(0.2,_('Converting to OEB'))
+        oeb = self.output_dir + '/INPUT/'
+        if not os.path.exists(oeb):
+            os.makedirs(oeb)
+        with ZipFile(book_file.name) as f:
+            f.extractall(path=oeb)
+
+        for f in walk(oeb):
+            if f.endswith('.opf'):
+                return f    # convert
+

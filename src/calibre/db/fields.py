@@ -402,6 +402,13 @@ class AuthorsField(ManyToManyField):
     def category_sort_value(self, item_id, book_ids, lang_map):
         return self.table.asort_map[item_id]
 
+    def db_author_sort_for_book(self, book_id):
+        return self.author_sort_field.for_book(book_id)
+
+    def author_sort_for_book(self, book_id):
+        return ' & '.join(self.table.asort_map[k] for k in
+                          self.table.book_col_map[book_id])
+
 class FormatsField(ManyToManyField):
 
     def for_book(self, book_id, default_value=None):

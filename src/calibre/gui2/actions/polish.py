@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import os, weakref, shutil, textwrap
 from collections import OrderedDict
 from functools import partial
+from future_builtins import map
 
 from PyQt4.Qt import (QDialog, QGridLayout, QIcon, QCheckBox, QLabel, QFrame,
                       QApplication, QDialogButtonBox, Qt, QSize, QSpacerItem,
@@ -364,9 +365,35 @@ class Report(QDialog): # {{{
 class PolishAction(InterfaceAction):
 
     name = 'Polish Books'
-    action_spec = (_('Polish books'), 'polish.png', None, _('P'))
+    action_spec = (_('Polish books'), 'polish.png',
+                   _('Apply the shine of perfection to your books'), _('P'))
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
+    accepts_drops = True
+
+    def accept_enter_event(self, event, mime_data):
+        if mime_data.hasFormat("application/calibre+from_library"):
+            return True
+        return False
+
+    def accept_drag_move_event(self, event, mime_data):
+        if mime_data.hasFormat("application/calibre+from_library"):
+            return True
+        return False
+
+    def drop_event(self, event, mime_data):
+        mime = 'application/calibre+from_library'
+        if mime_data.hasFormat(mime):
+            self.dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+            QTimer.singleShot(1, self.do_drop)
+            return True
+        return False
+
+    def do_drop(self):
+        book_id_map = self.get_supported_books(self.dropped_ids)
+        del self.dropped_ids
+        if book_id_map:
+            self.do_polish(book_id_map)
 
     def genesis(self):
         self.qaction.triggered.connect(self.polish_books)
@@ -377,7 +404,6 @@ class PolishAction(InterfaceAction):
         self.qaction.setEnabled(enabled)
 
     def get_books_for_polishing(self):
-        from calibre.ebooks.oeb.polish.main import SUPPORTED
         rows = [r.row() for r in
                 self.gui.library_view.selectionModel().selectedRows()]
         if not rows or len(rows) == 0:
@@ -387,11 +413,16 @@ class PolishAction(InterfaceAction):
             return None
         db = self.gui.library_view.model().db
         ans = (db.id(r) for r in rows)
+        return self.get_supported_books(ans)
+
+    def get_supported_books(self, book_ids):
+        from calibre.ebooks.oeb.polish.main import SUPPORTED
+        db = self.gui.library_view.model().db
         supported = set(SUPPORTED)
         for x in SUPPORTED:
             supported.add('ORIGINAL_'+x)
         ans = [(x, set( (db.formats(x, index_is_id=True) or '').split(',') )
-               .intersection(supported)) for x in ans]
+               .intersection(supported)) for x in book_ids]
         ans = [x for x in ans if x[1]]
         if not ans:
             error_dialog(self.gui, _('Cannot polish'),
@@ -409,6 +440,9 @@ class PolishAction(InterfaceAction):
         book_id_map = self.get_books_for_polishing()
         if not book_id_map:
             return
+        self.do_polish(book_id_map)
+
+    def do_polish(self, book_id_map):
         d = Polish(self.gui.library_view.model().db, book_id_map, parent=self.gui)
         if d.exec_() == d.Accepted and d.jobs:
             show_reports = bool(d.show_reports.isChecked())
