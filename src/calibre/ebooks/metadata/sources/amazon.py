@@ -452,7 +452,7 @@ class Worker(Thread): # Get details {{{
 
 
     def parse_cover(self, root):
-        imgs = root.xpath('//img[(@id="prodImage" or @id="original-main-image") and @src]')
+        imgs = root.xpath('//img[(@id="prodImage" or @id="original-main-image" or @id="main-image") and @src]')
         if imgs:
             src = imgs[0].get('src')
             if '/no-image-avail' not in src:
@@ -894,6 +894,13 @@ if __name__ == '__main__': # tests {{{
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
             isbn_test, title_test, authors_test, comments_test, series_test)
     com_tests = [ # {{{
+
+            ( # + in title and uses id="main-image" for cover
+             {'title':'C++ Concurrency in Action'},
+             [title_test('C++ Concurrency in Action: Practical Multithreading',
+                         exact=True),
+              ]
+             ),
 
             ( # Series
                 {'identifiers':{'amazon':'0756407117'}},
