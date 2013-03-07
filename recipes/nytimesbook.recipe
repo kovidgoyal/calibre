@@ -4,6 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class NewYorkTimesBookReview(BasicNewsRecipe):
     title          = u'New York Times Book Review'
     language       = 'en'
+    description    = 'The New York Times Sunday Book Review. Best downloaded on Fridays to avoid the ads that the New York Times shows of the first few days of the week.'
     __author__     = 'Kovid Goyal'
 
 
