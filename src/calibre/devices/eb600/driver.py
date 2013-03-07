@@ -51,8 +51,9 @@ class EB600(USBMS):
 
 class TOLINO(EB600):
 
-    name = 'Tolino Device Interface'
-    gui_name = 'Tolino'
+    name = 'Tolino Shine Device Interface'
+    gui_name = 'Tolino Shine'
+    description    = _('Communicate with the Tolino Shine reader.')
     FORMATS = ['epub', 'pdf', 'txt']
     BCD         = [0x226]
 
