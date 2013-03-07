@@ -10,13 +10,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-03-06 01:04+0000\n"
+"PO-Revision-Date: 2013-03-06 16:59+0000\n"
 "Last-Translator: pedro jorge oliveira <pedrojorgeoliveira93@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-03-06 05:35+0000\n"
+"X-Launchpad-Export-Date: 2013-03-07 04:56+0000\n"
 "X-Generator: Launchpad (build 16514)\n"
 "Language: pt\n"
 
@@ -970,7 +970,7 @@ msgstr "Altaico ; Do sul"
 
 #. name for alu
 msgid "'Are'are"
-msgstr ""
+msgstr "'Are'are"
 
 #. name for alw
 msgid "Alaba-K’abeena"
@@ -1018,7 +1018,7 @@ msgstr "Amárico"
 
 #. name for ami
 msgid "Amis"
-msgstr ""
+msgstr "Amis"
 
 #. name for amj
 msgid "Amdang"
@@ -1078,11 +1078,11 @@ msgstr ""
 
 #. name for amx
 msgid "Anmatyerre"
-msgstr ""
+msgstr "Anmatyerre"
 
 #. name for amy
 msgid "Ami"
-msgstr ""
+msgstr "Ami"
 
 #. name for amz
 msgid "Atampaya"
@@ -1090,7 +1090,7 @@ msgstr ""
 
 #. name for ana
 msgid "Andaqui"
-msgstr ""
+msgstr "Andaqui"
 
 #. name for anb
 msgid "Andoa"
@@ -20186,7 +20186,7 @@ msgstr ""
 
 #. name for pag
 msgid "Pangasinan"
-msgstr ""
+msgstr "Pangasinense"
 
 #. name for pah
 msgid "Tenharim"
@@ -22070,7 +22070,7 @@ msgstr ""
 
 #. name for rmc
 msgid "Romani; Carpathian"
-msgstr ""
+msgstr "Romani dos Cárpatos"
 
 #. name for rmd
 msgid "Danish; Traveller"
@@ -22082,7 +22082,7 @@ msgstr ""
 
 #. name for rmf
 msgid "Romani; Kalo Finnish"
-msgstr ""
+msgstr "Romani; Kalo-Finlandês"
 
 #. name for rmg
 msgid "Norwegian; Traveller"
@@ -22102,7 +22102,7 @@ msgstr ""
 
 #. name for rml
 msgid "Romani; Baltic"
-msgstr ""
+msgstr "RomanI; báltico"
 
 #. name for rmm
 msgid "Roma"
@@ -22110,11 +22110,11 @@ msgstr ""
 
 #. name for rmn
 msgid "Romani; Balkan"
-msgstr ""
+msgstr "Romani; balcânico"
 
 #. name for rmo
 msgid "Romani; Sinte"
-msgstr ""
+msgstr "Romani; Sinte"
 
 #. name for rmp
 msgid "Rempi"
@@ -22134,7 +22134,7 @@ msgstr ""
 
 #. name for rmu
 msgid "Romani; Tavringer"
-msgstr ""
+msgstr "Romani; Tavringer"
 
 #. name for rmv
 msgid "Romanova"
@@ -22142,7 +22142,7 @@ msgstr ""
 
 #. name for rmw
 msgid "Romani; Welsh"
-msgstr ""
+msgstr "Romani; Gales"
 
 #. name for rmx
 msgid "Romam"
@@ -22150,7 +22150,7 @@ msgstr ""
 
 #. name for rmy
 msgid "Romani; Vlax"
-msgstr ""
+msgstr "Romani; Vlax"
 
 #. name for rmz
 msgid "Marma"
