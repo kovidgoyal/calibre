@@ -22,6 +22,12 @@ calibre GUI and the calibre viewer in debug mode.
 It also contains interfaces to various bits of calibre that do not have
 dedicated command line tools, such as font subsetting, tweaking ebooks and so
 on.
+
+You can also use %prog to run standalone scripts. To do that use it like this:
+
+    %prog mysrcipt.py -- --option1 --option2 file1 file2 ...
+
+Everything after the -- is passed to the script.
 ''')
     parser.add_option('-c', '--command', help='Run python code.')
     parser.add_option('-e', '--exec-file', help='Run the python code in file.')
