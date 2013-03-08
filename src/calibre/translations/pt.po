@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-05 04:46+0000\n"
-"PO-Revision-Date: 2013-03-06 10:35+0000\n"
-"Last-Translator: Tiago S. <Unknown>\n"
+"PO-Revision-Date: 2013-03-08 01:51+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-07 04:55+0000\n"
-"X-Generator: Launchpad (build 16514)\n"
+"X-Launchpad-Export-Date: 2013-03-08 04:36+0000\n"
+"X-Generator: Launchpad (build 16523)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -2686,7 +2686,7 @@ msgstr "ID da Revisão USB (em hexadecimal)"
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
 msgid "Windows main memory vendor string"
-msgstr ""
+msgstr "Texto do fabricante da memória principal do Windows"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:48
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:52
@@ -2703,17 +2703,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:81
 msgid "Windows main memory ID string"
-msgstr ""
+msgstr "Texto do Identificador da memória principal do Windows"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:84
 msgid "Windows card A vendor string"
-msgstr ""
+msgstr "Frase do fabricante do cartão Windows A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:86
 msgid "Windows card A ID string"
-msgstr ""
+msgstr "Texto do identificador do cartão Windows A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
@@ -3748,6 +3748,15 @@ msgid ""
 "* markdown: Processing using markdown formatting. To learn more about "
 "markdown see"
 msgstr ""
+"Formatação usada no documento.* auto: Decide automaticamente qual o "
+"processador de formatação a usar.\n"
+"* plain: Não processa a formatação de documento. Tudo é um único parágrafo, "
+"e nenhum estilo é aplicado.\n"
+"* heuristic: Processa usando heurística para determinar formatações como "
+"cabeçalhos de capítulo e texto em itálico.\n"
+"* textile: Processa usando formatação textil.\n"
+"* markdown: Processa usando formatação de remarcação. Para aprender mais "
+"sobre remarcação, ver"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_input.py:45
 msgid ""
@@ -3831,6 +3840,11 @@ msgid ""
 "set and default to the color displayed by the reader (generally this is "
 "black)."
 msgstr ""
+"Não remova a cor da fonte da saída. Isto só é útil quando o tipo da "
+"formatação da saída selecionado é textile. Textile é o único formato que "
+"suporta definir fontes coloridas. Se esta opção não for especificada, a cor "
+"da fonte será escolhida como a cor padrão usada pelo leitor (geralmente é "
+"preto)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:106
 msgid "Level of verbosity. Specify multiple times for greater verbosity."
@@ -3943,6 +3957,12 @@ msgid ""
 "to remove fonts from the input document. Note that font embedding only works "
 "with some output formats, principally EPUB and AZW3."
 msgstr ""
+"Embutir a família de fontes especificada no livro. Isto especifica a fonte "
+"base a ser utilizada pelo livro. Se a documento de entrada especificar as "
+"suas próprias fontes, elas poderão sobrescrever a fonte base. Pode usar a "
+"opção de informação de estilos de filtro para remover fontes do documento de "
+"entrada. Note que a fonte embutida só funciona com certos formatos de saída, "
+"principalmente com EPUB e AZW3."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:210
 msgid ""
@@ -3951,6 +3971,10 @@ msgid ""
 "Useful if you are embedding a particularly large font with lots of unused "
 "glyphs."
 msgstr ""
+"Subdividir todas as fontes embutidas. Todas as fontes embutidas serão "
+"reduzidas para contêr somente os símbolos contidos no documento. Isto "
+"diminui o tamanho dos ficheiros de fontes. Particularmente útil se estiver a "
+"embutir um ficheiro grande com muito símbolos não utilizados."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:218
 msgid ""
@@ -3971,6 +3995,11 @@ msgid ""
 "other forms of auto-detection. See the XPath Tutorial in the calibre User "
 "Manual for examples."
 msgstr ""
+"Expressão XPath que especifica todas as etiquetas que deverão ser "
+"adicionadas no primeiro nível do Índide Remissivo . Se isto fôr "
+"especificado, terá precedência em relação a outras formas de detecção "
+"automática. Consulte o tutorial do XPath no Manual do Utilizador do calibre "
+"para exemplos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:238
 msgid ""
@@ -3978,6 +4007,10 @@ msgid ""
 "of Contents at level two. Each entry is added under the previous level one "
 "entry. See the XPath Tutorial in the calibre User Manual for examples."
 msgstr ""
+"Expressão XPath que especifica todas as etiquetas que deverão ser "
+"adicionadas no segundo nível do Índide Remissivo . Cada entrada será "
+"adicionada abaixo da entrada anterior do nível um. Consulte o tutorial do "
+"XPath no Manual do Utilizador do calibre para exemplos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:247
 msgid ""
@@ -4053,6 +4086,14 @@ msgid ""
 "See the XPath Tutorial in the calibre User Manual for further help on using "
 "this feature."
 msgstr ""
+"Uma expressão XPath para apagar os títulos dos capítulos. O padrão é para "
+"considerar as etiquetas <h1> ou <h2> que contém as palavras "
+"\"capítulo\",\"livro\",\"secção\", \"prólogo\", \"epilogo\" ou \"parte\" "
+"como títulos de capítulos assim como quaisquer etiquetas que tenham "
+"class=\"capítulo\". A expressão usada deve avaliar uma lista de elementos. "
+"Para desactivar a detecção de capítulos, use a expressão \"/\". Veja o "
+"tutorial do XPath no Manual do Utilizador do calibre para mais ajuda no uso "
+"desta função."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:319
 msgid ""
@@ -4074,6 +4115,11 @@ msgid ""
 "location as the position at which to open the book. See the XPath tutorial "
 "in the calibre User Manual for further help using this feature."
 msgstr ""
+"Uma expressão XPath para detectar a localização no documento a partir do "
+"qual se deve começar a leitura. Alguns programas de leitura de e-books (como "
+"por explo o Kindle) usam esta localização como posição para abertura do "
+"livro. Veja o tutorial do XPath no Manual do Utilizador do calibre para mais "
+"ajuda no uso desta função."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:339
 msgid ""
@@ -4272,6 +4318,12 @@ msgid ""
 "by Chinese and Japanese for instance) the representation based on the "
 "current calibre interface language will be used."
 msgstr ""
+"Transliterar os caracteres Unicode para ASCII. Use com cuidado pois isto irá "
+"substituir caracteres Unicode por ASCII. Por exemplo, irá substituir \"%s\" "
+"com \"Mikhail Gorbachiov\". Note também que em certos casos onde existem "
+"representações múltiplas do caractere (por exemplo caracteres partilhados "
+"pelo Chinês e pelo Japonês) a representação baseada na línguagem do "
+"interface do calibre utilizada no momento será a utilizada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:501
 msgid ""
@@ -4379,6 +4431,9 @@ msgid ""
 "h3 tags.  This setting will not create a TOC, but can be used in conjunction "
 "with structure detection to create one."
 msgstr ""
+"Detectar cabeçalhos e sub-cabeçalhos de capítulos sem formatação. Trocá-los "
+"para etiquetas h2 e h3. Esta opção não irá criar um TOC, mas pode ser "
+"utilizada junto com a estrutura de detecção para o criar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:590
 msgid ""
@@ -4402,6 +4457,10 @@ msgid ""
 "the median line length.  If only a few lines in the document require "
 "unwrapping this value should be reduced"
 msgstr ""
+"Escala utilizada para determinar o tamanho que a linha deve ter quando as "
+"quebras forem eliminadas. Valores válidos são decimais entre 0 e 1. O padrão "
+"é 0.4, um pouco abaixo da média do tamanho da linha. Se apenas algumas "
+"linhas do documento tem ter linhas eliminadas, este valor deve ser reduzido."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:608
 msgid "Unwrap lines using punctuation and other formatting clues."
@@ -4420,6 +4479,9 @@ msgid ""
 "Left aligned scene break markers are center aligned. Replace soft scene "
 "breaks that use multiple blank lines with horizontal rules."
 msgstr ""
+"Marcadores de quebra de cena alinhados à esquerda são centrados. Substituir "
+"quebras de cenas suaves que usam várias linhas em branco por linhas "
+"horizontais."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:623
 msgid ""
@@ -4435,6 +4497,9 @@ msgid ""
 "used as a dictionary to determine whether hyphens should be retained or "
 "removed."
 msgstr ""
+"Analiza palavras que contenham hifén no documento. O documento será "
+"utilizado como um dicionário para determinar se os hiféns devem ser mantidos "
+"ou removidos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:634
 msgid ""
@@ -4525,10 +4590,12 @@ msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "cp1251, latin1 and utf-8."
 msgstr ""
+"Codificação de caractéres para os ficheiros HTML de entrada. Escolhas comuns "
+"incluem: cp1252, cp1251, latin1 and utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:91
 msgid "Add linked files in breadth first order"
-msgstr ""
+msgstr "Adicionar ficheiros vinculados na separação de primeira ordem"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:92
 msgid ""
@@ -5046,7 +5113,7 @@ msgstr "Descarregar  metadados e capas da  Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:518
 msgid "US"
-msgstr ""
+msgstr "EUA"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:519
 msgid "France"
@@ -5135,6 +5202,10 @@ msgid ""
 "an isbndb key and enter it below. Instructions to get the key are <a "
 "href=\"http://isbndb.com/docs/api/30-keys.html\">here</a>."
 msgstr ""
+"Para utilizar meta-dados de isbndb.com deverá fazer o registo de uma conta "
+"gratuita, obter uma chave isbndb e inseri-la abaixo. Instruções de como "
+"obter essa chave encontram-se em <a href=\"http://isbndb.com/docs/api/30-"
+"keys.html\">aqui</a>."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads covers from The Open Library"
@@ -5162,6 +5233,11 @@ msgid ""
 "time required. Check the download all metadata option below to enable "
 "downloading this data."
 msgstr ""
+"Meta-dados adicionais podem ser extraídos  da página de detalhe do livro da "
+"Overdrive. Isto incluí um conjunto de etiquetas, comentários, idiomas e o "
+"livro ISBN. A obtenção destas informações é desactivada por defeito por "
+"exigir tempo extra. Marque a opção de executar a descarga de todos os meta-"
+"dados abaixo para desbloquear esta opção."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/ozon.py:20
 msgid "Downloads metadata and covers from OZON.ru"
@@ -5437,7 +5513,7 @@ msgstr "A reorganizar as fontes embutidas..."
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:169
 #, python-format
 msgid "Polishing took: %.1f seconds"
-msgstr "O refinamento levou: %1f segundos."
+msgstr "O refinamento levou: %.1f segundos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:202
 msgid ""
@@ -5648,6 +5724,9 @@ msgid ""
 "showing only the matches. You can use the N or F3 keys to go to the next "
 "match."
 msgstr ""
+"Quando pesquisar, mostrar todos os livros com resultados da busca "
+"destacados, em vez de mostrar apenas os resultados. Pode usar a tecla N ou "
+"F3 para ir para o próximo resultado da pesquisa."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:195
 msgid ""
@@ -5676,6 +5755,9 @@ msgid ""
 "The layout of the user interface. Wide has the book details panel on the "
 "right and narrow has it at the bottom."
 msgstr ""
+"Configuração da interface do utilizador. Com a opção \"Alargado\" o painel "
+"de detalhes do livro ficará à direita e com a opção \"Estreita\" estas "
+"informações ficaram na parte inferior."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:210
 msgid "Show the average rating per item indication in the tag browser"
@@ -5861,6 +5943,8 @@ msgid ""
 "Are you sure you want to add the same files to all %d books? If the format "
 "already exists for a book, it will be replaced."
 msgstr ""
+"Tem certeza que deseja adicionar os mesmos ficheiros para todos %d os "
+"livros? Se o formato já existir para um livro, ele será substituido."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:107
 msgid "Select book files"
@@ -6019,6 +6103,7 @@ msgstr "Cria catálogos"
 msgid ""
 "Create a catalog of the books in your calibre library in different formats"
 msgstr ""
+"Criar um catálogo de livros na biblioteca do calibre em formatos diferentes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:40
 msgid "No books selected for catalog generation"
@@ -6057,6 +6142,9 @@ msgid ""
 "No existing calibre library was found at %s. If the library was moved, "
 "select its new location below. Otherwise calibre will forget this library."
 msgstr ""
+"Não foi encontrada nenhuma biblioteca calibre em %s. Se a biblioteca foi "
+"movida, seleccione o novo local abaixo. Caso contrário o calibre irá "
+"esquecer esta biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:111
 msgid "New location of this library:"
@@ -6181,6 +6269,9 @@ msgid ""
 "Cannot rename as no library was found at %s. Try switching to this library "
 "first, then switch back and retry the renaming."
 msgstr ""
+"Não foi possível renomear porque nenhuma biblioteca foi encontrada em %s. "
+"Tente alternar para essa biblioteca antes. Depois disso volte e tente "
+"renomear novamente."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:339
 msgid "Rename failed"
@@ -6240,6 +6331,9 @@ msgid ""
 "to a location with a shorter path using Windows Explorer, then point calibre "
 "to the new location and try again."
 msgstr ""
+"Caminho para a biblioteca é muito grande. Deve ser menor que %d caracteres. "
+"Mova a sua biblioteca para um local com uma caminho menor utilizando o "
+"Windows Explorer, aponte o calibre para o novo local e tente novamente."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:421
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:737
@@ -6320,7 +6414,7 @@ msgstr "Converter livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "Convert books between different ebook formats"
-msgstr ""
+msgstr "Converter livros entre formatos de e-books diferentes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:55
 msgid "Convert individually"
@@ -6491,7 +6585,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:86
 msgid "Delete books"
-msgstr ""
+msgstr "Apagar livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:86
 msgid "Remove books"
@@ -6686,6 +6780,8 @@ msgstr "Ligar/Partilhar"
 msgid ""
 "Share books using a web server or email. Connect to special devices, etc."
 msgstr ""
+"Partilhar livros utilizando um servidor Internet ou e-mail. Conectar a "
+"dispositivos especias, etc."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:85
@@ -6728,7 +6824,7 @@ msgstr "Gerir colecções neste dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:26
 msgid "Change the title/author/cover etc. of books"
-msgstr ""
+msgstr "Mudar o título/autor/capa/etc. dos livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:26
 msgid "E"
@@ -6841,6 +6937,10 @@ msgid ""
 "Click \"Show details\" to see the list of changed books. Do you want to "
 "proceed?"
 msgstr ""
+"Os meta-dados de alguns dos livros na sua biblioteca foram alterados "
+"enquanto a descarga estava a ser feita. Se continuar, algumas dessas "
+"alterações poderão ser sobrescritas. Carregue em \"Mostrar detalhes\" para "
+"ver a lista de livros alterados. Tem a certeza que quer continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:218
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:287
@@ -6872,6 +6972,10 @@ msgid ""
 "second and subsequently selected books will not be deleted or "
 "changed.<br><br>Please confirm you want to proceed."
 msgstr ""
+"Os formatos e meta-dados dos livros seleccionados serão adicionados ao "
+"<b>primeiro livro seleccionado</b>(%s). O ISBN não será combinado.<br><br> O "
+"segundo livro selecionados e os livros seguintes não serão apagados ou "
+"alterados.<br><br>Confirme se quer prosseguir."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:355
 #, python-format
@@ -7633,7 +7737,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "Read books"
-msgstr ""
+msgstr "Ler livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -8994,7 +9098,7 @@ msgstr "Assegurar que as quebras de cena são formatadas de forma consistente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:122
 msgid "Replace soft scene &breaks:"
-msgstr ""
+msgstr "Su&bsituir quebras suaves de cena"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:123
 msgid "Remove unnecessary hyphens"
@@ -9080,6 +9184,9 @@ msgid ""
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent."
 msgstr ""
+"<p>Quando calibre remove os espaços entre parágrafos, automaticamente alinha "
+"o parágrafo, para se certificar que os parágrafos serão facilmente "
+"distinguidos. Esta opção controla a largura do alinhamento."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:566
@@ -9834,6 +9941,12 @@ msgid ""
 "the current input document. When you are happy with an expression, click the "
 "Add button to add it to the list of expressions."
 msgstr ""
+"<p>Pesquisar e substituir utiliza <i>expressões regulares</i>. Consulte o <a "
+"href=\"http://manual.calibre-ebook.com/regexp.html\">tutorial de expressões "
+"regulares</a> para aprender sobre expressões regulares. Carregando no botão "
+"do assistente poderá testar as suas expressões regulares no documento de "
+"entrada atual. Quando estiver satisfeito com uma expressão, carregue no "
+"botão Adicionar para adicioná-la à lista de expressões."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:187
 msgid "Convert"
@@ -10071,7 +10184,7 @@ msgstr "Forçar tamanho máximo de linha"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:96
 msgid "Markdown, Textile"
-msgstr ""
+msgstr "Marcado, Textile"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:97
 msgid "Do not remove links (<a> tags) before processing"
@@ -19669,6 +19782,9 @@ msgid ""
 "Go to a reference. To get reference numbers, use the <i>reference mode</i>, "
 "by clicking the reference mode button in the toolbar."
 msgstr ""
+"Ir à referência. Para obter os números da referência, utilizar o <i>modo de "
+"referência</i>, carregando no botão \"Modo de Referência\" na barra de "
+"ferramentas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:176
 msgid ""
@@ -20199,6 +20315,10 @@ msgid ""
 "verify your account periodically, before it will let calibre send email. In "
 "this case, I strongly suggest you setup a free gmail account instead."
 msgstr ""
+"Se estiver a configurar uma conta do Hotmail, a Microsoft requer que "
+"verifique a sua conta periodicamente, antes de permitir o calibre enviar um "
+"e-mail. Nesse caso, recomendo fortemente que configure uma conta gratuita do "
+"GMail para o mesmo fim."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:221
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:232
@@ -20372,6 +20492,13 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Campos de saída a ordenar quando catalogar livros na base de dados. Deve ser "
+"uma lista de campos sepados por vírgulas.\n"
+"Campos disponíveis: %(fields)s.\n"
+"e campos criados pelo utilizador.\n"
+"Exemplo: %(opt)s=title,authors,tags\n"
+"Padrão: '%%default'\n"
+"Aplicado em: formatos de saída BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:49
 #, python-format
@@ -20422,6 +20549,11 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"O modelo para a criação de citações a partir de campos da base de dados. \n"
+"Deve ser um modelo com campos delimitados por {}.\n"
+"Campos disponíveis: %s.\n"
+" Padrão: '%%default'\n"
+" Aplicado em: formatos de saída BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:86
 #, python-format
@@ -20473,6 +20605,13 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"Campos de saída a ordenar quando catalogar livros na base de dados. Deve ser "
+"uma lista de campos sepados por vírgulas.\n"
+"Campos disponíveis: %(fields)s.\n"
+"e campos criados pelo utilizador.\n"
+"Exemplo: %(opt)s=title,authors,tags\n"
+"Padrão: '%%default'\n"
+"Aplicado em: formatos de saída CSV, XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/csv_xml.py:46
 #, python-format
@@ -20482,6 +20621,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"Campo de saída a ordenar.\n"
+"Campos disponíveis: author_sort, id, rating, size, timestamp, title_sort\n"
+"Padrão: '%default'\n"
+"Aplica-se a: formatos de saída CSV, XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:43
 #, python-format
@@ -20490,6 +20633,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Título do catálogo gerado utilizado como título nos meta-dados.\n"
+"Padrão: '%default'\n"
+"Aplica-se a: formatos de saída AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:50
 #, python-format
@@ -20498,6 +20644,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Criar referências cruzadas na secção de Autores para livros com múltiplos "
+"autores.\n"
+"Padrão: '%default'\n"
+"Aplica-se a: formatos de saída AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:57
 #, python-format
@@ -20508,6 +20658,11 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Guarda o resultado em diferentes estágios da cadeia de conversão no "
+"directório especificado. Útil se não tiver a certeza onde o erro no processo "
+"de conversão está a ocorrer.\n"
+"Padrão: '%default'\n"
+"Aplica-se a: formatos de saída AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:67
 #, python-format
@@ -20517,6 +20672,10 @@ msgid ""
 "'+', the default tag for read books.\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Etiquetas discritivas Regex a excluír como genéros.\n"
+"Padrão: '%default' excluindo etiquetas com chaveta, por ex. '[Project "
+"Gutenberg]', e '+', a etiqueta padrão para livros lidos.\n"
+"Aplica-se a: formatos de saída AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:74
 msgid ""
@@ -20539,6 +20698,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Incluí a secção \"Autores\" no catálogo.\n"
+"Padrão: '%default'\n"
+"Aplica-se a: formatos de saída AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:94
 #, python-format
@@ -20547,6 +20709,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Incluí a secção \"Descrição\" no catálogo.\n"
+"Padrão: '%default'\n"
+"Aplica-se a: formatos de saída AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:101
 #, python-format
@@ -20555,6 +20720,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Incluí a secção \"Géneros\" no catálogo.\n"
+"Padrão: '%default'\n"
+"Aplica-se a: formatos de saída AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:108
 #, python-format
@@ -20563,6 +20731,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Incluí a secção \"Títulos\" no catálogo.\n"
+"Padrão: '%default'\n"
+"Aplica-se a: formatos de saída AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:115
 #, python-format
@@ -20571,6 +20742,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Incluí a secção \"Séries\" no catálogo.\n"
+"Padrão: '%default'\n"
+"Aplica-se a: formatos de saída AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:122
 #, python-format
@@ -20579,6 +20753,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Incluí a secção \"Recentemente Adicionado\" no catálogo.\n"
+"Padrão: '%default'\n"
+"Aplica-se a: formatos de saída AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:129
 #, python-format
@@ -20587,6 +20764,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Compo fonte para a secção \"Géneros\".\n"
+"Padrão: '%default'\n"
+"Aplica-se a: formatos de saída AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:136
 #, python-format
@@ -20595,6 +20775,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Campo personalizado que contém texto de notas para inserir no cabeçalho "
+"\"Descrição\".\n"
+"Padrão: '%default'\n"
+"Aplica-se a: formatos de saída AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:143
 #, python-format
@@ -20617,6 +20801,12 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Especifica o perfil de saída. Em alguns casos, o perfil de saída é "
+"necessário para optimizar o catálogo para o dispositivo. Por exemplo, "
+"'kindle' ou 'kindle_dx' criam um Índice Remissivo estruturado com "
+"\"Secções\" e \"Artigos\".\n"
+"Padrão: '%default'\n"
+"Aplica-se a: formatos de saída AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:160
 msgid ""
@@ -20635,6 +20825,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
+"Substituí uma capa existente quando gerar o catálogo.\n"
+"Padrão: '%default'\n"
+"Aplica-se a: formatos de saída AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:176
 #, python-format
@@ -20644,12 +20837,19 @@ msgid ""
 "Default: '%default'\n"
 "Applies to AZW3, ePub, MOBI output formats"
 msgstr ""
+"Dica de tamanho (em pol.) para as capas de livros no catálogo.\n"
+"Domínio: 1.0 - 2.0\n"
+"Padrão: '%default'\n"
+"Aplica-se a: formatos de saída AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:288
 msgid ""
 "\n"
 "*** Adding 'By Authors' Section required for MOBI output ***"
 msgstr ""
+"\n"
+"*** A adicionar a Secção 'Por Autores' necessária para o formato de saída "
+"MOBI ***"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:56
 msgid "Symbols"

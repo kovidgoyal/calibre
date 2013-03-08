@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-03-06 20:47+0000\n"
+"PO-Revision-Date: 2013-03-07 21:22+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-03-07 04:56+0000\n"
-"X-Generator: Launchpad (build 16514)\n"
+"X-Launchpad-Export-Date: 2013-03-08 04:36+0000\n"
+"X-Generator: Launchpad (build 16523)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -9424,7 +9424,7 @@ msgstr "Miao; Mashan meridional"
 
 #. name for hmb
 msgid "Songhay; Humburi Senni"
-msgstr "Songhai; central"
+msgstr "Songhai; Humburi Senni"
 
 #. name for hmc
 msgid "Miao; Central Huishui"
@@ -11800,7 +11800,7 @@ msgstr "Kapori"
 
 #. name for khq
 msgid "Songhay; Koyra Chiini"
-msgstr "Songhai; Koyra"
+msgstr "Songhai; Koyra Chiini"
 
 #. name for khr
 msgid "Kharia"
@@ -22700,7 +22700,7 @@ msgstr "Llenguatge de signes saudí"
 
 #. name for sdm
 msgid "Semandang"
-msgstr ""
+msgstr "Semandang"
 
 #. name for sdn
 msgid "Sardinian; Gallurese"
@@ -22712,23 +22712,23 @@ msgstr ""
 
 #. name for sdp
 msgid "Sherdukpen"
-msgstr ""
+msgstr "Sherdukpen"
 
 #. name for sdr
 msgid "Sadri; Oraon"
-msgstr ""
+msgstr "Sadri Oraon"
 
 #. name for sds
 msgid "Sened"
-msgstr ""
+msgstr "Sened"
 
 #. name for sdt
 msgid "Shuadit"
-msgstr ""
+msgstr "Shuadit"
 
 #. name for sdu
 msgid "Sarudu"
-msgstr ""
+msgstr "Sarudu"
 
 #. name for sdx
 msgid "Melanau; Sibu"
@@ -22736,11 +22736,11 @@ msgstr "Melanau; Sibu"
 
 #. name for sdz
 msgid "Sallands"
-msgstr ""
+msgstr "Alemany; Sallands"
 
 #. name for sea
 msgid "Semai"
-msgstr ""
+msgstr "Semai"
 
 #. name for seb
 msgid "Senoufo; Shempire"
@@ -22748,15 +22748,15 @@ msgstr "Senufo; Shempire"
 
 #. name for sec
 msgid "Sechelt"
-msgstr ""
+msgstr "Sechelt"
 
 #. name for sed
 msgid "Sedang"
-msgstr ""
+msgstr "Sedang"
 
 #. name for see
 msgid "Seneca"
-msgstr ""
+msgstr "Seneca"
 
 #. name for sef
 msgid "Senoufo; Cebaara"
@@ -22764,19 +22764,19 @@ msgstr "Senufo; Cebaara"
 
 #. name for seg
 msgid "Segeju"
-msgstr ""
+msgstr "Segeju"
 
 #. name for seh
 msgid "Sena"
-msgstr ""
+msgstr "Sena"
 
 #. name for sei
 msgid "Seri"
-msgstr ""
+msgstr "Seri"
 
 #. name for sej
 msgid "Sene"
-msgstr ""
+msgstr "Sene"
 
 #. name for sek
 msgid "Sekani"
@@ -22784,39 +22784,39 @@ msgstr ""
 
 #. name for sel
 msgid "Selkup"
-msgstr ""
+msgstr "Selkup"
 
 #. name for sen
 msgid "Sénoufo; Nanerigé"
-msgstr ""
+msgstr "Senufo; Nanerigé"
 
 #. name for seo
 msgid "Suarmin"
-msgstr ""
+msgstr "Suarmin"
 
 #. name for sep
 msgid "Sénoufo; Sìcìté"
-msgstr ""
+msgstr "Senufo; Sicité"
 
 #. name for seq
 msgid "Sénoufo; Senara"
-msgstr ""
+msgstr "Senufo; Senara"
 
 #. name for ser
 msgid "Serrano"
-msgstr ""
+msgstr "Serrano"
 
 #. name for ses
 msgid "Songhai; Koyraboro Senni"
-msgstr ""
+msgstr "Songhai; Koyraboro"
 
 #. name for set
 msgid "Sentani"
-msgstr ""
+msgstr "Sentani"
 
 #. name for seu
 msgid "Serui-Laut"
-msgstr ""
+msgstr "Serui-Laut"
 
 #. name for sev
 msgid "Senoufo; Nyarafolo"
@@ -22824,11 +22824,11 @@ msgstr "Senufo; Nyarafolo"
 
 #. name for sew
 msgid "Sewa Bay"
-msgstr ""
+msgstr "Sewa"
 
 #. name for sey
 msgid "Secoya"
-msgstr ""
+msgstr "Secoya"
 
 #. name for sez
 msgid "Chin; Senthang"
@@ -22848,7 +22848,7 @@ msgstr "Llenguatge de signes sudafricà"
 
 #. name for sfw
 msgid "Sehwi"
-msgstr ""
+msgstr "Sehwi"
 
 #. name for sga
 msgid "Irish; Old (to 900)"
@@ -22864,11 +22864,11 @@ msgstr ""
 
 #. name for sgd
 msgid "Surigaonon"
-msgstr ""
+msgstr "Surigaonon"
 
 #. name for sge
 msgid "Segai"
-msgstr ""
+msgstr "Segai"
 
 #. name for sgg
 msgid "Swiss-German Sign Language"
@@ -22876,11 +22876,11 @@ msgstr "Llenguatge de signes suís-alemany"
 
 #. name for sgh
 msgid "Shughni"
-msgstr ""
+msgstr "Shughni"
 
 #. name for sgi
 msgid "Suga"
-msgstr ""
+msgstr "Suga"
 
 #. name for sgk
 msgid "Sangkong"
@@ -22888,19 +22888,19 @@ msgstr ""
 
 #. name for sgm
 msgid "Singa"
-msgstr ""
+msgstr "Singa"
 
 #. name for sgo
 msgid "Songa"
-msgstr ""
+msgstr "Songa"
 
 #. name for sgp
 msgid "Singpho"
-msgstr ""
+msgstr "Jinghpaw; Singpho"
 
 #. name for sgr
 msgid "Sangisari"
-msgstr ""
+msgstr "Sangisari"
 
 #. name for sgs
 msgid "Samogitian"
@@ -22912,7 +22912,7 @@ msgstr ""
 
 #. name for sgu
 msgid "Salas"
-msgstr ""
+msgstr "Salas"
 
 #. name for sgw
 msgid "Sebat Bet Gurage"
@@ -22924,15 +22924,15 @@ msgstr "Llenguatge de signes de Sierra Leone"
 
 #. name for sgy
 msgid "Sanglechi"
-msgstr ""
+msgstr "Sanglechi"
 
 #. name for sgz
 msgid "Sursurunga"
-msgstr ""
+msgstr "Sursurunga"
 
 #. name for sha
 msgid "Shall-Zwall"
-msgstr ""
+msgstr "Shall-Zwall"
 
 #. name for shb
 msgid "Ninam"
@@ -22940,7 +22940,7 @@ msgstr ""
 
 #. name for shc
 msgid "Sonde"
-msgstr ""
+msgstr "Sonde"
 
 #. name for shd
 msgid "Kundal Shahi"
@@ -22948,15 +22948,15 @@ msgstr ""
 
 #. name for she
 msgid "Sheko"
-msgstr ""
+msgstr "Sheko"
 
 #. name for shg
 msgid "Shua"
-msgstr ""
+msgstr "Shua"
 
 #. name for shh
 msgid "Shoshoni"
-msgstr ""
+msgstr "Xoixon"
 
 #. name for shi
 msgid "Tachelhit"
@@ -22964,7 +22964,7 @@ msgstr ""
 
 #. name for shj
 msgid "Shatt"
-msgstr ""
+msgstr "Shatt"
 
 #. name for shk
 msgid "Shilluk"
@@ -22972,11 +22972,11 @@ msgstr ""
 
 #. name for shl
 msgid "Shendu"
-msgstr ""
+msgstr "Shendu"
 
 #. name for shm
 msgid "Shahrudi"
-msgstr ""
+msgstr "Shahrudi"
 
 #. name for shn
 msgid "Shan"
@@ -22984,19 +22984,19 @@ msgstr ""
 
 #. name for sho
 msgid "Shanga"
-msgstr ""
+msgstr "Shanga"
 
 #. name for shp
 msgid "Shipibo-Conibo"
-msgstr ""
+msgstr "Shipibo-Conibo"
 
 #. name for shq
 msgid "Sala"
-msgstr ""
+msgstr "Sala"
 
 #. name for shr
 msgid "Shi"
-msgstr ""
+msgstr "Shi"
 
 #. name for shs
 msgid "Shuswap"
