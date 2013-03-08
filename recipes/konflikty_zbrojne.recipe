@@ -7,7 +7,7 @@ class Konflikty(BasicNewsRecipe):
     __author__        = 'fenuks'
     cover_url      = 'http://www.konflikty.pl/images/tapety_logo.jpg'
     language       = 'pl'
-    description ='military news'
+    description = u'Zbiór ciekawych artykułów historycznych, militarnych oraz recenzji książek, gier i filmów. Najświeższe informacje o lotnictwie, wojskach lądowych i polityce.'
     category='military, history'
     oldest_article = 7
     max_articles_per_feed = 100

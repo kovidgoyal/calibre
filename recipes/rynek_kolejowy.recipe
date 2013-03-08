@@ -37,4 +37,3 @@ class rynek_kolejowy(BasicNewsRecipe):
         segment = url.split('/')
         urlPart = segment[3]
         return 'http://www.rynek-kolejowy.pl/drukuj.php?id=' + urlPart
-

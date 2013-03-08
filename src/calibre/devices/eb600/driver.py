@@ -49,6 +49,13 @@ class EB600(USBMS):
     EBOOK_DIR_CARD_A = ''
     SUPPORTS_SUB_DIRS = True
 
+class TOLINO(EB600):
+
+    name = 'Tolino Shine Device Interface'
+    gui_name = 'Tolino Shine'
+    description    = _('Communicate with the Tolino Shine reader.')
+    FORMATS = ['epub', 'pdf', 'txt']
+    BCD         = [0x226]
 
 class COOL_ER(EB600):
 

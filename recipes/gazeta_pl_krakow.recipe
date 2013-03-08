@@ -49,8 +49,8 @@ class gw_krakow(BasicNewsRecipe):
     feeds          = [(u'Wiadomości', u'http://rss.gazeta.pl/pub/rss/krakow.xml')]
 
     def skip_ad_pages(self, soup):
-          tag=soup.find(name='a', attrs={'class':'btn'})
-          if tag:
+        tag=soup.find(name='a', attrs={'class':'btn'})
+        if tag:
             new_soup=self.index_to_soup(tag['href'], raw=True)
             return new_soup
 
@@ -95,8 +95,7 @@ class gw_krakow(BasicNewsRecipe):
                 rem.extract()
 
     def preprocess_html(self, soup):
-         self.append_page(soup, soup.body)
-         if soup.find(id='container_gal'):
-             self.gallery_article(soup.body)
-         return soup
-
+        self.append_page(soup, soup.body)
+        if soup.find(id='container_gal'):
+            self.gallery_article(soup.body)
+        return soup

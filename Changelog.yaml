@@ -19,6 +19,59 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.22
+  date: 2013-03-08
+
+  new features:
+    - title: "Linux driver for the Tolino ebook reader."
+      tickets: [1151901]
+
+    - title: "Kobo driver: Add support for the new 'Archived' collections in Kobo firmware 2.4.0 and improve handling recommendations and previews."
+      tickets: [1150852]
+
+    - title: "Metadata search and replace: Allow replacing the entire set of identifiers instead of only a specific identifier when doing a search and replace. To do this, choose a source field other than identifiers and set the destination identifier type to: *"
+
+    - title: "Show a brief description of every action when customizing toolbars in Preferences->Toolbars"
+
+    - title: "Allow drag and drop of books from the calibre book list onto the button for Convert book, Edit metadata, Remove Book, Tweak Book, Polish books, etc."
+ 
+  bug fixes:
+    - title: "CHM Input: Fix incorrect decoding for CHM files whose hhc file is also a content file."
+      tickets: [1151721]
+
+    - title: "Conversion: Add the double low quote to list of characters that are converted to ascii."
+      tickets: [1152207]
+
+    - title: "Amazon metadata download: Update plugin to handle changes to Amazon site that could cause some covers to not be downloaded. Also fix finding metadata for books with + in their titles."
+
+    - title: "Content server: Fix a bug that prevented the cover being updated when files are downloaded from the content server"
+
+    - title: "Conversion: Handle the use of @import CSS rules inside <style> tags in HTML files"
+
+    - title: "Book polishing: Do not error out when polishing epub files that have XML comments in their OPF metadata section."
+
+    - title: "Book polishing: Do not error out when updating covers in EPUB files that have entries int heir manifest that point to missing files"
+
+    - title: "Book polishing: Fix a bug that could cause updating covers to error out in some books"
+
+    - title: "Fix updating the calibre application id in EPUBs that also use the application id as the package id."
+
+    - title: "Apple driver: Fix bug preventing sending books to iBooks if no books have been previously added to iBooks."
+      tickets: [1141078]
+
+    - title: "EPUB/AZW3 Output: Fix splitting on page breaks ignored if the page breaks are inside an element which itself has a page-break-after style applied."
+
+    - title: "EPUB/AZW3 Output: Fix incorrect splitting of html at page-break-after page breaks in certain circumstances (The split element being the first child of a parent that contains other split elements)."
+      tickets: [1139317]
+
+  improved recipes:
+    - Le Devoir
+    - New York Times Book Review
+    - Various Polish news sources
+
+  new recipes:
+    - title: Various new Polish news sources
+
 - version: 0.9.21
   date: 2013-03-01
 

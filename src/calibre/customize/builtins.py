@@ -634,7 +634,7 @@ from calibre.devices.apple.driver import ITUNES
 from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
 from calibre.devices.blackberry.driver import BLACKBERRY, PLAYBOOK
 from calibre.devices.cybook.driver import CYBOOK, ORIZON
-from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK,
+from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK, TOLINO,
                 POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK,
                 BOOQ, ELONEX, POCKETBOOK301, MENTOR, POCKETBOOK602,
                 POCKETBOOK701, POCKETBOOK360P, PI2, POCKETBOOK622)
@@ -704,7 +704,7 @@ plugins += [
     INVESBOOK,
     BOOX,
     BOOQ,
-    EB600,
+    EB600, TOLINO,
     README,
     N516, KIBANO,
     THEBOOK, LIBREAIR,

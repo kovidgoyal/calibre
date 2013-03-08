@@ -4,21 +4,21 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 class FilmWebPl(BasicNewsRecipe):
     title          = u'FilmWeb'
     __author__        = 'fenuks'
-    description   = 'FilmWeb - biggest polish movie site'
-    cover_url      = 'http://userlogos.org/files/logos/crudus/filmweb.png'
+    description   = 'Filmweb.pl - Filmy takie jak Ty Filmweb to największy i najczęściej odwiedzany polski serwis filmowy. Największa baza filmów, seriali i aktorów, repertuar kin i tv, ...'
+    cover_url      = 'http://gfx.filmweb.pl/n/logo-filmweb-bevel.jpg'
     category       = 'movies'
     language       = 'pl'
-    index='http://www.filmweb.pl'
+    index = 'http://www.filmweb.pl'
     oldest_article = 8
     max_articles_per_feed = 100
-    no_stylesheets= True
-    remove_empty_feeds=True
+    no_stylesheets = True
+    remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
     preprocess_regexps = [(re.compile(u'\(kliknij\,\ aby powiększyć\)', re.IGNORECASE), lambda m: ''), ]#(re.compile(ur' | ', re.IGNORECASE), lambda m: '')]
     extra_css      = '.hdrBig {font-size:22px;} ul {list-style-type:none; padding: 0; margin: 0;}'
-    remove_tags= [dict(name='div', attrs={'class':['recommendOthers']}), dict(name='ul', attrs={'class':'fontSizeSet'}), dict(attrs={'class':'userSurname anno'})]
+    remove_tags = [dict(name='div', attrs={'class':['recommendOthers']}), dict(name='ul', attrs={'class':'fontSizeSet'}), dict(attrs={'class':'userSurname anno'})]
     remove_attributes = ['style',]
-    keep_only_tags= [dict(name='h1', attrs={'class':['hdrBig', 'hdrEntity']}), dict(name='div', attrs={'class':['newsInfo', 'newsInfoSmall', 'reviewContent description']})]
+    keep_only_tags = [dict(name='h1', attrs={'class':['hdrBig', 'hdrEntity']}), dict(name='div', attrs={'class':['newsInfo', 'newsInfoSmall', 'reviewContent description']})]
     feeds          = [(u'News / Filmy w produkcji', 'http://www.filmweb.pl/feed/news/category/filminproduction'),
                          (u'News / Festiwale, nagrody i przeglądy', u'http://www.filmweb.pl/feed/news/category/festival'),
                          (u'News / Seriale', u'http://www.filmweb.pl/feed/news/category/serials'),

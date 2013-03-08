@@ -1,0 +1,34 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class GazetaKrakowska(BasicNewsRecipe):
+    title          = u'Gazeta Krakowska'
+    __author__        = 'fenuks'
+    description   = u'Gazeta Regionalna Gazeta Krakowska. Najnowsze Wiadomości Kraków. Informacje Kraków. Czytaj!'
+    category       = 'newspaper'
+    language       = 'pl'
+    encoding = 'iso-8859-2'
+    masthead_url = 'http://s.polskatimes.pl/g/logo_naglowek/gazetakrakowska.png?24'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_empty_feeds = True
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'title', 'url'}
+    #preprocess_regexps = [(re.compile(ur'<b>Czytaj także:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur',<b>Czytaj też:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>Zobacz także:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<center><h4><a.*?</a></h4></center>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ TEŻ:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ WIĘCEJ:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ TAKŻE:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>\* CZYTAJ KONIECZNIE:.*', re.DOTALL), lambda match: '</body>'), (re.compile(ur'<b>Nasze serwisy:</b>.*', re.DOTALL), lambda match: '</body>') ]
+    remove_tags_after= dict(attrs={'src':'http://nm.dz.com.pl/dz.png'})
+    remove_tags=[dict(id='mat-podobne'), dict(name='a', attrs={'class':'czytajDalej'}), dict(attrs={'src':'http://nm.dz.com.pl/dz.png'})]
+
+    feeds          = [(u'Fakty24', u'http://gazetakrakowska.feedsportal.com/c/32980/f/533770/index.rss?201302'), (u'Krak\xf3w', u'http://www.gazetakrakowska.pl/rss/gazetakrakowska_krakow.xml?201302'), (u'Tarn\xf3w', u'http://www.gazetakrakowska.pl/rss/gazetakrakowska_tarnow.xml?201302'), (u'Nowy S\u0105cz', u'http://www.gazetakrakowska.pl/rss/gazetakrakowska_nsacz.xml?201302'), (u'Ma\u0142. Zach.', u'http://www.gazetakrakowska.pl/rss/gazetakrakowska_malzach.xml?201302'), (u'Podhale', u'http://www.gazetakrakowska.pl/rss/gazetakrakowska_podhale.xml?201302'), (u'Sport', u'http://gazetakrakowska.feedsportal.com/c/32980/f/533771/index.rss?201302'), (u'Kultura', u'http://gazetakrakowska.feedsportal.com/c/32980/f/533772/index.rss?201302'), (u'Opinie', u'http://www.gazetakrakowska.pl/rss/gazetakrakowska_opinie.xml?201302'), (u'Magazyn', u'http://www.gazetakrakowska.pl/rss/gazetakrakowska_magazyn.xml?201302')]
+
+    def print_version(self, url):
+        return url.replace('artykul', 'drukuj')
+
+    def skip_ad_pages(self, soup):
+        if 'Advertisement' in soup.title:
+            nexturl=soup.find('a')['href']
+            return self.index_to_soup(nexturl, raw=True)
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.prasa24.pl/gazeta/gazeta-krakowska/')
+        self.cover_url=soup.find(id='pojemnik').img['src']
+        return getattr(self, 'cover_url', self.cover_url)
