@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-03-05 04:46+0000\n"
+"POT-Creation-Date: 2013-03-08 04:51+0000\n"
 "PO-Revision-Date: 2012-04-12 14:19+0000\n"
 "Last-Translator: Shahnoor Ashraf <kaziweb1@gmail.com>\n"
 "Language-Team: Bengali <bn@li.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-06 05:15+0000\n"
-"X-Generator: Launchpad (build 16514)\n"
+"X-Launchpad-Export-Date: 2013-03-09 04:53+0000\n"
+"X-Generator: Launchpad (build 16523)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -46,7 +46,7 @@ msgstr "আসলে কিছুই করে না"
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:469
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:480
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/metadata.py:57
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/chm_input.py:183
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/chm_input.py:185
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:189
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/fb2_input.py:99
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/fb2_input.py:101
@@ -153,7 +153,7 @@ msgstr "আসলে কিছুই করে না"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:47
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:829
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:835
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:381
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:193
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:208
@@ -184,8 +184,8 @@ msgstr "আসলে কিছুই করে না"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3504
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3506
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3643
-#: /home/kovid/work/calibre/src/calibre/library/server/content.py:250
-#: /home/kovid/work/calibre/src/calibre/library/server/content.py:251
+#: /home/kovid/work/calibre/src/calibre/library/server/content.py:252
+#: /home/kovid/work/calibre/src/calibre/library/server/content.py:253
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:247
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:160
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:163
@@ -1066,14 +1066,14 @@ msgstr ""
 msgid "Invalid boolean query \"{0}\""
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/debug.py:69
+#: /home/kovid/work/calibre/src/calibre/debug.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:47
 msgid ""
 "Cause a running calibre instance, if any, to be shutdown. Note that if there "
 "are running jobs, they will be silently aborted, so use with care."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/debug.py:171
+#: /home/kovid/work/calibre/src/calibre/debug.py:177
 msgid "Debug log"
 msgstr ""
 
@@ -1269,10 +1269,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:130
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:133
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:350
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1337
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1341
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1345
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1699
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1338
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1342
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1346
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1716
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:155
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:144
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:147
@@ -1348,7 +1348,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:37
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:281
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:288
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
 msgid "Kovid Goyal"
 msgstr ""
@@ -1377,31 +1377,35 @@ msgstr ""
 msgid "Communicate with the EB600 eBook reader."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:197
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:56
+msgid "Communicate with the Tolino Shine reader."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:204
 msgid "Communicate with the Astak Mentor EB600"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:220
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:227
 msgid "Communicate with the PocketBook 301 reader."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:237
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:244
 msgid "Communicate with the PocketBook 602/603/902/903/Pro 912 reader."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:264
 msgid "Communicate with the PocketBook 622 reader."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:270
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:277
 msgid "Communicate with the PocketBook 360+ reader."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:280
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:287
 msgid "Communicate with the PocketBook 701"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:311
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:318
 msgid "Communicate with the Infibeam Pi2 reader."
 msgstr ""
 
@@ -1627,17 +1631,17 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:76
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1226
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1227
 msgid "Upload Black and White Covers"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:77
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1230
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1231
 msgid "Show expired books"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:78
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1231
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1232
 msgid ""
 "A bug in an earlier version left non kepubs book records in the database.  "
 "With this option Calibre will show the expired records and allow you to "
@@ -1645,12 +1649,12 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:82
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1235
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1236
 msgid "Show Previews"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:83
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1236
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1237
 msgid ""
 "Kobo previews are included on the Touch and some other versions by default "
 "they are no longer displayed as there is no good reason to see them.  Enable "
@@ -1658,7 +1662,7 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:86
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1239
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
 msgid "Show Recommendations"
 msgstr ""
 
@@ -1670,7 +1674,7 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:90
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1248
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1249
 msgid "Attempt to support newer firmware"
 msgstr ""
 
@@ -1743,66 +1747,66 @@ msgid ""
 "%(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1217
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1218
 msgid "The Kobo Touch from firmware V2.0.0 supports bookshelves."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1219
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1220
 msgid "Specify a tags type column for automatic management"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1220
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1221
 msgid "Create Bookshelves"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1221
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1222
 msgid ""
 "Create new bookshelves on the Kobo Touch if they do not exist. This is only "
 "for firmware V2.0.0 or later."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1222
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1223
 msgid "Delete Empty Bookshelves"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1223
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1224
 msgid ""
 "Delete any empty bookshelves from the Kobo Touch when syncing is finished. "
 "This is only for firmware V2.0.0 or later."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1224
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1225
 msgid "Upload covers for books"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1225
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1226
 msgid ""
 "Upload cover images from the calibre library when sending books to the "
 "device."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1227
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1228
 msgid "Keep cover aspect ratio"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1228
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1229
 msgid ""
 "When uploading covers, do not change the aspect ratio when resizing for the "
 "device. This is for firmware versions 2.3.1 and later."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1241
 msgid ""
 "Kobo shows recommendations on the device.  In some cases these have files "
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1243
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1244
 msgid "Set Series information"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1244
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1245
 msgid ""
 "The book lists on the Kobo devices can display series information. This is "
 "not read by the device from the sideloaded books. Series information can "
@@ -1810,7 +1814,7 @@ msgid ""
 "Enable if you wish to set series information."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1249
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1250
 msgid ""
 "Kobo routinely updates the firmware and the database version.  With this "
 "option Calibre will attempt to perform full read-write functionality - Here "
@@ -1819,11 +1823,11 @@ msgid ""
 "and DBVersion up to "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1255
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1256
 msgid "Title to test when debugging"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1256
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1257
 msgid ""
 "Part of title of a book that can be used when doing some tests for "
 "debugging. The test is to see if the string is contained in the title of a "
@@ -4434,12 +4438,12 @@ msgid "This is an Amazon Topaz book. It cannot be processed."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:46
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:597
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:616
 msgid "This is not a MOBI file. It is a Topaz file."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:51
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:602
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:621
 msgid "This is not a MOBI file."
 msgstr ""
 
@@ -4468,6 +4472,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer8/toc.py:15
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1286
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:221
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/toc.py:219
 msgid "Table of Contents"
@@ -4538,14 +4543,14 @@ msgstr ""
 msgid "%s format books are not supported"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:610
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:629
 msgid ""
 "This MOBI file does not contain a KF8 format book. KF8 is the new format "
 "from Amazon. calibre can only edit MOBI files that contain KF8 books. Older "
 "MOBI files without KF8 are not editable."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:616
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:635
 msgid ""
 "This MOBI file contains both KF8 and older Mobi6 data. calibre can only edit "
 "MOBI files that contain only KF8 data."
@@ -4713,6 +4718,22 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/replace.py:73
 #, python-format
 msgid "Smartened punctuation in: %s"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:88
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:94
+#, python-format
+msgid "No file named %s exists"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:98
+#, python-format
+msgid "No HTML file named %s exists"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:107
+#, python-format
+msgid "The anchor %s does not exist in file %s"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
@@ -5459,7 +5480,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:427
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:250
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:975
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1011
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1017
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:366
@@ -10659,50 +10680,56 @@ msgstr ""
 msgid "You must specify a destination when source is a composite field"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:716
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:717
 msgid "You must specify a destination identifier type"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:940
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:829
+msgid ""
+"Invalid identifier string. It must be a comma-separated list of pairs of "
+"strings separated by a colon"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:946
 msgid "Search/replace invalid"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:941
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:947
 #, python-format
 msgid "Search pattern is invalid: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:997
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1003
 #, python-format
 msgid ""
 "Applying changes to %d books.\n"
 "Phase {0} {1}%%."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1027
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1033
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:628
 msgid "Delete saved search/replace"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1028
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1034
 msgid "The selected saved search/replace will be deleted. Are you sure?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1053
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1058
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1063
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1059
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1064
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1069
 msgid "Save search/replace"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1054
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1060
 msgid "Search/replace name:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1059
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1065
 msgid "You must provide a name."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1064
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1070
 msgid ""
 "That saved search/replace already exists and will be overwritten. Are you "
 "sure?"
@@ -10836,7 +10863,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:603
 msgid ""
-"When doing a same format to same format conversion, \n"
+"When doing a same format to same format conversion,\n"
 "for e.g., EPUB to EPUB, calibre saves the original EPUB\n"
 " as ORIGINAL_EPUB. This option tells calibre to restore\n"
 " the EPUB from ORIGINAL_EPUB. Useful if you did a bulk\n"
@@ -10951,7 +10978,6 @@ msgid "Identifier type:"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:635
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:657
 msgid "Choose which identifier type to operate upon"
 msgstr ""
 
@@ -11031,37 +11057,46 @@ msgstr ""
 msgid "Split &result"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:658
-msgid "For multiple-valued fields, sho&w"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:659
-msgid "values starting a&t"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:660
-msgid "with values separated b&y"
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:657
+msgid ""
+"<p>Choose which identifier type to operate upon. When the\n"
+"              source field is something other than 'identifiers' you can "
+"enter\n"
+"              a * if you want to replace the entire set of identifiers with\n"
+"              the result of the search/replace.</p>"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:661
+msgid "For multiple-valued fields, sho&w"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:662
+msgid "values starting a&t"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:663
+msgid "with values separated b&y"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:664
 msgid ""
 "Used when displaying test results to separate values in multiple-valued "
 "fields"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:662
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:665
 msgid "Test text"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:663
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:666
 msgid "Test result"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:664
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:667
 msgid "Your test:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:665
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:668
 msgid "&Search and replace"
 msgstr ""
 
@@ -12775,6 +12810,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:180
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:176
 msgid "None"
 msgstr ""
 
@@ -17392,6 +17428,117 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:611
 msgid "First letter is usable only when sorting by name"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:101
+msgid "Select a destination for the Table of Contents entry"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:121
+msgid ""
+"Here you can choose a destination for the Table of Contents' entry to point "
+"to. First choose a file from the book in the left-most panel. The file will "
+"open in the central panel.<p>Then choose a location inside the file. To do "
+"so, simply click on the place in the central panel that you want to use as "
+"the destination. As you move the mouse around the central panel, a thick "
+"green line appears, indicating the precise location that will be selected "
+"when you click."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:134
+msgid "&Name of the ToC entry:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:140
+msgid "Currently selected destination:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:166
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:188
+msgid "File:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:167
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:183
+msgid "Top of the file"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:175
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:205
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:220
+msgid "(Untitled)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:181
+#, python-format
+msgid "Location: A <%s> tag inside the file"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:185
+#, python-format
+msgid "Approximately %d%% from the top"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:45
+msgid ""
+"You can edit existing entries in the Table of Contents by clicking them in "
+"the panel to the left."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:47
+msgid ""
+"Entries with a green tick next to them point to a location that has been "
+"verified to exist. Entries with a red dot are broken and may need to be "
+"fixed."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:55
+msgid "Create a &new entry"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:98
+msgid "Move current entry up"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:104
+msgid "Remove all selected entries"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:110
+msgid "Move current entry down"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:112
+msgid "&Expand all"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:116
+msgid "&Collapse all"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:119
+msgid "Double click on an entry to change the text"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:197
+msgid "<b>Title</b>: {0} <b>Dest</b>: {1}{2}"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:227
+#, python-format
+msgid ""
+"The location this entry point to does not exist:\n"
+"%s"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:253
+#, python-format
+msgid "Edit the ToC in %s"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:269
+#, python-format
+msgid "Loading %s, please wait..."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:70
