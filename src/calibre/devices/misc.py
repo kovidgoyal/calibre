@@ -446,6 +446,7 @@ class WAYTEQ(USBMS):
         return drives
 
     def linux_swap_drives(self, drives):
+        # See https://bugs.launchpad.net/bugs/1151901
         if len(drives) < 2 or not drives[1] or not drives[2]: return drives
         drives = list(drives)
         t = drives[0]
