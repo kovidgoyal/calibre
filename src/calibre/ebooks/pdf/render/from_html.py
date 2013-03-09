@@ -106,7 +106,7 @@ def draw_image_page(page_rect, painter, p, preserve_aspect_ratio=True):
                 page_rect.height())
         dx = int((page_rect.width() - nnw)/2.)
         dy = int((page_rect.height() - nnh)/2.)
-        page_rect.moveTo(dx, dy)
+        page_rect.translate(dx, dy)
         page_rect.setHeight(nnh)
         page_rect.setWidth(nnw)
     painter.drawPixmap(page_rect, p, p.rect())
@@ -192,7 +192,7 @@ class PDFWriter(QObject):
                 p.loadFromData(self.cover_data)
                 if not p.isNull():
                     self.doc.init_page()
-                    draw_image_page(QRect(0, 0, self.doc.width(), self.doc.height()),
+                    draw_image_page(QRect(*self.doc.full_page_rect),
                             self.painter, p,
                             preserve_aspect_ratio=self.opts.preserve_cover_aspect_ratio)
                     self.doc.end_page()
