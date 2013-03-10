@@ -22,7 +22,7 @@ class Computerwoche(BasicNewsRecipe):
     remove_javascript = True
     encoding = 'utf-8'
     html2epub_options = 'base_font_size=10'
-    BasicNewsRecipe.summary_length = 100
+    summary_length = 100
     auto_cleanup = True
 
 
