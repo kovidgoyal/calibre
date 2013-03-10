@@ -104,8 +104,9 @@ def verify_toc_destinations(container, toc):
             anchor_map[name] = frozenset(anchor_xpath(root))
         item.dest_exists = item.frag in anchor_map[name]
         if not item.dest_exists:
-            item.dest_error = _('The anchor %s does not exist in file %s')%(
-                item.frag, name)
+            item.dest_error = _(
+                'The anchor %(a)s does not exist in file %(f)s')%dict(
+                a=item.frag, f=name)
 
 def get_toc(container, verify_destinations=True):
     toc = container.opf_xpath('//opf:spine/@toc')
