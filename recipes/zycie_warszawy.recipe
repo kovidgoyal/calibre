@@ -3,7 +3,7 @@
 
 __license__   = 'GPL v3'
 __copyright__   = u'Łukasz Grąbczewski 2012-2013'
-__version__   = '1.1'
+__version__   = '1.2'
 
 '''
 zw.com.pl
@@ -17,12 +17,14 @@ class zyciewarszawy(BasicNewsRecipe):
 	description = u'Wiadomości z Warszawy'
 	language = 'pl'
 	publisher = 'Presspublica'
-	publication_type = 'newspapper'
+	publication_type = 'newspaper'
 	masthead_url = 'http://www.zw.com.pl/static/img/logo_zw.gif'
 	no_stylesheets = True
 	remove_javascript = True
+	use_embedded_content = False
+	remove_empty_feeds = True
 
-	oldest_article = 1 #daily news only
+	oldest_article = 1.5 #last 36h
 	max_articles_per_feed = 100
 
 	feeds = [(u'Najnowsze', u'http://www.zw.com.pl/rss/1.html')]
@@ -31,16 +33,16 @@ class zyciewarszawy(BasicNewsRecipe):
 	keep_only_tags.append(dict(name = 'div', attrs = {'id' : 'storyp'}))
 
 	remove_tags = []
-	remove_tags.append(dict(name = 'div', attrs = {'class' : 'authordate'}))
-	remove_tags.append(dict(name = 'div', attrs = {'class' : 'author'}))
-	'''remove_tags.append(dict(name = 'div', attrs = {'class' : 'seealso'}))'''
-	remove_tags.append(dict(name = 'div', attrs = {'class' : 'more'}))
-	remove_tags.append(dict(name = 'div', attrs = {'class' : 'clr'}))
-	remove_tags.append(dict(name = 'div', attrs = {'id' : 'adk_0'}))
-	remove_tags.append(dict(name = 'div', attrs = {'id' : 'adsense_0'}))
-	remove_tags.append(dict(name = 'div', attrs = {'id' : 'share_bottom'}))
-	remove_tags.append(dict(name = 'div', attrs = {'id' : 'copyright_law'}))
+	remove_tags.append(dict(attrs = {'class' : 'author'}))
+	remove_tags.append(dict(attrs = {'class' : 'more'}))
+	remove_tags.append(dict(attrs = {'class' : 'clr'}))
+	remove_tags.append(dict(attrs = {'id' : 'adk_0'}))
+	remove_tags.append(dict(attrs = {'id' : 'adsense_0'}))
+	remove_tags.append(dict(attrs = {'id' : 'share_bottom'}))
+	remove_tags.append(dict(attrs = {'id' : 'copyright_law'}))
 
+	preprocess_regexps = [(re.compile(r',3.jpg'), lambda m: ',2.jpg')]
+	
 	def print_version(self, url):
 		url += "?print=tak"
 		return url
