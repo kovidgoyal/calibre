@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class KurierSzczecinski(BasicNewsRecipe):
     title          = u'Kurier Szczeci\u0144ski'
     __author__        = 'fenuks'
-    description   = u'24Kurier jest portalem Kuriera Szczecińskiego. Zawiera aktualności ze Szczecina oraz wiadomości regionalne z  województwa zachodniopomorskiego. '
+    description   = u'24Kurier jest portalem Kuriera Szczecińskiego. Zawiera aktualności ze Szczecina oraz wiadomości regionalne z  województwa zachodniopomorskiego.'
     category       = 'newspaper'
     #publication_type = ''
     language       = 'pl'
