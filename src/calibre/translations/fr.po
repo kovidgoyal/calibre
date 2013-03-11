@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-03-08 04:51+0000\n"
-"PO-Revision-Date: 2013-03-07 18:59+0000\n"
-"Last-Translator: Ozzii <Unknown>\n"
+"POT-Creation-Date: 2013-03-10 14:12+0000\n"
+"PO-Revision-Date: 2013-03-10 13:15+0000\n"
+"Last-Translator: ymadec <ymadec@myopera.com>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-03-09 04:57+0000\n"
+"X-Launchpad-Export-Date: 2013-03-11 04:39+0000\n"
 "X-Generator: Launchpad (build 16523)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
@@ -216,27 +216,27 @@ msgstr "Personnaliser"
 msgid "Cannot configure"
 msgstr "Configuration impossible"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:322
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:331
 msgid "File type"
 msgstr "Type de fichier"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:368
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:377
 msgid "Metadata reader"
 msgstr "Lecteur de métadonnées"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:398
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:407
 msgid "Metadata writer"
 msgstr "Éditeur de métadonnées"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:428
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:437
 msgid "Catalog generator"
 msgstr "Générateur de catalogue"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:551
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:560
 msgid "User Interface Action"
 msgstr "Action d’interface utilisateur"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:585
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:594
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:197
@@ -246,12 +246,12 @@ msgstr "Action d’interface utilisateur"
 msgid "Preferences"
 msgstr "Préférences"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:637
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:646
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:39
 msgid "Store"
 msgstr "Boutique"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:641
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:650
 msgid "An ebook store."
 msgstr "Une boutique de livres numériques."
 
@@ -1165,9 +1165,21 @@ msgstr ""
 "Remarquez que s’il y a des travaux en cours, ils seront stoppés sur le "
 "champ. À utiliser avec parcimonie donc."
 
-#: /home/kovid/work/calibre/src/calibre/debug.py:177
+#: /home/kovid/work/calibre/src/calibre/debug.py:81
+msgid ""
+"Run a plugin that provides a command line interface. For example:\n"
+"calibre-debug -r \"Add Books\" -- file1 --option1\n"
+"Everything after the -- will be passed to the plugin as arguments."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/debug.py:180
 msgid "Debug log"
 msgstr "Journal de débogage"
+
+#: /home/kovid/work/calibre/src/calibre/debug.py:272
+#, python-format
+msgid "No plugin named %s found"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:19
 msgid "Communicate with Android phones."
@@ -1490,7 +1502,7 @@ msgstr "Communiquer avec le smartphone Blackberry."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:37
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:288
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:296
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
 msgid "Kovid Goyal"
 msgstr "Kovid Goyal"
@@ -1523,31 +1535,31 @@ msgstr "Communique avec la liseuse électronique EB600"
 msgid "Communicate with the Tolino Shine reader."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:204
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:212
 msgid "Communicate with the Astak Mentor EB600"
 msgstr "Communiquer avec l’Astak Mentor EB600"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:227
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:235
 msgid "Communicate with the PocketBook 301 reader."
 msgstr "Communiquer avec le lecteur PocketBook 301"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:244
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 602/603/902/903/Pro 912 reader."
 msgstr "Communique avec la liseuse PocketBook 602/603/902/903/Pro 912"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:264
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:272
 msgid "Communicate with the PocketBook 622 reader."
 msgstr "Communiquer avec le lecteur PocketBook 622."
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:277
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:285
 msgid "Communicate with the PocketBook 360+ reader."
 msgstr "Communiquer avec le lecteur PocketBook 360+."
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:287
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:295
 msgid "Communicate with the PocketBook 701"
 msgstr "Communiquer avec le PocketBook 701"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:318
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:326
 msgid "Communicate with the Infibeam Pi2 reader."
 msgstr "Communiquer avec la liseuse électronique Infibeam Pi2"
 
@@ -1855,16 +1867,11 @@ msgstr "Tentative de support d'un firmware plus récent"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:91
 msgid ""
-"Kobo routinely updates the firmware and the database version.  With this "
-"option Calibre will attempt to perform full read-write functionality - Here "
+"Kobo routinely updates the firmware and the database version. With this "
+"option calibre will attempt to perform full read-write functionality - Here "
 "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
 "factory defaults and testing software"
 msgstr ""
-"Kobo met à jour régulièrement le firmware et la version de la base de "
-"données. Avec cette option, Calibre tente de réaliser des opérations de "
-"lectures écritures - C'est là qu'il y a un loup !! Activez-la uniquement, si "
-"vous vous sentez à l'aise avec la restauration des paramètres d'usine de "
-"votre Kobo et le test de logiciels"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:619
 msgid "Kobo database version unsupported - See details"
@@ -1995,6 +2002,8 @@ msgid ""
 "Upload cover images from the calibre library when sending books to the "
 "device."
 msgstr ""
+"Charger les couvertures depuis la bibliothèque Calibre lors de l'envoi de "
+"livres vers le périphérique."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1228
 msgid "Keep cover aspect ratio"
@@ -5277,6 +5286,8 @@ msgid ""
 "Downloads metadata and covers from Edelweiss - A catalog updated by book "
 "publishers"
 msgstr ""
+"Télécharger des métadonnées et des couvertures depuis Edelweiss - Un "
+"catalogue mis à jour par des éditeurs"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:162
 msgid "Downloads metadata and covers from Google Books"
@@ -5570,7 +5581,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:125
 msgid "Updating metadata"
-msgstr ""
+msgstr "Mise à jour des métadonnées"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:130
 msgid "Updated metadata jacket"
@@ -5658,16 +5669,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:94
 #, python-format
 msgid "No file named %s exists"
-msgstr ""
+msgstr "Le fichier %s n'existe pas"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:98
 #, python-format
 msgid "No HTML file named %s exists"
-msgstr ""
+msgstr "Le fichier HTML %s n'existe pas"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:107
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:108
 #, python-format
-msgid "The anchor %s does not exist in file %s"
+msgid "The anchor %(a)s does not exist in file %(f)s"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
@@ -6545,7 +6556,7 @@ msgstr "Convertir les livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "Convert books between different ebook formats"
-msgstr ""
+msgstr "Convertir des livres entre différents formats d'ebooks"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:55
 msgid "Convert individually"
@@ -6959,7 +6970,7 @@ msgstr "Gérer les collections sur cet appareil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:26
 msgid "Change the title/author/cover etc. of books"
-msgstr ""
+msgstr "Changer le titre/auteur/couverture/etc. des livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:26
 msgid "E"
@@ -7246,7 +7257,7 @@ msgstr "O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/open.py:15
 msgid "Open the folder containing the current book's files"
-msgstr ""
+msgstr "Ouvrir le dossier contenant le livre courant"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/plugin_updates.py:18
 msgid "Plugin Updater"
@@ -7254,7 +7265,7 @@ msgstr "Mise à jour de module d’extension"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/plugin_updates.py:18
 msgid "Update any plugins you have installed in calibre"
-msgstr ""
+msgstr "Mettre à jour tous les greffons installés dans Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:34
 msgid "Polish book"
@@ -11966,7 +11977,7 @@ msgid "&Search for:"
 msgstr "&Rechercher :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:89
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:349
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:351
 msgid "F&ind"
 msgstr "C&hercher"
 
@@ -18241,12 +18252,12 @@ msgstr ""
 "hiérarchisées (des catégories qui contiennent d'autres catégories)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:77
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:419
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:421
 msgid "Match all"
 msgstr "Toutes les correspondances"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:77
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:419
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:421
 msgid "Match any"
 msgstr "Aucune correspondance"
 
@@ -19714,11 +19725,11 @@ msgstr "Supprimer l’élément"
 msgid "%s will be deleted from all books. Are you sure?"
 msgstr "%s va être effacé(e) de tous les livres. Êtes-vous sûr?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:333
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:335
 msgid "Find item in tag browser"
 msgstr "Chercher un article dans le navigateur d’étiquette"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:337
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:339
 msgid ""
 "Search for items. This is a \"contains\" search; items containing the\n"
 "text anywhere in the name will be found. You can limit the search\n"
@@ -19739,65 +19750,65 @@ msgstr ""
 "articles\n"
 "contenant le texte \"foo\""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:345
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:347
 msgid "ALT+f"
 msgstr "ALT+f"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:350
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:352
 msgid "Find the first/next matching item"
 msgstr "Chercher le premier/prochain article correspondant"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:355
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:357
 msgid "Collapse all categories"
 msgstr "Replier toutes les catégories"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:379
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:381
 msgid "No More Matches.</b><p> Click Find again to go to first match"
 msgstr ""
 "Plus de résultat.</b><p> Cliquer Chercher à nouveau pour aller au premier "
 "résultat"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:391
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:393
 msgid "Alter Tag Browser"
 msgstr "Modifier le navigateur d'étiquettes"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:397
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:399
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:281
 msgid "Sort by"
 msgstr "Classement par"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:403
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:405
 msgid "Sort by name"
 msgstr "Trier par nom"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:403
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:405
 msgid "Sort by popularity"
 msgstr "Trier par popularité"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:404
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:406
 msgid "Sort by average rating"
 msgstr "Trier par note moyenne"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:410
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:412
 msgid "Set the sort order for entries in the Tag Browser"
 msgstr "Définir l’ordre de tri des entrées dans le navigateur d’étiquettes"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:413
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:415
 msgid "Match type"
 msgstr "Type de correspondance"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:425
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:427
 msgid ""
 "When selecting multiple entries in the Tag Browser match any or all of them"
 msgstr ""
 "Quand de multiples entrées sont sélectionnées dans le navigateur "
 "d’étiquettes, fait correspondre à tout ou partie de celles-ci"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:429
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:431
 msgid "Manage authors, tags, etc"
 msgstr "Gérer auteurs, étiquettes, etc"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:430
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:432
 msgid ""
 "All of these category_managers are available by right-clicking on items in "
 "the tag browser above"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-03-08 04:51+0000\n"
+"POT-Creation-Date: 2013-03-10 14:12+0000\n"
 "PO-Revision-Date: 2013-01-03 18:47+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-03-09 05:12+0000\n"
+"X-Launchpad-Export-Date: 2013-03-11 04:53+0000\n"
 "X-Generator: Launchpad (build 16523)\n"
 "Language: zh_TW\n"
 
@@ -214,27 +214,27 @@ msgstr "自訂"
 msgid "Cannot configure"
 msgstr "不能設定"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:322
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:331
 msgid "File type"
 msgstr "檔案類型"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:368
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:377
 msgid "Metadata reader"
 msgstr "元數據讀取器"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:398
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:407
 msgid "Metadata writer"
 msgstr "元數據寫入器"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:428
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:437
 msgid "Catalog generator"
 msgstr "分類產生器"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:551
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:560
 msgid "User Interface Action"
 msgstr "使用者介面動作"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:585
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:594
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:197
@@ -244,12 +244,12 @@ msgstr "使用者介面動作"
 msgid "Preferences"
 msgstr "偏好設定"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:637
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:646
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:39
 msgid "Store"
 msgstr "商店"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:641
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:650
 msgid "An ebook store."
 msgstr "電子書商店。"
 
@@ -1081,9 +1081,21 @@ msgid ""
 "are running jobs, they will be silently aborted, so use with care."
 msgstr "原因是有執行中的 calibre 實體，如果有，應該將它關閉，注意如果有任何執行中的工作，它們會被直接中止，因此請小心使用。"
 
-#: /home/kovid/work/calibre/src/calibre/debug.py:177
+#: /home/kovid/work/calibre/src/calibre/debug.py:81
+msgid ""
+"Run a plugin that provides a command line interface. For example:\n"
+"calibre-debug -r \"Add Books\" -- file1 --option1\n"
+"Everything after the -- will be passed to the plugin as arguments."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/debug.py:180
 msgid "Debug log"
 msgstr "除錯紀錄"
+
+#: /home/kovid/work/calibre/src/calibre/debug.py:272
+#, python-format
+msgid "No plugin named %s found"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:19
 msgid "Communicate with Android phones."
@@ -1376,7 +1388,7 @@ msgstr "和黑莓機的電話交換資料"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:37
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:288
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:296
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
 msgid "Kovid Goyal"
 msgstr "Kovid Goyal"
@@ -1409,31 +1421,31 @@ msgstr "與 EB600 eBook 閱讀器連接。"
 msgid "Communicate with the Tolino Shine reader."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:204
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:212
 msgid "Communicate with the Astak Mentor EB600"
 msgstr "與 Astak Mentor EB600 連接"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:227
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:235
 msgid "Communicate with the PocketBook 301 reader."
 msgstr "與 PocketBook 301 閱讀器連接。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:244
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 602/603/902/903/Pro 912 reader."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:264
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:272
 msgid "Communicate with the PocketBook 622 reader."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:277
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:285
 msgid "Communicate with the PocketBook 360+ reader."
 msgstr "與 PocketBook 360+ 系列閱讀器連接。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:287
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:295
 msgid "Communicate with the PocketBook 701"
 msgstr "與 PocketBook 701 連接。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:318
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:326
 msgid "Communicate with the Infibeam Pi2 reader."
 msgstr "與 Infibeam Pi2 閱讀器連接。"
 
@@ -1711,8 +1723,8 @@ msgstr "嘗試支援新的韌體"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:91
 msgid ""
-"Kobo routinely updates the firmware and the database version.  With this "
-"option Calibre will attempt to perform full read-write functionality - Here "
+"Kobo routinely updates the firmware and the database version. With this "
+"option calibre will attempt to perform full read-write functionality - Here "
 "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
 "factory defaults and testing software"
 msgstr ""
@@ -4892,9 +4904,9 @@ msgstr ""
 msgid "No HTML file named %s exists"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:107
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:108
 #, python-format
-msgid "The anchor %s does not exist in file %s"
+msgid "The anchor %(a)s does not exist in file %(f)s"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
@@ -10685,7 +10697,7 @@ msgid "&Search for:"
 msgstr "搜尋(&S):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:89
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:349
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:351
 msgid "F&ind"
 msgstr "尋找(&I)"
 
@@ -16309,12 +16321,12 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:77
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:419
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:421
 msgid "Match all"
 msgstr "符合全部"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:77
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:419
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:421
 msgid "Match any"
 msgstr "符合任何"
 
@@ -17567,11 +17579,11 @@ msgstr "刪除項目"
 msgid "%s will be deleted from all books. Are you sure?"
 msgstr "%s 會從所有書籍中刪除。您確定嗎？"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:333
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:335
 msgid "Find item in tag browser"
 msgstr "尋找標籤瀏覽器的項目"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:337
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:339
 msgid ""
 "Search for items. This is a \"contains\" search; items containing the\n"
 "text anywhere in the name will be found. You can limit the search\n"
@@ -17587,61 +17599,61 @@ msgstr ""
 "輸入 *foo 會一次過濾所有的分類，只顯示那些\n"
 "含有文字「foo」的項目"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:345
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:347
 msgid "ALT+f"
 msgstr "ALT+f"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:350
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:352
 msgid "Find the first/next matching item"
 msgstr "尋找第一個/下一個符合的項目"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:355
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:357
 msgid "Collapse all categories"
 msgstr "收摺所有的分類"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:379
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:381
 msgid "No More Matches.</b><p> Click Find again to go to first match"
 msgstr "沒有其他符合項。</b><p>再按一次尋找會回瀏第一個符合項"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:391
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:393
 msgid "Alter Tag Browser"
 msgstr "替代標籤瀏覽器"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:397
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:399
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:281
 msgid "Sort by"
 msgstr "排序依"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:403
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:405
 msgid "Sort by name"
 msgstr "依名稱排序"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:403
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:405
 msgid "Sort by popularity"
 msgstr "依熱門程度排序"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:404
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:406
 msgid "Sort by average rating"
 msgstr "依平均評等排序"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:410
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:412
 msgid "Set the sort order for entries in the Tag Browser"
 msgstr "設定標籤瀏覽器中項目的排序順序"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:413
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:415
 msgid "Match type"
 msgstr "符合類型"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:425
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:427
 msgid ""
 "When selecting multiple entries in the Tag Browser match any or all of them"
 msgstr "當在標籤瀏覽器中選擇多個項目時比對它們任何一個或全部"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:429
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:431
 msgid "Manage authors, tags, etc"
 msgstr "管理作者、標籤等"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:430
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:432
 msgid ""
 "All of these category_managers are available by right-clicking on items in "
 "the tag browser above"
