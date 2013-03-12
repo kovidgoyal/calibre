@@ -679,7 +679,7 @@ OptionRecommendation(name='search_replace',
         self.archive_input_tdir = None
         if input_fmt in ARCHIVE_FMTS:
             self.log('Processing archive...')
-            tdir = PersistentTemporaryDirectory('_plumber_archive')
+            tdir = PersistentTemporaryDirectory('_pl_arc')
             self.input, input_fmt = self.unarchive(self.input, tdir)
             self.archive_input_tdir = tdir
         if os.access(self.input, os.R_OK):

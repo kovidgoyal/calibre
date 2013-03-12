@@ -30,6 +30,8 @@ def remove_dir(x):
         pass
 
 def app_prefix(prefix):
+    if iswindows:
+        return '%s_'%__appname__
     return '%s_%s_%s'%(__appname__, __version__, prefix)
 
 def base_dir():
