@@ -1,0 +1,26 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class TheFridayTimes(BasicNewsRecipe):
+    title          = u'The Friday Times'
+    language       = 'en'
+    __author__     = 'Krittika Goyal'
+
+
+    no_stylesheets = True
+    no_javascript = True
+    auto_cleanup = True
+
+
+    def parse_index(self):
+        toc = self.index_to_soup('http://www.thefridaytimes.com/beta3/tft/index.php')
+        articles = []
+        for story in toc.findAll('a', attrs={'class':'homemainlinks'}):
+            title = self.tag_to_string(story)
+            url = 'http://www.thefridaytimes.com/beta3/tft/' + story['href']
+            self.log('Found article:', story)
+            self.log('\t', url)
+            articles.append({'title':title, 'url':url, 'date':'',
+            'description':''})
+
+        return [('Current Issue', articles)]
+
