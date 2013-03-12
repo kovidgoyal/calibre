@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-03-10 14:12+0000\n"
-"PO-Revision-Date: 2013-03-10 13:15+0000\n"
-"Last-Translator: ymadec <ymadec@myopera.com>\n"
+"PO-Revision-Date: 2013-03-11 17:47+0000\n"
+"Last-Translator: Nicolas Briche <nbriche@free.fr>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-03-11 04:39+0000\n"
-"X-Generator: Launchpad (build 16523)\n"
+"X-Launchpad-Export-Date: 2013-03-12 04:45+0000\n"
+"X-Generator: Launchpad (build 16524)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -880,6 +880,8 @@ msgid ""
 "Intended for the Nook HD+ and similar tablet devices with a resolution of "
 "1280x1920"
 msgstr ""
+"Prévu pour le Nook HD+ et tablettes similaires avec une résolution de "
+"1280x1920"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:484
 msgid "This profile is intended for the Kobo Reader."
@@ -1171,6 +1173,10 @@ msgid ""
 "calibre-debug -r \"Add Books\" -- file1 --option1\n"
 "Everything after the -- will be passed to the plugin as arguments."
 msgstr ""
+"Exécute une extension qui fournit une interface en ligne de commande.  Par "
+"exemple:\n"
+"calibre-debug -r \"Add Books\" -- file1 --option1\n"
+"Tout ce qui se trouve après le -- sera passé à l'extension comme arguments."
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:180
 msgid "Debug log"
@@ -1179,7 +1185,7 @@ msgstr "Journal de débogage"
 #: /home/kovid/work/calibre/src/calibre/debug.py:272
 #, python-format
 msgid "No plugin named %s found"
-msgstr ""
+msgstr "Aucune extension nommée %s trouvée"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:19
 msgid "Communicate with Android phones."
@@ -1533,7 +1539,7 @@ msgstr "Communique avec la liseuse électronique EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:56
 msgid "Communicate with the Tolino Shine reader."
-msgstr ""
+msgstr "Communique avec la liseuse Tolino Shine"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:212
 msgid "Communicate with the Astak Mentor EB600"
@@ -1872,6 +1878,10 @@ msgid ""
 "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
 "factory defaults and testing software"
 msgstr ""
+"Kobo met à jour régulièrement le firmware et la version de la base de "
+"données. Avec cette option, Calibre tentera fonctionner en lecture-écriture -"
+" Attention, danger!! N'activez que si vous êtes confortable avec l'idée de "
+"restaurer les paramètres d'usine de votre Kobo, et de tester des logiciels."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:619
 msgid "Kobo database version unsupported - See details"
@@ -2007,7 +2017,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1228
 msgid "Keep cover aspect ratio"
-msgstr ""
+msgstr "Conserve le ratio d'aspect de la couverture"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1229
 msgid ""
@@ -5559,10 +5569,13 @@ msgid ""
 "all the book metadata such as title, tags, authors, series, comments,\n"
 "etc.</p>"
 msgstr ""
+"<p>Insère une page \"jaquette\" au début du livre, qui contient toutes les "
+"métadonnées du livre telles que le titre, les étiquettes, les auteurs, les "
+"séries, les commentaires, etc.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:74
 msgid "<p>Remove a previous inserted book jacket page.</p>\n"
-msgstr ""
+msgstr "<p>Enlève une une page jaquette insérée précédemment.</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:78
 msgid ""
@@ -5585,7 +5598,7 @@ msgstr "Mise à jour des métadonnées"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:130
 msgid "Updated metadata jacket"
-msgstr ""
+msgstr "Jaquette de métadonnées mise à jour"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:131
 msgid "Metadata updated\n"
@@ -5597,28 +5610,28 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:139
 msgid "Inserting metadata jacket"
-msgstr ""
+msgstr "Insertion d'une jaquette de métadonnées"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:142
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:146
 msgid "Existing metadata jacket replaced"
-msgstr ""
+msgstr "Jaquette de métadonnées existante remplacée"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:144
 msgid "Metadata jacket inserted"
-msgstr ""
+msgstr "Jaquette de métadonnées insérée"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:150
 msgid "Removing metadata jacket"
-msgstr ""
+msgstr "Suppression de la jaquette de métadonnées"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:152
 msgid "Metadata jacket removed"
-msgstr ""
+msgstr "Jaquette de métadonnées enlevée"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:154
 msgid "No metadata jacket found"
-msgstr ""
+msgstr "Pas de jaquette de métadonnées trouvée"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:158
 msgid "Smartening punctuation"
@@ -5638,15 +5651,20 @@ msgid ""
 "Path to a cover image. Changes the cover specified in the ebook. If no cover "
 "is present, or the cover is not properly identified, inserts a new cover."
 msgstr ""
+"Chemin vers une image de couverture. Change la couverture spécifiée dans le "
+"livre. Si aucune couverture n'est présente, ou si la couverture n'est pas "
+"identifiée correctement, insère une nouvelle couverture."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:205
 msgid ""
 "Path to an OPF file. The metadata in the book is updated from the OPF file."
 msgstr ""
+"Chemin vers un fichier OPF. Les métadonnées du livre sont mises à jour à "
+"partir du ficher OPF."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:210
 msgid "Produce more verbose output, useful for debugging."
-msgstr ""
+msgstr "Générer une sortie plus verbeuse (utile pour le débogage)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:220
 msgid "You must provide the input file to polish"
@@ -5654,11 +5672,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:224
 msgid "Unknown extra arguments"
-msgstr ""
+msgstr "Arguments supplémentaires inconnus"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:242
 msgid "You must specify at least one action to perform"
-msgstr ""
+msgstr "Vous devez spécifier au moins une action à accomplir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/replace.py:73
 #, python-format
@@ -6241,6 +6259,8 @@ msgstr "Créer un catalogue"
 msgid ""
 "Create a catalog of the books in your calibre library in different formats"
 msgstr ""
+"Crée un catalogue de livres de votre bibliothèque Calibre en différents "
+"formats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:40
 msgid "No books selected for catalog generation"
@@ -6729,7 +6749,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:86
 msgid "Delete books"
-msgstr ""
+msgstr "Supprimer les livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:86
 msgid "Remove books"
@@ -6927,6 +6947,8 @@ msgstr "Connecter/Partager"
 msgid ""
 "Share books using a web server or email. Connect to special devices, etc."
 msgstr ""
+"Partage des livres en utilisant un serveur Web ou par email. Se connecte à "
+"des périphériques spéciaux, etc."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:85
@@ -6954,7 +6976,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:264
 msgid "Still looking for IP addresses"
-msgstr ""
+msgstr "Toujours à la recherche d'adresses IP"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:267
 msgid "Many IP addresses. See Start/Stop dialog."
@@ -7185,6 +7207,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:19
 msgid "Download news in ebook form from various websites all over the world"
 msgstr ""
+"Télécharge des informations sous forme de livre, depuis des sites web "
+"partout dans le monde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:19
 msgid "F"
@@ -7299,6 +7323,12 @@ msgid ""
 "all the metadata in calibre.</p><p>There is a separate option to update the "
 "cover.</p>"
 msgstr ""
+"<h3>Mise à jour des métadonnées</h3><p>Cela mettra à jour les métadonnées "
+"<i>excepté</i> la couverture du livre pour correspondre aux métadonnées "
+"actuelles de la bibliothèque Calibre.</p><p>Notez que la plupart des formats "
+"de livres n'ont pas de support pour toutes les métadonnées de "
+"Calibre.</p><p>Il y a une option séparée pour mettre à jour la "
+"couverture.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:55
 msgid ""
@@ -7306,11 +7336,14 @@ msgid ""
 "calibre library.</p><p>If the ebook file does not have an identifiable "
 "cover, a new cover is inserted.</p>"
 msgstr ""
+"Met à jour les couvertures dans les fichiers des livres pour correspondre à "
+"la couverture actuelle dans la bibliothèque Calibre. Si le fichier du livre "
+"n'a pas de couverture identifiable, une nouvelle couverture est insérée."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:60
 #, python-format
 msgid "<h3>Book Jacket</h3>%s"
-msgstr ""
+msgstr "<h3>Jaquette de livre</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:61
 #, python-format

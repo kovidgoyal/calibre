@@ -7,16 +7,16 @@ msgstr ""
 "Project-Id-Version: calibre 0.8.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-03-10 14:12+0000\n"
-"PO-Revision-Date: 2013-01-30 06:26+0000\n"
-"Last-Translator: Andrej Znidarsic <andrej.znidarsic@gmail.com>\n"
+"PO-Revision-Date: 2013-03-11 23:36+0000\n"
+"Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Martin Srebotnjak <miles@filmsi.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
-"X-Launchpad-Export-Date: 2013-03-11 04:49+0000\n"
-"X-Generator: Launchpad (build 16523)\n"
+"X-Launchpad-Export-Date: 2013-03-12 04:46+0000\n"
+"X-Generator: Launchpad (build 16524)\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
 "X-Poedit-SourceCharset: iso-8859-1\n"
@@ -6088,11 +6088,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:33
 msgid "Start wireless device connection"
-msgstr ""
+msgstr "Zaženi povezavo z brezžično napravo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:34
 msgid "Stop wireless device connection"
-msgstr ""
+msgstr "Ustavi povezavo z brezžično napravo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:38
 msgid "Connect to folder"
@@ -12361,7 +12361,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:394
 msgid "Problem starting the wireless device"
-msgstr ""
+msgstr "Težava pri zagonu brezžične naprave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:146
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:395
