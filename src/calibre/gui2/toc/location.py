@@ -131,15 +131,14 @@ class ItemEdit(QWidget):
         la.setWordWrap(True)
         l.addWidget(la)
 
-        f.la2 = la = QLabel(_('&Name of the ToC entry:'))
+        f.la2 = la = QLabel('<b>'+_('&Name of the ToC entry:'))
         l.addWidget(la)
         self.name = QLineEdit(self)
         la.setBuddy(self.name)
         l.addWidget(self.name)
 
-        self.base_msg = _('Currently selected destination:')
+        self.base_msg = '<b>'+_('Currently selected destination:')+'</b>'
         self.dest_label = la = QLabel(self.base_msg)
-        la.setTextFormat(Qt.PlainText)
         la.setWordWrap(True)
         la.setStyleSheet('QLabel { margin-top: 20px }')
         l.addWidget(la)
@@ -163,8 +162,8 @@ class ItemEdit(QWidget):
         load_html(path, self.view, codec=encoding,
                   mime_type=self.container.mime_map[name])
         self.view.load_js()
-        self.dest_label.setText(self.base_msg + '\n' + _('File:') + ' ' +
-                                name + '\n' + _('Top of the file'))
+        self.dest_label.setText(self.base_msg + '<br>' + _('File:') + ' ' +
+                                name + '<br>' + _('Top of the file'))
 
     def __call__(self, item, where):
         self.current_item, self.current_where = item, where
@@ -173,23 +172,22 @@ class ItemEdit(QWidget):
         if item is None:
             self.dest_list.setCurrentRow(0)
             self.name.setText(_('(Untitled)'))
-            self.dest_label.setText(self.base_msg + '\n' + _('None'))
 
     def elem_clicked(self, tag, frac, elem_id, loc):
         self.current_frag = elem_id or loc
         frac = int(round(frac * 100))
-        base = _('Location: A <%s> tag inside the file')%tag
+        base = _('Location: A &lt;%s&gt; tag inside the file')%tag
         if frac == 0:
             loctext = _('Top of the file')
         else:
             loctext =  _('Approximately %d%% from the top')%frac
         loctext = base + ' [%s]'%loctext
-        self.dest_label.setText(self.base_msg + '\n' +
-                    _('File:') + ' ' + self.current_name + '\n' + loctext)
+        self.dest_label.setText(self.base_msg + '<br>' +
+                    _('File:') + ' ' + self.current_name + '<br>' + loctext)
 
     @property
     def result(self):
         return (self.current_item, self.current_where, self.current_name,
-                self.current_frag)
+                self.current_frag, unicode(self.name.text()))
 
 

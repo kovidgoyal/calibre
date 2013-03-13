@@ -16,7 +16,7 @@ from PyQt4.Qt import (QPushButton, QFrame,
     QToolButton, QItemSelectionModel)
 
 from calibre.ebooks.oeb.polish.container import get_container
-from calibre.ebooks.oeb.polish.toc import get_toc
+from calibre.ebooks.oeb.polish.toc import get_toc, add_id, TOC, commit_toc
 from calibre.gui2 import Application
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.toc.location import ItemEdit
@@ -191,43 +191,50 @@ class TOCView(QWidget): # {{{
 
     def update_status_tip(self, item):
         c = item.data(0, Qt.UserRole).toPyObject()
-        frag = c.frag or ''
-        if frag:
-            frag = '#'+frag
-        item.setStatusTip(0, _('<b>Title</b>: {0} <b>Dest</b>: {1}{2}').format(
-            c.title, c.dest, frag))
+        if c is not None:
+            frag = c.frag or ''
+            if frag:
+                frag = '#'+frag
+            item.setStatusTip(0, _('<b>Title</b>: {0} <b>Dest</b>: {1}{2}').format(
+                c.title, c.dest, frag))
 
     def data_changed(self, top_left, bottom_right):
         for r in xrange(top_left.row(), bottom_right.row()+1):
             idx = self.tocw.model().index(r, 0, top_left.parent())
             new_title = unicode(idx.data(Qt.DisplayRole).toString()).strip()
             toc = idx.data(Qt.UserRole).toPyObject()
-            toc.title = new_title or _('(Untitled)')
+            if toc is not None:
+                toc.title = new_title or _('(Untitled)')
             item = self.tocw.itemFromIndex(idx)
             self.update_status_tip(item)
+
+    def create_item(self, parent, child):
+        c = QTreeWidgetItem(parent)
+        c.setData(0, Qt.DisplayRole, child.title or _('(Untitled)'))
+        c.setData(0, Qt.UserRole, child)
+        c.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsEditable|Qt.ItemIsEnabled|
+                    Qt.ItemIsSelectable|Qt.ItemIsDropEnabled)
+        c.setData(0, Qt.DecorationRole, self.icon_map[child.dest_exists])
+        if child.dest_exists is False:
+            c.setData(0, Qt.ToolTipRole, _(
+                'The location this entry point to does not exist:\n%s')
+                %child.dest_error)
+
+        self.update_status_tip(c)
+        return c
 
     def __call__(self, ebook):
         self.ebook = ebook
         self.toc = get_toc(self.ebook)
-        blank = self.blank = QIcon(I('blank.png'))
-        ok = self.ok = QIcon(I('ok.png'))
-        err = self.err = QIcon(I('dot_red.png'))
-        icon_map = {None:blank, True:ok, False:err}
+        self.toc_lang, self.toc_uid = self.toc.lang, self.toc.uid
+        self.blank = QIcon(I('blank.png'))
+        self.ok = QIcon(I('ok.png'))
+        self.err = QIcon(I('dot_red.png'))
+        self.icon_map = {None:self.blank, True:self.ok, False:self.err}
 
-        def process_item(node, parent):
-            for child in node:
-                c = QTreeWidgetItem(parent)
-                c.setData(0, Qt.DisplayRole, child.title or _('(Untitled)'))
-                c.setData(0, Qt.UserRole, child)
-                c.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsEditable|Qt.ItemIsEnabled|
-                           Qt.ItemIsSelectable|Qt.ItemIsDropEnabled)
-                c.setData(0, Qt.DecorationRole, icon_map[child.dest_exists])
-                if child.dest_exists is False:
-                    c.setData(0, Qt.ToolTipRole, _(
-                        'The location this entry point to does not exist:\n%s')
-                        %child.dest_error)
-
-                self.update_status_tip(c)
+        def process_item(toc_node, parent):
+            for child in toc_node:
+                c = self.create_item(parent, child)
                 process_item(child, c)
 
         root = self.root = self.tocw.invisibleRootItem()
@@ -235,9 +242,37 @@ class TOCView(QWidget): # {{{
         process_item(self.toc, root)
         self.tocw.model().dataChanged.connect(self.data_changed)
         self.tocw.currentItemChanged.connect(self.current_item_changed)
+        self.tocw.setCurrentItem(None)
 
     def current_item_changed(self, current, previous):
         self.item_view(current)
+
+    def update_item(self, item, where, name, frag, title):
+        if isinstance(frag, tuple):
+            frag = add_id(self.ebook, name, frag)
+        if item is None:
+            if where is None:
+                where = self.tocw.invisibleRootItem()
+            child = TOC(title, name, frag)
+            child.dest_exists = True
+            c = self.create_item(where, child)
+            self.tocw.setCurrentItem(c, 0, QItemSelectionModel.ClearAndSelect)
+            self.tocw.scrollToItem(c)
+
+    def create_toc(self):
+        root = TOC()
+
+        def process_node(parent, toc_parent):
+            for i in xrange(parent.childCount()):
+                item = parent.child(i)
+                title = unicode(item.data(0, Qt.DisplayRole).toString()).strip()
+                toc = item.data(0, Qt.UserRole).toPyObject()
+                dest, frag = toc.dest, toc.frag
+                toc = toc_parent.add(title, dest, frag)
+                process_node(item, toc)
+
+        process_node(self.tocw.invisibleRootItem(), root)
+        return root
 
 # }}}
 
@@ -283,6 +318,7 @@ class TOCEditor(QDialog): # {{{
         self.explode_done.connect(self.read_toc, type=Qt.QueuedConnection)
 
         self.resize(950, 630)
+        self.working = True
 
     def add_new_item(self, item, where):
         self.item_edit(item, where)
@@ -290,15 +326,18 @@ class TOCEditor(QDialog): # {{{
 
     def accept(self):
         if self.stacks.currentIndex() == 2:
-            self.toc_view.update_item(self.item_edit.result)
+            self.toc_view.update_item(*self.item_edit.result)
             self.stacks.setCurrentIndex(1)
         else:
+            self.write_toc()
+            self.working = False
             super(TOCEditor, self).accept()
 
     def reject(self):
         if self.stacks.currentIndex() == 2:
             self.stacks.setCurrentIndex(1)
         else:
+            self.working = False
             super(TOCEditor, self).accept()
 
     def start(self):
@@ -309,15 +348,20 @@ class TOCEditor(QDialog): # {{{
 
     def explode(self):
         self.ebook = get_container(self.pathtobook, log=self.log)
-        if not self.isVisible():
-            return
-        self.explode_done.emit()
+        if self.working:
+            self.explode_done.emit()
 
     def read_toc(self):
         self.pi.stopAnimation()
         self.toc_view(self.ebook)
         self.item_edit.load(self.ebook)
         self.stacks.setCurrentIndex(1)
+
+    def write_toc(self):
+        toc = self.toc_view.create_toc()
+        commit_toc(self.ebook, toc, lang=self.toc_view.toc_lang,
+                   uid=self.toc_view.toc_uid)
+        self.ebook.commit()
 
 # }}}
 
