@@ -397,6 +397,10 @@ class MetadataUpdater(object):
         if 503 in self.original_exth_records:
             update_exth_record((503, mi.title.encode(self.codec, 'replace')))
 
+        # Update book producer
+        if getattr(mi, 'book_producer', False):
+            update_exth_record((108, mi.book_producer.encode(self.codec, 'replace')))
+
         # Include remaining original EXTH fields
         for id in sorted(self.original_exth_records):
             recs.append((id, self.original_exth_records[id]))
