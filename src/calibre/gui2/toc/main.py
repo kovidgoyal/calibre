@@ -9,8 +9,9 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os
 from threading import Thread
+from functools import partial
 
-from PyQt4.Qt import (QPushButton, QFrame,
+from PyQt4.Qt import (QPushButton, QFrame, QVariant,
     QDialog, QVBoxLayout, QDialogButtonBox, QSize, QStackedWidget, QWidget,
     QLabel, Qt, pyqtSignal, QIcon, QTreeWidget, QGridLayout, QTreeWidgetItem,
     QToolButton, QItemSelectionModel)
@@ -27,6 +28,8 @@ ICON_SIZE = 24
 class ItemView(QFrame): # {{{
 
     add_new_item = pyqtSignal(object, object)
+    delete_item = pyqtSignal()
+    flatten_item = pyqtSignal()
 
     def __init__(self, parent):
         QFrame.__init__(self, parent)
@@ -38,6 +41,7 @@ class ItemView(QFrame): # {{{
         l.addWidget(s)
         self.root_pane = rp = QWidget(self)
         self.item_pane = ip = QWidget(self)
+        self.current_item = None
         s.addWidget(rp)
         s.addWidget(ip)
 
@@ -49,7 +53,7 @@ class ItemView(QFrame): # {{{
             ' to be fixed.'))
         la.setStyleSheet('QLabel { margin-bottom: 20px }')
         la.setWordWrap(True)
-        l = QVBoxLayout()
+        l = rp.l = QVBoxLayout()
         rp.setLayout(l)
         l.addWidget(la)
         self.add_new_to_root_button = b = QPushButton(_('Create a &new entry'))
@@ -57,14 +61,109 @@ class ItemView(QFrame): # {{{
         l.addWidget(b)
         l.addStretch()
 
+        l = ip.l = QGridLayout()
+        ip.setLayout(l)
+        la = ip.heading = QLabel('')
+        l.addWidget(la, 0, 0, 1, 2)
+        la.setWordWrap(True)
+        la = ip.la = QLabel(_(
+            'You can move this entry around the Table of Contents by drag '
+            'and drop or using the up and down buttons to the left'))
+        la.setWordWrap(True)
+        l.addWidget(la, 1, 0, 1, 2)
+
+        # Item status
+        ip.hl1 = hl =  QFrame()
+        hl.setFrameShape(hl.HLine)
+        l.addWidget(hl, l.rowCount(), 0, 1, 2)
+        self.icon_label = QLabel()
+        self.status_label = QLabel()
+        self.status_label.setWordWrap(True)
+        l.addWidget(self.icon_label, l.rowCount(), 0)
+        l.addWidget(self.status_label, l.rowCount()-1, 1)
+        ip.hl2 = hl =  QFrame()
+        hl.setFrameShape(hl.HLine)
+        l.addWidget(hl, l.rowCount(), 0, 1, 2)
+
+        # Edit/remove item
+        rs = l.rowCount()
+        ip.b1 = b = QPushButton(QIcon(I('edit_input.png')),
+            _('Change the &location this entry points to'), self)
+        b.clicked.connect(self.edit_item)
+        l.addWidget(b, l.rowCount()+1, 0, 1, 2)
+        ip.b2 = b = QPushButton(QIcon(I('trash.png')),
+            _('&Remove this entry'), self)
+        l.addWidget(b, l.rowCount(), 0, 1, 2)
+        b.clicked.connect(self.delete_item)
+        ip.hl3 = hl =  QFrame()
+        hl.setFrameShape(hl.HLine)
+        l.addWidget(hl, l.rowCount(), 0, 1, 2)
+        l.setRowMinimumHeight(rs, 20)
+
+        # Add new item
+        rs = l.rowCount()
+        ip.b3 = b = QPushButton(QIcon(I('plus.png')), _('New entry &inside this entry'))
+        b.clicked.connect(partial(self.add_new, 'inside'))
+        l.addWidget(b, l.rowCount()+1, 0, 1, 2)
+        ip.b4 = b = QPushButton(QIcon(I('plus.png')), _('New entry &above this entry'))
+        b.clicked.connect(partial(self.add_new, 'before'))
+        l.addWidget(b, l.rowCount(), 0, 1, 2)
+        ip.b5 = b = QPushButton(QIcon(I('plus.png')), _('New entry &below this entry'))
+        b.clicked.connect(partial(self.add_new, 'after'))
+        l.addWidget(b, l.rowCount(), 0, 1, 2)
+        ip.hl4 = hl =  QFrame()
+        hl.setFrameShape(hl.HLine)
+        l.addWidget(hl, l.rowCount(), 0, 1, 2)
+        l.setRowMinimumHeight(rs, 20)
+
+        # Flatten entry
+        rs = l.rowCount()
+        ip.b3 = b = QPushButton(QIcon(I('heuristics.png')), _('&Flatten this entry'))
+        b.clicked.connect(self.flatten_item)
+        b.setToolTip(_('All children of this entry are brought to the same '
+                       'level as this entry.'))
+        l.addWidget(b, l.rowCount()+1, 0, 1, 2)
+        l.setRowMinimumHeight(rs, 20)
+
+        l.addWidget(QLabel(), l.rowCount(), 0, 1, 2)
+        l.setColumnStretch(1, 10)
+        l.setRowStretch(l.rowCount()-1, 10)
+
     def add_new_to_root(self):
         self.add_new_item.emit(None, None)
 
+    def add_new(self, where):
+        self.add_new_item.emit(self.current_item, where)
+
+    def edit_item(self):
+        self.add_new_item.emit(self.current_item, None)
+
     def __call__(self, item):
         if item is None:
+            self.current_item = None
             self.stack.setCurrentIndex(0)
         else:
+            self.current_item = item
             self.stack.setCurrentIndex(1)
+            self.populate_item_pane()
+
+    def populate_item_pane(self):
+        item = self.current_item
+        name = unicode(item.data(0, Qt.DisplayRole).toString())
+        self.item_pane.heading.setText('<h2>%s</h2>'%name)
+        self.icon_label.setPixmap(item.data(0, Qt.DecorationRole
+                                            ).toPyObject().pixmap(32, 32))
+        tt = _('This entry points to an existing destination')
+        toc = item.data(0, Qt.UserRole).toPyObject()
+        if toc.dest_exists is False:
+            tt = _('The location this entry points to does not exist')
+        elif toc.dest_exists is None:
+            tt = ''
+        self.status_label.setText(tt)
+
+    def data_changed(self, item):
+        if item is self.current_item:
+            self.populate_item_pane()
 
 # }}}
 
@@ -120,7 +219,9 @@ class TOCView(QWidget): # {{{
         self.hl = hl = QLabel(self.default_msg)
         l.addWidget(hl, col, 2, 1, -1)
         self.item_view = i = ItemView(self)
+        self.item_view.delete_item.connect(self.delete_current_item)
         i.add_new_item.connect(self.add_new_item)
+        i.flatten_item.connect(self.flatten_item)
         l.addWidget(i, 0, 4, col, 1)
 
         l.setColumnStretch(2, 10)
@@ -138,6 +239,22 @@ class TOCView(QWidget): # {{{
         for item in self.tocw.selectedItems():
             p = item.parent() or self.root
             p.removeChild(item)
+
+    def delete_current_item(self):
+        item = self.tocw.currentItem()
+        if item is not None:
+            p = item.parent() or self.root
+            p.removeChild(item)
+
+    def flatten_item(self):
+        item = self.tocw.currentItem()
+        if item is not None:
+            p = item.parent() or self.root
+            idx = p.indexOfChild(item)
+            children = [item.child(i) for i in xrange(item.childCount())]
+            for child in reversed(children):
+                item.removeChild(child)
+                p.insertChild(idx+1, child)
 
     def highlight_item(self, item):
         self.tocw.setCurrentItem(item, 0, QItemSelectionModel.ClearAndSelect)
@@ -207,9 +324,18 @@ class TOCView(QWidget): # {{{
                 toc.title = new_title or _('(Untitled)')
             item = self.tocw.itemFromIndex(idx)
             self.update_status_tip(item)
+            self.item_view.data_changed(item)
 
-    def create_item(self, parent, child):
-        c = QTreeWidgetItem(parent)
+    def create_item(self, parent, child, idx=-1):
+        if idx == -1:
+            c = QTreeWidgetItem(parent)
+        else:
+            c = QTreeWidgetItem()
+            parent.insertChild(idx, c)
+        self.populate_item(c, child)
+        return c
+
+    def populate_item(self, c, child):
         c.setData(0, Qt.DisplayRole, child.title or _('(Untitled)'))
         c.setData(0, Qt.UserRole, child)
         c.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsEditable|Qt.ItemIsEnabled|
@@ -219,9 +345,10 @@ class TOCView(QWidget): # {{{
             c.setData(0, Qt.ToolTipRole, _(
                 'The location this entry point to does not exist:\n%s')
                 %child.dest_error)
+        else:
+            c.setData(0, Qt.ToolTipRole, QVariant())
 
         self.update_status_tip(c)
-        return c
 
     def __call__(self, ebook):
         self.ebook = ebook
@@ -250,14 +377,29 @@ class TOCView(QWidget): # {{{
     def update_item(self, item, where, name, frag, title):
         if isinstance(frag, tuple):
             frag = add_id(self.ebook, name, frag)
+        child = TOC(title, name, frag)
+        child.dest_exists = True
         if item is None:
-            if where is None:
-                where = self.tocw.invisibleRootItem()
-            child = TOC(title, name, frag)
-            child.dest_exists = True
-            c = self.create_item(where, child)
+            # New entry at root level
+            c = self.create_item(self.root, child)
             self.tocw.setCurrentItem(c, 0, QItemSelectionModel.ClearAndSelect)
             self.tocw.scrollToItem(c)
+        else:
+            if where is None:
+                # Editing existing entry
+                self.populate_item(item, child)
+            else:
+                if where == 'inside':
+                    parent = item
+                    idx = -1
+                else:
+                    parent = item.parent() or self.root
+                    idx = parent.indexOfChild(item)
+                    if where == 'after': idx += 1
+                c = self.create_item(parent, child, idx=idx)
+                self.tocw.setCurrentItem(c, 0, QItemSelectionModel.ClearAndSelect)
+                self.tocw.scrollToItem(c)
+
 
     def create_toc(self):
         root = TOC()

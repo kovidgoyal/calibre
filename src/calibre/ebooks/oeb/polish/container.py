@@ -73,6 +73,7 @@ class Container(object):
         self.name_path_map = {}
         self.dirtied = set()
         self.encoding_map = {}
+        self.pretty_print = set()
 
         # Map of relative paths with '/' separators from root of unzipped ePub
         # to absolute paths on filesystem with os-specific separators
@@ -414,7 +415,8 @@ class Container(object):
         data = self.parsed(name)
         if name == self.opf_name:
             self.format_opf()
-        data = serialize(data, self.mime_map[name])
+        data = serialize(data, self.mime_map[name], pretty_print=name in
+                         self.pretty_print)
         if name == self.opf_name:
             # Needed as I can't get lxml to output opf:role and
             # not output <opf:metadata> as well

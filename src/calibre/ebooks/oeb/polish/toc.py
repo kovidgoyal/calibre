@@ -248,4 +248,5 @@ def commit_toc(container, toc, lang=None, uid=None):
     to_href = partial(container.name_to_href, base=tocname)
     root = create_ncx(toc, to_href, title, lang, uid)
     container.replace(tocname, root)
+    container.pretty_print.add(tocname)
 
