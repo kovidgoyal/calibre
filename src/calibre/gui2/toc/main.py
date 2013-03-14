@@ -16,7 +16,7 @@ from PyQt4.Qt import (QPushButton, QFrame, QVariant,
     QLabel, Qt, pyqtSignal, QIcon, QTreeWidget, QGridLayout, QTreeWidgetItem,
     QToolButton, QItemSelectionModel)
 
-from calibre.ebooks.oeb.polish.container import get_container
+from calibre.ebooks.oeb.polish.container import get_container, AZW3Container
 from calibre.ebooks.oeb.polish.toc import get_toc, add_id, TOC, commit_toc
 from calibre.gui2 import Application
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -60,6 +60,15 @@ class ItemView(QFrame): # {{{
         b.clicked.connect(self.add_new_to_root)
         l.addWidget(b)
         l.addStretch()
+        self.w1 = la = QLabel(_('<b>WARNING:</b> calibre only supports the '
+                                'creation of linear ToCs in AZW3 files. In a '
+                                'linear ToC every entry must point to a '
+                                'location after the previous entry. If you '
+                                'create a non-linear ToC it will be '
+                                'automatically re-arranged inside the AZW3 file.'
+                            ))
+        la.setWordWrap(True)
+        l.addWidget(la)
 
         l = ip.l = QGridLayout()
         ip.setLayout(l)
@@ -128,6 +137,12 @@ class ItemView(QFrame): # {{{
         l.addWidget(QLabel(), l.rowCount(), 0, 1, 2)
         l.setColumnStretch(1, 10)
         l.setRowStretch(l.rowCount()-1, 10)
+        self.w2 = la = QLabel(self.w1.text())
+        self.w2.setWordWrap(True)
+        l.addWidget(la, l.rowCount(), 0, 1, 2)
+
+    def hide_azw3_warning(self):
+        self.w1.setVisible(False), self.w2.setVisible(False)
 
     def add_new_to_root(self):
         self.add_new_item.emit(None, None)
@@ -352,6 +367,8 @@ class TOCView(QWidget): # {{{
 
     def __call__(self, ebook):
         self.ebook = ebook
+        if not isinstance(ebook, AZW3Container):
+            self.item_view.hide_azw3_warning()
         self.toc = get_toc(self.ebook)
         self.toc_lang, self.toc_uid = self.toc.lang, self.toc.uid
         self.blank = QIcon(I('blank.png'))
