@@ -18,7 +18,7 @@ from PyQt4.Qt import (QPushButton, QFrame, QVariant,
 
 from calibre.ebooks.oeb.polish.container import get_container, AZW3Container
 from calibre.ebooks.oeb.polish.toc import get_toc, add_id, TOC, commit_toc
-from calibre.gui2 import Application
+from calibre.gui2 import Application, error_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.toc.location import ItemEdit
 from calibre.utils.logging import GUILog
@@ -437,8 +437,8 @@ class TOCView(QWidget): # {{{
 
 class TOCEditor(QDialog): # {{{
 
-    explode_done = pyqtSignal()
-    writing_done = pyqtSignal()
+    explode_done = pyqtSignal(object)
+    writing_done = pyqtSignal(object)
 
     def __init__(self, pathtobook, title=None, parent=None):
         QDialog.__init__(self, parent)
@@ -500,7 +500,14 @@ class TOCEditor(QDialog): # {{{
             self.stacks.setCurrentIndex(0)
             self.bb.setEnabled(False)
 
-    def really_accept(self):
+    def really_accept(self, tb):
+        if tb:
+            error_dialog(self, _('Failed to write book'),
+                _('Could not write %s. Click "Show details" for'
+                  ' more information.')%self.book_title, det_msg=tb, show=True)
+            super(TOCEditor, self).reject()
+            return
+
         super(TOCEditor, self).accept()
 
     def reject(self):
@@ -519,23 +526,39 @@ class TOCEditor(QDialog): # {{{
         t.start()
 
     def explode(self):
-        self.ebook = get_container(self.pathtobook, log=self.log)
+        tb = None
+        try:
+            self.ebook = get_container(self.pathtobook, log=self.log)
+        except:
+            import traceback
+            tb = traceback.format_exc()
         if self.working:
             self.working = False
-            self.explode_done.emit()
+            self.explode_done.emit(tb)
 
-    def read_toc(self):
+    def read_toc(self, tb):
+        if tb:
+            error_dialog(self, _('Failed to load book'),
+                _('Could not load %s. Click "Show details" for'
+                  ' more information.')%self.book_title, det_msg=tb, show=True)
+            self.reject()
+            return
         self.pi.stopAnimation()
         self.toc_view(self.ebook)
         self.item_edit.load(self.ebook)
         self.stacks.setCurrentIndex(1)
 
     def write_toc(self):
-        toc = self.toc_view.create_toc()
-        commit_toc(self.ebook, toc, lang=self.toc_view.toc_lang,
-                   uid=self.toc_view.toc_uid)
-        self.ebook.commit()
-        self.writing_done.emit()
+        tb = None
+        try:
+            toc = self.toc_view.create_toc()
+            commit_toc(self.ebook, toc, lang=self.toc_view.toc_lang,
+                    uid=self.toc_view.toc_uid)
+            self.ebook.commit()
+        except:
+            import traceback
+            tb = traceback.format_exc()
+        self.writing_done.emit(tb)
 
 # }}}
 
