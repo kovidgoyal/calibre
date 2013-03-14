@@ -1,0 +1,66 @@
+__license__   = 'GPL v3'
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+'''
+Fetch Computerwoche.
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Computerwoche(BasicNewsRecipe):
+
+    title = 'Computerwoche'
+    description = 'german computer newspaper'
+    language = 'de'
+    __author__ = 'Maria Seliger'
+    use_embedded_content   = False
+    timefmt = ' [%d %b %Y]'
+    max_articles_per_feed = 15
+    linearize_tables = True
+    no_stylesheets = True
+    remove_stylesheets = True
+    remove_javascript = True
+    encoding = 'utf-8'
+    html2epub_options = 'base_font_size=10'
+    summary_length = 100
+    auto_cleanup = True
+
+
+    extra_css = '''
+                    h2{font-family:Arial,Helvetica,sans-serif; font-size: x-small; color: #003399;}
+                    a{font-family:Arial,Helvetica,sans-serif; font-size: x-small; font-style:italic;}
+                    .dachzeile p{font-family:Arial,Helvetica,sans-serif; font-size: x-small; }
+                    h1{ font-family:Arial,Helvetica,sans-serif;  font-size:x-large; font-weight:bold;}
+                    .artikelTeaser{font-family:Arial,Helvetica,sans-serif; font-size: x-small; font-weight:bold; }
+                    body{font-family:Arial,Helvetica,sans-serif; }
+                    .photo {font-family:Arial,Helvetica,sans-serif; font-size: x-small; color: #666666;}                 '''
+
+    feeds =  [ ('Computerwoche', 'http://rss.feedsportal.com/c/312/f/4414/index.rss'),
+           ('IDG Events', 'http://rss.feedsportal.com/c/401/f/7544/index.rss'),
+           ('Computerwoche Jobs und Karriere', 'http://rss.feedsportal.com/c/312/f/434082/index.rss'),
+           ('Computerwoche BI und ECM', 'http://rss.feedsportal.com/c/312/f/434083/index.rss'),
+           ('Computerwoche Cloud Computing', 'http://rss.feedsportal.com/c/312/f/534647/index.rss'),
+           ('Computerwoche Compliance und Recht', 'http://rss.feedsportal.com/c/312/f/434084/index.rss'),
+           ('Computerwoche CRM', 'http://rss.feedsportal.com/c/312/f/434085/index.rss'),
+           ('Computerwoche Data Center und Server', 'http://rss.feedsportal.com/c/312/f/434086/index.rss'),
+           ('Computerwoche ERP', 'http://rss.feedsportal.com/c/312/f/434087/index.rss'),
+           ('Computerwoche IT Macher', 'http://rss.feedsportal.com/c/312/f/534646/index.rss'),
+           ('Computerwoche IT-Services', 'http://rss.feedsportal.com/c/312/f/434089/index.rss'),
+           ('Computerwoche IT-Strategie', 'http://rss.feedsportal.com/c/312/f/434090/index.rss'),
+           ('Computerwoche Mittelstands-IT', 'http://rss.feedsportal.com/c/312/f/434091/index.rss'),
+           ('Computerwoche Mobile und Wireless', 'http://rss.feedsportal.com/c/312/f/434092/index.rss'),
+           ('Computerwoche Netzwerk', 'http://rss.feedsportal.com/c/312/f/434093/index.rss'),
+           ('Computerwoche Notebook und PC', 'http://rss.feedsportal.com/c/312/f/434094/index.rss'),
+           ('Computerwoche Office und Tools', 'http://rss.feedsportal.com/c/312/f/434095/index.rss'),
+           ('Computerwoche Security', 'http://rss.feedsportal.com/c/312/f/434098/index.rss'),
+           ('Computerwoche SOA und BPM', 'http://rss.feedsportal.com/c/312/f/434099/index.rss'),
+           ('Computerwoche Software Infrastruktur', 'http://rss.feedsportal.com/c/312/f/434096/index.rss'),
+           ('Computerwoche Storage', 'http://rss.feedsportal.com/c/312/f/534645/index.rss'),
+           ('Computerwoche VoIP und TK', 'http://rss.feedsportal.com/c/312/f/434102/index.rss'),
+           ('Computerwoche Web', 'http://rss.feedsportal.com/c/312/f/434103/index.rss'),
+               ('Computerwoche Home-IT', 'http://rss.feedsportal.com/c/312/f/434104/index.rss')]
+
+
+    def print_version(self, url):
+        return url.replace ('/a/', '/a/print/')
+

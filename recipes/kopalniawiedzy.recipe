@@ -16,6 +16,7 @@ class KopalniaWiedzy(BasicNewsRecipe):
     max_articles_per_feed = 100
     INDEX          = u'http://kopalniawiedzy.pl/'
     remove_javascript     = True
+    remove_empty_feeds = True
     no_stylesheets        = True
 
     remove_tags    = [{'name':'p', 'attrs': {'class': 'keywords'}}, {'name':'div', 'attrs': {'class':'sexy-bookmarks sexy-bookmarks-bg-caring'}}, {'name':'div', 'attrs': {'class':'article-time-and-cat'}}, {'name':'p', 'attrs': {'class':'tags'}}]

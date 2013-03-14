@@ -3,7 +3,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup as bs
 class KurierGalicyjski(BasicNewsRecipe):
     title          = u'Kurier Galicyjski'
     __author__        = 'fenuks'
-    #description   = u''
+    description   = u'Kurier Galicyjski - największa gazeta dla Polaków na Ukrainie. Bieżące wydarzenia z życia polskiej mniejszości, historia, kultura, polityka, reportaże.'
     category       = 'news'
     language       = 'pl'
     cover_url = 'http://www.duszki.pl/Kurier_galicyjski_bis2_small.gif'

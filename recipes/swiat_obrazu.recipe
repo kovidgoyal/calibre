@@ -1,7 +1,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Swiat_Obrazu(BasicNewsRecipe):
-    title          = u'Swiat Obrazu'
+    title          = u'Świat Obrazu'
     __author__        = 'fenuks'
     description   = u'Internetowy Dziennik o Fotografii i Wideo www.SwiatObrazu.pl to źródło informacji o technice fotografii i wideo, o sprzęcie najbardziej znanych i uznanych firm: Canon, Nikon, Sony, Hasselblad i wielu innych. Znajdziecie tu programy do obróbki zdjęć, forum foto i forum wideo i galerie zdjęć. Codziennie najświeższe informacje: aktualności, testy, poradniki, wywiady, felietony. Swiatobrazu.pl stale organizuje konkursy oraz warsztaty fotograficzne i wideo.'
     category       = 'photography'
