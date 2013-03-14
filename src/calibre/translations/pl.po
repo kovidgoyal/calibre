@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-10 14:12+0000\n"
-"PO-Revision-Date: 2013-03-07 10:08+0000\n"
-"Last-Translator: Isamu715 <isamu715@gmail.com>\n"
+"PO-Revision-Date: 2013-03-13 16:03+0000\n"
+"Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-03-11 04:46+0000\n"
-"X-Generator: Launchpad (build 16523)\n"
+"X-Launchpad-Export-Date: 2013-03-14 04:47+0000\n"
+"X-Generator: Launchpad (build 16532)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -349,7 +349,7 @@ msgstr "Konwertuj książki na różne formaty"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Fine tune your ebooks"
-msgstr "Doszlifuj swoje książki"
+msgstr "Dopracuj swoje książki"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Delete books from your calibre library or connected device"
@@ -1142,6 +1142,9 @@ msgid ""
 "calibre-debug -r \"Add Books\" -- file1 --option1\n"
 "Everything after the -- will be passed to the plugin as arguments."
 msgstr ""
+"Uruchom wtyczkę, która obsługuje linię poleceń. Na przykład:\n"
+"calbre-debug -r \"Add Books\" --plik1 --opcja1\n"
+"Elementy poprzedzone -- zostaną przekazane do wtyczki jako argumenty."
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:180
 msgid "Debug log"
@@ -1150,7 +1153,7 @@ msgstr "Dziennik debugowania"
 #: /home/kovid/work/calibre/src/calibre/debug.py:272
 #, python-format
 msgid "No plugin named %s found"
-msgstr ""
+msgstr "Nie znaleziono wtyczki o nazwie %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:19
 msgid "Communicate with Android phones."
@@ -1493,7 +1496,7 @@ msgstr "Umożliwia komunikację z czytnikiem książek EB600."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:56
 msgid "Communicate with the Tolino Shine reader."
-msgstr ""
+msgstr "Umożliwia komunikację z czytnikiem Tolino Shine."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:212
 msgid "Communicate with the Astak Mentor EB600"
@@ -1826,6 +1829,10 @@ msgid ""
 "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
 "factory defaults and testing software"
 msgstr ""
+"Kobo rutynowo uaktualnia oprogramowanie systemowe i bazę danych. Dzięki tej "
+"opcji calibre będzie próbować utrzymać pełną funkcjonalność odczytu-zapisu - "
+"i o to chodzi! Ustaw tę opcję jeśli masz doświadczenie w przywracaniu "
+"ustawień fabrycznych i testowaniu oprogramowania"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:619
 msgid "Kobo database version unsupported - See details"
@@ -5536,17 +5543,17 @@ msgstr "Wprowadzono inteligentną interpunkcję w %s"
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:94
 #, python-format
 msgid "No file named %s exists"
-msgstr ""
+msgstr "Nie istnieje plik o nazwie %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:98
 #, python-format
 msgid "No HTML file named %s exists"
-msgstr ""
+msgstr "Nie istnieje plik HTML o nazwie %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:108
 #, python-format
 msgid "The anchor %(a)s does not exist in file %(f)s"
-msgstr ""
+msgstr "Zakładka %(a)s nie istnieje w pliku %(f)s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
@@ -5758,7 +5765,7 @@ msgstr "Pokaż średnie oceny pozycji w przeglądarce etykiet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:212
 msgid "Disable UI animations"
-msgstr "Zablokuj animacje UI"
+msgstr "Wyłącz animacje UI"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:217
 msgid "tag browser categories not to display"
@@ -7319,7 +7326,7 @@ msgid ""
 "those formats before polishing."
 msgstr ""
 "Dopracowywanie jest możliwe tylko dla formatów %s. Przekonwertuj książki do "
-"jednego z tych formatów aby je doszlifować."
+"jednego z tych formatów aby je dopracować."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:457
 #, python-format
@@ -12003,6 +12010,8 @@ msgid ""
 "Invalid identifier string. It must be a comma-separated list of pairs of "
 "strings separated by a colon"
 msgstr ""
+"Błędny identyfikator. Musi być oddzielaną przecinkami listą par ciągów "
+"znaków rozdzielonych dwukropkiem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:946
 msgid "Search/replace invalid"
@@ -12196,6 +12205,11 @@ msgid ""
 " the EPUB from ORIGINAL_EPUB. Useful if you did a bulk\n"
 " conversion of a large number of books and something went wrong."
 msgstr ""
+"Przy konwersji na ten sam format np. EPUB na EPUB\n"
+"calibre zapisuje oryginalny EPUB jako ORIGINAL_EPUB.\n"
+"Ta opcja powoduje odzyskanie orygnalnego EPUB\n"
+"z ORIGINAL_EPUB. Jest to przydatne jeśli konwertowano\n"
+"automatycznie dużą liczbę plików i coś poszło nie tak."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:608
 msgid "Restore pre conversion &originals, if available"
@@ -12418,6 +12432,10 @@ msgid ""
 "              a * if you want to replace the entire set of identifiers with\n"
 "              the result of the search/replace.</p>"
 msgstr ""
+"<p>Wybierz typ identyfikatora do przetwarzania. Jeśli pole źródłowe\n"
+"              jest inne niż 'identifiers' można wprowadzić * jeśli aby "
+"zamienić\n"
+"              cały zestaw identyfikatorów na wynik wyszukiwania/zamiany.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:661
 msgid "For multiple-valued fields, sho&w"
@@ -19513,7 +19531,7 @@ msgstr "Pierwsza litera jest używana wyłącznie przy sortowaniu wg nazwy."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:101
 msgid "Select a destination for the Table of Contents entry"
-msgstr ""
+msgstr "Wybierz miejsce docelowe dla elementu spisu treści"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:121
 msgid ""
@@ -19525,46 +19543,54 @@ msgid ""
 "green line appears, indicating the precise location that will be selected "
 "when you click."
 msgstr ""
+"Tu można wybrać miejsce docelowe dla elementu spisu treści. Najpierw wybierz "
+"plik książki w lewym panelu. Plik zostanie otworzony w środkowym panelu. "
+"<p>Następnie wybierz lokalizację w pliku. Po prostu kliknij w środkowym "
+"panelu miejsce, do którego ma się odnosić element spisu treści. Przy "
+"przesuwaniu myszy nad środkowym panelem pojawi się zielony znacznik, "
+"wskazujący dokładne miejsce, które zostanie zaznaczone kiedy klikniesz."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:134
 msgid "&Name of the ToC entry:"
-msgstr ""
+msgstr "&Nazwa elementu spisu treści"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:140
 msgid "Currently selected destination:"
-msgstr ""
+msgstr "Aktualnie wybrane miejsce docelowe:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:188
 msgid "File:"
-msgstr ""
+msgstr "Plik:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:183
 msgid "Top of the file"
-msgstr ""
+msgstr "Początek pliku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:175
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:205
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:220
 msgid "(Untitled)"
-msgstr ""
+msgstr "(Bez tytułu)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:181
 #, python-format
 msgid "Location: A <%s> tag inside the file"
-msgstr ""
+msgstr "Lokalizacja: znacznik <%s> w pliku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:185
 #, python-format
 msgid "Approximately %d%% from the top"
-msgstr ""
+msgstr "Mniej więcej %d%% od początku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:45
 msgid ""
 "You can edit existing entries in the Table of Contents by clicking them in "
 "the panel to the left."
 msgstr ""
+"Można edytować istniejące elementy spisu treści kliknąwszy je w panelu po "
+"lewej stronie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:47
 msgid ""
@@ -19572,38 +19598,41 @@ msgid ""
 "verified to exist. Entries with a red dot are broken and may need to be "
 "fixed."
 msgstr ""
+"Elementy z zielonym znaczkiem wskazują na lokalizacje, które zostały "
+"zweryfikowane. Elementy z czerwoną kropką są nieprawidłowe i wymagają "
+"poprawienia."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:55
 msgid "Create a &new entry"
-msgstr ""
+msgstr "Utwórz &nowy element"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:98
 msgid "Move current entry up"
-msgstr ""
+msgstr "Przesuń bieżący element do góry"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:104
 msgid "Remove all selected entries"
-msgstr ""
+msgstr "Usuń wszystkie wybrane elementy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:110
 msgid "Move current entry down"
-msgstr ""
+msgstr "Przesuń bieżący element do dołu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:112
 msgid "&Expand all"
-msgstr ""
+msgstr "&Rozwiń wszystkie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:116
 msgid "&Collapse all"
-msgstr ""
+msgstr "&Zwiń wszystkie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:119
 msgid "Double click on an entry to change the text"
-msgstr ""
+msgstr "Kliknij element dwa razy aby zmienić tekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:197
 msgid "<b>Title</b>: {0} <b>Dest</b>: {1}{2}"
-msgstr ""
+msgstr "<b>Tytuł</b>: {0} <b>Cel</b>: {1}{2}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:227
 #, python-format
@@ -19611,16 +19640,18 @@ msgid ""
 "The location this entry point to does not exist:\n"
 "%s"
 msgstr ""
+"Lokalizacja tego elementu nie istnieje:\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:253
 #, python-format
 msgid "Edit the ToC in %s"
-msgstr ""
+msgstr "Edytuj spis treści w %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:269
 #, python-format
 msgid "Loading %s, please wait..."
-msgstr ""
+msgstr "Wczytywanie %s, proszę czekać"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:70
 #, python-format
@@ -24206,7 +24237,7 @@ msgstr "angielski"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:145
 msgid "English (Argentina)"
-msgstr "Angielski (Argentyna)"
+msgstr "angielski (Argentyna)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:146
 msgid "English (Australia)"
@@ -24214,11 +24245,11 @@ msgstr "angielski (Australia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:147
 msgid "English (Japan)"
-msgstr "Angielski (Japonia)"
+msgstr "angielski (Japonia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:148
 msgid "English (Germany)"
-msgstr "Angielski (Niemcy)"
+msgstr "angielski (Niemcy)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:149
 msgid "English (Bulgaria)"
@@ -24226,7 +24257,7 @@ msgstr "angielski (Bułgaria)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:150
 msgid "English (Egypt)"
-msgstr "Angielski (Egipt)"
+msgstr "angielski (Egipt)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:151
 msgid "English (New Zealand)"
@@ -24266,7 +24297,7 @@ msgstr "angielski (Czechy)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:160
 msgid "English (Philippines)"
-msgstr "Angielski (Filipiny)"
+msgstr "angielski (Filipiny)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:161
 msgid "English (Pakistan)"
@@ -24278,11 +24309,11 @@ msgstr "angielski (Chorwacja)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:163
 msgid "English (Hong Kong)"
-msgstr "Angielski (Hong Kong)"
+msgstr "angielski (Hong Kong)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:164
 msgid "English (Hungary)"
-msgstr "Angielski (Węgry)"
+msgstr "angielski (Węgry)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:165
 msgid "English (Indonesia)"
