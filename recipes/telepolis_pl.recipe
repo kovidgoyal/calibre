@@ -3,7 +3,6 @@
 __license__ = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 
 class telepolis(BasicNewsRecipe):
@@ -17,11 +16,31 @@ class telepolis(BasicNewsRecipe):
     use_embedded_content = False
 
     feeds = [
-        (u'Wiadomości', u'http://www.telepolis.pl/rss/news.php')#,
-        #(u'Artykuły', u'http://www.telepolis.pl/rss/artykuly.php')
+        (u'Wiadomości', u'http://www.telepolis.pl/rss,2,5,0.html')
     ]
 
     keep_only_tags = [
         dict(name='div', attrs={'class':'flol w510'}),
+        dict(name='div', attrs={'class':'main_tresc'}),
         dict(name='div', attrs={'class':'main_tresc_news'})
     ]
+
+    def append_page(self, soup, appendtag):
+        chpage= appendtag.find(attrs={'class':'str'})
+        if chpage:
+            for page in chpage.findAll('a'):
+                if page.renderContents() == 'Następna &rsaquo;':
+                    break
+                soup2 = self.index_to_soup(page['href'])
+                pagetext = soup2.find(attrs={'class':'main_tresc'})
+                pos = len(appendtag.contents)
+                appendtag.insert(pos, pagetext)
+            for r in appendtag.findAll(attrs={'class':'str'}):
+                r.extract()
+
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        for image in soup.findAll('img'):
+            if 'm.jpg' in image['src']:
+                image['src'] = image['src'].replace('m.jpg', '.jpg')
+        return soup

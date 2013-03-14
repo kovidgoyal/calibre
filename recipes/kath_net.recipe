@@ -7,6 +7,10 @@ class AdvancedUserRecipe1295262156(BasicNewsRecipe):
     oldest_article = 7
     language = 'de'
     max_articles_per_feed = 100
+    no_stylesheets = True
+    auto_cleanup = True
+    encoding='iso-8859-1'
+
 
     feeds          = [(u'kath.net', u'http://www.kath.net/2005/xml/index.xml')]
 

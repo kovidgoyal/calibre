@@ -242,16 +242,31 @@ class Stylizer(object):
                     if t:
                         text += u'\n\n' + force_unicode(t, u'utf-8')
                 if text:
-                    text = XHTML_CSS_NAMESPACE + text
-                    text = oeb.css_preprocessor(text)
+                    text = oeb.css_preprocessor(text, add_namespace=True)
+                    # We handle @import rules separately
+                    parser.setFetcher(lambda x: ('utf-8', b''))
                     stylesheet = parser.parseString(text, href=cssname,
                             validate=False)
+                    parser.setFetcher(self._fetch_css_file)
                     stylesheet.namespaces['h'] = XHTML_NS
-                    stylesheets.append(stylesheet)
+                    for rule in stylesheet.cssRules:
+                        if rule.type == rule.IMPORT_RULE:
+                            ihref = item.abshref(rule.href)
+                            if rule.media.mediaText == 'amzn-mobi': continue
+                            hrefs = self.oeb.manifest.hrefs
+                            if ihref not in hrefs:
+                                self.logger.warn('Ignoring missing stylesheet in @import rule:', rule.href)
+                                continue
+                            sitem = hrefs[ihref]
+                            if sitem.media_type not in OEB_STYLES:
+                                self.logger.warn('CSS @import of non-CSS file %r' % rule.href)
+                                continue
+                            stylesheets.append(sitem.data)
                     # Make links to resources absolute, since these rules will
                     # be folded into a stylesheet at the root
                     replaceUrls(stylesheet, item.abshref,
                             ignoreImportRules=True)
+                    stylesheets.append(stylesheet)
             elif elem.tag == XHTML('link') and elem.get('href') \
                  and elem.get('rel', 'stylesheet').lower() == 'stylesheet' \
                  and elem.get('type', CSS_MIME).lower() in OEB_STYLES:
@@ -555,8 +570,8 @@ class Style(object):
             return
         css = attrib['style'].split(';')
         css = filter(None, (x.strip() for x in css))
-        css = [x.strip() for x in css]
-        css = [x for x in css if self.MS_PAT.match(x) is None]
+        css = [y.strip() for y in css]
+        css = [y for y in css if self.MS_PAT.match(y) is None]
         css = '; '.join(css)
         try:
             style = parseStyle(css, validate=False)

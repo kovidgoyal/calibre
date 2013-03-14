@@ -35,7 +35,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 0, 6)
+    version = (2, 0, 7)
 
     dbversion = 0
     fwversion = 0
@@ -89,7 +89,7 @@ class KOBO(USBMS):
                 'Enable if you wish to see/delete them.'),
             _('Attempt to support newer firmware') +
             ':::'+_('Kobo routinely updates the firmware and the '
-                'database version.  With this option Calibre will attempt '
+                'database version. With this option calibre will attempt '
                 'to perform full read-write functionality - Here be Dragons!! '
                 'Enable only if you are comfortable with restoring your kobo '
                 'to factory defaults and testing software'),
@@ -1207,6 +1207,7 @@ class KOBOTOUCH(KOBO):
     supported_dbversion     = 75
     min_supported_dbversion = 53
     min_dbversion_series    = 65
+    min_dbversion_archive   = 71
 
     booklist_class = KTCollectionsBookList
     book_class = Book
@@ -1384,7 +1385,7 @@ class KOBOTOUCH(KOBO):
         for idx,b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
-        def update_booklist(prefix, path, title, authors, mime, date, ContentID, ContentType, ImageID, readstatus, MimeType, expired, favouritesindex, accessibility, isdownloaded, series, seriesnumber, bookshelves):
+        def update_booklist(prefix, path, title, authors, mime, date, ContentID, ContentType, ImageID, readstatus, MimeType, expired, favouritesindex, accessibility, isdownloaded, series, seriesnumber, userid, bookshelves):
             show_debug = self.is_debugging_title(title)
 #            show_debug = authors == 'L. Frank Baum'
             if show_debug:
@@ -1404,6 +1405,7 @@ class KOBOTOUCH(KOBO):
                 if lpath not in playlist_map:
                     playlist_map[lpath] = []
 
+                allow_shelves = True
                 if readstatus == 1:
                     playlist_map[lpath].append('Im_Reading')
                 elif readstatus == 2:
@@ -1415,6 +1417,7 @@ class KOBOTOUCH(KOBO):
                 # this shows an expired Collection so the user can decide to delete the book
                 if expired == 3:
                     playlist_map[lpath].append('Expired')
+                    allow_shelves = False
                 # A SHORTLIST is supported on the touch but the data field is there on most earlier models
                 if favouritesindex == 1:
                     playlist_map[lpath].append('Shortlist')
@@ -1426,21 +1429,31 @@ class KOBOTOUCH(KOBO):
                 if isdownloaded == 'false':
                     if self.dbversion < 56 and accessibility <= 1 or self.dbversion >= 56 and accessibility == -1:
                         playlist_map[lpath].append('Deleted')
+                        allow_shelves = False
                         if show_debug:
                             debug_print("KoboTouch:update_booklist - have a deleted book")
-                # Label Previews
+                    elif self.supports_kobo_archive() and (accessibility == 1 or accessibility == 2):
+                        playlist_map[lpath].append('Archived')
+                        allow_shelves = True
+
+                # Label Previews and Recommendations
                 if accessibility == 6:
-                    if isdownloaded == 'false':
+                    if userid == '':
                         playlist_map[lpath].append('Recommendation')
+                        allow_shelves = False
                     else:
                         playlist_map[lpath].append('Preview')
-                elif accessibility == 4:
+                        allow_shelves = False
+                elif accessibility == 4:        # Pre 2.x.x firmware
                     playlist_map[lpath].append('Recommendation')
+                    allow_shelves = False
 
                 kobo_collections = playlist_map[lpath][:]
 
-                if len(bookshelves) > 0:
-                    playlist_map[lpath].extend(bookshelves)
+                if allow_shelves:
+#                    debug_print('KoboTouch:update_booklist - allowing shelves - title=%s' % title)
+                    if len(bookshelves) > 0:
+                        playlist_map[lpath].extend(bookshelves)
 
                 if show_debug:
                     debug_print('KoboTouch:update_booklist - playlist_map=', playlist_map)
@@ -1481,11 +1494,12 @@ class KOBOTOUCH(KOBO):
                     bl[idx].contentID           = ContentID
                     bl[idx].kobo_series         = series
                     bl[idx].kobo_series_number  = seriesnumber
+                    bl[idx].can_put_on_shelves  = allow_shelves
 
                     if lpath in playlist_map:
                         bl[idx].device_collections  = playlist_map.get(lpath,[])
-                        bl[idx].current_shelves = bookshelves
-                        bl[idx].kobo_collections = kobo_collections
+                        bl[idx].current_shelves     = bookshelves
+                        bl[idx].kobo_collections    = kobo_collections
 
                     if show_debug:
                         debug_print('KoboTouch:update_booklist - updated bl[idx].device_collections=', bl[idx].device_collections)
@@ -1524,12 +1538,13 @@ class KOBOTOUCH(KOBO):
                         debug_print("    kobo_collections:", kobo_collections)
 
                     # print 'Update booklist'
-                    book.device_collections  = playlist_map.get(lpath,[])# if lpath in playlist_map else []
-                    book.current_shelves     = bookshelves
-                    book.kobo_collections    = kobo_collections
-                    book.contentID           = ContentID
-                    book.kobo_series         = series
-                    book.kobo_series_number  = seriesnumber
+                    book.device_collections = playlist_map.get(lpath,[])# if lpath in playlist_map else []
+                    book.current_shelves    = bookshelves
+                    book.kobo_collections   = kobo_collections
+                    book.contentID          = ContentID
+                    book.kobo_series        = series
+                    book.kobo_series_number = seriesnumber
+                    book.can_put_on_shelves = allow_shelves
 #                    debug_print('KoboTouch:update_booklist - title=', title, 'book.device_collections', book.device_collections)
 
                     if bl.add_book(book, replace_metadata=False):
@@ -1585,20 +1600,22 @@ class KOBOTOUCH(KOBO):
 
             opts = self.settings()
             if self.supports_series():
-                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, ' \
-                    'IsDownloaded, Series, SeriesNumber ' \
-                    ' from content ' \
-                    ' where BookID is Null %(previews)s %(recomendations)s and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % \
+                query= ("select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, " \
+                    "ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, " \
+                    "IsDownloaded, Series, SeriesNumber, ___UserID " \
+                    " from content " \
+                    " where BookID is Null " \
+                    " and ((Accessibility = -1 and IsDownloaded in ('true', 1)) or (Accessibility in (1,2)) %(previews)s %(recomendations)s )" \
+                    " and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s") % \
                         dict(\
-                             expiry=' and ContentType = 6)' if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')', \
-                             previews=' and Accessibility <> 6' if opts.extra_customization[self.OPT_SHOW_PREVIEWS] == False else '', \
-                             recomendations=' and IsDownloaded in (\'true\', 1)' if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] == False else ''\
+                             expiry=" and ContentType = 6)" if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ")", \
+                             previews=" or (Accessibility in (6) and ___UserID <> '')" if opts.extra_customization[self.OPT_SHOW_PREVIEWS] else "", \
+                             recomendations=" or (Accessibility in (-1, 4, 6) and ___UserId = '')" if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] else "" \
                              )
             elif self.dbversion >= 33:
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
                     'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, ' \
-                    'IsDownloaded, null as Series, null as SeriesNumber' \
+                    'IsDownloaded, null as Series, null as SeriesNumber, ___UserID' \
                     ' from content ' \
                     ' where BookID is Null %(previews)s %(recomendations)s and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % \
                         dict(\
@@ -1609,14 +1626,14 @@ class KOBOTOUCH(KOBO):
             elif self.dbversion >= 16 and self.dbversion < 33:
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
                     'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, ' \
-                    '"1" as IsDownloaded, null as Series, null as SeriesNumber' \
+                    '"1" as IsDownloaded, null as Series, null as SeriesNumber, ___UserID' \
                     ' from content where ' \
                     'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
                     if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
             else:
                 query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
                     'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility, ' \
-                    '"1" as IsDownloaded, null as Series, null as SeriesNumber' \
+                    '"1" as IsDownloaded, null as Series, null as SeriesNumber, ___UserID' \
                     ' from content where BookID is Null'
 
             debug_print("KoboTouch:books - query=", query)
@@ -1657,10 +1674,10 @@ class KOBOTOUCH(KOBO):
                 bookshelves = get_bookshelvesforbook(connection, row[3])
 
                 if oncard != 'carda' and oncard != 'cardb' and not row[3].startswith("file:///mnt/sd/"):
-                    changed = update_booklist(self._main_prefix,   path, row[0], row[1], mime, row[2], row[3], row[5], row[6], row[7], row[4], row[8], row[9], row[10], row[11], row[12], row[13], bookshelves)
+                    changed = update_booklist(self._main_prefix,   path, row[0], row[1], mime, row[2], row[3], row[5], row[6], row[7], row[4], row[8], row[9], row[10], row[11], row[12], row[13], row[14], bookshelves)
                     # print "shortbook: " + path
                 elif oncard == 'carda' and row[3].startswith("file:///mnt/sd/"):
-                    changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[3], row[5], row[6], row[7], row[4], row[8], row[9], row[10], row[11], row[12], row[13], bookshelves)
+                    changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[3], row[5], row[6], row[7], row[4], row[8], row[9], row[10], row[11], row[12], row[13], row[14], bookshelves)
 
                 if changed:
                     need_sync = True
@@ -1870,10 +1887,11 @@ class KOBOTOUCH(KOBO):
 
         # Only process categories in this list
         supportedcategories = {
-            "Im_Reading":1,
-            "Read":2,
-            "Closed":3,
-            "Shortlist":4,
+            "Im_Reading":   1,
+            "Read":         2,
+            "Closed":       3,
+            "Shortlist":    4,
+            "Archived":     5,
             # "Preview":99, # Unsupported as we don't want to change it
             }
 
@@ -2496,11 +2514,15 @@ class KOBOTOUCH(KOBO):
         opts = self.settings()
         return opts.extra_customization[self.OPT_KEEP_COVER_ASPECT_RATIO]
 
+
     def supports_bookshelves(self):
         return self.dbversion >= self.min_supported_dbversion
 
     def supports_series(self):
         return self.dbversion >= self.min_dbversion_series
+
+    def supports_kobo_archive(self):
+        return self.dbversion >= self.min_dbversion_archive
 
 
     @classmethod

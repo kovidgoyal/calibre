@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class CD_Action(BasicNewsRecipe):
     title          = u'CD-Action'
     __author__        = 'fenuks'
-    description   = 'cdaction.pl - polish games magazine site'
+    description   = 'Strona CD-Action (CDA), największego w Polsce pisma dla graczy.Pełne wersje gier, newsy, recenzje, zapowiedzi, konkursy, forum, opinie, galerie screenów,trailery, filmiki, patche, teksty. Gry komputerowe (PC) oraz na konsole (PS3, XBOX 360).'
     category       = 'games'
     language       = 'pl'
     index='http://www.cdaction.pl'

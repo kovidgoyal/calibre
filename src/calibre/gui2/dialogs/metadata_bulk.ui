@@ -1006,7 +1006,7 @@ not multiple and the destination field is multiple</string>
               </sizepolicy>
              </property>
              <property name="toolTip">
-              <string>&lt;p&gt;Choose which identifier type to operate upon. If the
+              <string>&lt;p&gt;Choose which identifier type to operate upon. When the
               source field is something other than 'identifiers' you can enter
               a * if you want to replace the entire set of identifiers with
               the result of the search/replace.&lt;/p&gt;</string>

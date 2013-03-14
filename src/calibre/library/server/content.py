@@ -210,7 +210,9 @@ class ContentServer(object):
         fm = self.db.format_metadata(id, format, allow_cache=False)
         if not fm:
             raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
-        mi = newmi = self.db.get_metadata(id, index_is_id=True)
+        update_metadata = format in {'MOBI', 'EPUB', 'AZW3'}
+        mi = newmi = self.db.get_metadata(
+            id, index_is_id=True, cover_as_data=True, get_cover=update_metadata)
 
         cherrypy.response.headers['Last-Modified'] = \
             self.last_modified(max(fm['mtime'], mi.last_modified))
@@ -234,7 +236,7 @@ class ContentServer(object):
                 newmi = mi.deepcopy_metadata()
                 newmi.template_to_attribute(mi, cpb)
 
-        if format in {'MOBI', 'EPUB', 'AZW3'}:
+        if update_metadata:
             # Write the updated file
             from calibre.ebooks.metadata.meta import set_metadata
             set_metadata(fmt, newmi, format.lower())

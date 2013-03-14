@@ -1,0 +1,27 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class KurierSzczecinski(BasicNewsRecipe):
+    title          = u'Kurier Szczeci\u0144ski'
+    __author__        = 'fenuks'
+    description   = u'24Kurier jest portalem Kuriera Szczecińskiego. Zawiera aktualności ze Szczecina oraz wiadomości regionalne z  województwa zachodniopomorskiego.'
+    category       = 'newspaper'
+    #publication_type = ''
+    language       = 'pl'
+    #encoding = ''
+    #extra_css = ''
+    cover_url = 'http://www.24kurier.pl/Administracja/Img/24kurier_logo-copy-po-zapis'
+    #masthead_url = ''
+    use_embedded_content = False
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    remove_javascript = True
+    remove_attributes = ['style', 'font']
+    ignore_duplicate_articles = {'title', 'url'}
+
+    keep_only_tags = [dict(attrs={'class':'section'})]
+    remove_tags = [dict(attrs={'class':['Ikonki', 'rek', 'artComments']})]
+    remove_tags_after = dict(attrs={'class':'artComments'})
+    #remove_tags_before = dict()
+    feeds          = [(u'Aktualno\u015bci', u'http://www.24kurier.pl/cmspages/articles_rss.aspx'), (u'Kraj', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=kraj'), (u'\u015awiat', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=swiat'), (u'Sport', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=sport'), (u'Kultura', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=kultura'), (u'Gospodarka', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=gospodarka'), (u'Nauka', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=nauka'), (u'Region', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=region'), (u'Szczecin', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=szczecin'), (u'Bia\u0142ogard', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=bialogard'), (u'Choszczno', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=choszczno'), (u'Drawsko', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=drawsko'), (u'Goleni\xf3w', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=goleniow'), (u'Gryfice', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=gryfice'), (u'Gryfino', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=gryfino'), (u'Kamie\u0144 Pomorski', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=kamien'), (u'Ko\u0142obrzeg', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=kolobrzeg'), (u'Koszalin', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=koszalin'), (u'\u0141obez', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=lobez'), (u'My\u015blib\xf3rz', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=mysliborz'), (u'Police', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=police'), (u'Pyrzyce', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=pyrzyce'), (u'S\u0142awno', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=slawno'), (u'Stargard', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=stargard'), (u'Szczecinek', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=szczecinek'), (u'\u015awidwin', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=swidwin'), (u'\u015awinouj\u015bcie', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=swinoujscie'), (u'Wa\u0142cz', u'http://www.24kurier.pl/cmspages/articles_rss.aspx?dzial=walcz')]

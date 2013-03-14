@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Bash_org_pl(BasicNewsRecipe):
     title          = u'Bash.org.pl'
     __author__        = 'fenuks'
-    description   = 'Bash.org.pl - funny quotations from IRC discussions'
+    description   = 'Bash.org.pl - zabawne cytaty z IRC'
     category       = 'funny quotations, humour'
     language       = 'pl'
     cover_url = u'http://userlogos.org/files/logos/dzikiosiol/none_0.png'

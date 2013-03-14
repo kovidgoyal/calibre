@@ -232,11 +232,14 @@ class CopyToLibraryAction(InterfaceAction):
             return error_dialog(self.gui, _('No library'),
                     _('No library found at %s')%loc, show=True)
 
-        self.pd = ProgressDialog(_('Copying'), min=0, max=len(ids)-1,
+        aname = _('Moving to') if delete_after else _('Copying to')
+        dtitle = '%s %s'%(aname, os.path.basename(loc))
+
+        self.pd = ProgressDialog(dtitle, min=0, max=len(ids)-1,
                 parent=self.gui, cancelable=False)
 
         def progress(idx, title):
-            self.pd.set_msg(_('Copying') + ' ' + title)
+            self.pd.set_msg(title)
             self.pd.set_value(idx)
 
         self.worker = Worker(ids, db, loc, Dispatcher(progress),
@@ -245,13 +248,16 @@ class CopyToLibraryAction(InterfaceAction):
 
         self.pd.exec_()
 
+        donemsg = _('Copied %(num)d books to %(loc)s')
+        if delete_after:
+            donemsg = _('Moved %(num)d books to %(loc)s')
+
         if self.worker.error is not None:
             e, tb = self.worker.error
             error_dialog(self.gui, _('Failed'), _('Could not copy books: ') + e,
                     det_msg=tb, show=True)
         else:
-            self.gui.status_bar.show_message(
-                    _('Copied %(num)d books to %(loc)s') %
+            self.gui.status_bar.show_message(donemsg %
                     dict(num=len(ids), loc=loc), 2000)
             if self.worker.auto_merged_ids:
                 books = '\n'.join(self.worker.auto_merged_ids.itervalues())

@@ -24,17 +24,16 @@ class KorespondentPL(BasicNewsRecipe):
     extra_css      = '.naglowek {font-size: small}\n .tytul {font-size: x-large; padding-bottom: 10px; padding-top: 30px} \n .external {font-size: small}'
 
     preprocess_regexps = [
-			(re.compile(u'<a href="index\.php.*>(.*)</a>'),
-			lambda match: match.group(1) ),
-			(re.compile(u'<i>'),
-			lambda match:'<i class="external">' ),
-			(re.compile(u'<p></p>Więcej'),
-			lambda match:'Więcej' ),
-			(re.compile(u'target="_blank"'),
-			lambda match:'target="_blank" class="external"' ),
-			(re.compile(u'<p align="center">\nPoczytaj inne teksty w <a href="http://www.korespondent.pl">Serwisie wolnorynkowym Korespondent.pl</a>.*</body>', re.DOTALL|re.IGNORECASE),
-			lambda match: '</div></body>'),
-			]
+                        (re.compile(u'<a href="index\.php.*>(.*)</a>'),
+                        lambda match: match.group(1) ),
+                        (re.compile(u'<i>'),
+                        lambda match:'<i class="external">' ),
+                        (re.compile(u'<p></p>Więcej'),
+                        lambda match:'Więcej' ),
+                        (re.compile(u'target="_blank"'),
+                        lambda match:'target="_blank" class="external"' ),
+                        (re.compile(u'<p align="center">\nPoczytaj inne teksty w <a href="http://www.korespondent.pl">Serwisie wolnorynkowym Korespondent.pl</a>.*</body>', re.DOTALL|re.IGNORECASE),
+                        lambda match: '</div></body>'),
+                        ]
 
     feeds = [(u'Serwis informacyjny', u'http://korespondent.pl/rss.xml')]
-

@@ -166,7 +166,7 @@ class ZshCompleter(object): # {{{
                 exclude = u"'(- *)'"
             h = opt.help or ''
             h = h.replace('"', "'").replace('[', '(').replace(
-                ']', ')').replace('\n', ' ').replace(':', '\\:')
+                ']', ')').replace('\n', ' ').replace(':', '\\:').replace('`', "'")
             h = h.replace('%default', type(u'')(opt.default))
             arg = ''
             if opt.takes_value():

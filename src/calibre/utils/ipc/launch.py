@@ -167,8 +167,14 @@ class Worker(object):
         '''
         exe = self.gui_executable if self.gui else self.executable
         env = self.env
-        env[b'ORIGWD'] = binascii.hexlify(cPickle.dumps(cwd or
-                                    os.path.abspath(os.getcwdu())))
+        try:
+            env[b'ORIGWD'] = binascii.hexlify(cPickle.dumps(
+                cwd or os.path.abspath(os.getcwdu())))
+        except EnvironmentError:
+            # cwd no longer exists
+            env[b'ORIGWD'] = binascii.hexlify(cPickle.dumps(
+                cwd or os.path.expanduser(u'~')))
+
         _cwd = cwd
         if priority is None:
             priority = prefs['worker_process_priority']

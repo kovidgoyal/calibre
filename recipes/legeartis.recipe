@@ -1,6 +1,6 @@
 #!/usr/bin/env  python
 
-__license__	= 'GPL v3'
+__license__     = 'GPL v3'
 __author__ = 'Mori'
 __version__ = 'v. 0.1'
 '''
@@ -10,34 +10,34 @@ olgierd.bblog.pl
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class LegeArtisRecipe(BasicNewsRecipe):
-	__author__ = 'Mori'
-	language = 'pl'
+    __author__ = 'Mori'
+    language = 'pl'
 
-	title = u'Lege Artis'
-	publisher = u'Olgierd Rudak'
-	description = u'Wszystko, co chcieliby\u015bcie wiedzie\u0107 o prawie, ale wstydzicie si\u0119 zapyta\u0107'
+    title = u'Lege Artis'
+    publisher = u'Olgierd Rudak'
+    description = u'Wszystko, co chcieliby\u015bcie wiedzie\u0107 o prawie, ale wstydzicie si\u0119 zapyta\u0107'
 
-	max_articles_per_feed = 100
-	
-	no_stylesheets = True
-	remove_javascript = True
-	
-	extra_css = '''
-		img{clear: both;}
-	'''
-	
-	feeds = [
-		(u'Lege Artis', u'http://olgierd.bblog.pl/rss/rss20.xml')
-	]
-	
-	keep_only_tags = [
-		dict(name = 'div', attrs = {'class' : 'post_title'}),
-		dict(name = 'div', attrs = {'class' : 'post_date'}),
-		dict(name = 'div', attrs = {'class' : 'post_content'})
-	]
-	
-	remove_tags = [
-		dict(name = 'div', attrs = {'id' : 'bb_tools'}),
-		dict(name = 'div', attrs = {'class' : 'post_comments'}),
-		dict(name = 'object', attrs = {})
-	]
+    max_articles_per_feed = 100
+
+    no_stylesheets = True
+    remove_javascript = True
+
+    extra_css = '''
+            img{clear: both;}
+    '''
+
+    feeds = [
+            (u'Lege Artis', u'http://olgierd.bblog.pl/rss/rss20.xml')
+    ]
+
+    keep_only_tags = [
+            dict(name = 'div', attrs = {'class' : 'post_title'}),
+            dict(name = 'div', attrs = {'class' : 'post_date'}),
+            dict(name = 'div', attrs = {'class' : 'post_content'})
+    ]
+
+    remove_tags = [
+            dict(name = 'div', attrs = {'id' : 'bb_tools'}),
+            dict(name = 'div', attrs = {'class' : 'post_comments'}),
+            dict(name = 'object', attrs = {})
+    ]

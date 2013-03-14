@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+__license__   = 'GPL v3'
+__copyright__   = u'Łukasz Grąbczewski 2012-2013'
+__version__   = '1.2'
+
+'''
+zw.com.pl
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class zyciewarszawy(BasicNewsRecipe):
+	__author__ = u'Łukasz Grączewski'
+	title = u'Życie Warszawy'
+	description = u'Wiadomości z Warszawy'
+	language = 'pl'
+	publisher = 'Presspublica'
+	publication_type = 'newspaper'
+	masthead_url = 'http://www.zw.com.pl/static/img/logo_zw.gif'
+	no_stylesheets = True
+	remove_javascript = True
+	use_embedded_content = False
+	remove_empty_feeds = True
+
+	oldest_article = 1.5 #last 36h
+	max_articles_per_feed = 100
+
+	feeds = [(u'Najnowsze', u'http://www.zw.com.pl/rss/1.html')]
+
+	keep_only_tags = []
+	keep_only_tags.append(dict(name = 'div', attrs = {'id' : 'storyp'}))
+
+	remove_tags = []
+	remove_tags.append(dict(attrs = {'class' : 'author'}))
+	remove_tags.append(dict(attrs = {'class' : 'more'}))
+	remove_tags.append(dict(attrs = {'class' : 'clr'}))
+	remove_tags.append(dict(attrs = {'id' : 'adk_0'}))
+	remove_tags.append(dict(attrs = {'id' : 'adsense_0'}))
+	remove_tags.append(dict(attrs = {'id' : 'share_bottom'}))
+	remove_tags.append(dict(attrs = {'id' : 'copyright_law'}))
+
+	preprocess_regexps = [(re.compile(r',3.jpg'), lambda m: ',2.jpg')]
+
+	def print_version(self, url):
+		url += "?print=tak"
+		return url

@@ -7,17 +7,13 @@ class Computerworld_pl(BasicNewsRecipe):
     description   = u'Serwis o IT w przemyśle, finansach, handlu, administracji oraz rynku IT i telekomunikacyjnym - wiadomości, opinie, analizy, porady prawne'
     category       = 'IT'
     language       = 'pl'
-    masthead_url= 'http://g1.computerworld.pl/cw/beta_gfx/cw2.gif'
-    no_stylesheets=True
+    masthead_url = 'http://g1.computerworld.pl/cw/beta_gfx/cw2.gif'
+    cover_url = 'http://g1.computerworld.pl/cw/beta_gfx/cw2.gif'
+    no_stylesheets = True
     oldest_article = 7
     max_articles_per_feed = 100
-    keep_only_tags=[dict(attrs={'class':['tyt_news', 'prawo', 'autor', 'tresc']})]
-    remove_tags_after=dict(name='div', attrs={'class':'rMobi'})
-    remove_tags=[dict(name='div', attrs={'class':['nnav', 'rMobi']}), dict(name='table', attrs={'class':'ramka_slx'})]
+    keep_only_tags = [dict(attrs={'class':['tyt_news', 'prawo', 'autor', 'tresc']})]
+    remove_tags_after = dict(name='div', attrs={'class':'rMobi'})
+    remove_tags = [dict(name='div', attrs={'class':['nnav', 'rMobi']}), dict(name='table', attrs={'class':'ramka_slx'})]
     feeds          = [(u'Wiadomo\u015bci', u'http://rssout.idg.pl/cw/news_iso.xml')]
 
-    def get_cover_url(self):
-        soup = self.index_to_soup('http://www.computerworld.pl/')
-        cover=soup.find(name='img', attrs={'class':'prawo'})
-        self.cover_url=cover['src']
-        return getattr(self, 'cover_url', self.cover_url)
