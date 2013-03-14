@@ -18,7 +18,7 @@ from PyQt4.Qt import (QPushButton, QFrame, QVariant,
 
 from calibre.ebooks.oeb.polish.container import get_container, AZW3Container
 from calibre.ebooks.oeb.polish.toc import get_toc, add_id, TOC, commit_toc
-from calibre.gui2 import Application, error_dialog
+from calibre.gui2 import Application, error_dialog, gprefs
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.toc.location import ItemEdit
 from calibre.utils.logging import GUILog
@@ -482,6 +482,9 @@ class TOCEditor(QDialog): # {{{
         self.writing_done.connect(self.really_accept, type=Qt.QueuedConnection)
 
         self.resize(950, 630)
+        geom = gprefs.get('toc_editor_window_geom', None)
+        if geom is not None:
+            self.restoreGeometry(bytes(geom))
 
     def add_new_item(self, item, where):
         self.item_edit(item, where)
@@ -501,10 +504,12 @@ class TOCEditor(QDialog): # {{{
             self.bb.setEnabled(False)
 
     def really_accept(self, tb):
+        gprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
         if tb:
             error_dialog(self, _('Failed to write book'),
                 _('Could not write %s. Click "Show details" for'
                   ' more information.')%self.book_title, det_msg=tb, show=True)
+            gprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
             super(TOCEditor, self).reject()
             return
 
@@ -517,7 +522,8 @@ class TOCEditor(QDialog): # {{{
             self.stacks.setCurrentIndex(1)
         else:
             self.working = False
-            super(TOCEditor, self).accept()
+            gprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
+            super(TOCEditor, self).reject()
 
     def start(self):
         t = Thread(target=self.explode)
