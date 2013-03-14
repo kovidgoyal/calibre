@@ -57,5 +57,8 @@ class Smithsonian(BasicNewsRecipe):
                 self.log('\tFound article:', title)
                 articles.append({'title':title, 'url':url, 'description':desc, 'date':''})
 
+        if articles:
+            feeds[section_title] = articles
+
         ans = [(key, val) for key, val in feeds.iteritems()]
         return ans
