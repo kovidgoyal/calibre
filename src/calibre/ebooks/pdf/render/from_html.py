@@ -92,7 +92,7 @@ class Page(QWebPage): # {{{
 
     @pyqtSlot(result=bool)
     def shouldInterruptJavaScript(self):
-        if self.longjs_counter < 5:
+        if self.longjs_counter < 10:
             self.log('Long running javascript, letting it proceed')
             self.longjs_counter += 1
             return False
