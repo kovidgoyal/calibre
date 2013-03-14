@@ -25,7 +25,7 @@ class Smithsonian(BasicNewsRecipe):
         soup = self.index_to_soup(current_issue_url)
 
         #Go to the main body
-        div = soup.find ('div', attrs={'id':'content-inset'})
+        div = soup.find ('div', attrs={'id':'article-body'})
 
         #Find date
         date = re.sub('.*\:\W*', "", self.tag_to_string(div.find('h2')).strip())
@@ -36,35 +36,26 @@ class Smithsonian(BasicNewsRecipe):
 
         feeds = OrderedDict()
         section_title = ''
-        subsection_title = ''
+        articles = []
         for post in div.findAll('div', attrs={'class':['plainModule', 'departments plainModule']}):
-            articles = []
-            prefix = ''
-            h3=post.find('h3')
-            if h3 is not None:
-                section_title = self.tag_to_string(h3)
+            h4=post.find('h3')
+            if h4 is not None:
+                if articles:
+                    if section_title not in feeds:
+                        feeds[section_title] = []
+                    feeds[section_title] += articles
+                section_title = self.tag_to_string(h4)
+                articles = []
+                self.log('Found section:', section_title)
             else:
-                subsection=post.find('p',attrs={'class':'article-cat'})
                 link=post.find('a',href=True)
                 url=link['href']+'?c=y&story=fullstory'
-                if subsection is not None:
-                    subsection_title = self.tag_to_string(subsection).strip()
-                    prefix = (subsection_title+': ')
-                    description=self.tag_to_string(post('p', limit=2)[1]).strip()
-                else:
-                    if post.find('img') is not None:
-                        subsection_title = self.tag_to_string(post.findPrevious('div', attrs={'class':'departments plainModule'}).find('p', attrs={'class':'article-cat'})).strip()
-                        prefix = (subsection_title+': ')
-
-                    description=self.tag_to_string(post.find('p')).strip()
+                description=self.tag_to_string(post.find('p')).strip()
                 desc=re.sub('\sBy\s.*', '', description, re.DOTALL)
                 author=re.sub('.*By\s', '', description, re.DOTALL)
-                title=prefix + self.tag_to_string(link).strip()+ u' (%s)'%author
+                title=self.tag_to_string(link).strip()+ u' (%s)'%author
+                self.log('\tFound article:', title)
                 articles.append({'title':title, 'url':url, 'description':desc, 'date':''})
 
-            if articles:
-                if section_title not in feeds:
-                    feeds[section_title] = []
-                feeds[section_title] += articles
         ans = [(key, val) for key, val in feeds.iteritems()]
         return ans
