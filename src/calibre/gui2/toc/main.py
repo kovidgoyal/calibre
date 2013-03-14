@@ -421,6 +421,7 @@ class TOCView(QWidget): # {{{
 class TOCEditor(QDialog): # {{{
 
     explode_done = pyqtSignal()
+    writing_done = pyqtSignal()
 
     def __init__(self, pathtobook, title=None, parent=None):
         QDialog.__init__(self, parent)
@@ -428,6 +429,7 @@ class TOCEditor(QDialog): # {{{
         self.working = True
 
         t = title or os.path.basename(pathtobook)
+        self.book_title = t
         self.setWindowTitle(_('Edit the ToC in %s')%t)
         self.setWindowIcon(QIcon(I('highlight_only_on.png')))
 
@@ -444,7 +446,7 @@ class TOCEditor(QDialog): # {{{
         pi.setDisplaySize(200)
         pi.startAnimation()
         ll.addWidget(pi, alignment=Qt.AlignHCenter|Qt.AlignCenter)
-        la = self.la = QLabel(_('Loading %s, please wait...')%t)
+        la = self.wait_label = QLabel(_('Loading %s, please wait...')%t)
         la.setWordWrap(True)
         la.setStyleSheet('QLabel { font-size: 20pt }')
         ll.addWidget(la, alignment=Qt.AlignHCenter|Qt.AlignTop)
@@ -460,6 +462,7 @@ class TOCEditor(QDialog): # {{{
         bb.rejected.connect(self.reject)
 
         self.explode_done.connect(self.read_toc, type=Qt.QueuedConnection)
+        self.writing_done.connect(self.really_accept, type=Qt.QueuedConnection)
 
         self.resize(950, 630)
 
@@ -471,12 +474,21 @@ class TOCEditor(QDialog): # {{{
         if self.stacks.currentIndex() == 2:
             self.toc_view.update_item(*self.item_edit.result)
             self.stacks.setCurrentIndex(1)
-        else:
-            self.write_toc()
+        elif self.stacks.currentIndex() == 1:
             self.working = False
-            super(TOCEditor, self).accept()
+            Thread(target=self.write_toc).start()
+            self.pi.startAnimation()
+            self.wait_label.setText(_('Writing %s, please wait...')%
+                                    self.book_title)
+            self.stacks.setCurrentIndex(0)
+            self.bb.setEnabled(False)
+
+    def really_accept(self):
+        super(TOCEditor, self).accept()
 
     def reject(self):
+        if not self.bb.isEnabled():
+            return
         if self.stacks.currentIndex() == 2:
             self.stacks.setCurrentIndex(1)
         else:
@@ -506,6 +518,7 @@ class TOCEditor(QDialog): # {{{
         commit_toc(self.ebook, toc, lang=self.toc_view.toc_lang,
                    uid=self.toc_view.toc_uid)
         self.ebook.commit()
+        self.writing_done.emit()
 
 # }}}
 
