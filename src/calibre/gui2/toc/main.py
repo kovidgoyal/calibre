@@ -425,6 +425,7 @@ class TOCEditor(QDialog): # {{{
     def __init__(self, pathtobook, title=None, parent=None):
         QDialog.__init__(self, parent)
         self.pathtobook = pathtobook
+        self.working = True
 
         t = title or os.path.basename(pathtobook)
         self.setWindowTitle(_('Edit the ToC in %s')%t)
@@ -444,6 +445,7 @@ class TOCEditor(QDialog): # {{{
         pi.startAnimation()
         ll.addWidget(pi, alignment=Qt.AlignHCenter|Qt.AlignCenter)
         la = self.la = QLabel(_('Loading %s, please wait...')%t)
+        la.setWordWrap(True)
         la.setStyleSheet('QLabel { font-size: 20pt }')
         ll.addWidget(la, alignment=Qt.AlignHCenter|Qt.AlignTop)
         self.toc_view = TOCView(self)
@@ -460,7 +462,6 @@ class TOCEditor(QDialog): # {{{
         self.explode_done.connect(self.read_toc, type=Qt.QueuedConnection)
 
         self.resize(950, 630)
-        self.working = True
 
     def add_new_item(self, item, where):
         self.item_edit(item, where)
@@ -491,6 +492,7 @@ class TOCEditor(QDialog): # {{{
     def explode(self):
         self.ebook = get_container(self.pathtobook, log=self.log)
         if self.working:
+            self.working = False
             self.explode_done.emit()
 
     def read_toc(self):

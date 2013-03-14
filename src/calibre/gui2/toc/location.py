@@ -37,6 +37,7 @@ class Page(QWebPage): # {{{
     def javaScriptAlert(self, frame, msg):
         self.log(unicode(msg))
 
+    @pyqtSlot(result=bool)
     def shouldInterruptJavaScript(self):
         return True
 
