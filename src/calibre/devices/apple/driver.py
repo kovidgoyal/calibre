@@ -21,7 +21,8 @@ from calibre.utils.config import config_dir, dynamic, prefs
 from calibre.utils.date import now, parse_date
 from calibre.utils.zipfile import ZipFile
 
-DEBUG = CALIBRE_DEBUG
+#DEBUG = CALIBRE_DEBUG
+DEBUG = False
 
 def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
 
