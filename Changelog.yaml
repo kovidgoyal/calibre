@@ -19,6 +19,75 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.23
+  date: 2013-03-15
+
+  new features:
+    - title: "New tool: \"Edit ToC\" that allows you to edit or create a Table of Contents easily in EPUB or AZW3 ebooks."
+      type: major
+      description: "Using the Edit ToC tool, you can easily re-arrange the entries in an existing Table of Contents, change their text and even change the location they point to by simply clicking the new location in the book. To use this tool, go to Preferences->Toolbar and add the Edit ToC tool to the main toolbar. Then simply select the books you want to be polished and click the Edit ToC button. This tool is based on a new codebase, so there may be bugs."
+
+    - title: "Content server: Enable use of plugboards for mobi and azw3 formats"
+
+    - title: "Windows driver for Tolino Shine"
+      tickets: [1153536]
+
+    - title: "When copying books to another library, show the name of the destination library in the copy dialog"
+      tickets: [1153407]
+
+    - title: "Allow running plugins from the command line with calibre-debug easily"
+ 
+  bug fixes:
+    - title: "PDF Output: Fix bug causing left and right margins to be applied to the cover page. Also fix the preserve cover aspect ratio option not working correctly"
+
+    - title: "PDF Output: Fix javascript dialog box popping up in the middle on converting very long documents."
+      tickets: [1154948]
+
+    - title: "MOBI metadata: When setting the language in a MOBI file also update the language field in the EXTH header."
+      tickets: [1154351]
+
+    - title: "MOBI metadata: Support writing of book producer field into MOBI files."
+      tickets: [1154353]
+
+    - title: "Fix job progress and status not always updated"
+      tickets: [1154137]
+
+    - title: "Fix conversion of zip.rar archives with very long title/author on windows"
+      tickets: [1153859]
+
+    - title: "News download: Update the library used to parse RSS feeds."
+      tickets: [1152852]
+
+    - title: "Fix Irex Illiad not recognized on OS X computers"
+      tickets: [824713]
+
+    - title: "Fix entering a very long search in the find item in tag browser box causes the tag browser to no longer be shrinkable."
+      tickets: [1152870]
+
+    - title: "Fix a bug in the zsh completion when converting for ebook-convert with PDF output"
+
+  improved recipes:
+    - Various Polish news sources
+    - Harpers Full
+    - kath.net
+    - Smithsonian
+
+  new recipes:
+    - title: Deccan Herald 
+      author: Muruli Shamanna
+
+    - title: What If 
+      author: kisnick
+
+    - title: The Friday Times 
+      tickets: Krittika Goyal
+
+    - title: Computer Woche 
+      author: Maria Seliger
+
+    - title: Lamebook 
+      author: atordo
+
 - version: 0.9.22
   date: 2013-03-08
 
