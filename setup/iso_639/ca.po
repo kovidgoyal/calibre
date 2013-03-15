@@ -12,13 +12,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-03-13 15:26+0000\n"
+"PO-Revision-Date: 2013-03-14 19:35+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-03-14 04:48+0000\n"
+"X-Launchpad-Export-Date: 2013-03-15 04:56+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 "Language: ca\n"
 
@@ -19824,7 +19824,7 @@ msgstr "Omurano"
 
 #. name for omw
 msgid "Tairora; South"
-msgstr ""
+msgstr "Tairora; Meridional"
 
 #. name for omx
 msgid "Mon; Old"
@@ -24460,27 +24460,27 @@ msgstr "Tagoí"
 
 #. name for tah
 msgid "Tahitian"
-msgstr ""
+msgstr "Tahitià"
 
 #. name for taj
 msgid "Tamang; Eastern"
-msgstr ""
+msgstr "Tamang; Oriental"
 
 #. name for tak
 msgid "Tala"
-msgstr ""
+msgstr "Tala"
 
 #. name for tal
 msgid "Tal"
-msgstr ""
+msgstr "Tal"
 
 #. name for tam
 msgid "Tamil"
-msgstr ""
+msgstr "Tamil"
 
 #. name for tan
 msgid "Tangale"
-msgstr ""
+msgstr "Tangale"
 
 #. name for tao
 msgid "Yami"
@@ -24488,11 +24488,11 @@ msgstr ""
 
 #. name for tap
 msgid "Taabwa"
-msgstr ""
+msgstr "Tabua"
 
 #. name for taq
 msgid "Tamasheq"
-msgstr ""
+msgstr "Tamahaq; Kidal"
 
 #. name for tar
 msgid "Tarahumara; Central"
@@ -24500,7 +24500,7 @@ msgstr "Tarahumara; Central"
 
 #. name for tas
 msgid "Tay Boi"
-msgstr ""
+msgstr "Tay Boi"
 
 #. name for tat
 msgid "Tatar"
@@ -24512,15 +24512,15 @@ msgstr "Tanana; Alt"
 
 #. name for tav
 msgid "Tatuyo"
-msgstr ""
+msgstr "Tatuyo"
 
 #. name for taw
 msgid "Tai"
-msgstr ""
+msgstr "Tai (Papua Nova Guinea)"
 
 #. name for tax
 msgid "Tamki"
-msgstr ""
+msgstr "Tamki"
 
 #. name for tay
 msgid "Atayal"
@@ -24528,7 +24528,7 @@ msgstr ""
 
 #. name for taz
 msgid "Tocho"
-msgstr ""
+msgstr "Tocho"
 
 #. name for tba
 msgid "Aikanã"
@@ -24536,11 +24536,11 @@ msgstr ""
 
 #. name for tbb
 msgid "Tapeba"
-msgstr ""
+msgstr "Tapeba"
 
 #. name for tbc
 msgid "Takia"
-msgstr ""
+msgstr "Takia"
 
 #. name for tbd
 msgid "Kaki Ae"
@@ -24548,7 +24548,7 @@ msgstr ""
 
 #. name for tbe
 msgid "Tanimbili"
-msgstr ""
+msgstr "Tanimbili"
 
 #. name for tbf
 msgid "Mandara"
@@ -24556,11 +24556,11 @@ msgstr ""
 
 #. name for tbg
 msgid "Tairora; North"
-msgstr ""
+msgstr "Tairora; Septentrional"
 
 #. name for tbh
 msgid "Thurawal"
-msgstr ""
+msgstr "Thurawal"
 
 #. name for tbi
 msgid "Gaam"
@@ -24568,27 +24568,27 @@ msgstr ""
 
 #. name for tbj
 msgid "Tiang"
-msgstr ""
+msgstr "Tiang"
 
 #. name for tbk
 msgid "Tagbanwa; Calamian"
-msgstr ""
+msgstr "Tagbanwa; Calamià"
 
 #. name for tbl
 msgid "Tboli"
-msgstr ""
+msgstr "Tiboli"
 
 #. name for tbm
 msgid "Tagbu"
-msgstr ""
+msgstr "Tagbu"
 
 #. name for tbn
 msgid "Tunebo; Barro Negro"
-msgstr ""
+msgstr "Tunebo; Barro Negro"
 
 #. name for tbo
 msgid "Tawala"
-msgstr ""
+msgstr "Tawala"
 
 #. name for tbp
 msgid "Taworta"
@@ -24596,27 +24596,27 @@ msgstr ""
 
 #. name for tbr
 msgid "Tumtum"
-msgstr ""
+msgstr "Tumtum"
 
 #. name for tbs
 msgid "Tanguat"
-msgstr ""
+msgstr "Tanguat"
 
 #. name for tbt
 msgid "Tembo (Kitembo)"
-msgstr ""
+msgstr "Tembo (Kitembo)"
 
 #. name for tbu
 msgid "Tubar"
-msgstr ""
+msgstr "Tubar"
 
 #. name for tbv
 msgid "Tobo"
-msgstr ""
+msgstr "Tobo"
 
 #. name for tbw
 msgid "Tagbanwa"
-msgstr ""
+msgstr "Tagbanwa"
 
 #. name for tbx
 msgid "Kapin"
@@ -24624,7 +24624,7 @@ msgstr ""
 
 #. name for tby
 msgid "Tabaru"
-msgstr ""
+msgstr "Tabaru"
 
 #. name for tbz
 msgid "Ditammari"
@@ -24632,11 +24632,11 @@ msgstr ""
 
 #. name for tca
 msgid "Ticuna"
-msgstr ""
+msgstr "Ticuna"
 
 #. name for tcb
 msgid "Tanacross"
-msgstr ""
+msgstr "Tanana; Tanacross"
 
 #. name for tcc
 msgid "Datooga"
@@ -24644,19 +24644,19 @@ msgstr ""
 
 #. name for tcd
 msgid "Tafi"
-msgstr ""
+msgstr "Tafi"
 
 #. name for tce
 msgid "Tutchone; Southern"
-msgstr ""
+msgstr "Tutchone; Meridional"
 
 #. name for tcf
 msgid "Tlapanec; Malinaltepec"
-msgstr ""
+msgstr "Tlapanec; Malinaltepec"
 
 #. name for tcg
 msgid "Tamagario"
-msgstr ""
+msgstr "Tamagario"
 
 #. name for tch
 msgid "Creole English; Turks And Caicos"
@@ -24668,19 +24668,19 @@ msgstr ""
 
 #. name for tck
 msgid "Tchitchege"
-msgstr ""
+msgstr "Tchitchege"
 
 #. name for tcl
 msgid "Taman (Myanmar)"
-msgstr ""
+msgstr "Taman (Myanmar)"
 
 #. name for tcm
 msgid "Tanahmerah"
-msgstr ""
+msgstr "Tanahmerah"
 
 #. name for tcn
 msgid "Tichurong"
-msgstr ""
+msgstr "Tichurong"
 
 #. name for tco
 msgid "Taungyo"
@@ -24748,7 +24748,7 @@ msgstr ""
 
 #. name for tdg
 msgid "Tamang; Western"
-msgstr ""
+msgstr "Tamang; Occidental"
 
 #. name for tdh
 msgid "Thulung"
@@ -24944,7 +24944,7 @@ msgstr ""
 
 #. name for tge
 msgid "Tamang; Eastern Gorkha"
-msgstr ""
+msgstr "Tamang; Gorkha"
 
 #. name for tgf
 msgid "Chalikha"
@@ -24996,7 +24996,7 @@ msgstr ""
 
 #. name for tgt
 msgid "Tagbanwa; Central"
-msgstr ""
+msgstr "Tagbanwa; Central"
 
 #. name for tgu
 msgid "Tanggu"
@@ -25444,7 +25444,7 @@ msgstr ""
 
 #. name for tmk
 msgid "Tamang; Northwestern"
-msgstr ""
+msgstr "Tamang; Nordoccidental"
 
 #. name for tml
 msgid "Citak; Tamnim"
@@ -25456,7 +25456,7 @@ msgstr ""
 
 #. name for tmn
 msgid "Taman (Indonesia)"
-msgstr ""
+msgstr "Taman (Indonèsia)"
 
 #. name for tmo
 msgid "Temoq"
@@ -25488,7 +25488,7 @@ msgstr ""
 
 #. name for tmv
 msgid "Tembo (Motembo)"
-msgstr ""
+msgstr "Tembo (Motembo)"
 
 #. name for tmw
 msgid "Temuan"
@@ -25508,7 +25508,7 @@ msgstr ""
 
 #. name for tnb
 msgid "Tunebo; Western"
-msgstr ""
+msgstr "Tunebo; Occidfental"
 
 #. name for tnc
 msgid "Tanimuca-Retuarã"
@@ -25516,7 +25516,7 @@ msgstr ""
 
 #. name for tnd
 msgid "Tunebo; Angosturas"
-msgstr ""
+msgstr "Tunebo; Angosturas"
 
 #. name for tne
 msgid "Kallahan; Tinoc"
@@ -25696,7 +25696,7 @@ msgstr ""
 
 #. name for tpc
 msgid "Tlapanec; Azoyú"
-msgstr ""
+msgstr "Tlapanec; Azoyú"
 
 #. name for tpe
 msgid "Tippera"
@@ -25724,7 +25724,7 @@ msgstr ""
 
 #. name for tpl
 msgid "Tlapanec; Tlacoapa"
-msgstr ""
+msgstr "Tlapanec; Tlacoapa"
 
 #. name for tpm
 msgid "Tampulma"
@@ -25768,7 +25768,7 @@ msgstr ""
 
 #. name for tpx
 msgid "Tlapanec; Acatepec"
-msgstr ""
+msgstr "Tlapanec; Acatepec"
 
 #. name for tpy
 msgid "Trumai"
@@ -25944,7 +25944,7 @@ msgstr "Llenguatge de signes tunisià"
 
 #. name for tsf
 msgid "Tamang; Southwestern"
-msgstr ""
+msgstr "Tamang; Sudoccidental"
 
 #. name for tsg
 msgid "Tausug"
@@ -26076,7 +26076,7 @@ msgstr ""
 
 #. name for ttm
 msgid "Tutchone; Northern"
-msgstr ""
+msgstr "Tutchone; Septentrional"
 
 #. name for ttn
 msgid "Towei"
@@ -26148,7 +26148,7 @@ msgstr ""
 
 #. name for tuf
 msgid "Tunebo; Central"
-msgstr ""
+msgstr "Tunebo; Central"
 
 #. name for tug
 msgid "Tunia"
