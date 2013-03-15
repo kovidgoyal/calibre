@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-03-05 04:46+0000\n"
-"PO-Revision-Date: 2013-01-19 19:34+0000\n"
-"Last-Translator: Volkan Gezer <Unknown>\n"
+"POT-Creation-Date: 2013-03-10 14:12+0000\n"
+"PO-Revision-Date: 2013-03-11 04:54+0000\n"
+"Last-Translator: Mübin KIYICI <mkiyici@gmail.com>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-03-06 05:30+0000\n"
-"X-Generator: Launchpad (build 16514)\n"
+"X-Launchpad-Export-Date: 2013-03-12 04:46+0000\n"
+"X-Generator: Launchpad (build 16524)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -46,7 +46,7 @@ msgstr "Hiçbir şey yapmaz"
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:469
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:480
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/metadata.py:57
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/chm_input.py:183
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/chm_input.py:185
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:189
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/fb2_input.py:99
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/fb2_input.py:101
@@ -153,7 +153,7 @@ msgstr "Hiçbir şey yapmaz"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:47
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:829
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:835
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:381
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:193
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:208
@@ -184,8 +184,8 @@ msgstr "Hiçbir şey yapmaz"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3504
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3506
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3643
-#: /home/kovid/work/calibre/src/calibre/library/server/content.py:250
-#: /home/kovid/work/calibre/src/calibre/library/server/content.py:251
+#: /home/kovid/work/calibre/src/calibre/library/server/content.py:252
+#: /home/kovid/work/calibre/src/calibre/library/server/content.py:253
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:247
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:160
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:163
@@ -213,27 +213,27 @@ msgstr "Kişiselleştir"
 msgid "Cannot configure"
 msgstr "yapılandırılamaz"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:322
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:331
 msgid "File type"
 msgstr "Dosya tipi"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:368
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:377
 msgid "Metadata reader"
 msgstr "Metadata okuyucusu"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:398
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:407
 msgid "Metadata writer"
 msgstr "Metadata yazıcısı"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:428
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:437
 msgid "Catalog generator"
 msgstr "Katalog oluşturucu"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:551
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:560
 msgid "User Interface Action"
 msgstr "Kullanıcı Arayüzü Eylemi"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:585
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:594
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:197
@@ -243,12 +243,12 @@ msgstr "Kullanıcı Arayüzü Eylemi"
 msgid "Preferences"
 msgstr "Tercihler"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:637
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:646
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:39
 msgid "Store"
 msgstr "Sakla"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:641
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:650
 msgid "An ebook store."
 msgstr "bir ekitap mağazası"
 
@@ -846,7 +846,7 @@ msgstr ""
 msgid ""
 "Intended for the Nook HD+ and similar tablet devices with a resolution of "
 "1280x1920"
-msgstr ""
+msgstr "1280X1920 çözünürlük ile Nook HD+ ve benzeri tabletler içindir"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:484
 msgid "This profile is intended for the Kobo Reader."
@@ -904,7 +904,7 @@ msgstr "Bu profil PocketBook Pro 900 serisi cihazlar için tasarlanmıştır."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:785
 msgid ""
 "This profile is intended for the PocketBook Pro 912 series of devices."
-msgstr ""
+msgstr "Bu profil PocketBook Pro 912 serisi e-kitap okuyucular içindir"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:30
 msgid "Installed plugins"
@@ -1054,7 +1054,7 @@ msgstr "Haberler"
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:135
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:577
 msgid "checked"
-msgstr ""
+msgstr "seçili"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:32
 #: /home/kovid/work/calibre/src/calibre/db/search.py:310
@@ -1077,7 +1077,7 @@ msgstr "hayır"
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:137
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:576
 msgid "unchecked"
-msgstr ""
+msgstr "Seçilmedi"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:109
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:313
@@ -1092,29 +1092,29 @@ msgstr "dün"
 #: /home/kovid/work/calibre/src/calibre/db/search.py:111
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:315
 msgid "thismonth"
-msgstr ""
+msgstr "bu ay"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:112
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:316
 msgid "daysago"
-msgstr ""
+msgstr "gün önce"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:313
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:578
 msgid "empty"
-msgstr ""
+msgstr "boş"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:314
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:579
 msgid "blank"
-msgstr ""
+msgstr "boş"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:323
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:591
 msgid "Invalid boolean query \"{0}\""
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/debug.py:69
+#: /home/kovid/work/calibre/src/calibre/debug.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:47
 msgid ""
 "Cause a running calibre instance, if any, to be shutdown. Note that if there "
@@ -1124,9 +1124,21 @@ msgstr ""
 "olan işlemler olması halinde uyarı vermeksizin kapatılacağı için dikkatle "
 "kullanınız."
 
-#: /home/kovid/work/calibre/src/calibre/debug.py:171
+#: /home/kovid/work/calibre/src/calibre/debug.py:81
+msgid ""
+"Run a plugin that provides a command line interface. For example:\n"
+"calibre-debug -r \"Add Books\" -- file1 --option1\n"
+"Everything after the -- will be passed to the plugin as arguments."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/debug.py:180
 msgid "Debug log"
 msgstr "Hata ayıklama logu"
+
+#: /home/kovid/work/calibre/src/calibre/debug.py:272
+#, python-format
+msgid "No plugin named %s found"
+msgstr "%s adında bir plugin bulunamadı"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:19
 msgid "Communicate with Android phones."
@@ -1251,6 +1263,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes' ***"
 msgstr ""
+"Desteklenemeyen doğrudan bağlantı modu. \"Itunes'a bağlan\"mak için "
+"http://www.mobileread.com/forums/showthread.php?t=118559 teki tanımları "
+"inceleyiniz."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:223
 msgid ""
@@ -1355,10 +1370,10 @@ msgstr "Bambook"
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:130
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:133
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:350
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1337
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1341
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1345
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1699
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1338
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1342
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1346
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1716
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:155
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:144
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:147
@@ -1434,7 +1449,7 @@ msgstr "Blackberry smart phone ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:37
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:281
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:296
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
 msgid "Kovid Goyal"
 msgstr "Kovid Goyal"
@@ -1463,31 +1478,35 @@ msgstr "Cybook Orizon eBook okuyucu ile iletişim kur."
 msgid "Communicate with the EB600 eBook reader."
 msgstr "EB600 eBook reader ile bağlantı kur"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:197
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:56
+msgid "Communicate with the Tolino Shine reader."
+msgstr "Toline Shine okuyucusu ile iletişim kur"
+
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:212
 msgid "Communicate with the Astak Mentor EB600"
 msgstr "Astak Mentor EB600 ile iletişim kur"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:220
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:235
 msgid "Communicate with the PocketBook 301 reader."
 msgstr "PocketBook 301 reader ile iletişim kur."
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:237
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 602/603/902/903/Pro 912 reader."
-msgstr ""
+msgstr "PocketBook 602/603/902/903/Pro 912 Okuyucu ile iletişim kur"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:257
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:272
 msgid "Communicate with the PocketBook 622 reader."
 msgstr "PocketBook 622 reader ile temasa geç."
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:270
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:285
 msgid "Communicate with the PocketBook 360+ reader."
 msgstr "PocketBook 360+ okuyucusu ile bağlantı kur."
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:280
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:295
 msgid "Communicate with the PocketBook 701"
 msgstr "PocketBook 701 ile iletişim kur"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:311
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:326
 msgid "Communicate with the Infibeam Pi2 reader."
 msgstr "Infibeam Pi2 okuyucu ile iletişim kur."
 
@@ -1544,7 +1563,7 @@ msgstr "Hanvon N520 eBook reader ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:48
 msgid "Communicate with the Kibano eBook reader."
-msgstr ""
+msgstr "Kibano eBook  Okuyucu ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:61
 msgid "Communicate with The Book reader."
@@ -1730,17 +1749,17 @@ msgstr ""
 "Değiştirilmiş bir kapağınız varsa işe yarar."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:76
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1226
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1227
 msgid "Upload Black and White Covers"
 msgstr "Siyah ve beytaz kapaklar yükle"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:77
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1230
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1231
 msgid "Show expired books"
 msgstr "Tarihi geçmiş kitapları göster."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:78
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1231
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1232
 msgid ""
 "A bug in an earlier version left non kepubs book records in the database.  "
 "With this option Calibre will show the expired records and allow you to "
@@ -1751,12 +1770,12 @@ msgstr ""
 "yeni silme mantığı ile silme imkanı sunacak."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:82
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1235
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1236
 msgid "Show Previews"
 msgstr "Önizlemeleri Göster"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:83
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1236
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1237
 msgid ""
 "Kobo previews are included on the Touch and some other versions by default "
 "they are no longer displayed as there is no good reason to see them.  Enable "
@@ -1767,7 +1786,7 @@ msgstr ""
 "görüntülenmemektedirler. Bunları görmek/silmek istiyorsanız etkinleştirin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:86
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1239
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
 msgid "Show Recommendations"
 msgstr "Önerileri Göster"
 
@@ -1782,22 +1801,17 @@ msgstr ""
 "sitesine yönlendirirler. Bunları görmek/silmek istiyorsanız etkinleştirin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:90
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1248
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1249
 msgid "Attempt to support newer firmware"
 msgstr "Daha yeni aygıt yazılımlarını (firmware) desteklemeyi dene."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:91
 msgid ""
-"Kobo routinely updates the firmware and the database version.  With this "
-"option Calibre will attempt to perform full read-write functionality - Here "
+"Kobo routinely updates the firmware and the database version. With this "
+"option calibre will attempt to perform full read-write functionality - Here "
 "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
 "factory defaults and testing software"
 msgstr ""
-"Kobo düzenli olarak aygıt yazılımı ve veritabanı sürümlerini "
-"güncellemektedir. Bu seçenekle Calibre tam okuma-yazma işlevselliği "
-"gerçekleştirmeyi deneyecektir. DİKKAT! Bu seçeneği yalnızca yazılım denemek "
-"ve Kobo cihazınızı fabrika ayarlarına geri yüklemekten rahatsız "
-"olmayacaksanız seçiniz."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:619
 msgid "Kobo database version unsupported - See details"
@@ -1873,19 +1887,19 @@ msgstr ""
 "ilerleme durumu:</b> %(chapter_progress)s%%<br /><b>Vurgulama:</b> "
 "%(text)s<br /><b>Notlar:</b> %(annotation)s<br /><hr />"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1217
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1218
 msgid "The Kobo Touch from firmware V2.0.0 supports bookshelves."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1219
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1220
 msgid "Specify a tags type column for automatic management"
 msgstr "Otomatik yönetim için bir etiket tipi kolonu belirleyiniz"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1220
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1221
 msgid "Create Bookshelves"
 msgstr "Boş raf oluştur."
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1221
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1222
 msgid ""
 "Create new bookshelves on the Kobo Touch if they do not exist. This is only "
 "for firmware V2.0.0 or later."
@@ -1893,11 +1907,11 @@ msgstr ""
 "Halihazırda yoksa, Kobo Touch üzerinde yeni raflar oluştur. Bu seçenek "
 "yalnızca aygıt yazılımı V2.0.0 ya da sonrası içindir."
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1222
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1223
 msgid "Delete Empty Bookshelves"
 msgstr "Boş rafları sil."
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1223
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1224
 msgid ""
 "Delete any empty bookshelves from the Kobo Touch when syncing is finished. "
 "This is only for firmware V2.0.0 or later."
@@ -1905,38 +1919,38 @@ msgstr ""
 "Senkronizasyon bittiğinde, Kobo Touch üzerinden boş rafları sil. Bu seçenek "
 "yalnızca aygıt yazılımı V2.0.0 ya da sonrası içindir."
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1224
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1225
 msgid "Upload covers for books"
 msgstr "Kitap kapaklarını karşıya yükle."
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1225
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1226
 msgid ""
 "Upload cover images from the calibre library when sending books to the "
 "device."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1227
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1228
 msgid "Keep cover aspect ratio"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1228
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1229
 msgid ""
 "When uploading covers, do not change the aspect ratio when resizing for the "
 "device. This is for firmware versions 2.3.1 and later."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1241
 msgid ""
 "Kobo shows recommendations on the device.  In some cases these have files "
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1243
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1244
 msgid "Set Series information"
 msgstr "Seri bilgisini ayarla"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1244
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1245
 msgid ""
 "The book lists on the Kobo devices can display series information. This is "
 "not read by the device from the sideloaded books. Series information can "
@@ -1944,7 +1958,7 @@ msgid ""
 "Enable if you wish to set series information."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1249
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1250
 msgid ""
 "Kobo routinely updates the firmware and the database version.  With this "
 "option Calibre will attempt to perform full read-write functionality - Here "
@@ -1953,11 +1967,11 @@ msgid ""
 "and DBVersion up to "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1255
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1256
 msgid "Title to test when debugging"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1256
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1257
 msgid ""
 "Part of title of a book that can be used when doing some tests for "
 "debugging. The test is to see if the string is contained in the title of a "
@@ -2031,11 +2045,11 @@ msgstr "WayteQ Reader'a bağlan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
-msgstr ""
+msgstr "MTP aracı"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:31
 msgid "Communicate with MTP devices"
-msgstr ""
+msgstr "MTP aracı ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:167
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:960
@@ -2111,7 +2125,7 @@ msgstr "Tüm kitapların kaldırılma işlemi bitti"
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:212
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:315
 msgid "Unknown MTP device"
-msgstr ""
+msgstr "Bilinmeyen MTP aracı"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/unix/driver.py:231
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:219
@@ -2121,7 +2135,7 @@ msgstr "Bulunan ögeler: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:61
 msgid "MTP devices are not supported on Windows XP"
-msgstr ""
+msgstr "MTP araçları Windows XP de desteklenmemektedir"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:69
 msgid ""
@@ -2308,11 +2322,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:184
 msgid "Wireless Device"
-msgstr ""
+msgstr "Kablosuz cihaz"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:188
 msgid "Communicate with Smart Device apps"
-msgstr ""
+msgstr "Smart Device uygulaması ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:274
 msgid "All by something"
@@ -2320,7 +2334,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:277
 msgid "Enable connections at startup"
-msgstr ""
+msgstr "Başlangıçta bağlantıları aktif et"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:278
 msgid "Check this box to allow connections when calibre starts"
@@ -2336,17 +2350,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:283
 msgid "Use fixed network port"
-msgstr ""
+msgstr "Sabit ağ portu kullan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:284
 msgid ""
 "If checked, use the port number in the \"Port\" box, otherwise the driver "
 "will pick a random port"
 msgstr ""
+"Eğer tıklanmış ise \"Port\" numaralı port kullanılır, aksi takdirde rastgele "
+"bir port seçimi yapılır"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:286
 msgid "Port number: "
-msgstr ""
+msgstr "Port numarası: "
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:287
 msgid ""
@@ -2386,7 +2402,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:306
 msgid "Use this IP address"
-msgstr ""
+msgstr "IP adresini kullan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:307
 msgid ""
@@ -2424,7 +2440,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:1332
 msgid "Failed to allocate a random port"
-msgstr ""
+msgstr "Rastgele port seçiminde hata"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -3426,7 +3442,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:90
 msgid "The default font size"
-msgstr ""
+msgstr "Ön tanımlı font büyüklüğü"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:93
 msgid "The default font size for monospaced text"
@@ -4863,7 +4879,7 @@ msgstr "İspanya"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:525
 msgid "Brazil"
-msgstr ""
+msgstr "Brezilya"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:529
 msgid "Amazon website to use:"
@@ -4956,21 +4972,21 @@ msgstr "OZON.ru stesinden metadata/ kapak indir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/headers.py:61
 msgid "Sample Book"
-msgstr ""
+msgstr "Örnek Kitap"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader/mobi6.py:75
 msgid "This is an Amazon Topaz book. It cannot be processed."
 msgstr "Bu Amazon Topaz kitabı. İşlem yapılamaz."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:46
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:597
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:616
 msgid "This is not a MOBI file. It is a Topaz file."
-msgstr ""
+msgstr "MOBI dosyası değil. Bu dosya Topaz dosyasıdır"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:51
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:602
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:621
 msgid "This is not a MOBI file."
-msgstr ""
+msgstr "MOBI Dosyası değil"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:54
 msgid "This file is locked with DRM. It cannot be tweaked."
@@ -4997,6 +5013,7 @@ msgstr "Hiç detay yok"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer8/toc.py:15
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1286
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:221
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/toc.py:219
 msgid "Table of Contents"
@@ -5067,14 +5084,14 @@ msgstr "Ana Metin"
 msgid "%s format books are not supported"
 msgstr "%s biçimli litaplar desteklenmiyor"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:610
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:629
 msgid ""
 "This MOBI file does not contain a KF8 format book. KF8 is the new format "
 "from Amazon. calibre can only edit MOBI files that contain KF8 books. Older "
 "MOBI files without KF8 are not editable."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:616
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:635
 msgid ""
 "This MOBI file contains both KF8 and older Mobi6 data. calibre can only edit "
 "MOBI files that contain only KF8 data."
@@ -5160,7 +5177,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:125
 msgid "Updating metadata"
-msgstr ""
+msgstr "Metadata güncelleniyor"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:130
 msgid "Updated metadata jacket"
@@ -5168,11 +5185,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:131
 msgid "Metadata updated\n"
-msgstr ""
+msgstr "Metadata güncellendi\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:134
 msgid "Setting cover"
-msgstr ""
+msgstr "Kapak ayarlanıyor"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:139
 msgid "Inserting metadata jacket"
@@ -5244,6 +5261,22 @@ msgstr ""
 msgid "Smartened punctuation in: %s"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:88
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:94
+#, python-format
+msgid "No file named %s exists"
+msgstr "%s isimlendirilmiş dosya bulunamıyor"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:98
+#, python-format
+msgid "No HTML file named %s exists"
+msgstr "%s isimlendirilmiş HTML dosyası bulunamıyor"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:108
+#, python-format
+msgid "The anchor %(a)s does not exist in file %(f)s"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:988
@@ -5297,11 +5330,11 @@ msgstr "Yan Çubuk"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/outline_writer.py:60
 #, python-format
 msgid "Page %d"
-msgstr ""
+msgstr "Sayfa %d"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:71
 msgid "Could not find pdftohtml, check it is in your PATH"
-msgstr ""
+msgstr "pdftohtml bulunamadı, dosya yolu üzerinde olduğunu kontrol ediniz."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:97
@@ -5465,7 +5498,7 @@ msgstr "Yeniden Başlatmalısnız"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:346
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:742
 msgid "Restart calibre now"
-msgstr ""
+msgstr "Calibreyi yeniden başlat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:577
 msgid "Choose Files"
@@ -5567,11 +5600,11 @@ msgstr "Shift+Ctrl+E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:69
 msgid "Add from ISBN"
-msgstr ""
+msgstr "ISBN den ekle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:71
 msgid "Add files to selected book records"
-msgstr ""
+msgstr "Dosyaları seçili kitaba ekle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:72
 msgid "Shift+A"
@@ -5622,7 +5655,7 @@ msgstr "Ekleniyor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:190
 msgid "Creating book records from ISBNs"
-msgstr ""
+msgstr "ISBN kayıtlarından kitap oluşturuluyor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:281
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:330
@@ -5639,7 +5672,7 @@ msgstr "Kitap seçin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:342
 msgid "Merged some books"
-msgstr ""
+msgstr "Kitaplar birleştirildi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:343
 #, python-format
@@ -5651,7 +5684,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:365
 msgid "Failed to read metadata"
-msgstr ""
+msgstr "Metadata okunurken hata oluştu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:366
 msgid "Failed to read metadata from the following"
@@ -5685,23 +5718,23 @@ msgstr "Hiç kitap dosyası seçilmedi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:417
 msgid "Downloading books"
-msgstr ""
+msgstr "Kitaplar indiriliyor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:418
 msgid "Downloading books from device"
-msgstr ""
+msgstr "Kitaplar sürücüden indiriliyor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:437
 msgid "Could not download files from the device"
-msgstr ""
+msgstr "Kitaplar sürücüden indirilemedi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:440
 msgid "Could not download some files from the device"
-msgstr ""
+msgstr "Sürücüden bazı dosyalar indirilemedi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:444
 msgid "Could not download files"
-msgstr ""
+msgstr "Dosyalar indirilemedi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:13
 msgid "Add books to library"
@@ -5768,7 +5801,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:63
 #, python-format
 msgid "Generating %s catalog..."
-msgstr ""
+msgstr "%s kataloğu oluşturuluyor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:72
 msgid "Catalog generation complete, with warnings."
@@ -5809,7 +5842,7 @@ msgstr "Kütüphane taşındı:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:122
 msgid "Forget library"
-msgstr ""
+msgstr "Kütüphaneyi unut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:131
 msgid "New library location"
@@ -5914,7 +5947,7 @@ msgstr "Çok uzun"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:328
 msgid "Not found"
-msgstr ""
+msgstr "bulunamadı"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:329
 #, python-format
@@ -5960,7 +5993,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:376
 msgid "Backup metadata"
-msgstr ""
+msgstr "Metadata yedekleniyor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:377
 msgid ""
@@ -5994,7 +6027,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:427
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:250
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:975
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1011
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1017
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:366
@@ -6008,7 +6041,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:432
 msgid "Starting library scan, this may take a while"
-msgstr ""
+msgstr "Kütüphane taraması başlatılıyor, bu işlem biraz sürebilir."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:438
 msgid "No problems found"
@@ -6091,7 +6124,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:146
 msgid "Browse for library"
-msgstr ""
+msgstr "Kütüphaneyi tara"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:149
 msgid "&Delete after copy"
@@ -6111,7 +6144,7 @@ msgstr "(kopyaladıktan sonra sil)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:210
 msgid "Choose library by path..."
-msgstr ""
+msgstr "yola göre kütüphane seçiniz.."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:227
@@ -6124,7 +6157,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:232
 msgid "No library"
-msgstr ""
+msgstr "Herhangi bir kütüphane bulunamadı"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:233
 #, python-format
@@ -6138,7 +6171,7 @@ msgstr "Kopyalanıyor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:250
 msgid "Could not copy books: "
-msgstr ""
+msgstr "Kitaplar kopyalanamadı "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:254
 #, python-format
@@ -6428,7 +6461,7 @@ msgstr "Cihazdaki koleksiyonları yönet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:26
 msgid "Change the title/author/cover etc. of books"
-msgstr ""
+msgstr "Kitabın başlık/yazar/kapak vb. bilgilerini değiştir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:26
 msgid "E"
@@ -6452,11 +6485,11 @@ msgstr "Üstveri ve kapak bilgilerini indir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:74
 msgid "Merge into first selected book - delete others"
-msgstr ""
+msgstr "Dosyaları ilk seçilen kitap üzerine birleştir - diğer dosyaları sil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:77
 msgid "Merge into first selected book - keep others"
-msgstr ""
+msgstr "Dosyaları ilk seçilen kitap üzerine birleştir - diğer dosyaları koru"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:81
 msgid "Merge only formats into first selected book - delete others"
@@ -6464,7 +6497,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:86
 msgid "Merge book records"
-msgstr ""
+msgstr "Kitap kayıtlarını birleştir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:87
 msgid "M"
@@ -6472,7 +6505,7 @@ msgstr "M"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:102
 msgid "Cannot download metadata"
-msgstr ""
+msgstr "Metadata indirilemedi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:119
 msgid "Failed to download metadata"
@@ -6488,7 +6521,7 @@ msgstr "İndirme başarısız"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:130
 #, python-format
 msgid "Failed to download metadata or covers for any of the %d book(s)."
-msgstr ""
+msgstr "%d kitap için metadata ve kapak bilgileri indirilirken hata oluştu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:133
 msgid "Metadata download completed"
@@ -6536,7 +6569,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:218
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:287
 msgid "Cannot edit metadata"
-msgstr ""
+msgstr "Metadata düzenlenemiyor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:327
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:330
@@ -6808,7 +6841,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:140
 msgid "Choose name"
-msgstr ""
+msgstr "İsim seçiniz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:141
 msgid "Choose a name for these settings"
@@ -6864,7 +6897,7 @@ msgstr[1] ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:330
 msgid " and "
-msgstr ""
+msgstr " ve "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:333
 msgid "If you polish again, the polishing will run on the originals."
@@ -6980,7 +7013,7 @@ msgstr "Disk'e kayıt edilemiyor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:64
 msgid "Choose format to save to disk"
-msgstr ""
+msgstr "Diske yazmak için format seçiniz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:85
 msgid "Choose destination directory"
@@ -7109,7 +7142,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "this title"
-msgstr ""
+msgstr "bu başlık"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "this book"
@@ -7136,7 +7169,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:117
 msgid "Cannot search"
-msgstr ""
+msgstr "Arama yapılamaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:140
 msgid ""
@@ -7211,7 +7244,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:104
 msgid "&Preview Book"
-msgstr ""
+msgstr "&Kitabı önizleme"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:25
@@ -7330,7 +7363,7 @@ msgstr "Son görüntülenenler listesini temizle"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:224
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:270
 msgid "Cannot view"
-msgstr ""
+msgstr "İzlenemez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:164
@@ -7464,7 +7497,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:70
 msgid "Choose root folder"
-msgstr ""
+msgstr "Ana klasör seçiniz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:135
 msgid "Invalid root folder"
@@ -7645,7 +7678,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:349
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:254
 msgid "Copy Cover"
-msgstr ""
+msgstr "Kapağı kopyala"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:350
 msgid "Remove Cover"
@@ -7833,7 +7866,7 @@ msgstr "E-kitap seçenekleri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:90
 msgid "Catalogs"
-msgstr ""
+msgstr "Kataloglar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:99
 msgid "Read book"
@@ -7918,7 +7951,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:967
 msgid "Prefix"
-msgstr ""
+msgstr "Önek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:290
 msgid "Enabled sections will be included in the generated catalog."
@@ -7964,7 +7997,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:300
 msgid "Prefixes"
-msgstr ""
+msgstr "Önekler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:301
 msgid ""
@@ -8073,7 +8106,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:327
 msgid " inch"
-msgstr ""
+msgstr " inç"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid "Author cross-references:"
@@ -8234,7 +8267,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:189
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:239
 msgid "Choose background color"
-msgstr ""
+msgstr "Zemin rengi seçiniz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:209
 msgid "Create link"
@@ -8888,7 +8921,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:931
 msgid "Choose cover for "
-msgstr ""
+msgstr "için kapak seçiniz "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:939
@@ -8914,7 +8947,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:197
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:959
 msgid " is not a valid picture"
-msgstr ""
+msgstr " geçerli bir resim değil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:159
 msgid "Book Cover"
@@ -8939,7 +8972,7 @@ msgstr "&Başlık: "
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:75
 msgid "Change the title of this book"
-msgstr ""
+msgstr "Kitabın bağlığını değiştir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:558
@@ -9519,7 +9552,7 @@ msgstr "İlk resmi &kaldır"
 msgid ""
 "Table of\n"
 "Contents"
-msgstr ""
+msgstr "İçindekiler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:18
 msgid "Control the creation/conversion of the Table of Contents."
@@ -9551,7 +9584,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:74
 msgid "&Force use of auto-generated Table of Contents"
-msgstr ""
+msgstr "Otomatik olarak üretilmiş İçindekilerin Dizininin kullanımını &zorla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:75
 msgid "TOC &Filter:"
@@ -9732,7 +9765,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:88
 msgid "(A regular expression)"
-msgstr ""
+msgstr "(Regular tanımlama)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:89
 msgid ""
@@ -9792,7 +9825,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:785
 #, python-format
 msgid "Clear '%s'"
-msgstr ""
+msgstr "'%s' temizle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:241
 msgid "Open Item Editor"
@@ -9832,7 +9865,7 @@ msgstr "Kitapları otomatik numaralandır"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:835
 msgid "Force numbers to start with "
-msgstr ""
+msgstr "Numaraların şu sayı ile başlamasını zorla: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:905
 msgid ""
@@ -9876,7 +9909,7 @@ msgstr "Cihazdaki kitapların listesini al"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:485
 msgid "Prepare files for transfer from device"
-msgstr ""
+msgstr "Araçtan trasnfer için dosyaları hazırla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:496
 msgid "Get annotations from device"
@@ -9917,11 +9950,11 @@ msgstr "Ana belleğe gönder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:694
 msgid "Send to storage card A"
-msgstr ""
+msgstr "Depolama kartı A'ya gönder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:696
 msgid "Send to storage card B"
-msgstr ""
+msgstr "Depolama kartı B'ye gönder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:701
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:710
@@ -10274,15 +10307,15 @@ msgstr "Yapılandırma"
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:508
 #, python-format
 msgid "Cannot send to %s"
-msgstr ""
+msgstr "%s e gönderilemez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:92
 msgid "Choose folder on device"
-msgstr ""
+msgstr "Araçtan bir klasör seçiniz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:105
 msgid "<b>Scanned folders:</b>"
-msgstr ""
+msgstr "<b> Taranan klasörler: </b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:106
 msgid ""
@@ -10300,7 +10333,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:136
 msgid "Choose folders to scan"
-msgstr ""
+msgstr "Taramak için bir klasör seçiniz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:19
 msgid "How many empty books?"
@@ -10425,7 +10458,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:149
 msgid "Check Library -- Problems Found"
-msgstr ""
+msgstr "Kütüphane kontrolü -- Problem(ler) bulundu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:163
 msgid ""
@@ -10573,7 +10606,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_device_ui.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_ui.py:45
 msgid "Choose Format"
-msgstr ""
+msgstr "Format seçiniz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_device_ui.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:77
@@ -10656,7 +10689,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:79
 msgid "Choose your calibre library"
-msgstr ""
+msgstr "Calibre kütüphaneninizi seçiniz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:80
 msgid "Your calibre library is currently located at {0}"
@@ -10845,7 +10878,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:73
 msgid "Category Editor"
-msgstr ""
+msgstr "Kategori editörü"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor_ui.py:78
 msgid "Items in use"
@@ -10945,7 +10978,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:303
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:411
 msgid "Capitalize"
-msgstr ""
+msgstr "Hepsini büyük harf yap"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:181
 msgid "Copy to author sort"
@@ -10976,7 +11009,7 @@ msgid "&Search for:"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:89
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:349
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:351
 msgid "F&ind"
 msgstr ""
 
@@ -11015,7 +11048,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:72
 msgid "Active Jobs"
-msgstr ""
+msgstr "Aktif işler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:73
 msgid "Find next match"
@@ -11201,50 +11234,56 @@ msgstr ""
 msgid "You must specify a destination when source is a composite field"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:716
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:717
 msgid "You must specify a destination identifier type"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:940
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:829
+msgid ""
+"Invalid identifier string. It must be a comma-separated list of pairs of "
+"strings separated by a colon"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:946
 msgid "Search/replace invalid"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:941
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:947
 #, python-format
 msgid "Search pattern is invalid: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:997
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1003
 #, python-format
 msgid ""
 "Applying changes to %d books.\n"
 "Phase {0} {1}%%."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1027
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1033
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:628
 msgid "Delete saved search/replace"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1028
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1034
 msgid "The selected saved search/replace will be deleted. Are you sure?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1053
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1058
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1063
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1059
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1064
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1069
 msgid "Save search/replace"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1054
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1060
 msgid "Search/replace name:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1059
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1065
 msgid "You must provide a name."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1064
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1070
 msgid ""
 "That saved search/replace already exists and will be overwritten. Are you "
 "sure?"
@@ -11285,7 +11324,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:567
 msgid " stars"
-msgstr ""
+msgstr " yıldızlar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:569
 msgid "Add ta&gs: "
@@ -11378,7 +11417,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:603
 msgid ""
-"When doing a same format to same format conversion, \n"
+"When doing a same format to same format conversion,\n"
 "for e.g., EPUB to EPUB, calibre saves the original EPUB\n"
 " as ORIGINAL_EPUB. This option tells calibre to restore\n"
 " the EPUB from ORIGINAL_EPUB. Useful if you did a bulk\n"
@@ -11493,7 +11532,6 @@ msgid "Identifier type:"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:635
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:657
 msgid "Choose which identifier type to operate upon"
 msgstr ""
 
@@ -11519,7 +11557,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:641
 msgid "Cas&e sensitive"
-msgstr ""
+msgstr "Har&f duyarı"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:642
 msgid "&Replace with:"
@@ -11573,37 +11611,46 @@ msgstr ""
 msgid "Split &result"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:658
-msgid "For multiple-valued fields, sho&w"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:659
-msgid "values starting a&t"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:660
-msgid "with values separated b&y"
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:657
+msgid ""
+"<p>Choose which identifier type to operate upon. When the\n"
+"              source field is something other than 'identifiers' you can "
+"enter\n"
+"              a * if you want to replace the entire set of identifiers with\n"
+"              the result of the search/replace.</p>"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:661
+msgid "For multiple-valued fields, sho&w"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:662
+msgid "values starting a&t"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:663
+msgid "with values separated b&y"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:664
 msgid ""
 "Used when displaying test results to separate values in multiple-valued "
 "fields"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:662
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:665
 msgid "Test text"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:663
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:666
 msgid "Test result"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:664
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:667
 msgid "Your test:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:665
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:668
 msgid "&Search and replace"
 msgstr ""
 
@@ -11752,7 +11799,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:446
 msgid "This plugin is installed and up-to-date"
-msgstr ""
+msgstr "Plugin kuruldu ve güncel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:476
 msgid "Update Check Failed"
@@ -11960,7 +12007,7 @@ msgstr "Yazarlar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:188
 msgid "**No items found**"
-msgstr ""
+msgstr "**Hiç bir şey bulunamadı**"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:189
 msgid ""
@@ -12208,7 +12255,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:395
 #, python-format
 msgid "%(days)d days, %(hours)d hours and %(mins)d minutes ago"
-msgstr ""
+msgstr "%(days)d gün, %(hours)d saat ve %(mins)d dakika önce"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:411
 msgid "Last downloaded:"
@@ -12306,7 +12353,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:224
 msgid " issues"
-msgstr ""
+msgstr " sayılar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:225
 msgid "&Advanced"
@@ -12511,7 +12558,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:55
 msgid "Choose formats"
-msgstr ""
+msgstr "Format(ları) seçiniz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:45
 msgid ""
@@ -12692,7 +12739,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:176
 msgid "Category filter: "
-msgstr ""
+msgstr "Kategori Filtresi: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:177
 msgid "Select the content kind of the new category"
@@ -13277,7 +13324,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:123
 msgid "Choose a font family"
-msgstr ""
+msgstr "Bir font ailesi seçin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:136
 #, python-format
@@ -13286,7 +13333,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:171
 msgid "Choose font family"
-msgstr ""
+msgstr "Font ailesi seçiniz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:195
 msgid "Add &fonts"
@@ -13294,7 +13341,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:199
 msgid "Choose a font family from the list below:"
-msgstr ""
+msgstr "Aşağıdaki listeden bir font ailesi seçiniz:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:205
 msgid "Find Next"
@@ -13317,6 +13364,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:180
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:176
 msgid "None"
 msgstr "Yok"
 
@@ -13352,7 +13400,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:329
 msgid "Clear the font family"
-msgstr ""
+msgstr "Font ailesini temizle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:327
@@ -13470,7 +13518,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:534
 msgid " - Jobs"
-msgstr ""
+msgstr " - Görevler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:546
 msgid "Search for a job by name"
@@ -13525,7 +13573,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:430
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:59
 msgid "Press a key..."
-msgstr ""
+msgstr "Bir tuşa basınız"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:457
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:80
@@ -13539,7 +13587,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:499
 msgid "<b>This shortcut no longer exists</b>"
-msgstr ""
+msgstr "<b>Bu kısayol artık yok</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:508
 msgid "Shortcuts"
@@ -13741,7 +13789,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:235
 msgid "Center"
-msgstr ""
+msgstr "Ortalı"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:254
 msgid "Show column"
@@ -13775,7 +13823,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/config_ui.py:55
 msgid "<b>Changes will only take effect after a restart.</b>"
-msgstr ""
+msgstr "<b> Değişiklikler restart sonrası aktif olacaktır.</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:70
 msgid " - LRF Viewer"
@@ -13957,7 +14005,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:362
 msgid "Cannot Start "
-msgstr ""
+msgstr "Başlatılamadı "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:363
 #, python-format
@@ -14080,7 +14128,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:760
 msgid "Choose formats for "
-msgstr ""
+msgstr "için formatları seçiniz "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:803
 msgid "You do not have permission to read the following files:"
@@ -14204,7 +14252,7 @@ msgstr "&Yayımcı:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1440
 msgid "Clear date"
-msgstr ""
+msgstr "Tarihi temizle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1474
 msgid "Publishe&d:"
@@ -14286,7 +14334,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:58
 msgid "Choose cover from PDF"
-msgstr ""
+msgstr "PDF den bir kapak seçin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/pdf_covers.py:94
@@ -14372,7 +14420,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:197
 msgid "Clear all tags"
-msgstr ""
+msgstr "Bütün etiketleri temizle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:206
 msgid "Clear Ids"
@@ -14430,7 +14478,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:649
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:856
 msgid "Change cover"
-msgstr ""
+msgstr "Kapağı değiştir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:709
 msgid "Co&mments"
@@ -14560,7 +14608,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:52
 msgid "Choose a folder"
-msgstr ""
+msgstr "Bir klasör seç"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:116
@@ -14997,7 +15045,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:286
 msgid "coloring"
-msgstr ""
+msgstr "renklendirme"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:289
 msgid "icon"
@@ -15018,7 +15066,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:647
 msgid "color"
-msgstr ""
+msgstr "renk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:316
 msgid "of the column:"
@@ -16186,7 +16234,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:83
 msgid " minutes"
-msgstr ""
+msgstr " dakika"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:53
 msgid "Device currently connected: "
@@ -16512,12 +16560,12 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:77
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:419
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:421
 msgid "Match all"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:77
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:419
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:421
 msgid "Match any"
 msgstr ""
 
@@ -17193,7 +17241,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:488
 msgid "*Current search"
-msgstr ""
+msgstr "*Şimdiki arama"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:12
 msgid "Restrict to"
@@ -17202,7 +17250,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:19
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:93
 msgid "(all books)"
-msgstr ""
+msgstr "(tüm kitaplar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:21
 msgid ""
@@ -17520,7 +17568,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:375
 msgid "Choose format to download to your library."
-msgstr ""
+msgstr "Kütüphaneye indirmek için format seçiniz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:170
 msgid "Get Books"
@@ -17577,7 +17625,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_update_thread.py:42
 msgid "Checking last download date."
-msgstr ""
+msgstr "Son indirilme tarihi  kontrol ediliyor."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_update_thread.py:48
 msgid "Downloading book list from MobileRead."
@@ -17590,7 +17638,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_update_thread.py:71
 #, python-format
 msgid "%(num)s of %(tot)s books processed."
-msgstr ""
+msgstr "%(tot)s kitaotan, %(num)skitap işlendi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/mobileread_plugin.py:79
 msgid "Updating MobileRead book cache..."
@@ -17640,6 +17688,7 @@ msgstr ""
 msgid ""
 "Changing the authors for several books can take a while. Are you sure?"
 msgstr ""
+"Birkaç kitap için yazarın değiştirilmesi uzun sürebilir. Eminmisiniz?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:801
 msgid ""
@@ -17757,11 +17806,11 @@ msgstr ""
 msgid "%s will be deleted from all books. Are you sure?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:333
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:335
 msgid "Find item in tag browser"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:337
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:339
 msgid ""
 "Search for items. This is a \"contains\" search; items containing the\n"
 "text anywhere in the name will be found. You can limit the search\n"
@@ -17771,61 +17820,61 @@ msgid ""
 "containing the text \"foo\""
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:345
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:347
 msgid "ALT+f"
 msgstr "ALT+f"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:350
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:352
 msgid "Find the first/next matching item"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:355
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:357
 msgid "Collapse all categories"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:379
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:381
 msgid "No More Matches.</b><p> Click Find again to go to first match"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:391
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:393
 msgid "Alter Tag Browser"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:397
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:399
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:281
 msgid "Sort by"
 msgstr "Sıralama ölçütü"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:403
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:405
 msgid "Sort by name"
 msgstr "Ada göre sırala"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:403
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:405
 msgid "Sort by popularity"
 msgstr "Popülerliğe göre sırala"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:404
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:406
 msgid "Sort by average rating"
 msgstr "Ortalama dereceye göre sırala"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:410
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:412
 msgid "Set the sort order for entries in the Tag Browser"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:413
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:415
 msgid "Match type"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:425
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:427
 msgid ""
 "When selecting multiple entries in the Tag Browser match any or all of them"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:429
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:431
 msgid "Manage authors, tags, etc"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:430
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:432
 msgid ""
 "All of these category_managers are available by right-clicking on items in "
 "the tag browser above"
@@ -17834,7 +17883,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:304
 #, python-format
 msgid "Change Icon for: %s"
-msgstr ""
+msgstr "%s için ikonu değiştir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:442
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:481
@@ -17920,7 +17969,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:567
 msgid "Change category icon"
-msgstr ""
+msgstr "Kategori ikonunu değiştir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:569
 msgid "Restore default icon"
@@ -17944,6 +17993,117 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:611
 msgid "First letter is usable only when sorting by name"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:101
+msgid "Select a destination for the Table of Contents entry"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:121
+msgid ""
+"Here you can choose a destination for the Table of Contents' entry to point "
+"to. First choose a file from the book in the left-most panel. The file will "
+"open in the central panel.<p>Then choose a location inside the file. To do "
+"so, simply click on the place in the central panel that you want to use as "
+"the destination. As you move the mouse around the central panel, a thick "
+"green line appears, indicating the precise location that will be selected "
+"when you click."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:134
+msgid "&Name of the ToC entry:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:140
+msgid "Currently selected destination:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:166
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:188
+msgid "File:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:167
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:183
+msgid "Top of the file"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:175
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:205
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:220
+msgid "(Untitled)"
+msgstr "(Başlıksız)"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:181
+#, python-format
+msgid "Location: A <%s> tag inside the file"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:185
+#, python-format
+msgid "Approximately %d%% from the top"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:45
+msgid ""
+"You can edit existing entries in the Table of Contents by clicking them in "
+"the panel to the left."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:47
+msgid ""
+"Entries with a green tick next to them point to a location that has been "
+"verified to exist. Entries with a red dot are broken and may need to be "
+"fixed."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:55
+msgid "Create a &new entry"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:98
+msgid "Move current entry up"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:104
+msgid "Remove all selected entries"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:110
+msgid "Move current entry down"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:112
+msgid "&Expand all"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:116
+msgid "&Collapse all"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:119
+msgid "Double click on an entry to change the text"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:197
+msgid "<b>Title</b>: {0} <b>Dest</b>: {1}{2}"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:227
+#, python-format
+msgid ""
+"The location this entry point to does not exist:\n"
+"%s"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:253
+#, python-format
+msgid "Edit the ToC in %s"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:269
+#, python-format
+msgid "Loading %s, please wait..."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:70
@@ -18038,7 +18198,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:265
 msgid "Clear the current search"
-msgstr ""
+msgstr "Mevcut aramayı temizle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:370
 msgid "Debug mode"
@@ -18126,6 +18286,9 @@ msgid ""
 "                      Quitting may cause corruption on the device.<br>\n"
 "                      Are you sure you want to quit?"
 msgstr ""
+" araç ile iletişim kuruluyor!<br>\n"
+"                      Şimdi çıkmak aracın bozulmasına yol açabilir<br>\n"
+"                      Çıkmak istediğinizden eminmisiniz?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:747
 msgid "Active jobs"
@@ -18359,7 +18522,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:144
 msgid "Choose a name for this theme"
-msgstr ""
+msgstr "Bu tema için bir isim seçiniz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:153
 #, python-format
@@ -18378,7 +18541,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:238
 msgid "Choose text color"
-msgstr ""
+msgstr "Yazı rengi seçiniz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:258
 msgid "Still editing"
@@ -18449,7 +18612,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:413
 msgid " page(s)"
-msgstr ""
+msgstr " sayfa(lar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:414
 msgid "&Override the page margin settings specified in the book"
@@ -18511,7 +18674,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:433
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:437
 msgid "Change"
-msgstr ""
+msgstr "Değiştir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:435
 msgid "Text color:"
@@ -18519,7 +18682,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:439
 msgid "Colors and backgrounds"
-msgstr ""
+msgstr "Renkler ve zemin rengi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:440
 msgid "Page flip &duration:"
@@ -18651,7 +18814,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:533
 msgid "Previous Section"
-msgstr ""
+msgstr "Önceki Bölüm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:535
 msgid "Document Start"
@@ -18806,7 +18969,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:309
 msgid "Press Esc to quit"
-msgstr ""
+msgstr "Çıkmak için Esc tuşuna basınız"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:323
 msgid "Show/hide controls"
@@ -18818,7 +18981,7 @@ msgstr "Baskı Önizleme"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:368
 msgid "Clear list of recently opened books"
-msgstr ""
+msgstr "Son çalışılan kitapları temizle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:490
 #, python-format
@@ -18835,7 +18998,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:711
 msgid "Choose ebook"
-msgstr ""
+msgstr "e-kitap seçiniz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:712
 msgid "Ebooks"
@@ -18926,7 +19089,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:212
 msgid "Close dictionary"
-msgstr ""
+msgstr "Sözlüğü kapat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:214
 msgid "toolBar"
@@ -19089,7 +19252,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:857
 msgid "< &Back"
-msgstr ""
+msgstr "< &Geri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:858
 #: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:667
@@ -19167,7 +19330,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:57
 msgid "Choose your &language:"
-msgstr ""
+msgstr "&Dil seçiniz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:58
 msgid ""
@@ -20827,7 +20990,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:406
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:475
 msgid "Browse books by"
-msgstr ""
+msgstr "Kitaplara şuna göre gözat"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:411
 msgid "Choose a category to browse by:"
@@ -21100,15 +21263,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:31
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
 msgid "failed to scan program. Invalid input {0}"
-msgstr ""
+msgstr "programı taramada hata. Geçersi girdi {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:39
 msgid " near "
-msgstr ""
+msgstr " yakın "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:45
 msgid "end of program"
-msgstr ""
+msgstr "programın sonu"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:107
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:197
@@ -21905,22 +22068,22 @@ msgstr ""
 #. NOTE: Ante Meridian (i.e. like 10:00 AM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:197
 msgid "AM"
-msgstr ""
+msgstr "AM"
 
 #. NOTE: Post Meridian (i.e. like 10:00 PM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:199
 msgid "PM"
-msgstr ""
+msgstr "PM"
 
 #. NOTE: Ante Meridian (i.e. like 10:00 am)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:201
 msgid "am"
-msgstr ""
+msgstr "am"
 
 #. NOTE: Post Meridian (i.e. like 10:00 pm)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:203
 msgid "pm"
-msgstr ""
+msgstr "pm"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:204
 msgid "&Copy"
@@ -21928,11 +22091,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:205
 msgid "Select All"
-msgstr ""
+msgstr "Hepsini Seç"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:206
 msgid "&Select All"
-msgstr ""
+msgstr "&Hepsini Seç"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:207
 msgid "Copy &Link location"
@@ -21940,7 +22103,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:208
 msgid "&Undo"
-msgstr ""
+msgstr "&Geri Al"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:209
 msgid "&Redo"
@@ -21948,15 +22111,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:210
 msgid "Cu&t"
-msgstr ""
+msgstr "K&es"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:211
 msgid "&Paste"
-msgstr ""
+msgstr "&Yapıştır"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:212
 msgid "Paste and Match Style"
-msgstr ""
+msgstr "Yapıştır ve Stili eşleştir"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:213
 msgid "Directions"
@@ -21964,15 +22127,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:214
 msgid "Left to Right"
-msgstr ""
+msgstr "Soldan Sağa"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:215
 msgid "Right to Left"
-msgstr ""
+msgstr "Sağdan Sola"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:216
 msgid "Fonts"
-msgstr ""
+msgstr "Fontlar"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:217
 msgid "&Step up"
@@ -22014,7 +22177,7 @@ msgstr "Hoşgeldiniz"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:41
 msgid " console "
-msgstr ""
+msgstr " Konsol "
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:51
 msgid "Code is running"
@@ -22022,7 +22185,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:58
 msgid "Restart console"
-msgstr ""
+msgstr "KOnsolu yeniden başlat"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
@@ -22086,7 +22249,7 @@ msgstr "Aşağıdaki makalelerin bölümlerini indirme başarısız oldu:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:945
 msgid " from "
-msgstr ""
+msgstr " den "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:947
 msgid "\tFailed links:"
@@ -22146,7 +22309,7 @@ msgstr "Künye resmi indirildi"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1360
 msgid "Articles in this issue: "
-msgstr ""
+msgstr "Bu sayıdaki makaleler "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1432
 msgid "Untitled Article"
@@ -23085,7 +23248,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:519
 msgid "Recognize numbers inside text when sorting"
-msgstr ""
+msgstr "Sıralama yaparken metin içindeki rakamları algılar"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:520
 msgid ""
@@ -23097,7 +23260,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:526
 msgid "Sort the list of libraries alphabetically"
-msgstr ""
+msgstr "Kütüphane listesini alfabetik olarak sırala"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:527
 msgid ""

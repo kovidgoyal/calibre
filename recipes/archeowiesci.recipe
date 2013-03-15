@@ -1,7 +1,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Archeowiesci(BasicNewsRecipe):
-    title          = u'Archeowiesci'
+    title          = u'Archeowieści'
     __author__        = 'fenuks'
     category       = 'archeology'
     language       = 'pl'

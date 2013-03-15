@@ -13,7 +13,7 @@ from threading import current_thread
 
 from PyQt4.Qt import (QObject, QNetworkAccessManager, QNetworkDiskCache,
         QNetworkProxy, QNetworkProxyFactory, QEventLoop, QUrl, pyqtSignal,
-        QDialog, QVBoxLayout, QSize, QNetworkCookieJar, Qt)
+        QDialog, QVBoxLayout, QSize, QNetworkCookieJar, Qt, pyqtSlot)
 from PyQt4.QtWebKit import QWebPage, QWebSettings, QWebView, QWebElement
 
 from calibre import USER_AGENT, prints, get_proxies, get_proxy_info
@@ -83,6 +83,7 @@ class WebPage(QWebPage): # {{{
             result.append(value)
         return ok
 
+    @pyqtSlot(result=bool)
     def shouldInterruptJavaScript(self):
         if self.view() is not None:
             return QWebPage.shouldInterruptJavaScript(self)

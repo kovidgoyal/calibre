@@ -19,6 +19,7 @@ class swiatczytnikow(BasicNewsRecipe):
 
     feeds       = [(u'Świat Czytników - wpisy', u'http://swiatczytnikow.pl/feed')]
 
-    remove_tags = [dict(name = 'ul', attrs = {'class' : 'similar-posts'})]
+    remove_tags = [dict(name = 'ul', attrs = {'class' : 'similar-posts'}),
+        dict(name = 'div', attrs = {'class' : 'feedflare'})]
 
     preprocess_regexps = [(re.compile(u'<h3>Czytaj dalej:</h3>'), lambda match: '')]

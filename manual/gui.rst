@@ -531,6 +531,8 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Get Books
     * - :kbd:`I`
       - Show book details
+    * - :kbd:`K`
+      - Edit Table of Contents
     * - :kbd:`M`
       - Merge selected records
     * - :kbd:`Alt+M`
