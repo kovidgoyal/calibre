@@ -30,6 +30,7 @@ class ItemView(QFrame): # {{{
     add_new_item = pyqtSignal(object, object)
     delete_item = pyqtSignal()
     flatten_item = pyqtSignal()
+    go_to_root = pyqtSignal()
 
     def __init__(self, parent):
         QFrame.__init__(self, parent)
@@ -132,6 +133,11 @@ class ItemView(QFrame): # {{{
         b.setToolTip(_('All children of this entry are brought to the same '
                        'level as this entry.'))
         l.addWidget(b, l.rowCount()+1, 0, 1, 2)
+        ip.b4 = b = QPushButton(QIcon(I('back.png')), _('&Return to root'))
+        b.clicked.connect(self.go_to_root)
+        b.setToolTip(_('Go back to the top level view'))
+        l.addWidget(b, l.rowCount()+1, 0, 1, 2)
+
         l.setRowMinimumHeight(rs, 20)
 
         l.addWidget(QLabel(), l.rowCount(), 0, 1, 2)
@@ -237,6 +243,7 @@ class TOCView(QWidget): # {{{
         self.item_view.delete_item.connect(self.delete_current_item)
         i.add_new_item.connect(self.add_new_item)
         i.flatten_item.connect(self.flatten_item)
+        i.go_to_root.connect(self.go_to_root)
         l.addWidget(i, 0, 4, col, 1)
 
         l.setColumnStretch(2, 10)
@@ -270,6 +277,9 @@ class TOCView(QWidget): # {{{
             for child in reversed(children):
                 item.removeChild(child)
                 p.insertChild(idx+1, child)
+
+    def go_to_root(self):
+        self.tocw.setCurrentItem(None)
 
     def highlight_item(self, item):
         self.tocw.setCurrentItem(item, 0, QItemSelectionModel.ClearAndSelect)
