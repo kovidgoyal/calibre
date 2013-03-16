@@ -302,7 +302,7 @@ class Worker(Thread): # Get details {{{
             self.log.exception('Error parsing series for url: %r'%self.url)
 
         try:
-            self.cover_url = self.parse_cover(root)
+            self.cover_url = self.parse_cover(root, raw)
         except:
             self.log.exception('Error parsing cover for url: %r'%self.url)
         mi.has_cover = bool(self.cover_url)
@@ -450,12 +450,18 @@ class Worker(Thread): # Get details {{{
                     ans = (s, i)
         return ans
 
-
-    def parse_cover(self, root):
+    def parse_cover(self, root, raw=b""):
         imgs = root.xpath('//img[(@id="prodImage" or @id="original-main-image" or @id="main-image") and @src]')
+        if not imgs:
+            imgs = root.xpath('//div[@class="main-image-inner-wrapper"]/img[@src]')
         if imgs:
             src = imgs[0].get('src')
-            if '/no-image-avail' not in src:
+            if 'loading-' in src:
+                js_img = re.search(br'"largeImage":"(http://[^"]+)",',raw)
+                if js_img:
+                    src = js_img.group(1).decode('utf-8')
+            if ('/no-image-avail' not in src and 'loading-' not in src):
+                self.log('Found image: %s' % src)
                 parts = src.split('/')
                 if len(parts) > 3:
                     bn = parts[-1]
