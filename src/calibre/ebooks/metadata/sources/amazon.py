@@ -460,14 +460,14 @@ class Worker(Thread): # Get details {{{
                 js_img = re.search(br'"largeImage":"(http://[^"]+)",',raw)
                 if js_img:
                     src = js_img.group(1).decode('utf-8')
-            if ('/no-image-avail' not in src and 'loading-' not in src):
+            if ('/no-image-avail' not in src and 'loading-' not in src and '/no-img-sm' not in src):
                 self.log('Found image: %s' % src)
                 parts = src.split('/')
                 if len(parts) > 3:
                     bn = parts[-1]
                     sparts = bn.split('_')
                     if len(sparts) > 2:
-                        bn = sparts[0] + sparts[-1]
+                        bn = re.sub(r'\.\.jpg$', '.jpg', (sparts[0] + sparts[-1]))
                         return ('/'.join(parts[:-1]))+'/'+bn
 
     def parse_isbn(self, pd):
