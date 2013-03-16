@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-03-15 04:12+0000\n"
-"PO-Revision-Date: 2013-03-14 21:54+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2013-03-15 09:52+0000\n"
+"Last-Translator: Hendrik Knackstedt <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-15 04:40+0000\n"
+"X-Launchpad-Export-Date: 2013-03-16 04:39+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -355,7 +355,7 @@ msgstr "eBook Feinabstimmung"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "Edit the Table of Contents in your books"
-msgstr ""
+msgstr "Das Inhaltsverzeichnis Ihrer Bücher bearbeiten"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid "Delete books from your calibre library or connected device"
@@ -6618,11 +6618,11 @@ msgstr "Keine Bibliothek in %s gefunden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:235
 msgid "Copying to"
-msgstr ""
+msgstr "Wird kopiert nach"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:235
 msgid "Moving to"
-msgstr ""
+msgstr "Wird verschoben nach"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:251
 #, python-format
@@ -6632,7 +6632,7 @@ msgstr "%(num)d Bücher nach %(loc)s kopiert"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:253
 #, python-format
 msgid "Moved %(num)d books to %(loc)s"
-msgstr ""
+msgstr "%(num)d Bücher verschoben nach %(loc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:257
 msgid "Could not copy books: "
@@ -7773,28 +7773,28 @@ msgstr "Über Bücher erwerben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:24
 msgid "Choose format to edit"
-msgstr ""
+msgstr "Wählen Sie ein Format zum Bearbeiten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:28
 msgid "Choose which format you want to edit:"
-msgstr ""
+msgstr "Wählen Sie das Format, welches Sie bearbeiten möchten:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:40
 msgid "&All formats"
-msgstr ""
+msgstr "&Alle Formate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:62
 msgid "Edit ToC"
-msgstr ""
+msgstr "ToC bearbeiten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "K"
-msgstr ""
+msgstr "K"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:113
 msgid "Cannot edit ToC"
-msgstr ""
+msgstr "ToC kann nicht bearbeitet werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:103
 #, python-format
@@ -7802,6 +7802,9 @@ msgid ""
 "Editing Table of Contents is only supported for books in the %s formats. "
 "Convert to one of those formats before polishing."
 msgstr ""
+"Das Inhaltsverzeichnis kann nur bei Büchern in den Formaten %s bearbeitet "
+"werden. Wandeln Sie das Buch in eins dieser Formate um, bevor Sie ihm den "
+"Feinschliff verpassen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:288
@@ -19978,7 +19981,7 @@ msgstr "Ungefähr %d%% vom Anfang aus"
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:227
 #, python-format
 msgid "Location: A &lt;%s&gt; tag inside the file"
-msgstr ""
+msgstr "Ort: Ein &lt;%s&gt;-Marker innerhalb der Datei"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:49
 msgid ""
@@ -20015,43 +20018,48 @@ msgid ""
 "You can move this entry around the Table of Contents by drag and drop or "
 "using the up and down buttons to the left"
 msgstr ""
+"Sie können diesen Eintrag im Inhaltsverzeichnis durch ziehen und ablegen "
+"verschieben, oder indem Sie die Knöpfe mit den Pfeilen auf der linken Seite "
+"verwenden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:100
 msgid "Change the &location this entry points to"
-msgstr ""
+msgstr "Den &Ort ändern, auf den dieser Eintrag zeigt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:104
 msgid "&Remove this entry"
-msgstr ""
+msgstr "Diesen Eintrag &entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:114
 msgid "New entry &inside this entry"
-msgstr ""
+msgstr "Einen neuen Eintrag &innerhalb dieses Eintrags anlegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:117
 msgid "New entry &above this entry"
-msgstr ""
+msgstr "Einen neuen Eintrag &oberhalb dieses Eintrags anlegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:120
 msgid "New entry &below this entry"
-msgstr ""
+msgstr "Einen neuen Eintrag &unterhalb dieses Eintrags anlegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:130
 msgid "&Flatten this entry"
-msgstr ""
+msgstr "Diesen Eintrag eine&bnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:132
 msgid ""
 "All children of this entry are brought to the same level as this entry."
 msgstr ""
+"Alle Kinder dieses Eintrags werden auf die gleiche Stufe gesetzt wie dieser "
+"Eintrag."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:171
 msgid "This entry points to an existing destination"
-msgstr ""
+msgstr "Dieser Eintrag zeigt auf ein vorhandenes Ziel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:174
 msgid "The location this entry points to does not exist"
-msgstr ""
+msgstr "Der Ort auf den dieser Eintrag zeigt existiert nicht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:212
 msgid "Move current entry up"
@@ -20103,25 +20111,29 @@ msgstr "%s wird geladen, bitte warten..."
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:501
 #, python-format
 msgid "Writing %s, please wait..."
-msgstr ""
+msgstr "%s wird geschrieben, bitte warten …"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:509
 msgid "Failed to write book"
-msgstr ""
+msgstr "Schreiben des Buches gescheitert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:510
 #, python-format
 msgid "Could not write %s. Click \"Show details\" for more information."
 msgstr ""
+"%s konnte nicht geschrieben werden. Klicken Sie auf »Einzelheiten anzeigen« "
+"um weitere Informationen zu erhalten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:547
 msgid "Failed to load book"
-msgstr ""
+msgstr "Laden des Buches gescheitert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:548
 #, python-format
 msgid "Could not load %s. Click \"Show details\" for more information."
 msgstr ""
+"%s konnte nicht geladen werden. Klicken Sie auf »Einzelheiten anzeigen« um "
+"weitere Informationen zu erhalten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:70
 #, python-format
@@ -26527,10 +26539,3 @@ msgstr ""
 "bestimmten Anzahl von Bibliotheken alphabetisch sortiert. Die Anzahl können "
 "Sie hier\n"
 "einstellen. Der Standardwert sind zehn Bibliotheken."
-
-#~ msgid "Copying"
-#~ msgstr "Kopiere"
-
-#, python-format
-#~ msgid "Location: A <%s> tag inside the file"
-#~ msgstr "Ort: Ein <%s>-Marker in der Datei"

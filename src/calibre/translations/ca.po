@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-15 04:37+0000\n"
+"X-Launchpad-Export-Date: 2013-03-16 04:36+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -26545,10 +26545,3 @@ msgstr ""
 "s'ordenen normalment per freqüència d'ús. Tanmateix, si hi ha més d'un\n"
 "nombre concret de biblioteques l'ordre esdevé alfabètic. Aquí podeu\n"
 "establir aquest nombre. Per defecte és 10 biblioteques."
-
-#~ msgid "Copying"
-#~ msgstr "S'està copiant"
-
-#, python-format
-#~ msgid "Location: A <%s> tag inside the file"
-#~ msgstr "Ubicació: Una etiqueta <%s> dins del fitxer"
