@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-03-15 04:12+0000\n"
-"PO-Revision-Date: 2013-03-15 18:14+0000\n"
+"PO-Revision-Date: 2013-03-16 16:02+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-03-16 04:47+0000\n"
+"X-Launchpad-Export-Date: 2013-03-17 04:58+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -5370,6 +5370,20 @@ msgid ""
 "\n"
 "<p>Note that polishing only works on files in the %s formats.</p>\n"
 msgstr ""
+"<p><i>Полировка книг</i> наводит блеск совершенсва на ваши тщательно \n"
+"созданные книги.</p>\n"
+"\n"
+"<p>Полировка пытается минимизировать изменения во внутреннем коде \n"
+"вашей электронной книги. В отличии от полного преобразования, тут \n"
+"<i>не поддерживается</i> сглашивание CSS, переименование файлов, \n"
+"изменение размера шрифта, дополнительные поля и т.д. Каждое действие \n"
+"выполняет только минимальное множество изменений, необходимых для \n"
+"достижения эффекта.</p>\n"
+"\n"
+"<p>Вам стоит использовать этот инструмент как последний шаг процесса \n"
+"создания вашей электронной книги.</p>\n"
+"\n"
+"<p>Помните, что полировка работает только с файлами формата %s.</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:431
@@ -5400,6 +5414,23 @@ msgid ""
 "date you decide to add more text to your books, the newly added\n"
 "text might not be covered by the subset font.</p>\n"
 msgstr ""
+"<p>Сокращение шрифтов означает уменьшение внедрённых \n"
+"шрифтов до необходимого набора символов, используемых \n"
+"в книге. Это значительно уменьшает размер файлов \n"
+"шрифтов (примерно вдвое).</p>\n"
+"\n"
+"<p>Например, если книга использует специальный шрифт \n"
+"для заголовков, то сокращение шрифтов уменьшит этот \n"
+"шрифт до символов содержащихся только в этих заголовках. \n"
+"Или если в книгу включена курсивная версия шрифта, \n"
+"но текст с ним встречается редко или совсем отсутствует, \n"
+"то курсивный шрифт может быть сокращён всего до \n"
+"нескольких символов или полностью удалён.</p>\n"
+"\n"
+"<p>Единственный недостаток сокращения шрифтов в том,\n"
+" если позже вы пожелаете добавить больше текста в ваши \n"
+"книги, то добавленный текст может быть не охвачен \n"
+"сокращённым шрифтом.</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:69
 msgid ""
@@ -5407,10 +5438,12 @@ msgid ""
 "all the book metadata such as title, tags, authors, series, comments,\n"
 "etc.</p>"
 msgstr ""
+"<p>Добавить страницу \"Обложки\" в начале книги, которая будет содержать все "
+"метаданные, вроде названия, тэгов, авторов, серий, комментариев и т.д.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:74
 msgid "<p>Remove a previous inserted book jacket page.</p>\n"
-msgstr ""
+msgstr "<p>Удалить предыдущую добавленную обложку.</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:78
 msgid ""
@@ -5421,11 +5454,15 @@ msgid ""
 "especially\n"
 "when single quotes at the start of contractions are involved.</p>\n"
 msgstr ""
+"<p>Конвертировать текстовые тире, круги, кавычки,  повторные дефисы и т.д. \n"
+"в их типографически верные эквиваленты.</p>\n"
+"<p>Помните, что алгоритм может иногда выдавать неверные результаты, \n"
+"особенно в случае одиночных кавычек в начале сокращений.</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:117
 #, python-format
 msgid "## Polishing: %s"
-msgstr ""
+msgstr "## Полировка: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:125
 msgid "Updating metadata"
@@ -5433,7 +5470,7 @@ msgstr "Обновление метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:130
 msgid "Updated metadata jacket"
-msgstr ""
+msgstr "Обновлена обложка метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:131
 msgid "Metadata updated\n"
@@ -5441,93 +5478,96 @@ msgstr "Метаданные обновлены\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:134
 msgid "Setting cover"
-msgstr ""
+msgstr "Установка обложки"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:139
 msgid "Inserting metadata jacket"
-msgstr ""
+msgstr "Добавление обложки метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:142
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:146
 msgid "Existing metadata jacket replaced"
-msgstr ""
+msgstr "Имеющаяся обложка метаданных заменена"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:144
 msgid "Metadata jacket inserted"
-msgstr ""
+msgstr "Обложка метаданных добавлена"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:150
 msgid "Removing metadata jacket"
-msgstr ""
+msgstr "Удаление обложки метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:152
 msgid "Metadata jacket removed"
-msgstr ""
+msgstr "Обложка метаданных удалена"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:154
 msgid "No metadata jacket found"
-msgstr ""
+msgstr "Обложка метаданных не найдена"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:158
 msgid "Smartening punctuation"
-msgstr ""
+msgstr "Умная проверка пунктуации"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:163
 msgid "Subsetting embedded fonts"
-msgstr ""
+msgstr "Сокращение внедрённых шрифтов"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:169
 #, python-format
 msgid "Polishing took: %.1f seconds"
-msgstr ""
+msgstr "Полировка займёт: %.1f секунд"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:202
 msgid ""
 "Path to a cover image. Changes the cover specified in the ebook. If no cover "
 "is present, or the cover is not properly identified, inserts a new cover."
 msgstr ""
+"Путь к изображению обложки. Изменения обложки указаны в книге. Если обложка "
+"не будет предоставлена или правильно опознана, то будет добавлена новая "
+"обложка."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:205
 msgid ""
 "Path to an OPF file. The metadata in the book is updated from the OPF file."
-msgstr ""
+msgstr "Путь к OPF файлу. Метаданные в книге обновлены из OPF файла."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:210
 msgid "Produce more verbose output, useful for debugging."
-msgstr ""
+msgstr "Более подробный вывод обработки. Полезно при отладке."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:220
 msgid "You must provide the input file to polish"
-msgstr ""
+msgstr "Вы должны предоставить входной файл для полировки."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:224
 msgid "Unknown extra arguments"
-msgstr ""
+msgstr "Неизвестные дополнительные аргументы"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:242
 msgid "You must specify at least one action to perform"
-msgstr ""
+msgstr "Вы должны указать хотя бы одно действие для выполнения"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/replace.py:73
 #, python-format
 msgid "Smartened punctuation in: %s"
-msgstr ""
+msgstr "Умная проверка пунктуации в: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:125
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:131
 #, python-format
 msgid "No file named %s exists"
-msgstr ""
+msgstr "Не существует файла с именем %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:135
 #, python-format
 msgid "No HTML file named %s exists"
-msgstr ""
+msgstr "Не существует HTML файла с именем %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:145
 #, python-format
 msgid "The anchor %(a)s does not exist in file %(f)s"
-msgstr ""
+msgstr "Якорь %(a)s не существует в файле %(f)s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
@@ -6068,6 +6108,7 @@ msgstr "Создать каталог"
 msgid ""
 "Create a catalog of the books in your calibre library in different formats"
 msgstr ""
+"Создать каталог книг в вашей библиотеке calibre в различных форматах."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:40
 msgid "No books selected for catalog generation"
@@ -6375,7 +6416,7 @@ msgstr "Преобразовать книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "Convert books between different ebook formats"
-msgstr ""
+msgstr "Преобразовать книги между различными форматами"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:55
 msgid "Convert individually"
@@ -6463,11 +6504,11 @@ msgstr "Не найдено в библиотеке %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:235
 msgid "Copying to"
-msgstr ""
+msgstr "Копирование в"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:235
 msgid "Moving to"
-msgstr ""
+msgstr "Перемещение в"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:251
 #, python-format
@@ -6477,7 +6518,7 @@ msgstr "Скопировано %(num)d книг в %(loc)s"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:253
 #, python-format
 msgid "Moved %(num)d books to %(loc)s"
-msgstr ""
+msgstr "Перемещено %(num)d книг в %(loc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:257
 msgid "Could not copy books: "
@@ -6555,7 +6596,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:86
 msgid "Delete books"
-msgstr ""
+msgstr "Удалить книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:86
 msgid "Remove books"
@@ -6749,6 +6790,8 @@ msgstr "Подключиться/общий доступ"
 msgid ""
 "Share books using a web server or email. Connect to special devices, etc."
 msgstr ""
+"Поделиться книгами используя web сервер или почту. Соединиться со "
+"специальными устройствами и т.д."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:85
@@ -6775,7 +6818,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:264
 msgid "Still looking for IP addresses"
-msgstr ""
+msgstr "Продолжать просматривать IP адреса"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:267
 msgid "Many IP addresses. See Start/Stop dialog."
@@ -6791,7 +6834,7 @@ msgstr "Управлять коллекциями на этом устройст
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:26
 msgid "Change the title/author/cover etc. of books"
-msgstr ""
+msgstr "Изменить заголовок/автора/обложку и т.д. книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:26
 msgid "E"
@@ -6994,7 +7037,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:19
 msgid "Download news in ebook form from various websites all over the world"
-msgstr ""
+msgstr "Загрузить новости в книгу из различных сайтов по всему миру"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:19
 msgid "F"
@@ -7067,7 +7110,7 @@ msgstr "O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/open.py:15
 msgid "Open the folder containing the current book's files"
-msgstr ""
+msgstr "Открыть папку содержащую файлы текущих книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/plugin_updates.py:18
 msgid "Plugin Updater"
@@ -7075,31 +7118,31 @@ msgstr "Обновление плагинов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/plugin_updates.py:18
 msgid "Update any plugins you have installed in calibre"
-msgstr ""
+msgstr "Обновить все плагины, установленные в вашем calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:34
 msgid "Polish book"
-msgstr ""
+msgstr "Полировка книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:36
 #, python-format
 msgid "Polish %d books"
-msgstr ""
+msgstr "Полировка %d книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:40
 #, python-format
 msgid "<h3>About Polishing books</h3>%s"
-msgstr ""
+msgstr "<h3>О Полировке книг</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:42
 #, python-format
 msgid "<h3>Subsetting fonts</h3>%s"
-msgstr ""
+msgstr "<h3>Сокращение шрифтов</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:45
 #, python-format
 msgid "<h3>Smarten punctuation</h3>%s"
-msgstr ""
+msgstr "<h3>Умная проверка пунктуации</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:47
 msgid ""
@@ -7109,6 +7152,10 @@ msgid ""
 "all the metadata in calibre.</p><p>There is a separate option to update the "
 "cover.</p>"
 msgstr ""
+"<h3>Обновление метаданных</h3><p>Это обновит все метаданные в соответствии с "
+"метаданными в библиотеке calibre, <i>кроме</i> обложки в файлах книги.</p> "
+"<p>Помните, что большинство форматов книг не поддерживают все метаданные "
+"calibre.</p><p>Существует отдельная настройка для обновления обложки.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:55
 msgid ""
@@ -7116,25 +7163,28 @@ msgid ""
 "calibre library.</p><p>If the ebook file does not have an identifiable "
 "cover, a new cover is inserted.</p>"
 msgstr ""
+"<p>Обновить обложки в файлах книг для соответствия текущей обложке в "
+"библиотеке calibre.</p><p>Если книга не содержит идентифицируемой обложки, "
+"то будет добавлена новая обложка.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:60
 #, python-format
 msgid "<h3>Book Jacket</h3>%s"
-msgstr ""
+msgstr "<h3>Обложка Книги</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:61
 #, python-format
 msgid "<h3>Remove Book Jacket</h3>%s"
-msgstr ""
+msgstr "<h3>Удалить Обложку Книги</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:67
 msgid "Select actions to perform:"
-msgstr ""
+msgstr "Выберите действия для выполнения:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:249
 msgid "&Subset all embedded fonts"
-msgstr "&Подмножество всех встроенных шрифтов"
+msgstr "Сокращение всех встроенных шрифтов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:240
@@ -7143,32 +7193,32 @@ msgstr "«Умная» &пунктуация"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:74
 msgid "Update &metadata in the book files"
-msgstr ""
+msgstr "Обновить метаданные в файлах книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:75
 msgid "Update the &cover in the book files"
-msgstr ""
+msgstr "Обновить обложку в файлах книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:76
 msgid "Add metadata as a \"book &jacket\" page"
-msgstr ""
+msgstr "Добавить метаданные как страницу обложки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:77
 msgid "&Remove a previously inserted book jacket"
-msgstr ""
+msgstr "Удалить предыдущую добавленную обложку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:87
 msgid "About"
-msgstr ""
+msgstr "О программе"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:106
 msgid "Show &report"
-msgstr ""
+msgstr "Показать отчёт"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:108
 msgid ""
 "Show a report of all the actions performed after polishing is completed"
-msgstr ""
+msgstr "Показать отчёт всех действий после завершения полировки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:114
 msgid "&Save Settings"
@@ -7191,60 +7241,61 @@ msgstr "Очистить выбор"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:202
 msgid "No actions selected"
-msgstr ""
+msgstr "Нет выбранных действий"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:138
 msgid "You must select at least one action before saving"
-msgstr ""
+msgstr "Вы должны выбрать хотя бы одно действие перед сохранением"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:140
 msgid "Choose name"
-msgstr ""
+msgstr "Выберите имя"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:141
 msgid "Choose a name for these settings"
-msgstr ""
+msgstr "Выберите имя для этих настроек"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:161
 msgid "Remove saved settings"
-msgstr ""
+msgstr "Удалить сохранённые настройки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:203
 msgid "You must select at least one action, or click Cancel."
 msgstr ""
+"Вы должны выбрать хотя бы одно действие, или нажмите Отмена (Cancel)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:217
 msgid "Queueing books for polishing"
-msgstr ""
+msgstr "Выстроить очередь книг для полировки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:261
 #, python-format
 msgid "Polish %s"
-msgstr ""
+msgstr "Полировка %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:262
 #, python-format
 msgid "Polish book %(nums)s of %(tot)s (%(title)s)"
-msgstr ""
+msgstr "Полировка книги %(nums)s из %(tot)s (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:266
 #, python-format
 msgid "Queueing book %(nums)s of %(tot)s (%(title)s)"
-msgstr ""
+msgstr "Добавление в очередь книги %(nums)s из %(tot)s (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:292
 #, python-format
 msgid "Ignore remaining %d reports"
-msgstr ""
+msgstr "Игнорировать следующие %d отчётов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:299
 msgid "View full &log"
-msgstr ""
+msgstr "Посмотреть полный журнал"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:322
 #, python-format
 msgid "Polishing of %s"
-msgstr ""
+msgstr "Полировка %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:328
 #, python-format
@@ -7261,23 +7312,24 @@ msgstr " и "
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:333
 msgid "If you polish again, the polishing will run on the originals."
 msgstr ""
+"Если вы запустите полировку снова, то она будет обрабатывать исходные данные."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:368
 msgid "Polish books"
-msgstr ""
+msgstr "Полировка книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:369
 msgid "Apply the shine of perfection to your books"
-msgstr ""
+msgstr "Применить блеск совершенства к вашим книгам"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:369
 msgid "P"
-msgstr ""
+msgstr "П"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:410
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:428
 msgid "Cannot polish"
-msgstr ""
+msgstr "Полировка невозможна"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:429
 #, python-format
@@ -7285,15 +7337,17 @@ msgid ""
 "Polishing is only supported for books in the %s formats. Convert to one of "
 "those formats before polishing."
 msgstr ""
+"Полировка поддерживается только для книг фоматов %s. Преобразуйте в один из "
+"этих форматов перед полировкой."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:457
 #, python-format
 msgid "Start polishing of %d book(s)"
-msgstr ""
+msgstr "Начать полировку %d книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 msgid "Configure calibre"
-msgstr ""
+msgstr "Настроить calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 msgid "Ctrl+P"
@@ -7339,7 +7393,7 @@ msgstr "Сохранить на диск"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:21
 msgid "Export ebook files from the calibre library"
-msgstr ""
+msgstr "Экспорт файлов книги из библиотеки calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:21
 msgid "S"
@@ -7416,7 +7470,7 @@ msgstr "I"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:17
 msgid "Show the detailed metadata for the current book in a separate window"
-msgstr ""
+msgstr "Показать подробные метаданные для текущей книги в отдельном окне"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:26
 msgid "No detailed info available"
@@ -7444,7 +7498,7 @@ msgstr "Быстрый просмотр недоступен для книг н�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:17
 msgid "Show books similar to the current book"
-msgstr ""
+msgstr "Показать книги подобные текущей книге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:17
 msgid "Similar books..."
@@ -7492,7 +7546,7 @@ msgstr "Загрузить книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Search dozens of online ebook retailers for the cheapest books"
-msgstr ""
+msgstr "Искать в магазинах сети более дешёвые книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:22
 msgid "Search for ebooks"
@@ -7577,28 +7631,28 @@ msgstr "О 'Загрузить книги'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:24
 msgid "Choose format to edit"
-msgstr ""
+msgstr "Выбрать формат для редактирования"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:28
 msgid "Choose which format you want to edit:"
-msgstr ""
+msgstr "Выберите какой формат вы хотите редактировать:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:40
 msgid "&All formats"
-msgstr ""
+msgstr "Все форматы"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:62
 msgid "Edit ToC"
-msgstr ""
+msgstr "Редактировать оглавление"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "K"
-msgstr ""
+msgstr "K"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:113
 msgid "Cannot edit ToC"
-msgstr ""
+msgstr "Не удаётся изменить оглавление"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:103
 #, python-format
@@ -7606,6 +7660,8 @@ msgid ""
 "Editing Table of Contents is only supported for books in the %s formats. "
 "Convert to one of those formats before polishing."
 msgstr ""
+"Редактирование Оглавления поддерживается только для форматов книг %s. "
+"Преобразуйте в один из этих форматов перед полировкой."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:288
@@ -7768,7 +7824,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "Read books"
-msgstr ""
+msgstr "Читать книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -11645,7 +11701,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:70
 #, python-format
 msgid "%(title)s by %(author)s [%(formats)s]"
-msgstr ""
+msgstr "%(title)s от %(author)s [%(formats)s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:96
 msgid "Already in calibre:"
@@ -11991,6 +12047,8 @@ msgid ""
 "Invalid identifier string. It must be a comma-separated list of pairs of "
 "strings separated by a colon"
 msgstr ""
+"Неверная строка идентификатора. Требуется разделённый запятыми список пар "
+"разделённых двоеточиями"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:946
 msgid "Search/replace invalid"
@@ -12163,7 +12221,7 @@ msgstr "&Применить дату"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:595
 msgid "&Published:"
-msgstr "Оп&убликовано:"
+msgstr "Опубликовано:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:597
 msgid "Clear published date"
@@ -12186,6 +12244,12 @@ msgid ""
 " the EPUB from ORIGINAL_EPUB. Useful if you did a bulk\n"
 " conversion of a large number of books and something went wrong."
 msgstr ""
+"Когда происходит преобразование из фомата в тот же формат, \n"
+"например из EPUB в EPUB, calibre сохраняет исходный EPUB\n"
+" как ORIGINAL_EPUB. Эта настройка заставляет calibre\n"
+" восстанавливать EPUB из ORIGINAL_EPUB. Полезно когда вы\n"
+" проводите массовое преобразование большого количества книг\n"
+" и что то идёт не правильно."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:608
 msgid "Restore pre conversion &originals, if available"
@@ -12404,6 +12468,11 @@ msgid ""
 "              a * if you want to replace the entire set of identifiers with\n"
 "              the result of the search/replace.</p>"
 msgstr ""
+"<p>Выберите тип идентификатора для работы. Когда \n"
+"              исходное поле отличается от 'identifiers' вы можете ввести * "
+"если \n"
+"              хотите заменить существующее множество идентификаторов на \n"
+"              результат поиска/замены.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:661
 msgid "For multiple-valued fields, sho&w"
@@ -15228,7 +15297,7 @@ msgstr "Очистить дату"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1474
 msgid "Publishe&d:"
-msgstr "И&здана:"
+msgstr "Опубликовано:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:55
 msgid "Schedule download?"
@@ -16000,19 +16069,19 @@ msgstr "не установлено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:61
 msgid "is more days ago than"
-msgstr ""
+msgstr "старше чем ... дней (в прошлом)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:62
 msgid "is fewer days ago than"
-msgstr ""
+msgstr "моложе чем ... дней (в прошлом)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:63
 msgid "is more days from now than"
-msgstr ""
+msgstr "позднее ... дней от сегодняшнего (в будущем)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:64
 msgid "is fewer days from now than"
-msgstr ""
+msgstr "ранее ... дней от сегодняшнего (в будущем)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:67
 msgid "has"
@@ -16078,24 +16147,32 @@ msgid ""
 "Enter the maximum days old the item can be. Zero is today. Dates in the "
 "future always match"
 msgstr ""
+"Введите максимальный возраст элемента в днях. Ноль - это сегодня. Дата в "
+"будущем всегда верна."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:252
 msgid ""
 "Enter the minimum days old the item can be. Zero is today. Dates in the "
 "future never match"
 msgstr ""
+"Введите минимальный возраст элемента в днях. Ноль - это сегодня. Дата в "
+"будущем никогда не верна."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:256
 msgid ""
 "Enter the maximum days in the future the item can be. Zero is today. Dates "
 "in the past always match"
 msgstr ""
+"Ввете максимальное количество дней в будущем, в течении которых элемент "
+"действителен. Ноль - это сегодня. Дата в прошлом всегда верна."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:260
 msgid ""
 "Enter the minimum days in the future the item can be. Zero is today. Dates "
 "in the past never match"
 msgstr ""
+"Ввете минимальное количество дней в будущем, после которых элемент станет "
+"действителен. Ноль - это сегодня. Дата в прошлом никогда не верна."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:264
 msgid "Enter a date in the format YYYY-MM-DD"
@@ -17032,7 +17109,7 @@ msgstr "Показывать подсказки в списке книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:278
 msgid "Extra &spacing to add between rows in the book list:"
-msgstr ""
+msgstr "Дополнительные отступы между строками в списке книг:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:281
 msgid "Main Interface"
@@ -18428,7 +18505,7 @@ msgstr "Код программы: (обязательно следуйте пр
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:33
 msgid "Donate to support the development of calibre"
-msgstr ""
+msgstr "Пожертвовать для поддержки развития calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Location Manager"
@@ -19474,7 +19551,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:112
 msgid "Select a destination for the Table of Contents entry"
-msgstr ""
+msgstr "Выберите путь для записи оглавления"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:132
 msgid ""
@@ -19486,47 +19563,56 @@ msgid ""
 "green line appears, indicating the precise location that will be selected "
 "when you click."
 msgstr ""
+"Здесь вы можете указать место на которое будет ссылаться запись оглавления "
+"(списка содержания). Вначале выберите файл из книги в левой панели. Файл "
+"откроется в центральной панели.<p>Далее выберите место в файле. Что бы "
+"сделать это, просто нажмите на месте в центральной панели, которое вы хотите "
+"использовать как место назначения. Когда вы двигаете мышь в центральной "
+"панели, появляется толстая зелёная линия, указывающая точное место, которое "
+"будет выбрано при нажатии."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:145
 msgid "&Name of the ToC entry:"
-msgstr ""
+msgstr "Название записи оглавления:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:151
 msgid "Currently selected destination:"
-msgstr ""
+msgstr "Выбранное место назначения:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:176
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:235
 msgid "File:"
-msgstr ""
+msgstr "Файл:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:219
 msgid "Top of the file"
-msgstr ""
+msgstr "Начало файла"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:339
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:354
 msgid "(Untitled)"
-msgstr ""
+msgstr "(Без заголовка)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:221
 #, python-format
 msgid "Approximately %d%% from the top"
-msgstr ""
+msgstr "Примерно %d%% от верха"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:227
 #, python-format
 msgid "Location: A &lt;%s&gt; tag inside the file"
-msgstr ""
+msgstr "Положение: Тэг &lt;%s&gt; в файле"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:49
 msgid ""
 "You can edit existing entries in the Table of Contents by clicking them in "
 "the panel to the left."
 msgstr ""
+"Вы можете редактировать существующие элементы в оглавлении нажимая на них в "
+"панели слева."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:51
 msgid ""
@@ -19534,10 +19620,12 @@ msgid ""
 "verified to exist. Entries with a red dot are broken and may need to be "
 "fixed."
 msgstr ""
+"Элементы с зелёной меткой указывают на существующее место. Элементы с "
+"красной точкой ошибочны и требуют исправления."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:59
 msgid "Create a &new entry"
-msgstr ""
+msgstr "Создать новую запись"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:63
 msgid ""
@@ -19546,77 +19634,85 @@ msgid ""
 "previous entry. If you create a non-linear ToC it will be automatically re-"
 "arranged inside the AZW3 file."
 msgstr ""
+"<b>ВНИМАНИЕ:</b> calibre поддерживает только линейные оглавления в файлах "
+"AZW3. В линейном оглавлении каждая запись должна указывать на место после "
+"предыдущей записи. Если вы создадите нелинейного оглавление, то оно будет "
+"автоматически исправлено в AZW3 файле."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:79
 msgid ""
 "You can move this entry around the Table of Contents by drag and drop or "
 "using the up and down buttons to the left"
 msgstr ""
+"Вы можете двигать эту запись по оглавлению с помощью перетаскивания или "
+"используя кнопки вверх и вниз, расположенные слева."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:100
 msgid "Change the &location this entry points to"
-msgstr ""
+msgstr "Изменить положение этой записи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:104
 msgid "&Remove this entry"
-msgstr ""
+msgstr "Удалить эту запись"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:114
 msgid "New entry &inside this entry"
-msgstr ""
+msgstr "Новая запись внутри этой записи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:117
 msgid "New entry &above this entry"
-msgstr ""
+msgstr "Новая запись над этой записью"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:120
 msgid "New entry &below this entry"
-msgstr ""
+msgstr "Новая запись под этой записью"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:130
 msgid "&Flatten this entry"
-msgstr ""
+msgstr "Соединить один подуровень этой записи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:132
 msgid ""
 "All children of this entry are brought to the same level as this entry."
 msgstr ""
+"Все подзаписи этой записи будут перенесены на тот же уровень что и сама "
+"запись."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:171
 msgid "This entry points to an existing destination"
-msgstr ""
+msgstr "Эта запись указывает на существующее место"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:174
 msgid "The location this entry points to does not exist"
-msgstr ""
+msgstr "Место, указанное в этой записи, не существует"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:212
 msgid "Move current entry up"
-msgstr ""
+msgstr "Переместить текущую запись вверх"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:218
 msgid "Remove all selected entries"
-msgstr ""
+msgstr "Удалить все выделенные записи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:224
 msgid "Move current entry down"
-msgstr ""
+msgstr "Переместить текущую запись вниз"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:226
 msgid "&Expand all"
-msgstr ""
+msgstr "&Развернуть все"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:230
 msgid "&Collapse all"
-msgstr ""
+msgstr "&Свернуть все"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:233
 msgid "Double click on an entry to change the text"
-msgstr ""
+msgstr "Двойное нажатие на записи позволит изменить текст"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:330
 msgid "<b>Title</b>: {0} <b>Dest</b>: {1}{2}"
-msgstr ""
+msgstr "<b>Заголовок</b>: {0} <b>Положение</b>: {1}{2}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:361
 #, python-format
@@ -19624,39 +19720,45 @@ msgid ""
 "The location this entry point to does not exist:\n"
 "%s"
 msgstr ""
+"Место, указанное в этой записи не существует:\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:450
 #, python-format
 msgid "Edit the ToC in %s"
-msgstr ""
+msgstr "Редактировать оглавление в %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:466
 #, python-format
 msgid "Loading %s, please wait..."
-msgstr ""
+msgstr "Открываю %s, пожалуйста подождите ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:501
 #, python-format
 msgid "Writing %s, please wait..."
-msgstr ""
+msgstr "Записываю %s, пожалуйста подождите ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:509
 msgid "Failed to write book"
-msgstr ""
+msgstr "Не удалось записать книгу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:510
 #, python-format
 msgid "Could not write %s. Click \"Show details\" for more information."
 msgstr ""
+"Не удалось записать %s. Нажмите \"Показать детали\" чтобы получить больше "
+"информации."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:547
 msgid "Failed to load book"
-msgstr ""
+msgstr "Не удалось открыть книгу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:548
 #, python-format
 msgid "Could not load %s. Click \"Show details\" for more information."
 msgstr ""
+"Не удалось открыть %s. Нажмите \"Показать детали\" чтобы получить больше "
+"информации."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:70
 #, python-format
@@ -20622,7 +20724,7 @@ msgstr "Электронная книга"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:728
 #, python-format
 msgid "Current magnification: %(mag).1f"
-msgstr ""
+msgstr "Текущее увеличение: %(mag).1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:754
 #, python-format
@@ -20818,7 +20920,7 @@ msgstr "Показать"
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:958
 #, python-format
 msgid "Hide %(label)s %(shortcut)s"
-msgstr ""
+msgstr "Скрыть %(label)s %(shortcut)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:995
 msgid "Toggle"
@@ -21216,6 +21318,12 @@ msgid ""
 "directly on the device. To do this you have to turn on the calibre content "
 "server."
 msgstr ""
+"<p>Если вы используете приложения <a "
+"href=\"http://www.lexcycle.com/download\">Stanza</a> или <a "
+"href=\"http://marvinapp.com/\">Marvin</a> для чтения книг на вашем "
+"iустройстве Apple, то вы можете открыть доступ к вашей коллекции книг в "
+"calibre по безпроводному соединению, прямо на устройстве. Что бы сделать это "
+"вы должны запустить сервер calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:57
 msgid "Turn on the &content server"
@@ -21232,6 +21340,14 @@ msgid ""
 "href=\"http://manual.calibre-ebook.com/faq.html#how-do-i-use-app-with-my-"
 "ipad-iphone-ipod-touch\">the User Manual</a> for more information."
 msgstr ""
+"<p>Помните, что сервер calibre работает только когда запущен calibre.\n"
+"<p>Программа для чтения должна увидеть вашу коллекцию calibre автоматически. "
+"Если нет, то попытайтесь добавить адрес URL http://myhostname:8080 как новый "
+"каталог в читалке вашего  устройства Apple. Здесь myhostname должно "
+"полностью соответствовать IP адресу вашего компьютера на котором запущен "
+"сервер calibre. Смотрите подробности в <a href=\"http://manual.calibre-"
+"ebook.com/faq.html#how-do-i-use-app-with-my-ipad-iphone-ipod-touch\">the "
+"User Manual</a>."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/bibtex.py:36
 #, python-format
@@ -23087,11 +23203,11 @@ msgstr "Эта книга была удалена"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:894
 msgid "Choose another random book"
-msgstr ""
+msgstr "Выбрать другую случайную книгу"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:895
 msgid "Another random book"
-msgstr ""
+msgstr "Другая случайная книга"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:946
 msgid "in search"
@@ -23783,9 +23899,9 @@ msgid ""
 "get the mod time for a specific format. Note that format names are always "
 "uppercase, as in EPUB."
 msgstr ""
-"formats_modtimes(date_format) -- возвращает разделённый запятыми список "
-"colon_separated(постолбцовых) элементов представляющих время изменения "
-"форматов книги. Параметр date_format указывает как дата должна быть "
+"formats_modtimes(date_format) -- возвращает список элементов представляющих "
+"время изменения форматов книги. Список разделяется запятыми, элементы "
+"разделяются двоеточиями. Параметр date_format указывает как дата должна быть "
 "форматирована. Смотрите подробности в описании функции date_format. Вы "
 "можете использовать функцию select что бы получить время модификации "
 "определённого формата. Помните, что названия форматов всегда в верхнем "
@@ -23798,11 +23914,11 @@ msgid ""
 "function to get the size for a specific format. Note that format names are "
 "always uppercase, as in EPUB."
 msgstr ""
-"formats_sizes() -- возвращает разделённый запятыми список colon_separated "
-"(постолбцовых) элементов представляющих размеры форматов книг в байтах. Вы "
-"можете использовать функцию select что бы получить размер отдельного "
-"формата. Помните, что названия форматов всегда в верхнем регистре, например "
-"EPUB."
+"formats_sizes() -- возвращает список элементов представляющих размеры "
+"форматов книг в байтах. Список разделяется запятыми, элементы разделяются "
+"двоеточиями. Вы можете использовать функцию select что бы получить размер "
+"отдельного формата. Помните, что названия форматов всегда в верхнем "
+"регистре, например EPUB."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:656
 msgid ""
@@ -23811,9 +23927,9 @@ msgid ""
 "function to get the path for a specific format. Note that format names are "
 "always uppercase, as in EPUB."
 msgstr ""
-"formats_paths() -- возвращает разделённый запятыми список "
-"colon_separated(постолбцовых) элементов, означающих полный путь к форматам "
-"книги. Вы можете использовать функцию select что бы получить путь для "
+"formats_paths() -- возвращает список элементов, означающих полный путь к "
+"форматам книги. Список разделяется запятыми, элементы разделяются "
+"двоеточиями. Вы можете использовать функцию select что бы получить путь для "
 "конкретного формата. Помните, что имена форматов всегда в верхнем регистре, "
 "как например EPUB."
 
@@ -24426,63 +24542,63 @@ msgstr "п. п."
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:204
 msgid "&Copy"
-msgstr ""
+msgstr "Копировать"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:205
 msgid "Select All"
-msgstr ""
+msgstr "Выделить все"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:206
 msgid "&Select All"
-msgstr ""
+msgstr "&Выбрать все"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:207
 msgid "Copy &Link location"
-msgstr ""
+msgstr "Копировать Ссылку"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:208
 msgid "&Undo"
-msgstr ""
+msgstr "&Отменить"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:209
 msgid "&Redo"
-msgstr ""
+msgstr "&Повторить"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:210
 msgid "Cu&t"
-msgstr ""
+msgstr "&Вырезать"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:211
 msgid "&Paste"
-msgstr ""
+msgstr "&Вставить"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:212
 msgid "Paste and Match Style"
-msgstr ""
+msgstr "Вставить с соблюдением стиля"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:213
 msgid "Directions"
-msgstr ""
+msgstr "Направления"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:214
 msgid "Left to Right"
-msgstr ""
+msgstr "Слева направо"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:215
 msgid "Right to Left"
-msgstr ""
+msgstr "Справа налево"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:216
 msgid "Fonts"
-msgstr ""
+msgstr "Шрифты"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:217
 msgid "&Step up"
-msgstr ""
+msgstr "У&величить"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:218
 msgid "Step &down"
-msgstr ""
+msgstr "У&меньшить"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
@@ -25539,7 +25655,7 @@ msgstr ""
 "sony_collection_renaming_rules={'series':'Series', '#myseries':'Series'}\n"
 "4: То же что и в примере 2, но вместо имеющегося имени категории в скобках \n"
 "и добавления к значению, я хочу добавить и разделить через двоеточие, \n"
-"как в сериях: Darkover. Я должен изменить шаблон используемый для \n"
+"например Серии: Darkover. Я должен изменить шаблон используемый для \n"
 "форматирования имени категории\n"
 "В результате две настройки будут следующими:\n"
 "sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}\n"
@@ -25926,6 +26042,8 @@ msgstr ""
 msgid ""
 "Save original file when converting/polishing from same format to same format"
 msgstr ""
+"Сохранить исходный файл при преобразовании/полировке из формата в тот же "
+"формат"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:467
 msgid ""
@@ -25936,6 +26054,14 @@ msgid ""
 "Similarly, by setting save_original_format_when_polishing to False you can\n"
 "prevent calibre from saving the original file when polishing."
 msgstr ""
+"Когда calibre проводит преобразование из формата в тот же самый формат, \n"
+"например из EPUB в EPUB, то исходный файл сохраняется и если преобразование "
+"\n"
+"удаётся плохо, вы можете настроить параметры и запустить снова. \n"
+"При отключении этой настройки calibre перестанет сохранять исходный файл.\n"
+"Аналогично при отключении настройки save_original_format_when_polishing "
+"calibre \n"
+"перестанет сохранять исходный файл при полировке."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:476
 msgid "Number of recently viewed books to show"
@@ -26046,7 +26172,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:519
 msgid "Recognize numbers inside text when sorting"
-msgstr ""
+msgstr "Распознавать номера в тексте при сортировке"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:520
 msgid ""
@@ -26055,10 +26181,15 @@ msgid ""
 "numeric_collation = True note that doing so will cause problems with text\n"
 "that starts with numbers and is a little slower."
 msgstr ""
+"Это значит, что при сортировке текста вроде заголовка \"Книга 2\" \n"
+"будет отсортирована и помещена перед \"Книга 100\". Если вы желаете\n"
+" включить данную опцию, то установите numeric_collation = True, \n"
+"но при этом обработка станет немного медленнее и могут быть \n"
+"проблемы с текстом, который начинается с цифр."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:526
 msgid "Sort the list of libraries alphabetically"
-msgstr ""
+msgstr "Сортировать список библиотек в алфавитном порядке"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:527
 msgid ""
@@ -26067,3 +26198,9 @@ msgid ""
 "number of such libraries, the sorting becomes alphabetic. You can set that\n"
 "number here. The default is ten libraries."
 msgstr ""
+"Список библиотек в меню \"Копировать в Библиотеку\" и \"Быстрое "
+"Переключение\" \n"
+"обычно сортируется по частоте использования. Однако если библиотек больше \n"
+"некоторого количества, сортировка становится алфавитной. \n"
+"Вы можете установить это количество здесь. \n"
+"По умолчанию это десять библиотек."

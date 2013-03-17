@@ -57,14 +57,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-15 04:12+0000\n"
-"PO-Revision-Date: 2013-03-09 12:50+0000\n"
-"Last-Translator: drMerry <Unknown>\n"
+"PO-Revision-Date: 2013-03-16 14:29+0000\n"
+"Last-Translator: Bart Bone <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-16 04:37+0000\n"
+"X-Launchpad-Export-Date: 2013-03-17 04:57+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -402,7 +402,7 @@ msgstr "E-boeken afwerken"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "Edit the Table of Contents in your books"
-msgstr ""
+msgstr "Bewerk de inhoudsopgave in uw boeken"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid "Delete books from your calibre library or connected device"
@@ -1200,6 +1200,9 @@ msgid ""
 "calibre-debug -r \"Add Books\" -- file1 --option1\n"
 "Everything after the -- will be passed to the plugin as arguments."
 msgstr ""
+"Voer een plugin uit welke via opdracht-prompt kan starten. Bijvoorbeeld:\n"
+"calibre-debug -r \"Add Books\" --bestand1 --optie1\n"
+"Alles na de -- zal worden meegegeven aan de plugin als argumenten."
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:180
 msgid "Debug log"
@@ -1208,7 +1211,7 @@ msgstr "Debuglog"
 #: /home/kovid/work/calibre/src/calibre/debug.py:272
 #, python-format
 msgid "No plugin named %s found"
-msgstr ""
+msgstr "Geen plugin gevonden met de naam %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:19
 msgid "Communicate with Android phones."
@@ -1890,6 +1893,11 @@ msgid ""
 "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
 "factory defaults and testing software"
 msgstr ""
+"Kobo update regelmatig de firmware en de database versie. Met deze optie zal "
+"calibre proberen om volledige lees-schrijf rechten te krijgen. Onverwachte "
+"gevolgen zijn zeer goed mogelijk!! Schakel enkel in als u goed bekend bent "
+"met herstellen naar de fabrieks-instellingen van de kobo en met het testen "
+"van software."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:619
 msgid "Kobo database version unsupported - See details"
@@ -5672,7 +5680,7 @@ msgstr "Er bestaat geen HTML bestand met de naam %s"
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:145
 #, python-format
 msgid "The anchor %(a)s does not exist in file %(f)s"
-msgstr ""
+msgstr "De referentie %(a)s bestaat niet in bestand %(f)s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
@@ -6620,11 +6628,11 @@ msgstr "Geen bibliotheek gevonden in %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:235
 msgid "Copying to"
-msgstr ""
+msgstr "Kopiëren naar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:235
 msgid "Moving to"
-msgstr ""
+msgstr "Verplaatsen naar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:251
 #, python-format
@@ -6634,7 +6642,7 @@ msgstr "Boeken %(num)d naar %(loc)s gekopieerd"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:253
 #, python-format
 msgid "Moved %(num)d books to %(loc)s"
-msgstr ""
+msgstr "%(num)d boeken verplaatst naar %(loc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:257
 msgid "Could not copy books: "
@@ -7761,28 +7769,28 @@ msgstr "Over boeken verkrijgen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:24
 msgid "Choose format to edit"
-msgstr ""
+msgstr "Kies te bewerken formaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:28
 msgid "Choose which format you want to edit:"
-msgstr ""
+msgstr "Kies welk formaat u wilt bewerken:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:40
 msgid "&All formats"
-msgstr ""
+msgstr "&Alle formaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:62
 msgid "Edit ToC"
-msgstr ""
+msgstr "Bewerk inhoudsopgave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "K"
-msgstr ""
+msgstr "K"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:113
 msgid "Cannot edit ToC"
-msgstr ""
+msgstr "Kan inhoudsopgave niet bewerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:103
 #, python-format
@@ -7790,6 +7798,8 @@ msgid ""
 "Editing Table of Contents is only supported for books in the %s formats. "
 "Convert to one of those formats before polishing."
 msgstr ""
+"Bewerken van inhoudsopgave wordt alleen ondersteund voor boeken in %s "
+"formaten. Zet het boek om naar één van deze formaten voor u gaat bijschaven."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:288
@@ -18752,11 +18762,11 @@ msgstr "Het contextmenu voor de boeken op het apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:230
 msgid "The context menu for the cover browser"
-msgstr "Het contekstmenu voor de omslagbrowser"
+msgstr "Het contextmenu voor de omslagbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:236
 msgid "Click to choose toolbar or menu to customize"
-msgstr "Klik om de toolbar of het menu aan te passen"
+msgstr "Klik om de werkbalk of het menu aan te passen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:284
 msgid "Cannot add"
@@ -19812,7 +19822,7 @@ msgstr "Ongeveer %d%% van de bovenkant"
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:227
 #, python-format
 msgid "Location: A &lt;%s&gt; tag inside the file"
-msgstr ""
+msgstr "Locatie: een &lt;%s&gt; tag binnen het bestand"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:49
 msgid ""
@@ -19843,49 +19853,58 @@ msgid ""
 "previous entry. If you create a non-linear ToC it will be automatically re-"
 "arranged inside the AZW3 file."
 msgstr ""
+"<b>WAARSCHUWING:</b> calibre ondersteund enkel het maken van lineaire "
+"inhoudsopgaven voor AZW3 bestanden. In een lineaire inhoudsopgave moet een "
+"item verwijzen naar een locatie volgende op het voorgaande item. Als u een "
+"niet lineaire inhoudsopgave maakt, zal deze automatisch worden herschikt in "
+"het bestand."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:79
 msgid ""
 "You can move this entry around the Table of Contents by drag and drop or "
 "using the up and down buttons to the left"
 msgstr ""
+"U kunt dit item verplaatsen binnen de inhoudsopgave door te slepen of door "
+"gebruik te maken van de op en neer knoppen aan de linker kant"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:100
 msgid "Change the &location this entry points to"
-msgstr ""
+msgstr "Wijzig de &locatie waar dit item naar verwijst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:104
 msgid "&Remove this entry"
-msgstr ""
+msgstr "Ve&rwijder dit item"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:114
 msgid "New entry &inside this entry"
-msgstr ""
+msgstr "Nieuw &item binnen dit item"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:117
 msgid "New entry &above this entry"
-msgstr ""
+msgstr "Nieuw item &boven dit item"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:120
 msgid "New entry &below this entry"
-msgstr ""
+msgstr "Nieuw item &onder dit item"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:130
 msgid "&Flatten this entry"
-msgstr ""
+msgstr "Dit item a&fvlakken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:132
 msgid ""
 "All children of this entry are brought to the same level as this entry."
 msgstr ""
+"Alle kinderen van dit item worden naar hetzelfde niveau gebracht als dit "
+"item."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:171
 msgid "This entry points to an existing destination"
-msgstr ""
+msgstr "Dit item wijst naar een bestaande bestemming"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:174
 msgid "The location this entry points to does not exist"
-msgstr ""
+msgstr "De locatie waar dit item naar verwijst bestaat niet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:212
 msgid "Move current entry up"
@@ -19937,25 +19956,25 @@ msgstr "%s laden, een moment a.u.b. ..."
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:501
 #, python-format
 msgid "Writing %s, please wait..."
-msgstr ""
+msgstr "%s wordt geschreven, een moment a.u.b. ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:509
 msgid "Failed to write book"
-msgstr ""
+msgstr "Schrijven van boek mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:510
 #, python-format
 msgid "Could not write %s. Click \"Show details\" for more information."
-msgstr ""
+msgstr "Kon %s niet schrijven. Klik \"Toon details\" voor meer informatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:547
 msgid "Failed to load book"
-msgstr ""
+msgstr "Laden van boek mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:548
 #, python-format
 msgid "Could not load %s. Click \"Show details\" for more information."
-msgstr ""
+msgstr "Kon %s niet laden. Klik op \"Toon details\" voor meer informatie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:70
 #, python-format

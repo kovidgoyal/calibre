@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-03-15 04:12+0000\n"
-"PO-Revision-Date: 2013-03-14 21:59+0000\n"
+"PO-Revision-Date: 2013-03-16 15:53+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-16 04:36+0000\n"
+"X-Launchpad-Export-Date: 2013-03-17 04:57+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -354,7 +354,7 @@ msgstr "Ajustament fi dels llibres"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "Edit the Table of Contents in your books"
-msgstr ""
+msgstr "Edita l'índex dels llibres"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid "Delete books from your calibre library or connected device"
@@ -6594,11 +6594,11 @@ msgstr "No s'ha trobat cap biblioteca a %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:235
 msgid "Copying to"
-msgstr ""
+msgstr "S'està copiant a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:235
 msgid "Moving to"
-msgstr ""
+msgstr "S'està desplaçant a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:251
 #, python-format
@@ -6608,7 +6608,7 @@ msgstr "%(num)d llibres copiats a %(loc)s"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:253
 #, python-format
 msgid "Moved %(num)d books to %(loc)s"
-msgstr ""
+msgstr "S'ha desplaçat %(num)d llibres a %(loc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:257
 msgid "Could not copy books: "
@@ -7734,28 +7734,28 @@ msgstr "Quant a Get Books"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:24
 msgid "Choose format to edit"
-msgstr ""
+msgstr "Trieu el format per editar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:28
 msgid "Choose which format you want to edit:"
-msgstr ""
+msgstr "Trieu quin format voleu editar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:40
 msgid "&All formats"
-msgstr ""
+msgstr "&Tots els formats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:62
 msgid "Edit ToC"
-msgstr ""
+msgstr "Edita l'índex"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "K"
-msgstr ""
+msgstr "K"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:113
 msgid "Cannot edit ToC"
-msgstr ""
+msgstr "No es pot editar l'índex"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:103
 #, python-format
@@ -7763,6 +7763,8 @@ msgid ""
 "Editing Table of Contents is only supported for books in the %s formats. "
 "Convert to one of those formats before polishing."
 msgstr ""
+"L'edició de l'índex només és compatible amb els llibres en els formats %s. "
+"Convertiu-lo a una d'aquests formats abans del polit."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:288
@@ -19855,7 +19857,7 @@ msgstr "Aproximadament %d%% des del principi"
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:227
 #, python-format
 msgid "Location: A &lt;%s&gt; tag inside the file"
-msgstr ""
+msgstr "Ubicació: Una etiqueta &lt;%s&gt; a dins del fitxer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:49
 msgid ""
@@ -19886,49 +19888,55 @@ msgid ""
 "previous entry. If you create a non-linear ToC it will be automatically re-"
 "arranged inside the AZW3 file."
 msgstr ""
+"<b>AVÍS:</b> En fitxers AZW3 el calibre només pot crear índexs lineals. A un "
+"índex lineal cada entrada apunta a una ubicació posterior a l'entrada "
+"prèvia. Si creeu un índex no lineal, es reordenarà automàticament a dins del "
+"fitxer AZW3."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:79
 msgid ""
 "You can move this entry around the Table of Contents by drag and drop or "
 "using the up and down buttons to the left"
 msgstr ""
+"Podeu desplaçar aquesta entrada per l'índex arrossegant-la i deixant-la anar "
+"o utilitzant els botons «Amunt» i «Avall» de l'esquerra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:100
 msgid "Change the &location this entry points to"
-msgstr ""
+msgstr "Canvia &la ubicació cap a on apunta l'entrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:104
 msgid "&Remove this entry"
-msgstr ""
+msgstr "Sup&rimeix l'entrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:114
 msgid "New entry &inside this entry"
-msgstr ""
+msgstr "Nova entrada a d&ins de l'entrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:117
 msgid "New entry &above this entry"
-msgstr ""
+msgstr "Nova entrada al d&amunt de l'entrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:120
 msgid "New entry &below this entry"
-msgstr ""
+msgstr "Nova entrada per &sota de l'entrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:130
 msgid "&Flatten this entry"
-msgstr ""
+msgstr "&Aplana l'entrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:132
 msgid ""
 "All children of this entry are brought to the same level as this entry."
-msgstr ""
+msgstr "Tots els fills de l'entrada es duran al seu mateix nivell."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:171
 msgid "This entry points to an existing destination"
-msgstr ""
+msgstr "L'entrada apunta a una destinació existent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:174
 msgid "The location this entry points to does not exist"
-msgstr ""
+msgstr "La ubicació cap a on apunta l'entrada no existeix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:212
 msgid "Move current entry up"
@@ -19980,25 +19988,28 @@ msgstr "S'està carregant %s, espereu..."
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:501
 #, python-format
 msgid "Writing %s, please wait..."
-msgstr ""
+msgstr "S'està desant %s, espereu..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:509
 msgid "Failed to write book"
-msgstr ""
+msgstr "No s'ha pogut desar el llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:510
 #, python-format
 msgid "Could not write %s. Click \"Show details\" for more information."
 msgstr ""
+"No s'ha pogut desar %s. Fer clic a «Mostra els detalls» per a més informació."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:547
 msgid "Failed to load book"
-msgstr ""
+msgstr "La càrrega del llibre ha fallat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:548
 #, python-format
 msgid "Could not load %s. Click \"Show details\" for more information."
 msgstr ""
+"No s'ha pogut carregar %s. Fer clic a «Mostra els detalls» per a més "
+"informació."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:70
 #, python-format

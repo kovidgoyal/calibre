@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-15 04:12+0000\n"
-"PO-Revision-Date: 2013-03-15 13:30+0000\n"
+"PO-Revision-Date: 2013-03-16 14:55+0000\n"
 "Last-Translator: Tiago S. <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-16 04:47+0000\n"
+"X-Launchpad-Export-Date: 2013-03-17 04:57+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -17233,6 +17233,14 @@ msgid ""
 "metadata sources has a genre like tag set for the book you are searching "
 "for. Most often, they all have large tag sets."
 msgstr ""
+"<p>Meta-dados diferentes têm conjuntos de etiquetas diferentes para o mesmo "
+"livro. Se esta opção estiver marcada, então o calibre irá usar conjuntos "
+"pequenos de etiquetas. Isto tende a ser mais como géneros, enquanto o "
+"conjunto maior de etiquetas tende a descrever o conteúdo dos livros.\n"
+"<p>Note que esta opção irá fazer diferença na prática apenas se uma das "
+"fontes de meta-dados tem um conjunto de etiquetas do tipo género para o "
+"livro que estiver a pesquisar. Na maioria dos casos, todas têm conjuntos "
+"grandes de etiquetas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:148
 msgid "Prefer &fewer tags"
@@ -17248,6 +17256,10 @@ msgid ""
 "This refers to CPU intensive tasks like  conversion. Lower this number if "
 "you want calibre to use less CPU."
 msgstr ""
+"O número máximo de tarefas a executar em simultâneo como tarefas de fundo. "
+"Isto refere-se a tarefas de processamento intensivas tais como conversões. "
+"Diminua este número se quiser que o calibre use menos recursos do "
+"processador."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:46
 msgid "No proxies used"
@@ -19122,6 +19134,8 @@ msgid ""
 "All of these category_managers are available by right-clicking on items in "
 "the tag browser above"
 msgstr ""
+"Todos estes category_managers estão disponíveis com um duplo click em itens "
+"no navegador de etiquetas atrás referido"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:304
 #, python-format
@@ -19240,7 +19254,7 @@ msgstr "Primeira letra é utilizável apenas quando ordenado pelo nome"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:112
 msgid "Select a destination for the Table of Contents entry"
-msgstr ""
+msgstr "Escolha o destino para a entrada do Tabela de Conteúdos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:132
 msgid ""
@@ -19255,44 +19269,46 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:145
 msgid "&Name of the ToC entry:"
-msgstr ""
+msgstr "&Nome da entrada da TdC"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:151
 msgid "Currently selected destination:"
-msgstr ""
+msgstr "Destino actualmente seleccionado:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:176
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:235
 msgid "File:"
-msgstr ""
+msgstr "Ficheiro:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:219
 msgid "Top of the file"
-msgstr ""
+msgstr "Topo do ficheiro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:339
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:354
 msgid "(Untitled)"
-msgstr ""
+msgstr "(Sem Título)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:221
 #, python-format
 msgid "Approximately %d%% from the top"
-msgstr ""
+msgstr "Aproximadamente %d%% do topo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:227
 #, python-format
 msgid "Location: A &lt;%s&gt; tag inside the file"
-msgstr ""
+msgstr "Localização: A &lt;%s&gt; etiqueta dentro do ficheiro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:49
 msgid ""
 "You can edit existing entries in the Table of Contents by clicking them in "
 "the panel to the left."
 msgstr ""
+"Pode editar as entradas existentes na Tabela de Conteúdos carregando nelas "
+"no painel à esquerda."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:51
 msgid ""
@@ -19300,10 +19316,13 @@ msgid ""
 "verified to exist. Entries with a red dot are broken and may need to be "
 "fixed."
 msgstr ""
+"Entradas com um visto verde junto a elas indicam que se vificou que a "
+"localização existe. Entradas com um ponto vermelho estão quebradas e podem "
+"necessitar de ser reparadas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:59
 msgid "Create a &new entry"
-msgstr ""
+msgstr "Criar uma &nova entrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:63
 msgid ""
@@ -19321,27 +19340,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:100
 msgid "Change the &location this entry points to"
-msgstr ""
+msgstr "Mudar a &localização deste ponto de entrada para"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:104
 msgid "&Remove this entry"
-msgstr ""
+msgstr "&Remover esta entrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:114
 msgid "New entry &inside this entry"
-msgstr ""
+msgstr "Nova entrada &dentro destra entrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:117
 msgid "New entry &above this entry"
-msgstr ""
+msgstr "Nova entrada &acima desta entrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:120
 msgid "New entry &below this entry"
-msgstr ""
+msgstr "Nova entrada por &baixo desta entrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:130
 msgid "&Flatten this entry"
-msgstr ""
+msgstr "&Achatar esta entrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:132
 msgid ""
@@ -19350,39 +19369,39 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:171
 msgid "This entry points to an existing destination"
-msgstr ""
+msgstr "Esta entrada aponta para um destino existente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:174
 msgid "The location this entry points to does not exist"
-msgstr ""
+msgstr "Esta entrada aponta para um destino não existente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:212
 msgid "Move current entry up"
-msgstr ""
+msgstr "Mover a entrada actual para cima"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:218
 msgid "Remove all selected entries"
-msgstr ""
+msgstr "Remover todas as entradas seleccionadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:224
 msgid "Move current entry down"
-msgstr ""
+msgstr "Mover a entrada actual para baixo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:226
 msgid "&Expand all"
-msgstr ""
+msgstr "&Expandir tudo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:230
 msgid "&Collapse all"
-msgstr ""
+msgstr "&Contrair todos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:233
 msgid "Double click on an entry to change the text"
-msgstr ""
+msgstr "Duplo click numa entrada para mudar o texto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:330
 msgid "<b>Title</b>: {0} <b>Dest</b>: {1}{2}"
-msgstr ""
+msgstr "<b>Título</b>: {0} <b>Dest</b>: {1}{2}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:361
 #, python-format
@@ -19390,39 +19409,45 @@ msgid ""
 "The location this entry point to does not exist:\n"
 "%s"
 msgstr ""
+"A localização que esta entrada aponta não existe:\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:450
 #, python-format
 msgid "Edit the ToC in %s"
-msgstr ""
+msgstr "Editar a TdC em %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:466
 #, python-format
 msgid "Loading %s, please wait..."
-msgstr ""
+msgstr "A carregar %s. Por favor, aguarde..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:501
 #, python-format
 msgid "Writing %s, please wait..."
-msgstr ""
+msgstr "A escrever %s. Por favor, aguarde..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:509
 msgid "Failed to write book"
-msgstr ""
+msgstr "Falhou ao escrever livro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:510
 #, python-format
 msgid "Could not write %s. Click \"Show details\" for more information."
 msgstr ""
+"Não foi possivel escrever %s. Carregue em \"Mostrar detalhes\" para mais "
+"informação."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:547
 msgid "Failed to load book"
-msgstr ""
+msgstr "Falhou ao abrir livro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:548
 #, python-format
 msgid "Could not load %s. Click \"Show details\" for more information."
 msgstr ""
+"Não foi possivel abrir %s. Carregue em \"Mostrar detalhes\" para mais "
+"informação."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:70
 #, python-format
@@ -21378,7 +21403,7 @@ msgstr "Não há géneros para catalogar.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:289
 msgid "Check 'Excluded genres' regex in E-book options.\n"
-msgstr ""
+msgstr "Verifique o regex 'Excluir géneros ' nas opções do E-book\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:291
 msgid "No books available to catalog"
@@ -21431,7 +21456,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:859
 msgid "No books available to include in catalog"
-msgstr ""
+msgstr "Nenhum livro disponivel para incluir no catálogo"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2059
 msgid "Genres HTML"
@@ -21449,23 +21474,23 @@ msgstr "por "
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2794
 msgid "Descriptions HTML"
-msgstr ""
+msgstr "Descrições HTML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2798
 msgid "Description HTML"
-msgstr ""
+msgstr "Descrição HTML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:2931
 msgid "NCX header"
-msgstr ""
+msgstr "Cabeçalho NCX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3008
 msgid "NCX for Descriptions"
-msgstr ""
+msgstr "NCX para Descrições"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3135
 msgid "NCX for Series"
-msgstr ""
+msgstr "NCX para Séries"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3220
 #, python-format
@@ -21479,7 +21504,7 @@ msgstr "Série que começa com '%s'"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3266
 msgid "NCX for Titles"
-msgstr ""
+msgstr "NCX para Títulos"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3353
 #, python-format
@@ -21493,7 +21518,7 @@ msgstr "Títulos que começam com  '%s'"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3397
 msgid "NCX for Authors"
-msgstr ""
+msgstr "NCX para Autores"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3476
 #, python-format
@@ -21507,15 +21532,15 @@ msgstr "Autores que começam com '%s'"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3519
 msgid "NCX for Recently Added"
-msgstr ""
+msgstr "NCX para Adicionados Recentemente"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3712
 msgid "NCX for Recently Read"
-msgstr ""
+msgstr "NCX para Recentemente Lidos"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3854
 msgid "NCX for Genres"
-msgstr ""
+msgstr "NCX para Géneros"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3979
 msgid "Generating OPF"
@@ -21531,7 +21556,7 @@ msgstr "Miniatura"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:4896
 msgid "Saving NCX"
-msgstr ""
+msgstr "A guardar NCX"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
@@ -21937,12 +21962,21 @@ msgid ""
 "column.\n"
 "datatype is one of: {0}\n"
 msgstr ""
+"%prog add_custom_column [opções] identificador nome tipo-de-dado\n"
+"\n"
+"Cria uma coluna personalizada. \"identificador\" é o nome de máquina para "
+"coluna.\n"
+"Não pode conter espaços ou dois-pontos. \"nome\" é o nome da coluna que será "
+"exibido.\n"
+"tipo-de-dado pode ser um dos seguintes: {0}\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:703
 msgid ""
 "This column stores tag like data (i.e. multiple comma separated values). "
 "Only applies if datatype is text."
 msgstr ""
+"Este campo armazena dados como etiquetas (ex. vários valores separados por "
+"vírgulas). Só se aplica se o tipo de dados for texto."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:707
 msgid ""
@@ -22020,12 +22054,22 @@ msgid ""
 "    command.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog set_custom [opções] identificador livro_id valor\n"
+"\n"
+"    Altera o conteúdo de um campo personalizado do livro livro_id.\n"
+"    Pode obter uma lista de livro_ids usando o comando list.\n"
+"    Pode obter uma lista de campos personalizados usando o\n"
+"    comando custom_columns.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:895
 msgid ""
 "If the column stores multiple values, append the specified values to the "
 "existing ones, instead of replacing them."
 msgstr ""
+"Se o coluna permitir,armazenar diversos valores, adicione os valores "
+"especificados aos já existentes em vez de não os sobrescrer"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:906
 msgid "Error: You must specify a field name, id and value"
@@ -22039,6 +22083,12 @@ msgid ""
 "    List available custom columns. Shows column labels and ids.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog custom_columns [opções]\n"
+"\n"
+"    Lista campos personalizados disponíveis . Mostra os nomes dos campos e "
+"os IDs.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:932
 msgid "Show details for each column."
@@ -22062,6 +22112,13 @@ msgid ""
 "    columns with the custom_columns command.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog remove_custom_column [opções] identificador\n"
+"\n"
+"    Remove o campo personalizado com o identificador especificado. Pode ver\n"
+"    quais os campos personalizados estão disponíveis com o comando "
+"custom_columns.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:960
 msgid "Do not ask for confirmation"
@@ -22069,7 +22126,7 @@ msgstr "Não pedir por confirmação"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:970
 msgid "Error: You must specify a column label"
-msgstr ""
+msgstr "Erro: Tem que especificar um idenficador para o campo personalizado"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:981
 msgid ""
@@ -22614,7 +22671,7 @@ msgstr "Último"
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:110
 #, python-format
 msgid "Browsing %d books"
-msgstr ""
+msgstr "A navegar %d livros"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:127
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:261
@@ -22624,7 +22681,7 @@ msgstr "Classificação média"
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:128
 #, python-format
 msgid "%(prefix)s: %(rating).1f stars"
-msgstr ""
+msgstr "%(prefix)s: %(rating).1f estrelas"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:165
 #, python-format
@@ -22641,7 +22698,7 @@ msgstr "biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:285
 msgid "home"
-msgstr ""
+msgstr "página inicial"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:356
 msgid "Random book"
@@ -22666,7 +22723,7 @@ msgstr "Para cima"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:687
 msgid "in"
-msgstr ""
+msgstr "no"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:690
 msgid "Books in"
@@ -23015,30 +23072,38 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:158
 msgid "strlen(a) -- Returns the length of the string passed as the argument"
 msgstr ""
+"strlen(a) -- Devolve o comprimento do texto passando-o como um argumento."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:171
 msgid ""
 "add(x, y) -- returns x + y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
+"add(x, y) -- devolve x + y. Devolve uma excepção se x ou y não forem números."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:182
 msgid ""
 "subtract(x, y) -- returns x - y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"subtract(x, y) -- devolve x - y. Devolve uma excepção se x ou y não forem "
+"números."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:193
 msgid ""
 "multiply(x, y) -- returns x * y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"multiply(x, y) --  devolve x * y. Devolve uma excepção se x ou y não forem "
+"números."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:204
 msgid ""
 "divide(x, y) -- returns x / y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
+"divide(x, y) --  devolve x / y. Devolve uma excepção se x ou y não forem "
+"números."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:216
 msgid ""
@@ -23068,6 +23133,8 @@ msgid ""
 "assign(id, val) -- assigns val to id, then returns val. id must be an "
 "identifier, not an expression"
 msgstr ""
+"assign(id, val) -- atribui val a id, e devolve val. id tem de ser um "
+"identificador, não uma expressão."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:264
 msgid ""
@@ -23078,13 +23145,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:276
 msgid "field(name) -- returns the metadata field named by name"
-msgstr ""
+msgstr "field(name) -- devolve o campo de meta-dados nomeado por nome."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:285
 msgid ""
 "raw_field(name) -- returns the metadata field named by name without applying "
 "any formatting."
 msgstr ""
+"raw_field(name) -- devolve o campo de meta-dados nomeado por nome mas sem "
+"aplicar formatações."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:295
 msgid ""
@@ -23115,6 +23184,8 @@ msgid ""
 "test(val, text if not empty, text if empty) -- return `text if not empty` if "
 "the field is not empty, otherwise return `text if empty`"
 msgstr ""
+"test(val, texto se não vazio, texto se vazio) -- devolve `texto se não "
+"vazio` se o campo não estiver vazio, caso contrário devolve 'texto se vazio'."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:350
 msgid ""
@@ -24520,7 +24591,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:258
 msgid "Specify a folder calibre should connect to at startup"
-msgstr ""
+msgstr "Especifique a pasta a que o calibre se deve conectar ao iniciar"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:259
 msgid ""
@@ -24537,7 +24608,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:268
 msgid "Specify renaming rules for SONY collections"
-msgstr ""
+msgstr "Especifique as regras para renomear as collecções SONY"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:269
 msgid ""
@@ -24612,7 +24683,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:321
 msgid "Specify how SONY collections are sorted"
-msgstr ""
+msgstr "Especifique como ordenar as colecções SONY"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:322
 msgid ""
@@ -24652,6 +24723,9 @@ msgid ""
 "Set this to True to ensure that tags in 'Tags to add when adding\n"
 "a book' are added when copying books to another library"
 msgstr ""
+"Marque isto como verdadeiro para assegurar que as etiquetas em\n"
+"Etiquetas a adicionar quando adicionar um livro' sejam adicionadas\n"
+"ao copiar livros para outra bibiblioteca."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:344
 msgid "Set the maximum number of tags to show per book in the content server"
@@ -24663,6 +24737,8 @@ msgstr ""
 msgid ""
 "Set custom metadata fields that the content server will or will not display."
 msgstr ""
+"Definir campos personalizados de mata-dados que o servidor de conteúdos irá "
+"ou não mostar"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:348
 msgid ""
@@ -24701,7 +24777,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:373
 msgid "Choose whether dates are sorted using visible fields"
-msgstr ""
+msgstr "Escolha se as datas serão ordenadas usando os compos visíveis"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:374
 msgid ""
@@ -24709,10 +24785,16 @@ msgid ""
 "used, regardless of what is displayed. Set this tweak to True to use only\n"
 "the fields that are being displayed."
 msgstr ""
+"Valores de Data contém data e hora. Quando ordenados, todos os campos são\n"
+"utilizados, independente do que é mostrado. Marque este ajuste para "
+"Verdadeiro\n"
+"para usar apenas os campos que estão a ser mostrados."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:379
 msgid "Specify which font to use when generating a default cover or masthead"
 msgstr ""
+"Especifica qual o tipo de letra a usar quando gerar uma capa padrão ou "
+"cabeçalho"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:380
 msgid ""
@@ -24759,6 +24841,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:411
 msgid "Number of columns for custom metadata in the edit metadata dialog"
 msgstr ""
+"Número de colunas para meta-dados personalizados no diálogo de edição de "
+"meta-dados"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:412
 msgid ""
@@ -24767,6 +24851,11 @@ msgid ""
 "two\n"
 "columns. If False, one column is used."
 msgstr ""
+"Seleccione usar uma ou duas colunas para meta-dados personalizados quando "
+"editar\n"
+"meta-dados num livro de cada vez. Se Verdadeiro, então os campos são "
+"estabelecidos\n"
+"utilizando duas colunas. Se Falso, uma única coluna é utilizada."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:417
 msgid "Order of custom column(s) in edit metadata"
