@@ -16,9 +16,9 @@ from PyQt4.Qt import (QPushButton, QFrame, QVariant,
     QLabel, Qt, pyqtSignal, QIcon, QTreeWidget, QGridLayout, QTreeWidgetItem,
     QToolButton, QItemSelectionModel)
 
-from calibre.ebooks.oeb.polish.container import get_container
+from calibre.ebooks.oeb.polish.container import get_container, AZW3Container
 from calibre.ebooks.oeb.polish.toc import get_toc, add_id, TOC, commit_toc
-from calibre.gui2 import Application
+from calibre.gui2 import Application, error_dialog, gprefs
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.toc.location import ItemEdit
 from calibre.utils.logging import GUILog
@@ -30,6 +30,7 @@ class ItemView(QFrame): # {{{
     add_new_item = pyqtSignal(object, object)
     delete_item = pyqtSignal()
     flatten_item = pyqtSignal()
+    go_to_root = pyqtSignal()
 
     def __init__(self, parent):
         QFrame.__init__(self, parent)
@@ -60,6 +61,15 @@ class ItemView(QFrame): # {{{
         b.clicked.connect(self.add_new_to_root)
         l.addWidget(b)
         l.addStretch()
+        self.w1 = la = QLabel(_('<b>WARNING:</b> calibre only supports the '
+                                'creation of linear ToCs in AZW3 files. In a '
+                                'linear ToC every entry must point to a '
+                                'location after the previous entry. If you '
+                                'create a non-linear ToC it will be '
+                                'automatically re-arranged inside the AZW3 file.'
+                            ))
+        la.setWordWrap(True)
+        l.addWidget(la)
 
         l = ip.l = QGridLayout()
         ip.setLayout(l)
@@ -123,11 +133,22 @@ class ItemView(QFrame): # {{{
         b.setToolTip(_('All children of this entry are brought to the same '
                        'level as this entry.'))
         l.addWidget(b, l.rowCount()+1, 0, 1, 2)
+        ip.b4 = b = QPushButton(QIcon(I('back.png')), _('&Return to root'))
+        b.clicked.connect(self.go_to_root)
+        b.setToolTip(_('Go back to the top level view'))
+        l.addWidget(b, l.rowCount()+1, 0, 1, 2)
+
         l.setRowMinimumHeight(rs, 20)
 
         l.addWidget(QLabel(), l.rowCount(), 0, 1, 2)
         l.setColumnStretch(1, 10)
         l.setRowStretch(l.rowCount()-1, 10)
+        self.w2 = la = QLabel(self.w1.text())
+        self.w2.setWordWrap(True)
+        l.addWidget(la, l.rowCount(), 0, 1, 2)
+
+    def hide_azw3_warning(self):
+        self.w1.setVisible(False), self.w2.setVisible(False)
 
     def add_new_to_root(self):
         self.add_new_item.emit(None, None)
@@ -222,6 +243,7 @@ class TOCView(QWidget): # {{{
         self.item_view.delete_item.connect(self.delete_current_item)
         i.add_new_item.connect(self.add_new_item)
         i.flatten_item.connect(self.flatten_item)
+        i.go_to_root.connect(self.go_to_root)
         l.addWidget(i, 0, 4, col, 1)
 
         l.setColumnStretch(2, 10)
@@ -255,6 +277,9 @@ class TOCView(QWidget): # {{{
             for child in reversed(children):
                 item.removeChild(child)
                 p.insertChild(idx+1, child)
+
+    def go_to_root(self):
+        self.tocw.setCurrentItem(None)
 
     def highlight_item(self, item):
         self.tocw.setCurrentItem(item, 0, QItemSelectionModel.ClearAndSelect)
@@ -352,6 +377,8 @@ class TOCView(QWidget): # {{{
 
     def __call__(self, ebook):
         self.ebook = ebook
+        if not isinstance(ebook, AZW3Container):
+            self.item_view.hide_azw3_warning()
         self.toc = get_toc(self.ebook)
         self.toc_lang, self.toc_uid = self.toc.lang, self.toc.uid
         self.blank = QIcon(I('blank.png'))
@@ -420,13 +447,16 @@ class TOCView(QWidget): # {{{
 
 class TOCEditor(QDialog): # {{{
 
-    explode_done = pyqtSignal()
+    explode_done = pyqtSignal(object)
+    writing_done = pyqtSignal(object)
 
     def __init__(self, pathtobook, title=None, parent=None):
         QDialog.__init__(self, parent)
         self.pathtobook = pathtobook
+        self.working = True
 
         t = title or os.path.basename(pathtobook)
+        self.book_title = t
         self.setWindowTitle(_('Edit the ToC in %s')%t)
         self.setWindowIcon(QIcon(I('highlight_only_on.png')))
 
@@ -443,7 +473,8 @@ class TOCEditor(QDialog): # {{{
         pi.setDisplaySize(200)
         pi.startAnimation()
         ll.addWidget(pi, alignment=Qt.AlignHCenter|Qt.AlignCenter)
-        la = self.la = QLabel(_('Loading %s, please wait...')%t)
+        la = self.wait_label = QLabel(_('Loading %s, please wait...')%t)
+        la.setWordWrap(True)
         la.setStyleSheet('QLabel { font-size: 20pt }')
         ll.addWidget(la, alignment=Qt.AlignHCenter|Qt.AlignTop)
         self.toc_view = TOCView(self)
@@ -458,9 +489,12 @@ class TOCEditor(QDialog): # {{{
         bb.rejected.connect(self.reject)
 
         self.explode_done.connect(self.read_toc, type=Qt.QueuedConnection)
+        self.writing_done.connect(self.really_accept, type=Qt.QueuedConnection)
 
         self.resize(950, 630)
-        self.working = True
+        geom = gprefs.get('toc_editor_window_geom', None)
+        if geom is not None:
+            self.restoreGeometry(bytes(geom))
 
     def add_new_item(self, item, where):
         self.item_edit(item, where)
@@ -470,17 +504,36 @@ class TOCEditor(QDialog): # {{{
         if self.stacks.currentIndex() == 2:
             self.toc_view.update_item(*self.item_edit.result)
             self.stacks.setCurrentIndex(1)
-        else:
-            self.write_toc()
+        elif self.stacks.currentIndex() == 1:
             self.working = False
-            super(TOCEditor, self).accept()
+            Thread(target=self.write_toc).start()
+            self.pi.startAnimation()
+            self.wait_label.setText(_('Writing %s, please wait...')%
+                                    self.book_title)
+            self.stacks.setCurrentIndex(0)
+            self.bb.setEnabled(False)
+
+    def really_accept(self, tb):
+        gprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
+        if tb:
+            error_dialog(self, _('Failed to write book'),
+                _('Could not write %s. Click "Show details" for'
+                  ' more information.')%self.book_title, det_msg=tb, show=True)
+            gprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
+            super(TOCEditor, self).reject()
+            return
+
+        super(TOCEditor, self).accept()
 
     def reject(self):
+        if not self.bb.isEnabled():
+            return
         if self.stacks.currentIndex() == 2:
             self.stacks.setCurrentIndex(1)
         else:
             self.working = False
-            super(TOCEditor, self).accept()
+            gprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
+            super(TOCEditor, self).reject()
 
     def start(self):
         t = Thread(target=self.explode)
@@ -489,21 +542,39 @@ class TOCEditor(QDialog): # {{{
         t.start()
 
     def explode(self):
-        self.ebook = get_container(self.pathtobook, log=self.log)
+        tb = None
+        try:
+            self.ebook = get_container(self.pathtobook, log=self.log)
+        except:
+            import traceback
+            tb = traceback.format_exc()
         if self.working:
-            self.explode_done.emit()
+            self.working = False
+            self.explode_done.emit(tb)
 
-    def read_toc(self):
+    def read_toc(self, tb):
+        if tb:
+            error_dialog(self, _('Failed to load book'),
+                _('Could not load %s. Click "Show details" for'
+                  ' more information.')%self.book_title, det_msg=tb, show=True)
+            self.reject()
+            return
         self.pi.stopAnimation()
         self.toc_view(self.ebook)
         self.item_edit.load(self.ebook)
         self.stacks.setCurrentIndex(1)
 
     def write_toc(self):
-        toc = self.toc_view.create_toc()
-        commit_toc(self.ebook, toc, lang=self.toc_view.toc_lang,
-                   uid=self.toc_view.toc_uid)
-        self.ebook.commit()
+        tb = None
+        try:
+            toc = self.toc_view.create_toc()
+            commit_toc(self.ebook, toc, lang=self.toc_view.toc_lang,
+                    uid=self.toc_view.toc_uid)
+            self.ebook.commit()
+        except:
+            import traceback
+            tb = traceback.format_exc()
+        self.writing_done.emit(tb)
 
 # }}}
 

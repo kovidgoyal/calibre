@@ -57,6 +57,16 @@ class TOC(object):
         except ValueError:
             return 1
 
+    def get_lines(self, lvl=0):
+        frag = ('#'+self.frag) if self.frag else ''
+        ans = [(u'\t'*lvl) + u'TOC: %s --> %s%s'%(self.title, self.dest, frag)]
+        for child in self:
+            ans.extend(child.get_lines(lvl+1))
+        return ans
+
+    def __str__(self):
+        return b'\n'.join([x.encode('utf-8') for x in self.get_lines()])
+
 def child_xpath(tag, name):
     return tag.xpath('./*[calibre:lower-case(local-name()) = "%s"]'%name)
 

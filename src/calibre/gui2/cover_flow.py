@@ -54,6 +54,27 @@ if pictureflow is not None:
         def currentChanged(self, index):
             print 'current changed:', index
 
+    class DummyImageList(pictureflow.FlowImages):
+
+        def __init__(self):
+            pictureflow.FlowImages.__init__(self)
+            self.num = 40000
+            i1, i2 = QImage(300, 400, QImage.Format_RGB32), QImage(300, 400, QImage.Format_RGB32)
+            i1.fill(Qt.green), i2.fill(Qt.blue)
+            self.images = [i1, i2]
+
+        def count(self):
+            return self.num
+
+        def image(self, index):
+            return self.images[index%2]
+
+        def caption(self, index):
+            return 'Number: %d'%index
+
+        def subtitle(self, index):
+            return ''
+
     class DatabaseImages(pictureflow.FlowImages):
 
         def __init__(self, model, buffer=20):
@@ -328,6 +349,21 @@ class CoverFlowMixin(object):
     def sync_listview_to_cf(self, row):
         self.cf_last_updated_at = time.time()
 
+def test():
+    from PyQt4.QtGui import QApplication, QMainWindow
+    app = QApplication([])
+    w = QMainWindow()
+    cf = CoverFlow()
+    cf.resize(int(available_width()/1.5), available_height()-60)
+    w.resize(cf.size()+QSize(30, 20))
+    model = DummyImageList()
+    cf.setImages(model)
+    cf.setCurrentSlide(39000)
+    w.setCentralWidget(cf)
+
+    w.show()
+    cf.setFocus(Qt.OtherFocusReason)
+    sys.exit(app.exec_())
 
 def main(args=sys.argv):
     return 0

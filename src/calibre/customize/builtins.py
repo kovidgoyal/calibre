@@ -789,6 +789,11 @@ class ActionPolish(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.polish:PolishAction'
     description = _('Fine tune your ebooks')
 
+class ActionEditToC(InterfaceActionBase):
+    name = 'Edit ToC'
+    actual_plugin = 'calibre.gui2.actions.toc_edit:ToCEditAction'
+    description = _('Edit the Table of Contents in your books')
+
 class ActionDelete(InterfaceActionBase):
     name = 'Remove Books'
     actual_plugin = 'calibre.gui2.actions.delete:DeleteAction'
@@ -929,7 +934,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore,
-        ActionPluginUpdater, ActionPickRandom]
+        ActionPluginUpdater, ActionPickRandom, ActionEditToC]
 
 # }}}
 
