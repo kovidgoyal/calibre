@@ -10,14 +10,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-03-06 16:59+0000\n"
+"PO-Revision-Date: 2013-03-12 00:42+0000\n"
 "Last-Translator: pedro jorge oliveira <pedrojorgeoliveira93@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-03-07 04:56+0000\n"
-"X-Generator: Launchpad (build 16514)\n"
+"X-Launchpad-Export-Date: 2013-03-13 04:37+0000\n"
+"X-Generator: Launchpad (build 16532)\n"
 "Language: pt\n"
 
 #. name for aaa
@@ -14794,7 +14794,7 @@ msgstr "Linguagem Gestual de Laos"
 
 #. name for lsp
 msgid "Panamanian Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual do Panamá"
 
 #. name for lsr
 msgid "Aruop"
@@ -14806,11 +14806,11 @@ msgstr ""
 
 #. name for lst
 msgid "Trinidad and Tobago Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual de Trindade e Tobago"
 
 #. name for lsy
 msgid "Mauritian Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual das Maurícias"
 
 #. name for ltc
 msgid "Chinese; Late Middle"
@@ -15358,7 +15358,7 @@ msgstr ""
 
 #. name for mdl
 msgid "Maltese Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual de Malta"
 
 #. name for mdm
 msgid "Mayogo"
@@ -15586,7 +15586,7 @@ msgstr ""
 
 #. name for mfs
 msgid "Mexican Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual do México"
 
 #. name for mft
 msgid "Mokerang"
@@ -16722,7 +16722,7 @@ msgstr ""
 
 #. name for mre
 msgid "Martha's Vineyard Sign Language"
-msgstr ""
+msgstr "Linguagem Gestual de Martha's Vineyard"
 
 #. name for mrf
 msgid "Elseng"

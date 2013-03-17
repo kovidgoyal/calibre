@@ -87,10 +87,11 @@ def init_qt(args):
     opts, args = parser.parse_args(args)
     find_portable_library()
     if opts.with_library is not None:
-        if not os.path.exists(opts.with_library):
-            os.makedirs(opts.with_library)
-        if os.path.isdir(opts.with_library):
-            prefs.set('library_path', os.path.abspath(opts.with_library))
+        libpath = os.path.expanduser(opts.with_library)
+        if not os.path.exists(libpath):
+            os.makedirs(libpath)
+        if os.path.isdir(libpath):
+            prefs.set('library_path', os.path.abspath(libpath))
             prints('Using library at', prefs['library_path'])
     QCoreApplication.setOrganizationName(ORG_NAME)
     QCoreApplication.setApplicationName(APP_UID)

@@ -73,6 +73,7 @@ class Container(object):
         self.name_path_map = {}
         self.dirtied = set()
         self.encoding_map = {}
+        self.pretty_print = set()
 
         # Map of relative paths with '/' separators from root of unzipped ePub
         # to absolute paths on filesystem with os-specific separators
@@ -221,6 +222,10 @@ class Container(object):
             self.parsed_cache[name] = ans
             self.encoding_map[name] = self.used_encoding
         return ans
+
+    def replace(self, name, obj):
+        self.parsed_cache[name] = obj
+        self.dirty(name)
 
     @property
     def opf(self):
@@ -410,19 +415,21 @@ class Container(object):
         data = self.parsed(name)
         if name == self.opf_name:
             self.format_opf()
-        data = serialize(data, self.mime_map[name])
+        data = serialize(data, self.mime_map[name], pretty_print=name in
+                         self.pretty_print)
         if name == self.opf_name:
             # Needed as I can't get lxml to output opf:role and
             # not output <opf:metadata> as well
             data = re.sub(br'(<[/]{0,1})opf:', r'\1', data)
         return data
 
-    def commit_item(self, name):
+    def commit_item(self, name, keep_parsed=False):
         if name not in self.parsed_cache:
             return
         data = self.serialize_item(name)
-        self.dirtied.remove(name)
-        self.parsed_cache.pop(name)
+        self.dirtied.discard(name)
+        if not keep_parsed:
+            self.parsed_cache.pop(name)
         with open(self.name_path_map[name], 'wb') as f:
             f.write(data)
 

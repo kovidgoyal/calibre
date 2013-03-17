@@ -179,7 +179,7 @@ class Server(Thread):
                     try:
                         n = worker.notifications.get_nowait()
                         worker.job.notifications.put(n)
-                        self.changed_jobs_queue.put(job)
+                        self.changed_jobs_queue.put(worker.job)
                     except Empty:
                         break
 

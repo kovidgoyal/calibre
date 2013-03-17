@@ -242,7 +242,6 @@ class FlowSplitter(object):
                     self.trees[i:i+1] = [before_tree, after_tree]
                     break
 
-        self.trees.append(tree)
         trees, ids = [], set([])
         for tree in self.trees:
             root = tree.getroot()

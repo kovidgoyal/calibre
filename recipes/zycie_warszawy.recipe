@@ -9,6 +9,7 @@ __version__   = '1.2'
 zw.com.pl
 '''
 
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class zyciewarszawy(BasicNewsRecipe):
@@ -42,7 +43,7 @@ class zyciewarszawy(BasicNewsRecipe):
 	remove_tags.append(dict(attrs = {'id' : 'copyright_law'}))
 
 	preprocess_regexps = [(re.compile(r',3.jpg'), lambda m: ',2.jpg')]
-	
+
 	def print_version(self, url):
 		url += "?print=tak"
 		return url

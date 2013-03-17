@@ -41,7 +41,7 @@ class NYTimes(BasicNewsRecipe):
     # number of days old an article can be for inclusion. If oldest_web_article = None all articles
     # will be included. Note: oldest_web_article is ignored if webEdition = False
     webEdition = False
-    oldest_web_article = 7
+    oldest_web_article = None
 
     # download higher resolution images than the small thumbnails typically included in the article
     # the down side of having large beautiful images is the file size is much larger, on the order of 7MB per paper
@@ -188,6 +188,8 @@ class NYTimes(BasicNewsRecipe):
                                         'relatedSearchesModule',
                                         'side_tool',
                                         'singleAd',
+                                        'postCategory column',
+                                        'refer tagRefer', # added for bits blog post
                                         'entry entry-utility', #added for DealBook
                                         'entry-tags', #added for DealBook
                                         'footer promos clearfix', #added for DealBook
@@ -324,6 +326,8 @@ class NYTimes(BasicNewsRecipe):
             return True
         if '/video/' in url:
             return True
+        if '/multimedia/' in url:
+            return True
         if '/slideshow/' in url:
             return True
         if '/magazine/index' in url:
@@ -333,6 +337,15 @@ class NYTimes(BasicNewsRecipe):
         if '/reference/' in url:
             return True
         if '/premium/' in url:
+            return True
+        if '#comment' in url:
+            return True
+        if '#postComment' in url:
+            return True
+        if '#postcomment' in url:
+            return True
+        if re.search('/\d\d\d\d/\d\d/\d\d/',url) is None:
+            print("NO DATE IN "+url)
             return True
         return False
 
@@ -363,6 +376,7 @@ class NYTimes(BasicNewsRecipe):
 
     cover_tag = 'NY_NYT'
     def get_cover_url(self):
+        from datetime import timedelta, date
         cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg'+str(date.today().day)+'/lg/'+self.cover_tag+'.jpg'
         br = BasicNewsRecipe.get_browser(self)
         daysback=1
@@ -384,7 +398,6 @@ class NYTimes(BasicNewsRecipe):
         return cover
 
     masthead_url = 'http://graphics8.nytimes.com/images/misc/nytlogo379x64.gif'
-
 
     def short_title(self):
         return self.title
@@ -647,75 +660,53 @@ class NYTimes(BasicNewsRecipe):
 
         soup = self.index_to_soup('http://www.nytimes.com/pages/todaysheadlines/')
 
-        # Fetch the content table
-        content_table = soup.find('table',{'id':'content'})
-        if content_table is None:
-            self.log("FATAL ERROR: CANNOT FIND CONTENT TABLE")
-            return None
-
-        # Within this table are <td id=".*Column.*"> entries, each containing one or more h6 tags which represent sections
-
-        for td_col in content_table.findAll('td', {'id' : re.compile('Column')}):
-            for div_sec in td_col.findAll('div',recursive=False):
-                for h6_sec_name in div_sec.findAll('h6',{'style' : re.compile('text-transform: *uppercase')}):
-
-                    section_name = self.tag_to_string(h6_sec_name,use_alt=False)
-                    section_name = re.sub(r'^ *$','',section_name)
-
-                    if section_name == '':
+        section_name='Unknown Section'
+        pubdate = strftime('%a, %d %b')
+        for td_col in soup.findAll('td'):
+            h6_sec_name = td_col.find('h6')
+            if h6_sec_name is not None:
+                new_section_name = self.tag_to_string(h6_sec_name,use_alt=False)
+                new_section_name = re.sub(r'^ *$','',new_section_name)
+                if new_section_name == '':
+                    continue
+                section_name = new_section_name
+                continue
+            atag = td_col.find('a')
+            if atag is not None:
+                h4tag = None
+                for h4tag in atag.findNextSiblings('h4'):
+                    break
+                if h4tag is None:
+                    continue
+                author = self.tag_to_string(h4tag,use_alt=False)
+                try:
+                    url = re.sub(r'\?.*', '', atag['href'])
+                except:
+                    continue
+                if self.exclude_url(url):
+                    continue
+                if '?' in url:
+                    url += '&pagewanted=all'
+                else:
+                    url += '?pagewanted=all'
+                if self.filterDuplicates:
+                    if url in self.url_list:
                         continue
-                    if self.includeSections != []:
-                        if section_name not in self.includeSections:
-                            print "SECTION NOT INCLUDED: ",section_name
-                            continue
-                    if section_name in self.excludeSections:
-                        print "SECTION EXCLUDED: ",section_name
-                        continue
-
-                    section_name=string.capwords(section_name)
-                    section_name = section_name.replace('Op-ed','Op-Ed')
-                    section_name = section_name.replace('U.s.','U.S.')
-                    section_name = section_name.replace('N.y.','N.Y.')
-                    pubdate = strftime('%a, %d %b')
-
-                    search_div = div_sec
-                    for next_tag in h6_sec_name.findNextSiblings(True):
-                        if next_tag.__class__.__name__ == 'Tag':
-                            if next_tag.name == 'div':
-                                search_div = next_tag
-                            break
-
-                    # Get the articles
-                    for h3_item in search_div.findAll('h3'):
-                        byline = h3_item.h6
-                        if byline is not None:
-                            author = self.tag_to_string(byline,use_alt=False)
-                        else:
-                            author = ''
-                        a = h3_item.find('a', href=True)
-                        if not a:
-                            continue
-                        url = re.sub(r'\?.*', '', a['href'])
-                        if self.exclude_url(url):
-                            continue
-                        url += '?pagewanted=all'
-                        if self.filterDuplicates:
-                            if url in self.url_list:
-                                continue
-                        self.url_list.append(url)
-                        title = self.tag_to_string(a, use_alt=True).strip()
-                        desc = h3_item.find('p')
-                        if desc is not None:
-                            description = self.tag_to_string(desc,use_alt=False)
-                        else:
-                            description = ''
-                        if not self.articles.has_key(section_name):
-                            self.ans.append(section_name)
-                            self.articles[section_name] = []
-                        self.articles[section_name].append(dict(title=title, url=url, date=pubdate, description=description, author=author, content=''))
+                self.url_list.append(url)
+                title = self.tag_to_string(atag, use_alt=False).strip()
+                desc = atag.parent.find('p')
+                if desc is not None:
+                    description = self.tag_to_string(desc,use_alt=False)
+                else:
+                    description = ''
+                if not self.articles.has_key(section_name):
+                    self.ans.append(section_name)
+                    self.articles[section_name] = []
+                print('Title '+title+' author '+author)
+                self.articles[section_name].append(dict(title=title, url=url, date=pubdate, description=description, author=author, content=''))
 
         self.ans = [(k, self.articles[k]) for k in self.ans if self.articles.has_key(k)]
-        return self.filter_ans(self.get_tech_feeds(self.get_popular_articles(self.ans)))
+        return self.filter_ans(self.ans)
 
     def parse_index(self):
         if self.headlinesOnly:
@@ -825,8 +816,9 @@ class NYTimes(BasicNewsRecipe):
             for divr in soup.findAll('div',attrs={'class':re.compile('w190 right')}):
                 if divr.find(text=re.compile('Sign up')):
                     divr.extract()
-            divr = soup.find('div',attrs={'id':re.compile('related-content')})
+            divr = soup.find('div',attrs={'class':re.compile('^relatedArticlesModule')})
             if divr is not None:
+                print("PROCESSING RELATED: "+self.tag_to_string(soup.title,False))
             # handle related articles
                 rlist = []
                 ul = divr.find('ul')
@@ -856,6 +848,8 @@ class NYTimes(BasicNewsRecipe):
                     asidediv.append(Tag(soup,'hr'))
                     smain = soup.find('body')
                     smain.append(asidediv)
+            else:
+                print("CANNOT FIND RELATED: "+self.tag_to_string(soup.title,False))
             for atag in soup.findAll('a'):
                 img = atag.find('img')
                 if img is not None:
@@ -898,6 +892,18 @@ class NYTimes(BasicNewsRecipe):
                                             first_outer = outerdiv
                                     else:
                                         litag.extract()
+                            for h6tag in rdiv.findAll('h6'):
+                                if h6tag.find('a') is not None:
+                                    if h6tag.find('a')['href'].startswith('http://www.nytimes.com'):
+                                        url = re.sub(r'\?.*', '', h6tag.find('a')['href'])
+                                        h6tag.find('a')['href'] = url+'?pagewanted=all'
+                                        h6tag.extract()
+                                        related.append(h6tag)
+                                        if first_related is None:
+                                            first_related = rdiv
+                                            first_outer = outerdiv
+                                    else:
+                                        h6tag.extract()
             if related != []:
                 for r in related:
                     if r.h6: # don't want the anchor inside a h6 tag

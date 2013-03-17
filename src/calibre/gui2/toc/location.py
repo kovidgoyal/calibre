@@ -11,7 +11,7 @@ from base64 import b64encode
 
 from PyQt4.Qt import (QWidget, QGridLayout, QListWidget, QSize, Qt, QUrl,
                       pyqtSlot, pyqtSignal, QVBoxLayout, QFrame, QLabel,
-                      QLineEdit)
+                      QLineEdit, QTimer)
 from PyQt4.QtWebKit import QWebView, QWebPage, QWebElement
 
 from calibre.ebooks.oeb.display.webview import load_html
@@ -37,6 +37,7 @@ class Page(QWebPage): # {{{
     def javaScriptAlert(self, frame, msg):
         self.log(unicode(msg))
 
+    @pyqtSlot(result=bool)
     def shouldInterruptJavaScript(self):
         return True
 
@@ -88,6 +89,16 @@ class WebView(QWebView): # {{{
 
     def sizeHint(self):
         return QSize(1500, 300)
+
+    def show_frag(self, frag):
+        self.page().mainFrame().scrollToAnchor(frag)
+
+    @property
+    def scroll_frac(self):
+        val, ok = self.page().evaljs('window.pageYOffset/document.body.scrollHeight').toFloat()
+        if not ok:
+            val = 0
+        return val
 # }}}
 
 class ItemEdit(QWidget):
@@ -131,15 +142,14 @@ class ItemEdit(QWidget):
         la.setWordWrap(True)
         l.addWidget(la)
 
-        f.la2 = la = QLabel(_('&Name of the ToC entry:'))
+        f.la2 = la = QLabel('<b>'+_('&Name of the ToC entry:'))
         l.addWidget(la)
         self.name = QLineEdit(self)
         la.setBuddy(self.name)
         l.addWidget(self.name)
 
-        self.base_msg = _('Currently selected destination:')
+        self.base_msg = '<b>'+_('Currently selected destination:')+'</b>'
         self.dest_label = la = QLabel(self.base_msg)
-        la.setTextFormat(Qt.PlainText)
         la.setWordWrap(True)
         la.setStyleSheet('QLabel { margin-top: 20px }')
         l.addWidget(la)
@@ -163,33 +173,71 @@ class ItemEdit(QWidget):
         load_html(path, self.view, codec=encoding,
                   mime_type=self.container.mime_map[name])
         self.view.load_js()
-        self.dest_label.setText(self.base_msg + '\n' + _('File:') + ' ' +
-                                name + '\n' + _('Top of the file'))
+        self.dest_label.setText(self.base_msg + '<br>' + _('File:') + ' ' +
+                                name + '<br>' + _('Top of the file'))
 
     def __call__(self, item, where):
         self.current_item, self.current_where = item, where
         self.current_name = None
         self.current_frag = None
-        if item is None:
-            self.dest_list.setCurrentRow(0)
-            self.name.setText(_('(Untitled)'))
-            self.dest_label.setText(self.base_msg + '\n' + _('None'))
+        self.name.setText(_('(Untitled)'))
+        dest_index, frag = 0, None
+        if item is not None:
+            if where is None:
+                self.name.setText(item.data(0, Qt.DisplayRole).toString())
+            toc = item.data(0, Qt.UserRole).toPyObject()
+            if toc.dest:
+                for i in xrange(self.dest_list.count()):
+                    litem = self.dest_list.item(i)
+                    if unicode(litem.data(Qt.DisplayRole).toString()) == toc.dest:
+                        dest_index = i
+                        frag = toc.frag
+                        break
 
-    def elem_clicked(self, tag, frac, elem_id, loc):
-        self.current_frag = elem_id or loc
+        self.dest_list.blockSignals(True)
+        self.dest_list.setCurrentRow(dest_index)
+        self.dest_list.blockSignals(False)
+        item = self.dest_list.item(dest_index)
+        self.current_changed(item)
+        if frag:
+            self.current_frag = frag
+            QTimer.singleShot(1, self.show_frag)
+
+    def show_frag(self):
+        self.view.show_frag(self.current_frag)
+        QTimer.singleShot(1, self.check_frag)
+
+    def check_frag(self):
+        pos = self.view.scroll_frac
+        if pos == 0:
+            self.current_frag = None
+        self.update_dest_label()
+
+    def get_loctext(self, frac):
         frac = int(round(frac * 100))
-        base = _('Location: A <%s> tag inside the file')%tag
         if frac == 0:
             loctext = _('Top of the file')
         else:
             loctext =  _('Approximately %d%% from the top')%frac
-        loctext = base + ' [%s]'%loctext
-        self.dest_label.setText(self.base_msg + '\n' +
-                    _('File:') + ' ' + self.current_name + '\n' + loctext)
+        return loctext
+
+
+    def elem_clicked(self, tag, frac, elem_id, loc):
+        self.current_frag = elem_id or loc
+        base = _('Location: A &lt;%s&gt; tag inside the file')%tag
+        loctext = base + ' [%s]'%self.get_loctext(frac)
+        self.dest_label.setText(self.base_msg + '<br>' +
+                    _('File:') + ' ' + self.current_name + '<br>' + loctext)
+
+    def update_dest_label(self):
+        val = self.view.scroll_frac
+        self.dest_label.setText(self.base_msg + '<br>' +
+                    _('File:') + ' ' + self.current_name + '<br>' +
+                                self.get_loctext(val))
 
     @property
     def result(self):
         return (self.current_item, self.current_where, self.current_name,
-                self.current_frag)
+                self.current_frag, unicode(self.name.text()))
 
 

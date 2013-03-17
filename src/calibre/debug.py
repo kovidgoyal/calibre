@@ -22,6 +22,12 @@ calibre GUI and the calibre viewer in debug mode.
 It also contains interfaces to various bits of calibre that do not have
 dedicated command line tools, such as font subsetting, tweaking ebooks and so
 on.
+
+You can also use %prog to run standalone scripts. To do that use it like this:
+
+    %prog mysrcipt.py -- --option1 --option2 file1 file2 ...
+
+Everything after the -- is passed to the script.
 ''')
     parser.add_option('-c', '--command', help='Run python code.')
     parser.add_option('-e', '--exec-file', help='Run the python code in file.')
@@ -69,9 +75,12 @@ on.
             help=_('Cause a running calibre instance, if any, to be'
                 ' shutdown. Note that if there are running jobs, they '
                 'will be silently aborted, so use with care.'))
-
     parser.add_option('--test-build', help='Test binary modules in build',
             action='store_true', default=False)
+    parser.add_option('-r', '--run-plugin', help=_(
+        'Run a plugin that provides a command line interface. For example:\n'
+        'calibre-debug -r "Add Books" -- file1 --option1\n'
+        'Everything after the -- will be passed to the plugin as arguments.'))
 
     return parser
 
@@ -256,6 +265,13 @@ def main(args=sys.argv):
         main(['subset-font']+[opts.subset_font]+args[1:])
     elif opts.exec_file:
         run_script(opts.exec_file, args[1:])
+    elif opts.run_plugin:
+        from calibre.customize.ui import find_plugin
+        plugin = find_plugin(opts.run_plugin)
+        if plugin is None:
+            prints(_('No plugin named %s found')%opts.run_plugin)
+            raise SystemExit(1)
+        plugin.cli_main([plugin.name] + args[1:])
     elif len(args) >= 2 and args[1].rpartition('.')[-1] in {'py', 'recipe'}:
         run_script(args[1], args[2:])
     else:

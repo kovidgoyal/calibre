@@ -11,7 +11,8 @@ import json, sys, os
 from urllib import unquote
 
 from cssutils import parseStyle
-from PyQt4.Qt import (pyqtProperty, QString, QEventLoop, Qt, QSize, QTimer)
+from PyQt4.Qt import (pyqtProperty, QString, QEventLoop, Qt, QSize, QTimer,
+                      pyqtSlot)
 from PyQt4.QtWebKit import QWebPage, QWebView
 
 from calibre.constants import iswindows
@@ -109,6 +110,7 @@ class Page(QWebPage): # {{{
         self.bridge_value = None
         nam = self.networkAccessManager()
         nam.setNetworkAccessible(nam.NotAccessible)
+        self.longjs_counter = 0
 
     def javaScriptConsoleMessage(self, msg, lineno, msgid):
         self.log(u'JS:', unicode(msg))
@@ -116,8 +118,14 @@ class Page(QWebPage): # {{{
     def javaScriptAlert(self, frame, msg):
         self.log(unicode(msg))
 
+    @pyqtSlot(result=bool)
     def shouldInterruptJavaScript(self):
-        return False
+        if self.longjs_counter < 5:
+            self.log('Long running javascript, letting it proceed')
+            self.longjs_counter += 1
+            return False
+        self.log.warn('Long running javascript, aborting it')
+        return True
 
     def _pass_json_value_getter(self):
         val = json.dumps(self.bridge_value)
@@ -130,6 +138,7 @@ class Page(QWebPage): # {{{
             fset=_pass_json_value_setter)
 
     def load_js(self):
+        self.longjs_counter = 0
         if self.js is None:
             from calibre.utils.resources import compiled_coffeescript
             self.js = compiled_coffeescript('ebooks.oeb.display.utils')

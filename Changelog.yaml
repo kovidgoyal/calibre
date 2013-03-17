@@ -19,6 +19,128 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.23
+  date: 2013-03-15
+
+  new features:
+    - title: "New tool: \"Edit ToC\" that allows you to edit or create a Table of Contents easily in EPUB or AZW3 ebooks."
+      type: major
+      description: "Using the Edit ToC tool, you can easily re-arrange the entries in an existing Table of Contents, change their text and even change the location they point to by simply clicking the new location in the book. To use this tool, go to Preferences->Toolbar and add the Edit ToC tool to the main toolbar. Then simply select the books you want to be polished and click the Edit ToC button. This tool is based on a new codebase, so there may be bugs."
+
+    - title: "Content server: Enable use of plugboards for mobi and azw3 formats"
+
+    - title: "Windows driver for Tolino Shine"
+      tickets: [1153536]
+
+    - title: "When copying books to another library, show the name of the destination library in the copy dialog"
+      tickets: [1153407]
+
+    - title: "Allow running plugins from the command line with calibre-debug easily"
+ 
+  bug fixes:
+    - title: "PDF Output: Fix bug causing left and right margins to be applied to the cover page. Also fix the preserve cover aspect ratio option not working correctly"
+
+    - title: "PDF Output: Fix javascript dialog box popping up in the middle on converting very long documents."
+      tickets: [1154948]
+
+    - title: "MOBI metadata: When setting the language in a MOBI file also update the language field in the EXTH header."
+      tickets: [1154351]
+
+    - title: "MOBI metadata: Support writing of book producer field into MOBI files."
+      tickets: [1154353]
+
+    - title: "Fix job progress and status not always updated"
+      tickets: [1154137]
+
+    - title: "Fix conversion of zip.rar archives with very long title/author on windows"
+      tickets: [1153859]
+
+    - title: "News download: Update the library used to parse RSS feeds."
+      tickets: [1152852]
+
+    - title: "Fix Irex Illiad not recognized on OS X computers"
+      tickets: [824713]
+
+    - title: "Fix entering a very long search in the find item in tag browser box causes the tag browser to no longer be shrinkable."
+      tickets: [1152870]
+
+    - title: "Fix a bug in the zsh completion when converting for ebook-convert with PDF output"
+
+  improved recipes:
+    - Various Polish news sources
+    - Harpers Full
+    - kath.net
+    - Smithsonian
+
+  new recipes:
+    - title: Deccan Herald 
+      author: Muruli Shamanna
+
+    - title: What If 
+      author: kisnick
+
+    - title: The Friday Times 
+      tickets: Krittika Goyal
+
+    - title: Computer Woche 
+      author: Maria Seliger
+
+    - title: Lamebook 
+      author: atordo
+
+- version: 0.9.22
+  date: 2013-03-08
+
+  new features:
+    - title: "Linux driver for the Tolino ebook reader."
+      tickets: [1151901]
+
+    - title: "Kobo driver: Add support for the new 'Archived' collections in Kobo firmware 2.4.0 and improve handling recommendations and previews."
+      tickets: [1150852]
+
+    - title: "Metadata search and replace: Allow replacing the entire set of identifiers instead of only a specific identifier when doing a search and replace. To do this, choose a source field other than identifiers and set the destination identifier type to: *"
+
+    - title: "Show a brief description of every action when customizing toolbars in Preferences->Toolbars"
+
+    - title: "Allow drag and drop of books from the calibre book list onto the button for Convert book, Edit metadata, Remove Book, Tweak Book, Polish books, etc."
+ 
+  bug fixes:
+    - title: "CHM Input: Fix incorrect decoding for CHM files whose hhc file is also a content file."
+      tickets: [1151721]
+
+    - title: "Conversion: Add the double low quote to list of characters that are converted to ascii."
+      tickets: [1152207]
+
+    - title: "Amazon metadata download: Update plugin to handle changes to Amazon site that could cause some covers to not be downloaded. Also fix finding metadata for books with + in their titles."
+
+    - title: "Content server: Fix a bug that prevented the cover being updated when files are downloaded from the content server"
+
+    - title: "Conversion: Handle the use of @import CSS rules inside <style> tags in HTML files"
+
+    - title: "Book polishing: Do not error out when polishing epub files that have XML comments in their OPF metadata section."
+
+    - title: "Book polishing: Do not error out when updating covers in EPUB files that have entries int heir manifest that point to missing files"
+
+    - title: "Book polishing: Fix a bug that could cause updating covers to error out in some books"
+
+    - title: "Fix updating the calibre application id in EPUBs that also use the application id as the package id."
+
+    - title: "Apple driver: Fix bug preventing sending books to iBooks if no books have been previously added to iBooks."
+      tickets: [1141078]
+
+    - title: "EPUB/AZW3 Output: Fix splitting on page breaks ignored if the page breaks are inside an element which itself has a page-break-after style applied."
+
+    - title: "EPUB/AZW3 Output: Fix incorrect splitting of html at page-break-after page breaks in certain circumstances (The split element being the first child of a parent that contains other split elements)."
+      tickets: [1139317]
+
+  improved recipes:
+    - Le Devoir
+    - New York Times Book Review
+    - Various Polish news sources
+
+  new recipes:
+    - title: Various new Polish news sources
+
 - version: 0.9.21
   date: 2013-03-01
 
