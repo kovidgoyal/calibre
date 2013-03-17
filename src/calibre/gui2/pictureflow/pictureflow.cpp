@@ -398,7 +398,7 @@ private:
   QCache<int, QImage> surfaceCache;
   QTimer triggerTimer;
 
-  int slideFrame;
+  long long slideFrame;
   int step;
   int target;
   int fade;
@@ -493,7 +493,7 @@ void PictureFlowPrivate::setCurrentSlide(int index)
   step = 0;
   centerIndex = qBound(index, 0, slideImages->count()-1);
   target = centerIndex;
-  slideFrame = index << 16;
+  slideFrame = ((long long)index) << 16;
   resetSlides();
   triggerRender();
   widget->emitcurrentChanged(centerIndex);
@@ -1069,7 +1069,7 @@ void PictureFlowPrivate::updateAnimation()
     const int max = 2 * 65536;
 
     int fi = slideFrame;
-    fi -= (target << 16);  
+    fi -= (target << 16);
     if(fi < 0)
       fi = -fi;
     fi = qMin(fi, max);
@@ -1094,7 +1094,7 @@ void PictureFlowPrivate::updateAnimation()
   if(centerIndex != index)
   {
     centerIndex = index;
-    slideFrame = index << 16;
+    slideFrame = ((long long)index) << 16;
     centerSlide.slideIndex = centerIndex;
     for(int i = 0; i < leftSlides.count(); i++)
       leftSlides[i].slideIndex = centerIndex-1-i;
