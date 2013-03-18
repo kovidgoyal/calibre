@@ -591,7 +591,7 @@ class PluginWidget(QWidget,Ui_Form):
             c_name, c_def, c_type = opt
             if c_name == 'preset_field':
                 continue
-            # Extra entries in options for cli invocation
+            # Ignore extra entries in options for cli invocation
             if c_name in options:
                 opt_value = options[c_name]
             else:
@@ -646,7 +646,6 @@ class PluginWidget(QWidget,Ui_Form):
         self.set_format_and_title(format, title)
 
     def preset_remove(self):
-        print("preset_remove()")
         if self.preset_field.currentIndex() == 0:
             return
 
@@ -722,7 +721,7 @@ class PluginWidget(QWidget,Ui_Form):
                     exclusion_rules_processed = True
 
             preset[c_name] = opt_value
-            # Construct listified version of table rules for cli invocation
+            # Construct cli version of table rules
             if c_name in ['exclusion_rules_tw','prefix_rules_tw']:
                 self.construct_tw_opts_object(c_name, opt_value, preset)
 
@@ -745,7 +744,7 @@ class PluginWidget(QWidget,Ui_Form):
 
         preset['genre_source_field'] = self.genre_source_field_name
 
-        # Append the output profile
+        # Append the current output profile
         try:
             preset['output_profile'] = load_defaults('page_setup')['output_profile']
         except:
