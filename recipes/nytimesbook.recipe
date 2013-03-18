@@ -35,7 +35,10 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
                 continue
             if x['class'] in {'story', 'ledeStory'}:
                 tt = 'h3' if x['class'] == 'story' else 'h1'
-                a = x.find(tt).find('a', href=True)
+                try:
+                    a = x.find(tt).find('a', href=True)
+                except AttributeError:
+                    continue
                 title = self.tag_to_string(a)
                 url = a['href'] + '&pagewanted=all'
                 self.log('\tFound article:', title, url)
