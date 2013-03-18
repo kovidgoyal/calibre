@@ -12,20 +12,22 @@ from functools import partial
 
 from calibre.ebooks.conversion.config import load_defaults
 from calibre.gui2 import gprefs, open_url, question_dialog
+from calibre.utils.config import JSONConfig
 from calibre.utils.icu import sort_key
 
 from catalog_epub_mobi_ui import Ui_Form
+from PyQt4 import QtGui
 from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
-        QDoubleSpinBox, QIcon, QLineEdit, QObject, QRadioButton, QSize, QSizePolicy,
-        QTableWidget, QTableWidgetItem, QTextEdit, QToolButton, QUrl,
-        QVBoxLayout, QWidget,
+        QDoubleSpinBox, QIcon, QInputDialog, QLineEdit, QObject, QRadioButton,
+        QSize, QSizePolicy, QTableWidget, QTableWidgetItem, QTextEdit, QToolButton,
+        QUrl, QVBoxLayout, QWidget,
         SIGNAL)
 
 class PluginWidget(QWidget,Ui_Form):
 
     TITLE = _('E-book options')
     HELP  = _('Options specific to')+' AZW3/EPUB/MOBI '+_('output')
-    DEBUG = False
+    DEBUG = True
 
     # Output synced to the connected device?
     sync_enabled = True
@@ -212,8 +214,8 @@ class PluginWidget(QWidget,Ui_Form):
                 else:
                     results = _truncated_results(excluded_tags)
         finally:
-            if self.DEBUG:
-                print(results)
+            if False and self.DEBUG:
+                print("exclude_genre_changed(): %s" % results)
             self.exclude_genre_results.clear()
             self.exclude_genre_results.setText(results)
 
@@ -239,11 +241,11 @@ class PluginWidget(QWidget,Ui_Form):
         Toggle Description-related controls
         '''
         self.header_note_source_field.setEnabled(enabled)
-        self.thumb_width.setEnabled(enabled)
-        self.merge_source_field.setEnabled(enabled)
-        self.merge_before.setEnabled(enabled)
-        self.merge_after.setEnabled(enabled)
         self.include_hr.setEnabled(enabled)
+        self.merge_after.setEnabled(enabled)
+        self.merge_before.setEnabled(enabled)
+        self.merge_source_field.setEnabled(enabled)
+        self.thumb_width.setEnabled(enabled)
 
     def generate_genres_changed(self, enabled):
         '''
@@ -262,6 +264,22 @@ class PluginWidget(QWidget,Ui_Form):
             genre_source_spec = self.genre_source_fields[unicode(new_source)]
             self.genre_source_field_name = genre_source_spec['field']
         self.exclude_genre_changed()
+
+    def get_format_and_title(self):
+        current_format = None
+        current_title = None
+        self.parentWidget().blockSignals(True)
+        for peer in self.parentWidget().children():
+            if peer == self:
+                continue
+            elif peer.children():
+                for child in peer.children():
+                    if child.objectName() == 'format':
+                        current_format = str(child.currentText()).strip()
+                    elif child.objectName() == 'title':
+                        current_title = str(child.text()).strip()
+        self.parentWidget().blockSignals(False)
+        return current_format, current_title
 
     def header_note_source_field_changed(self,new_index):
         '''
@@ -374,14 +392,19 @@ class PluginWidget(QWidget,Ui_Form):
 
         # Initialize exclusion rules
         self.exclusion_rules_table = ExclusionRules(self.exclusion_rules_gb,
-            "exclusion_rules_tw",exclusion_rules, self.eligible_custom_fields,self.db)
+            "exclusion_rules_tw", exclusion_rules, self.eligible_custom_fields, self.db)
 
         # Initialize prefix rules
         self.prefix_rules_table = PrefixRules(self.prefix_rules_gb,
-            "prefix_rules_tw",prefix_rules, self.eligible_custom_fields,self.db)
+            "prefix_rules_tw", prefix_rules, self.eligible_custom_fields, self.db)
 
         # Initialize excluded genres preview
         self.exclude_genre_changed()
+
+        # Hook Preset signals
+        self.preset_delete_pb.clicked.connect(self.preset_remove)
+        self.preset_save_pb.clicked.connect(self.preset_save)
+        self.preset_field.currentIndexChanged[str].connect(self.preset_change)
 
     def merge_source_field_changed(self,new_index):
         '''
@@ -404,10 +427,12 @@ class PluginWidget(QWidget,Ui_Form):
             self.include_hr.setEnabled(False)
 
     def options(self):
-        # Save/return the current options
-        # exclude_genre stores literally
-        # Section switches store as True/False
-        # others store as lists
+        '''
+        Return, optionally save current options
+        exclude_genre stores literally
+        Section switches store as True/False
+        others store as lists
+        '''
 
         opts_dict = {}
         prefix_rules_processed = False
@@ -469,7 +494,7 @@ class PluginWidget(QWidget,Ui_Form):
         except:
             opts_dict['output_profile'] = ['default']
 
-        if self.DEBUG:
+        if False and self.DEBUG:
             print "opts_dict"
             for opt in sorted(opts_dict.keys(), key=sort_key):
                 print " %s: %s" % (opt, repr(opts_dict[opt]))
@@ -543,6 +568,214 @@ class PluginWidget(QWidget,Ui_Form):
             self.genre_source_field.addItem(cf)
         self.genre_source_fields = custom_fields
         self.genre_source_field.currentIndexChanged.connect(self.genre_source_field_changed)
+
+        # Populate the Presets combo box
+        self.presets = JSONConfig("catalog_presets")
+        self.preset_field.addItem("")
+        self.preset_field_values = sorted([p for p in self.presets], key=sort_key)
+        self.preset_field.addItems(self.preset_field_values)
+
+    def preset_change(self, item_name):
+        '''
+        Update catalog options from current preset
+        '''
+        if not item_name:
+            return
+
+        current_preset = str(self.preset_field.currentText())
+        options = self.presets[current_preset]
+
+        exclusion_rules = []
+        prefix_rules = []
+        for opt in self.OPTION_FIELDS:
+            c_name, c_def, c_type = opt
+            if c_name == 'preset_field':
+                continue
+            # Extra entries in options for cli invocation
+            if c_name in options:
+                opt_value = options[c_name]
+            else:
+                continue
+            if c_type in ['check_box']:
+                getattr(self, c_name).setChecked(eval(str(opt_value)))
+                if c_name == 'generate_genres':
+                    self.genre_source_field.setEnabled(eval(str(opt_value)))
+            elif c_type in ['combo_box']:
+                if opt_value is None:
+                    index = 0
+                    if c_name == 'genre_source_field':
+                        index = self.genre_source_field.findText(_('Tags'))
+                else:
+                    index = getattr(self,c_name).findText(opt_value)
+                    if index == -1:
+                        if c_name == 'read_source_field':
+                            index = self.read_source_field.findText(_('Tags'))
+                        elif c_name == 'genre_source_field':
+                            index = self.genre_source_field.findText(_('Tags'))
+                getattr(self,c_name).setCurrentIndex(index)
+            elif c_type in ['line_edit']:
+                getattr(self, c_name).setText(opt_value if opt_value else '')
+            elif c_type in ['radio_button'] and opt_value is not None:
+                getattr(self, c_name).setChecked(opt_value)
+            elif c_type in ['spin_box']:
+                getattr(self, c_name).setValue(float(opt_value))
+            if c_type == 'table_widget':
+                if c_name == 'exclusion_rules_tw':
+                    if opt_value not in exclusion_rules:
+                        exclusion_rules.append(opt_value)
+                if c_name == 'prefix_rules_tw':
+                    if opt_value not in prefix_rules:
+                        prefix_rules.append(opt_value)
+
+        # Reset exclusion rules
+        self.exclusion_rules_table.clearLayout()
+        self.exclusion_rules_table = ExclusionRules(self.exclusion_rules_gb,
+            "exclusion_rules_tw", exclusion_rules, self.eligible_custom_fields, self.db)
+
+        # Reset prefix rules
+        self.prefix_rules_table.clearLayout()
+        self.prefix_rules_table = PrefixRules(self.prefix_rules_gb,
+            "prefix_rules_tw", prefix_rules, self.eligible_custom_fields, self.db)
+
+        # Reset excluded genres preview
+        self.exclude_genre_changed()
+
+        # Reset format and title
+        format = options['format']
+        title = options['catalog_title']
+        self.set_format_and_title(format, title)
+
+    def preset_remove(self):
+        print("preset_remove()")
+        if self.preset_field.currentIndex() == 0:
+            return
+
+        if not question_dialog(self, _("Delete saved catalog preset"),
+                _("The selected saved catalog preset will be deleted. "
+                    "Are you sure?")):
+            return
+
+        item_id = self.preset_field.currentIndex()
+        item_name = unicode(self.preset_field.currentText())
+
+        self.preset_field.blockSignals(True)
+        self.preset_field.removeItem(item_id)
+        self.preset_field.blockSignals(False)
+        self.preset_field.setCurrentIndex(0)
+
+        if item_name in self.presets.keys():
+            del(self.presets[item_name])
+            self.presets.commit()
+
+    def preset_save(self):
+        names = ['']
+        names.extend(self.preset_field_values)
+        try:
+            dex = names.index(self.preset_search_name)
+        except:
+            dex = 0
+        name = ''
+        while not name:
+            name, ok =  QInputDialog.getItem(self, _('Save catalog preset'),
+                    _('Preset name:'), names, dex, True)
+            if not ok:
+                return
+            if not name:
+                error_dialog(self, _("Save catalog preset"),
+                        _("You must provide a name."), show=True)
+        new = True
+        name = unicode(name)
+        if name in self.presets.keys():
+            if not question_dialog(self, _("Save catalog preset"),
+                    _("That saved preset already exists and will be overwritten. "
+                        "Are you sure?")):
+                return
+            new = False
+
+        preset = {}
+        prefix_rules_processed = False
+        exclusion_rules_processed = False
+
+        for opt in self.OPTION_FIELDS:
+            c_name, c_def, c_type = opt
+            if c_name == 'exclusion_rules_tw' and exclusion_rules_processed:
+                continue
+            if c_name == 'prefix_rules_tw' and prefix_rules_processed:
+                continue
+
+            if c_type in ['check_box', 'radio_button']:
+                opt_value = getattr(self, c_name).isChecked()
+            elif c_type in ['combo_box']:
+                if c_name == 'preset_field':
+                    continue
+                opt_value = unicode(getattr(self,c_name).currentText()).strip()
+            elif c_type in ['line_edit']:
+                opt_value = unicode(getattr(self, c_name).text()).strip()
+            elif c_type in ['spin_box']:
+                opt_value = unicode(getattr(self, c_name).value())
+            elif c_type in ['table_widget']:
+                if c_name == 'prefix_rules_tw':
+                    opt_value = self.prefix_rules_table.get_data()
+                    prefix_rules_processed = True
+                if c_name == 'exclusion_rules_tw':
+                    opt_value = self.exclusion_rules_table.get_data()
+                    exclusion_rules_processed = True
+
+            preset[c_name] = opt_value
+            # Construct listified version of table rules for cli invocation
+            if c_name in ['exclusion_rules_tw','prefix_rules_tw']:
+                self.construct_tw_opts_object(c_name, opt_value, preset)
+
+        format, title = self.get_format_and_title()
+        preset['format'] = format
+        preset['catalog_title'] = title
+
+        # Additional items needed for cli invocation
+        # Generate specs for merge_comments, header_note_source_field, genre_source_field
+        checked = ''
+        if self.merge_before.isChecked():
+            checked = 'before'
+        elif self.merge_after.isChecked():
+            checked = 'after'
+        include_hr = self.include_hr.isChecked()
+        preset['merge_comments_rule'] = "%s:%s:%s" % \
+            (self.merge_source_field_name, checked, include_hr)
+
+        preset['header_note_source_field'] = self.header_note_source_field_name
+
+        preset['genre_source_field'] = self.genre_source_field_name
+
+        # Append the output profile
+        try:
+            preset['output_profile'] = load_defaults('page_setup')['output_profile']
+        except:
+            preset['output_profile'] = 'default'
+
+        self.presets[name] = preset
+        self.presets.commit()
+
+        if new:
+            self.preset_field.blockSignals(True)
+            self.preset_field.clear()
+            self.preset_field.addItem('')
+            self.preset_field_values = sorted([q for q in self.presets], key=sort_key)
+            self.preset_field.addItems(self.preset_field_values)
+            self.preset_field.blockSignals(False)
+        self.preset_field.setCurrentIndex(self.preset_field.findText(name))
+
+    def set_format_and_title(self, format, title):
+        for peer in self.parentWidget().children():
+            if peer == self:
+                continue
+            elif peer.children():
+                for child in peer.children():
+                    if child.objectName() == 'format':
+                        index = child.findText(format)
+                        child.blockSignals(True)
+                        child.setCurrentIndex(index)
+                        child.blockSignals(False)
+                    elif child.objectName() == 'title':
+                        child.setText(title)
 
     def show_help(self):
         '''
@@ -631,6 +864,7 @@ class GenericRulesTable(QTableWidget):
         self.last_row_selected = self.currentRow()
         self.last_rows_selected = self.selectionModel().selectedRows()
 
+        # Add the controls
         self._init_controls()
 
         # Hook check_box changes
@@ -680,6 +914,21 @@ class GenericRulesTable(QTableWidget):
         self.resizeColumnsToContents()
         # In case table was empty
         self.horizontalHeader().setStretchLastSection(True)
+
+    def clearLayout(self):
+        if self.layout is not None:
+            old_layout = self.layout
+
+            for child in old_layout.children():
+                for i in reversed(range(child.count())):
+                    if child.itemAt(i).widget() is not None:
+                        child.itemAt(i).widget().setParent(None)
+                import sip
+                sip.delete(child)
+
+            for i in reversed(range(old_layout.count())):
+                if old_layout.itemAt(i).widget() is not None:
+                    old_layout.itemAt(i).widget().setParent(None)
 
     def delete_row(self):
         if self.DEBUG:
