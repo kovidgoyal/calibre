@@ -763,22 +763,24 @@ class EditRules(QWidget): # {{{
                 ' double clicking it.'))
             self.add_advanced_button.setVisible(False)
 
-    def _add_rule(self, dlg):
-        if dlg.exec_() == dlg.Accepted:
-            kind, col, r = dlg.rule
+    def add_rule(self):
+        d = RuleEditor(self.model.fm, self.pref_name)
+        d.add_blank_condition()
+        if d.exec_() == d.Accepted:
+            kind, col, r = d.rule
             if kind and r and col:
                 idx = self.model.add_rule(kind, col, r)
                 self.rules_view.scrollTo(idx)
                 self.changed.emit()
 
-    def add_rule(self):
-        d = RuleEditor(self.model.fm, self.pref_name)
-        d.add_blank_condition()
-        self._add_rule(d)
-
     def add_advanced(self):
         td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, color_field='')
-        self._add_rule(('color', td[0], td[1]))
+        if td.exec_() == td.Accepted:
+            col, r = td.rule
+            if r and col:
+                idx = self.model.add_rule('color', col, r)
+                self.rules_view.scrollTo(idx)
+                self.changed.emit()
 
     def edit_rule(self, index):
         try:
