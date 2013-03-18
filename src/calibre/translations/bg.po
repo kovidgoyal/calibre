@@ -7,14 +7,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.51\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-03-15 04:12+0000\n"
-"PO-Revision-Date: 2013-01-03 19:46+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2013-03-17 14:12+0000\n"
+"Last-Translator: S_S <simo_st92@abv.bg>\n"
 "Language-Team: bg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-16 04:36+0000\n"
+"X-Launchpad-Export-Date: 2013-03-18 04:45+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -346,12 +346,12 @@ msgstr "Конвертирай книги от различни формати"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Fine tune your ebooks"
-msgstr ""
+msgstr "Фина настройка на електронните книги"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "Edit the Table of Contents in your books"
-msgstr ""
+msgstr "Редактирай съдържанието на книгите"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid "Delete books from your calibre library or connected device"
@@ -866,6 +866,7 @@ msgid ""
 "Intended for the Nook HD+ and similar tablet devices with a resolution of "
 "1280x1920"
 msgstr ""
+"Предназначено за Nook HD+ и подобни таблет устройства с резолюция 1280x1920"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:484
 msgid "This profile is intended for the Kobo Reader."
@@ -924,7 +925,7 @@ msgstr "Този профил е предназначен за серията у
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:785
 msgid ""
 "This profile is intended for the PocketBook Pro 912 series of devices."
-msgstr ""
+msgstr "Този профил е предназначен за устройства PocketBook Pro 912 series."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:30
 msgid "Installed plugins"
@@ -1012,6 +1013,8 @@ msgstr "Деактивиране на избраната добавка"
 #, python-format
 msgid "Path to library too long. Must be less than %d characters."
 msgstr ""
+"Пътят към библиотеката е прекалено дълъг. Трябва да съдържа по-малко от %d "
+"символа."
 
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:153
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:666
@@ -1043,7 +1046,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:79
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1191
 msgid "Card B"
-msgstr ""
+msgstr "Карта Б"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:481
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:496
@@ -1265,6 +1268,7 @@ msgstr "Комуникирай с iTunes/iBooks."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:214
 msgid "Apple iDevice detected, launching iTunes, please wait ..."
 msgstr ""
+"Засечено Apple i-устройство, стартиране на iTunes, моля изчакайте ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:216
 msgid ""
@@ -1281,6 +1285,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes' ***"
 msgstr ""
+"*** Не се подържа този начин за директно свързване. Вижте "
+"http://www.mobileread.com/forums/showthread.php?t=118559 за инструкции за "
+"използване на \"Connect to iTunes\"(Свързване с iTunes) ***"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:223
 msgid ""
@@ -1356,11 +1363,15 @@ msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
 msgstr ""
+"Не можете да добавите книга към библиотеката директно от Bambook. Моля "
+"запазете книгата на твърдия диск и я добавете към от там."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:67
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
+"Не можете да се свържете с Bambook, първо трябва да иснталирате библиотеката "
+"на Bambook (Bambook library)."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:75
 msgid ""
@@ -1368,6 +1379,9 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
+"Не можете да се свържете с Bambook. \n"
+"Ако се опитвате да се свържете чрез Wi-Fi, моля проверете дали IP-адреса на "
+"Bambook е конфигуриран правилно."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:112
 msgid "Bambook"
@@ -1414,7 +1428,7 @@ msgstr "Прехвърляне на книги към устройството..
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:301
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:332
 msgid "Adding books to device metadata listing..."
-msgstr ""
+msgstr "Добавяне на книги към метадата(metadata) списъка на устройството ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:352
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:354
@@ -1438,6 +1452,7 @@ msgstr "Премахване на книги от устройството..."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:371
 msgid "Removing books from device metadata listing..."
 msgstr ""
+"Премахване на книги от метадата(metadata) списъка на устройството ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:442
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:402
@@ -1465,7 +1480,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
-msgstr ""
+msgstr "Общуване с Blackberry playbook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
@@ -1489,7 +1504,7 @@ msgstr "Комуникирай с EB600 eBook устройство"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:56
 msgid "Communicate with the Tolino Shine reader."
-msgstr ""
+msgstr "Общуване с Tolino Shine reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:214
 msgid "Communicate with the Astak Mentor EB600"
@@ -1501,11 +1516,11 @@ msgstr "Връзка с PocketBook 301 електронен четец."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:254
 msgid "Communicate with the PocketBook 602/603/902/903/Pro 912 reader."
-msgstr ""
+msgstr "Общуване с PocketBook 602/603/902/903/Pro 912 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:274
 msgid "Communicate with the PocketBook 622 reader."
-msgstr ""
+msgstr "Общуване с PocketBook 622 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:287
 msgid "Communicate with the PocketBook 360+ reader."
@@ -1517,7 +1532,7 @@ msgstr "Връзка с PocketBook 701 четец"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:328
 msgid "Communicate with the Infibeam Pi2 reader."
-msgstr ""
+msgstr "Общуване с Infibeam Pi2 reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1569,7 +1584,7 @@ msgstr "Връзка с Hanvon N520 eBook електронен четец."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:48
 msgid "Communicate with the Kibano eBook reader."
-msgstr ""
+msgstr "Общуване с Kibano eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:61
 msgid "Communicate with The Book reader."
@@ -1593,7 +1608,7 @@ msgstr "Връзка с Elonex EB 511 eBook електронен четец."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:185
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Общуване с Cybook Odyssey eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1629,7 +1644,7 @@ msgstr "Свържи се с JetBook Mini четеца."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:143
 msgid "Communicate with the JetBook Color reader."
-msgstr ""
+msgstr "Общуване с JetBook Color reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:39
 #, python-format
@@ -1642,7 +1657,7 @@ msgstr "Не може да се генерира мапинг на страни�
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:44
 msgid "Communicate with the Kindle eBook reader."
-msgstr ""
+msgstr "Общуване с Kindle eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:185
 #, python-format
@@ -1671,7 +1686,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:289
 msgid "Communicate with the Kindle 2/3/4/Touch/PaperWhite eBook reader."
-msgstr ""
+msgstr "Общуване с Kindle 2/3/4/Touch/PaperWhite eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:301
 msgid "Send page number information when sending books"
@@ -1684,10 +1699,15 @@ msgid ""
 "the Kindle when uploading MOBI files by USB. Note that the page numbers do "
 "not correspond to any paper book."
 msgstr ""
+"Kindle 3 и по-новите версии могат да използват информация за номера на "
+"страницата в MOBI файловете. С тази опция, calibre ще изчисли и изпрати тази "
+"информация към Kindle при качване на MOBI файлове чрез USB. Имайте предвид, "
+"че номерата на страниците не съответстват с книга в хартиен формат."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:308
 msgid "Use slower but more accurate page number calculation"
 msgstr ""
+"Използвай по-бавно, но и по-точно изчисляване на номера на страницата."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:310
 msgid ""
@@ -1696,10 +1716,14 @@ msgid ""
 "book. However, this method is slower and will slow down sending files to the "
 "Kindle."
 msgstr ""
+"Съществуват два начина за генериране на информация за номер на страницата. "
+"Използването на по-точния генератор ще доведе до страници, които "
+"съответстват по-добре на разпечатана книга. Този метод обаче е по-бавен и ще "
+"забави изпращането на файлове към Kindle."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:314
 msgid "Custom column name to retrieve page counts from"
-msgstr ""
+msgstr "Персонализирана колона с имена от която да възвръщате броя страници."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:316
 msgid ""
@@ -1708,18 +1732,22 @@ msgid ""
 "calculating a page count. Specify the name of the custom column here, for "
 "example, #pages. "
 msgstr ""
+"Ако имате персонализирана колона в библиотеката си, която използвате за да "
+"складирате броя страници на книгите, може да накарате Calibre да използва "
+"тази информация, вместо да изчислява броя страници. Уточнете името на "
+"персонализираната колона тук, например, #pages. "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:455
 msgid "Communicate with the Kindle DX eBook reader."
-msgstr ""
+msgstr "Общуване с Kindle DX eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:467
 msgid "Communicate with the Kindle Fire"
-msgstr ""
+msgstr "Общуване с Kindle Fire."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:36
 msgid "Communicate with the Kobo Reader"
-msgstr ""
+msgstr "Общуване с Kobo Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:68
 msgid "The Kobo supports several collections including "
@@ -1731,7 +1759,7 @@ msgstr "Създай тагове за автоматично управлени
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:71
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Качи обложки на книги (по-новите четци)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:72
 msgid ""
@@ -1739,16 +1767,19 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"Обикновено, KOBO четците взимат обложката от e-book файла. С тази опция, "
+"Calibre ще изпрати отделна обложка на четеца, полезно, ако сте изменили "
+"обложката."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:76
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1227
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Качи черно-бели обложки."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:77
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1231
 msgid "Show expired books"
-msgstr ""
+msgstr "Покажи просрочени книги."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:78
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1232
@@ -1774,7 +1805,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:86
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
 msgid "Show Recommendations"
-msgstr ""
+msgstr "Покажи препоръки."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:87
 msgid ""

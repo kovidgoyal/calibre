@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-03-15 04:12+0000\n"
-"PO-Revision-Date: 2013-03-15 21:03+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2013-03-17 18:51+0000\n"
+"Last-Translator: dario hereñu <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-16 04:49+0000\n"
+"X-Launchpad-Export-Date: 2013-03-18 04:45+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:540
@@ -16235,7 +16235,7 @@ msgstr "tiene ID"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:48
 msgid "does not have id"
-msgstr "no tiene id"
+msgstr "no tiene ID"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:56
@@ -16256,13 +16256,13 @@ msgstr "es mayor que"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:79
 msgid "is set"
-msgstr "está establecido"
+msgstr "está establecida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:80
 msgid "is not set"
-msgstr "no está establecido"
+msgstr "no está establecida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:61
 msgid "is more days ago than"
@@ -16377,7 +16377,7 @@ msgstr "Introduzca una fecha en el formato AAAA-MM-DD"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:266
 msgid "Enter a string."
-msgstr "Introduzca un texto"
+msgstr "Introduzca un texto."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:268
 msgid "Enter a regular expression"
@@ -16423,7 +16423,7 @@ msgstr "en"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:348
 msgid "&Add icon"
-msgstr "&Añadir un icono"
+msgstr "&Añadir icono"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:350
 msgid "Icons should be square or landscape"
@@ -16451,7 +16451,7 @@ msgstr "Seleccionar icono"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:500
 msgid "No icon selected"
-msgstr "No se ha seleccionado ningún icono"
+msgstr "No hay ningún icono seleccionado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:501
 msgid "You must choose an icon for this rule"
@@ -16583,9 +16583,9 @@ msgid ""
 "book list. You can hide columns by unchecking them. You can also create your "
 "own, custom columns."
 msgstr ""
-"Aquí puede redistribuir las columnas en la lista de la biblioteca de "
-"calibre. Puede ocultar columnas desmarcándolas. También puede crear sus "
-"propias columnas personalizadas."
+"Aquí puede redistribuir las columnas en la lista de libros de la biblioteca "
+"de calibre. Puede ocultar columnas desmarcándolas. También puede crear "
+"columnas personalizadas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:88
 msgid "Move column up"
@@ -16637,7 +16637,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:30
 msgid "Text column for keeping series-like information"
-msgstr "Columna de texto para información como la serie"
+msgstr "Columna de texto para información de tipo serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:33
 msgid "Text, but with a fixed set of permitted values"
@@ -16768,7 +16768,7 @@ msgid ""
 msgstr ""
 "Ejemplos: El formato <code>{0:0>4d}</code> da un número de cuatro cifras con "
 "ceros a la izquierda. El formato <code>{0:d}&nbsp;días</code> escribe un "
-"número seguido de la la palabra «días»"
+"número seguido de la palabra «días»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:212
 msgid ""
@@ -16800,7 +16800,7 @@ msgid ""
 "Lookup names cannot end with _index, because these names are reserved for "
 "the index of a series column."
 msgstr ""
-"Los nombres de búsqueda no pueden terminar en _index, porque estos nombres "
+"Los nombres de búsqueda no pueden terminar con _index, porque estos nombres "
 "están reservados para los índices de una columna de series."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:238
@@ -16882,10 +16882,10 @@ msgid ""
 "a red X.\n"
 "Everything else will show nothing."
 msgstr ""
-"Muestra marcas de verificación en la interfaz gráfica. Los valores «yes», "
-"«checked» y «true» se muestran con una marca verde. Los valores «no», "
-"«unchecked» y «false» se muestran con una cruz roja. Con cualquier otro "
-"valor no se muestra nada."
+"Muestra marcas de verificación en la interfaz gráfica. Los valores «sí», "
+"«marcado» y «verdadero» se muestran con una marca verde. Los valores «no», "
+"«desmarcado» y «falso» se muestran con una cruz roja. Cualquier otro valor "
+"no mostrará nada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:229
 msgid "Show checkmarks"
@@ -16935,8 +16935,8 @@ msgid ""
 "specifier.\n"
 "            "
 msgstr ""
-"<p>El especificador de formato debe empezar por <code>{0:</code> y terminar "
-"en <code>}</code>.  Puede poner texto delante y detrás del especificador de "
+"<p>El especificador de formato debe empezar con <code>{0:</code> y terminar "
+"con <code>}</code>.  Puede poner texto delante y detrás del especificador de "
 "formato.\n"
 "            "
 
@@ -17062,7 +17062,7 @@ msgid ""
 "Running debug device detection failed. Click Show Details for more "
 "information."
 msgstr ""
-"La depuración para le detección del dispositivo ha fallado. Pulse en "
+"La depuración para la detección del dispositivo ha fallado. Pulse en "
 "«Mostrar detalles» para más información."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:31
@@ -17071,7 +17071,7 @@ msgstr "Obtener información del dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:34
 msgid "User-defined device information"
-msgstr "Información manual del dispositivo"
+msgstr "Información del dispositivo definida por el usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:57
@@ -17080,11 +17080,11 @@ msgstr "Detección del dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:52
 msgid "Ensure your device is disconnected, then press OK"
-msgstr "Asegúrese de que el dispositivo está desconectado y pulse OK"
+msgstr "Asegúrese de que el dispositivo está desconectado y pulse «Aceptar»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:58
 msgid "Ensure your device is connected, then press OK"
-msgstr "Asegúrese de que el dispositivo está conectado y pulse OK"
+msgstr "Asegúrese de que el dispositivo está conectado y pulse «Aceptar»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:89
 msgid ""
@@ -17105,8 +17105,8 @@ msgid ""
 "automatically sent for downloaded news to all email addresses that have Auto-"
 "send checked."
 msgstr ""
-"calibre le puede enviar libros a su lector o a usted por correo electrónico. "
-"Se enviarán correos automáticamente con las noticias descargadas a todas las "
+"calibre puede enviarle libros (o a su lector) por correo electrónico. Se "
+"enviarán correos automáticamente con las noticias descargadas a todas las "
 "direcciones que tengan la opción de envío automático marcada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:67
@@ -17145,8 +17145,8 @@ msgstr "Autoenviar"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:34
 msgid "Formats to email. The first matching format will be sent."
 msgstr ""
-"Formatos para enviar por correo electrónico. El primero formato que "
-"concuerde se enviará."
+"Formatos para enviar por correo electrónico. El primer formato que concuerde "
+"se enviará."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:35
 msgid ""
@@ -17180,8 +17180,8 @@ msgid ""
 "The list of devices that you have asked calibre to ignore. Uncheck a device "
 "to have calibre stop ignoring it."
 msgstr ""
-"La lista de dispositivos que calibre ignora. Desmarque un dispositivo para "
-"que calibre deje de ignorarlo."
+"La lista de dispositivos que ha solicitado que calibre ignore. Desmarque un "
+"dispositivo para que calibre deje de ignorarlo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/ignored_devices.py:37
 msgid ""
@@ -17259,11 +17259,11 @@ msgstr "Iconos de columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:264
 msgid "Enable system &tray icon (needs restart)"
-msgstr "Activar &icono en bandeja del sistema (requiere reinicio)"
+msgstr "Activar &icono en bandeja del sistema (requiere reiniciar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:265
 msgid "User Interface &layout (needs restart):"
-msgstr "Diseño de la interfa&z de usuario (requiere reinicio):"
+msgstr "Diseño de la interfa&z de usuario (requiere reiniciar):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:266
 msgid "Disable all animations. Useful if you have a slow/old computer."
@@ -17288,11 +17288,11 @@ msgstr "Tipo de letra de la interfaz:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:271
 msgid "Change &font (needs restart)"
-msgstr "Cambiar &tipo de letra (requiere reinicio)"
+msgstr "Cambiar &tipo de letra (requiere reiniciar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:272
 msgid "User interface &style (needs restart):"
-msgstr "&Estilo de la interfaz de usuario (requiere reinicio):"
+msgstr "&Estilo de la interfaz de usuario (requiere reiniciar):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:273
 msgid "&Toolbar"
@@ -17409,11 +17409,12 @@ msgstr ""
 "de etiquetas cuando hay más elementos que el límite.\n"
 "Seleccione por inicial para ver una lista de iniciales. Seleccione\n"
 "dividido para que se muestre una lista de grupos de tamaño\n"
-"fijo. Desactívelo si no quiere que se muestren nunca las subcategorías."
+"fijo. Desactívelo si no quiere que se muestren las subcategorías\n"
+"en ningún caso."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:309
 msgid "&Collapse when more items than:"
-msgstr "&Contraer cuando el número de elementos sea mayor de:"
+msgstr "&Contraer cuando el número de elementos sea mayor que:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:310
 msgid ""
@@ -17460,7 +17461,7 @@ msgstr "Usar colores &alternos en las líneas del Explorador de etiquetas"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:322
 msgid "Show cover &browser in a separate window (needs restart)"
 msgstr ""
-"Mostrar explorador de &portadas en ventana separada (requiere reinicio)"
+"Mostrar explorador de &portadas en ventana separada (requiere reiniciar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:323
 msgid "&Number of covers to show in browse mode (needs restart):"
@@ -17498,7 +17499,7 @@ msgstr "Guardar cambios"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:240
 msgid "Cancel and return to overview"
-msgstr "Cancelar y volver a la panorámica"
+msgstr "Cancelar y volver a la visión general"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:297
 msgid "Restoring to defaults not supported for"
@@ -17543,8 +17544,8 @@ msgid ""
 "incorrect results for books in English. Are you sure you want to enable it?"
 msgstr ""
 "Este complemento sólo es útil para libros en <b>chino</b>. Puede dar "
-"resultados incorrectos para libros en otros idiomas. ¿Está seguro de que "
-"quiere activarlo?"
+"resultados incorrectos para libros en otros idiomas. ¿Está seguro de querer "
+"activarlo?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:158
 msgid "Published date"
@@ -17573,7 +17574,7 @@ msgid ""
 "also set the cover priority. Covers from sources that have a higher "
 "(smaller) priority will be preferred when bulk downloading metadata.\n"
 msgstr ""
-"Desactive los orígenes de metadatos que no quiera desmarcando la casilla. "
+"Desactive los orígenes de metadatos que no desee, desmarcando la casilla. "
 "También puede establecer la prioridad de la portada. Las portadas "
 "procedentes de orígenes con mayor prioridad (números más pequeños) tendrán "
 "preferencia cuando se descarguen metadatos en masa.\n"
@@ -17608,7 +17609,7 @@ msgid ""
 "Restore your own subset of checked fields that you define using the 'Set as "
 "default' button"
 msgstr ""
-"Recuperar el conjunto de campos seleccionados que ha definide previamente "
+"Recuperar el conjunto de campos seleccionados que ha definido previamente "
 "con el botón «Establecer como predeterminado»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:136
@@ -17641,7 +17642,8 @@ msgstr "Número máximo de &etiquetas para descargar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:142
 msgid "Max. &time to wait after first match is found:"
-msgstr "Tiempo &máximo de espera después de la primera coincidencia:"
+msgstr ""
+"Tiempo &máximo de espera después de encontrar la primera coincidencia:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:145
@@ -17651,7 +17653,7 @@ msgstr " segundos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:144
 msgid "Max. time to wait after first &cover is found:"
-msgstr "Tiempo máximo de espera después de la primera &portada:"
+msgstr "Tiempo máximo de espera después de encontrar la primera &portada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:146
 msgid ""
@@ -17663,8 +17665,8 @@ msgid ""
 "metadata sources has a genre like tag set for the book you are searching "
 "for. Most often, they all have large tag sets."
 msgstr ""
-"<p>Las diferentes fuentes de metadatos contienen distintos conjuntos de "
-"etiquetas para el mismo libro. Si se activa esta opción calibre usará el "
+"<p>Los diferentes orígenes de metadatos contienen distintos conjuntos de "
+"etiquetas para el mismo libro. Si se activa esta opción, calibre usará el "
 "menor conjunto de etiquetas. Esto suele representar mejor el género del "
 "libro, mientras que el conjunto mayor tiende a describir el contenido del "
 "libro.\n"
@@ -17674,7 +17676,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:148
 msgid "Prefer &fewer tags"
-msgstr "Mejor con &menos etiquetas"
+msgstr "Preferir &menos etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:149
 msgid "Use published date of \"first edition\" (from worldcat.org)"
@@ -17725,7 +17727,7 @@ msgstr "Máximo número de tareas de conversión o descarga simultáneas:"
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"
 msgstr ""
 "&Limitar el número máximo de tareas simultáneas al número de núcleos de CPU "
-"disponibles."
+"disponibles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:77
 msgid "Debug &device detection"
@@ -17765,36 +17767,37 @@ msgstr "Dispositivo conectado actualmente: Ninguno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:193
 msgid "That format and device already has a plugboard."
-msgstr "Esa combinación de formato y dispositivo ya tiene un control."
+msgstr ""
+"Esa combinación de formato y dispositivo ya tiene un panel de conexiones."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:205
 msgid "Possibly override plugboard?"
-msgstr "¿Añadir control con más prioridad?"
+msgstr "¿Añadir panel de conexiones con más prioridad?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:206
 msgid ""
 "A more general plugboard already exists for that format and device. Are you "
 "sure you want to add the new plugboard?"
 msgstr ""
-"Ya existe un control más general para ese formato y dispositivo. ¿Está "
-"seguro de que quiere añadir el nuevo control?"
+"Ya existe un panel de conexiones más general para ese formato y dispositivo. "
+"¿Está seguro de querer añadir el nuevo panel de conexiones?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:218
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:240
 msgid "Add possibly overridden plugboard?"
-msgstr "¿Añadir control con menos prioridad?"
+msgstr "¿Añadir panel de conexiones con menos prioridad?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:219
 msgid ""
 "More specific device plugboards exist for that format. Are you sure you want "
 "to add the new plugboard?"
 msgstr ""
-"Ya existen controles de dispositivo más específicos para este formato. ¿Está "
-"seguro de que quiere añadir el nuevo control?"
+"Ya existen paneles de conexiones más específicos para este formato. ¿Está "
+"seguro de querer añadir el nuevo panel de conexiones?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:230
 msgid "Really add plugboard?"
-msgstr "¿Añadir control?"
+msgstr "¿Añadir panel de conexiones realmente?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:231
 msgid ""
@@ -17809,8 +17812,8 @@ msgid ""
 "More specific format and device plugboards already exist. Are you sure you "
 "want to add the new plugboard?"
 msgstr ""
-"Ya existen controles más especificos para formato y dispositivo. ¿Está "
-"seguro de que quiere añadir el nuevo control?"
+"Ya existen paneles de conexiones más especificos para el formato y "
+"dispositivo. ¿Está seguro de querer añadir el nuevo panel de conexiones?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:252
 msgid "The {0} device does not support the {1} format."
@@ -17850,19 +17853,20 @@ msgstr ""
 "Aquí puede cambiar los metadatos que calibre usa para actualizar un libro "
 "cuando lo almacena en disco o lo envía a un dispositivo.\n"
 "\n"
-"Use este cuadro de dialogo para definir los «controles» para un formato (o "
-"todos los formatos) y un dispositivo (o todos los dispositivos). El control "
-"especifica qué plantilla se conectada con qué campo. La plantilla se usa "
-"para calcular un valor, y ese valor se asigna al campo enlazado.\n"
+"Use este cuadro de diálogo para definir los «paneles de conexiones» para un "
+"formato (o todos los formatos) y un dispositivo (o todos los dispositivos). "
+"El panel de conexiones especifica qué plantilla se conectará con qué campo. "
+"La plantilla se usa para calcular un valor, y ese valor se asigna al campo "
+"enlazado.\n"
 "\n"
-"A menudo las plantillas contendrán simples referencias a columnas "
+"A menudo, las plantillas contendrán simples referencias a columnas "
 "compuestas, pero esto no es necesario. En el cuadro de entrada puede usar "
 "cualquier plantilla que pueda usar en cualquier otro lugar de calibre.\n"
 "\n"
-"Un posible uso para un control es modificar el título para incluir "
-"información de la serie. Otro podría cambiar el orden de autor, lo que los "
-"usuarios de mobi podrían encontrar útil para usar el carácter «;» requerido "
-"por el Kindle. Una tercera opción sería especificar el idioma."
+"Un posible uso para un panel de conexiones es modificar el título para "
+"incluir información de la serie. Otro podría ser cambiar el orden de autor, "
+"lo que los usuarios de mobi podrían encontrar útil para usar el carácter «;» "
+"requerido por el Kindle. Una tercera opción sería especificar el idioma."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:121
 msgid "Format (choose first)"
@@ -17874,15 +17878,15 @@ msgstr "Dispositivo (elegir segundo)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:123
 msgid "Add new plugboard"
-msgstr "Añadir un nuevo control"
+msgstr "Añadir nuevo panel de conexiones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:124
 msgid "Edit existing plugboard"
-msgstr "Modificar un control existente"
+msgstr "Modificar panel de conexiones existente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:125
 msgid "Existing plugboards"
-msgstr "Controles existentes"
+msgstr "Paneles de conexiones existentes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:126
 msgid "Source template"
@@ -17894,11 +17898,11 @@ msgstr "Campo de destino"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:128
 msgid "Save plugboard"
-msgstr "Guardar control"
+msgstr "Guardar panel de conexiones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:129
 msgid "Delete plugboard"
-msgstr "Borrar control"
+msgstr "Borrar panel de conexiones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:194
 #, python-format
@@ -17907,7 +17911,7 @@ msgstr "%(plugins)s de %(plugin_type)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:195
 msgid "plugins"
-msgstr "Complementos"
+msgstr "complementos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:205
 msgid ""
@@ -18002,7 +18006,7 @@ msgstr "Comprobar si hay complementos &actualizados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:119
 msgid "&Load plugin from file"
-msgstr "&Cargar complemento de archivo"
+msgstr "&Cargar complemento desde un archivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:34
 msgid "Any custom field"
@@ -18028,7 +18032,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:57
 msgid "Save &template"
-msgstr "Plan&tilla para guardar"
+msgstr "Plan&tilla de guardado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:58
 msgid ""
@@ -18042,7 +18046,7 @@ msgstr ""
 "carpetas se guardan los archivos y qué nombres se les da. Puede usar el "
 "carácter «/» para especificar subcarpetas. Las variables de metadatos "
 "disponibles se describen a continuación. Si un libro determinado no contiene "
-"alguno de los metadatos la variable se sustituirá por una texto vacío."
+"alguno de los metadatos, la variable se sustituirá por un texto vacío."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:59
 msgid "Available variables:"
@@ -18194,18 +18198,18 @@ msgstr "Buscar según se &teclea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:169
 msgid "Unaccented characters match accented characters"
-msgstr "Los caracteres sin acentos coinciden con los caracteres con acentos"
+msgstr "Los caracteres sin acentos coinciden con los caracteres acentuados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:170
 msgid ""
 "&Highlight search results instead of restricting the book list to the results"
 msgstr ""
 "&Resaltar los resultados de la búsqueda en lugar de limitar la lista de "
-"libros al resultado"
+"libros a los resultados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:171
 msgid "What to search by default"
-msgstr "Dominio de la búsqueda predeterminado"
+msgstr "Qué buscar de manera predeterminada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:172
 msgid ""
@@ -19072,7 +19076,7 @@ msgstr "DRM:"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:233
 msgid "true"
-msgstr "sí"
+msgstr "verdadero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:229
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:231
@@ -19081,7 +19085,7 @@ msgstr "sí"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:231
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:234
 msgid "false"
-msgstr "no"
+msgstr "falso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:226

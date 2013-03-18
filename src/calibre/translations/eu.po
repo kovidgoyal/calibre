@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-15 04:12+0000\n"
-"PO-Revision-Date: 2013-01-18 16:02+0000\n"
-"Last-Translator: bixerdo <bixerdo@gmail.com>\n"
+"PO-Revision-Date: 2013-03-17 17:14+0000\n"
+"Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: http://librezale.org/wiki/Calibre\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-16 04:35+0000\n"
+"X-Launchpad-Export-Date: 2013-03-18 04:44+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 "Language: eu\n"
 
@@ -349,12 +349,12 @@ msgstr "Bihur itzazu liburuak hainbat e-liburu formatutara"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Fine tune your ebooks"
-msgstr ""
+msgstr "Zorrotz doitu zure liburu elektronikoak"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "Edit the Table of Contents in your books"
-msgstr ""
+msgstr "Editatu Aurkibidia zure liburu elektronikoetan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid "Delete books from your calibre library or connected device"
@@ -1153,7 +1153,7 @@ msgstr "hutsunea, zuriunea"
 #: /home/kovid/work/calibre/src/calibre/db/search.py:323
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:591
 msgid "Invalid boolean query \"{0}\""
-msgstr ""
+msgstr "Boolear itaunketak ezegokia  \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:47
@@ -1179,7 +1179,7 @@ msgstr "Araztu saioa"
 #: /home/kovid/work/calibre/src/calibre/debug.py:272
 #, python-format
 msgid "No plugin named %s found"
-msgstr ""
+msgstr "Ez da  %s izeneko gehigarririk aurkitu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:19
 msgid "Communicate with Android phones."
@@ -2002,7 +2002,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1228
 msgid "Keep cover aspect ratio"
-msgstr ""
+msgstr "Mantendu liburu-azalaren proportzioa"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1229
 msgid ""
@@ -3629,13 +3629,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:97
 msgid "Use the old, less capable engine to generate the PDF"
-msgstr ""
+msgstr "Erabili zaharragoa eta ez hain boteretsua zen motorra PDFa sortzeko"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:100
 msgid ""
 "Generate an uncompressed PDF, useful for debugging, only works with the new "
 "PDF engine."
 msgstr ""
+"Sortu konprimitu gabeko PDF bat, akatsak zuzentzeko erabilgarria. (PDF motor "
+"berriarekin besterik ez dabil)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:103
 msgid ""
@@ -3800,6 +3802,15 @@ msgid ""
 "* markdown: Processing using markdown formatting. To learn more about "
 "markdown see"
 msgstr ""
+"Dokumentuan erabilitako formatua.* auto: Automatikoki erabaki zein formatu "
+"prozesadore erabili.\n"
+"* planoa: Ez du dokumentuaren formatua prozesatzen. Dena paragrafo batean "
+"eta estilo ezarpenik gabe.\n"
+"* heuristikoa: Prozesatzen du baliabide heuristikoak erabiliz, kapitulu "
+"buruak eta letra etzanak kontuan hartuz, esaterako.\n"
+"* textile: Prozesatzen du textile formatua erabiliz.\n"
+"* markdown: Prozesatzen du markdown formatua erabiliz. Markdown horri buruz "
+"gehiago jakiteko, ikus"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_input.py:45
 msgid ""
