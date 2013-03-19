@@ -1277,7 +1277,6 @@ class CatalogBuilder(object):
             self.opts.log.info('%s' % _format_tag_list(genre_tags_dict, header="enabled genres"))
             self.opts.log.info('%s' % _format_tag_list(excluded_tags, header="excluded genres"))
 
-        print("genre_tags_dict: %s" % genre_tags_dict)
         return genre_tags_dict
 
     def filter_excluded_genres(self, tags, regex):
