@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-03-15 04:12+0000\n"
-"PO-Revision-Date: 2013-03-13 10:52+0000\n"
-"Last-Translator: Arnaud V. <Unknown>\n"
+"PO-Revision-Date: 2013-03-18 08:50+0000\n"
+"Last-Translator: Eliovir <Unknown>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-03-16 04:39+0000\n"
+"X-Launchpad-Export-Date: 2013-03-19 05:32+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
@@ -357,7 +357,7 @@ msgstr "Affiner le réglage de vos Livres"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "Edit the Table of Contents in your books"
-msgstr ""
+msgstr "Éditer le sommaire de vos libres"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid "Delete books from your calibre library or connected device"
@@ -5615,7 +5615,7 @@ msgstr "Métadonnées mises a jour\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:134
 msgid "Setting cover"
-msgstr ""
+msgstr "Définir la couverture"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:139
 msgid "Inserting metadata jacket"
@@ -7400,7 +7400,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:87
 msgid "About"
-msgstr ""
+msgstr "À propos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:106
 msgid "Show &report"
@@ -14568,7 +14568,7 @@ msgstr "&Expression rationnelle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:135
 msgid "File &name:"
-msgstr "&Nom du fichier"
+msgstr "&Nom du fichier :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:137
 msgid "Title:"
@@ -19266,7 +19266,7 @@ msgstr "Ouvrir le stockage dans un navigateur web externe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:219
 msgid "&Name:"
-msgstr "&Nom:"
+msgstr "&Nom :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:221
 msgid "&Description:"

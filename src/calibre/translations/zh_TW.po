@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-15 04:12+0000\n"
-"PO-Revision-Date: 2013-01-03 18:47+0000\n"
+"PO-Revision-Date: 2013-03-18 07:19+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-03-16 04:53+0000\n"
+"X-Launchpad-Export-Date: 2013-03-19 05:32+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 "Language: zh_TW\n"
 
@@ -344,12 +344,12 @@ msgstr "將書籍轉換為各種電子書格式"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Fine tune your ebooks"
-msgstr ""
+msgstr "好好校調您的電子書"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "Edit the Table of Contents in your books"
-msgstr ""
+msgstr "編輯書籍中的目錄"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid "Delete books from your calibre library or connected device"
@@ -1100,7 +1100,7 @@ msgstr "除錯紀錄"
 #: /home/kovid/work/calibre/src/calibre/debug.py:272
 #, python-format
 msgid "No plugin named %s found"
-msgstr ""
+msgstr "找不到名為 %s 的外掛程式"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:19
 msgid "Communicate with Android phones."
@@ -1110,7 +1110,7 @@ msgstr "和Android 為OS的電話交換資料"
 msgid ""
 "Comma separated list of directories to send e-books to on the device's "
 "<b>main memory</b>. The first one that exists will be used"
-msgstr ""
+msgstr "要傳送電子書到裝置<b>主記憶體</b>的目錄清單(以逗號分隔)。會使用第一個找到的目錄。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:206
 msgid ""
@@ -1736,7 +1736,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:619
 msgid "Kobo database version unsupported - See details"
-msgstr ""
+msgstr "Kobo 資料庫版本不支援 - 請查閱詳細資料"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:620
 msgid ""
@@ -1842,13 +1842,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1228
 msgid "Keep cover aspect ratio"
-msgstr ""
+msgstr "保留封面長寬比"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1229
 msgid ""
 "When uploading covers, do not change the aspect ratio when resizing for the "
 "device. This is for firmware versions 2.3.1 and later."
-msgstr ""
+msgstr "上傳封面時，如果要依裝置改變尺寸不改變長寬比。這從韌體版本 2.3.1 以後才支援。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1241
 msgid ""
@@ -2216,7 +2216,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:274
 msgid "All by something"
-msgstr ""
+msgstr "全部依某條件"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:277
 msgid "Enable connections at startup"
@@ -2299,7 +2299,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:311
 msgid "Replace books with the same calibre identifier"
-msgstr ""
+msgstr "取代有同樣 calibre 識別符的書籍"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:312
 msgid ""
@@ -2688,6 +2688,7 @@ msgid ""
 "List builtin recipe names. You can create an ebook from a builtin recipe "
 "like this: ebook-convert \"Recipe Name.recipe\" output.epub"
 msgstr ""
+"列出內建食譜名稱。您可以從內建食譜建立電子書，就像：ebook-convert \"Recipe Name.recipe\" output.epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:341
 msgid "Output saved to"
@@ -3158,7 +3159,7 @@ msgstr ""
 msgid ""
 "The unit of measure for page sizes. Default is inch. Choices are %s Note: "
 "This does not override the unit for margins!"
-msgstr ""
+msgstr "頁面尺寸的測量單位。預設值為英吋。選項有 %s 注意：這不會覆蓋邊界的單位！"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:63
 #, python-format
@@ -3202,17 +3203,17 @@ msgstr "等寬文字的預設字型大小"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:95
 msgid "Surround all links with a red box, useful for debugging."
-msgstr ""
+msgstr "在所有連結周圍加上紅色方塊，便於除錯。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:97
 msgid "Use the old, less capable engine to generate the PDF"
-msgstr ""
+msgstr "使用舊的，較不相容的引擎來產生 PDF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:100
 msgid ""
 "Generate an uncompressed PDF, useful for debugging, only works with the new "
 "PDF engine."
-msgstr ""
+msgstr "產生未壓縮的 PDF，便於除錯，只能用於新的 PDF 引擎。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:103
 msgid ""

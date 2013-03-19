@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-15 04:12+0000\n"
-"PO-Revision-Date: 2013-03-01 14:16+0000\n"
-"Last-Translator: Neliton Pereira Jr. <nelitonpjr@gmail.com>\n"
+"PO-Revision-Date: 2013-03-18 19:09+0000\n"
+"Last-Translator: Rui Martins Lacerda <rui.lacerda@outlook.com>\n"
 "Language-Team: Português Brasileiro <ubuntu-l10n-ptbr@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-03-16 04:52+0000\n"
+"X-Launchpad-Export-Date: 2013-03-19 05:32+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -353,7 +353,7 @@ msgstr "Ajuste fino nos seus ebooks"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "Edit the Table of Contents in your books"
-msgstr ""
+msgstr "Editar o Sumário em seus livros."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid "Delete books from your calibre library or connected device"
@@ -1150,6 +1150,9 @@ msgid ""
 "calibre-debug -r \"Add Books\" -- file1 --option1\n"
 "Everything after the -- will be passed to the plugin as arguments."
 msgstr ""
+"Executa um plugin que provê uma interface de linha de comando. Por exemplo:\n"
+"calibre-debug -r \"Add Books\" -- file1 --option1\n"
+"Tudo após o -- será passado ao plugin como argumento."
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:180
 msgid "Debug log"
@@ -1158,7 +1161,7 @@ msgstr "Log de Debug"
 #: /home/kovid/work/calibre/src/calibre/debug.py:272
 #, python-format
 msgid "No plugin named %s found"
-msgstr ""
+msgstr "Nenhum plugin com nome %s foi encontrado."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:19
 msgid "Communicate with Android phones."
@@ -1506,7 +1509,7 @@ msgstr "Comunica-se com o leitor EB600."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:56
 msgid "Communicate with the Tolino Shine reader."
-msgstr ""
+msgstr "Comunicar com o leitor Tolino Shine."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:214
 msgid "Communicate with the Astak Mentor EB600"
@@ -1965,6 +1968,8 @@ msgid ""
 "Upload cover images from the calibre library when sending books to the "
 "device."
 msgstr ""
+"Realizar upload de imagens de capa da biblioteca do Calibre ao enviar livros "
+"para este dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1228
 msgid "Keep cover aspect ratio"
@@ -3959,6 +3964,12 @@ msgid ""
 "to remove fonts from the input document. Note that font embedding only works "
 "with some output formats, principally EPUB and AZW3."
 msgstr ""
+"Coloque a fonte especificada no livro. Isto especifica a fonte \"base\" "
+"usada no livro. Se o documento de entrada especifica suas próprias fontes, "
+"elas podem sobrepor esta fonte base. Você pode usar a opção \"Filtrar "
+"informação de estilo\" para remover fontes do documento de entrada. Note que "
+"isso funciona somente com alguns formatos de saída, principalmente EPUB E "
+"AZW3."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:210
 msgid ""
@@ -4125,6 +4136,8 @@ msgid ""
 "An XPath expression. Page breaks are inserted before the specified elements. "
 "To disable use the expression: /"
 msgstr ""
+"Uma expressão XPath. Quebras de página são inseridas antes dos elementos "
+"especificados. Para desabilitar, utilize a expressão: /"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:364
 msgid ""
@@ -4144,6 +4157,9 @@ msgid ""
 "Set the top margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Define a margem superior em pts. O valor padrão é %default. Definir um valor "
+"menor que zero fará com que nenhuma margem seja definida. Nota: 72 pts é "
+"igual a 1 polegada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:381
 #, python-format
@@ -4151,6 +4167,9 @@ msgid ""
 "Set the bottom margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Define a margem inferior em pts. O valor padrão é %default. Definir um valor "
+"menor que zero fará com que nenhuma margem seja definida. Nota: 72 pts é "
+"igual a 1 polegada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:387
 #, python-format
@@ -4158,6 +4177,9 @@ msgid ""
 "Set the left margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Define a margem esquerda em pts. O valor padrão é %default. Definir um valor "
+"menor que zero fará com que nenhuma margem seja definida. Nota: 72 pts é "
+"igual a 1 polegada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:393
 #, python-format
@@ -4165,6 +4187,9 @@ msgid ""
 "Set the right margin in pts. Default is %default. Setting this to less than "
 "zero will cause no margin to be set. Note: 72 pts equals 1 inch"
 msgstr ""
+"Define a margem direita em pts. O valor padrão é %default. Definir um valor "
+"menor que zero fará com que nenhuma margem seja definida. Nota: 72 pts é "
+"igual a 1 polegada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:400
 msgid ""
