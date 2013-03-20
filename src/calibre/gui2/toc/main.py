@@ -18,7 +18,7 @@ from PyQt4.Qt import (QPushButton, QFrame, QVariant,
 
 from calibre.ebooks.oeb.polish.container import get_container, AZW3Container
 from calibre.ebooks.oeb.polish.toc import (
-    get_toc, add_id, TOC, commit_toc, from_xpaths)
+    get_toc, add_id, TOC, commit_toc, from_xpaths, from_links)
 from calibre.gui2 import Application, error_dialog, gprefs
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.toc.location import ItemEdit
@@ -33,6 +33,7 @@ class ItemView(QFrame): # {{{
     flatten_item = pyqtSignal()
     go_to_root = pyqtSignal()
     create_from_xpath = pyqtSignal(object)
+    create_from_links = pyqtSignal()
 
     def __init__(self, parent):
         QFrame.__init__(self, parent)
@@ -79,7 +80,15 @@ class ItemView(QFrame): # {{{
             ' heading tags. Uses the <h1-6> tags.')))
         l.addWidget(b)
 
-
+        self.lb = b = QPushButton(_('Generate ToC from &links'))
+        b.clicked.connect(self.create_from_links)
+        b.setToolTip(textwrap.fill(_(
+            'Generate a Table of Contents from all the links in the book.'
+            ' Links that point to destinations that do not exist in the book are'
+            ' ignored. Also multiple links with the same destination or the same'
+            ' text are ignored.'
+        )))
+        l.addWidget(b)
 
         l.addStretch()
         self.w1 = la = QLabel(_('<b>WARNING:</b> calibre only supports the '
@@ -270,6 +279,7 @@ class TOCView(QWidget): # {{{
         self.item_view.delete_item.connect(self.delete_current_item)
         i.add_new_item.connect(self.add_new_item)
         i.create_from_xpath.connect(self.create_from_xpath)
+        i.create_from_links.connect(self.create_from_links)
         i.flatten_item.connect(self.flatten_item)
         i.go_to_root.connect(self.go_to_root)
         l.addWidget(i, 0, 4, col, 1)
@@ -488,6 +498,13 @@ class TOCView(QWidget): # {{{
         if len(toc) == 0:
             return error_dialog(self, _('No items found'),
                 _('No items were found that could be added to the Table of Contents.'), show=True)
+        self.insert_toc_fragment(toc)
+
+    def create_from_links(self):
+        toc = from_links(self.ebook)
+        if len(toc) == 0:
+            return error_dialog(self, _('No items found'),
+                _('No links were found that could be added to the Table of Contents.'), show=True)
         self.insert_toc_fragment(toc)
 
 # }}}

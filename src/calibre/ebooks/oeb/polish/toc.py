@@ -39,6 +39,10 @@ class TOC(object):
         c.parent = self
         return c
 
+    def remove(self, child):
+        self.children.remove(child)
+        child.parent = None
+
     def __iter__(self):
         for c in self.children:
             yield c
@@ -191,6 +195,8 @@ def elem_to_toc_text(elem):
         text = elem.get('alt', '')
     text = re.sub(r'\s+', ' ', text.strip())
     text = text[:1000].strip()
+    if not text:
+        text = _('(Untitled)')
     return text
 
 def from_xpaths(container, xpaths):
@@ -228,6 +234,33 @@ def from_xpaths(container, xpaths):
             container.commit_item(name, keep_parsed=True)
 
     return tocroot
+
+def from_links(container):
+    toc = TOC()
+    link_path = XPath('//h:a[@href]')
+    seen_titles, seen_dests = set(), set()
+    for spinepath in container.spine_items:
+        name = container.abspath_to_name(spinepath)
+        root = container.parsed(name)
+        for a in link_path(root):
+            href = a.get('href')
+            if not href or not href.strip():
+                continue
+            dest = container.href_to_name(href, base=name)
+            frag = href.rpartition('#')[-1] or None
+            if (dest, frag) in seen_dests:
+                continue
+            seen_dests.add((dest, frag))
+            text = elem_to_toc_text(a)
+            if text in seen_titles:
+                continue
+            seen_titles.add(text)
+            toc.add(text, dest, frag=frag)
+    verify_toc_destinations(container, toc)
+    for child in toc:
+        if not child.dest_exists:
+            toc.remove(child)
+    return toc
 
 def add_id(container, name, loc):
     root = container.parsed(name)
