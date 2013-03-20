@@ -579,6 +579,7 @@ class PluginWidget(QWidget,Ui_Form):
         '''
         Update catalog options from current preset
         '''
+        print("preset_change: %s" % item_name)
         if not item_name:
             return
 
@@ -644,6 +645,9 @@ class PluginWidget(QWidget,Ui_Form):
         format = options['format']
         title = options['catalog_title']
         self.set_format_and_title(format, title)
+
+        # Reset Descriptions-related enable/disable switches
+        self.generate_descriptions_changed(self.generate_descriptions.isChecked())
 
     def preset_remove(self):
         if self.preset_field.currentIndex() == 0:
@@ -740,9 +744,8 @@ class PluginWidget(QWidget,Ui_Form):
         preset['merge_comments_rule'] = "%s:%s:%s" % \
             (self.merge_source_field_name, checked, include_hr)
 
-        preset['header_note_source_field'] = self.header_note_source_field_name
-
-        preset['genre_source_field'] = self.genre_source_field_name
+        preset['header_note_source_field'] = unicode(self.header_note_source_field.currentText())
+        preset['genre_source_field'] = unicode(self.genre_source_field.currentText())
 
         # Append the current output profile
         try:
