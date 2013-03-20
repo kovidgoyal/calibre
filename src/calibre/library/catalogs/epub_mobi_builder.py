@@ -3,7 +3,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2010, Greg Riker'
 
-import datetime, htmlentitydefs, os, platform, re, shutil, unicodedata, zlib
+import datetime, htmlentitydefs, os, platform, re, shutil, time, unicodedata, zlib
 from copy import deepcopy
 from xml.sax.saxutils import escape
 
@@ -4855,7 +4855,13 @@ class CatalogBuilder(object):
             self.progress_int = 0.01
         self.reporter(self.progress_int, self.progress_string)
         if self.opts.cli_environment:
-            self.opts.log(u"%3.0f%% %s" % (self.progress_int * 100, self.progress_string))
+            log_msg = u"%3.0f%% %s" % (self.progress_int * 100, self.progress_string)
+            if self.opts.verbose:
+                log_msg += " (%s)" % str(datetime.timedelta(seconds=int(time.time() - self.opts.start_time)))
+        else:
+            log_msg = ("%s (%s)" % (self.progress_string,
+                str(datetime.timedelta(seconds=int(time.time() - self.opts.start_time)))))
+        self.opts.log(log_msg)
 
     def update_progress_micro_step(self, description, micro_step_pct):
         """ Update calibre's job status UI.

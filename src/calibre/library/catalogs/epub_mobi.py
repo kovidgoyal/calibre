@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import datetime, os, time
 from collections import namedtuple
 
 from calibre import strftime
@@ -388,18 +388,24 @@ class EPUB_MOBI(CatalogPlugin):
                 build_log.append("  %s: %s" % (key, repr(opts_dict[key])))
         if opts.verbose:
             log('\n'.join(line for line in build_log))
+
+        # Capture start_time
+        opts.start_time = time.time()
+
         self.opts = opts
+
+        if opts.verbose:
+            log.info(" Begin catalog source generation (%s)" %
+                     str(datetime.timedelta(seconds = int(time.time() - opts.start_time))))
 
         # Launch the Catalog builder
         catalog = CatalogBuilder(db, opts, self, report_progress=notification)
 
-        if opts.verbose:
-            log.info(" Begin catalog source generation")
-
         try:
             catalog.build_sources()
             if opts.verbose:
-                log.info(" Completed catalog source generation\n")
+                log.info(" Completed catalog source generation (%s)\n"  %
+                         str(datetime.timedelta(seconds = int(time.time() - opts.start_time))))
         except (AuthorSortMismatchException, EmptyCatalogException), e:
             log.error(" *** Terminated catalog generation: %s ***" % e)
         except:
@@ -488,6 +494,10 @@ class EPUB_MOBI(CatalogPlugin):
                     zf.extractall(path=input_path)
                 os.remove(epub_shell)
                 zip_rebuilder(input_path, os.path.join(catalog_debug_path, 'input.epub'))
+
+            if opts.verbose:
+                log.info(" Catalog creation complete (%s)\n" %
+                     str(datetime.timedelta(seconds = int(time.time() - opts.start_time))))
 
         # returns to gui2.actions.catalog:catalog_generated()
         return catalog.error
