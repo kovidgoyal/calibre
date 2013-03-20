@@ -355,6 +355,10 @@ class BasicNewsRecipe(Recipe):
     #: The minimum jpeg quality will be 5/100 so it is possible this constraint
     #: will not be met.  This parameter can be overridden by the parameter
     #: compress_news_images_max_size which provides a fixed maximum size for images.
+    #: Note that if you enable scale_news_images_to_device then the image will
+    #: first be scaled and then its quality lowered until its size is less than
+    #: (w * h)/factor where w and h are now the *scaled* image dimensions. In
+    #: other words, this compression happens after scaling.
     compress_news_images_auto_size = 16
 
     #: Set jpeg quality so images do not exceed the size given (in KBytes).

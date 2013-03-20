@@ -305,8 +305,17 @@ class Stylizer(object):
             href = stylesheet.href
             self.stylesheets.add(href)
             for rule in stylesheet.cssRules:
-                rules.extend(self.flatten_rule(rule, href, index))
-                index = index + 1
+                if rule.type == rule.MEDIA_RULE:
+                    media = {rule.media.item(i) for i in
+                             xrange(rule.media.length)}
+                    if not media.intersection({'all', 'screen', 'amzn-kf8'}):
+                        continue
+                    for subrule in rule.cssRules:
+                        rules.extend(self.flatten_rule(subrule, href, index))
+                        index += 1
+                else:
+                    rules.extend(self.flatten_rule(rule, href, index))
+                    index = index + 1
         rules.sort()
         self.rules = rules
         self._styles = {}

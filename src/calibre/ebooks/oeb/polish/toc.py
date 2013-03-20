@@ -15,7 +15,7 @@ from functools import partial
 from lxml import etree
 
 from calibre import __version__
-from calibre.ebooks.oeb.base import XPath, uuid_id, xml2text, NCX, NCX_NS, XML
+from calibre.ebooks.oeb.base import XPath, uuid_id, xml2text, NCX, NCX_NS, XML, XHTML
 from calibre.ebooks.oeb.polish.container import guess_type
 from calibre.utils.localization import get_lang, canonicalize_lang, lang_as_iso639_1
 
@@ -39,9 +39,16 @@ class TOC(object):
         c.parent = self
         return c
 
+    def remove(self, child):
+        self.children.remove(child)
+        child.parent = None
+
     def __iter__(self):
         for c in self.children:
             yield c
+
+    def __len__(self):
+        return len(self.children)
 
     def iterdescendants(self):
         for child in self:
@@ -169,6 +176,91 @@ def get_toc(container, verify_destinations=True):
         verify_toc_destinations(container, ans)
     return ans
 
+def ensure_id(elem):
+    if elem.tag == XHTML('a'):
+        anchor = elem.get('name', None)
+        if anchor:
+            return False, anchor
+    elem_id = elem.get('id', None)
+    if elem_id:
+        return False, elem_id
+    elem.set('id', uuid_id())
+    return True, elem.get('id')
+
+def elem_to_toc_text(elem):
+    text = xml2text(elem).strip()
+    if not text:
+        text = elem.get('title', '')
+    if not text:
+        text = elem.get('alt', '')
+    text = re.sub(r'\s+', ' ', text.strip())
+    text = text[:1000].strip()
+    if not text:
+        text = _('(Untitled)')
+    return text
+
+def from_xpaths(container, xpaths):
+    tocroot = TOC()
+    xpaths = [XPath(xp) for xp in xpaths]
+    level_prev = {i+1:None for i in xrange(len(xpaths))}
+    level_prev[0] = tocroot
+
+    for spinepath in container.spine_items:
+        name = container.abspath_to_name(spinepath)
+        root = container.parsed(name)
+        level_item_map = {i+1:frozenset(xp(root)) for i, xp in enumerate(xpaths)}
+        item_level_map = {e:i for i, elems in level_item_map.iteritems() for e in elems}
+        item_dirtied = False
+
+        for item in root.iterdescendants(etree.Element):
+            lvl = plvl = item_level_map.get(item, None)
+            if lvl is None:
+                continue
+            parent = None
+            while parent is None:
+                plvl -= 1
+                parent = level_prev[plvl]
+            lvl = plvl + 1
+            dirtied, elem_id = ensure_id(item)
+            text = elem_to_toc_text(item)
+            item_dirtied = dirtied or item_dirtied
+            toc = parent.add(text, name, elem_id)
+            toc.dest_exists = True
+            level_prev[lvl] = toc
+            for i in xrange(lvl+1, len(xpaths)+1):
+                level_prev[i] = None
+
+        if item_dirtied:
+            container.commit_item(name, keep_parsed=True)
+
+    return tocroot
+
+def from_links(container):
+    toc = TOC()
+    link_path = XPath('//h:a[@href]')
+    seen_titles, seen_dests = set(), set()
+    for spinepath in container.spine_items:
+        name = container.abspath_to_name(spinepath)
+        root = container.parsed(name)
+        for a in link_path(root):
+            href = a.get('href')
+            if not href or not href.strip():
+                continue
+            dest = container.href_to_name(href, base=name)
+            frag = href.rpartition('#')[-1] or None
+            if (dest, frag) in seen_dests:
+                continue
+            seen_dests.add((dest, frag))
+            text = elem_to_toc_text(a)
+            if text in seen_titles:
+                continue
+            seen_titles.add(text)
+            toc.add(text, dest, frag=frag)
+    verify_toc_destinations(container, toc)
+    for child in toc:
+        if not child.dest_exists:
+            toc.remove(child)
+    return toc
 
 def add_id(container, name, loc):
     root = container.parsed(name)

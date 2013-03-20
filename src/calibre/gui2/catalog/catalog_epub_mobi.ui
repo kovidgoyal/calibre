@@ -21,6 +21,54 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QGroupBox" name="catalogPresets">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Presets</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_9">
+      <item>
+       <widget class="QComboBox" name="preset_field">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Select catalog preset to load</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="preset_save_pb">
+        <property name="toolTip">
+         <string>Save current catalog settings as preset</string>
+        </property>
+        <property name="text">
+         <string>Save</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="preset_delete_pb">
+        <property name="toolTip">
+         <string>Delete current preset</string>
+        </property>
+        <property name="text">
+         <string>Delete</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="includedSections">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -46,6 +94,9 @@
         <property name="enabled">
          <bool>true</bool>
         </property>
+        <property name="toolTip">
+         <string>List of books, sorted by Author</string>
+        </property>
         <property name="text">
          <string>&amp;Authors</string>
         </property>
@@ -54,15 +105,21 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QCheckBox" name="generate_titles">
+        <property name="toolTip">
+         <string>List of books, sorted by Title</string>
+        </property>
         <property name="text">
          <string>&amp;Titles</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="4" column="0">
        <widget class="QCheckBox" name="generate_series">
+        <property name="toolTip">
+         <string>List of series books, sorted by Series</string>
+        </property>
         <property name="text">
          <string>&amp;Series</string>
         </property>
@@ -72,6 +129,9 @@
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QCheckBox" name="generate_genres">
+          <property name="toolTip">
+           <string>List of books, sorted by Genre</string>
+          </property>
           <property name="text">
            <string>&amp;Genres</string>
           </property>
@@ -80,13 +140,13 @@
         <item>
          <widget class="QComboBox" name="genre_source_field">
           <property name="toolTip">
-           <string>Field containing Genre information</string>
+           <string>Field containing Genres</string>
           </property>
          </widget>
         </item>
        </layout>
       </item>
-      <item row="1" column="2">
+      <item row="2" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
          <widget class="QCheckBox" name="generate_recently_added">
@@ -96,6 +156,9 @@
             <height>26</height>
            </size>
           </property>
+          <property name="toolTip">
+           <string>List of books, sorted by date added to calibre</string>
+          </property>
           <property name="text">
            <string>&amp;Recently Added</string>
           </property>
@@ -103,7 +166,7 @@
         </item>
        </layout>
       </item>
-      <item row="3" column="2">
+      <item row="4" column="2">
        <layout class="QHBoxLayout" name="horizontalLayout_7">
         <item>
          <widget class="QCheckBox" name="generate_descriptions">
@@ -113,12 +176,50 @@
             <height>26</height>
            </size>
           </property>
+          <property name="toolTip">
+           <string>Individual descriptions of books with cover thumbs, sorted by author</string>
+          </property>
           <property name="text">
            <string>&amp;Descriptions</string>
           </property>
          </widget>
         </item>
        </layout>
+      </item>
+      <item row="0" column="1" rowspan="5">
+       <widget class="Line" name="line_3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="Line" name="line_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="Line" name="line_6">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="Line" name="line_7">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="Line" name="line_8">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -347,7 +448,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
            </size>
           </property>
           <property name="toolTip">
-           <string>Custom column containing additional content to be merged with Comments metadata.</string>
+           <string>Custom column containing additional content to be merged with Comments metadata in Descriptions section.</string>
           </property>
          </widget>
         </item>
@@ -361,7 +462,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
         <item>
          <widget class="QRadioButton" name="merge_before">
           <property name="toolTip">
-           <string>Merge additional content before Comments metadata.</string>
+           <string>Merge additional content before Comments in Descriptions section.</string>
           </property>
           <property name="text">
            <string>&amp;Before</string>
@@ -374,7 +475,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
         <item>
          <widget class="QRadioButton" name="merge_after">
           <property name="toolTip">
-           <string>Merge additional content after Comments metadata.</string>
+           <string>Merge additional content after Comments in Descriptions section.</string>
           </property>
           <property name="text">
            <string>&amp;After</string>
@@ -394,7 +495,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
         <item>
          <widget class="QCheckBox" name="include_hr">
           <property name="toolTip">
-           <string>Separate Comments metadata and additional content with a horizontal rule.</string>
+           <string>Separate Comments metadata and additional content with a horizontal rule in Descriptions section.</string>
           </property>
           <property name="text">
            <string>Include &amp;Separator</string>
@@ -514,7 +615,7 @@ The default pattern \[.+\]|\+ excludes tags of the form [tag], e.g., [Test book]
            </size>
           </property>
           <property name="toolTip">
-           <string>Custom column source for text to include in Description section.</string>
+           <string>Custom column source for text to include in Descriptions section.</string>
           </property>
          </widget>
         </item>

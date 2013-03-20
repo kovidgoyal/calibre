@@ -11,12 +11,10 @@ class AdvancedUserRecipe1295262156(BasicNewsRecipe):
     auto_cleanup = True
     encoding='iso-8859-1'
 
-
     feeds          = [(u'kath.net', u'http://www.kath.net/2005/xml/index.xml')]
 
-
     def print_version(self, url):
-        return url+"&print=yes"
+        return url+"/print/yes"
 
     extra_css = 'td.textb {font-size: medium;}'
 
