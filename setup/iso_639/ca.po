@@ -12,13 +12,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-03-18 21:28+0000\n"
+"PO-Revision-Date: 2013-03-19 18:57+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-03-19 05:33+0000\n"
+"X-Launchpad-Export-Date: 2013-03-20 04:42+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 "Language: ca\n"
 
@@ -27380,67 +27380,67 @@ msgstr "Wab"
 
 #. name for wac
 msgid "Wasco-Wishram"
-msgstr ""
+msgstr "Chinook; Wasco-Wishram"
 
 #. name for wad
 msgid "Wandamen"
-msgstr ""
+msgstr "Wandamen"
 
 #. name for wae
 msgid "Walser"
-msgstr ""
+msgstr "Alamànic; Walser"
 
 #. name for waf
 msgid "Wakoná"
-msgstr ""
+msgstr "Wakonà"
 
 #. name for wag
 msgid "Wa'ema"
-msgstr ""
+msgstr "Waiema"
 
 #. name for wah
 msgid "Watubela"
-msgstr ""
+msgstr "Watubela"
 
 #. name for wai
 msgid "Wares"
-msgstr ""
+msgstr "Wares"
 
 #. name for waj
 msgid "Waffa"
-msgstr ""
+msgstr "Waffa"
 
 #. name for wal
 msgid "Wolaytta"
-msgstr ""
+msgstr "Ometo"
 
 #. name for wam
 msgid "Wampanoag"
-msgstr ""
+msgstr "Wampanoag"
 
 #. name for wan
 msgid "Wan"
-msgstr ""
+msgstr "Wan"
 
 #. name for wao
 msgid "Wappo"
-msgstr ""
+msgstr "Wappo"
 
 #. name for wap
 msgid "Wapishana"
-msgstr ""
+msgstr "Wapishana"
 
 #. name for waq
 msgid "Wageman"
-msgstr ""
+msgstr "Wageman"
 
 #. name for war
 msgid "Waray (Philippines)"
-msgstr ""
+msgstr "Waray-Waray"
 
 #. name for was
 msgid "Washo"
-msgstr ""
+msgstr "Washo"
 
 #. name for wat
 msgid "Kaninuwa"
@@ -27448,15 +27448,15 @@ msgstr ""
 
 #. name for wau
 msgid "Waurá"
-msgstr ""
+msgstr "Waura"
 
 #. name for wav
 msgid "Waka"
-msgstr ""
+msgstr "Waka"
 
 #. name for waw
 msgid "Waiwai"
-msgstr ""
+msgstr "Waiwai"
 
 #. name for wax
 msgid "Watam"

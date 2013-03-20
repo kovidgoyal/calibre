@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-15 04:12+0000\n"
-"PO-Revision-Date: 2013-03-11 04:54+0000\n"
-"Last-Translator: Mübin KIYICI <mkiyici@gmail.com>\n"
+"PO-Revision-Date: 2013-03-20 01:09+0000\n"
+"Last-Translator: Volkan Gezer <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-03-16 04:50+0000\n"
+"X-Launchpad-Export-Date: 2013-03-20 04:41+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -4282,6 +4282,9 @@ msgid ""
 "Looks for occurrences of sequential <h1> or <h2> tags. The tags are "
 "renumbered to prevent splitting in the middle of chapter headings."
 msgstr ""
+"Ardarda gelen <h1> veya <h2> etiketleri olup olmadığına bakar. Etiketler "
+"bölüm başlıklarının ortasında parçalanmanın önüne geçmek için yeniden "
+"numaralandırılır."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:640
 msgid "Search pattern (regular expression) to be replaced with sr1-replace."
@@ -9765,7 +9768,7 @@ msgstr "a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:76
 msgid "br"
-msgstr ""
+msgstr "br"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:77
 msgid "div"
@@ -16644,7 +16647,7 @@ msgstr "Değer kutusu boş olamaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:173
 msgid "The empty grouped search term cannot be deleted"
-msgstr ""
+msgstr "Boş gruplanmış arama terimi silinemez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:168
 msgid "Search as you &type"
@@ -16661,7 +16664,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:171
 msgid "What to search by default"
-msgstr ""
+msgstr "Öntanımlı olarak aranacak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:172
 msgid ""
@@ -18555,7 +18558,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:39
 msgid "Hyphenate text"
-msgstr ""
+msgstr "Metni hecele"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:41
 msgid "Default language for hyphenation rules"
@@ -21107,7 +21110,7 @@ msgstr "home"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:356
 msgid "Random book"
-msgstr ""
+msgstr "Rastgele kitap"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:406
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:475
@@ -22324,7 +22327,7 @@ msgstr "SSH oturumu ayarlamada başarısız olundu "
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:71
 #, python-format
 msgid "Failed to authenticate with server: %s"
-msgstr ""
+msgstr "Sunucu ile kimlik doğrulamada başarısız: %s"
 
 #: /home/kovid/work/calibre/src/calibre/utils/smtp.py:259
 msgid "Control email delivery"
@@ -22375,7 +22378,7 @@ msgstr " den "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:947
 msgid "\tFailed links:"
-msgstr ""
+msgstr "\tBaşarısız olunan bağlantılar:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1050
 msgid "Could not fetch article."
@@ -22413,7 +22416,7 @@ msgstr "[%d thread(s)] İndirilmeye başlanıyor"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1214
 #, python-format
 msgid "Feeds downloaded to %s"
-msgstr ""
+msgstr "Beslemeler %s konumuna indiriliyor"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1223
 #, python-format
@@ -22510,6 +22513,9 @@ msgid ""
 "\n"
 "Where URL is for example http://google.com"
 msgstr ""
+"%prog URL\n"
+"\n"
+"URL'nin neresi için olduğu, örneğin http://google.com"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:532
 #, python-format
