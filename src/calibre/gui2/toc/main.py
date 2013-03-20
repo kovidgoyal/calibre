@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os
+import sys, os, textwrap
 from threading import Thread
 from functools import partial
 
@@ -17,7 +17,8 @@ from PyQt4.Qt import (QPushButton, QFrame, QVariant,
     QToolButton, QItemSelectionModel)
 
 from calibre.ebooks.oeb.polish.container import get_container, AZW3Container
-from calibre.ebooks.oeb.polish.toc import get_toc, add_id, TOC, commit_toc
+from calibre.ebooks.oeb.polish.toc import (
+    get_toc, add_id, TOC, commit_toc, from_xpaths)
 from calibre.gui2 import Application, error_dialog, gprefs
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.toc.location import ItemEdit
@@ -31,6 +32,7 @@ class ItemView(QFrame): # {{{
     delete_item = pyqtSignal()
     flatten_item = pyqtSignal()
     go_to_root = pyqtSignal()
+    create_from_xpath = pyqtSignal(object)
 
     def __init__(self, parent):
         QFrame.__init__(self, parent)
@@ -60,6 +62,25 @@ class ItemView(QFrame): # {{{
         self.add_new_to_root_button = b = QPushButton(_('Create a &new entry'))
         b.clicked.connect(self.add_new_to_root)
         l.addWidget(b)
+        l.addStretch()
+
+        self.cfmhb = b = QPushButton(_('Generate ToC from &major headings'))
+        b.clicked.connect(self.create_from_major_headings)
+        b.setToolTip(textwrap.fill(_(
+            'Generate a Table of Contents from the major headings in the book.'
+            ' This will work if the book identifies its headings using HTML'
+            ' heading tags. Uses the <h1>, <h2> and <h3> tags.')))
+        l.addWidget(b)
+        self.cfmab = b = QPushButton(_('Generate ToC from &all headings'))
+        b.clicked.connect(self.create_from_all_headings)
+        b.setToolTip(textwrap.fill(_(
+            'Generate a Table of Contents from all the headings in the book.'
+            ' This will work if the book identifies its headings using HTML'
+            ' heading tags. Uses the <h1-6> tags.')))
+        l.addWidget(b)
+
+
+
         l.addStretch()
         self.w1 = la = QLabel(_('<b>WARNING:</b> calibre only supports the '
                                 'creation of linear ToCs in AZW3 files. In a '
@@ -133,7 +154,7 @@ class ItemView(QFrame): # {{{
         b.setToolTip(_('All children of this entry are brought to the same '
                        'level as this entry.'))
         l.addWidget(b, l.rowCount()+1, 0, 1, 2)
-        ip.b4 = b = QPushButton(QIcon(I('back.png')), _('&Return to root'))
+        ip.b4 = b = QPushButton(QIcon(I('back.png')), _('&Return to welcome screen'))
         b.clicked.connect(self.go_to_root)
         b.setToolTip(_('Go back to the top level view'))
         l.addWidget(b, l.rowCount()+1, 0, 1, 2)
@@ -146,6 +167,12 @@ class ItemView(QFrame): # {{{
         self.w2 = la = QLabel(self.w1.text())
         self.w2.setWordWrap(True)
         l.addWidget(la, l.rowCount(), 0, 1, 2)
+
+    def create_from_major_headings(self):
+        self.create_from_xpath.emit(['//h:h%d'%i for i in xrange(1, 4)])
+
+    def create_from_all_headings(self):
+        self.create_from_xpath.emit(['//h:h%d'%i for i in xrange(1, 7)])
 
     def hide_azw3_warning(self):
         self.w1.setVisible(False), self.w2.setVisible(False)
@@ -242,6 +269,7 @@ class TOCView(QWidget): # {{{
         self.item_view = i = ItemView(self)
         self.item_view.delete_item.connect(self.delete_current_item)
         i.add_new_item.connect(self.add_new_item)
+        i.create_from_xpath.connect(self.create_from_xpath)
         i.flatten_item.connect(self.flatten_item)
         i.go_to_root.connect(self.go_to_root)
         l.addWidget(i, 0, 4, col, 1)
@@ -442,6 +470,25 @@ class TOCView(QWidget): # {{{
 
         process_node(self.tocw.invisibleRootItem(), root)
         return root
+
+    def insert_toc_fragment(self, toc):
+
+        def process_node(root, tocparent, added):
+            for child in tocparent:
+                item = self.create_item(root, child)
+                added.append(item)
+                process_node(item, child, added)
+
+        nodes = []
+        process_node(self.root, toc, nodes)
+        self.highlight_item(nodes[0])
+
+    def create_from_xpath(self, xpaths):
+        toc = from_xpaths(self.ebook, xpaths)
+        if len(toc) == 0:
+            return error_dialog(self, _('No items found'),
+                _('No items were found that could be added to the Table of Contents.'), show=True)
+        self.insert_toc_fragment(toc)
 
 # }}}
 
