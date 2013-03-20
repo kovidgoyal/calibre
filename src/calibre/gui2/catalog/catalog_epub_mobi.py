@@ -11,12 +11,11 @@ import re, sys
 from functools import partial
 
 from calibre.ebooks.conversion.config import load_defaults
-from calibre.gui2 import gprefs, open_url, question_dialog
+from calibre.gui2 import gprefs, open_url, question_dialog, error_dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import sort_key
 
 from catalog_epub_mobi_ui import Ui_Form
-from PyQt4 import QtGui
 from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
         QDoubleSpinBox, QIcon, QInputDialog, QLineEdit, QObject, QRadioButton,
         QSize, QSizePolicy, QTableWidget, QTableWidgetItem, QTextEdit, QToolButton,
@@ -645,6 +644,9 @@ class PluginWidget(QWidget,Ui_Form):
         title = options['catalog_title']
         self.set_format_and_title(format, title)
 
+        # Reset Descriptions-related enable/disable switches
+        self.generate_descriptions_changed(self.generate_descriptions.isChecked())
+
     def preset_remove(self):
         if self.preset_field.currentIndex() == 0:
             return
@@ -740,9 +742,8 @@ class PluginWidget(QWidget,Ui_Form):
         preset['merge_comments_rule'] = "%s:%s:%s" % \
             (self.merge_source_field_name, checked, include_hr)
 
-        preset['header_note_source_field'] = self.header_note_source_field_name
-
-        preset['genre_source_field'] = self.genre_source_field_name
+        preset['header_note_source_field'] = unicode(self.header_note_source_field.currentText())
+        preset['genre_source_field'] = unicode(self.genre_source_field.currentText())
 
         # Append the current output profile
         try:

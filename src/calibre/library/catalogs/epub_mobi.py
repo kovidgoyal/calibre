@@ -11,7 +11,6 @@ import datetime, os, time
 from collections import namedtuple
 
 from calibre import strftime
-from calibre.constants import config_dir
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks import calibre_cover
