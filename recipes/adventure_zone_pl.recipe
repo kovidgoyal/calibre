@@ -21,35 +21,24 @@ class Adventure_zone(BasicNewsRecipe):
     extra_css              = '.main-bg{text-align: left;}  td.capmain{ font-size: 22px; }'
     feeds          = [(u'Nowinki', u'http://www.adventure-zone.info/fusion/feeds/news.php')]
 
-    '''def parse_feeds (self): 
-      feeds = BasicNewsRecipe.parse_feeds(self) 
-      soup=self.index_to_soup(u'http://www.adventure-zone.info/fusion/feeds/news.php')
-      tag=soup.find(name='channel')
-      titles=[]
-      for r in tag.findAll(name='image'):
-          r.extract()
-      art=tag.findAll(name='item')
-      for i in art:
-            titles.append(i.title.string)
-      for feed in feeds:
-        for article in feed.articles[:]:
-            article.title=titles[feed.articles.index(article)]
-      return feeds'''
-
-
     '''def get_cover_url(self):
         soup = self.index_to_soup('http://www.adventure-zone.info/fusion/news.php')
         cover=soup.find(id='box_OstatninumerAZ')
         self.cover_url='http://www.adventure-zone.info/fusion/'+ cover.center.a.img['src']
         return getattr(self, 'cover_url', self.cover_url)'''
+        
     def populate_article_metadata(self, article, soup, first):
         result = re.search('(.+) - Adventure Zone', soup.title.string)
         if result:
-            article.title = result.group(1)
+            result = result.group(1)
         else:
             result = soup.body.find('strong')
             if result:
-                article.title = result.string
+                result = result.string
+        if result:
+            result = result.replace('&amp;', '&')
+            result = result.replace('&#39;', '’')
+            article.title = result
 
     def skip_ad_pages(self, soup):
         skip_tag = soup.body.find(name='td', attrs={'class':'main-bg'})

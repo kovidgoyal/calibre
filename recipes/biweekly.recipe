@@ -14,7 +14,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class biweekly(BasicNewsRecipe):
     __author__ = u'Łukasz Grąbczewski'
     title = 'Biweekly'
-    language = 'en'
+    language = 'en_PL'
     publisher = 'National Audiovisual Institute'
     publication_type = 'magazine'
     description = u'link with culture [English edition of Polish magazine]: literature, theatre, film, art, music, views, talks'
