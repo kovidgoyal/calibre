@@ -3626,6 +3626,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if data['datatype'] == 'series':
                 FIELDS.add('%d_index'%x)
         data = []
+        library_name = os.path.basename(self.library_path)
         for record in self.data:
             if record is None: continue
             db_id = record[self.FIELD_MAP['id']]
@@ -3649,6 +3650,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             x['cover'] = os.path.join(path, 'cover.jpg')
             if not record[self.FIELD_MAP['cover']]:
                 x['cover'] = None
+            x['library_name'] = library_name
             formats = self.formats(record[self.FIELD_MAP['id']], index_is_id=True)
             if formats:
                 for fmt in formats.split(','):
