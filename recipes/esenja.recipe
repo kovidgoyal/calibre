@@ -3,85 +3,153 @@
 __license__   = 'GPL v3'
 __copyright__ = '2010, matek09, matek09@gmail.com'
 
-from calibre.web.feeds.news import BasicNewsRecipe
 import re
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Comment
 
 class Esensja(BasicNewsRecipe):
 
-	title = u'Esensja'
-	__author__ = 'matek09'
-	description = 'Monthly magazine'
-	encoding = 'utf-8'
-	no_stylesheets = True
-	language = 'pl'
-	remove_javascript = True
-	HREF = '0'
+    title = u'Esensja'
+    __author__ = 'matek09 & fenuks'
+    description = 'Magazyn kultury popularnej'
+    encoding = 'utf-8'
+    no_stylesheets = True
+    language = 'pl'
+    remove_javascript = True
+    masthead_url = 'http://esensja.pl/img/wrss.gif'
+    oldest_article = 1
+    URL = 'http://esensja.pl'
+    HREF = '0'
+    remove_attributes = ['style', 'bgcolor', 'alt', 'color']
+    keep_only_tags = [dict(attrs={'class':'sekcja'}), ]
+    #keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'article'})
+    #remove_tags_before = dict(dict(name = 'div', attrs = {'class' : 't-title'}))
+    remove_tags_after = dict(id='tekst')
 
-	#keep_only_tags =[]
-	#keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'article'})
-	remove_tags_before = dict(dict(name = 'div', attrs = {'class' : 't-title'}))
-	remove_tags_after = dict(dict(name = 'img', attrs = {'src' : '../../../2000/01/img/tab_bot.gif'}))
+    remove_tags = [dict(name = 'img', attrs = {'src' : ['../../../2000/01/img/tab_top.gif', '../../../2000/01/img/tab_bot.gif']}),
+                    dict(name = 'div', attrs = {'class' : 't-title2 nextpage'}),
+                    #dict(attrs={'rel':'lightbox[galeria]'})
+                    dict(attrs={'class':['tekst_koniec', 'ref', 'wykop']}),
+                    dict(attrs={'itemprop':['copyrightHolder', 'publisher']}),
+                    dict(id='komentarze')
+                    
+                    ]
 
-	remove_tags =[]
-	remove_tags.append(dict(name = 'img', attrs = {'src' : '../../../2000/01/img/tab_top.gif'}))
-	remove_tags.append(dict(name = 'img', attrs = {'src' : '../../../2000/01/img/tab_bot.gif'}))
-	remove_tags.append(dict(name = 'div', attrs = {'class' : 't-title2 nextpage'}))
+    extra_css = '''
+                                    .t-title {font-size: x-large; font-weight: bold; text-align: left}
+                                    .t-author {font-size: x-small; text-align: left}
+                                    .t-title2 {font-size: x-small; font-style: italic; text-align: left}
+                                    .text {font-size: small; text-align: left}
+                                    .annot-ref {font-style: italic; text-align: left}
+                            '''
 
-	extra_css = '''
-					.t-title {font-size: x-large; font-weight: bold; text-align: left}
-					.t-author {font-size: x-small; text-align: left}
-					.t-title2 {font-size: x-small; font-style: italic; text-align: left}
-					.text {font-size: small; text-align: left}
-					.annot-ref {font-style: italic; text-align: left}
-				'''
+    preprocess_regexps = [(re.compile(r'alt="[^"]*"'), lambda match: ''), 
+                        (re.compile(ur'(title|alt)="[^"]*?"', re.DOTALL), lambda match: ''),
+                        ]
 
-	preprocess_regexps = [(re.compile(r'alt="[^"]*"'),
-						lambda match: '')]
+    def parse_index(self):
+        soup = self.index_to_soup('http://www.esensja.pl/magazyn/')
+        a = soup.find('a', attrs={'href' : re.compile('.*/index.html')})
+        year = a['href'].split('/')[0]
+        month = a['href'].split('/')[1]
+        self.HREF = 'http://www.esensja.pl/magazyn/' + year + '/' + month + '/iso/'
+        soup = self.index_to_soup(self.HREF + '01.html')
+        self.cover_url = 'http://www.esensja.pl/magazyn/' + year + '/' + month + '/img/ilustr/cover_b.jpg'
+        feeds = []
+        chapter = ''
+        subchapter = ''
+        articles = []
+        intro = soup.find('div', attrs={'class' : 'n-title'})
+        '''
+        introduction = {'title' : self.tag_to_string(intro.a),
+                                        'url' : self.HREF + intro.a['href'],
+                                        'date' : '',
+                                        'description' : ''}
+        chapter = 'Wprowadzenie'
+        articles.append(introduction)
+        '''
+        
+        for tag in intro.findAllNext(attrs={'class': ['chapter', 'subchapter', 'n-title']}):
+            if tag.name in 'td':
+                if len(articles) > 0:
+                    section = chapter
+                    if len(subchapter) > 0:
+                        section += ' - ' + subchapter
+                    feeds.append((section, articles))
+                    articles = []
+                if tag['class'] == 'chapter':
+                    chapter = self.tag_to_string(tag).capitalize()
+                    subchapter = ''
+                else:
+                    subchapter = self.tag_to_string(tag)
+                    subchapter = self.tag_to_string(tag)
+                continue
+                
+            finalurl = tag.a['href']
+            if not finalurl.startswith('http'):
+                finalurl = self.HREF + finalurl
+            articles.append({'title' : self.tag_to_string(tag.a), 'url' : finalurl, 'date' : '', 'description' : ''})
+            
+            a = self.index_to_soup(finalurl)
+            i = 1
+            
+            while True:
+                div = a.find('div', attrs={'class' : 't-title2 nextpage'})
+                if div is not None:
+                    link = div.a['href']
+                    if not link.startswith('http'):
+                        link = self.HREF + link
+                    a = self.index_to_soup(link)
+                    articles.append({'title' : self.tag_to_string(tag.a) + ' c. d. ' + str(i), 'url' : link, 'date' : '', 'description' : ''})
+                    i = i + 1
+                else:
+                    break
 
-	def parse_index(self):
-		soup = self.index_to_soup('http://www.esensja.pl/magazyn/')
-		a = soup.find('a', attrs={'href' : re.compile('.*/index.html')})
-		year = a['href'].split('/')[0]
-		month = a['href'].split('/')[1]
-		self.HREF = 'http://www.esensja.pl/magazyn/' + year + '/' + month + '/iso/'
-		soup = self.index_to_soup(self.HREF + '01.html')
-		self.cover_url = 'http://www.esensja.pl/magazyn/' + year + '/' + month + '/img/ilustr/cover_b.jpg'
-		feeds = []
-		intro = soup.find('div', attrs={'class' : 'n-title'})
-		introduction = {'title' : self.tag_to_string(intro.a),
-						'url' : self.HREF + intro.a['href'],
-						'date' : '',
-						'description' : ''}
-		chapter = 'Wprowadzenie'
-		subchapter = ''
-		articles = []
-		articles.append(introduction)
-		for tag in intro.findAllNext(attrs={'class': ['chapter', 'subchapter', 'n-title']}):
-			if tag.name in 'td':
-				if len(articles) > 0:
-					section = chapter
-					if len(subchapter) > 0:
-						section += ' - ' + subchapter
-					feeds.append((section, articles))
-					articles = []
-				if tag['class'] == 'chapter':
-					chapter = self.tag_to_string(tag).capitalize()
-					subchapter = ''
-				else:
-					subchapter = self.tag_to_string(tag)
-					subchapter = self.tag_to_string(tag)
-				continue
-			articles.append({'title' : self.tag_to_string(tag.a), 'url' : self.HREF + tag.a['href'], 'date' : '', 'description' : ''})
+        return feeds
 
-			a = self.index_to_soup(self.HREF + tag.a['href'])
-			i = 1
-			while True:
-				div = a.find('div', attrs={'class' : 't-title2 nextpage'})
-				if div is not None:
-					a = self.index_to_soup(self.HREF + div.a['href'])
-					articles.append({'title' : self.tag_to_string(tag.a) + ' c. d. ' + str(i), 'url' : self.HREF + div.a['href'], 'date' : '', 'description' : ''})
-					i = i + 1
-				else:
-					break
+    def append_page(self, soup, appendtag):
+        r = appendtag.find(attrs={'class':'wiecej_xxx'})
+        if r:
+            nr = r.findAll(attrs={'class':'tn-link'})[-1]
+            try:
+                nr = int(nr.a.string)
+            except:
+                return
+            baseurl = soup.find(attrs={'property':'og:url'})['content'] + '&strona={0}'
+            for number in range(2, nr+1):
+                soup2 = self.index_to_soup(baseurl.format(number))
+                pagetext = soup2.find(attrs={'class':'tresc'})
+                pos = len(appendtag.contents)
+                appendtag.insert(pos, pagetext)
+            for r in appendtag.findAll(attrs={'class':['wiecej_xxx', 'tekst_koniec']}):
+                r.extract()
+            for r in appendtag.findAll('script'):
+                r.extract()
 
-		return feeds
+            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
+
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        for tag in soup.findAll(attrs={'class':'img_box_right'}):
+            temp = tag.find('img')
+            src = ''
+            if temp:
+                src = temp.get('src', '')
+            for r in tag.findAll('a', recursive=False):
+                r.extract()
+            info = tag.find(attrs={'class':'img_info'})
+            text = str(tag)
+            if not src:
+                src = re.search('src="[^"]*?"', text)
+                if src:
+                    src = src.group(0)
+                    src = src[5:].replace('//', '/')
+            if src:
+                tag.contents = []
+                tag.insert(0, BeautifulSoup('<img src="{0}{1}" />'.format(self.URL, src)))
+            if info:
+                tag.insert(len(tag.contents), info)
+        return soup
+

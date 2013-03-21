@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Comment
+
 class CoNowegoPl(BasicNewsRecipe):
     title          = u'conowego.pl'
     __author__        = 'fenuks'
@@ -34,7 +35,10 @@ class CoNowegoPl(BasicNewsRecipe):
                 pagetext = soup2.find(attrs={'class':'ni_content'})
                 pos = len(appendtag.contents)
                 appendtag.insert(pos, pagetext)
-
+                
+            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
             for r in appendtag.findAll(attrs={'class':['pages', 'paginationWrap']}):
                 r.extract()
 

@@ -1,5 +1,6 @@
 import time
 from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Comment
 
 class GryOnlinePl(BasicNewsRecipe):
     title          = u'Gry-Online.pl'
@@ -40,10 +41,14 @@ class GryOnlinePl(BasicNewsRecipe):
                     r.extract()
                 for r in pagetext.findAll(attrs={'itemprop':'description'}):
                     r.extract()
+                    
                 pos = len(appendtag.contents)
                 appendtag.insert(pos, pagetext)
             for r in appendtag.findAll(attrs={'class':['n5p', 'add-info', 'twitter-share-button', 'lista lista3 lista-gry']}):
                 r.extract()
+            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
         else:
             tag = appendtag.find('div', attrs={'class':'S018stronyr'})
             if tag:
@@ -70,16 +75,22 @@ class GryOnlinePl(BasicNewsRecipe):
                         r.extract()
                     for r in pagetext.findAll(attrs={'itemprop':'description'}):
                         r.extract()
+                        
+                    comments = pagetext.findAll(text=lambda text:isinstance(text, Comment))
+                    [comment.extract() for comment in comments]
                     pos = len(appendtag.contents)
                     appendtag.insert(pos, pagetext)
                 for r in appendtag.findAll(attrs={'class':['n5p', 'add-info', 'twitter-share-button', 'lista lista3 lista-gry', 'S018strony']}):
                     r.extract()
+                comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
+                for comment in comments:
+                    comment.extract()
 
     def image_url_processor(self, baseurl, url):
         if url.startswith('..'):
             return url[2:]
         else:
-	  return url
+            return url
 
     def preprocess_html(self, soup):
          self.append_page(soup, soup.body)

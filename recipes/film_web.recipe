@@ -1,6 +1,7 @@
-from calibre.web.feeds.news import BasicNewsRecipe
 import re
+from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
 class FilmWebPl(BasicNewsRecipe):
     title          = u'FilmWeb'
     __author__        = 'fenuks'
@@ -9,12 +10,14 @@ class FilmWebPl(BasicNewsRecipe):
     category       = 'movies'
     language       = 'pl'
     index = 'http://www.filmweb.pl'
+    #extra_css = '.MarkupPhotoHTML-7 {float:left; margin-right: 10px;}'
     oldest_article = 8
     max_articles_per_feed = 100
     no_stylesheets = True
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
-    preprocess_regexps = [(re.compile(u'\(kliknij\,\ aby powiększyć\)', re.IGNORECASE), lambda m: ''), ]#(re.compile(ur' | ', re.IGNORECASE), lambda m: '')]
+    remove_javascript = True
+    preprocess_regexps = [(re.compile(u'\(kliknij\,\ aby powiększyć\)', re.IGNORECASE), lambda m: ''), (re.compile(ur'(<br ?/?>\s*?<br ?/?>\s*?)+', re.IGNORECASE), lambda m: '<br />')]#(re.compile(ur' | ', re.IGNORECASE), lambda m: '')]
     extra_css      = '.hdrBig {font-size:22px;} ul {list-style-type:none; padding: 0; margin: 0;}'
     remove_tags = [dict(name='div', attrs={'class':['recommendOthers']}), dict(name='ul', attrs={'class':'fontSizeSet'}), dict(attrs={'class':'userSurname anno'})]
     remove_attributes = ['style',]
@@ -41,7 +44,12 @@ class FilmWebPl(BasicNewsRecipe):
         skip_tag = soup.find('a', attrs={'class':'welcomeScreenButton'})
         if skip_tag is not None:
             return self.index_to_soup(skip_tag['href'], raw=True)
-
+            
+    def postprocess_html(self, soup, first_fetch):
+        for r in soup.findAll(attrs={'class':'singlephoto'}):
+            r['style'] = 'float:left; margin-right: 10px;'
+        return soup
+        
     def preprocess_html(self, soup):
         for a in soup('a'):
             if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
@@ -56,4 +64,8 @@ class FilmWebPl(BasicNewsRecipe):
             tag.name = 'div'
             for t in tag.findAll('li'):
                 t.name = 'div'
+        for r in soup.findAll(id=re.compile('photo-\d+')):
+            r.extract()
+        for r in soup.findAll(style=re.compile('float: ?left')):
+            r['class'] = 'singlephoto'
         return soup
