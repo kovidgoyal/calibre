@@ -35,7 +35,7 @@ class Gildia(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for a in soup('a'):
-            if a.has_key('href') not a['href'].startswith('http'):
+            if a.has_key('href') and not a['href'].startswith('http'):
                 if '/gry/' in a['href']:
                     a['href']='http://www.gry.gildia.pl' + a['href']
                 elif u'książk' in soup.title.string.lower() or u'komiks' in soup.title.string.lower():

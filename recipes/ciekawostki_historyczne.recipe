@@ -1,6 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
-from calibre.ebooks.BeautifulSoup import Comment
 
 class Ciekawostki_Historyczne(BasicNewsRecipe):
     title          = u'Ciekawostki Historyczne'
@@ -34,5 +33,5 @@ class Ciekawostki_Historyczne(BasicNewsRecipe):
                 r.extract()
             soup.find('h6').nextSibling.extract()
         return soup
-   
-        
+
+

@@ -53,8 +53,8 @@ def author_to_author_sort(author, method=None):
     if method == u'copy':
         return author
 
-    prefixes = set([x.lower() for x in tweaks['author_name_prefixes']])
-    prefixes |= set([x+u'.' for x in prefixes])
+    prefixes = set([y.lower() for y in tweaks['author_name_prefixes']])
+    prefixes |= set([y+u'.' for y in prefixes])
     while True:
         if not tokens:
             return author
@@ -64,8 +64,8 @@ def author_to_author_sort(author, method=None):
         else:
             break
 
-    suffixes = set([x.lower() for x in tweaks['author_name_suffixes']])
-    suffixes |= set([x+u'.' for x in suffixes])
+    suffixes = set([y.lower() for y in tweaks['author_name_suffixes']])
+    suffixes |= set([y+u'.' for y in suffixes])
 
     suffix = u''
     while True:
@@ -357,4 +357,13 @@ def check_isbn(isbn):
     if len(isbn) == 13:
         return check_isbn13(isbn)
     return None
+
+def format_isbn(isbn):
+    cisbn = check_isbn(isbn)
+    if not cisbn:
+        return isbn
+    i = cisbn
+    if len(i) == 10:
+        return '-'.join((i[:2], i[2:6], i[6:9], i[9]))
+    return '-'.join((i[:3], i[3:5], i[5:9], i[9:12], i[12]))
 

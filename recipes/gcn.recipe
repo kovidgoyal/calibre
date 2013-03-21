@@ -17,36 +17,36 @@ class GCN(BasicNewsRecipe):
     remove_empty_feeds = True
     no_stylesheets = True
     ignore_duplicate_articles = {'title', 'url'}
-    remove_attributes ['style']
-    preprocess_regexps = [(re.compile(ur'Czytaj:.*?</a>', re.DOTALL), lambda match: ''), (re.compile(ur'Przeczytaj także:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''), 
+    remove_attributes = ['style']
+    preprocess_regexps = [(re.compile(ur'Czytaj:.*?</a>', re.DOTALL), lambda match: ''), (re.compile(ur'Przeczytaj także:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''),
                           (re.compile(ur'Przeczytaj również:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''), (re.compile(ur'Zobacz też:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: '')]
-    
+
     keep_only_tags = [dict(id=['article', 'cover', 'photostory'])]
     remove_tags = [dict(id=['articleTags', 'articleMeta', 'boxReadIt', 'articleGalleries', 'articleConnections',
-                  'ForumArticleComments', 'articleRecommend', 'jedynkiLinks', 'articleGalleryConnections', 
-                  'photostoryConnections', 'articleEpaper', 'articlePoll', 'articleAlarm', 'articleByline']), 
+                  'ForumArticleComments', 'articleRecommend', 'jedynkiLinks', 'articleGalleryConnections',
+                  'photostoryConnections', 'articleEpaper', 'articlePoll', 'articleAlarm', 'articleByline']),
                   dict(attrs={'class':'articleFunctions'})]
 
-    feeds          = [(u'Wszystkie', u'http://www.nowiny24.pl/rss.xml'), 
-                      (u'Podkarpacie', u'http://www.nowiny24.pl/podkarpacie.xml'), 
-                      (u'Bieszczady', u'http://www.nowiny24.pl/bieszczady.xml'), 
-                      (u'Rzeszów', u'http://www.nowiny24.pl/rzeszow.xml'), 
-                      (u'Przemyśl', u'http://www.nowiny24.pl/przemysl.xml'), 
-                      (u'Leżajsk', u'http://www.nowiny24.pl/lezajsk.xml'), 
-                      (u'Łańcut', u'http://www.nowiny24.pl/lancut.xml'), 
-                      (u'Dębica', u'http://www.nowiny24.pl/debica.xml'), 
-                      (u'Jarosław', u'http://www.nowiny24.pl/jaroslaw.xml'), 
-                      (u'Krosno', u'http://www.nowiny24.pl/krosno.xml'), 
-                      (u'Mielec', u'http://www.nowiny24.pl/mielec.xml'), 
-                      (u'Nisko', u'http://www.nowiny24.pl/nisko.xml'), 
-                      (u'Sanok', u'http://www.nowiny24.pl/sanok.xml'), 
-                      (u'Stalowa Wola', u'http://www.nowiny24.pl/stalowawola.xml'), 
-                      (u'Tarnobrzeg', u'http://www.nowiny24.pl/tarnobrzeg.xml'), 
-                      (u'Sport', u'http://www.nowiny24.pl/sport.xml'), 
-                      (u'Dom', u'http://www.nowiny24.pl/dom.xml'), 
-                      (u'Auto', u'http://www.nowiny24.pl/auto.xml'), 
-                      (u'Praca', u'http://www.nowiny24.pl/praca.xml'), 
-                      (u'Zdrowie', u'http://www.nowiny24.pl/zdrowie.xml'), 
+    feeds          = [(u'Wszystkie', u'http://www.nowiny24.pl/rss.xml'),
+                      (u'Podkarpacie', u'http://www.nowiny24.pl/podkarpacie.xml'),
+                      (u'Bieszczady', u'http://www.nowiny24.pl/bieszczady.xml'),
+                      (u'Rzeszów', u'http://www.nowiny24.pl/rzeszow.xml'),
+                      (u'Przemyśl', u'http://www.nowiny24.pl/przemysl.xml'),
+                      (u'Leżajsk', u'http://www.nowiny24.pl/lezajsk.xml'),
+                      (u'Łańcut', u'http://www.nowiny24.pl/lancut.xml'),
+                      (u'Dębica', u'http://www.nowiny24.pl/debica.xml'),
+                      (u'Jarosław', u'http://www.nowiny24.pl/jaroslaw.xml'),
+                      (u'Krosno', u'http://www.nowiny24.pl/krosno.xml'),
+                      (u'Mielec', u'http://www.nowiny24.pl/mielec.xml'),
+                      (u'Nisko', u'http://www.nowiny24.pl/nisko.xml'),
+                      (u'Sanok', u'http://www.nowiny24.pl/sanok.xml'),
+                      (u'Stalowa Wola', u'http://www.nowiny24.pl/stalowawola.xml'),
+                      (u'Tarnobrzeg', u'http://www.nowiny24.pl/tarnobrzeg.xml'),
+                      (u'Sport', u'http://www.nowiny24.pl/sport.xml'),
+                      (u'Dom', u'http://www.nowiny24.pl/dom.xml'),
+                      (u'Auto', u'http://www.nowiny24.pl/auto.xml'),
+                      (u'Praca', u'http://www.nowiny24.pl/praca.xml'),
+                      (u'Zdrowie', u'http://www.nowiny24.pl/zdrowie.xml'),
                       (u'Wywiady', u'http://www.nowiny24.pl/wywiady.xml')]
 
     def get_cover_url(self):
@@ -78,7 +78,7 @@ class GCN(BasicNewsRecipe):
                 if pagetext:
                     pos = len(appendtag.contents)
                     appendtag.insert(pos, pagetext)
-                    
+
             comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
             for comment in comments:
                 comment.extract()

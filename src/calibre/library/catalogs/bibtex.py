@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, codecs
+import re, codecs, os
 from collections import namedtuple
 from types import StringType, UnicodeType
 
@@ -14,6 +14,7 @@ from calibre.customize import CatalogPlugin
 from calibre.library.catalogs import FIELDS, TEMPLATE_ALLOWED_FIELDS
 from calibre.customize.conversion import DummyReporter
 from calibre.constants import preferred_encoding
+from calibre.ebooks.metadata import format_isbn
 
 
 class BIBTEX(CatalogPlugin):
@@ -114,6 +115,8 @@ class BIBTEX(CatalogPlugin):
         from calibre.utils.date import now as nowf
         from calibre.utils.logging import default_log as log
 
+        library_name = os.path.basename(db.library_path)
+
         def create_bibtex_entry(entry, fields, mode, template_citation,
                                     bibtexdict, db, citation_bibtex=True, calibre_files=True):
 
@@ -142,6 +145,8 @@ class BIBTEX(CatalogPlugin):
                         item = repr(item)
                 elif field == 'title_sort':
                     item = entry['sort']
+                elif field == 'library_name':
+                    item = library_name
                 else:
                     item = entry[field]
 
@@ -183,7 +188,7 @@ class BIBTEX(CatalogPlugin):
 
                 elif field == 'isbn' :
                     # Could be 9, 10 or 13 digits
-                    bibtex_entry.append(u'isbn = "%s"' % re.sub(u'[0-9xX]', u'', item))
+                    bibtex_entry.append(u'isbn = "%s"' % format_isbn(item))
 
                 elif field == 'formats' :
                     #Add file path if format is selected

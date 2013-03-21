@@ -30,7 +30,7 @@ class Dzieje(BasicNewsRecipe):
                 for r in pagetext.findAll(attrs={'class':['fieldgroup group-groupkul', 'fieldgroup group-zdjeciekult', 'fieldgroup group-zdjecieciekaw', 'fieldgroup group-zdjecieksiazka', 'fieldgroup group-zdjeciedu', 'field field-type-filefield field-field-zdjecieglownawyd']}):
                     r.extract()
                 comments = pagetext.findAll(text=lambda text:isinstance(text, Comment))
-                appendtag.insert(pos, pagetext)
+                # appendtag.insert(pos, pagetext)
                 tag = soup2.find('li', attrs={'class':'pager-next'})
             for r in appendtag.findAll(attrs={'class':['item-list', 'field field-type-computed field-field-tagi', ]}):
                 r.extract()

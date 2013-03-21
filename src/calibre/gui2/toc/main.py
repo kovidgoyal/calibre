@@ -11,7 +11,7 @@ import sys, os, textwrap
 from threading import Thread
 from functools import partial
 
-from PyQt4.Qt import (QPushButton, QFrame, QVariant,
+from PyQt4.Qt import (QPushButton, QFrame, QVariant, QMenu, QInputDialog,
     QDialog, QVBoxLayout, QDialogButtonBox, QSize, QStackedWidget, QWidget,
     QLabel, Qt, pyqtSignal, QIcon, QTreeWidget, QGridLayout, QTreeWidgetItem,
     QToolButton, QItemSelectionModel)
@@ -51,17 +51,67 @@ class XPathDialog(QDialog): # {{{
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
+        self.ssb = b = bb.addButton(_('&Save settings'), bb.ActionRole)
+        b.clicked.connect(self.save_settings)
+        self.load_button = b = bb.addButton(_('&Load settings'), bb.ActionRole)
+        self.load_menu = QMenu(b)
+        b.setMenu(self.load_menu)
+        self.setup_load_button()
         l.addStretch()
         l.addWidget(bb)
         self.resize(self.sizeHint() + QSize(50, 75))
 
-    def accept(self):
+    def save_settings(self):
+        xpaths = self.xpaths
+        if not xpaths:
+            return error_dialog(self, _('No XPaths'),
+                                _('No XPaths have been entered'), show=True)
+        if not self.check():
+            return
+        name, ok = QInputDialog.getText(self, _('Choose name'),
+                _('Choose a name for these settings'))
+        if ok:
+            name = unicode(name).strip()
+            if name:
+                saved = gprefs.get('xpath_toc_settings', {})
+                saved[name] = {i:x for i, x in enumerate(xpaths)}
+                gprefs.set('xpath_toc_settings', saved)
+                self.setup_load_button()
+
+    def setup_load_button(self):
+        saved = gprefs.get('xpath_toc_settings', {})
+        m = self.load_menu
+        m.clear()
+        self.__actions = []
+        a = self.__actions.append
+        for name in sorted(saved):
+            a(m.addAction(name, partial(self.load_settings, name)))
+        m.addSeparator()
+        a(m.addAction(_('Remove saved settings'), self.clear_settings))
+        self.load_button.setEnabled(bool(saved))
+
+    def clear_settings(self):
+        gprefs.set('xpath_toc_settings', {})
+        self.setup_load_button()
+
+    def load_settings(self, name):
+        saved = gprefs.get('xpath_toc_settings', {}).get(name, {})
+        for i, w in enumerate(self.widgets):
+            txt = saved.get(i, '')
+            w.edit.setText(txt)
+
+    def check(self):
         for w in self.widgets:
             if not w.check():
-                return error_dialog(self, _('Invalid XPath'),
+                error_dialog(self, _('Invalid XPath'),
                     _('The XPath expression %s is not valid.')%w.xpath,
                              show=True)
-        super(XPathDialog, self).accept()
+                return False
+        return True
+
+    def accept(self):
+        if self.check():
+            super(XPathDialog, self).accept()
 
     @property
     def xpaths(self):
