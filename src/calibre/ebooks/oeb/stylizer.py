@@ -319,7 +319,7 @@ class Stylizer(object):
         rules.sort()
         self.rules = rules
         self._styles = {}
-        pseudo_pat = re.compile(ur':(first-letter|first-line|link|hover|visited|active|focus)', re.I)
+        pseudo_pat = re.compile(ur':(first-letter|first-line|link|hover|visited|active|focus|before|after)', re.I)
         for _, _, cssdict, text, _ in rules:
             fl = pseudo_pat.search(text)
             if fl is not None:
