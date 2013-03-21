@@ -9,8 +9,9 @@ class Niebezpiecznik_pl(BasicNewsRecipe):
     oldest_article = 8
     max_articles_per_feed = 100
     no_stylesheets = True
+    remove_empty_feeds = True
     cover_url = u'http://userlogos.org/files/logos/Karmody/niebezpiecznik_01.png'
     remove_tags = [dict(name='div', attrs={'class':['sociable']}), dict(name='h4'), dict(attrs={'class':'similar-posts'})]
     keep_only_tags = [dict(name='div', attrs={'class':['title', 'entry']})]
     feeds          = [(u'Wiadomości', u'http://feeds.feedburner.com/niebezpiecznik/'),
-      	      ('Blog', 'http://feeds.feedburner.com/niebezpiecznik/linkblog/')]
+              ('Blog', 'http://feeds.feedburner.com/niebezpiecznik/linkblog/')]

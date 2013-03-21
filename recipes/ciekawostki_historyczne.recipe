@@ -11,7 +11,8 @@ class Ciekawostki_Historyczne(BasicNewsRecipe):
     masthead_url = 'http://ciekawostkihistoryczne.pl/wp-content/themes/Wordpress_Magazine/images/logo-ciekawostki-historyczne-male.jpg'
     cover_url = 'http://ciekawostkihistoryczne.pl/wp-content/themes/Wordpress_Magazine/images/logo-ciekawostki-historyczne-male.jpg'
     max_articles_per_feed = 100
-    oldest_article = 140000
+    extra_css = 'img.alignleft {float:left; margin-right:5px;} .alignright {float:right; margin-left:5px;}'
+    oldest_article = 12
     preprocess_regexps = [(re.compile(ur'Ten artykuł ma kilka stron.*?</fb:like>', re.DOTALL), lambda match: ''), (re.compile(ur'<h2>Zobacz też:</h2>.*?</ol>', re.DOTALL), lambda match: '')]
     no_stylesheets = True
     remove_empty_feeds = True

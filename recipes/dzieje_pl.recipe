@@ -9,6 +9,7 @@ class Dzieje(BasicNewsRecipe):
     category       = 'history'
     language       = 'pl'
     ignore_duplicate_articles = {'title', 'url'}
+    extra_css = '.imagecache-default {float:left; margin-right:20px;}'
     index = 'http://dzieje.pl'
     oldest_article = 8
     max_articles_per_feed = 100
