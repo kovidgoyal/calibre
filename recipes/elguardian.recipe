@@ -1,0 +1,93 @@
+__license__   = 'GPL v3'
+__copyright__ = '2013, Darko Miletic <darko.miletic at gmail.com>'
+'''
+elguardian.com.ar
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ElGuardian(BasicNewsRecipe):
+    title                 = 'El Guardian'
+    __author__            = 'Darko Miletic'
+    description           = "Semanario con todas las tendencias de un pais"
+    publisher             = 'Editorial Apache SA'
+    category              = 'news,politics,Argentina'
+    oldest_article        = 8
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'es_AR'
+    remove_empty_feeds    = True
+    publication_type      = 'magazine'
+    issn                  = '1666-7476'
+    masthead_url          = 'http://elguardian.com.ar/application/templates/frontend/images/home/logo.png'
+    extra_css             = """
+                               body{font-family: Arial,sans-serif}
+                               img{margin-bottom: 0.4em; display:block}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        , 'series'    : title
+                        , 'isbn'      : issn
+                        }
+
+    keep_only_tags    = [dict(attrs={'class':['fotos', 'header_nota', 'nota']})]
+    remove_tags       = [dict(name=['meta','link','iframe','embed','object'])]
+    remove_attributes = ['lang']
+
+    feeds = [
+              (u'El Pais'       , u'http://elguardian.com.ar/RSS/el-pais.xml'       )
+             ,(u'Columnistas'   , u'http://elguardian.com.ar/RSS/columnistas.xml'   )
+             ,(u'Personajes'    , u'http://elguardian.com.ar/RSS/personajes.xml'    )
+             ,(u'Tinta roja'    , u'http://elguardian.com.ar/RSS/tinta-roja.xml'    )
+             ,(u'Yo fui'        , u'http://elguardian.com.ar/RSS/yo-fui.xml'        )
+             ,(u'Ciencia'       , u'http://elguardian.com.ar/RSS/ciencia.xml'       )
+             ,(u'Cronicas'      , u'http://elguardian.com.ar/RSS/cronicas.xml'      )
+             ,(u'Culturas'      , u'http://elguardian.com.ar/RSS/culturas.xml'      )
+             ,(u'DxT'           , u'http://elguardian.com.ar/RSS/dxt.xml'           )
+             ,(u'Fierros'       , u'http://elguardian.com.ar/RSS/fierros.xml'       )
+             ,(u'Frente fashion', u'http://elguardian.com.ar/RSS/frente-fashion.xml')
+             ,(u'Pan y vino'    , u'http://elguardian.com.ar/RSS/pan-y-vino.xml'    )
+             ,(u'Turismo'       , u'http://elguardian.com.ar/RSS/turismo.xml'       )
+            ]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://elguardian.com.ar/')
+        udata = soup.find('div', attrs={'class':'datosNumero'})
+        if udata:
+           sdata = udata.find('div')
+           if sdata:
+               stra = re.findall(r'\d+', self.tag_to_string(sdata))
+               self.conversion_options.update({'series_index':int(stra[1])})
+        unumero = soup.find('div', attrs={'class':'ultimoNumero'})
+        if unumero:
+           img = unumero.find('img', src=True)
+           if img:
+              return img['src']
+        return None
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  item.attrs = []
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup

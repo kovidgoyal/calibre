@@ -75,6 +75,13 @@ class PagedDisplay
             this.margin_side = margin_side
             this.margin_bottom = margin_bottom
 
+    handle_rtl_body: (body_style) ->
+        if body_style.direction == "rtl"
+            for node in document.body.childNodes
+                if node.nodeType == node.ELEMENT_NODE and window.getComputedStyle(node).direction == "rtl"
+                    node.style.setProperty("direction", "rtl")
+            document.body.style.direction = "ltr"
+
     layout: (is_single_page=false) ->
         # start_time = new Date().getTime()
         body_style = window.getComputedStyle(document.body)
@@ -84,6 +91,7 @@ class PagedDisplay
             # Check if the current document is a full screen layout like
             # cover, if so we treat it specially.
             single_screen = (document.body.scrollHeight < window.innerHeight + 75)
+            this.handle_rtl_body(body_style)
             first_layout = true
 
         ww = window.innerWidth
@@ -402,7 +410,22 @@ class PagedDisplay
         elem.scrollIntoView()
         if this.in_paged_mode
             # Ensure we are scrolled to the column containing elem
-            this.scroll_to_xpos(calibre_utils.absleft(elem) + 5)
+
+            # Because of a bug in WebKit's getBoundingClientRect() in column
+            # mode, this position can be inaccurate, see
+            # https://bugs.launchpad.net/calibre/+bug/1132641 for a test case.
+            # The usual symptom of the inaccuracy is br.top is highly negative.
+            br = elem.getBoundingClientRect()
+            if br.top < -100
+                # This only works because of the preceding call to
+                # elem.scrollIntoView(). However, in some cases it gives
+                # inaccurate results, so we prefer the bounding client rect,
+                # when possible.
+                left = elem.scrollLeft
+            else
+                left = br.left
+            this.scroll_to_xpos(calibre_utils.viewport_to_document(
+                left+this.margin_side, elem.scrollTop, elem.ownerDocument)[0])
 
     snap_to_selection: () ->
         # Ensure that the viewport is positioned at the start of the column

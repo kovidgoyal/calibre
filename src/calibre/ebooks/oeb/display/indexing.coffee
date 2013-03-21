@@ -81,6 +81,11 @@ class BookIndexing
             if elem == null
                 pos = [body.scrollWidth+1000, body.scrollHeight+1000]
             else
+                # Because of a bug in WebKit's getBoundingClientRect() in
+                # column mode, this position can be inaccurate,
+                # see https://bugs.launchpad.net/calibre/+bug/1132641 for a
+                # test case. The usual symptom of the inaccuracy is br.top is
+                # highly negative.
                 br = elem.getBoundingClientRect()
                 pos = viewport_to_document(br.left, br.top, elem.ownerDocument)
 

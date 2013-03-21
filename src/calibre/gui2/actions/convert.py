@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import QModelIndex
+from PyQt4.Qt import QModelIndex, QTimer
 
 from calibre.gui2 import error_dialog, Dispatcher
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook
@@ -19,10 +19,35 @@ from calibre.customize.ui import plugin_for_input_format
 class ConvertAction(InterfaceAction):
 
     name = 'Convert Books'
-    action_spec = (_('Convert books'), 'convert.png', None, _('C'))
+    action_spec = (_('Convert books'), 'convert.png', _('Convert books between different ebook formats'), _('C'))
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
     action_add_menu = True
+
+    accepts_drops = True
+
+    def accept_enter_event(self, event, mime_data):
+        if mime_data.hasFormat("application/calibre+from_library"):
+            return True
+        return False
+
+    def accept_drag_move_event(self, event, mime_data):
+        if mime_data.hasFormat("application/calibre+from_library"):
+            return True
+        return False
+
+    def drop_event(self, event, mime_data):
+        mime = 'application/calibre+from_library'
+        if mime_data.hasFormat(mime):
+            self.dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+            QTimer.singleShot(1, self.do_drop)
+            return True
+        return False
+
+    def do_drop(self):
+        book_ids = self.dropped_ids
+        del self.dropped_ids
+        self.do_convert(book_ids)
 
     def genesis(self):
         m = self.convert_menu = self.qaction.menu()
@@ -112,6 +137,9 @@ class ConvertAction(InterfaceAction):
     def convert_ebook(self, checked, bulk=None):
         book_ids = self.get_books_for_conversion()
         if book_ids is None: return
+        self.do_convert(book_ids, bulk=bulk)
+
+    def do_convert(self, book_ids, bulk=None):
         previous = self.gui.library_view.currentIndex()
         rows = [x.row() for x in \
                 self.gui.library_view.selectionModel().selectedRows()]

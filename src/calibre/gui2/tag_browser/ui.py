@@ -328,6 +328,8 @@ class TagBrowserWidget(QWidget): # {{{
         search_layout = QHBoxLayout()
         self._layout.addLayout(search_layout)
         self.item_search = HistoryLineEdit(parent)
+        self.item_search.setMinimumContentsLength(10)
+        self.item_search.setSizeAdjustPolicy(self.item_search.AdjustToMinimumContentsLengthWithIcon)
         try:
             self.item_search.lineEdit().setPlaceholderText(
                                                 _('Find item in tag browser'))

@@ -512,7 +512,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.test_text.editTextChanged[str].connect(self.s_r_paint_results)
         self.comma_separated.stateChanged.connect(self.s_r_paint_results)
         self.case_sensitive.stateChanged.connect(self.s_r_paint_results)
-        self.s_r_src_ident.currentIndexChanged[int].connect(self.s_r_paint_results)
+        self.s_r_src_ident.currentIndexChanged[int].connect(self.s_r_identifier_type_changed)
         self.s_r_dst_ident.textChanged.connect(self.s_r_paint_results)
         self.s_r_template.lost_focus.connect(self.s_r_template_changed)
         self.central_widget.setCurrentIndex(0)
@@ -576,9 +576,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             elif not fm['is_multiple']:
                 val = [val]
             elif fm['datatype'] == 'composite':
-                val = [v.strip() for v in val.split(fm['is_multiple']['ui_to_list'])]
+                val = [v2.strip() for v2 in val.split(fm['is_multiple']['ui_to_list'])]
             elif field == 'authors':
-                val = [v.replace('|', ',') for v in val]
+                val = [v2.replace('|', ',') for v2 in val]
         else:
             val = []
         if not val:
@@ -590,6 +590,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
     def s_r_template_changed(self):
         self.s_r_search_field_changed(self.search_field.currentIndex())
+
+    def s_r_identifier_type_changed(self, idx):
+        self.s_r_search_field_changed(self.search_field.currentIndex())
+        self.s_r_paint_results(idx)
 
     def s_r_search_field_changed(self, idx):
         self.s_r_template.setVisible(False)
@@ -708,7 +712,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         dest_mode = self.replace_mode.currentIndex()
 
         if self.destination_field_fm['is_csp']:
-            if not unicode(self.s_r_dst_ident.text()):
+            dest_ident = unicode(self.s_r_dst_ident.text())
+            if not dest_ident or (src == 'identifiers' and dest_ident == '*'):
                 raise Exception(_('You must specify a destination identifier type'))
 
         if self.destination_field_fm['is_multiple']:
@@ -812,13 +817,18 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 # convert the colon-separated pair strings back into a dict,
                 # which is what set_identifiers wants
                 dst_id_type = unicode(self.s_r_dst_ident.text())
-                if dst_id_type:
+                if dst_id_type and dst_id_type != '*':
                     v = ''.join(val)
                     ids = mi.get(dest)
                     ids[dst_id_type] = v
                     val = ids
                 else:
-                    val = dict([(t.split(':')) for t in val])
+                    try:
+                        val = dict([(t.split(':')) for t in val])
+                    except:
+                        raise Exception(_('Invalid identifier string. It must be a '
+                                          'comma-separated list of pairs of '
+                                          'strings separated by a colon'))
         else:
             val = self.s_r_replace_mode_separator().join(val)
             if dest == 'title' and len(val) == 0:

@@ -941,9 +941,19 @@ class OPF(object): # {{{
                 return self.get_text(match) or None
 
         def fset(self, val):
+            removed_ids = set()
             for x in tuple(self.application_id_path(self.metadata)):
+                removed_ids.add(x.get('id', None))
                 x.getparent().remove(x)
+
+            uuid_id = None
+            for attr in self.root.attrib:
+                if attr.endswith('unique-identifier'):
+                    uuid_id = self.root.attrib[attr]
+                    break
             attrib = {'{%s}scheme'%self.NAMESPACES['opf']: 'calibre'}
+            if uuid_id and uuid_id in removed_ids:
+                attrib['id'] = uuid_id
             self.set_text(self.create_metadata_element(
                 'identifier', attrib=attrib), unicode(val))
 

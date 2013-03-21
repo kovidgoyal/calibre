@@ -1,4 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Comment
+
 class OCLab(BasicNewsRecipe):
     title          = u'OCLab.pl'
     oldest_article = 7
@@ -26,6 +28,10 @@ class OCLab(BasicNewsRecipe):
                appendtag.insert(pos, pagetext)
             for r in appendtag.findAll(attrs={'class':'post-nav-bottom-list'}):
                 r.extract()
+            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
+                
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body)
         return soup

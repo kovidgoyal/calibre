@@ -133,7 +133,7 @@ class AmazonKindleStore(StorePlugin):
             asin_xpath = '@name'
             cover_xpath = './/img[@class="productImage"]/@src'
             title_xpath = './/h3[@class="newaps"]/a//text()'
-            author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]/text()'
+            author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]//text()'
             price_xpath = './/ul[contains(@class, "rsltL")]//span[contains(@class, "lrg") and contains(@class, "bld")]/text()'
 
             for data in doc.xpath(data_xpath):

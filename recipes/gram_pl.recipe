@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
 class Gram_pl(BasicNewsRecipe):
     title          = u'Gram.pl'
     __author__        = 'fenuks'
@@ -11,15 +12,14 @@ class Gram_pl(BasicNewsRecipe):
     max_articles_per_feed = 100
     ignore_duplicate_articles = {'title', 'url'}
     no_stylesheets= True
+    remove_empty_feeds = True
     #extra_css = 'h2 {font-style: italic;  font-size:20px;} .picbox div {float: left;}'
     cover_url=u'http://www.gram.pl/www/01/img/grampl_zima.png'
     keep_only_tags= [dict(id='articleModule')]
-    remove_tags = [dict(attrs={'class':['breadCrump', 'dymek', 'articleFooter']})]
+    remove_tags = [dict(attrs={'class':['breadCrump', 'dymek', 'articleFooter', 'twitter-share-button']})]
     feeds          = [(u'Informacje', u'http://www.gram.pl/feed_news.asp'),
-	      (u'Publikacje', u'http://www.gram.pl/feed_news.asp?type=articles'),
-                (u'Kolektyw- Indie Games', u'http://indie.gram.pl/feed/'),
-                #(u'Kolektyw- Moto Games', u'http://www.motogames.gram.pl/news.rss')
-                ]
+                        (u'Publikacje', u'http://www.gram.pl/feed_news.asp?type=articles')
+                        ]
 
     def parse_feeds (self):
       feeds = BasicNewsRecipe.parse_feeds(self)

@@ -16,15 +16,14 @@ import apsw
 from calibre import isbytestring, force_unicode, prints
 from calibre.constants import (iswindows, filesystem_encoding,
         preferred_encoding)
-from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile
-from calibre.db import SPOOL_SIZE
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.db.schema_upgrades import SchemaUpgrade
 from calibre.library.field_metadata import FieldMetadata
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
-from calibre.utils.icu import strcmp
+from calibre.utils.icu import sort_key
 from calibre.utils.config import to_json, from_json, prefs, tweaks
 from calibre.utils.date import utcfromtimestamp, parse_date
-from calibre.utils.filenames import is_case_sensitive
+from calibre.utils.filenames import (is_case_sensitive, samefile, hardlink_file)
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable,
         CompositeTable, LanguagesTable)
@@ -173,7 +172,9 @@ def _author_to_author_sort(x):
     return author_to_author_sort(x.replace('|', ','))
 
 def icu_collator(s1, s2):
-    return strcmp(force_unicode(s1, 'utf-8'), force_unicode(s2, 'utf-8'))
+    return cmp(sort_key(force_unicode(s1, 'utf-8')),
+               sort_key(force_unicode(s2, 'utf-8')))
+
 # }}}
 
 # Unused aggregators {{{
@@ -855,38 +856,75 @@ class DB(object):
         ans = {}
         if path is not None:
             stat = os.stat(path)
+            ans['path'] = path
             ans['size'] = stat.st_size
             ans['mtime'] = utcfromtimestamp(stat.st_mtime)
         return ans
 
-    def cover(self, path, as_file=False, as_image=False,
-            as_path=False):
+    def has_format(self, book_id, fmt, fname, path):
+        return self.format_abspath(book_id, fmt, fname, path) is not None
+
+    def copy_cover_to(self, path, dest, windows_atomic_move=None, use_hardlink=False):
         path = os.path.join(self.library_path, path, 'cover.jpg')
-        ret = None
-        if os.access(path, os.R_OK):
-            try:
+        if windows_atomic_move is not None:
+            if not isinstance(dest, basestring):
+                raise Exception("Error, you must pass the dest as a path when"
+                        " using windows_atomic_move")
+            if os.access(path, os.R_OK) and dest and not samefile(dest, path):
+                windows_atomic_move.copy_path_to(path, dest)
+                return True
+        else:
+            if os.access(path, os.R_OK):
+                try:
+                    f = lopen(path, 'rb')
+                except (IOError, OSError):
+                    time.sleep(0.2)
                 f = lopen(path, 'rb')
-            except (IOError, OSError):
-                time.sleep(0.2)
-                f = lopen(path, 'rb')
-            with f:
-                if as_path:
-                    pt = PersistentTemporaryFile('_dbcover.jpg')
-                    with pt:
-                        shutil.copyfileobj(f, pt)
-                    return pt.name
-                if as_file:
-                    ret = SpooledTemporaryFile(SPOOL_SIZE)
-                    shutil.copyfileobj(f, ret)
-                    ret.seek(0)
-                else:
-                    ret = f.read()
-                    if as_image:
-                        from PyQt4.Qt import QImage
-                        i = QImage()
-                        i.loadFromData(ret)
-                        ret = i
-        return ret
+                with f:
+                    if hasattr(dest, 'write'):
+                        shutil.copyfileobj(f, dest)
+                        if hasattr(dest, 'flush'):
+                            dest.flush()
+                        return True
+                    elif dest and not samefile(dest, path):
+                        if use_hardlink:
+                            try:
+                                hardlink_file(path, dest)
+                                return True
+                            except:
+                                pass
+                        with lopen(dest, 'wb') as d:
+                            shutil.copyfileobj(f, d)
+                        return True
+        return False
+
+    def copy_format_to(self, book_id, fmt, fname, path, dest,
+                       windows_atomic_move=None, use_hardlink=False):
+        path = self.format_abspath(book_id, fmt, fname, path)
+        if path is None:
+            return False
+        if windows_atomic_move is not None:
+            if not isinstance(dest, basestring):
+                raise Exception("Error, you must pass the dest as a path when"
+                        " using windows_atomic_move")
+            if dest and not samefile(dest, path):
+                windows_atomic_move.copy_path_to(path, dest)
+        else:
+            if hasattr(dest, 'write'):
+                with lopen(path, 'rb') as f:
+                    shutil.copyfileobj(f, dest)
+                if hasattr(dest, 'flush'):
+                    dest.flush()
+            elif dest and not samefile(dest, path):
+                if use_hardlink:
+                    try:
+                        hardlink_file(path, dest)
+                        return True
+                    except:
+                        pass
+                with lopen(path, 'rb') as f, lopen(dest, 'wb') as d:
+                    shutil.copyfileobj(f, d)
+        return True
 
    # }}}
 

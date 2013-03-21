@@ -50,7 +50,7 @@ def get_value(const):
 def main():
     constants = []
     for x in ('resample', 'image', 'draw', 'distort', 'composite', 'geometry',
-            'colorspace'):
+            'colorspace', 'compare'):
         constants += list(parse_enums('magick/%s.h'%x))
     base = os.path.dirname(__file__)
     constants = [

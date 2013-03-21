@@ -1,0 +1,37 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Trojmiasto(BasicNewsRecipe):
+    title          = u'Tr\xf3jmiasto.pl'
+    __author__        = 'fenuks'
+    description   = u'Wiadomości, imprezy, wydarzenia, spektakle.Gdańsk, Gdynia, Sopot - NOCLEGI, Katalog firm, repertuar kin, wydarzenia, przewodnik, mapa, kwatery, hotele. Portal regionalny trojmiasto.pl'
+    category       = ''
+    #publication_type = ''
+    language       = 'pl'
+    encoding = 'iso-8859-2'
+    extra_css = 'ul {list-style: none; padding:0; margin:0;}'
+    cover_url = 'http://www.trojmiasto.pl/_img/toplong2/logo_trojmiasto.gif'
+    #masthead_url = ''
+    use_embedded_content = False
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    remove_javascript = True
+    remove_attributes = ['style', 'font']
+    ignore_duplicate_articles = {'title', 'url'}
+
+    preprocess_regexps = [(re.compile(ur'<strong>Czytaj więcej.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''), (re.compile(ur'<strong>Zobacz też.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''),
+    (re.compile(ur'<b>[A-ZĄĆĘŁŃÓŚŹŻ \-,.:]*?</b>', re.DOTALL), lambda match: ''),]
+
+    #keep_only_tags = []
+    remove_tags = [dict(id=['logo', 'font_small', 'font_big']), dict(attrs={'class':['title-long', 'ankieta', 'newsletter-inside-content newsletter-wrap', 'copyright_box',
+    'logo', 'btn btn-photo-add', 'related-info-wrap', 'nTabs', 'article-list', 'rate-player horizontal', 'type-box', 'rate-player'
+    'hover-nav', 'live-head tC', 'prev-link', 'next-link', 'ie6']}), dict(attrs={'title':[u'drukuj artykuł', u'podziel się na Facebooku', u'prześlij artykuł']})]
+    remove_tags_after = dict(attrs={'class':'author-wrap'})
+    remove_tags_before = dict(attrs={'class':'text-container'})
+
+    feeds          = [(u'Wszystkie', u'http://rss.trojmiasto.pl/rss,0.xml'), (u'Fakty i opinie', u'http://rss.trojmiasto.pl/rss,1.xml'), (u'Sport', u'http://rss.trojmiasto.pl/rss,2.xml'), (u'Dom', u'http://rss.trojmiasto.pl/rss,3.xml'), (u'Moto', u'http://rss.trojmiasto.pl/rss,4.xml'), (u'Nauka', u'http://rss.trojmiasto.pl/rss,5.xml'), (u'Rozrywka', u'http://rss.trojmiasto.pl/rss,6.xml'), (u'Kultura', u'http://rss.trojmiasto.pl/rss,7.xml'), (u'Rowery', u'http://rss.trojmiasto.pl/rss,8.xml'), (u'Dziecko', u'http://rss.trojmiasto.pl/rss,9.xml'), (u'Zdrowie i uroda', u'http://rss.trojmiasto.pl/rss,10.xml'), (u'Praca', u'http://rss.trojmiasto.pl/rss,11.xml'), (u'Artyku\u0142y czytelnik\xf3w', u'http://rss.trojmiasto.pl/rss,12.xml'), (u'Korki', u'http://rss.trojmiasto.pl/rss,13.xml'), (u'Historia', u'http://rss.trojmiasto.pl/rss,14.xml'), (u'Biznes', u'http://rss.trojmiasto.pl/rss,16.xml'), (u'Kryminalne Tr\xf3jmiasto', u'http://rss.trojmiasto.pl/rss,17.xml'), (u'Przewodnik', u'http://rss.trojmiasto.pl/rss,18.xml'), (u'Aktywne Tr\xf3jmiasto', u'http://rss.trojmiasto.pl/rss,19.xml'), (u'Delux', u'http://rss.trojmiasto.pl/rss,20.xml')]
+
+    def print_version(self, url):
+        return url + '?print=1'

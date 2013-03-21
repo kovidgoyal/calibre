@@ -1,4 +1,8 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Comment
+
+#currently recipe is not working
+
 class PC_Foster(BasicNewsRecipe):
     title          = u'PC Foster'
     oldest_article = 7
@@ -7,12 +11,12 @@ class PC_Foster(BasicNewsRecipe):
     description   = u'Vortal technologiczny: testy, recenzje sprzętu komputerowego i telefonów, nowinki hardware, programy i gry dla Windows. Podkręcanie, modding i Overclocking.'
     category       = 'IT'
     language       = 'pl'
-    masthead_url='http://pcfoster.pl/public/images/logo.png'
-    cover_url= 'http://pcfoster.pl/public/images/logo.png'
-    no_stylesheets= True
-    remove_empty_feeds= True
-    keep_only_tags= [dict(id=['news_details', 'review_details']), dict(attrs={'class':'pager more_top'})]
-    remove_tags=[dict(name='p', attrs={'class':'right'})]
+    masthead_url = 'http://pcfoster.pl/public/images/logo.png'
+    cover_url = 'http://pcfoster.pl/public/images/logo.png'
+    no_stylesheets = True
+    remove_empty_feeds = True
+    keep_only_tags = [dict(id=['news_details', 'review_details']), dict(attrs={'class':'pager more_top'})]
+    remove_tags = [dict(name='p', attrs={'class':'right'})]
     feeds          = [(u'G\u0142\xf3wny', u'http://pcfoster.pl/public/rss/main.xml')]
 
 
@@ -29,6 +33,9 @@ class PC_Foster(BasicNewsRecipe):
                 appendtag.insert(pos, pagetext)
             for r in appendtag.findAll(attrs={'class':'review_content double'}):
                 r.extract()
+            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body)

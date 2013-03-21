@@ -14,8 +14,8 @@ class ILIAD(USBMS):
 
     name           = 'IRex Iliad Device Interface'
     description    = _('Communicate with the IRex Iliad eBook reader.')
-    author         = _('John Schember')
-    supported_platforms = ['windows', 'linux']
+    author         = 'John Schember'
+    supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
     # Be sure these have an entry in calibre.devices.mime

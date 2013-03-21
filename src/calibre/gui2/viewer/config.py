@@ -82,6 +82,7 @@ def config(defaults=None):
     fonts('default_font_size', default=20, help=_('The standard font size in px'))
     fonts('mono_font_size', default=16, help=_('The monospaced font size in px'))
     fonts('standard_font', default='serif', help=_('The standard font type'))
+    fonts('minimum_font_size', default=8, help=_('The minimum font size in px'))
 
     return c
 
@@ -194,6 +195,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.sans_family.setCurrentFont(QFont(opts.sans_family))
         self.mono_family.setCurrentFont(QFont(opts.mono_family))
         self.default_font_size.setValue(opts.default_font_size)
+        self.minimum_font_size.setValue(opts.minimum_font_size)
         self.mono_font_size.setValue(opts.mono_font_size)
         self.standard_font.setCurrentIndex(
                 {'serif':0, 'sans':1, 'mono':2}[opts.standard_font])
@@ -266,6 +268,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('sans_family', unicode(self.sans_family.currentFont().family()))
         c.set('mono_family', unicode(self.mono_family.currentFont().family()))
         c.set('default_font_size', self.default_font_size.value())
+        c.set('minimum_font_size', self.minimum_font_size.value())
         c.set('mono_font_size', self.mono_font_size.value())
         c.set('standard_font', {0:'serif', 1:'sans', 2:'mono'}[
             self.standard_font.currentIndex()])

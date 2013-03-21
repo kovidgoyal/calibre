@@ -47,7 +47,7 @@ class TOCAdder(object):
         if 'toc' in oeb.guide:
             # Remove spurious toc entry from guide if it is not in spine or it
             # does not have any hyperlinks
-            href = urlnormalize(oeb.guide['toc'].href)
+            href = urlnormalize(oeb.guide['toc'].href.partition('#')[0])
             if href in oeb.manifest.hrefs:
                 item = oeb.manifest.hrefs[href]
                 if (hasattr(item.data, 'xpath') and
@@ -60,7 +60,8 @@ class TOCAdder(object):
             else:
                 oeb.guide.remove('toc')
 
-        if not self.has_toc or 'toc' in oeb.guide or opts.no_inline_toc:
+        if (not self.has_toc or 'toc' in oeb.guide or opts.no_inline_toc or
+            getattr(opts, 'mobi_passthrough', False)):
             return
 
         self.log('\tGenerating in-line ToC')

@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __author__    = 'Lorenzo Vigentini and Olivier Daigle'
 __copyright__ = '2012, Lorenzo Vigentini <l.vigentini at gmail.com>, Olivier Daigle <odaigle _at nuvucameras __dot__ com>'
 __version__     = 'v1.01'
-__date__        = '12, February 2012'
+__date__        = '22, December 2012'
 __description__   = 'Canadian Paper '
 
 '''
@@ -32,41 +32,50 @@ class ledevoir(BasicNewsRecipe):
     recursion             = 10
     needs_subscription    = 'optional'
 
+    filterDuplicates = False
     url_list = []
 
     remove_javascript     = True
     no_stylesheets        = True
-    auto_cleanup = True
 
     preprocess_regexps = [(re.compile(r'(title|alt)=".*?>.*?"', re.DOTALL), lambda m: '')]
 
-    #keep_only_tags  = [
+    keep_only_tags  = [
                         #dict(name='div', attrs={'id':'article_detail'}),
-                        #dict(name='div', attrs={'id':'colonne_principale'})
-                    #]
+                        #dict(name='div', attrs={'id':'colonne_principale'}),
+                        dict(name='article', attrs={'id':'article', 'class':'clearfix'}),
+                        dict(name='article', attrs={'id':'article', 'class':'clearfix portrait'})
+                    ]
 
-    #remove_tags     = [
-                        #dict(name='div', attrs={'id':'dialog'}),
-                        #dict(name='div', attrs={'class':['interesse_actions','reactions','taille_du_texte right clearfix','partage_sociaux clearfix']}),
-                        #dict(name='aside', attrs={'class':['article_actions clearfix','reactions','partage_sociaux_wrapper']}),
-                        #dict(name='ul', attrs={'class':'mots_cles'}),
-                        #dict(name='ul', attrs={'id':'commentaires'}),
-                        #dict(name='a', attrs={'class':'haut'}),
-                        #dict(name='h5', attrs={'class':'interesse_actions'})
-                    #]
+    remove_tags     = [
+                        dict(name='div', attrs={'id':'prive'}),
+                        dict(name='div', attrs={'class':'acheter_article'}),
+                        dict(name='div', attrs={'id':'col_complement'}),
+                        dict(name='div', attrs={'id':'raccourcis','class':'clearfix'}),
+                        dict(name='div', attrs={'id':'dialog'}),
+                        dict(name='div', attrs={'id':'liste_photos_article','class':'clearfix'}),
+                        dict(name='script', attrs={'type':'text/javascript'}),
+                        dict(name='div', attrs={'class':['interesse_actions','reactions','taille_du_texte right clearfix','partage_sociaux clearfix']}),
+                        dict(name='aside', attrs={'class':['article_actions clearfix','partage_sociaux_wrapper']}),
+                        dict(name='aside', attrs={'class':'reactions', 'id':'reactions'}),
+                        dict(name='ul', attrs={'class':'mots_cles'}),
+                        dict(name='ul', attrs={'id':'commentaires'}),
+                        dict(name='a', attrs={'class':'haut'}),
+                        dict(name='h5', attrs={'class':'interesse_actions'})
+                    ]
 
     feeds          = [
                        (u'A la une', 'http://www.ledevoir.com/rss/manchettes.xml'),
-                       (u'Édition complete', 'http://feeds2.feedburner.com/fluxdudevoir'),
-                       (u'Opinions', 'http://www.ledevoir.com/rss/opinions.xml'),
-                       (u'Chroniques', 'http://www.ledevoir.com/rss/chroniques.xml'),
-                       (u'Politique', 'http://www.ledevoir.com/rss/section/politique.xml?id=51'),
-                       (u'International', 'http://www.ledevoir.com/rss/section/international.xml?id=76'),
-                       (u'Culture', 'http://www.ledevoir.com/rss/section/culture.xml?id=48'),
-                       (u'Environnement', 'http://www.ledevoir.com/rss/section/environnement.xml?id=78'),
-                       (u'Societe', 'http://www.ledevoir.com/rss/section/societe.xml?id=52'),
-                       (u'Economie', 'http://www.ledevoir.com/rss/section/economie.xml?id=49'),
-                       (u'Sports', 'http://www.ledevoir.com/rss/section/sports.xml?id=85'),
+#                       (u'Édition complete', 'http://feeds2.feedburner.com/fluxdudevoir'),
+#                       (u'Opinions', 'http://www.ledevoir.com/rss/opinions.xml'),
+#                       (u'Chroniques', 'http://www.ledevoir.com/rss/chroniques.xml'),
+#                       (u'Politique', 'http://www.ledevoir.com/rss/section/politique.xml?id=51'),
+#                       (u'International', 'http://www.ledevoir.com/rss/section/international.xml?id=76'),
+#                       (u'Culture', 'http://www.ledevoir.com/rss/section/culture.xml?id=48'),
+#                       (u'Environnement', 'http://www.ledevoir.com/rss/section/environnement.xml?id=78'),
+#                       (u'Societe', 'http://www.ledevoir.com/rss/section/societe.xml?id=52'),
+#                       (u'Economie', 'http://www.ledevoir.com/rss/section/economie.xml?id=49'),
+#                       (u'Sports', 'http://www.ledevoir.com/rss/section/sports.xml?id=85'),
                        (u'Art de vivre', 'http://www.ledevoir.com/rss/section/art-de-vivre.xml?id=50')
                      ]
 
@@ -97,4 +106,10 @@ class ledevoir(BasicNewsRecipe):
             br.submit()
         return br
 
+    def print_version(self, url):
+        if self.filterDuplicates:
+            if url in self.url_list:
+                return
+        self.url_list.append(url)
+        return url
 

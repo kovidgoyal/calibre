@@ -188,10 +188,12 @@ class Stores(OrderedDict):
 
 if __name__ == '__main__':
     st = time.time()
+    count = 0
     for name, code in download_updates():
+        count += 1
         print(name)
         print(code)
         print('\n', '_'*80, '\n', sep='')
-    print ('Time to download all plugins: %.2f'%( time.time() - st))
+    print ('Time to download all %d plugins: %.2f'%(count, time.time() - st))
 
 

@@ -1,0 +1,24 @@
+import  re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class XkcdCom(BasicNewsRecipe):
+    cover_url =    'http://what-if.xkcd.com/imgs/whatif-logo.png'
+    masthead_url = 'http://what-if.xkcd.com/imgs/whatif-logo.png'
+    __author__ = 'kisnik'
+    title = 'What If...'
+    description = 'The "What If" feed from xkcd'
+    language = 'en'
+    keep_only_tags = [dict(name='article')]
+
+    use_embedded_content   = False
+    oldest_article = 60
+    # add image and text
+   # add an horizontal line after the question
+    preprocess_regexps = [
+        (re.compile(r'(<img.*title=")([^"]+)(".*>)'),
+         lambda m: '<div>%s%s<p id="photo_text">(%s)</p></div>' % (m.group(1), m.group(3), m.group(2))),
+        (re.compile(r'(<p.*id="attribute">[^>]+</p>)'),
+         lambda n: '%s<hr>' % (n.group(1))),
+    ]
+
+    extra_css = "#photo_text{font-size:small;}"

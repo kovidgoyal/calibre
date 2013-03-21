@@ -15,7 +15,8 @@ class EkologiaPl(BasicNewsRecipe):
     no_stylesheets = True
     remove_empty_feeds = True
     use_embedded_content = False
-    remove_tags = [dict(attrs={'class':['ekoLogo', 'powrocArt', 'butonDrukuj']})]
+    remove_attrs = ['style']
+    remove_tags = [dict(attrs={'class':['ekoLogo', 'powrocArt', 'butonDrukuj', 'widget-social-buttons']})]
 
     feeds          = [(u'Wiadomo\u015bci', u'http://www.ekologia.pl/rss/20,53,0'), (u'\u015arodowisko', u'http://www.ekologia.pl/rss/20,56,0'), (u'Styl \u017cycia', u'http://www.ekologia.pl/rss/20,55,0')]
 

@@ -1,0 +1,60 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup as bs, Comment
+
+class KurierGalicyjski(BasicNewsRecipe):
+    title          = u'Kurier Galicyjski'
+    __author__        = 'fenuks'
+    description   = u'Kurier Galicyjski - największa gazeta dla Polaków na Ukrainie. Bieżące wydarzenia z życia polskiej mniejszości, historia, kultura, polityka, reportaże.'
+    category       = 'news'
+    language       = 'pl'
+    cover_url = 'http://www.duszki.pl/Kurier_galicyjski_bis2_small.gif'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_empty_feeds = True
+    no_stylesheets = True
+    keep_only_tags = [dict(attrs={'class':'item-page'})]
+    remove_tags = [dict(attrs={'class':'pagenav'}), dict(attrs={'style':'border-top-width: thin; border-top-style: dashed; border-top-color: #CCC; border-bottom-width: thin; border-bottom-style: dashed; border-bottom-color: #CCC; padding-top:5px; padding-bottom:5px; text-align:right; margin-top:10px; height:20px;'})]
+    feeds          = [(u'Wydarzenia', u'http://kuriergalicyjski.com/index.php/wydarzenia?format=feed&type=atom'), (u'Publicystyka', u'http://kuriergalicyjski.com/index.php/niezwykle-historie?format=feed&type=atom'), (u'Reporta\u017ce', u'http://kuriergalicyjski.com/index.php/report?format=feed&type=atom'), (u'Rozmowy Kuriera', u'http://kuriergalicyjski.com/index.php/kuriera?format=feed&type=atom'), (u'Przegl\u0105d prasy', u'http://kuriergalicyjski.com/index.php/2012-01-05-14-08-55?format=feed&type=atom'), (u'Kultura', u'http://kuriergalicyjski.com/index.php/2011-12-02-14-26-39?format=feed&type=atom'), (u'Zabytki', u'http://kuriergalicyjski.com/index.php/2011-12-02-14-27-32?format=feed&type=atom'), (u'Polska-Ukraina', u'http://kuriergalicyjski.com/index.php/pol-ua?format=feed&type=atom'), (u'Polacy i Ukrai\u0144cy', u'http://kuriergalicyjski.com/index.php/polacy-i-ukr?format=feed&type=atom'), (u'Niezwyk\u0142e historie', u'http://kuriergalicyjski.com/index.php/niezwykle-historie?format=feed&type=atom'), (u'Polemiki', u'http://kuriergalicyjski.com/index.php/polemiki?format=feed&type=atom')]
+
+    def append_page(self, soup, appendtag):
+        pager = soup.find(id='article-index')
+        if pager:
+            pager = pager.findAll('a')[1:]
+        if pager:
+            for a in pager:
+                nexturl = 'http://www.kuriergalicyjski.com' + a['href']
+                soup2 = self.index_to_soup(nexturl)
+                pagetext = soup2.find(attrs={'class':'item-page'})
+                if pagetext.h2:
+                    pagetext.h2.extract()
+                r = pagetext.find(attrs={'class':'article-info'})
+                if r:
+                    r.extract()
+                pos = len(appendtag.contents)
+                appendtag.insert(pos, pagetext)
+                pos = len(appendtag.contents)
+            for r in appendtag.findAll(id='article-index'):
+                r.extract()
+            for r in appendtag.findAll(attrs={'class':'pagenavcounter'}):
+                r.extract()
+            for r in appendtag.findAll(attrs={'class':'pagination'}):
+                r.extract()
+            for r in appendtag.findAll(attrs={'class':'pagenav'}):
+                r.extract()
+            for r in appendtag.findAll(attrs={'style':'border-top-width: thin; border-top-style: dashed; border-top-color: #CCC; border-bottom-width: thin; border-bottom-style: dashed; border-bottom-color: #CCC; padding-top:5px; padding-bottom:5px; text-align:right; margin-top:10px; height:20px;'}):
+                r.extract()
+            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
+
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        for r in soup.findAll(style=True):
+            del r['style']
+        for img in soup.findAll(attrs={'class':'easy_img_caption smartresize'}):
+            img.insert(len(img.contents)-1, bs('<br />'))
+            img.insert(len(img.contents), bs('<br /><br />'))
+        for a in soup.findAll('a', href=True):
+            if a['href'].startswith('/'):
+                a['href'] = 'http://kuriergalicyjski.com' + a['href']
+        return soup

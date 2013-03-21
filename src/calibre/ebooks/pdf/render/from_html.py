@@ -12,10 +12,11 @@ from future_builtins import map
 from math import floor
 
 from PyQt4.Qt import (QObject, QPainter, Qt, QSize, QString, QTimer,
-                      pyqtProperty, QEventLoop, QPixmap, QRect)
+                      pyqtProperty, QEventLoop, QPixmap, QRect, pyqtSlot)
 from PyQt4.QtWebKit import QWebView, QWebPage, QWebSettings
 
 from calibre import fit_image
+from calibre.constants import iswindows
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.ebooks.pdf.render.common import (inch, cm, mm, pica, cicero,
                                               didot, PAPER_SIZES)
@@ -81,6 +82,7 @@ class Page(QWebPage): # {{{
                     opts.pdf_sans_family)
         if opts.pdf_mono_family:
             settings.setFontFamily(QWebSettings.FixedFont, opts.pdf_mono_family)
+        self.longjs_counter = 0
 
     def javaScriptConsoleMessage(self, msg, lineno, msgid):
         self.log.debug(u'JS:', unicode(msg))
@@ -88,8 +90,14 @@ class Page(QWebPage): # {{{
     def javaScriptAlert(self, frame, msg):
         self.log(unicode(msg))
 
+    @pyqtSlot(result=bool)
     def shouldInterruptJavaScript(self):
-        return False
+        if self.longjs_counter < 10:
+            self.log('Long running javascript, letting it proceed')
+            self.longjs_counter += 1
+            return False
+        self.log.warn('Long running javascript, aborting it')
+        return True
 
 # }}}
 
@@ -105,7 +113,7 @@ def draw_image_page(page_rect, painter, p, preserve_aspect_ratio=True):
                 page_rect.height())
         dx = int((page_rect.width() - nnw)/2.)
         dy = int((page_rect.height() - nnh)/2.)
-        page_rect.moveTo(dx, dy)
+        page_rect.translate(dx, dy)
         page_rect.setHeight(nnh)
         page_rect.setWidth(nnw)
     painter.drawPixmap(page_rect, p, p.rect())
@@ -191,7 +199,7 @@ class PDFWriter(QObject):
                 p.loadFromData(self.cover_data)
                 if not p.isNull():
                     self.doc.init_page()
-                    draw_image_page(QRect(0, 0, self.doc.width(), self.doc.height()),
+                    draw_image_page(QRect(*self.doc.full_page_rect),
                             self.painter, p,
                             preserve_aspect_ratio=self.opts.preserve_cover_aspect_ratio)
                     self.doc.end_page()
@@ -251,16 +259,34 @@ class PDFWriter(QObject):
     def current_page_num(self):
         return self.doc.current_page_num
 
+    def load_mathjax(self):
+        evaljs = self.view.page().mainFrame().evaluateJavaScript
+        mjpath = P(u'viewer/mathjax').replace(os.sep, '/')
+        if iswindows:
+            mjpath = u'/' + mjpath
+        if evaljs('''
+                    window.mathjax.base = %s;
+                    mathjax.check_for_math(); mathjax.math_present
+                    '''%(json.dumps(mjpath, ensure_ascii=False))).toBool():
+            self.log.debug('Math present, loading MathJax')
+            while not evaljs('mathjax.math_loaded').toBool():
+                self.loop.processEvents(self.loop.ExcludeUserInputEvents)
+            evaljs('document.getElementById("MathJax_Message").style.display="none";')
+
     def do_paged_render(self):
         if self.paged_js is None:
-            from calibre.utils.resources import compiled_coffeescript
-            self.paged_js =  compiled_coffeescript('ebooks.oeb.display.utils')
-            self.paged_js += compiled_coffeescript('ebooks.oeb.display.indexing')
-            self.paged_js += compiled_coffeescript('ebooks.oeb.display.paged')
+            from calibre.utils.resources import compiled_coffeescript as cc
+            self.paged_js =  cc('ebooks.oeb.display.utils')
+            self.paged_js += cc('ebooks.oeb.display.indexing')
+            self.paged_js += cc('ebooks.oeb.display.paged')
+            self.paged_js += cc('ebooks.oeb.display.mathjax')
 
         self.view.page().mainFrame().addToJavaScriptWindowObject("py_bridge", self)
+        self.view.page().longjs_counter = 0
         evaljs = self.view.page().mainFrame().evaluateJavaScript
         evaljs(self.paged_js)
+        self.load_mathjax()
+
         evaljs('''
         py_bridge.__defineGetter__('value', function() {
             return JSON.parse(this._pass_json_value);

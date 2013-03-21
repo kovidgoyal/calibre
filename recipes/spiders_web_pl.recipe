@@ -4,12 +4,15 @@ class SpidersWeb(BasicNewsRecipe):
     title          = u"Spider's Web"
     oldest_article = 7
     __author__        = 'fenuks'
-    description   = u''
-    cover_url      = 'http://www.spidersweb.pl/wp-content/themes/spiderweb/img/Logo.jpg'
+    description   = u'Autorskie teksty popularnych blogerów, testy sprzętu i aplikacji, oraz wiele więcej.'
+    cover_url      = 'http://www.spidersweb.pl/wp-content/themes/new_sw/images/spidersweb.png'
     category       = 'IT, WEB'
     language       = 'pl'
     no_stylesheers=True
+    remove_javascript = True
+    use_embedded_content = False
     max_articles_per_feed = 100
-    keep_only_tags=[dict(id='Post')]
-    remove_tags=[dict(name='div', attrs={'class':['Comments', 'Shows', 'Post-Tags']}), dict(id='Author-Column')]
+    keep_only_tags=[dict(id='start')]
+    remove_tags_after = dict(attrs={'class':'padding20'})
+    remove_tags=[dict(name='div', attrs={'class':['padding border-bottom', 'padding20', 'padding border-top']})]
     feeds          = [(u'Wpisy', u'http://www.spidersweb.pl/feed')]

@@ -88,7 +88,7 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         (re.compile(u' \u00AB'), lambda match: u'\u00AB '), # before closing quotation
         (re.compile(u'\u00BB '), lambda match: u' \u00BB'), # after opening quotation
         # filtering for spaces in large numbers for better readability
-        (re.compile(r'(?<=\d\d)(?=\d\d\d[ ,\.;\)<\?!-])'), lambda match: u'\u2008'), # end of the number with some character following
+        (re.compile(r'(?<=\d\d)(?=\d\d\d[ ,;\)<\?!-])'), lambda match: u'\u2008'), # end of the number with some character following
         (re.compile(r'(?<=\d\d)(?=\d\d\d. )'), lambda match: u'\u2008'), # end of the number with full-stop following, then space is necessary (avoid file names)
         (re.compile(u'(?<=\d)(?=\d\d\d\u2008)'), lambda match: u'\u2008'), # next level
         (re.compile(u'(?<=\d)(?=\d\d\d\u2008)'), lambda match: u'\u2008'), # next level

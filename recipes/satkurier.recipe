@@ -8,10 +8,7 @@ class SATKurier(BasicNewsRecipe):
     title = u'SATKurier.pl'
     __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>'
     language = 'pl'
-    description = u'Największy i najstarszy serwis poświęcony\
-                  telewizji cyfrowej, przygotowywany przez wydawcę\
-                  miesięcznika SAT Kurier. Bieżące wydarzenia\
-                  z rynku mediów i nowych technologii.'
+    description = u'Serwis poświęcony telewizji cyfrowej'
     oldest_article = 7
     masthead_url = 'http://satkurier.pl/img/header_sk_logo.gif'
     max_articles_per_feed = 100

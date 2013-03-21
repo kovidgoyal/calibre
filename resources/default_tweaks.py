@@ -464,12 +464,15 @@ server_listen_on = '0.0.0.0'
 # on at your own risk!
 unified_title_toolbar_on_osx = False
 
-#: Save original file when converting from same format to same format
+#: Save original file when converting/polishing from same format to same format
 # When calibre does a conversion from the same format to the same format, for
 # example, from EPUB to EPUB, the original file is saved, so that in case the
 # conversion is poor, you can tweak the settings and run it again. By setting
 # this to False you can prevent calibre from saving the original file.
+# Similarly, by setting save_original_format_when_polishing to False you can
+# prevent calibre from saving the original file when polishing.
 save_original_format = True
+save_original_format_when_polishing = True
 
 #: Number of recently viewed books to show
 # Right-clicking the View button shows a list of recently viewed books. Control
@@ -513,4 +516,18 @@ default_tweak_format = None
 # Enter. Which technique you prefer will depend on the state of metadata in
 # your library and your personal editing style.
 preselect_first_completion = False
+
+#: Recognize numbers inside text when sorting
+# This means that when sorting on text fields like title the text "Book 2"
+# will sort before the text "Book 100". If you want this behavior, set
+# numeric_collation = True note that doing so will cause problems with text
+# that starts with numbers and is a little slower.
+numeric_collation = False
+
+#: Sort the list of libraries alphabetically
+# The list of libraries in the Copy to Library and Quick Switch menus are
+# normally sorted by most used. However, if there are more than a certain
+# number of such libraries, the sorting becomes alphabetic. You can set that
+# number here. The default is ten libraries.
+many_libraries = 10
 

@@ -1,0 +1,35 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class DziennikLodzki(BasicNewsRecipe):
+    title          = u'Dziennik \u0141\xf3dzki'
+    __author__        = 'fenuks'
+    description   = u'Gazeta Regionalna Dziennik Łódzki. Najnowsze Wiadomości Łódź. Czytaj Wiadomości Łódzkie!'
+    category       = 'newspaper'
+    language       = 'pl'
+    encoding = 'iso-8859-2'
+    masthead_url = 'http://s.polskatimes.pl/g/logo_naglowek/dzienniklodzki.png?24'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_empty_feeds = True
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'title', 'url'}
+    #preprocess_regexps = [(re.compile(ur'<b>Czytaj także:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur',<b>Czytaj też:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>Zobacz także:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<center><h4><a.*?</a></h4></center>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ TEŻ:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ WIĘCEJ:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ TAKŻE:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>\* CZYTAJ KONIECZNIE:.*', re.DOTALL), lambda match: '</body>'), (re.compile(ur'<b>Nasze serwisy:</b>.*', re.DOTALL), lambda match: '</body>') ]
+    remove_tags_after= dict(attrs={'src':'http://nm.dz.com.pl/dz.png'})
+    remove_tags=[dict(id='mat-podobne'), dict(name='a', attrs={'class':'czytajDalej'}), dict(attrs={'src':'http://nm.dz.com.pl/dz.png'})]
+
+    feeds          = [(u'Na sygnale', u'http://www.dzienniklodzki.pl/rss/dzienniklodzki_nasygnale.xml?201302'), (u'\u0141\xf3d\u017a', u'http://www.dzienniklodzki.pl/rss/dzienniklodzki_lodz.xml?201302'), (u'Opinie', u'http://www.dzienniklodzki.pl/rss/dzienniklodzki_opinie.xml?201302'), (u'Pieni\u0105dze', u'http://dzienniklodzki.feedsportal.com/c/32980/f/533763/index.rss?201302'), (u'Kultura', u'http://dzienniklodzki.feedsportal.com/c/32980/f/533762/index.rss?201302'), (u'Sport', u'http://dzienniklodzki.feedsportal.com/c/32980/f/533761/index.rss?201302'), (u'Akcje', u'http://www.dzienniklodzki.pl/rss/dzienniklodzki_akcje.xml?201302'), (u'M\xf3j Reporter', u'http://www.dzienniklodzki.pl/rss/dzienniklodzki_mojreporter.xml?201302'), (u'Studni\xf3wki', u'http://www.dzienniklodzki.pl/rss/dzienniklodzki_studniowki.xml?201302'), (u'Kraj', u'http://www.dzienniklodzki.pl/rss/dzienniklodzki_kraj.xml?201302'), (u'Zdrowie', u'http://www.dzienniklodzki.pl/rss/dzienniklodzki_zdrowie.xml?201302')]
+
+
+    def print_version(self, url):
+        return url.replace('artykul', 'drukuj')
+
+    def skip_ad_pages(self, soup):
+        if 'Advertisement' in soup.title:
+            nexturl=soup.find('a')['href']
+            return self.index_to_soup(nexturl, raw=True)
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.prasa24.pl/gazeta/dziennik-lodzki/')
+        self.cover_url=soup.find(id='pojemnik').img['src']
+        return getattr(self, 'cover_url', self.cover_url)

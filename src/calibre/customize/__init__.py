@@ -293,6 +293,15 @@ class Plugin(object): # {{{
         if hasattr(it, '__exit__'):
             it.__exit__(*args)
 
+    def cli_main(self, args):
+        '''
+        This method is the main entry point for your plugins command line
+        interface. It is called when the user does: calibre-debug -r "Plugin
+        Name". Any arguments passed are present in the args variable.
+        '''
+        raise NotImplementedError('The %s plugin has no command line interface'
+                                  %self.name)
+
 # }}}
 
 class FileTypePlugin(Plugin): # {{{

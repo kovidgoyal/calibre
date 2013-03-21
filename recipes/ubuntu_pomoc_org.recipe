@@ -1,0 +1,23 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class UbuntuPomoc(BasicNewsRecipe):
+    title          = u'Ubuntu-pomoc.org'
+    __author__        = 'fenuks'
+    description   = u'Strona poświęcona systemowi Ubuntu Linux. Znajdziesz tutaj przydatne i sprawdzone poradniki oraz sposoby rozwiązywania wielu popularnych problemów. Ten blog rozwiąże każdy Twój problem - jeśli nie teraz, to wkrótce! :)'
+    category       = 'Linux, Ubuntu, open source'
+    language       = 'pl'
+    cover_url = 'http://www.ubuntu-pomoc.org/grafika/ubuntupomoc.png'
+    preprocess_regexps = [(re.compile(r'<div class="ciekawostka">.+', re.IGNORECASE|re.DOTALL), lambda m: '')]
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_javascript = True
+    remove_empty_feeds = True
+    use_embedded_content = False
+    remove_attrs = ['style']
+    keep_only_tags = [dict(name='article')]
+    #remove_tags_after = dict(attrs={'class':'underEntry'})
+    remove_tags = [dict(attrs={'class':['yarpp-related', 'youtube_sc', 'share']}), dict(name='footer')]
+    feeds          = [(u'Ca\u0142o\u015b\u0107', u'http://feeds.feedburner.com/Ubuntu-Pomoc'),
+                    ]

@@ -11,7 +11,8 @@ import json, sys, os
 from urllib import unquote
 
 from cssutils import parseStyle
-from PyQt4.Qt import (pyqtProperty, QString, QEventLoop, Qt, QSize, QTimer)
+from PyQt4.Qt import (pyqtProperty, QString, QEventLoop, Qt, QSize, QTimer,
+                      pyqtSlot)
 from PyQt4.QtWebKit import QWebPage, QWebView
 
 from calibre.constants import iswindows
@@ -61,9 +62,8 @@ def get_matching_rules(rules, font):
     # Filter on font stretch
     width = widths[font.get('font-stretch', 'normal')]
 
-    min_dist = min(abs(width-f['width']) for f in matches)
-    nearest = [f for f in matches if abs(width-f['width']) ==
-        min_dist]
+    min_dist = min(abs(width-y['width']) for y in matches)
+    nearest = [x for x in matches if abs(width-x['width']) == min_dist]
     if width <= 4:
         lmatches = [f for f in nearest if f['width'] <= width]
     else:
@@ -108,6 +108,9 @@ class Page(QWebPage): # {{{
         self.js = None
         self.evaljs = self.mainFrame().evaluateJavaScript
         self.bridge_value = None
+        nam = self.networkAccessManager()
+        nam.setNetworkAccessible(nam.NotAccessible)
+        self.longjs_counter = 0
 
     def javaScriptConsoleMessage(self, msg, lineno, msgid):
         self.log(u'JS:', unicode(msg))
@@ -115,8 +118,14 @@ class Page(QWebPage): # {{{
     def javaScriptAlert(self, frame, msg):
         self.log(unicode(msg))
 
+    @pyqtSlot(result=bool)
     def shouldInterruptJavaScript(self):
-        return False
+        if self.longjs_counter < 5:
+            self.log('Long running javascript, letting it proceed')
+            self.longjs_counter += 1
+            return False
+        self.log.warn('Long running javascript, aborting it')
+        return True
 
     def _pass_json_value_getter(self):
         val = json.dumps(self.bridge_value)
@@ -129,6 +138,7 @@ class Page(QWebPage): # {{{
             fset=_pass_json_value_setter)
 
     def load_js(self):
+        self.longjs_counter = 0
         if self.js is None:
             from calibre.utils.resources import compiled_coffeescript
             self.js = compiled_coffeescript('ebooks.oeb.display.utils')
@@ -199,6 +209,22 @@ class StatsCollector(object):
 
         self.render_book()
 
+    def href_to_name(self, href, warn_name):
+        if not href.startswith('file://'):
+            self.log.warn('Non-local URI in', warn_name, ':', href, 'ignoring')
+            return None
+        src = href[len('file://'):]
+        if iswindows and len(src) > 2 and (src[0], src[2]) == ('/', ':'):
+            src = src[1:]
+        src = src.replace('/', os.sep)
+        src = unquote(src)
+        name = self.container.abspath_to_name(src)
+        if not self.container.has_name(name):
+            self.log.warn('Missing resource', href, 'in', warn_name,
+                          'ignoring')
+            return None
+        return name
+
     def collect_font_stats(self):
         self.page.evaljs('window.font_stats.get_font_face_rules()')
         font_face_rules = self.page.bridge_value
@@ -220,19 +246,7 @@ class StatsCollector(object):
             if not src: continue
             style = parseStyle('background-image:%s'%src, validate=False)
             src = style.getProperty('background-image').propertyValue[0].uri
-            if not src.startswith('file://'):
-                self.log.warn('Unknown URI in @font-face: %r'%src)
-                continue
-            src = src[len('file://'):]
-            if iswindows and src.startswith('/'):
-                src = src[1:]
-            src = src.replace('/', os.sep)
-            src = unquote(src)
-            name = self.container.abspath_to_name(src)
-            if not self.container.has_name(name):
-                self.log.warn('Font %r referenced in @font-face rule not found'
-                              %name)
-                continue
+            name = self.href_to_name(src, '@font-face rule')
             rule['src'] = name
             normalize_font_properties(rule)
             rule['width'] = widths[rule['font-stretch']]

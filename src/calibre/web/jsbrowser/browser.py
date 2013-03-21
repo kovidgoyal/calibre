@@ -9,10 +9,11 @@ __docformat__ = 'restructuredtext en'
 
 import os, pprint, time
 from cookielib import Cookie
+from threading import current_thread
 
 from PyQt4.Qt import (QObject, QNetworkAccessManager, QNetworkDiskCache,
-        QNetworkProxy, QNetworkProxyFactory, QEventLoop, QUrl,
-        QDialog, QVBoxLayout, QSize, QNetworkCookieJar)
+        QNetworkProxy, QNetworkProxyFactory, QEventLoop, QUrl, pyqtSignal,
+        QDialog, QVBoxLayout, QSize, QNetworkCookieJar, Qt, pyqtSlot)
 from PyQt4.QtWebKit import QWebPage, QWebSettings, QWebView, QWebElement
 
 from calibre import USER_AGENT, prints, get_proxies, get_proxy_info
@@ -82,6 +83,7 @@ class WebPage(QWebPage): # {{{
             result.append(value)
         return ok
 
+    @pyqtSlot(result=bool)
     def shouldInterruptJavaScript(self):
         if self.view() is not None:
             return QWebPage.shouldInterruptJavaScript(self)
@@ -128,6 +130,7 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
             x.upper() for x in ('Head', 'Get', 'Put', 'Post', 'Delete',
                 'Custom')
     }
+    report_reply_signal = pyqtSignal(object)
 
     def __init__(self, log, use_disk_cache=True, parent=None):
         QNetworkAccessManager.__init__(self, parent)
@@ -143,6 +146,8 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
         self.finished.connect(self.on_finished)
         self.cookie_jar = QNetworkCookieJar()
         self.setCookieJar(self.cookie_jar)
+        self.main_thread = current_thread()
+        self.report_reply_signal.connect(self.report_reply, type=Qt.QueuedConnection)
 
     def on_ssl_errors(self, reply, errors):
         reply.ignoreSslErrors()
@@ -172,6 +177,17 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
                 data)
 
     def on_finished(self, reply):
+        if current_thread() is not self.main_thread:
+            # This method was called in a thread created by Qt. The python
+            # interpreter may not be in a safe state, so dont do anything
+            # more. This signal is queued which means the reply wont be
+            # reported unless someone spins the event loop. So far, I have only
+            # seen this happen when doing Ctrl+C in the console.
+            self.report_reply_signal.emit(reply)
+        else:
+            self.report_reply(reply)
+
+    def report_reply(self, reply):
         reply_url = unicode(reply.url().toString())
         self.reply_count += 1
 

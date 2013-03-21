@@ -10,6 +10,7 @@ assumes a prior call to the flatcss transform.
 '''
 
 import os, math, functools, collections, re, copy
+from collections import OrderedDict
 
 from lxml.etree import XPath as _XPath
 from lxml import etree
@@ -106,8 +107,7 @@ class Split(object):
                 continue
             for elem in selector(body[0]):
                 if elem not in body:
-                    if before:
-                        elem.set('pb_before', '1')
+                    elem.set('pb_before', '1' if before else '0')
                     page_breaks.add(elem)
 
         for i, elem in enumerate(item.data.iter()):
@@ -117,8 +117,7 @@ class Split(object):
                 continue
 
         page_breaks = list(page_breaks)
-        page_breaks.sort(cmp=
-              lambda x,y : cmp(int(x.get('pb_order')), int(y.get('pb_order'))))
+        page_breaks.sort(key=lambda x:int(x.get('pb_order')))
         page_break_ids, page_breaks_ = [], []
         for i, x in enumerate(page_breaks):
             x.set('id', x.get('id', 'calibre_pb_%d'%i))
@@ -135,14 +134,12 @@ class Split(object):
                     id = 'calibre_pb_%d'%i
                     x.set('id', id)
                     xp = XPath('//*[@id=%r]'%id)
-            page_breaks_.append((xp,
-                x.get('pb_before', False)))
+            page_breaks_.append((xp, x.get('pb_before', '0') == '1'))
             page_break_ids.append(id)
 
         for elem in item.data.iter():
             elem.attrib.pop('pb_order', False)
-            if elem.get('pb_before', False):
-                elem.attrib.pop('pb_before')
+            elem.attrib.pop('pb_before', False)
 
         return page_breaks_, page_break_ids
 
@@ -224,22 +221,27 @@ class FlowSplitter(object):
         self.commit()
 
     def split_on_page_breaks(self, orig_tree):
-        ordered_ids = []
-        for elem in orig_tree.xpath('//*[@id]'):
-            id = elem.get('id')
-            if id in self.page_break_ids:
-                ordered_ids.append(self.page_breaks[self.page_break_ids.index(id)])
+        ordered_ids = OrderedDict()
+        all_page_break_ids = frozenset(self.page_break_ids)
+        for elem_id in orig_tree.xpath('//*/@id'):
+            if elem_id in all_page_break_ids:
+                ordered_ids[elem_id] = self.page_breaks[
+                    self.page_break_ids.index(elem_id)]
 
-        self.trees = []
-        tree = orig_tree
-        for pattern, before in ordered_ids:
-            elem = pattern(tree)
-            if elem:
-                self.log.debug('\t\tSplitting on page-break')
-                before, after = self.do_split(tree, elem[0], before)
-                self.trees.append(before)
-                tree = after
-        self.trees.append(tree)
+        self.trees = [orig_tree]
+        while ordered_ids:
+            pb_id, (pattern, before) = ordered_ids.iteritems().next()
+            del ordered_ids[pb_id]
+            for i in xrange(len(self.trees)-1, -1, -1):
+                tree = self.trees[i]
+                elem = pattern(tree)
+                if elem:
+                    self.log.debug('\t\tSplitting on page-break at id=%s'%
+                                elem[0].get('id'))
+                    before_tree, after_tree = self.do_split(tree, elem[0], before)
+                    self.trees[i:i+1] = [before_tree, after_tree]
+                    break
+
         trees, ids = [], set([])
         for tree in self.trees:
             root = tree.getroot()
@@ -289,17 +291,11 @@ class FlowSplitter(object):
         if self.opts.verbose > 3 and npath != path:
             self.log.debug('\t\t\tMoved split point %s to %s'%(path, npath))
 
-
         return npath
-
-
 
     def do_split(self, tree, split_point, before):
         '''
-        Split ``tree`` into a *before* and *after* tree at ``split_point``,
-        preserving tag structure, but not duplicating any text.
-        All tags that have had their text and tail
-        removed have the attribute ``calibre_split`` set to 1.
+        Split ``tree`` into a *before* and *after* tree at ``split_point``.
 
         :param before: If True tree is split before split_point, otherwise after split_point
         :return: before_tree, after_tree
@@ -309,14 +305,19 @@ class FlowSplitter(object):
         root         = tree.getroot()
         root2        = tree2.getroot()
         body, body2  = map(self.get_body, (root, root2))
-        path = self.adjust_split_point(root, path)
+        if before:
+            # We cannot adjust for after since moving an after split point to a
+            # parent will cause breakage if the parent contains any content
+            # after the original split point
+            path = self.adjust_split_point(root, path)
         split_point  = root.xpath(path)[0]
         split_point2 = root2.xpath(path)[0]
 
 
         def nix_element(elem, top=True):
+            # Remove elem unless top is False in which case replace elem by its
+            # children
             parent = elem.getparent()
-            index = parent.index(elem)
             if top:
                 parent.remove(elem)
             else:
@@ -325,27 +326,38 @@ class FlowSplitter(object):
 
         # Tree 1
         hit_split_point = False
-        for elem in list(body.iterdescendants()):
+        keep_descendants = False
+        split_point_descendants = frozenset(split_point.iterdescendants())
+        for elem in tuple(body.iterdescendants()):
             if elem is split_point:
                 hit_split_point = True
                 if before:
                     nix_element(elem)
+                else:
+                    # We want to keep the descendants of the split point in
+                    # Tree 1
+                    keep_descendants = True
 
                 continue
             if hit_split_point:
+                if keep_descendants:
+                    if elem in split_point_descendants:
+                        # elem is a descendant keep it
+                        continue
+                    else:
+                        # We are out of split_point, so prevent further set
+                        # lookups of split_point_descendants
+                        keep_descendants = False
                 nix_element(elem)
 
-
         # Tree 2
-        hit_split_point = False
-        for elem in list(body2.iterdescendants()):
+        for elem in tuple(body2.iterdescendants()):
             if elem is split_point2:
-                hit_split_point = True
                 if not before:
-                    nix_element(elem, top=False)
-                continue
-            if not hit_split_point:
-                nix_element(elem, top=False)
+                    nix_element(elem)
+                break
+            nix_element(elem, top=False)
+
         body2.text = '\n'
 
         return tree, tree2
@@ -478,8 +490,7 @@ class FlowSplitter(object):
 
     def commit(self):
         '''
-        Commit all changes caused by the split. This removes the previously
-        introduced ``calibre_split`` attribute and calculates an *anchor_map* for
+        Commit all changes caused by the split. Calculates an *anchor_map* for
         all anchors in the original tree. Internal links are re-directed. The
         original file is deleted and the split files are saved.
         '''

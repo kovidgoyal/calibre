@@ -56,7 +56,12 @@ class ConditionEditor(QWidget): # {{{
                 (_('is equal to'), 'eq'),
                 (_('is less than'), 'lt'),
                 (_('is greater than'), 'gt'),
-                (_('is not more days ago than'), 'count_days')
+                (_('is set'), 'is set'),
+                (_('is not set'), 'is not set'),
+                (_('is more days ago than'), 'older count days'),
+                (_('is fewer days ago than'), 'count_days'),
+                (_('is more days from now than'), 'newer future days'),
+                (_('is fewer days from now than'), 'older future days')
             ),
             'multiple' : (
                 (_('has'), 'has'),
@@ -127,7 +132,7 @@ class ConditionEditor(QWidget): # {{{
 
         for b in (self.column_box, self.action_box):
             b.setSizeAdjustPolicy(b.AdjustToMinimumContentsLengthWithIcon)
-            b.setMinimumContentsLength(15)
+            b.setMinimumContentsLength(20)
 
     @dynamic_property
     def current_col(self):
@@ -240,7 +245,20 @@ class ConditionEditor(QWidget): # {{{
         elif dt == 'datetime':
             if action == 'count_days':
                 self.value_box.setValidator(QIntValidator(self.value_box))
-                tt = _('Enter the number of days old the item can be. Zero is today')
+                tt = _('Enter the maximum days old the item can be. Zero is today. '
+                       'Dates in the future always match')
+            elif action == 'older count days':
+                self.value_box.setValidator(QIntValidator(self.value_box))
+                tt = _('Enter the minimum days old the item can be. Zero is today. '
+                       'Dates in the future never match')
+            elif action == 'older future days':
+                self.value_box.setValidator(QIntValidator(self.value_box))
+                tt = _('Enter the maximum days in the future the item can be. '
+                       'Zero is today. Dates in the past always match')
+            elif action == 'newer future days':
+                self.value_box.setValidator(QIntValidator(self.value_box))
+                tt = _('Enter the minimum days in the future the item can be. '
+                       'Zero is today. Dates in the past never match')
             else:
                 self.value_box.setInputMask('9999-99-99')
                 tt = _('Enter a date in the format YYYY-MM-DD')
@@ -640,14 +658,32 @@ class RulesModel(QAbstractListModel): # {{{
             ''') % dict(kind=trans_kind, col=col, color=rule.color, rule=''.join(conditions))
 
     def condition_to_html(self, condition):
-        c, a, v = condition
-        c = self.fm[c]['name']
+        col, a, v = condition
+        dt = self.fm[col]['datatype']
+        c = self.fm[col]['name']
         action_name = a
-        for actions in ConditionEditor.ACTION_MAP.itervalues():
-            for trans, ac in actions:
+        if col in ConditionEditor.ACTION_MAP:
+            # look for a column-name-specific label
+            for trans, ac in ConditionEditor.ACTION_MAP[col]:
                 if ac == a:
                     action_name = trans
-
+                    break
+        elif dt in ConditionEditor.ACTION_MAP:
+            # Look for a type-specific label
+            for trans, ac in ConditionEditor.ACTION_MAP[dt]:
+                if ac == a:
+                    action_name = trans
+                    break
+        else:
+            # Wasn't a type-specific or column-specific label. Look for a text-type
+            for dt in ['single', 'multiple']:
+                for trans, ac in ConditionEditor.ACTION_MAP[dt]:
+                    if ac == a:
+                        action_name = trans
+                        break
+                else:
+                    continue
+                break
         return (
             _('<li>If the <b>%(col)s</b> column <b>%(action)s</b> value: <b>%(val)s</b>') %
                 dict(col=c, action=action_name, val=prepare_string_for_xml(v)))
@@ -727,22 +763,24 @@ class EditRules(QWidget): # {{{
                 ' double clicking it.'))
             self.add_advanced_button.setVisible(False)
 
-    def _add_rule(self, dlg):
-        if dlg.exec_() == dlg.Accepted:
-            kind, col, r = dlg.rule
+    def add_rule(self):
+        d = RuleEditor(self.model.fm, self.pref_name)
+        d.add_blank_condition()
+        if d.exec_() == d.Accepted:
+            kind, col, r = d.rule
             if kind and r and col:
                 idx = self.model.add_rule(kind, col, r)
                 self.rules_view.scrollTo(idx)
                 self.changed.emit()
 
-    def add_rule(self):
-        d = RuleEditor(self.model.fm, self.pref_name)
-        d.add_blank_condition()
-        self._add_rule(d)
-
     def add_advanced(self):
         td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, color_field='')
-        self._add_rule(('color', td[0], td[1]))
+        if td.exec_() == td.Accepted:
+            col, r = td.rule
+            if r and col:
+                idx = self.model.add_rule('color', col, r)
+                self.rules_view.scrollTo(idx)
+                self.changed.emit()
 
     def edit_rule(self, index):
         try:

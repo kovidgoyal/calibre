@@ -3,14 +3,14 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Niebezpiecznik_pl(BasicNewsRecipe):
     title          = u'Niebezpiecznik.pl'
     __author__        = 'fenuks'
-    description   = 'Niebezpiecznik.pl'
+    description   = u'Niebezpiecznik.pl – o bezpieczeństwie i nie...'
     category       = 'hacking, IT'
     language       = 'pl'
     oldest_article = 8
     max_articles_per_feed = 100
     no_stylesheets = True
-    cover_url =u'http://userlogos.org/files/logos/Karmody/niebezpiecznik_01.png'
-    remove_tags=[dict(name='div', attrs={'class':['sociable']}), dict(name='h4'), dict(attrs={'class':'similar-posts'})]
-    keep_only_tags= [dict(name='div', attrs={'class':['title', 'entry']})]
+    cover_url = u'http://userlogos.org/files/logos/Karmody/niebezpiecznik_01.png'
+    remove_tags = [dict(name='div', attrs={'class':['sociable']}), dict(name='h4'), dict(attrs={'class':'similar-posts'})]
+    keep_only_tags = [dict(name='div', attrs={'class':['title', 'entry']})]
     feeds          = [(u'Wiadomości', u'http://feeds.feedburner.com/niebezpiecznik/'),
       	      ('Blog', 'http://feeds.feedburner.com/niebezpiecznik/linkblog/')]

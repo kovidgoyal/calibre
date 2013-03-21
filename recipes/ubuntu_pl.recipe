@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Ubuntu_pl(BasicNewsRecipe):
     title          = u'UBUNTU.pl'
     __author__        = 'fenuks'
-    description   = 'UBUNTU.pl - polish ubuntu community site'
+    description   = 'Polskie forum użytkowników Ubuntu Linux. Projekty, porady i dyskusje, gotowe rozwiązania problemów.'
     masthead_url= 'http://ubuntu.pl/img/logo.jpg'
     cover_url      = 'http://ubuntu.pl/img/logo.jpg'
     category       = 'linux, IT'

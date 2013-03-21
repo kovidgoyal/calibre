@@ -7,12 +7,12 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Fetch a webpage and its links recursively. The webpages are saved to disk in
 UTF-8 encoding with any charset declarations removed.
 '''
-import sys, socket, os, urlparse, re, time, copy, urllib2, threading, traceback, imghdr
+import sys, socket, os, urlparse, re, time, copy, urllib2, threading, traceback
 from urllib import url2pathname, quote
 from httplib import responses
 from base64 import b64decode
 
-from calibre import browser, relpath, unicode_path
+from calibre import browser, relpath, unicode_path, fit_image
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
@@ -20,7 +20,8 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
 from calibre.utils.magick import Image
-from calibre.utils.magick.draw import identify_data
+from calibre.utils.magick.draw import identify_data, thumbnail
+from calibre.utils.imghdr import what
 
 class FetchError(Exception):
     pass
@@ -142,6 +143,10 @@ class RecursiveFetcher(object):
         self.postprocess_html_ext= getattr(options, 'postprocess_html', None)
         self._is_link_wanted     = getattr(options, 'is_link_wanted',
                 default_is_link_wanted)
+        self.compress_news_images_max_size = getattr(options, 'compress_news_images_max_size', None)
+        self.compress_news_images = getattr(options, 'compress_news_images', False)
+        self.compress_news_images_auto_size = getattr(options, 'compress_news_images_auto_size', 16)
+        self.scale_news_images = getattr(options, 'scale_news_images', None)
         self.download_stylesheets = not options.no_stylesheets
         self.show_progress = True
         self.failed_links = []
@@ -338,7 +343,42 @@ class RecursiveFetcher(object):
                             x.write(data)
                         ns.replaceWith(src.replace(m.group(1), stylepath))
 
+    def rescale_image(self, data):
+        orig_w, orig_h, ifmt = identify_data(data)
+        orig_data = data # save it in case compression fails
+        if self.scale_news_images is not None:
+            wmax, hmax = self.scale_news_images
+            scale, new_w, new_h = fit_image(orig_w, orig_h, wmax, hmax)
+            if scale:
+                data = thumbnail(data, new_w, new_h, compression_quality=95)[-1]
+                orig_w = new_w
+                orig_h = new_h
+        if self.compress_news_images_max_size is None:
+            if self.compress_news_images_auto_size is None: # not compressing
+                return data
+            else:
+                maxsizeb = (orig_w * orig_h)/self.compress_news_images_auto_size
+        else:
+            maxsizeb = self.compress_news_images_max_size * 1024
+        scaled_data = data # save it in case compression fails
+        if len(scaled_data) <= maxsizeb: # no compression required
+            return scaled_data
 
+        img = Image()
+        quality = 95
+        img.load(data)
+        while len(data) >= maxsizeb and quality >= 5:
+            quality -= 5
+            img.set_compression_quality(quality)
+            data = img.export('jpg')
+
+        if len(data) >= len(scaled_data): # compression failed
+            return orig_data if len(orig_data) <= len(scaled_data) else scaled_data
+
+        if len(data) >= len(orig_data): # no improvement
+            return orig_data
+
+        return data
 
     def process_images(self, soup, baseurl):
         diskpath = unicode_path(os.path.join(self.current_dir, 'images'))
@@ -374,7 +414,7 @@ class RecursiveFetcher(object):
             fname = ascii_filename('img'+str(c))
             if isinstance(fname, unicode):
                 fname = fname.encode('ascii', 'replace')
-            itype = imghdr.what(None, data)
+            itype = what(None, data)
             if itype is None and b'<svg' in data[:1024]:
                 # SVG image
                 imgpath = os.path.join(diskpath, fname+'.svg')
@@ -386,10 +426,16 @@ class RecursiveFetcher(object):
             else:
                 try:
                     if itype not in {'png', 'jpg', 'jpeg'}:
-                        itype == 'png' if itype == 'gif' else 'jpg'
+                        itype = 'png' if itype == 'gif' else 'jpg'
                         im = Image()
                         im.load(data)
                         data = im.export(itype)
+                    if self.compress_news_images and itype in {'jpg','jpeg'}:
+                        try:
+                            data = self.rescale_image(data)
+                        except:
+                            self.log.exception('failed to compress image '+iurl)
+                            identify_data(data)
                     else:
                         identify_data(data)
                     imgpath = os.path.join(diskpath, fname+'.'+itype)

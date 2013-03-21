@@ -5,7 +5,7 @@ class Elektroda(BasicNewsRecipe):
     title          = u'Elektroda'
     oldest_article = 8
     __author__        = 'fenuks'
-    description   = 'Elektroda.pl'
+    description   = 'Międzynarodowy portal elektroniczny udostępniający bogate zasoby z dziedziny elektroniki oraz forum dyskusyjne.'
     cover_url      = 'http://demotywatory.elektroda.pl/Thunderpic/logo.gif'
     category       = 'electronics'
     language       = 'pl'

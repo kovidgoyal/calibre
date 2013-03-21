@@ -12,6 +12,7 @@ class eMuzyka(BasicNewsRecipe):
     no_stylesheets = True
     oldest_article = 7
     max_articles_per_feed = 100
+    remove_attributes = ['style']
     keep_only_tags=[dict(name='div', attrs={'id':'news_container'}), dict(name='h3'), dict(name='div', attrs={'class':'review_text'})]
     remove_tags=[dict(name='span', attrs={'id':'date'})]
     feeds          = [(u'Aktualno\u015bci', u'http://www.emuzyka.pl/rss.php?f=1'), (u'Recenzje', u'http://www.emuzyka.pl/rss.php?f=2')]

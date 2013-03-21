@@ -7,6 +7,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import re
 from contextlib import closing
 from lxml import html
 
@@ -48,7 +49,7 @@ class AmazonEUBase(StorePlugin):
             asin_xpath = '@name'
             cover_xpath = './/img[@class="productImage"]/@src'
             title_xpath = './/h3[@class="newaps"]/a//text()'
-            author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]/text()'
+            author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]//text()'
             price_xpath = './/ul[contains(@class, "rsltL")]//span[contains(@class, "lrg") and contains(@class, "bld")]/text()'
 
             for data in doc.xpath(data_xpath):
@@ -56,7 +57,7 @@ class AmazonEUBase(StorePlugin):
                     break
 
                 # Even though we are searching digital-text only Amazon will still
-                # put in results for non Kindle books (author pages). Se we need
+                # put in results for non Kindle books (authors pages). Se we need
                 # to explicitly check if the item is a Kindle book and ignore it
                 # if it isn't.
                 format_ = ''.join(data.xpath(format_xpath))
@@ -74,12 +75,13 @@ class AmazonEUBase(StorePlugin):
                 cover_url = ''.join(data.xpath(cover_xpath))
 
                 title = ''.join(data.xpath(title_xpath))
-                author = ''.join(data.xpath(author_xpath))
-                try:
-                    if self.author_article:
-                        author = author.split(self.author_article, 1)[1].split(" (")[0]
-                except:
-                    pass
+
+                authors = ''.join(data.xpath(author_xpath))
+                authors = re.sub('^' + self.author_article, '', authors)
+                authors = re.sub(self.and_word, ' & ', authors)
+                mo = re.match(r'(.*)(\(\d.*)$', authors)
+                if mo:
+                    authors = mo.group(1).strip()
 
                 price = ''.join(data.xpath(price_xpath))
 
@@ -88,7 +90,7 @@ class AmazonEUBase(StorePlugin):
                 s = SearchResult()
                 s.cover_url = cover_url.strip()
                 s.title = title.strip()
-                s.author = author.strip()
+                s.author = authors.strip()
                 s.price = price.strip()
                 s.detail_item = asin.strip()
                 s.drm = SearchResult.DRM_UNKNOWN
@@ -98,7 +100,6 @@ class AmazonEUBase(StorePlugin):
 
     def get_details(self, search_result, timeout):
         pass
-
 
 class AmazonITKindleStore(AmazonEUBase):
     '''
@@ -114,3 +115,5 @@ class AmazonITKindleStore(AmazonEUBase):
     search_url = 'http://www.amazon.it/s/?url=search-alias%3Ddigital-text&field-keywords='
 
     author_article = 'di '
+
+    and_word = ' e '

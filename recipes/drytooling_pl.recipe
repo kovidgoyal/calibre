@@ -8,6 +8,7 @@ class BasicUserRecipe1337668045(BasicNewsRecipe):
     cover_url = 'http://drytooling.com.pl/images/drytooling-kindle.png'
     description = u'Drytooling.com.pl jest serwisem wspinaczki zimowej, alpinizmu i himalaizmu. Jeśli uwielbiasz zimę, nie możesz doczekać się aż wyciągniesz szpej z szafki i uderzysz w Tatry, Alpy, czy może Himalaje, to znajdziesz tutaj naprawdę dużo interesujących Cię treści! Zapraszamy!'
     __author__ = u'Damian Granowski'
+    language = 'pl'
     oldest_article = 100
     max_articles_per_feed = 20
     auto_cleanup = True

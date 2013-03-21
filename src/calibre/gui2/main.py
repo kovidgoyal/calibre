@@ -87,15 +87,17 @@ def init_qt(args):
     opts, args = parser.parse_args(args)
     find_portable_library()
     if opts.with_library is not None:
-        if not os.path.exists(opts.with_library):
-            os.makedirs(opts.with_library)
-        if os.path.isdir(opts.with_library):
-            prefs.set('library_path', os.path.abspath(opts.with_library))
+        libpath = os.path.expanduser(opts.with_library)
+        if not os.path.exists(libpath):
+            os.makedirs(libpath)
+        if os.path.isdir(libpath):
+            prefs.set('library_path', os.path.abspath(libpath))
             prints('Using library at', prefs['library_path'])
     QCoreApplication.setOrganizationName(ORG_NAME)
     QCoreApplication.setApplicationName(APP_UID)
     override = 'calibre-gui' if islinux else None
     app = Application(args, override_program_name=override)
+    app.file_event_hook = EventAccumulator()
     actions = tuple(Main.create_application_menubar())
     app.setWindowIcon(QIcon(I('lt.png')))
     return app, opts, args, actions
@@ -150,6 +152,14 @@ def repair_library(library_path):
     from calibre.gui2.dialogs.restore_library import repair_library_at
     return repair_library_at(library_path)
 
+class EventAccumulator(object):
+
+    def __init__(self):
+        self.events = []
+
+    def __call__(self, ev):
+        self.events.append(ev)
+
 class GuiRunner(QObject):
     '''Make sure an event loop is running before starting the main work of
     initialization'''
@@ -187,6 +197,8 @@ class GuiRunner(QObject):
                 prints('Ignoring directories passed as command line arguments')
             if files:
                 add_filesystem_book(files)
+        for event in self.app.file_event_hook.events:
+            add_filesystem_book(event)
         self.app.file_event_hook = add_filesystem_book
         self.main = main
 
@@ -312,6 +324,8 @@ def run_gui(opts, args, actions, listener, app, gui_debug=None):
                 app = os.path.dirname(os.path.dirname(sys.frameworks_dir))
                 subprocess.Popen('sleep 3s; open '+app, shell=True)
             else:
+                if iswindows and hasattr(winutil, 'prepare_for_restart'):
+                    winutil.prepare_for_restart()
                 subprocess.Popen([e] + sys.argv[1:])
     else:
         if iswindows:
@@ -356,7 +370,7 @@ def build_pipe(print_error=True):
     t.start()
     t.join(3.0)
     if t.is_alive():
-        if iswindows():
+        if iswindows:
             cant_start()
         else:
             f = os.path.expanduser('~/.calibre_calibre GUI.lock')

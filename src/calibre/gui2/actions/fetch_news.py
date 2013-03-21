@@ -16,7 +16,7 @@ from calibre.gui2.actions import InterfaceAction
 class FetchNewsAction(InterfaceAction):
 
     name = 'Fetch News'
-    action_spec = (_('Fetch news'), 'news.png', None, _('F'))
+    action_spec = (_('Fetch news'), 'news.png', _('Download news in ebook form from various websites all over the world'), _('F'))
 
     def location_selected(self, loc):
         enabled = loc == 'library'

@@ -357,8 +357,9 @@ def do_add_empty(db, title, authors, isbn, tags, series, series_index, cover):
         mi.series, mi.series_index = series, series_index
     if cover:
         mi.cover = cover
-    db.import_book(mi, [])
+    book_id = db.import_book(mi, [])
     write_dirtied(db)
+    prints(_('Added book ids: %s')%book_id)
     send_message()
 
 def command_add(args, dbpath):

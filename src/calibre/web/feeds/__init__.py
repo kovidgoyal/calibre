@@ -152,11 +152,13 @@ class Feed(object):
         for item in articles:
             if len(self.articles) >= max_articles_per_feed:
                 break
-            id = item.get('id', 'internal id#'+str(self.id_counter))
+            self.id_counter += 1
+            id = item.get('id', None)
+            if not id:
+                id = 'internal id#%s'%self.id_counter
             if id in self.added_articles:
                 return
             self.added_articles.append(id)
-            self.id_counter += 1
             published   = time.gmtime(item.get('timestamp', time.time()))
             title       = item.get('title', _('Untitled article'))
             link        = item.get('url', None)
@@ -176,13 +178,20 @@ class Feed(object):
 
 
     def parse_article(self, item):
-        id = item.get('id', 'internal id#'+str(self.id_counter))
+        self.id_counter += 1
+        id = item.get('id', None)
+        if not id:
+            id = 'internal id#%s'%self.id_counter
         if id in self.added_articles:
             return
-        published = item.get('date_parsed', time.gmtime())
+        published = None
+        for date_field in ('date_parsed', 'published_parsed',
+                           'updated_parsed'):
+            published = item.get(date_field, None)
+            if published is not None:
+                break
         if not published:
             published = time.gmtime()
-        self.id_counter += 1
         self.added_articles.append(id)
 
         title = item.get('title', _('Untitled article'))

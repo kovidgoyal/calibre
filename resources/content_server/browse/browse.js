@@ -324,9 +324,15 @@ function show_details(a_dom) {
 function book() {
     hidesort();
     $('.details .left img').load(function() {
+        var rb = $('#random_button');
+        rb.button();
         var img = $('.details .left img');
         var height = $('#main').height();
-        height = Math.max(height, img.height() + 100);
+        var bh = 0;
+        if (rb.length > 0) {
+            bh = rb.height();
+        }
+        height = Math.max(height, img.height() + bh + 100);
         $('#main').height(height);
     });
 }

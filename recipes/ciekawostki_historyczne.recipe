@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
+
 class Ciekawostki_Historyczne(BasicNewsRecipe):
     title          = u'Ciekawostki Historyczne'
     oldest_article = 7
@@ -7,42 +8,30 @@ class Ciekawostki_Historyczne(BasicNewsRecipe):
     description   = u'Serwis popularnonaukowy - odkrycia, kontrowersje, historia, ciekawostki, badania, ciekawostki z przeszłości.'
     category       = 'history'
     language       = 'pl'
-    masthead_url= 'http://ciekawostkihistoryczne.pl/wp-content/themes/Wordpress_Magazine/images/logo-ciekawostki-historyczne-male.jpg'
-    cover_url='http://ciekawostkihistoryczne.pl/wp-content/themes/Wordpress_Magazine/images/logo-ciekawostki-historyczne-male.jpg'
+    masthead_url = 'http://ciekawostkihistoryczne.pl/wp-content/themes/Wordpress_Magazine/images/logo-ciekawostki-historyczne-male.jpg'
+    cover_url = 'http://ciekawostkihistoryczne.pl/wp-content/themes/Wordpress_Magazine/images/logo-ciekawostki-historyczne-male.jpg'
     max_articles_per_feed = 100
+    oldest_article = 140000
     preprocess_regexps = [(re.compile(ur'Ten artykuł ma kilka stron.*?</fb:like>', re.DOTALL), lambda match: ''), (re.compile(ur'<h2>Zobacz też:</h2>.*?</ol>', re.DOTALL), lambda match: '')]
-    no_stylesheets=True
-    remove_empty_feeds=True
-    keep_only_tags=[dict(name='div', attrs={'class':'post'})]
-    remove_tags=[dict(id='singlepostinfo')]
+    no_stylesheets = True
+    remove_empty_feeds = True
+    keep_only_tags = [dict(name='div', attrs={'class':'post'})]
+    recursions = 5
+    remove_tags = [dict(id='singlepostinfo')]
+
     feeds          = [(u'Staro\u017cytno\u015b\u0107', u'http://ciekawostkihistoryczne.pl/tag/starozytnosc/feed/'), (u'\u015aredniowiecze', u'http://ciekawostkihistoryczne.pl/tag/sredniowiecze/feed/'), (u'Nowo\u017cytno\u015b\u0107', u'http://ciekawostkihistoryczne.pl/tag/nowozytnosc/feed/'), (u'XIX wiek', u'http://ciekawostkihistoryczne.pl/tag/xix-wiek/feed/'), (u'1914-1939', u'http://ciekawostkihistoryczne.pl/tag/1914-1939/feed/'), (u'1939-1945', u'http://ciekawostkihistoryczne.pl/tag/1939-1945/feed/'), (u'Powojnie (od 1945)', u'http://ciekawostkihistoryczne.pl/tag/powojnie/feed/'), (u'Recenzje', u'http://ciekawostkihistoryczne.pl/category/recenzje/feed/')]
 
-    def append_page(self, soup, appendtag):
-        tag=soup.find(name='h7')
-        if tag:
-            if tag.br:
-                pass
-            elif tag.nextSibling.name=='p':
-                tag=tag.nextSibling
-                nexturl = tag.findAll('a')
-                for nextpage in nexturl:
-                    tag.extract()
-                    nextpage= nextpage['href']
-                    soup2 = self.index_to_soup(nextpage)
-                    pagetext = soup2.find(name='div', attrs={'class':'post'})
-                    for r in pagetext.findAll('div', attrs={'id':'singlepostinfo'}):
-                        r.extract()
-                    for r in pagetext.findAll('div', attrs={'class':'wp-caption alignright'}):
-                        r.extract()
-                    for r in pagetext.findAll('h1'):
-                        r.extract()
-                    pagetext.find('h6').nextSibling.extract()
-                    pagetext.find('h7').nextSibling.extract()
-                    pos = len(appendtag.contents)
-                    appendtag.insert(pos, pagetext)
+    def is_link_wanted(self, url, tag):
+        return 'ciekawostkihistoryczne' in url and url[-2] in {'2', '3', '4', '5', '6'}
 
-    def preprocess_html(self, soup):
-        self.append_page(soup, soup.body)
+    def postprocess_html(self, soup, first_fetch):
+        tag = soup.find('h7')
+        if tag:
+            tag.nextSibling.extract()
+        if not first_fetch:
+            for r in soup.findAll(['h1']):
+                r.extract()
+            soup.find('h6').nextSibling.extract()
         return soup
-   
-        
+
+

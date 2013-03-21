@@ -22,13 +22,18 @@ calibre GUI and the calibre viewer in debug mode.
 It also contains interfaces to various bits of calibre that do not have
 dedicated command line tools, such as font subsetting, tweaking ebooks and so
 on.
+
+You can also use %prog to run standalone scripts. To do that use it like this:
+
+    %prog mysrcipt.py -- --option1 --option2 file1 file2 ...
+
+Everything after the -- is passed to the script.
 ''')
-    parser.add_option('-c', '--command', help='Run python code.', default=None)
-    parser.add_option('-e', '--exec-file', default=None, help='Run the python code in file.')
-    parser.add_option('-f', '--subset-font', default=False,
-            action='store_true', help='Subset the specified font')
+    parser.add_option('-c', '--command', help='Run python code.')
+    parser.add_option('-e', '--exec-file', help='Run the python code in file.')
+    parser.add_option('-f', '--subset-font', help='Subset the specified font')
     parser.add_option('-d', '--debug-device-driver', default=False, action='store_true',
-                      help='Debug the specified device driver.')
+                      help='Debug device detection')
     parser.add_option('-g', '--gui',  default=False, action='store_true',
                       help='Run the GUI with debugging enabled. Debug output is '
                       'printed to stdout and stderr.')
@@ -59,7 +64,7 @@ on.
     parser.add_option('-m', '--inspect-mobi', action='store_true',
             default=False,
             help='Inspect the MOBI file(s) at the specified path(s)')
-    parser.add_option('--tweak-book', default=None,
+    parser.add_option('-t', '--tweak-book', default=None,
             help='Tweak the book (exports the book as a collection of HTML '
             'files and metadata, which you can edit using standard HTML '
             'editing tools, and then rebuilds the file from the edited HTML. '
@@ -70,9 +75,12 @@ on.
             help=_('Cause a running calibre instance, if any, to be'
                 ' shutdown. Note that if there are running jobs, they '
                 'will be silently aborted, so use with care.'))
-
     parser.add_option('--test-build', help='Test binary modules in build',
             action='store_true', default=False)
+    parser.add_option('-r', '--run-plugin', help=_(
+        'Run a plugin that provides a command line interface. For example:\n'
+        'calibre-debug -r "Add Books" -- file1 --option1\n'
+        'Everything after the -- will be passed to the plugin as arguments.'))
 
     return parser
 
@@ -174,30 +182,24 @@ def run_debug_gui(logpath):
     from calibre.gui2.main import main
     main(['__CALIBRE_GUI_DEBUG__', logpath])
 
+def run_script(path, args):
+    # Load all user defined plugins so the script can import from the
+    # calibre_plugins namespace
+    import calibre.customize.ui as dummy
+    dummy
+
+    sys.argv = [path] + args
+    ef = os.path.abspath(path)
+    base = os.path.dirname(ef)
+    sys.path.insert(0, base)
+    g = globals()
+    g['__name__'] = '__main__'
+    g['__file__'] = ef
+    execfile(ef, g)
+
 def main(args=sys.argv):
     from calibre.constants import debug
     debug()
-    if len(args) > 2 and args[1] in ('-e', '--exec-file'):
-
-        # Load all plugins user defined plugins so the script can import from the
-        # calibre_plugins namespace
-        import calibre.customize.ui as dummy
-        dummy
-
-        sys.argv = [args[2]] + args[3:]
-        ef = os.path.abspath(args[2])
-        base = os.path.dirname(ef)
-        sys.path.insert(0, base)
-        g = globals()
-        g['__name__'] = '__main__'
-        g['__file__'] = ef
-        execfile(ef, g)
-        return
-
-    if len(args) > 1 and args[1] in ('-f', '--subset-font'):
-        from calibre.utils.fonts.sfnt.subset import main
-        main(['subset-font']+args[2:])
-        return
 
     opts, args = option_parser().parse_args(args)
     if opts.gui:
@@ -258,6 +260,20 @@ def main(args=sys.argv):
     elif opts.shutdown_running_calibre:
         from calibre.gui2.main import shutdown_other
         shutdown_other()
+    elif opts.subset_font:
+        from calibre.utils.fonts.sfnt.subset import main
+        main(['subset-font']+[opts.subset_font]+args[1:])
+    elif opts.exec_file:
+        run_script(opts.exec_file, args[1:])
+    elif opts.run_plugin:
+        from calibre.customize.ui import find_plugin
+        plugin = find_plugin(opts.run_plugin)
+        if plugin is None:
+            prints(_('No plugin named %s found')%opts.run_plugin)
+            raise SystemExit(1)
+        plugin.cli_main([plugin.name] + args[1:])
+    elif len(args) >= 2 and args[1].rpartition('.')[-1] in {'py', 'recipe'}:
+        run_script(args[1], args[2:])
     else:
         from calibre import ipython
         ipython()

@@ -8,16 +8,22 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, traceback
+from io import BytesIO
 from collections import defaultdict
 from functools import wraps, partial
 
+from calibre.db import SPOOL_SIZE
 from calibre.db.categories import get_categories
 from calibre.db.locking import create_locks, RecordLock
+from calibre.db.errors import NoSuchFormat
 from calibre.db.fields import create_field
 from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
+from calibre.db.write import get_series_values
 from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ptempfile import (base_dir, PersistentTemporaryFile,
+                               SpooledTemporaryFile)
 from calibre.utils.date import now
 from calibre.utils.icu import sort_key
 
@@ -103,27 +109,6 @@ class Cache(object):
     def field_metadata(self):
         return self.backend.field_metadata
 
-    def _format_abspath(self, book_id, fmt):
-        '''
-        Return absolute path to the ebook file of format `format`
-
-        WARNING: This method will return a dummy path for a network backend DB,
-        so do not rely on it, use format(..., as_path=True) instead.
-
-        Currently used only in calibredb list, the viewer and the catalogs (via
-        get_data_as_dict()).
-
-        Apart from the viewer, I don't believe any of the others do any file
-        I/O with the results of this call.
-        '''
-        try:
-            name = self.fields['formats'].format_fname(book_id, fmt)
-            path = self._field_for('path', book_id).replace('/', os.sep)
-        except:
-            return None
-        if name and path:
-            return self.backend.format_abspath(book_id, fmt, name, path)
-
     def _get_metadata(self, book_id, get_user_categories=True): # {{{
         mi = Metadata(None, template_cache=self.formatter_template_cache)
         author_ids = self._field_ids_for('authors', book_id)
@@ -162,7 +147,7 @@ class Cache(object):
         if not formats:
             good_formats = None
         else:
-            mi.format_metadata = FormatMetadata(self, id, formats)
+            mi.format_metadata = FormatMetadata(self, book_id, formats)
             good_formats = FormatsList(formats, mi.format_metadata)
         mi.formats = good_formats
         mi.has_cover = _('Yes') if self._field_for('cover', book_id,
@@ -226,6 +211,14 @@ class Cache(object):
 
             self.fields['ondevice'] = create_field('ondevice',
                     VirtualTable('ondevice'))
+
+            for name, field in self.fields.iteritems():
+                if name[0] == '#' and name.endswith('_index'):
+                    field.series_field = self.fields[name[:-len('_index')]]
+                elif name == 'series_index':
+                    field.series_field = self.fields['series']
+                elif name == 'authors':
+                    field.author_sort_field = self.fields['author_sort']
 
     @read_api
     def field_for(self, name, book_id, default_value=None):
@@ -397,15 +390,184 @@ class Cache(object):
         :param as_path: If True return the image as a path pointing to a
                         temporary file
         '''
+        if as_file:
+            ret = SpooledTemporaryFile(SPOOL_SIZE)
+            if not self.copy_cover_to(book_id, ret): return
+            ret.seek(0)
+        elif as_path:
+            pt = PersistentTemporaryFile('_dbcover.jpg')
+            with pt:
+                if not self.copy_cover_to(book_id, pt): return
+            ret = pt.name
+        else:
+            buf = BytesIO()
+            if not self.copy_cover_to(book_id, buf): return
+            ret = buf.getvalue()
+            if as_image:
+                from PyQt4.Qt import QImage
+                i = QImage()
+                i.loadFromData(ret)
+                ret = i
+        return ret
+
+    @api
+    def copy_cover_to(self, book_id, dest, use_hardlink=False):
+        '''
+        Copy the cover to the file like object ``dest``. Returns False
+        if no cover exists or dest is the same file as the current cover.
+        dest can also be a path in which case the cover is
+        copied to it iff the path is different from the current path (taking
+        case sensitivity into account).
+        '''
         with self.read_lock:
             try:
                 path = self._field_for('path', book_id).replace('/', os.sep)
             except:
-                return None
+                return False
 
         with self.record_lock.lock(book_id):
-            return self.backend.cover(path, as_file=as_file, as_image=as_image,
-                    as_path=as_path)
+            return self.backend.copy_cover_to(path, dest,
+                                              use_hardlink=use_hardlink)
+
+    @api
+    def copy_format_to(self, book_id, fmt, dest, use_hardlink=False):
+        '''
+        Copy the format ``fmt`` to the file like object ``dest``. If the
+        specified format does not exist, raises :class:`NoSuchFormat` error.
+        dest can also be a path, in which case the format is copied to it, iff
+        the path is different from the current path (taking case sensitivity
+        into account).
+        '''
+        with self.read_lock:
+            try:
+                name = self.fields['formats'].format_fname(book_id, fmt)
+                path = self._field_for('path', book_id).replace('/', os.sep)
+            except:
+                raise NoSuchFormat('Record %d has no %s file'%(book_id, fmt))
+
+        with self.record_lock.lock(book_id):
+            return self.backend.copy_format_to(book_id, fmt, name, path, dest,
+                                               use_hardlink=use_hardlink)
+
+    @read_api
+    def format_abspath(self, book_id, fmt):
+        '''
+        Return absolute path to the ebook file of format `format`
+
+        Currently used only in calibredb list, the viewer and the catalogs (via
+        get_data_as_dict()).
+
+        Apart from the viewer, I don't believe any of the others do any file
+        I/O with the results of this call.
+        '''
+        try:
+            name = self.fields['formats'].format_fname(book_id, fmt)
+            path = self._field_for('path', book_id).replace('/', os.sep)
+        except:
+            return None
+        if name and path:
+            return self.backend.format_abspath(book_id, fmt, name, path)
+
+    @read_api
+    def has_format(self, book_id, fmt):
+        'Return True iff the format exists on disk'
+        try:
+            name = self.fields['formats'].format_fname(book_id, fmt)
+            path = self._field_for('path', book_id).replace('/', os.sep)
+        except:
+            return False
+        return self.backend.has_format(book_id, fmt, name, path)
+
+    @read_api
+    def formats(self, book_id, verify_formats=True):
+        '''
+        Return tuple of all formats for the specified book. If verify_formats
+        is True, verifies that the files exist on disk.
+        '''
+        ans = self.field_for('formats', book_id)
+        if verify_formats and ans:
+            try:
+                path = self._field_for('path', book_id).replace('/', os.sep)
+            except:
+                return ()
+            def verify(fmt):
+                try:
+                    name = self.fields['formats'].format_fname(book_id, fmt)
+                except:
+                    return False
+                return self.backend.has_format(book_id, fmt, name, path)
+
+            ans = tuple(x for x in ans if verify(x))
+        return ans
+
+    @api
+    def format(self, book_id, fmt, as_file=False, as_path=False, preserve_filename=False):
+        '''
+        Return the ebook format as a bytestring or `None` if the format doesn't exist,
+        or we don't have permission to write to the ebook file.
+
+        :param as_file: If True the ebook format is returned as a file object. Note
+                        that the file object is a SpooledTemporaryFile, so if what you want to
+                        do is copy the format to another file, use :method:`copy_format_to`
+                        instead for performance.
+        :param as_path: Copies the format file to a temp file and returns the
+                        path to the temp file
+        :param preserve_filename: If True and returning a path the filename is
+                                  the same as that used in the library. Note that using
+                                  this means that repeated calls yield the same
+                                  temp file (which is re-created each time)
+        '''
+        with self.read_lock:
+            ext = ('.'+fmt.lower()) if fmt else ''
+            try:
+                fname = self.fields['formats'].format_fname(book_id, fmt)
+            except:
+                return None
+            fname += ext
+
+        if as_path:
+            if preserve_filename:
+                bd = base_dir()
+                d = os.path.join(bd, 'format_abspath')
+                try:
+                    os.makedirs(d)
+                except:
+                    pass
+                ret = os.path.join(d, fname)
+                with self.record_lock.lock(book_id):
+                    try:
+                        self.copy_format_to(book_id, fmt, ret)
+                    except NoSuchFormat:
+                        return None
+            else:
+                with PersistentTemporaryFile(ext) as pt, self.record_lock.lock(book_id):
+                    try:
+                        self.copy_format_to(book_id, fmt, pt)
+                    except NoSuchFormat:
+                        return None
+                    ret = pt.name
+        elif as_file:
+            ret = SpooledTemporaryFile(SPOOL_SIZE)
+            with self.record_lock.lock(book_id):
+                try:
+                    self.copy_format_to(book_id, fmt, ret)
+                except NoSuchFormat:
+                    return None
+            ret.seek(0)
+            # Various bits of code try to use the name as the default
+            # title when reading metadata, so set it
+            ret.name = fname
+        else:
+            buf = BytesIO()
+            with self.record_lock.lock(book_id):
+                try:
+                    self.copy_format_to(book_id, fmt, buf)
+                except NoSuchFormat:
+                    return None
+
+            ret = buf.getvalue()
+
+        return ret
 
     @read_api
     def multisort(self, fields, ids_to_sort=None):
@@ -454,6 +616,37 @@ class Cache(object):
     def get_categories(self, sort='name', book_ids=None, icon_map=None):
         return get_categories(self, sort=sort, book_ids=book_ids,
                               icon_map=icon_map)
+
+    @write_api
+    def set_field(self, name, book_id_to_val_map, allow_case_change=True):
+        # TODO: Specialize title/authors to also update path
+        # TODO: Handle updating caches used by composite fields
+        # TODO: Ensure the sort fields are updated for title/author/series?
+        f = self.fields[name]
+        is_series = f.metadata['datatype'] == 'series'
+
+        if is_series:
+            bimap, simap = {}, {}
+            for k, v in book_id_to_val_map.iteritems():
+                if isinstance(v, basestring):
+                    v, sid = get_series_values(v)
+                else:
+                    v = sid = None
+                if name.startswith('#') and sid is None:
+                    sid = 1.0 # The value will be set to 1.0 in the db table
+                bimap[k] = v
+                if sid is not None:
+                    simap[k] = sid
+            book_id_to_val_map = bimap
+
+        dirtied = f.writer.set_books(
+            book_id_to_val_map, self.backend, allow_case_change=allow_case_change)
+
+        if is_series and simap:
+            sf = self.fields[f.name+'_index']
+            dirtied |= sf.writer.set_books(simap, self.backend, allow_case_change=False)
+
+        return dirtied
 
     # }}}
 

@@ -20,10 +20,10 @@ class InteriaFakty(BasicNewsRecipe):
     max_articles_per_feed = 100
 
     feeds          = [(u'Kraj', u'http://kanaly.rss.interia.pl/kraj.xml'),
-                      (u'\u015awiat', u'http://kanaly.rss.interia.pl/swiat.xml'), 
-                      (u'Wiadomo\u015bci dnia', u'http://kanaly.rss.interia.pl/fakty.xml'), 
-                      (u'Przegl\u0105d prasy', u'http://kanaly.rss.interia.pl/przeglad_prasy.xml'), 
-                      (u'Wywiady', u'http://kanaly.rss.interia.pl/wywiady.xml'), 
+                      (u'\u015awiat', u'http://kanaly.rss.interia.pl/swiat.xml'),
+                      (u'Wiadomo\u015bci dnia', u'http://kanaly.rss.interia.pl/fakty.xml'),
+                      (u'Przegl\u0105d prasy', u'http://kanaly.rss.interia.pl/przeglad_prasy.xml'),
+                      (u'Wywiady', u'http://kanaly.rss.interia.pl/wywiady.xml'),
                       (u'Ciekawostki', u'http://kanaly.rss.interia.pl/ciekawostki.xml')]
 
     keep_only_tags = [dict(name='div', attrs={'id':'article'})]
@@ -35,5 +35,5 @@ class InteriaFakty(BasicNewsRecipe):
         dict(name='span', attrs={'class':'keywords'})]
 
     extra_css = '''
-	    h2 { font-size: 1.2em; }
-	'''
+            h2 { font-size: 1.2em; }
+        '''

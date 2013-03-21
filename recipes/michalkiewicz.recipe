@@ -8,8 +8,6 @@ michalkiewicz.pl
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-# 
-
 class michalkiewicz(BasicNewsRecipe):
     title          = u'Stanis\u0142aw Michalkiewicz'
     description    = u'Strona autorska * felietony * artyku\u0142y * komentarze'
@@ -23,4 +21,3 @@ class michalkiewicz(BasicNewsRecipe):
     remove_tags = [dict(name='ul', attrs={'class':'menu'})]
 
     feeds          = [(u'Teksty', u'http://www.michalkiewicz.pl/rss.xml')]
-
