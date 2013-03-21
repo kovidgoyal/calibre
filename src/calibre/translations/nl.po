@@ -57,14 +57,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-15 04:12+0000\n"
-"PO-Revision-Date: 2013-03-16 14:29+0000\n"
-"Last-Translator: Bart Bone <Unknown>\n"
+"PO-Revision-Date: 2013-03-20 05:48+0000\n"
+"Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-17 04:57+0000\n"
+"X-Launchpad-Export-Date: 2013-03-21 04:36+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -5818,7 +5818,8 @@ msgstr "Upload gedownload nieuws naar apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:156
 msgid "Delete news books from library after uploading to device"
-msgstr "Verwijder nieuwsboeken uit bibliotheek na uploaden naar apparaat"
+msgstr ""
+"Verwijder nieuws-boeken uit de bibliotheek na uploaden naar het apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:158
 msgid ""
@@ -5859,8 +5860,8 @@ msgid ""
 "Maximum number of simultaneous conversion/news download jobs. This number is "
 "twice the actual value for historical reasons."
 msgstr ""
-"Maximumaantal gelijktijdige conversies/nieuwsdownloads. Dit aantal is twee "
-"keer het werkelijke aantal, wegens historische redenen."
+"Maximumaantal gelijktijdige conversies/nieuws download taken. Dit aantal is "
+"twee keer het werkelijke aantal, wegens historische redenen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:198
 msgid "Download social metadata (tags/rating/etc.)"
@@ -17700,7 +17701,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:75
 msgid "Max. simultaneous conversion/news download jobs:"
-msgstr "Maximaal aantal gelijktijdige conversie/nieuwsdownloadtaken:"
+msgstr "Maximaal aantal gelijktijdige conversie/nieuws download taken:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:76
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"

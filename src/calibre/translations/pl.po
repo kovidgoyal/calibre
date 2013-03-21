@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-15 04:12+0000\n"
-"PO-Revision-Date: 2013-03-14 21:56+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2013-03-20 13:16+0000\n"
+"Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-03-16 04:46+0000\n"
+"X-Launchpad-Export-Date: 2013-03-21 04:37+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
@@ -354,7 +354,7 @@ msgstr "Dopracuj swoje książki"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "Edit the Table of Contents in your books"
-msgstr ""
+msgstr "Edycja spisu treści w książkach"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid "Delete books from your calibre library or connected device"
@@ -4051,7 +4051,7 @@ msgid ""
 "entries, i.e. allow more than one entry with the same text, provided that "
 "they point to a different location."
 msgstr ""
-"Umożliwia umieszczenie powtarzających się elementów przy tworzeniu spisu "
+"Umożliwia umieszczenie powtarzających się pozycji przy tworzeniu spisu "
 "treści z odsyłaczy w dokumencie na przykład kilka razy tego samego słowa, "
 "odsyłającego w różne miejsca."
 
@@ -6499,11 +6499,11 @@ msgstr "Nie znaleziono żadnej biblioteki w lokalizacji %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:235
 msgid "Copying to"
-msgstr ""
+msgstr "Kopiowanie do"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:235
 msgid "Moving to"
-msgstr ""
+msgstr "Przenoszenie do"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:251
 #, python-format
@@ -6513,7 +6513,7 @@ msgstr "Skopiowano %(num)d książek do %(loc)s"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:253
 #, python-format
 msgid "Moved %(num)d books to %(loc)s"
-msgstr ""
+msgstr "Przeniesiono %(num)d książek do %(loc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:257
 msgid "Could not copy books: "
@@ -7638,28 +7638,28 @@ msgstr "O zdobywaniu książek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:24
 msgid "Choose format to edit"
-msgstr ""
+msgstr "Wybierz format do edycji"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:28
 msgid "Choose which format you want to edit:"
-msgstr ""
+msgstr "Wybierz jaki format chcesz edytować:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:40
 msgid "&All formats"
-msgstr ""
+msgstr "&Wszystkie formaty"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:62
 msgid "Edit ToC"
-msgstr ""
+msgstr "Edytuj spis treści"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "K"
-msgstr ""
+msgstr "K"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:113
 msgid "Cannot edit ToC"
-msgstr ""
+msgstr "Nie można edytować spisu treści"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:103
 #, python-format
@@ -7667,6 +7667,8 @@ msgid ""
 "Editing Table of Contents is only supported for books in the %s formats. "
 "Convert to one of those formats before polishing."
 msgstr ""
+"Edycja spisu treści jest możliwa jedynie w formatach %s. Przekonwertuj "
+"książkę do jednego z tych formatów przed dopracowywaniem."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:288
@@ -10106,7 +10108,7 @@ msgstr ""
 msgid ""
 "Fine tune the detection of chapter headings and other document structure."
 msgstr ""
-"Dopasuj detekcję tytułów rozdziałów i innych elementów struktury dokumentu."
+"Dopasuj wykrywanie tytułów rozdziałów i innych elementów struktury dokumentu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:31
 msgid "Detect chapters at (XPath expression):"
@@ -10205,7 +10207,7 @@ msgstr "Filtr spisu treści:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:76
 msgid "Allow &duplicate links when creating the Table of Contents"
-msgstr "Zezwól na powtarzające się elementy przy tworzeniu spisu treści"
+msgstr "Zezwól na powtarzające się pozycje przy tworzeniu spisu treści"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:12
 msgid "TXT Input"
@@ -11631,7 +11633,7 @@ msgstr "Nie wybrano elementu"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:228
 msgid "You must select one item from the list of Available items."
-msgstr "Musisz wybrać jeden element z listy dostępnych elementów."
+msgstr "Musisz wybrać jeden element z listy dostępnych."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:235
@@ -19578,7 +19580,7 @@ msgstr "Pierwsza litera jest używana wyłącznie przy sortowaniu wg nazwy."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:112
 msgid "Select a destination for the Table of Contents entry"
-msgstr "Wybierz miejsce docelowe dla elementu spisu treści"
+msgstr "Wybierz miejsce docelowe dla pozycji spisu treści"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:132
 msgid ""
@@ -19590,7 +19592,7 @@ msgid ""
 "green line appears, indicating the precise location that will be selected "
 "when you click."
 msgstr ""
-"Tu można wybrać miejsce docelowe dla elementu spisu treści. Najpierw wybierz "
+"Tu można wybrać miejsce docelowe dla pozycji spisu treści. Najpierw wybierz "
 "plik książki w lewym panelu. Plik zostanie otworzony w środkowym panelu. "
 "<p>Następnie wybierz lokalizację w pliku. Po prostu kliknij w środkowym "
 "panelu miejsce, do którego ma się odnosić element spisu treści. Przy "
@@ -19599,7 +19601,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:145
 msgid "&Name of the ToC entry:"
-msgstr "&Nazwa elementu spisu treści"
+msgstr "&Nazwa pozycji spisu treści"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:151
 msgid "Currently selected destination:"
@@ -19630,14 +19632,14 @@ msgstr "Mniej więcej %d%% od początku"
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:227
 #, python-format
 msgid "Location: A &lt;%s&gt; tag inside the file"
-msgstr ""
+msgstr "Lokalizacjia: znacznik A &lt;%s&gt; w pliku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:49
 msgid ""
 "You can edit existing entries in the Table of Contents by clicking them in "
 "the panel to the left."
 msgstr ""
-"Można edytować istniejące elementy spisu treści kliknąwszy je w panelu po "
+"Można edytować istniejące pozycje spisu treści kliknąwszy je w panelu po "
 "lewej stronie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:51
@@ -19646,13 +19648,13 @@ msgid ""
 "verified to exist. Entries with a red dot are broken and may need to be "
 "fixed."
 msgstr ""
-"Elementy z zielonym znaczkiem wskazują na lokalizacje, które zostały "
-"zweryfikowane. Elementy z czerwoną kropką są nieprawidłowe i wymagają "
+"Pozycje z zielonym znaczkiem wskazują na lokalizacje, które zostały "
+"zweryfikowane. Pozycje z czerwoną kropką są nieprawidłowe i wymagają "
 "poprawienia."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:59
 msgid "Create a &new entry"
-msgstr "Utwórz &nowy element"
+msgstr "Utwórz &nową pozycję"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:63
 msgid ""
@@ -19661,61 +19663,69 @@ msgid ""
 "previous entry. If you create a non-linear ToC it will be automatically re-"
 "arranged inside the AZW3 file."
 msgstr ""
+"<b>UWAGA:</b> calibre wspiera wyłącznie liniowy spis treści w plikach AZW3. "
+"W liniowym spisie treści każda pozycja musi odnosić się do lokalizacji za "
+"poprzednią pozycją. Jeśli stworzysz nieliniowy spis treści zostanie on "
+"automatycznie przesortowany wewnątrz pliku AZW3."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:79
 msgid ""
 "You can move this entry around the Table of Contents by drag and drop or "
 "using the up and down buttons to the left"
 msgstr ""
+"Możesz przesuwać tę pozycję w obrębie spisu treści przeciągając ją albo "
+"używając przycisków w dół i do góry po lewej"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:100
 msgid "Change the &location this entry points to"
-msgstr ""
+msgstr "Zmień lokalizację, na którą wskazuje ta pozycja na"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:104
 msgid "&Remove this entry"
-msgstr ""
+msgstr "&Usuń tę pozycję"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:114
 msgid "New entry &inside this entry"
-msgstr ""
+msgstr "Nowa pozycja wewnątrz &bieżącej"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:117
 msgid "New entry &above this entry"
-msgstr ""
+msgstr "Nowa pozycja po&niżej bieżącej"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:120
 msgid "New entry &below this entry"
-msgstr ""
+msgstr "Nowa pozycja po&niżej bieżącej"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:130
 msgid "&Flatten this entry"
-msgstr ""
+msgstr "&Spłaszcz tę pozycję"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:132
 msgid ""
 "All children of this entry are brought to the same level as this entry."
 msgstr ""
+"Wszystkie pozycje potomne bieżącej są przenoszone na ten sam poziom co "
+"bieżąca."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:171
 msgid "This entry points to an existing destination"
-msgstr ""
+msgstr "Ta pozycja wskazuje na istniejącą lokalizację"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:174
 msgid "The location this entry points to does not exist"
-msgstr ""
+msgstr "Ta pozycja wskazuje na nieistniejącą lokalizację"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:212
 msgid "Move current entry up"
-msgstr "Przesuń bieżący element do góry"
+msgstr "Przesuń bieżącą pozycję do góry"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:218
 msgid "Remove all selected entries"
-msgstr "Usuń wszystkie wybrane elementy"
+msgstr "Usuń wszystkie wybrane pozycje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:224
 msgid "Move current entry down"
-msgstr "Przesuń bieżący element do dołu"
+msgstr "Przesuń bieżącą pozycję do dołu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:226
 msgid "&Expand all"
@@ -19727,7 +19737,7 @@ msgstr "&Zwiń wszystkie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:233
 msgid "Double click on an entry to change the text"
-msgstr "Kliknij element dwa razy aby zmienić tekst"
+msgstr "Kliknij pozycję dwa razy aby zmienić tekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:330
 msgid "<b>Title</b>: {0} <b>Dest</b>: {1}{2}"
@@ -19739,7 +19749,7 @@ msgid ""
 "The location this entry point to does not exist:\n"
 "%s"
 msgstr ""
-"Lokalizacja tego elementu nie istnieje:\n"
+"Lokalizacja tej pozycji nie istnieje:\n"
 "%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:450
@@ -19755,25 +19765,29 @@ msgstr "Wczytywanie %s, proszę czekać"
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:501
 #, python-format
 msgid "Writing %s, please wait..."
-msgstr ""
+msgstr "Zapisywanie %s, proszę czekać..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:509
 msgid "Failed to write book"
-msgstr ""
+msgstr "Nie udało się zapisać książki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:510
 #, python-format
 msgid "Could not write %s. Click \"Show details\" for more information."
 msgstr ""
+"Nie można było zapisać %s. Kliknij \"Pokaż szczegóły\" aby dowiedzieć się "
+"więcej."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:547
 msgid "Failed to load book"
-msgstr ""
+msgstr "Nie udało się wczytać książki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:548
 #, python-format
 msgid "Could not load %s. Click \"Show details\" for more information."
 msgstr ""
+"Nie można było wczytać %s. Kliknij \"Pokaż szczegóły\" aby dowiedzieć się "
+"więcej."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:70
 #, python-format
@@ -20729,7 +20743,7 @@ msgstr "Nie ma takiej lokacji"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:660
 msgid "The location pointed to by this item does not exist."
-msgstr "Lokacja, którą wskazuje ten element nie istnieje."
+msgstr "Lokacja, którą wskazuje ta pozycja nie istnieje."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:711
 msgid "Choose ebook"
