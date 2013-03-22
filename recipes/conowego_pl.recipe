@@ -11,6 +11,7 @@ class CoNowegoPl(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
     INDEX = 'http://www.conowego.pl/'
+    extra_css = '.news-single-img {float:left; margin-right:5px;}'
     no_stylesheets = True
     remove_empty_feeds = True
     use_embedded_content = False
@@ -35,7 +36,7 @@ class CoNowegoPl(BasicNewsRecipe):
                 pagetext = soup2.find(attrs={'class':'ni_content'})
                 pos = len(appendtag.contents)
                 appendtag.insert(pos, pagetext)
-                
+
             comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
             for comment in comments:
                 comment.extract()

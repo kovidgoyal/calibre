@@ -16,6 +16,7 @@ class Dobreprogramy_pl(BasicNewsRecipe):
     extra_css      = '.title {font-size:22px;}'
     oldest_article = 8
     max_articles_per_feed = 100
+    remove_attrs = ['style', 'width', 'height']
     preprocess_regexps = [(re.compile(ur'<div id="\S+360pmp4">Twoja przeglądarka nie obsługuje Flasha i HTML5 lub wyłączono obsługę JavaScript...</div>'), lambda match: '') ]
     keep_only_tags=[dict(attrs={'class':['news', 'entry single']})]
     remove_tags = [dict(attrs={'class':['newsOptions', 'noPrint', 'komentarze', 'tags  font-heading-master']}), dict(id='komentarze'), dict(name='iframe')]
@@ -28,4 +29,11 @@ class Dobreprogramy_pl(BasicNewsRecipe):
         for a in soup('a'):
             if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
                 a['href']=self.index + a['href']
+        for r in soup.findAll('iframe'):
+            r.parent.extract()
+        return soup
+    def postprocess_html(self, soup, first_fetch):
+        for r in soup.findAll('span', text=''):
+            if not r.string:
+                r.extract()
         return soup

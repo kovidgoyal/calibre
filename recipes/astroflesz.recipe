@@ -18,3 +18,10 @@ class Astroflesz(BasicNewsRecipe):
     remove_tags_after = dict(name='div', attrs={'class':'itemLinks'})
     remove_tags = [dict(name='div', attrs={'class':['itemLinks', 'itemToolbar', 'itemRatingBlock']})]
     feeds          = [(u'Wszystkie', u'http://astroflesz.pl/?format=feed')]
+
+    def postprocess_html(self, soup, first_fetch):
+        t = soup.find(attrs={'class':'itemIntroText'})
+        if t:
+            for i in t.findAll('img'):
+                i['style'] = 'float: left; margin-right: 5px;'
+        return soup
