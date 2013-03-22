@@ -126,6 +126,7 @@ class ItemView(QFrame): # {{{
     go_to_root = pyqtSignal()
     create_from_xpath = pyqtSignal(object)
     create_from_links = pyqtSignal()
+    flatten_toc = pyqtSignal()
 
     def __init__(self, parent):
         QFrame.__init__(self, parent)
@@ -186,6 +187,13 @@ class ItemView(QFrame): # {{{
         b.clicked.connect(self.create_from_user_xpath)
         b.setToolTip(textwrap.fill(_(
             'Generate a Table of Contents from arbitrary XPath expressions.'
+        )))
+        l.addWidget(b)
+
+        self.fal = b = QPushButton(_('Flatten the ToC'))
+        b.clicked.connect(self.flatten_toc)
+        b.setToolTip(textwrap.fill(_(
+            'Flatten the Table of Contents, putting all entries at the top level'
         )))
         l.addWidget(b)
 
@@ -388,6 +396,7 @@ class TOCView(QWidget): # {{{
         i.create_from_xpath.connect(self.create_from_xpath)
         i.create_from_links.connect(self.create_from_links)
         i.flatten_item.connect(self.flatten_item)
+        i.flatten_toc.connect(self.flatten_toc)
         i.go_to_root.connect(self.go_to_root)
         l.addWidget(i, 0, 4, col, 1)
 
@@ -413,8 +422,29 @@ class TOCView(QWidget): # {{{
             p = item.parent() or self.root
             p.removeChild(item)
 
+    def iteritems(self, parent=None):
+        if parent is None:
+            parent = self.root
+        for i in xrange(parent.childCount()):
+            child = parent.child(i)
+            yield child
+            for gc in self.iteritems(parent=child):
+                yield gc
+
+    def flatten_toc(self):
+        found = True
+        while found:
+            found = False
+            for item in self.iteritems():
+                if item.childCount() > 0:
+                    self._flatten_item(item)
+                    found = True
+                    break
+
     def flatten_item(self):
-        item = self.tocw.currentItem()
+        self._flatten_item(self.tocw.currentItem())
+
+    def _flatten_item(self, item):
         if item is not None:
             p = item.parent() or self.root
             idx = p.indexOfChild(item)
