@@ -420,9 +420,9 @@ class WAYTEQ(USBMS):
     # Ordered list of supported formats
     FORMATS     = ['epub', 'mobi', 'prc', 'fb2', 'txt', 'pdf', 'html', 'rtf', 'chm', 'djvu', 'doc']
 
-    VENDOR_ID   = [0x05e3, 0x0c45]
-    PRODUCT_ID  = [0x0726, 0x0184]
-    BCD         = [0x0222, 0x0100]
+    VENDOR_ID   = [0x05e3, 0x05e8]
+    PRODUCT_ID  = [0x0726, 0x0728]
+    BCD         = [0x0222]
 
     EBOOK_DIR_MAIN = 'Documents'
     SCAN_FROM_ROOT = True
@@ -433,7 +433,7 @@ class WAYTEQ(USBMS):
 
     def get_gui_name(self):
         try:
-            if self.detected_device.idVendor == 0x0c45:
+            if self.detected_device.idVendor == 0x05e8:
                 return 'SPC Dickens'
         except Exception:
             pass
