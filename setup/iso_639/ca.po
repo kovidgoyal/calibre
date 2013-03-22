@@ -12,13 +12,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-03-19 18:57+0000\n"
+"PO-Revision-Date: 2013-03-21 19:18+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-03-20 04:42+0000\n"
+"X-Launchpad-Export-Date: 2013-03-22 04:57+0000\n"
 "X-Generator: Launchpad (build 16532)\n"
 "Language: ca\n"
 
@@ -16972,7 +16972,7 @@ msgstr "Mixe; Totontepec"
 
 #. name for mtp
 msgid "Wichí Lhamtés Nocten"
-msgstr ""
+msgstr "Wichí; Nocten"
 
 #. name for mtq
 msgid "Muong"
@@ -17528,7 +17528,7 @@ msgstr "Llenguatge de signes monàstic"
 
 #. name for mzh
 msgid "Wichí Lhamtés Güisnay"
-msgstr ""
+msgstr "Wichí; Guisnay"
 
 #. name for mzi
 msgid "Mazatec; Ixcatlán"
@@ -25392,7 +25392,7 @@ msgstr "Taliabu"
 
 #. name for tlw
 msgid "Wemale; South"
-msgstr ""
+msgstr "Wemale; Meridional"
 
 #. name for tlx
 msgid "Khehek"
@@ -27460,35 +27460,35 @@ msgstr "Waiwai"
 
 #. name for wax
 msgid "Watam"
-msgstr ""
+msgstr "Watam"
 
 #. name for way
 msgid "Wayana"
-msgstr ""
+msgstr "Wayana"
 
 #. name for waz
 msgid "Wampur"
-msgstr ""
+msgstr "Wampur"
 
 #. name for wba
 msgid "Warao"
-msgstr ""
+msgstr "Warao"
 
 #. name for wbb
 msgid "Wabo"
-msgstr ""
+msgstr "Wabo"
 
 #. name for wbe
 msgid "Waritai"
-msgstr ""
+msgstr "Waritai"
 
 #. name for wbf
 msgid "Wara"
-msgstr ""
+msgstr "Wara (Burkina Faso)"
 
 #. name for wbh
 msgid "Wanda"
-msgstr ""
+msgstr "Wanda"
 
 #. name for wbi
 msgid "Vwanji"
@@ -27500,39 +27500,39 @@ msgstr ""
 
 #. name for wbk
 msgid "Waigali"
-msgstr ""
+msgstr "Waigali"
 
 #. name for wbl
 msgid "Wakhi"
-msgstr ""
+msgstr "Wakhi"
 
 #. name for wbm
 msgid "Wa"
-msgstr ""
+msgstr "Wa"
 
 #. name for wbp
 msgid "Warlpiri"
-msgstr ""
+msgstr "Walpirí"
 
 #. name for wbq
 msgid "Waddar"
-msgstr ""
+msgstr "Waddar"
 
 #. name for wbr
 msgid "Wagdi"
-msgstr ""
+msgstr "Wagdi"
 
 #. name for wbt
 msgid "Wanman"
-msgstr ""
+msgstr "Wanman"
 
 #. name for wbv
 msgid "Wajarri"
-msgstr ""
+msgstr "Wajarri"
 
 #. name for wbw
 msgid "Woi"
-msgstr ""
+msgstr "Woi"
 
 #. name for wca
 msgid "Yanomámi"
@@ -27544,23 +27544,23 @@ msgstr "Gbe; Waci"
 
 #. name for wdd
 msgid "Wandji"
-msgstr ""
+msgstr "Wandji"
 
 #. name for wdg
 msgid "Wadaginam"
-msgstr ""
+msgstr "Wadaginam"
 
 #. name for wdj
 msgid "Wadjiginy"
-msgstr ""
+msgstr "Wadjiginy"
 
 #. name for wdu
 msgid "Wadjigu"
-msgstr ""
+msgstr "Wadjigu"
 
 #. name for wea
 msgid "Wewaw"
-msgstr ""
+msgstr "Wewaw"
 
 #. name for wec
 msgid "Wè Western"
@@ -27568,11 +27568,11 @@ msgstr "We; occidental"
 
 #. name for wed
 msgid "Wedau"
-msgstr ""
+msgstr "Wedau"
 
 #. name for weh
 msgid "Weh"
-msgstr ""
+msgstr "Weh"
 
 #. name for wei
 msgid "Kiunum"
@@ -27584,15 +27584,15 @@ msgstr "Gbe; Weme"
 
 #. name for weo
 msgid "Wemale; North"
-msgstr ""
+msgstr "Wemale; Septentrional"
 
 #. name for wep
 msgid "Westphalien"
-msgstr ""
+msgstr "Alemany; Westfalià"
 
 #. name for wer
 msgid "Weri"
-msgstr ""
+msgstr "Weri"
 
 #. name for wes
 msgid "Pidgin; Cameroon"
@@ -27604,11 +27604,11 @@ msgstr ""
 
 #. name for weu
 msgid "Welaung"
-msgstr ""
+msgstr "Welaung"
 
 #. name for wew
 msgid "Wejewa"
-msgstr ""
+msgstr "Wejewa"
 
 #. name for wfg
 msgid "Yafi"
@@ -27616,11 +27616,11 @@ msgstr ""
 
 #. name for wga
 msgid "Wagaya"
-msgstr ""
+msgstr "Wagaya"
 
 #. name for wgb
 msgid "Wagawaga"
-msgstr ""
+msgstr "Wagawaga"
 
 #. name for wgg
 msgid "Wangganguru"
@@ -27628,15 +27628,15 @@ msgstr ""
 
 #. name for wgi
 msgid "Wahgi"
-msgstr ""
+msgstr "Wahgi"
 
 #. name for wgo
 msgid "Waigeo"
-msgstr ""
+msgstr "Waigeo"
 
 #. name for wgy
 msgid "Warrgamay"
-msgstr ""
+msgstr "Warrgamay"
 
 #. name for wha
 msgid "Manusela"
@@ -27644,7 +27644,7 @@ msgstr ""
 
 #. name for whg
 msgid "Wahgi; North"
-msgstr ""
+msgstr "Wahgi; Septentrional"
 
 #. name for whk
 msgid "Kenyah; Wahau"
@@ -27660,23 +27660,23 @@ msgstr "Tusia; Meridional"
 
 #. name for wic
 msgid "Wichita"
-msgstr ""
+msgstr "Wichita"
 
 #. name for wie
 msgid "Wik-Epa"
-msgstr ""
+msgstr "Wik; Epa"
 
 #. name for wif
 msgid "Wik-Keyangan"
-msgstr ""
+msgstr "Wik; Keyangan"
 
 #. name for wig
 msgid "Wik-Ngathana"
-msgstr ""
+msgstr "Wik; Ngathana"
 
 #. name for wih
 msgid "Wik-Me'anha"
-msgstr ""
+msgstr "Wik; Meanha"
 
 #. name for wii
 msgid "Minidien"
@@ -27684,19 +27684,19 @@ msgstr ""
 
 #. name for wij
 msgid "Wik-Iiyanh"
-msgstr ""
+msgstr "Wik; Liyanh"
 
 #. name for wik
 msgid "Wikalkan"
-msgstr ""
+msgstr "Wikalkan"
 
 #. name for wil
 msgid "Wilawila"
-msgstr ""
+msgstr "Ngarinyin; Wilawila"
 
 #. name for wim
 msgid "Wik-Mungkan"
-msgstr ""
+msgstr "Wik; Mungkan"
 
 #. name for win
 msgid "Ho-Chunk"
@@ -27704,15 +27704,15 @@ msgstr ""
 
 #. name for wir
 msgid "Wiraféd"
-msgstr ""
+msgstr "Wirafed"
 
 #. name for wit
 msgid "Wintu"
-msgstr ""
+msgstr "Wintu"
 
 #. name for wiu
 msgid "Wiru"
-msgstr ""
+msgstr "Wiru"
 
 #. name for wiv
 msgid "Muduapa"
@@ -27720,19 +27720,19 @@ msgstr ""
 
 #. name for wiw
 msgid "Wirangu"
-msgstr ""
+msgstr "Wirangu"
 
 #. name for wiy
 msgid "Wiyot"
-msgstr ""
+msgstr "Wiyot"
 
 #. name for wja
 msgid "Waja"
-msgstr ""
+msgstr "Waja"
 
 #. name for wji
 msgid "Warji"
-msgstr ""
+msgstr "Warji"
 
 #. name for wka
 msgid "Kw'adza"
@@ -27744,7 +27744,7 @@ msgstr ""
 
 #. name for wkd
 msgid "Wakde"
-msgstr ""
+msgstr "Wakde"
 
 #. name for wkl
 msgid "Kalanadi"
@@ -27756,11 +27756,11 @@ msgstr ""
 
 #. name for wkw
 msgid "Wakawaka"
-msgstr ""
+msgstr "Wakawaka"
 
 #. name for wla
 msgid "Walio"
-msgstr ""
+msgstr "Walio"
 
 #. name for wlc
 msgid "Comorian; Mwali"
@@ -27768,7 +27768,7 @@ msgstr ""
 
 #. name for wle
 msgid "Wolane"
-msgstr ""
+msgstr "Gurage; Wolane"
 
 #. name for wlg
 msgid "Kunbarlang"
@@ -27776,15 +27776,15 @@ msgstr ""
 
 #. name for wli
 msgid "Waioli"
-msgstr ""
+msgstr "Waioli"
 
 #. name for wlk
 msgid "Wailaki"
-msgstr ""
+msgstr "Wailaki"
 
 #. name for wll
 msgid "Wali (Sudan)"
-msgstr ""
+msgstr "Wali (Sudan)"
 
 #. name for wlm
 msgid "Welsh; Middle"
@@ -27792,39 +27792,39 @@ msgstr "Gal·lès. mitjà"
 
 #. name for wln
 msgid "Walloon"
-msgstr ""
+msgstr "Francès; Való"
 
 #. name for wlo
 msgid "Wolio"
-msgstr ""
+msgstr "Wolio"
 
 #. name for wlr
 msgid "Wailapa"
-msgstr ""
+msgstr "Wailapa"
 
 #. name for wls
 msgid "Wallisian"
-msgstr ""
+msgstr "Wallisià"
 
 #. name for wlu
 msgid "Wuliwuli"
-msgstr ""
+msgstr "Wuliwuli"
 
 #. name for wlv
 msgid "Wichí Lhamtés Vejoz"
-msgstr ""
+msgstr "Wichí; Vejoz"
 
 #. name for wlw
 msgid "Walak"
-msgstr ""
+msgstr "Walak"
 
 #. name for wlx
 msgid "Wali (Ghana)"
-msgstr ""
+msgstr "Wali (Ghana)"
 
 #. name for wly
 msgid "Waling"
-msgstr ""
+msgstr "Waling"
 
 #. name for wma
 msgid "Mawa (Nigeria)"
@@ -27832,11 +27832,11 @@ msgstr ""
 
 #. name for wmb
 msgid "Wambaya"
-msgstr ""
+msgstr "Wambaya"
 
 #. name for wmc
 msgid "Wamas"
-msgstr ""
+msgstr "Wamas"
 
 #. name for wmd
 msgid "Mamaindé"
@@ -27844,11 +27844,11 @@ msgstr ""
 
 #. name for wme
 msgid "Wambule"
-msgstr ""
+msgstr "Wambule"
 
 #. name for wmh
 msgid "Waima'a"
-msgstr ""
+msgstr "Waima'a"
 
 #. name for wmi
 msgid "Wamin"
@@ -27864,15 +27864,15 @@ msgstr ""
 
 #. name for wmo
 msgid "Wom (Papua New Guinea)"
-msgstr ""
+msgstr "Wom (Papua Nova Guinea)"
 
 #. name for wms
 msgid "Wambon"
-msgstr ""
+msgstr "Wambon"
 
 #. name for wmt
 msgid "Walmajarri"
-msgstr ""
+msgstr "Walmajarri"
 
 #. name for wmw
 msgid "Mwani"
@@ -27884,23 +27884,23 @@ msgstr ""
 
 #. name for wnb
 msgid "Wanambre"
-msgstr ""
+msgstr "Wanambre"
 
 #. name for wnc
 msgid "Wantoat"
-msgstr ""
+msgstr "Wantoat"
 
 #. name for wnd
 msgid "Wandarang"
-msgstr ""
+msgstr "Wandarang"
 
 #. name for wne
 msgid "Waneci"
-msgstr ""
+msgstr "Waneci"
 
 #. name for wng
 msgid "Wanggom"
-msgstr ""
+msgstr "Wanggom"
 
 #. name for wni
 msgid "Comorian; Ndzwani"
@@ -27968,7 +27968,7 @@ msgstr "wòlof"
 
 #. name for wom
 msgid "Wom (Nigeria)"
-msgstr ""
+msgstr "Wom (Nigèria)"
 
 #. name for won
 msgid "Wongo"
@@ -28120,7 +28120,7 @@ msgstr ""
 
 #. name for wua
 msgid "Wikngenchera"
-msgstr ""
+msgstr "Wik; Ngenchera"
 
 #. name for wub
 msgid "Wunambal"
