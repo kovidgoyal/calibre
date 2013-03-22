@@ -11,12 +11,11 @@ import re, sys
 from functools import partial
 
 from calibre.ebooks.conversion.config import load_defaults
-from calibre.gui2 import gprefs, open_url, question_dialog
+from calibre.gui2 import gprefs, open_url, question_dialog, error_dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import sort_key
 
 from catalog_epub_mobi_ui import Ui_Form
-from PyQt4 import QtGui
 from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
         QDoubleSpinBox, QIcon, QInputDialog, QLineEdit, QObject, QRadioButton,
         QSize, QSizePolicy, QTableWidget, QTableWidgetItem, QTextEdit, QToolButton,

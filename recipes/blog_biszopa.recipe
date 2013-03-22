@@ -1,0 +1,30 @@
+__license__ = 'GPL v3'
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class BlogBiszopa(BasicNewsRecipe):
+    title          = u'Blog Biszopa'
+    __author__        = 'fenuks'
+    description   = u'Zapiski z Granitowego Miasta'
+    category       = 'history'
+    #publication_type = ''
+    language       = 'pl'
+    #encoding = ''
+    #extra_css = ''
+    cover_url = 'http://blogbiszopa.pl/wp-content/themes/biszop/images/logo.png'
+    masthead_url = ''
+    use_embedded_content = False
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    remove_javascript = True
+    remove_attributes = ['style', 'font']
+    ignore_duplicate_articles = {'title', 'url'}
+
+    keep_only_tags = [dict(id='main-content')]
+    remove_tags = [dict(name='footer')]
+    #remove_tags_after = {}
+    #remove_tags_before = {}
+
+    feeds          = [(u'Artyku\u0142y', u'http://blogbiszopa.pl/feed/')]
+ 

@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Comment
+
 class CoNowegoPl(BasicNewsRecipe):
     title          = u'conowego.pl'
     __author__        = 'fenuks'
@@ -10,6 +11,7 @@ class CoNowegoPl(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
     INDEX = 'http://www.conowego.pl/'
+    extra_css = '.news-single-img {float:left; margin-right:5px;}'
     no_stylesheets = True
     remove_empty_feeds = True
     use_embedded_content = False
@@ -35,6 +37,9 @@ class CoNowegoPl(BasicNewsRecipe):
                 pos = len(appendtag.contents)
                 appendtag.insert(pos, pagetext)
 
+            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
             for r in appendtag.findAll(attrs={'class':['pages', 'paginationWrap']}):
                 r.extract()
 

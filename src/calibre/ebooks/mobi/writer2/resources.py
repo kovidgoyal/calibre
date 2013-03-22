@@ -7,13 +7,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import imghdr
-
 from calibre.ebooks.mobi import MAX_THUMB_DIMEN, MAX_THUMB_SIZE
 from calibre.ebooks.mobi.utils import (rescale_image, mobify_image,
         write_font_record)
 from calibre.ebooks import generate_masthead
 from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
+from calibre.utils.imghdr import what
 
 PLACEHOLDER_GIF = b'GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00@\x02\x01D\x00;'
 
@@ -84,7 +83,7 @@ class Resources(object):
                 self.image_indices.add(len(self.records))
                 self.records.append(data)
                 self.item_map[item.href] = index
-                self.mime_map[item.href] = 'image/%s'%imghdr.what(None, data)
+                self.mime_map[item.href] = 'image/%s'%what(None, data)
                 index += 1
 
                 if cover_href and item.href == cover_href:
