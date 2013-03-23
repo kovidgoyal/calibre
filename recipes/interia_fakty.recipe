@@ -1,7 +1,7 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = u'2010, Tomasz Dlugosz <tomek3d@gmail.com>'
+__copyright__ = u'2010-2013, Tomasz Dlugosz <tomek3d@gmail.com>'
 '''
 fakty.interia.pl
 '''
@@ -12,12 +12,13 @@ class InteriaFakty(BasicNewsRecipe):
     title          = u'Interia.pl - Fakty'
     description    = u'Fakty ze strony interia.pl'
     language = 'pl'
-    oldest_article = 7
+    oldest_article = 1
     __author__ = u'Tomasz D\u0142ugosz'
-    simultaneous_downloads = 2
     no_stylesheets = True
     remove_javascript = True
-    max_articles_per_feed = 100
+    remove_empty_feeds= True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'title', 'url'}
 
     feeds          = [(u'Kraj', u'http://kanaly.rss.interia.pl/kraj.xml'),
                       (u'\u015awiat', u'http://kanaly.rss.interia.pl/swiat.xml'),
@@ -26,14 +27,36 @@ class InteriaFakty(BasicNewsRecipe):
                       (u'Wywiady', u'http://kanaly.rss.interia.pl/wywiady.xml'),
                       (u'Ciekawostki', u'http://kanaly.rss.interia.pl/ciekawostki.xml')]
 
-    keep_only_tags = [dict(name='div', attrs={'id':'article'})]
+    keep_only_tags = [
+        dict(name='h1'),
+        dict(name='div', attrs={'class': ['lead textContent', 'text textContent', 'source']})]
 
-    remove_tags = [
-        dict(name='div', attrs={'class':'box fontSizeSwitch'}),
-        dict(name='div', attrs={'class':'clear'}),
-        dict(name='div', attrs={'class':'embed embedLeft articleEmbedArticleList articleEmbedArticleListTitle'}),
-        dict(name='span', attrs={'class':'keywords'})]
+    remove_tags = [dict(name='div', attrs={'class':['embed embedAd', 'REMOVE', 'boxHeader']})]
+
+    preprocess_regexps = [
+        (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
+        [
+            (r'embed embed(Left|Right|Center) articleEmbed(Audio|Wideo articleEmbedVideo|ArticleFull|ArticleTitle|ArticleListTitle|AlbumHorizontal)">', lambda match: 'REMOVE">'),
+            (r'</div>    <div class="source">', lambda match: ''),
+            (r'<p><a href="http://forum.interia.pl.*?</a></p>', lambda match: '')
+        ]
+    ]
+
+    def get_article_url(self, article):
+        link = article.get('link', None)
+        if link and 'galerie' not in link and link.split('/')[-1]=="story01.htm":
+            link=link.split('/')[-2]
+            encoding = {'0B': '.', '0C': '/', '0A': '0', '0F': '=', '0G': '&',
+                '0D': '?', '0E': '-', '0H': ',', '0I': '_', '0N': '.com', '0L': 'http://'}
+            for k, v in encoding.iteritems():
+                link = link.replace(k, v)
+            return link
+
+    def print_version(self, url):
+        chunks = url.split(',')
+        return chunks[0] + '/podglad-wydruku'+ ',' + ','.join(chunks[1:])
 
     extra_css = '''
-            h2 { font-size: 1.2em; }
-        '''
+        h1 { font-size:130% }
+        div.info { font-style:italic; font-size:70%}
+    '''
