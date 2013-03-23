@@ -7,7 +7,6 @@ korwin-mikke.pl/blog
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class km_blog(BasicNewsRecipe):
     title          = u'Korwin-Mikke Blog'
