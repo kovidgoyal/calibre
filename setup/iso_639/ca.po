@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-03-21 19:18+0000\n"
+"PO-Revision-Date: 2013-03-22 19:13+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-03-22 04:57+0000\n"
-"X-Generator: Launchpad (build 16532)\n"
+"X-Launchpad-Export-Date: 2013-03-23 04:59+0000\n"
+"X-Generator: Launchpad (build 16540)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -10520,7 +10520,7 @@ msgstr "Mesaka"
 
 #. name for iyx
 msgid "Yaka (Congo)"
-msgstr "Yaka (Congo)"
+msgstr "Teke; Yaa"
 
 #. name for izh
 msgid "Ingrian"
@@ -18580,7 +18580,7 @@ msgstr "Nyali"
 
 #. name for nlk
 msgid "Yali; Ninia"
-msgstr ""
+msgstr "Yali; Ninia"
 
 #. name for nll
 msgid "Nihali"
@@ -27908,19 +27908,19 @@ msgstr ""
 
 #. name for wnk
 msgid "Wanukaka"
-msgstr ""
+msgstr "Wanukaka"
 
 #. name for wnm
 msgid "Wanggamala"
-msgstr ""
+msgstr "Wanggamala"
 
 #. name for wno
 msgid "Wano"
-msgstr ""
+msgstr "Wano"
 
 #. name for wnp
 msgid "Wanap"
-msgstr ""
+msgstr "Wanap"
 
 #. name for wnu
 msgid "Usan"
@@ -27936,23 +27936,23 @@ msgstr "We; septentrional"
 
 #. name for woc
 msgid "Wogeo"
-msgstr ""
+msgstr "Wogeo"
 
 #. name for wod
 msgid "Wolani"
-msgstr ""
+msgstr "Wolani"
 
 #. name for woe
 msgid "Woleaian"
-msgstr ""
+msgstr "Woleaia"
 
 #. name for wof
 msgid "Wolof; Gambian"
-msgstr ""
+msgstr "Wolof; Gambià"
 
 #. name for wog
 msgid "Wogamusin"
-msgstr ""
+msgstr "Wogamusin"
 
 #. name for woi
 msgid "Kamang"
@@ -27964,7 +27964,7 @@ msgstr ""
 
 #. name for wol
 msgid "Wolof"
-msgstr "wòlof"
+msgstr "Wolof"
 
 #. name for wom
 msgid "Wom (Nigeria)"
@@ -27972,7 +27972,7 @@ msgstr "Wom (Nigèria)"
 
 #. name for won
 msgid "Wongo"
-msgstr ""
+msgstr "Wongo"
 
 #. name for woo
 msgid "Manombai"
@@ -27980,7 +27980,7 @@ msgstr ""
 
 #. name for wor
 msgid "Woria"
-msgstr ""
+msgstr "Woria"
 
 #. name for wos
 msgid "Hanga Hundi"
@@ -27988,11 +27988,11 @@ msgstr ""
 
 #. name for wow
 msgid "Wawonii"
-msgstr ""
+msgstr "Wawonii"
 
 #. name for woy
 msgid "Weyto"
-msgstr ""
+msgstr "Weyto"
 
 #. name for wpc
 msgid "Maco"
@@ -28000,59 +28000,59 @@ msgstr ""
 
 #. name for wra
 msgid "Warapu"
-msgstr ""
+msgstr "Warapu"
 
 #. name for wrb
 msgid "Warluwara"
-msgstr ""
+msgstr "Warluwara"
 
 #. name for wrd
 msgid "Warduji"
-msgstr ""
+msgstr "Warduji"
 
 #. name for wrg
 msgid "Warungu"
-msgstr ""
+msgstr "Warungu"
 
 #. name for wrh
 msgid "Wiradhuri"
-msgstr ""
+msgstr "Wiradhuri"
 
 #. name for wri
 msgid "Wariyangga"
-msgstr ""
+msgstr "Wariyangga"
 
 #. name for wrl
 msgid "Warlmanpa"
-msgstr ""
+msgstr "Warlmanpa"
 
 #. name for wrm
 msgid "Warumungu"
-msgstr ""
+msgstr "Warumungu"
 
 #. name for wrn
 msgid "Warnang"
-msgstr ""
+msgstr "Warnang"
 
 #. name for wrp
 msgid "Waropen"
-msgstr ""
+msgstr "Waropen"
 
 #. name for wrr
 msgid "Wardaman"
-msgstr ""
+msgstr "Wardaman"
 
 #. name for wrs
 msgid "Waris"
-msgstr ""
+msgstr "Waris"
 
 #. name for wru
 msgid "Waru"
-msgstr ""
+msgstr "Waru"
 
 #. name for wrv
 msgid "Waruna"
-msgstr ""
+msgstr "Waruna"
 
 #. name for wrw
 msgid "Gugu Warra"
@@ -28060,7 +28060,7 @@ msgstr ""
 
 #. name for wrx
 msgid "Wae Rana"
-msgstr ""
+msgstr "Waerana"
 
 #. name for wry
 msgid "Merwari"
@@ -28068,19 +28068,19 @@ msgstr ""
 
 #. name for wrz
 msgid "Waray (Australia)"
-msgstr ""
+msgstr "Waray"
 
 #. name for wsa
 msgid "Warembori"
-msgstr ""
+msgstr "Warembori"
 
 #. name for wsi
 msgid "Wusi"
-msgstr ""
+msgstr "Wusi"
 
 #. name for wsk
 msgid "Waskia"
-msgstr ""
+msgstr "Waskia"
 
 #. name for wsr
 msgid "Owenia"
@@ -28088,19 +28088,19 @@ msgstr ""
 
 #. name for wss
 msgid "Wasa"
-msgstr ""
+msgstr "Wasa"
 
 #. name for wsu
 msgid "Wasu"
-msgstr ""
+msgstr "Wassu"
 
 #. name for wsv
 msgid "Wotapuri-Katarqalai"
-msgstr ""
+msgstr "Wotapuri-Katarqalai"
 
 #. name for wtf
 msgid "Watiwa"
-msgstr ""
+msgstr "Dumpu"
 
 #. name for wti
 msgid "Berta"
@@ -28108,7 +28108,7 @@ msgstr ""
 
 #. name for wtk
 msgid "Watakataui"
-msgstr ""
+msgstr "Watakataui"
 
 #. name for wtm
 msgid "Mewati"
@@ -28116,7 +28116,7 @@ msgstr ""
 
 #. name for wtw
 msgid "Wotu"
-msgstr ""
+msgstr "Wotu"
 
 #. name for wua
 msgid "Wikngenchera"
@@ -28124,15 +28124,15 @@ msgstr "Wik; Ngenchera"
 
 #. name for wub
 msgid "Wunambal"
-msgstr ""
+msgstr "Wunambal"
 
 #. name for wud
 msgid "Wudu"
-msgstr ""
+msgstr "Wudu"
 
 #. name for wuh
 msgid "Wutunhua"
-msgstr ""
+msgstr "Wutunhua"
 
 #. name for wul
 msgid "Silimo"
@@ -28140,7 +28140,7 @@ msgstr ""
 
 #. name for wum
 msgid "Wumbvu"
-msgstr ""
+msgstr "Wumbvu"
 
 #. name for wun
 msgid "Bungu"
@@ -28148,11 +28148,11 @@ msgstr ""
 
 #. name for wur
 msgid "Wurrugu"
-msgstr ""
+msgstr "Wurrugu"
 
 #. name for wut
 msgid "Wutung"
-msgstr ""
+msgstr "Wutung"
 
 #. name for wuu
 msgid "Chinese; Wu"
@@ -28160,43 +28160,43 @@ msgstr "Xinès; Wu"
 
 #. name for wuv
 msgid "Wuvulu-Aua"
-msgstr ""
+msgstr "Wuvulu-Aua"
 
 #. name for wux
 msgid "Wulna"
-msgstr ""
+msgstr "Wulna"
 
 #. name for wuy
 msgid "Wauyai"
-msgstr ""
+msgstr "Wauyai"
 
 #. name for wwa
 msgid "Waama"
-msgstr ""
+msgstr "Waama"
 
 #. name for wwo
 msgid "Wetamut"
-msgstr ""
+msgstr "Wetamut"
 
 #. name for wwr
 msgid "Warrwa"
-msgstr ""
+msgstr "Warrwa"
 
 #. name for www
 msgid "Wawa"
-msgstr ""
+msgstr "Wawa"
 
 #. name for wxa
 msgid "Waxianghua"
-msgstr ""
+msgstr "Waxianghua"
 
 #. name for wya
 msgid "Wyandot"
-msgstr ""
+msgstr "Wyandot"
 
 #. name for wyb
 msgid "Wangaaybuwan-Ngiyambaa"
-msgstr ""
+msgstr "Wangaaybuwan-Nyiya"
 
 #. name for wym
 msgid "Wymysorys"
@@ -28204,7 +28204,7 @@ msgstr ""
 
 #. name for wyr
 msgid "Wayoró"
-msgstr ""
+msgstr "Wayoró"
 
 #. name for wyy
 msgid "Fijian; Western"
@@ -28244,11 +28244,11 @@ msgstr ""
 
 #. name for xam
 msgid "/Xam"
-msgstr ""
+msgstr "Xam"
 
 #. name for xan
 msgid "Xamtanga"
-msgstr ""
+msgstr "Xamtanga"
 
 #. name for xao
 msgid "Khao"
@@ -28280,7 +28280,7 @@ msgstr ""
 
 #. name for xav
 msgid "Xavánte"
-msgstr ""
+msgstr "Xavante"
 
 #. name for xaw
 msgid "Kawaiisu"
@@ -28428,7 +28428,7 @@ msgstr ""
 
 #. name for xer
 msgid "Xerénte"
-msgstr ""
+msgstr "Xerente"
 
 #. name for xes
 msgid "Kesawai"
@@ -28436,7 +28436,7 @@ msgstr ""
 
 #. name for xet
 msgid "Xetá"
-msgstr ""
+msgstr "Xetà"
 
 #. name for xeu
 msgid "Keoru-Ahia"
@@ -28500,7 +28500,7 @@ msgstr ""
 
 #. name for xia
 msgid "Xiandao"
-msgstr ""
+msgstr "Xiandao"
 
 #. name for xib
 msgid "Iberian"
@@ -28508,7 +28508,7 @@ msgstr ""
 
 #. name for xii
 msgid "Xiri"
-msgstr ""
+msgstr "Griqua"
 
 #. name for xil
 msgid "Illyrian"
@@ -28516,15 +28516,15 @@ msgstr ""
 
 #. name for xin
 msgid "Xinca"
-msgstr ""
+msgstr "Xinca"
 
 #. name for xip
 msgid "Xipináwa"
-msgstr ""
+msgstr "Xipinawa"
 
 #. name for xir
 msgid "Xiriâna"
-msgstr ""
+msgstr "Xiriana"
 
 #. name for xiv
 msgid "Indus Valley Language"
@@ -28532,7 +28532,7 @@ msgstr ""
 
 #. name for xiy
 msgid "Xipaya"
-msgstr ""
+msgstr "Xipaia"
 
 #. name for xka
 msgid "Kalkoti"
@@ -28600,7 +28600,7 @@ msgstr ""
 
 #. name for xkr
 msgid "Xakriabá"
-msgstr ""
+msgstr "Xakriabà"
 
 #. name for xks
 msgid "Kumbewaha"
@@ -28840,7 +28840,7 @@ msgstr ""
 
 #. name for xok
 msgid "Xokleng"
-msgstr ""
+msgstr "Xokleng"
 
 #. name for xom
 msgid "Komo (Sudan)"
@@ -28852,7 +28852,7 @@ msgstr ""
 
 #. name for xoo
 msgid "Xukurú"
-msgstr ""
+msgstr "Xukurú"
 
 #. name for xop
 msgid "Kopar"
@@ -29252,15 +29252,15 @@ msgstr ""
 
 #. name for yaa
 msgid "Yaminahua"
-msgstr ""
+msgstr "Yaminahua"
 
 #. name for yab
 msgid "Yuhup"
-msgstr ""
+msgstr "Yuhup"
 
 #. name for yac
 msgid "Yali; Pass Valley"
-msgstr ""
+msgstr "Yali; Pass Valley"
 
 #. name for yad
 msgid "Yagua"
@@ -29272,19 +29272,19 @@ msgstr ""
 
 #. name for yaf
 msgid "Yaka (Democratic Republic of Congo)"
-msgstr ""
+msgstr "Yaka (República Democràtica del Congo)"
 
 #. name for yag
 msgid "Yámana"
-msgstr ""
+msgstr "Yamana"
 
 #. name for yah
 msgid "Yazgulyam"
-msgstr ""
+msgstr "Yazgulyam"
 
 #. name for yai
 msgid "Yagnobi"
-msgstr ""
+msgstr "Yagnobi"
 
 #. name for yaj
 msgid "Banda-Yangere"
@@ -29292,15 +29292,15 @@ msgstr ""
 
 #. name for yak
 msgid "Yakama"
-msgstr ""
+msgstr "Yakima"
 
 #. name for yal
 msgid "Yalunka"
-msgstr ""
+msgstr "Yalunka"
 
 #. name for yam
 msgid "Yamba"
-msgstr ""
+msgstr "Yamba"
 
 #. name for yan
 msgid "Mayangna"
@@ -29672,7 +29672,7 @@ msgstr ""
 
 #. name for yli
 msgid "Yali; Angguruk"
-msgstr ""
+msgstr "Yali; Angguruk"
 
 #. name for yll
 msgid "Yil"

@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-03-22 04:48+0000\n"
-"X-Generator: Launchpad (build 16532)\n"
+"X-Launchpad-Export-Date: 2013-03-23 04:51+0000\n"
+"X-Generator: Launchpad (build 16540)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -26437,31 +26437,3 @@ msgstr ""
 "jest duża, są one ustawiane alfabetycznie. Tu można ustawić liczbę "
 "bibliotek,\n"
 "od której tak się dzieje. Domyślnie jest to dziesięć."
-
-#~ msgid ""
-#~ "Custom column containing additional content to be merged with Comments "
-#~ "metadata."
-#~ msgstr ""
-#~ "Kolumna użytkownika zawierająca dodatkowe informacje, które zostaną "
-#~ "dołączone do komentarza w metadanych."
-
-#~ msgid "Merge additional content before Comments metadata."
-#~ msgstr "Dołącz dodatkowe informacje przed komentarzem w metadanych."
-
-#~ msgid "Merge additional content after Comments metadata."
-#~ msgstr "Dołącz dodatkowe informacje po komentarzu w metadanych."
-
-#~ msgid ""
-#~ "Separate Comments metadata and additional content with a horizontal rule."
-#~ msgstr ""
-#~ "Oddziel komentarz z metadanych i dodatkowe informacje za pomocą linii."
-
-#~ msgid "Custom column source for text to include in Description section."
-#~ msgstr ""
-#~ "Kolumna użytkownika, która jest źródłem tekstu włączanego do sekcji opisu."
-
-#~ msgid "Communicate with the WayteQ Reader"
-#~ msgstr "Umożliwia komunikację z WayteQ Reader"
-
-#~ msgid "Field containing Genre information"
-#~ msgstr "Pole zawierające informację o rodzaju"

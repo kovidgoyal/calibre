@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-03-22 04:55+0000\n"
-"X-Generator: Launchpad (build 16532)\n"
+"X-Launchpad-Export-Date: 2013-03-23 04:58+0000\n"
+"X-Generator: Launchpad (build 16540)\n"
 "Language: zh_TW\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -23436,13 +23436,3 @@ msgid ""
 "number of such libraries, the sorting becomes alphabetic. You can set that\n"
 "number here. The default is ten libraries."
 msgstr ""
-
-#~ msgid ""
-#~ "Separate Comments metadata and additional content with a horizontal rule."
-#~ msgstr "以水平線分隔評論元數據與額外的內容。"
-
-#~ msgid "Merge additional content before Comments metadata."
-#~ msgstr "在評論元數據之前合併額外內容。"
-
-#~ msgid "Merge additional content after Comments metadata."
-#~ msgstr "在評論元數據之後合併額外內容。"

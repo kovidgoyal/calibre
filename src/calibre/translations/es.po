@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-03-22 04:21+0000\n"
-"PO-Revision-Date: 2013-03-17 18:51+0000\n"
-"Last-Translator: dario hereñu <Unknown>\n"
+"PO-Revision-Date: 2013-03-22 19:07+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-22 04:51+0000\n"
-"X-Generator: Launchpad (build 16532)\n"
+"X-Launchpad-Export-Date: 2013-03-23 04:53+0000\n"
+"X-Generator: Launchpad (build 16540)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:540
 msgid ""
@@ -2133,7 +2133,7 @@ msgstr "Comunicar con el Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:416
 msgid "Communicate with the WayteQ and SPC Dickens Readers"
-msgstr ""
+msgstr "Comunicar con los lectores WayteQ y SPC Dickens"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
@@ -8594,21 +8594,21 @@ msgstr "Se excluirán todos los géneros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:680
 msgid "Delete saved catalog preset"
-msgstr ""
+msgstr "Borrar la configuración de catálogo guardada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:681
 msgid "The selected saved catalog preset will be deleted. Are you sure?"
-msgstr ""
+msgstr "Se borrará la configuración de catálogo seleccionada. ¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:706
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:711
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:716
 msgid "Save catalog preset"
-msgstr ""
+msgstr "Guardar configuración de catálogo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:707
 msgid "Preset name:"
-msgstr ""
+msgstr "Nombre de configuración:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:712
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1065
@@ -8618,7 +8618,7 @@ msgstr "Debe proporcionar un nombre."
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:717
 msgid ""
 "That saved preset already exists and will be overwritten. Are you sure?"
-msgstr ""
+msgstr "Esa configuración ya existe y se sobrescribirá. ¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:981
 #, python-format
@@ -8670,15 +8670,15 @@ msgstr "Prefijo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:346
 msgid "Presets"
-msgstr ""
+msgstr "Configuración"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:347
 msgid "Select catalog preset to load"
-msgstr ""
+msgstr "Seleccione una configuración de catálogo para cargar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:348
 msgid "Save current catalog settings as preset"
-msgstr ""
+msgstr "Guardar la configuración de catálogo actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:349
 #: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:661
@@ -8687,7 +8687,7 @@ msgstr "Guardar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:350
 msgid "Delete current preset"
-msgstr ""
+msgstr "Borrar configuración actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:351
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:629
@@ -8705,7 +8705,7 @@ msgstr "Secciones incluidas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:354
 msgid "List of books, sorted by Author"
-msgstr ""
+msgstr "Lista de libros, ordenada por autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:355
 msgid "&Authors"
@@ -8713,7 +8713,7 @@ msgstr "&Autores"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:356
 msgid "List of books, sorted by Title"
-msgstr ""
+msgstr "Lista de libros, ordenada por título"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:357
 msgid "&Titles"
@@ -8721,7 +8721,7 @@ msgstr "&Títulos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:358
 msgid "List of series books, sorted by Series"
-msgstr ""
+msgstr "Lista de libros de series, ordenados por serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:359
 msgid "&Series"
@@ -8729,7 +8729,7 @@ msgstr "&Series"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:360
 msgid "List of books, sorted by Genre"
-msgstr ""
+msgstr "Lista de libros, ordenados por género"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:361
 msgid "&Genres"
@@ -8737,11 +8737,11 @@ msgstr "&Géneros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:362
 msgid "Field containing Genres"
-msgstr ""
+msgstr "Campos que contienen géneros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:363
 msgid "List of books, sorted by date added to calibre"
-msgstr ""
+msgstr "Lista de libros, ordenados por la fecha de incorporación a calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:364
 msgid "&Recently Added"
@@ -8750,6 +8750,8 @@ msgstr "Añadidos &recientemente"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:365
 msgid "Individual descriptions of books with cover thumbs, sorted by author"
 msgstr ""
+"Descripciones individuales de los libros con miniaturas de portadas, "
+"ordenadas por autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:366
 msgid "&Descriptions"
@@ -8821,10 +8823,14 @@ msgid ""
 "Custom column containing additional content to be merged with Comments "
 "metadata in Descriptions section."
 msgstr ""
+"Columna personalizada que contiene información adicional para agregar a los "
+"metadatos de comentarios en la sección Descripciones."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:381
 msgid "Merge additional content before Comments in Descriptions section."
 msgstr ""
+"Agregar el contenido adicional antes de los comentarios en la sección "
+"Descripciones."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:382
 msgid "&Before"
@@ -8833,6 +8839,8 @@ msgstr "&Antes"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:383
 msgid "Merge additional content after Comments in Descriptions section."
 msgstr ""
+"Agregar el contenido adicional después de los comentarios en la sección "
+"Descripciones."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:384
 msgid "&After"
@@ -8843,6 +8851,8 @@ msgid ""
 "Separate Comments metadata and additional content with a horizontal rule in "
 "Descriptions section."
 msgstr ""
+"Separar los metadatos de comentarios y el contenido adicional con una línea "
+"horizontal en la sección Descripciones."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:386
 msgid "Include &Separator"
@@ -8871,6 +8881,8 @@ msgstr "Nota de descripción e&xtra:"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:392
 msgid "Custom column source for text to include in Descriptions section."
 msgstr ""
+"Columna personalizada de origen para el texto que se incluirá en la sección "
+"Descripciones."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:393
 msgid "&Thumb width:"
@@ -19918,7 +19930,7 @@ msgstr "Posición: Una etiqueta &lt;%s&gt; dentro del archivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:34
 msgid "Create ToC from XPath"
-msgstr ""
+msgstr "Crear Índice a partir de XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:38
 msgid ""
@@ -19926,32 +19938,35 @@ msgid ""
 "of Contents. You can use the wizard buttons to help you create XPath "
 "expressions."
 msgstr ""
+"Especificar una serie de expresiones XPath para los distintons niveles del "
+"Índice. Puede usar los botones del asistente para facilitar la creación de "
+"expresiones XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:45
 #, python-format
 msgid "Level %s ToC:"
-msgstr ""
+msgstr "Índice de nivel %s:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:54
 msgid "&Save settings"
-msgstr ""
+msgstr "&Guardar configuraciones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:56
 msgid "&Load settings"
-msgstr ""
+msgstr "&Cargar configuraciones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:67
 msgid "No XPaths"
-msgstr ""
+msgstr "No hay XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:68
 msgid "No XPaths have been entered"
-msgstr ""
+msgstr "No se ha introducido ninguna expresión XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:107
 #, python-format
 msgid "The XPath expression %s is not valid."
-msgstr ""
+msgstr "La expresión XPath %s no es válida."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:145
 msgid ""
@@ -19977,7 +19992,7 @@ msgstr "Crear una &nueva entrada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:160
 msgid "Generate ToC from &major headings"
-msgstr ""
+msgstr "Generar Índice a partir de los encabezamientos más &importantes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:163
 msgid ""
@@ -19985,10 +20000,13 @@ msgid ""
 "work if the book identifies its headings using HTML heading tags. Uses the "
 "<h1>, <h2> and <h3> tags."
 msgstr ""
+"Generar un Índice a partir de los encabezamientos más importantes del libro. "
+"Esto funcionará si el libro identifica los encabezamientos con las etiquetas "
+"de encabezamiento HTML. Usa las etiquetas <h1>, <h2> y <h3>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:167
 msgid "Generate ToC from &all headings"
-msgstr ""
+msgstr "Generar Índice a partir de &todos los encabezamientos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:170
 msgid ""
@@ -19996,10 +20014,13 @@ msgid ""
 "work if the book identifies its headings using HTML heading tags. Uses the "
 "<h1-6> tags."
 msgstr ""
+"Generar un Índice a partir de todos los encabezamientos del libro. Esto "
+"funcionará si el libro identifica los encabezamientos con las etiquetas de "
+"encabezamiento HTML. Usa las etiquetas <h1-6>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:175
 msgid "Generate ToC from &links"
-msgstr ""
+msgstr "Generar Índice a partir de &enlaces"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:178
 msgid ""
@@ -20007,14 +20028,17 @@ msgid ""
 "point to destinations that do not exist in the book are ignored. Also "
 "multiple links with the same destination or the same text are ignored."
 msgstr ""
+"Generar un Índice a partir de todos los enlaces del libro. Los enlaces que "
+"apuntan a destinos que no existen no se tienen en cuenta, así como múltiples "
+"enlaces con el mismo destino o el mismo texto."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:185
 msgid "Generate ToC from &XPath"
-msgstr ""
+msgstr "Generar Índice a partir de &XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:188
 msgid "Generate a Table of Contents from arbitrary XPath expressions."
-msgstr ""
+msgstr "Generar un Índice a partir de expresiones XPath arbitrarias."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:194
 msgid ""
@@ -20069,11 +20093,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:268
 msgid "&Return to welcome screen"
-msgstr ""
+msgstr "&Volver a la pantalla de bienvenida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:270
 msgid "Go back to the top level view"
-msgstr ""
+msgstr "Volver a la vista de nivel superior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:320
 msgid "This entry points to an existing destination"
@@ -20123,15 +20147,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:606
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:613
 msgid "No items found"
-msgstr ""
+msgstr "No se encontró ningún elemento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:607
 msgid "No items were found that could be added to the Table of Contents."
-msgstr ""
+msgstr "No se encontró ningún elemento que se pueda añadir al Índice."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:614
 msgid "No links were found that could be added to the Table of Contents."
-msgstr ""
+msgstr "No se encontró ningún enlace que se pueda añadir al Índice."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:631
 #, python-format
@@ -22148,6 +22172,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to AZW3, ePub, MOBI output formats"
 msgstr ""
+"Usar una configuración guardada creada con el creador de catálogos gráfico.\n"
+"Una configuración especifica todas las opciones para crear un catálogo.\n"
+"Valor predeterminado: '%default'\n"
+"Se aplica a: formatos de salida AZW3, ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:177
 #, python-format
@@ -22176,16 +22204,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:200
 #, python-format
 msgid "Error: Preset \"%s\" not found."
-msgstr ""
+msgstr "Error: Configuración «%s» no encontrada."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:201
 #, python-format
 msgid "Stored presets: %s"
-msgstr ""
+msgstr "Configuraciones guardadas: %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:203
 msgid "Error: No stored presets."
-msgstr ""
+msgstr "Error: No hay configuraciones guardadas"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:333
 msgid ""
@@ -24904,7 +24932,7 @@ msgstr "Inglés (Pakistán)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:162
 msgid "English (Poland)"
-msgstr ""
+msgstr "Inglés (Polonia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:163
 msgid "English (Croatia)"
@@ -26711,33 +26739,3 @@ msgstr ""
 "ordenación\n"
 "se hace alfabéticamente. Puede configurar aquí el número. El valor\n"
 "predeterminado es diez bibliotecas."
-
-#~ msgid ""
-#~ "Separate Comments metadata and additional content with a horizontal rule."
-#~ msgstr ""
-#~ "Separar los metadatos de «Comentarios» y el contenido adicional con una "
-#~ "línea horizontal."
-
-#~ msgid "Merge additional content before Comments metadata."
-#~ msgstr "Unir contenido adicional antes de los metadatos de «Comentarios»."
-
-#~ msgid "Merge additional content after Comments metadata."
-#~ msgstr "Unir contenido adicional después de los metadatos de «Comentarios»."
-
-#~ msgid "Custom column source for text to include in Description section."
-#~ msgstr ""
-#~ "Columna personalizada que sirve de origen para el texto que se incluye en la "
-#~ "sección «Descripción»."
-
-#~ msgid ""
-#~ "Custom column containing additional content to be merged with Comments "
-#~ "metadata."
-#~ msgstr ""
-#~ "Columna personalizada con contenido adicional que se añade a los metadatos "
-#~ "de «Comentarios»."
-
-#~ msgid "Communicate with the WayteQ Reader"
-#~ msgstr "Comunicar con el lector WayteQ"
-
-#~ msgid "Field containing Genre information"
-#~ msgstr "Campo que contiene información de género"

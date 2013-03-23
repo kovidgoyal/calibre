@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-22 04:21+0000\n"
-"PO-Revision-Date: 2013-03-15 05:22+0000\n"
+"PO-Revision-Date: 2013-03-22 06:09+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,8 +17,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-03-22 04:53+0000\n"
-"X-Generator: Launchpad (build 16532)\n"
+"X-Launchpad-Export-Date: 2013-03-23 04:55+0000\n"
+"X-Generator: Launchpad (build 16540)\n"
 "Language: uk\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -2115,7 +2115,7 @@ msgstr "З’єднатися з  Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:416
 msgid "Communicate with the WayteQ and SPC Dickens Readers"
-msgstr ""
+msgstr "Обмін даними з електронними книгами WayteQ і SPC Dickens"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
@@ -8559,21 +8559,22 @@ msgstr "Буде виключено всі жанри"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:680
 msgid "Delete saved catalog preset"
-msgstr ""
+msgstr "Вилучення збереженого шаблона каталогу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:681
 msgid "The selected saved catalog preset will be deleted. Are you sure?"
 msgstr ""
+"Вибраний збережений шаблон каталогу буде вилучено. Ви хочете саме цього"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:706
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:711
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:716
 msgid "Save catalog preset"
-msgstr ""
+msgstr "Збереження шаблона каталогу"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:707
 msgid "Preset name:"
-msgstr ""
+msgstr "Назва шаблона:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:712
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1065
@@ -8584,6 +8585,8 @@ msgstr "Вам слід вказати назву."
 msgid ""
 "That saved preset already exists and will be overwritten. Are you sure?"
 msgstr ""
+"Шаблон з такою назвою вже існує. Його буде перезаписано. Ви справді цього "
+"хочете?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:981
 #, python-format
@@ -8634,15 +8637,15 @@ msgstr "Префікс"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:346
 msgid "Presets"
-msgstr ""
+msgstr "Шаблони"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:347
 msgid "Select catalog preset to load"
-msgstr ""
+msgstr "Виберіть шаблон каталогу для завантаження"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:348
 msgid "Save current catalog settings as preset"
-msgstr ""
+msgstr "Зберегти поточні параметри каталогу як шаблон"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:349
 #: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:661
@@ -8651,7 +8654,7 @@ msgstr "Зберегти"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:350
 msgid "Delete current preset"
-msgstr ""
+msgstr "Вилучити поточний шаблон"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:351
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:629
@@ -8669,7 +8672,7 @@ msgstr "Включені розділи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:354
 msgid "List of books, sorted by Author"
-msgstr ""
+msgstr "Список книг впорядкований за авторами"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:355
 msgid "&Authors"
@@ -8677,7 +8680,7 @@ msgstr "&Автори"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:356
 msgid "List of books, sorted by Title"
-msgstr ""
+msgstr "Список книг впорядкований за назвами"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:357
 msgid "&Titles"
@@ -8685,7 +8688,7 @@ msgstr "&Назви"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:358
 msgid "List of series books, sorted by Series"
-msgstr ""
+msgstr "Список серій книг впорядкований за серіями"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:359
 msgid "&Series"
@@ -8693,7 +8696,7 @@ msgstr "С&ерії"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:360
 msgid "List of books, sorted by Genre"
-msgstr ""
+msgstr "Список книг впорядкований за жанрами"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:361
 msgid "&Genres"
@@ -8701,11 +8704,11 @@ msgstr "&Жанри"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:362
 msgid "Field containing Genres"
-msgstr ""
+msgstr "Поле, що містить запис жанру"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:363
 msgid "List of books, sorted by date added to calibre"
-msgstr ""
+msgstr "Список книг впорядкований за датою додавання до Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:364
 msgid "&Recently Added"
@@ -8713,7 +8716,7 @@ msgstr "Нещодавно &додані"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:365
 msgid "Individual descriptions of books with cover thumbs, sorted by author"
-msgstr ""
+msgstr "Окремі описи книг з мініатюрами обкладинок, впорядковані за авторами"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:366
 msgid "&Descriptions"
@@ -8785,10 +8788,12 @@ msgid ""
 "Custom column containing additional content to be merged with Comments "
 "metadata in Descriptions section."
 msgstr ""
+"Нетиповий стовпчик, що містить додаткові дані, які буде об’єднано з "
+"метаданими коментарів у розділі описів."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:381
 msgid "Merge additional content before Comments in Descriptions section."
-msgstr ""
+msgstr "Вставити додаткові дані перед коментарями у розділі описів."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:382
 msgid "&Before"
@@ -8796,7 +8801,7 @@ msgstr "&До"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:383
 msgid "Merge additional content after Comments in Descriptions section."
-msgstr ""
+msgstr "Вставити додаткові дані після коментарів у розділі описів."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:384
 msgid "&After"
@@ -8807,6 +8812,8 @@ msgid ""
 "Separate Comments metadata and additional content with a horizontal rule in "
 "Descriptions section."
 msgstr ""
+"Відокремити у розділі описів метадані коментарів і додаткові дані "
+"горизонтальною лінією."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:386
 msgid "Include &Separator"
@@ -8835,6 +8842,7 @@ msgstr "&Додаткова нотатка опису:"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:392
 msgid "Custom column source for text to include in Descriptions section."
 msgstr ""
+"Нетиповий стовпчик-джерело для тексту, який буде включено до розділу описів."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:393
 msgid "&Thumb width:"
@@ -19944,7 +19952,7 @@ msgstr "Місце: теґ &lt;%s&gt; у файлі"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:34
 msgid "Create ToC from XPath"
-msgstr ""
+msgstr "Створити зміст на основі XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:38
 msgid ""
@@ -19952,32 +19960,34 @@ msgid ""
 "of Contents. You can use the wizard buttons to help you create XPath "
 "expressions."
 msgstr ""
+"Вкажіть послідовність виразів XPath для різних рівнів змісту. Для створення "
+"виразів XPath ви можете скористатися кнопками майстра створення виразів."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:45
 #, python-format
 msgid "Level %s ToC:"
-msgstr ""
+msgstr "Рівень змісту %s:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:54
 msgid "&Save settings"
-msgstr ""
+msgstr "З&берегти параметри"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:56
 msgid "&Load settings"
-msgstr ""
+msgstr "З&авантажити параметри"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:67
 msgid "No XPaths"
-msgstr ""
+msgstr "Немає XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:68
 msgid "No XPaths have been entered"
-msgstr ""
+msgstr "Не вказано XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:107
 #, python-format
 msgid "The XPath expression %s is not valid."
-msgstr ""
+msgstr "Вираз XPath %s є некоректним."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:145
 msgid ""
@@ -20003,7 +20013,7 @@ msgstr "С&творити пункт"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:160
 msgid "Generate ToC from &major headings"
-msgstr ""
+msgstr "Створити зміст за &основними заголовками"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:163
 msgid ""
@@ -20011,10 +20021,13 @@ msgid ""
 "work if the book identifies its headings using HTML heading tags. Uses the "
 "<h1>, <h2> and <h3> tags."
 msgstr ""
+"Створити зміст на основі основних заголовків книги. Створення змісту у такий "
+"спосіб можливе, якщо заголовки у книзі визначаються теґами заголовків HTML. "
+"Обробляються теґи <h1>, <h2> і <h3>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:167
 msgid "Generate ToC from &all headings"
-msgstr ""
+msgstr "Створити зміст за &всіма заголовками"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:170
 msgid ""
@@ -20022,10 +20035,13 @@ msgid ""
 "work if the book identifies its headings using HTML heading tags. Uses the "
 "<h1-6> tags."
 msgstr ""
+"Створити зміст на основі всіх заголовків книги. Створення змісту у такий "
+"спосіб можливе, якщо заголовки у книзі визначаються теґами заголовків HTML. "
+"Обробляються теґи <h1-6>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:175
 msgid "Generate ToC from &links"
-msgstr ""
+msgstr "Створити зміст за &посиланнями"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:178
 msgid ""
@@ -20033,14 +20049,17 @@ msgid ""
 "point to destinations that do not exist in the book are ignored. Also "
 "multiple links with the same destination or the same text are ignored."
 msgstr ""
+"Створити зміст на основі всіх посилань у книзі. Посилання, які вказують на "
+"дані поза самою книгою, буде проігноровано. Також буде проігноровано різні "
+"посилання на одні і ті самі ділянки даних."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:185
 msgid "Generate ToC from &XPath"
-msgstr ""
+msgstr "Створити з&міст за XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:188
 msgid "Generate a Table of Contents from arbitrary XPath expressions."
-msgstr ""
+msgstr "Створити зміст на основі довільних виразів XPath."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:194
 msgid ""
@@ -20095,11 +20114,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:268
 msgid "&Return to welcome screen"
-msgstr ""
+msgstr "&Повернутися до вікна вітання"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:270
 msgid "Go back to the top level view"
-msgstr ""
+msgstr "Повернутися до панелі перегляду верхнього рівня"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:320
 msgid "This entry points to an existing destination"
@@ -20149,15 +20168,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:606
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:613
 msgid "No items found"
-msgstr ""
+msgstr "Не знайдено жодного пункту"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:607
 msgid "No items were found that could be added to the Table of Contents."
-msgstr ""
+msgstr "Не знайдено жодного пункту, який можна було б додати до змісту."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:614
 msgid "No links were found that could be added to the Table of Contents."
-msgstr ""
+msgstr "Не знайдено жодного посилання, яке можна було б додати до змісту."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:631
 #, python-format
@@ -22187,6 +22206,11 @@ msgid ""
 "Default: '%default'\n"
 "Applies to AZW3, ePub, MOBI output formats"
 msgstr ""
+"Використовувати вказаний за назвою шаблон, створений за допомогою графічних "
+"інструментів збирання каталогу.\n"
+"У такому шаблоні визначено всі параметри збирання каталогу.\n"
+"Типове значення: '%default'\n"
+"Застосування: формати виведення результатів AZW3, ePub, MOBI."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:177
 #, python-format
@@ -22215,16 +22239,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:200
 #, python-format
 msgid "Error: Preset \"%s\" not found."
-msgstr ""
+msgstr "Помилка: не знайдено шаблона «%s»."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:201
 #, python-format
 msgid "Stored presets: %s"
-msgstr ""
+msgstr "Збережені шаблони: %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:203
 msgid "Error: No stored presets."
-msgstr ""
+msgstr "Помилка: немає жодного збреженого шаблона."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:333
 msgid ""
@@ -24954,7 +24978,7 @@ msgstr "Англійська (Пакистан)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:162
 msgid "English (Poland)"
-msgstr ""
+msgstr "Англійська (Польща)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:163
 msgid "English (Croatia)"
@@ -26739,32 +26763,3 @@ msgstr ""
 "параметра ви можете вказати граничну кількість бібліотек, за якої "
 "відбуватиметься\n"
 "така зміна. Типовим значенням є 10 бібліотек."
-
-#~ msgid ""
-#~ "Separate Comments metadata and additional content with a horizontal rule."
-#~ msgstr ""
-#~ "Відокремити метадані «Коментарі» і додаткові дані горизонтальною лінією."
-
-#~ msgid "Merge additional content before Comments metadata."
-#~ msgstr "Додати додаткові поля перед метаданими «Коментарі»."
-
-#~ msgid "Merge additional content after Comments metadata."
-#~ msgstr "Додати додаткові поля після метаданих «Коментарі»."
-
-#~ msgid "Custom column source for text to include in Description section."
-#~ msgstr ""
-#~ "Нетипове джерело даних стовпчика для тексту, який буде включено до розділу "
-#~ "«Опис»."
-
-#~ msgid ""
-#~ "Custom column containing additional content to be merged with Comments "
-#~ "metadata."
-#~ msgstr ""
-#~ "Нетиповий стовпчик з додатковими даними, які слід об’єднати з метаданими "
-#~ "«Коментарі»."
-
-#~ msgid "Communicate with the WayteQ Reader"
-#~ msgstr "Обмін даними з пристроєм для читання WayteQ"
-
-#~ msgid "Field containing Genre information"
-#~ msgstr "Поле, що містить дані щодо жанру"

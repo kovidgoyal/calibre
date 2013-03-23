@@ -64,8 +64,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-22 04:39+0000\n"
-"X-Generator: Launchpad (build 16532)\n"
+"X-Launchpad-Export-Date: 2013-03-23 04:41+0000\n"
+"X-Generator: Launchpad (build 16540)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -26685,32 +26685,3 @@ msgstr ""
 "dergelijke bibliotheken zijn, wordt de sortering alfabetisch. U kan dat "
 "aantal hier\n"
 "instellen. Standaard is tien bibliotheken."
-
-#~ msgid "Merge additional content before Comments metadata."
-#~ msgstr "Voeg extra inhoud toe voor het commentaar in de metadata"
-
-#~ msgid "Merge additional content after Comments metadata."
-#~ msgstr "Voeg extra inhoud to na het commentaar in de metadata"
-
-#~ msgid ""
-#~ "Custom column containing additional content to be merged with Comments "
-#~ "metadata."
-#~ msgstr ""
-#~ "Persoonlijke kolom met extra informatie om te worden samen gevoegd met het "
-#~ "commentaar (in metadata)."
-
-#~ msgid ""
-#~ "Separate Comments metadata and additional content with a horizontal rule."
-#~ msgstr ""
-#~ "Splits commentaar (in metadata) en extra informatie met een horizontale lijn."
-
-#~ msgid "Custom column source for text to include in Description section."
-#~ msgstr ""
-#~ "Persoonlijke kolom te gebruiken als basis voor de tekst om toe te voegen het "
-#~ "deel beschrijving."
-
-#~ msgid "Communicate with the WayteQ Reader"
-#~ msgstr "Communiceer met de WayteQ e-reader"
-
-#~ msgid "Field containing Genre information"
-#~ msgstr "Veld met Genre informatie"

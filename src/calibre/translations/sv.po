@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-22 04:51+0000\n"
-"X-Generator: Launchpad (build 16532)\n"
+"X-Launchpad-Export-Date: 2013-03-23 04:54+0000\n"
+"X-Generator: Launchpad (build 16540)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
 
@@ -25296,15 +25296,3 @@ msgid ""
 "number of such libraries, the sorting becomes alphabetic. You can set that\n"
 "number here. The default is ten libraries."
 msgstr ""
-
-#~ msgid "Communicate with the WayteQ Reader"
-#~ msgstr "Kommunicera med WateQ-läsare"
-
-#~ msgid "Field containing Genre information"
-#~ msgstr "Fält som innehåller genreinformation om"
-
-#~ msgid "Merge additional content before Comments metadata."
-#~ msgstr "Sammanfoga ytterligare Innehåll Förenings Kommentarers metadata."
-
-#~ msgid "Merge additional content after Comments metadata."
-#~ msgstr "Sammanfoga ytterligare innehåll efter Kommentarers metadata."
