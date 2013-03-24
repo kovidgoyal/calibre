@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-22 04:21+0000\n"
-"PO-Revision-Date: 2013-03-20 01:09+0000\n"
-"Last-Translator: Volkan Gezer <Unknown>\n"
+"PO-Revision-Date: 2013-03-24 02:42+0000\n"
+"Last-Translator: Mübin KIYICI <mkiyici@gmail.com>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-03-23 04:55+0000\n"
+"X-Launchpad-Export-Date: 2013-03-24 04:44+0000\n"
 "X-Generator: Launchpad (build 16540)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -6339,6 +6339,8 @@ msgid ""
 "<b>All formats</b> for the selected books will be <b>deleted</b> from your "
 "library.<br>The book metadata will be kept. Are you sure?"
 msgstr ""
+"Seçili olan kitaplar için <b> bütün formatlar </b> kütüphanenizden <b> "
+"silinecektir </b>. Kitap için metadatalar korunacaktır. Emin misiniz?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:253
 msgid "Cannot delete books"
@@ -6622,7 +6624,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:331
 msgid "At least two books must be selected for merging"
-msgstr ""
+msgstr "Birleştirme işlemi için en az iki kitap seçilmelidir."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:334
 msgid ""
@@ -6845,7 +6847,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:87
 msgid "About"
-msgstr ""
+msgstr "Hakkında"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:106
 msgid "Show &report"
@@ -7347,7 +7349,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:113
 msgid "Abort without saving any changes"
-msgstr ""
+msgstr "Değişiklikleri kaydetmeden durdur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:115
 msgid "Save your changes and update the book in the calibre library"
@@ -7588,7 +7590,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:146
 msgid "Add books to calibre"
-msgstr ""
+msgstr "Kitapları Calibre'ye ekle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:26
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:62
@@ -7958,12 +7960,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:1144
 msgid "any date"
-msgstr ""
+msgstr "herhangi bir tarih"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:1142
 msgid "any value"
-msgstr ""
+msgstr "herhangi bir değer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:147
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:1140
@@ -8016,7 +8018,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:981
 #, python-format
 msgid "Are you sure you want to delete '%s'?"
-msgstr ""
+msgstr "'%s' kategorisini dilmek istediğinizden emin misiniz?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:983
 #, python-format
@@ -8281,7 +8283,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:79
 msgid "Bold"
-msgstr ""
+msgstr "Kalın"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:80
 msgid "Italic"
@@ -8313,19 +8315,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:96
 msgid "Align left"
-msgstr ""
+msgstr "Sola yasla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:98
 msgid "Align center"
-msgstr ""
+msgstr "Ortala"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:100
 msgid "Align right"
-msgstr ""
+msgstr "Sağa yasla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:102
 msgid "Align justified"
-msgstr ""
+msgstr "İki yana yasla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:103
 msgid "Undo"
@@ -10531,11 +10533,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:79
 msgid "All invalid ISBNs"
-msgstr ""
+msgstr "Tüm geçersiz ISBN Numaraları"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:80
 msgid "All the ISBNs you entered were invalid. No books can be added."
-msgstr ""
+msgstr "Girmiş olduğunuz ISBN numaraları geçersiz… Hiç bir kitap eklenemedi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:63
 msgid "Add books by ISBN"
@@ -11033,7 +11035,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:240
 msgid "Are you sure you want to delete the following items?"
-msgstr ""
+msgstr "Aşağıdaki maddeleri silmek istediğinizden emin misiniz?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:73
@@ -11093,7 +11095,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:52
 msgid "Author sort"
-msgstr ""
+msgstr "Yazar sıralaması"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:55
 msgid "Link"
@@ -11879,7 +11881,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:305
 msgid "Calibre"
-msgstr ""
+msgstr "Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:305
 msgid "Released"
@@ -12145,7 +12147,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:66
 msgid "Aborting..."
-msgstr ""
+msgstr "Durduruluyor..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
@@ -12427,7 +12429,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:449
 msgid "Add a custom news source"
-msgstr ""
+msgstr "Özel haber kaynağı eke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:454
 msgid "Download all scheduled news sources"
@@ -12500,7 +12502,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:223
 msgid "all issues"
-msgstr ""
+msgstr "tüm sayılar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:224
 msgid " issues"
@@ -12914,7 +12916,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:83
 msgid "Are your sure?"
-msgstr ""
+msgstr "Emin misiniz?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:84
 msgid ""
@@ -12938,7 +12940,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:132
 msgid "Apply tag to current book"
-msgstr ""
+msgstr "Mevcut kitaba etiketleri uygula"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:134
 msgid "A&pplied tags"
@@ -13000,7 +13002,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:223
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:223
 msgid "Author Sort"
-msgstr ""
+msgstr "Yazar sıralaması"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:227
 msgid "Tag 1"
@@ -13537,7 +13539,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:294
 msgid "Added fonts"
-msgstr ""
+msgstr "Eklenmiş olan fontlar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:295
 #, python-format
@@ -14003,7 +14005,7 @@ msgstr "Önceki Sayfa"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:215
 msgid "Back"
-msgstr ""
+msgstr "Geri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:216
@@ -14203,7 +14205,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:230
 msgid "Authors changed"
-msgstr ""
+msgstr "Yazarlar değiştirildi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:231
 msgid ""
@@ -14262,7 +14264,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:682
 msgid "Add a format to this book"
-msgstr ""
+msgstr "Bu kitap için bir format ekle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:689
 msgid "Remove the selected format from this book"
@@ -15011,7 +15013,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:29
 msgid "All Columns"
-msgstr ""
+msgstr "Tüm sütunlar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:31
 msgid "icon with text"
@@ -15293,7 +15295,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:707
 msgid "Add Rule"
-msgstr ""
+msgstr "Kural ekle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:710
 msgid "Remove Rule"
@@ -16562,6 +16564,8 @@ msgstr "Gömülü eklenti kaldırılamaz"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:382
 msgid " cannot be removed. It is a builtin plugin. Try disabling it instead."
 msgstr ""
+" kaldırılamaz. Bu program içinde bir plugin türüdür. Kaldırmak yerine pasif "
+"hale getirmeye çalışın"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:109
 msgid ""
@@ -17204,7 +17208,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:284
 msgid "Cannot add"
-msgstr ""
+msgstr "Eklenemez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:285
 #, python-format
@@ -17236,7 +17240,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:138
 msgid "Add selected actions to toolbar"
-msgstr ""
+msgstr "Seçili eylemleri araç çubuğuna ekle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:140
 msgid "Remove selected actions from toolbar"
@@ -17438,7 +17442,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/basic_config_widget_ui.py:38
 msgid "Added Tags:"
-msgstr ""
+msgstr "Eklenmiş olan Etikerler:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/basic_config_widget_ui.py:39
 msgid "Open store in external web browswer"
@@ -17927,12 +17931,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:180
 msgid "Add to user category"
-msgstr ""
+msgstr "Kullanıcı kategorisine ekle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:181
 #, python-format
 msgid "A user category %s does not exist"
-msgstr ""
+msgstr "%s kullanıcı kategorisi bulunamıyor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:253
 msgid "Delete item"
@@ -18047,7 +18051,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:462
 #, python-format
 msgid "Add %s to user category"
-msgstr ""
+msgstr "%s kategorsini kullanıcı kategorisine ekle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:475
 #, python-format
@@ -18072,7 +18076,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:515
 #, python-format
 msgid "Add sub-category to %s"
-msgstr ""
+msgstr "%s kategorisine alt kategori ekle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:519
 #, python-format
@@ -18597,7 +18601,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:747
 msgid "Active jobs"
-msgstr ""
+msgstr "Aktif işler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:818
 msgid ""
@@ -18969,7 +18973,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:431
 msgid "Background color:"
-msgstr ""
+msgstr "Zemin rengi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:432
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:436
@@ -20289,12 +20293,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3475
 #, python-format
 msgid "Authors beginning with %s"
-msgstr ""
+msgstr "%s ile başlayan yazarlar"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3477
 #, python-format
 msgid "Authors beginning with '%s'"
-msgstr ""
+msgstr "'%s' ile başlayan yazarlar"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3518
 msgid "NCX for Recently Added"
@@ -21363,7 +21367,7 @@ msgstr "Kalıcı bağlantı"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:814
 msgid "A permanent link to this book"
-msgstr ""
+msgstr "Bu kitap için kalıcı link"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:826
 msgid "This book has been deleted"
@@ -21375,7 +21379,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:895
 msgid "Another random book"
-msgstr ""
+msgstr "Bir başka rastgele kitap"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:946
 msgid "in search"
@@ -23600,3 +23604,21 @@ msgid ""
 "number of such libraries, the sorting becomes alphabetic. You can set that\n"
 "number here. The default is ten libraries."
 msgstr ""
+
+#~ msgid "Communicate with the WayteQ Reader"
+#~ msgstr "WayteQ Reader'a bağlan"
+
+#~ msgid "Copying"
+#~ msgstr "Kopyalanıyor"
+
+#~ msgid ""
+#~ "Kobo routinely updates the firmware and the database version.  With this "
+#~ "option Calibre will attempt to perform full read-write functionality - Here "
+#~ "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
+#~ "factory defaults and testing software"
+#~ msgstr ""
+#~ "Kobo düzenli olarak aygıt yazılımı ve veritabanı sürümlerini "
+#~ "güncellemektedir. Bu seçenekle Calibre tam okuma-yazma işlevselliği "
+#~ "gerçekleştirmeyi deneyecektir. DİKKAT! Bu seçeneği yalnızca yazılım denemek "
+#~ "ve Kobo cihazınızı fabrika ayarlarına geri yüklemekten rahatsız "
+#~ "olmayacaksanız seçiniz."
