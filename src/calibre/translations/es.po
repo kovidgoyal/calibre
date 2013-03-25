@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-03-22 04:21+0000\n"
-"PO-Revision-Date: 2013-03-22 19:07+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2013-03-24 09:41+0000\n"
+"Last-Translator: dario hereñu <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-23 04:53+0000\n"
+"X-Launchpad-Export-Date: 2013-03-25 04:36+0000\n"
 "X-Generator: Launchpad (build 16540)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:540
@@ -18370,7 +18370,7 @@ msgid ""
 "of a search term by changing the value box then pressing Save."
 msgstr ""
 "Guardar el término de búsqueda actual. Puede cambiar el nombre de un\n"
-"término de busqueda modificando el nombre y pulsando «Guardar». Puede\n"
+"término de búsqueda modificando el nombre y pulsando «Guardar». Puede\n"
 "cambiar el valor modificando el valor y pulsando «Guardar»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:189
@@ -18418,19 +18418,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:200
 msgid "Similar authors: "
-msgstr "Autores parecidos: "
+msgstr "Autores similares: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:201
 msgid "Similar series: "
-msgstr "Series parecidas: "
+msgstr "Series similares: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:202
 msgid "Similar tags: "
-msgstr "Etiquetas parecidas: "
+msgstr "Etiquetas similares: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:203
 msgid "Similar publishers: "
-msgstr "Editoriales parecidas: "
+msgstr "Editoriales similares: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:70
@@ -18450,7 +18450,7 @@ msgstr "Gestión automática"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:36
 msgid "Cannot change metadata management while a device is connected"
 msgstr ""
-"No se puede cambiar la gestión de metadatos con un dispositivo conectado."
+"No se puede cambiar la gestión de metadatos con un dispositivo conectado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:69
 msgid "Metadata &management:"
@@ -18563,9 +18563,9 @@ msgid ""
 "having trouble downloading files from the content server, trying removing "
 "the password."
 msgstr ""
-"<p>Algunos dispositivos tienen navegadores que no admiten la autenticación. "
-"Si tiene problemas para descargar archivos del servidor de contenidos, "
-"pruebe a eliminar la contraseña."
+"<p>Algunos dispositivos tienen navegadores que no admiten autenticación. Si "
+"tiene problemas para descargar archivos del servidor de contenidos, pruebe a "
+"eliminar la contraseña."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:161
 msgid "Password incompatible with some devices"
@@ -18610,7 +18610,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:168
 msgid "Run server &automatically when calibre starts"
-msgstr "Ejecutar el servidor &automáticamente al iniciar calibre"
+msgstr "Ejecutar el servidor &automáticamente cuando se inicia calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:169
 msgid "View &server logs"
@@ -18626,11 +18626,11 @@ msgid ""
 "running on. If you want to access the server from anywhere in the world, you "
 "will have to setup port forwarding for it on your router."
 msgstr ""
-"<p>Acuérdese de dejar calibre corriendo, pues el servidor sólo funciona "
-"mientras calibre esté corriendo.\n"
+"<p>Recuerde dejar calibre corriendo, pues el servidor sólo funciona mientras "
+"calibre esté corriendo.\n"
 "<p>Para conectar con el servidor de calibre desde su dispositivo debe usar "
 "un URL de la forma <b>http://nombredeequipo:8080</b>. Aquí «nombredeequipo» "
-"debe ser un nombre de equipo totalmente cualificado o bien la dirección IP "
+"debe ser un nombre de equipo totalmente calificado o bien la dirección IP "
 "del equipo donde calibre está corriendo. Si quiere poder acceder al servidor "
 "desde cualquier lugar del mundo, debe configurar el redireccionamiento de "
 "puertos en el enrutador."
@@ -18745,8 +18745,8 @@ msgstr ""
 "        return val\n"
 "    else:\n"
 "        return 'VACÍO'</pre>\n"
-"Esta función pude invocarse desde cualquiera de los modos de programación de "
-"plantilla:\n"
+"Esta función puede invocarse desde cualquiera de los modos de programación "
+"de plantilla:\n"
 "<ul>\n"
 "<li>modo de función única: {tags:mi_vacio()}</li>\n"
 "<li>modo de programación de plantilla: {tags:'mi_vacio($)'}</li>\n"
@@ -18831,7 +18831,7 @@ msgstr "Hacer una donación para contribuir en el desarrollo de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Location Manager"
-msgstr "Ubicaciones"
+msgstr "Gestor de ubicaciones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:37
 msgid "Switch between library and device views"
@@ -18860,7 +18860,7 @@ msgstr "La barra de menú"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:225
 msgid "The menubar when a device is connected"
-msgstr "La barra de menú cuando se conecta un dispositivo"
+msgstr "La barra de menú cuando hay un dispositivo conectado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:226
 msgid "The context menu for the books in the calibre library"
@@ -19015,7 +19015,7 @@ msgstr "Restablecer valores por &defecto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:122
 msgid "Apply any changes you made to this tweak"
-msgstr "Aplicar los cambios realizados en este ajuste"
+msgstr "Aplicar los cambios realizados a este ajuste"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:348
 msgid "Delete current search"
@@ -19283,7 +19283,8 @@ msgstr "Número de segundos para esperar a que una librería responda"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:101
 msgid "Number of seconds to let a store process results"
 msgstr ""
-"Número de segundos que se le da una librería para procesar los resultados"
+"Número de segundos que se le otorga a una librería para procesar los "
+"resultados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:102
 msgid "Display"
@@ -19375,7 +19376,7 @@ msgstr ""
 "No se han detectado restricciones de DRM en este libro. Debería poder usar "
 "el libro en cualquier lector, siempre que esté en un formato soportado por "
 "calibre. No obstante, antes de realizar una compra vuelva a comprobar el "
-"posible DRM en la tienda. Es posible que la librería no desvele abiertamente "
+"posible DRM en la tienda. Es posible que la librería no revele abiertamente "
 "la presencia de DRM."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:239
@@ -19430,7 +19431,7 @@ msgstr "Elija un formato para descargar a la biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:170
 msgid "Get Books"
-msgstr "Get Books"
+msgstr "Obtener libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:171
 msgid "Search by title"
@@ -19455,12 +19456,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:183
 msgid "Open in &external browser"
-msgstr "Abrir en &navegador externo"
+msgstr "Abrir en un &navegador externo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:77
 msgid "Books:"
-msgstr "Libros"
+msgstr "Libros:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:186
 #: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:670
@@ -19494,7 +19495,7 @@ msgstr "Descargando lista de libros de MobileRead."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_update_thread.py:61
 msgid "Processing books."
-msgstr "Procesando libros"
+msgstr "Procesando libros."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_update_thread.py:71
 #, python-format
@@ -19574,7 +19575,7 @@ msgstr "Búsquedas"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:985
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:994
 msgid "Rename user category"
-msgstr "Cambiar el nombre a la categoría de usuario"
+msgstr "Renombrar categoría de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:966
 msgid "You cannot use periods in the name when renaming user categories"
@@ -19637,7 +19638,7 @@ msgstr "Nueva categoría"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:135
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:138
 msgid "Delete user category"
-msgstr "Eliminar la categoría de usuario"
+msgstr "Eliminar categoría de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:136
 #, python-format
@@ -19747,7 +19748,7 @@ msgstr "Tipo de coincidencia"
 msgid ""
 "When selecting multiple entries in the Tag Browser match any or all of them"
 msgstr ""
-"Al seleccionar varias entradas en el explorador de etiquetas buscar una "
+"Al seleccionar varias entradas en el explorador de etiquetas, buscar una "
 "cualquiera o todas ellas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:431
@@ -19760,7 +19761,7 @@ msgid ""
 "the tag browser above"
 msgstr ""
 "Todos estos administradores de categorías están disponibles pulsando con el "
-"botón derecho sobre los elementos del explorador de etiquetas arriba"
+"botón derecho sobre los elementos del explorador de etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:304
 #, python-format
@@ -20430,11 +20431,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:92
 msgid "Update available!"
-msgstr "Actualización disponible"
+msgstr "¡Actualización disponible!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:97
 msgid "Show this notification for future updates"
-msgstr "Mostrar esta notificación para actualizaciones futuras"
+msgstr "Mostrar esta notificación en futuras  actualizaciones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:102
 msgid "&Get update"
@@ -20477,7 +20478,7 @@ msgstr "Editar marcador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:44
 msgid "New title for bookmark:"
-msgstr "Nuevo título para el marcador"
+msgstr "Nuevo título para el marcador:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:53
 msgid "Export Bookmarks"
@@ -20485,7 +20486,7 @@ msgstr "Exportar marcadores"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:55
 msgid "Saved Bookmarks (*.pickle)"
-msgstr "Guardar marcadores (*.pickle)"
+msgstr "Marcadores guardados (*.pickle)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:63
 msgid "Import Bookmarks"
@@ -20537,8 +20538,8 @@ msgid ""
 "Set the user CSS stylesheet. This can be used to customize the look of all "
 "books."
 msgstr ""
-"Establecer los estilos CSS de usuario. Esto se usa para personalizar la "
-"apariencia de todos los libros."
+"Establecer la hoja de estilos CSS del usuario. Esto puede utilizarse para "
+"personalizar el aspecto de todos los libros."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:423
@@ -20547,13 +20548,14 @@ msgid ""
 "fullscreen mode. This allows you to read the book text without it becoming "
 "too wide."
 msgstr ""
-"Anchura máxima del texto e imágenes del libro en modo de pantalla completa. "
-"Esto le permite leer el libro sin que sea demasiado ancho."
+"Establecer la máxima extensión que el texto y las imágenes tomarán en el "
+"modo de pantalla completa. Esto le permite leer el libro sin que sea "
+"demasiado ancho."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:38
 msgid "Resize images larger than the viewer window to fit inside it"
 msgstr ""
-"Redimensionar las imágenes mayores que la ventana del visor para que quepan "
+"Redimensionar las imágenes mayores que la ventana del visor para que encajen "
 "en ella"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:39
@@ -20575,8 +20577,8 @@ msgstr "Hacer que la rueda del ratón sirva para pasar páginas"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:47
 msgid "Prevent the up and down arrow keys from scrolling past page breaks"
 msgstr ""
-"Evita que las teclas de movimiento arriba y abajo desplacen la vista más "
-"allá de los sáltos de página"
+"Evitar que las teclas de movimiento arriba y abajo desplacen la vista más "
+"allá de los saltos de página"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:50
 msgid ""
@@ -20611,7 +20613,7 @@ msgstr "Iniciar visor en modo de pantalla completa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:65
 msgid "Show full screen usage help"
-msgstr "Mostrar ayuda de uso en pantalla completa"
+msgstr "Mostrar ayuda de uso en modo de pantalla completa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:75
 msgid "Font options"
@@ -20656,17 +20658,17 @@ msgstr "Elija un nombre para este tema"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:153
 #, python-format
 msgid "Saved settings as the theme named: %s"
-msgstr "Configuraciones guardadas como tema: %s"
+msgstr "Configuraciones guardadas como tema denominado: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:169
 #, python-format
 msgid "Loaded settings from the theme %s"
-msgstr "Cargadas las configuraciones del tema %s"
+msgstr "Configuraciones cargadas desde el tema %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:176
 #, python-format
 msgid "Deleted the theme named: %s"
-msgstr "Se ha borrado el tema %s"
+msgstr "Borrado el tema denominado: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:238
 msgid "Choose text color"
@@ -20681,7 +20683,7 @@ msgid ""
 "You are in the middle of editing a keyboard shortcut first complete that, by "
 "clicking outside the  shortcut editing box."
 msgstr ""
-"Aún está modificando un atajo de teclado. Termine primero de hacerlo, "
+"Aún está modificando un atajo de teclado. Primero termine de hacerlo, "
 "pulsando fuera del cuadro de edición de atajos."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:391
@@ -20738,8 +20740,8 @@ msgid ""
 "into pages, as in a paper book. To get into this mode, use the button with "
 "the yellow scroll icon in the top right corner of the viewer window."
 msgstr ""
-"<p>Estas opciones se aplican sólo al módo de «página», donde el texto se "
-"divide en páginas, como en un libro de papel. Para acceder a este modo use "
+"<p>Estas opciones se aplican sólo al modo de «página», donde el texto se "
+"divide en páginas, como en un libro de papel. Para acceder a este modo, use "
 "el botón con el icono del pergamino amarillo en la esquina superior derecha "
 "de la ventana del visor."
 
@@ -20769,7 +20771,7 @@ msgstr "Margen &inferior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:421
 msgid "Text &layout in paged mode"
-msgstr "Diseño de texto en modo de página"
+msgstr "Diseño de t&exto en modo de página"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:422
 msgid "Maximum text width in &fullscreen:"
@@ -20806,12 +20808,12 @@ msgstr "Color del fondo:"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:432
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:436
 msgid "Sample"
-msgstr "Muestra"
+msgstr "Ejemplo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:433
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:437
 msgid "Change"
-msgstr "Cambiar"
+msgstr "Modificar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:435
 msgid "Text color:"
@@ -20823,7 +20825,7 @@ msgstr "Colores y fondos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:440
 msgid "Page flip &duration:"
-msgstr "Duración del &paso de página"
+msgstr "Duración del &paso de página:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:441
 msgid "disabled"
@@ -20841,7 +20843,7 @@ msgstr "El &desplazamiento de líneas se detiene en los saltos de página"
 msgid "&Resize images larger than the viewer window (needs restart)"
 msgstr ""
 "Redimensionar las imágenes ma&yores que la ventana del visor (requiere "
-"reinicio)"
+"reiniciar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:446
 msgid "Page Fl&ip options"
@@ -20849,11 +20851,11 @@ msgstr "Opciones de pa&so de página"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:447
 msgid "H&yphenate (break line in the middle of large words)"
-msgstr "Dividir &palabras al final de línea"
+msgstr "D&ividir palabras (con guiones)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:448
 msgid "Default &language for hyphenation:"
-msgstr "&Idioma predeterminado para división de palabras:"
+msgstr "&Idioma predeterminado para la división de palabras:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:449
 msgid ""
@@ -20898,7 +20900,7 @@ msgid ""
 "href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">here</a>."
 msgstr ""
 "<p>Una hoja de estilos CSS que puede usarse para controlar el aspecto de los "
-"libros. Por ejemplo, pulse <a "
+"libros. Para ver ejemplos, pulse <a "
 "href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">aquí</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:458
@@ -20932,7 +20934,7 @@ msgstr "No hay resultados para:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:504
 msgid "&Lookup in dictionary"
-msgstr "&Localizar en el diccionario"
+msgstr "&Buscar en el diccionario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:510
 msgid "View &image..."
@@ -20944,7 +20946,7 @@ msgstr "Ver &tabla..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:515
 msgid "&Search for next occurrence"
-msgstr "&Buscar ocurrencia siguiente"
+msgstr "&Buscar la siguiente instancia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:520
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:159
@@ -21013,51 +21015,51 @@ msgstr "Ver imagen: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
-msgstr "Bajar a la siguiente página"
+msgstr "Desplazarse a la siguiente página"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:15
 msgid "Scroll to the previous page"
-msgstr "Subir a la página anterior"
+msgstr "Desplazarse a la página anterior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:18
 msgid "Scroll to the next section"
-msgstr "Pasar a la siguiente sección"
+msgstr "Desplazarse a la siguiente sección"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:21
 msgid "Scroll to the previous section"
-msgstr "Pasar a la sección anterior"
+msgstr "Desplazarse a la sección anterior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:24
 msgid "Scroll to the bottom of the section"
-msgstr "Moverse hasta el final de la sección"
+msgstr "Desplazarse al final de la sección"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:27
 msgid "Scroll to the top of the section"
-msgstr "Moverse al inicio de la sección"
+msgstr "Desplazarse al inicio de la sección"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:30
 msgid "Scroll to the end of the document"
-msgstr "Moverse al final del documento"
+msgstr "Desplazarse al final del documento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:33
 msgid "Scroll to the start of the document"
-msgstr "Moverse al inicio del documento"
+msgstr "Desplazarse al inicio del documento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:36
 msgid "Scroll down"
-msgstr "Bajar"
+msgstr "Desplazarse hacia abajo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:39
 msgid "Scroll up"
-msgstr "Subir"
+msgstr "Desplazarse hacia arriba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:42
 msgid "Scroll left"
-msgstr "Moverse a la izquierda"
+msgstr "Desplazarse a la izquierda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:45
 msgid "Scroll right"
-msgstr "Moverse a la derecha"
+msgstr "Desplazarse a la derecha"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:44
 msgid ""
