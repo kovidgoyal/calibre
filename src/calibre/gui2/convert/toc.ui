@@ -6,22 +6,32 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>436</width>
-    <height>382</height>
+    <width>596</width>
+    <height>493</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="7" column="1">
+    <widget class="QSpinBox" name="opt_toc_threshold"/>
+   </item>
    <item row="1" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_use_auto_toc">
+     <property name="text">
+      <string>&amp;Force use of auto-generated Table of Contents</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_no_chapters_in_toc">
      <property name="text">
       <string>Do not add &amp;detected chapters to the Table of Contents</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="6" column="0">
     <widget class="QLabel" name="label_10">
      <property name="text">
       <string>Number of &amp;links to add to Table of Contents</string>
@@ -31,34 +41,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QSpinBox" name="opt_max_toc_links">
-     <property name="maximum">
-      <number>10000</number>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_16">
-     <property name="text">
-      <string>Chapter &amp;threshold</string>
-     </property>
-     <property name="buddy">
-      <cstring>opt_toc_threshold</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QSpinBox" name="opt_toc_threshold"/>
-   </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_use_auto_toc">
-     <property name="text">
-      <string>&amp;Force use of auto-generated Table of Contents</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
+   <item row="8" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>TOC &amp;Filter:</string>
@@ -68,19 +51,27 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
-    <widget class="QLineEdit" name="opt_toc_filter"/>
-   </item>
-   <item row="6" column="0" colspan="2">
-    <widget class="XPathEdit" name="opt_level1_toc" native="true"/>
-   </item>
-   <item row="7" column="0" colspan="2">
-    <widget class="XPathEdit" name="opt_level2_toc" native="true"/>
-   </item>
-   <item row="8" column="0" colspan="2">
+   <item row="11" column="0" colspan="2">
     <widget class="XPathEdit" name="opt_level3_toc" native="true"/>
    </item>
-   <item row="9" column="0">
+   <item row="6" column="1">
+    <widget class="QSpinBox" name="opt_max_toc_links">
+     <property name="maximum">
+      <number>10000</number>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_16">
+     <property name="text">
+      <string>Chapter &amp;threshold</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_toc_threshold</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -93,10 +84,44 @@
      </property>
     </spacer>
    </item>
-   <item row="2" column="0" colspan="2">
+   <item row="3" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_duplicate_links_in_toc">
      <property name="text">
       <string>Allow &amp;duplicate links when creating the Table of Contents</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" colspan="2">
+    <widget class="XPathEdit" name="opt_level2_toc" native="true"/>
+   </item>
+   <item row="8" column="1">
+    <widget class="QLineEdit" name="opt_toc_filter"/>
+   </item>
+   <item row="9" column="0" colspan="2">
+    <widget class="XPathEdit" name="opt_level1_toc" native="true"/>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>&lt;a href=&quot;http://manual.calibre-ebook.com/conversion.html#table-of-contents&quot;&gt;Help with using these options to generate a Table of Contents&lt;/a&gt;</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0" colspan="2">
+    <widget class="QCheckBox" name="manually_fine_tune_toc">
+     <property name="toolTip">
+      <string>This option will cause calibre to popup the Table of Contents Editor tool,
+ which will allow you to manually edit the Table of Contents, to fix any errors
+ caused by automatic generation.</string>
+     </property>
+     <property name="text">
+      <string>&amp;Manually fine-tune the ToC after conversion is completed</string>
      </property>
     </widget>
    </item>

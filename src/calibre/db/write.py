@@ -15,6 +15,7 @@ from calibre.constants import preferred_encoding, ispy3
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.date import (parse_only_date, parse_date, UNDEFINED_DATE,
                                 isoformat)
+from calibre.utils.localization import canonicalize_lang
 from calibre.utils.icu import strcmp
 
 if ispy3:
@@ -96,6 +97,15 @@ def adapt_bool(x):
             x = bool(int(x))
     return x if x is None else bool(x)
 
+def adapt_languages(to_tuple, x):
+    ans = []
+    for lang in to_tuple(x):
+        lc = canonicalize_lang(lang)
+        if not lc or lc in ans or lc in ('und', 'zxx', 'mis', 'mul'):
+            continue
+        ans.append(lc)
+    return tuple(ans)
+
 def get_adapter(name, metadata):
     dt = metadata['datatype']
     if dt == 'text':
@@ -133,6 +143,8 @@ def get_adapter(name, metadata):
         return lambda x: ans(x) or UNDEFINED_DATE
     if name == 'series_index':
         return lambda x: 1.0 if ans(x) is None else ans(x)
+    if name == 'languages':
+        return partial(adapt_languages, ans)
 
     return ans
 # }}}

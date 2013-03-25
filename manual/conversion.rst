@@ -434,6 +434,18 @@ a number of older formats either do not support a metadata based Table of Conten
 documents do not have one. In these cases, the options in this section can help you automatically
 generate a Table of Contents in the converted ebook, based on the actual content in the input document.
 
+.. note:: Using these options can be a little challenging to get exactly right.
+    If you prefer creating/editing the Table of Contents by hand, convert to
+    the EPUB or AZW3 formats and select the checkbox at the bottom of the
+    screen that says 
+    :guilabel:`Manually fine-tune the Table of Contents after conversion`. 
+    This will launch the ToC Editor tool after the conversion. It allows you to
+    create entries in the Table of Contents by simply clicking the place in the
+    book where you want the entry to point. You can also use the ToC Editor by
+    itself, without doing a conversion. Go to :guilabel:`Preferences->Toolbars`
+    and add the ToC Editor to the main toolbar. Then just select the book you
+    want to edit and click the ToC Editor button.
+
 The first option is :guilabel:`Force use of auto-generated Table of Contents`. By checking this option
 you can have |app| override any Table of Contents found in the metadata of the input document with the
 auto generated one. 
@@ -456,7 +468,7 @@ For example, to remove all entries titles "Next" or "Previous" use::
 
     Next|Previous
 
-Finally, the :guilabel:`Level 1,2,3 TOC` options allow you to create a sophisticated multi-level Table of Contents.
+The :guilabel:`Level 1,2,3 TOC` options allow you to create a sophisticated multi-level Table of Contents.
 They are XPath expressions that match tags in the intermediate XHTML produced by the conversion pipeline. See the 
 :ref:`conversion-introduction` for how to get access to this XHTML. Also read the :ref:`xpath-tutorial`, to learn
 how to construct XPath expressions. Next to each option is a button that launches a wizard to help with the creation

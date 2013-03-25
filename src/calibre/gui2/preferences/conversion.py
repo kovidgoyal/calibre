@@ -61,6 +61,8 @@ class Base(ConfigWidgetBase, Ui_Form):
         for w in widgets:
             w.changed_signal.connect(self.changed_signal)
             self.stack.addWidget(w)
+            if isinstance(w, TOCWidget):
+                w.manually_fine_tune_toc.hide()
 
         self.list.currentChanged = self.category_current_changed
         self.list.setCurrentIndex(self.model.index(0))
