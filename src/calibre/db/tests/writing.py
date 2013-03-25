@@ -252,7 +252,21 @@ class WritingTest(BaseTest):
         ae(cache.field_for('author_sort', 1), 'GoyaL, KoviD')
         ae(cache.field_for('author_sort', 3), 'GoyaL, KoviD & Layog, Divok')
 
-        # TODO: identifiers, languages
+        # Languages
+        f = cache.fields['languages']
+        ae(f.table.id_map, {1: 'eng', 2: 'deu'})
+        ae(sf('languages', {1:''}), set([1]))
+        ae(cache.field_for('languages', 1), ())
+        ae(sf('languages', {2:('und',)}), set([2]))
+        af(f.table.id_map)
+        ae(sf('languages', {1:'eng,fra,deu', 2:'es,Dutch', 3:'English'}), {1, 2, 3})
+        ae(cache.field_for('languages', 1), ('eng', 'fra', 'deu'))
+        ae(cache.field_for('languages', 2), ('spa', 'nld'))
+        ae(cache.field_for('languages', 3), ('eng',))
+        ae(sf('languages', {3:None}), set([3]))
+        ae(cache.field_for('languages', 3), ())
+
+        # TODO: identifiers
 
     # }}}
 
