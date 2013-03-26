@@ -266,7 +266,16 @@ class WritingTest(BaseTest):
         ae(sf('languages', {3:None}), set([3]))
         ae(cache.field_for('languages', 3), ())
 
-        # TODO: identifiers
+        # Identifiers
+        f = cache.fields['identifiers']
+        ae(sf('identifiers', {3: 'one:1,two:2'}), set([3]))
+        ae(sf('identifiers', {2:None}), set([2]))
+        ae(sf('identifiers', {1: {'test':'1', 'two':'2'}}), set([1]))
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            ae(c.field_for('identifiers', 3), {'one':'1', 'two':'2'})
+            ae(c.field_for('identifiers', 2), {})
+            ae(c.field_for('identifiers', 1), {'test':'1', 'two':'2'})
 
     # }}}
 
