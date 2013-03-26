@@ -620,7 +620,6 @@ class Cache(object):
     @write_api
     def set_field(self, name, book_id_to_val_map, allow_case_change=True):
         # TODO: Specialize title/authors to also update path
-        # TODO: Handle updating caches used by composite fields
         # TODO: Ensure the sort fields are updated for title/author/series?
         f = self.fields[name]
         is_series = f.metadata['datatype'] == 'series'
@@ -645,6 +644,10 @@ class Cache(object):
         if is_series and simap:
             sf = self.fields[f.name+'_index']
             dirtied |= sf.writer.set_books(simap, self.backend, allow_case_change=False)
+
+        if dirtied and self.composites:
+            for name in self.composites:
+                self.fields[name].pop_cache(dirtied)
 
         return dirtied
 
