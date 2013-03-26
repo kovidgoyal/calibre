@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-22 04:21+0000\n"
-"PO-Revision-Date: 2013-03-21 12:26+0000\n"
-"Last-Translator: Neliton Pereira Jr. <nelitonpjr@gmail.com>\n"
+"PO-Revision-Date: 2013-03-25 17:09+0000\n"
+"Last-Translator: Tiago S. <Unknown>\n"
 "Language-Team: Português Brasileiro <ubuntu-l10n-ptbr@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-03-23 04:57+0000\n"
+"X-Launchpad-Export-Date: 2013-03-26 04:43+0000\n"
 "X-Generator: Launchpad (build 16540)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -4541,6 +4541,11 @@ msgid ""
 "pattern (which can be an empty line). The regular expression must be in the "
 "python regex syntax and the file must be UTF-8 encoded."
 msgstr ""
+"Caminho para um ficheiro que contém expressões de pesquisa e substituição "
+"comuns. O ficheiro deve conter linhas alternadas com expressões comuns e o "
+"padrão de substituição (que pode ser uma linha vazia). As expressões comuns "
+"devem estar na síntaxe python regex e o ficheiro deve estar codificado em "
+"UTF-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:776
 msgid "Could not find an ebook inside the archive"
@@ -8465,7 +8470,7 @@ msgstr "Sessões incluidas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:354
 msgid "List of books, sorted by Author"
-msgstr ""
+msgstr "Lista de livros classificados por Autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:355
 msgid "&Authors"
@@ -8473,7 +8478,7 @@ msgstr "&Autores"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:356
 msgid "List of books, sorted by Title"
-msgstr ""
+msgstr "Lista de livros classificados por Título"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:357
 msgid "&Titles"
@@ -10891,7 +10896,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:370
 #, python-format
 msgid "Choose the formats to send to the %s"
-msgstr ""
+msgstr "Escolha os formatos para enviar para %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:373
 #, python-format
