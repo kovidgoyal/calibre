@@ -247,6 +247,10 @@ class WritingTest(BaseTest):
                 ae(c.field_for('author_sort', 1), 'Unknown')
                 ae(c.field_for('author_sort', 2), 'An, Author')
                 ae(c.field_for('author_sort', 3), 'Goyal, Kovid & Layog, Divok')
+                if name == 'authors':
+                    ae(c.field_for('author_sort', 3), 'Goyal, Kovid & Layog, Divok')
+                    ae(c.field_for('author_sort', 2), 'An, Author')
+                    ae(c.field_for('author_sort', 1), 'Unknown')
             del cache2
         ae(cache.set_field('authors', {1:'KoviD GoyaL'}), {1, 3})
         ae(cache.field_for('author_sort', 1), 'GoyaL, KoviD')
@@ -276,6 +280,15 @@ class WritingTest(BaseTest):
             ae(c.field_for('identifiers', 3), {'one':'1', 'two':'2'})
             ae(c.field_for('identifiers', 2), {})
             ae(c.field_for('identifiers', 1), {'test':'1', 'two':'2'})
+        del cache2
+
+        # Test setting of title sort
+        ae(sf('title', {1:'The Moose', 2:'Cat'}), {1, 2})
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            ae(c.field_for('sort', 1), 'Moose, The')
+            ae(c.field_for('sort', 2), 'Cat')
+
 
     # }}}
 

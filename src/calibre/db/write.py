@@ -12,7 +12,7 @@ from functools import partial
 from datetime import datetime
 
 from calibre.constants import preferred_encoding, ispy3
-from calibre.ebooks.metadata import author_to_author_sort
+from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.utils.date import (parse_only_date, parse_date, UNDEFINED_DATE,
                                 isoformat)
 from calibre.utils.localization import canonicalize_lang
@@ -174,6 +174,10 @@ def one_one_in_books(book_id_val_map, db, field, *args):
         db.conn.executemany(
             'UPDATE books SET %s=? WHERE id=?'%field.metadata['column'], sequence)
         field.table.book_col_map.update(book_id_val_map)
+    if field.name == 'title':
+        # Set the title sort field
+        field.title_sort_field.writer.set_books(
+            {k:title_sort(v) for k, v in book_id_val_map.iteritems()}, db)
     return set(book_id_val_map)
 
 def one_one_in_other(book_id_val_map, db, field, *args):

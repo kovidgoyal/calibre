@@ -219,6 +219,8 @@ class Cache(object):
                     field.series_field = self.fields['series']
                 elif name == 'authors':
                     field.author_sort_field = self.fields['author_sort']
+                elif name == 'title':
+                    field.title_sort_field = self.fields['sort']
 
     @read_api
     def field_for(self, name, book_id, default_value=None):
@@ -620,7 +622,6 @@ class Cache(object):
     @write_api
     def set_field(self, name, book_id_to_val_map, allow_case_change=True):
         # TODO: Specialize title/authors to also update path
-        # TODO: Ensure the sort fields are updated for title/author/series?
         f = self.fields[name]
         is_series = f.metadata['datatype'] == 'series'
 
