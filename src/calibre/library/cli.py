@@ -592,6 +592,9 @@ def command_set_metadata(args, dbpath):
         print >>sys.stderr, _('You must specify either a field or an opf file')
         return 1
     book_id = int(args[1])
+    if book_id not in db.all_ids():
+        prints(_('No book with id: %s in the database')%book_id, file=sys.stderr)
+        raise SystemExit(1)
 
     if len(args) > 2:
         opf = args[2]
@@ -870,6 +873,9 @@ def parse_series_string(db, label, value):
     return val, s_index
 
 def do_set_custom(db, col, id_, val, append):
+    if id_ not in db.all_ids():
+        prints(_('No book with id: %s in the database')%id_, file=sys.stderr)
+        raise SystemExit(1)
     if db.custom_column_label_map[col]['datatype'] == 'series':
         val, s_index = parse_series_string(db, col, val)
         db.set_custom(id_, val, extra=s_index, label=col, append=append)
