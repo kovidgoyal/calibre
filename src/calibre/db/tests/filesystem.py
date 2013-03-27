@@ -74,14 +74,3 @@ class FilesystemTest(BaseTest):
         self.assertNotEqual(cache.field_for('title', 1), 'Moved', 'Title was changed despite file lock')
 
 
-def tests():
-    tl = unittest.TestLoader()
-    return tl.loadTestsFromTestCase(FilesystemTest)
-
-def run():
-    unittest.TextTestRunner(verbosity=2).run(tests())
-
-if __name__ == '__main__':
-    run()
-
-

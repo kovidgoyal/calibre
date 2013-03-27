@@ -7,7 +7,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest
 from collections import namedtuple
 from functools import partial
 
@@ -292,16 +291,4 @@ class WritingTest(BaseTest):
 
 
     # }}}
-
-def tests():
-    tl = unittest.TestLoader()
-    # return tl.loadTestsFromName('writing.WritingTest.test_many_many_basic')
-    return tl.loadTestsFromTestCase(WritingTest)
-
-def run():
-    unittest.TextTestRunner(verbosity=2).run(tests())
-
-if __name__ == '__main__':
-    run()
-
 

@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, datetime
+import datetime
 
 from calibre.utils.date import utc_tz
 from calibre.db.tests.base import BaseTest
@@ -334,13 +334,4 @@ class ReadingTest(BaseTest):
 
 
     # }}}
-
-def tests():
-    return unittest.TestLoader().loadTestsFromTestCase(ReadingTest)
-
-def run():
-    unittest.TextTestRunner(verbosity=2).run(tests())
-
-if __name__ == '__main__':
-    run()
 

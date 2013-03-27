@@ -7,11 +7,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, os
+import unittest, os, argparse
 
 def find_tests():
     return unittest.defaultTestLoader.discover(os.path.dirname(os.path.abspath(__file__)), pattern='*.py')
 
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(find_tests())
+    parser = argparse.ArgumentParser()
+    parser.add_argument('name', nargs='?', default=None, help='The name of the test to run, for e.g. writing.WritingTest.many_many_basic')
+    args = parser.parse_args()
+    if args.name:
+        unittest.TextTestRunner(verbosity=4).run(unittest.defaultTestLoader.loadTestsFromName(args.name))
+    else:
+        unittest.TextTestRunner(verbosity=4).run(find_tests())
 
