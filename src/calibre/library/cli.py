@@ -947,11 +947,16 @@ def command_custom_columns(args, dbpath):
 
 def do_remove_custom_column(db, label, force):
     if not force:
-        q = raw_input(_('You will lose all data in the column: %r.'
+        q = raw_input(_('You will lose all data in the column: %s.'
             ' Are you sure (y/n)? ')%label)
         if q.lower().strip() != _('y'):
             return
-    db.delete_custom_column(label=label)
+    try:
+        db.delete_custom_column(label=label)
+    except KeyError:
+        prints(_('No column named %s found. You must use column labels, not titles.'
+               ' Use calibredb custom_columns to get a list of labels.')%label, file=sys.stderr)
+        raise SystemExit(1)
     prints('Column %r removed.'%label)
 
 def remove_custom_column_option_parser():
