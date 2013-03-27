@@ -413,15 +413,15 @@ class WAYTEQ(USBMS):
 
     name           = 'WayteQ device interface'
     gui_name       = 'WayteQ xBook'
-    description    = _('Communicate with the WayteQ Reader')
+    description    = _('Communicate with the WayteQ and SPC Dickens Readers')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
     FORMATS     = ['epub', 'mobi', 'prc', 'fb2', 'txt', 'pdf', 'html', 'rtf', 'chm', 'djvu', 'doc']
 
-    VENDOR_ID   = [0x05e3]
-    PRODUCT_ID  = [0x0726]
+    VENDOR_ID   = [0x05e3, 0x05e8]
+    PRODUCT_ID  = [0x0726, 0x0728]
     BCD         = [0x0222]
 
     EBOOK_DIR_MAIN = 'Documents'
@@ -430,6 +430,14 @@ class WAYTEQ(USBMS):
     VENDOR_NAME = 'ROCKCHIP'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'RK28_SDK_DEMO'
     SUPPORTS_SUB_DIRS = True
+
+    def get_gui_name(self):
+        try:
+            if self.detected_device.idVendor == 0x05e8:
+                return 'SPC Dickens'
+        except Exception:
+            pass
+        return self.gui_name
 
     def get_carda_ebook_dir(self, for_upload=False):
         if for_upload:

@@ -11,12 +11,13 @@ class Gildia(BasicNewsRecipe):
     language       = 'pl'
     oldest_article = 8
     max_articles_per_feed = 100
-    remove_empty_feeds=True
-    no_stylesheets=True
+    remove_empty_feeds = True
+    no_stylesheets = True
     ignore_duplicate_articles = {'title', 'url'}
     preprocess_regexps = [(re.compile(ur'</?sup>'), lambda match: '') ]
-    remove_tags=[dict(name='div', attrs={'class':'backlink'}), dict(name='div', attrs={'class':'im_img'}), dict(name='div', attrs={'class':'addthis_toolbox addthis_default_style'})]
-    keep_only_tags=dict(name='div', attrs={'class':'widetext'})
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_tags = [dict(name='div', attrs={'class':'backlink'}), dict(name='div', attrs={'class':'im_img'}), dict(name='div', attrs={'class':'addthis_toolbox addthis_default_style'})]
+    keep_only_tags = dict(name='div', attrs={'class':'widetext'})
     feeds          = [(u'Gry', u'http://www.gry.gildia.pl/rss'), (u'Literatura', u'http://www.literatura.gildia.pl/rss'), (u'Film', u'http://www.film.gildia.pl/rss'), (u'Horror', u'http://www.horror.gildia.pl/rss'), (u'Konwenty', u'http://www.konwenty.gildia.pl/rss'), (u'Plansz\xf3wki', u'http://www.planszowki.gildia.pl/rss'), (u'Manga i anime', u'http://www.manga.gildia.pl/rss'), (u'Star Wars', u'http://www.starwars.gildia.pl/rss'), (u'Techno', u'http://www.techno.gildia.pl/rss'), (u'Historia', u'http://www.historia.gildia.pl/rss'), (u'Magia', u'http://www.magia.gildia.pl/rss'), (u'Bitewniaki', u'http://www.bitewniaki.gildia.pl/rss'), (u'RPG', u'http://www.rpg.gildia.pl/rss'), (u'LARP', u'http://www.larp.gildia.pl/rss'), (u'Muzyka', u'http://www.muzyka.gildia.pl/rss'), (u'Nauka', u'http://www.nauka.gildia.pl/rss')]
 
 
@@ -34,7 +35,7 @@ class Gildia(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for a in soup('a'):
-            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
+            if a.has_key('href') and not a['href'].startswith('http'):
                 if '/gry/' in a['href']:
                     a['href']='http://www.gry.gildia.pl' + a['href']
                 elif u'książk' in soup.title.string.lower() or u'komiks' in soup.title.string.lower():

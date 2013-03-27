@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008-2013, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 harpers.org - paid subscription/ printed issue articles
 This recipe only get's article's published in text format
@@ -14,7 +14,7 @@ from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Harpers_full(BasicNewsRecipe):
-    title                 = "Harper's Magazine - articles from printed edition"
+    title                 = "Harper's Magazine - Printed Edition"
     __author__            = 'Darko Miletic'
     description           = "Harper's Magazine, the oldest general-interest monthly in America, explores the issues that drive our national conversation, through long-form narrative journalism and essays, and such celebrated features as the iconic Harper's Index."
     publisher             = "Harpers's"
@@ -29,6 +29,7 @@ class Harpers_full(BasicNewsRecipe):
     needs_subscription    = 'optional'
     masthead_url          = 'http://harpers.org/wp-content/themes/harpers/images/pheader.gif'
     publication_type      = 'magazine'
+    INDEX                 = ''
     LOGIN                 = 'http://harpers.org/wp-content/themes/harpers/ajax_login.php'
     extra_css             = """
                                 body{font-family: adobe-caslon-pro,serif}
@@ -65,43 +66,43 @@ class Harpers_full(BasicNewsRecipe):
 
     def parse_index(self):
         #find current issue
+
         soup = self.index_to_soup('http://harpers.org/')
         currentIssue=soup.find('div',attrs={'class':'mainNavi'}).find('li',attrs={'class':'curentIssue'})
         currentIssue_url=self.tag_to_string(currentIssue.a['href'])
-        self.log(currentIssue_url)
 
         #go to the current issue
         soup1 = self.index_to_soup(currentIssue_url)
-        currentIssue_title = self.tag_to_string(soup1.head.title.string)
-        date = re.split('\s\|\s',currentIssue_title)[0]
+        date = re.split('\s\|\s',self.tag_to_string(soup1.head.title.string))[0]
         self.timefmt =  u' [%s]'%date
 
         #get cover
-        coverurl='http://harpers.org/wp-content/themes/harpers/ajax_microfiche.php?img=harpers-'+re.split('harpers.org/',currentIssue_url)[1]+'gif/0001.gif'
-        soup2 = self.index_to_soup(coverurl)
-        self.cover_url = self.tag_to_string(soup2.find('img')['src'])
-        self.log(self.cover_url)
+        self.cover_url = soup1.find('div', attrs = {'class':'picture_hp'}).find('img', src=True)['src']
+
         articles = []
         count = 0
         for item in soup1.findAll('div', attrs={'class':'articleData'}):
             text_links = item.findAll('h2')
-            if text_links:
-                for text_link in text_links:
-                    if count == 0:
-                       count = 1
-                    else:
-                       url   = text_link.a['href']
-                       title = self.tag_to_string(text_link.a)
-                       date  = strftime(' %B %Y')
-                       articles.append({
-                                          'title'      :title
-                                         ,'date'       :date
-                                         ,'url'        :url
-                                         ,'description':''
-                                        })
-        return [(currentIssue_title, articles)]
+            for text_link in text_links:
+                if count == 0:
+                   count = 1
+                else:
+                   url   = text_link.a['href']
+                   title = text_link.a.contents[0]
+                   date  = strftime(' %B %Y')
+                   articles.append({
+                                      'title'      :title
+                                     ,'date'       :date
+                                     ,'url'        :url
+                                     ,'description':''
+                                    })
+        return [(soup1.head.title.string, articles)]
 
     def print_version(self, url):
         return url + '?single=1'
 
-
+    def cleanup(self):
+        soup = self.index_to_soup('http://harpers.org/')
+        signouturl=self.tag_to_string(soup.find('li', attrs={'class':'subLogOut'}).findNext('li').a['href'])
+        self.log(signouturl)
+        self.browser.open(signouturl)

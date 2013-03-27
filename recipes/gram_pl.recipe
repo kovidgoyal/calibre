@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
 class Gram_pl(BasicNewsRecipe):
     title          = u'Gram.pl'
     __author__        = 'fenuks'

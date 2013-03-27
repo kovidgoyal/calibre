@@ -1,5 +1,6 @@
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Comment
 
 class GazetaPomorska(BasicNewsRecipe):
     title          = u'Gazeta Pomorska'
@@ -85,6 +86,10 @@ class GazetaPomorska(BasicNewsRecipe):
                 if pagetext:
                     pos = len(appendtag.contents)
                     appendtag.insert(pos, pagetext)
+            
+            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body)

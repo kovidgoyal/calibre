@@ -12,6 +12,8 @@ class Kosmonauta(BasicNewsRecipe):
     INDEX = 'http://www.kosmonauta.net'
     oldest_article = 7
     no_stylesheets = True
+    remove_javascript = True
+    remove_attributes = ['style']
     max_articles_per_feed = 100
     keep_only_tags = [dict(name='div', attrs={'class':'item-page'})]
     remove_tags = [dict(attrs={'class':['article-tools clearfix', 'cedtag', 'nav clearfix', 'jwDisqusForm']})]

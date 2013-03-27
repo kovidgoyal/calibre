@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct, re, os, imghdr
+import struct, re, os
 from collections import namedtuple
 from itertools import repeat, izip
 from urlparse import urldefrag
@@ -23,6 +23,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.utils import read_font_record
 from calibre.ebooks.oeb.parse_utils import parse_html
 from calibre.ebooks.oeb.base import XPath, XHTML, xml2text
+from calibre.utils.imghdr import what
 
 Part = namedtuple('Part',
     'num type filename start end aid')
@@ -403,7 +404,7 @@ class Mobi8Reader(object):
                 if font['encrypted']:
                     self.encrypted_fonts.append(href)
             else:
-                imgtype = imghdr.what(None, data)
+                imgtype = what(None, data)
                 if imgtype is None:
                     imgtype = 'unknown'
                 href = 'images/%05d.%s'%(fname_idx, imgtype)

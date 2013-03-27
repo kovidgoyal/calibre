@@ -311,8 +311,7 @@ class AZW3Output(OutputFormatPlugin):
         if not passthrough:
             remove_html_cover(self.oeb, self.log)
 
-            # Split on pagebreaks so that the resulting KF8 works better with
-            # calibre's viewer, which does not support CSS page breaks
+            # Split on pagebreaks so that the resulting KF8 is faster to load
             from calibre.ebooks.oeb.transforms.split import Split
             Split()(self.oeb, self.opts)
 

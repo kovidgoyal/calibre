@@ -7,7 +7,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Fetch a webpage and its links recursively. The webpages are saved to disk in
 UTF-8 encoding with any charset declarations removed.
 '''
-import sys, socket, os, urlparse, re, time, copy, urllib2, threading, traceback, imghdr
+import sys, socket, os, urlparse, re, time, copy, urllib2, threading, traceback
 from urllib import url2pathname, quote
 from httplib import responses
 from base64 import b64decode
@@ -21,6 +21,7 @@ from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
 from calibre.utils.magick import Image
 from calibre.utils.magick.draw import identify_data, thumbnail
+from calibre.utils.imghdr import what
 
 class FetchError(Exception):
     pass
@@ -413,7 +414,7 @@ class RecursiveFetcher(object):
             fname = ascii_filename('img'+str(c))
             if isinstance(fname, unicode):
                 fname = fname.encode('ascii', 'replace')
-            itype = imghdr.what(None, data)
+            itype = what(None, data)
             if itype is None and b'<svg' in data[:1024]:
                 # SVG image
                 imgpath = os.path.join(diskpath, fname+'.svg')
@@ -437,6 +438,9 @@ class RecursiveFetcher(object):
                             identify_data(data)
                     else:
                         identify_data(data)
+                    # Moon+ apparently cannot handle .jpeg files
+                    if itype == 'jpeg':
+                        itype = 'jpg'
                     imgpath = os.path.join(diskpath, fname+'.'+itype)
                     with self.imagemap_lock:
                         self.imagemap[iurl] = imgpath

@@ -19,6 +19,62 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.24
+  date: 2013-03-22
+
+  new features:
+    - title: "ToC Editor: Allow auto-generation of Table of Contents entries from headings and/or links in the book"
+
+    - title: "EPUB/MOBI Catalogs: Allow saving used settings as presets which can be loaded easily later."
+      tickets: [1155587]
+
+    - title: "Indicate which columns are custom columns when selecting columns in the Preferences"
+      tickets: [1158066]
+
+    - title: "News download: Add an option recipe authors can set to have calibre automatically reduce the size of downloaded images by lowering their quality"
+ 
+  bug fixes:
+    - title: "News download: Fix a regression in 0.9.23 that prevented oldest_article from working with some RSS feeds."
+
+    - title: "Conversion: handle the :before and :after pseudo CSS selectors correctly"
+
+    - title: "AZW3 Output: Handle the case of the <guide> reference to a ToC containing an anchor correctly."
+      tickets: [1158413]
+
+    - title: "BiBTeX catalogs: Fix ISBN not being output and the library_name field causing catalog generation to fail"
+      tickets: [1156432, 1158127]
+
+    - title: "Conversion: Add support for CSS stylesheets that wrap their rules inside a @media rule."
+      tickets: [1157345]
+
+    - title: "Cover browser: Fix scrolling not working for books after the 32678'th book in a large library."
+      tickets: [1153204]
+
+    - title: "Linux: Update bundled libmtp version"
+
+    - title: "Clear the Book details panel when the current search returns no matches."
+      tickets: [1153026]
+
+    - title: "Fix a regression that broke creation of advanced column coloring rules"
+      tickets: [1156291]
+
+    - title: "Amazon metadata download: Handle cover images loaded via javascript on the amazon.de site"
+
+    - title: "Nicer error message when exporting a generated csv catalog to a file open in another program on windows."
+      tickets: [1155539]
+
+    - title: "Fix ebook-convert -h showing ANSI escape codes in the windows command prompt"
+      tickets: [1158499]
+
+  improved recipes:
+    - Various Polish news sources
+    - kath.net
+    - Il Giornale
+    - Kellog Insight
+
+  new recipes:
+    - title: 
+
 - version: 0.9.23
   date: 2013-03-15
 

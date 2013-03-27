@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from functools import partial
 
-from PyQt4.Qt import QDialog, Qt, QListWidgetItem, QVariant, QColor
+from PyQt4.Qt import QDialog, Qt, QListWidgetItem, QVariant, QColor, QIcon
 
 from calibre.gui2.preferences.create_custom_column_ui import Ui_QCreateCustomColumn
 from calibre.gui2 import error_dialog
@@ -323,6 +323,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                 }
             item = QListWidgetItem(col_heading, self.parent.opt_columns)
             item.setData(Qt.UserRole, QVariant(key))
+            item.setData(Qt.DecorationRole, QVariant(QIcon(I('column.png'))))
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
             item.setCheckState(Qt.Checked)
         else:

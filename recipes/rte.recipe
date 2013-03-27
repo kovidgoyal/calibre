@@ -6,10 +6,12 @@ class RTE(BasicNewsRecipe):
     max_articles_per_feed = 100
     __author__ = u'Robin Phillips'
     language = 'en_IE'
+    auto_cleanup=True
+    auto_cleanup_keep = '//figure[@class="photography gal642 single"]'
 
     remove_tags = [dict(attrs={'class':['topAd','botad','previousNextItem','headline','footerLinks','footernav']})]
 
     feeds          = [(u'News', u'http://www.rte.ie/rss/news.xml'), (u'Sport', u'http://www.rte.ie/rss/sport.xml'), (u'Soccer', u'http://www.rte.ie/rss/soccer.xml'), (u'GAA', u'http://www.rte.ie/rss/gaa.xml'), (u'Rugby', u'http://www.rte.ie/rss/rugby.xml'), (u'Racing', u'http://www.rte.ie/rss/racing.xml'), (u'Business', u'http://www.rte.ie/rss/business.xml'), (u'Entertainment', u'http://www.rte.ie/rss/entertainment.xml')]
 
-    def print_version(self, url):
-        return url.replace('http://www', 'http://m')
+    #def print_version(self, url):
+        #return url.replace('http://www', 'http://m')

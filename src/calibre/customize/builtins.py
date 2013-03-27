@@ -1666,15 +1666,6 @@ class XinXiiStore(StoreBase):
     headquarters = 'DE'
     formats = ['EPUB', 'PDF']
 
-class StoreZixoStore(StoreBase):
-    name = 'Zixo'
-    author = u'Tomasz Długosz'
-    description = u'Księgarnia z ebookami oraz książkami audio. Aby otwierać książki w formacie Zixo należy zainstalować program dostępny na stronie księgarni. Umożliwia on m.in. dodawanie zakładek i dostosowywanie rozmiaru czcionki.'
-    actual_plugin = 'calibre.gui2.store.stores.zixo_plugin:ZixoStore'
-
-    headquarters = 'PL'
-    formats = ['PDF, ZIXO']
-
 plugins += [
     StoreArchiveOrgStore,
     StoreAmazonKindleStore,
@@ -1724,8 +1715,7 @@ plugins += [
     StoreWeightlessBooksStore,
     StoreWHSmithUKStore,
     StoreWoblinkStore,
-    XinXiiStore,
-    StoreZixoStore
+    XinXiiStore
 ]
 
 # }}}

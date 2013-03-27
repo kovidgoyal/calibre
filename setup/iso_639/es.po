@@ -9,14 +9,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-02-26 12:21+0000\n"
-"Last-Translator: Miguel Angel del Olmo <silinio45@gmail.com>\n"
+"PO-Revision-Date: 2013-03-19 21:03+0000\n"
+"Last-Translator: Jorge Luis Granda <costeelation@hotmail.com>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-02-27 04:37+0000\n"
-"X-Generator: Launchpad (build 16506)\n"
+"X-Launchpad-Export-Date: 2013-03-20 04:42+0000\n"
+"X-Generator: Launchpad (build 16532)\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -9808,7 +9808,7 @@ msgstr "Huave; San Mateo Del Mar"
 
 #. name for huw
 msgid "Hukumina"
-msgstr ""
+msgstr "Hukumina"
 
 #. name for hux
 msgid "Huitoto; Nüpode"
@@ -9816,15 +9816,15 @@ msgstr "Huitoto; Nipode"
 
 #. name for huy
 msgid "Hulaulá"
-msgstr ""
+msgstr "Hulaulá"
 
 #. name for huz
 msgid "Hunzib"
-msgstr ""
+msgstr "Hunzib"
 
 #. name for hvc
 msgid "Haitian Vodoun Culture Language"
-msgstr ""
+msgstr "Idioma de la cultura haitiana vodoun"
 
 #. name for hve
 msgid "Huave; San Dionisio Del Mar"
@@ -9832,11 +9832,11 @@ msgstr "Huave; San Dionisio Del Mar"
 
 #. name for hvk
 msgid "Haveke"
-msgstr ""
+msgstr "Haveke"
 
 #. name for hvn
 msgid "Sabu"
-msgstr ""
+msgstr "Sabu"
 
 #. name for hvv
 msgid "Huave; Santa María Del Mar"
@@ -9844,7 +9844,7 @@ msgstr "Huave; Santa María Del Mar"
 
 #. name for hwa
 msgid "Wané"
-msgstr ""
+msgstr "Wané"
 
 #. name for hwc
 msgid "Creole English; Hawai'i"
@@ -9856,7 +9856,7 @@ msgstr ""
 
 #. name for hya
 msgid "Hya"
-msgstr ""
+msgstr "Hya"
 
 #. name for hye
 msgid "Armenian"
@@ -9864,7 +9864,7 @@ msgstr "Armenio"
 
 #. name for iai
 msgid "Iaai"
-msgstr ""
+msgstr "Iaai"
 
 #. name for ian
 msgid "Iatmul"
@@ -30664,31 +30664,31 @@ msgstr ""
 
 #. name for zpu
 msgid "Zapotec; Yalálag"
-msgstr ""
+msgstr "Zapotec; Yalálag"
 
 #. name for zpv
 msgid "Zapotec; Chichicapan"
-msgstr ""
+msgstr "Zapotec; Chichicapan"
 
 #. name for zpw
 msgid "Zapotec; Zaniza"
-msgstr ""
+msgstr "Zapotec; Zaniza"
 
 #. name for zpx
 msgid "Zapotec; San Baltazar Loxicha"
-msgstr ""
+msgstr "Zapotec; San Baltazar Loxicha"
 
 #. name for zpy
 msgid "Zapotec; Mazaltepec"
-msgstr ""
+msgstr "Zapotec; Mazaltepec"
 
 #. name for zpz
 msgid "Zapotec; Texmelucan"
-msgstr ""
+msgstr "Zapotec; Texmelucan"
 
 #. name for zqe
 msgid "Zhuang; Qiubei"
-msgstr ""
+msgstr "Zhuang; Qiubei"
 
 #. name for zra
 msgid "Kara (Korea)"
@@ -30732,7 +30732,7 @@ msgstr "Malayo estándar"
 
 #. name for zsr
 msgid "Zapotec; Southern Rincon"
-msgstr ""
+msgstr "Zapotec; Southern Rincon"
 
 #. name for zsu
 msgid "Sukurum"
@@ -30760,11 +30760,11 @@ msgstr "Zapoteco de Santa Catarina Albarradas"
 
 #. name for ztp
 msgid "Zapotec; Loxicha"
-msgstr ""
+msgstr "Zapotec; Loxicha"
 
 #. name for ztq
 msgid "Zapotec; Quioquitani-Quierí"
-msgstr ""
+msgstr "Zapotec; Quioquitani-Quierí"
 
 #. name for zts
 msgid "Zapotec; Tilquiapan"

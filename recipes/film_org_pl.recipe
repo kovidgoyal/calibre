@@ -7,6 +7,7 @@ class FilmOrgPl(BasicNewsRecipe):
     description   = u"Recenzje, analizy, artykuły, rankingi - wszystko o filmie dla miłośników kina. Opisy efektów specjalnych, wersji reżyserskich, remake'ów, sequeli. No i forum filmowe. Jedne z największych w Polsce."
     category       = 'film'
     language       = 'pl'
+    extra_css = '.alignright {float:right; margin-left:5px;} .alignleft {float:left; margin-right:5px;}'
     cover_url = 'http://film.org.pl/wp-content/themes/KMF/images/logo_kmf10.png'
     ignore_duplicate_articles = {'title', 'url'}
     oldest_article = 7

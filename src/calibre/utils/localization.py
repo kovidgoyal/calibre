@@ -159,6 +159,7 @@ _extra_lang_codes = {
         'en_CZ' : _('English (Czech Republic)'),
         'en_PH' : _('English (Philippines)'),
         'en_PK' : _('English (Pakistan)'),
+        'en_PL' : _('English (Poland)'),
         'en_HR' : _('English (Croatia)'),
         'en_HK' : _('English (Hong Kong)'),
         'en_HU' : _('English (Hungary)'),

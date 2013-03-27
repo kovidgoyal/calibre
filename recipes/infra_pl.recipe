@@ -15,7 +15,7 @@ class INFRA(BasicNewsRecipe):
     remove_tags_before=dict(name='h2', attrs={'class':'contentheading'})
     remove_tags_after=dict(attrs={'class':'pagenav'})
     remove_tags=[dict(attrs={'class':'pagenav'})]
-    feeds          = [(u'Najnowsze wiadomo\u015bci', u'http://www.infra.org.pl/index.php?option=com_rd_rss&id=1')]
+    feeds          = [(u'Najnowsze wiadomo\u015bci', u'http://www.infra.org.pl/rss')]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

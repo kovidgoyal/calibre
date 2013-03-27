@@ -167,9 +167,10 @@ class CompositeField(OneToOneField):
         with self._lock:
             self._render_cache = {}
 
-    def pop_cache(self, book_id):
+    def pop_cache(self, book_ids):
         with self._lock:
-            self._render_cache.pop(book_id, None)
+            for book_id in book_ids:
+                self._render_cache.pop(book_id, None)
 
     def get_value_with_cache(self, book_id, get_metadata):
         with self._lock:
@@ -177,6 +178,8 @@ class CompositeField(OneToOneField):
         if ans is None:
             mi = get_metadata(book_id)
             ans = mi.get('#'+self.metadata['label'])
+            with self._lock:
+                self._render_cache[book_id] = ans
         return ans
 
     def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
