@@ -11,14 +11,11 @@ import unittest
 from collections import namedtuple
 from functools import partial
 
+from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.db.tests.base import BaseTest
 
 class WritingTest(BaseTest):
-
-    @property
-    def cloned_library(self):
-        return self.clone_library(self.library_path)
 
     def create_getter(self, name, getter=None):
         if getter is None:
@@ -214,7 +211,7 @@ class WritingTest(BaseTest):
             {1, 2})
         for name in ('tags', '#tags'):
             f = cache.fields[name]
-            af(sf(name, {1:('tag one', 'News')}, allow_case_change=False))
+            af(sf(name, {1:('News', 'tag one')}, allow_case_change=False))
             ae(sf(name, {1:'tag one, News'}), {1, 2})
             ae(sf(name, {3:('tag two', 'sep,sep2')}), {2, 3})
             ae(len(f.table.id_map), 4)
@@ -225,7 +222,7 @@ class WritingTest(BaseTest):
                 ae(len(c.fields[name].table.id_map), 3)
                 ae(len(c.fields[name].table.id_map), 3)
                 ae(c.field_for(name, 1), ())
-                ae(c.field_for(name, 2), ('tag one', 'tag two'))
+                ae(c.field_for(name, 2), ('tag two', 'tag one'))
             del cache2
 
         # Authors
@@ -244,13 +241,10 @@ class WritingTest(BaseTest):
                 ae(c.field_for(name, 3), ('Kovid Goyal', 'Divok Layog'))
                 ae(c.field_for(name, 2), ('An, Author',))
                 ae(c.field_for(name, 1), ('Unknown',) if name=='authors' else ())
-                ae(c.field_for('author_sort', 1), 'Unknown')
-                ae(c.field_for('author_sort', 2), 'An, Author')
-                ae(c.field_for('author_sort', 3), 'Goyal, Kovid & Layog, Divok')
                 if name == 'authors':
-                    ae(c.field_for('author_sort', 3), 'Goyal, Kovid & Layog, Divok')
-                    ae(c.field_for('author_sort', 2), 'An, Author')
-                    ae(c.field_for('author_sort', 1), 'Unknown')
+                    ae(c.field_for('author_sort', 1), author_to_author_sort('Unknown'))
+                    ae(c.field_for('author_sort', 2), author_to_author_sort('An, Author'))
+                    ae(c.field_for('author_sort', 3), author_to_author_sort('Kovid Goyal') + ' & ' + author_to_author_sort('Divok Layog'))
             del cache2
         ae(cache.set_field('authors', {1:'KoviD GoyaL'}), {1, 3})
         ae(cache.field_for('author_sort', 1), 'GoyaL, KoviD')
@@ -269,6 +263,13 @@ class WritingTest(BaseTest):
         ae(cache.field_for('languages', 3), ('eng',))
         ae(sf('languages', {3:None}), set([3]))
         ae(cache.field_for('languages', 3), ())
+        ae(sf('languages', {1:'deu,fra,eng'}), set([1]), 'Changing order failed')
+        ae(sf('languages', {2:'deu,eng,eng'}), set([2]))
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            ae(cache.field_for('languages', 1), ('deu', 'fra', 'eng'))
+            ae(cache.field_for('languages', 2), ('deu', 'eng'))
+        del cache2
 
         # Identifiers
         f = cache.fields['identifiers']

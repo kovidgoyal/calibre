@@ -12,6 +12,7 @@ from io import BytesIO
 from collections import defaultdict
 from functools import wraps, partial
 
+from calibre.constants import iswindows
 from calibre.db import SPOOL_SIZE
 from calibre.db.categories import get_categories
 from calibre.db.locking import create_locks, RecordLock
@@ -621,9 +622,12 @@ class Cache(object):
 
     @write_api
     def set_field(self, name, book_id_to_val_map, allow_case_change=True):
-        # TODO: Specialize title/authors to also update path
         f = self.fields[name]
         is_series = f.metadata['datatype'] == 'series'
+        update_path = name in {'title', 'authors'}
+        if update_path and iswindows:
+            paths = (x for x in (self._field_for('path', book_id) for book_id in book_id_to_val_map) if x)
+            self.backend.windows_check_if_files_in_use(paths)
 
         if is_series:
             bimap, simap = {}, {}
@@ -650,7 +654,23 @@ class Cache(object):
             for name in self.composites:
                 self.fields[name].pop_cache(dirtied)
 
+        if dirtied and update_path:
+            self._update_path(dirtied, mark_as_dirtied=False)
+
+        # TODO: Mark these as dirtied so that the opf is regenerated
+
         return dirtied
+
+    @write_api
+    def update_path(self, book_ids, mark_as_dirtied=True):
+        for book_id in book_ids:
+            title = self._field_for('title', book_id, default_value=_('Unknown'))
+            author = self._field_for('authors', book_id, default_value=(_('Unknown'),))[0]
+            self.backend.update_path(book_id, title, author, self.fields['path'], self.fields['formats'])
+            if mark_as_dirtied:
+                pass
+            # TODO: Mark these books as dirtied so that metadata.opf is
+            # re-created
 
     # }}}
 

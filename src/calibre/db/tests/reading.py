@@ -115,6 +115,8 @@ class ReadingTest(BaseTest):
         for book_id, test in tests.iteritems():
             for field, expected_val in test.iteritems():
                 val = cache.field_for(field, book_id)
+                if isinstance(val, tuple) and 'authors' not in field and 'languages' not in field:
+                    val, expected_val = set(val), set(expected_val)
                 self.assertEqual(expected_val, val,
                         'Book id: %d Field: %s failed: %r != %r'%(
                             book_id, field, expected_val, val))
@@ -173,6 +175,7 @@ class ReadingTest(BaseTest):
             mi.format_metadata = dict(mi.format_metadata)
             if mi.formats:
                 mi.formats = tuple(mi.formats)
+        old.conn.close()
         old = None
 
         cache = self.init_cache(self.library_path)
@@ -189,6 +192,7 @@ class ReadingTest(BaseTest):
         from calibre.library.database2 import LibraryDatabase2
         old = LibraryDatabase2(self.library_path)
         covers = {i: old.cover(i, index_is_id=True) for i in old.all_ids()}
+        old.conn.close()
         old = None
         cache = self.init_cache(self.library_path)
         for book_id, cdata in covers.iteritems():
@@ -247,6 +251,7 @@ class ReadingTest(BaseTest):
             '#formats:fmt1', '#formats:fmt2', '#formats:fmt1 and #formats:fmt2',
 
         )}
+        old.conn.close()
         old = None
 
         cache = self.init_cache(self.library_path)
@@ -263,6 +268,7 @@ class ReadingTest(BaseTest):
         from calibre.library.database2 import LibraryDatabase2
         old = LibraryDatabase2(self.library_path)
         old_categories = old.get_categories()
+        old.conn.close()
         cache = self.init_cache(self.library_path)
         new_categories = cache.get_categories()
         self.assertEqual(set(old_categories), set(new_categories),
@@ -305,6 +311,7 @@ class ReadingTest(BaseTest):
             i, index_is_id=True) else set() for i in ids}
         formats = {i:{f:old.format(i, f, index_is_id=True) for f in fmts} for
                    i, fmts in lf.iteritems()}
+        old.conn.close()
         old = None
         cache = self.init_cache(self.library_path)
         for book_id, fmts in lf.iteritems():
