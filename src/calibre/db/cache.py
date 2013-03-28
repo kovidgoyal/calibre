@@ -674,7 +674,7 @@ class Cache(object):
 
     # }}}
 
-class SortKey(object):
+class SortKey(object): # {{{
 
     def __init__(self, fields, sort_keys, book_id):
         self.orders = tuple(1 if f[1] else -1 for f in fields)
@@ -686,19 +686,5 @@ class SortKey(object):
             if ans != 0:
                 return ans * order
         return 0
-
-
-# Testing {{{
-
-def test(library_path):
-    from calibre.db.backend import DB
-    backend = DB(library_path)
-    cache = Cache(backend)
-    cache.init()
-    print ('All book ids:', cache.all_book_ids())
-
-if __name__ == '__main__':
-    from calibre.utils.config import prefs
-    test(prefs['library_path'])
-
 # }}}
+
