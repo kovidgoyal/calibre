@@ -57,15 +57,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-22 04:21+0000\n"
-"PO-Revision-Date: 2013-03-21 19:09+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2013-03-27 21:07+0000\n"
+"Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-23 04:41+0000\n"
-"X-Generator: Launchpad (build 16540)\n"
+"X-Launchpad-Export-Date: 2013-03-28 04:40+0000\n"
+"X-Generator: Launchpad (build 16546)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -8592,7 +8592,7 @@ msgstr "Alle genres worden uitgesloten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:680
 msgid "Delete saved catalog preset"
-msgstr ""
+msgstr "Wis opgeslagen voorinstelling"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:681
 msgid "The selected saved catalog preset will be deleted. Are you sure?"
@@ -8602,11 +8602,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:711
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:716
 msgid "Save catalog preset"
-msgstr ""
+msgstr "Voorinstelling opslaan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:707
 msgid "Preset name:"
-msgstr ""
+msgstr "Naam voorinstelling:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:712
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1065
@@ -8667,15 +8667,15 @@ msgstr "Voorvoegsel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:346
 msgid "Presets"
-msgstr ""
+msgstr "Voorinstellingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:347
 msgid "Select catalog preset to load"
-msgstr ""
+msgstr "Selecteer te laden catalogus voorinstelling"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:348
 msgid "Save current catalog settings as preset"
-msgstr ""
+msgstr "Huidige catalogus instellingen opslaan als voorinstelling"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:349
 #: /usr/src/qt-everywhere-opensource-src-4.8.4/src/gui/widgets/qdialogbuttonbox.cpp:661
@@ -8684,7 +8684,7 @@ msgstr "Opslaan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:350
 msgid "Delete current preset"
-msgstr ""
+msgstr "Huidige voorinstelling wissen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:351
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:629

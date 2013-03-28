@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-22 04:21+0000\n"
-"PO-Revision-Date: 2013-01-18 15:11+0000\n"
-"Last-Translator: Gideon Wentink <Unknown>\n"
+"PO-Revision-Date: 2013-03-27 14:48+0000\n"
+"Last-Translator: Albé Theunissen <Unknown>\n"
 "Language-Team: Afrikaans <af@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-23 04:38+0000\n"
-"X-Generator: Launchpad (build 16540)\n"
+"X-Launchpad-Export-Date: 2013-03-28 04:40+0000\n"
+"X-Generator: Launchpad (build 16546)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -204,14 +204,14 @@ msgstr "Basis"
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:397
 msgid "Customize"
-msgstr ""
+msgstr "Verstel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:357
 msgid "Cannot configure"
-msgstr ""
+msgstr "Kan nie instel nie"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:331
 msgid "File type"
@@ -373,7 +373,7 @@ msgstr "Dra boeke uit jou calibre biblioteek oor na die hardeskyf"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:830
 msgid "Show book details in a separate popup"
-msgstr "Took boekbesonderhede in ’n aparte opspringvenster"
+msgstr "Wys boekbesonderhede in 'n aparte opspringvenster"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:835
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14

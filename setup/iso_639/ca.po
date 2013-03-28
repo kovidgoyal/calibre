@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-03-26 13:02+0000\n"
+"PO-Revision-Date: 2013-03-27 13:07+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-03-27 04:36+0000\n"
-"X-Generator: Launchpad (build 16540)\n"
+"X-Launchpad-Export-Date: 2013-03-28 04:41+0000\n"
+"X-Generator: Launchpad (build 16546)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -11104,7 +11104,7 @@ msgstr "caixmiri"
 
 #. name for kat
 msgid "Georgian"
-msgstr "georgià"
+msgstr "Georgià"
 
 #. name for kau
 msgid "Kanuri"
@@ -19600,7 +19600,7 @@ msgstr "Frisó; antic"
 
 #. name for ofu
 msgid "Efutop"
-msgstr ""
+msgstr "Efutop"
 
 #. name for ogb
 msgid "Ogbia"
@@ -19612,7 +19612,7 @@ msgstr "Ogbah"
 
 #. name for oge
 msgid "Georgian; Old"
-msgstr ""
+msgstr "Georgià; Antic"
 
 #. name for ogg
 msgid "Ogbogolo"
@@ -19620,7 +19620,7 @@ msgstr "Ogbogolo"
 
 #. name for ogo
 msgid "Khana"
-msgstr ""
+msgstr "Khana"
 
 #. name for ogu
 msgid "Ogbronuagum"
@@ -19692,7 +19692,7 @@ msgstr "Okpe"
 
 #. name for okh
 msgid "Koresh-e Rostam"
-msgstr ""
+msgstr "Koresh-e Rostam"
 
 #. name for oki
 msgid "Okiek"
@@ -19712,7 +19712,7 @@ msgstr "Llenguatge de signes Kentish; antic"
 
 #. name for okm
 msgid "Korean; Middle (10th-16th cent.)"
-msgstr ""
+msgstr "Coreà; Mig (segles X-XVI)"
 
 #. name for okn
 msgid "Oki-No-Erabu"
@@ -19720,11 +19720,11 @@ msgstr "Oki-No-Erabu"
 
 #. name for oko
 msgid "Korean; Old (3rd-9th cent.)"
-msgstr ""
+msgstr "Coreà; Antic (segles VI-X)"
 
 #. name for okr
 msgid "Kirike"
-msgstr ""
+msgstr "Kirike"
 
 #. name for oks
 msgid "Oko-Eni-Osayen"
@@ -19744,11 +19744,11 @@ msgstr "Okpe-Idesa-Akuku; Okpe"
 
 #. name for ola
 msgid "Walungge"
-msgstr ""
+msgstr "Walungge"
 
 #. name for old
 msgid "Mochi"
-msgstr ""
+msgstr "Mochi"
 
 #. name for ole
 msgid "Olekha"
@@ -19760,7 +19760,7 @@ msgstr "Oloma"
 
 #. name for olo
 msgid "Livvi"
-msgstr ""
+msgstr "Olonetsià"
 
 #. name for olr
 msgid "Olrat"
@@ -19776,7 +19776,7 @@ msgstr "Ambae; Oriental"
 
 #. name for omc
 msgid "Mochica"
-msgstr ""
+msgstr "Mochica"
 
 #. name for ome
 msgid "Omejes"
@@ -19800,7 +19800,7 @@ msgstr "Ombo"
 
 #. name for omn
 msgid "Minoan"
-msgstr ""
+msgstr "Minoà"
 
 #. name for omo
 msgid "Utarmbung"
@@ -19808,11 +19808,11 @@ msgstr ""
 
 #. name for omp
 msgid "Manipuri; Old"
-msgstr ""
+msgstr "Manipurí antic"
 
 #. name for omr
 msgid "Marathi; Old"
-msgstr ""
+msgstr "Marathi antic"
 
 #. name for omt
 msgid "Omotik"
@@ -19828,7 +19828,7 @@ msgstr "Tairora; Meridional"
 
 #. name for omx
 msgid "Mon; Old"
-msgstr ""
+msgstr "Mon antic"
 
 #. name for ona
 msgid "Ona"
@@ -19836,7 +19836,7 @@ msgstr "Ona"
 
 #. name for onb
 msgid "Lingao"
-msgstr ""
+msgstr "Lingao"
 
 #. name for one
 msgid "Oneida"
@@ -19884,11 +19884,11 @@ msgstr "Ontenu"
 
 #. name for onu
 msgid "Unua"
-msgstr ""
+msgstr "Unua"
 
 #. name for onw
 msgid "Nubian; Old"
-msgstr ""
+msgstr "Nubi antic"
 
 #. name for onx
 msgid "Onin Based Pidgin"
@@ -19896,7 +19896,7 @@ msgstr "Onin; ; parla mixta"
 
 #. name for ood
 msgid "Tohono O'odham"
-msgstr ""
+msgstr "Papago-Pima"
 
 #. name for oog
 msgid "Ong"
@@ -19920,7 +19920,7 @@ msgstr "Okpamheri"
 
 #. name for opk
 msgid "Kopkaka"
-msgstr ""
+msgstr "Kopkaka"
 
 #. name for opm
 msgid "Oksapmin"
@@ -20040,7 +20040,7 @@ msgstr "One; Meridional"
 
 #. name for osx
 msgid "Saxon; Old"
-msgstr ""
+msgstr "Saxó antic"
 
 #. name for ota
 msgid "Turkish; Ottoman (1500-1928)"
@@ -20108,7 +20108,7 @@ msgstr "Otomí; Texcatepec"
 
 #. name for oty
 msgid "Tamil; Old"
-msgstr ""
+msgstr "Tamil antic"
 
 #. name for otz
 msgid "Otomi; Ixtenco"
@@ -20116,11 +20116,11 @@ msgstr "Otomí; Ixtenc"
 
 #. name for oua
 msgid "Tagargrent"
-msgstr ""
+msgstr "Tagargrent"
 
 #. name for oub
 msgid "Glio-Oubi"
-msgstr ""
+msgstr "Glio-Oubi"
 
 #. name for oue
 msgid "Oune"
@@ -20128,7 +20128,7 @@ msgstr "Oune"
 
 #. name for oui
 msgid "Uighur; Old"
-msgstr ""
+msgstr "Uigur antic"
 
 #. name for oum
 msgid "Ouma"
@@ -20156,7 +20156,7 @@ msgstr "Oyda"
 
 #. name for oym
 msgid "Wayampi"
-msgstr ""
+msgstr "Wayampi"
 
 #. name for oyy
 msgid "Oya'oya"
@@ -20164,7 +20164,7 @@ msgstr "Oya'oya"
 
 #. name for ozm
 msgid "Koonzime"
-msgstr ""
+msgstr "Koonzime"
 
 #. name for pab
 msgid "Parecís"
@@ -20192,7 +20192,7 @@ msgstr "Pangasi"
 
 #. name for pah
 msgid "Tenharim"
-msgstr ""
+msgstr "Tenharim"
 
 #. name for pai
 msgid "Pe"
@@ -20284,7 +20284,7 @@ msgstr "Paraujano"
 
 #. name for pbh
 msgid "E'ñapa Woromaipu"
-msgstr ""
+msgstr "Abira"
 
 #. name for pbi
 msgid "Parkwa"
@@ -20296,7 +20296,7 @@ msgstr "Mak (Nigèria)"
 
 #. name for pbn
 msgid "Kpasam"
-msgstr ""
+msgstr "Kpasam"
 
 #. name for pbo
 msgid "Papel"
@@ -20304,7 +20304,7 @@ msgstr "Papel"
 
 #. name for pbp
 msgid "Badyara"
-msgstr ""
+msgstr "Badjara"
 
 #. name for pbr
 msgid "Pangwa"
@@ -20368,7 +20368,7 @@ msgstr "Pardhan"
 
 #. name for pci
 msgid "Duruwa"
-msgstr ""
+msgstr "Parji"
 
 #. name for pcj
 msgid "Parenga"
@@ -20404,7 +20404,7 @@ msgstr "Pyapun"
 
 #. name for pda
 msgid "Anam"
-msgstr ""
+msgstr "Anam"
 
 #. name for pdc
 msgid "German; Pennsylvania"
@@ -20432,7 +20432,7 @@ msgstr "Karen; Padaung"
 
 #. name for pea
 msgid "Indonesian; Peranakan"
-msgstr ""
+msgstr "Indonesi Peranakan"
 
 #. name for peb
 msgid "Pomo; Eastern"
@@ -20440,11 +20440,11 @@ msgstr "Pomo; Oriental"
 
 #. name for ped
 msgid "Mala (Papua New Guinea)"
-msgstr ""
+msgstr "Mala (Papua Nova Guinea)"
 
 #. name for pee
 msgid "Taje"
-msgstr ""
+msgstr "Taje"
 
 #. name for pef
 msgid "Pomo; Northeastern"
