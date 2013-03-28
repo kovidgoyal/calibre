@@ -1347,7 +1347,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 if samefile(path, dest):
                     # Ensure that the file has the same case as dest
                     try:
-                        os.rename(path, dest)
+                        if path != dest:
+                            os.rename(path, dest)
                     except:
                         pass # Nothing too catastrophic happened, the cases mismatch, that's all
                 else:
@@ -1360,7 +1361,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     dest.flush()
             elif dest:
                 if samefile(dest, path):
-                    if not self.is_case_sensitive:
+                    if not self.is_case_sensitive and path != dest:
                         # Ensure that the file has the same case as dest
                         try:
                             os.rename(path, dest)
