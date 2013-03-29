@@ -101,8 +101,4 @@ class Harpers_full(BasicNewsRecipe):
     def print_version(self, url):
         return url + '?single=1'
 
-    def cleanup(self):
-        soup = self.index_to_soup('http://harpers.org/')
-        signouturl=self.tag_to_string(soup.find('li', attrs={'class':'subLogOut'}).findNext('li').a['href'])
-        self.log(signouturl)
-        self.browser.open(signouturl)
+

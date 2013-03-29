@@ -1,3 +1,4 @@
+# vim:fileencoding=UTF-8:ts=2:sw=2:sta:et:sts=2:ai
 # Each release can have new features and bug fixes. Each of which
 # must have a title and can optionally have linked tickets and a description.
 # In addition they can have a type field which defaults to minor, but should be major
@@ -18,6 +19,49 @@
 #
 #   new recipes:
 #     - title: 
+
+- version: 0.9.25
+  date: 2013-03-29
+
+  new features:
+    - title: "Automatic adding: When checking for duplicates is enabled, use the same duplicates found dialog as is used during manual adding."
+      tickets: [1160914]
+
+    - title: "ToC Editor: Allow searching to find a location quickly when browsing through the book to select a location for a ToC item"
+
+    - title: "ToC Editor: Add a button to quickly flatten the entire table of contents"
+
+    - title: "Conversion: When converting a single book to EPUB or AZW3, add an option to automatically launch the Table of Contents editor after the conversion completes. Found under the Table of Contents section of the conversion dialog."
+ 
+  bug fixes:
+    - title: "calibredb: Nicer error messages when user provides invalid input"
+      tickets: [1160452,1160631]
+
+    - title: "News download: Always use the .jpg extension for jpeg images as apparently Moon+ Reader cannot handle .jpeg"
+
+    - title: "Fix Book Details popup keyboard navigation doesn't work on a Mac"
+      tickets: [1159610]
+
+    - title: "Fix a regression that caused the case of the book files to not be changed when changing the case of the title/author on case insensitive filesystems"
+
+  improved recipes:
+    - RTE news
+    - Various Polish news sources
+    - Psychology Today
+    - Foreign Affairs
+    - History Today
+    - Harpers Magazine (printed edition)
+    - Business Week Magazine
+    - The Hindu
+    - Irish Times
+    - Le Devoir
+
+  new recipes:
+    - title: Fortune Magazine 
+      author: Rick Shang
+
+    - title: Eclipse Online 
+      author: Jim DeVona
 
 - version: 0.9.24
   date: 2013-03-22
