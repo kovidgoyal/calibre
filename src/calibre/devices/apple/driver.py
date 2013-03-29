@@ -170,7 +170,6 @@ class ITUNES(DriverBase):
     Delete:
         delete_books()
         remove_books_from_metadata()
-        use_plugboard_ext()
         set_plugboard()
         sync_booklists()
         card_prefix()
@@ -186,7 +185,6 @@ class ITUNES(DriverBase):
           _add_library_book()
          _update_iTunes_metadata()
         add_books_to_metadata()
-        use_plugboard_ext()
         set_plugboard()
         set_progress_reporter()
         sync_booklists()
@@ -1029,7 +1027,7 @@ class ITUNES(DriverBase):
 
     def set_plugboards(self, plugboards, pb_func):
         # This method is called with the plugboard that matches the format
-        # declared in use_plugboard_ext and a device name of ITUNES
+        # and a device name of ITUNES
         if DEBUG:
             logger().info("%s.set_plugboard()" % self.__class__.__name__)
             #logger().info('  plugboard: %s' % plugboards)
