@@ -87,7 +87,9 @@ this bug.
 
 How do I convert a collection of HTML files in a specific order?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In order to convert a collection of HTML files in a specific oder, you have to create a table of contents file. That is, another HTML file that contains links to all the other files in the desired order. Such a file looks like::
+In order to convert a collection of HTML files in a specific oder, you have to
+create a table of contents file. That is, another HTML file that contains links
+to all the other files in the desired order. Such a file looks like::
 
    <html>
       <body>
@@ -102,19 +104,36 @@ In order to convert a collection of HTML files in a specific oder, you have to c
       </body>
    </html>
 
-Then just add this HTML file to the GUI and use the convert button to create your ebook. 
+Then, just add this HTML file to the GUI and use the convert button to create
+your ebook. You can use the option in the Table of Contents section in the
+conversion dialog to control how the Table of Contents is generated.
 
-.. note:: By default, when adding HTML files, |app| follows links in the files in *depth first* order. This means that if file A.html links to B.html and C.html and D.html, but B.html also links to D.html, then the files will be in the order A.html, B.html, D.html, C.html. If instead you want the order to be A.html, B.html, C.html, D.html then you must tell |app| to add your files in *breadth first* order. Do this by going to Preferences->Plugins and customizing the HTML to ZIP plugin.
+.. note:: By default, when adding HTML files, |app| follows links in the files
+    in *depth first* order. This means that if file A.html links to B.html and
+    C.html and D.html, but B.html also links to D.html, then the files will be
+    in the order A.html, B.html, D.html, C.html. If instead you want the order
+    to be A.html, B.html, C.html, D.html then you must tell |app| to add your
+    files in *breadth first* order. Do this by going to Preferences->Plugins
+    and customizing the HTML to ZIP plugin.
 
 The EPUB I produced with |app| is not valid?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-|app| does not guarantee that an EPUB produced by it is valid. The only guarantee it makes is that if you feed it valid XHTML 1.1 + CSS 2.1 it will output a valid EPUB. |app| is designed for ebook consumers, not producers. It tries hard to ensure that EPUBs it produces actually work as intended on a wide variety of devices, a goal that is incompatible with producing valid EPUBs, and one that is far more important to the vast majority of its users. If you need a tool that always produces valid EPUBs, |app| is not for you.
+|app| does not guarantee that an EPUB produced by it is valid. The only
+guarantee it makes is that if you feed it valid XHTML 1.1 + CSS 2.1 it will
+output a valid EPUB. |app| is designed for ebook consumers, not producers. It
+tries hard to ensure that EPUBs it produces actually work as intended on a wide
+variety of devices, a goal that is incompatible with producing valid EPUBs, and
+one that is far more important to the vast majority of its users. If you need a
+tool that always produces valid EPUBs, |app| is not for you.
 
 How do I use some of the advanced features of the conversion tools?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- You can get help on any individual feature of the converters by mousing over it in the GUI or running ``ebook-convert dummy.html .epub -h`` at a terminal. A good place to start is to look at the following demo files that demonstrate some of the advanced features:
-  * `html-demo.zip <http://calibre-ebook.com/downloads/html-demo.zip>`_
+You can get help on any individual feature of the converters by mousing over
+it in the GUI or running ``ebook-convert dummy.html .epub -h`` at a terminal.
+A good place to start is to look at the following demo file that demonstrates
+some of the advanced features
+`html-demo.zip <http://calibre-ebook.com/downloads/html-demo.zip>`_
 
 
 Device Integration
@@ -126,11 +145,11 @@ Device Integration
 
 What devices does |app| support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| can directly connect to all the major (and most of the minor) ebook reading devices,
-smarthphones, tablets, etc.
-In addition, using the :guilabel:`Connect to folder` function you can use it with any ebook reader that exports itself as a USB disk. 
-You can even connect to Apple devices (via iTunes), using the :guilabel:`Connect to iTunes`
-function.
+|app| can directly connect to all the major (and most of the minor) ebook
+reading devices, smarthphones, tablets, etc.  In addition, using the
+:guilabel:`Connect to folder` function you can use it with any ebook reader
+that exports itself as a USB disk.  You can even connect to Apple devices (via
+iTunes), using the :guilabel:`Connect to iTunes` function.
 
 .. _devsupport:
 

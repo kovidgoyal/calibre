@@ -15,7 +15,8 @@ from PyQt4.Qt import (QFileSystemWatcher, QObject, Qt, pyqtSignal, QTimer)
 from calibre import prints
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.gui2 import question_dialog, gprefs
+from calibre.gui2 import gprefs
+from calibre.gui2.dialogs.duplicates import DuplicatesQuestion
 
 AUTO_ADDED = frozenset(BOOK_EXTENSIONS) - {'pdr', 'mbp', 'tan'}
 
@@ -218,17 +219,20 @@ class AutoAdder(QObject):
                 paths.extend(p)
                 formats.extend(f)
                 metadata.extend(mis)
-            files = [_('%(title)s by %(author)s')%dict(title=mi.title,
-                author=mi.format_field('authors')[1]) for mi in metadata]
-            if question_dialog(self.parent(), _('Duplicates found!'),
-                        _('Books with the same title as the following already '
-                        'exist in the database. Add them anyway?'),
-                        '\n'.join(files)):
-             dups, ids = m.add_books(paths, formats, metadata,
-                     add_duplicates=True, return_ids=True)
-             added_ids |= set(ids)
-             num = len(ids)
-             count += num
+            dups = [(mi, mi.cover, [p]) for mi, p in zip(metadata, paths)]
+            d = DuplicatesQuestion(m.db, dups, parent=gui)
+            dups = tuple(d.duplicates)
+            if dups:
+                paths, formats, metadata = [], [], []
+                for mi, cover, book_paths in dups:
+                    paths.extend(book_paths)
+                    formats.extend([p.rpartition('.')[-1] for p in book_paths])
+                    metadata.extend([mi for i in book_paths])
+                ids = m.add_books(paths, formats, metadata,
+                        add_duplicates=True, return_ids=True)[1]
+                added_ids |= set(ids)
+                num = len(ids)
+                count += num
 
         for tdir in data.itervalues():
             try:

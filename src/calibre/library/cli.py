@@ -592,6 +592,9 @@ def command_set_metadata(args, dbpath):
         print >>sys.stderr, _('You must specify either a field or an opf file')
         return 1
     book_id = int(args[1])
+    if book_id not in db.all_ids():
+        prints(_('No book with id: %s in the database')%book_id, file=sys.stderr)
+        raise SystemExit(1)
 
     if len(args) > 2:
         opf = args[2]
@@ -870,6 +873,9 @@ def parse_series_string(db, label, value):
     return val, s_index
 
 def do_set_custom(db, col, id_, val, append):
+    if id_ not in db.all_ids():
+        prints(_('No book with id: %s in the database')%id_, file=sys.stderr)
+        raise SystemExit(1)
     if db.custom_column_label_map[col]['datatype'] == 'series':
         val, s_index = parse_series_string(db, col, val)
         db.set_custom(id_, val, extra=s_index, label=col, append=append)
@@ -941,11 +947,16 @@ def command_custom_columns(args, dbpath):
 
 def do_remove_custom_column(db, label, force):
     if not force:
-        q = raw_input(_('You will lose all data in the column: %r.'
+        q = raw_input(_('You will lose all data in the column: %s.'
             ' Are you sure (y/n)? ')%label)
         if q.lower().strip() != _('y'):
             return
-    db.delete_custom_column(label=label)
+    try:
+        db.delete_custom_column(label=label)
+    except KeyError:
+        prints(_('No column named %s found. You must use column labels, not titles.'
+               ' Use calibredb custom_columns to get a list of labels.')%label, file=sys.stderr)
+        raise SystemExit(1)
     prints('Column %r removed.'%label)
 
 def remove_custom_column_option_parser():

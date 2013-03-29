@@ -7,18 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest
 from collections import namedtuple
 from functools import partial
 
+from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.db.tests.base import BaseTest
 
 class WritingTest(BaseTest):
-
-    @property
-    def cloned_library(self):
-        return self.clone_library(self.library_path)
 
     def create_getter(self, name, getter=None):
         if getter is None:
@@ -214,7 +210,7 @@ class WritingTest(BaseTest):
             {1, 2})
         for name in ('tags', '#tags'):
             f = cache.fields[name]
-            af(sf(name, {1:('tag one', 'News')}, allow_case_change=False))
+            af(sf(name, {1:('News', 'tag one')}, allow_case_change=False))
             ae(sf(name, {1:'tag one, News'}), {1, 2})
             ae(sf(name, {3:('tag two', 'sep,sep2')}), {2, 3})
             ae(len(f.table.id_map), 4)
@@ -225,7 +221,7 @@ class WritingTest(BaseTest):
                 ae(len(c.fields[name].table.id_map), 3)
                 ae(len(c.fields[name].table.id_map), 3)
                 ae(c.field_for(name, 1), ())
-                ae(c.field_for(name, 2), ('tag one', 'tag two'))
+                ae(c.field_for(name, 2), ('tag two', 'tag one'))
             del cache2
 
         # Authors
@@ -244,27 +240,55 @@ class WritingTest(BaseTest):
                 ae(c.field_for(name, 3), ('Kovid Goyal', 'Divok Layog'))
                 ae(c.field_for(name, 2), ('An, Author',))
                 ae(c.field_for(name, 1), ('Unknown',) if name=='authors' else ())
-                ae(c.field_for('author_sort', 1), 'Unknown')
-                ae(c.field_for('author_sort', 2), 'An, Author')
-                ae(c.field_for('author_sort', 3), 'Goyal, Kovid & Layog, Divok')
+                if name == 'authors':
+                    ae(c.field_for('author_sort', 1), author_to_author_sort('Unknown'))
+                    ae(c.field_for('author_sort', 2), author_to_author_sort('An, Author'))
+                    ae(c.field_for('author_sort', 3), author_to_author_sort('Kovid Goyal') + ' & ' + author_to_author_sort('Divok Layog'))
             del cache2
         ae(cache.set_field('authors', {1:'KoviD GoyaL'}), {1, 3})
         ae(cache.field_for('author_sort', 1), 'GoyaL, KoviD')
         ae(cache.field_for('author_sort', 3), 'GoyaL, KoviD & Layog, Divok')
 
-        # TODO: identifiers, languages
+        # Languages
+        f = cache.fields['languages']
+        ae(f.table.id_map, {1: 'eng', 2: 'deu'})
+        ae(sf('languages', {1:''}), set([1]))
+        ae(cache.field_for('languages', 1), ())
+        ae(sf('languages', {2:('und',)}), set([2]))
+        af(f.table.id_map)
+        ae(sf('languages', {1:'eng,fra,deu', 2:'es,Dutch', 3:'English'}), {1, 2, 3})
+        ae(cache.field_for('languages', 1), ('eng', 'fra', 'deu'))
+        ae(cache.field_for('languages', 2), ('spa', 'nld'))
+        ae(cache.field_for('languages', 3), ('eng',))
+        ae(sf('languages', {3:None}), set([3]))
+        ae(cache.field_for('languages', 3), ())
+        ae(sf('languages', {1:'deu,fra,eng'}), set([1]), 'Changing order failed')
+        ae(sf('languages', {2:'deu,eng,eng'}), set([2]))
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            ae(cache.field_for('languages', 1), ('deu', 'fra', 'eng'))
+            ae(cache.field_for('languages', 2), ('deu', 'eng'))
+        del cache2
+
+        # Identifiers
+        f = cache.fields['identifiers']
+        ae(sf('identifiers', {3: 'one:1,two:2'}), set([3]))
+        ae(sf('identifiers', {2:None}), set([2]))
+        ae(sf('identifiers', {1: {'test':'1', 'two':'2'}}), set([1]))
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            ae(c.field_for('identifiers', 3), {'one':'1', 'two':'2'})
+            ae(c.field_for('identifiers', 2), {})
+            ae(c.field_for('identifiers', 1), {'test':'1', 'two':'2'})
+        del cache2
+
+        # Test setting of title sort
+        ae(sf('title', {1:'The Moose', 2:'Cat'}), {1, 2})
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            ae(c.field_for('sort', 1), 'Moose, The')
+            ae(c.field_for('sort', 2), 'Cat')
+
 
     # }}}
-
-def tests():
-    tl = unittest.TestLoader()
-    # return tl.loadTestsFromName('writing.WritingTest.test_many_many_basic')
-    return tl.loadTestsFromTestCase(WritingTest)
-
-def run():
-    unittest.TextTestRunner(verbosity=2).run(tests())
-
-if __name__ == '__main__':
-    run()
-
 

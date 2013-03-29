@@ -67,12 +67,13 @@ class PsychologyToday(BasicNewsRecipe):
             title = title + u' (%s)'%author
             article_page= self.index_to_soup('http://www.psychologytoday.com'+post.find('a', href=True)['href'])
             print_page=article_page.find('li', attrs={'class':'print_html first'})
-            url='http://www.psychologytoday.com'+print_page.find('a',href=True)['href']
-            desc = self.tag_to_string(post.find('div', attrs={'class':'collection-node-description'})).strip()
-            self.log('Found article:', title)
-            self.log('\t', url)
-            self.log('\t', desc)
-            articles.append({'title':title, 'url':url, 'date':'','description':desc})
+            if print_page is not None:
+                url='http://www.psychologytoday.com'+print_page.find('a',href=True)['href']
+                desc = self.tag_to_string(post.find('div', attrs={'class':'collection-node-description'})).strip()
+                self.log('Found article:', title)
+                self.log('\t', url)
+                self.log('\t', desc)
+                articles.append({'title':title, 'url':url, 'date':'','description':desc})
 
         return [('Current Issue', articles)]
 

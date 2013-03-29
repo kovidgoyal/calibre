@@ -11,10 +11,11 @@ from base64 import b64encode
 
 from PyQt4.Qt import (QWidget, QGridLayout, QListWidget, QSize, Qt, QUrl,
                       pyqtSlot, pyqtSignal, QVBoxLayout, QFrame, QLabel,
-                      QLineEdit, QTimer)
+                      QLineEdit, QTimer, QPushButton, QIcon)
 from PyQt4.QtWebKit import QWebView, QWebPage, QWebElement
 
 from calibre.ebooks.oeb.display.webview import load_html
+from calibre.gui2 import error_dialog, question_dialog
 from calibre.utils.logging import default_log
 
 class Page(QWebPage): # {{{
@@ -115,16 +116,26 @@ class ItemEdit(QWidget):
         self.dest_list = dl = QListWidget(self)
         dl.setMinimumWidth(250)
         dl.currentItemChanged.connect(self.current_changed)
-        l.addWidget(dl, 1, 0)
+        l.addWidget(dl, 1, 0, 2, 1)
 
         self.view = WebView(self)
         self.view.elem_clicked.connect(self.elem_clicked)
-        l.addWidget(self.view, 1, 1)
+        l.addWidget(self.view, 1, 1, 1, 3)
 
         self.f = f = QFrame()
         f.setFrameShape(f.StyledPanel)
         f.setMinimumWidth(250)
-        l.addWidget(f, 1, 2)
+        l.addWidget(f, 1, 4, 2, 1)
+        self.search_text = s = QLineEdit(self)
+        s.setPlaceholderText(_('Search for text...'))
+        l.addWidget(s, 2, 1, 1, 1)
+        self.ns_button = b = QPushButton(QIcon(I('arrow-down.png')), _('Find &next'), self)
+        b.clicked.connect(self.find_next)
+        l.addWidget(b, 2, 2, 1, 1)
+        self.ps_button = b = QPushButton(QIcon(I('arrow-up.png')), _('Find &previous'), self)
+        l.addWidget(b, 2, 3, 1, 1)
+        b.clicked.connect(self.find_previous)
+        l.setRowStretch(1, 10)
         l = f.l = QVBoxLayout()
         f.setLayout(l)
 
@@ -156,6 +167,42 @@ class ItemEdit(QWidget):
 
         l.addStretch()
 
+    def keyPressEvent(self, ev):
+        if ev.key() in (Qt.Key_Return, Qt.Key_Enter) and self.search_text.hasFocus():
+            # Prevent pressing enter in the search box from triggering the dialog's accept() method
+            ev.accept()
+            return
+        return super(ItemEdit, self).keyPressEvent(ev)
+
+    def find(self, forwards=True):
+        text = unicode(self.search_text.text()).strip()
+        flags = QWebPage.FindFlags(0) if forwards else QWebPage.FindBackward
+        d = self.dest_list
+        if d.count() == 1:
+            flags |= QWebPage.FindWrapsAroundDocument
+        if not self.view.findText(text, flags) and text:
+            if d.count() == 1:
+                return error_dialog(self, _('No match found'),
+                    _('No match found for: %s')%text, show=True)
+
+            delta = 1 if forwards else -1
+            current = unicode(d.currentItem().data(Qt.DisplayRole).toString())
+            next_index = (d.currentRow() + delta)%d.count()
+            next = unicode(d.item(next_index).data(Qt.DisplayRole).toString())
+            msg = '<p>'+_('No matches for %(text)s found in the current file [%(current)s].'
+                          ' Do you want to search in the %(which)s file [%(next)s]?')
+            msg = msg%dict(text=text, current=current, next=next,
+                           which=_('next') if forwards else _('previous'))
+            if question_dialog(self, _('No match found'), msg):
+                self.pending_search = self.find_next if forwards else self.find_previous
+                d.setCurrentRow(next_index)
+
+    def find_next(self):
+        return self.find()
+
+    def find_previous(self):
+        return self.find(forwards=False)
+
     def load(self, container):
         self.container = container
         spine_names = [container.abspath_to_name(p) for p in
@@ -175,6 +222,10 @@ class ItemEdit(QWidget):
         self.view.load_js()
         self.dest_label.setText(self.base_msg + '<br>' + _('File:') + ' ' +
                                 name + '<br>' + _('Top of the file'))
+        if hasattr(self, 'pending_search'):
+            f = self.pending_search
+            del self.pending_search
+            f()
 
     def __call__(self, item, where):
         self.current_item, self.current_where = item, where

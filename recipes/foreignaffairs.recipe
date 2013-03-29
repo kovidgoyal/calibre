@@ -1,6 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
-from calibre.ptempfile import PersistentTemporaryFile
 
 class ForeignAffairsRecipe(BasicNewsRecipe):
     ''' there are three modifications:
@@ -45,27 +44,12 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
                           'publisher': publisher}
 
     temp_files = []
-    articles_are_obfuscated = True
 
     def get_cover_url(self):
         soup = self.index_to_soup(self.FRONTPAGE)
         div = soup.find('div', attrs={'class':'inthemag-issuebuy-cover'})
         img_url =  div.find('img')['src']
         return self.INDEX + img_url
-
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        br.open(url)
-
-        response = br.follow_link(url_regex = r'/print/[0-9]+', nr = 0)
-        html = response.read()
-
-        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
-        self.temp_files[-1].write(html)
-        self.temp_files[-1].close()
-
-        return self.temp_files[-1].name
-
 
     def parse_index(self):
 
@@ -89,10 +73,10 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
                         if div.find('a') is not None:
                             originalauthor=self.tag_to_string(div.findNext('div', attrs = {'class':'views-field-field-article-book-nid'}).div.a)
                             title=subsectiontitle+': '+self.tag_to_string(div.span.a)+' by '+originalauthor
-                            url=self.INDEX+div.span.a['href']
+                            url=self.INDEX+self.index_to_soup(self.INDEX+div.span.a['href']).find('a', attrs={'class':'fa_addthis_print'})['href']
                             atr=div.findNext('div', attrs = {'class': 'views-field-field-article-display-authors-value'})
                             if atr is not None:
-                                author=self.tag_to_string(atr.span.a)
+                                author=self.tag_to_string(atr.span)
                             else:
                                 author=''
                             desc=div.findNext('span', attrs = {'class': 'views-field-field-article-summary-value'})
@@ -106,10 +90,10 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
                 for div in sec.findAll('div', attrs = {'class': 'views-field-title'}):
                     if div.find('a') is not None:
                         title=self.tag_to_string(div.span.a)
-                        url=self.INDEX+div.span.a['href']
+                        url=self.INDEX+self.index_to_soup(self.INDEX+div.span.a['href']).find('a', attrs={'class':'fa_addthis_print'})['href']
                         atr=div.findNext('div', attrs = {'class': 'views-field-field-article-display-authors-value'})
                         if atr is not None:
-                            author=self.tag_to_string(atr.span.a)
+                            author=self.tag_to_string(atr.span)
                         else:
                             author=''
                         desc=div.findNext('span', attrs = {'class': 'views-field-field-article-summary-value'})
@@ -119,7 +103,7 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
                             description=''
                         articles.append({'title':title, 'date':None, 'url':url, 'description':description, 'author':author})
             if articles:
-                    answer.append((section, articles))
+                answer.append((section, articles))
         return answer
 
     def preprocess_html(self, soup):

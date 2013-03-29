@@ -160,7 +160,7 @@ def email_news(mi, remove, get_fmts, done, job_manager):
     return sent_mails
 
 plugboard_email_value = 'email'
-plugboard_email_formats = ['epub', 'mobi']
+plugboard_email_formats = ['epub', 'mobi', 'azw3']
 
 class EmailMixin(object): # {{{
 
