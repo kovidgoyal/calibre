@@ -1,0 +1,71 @@
+#!/usr/bin/env  python
+
+__license__ = 'GPL v3'
+__copyright__ = 'teepel 2012'
+
+'''
+sport.pl
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class sport_pl(BasicNewsRecipe):
+    title          = 'Sport.pl'
+    __author__ = 'teepel <teepel44@gmail.com>'
+    language       = 'pl'
+    description =u'Największy portal sportowy w Polsce. Wiadomości sportowe z najważniejszych wydarzeń, relacje i wyniki meczów na żywo.'
+    masthead_url='http://press.gazeta.pl/file/mediakit/154509/c8/sportpl.jpg'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    remove_javascript=True
+    no_stylesheets=True
+    remove_empty_feeds = True
+
+    keep_only_tags =[]
+    keep_only_tags.append(dict(name = 'div', attrs = {'id' : 'article'}))
+
+    remove_tags =[]
+    remove_tags.append(dict(name = 'a', attrs = {'href' : 'www.gazeta.pl'}))
+
+    feeds          = [
+                            (u'Wszystkie wiadomości', u'http://rss.gazeta.pl/pub/rss/sport.xml'),
+                            (u'Piłka nożna', u'http://www.sport.pl/pub/rss/sport/pilka_nozna.htm'),
+                            (u'F1', u'http://www.sport.pl/pub/rss/sportf1.htm'),
+                            (u'Tenis', u'http://serwisy.gazeta.pl/pub/rss/tenis.htm'),
+                            (u'Siatkówka', u'http://gazeta.pl.feedsportal.com/c/32739/f/611628/index.rss'),
+                            (u'Koszykówka', u'http://gazeta.pl.feedsportal.com/c/32739/f/611647/index.rss'),
+                            (u'Piłka ręczna', u'http://gazeta.pl.feedsportal.com/c/32739/f/611635/index.rss'),
+                            (u'Inne sporty', u'http://gazeta.pl.feedsportal.com/c/32739/f/611649/index.rss'),
+                         ]
+    def parse_feeds(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        for feed in feeds:
+            for article in feed.articles[:]:
+                if '[ZDJĘCIA]' in article.title:
+                    article.title = article.title.replace('[ZDJĘCIA]','')
+                elif '[WIDEO]' in article.title:
+                    article.title = article.title.replace('[WIDEO]','')
+        return feeds
+
+    def print_version(self, url):
+        if 'feedsportal' in url:
+            segment = url.split('/')
+            urlPart = segment[-2]
+            urlPart = urlPart.replace('0L0Ssport0Bpl0C','')
+            urlPart = urlPart.replace('0C10H','/')
+            urlPart = urlPart.replace('0H',',')
+            urlPart = urlPart.replace('0I','_')
+            urlPart = urlPart.replace('A','')
+            segment1 = urlPart.split('/')
+            seg1 = segment1[0]
+            seg2 = segment1[1]
+            segment2 = seg2.split(',')
+            part = segment2[0] + ',' + segment2[1]
+            return 'http://www.sport.pl/' + seg1 +  '/2029020,' + part + '.html'
+        else:
+            segment = url.split('/')
+            part2 = segment[-2]
+            part1 = segment[-1]
+            segment2 = part1.split(',')
+            part = segment2[1] + ',' + segment2[2]
+            return 'http://www.sport.pl/' + part2 + '/2029020,' + part + '.html'

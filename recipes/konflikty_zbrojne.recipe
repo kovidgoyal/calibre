@@ -3,10 +3,10 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class Konflikty(BasicNewsRecipe):
-    title          = u'Konflikty Zbrojne'
-    __author__        = 'fenuks'
-    cover_url      = 'http://www.konflikty.pl/images/tapety_logo.jpg'
-    language       = 'pl'
+    title = u'Konflikty Zbrojne'
+    __author__ = 'fenuks'
+    cover_url = 'http://www.konflikty.pl/images/tapety_logo.jpg'
+    language = 'pl'
     description = u'Zbiór ciekawych artykułów historycznych, militarnych oraz recenzji książek, gier i filmów. Najświeższe informacje o lotnictwie, wojskach lądowych i polityce.'
     category='military, history'
     oldest_article = 7
@@ -14,17 +14,18 @@ class Konflikty(BasicNewsRecipe):
     no_stylesheets = True
     keep_only_tags=[dict(attrs={'class':['title1', 'image']}), dict(id='body')]
 
-    feeds          = [(u'Aktualności', u'http://www.konflikty.pl/rss_aktualnosci_10.xml'),
-		(u'Historia', u'http://www.konflikty.pl/rss_historia_10.xml'),
-		(u'Militaria', u'http://www.konflikty.pl/rss_militaria_10.xml'),
-		(u'Relacje', u'http://www.konflikty.pl/rss_relacje_10.xml'),
-		(u'Recenzje', u'http://www.konflikty.pl/rss_recenzje_10.xml'),
-		(u'Teksty źródłowe', u'http://www.konflikty.pl/rss_tekstyzrodlowe_10.xml')]
+    feeds = [(u'Aktualności', u'http://www.konflikty.pl/rss_aktualnosci_10.xml'),
+        (u'Historia', u'http://www.konflikty.pl/rss_historia_10.xml'),
+        (u'Militaria', u'http://www.konflikty.pl/rss_militaria_10.xml'),
+        (u'Relacje', u'http://www.konflikty.pl/rss_relacje_10.xml'),
+        (u'Recenzje', u'http://www.konflikty.pl/rss_recenzje_10.xml'),
+        (u'Teksty źródłowe', u'http://www.konflikty.pl/rss_tekstyzrodlowe_10.xml')]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
         for image in soup.findAll(name='a', attrs={'class':'image'}):
+            image['style'] = 'width: 210px; float: left; margin-right:5px;'
             if image.img and image.img.has_key('alt'):
                 image.name='div'
                 pos = len(image.contents)
