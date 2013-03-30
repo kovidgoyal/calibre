@@ -24,11 +24,11 @@ class PALMPRE(USBMS):
     FORMATS     = ['epub', 'mobi', 'prc', 'pdb', 'txt']
 
     VENDOR_ID   = [0x0830]
-    PRODUCT_ID  = [0x8004, 0x8002, 0x0101]
+    PRODUCT_ID  = [0x8004, 0x8002, 0x0101, 0x8042]
     BCD         = [0x0316]
 
     VENDOR_NAME = 'PALM'
-    WINDOWS_MAIN_MEM = 'PRE'
+    WINDOWS_MAIN_MEM = ['PRE', 'PALM_DEVICE']
 
     EBOOK_DIR_MAIN = 'E-books'
 
