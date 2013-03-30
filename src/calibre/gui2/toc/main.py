@@ -339,6 +339,51 @@ class ItemView(QFrame): # {{{
 
 # }}}
 
+class TreeWidget(QTreeWidget):
+
+    def __init__(self, parent):
+        QTreeWidget.__init__(self, parent)
+        self.setHeaderLabel(_('Table of Contents'))
+        self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
+        self.setDragEnabled(True)
+        self.setSelectionMode(self.ExtendedSelection)
+        self.viewport().setAcceptDrops(True)
+        self.setDropIndicatorShown(True)
+        self.setDragDropMode(self.InternalMove)
+        self.setAutoScroll(True)
+        self.setAutoScrollMargin(ICON_SIZE*2)
+        self.setDefaultDropAction(Qt.MoveAction)
+        self.setAutoExpandDelay(1000)
+        self.setAnimated(True)
+        self.setMouseTracking(True)
+        self.in_drop_event = False
+
+    def iteritems(self, parent=None):
+        if parent is None:
+            parent = self.invisibleRootItem()
+        for i in xrange(parent.childCount()):
+            child = parent.child(i)
+            yield child
+            for gc in self.iteritems(parent=child):
+                yield gc
+
+    def dropEvent(self, event):
+        self.in_drop_event = True
+        try:
+            super(TreeWidget, self).dropEvent(event)
+        finally:
+            self.in_drop_event = False
+
+    def selectedIndexes(self):
+        ans = super(TreeWidget, self).selectedIndexes()
+        if self.in_drop_event:
+            # For order to be be preserved when moving by drag and drop, we
+            # have to ensure that selectedIndexes returns an ordered list of
+            # indexes.
+            sort_map = {self.indexFromItem(item):i for i, item in enumerate(self.iteritems())}
+            ans = sorted(ans, key=lambda x:sort_map.get(x, -1), reverse=True)
+        return ans
+
 class TOCView(QWidget): # {{{
 
     add_new_item = pyqtSignal(object, object)
@@ -347,20 +392,7 @@ class TOCView(QWidget): # {{{
         QWidget.__init__(self, parent)
         l = self.l = QGridLayout()
         self.setLayout(l)
-        self.tocw = t = QTreeWidget(self)
-        t.setHeaderLabel(_('Table of Contents'))
-        t.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
-        t.setDragEnabled(True)
-        t.setSelectionMode(t.ExtendedSelection)
-        t.viewport().setAcceptDrops(True)
-        t.setDropIndicatorShown(True)
-        t.setDragDropMode(t.InternalMove)
-        t.setAutoScroll(True)
-        t.setAutoScrollMargin(ICON_SIZE*2)
-        t.setDefaultDropAction(Qt.MoveAction)
-        t.setAutoExpandDelay(1000)
-        t.setAnimated(True)
-        t.setMouseTracking(True)
+        self.tocw = t = TreeWidget(self)
         l.addWidget(t, 0, 0, 5, 3)
         self.up_button = b = QToolButton(self)
         b.setIcon(QIcon(I('arrow-up.png')))
@@ -423,13 +455,8 @@ class TOCView(QWidget): # {{{
             p.removeChild(item)
 
     def iteritems(self, parent=None):
-        if parent is None:
-            parent = self.root
-        for i in xrange(parent.childCount()):
-            child = parent.child(i)
-            yield child
-            for gc in self.iteritems(parent=child):
-                yield gc
+        for item in self.tocw.iteritems(parent=parent):
+            yield item
 
     def flatten_toc(self):
         found = True
