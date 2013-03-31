@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, traceback
+import sys, traceback, math
 from collections import namedtuple
 from functools import wraps, partial
 from future_builtins import map
@@ -356,9 +356,9 @@ class PdfDevice(QPaintDevice): # {{{
     @property
     def full_page_rect(self):
         page_width = self.page_width * self.xdpi / 72.0
-        lm = self.left_margin * self.xdpi / 72.0
+        lm = int(math.ceil(self.left_margin * self.xdpi / 72.0))
         page_height = self.page_height * self.ydpi / 72.0
-        tm = self.top_margin * self.ydpi / 72.0
+        tm = int(math.ceil(self.top_margin * self.ydpi / 72.0))
         return (-lm, -tm, page_width, page_height)
 
     @property
