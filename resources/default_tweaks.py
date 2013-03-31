@@ -531,18 +531,3 @@ numeric_collation = False
 # number here. The default is ten libraries.
 many_libraries = 10
 
-#: Use rectangular (non-square) images for icons for columns
-# When using column icons, the images are normally displayed as square icons in
-# a small box. If necessary, the images are scaled to fit into that box to
-# ensure that all the images are the same size. In some cases you might not want
-# this behavior, instead wanting the image to be shown as rectangles with their
-# orignal aspect ratio. Enter the lookup names of columns where you want this
-# behavior. Note that calibre will scale the image so that it is maximum 128
-# pixels wide and that it fits within the height of the displaying row. For this
-# reason you should be sure that the images are oriented in landscape, not
-# portrait.
-# Examples:
-#    use_rectangular_images_for_icons_for_columns = ['#enum2', '#myrating']
-#    use_rectangular_images_for_icons_for_columns = []
-use_rectangular_images_for_icons_for_columns = ['']
-
