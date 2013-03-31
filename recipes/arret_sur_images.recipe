@@ -1,0 +1,54 @@
+from __future__ import unicode_literals
+
+__license__ = 'WTFPL'
+__author__ = '2013, François D. <franek at chicour.net>'
+__description__ = 'Get some fresh news from Arrêt sur images'
+
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class Asi(BasicNewsRecipe):
+
+    title       = 'Arrêt sur images'
+    __author__  = 'François D. (aka franek)'
+    description = 'Global news in french from news site "Arrêt sur images"'
+
+    oldest_article = 7.0
+    language = 'fr'
+    needs_subscription = True
+    max_articles_per_feed = 100
+
+    simultaneous_downloads = 1
+    timefmt = '[%a, %d %b %Y %I:%M +0200]'
+    cover_url = 'http://www.arretsurimages.net/images/header/menu/menu_1.png'
+
+    use_embedded_content = False
+    no_stylesheets = True
+    remove_javascript = True
+
+    feeds =  [
+        ('vite dit et gratuit', 'http://www.arretsurimages.net/vite-dit.rss'),
+        ('Toutes les chroniques', 'http://www.arretsurimages.net/chroniques.rss'),
+        ('Contenus et dossiers', 'http://www.arretsurimages.net/dossiers.rss'),
+    ]
+
+    conversion_options = { 'smarten_punctuation' : True }
+
+    remove_tags = [dict(id='vite-titre'), dict(id='header'), dict(id='wrap-connexion'), dict(id='col_right'), dict(name='div', attrs={'class':'bloc-chroniqueur-2'}), dict(id='footercontainer')]
+
+    def print_version(self, url):
+        return url.replace('contenu.php', 'contenu-imprimable.php')
+
+    def get_browser(self):
+        # Need to use robust HTML parser
+        br = BasicNewsRecipe.get_browser(self, use_robust_parser=True)
+        if self.username is not None and self.password is not None:
+            br.open('http://www.arretsurimages.net/index.php')
+            br.select_form(nr=0)
+            br.form.set_all_readonly(False)
+            br['redir'] = 'forum/login.php'
+            br['username'] = self.username
+            br['password'] = self.password
+            br.submit()
+        return br
+
