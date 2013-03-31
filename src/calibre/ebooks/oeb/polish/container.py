@@ -8,6 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, logging, sys, hashlib, uuid, re
+from collections import defaultdict
 from io import BytesIO
 from urllib import unquote as urlunquote, quote as urlquote
 from urlparse import urlparse
@@ -71,6 +72,8 @@ class Container(object):
         self.mime_map = {}
         self.name_path_map = {}
         self.dirtied = set()
+        self.encoding_map = {}
+        self.pretty_print = set()
 
         # Map of relative paths with '/' separators from root of unzipped ePub
         # to absolute paths on filesystem with os-specific separators
@@ -88,12 +91,14 @@ class Container(object):
                     self.mime_map[name] = guess_type('a.opf')
 
         if not hasattr(self, 'opf_name'):
-            raise InvalidBook('Book has no OPF file')
+            raise InvalidBook('Could not locate opf file: %r'%opfpath)
 
         # Update mime map with data from the OPF
         for item in self.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
             href = item.get('href')
-            self.mime_map[self.href_to_name(href, self.opf_name)] = item.get('media-type')
+            name = self.href_to_name(href, self.opf_name)
+            if name in self.mime_map:
+                self.mime_map[name] = item.get('media-type')
 
     def abspath_to_name(self, fullpath):
         return self.relpath(os.path.abspath(fullpath)).replace(os.sep, '/')
@@ -159,27 +164,29 @@ class Container(object):
             data = data[3:]
         if bom_enc is not None:
             try:
+                self.used_encoding = bom_enc
                 return fix_data(data.decode(bom_enc))
             except UnicodeDecodeError:
                 pass
         try:
+            self.used_encoding = 'utf-8'
             return fix_data(data.decode('utf-8'))
         except UnicodeDecodeError:
             pass
-        data, _ = xml_to_unicode(data)
+        data, self.used_encoding = xml_to_unicode(data)
         return fix_data(data)
 
     def parse_xml(self, data):
-        data = xml_to_unicode(data, strip_encoding_pats=True, assume_utf8=True,
-                             resolve_entities=True)[0].strip()
+        data, self.used_encoding = xml_to_unicode(
+            data, strip_encoding_pats=True, assume_utf8=True, resolve_entities=True)
         return etree.fromstring(data, parser=RECOVER_PARSER)
 
     def parse_xhtml(self, data, fname):
         try:
-            return parse_html(data, log=self.log,
-                    decoder=self.decode,
-                    preprocessor=self.html_preprocessor,
-                    filename=fname, non_html_file_tags={'ncx'})
+            return parse_html(
+                data, log=self.log, decoder=self.decode,
+                preprocessor=self.html_preprocessor, filename=fname,
+                non_html_file_tags={'ncx'})
         except NotHTML:
             return self.parse_xml(data)
 
@@ -209,10 +216,16 @@ class Container(object):
     def parsed(self, name):
         ans = self.parsed_cache.get(name, None)
         if ans is None:
+            self.used_encoding = None
             mime = self.mime_map.get(name, guess_type(name))
             ans = self.parse(self.name_path_map[name], mime)
             self.parsed_cache[name] = ans
+            self.encoding_map[name] = self.used_encoding
         return ans
+
+    def replace(self, name, obj):
+        self.parsed_cache[name] = obj
+        self.dirty(name)
 
     @property
     def opf(self):
@@ -229,6 +242,14 @@ class Container(object):
     def manifest_id_map(self):
         return {item.get('id'):self.href_to_name(item.get('href'), self.opf_name)
             for item in self.opf_xpath('//opf:manifest/opf:item[@href and @id]')}
+
+    @property
+    def manifest_type_map(self):
+        ans = defaultdict(list)
+        for item in self.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
+            ans[item.get('media-type').lower()].append(self.href_to_name(
+                item.get('href'), self.opf_name))
+        return {mt:tuple(v) for mt, v in ans.iteritems()}
 
     @property
     def guide_type_map(self):
@@ -380,9 +401,12 @@ class Container(object):
         remove = set()
         for child in mdata:
             child.tail = '\n    '
-            if (child.get('name', '').startswith('calibre:') and
-                child.get('content', '').strip() in {'{}', ''}):
-                remove.add(child)
+            try:
+                if (child.get('name', '').startswith('calibre:') and
+                    child.get('content', '').strip() in {'{}', ''}):
+                    remove.add(child)
+            except AttributeError:
+                continue # Happens for XML comments
         for child in remove: mdata.remove(child)
         if len(mdata) > 0:
             mdata[-1].tail = '\n  '
@@ -391,19 +415,21 @@ class Container(object):
         data = self.parsed(name)
         if name == self.opf_name:
             self.format_opf()
-        data = serialize(data, self.mime_map[name])
+        data = serialize(data, self.mime_map[name], pretty_print=name in
+                         self.pretty_print)
         if name == self.opf_name:
             # Needed as I can't get lxml to output opf:role and
             # not output <opf:metadata> as well
             data = re.sub(br'(<[/]{0,1})opf:', r'\1', data)
         return data
 
-    def commit_item(self, name):
+    def commit_item(self, name, keep_parsed=False):
         if name not in self.parsed_cache:
             return
         data = self.serialize_item(name)
-        self.dirtied.remove(name)
-        self.parsed_cache.pop(name)
+        self.dirtied.discard(name)
+        if not keep_parsed:
+            self.parsed_cache.pop(name)
         with open(self.name_path_map[name], 'wb') as f:
             f.write(data)
 

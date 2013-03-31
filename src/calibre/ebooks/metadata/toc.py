@@ -157,12 +157,13 @@ class TOC(list):
                     toc = m[0]
                     self.read_ncx_toc(toc)
 
-    def read_ncx_toc(self, toc):
+    def read_ncx_toc(self, toc, root=None):
         self.base_path = os.path.dirname(toc)
-        raw  = xml_to_unicode(open(toc, 'rb').read(), assume_utf8=True,
-                strip_encoding_pats=True)[0]
-        root = etree.fromstring(raw, parser=etree.XMLParser(recover=True,
-            no_network=True))
+        if root is None:
+            raw  = xml_to_unicode(open(toc, 'rb').read(), assume_utf8=True,
+                    strip_encoding_pats=True)[0]
+            root = etree.fromstring(raw, parser=etree.XMLParser(recover=True,
+                no_network=True))
         xpn = {'re': 'http://exslt.org/regular-expressions'}
         XPath = functools.partial(etree.XPath, namespaces=xpn)
 

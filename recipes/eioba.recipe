@@ -4,6 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class eioba(BasicNewsRecipe):
     title          = u'eioba'
     __author__        = 'fenuks'
+    description = u'eioba.pl - daj się przeczytać!'
     cover_url      = 'http://www.eioba.org/lay/logo_pl_v3.png'
     language       = 'pl'
     oldest_article = 7

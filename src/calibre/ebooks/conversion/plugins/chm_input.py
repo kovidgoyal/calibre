@@ -25,7 +25,6 @@ class CHMInput(InputFormatPlugin):
         self._chm_reader = rdr
         return rdr.hhc_path
 
-
     def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.ebooks.chm.metadata import get_metadata_from_reader
         from calibre.customize.ui import plugin_for_input_format
@@ -63,7 +62,10 @@ class CHMInput(InputFormatPlugin):
 
             options.debug_pipeline = None
             options.input_encoding = 'utf-8'
-            htmlpath, toc = self._create_html_root(mainpath, log, encoding)
+            uenc = encoding
+            if os.path.abspath(mainpath) in self._chm_reader.re_encoded_files:
+                uenc = 'utf-8'
+            htmlpath, toc = self._create_html_root(mainpath, log, uenc)
             oeb = self._create_oebbook_html(htmlpath, tdir, options, log, metadata)
             options.debug_pipeline = odi
             if toc.count() > 1:

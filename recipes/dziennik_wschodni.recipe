@@ -1,0 +1,84 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Comment
+
+class DziennikWschodni(BasicNewsRecipe):
+    title          = u'Dziennik Wschodni'
+    __author__        = 'fenuks'
+    description   = u'Dziennik Wschodni - portal regionalny województwa lubelskiego.'
+    category       = 'newspaper'
+    language       = 'pl'
+    encoding = 'iso-8859-2'
+    extra_css = 'ul {list-style: none; padding:0; margin:0;}'
+    INDEX = 'http://www.dziennikwschodni.pl'
+    masthead_url = INDEX + '/images/top_logo.png'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_empty_feeds = True
+    no_stylesheets = True
+    ignore_duplicate_articles = {'title', 'url'}
+
+    preprocess_regexps = [(re.compile(ur'Czytaj:.*?</a>', re.DOTALL), lambda match: ''), (re.compile(ur'Przeczytaj także:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''), 
+                          (re.compile(ur'Przeczytaj również:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''), (re.compile(ur'Zobacz też:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: '')]
+    
+    keep_only_tags = [dict(id=['article', 'cover', 'photostory'])]
+    remove_tags = [dict(id=['articleTags', 'articleMeta', 'boxReadIt', 'articleGalleries', 'articleConnections',
+                  'ForumArticleComments', 'articleRecommend', 'jedynkiLinks', 'articleGalleryConnections', 
+                  'photostoryConnections', 'articleEpaper', 'articlePoll', 'articleAlarm', 'articleByline']), 
+                  dict(attrs={'class':'articleFunctions'})]
+
+
+    feeds          = [(u'Wszystkie', u'http://www.dziennikwschodni.pl/rss.xml'), 
+                      (u'Lublin', u'http://www.dziennikwschodni.pl/lublin.xml'), 
+                      (u'Zamość', u'http://www.dziennikwschodni.pl/zamosc.xml'), 
+                      (u'Biała Podlaska', u'http://www.dziennikwschodni.pl/biala_podlaska.xml'), 
+                      (u'Chełm', u'http://www.dziennikwschodni.pl/chelm.xml'), 
+                      (u'Kraśnik', u'http://www.dziennikwschodni.pl/krasnik.xml'), 
+                      (u'Puławy', u'http://www.dziennikwschodni.pl/pulawy.xml'), 
+                      (u'Świdnik', u'http://www.dziennikwschodni.pl/swidnik.xml'), 
+                      (u'Łęczna', u'http://www.dziennikwschodni.pl/leczna.xml'), 
+                      (u'Lubartów', u'http://www.dziennikwschodni.pl/lubartow.xml'), 
+                      (u'Sport', u'http://www.dziennikwschodni.pl/sport.xml'), 
+                      (u'Praca', u'http://www.dziennikwschodni.pl/praca.xml'), 
+                      (u'Dom', u'http://www.dziennikwschodni.pl/dom.xml'), 
+                      (u'Moto', u'http://www.dziennikwschodni.pl/moto.xml'), 
+                      (u'Zdrowie', u'http://www.dziennikwschodni.pl/zdrowie.xml'),
+                      ]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup(self.INDEX + '/apps/pbcs.dll/section?Category=JEDYNKI')
+        nexturl = self.INDEX + soup.find(id='covers').find('a')['href']
+        soup = self.index_to_soup(nexturl)
+        self.cover_url = self.INDEX + soup.find(id='cover').find(name='img')['src']
+        return getattr(self, 'cover_url', self.cover_url)
+
+    def append_page(self, soup, appendtag):
+        tag = soup.find('span', attrs={'class':'photoNavigationPages'})
+        if tag:
+            number = int(tag.string.rpartition('/')[-1].replace('&nbsp;', ''))
+            baseurl = self.INDEX + soup.find(attrs={'class':'photoNavigationNext'})['href'][:-1]
+
+            for r in appendtag.findAll(attrs={'class':'photoNavigation'}):
+                r.extract()
+            for nr in range(2, number+1):
+                soup2 = self.index_to_soup(baseurl + str(nr))
+                pagetext = soup2.find(id='photoContainer')
+                if pagetext:
+                    pos = len(appendtag.contents)
+                    appendtag.insert(pos, pagetext)
+                pagetext = soup2.find(attrs={'class':'photoMeta'})
+                if pagetext:
+                    pos = len(appendtag.contents)
+                    appendtag.insert(pos, pagetext)
+                pagetext = soup2.find(attrs={'class':'photoStoryText'})
+                if pagetext:
+                    pos = len(appendtag.contents)
+                    appendtag.insert(pos, pagetext)
+                    
+            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
+
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        return soup

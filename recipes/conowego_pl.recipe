@@ -1,14 +1,17 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Comment
+
 class CoNowegoPl(BasicNewsRecipe):
     title          = u'conowego.pl'
     __author__        = 'fenuks'
     description   = u'Nowy wortal technologiczny oraz gazeta internetowa. Testy najnowszych produktów, fachowe porady i recenzje. U nas znajdziesz wszystko o elektronice użytkowej !'
-    cover_url      = 'http://www.conowego.pl/fileadmin/templates/main/images/logo_top.png'
+    #cover_url      = 'http://www.conowego.pl/fileadmin/templates/main/images/logo_top.png'
     category       = 'IT, news'
     language       = 'pl'
     oldest_article = 7
     max_articles_per_feed = 100
+    INDEX = 'http://www.conowego.pl/'
+    extra_css = '.news-single-img {float:left; margin-right:5px;}'
     no_stylesheets = True
     remove_empty_feeds = True
     use_embedded_content = False
@@ -34,5 +37,15 @@ class CoNowegoPl(BasicNewsRecipe):
                 pos = len(appendtag.contents)
                 appendtag.insert(pos, pagetext)
 
+            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
             for r in appendtag.findAll(attrs={'class':['pages', 'paginationWrap']}):
                 r.extract()
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.conowego.pl/magazyn/')
+        tag = soup.find(attrs={'class':'ms_left'})
+        if tag:
+            self.cover_url = self.INDEX + tag.find('img')['src']
+        return getattr(self, 'cover_url', self.cover_url)

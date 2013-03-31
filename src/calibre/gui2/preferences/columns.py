@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import copy, sys
 
-from PyQt4.Qt import Qt, QVariant, QListWidgetItem
+from PyQt4.Qt import Qt, QVariant, QListWidgetItem, QIcon
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.columns_ui import Ui_Form
@@ -67,6 +67,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for col in colmap:
             item = QListWidgetItem(model.headers[col], self.opt_columns)
             item.setData(Qt.UserRole, QVariant(col))
+            if col.startswith('#'):
+                item.setData(Qt.DecorationRole, QVariant(QIcon(I('column.png'))))
             flags = Qt.ItemIsEnabled|Qt.ItemIsSelectable
             if col != 'ondevice':
                 flags |= Qt.ItemIsUserCheckable

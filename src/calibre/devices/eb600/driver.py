@@ -49,6 +49,23 @@ class EB600(USBMS):
     EBOOK_DIR_CARD_A = ''
     SUPPORTS_SUB_DIRS = True
 
+class TOLINO(EB600):
+
+    name = 'Tolino Shine Device Interface'
+    gui_name = 'Tolino Shine'
+    description    = _('Communicate with the Tolino Shine reader.')
+    FORMATS = ['epub', 'pdf', 'txt']
+    BCD         = [0x226]
+    VENDOR_NAME      = ['DEUTSCHE']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['_TELEKOMTOLINO']
+
+    def linux_swap_drives(self, drives):
+        if len(drives) < 2 or not drives[1] or not drives[2]: return drives
+        drives = list(drives)
+        t = drives[0]
+        drives[0] = drives[1]
+        drives[1] = t
+        return tuple(drives)
 
 class COOL_ER(EB600):
 

@@ -14,7 +14,7 @@ from calibre.gui2.actions import InterfaceAction
 class SimilarBooksAction(InterfaceAction):
 
     name = 'Similar Books'
-    action_spec = (_('Similar books...'), None, None, None)
+    action_spec = (_('Similar books...'), None, _('Show books similar to the current book'), None)
     popup_type = QToolButton.InstantPopup
     action_type = 'current'
     action_add_menu = True

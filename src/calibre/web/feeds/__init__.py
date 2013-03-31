@@ -184,7 +184,12 @@ class Feed(object):
             id = 'internal id#%s'%self.id_counter
         if id in self.added_articles:
             return
-        published = item.get('date_parsed', time.gmtime())
+        published = None
+        for date_field in ('date_parsed', 'published_parsed',
+                           'updated_parsed'):
+            published = item.get(date_field, None)
+            if published is not None:
+                break
         if not published:
             published = time.gmtime()
         self.added_articles.append(id)

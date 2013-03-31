@@ -12,7 +12,6 @@ from optparse import OptionGroup, Option
 
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
-from calibre.constants import preferred_encoding
 from calibre.customize.conversion import OptionRecommendation
 from calibre import patheq
 from calibre.ebooks.conversion import ConversionUserFeedBack
@@ -53,8 +52,7 @@ HEURISTIC_OPTIONS = ['markup_chapter_headings',
 DEFAULT_TRUE_OPTIONS = HEURISTIC_OPTIONS + ['remove_fake_margins']
 
 def print_help(parser, log):
-    help = parser.format_help().encode(preferred_encoding, 'replace')
-    log(help)
+    parser.print_help()
 
 def check_command_line_options(parser, args, log):
     if len(args) < 3 or args[1].startswith('-') or args[2].startswith('-'):

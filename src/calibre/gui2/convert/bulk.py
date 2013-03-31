@@ -88,6 +88,7 @@ class BulkConfig(Config):
         ps = widget_factory(PageSetupWidget)
         sd = widget_factory(StructureDetectionWidget)
         toc = widget_factory(TOCWidget)
+        toc.manually_fine_tune_toc.hide()
 
         output_widget = self.plumber.output_plugin.gui_configuration_widget(
                 self.stack, self.plumber.get_option_by_name,

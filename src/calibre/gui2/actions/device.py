@@ -177,7 +177,8 @@ class SendToDeviceAction(InterfaceAction):
 class ConnectShareAction(InterfaceAction):
 
     name = 'Connect Share'
-    action_spec = (_('Connect/share'), 'connect_share.png', None, None)
+    action_spec = (_('Connect/share'), 'connect_share.png',
+                   _('Share books using a web server or email. Connect to special devices, etc.'), None)
     popup_type = QToolButton.InstantPopup
 
     def genesis(self):

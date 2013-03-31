@@ -53,6 +53,7 @@ class CHMReader(CHMFile):
         self._playorder = 0
         self._metadata = False
         self._extracted = False
+        self.re_encoded_files = set()
 
         # location of '.hhc' file, which is the CHM TOC.
         if self.topics is None:
@@ -147,8 +148,8 @@ class CHMReader(CHMFile):
                 f.write(data)
 
         self._extracted = True
-        files = [x for x in os.listdir(output_dir) if
-                os.path.isfile(os.path.join(output_dir, x))]
+        files = [y for y in os.listdir(output_dir) if
+                os.path.isfile(os.path.join(output_dir, y))]
         if self.hhc_path not in files:
             for f in files:
                 if f.lower() == self.hhc_path.lower():
@@ -249,7 +250,9 @@ class CHMReader(CHMFile):
             pass
         # do not prettify, it would reformat the <pre> tags!
         try:
-            return str(soup)
+            ans = str(soup)
+            self.re_encoded_files.add(os.path.abspath(htmlpath))
+            return ans
         except RuntimeError:
             return data
 

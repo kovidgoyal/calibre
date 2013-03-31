@@ -496,10 +496,16 @@ class Win32Freeze(Command, WixMixIn):
                                                                       '*.exe'))
         if not files:
             raise ValueError('No installers found')
-        subprocess.check_call(['signtool.exe', 'sign', '/a', '/d',
+        args = ['signtool.exe', 'sign', '/a', '/d',
             'calibre - E-book management', '/du',
             'http://calibre-ebook.com', '/t',
-            'http://timestamp.verisign.com/scripts/timstamp.dll'] + files)
+            'http://timestamp.verisign.com/scripts/timstamp.dll']
+        try:
+            subprocess.check_call(args + files)
+        except subprocess.CalledProcessError:
+            print ('Signing failed, retrying with different timestamp server')
+            args[-1] = 'http://timestamp.comodoca.com/authenticode'
+            subprocess.check_call(args + files)
 
     def add_dir_to_zip(self, zf, path, prefix=''):
         '''

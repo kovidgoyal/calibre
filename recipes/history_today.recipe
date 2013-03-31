@@ -1,6 +1,6 @@
-import re
-from calibre.web.feeds.recipes import BasicNewsRecipe
 from collections import OrderedDict
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
 
 class HistoryToday(BasicNewsRecipe):
 
@@ -19,7 +19,6 @@ class HistoryToday(BasicNewsRecipe):
 
 
     needs_subscription = True
-
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
@@ -46,8 +45,9 @@ class HistoryToday(BasicNewsRecipe):
 
         #Go to issue
         soup = self.index_to_soup('http://www.historytoday.com/contents')
-        cover = soup.find('div',attrs={'id':'content-area'}).find('img')['src']
+        cover = soup.find('div',attrs={'id':'content-area'}).find('img', attrs={'src':re.compile('.*cover.*')})['src']
         self.cover_url=cover
+        self.log(self.cover_url)
 
         #Go to the main body
 
@@ -84,4 +84,3 @@ class HistoryToday(BasicNewsRecipe):
 
     def cleanup(self):
         self.browser.open('http://www.historytoday.com/logout')
-

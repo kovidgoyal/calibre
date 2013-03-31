@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+__license__   = 'GPL v3'
+__copyright__   = u'Łukasz Grąbczewski 2013'
+__version__   = '1.0'
+
+'''
+bachormagazyn.pl
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class bachormagazyn(BasicNewsRecipe):
+	__author__ = u'Łukasz Grączewski'
+	title = u'Bachor Magazyn'
+	description = u'Alternatywny magazyn o alternatywach rodzicielstwa'
+	language = 'pl'
+	publisher = 'Bachor Mag.'
+	publication_type = 'magazine'
+	masthead_url = 'http://bachormagazyn.pl/wp-content/uploads/2011/10/bachor_header1.gif'
+	no_stylesheets = True
+	remove_javascript = True
+	use_embedded_content = False
+	remove_empty_feeds = True
+	
+	oldest_article = 32 #monthly +1
+	max_articles_per_feed = 100
+
+	feeds = [
+			(u'Bezradnik dla nieudacznych rodziców', u'http://bachormagazyn.pl/feed/')
+			]
+
+	keep_only_tags = []
+	keep_only_tags.append(dict(name = 'div', attrs = {'id' : 'content'}))
+
+	remove_tags = []
+	remove_tags.append(dict(attrs = {'id' : 'nav-above'}))
+	remove_tags.append(dict(attrs = {'id' : 'nav-below'}))
+	remove_tags.append(dict(attrs = {'id' : 'comments'}))
+	remove_tags.append(dict(attrs = {'class' : 'entry-info'}))
+	remove_tags.append(dict(attrs = {'class' : 'comments-link'}))
+	remove_tags.append(dict(attrs = {'class' : 'sharedaddy sd-sharing-enabled'}))

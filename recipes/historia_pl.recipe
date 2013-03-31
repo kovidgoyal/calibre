@@ -1,27 +1,22 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Historia_org_pl(BasicNewsRecipe):
-    title          = u'Historia.org.pl'
-    __author__        = 'fenuks'
-    description   = u'Artykuły dotyczące historii w układzie epok i tematów, forum. Najlepsza strona historii. Matura z historii i egzamin gimnazjalny z historii.'
-    cover_url      = 'http://lh3.googleusercontent.com/_QeRQus12wGg/TOvHsZ2GN7I/AAAAAAAAD_o/LY1JZDnq7ro/logo5.jpg'
-    category       = 'history'
-    language       = 'pl'
+    title = u'Historia.org.pl'
+    __author__ = 'fenuks'
+    description = u'Artykuły dotyczące historii w układzie epok i tematów, forum. Najlepsza strona historii. Matura z historii i egzamin gimnazjalny z historii.'
+    cover_url = 'http://lh3.googleusercontent.com/_QeRQus12wGg/TOvHsZ2GN7I/AAAAAAAAD_o/LY1JZDnq7ro/logo5.jpg'
+    category = 'history'
+    language = 'pl'
     oldest_article = 8
+    extra_css = 'img {float: left; margin-right: 10px;} .alignleft {float: left; margin-right: 10px;}'
     remove_empty_feeds= True
     no_stylesheets = True
     use_embedded_content = True
     max_articles_per_feed = 100
     ignore_duplicate_articles = {'title', 'url'}
-
-
-    feeds          = [(u'Wszystkie', u'http://historia.org.pl/feed/'),
-		(u'Wiadomości', u'http://historia.org.pl/Kategoria/wiadomosci/feed/'),
-		(u'Publikacje', u'http://historia.org.pl/Kategoria/artykuly/feed/'),
-		(u'Publicystyka', u'http://historia.org.pl/Kategoria/publicystyka/feed/'),
-		(u'Recenzje', u'http://historia.org.pl/Kategoria/recenzje/feed/'),
-		(u'Projekty', u'http://historia.org.pl/Kategoria/projekty/feed/'),]
-
-
-    def print_version(self, url):
-        return url + '?tmpl=component&print=1&layout=default&page='
+    feeds = [(u'Wszystkie', u'http://historia.org.pl/feed/'),
+        (u'Wiadomości', u'http://historia.org.pl/Kategoria/wiadomosci/feed/'),
+        (u'Publikacje', u'http://historia.org.pl/Kategoria/artykuly/feed/'),
+        (u'Publicystyka', u'http://historia.org.pl/Kategoria/publicystyka/feed/'),
+        (u'Recenzje', u'http://historia.org.pl/Kategoria/recenzje/feed/'),
+        (u'Projekty', u'http://historia.org.pl/Kategoria/projekty/feed/'),]

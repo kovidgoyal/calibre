@@ -94,6 +94,9 @@ class LibraryViewMixin(object): # {{{
                 v = self.current_view()
                 if hasattr(v, 'set_current_row'):
                     v.set_current_row(0)
+                    if v is self.library_view and v.row_count() == 0:
+                        self.book_details.reset_info()
+
 
     # }}}
 

@@ -20,7 +20,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 
 plugboard_content_server_value = 'content_server'
-plugboard_content_server_formats = ['epub']
+plugboard_content_server_formats = ['epub', 'mobi', 'azw3']
 
 class CSSortKeyGenerator(SortKeyGenerator):
 
@@ -210,7 +210,9 @@ class ContentServer(object):
         fm = self.db.format_metadata(id, format, allow_cache=False)
         if not fm:
             raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
-        mi = newmi = self.db.get_metadata(id, index_is_id=True)
+        update_metadata = format in {'MOBI', 'EPUB', 'AZW3'}
+        mi = newmi = self.db.get_metadata(
+            id, index_is_id=True, cover_as_data=True, get_cover=update_metadata)
 
         cherrypy.response.headers['Last-Modified'] = \
             self.last_modified(max(fm['mtime'], mi.last_modified))
@@ -224,19 +226,17 @@ class ContentServer(object):
             mt = 'application/octet-stream'
         cherrypy.response.headers['Content-Type'] = mt
 
-        if format == 'EPUB':
-            # Get the original metadata
-
-            # Get any EPUB plugboards for the content server
+        if format.lower() in plugboard_content_server_formats:
+            # Get any plugboards for the content server
             plugboards = self.db.prefs.get('plugboards', {})
             cpb = find_plugboard(plugboard_content_server_value,
-                                 'epub', plugboards)
+                                 format.lower(), plugboards)
             if cpb:
                 # Transform the metadata via the plugboard
                 newmi = mi.deepcopy_metadata()
                 newmi.template_to_attribute(mi, cpb)
 
-        if format in {'MOBI', 'EPUB', 'AZW3'}:
+        if update_metadata:
             # Write the updated file
             from calibre.ebooks.metadata.meta import set_metadata
             set_metadata(fmt, newmi, format.lower())

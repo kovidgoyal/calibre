@@ -16,14 +16,14 @@ class Kyungyhang(BasicNewsRecipe):
     max_articles_per_feed = 20
     no_stylesheets         = True
     remove_javascript     = True
-	
+
     keep_only_tags    = [
                         dict(name='div', attrs ={'class':['article_title_wrap']}),
-                        dict(name='div', attrs ={'class':['article_txt']})
+                        dict(name='span', attrs ={'class':['article_txt']})
                         ]
 
     remove_tags_after = dict(id={'sub_bottom'})
-	
+
     remove_tags = [
        dict(name='iframe'),
        dict(id={'TdHot'}),
@@ -31,7 +31,7 @@ class Kyungyhang(BasicNewsRecipe):
        dict(name='dl', attrs={'class':['CL']}),
        dict(name='ul', attrs={'class':['tab']}),
        ]
-	
+
     feeds = [
 	('All News','http://www.khan.co.kr/rss/rssdata/total_news.xml'),
            ]

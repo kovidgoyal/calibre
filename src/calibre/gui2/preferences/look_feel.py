@@ -53,6 +53,8 @@ class DisplayedFields(QAbstractListModel): # {{{
             return name
         if role == Qt.CheckStateRole:
             return Qt.Checked if visible else Qt.Unchecked
+        if role == Qt.DecorationRole and field.startswith('#'):
+            return QIcon(I('column.png'))
         return NONE
 
     def flags(self, index):

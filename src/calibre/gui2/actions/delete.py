@@ -83,10 +83,36 @@ class MultiDeleter(QObject): # {{{
 class DeleteAction(InterfaceAction):
 
     name = 'Remove Books'
-    action_spec = (_('Remove books'), 'trash.png', None, 'Del')
+    action_spec = (_('Remove books'), 'trash.png', _('Delete books'), 'Del')
     action_type = 'current'
     action_add_menu = True
     action_menu_clone_qaction = _('Remove selected books')
+
+    accepts_drops = True
+
+    def accept_enter_event(self, event, mime_data):
+        if mime_data.hasFormat("application/calibre+from_library"):
+            return True
+        return False
+
+    def accept_drag_move_event(self, event, mime_data):
+        if mime_data.hasFormat("application/calibre+from_library"):
+            return True
+        return False
+
+    def drop_event(self, event, mime_data):
+        mime = 'application/calibre+from_library'
+        if mime_data.hasFormat(mime):
+            self.dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+            QTimer.singleShot(1, self.do_drop)
+            return True
+        return False
+
+    def do_drop(self):
+        book_ids = self.dropped_ids
+        del self.dropped_ids
+        if book_ids:
+            self.do_library_delete(book_ids)
 
     def genesis(self):
         self.qaction.triggered.connect(self.delete_books)
@@ -296,6 +322,44 @@ class DeleteAction(InterfaceAction):
             current_row = rmap.get(next_id, None)
         self.library_ids_deleted(ids_deleted, current_row=current_row)
 
+    def do_library_delete(self, to_delete_ids):
+        view = self.gui.current_view()
+        # Ask the user if they want to delete the book from the library or device if it is in both.
+        if self.gui.device_manager.is_device_connected:
+            on_device = False
+            on_device_ids = self._get_selected_ids()
+            for id in on_device_ids:
+                res = self.gui.book_on_device(id)
+                if res[0] or res[1] or res[2]:
+                    on_device = True
+                if on_device:
+                    break
+            if on_device:
+                loc = confirm_location('<p>' + _('Some of the selected books are on the attached device. '
+                                            '<b>Where</b> do you want the selected files deleted from?'),
+                            self.gui)
+                if not loc:
+                    return
+                elif loc == 'dev':
+                    self.remove_matching_books_from_device()
+                    return
+                elif loc == 'both':
+                    self.remove_matching_books_from_device()
+        # The following will run if the selected books are not on a connected device.
+        # The user has selected to delete from the library or the device and library.
+        if not confirm('<p>'+_('The %d selected book(s) will be '
+                                '<b>permanently deleted</b> and the files '
+                                'removed from your calibre library. Are you sure?')%len(to_delete_ids)
+                            +'</p>', 'library_delete_books', self.gui):
+            return
+        next_id = view.next_id
+        if len(to_delete_ids) < 5:
+            view.model().delete_books_by_id(to_delete_ids)
+            self.library_ids_deleted2(to_delete_ids, next_id=next_id)
+        else:
+            self.__md = MultiDeleter(self.gui, to_delete_ids,
+                    partial(self.library_ids_deleted2, next_id=next_id))
+
     def delete_books(self, *args):
         '''
         Delete selected books from device or library.
@@ -307,41 +371,7 @@ class DeleteAction(InterfaceAction):
         # Library view is visible.
         if self.gui.stack.currentIndex() == 0:
             to_delete_ids = [view.model().id(r) for r in rows]
-            # Ask the user if they want to delete the book from the library or device if it is in both.
-            if self.gui.device_manager.is_device_connected:
-                on_device = False
-                on_device_ids = self._get_selected_ids()
-                for id in on_device_ids:
-                    res = self.gui.book_on_device(id)
-                    if res[0] or res[1] or res[2]:
-                        on_device = True
-                    if on_device:
-                        break
-                if on_device:
-                    loc = confirm_location('<p>' + _('Some of the selected books are on the attached device. '
-                                               '<b>Where</b> do you want the selected files deleted from?'),
-                                self.gui)
-                    if not loc:
-                        return
-                    elif loc == 'dev':
-                        self.remove_matching_books_from_device()
-                        return
-                    elif loc == 'both':
-                        self.remove_matching_books_from_device()
-            # The following will run if the selected books are not on a connected device.
-            # The user has selected to delete from the library or the device and library.
-            if not confirm('<p>'+_('The selected books will be '
-                                   '<b>permanently deleted</b> and the files '
-                                   'removed from your calibre library. Are you sure?')
-                                +'</p>', 'library_delete_books', self.gui):
-                return
-            next_id = view.next_id
-            if len(rows) < 5:
-                view.model().delete_books_by_id(to_delete_ids)
-                self.library_ids_deleted2(to_delete_ids, next_id=next_id)
-            else:
-                self.__md = MultiDeleter(self.gui, to_delete_ids,
-                        partial(self.library_ids_deleted2, next_id=next_id))
+            self.do_library_delete(to_delete_ids)
         # Device view is visible.
         else:
             if self.gui.stack.currentIndex() == 1:
@@ -352,9 +382,9 @@ class DeleteAction(InterfaceAction):
                 view = self.gui.card_b_view
             paths = view.model().paths(rows)
             ids = view.model().indices(rows)
-            if not confirm('<p>'+_('The selected books will be '
+            if not confirm('<p>'+_('The %d selected book(s) will be '
                                    '<b>permanently deleted</b> '
-                                   'from your device. Are you sure?')
+                                   'from your device. Are you sure?')%len(paths)
                                 +'</p>', 'device_delete_books', self.gui):
                 return
             job = self.gui.remove_paths(paths)

@@ -17,12 +17,14 @@ class KellogInsight(BasicNewsRecipe):
     no_stylesheets = True
     encoding       = 'utf-8'
     language = 'en'
+    auto_cleanup = True
+    use_embedded_content = False
 
     oldest_article = 60
 
-    keep_only_tags = [dict(name='div', attrs={'id':['print_no_comments']})]
+    #keep_only_tags = [dict(name='div', attrs={'id':['print_no_comments']})]
 
-    remove_tags = [dict(name='div', attrs={'class':'col-three'})]
+    #remove_tags = [dict(name='div', attrs={'class':'col-three'})]
 
     extra_css = '''
                 h1{font-family:arial; font-size:medium; color:#333333;}

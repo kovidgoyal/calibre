@@ -13,7 +13,7 @@ class FocusRecipe(BasicNewsRecipe):
     title = u'Focus'
     publisher = u'Gruner + Jahr Polska'
     category = u'News'
-    description = u'Newspaper'
+    description = u'Focus.pl - pierwszy w Polsce portal społecznościowy dla miłośników nauki. Tematyka: nauka, historia, cywilizacja, technika, przyroda, sport, gadżety'
     category = 'magazine'
     cover_url = ''
     remove_empty_feeds = True

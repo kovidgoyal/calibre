@@ -373,7 +373,7 @@ class Source(Plugin):
                 # Remove single quotes not followed by 's'
                 (r"'(?!s)", ''),
                 # Replace other special chars with a space
-                (r'''[:,;+!@$%^&*(){}.`~"\s\[\]/]''', ' '),
+                (r'''[:,;!@$%^&*(){}.`~"\s\[\]/]''', ' '),
             ]]
 
             for pat, repl in title_patterns:

@@ -1,0 +1,28 @@
+__license__ = 'GPL v3'
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class WebSecurity(BasicNewsRecipe):
+    title          = u'WebSecurity'
+    __author__        = 'fenuks'
+    description   = u'WebSecurity.pl to największy w Polsce portal o bezpieczeństwie sieciowym.'
+    category       = ''
+    #publication_type = ''
+    language       = 'pl'
+    #encoding = ''
+    #extra_css = ''
+    cover_url = 'http://websecurity.pl/images/websecurity-logo.png'
+    masthead_url = ''
+    use_embedded_content = False
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    remove_javascript = True
+    remove_attributes = ['style', 'font']
+    ignore_duplicate_articles = {'title', 'url'}
+
+    keep_only_tags = [dict(attrs={'class':'article single'}), dict(id='content')]
+    remove_tags = [dict(attrs={'class':['sociable', 'no-comments']})]
+    remove_tags_after = dict(attrs={'class':'sociable'})
+    feeds          = [(u'Wszystkie', u'http://websecurity.pl/feed/'), (u'Aktualno\u015bci', u'http://websecurity.pl/aktualnosci/feed/'), (u'Artyku\u0142y', u'http://websecurity.pl/artykuly/feed/'), (u'Blogosfera', u'http://websecurity.pl/blogosfera/wpisy/feed/')]
+ 

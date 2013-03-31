@@ -98,16 +98,20 @@ class Catalog(ResizableDialog, Ui_Dialog):
             if fmt[1]:
                 self.sync_enabled_formats.append(fmt[0])
 
-        # Callback when format changes
+        # Callbacks when format, title changes
         self.format.currentIndexChanged.connect(self.format_changed)
+        self.format.currentIndexChanged.connect(self.settings_changed)
+        self.title.editingFinished.connect(self.settings_changed)
 
         # Add the installed catalog format list to the format QComboBox
+        self.format.blockSignals(True)
         self.format.addItems(fmts)
 
         pref = dynamic.get('catalog_preferred_format', 'CSV')
         idx = self.format.findText(pref)
         if idx > -1:
             self.format.setCurrentIndex(idx)
+        self.format.blockSignals(False)
 
         if self.sync.isEnabled():
             self.sync.setChecked(dynamic.get('catalog_sync_to_device', True))
@@ -141,6 +145,14 @@ class Catalog(ResizableDialog, Ui_Dialog):
         else:
             self.sync.setDisabled(True)
             self.sync.setChecked(False)
+
+    def settings_changed(self):
+        '''
+        When title/format change, invalidate Preset in E-book options tab
+        '''
+        cf = unicode(self.format.currentText()).lower()
+        if cf in ['azw3', 'epub', 'mobi'] and hasattr(self.tabs.widget(1), 'settings_changed'):
+            self.tabs.widget(1).settings_changed("title/format")
 
     @property
     def fmt_options(self):

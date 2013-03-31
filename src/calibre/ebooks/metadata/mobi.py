@@ -9,7 +9,7 @@ __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net and ' \
     'Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, cStringIO, imghdr
+import os, cStringIO
 from struct import pack, unpack
 from cStringIO import StringIO
 
@@ -18,11 +18,13 @@ from calibre.ebooks.mobi import MobiError, MAX_THUMB_DIMEN
 from calibre.ebooks.mobi.utils import rescale_image
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.utils.date import now as nowf
+from calibre.utils.imghdr import what
+from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
 def is_image(ss):
     if ss is None:
         return False
-    return imghdr.what(None, ss[:200]) is not None
+    return what(None, ss[:200]) is not None
 
 class StreamSlicer(object):
 
@@ -396,6 +398,17 @@ class MetadataUpdater(object):
                     (u"calibre:%s" % mi.uuid).encode(self.codec, 'replace')))
         if 503 in self.original_exth_records:
             update_exth_record((503, mi.title.encode(self.codec, 'replace')))
+
+        # Update book producer
+        if getattr(mi, 'book_producer', False):
+            update_exth_record((108, mi.book_producer.encode(self.codec, 'replace')))
+
+        # Set langcode in EXTH header
+        if not mi.is_null('language'):
+            lang = canonicalize_lang(mi.language)
+            lang = lang_as_iso639_1(lang) or lang
+            if lang:
+                update_exth_record((524, lang.encode(self.codec, 'replace')))
 
         # Include remaining original EXTH fields
         for id in sorted(self.original_exth_records):

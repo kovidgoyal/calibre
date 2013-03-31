@@ -9,7 +9,7 @@ class EkologiaPl(BasicNewsRecipe):
     language       = 'pl'
     cover_url = 'http://www.ekologia.pl/assets/images/logo/ekologia_pl_223x69.png'
     ignore_duplicate_articles = {'title', 'url'}
-    extra_css = '.title {font-size: 200%;}'
+    extra_css = '.title {font-size: 200%;} .imagePowiazane, .imgCon {float:left; margin-right:5px;}'
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True

@@ -1,18 +1,20 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Comment
 
 class Dzieje(BasicNewsRecipe):
     title          = u'dzieje.pl'
     __author__        = 'fenuks'
-    description   = 'Dzieje - history of Poland'
+    description   = 'Dzieje.pl - najlepszy portal informacyjno-edukacyjny dotyczący historii Polski XX wieku. Archiwalne fotografie, filmy, katalog postaci, quizy i konkursy.'
     cover_url      = 'http://www.dzieje.pl/sites/default/files/dzieje_logo.png'
     category       = 'history'
     language       = 'pl'
     ignore_duplicate_articles = {'title', 'url'}
+    extra_css = '.imagecache-default {float:left; margin-right:20px;}'
     index = 'http://dzieje.pl'
     oldest_article = 8
     max_articles_per_feed = 100
-    remove_javascript=True
-    no_stylesheets= True
+    remove_javascript = True
+    no_stylesheets = True
     keep_only_tags = [dict(name='h1', attrs={'class':'title'}), dict(id='content-area')]
     remove_tags = [dict(attrs={'class':'field field-type-computed field-field-tagi'}), dict(id='dogory')]
     #feeds          = [(u'Dzieje', u'http://dzieje.pl/rss.xml')]
@@ -28,16 +30,19 @@ class Dzieje(BasicNewsRecipe):
                 pagetext = soup2.find(id='content-area').find(attrs={'class':'content'})
                 for r in pagetext.findAll(attrs={'class':['fieldgroup group-groupkul', 'fieldgroup group-zdjeciekult', 'fieldgroup group-zdjecieciekaw', 'fieldgroup group-zdjecieksiazka', 'fieldgroup group-zdjeciedu', 'field field-type-filefield field-field-zdjecieglownawyd']}):
                     r.extract()
-                pos = len(appendtag.contents)
-                appendtag.insert(pos, pagetext)
+                comments = pagetext.findAll(text=lambda text:isinstance(text, Comment))
+                # appendtag.insert(pos, pagetext)
                 tag = soup2.find('li', attrs={'class':'pager-next'})
             for r in appendtag.findAll(attrs={'class':['item-list', 'field field-type-computed field-field-tagi', ]}):
                 r.extract()
+            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
 
     def find_articles(self, url):
         articles = []
-        soup=self.index_to_soup(url)
-        tag=soup.find(id='content-area').div.div
+        soup = self.index_to_soup(url)
+        tag = soup.find(id='content-area').div.div
         for i in tag.findAll('div', recursive=False):
             temp = i.find(attrs={'class':'views-field-title'}).span.a
             title = temp.string
@@ -64,7 +69,7 @@ class Dzieje(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for a in soup('a'):
-            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
-                a['href']=self.index + a['href']
+            if a.has_key('href') and not a['href'].startswith('http'):
+                a['href'] = self.index + a['href']
         self.append_page(soup, soup.body)
         return soup

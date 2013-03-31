@@ -1,0 +1,34 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class GlosWielkopolski(BasicNewsRecipe):
+    title          = u'G\u0142os Wielkopolski'
+    __author__        = 'fenuks'
+    description   = u'Gazeta Regionalna Głos Wielkopolski. Najnowsze Wiadomości Poznań. Czytaj Informacje Poznań!'
+    category       = 'newspaper'
+    language       = 'pl'
+    encoding = 'iso-8859-2'
+    masthead_url = 'http://s.polskatimes.pl/g/logo_naglowek/gloswielkopolski.png?24'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_empty_feeds= True
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'title', 'url'}
+    #preprocess_regexps = [(re.compile(ur'<b>Czytaj także:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur',<b>Czytaj też:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>Zobacz także:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<center><h4><a.*?</a></h4></center>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ TEŻ:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ WIĘCEJ:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>CZYTAJ TAKŻE:.*?</b>', re.DOTALL), lambda match: ''), (re.compile(ur'<b>\* CZYTAJ KONIECZNIE:.*', re.DOTALL), lambda match: '</body>'), (re.compile(ur'<b>Nasze serwisy:</b>.*', re.DOTALL), lambda match: '</body>') ]
+    remove_tags_after= dict(attrs={'src':'http://nm.dz.com.pl/dz.png'})
+    remove_tags=[dict(id='mat-podobne'), dict(name='a', attrs={'class':'czytajDalej'}), dict(attrs={'src':'http://nm.dz.com.pl/dz.png'})]
+
+    feeds          = [(u'Wszystkie', u'http://gloswielkopolski.feedsportal.com/c/32980/f/533779/index.rss?201302'), (u'Wiadomo\u015bci', u'http://gloswielkopolski.feedsportal.com/c/32980/f/533780/index.rss?201302'), (u'Sport', u'http://gloswielkopolski.feedsportal.com/c/32980/f/533781/index.rss?201302'), (u'Kultura', u'http://gloswielkopolski.feedsportal.com/c/32980/f/533782/index.rss?201302'), (u'Porady', u'http://www.gloswielkopolski.pl/rss/gloswielkopolski_porady.xml?201302'), (u'Blogi', u'http://www.gloswielkopolski.pl/rss/gloswielkopolski_blogi.xml?201302'), (u'Nasze akcje', u'http://www.gloswielkopolski.pl/rss/gloswielkopolski_naszeakcje.xml?201302'), (u'Opinie', u'http://www.gloswielkopolski.pl/rss/gloswielkopolski_opinie.xml?201302'), (u'Magazyn', u'http://www.gloswielkopolski.pl/rss/gloswielkopolski_magazyn.xml?201302')]
+
+    def print_version(self, url):
+        return url.replace('artykul', 'drukuj')
+
+    def skip_ad_pages(self, soup):
+        if 'Advertisement' in soup.title:
+            nexturl=soup.find('a')['href']
+            return self.index_to_soup(nexturl, raw=True)
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.prasa24.pl/gazeta/glos-wielkopolski/')
+        self.cover_url=soup.find(id='pojemnik').img['src']
+        return getattr(self, 'cover_url', self.cover_url)

@@ -23,9 +23,11 @@ from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.icu import sort_key
 from calibre.utils.config import to_json, from_json, prefs, tweaks
 from calibre.utils.date import utcfromtimestamp, parse_date
-from calibre.utils.filenames import (is_case_sensitive, samefile, hardlink_file)
+from calibre.utils.filenames import (is_case_sensitive, samefile, hardlink_file, ascii_filename,
+                                     WindowsAtomicFolderMove)
+from calibre.utils.recycle_bin import delete_tree
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
-        SizeTable, FormatsTable, AuthorsTable, IdentifiersTable,
+        SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
         CompositeTable, LanguagesTable)
 # }}}
 
@@ -672,7 +674,7 @@ class DB(object):
                         if col == 'cover' else col)
             if not metadata['column']:
                 metadata['column'] = col
-            tables[col] = OneToOneTable(col, metadata)
+            tables[col] = (PathTable if col == 'path' else OneToOneTable)(col, metadata)
 
         for col in ('series', 'publisher', 'rating'):
             tables[col] = ManyToOneTable(col, self.field_metadata[col].copy())
@@ -778,6 +780,44 @@ class DB(object):
             self.user_version = 1
     # }}}
 
+    def normpath(self, path):
+        path = os.path.abspath(os.path.realpath(path))
+        if not self.is_case_sensitive:
+            path = os.path.normcase(path).lower()
+        return path
+
+    def rmtree(self, path, permanent=False):
+        if not self.normpath(self.library_path).startswith(self.normpath(path)):
+            delete_tree(path, permanent=permanent)
+
+    def construct_path_name(self, book_id, title, author):
+        '''
+        Construct the directory name for this book based on its metadata.
+        '''
+        author = ascii_filename(author
+                    )[:self.PATH_LIMIT].decode('ascii', 'replace')
+        title  = ascii_filename(title
+                    )[:self.PATH_LIMIT].decode('ascii', 'replace')
+        while author[-1] in (' ', '.'):
+            author = author[:-1]
+        if not author:
+            author = ascii_filename(_('Unknown')).decode(
+                    'ascii', 'replace')
+        return '%s/%s (%d)'%(author, title, book_id)
+
+    def construct_file_name(self, book_id, title, author):
+        '''
+        Construct the file name for this book based on its metadata.
+        '''
+        author = ascii_filename(author
+                    )[:self.PATH_LIMIT].decode('ascii', 'replace')
+        title  = ascii_filename(title
+                    )[:self.PATH_LIMIT].decode('ascii', 'replace')
+        name   = title + ' - ' + author
+        while name.endswith('.'):
+            name = name[:-1]
+        return name
+
     # Database layer API {{{
 
     def custom_table_names(self, num):
@@ -865,7 +905,7 @@ class DB(object):
         return self.format_abspath(book_id, fmt, fname, path) is not None
 
     def copy_cover_to(self, path, dest, windows_atomic_move=None, use_hardlink=False):
-        path = os.path.join(self.library_path, path, 'cover.jpg')
+        path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
         if windows_atomic_move is not None:
             if not isinstance(dest, basestring):
                 raise Exception("Error, you must pass the dest as a path when"
@@ -907,24 +947,125 @@ class DB(object):
             if not isinstance(dest, basestring):
                 raise Exception("Error, you must pass the dest as a path when"
                         " using windows_atomic_move")
-            if dest and not samefile(dest, path):
-                windows_atomic_move.copy_path_to(path, dest)
+            if dest:
+                if samefile(dest, path):
+                    # Ensure that the file has the same case as dest
+                    try:
+                        if path != dest:
+                            os.rename(path, dest)
+                    except:
+                        pass # Nothing too catastrophic happened, the cases mismatch, that's all
+                else:
+                    windows_atomic_move.copy_path_to(path, dest)
         else:
             if hasattr(dest, 'write'):
                 with lopen(path, 'rb') as f:
                     shutil.copyfileobj(f, dest)
                 if hasattr(dest, 'flush'):
                     dest.flush()
-            elif dest and not samefile(dest, path):
-                if use_hardlink:
-                    try:
-                        hardlink_file(path, dest)
-                        return True
-                    except:
-                        pass
-                with lopen(path, 'rb') as f, lopen(dest, 'wb') as d:
-                    shutil.copyfileobj(f, d)
+            elif dest:
+                if samefile(dest, path):
+                    if not self.is_case_sensitive and path != dest:
+                        # Ensure that the file has the same case as dest
+                        try:
+                            os.rename(path, dest)
+                        except:
+                            pass # Nothing too catastrophic happened, the cases mismatch, that's all
+                else:
+                    if use_hardlink:
+                        try:
+                            hardlink_file(path, dest)
+                            return True
+                        except:
+                            pass
+                    with lopen(path, 'rb') as f, lopen(dest, 'wb') as d:
+                        shutil.copyfileobj(f, d)
         return True
+
+    def windows_check_if_files_in_use(self, paths):
+        '''
+        Raises an EACCES IOError if any of the files in the folder of book_id
+        are opened in another program on windows.
+        '''
+        if iswindows:
+            for path in paths:
+                spath = os.path.join(self.library_path, *path.split('/'))
+                wam = None
+                if os.path.exists(spath):
+                    try:
+                        wam = WindowsAtomicFolderMove(spath)
+                    finally:
+                        if wam is not None:
+                            wam.close_handles()
+
+    def update_path(self, book_id, title, author, path_field, formats_field):
+        path = self.construct_path_name(book_id, title, author)
+        current_path = path_field.for_book(book_id)
+        formats = formats_field.for_book(book_id, default_value=())
+        fname = self.construct_file_name(book_id, title, author)
+        # Check if the metadata used to construct paths has changed
+        changed = False
+        for fmt in formats:
+            name = formats_field.format_fname(book_id, fmt)
+            if name and name != fname:
+                changed = True
+                break
+        if path == current_path and not changed:
+            return
+        spath = os.path.join(self.library_path, *current_path.split('/'))
+        tpath = os.path.join(self.library_path, *path.split('/'))
+
+        source_ok = current_path and os.path.exists(spath)
+        wam = WindowsAtomicFolderMove(spath) if iswindows and source_ok else None
+        try:
+            if not os.path.exists(tpath):
+                os.makedirs(tpath)
+
+            if source_ok: # Migrate existing files
+                dest = os.path.join(tpath, 'cover.jpg')
+                self.copy_cover_to(current_path, dest,
+                        windows_atomic_move=wam, use_hardlink=True)
+                for fmt in formats:
+                    dest = os.path.join(tpath, fname+'.'+fmt.lower())
+                    self.copy_format_to(book_id, fmt, formats_field.format_fname(book_id, fmt), current_path,
+                                        dest, windows_atomic_move=wam, use_hardlink=True)
+            # Update db to reflect new file locations
+            for fmt in formats:
+                formats_field.table.set_fname(book_id, fmt, fname, self)
+            path_field.table.set_path(book_id, path, self)
+
+            # Delete not needed directories
+            if source_ok:
+                if os.path.exists(spath) and not samefile(spath, tpath):
+                    if wam is not None:
+                        wam.delete_originals()
+                    self.rmtree(spath, permanent=True)
+                    parent = os.path.dirname(spath)
+                    if len(os.listdir(parent)) == 0:
+                        self.rmtree(parent, permanent=True)
+        finally:
+            if wam is not None:
+                wam.close_handles()
+
+        curpath = self.library_path
+        c1, c2 = current_path.split('/'), path.split('/')
+        if not self.is_case_sensitive and len(c1) == len(c2):
+            # On case-insensitive systems, title and author renames that only
+            # change case don't cause any changes to the directories in the file
+            # system. This can lead to having the directory names not match the
+            # title/author, which leads to trouble when libraries are copied to
+            # a case-sensitive system. The following code attempts to fix this
+            # by checking each segment. If they are different because of case,
+            # then rename the segment. Note that the code above correctly
+            # handles files in the directories, so no need to do them here.
+            for oldseg, newseg in zip(c1, c2):
+                if oldseg.lower() == newseg.lower() and oldseg != newseg:
+                    try:
+                        os.rename(os.path.join(curpath, oldseg),
+                                os.path.join(curpath, newseg))
+                    except:
+                        break # Fail silently since nothing catastrophic has happened
+                curpath = os.path.join(curpath, newseg)
 
    # }}}
 

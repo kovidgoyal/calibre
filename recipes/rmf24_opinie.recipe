@@ -46,7 +46,7 @@ class RMF24_opinie(BasicNewsRecipe):
             return link
 
     preprocess_regexps = [
-        (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
+        (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
         [
             (r'<h2>Zdj.cie</h2>', lambda match: ''),
             (r'embed embed(Left|Right|Center) articleEmbed(Audio|Wideo articleEmbedVideo|ArticleFull|ArticleTitle|ArticleListTitle|AlbumHorizontal)">', lambda match: 'REMOVE">'),

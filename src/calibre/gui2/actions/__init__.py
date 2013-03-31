@@ -101,12 +101,38 @@ class InterfaceAction(QObject):
     #: on calibre as a whole
     action_type = 'global'
 
+    #: If True, then this InterfaceAction will have the opportunity to interact
+    #: with drag and drop events. See the methods, :meth:`accept_enter_event`,
+    #: :meth`:accept_drag_move_event`, :meth:`drop_event` for details.
+    accepts_drops = False
+
     def __init__(self, parent, site_customization):
         QObject.__init__(self, parent)
         self.setObjectName(self.name)
         self.gui = parent
         self.site_customization = site_customization
         self.interface_action_base_plugin = None
+
+    def accept_enter_event(self, event, mime_data):
+        ''' This method should return True iff this interface action is capable
+        of handling the drag event. Do not call accept/ignore on the event,
+        that will be taken care of by the calibre UI.'''
+        return False
+
+    def accept_drag_move_event(self, event, mime_data):
+        ''' This method should return True iff this interface action is capable
+        of handling the drag event. Do not call accept/ignore on the event,
+        that will be taken care of by the calibre UI.'''
+        return False
+
+    def drop_event(self, event, mime_data):
+        ''' This method should perform some useful action and return True
+        iff this interface action is capable of handling the drop event. Do not
+        call accept/ignore on the event, that will be taken care of by the
+        calibre UI. You should not perform blocking/long operations in this
+        function. Instead emit a signal or use QTimer.singleShot and return
+        quickly. See the builtin actions for examples.'''
+        return False
 
     def do_genesis(self):
         self.Dispatcher = partial(Dispatcher, parent=self)

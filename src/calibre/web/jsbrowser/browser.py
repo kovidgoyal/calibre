@@ -13,7 +13,7 @@ from threading import current_thread
 
 from PyQt4.Qt import (QObject, QNetworkAccessManager, QNetworkDiskCache,
         QNetworkProxy, QNetworkProxyFactory, QEventLoop, QUrl, pyqtSignal,
-        QDialog, QVBoxLayout, QSize, QNetworkCookieJar, Qt)
+        QDialog, QVBoxLayout, QSize, QNetworkCookieJar, Qt, pyqtSlot)
 from PyQt4.QtWebKit import QWebPage, QWebSettings, QWebView, QWebElement
 
 from calibre import USER_AGENT, prints, get_proxies, get_proxy_info
@@ -83,6 +83,7 @@ class WebPage(QWebPage): # {{{
             result.append(value)
         return ok
 
+    @pyqtSlot(result=bool)
     def shouldInterruptJavaScript(self):
         if self.view() is not None:
             return QWebPage.shouldInterruptJavaScript(self)
@@ -90,6 +91,10 @@ class WebPage(QWebPage): # {{{
 
     def on_unsupported_content(self, reply):
         self.log.warn('Unsupported content, ignoring: %s'%reply.url())
+
+    @property
+    def ready_state(self):
+        return unicode(self.mainFrame().evaluateJavaScript('document.readyState').toString())
 
 # }}}
 
@@ -366,6 +371,29 @@ class Browser(QObject, FormsMixin):
         self.current_form = None
         self.page.mainFrame().load(QUrl(url))
         return self._wait_for_load(timeout, url)
+
+    @property
+    def dom_ready(self):
+        return self.page.ready_state in {'complete', 'interactive'}
+
+    def wait_till_dom_ready(self, timeout=30.0, url=None):
+        start_time = time.time()
+        while not self.dom_ready:
+            if time.time() - start_time > timeout:
+                raise Timeout('Loading of %r took longer than %d seconds'%(
+                    url, timeout))
+            self.run_for_a_time(0.1)
+
+    def start_load(self, url, timeout=30.0):
+        '''
+        Start the loading of the page at url and return once the DOM is ready,
+        sub-resources such as scripts/stylesheets/images/etc. may not have all
+        loaded.
+        '''
+        self.current_form = None
+        self.page.mainFrame().load(QUrl(url))
+        self.run_for_a_time(0.01)
+        self.wait_till_dom_ready(timeout=timeout, url=url)
 
     def click(self, qwe_or_selector, wait_for_load=True, ajax_replies=0, timeout=30.0):
         '''

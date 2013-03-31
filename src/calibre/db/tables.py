@@ -13,7 +13,6 @@ from dateutil.tz import tzoffset
 
 from calibre.constants import plugins
 from calibre.utils.date import parse_date, local_tz, UNDEFINED_DATE
-from calibre.utils.localization import lang_map
 from calibre.ebooks.metadata import author_to_author_sort
 
 _c_speedup = plugins['speedup'][0]
@@ -83,6 +82,13 @@ class OneToOneTable(Table):
             self.metadata['column'], self.metadata['table'])):
             self.book_col_map[row[0]] = self.unserialize(row[1])
 
+class  PathTable(OneToOneTable):
+
+    def set_path(self, book_id, path, db):
+        self.book_col_map[book_id] = path
+        db.conn.execute('UPDATE books SET path=? WHERE id=?',
+                        (path, book_id))
+
 class SizeTable(OneToOneTable):
 
     def read(self, db):
@@ -123,9 +129,8 @@ class ManyToOneTable(Table):
 
     def read_id_maps(self, db):
         for row in db.conn.execute('SELECT id, {0} FROM {1}'.format(
-            self.metadata['column'], self.metadata['table'])):
-            if row[1]:
-                self.id_map[row[0]] = self.unserialize(row[1])
+                self.metadata['column'], self.metadata['table'])):
+            self.id_map[row[0]] = self.unserialize(row[1])
 
     def read_maps(self, db):
         for row in db.conn.execute(
@@ -145,7 +150,7 @@ class ManyToManyTable(ManyToOneTable):
     '''
 
     table_type = MANY_MANY
-    selectq = 'SELECT book, {0} FROM {1}'
+    selectq = 'SELECT book, {0} FROM {1} ORDER BY id'
 
     def read_maps(self, db):
         for row in db.conn.execute(
@@ -162,14 +167,12 @@ class ManyToManyTable(ManyToOneTable):
 
 class AuthorsTable(ManyToManyTable):
 
-    selectq = 'SELECT book, {0} FROM {1} ORDER BY id'
-
     def read_id_maps(self, db):
         self.alink_map = {}
         self.asort_map  = {}
         for row in db.conn.execute(
                 'SELECT id, name, sort, link FROM authors'):
-            self.id_map[row[0]] = row[1]
+            self.id_map[row[0]] = self.unserialize(row[1])
             self.asort_map[row[0]] = (row[2] if row[2] else
                     author_to_author_sort(row[1]))
             self.alink_map[row[0]] = row[3]
@@ -197,6 +200,11 @@ class FormatsTable(ManyToManyTable):
         for key in tuple(self.book_col_map.iterkeys()):
             self.book_col_map[key] = tuple(sorted(self.book_col_map[key]))
 
+    def set_fname(self, book_id, fmt, fname, db):
+        self.fname_map[book_id][fmt] = fname
+        db.conn.execute('UPDATE data SET name=? WHERE book=? AND format=?',
+                        (fname, book_id, fmt))
+
 class IdentifiersTable(ManyToManyTable):
 
     def read_id_maps(self, db):
@@ -216,5 +224,3 @@ class LanguagesTable(ManyToManyTable):
 
     def read_id_maps(self, db):
         ManyToManyTable.read_id_maps(self, db)
-        lm = lang_map()
-        self.lang_name_map = {x:lm.get(x, x) for x in self.id_map.itervalues()}

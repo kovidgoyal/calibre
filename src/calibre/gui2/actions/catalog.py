@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os, shutil
+import re, os, shutil, errno
 
 from PyQt4.Qt import QModelIndex
 
@@ -18,7 +18,8 @@ from calibre import sanitize_file_name_unicode
 class GenerateCatalogAction(InterfaceAction):
 
     name = 'Generate Catalog'
-    action_spec = (_('Create catalog'), 'catalog.png', 'Catalog builder', ())
+    action_spec = (_('Create catalog'), 'catalog.png',
+                   _('Create a catalog of the books in your calibre library in different formats'), ())
     dont_add_to = frozenset(['context-menu-device'])
 
     def genesis(self):
@@ -92,6 +93,15 @@ class GenerateCatalogAction(InterfaceAction):
             if export_dir:
                 destination = os.path.join(export_dir, '%s.%s' % (
                     sanitize_file_name_unicode(job.catalog_title), job.fmt.lower()))
-                shutil.copyfile(job.catalog_file_path, destination)
-
+                try:
+                    shutil.copyfile(job.catalog_file_path, destination)
+                except EnvironmentError as err:
+                    if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
+                        import traceback
+                        error_dialog(self, _('Permission denied'),
+                                _('Could not open %s. Is it being used by another'
+                                ' program?')%destination, det_msg=traceback.format_exc(),
+                                show=True)
+                        return
+                    raise
 

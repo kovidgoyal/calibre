@@ -482,5 +482,10 @@ h2.library_name {
     border: none
 }
 
+.details #random_button {
+    display:block
+}
+
+
 /* }}} */
 
