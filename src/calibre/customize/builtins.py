@@ -1296,15 +1296,6 @@ class StoreBeamEBooksDEStore(StoreBase):
     formats = ['EPUB', 'MOBI', 'PDF']
     affiliate = True
 
-class StoreBeWriteStore(StoreBase):
-    name = 'BeWrite Books'
-    description = u'Publishers of fine books. Highly selective and editorially driven. Does not offer: books for children or exclusively YA, erotica, swords-and-sorcery fantasy and space-opera-style science fiction. All other genres are represented.'
-    actual_plugin = 'calibre.gui2.store.stores.bewrite_plugin:BeWriteStore'
-
-    drm_free_only = True
-    headquarters = 'US'
-    formats = ['EPUB', 'MOBI', 'PDF']
-
 class StoreBiblioStore(StoreBase):
     name = u'Библио.бг'
     author = 'Alex Stanev'
@@ -1677,7 +1668,6 @@ plugins += [
     StoreBaenWebScriptionStore,
     StoreBNStore,
     StoreBeamEBooksDEStore,
-    StoreBeWriteStore,
     StoreBiblioStore,
     StoreBookotekaStore,
     StoreChitankaStore,
