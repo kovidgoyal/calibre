@@ -15,7 +15,7 @@ from lxml import html
 
 from PyQt4.Qt import QUrl
 
-from calibre import browser, url_slash_cleaner
+from calibre import browser, random_user_agent, url_slash_cleaner
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
@@ -41,7 +41,7 @@ class GutenbergStore(BasicStoreConfig, StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         url = 'http://m.gutenberg.org/ebooks/search.mobile/?default_prefix=all&sort_order=title&query=' + urllib.quote_plus(query)
 
-        br = browser()
+        br = browser(user_agent=random_user_agent())
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
@@ -72,7 +72,7 @@ class GutenbergStore(BasicStoreConfig, StorePlugin):
     def get_details(self, search_result, timeout):
         url = url_slash_cleaner('http://m.gutenberg.org/' + search_result.detail_item)
 
-        br = browser()
+        br = browser(user_agent=random_user_agent())
         with closing(br.open(url, timeout=timeout)) as nf:
             doc = html.fromstring(nf.read())
 
