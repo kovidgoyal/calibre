@@ -9,7 +9,7 @@ import functools, re, os, traceback, errno, time
 from collections import defaultdict
 
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
-        QModelIndex, QVariant, QDateTime, QColor)
+        QModelIndex, QVariant, QDateTime, QColor, QPixmap)
 
 from calibre.gui2 import NONE, UNDEFINED_QDATETIME, error_dialog
 from calibre.utils.pyparsing import ParseException
@@ -94,7 +94,10 @@ class ColumnIcon(object):
                     return icon_bitmap
                 d = os.path.join(config_dir, 'cc_icons', icon)
                 if (os.path.exists(d)):
-                    icon_bitmap = QIcon(d)
+                    if key in tweaks['use_rectangular_images_for_icons_for_columns']:
+                        icon_bitmap = QPixmap(d)
+                    else:
+                        icon_bitmap = QIcon(d)
                     icon_cache[id_][dex] = icon_bitmap
                     icon_bitmap_cache[icon] = icon_bitmap
                     self.mi = None
