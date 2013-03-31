@@ -355,11 +355,11 @@ class PdfDevice(QPaintDevice): # {{{
 
     @property
     def full_page_rect(self):
-        page_width = self.page_width * self.xdpi / 72.0
+        page_width = int(math.ceil(self.page_width * self.xdpi / 72.0))
         lm = int(math.ceil(self.left_margin * self.xdpi / 72.0))
-        page_height = self.page_height * self.ydpi / 72.0
+        page_height = int(math.ceil(self.page_height * self.ydpi / 72.0))
         tm = int(math.ceil(self.top_margin * self.ydpi / 72.0))
-        return (-lm, -tm, page_width, page_height)
+        return (-lm, -tm, page_width+1, page_height+1)
 
     @property
     def current_page_num(self):
