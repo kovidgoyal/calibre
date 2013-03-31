@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from calibre.web.feeds.news import BasicNewsRecipe
-
+from calibre.ebooks.BeautifulSoup import Comment
 
 class Gazeta_Wyborcza(BasicNewsRecipe):
     title = u'Gazeta.pl'
@@ -16,6 +16,7 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
     max_articles_per_feed = 100
     remove_javascript = True
     no_stylesheets = True
+    ignore_duplicate_articles = {'title', 'url'}
     remove_tags_before = dict(id='k0')
     remove_tags_after = dict(id='banP4')
     remove_tags = [dict(name='div', attrs={'class':'rel_box'}), dict(attrs={'class':['date', 'zdjP', 'zdjM', 'pollCont', 'rel_video', 'brand', 'txt_upl']}), dict(name='div', attrs={'id':'footer'})]
@@ -48,6 +49,9 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
                     url = self.INDEX + link['href']
                     soup2 = self.index_to_soup(url)
                     pagetext = soup2.find(id='artykul')
+                    comments = pagetext.findAll(text=lambda text:isinstance(text, Comment))
+                    for comment in comments:
+                        comment.extract()
                     pos = len(appendtag.contents)
                     appendtag.insert(pos, pagetext)
                     tag = soup2.find('div', attrs={'id': 'Str'})
@@ -65,6 +69,9 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
             nexturl = pagetext.find(id='gal_btn_next')
             if nexturl:
                 nexturl = nexturl.a['href']
+                comments = pagetext.findAll(text=lambda text:isinstance(text, Comment))
+                for comment in comments:
+                    comment.extract()
                 pos = len(appendtag.contents)
                 appendtag.insert(pos, pagetext)
             rem = appendtag.find(id='gal_navi')
@@ -105,3 +112,7 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
         soup = self.index_to_soup('http://wyborcza.pl/' + cover.contents[3].a['href'])
         self.cover_url = 'http://wyborcza.pl' + soup.img['src']
         return getattr(self, 'cover_url', self.cover_url)
+
+    '''def image_url_processor(self, baseurl, url):
+        print "@@@@@@@@", url
+        return url.replace('http://wyborcza.pl/ ', '')'''

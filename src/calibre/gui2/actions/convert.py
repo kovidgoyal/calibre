@@ -167,8 +167,8 @@ class ConvertAction(InterfaceAction):
     def queue_convert_jobs(self, jobs, changed, bad, rows, previous,
             converted_func, extra_job_args=[], rows_are_ids=False):
         for func, args, desc, fmt, id, temp_files in jobs:
-            func, _, same_fmt = func.partition(':')
-            same_fmt = same_fmt == 'same_fmt'
+            func, _, parts = func.partition(':')
+            parts = {x for x in parts.split(';')}
             input_file = args[0]
             input_fmt = os.path.splitext(input_file)[1]
             core_usage = 1
@@ -182,7 +182,8 @@ class ConvertAction(InterfaceAction):
                 job = self.gui.job_manager.run_job(Dispatcher(converted_func),
                                             func, args=args, description=desc,
                                             core_usage=core_usage)
-                job.conversion_of_same_fmt = same_fmt
+                job.conversion_of_same_fmt = 'same_fmt' in parts
+                job.manually_fine_tune_toc = 'manually_fine_tune_toc' in parts
                 args = [temp_files, fmt, id]+extra_job_args
                 self.conversion_jobs[job] = tuple(args)
 
@@ -223,6 +224,7 @@ class ConvertAction(InterfaceAction):
                 self.gui.job_exception(job)
                 return
             same_fmt = getattr(job, 'conversion_of_same_fmt', False)
+            manually_fine_tune_toc = getattr(job, 'manually_fine_tune_toc', False)
             fmtf = temp_files[-1].name
             if os.stat(fmtf).st_size < 1:
                 raise Exception(_('Empty output file, '
@@ -248,4 +250,7 @@ class ConvertAction(InterfaceAction):
             current = self.gui.library_view.currentIndex()
             if current.isValid():
                 self.gui.library_view.model().current_changed(current, QModelIndex())
+        if manually_fine_tune_toc:
+            self.gui.iactions['Edit ToC'].do_one(book_id, fmt.upper())
+
 

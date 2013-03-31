@@ -7,11 +7,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct, string, imghdr, zlib, os
+import struct, string, zlib, os
 from collections import OrderedDict
 from io import BytesIO
 
 from calibre.utils.magick.draw import Image, save_cover_data_to, thumbnail
+from calibre.utils.imghdr import what
 from calibre.ebooks import normalize
 
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
@@ -384,9 +385,9 @@ def to_base(num, base=32, min_num_digits=None):
 
 def mobify_image(data):
     'Convert PNG images to GIF as the idiotic Kindle cannot display some PNG'
-    what = imghdr.what(None, data)
+    fmt = what(None, data)
 
-    if what == 'png':
+    if fmt == 'png':
         im = Image()
         im.load(data)
         data = im.export('gif')

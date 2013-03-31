@@ -1,22 +1,23 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
 class Gram_pl(BasicNewsRecipe):
-    title          = u'Gram.pl'
-    __author__        = 'fenuks'
-    description   = u'Serwis społecznościowy o grach: recenzje, newsy, zapowiedzi, encyklopedia gier, forum. Gry PC, PS3, X360, PS Vita, sprzęt dla graczy.'
-    category       = 'games'
-    language       = 'pl'
+    title = u'Gram.pl'
+    __author__ = 'fenuks'
+    description = u'Serwis społecznościowy o grach: recenzje, newsy, zapowiedzi, encyklopedia gier, forum. Gry PC, PS3, X360, PS Vita, sprzęt dla graczy.'
+    category = 'games'
+    language = 'pl'
     oldest_article = 8
     index='http://www.gram.pl'
     max_articles_per_feed = 100
     ignore_duplicate_articles = {'title', 'url'}
     no_stylesheets= True
     remove_empty_feeds = True
-    #extra_css = 'h2 {font-style: italic;  font-size:20px;} .picbox div {float: left;}'
+    #extra_css = 'h2 {font-style: italic; font-size:20px;} .picbox div {float: left;}'
     cover_url=u'http://www.gram.pl/www/01/img/grampl_zima.png'
     keep_only_tags= [dict(id='articleModule')]
-    remove_tags = [dict(attrs={'class':['breadCrump', 'dymek', 'articleFooter', 'twitter-share-button']})]
-    feeds          = [(u'Informacje', u'http://www.gram.pl/feed_news.asp'),
+    remove_tags = [dict(attrs={'class':['breadCrump', 'dymek', 'articleFooter', 'twitter-share-button']}), dict(name='aside')]
+    feeds = [(u'Informacje', u'http://www.gram.pl/feed_news.asp'),
                         (u'Publikacje', u'http://www.gram.pl/feed_news.asp?type=articles')
                         ]
 

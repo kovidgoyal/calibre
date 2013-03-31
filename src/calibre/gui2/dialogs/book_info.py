@@ -5,7 +5,7 @@ __docformat__ = 'restructuredtext en'
 
 
 from PyQt4.Qt import (QCoreApplication, SIGNAL, QModelIndex, QTimer, Qt,
-    QDialog, QPixmap, QIcon, QSize, QPalette)
+    QDialog, QPixmap, QIcon, QSize, QPalette, QShortcut, QKeySequence)
 
 from calibre.gui2.dialogs.book_info_ui import Ui_BookInfo
 from calibre.gui2 import dynamic
@@ -43,6 +43,14 @@ class BookInfo(QDialog, Ui_BookInfo):
         self.fit_cover.stateChanged.connect(self.toggle_cover_fit)
         self.cover.resizeEvent = self.cover_view_resized
         self.cover.cover_changed.connect(self.cover_changed)
+        self.ns = QShortcut(QKeySequence('Alt+Right'), self)
+        self.ns.activated.connect(self.next)
+        self.ps = QShortcut(QKeySequence('Alt+Left'), self)
+        self.ps.activated.connect(self.previous)
+        self.next_button.setToolTip(_('Next [%s]')%
+                unicode(self.ns.key().toString(QKeySequence.NativeText)))
+        self.previous_button.setToolTip(_('Previous [%s]')%
+                unicode(self.ps.key().toString(QKeySequence.NativeText)))
 
         desktop = QCoreApplication.instance().desktop()
         screen_height = desktop.availableGeometry().height() - 100

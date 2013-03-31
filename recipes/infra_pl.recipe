@@ -1,21 +1,20 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class INFRA(BasicNewsRecipe):
-    title          = u'INFRA'
+    title = u'INFRA'
     oldest_article = 7
     max_articles_per_feed = 100
-    __author__        = 'fenuks'
-    description   = u'Serwis Informacyjny INFRA - UFO, Zjawiska Paranormalne, Duchy, Tajemnice świata.'
-    cover_url      = 'http://npn.nazwa.pl/templates/ja_teline_ii/images/logo.jpg'
-    category       = 'UFO'
+    __author__ = 'fenuks'
+    description = u'Serwis Informacyjny INFRA - UFO, Zjawiska Paranormalne, Duchy, Tajemnice świata.'
+    cover_url = 'http://i.imgur.com/j7hJT.jpg'
+    category = 'UFO'
     index='http://infra.org.pl'
-    language       = 'pl'
+    language = 'pl'
     max_articles_per_feed = 100
-    no_stylesheers=True
-    remove_tags_before=dict(name='h2', attrs={'class':'contentheading'})
-    remove_tags_after=dict(attrs={'class':'pagenav'})
-    remove_tags=[dict(attrs={'class':'pagenav'})]
-    feeds          = [(u'Najnowsze wiadomo\u015bci', u'http://www.infra.org.pl/index.php?option=com_rd_rss&id=1')]
+    remove_attrs = ['style']
+    no_stylesheets = True
+    keep_only_tags = [dict(id='ja-current-content')]
+    feeds = [(u'Najnowsze wiadomo\u015bci', u'http://www.infra.org.pl/rss')]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

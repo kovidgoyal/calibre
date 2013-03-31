@@ -1,4 +1,8 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Comment
+
+#currently recipe is not working
+
 class PC_Foster(BasicNewsRecipe):
     title          = u'PC Foster'
     oldest_article = 7
@@ -29,6 +33,9 @@ class PC_Foster(BasicNewsRecipe):
                 appendtag.insert(pos, pagetext)
             for r in appendtag.findAll(attrs={'class':'review_content double'}):
                 r.extract()
+            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body)

@@ -17,10 +17,10 @@ class Browser(B):
     cookie jar. All clones share the same browser configuration.
     '''
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self._clone_actions = {}
 
-        B.__init__(self)
+        B.__init__(self, *args, **kwargs)
         self.set_cookiejar(CookieJar())
 
     def set_handle_refresh(self, *args, **kwargs):

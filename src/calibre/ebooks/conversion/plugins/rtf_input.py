@@ -105,7 +105,7 @@ class RTFInput(InputFormatPlugin):
             return f.read()
 
     def extract_images(self, picts):
-        import imghdr
+        from calibre.utils.imghdr import what
         self.log('Extracting images...')
 
         with open(picts, 'rb') as f:
@@ -120,7 +120,7 @@ class RTFInput(InputFormatPlugin):
             if len(enc) % 2 == 1:
                 enc = enc[:-1]
             data = enc.decode('hex')
-            fmt = imghdr.what(None, data)
+            fmt = what(None, data)
             if fmt is None:
                 fmt = 'wmf'
             count += 1

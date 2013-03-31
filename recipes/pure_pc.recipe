@@ -1,4 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Comment
+
 class PurePC(BasicNewsRecipe):
     title          = u'PurePC'
     oldest_article = 7
@@ -27,6 +29,9 @@ class PurePC(BasicNewsRecipe):
                 appendtag.insert(pos, pagetext)
             for r in appendtag.findAll(attrs={'class':['PageMenuList', 'pager', 'fivestar-widget']}):
                 r.extract()
+            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body)

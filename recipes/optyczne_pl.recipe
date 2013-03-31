@@ -1,0 +1,41 @@
+#!/usr/bin/env  python
+__license__ = 'GPL v3'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class OptyczneRecipe(BasicNewsRecipe):
+    __author__ = u'Artur Stachecki <artur.stachecki@gmail.com>'
+    language = 'pl'
+
+    title = u'optyczne.pl'
+    category = u'News'
+    description = u'Najlepsze testy obiektywów, testy aparatów cyfrowych i testy lornetek w sieci!'
+    cover_url=''
+    remove_empty_feeds= True
+    no_stylesheets=True
+    oldest_article = 7
+    max_articles_per_feed = 100000
+    recursions = 0
+
+    no_stylesheets = True
+    remove_javascript = True
+
+    keep_only_tags =[]
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'news'}))
+
+    remove_tags =[]
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'center'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'news_foto'}))
+    remove_tags.append(dict(name = 'div', attrs = {'align' : 'right'}))
+
+    extra_css = '''
+                    body {font-family: Arial,Helvetica,sans-serif;}
+                    h1{text-align: left;}
+                    h2{font-size: medium; font-weight: bold;}
+                    p.lead {font-weight: bold; text-align: left;}
+                    .authordate {font-size: small; color: #696969;}
+                    .fot{font-size: x-small; color: #666666;}
+                    '''
+    feeds          = [
+                            ('Aktualnosci', 'http://www.optyczne.pl/rss.xml'),
+                           ]

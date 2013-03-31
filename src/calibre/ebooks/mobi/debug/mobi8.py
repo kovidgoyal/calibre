@@ -8,7 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, imghdr, struct, textwrap
+import sys, os, struct, textwrap
 from itertools import izip
 
 from calibre import CurrentDir
@@ -18,6 +18,7 @@ from calibre.ebooks.mobi.debug.index import (SKELIndex, SECTIndex, NCXIndex,
 from calibre.ebooks.mobi.utils import read_font_record, decode_tbs, RECORD_SIZE
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
+from calibre.utils.imghdr import what
 
 class FDST(object):
 
@@ -173,7 +174,7 @@ class MOBIFile(object):
                         font['raw_data'])
                 prefix, ext = 'fonts', font['ext']
             elif sig not in known_types:
-                q = imghdr.what(None, rec.raw)
+                q = what(None, rec.raw)
                 if q:
                     prefix, ext = 'images', q
 
