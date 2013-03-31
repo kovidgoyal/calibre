@@ -57,14 +57,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-29 05:21+0000\n"
-"PO-Revision-Date: 2013-03-27 21:07+0000\n"
+"PO-Revision-Date: 2013-03-30 20:07+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-30 05:10+0000\n"
+"X-Launchpad-Export-Date: 2013-03-31 05:16+0000\n"
 "X-Generator: Launchpad (build 16546)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -8692,7 +8692,7 @@ msgstr "Ingevoegde afdelingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:354
 msgid "List of books, sorted by Author"
-msgstr ""
+msgstr "Lijst van boeken, gesorteerd op autheur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:355
 msgid "&Authors"
@@ -8700,7 +8700,7 @@ msgstr "&Autheurs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:356
 msgid "List of books, sorted by Title"
-msgstr ""
+msgstr "Lijst van boeken, gesorteerd op titel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:357
 msgid "&Titles"
@@ -8708,7 +8708,7 @@ msgstr "&Titels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:358
 msgid "List of series books, sorted by Series"
-msgstr ""
+msgstr "Lijst van boeken, gesorteerd op reeks"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:359
 msgid "&Series"
@@ -8716,7 +8716,7 @@ msgstr "&Series"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:360
 msgid "List of books, sorted by Genre"
-msgstr ""
+msgstr "Lijst van boeken, gesorteerd op genre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:361
 msgid "&Genres"
@@ -8724,11 +8724,11 @@ msgstr "&Genres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:362
 msgid "Field containing Genres"
-msgstr ""
+msgstr "Veld dat de genres bevat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:363
 msgid "List of books, sorted by date added to calibre"
-msgstr ""
+msgstr "Lijst van boeken, gesorteerd op datum van toevoeging aan calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:364
 msgid "&Recently Added"
@@ -11351,12 +11351,12 @@ msgstr "Labels om aan gemaakte boekrecords &toe te voegen:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:50
 #, python-format
 msgid "Next [%s]"
-msgstr ""
+msgstr "Volgende [%s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:52
 #, python-format
 msgid "Previous [%s]"
-msgstr ""
+msgstr "Vorige [%s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:71
 msgid "Fit &cover within view"
@@ -19877,15 +19877,15 @@ msgstr "Selecteer een doel (locatie) voor het inhoudsopgave item"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:130
 msgid "Search for text..."
-msgstr ""
+msgstr "Zoek naar tekst..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:132
 msgid "Find &next"
-msgstr ""
+msgstr "Vo&lgende vinden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:135
 msgid "Find &previous"
-msgstr ""
+msgstr "Vo&rige vinden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:143
 msgid ""
@@ -19916,12 +19916,12 @@ msgstr "Huidig geselecteerde doel:"
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:185
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:196
 msgid "No match found"
-msgstr ""
+msgstr "Geen overeenkomst gevonden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:186
 #, python-format
 msgid "No match found for: %s"
-msgstr ""
+msgstr "Geen overeenkomst gevonden voor: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:192
 #, python-format
@@ -19932,11 +19932,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:195
 msgid "next"
-msgstr ""
+msgstr "volgende"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:195
 msgid "previous"
-msgstr ""
+msgstr "vorige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:223
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:281
@@ -19961,7 +19961,7 @@ msgstr "Locatie: een &lt;%s&gt; tag binnen het bestand"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:34
 msgid "Create ToC from XPath"
-msgstr ""
+msgstr "Inhoudsopgave maken op basis van XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:38
 msgid ""
@@ -19977,11 +19977,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:54
 msgid "&Save settings"
-msgstr ""
+msgstr "Instellingen op&slaan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:56
 msgid "&Load settings"
-msgstr ""
+msgstr "Instellingen &laden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:67
 msgid "No XPaths"
@@ -20175,7 +20175,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:636
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:643
 msgid "No items found"
-msgstr ""
+msgstr "Geen items gevonden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:637
 msgid "No items were found that could be added to the Table of Contents."
@@ -22224,11 +22224,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:201
 #, python-format
 msgid "Stored presets: %s"
-msgstr ""
+msgstr "Opgeslagen voorkeursinstellingen: %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:203
 msgid "Error: No stored presets."
-msgstr ""
+msgstr "Fout: Geen opgeslagen voorkeursinstellingen."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:333
 msgid ""
@@ -22786,7 +22786,7 @@ msgstr "U moet een veld of opf-bestand specificeren"
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:877
 #, python-format
 msgid "No book with id: %s in the database"
-msgstr ""
+msgstr "Geen boek met id: %s in de database"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:602
 #, python-format
@@ -23007,7 +23007,7 @@ msgstr "Toon details voor iedere kolom."
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:950
 #, python-format
 msgid "You will lose all data in the column: %s. Are you sure (y/n)? "
-msgstr ""
+msgstr "U zal alle data van de kolom %s verliezen. Weet u het zeker (j/n)? "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:952
 msgid "y"
@@ -24950,7 +24950,7 @@ msgstr "Engels (Pakistan)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:162
 msgid "English (Poland)"
-msgstr ""
+msgstr "Engels (Polen)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:163
 msgid "English (Croatia)"

@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-03-29 05:21+0000\n"
-"PO-Revision-Date: 2013-03-29 09:30+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2013-03-30 15:22+0000\n"
+"Last-Translator: dario hereñu <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-30 05:22+0000\n"
+"X-Launchpad-Export-Date: 2013-03-31 05:17+0000\n"
 "X-Generator: Launchpad (build 16546)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:540
@@ -23507,9 +23507,9 @@ msgid ""
 "Normally, calibre will update the metadata in the saved files from what is "
 "in the calibre library. Makes saving to disk slower."
 msgstr ""
-"Normalmente calibre actualizará los metadatos de los archivos guardados "
-"según los datos de la biblioteca de calibre. Hace que el guardado en disco "
-"sea más lento."
+"Normalmente, calibre actualizará los metadatos en los archivos guardados "
+"según los datos presentes en la biblioteca de calibre. Esto hace que el "
+"guardado en disco sea más lento."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:87
 msgid ""
@@ -23570,8 +23570,8 @@ msgid ""
 "experience errors when saving, depending on how well the filesystem you are "
 "saving to supports unicode."
 msgstr ""
-"Normalmente calibre convertirá todos los caracteres no ASCII de los nombres "
-"de archivo en los equivalentes ASCII. ADVERTENCIA: Si se desactiva esta "
+"Normalmente, calibre convertirá todos los caracteres no ASCII de los nombres "
+"de archivo en sus equivalentes ASCII. ADVERTENCIA: Si se desactiva esta "
 "opción, pueden ocasionarse errores al guardar, dependiendo del soporte para "
 "Unicode del sistema de archivos donde se guarden los libros."
 
@@ -23613,7 +23613,8 @@ msgstr ""
 #, python-format
 msgid "Template evaluation resulted in no path components. Template: %s"
 msgstr ""
-"La evaluación de la plantilla no da ningún componente de ruta. Plantilla: %s"
+"La evaluación de la plantilla no dio lugar a ningún componente de ruta. "
+"Plantilla: %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:408
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:441
@@ -23663,7 +23664,7 @@ msgid ""
 "The maximum number of matches to return per OPDS query. This affects Stanza, "
 "WordPlayer, etc. integration."
 msgstr ""
-"El número máximo de correspondencias devueltas por cada consulta OPDS. Esto "
+"El número máximo de coincidencias devueltas por cada consulta OPDS. Esto "
 "afecta a la integración con Stanza, WordPlayer, etc."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:43
@@ -23673,7 +23674,7 @@ msgid ""
 "more than this number of items. Default: %default. Set to a large number to "
 "disable grouping."
 msgstr ""
-"Agrupar elementos por categorías tales como autores o etiquetas por la "
+"Agrupar elementos en categorías tales como autores o etiquetas por la "
 "primera letra cuando hay más de este número de elementos. Predeterminado: "
 "%default. Establezca un número alto para desactivar el agrupamiento."
 
@@ -23683,7 +23684,7 @@ msgid ""
 "from Apache/nginx/etc."
 msgstr ""
 "Prefijo para anteponer a todos los URL. Útil para para hacer proxy inverso a "
-"este servidor desde Apache/nginx/etc."
+"este servidor desde Apache, nginx, etc."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/ajax.py:318
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:355
@@ -23759,7 +23760,7 @@ msgstr "Explorar libros por"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:411
 msgid "Choose a category to browse by:"
-msgstr "Elija una categoría"
+msgstr "Elija una categoría para explorar:"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:546
 msgid "Browsing by"
@@ -23796,7 +23797,7 @@ msgstr "Detalles"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:813
 msgid "Permalink"
-msgstr "Permalink"
+msgstr "Enlace permanente"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:814
 msgid "A permanent link to this book"
@@ -23804,7 +23805,7 @@ msgstr "Un enlace permanente a este libro"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:826
 msgid "This book has been deleted"
-msgstr "Este libro ha sido borrado"
+msgstr "Este libro ha sido eliminado"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:894
 msgid "Choose another random book"
@@ -23820,7 +23821,7 @@ msgstr "en búsqueda"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:948
 msgid "Matching books"
-msgstr "Libros encontrados"
+msgstr "Libros coincidentes"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:40
 msgid ""
@@ -23854,7 +23855,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:54
 msgid "Write process PID to the specified file"
-msgstr "Escribir PID del proceso al archivo especificado"
+msgstr "Escribir en PID del proceso en el archivo especificado"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:58
 msgid ""
@@ -23944,7 +23945,7 @@ msgstr "Opciones"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:99
 msgid "show this help message and exit"
-msgstr "muestra este mensaje de ayuda y termina"
+msgstr "mostrar este mensaje de ayuda y terminar"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:100
 msgid "show program's version number and exit"
@@ -24022,7 +24023,7 @@ msgstr "Categorías del explorador de etiquetas creadas por el usuario"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:413
 msgid "How and when calibre updates metadata on the device."
-msgstr "Cómo y cuándo actualiza calibre los metadatos del dispositivo."
+msgstr "Cómo y cuándo actualiza calibre los metadatos en el dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:415
 msgid ""
@@ -24039,10 +24040,10 @@ msgid ""
 "separated by commas. Only takes effect if you set the option to limit search "
 "columns above."
 msgstr ""
-"Elija las columnas en las que se buscara cuando no se usen prefijos, como "
-"cuando se busca «Rojo» en lugar de «title:Rojo». Introduzca una lista de "
-"nombres de búsqueda separados por comas. Sólo tiene efecto si activa la "
-"opción para limitar las columnas de búsqueda más arriba"
+"Elija las columnas en las que buscar cuando no se usen prefijos, como cuando "
+"se busca «Rojo» en lugar de «title:Rojo». Introduzca una lista de nombres de "
+"búsqueda separados por comas. Sólo tiene efecto si activa la opción para "
+"limitar las columnas de búsqueda más arriba."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:426
 #, python-format
@@ -24057,7 +24058,7 @@ msgstr ""
 "versiones acentuadas, según el idioma que haya elegido para la interfaz de "
 "calibre. Por ejemplo, en inglés, al buscar «n» se encontrará tanto «%s» como "
 "«n», pero en español sólo se encontrará «n». Tenga en cuenta que esto hace "
-"las búsquedas mucho más lentas en bibliotecas muy grandes."
+"que las búsquedas sean mucho más lentas en bibliotecas muy grandes."
 
 #: /home/kovid/work/calibre/src/calibre/utils/filenames.py:295
 msgid "File is open in another process"
@@ -24104,12 +24105,12 @@ msgstr "la expresión no es una función ni una constante"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:338
 msgid "format: type {0} requires an integer value, got {1}"
-msgstr "formato: el tipo {0} requiere un valor entero en lugar de {1}"
+msgstr "formato: el tipo {0} requiere un valor entero, se obtuvo {1}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:344
 msgid "format: type {0} requires a decimal (float) value, got {1}"
 msgstr ""
-"formato: el tipo {0} requiere un valor decimal (flotante) en lugar de {1}"
+"formato: el tipo {0} requiere un valor decimal (flotante), se obtuvo {1}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:479
 #, python-format
@@ -24263,7 +24264,7 @@ msgstr ""
 "substr(cad, inicio, fin) -- devuelve los caracteres entre la posición "
 "«inicio» y «fin» del texto «cad». El primer carácter de «cad» está en la "
 "posición cero. Si «fin» es negativo, entonces indica la posición contando "
-"por la derecha. Si «fin» es cero, indica el último carácter. Por ejemplo, "
+"desde la derecha. Si «fin» es cero, indica el último carácter. Por ejemplo, "
 "substr('12345', 1, 0) devuelve '2345', y substr('12345', 1, -1) devuelve "
 "'234'."
 
@@ -24293,7 +24294,7 @@ msgid ""
 "the field is not empty, otherwise return `text if empty`"
 msgstr ""
 "test(val, texto_si_no_vacío, texto_si_vacío) -- devuelve «texto_si_no_vacío» "
-"si el campo no está vació, «devuelve texto_si_vacío» en caso contrario."
+"si el campo no está vacío, «devuelve texto_si_vacío» en caso contrario."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:350
 msgid ""
@@ -24302,7 +24303,7 @@ msgid ""
 "match` if matches are found, otherwise it returns `text if no match`"
 msgstr ""
 "contains(val, patrón, texto_si_coincide, texto_si_no_coincide) -- comprueba "
-"si el campo contiene coincidencias para la expresión regular patrón. "
+"si el campo contiene coincidencias para la expresión regular «patrón». "
 "Devuelve «texto_si_coincide» si se encuentran coincidencias, en caso "
 "contrario devuelve «texto_si_no_coincide»."
 
@@ -24362,7 +24363,7 @@ msgstr ""
 "in_list(val, separador, patrón, encontrado, no_encontrado) -- considera "
 "«val» como una lista de elementos separados por «separador» y compara "
 "«patrón» con cada valor de la lista. Si «patrón» coincide con alguno de los "
-"elementos de la lista devuelve «encontrado», en caso contrario devuelve "
+"elementos de la lista, devuelve «encontrado», en caso contrario devuelve "
 "«no_encontrado»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:439
@@ -24393,11 +24394,11 @@ msgstr ""
 "identifier_in_list(val, id, val_encontrado, val_no_encontrado) -- considera "
 "«val» como una lista de identificadores separados por comas, y compara el "
 "«id» con cada valor de la lista. Un identificador tiene el formato "
-"«id:valor». El argumento «id» debería ser «id» o «id:expreg». El primer caso "
-"selecciona identificadores con dicho «id». El segundo caso selecciona "
+"«id:valor». El argumento «id» debería ser «id» o «id:expreg». El primer "
+"caso, selecciona identificadores con dicho «id». El segundo caso, selecciona "
 "identificadores cuyo valor coincida con la expresión regular «expreg». Si "
-"alguna coincidencia, devuelve «val_encontrado», en caso contrario devuelve "
-"«val_no_encontrado»."
+"existe alguna coincidencia, devuelve «val_encontrado», en caso contrario "
+"devuelve «val_no_encontrado»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:486
 msgid ""
@@ -24442,15 +24443,15 @@ msgid ""
 "example, the title `The Dome` would not be changed."
 msgstr ""
 "shorten(val, car_izq, texto_medio, car_der) -- devuelve una versión "
-"abreviada del campo, consistente en «car_izq» caracteres del principio del "
-"campo, seguidos de «texto_medio», seguido de «car_der» caracteres del final "
-"del campo. «car_izq» y «car_der» deben ser números enteros. Por ejemplo, "
-"supongamos que el título del libro es «Novísima recopilacion de las leyes de "
-"España» y que quiere que quepa en un espacio de 15 caracteres a lo sumo. Si "
-"usa {title:shorten(9,-,5)}, el resultado será «Novísima -spaña». Si la "
-"longitud del campo es menor que «car_izq» + «car_der» + la longitud de "
-"«texto_medio», se usará el campo intacto. Por ejemplo, el título «La "
-"colmena» no se cambiará."
+"abreviada del campo, consistente en un número «car_izq» de caracteres del "
+"principio del campo, seguidos de «texto_medio», seguido de un número "
+"«car_der» de caracteres del final del campo. «car_izq» y «car_der» deben ser "
+"números enteros. Por ejemplo, supongamos que el título del libro es "
+"«Novísima recopilación de las leyes de España» y que quiere que quepa en un "
+"espacio de 15 caracteres a lo sumo. Si usa {title:shorten(8,-,6)}, el "
+"resultado será «Novísima-España». Si la longitud del campo es menor que "
+"«car_izq» + «car_der» + la longitud de «texto_medio», se usará el campo "
+"intacto. Por ejemplo, el título «La colmena» no se cambiará."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:549
 msgid ""
@@ -24487,7 +24488,7 @@ msgid ""
 msgstr ""
 "select(val, clave) -- interpreta el valor como una lista de elementos "
 "separados por comas, con los elementos de la forma «id:valor». Encuentra la "
-"pareja con «id» igual a «clave» y devuelve el «valor» correspondiente."
+"pareja con «id» igual a «clave» y devuelve el valor correspondiente."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:600
 msgid ""
@@ -24499,7 +24500,7 @@ msgid ""
 msgstr ""
 "approximate_formats() -- devuelve una lista separada por comas de formatos "
 "que en algún momento estuvieron asociados con el libro. No hay garantía de "
-"que esta lista sea correcta, aunque probablemente lo es. Esta función puede "
+"que esta lista sea correcta, aunque probablemente lo sea. Esta función puede "
 "llamarse en el modo de programación de plantillas usando la plantilla "
 "«{:'approximate_formats()'}». Tenga en cuenta que los nombres de formato "
 "están siempre en mayúsculas, como en «EPUB»."
@@ -24544,7 +24545,7 @@ msgstr ""
 "formats_paths() -- devuelve una lista separada por comas de elementos "
 "separados por dos puntos que representan la ruta completa a los formatos de "
 "un libro. Puede usar la función «select» para obtener la ruta a un formato "
-"específico. Ten en cuenta que los nombres de formato están siempre en "
+"específico. Tenga en cuenta que los nombres de formato están siempre en "
 "mayúsculas, como en «EPUB»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:671
@@ -24799,7 +24800,7 @@ msgid ""
 "items in the returned list."
 msgstr ""
 "list_sort(lista, dirección, separador) -- devuelve «lista» ordenada sin "
-"distinción de mayúsculas y minúculas. Si «dirección» es cero, la lista se "
+"distinción de mayúsculas y minúsculas. Si «dirección» es cero, la lista se "
 "ordena de manera ascendente, en caso contrario, de manera descendente. Los "
 "elementos de «lista» están separados por «separador», así como los de la "
 "lista resultante."
