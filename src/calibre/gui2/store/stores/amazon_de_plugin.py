@@ -42,7 +42,6 @@ class AmazonEUBase(StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = self.search_url + query.encode('ascii', 'backslashreplace').replace('%', '%25').replace('\\x', '%').replace(' ', '+')
-        br = browser()
 
         counter = max_results
         loops = 0
