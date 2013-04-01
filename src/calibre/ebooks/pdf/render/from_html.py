@@ -302,6 +302,10 @@ class PDFWriter(QObject):
         py_bridge.value = book_indexing.all_links_and_anchors();
         '''%(self.margin_top, 0, self.margin_bottom))
 
+        amap = self.bridge_value
+        if not isinstance(amap, dict):
+            amap = {'links':[], 'anchors':{}} # Some javascript error occurred
+
         if self.header:
             self.bridge_value = self.header
             evaljs('paged_display.header_template = py_bridge.value')
@@ -311,9 +315,6 @@ class PDFWriter(QObject):
         if self.header or self.footer:
             evaljs('paged_display.create_header_footer();')
 
-        amap = self.bridge_value
-        if not isinstance(amap, dict):
-            amap = {'links':[], 'anchors':{}} # Some javascript error occurred
         start_page = self.current_page_num
 
         mf = self.view.page().mainFrame()
