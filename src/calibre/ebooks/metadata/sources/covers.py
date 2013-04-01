@@ -35,9 +35,14 @@ class Worker(Thread):
         start_time = time.time()
         if not self.abort.is_set():
             try:
-                self.plugin.download_cover(self.log, self.rq, self.abort,
-                    title=self.title, authors=self.authors,
-                    identifiers=self.identifiers, timeout=self.timeout)
+                if self.plugin.can_get_multiple_covers:
+                    self.plugin.download_cover(self.log, self.rq, self.abort,
+                        title=self.title, authors=self.authors, get_best_cover=True,
+                        identifiers=self.identifiers, timeout=self.timeout)
+                else:
+                    self.plugin.download_cover(self.log, self.rq, self.abort,
+                        title=self.title, authors=self.authors,
+                        identifiers=self.identifiers, timeout=self.timeout)
             except:
                 self.log.exception('Failed to download cover from',
                         self.plugin.name)
