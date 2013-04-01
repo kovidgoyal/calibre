@@ -21,7 +21,7 @@ class sport_pl(BasicNewsRecipe):
     remove_javascript=True
     no_stylesheets=True
     remove_empty_feeds = True
-
+    ignore_duplicate_articles = {'title', 'url'}
     keep_only_tags =[]
     keep_only_tags.append(dict(name = 'div', attrs = {'id' : 'article'}))
 
