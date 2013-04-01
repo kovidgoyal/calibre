@@ -20,6 +20,7 @@ class km_blog(BasicNewsRecipe):
     remove_javascript=True
     no_stylesheets=True
     remove_empty_feeds = True
+
     feeds          = [(u'blog', u'http://korwin-mikke.pl/blog/rss')]
 
     keep_only_tags =[]

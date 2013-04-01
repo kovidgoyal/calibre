@@ -8,7 +8,6 @@ www.mojegotowanie.pl
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class mojegotowanie(BasicNewsRecipe):
     title = u'Moje Gotowanie'

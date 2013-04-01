@@ -8,7 +8,6 @@ http://www.osw.waw.pl - Osrodek studiow wschodnich
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class OSW_Recipe(BasicNewsRecipe):
 

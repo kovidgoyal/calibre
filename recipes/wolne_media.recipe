@@ -8,7 +8,6 @@ wolnemedia.net
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class wolne_media(AutomaticNewsRecipe):
     title          = u'Wolne Media'

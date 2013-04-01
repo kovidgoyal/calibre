@@ -8,7 +8,6 @@ www.mobilna.pl
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class mobilna(BasicNewsRecipe):
     title = u'Mobilna.pl'

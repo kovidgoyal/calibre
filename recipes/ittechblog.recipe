@@ -6,7 +6,6 @@ www.ittechblog.pl
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class ittechblog(BasicNewsRecipe):
     title = u'IT techblog'

@@ -8,7 +8,6 @@ media2.pl
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class media2_pl(BasicNewsRecipe):
     title = u'Media2'
@@ -32,6 +31,5 @@ class media2_pl(BasicNewsRecipe):
     remove_tags.append(dict(name = 'span', attrs = {'class' : 'news-comments'}))
     remove_tags.append(dict(name = 'div', attrs = {'class' : 'item-sidebar'}))
     remove_tags.append(dict(name = 'div', attrs = {'class' : 'news-tags'}))
-
 
     feeds          = [(u'Media2', u'http://feeds.feedburner.com/media2')]

@@ -1,12 +1,12 @@
-import re
+#!/usr/bin/env  python
+
+__license__ = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ppeRecipe(BasicNewsRecipe):
-    __license__ = 'GPL v3'
     __author__ = u'Artur Stachecki <artur.stachecki@gmail.com>'
     language = 'pl'
-    version = 1
 
     title = u'ppe.pl'
     category = u'News'

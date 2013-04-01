@@ -8,7 +8,6 @@ dzialzagraniczny.pl
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class dzial_zagraniczny(BasicNewsRecipe):
     title          = u'Dział Zagraniczny'
@@ -21,9 +20,8 @@ class dzial_zagraniczny(BasicNewsRecipe):
     cover_url = 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-prn1/c145.5.160.160/559442_415653975115959_2126205128_n.jpg'
     max_articles_per_feed = 100
     remove_empty_feeds = True
-    simultaneous_downloads = 5
     remove_javascript = True
     no_stylesheets = True
     use_embedded_content = True
-    
+
     feeds          = [(u'Dział zagraniczny', u'http://feeds.feedburner.com/dyndns/UOfz')]

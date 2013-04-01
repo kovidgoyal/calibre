@@ -8,7 +8,6 @@ nczas.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class nczas(BasicNewsRecipe):
     title          = u'Najwy\u017cszy Czas'
