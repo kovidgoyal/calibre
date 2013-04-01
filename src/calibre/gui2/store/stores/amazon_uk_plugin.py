@@ -7,7 +7,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, time
 from contextlib import closing
 from lxml import html
 
@@ -28,6 +28,9 @@ class AmazonEUBase(StorePlugin):
     For comments on the implementation, please see amazon_plugin.py
     '''
 
+    MAX_SEARCH_ATTEMPTS = 5
+    SLEEP_BETWEEN_ATTEMPTS = 3
+
     def open(self, parent=None, detail_item=None, external=False):
 
         store_link = self.store_link % self.aff_id
@@ -41,62 +44,71 @@ class AmazonEUBase(StorePlugin):
         br = browser()
 
         counter = max_results
-        with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read())#.decode('latin-1', 'replace'))
+        loops = 0
+        while counter == max_results and loops < self.MAX_SEARCH_ATTEMPTS:
+            br = browser()
+            if loops > 0:
+                print ("Retry getbooks search", self.__class__.__name__, counter,
+                       max_results, loops)
+                time.sleep(self.SLEEP_BETWEEN_ATTEMPTS)
+            loops += 1
 
-            data_xpath = '//div[contains(@class, "prod")]'
-            format_xpath = './/ul[contains(@class, "rsltL")]//span[contains(@class, "lrg") and not(contains(@class, "bld"))]/text()'
-            asin_xpath = '@name'
-            cover_xpath = './/img[@class="productImage"]/@src'
-            title_xpath = './/h3[@class="newaps"]/a//text()'
-            author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]//text()'
-            price_xpath = './/ul[contains(@class, "rsltL")]//span[contains(@class, "lrg") and contains(@class, "bld")]/text()'
+            with closing(br.open(url, timeout=timeout)) as f:
+                doc = html.fromstring(f.read())#.decode('latin-1', 'replace'))
 
-            for data in doc.xpath(data_xpath):
-                if counter <= 0:
-                    break
+                data_xpath = '//div[contains(@class, "prod")]'
+                format_xpath = './/ul[contains(@class, "rsltL")]//span[contains(@class, "lrg") and not(contains(@class, "bld"))]/text()'
+                asin_xpath = '@name'
+                cover_xpath = './/img[@class="productImage"]/@src'
+                title_xpath = './/h3[@class="newaps"]/a//text()'
+                author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]//text()'
+                price_xpath = './/ul[contains(@class, "rsltL")]//span[contains(@class, "lrg") and contains(@class, "bld")]/text()'
 
-                # Even though we are searching digital-text only Amazon will still
-                # put in results for non Kindle books (authors pages). Se we need
-                # to explicitly check if the item is a Kindle book and ignore it
-                # if it isn't.
-                format_ = ''.join(data.xpath(format_xpath))
-                if 'kindle' not in format_.lower():
-                    continue
+                for data in doc.xpath(data_xpath):
+                    if counter <= 0:
+                        break
 
-                # We must have an asin otherwise we can't easily reference the
-                # book later.
-                asin = data.xpath(asin_xpath)
-                if asin:
-                    asin = asin[0]
-                else:
-                    continue
+                    # Even though we are searching digital-text only Amazon will still
+                    # put in results for non Kindle books (authors pages). Se we need
+                    # to explicitly check if the item is a Kindle book and ignore it
+                    # if it isn't.
+                    format_ = ''.join(data.xpath(format_xpath))
+                    if 'kindle' not in format_.lower():
+                        continue
 
-                cover_url = ''.join(data.xpath(cover_xpath))
+                    # We must have an asin otherwise we can't easily reference the
+                    # book later.
+                    asin = data.xpath(asin_xpath)
+                    if asin:
+                        asin = asin[0]
+                    else:
+                        continue
 
-                title = ''.join(data.xpath(title_xpath))
+                    cover_url = ''.join(data.xpath(cover_xpath))
 
-                authors = ''.join(data.xpath(author_xpath))
-                authors = re.sub('^' + self.author_article, '', authors)
-                authors = re.sub(self.and_word, ' & ', authors)
-                mo = re.match(r'(.*)(\(\d.*)$', authors)
-                if mo:
-                    authors = mo.group(1).strip()
+                    title = ''.join(data.xpath(title_xpath))
 
-                price = ''.join(data.xpath(price_xpath))
+                    authors = ''.join(data.xpath(author_xpath))
+                    authors = re.sub('^' + self.author_article, '', authors)
+                    authors = re.sub(self.and_word, ' & ', authors)
+                    mo = re.match(r'(.*)(\(\d.*)$', authors)
+                    if mo:
+                        authors = mo.group(1).strip()
 
-                counter -= 1
+                    price = ''.join(data.xpath(price_xpath))
 
-                s = SearchResult()
-                s.cover_url = cover_url.strip()
-                s.title = title.strip()
-                s.author = authors.strip()
-                s.price = price.strip()
-                s.detail_item = asin.strip()
-                s.drm = SearchResult.DRM_UNKNOWN
-                s.formats = 'Kindle'
+                    counter -= 1
 
-                yield s
+                    s = SearchResult()
+                    s.cover_url = cover_url.strip()
+                    s.title = title.strip()
+                    s.author = authors.strip()
+                    s.price = price.strip()
+                    s.detail_item = asin.strip()
+                    s.drm = SearchResult.DRM_UNKNOWN
+                    s.formats = 'Kindle'
+
+                    yield s
 
     def get_details(self, search_result, timeout):
         pass
