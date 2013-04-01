@@ -166,12 +166,12 @@ class ZshCompleter(object): # {{{
                 exclude = u"'(- *)'"
             h = opt.help or ''
             h = h.replace('"', "'").replace('[', '(').replace(
-                ']', ')').replace('\n', ' ').replace(':', '\\:')
+                ']', ')').replace('\n', ' ').replace(':', '\\:').replace('`', "'")
             h = h.replace('%default', type(u'')(opt.default))
             arg = ''
             if opt.takes_value():
                 arg = ':"%s":'%h
-                if opt.dest in {'debug_pipeline', 'to_dir', 'outbox', 'with_library', 'library_path'}:
+                if opt.dest in {'extract_to', 'debug_pipeline', 'to_dir', 'outbox', 'with_library', 'library_path'}:
                     arg += "'_path_files -/'"
                 elif opt.choices:
                     arg += "(%s)"%'|'.join(opt.choices)
@@ -495,7 +495,9 @@ class PostInstall:
             from calibre.utils.smtp import option_parser as smtp_op
             from calibre.library.server.main import option_parser as serv_op
             from calibre.ebooks.oeb.polish.main import option_parser as polish_op, SUPPORTED
+            from calibre.debug import option_parser as debug_op
             from calibre.ebooks import BOOK_EXTENSIONS
+            from calibre.customize.ui import available_input_formats
             input_formats = sorted(all_input_formats())
             zsh = ZshCompleter(self.opts)
             bc = os.path.join(os.path.dirname(self.opts.staging_sharedir),
@@ -540,6 +542,14 @@ class PostInstall:
                 o_and_w('fetch-ebook-metadata', fem_op, [])
                 o_and_w('calibre-smtp', smtp_op, [])
                 o_and_w('calibre-server', serv_op, [])
+                o_and_e('calibre-debug', debug_op, ['py', 'recipe'], file_map={
+                    '--tweak-book':['epub', 'azw3', 'mobi'],
+                    '--subset-font':['ttf', 'otf'],
+                    '--exec-file':['py', 'recipe'],
+                    '--add-simple-plugin':['py'],
+                    '--inspect-mobi':['mobi', 'azw', 'azw3'],
+                    '--viewer':list(available_input_formats()),
+                })
                 f.write(textwrap.dedent('''
                 _ebook_device_ls()
                 {
@@ -910,7 +920,5 @@ def main():
     PostInstall(opts)
     return 0
 
-
 if __name__ == '__main__':
-    sys.exit(main())
     sys.exit(main())

@@ -1,16 +1,18 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 class NaukawPolsce(BasicNewsRecipe):
-    title          = u'Nauka w Polsce'
-    __author__        = 'fenuks'
-    description   = u'Serwis Nauka w Polsce ma za zadanie popularyzację polskiej nauki. Można na nim znaleźć wiadomości takie jak:  osiągnięcia polskich naukowców, wydarzenia na polskich uczelniach, osiągnięcia studentów, konkursy dla badaczy, staże i stypendia naukowe, wydarzenia w polskiej nauce, kalendarium wydarzeń w nauce, materiały wideo o nauce.'
-    category       = 'science'
-    language       = 'pl'
+    title = u'Nauka w Polsce'
+    __author__ = 'fenuks'
+    description = u'Serwis Nauka w Polsce ma za zadanie popularyzację polskiej nauki. Można na nim znaleźć wiadomości takie jak: osiągnięcia polskich naukowców, wydarzenia na polskich uczelniach, osiągnięcia studentów, konkursy dla badaczy, staże i stypendia naukowe, wydarzenia w polskiej nauce, kalendarium wydarzeń w nauce, materiały wideo o nauce.'
+    category = 'science'
+    language = 'pl'
     cover_url = 'http://www.naukawpolsce.pap.pl/Themes/Pap/images/logo-pl.gif'
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True
     remove_empty_feeds = True
+    extra_css = '.miniaturka {float: left; margin-right: 5px; max-width: 350px;} .miniaturka-dol-strony {display: inline-block; margin: 0 15px; width: 120px;}'
+    ignore_duplicate_articles = {'title', 'url'}
     index = 'http://www.naukawpolsce.pl'
     keep_only_tags = [dict(name='div', attrs={'class':'margines wiadomosc'})]
     remove_tags = [dict(name='div', attrs={'class':'tagi'})]
@@ -23,8 +25,8 @@ class NaukawPolsce(BasicNewsRecipe):
             url = self.index + i.h1.a['href']
             date = '' #i.span.string
             articles.append({'title' : title,
-                   'url'   : url,
-                   'date'  : date,
+                   'url' : url,
+                   'date' : date,
                    'description' : ''
                     })
         return articles

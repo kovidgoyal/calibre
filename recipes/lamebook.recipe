@@ -1,0 +1,27 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class LamebookRecipe(BasicNewsRecipe):
+    title = 'Lamebook'
+    __author__ = 'atordo'
+    description = 'Funny Facebook Statuses, Fails, LOLs and More - The Original'
+    cover_url = 'http://www.lamebook.com/wp-content/themes/lamebook/images/h1-new2.png'
+    oldest_article = 7
+    max_articles_per_feed = 50
+    auto_cleanup = False
+    no_stylesheets = True
+    remove_javascript = True
+    language = 'en'
+    use_embedded_content  = False
+    publication_type = 'blog'
+
+    keep_only_tags = [
+        dict(name='div', attrs={'class':'entry'})
+       ,dict(name='ol', attrs={'class':'commentlist'})
+    ]
+
+    remove_tags = [
+        dict(name='div', attrs={'style':['clear: left; float: left; margin: 0 15px 0 0;'
+           ,'float: left; margin: 0 15px 0 0;']})
+    ]
+
+    feeds = [('Lamebook', 'http://feeds.feedburner.com/Lamebook')]

@@ -6,74 +6,75 @@ import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class KopalniaWiedzy(BasicNewsRecipe):
-        title          = u'Kopalnia Wiedzy'
-        publisher      = u'Kopalnia Wiedzy'
-        description    = u'Ciekawostki ze świata nauki i techniki'
-        encoding       = 'utf-8'
-        __author__     = 'Attis & Tomasz Długosz'
-        language       = 'pl'
-        oldest_article = 7
-        max_articles_per_feed = 100
-        INDEX          = u'http://kopalniawiedzy.pl/'
-        remove_javascript     = True
-        no_stylesheets        = True
+    title          = u'Kopalnia Wiedzy'
+    publisher      = u'Kopalnia Wiedzy'
+    description    = u'Ciekawostki ze świata nauki i techniki'
+    encoding       = 'utf-8'
+    __author__     = 'Attis & Tomasz Długosz'
+    language       = 'pl'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    INDEX          = u'http://kopalniawiedzy.pl/'
+    remove_javascript     = True
+    remove_empty_feeds = True
+    no_stylesheets        = True
 
-        remove_tags    = [{'name':'p', 'attrs': {'class': 'keywords'}}, {'name':'div', 'attrs': {'class':'sexy-bookmarks sexy-bookmarks-bg-caring'}}, {'name':'div', 'attrs': {'class':'article-time-and-cat'}}, {'name':'p', 'attrs': {'class':'tags'}}]
-        remove_tags_after = dict(attrs={'class':'ad-square'})
-        keep_only_tags    = [dict(name="div", attrs={'class':'article-text text-small'})]
-        extra_css      = '.topimage {margin-top: 30px}'
+    remove_tags    = [{'name':'p', 'attrs': {'class': 'keywords'}}, {'name':'div', 'attrs': {'class':'sexy-bookmarks sexy-bookmarks-bg-caring'}}, {'name':'div', 'attrs': {'class':'article-time-and-cat'}}, {'name':'p', 'attrs': {'class':'tags'}}]
+    remove_tags_after = dict(attrs={'class':'ad-square'})
+    keep_only_tags    = [dict(name="div", attrs={'class':'article-text text-small'})]
+    extra_css      = '.topimage {margin-top: 30px}'
 
-        preprocess_regexps = [
-                (re.compile(u'<a .* rel="lightboxText" .*><img (.*)></a>'),
-                lambda match: '<img class="topimage" ' + match.group(1) + '>' ),
-                (re.compile(u'<br  /><br  />'),
-                lambda match: '<br\/>')
-            ]
-
-        feeds = [
-            (u'Biologia', u'http://kopalniawiedzy.pl/wiadomosci_biologia.rss'),
-            (u'Medycyna', u'http://kopalniawiedzy.pl/wiadomosci_medycyna.rss'),
-            (u'Psychologia', u'http://kopalniawiedzy.pl/wiadomosci_psychologia.rss'),
-            (u'Technologie', u'http://kopalniawiedzy.pl/wiadomosci_technologie.rss'),
-            (u'Ciekawostki', u'http://kopalniawiedzy.pl/wiadomosci_ciekawostki.rss'),
-            (u'Artykuły', u'http://kopalniawiedzy.pl/artykuly.rss')
+    preprocess_regexps = [
+            (re.compile(u'<a .* rel="lightboxText" .*><img (.*)></a>'),
+            lambda match: '<img class="topimage" ' + match.group(1) + '>' ),
+            (re.compile(u'<br  /><br  />'),
+            lambda match: '<br\/>')
         ]
 
-        def is_link_wanted(self, url, tag):
-            return tag['class'] == 'next'
+    feeds = [
+        (u'Biologia', u'http://kopalniawiedzy.pl/wiadomosci_biologia.rss'),
+        (u'Medycyna', u'http://kopalniawiedzy.pl/wiadomosci_medycyna.rss'),
+        (u'Psychologia', u'http://kopalniawiedzy.pl/wiadomosci_psychologia.rss'),
+        (u'Technologie', u'http://kopalniawiedzy.pl/wiadomosci_technologie.rss'),
+        (u'Ciekawostki', u'http://kopalniawiedzy.pl/wiadomosci_ciekawostki.rss'),
+        (u'Artykuły', u'http://kopalniawiedzy.pl/artykuly.rss')
+    ]
 
-        def remove_beyond(self, tag, next):
-                while tag is not None and getattr(tag, 'name', None) != 'body':
-                        after = getattr(tag, next)
-                        while after is not None:
-                                ns = getattr(tag, next)
-                                after.extract()
-                                after = ns
-                        tag = tag.parent
+    def is_link_wanted(self, url, tag):
+        return tag['class'] == 'next'
 
-        def append_page(self, soup, appendtag, position):
-                pager = soup.find('a',attrs={'class':'next'})
-                if pager:
-                    nexturl = self.INDEX + pager['href']
-                    soup2 = self.index_to_soup(nexturl)
-                    texttag = soup2.find('div', attrs={'id':'articleContent'})
+    def remove_beyond(self, tag, next):
+        while tag is not None and getattr(tag, 'name', None) != 'body':
+            after = getattr(tag, next)
+            while after is not None:
+                ns = getattr(tag, next)
+                after.extract()
+                after = ns
+            tag = tag.parent
 
-                    tag = texttag.find(attrs={'class':'pages'})
-                    self.remove_beyond(tag, 'nextSibling')
+    def append_page(self, soup, appendtag, position):
+        pager = soup.find('a',attrs={'class':'next'})
+        if pager:
+            nexturl = self.INDEX + pager['href']
+            soup2 = self.index_to_soup(nexturl)
+            texttag = soup2.find('div', attrs={'id':'articleContent'})
 
-                    newpos = len(texttag.contents)
-                    self.append_page(soup2,texttag,newpos)
+            tag = texttag.find(attrs={'class':'pages'})
+            self.remove_beyond(tag, 'nextSibling')
 
-                    appendtag.insert(position,texttag)
+            newpos = len(texttag.contents)
+            self.append_page(soup2,texttag,newpos)
+
+            appendtag.insert(position,texttag)
 
 
-        def preprocess_html(self, soup):
-                self.append_page(soup, soup.body, 3)
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body, 3)
 
-                for item in soup.findAll('div',attrs={'class':'pages'}):
-                    item.extract()
+        for item in soup.findAll('div',attrs={'class':'pages'}):
+            item.extract()
 
-                for item in soup.findAll('p', attrs={'class':'wykop'}):
-                    item.extract()
+        for item in soup.findAll('p', attrs={'class':'wykop'}):
+            item.extract()
 
-                return soup
+        return soup

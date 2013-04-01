@@ -1,0 +1,109 @@
+__license__ = 'GPL v3'
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Comment
+
+class EsensjaRSS(BasicNewsRecipe):
+    title          = u'Esensja (RSS)'
+    __author__        = 'fenuks'
+    description   = u'Magazyn kultury popularnej'
+    category       = 'reading, fantasy, reviews, boardgames, culture'
+    #publication_type = ''
+    language       = 'pl'
+    encoding = 'utf-8'
+    INDEX = 'http://www.esensja.pl'
+    extra_css = '''.t-title {font-size: x-large; font-weight: bold; text-align: left}
+                    .t-author {font-size: x-small; text-align: left}
+                    .t-title2 {font-size: x-small; font-style: italic; text-align: left}
+                    .text {font-size: small; text-align: left}
+                    .annot-ref {font-style: italic; text-align: left}
+                    '''
+    cover_url = ''
+    masthead_url = 'http://esensja.pl/img/wrss.gif'
+    use_embedded_content = False
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    remove_javascript = True
+    ignore_duplicate_articles = {'title', 'url'}
+    preprocess_regexps = [(re.compile(r'alt="[^"]*"'), lambda match: ''), 
+                        (re.compile(ur'(title|alt)="[^"]*?"', re.DOTALL), lambda match: ''),
+                        ]
+    remove_attributes = ['style', 'bgcolor', 'alt', 'color']
+    keep_only_tags = [dict(attrs={'class':'sekcja'}), ]
+    remove_tags_after = dict(id='tekst')
+
+    remove_tags = [dict(name = 'img', attrs = {'src' : ['../../../2000/01/img/tab_top.gif', '../../../2000/01/img/tab_bot.gif']}),
+                    dict(name = 'div', attrs = {'class' : 't-title2 nextpage'}),
+                    #dict(attrs={'rel':'lightbox[galeria]'})
+                    dict(attrs={'class':['tekst_koniec', 'ref', 'wykop']}),
+                    dict(attrs={'itemprop':['copyrightHolder', 'publisher']}),
+                    dict(id='komentarze')                
+                    ]
+    
+    feeds = [(u'Książka', u'http://esensja.pl/rss/ksiazka.rss'), 
+            (u'Film', u'http://esensja.pl/rss/film.rss'), 
+            (u'Komiks', u'http://esensja.pl/rss/komiks.rss'),
+            (u'Gry', u'http://esensja.pl/rss/gry.rss'),
+            (u'Muzyka', u'http://esensja.pl/rss/muzyka.rss'),
+            (u'Twórczość', u'http://esensja.pl/rss/tworczosc.rss'),
+            (u'Varia', u'http://esensja.pl/rss/varia.rss'),
+            (u'Zgryźliwi Tetrycy', u'http://esensja.pl/rss/tetrycy.rss'),
+            (u'Nowe książki', u'http://esensja.pl/rss/xnowosci.rss'),
+            (u'Ostatnio dodane książki', u'http://esensja.pl/rss/xdodane.rss'),
+            ]
+ 
+    def get_cover_url(self):
+        soup = self.index_to_soup(self.INDEX)
+        cover = soup.find(id='panel_1')
+        self.cover_url = self.INDEX + cover.find('a')['href'].replace('index.html', '') + 'img/ilustr/cover_b.jpg'
+        return getattr(self, 'cover_url', self.cover_url)
+
+
+    def append_page(self, soup, appendtag):
+        r = appendtag.find(attrs={'class':'wiecej_xxx'})
+        if r:
+            nr = r.findAll(attrs={'class':'tn-link'})[-1]
+            try:
+                nr = int(nr.a.string)
+            except:
+                return
+            baseurl = soup.find(attrs={'property':'og:url'})['content'] + '&strona={0}'
+            for number in range(2, nr+1):
+                soup2 = self.index_to_soup(baseurl.format(number))
+                pagetext = soup2.find(attrs={'class':'tresc'})
+                pos = len(appendtag.contents)
+                appendtag.insert(pos, pagetext)
+            for r in appendtag.findAll(attrs={'class':['wiecej_xxx', 'tekst_koniec']}):
+                r.extract()
+            for r in appendtag.findAll('script'):
+                r.extract()
+
+            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
+
+
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        for tag in soup.findAll(attrs={'class':'img_box_right'}):
+            temp = tag.find('img')
+            src = ''
+            if temp:
+                src = temp.get('src', '')
+            for r in tag.findAll('a', recursive=False):
+                r.extract()
+            info = tag.find(attrs={'class':'img_info'})
+            text = str(tag)
+            if not src:
+                src = re.search('src="[^"]*?"', text)
+                if src:
+                    src = src.group(0)
+                    src = src[5:].replace('//', '/')
+            if src:
+                tag.contents = []
+                tag.insert(0, BeautifulSoup('<img src="{0}{1}" />'.format(self.INDEX, src)))
+            if info:
+                tag.insert(len(tag.contents), info)
+        return soup

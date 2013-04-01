@@ -1,30 +1,30 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class WirtualneMedia(BasicNewsRecipe):
-    title          = u'wirtualnemedia.pl'
+    title = u'wirtualnemedia.pl'
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
     remove_empty_feeds = True
-    __author__        = 'fenuks'
-    description   = u'Portal o mediach, reklamie, internecie, PR, telekomunikacji - nr 1 w Polsce - WirtualneMedia.pl - wiadomości z pierwszej ręki.'
-    category       = 'internet'
-    language       = 'pl'
+    __author__ = 'fenuks'
+    extra_css = '.thumbnail {float:left; max-width:150px; margin-right:5px;}'
+    description = u'Portal o mediach, reklamie, internecie, PR, telekomunikacji - nr 1 w Polsce - WirtualneMedia.pl - wiadomości z pierwszej ręki.'
+    category = 'internet'
+    language = 'pl'
+    ignore_duplicate_articles = {'title', 'url'}
     masthead_url= 'http://i.wp.pl/a/f/jpeg/8654/wirtualnemedia.jpeg'
     cover_url= 'http://static.wirtualnemedia.pl/img/logo_wirtualnemedia_newsletter.gif'
     remove_tags=[dict(id=['header', 'footer'])]
-    feeds          = [(u'Gospodarka', u'http://www.wirtualnemedia.pl/rss/wm_gospodarka.xml'), 
-		(u'Internet', u'http://www.wirtualnemedia.pl/rss/wm_internet.xml'), 
-		(u'Kultura', u'http://www.wirtualnemedia.pl/rss/wm_kulturarozrywka.xml'), 
-		(u'Badania', u'http://www.wirtualnemedia.pl/rss/wm_marketing.xml'), 
-		(u'Prasa', u'http://www.wirtualnemedia.pl/rss/wm_prasa.xml'), 
-		(u'Radio', u'http://www.wirtualnemedia.pl/rss/wm_radio.xml'), 
-		(u'Reklama', u'http://www.wirtualnemedia.pl/rss/wm_reklama.xml'), 
-		(u'PR', u'http://www.wirtualnemedia.pl/rss/wm_relations.xml'), 
-		(u'Technologie', u'http://www.wirtualnemedia.pl/rss/wm_telekomunikacja.xml'), 
-		(u'Telewizja', u'http://www.wirtualnemedia.pl/rss/wm_telewizja_rss.xml')
-		]
-
+    feeds = [(u'Gospodarka', u'http://www.wirtualnemedia.pl/rss/wm_gospodarka.xml'),
+        (u'Internet', u'http://www.wirtualnemedia.pl/rss/wm_internet.xml'),
+        (u'Kultura', u'http://www.wirtualnemedia.pl/rss/wm_kulturarozrywka.xml'),
+        (u'Badania', u'http://www.wirtualnemedia.pl/rss/wm_marketing.xml'),
+        (u'Prasa', u'http://www.wirtualnemedia.pl/rss/wm_prasa.xml'),
+        (u'Radio', u'http://www.wirtualnemedia.pl/rss/wm_radio.xml'),
+        (u'Reklama', u'http://www.wirtualnemedia.pl/rss/wm_reklama.xml'),
+        (u'PR', u'http://www.wirtualnemedia.pl/rss/wm_relations.xml'),
+        (u'Technologie', u'http://www.wirtualnemedia.pl/rss/wm_telekomunikacja.xml'),
+        (u'Telewizja', u'http://www.wirtualnemedia.pl/rss/wm_telewizja_rss.xml')]
     def print_version(self, url):
         return url.replace('artykul', 'print')

@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, tempfile, os, imghdr
+import re, tempfile, os
 from functools import partial
 from itertools import izip
 from urllib import quote
@@ -17,6 +17,7 @@ from calibre.customize.conversion import (InputFormatPlugin,
         OptionRecommendation)
 from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
+from calibre.utils.imghdr import what
 
 
 class HTMLInput(InputFormatPlugin):
@@ -250,7 +251,7 @@ class HTMLInput(InputFormatPlugin):
             if media_type == self.BINARY_MIME:
                 # Check for the common case, images
                 try:
-                    img = imghdr.what(link)
+                    img = what(link)
                 except EnvironmentError:
                     pass
                 else:

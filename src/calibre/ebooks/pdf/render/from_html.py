@@ -12,7 +12,7 @@ from future_builtins import map
 from math import floor
 
 from PyQt4.Qt import (QObject, QPainter, Qt, QSize, QString, QTimer,
-                      pyqtProperty, QEventLoop, QPixmap, QRect)
+                      pyqtProperty, QEventLoop, QPixmap, QRect, pyqtSlot)
 from PyQt4.QtWebKit import QWebView, QWebPage, QWebSettings
 
 from calibre import fit_image
@@ -82,6 +82,7 @@ class Page(QWebPage): # {{{
                     opts.pdf_sans_family)
         if opts.pdf_mono_family:
             settings.setFontFamily(QWebSettings.FixedFont, opts.pdf_mono_family)
+        self.longjs_counter = 0
 
     def javaScriptConsoleMessage(self, msg, lineno, msgid):
         self.log.debug(u'JS:', unicode(msg))
@@ -89,8 +90,14 @@ class Page(QWebPage): # {{{
     def javaScriptAlert(self, frame, msg):
         self.log(unicode(msg))
 
+    @pyqtSlot(result=bool)
     def shouldInterruptJavaScript(self):
-        return False
+        if self.longjs_counter < 10:
+            self.log('Long running javascript, letting it proceed')
+            self.longjs_counter += 1
+            return False
+        self.log.warn('Long running javascript, aborting it')
+        return True
 
 # }}}
 
@@ -106,7 +113,7 @@ def draw_image_page(page_rect, painter, p, preserve_aspect_ratio=True):
                 page_rect.height())
         dx = int((page_rect.width() - nnw)/2.)
         dy = int((page_rect.height() - nnh)/2.)
-        page_rect.moveTo(dx, dy)
+        page_rect.translate(dx, dy)
         page_rect.setHeight(nnh)
         page_rect.setWidth(nnw)
     painter.drawPixmap(page_rect, p, p.rect())
@@ -192,7 +199,7 @@ class PDFWriter(QObject):
                 p.loadFromData(self.cover_data)
                 if not p.isNull():
                     self.doc.init_page()
-                    draw_image_page(QRect(0, 0, self.doc.width(), self.doc.height()),
+                    draw_image_page(QRect(*self.doc.full_page_rect),
                             self.painter, p,
                             preserve_aspect_ratio=self.opts.preserve_cover_aspect_ratio)
                     self.doc.end_page()
@@ -275,6 +282,7 @@ class PDFWriter(QObject):
             self.paged_js += cc('ebooks.oeb.display.mathjax')
 
         self.view.page().mainFrame().addToJavaScriptWindowObject("py_bridge", self)
+        self.view.page().longjs_counter = 0
         evaljs = self.view.page().mainFrame().evaluateJavaScript
         evaljs(self.paged_js)
         self.load_mathjax()
@@ -294,6 +302,10 @@ class PDFWriter(QObject):
         py_bridge.value = book_indexing.all_links_and_anchors();
         '''%(self.margin_top, 0, self.margin_bottom))
 
+        amap = self.bridge_value
+        if not isinstance(amap, dict):
+            amap = {'links':[], 'anchors':{}} # Some javascript error occurred
+
         if self.header:
             self.bridge_value = self.header
             evaljs('paged_display.header_template = py_bridge.value')
@@ -303,9 +315,6 @@ class PDFWriter(QObject):
         if self.header or self.footer:
             evaljs('paged_display.create_header_footer();')
 
-        amap = self.bridge_value
-        if not isinstance(amap, dict):
-            amap = {'links':[], 'anchors':{}} # Some javascript error occurred
         start_page = self.current_page_num
 
         mf = self.view.page().mainFrame()

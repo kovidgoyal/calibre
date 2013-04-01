@@ -7,18 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest
 from collections import namedtuple
 from functools import partial
 
+from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.db.tests.base import BaseTest
 
 class WritingTest(BaseTest):
-
-    @property
-    def cloned_library(self):
-        return self.clone_library(self.library_path)
 
     def create_getter(self, name, getter=None):
         if getter is None:
@@ -75,7 +71,7 @@ class WritingTest(BaseTest):
                             test.name, old_sqlite_res, sqlite_res))
                 del db
 
-    def test_one_one(self):
+    def test_one_one(self): # {{{
         'Test setting of values in one-one fields'
         tests = [self.create_test('#yesno', (True, False, 'true', 'false', None))]
         for name, getter, setter in (
@@ -114,14 +110,185 @@ class WritingTest(BaseTest):
             tests.append(self.create_test(name, tuple(vals), getter, setter))
 
         self.run_tests(tests)
+    # }}}
 
-def tests():
-    return unittest.TestLoader().loadTestsFromTestCase(WritingTest)
+    def test_many_one_basic(self): # {{{
+        'Test the different code paths for writing to a many-one field'
+        cl = self.cloned_library
+        cache = self.init_cache(cl)
+        f = cache.fields['publisher']
+        item_ids = {f.ids_for_book(1)[0], f.ids_for_book(2)[0]}
+        val = 'Changed'
+        self.assertEqual(cache.set_field('publisher', {1:val, 2:val}), {1, 2})
+        cache2 = self.init_cache(cl)
+        for book_id in (1, 2):
+            for c in (cache, cache2):
+                self.assertEqual(c.field_for('publisher', book_id), val)
+                self.assertFalse(item_ids.intersection(set(c.fields['publisher'].table.id_map)))
+        del cache2
+        self.assertFalse(cache.set_field('publisher', {1:val, 2:val}))
+        val = val.lower()
+        self.assertFalse(cache.set_field('publisher', {1:val, 2:val},
+                                         allow_case_change=False))
+        self.assertEqual(cache.set_field('publisher', {1:val, 2:val}), {1, 2})
+        cache2 = self.init_cache(cl)
+        for book_id in (1, 2):
+            for c in (cache, cache2):
+                self.assertEqual(c.field_for('publisher', book_id), val)
+        del cache2
+        self.assertEqual(cache.set_field('publisher', {1:'new', 2:'New'}), {1, 2})
+        self.assertEqual(cache.field_for('publisher', 1).lower(), 'new')
+        self.assertEqual(cache.field_for('publisher', 2).lower(), 'new')
+        self.assertEqual(cache.set_field('publisher', {1:None, 2:'NEW'}), {1, 2})
+        self.assertEqual(len(f.table.id_map), 1)
+        self.assertEqual(cache.set_field('publisher', {2:None}), {2})
+        self.assertEqual(len(f.table.id_map), 0)
+        cache2 = self.init_cache(cl)
+        self.assertEqual(len(cache2.fields['publisher'].table.id_map), 0)
+        del cache2
+        self.assertEqual(cache.set_field('publisher', {1:'one', 2:'two',
+                                                       3:'three'}), {1, 2, 3})
+        self.assertEqual(cache.set_field('publisher', {1:''}), set([1]))
+        self.assertEqual(cache.set_field('publisher', {1:'two'}), set([1]))
+        self.assertEqual(tuple(map(f.for_book, (1,2,3))), ('two', 'two', 'three'))
+        self.assertEqual(cache.set_field('publisher', {1:'Two'}), {1, 2})
+        cache2 = self.init_cache(cl)
+        self.assertEqual(tuple(map(f.for_book, (1,2,3))), ('Two', 'Two', 'three'))
+        del cache2
 
-def run():
-    unittest.TextTestRunner(verbosity=2).run(tests())
+        # Enum
+        self.assertFalse(cache.set_field('#enum', {1:'Not allowed'}))
+        self.assertEqual(cache.set_field('#enum', {1:'One', 2:'One', 3:'Three'}), {1, 3})
+        self.assertEqual(cache.set_field('#enum', {1:None}), set([1]))
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            for i, val in {1:None, 2:'One', 3:'Three'}.iteritems():
+                self.assertEqual(c.field_for('#enum', i), val)
+        del cache2
 
-if __name__ == '__main__':
-    run()
+        # Rating
+        self.assertFalse(cache.set_field('rating', {1:6, 2:4}))
+        self.assertEqual(cache.set_field('rating', {1:0, 3:2}), {1, 3})
+        self.assertEqual(cache.set_field('#rating', {1:None, 2:4, 3:8}), {1, 2, 3})
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            for i, val in {1:None, 2:4, 3:2}.iteritems():
+                self.assertEqual(c.field_for('rating', i), val)
+            for i, val in {1:None, 2:4, 3:8}.iteritems():
+                self.assertEqual(c.field_for('#rating', i), val)
+        del cache2
 
+        # Series
+        self.assertFalse(cache.set_field('series',
+                {1:'a series one', 2:'a series one'}, allow_case_change=False))
+        self.assertEqual(cache.set_field('series', {3:'Series [3]'}), set([3]))
+        self.assertEqual(cache.set_field('#series', {1:'Series', 3:'Series'}),
+                                         {1, 3})
+        self.assertEqual(cache.set_field('#series', {2:'Series [0]'}), set([2]))
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            for i, val in {1:'A Series One', 2:'A Series One', 3:'Series'}.iteritems():
+                self.assertEqual(c.field_for('series', i), val)
+            for i in (1, 2, 3):
+                self.assertEqual(c.field_for('#series', i), 'Series')
+            for i, val in {1:2, 2:1, 3:3}.iteritems():
+                self.assertEqual(c.field_for('series_index', i), val)
+            for i, val in {1:1, 2:0, 3:1}.iteritems():
+                self.assertEqual(c.field_for('#series_index', i), val)
+        del cache2
+
+    # }}}
+
+    def test_many_many_basic(self): # {{{
+        'Test the different code paths for writing to a many-many field'
+        cl = self.cloned_library
+        cache = self.init_cache(cl)
+        ae, af, sf = self.assertEqual, self.assertFalse, cache.set_field
+
+        # Tags
+        ae(sf('#tags', {1:cache.field_for('tags', 1), 2:cache.field_for('tags', 2)}),
+            {1, 2})
+        for name in ('tags', '#tags'):
+            f = cache.fields[name]
+            af(sf(name, {1:('News', 'tag one')}, allow_case_change=False))
+            ae(sf(name, {1:'tag one, News'}), {1, 2})
+            ae(sf(name, {3:('tag two', 'sep,sep2')}), {2, 3})
+            ae(len(f.table.id_map), 4)
+            ae(sf(name, {1:None}), set([1]))
+            cache2 = self.init_cache(cl)
+            for c in (cache, cache2):
+                ae(c.field_for(name, 3), ('tag two', 'sep;sep2'))
+                ae(len(c.fields[name].table.id_map), 3)
+                ae(len(c.fields[name].table.id_map), 3)
+                ae(c.field_for(name, 1), ())
+                ae(c.field_for(name, 2), ('tag two', 'tag one'))
+            del cache2
+
+        # Authors
+        ae(sf('#authors', {k:cache.field_for('authors', k) for k in (1,2,3)}),
+           {1,2,3})
+
+        for name in ('authors', '#authors'):
+            f = cache.fields[name]
+            ae(len(f.table.id_map), 3)
+            af(cache.set_field(name, {3:None if name == 'authors' else 'Unknown'}))
+            ae(cache.set_field(name, {3:'Kovid Goyal & Divok Layog'}), set([3]))
+            ae(cache.set_field(name, {1:'', 2:'An, Author'}), {1,2})
+            cache2 = self.init_cache(cl)
+            for c in (cache, cache2):
+                ae(len(c.fields[name].table.id_map), 4 if name =='authors' else 3)
+                ae(c.field_for(name, 3), ('Kovid Goyal', 'Divok Layog'))
+                ae(c.field_for(name, 2), ('An, Author',))
+                ae(c.field_for(name, 1), ('Unknown',) if name=='authors' else ())
+                if name == 'authors':
+                    ae(c.field_for('author_sort', 1), author_to_author_sort('Unknown'))
+                    ae(c.field_for('author_sort', 2), author_to_author_sort('An, Author'))
+                    ae(c.field_for('author_sort', 3), author_to_author_sort('Kovid Goyal') + ' & ' + author_to_author_sort('Divok Layog'))
+            del cache2
+        ae(cache.set_field('authors', {1:'KoviD GoyaL'}), {1, 3})
+        ae(cache.field_for('author_sort', 1), 'GoyaL, KoviD')
+        ae(cache.field_for('author_sort', 3), 'GoyaL, KoviD & Layog, Divok')
+
+        # Languages
+        f = cache.fields['languages']
+        ae(f.table.id_map, {1: 'eng', 2: 'deu'})
+        ae(sf('languages', {1:''}), set([1]))
+        ae(cache.field_for('languages', 1), ())
+        ae(sf('languages', {2:('und',)}), set([2]))
+        af(f.table.id_map)
+        ae(sf('languages', {1:'eng,fra,deu', 2:'es,Dutch', 3:'English'}), {1, 2, 3})
+        ae(cache.field_for('languages', 1), ('eng', 'fra', 'deu'))
+        ae(cache.field_for('languages', 2), ('spa', 'nld'))
+        ae(cache.field_for('languages', 3), ('eng',))
+        ae(sf('languages', {3:None}), set([3]))
+        ae(cache.field_for('languages', 3), ())
+        ae(sf('languages', {1:'deu,fra,eng'}), set([1]), 'Changing order failed')
+        ae(sf('languages', {2:'deu,eng,eng'}), set([2]))
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            ae(cache.field_for('languages', 1), ('deu', 'fra', 'eng'))
+            ae(cache.field_for('languages', 2), ('deu', 'eng'))
+        del cache2
+
+        # Identifiers
+        f = cache.fields['identifiers']
+        ae(sf('identifiers', {3: 'one:1,two:2'}), set([3]))
+        ae(sf('identifiers', {2:None}), set([2]))
+        ae(sf('identifiers', {1: {'test':'1', 'two':'2'}}), set([1]))
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            ae(c.field_for('identifiers', 3), {'one':'1', 'two':'2'})
+            ae(c.field_for('identifiers', 2), {})
+            ae(c.field_for('identifiers', 1), {'test':'1', 'two':'2'})
+        del cache2
+
+        # Test setting of title sort
+        ae(sf('title', {1:'The Moose', 2:'Cat'}), {1, 2})
+        cache2 = self.init_cache(cl)
+        for c in (cache, cache2):
+            ae(c.field_for('sort', 1), 'Moose, The')
+            ae(c.field_for('sort', 2), 'Cat')
+
+
+    # }}}
 

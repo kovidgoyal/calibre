@@ -1343,23 +1343,39 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if not isinstance(dest, basestring):
                 raise Exception("Error, you must pass the dest as a path when"
                         " using windows_atomic_move")
-            if dest and not samefile(dest, path):
-                windows_atomic_move.copy_path_to(path, dest)
+            if dest:
+                if samefile(path, dest):
+                    # Ensure that the file has the same case as dest
+                    try:
+                        if path != dest:
+                            os.rename(path, dest)
+                    except:
+                        pass # Nothing too catastrophic happened, the cases mismatch, that's all
+                else:
+                    windows_atomic_move.copy_path_to(path, dest)
         else:
             if hasattr(dest, 'write'):
                 with lopen(path, 'rb') as f:
                     shutil.copyfileobj(f, dest)
                 if hasattr(dest, 'flush'):
                     dest.flush()
-            elif dest and not samefile(dest, path):
-                if use_hardlink:
-                    try:
-                        hardlink_file(path, dest)
-                        return
-                    except:
-                        pass
-                with lopen(path, 'rb') as f, lopen(dest, 'wb') as d:
-                    shutil.copyfileobj(f, d)
+            elif dest:
+                if samefile(dest, path):
+                    if not self.is_case_sensitive and path != dest:
+                        # Ensure that the file has the same case as dest
+                        try:
+                            os.rename(path, dest)
+                        except:
+                            pass # Nothing too catastrophic happened, the cases mismatch, that's all
+                else:
+                    if use_hardlink:
+                        try:
+                            hardlink_file(path, dest)
+                            return
+                        except:
+                            pass
+                    with lopen(path, 'rb') as f, lopen(dest, 'wb') as d:
+                        shutil.copyfileobj(f, d)
 
     def copy_cover_to(self, index, dest, index_is_id=False,
             windows_atomic_move=None, use_hardlink=False):
@@ -2272,7 +2288,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # force_changes has no effect on cover manipulation
         if mi.cover_data[1] is not None:
             doit(self.set_cover, id, mi.cover_data[1], commit=False)
-        elif mi.cover is not None:
+        elif isinstance(mi.cover, basestring) and mi.cover:
             if os.access(mi.cover, os.R_OK):
                 with lopen(mi.cover, 'rb') as f:
                     raw = f.read()

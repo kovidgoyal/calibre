@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, traceback
+import sys, traceback, math
 from collections import namedtuple
 from functools import wraps, partial
 from future_builtins import map
@@ -315,6 +315,8 @@ class PdfDevice(QPaintDevice): # {{{
         self.page_width, self.page_height = page_size
         self.body_width = self.page_width - left_margin - right_margin
         self.body_height = self.page_height - top_margin - bottom_margin
+        self.left_margin, self.right_margin = left_margin, right_margin
+        self.top_margin, self.bottom_margin = top_margin, bottom_margin
         self.engine = PdfEngine(file_object, self.page_width, self.page_height,
                                 left_margin, top_margin, right_margin,
                                 bottom_margin, self.width(), self.height(),
@@ -350,6 +352,14 @@ class PdfDevice(QPaintDevice): # {{{
 
     def init_page(self):
         self.engine.init_page()
+
+    @property
+    def full_page_rect(self):
+        page_width = int(math.ceil(self.page_width * self.xdpi / 72.0))
+        lm = int(math.ceil(self.left_margin * self.xdpi / 72.0))
+        page_height = int(math.ceil(self.page_height * self.ydpi / 72.0))
+        tm = int(math.ceil(self.top_margin * self.ydpi / 72.0))
+        return (-lm, -tm, page_width+1, page_height+1)
 
     @property
     def current_page_num(self):

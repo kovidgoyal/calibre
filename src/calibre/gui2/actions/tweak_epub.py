@@ -64,7 +64,7 @@ class TweakBook(QDialog):
         self.fmt_choice_box = QGroupBox(_('Choose the format to tweak:'), self)
         self._fl = fl = QHBoxLayout()
         self.fmt_choice_box.setLayout(self._fl)
-        self.fmt_choice_buttons = [QRadioButton(x, self) for x in fmts]
+        self.fmt_choice_buttons = [QRadioButton(y, self) for y in fmts]
         for x in self.fmt_choice_buttons:
             fl.addWidget(x, stretch=10 if x is self.fmt_choice_buttons[-1] else
                     0)
@@ -291,6 +291,32 @@ class TweakEpubAction(InterfaceAction):
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
+    accepts_drops = True
+
+    def accept_enter_event(self, event, mime_data):
+        if mime_data.hasFormat("application/calibre+from_library"):
+            return True
+        return False
+
+    def accept_drag_move_event(self, event, mime_data):
+        if mime_data.hasFormat("application/calibre+from_library"):
+            return True
+        return False
+
+    def drop_event(self, event, mime_data):
+        mime = 'application/calibre+from_library'
+        if mime_data.hasFormat(mime):
+            self.dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+            QTimer.singleShot(1, self.do_drop)
+            return True
+        return False
+
+    def do_drop(self):
+        book_ids = self.dropped_ids
+        del self.dropped_ids
+        if book_ids:
+            self.do_tweak(book_ids[0])
+
     def genesis(self):
         self.qaction.triggered.connect(self.tweak_book)
 
@@ -301,6 +327,9 @@ class TweakEpubAction(InterfaceAction):
                     _('No book selected'), show=True)
 
         book_id = self.gui.library_view.model().id(row)
+        self.do_tweak(book_id)
+
+    def do_tweak(self, book_id):
         db = self.gui.library_view.model().db
         fmts = db.formats(book_id, index_is_id=True) or ''
         fmts = [x.lower().strip() for x in fmts.split(',')]

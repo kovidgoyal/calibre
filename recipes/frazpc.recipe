@@ -18,9 +18,10 @@ class FrazPC(BasicNewsRecipe):
     max_articles_per_feed = 100
     use_embedded_content = False
     no_stylesheets = True
+    remove_empty_feeds = True
     cover_url='http://www.frazpc.pl/images/logo.png'
     feeds          = [
-        (u'Aktualno\u015bci', u'http://www.frazpc.pl/feed/aktualnosci'), 
+        (u'Aktualno\u015bci', u'http://www.frazpc.pl/feed/aktualnosci'),
         (u'Artyku\u0142y', u'http://www.frazpc.pl/feed/artykuly')
     ]
 

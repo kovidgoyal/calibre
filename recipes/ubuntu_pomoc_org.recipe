@@ -1,5 +1,6 @@
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+
 class UbuntuPomoc(BasicNewsRecipe):
     title          = u'Ubuntu-pomoc.org'
     __author__        = 'fenuks'
@@ -15,8 +16,8 @@ class UbuntuPomoc(BasicNewsRecipe):
     remove_empty_feeds = True
     use_embedded_content = False
     remove_attrs = ['style']
-    keep_only_tags = [dict(attrs={'class':'post'})]
-    remove_tags_after = dict(attrs={'class':'underEntry'})
-    remove_tags = [dict(attrs={'class':['underPostTitle', 'yarpp-related', 'underEntry', 'social', 'tags', 'commentlist', 'youtube_sc']}), dict(id=['wp_rp_first', 'commentReply'])]
+    keep_only_tags = [dict(name='article')]
+    #remove_tags_after = dict(attrs={'class':'underEntry'})
+    remove_tags = [dict(attrs={'class':['yarpp-related', 'youtube_sc', 'share']}), dict(name='footer')]
     feeds          = [(u'Ca\u0142o\u015b\u0107', u'http://feeds.feedburner.com/Ubuntu-Pomoc'),
-                     (u'Gry', u'http://feeds.feedburner.com/GryUbuntu-pomoc')]
+                    ]

@@ -1,9 +1,10 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup as bs
+from calibre.ebooks.BeautifulSoup import BeautifulSoup as bs, Comment
+
 class KurierGalicyjski(BasicNewsRecipe):
     title          = u'Kurier Galicyjski'
     __author__        = 'fenuks'
-    #description   = u''
+    description   = u'Kurier Galicyjski - największa gazeta dla Polaków na Ukrainie. Bieżące wydarzenia z życia polskiej mniejszości, historia, kultura, polityka, reportaże.'
     category       = 'news'
     language       = 'pl'
     cover_url = 'http://www.duszki.pl/Kurier_galicyjski_bis2_small.gif'
@@ -42,6 +43,9 @@ class KurierGalicyjski(BasicNewsRecipe):
                 r.extract()
             for r in appendtag.findAll(attrs={'style':'border-top-width: thin; border-top-style: dashed; border-top-color: #CCC; border-bottom-width: thin; border-bottom-style: dashed; border-bottom-color: #CCC; padding-top:5px; padding-bottom:5px; text-align:right; margin-top:10px; height:20px;'}):
                 r.extract()
+            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body)

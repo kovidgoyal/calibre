@@ -2,18 +2,26 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Astroflesz(BasicNewsRecipe):
-    title          = u'Astroflesz'
+    title = u'Astroflesz'
     oldest_article = 7
-    __author__        = 'fenuks'
-    description   = u'astroflesz.pl - to portal poświęcony astronomii. Informuje zarówno o aktualnych wydarzeniach i odkryciach naukowych, jak również zapowiada ciekawe zjawiska astronomiczne'
-    category       = 'astronomy'
-    language       = 'pl'
+    __author__ = 'fenuks'
+    description = u'astroflesz.pl - to portal poświęcony astronomii. Informuje zarówno o aktualnych wydarzeniach i odkryciach naukowych, jak również zapowiada ciekawe zjawiska astronomiczne'
+    category = 'astronomy'
+    language = 'pl'
     cover_url = 'http://www.astroflesz.pl/templates/astroflesz/images/logo/logo.png'
     ignore_duplicate_articles = {'title', 'url'}
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
+    remove_attributes = ['style']
     keep_only_tags = [dict(id="k2Container")]
     remove_tags_after = dict(name='div', attrs={'class':'itemLinks'})
     remove_tags = [dict(name='div', attrs={'class':['itemLinks', 'itemToolbar', 'itemRatingBlock']})]
-    feeds          = [(u'Wszystkie', u'http://astroflesz.pl/?format=feed')]
+    feeds = [(u'Wszystkie', u'http://astroflesz.pl/?format=feed')]
+
+    def postprocess_html(self, soup, first_fetch):
+        t = soup.find(attrs={'class':'itemIntroText'})
+        if t:
+            for i in t.findAll('img'):
+                i['style'] = 'float: left; margin-right: 5px;'
+        return soup

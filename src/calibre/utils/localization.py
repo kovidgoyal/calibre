@@ -159,6 +159,7 @@ _extra_lang_codes = {
         'en_CZ' : _('English (Czech Republic)'),
         'en_PH' : _('English (Philippines)'),
         'en_PK' : _('English (Pakistan)'),
+        'en_PL' : _('English (Poland)'),
         'en_HR' : _('English (Croatia)'),
         'en_HK' : _('English (Hong Kong)'),
         'en_HU' : _('English (Hungary)'),
@@ -203,7 +204,19 @@ if False:
     _('pm')
     _('&Copy')
     _('Select All')
+    _('&Select All')
     _('Copy &Link location')
+    _('&Undo')
+    _('&Redo')
+    _('Cu&t')
+    _('&Paste')
+    _('Paste and Match Style')
+    _('Directions')
+    _('Left to Right')
+    _('Right to Left')
+    _('Fonts')
+    _('&Step up')
+    _('Step &down')
 
 _lcase_map = {}
 for k in _extra_lang_codes:

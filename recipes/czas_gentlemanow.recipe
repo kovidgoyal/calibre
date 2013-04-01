@@ -1,4 +1,5 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class CzasGentlemanow(BasicNewsRecipe):
@@ -11,10 +12,13 @@ class CzasGentlemanow(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     oldest_article = 7
     max_articles_per_feed = 100
+    extra_css = '.gallery-item {float:left; margin-right: 10px; max-width: 20%;} .alignright {text-align: right; float:right; margin-left:5px;}\
+    .wp-caption-text {text-align: left;} img.aligncenter {display: block; margin-left: auto; margin-right: auto;} .alignleft {float: left; margin-right:5px;}'
     no_stylesheets = True
     remove_empty_feeds = True
+    preprocess_regexps     = [(re.compile(u'<h3>Może Cię też zainteresować:</h3>'), lambda m: '')]
     use_embedded_content = False
     keep_only_tags = [dict(name='div', attrs={'class':'content'})]
-    remove_tags = [dict(attrs={'class':'meta_comments'})]
-    remove_tags_after = dict(name='div', attrs={'class':'fblikebutton_button'})
+    remove_tags = [dict(attrs={'class':'meta_comments'}), dict(id=['comments', 'related_posts_thumbnails', 'respond'])]
+    remove_tags_after = dict(id='comments')
     feeds          = [(u'M\u0119ski \u015awiat', u'http://czasgentlemanow.pl/category/meski-swiat/feed/'), (u'Styl', u'http://czasgentlemanow.pl/category/styl/feed/'), (u'Vademecum Gentlemana', u'http://czasgentlemanow.pl/category/vademecum/feed/'), (u'Dom i rodzina', u'http://czasgentlemanow.pl/category/dom-i-rodzina/feed/'), (u'Honor', u'http://czasgentlemanow.pl/category/honor/feed/'), (u'Gad\u017cety Gentlemana', u'http://czasgentlemanow.pl/category/gadzety-gentlemana/feed/')]

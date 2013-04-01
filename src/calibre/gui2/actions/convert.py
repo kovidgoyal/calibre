@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import QModelIndex
+from PyQt4.Qt import QModelIndex, QTimer
 
 from calibre.gui2 import error_dialog, Dispatcher
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook
@@ -19,10 +19,35 @@ from calibre.customize.ui import plugin_for_input_format
 class ConvertAction(InterfaceAction):
 
     name = 'Convert Books'
-    action_spec = (_('Convert books'), 'convert.png', None, _('C'))
+    action_spec = (_('Convert books'), 'convert.png', _('Convert books between different ebook formats'), _('C'))
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
     action_add_menu = True
+
+    accepts_drops = True
+
+    def accept_enter_event(self, event, mime_data):
+        if mime_data.hasFormat("application/calibre+from_library"):
+            return True
+        return False
+
+    def accept_drag_move_event(self, event, mime_data):
+        if mime_data.hasFormat("application/calibre+from_library"):
+            return True
+        return False
+
+    def drop_event(self, event, mime_data):
+        mime = 'application/calibre+from_library'
+        if mime_data.hasFormat(mime):
+            self.dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+            QTimer.singleShot(1, self.do_drop)
+            return True
+        return False
+
+    def do_drop(self):
+        book_ids = self.dropped_ids
+        del self.dropped_ids
+        self.do_convert(book_ids)
 
     def genesis(self):
         m = self.convert_menu = self.qaction.menu()
@@ -112,6 +137,9 @@ class ConvertAction(InterfaceAction):
     def convert_ebook(self, checked, bulk=None):
         book_ids = self.get_books_for_conversion()
         if book_ids is None: return
+        self.do_convert(book_ids, bulk=bulk)
+
+    def do_convert(self, book_ids, bulk=None):
         previous = self.gui.library_view.currentIndex()
         rows = [x.row() for x in \
                 self.gui.library_view.selectionModel().selectedRows()]
@@ -139,8 +167,8 @@ class ConvertAction(InterfaceAction):
     def queue_convert_jobs(self, jobs, changed, bad, rows, previous,
             converted_func, extra_job_args=[], rows_are_ids=False):
         for func, args, desc, fmt, id, temp_files in jobs:
-            func, _, same_fmt = func.partition(':')
-            same_fmt = same_fmt == 'same_fmt'
+            func, _, parts = func.partition(':')
+            parts = {x for x in parts.split(';')}
             input_file = args[0]
             input_fmt = os.path.splitext(input_file)[1]
             core_usage = 1
@@ -154,7 +182,8 @@ class ConvertAction(InterfaceAction):
                 job = self.gui.job_manager.run_job(Dispatcher(converted_func),
                                             func, args=args, description=desc,
                                             core_usage=core_usage)
-                job.conversion_of_same_fmt = same_fmt
+                job.conversion_of_same_fmt = 'same_fmt' in parts
+                job.manually_fine_tune_toc = 'manually_fine_tune_toc' in parts
                 args = [temp_files, fmt, id]+extra_job_args
                 self.conversion_jobs[job] = tuple(args)
 
@@ -195,6 +224,7 @@ class ConvertAction(InterfaceAction):
                 self.gui.job_exception(job)
                 return
             same_fmt = getattr(job, 'conversion_of_same_fmt', False)
+            manually_fine_tune_toc = getattr(job, 'manually_fine_tune_toc', False)
             fmtf = temp_files[-1].name
             if os.stat(fmtf).st_size < 1:
                 raise Exception(_('Empty output file, '
@@ -220,4 +250,7 @@ class ConvertAction(InterfaceAction):
             current = self.gui.library_view.currentIndex()
             if current.isValid():
                 self.gui.library_view.model().current_changed(current, QModelIndex())
+        if manually_fine_tune_toc:
+            self.gui.iactions['Edit ToC'].do_one(book_id, fmt.upper())
+
 

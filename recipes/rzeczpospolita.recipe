@@ -70,5 +70,3 @@ class RzeczpospolitaRecipe(BasicNewsRecipe):
         forget, sep, index = rest.rpartition(',')
 
         return start + '/' + index + '?print=tak'
-
-

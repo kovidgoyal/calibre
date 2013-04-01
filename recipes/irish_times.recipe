@@ -1,65 +1,62 @@
 __license__  = 'GPL v3'
-__copyright__ = "2008, Derry FitzGerald. 2009 Modified by Ray Kinsella and David O'Callaghan, 2011 Modified by Phil Burns"
+__copyright__ = "2008, Derry FitzGerald. 2009 Modified by Ray Kinsella and David O'Callaghan, 2011 Modified by Phil Burns, 2013 Tom Scholl"
 '''
 irishtimes.com
 '''
-import re
+import urlparse, re
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+
 
 class IrishTimes(BasicNewsRecipe):
     title          = u'The Irish Times'
-    encoding  = 'ISO-8859-15'
-    __author__    = "Derry FitzGerald, Ray Kinsella, David O'Callaghan and Phil Burns"
+    __author__    = "Derry FitzGerald, Ray Kinsella, David O'Callaghan and Phil Burns, Tom Scholl"
     language = 'en_IE'
-    timefmt = ' (%A, %B %d, %Y)'
 
+    masthead_url = 'http://www.irishtimes.com/assets/images/generic/website/logo_theirishtimes.png'
 
+    encoding = 'utf-8'
     oldest_article = 1.0
-    max_articles_per_feed  = 100
+    max_articles_per_feed = 100
+    remove_empty_feeds = True
     no_stylesheets = True
-    simultaneous_downloads= 5
-
-    r = re.compile('.*(?P<url>http:\/\/(www.irishtimes.com)|(rss.feedsportal.com\/c)\/.*\.html?).*')
-    remove_tags    = [dict(name='div', attrs={'class':'footer'})]
-    extra_css      = 'p, div { margin: 0pt; border: 0pt; text-indent: 0.5em } .headline {font-size: large;} \n .fact { padding-top: 10pt  }'
+    temp_files = []
+    articles_are_obfuscated = True
 
     feeds          = [
-                      ('Frontpage', 'http://www.irishtimes.com/feeds/rss/newspaper/index.rss'),
-                      ('Ireland', 'http://www.irishtimes.com/feeds/rss/newspaper/ireland.rss'),
-                      ('World', 'http://www.irishtimes.com/feeds/rss/newspaper/world.rss'),
-                      ('Finance', 'http://www.irishtimes.com/feeds/rss/newspaper/finance.rss'),
-                      ('Features', 'http://www.irishtimes.com/feeds/rss/newspaper/features.rss'),
-                      ('Sport', 'http://www.irishtimes.com/feeds/rss/newspaper/sport.rss'),
-                      ('Opinion', 'http://www.irishtimes.com/feeds/rss/newspaper/opinion.rss'),
-                      ('Letters', 'http://www.irishtimes.com/feeds/rss/newspaper/letters.rss'),
-                      ('Magazine', 'http://www.irishtimes.com/feeds/rss/newspaper/magazine.rss'),
-                      ('Health', 'http://www.irishtimes.com/feeds/rss/newspaper/health.rss'),
-                      ('Education & Parenting', 'http://www.irishtimes.com/feeds/rss/newspaper/education.rss'),
-                      ('Motors', 'http://www.irishtimes.com/feeds/rss/newspaper/motors.rss'),
-                      ('An Teanga Bheo', 'http://www.irishtimes.com/feeds/rss/newspaper/anteangabheo.rss'),
-                      ('Commercial Property', 'http://www.irishtimes.com/feeds/rss/newspaper/commercialproperty.rss'),
-                      ('Science Today', 'http://www.irishtimes.com/feeds/rss/newspaper/sciencetoday.rss'),
-                      ('Property', 'http://www.irishtimes.com/feeds/rss/newspaper/property.rss'),
-                      ('The Tickets', 'http://www.irishtimes.com/feeds/rss/newspaper/theticket.rss'),
-                      ('Weekend', 'http://www.irishtimes.com/feeds/rss/newspaper/weekend.rss'),
-                      ('News features', 'http://www.irishtimes.com/feeds/rss/newspaper/newsfeatures.rss'),
-                      ('Obituaries', 'http://www.irishtimes.com/feeds/rss/newspaper/obituaries.rss'),
+                      ('News', 'http://www.irishtimes.com/cmlink/the-irish-times-news-1.1319192'),
+                      ('World', 'http://www.irishtimes.com/cmlink/irishtimesworldfeed-1.1321046'),
+                      ('Politics', 'http://www.irishtimes.com/cmlink/irish-times-politics-rss-1.1315953'),
+                      ('Business', 'http://www.irishtimes.com/cmlink/the-irish-times-business-1.1319195'),
+                      ('Culture', 'http://www.irishtimes.com/cmlink/the-irish-times-culture-1.1319213'),
+                      ('Sport', 'http://www.irishtimes.com/cmlink/the-irish-times-sport-1.1319194'),
+                      ('Debate', 'http://www.irishtimes.com/cmlink/debate-1.1319211'),
+                      ('Life & Style', 'http://www.irishtimes.com/cmlink/the-irish-times-life-style-1.1319214'),
                     ]
 
 
-    def print_version(self, url):
-        if url.count('rss.feedsportal.com'):
-            #u = url.replace('0Bhtml/story01.htm','_pf0Bhtml/story01.htm')
-            u = url.find('irishtimes')
-            u = 'http://www.irishtimes.com' + url[u + 12:]
-            u = u.replace('0C', '/')
-            u = u.replace('A', '')
-            u = u.replace('0Bhtml/story01.htm', '_pf.html')
-        else:
-            u = url.replace('.html','_pf.html')
-        return u
+    def get_obfuscated_article(self, url):
+        # Insert a pic from the original url, but use content from the print url
+        pic = None
+        pics = self.index_to_soup(url)
+        div = pics.find('div', {'class' : re.compile('image-carousel')})
+        if div:
+            pic = div.img
+            if pic:
+                try:
+                    pic['src'] = urlparse.urljoin(url, pic['src'])
+                    pic.extract()
+                except:
+                    pic = None
 
-    def get_article_url(self, article):
-        return article.link
+        content = self.index_to_soup(url + '?mode=print&ot=example.AjaxPageLayout.ot')
+        if pic:
+            content.p.insert(0, pic)
+
+        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
+        self.temp_files[-1].write(content.prettify())
+        self.temp_files[-1].close()
+        return self.temp_files[-1].name
+
 

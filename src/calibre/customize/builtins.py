@@ -634,7 +634,7 @@ from calibre.devices.apple.driver import ITUNES
 from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
 from calibre.devices.blackberry.driver import BLACKBERRY, PLAYBOOK
 from calibre.devices.cybook.driver import CYBOOK, ORIZON
-from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK,
+from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK, TOLINO,
                 POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK,
                 BOOQ, ELONEX, POCKETBOOK301, MENTOR, POCKETBOOK602,
                 POCKETBOOK701, POCKETBOOK360P, PI2, POCKETBOOK622)
@@ -704,7 +704,7 @@ plugins += [
     INVESBOOK,
     BOOX,
     BOOQ,
-    EB600,
+    EB600, TOLINO,
     README,
     N516, KIBANO,
     THEBOOK, LIBREAIR,
@@ -788,6 +788,11 @@ class ActionPolish(InterfaceActionBase):
     name = 'Polish Books'
     actual_plugin = 'calibre.gui2.actions.polish:PolishAction'
     description = _('Fine tune your ebooks')
+
+class ActionEditToC(InterfaceActionBase):
+    name = 'Edit ToC'
+    actual_plugin = 'calibre.gui2.actions.toc_edit:ToCEditAction'
+    description = _('Edit the Table of Contents in your books')
 
 class ActionDelete(InterfaceActionBase):
     name = 'Remove Books'
@@ -929,7 +934,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore,
-        ActionPluginUpdater, ActionPickRandom]
+        ActionPluginUpdater, ActionPickRandom, ActionEditToC]
 
 # }}}
 
@@ -1290,15 +1295,6 @@ class StoreBeamEBooksDEStore(StoreBase):
     headquarters = 'DE'
     formats = ['EPUB', 'MOBI', 'PDF']
     affiliate = True
-
-class StoreBeWriteStore(StoreBase):
-    name = 'BeWrite Books'
-    description = u'Publishers of fine books. Highly selective and editorially driven. Does not offer: books for children or exclusively YA, erotica, swords-and-sorcery fantasy and space-opera-style science fiction. All other genres are represented.'
-    actual_plugin = 'calibre.gui2.store.stores.bewrite_plugin:BeWriteStore'
-
-    drm_free_only = True
-    headquarters = 'US'
-    formats = ['EPUB', 'MOBI', 'PDF']
 
 class StoreBiblioStore(StoreBase):
     name = u'Библио.бг'
@@ -1661,15 +1657,6 @@ class XinXiiStore(StoreBase):
     headquarters = 'DE'
     formats = ['EPUB', 'PDF']
 
-class StoreZixoStore(StoreBase):
-    name = 'Zixo'
-    author = u'Tomasz Długosz'
-    description = u'Księgarnia z ebookami oraz książkami audio. Aby otwierać książki w formacie Zixo należy zainstalować program dostępny na stronie księgarni. Umożliwia on m.in. dodawanie zakładek i dostosowywanie rozmiaru czcionki.'
-    actual_plugin = 'calibre.gui2.store.stores.zixo_plugin:ZixoStore'
-
-    headquarters = 'PL'
-    formats = ['PDF, ZIXO']
-
 plugins += [
     StoreArchiveOrgStore,
     StoreAmazonKindleStore,
@@ -1681,7 +1668,6 @@ plugins += [
     StoreBaenWebScriptionStore,
     StoreBNStore,
     StoreBeamEBooksDEStore,
-    StoreBeWriteStore,
     StoreBiblioStore,
     StoreBookotekaStore,
     StoreChitankaStore,
@@ -1719,8 +1705,7 @@ plugins += [
     StoreWeightlessBooksStore,
     StoreWHSmithUKStore,
     StoreWoblinkStore,
-    XinXiiStore,
-    StoreZixoStore
+    XinXiiStore
 ]
 
 # }}}

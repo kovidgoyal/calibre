@@ -338,6 +338,45 @@ class BasicNewsRecipe(Recipe):
     #: :meth:`javascript_login` method, to do the actual logging in.
     use_javascript_to_login = False
 
+    # The following parameters control how the recipe attempts to minimize
+    # jpeg image sizes
+
+    #: Set this to False to ignore all scaling and compression parameters and
+    #: pass images through unmodified. If True and the other compression
+    #: parameters are left at their default values, jpeg images will be scaled to fit
+    #: in the screen dimensions set by the output profile and compressed to size at
+    #: most (w * h)/16 where w x h are the scaled image dimensions.
+    compress_news_images = False
+
+    #: The factor used when auto compressing jpeg images. If set to None,
+    #: auto compression is disabled. Otherwise, the images will be reduced in size to
+    #: (w * h)/compress_news_images_auto_size bytes if possible by reducing
+    #: the quality level, where w x h are the image dimensions in pixels.
+    #: The minimum jpeg quality will be 5/100 so it is possible this constraint
+    #: will not be met.  This parameter can be overridden by the parameter
+    #: compress_news_images_max_size which provides a fixed maximum size for images.
+    #: Note that if you enable scale_news_images_to_device then the image will
+    #: first be scaled and then its quality lowered until its size is less than
+    #: (w * h)/factor where w and h are now the *scaled* image dimensions. In
+    #: other words, this compression happens after scaling.
+    compress_news_images_auto_size = 16
+
+    #: Set jpeg quality so images do not exceed the size given (in KBytes).
+    #: If set, this parameter overrides auto compression via compress_news_images_auto_size.
+    #: The minimum jpeg quality will be 5/100 so it is possible this constraint
+    #: will not be met.
+    compress_news_images_max_size = None
+
+    #: Rescale images to fit in the device screen dimensions set by the output profile.
+    #: Ignored if no output profile is set.
+    scale_news_images_to_device = True
+
+    #: Maximum dimensions (w,h) to scale images to. If scale_news_images_to_device is True
+    #: this is set to the device screen dimensions set by the output profile unless
+    #: there is no profile set, in which case it is left at whatever value it has been
+    #: assigned (default None).
+    scale_news_images = None
+
     # See the built-in profiles for examples of these settings.
 
     def short_title(self):
@@ -849,11 +888,19 @@ class BasicNewsRecipe(Recipe):
         for reg in self.filter_regexps:
             web2disk_cmdline.extend(['--filter-regexp', reg])
 
+        if options.output_profile.short_name == 'default':
+            self.scale_news_images_to_device = False
+        elif self.scale_news_images_to_device:
+            self.scale_news_images = options.output_profile.screen_size
+
         self.web2disk_options = web2disk_option_parser().parse_args(web2disk_cmdline)[0]
         for extra in ('keep_only_tags', 'remove_tags', 'preprocess_regexps',
                       'skip_ad_pages', 'preprocess_html', 'remove_tags_after',
-                      'remove_tags_before', 'is_link_wanted'):
+                      'remove_tags_before', 'is_link_wanted',
+                      'compress_news_images', 'compress_news_images_max_size',
+                      'compress_news_images_auto_size', 'scale_news_images'):
             setattr(self.web2disk_options, extra, getattr(self, extra))
+
         self.web2disk_options.postprocess_html = self._postprocess_html
         self.web2disk_options.encoding = self.encoding
         self.web2disk_options.preprocess_raw_html = self.preprocess_raw_html_

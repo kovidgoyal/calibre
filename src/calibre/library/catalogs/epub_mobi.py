@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import datetime, os, time
 from collections import namedtuple
 
 from calibre import strftime
@@ -17,10 +17,10 @@ from calibre.ebooks import calibre_cover
 from calibre.library import current_library_name
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.config import JSONConfig
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang, get_lang
 
 Option = namedtuple('Option', 'option, default, dest, action, help')
-
 
 class EPUB_MOBI(CatalogPlugin):
     'ePub catalog generator'
@@ -162,6 +162,14 @@ class EPUB_MOBI(CatalogPlugin):
                           "When multiple rules are defined, the first matching rule will be used.\n"
                           "Default:\n" + '"' + '%default' + '"' + "\n"
                           "Applies to AZW3, ePub, MOBI output formats")),
+                   Option('--preset',
+                          default=None,
+                          dest='preset',
+                          action=None,
+                          help=_("Use a named preset created with the GUI Catalog builder.\n"
+                          "A preset specifies all settings for building a catalog.\n"
+                          "Default: '%default'\n"
+                          "Applies to AZW3, ePub, MOBI output formats")),
                    Option('--use-existing-cover',
                           default=False,
                           dest='use_existing_cover',
@@ -183,6 +191,43 @@ class EPUB_MOBI(CatalogPlugin):
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
         from calibre.library.catalogs.epub_mobi_builder import CatalogBuilder
         from calibre.utils.logging import default_log as log
+
+        # If preset specified from the cli, insert stored options from JSON file
+        if hasattr(opts, 'preset') and opts.preset:
+            available_presets = JSONConfig("catalog_presets")
+            if not opts.preset in available_presets:
+                if available_presets:
+                    print(_('Error: Preset "%s" not found.' % opts.preset))
+                    print(_('Stored presets: %s' % ', '.join([p for p in sorted(available_presets.keys())])))
+                else:
+                    print(_('Error: No stored presets.'))
+                return 1
+
+            # Copy the relevant preset values to the opts object
+            for item in available_presets[opts.preset]:
+                if not item in ['exclusion_rules_tw', 'format', 'prefix_rules_tw']:
+                    setattr(opts, item, available_presets[opts.preset][item])
+
+            # Provide an unconnected device
+            opts.connected_device = {
+                         'is_device_connected': False,
+                         'kind': None,
+                         'name': None,
+                         'save_template': None,
+                         'serial': None,
+                         'storage': None,
+                        }
+
+            # Convert prefix_rules and exclusion_rules from JSON lists to tuples
+            prs = []
+            for rule in opts.prefix_rules:
+                prs.append(tuple(rule))
+            opts.prefix_rules = tuple(prs)
+
+            ers = []
+            for rule in opts.exclusion_rules:
+                ers.append(tuple(rule))
+            opts.exclusion_rules = tuple(ers)
 
         opts.log = log
         opts.fmt = self.fmt = path_to_output.rpartition('.')[2]
@@ -329,32 +374,37 @@ class EPUB_MOBI(CatalogPlugin):
                     log.error("incorrect number of args for --exclusion-rules: %s" % repr(rule))
 
         # Display opts
-        keys = opts_dict.keys()
-        keys.sort()
+        keys = sorted(opts_dict.keys())
         build_log.append(" opts:")
         for key in keys:
             if key in ['catalog_title', 'author_clip', 'connected_kindle', 'creator',
                        'cross_reference_authors', 'description_clip', 'exclude_book_marker',
                        'exclude_genre', 'exclude_tags', 'exclusion_rules', 'fmt',
                        'genre_source_field', 'header_note_source_field', 'merge_comments_rule',
-                       'output_profile', 'prefix_rules', 'read_book_marker',
+                       'output_profile', 'prefix_rules', 'preset', 'read_book_marker',
                        'search_text', 'sort_by', 'sort_descriptions_by_author', 'sync',
                        'thumb_width', 'use_existing_cover', 'wishlist_tag']:
                 build_log.append("  %s: %s" % (key, repr(opts_dict[key])))
         if opts.verbose:
             log('\n'.join(line for line in build_log))
+
+        # Capture start_time
+        opts.start_time = time.time()
+
         self.opts = opts
+
+        if opts.verbose:
+            log.info(" Begin catalog source generation (%s)" %
+                     str(datetime.timedelta(seconds = int(time.time() - opts.start_time))))
 
         # Launch the Catalog builder
         catalog = CatalogBuilder(db, opts, self, report_progress=notification)
 
-        if opts.verbose:
-            log.info(" Begin catalog source generation")
-
         try:
             catalog.build_sources()
             if opts.verbose:
-                log.info(" Completed catalog source generation\n")
+                log.info(" Completed catalog source generation (%s)\n"  %
+                         str(datetime.timedelta(seconds = int(time.time() - opts.start_time))))
         except (AuthorSortMismatchException, EmptyCatalogException), e:
             log.error(" *** Terminated catalog generation: %s ***" % e)
         except:
@@ -443,6 +493,10 @@ class EPUB_MOBI(CatalogPlugin):
                     zf.extractall(path=input_path)
                 os.remove(epub_shell)
                 zip_rebuilder(input_path, os.path.join(catalog_debug_path, 'input.epub'))
+
+            if opts.verbose:
+                log.info(" Catalog creation complete (%s)\n" %
+                     str(datetime.timedelta(seconds = int(time.time() - opts.start_time))))
 
         # returns to gui2.actions.catalog:catalog_generated()
         return catalog.error

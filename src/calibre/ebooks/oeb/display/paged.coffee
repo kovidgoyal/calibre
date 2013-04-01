@@ -416,7 +416,7 @@ class PagedDisplay
             # https://bugs.launchpad.net/calibre/+bug/1132641 for a test case.
             # The usual symptom of the inaccuracy is br.top is highly negative.
             br = elem.getBoundingClientRect()
-            if br.top < -1000
+            if br.top < -100
                 # This only works because of the preceding call to
                 # elem.scrollIntoView(). However, in some cases it gives
                 # inaccurate results, so we prefer the bounding client rect,
