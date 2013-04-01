@@ -104,11 +104,11 @@ class PDFOutput(OutputFormatPlugin):
                    'specify a footer template, it will take precedence '
                    'over this option.')),
         OptionRecommendation(name='pdf_footer_template', recommended_value=None,
-            help=_('An HTML template used to generate footers on every page.'
-                   ' The strings _PAGENUM_, _TITLE_ and _AUTHOR_ will be replaced by their current values.')),
+            help=_('An HTML template used to generate %s on every page.'
+                   ' The strings _PAGENUM_, _TITLE_, _AUTHOR_ and _SECTION_ will be replaced by their current values.')%_('footers')),
         OptionRecommendation(name='pdf_header_template', recommended_value=None,
-            help=_('An HTML template used to generate headers on every page.'
-                   ' The strings _PAGENUM_, _TITLE_ and _AUTHOR_ will be replaced by their current values.')),
+            help=_('An HTML template used to generate %s on every page.'
+                   ' The strings _PAGENUM_, _TITLE_, _AUTHOR_ and _SECTION_ will be replaced by their current values.')%_('headers')),
         ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):

@@ -794,6 +794,16 @@ template::
 This will display the title at the left and the author at the right, in a font
 size smaller than the main text.
 
+Finally, you can also use the current section in templates, as shown below::
+
+    <p style="text-align:right">_SECTION_</p>
+
+_SECTION_ is replaced by whatever the name of the current section is. These
+names are taken from the metadata Table of Contents in the document (the PDF
+Outline). If the document has no table of contents then it will be replaced by
+empty text. If a single PDF page has multiple sections, the first section on
+the page will be used.
+
 .. note:: When adding headers and footers make sure you set the page top and
     bottom margins to large enough values, under the Page Setup section of the
     conversion dialog.

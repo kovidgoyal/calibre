@@ -138,6 +138,10 @@ class PDFWriter(QObject):
     def author(self):
         return self.doc_author
 
+    @pyqtSlot(result=unicode)
+    def section(self):
+        return self.current_section
+
     def __init__(self, opts, log, cover_data=None, toc=None):
         from calibre.gui2 import is_ok_to_use_qt
         if not is_ok_to_use_qt():
@@ -162,6 +166,7 @@ class PDFWriter(QObject):
             self.view.page().mainFrame().setScrollBarPolicy(x,
                     Qt.ScrollBarAlwaysOff)
         self.report_progress = lambda x, y: x
+        self.current_section = ''
 
     def dump(self, items, out_stream, pdf_metadata):
         opts = self.opts
@@ -287,6 +292,25 @@ class PDFWriter(QObject):
                 self.loop.processEvents(self.loop.ExcludeUserInputEvents)
             evaljs('document.getElementById("MathJax_Message").style.display="none";')
 
+    def get_sections(self, anchor_map):
+        sections = {}
+        ci = os.path.abspath(os.path.normcase(self.current_item))
+        if self.toc is not None:
+            for toc in self.toc.flat():
+                path = toc.abspath or None
+                frag = toc.fragment or None
+                if path is None:
+                    continue
+                path = os.path.abspath(os.path.normcase(path))
+                if path == ci:
+                    col = 0
+                    if frag and frag in anchor_map:
+                        col = anchor_map[frag]['column']
+                    if col not in sections:
+                        sections[col] = toc.text or _('Untitled')
+
+        return sections
+
     def do_paged_render(self):
         if self.paged_js is None:
             import uuid
@@ -321,6 +345,8 @@ class PDFWriter(QObject):
         amap = self.bridge_value
         if not isinstance(amap, dict):
             amap = {'links':[], 'anchors':{}} # Some javascript error occurred
+        sections = self.get_sections(amap['anchors'])
+        col = 0
 
         if self.header:
             self.bridge_value = self.header
@@ -335,6 +361,8 @@ class PDFWriter(QObject):
 
         mf = self.view.page().mainFrame()
         while True:
+            if col in sections:
+                self.current_section = sections[col]
             self.doc.init_page()
             if self.header or self.footer:
                 evaljs('paged_display.update_header_footer(%d)'%self.current_page_num)
@@ -348,8 +376,10 @@ class PDFWriter(QObject):
             evaljs('window.scrollTo(%d, 0); paged_display.position_header_footer();'%nsl[0])
             if self.doc.errors_occurred:
                 break
+            col += 1
 
         if not self.doc.errors_occurred:
             self.doc.add_links(self.current_item, start_page, amap['links'],
                             amap['anchors'])
+
 

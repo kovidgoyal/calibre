@@ -216,10 +216,11 @@ class PagedDisplay
             this.hf_style.innerHTML = "#pdf_page_header_#{ this.hf_uuid } .#{ cls }, #pdf_page_footer_#{ this.hf_uuid } .#{ cls } { display: none }"
             title = py_bridge.title()
             author = py_bridge.author()
+            section = py_bridge.section()
         if this.header != null
-            this.header.innerHTML = this.header_template.replace(/_PAGENUM_/g, pagenum+"").replace(/_TITLE_/g, title+"").replace(/_AUTHOR_/g, author+"")
+            this.header.innerHTML = this.header_template.replace(/_PAGENUM_/g, pagenum+"").replace(/_TITLE_/g, title+"").replace(/_AUTHOR_/g, author+"").replace(/_SECTION_/g, section+"")
         if this.footer != null
-            this.footer.innerHTML = this.footer_template.replace(/_PAGENUM_/g, pagenum+"").replace(/_TITLE_/g, title+"").replace(/_AUTHOR_/g, author+"")
+            this.footer.innerHTML = this.footer_template.replace(/_PAGENUM_/g, pagenum+"").replace(/_TITLE_/g, title+"").replace(/_AUTHOR_/g, author+"").replace(/_SECTION_/g, section+"")
 
     fit_images: () ->
         # Ensure no images are wider than the available width in a column. Note
