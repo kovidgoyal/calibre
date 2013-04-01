@@ -1,0 +1,42 @@
+#!/usr/bin/env  python
+
+__license__ = 'GPL v3'
+__author__ = 'teepel <teepel44@gmail.com>'
+
+'''
+http://www.osw.waw.pl - Osrodek studiow wschodnich
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class OSW_Recipe(BasicNewsRecipe):
+
+    language = 'pl'
+    title          = u'Ośrodek Studiów Wschodnich'
+    __author__ = 'teepel <teepel44@gmail.com>'
+    INDEX='http://www.osw.waw.pl'
+    description = u'Ośrodek Studiów Wschodnich im. Marka Karpia. Centre for Eastern Studies.'
+    category = u'News'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    cover_url=''
+    remove_empty_feeds= True
+    no_stylesheets=True
+    remove_javascript = True
+    simultaneous_downloads = 5
+
+    keep_only_tags =[]
+    #this line should show title of the article, but it doesnt work
+    keep_only_tags.append(dict(name = 'h1', attrs = {'class' : 'print-title'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'print-submitted'}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'print-content'}))
+
+    remove_tags =[]
+    remove_tags.append(dict(name = 'table', attrs = {'id' : 'attachments'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'print-submitted'}))
+
+    feeds          = [(u'OSW', u'http://www.osw.waw.pl/pl/rss.xml')]
+
+    def print_version(self, url):
+        return url.replace('http://www.osw.waw.pl/pl/', 'http://www.osw.waw.pl/pl/print/')

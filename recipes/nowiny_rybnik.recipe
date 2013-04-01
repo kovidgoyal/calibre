@@ -1,0 +1,33 @@
+#!/usr/bin/env  python
+
+__license__ = 'GPL v3'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+
+class NowinyRybnik(BasicNewsRecipe):
+    title = u'Nowiny - Rybnik'
+    __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>'
+    language = 'pl'
+    description = u'Tygodnik Regionalny NOWINY. Ogłoszenia drobne, wiadomości i wydarzenia z regionu Rybnika i okolic'
+    oldest_article = 7
+    masthead_url = 'http://www.nowiny.rybnik.pl/logo/logo.jpg'
+    max_articles_per_feed = 100
+    simultaneous_downloads = 5
+    remove_javascript = True
+    no_stylesheets = True
+
+    keep_only_tags = [(dict(name='div', attrs={'id': 'drukuj'}))]
+
+    remove_tags = []
+    remove_tags.append(dict(name='div', attrs={'id': 'footer'}))
+
+    feeds = [(u'Wszystkie artykuły', u'http://www.nowiny.rybnik.pl/rss,artykuly,dzial,0,miasto,0,ile,25.xml')]
+
+    def preprocess_html(self, soup):
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+                tstr = alink.string
+                alink.replaceWith(tstr)
+        return soup

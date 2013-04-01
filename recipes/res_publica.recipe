@@ -1,0 +1,34 @@
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.utils.magick import Image
+
+class ResPublicaNowaRecipe(BasicNewsRecipe):
+    __license__ = 'GPL v3'
+    __author__ = u'intromatyk <intromatyk@gmail.com>'
+    language = 'pl'
+    version = 1
+
+    title = u'Res Publica Nowa'
+    category = u'News'
+    description = u'Portal kulturalno-społecznego kwartalnika o profilu liberalnym, wydawany przez Fundację Res Publica'
+    cover_url=''
+    remove_empty_feeds= True
+    no_stylesheets=True
+    oldest_article = 7
+    max_articles_per_feed = 100000
+    recursions = 0
+    no_stylesheets = True
+    remove_javascript = True
+    simultaneous_downloads = 5
+
+    feeds          = [
+                            ('Artykuly', 'feed://publica.pl/feed'),
+                          ]
+
+    def preprocess_html(self, soup):
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+                tstr = alink.string
+                alink.replaceWith(tstr)
+        return soup

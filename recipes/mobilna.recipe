@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+
+__license__ = 'GPL v3'
+__copyright__ = 'MrStefan'
+
+'''
+www.mobilna.pl
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class mobilna(BasicNewsRecipe):
+    title = u'Mobilna.pl'
+    __author__ = 'MrStefan <mrstefaan@gmail.com>'
+    language = 'pl'
+    description =u'twoja mobilna strona'
+    #masthead_url=''
+    remove_empty_feeds= True
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_javascript=True
+    no_stylesheets=True
+    use_embedded_content = True
+    #keep_only_tags =[dict(attrs={'class':'Post'})]
+
+    feeds          = [(u'Artykuły', u'http://mobilna.pl/feed/')]

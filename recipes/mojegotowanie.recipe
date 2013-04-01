@@ -1,0 +1,51 @@
+#!usr/bin/env python
+
+__license__ = 'GPL v3'
+__copyright__ = 'MrStefan, teepel'
+
+'''
+www.mojegotowanie.pl
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class mojegotowanie(BasicNewsRecipe):
+    title = u'Moje Gotowanie'
+    __author__ = 'MrStefan <mrstefaan@gmail.com>, teepel <teepel44@gmail.com>'
+    language = 'pl'
+    description =u'Gotowanie to Twoja pasja? Uwielbiasz sałatki? Lubisz grillować? Przepisy kulinarne doskonałe na wszystkie okazje znajdziesz na www.mojegotowanie.pl.'
+    masthead_url='http://www.mojegotowanie.pl/extension/selfstart/design/self/images/top_c2.gif'
+    cover_url = 'http://www.mojegotowanie.pl/extension/selfstart/design/self/images/mgpl/mojegotowanie.gif'
+    remove_empty_feeds= True
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_javascript=True
+    no_stylesheets=True
+
+    keep_only_tags =[]
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'content'}))
+
+    feeds = [(u'Artykuły', u'http://mojegotowanie.pl/rss/feed/artykuly'),
+                 (u'Przepisy', u'http://mojegotowanie.pl/rss/feed/przepisy')]
+
+    def parse_feeds(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        for feed in feeds:
+            for article in feed.articles[:]:
+                if 'film' in article.title:
+                    feed.articles.remove(article)
+        return feeds
+
+    def get_article_url(self, article):
+        link = article.get('link')
+        if 'Clayout0Cset0Cprint0' in link:
+            return link
+
+    def print_version(self, url):
+        segment = url.split('/')
+        URLPart = segment[-2]
+        URLPart = URLPart.replace('0L0Smojegotowanie0Bpl0Clayout0Cset0Cprint0C', '/')
+        URLPart = URLPart.replace('0I', '_')
+        URLPart = URLPart.replace('0C', '/')
+        return 'http://www.mojegotowanie.pl/layout/set/print' + URLPart
