@@ -130,6 +130,14 @@ class PDFWriter(QObject):
     _pass_json_value = pyqtProperty(QString, fget=_pass_json_value_getter,
             fset=_pass_json_value_setter)
 
+    @pyqtSlot(result=unicode)
+    def title(self):
+        return self.doc_title
+
+    @pyqtSlot(result=unicode)
+    def author(self):
+        return self.doc_author
+
     def __init__(self, opts, log, cover_data=None, toc=None):
         from calibre.gui2 import is_ok_to_use_qt
         if not is_ok_to_use_qt():
@@ -170,9 +178,13 @@ class PDFWriter(QObject):
                              opts.uncompressed_pdf,
                              mark_links=opts.pdf_mark_links)
         self.footer = opts.pdf_footer_template
-        if self.footer is None and opts.pdf_page_numbers:
+        if self.footer:
+            self.footer = self.footer.strip()
+        if not self.footer and opts.pdf_page_numbers:
             self.footer = '<p style="text-align:center; text-indent: 0">_PAGENUM_</p>'
         self.header = opts.pdf_header_template
+        if self.header:
+            self.header = self.header.strip()
         min_margin = 36
         if self.footer and opts.margin_bottom < min_margin:
             self.log.warn('Bottom margin is too small for footer, increasing it.')
@@ -192,6 +204,8 @@ class PDFWriter(QObject):
         self.doc.set_metadata(title=pdf_metadata.title,
                               author=pdf_metadata.author,
                               tags=pdf_metadata.tags)
+        self.doc_title = pdf_metadata.title
+        self.doc_author = pdf_metadata.author
         self.painter.save()
         try:
             if self.cover_data is not None:
@@ -275,11 +289,13 @@ class PDFWriter(QObject):
 
     def do_paged_render(self):
         if self.paged_js is None:
+            import uuid
             from calibre.utils.resources import compiled_coffeescript as cc
             self.paged_js =  cc('ebooks.oeb.display.utils')
             self.paged_js += cc('ebooks.oeb.display.indexing')
             self.paged_js += cc('ebooks.oeb.display.paged')
             self.paged_js += cc('ebooks.oeb.display.mathjax')
+            self.hf_uuid = str(uuid.uuid4()).replace('-', '')
 
         self.view.page().mainFrame().addToJavaScriptWindowObject("py_bridge", self)
         self.view.page().longjs_counter = 0
@@ -313,7 +329,7 @@ class PDFWriter(QObject):
             self.bridge_value = self.footer
             evaljs('paged_display.footer_template = py_bridge.value')
         if self.header or self.footer:
-            evaljs('paged_display.create_header_footer();')
+            evaljs('paged_display.create_header_footer("%s");'%self.hf_uuid)
 
         start_page = self.current_page_num
 
