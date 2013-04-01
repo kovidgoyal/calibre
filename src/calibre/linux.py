@@ -347,7 +347,7 @@ class ZshCompleter(object): # {{{
             subcommands.append(';;')
 
         f.write('\n_calibredb() {')
-        f.write(
+        f.write((
             r'''
     local state line state_descr context
     typeset -A opt_args
@@ -370,7 +370,7 @@ class ZshCompleter(object): # {{{
     esac
 
     return ret
-    '''%'\n    '.join(subcommands))
+    '''%'\n    '.join(subcommands)).encode('utf-8'))
         f.write('\n}\n\n')
 
     def write(self):
