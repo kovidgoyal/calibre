@@ -14,7 +14,7 @@ from functools import partial
 from PyQt4.Qt import (QPushButton, QFrame, QVariant, QMenu, QInputDialog,
     QDialog, QVBoxLayout, QDialogButtonBox, QSize, QStackedWidget, QWidget,
     QLabel, Qt, pyqtSignal, QIcon, QTreeWidget, QGridLayout, QTreeWidgetItem,
-    QToolButton, QItemSelectionModel)
+    QToolButton, QItemSelectionModel, QCursor)
 
 from calibre.ebooks.oeb.polish.container import get_container, AZW3Container
 from calibre.ebooks.oeb.polish.toc import (
@@ -358,6 +358,8 @@ class TreeWidget(QTreeWidget): # {{{
         self.setMouseTracking(True)
         self.in_drop_event = False
         self.root = self.invisibleRootItem()
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
 
     def iteritems(self, parent=None):
         if parent is None:
@@ -471,6 +473,12 @@ class TreeWidget(QTreeWidget): # {{{
             p = item.parent() or self.root
             p.removeChild(item)
 
+    def title_case(self):
+        from calibre.utils.titlecase import titlecase
+        for item in self.selectedItems():
+            t = unicode(item.data(0, Qt.DisplayRole).toString())
+            item.setData(0, Qt.DisplayRole, titlecase(t))
+
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_Left and ev.modifiers() & Qt.CTRL:
             self.move_left()
@@ -489,6 +497,25 @@ class TreeWidget(QTreeWidget): # {{{
             ev.accept()
         else:
             return super(TreeWidget, self).keyPressEvent(ev)
+
+    def show_context_menu(self, point):
+        item = self.currentItem()
+        if item is not None:
+            m = QMenu()
+            ci = unicode(item.data(0, Qt.DisplayRole).toString())
+            p = item.parent() or self.invisibleRootItem()
+            idx = p.indexOfChild(item)
+            if idx > 0:
+                m.addAction(QIcon(I('arrow-up.png')), _('Move "%s" up')%ci, self.move_up)
+            if idx + 1 < p.childCount():
+                m.addAction(QIcon(I('arrow-down.png')), _('Move "%s" down')%ci, self.move_down)
+            m.addAction(QIcon(I('trash.png')), _('Remove all selected items'), self.del_items)
+            if item.parent() is not None:
+                m.addAction(QIcon(I('back.png')), _('Unindent "%s"')%ci, self.move_left)
+            if idx > 0:
+                m.addAction(QIcon(I('forward.png')), _('Indent "%s"')%ci, self.move_right)
+            m.addAction(_('Change all selected items to title case'), self.title_case)
+            m.exec_(QCursor.pos())
 # }}}
 
 class TOCView(QWidget): # {{{
