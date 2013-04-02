@@ -22507,7 +22507,7 @@ msgstr "Autoren beginnend mit '%s'"
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3477
 #, python-format
 msgid "Authors beginning with '%s'"
-msgstr "Autoren beginnen mit mit %s"
+msgstr "Autoren beginnen mit %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3518
 msgid "NCX for Recently Added"
