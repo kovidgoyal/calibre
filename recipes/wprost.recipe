@@ -1,10 +1,9 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2010, matek09, matek09@gmail.com'
-__copyright__ = 'Modified 2011,  Mariusz Wolek <mariusz_dot_wolek @ gmail dot com>'
-__copyright__ = 'Modified 2012,  Artur Stachecki <artur.stachecki@gmail.com>'
-
+__copyright__ = '''2010, matek09, matek09@gmail.com
+                 Modified 2011,  Mariusz Wolek <mariusz_dot_wolek @ gmail dot com>
+                 Modified 2012,  Artur Stachecki <artur.stachecki@gmail.com>'''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
@@ -16,12 +15,12 @@ class Wprost(BasicNewsRecipe):
     ICO_BLOCKED = 'http://www.wprost.pl/G/layout2/ico_blocked.png'
     title = u'Wprost'
     __author__ = 'matek09'
-    description = 'Weekly magazine'
+    description = u'Popularny tygodnik ogólnopolski - Wprost. Najlepszy wśród polskich tygodników - opiniotwórczy - społeczno-informacyjny - społeczno-kulturalny.'
     encoding = 'ISO-8859-2'
     no_stylesheets = True
     language = 'pl'
     remove_javascript = True
-    recursions = 0  
+    recursions = 0
     remove_tags_before = dict(dict(name = 'div', attrs = {'id' : 'print-layer'}))
     remove_tags_after = dict(dict(name = 'div', attrs = {'id' : 'print-layer'}))
     '''
@@ -94,5 +93,3 @@ class Wprost(BasicNewsRecipe):
                 'description' : ''
             })
         return articles
-
-

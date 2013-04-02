@@ -66,4 +66,3 @@ class Adventure_zone(BasicNewsRecipe):
             if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
                 a['href']=self.index + a['href']
         return soup
-
