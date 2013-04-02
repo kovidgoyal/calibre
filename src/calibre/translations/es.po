@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-03-29 05:21+0000\n"
-"PO-Revision-Date: 2013-03-30 15:22+0000\n"
-"Last-Translator: dario hereñu <Unknown>\n"
+"PO-Revision-Date: 2013-04-01 15:42+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-31 05:17+0000\n"
+"X-Launchpad-Export-Date: 2013-04-02 05:17+0000\n"
 "X-Generator: Launchpad (build 16546)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:540
@@ -24898,7 +24898,7 @@ msgid ""
 msgstr ""
 "current_library_path() -- devuelve la ruta a la biblioteca de calibre "
 "actual. Esta función puede usarse en el modo de programación de plantillas "
-"la plantilla «{:'current_library_path()'}»."
+"utilizando la plantilla «{:'current_library_path()'}»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1200
 msgid ""
@@ -24932,7 +24932,7 @@ msgstr "Terminado"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:80
 msgid "Working..."
-msgstr "Trabajando..."
+msgstr "Procesando..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:139
 msgid "Brazilian Portuguese"
@@ -25145,22 +25145,22 @@ msgstr "Neerlandés (BE)"
 #. NOTE: Ante Meridian (i.e. like 10:00 AM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:198
 msgid "AM"
-msgstr "AM"
+msgstr "a. m."
 
 #. NOTE: Post Meridian (i.e. like 10:00 PM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:200
 msgid "PM"
-msgstr "PM"
+msgstr "p. m."
 
 #. NOTE: Ante Meridian (i.e. like 10:00 am)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:202
 msgid "am"
-msgstr "AM"
+msgstr "a. m."
 
 #. NOTE: Post Meridian (i.e. like 10:00 pm)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:204
 msgid "pm"
-msgstr "PM"
+msgstr "p. m."
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:205
 msgid "&Copy"
@@ -25224,7 +25224,7 @@ msgstr "Paso &atrás"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
-msgstr "Elegir tema (requiere reinicio)"
+msgstr "Elegir tema (requiere reiniciar)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:109
 msgid "ERROR: Unhandled exception"
@@ -25294,7 +25294,7 @@ msgstr "Sección desconocida"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:143
 msgid "Unknown feed"
-msgstr "Canal desconocido"
+msgstr "Canal RSS desconocido"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:163
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:197
@@ -25325,11 +25325,11 @@ msgstr "Fallo al descargar los siguientes artículos:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:990
 msgid "Failed to download parts of the following articles:"
-msgstr "Fallo al descargar partes de los siguientes artículos"
+msgstr "Fallo al descargar partes de los siguientes artículos:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:992
 msgid " from "
-msgstr " de "
+msgstr " desde "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:994
 msgid "\tFailed links:"
@@ -25345,7 +25345,7 @@ msgstr "El rastreo de depuración aparece más arriba en este registro"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1101
 msgid "Run with -vv to see the reason"
-msgstr "Ejecute con el parámetro -vv para ver el motivo"
+msgstr "Ejecutar con el parámetro -vv para ver el motivo"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1146
 msgid "Fetching feeds..."
@@ -25353,7 +25353,7 @@ msgstr "Obteniendo canales de noticias..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1151
 msgid "Got feeds from index page"
-msgstr "Se obtivieron canales de noticias de la página principal"
+msgstr "Se obtuvieron canales de noticias desde la página principal"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1163
 msgid "Trying to download cover..."
@@ -25361,7 +25361,7 @@ msgstr "Intentando descargar la portada..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1165
 msgid "Generating masthead..."
-msgstr "Generando el pie de imprenta..."
+msgstr "Generando cabecera..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1245
 #, python-format
@@ -25385,7 +25385,7 @@ msgstr "Descargando portada desde %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1325
 msgid "Masthead image downloaded"
-msgstr "Imagen del rótulo descargada"
+msgstr "Imagen de cabecera descargada"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1407
 msgid "Articles in this issue: "
@@ -25422,8 +25422,8 @@ msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."
 msgstr ""
-"Ud. no tiene permiso para bajar esta publicación. Su subscripción ha "
-"expirado o ha exedido el máximo permitido por día"
+"No tiene permiso para descargar esta publicación. La suscripción ha expirado "
+"o ha excedido el máximo permitido para hoy."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:45
 msgid "You"
@@ -25809,7 +25809,7 @@ msgstr ""
 "y «author_sort». Este ajuste afecta sólo a lo que se muestra en la "
 "categoría\n"
 "de autores en el explorador de etiquetas y en el servidor de contenidos.\n"
-"Tenga en cuenta que si especifica «author_sort» es posible que aparezcan\n"
+"Tenga en cuenta que si especifica «author_sort», es posible que aparezcan\n"
 "nombres duplicados en la lista, porque aunque está garantizado que los\n"
 "nombres de autor son únicos, no existe tal garantía para los valores de\n"
 "author_sort. Los duplicados no estropean nada, pero pueden ocasionar\n"
@@ -26010,7 +26010,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:177
 msgid "Control sorting of titles and series in the library display"
-msgstr "Orden de títulos y series en la biblioteca"
+msgstr "Orden de títulos y series en la vista de la biblioteca"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:178
 msgid ""
@@ -26068,10 +26068,10 @@ msgid ""
 "formatter function raw_field will return the base value for title and\n"
 "series regardless of the setting of this tweak."
 msgstr ""
-"Controla el formato del título y el nombre de la serie al escrbir en el "
+"Controla el formato del título y el nombre de la serie al escribir en el "
 "disco\n"
 "o enviar a un dispositivo. El comportamiento depende del campo que se\n"
-"proceso. Al procesar el título, si este ajuste está establecido en "
+"procese. Al procesar el título, si este ajuste está establecido en "
 "'library_order'\n"
 "el título se sustituirá por el orden de título. Si se establece en "
 "'strictrly_alphabetic'\n"
@@ -26086,7 +26086,7 @@ msgstr ""
 "alphabetic' se\n"
 "quedará en «El señor de los anillos». Tenga en cuenta que la función de "
 "formato\n"
-"«raw_field» siempr devuelve el valor base del título y la serie, "
+"«raw_field» siempre devuelve el valor base del título y la serie, "
 "independientemente\n"
 "del valor de este ajuste."
 
@@ -26312,7 +26312,7 @@ msgid ""
 msgstr ""
 "Especifica cómo se ordenan las colecciones Sony. Este ajuste sólo se\n"
 "aplica si la gestión de metadatos está establecida en automática. Puede\n"
-"definir qué campo de metadatos se usara para ordenar cada colección.\n"
+"definir qué campo de metadatos se usará para ordenar cada colección.\n"
 "El formato del ajuste es una lista de campos de metadatos a partir de los\n"
 "cuales se construyen las colecciones, seguida del nombre del campo que\n"
 "contiene el valor de orden.\n"
@@ -26343,7 +26343,7 @@ msgid ""
 "a book' are added when copying books to another library"
 msgstr ""
 "Establezca este ajuste en «True» (sí) para asegurarse de que las etiquetas\n"
-"en «Etiquetas a añadir al añadir un libro» se añaden tambin al copiar "
+"en «Etiquetas para aplicar al añadir un libro» se añaden también al copiar "
 "libros\n"
 "a otra biblioteca"
 
@@ -26357,8 +26357,8 @@ msgstr ""
 msgid ""
 "Set custom metadata fields that the content server will or will not display."
 msgstr ""
-"Campos personalizados de metadatos que se muestran o no en el servidor de "
-"contenidos"
+"Campos personalizados de metadatos que se mostrarán o no en el servidor de "
+"contenidos."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:348
 msgid ""
@@ -26410,9 +26410,10 @@ msgid ""
 "level sorts, and if you are seeing a slowdown, reduce the value of this "
 "tweak."
 msgstr ""
-"Establece el número máximo de «niveles» de ordenación que usará al "
+"Establece el número máximo de «niveles» de ordenación que calibre usará al "
 "reordenar\n"
-"la biblioteca después de ciertas operaciones como búsquedas on inserción de\n"
+"la biblioteca después de ciertas operaciones tales como búsquedas o "
+"inserción de\n"
 "dispositivos. Cada nivel de ordenación disminuye el rendimiento. Si la base "
 "de\n"
 "datos es grande (miles de libros), la disminución puede ser notable. Si no "
@@ -26541,7 +26542,8 @@ msgid ""
 "Enter a comma-separated list of custom field lookup names, as in\n"
 "metadata_edit_custom_column_order = ['#genre', '#mytags', '#etc']"
 msgstr ""
-"Controla el orden en el aparecen las columnas personalizadas en los cuadros\n"
+"Controla el orden en el que aparecen las columnas personalizadas en los "
+"cuadros\n"
 "de edición de metadatos. Las columnas dadas en el ajuste aparecerán primero\n"
 "y en el orden indicado. Cualquier columna que no figure en la lista se "
 "mostrará\n"
@@ -26555,7 +26557,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:428
 msgid "The number of seconds to wait before sending emails"
-msgstr "Número de segundos de espera antes de mandar correos electrónicos"
+msgstr "Número de segundos de espera antes de enviar correos electrónicos"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:429
 msgid ""
@@ -26566,7 +26568,8 @@ msgid ""
 "calibre."
 msgstr ""
 "El número de segundos que se espera antes de enviar correos electrónicos\n"
-"usando un servidor público como gmail o hotmail. El valor predeterminado es\n"
+"utilizando un servidor público como gmail o hotmail. El valor predeterminado "
+"es\n"
 "5 minutos. Si se usa un valor más pequeño puede que se active la protección\n"
 "antispam del servidor, haciendo que falle el envío. Los cambios sólo "
 "tendrán\n"
@@ -26648,7 +26651,7 @@ msgid ""
 "it\n"
 "on at your own risk!"
 msgstr ""
-"Si activa esta opción y reincia calibre, la barra de herramientas se "
+"Si activa esta opción y reinicia calibre, la barra de herramientas se "
 "«unirá»\n"
 "a la barra de título, como ocurre normalmente en aplicaciones de OS X. Sin\n"
 "embargo, esto tiene algunos problemas, por ejemplo la anchura mínima de\n"
@@ -26717,7 +26720,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:487
 msgid "Compile General Program Mode templates to Python"
-msgstr "Compilar plantillas de modo de programa general en Python"
+msgstr "Compilar plantillas en el modo de programa general a Python"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:488
 msgid ""

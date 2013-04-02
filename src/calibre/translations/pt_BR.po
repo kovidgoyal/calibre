@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-29 05:21+0000\n"
-"PO-Revision-Date: 2013-03-25 17:09+0000\n"
-"Last-Translator: Tiago S. <Unknown>\n"
+"PO-Revision-Date: 2013-04-01 10:02+0000\n"
+"Last-Translator: Mihailov <Unknown>\n"
 "Language-Team: Português Brasileiro <ubuntu-l10n-ptbr@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-03-30 05:25+0000\n"
+"X-Launchpad-Export-Date: 2013-04-02 05:18+0000\n"
 "X-Generator: Launchpad (build 16546)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -4983,6 +4983,18 @@ msgid ""
 "some metadata on a file type that does not support it, the metadata will be\n"
 "silently ignored.\n"
 msgstr ""
+"\n"
+"Leitura/Escrita de metadados de/para arquivos de ebook.\n"
+"\n"
+"Formatos suportados para leitura de metadados: %(read)s\n"
+"\n"
+"Formatos suportados para escrita de metadados: %(write)s\n"
+"\n"
+"Diferentes formatos de arquivos suportam diferentes tipos de metadados. Ao "
+"tentar\n"
+"inserir metadados não suportados pelo formato do arquivo, os metadados "
+"serão\n"
+"ignorados silenciosamente.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:40
 msgid ""
@@ -5538,7 +5550,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:524
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:539
 msgid "(Untitled)"
-msgstr ""
+msgstr "(Sem título)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
@@ -6411,7 +6423,7 @@ msgstr "Converter livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "Convert books between different ebook formats"
-msgstr ""
+msgstr "Converte livros entre formatos de ebook diferentes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:55
 msgid "Convert individually"
@@ -6784,6 +6796,8 @@ msgstr "Conectar/compartilhar"
 msgid ""
 "Share books using a web server or email. Connect to special devices, etc."
 msgstr ""
+"Compartilha livros usando um servidor web ou email. Conecta a dispositivos "
+"especiais, etc."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:85
@@ -6824,7 +6838,7 @@ msgstr "Gerenciar coleções neste dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:26
 msgid "Change the title/author/cover etc. of books"
-msgstr ""
+msgstr "Muda o título/autor/capa etc. dos livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:26
 msgid "E"
@@ -7091,7 +7105,7 @@ msgstr "O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/open.py:15
 msgid "Open the folder containing the current book's files"
-msgstr ""
+msgstr "Abre o diretório contendo os atuais arquivos de livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/plugin_updates.py:18
 msgid "Plugin Updater"
@@ -7099,7 +7113,7 @@ msgstr "Atualizador de plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/plugin_updates.py:18
 msgid "Update any plugins you have installed in calibre"
-msgstr ""
+msgstr "Atualiza todos os plugins instalados no calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:34
 msgid "Polish book"
@@ -7367,7 +7381,7 @@ msgstr "Salvar no disco"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:21
 msgid "Export ebook files from the calibre library"
-msgstr ""
+msgstr "Exportar arquivos de ebook da biblioteca Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:21
 msgid "S"
@@ -7445,6 +7459,7 @@ msgstr "I"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:17
 msgid "Show the detailed metadata for the current book in a separate window"
 msgstr ""
+"Mostra metadados detalhados para o livro atual em uma janela separada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:26
 msgid "No detailed info available"
@@ -7473,7 +7488,7 @@ msgstr "A visualização rápida não está disponível para livros no aparelho"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:17
 msgid "Show books similar to the current book"
-msgstr ""
+msgstr "Mostra livros semlhantes ao livro atual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:17
 msgid "Similar books..."
@@ -7600,7 +7615,7 @@ msgstr "Sobre obtenção de livros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:24
 msgid "Choose format to edit"
-msgstr ""
+msgstr "Escolhe formato para editar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:28
 msgid "Choose which format you want to edit:"
