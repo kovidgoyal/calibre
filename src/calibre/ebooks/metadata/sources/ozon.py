@@ -55,7 +55,7 @@ class Ozon(Source):
         # for ozon.ru search we have to format ISBN with '-'
         isbn = _format_isbn(log, identifiers.get('isbn', None))
         ozonid = identifiers.get('ozon', None)
-        
+
         unk = unicode(_('Unknown')).upper()
         if (title and title != unk) or (authors and authors != [unk]) or isbn or not ozonid:
             qItems = set([isbn, title])
@@ -64,19 +64,19 @@ class Ozon(Source):
             qItems.discard(None)
             qItems.discard('')
             qItems = map(_quoteString, qItems)
-    
+
             q = u' '.join(qItems).strip()
             log.info(u'search string: ' + q)
-    
+
             if isinstance(q, unicode):
                 q = q.encode('utf-8')
             if not q:
                 return None
-    
+
             search_url += quote_plus(q)
         else:
             search_url = self.ozon_url + '/webservices/OzonWebSvc.asmx/ItemDetail?ID=%s' % ozonid
-            
+
         log.debug(u'search url: %r'%search_url)
         return search_url
     # }}}
@@ -250,7 +250,7 @@ class Ozon(Source):
         return url
     # }}}
 
-    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30): # {{{
+    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False): # {{{
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
             log.debug('No cached cover found, running identify')

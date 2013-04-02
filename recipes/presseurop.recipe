@@ -13,6 +13,7 @@ import re
 class presseurop(BasicNewsRecipe):
     title          = u'Presseurop'
     description = u'Najlepsze artykuły z prasy europejskiej'
+    language = 'pl'
     oldest_article = 7
     max_articles_per_feed = 100
     auto_cleanup = True

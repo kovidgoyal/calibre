@@ -9,7 +9,7 @@ gofin.pl
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class gofin(AutomaticNewsRecipe):
+class gofin(BasicNewsRecipe):
     title          = u'Gofin'
     __author__ = 'teepel <teepel44@gmail.com>'
     language       = 'pl'

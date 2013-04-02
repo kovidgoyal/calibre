@@ -129,11 +129,11 @@ tool that always produces valid EPUBs, |app| is not for you.
 
 How do I use some of the advanced features of the conversion tools?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- You can get help on any individual feature of the converters by mousing over
- it in the GUI or running ``ebook-convert dummy.html .epub -h`` at a terminal.
- A good place to start is to look at the following demo files that demonstrate
- some of the advanced features:
-  * `html-demo.zip <http://calibre-ebook.com/downloads/html-demo.zip>`_
+You can get help on any individual feature of the converters by mousing over
+it in the GUI or running ``ebook-convert dummy.html .epub -h`` at a terminal.
+A good place to start is to look at the following demo file that demonstrates
+some of the advanced features
+`html-demo.zip <http://calibre-ebook.com/downloads/html-demo.zip>`_
 
 
 Device Integration

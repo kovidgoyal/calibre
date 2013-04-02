@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, os, shutil, tempfile, atexit
+import unittest, os, shutil, tempfile, atexit, gc
 from functools import partial
 from io import BytesIO
 from future_builtins import map
@@ -21,6 +21,7 @@ class BaseTest(unittest.TestCase):
         self.create_db(self.library_path)
 
     def tearDown(self):
+        gc.collect(), gc.collect()
         shutil.rmtree(self.library_path)
 
     def create_db(self, library_path):
@@ -36,6 +37,7 @@ class BaseTest(unittest.TestCase):
         db.add_format(1, 'FMT1', BytesIO(b'book1fmt1'), index_is_id=True)
         db.add_format(1, 'FMT2', BytesIO(b'book1fmt2'), index_is_id=True)
         db.add_format(2, 'FMT1', BytesIO(b'book2fmt1'), index_is_id=True)
+        db.conn.close()
         return dest
 
     def init_cache(self, library_path):
@@ -65,6 +67,10 @@ class BaseTest(unittest.TestCase):
         shutil.copytree(library_path, dest)
         return dest
 
+    @property
+    def cloned_library(self):
+        return self.clone_library(self.library_path)
+
     def compare_metadata(self, mi1, mi2):
         allfk1 = mi1.all_field_keys()
         allfk2 = mi2.all_field_keys()
@@ -79,6 +85,8 @@ class BaseTest(unittest.TestCase):
             attr1, attr2 = getattr(mi1, attr), getattr(mi2, attr)
             if attr == 'formats':
                 attr1, attr2 = map(lambda x:tuple(x) if x else (), (attr1, attr2))
+            if isinstance(attr1, (tuple, list)) and 'authors' not in attr and 'languages' not in attr:
+                attr1, attr2 = set(attr1), set(attr2)
             self.assertEqual(attr1, attr2,
                     '%s not the same: %r != %r'%(attr, attr1, attr2))
             if attr.startswith('#'):

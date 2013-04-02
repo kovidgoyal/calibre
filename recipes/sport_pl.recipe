@@ -8,7 +8,6 @@ sport.pl
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class sport_pl(BasicNewsRecipe):
     title          = 'Sport.pl'

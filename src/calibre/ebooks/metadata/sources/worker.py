@@ -11,6 +11,7 @@ import os
 from threading import Event, Thread
 from Queue import Queue, Empty
 from io import BytesIO
+from collections import Counter
 
 from calibre.utils.date import as_utc
 from calibre.ebooks.metadata.sources.identify import identify, msprefs
@@ -113,13 +114,18 @@ def single_covers(title, authors, identifiers, caches, tdir):
             kwargs=dict(title=title, authors=authors, identifiers=identifiers))
     worker.daemon = True
     worker.start()
+    c = Counter()
     while worker.is_alive():
         try:
             plugin, width, height, fmt, data = results.get(True, 1)
         except Empty:
             continue
         else:
-            name = '%s,,%s,,%s,,%s.cover'%(plugin.name, width, height, fmt)
+            name = plugin.name
+            if plugin.can_get_multiple_covers:
+                name += '{%d}'%c[plugin.name]
+                c[plugin.name] += 1
+            name = '%s,,%s,,%s,,%s.cover'%(name, width, height, fmt)
             with open(name, 'wb') as f:
                 f.write(data)
             os.mkdir(name+'.done')

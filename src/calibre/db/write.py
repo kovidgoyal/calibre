@@ -12,7 +12,7 @@ from functools import partial
 from datetime import datetime
 
 from calibre.constants import preferred_encoding, ispy3
-from calibre.ebooks.metadata import author_to_author_sort
+from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.utils.date import (parse_only_date, parse_date, UNDEFINED_DATE,
                                 isoformat)
 from calibre.utils.localization import canonicalize_lang
@@ -106,6 +106,21 @@ def adapt_languages(to_tuple, x):
         ans.append(lc)
     return tuple(ans)
 
+def clean_identifier(typ, val):
+    typ = icu_lower(typ).strip().replace(':', '').replace(',', '')
+    val = val.strip().replace(',', '|').replace(':', '|')
+    return typ, val
+
+def adapt_identifiers(to_tuple, x):
+    if not isinstance(x, dict):
+        x = {k:v for k, v in (y.partition(':')[0::2] for y in to_tuple(x))}
+    ans = {}
+    for k, v in x.iteritems():
+        k, v = clean_identifier(k, v)
+        if k and v:
+            ans[k] = v
+    return ans
+
 def get_adapter(name, metadata):
     dt = metadata['datatype']
     if dt == 'text':
@@ -145,6 +160,8 @@ def get_adapter(name, metadata):
         return lambda x: 1.0 if ans(x) is None else ans(x)
     if name == 'languages':
         return partial(adapt_languages, ans)
+    if name == 'identifiers':
+        return partial(adapt_identifiers, ans)
 
     return ans
 # }}}
@@ -157,6 +174,10 @@ def one_one_in_books(book_id_val_map, db, field, *args):
         db.conn.executemany(
             'UPDATE books SET %s=? WHERE id=?'%field.metadata['column'], sequence)
         field.table.book_col_map.update(book_id_val_map)
+    if field.name == 'title':
+        # Set the title sort field
+        field.title_sort_field.writer.set_books(
+            {k:title_sort(v) for k, v in book_id_val_map.iteritems()}, db)
     return set(book_id_val_map)
 
 def one_one_in_other(book_id_val_map, db, field, *args):
@@ -396,6 +417,31 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
 
 # }}}
 
+def identifiers(book_id_val_map, db, field, *args): # {{{
+    table = field.table
+    updates = set()
+    for book_id, identifiers in book_id_val_map.iteritems():
+        if book_id not in table.book_col_map:
+            table.book_col_map[book_id] = {}
+        current_ids = table.book_col_map[book_id]
+        remove_keys = set(current_ids) - set(identifiers)
+        for key in remove_keys:
+            table.col_book_map.get(key, set()).discard(book_id)
+            current_ids.pop(key, None)
+        current_ids.update(identifiers)
+        for key, val in identifiers.iteritems():
+            if key not in table.col_book_map:
+                table.col_book_map[key] = set()
+            table.col_book_map[key].add(book_id)
+            updates.add((book_id, key, val))
+    db.conn.executemany('DELETE FROM identifiers WHERE book=?',
+                        ((x,) for x in book_id_val_map))
+    if updates:
+        db.conn.executemany('INSERT OR REPLACE INTO identifiers (book, type, val) VALUES (?, ?, ?)',
+                            tuple(updates))
+    return set(book_id_val_map)
+# }}}
+
 def dummy(book_id_val_map, *args):
     return set()
 
@@ -412,6 +458,8 @@ class Writer(object):
             self.set_books_func = dummy
         elif self.name[0] == '#' and self.name.endswith('_index'):
             self.set_books_func = custom_series_index
+        elif self.name == 'identifiers':
+            self.set_books_func = identifiers
         elif field.is_many_many:
             self.set_books_func = many_many
         elif field.is_many:

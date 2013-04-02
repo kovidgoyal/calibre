@@ -14,7 +14,7 @@ from functools import partial
 from PyQt4.Qt import (QPushButton, QFrame, QVariant, QMenu, QInputDialog,
     QDialog, QVBoxLayout, QDialogButtonBox, QSize, QStackedWidget, QWidget,
     QLabel, Qt, pyqtSignal, QIcon, QTreeWidget, QGridLayout, QTreeWidgetItem,
-    QToolButton, QItemSelectionModel)
+    QToolButton, QItemSelectionModel, QCursor)
 
 from calibre.ebooks.oeb.polish.container import get_container, AZW3Container
 from calibre.ebooks.oeb.polish.toc import (
@@ -190,7 +190,7 @@ class ItemView(QFrame): # {{{
         )))
         l.addWidget(b)
 
-        self.fal = b = QPushButton(_('Flatten the ToC'))
+        self.fal = b = QPushButton(_('&Flatten the ToC'))
         b.clicked.connect(self.flatten_toc)
         b.setToolTip(textwrap.fill(_(
             'Flatten the Table of Contents, putting all entries at the top level'
@@ -339,6 +339,185 @@ class ItemView(QFrame): # {{{
 
 # }}}
 
+class TreeWidget(QTreeWidget): # {{{
+
+    def __init__(self, parent):
+        QTreeWidget.__init__(self, parent)
+        self.setHeaderLabel(_('Table of Contents'))
+        self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
+        self.setDragEnabled(True)
+        self.setSelectionMode(self.ExtendedSelection)
+        self.viewport().setAcceptDrops(True)
+        self.setDropIndicatorShown(True)
+        self.setDragDropMode(self.InternalMove)
+        self.setAutoScroll(True)
+        self.setAutoScrollMargin(ICON_SIZE*2)
+        self.setDefaultDropAction(Qt.MoveAction)
+        self.setAutoExpandDelay(1000)
+        self.setAnimated(True)
+        self.setMouseTracking(True)
+        self.in_drop_event = False
+        self.root = self.invisibleRootItem()
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
+
+    def iteritems(self, parent=None):
+        if parent is None:
+            parent = self.invisibleRootItem()
+        for i in xrange(parent.childCount()):
+            child = parent.child(i)
+            yield child
+            for gc in self.iteritems(parent=child):
+                yield gc
+
+    def dropEvent(self, event):
+        self.in_drop_event = True
+        try:
+            super(TreeWidget, self).dropEvent(event)
+        finally:
+            self.in_drop_event = False
+
+    def selectedIndexes(self):
+        ans = super(TreeWidget, self).selectedIndexes()
+        if self.in_drop_event:
+            # For order to be be preserved when moving by drag and drop, we
+            # have to ensure that selectedIndexes returns an ordered list of
+            # indexes.
+            sort_map = {self.indexFromItem(item):i for i, item in enumerate(self.iteritems())}
+            ans = sorted(ans, key=lambda x:sort_map.get(x, -1), reverse=True)
+        return ans
+
+    def highlight_item(self, item):
+        self.setCurrentItem(item, 0, QItemSelectionModel.ClearAndSelect)
+        self.scrollToItem(item)
+
+    def move_left(self):
+        item = self.currentItem()
+        if item is not None:
+            parent = item.parent()
+            if parent is not None:
+                is_expanded = item.isExpanded() or item.childCount() == 0
+                gp = parent.parent() or self.invisibleRootItem()
+                idx = gp.indexOfChild(parent)
+                for gc in [parent.child(i) for i in xrange(parent.indexOfChild(item)+1, parent.childCount())]:
+                    parent.removeChild(gc)
+                    item.addChild(gc)
+                parent.removeChild(item)
+                gp.insertChild(idx+1, item)
+                if is_expanded:
+                    self.expandItem(item)
+                self.highlight_item(item)
+
+    def move_right(self):
+        item = self.currentItem()
+        if item is not None:
+            parent = item.parent() or self.invisibleRootItem()
+            idx = parent.indexOfChild(item)
+            if idx > 0:
+                is_expanded = item.isExpanded()
+                np = parent.child(idx-1)
+                parent.removeChild(item)
+                np.addChild(item)
+                if is_expanded:
+                    self.expandItem(item)
+                self.highlight_item(item)
+
+    def move_down(self):
+        item = self.currentItem()
+        if item is None:
+            if self.root.childCount() == 0:
+                return
+            item = self.root.child(0)
+            self.highlight_item(item)
+            return
+        parent = item.parent() or self.root
+        idx = parent.indexOfChild(item)
+        if idx == parent.childCount() - 1:
+            # At end of parent, need to become sibling of parent
+            if parent is self.root:
+                return
+            gp = parent.parent() or self.root
+            parent.removeChild(item)
+            gp.insertChild(gp.indexOfChild(parent)+1, item)
+        else:
+            sibling = parent.child(idx+1)
+            parent.removeChild(item)
+            sibling.insertChild(0, item)
+        self.highlight_item(item)
+
+    def move_up(self):
+        item = self.currentItem()
+        if item is None:
+            if self.root.childCount() == 0:
+                return
+            item = self.root.child(self.root.childCount()-1)
+            self.highlight_item(item)
+            return
+        parent = item.parent() or self.root
+        idx = parent.indexOfChild(item)
+        if idx == 0:
+            # At end of parent, need to become sibling of parent
+            if parent is self.root:
+                return
+            gp = parent.parent() or self.root
+            parent.removeChild(item)
+            gp.insertChild(gp.indexOfChild(parent), item)
+        else:
+            sibling = parent.child(idx-1)
+            parent.removeChild(item)
+            sibling.addChild(item)
+        self.highlight_item(item)
+
+    def del_items(self):
+        for item in self.selectedItems():
+            p = item.parent() or self.root
+            p.removeChild(item)
+
+    def title_case(self):
+        from calibre.utils.titlecase import titlecase
+        for item in self.selectedItems():
+            t = unicode(item.data(0, Qt.DisplayRole).toString())
+            item.setData(0, Qt.DisplayRole, titlecase(t))
+
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_Left and ev.modifiers() & Qt.CTRL:
+            self.move_left()
+            ev.accept()
+        elif ev.key() == Qt.Key_Right and ev.modifiers() & Qt.CTRL:
+            self.move_right()
+            ev.accept()
+        elif ev.key() == Qt.Key_Up and ev.modifiers() & Qt.CTRL:
+            self.move_up()
+            ev.accept()
+        elif ev.key() == Qt.Key_Down and ev.modifiers() & Qt.CTRL:
+            self.move_down()
+            ev.accept()
+        elif ev.key() in (Qt.Key_Delete, Qt.Key_Backspace):
+            self.del_items()
+            ev.accept()
+        else:
+            return super(TreeWidget, self).keyPressEvent(ev)
+
+    def show_context_menu(self, point):
+        item = self.currentItem()
+        if item is not None:
+            m = QMenu()
+            ci = unicode(item.data(0, Qt.DisplayRole).toString())
+            p = item.parent() or self.invisibleRootItem()
+            idx = p.indexOfChild(item)
+            if idx > 0:
+                m.addAction(QIcon(I('arrow-up.png')), _('Move "%s" up')%ci, self.move_up)
+            if idx + 1 < p.childCount():
+                m.addAction(QIcon(I('arrow-down.png')), _('Move "%s" down')%ci, self.move_down)
+            m.addAction(QIcon(I('trash.png')), _('Remove all selected items'), self.del_items)
+            if item.parent() is not None:
+                m.addAction(QIcon(I('back.png')), _('Unindent "%s"')%ci, self.move_left)
+            if idx > 0:
+                m.addAction(QIcon(I('forward.png')), _('Indent "%s"')%ci, self.move_right)
+            m.addAction(_('Change all selected items to title case'), self.title_case)
+            m.exec_(QCursor.pos())
+# }}}
+
 class TOCView(QWidget): # {{{
 
     add_new_item = pyqtSignal(object, object)
@@ -347,41 +526,44 @@ class TOCView(QWidget): # {{{
         QWidget.__init__(self, parent)
         l = self.l = QGridLayout()
         self.setLayout(l)
-        self.tocw = t = QTreeWidget(self)
-        t.setHeaderLabel(_('Table of Contents'))
-        t.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
-        t.setDragEnabled(True)
-        t.setSelectionMode(t.ExtendedSelection)
-        t.viewport().setAcceptDrops(True)
-        t.setDropIndicatorShown(True)
-        t.setDragDropMode(t.InternalMove)
-        t.setAutoScroll(True)
-        t.setAutoScrollMargin(ICON_SIZE*2)
-        t.setDefaultDropAction(Qt.MoveAction)
-        t.setAutoExpandDelay(1000)
-        t.setAnimated(True)
-        t.setMouseTracking(True)
-        l.addWidget(t, 0, 0, 5, 3)
+        self.tocw = t = TreeWidget(self)
+        l.addWidget(t, 0, 0, 7, 3)
         self.up_button = b = QToolButton(self)
         b.setIcon(QIcon(I('arrow-up.png')))
         b.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         l.addWidget(b, 0, 3)
-        b.setToolTip(_('Move current entry up'))
+        b.setToolTip(_('Move current entry up [Ctrl+Up]'))
         b.clicked.connect(self.move_up)
+
+        self.left_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('back.png')))
+        b.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
+        l.addWidget(b, 2, 3)
+        b.setToolTip(_('Unindent the current entry [Ctrl+Left]'))
+        b.clicked.connect(self.tocw.move_left)
+
         self.del_button = b = QToolButton(self)
         b.setIcon(QIcon(I('trash.png')))
         b.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
-        l.addWidget(b, 2, 3)
+        l.addWidget(b, 3, 3)
         b.setToolTip(_('Remove all selected entries'))
         b.clicked.connect(self.del_items)
+
+        self.left_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('forward.png')))
+        b.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
+        l.addWidget(b, 4, 3)
+        b.setToolTip(_('Unindent the current entry [Ctrl+Left]'))
+        b.clicked.connect(self.tocw.move_right)
+
         self.down_button = b = QToolButton(self)
         b.setIcon(QIcon(I('arrow-down.png')))
         b.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
-        l.addWidget(b, 4, 3)
-        b.setToolTip(_('Move current entry down'))
+        l.addWidget(b, 6, 3)
+        b.setToolTip(_('Move current entry down [Ctrl+Down]'))
         b.clicked.connect(self.move_down)
         self.expand_all_button = b = QPushButton(_('&Expand all'))
-        col = 5
+        col = 7
         l.addWidget(b, col, 0)
         b.clicked.connect(self.tocw.expandAll)
         self.collapse_all_button = b = QPushButton(_('&Collapse all'))
@@ -412,9 +594,7 @@ class TOCView(QWidget): # {{{
         return unicode(item.data(0, Qt.DisplayRole).toString())
 
     def del_items(self):
-        for item in self.tocw.selectedItems():
-            p = item.parent() or self.root
-            p.removeChild(item)
+        self.tocw.del_items()
 
     def delete_current_item(self):
         item = self.tocw.currentItem()
@@ -423,13 +603,8 @@ class TOCView(QWidget): # {{{
             p.removeChild(item)
 
     def iteritems(self, parent=None):
-        if parent is None:
-            parent = self.root
-        for i in xrange(parent.childCount()):
-            child = parent.child(i)
-            yield child
-            for gc in self.iteritems(parent=child):
-                yield gc
+        for item in self.tocw.iteritems(parent=parent):
+            yield item
 
     def flatten_toc(self):
         found = True
@@ -457,54 +632,13 @@ class TOCView(QWidget): # {{{
         self.tocw.setCurrentItem(None)
 
     def highlight_item(self, item):
-        self.tocw.setCurrentItem(item, 0, QItemSelectionModel.ClearAndSelect)
-        self.tocw.scrollToItem(item)
-
-    def move_down(self):
-        item = self.tocw.currentItem()
-        if item is None:
-            if self.root.childCount() == 0:
-                return
-            item = self.root.child(0)
-            self.highlight_item(item)
-            return
-        parent = item.parent() or self.root
-        idx = parent.indexOfChild(item)
-        if idx == parent.childCount() - 1:
-            # At end of parent, need to become sibling of parent
-            if parent is self.root:
-                return
-            gp = parent.parent() or self.root
-            parent.removeChild(item)
-            gp.insertChild(gp.indexOfChild(parent)+1, item)
-        else:
-            sibling = parent.child(idx+1)
-            parent.removeChild(item)
-            sibling.insertChild(0, item)
-        self.highlight_item(item)
+        self.tocw.highlight_item(item)
 
     def move_up(self):
-        item = self.tocw.currentItem()
-        if item is None:
-            if self.root.childCount() == 0:
-                return
-            item = self.root.child(self.root.childCount()-1)
-            self.highlight_item(item)
-            return
-        parent = item.parent() or self.root
-        idx = parent.indexOfChild(item)
-        if idx == 0:
-            # At end of parent, need to become sibling of parent
-            if parent is self.root:
-                return
-            gp = parent.parent() or self.root
-            parent.removeChild(item)
-            gp.insertChild(gp.indexOfChild(parent), item)
-        else:
-            sibling = parent.child(idx-1)
-            parent.removeChild(item)
-            sibling.addChild(item)
-        self.highlight_item(item)
+        self.tocw.move_up()
+
+    def move_down(self):
+        self.tocw.move_down()
 
     def update_status_tip(self, item):
         c = item.data(0, Qt.UserRole).toPyObject()
