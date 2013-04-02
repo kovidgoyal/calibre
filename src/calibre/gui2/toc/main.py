@@ -190,7 +190,7 @@ class ItemView(QFrame): # {{{
         )))
         l.addWidget(b)
 
-        self.fal = b = QPushButton(_('Flatten the ToC'))
+        self.fal = b = QPushButton(_('&Flatten the ToC'))
         b.clicked.connect(self.flatten_toc)
         b.setToolTip(textwrap.fill(_(
             'Flatten the Table of Contents, putting all entries at the top level'
@@ -466,6 +466,11 @@ class TreeWidget(QTreeWidget): # {{{
             sibling.addChild(item)
         self.highlight_item(item)
 
+    def del_items(self):
+        for item in self.selectedItems():
+            p = item.parent() or self.root
+            p.removeChild(item)
+
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_Left and ev.modifiers() & Qt.CTRL:
             self.move_left()
@@ -478,6 +483,9 @@ class TreeWidget(QTreeWidget): # {{{
             ev.accept()
         elif ev.key() == Qt.Key_Down and ev.modifiers() & Qt.CTRL:
             self.move_down()
+            ev.accept()
+        elif ev.key() in (Qt.Key_Delete, Qt.Key_Backspace):
+            self.del_items()
             ev.accept()
         else:
             return super(TreeWidget, self).keyPressEvent(ev)
@@ -559,9 +567,7 @@ class TOCView(QWidget): # {{{
         return unicode(item.data(0, Qt.DisplayRole).toString())
 
     def del_items(self):
-        for item in self.tocw.selectedItems():
-            p = item.parent() or self.root
-            p.removeChild(item)
+        self.tocw.del_items()
 
     def delete_current_item(self):
         item = self.tocw.currentItem()
