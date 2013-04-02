@@ -130,6 +130,18 @@ class PDFWriter(QObject):
     _pass_json_value = pyqtProperty(QString, fget=_pass_json_value_getter,
             fset=_pass_json_value_setter)
 
+    @pyqtSlot(result=unicode)
+    def title(self):
+        return self.doc_title
+
+    @pyqtSlot(result=unicode)
+    def author(self):
+        return self.doc_author
+
+    @pyqtSlot(result=unicode)
+    def section(self):
+        return self.current_section
+
     def __init__(self, opts, log, cover_data=None, toc=None):
         from calibre.gui2 import is_ok_to_use_qt
         if not is_ok_to_use_qt():
@@ -154,6 +166,7 @@ class PDFWriter(QObject):
             self.view.page().mainFrame().setScrollBarPolicy(x,
                     Qt.ScrollBarAlwaysOff)
         self.report_progress = lambda x, y: x
+        self.current_section = ''
 
     def dump(self, items, out_stream, pdf_metadata):
         opts = self.opts
@@ -170,9 +183,13 @@ class PDFWriter(QObject):
                              opts.uncompressed_pdf,
                              mark_links=opts.pdf_mark_links)
         self.footer = opts.pdf_footer_template
-        if self.footer is None and opts.pdf_page_numbers:
+        if self.footer:
+            self.footer = self.footer.strip()
+        if not self.footer and opts.pdf_page_numbers:
             self.footer = '<p style="text-align:center; text-indent: 0">_PAGENUM_</p>'
         self.header = opts.pdf_header_template
+        if self.header:
+            self.header = self.header.strip()
         min_margin = 36
         if self.footer and opts.margin_bottom < min_margin:
             self.log.warn('Bottom margin is too small for footer, increasing it.')
@@ -192,6 +209,8 @@ class PDFWriter(QObject):
         self.doc.set_metadata(title=pdf_metadata.title,
                               author=pdf_metadata.author,
                               tags=pdf_metadata.tags)
+        self.doc_title = pdf_metadata.title
+        self.doc_author = pdf_metadata.author
         self.painter.save()
         try:
             if self.cover_data is not None:
@@ -273,13 +292,34 @@ class PDFWriter(QObject):
                 self.loop.processEvents(self.loop.ExcludeUserInputEvents)
             evaljs('document.getElementById("MathJax_Message").style.display="none";')
 
+    def get_sections(self, anchor_map):
+        sections = {}
+        ci = os.path.abspath(os.path.normcase(self.current_item))
+        if self.toc is not None:
+            for toc in self.toc.flat():
+                path = toc.abspath or None
+                frag = toc.fragment or None
+                if path is None:
+                    continue
+                path = os.path.abspath(os.path.normcase(path))
+                if path == ci:
+                    col = 0
+                    if frag and frag in anchor_map:
+                        col = anchor_map[frag]['column']
+                    if col not in sections:
+                        sections[col] = toc.text or _('Untitled')
+
+        return sections
+
     def do_paged_render(self):
         if self.paged_js is None:
+            import uuid
             from calibre.utils.resources import compiled_coffeescript as cc
             self.paged_js =  cc('ebooks.oeb.display.utils')
             self.paged_js += cc('ebooks.oeb.display.indexing')
             self.paged_js += cc('ebooks.oeb.display.paged')
             self.paged_js += cc('ebooks.oeb.display.mathjax')
+            self.hf_uuid = str(uuid.uuid4()).replace('-', '')
 
         self.view.page().mainFrame().addToJavaScriptWindowObject("py_bridge", self)
         self.view.page().longjs_counter = 0
@@ -302,6 +342,12 @@ class PDFWriter(QObject):
         py_bridge.value = book_indexing.all_links_and_anchors();
         '''%(self.margin_top, 0, self.margin_bottom))
 
+        amap = self.bridge_value
+        if not isinstance(amap, dict):
+            amap = {'links':[], 'anchors':{}} # Some javascript error occurred
+        sections = self.get_sections(amap['anchors'])
+        col = 0
+
         if self.header:
             self.bridge_value = self.header
             evaljs('paged_display.header_template = py_bridge.value')
@@ -309,15 +355,14 @@ class PDFWriter(QObject):
             self.bridge_value = self.footer
             evaljs('paged_display.footer_template = py_bridge.value')
         if self.header or self.footer:
-            evaljs('paged_display.create_header_footer();')
+            evaljs('paged_display.create_header_footer("%s");'%self.hf_uuid)
 
-        amap = self.bridge_value
-        if not isinstance(amap, dict):
-            amap = {'links':[], 'anchors':{}} # Some javascript error occurred
         start_page = self.current_page_num
 
         mf = self.view.page().mainFrame()
         while True:
+            if col in sections:
+                self.current_section = sections[col]
             self.doc.init_page()
             if self.header or self.footer:
                 evaljs('paged_display.update_header_footer(%d)'%self.current_page_num)
@@ -331,8 +376,10 @@ class PDFWriter(QObject):
             evaljs('window.scrollTo(%d, 0); paged_display.position_header_footer();'%nsl[0])
             if self.doc.errors_occurred:
                 break
+            col += 1
 
         if not self.doc.errors_occurred:
             self.doc.add_links(self.current_item, start_page, amap['links'],
                             amap['anchors'])
+
 

@@ -858,7 +858,7 @@ class Amazon(Source):
     # }}}
 
     def download_cover(self, log, result_queue, abort, # {{{
-            title=None, authors=None, identifiers={}, timeout=30):
+            title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
             log.info('No cached cover found, running identify')
