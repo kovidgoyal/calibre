@@ -57,14 +57,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-29 05:21+0000\n"
-"PO-Revision-Date: 2013-03-30 20:07+0000\n"
+"PO-Revision-Date: 2013-04-02 18:24+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-03-31 05:16+0000\n"
+"X-Launchpad-Export-Date: 2013-04-03 05:26+0000\n"
 "X-Generator: Launchpad (build 16546)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -2161,7 +2161,7 @@ msgstr "Communiceer met de Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:416
 msgid "Communicate with the WayteQ and SPC Dickens Readers"
-msgstr ""
+msgstr "Communiceer met de WayteQ en SPC Dickens E-readers"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
@@ -8586,6 +8586,8 @@ msgstr "Wis opgeslagen voorinstelling"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:681
 msgid "The selected saved catalog preset will be deleted. Are you sure?"
 msgstr ""
+"De geselecteerde opgeslagen voorkeursinstelling zal worden verwijderd. Weet "
+"u het zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:706
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:711
@@ -8606,6 +8608,8 @@ msgstr "U dient een naam op te geven"
 msgid ""
 "That saved preset already exists and will be overwritten. Are you sure?"
 msgstr ""
+"Die opgeslagen voorkeursinstelling bestaat al en zal worden overschreven. "
+"Weet u het zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:981
 #, python-format
@@ -8737,6 +8741,8 @@ msgstr "&Recentelijk toegevoegd"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:365
 msgid "Individual descriptions of books with cover thumbs, sorted by author"
 msgstr ""
+"Individuele omschrijvingen van boeken met omslag afbeeldingen, gesorteerd op "
+"autheur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:366
 msgid "&Descriptions"
@@ -8809,10 +8815,13 @@ msgid ""
 "Custom column containing additional content to be merged with Comments "
 "metadata in Descriptions section."
 msgstr ""
+"Persoonlijke kolom met extra inhoud welke moet worden samengevoegd met het "
+"commentaar metadata in de omschrijvingen-sectie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:381
 msgid "Merge additional content before Comments in Descriptions section."
 msgstr ""
+"Voeg extra inhoud toe voor het commentaar in de omschrijvingen-sectie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:382
 msgid "&Before"
@@ -8820,7 +8829,7 @@ msgstr "&Voor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:383
 msgid "Merge additional content after Comments in Descriptions section."
-msgstr ""
+msgstr "Voeg extra inhoud toe na het commentaar in de omschrijvingen-sectie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:384
 msgid "&After"
@@ -8831,6 +8840,8 @@ msgid ""
 "Separate Comments metadata and additional content with a horizontal rule in "
 "Descriptions section."
 msgstr ""
+"Commentaar metadata en extra inhoud scheiden met een horizontale streep in "
+"de omschrijvingen-sectie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:386
 msgid "Include &Separator"
@@ -8859,6 +8870,8 @@ msgstr "E&xtra notitie in bescrhijving:"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:392
 msgid "Custom column source for text to include in Descriptions section."
 msgstr ""
+"Persoonlijke kolom bron voor tekst om toe te voegen in de omschrijvingen-"
+"sectie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:393
 msgid "&Thumb width:"
@@ -10460,6 +10473,9 @@ msgid ""
 "<a href=\"http://manual.calibre-ebook.com/conversion.html#table-of-"
 "contents\">Help with using these options to generate a Table of Contents</a>"
 msgstr ""
+"<a href=\"http://manual.calibre-ebook.com/conversion.html#table-of-"
+"contents\">Hulp bij het gebruik van deze opties om een inhoudsopgave te "
+"genereren (Engelstalig)</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:93
 msgid ""
@@ -10468,10 +10484,16 @@ msgid ""
 "errors\n"
 " caused by automatic generation."
 msgstr ""
+"Deze optie zal zorgen dat calibre een popup geeft met de \"inhoudsopgave "
+"bewerkingen\"-applicatie,\n"
+" welke u de mogelijkheid geeft om de inhoudsopgave handmatig te bewerken, om "
+"fouten te repareren\n"
+" welke zijn ontstaan door de automatische productie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:96
 msgid "&Manually fine-tune the ToC after conversion is completed"
 msgstr ""
+"De inhoudsopgave &handmatige bijschaven nadat de omzetting is afgerond."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:12
 msgid "TXT Input"
@@ -19929,6 +19951,8 @@ msgid ""
 "No matches for %(text)s found in the current file [%(current)s]. Do you want "
 "to search in the %(which)s file [%(next)s]?"
 msgstr ""
+"Geen overeenkomsten voor %(text)s gevonden in het huidige bestand "
+"[%(current)s]. Wilt u zoeken in het %(which)s bestand [%(next)s]?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:195
 msgid "next"
@@ -19969,11 +19993,14 @@ msgid ""
 "of Contents. You can use the wizard buttons to help you create XPath "
 "expressions."
 msgstr ""
+"Specificeer een reeks van XPath uitdrukkingen ter identificatie van de "
+"verschillende niveaus voor de inhoudsopgave. U kan de wizzard knoppen "
+"gebruiken voor hulp bij het maken van XPath uitdrukkingen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:45
 #, python-format
 msgid "Level %s ToC:"
-msgstr ""
+msgstr "Niveaus %s Inhoudsopgave:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:54
 msgid "&Save settings"
@@ -19985,16 +20012,16 @@ msgstr "Instellingen &laden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:67
 msgid "No XPaths"
-msgstr ""
+msgstr "Geen XPaths"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:68
 msgid "No XPaths have been entered"
-msgstr ""
+msgstr "Geen XPaths ingevoerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:107
 #, python-format
 msgid "The XPath expression %s is not valid."
-msgstr ""
+msgstr "De XPaths uitdrukking %s is ongeldig."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:146
 msgid ""
@@ -20020,7 +20047,7 @@ msgstr "Een &nieuw item maken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:161
 msgid "Generate ToC from &major headings"
-msgstr ""
+msgstr "Genereer inhoudsopgave op basis van &belangrijkste koppen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:164
 msgid ""
@@ -20028,10 +20055,13 @@ msgid ""
 "work if the book identifies its headings using HTML heading tags. Uses the "
 "<h1>, <h2> and <h3> tags."
 msgstr ""
+"Genereer een inhoudsopgave op basis van de belangrijkste koppen in het boek. "
+"Dit werkt als het boek de koppen identificeert met behulp van HTML koppen-"
+"tags. Gebruikt de <h1>, <h2> en <h3> tags."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:168
 msgid "Generate ToC from &all headings"
-msgstr ""
+msgstr "Genereer inhoudsopgave op basis van &alle koppen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:171
 msgid ""
@@ -20039,10 +20069,13 @@ msgid ""
 "work if the book identifies its headings using HTML heading tags. Uses the "
 "<h1-6> tags."
 msgstr ""
+"Genereer een inhoudsopgave op basis van alle koppen in het boek. Dit werkt "
+"als het boek de koppen identificeert met behulp van HTML koppen-tags. "
+"Gebruikt de <h1-6> tags."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:176
 msgid "Generate ToC from &links"
-msgstr ""
+msgstr "Genereer inhoudsopgave op basis van &links"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:179
 msgid ""
@@ -20050,22 +20083,26 @@ msgid ""
 "point to destinations that do not exist in the book are ignored. Also "
 "multiple links with the same destination or the same text are ignored."
 msgstr ""
+"Genereer een inhoudsopgave van alle links in het boek. Links welke verwijzen "
+"naar een locatie welke niet in het boek bestaat, worden genegeerd. Ook "
+"meerdere links met dezelfde bestemming of dezelfde tekst worden genegeerd."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:186
 msgid "Generate ToC from &XPath"
-msgstr ""
+msgstr "genereer een inhoudsopgave op basis van &XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:189
 msgid "Generate a Table of Contents from arbitrary XPath expressions."
 msgstr ""
+"Genereer een inhoudsopgave op basis van een willekeurige XPath uitdrukking."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:193
 msgid "Flatten the ToC"
-msgstr ""
+msgstr "Inhoudsopgave plat maken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:196
 msgid "Flatten the Table of Contents, putting all entries at the top level"
-msgstr ""
+msgstr "Maak de inhoudsopgave plat, zet alle items op het hoogste niveau"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:202
 msgid ""
@@ -20121,11 +20158,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:276
 msgid "&Return to welcome screen"
-msgstr ""
+msgstr "&Terug naar welkomstvenster"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:278
 msgid "Go back to the top level view"
-msgstr ""
+msgstr "Ga terug naar de hoofdoverzichts-weergave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:328
 msgid "This entry points to an existing destination"
@@ -20179,11 +20216,11 @@ msgstr "Geen items gevonden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:637
 msgid "No items were found that could be added to the Table of Contents."
-msgstr ""
+msgstr "Geen items gevonden om toe te voegen aan de inhoudsopgave."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:644
 msgid "No links were found that could be added to the Table of Contents."
-msgstr ""
+msgstr "Geen links gevonden om toe te voegen aan de inhoudsopgave."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:661
 #, python-format
@@ -22191,6 +22228,12 @@ msgid ""
 "Default: '%default'\n"
 "Applies to AZW3, ePub, MOBI output formats"
 msgstr ""
+"Gebruik een opgeslagen voorkeursinstelling welke is gemaakt met de GUI "
+"catalogus bouwer.\n"
+"Een voorkeursinstelling specificeert alle instellingen om een catalogus te "
+"maken.\n"
+"Standaard: '%default'\n"
+"Van toepassing op AZW3, ePub, MOBI uitvoer formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:177
 #, python-format
@@ -22219,7 +22262,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:200
 #, python-format
 msgid "Error: Preset \"%s\" not found."
-msgstr ""
+msgstr "Fout: Voorkeursinstelling \"%s\" niet gevonden."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:201
 #, python-format
@@ -23019,6 +23062,9 @@ msgid ""
 "No column named %s found. You must use column labels, not titles. Use "
 "calibredb custom_columns to get a list of labels."
 msgstr ""
+"Geen kolom met de naam %s gevonden. U moet gebruik maken van de kolom "
+"labels, niet de titels. Gebruik calibredb custom_columns om een lijst van "
+"labels te krijgen."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:964
 msgid ""
