@@ -40,6 +40,7 @@ recipes/.gitignore
 recipes/README.md
 recipes/icon_checker.py
 recipes/readme_updater.py
+recipes/garfield.recipe
 recipes/katalog_egazeciarz.recipe
 recipes/tv_axnscifi.recipe
 recipes/tv_comedycentral.recipe
@@ -63,6 +64,7 @@ recipes/tv_tvppolonia.recipe
 recipes/tv_tvpuls.recipe
 recipes/tv_viasathistory.recipe
 recipes/icons/katalog_egazeciarz.png
+recipes/icons/garfield.png
 recipes/icons/tv_axnscifi.png
 recipes/icons/tv_comedycentral.png
 recipes/icons/tv_discoveryscience.png
