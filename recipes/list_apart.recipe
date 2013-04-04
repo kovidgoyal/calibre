@@ -1,33 +1,23 @@
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# vim:fileencoding=UTF-8
+from __future__ import unicode_literals
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class AListApart (BasicNewsRecipe):
-   __author__ = u'Marc Busqué <marc@lamarciana.com>'
+   __author__ = 'Marc Busqué <marc@lamarciana.com>'
    __url__ = 'http://www.lamarciana.com'
-   __version__ = '1.0'
+   __version__ = '2.0'
    __license__   = 'GPL v3'
-   __copyright__ = u'2012, Marc Busqué <marc@lamarciana.com>'
+   __copyright__ = '2012, Marc Busqué <marc@lamarciana.com>'
    title = u'A List Apart'
-   description = u'A List Apart Magazine (ISSN: 1534-0295) explores the design, development, and meaning of web content, with a special focus on web standards and best practices.'
+   description = u'A List Apart Magazine (ISSN: 1534-0295) explores the design, development, and meaning of web content, with a special focus on web standards and best practices. This recipe retrieve articles and columns.'
    language = 'en'
    tags = 'web development, software'
    oldest_article = 120
    remove_empty_feeds = True
-   no_stylesheets = True
    encoding = 'utf8'
    cover_url = u'http://alistapart.com/pix/alalogo.gif'
-   keep_only_tags = [
-         dict(name='div', attrs={'id': 'content'})
-         ]
-   remove_tags = [
-         dict(name='ul', attrs={'id': 'metastuff'}),
-         dict(name='div', attrs={'class': 'discuss'}),
-         dict(name='div', attrs={'class': 'discuss'}),
-         dict(name='div', attrs={'id': 'learnmore'}),
-         ]
-   remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding', 'colspan', 'valign', 'vspace', 'hspace', 'alt', 'width', 'height']
-   extra_css = u'img {max-width: 100%; display: block; margin: auto;} #authorbio img {float: left; margin-right: 2%;}'
+   extra_css = u'img {max-width: 100%; display: block; margin: auto;}'
 
    feeds = [
-         (u'A List Apart', u'http://www.alistapart.com/site/rss'),
+         (u'A List Apart', u'http://feeds.feedburner.com/alistapart/abridged'),
          ]
