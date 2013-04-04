@@ -79,7 +79,7 @@ author_name_copywords = ('Corporation', 'Company', 'Co.', 'Agency', 'Council',
 # By default, calibre splits a string containing multiple author names on
 # ampersands and the words "and" and "with". You can customize the splitting
 # by changing the regular expression below. Strings are split on whatever the
-# specified regular expression matches.
+# specified regular expression matches, in addition to ampersands.
 # Default: r'(?i),?\s+(and|with)\s+'
 authors_split_regex = r'(?i),?\s+(and|with)\s+'
 

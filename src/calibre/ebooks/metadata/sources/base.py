@@ -31,7 +31,7 @@ msprefs.defaults['find_first_edition_date'] = False
 # Google covers are often poor quality (scans/errors) but they have high
 # resolution, so they trump covers from better sources. So make sure they
 # are only used if no other covers are found.
-msprefs.defaults['cover_priorities'] = {'Google':2}
+msprefs.defaults['cover_priorities'] = {'Google':2, 'Google Images':2}
 
 def create_log(ostream=None):
     from calibre.utils.logging import ThreadSafeLog, FileStream
@@ -221,6 +221,9 @@ class Source(Plugin):
     #: A string that is displayed at the top of the config widget for this
     #: plugin
     config_help_message = None
+
+    #: If True this source can return multiple covers for a given query
+    can_get_multiple_covers = False
 
 
     def __init__(self, *args, **kwargs):
@@ -522,7 +525,7 @@ class Source(Plugin):
         return None
 
     def download_cover(self, log, result_queue, abort,
-            title=None, authors=None, identifiers={}, timeout=30):
+            title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
         '''
         Download a cover and put it into result_queue. The parameters all have
         the same meaning as for :meth:`identify`. Put (self, cover_data) into
@@ -531,6 +534,9 @@ class Source(Plugin):
         This method should use cached cover URLs for efficiency whenever
         possible. When cached data is not present, most plugins simply call
         identify and use its results.
+
+        If the parameter get_best_cover is True and this plugin can get
+        multiple covers, it should only get the "best" one.
         '''
         pass
 
