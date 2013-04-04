@@ -1,30 +1,30 @@
+# vim:fileencoding=UTF-8
+from __future__ import unicode_literals
 __license__   = 'GPL v3'
-__copyright__ = '2011, Eddie Lau'
+__copyright__ = '2011-2013, Eddie Lau'
 
 # data source: normal, mobile
 __Source__ = 'mobile'
 # please replace the following "True" with "False". (Default: True)
 __MakePeriodical__ = True
 # Turn below to True if your device supports display of CJK titles (Default: False)
-__UseChineseTitle__ = False
+__UseChineseTitle__ = True
 # Set it to False if you want to skip images (Default: True)
 __KeepImages__ = True
 # Set it to True if you want to include a summary in Kindle's article view (Default: False)
-__IncludeSummary__ = False
+__IncludeSummary__ = True
 # Set it to True if you want thumbnail images in Kindle's article view (Default: True)
 __IncludeThumbnails__ = True
 
 
 '''
 Change Log:
+2013/03/31 -- fix cover retrieval code and heading size, and remove &nbsp; in summary
 2011/12/29 -- first version done
-TODO:
-* use alternative source at http://m.singtao.com/index.php
 '''
 
 from calibre.utils.date import now as nowf
 import os, datetime, re
-from datetime import date
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from contextlib import nested
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
@@ -41,7 +41,7 @@ class STHKRecipe(BasicNewsRecipe):
         title   = 'Sing Tao Daily - Hong Kong'
     description = 'Hong Kong Chinese Newspaper (http://singtao.com)'
     category    = 'Chinese, News, Hong Kong'
-    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; max-height:90%;} td[class=caption] {font-size:50%;} td[class=bodyhead]{font-weight:bold; font-size:150%;} td[class=stmobheadline]{font-weight:bold; font-size:150%;}'
+    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; max-height:90%;} td[class=caption] {font-size:50%;} td[class=bodyhead]{font-weight:bold; font-size:150%;} td[class=stmobheadline]{font-weight:bold; font-size:200%;}'
     masthead_url = 'http://upload.wikimedia.org/wikipedia/en/d/dd/Singtao-usa.png'
     if __Source__ == 'normal':
         keep_only_tags = [dict(name='td', attrs={'class':['bodyhead','bodytext']})]
@@ -96,17 +96,13 @@ class STHKRecipe(BasicNewsRecipe):
         return self.get_dtlocal().strftime("%d")
 
     def get_cover_url(self):
-        #cover = 'http://singtao.com/media/a/a(2660).jpg'  # for 2011/12/29
-        base = 2660
-        todaydate = date(int(self.get_fetchyear()), int(self.get_fetchmonth()), int(self.get_fetchday()))
-        diff = todaydate - date(2011, 12, 29)
-        base = base + int(diff.total_seconds()/(3600*24))
-        cover = 'http://singtao.com/media/a/a(' + str(base) +').jpg'
+        soup = self.index_to_soup('http://m.singtao.com/')
+        cover = soup.find(attrs={'class':'special'}).get('src', False)
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
         except:
-            cover = 'http://singtao.com/images/stlogo.gif'
+            cover = None
         return cover
 
     def parse_index(self):
@@ -289,11 +285,11 @@ class STHKRecipe(BasicNewsRecipe):
                             # the text may or may not be enclosed in <p></p> tag
                             paras = articlebody.findAll('p')
                             if not paras:
-                            	paras = articlebody
+                                paras = articlebody
                             textFound = False
                             for p in paras:
                                 if not textFound:
-                                    summary_candidate = self.tag_to_string(p).strip()
+                                    summary_candidate = self.tag_to_string(p).strip().replace('&nbsp;', '')
                                     if len(summary_candidate) > 0:
                                         summary_candidate = summary_candidate.replace(u'(\u661f\u5cf6\u65e5\u5831\u5831\u9053)', '', 1)
                                         article.summary = article.text_summary = summary_candidate
@@ -486,6 +482,7 @@ class STHKRecipe(BasicNewsRecipe):
 
         with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
             opf.render(opf_file, ncx_file)
+
 
 
 
