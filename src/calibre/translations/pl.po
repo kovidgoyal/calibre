@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-03-29 05:21+0000\n"
-"PO-Revision-Date: 2013-03-28 17:19+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2013-04-03 14:03+0000\n"
+"Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-03-30 05:19+0000\n"
+"X-Launchpad-Export-Date: 2013-04-04 05:25+0000\n"
 "X-Generator: Launchpad (build 16546)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
@@ -10319,6 +10319,8 @@ msgid ""
 "<a href=\"http://manual.calibre-ebook.com/conversion.html#table-of-"
 "contents\">Help with using these options to generate a Table of Contents</a>"
 msgstr ""
+"<a href=\"http://manual.calibre-ebook.com/conversion.html#table-of-"
+"contents\">Pomoc opcji generowania spisu treści</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:93
 msgid ""
@@ -10327,10 +10329,13 @@ msgid ""
 "errors\n"
 " caused by automatic generation."
 msgstr ""
+"Ta opcja wyświetli edytor spisu treści, który pozwala na ręczne poprawienie\n"
+"spisu treści oraz usunięcie błędów powstałych w czasie automatycznego "
+"generowania go."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:96
 msgid "&Manually fine-tune the ToC after conversion is completed"
-msgstr ""
+msgstr "Popraw samodzielnie spis treści po wykonaniu konwersji"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:12
 msgid "TXT Input"
@@ -11204,12 +11209,12 @@ msgstr "&Etykiety do ustawienia dla stworzonych książek:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:50
 #, python-format
 msgid "Next [%s]"
-msgstr ""
+msgstr "Następny [%s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:52
 #, python-format
 msgid "Previous [%s]"
-msgstr ""
+msgstr "Poprzedni [%s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:71
 msgid "Fit &cover within view"
@@ -19697,15 +19702,15 @@ msgstr "Wybierz miejsce docelowe dla pozycji spisu treści"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:130
 msgid "Search for text..."
-msgstr ""
+msgstr "Szukaj tekstu..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:132
 msgid "Find &next"
-msgstr ""
+msgstr "Znajdź &następny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:135
 msgid "Find &previous"
-msgstr ""
+msgstr "Znajdź &poprzedni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:143
 msgid ""
@@ -19735,12 +19740,12 @@ msgstr "Aktualnie wybrane miejsce docelowe:"
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:185
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:196
 msgid "No match found"
-msgstr ""
+msgstr "Nie znaleziono"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:186
 #, python-format
 msgid "No match found for: %s"
-msgstr ""
+msgstr "Nie znaleziono: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:192
 #, python-format
@@ -19748,14 +19753,16 @@ msgid ""
 "No matches for %(text)s found in the current file [%(current)s]. Do you want "
 "to search in the %(which)s file [%(next)s]?"
 msgstr ""
+"W bieżącym pliku [%(current)s] nie znaleziono tekstu %(text)s. Czy chcesz "
+"przeszukać plik %(which)s [%(next)s]?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:195
 msgid "next"
-msgstr ""
+msgstr "następny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:195
 msgid "previous"
-msgstr ""
+msgstr "poprzedni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:223
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:281
@@ -19892,11 +19899,12 @@ msgstr "Utwórz spis treści z bezwzględnych wyrażeń XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:193
 msgid "Flatten the ToC"
-msgstr ""
+msgstr "Spłaszcz spis treści"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:196
 msgid "Flatten the Table of Contents, putting all entries at the top level"
 msgstr ""
+"Spłaszcz spis treści umieszczając wszystkie pozycje na jednym poziomie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:202
 msgid ""
@@ -22603,7 +22611,7 @@ msgstr "Musisz podać pole albo plik opf"
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:877
 #, python-format
 msgid "No book with id: %s in the database"
-msgstr ""
+msgstr "W bazie nie ma książki o id %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:602
 #, python-format
@@ -22820,7 +22828,7 @@ msgstr "Pokaż szczegóły dla każdej kolumny."
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:950
 #, python-format
 msgid "You will lose all data in the column: %s. Are you sure (y/n)? "
-msgstr ""
+msgstr "Zostaną utraconne dane z kolumny %s. Jesteś pewien (y/n)? "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:952
 msgid "y"
@@ -22832,6 +22840,8 @@ msgid ""
 "No column named %s found. You must use column labels, not titles. Use "
 "calibredb custom_columns to get a list of labels."
 msgstr ""
+"Nie znaleziono kolumny o nazwie %s. Należy użyć nazw kolumn, a nie tytułów. "
+"Użyj calibredb custom_columns aby otrzymać listę nazw."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:964
 msgid ""
@@ -24812,7 +24822,7 @@ msgstr "hiszpański (Argentyna)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:177
 msgid "Spanish (Costa Rica)"
-msgstr "Hiszpański (Costa Rica)"
+msgstr "hiszpański (Costa Rica)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:178
 msgid "Spanish (Mexico)"
