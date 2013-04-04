@@ -8,6 +8,7 @@ import datetime
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
+from collections import OrderedDict
 
 class FinancialTimes(BasicNewsRecipe):
     title                 = 'Financial Times (UK)'
@@ -105,29 +106,28 @@ class FinancialTimes(BasicNewsRecipe):
         return articles
 
     def parse_index(self):
-        feeds = []
+        feeds = OrderedDict()
         soup = self.index_to_soup(self.INDEX)
-        dates= self.tag_to_string(soup.find('div', attrs={'class':'btm-links'}).find('div'))
-        self.timefmt = ' [%s]'%dates
-        wide = soup.find('div',attrs={'class':'wide'})
-        if not wide:
-           return feeds
-        allsections = wide.findAll(attrs={'class':lambda x: x and 'footwell' in x.split()})
-        if not allsections:
-           return feeds
-        count = 0
-        for item in allsections:
-            count = count + 1
-            if self.test and count > 2:
-               return feeds
-            fitem = item.h3
-            if not fitem:
-               fitem = item.h4
-            ftitle = self.tag_to_string(fitem)
-            self.report_progress(0, _('Fetching feed')+' %s...'%(ftitle))
-            feedarts = self.get_artlinks(item.ul)
-            feeds.append((ftitle,feedarts))
-        return feeds
+        #dates= self.tag_to_string(soup.find('div', attrs={'class':'btm-links'}).find('div'))
+        #self.timefmt = ' [%s]'%dates
+
+        for column in soup.findAll('div', attrs = {'class':'feedBoxes clearfix'}):
+            for section in column. findAll('div', attrs = {'class':'feedBox'}):
+                section_title=self.tag_to_string(section.find('h4'))
+                for article in section.ul.findAll('li'):
+                    articles = []
+                    title=self.tag_to_string(article.a)
+                    url=article.a['href']
+                    articles.append({'title':title, 'url':url, 'description':'', 'date':''})
+
+                    if articles:
+                        if section_title not in feeds:
+                            feeds[section_title] = []
+                        feeds[section_title] += articles
+
+
+        ans = [(key, val) for key, val in feeds.iteritems()]
+        return ans
 
     def preprocess_html(self, soup):
         items = ['promo-box','promo-title',
@@ -177,6 +177,3 @@ class FinancialTimes(BasicNewsRecipe):
         tfile.close()
         self.temp_files.append(tfile)
         return tfile.name
-
-    def cleanup(self):
-        self.browser.open('https://registration.ft.com/registration/login/logout?location=')
