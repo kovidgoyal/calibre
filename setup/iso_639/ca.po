@@ -12,13 +12,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-03-27 13:07+0000\n"
+"PO-Revision-Date: 2013-03-28 13:01+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-03-28 04:41+0000\n"
+"X-Launchpad-Export-Date: 2013-03-29 04:36+0000\n"
 "X-Generator: Launchpad (build 16546)\n"
 "Language: ca\n"
 
@@ -1884,7 +1884,7 @@ msgstr "Awera"
 
 #. name for aws
 msgid "Awyu; South"
-msgstr "Awyu meridional"
+msgstr "Awyu; meridional"
 
 #. name for awt
 msgid "Araweté"
@@ -1892,7 +1892,7 @@ msgstr "Araweté"
 
 #. name for awu
 msgid "Awyu; Central"
-msgstr "Awyu central"
+msgstr "Awyu; Central"
 
 #. name for awv
 msgid "Awyu; Jair"
@@ -4052,7 +4052,7 @@ msgstr "Buginès"
 
 #. name for buh
 msgid "Bunu; Younuo"
-msgstr "Bunu; Younuo"
+msgstr "Bunu; Younou"
 
 #. name for bui
 msgid "Bongili"
@@ -4308,7 +4308,7 @@ msgstr "Bwa"
 
 #. name for bwx
 msgid "Bunu; Bu-Nao"
-msgstr "Bunu; Bu-Nao"
+msgstr "Bunu; Bu Nao"
 
 #. name for bwy
 msgid "Bwamu; Cwi"
@@ -19804,7 +19804,7 @@ msgstr "Minoà"
 
 #. name for omo
 msgid "Utarmbung"
-msgstr ""
+msgstr "Utarmbung"
 
 #. name for omp
 msgid "Manipuri; Old"
@@ -20344,7 +20344,7 @@ msgstr "Pear"
 
 #. name for pcc
 msgid "Bouyei"
-msgstr ""
+msgstr "Buyí"
 
 #. name for pcd
 msgid "Picard"
@@ -20456,11 +20456,11 @@ msgstr "Pengo"
 
 #. name for peh
 msgid "Bonan"
-msgstr ""
+msgstr "Bonan"
 
 #. name for pei
 msgid "Chichimeca-Jonaz"
-msgstr ""
+msgstr "Chichimec"
 
 #. name for pej
 msgid "Pomo; Northern"
@@ -20484,7 +20484,7 @@ msgstr "Persa Antic"
 
 #. name for pep
 msgid "Kunja"
-msgstr ""
+msgstr "Kunja"
 
 #. name for peq
 msgid "Pomo; Southern"
@@ -20536,7 +20536,7 @@ msgstr "Pagi"
 
 #. name for pgk
 msgid "Rerep"
-msgstr ""
+msgstr "Rerep"
 
 #. name for pgl
 msgid "Irish; Primitive"
@@ -20624,7 +20624,7 @@ msgstr "Pima Baix"
 
 #. name for pib
 msgid "Yine"
-msgstr ""
+msgstr "Yine"
 
 #. name for pic
 msgid "Pinji"
@@ -20660,7 +20660,7 @@ msgstr "Pijao"
 
 #. name for pil
 msgid "Yom"
-msgstr ""
+msgstr "Yom"
 
 #. name for pim
 msgid "Powhatan"
@@ -20760,7 +20760,7 @@ msgstr "Llenguatge de signes pakistaní"
 
 #. name for pkt
 msgid "Maleng"
-msgstr ""
+msgstr "Maleng"
 
 #. name for pku
 msgid "Paku"
@@ -20768,7 +20768,7 @@ msgstr "Paku"
 
 #. name for pla
 msgid "Miani"
-msgstr ""
+msgstr "Miani"
 
 #. name for plb
 msgid "Polonombauk"
@@ -20804,7 +20804,7 @@ msgstr "Polci"
 
 #. name for plk
 msgid "Shina; Kohistani"
-msgstr ""
+msgstr "Shina; Kohistani"
 
 #. name for pll
 msgid "Palaung; Shwe"
@@ -20852,7 +20852,7 @@ msgstr "Palawà; Brooke"
 
 #. name for ply
 msgid "Bolyu"
-msgstr ""
+msgstr "Bolyu"
 
 #. name for plz
 msgid "Paluan"
@@ -20896,7 +20896,7 @@ msgstr "Algonquí Carolina"
 
 #. name for pml
 msgid "Lingua Franca"
-msgstr ""
+msgstr "Aljamia"
 
 #. name for pmm
 msgid "Pomo"
@@ -20924,7 +20924,7 @@ msgstr "Piemontès"
 
 #. name for pmt
 msgid "Tuamotuan"
-msgstr ""
+msgstr "Tuamotu"
 
 #. name for pmu
 msgid "Panjabi; Mirpur"
@@ -20972,7 +20972,7 @@ msgstr "Penrhyn"
 
 #. name for pni
 msgid "Aoheng"
-msgstr ""
+msgstr "Aoheng"
 
 #. name for pnm
 msgid "Punan Batu 1"
@@ -21008,7 +21008,7 @@ msgstr "Pontic"
 
 #. name for pnu
 msgid "Bunu; Jiongnai"
-msgstr ""
+msgstr "Bunu; Jiongnai"
 
 #. name for pnv
 msgid "Pinigura"
@@ -21100,7 +21100,7 @@ msgstr "Potavatomi"
 
 #. name for pov
 msgid "Crioulo; Upper Guinea"
-msgstr ""
+msgstr "Crioll guineà"
 
 #. name for pow
 msgid "Popoloca; San Felipe Otlaltepec"
@@ -21128,7 +21128,7 @@ msgstr "Paipai"
 
 #. name for ppk
 msgid "Uma"
-msgstr ""
+msgstr "Uma"
 
 #. name for ppl
 msgid "Pipil"
@@ -21144,7 +21144,7 @@ msgstr "Papapana"
 
 #. name for ppo
 msgid "Folopa"
-msgstr ""
+msgstr "Folopa"
 
 #. name for ppp
 msgid "Pelende"
@@ -21180,7 +21180,7 @@ msgstr "Malecite-Passamaquoddy"
 
 #. name for prb
 msgid "Lua'"
-msgstr ""
+msgstr "Lua"
 
 #. name for prc
 msgid "Parachi"
@@ -21220,7 +21220,7 @@ msgstr "Llenguatge de signes peruà"
 
 #. name for prm
 msgid "Kibiri"
-msgstr ""
+msgstr "Kibiri"
 
 #. name for prn
 msgid "Prasuni"
@@ -21272,7 +21272,7 @@ msgstr "Llenguatge de signes de Providencia"
 
 #. name for psa
 msgid "Awyu; Asue"
-msgstr ""
+msgstr "Awyu; Asue"
 
 #. name for psc
 msgid "Persian Sign Language"
@@ -21328,7 +21328,7 @@ msgstr "Llenguatge de signes portuguès"
 
 #. name for pss
 msgid "Kaulong"
-msgstr ""
+msgstr "Kaulong"
 
 #. name for pst
 msgid "Pashto; Central"
@@ -21376,11 +21376,11 @@ msgstr "Pìamatsina"
 
 #. name for ptt
 msgid "Enrekang"
-msgstr ""
+msgstr "Enrekang"
 
 #. name for ptu
 msgid "Bambam"
-msgstr ""
+msgstr "Bambam"
 
 #. name for ptv
 msgid "Port Vato"
@@ -29584,7 +29584,7 @@ msgstr ""
 
 #. name for yir
 msgid "Awyu; North"
-msgstr ""
+msgstr "Awyu; Septentrional"
 
 #. name for yis
 msgid "Yis"

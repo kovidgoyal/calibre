@@ -93,7 +93,7 @@ class FinancialTimes(BasicNewsRecipe):
             try:
                 urlverified = self.browser.open_novisit(url).geturl() # resolve redirect.
             except:
-                continue 
+                continue
             title = self.tag_to_string(item)
             date = strftime(self.timefmt)
             articles.append({
@@ -123,7 +123,7 @@ class FinancialTimes(BasicNewsRecipe):
             fitem = item.h3
             if not fitem:
                fitem = item.h4
-            ftitle = self.tag_to_string(fitem)   
+            ftitle = self.tag_to_string(fitem)
             self.report_progress(0, _('Fetching feed')+' %s...'%(ftitle))
             feedarts = self.get_artlinks(item.ul)
             feeds.append((ftitle,feedarts))
@@ -174,7 +174,7 @@ class FinancialTimes(BasicNewsRecipe):
             count += 1
         tfile = PersistentTemporaryFile('_fa.html')
         tfile.write(html)
-        tfile.close()        
+        tfile.close()
         self.temp_files.append(tfile)
         return tfile.name
 
