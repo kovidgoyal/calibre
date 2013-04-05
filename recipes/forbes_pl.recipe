@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+
+__license__ = 'GPL v3'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import datetime
+import re
+
+class forbes_pl(BasicNewsRecipe):
+    title = u'Forbes.pl'
+    __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>'
+    language = 'pl'
+    description = u'Biznes, finanse, gospodarka, strategie, wiadomości gospodarcze, analizy finasowe i strategiczne.'
+    oldest_article = 1
+    index = 'http://www.forbes.pl'
+    cover_url = 'http://www.forbes.pl/resources/front/images/logo.png'
+    max_articles_per_feed = 100
+    extra_css = '.Block-Photo {float:left; max-width: 300px; margin-right: 5px;}'
+    preprocess_regexps = [(re.compile(ur'<p>(<strong>)?(Czytaj|Zobacz) (też|także):.*?</p>', re.DOTALL), lambda match: ''), (re.compile(ur'<strong>Zobacz:.*?</strong>', re.DOTALL), lambda match: '')]
+    remove_javascript = True
+    no_stylesheets = True
+    now = datetime.datetime.now()
+    yesterday = now - datetime.timedelta(hours=24)
+    yesterday = yesterday.strftime("%d.%m.%Y %H:%M:%S")
+    pages_count = 4
+    keep_only_tags = [dict(attrs={'class':['Block-Node Content-Article ', 'Block-Node Content-Article piano-closed']})]
+    remove_tags = [dict(attrs={'class':['Keywords Styled', 'twitter-share-button', 'Block-List-Related Block-List']})]
+
+    feeds = [(u'Wszystkie', 'http://www.forbes.pl/rss')]
+
+    '''def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        return soup
+
+
+    def append_page(self, soup, appendtag):
+        cleanup = False
+        nexturl = appendtag.find('a', attrs={'class':'next'})
+        if nexturl:
+            cleanup = True
+        while nexturl:
+            soup2 = self.index_to_soup(self.index + nexturl['href'])
+            nexturl = soup2.find('a', attrs={'class':'next'})
+            pagetext = soup2.findAll(id='article-body-wrapper')
+            if not pagetext:
+                pagetext = soup2.findAll(attrs={'class':'Article-Entry Styled'})
+            for comment in pagetext.findAll(text=lambda text:isinstance(text, Comment)):
+                comment.extract()
+            pos = len(appendtag.contents)
+            appendtag.insert(pos, pagetext)
+        if cleanup:
+            for r in appendtag.findAll(attrs={'class':'paginator'}):
+                r.extract()'''
