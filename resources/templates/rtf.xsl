@@ -357,7 +357,7 @@
        <xsl:apply-templates/>
    </xsl:template>
 
-       <xsl:template match="rtf:table">
+    <xsl:template match="rtf:table">
         <xsl:element name="table">
             <xsl:attribute name="id">
                 <xsl:value-of select="generate-id(.)"/>
@@ -390,7 +390,6 @@
 
 
     <xsl:output method = "xml"/>
-
     <xsl:key name="style-types" match="rtf:paragraph-definition" use="@style-number"/>
 
 
@@ -415,13 +414,11 @@
     </xsl:template>
 
     <xsl:template match="rtf:page-break">
-        <xsl:element name="br">
-            <xsl:attribute name="style">page-break-after:always</xsl:attribute>
-        </xsl:element>
+        <br style = "page-break-after:always"/>
     </xsl:template>
     
     <xsl:template match="rtf:hardline-break">
-        <xsl:element name="br"/>
+        <br/>
     </xsl:template>
 
     <xsl:template match="rtf:rtf-definition|rtf:font-table|rtf:color-table|rtf:style-table|rtf:page-definition|rtf:list-table|rtf:override-table|rtf:override-list|rtf:list-text"/>
@@ -445,7 +442,7 @@
     </xsl:template>
 
     <xsl:template match = "rtf:field-block">
-      <xsl:apply-templates/>
+        <xsl:apply-templates/>
     </xsl:template>
 
     <xsl:template match = "rtf:field[@type='hyperlink']">
@@ -472,9 +469,7 @@
     </xsl:template>
 
     <xsl:template match="rtf:pict">
-        <xsl:element name="img">
-            <xsl:attribute name="src"><xsl:value-of select="@num" /></xsl:attribute>
-        </xsl:element>
+        <img src = "{@num}"/>
     </xsl:template>
 
     <xsl:template match="*">
