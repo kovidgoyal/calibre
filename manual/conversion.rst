@@ -434,6 +434,18 @@ a number of older formats either do not support a metadata based Table of Conten
 documents do not have one. In these cases, the options in this section can help you automatically
 generate a Table of Contents in the converted ebook, based on the actual content in the input document.
 
+.. note:: Using these options can be a little challenging to get exactly right.
+    If you prefer creating/editing the Table of Contents by hand, convert to
+    the EPUB or AZW3 formats and select the checkbox at the bottom of the
+    screen that says 
+    :guilabel:`Manually fine-tune the Table of Contents after conversion`. 
+    This will launch the ToC Editor tool after the conversion. It allows you to
+    create entries in the Table of Contents by simply clicking the place in the
+    book where you want the entry to point. You can also use the ToC Editor by
+    itself, without doing a conversion. Go to :guilabel:`Preferences->Toolbars`
+    and add the ToC Editor to the main toolbar. Then just select the book you
+    want to edit and click the ToC Editor button.
+
 The first option is :guilabel:`Force use of auto-generated Table of Contents`. By checking this option
 you can have |app| override any Table of Contents found in the metadata of the input document with the
 auto generated one. 
@@ -456,7 +468,7 @@ For example, to remove all entries titles "Next" or "Previous" use::
 
     Next|Previous
 
-Finally, the :guilabel:`Level 1,2,3 TOC` options allow you to create a sophisticated multi-level Table of Contents.
+The :guilabel:`Level 1,2,3 TOC` options allow you to create a sophisticated multi-level Table of Contents.
 They are XPath expressions that match tags in the intermediate XHTML produced by the conversion pipeline. See the 
 :ref:`conversion-introduction` for how to get access to this XHTML. Also read the :ref:`xpath-tutorial`, to learn
 how to construct XPath expressions. Next to each option is a button that launches a wizard to help with the creation
@@ -738,8 +750,61 @@ If this property is detected by |app|, the following custom properties are recog
     opf.series
     opf.seriesindex
 
-In addition to this, you can specify the picture to use as the cover by naming it ``opf.cover`` (right click, Picture->Options->Name) in the ODT. If no picture with this name is found, the 'smart' method is used.
-As the cover detection might result in double covers in certain output formats, the process will remove the paragraph (only if the only content is the cover!) from the document. But this works only with the named picture!
+In addition to this, you can specify the picture to use as the cover by naming
+it ``opf.cover`` (right click, Picture->Options->Name) in the ODT. If no
+picture with this name is found, the 'smart' method is used.  As the cover
+detection might result in double covers in certain output formats, the process
+will remove the paragraph (only if the only content is the cover!) from the
+document. But this works only with the named picture!
 
 To disable cover detection you can set the custom property ``opf.nocover`` ('Yes or No' type) to Yes in advanced mode.
+
+Converting to PDF
+~~~~~~~~~~~~~~~~~~~
+
+The first, most important, setting to decide on when converting to PDF is the page
+size. By default, |app| uses a page size defined by the current
+:guilabel:`Output profile`. So if your output profile is set to Kindle, |app|
+will create a PDF with page size suitable for viewing on the small kindle
+screen. However, if you view this PDF file on a computer screen, then it will
+appear to have too large fonts. To create "normal" sized PDFs, use the override
+page size option under :guilabel:`PDF Output` in the conversion dialog.
+
+You can insert arbitrary headers and footers on each page of the PDF by
+specifying header and footer templates. Templates are just snippets of HTML
+code that get rendered in the header and footer locations. For example, to
+display page numbers centered at the bottom of every page, in green, use the following
+footer template::
+
+    <p style="text-align:center; color:green">Page _PAGENUM_</p>
+
+|app| will automatically replace _PAGENUM_ with the current page number. You
+can even put different content on even and odd pages, for example the following
+header template will show the title on odd pages and the author on even pages::
+
+    <p style="text-align:right"><span class="even_page">_AUTHOR_</span><span class="odd_page"><i>_TITLE_</i></span></p>
+
+|app| will automatically replace _TITLE_ and _AUTHOR_ with the title and author
+of the document being converted.  You can also display text at the left and
+right edges and change the font size, as demonstrated with this header
+template::
+
+    <div style="font-size:x-small"><p style="float:left">_TITLE_</p><p style="float:right;"><i>_AUTHOR_</i></p></div>
+
+This will display the title at the left and the author at the right, in a font
+size smaller than the main text.
+
+Finally, you can also use the current section in templates, as shown below::
+
+    <p style="text-align:right">_SECTION_</p>
+
+_SECTION_ is replaced by whatever the name of the current section is. These
+names are taken from the metadata Table of Contents in the document (the PDF
+Outline). If the document has no table of contents then it will be replaced by
+empty text. If a single PDF page has multiple sections, the first section on
+the page will be used.
+
+.. note:: When adding headers and footers make sure you set the page top and
+    bottom margins to large enough values, under the Page Setup section of the
+    conversion dialog.
 

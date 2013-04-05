@@ -26,7 +26,7 @@ class PluginWidget(QWidget,Ui_Form):
 
     TITLE = _('E-book options')
     HELP  = _('Options specific to')+' AZW3/EPUB/MOBI '+_('output')
-    DEBUG = True
+    DEBUG = False
 
     # Output synced to the connected device?
     sync_enabled = True
@@ -38,6 +38,7 @@ class PluginWidget(QWidget,Ui_Form):
         QWidget.__init__(self, parent)
         self.setupUi(self)
         self._initControlArrays()
+        self.blocking_all_signals = None
 
     def _initControlArrays(self):
         # Default values for controls
@@ -110,6 +111,16 @@ class PluginWidget(QWidget,Ui_Form):
                              ['table_widget','table_widget'])
 
         self.OPTION_FIELDS = option_fields
+
+    def block_all_signals(self, bool):
+        if self.DEBUG:
+            print("block_all_signals: %s" % bool)
+        self.blocking_all_signals = bool
+        for opt in self.OPTION_FIELDS:
+            c_name, c_def, c_type = opt
+            if c_name in ['exclusion_rules_tw', 'prefix_rules_tw']:
+                continue
+            getattr(self, c_name).blockSignals(bool)
 
     def construct_tw_opts_object(self, c_name, opt_value, opts_dict):
         '''
@@ -319,6 +330,9 @@ class PluginWidget(QWidget,Ui_Form):
         self.populate_combo_boxes()
 
         # Update dialog fields from stored options, validating options for combo boxes
+        # Hook all change events to self.settings_changed
+
+        self.blocking_all_signals = True
         exclusion_rules = []
         prefix_rules = []
         for opt in self.OPTION_FIELDS:
@@ -326,6 +340,7 @@ class PluginWidget(QWidget,Ui_Form):
             opt_value = gprefs.get(self.name + '_' + c_name, c_def)
             if c_type in ['check_box']:
                 getattr(self, c_name).setChecked(eval(str(opt_value)))
+                getattr(self, c_name).clicked.connect(partial(self.settings_changed, c_name))
             elif c_type in ['combo_box']:
                 if opt_value is None:
                     index = 0
@@ -339,12 +354,17 @@ class PluginWidget(QWidget,Ui_Form):
                         elif c_name == 'genre_source_field':
                             index = self.genre_source_field.findText(_('Tags'))
                 getattr(self,c_name).setCurrentIndex(index)
+                if c_name != 'preset_field':
+                    getattr(self, c_name).currentIndexChanged.connect(partial(self.settings_changed, c_name))
             elif c_type in ['line_edit']:
                 getattr(self, c_name).setText(opt_value if opt_value else '')
+                getattr(self, c_name).editingFinished.connect(partial(self.settings_changed, c_name))
             elif c_type in ['radio_button'] and opt_value is not None:
                 getattr(self, c_name).setChecked(opt_value)
+                getattr(self, c_name).clicked.connect(partial(self.settings_changed, c_name))
             elif c_type in ['spin_box']:
                 getattr(self, c_name).setValue(float(opt_value))
+                getattr(self, c_name).valueChanged.connect(partial(self.settings_changed, c_name))
             if c_type == 'table_widget':
                 if c_name == 'exclusion_rules_tw':
                     if opt_value not in exclusion_rules:
@@ -390,12 +410,12 @@ class PluginWidget(QWidget,Ui_Form):
         self.generate_genres_changed(self.generate_genres.isChecked())
 
         # Initialize exclusion rules
-        self.exclusion_rules_table = ExclusionRules(self.exclusion_rules_gb,
-            "exclusion_rules_tw", exclusion_rules, self.eligible_custom_fields, self.db)
+        self.exclusion_rules_table = ExclusionRules(self, self.exclusion_rules_gb,
+            "exclusion_rules_tw", exclusion_rules)
 
         # Initialize prefix rules
-        self.prefix_rules_table = PrefixRules(self.prefix_rules_gb,
-            "prefix_rules_tw", prefix_rules, self.eligible_custom_fields, self.db)
+        self.prefix_rules_table = PrefixRules(self, self.prefix_rules_gb,
+            "prefix_rules_tw", prefix_rules)
 
         # Initialize excluded genres preview
         self.exclude_genre_changed()
@@ -404,6 +424,8 @@ class PluginWidget(QWidget,Ui_Form):
         self.preset_delete_pb.clicked.connect(self.preset_remove)
         self.preset_save_pb.clicked.connect(self.preset_save)
         self.preset_field.currentIndexChanged[str].connect(self.preset_change)
+
+        self.blocking_all_signals = False
 
     def merge_source_field_changed(self,new_index):
         '''
@@ -586,6 +608,8 @@ class PluginWidget(QWidget,Ui_Form):
 
         exclusion_rules = []
         prefix_rules = []
+
+        self.block_all_signals(True)
         for opt in self.OPTION_FIELDS:
             c_name, c_def, c_type = opt
             if c_name == 'preset_field':
@@ -628,13 +652,13 @@ class PluginWidget(QWidget,Ui_Form):
 
         # Reset exclusion rules
         self.exclusion_rules_table.clearLayout()
-        self.exclusion_rules_table = ExclusionRules(self.exclusion_rules_gb,
-            "exclusion_rules_tw", exclusion_rules, self.eligible_custom_fields, self.db)
+        self.exclusion_rules_table = ExclusionRules(self, self.exclusion_rules_gb,
+            "exclusion_rules_tw", exclusion_rules)
 
         # Reset prefix rules
         self.prefix_rules_table.clearLayout()
-        self.prefix_rules_table = PrefixRules(self.prefix_rules_gb,
-            "prefix_rules_tw", prefix_rules, self.eligible_custom_fields, self.db)
+        self.prefix_rules_table = PrefixRules(self, self.prefix_rules_gb,
+            "prefix_rules_tw", prefix_rules)
 
         # Reset excluded genres preview
         self.exclude_genre_changed()
@@ -646,6 +670,8 @@ class PluginWidget(QWidget,Ui_Form):
 
         # Reset Descriptions-related enable/disable switches
         self.generate_descriptions_changed(self.generate_descriptions.isChecked())
+
+        self.block_all_signals(False)
 
     def preset_remove(self):
         if self.preset_field.currentIndex() == 0:
@@ -777,6 +803,14 @@ class PluginWidget(QWidget,Ui_Form):
                     elif child.objectName() == 'title':
                         child.setText(title)
 
+    def settings_changed(self, source):
+        '''
+        When anything changes, clear Preset combobox
+        '''
+        if self.DEBUG:
+            print("settings_changed: %s" % source)
+        self.preset_field.setCurrentIndex(0)
+
     def show_help(self):
         '''
         Display help file
@@ -841,10 +875,11 @@ class GenericRulesTable(QTableWidget):
     MAXIMUM_TABLE_HEIGHT = 113
     NAME_FIELD_WIDTH = 225
 
-    def __init__(self, parent_gb, object_name, rules, eligible_custom_fields, db):
+    def __init__(self, parent, parent_gb, object_name, rules):
+        self.parent = parent
         self.rules = rules
-        self.eligible_custom_fields = eligible_custom_fields
-        self.db = db
+        self.eligible_custom_fields = parent.eligible_custom_fields
+        self.db = parent.db
         QTableWidget.__init__(self)
         self.setObjectName(object_name)
         self.layout = parent_gb.layout()
@@ -959,6 +994,7 @@ class GenericRulesTable(QTableWidget):
     def enabled_state_changed(self, row, col):
         if col in [self.COLUMNS['ENABLED']['ordinal']]:
             self.select_and_scroll_to_row(row)
+            self.settings_changed("enabled_state_changed")
             if self.DEBUG:
                 print("%s:enabled_state_changed(): row %d col %d" %
                       (self.objectName(), row, col))
@@ -1061,6 +1097,7 @@ class GenericRulesTable(QTableWidget):
         current_row = self.currentRow()
         self.cellWidget(current_row,1).home(False)
         self.select_and_scroll_to_row(current_row)
+        self.settings_changed("rule_name_edited")
 
     def select_and_scroll_to_row(self, row):
         self.setFocus()
@@ -1068,6 +1105,10 @@ class GenericRulesTable(QTableWidget):
         self.scrollToItem(self.currentItem())
         self.last_row_selected = self.currentRow()
         self.last_rows_selected = self.selectionModel().selectedRows()
+
+    def settings_changed(self, source):
+        if not self.parent.blocking_all_signals:
+            self.parent.settings_changed(source)
 
     def _source_index_changed(self, combo):
         # Figure out which row we're in
@@ -1106,12 +1147,14 @@ class GenericRulesTable(QTableWidget):
         values_combo.currentIndexChanged.connect(partial(self.values_index_changed, values_combo))
         self.setCellWidget(row, self.COLUMNS['PATTERN']['ordinal'], values_combo)
         self.select_and_scroll_to_row(row)
+        self.settings_changed("source_index_changed")
 
     def values_index_changed(self, combo):
         # After edit, select row
         for row in range(self.rowCount()):
             if self.cellWidget(row, self.COLUMNS['PATTERN']['ordinal']) is combo:
                 self.select_and_scroll_to_row(row)
+                self.settings_changed("values_index_changed")
                 break
 
         if self.DEBUG:
@@ -1125,8 +1168,8 @@ class ExclusionRules(GenericRulesTable):
                 'FIELD':  {'ordinal': 2, 'name': _('Field')},
                 'PATTERN':  {'ordinal': 3, 'name': _('Value')},}
 
-    def __init__(self, parent_gb_hl, object_name, rules, eligible_custom_fields, db):
-        super(ExclusionRules, self).__init__(parent_gb_hl, object_name, rules, eligible_custom_fields, db)
+    def __init__(self, parent, parent_gb_hl, object_name, rules):
+        super(ExclusionRules, self).__init__(parent, parent_gb_hl, object_name, rules)
         self.setObjectName("exclusion_rules_table")
         self._init_table_widget()
         self._initialize()
@@ -1217,8 +1260,8 @@ class PrefixRules(GenericRulesTable):
                 'FIELD':  {'ordinal': 3, 'name': _('Field')},
                 'PATTERN':{'ordinal': 4, 'name': _('Value')},}
 
-    def __init__(self, parent_gb_hl, object_name, rules, eligible_custom_fields, db):
-        super(PrefixRules, self).__init__(parent_gb_hl, object_name, rules, eligible_custom_fields, db)
+    def __init__(self, parent, parent_gb_hl, object_name, rules):
+        super(PrefixRules, self).__init__(parent, parent_gb_hl, object_name, rules)
         self.setObjectName("prefix_rules_table")
         self._init_table_widget()
         self._initialize()
@@ -1410,6 +1453,7 @@ class PrefixRules(GenericRulesTable):
 
         def set_prefix_field_in_row(row, col, field=''):
             prefix_combo = ComboBox(self, self.prefix_list, field)
+            prefix_combo.currentIndexChanged.connect(partial(self.settings_changed, 'set_prefix_field_in_row'))
             self.setCellWidget(row, col, prefix_combo)
 
         def set_rule_name_in_row(row, col, name=''):

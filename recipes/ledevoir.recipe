@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __author__    = 'Lorenzo Vigentini and Olivier Daigle'
 __copyright__ = '2012, Lorenzo Vigentini <l.vigentini at gmail.com>, Olivier Daigle <odaigle _at nuvucameras __dot__ com>'
 __version__     = 'v1.01'
-__date__        = '22, December 2012'
+__date__        = '17, March 2013'
 __description__   = 'Canadian Paper '
 
 '''
@@ -28,9 +28,13 @@ class ledevoir(BasicNewsRecipe):
 
     oldest_article = 1
     max_articles_per_feed = 200
+    min_articles_per_feed = 0
     use_embedded_content  = False
     recursion             = 10
     needs_subscription    = 'optional'
+
+    compress_news_images = True
+    compress_news_images_auto_size = 4
 
     filterDuplicates = False
     url_list = []
@@ -66,16 +70,16 @@ class ledevoir(BasicNewsRecipe):
 
     feeds          = [
                        (u'A la une', 'http://www.ledevoir.com/rss/manchettes.xml'),
-#                       (u'Édition complete', 'http://feeds2.feedburner.com/fluxdudevoir'),
-#                       (u'Opinions', 'http://www.ledevoir.com/rss/opinions.xml'),
-#                       (u'Chroniques', 'http://www.ledevoir.com/rss/chroniques.xml'),
-#                       (u'Politique', 'http://www.ledevoir.com/rss/section/politique.xml?id=51'),
-#                       (u'International', 'http://www.ledevoir.com/rss/section/international.xml?id=76'),
-#                       (u'Culture', 'http://www.ledevoir.com/rss/section/culture.xml?id=48'),
-#                       (u'Environnement', 'http://www.ledevoir.com/rss/section/environnement.xml?id=78'),
-#                       (u'Societe', 'http://www.ledevoir.com/rss/section/societe.xml?id=52'),
-#                       (u'Economie', 'http://www.ledevoir.com/rss/section/economie.xml?id=49'),
-#                       (u'Sports', 'http://www.ledevoir.com/rss/section/sports.xml?id=85'),
+                       (u'Édition complete', 'http://feeds2.feedburner.com/fluxdudevoir'),
+                       (u'Opinions', 'http://www.ledevoir.com/rss/opinions.xml'),
+                       (u'Chroniques', 'http://www.ledevoir.com/rss/chroniques.xml'),
+                       (u'Politique', 'http://www.ledevoir.com/rss/section/politique.xml?id=51'),
+                       (u'International', 'http://www.ledevoir.com/rss/section/international.xml?id=76'),
+                       (u'Culture', 'http://www.ledevoir.com/rss/section/culture.xml?id=48'),
+                       (u'Environnement', 'http://www.ledevoir.com/rss/section/environnement.xml?id=78'),
+                       (u'Societe', 'http://www.ledevoir.com/rss/section/societe.xml?id=52'),
+                       (u'Economie', 'http://www.ledevoir.com/rss/section/economie.xml?id=49'),
+                       (u'Sports', 'http://www.ledevoir.com/rss/section/sports.xml?id=85'),
                        (u'Art de vivre', 'http://www.ledevoir.com/rss/section/art-de-vivre.xml?id=50')
                      ]
 
@@ -112,4 +116,24 @@ class ledevoir(BasicNewsRecipe):
                 return
         self.url_list.append(url)
         return url
+
+'''
+    def postprocess_html(self, soup, first):
+        #process all the images. assumes that the new html has the correct path
+        if first == 0:
+          return soup
+
+        for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
+             iurl = tag['src']
+             img = Image()
+             img.open(iurl)
+        #     width, height = img.size
+        #     print 'img is: ', iurl, 'width is: ', width, 'height is: ', height
+             if img < 0:
+                raise RuntimeError('Out of memory')
+             img.set_compression_quality(30)
+             img.save(iurl)
+        return soup
+'''
+
 

@@ -165,6 +165,12 @@ class Config(ResizableDialog, Ui_Dialog):
     def output_format(self):
         return unicode(self.output_formats.currentText()).lower()
 
+    @property
+    def manually_fine_tune_toc(self):
+        for i in xrange(self.stack.count()):
+            w = self.stack.widget(i)
+            if hasattr(w, 'manually_fine_tune_toc'):
+                return w.manually_fine_tune_toc.isChecked()
 
     def setup_pipeline(self, *args):
         oidx = self.groups.currentIndex().row()
@@ -191,6 +197,8 @@ class Config(ResizableDialog, Ui_Dialog):
         ps = widget_factory(PageSetupWidget)
         sd = widget_factory(StructureDetectionWidget)
         toc = widget_factory(TOCWidget)
+        from calibre.gui2.actions.toc_edit import SUPPORTED
+        toc.manually_fine_tune_toc.setVisible(output_format.upper() in SUPPORTED)
         debug = widget_factory(DebugWidget)
 
         output_widget = self.plumber.output_plugin.gui_configuration_widget(

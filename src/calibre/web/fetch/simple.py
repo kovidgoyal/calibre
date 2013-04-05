@@ -438,6 +438,9 @@ class RecursiveFetcher(object):
                             identify_data(data)
                     else:
                         identify_data(data)
+                    # Moon+ apparently cannot handle .jpeg files
+                    if itype == 'jpeg':
+                        itype = 'jpg'
                     imgpath = os.path.join(diskpath, fname+'.'+itype)
                     with self.imagemap_lock:
                         self.imagemap[iurl] = imgpath

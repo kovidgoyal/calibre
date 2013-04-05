@@ -9,7 +9,7 @@ import functools, re, os, traceback, errno, time
 from collections import defaultdict
 
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
-        QModelIndex, QVariant, QDateTime, QColor)
+        QModelIndex, QVariant, QDateTime, QColor, QPixmap)
 
 from calibre.gui2 import NONE, UNDEFINED_QDATETIME, error_dialog
 from calibre.utils.pyparsing import ParseException
@@ -94,7 +94,14 @@ class ColumnIcon(object):
                     return icon_bitmap
                 d = os.path.join(config_dir, 'cc_icons', icon)
                 if (os.path.exists(d)):
-                    icon_bitmap = QIcon(d)
+                    icon_bitmap = QPixmap(d)
+                    h = icon_bitmap.height()
+                    w = icon_bitmap.width()
+                    # If the image is landscape and width is more than 50%
+                    # large than height, use the pixmap. This tells Qt to display
+                    # the image full width. It might be clipped to row height.
+                    if w < (3 * h)/2:
+                        icon_bitmap = QIcon(icon_bitmap)
                     icon_cache[id_][dex] = icon_bitmap
                     icon_bitmap_cache[icon] = icon_bitmap
                     self.mi = None

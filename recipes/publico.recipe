@@ -23,8 +23,8 @@ class PublicoPT(BasicNewsRecipe):
     remove_empty_feeds    = True
     extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } img{margin-bottom: 0.4em} '
 
-    keep_only_tags = [dict(attrs={'class':['content-noticia-title','artigoHeader','ECOSFERA_MANCHETE','noticia','textoPrincipal','ECOSFERA_texto_01']})]
-    remove_tags    = [dict(attrs={'class':['options','subcoluna']})]
+    keep_only_tags = [dict(attrs={'class':['hentry article single']})]
+    remove_tags    = [dict(attrs={'class':['entry-options entry-options-above group','entry-options entry-options-below group', 'module tag-list']})]
 
     feeds = [
                         (u'Geral', u'http://feeds.feedburner.com/publicoRSS'),

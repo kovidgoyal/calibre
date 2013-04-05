@@ -1,0 +1,23 @@
+# vim:fileencoding=UTF-8
+
+from __future__ import unicode_literals
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1365070687(BasicNewsRecipe):
+  title ='Diário de Notícias'
+  oldest_article = 7
+  language = 'pt'
+  __author__ = 'Jose Pinto'
+  max_articles_per_feed = 100
+  keep_only_tags = [dict(name='div', attrs={'id':'cln-esqmid'}) ]
+  remove_tags    = [ dict(name='table', attrs={'class':'TabFerramentasInf'}) ]
+
+  feeds = [(u'Portugal', u'http://feeds.dn.pt/DN-Portugal'),
+    (u'Globo', u'http://feeds.dn.pt/DN-Globo'),
+    (u'Economia', u'http://feeds.dn.pt/DN-Economia'),
+    (u'Ci\xeancia', u'http://feeds.dn.pt/DN-Ciencia'),
+    (u'Artes', u'http://feeds.dn.pt/DN-Artes'),
+    (u'TV & Media', u'http://feeds.dn.pt/DN-Media'),
+    (u'Opini\xe3o', u'http://feeds.dn.pt/DN-Opiniao'),
+    (u'Pessoas', u'http://feeds.dn.pt/DN-Pessoas')
+    ]

@@ -33,6 +33,7 @@ class PagedDisplay
         this.header_template = null
         this.header = null
         this.footer = null
+        this.hf_style = null
 
     read_document_margins: () ->
         # Read page margins from the document. First checks for an @page rule.
@@ -184,15 +185,22 @@ class PagedDisplay
         # log('Time to layout:', new Date().getTime() - start_time)
         return sm
 
-    create_header_footer: () ->
+    create_header_footer: (uuid) ->
         if this.header_template != null
             this.header = document.createElement('div')
             this.header.setAttribute('style', "overflow:hidden; display:block; position:absolute; left:#{ this.side_margin }px; top: 0px; height: #{ this.margin_top }px; width: #{ this.col_width }px; margin: 0; padding: 0")
+            this.header.setAttribute('id', 'pdf_page_header_'+uuid)
             document.body.appendChild(this.header)
         if this.footer_template != null
             this.footer = document.createElement('div')
             this.footer.setAttribute('style', "overflow:hidden; display:block; position:absolute; left:#{ this.side_margin }px; top: #{ window.innerHeight - this.margin_bottom }px; height: #{ this.margin_bottom }px; width: #{ this.col_width }px; margin: 0; padding: 0")
+            this.footer.setAttribute('id', 'pdf_page_footer_'+uuid)
             document.body.appendChild(this.footer)
+        if this.header != null or this.footer != null
+            this.hf_uuid = uuid
+            this.hf_style = document.createElement('style')
+            this.hf_style.setAttribute('type', 'text/css')
+            document.head.appendChild(this.hf_style)
         this.update_header_footer(1)
 
     position_header_footer: () ->
@@ -203,10 +211,16 @@ class PagedDisplay
             this.footer.style.setProperty('left', left+'px')
 
     update_header_footer: (pagenum) ->
+        if this.hf_style != null
+            if pagenum%2 == 1 then cls = "even_page" else cls = "odd_page"
+            this.hf_style.innerHTML = "#pdf_page_header_#{ this.hf_uuid } .#{ cls }, #pdf_page_footer_#{ this.hf_uuid } .#{ cls } { display: none }"
+            title = py_bridge.title()
+            author = py_bridge.author()
+            section = py_bridge.section()
         if this.header != null
-            this.header.innerHTML = this.header_template.replace(/_PAGENUM_/g, pagenum+"")
+            this.header.innerHTML = this.header_template.replace(/_PAGENUM_/g, pagenum+"").replace(/_TITLE_/g, title+"").replace(/_AUTHOR_/g, author+"").replace(/_SECTION_/g, section+"")
         if this.footer != null
-            this.footer.innerHTML = this.footer_template.replace(/_PAGENUM_/g, pagenum+"")
+            this.footer.innerHTML = this.footer_template.replace(/_PAGENUM_/g, pagenum+"").replace(/_TITLE_/g, title+"").replace(/_AUTHOR_/g, author+"").replace(/_SECTION_/g, section+"")
 
     fit_images: () ->
         # Ensure no images are wider than the available width in a column. Note

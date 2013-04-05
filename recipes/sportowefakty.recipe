@@ -1,0 +1,70 @@
+#!/usr/bin/env  python
+
+__license__ = 'GPL v3'
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.utils.magick import Image
+
+class sportowefakty(BasicNewsRecipe):
+    title          = u'SportoweFakty'
+    __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>, Tomasz Długosz <tomek3d@gmail.com>'
+    language       = 'pl'
+    description    = u'Najważniejsze informacje sportowe z kraju i ze świata, relacje, komentarze, wywiady, zdjęcia!'
+    oldest_article = 1
+    masthead_url='http://www.sportowefakty.pl/images/logo.png'
+    max_articles_per_feed = 100
+    simultaneous_downloads = 5
+    use_embedded_content=False
+    remove_javascript=True
+    no_stylesheets=True
+    ignore_duplicate_articles = {'title', 'url'}
+
+    keep_only_tags = [dict(attrs = {'class' : 'box-article'})]
+    remove_tags =[]
+    remove_tags.append(dict(attrs = {'class' : re.compile(r'^newsStream')}))
+    remove_tags.append(dict(attrs = {'target' : '_blank'}))
+
+    feeds          = [
+                      (u'Piłka Nożna', u'http://www.sportowefakty.pl/pilka-nozna/index.rss'),
+                      (u'Koszykówka', u'http://www.sportowefakty.pl/koszykowka/index.rss'),
+                      (u'Żużel', u'http://www.sportowefakty.pl/zuzel/index.rss'),
+                      (u'Siatkówka', u'http://www.sportowefakty.pl/siatkowka/index.rss'),
+                      (u'Zimowe', u'http://www.sportowefakty.pl/zimowe/index.rss'),
+                      (u'Hokej', u'http://www.sportowefakty.pl/hokej/index.rss'),
+                      (u'Moto', u'http://www.sportowefakty.pl/moto/index.rss'),
+                      (u'Tenis', u'http://www.sportowefakty.pl/tenis/index.rss')
+                     ]
+
+    def get_article_url(self, article):
+        link = article.get('link', None)
+        if 'utm_source' in link:
+            return link.split('?utm')[0]
+        else:
+            return link
+
+    def print_version(self, url):
+        print_url = url + '/drukuj'
+        return print_url
+
+    def preprocess_html(self, soup):
+        head = soup.find('h1')
+        if 'Fotorelacja' in self.tag_to_string(head):
+            return None
+        else:
+            for alink in soup.findAll('a'):
+                if alink.string is not None:
+                    tstr = alink.string
+                    alink.replaceWith(tstr)
+            return soup
+
+    def postprocess_html(self, soup, first):
+        for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
+            iurl = tag['src']
+            img = Image()
+            img.open(iurl)
+            if img < 0:
+                raise RuntimeError('Out of memory')
+            img.type = "GrayscaleType"
+            img.save(iurl)
+        return soup

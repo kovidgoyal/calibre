@@ -1,20 +1,21 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 class PC_Centre(BasicNewsRecipe):
-    title          = u'PC Centre'
+    title = u'PC Centre'
     oldest_article = 7
     max_articles_per_feed = 100
-    __author__        = 'fenuks'
-    description   = u'Portal komputerowy, a w nim: testy sprzętu komputerowego, recenzje gier i oprogramowania. a także opisy produktów związanych z komputerami.'
-    category       = 'IT'
-    language       = 'pl'
+    __author__ = 'fenuks'
+    description = u'Portal komputerowy, a w nim: testy sprzętu komputerowego, recenzje gier i oprogramowania. a także opisy produktów związanych z komputerami.'
+    category = 'IT'
+    language = 'pl'
     masthead_url= 'http://pccentre.pl/views/images/logo.gif'
     cover_url= 'http://pccentre.pl/views/images/logo.gif'
     no_stylesheets = True
     remove_empty_feeds = True
+    ignore_duplicate_articles = {'title', 'url'}
     #keep_only_tags= [dict(id='content')]
     #remove_tags=[dict(attrs={'class':['ikony r', 'list_of_content', 'dot accordion']}), dict(id='comments')]
     remove_tags=[dict(attrs={'class':'logo_print'})]
-    feeds          = [(u'Aktualno\u015bci', u'http://pccentre.pl/backend.php'), (u'Publikacje', u'http://pccentre.pl/backend.php?mode=a'), (u'Sprz\u0119t komputerowy', u'http://pccentre.pl/backend.php?mode=n&section=2'), (u'Oprogramowanie', u'http://pccentre.pl/backend.php?mode=n&section=3'), (u'Gry komputerowe i konsole', u'http://pccentre.pl/backend.php?mode=n&section=4'), (u'Internet', u'http://pccentre.pl/backend.php?mode=n&section=7'), (u'Bezpiecze\u0144stwo', u'http://pccentre.pl/backend.php?mode=n&section=5'), (u'Multimedia', u'http://pccentre.pl/backend.php?mode=n&section=6'), (u'Biznes', u'http://pccentre.pl/backend.php?mode=n&section=9')]
+    feeds = [(u'Aktualno\u015bci', u'http://pccentre.pl/backend.php'), (u'Publikacje', u'http://pccentre.pl/backend.php?mode=a'), (u'Sprz\u0119t komputerowy', u'http://pccentre.pl/backend.php?mode=n&section=2'), (u'Oprogramowanie', u'http://pccentre.pl/backend.php?mode=n&section=3'), (u'Gry komputerowe i konsole', u'http://pccentre.pl/backend.php?mode=n&section=4'), (u'Internet', u'http://pccentre.pl/backend.php?mode=n&section=7'), (u'Bezpiecze\u0144stwo', u'http://pccentre.pl/backend.php?mode=n&section=5'), (u'Multimedia', u'http://pccentre.pl/backend.php?mode=n&section=6'), (u'Biznes', u'http://pccentre.pl/backend.php?mode=n&section=9')]
 
     def print_version(self, url):
         return url.replace('show', 'print')

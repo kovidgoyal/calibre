@@ -77,10 +77,9 @@ class Harpers_full(BasicNewsRecipe):
         self.timefmt =  u' [%s]'%date
 
         #get cover
-        coverurl='http://harpers.org/wp-content/themes/harpers/ajax_microfiche.php?img=harpers-'+re.split('harpers.org/',currentIssue_url)[1]+'gif/0001.gif'
-        soup2 = self.index_to_soup(coverurl)
-        self.cover_url = self.tag_to_string(soup2.find('img')['src'])
+        self.cover_url = soup1.find('div', attrs = {'class':'picture_hp'}).find('img', src=True)['src']         
         self.log(self.cover_url)
+        
         articles = []
         count = 0
         for item in soup1.findAll('div', attrs={'class':'articleData'}):

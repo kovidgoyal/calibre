@@ -82,8 +82,13 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, # {{{
                 args = [in_file.name, out_file.name, recs]
                 temp_files.append(out_file)
                 func = 'gui_convert_override'
+                parts = []
+                if not auto_conversion and d.manually_fine_tune_toc:
+                    parts.append('manually_fine_tune_toc')
                 if same_fmt:
-                    func += ':same_fmt'
+                    parts.append('same_fmt')
+                if parts:
+                    func += ':%s'%(';'.join(parts))
                 jobs.append((func, args, desc, d.output_format.upper(), book_id, temp_files))
 
                 changed = True
