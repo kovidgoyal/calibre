@@ -16,13 +16,12 @@ from operator import attrgetter
 from Queue import Queue, Empty
 from io import BytesIO
 
-from PyQt4.Qt import (QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt,
-                      QApplication, QDialog, QVBoxLayout, QLabel,
-                      QDialogButtonBox, QStyle, QStackedWidget, QWidget,
-                      QTableView, QGridLayout, QFontInfo, QPalette, QTimer,
-                      pyqtSignal, QAbstractTableModel, QVariant, QSize,
-                      QListView, QPixmap, QAbstractListModel, QColor, QRect,
-                      QTextBrowser, QStringListModel)
+from PyQt4.Qt import (
+    QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt, QApplication,
+    QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QStyle, QStackedWidget,
+    QWidget, QTableView, QGridLayout, QFontInfo, QPalette, QTimer, pyqtSignal,
+    QAbstractTableModel, QVariant, QSize, QListView, QPixmap, QModelIndex,
+    QAbstractListModel, QColor, QRect, QTextBrowser, QStringListModel)
 from PyQt4.QtWebKit import QWebView
 
 from calibre.customize.ui import metadata_plugins
@@ -654,7 +653,7 @@ class CoversModel(QAbstractListModel): # {{{
         for i, plugin in enumerate(metadata_plugins(['cover'])):
             self.covers.append((plugin.name+'\n'+_('Searching...'),
                 QVariant(self.blank), None, True))
-            self.plugin_map[plugin] = i+1
+            self.plugin_map[plugin] = [i+1]
 
         if do_reset:
             self.reset()
@@ -685,48 +684,82 @@ class CoversModel(QAbstractListModel): # {{{
     def plugin_for_index(self, index):
         row = index.row() if hasattr(index, 'row') else index
         for k, v in self.plugin_map.iteritems():
-            if v == row:
+            if row in v:
                 return k
 
-    def cover_keygen(self, x):
-        pmap = x[2]
-        if pmap is None:
-            return 1
-        return pmap.width()*pmap.height()
-
     def clear_failed(self):
+        # Remove entries that are still waiting
         good = []
         pmap = {}
-        dcovers = sorted(self.covers[1:], key=self.cover_keygen, reverse=True)
-        cmap = {x:self.covers.index(x) for x in self.covers}
+        def keygen(x):
+            pmap = x[2]
+            if pmap is None:
+                return 1
+            return pmap.width()*pmap.height()
+        dcovers = sorted(self.covers[1:], key=keygen, reverse=True)
+        cmap = {i:self.plugin_for_index(i) for i in xrange(len(self.covers))}
         for i, x in enumerate(self.covers[0:1] + dcovers):
             if not x[-1]:
                 good.append(x)
-                if i > 0:
-                    plugin = self.plugin_for_index(cmap[x])
-                    pmap[plugin] = len(good) - 1
+                plugin = cmap[i]
+                if plugin is not None:
+                    try:
+                        pmap[plugin].append(len(good) - 1)
+                    except KeyError:
+                        pmap[plugin] = [len(good)-1]
         self.covers = good
         self.plugin_map = pmap
         self.reset()
 
-    def index_for_plugin(self, plugin):
-        idx = self.plugin_map.get(plugin, 0)
-        return self.index(idx)
+    def pointer_from_index(self, index):
+        row = index.row() if hasattr(index, 'row') else index
+        try:
+            return self.covers[row][2]
+        except IndexError:
+            pass
+
+    def index_from_pointer(self, pointer):
+        for r, (text, scaled, pmap, waiting) in enumerate(self.covers):
+            if pointer == pmap:
+                return self.index(r)
+        return self.index(0)
 
     def update_result(self, plugin_name, width, height, data):
-        idx = None
-        for plugin, i in self.plugin_map.iteritems():
-            if plugin.name == plugin_name:
-                idx = i
-                break
-        if idx is None:
-            return
-        pmap = QPixmap()
-        pmap.loadFromData(data)
-        if pmap.isNull():
-            return
-        self.covers[idx] = self.get_item(plugin_name, pmap, waiting=False)
-        self.dataChanged.emit(self.index(idx), self.index(idx))
+        if plugin_name.endswith('}'):
+            # multi cover plugin
+            plugin_name = plugin_name.partition('{')[0]
+            plugin = [plugin for plugin in self.plugin_map if plugin.name == plugin_name]
+            if not plugin:
+                return
+            plugin = plugin[0]
+            last_row = max(self.plugin_map[plugin])
+            pmap = QPixmap()
+            pmap.loadFromData(data)
+            if pmap.isNull():
+                return
+            self.beginInsertRows(QModelIndex(), last_row, last_row)
+            for rows in self.plugin_map.itervalues():
+                for i in xrange(len(rows)):
+                    if rows[i] >= last_row:
+                        rows[i] += 1
+            self.plugin_map[plugin].insert(-1, last_row)
+            self.covers.insert(last_row, self.get_item(plugin_name, pmap, waiting=False))
+            self.endInsertRows()
+        else:
+            # single cover plugin
+            idx = None
+            for plugin, rows in self.plugin_map.iteritems():
+                if plugin.name == plugin_name:
+                    idx = rows[0]
+                    break
+            if idx is None:
+                return
+            pmap = QPixmap()
+            pmap.loadFromData(data)
+            if pmap.isNull():
+                return
+            self.covers[idx] = self.get_item(plugin_name, pmap, waiting=False)
+            self.dataChanged.emit(self.index(idx), self.index(idx))
 
     def cover_pixmap(self, index):
         row = index.row()
@@ -774,9 +807,12 @@ class CoversView(QListView): # {{{
         self.m.reset_covers()
 
     def clear_failed(self):
-        plugin = self.m.plugin_for_index(self.currentIndex())
+        pointer = self.m.pointer_from_index(self.currentIndex())
         self.m.clear_failed()
-        self.select(self.m.index_for_plugin(plugin).row())
+        if pointer is None:
+            self.select(0)
+        else:
+            self.select(self.m.index_from_pointer(pointer).row())
 
 # }}}
 
@@ -852,10 +888,11 @@ class CoversWidget(QWidget): # {{{
         if num < 2:
             txt = _('Could not find any covers for <b>%s</b>')%self.book.title
         else:
-            txt = _('Found <b>%(num)d</b> covers of %(title)s. '
-                    'Pick the one you like best.')%dict(num=num-1,
+            txt = _('Found <b>%(num)d</b> possible covers for %(title)s. '
+                    'When the download completes, the covers will be sorted by size.')%dict(num=num-1,
                             title=self.title)
         self.msg.setText(txt)
+        self.msg.setWordWrap(True)
 
         self.finished.emit()
 

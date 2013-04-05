@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 2 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -24,8 +24,8 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class WaterstonesUKStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://clkuk.tradedoubler.com/click?p=51196&a=1951604&g=19333484'
-        url_details = 'http://clkuk.tradedoubler.com/click?p(51196)a(1951604)g(16460516)url({0})'
+        url = 'http://www.awin1.com/awclick.php?mid=3787&id=120917'
+        url_details = 'http://www.awin1.com/cread.php?awinmid=3787&awinaffid=120917&clickref=&p={0}'
 
         if external or self.config.get('open_external', False):
             if detail_item:

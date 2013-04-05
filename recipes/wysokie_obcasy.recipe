@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+__license__ = 'GPL v3'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class WysokieObcasyRecipe(BasicNewsRecipe):
+    __author__ = u'Artur Stachecki <artur.stachecki@gmail.com>'
+    language = 'pl'
+    version = 1
+
+    title = u'Wysokie Obcasy'
+    publisher = 'Agora SA'
+    description = u'Serwis sobotniego dodatku do Gazety Wyborczej'
+    category='magazine'
+    language = 'pl'
+    publication_type = 'magazine'
+    cover_url=''
+    remove_empty_feeds= True
+    no_stylesheets=True
+    oldest_article = 7
+    max_articles_per_feed = 100000
+    recursions = 0
+
+    no_stylesheets = True
+    remove_javascript = True
+    simultaneous_downloads = 5
+
+    keep_only_tags =[]
+    keep_only_tags.append(dict(name = 'div', attrs = {'id' : 'article'}))
+
+    remove_tags =[]
+    remove_tags.append(dict(name = 'img'))
+    remove_tags.append(dict(name = 'p', attrs = {'class' : 'info'}))
+
+    extra_css = '''
+                    body {font-family: verdana, arial, helvetica, geneva, sans-serif ;}
+                    h1{text-align: left;}
+                       '''
+
+    feeds          = [
+                            ('Wszystkie Artykuly', 'feed://www.wysokieobcasy.pl/pub/rss/wysokieobcasy.xml'),
+                          ]
+
+    def print_version(self,url):
+        baseURL='http://www.wysokieobcasy.pl/wysokie-obcasy'
+        segments = url.split(',')
+        subPath= '/2029020,'
+        articleURL1 = segments[1]
+        articleURL2 = segments[2]
+        printVerString=articleURL1 + ',' + articleURL2
+        s=  baseURL + subPath + printVerString + '.html'
+        return s
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.wysokieobcasy.pl/wysokie-obcasy/0,0.html')
+        self.cover_url = soup.find(attrs={'class':'holder_cr'}).find('img')['src']
+        return getattr(self, 'cover_url', self.cover_url)

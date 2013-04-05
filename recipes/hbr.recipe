@@ -1,6 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
-from datetime import date, timedelta
 
 class HBR(BasicNewsRecipe):
 
@@ -11,23 +9,18 @@ class HBR(BasicNewsRecipe):
     timefmt                = ' [%B %Y]'
     language = 'en'
     no_stylesheets = True
-    # recipe_disabled = ('hbr.org has started requiring the use of javascript'
-    #         ' to log into their website. This is unsupported in calibre, so'
-    #         ' this recipe has been disabled. If you would like to see '
-    #         ' HBR supported in calibre, contact hbr.org and ask them'
-    #         ' to provide a javascript free login method.')
 
     LOGIN_URL = 'https://hbr.org/login?request_url=/'
     LOGOUT_URL = 'https://hbr.org/logout?request_url=/'
 
-    INDEX = 'http://hbr.org/archive-toc/BR'
+    INDEX = 'http://hbr.org'
 
     keep_only_tags = [dict(name='div', id='pageContainer')]
     remove_tags = [dict(id=['mastheadContainer', 'magazineHeadline',
         'articleToolbarTopRD', 'pageRightSubColumn', 'pageRightColumn',
         'todayOnHBRListWidget', 'mostWidget', 'keepUpWithHBR',
         'mailingListTout', 'partnerCenter', 'pageFooter',
-        'superNavHeadContainer', 'hbrDisqus',
+        'superNavHeadContainer', 'hbrDisqus', 'article-toolbox',
         'articleToolbarTop', 'articleToolbarBottom', 'articleToolbarRD']),
         dict(name='iframe')]
     extra_css = '''
@@ -56,22 +49,6 @@ class HBR(BasicNewsRecipe):
     def map_url(self, url):
         if url.endswith('/ar/1'):
             return url[:-1]+'pr'
-
-    def hbr_get_toc(self):
-        # return self.index_to_soup(open('/t/toc.html').read())
-
-        today = date.today()
-        future = today + timedelta(days=30)
-        past = today - timedelta(days=30)
-        for x in [x.strftime('%y%m') for x in (future, today, past)]:
-            url = self.INDEX + x
-            soup = self.index_to_soup(url)
-            if (not soup.find(text='Issue Not Found') and not soup.find(
-                text="We're Sorry.  There was an error processing your request")
-                and 'Exception: java.io.FileNotFoundException' not in
-                unicode(soup)):
-                return soup
-        raise Exception('Could not find current issue')
 
     def hbr_parse_toc(self, soup):
         feeds = []
@@ -105,23 +82,19 @@ class HBR(BasicNewsRecipe):
 
                 articles.append({'title':title, 'url':url, 'description':desc,
                     'date':''})
+
+        if current_section is not None and articles:
+            feeds.append((current_section, articles))
         return feeds
 
     def parse_index(self):
-        soup = self.hbr_get_toc()
-        # open('/t/hbr.html', 'wb').write(unicode(soup).encode('utf-8'))
+        soup0 = self.index_to_soup('http://hbr.org/magazine')
+        datencover = soup0.find('ul', attrs={'id':'magazineArchiveCarousel'}).findAll('li')[-1]
+        #find date & cover
+        self.cover_url=datencover.img['src']
+        dates=self.tag_to_string(datencover.img['alt'])
+        self.timefmt = u' [%s]'%dates
+        soup = self.index_to_soup(self.INDEX + soup0.find('div', attrs = {'class':'magazine_page'}).a['href'])
         feeds = self.hbr_parse_toc(soup)
         return feeds
-
-    def get_cover_url(self):
-        cover_url = None
-        index = 'http://hbr.org/current'
-        soup = self.index_to_soup(index)
-        link_item = soup.find('img', alt=re.compile("Current Issue"), src=True)
-
-        if link_item:
-           cover_url = 'http://hbr.org' + link_item['src']
-
-        return cover_url
-
 
