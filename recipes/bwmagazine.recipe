@@ -37,68 +37,15 @@ class BusinessWeek(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    #remove_tags       = [
-                           #dict(attrs={'class':'inStory'})
-                          #,dict(name=['meta','link','iframe','base','embed','object','table','th','tr','td'])
-                          #,dict(attrs={'id':['inset','videoDisplay']})
-                        #]
-    #keep_only_tags    = [dict(name='div', attrs={'id':['story-body','storyBody']})]
-    remove_attributes = ['lang']
-    match_regexps     = [r'http://www.businessweek.com/.*_page_[1-9].*']
-
 
     feeds = [
-              (u'Top Stories', u'http://www.businessweek.com/topStories/rss/topStories.rss'),
-              (u'Top News'   , u'http://www.businessweek.com/rss/bwdaily.rss'              ),
-              (u'Asia', u'http://www.businessweek.com/rss/asia.rss'),
-              (u'Autos', u'http://www.businessweek.com/rss/autos/index.rss'),
-              (u'Classic Cars', u'http://rss.businessweek.com/bw_rss/classiccars'),
-              (u'Hybrids', u'http://rss.businessweek.com/bw_rss/hybrids'),
-              (u'Europe', u'http://www.businessweek.com/rss/europe.rss'),
-              (u'Auto Reviews', u'http://rss.businessweek.com/bw_rss/autoreviews'),
-              (u'Innovation & Design', u'http://www.businessweek.com/rss/innovate.rss'),
-              (u'Architecture', u'http://www.businessweek.com/rss/architecture.rss'),
-              (u'Brand Equity', u'http://www.businessweek.com/rss/brandequity.rss'),
-              (u'Auto Design', u'http://www.businessweek.com/rss/carbuff.rss'),
-              (u'Game Room', u'http://rss.businessweek.com/bw_rss/gameroom'),
-              (u'Technology', u'http://www.businessweek.com/rss/technology.rss'),
-              (u'Investing', u'http://rss.businessweek.com/bw_rss/investor'),
-              (u'Small Business', u'http://www.businessweek.com/rss/smallbiz.rss'),
-              (u'Careers', u'http://rss.businessweek.com/bw_rss/careers'),
-              (u'B-Schools', u'http://www.businessweek.com/rss/bschools.rss'),
-              (u'Magazine Selections', u'http://www.businessweek.com/rss/magazine.rss'),
-              (u'CEO Guide to Tech', u'http://www.businessweek.com/rss/ceo_guide_tech.rss'),
+              (u'Top Stories', u'http://www.businessweek.com/feeds/most-popular.rss'),
             ]
 
-    def get_article_url(self, article):
-        url = article.get('guid', None)
-        if 'podcasts' in url:
-            return None
-        if 'surveys' in url:
-            return None
-        if 'images' in url:
-            return None
-        if 'feedroom' in url:
-            return None
-        if '/magazine/toc/' in url:
-            return None
-        rurl, sep, rest = url.rpartition('?')
-        if rurl:
-           return rurl
-        return rest
-
     def print_version(self, url):
-        if '/news/' in url or '/blog/ in url':
-           return url
-        rurl = url.replace('http://www.businessweek.com/','http://www.businessweek.com/print/')
-        return rurl.replace('/investing/','/investor/')
+        soup = self.index_to_soup(url)
+        prntver = soup.find('li', attrs={'class':'print tracked'})
+        rurl = prntver.find('a', href=True)['href']
+        return rurl
 
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for alink in soup.findAll('a'):
-            if alink.string is not None:
-               tstr = alink.string
-               alink.replaceWith(tstr)
-        return soup
- 
+

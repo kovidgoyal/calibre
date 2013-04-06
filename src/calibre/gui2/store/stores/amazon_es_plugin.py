@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 2 # Needed for dynamic plugin loading
+store_version = 3 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -18,12 +18,25 @@ from calibre import browser
 from calibre.gui2 import open_url
 from calibre.gui2.store.search_result import SearchResult
 
+class AmazonESKindleStore(StorePlugin):
+    '''
+    For comments on the implementation, please see amazon_plugin.py
+    '''
 
-# This class is copy/pasted from amason_uk_plugin. Do not modify it in any
-# other amazon EU plugin. Be sure to paste it into all other amazon EU plugins
-# when modified.
+    aff_id = {'tag': 'charhale09-21'}
+    store_link = ('http://www.amazon.es/ebooks-kindle/b?_encoding=UTF8&'
+                  'node=827231031&tag=%(tag)s&ie=UTF8&linkCode=ur2&camp=3626&creative=24790')
+    store_link_details = ('http://www.amazon.es/gp/redirect.html?ie=UTF8&'
+                          'location=http://www.amazon.es/dp/%(asin)s&tag=%(tag)s'
+                          '&linkCode=ur2&camp=3626&creative=24790')
+    search_url = 'http://www.amazon.es/s/?url=search-alias%3Ddigital-text&field-keywords='
 
-class AmazonEUBase(StorePlugin):
+    author_article = 'de '
+
+    and_word = ' y '
+
+    # ---- Copy from here to end
+
     '''
     For comments on the implementation, please see amazon_plugin.py
     '''
@@ -107,19 +120,3 @@ class AmazonEUBase(StorePlugin):
     def get_details(self, search_result, timeout):
         pass
 
-class AmazonESKindleStore(AmazonEUBase):
-    '''
-    For comments on the implementation, please see amazon_plugin.py
-    '''
-
-    aff_id = {'tag': 'charhale09-21'}
-    store_link = ('http://www.amazon.es/ebooks-kindle/b?_encoding=UTF8&'
-                  'node=827231031&tag=%(tag)s&ie=UTF8&linkCode=ur2&camp=3626&creative=24790')
-    store_link_details = ('http://www.amazon.es/gp/redirect.html?ie=UTF8&'
-                          'location=http://www.amazon.es/dp/%(asin)s&tag=%(tag)s'
-                          '&linkCode=ur2&camp=3626&creative=24790')
-    search_url = 'http://www.amazon.es/s/?url=search-alias%3Ddigital-text&field-keywords='
-
-    author_article = 'de '
-
-    and_word = ' y '

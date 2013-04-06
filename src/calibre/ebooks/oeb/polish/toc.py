@@ -262,6 +262,35 @@ def from_links(container):
             toc.remove(child)
     return toc
 
+def find_text(node):
+    LIMIT = 200
+    pat = re.compile(r'\s+')
+    for child in node:
+        if isinstance(child, etree._Element):
+            text = xml2text(child).strip()
+            text = pat.sub(' ', text)
+            if len(text) < 1:
+                continue
+            if len(text) > LIMIT:
+                # Look for less text in a child of this node, recursively
+                ntext = find_text(child)
+                return ntext or (text[:LIMIT] + '...')
+            else:
+                return text
+
+def from_files(container):
+    toc = TOC()
+    for spinepath in container.spine_items:
+        name = container.abspath_to_name(spinepath)
+        root = container.parsed(name)
+        body = XPath('//h:body')(root)
+        if not body:
+            continue
+        text = find_text(body[0])
+        if text:
+            toc.add(text, name)
+    return toc
+
 def add_id(container, name, loc):
     root = container.parsed(name)
     body = root.xpath('//*[local-name()="body"]')[0]

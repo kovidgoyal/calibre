@@ -39,39 +39,11 @@ class GoogleImages(Source):
             title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
         if not title:
             return
-        from threading import Thread
-        import time
         timeout = max(60, timeout) # Needs at least a minute
         title = ' '.join(self.get_title_tokens(title))
         author = ' '.join(self.get_author_tokens(authors))
         urls = self.get_image_urls(title, author, log, abort, timeout)
-        if not urls:
-            log('No images found in Google for, title: %r and authors: %r'%(title, author))
-            return
-        urls = urls[:self.prefs['max_covers']]
-        if get_best_cover:
-            urls = urls[:1]
-        workers = [Thread(target=self.download_image, args=(url, timeout, log, result_queue)) for url in urls]
-        for w in workers:
-            w.daemon = True
-            w.start()
-        alive = True
-        start_time = time.time()
-        while alive and not abort.is_set() and time.time() - start_time < timeout:
-            alive = False
-            for w in workers:
-                if w.is_alive():
-                    alive = True
-                    break
-            abort.wait(0.1)
-
-    def download_image(self, url, timeout, log, result_queue):
-        try:
-            ans = self.browser.open_novisit(url, timeout=timeout).read()
-            result_queue.put((self, ans))
-            log('Downloaded cover from: %s'%url)
-        except Exception:
-            self.log.exception('Failed to download cover from: %r'%url)
+        self.download_multiple_covers(title, authors, urls, get_best_cover, timeout, result_queue, abort, log)
 
     def get_image_urls(self, title, author, log, abort, timeout):
         from calibre.utils.ipc.simple_worker import fork_job, WorkerError

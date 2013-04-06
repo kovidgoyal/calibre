@@ -1,161 +1,275 @@
-# -*- coding: utf-8 -*-
-import re
+# vim:fileencoding=UTF-8
+from __future__ import unicode_literals
+__license__   = 'GPL v3'
+__copyright__ = '2013, Eddie Lau'
+__Date__ = ''
+
+from calibre import (__appname__, force_unicode, strftime)
+from calibre.utils.date import now as nowf
+import os, datetime, re
 from calibre.web.feeds.recipes import BasicNewsRecipe
+from contextlib import nested
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ebooks.metadata.opf2 import OPFCreator
+from calibre.ebooks.metadata.toc import TOC
+from calibre.ebooks.metadata import MetaInformation
+from calibre.utils.localization import canonicalize_lang
 
 class AppleDaily(BasicNewsRecipe):
-
-    title       = u'蘋果日報'
-    __author__  = u'蘋果日報'
-    __publisher__  = u'蘋果日報'
-    description = u'蘋果日報'
-    masthead_url = 'http://hk.apple.nextmedia.com/template/common/header/2009/images/atnextheader_logo_appledaily.gif'
-    language = 'zh_TW'
-    encoding = 'UTF-8'
-    timefmt = ' [%a, %d %b, %Y]'
-    needs_subscription = False
+    title          = u'蘋果日報 (香港)'
+    __author__     = 'Eddie Lau'
+    publisher      = '蘋果日報'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    auto_cleanup = False
+    language = 'zh'
+    encoding = 'utf-8'
+    auto_cleanup = False
     remove_javascript = True
-    remove_tags_before = dict(name=['ul', 'h1'])
-    remove_tags_after  = dict(name='form')
-    remove_tags = [dict(attrs={'class':['articleTools', 'post-tools', 'side_tool', 'nextArticleLink clearfix']}),
-                dict(id=['footer', 'toolsRight', 'articleInline', 'navigation', 'archive', 'side_search', 'blog_sidebar', 'side_tool', 'side_index']),
-                dict(name=['script', 'noscript', 'style', 'form'])]
+    use_embedded_content   = False
     no_stylesheets = True
-    extra_css = '''
-    	@font-face {font-family: "uming", serif, sans-serif;  src: url(res:///usr/share/fonts/truetype/arphic/uming.ttc); }\n
-	    body {margin-right: 8pt; font-family: 'uming', serif;}
-        h1 {font-family: 'uming', serif, sans-serif}
-            '''
-    #extra_css = 'h1 {font: sans-serif large;}\n.byline {font:monospace;}'
+    description = 'http://hkm.appledaily.com/'
+    category    = 'Chinese, News, Hong Kong'
+    masthead_url = 'http://upload.wikimedia.org/wikipedia/zh/c/cf/AppleDailyLogo1.png'
 
-    preprocess_regexps = [
-       (re.compile(r'img.php?server=(?P<server>[^&]+)&path=(?P<path>[^&]+).*', re.DOTALL|re.IGNORECASE),
-        lambda match: 'http://' + match.group('server') + '/' + match.group('path')),
-    ]
+    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; max-height:90%;} h1 {font-size:200%; text-align:left; font-weight:bold;} p[class=video-caption] {font-size:50%; margin-left:auto; margin-right:auto;}'
+    keep_only_tags = [dict(name='div', attrs={'id':'content-article'})]
+    remove_tags = [dict(name='div', attrs={'class':'prev-next-btn'}),
+                   dict(name='p', attrs={'class':'next'})]
+
+    def get_dtlocal(self):
+        dt_utc = datetime.datetime.utcnow()
+        # convert UTC to local hk time - at HKT 6am, all news are available
+        return dt_utc + datetime.timedelta(8.0/24) - datetime.timedelta(6.0/24)
+
+    def get_fetchdate(self):
+        if __Date__ <> '':
+            return __Date__
+        else:
+            return self.get_dtlocal().strftime("%Y%m%d")
+
+    def get_fetchformatteddate(self):
+        if __Date__ <> '':
+            return __Date__[0:4]+'-'+__Date__[4:6]+'-'+__Date__[6:8]
+        else:
+            return self.get_dtlocal().strftime("%Y-%m-%d")
+
+    def get_fetchyear(self):
+        if __Date__ <> '':
+            return __Date__[0:4]
+        else:
+            return self.get_dtlocal().strftime("%Y")
+
+    def get_fetchmonth(self):
+        if __Date__ <> '':
+            return __Date__[4:6]
+        else:
+            return self.get_dtlocal().strftime("%m")
+
+    def get_fetchday(self):
+        if __Date__ <> '':
+            return __Date__[6:8]
+        else:
+            return self.get_dtlocal().strftime("%d")
+
+    # Note: does not work with custom date given by __Date__
+    def get_weekday(self):
+        return self.get_dtlocal().weekday()
 
     def get_cover_url(self):
-        return 'http://hk.apple.nextmedia.com/template/common/header/2009/images/atnextheader_logo_appledaily.gif'
+        soup = self.index_to_soup('http://hkm.appledaily.com/')
+        cover = soup.find(attrs={'class':'top-news'}).get('src', False)
+        br = BasicNewsRecipe.get_browser(self)
+        try:
+            br.open(cover)
+        except:
+            cover = None
+        return cover
 
-
-    #def get_browser(self):
-        #br = BasicNewsRecipe.get_browser(self)
-        #if self.username is not None and self.password is not None:
-        #    br.open('http://www.nytimes.com/auth/login')
-        #    br.select_form(name='login')
-        #    br['USERID']   = self.username
-        #    br['PASSWORD'] = self.password
-        #    br.submit()
-        #return br
-
-    def preprocess_html(self, soup):
-        #process all the images
-        for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
-            iurl = tag['src']
-            #print 'checking image: ' + iurl
-
-            #img\.php?server\=(?P<server>[^&]+)&path=(?P<path>[^&]+)
-            p = re.compile(r'img\.php\?server=(?P<server>[^&]+)&path=(?P<path>[^&]+)', re.DOTALL|re.IGNORECASE)
-
-            m = p.search(iurl)
-
-            if m is not None:
-                iurl = 'http://' + m.group('server') + '/' + m.group('path')
-                #print 'working! new url: ' + iurl
-                tag['src'] = iurl
-            #else:
-                #print 'not good'
-
-        for tag in soup.findAll(lambda tag: tag.name.lower()=='a' and tag.has_key('href')):
-            iurl = tag['href']
-            #print 'checking image: ' + iurl
-
-            #img\.php?server\=(?P<server>[^&]+)&path=(?P<path>[^&]+)
-            p = re.compile(r'img\.php\?server=(?P<server>[^&]+)&path=(?P<path>[^&]+)', re.DOTALL|re.IGNORECASE)
-
-            m = p.search(iurl)
-
-            if m is not None:
-                iurl = 'http://' + m.group('server') + '/' + m.group('path')
-                #print 'working! new url: ' + iurl
-                tag['href'] = iurl
-            #else:
-                #print 'not good'
-
-        return soup
-
+    def populate_article_metadata(self, article, soup, first):
+        if first and hasattr(self, 'add_toc_thumbnail'):
+            picdiv = soup.find('img')
+            if picdiv is not None:
+                self.add_toc_thumbnail(article,picdiv['src'])
 
     def parse_index(self):
-        base = 'http://news.hotpot.hk/fruit'
-        soup = self.index_to_soup('http://news.hotpot.hk/fruit/index.php')
+        feeds = []
+        soup = self.index_to_soup('http://hkm.appledaily.com/')
+        ul = soup.find(attrs={'class':'menu'})
+        sectionList = []
+        for li in ul.findAll('li'):
+            a = 'http://hkm.appledaily.com/' + li.find('a', href=True).get('href', False)
+            title = li.find('a', text=True).strip()
+            if not title == u'動新聞':
+                sectionList.append((title, a))
+        for title, url in sectionList:
+            articles = self.parse_section(url)
+            if articles:
+                feeds.append((title, articles))
+        return feeds
 
-        #def feed_title(div):
-        #    return ''.join(div.findAll(text=True, recursive=False)).strip()
+    def parse_section(self, url):
+        soup = self.index_to_soup(url)
+        ul = soup.find(attrs={'class':'list'})
+        current_articles = []
+        for li in ul.findAll('li'):
+            a = li.find('a', href=True)
+            title = li.find('p', text=True).strip()
+            if a is not None:
+                current_articles.append({'title': title, 'url':'http://hkm.appledaily.com/' + a.get('href', False)})
+            pass
+        return current_articles
 
-        articles = {}
-        key = None
-        ans = []
-        for div in soup.findAll('li'):
-            key = div.find(text=True, recursive=True);
-            #if key == u'豪情':
-           #    continue;
+    def create_opf(self, feeds, dir=None):
+        if dir is None:
+            dir = self.output_dir
+        title = self.short_title()
+        if self.output_profile.periodical_date_in_title:
+            title += strftime(self.timefmt)
+        mi = MetaInformation(title, [__appname__])
+        mi.publisher = __appname__
+        mi.author_sort = __appname__
+        if self.publication_type:
+            mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
+        mi.timestamp = nowf()
+        article_titles, aseen = [], set()
+        for f in feeds:
+            for a in f:
+                if a.title and a.title not in aseen:
+                    aseen.add(a.title)
+                    article_titles.append(force_unicode(a.title, 'utf-8'))
 
-            print 'section=' + key
+        mi.comments = self.description
+        if not isinstance(mi.comments, unicode):
+            mi.comments = mi.comments.decode('utf-8', 'replace')
+        mi.comments += ('\n\n' + _('Articles in this issue: ') + '\n' +
+                '\n\n'.join(article_titles))
 
-            articles[key] = []
+        language = canonicalize_lang(self.language)
+        if language is not None:
+            mi.language = language
+        # This one affects the pub date shown in kindle title
+        #mi.pubdate = nowf()
+        # now appears to need the time field to be > 12.00noon as well
+        mi.pubdate = datetime.datetime(int(self.get_fetchyear()), int(self.get_fetchmonth()), int(self.get_fetchday()), 12, 30, 0)
+        opf_path = os.path.join(dir, 'index.opf')
+        ncx_path = os.path.join(dir, 'index.ncx')
 
-            ans.append(key)
+        opf = OPFCreator(dir, mi)
+        # Add mastheadImage entry to <guide> section
+        mp = getattr(self, 'masthead_path', None)
+        if mp is not None and os.access(mp, os.R_OK):
+            from calibre.ebooks.metadata.opf2 import Guide
+            ref = Guide.Reference(os.path.basename(self.masthead_path), os.getcwdu())
+            ref.type = 'masthead'
+            ref.title = 'Masthead Image'
+            opf.guide.append(ref)
 
-            a = div.find('a', href=True)
+        manifest = [os.path.join(dir, 'feed_%d'%i) for i in range(len(feeds))]
+        manifest.append(os.path.join(dir, 'index.html'))
+        manifest.append(os.path.join(dir, 'index.ncx'))
 
-            if not a:
-                continue
+        # Get cover
+        cpath = getattr(self, 'cover_path', None)
+        if cpath is None:
+            pf = open(os.path.join(dir, 'cover.jpg'), 'wb')
+            if self.default_cover(pf):
+                cpath =  pf.name
+        if cpath is not None and os.access(cpath, os.R_OK):
+            opf.cover = cpath
+            manifest.append(cpath)
 
-            url = base + '/' + a['href']
-            print 'url=' + url
+        # Get masthead
+        mpath = getattr(self, 'masthead_path', None)
+        if mpath is not None and os.access(mpath, os.R_OK):
+            manifest.append(mpath)
 
-            if not articles.has_key(key):
-                articles[key] = []
-            else:
-                # sub page
-                subSoup = self.index_to_soup(url)
+        opf.create_manifest_from_files_in(manifest)
+        for mani in opf.manifest:
+            if mani.path.endswith('.ncx'):
+                mani.id = 'ncx'
+            if mani.path.endswith('mastheadImage.jpg'):
+                mani.id = 'masthead-image'
 
-                for subDiv in subSoup.findAll('li'):
-                    subA = subDiv.find('a', href=True)
-                    subTitle = subDiv.find(text=True, recursive=True)
-                    subUrl = base + '/' + subA['href']
-
-                    print 'subUrl' + subUrl
-
-                    articles[key].append(
-                        dict(title=subTitle,
-                         url=subUrl,
-                         date='',
-                         description='',
-                         content=''))
+        entries = ['index.html']
+        toc = TOC(base_path=dir)
+        self.play_order_counter = 0
+        self.play_order_map = {}
 
 
-#             elif div['class'] in ['story', 'story headline']:
-#                 a = div.find('a', href=True)
-#                 if not a:
-#                     continue
-#                 url = re.sub(r'\?.*', '', a['href'])
-#                 url += '?pagewanted=all'
-#                 title = self.tag_to_string(a, use_alt=True).strip()
-#                 description = ''
-#                 pubdate = strftime('%a, %d %b')
-#                 summary = div.find(True, attrs={'class':'summary'})
-#                 if summary:
-#                     description = self.tag_to_string(summary, use_alt=False)
-#
-#                 feed = key if key is not None else 'Uncategorized'
-#                 if not articles.has_key(feed):
-#                     articles[feed] = []
-#                 if not 'podcasts' in url:
-#                     articles[feed].append(
-#                               dict(title=title, url=url, date=pubdate,
-#                                    description=description,
-#                                    content=''))
-#        ans = self.sort_index_by(ans, {'The Front Page':-1, 'Dining In, Dining Out':1, 'Obituaries':2})
-        ans = [(unicode(key), articles[key]) for key in ans if articles.has_key(key)]
-        return ans
+        def feed_index(num, parent):
+            f = feeds[num]
+            for j, a in enumerate(f):
+                if getattr(a, 'downloaded', False):
+                    adir = 'feed_%d/article_%d/'%(num, j)
+                    auth = a.author
+                    if not auth:
+                        auth = None
+                    desc = a.text_summary
+                    if not desc:
+                        desc = None
+                    else:
+                        desc = self.description_limiter(desc)
+                    tt = a.toc_thumbnail if a.toc_thumbnail else None
+                    entries.append('%sindex.html'%adir)
+                    po = self.play_order_map.get(entries[-1], None)
+                    if po is None:
+                        self.play_order_counter += 1
+                        po = self.play_order_counter
+                    parent.add_item('%sindex.html'%adir, None,
+                            a.title if a.title else _('Untitled Article'),
+                            play_order=po, author=auth,
+                            description=desc, toc_thumbnail=tt)
+                    last = os.path.join(self.output_dir, ('%sindex.html'%adir).replace('/', os.sep))
+                    for sp in a.sub_pages:
+                        prefix = os.path.commonprefix([opf_path, sp])
+                        relp = sp[len(prefix):]
+                        entries.append(relp.replace(os.sep, '/'))
+                        last = sp
 
+                    if os.path.exists(last):
+                        with open(last, 'rb') as fi:
+                            src = fi.read().decode('utf-8')
+                        soup = BeautifulSoup(src)
+                        body = soup.find('body')
+                        if body is not None:
+                            prefix = '/'.join('..'for i in range(2*len(re.findall(r'link\d+', last))))
+                            templ = self.navbar.generate(True, num, j, len(f),
+                                            not self.has_single_feed,
+                                            a.orig_url, __appname__, prefix=prefix,
+                                            center=self.center_navbar)
+                            elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
+                            body.insert(len(body.contents), elem)
+                            with open(last, 'wb') as fi:
+                                fi.write(unicode(soup).encode('utf-8'))
+        if len(feeds) == 0:
+            raise Exception('All feeds are empty, aborting.')
+
+        if len(feeds) > 1:
+            for i, f in enumerate(feeds):
+                entries.append('feed_%d/index.html'%i)
+                po = self.play_order_map.get(entries[-1], None)
+                if po is None:
+                    self.play_order_counter += 1
+                    po = self.play_order_counter
+                auth = getattr(f, 'author', None)
+                if not auth:
+                    auth = None
+                desc = getattr(f, 'description', None)
+                if not desc:
+                    desc = None
+                feed_index(i, toc.add_item('feed_%d/index.html'%i, None,
+                    f.title, play_order=po, description=desc, author=auth))
+
+        else:
+            entries.append('feed_%d/index.html'%0)
+            feed_index(0, toc)
+
+        for i, p in enumerate(entries):
+            entries[i] = os.path.join(dir, p.replace('/', os.sep))
+        opf.create_spine(entries)
+        opf.set_toc(toc)
+
+        with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
+            opf.render(opf_file, ncx_file)
 

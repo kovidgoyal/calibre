@@ -47,6 +47,10 @@ binary_includes = [
                 '/usr/lib/libgthread-2.0.so.0',
                 '/usr/lib/libpng14.so.14',
                 '/usr/lib/libexslt.so.0',
+                # Ensure that libimobiledevice is compiled against openssl, not gnutls
+                '/usr/lib/libimobiledevice.so.3',
+                '/usr/lib/libusbmuxd.so.2',
+                '/usr/lib/libplist.so.1',
                 MAGICK_PREFIX+'/lib/libMagickWand.so.5',
                 MAGICK_PREFIX+'/lib/libMagickCore.so.5',
                 '/usr/lib/libgcrypt.so.11',

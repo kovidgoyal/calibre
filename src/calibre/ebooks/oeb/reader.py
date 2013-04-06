@@ -333,8 +333,8 @@ class OEBReader(object):
         guide = self.oeb.guide
         manifest = self.oeb.manifest
         for elem in xpath(opf, '/o2:package/o2:guide/o2:reference'):
-            href = elem.get('href')
-            path = urlnormalize(urldefrag(href)[0])
+            ref_href = elem.get('href')
+            path = urlnormalize(urldefrag(ref_href)[0])
             if path not in manifest.hrefs:
                 corrected_href = None
                 for href in manifest.hrefs:
@@ -342,12 +342,12 @@ class OEBReader(object):
                         corrected_href = href
                         break
                 if corrected_href is None:
-                    self.logger.warn(u'Guide reference %r not found' % href)
+                    self.logger.warn(u'Guide reference %r not found' % ref_href)
                     continue
-                href = corrected_href
+                ref_href = corrected_href
             typ = elem.get('type')
             if typ not in guide:
-                guide.add(typ, elem.get('title'), href)
+                guide.add(typ, elem.get('title'), ref_href)
 
     def _find_ncx(self, opf):
         result = xpath(opf, '/o2:package/o2:spine/@toc')

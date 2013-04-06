@@ -1,3 +1,4 @@
+import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from collections import OrderedDict
 
@@ -39,7 +40,7 @@ class BusinessWeekMagazine(BasicNewsRecipe):
             title=self.tag_to_string(div.a).strip()
             url=div.a['href']
             soup0 = self.index_to_soup(url)
-            urlprint=soup0.find('li', attrs={'class':'print tracked'}).a['href']
+            urlprint=soup0.find('a', attrs={'href':re.compile('.*printer.*')})['href']
             articles.append({'title':title, 'url':urlprint, 'description':'', 'date':''})
 
 
@@ -56,7 +57,7 @@ class BusinessWeekMagazine(BasicNewsRecipe):
             title=self.tag_to_string(div.a).strip()
             url=div.a['href']
             soup0 = self.index_to_soup(url)
-            urlprint=soup0.find('li', attrs={'class':'print tracked'}).a['href']
+            urlprint=soup0.find('a', attrs={'href':re.compile('.*printer.*')})['href']
             articles.append({'title':title, 'url':urlprint, 'description':desc, 'date':''})
 
             if articles:
