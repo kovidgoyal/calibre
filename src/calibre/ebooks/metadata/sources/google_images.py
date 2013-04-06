@@ -51,6 +51,7 @@ class GoogleImages(Source):
         urls = urls[:self.prefs['max_covers']]
         if get_best_cover:
             urls = urls[:1]
+        log('Downloading %d covers'%len(urls))
         workers = [Thread(target=self.download_image, args=(url, timeout, log, result_queue)) for url in urls]
         for w in workers:
             w.daemon = True
