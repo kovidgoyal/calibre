@@ -429,6 +429,40 @@ class Source(Plugin):
             mi.tags = list(map(fixcase, mi.tags))
         mi.isbn = check_isbn(mi.isbn)
 
+    def download_multiple_covers(self, title, authors, urls, get_best_cover, timeout, result_queue, abort, log, prefs_name='max_covers'):
+        if not urls:
+            log('No images found for, title: %r and authors: %r'%(title, authors))
+            return
+        from threading import Thread
+        import time
+        if prefs_name:
+            urls = urls[:self.prefs[prefs_name]]
+        if get_best_cover:
+            urls = urls[:1]
+        log('Downloading %d covers'%len(urls))
+        workers = [Thread(target=self.download_image, args=(u, timeout, log, result_queue)) for u in urls]
+        for w in workers:
+            w.daemon = True
+            w.start()
+        alive = True
+        start_time = time.time()
+        while alive and not abort.is_set() and time.time() - start_time < timeout:
+            alive = False
+            for w in workers:
+                if w.is_alive():
+                    alive = True
+                    break
+            abort.wait(0.1)
+
+    def download_image(self, url, timeout, log, result_queue):
+        try:
+            ans = self.browser.open_novisit(url, timeout=timeout).read()
+            result_queue.put((self, ans))
+            log('Downloaded cover from: %s'%url)
+        except Exception:
+            self.log.exception('Failed to download cover from: %r'%url)
+
+
     # }}}
 
     # Metadata API {{{
