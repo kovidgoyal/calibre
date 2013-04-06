@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-04-05 05:29+0000\n"
+"X-Launchpad-Export-Date: 2013-04-06 05:26+0000\n"
 "X-Generator: Launchpad (build 16550)\n"
 "Language: sr\n"
 
@@ -24347,7 +24347,3 @@ msgstr ""
 #~ msgstr ""
 #~ "Изабране књиге ће бити <b>заувек избрисане</b> и  уклоњене из ваше calibre "
 #~ "библиотеке. Да ли сте сигурни?"
-
-#, python-format
-#~ msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
-#~ msgstr "Нашао сам <b>%(num)d</b> корице за %(title)s. Одаберите коју желите."

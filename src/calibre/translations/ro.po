@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
 "== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2013-04-05 05:29+0000\n"
+"X-Launchpad-Export-Date: 2013-04-06 05:25+0000\n"
 "X-Generator: Launchpad (build 16550)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -25580,12 +25580,6 @@ msgid ""
 "number of such libraries, the sorting becomes alphabetic. You can set that\n"
 "number here. The default is ten libraries."
 msgstr ""
-
-#, python-format
-#~ msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
-#~ msgstr ""
-#~ "S-au găsit <b>%(num)d</b> coperţi pentru %(title)s. Alegeţi una care vă "
-#~ "place cel mai mult."
 
 #~ msgid ""
 #~ "The selected books will be <b>permanently deleted</b> and the files removed "

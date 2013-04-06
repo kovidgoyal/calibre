@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-04-05 05:35+0000\n"
+"X-Launchpad-Export-Date: 2013-04-06 05:32+0000\n"
 "X-Generator: Launchpad (build 16550)\n"
 "Language: zh_TW\n"
 
@@ -23649,7 +23649,3 @@ msgstr ""
 #~ "The selected books will be <b>permanently deleted</b> from your device. Are "
 #~ "you sure?"
 #~ msgstr "選取的書籍會從您的裝置<b>永遠刪除</b>您確定嗎？"
-
-#, python-format
-#~ msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
-#~ msgstr "找到 %(title)s 的 <b>%(num)d</b> 個封面。請挑一個您最喜歡的。"

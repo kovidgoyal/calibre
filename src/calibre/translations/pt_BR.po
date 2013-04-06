@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-04-05 04:01+0000\n"
-"PO-Revision-Date: 2013-04-01 10:02+0000\n"
-"Last-Translator: Mihailov <Unknown>\n"
+"PO-Revision-Date: 2013-04-05 18:02+0000\n"
+"Last-Translator: Neliton Pereira Jr. <nelitonpjr@gmail.com>\n"
 "Language-Team: Português Brasileiro <ubuntu-l10n-ptbr@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-04-05 05:34+0000\n"
+"X-Launchpad-Export-Date: 2013-04-06 05:31+0000\n"
 "X-Generator: Launchpad (build 16550)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3597,11 +3597,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:108
 msgid "footers"
-msgstr ""
+msgstr "rodapés"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:111
 msgid "headers"
-msgstr ""
+msgstr "cabeçalhos"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -4412,7 +4412,7 @@ msgstr "Configura a data da publicação."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:574
 msgid "Set the book timestamp (no longer used anywhere)"
-msgstr ""
+msgstr "Definir a marca temporal do livro (não é mais usada em lugar algum)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:578
 msgid ""
@@ -4605,6 +4605,10 @@ msgid ""
 "the order A, B, D, C.  With this option, they will instead be added as A, B, "
 "C, D"
 msgstr ""
+"Normalmente, quando está seguindo links em arquivos HTML, o calibre adiciona "
+"o de profundidade primeiro, isto é, se o arquivo A tem um link para B e para "
+"C, mas B tem um link para D, os arquivos são adicionados na ordem A, B, D, "
+"C. Com esta opção, eles serão adicionados na ordem A, B, C, D."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -5091,6 +5095,11 @@ msgid ""
 "Fetch a cover image/social metadata for the book identified by ISBN from "
 "LibraryThing.com\n"
 msgstr ""
+"\n"
+"%prog [opções] ISBN\n"
+"\n"
+"Busca imagem de capa/metadados sociais para o livro identificado pelo ISBN a "
+"partir do LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1499
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1284
@@ -5179,30 +5188,34 @@ msgid ""
 "Downloads covers from a Google Image search. Useful to find larger/alternate "
 "covers."
 msgstr ""
+"Baixa capas a partir da pesquisa do Google Imagens. Conveniente para achar "
+"capas maiores ou alternativas."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:20
 msgid "Configure the Google Image Search plugin"
-msgstr ""
+msgstr "Configurar o plug-in de pesquisa no Google Imagens"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:22
 msgid "Maximum number of covers to get"
-msgstr ""
+msgstr "Numero máximo de capas a obter"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:23
 msgid "The maximum number of covers to process from the google search result"
 msgstr ""
+"O Número máximo de capas a serem processadas a partir do resultado de "
+"pesquisa do Google"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:24
 msgid "Cover size"
-msgstr ""
+msgstr "Tamanho da capa"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:25
 msgid "Search for covers larger than the specified size"
-msgstr ""
+msgstr "Pesquisar por capas maiores que a capa especificada"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:27
 msgid "Any size"
-msgstr ""
+msgstr "Qualquer tamanho"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:146
@@ -5217,7 +5230,7 @@ msgstr "Grande"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:34
 #, python-format
 msgid "Larger than %s"
-msgstr ""
+msgstr "Maiores que %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:24
 msgid "Downloads metadata from isbndb.com"
@@ -5411,7 +5424,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/errors.py:17
 msgid "This file is locked with DRM. It cannot be edited."
-msgstr ""
+msgstr "Este arquivo está bloqueado com DRM. Não pode ser editado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:36
 #, python-format
@@ -5431,6 +5444,19 @@ msgid ""
 "\n"
 "<p>Note that polishing only works on files in the %s formats.</p>\n"
 msgstr ""
+"<p>O <i>polimento de livros</i> serve para colocar o brilho da perfeição "
+"nos\n"
+"livros que você cuidadosamente montou.</p>\n"
+"\n"
+"<p>O polimento tenta minimizar as alterações no código interno do livro.\n"
+"Ao contrário da conversão, ele <i>não</i> achata o CSS, renomeia arquivos,\n"
+"altera tamanho de fontes, ou ajusta margens, etc. Toda ação executa apenas\n"
+"um conjunto mínimo de alterações necessárias para o efeito desejado.</p>\n"
+"\n"
+"<p>Você deve usar esta ferramenta como o último passo no processo de\n"
+"criação de seu livro eletrônico.</p>\n"
+"\n"
+"<p>Note que o polimento funciona somente para arquivos nos formatos %s./p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:431
@@ -5486,7 +5512,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:117
 #, python-format
 msgid "## Polishing: %s"
-msgstr ""
+msgstr "## Polindo: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:125
 msgid "Updating metadata"
@@ -6147,6 +6173,8 @@ msgstr "Criar catálogo"
 msgid ""
 "Create a catalog of the books in your calibre library in different formats"
 msgstr ""
+"Criar um catálogo de livros na sua biblioteca do calibre em diferentes "
+"formatos."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:40
 msgid "No books selected for catalog generation"
@@ -7174,7 +7202,7 @@ msgstr "Polir %d livros"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:40
 #, python-format
 msgid "<h3>About Polishing books</h3>%s"
-msgstr ""
+msgstr "<h3>Sobre o polimento de livros</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:42
 #, python-format
@@ -7254,6 +7282,8 @@ msgstr "Mostrar &relatório"
 msgid ""
 "Show a report of all the actions performed after polishing is completed"
 msgstr ""
+"Exibir um relatório sobre todas as ações executadas depois que o polimento "
+"terminar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:114
 msgid "&Save Settings"
@@ -7691,6 +7721,8 @@ msgid ""
 "Editing Table of Contents is only supported for books in the %s formats. "
 "Convert to one of those formats before polishing."
 msgstr ""
+"Somente os formatos %s suportam a edição de sumário. Converta para um desses "
+"formatos antes do polimento."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:288
@@ -24927,6 +24959,8 @@ msgstr ""
 msgid ""
 "Save original file when converting/polishing from same format to same format"
 msgstr ""
+"Salvar o arquivo original antes de converter/polir de um formato para o "
+"mesmo formato"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:467
 msgid ""
@@ -24937,6 +24971,17 @@ msgid ""
 "Similarly, by setting save_original_format_when_polishing to False you can\n"
 "prevent calibre from saving the original file when polishing."
 msgstr ""
+"Quando o calibre faz uma conversão de um formato para o mesmo formato,\n"
+"por exemplo, de EPUB para EPUB, o arquivo original será salvo, poque caso a\n"
+"conversão fique ruim, você pode ajustar as configurações e executar "
+"novamente.\n"
+"Se você definir esta opção como False, você evitará que o calibre salve o "
+"arquivo\n"
+"original.\n"
+"De maneira similar, ao definir save_original_format_when_polishing como "
+"False,\n"
+"você irá evitar que o calibre salve o arquivo original quando estiver "
+"polindo."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:476
 msgid "Number of recently viewed books to show"
@@ -25080,17 +25125,3 @@ msgstr ""
 #~ msgstr ""
 #~ "Os livros selecionados serão <b>permanentemente excluídos</b> e os arquivos "
 #~ "removidos da sua biblioteca calibre. Você tem certeza?"
-
-#~ msgid ""
-#~ "An HTML template used to generate footers on every page. The string "
-#~ "_PAGENUM_ will be replaced by the current page number."
-#~ msgstr ""
-#~ "Um modelo HTML usado para gerar rodapés em cada página. A string _PAGENUM_ "
-#~ "será substituida pelo atual número de página."
-
-#~ msgid ""
-#~ "An HTML template used to generate headers on every page. The string "
-#~ "_PAGENUM_ will be replaced by the current page number."
-#~ msgstr ""
-#~ "Um modelo HTML usado para gerar cabeçalhos em cada página. A string "
-#~ "_PAGENUM_ será substituída pelo número da página atual."

@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-05 05:28+0000\n"
+"X-Launchpad-Export-Date: 2013-04-06 05:25+0000\n"
 "X-Generator: Launchpad (build 16550)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -25607,28 +25607,3 @@ msgstr ""
 #~ msgstr ""
 #~ "Os livros seleccionados serão <b>apagados permanentemente</b> do "
 #~ "dispositivo. Tem a certeza?"
-
-#~ msgid ""
-#~ "An HTML template used to generate headers on every page. The string "
-#~ "_PAGENUM_ will be replaced by the current page number."
-#~ msgstr ""
-#~ "Um modelo HTML utilizado para geral cabeçalhos em cada página. O texto "
-#~ "_PAGENUM_ será substituido pela número da página actual."
-
-#~ msgid ""
-#~ "An HTML template used to generate footers on every page. The string "
-#~ "_PAGENUM_ will be replaced by the current page number."
-#~ msgstr ""
-#~ "Um modelo HTML utilizado para geral rodapés em cada página. O texto "
-#~ "_PAGENUM_ será substituido pela número da página actual."
-
-#, python-format
-#~ msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
-#~ msgstr ""
-#~ "Encontradas <b>%(num)d</b> capas de %(title)s. Escolha a que achar melhor."
-
-#~ msgid "Move current entry up"
-#~ msgstr "Mover a entrada actual para cima"
-
-#~ msgid "Move current entry down"
-#~ msgstr "Mover a entrada actual para baixo"

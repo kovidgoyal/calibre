@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-05 05:18+0000\n"
+"X-Launchpad-Export-Date: 2013-04-06 05:15+0000\n"
 "X-Generator: Launchpad (build 16550)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -26993,12 +26993,6 @@ msgstr ""
 #~ "Els llibres seleccionats se suprimiran <b>permanentment</b> i els fitxers es "
 #~ "trauran de la biblioteca del calibre. N'esteu segur?"
 
-#, python-format
-#~ msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
-#~ msgstr ""
-#~ "S'ha trobat <b>%(num)d</b> portades per a %(title)s. Trieu la que us agradi "
-#~ "més."
-
 #~ msgid ""
 #~ "By default, calibre splits a string containing multiple author names on\n"
 #~ "ampersands and the words \"and\" and \"with\". You can customize the "
@@ -27013,26 +27007,3 @@ msgstr ""
 #~ "divideixen\n"
 #~ "sempre que hi hagi una coincidència amb l'expressió regular especificada.\n"
 #~ "Per defecte: r'(?i),?\\s+(and|with)\\s+'"
-
-#~ msgid ""
-#~ "An HTML template used to generate headers on every page. The string "
-#~ "_PAGENUM_ will be replaced by the current page number."
-#~ msgstr ""
-#~ "Una plantilla HTML utilitzada per generar encapçalaments de pàgina a cada "
-#~ "pàgina. Es substituirà la cadena _PAGENUM_ pel nombre de pàgina actual."
-
-#~ msgid ""
-#~ "An HTML template used to generate footers on every page. The string "
-#~ "_PAGENUM_ will be replaced by the current page number."
-#~ msgstr ""
-#~ "Una plantilla HTML utilitzada per generar peus de pàgina a cada pàgina. Es "
-#~ "substituirà la cadena _PAGENUM_ pel nombre de pàgina actual."
-
-#~ msgid "Move current entry up"
-#~ msgstr "Mou cap amunt l'entrada actual"
-
-#~ msgid "Move current entry down"
-#~ msgstr "Mou cap avall l'entrada actual"
-
-#~ msgid "Flatten the ToC"
-#~ msgstr "Aplana l'índex"

@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-04-05 05:24+0000\n"
+"X-Launchpad-Export-Date: 2013-04-06 05:21+0000\n"
 "X-Generator: Launchpad (build 16550)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -24382,10 +24382,6 @@ msgid ""
 "number of such libraries, the sorting becomes alphabetic. You can set that\n"
 "number here. The default is ten libraries."
 msgstr ""
-
-#, python-format
-#~ msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
-#~ msgstr "<b>%(num)d</b> 個の %(title)s の表紙を発見。一番良い物を選んでください。"
 
 #~ msgid ""
 #~ "By default, calibre splits a string containing multiple author names on\n"

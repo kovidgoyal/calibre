@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-04-05 05:28+0000\n"
+"X-Launchpad-Export-Date: 2013-04-06 05:25+0000\n"
 "X-Generator: Launchpad (build 16550)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
@@ -26682,10 +26682,6 @@ msgstr ""
 #~ "Wybrane książki zostaną <b>trwale usunięte</b> z twojego urządzenia. Jesteś "
 #~ "pewien?"
 
-#, python-format
-#~ msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
-#~ msgstr "Znaleziono <b>%(num)d</b> okładek dla  %(title)s. Wybierz najlepszą."
-
 #~ msgid ""
 #~ "By default, calibre splits a string containing multiple author names on\n"
 #~ "ampersands and the words \"and\" and \"with\". You can customize the "
@@ -26700,26 +26696,3 @@ msgstr ""
 #~ "modyfikując poniższe wyrażenie regularne. Tekst jest dzielony przy użyciu\n"
 #~ "wszystkiego, co pasuje do tego wyrażenia.\n"
 #~ "Domyślnie: r'(?i),?\\s+(and|with)\\s+'"
-
-#~ msgid ""
-#~ "An HTML template used to generate footers on every page. The string "
-#~ "_PAGENUM_ will be replaced by the current page number."
-#~ msgstr ""
-#~ "Szablon HTML używany do wygenerowania stopki strony. Numer strony zostanie "
-#~ "umieszczony w miejsce ciągu _PAGENUM_."
-
-#~ msgid ""
-#~ "An HTML template used to generate headers on every page. The string "
-#~ "_PAGENUM_ will be replaced by the current page number."
-#~ msgstr ""
-#~ "Szablon HTML używany do wygenerowania nagłówka strony. Numer strony zostanie "
-#~ "umieszczony w miejsce ciągu _PAGENUM_."
-
-#~ msgid "Move current entry up"
-#~ msgstr "Przesuń bieżącą pozycję do góry"
-
-#~ msgid "Move current entry down"
-#~ msgstr "Przesuń bieżącą pozycję do dołu"
-
-#~ msgid "Flatten the ToC"
-#~ msgstr "Spłaszcz spis treści"
