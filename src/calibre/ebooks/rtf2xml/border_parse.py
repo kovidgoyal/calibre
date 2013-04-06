@@ -180,5 +180,6 @@ class BorderParse:
         elif 'single' in border_style_list:
             new_border_dict[att] = 'single'
         else:
-            new_border_dict[att] = border_style_list[0]
+            if border_style_list:
+                new_border_dict[att] = border_style_list[0]
         return new_border_dict
