@@ -132,7 +132,7 @@ class Worker(Thread): # Get details {{{
                  text()="Détails sur le produit" or \
                  text()="Detalles del producto" or \
                  text()="Detalhes do produto" or \
-                 text()="登録情報"]/../div[@class="content"]
+                 starts-with(text(), "登録情報")]/../div[@class="content"]
             '''
         # Editor: is for Spanish
         self.publisher_xpath = '''
@@ -235,6 +235,12 @@ class Worker(Thread): # Get details {{{
             msg = 'Failed to parse amazon details page: %r'%self.url
             self.log.exception(msg)
             return
+        if self.domain == 'jp':
+            for a in root.xpath('//a[@href]'):
+                if 'black-curtain-redirect.html' in a.get('href'):
+                    self.url = 'http://amazon.co.jp'+a.get('href')
+                    self.log('Black curtain redirect found, following')
+                    return self.get_details()
 
         errmsg = root.xpath('//*[@id="errorMessage"]')
         if errmsg:
@@ -252,8 +258,8 @@ class Worker(Thread): # Get details {{{
             self.log.exception('Error parsing asin for url: %r'%self.url)
             asin = None
         if self.testing:
-            import tempfile
-            with tempfile.NamedTemporaryFile(prefix=asin + '_',
+            import tempfile, uuid
+            with tempfile.NamedTemporaryFile(prefix=(asin or str(uuid.uuid4()))+ '_',
                     suffix='.html', delete=False) as f:
                 f.write(raw)
             print ('Downloaded html for', asin, 'saved in', f.name)
@@ -499,7 +505,7 @@ class Worker(Thread): # Get details {{{
     def parse_language(self, pd):
         for x in reversed(pd.xpath(self.language_xpath)):
             if x.tail:
-                raw = x.tail.strip()
+                raw = x.tail.strip().partition(',')[0].strip()
                 ans = self.lang_map.get(raw, None)
                 if ans:
                     return ans
@@ -1004,6 +1010,11 @@ if __name__ == '__main__': # tests {{{
     ] # }}}
 
     jp_tests = [ # {{{
+            ( # Adult filtering test
+             {'identifiers':{'isbn':'4799500066'}},
+             [title_test(u'Ｂｉｔｃｈ Ｔｒａｐ'),]
+            ),
+
             ( # isbn -> title, authors
                 {'identifiers':{'isbn': '9784101302720' }},
                 [title_test(u'精霊の守り人',

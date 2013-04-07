@@ -106,6 +106,8 @@ class Worker(Thread): # {{{
             parts = pub.partition(':')[0::2]
             pub = parts[1] or parts[0]
             try:
+                if ', Ship Date:' in pub:
+                    pub = pub.partition(', Ship Date:')[0]
                 q = parse_only_date(pub, assume_utc=True)
                 if q.year != UNDEFINED_DATE:
                     mi.pubdate = q

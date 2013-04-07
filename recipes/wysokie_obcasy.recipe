@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 __license__ = 'GPL v3'
-import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -51,7 +50,7 @@ class WysokieObcasyRecipe(BasicNewsRecipe):
         printVerString=articleURL1 + ',' + articleURL2
         s=  baseURL + subPath + printVerString + '.html'
         return s
-        
+
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.wysokieobcasy.pl/wysokie-obcasy/0,0.html')
         self.cover_url = soup.find(attrs={'class':'holder_cr'}).find('img')['src']

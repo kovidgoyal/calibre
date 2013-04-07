@@ -88,9 +88,7 @@ class StoreAction(InterfaceAction):
         if row == None:
             error_dialog(self.gui, _('Cannot search'), _('No book selected'), show=True)
             return
-
-        query = 'author:"%s"' % self._get_author(row)
-        self.search(query)
+        self.search({ 'author': self._get_author(row) })
 
     def _get_title(self, row):
         title = ''
@@ -107,18 +105,14 @@ class StoreAction(InterfaceAction):
         if row == None:
             error_dialog(self.gui, _('Cannot search'), _('No book selected'), show=True)
             return
-
-        query = 'title:"%s"' % self._get_title(row)
-        self.search(query)
+        self.search({ 'title': self._get_title(row) })
 
     def search_author_title(self):
         row = self._get_selected_row()
         if row == None:
             error_dialog(self.gui, _('Cannot search'), _('No book selected'), show=True)
             return
-
-        query = 'author:"%s" title:"%s"' % (self._get_author(row), self._get_title(row))
-        self.search(query)
+        self.search({ 'author': self._get_author(row), 'title': self._get_title(row) })
 
     def choose(self):
         from calibre.gui2.store.config.chooser.chooser_dialog import StoreChooserDialog

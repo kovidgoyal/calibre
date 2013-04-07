@@ -18,7 +18,7 @@ from PyQt4.Qt import (QPushButton, QFrame, QVariant, QMenu, QInputDialog,
 
 from calibre.ebooks.oeb.polish.container import get_container, AZW3Container
 from calibre.ebooks.oeb.polish.toc import (
-    get_toc, add_id, TOC, commit_toc, from_xpaths, from_links)
+    get_toc, add_id, TOC, commit_toc, from_xpaths, from_links, from_files)
 from calibre.gui2 import Application, error_dialog, gprefs
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.toc.location import ItemEdit
@@ -126,6 +126,7 @@ class ItemView(QFrame): # {{{
     go_to_root = pyqtSignal()
     create_from_xpath = pyqtSignal(object)
     create_from_links = pyqtSignal()
+    create_from_files = pyqtSignal()
     flatten_toc = pyqtSignal()
 
     def __init__(self, parent):
@@ -180,6 +181,15 @@ class ItemView(QFrame): # {{{
             ' Links that point to destinations that do not exist in the book are'
             ' ignored. Also multiple links with the same destination or the same'
             ' text are ignored.'
+        )))
+        l.addWidget(b)
+
+        self.cfb = b = QPushButton(_('Generate ToC from &files'))
+        b.clicked.connect(self.create_from_files)
+        b.setToolTip(textwrap.fill(_(
+            'Generate a Table of Contents from individual files in the book.'
+            ' Each entry in the ToC will point to the start of the file, the'
+            ' text of the entry will be the "first line" of text from the file.'
         )))
         l.addWidget(b)
 
@@ -549,11 +559,11 @@ class TOCView(QWidget): # {{{
         b.setToolTip(_('Remove all selected entries'))
         b.clicked.connect(self.del_items)
 
-        self.left_button = b = QToolButton(self)
+        self.right_button = b = QToolButton(self)
         b.setIcon(QIcon(I('forward.png')))
         b.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         l.addWidget(b, 4, 3)
-        b.setToolTip(_('Unindent the current entry [Ctrl+Left]'))
+        b.setToolTip(_('Indent the current entry [Ctrl+Right]'))
         b.clicked.connect(self.tocw.move_right)
 
         self.down_button = b = QToolButton(self)
@@ -577,6 +587,7 @@ class TOCView(QWidget): # {{{
         i.add_new_item.connect(self.add_new_item)
         i.create_from_xpath.connect(self.create_from_xpath)
         i.create_from_links.connect(self.create_from_links)
+        i.create_from_files.connect(self.create_from_files)
         i.flatten_item.connect(self.flatten_item)
         i.flatten_toc.connect(self.flatten_toc)
         i.go_to_root.connect(self.go_to_root)
@@ -777,6 +788,14 @@ class TOCView(QWidget): # {{{
             return error_dialog(self, _('No items found'),
                 _('No links were found that could be added to the Table of Contents.'), show=True)
         self.insert_toc_fragment(toc)
+
+    def create_from_files(self):
+        toc = from_files(self.ebook)
+        if len(toc) == 0:
+            return error_dialog(self, _('No items found'),
+                _('No files were found that could be added to the Table of Contents.'), show=True)
+        self.insert_toc_fragment(toc)
+
 
 # }}}
 

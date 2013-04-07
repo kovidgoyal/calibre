@@ -54,7 +54,7 @@ def get_parser(usage):
 def get_db(dbpath, options):
     global do_notify
     if options.library_path is not None:
-        dbpath = options.library_path
+        dbpath = os.path.expanduser(options.library_path)
     if dbpath is None:
         raise ValueError('No saved library path, either run the GUI or use the'
                 ' --with-library option')

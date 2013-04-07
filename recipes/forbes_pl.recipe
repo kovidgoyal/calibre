@@ -5,7 +5,6 @@ __license__ = 'GPL v3'
 from calibre.web.feeds.news import BasicNewsRecipe
 import datetime
 import re
-from calibre.ebooks.BeautifulSoup import Comment
 
 class forbes_pl(BasicNewsRecipe):
     title = u'Forbes.pl'
@@ -26,9 +25,9 @@ class forbes_pl(BasicNewsRecipe):
     pages_count = 4
     keep_only_tags = [dict(attrs={'class':['Block-Node Content-Article ', 'Block-Node Content-Article piano-closed']})]
     remove_tags = [dict(attrs={'class':['Keywords Styled', 'twitter-share-button', 'Block-List-Related Block-List']})]
-    
+
     feeds = [(u'Wszystkie', 'http://www.forbes.pl/rss')]
-    
+
     '''def preprocess_html(self, soup):
         self.append_page(soup, soup.body)
         return soup

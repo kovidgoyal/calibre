@@ -9,14 +9,14 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     __author__ = 'Dave Asbury'
     cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/161987_9010212100_2035706408_n.jpg'
     oldest_article = 2
-    max_articles_per_feed = 12
+    max_articles_per_feed = 20
     linearize_tables = True
     remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets = True
     auto_cleanup = True
     language = 'en_GB'
-
+    compress_news_images = True
     cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/161987_9010212100_2035706408_n.jpg'
 
     masthead_url        = 'http://www.trinitymirror.com/images/birminghampost-logo.gif'

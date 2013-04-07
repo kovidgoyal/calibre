@@ -2,6 +2,7 @@
 
 __license__ = 'GPL v3'
 
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.utils.magick import Image
 
