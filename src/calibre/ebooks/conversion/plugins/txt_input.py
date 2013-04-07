@@ -97,6 +97,12 @@ class TXTInput(InputFormatPlugin):
         if not ienc:
             ienc = 'utf-8'
             log.debug('No input encoding specified and could not auto detect using %s' % ienc)
+        # Remove BOM from start of txt as its presence can confuse markdown
+        import codecs
+        for bom in (codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE, codecs.BOM_UTF8, codecs.BOM_UTF32_LE, codecs.BOM_UTF32_BE):
+            if txt.startswith(bom):
+                txt = txt[len(bom):]
+                break
         txt = txt.decode(ienc, 'replace')
 
         # Replace entities
