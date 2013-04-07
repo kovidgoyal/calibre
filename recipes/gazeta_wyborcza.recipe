@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Comment
 
 class Gazeta_Wyborcza(BasicNewsRecipe):
-    title = u'Gazeta.pl'
+    title = u'Gazeta Wyborcza'
     __author__ = 'fenuks, Artur Stachecki'
     language = 'pl'
     description = 'Wiadomości z Polski i ze świata. Serwisy tematyczne i lokalne w 20 miastach.'

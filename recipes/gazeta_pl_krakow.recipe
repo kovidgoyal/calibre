@@ -10,7 +10,7 @@ krakow.gazeta.pl
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class gw_krakow(BasicNewsRecipe):
-    title          = u'Gazeta.pl Kraków'
+    title          = u'Gazeta Wyborcza Kraków'
     __author__ = 'teepel <teepel44@gmail.com> based on GW from fenuks'
     language       = 'pl'
     description =u'Wiadomości z Krakowa na portalu Gazeta.pl.'

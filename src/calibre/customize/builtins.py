@@ -757,9 +757,10 @@ from calibre.ebooks.metadata.sources.isbndb import ISBNDB
 from calibre.ebooks.metadata.sources.overdrive import OverDrive
 from calibre.ebooks.metadata.sources.douban import Douban
 from calibre.ebooks.metadata.sources.ozon import Ozon
-# from calibre.ebooks.metadata.sources.google_images import GoogleImages
+from calibre.ebooks.metadata.sources.google_images import GoogleImages
+from calibre.ebooks.metadata.sources.big_book_search import BigBookSearch
 
-plugins += [GoogleBooks, Amazon, Edelweiss, OpenLibrary, ISBNDB, OverDrive, Douban, Ozon]
+plugins += [GoogleBooks, GoogleImages, Amazon, Edelweiss, OpenLibrary, ISBNDB, OverDrive, Douban, Ozon, BigBookSearch]
 
 # }}}
 

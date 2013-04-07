@@ -20,7 +20,7 @@ class HBR(BasicNewsRecipe):
         'articleToolbarTopRD', 'pageRightSubColumn', 'pageRightColumn',
         'todayOnHBRListWidget', 'mostWidget', 'keepUpWithHBR',
         'mailingListTout', 'partnerCenter', 'pageFooter',
-        'superNavHeadContainer', 'hbrDisqus',
+        'superNavHeadContainer', 'hbrDisqus', 'article-toolbox',
         'articleToolbarTop', 'articleToolbarBottom', 'articleToolbarRD']),
         dict(name='iframe')]
     extra_css = '''
