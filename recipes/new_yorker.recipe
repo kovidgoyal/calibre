@@ -1,64 +1,44 @@
+#!/usr/bin/env  python
+# -*- coding: utf-8 -*-
 __license__   = 'GPL v3'
-__copyright__ = '2008-2013, Darko Miletic <darko.miletic at gmail.com>'
-'''
-newyorker.com
-'''
 
+'''
+www.canada.com
+'''
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
+
 class NewYorker(BasicNewsRecipe):
-    title                 = 'The New Yorker'
-    __author__            = 'Darko Miletic'
-    description           = 'The best of US journalism'
-    oldest_article        = 15
-    language              = 'en'
-    max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    publisher             = 'Conde Nast Publications'
-    category              = 'news, politics, USA'
-    encoding              = 'cp1252'
-    publication_type      = 'magazine'
-    masthead_url          = 'http://www.newyorker.com/css/i/hed/logo.gif'
-    extra_css             = """
-                                body {font-family: "Times New Roman",Times,serif}
-                                .articleauthor{color: #9F9F9F;
-                                               font-family: Arial, sans-serif;
-                                               font-size: small;
-                                               text-transform: uppercase}
-                                .rubric,.dd,h6#credit{color: #CD0021;
-                                        font-family: Arial, sans-serif;
-                                        font-size: small;
-                                        text-transform: uppercase}
-                                .descender:first-letter{display: inline; font-size: xx-large; font-weight: bold}
-                                .dd,h6#credit{color: gray}
-                                .c{display: block}
-                                .caption,h2#articleintro{font-style: italic}
-                                .caption{font-size: small}
-                            """
 
-    conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
 
-    keep_only_tags = [dict(name='div', attrs={'id':'pagebody'})]
-    remove_tags    = [
-                         dict(name=['meta','iframe','base','link','embed','object'])
-                        ,dict(attrs={'class':['utils','socialUtils','articleRailLinks','icons','social-utils-top','entry-keywords','entry-categories','utilsPrintEmail'] })
-                        ,dict(attrs={'id':['show-header','show-footer'] })
-                     ]
-    remove_tags_after = dict(attrs={'class':'entry-content'}) 
-    remove_attributes = ['lang']
-    feeds             = [(u'The New Yorker', u'http://www.newyorker.com/services/mrss/feeds/everything.xml')]
+    title = u'New Yorker Magazine'
+    newyorker_prefix = 'http://m.newyorker.com'
+    description = u'Content from the New Yorker website'
+    fp_tag = 'CAN_TC'
 
-    def print_version(self, url):
-        return url + '?printable=true&currentPage=all'
+    masthead_url = 'http://www.newyorker.com/images/elements/print/newyorker_printlogo.gif'
 
-    def image_url_processor(self, baseurl, url):
-        return url.strip()
+    compress_news_images = True
+    compress_news_images_auto_size = 8
+    scale_news_images_to_device = False
+    scale_news_images = (768, 1024)
+
+    url_list = []
+    language = 'en'
+    __author__ = 'Nick Redding'
+    no_stylesheets = True
+    timefmt =  ' [%b %d]'
+    encoding = 'utf-8'
+    extra_css = '''
+                .byline { font-size:xx-small; font-weight: bold;}
+                h3 { margin-bottom: 6px; }
+                .caption { font-size: xx-small; font-style: italic; font-weight: normal; }
+                '''
+    keep_only_tags = [dict(name='div', attrs={'id':re.compile('pagebody')})]
+
+    remove_tags = [{'class':'socialUtils'},{'class':'entry-keywords'}]
 
     def get_cover_url(self):
         cover_url = "http://www.newyorker.com/images/covers/1925/1925_02_21_p233.jpg"
@@ -68,13 +48,233 @@ class NewYorker(BasicNewsRecipe):
            cover_url = 'http://www.newyorker.com' + cover_item.div.img['src'].strip()
         return cover_url
 
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        auth = soup.find(attrs={'id':'articleauthor'})
-        if auth:
-           alink = auth.find('a')
-           if alink and alink.string is not None:
-              txt = alink.string
-              alink.replaceWith(txt)
+    def fixChars(self,string):
+        # Replace lsquo (\x91)
+        fixed = re.sub("\x91","‘",string)
+        # Replace rsquo (\x92)
+        fixed = re.sub("\x92","’",fixed)
+        # Replace ldquo (\x93)
+        fixed = re.sub("\x93","“",fixed)
+        # Replace rdquo (\x94)
+        fixed = re.sub("\x94","”",fixed)
+        # Replace ndash (\x96)
+        fixed = re.sub("\x96","–",fixed)
+        # Replace mdash (\x97)
+        fixed = re.sub("\x97","—",fixed)
+        fixed = re.sub("&#x2019;","’",fixed)
+        return fixed
+
+    def massageNCXText(self, description):
+        # Kindle TOC descriptions won't render certain characters
+        if description:
+            massaged = unicode(BeautifulStoneSoup(description, convertEntities=BeautifulStoneSoup.HTML_ENTITIES))
+            # Replace '&' with '&'
+            massaged = re.sub("&","&", massaged)
+            return self.fixChars(massaged)
+        else:
+            return description
+
+    def populate_article_metadata(self, article, soup, first):
+        if first:
+            picdiv = soup.find('body').find('img')
+            if picdiv is not None:
+                self.add_toc_thumbnail(article,re.sub(r'links\\link\d+\\','',picdiv['src']))
+        xtitle = article.text_summary.strip()
+        if len(xtitle) == 0:
+            desc = soup.find('meta',attrs={'property':'og:description'})
+            if desc is not None:
+                article.summary = article.text_summary = desc['content']
+        shortparagraph = ""
+##        try:
+        if len(article.text_summary.strip()) == 0:
+            articlebodies = soup.findAll('div',attrs={'class':'entry-content'})
+            if articlebodies:
+                for articlebody in articlebodies:
+                    if articlebody:
+                        paras = articlebody.findAll('p')
+                        for p in paras:
+                            refparagraph = self.massageNCXText(self.tag_to_string(p,use_alt=False)).strip()
+                            #account for blank paragraphs and short paragraphs by appending them to longer ones
+                            if len(refparagraph) > 0:
+                                if len(refparagraph) > 70: #approximately one line of text
+                                    newpara = shortparagraph + refparagraph
+                                    article.summary = article.text_summary = newpara.strip()
+                                    return
+                                else:
+                                    shortparagraph = refparagraph + " "
+                                    if shortparagraph.strip().find(" ") == -1 and not shortparagraph.strip().endswith(":"):
+                                        shortparagraph = shortparagraph + "- "
+        else:
+            article.summary = article.text_summary = self.massageNCXText(article.text_summary)
+##        except:
+##            self.log("Error creating article descriptions")
+##            return
+
+
+    def strip_anchors(self,soup):
+        paras = soup.findAll(True)
+        for para in paras:
+            aTags = para.findAll('a')
+            for a in aTags:
+                if a.img is None:
+                    a.replaceWith(a.renderContents().decode('cp1252','replace'))
         return soup
+
+    def preprocess_html(self,soup):
+        dateline = soup.find('div','published')
+        byline = soup.find('div','byline')
+        title = soup.find('h1','entry-title')
+        if title is None:
+            return self.strip_anchors(soup)
+        if byline is None:
+            title.append(dateline)
+            return self.strip_anchors(soup)
+        byline.append(dateline)
+        return self.strip_anchors(soup)
+
+    def load_global_nav(self,soup):
+        seclist = []
+        ul = soup.find('ul',attrs={'id':re.compile('global-nav-menu')})
+        if ul is not None:
+            for li in ul.findAll('li'):
+                if li.a is not None:
+                    securl = li.a['href']
+                    if securl != '/' and securl != '/magazine' and securl.startswith('/'):
+                        seclist.append((self.tag_to_string(li.a),self.newyorker_prefix+securl))
+        return seclist
+
+    def exclude_url(self,url):
+        if url in self.url_list:
+            return True
+        if not url.endswith('html'):
+            return True
+        if 'goings-on-about-town-app' in url:
+            return True
+        if 'something-to-be-thankful-for' in url:
+            return True
+        if '/shouts/' in url:
+            return True
+        if 'out-loud' in url:
+            return True
+        if '/rss/' in url:
+            return True
+        if '/video-' in url:
+            return True
+        self.url_list.append(url)
+        return False
+
+
+    def load_index_page(self,soup):
+        article_list = []
+        for div in soup.findAll('div',attrs={'class':re.compile('^rotator')}):
+            h2 = div.h2
+            if h2 is not None:
+                a = h2.a
+                if a is not None:
+                    url = a['href']
+                    if not self.exclude_url(url):
+                        if url.startswith('/'):
+                            url = self.newyorker_prefix+url
+                        byline = h2.span
+                        if byline is not None:
+                            author = self.tag_to_string(byline)
+                            if author.startswith('by '):
+                                author.replace('by ','')
+                            byline.extract()
+                        else:
+                            author = ''
+                        if h2.br is not None:
+                            h2.br.replaceWith(' ')
+                        title = self.tag_to_string(h2)
+                        desc = div.find(attrs={'class':['rotator-ad-body','feature-blurb-text']})
+                        if desc is not None:
+                            description = self.tag_to_string(desc)
+                        else:
+                            description = ''
+                        article_list.append(dict(title=title,url=url,date='',description=description,author=author,content=''))
+                        ul = div.find('ul','feature-blurb-links')
+                        if ul is not None:
+                            for li in ul.findAll('li'):
+                                a = li.a
+                                if a is not None:
+                                    url = a['href']
+                                    if not self.exclude_url(url):
+                                        if url.startswith('/'):
+                                            url = self.newyorker_prefix+url
+                                        if a.br is not None:
+                                            a.br.replaceWith(' ')
+                                        title = '>>'+self.tag_to_string(a)
+                                        article_list.append(dict(title=title,url=url,date='',description='',author='',content=''))
+        for h3 in soup.findAll('h3','header'):
+            a = h3.a
+            if a is not None:
+                url = a['href']
+                if not self.exclude_url(url):
+                    if url.startswith('/'):
+                        url = self.newyorker_prefix+url
+                    byline = h3.span
+                    if byline is not None:
+                        author = self.tag_to_string(byline)
+                        if author.startswith('by '):
+                            author = author.replace('by ','')
+                        byline.extract()
+                    else:
+                        author = ''
+                    if h3.br is not None:
+                        h3.br.replaceWith(' ')
+                    title = self.tag_to_string(h3).strip()
+                    article_list.append(dict(title=title,url=url,date='',description='',author=author,content=''))
+        return article_list
+
+    def load_global_section(self,securl):
+        article_list = []
+        try:
+            soup = self.index_to_soup(securl)
+        except:
+            return article_list
+        if '/blogs/' not in securl:
+            return self.load_index_page(soup)
+        for div in soup.findAll('div',attrs={'id':re.compile('^entry')}):
+            h3 = div.h3
+            if h3 is not None:
+                a = h3.a
+                if a is not None:
+                    url = a['href']
+                    if not self.exclude_url(url):
+                        if url.startswith('/'):
+                            url = self.newyorker_prefix+url
+                        if h3.br is not None:
+                            h3.br.replaceWith(' ')
+                        title = self.tag_to_string(h3)
+                        article_list.append(dict(title=title,url=url,date='',description='',author='',content=''))
+        return article_list
+
+    def filter_ans(self, ans) :
+        total_article_count = 0
+        idx = 0
+        idx_max = len(ans)-1
+        while idx <= idx_max:
+            if True: #self.verbose
+                self.log("Section %s: %d articles" % (ans[idx][0], len(ans[idx][1])) )
+            for article in ans[idx][1]:
+                total_article_count += 1
+                if True: #self.verbose
+                    self.log("\t%-40.40s... \t%-60.60s..." % (article['title'].encode('cp1252','replace'),
+                              article['url'].replace('http://m.newyorker.com','').encode('cp1252','replace')))
+            idx = idx+1
+        self.log( "Queued %d articles" % total_article_count )
+        return ans
+
+
+    def parse_index(self):
+        ans = []
+        try:
+            soup = self.index_to_soup(self.newyorker_prefix)
+        except:
+            return ans
+        seclist = self.load_global_nav(soup)
+        ans.append(('Front Page',self.load_index_page(soup)))
+        for (sectitle,securl) in seclist:
+            ans.append((sectitle,self.load_global_section(securl)))
+        return self.filter_ans(ans)
+
