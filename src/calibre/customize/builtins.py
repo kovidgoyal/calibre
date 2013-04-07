@@ -1467,7 +1467,7 @@ class StoreKoboStore(StoreBase):
     formats = ['EPUB']
     affiliate = True
 
-class StoreBookotekaStore(StoreBase):
+class StoreKoobeStore(StoreBase):
     name = 'Koobe'
     author = u'Tomasz Długosz'
     description = u'Księgarnia internetowa oferuje ebooki (książki elektroniczne) w postaci plików epub, mobi i pdf.'
@@ -1695,6 +1695,7 @@ plugins += [
     StoreGoogleBooksStore,
     StoreGutenbergStore,
     StoreKoboStore,
+    StoreKoobeStore,
     StoreLegimiStore,
     StoreLibreDEStore,
     StoreLitResStore,
