@@ -1467,6 +1467,15 @@ class StoreKoboStore(StoreBase):
     formats = ['EPUB']
     affiliate = True
 
+class StoreBookotekaStore(StoreBase):
+    name = 'Koobe'
+    author = u'Tomasz Długosz'
+    description = u'Księgarnia internetowa oferuje ebooki (książki elektroniczne) w postaci plików epub, mobi i pdf.'
+    actual_plugin = 'calibre.gui2.store.stores.koobe_plugin:KoobeStore'
+
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF']
+
 class StoreLegimiStore(StoreBase):
     name = 'Legimi'
     author = u'Tomasz Długosz'
