@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-04-05 04:01+0000\n"
-"PO-Revision-Date: 2013-04-03 14:03+0000\n"
+"PO-Revision-Date: 2013-04-06 15:11+0000\n"
 "Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-04-06 05:25+0000\n"
+"X-Launchpad-Export-Date: 2013-04-07 05:11+0000\n"
 "X-Generator: Launchpad (build 16550)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
@@ -565,7 +565,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1049
 msgid "Saving books to disk"
-msgstr "Zapisuje książki na dysku"
+msgstr "Zapis książek na dysk"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1055
 msgid ""
@@ -3580,14 +3580,17 @@ msgid ""
 "An HTML template used to generate %s on every page. The strings _PAGENUM_, "
 "_TITLE_, _AUTHOR_ and _SECTION_ will be replaced by their current values."
 msgstr ""
+"Szablon HTML użyty do utworzenia %s na każdej stronie. Tekst _PAGENUM_, "
+"_TITLE_, _AUTHOR_ and _SECTION_ zostanie zamieniony na odpowiadające im "
+"wartości."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:108
 msgid "footers"
-msgstr ""
+msgstr "stopki"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:111
 msgid "headers"
-msgstr ""
+msgstr "nagłówki"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -5150,30 +5153,33 @@ msgid ""
 "Downloads covers from a Google Image search. Useful to find larger/alternate "
 "covers."
 msgstr ""
+"Pobierz okładaki z wyszukiwania obrazów Google. Przydaje się do wyszukiwania "
+"większych/alternatywnych okładek."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:20
 msgid "Configure the Google Image Search plugin"
-msgstr ""
+msgstr "Konfiguruj wtyczkę wyszukiwania obrazów Google"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:22
 msgid "Maximum number of covers to get"
-msgstr ""
+msgstr "Maksymalna liczba okładek do pobrania"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:23
 msgid "The maximum number of covers to process from the google search result"
 msgstr ""
+"Maksymalna liczba okładek do przetworzenia z wyniku wyszukiwania google"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:24
 msgid "Cover size"
-msgstr ""
+msgstr "Rozmiar okładki"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:25
 msgid "Search for covers larger than the specified size"
-msgstr ""
+msgstr "Wyszukaj okładki większe niż zakładany rozmiar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:27
 msgid "Any size"
-msgstr ""
+msgstr "Dowolny rozmiar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:146
@@ -5188,7 +5194,7 @@ msgstr "Duże"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:34
 #, python-format
 msgid "Larger than %s"
-msgstr ""
+msgstr "Większy niż %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:24
 msgid "Downloads metadata from isbndb.com"
@@ -5685,7 +5691,7 @@ msgstr "Nie mogę znaleźć pdftohtml, sprawdź zmienną PATH"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/render/from_html.py:310
 msgid "Untitled"
-msgstr ""
+msgstr "Bez tytułu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:97
@@ -6783,6 +6789,8 @@ msgid ""
 "The %d selected book(s) will be <b>permanently deleted</b> and the files "
 "removed from your calibre library. Are you sure?"
 msgstr ""
+"Wybrane książki (%d) zostaną <b>całkowicie skasowane</b>, a ich pliki "
+"usunięte z biblioteki calibre. Na pewno usunąć?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:385
 #, python-format
@@ -6790,6 +6798,8 @@ msgid ""
 "The %d selected book(s) will be <b>permanently deleted</b> from your device. "
 "Are you sure?"
 msgstr ""
+"Wybrane książki (%d) zostaną <b>całkowicie usunięte</b> z urządzenia. Na "
+"pewno usunąć?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:33
 msgid "Start wireless device connection"
@@ -9190,7 +9200,7 @@ msgstr " KB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:63
 msgid "&Flatten EPUB file structure"
-msgstr "&Spłaszcz strukturę pliku EPUB"
+msgstr "&Usuń strukturę pliku EPUB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:12
 msgid "FB2 Input"
@@ -9953,7 +9963,7 @@ msgstr "&Rozmiar czcionki o stałej szerokości:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:155
 msgid "Page headers and footers"
-msgstr ""
+msgstr "Nagłówki i stopki strony"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:156
 msgid ""
@@ -9962,14 +9972,18 @@ msgid ""
 "href=\"http://manual.calibre-ebook.com/conversion.html#converting-to-"
 "pdf\">documentation</a>."
 msgstr ""
+"Możesz dodać nagłówki i stopki do każdej strony tworzonego dokumentu PDF "
+"przy użyciu szablonów. Przykłady znajdziesz w <a "
+"href=\"http://manual.calibre-ebook.com/conversion.html#converting-to-"
+"pdf\">dokumentacji</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:157
 msgid "&Header template:"
-msgstr ""
+msgstr "Szablon &nagłówka:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:158
 msgid "&Footer template:"
-msgstr ""
+msgstr "Szablon &stopki:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -15857,6 +15871,8 @@ msgid ""
 "Found <b>%(num)d</b> possible covers for %(title)s. When the download "
 "completes, the covers will be sorted by size."
 msgstr ""
+"Znaleziono <b>%(num)d</b> możliwych okładek dla %(title)s. Po zakończeniu "
+"pobierania okładki zostaną posortowane wg wielkości."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:981
 msgid "Downloading metadata..."
@@ -19956,7 +19972,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:187
 msgid "Generate ToC from &files"
-msgstr ""
+msgstr "Wygeneruj spis treści na podstawie &plików"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:190
 msgid ""
@@ -19964,6 +19980,9 @@ msgid ""
 "in the ToC will point to the start of the file, the text of the entry will "
 "be the \"first line\" of text from the file."
 msgstr ""
+"Wygeneruj spis treści na podstawie poszczególnych plików książki. Każda "
+"pozycja spisu treści będzie wskazywać na początek pliku, następna - na "
+"\"pierwszy wiersz\" tekstu w pliku."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:196
 msgid "Generate ToC from &XPath"
@@ -19975,12 +19994,13 @@ msgstr "Utwórz spis treści z bezwzględnych wyrażeń XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:203
 msgid "&Flatten the ToC"
-msgstr ""
+msgstr "Usuń strukturę spisu treści"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:206
 msgid "Flatten the Table of Contents, putting all entries at the top level"
 msgstr ""
-"Spłaszcz spis treści umieszczając wszystkie pozycje na jednym poziomie"
+"Usuń strukturę spisu treści, umieszczając wszystkie pozycje na jednym "
+"poziomie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:212
 msgid ""
@@ -20024,7 +20044,7 @@ msgstr "Nowa pozycja po&niżej bieżącej"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:273
 msgid "&Flatten this entry"
-msgstr "&Spłaszcz tę pozycję"
+msgstr "&Resetuj strukturę tej pozycji"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:275
 msgid ""
@@ -20052,39 +20072,39 @@ msgstr "Ta pozycja wskazuje na nieistniejącą lokalizację"
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:519
 #, python-format
 msgid "Move \"%s\" up"
-msgstr ""
+msgstr "Przenieś \"%s\" do góry"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:521
 #, python-format
 msgid "Move \"%s\" down"
-msgstr ""
+msgstr "Przenieś \"%s\" do dołu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:522
 msgid "Remove all selected items"
-msgstr ""
+msgstr "Usuń wszystkie zaznaczone pozycje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:524
 #, python-format
 msgid "Unindent \"%s\""
-msgstr ""
+msgstr "Usuń wcięcie \"%s\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:526
 #, python-format
 msgid "Indent \"%s\""
-msgstr ""
+msgstr "Dodaj wcięcie \"%s\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:527
 msgid "Change all selected items to title case"
-msgstr ""
+msgstr "Zmień wszystkie wybrane pozycje na \"title case\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:545
 msgid "Move current entry up [Ctrl+Up]"
-msgstr ""
+msgstr "Przenieś bieżącą pozycję do góry [Ctrl+Up]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:552
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:566
 msgid "Unindent the current entry [Ctrl+Left]"
-msgstr ""
+msgstr "Usuń wcięcie bieżącej pozycji [Ctrl+Left]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:559
 msgid "Remove all selected entries"
@@ -20092,7 +20112,7 @@ msgstr "Usuń wszystkie wybrane pozycje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:573
 msgid "Move current entry down [Ctrl+Down]"
-msgstr ""
+msgstr "Przesuń bieżącą pozycję do dołu [Ctrl+Down]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:575
 msgid "&Expand all"
@@ -20137,7 +20157,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:796
 msgid "No files were found that could be added to the Table of Contents."
-msgstr ""
+msgstr "Nie znaleziono plików, które mogłyby zostać dodane do spisu treści."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:814
 #, python-format
@@ -25610,6 +25630,14 @@ msgid ""
 "specified regular expression matches, in addition to ampersands.\n"
 "Default: r'(?i),?\\s+(and|with)\\s+'"
 msgstr ""
+"Domyślnie calibre dzieli tekst pola autora, zawierający wiele nazwisk "
+"autorów, przy użyciu\n"
+"ampersandu, a także słów \"and\" i \"with\". Można zmienić ten sposób "
+"dzielenia zmieniając\n"
+"wyrażenie regularne poniżej. Tekst pola zostanie podzielony przy użyciu "
+"ampersandów oraz \n"
+"czegokolwiek, co pasuje do wyrażenia.\n"
+"Domyślnie: r'(?i),?\\s+(and|with)\\s+'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:85
 msgid "Use author sort in Tag Browser"
@@ -26667,32 +26695,3 @@ msgstr ""
 "jest duża, są one ustawiane alfabetycznie. Tu można ustawić liczbę "
 "bibliotek,\n"
 "od której tak się dzieje. Domyślnie jest to dziesięć."
-
-#~ msgid ""
-#~ "The selected books will be <b>permanently deleted</b> and the files removed "
-#~ "from your calibre library. Are you sure?"
-#~ msgstr ""
-#~ "Wybrane książki zostaną <b>trwale usunięte</b> oraz pliki zostaną usunięte z "
-#~ "twojej biblioteki calibre. Czy jesteś pewien?"
-
-#~ msgid ""
-#~ "The selected books will be <b>permanently deleted</b> from your device. Are "
-#~ "you sure?"
-#~ msgstr ""
-#~ "Wybrane książki zostaną <b>trwale usunięte</b> z twojego urządzenia. Jesteś "
-#~ "pewien?"
-
-#~ msgid ""
-#~ "By default, calibre splits a string containing multiple author names on\n"
-#~ "ampersands and the words \"and\" and \"with\". You can customize the "
-#~ "splitting\n"
-#~ "by changing the regular expression below. Strings are split on whatever the\n"
-#~ "specified regular expression matches.\n"
-#~ "Default: r'(?i),?\\s+(and|with)\\s+'"
-#~ msgstr ""
-#~ "Domyślnie calibre dzieli tekst zawierający nazwiska autorów używając\n"
-#~ "znaku ampersand oraz słów \"and\" i \"with\". Możesz zmienić sposób "
-#~ "podziału\n"
-#~ "modyfikując poniższe wyrażenie regularne. Tekst jest dzielony przy użyciu\n"
-#~ "wszystkiego, co pasuje do tego wyrażenia.\n"
-#~ "Domyślnie: r'(?i),?\\s+(and|with)\\s+'"
