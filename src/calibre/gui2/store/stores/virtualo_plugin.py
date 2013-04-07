@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 2 # Needed for dynamic plugin loading
+store_version = 3 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2013, Tomasz Długosz <tomek3d@gmail.com>'
@@ -41,7 +41,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
         url = 'http://virtualo.pl/?q=' + urllib.quote(query) + '&f=format_id:4,6,3'
 
         br = browser()
-        no_drm_pattern = re.compile("Znak wodny")
+        no_drm_pattern = re.compile(r'Znak wodny|Brak')
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
@@ -59,7 +59,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 title = ''.join(data.xpath('.//div[@class="list_title list_text_left"]/a/text()'))
                 author = ', '.join(data.xpath('.//div[@class="list_authors list_text_left"]/a/text()'))
                 formats = [ form.split('_')[-1].replace('.png', '') for form in data.xpath('.//div[@style="width:55%;float:left;text-align:left;height:18px;"]//a/img/@src')]
-                nodrm = no_drm_pattern.search(''.join(data.xpath('.//div[@style="width:45%;float:right;text-align:right;height:18px;"]/div/div/text()')))
+                nodrm = no_drm_pattern.search(''.join(data.xpath('.//div[@style="width:45%;float:right;text-align:right;height:18px;"]//span[@class="prompt_preview"]/text()')))
 
                 counter -= 1
 
@@ -70,6 +70,6 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 s.price = price + ' zł'
                 s.detail_item = 'http://virtualo.pl' + id.strip().split('http://')[0]
                 s.formats = ', '.join(formats).upper()
-                s.drm = SearchResult.DRM_UNLOCKED if nodrm else SearchResult.DRM_UNKNOWN
+                s.drm = SearchResult.DRM_UNLOCKED if nodrm else SearchResult.DRM_LOCKED
 
                 yield s
