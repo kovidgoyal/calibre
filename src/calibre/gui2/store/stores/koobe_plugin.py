@@ -55,7 +55,7 @@ class KoobeStore(BasicStoreConfig, StorePlugin):
                 price = ''.join(data.xpath('.//span[@class="current_price"]/text()'))
                 title = ''.join(data.xpath('.//h2[@class="title"]/a/text()'))
                 author = ''.join(data.xpath('.//h3[@class="book_author"]/a/text()'))
-                formats = ''.join(data.xpath('.//div[@class="formats"]/div/div/@title'))
+                formats = ', '.join(data.xpath('.//div[@class="formats"]/div/div/@title'))
 
                 counter -= 1
 
@@ -63,9 +63,9 @@ class KoobeStore(BasicStoreConfig, StorePlugin):
                 s.cover_url =  'http://koobe.pl/' + cover_url
                 s.title = title.strip()
                 s.author = author.strip()
-                s.price = price + ' zł'
+                s.price = price
                 s.detail_item = 'http://koobe.pl' + id[1:]
-                s.formats = ', '.join(formats).upper()
+                s.formats = formats.upper()
                 s.drm = SearchResult.DRM_UNKNOWN
 
                 yield s
