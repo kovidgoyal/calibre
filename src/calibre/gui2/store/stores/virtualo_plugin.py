@@ -58,7 +58,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 cover_url = ''.join(data.xpath('.//div[@class="list_middle_left"]//a//img/@src'))
                 title = ''.join(data.xpath('.//div[@class="list_title list_text_left"]/a/text()'))
                 author = ', '.join(data.xpath('.//div[@class="list_authors list_text_left"]/a/text()'))
-                formats = [ form.split('_')[-1].replace('.png', '') for form in data.xpath('.//div[@style="width:55%;float:left;text-align:left;height:18px;"]//a/img/@src')]
+                formats = [ form.split('_')[-1].replace('.png', '') for form in data.xpath('.//div[@style="width:55%;float:left;text-align:left;height:18px;"]//a/span/img/@src')]
                 nodrm = no_drm_pattern.search(''.join(data.xpath('.//div[@style="width:45%;float:right;text-align:right;height:18px;"]//span[@class="prompt_preview"]/text()')))
 
                 counter -= 1
