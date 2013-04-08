@@ -272,6 +272,8 @@ class LayoutMixin(object): # {{{
                 self.iactions['Remove Books'].remove_format_by_id)
         self.book_details.save_specific_format.connect(
                 self.iactions['Save To Disk'].save_library_format_by_ids)
+        self.book_details.restore_specific_format.connect(
+            self.iactions['Remove Books'].restore_format)
         self.book_details.view_device_book.connect(
                 self.iactions['View'].view_device_book)
 

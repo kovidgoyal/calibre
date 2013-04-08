@@ -1541,6 +1541,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         opath = self.format_abspath(book_id, nfmt, index_is_id=True)
         return fmt if opath is None else nfmt
 
+    def restore_original_format(self, book_id, original_fmt, notify=True):
+        opath = self.format_abspath(book_id, original_fmt, index_is_id=True)
+        if opath is not None:
+            fmt = original_fmt.partition('_')[2]
+            with lopen(opath, 'rb') as f:
+                self.add_format(book_id, fmt, f, index_is_id=True, notify=False)
+            self.remove_format(book_id, original_fmt, index_is_id=True, notify=notify)
+
     def delete_book(self, id, notify=True, commit=True, permanent=False,
             do_clean=True):
         '''
