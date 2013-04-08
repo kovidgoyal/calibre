@@ -35,37 +35,41 @@ class KoobeStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
 
-    def search(self, query, max_results=12, timeout=60):
-        url = 'http://www.koobe.pl/szukaj/fraza:' + urllib.quote(query)
+    def search(self, query, max_results=10, timeout=60):
 
         br = browser()
+        page=1
 
         counter = max_results
-        with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read().decode('utf-8'))
-            for data in doc.xpath('//div[@class="seach_result"]/div[@class="result"]'):
-                if counter <= 0:
+        while counter:
+            with closing(br.open('http://www.koobe.pl/s,p,' + str(page) + ',szukaj/fraza:' + urllib.quote(query), timeout=timeout)) as f:
+                doc = html.fromstring(f.read().decode('utf-8'))
+                for data in doc.xpath('//div[@class="seach_result"]/div[@class="result"]'):
+                    if counter <= 0:
+                        break
+
+                    id = ''.join(data.xpath('.//div[@class="cover"]/a/@href'))
+                    if not id:
+                        continue
+
+                    cover_url = ''.join(data.xpath('.//div[@class="cover"]/a/img/@src'))
+                    price = ''.join(data.xpath('.//span[@class="current_price"]/text()'))
+                    title = ''.join(data.xpath('.//h2[@class="title"]/a/text()'))
+                    author = ''.join(data.xpath('.//h3[@class="book_author"]/a/text()'))
+                    formats = ', '.join(data.xpath('.//div[@class="formats"]/div/div/@title'))
+
+                    counter -= 1
+
+                    s = SearchResult()
+                    s.cover_url =  'http://koobe.pl/' + cover_url
+                    s.title = title.strip()
+                    s.author = author.strip()
+                    s.price = price
+                    s.detail_item = 'http://koobe.pl' + id[1:]
+                    s.formats = formats.upper()
+                    s.drm = SearchResult.DRM_UNLOCKED
+
+                    yield s
+                if not doc.xpath('//div[@class="site_bottom"]//a[@class="right"]'):
                     break
-
-                id = ''.join(data.xpath('.//div[@class="cover"]/a/@href'))
-                if not id:
-                    continue
-
-                cover_url = ''.join(data.xpath('.//div[@class="cover"]/a/img/@src'))
-                price = ''.join(data.xpath('.//span[@class="current_price"]/text()'))
-                title = ''.join(data.xpath('.//h2[@class="title"]/a/text()'))
-                author = ''.join(data.xpath('.//h3[@class="book_author"]/a/text()'))
-                formats = ', '.join(data.xpath('.//div[@class="formats"]/div/div/@title'))
-
-                counter -= 1
-
-                s = SearchResult()
-                s.cover_url =  'http://koobe.pl/' + cover_url
-                s.title = title.strip()
-                s.author = author.strip()
-                s.price = price
-                s.detail_item = 'http://koobe.pl' + id[1:]
-                s.formats = formats.upper()
-                s.drm = SearchResult.DRM_UNLOCKED
-
-                yield s
+            page+=1
