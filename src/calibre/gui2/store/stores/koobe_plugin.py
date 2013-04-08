@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
+from __future__ import (division, absolute_import, print_function)
 store_version = 1 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
@@ -42,7 +42,7 @@ class KoobeStore(BasicStoreConfig, StorePlugin):
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read())
+            doc = html.fromstring(f.read().decode('utf-8'))
             for data in doc.xpath('//div[@class="seach_result"]/div[@class="result"]'):
                 if counter <= 0:
                     break
@@ -66,6 +66,6 @@ class KoobeStore(BasicStoreConfig, StorePlugin):
                 s.price = price
                 s.detail_item = 'http://koobe.pl' + id[1:]
                 s.formats = formats.upper()
-                s.drm = SearchResult.DRM_UNKNOWN
+                s.drm = SearchResult.DRM_UNLOCKED
 
                 yield s

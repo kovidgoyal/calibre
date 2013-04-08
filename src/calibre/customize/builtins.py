@@ -1473,6 +1473,7 @@ class StoreKoobeStore(StoreBase):
     description = u'Księgarnia internetowa oferuje ebooki (książki elektroniczne) w postaci plików epub, mobi i pdf.'
     actual_plugin = 'calibre.gui2.store.stores.koobe_plugin:KoobeStore'
 
+    drm_free_only = True
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF']
 
