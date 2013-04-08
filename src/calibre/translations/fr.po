@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-04-05 04:01+0000\n"
-"PO-Revision-Date: 2013-03-23 10:04+0000\n"
-"Last-Translator: FxB <fxbenard@gmail.com>\n"
+"PO-Revision-Date: 2013-04-07 06:54+0000\n"
+"Last-Translator: Hélion du Mas des Bourboux <helion331990@gmail.com>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-04-06 05:17+0000\n"
+"X-Launchpad-Export-Date: 2013-04-08 05:14+0000\n"
 "X-Generator: Launchpad (build 16550)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
@@ -1888,7 +1888,7 @@ msgid ""
 msgstr ""
 "Kobo met à jour régulièrement le firmware et la version de la base de "
 "données. Avec cette option, Calibre tentera fonctionner en lecture-écriture -"
-" Attention, danger!! N'activez que si vous êtes confortable avec l'idée de "
+" Attention, danger !! N'activez que si vous êtes confortable avec l'idée de "
 "restaurer les paramètres d'usine de votre Kobo, et de tester des logiciels."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:619
@@ -2073,7 +2073,7 @@ msgid ""
 msgstr ""
 "Kobo met à jour de manière régulière le micrologiciel et la version de la "
 "base de données. Avec cette option Calibre tentera d'effectuer une lecture-"
-"écriture complète - Ici se trouvent les dragons!! Activer seulement si vous "
+"écriture complète - Ici se trouvent les dragons !! Activer seulement si vous "
 "êtes à l'aise avec la restauration de votre Kobo aux paramètres par défauts "
 "et le test de logiciel. Ce pilote supporte le micrologiciel v2.0.x et la DB "
 "jusqu'à la version "
@@ -3590,8 +3590,8 @@ msgid ""
 "This does not override the unit for margins!"
 msgstr ""
 "L'unité de mesure pour la taille des pages. L'unité par défaut est le pouce "
-"(inch). Les choix possibles sont %s Note : Ce choix ne surcharge pas celui "
-"fait pour les marges !"
+"(inch). Les choix possibles sont %s Note : Ce choix ne surcharge pas celui "
+"fait pour les marges !"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:63
 #, python-format
@@ -5469,7 +5469,7 @@ msgid ""
 msgstr ""
 "Ce fichier mobile contient des données aux formats KF8 et MOBI 6. Le "
 "modifier effacera les données MOBI 6, ce qui signifie que le fichier ne sera "
-"pas utilisable sur les anciens Kindles. Êtes-vous sûr ?"
+"pas utilisable sur les anciens Kindles. Êtes-vous sûr ?"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:464
 msgid "No details available"
@@ -6167,7 +6167,7 @@ msgid ""
 "Are you sure you want to add the same files to all %d books? If the format "
 "already exists for a book, it will be replaced."
 msgstr ""
-"Êtes vous sûr de vouloir ajouter les mêmes fichiers à ces %d livres? Si ce "
+"Êtes-vous sûr de vouloir ajouter les mêmes fichiers à ces %d livres ? Si ce "
 "format existe déjà pour un livre, il sera remplacé."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:107
@@ -6374,8 +6374,8 @@ msgstr "Permission refusée"
 #, python-format
 msgid "Could not open %s. Is it being used by another program?"
 msgstr ""
-"Impossible d’ouvrir %s. Est-il en cours d’utilisation par un autre programme "
-"?"
+"Impossible d’ouvrir %s. Est-il en cours d’utilisation par un autre "
+"programme ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:142
@@ -6821,7 +6821,7 @@ msgid ""
 "the files will be <b>permanently deleted</b>."
 msgstr ""
 "Vous voulez supprimer %d livres. L’envoi d’un nombre important de fichiers "
-"dans la poubelle <b>peut être lent</b>. calibre doit-il éviter la poubelle? "
+"dans la poubelle <b>peut être lent</b>. calibre doit-il éviter la poubelle ? "
 "Si vous cliquer sur Oui les fichiers seront <b>définitivement supprimés</b>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:43
@@ -7065,7 +7065,7 @@ msgid ""
 "calibre starts?"
 msgstr ""
 "Voulez-vous que les connexions de périphériques sans-fil démarrent "
-"automatiquement lorsque Calibre est lancé?"
+"automatiquement lorsque Calibre est lancé ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:264
 msgid "Still looking for IP addresses"
@@ -7224,7 +7224,7 @@ msgid ""
 "proceed?"
 msgstr ""
 "Vous allez fusionner plus de 5 livres. Êtes-vous <b>sûr</b> de vouloir "
-"lancer le traitement ?"
+"lancer le traitement ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:343
 #, python-format
@@ -8165,7 +8165,7 @@ msgstr ""
 "Vous essayer d’ouvrir %d livres. Ouvrir trop de livres en même temps peut "
 "provoquer des ralentissements et avoir des effets négatifs sur les temps de "
 "réponses de l’ordinateur. Une fois démarré le processus ne peut pas être "
-"arrêté avant la fin. Voulez-vous continuer ?"
+"arrêté avant la fin. Voulez-vous continuer ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:182
 msgid "Cannot open folder"
@@ -8718,12 +8718,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:981
 #, python-format
 msgid "Are you sure you want to delete '%s'?"
-msgstr "Êtes-vous sûr de vouloir supprimer '%s' ?"
+msgstr "Êtes-vous sûr de vouloir supprimer « %s » ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:983
 #, python-format
 msgid "Are you sure you want to delete rules #%(first)d-%(last)d?"
-msgstr "Etes-vous sûr de vouloir supprimer les règles #%(first)d-%(last)d ?"
+msgstr "Êtes-vous sûr de vouloir supprimer les règles #%(first)d-%(last)d ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:984
 msgid "Delete Rule"
@@ -10886,7 +10886,7 @@ msgid ""
 "discard or apply these changes. Apply changes?"
 msgstr ""
 "Vous avez modifié les valeurs. Pour utiliser cet éditeur, vous devez soit "
-"annuler soit appliquer ces changements. Appliquer les changements ?"
+"annuler soit appliquer ces changements. Appliquer les changements ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:374
 msgid " index:"
@@ -11038,7 +11038,7 @@ msgstr "Erreur pendant la communication avec le lecteur électronique"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:860
 #, python-format
 msgid "Manage the %s?"
-msgstr "Gérer le %s ?"
+msgstr "Gérer le %s ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:861
 #, python-format
@@ -11143,7 +11143,7 @@ msgstr "Impossible d’envoyer : L’appareil n’a pas de carte mémoire"
 msgid "Auto convert the following books before uploading to the device?"
 msgstr ""
 "Convertir automatiquement les livres suivants avant de les télécharger dans "
-"l’appareil ?"
+"l’appareil ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1274
 msgid "Sending catalogs to device."
@@ -11813,7 +11813,7 @@ msgid ""
 "sure?"
 msgstr ""
 "Les fichiers et répertoires marqués seront <b>définitivement supprimés</b>. "
-"Êtes-vous sûr(e) ?"
+"Êtes-vous sûr(e) ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_device_ui.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_ui.py:45
@@ -12155,7 +12155,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:23
 msgid "Duplicates found!"
-msgstr "Des doublons ont été détectés !"
+msgstr "Des doublons ont été détectés !"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/duplicates.py:29
 msgid ""
@@ -13470,7 +13470,7 @@ msgid ""
 "The current saved search will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
 "La recherche sauvegardée actuelle sera <b>définitivement supprimée</b>. Êtes-"
-"vous sûr(e) ?"
+"vous sûr(e) ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:94
 msgid "Saved Search Editor"
@@ -14226,7 +14226,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:83
 msgid "Are your sure?"
-msgstr "Êtes-vous sûr(e) ?"
+msgstr "Êtes-vous sûr(e) ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:84
 msgid ""
@@ -14234,7 +14234,7 @@ msgid ""
 "to delete them?"
 msgstr ""
 "Les étiquettes suivantes sont utilisées par un livre ou plus. Êtes-vous "
-"certain de vouloir les supprimer ?"
+"certain de vouloir les supprimer ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:128
 msgid "Tag Editor"
@@ -14489,7 +14489,7 @@ msgstr "Remplacer la recette?"
 #, python-format
 msgid "A custom recipe named %s already exists. Do you want to replace it?"
 msgstr ""
-"Une recette personnalisée nommée %s existe déjà. Voulez-vous la remplacer ?"
+"Une recette personnalisée nommée %s existe déjà. Voulez-vous la remplacer ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:288
 msgid "Choose builtin recipe"
@@ -14702,7 +14702,7 @@ msgstr "Envoi d’un courriel à"
 msgid "Auto convert the following books before sending via email?"
 msgstr ""
 "Convertir automatiquement les livres suivants avant de les envoyer par "
-"courriel ?"
+"courriel ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:263
 msgid ""
@@ -15042,8 +15042,8 @@ msgstr "Pas de travail sélectionné"
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:598
 msgid "Do you really want to stop the selected job?"
 msgid_plural "Do you really want to stop all the selected jobs?"
-msgstr[0] "Voulez-vous vraiment arrêter le travail sélectionné ?"
-msgstr[1] "Voulez-vous vraiment arrêter les travaux sélectionnés ?"
+msgstr[0] "Voulez-vous vraiment arrêter le travail sélectionné ?"
+msgstr[1] "Voulez-vous vraiment arrêter les travaux sélectionnés ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:608
 msgid "Do you really want to stop all non-device jobs?"
@@ -15490,7 +15490,7 @@ msgid ""
 "successful. If you say No, a new empty calibre library will be created."
 msgstr ""
 "La base de données de votre bibliothèque %s semble être corrompue. Voulez "
-"vous que calibre tente de la reconstruire automatiquement? Cette "
+"vous que calibre tente de la reconstruire automatiquement ? Cette "
 "reconstruction peut partiellement échouer.  Si vous cliquer sur Non, une "
 "nouvelle base de données de votre bibliothèque calibre sera crée."
 
@@ -17874,7 +17874,7 @@ msgid ""
 msgstr ""
 "Ce module d’extension est utile seulement pour les livres en langue "
 "<b>Chinoise</b>. Il peut renvoyer des résultats incorrects pour des livres "
-"en Anglais. Êtes-vous sûr de vouloir l’activer ?"
+"en Anglais. Êtes-vous sûr de vouloir l’activer ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:158
 msgid "Published date"
@@ -18108,7 +18108,7 @@ msgstr "Ce format et cet appareil ont déjà un tableau de connexions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:205
 msgid "Possibly override plugboard?"
-msgstr "Passer peut-être outre le tableau de connexions ?"
+msgstr "Passer peut-être outre le tableau de connexions ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:206
 msgid ""
@@ -18117,7 +18117,7 @@ msgid ""
 msgstr ""
 "Un tableau de connexions plus général existe déjà pour ce format et cet "
 "appareil. Êtes-vous certains que vous voulez ajouter le nouveau tableau de "
-"connexions ?"
+"connexions ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:218
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:240
@@ -18131,11 +18131,11 @@ msgid ""
 msgstr ""
 "Des tableaux de connexions plus spécifiques à cet appareil existent déjà "
 "pour ce format. Êtes-vous certains de vouloir ajouter ce tableau de "
-"connexions ?"
+"connexions ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:230
 msgid "Really add plugboard?"
-msgstr "Réellement ajouter ce tableau de connexions ?"
+msgstr "Réellement ajouter ce tableau de connexions ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:231
 msgid ""
@@ -18144,7 +18144,7 @@ msgid ""
 msgstr ""
 "Un tableau de connexions différent correspond déjà à ce format et cet "
 "appareil. Êtes-vous certains de vouloir ajouter ce nouveau tableau de "
-"connexions ?"
+"connexions ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:241
 msgid ""
@@ -18153,7 +18153,7 @@ msgid ""
 msgstr ""
 "Des tableaux de connexions plus spécifiques à ce format et cet appareil "
 "existent déjà, Êtes-vous certains de vouloir ajouter ce nouveau tableau de "
-"connexions ?"
+"connexions ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:252
 msgid "The {0} device does not support the {1} format."
@@ -18308,7 +18308,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:368
 #, python-format
 msgid "Are you sure you want to remove the plugin: %s?"
-msgstr "Êtes-vous sûr de vouloir supprimer le plugin: %s ?"
+msgstr "Êtes-vous sûr de vouloir supprimer le plugin : %s  ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:373
 msgid "Plugin <b>{0}</b> successfully removed"
@@ -19313,7 +19313,7 @@ msgstr "Aucune recherche n’est sélectionnée"
 msgid "The selected search will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
 "La recherche sélectionnée sera  <b>définitivement effacée</b>. Êtes-vous sûr "
-"de vouloir continuer?"
+"de vouloir continuer ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:376
 msgid "Search (For Advanced Search click the button to the left)"
@@ -20633,7 +20633,7 @@ msgid ""
 "reconvert them?"
 msgstr ""
 "Les fichiers suivants ont déjà été convertis au format %s. Souhaitez-vous "
-"les reconvertir ?"
+"les reconvertir ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:207
 msgid "&Donate to support calibre"
@@ -20693,7 +20693,7 @@ msgid ""
 "successful."
 msgstr ""
 "La base de données de votre bibliothèque %s semble être corrompue. Voulez "
-"vous que calibre tente de la reconstruire automatiquement? Cette "
+"vous que calibre tente de la reconstruire automatiquement ? Cette "
 "reconstruction peut partiellement échouer."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:627
@@ -20761,7 +20761,7 @@ msgstr "<b>Échoué</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:740
 msgid "There are active jobs. Are you sure you want to quit?"
-msgstr "Il y a des travaux actifs. Voulez-vous vraiment quitter?"
+msgstr "Il y a des travaux actifs. Voulez-vous vraiment quitter ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:743
 msgid ""
@@ -20769,10 +20769,10 @@ msgid ""
 "                      Quitting may cause corruption on the device.<br>\n"
 "                      Are you sure you want to quit?"
 msgstr ""
-" communique avec l’appareil!<br>\n"
+" communique avec l’appareil !<br>\n"
 "                      Quitter peut provoquer des corruptions dans "
 "l’appareil.<br>\n"
-"                      Êtes-vous sûr de vouloir quitter ?"
+"                      Êtes-vous sûr de vouloir quitter ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:747
 msgid "Active jobs"
@@ -21983,7 +21983,7 @@ msgid ""
 "This will display your email password on the screen. Is it OK to proceed?"
 msgstr ""
 "Ceci affichera votre mot de passe de courriel à l’écran. Voulez-vous "
-"continuer ?"
+"continuer ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:199
 msgid ""
@@ -22811,8 +22811,8 @@ msgid ""
 "changed. Use with care, as it can lead to database corruption!"
 msgstr ""
 "Désactive la notification dans l'interface utilisateur (si active) "
-"concernant une modification de la base de données. A utiliser avec "
-"précaution car cela peut provoquer une corruption de la base !"
+"concernant une modification de la base de données. À utiliser avec "
+"précaution car cela peut provoquer une corruption de la base !"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:149
 msgid ""
@@ -27188,35 +27188,3 @@ msgid ""
 "number of such libraries, the sorting becomes alphabetic. You can set that\n"
 "number here. The default is ten libraries."
 msgstr ""
-
-#~ msgid ""
-#~ "The selected books will be <b>permanently deleted</b> and the files removed "
-#~ "from your calibre library. Are you sure?"
-#~ msgstr ""
-#~ "Les livres sélectionnés seront <b>supprimés définitivement</b> et les "
-#~ "fichiers associés seront retirés de votre bibliothèque calibre. Êtes-vous "
-#~ "certain?"
-
-#~ msgid ""
-#~ "The selected books will be <b>permanently deleted</b> from your device. Are "
-#~ "you sure?"
-#~ msgstr ""
-#~ "Les livres sélectionnés seront <b>effacés de manière permanente</b> de votre "
-#~ "appareil. Êtes-vous sûr de votre choix ?"
-
-#~ msgid ""
-#~ "By default, calibre splits a string containing multiple author names on\n"
-#~ "ampersands and the words \"and\" and \"with\". You can customize the "
-#~ "splitting\n"
-#~ "by changing the regular expression below. Strings are split on whatever the\n"
-#~ "specified regular expression matches.\n"
-#~ "Default: r'(?i),?\\s+(and|with)\\s+'"
-#~ msgstr ""
-#~ "Par défaut, calibre éclate une chaîne contenant plusieurs noms d’auteurs en "
-#~ "utilisant\n"
-#~ "les esperluettes et les mots « and » et « with ». Vous pouvez personnaliser "
-#~ "la séparation\n"
-#~ "en changeant l’expression rationnelle ci-dessous. Les chaînes sont éclatées "
-#~ "sur les \n"
-#~ "correspondances de l’expression rationnelle utilisée.\n"
-#~ "Par défaut : r'(?i),?\\s+(and|with)\\s+'"

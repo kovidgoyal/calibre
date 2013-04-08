@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-04-05 04:01+0000\n"
-"PO-Revision-Date: 2013-03-30 10:00+0000\n"
+"PO-Revision-Date: 2013-04-07 09:59+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-06 05:15+0000\n"
+"X-Launchpad-Export-Date: 2013-04-08 05:14+0000\n"
 "X-Generator: Launchpad (build 16550)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3625,14 +3625,17 @@ msgid ""
 "An HTML template used to generate %s on every page. The strings _PAGENUM_, "
 "_TITLE_, _AUTHOR_ and _SECTION_ will be replaced by their current values."
 msgstr ""
+"Una plantilla HTLM utilitzada per generar %s a cada pàgina. Es reemplaçarà "
+"les cadenes _PAGENUM_, _TITLE_, _AUTHOR_ and _SECTION_ pels seus valors "
+"actuals."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:108
 msgid "footers"
-msgstr ""
+msgstr "peus de pàgina"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:111
 msgid "headers"
-msgstr ""
+msgstr "encapçalaments"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -5224,30 +5227,34 @@ msgid ""
 "Downloads covers from a Google Image search. Useful to find larger/alternate "
 "covers."
 msgstr ""
+"Baixa portades d'una cerca a Imatges de Google. Útil per trobar portades "
+"alternatives o més grans."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:20
 msgid "Configure the Google Image Search plugin"
-msgstr ""
+msgstr "Configuració del connector de Cerca d'Imatges de Google"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:22
 msgid "Maximum number of covers to get"
-msgstr ""
+msgstr "Nombre màxim de portades que s'obtindran"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:23
 msgid "The maximum number of covers to process from the google search result"
 msgstr ""
+"El nombre màxim de portades que es processaran del resultat de la cerca de "
+"Google"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:24
 msgid "Cover size"
-msgstr ""
+msgstr "Mida de la portada"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:25
 msgid "Search for covers larger than the specified size"
-msgstr ""
+msgstr "Cerca portades més grans que la mida especificada"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:27
 msgid "Any size"
-msgstr ""
+msgstr "Qualsevol mida"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:146
@@ -5262,7 +5269,7 @@ msgstr "Gran"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:34
 #, python-format
 msgid "Larger than %s"
-msgstr ""
+msgstr "Més gran que %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:24
 msgid "Downloads metadata from isbndb.com"
@@ -5768,7 +5775,7 @@ msgstr "No es troba pdftohtml, comproveu que està al PATH"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/render/from_html.py:310
 msgid "Untitled"
-msgstr ""
+msgstr "Sense títol"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:97
@@ -6876,6 +6883,8 @@ msgid ""
 "The %d selected book(s) will be <b>permanently deleted</b> and the files "
 "removed from your calibre library. Are you sure?"
 msgstr ""
+"Els %d llibre(s) seleccionat(s) se <b>suprimiran permanentment</b> i els "
+"fitxers s'eliminaran de la biblioteca del calibre. N'esteu segur?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:385
 #, python-format
@@ -6883,6 +6892,8 @@ msgid ""
 "The %d selected book(s) will be <b>permanently deleted</b> from your device. "
 "Are you sure?"
 msgstr ""
+"Els %d llibre(s) seleccionat(s) se <b>suprimiran permanentment</b> del "
+"dispositiu. N'esteu segur?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:33
 msgid "Start wireless device connection"
@@ -10070,7 +10081,7 @@ msgstr "Mida del &tipus de lletra Monoespai:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:155
 msgid "Page headers and footers"
-msgstr ""
+msgstr "Encapçalaments i peus de pàgina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:156
 msgid ""
@@ -10079,14 +10090,18 @@ msgid ""
 "href=\"http://manual.calibre-ebook.com/conversion.html#converting-to-"
 "pdf\">documentation</a>."
 msgstr ""
+"Si utilitzeu plantilles d'encapçalament i peu de pàgina podeu inserir "
+"encapçalaments i peus de pàgina a cada pàgina del fitxer PDF obtingut. Per a "
+"exemples vegeu la <a href=\"http://manual.calibre-"
+"ebook.com/conversion.html#converting-to-pdf\">documentació</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:157
 msgid "&Header template:"
-msgstr ""
+msgstr "Plantilla d'&encapçalament:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:158
 msgid "&Footer template:"
-msgstr ""
+msgstr "Plantilla de &peu de pàgina:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -16022,6 +16037,8 @@ msgid ""
 "Found <b>%(num)d</b> possible covers for %(title)s. When the download "
 "completes, the covers will be sorted by size."
 msgstr ""
+"S'ha trobat <b>%(num)d</b> portades possibles per a %(title)s. Quan s'acabin "
+"de baixar s'ordenaran les portades per mida."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:981
 msgid "Downloading metadata..."
@@ -20181,7 +20198,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:187
 msgid "Generate ToC from &files"
-msgstr ""
+msgstr "Genera l'índex des dels &fitxers"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:190
 msgid ""
@@ -20189,6 +20206,9 @@ msgid ""
 "in the ToC will point to the start of the file, the text of the entry will "
 "be the \"first line\" of text from the file."
 msgstr ""
+"Genera un índex a partir dels fitxers individuals que hi ha al llibre. Cada "
+"entrada a l'índex apuntarà al començament del fitxer i el text de l'entrada "
+"serà la «primera línia» del text del fitxer."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:196
 msgid "Generate ToC from &XPath"
@@ -20200,7 +20220,7 @@ msgstr "Genera un índex a partir d'expressions XPath arbitràries."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:203
 msgid "&Flatten the ToC"
-msgstr ""
+msgstr "&Aplana l'índex"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:206
 msgid "Flatten the Table of Contents, putting all entries at the top level"
@@ -20274,39 +20294,39 @@ msgstr "La ubicació cap a on apunta l'entrada no existeix"
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:519
 #, python-format
 msgid "Move \"%s\" up"
-msgstr ""
+msgstr "Mou «%s» amunt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:521
 #, python-format
 msgid "Move \"%s\" down"
-msgstr ""
+msgstr "Mou «%s» avall"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:522
 msgid "Remove all selected items"
-msgstr ""
+msgstr "Suprimeix tots els elements seleccionats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:524
 #, python-format
 msgid "Unindent \"%s\""
-msgstr ""
+msgstr "Treu la sagnia de «%s»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:526
 #, python-format
 msgid "Indent \"%s\""
-msgstr ""
+msgstr "Sagna «%s»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:527
 msgid "Change all selected items to title case"
-msgstr ""
+msgstr "Posa tots els elements seleccionats amb les inicials en majúscula"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:545
 msgid "Move current entry up [Ctrl+Up]"
-msgstr ""
+msgstr "Mou l'entrada actual amunt [Ctrl+Amunt]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:552
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:566
 msgid "Unindent the current entry [Ctrl+Left]"
-msgstr ""
+msgstr "Treu el sagnat de l'entrada actual [Ctrl+Esquerra]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:559
 msgid "Remove all selected entries"
@@ -20314,7 +20334,7 @@ msgstr "Suprimeix totes les entrades seleccionades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:573
 msgid "Move current entry down [Ctrl+Down]"
-msgstr ""
+msgstr "Mou l'entrada actual amunt [Ctrl+Avall]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:575
 msgid "&Expand all"
@@ -20357,7 +20377,7 @@ msgstr "No s'ha trobat cap enllaç que es pogués afegir a l'índex."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:796
 msgid "No files were found that could be added to the Table of Contents."
-msgstr ""
+msgstr "No s'ha trobat cap fitxer que es pugui afegit a l'índex."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:814
 #, python-format
@@ -25877,6 +25897,12 @@ msgid ""
 "specified regular expression matches, in addition to ampersands.\n"
 "Default: r'(?i),?\\s+(and|with)\\s+'"
 msgstr ""
+"Per defecte el calibre divideix una cadena que conté múltiples noms d'autor\n"
+"units per «&» i les paraules «and» i «with». Podeu personalitzar la divisió\n"
+"canviant l'expressió regular de més avall. Es divideixen les cadenes si hi "
+"ha\n"
+"una coincidència amb qualsevol de les expressions regulars, a més de «&».\n"
+"Per defecte: r'(?i),?\\s+(and|with)\\s+'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:85
 msgid "Use author sort in Tag Browser"
@@ -26978,32 +27004,3 @@ msgstr ""
 "s'ordenen normalment per freqüència d'ús. Tanmateix, si hi ha més d'un\n"
 "nombre concret de biblioteques l'ordre esdevé alfabètic. Aquí podeu\n"
 "establir aquest nombre. Per defecte és 10 biblioteques."
-
-#~ msgid ""
-#~ "The selected books will be <b>permanently deleted</b> from your device. Are "
-#~ "you sure?"
-#~ msgstr ""
-#~ "Els llibres seleccionats se suprimiran <b>permanentment</b> del dispositiu. "
-#~ "N'esteu segur?"
-
-#~ msgid ""
-#~ "The selected books will be <b>permanently deleted</b> and the files removed "
-#~ "from your calibre library. Are you sure?"
-#~ msgstr ""
-#~ "Els llibres seleccionats se suprimiran <b>permanentment</b> i els fitxers es "
-#~ "trauran de la biblioteca del calibre. N'esteu segur?"
-
-#~ msgid ""
-#~ "By default, calibre splits a string containing multiple author names on\n"
-#~ "ampersands and the words \"and\" and \"with\". You can customize the "
-#~ "splitting\n"
-#~ "by changing the regular expression below. Strings are split on whatever the\n"
-#~ "specified regular expression matches.\n"
-#~ "Default: r'(?i),?\\s+(and|with)\\s+'"
-#~ msgstr ""
-#~ "Per defecte el calibre divideix una cadena que conté múltiples noms d'autor\n"
-#~ "amb el caràcter «&» i les paraules «and» i «with». Podeu personalitzar la\n"
-#~ "divisió canviant l'expressió regular de més avall. Les cadenes es "
-#~ "divideixen\n"
-#~ "sempre que hi hagi una coincidència amb l'expressió regular especificada.\n"
-#~ "Per defecte: r'(?i),?\\s+(and|with)\\s+'"
