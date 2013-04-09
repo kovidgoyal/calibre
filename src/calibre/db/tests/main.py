@@ -19,8 +19,22 @@ def find_tests():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('name', nargs='?', default=None, help='The name of the test to run, for e.g. writing.WritingTest.many_many_basic')
+    parser.add_argument('name', nargs='?', default=None,
+                        help='The name of the test to run, for e.g. writing.WritingTest.many_many_basic or .many_many_basic for a shortcut')
     args = parser.parse_args()
-    tests = unittest.defaultTestLoader.loadTestsFromName(args.name) if args.name else find_tests()
+    if args.name and args.name.startswith('.'):
+        tests = find_tests()
+        ans = None
+        try:
+            for suite in tests:
+                for test in suite._tests:
+                    for s in test:
+                        if s._testMethodName == args.name[1:]:
+                            tests = s
+                            raise StopIteration()
+        except StopIteration:
+            pass
+    else:
+        tests = unittest.defaultTestLoader.loadTestsFromName(args.name) if args.name else find_tests()
     unittest.TextTestRunner(verbosity=4).run(tests)
 
