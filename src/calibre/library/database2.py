@@ -285,7 +285,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         gr_pref = self.prefs.get('gui_restriction', None)
         if gr_pref:
             virt_libs = self.prefs.get('virtual_libraries', {})
-            virt_libs[gr_pref] = 'search:'+gr_pref
+            virt_libs[gr_pref] = 'search:"' + gr_pref + '"'
             self.prefs['virtual_libraries'] = virt_libs
             self.prefs['gui_restriction'] = ''
             self.prefs['virtual_lib_on_startup'] = gr_pref
@@ -294,7 +294,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         gr_pref = self.prefs.get('cs_restriction', None)
         if gr_pref:
             virt_libs = self.prefs.get('virtual_libraries', {})
-            virt_libs[gr_pref] = 'search:'+gr_pref
+            virt_libs[gr_pref] = 'search:"' + gr_pref + '"'
             self.prefs['virtual_libraries'] = virt_libs
             self.prefs['cs_restriction'] = ''
             self.prefs['cs_virtual_lib_on_startup'] = gr_pref

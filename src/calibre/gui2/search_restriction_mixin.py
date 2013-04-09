@@ -150,6 +150,7 @@ class SearchRestrictionMixin(object):
         self.search_restriction = ComboBoxWithHelp(self)
         self.search_restriction.setVisible(False)
         self.search_count.setText(_("(all books)"))
+        self.ar_menu = QMenu(_('Additional restriction'))
 
     def add_virtual_library(self, db, name, search):
         virt_libs = db.prefs.get('virtual_libraries', {})
@@ -190,7 +191,8 @@ class SearchRestrictionMixin(object):
 
         db = self.library_view.model().db
 
-        self.ar_menu = a = QMenu(_('Additional restriction'))
+        a = self.ar_menu
+        a.clear()
         a.setIcon(self.checked if db.data.get_search_restriction_name() else self.empty)
         a.aboutToShow.connect(self.build_search_restriction_list);
         m.addMenu(a)
