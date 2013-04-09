@@ -33,7 +33,7 @@ entry_points = {
              'fetch-ebook-metadata = calibre.ebooks.metadata.sources.cli:main',
              'calibre-smtp = calibre.utils.smtp:main',
         ],
-        'gui_scripts'    : [
+        'gui_scripts' : [
             __appname__+' = calibre.gui2.main:main',
             'lrfviewer    = calibre.gui2.lrf_renderer.main:main',
             'ebook-viewer = calibre.gui2.viewer.main:main',

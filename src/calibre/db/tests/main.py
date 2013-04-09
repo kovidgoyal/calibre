@@ -9,6 +9,11 @@ __docformat__ = 'restructuredtext en'
 
 import unittest, os, argparse
 
+try:
+    import init_calibre  # noqa
+except ImportError:
+    pass
+
 def find_tests():
     return unittest.defaultTestLoader.discover(os.path.dirname(os.path.abspath(__file__)), pattern='*.py')
 
