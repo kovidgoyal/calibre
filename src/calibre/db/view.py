@@ -60,10 +60,10 @@ class View(object):
             else:
                 try:
                     self._field_getters[idx] = {
-                        'id'      : self._get_id,
-                        'au_map'  : self.get_author_data,
+                        'id': self._get_id,
+                        'au_map': self.get_author_data,
                         'ondevice': self.get_ondevice,
-                        'marked'  : self.get_marked,
+                        'marked': self.get_marked,
                     }[col]
                 except KeyError:
                     self._field_getters[idx] = partial(self.get, col)

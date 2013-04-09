@@ -172,7 +172,6 @@ class SchemaUpgrade(object):
         '''
         )
 
-
     def upgrade_version_6(self):
         'Show authors in order'
         self.conn.execute('''
@@ -337,7 +336,7 @@ class SchemaUpgrade(object):
                 FROM {tn};
 
                 '''.format(tn=table_name, cn=column_name,
-                           vcn=view_column_name, scn= sort_column_name))
+                           vcn=view_column_name, scn=sort_column_name))
             self.conn.execute(script)
 
         def create_cust_tag_browser_view(table_name, link_table_name):

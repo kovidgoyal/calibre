@@ -86,7 +86,7 @@ class Cache(object):
         # Assumption is that someone else will fix them if they change.
         self.field_metadata.remove_dynamic_categories()
         for user_cat in sorted(self._pref('user_categories', {}).iterkeys(), key=sort_key):
-            cat_name = '@' + user_cat # add the '@' to avoid name collision
+            cat_name = '@' + user_cat  # add the '@' to avoid name collision
             self.field_metadata.add_user_category(label=cat_name, name=user_cat)
 
         # add grouped search term user categories
@@ -118,7 +118,7 @@ class Cache(object):
     def field_metadata(self):
         return self.backend.field_metadata
 
-    def _get_metadata(self, book_id, get_user_categories=True): # {{{
+    def _get_metadata(self, book_id, get_user_categories=True):  # {{{
         mi = Metadata(None, template_cache=self.formatter_template_cache)
         author_ids = self._field_ids_for('authors', book_id)
         aut_list = [self._author_data(i) for i in author_ids]
@@ -403,16 +403,19 @@ class Cache(object):
         '''
         if as_file:
             ret = SpooledTemporaryFile(SPOOL_SIZE)
-            if not self.copy_cover_to(book_id, ret): return
+            if not self.copy_cover_to(book_id, ret):
+                return
             ret.seek(0)
         elif as_path:
             pt = PersistentTemporaryFile('_dbcover.jpg')
             with pt:
-                if not self.copy_cover_to(book_id, pt): return
+                if not self.copy_cover_to(book_id, pt):
+                    return
             ret = pt.name
         else:
             buf = BytesIO()
-            if not self.copy_cover_to(book_id, buf): return
+            if not self.copy_cover_to(book_id, buf):
+                return
             ret = buf.getvalue()
             if as_image:
                 from PyQt4.Qt import QImage
@@ -669,7 +672,7 @@ class Cache(object):
                 else:
                     v = sid = None
                 if name.startswith('#') and sid is None:
-                    sid = 1.0 # The value will be set to 1.0 in the db table
+                    sid = 1.0  # The value will be set to 1.0 in the db table
                 bimap[k] = v
                 if sid is not None:
                     simap[k] = sid
@@ -808,7 +811,7 @@ class Cache(object):
 
     # }}}
 
-class SortKey(object): # {{{
+class SortKey(object):  # {{{
 
     def __init__(self, fields, sort_keys, book_id):
         self.orders = tuple(1 if f[1] else -1 for f in fields)

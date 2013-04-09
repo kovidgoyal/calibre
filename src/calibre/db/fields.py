@@ -31,7 +31,7 @@ class Field(object):
         self.table_type = self.table.table_type
         self._sort_key = (sort_key if dt in ('text', 'series', 'enumeration') else lambda x: x)
         self._default_sort_key = ''
-        if dt in { 'int', 'float', 'rating' }:
+        if dt in {'int', 'float', 'rating'}:
             self._default_sort_key = 0
         elif dt == 'bool':
             self._default_sort_key = None
@@ -138,7 +138,7 @@ class OneToOneField(Field):
         return self.table.book_col_map.iterkeys()
 
     def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
-        return {id_ : self._sort_key(self.table.book_col_map.get(id_,
+        return {id_: self._sort_key(self.table.book_col_map.get(id_,
             self._default_sort_key)) for id_ in all_book_ids}
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
@@ -183,7 +183,7 @@ class CompositeField(OneToOneField):
         return ans
 
     def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
-        return {id_ : sort_key(self.get_value_with_cache(id_, get_metadata)) for id_ in
+        return {id_: sort_key(self.get_value_with_cache(id_, get_metadata)) for id_ in
                 all_book_ids}
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
@@ -245,7 +245,7 @@ class OnDeviceField(OneToOneField):
         return iter(())
 
     def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
-        return {id_ : self.for_book(id_) for id_ in
+        return {id_: self.for_book(id_) for id_ in
                 all_book_ids}
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
@@ -280,12 +280,12 @@ class ManyToOneField(Field):
         return self.table.id_map.iterkeys()
 
     def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
-        ans = {id_ : self.table.book_col_map.get(id_, None)
+        ans = {id_: self.table.book_col_map.get(id_, None)
                 for id_ in all_book_ids}
-        sk_map = {cid : (self._default_sort_key if cid is None else
+        sk_map = {cid: (self._default_sort_key if cid is None else
                 self._sort_key(self.table.id_map[cid]))
                 for cid in ans.itervalues()}
-        return {id_ : sk_map[cid] for id_, cid in ans.iteritems()}
+        return {id_: sk_map[cid] for id_, cid in ans.iteritems()}
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         cbm = self.table.col_book_map
@@ -327,14 +327,14 @@ class ManyToManyField(Field):
         return self.table.id_map.iterkeys()
 
     def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
-        ans = {id_ : self.table.book_col_map.get(id_, ())
+        ans = {id_: self.table.book_col_map.get(id_, ())
                 for id_ in all_book_ids}
         all_cids = set()
         for cids in ans.itervalues():
             all_cids = all_cids.union(set(cids))
-        sk_map = {cid : self._sort_key(self.table.id_map[cid])
+        sk_map = {cid: self._sort_key(self.table.id_map[cid])
                 for cid in all_cids}
-        return {id_ : (tuple(sk_map[cid] for cid in cids) if cids else
+        return {id_: (tuple(sk_map[cid] for cid in cids) if cids else
                         (self._default_sort_key,))
                 for id_, cids in ans.iteritems()}
 
@@ -369,9 +369,9 @@ class IdentifiersField(ManyToManyField):
 
     def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
         'Sort by identifier keys'
-        ans = {id_ : self.table.book_col_map.get(id_, ())
+        ans = {id_: self.table.book_col_map.get(id_, ())
                 for id_ in all_book_ids}
-        return {id_ : (tuple(sorted(cids.iterkeys())) if cids else
+        return {id_: (tuple(sorted(cids.iterkeys())) if cids else
                         (self._default_sort_key,))
                 for id_, cids in ans.iteritems()}
 
@@ -397,9 +397,9 @@ class AuthorsField(ManyToManyField):
 
     def author_data(self, author_id):
         return {
-            'name' : self.table.id_map[author_id],
-            'sort' : self.table.asort_map[author_id],
-            'link' : self.table.alink_map[author_id],
+            'name': self.table.id_map[author_id],
+            'sort': self.table.asort_map[author_id],
+            'link': self.table.alink_map[author_id],
         }
 
     def category_sort_value(self, item_id, book_ids, lang_map):
@@ -505,9 +505,9 @@ class TagsField(ManyToManyField):
 
 def create_field(name, table):
     cls = {
-            ONE_ONE : OneToOneField,
-            MANY_ONE : ManyToOneField,
-            MANY_MANY : ManyToManyField,
+            ONE_ONE: OneToOneField,
+            MANY_ONE: ManyToOneField,
+            MANY_MANY: ManyToManyField,
         }[table.table_type]
     if name == 'authors':
         cls = AuthorsField
