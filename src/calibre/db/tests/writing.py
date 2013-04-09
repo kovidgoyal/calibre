@@ -36,7 +36,7 @@ class WritingTest(BaseTest):
             ans = lambda db:partial(getattr(db, setter), commit=True)
         return ans
 
-    def create_test(self, name, vals, getter=None, setter=None ):
+    def create_test(self, name, vals, getter=None, setter=None):
         T = namedtuple('Test', 'name vals getter setter')
         return T(name, vals, self.create_getter(name, getter),
                  self.create_setter(name, setter))
@@ -72,7 +72,7 @@ class WritingTest(BaseTest):
                             test.name, old_sqlite_res, sqlite_res))
                 del db
 
-    def test_one_one(self): # {{{
+    def test_one_one(self):  # {{{
         'Test setting of values in one-one fields'
         tests = [self.create_test('#yesno', (True, False, 'true', 'false', None))]
         for name, getter, setter in (
@@ -113,7 +113,7 @@ class WritingTest(BaseTest):
         self.run_tests(tests)
     # }}}
 
-    def test_many_one_basic(self): # {{{
+    def test_many_one_basic(self):  # {{{
         'Test the different code paths for writing to a many-one field'
         cl = self.cloned_library
         cache = self.init_cache(cl)
@@ -200,7 +200,7 @@ class WritingTest(BaseTest):
 
     # }}}
 
-    def test_many_many_basic(self): # {{{
+    def test_many_many_basic(self):  # {{{
         'Test the different code paths for writing to a many-many field'
         cl = self.cloned_library
         cache = self.init_cache(cl)
@@ -290,10 +290,9 @@ class WritingTest(BaseTest):
             ae(c.field_for('sort', 1), 'Moose, The')
             ae(c.field_for('sort', 2), 'Cat')
 
-
     # }}}
 
-    def test_dirtied(self): # {{{
+    def test_dirtied(self):  # {{{
         'Test the setting of the dirtied flag and the last_modified column'
         cl = self.cloned_library
         cache = self.init_cache(cl)
@@ -308,7 +307,7 @@ class WritingTest(BaseTest):
         from datetime import timedelta
         utime = prev+timedelta(days=1)
         onowf = c.nowf
-        c.nowf = lambda : utime
+        c.nowf = lambda: utime
         try:
             ae(sf('title', {3:'xxx'}), set([3]))
             self.assertTrue(3 in cache.dirtied_cache)
@@ -322,7 +321,7 @@ class WritingTest(BaseTest):
             c.nowf = onowf
     # }}}
 
-    def test_backup(self): # {{{
+    def test_backup(self):  # {{{
         'Test the automatic backup of changed metadata'
         cl = self.cloned_library
         cache = self.init_cache(cl)
