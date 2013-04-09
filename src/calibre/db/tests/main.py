@@ -16,8 +16,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('name', nargs='?', default=None, help='The name of the test to run, for e.g. writing.WritingTest.many_many_basic')
     args = parser.parse_args()
-    if args.name:
-        unittest.TextTestRunner(verbosity=4).run(unittest.defaultTestLoader.loadTestsFromName(args.name))
-    else:
-        unittest.TextTestRunner(verbosity=4).run(find_tests())
+    tests = unittest.defaultTestLoader.loadTestsFromName(args.name) if args.name else find_tests()
+    unittest.TextTestRunner(verbosity=4).run(tests)
 

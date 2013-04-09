@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from collections import namedtuple
 from functools import partial
+from io import BytesIO
 
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.date import UNDEFINED_DATE
@@ -291,4 +292,66 @@ class WritingTest(BaseTest):
 
 
     # }}}
+
+    def test_dirtied(self): # {{{
+        'Test the setting of the dirtied flag and the last_modified column'
+        cl = self.cloned_library
+        cache = self.init_cache(cl)
+        ae, af, sf = self.assertEqual, self.assertFalse, cache.set_field
+        # First empty dirtied
+        cache.dump_metadata()
+        af(cache.dirtied_cache)
+        af(self.init_cache(cl).dirtied_cache)
+
+        prev = cache.field_for('last_modified', 3)
+        import calibre.db.cache as c
+        from datetime import timedelta
+        utime = prev+timedelta(days=1)
+        onowf = c.nowf
+        c.nowf = lambda : utime
+        try:
+            ae(sf('title', {3:'xxx'}), set([3]))
+            self.assertTrue(3 in cache.dirtied_cache)
+            ae(cache.field_for('last_modified', 3), utime)
+            cache.dump_metadata()
+            raw = cache.read_backup(3)
+            from calibre.ebooks.metadata.opf2 import OPF
+            opf = OPF(BytesIO(raw))
+            ae(opf.title, 'xxx')
+        finally:
+            c.nowf = onowf
+    # }}}
+
+    def test_backup(self): # {{{
+        'Test the automatic backup of changed metadata'
+        cl = self.cloned_library
+        cache = self.init_cache(cl)
+        ae, af, sf, ff = self.assertEqual, self.assertFalse, cache.set_field, cache.field_for
+        # First empty dirtied
+        cache.dump_metadata()
+        af(cache.dirtied_cache)
+        from calibre.db.backup import MetadataBackup
+        interval = 0.01
+        mb = MetadataBackup(cache, interval=interval, scheduling_interval=0)
+        mb.start()
+        try:
+            ae(sf('title', {1:'title1', 2:'title2', 3:'title3'}), {1,2,3})
+            ae(sf('authors', {1:'author1 & author2', 2:'author1 & author2', 3:'author1 & author2'}), {1,2,3})
+            count = 6
+            while cache.dirty_queue_length() and count > 0:
+                mb.join(interval)
+                count -= 1
+            af(cache.dirty_queue_length())
+        finally:
+            mb.stop()
+        mb.join(interval)
+        af(mb.is_alive())
+        from calibre.ebooks.metadata.opf2 import OPF
+        for book_id in (1, 2, 3):
+            raw = cache.read_backup(book_id)
+            opf = OPF(BytesIO(raw))
+            ae(opf.title, 'title%d'%book_id)
+            ae(opf.authors, ['author1', 'author2'])
+    # }}}
+
 

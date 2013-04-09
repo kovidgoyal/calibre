@@ -1067,5 +1067,15 @@ class DB(object):
                         break # Fail silently since nothing catastrophic has happened
                 curpath = os.path.join(curpath, newseg)
 
+    def write_backup(self, path, raw):
+        path = os.path.abspath(os.path.join(self.library_path, path, 'metadata.opf'))
+        with lopen(path, 'wb') as f:
+            f.write(raw)
+
+    def read_backup(self, path):
+        path = os.path.abspath(os.path.join(self.library_path, path, 'metadata.opf'))
+        with lopen(path, 'rb') as f:
+            return f.read()
+
    # }}}
 
