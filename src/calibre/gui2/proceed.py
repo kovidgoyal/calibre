@@ -123,7 +123,8 @@ class ProceedQuestion(QDialog):
         self.resize(sz)
 
     def show_question(self):
-        if self.isVisible(): return
+        if self.isVisible():
+            return
         if self.questions:
             question = self.questions[0]
             self.msg_label.setText(question.msg)
