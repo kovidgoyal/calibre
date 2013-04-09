@@ -180,6 +180,13 @@ class DeleteAction(InterfaceAction):
                 self.gui.library_view.currentIndex())
         self.gui.tags_view.recount()
 
+    def restore_format(self, book_id, original_fmt):
+        self.gui.current_db.restore_original_format(book_id, original_fmt)
+        self.gui.library_view.model().refresh_ids([book_id])
+        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
+                self.gui.library_view.currentIndex())
+        self.gui.tags_view.recount()
+
     def delete_selected_formats(self, *args):
         ids = self._get_selected_ids()
         if not ids:
@@ -347,9 +354,9 @@ class DeleteAction(InterfaceAction):
                     self.remove_matching_books_from_device()
         # The following will run if the selected books are not on a connected device.
         # The user has selected to delete from the library or the device and library.
-        if not confirm('<p>'+_('The selected books will be '
+        if not confirm('<p>'+_('The %d selected book(s) will be '
                                 '<b>permanently deleted</b> and the files '
-                                'removed from your calibre library. Are you sure?')
+                                'removed from your calibre library. Are you sure?')%len(to_delete_ids)
                             +'</p>', 'library_delete_books', self.gui):
             return
         next_id = view.next_id
@@ -382,9 +389,9 @@ class DeleteAction(InterfaceAction):
                 view = self.gui.card_b_view
             paths = view.model().paths(rows)
             ids = view.model().indices(rows)
-            if not confirm('<p>'+_('The selected books will be '
+            if not confirm('<p>'+_('The %d selected book(s) will be '
                                    '<b>permanently deleted</b> '
-                                   'from your device. Are you sure?')
+                                   'from your device. Are you sure?')%len(paths)
                                 +'</p>', 'device_delete_books', self.gui):
                 return
             job = self.gui.remove_paths(paths)

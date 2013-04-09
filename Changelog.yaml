@@ -1,3 +1,4 @@
+# vim:fileencoding=UTF-8:ts=2:sw=2:sta:et:sts=2:ai
 # Each release can have new features and bug fixes. Each of which
 # must have a title and can optionally have linked tickets and a description.
 # In addition they can have a type field which defaults to minor, but should be major
@@ -18,6 +19,101 @@
 #
 #   new recipes:
 #     - title: 
+
+- version: 0.9.26
+  date: 2013-04-05
+
+  new features:
+    - title: "PDF Output: Allow using templates to create arbitrary headers and footers. Look under PDF Output in the conversion dialog for this feature."
+
+    - title: "ToC Editor: Allow generating the ToC directly from individual files inside the ebook. Useful for EPUBs that have individual chapters in single files."
+      tickets: [1163520]
+
+    - title: "ToC Editor: Add buttons to indent/unindent the current entry"
+
+    - title: "ToC Editor: Right-click menu to perform various useful actions on entries in the ToC"
+
+    - title: "Column icons: Allow use of wide images as column icons"
+
+    - title: "Add USB ids for the Palm Pre2 and Samsung Galaxy phone to the device drivers"
+      tickets: [1162293,1163115]
+ 
+  bug fixes:
+    - title: "PDF Output: Fix generating page numbers causing links to not work."
+      tickets: [1162573]
+
+    - title: "Wrong filename output in error message when 'Guide reference not found'"
+      tickets: [1163659]
+
+    - title: "Get Books: Update Amazon, Barnes & Noble, Waterstones and Gutenberg store plugins for website change"
+
+    - title: "PDF Output: Fix 1 pixel wide left and top margins on the cover page for some PDF conversions due to incorrect rounding."
+      tickets: [1162054]
+
+    - title: "ToC Editor: Fix drag and drop of multiple items resulting in the dropped items being in random order sometimes."
+      tickets: [1161999]
+
+  improved recipes:
+    - Financial Times UK
+    - Sing Tao Daily
+    - Apple Daily
+    - A List Apart
+    - Business Week
+    - Harpers printed edition
+    - Harvard Business Review
+
+  new recipes:
+    - title: AM730
+      author: Eddie Lau
+
+    - title: Arret sur images 
+      author: Francois D
+
+    - title: Diario de Noticias
+      author: Jose Pinto
+
+- version: 0.9.25
+  date: 2013-03-29
+
+  new features:
+    - title: "Automatic adding: When checking for duplicates is enabled, use the same duplicates found dialog as is used during manual adding."
+      tickets: [1160914]
+
+    - title: "ToC Editor: Allow searching to find a location quickly when browsing through the book to select a location for a ToC item"
+
+    - title: "ToC Editor: Add a button to quickly flatten the entire table of contents"
+
+    - title: "Conversion: When converting a single book to EPUB or AZW3, add an option to automatically launch the Table of Contents editor after the conversion completes. Found under the Table of Contents section of the conversion dialog."
+ 
+  bug fixes:
+    - title: "calibredb: Nicer error messages when user provides invalid input"
+      tickets: [1160452,1160631]
+
+    - title: "News download: Always use the .jpg extension for jpeg images as apparently Moon+ Reader cannot handle .jpeg"
+
+    - title: "Fix Book Details popup keyboard navigation doesn't work on a Mac"
+      tickets: [1159610]
+
+    - title: "Fix a regression that caused the case of the book files to not be changed when changing the case of the title/author on case insensitive filesystems"
+
+  improved recipes:
+    - RTE news
+    - Various Polish news sources
+    - Psychology Today
+    - Foreign Affairs
+    - History Today
+    - Harpers Magazine (printed edition)
+    - Business Week Magazine
+    - The Hindu
+    - Irish Times
+    - Le Devoir
+
+  new recipes:
+    - title: Fortune Magazine 
+      author: Rick Shang
+
+    - title: Eclipse Online 
+      author: Jim DeVona
 
 - version: 0.9.24
   date: 2013-03-22

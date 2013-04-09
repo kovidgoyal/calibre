@@ -10,7 +10,7 @@ warszawa.gazeta.pl
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class gw_wawa(BasicNewsRecipe):
-    title          = u'Gazeta.pl Warszawa'
+    title          = u'Gazeta Wyborcza Warszawa'
     __author__ = 'teepel <teepel44@gmail.com> based on GW from fenuks'
     language       = 'pl'
     description ='Wiadomości z Warszawy na portalu Gazeta.pl.'

@@ -1,0 +1,17 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1314326622(BasicNewsRecipe):
+    title          = u'Economia'
+    __author__     = 'Manish Bhattarai'
+    description = 'Economia - Intelligence & Insight for ICAEW Members'
+    language = 'en_GB'
+    oldest_article = 7
+    max_articles_per_feed = 25
+    masthead_url = 'http://economia.icaew.com/~/media/Images/Design%20Images/Economia_Red_website.ashx'
+    cover_url = 'http://economia.icaew.com/~/media/Images/Design%20Images/Economia_Red_website.ashx'
+    no_stylesheets = True
+    remove_empty_feeds = True
+    remove_tags_before = dict(id='content')
+    remove_tags_after  = dict(id='stars-wrapper')
+    remove_tags = [dict(attrs={'class':['floatR', 'sharethis', 'rating clearfix']})]
+    feeds          = [(u'News', u'http://feedity.com/icaew-com/VlNTVFRa.rss'),(u'Business', u'http://feedity.com/icaew-com/VlNTVFtS.rss'),(u'People', u'http://feedity.com/icaew-com/VlNTVFtX.rss'),(u'Opinion', u'http://feedity.com/icaew-com/VlNTVFtW.rss'),(u'Finance', u'http://feedity.com/icaew-com/VlNTVFtV.rss')]

@@ -12,12 +12,6 @@ class EsensjaRSS(BasicNewsRecipe):
     language       = 'pl'
     encoding = 'utf-8'
     INDEX = 'http://www.esensja.pl'
-    extra_css = '''.t-title {font-size: x-large; font-weight: bold; text-align: left}
-                    .t-author {font-size: x-small; text-align: left}
-                    .t-title2 {font-size: x-small; font-style: italic; text-align: left}
-                    .text {font-size: small; text-align: left}
-                    .annot-ref {font-style: italic; text-align: left}
-                    '''
     cover_url = ''
     masthead_url = 'http://esensja.pl/img/wrss.gif'
     use_embedded_content = False

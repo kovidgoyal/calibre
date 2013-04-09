@@ -1099,10 +1099,13 @@ class ZipFile:
 
         base_target = targetpath # Added by Kovid
 
-        # don't include leading "/" from file name if present
-        fname = member.filename
-        if fname.startswith('/'):
-            fname = fname[1:]
+        # Sanitize path, changing absolute paths to relative paths
+        # and removing .. and . (changed by Kovid)
+        fname = member.filename.replace(os.sep, '/')
+        fname = os.path.splitdrive(fname)[1]
+        fname = '/'.join(x for x in fname.split('/') if x not in {'', os.path.curdir, os.path.pardir})
+        if not fname:
+            raise BadZipfile('The member %r has an invalid name'%member.filename)
 
         targetpath = os.path.normpath(os.path.join(base_target, fname))
 

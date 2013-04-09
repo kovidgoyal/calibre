@@ -279,7 +279,7 @@ class EditMetadataAction(InterfaceAction):
         '''
         Edit metadata of selected books in library in bulk.
         '''
-        rows = [r.row() for r in \
+        rows = [r.row() for r in
                 self.gui.library_view.selectionModel().selectedRows()]
         m = self.gui.library_view.model()
         ids = [m.id(r) for r in rows]
@@ -469,45 +469,39 @@ class EditMetadataAction(InterfaceAction):
         if not had_orig_cover and dest_cover:
             db.set_cover(dest_id, dest_cover)
 
-        for key in db.field_metadata: #loop thru all defined fields
-          if db.field_metadata[key]['is_custom']:
-            colnum = db.field_metadata[key]['colnum']
+        for key in db.field_metadata:  # loop thru all defined fields
+            fm = db.field_metadata[key]
+            if not fm['is_custom']:
+                continue
+            dt = fm['datatype']
+            colnum = fm['colnum']
             # Get orig_dest_comments before it gets changed
-            if db.field_metadata[key]['datatype'] == 'comments':
-              orig_dest_value = db.get_custom(dest_id, num=colnum, index_is_id=True)
+            if dt == 'comments':
+                orig_dest_value = db.get_custom(dest_id, num=colnum, index_is_id=True)
+
             for src_id in src_ids:
-              dest_value = db.get_custom(dest_id, num=colnum, index_is_id=True)
-              src_value = db.get_custom(src_id, num=colnum, index_is_id=True)
-              if db.field_metadata[key]['datatype'] == 'comments':
-                if src_value and src_value != orig_dest_value:
-                  if not dest_value:
+                dest_value = db.get_custom(dest_id, num=colnum, index_is_id=True)
+                src_value = db.get_custom(src_id, num=colnum, index_is_id=True)
+                if (dt == 'comments' and src_value and src_value != orig_dest_value):
+                    if not dest_value:
+                        db.set_custom(dest_id, src_value, num=colnum)
+                    else:
+                        dest_value = unicode(dest_value) + u'\n\n' + unicode(src_value)
+                        db.set_custom(dest_id, dest_value, num=colnum)
+                if (dt in {'bool', 'int', 'float', 'rating', 'datetime'} and dest_value is None):
                     db.set_custom(dest_id, src_value, num=colnum)
-                  else:
-                    dest_value = unicode(dest_value) + u'\n\n' + unicode(src_value)
+                if (dt == 'series' and not dest_value and src_value):
+                    src_index = db.get_custom_extra(src_id, num=colnum, index_is_id=True)
+                    db.set_custom(dest_id, src_value, num=colnum, extra=src_index)
+                if (dt == 'enumeration' or (dt == 'text' and not fm['is_multiple']) and not dest_value):
+                    db.set_custom(dest_id, src_value, num=colnum)
+                if (dt == 'text' and fm['is_multiple'] and src_value):
+                    if not dest_value:
+                        dest_value = src_value
+                    else:
+                        dest_value.extend(src_value)
                     db.set_custom(dest_id, dest_value, num=colnum)
-              if db.field_metadata[key]['datatype'] in \
-                ('bool', 'int', 'float', 'rating', 'datetime') \
-                and dest_value is None:
-                db.set_custom(dest_id, src_value, num=colnum)
-              if db.field_metadata[key]['datatype'] == 'series' \
-                and not dest_value:
-                if src_value:
-                  src_index = db.get_custom_extra(src_id, num=colnum, index_is_id=True)
-                  db.set_custom(dest_id, src_value, num=colnum, extra=src_index)
-              if (db.field_metadata[key]['datatype'] == 'enumeration' or
-                        (db.field_metadata[key]['datatype'] == 'text' and
-                         not db.field_metadata[key]['is_multiple'])
-                    and not dest_value):
-                db.set_custom(dest_id, src_value, num=colnum)
-              if db.field_metadata[key]['datatype'] == 'text' \
-                and db.field_metadata[key]['is_multiple']:
-                if src_value:
-                  if not dest_value:
-                    dest_value = src_value
-                  else:
-                    dest_value.extend(src_value)
-                  db.set_custom(dest_id, dest_value, num=colnum)
-        # }}}
+    # }}}
 
     def edit_device_collections(self, view, oncard=None):
         model = view.model()
@@ -515,8 +509,8 @@ class EditMetadataAction(InterfaceAction):
         d = DeviceCategoryEditor(self.gui, tag_to_match=None, data=result, key=sort_key)
         d.exec_()
         if d.result() == d.Accepted:
-            to_rename = d.to_rename # dict of new text to old ids
-            to_delete = d.to_delete # list of ids
+            to_rename = d.to_rename  # dict of new text to old ids
+            to_delete = d.to_delete  # list of ids
             for old_id, new_name in to_rename.iteritems():
                 model.rename_collection(old_id, new_name=unicode(new_name))
             for item in to_delete:
@@ -584,7 +578,6 @@ class EditMetadataAction(InterfaceAction):
         if self.apply_pd is not None:
             self.apply_pd.value += 1
         QTimer.singleShot(50, self.do_one_apply)
-
 
     def apply_mi(self, book_id, mi):
         db = self.gui.current_db

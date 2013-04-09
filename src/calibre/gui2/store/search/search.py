@@ -62,16 +62,20 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.setup_store_checks()
 
         # Set the search query
+        if isinstance(query, (str, unicode)):
+            self.search_edit.setText(query)
+        elif isinstance(query, dict):
+            if 'author' in query:
+                self.search_author.setText(query['author'])
+            if 'title' in query:
+                self.search_title.setText(query['title'])
         # Title
-        self.search_title.setText(query)
         self.search_title.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.search_title.setMinimumContentsLength(25)
         # Author
-        self.search_author.setText(query)
         self.search_author.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.search_author.setMinimumContentsLength(25)
         # Keyword
-        self.search_edit.setText(query)
         self.search_edit.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.search_edit.setMinimumContentsLength(25)
 
@@ -408,7 +412,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.save_state()
 
     def exec_(self):
-        if unicode(self.search_edit.text()).strip():
+        if unicode(self.search_edit.text()).strip() or unicode(self.search_title.text()).strip() or unicode(self.search_author.text()).strip():
             self.do_search()
         return QDialog.exec_(self)
 

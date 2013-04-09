@@ -75,7 +75,7 @@ class OverDrive(Source):
     # }}}
 
     def download_cover(self, log, result_queue, abort, # {{{
-            title=None, authors=None, identifiers={}, timeout=30):
+            title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
         import mechanize
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:

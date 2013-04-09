@@ -7,13 +7,14 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     #cover_url = 'http://www.countryfile.com/sites/default/files/imagecache/160px_wide/cover/2_1.jpg'
     __author__ = 'Dave Asbury'
     description           = 'The official website of Countryfile Magazine'
-    # last updated 8/12/12
+    # last updated 19/10/12
     language = 'en_GB'
     oldest_article = 30
     max_articles_per_feed = 25
     remove_empty_feeds = True
     no_stylesheets = True
     auto_cleanup = True
+    compress_news_images = True
     ignore_duplicate_articles = {'title', 'url'}
     #articles_are_obfuscated = True
     #article_already_exists = False

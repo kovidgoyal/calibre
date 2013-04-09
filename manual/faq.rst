@@ -129,11 +129,11 @@ tool that always produces valid EPUBs, |app| is not for you.
 
 How do I use some of the advanced features of the conversion tools?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- You can get help on any individual feature of the converters by mousing over
- it in the GUI or running ``ebook-convert dummy.html .epub -h`` at a terminal.
- A good place to start is to look at the following demo files that demonstrate
- some of the advanced features:
-  * `html-demo.zip <http://calibre-ebook.com/downloads/html-demo.zip>`_
+You can get help on any individual feature of the converters by mousing over
+it in the GUI or running ``ebook-convert dummy.html .epub -h`` at a terminal.
+A good place to start is to look at the following demo file that demonstrates
+some of the advanced features
+`html-demo.zip <http://calibre-ebook.com/downloads/html-demo.zip>`_
 
 
 Device Integration
@@ -647,12 +647,17 @@ computers. Run |app| on a single computer and access it via the Content Server
 or a Remote Desktop solution.
 
 If you must share the actual library, use a file syncing tool like
-DropBox or rsync or Microsoft SkyDrive instead of a networked drive. Even with
-these tools there is danger of data corruption/loss, so only do this if you are
-willing to live with that risk. In particular, be aware that **Google Drive**
-is incompatible with |app|, if you put your |app| library in Google Drive, you
-*will* suffer data loss. See
-`this thread <http://www.mobileread.com/forums/showthread.php?t=205581>`_ for details.
+DropBox or rsync or Microsoft SkyDrive instead of a networked drive. If you are
+using a file-syncing tool it is **essential** that you make sure that both
+|app| and the file syncing tool do not try to access the |app| library at the
+same time. In other words, **do not** run the file syncing tool and |app| at
+the same time.
+
+Even with these tools there is danger of data corruption/loss, so only do this
+if you are willing to live with that risk. In particular, be aware that
+**Google Drive** is incompatible with |app|, if you put your |app| library in
+Google Drive, **you will suffer data loss**. See `this thread
+<http://www.mobileread.com/forums/showthread.php?t=205581>`_ for details.
 
 Content From The Web
 ---------------------

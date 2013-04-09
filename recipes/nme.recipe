@@ -12,6 +12,7 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     max_articles_per_feed = 20
     #auto_cleanup = True
     language = 'en_GB'
+    compress_news_images = True
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.nme.com/component/subscribe')
@@ -27,7 +28,7 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
             br.open_novisit(cov2)
             cover_url = str(cov2)
         except:
-                cover_url = 'http://tawanda3000.files.wordpress.com/2011/02/nme-logo.jpg'
+            cover_url = 'http://tawanda3000.files.wordpress.com/2011/02/nme-logo.jpg'
         return cover_url
 
     masthead_url   = 'http://tawanda3000.files.wordpress.com/2011/02/nme-logo.jpg'

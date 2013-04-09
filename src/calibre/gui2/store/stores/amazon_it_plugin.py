@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 3 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -18,12 +18,25 @@ from calibre import browser
 from calibre.gui2 import open_url
 from calibre.gui2.store.search_result import SearchResult
 
+class AmazonITKindleStore(StorePlugin):
+    '''
+    For comments on the implementation, please see amazon_plugin.py
+    '''
 
-# This class is copy/pasted from amason_uk_plugin. Do not modify it in any
-# other amazon EU plugin. Be sure to paste it into all other amazon EU plugins
-# when modified.
+    aff_id = {'tag': 'httpcharles07-21'}
+    store_link = ('http://www.amazon.it/ebooks-kindle/b?_encoding=UTF8&'
+                  'node=827182031&tag=%(tag)s&ie=UTF8&linkCode=ur2&camp=3370&creative=23322')
+    store_link_details = ('http://www.amazon.it/gp/redirect.html?ie=UTF8&'
+                          'location=http://www.amazon.it/dp/%(asin)s&tag=%(tag)s&'
+                          'linkCode=ur2&camp=3370&creative=23322')
+    search_url = 'http://www.amazon.it/s/?url=search-alias%3Ddigital-text&field-keywords='
 
-class AmazonEUBase(StorePlugin):
+    author_article = 'di '
+
+    and_word = ' e '
+
+    # ---- Copy from here to end
+
     '''
     For comments on the implementation, please see amazon_plugin.py
     '''
@@ -45,12 +58,18 @@ class AmazonEUBase(StorePlugin):
             doc = html.fromstring(f.read())#.decode('latin-1', 'replace'))
 
             data_xpath = '//div[contains(@class, "prod")]'
-            format_xpath = './/ul[contains(@class, "rsltL")]//span[contains(@class, "lrg") and not(contains(@class, "bld"))]/text()'
+            # Results can be in a grid (table) or a column
+            format_xpath = (
+                    './/ul[contains(@class, "rsltL") or contains(@class, "rsltGridList")]'
+                    '//span[contains(@class, "lrg") and not(contains(@class, "bld"))]/text()')
             asin_xpath = '@name'
             cover_xpath = './/img[@class="productImage"]/@src'
             title_xpath = './/h3[@class="newaps"]/a//text()'
             author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]//text()'
-            price_xpath = './/ul[contains(@class, "rsltL")]//span[contains(@class, "lrg") and contains(@class, "bld")]/text()'
+            # Results can be in a grid (table) or a column
+            price_xpath = (
+                    './/ul[contains(@class, "rsltL") or contains(@class, "rsltGridList")]'
+                    '//span[contains(@class, "lrg") and contains(@class, "bld")]/text()')
 
             for data in doc.xpath(data_xpath):
                 if counter <= 0:
@@ -100,20 +119,3 @@ class AmazonEUBase(StorePlugin):
 
     def get_details(self, search_result, timeout):
         pass
-
-class AmazonITKindleStore(AmazonEUBase):
-    '''
-    For comments on the implementation, please see amazon_plugin.py
-    '''
-
-    aff_id = {'tag': 'httpcharles07-21'}
-    store_link = ('http://www.amazon.it/ebooks-kindle/b?_encoding=UTF8&'
-                  'node=827182031&tag=%(tag)s&ie=UTF8&linkCode=ur2&camp=3370&creative=23322')
-    store_link_details = ('http://www.amazon.it/gp/redirect.html?ie=UTF8&'
-                          'location=http://www.amazon.it/dp/%(asin)s&tag=%(tag)s&'
-                          'linkCode=ur2&camp=3370&creative=23322')
-    search_url = 'http://www.amazon.it/s/?url=search-alias%3Ddigital-text&field-keywords='
-
-    author_article = 'di '
-
-    and_word = ' e '

@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2009-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2013, Darko Miletic <darko.miletic at gmail.com>'
 
 '''
 theonion.com
@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class TheOnion(BasicNewsRecipe):
     title                 = 'The Onion'
     __author__            = 'Darko Miletic'
-    description           = "America's finest news source"
+    description           = "The Onion, America's Finest News Source, is an award-winning publication covering world, national, and * local issues. It is updated daily online and distributed weekly in select American cities."
     oldest_article        = 2
     max_articles_per_feed = 100
     publisher             = 'Onion, Inc.'
@@ -20,7 +20,8 @@ class TheOnion(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'utf-8'
     publication_type      = 'newsportal'
-    masthead_url          = 'http://o.onionstatic.com/img/headers/onion_190.png'
+    needs_subscription    = 'optional'
+    masthead_url          = 'http://www.theonion.com/static/onion/img/logo_1x.png'
     extra_css             = """
                                 body{font-family: Helvetica,Arial,sans-serif}
                                 .section_title{color: gray; text-transform: uppercase}
@@ -37,18 +38,12 @@ class TheOnion(BasicNewsRecipe):
                         , 'language' : language
                         }
 
-    keep_only_tags = [
-                         dict(name='h2', attrs={'class':['section_title','title']})
-                        ,dict(attrs={'class':['main_image','meta','article_photo_lead','article_body']})
-                        ,dict(attrs={'id':['entries']})
-                     ]
-    remove_attributes=['lang','rel']
-    remove_tags_after = dict(attrs={'class':['article_body','feature_content']})
-    remove_tags = [
-                     dict(name=['object','link','iframe','base','meta'])
-                    ,dict(name='div', attrs={'class':['toolbar_side','graphical_feature','toolbar_bottom']})
-                    ,dict(name='div', attrs={'id':['recent_slider','sidebar','pagination','related_media']})
-                  ]
+    keep_only_tags    = [dict(attrs={'class':'full-article'})]
+    remove_attributes = ['lang','rel']
+    remove_tags       = [
+                         dict(name=['object','link','iframe','base','meta'])
+                        ,dict(attrs={'class':lambda x: x and 'share-tools' in x.split()})
+                        ]
 
 
     feeds = [
@@ -56,6 +51,17 @@ class TheOnion(BasicNewsRecipe):
              ,(u'Sports' , u'http://feeds.theonion.com/theonion/sports' )
             ]
 
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.open('http://www.theonion.com/')
+        if self.username is not None and self.password is not None:
+            br.open('https://ui.ppjol.com/login/onion/u/j_spring_security_check')
+            br.select_form(name='f')
+            br['j_username'] = self.username
+            br['j_password'] = self.password
+            br.submit()
+        return br
+        
     def get_article_url(self, article):
         artl = BasicNewsRecipe.get_article_url(self, article)
         if artl.startswith('http://www.theonion.com/audio/'):
@@ -79,4 +85,8 @@ class TheOnion(BasicNewsRecipe):
                else:
                    str = self.tag_to_string(item)
                    item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if item.has_key('data-src'):
+               item['src'] = item['data-src']           
         return soup
+        

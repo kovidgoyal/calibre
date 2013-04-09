@@ -7,7 +7,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import weakref
 from functools import partial
+from itertools import izip, imap
 
 def sanitize_sort_field_name(field_metadata, field):
     field = field_metadata.search_term_to_field_key(field.lower().strip())
@@ -15,11 +17,39 @@ def sanitize_sort_field_name(field_metadata, field):
     field = {'title': 'sort', 'authors':'author_sort'}.get(field, field)
     return field
 
+class MarkedVirtualField(object):
+
+    def __init__(self, marked_ids):
+        self.marked_ids = marked_ids
+
+    def iter_searchable_values(self, get_metadata, candidates, default_value=None):
+        for book_id in candidates:
+            yield self.marked_ids.get(book_id, default_value), {book_id}
+
+class TableRow(list):
+
+    def __init__(self, book_id, view):
+        self.book_id = book_id
+        self.view = weakref.ref(view)
+
+    def __getitem__(self, obj):
+        view = self.view()
+        if isinstance(obj, slice):
+            return [view._field_getters[c](self.book_id)
+                    for c in xrange(*obj.indices(len(view._field_getters)))]
+        else:
+            return view._field_getters[obj](self.book_id)
+
 class View(object):
+
+    ''' A table view of the database, with rows and columns. Also supports
+    filtering and sorting.  '''
 
     def __init__(self, cache):
         self.cache = cache
         self.marked_ids = {}
+        self.search_restriction_book_count = 0
+        self.search_restriction = ''
         self._field_getters = {}
         for col, idx in cache.backend.FIELD_MAP.iteritems():
             if isinstance(col, int):
@@ -30,24 +60,41 @@ class View(object):
             else:
                 try:
                     self._field_getters[idx] = {
-                        'id'      : self._get_id,
-                        'au_map'  : self.get_author_data,
+                        'id': self._get_id,
+                        'au_map': self.get_author_data,
                         'ondevice': self.get_ondevice,
-                        'marked'  : self.get_marked,
+                        'marked': self.get_marked,
                     }[col]
                 except KeyError:
                     self._field_getters[idx] = partial(self.get, col)
 
-        self._map = list(self.cache.all_book_ids())
-        self._map_filtered = list(self._map)
+        self._map = tuple(self.cache.all_book_ids())
+        self._map_filtered = tuple(self._map)
 
     @property
     def field_metadata(self):
         return self.cache.field_metadata
 
     def _get_id(self, idx, index_is_id=True):
-        ans = idx if index_is_id else self.index_to_id(idx)
-        return ans
+        return idx if index_is_id else self.index_to_id(idx)
+
+    def __getitem__(self, row):
+        return TableRow(self._map_filtered[row], self.cache)
+
+    def __len__(self):
+        return len(self._map_filtered)
+
+    def __iter__(self):
+        for book_id in self._map_filtered:
+            yield self._data[book_id]
+
+    def iterall(self):
+        for book_id in self._map:
+            yield self[book_id]
+
+    def iterallids(self):
+        for book_id in self._map:
+            yield book_id
 
     def get_field_map_field(self, row, col, index_is_id=True):
         '''
@@ -66,7 +113,7 @@ class View(object):
 
     def get_ondevice(self, idx, index_is_id=True, default_value=''):
         id_ = idx if index_is_id else self.index_to_id(idx)
-        self.cache.field_for('ondevice', id_, default_value=default_value)
+        return self.cache.field_for('ondevice', id_, default_value=default_value)
 
     def get_marked(self, idx, index_is_id=True, default_value=None):
         id_ = idx if index_is_id else self.index_to_id(idx)
@@ -93,7 +140,7 @@ class View(object):
                 ans.append(self.cache._author_data(id_))
         return tuple(ans)
 
-    def multisort(self, fields=[], subsort=False):
+    def multisort(self, fields=[], subsort=False, only_ids=None):
         fields = [(sanitize_sort_field_name(self.field_metadata, x), bool(y)) for x, y in fields]
         keys = self.field_metadata.sortable_field_keys()
         fields = [x for x in fields if x[0] in keys]
@@ -102,8 +149,70 @@ class View(object):
         if not fields:
             fields = [('timestamp', False)]
 
-        sorted_book_ids = self.cache.multisort(fields)
-        sorted_book_ids
-        # TODO: change maps
+        sorted_book_ids = self.cache.multisort(fields, ids_to_sort=only_ids)
+        if only_ids is None:
+            self._map = tuple(sorted_book_ids)
+            if len(self._map_filtered) == len(self._map):
+                self._map_filtered = tuple(self._map)
+            else:
+                fids = frozenset(self._map_filtered)
+                self._map_filtered = tuple(i for i in self._map if i in fids)
+        else:
+            smap = {book_id:i for i, book_id in enumerate(sorted_book_ids)}
+            only_ids.sort(key=smap.get)
 
+    def search(self, query, return_matches=False):
+        ans = self.search_getting_ids(query, self.search_restriction,
+                                      set_restriction_count=True)
+        if return_matches:
+            return ans
+        self._map_filtered = tuple(ans)
+
+    def search_getting_ids(self, query, search_restriction,
+                           set_restriction_count=False):
+        q = ''
+        if not query or not query.strip():
+            q = search_restriction
+        else:
+            q = query
+            if search_restriction:
+                q = u'(%s) and (%s)' % (search_restriction, query)
+        if not q:
+            if set_restriction_count:
+                self.search_restriction_book_count = len(self._map)
+            return list(self._map)
+        matches = self.cache.search(
+            query, search_restriction, virtual_fields={'marked':MarkedVirtualField(self.marked_ids)})
+        rv = [x for x in self._map if x in matches]
+        if set_restriction_count and q == search_restriction:
+            self.search_restriction_book_count = len(rv)
+        return rv
+
+    def set_search_restriction(self, s):
+        self.search_restriction = s
+
+    def search_restriction_applied(self):
+        return bool(self.search_restriction)
+
+    def get_search_restriction_book_count(self):
+        return self.search_restriction_book_count
+
+    def set_marked_ids(self, id_dict):
+        '''
+        ids in id_dict are "marked". They can be searched for by
+        using the search term ``marked:true``. Pass in an empty dictionary or
+        set to clear marked ids.
+
+        :param id_dict: Either a dictionary mapping ids to values or a set
+        of ids. In the latter case, the value is set to 'true' for all ids. If
+        a mapping is provided, then the search can be used to search for
+        particular values: ``marked:value``
+        '''
+        if not hasattr(id_dict, 'items'):
+            # Simple list. Make it a dict of string 'true'
+            self.marked_ids = dict.fromkeys(id_dict, u'true')
+        else:
+            # Ensure that all the items in the dict are text
+            self.marked_ids = dict(izip(id_dict.iterkeys(), imap(unicode,
+                id_dict.itervalues())))
 

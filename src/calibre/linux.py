@@ -33,7 +33,7 @@ entry_points = {
              'fetch-ebook-metadata = calibre.ebooks.metadata.sources.cli:main',
              'calibre-smtp = calibre.utils.smtp:main',
         ],
-        'gui_scripts'    : [
+        'gui_scripts' : [
             __appname__+' = calibre.gui2.main:main',
             'lrfviewer    = calibre.gui2.lrf_renderer.main:main',
             'ebook-viewer = calibre.gui2.viewer.main:main',
@@ -347,7 +347,7 @@ class ZshCompleter(object): # {{{
             subcommands.append(';;')
 
         f.write('\n_calibredb() {')
-        f.write(
+        f.write((
             r'''
     local state line state_descr context
     typeset -A opt_args
@@ -370,7 +370,7 @@ class ZshCompleter(object): # {{{
     esac
 
     return ret
-    '''%'\n    '.join(subcommands))
+    '''%'\n    '.join(subcommands)).encode('utf-8'))
         f.write('\n}\n\n')
 
     def write(self):

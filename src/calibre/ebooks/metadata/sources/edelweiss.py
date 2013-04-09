@@ -106,6 +106,8 @@ class Worker(Thread): # {{{
             parts = pub.partition(':')[0::2]
             pub = parts[1] or parts[0]
             try:
+                if ', Ship Date:' in pub:
+                    pub = pub.partition(', Ship Date:')[0]
                 q = parse_only_date(pub, assume_utc=True)
                 if q.year != UNDEFINED_DATE:
                     mi.pubdate = q
@@ -320,7 +322,7 @@ class Edelweiss(Source):
     # }}}
 
     def download_cover(self, log, result_queue, abort, # {{{
-            title=None, authors=None, identifiers={}, timeout=30):
+            title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
             log.info('No cached cover found, running identify')

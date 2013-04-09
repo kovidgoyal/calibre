@@ -12,7 +12,6 @@ http://www.ledevoir.com/
 import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.utils.magick import Image
 
 class ledevoir(BasicNewsRecipe):
     author        = 'Lorenzo Vigentini'
@@ -129,12 +128,12 @@ class ledevoir(BasicNewsRecipe):
              img = Image()
              img.open(iurl)
         #     width, height = img.size
-        #     print 'img is: ', iurl, 'width is: ', width, 'height is: ', height 
+        #     print 'img is: ', iurl, 'width is: ', width, 'height is: ', height
              if img < 0:
                 raise RuntimeError('Out of memory')
              img.set_compression_quality(30)
              img.save(iurl)
         return soup
 '''
-        
-           
+
+

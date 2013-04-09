@@ -88,7 +88,7 @@ class OptionParser(_OptionParser):
         if epilog is None:
             epilog = _('Created by ')+colored(__author__, fg='cyan')
         usage += '\n\n'+_('''Whenever you pass arguments to %prog that have spaces in them, '''
-                 '''enclose the arguments in quotation marks.''')
+                 '''enclose the arguments in quotation marks.''')+'\n'
         _OptionParser.__init__(self, usage=usage, version=version, epilog=epilog,
                                formatter=CustomHelpFormatter(),
                                conflict_handler=conflict_handler, **kwds)
@@ -171,7 +171,7 @@ class OptionParser(_OptionParser):
         non default values in lower.
         '''
         for dest in lower.__dict__.keys():
-            if not upper.__dict__.has_key(dest):
+            if not dest in upper.__dict__:
                 continue
             opt = self.option_by_dest(dest)
             if lower.__dict__[dest] != opt.default and \
@@ -319,12 +319,16 @@ class XMLConfig(dict):
         self.__setitem__(key, val)
 
     def __delitem__(self, key):
-        if dict.has_key(self, key):
+        try:
             dict.__delitem__(self, key)
+        except KeyError:
+            pass  # ignore missing keys
+        else:
             self.commit()
 
     def commit(self):
-        if self.no_commit: return
+        if self.no_commit:
+            return
         if hasattr(self, 'file_path') and self.file_path:
             dpath = os.path.dirname(self.file_path)
             if not os.path.exists(dpath):

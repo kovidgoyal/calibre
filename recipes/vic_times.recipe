@@ -6,16 +6,61 @@ __license__   = 'GPL v3'
 www.canada.com
 '''
 import re
-from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe
+
 from calibre.ebooks.BeautifulSoup import Tag, BeautifulStoneSoup
 
 
 class TimesColonist(BasicNewsRecipe):
 
+    # Customization -- remove sections you don't want.
+    # If your e-reader is an e-ink Kindle and your output profile is
+    # set properly this recipe will not include images because the
+    # resulting file is too large. If you have one of these and want
+    # images you can set kindle_omit_images = False
+    # and remove sections (typically the e-ink Kindles will
+    # work with about a dozen of these, but your mileage may vary).
+
+    kindle_omit_images = True
+
+    section_list = [
+        ('','Web Front Page'),
+        ('news/','News Headlines'),
+        ('news/b-c/','BC News'),
+        ('news/national/','National News'),
+        ('news/world/','World News'),
+        ('opinion/','Opinion'),
+        ('opinion/letters/','Letters'),
+        ('business/','Business'),
+        ('business/money/','Money'),
+        ('business/technology/','Technology'),
+        ('business/working/','Working'),
+        ('sports/','Sports'),
+        ('sports/hockey/','Hockey'),
+        ('sports/football/','Football'),
+        ('sports/basketball/','Basketball'),
+        ('sports/golf/','Golf'),
+        ('entertainment/','entertainment'),
+        ('entertainment/go/','Go!'),
+        ('entertainment/music/','Music'),
+        ('entertainment/books/','Books'),
+        ('entertainment/Movies/','Movies'),
+        ('entertainment/television/','Television'),
+        ('life/','Life'),
+        ('life/health/','Health'),
+        ('life/travel/','Travel'),
+        ('life/driving/','Driving'),
+        ('life/homes/','Homes'),
+        ('life/food-drink/','Food & Drink')
+    ]
+
     title = u'Victoria Times Colonist'
     url_prefix = 'http://www.timescolonist.com'
     description = u'News from Victoria, BC'
     fp_tag = 'CAN_TC'
+
+    masthead_url = 'http://www.timescolonist.com/gmg/img/global/logoTimesColonist.png'
+
 
     url_list = []
     language = 'en_CA'
@@ -29,15 +74,21 @@ class TimesColonist(BasicNewsRecipe):
                 .caption { font-size: xx-small; font-style: italic; font-weight: normal; }
                 '''
     keep_only_tags = [dict(name='div', attrs={'class':re.compile('main.content')})]
-    remove_tags = [{'class':'comments'},
-                   {'id':'photocredit'},
-                   dict(name='div', attrs={'class':re.compile('top.controls')}),
-                   dict(name='div', attrs={'class':re.compile('social')}),
-                   dict(name='div', attrs={'class':re.compile('tools')}),
-                   dict(name='div', attrs={'class':re.compile('bottom.tools')}),
-                   dict(name='div', attrs={'class':re.compile('window')}),
-                   dict(name='div', attrs={'class':re.compile('related.news.element')})]
 
+    def __init__(self, options, log, progress_reporter):
+        self.remove_tags = [{'class':'comments'},
+                       {'id':'photocredit'},
+                       dict(name='div', attrs={'class':re.compile('top.controls')}),
+                       dict(name='div', attrs={'class':re.compile('^comments')}),
+                       dict(name='div', attrs={'class':re.compile('social')}),
+                       dict(name='div', attrs={'class':re.compile('tools')}),
+                       dict(name='div', attrs={'class':re.compile('bottom.tools')}),
+                       dict(name='div', attrs={'class':re.compile('window')}),
+                       dict(name='div', attrs={'class':re.compile('related.news.element')})]
+        print("PROFILE NAME = "+options.output_profile.short_name)
+        if self.kindle_omit_images and options.output_profile.short_name in ['kindle', 'kindle_dx', 'kindle_pw']:
+            self.remove_tags.append(dict(name='div', attrs={'class':re.compile('image-container')}))
+        BasicNewsRecipe.__init__(self, options, log, progress_reporter)
 
     def get_cover_url(self):
         from datetime import timedelta, date
@@ -122,7 +173,6 @@ class TimesColonist(BasicNewsRecipe):
     def preprocess_html(self,soup):
         byline = soup.find('p',attrs={'class':re.compile('ancillary')})
         if byline is not None:
-            byline.find('a')
             authstr = self.tag_to_string(byline,False)
             authstr = re.sub('/ *Times Colonist','/',authstr, flags=re.IGNORECASE)
             authstr = re.sub('BY */','',authstr, flags=re.IGNORECASE)
@@ -149,9 +199,10 @@ class TimesColonist(BasicNewsRecipe):
         atag = htag.a
         if atag is not None:
             url = atag['href']
-            #print("Checking "+url)
-            if atag['href'].startswith('/'):
-                url = self.url_prefix+atag['href']
+            url = url.strip()
+            # print("Checking >>"+url+'<<\n\r')
+            if url.startswith('/'):
+                url = self.url_prefix+url
             if url in self.url_list:
                 return
             self.url_list.append(url)
@@ -171,10 +222,10 @@ class TimesColonist(BasicNewsRecipe):
             if dtag is not None:
                 description = self.tag_to_string(dtag,False)
             article_list.append(dict(title=title,url=url,date='',description=description,author='',content=''))
-            #print(sectitle+title+": description = "+description+" URL="+url)
+            print(sectitle+title+": description = "+description+" URL="+url+'\n\r')
 
     def add_section_index(self,ans,securl,sectitle):
-        print("Add section url="+self.url_prefix+'/'+securl)
+        print("Add section url="+self.url_prefix+'/'+securl+'\n\r')
         try:
             soup = self.index_to_soup(self.url_prefix+'/'+securl)
         except:
@@ -193,33 +244,7 @@ class TimesColonist(BasicNewsRecipe):
 
     def parse_index(self):
         ans = []
-        ans = self.add_section_index(ans,'','Web Front Page')
-        ans = self.add_section_index(ans,'news/','News Headlines')
-        ans = self.add_section_index(ans,'news/b-c/','BC News')
-        ans = self.add_section_index(ans,'news/national/','Natioanl News')
-        ans = self.add_section_index(ans,'news/world/','World News')
-        ans = self.add_section_index(ans,'opinion/','Opinion')
-        ans = self.add_section_index(ans,'opinion/letters/','Letters')
-        ans = self.add_section_index(ans,'business/','Business')
-        ans = self.add_section_index(ans,'business/money/','Money')
-        ans = self.add_section_index(ans,'business/technology/','Technology')
-        ans = self.add_section_index(ans,'business/working/','Working')
-        ans = self.add_section_index(ans,'sports/','Sports')
-        ans = self.add_section_index(ans,'sports/hockey/','Hockey')
-        ans = self.add_section_index(ans,'sports/football/','Football')
-        ans = self.add_section_index(ans,'sports/basketball/','Basketball')
-        ans = self.add_section_index(ans,'sports/golf/','Golf')
-        ans = self.add_section_index(ans,'entertainment/','entertainment')
-        ans = self.add_section_index(ans,'entertainment/go/','Go!')
-        ans = self.add_section_index(ans,'entertainment/music/','Music')
-        ans = self.add_section_index(ans,'entertainment/books/','Books')
-        ans = self.add_section_index(ans,'entertainment/Movies/','movies')
-        ans = self.add_section_index(ans,'entertainment/television/','Television')
-        ans = self.add_section_index(ans,'life/','Life')
-        ans = self.add_section_index(ans,'life/health/','Health')
-        ans = self.add_section_index(ans,'life/travel/','Travel')
-        ans = self.add_section_index(ans,'life/driving/','Driving')
-        ans = self.add_section_index(ans,'life/homes/','Homes')
-        ans = self.add_section_index(ans,'life/food-drink/','Food & Drink')
+        for (url,title) in self.section_list:
+            ans = self.add_section_index(ans,url,title)
         return ans
 

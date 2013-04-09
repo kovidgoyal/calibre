@@ -60,6 +60,12 @@ class FilesystemTest(BaseTest):
         fpath = c.format_abspath(1, 'FMT1').replace(os.sep, '/').split('/')
         ae(fpath[-3:], ['Moved', 'Moved (1)', 'Moved - Moved.fmt1'])
         af(os.path.exists(os.path.dirname(orig_fpath)), 'Original book folder still exists')
+        # Check that the filesystem reflects fpath (especially on
+        # case-insensitive systems).
+        for x in range(1, 4):
+            base = os.sep.join(fpath[:-x])
+            part = fpath[-x:][0]
+            self.assertIn(part, os.listdir(base))
 
     @unittest.skipUnless(iswindows, 'Windows only')
     def test_windows_atomic_move(self):

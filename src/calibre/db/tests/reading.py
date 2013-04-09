@@ -8,6 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import datetime
+from io import BytesIO
 
 from calibre.utils.date import utc_tz
 from calibre.db.tests.base import BaseTest
@@ -205,6 +206,9 @@ class ReadingTest(BaseTest):
             else:
                 self.assertEqual(cdata, cache.cover(book_id, as_path=True),
                                  'Reading of null cover as path failed')
+        buf = BytesIO()
+        self.assertFalse(cache.copy_cover_to(99999, buf), 'copy_cover_to() did not return False for non-existent book_id')
+        self.assertFalse(cache.copy_cover_to(3, buf), 'copy_cover_to() did not return False for non-existent cover')
 
     # }}}
 
@@ -305,6 +309,7 @@ class ReadingTest(BaseTest):
     def test_get_formats(self): # {{{
         'Test reading ebook formats using the format() method'
         from calibre.library.database2 import LibraryDatabase2
+        from calibre.db.cache import NoSuchFormat
         old = LibraryDatabase2(self.library_path)
         ids = old.all_ids()
         lf = {i:set(old.formats(i, index_is_id=True).split(',')) if old.formats(
@@ -332,6 +337,9 @@ class ReadingTest(BaseTest):
                     self.assertEqual(old, f.read(),
                                  'Failed to read format as path')
 
+        buf = BytesIO()
+        self.assertRaises(NoSuchFormat, cache.copy_format_to, 99999, 'X', buf, 'copy_format_to() failed to raise an exception for non-existent book')
+        self.assertRaises(NoSuchFormat, cache.copy_format_to, 1, 'X', buf, 'copy_format_to() failed to raise an exception for non-existent format')
 
     # }}}
 
