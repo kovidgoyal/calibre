@@ -6,6 +6,7 @@ __copyright__ = u'2010-2013, Tomasz Dlugosz <tomek3d@gmail.com>'
 fronda.pl
 '''
 
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import timedelta, date
 
