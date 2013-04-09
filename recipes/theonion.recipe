@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2009-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2013, Darko Miletic <darko.miletic at gmail.com>'
 
 '''
 theonion.com
@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class TheOnion(BasicNewsRecipe):
     title                 = 'The Onion'
     __author__            = 'Darko Miletic'
-    description           = "America's finest news source"
+    description           = "The Onion, America's Finest News Source, is an award-winning publication covering world, national, and * local issues. It is updated daily online and distributed weekly in select American cities."
     oldest_article        = 2
     max_articles_per_feed = 100
     publisher             = 'Onion, Inc.'
@@ -20,7 +20,8 @@ class TheOnion(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'utf-8'
     publication_type      = 'newsportal'
-    masthead_url          = 'http://o.onionstatic.com/img/headers/onion_190.png'
+    needs_subscription    = 'optional'
+    masthead_url          = 'http://www.theonion.com/static/onion/img/logo_1x.png'
     extra_css             = """
                                 body{font-family: Helvetica,Arial,sans-serif}
                                 .section_title{color: gray; text-transform: uppercase}
@@ -36,21 +37,56 @@ class TheOnion(BasicNewsRecipe):
                         , 'publisher': publisher
                         , 'language' : language
                         }
-    keep_only_tags = [dict(name='article', attrs={'class':'full-article'})]
-    remove_tags = [
-        dict(name=['nav', 'aside', 'section', 'meta']),
-        {'attrs':{'class':lambda x: x and ('share-tools' in x or 'ad-zone' in x)}},
-    ]
+
+    keep_only_tags    = [dict(attrs={'class':'full-article'})]
+    remove_attributes = ['lang','rel']
+    remove_tags       = [
+                         dict(name=['object','link','iframe','base','meta'])
+                        ,dict(attrs={'class':lambda x: x and 'share-tools' in x.split()})
+                        ]
+
 
     feeds = [
               (u'Daily'  , u'http://feeds.theonion.com/theonion/daily' )
              ,(u'Sports' , u'http://feeds.theonion.com/theonion/sports' )
             ]
 
-    def preprocess_html(self, soup, *args):
-        for img in soup.findAll('img', attrs={'data-src':True}):
-            if img['data-src']:
-                img['src'] = img['data-src']
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.open('http://www.theonion.com/')
+        if self.username is not None and self.password is not None:
+            br.open('https://ui.ppjol.com/login/onion/u/j_spring_security_check')
+            br.select_form(name='f')
+            br['j_username'] = self.username
+            br['j_password'] = self.password
+            br.submit()
+        return br
+        
+    def get_article_url(self, article):
+        artl = BasicNewsRecipe.get_article_url(self, article)
+        if artl.startswith('http://www.theonion.com/audio/'):
+           artl = None
+        return artl
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name  = 'div'
+                  item.attrs = []
+                  if not limg.has_key('alt'):
+                     limg['alt'] = 'image'
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if item.has_key('data-src'):
+               item['src'] = item['data-src']           
         return soup
-
-
+        
