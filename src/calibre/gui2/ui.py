@@ -279,6 +279,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         UpdateMixin.__init__(self, opts)
 
         ####################### Search boxes ########################
+        SearchRestrictionMixin.__init__(self)
         SavedSearchBoxMixin.__init__(self)
         SearchBoxMixin.__init__(self)
 
@@ -313,9 +314,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         TagBrowserMixin.__init__(self, db)
 
         ######################### Search Restriction ##########################
-        SearchRestrictionMixin.__init__(self)
-        if db.prefs['gui_restriction']:
-            self.apply_named_search_restriction(db.prefs['gui_restriction'])
+        if db.prefs['virtual_lib_on_startup']:
+            self.apply_virtual_library(db.prefs['virtual_lib_on_startup'])
 
         ########################### Cover Flow ################################
 
@@ -598,7 +598,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
 
     def set_window_title(self):
-        self.setWindowTitle(__appname__ + u' - || %s ||'%self.iactions['Choose Library'].library_name())
+        title = u'{0} - || {1} :: {2} :: {3} ||'.format(
+                                __appname__,
+                                self.iactions['Choose Library'].library_name(),
+                                self.library_view.model().db.data.get_base_restriction_name(),
+                                self.library_view.model().db.data.get_search_restriction_name())
+        self.setWindowTitle(title)
 
     def location_selected(self, location):
         '''
@@ -613,10 +618,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         for action in self.iactions.values():
             action.location_selected(location)
         if location == 'library':
-            self.search_restriction.setEnabled(True)
+            self.virtual_library_menu.setEnabled(True)
             self.highlight_only_button.setEnabled(True)
         else:
-            self.search_restriction.setEnabled(False)
+            self.virtual_library_menu.setEnabled(False)
             self.highlight_only_button.setEnabled(False)
             # Reset the view in case something changed while it was invisible
             self.current_view().reset()

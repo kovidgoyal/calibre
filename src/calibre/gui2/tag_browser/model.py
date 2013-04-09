@@ -264,13 +264,8 @@ class TagsModel(QAbstractItemModel): # {{{
         if rebuild:
             self.rebuild_node_tree(state_map)
 
-    def set_search_restriction(self, s):
-        self.search_restriction = s
-        self.rebuild_node_tree()
-
     def set_database(self, db):
         self.beginResetModel()
-        self.search_restriction = None
         hidden_cats = db.prefs.get('tag_browser_hidden_categories', None)
         # migrate from config to db prefs
         if hidden_cats is None:
@@ -848,7 +843,7 @@ class TagsModel(QAbstractItemModel): # {{{
         self.categories = {}
 
         # Get the categories
-        if self.search_restriction:
+        if self.db.data.get_base_restriction or self.db.data.get_search_restriction:
             try:
                 data = self.db.get_categories(sort=sort,
                         icon_map=self.category_icon_map,

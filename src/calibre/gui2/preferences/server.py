@@ -44,13 +44,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                          else self.opt_password.Password))
         self.opt_password.setEchoMode(self.opt_password.Password)
 
-        restrictions = sorted(saved_searches().names(), key=sort_key)
+        restrictions = sorted(db.prefs.get('virtual_libraries').keys(), key=sort_key)
         # verify that the current restriction still exists. If not, clear it.
-        csr = db.prefs.get('cs_restriction', None)
+        csr = db.prefs.get('cs_virtual_lib_on_startup', None)
         if csr and csr not in restrictions:
             db.prefs.set('cs_restriction', '')
         choices = [('', '')] + [(x, x) for x in restrictions]
-        r('cs_restriction', db.prefs, choices=choices)
+        r('cs_virtual_lib_on_startup', db.prefs, choices=choices)
 
         self.start_button.setEnabled(not getattr(self.server, 'is_running', False))
         self.test_button.setEnabled(not self.start_button.isEnabled())

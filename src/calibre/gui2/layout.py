@@ -173,11 +173,11 @@ class SearchBar(QWidget): # {{{
         self.setLayout(self._layout)
         self._layout.setContentsMargins(0,5,0,0)
 
-        x = ComboBoxWithHelp(self)
-        x.setMaximumSize(QSize(150, 16777215))
-        x.setObjectName("search_restriction")
+        x = QToolButton(self)
+        x.setText(_('Virtual Libraries'))
+        x.setObjectName("virtual_library")
         l.addWidget(x)
-        parent.search_restriction = x
+        parent.virtual_library = x
 
         x = QLabel(self)
         x.setObjectName("search_count")

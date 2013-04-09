@@ -452,7 +452,7 @@ class SavedSearchBoxMixin(object): # {{{
                                 self.saved_search.save_search_button_clicked)
         self.copy_search_button.clicked.connect(
                                 self.saved_search.copy_search_button_clicked)
-        self.saved_searches_changed()
+#         self.saved_searches_changed()
         self.saved_search.initialize(self.search, colorize=True,
                 help_text=_('Saved Searches'))
         self.saved_search.setToolTip(
@@ -479,17 +479,9 @@ class SavedSearchBoxMixin(object): # {{{
                             partial(self.do_saved_search_edit, None))
 
     def saved_searches_changed(self, set_restriction=None, recount=True):
-        p = sorted(saved_searches().names(), key=sort_key)
-        if set_restriction is None:
-            set_restriction = unicode(self.search_restriction.currentText())
-        # rebuild the restrictions combobox using current saved searches
-        self.search_restriction.clear()
-        self.search_restriction.addItem('')
-        self.search_restriction.addItem(_('*Current search'))
+        self.build_search_restriction_list()
         if recount:
             self.tags_view.recount()
-        for s in p:
-            self.search_restriction.addItem(s)
         if set_restriction: # redo the search restriction if there was one
             self.apply_named_search_restriction(set_restriction)
 
