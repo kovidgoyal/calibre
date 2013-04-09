@@ -7,7 +7,6 @@ sfgate.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class SanFranciscoChronicle(BasicNewsRecipe):
     title                 = u'San Francisco Chronicle'
@@ -19,16 +18,7 @@ class SanFranciscoChronicle(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-
-
-
-    remove_tags_before  = {'id':'printheader'}
-
-    remove_tags         = [
-                            dict(name='div',attrs={'id':'printheader'})
-                           ,dict(name='a', attrs={'href':re.compile('http://ads\.pheedo\.com.*')})
-                           ,dict(name='div',attrs={'id':'footer'})
-                          ]
+    auto_cleanup = True
 
     extra_css       = '''
                         h1{font-family :Arial,Helvetica,sans-serif; font-size:large;}
@@ -43,33 +33,13 @@ class SanFranciscoChronicle(BasicNewsRecipe):
                      '''
 
     feeds          = [
-                         (u'Top News Stories', u'http://www.sfgate.com/rss/feeds/news.xml')
+                         (u'Bay Area News', u'http://www.sfgate.com/bayarea/feed/Bay-Area-News-429.php'),
+                         (u'City Insider', u'http://www.sfgate.com/default/feed/City-Insider-Blog-573.php'),
+                         (u'Crime Scene', u'http://www.sfgate.com/rss/feed/Crime-Scene-Blog-599.php'),
+                         (u'Education News', u'http://www.sfgate.com/education/feed/Education-News-from-SFGate-430.php'),
+                         (u'National News', u'http://www.sfgate.com/rss/feed/National-News-RSS-Feed-435.php'),
+                         (u'Weird News', u'http://www.sfgate.com/weird/feed/Weird-News-RSS-Feed-433.php'),
+                         (u'World News', u'http://www.sfgate.com/rss/feed/World-News-From-SFGate-432.php'),
                      ]
-
-    def print_version(self,url):
-        url= url +"&type=printable"
-        return url
-
-    def get_article_url(self, article):
-        print str(article['title_detail']['value'])
-        url = article.get('guid',None)
-        url = "http://www.sfgate.com/cgi-bin/article.cgi?f="+url
-        if "Presented By:" in str(article['title_detail']['value']):
-            url = ''
-        return url
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

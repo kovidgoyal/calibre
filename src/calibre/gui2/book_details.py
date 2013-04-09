@@ -405,6 +405,7 @@ class BookInfo(QWebView):
     link_clicked = pyqtSignal(object)
     remove_format = pyqtSignal(int, object)
     save_format = pyqtSignal(int, object)
+    restore_format = pyqtSignal(int, object)
 
     def __init__(self, vertical, parent=None):
         QWebView.__init__(self, parent)
@@ -418,7 +419,7 @@ class BookInfo(QWebView):
         palette.setBrush(QPalette.Base, Qt.transparent)
         self.page().setPalette(palette)
         self.css = P('templates/book_details.css', data=True).decode('utf-8')
-        for x, icon in [('remove', 'trash.png'), ('save', 'save.png')]:
+        for x, icon in [('remove', 'trash.png'), ('save', 'save.png'), ('restore', 'edit-undo.png')]:
             ac = QAction(QIcon(I(icon)), '', self)
             ac.current_fmt = None
             ac.triggered.connect(getattr(self, '%s_format_triggerred'%x))
@@ -435,6 +436,9 @@ class BookInfo(QWebView):
 
     def save_format_triggerred(self):
         self.context_action_triggered('save')
+
+    def restore_format_triggerred(self):
+        self.context_action_triggered('restore')
 
     def link_activated(self, link):
         self._link_clicked = True
@@ -479,7 +483,11 @@ class BookInfo(QWebView):
                 traceback.print_exc()
             else:
                 for a, t in [('remove', _('Delete the %s format')),
-                    ('save', _('Save the %s format to disk'))]:
+                    ('save', _('Save the %s format to disk')),
+                    ('restore', _('Restore the %s format')),
+                ]:
+                    if a == 'restore' and not fmt.upper().startswith('ORIGINAL_'):
+                        continue
                     ac = getattr(self, '%s_format_action'%a)
                     ac.current_fmt = (book_id, fmt)
                     ac.setText(t%parts[2])
@@ -585,6 +593,7 @@ class BookDetails(QWidget): # {{{
     view_specific_format = pyqtSignal(int, object)
     remove_specific_format = pyqtSignal(int, object)
     save_specific_format = pyqtSignal(int, object)
+    restore_specific_format = pyqtSignal(int, object)
     remote_file_dropped = pyqtSignal(object, object)
     files_dropped = pyqtSignal(object, object)
     cover_changed = pyqtSignal(object, object)
@@ -654,6 +663,7 @@ class BookDetails(QWidget): # {{{
         self.book_info.link_clicked.connect(self.handle_click)
         self.book_info.remove_format.connect(self.remove_specific_format)
         self.book_info.save_format.connect(self.save_specific_format)
+        self.book_info.restore_format.connect(self.restore_specific_format)
         self.setCursor(Qt.PointingHandCursor)
 
     def handle_click(self, link):

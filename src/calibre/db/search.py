@@ -64,7 +64,7 @@ def _match(query, value, matchkind, use_primary_find_in_search=True):
     else:
         internal_match_ok = False
     for t in value:
-        try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
+        try:  # ignore regexp exceptions, required because search-ahead tries before typing is finished
             t = icu_lower(t)
             if (matchkind == EQUALS_MATCH):
                 if internal_match_ok:
@@ -95,20 +95,20 @@ def _match(query, value, matchkind, use_primary_find_in_search=True):
     return False
 # }}}
 
-class DateSearch(object): # {{{
+class DateSearch(object):  # {{{
 
     def __init__(self):
         self.operators = {
-            '='   : (1, self.eq),
-            '!='  : (2, self.ne),
-            '>'   : (1, self.gt),
-            '>='  : (2, self.ge),
-            '<'   : (1, self.lt),
-            '<='  : (2, self.le),
+            '=': (1, self.eq),
+            '!=': (2, self.ne),
+            '>': (1, self.gt),
+            '>=': (2, self.ge),
+            '<': (1, self.lt),
+            '<=': (2, self.le),
         }
-        self.local_today         = { '_today', 'today', icu_lower(_('today')) }
-        self.local_yesterday     = { '_yesterday', 'yesterday', icu_lower(_('yesterday')) }
-        self.local_thismonth     = { '_thismonth', 'thismonth', icu_lower(_('thismonth')) }
+        self.local_today         = {'_today', 'today', icu_lower(_('today'))}
+        self.local_yesterday     = {'_yesterday', 'yesterday', icu_lower(_('yesterday'))}
+        self.local_thismonth     = {'_thismonth', 'thismonth', icu_lower(_('thismonth'))}
         self.daysago_pat = re.compile(r'(%s|daysago|_daysago)$'%_('daysago'))
 
     def eq(self, dbdate, query, field_count):
@@ -216,16 +216,16 @@ class DateSearch(object): # {{{
         return matches
 # }}}
 
-class NumericSearch(object): # {{{
+class NumericSearch(object):  # {{{
 
     def __init__(self):
         self.operators = {
-            '=':( 1, lambda r, q: r == q ),
-            '>':( 1, lambda r, q: r is not None and r > q ),
-            '<':( 1, lambda r, q: r is not None and r < q ),
-            '!=':( 2, lambda r, q: r != q ),
-            '>=':( 2, lambda r, q: r is not None and r >= q ),
-            '<=':( 2, lambda r, q: r is not None and r <= q )
+            '=':(1, lambda r, q: r == q),
+            '>':(1, lambda r, q: r is not None and r > q),
+            '<':(1, lambda r, q: r is not None and r < q),
+            '!=':(2, lambda r, q: r != q),
+            '>=':(2, lambda r, q: r is not None and r >= q),
+            '<=':(2, lambda r, q: r is not None and r <= q)
         }
 
     def __call__(self, query, field_iter, location, datatype, candidates, is_many=False):
@@ -267,7 +267,7 @@ class NumericSearch(object): # {{{
                 p, relop = self.operators['=']
 
             cast = int
-            if  dt == 'rating':
+            if dt == 'rating':
                 cast = lambda x: 0 if x is None else int(x)
                 adjust = lambda x: x/2
             elif dt in ('float', 'composite'):
@@ -303,7 +303,7 @@ class NumericSearch(object): # {{{
 
 # }}}
 
-class BooleanSearch(object): # {{{
+class BooleanSearch(object):  # {{{
 
     def __init__(self):
         self.local_no        = icu_lower(_('no'))
@@ -324,27 +324,27 @@ class BooleanSearch(object): # {{{
         for val, book_ids in field_iter():
             val = force_to_bool(val)
             if not bools_are_tristate:
-                if val is None or not val: # item is None or set to false
-                    if query in { self.local_no, self.local_unchecked, 'no', '_no', 'false' }:
+                if val is None or not val:  # item is None or set to false
+                    if query in {self.local_no, self.local_unchecked, 'no', '_no', 'false'}:
                         matches |= book_ids
-                else: # item is explicitly set to true
-                    if query in { self.local_yes, self.local_checked, 'yes', '_yes', 'true' }:
+                else:  # item is explicitly set to true
+                    if query in {self.local_yes, self.local_checked, 'yes', '_yes', 'true'}:
                         matches |= book_ids
             else:
                 if val is None:
-                    if query in { self.local_empty, self.local_blank, 'empty', '_empty', 'false' }:
+                    if query in {self.local_empty, self.local_blank, 'empty', '_empty', 'false'}:
                         matches |= book_ids
-                elif not val: # is not None and false
-                    if query in { self.local_no, self.local_unchecked, 'no', '_no', 'true' }:
+                elif not val:  # is not None and false
+                    if query in {self.local_no, self.local_unchecked, 'no', '_no', 'true'}:
                         matches |= book_ids
-                else: # item is not None and true
-                    if query in { self.local_yes, self.local_checked, 'yes', '_yes', 'true' }:
+                else:  # item is not None and true
+                    if query in {self.local_yes, self.local_checked, 'yes', '_yes', 'true'}:
                         matches |= book_ids
         return matches
 
 # }}}
 
-class KeyPairSearch(object): # {{{
+class KeyPairSearch(object):  # {{{
 
     def __call__(self, query, field_iter, candidates, use_primary_find):
         matches = set()
@@ -547,11 +547,12 @@ class Parser(SearchQueryParser):
         field_metadata = {}
 
         for x, fm in self.field_metadata.iteritems():
-            if x.startswith('@'): continue
+            if x.startswith('@'):
+                continue
             if fm['search_terms'] and x != 'series_sort':
                 all_locs.add(x)
                 field_metadata[x] = fm
-                if fm['datatype'] in { 'composite', 'text', 'comments', 'series', 'enumeration' }:
+                if fm['datatype'] in {'composite', 'text', 'comments', 'series', 'enumeration'}:
                     text_fields.add(x)
 
         locations = all_locs if location == 'all' else {location}
@@ -687,8 +688,8 @@ class Search(object):
             dbcache, all_book_ids, dbcache.pref('grouped_search_terms'),
             self.date_search, self.num_search, self.bool_search,
             self.keypair_search,
-            prefs[ 'limit_search_columns' ],
-            prefs[ 'limit_search_columns_to' ], self.all_search_locations,
+            prefs['limit_search_columns'],
+            prefs['limit_search_columns_to'], self.all_search_locations,
             virtual_fields)
 
         try:

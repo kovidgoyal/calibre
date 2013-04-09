@@ -1,0 +1,17 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class UniverseToday(BasicNewsRecipe):
+    title                 = u'Universe Today'
+    language = 'en'
+    description           = u'Space and astronomy news.'
+    __author__ = 'seird'
+    publisher             = u'universetoday.com'
+    category              = 'science, astronomy, news, rss'
+    oldest_article = 7
+    max_articles_per_feed = 40
+    auto_cleanup = True
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_empty_feeds = True
+
+    feeds          = [(u'Universe Today', u'http://feeds.feedburner.com/universetoday/pYdq')]

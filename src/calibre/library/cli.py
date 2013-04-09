@@ -88,7 +88,7 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
     for f in data:
         fmts = [x for x in f['formats'] if x is not None]
         f['formats'] = u'[%s]'%u','.join(fmts)
-    widths = list(map(lambda x : 0, fields))
+    widths = list(map(lambda x: 0, fields))
     for record in data:
         for f in record.keys():
             if hasattr(record[f], 'isoformat'):
@@ -164,7 +164,8 @@ List the books available in the calibre database.
     parser.add_option('--ascending', default=False, action='store_true',
                       help=_('Sort results in ascending order'))
     parser.add_option('-s', '--search', default=None,
-                      help=_('Filter the results by the search query. For the format of the search query, please see the search related documentation in the User Manual. Default is to do no filtering.'))
+                      help=_('Filter the results by the search query. For the format of the search query,'
+                             ' please see the search related documentation in the User Manual. Default is to do no filtering.'))
     parser.add_option('-w', '--line-width', default=-1, type=int,
                       help=_('The maximum width of a single line in the output. Defaults to detecting screen size.'))
     parser.add_option('--separator', default=' ', help=_('The string used to separate fields. Default is a space.'))
@@ -244,7 +245,8 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
                 mi.authors = [_('Unknown')]
             for x in ('title', 'authors', 'isbn', 'tags', 'series'):
                 val = locals()['o'+x]
-                if val: setattr(mi, x, val)
+                if val:
+                    setattr(mi, x, val)
             if oseries:
                 mi.series_index = oseries_index
             if ocover:
@@ -425,18 +427,26 @@ def command_remove(args, dbpath):
 
     return 0
 
-def do_add_format(db, id, fmt, path):
-    db.add_format_with_hooks(id, fmt.upper(), path, index_is_id=True)
-    send_message()
+def do_add_format(db, id, fmt, path, opts):
+    done = db.add_format_with_hooks(id, fmt.upper(), path, index_is_id=True,
+                             replace=opts.replace)
+    if not done and not opts.replace:
+        prints(_('A %s file already exists for book: %d, not replacing')%(fmt.upper(), id))
+    else:
+        send_message()
 
 def add_format_option_parser():
-    return get_parser(_(
+    parser = get_parser(_(
 '''\
 %prog add_format [options] id ebook_file
 
 Add the ebook in ebook_file to the available formats for the logical book identified \
-by id. You can get id by using the list command. If the format already exists, it is replaced.
+by id. You can get id by using the list command. If the format already exists, \
+it is replaced, unless the do not replace option is specified.\
 '''))
+    parser.add_option('--dont-replace', dest='replace', default=True, action='store_false',
+                      help=_('Do not replace the format if it already exists'))
+    return parser
 
 
 def command_add_format(args, dbpath):
@@ -451,7 +461,7 @@ def command_add_format(args, dbpath):
     id, path, fmt = int(args[1]), args[2], os.path.splitext(args[2])[-1]
     if not fmt:
         print _('ebook file must have an extension')
-    do_add_format(get_db(dbpath, opts), id, fmt[1:], path)
+    do_add_format(get_db(dbpath, opts), id, fmt[1:], path, opts)
     return 0
 
 def do_remove_format(db, id, fmt):
@@ -791,7 +801,7 @@ def catalog_option_parser(args):
         if not file_extension in available_catalog_formats():
             print_help(parser, log)
             log.error("No catalog plugin available for extension '%s'.\n" % file_extension +
-                      "Catalog plugins available for %s\n" % ', '.join(available_catalog_formats()) )
+                      "Catalog plugins available for %s\n" % ', '.join(available_catalog_formats()))
             raise SystemExit(1)
 
         return output, file_extension
@@ -1214,7 +1224,8 @@ def command_restore_database(args, dbpath):
         dbpath = dbpath.decode(preferred_encoding)
 
     class Progress(object):
-        def __init__(self): self.total = 1
+        def __init__(self):
+            self.total = 1
 
         def __call__(self, msg, step):
             if msg is None:
@@ -1308,7 +1319,7 @@ def command_list_categories(args, dbpath):
         from calibre.utils.terminal import geometry, ColoredStream
 
         separator = ' '
-        widths = list(map(lambda x : 0, fields))
+        widths = list(map(lambda x: 0, fields))
         for i in data:
             for j, field in enumerate(fields):
                 widths[j] = max(widths[j], max(len(field), len(unicode(i[field]))))

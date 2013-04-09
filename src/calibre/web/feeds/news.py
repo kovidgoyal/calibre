@@ -219,7 +219,7 @@ class BasicNewsRecipe(Recipe):
     #:    }
     #:
     #: All keys are optional. For a full explanantion of the search criteria, see
-    #: `Beautiful Soup <http://www.crummy.com/software/BeautifulSoup/documentation.html#The basic find method: findAll(name, attrs, recursive, text, limit, **kwargs)>`_
+    #: `Beautiful Soup <http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html#Searching%20the%20Parse%20Tree>`_
     #: A common example::
     #:
     #:   remove_tags = [dict(name='div', attrs={'class':'advert'})]
@@ -556,7 +556,7 @@ class BasicNewsRecipe(Recipe):
                 url = article[key]
                 if url and url.startswith('http://'):
                     return url
-        ans = article.get('link',  None)
+        ans = article.get('link', None)
         if not ans and getattr(article, 'links', None):
             for item in article.links:
                 if item.get('rel', 'alternate') == 'alternate':
@@ -725,7 +725,7 @@ class BasicNewsRecipe(Recipe):
         `weights`: A dictionary that maps weights to titles. If any titles
         in index are not in weights, they are assumed to have a weight of 0.
         '''
-        weights = defaultdict(lambda : 0, weights)
+        weights = defaultdict(lambda: 0, weights)
         index.sort(cmp=lambda x, y: cmp(weights[x], weights[y]))
         return index
 
@@ -860,8 +860,8 @@ class BasicNewsRecipe(Recipe):
             if isinstance(self.feeds, basestring):
                 self.feeds = [self.feeds]
 
-        if self.needs_subscription and (\
-                self.username is None or self.password is None or \
+        if self.needs_subscription and (
+                self.username is None or self.password is None or
                 (not self.username and not self.password)):
             if self.needs_subscription != 'optional':
                 raise ValueError(_('The "%s" recipe needs a username and password.')%self.title)
@@ -870,7 +870,7 @@ class BasicNewsRecipe(Recipe):
         self.image_map, self.image_counter = {}, 1
         self.css_map = {}
 
-        web2disk_cmdline = [ 'web2disk',
+        web2disk_cmdline = ['web2disk',
             '--timeout', str(self.timeout),
             '--max-recursions', str(self.recursions),
             '--delay', str(self.delay),
@@ -913,7 +913,6 @@ class BasicNewsRecipe(Recipe):
         self.failed_downloads = []
         self.partial_failures = []
 
-
     def _postprocess_html(self, soup, first_fetch, job_info):
         if self.no_stylesheets:
             for link in list(soup.findAll('link', type=re.compile('css')))+list(soup.findAll('style')):
@@ -923,7 +922,8 @@ class BasicNewsRecipe(Recipe):
             head = soup.find('body')
         if not head:
             head = soup.find(True)
-        style = BeautifulSoup(u'<style type="text/css" title="override_css">%s</style>'%(self.template_css +'\n\n'+(self.extra_css if self.extra_css else ''))).find('style')
+        style = BeautifulSoup(u'<style type="text/css" title="override_css">%s</style>'%(
+            self.template_css +'\n\n'+(self.extra_css if self.extra_css else ''))).find('style')
         head.insert(len(head.contents), style)
         if first_fetch and job_info:
             url, f, a, feed_len = job_info
@@ -968,7 +968,6 @@ class BasicNewsRecipe(Recipe):
             else:
                 self.populate_article_metadata(article, ans, first_fetch)
         return ans
-
 
     def download(self):
         '''
@@ -1041,12 +1040,12 @@ class BasicNewsRecipe(Recipe):
 
     def feed2index(self, f, feeds):
         feed = feeds[f]
-        if feed.image_url is not None: # Download feed image
+        if feed.image_url is not None:  # Download feed image
             imgdir = os.path.join(self.output_dir, 'images')
             if not os.path.isdir(imgdir):
                 os.makedirs(imgdir)
 
-            if self.image_map.has_key(feed.image_url):
+            if feed.image_url in self.image_map:
                 feed.image_url = self.image_map[feed.image_url]
             else:
                 bn = urlparse.urlsplit(feed.image_url).path
@@ -1065,7 +1064,6 @@ class BasicNewsRecipe(Recipe):
             if isinstance(feed.image_url, str):
                 feed.image_url = feed.image_url.decode(sys.getfilesystemencoding(), 'strict')
 
-
         templ = (templates.TouchscreenFeedTemplate if self.touchscreen else
                     templates.FeedTemplate)
         templ = templ(lang=self.lang_for_html)
@@ -1073,7 +1071,6 @@ class BasicNewsRecipe(Recipe):
 
         return templ.generate(f, feeds, self.description_limiter,
                               extra_css=css).render(doctype='xhtml')
-
 
     def _fetch_article(self, url, dir_, f, a, num_of_feeds):
         br = self.browser
@@ -1117,7 +1114,7 @@ class BasicNewsRecipe(Recipe):
         with PersistentTemporaryFile('_feeds2disk.html') as pt:
             pt.write(raw)
             url = ('file:'+pt.name) if iswindows else ('file://'+pt.name)
-        return self._fetch_article(url, dir,  f, a, num_of_feeds)
+        return self._fetch_article(url, dir, f, a, num_of_feeds)
 
     def remove_duplicate_articles(self, feeds):
         seen_keys = defaultdict(set)
@@ -1223,9 +1220,9 @@ class BasicNewsRecipe(Recipe):
                 if not url:
                     continue
                 func, arg = (self.fetch_embedded_article, article) \
-                            if self.use_embedded_content or (self.use_embedded_content == None and feed.has_embedded_content()) \
+                            if self.use_embedded_content or (self.use_embedded_content is None and feed.has_embedded_content()) \
                             else \
-                            ((self.fetch_obfuscated_article if self.articles_are_obfuscated \
+                            ((self.fetch_obfuscated_article if self.articles_are_obfuscated
                               else self.fetch_article), url)
                 req = WorkRequest(func, (arg, art_dir, f, a, len(feed)),
                                       {}, (f, a), self.article_downloaded,
@@ -1235,12 +1232,10 @@ class BasicNewsRecipe(Recipe):
                 req.feed_dir = feed_dir
                 self.jobs.append(req)
 
-
         self.jobs_done = 0
         tp = ThreadPool(self.simultaneous_downloads)
         for req in self.jobs:
             tp.putRequest(req, block=True, timeout=0)
-
 
         self.report_progress(0, _('Starting download [%d thread(s)]...')%self.simultaneous_downloads)
         while True:
@@ -1327,7 +1322,6 @@ class BasicNewsRecipe(Recipe):
         self.masthead_path = outfile
         if os.path.exists(mpath):
             os.remove(mpath)
-
 
     def download_masthead(self, url):
         try:
@@ -1454,7 +1448,6 @@ class BasicNewsRecipe(Recipe):
         toc = TOC(base_path=dir)
         self.play_order_counter = 0
         self.play_order_map = {}
-
 
         def feed_index(num, parent):
             f = feeds[num]
@@ -1595,7 +1588,6 @@ class BasicNewsRecipe(Recipe):
                 parsed_feeds.append(feed)
                 self.log.exception(msg)
 
-
         remove = [f for f in parsed_feeds if len(f) == 0 and
                 self.remove_empty_feeds]
         for f in remove:
@@ -1629,8 +1621,11 @@ class BasicNewsRecipe(Recipe):
                 res = self.tag_to_string(item)
                 if res:
                     strings.append(res)
-                elif use_alt and item.has_key('alt'):
-                    strings.append(item['alt'])
+                elif use_alt:
+                    try:
+                        strings.append(item['alt'])
+                    except KeyError:
+                        pass
         ans = u''.join(strings)
         if normalize_whitespace:
             ans = re.sub(r'\s+', ' ', ans)
@@ -1646,24 +1641,26 @@ class BasicNewsRecipe(Recipe):
 
     @classmethod
     def adeify_images(cls, soup):
-         '''
-         If your recipe when converted to EPUB has problems with images when
-         viewed in Adobe Digital Editions, call this method from within
-         :meth:`postprocess_html`.
-         '''
-         for item in soup.findAll('img'):
-             for attrib in ['height','width','border','align','style']:
-                 if item.has_key(attrib):
+        '''
+        If your recipe when converted to EPUB has problems with images when
+        viewed in Adobe Digital Editions, call this method from within
+        :meth:`postprocess_html`.
+        '''
+        for item in soup.findAll('img'):
+            for attrib in ['height','width','border','align','style']:
+                try:
                     del item[attrib]
-             oldParent = item.parent
-             myIndex = oldParent.contents.index(item)
-             item.extract()
-             divtag = Tag(soup,'div')
-             brtag  = Tag(soup,'br')
-             oldParent.insert(myIndex,divtag)
-             divtag.append(item)
-             divtag.append(brtag)
-         return soup
+                except KeyError:
+                    pass
+            oldParent = item.parent
+            myIndex = oldParent.contents.index(item)
+            item.extract()
+            divtag = Tag(soup,'div')
+            brtag  = Tag(soup,'br')
+            oldParent.insert(myIndex,divtag)
+            divtag.append(item)
+            divtag.append(brtag)
+        return soup
 
 
 class CustomIndexRecipe(BasicNewsRecipe):

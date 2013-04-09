@@ -174,7 +174,13 @@ def _extractall(f, path=None, file_info=None):
         has_data_descriptors = header.flags & (1 << 3)
         seekval = header.compressed_size + (16 if has_data_descriptors else 0)
         found = True
-        parts = header.filename.split('/')
+        # Sanitize path changing absolute to relative paths and removing .. and
+        # .
+        fname = header.filename.replace(os.sep, '/')
+        fname = os.path.splitdrive(fname)[1]
+        parts = [x for x in fname.split('/') if x not in {'', os.path.pardir, os.path.curdir}]
+        if not parts:
+            continue
         if header.uncompressed_size == 0:
             # Directory
             f.seek(f.tell()+seekval)

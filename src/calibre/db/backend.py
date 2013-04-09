@@ -41,8 +41,7 @@ Differences in semantics from pysqlite:
 '''
 
 
-
-class DynamicFilter(object): # {{{
+class DynamicFilter(object):  # {{{
 
     'No longer used, present for legacy compatibility'
 
@@ -57,7 +56,7 @@ class DynamicFilter(object): # {{{
         self.ids = frozenset(ids)
 # }}}
 
-class DBPrefs(dict): # {{{
+class DBPrefs(dict):  # {{{
 
     'Store preferences as key:value pairs in the db'
 
@@ -114,9 +113,10 @@ class DBPrefs(dict): # {{{
             return default
 
     def set_namespaced(self, namespace, key, val):
-        if u':' in key: raise KeyError('Colons are not allowed in keys')
-        if u':' in namespace: raise KeyError('Colons are not allowed in'
-                ' the namespace')
+        if u':' in key:
+            raise KeyError('Colons are not allowed in keys')
+        if u':' in namespace:
+            raise KeyError('Colons are not allowed in the namespace')
         key = u'namespaced:%s:%s'%(namespace, key)
         self[key] = val
 
@@ -170,7 +170,8 @@ def pynocase(one, two, encoding='utf-8'):
     return cmp(one.lower(), two.lower())
 
 def _author_to_author_sort(x):
-    if not x: return ''
+    if not x:
+        return ''
     return author_to_author_sort(x.replace('|', ','))
 
 def icu_collator(s1, s2):
@@ -239,9 +240,9 @@ def AumSortedConcatenate():
 
 # }}}
 
-class Connection(apsw.Connection): # {{{
+class Connection(apsw.Connection):  # {{{
 
-    BUSY_TIMEOUT = 2000 # milliseconds
+    BUSY_TIMEOUT = 2000  # milliseconds
 
     def __init__(self, path):
         apsw.Connection.__init__(self, path)
@@ -257,7 +258,7 @@ class Connection(apsw.Connection): # {{{
         self.createscalarfunction('title_sort', title_sort, 1)
         self.createscalarfunction('author_to_author_sort',
                 _author_to_author_sort, 1)
-        self.createscalarfunction('uuid4', lambda : str(uuid.uuid4()),
+        self.createscalarfunction('uuid4', lambda: str(uuid.uuid4()),
                 0)
 
         # Dummy functions for dynamically created filters
@@ -380,7 +381,7 @@ class DB(object):
         self.initialize_custom_columns()
         self.initialize_tables()
 
-    def initialize_prefs(self, default_prefs): # {{{
+    def initialize_prefs(self, default_prefs):  # {{{
         self.prefs = DBPrefs(self)
 
         if default_prefs is not None and not self._exists:
@@ -493,7 +494,7 @@ class DB(object):
             self.prefs.set('user_categories', user_cats)
     # }}}
 
-    def initialize_custom_columns(self): # {{{
+    def initialize_custom_columns(self):  # {{{
         with self.conn:
             # Delete previously marked custom columns
             for record in self.conn.get(
@@ -634,11 +635,11 @@ class DB(object):
 
         self.custom_data_adapters = {
                 'float': adapt_number,
-                'int':   adapt_number,
-                'rating':lambda x,d : x if x is None else min(10., max(0., float(x))),
-                'bool':  adapt_bool,
+                'int': adapt_number,
+                'rating':lambda x,d: x if x is None else min(10., max(0., float(x))),
+                'bool': adapt_bool,
                 'comments': lambda x,d: adapt_text(x, {'is_multiple':False}),
-                'datetime' : adapt_datetime,
+                'datetime': adapt_datetime,
                 'text':adapt_text,
                 'series':adapt_text,
                 'enumeration': adapt_enum
@@ -661,7 +662,7 @@ class DB(object):
 
     # }}}
 
-    def initialize_tables(self): # {{{
+    def initialize_tables(self):  # {{{
         tables = self.tables = {}
         for col in ('title', 'sort', 'author_sort', 'series_index', 'comments',
                 'timestamp', 'pubdate', 'uuid', 'path', 'cover',
@@ -866,8 +867,8 @@ class DB(object):
         Read all data from the db into the python in-memory tables
         '''
 
-        with self.conn: # Use a single transaction, to ensure nothing modifies
-                        # the db while we are reading
+        with self.conn:  # Use a single transaction, to ensure nothing modifies
+                         # the db while we are reading
             for table in self.tables.itervalues():
                 try:
                     table.read(self)
@@ -885,7 +886,7 @@ class DB(object):
             return fmt_path
         try:
             candidates = glob.glob(os.path.join(path, '*'+fmt))
-        except: # If path contains strange characters this throws an exc
+        except:  # If path contains strange characters this throws an exc
             candidates = []
         if fmt and candidates and os.path.exists(candidates[0]):
             shutil.copyfile(candidates[0], fmt_path)
@@ -954,7 +955,7 @@ class DB(object):
                         if path != dest:
                             os.rename(path, dest)
                     except:
-                        pass # Nothing too catastrophic happened, the cases mismatch, that's all
+                        pass  # Nothing too catastrophic happened, the cases mismatch, that's all
                 else:
                     windows_atomic_move.copy_path_to(path, dest)
         else:
@@ -970,7 +971,7 @@ class DB(object):
                         try:
                             os.rename(path, dest)
                         except:
-                            pass # Nothing too catastrophic happened, the cases mismatch, that's all
+                            pass  # Nothing too catastrophic happened, the cases mismatch, that's all
                 else:
                     if use_hardlink:
                         try:
@@ -1021,7 +1022,7 @@ class DB(object):
             if not os.path.exists(tpath):
                 os.makedirs(tpath)
 
-            if source_ok: # Migrate existing files
+            if source_ok:  # Migrate existing files
                 dest = os.path.join(tpath, 'cover.jpg')
                 self.copy_cover_to(current_path, dest,
                         windows_atomic_move=wam, use_hardlink=True)
@@ -1064,8 +1065,18 @@ class DB(object):
                         os.rename(os.path.join(curpath, oldseg),
                                 os.path.join(curpath, newseg))
                     except:
-                        break # Fail silently since nothing catastrophic has happened
+                        break  # Fail silently since nothing catastrophic has happened
                 curpath = os.path.join(curpath, newseg)
+
+    def write_backup(self, path, raw):
+        path = os.path.abspath(os.path.join(self.library_path, path, 'metadata.opf'))
+        with lopen(path, 'wb') as f:
+            f.write(raw)
+
+    def read_backup(self, path):
+        path = os.path.abspath(os.path.join(self.library_path, path, 'metadata.opf'))
+        with lopen(path, 'rb') as f:
+            return f.read()
 
    # }}}
 
