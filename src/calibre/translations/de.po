@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-04-05 04:01+0000\n"
-"PO-Revision-Date: 2013-04-02 20:16+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2013-04-09 16:55+0000\n"
+"Last-Translator: Simon Schütte <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-06 05:18+0000\n"
+"X-Launchpad-Export-Date: 2013-04-10 05:10+0000\n"
 "X-Generator: Launchpad (build 16550)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -3646,11 +3646,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:108
 msgid "footers"
-msgstr ""
+msgstr "Fußzeilen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:111
 msgid "headers"
-msgstr ""
+msgstr "Kopfzeilen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -5260,30 +5260,34 @@ msgid ""
 "Downloads covers from a Google Image search. Useful to find larger/alternate "
 "covers."
 msgstr ""
+"Coverbilder aus einer Google-Bilder Suche herunterladen. Nützlich, um ein "
+"größeres/alternatives Cover zu finden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:20
 msgid "Configure the Google Image Search plugin"
-msgstr ""
+msgstr "Einrichten des Google-Bilder Suche Plugins"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:22
 msgid "Maximum number of covers to get"
-msgstr ""
+msgstr "Maximale Anzahl der zu findenden Coverbilder"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:23
 msgid "The maximum number of covers to process from the google search result"
 msgstr ""
+"Maximale Anzahl der zu verarbeitenden Coverbilder aus den Google-"
+"Suchergebnissen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:24
 msgid "Cover size"
-msgstr ""
+msgstr "Coverbild-Größe"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:25
 msgid "Search for covers larger than the specified size"
-msgstr ""
+msgstr "Suche nach Coverbildern, die größer als die angegebene Größe sind"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:27
 msgid "Any size"
-msgstr ""
+msgstr "Jede Größe"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:146
@@ -5298,7 +5302,7 @@ msgstr "Groß"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:34
 #, python-format
 msgid "Larger than %s"
-msgstr ""
+msgstr "Größer als %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:24
 msgid "Downloads metadata from isbndb.com"
@@ -5783,7 +5787,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/render/from_html.py:310
 msgid "Untitled"
-msgstr ""
+msgstr "Unbenannt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:97
@@ -6904,6 +6908,8 @@ msgid ""
 "The %d selected book(s) will be <b>permanently deleted</b> and the files "
 "removed from your calibre library. Are you sure?"
 msgstr ""
+"Die %d gewählten Bücher werden <b>dauerhaft gelöscht</b> und die Dateien "
+"werden von Ihrer Calibre-Bibliothek entfernt. Sind Sie sicher?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:385
 #, python-format
@@ -6911,6 +6917,8 @@ msgid ""
 "The %d selected book(s) will be <b>permanently deleted</b> from your device. "
 "Are you sure?"
 msgstr ""
+"Die %d gewählten Bücher werden von dem Gerät <b>dauerhaft gelöscht</b>. Sind "
+"Sie sicher?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:33
 msgid "Start wireless device connection"
@@ -10125,7 +10133,7 @@ msgstr "Nichtproportionale Schri&ftgröße:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:155
 msgid "Page headers and footers"
-msgstr ""
+msgstr "Seiten Kopf- und Fußzeilen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:156
 msgid ""
@@ -10134,14 +10142,18 @@ msgid ""
 "href=\"http://manual.calibre-ebook.com/conversion.html#converting-to-"
 "pdf\">documentation</a>."
 msgstr ""
+"Sie können Kopf-und Fußzeilen auf jeder Seite der erzeugten PDF-Datei "
+"einfügen, indem Sie das Kopf-und Fußzeilen Template verwenden. Für Beispiele "
+"lesen Sie bitte das <a href=\"http://manual.calibre-"
+"ebook.com/conversion.html#converting-to-pdf\">Benutzerhandbuch</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:157
 msgid "&Header template:"
-msgstr ""
+msgstr "Kopfzeilen-Template:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:158
 msgid "&Footer template:"
-msgstr ""
+msgstr "&Fußzeilen-Template:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -10570,6 +10582,9 @@ msgid ""
 "<a href=\"http://manual.calibre-ebook.com/conversion.html#table-of-"
 "contents\">Help with using these options to generate a Table of Contents</a>"
 msgstr ""
+"<a href=\"http://manual.calibre-ebook.com/conversion.html#table-of-"
+"contents\">Hilfe beim Verwenden dieser Optionen zum Erstellen eines "
+"Inhaltsverzeichnisses (en)</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:93
 msgid ""
@@ -10578,10 +10593,15 @@ msgid ""
 "errors\n"
 " caused by automatic generation."
 msgstr ""
+"Diese Option öffnet ein Popup mit dem Inhaltsverzeichnis-Editor.\n"
+" Damit können Sie manuell das Inhaltsverzeichnis bearbeiten und Fehler,\n"
+" die beim automatischen Generieren entstanden sind, beseitigen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:96
 msgid "&Manually fine-tune the ToC after conversion is completed"
 msgstr ""
+"&Manuelle Feineinstellung, nachdem die Inhaltsverzeichnis-Erstellung "
+"abgeschlossen ist"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:12
 msgid "TXT Input"
@@ -14700,10 +14720,10 @@ msgid ""
 "tooltips.</p></div>"
 msgstr ""
 "<div style=\"font-size:10pt;\">\n"
-"<p>Legt ein reguläre Ausdrücke Muster fest, welches verwendet wird, um eBook "
+"<p>Legt ein regulärer Ausdruck-Muster fest, welches verwendet wird, um eBook "
 "Metadaten aus Dateinamen zu erraten. </p>\n"
 "<p>Ein <a href=\"http://manual.calibre-ebook.com/regexp.html\">Tutorial</a> "
-"für den Umgang mitregulären Ausdrücken ist verfügbar.</p>\n"
+"für den Umgang mit regulären Ausdrücken ist verfügbar.</p>\n"
 "<p>Nutzen Sie die <b>Test</b> Funktion unten, um Ihre regulären Ausdrücke an "
 "einigen Beispielnamen zu testen (denken Sie daran, auch die Dateiendungen "
 "anzugeben). Die Gruppennamen für die unterschiedlichen Metadateneinträge "
@@ -16114,6 +16134,8 @@ msgid ""
 "Found <b>%(num)d</b> possible covers for %(title)s. When the download "
 "completes, the covers will be sorted by size."
 msgstr ""
+"Es wurden <b>%(num)d</b> mögliche Coverbilder für %(title)s gefunden. Nach "
+"Abschluss des Downloads werden die Cover nach Größe sortiert."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:981
 msgid "Downloading metadata..."
@@ -17893,7 +17915,7 @@ msgstr "&Alles auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:134
 msgid "&Clear all"
-msgstr "&lösche alles"
+msgstr "A&lles abwählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:135
 msgid ""
@@ -20117,7 +20139,7 @@ msgstr "Wählen Sie ein Ziel für den Eintrag des Inhaltsverzeichnisses"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:130
 msgid "Search for text..."
-msgstr ""
+msgstr "Es wird nach Text gesucht..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:132
 msgid "Find &next"
@@ -20149,12 +20171,12 @@ msgstr "Momentan gewähltes Ziel:"
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:185
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:196
 msgid "No match found"
-msgstr ""
+msgstr "Kein Treffer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:186
 #, python-format
 msgid "No match found for: %s"
-msgstr ""
+msgstr "kein treffer für: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:192
 #, python-format
@@ -20385,12 +20407,12 @@ msgstr "Der Ort auf den dieser Eintrag zeigt existiert nicht"
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:519
 #, python-format
 msgid "Move \"%s\" up"
-msgstr ""
+msgstr "Verschiebe \"%s\" aufwärts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:521
 #, python-format
 msgid "Move \"%s\" down"
-msgstr ""
+msgstr "Verschiebe \"%s\" abwärts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:522
 msgid "Remove all selected items"
@@ -20473,6 +20495,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:796
 msgid "No files were found that could be added to the Table of Contents."
 msgstr ""
+"Es wurden keine Dateien gefunden, die dem Inhaltsverzeichnis hinzugefügt "
+"werden könnten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:814
 #, python-format
@@ -23098,7 +23122,7 @@ msgstr "Es muss entweder ein Feld oder eine opf Datei angegeben werden"
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:877
 #, python-format
 msgid "No book with id: %s in the database"
-msgstr ""
+msgstr "Kein Buch mit der ID: %s in der Datenbank"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:602
 #, python-format
@@ -26942,34 +26966,3 @@ msgstr ""
 "bestimmten Anzahl von Bibliotheken alphabetisch sortiert. Die Anzahl können "
 "Sie hier\n"
 "einstellen. Der Standardwert sind zehn Bibliotheken."
-
-#~ msgid ""
-#~ "The selected books will be <b>permanently deleted</b> from your device. Are "
-#~ "you sure?"
-#~ msgstr ""
-#~ "Die gewählten Bücher werden von Ihrem Gerät <b>dauerhaft gelöscht</b>. Sind "
-#~ "Sie sicher?"
-
-#~ msgid ""
-#~ "The selected books will be <b>permanently deleted</b> and the files removed "
-#~ "from your calibre library. Are you sure?"
-#~ msgstr ""
-#~ "Die ausgewählten Bücher werden <b>dauerhaft gelöscht</b> und die Dateien aus "
-#~ "der Calibre-Bibliothek entfernt. Sind Sie sicher?"
-
-#~ msgid ""
-#~ "By default, calibre splits a string containing multiple author names on\n"
-#~ "ampersands and the words \"and\" and \"with\". You can customize the "
-#~ "splitting\n"
-#~ "by changing the regular expression below. Strings are split on whatever the\n"
-#~ "specified regular expression matches.\n"
-#~ "Default: r'(?i),?\\s+(and|with)\\s+'"
-#~ msgstr ""
-#~ "Calibre teilt standardmäßig einen String, der mehrere Namen von Autoren "
-#~ "enthält,\n"
-#~ "durch ein Und-Zeichen ('&') und die Wörter \"und\" und \"mit\".\n"
-#~ "Die Aufteilung kann durch den unten aufgeführten regulären Ausdruck geändert "
-#~ "werden.\n"
-#~ "Strings werden an den Stellen getrennt, auf die der reguläre Ausdruck "
-#~ "passt.\n"
-#~ "Standard: r'(?i),?\\s+(und|mit)\\s+'"

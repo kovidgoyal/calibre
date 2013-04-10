@@ -12,13 +12,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-04-08 21:06+0000\n"
+"PO-Revision-Date: 2013-04-09 18:25+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-04-09 05:23+0000\n"
+"X-Launchpad-Export-Date: 2013-04-10 05:11+0000\n"
 "X-Generator: Launchpad (build 16550)\n"
 "Language: ca\n"
 
@@ -26512,11 +26512,11 @@ msgstr "Uamué"
 
 #. name for uan
 msgid "Kuan"
-msgstr ""
+msgstr "Kuan"
 
 #. name for uar
 msgid "Tairuma"
-msgstr ""
+msgstr "Tairuma"
 
 #. name for uba
 msgid "Ubang"
@@ -26536,7 +26536,7 @@ msgstr "Ubir"
 
 #. name for ubu
 msgid "Umbu-Ungu"
-msgstr ""
+msgstr "Kaugel"
 
 #. name for uby
 msgid "Ubykh"
@@ -26564,7 +26564,7 @@ msgstr "Ujir"
 
 #. name for udl
 msgid "Wuzlam"
-msgstr ""
+msgstr "Wuzlam"
 
 #. name for udm
 msgid "Udmurt"
@@ -26576,7 +26576,7 @@ msgstr "Uduk"
 
 #. name for ues
 msgid "Kioko"
-msgstr ""
+msgstr "Kioko"
 
 #. name for ufi
 msgid "Ufim"
@@ -26612,7 +26612,7 @@ msgstr "Uhami"
 
 #. name for uhn
 msgid "Damal"
-msgstr ""
+msgstr "Uhumduni"
 
 #. name for uig
 msgid "Uighur"
@@ -26624,15 +26624,15 @@ msgstr "Uisai"
 
 #. name for uiv
 msgid "Iyive"
-msgstr ""
+msgstr "Iyive"
 
 #. name for uji
 msgid "Tanjijili"
-msgstr ""
+msgstr "Tanjijili"
 
 #. name for uka
 msgid "Kaburi"
-msgstr ""
+msgstr "Kaburi"
 
 #. name for ukg
 msgid "Ukuriguma"
@@ -26672,7 +26672,7 @@ msgstr "Ukwuani-Abo-Ndoni"
 
 #. name for ula
 msgid "Fungwa"
-msgstr ""
+msgstr "Fungwa"
 
 #. name for ulb
 msgid "Ulukwumi"
@@ -26692,7 +26692,7 @@ msgstr "Ulithià"
 
 #. name for ulk
 msgid "Meriam"
-msgstr ""
+msgstr "Meriam Mir"
 
 #. name for ull
 msgid "Ullatan"
@@ -26724,7 +26724,7 @@ msgstr "Umbundu"
 
 #. name for umc
 msgid "Marrucinian"
-msgstr ""
+msgstr "Marrucinià"
 
 #. name for umd
 msgid "Umbindhamu"
@@ -26760,11 +26760,11 @@ msgstr "Umbugarla"
 
 #. name for ums
 msgid "Pendau"
-msgstr ""
+msgstr "Pendau"
 
 #. name for umu
 msgid "Munsee"
-msgstr ""
+msgstr "Lenape; Munsee"
 
 #. name for una
 msgid "Watut; North"
@@ -26780,11 +26780,11 @@ msgstr "Uneme"
 
 #. name for ung
 msgid "Ngarinyin"
-msgstr ""
+msgstr "Ngarinyin"
 
 #. name for unk
 msgid "Enawené-Nawé"
-msgstr ""
+msgstr "Enawené-Nawé"
 
 #. name for unm
 msgid "Unami"
@@ -26792,11 +26792,11 @@ msgstr "Lenape; Unami"
 
 #. name for unp
 msgid "Worora"
-msgstr ""
+msgstr "Worrorra"
 
 #. name for unr
 msgid "Mundari"
-msgstr ""
+msgstr "Mundari"
 
 #. name for unx
 msgid "Munda"
@@ -26820,7 +26820,7 @@ msgstr "Uripiv-Wala-Rano-Atchin"
 
 #. name for ura
 msgid "Urarina"
-msgstr ""
+msgstr "Simaku"
 
 #. name for urb
 msgid "Urubú-Kaapor"
@@ -26876,11 +26876,11 @@ msgstr "Ura (Papua Nova Guinea)"
 
 #. name for urp
 msgid "Uru-Pa-In"
-msgstr ""
+msgstr "Urupain"
 
 #. name for urr
 msgid "Lehalurup"
-msgstr ""
+msgstr "Lehalurup"
 
 #. name for urt
 msgid "Urat"
@@ -26896,7 +26896,7 @@ msgstr "Uruava"
 
 #. name for urw
 msgid "Sop"
-msgstr ""
+msgstr "Sop"
 
 #. name for urx
 msgid "Urimo"
@@ -26904,7 +26904,7 @@ msgstr "Urimo"
 
 #. name for ury
 msgid "Orya"
-msgstr ""
+msgstr "Orya"
 
 #. name for urz
 msgid "Uru-Eu-Wau-Wau"
@@ -26936,7 +26936,7 @@ msgstr "Uya"
 
 #. name for uta
 msgid "Otank"
-msgstr ""
+msgstr "Otank"
 
 #. name for ute
 msgid "Ute-Southern Paiute"
@@ -26948,7 +26948,7 @@ msgstr "Utupua"
 
 #. name for utr
 msgid "Etulo"
-msgstr ""
+msgstr "Etulo"
 
 #. name for utu
 msgid "Utu"
@@ -26960,7 +26960,7 @@ msgstr "Urum"
 
 #. name for uun
 msgid "Kulon-Pazeh"
-msgstr ""
+msgstr "Kulun"
 
 #. name for uur
 msgid "Ura (Vanuatu)"
@@ -26980,7 +26980,7 @@ msgstr "Uri"
 
 #. name for uvl
 msgid "Lote"
-msgstr ""
+msgstr "Lote"
 
 #. name for uwa
 msgid "Kuku-Uwanh"
@@ -26988,7 +26988,7 @@ msgstr "Kuku; Uwanh"
 
 #. name for uya
 msgid "Doko-Uyanga"
-msgstr ""
+msgstr "Doko-Uyanga"
 
 #. name for uzb
 msgid "Uzbek"
@@ -27052,7 +27052,7 @@ msgstr "Vaiphei"
 
 #. name for var
 msgid "Huarijio"
-msgstr ""
+msgstr "Huarijio"
 
 #. name for vas
 msgid "Vasavi"
@@ -27068,11 +27068,11 @@ msgstr "Varli"
 
 #. name for vay
 msgid "Wayu"
-msgstr ""
+msgstr "Hayu"
 
 #. name for vbb
 msgid "Babar; Southeast"
-msgstr ""
+msgstr "Babar; meridional"
 
 #. name for vbk
 msgid "Bontok; Southwestern"
@@ -27108,7 +27108,7 @@ msgstr "Veps"
 
 #. name for ver
 msgid "Mom Jango"
-msgstr ""
+msgstr "Mom Jango"
 
 #. name for vgr
 msgid "Vaghri"
@@ -27156,35 +27156,35 @@ msgstr "Viti"
 
 #. name for viv
 msgid "Iduna"
-msgstr ""
+msgstr "Iduna"
 
 #. name for vka
 msgid "Kariyarra"
-msgstr ""
+msgstr "Kariyarra"
 
 #. name for vki
 msgid "Ija-Zuba"
-msgstr ""
+msgstr "Ija-Zuba"
 
 #. name for vkj
 msgid "Kujarge"
-msgstr ""
+msgstr "Kujarge"
 
 #. name for vkk
 msgid "Kaur"
-msgstr ""
+msgstr "Kaur"
 
 #. name for vkl
 msgid "Kulisusu"
-msgstr ""
+msgstr "Kulisusu"
 
 #. name for vkm
 msgid "Kamakan"
-msgstr ""
+msgstr "Kamakan"
 
 #. name for vko
 msgid "Kodeoha"
-msgstr ""
+msgstr "Kodeoha"
 
 #. name for vkp
 msgid "Creole Portuguese; Korlai"
@@ -27196,7 +27196,7 @@ msgstr "Malai; Tenggarong Kutai"
 
 #. name for vku
 msgid "Kurrama"
-msgstr ""
+msgstr "Kurrama"
 
 #. name for vlp
 msgid "Valpei"
@@ -27208,11 +27208,11 @@ msgstr "Neerlandès; Vlaams"
 
 #. name for vma
 msgid "Martuyhunira"
-msgstr ""
+msgstr "Marthuyhunira"
 
 #. name for vmb
 msgid "Mbabaram"
-msgstr ""
+msgstr "Mbara"
 
 #. name for vmc
 msgid "Mixtec; Juxtlahuaca"
@@ -27228,19 +27228,19 @@ msgstr "Masela; Oriental"
 
 #. name for vmf
 msgid "Mainfränkisch"
-msgstr ""
+msgstr "Alemany; Francònic"
 
 #. name for vmg
 msgid "Minigir"
-msgstr ""
+msgstr "Minigir"
 
 #. name for vmh
 msgid "Maraghei"
-msgstr ""
+msgstr "Maraghei"
 
 #. name for vmi
 msgid "Miwa"
-msgstr ""
+msgstr "Wunambal; Miwa"
 
 #. name for vmj
 msgid "Mixtec; Ixtayutla"
@@ -27252,7 +27252,7 @@ msgstr "Makua; Shirima"
 
 #. name for vml
 msgid "Malgana"
-msgstr ""
+msgstr "Malgana"
 
 #. name for vmm
 msgid "Mixtec; Mitlatongo"
@@ -27268,15 +27268,15 @@ msgstr "Mixtec; Soyaltepec"
 
 #. name for vmr
 msgid "Marenje"
-msgstr ""
+msgstr "Marenje"
 
 #. name for vms
 msgid "Moksela"
-msgstr ""
+msgstr "Moksela"
 
 #. name for vmu
 msgid "Muluridyi"
-msgstr ""
+msgstr "Muluridyi"
 
 #. name for vmv
 msgid "Maidu; Valley"
@@ -27324,7 +27324,7 @@ msgstr "Vòtic"
 
 #. name for vra
 msgid "Vera'a"
-msgstr ""
+msgstr "Vatrata"
 
 #. name for vro
 msgid "Võro"
@@ -27336,7 +27336,7 @@ msgstr "Varisi"
 
 #. name for vrt
 msgid "Burmbar"
-msgstr ""
+msgstr "Burmbar"
 
 #. name for vsi
 msgid "Moldova Sign Language"
@@ -27444,7 +27444,7 @@ msgstr "Washo"
 
 #. name for wat
 msgid "Kaninuwa"
-msgstr ""
+msgstr "Kaninuwa"
 
 #. name for wau
 msgid "Waurá"
@@ -27492,11 +27492,11 @@ msgstr "Wanda"
 
 #. name for wbi
 msgid "Vwanji"
-msgstr ""
+msgstr "Wanji"
 
 #. name for wbj
 msgid "Alagwa"
-msgstr ""
+msgstr "Alagwa"
 
 #. name for wbk
 msgid "Waigali"
@@ -27536,7 +27536,7 @@ msgstr "Woi"
 
 #. name for wca
 msgid "Yanomámi"
-msgstr ""
+msgstr "Ianomami"
 
 #. name for wci
 msgid "Gbe; Waci"
@@ -27576,7 +27576,7 @@ msgstr "Weh"
 
 #. name for wei
 msgid "Kiunum"
-msgstr ""
+msgstr "Were"
 
 #. name for wem
 msgid "Gbe; Weme"
@@ -27600,7 +27600,7 @@ msgstr "Crioll camerunès"
 
 #. name for wet
 msgid "Perai"
-msgstr ""
+msgstr "Perai"
 
 #. name for weu
 msgid "Welaung"
@@ -27612,7 +27612,7 @@ msgstr "Wejewa"
 
 #. name for wfg
 msgid "Yafi"
-msgstr ""
+msgstr "Yafi"
 
 #. name for wga
 msgid "Wagaya"
@@ -27624,7 +27624,7 @@ msgstr "Wagawaga"
 
 #. name for wgg
 msgid "Wangganguru"
-msgstr ""
+msgstr "Wangganguru"
 
 #. name for wgi
 msgid "Wahgi"
@@ -27640,7 +27640,7 @@ msgstr "Warrgamay"
 
 #. name for wha
 msgid "Manusela"
-msgstr ""
+msgstr "Manusela"
 
 #. name for whg
 msgid "Wahgi; North"
