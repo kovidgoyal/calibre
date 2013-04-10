@@ -145,10 +145,7 @@ def render_rating(rating, url_prefix, container='span', prefix=None): # {{{
 
 # }}}
 
-def get_category_items(category, items, restriction, datatype, prefix): # {{{
-
-    if category == 'search':
-        items = [x for x in items if x.name != restriction]
+def get_category_items(category, items, datatype, prefix): # {{{
 
     def item(i):
         templ = (u'<div title="{4}" class="category-item">'
@@ -489,8 +486,7 @@ class BrowseServer(object):
         if not cats and len(items) == 1:
             # Only one item in category, go directly to book list
             html = get_category_items(category, items,
-                    self.search_restriction_name, datatype,
-                    self.opts.url_prefix)
+                    datatype, self.opts.url_prefix)
             href = re.search(r'<a href="([^"]+)"', html)
             if href is not None:
                 raise cherrypy.HTTPRedirect(href.group(1))
@@ -498,8 +494,7 @@ class BrowseServer(object):
         if len(items) <= self.opts.max_opds_ungrouped_items:
             script = 'false'
             items = get_category_items(category, items,
-                    self.search_restriction_name, datatype,
-                    self.opts.url_prefix)
+                    datatype, self.opts.url_prefix)
         else:
             getter = lambda x: unicode(getattr(x, 'sort', x.name))
             starts = set([])
@@ -588,8 +583,7 @@ class BrowseServer(object):
 
         sort = self.browse_sort_categories(entries, sort)
         entries = get_category_items(category, entries,
-                self.search_restriction_name, datatype,
-                self.opts.url_prefix)
+                datatype, self.opts.url_prefix)
         return json.dumps(entries, ensure_ascii=True)
 
 

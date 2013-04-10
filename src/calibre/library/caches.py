@@ -209,7 +209,8 @@ class ResultCache(SearchQueryParser): # {{{
         self._data = []
         self._map = self._map_filtered = []
         self.first_sort = True
-        self.search_restriction = ''
+        self.search_restriction = self.base_restriction = ''
+        self.base_restriction_name = self.search_restriction_name = ''
         self.search_restriction_book_count = 0
         self.marked_ids_dict = {}
         self.field_metadata = field_metadata
@@ -825,8 +826,19 @@ class ResultCache(SearchQueryParser): # {{{
             return ans
         self._map_filtered = ans
 
+    def _build_restriction_string(self, restriction):
+        if self.base_restriction:
+            if restriction:
+                return u'(%s) and (%s)' % (self.base_restriction, restriction)
+            else:
+                return self.base_restriction
+        else:
+            return restriction
+
     def search_getting_ids(self, query, search_restriction,
-                           set_restriction_count=False):
+                           set_restriction_count=False, use_virtual_library=True):
+        if use_virtual_library:
+            search_restriction = self._build_restriction_string(search_restriction)
         q = ''
         if not query or not query.strip():
             q = search_restriction
@@ -847,11 +859,32 @@ class ResultCache(SearchQueryParser): # {{{
             self.search_restriction_book_count = len(rv)
         return rv
 
+    def get_search_restriction(self):
+        return self.search_restriction
+
     def set_search_restriction(self, s):
         self.search_restriction = s
 
+    def get_base_restriction(self):
+        return self.base_restriction
+
+    def set_base_restriction(self, s):
+        self.base_restriction = s
+
+    def get_base_restriction_name(self):
+        return self.base_restriction_name
+
+    def set_base_restriction_name(self, s):
+        self.base_restriction_name = s
+
+    def get_search_restriction_name(self):
+        return self.search_restriction_name
+
+    def set_search_restriction_name(self, s):
+        self.search_restriction_name = s
+
     def search_restriction_applied(self):
-        return bool(self.search_restriction)
+        return bool(self.search_restriction) or bool((self.base_restriction))
 
     def get_search_restriction_book_count(self):
         return self.search_restriction_book_count
@@ -1002,7 +1035,7 @@ class ResultCache(SearchQueryParser): # {{{
         if field is not None:
             self.sort(field, ascending)
         self._map_filtered = list(self._map)
-        if self.search_restriction:
+        if self.search_restriction or self.base_restriction:
             self.search('', return_matches=False)
 
     # Sorting functions {{{

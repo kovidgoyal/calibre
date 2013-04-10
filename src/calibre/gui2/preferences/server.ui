@@ -139,14 +139,14 @@
      <item row="7" column="0">
       <widget class="QLabel" name="label_164">
        <property name="text">
-        <string>Restriction (saved search) to apply:</string>
+        <string>Virtual library to apply:</string>
        </property>
       </widget>
      </item>
      <item row="7" column="1" colspan="2">
-      <widget class="QComboBox" name="opt_cs_restriction">
+      <widget class="QComboBox" name="opt_cs_virtual_lib_on_startup">
        <property name="toolTip">
-        <string>This restriction (based on a saved search) will restrict the books the content server makes available to those matching the search. This setting is per library (i.e. you can have a different restriction per library).</string>
+        <string>Setting a virtual library will restrict the books the content server makes available to those in the library. This setting is per library (i.e. you can have a different value per library).</string>
        </property>
        <property name="sizeAdjustPolicy">
         <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
