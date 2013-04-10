@@ -332,6 +332,10 @@ class SavedSearchBox(QComboBox): # {{{
         name = unicode(self.currentText())
         if not name.strip():
             name = unicode(self.search_box.text()).replace('"', '')
+        if not (name and self.search_box.text()):
+            error_dialog(self, _('Create saved search'),
+                         _('There is no search to save'), show=True)
+            return
         saved_searches().delete(name)
         saved_searches().add(name, unicode(self.search_box.text()))
         # now go through an initialization cycle to ensure that the combobox has
