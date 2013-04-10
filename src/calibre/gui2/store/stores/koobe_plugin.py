@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 import urllib
+from base64 import b64encode
 from contextlib import closing
 
 from lxml import html
@@ -25,12 +26,19 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class KoobeStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
+        aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/15/58/'
         url = 'http://www.koobe.pl/'
 
+        aff_url = aff_root + str(b64encode(url))
+
+        detail_url = None
+        if detail_item:
+            detail_url = aff_root + str(b64encode(detail_item))
+
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_item)))
+            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else aff_url)))
         else:
-            d = WebStoreDialog(self.gui, url, parent, detail_item)
+            d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()

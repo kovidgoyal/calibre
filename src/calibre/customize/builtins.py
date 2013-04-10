@@ -1476,6 +1476,7 @@ class StoreKoobeStore(StoreBase):
     drm_free_only = True
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
 
 class StoreLegimiStore(StoreBase):
     name = 'Legimi'
