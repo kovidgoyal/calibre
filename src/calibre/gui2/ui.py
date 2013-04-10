@@ -15,7 +15,7 @@ from threading import Thread
 from collections import OrderedDict
 
 from PyQt4.Qt import (Qt, SIGNAL, QTimer, QHelpEvent, QAction,
-                     QMenu, QIcon, pyqtSignal, QUrl,
+                     QMenu, QIcon, pyqtSignal, QUrl, QFont,
                      QDialog, QSystemTrayIcon, QApplication)
 
 from calibre import prints, force_unicode
@@ -601,8 +601,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         restrictions = [x for x in (db.data.get_base_restriction_name(),
                         db.data.get_search_restriction_name()) if x]
         restrictions = ' :: '.join(restrictions)
+        font = QFont()
         if restrictions:
             restrictions = ' :: ' + restrictions
+            font.setBold(True)
+        self.virtual_library.setFont(font)
         title = u'{0} - || {1}{2} ||'.format(
                 __appname__, self.iactions['Choose Library'].library_name(), restrictions)
         self.setWindowTitle(title)
