@@ -17,6 +17,7 @@ from calibre.db.tests.base import BaseTest
 
 class WritingTest(BaseTest):
 
+    # Utils {{{
     def create_getter(self, name, getter=None):
         if getter is None:
             if name.endswith('_index'):
@@ -71,6 +72,7 @@ class WritingTest(BaseTest):
                         'Failed setting for %s, sqlite value not the same: %r != %r'%(
                             test.name, old_sqlite_res, sqlite_res))
                 del db
+    # }}}
 
     def test_one_one(self):  # {{{
         'Test setting of values in one-one fields'

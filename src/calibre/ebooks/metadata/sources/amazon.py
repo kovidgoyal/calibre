@@ -21,7 +21,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_only_date
 from calibre.utils.localization import canonicalize_lang
 
-class Worker(Thread): # Get details {{{
+class Worker(Thread):  # Get details {{{
 
     '''
     Get book details from amazons book page in a separate thread
@@ -43,12 +43,12 @@ class Worker(Thread): # Get details {{{
 
         months = {
                 'de': {
-            1 : ['jän'],
-            2 : ['februar'],
-            3 : ['märz'],
-            5 : ['mai'],
-            6 : ['juni'],
-            7 : ['juli'],
+            1: ['jän'],
+            2: ['februar'],
+            3: ['märz'],
+            5: ['mai'],
+            6: ['juni'],
+            7: ['juli'],
             10: ['okt'],
             12: ['dez']
             },
@@ -276,7 +276,6 @@ class Worker(Thread): # Get details {{{
             self.log.exception('Error parsing authors for url: %r'%self.url)
             authors = []
 
-
         if not title or not authors or not asin:
             self.log.error('Could not find title/authors/asin for %r'%self.url)
             self.log.error('ASIN: %r Title: %r Authors: %r'%(asin, title,
@@ -431,7 +430,6 @@ class Worker(Thread): # Get details {{{
         desc = re.sub(r'(?s)<!--.*?-->', '', desc)
         return sanitize_comments_html(desc)
 
-
     def parse_comments(self, root):
         ans = ''
         desc = root.xpath('//div[@id="ps-content"]/div[@class="content"]')
@@ -528,13 +526,13 @@ class Amazon(Source):
 
     AMAZON_DOMAINS = {
             'com': _('US'),
-            'fr' : _('France'),
-            'de' : _('Germany'),
-            'uk' : _('UK'),
-            'it' : _('Italy'),
-            'jp' : _('Japan'),
-            'es' : _('Spain'),
-            'br' : _('Brazil'),
+            'fr': _('France'),
+            'de': _('Germany'),
+            'uk': _('UK'),
+            'it': _('Italy'),
+            'jp': _('Japan'),
+            'es': _('Spain'),
+            'br': _('Brazil'),
     }
 
     options = (
@@ -592,7 +590,7 @@ class Amazon(Source):
                     return domain, val
         return None, None
 
-    def get_book_url(self, identifiers): # {{{
+    def get_book_url(self, identifiers):  # {{{
         domain, asin = self.get_domain_and_asin(identifiers)
         if domain and asin:
             url = None
@@ -637,8 +635,7 @@ class Amazon(Source):
             mi.tags = list(map(fixcase, mi.tags))
         mi.isbn = check_isbn(mi.isbn)
 
-
-    def create_query(self, log, title=None, authors=None, identifiers={}, # {{{
+    def create_query(self, log, title=None, authors=None, identifiers={},  # {{{
             domain=None):
         if domain is None:
             domain = self.domain
@@ -648,8 +645,8 @@ class Amazon(Source):
             domain = idomain
 
         # See the amazon detailed search page to get all options
-        q = {   'search-alias' : 'aps',
-                'unfiltered' : '1',
+        q = {'search-alias': 'aps',
+             'unfiltered': '1',
             }
 
         if domain == 'com':
@@ -704,7 +701,7 @@ class Amazon(Source):
 
     # }}}
 
-    def get_cached_cover_url(self, identifiers): # {{{
+    def get_cached_cover_url(self, identifiers):  # {{{
         url = None
         domain, asin = self.get_domain_and_asin(identifiers)
         if asin is None:
@@ -717,14 +714,17 @@ class Amazon(Source):
         return url
     # }}}
 
-    def parse_results_page(self, root): # {{{
+    def parse_results_page(self, root):  # {{{
         from lxml.html import tostring
 
         matches = []
 
         def title_ok(title):
             title = title.lower()
-            for x in ('bulk pack', '[audiobook]', '[audio cd]'):
+            bad = ['bulk pack', '[audiobook]', '[audio cd]']
+            if self.domain == 'com':
+                bad.append('(spanish edition)')
+            for x in bad:
                 if x in title:
                     return False
             return True
@@ -751,13 +751,12 @@ class Amazon(Source):
                         matches.append(a.get('href'))
                     break
 
-
         # Keep only the top 5 matches as the matches are sorted by relevance by
         # Amazon so lower matches are not likely to be very relevant
         return matches[:5]
     # }}}
 
-    def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
+    def identify(self, log, result_queue, abort, title=None, authors=None,  # {{{
             identifiers={}, timeout=30):
         '''
         Note this method will retry without identifiers automatically if no
@@ -795,7 +794,6 @@ class Amazon(Source):
                 log.exception(msg)
             return as_unicode(msg)
 
-
         raw = clean_ascii_chars(xml_to_unicode(raw,
             strip_encoding_pats=True, resolve_entities=True)[0])
 
@@ -824,7 +822,6 @@ class Amazon(Source):
                     log.error(msg)
                     # The error is almost always a not found error
                     found = False
-
 
         if found:
             matches = self.parse_results_page(root)
@@ -863,7 +860,7 @@ class Amazon(Source):
         return None
     # }}}
 
-    def download_cover(self, log, result_queue, abort, # {{{
+    def download_cover(self, log, result_queue, abort,  # {{{
             title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
@@ -900,39 +897,44 @@ class Amazon(Source):
             log.exception('Failed to download cover from:', cached_url)
     # }}}
 
-if __name__ == '__main__': # tests {{{
+if __name__ == '__main__':  # tests {{{
     # To run these test use: calibre-debug -e
     # src/calibre/ebooks/metadata/sources/amazon.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
             isbn_test, title_test, authors_test, comments_test, series_test)
-    com_tests = [ # {{{
+    com_tests = [  # {{{
 
-            ( # + in title and uses id="main-image" for cover
+            (  # Has a spanish edition
+             {'title':'11/22/63'},
+             [title_test('11/22/63: A Novel', exact=True), authors_test(['Stephen King']),]
+             ),
+
+            (  # + in title and uses id="main-image" for cover
              {'title':'C++ Concurrency in Action'},
              [title_test('C++ Concurrency in Action: Practical Multithreading',
                          exact=True),
               ]
              ),
 
-            ( # Series
+            (  # Series
                 {'identifiers':{'amazon':'0756407117'}},
                 [title_test(
-                "Throne of the Crescent Moon"
-                , exact=True), series_test('Crescent Moon Kingdoms', 1),
+                "Throne of the Crescent Moon",
+                exact=True), series_test('Crescent Moon Kingdoms', 1),
                 comments_test('Makhslood'),
                 ]
             ),
 
-            ( # Different comments markup, using Book Description section
+            (  # Different comments markup, using Book Description section
                 {'identifiers':{'amazon':'0982514506'}},
                 [title_test(
-                "Griffin's Destiny: Book Three: The Griffin's Daughter Trilogy"
-                , exact=True),
+                "Griffin's Destiny: Book Three: The Griffin's Daughter Trilogy",
+                exact=True),
                 comments_test('Jelena'), comments_test('Leslie'),
                 ]
             ),
 
-            ( # # in title
+            (  # # in title
                 {'title':'Expert C# 2008 Business Objects',
                     'authors':['Lhotka']},
                 [title_test('Expert C# 2008 Business Objects', exact=True),
@@ -948,13 +950,13 @@ if __name__ == '__main__': # tests {{{
 
             ),
 
-            ( # Sophisticated comment formatting
+            (  # Sophisticated comment formatting
                 {'identifiers':{'isbn': '9781416580829'}},
                 [title_test('Angels & Demons - Movie Tie-In: A Novel',
                     exact=True), authors_test(['Dan Brown'])]
             ),
 
-            ( # No specific problems
+            (  # No specific problems
                 {'identifiers':{'isbn': '0743273567'}},
                 [title_test('The great gatsby', exact=True),
                     authors_test(['F. Scott Fitzgerald'])]
@@ -967,9 +969,9 @@ if __name__ == '__main__': # tests {{{
 
             ),
 
-    ] # }}}
+    ]  # }}}
 
-    de_tests = [ # {{{
+    de_tests = [  # {{{
             (
                 {'identifiers':{'isbn': '3548283519'}},
                 [title_test('Wer Wind Sät: Der Fünfte Fall Für Bodenstein Und Kirchhoff',
@@ -977,9 +979,9 @@ if __name__ == '__main__': # tests {{{
                  ]
 
             ),
-    ] # }}}
+    ]  # }}}
 
-    it_tests = [ # {{{
+    it_tests = [  # {{{
             (
                 {'identifiers':{'isbn': '8838922195'}},
                 [title_test('La briscola in cinque',
@@ -987,9 +989,9 @@ if __name__ == '__main__': # tests {{{
                  ]
 
             ),
-    ] # }}}
+    ]  # }}}
 
-    fr_tests = [ # {{{
+    fr_tests = [  # {{{
             (
                 {'identifiers':{'isbn': '2221116798'}},
                 [title_test('L\'étrange voyage de Monsieur Daldry',
@@ -997,9 +999,9 @@ if __name__ == '__main__': # tests {{{
                  ]
 
             ),
-    ] # }}}
+    ]  # }}}
 
-    es_tests = [ # {{{
+    es_tests = [  # {{{
             (
                 {'identifiers':{'isbn': '8483460831'}},
                 [title_test('Tiempos Interesantes',
@@ -1007,28 +1009,28 @@ if __name__ == '__main__': # tests {{{
                  ]
 
             ),
-    ] # }}}
+    ]  # }}}
 
-    jp_tests = [ # {{{
-            ( # Adult filtering test
+    jp_tests = [  # {{{
+            (  # Adult filtering test
              {'identifiers':{'isbn':'4799500066'}},
              [title_test(u'Ｂｉｔｃｈ Ｔｒａｐ'),]
             ),
 
-            ( # isbn -> title, authors
-                {'identifiers':{'isbn': '9784101302720' }},
+            (  # isbn -> title, authors
+                {'identifiers':{'isbn': '9784101302720'}},
                 [title_test(u'精霊の守り人',
                     exact=True), authors_test([u'上橋 菜穂子'])
                  ]
             ),
-            ( # title, authors -> isbn (will use Shift_JIS encoding in query.)
+            (  # title, authors -> isbn (will use Shift_JIS encoding in query.)
                 {'title': u'考えない練習',
                  'authors': [u'小池 龍之介']},
                 [isbn_test('9784093881067'), ]
             ),
-    ] # }}}
+    ]  # }}}
 
-    br_tests = [ # {{{
+    br_tests = [  # {{{
             (
                 {'title':'Guerra dos Tronos'},
                 [title_test('A Guerra dos Tronos - As Crônicas de Gelo e Fogo',
@@ -1036,7 +1038,7 @@ if __name__ == '__main__': # tests {{{
                  ]
 
             ),
-    ] # }}}
+    ]  # }}}
 
     def do_test(domain, start=0, stop=None):
         tests = globals().get(domain+'_tests')
