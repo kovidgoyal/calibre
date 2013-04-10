@@ -843,7 +843,7 @@ class TagsModel(QAbstractItemModel): # {{{
         self.categories = {}
 
         # Get the categories
-        if self.db.data.get_base_restriction or self.db.data.get_search_restriction:
+        if self.db.data.get_base_restriction() or self.db.data.get_search_restriction():
             try:
                 data = self.db.get_categories(sort=sort,
                         icon_map=self.category_icon_map,
