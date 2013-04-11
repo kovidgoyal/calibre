@@ -19,7 +19,7 @@ from calibre.utils.search_query_parser import saved_searches
 class CreateVirtualLibrary(QDialog):  # {{{
 
     def __init__(self, gui, existing_names):
-        QDialog.__init__(self, None, Qt.WindowSystemMenuHint | Qt.WindowTitleHint)
+        QDialog.__init__(self, gui)
 
         self.gui = gui
         self.existing_names = existing_names
