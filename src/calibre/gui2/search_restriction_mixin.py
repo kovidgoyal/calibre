@@ -8,13 +8,41 @@ from functools import partial
 
 from PyQt4.Qt import (
     Qt, QMenu, QPoint, QIcon, QDialog, QGridLayout, QLabel, QLineEdit,
-    QDialogButtonBox, QSize)
+    QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QStringList)
 
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.utils.icu import sort_key
 from calibre.utils.pyparsing import ParseException
 from calibre.utils.search_query_parser import saved_searches
+
+class SelectNames(QDialog):  # {{{
+
+    def __init__(self, names, txt, parent=None):
+        QDialog.__init__(self, parent)
+        self.l = l = QVBoxLayout(self)
+        self.setLayout(l)
+
+        self.la = la = QLabel(_('Create a Virtual Library based on %s') % txt)
+        l.addWidget(la)
+
+        self._names = QListWidget(self)
+        self._names.addItems(QStringList(sorted(names, key=sort_key)))
+        self._names.setSelectionMode(self._names.ExtendedSelection)
+        l.addWidget(self._names)
+
+        self.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.bb.accepted.connect(self.accept)
+        self.bb.rejected.connect(self.reject)
+        l.addWidget(self.bb)
+
+        self.resize(self.sizeHint())
+
+    @property
+    def names(self):
+        for item in self._names.selectedItems():
+            yield unicode(item.data(Qt.DisplayRole).toString())
+# }}}
 
 class CreateVirtualLibrary(QDialog):  # {{{
 
@@ -42,6 +70,16 @@ class CreateVirtualLibrary(QDialog):  # {{{
         gl.addWidget(self.vl_text, 1, 1)
         self.vl_text.setText(self.build_full_search_string())
 
+        self.sl = sl = QLabel('<p>'+_('Create a virtual library based on: ')+
+            ('<a href="author.{0}">{0}</a>, '
+            '<a href="tag.{1}">{1}</a>, '
+            '<a href="publisher.{2}">{2}</a>, '
+            '<a href="series.{3}">{3}</a>.').format(_('Authors'), _('Tags'), _('Publishers'), _('Series')))
+        sl.setWordWrap(True)
+        sl.setTextInteractionFlags(Qt.LinksAccessibleByMouse)
+        sl.linkActivated.connect(self.link_activated)
+        gl.addWidget(sl, 2, 0, 1, 2)
+
         self.hl = hl = QLabel(_('''
             <h2>Virtual Libraries</h2>
 
@@ -57,14 +95,26 @@ class CreateVirtualLibrary(QDialog):  # {{{
             '''))
         hl.setWordWrap(True)
         hl.setFrameStyle(hl.StyledPanel)
-        gl.addWidget(hl, 0, 3, 3, 1)
+        gl.addWidget(hl, 0, 3, 4, 1)
 
         bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
-        gl.addWidget(bb, 3, 0, 1, 0)
+        gl.addWidget(bb, 4, 0, 1, 0)
 
         self.resize(self.sizeHint()+QSize(150, 25))
+
+    def link_activated(self, url):
+        db = self.gui.current_db
+        f, txt = unicode(url).partition('.')[0::2]
+        names = getattr(db, 'all_%s_names'%f)()
+        d = SelectNames(names, txt, parent=self)
+        if d.exec_() == d.Accepted:
+            prefix = f+'s' if f in {'tag', 'author'} else f
+            search = ['%s:"=%s"'%(prefix, x.replace('"', '\\"')) for x in d.names]
+            if search:
+                self.vl_name.setText(d.names.next())
+                self.vl_text.setText(' or '.join(search))
 
     def build_full_search_string(self):
         search_templates = (
