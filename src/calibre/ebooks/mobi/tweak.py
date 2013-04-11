@@ -19,7 +19,7 @@ from calibre.ebooks.mobi.reader.mobi8 import Mobi8Reader
 from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
 from calibre.customize.ui import (plugin_for_input_format,
         plugin_for_output_format)
-from calibre.utils.ipc.simple_worker  import fork_job
+from calibre.utils.ipc.simple_worker import fork_job
 
 class BadFormat(ValueError):
     pass
@@ -72,7 +72,8 @@ def explode(path, dest, question=lambda x:True):
             dest), no_output=True)['result']
 
 def set_cover(oeb):
-    if 'cover' not in oeb.guide or oeb.metadata['cover']: return
+    if 'cover' not in oeb.guide or oeb.metadata['cover']:
+        return
     cover = oeb.guide['cover']
     if cover.href in oeb.manifest.hrefs:
         item = oeb.manifest.hrefs[cover.href]
@@ -95,8 +96,9 @@ def rebuild(src_dir, dest_path):
     if not opf:
         raise ValueError('No OPF file found in %s'%src_dir)
     opf = opf[0]
-    # For debugging, uncomment the following line
-    # def fork_job(a, b, args=None, no_output=True): do_rebuild(*args)
+    # For debugging, uncomment the following two lines
+    # def fork_job(a, b, args=None, no_output=True):
+    #     do_rebuild(*args)
     fork_job('calibre.ebooks.mobi.tweak', 'do_rebuild', args=(opf, dest_path),
             no_output=True)
 

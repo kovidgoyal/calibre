@@ -69,7 +69,8 @@ class Resources(object):
             cover_href = item.href
 
         for item in self.oeb.manifest.values():
-            if item.media_type not in OEB_RASTER_IMAGES: continue
+            if item.media_type not in OEB_RASTER_IMAGES:
+                continue
             try:
                 data = self.process_image(item.data)
             except:
@@ -116,8 +117,8 @@ class Resources(object):
         Add any images that were created after the call to add_resources()
         '''
         for item in self.oeb.manifest.values():
-            if (item.media_type not in OEB_RASTER_IMAGES or item.href in
-                    self.item_map): continue
+            if (item.media_type not in OEB_RASTER_IMAGES or item.href in self.item_map):
+                continue
             try:
                 data = self.process_image(item.data)
             except:
