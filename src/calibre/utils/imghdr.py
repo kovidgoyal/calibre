@@ -24,7 +24,8 @@ def what(file, h=None):
             if res:
                 return res
     finally:
-        if f: f.close()
+        if f:
+            f.close()
     return None
 
 
@@ -38,7 +39,7 @@ def test_jpeg(h, f):
     """JPEG data in JFIF format (Changed by Kovid to mimic the file utility,
     the original code was failing with some jpegs that included ICC_PROFILE
     data, for example: http://nationalpostnews.files.wordpress.com/2013/03/budget.jpeg?w=300&h=1571)"""
-    if (h[6:10] in (b'JFIF', b'Exif')) or (h[:2] == b'\xff\xd8' and b'JFIF' in h[:32]):
+    if (h[6:10] in (b'JFIF', b'Exif')) or (h[:2] == b'\xff\xd8' and (b'JFIF' in h[:32] or b'BIM' in h[:32])):
         return 'jpeg'
 
 tests.append(test_jpeg)
