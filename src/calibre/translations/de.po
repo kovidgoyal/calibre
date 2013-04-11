@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-04-05 04:01+0000\n"
-"PO-Revision-Date: 2013-04-09 16:55+0000\n"
+"PO-Revision-Date: 2013-04-10 18:09+0000\n"
 "Last-Translator: Simon Schütte <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-10 05:10+0000\n"
+"X-Launchpad-Export-Date: 2013-04-11 05:09+0000\n"
 "X-Generator: Launchpad (build 16550)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -3643,6 +3643,9 @@ msgid ""
 "An HTML template used to generate %s on every page. The strings _PAGENUM_, "
 "_TITLE_, _AUTHOR_ and _SECTION_ will be replaced by their current values."
 msgstr ""
+"Ein HTML Template, das verwendet wird um %s auf jeder Seite zu generieren. "
+"Die Strings _PAGENUM_, _TITLE_, _AUTHOR_ und _SECTION_ (Seitenzahl, Titel, "
+"Autor, Abschnitt) werden durch ihre aktuellen Werte ersetzt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:108
 msgid "footers"
@@ -20143,11 +20146,11 @@ msgstr "Es wird nach Text gesucht..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:132
 msgid "Find &next"
-msgstr ""
+msgstr "Abwärts suche&n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:135
 msgid "Find &previous"
-msgstr ""
+msgstr "Aufwärts suchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:143
 msgid ""
@@ -20184,14 +20187,16 @@ msgid ""
 "No matches for %(text)s found in the current file [%(current)s]. Do you want "
 "to search in the %(which)s file [%(next)s]?"
 msgstr ""
+"Keine Treffer für %(text)s in der aktuellen Datei [%(current)s] gefunden. "
+"Möchten Sie die Suche in der Datei %(which)s [%(next)s] weitersuchen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:195
 msgid "next"
-msgstr ""
+msgstr "Weiter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:195
 msgid "previous"
-msgstr ""
+msgstr "Zurück"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:223
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/location.py:281
@@ -20315,7 +20320,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:187
 msgid "Generate ToC from &files"
-msgstr ""
+msgstr "Erstelle ein Inhaltsverzeichnis der Dateien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:190
 msgid ""
@@ -20334,11 +20339,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:203
 msgid "&Flatten the ToC"
-msgstr ""
+msgstr "Inhaltsverzeichnis glätten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:206
 msgid "Flatten the Table of Contents, putting all entries at the top level"
 msgstr ""
+"Inhaltsverzeichnis glätten; alle Einträge in die erste Ebene verschieben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:212
 msgid ""
@@ -20416,17 +20422,17 @@ msgstr "Verschiebe \"%s\" abwärts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:522
 msgid "Remove all selected items"
-msgstr ""
+msgstr "Alle ausgewählten Sachen löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:524
 #, python-format
 msgid "Unindent \"%s\""
-msgstr ""
+msgstr "Einrückung wieder bündig machen \"%s\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:526
 #, python-format
 msgid "Indent \"%s\""
-msgstr ""
+msgstr "Einrücken:  \"%s\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:527
 msgid "Change all selected items to title case"
@@ -20440,6 +20446,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:566
 msgid "Unindent the current entry [Ctrl+Left]"
 msgstr ""
+"Die Einrückung das aktuellen Eintrags wieder bündig machen [Ctrl+Left]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:559
 msgid "Remove all selected entries"
@@ -23341,6 +23348,9 @@ msgid ""
 "No column named %s found. You must use column labels, not titles. Use "
 "calibredb custom_columns to get a list of labels."
 msgstr ""
+"Keine Spalte mit dem Namen %s gefunden. Sie müssen die Spalten-Etiketten, "
+"nicht die Titel verwenden. Nutzen Sie calibredb custom_columns, um eine "
+"Liste der Etiketten zu bekommen."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:964
 msgid ""
