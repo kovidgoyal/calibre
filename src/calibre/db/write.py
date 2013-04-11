@@ -417,7 +417,7 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
 
 # }}}
 
-def identifiers(book_id_val_map, db, field, *args): # {{{
+def identifiers(book_id_val_map, db, field, *args):  # {{{
     table = field.table
     updates = set()
     for book_id, identifiers in book_id_val_map.iteritems():

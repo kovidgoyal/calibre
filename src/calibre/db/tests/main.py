@@ -9,15 +9,32 @@ __docformat__ = 'restructuredtext en'
 
 import unittest, os, argparse
 
+try:
+    import init_calibre  # noqa
+except ImportError:
+    pass
+
 def find_tests():
     return unittest.defaultTestLoader.discover(os.path.dirname(os.path.abspath(__file__)), pattern='*.py')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('name', nargs='?', default=None, help='The name of the test to run, for e.g. writing.WritingTest.many_many_basic')
+    parser.add_argument('name', nargs='?', default=None,
+                        help='The name of the test to run, for e.g. writing.WritingTest.many_many_basic or .many_many_basic for a shortcut')
     args = parser.parse_args()
-    if args.name:
-        unittest.TextTestRunner(verbosity=4).run(unittest.defaultTestLoader.loadTestsFromName(args.name))
+    if args.name and args.name.startswith('.'):
+        tests = find_tests()
+        ans = None
+        try:
+            for suite in tests:
+                for test in suite._tests:
+                    for s in test:
+                        if s._testMethodName == args.name[1:]:
+                            tests = s
+                            raise StopIteration()
+        except StopIteration:
+            pass
     else:
-        unittest.TextTestRunner(verbosity=4).run(find_tests())
+        tests = unittest.defaultTestLoader.loadTestsFromName(args.name) if args.name else find_tests()
+    unittest.TextTestRunner(verbosity=4).run(tests)
 

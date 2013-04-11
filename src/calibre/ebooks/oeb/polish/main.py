@@ -43,8 +43,8 @@ sizes, adjust margins, etc. Every action performs only the minimum set of
 changes needed for the desired effect.</p>
 
 <p>You should use this tool as the last step in your ebook creation process.</p>
-
-<p>Note that polishing only works on files in the %s formats.</p>
+{0}
+<p>Note that polishing only works on files in the %s formats.</p>\
 ''')%_(' or ').join('<b>%s</b>'%x for x in SUPPORTED),
 
 'subset': _('''\
@@ -69,7 +69,7 @@ text might not be covered by the subset font.</p>
 'jacket': _('''\
 <p>Insert a "book jacket" page at the start of the book that contains
 all the book metadata such as title, tags, authors, series, comments,
-etc.</p>'''),
+etc. Any previous book jacket will be replaced.</p>'''),
 
 'remove_jacket': _('''\
 <p>Remove a previous inserted book jacket page.</p>
@@ -85,7 +85,7 @@ when single quotes at the start of contractions are involved.</p>
 
 def hfix(name, raw):
     if name == 'about':
-        return raw
+        return raw.format('')
     raw = raw.replace('\n\n', '__XX__')
     raw = raw.replace('\n', ' ')
     raw = raw.replace('__XX__', '\n')
