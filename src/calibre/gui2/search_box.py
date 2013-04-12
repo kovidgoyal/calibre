@@ -19,9 +19,8 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.utils.search_query_parser import saved_searches
-from calibre.utils.icu import sort_key
 
-class SearchLineEdit(QLineEdit): # {{{
+class SearchLineEdit(QLineEdit):  # {{{
     key_pressed = pyqtSignal(object)
 
     def keyPressEvent(self, event):
@@ -42,7 +41,7 @@ class SearchLineEdit(QLineEdit): # {{{
         return QLineEdit.paste(self)
 # }}}
 
-class SearchBox2(QComboBox): # {{{
+class SearchBox2(QComboBox):  # {{{
 
     '''
     To use this class:
@@ -59,7 +58,7 @@ class SearchBox2(QComboBox): # {{{
           accurate.
     '''
 
-    INTERVAL = 1500 #: Time to wait before emitting search signal
+    INTERVAL = 1500  #: Time to wait before emitting search signal
     MAX_COUNT = 25
 
     search  = pyqtSignal(object)
@@ -254,7 +253,7 @@ class SearchBox2(QComboBox): # {{{
 
     # }}}
 
-class SavedSearchBox(QComboBox): # {{{
+class SavedSearchBox(QComboBox):  # {{{
 
     '''
     To use this class:
@@ -343,7 +342,7 @@ class SavedSearchBox(QComboBox): # {{{
         # references the new search instead of the text in the search.
         self.clear()
         self.setCurrentIndex(self.findText(name))
-        self.saved_search_selected (name)
+        self.saved_search_selected(name)
         self.changed.emit()
 
     def delete_current_search(self):
@@ -365,15 +364,15 @@ class SavedSearchBox(QComboBox): # {{{
         self.changed.emit()
 
     # SIGNALed from the main UI
-    def copy_search_button_clicked (self):
-        idx = self.currentIndex();
+    def copy_search_button_clicked(self):
+        idx = self.currentIndex()
         if idx < 0:
             return
         self.search_box.set_search_string(saved_searches().lookup(unicode(self.currentText())))
 
     # }}}
 
-class SearchBoxMixin(object): # {{{
+class SearchBoxMixin(object):  # {{{
 
     def __init__(self):
         self.search.initialize('main_search_history', colorize=True,
@@ -447,7 +446,7 @@ class SearchBoxMixin(object): # {{{
 
     # }}}
 
-class SavedSearchBoxMixin(object): # {{{
+class SavedSearchBoxMixin(object):  # {{{
 
     def __init__(self):
         self.saved_search.changed.connect(self.saved_searches_changed)
@@ -456,7 +455,7 @@ class SavedSearchBoxMixin(object): # {{{
                                 self.saved_search.save_search_button_clicked)
         self.copy_search_button.clicked.connect(
                                 self.saved_search.copy_search_button_clicked)
-#         self.saved_searches_changed()
+        # self.saved_searches_changed()
         self.saved_search.initialize(self.search, colorize=True,
                 help_text=_('Saved Searches'))
         self.saved_search.setToolTip(
@@ -486,7 +485,7 @@ class SavedSearchBoxMixin(object): # {{{
         self.build_search_restriction_list()
         if recount:
             self.tags_view.recount()
-        if set_restriction: # redo the search restriction if there was one
+        if set_restriction:  # redo the search restriction if there was one
             self.apply_named_search_restriction(set_restriction)
 
     def do_saved_search_edit(self, search):

@@ -47,8 +47,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices = [(x.upper(), x) for x in output_formats]
         r('output_format', prefs, choices=choices, setting=OutputFormatSetting)
 
-        restrictions = sorted(db.prefs.get('virtual_libraries').keys(), key=sort_key)
+        restrictions = sorted(db.prefs['virtual_libraries'].iterkeys(), key=sort_key)
         choices = [('', '')] + [(x, x) for x in restrictions]
+        # check that the virtual library still exists
+        vls = db.prefs['virtual_lib_on_startup']
+        if vls and vls not in restrictions:
+            db.prefs['virtual_lib_on_startup'] = ''
         r('virtual_lib_on_startup', db.prefs, choices=choices)
         self.reset_confirmation_button.clicked.connect(self.reset_confirmation_dialogs)
 

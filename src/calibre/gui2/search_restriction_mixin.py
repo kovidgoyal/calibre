@@ -6,38 +6,118 @@ Created on 10 Jun 2010
 
 from functools import partial
 
-from PyQt4.Qt import (Qt, QMenu, QPoint, QIcon, QDialog, QGridLayout, QLabel,
-                      QLineEdit, QDialogButtonBox, QEvent, QToolTip)
+from PyQt4.Qt import (
+    Qt, QMenu, QPoint, QIcon, QDialog, QGridLayout, QLabel, QLineEdit,
+    QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QStringList)
+
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.utils.icu import sort_key
 from calibre.utils.pyparsing import ParseException
 from calibre.utils.search_query_parser import saved_searches
 
-class CreateVirtualLibrary(QDialog):
+class SelectNames(QDialog):  # {{{
+
+    def __init__(self, names, txt, parent=None):
+        QDialog.__init__(self, parent)
+        self.l = l = QVBoxLayout(self)
+        self.setLayout(l)
+
+        self.la = la = QLabel(_('Create a Virtual Library based on %s') % txt)
+        l.addWidget(la)
+
+        self._names = QListWidget(self)
+        self._names.addItems(QStringList(sorted(names, key=sort_key)))
+        self._names.setSelectionMode(self._names.ExtendedSelection)
+        l.addWidget(self._names)
+
+        self.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.bb.accepted.connect(self.accept)
+        self.bb.rejected.connect(self.reject)
+        l.addWidget(self.bb)
+
+        self.resize(self.sizeHint())
+
+    @property
+    def names(self):
+        for item in self._names.selectedItems():
+            yield unicode(item.data(Qt.DisplayRole).toString())
+# }}}
+
+class CreateVirtualLibrary(QDialog):  # {{{
+
     def __init__(self, gui, existing_names):
-        QDialog.__init__(self, None, Qt.WindowSystemMenuHint | Qt.WindowTitleHint)
+        QDialog.__init__(self, gui)
 
         self.gui = gui
         self.existing_names = existing_names
 
         self.setWindowTitle(_('Create virtual library'))
+        self.setWindowIcon(QIcon(I('lt.png')))
+
         gl = QGridLayout()
         self.setLayout(gl)
-        gl.addWidget(QLabel(_('Virtual library name')), 0, 0)
+        self.la1 = la1 = QLabel(_('Virtual library &name:'))
+        gl.addWidget(la1, 0, 0)
         self.vl_name = QLineEdit()
-        self.vl_name.setMinimumWidth(400)
+        la1.setBuddy(self.vl_name)
         gl.addWidget(self.vl_name, 0, 1)
-        gl.addWidget(QLabel(_('Search expression')), 1, 0)
+
+        self.la2 = la2 = QLabel(_('&Search expression:'))
+        gl.addWidget(la2, 1, 0)
         self.vl_text = QLineEdit()
+        la2.setBuddy(self.vl_text)
         gl.addWidget(self.vl_text, 1, 1)
         self.vl_text.setText(self.build_full_search_string())
-        bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        bb.accepted.connect(self.accepted)
-        bb.rejected.connect(self.rejected)
-        gl.addWidget(bb, 2, 0, 1, 0)
 
-    search_templates = [
+        self.sl = sl = QLabel('<p>'+_('Create a virtual library based on: ')+
+            ('<a href="author.{0}">{0}</a>, '
+            '<a href="tag.{1}">{1}</a>, '
+            '<a href="publisher.{2}">{2}</a>, '
+            '<a href="series.{3}">{3}</a>.').format(_('Authors'), _('Tags'), _('Publishers'), _('Series')))
+        sl.setWordWrap(True)
+        sl.setTextInteractionFlags(Qt.LinksAccessibleByMouse)
+        sl.linkActivated.connect(self.link_activated)
+        gl.addWidget(sl, 2, 0, 1, 2)
+
+        self.hl = hl = QLabel(_('''
+            <h2>Virtual Libraries</h2>
+
+            <p>Using <i>virtual libraries</i> you can restrict calibre to only show
+            you books that match a search. When a virtual library is in effect, calibre
+            behaves as though the library contains only the matched books. The Tag Browser
+            display only the tags/authors/series/etc. that belong to the matched books and any searches
+            you do will only search within the books in the virtual library. This
+            is a good way to partition your large library into smaller and easier to work with subsets.</p>
+
+            <p>For example you can use a Virtual Library to only show you books with the Tag <i>"Unread"</i>
+            or only books by <i>"My Favorite Author"</i> or only books in a particular series.</p>
+            '''))
+        hl.setWordWrap(True)
+        hl.setFrameStyle(hl.StyledPanel)
+        gl.addWidget(hl, 0, 3, 4, 1)
+
+        bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        gl.addWidget(bb, 4, 0, 1, 0)
+
+        self.resize(self.sizeHint()+QSize(150, 25))
+
+    def link_activated(self, url):
+        db = self.gui.current_db
+        f, txt = unicode(url).partition('.')[0::2]
+        names = getattr(db, 'all_%s_names'%f)()
+        d = SelectNames(names, txt, parent=self)
+        if d.exec_() == d.Accepted:
+            prefix = f+'s' if f in {'tag', 'author'} else f
+            search = ['%s:"=%s"'%(prefix, x.replace('"', '\\"')) for x in d.names]
+            if search:
+                self.vl_name.setText(d.names.next())
+                self.vl_text.setText(' or '.join(search))
+
+    def build_full_search_string(self):
+        search_templates = (
             '',
             '{cl}',
             '{cr}',
@@ -46,11 +126,10 @@ class CreateVirtualLibrary(QDialog):
             '(({cl}) and ({sb}))',
             '(({cr}) and ({sb}))',
             '(({cl}) and ({cr}) and ({sb}))'
-        ]
+        )
 
-    def build_full_search_string(self):
         sb = self.gui.search.current_text
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
         cr = db.data.get_search_restriction()
         cl = db.data.get_base_restriction()
         dex = 0
@@ -60,10 +139,10 @@ class CreateVirtualLibrary(QDialog):
             dex += 2
         if cl:
             dex += 1
-        template = self.search_templates[dex]
+        template = search_templates[dex]
         return template.format(cl=cl, cr=cr, sb=sb)
 
-    def accepted(self):
+    def accept(self):
         n = unicode(self.vl_name.text())
         if not n:
             error_dialog(self.gui, _('No name'),
@@ -91,45 +170,20 @@ class CreateVirtualLibrary(QDialog):
         except ParseException as e:
             error_dialog(self.gui, _('Invalid search string'),
                          _('The search string is not a valid search expression'),
-                         det_msg = e.msg, show=True)
+                         det_msg=e.msg, show=True)
             return
 
-        if not recs:
-            if question_dialog(self.gui, _('Search found no books'),
-                         _('The search found no books, so the virtual library '
-                           'will be empty. Do you really want to use that search?'),
-                            default_yes=False) == self.Rejected:
+        if not recs and not question_dialog(
+                self.gui, _('Search found no books'),
+                _('The search found no books, so the virtual library '
+                'will be empty. Do you really want to use that search?'),
+                default_yes=False):
                 return
 
         self.library_name = n
         self.library_search = v
-        self.accept()
-
-    def rejected(self):
-        self.reject()
-
-class VirtLibMenu(QMenu):
-
-    def __init__(self):
-        QMenu.__init__(self)
-        self.show_tt_for = []
-
-    def event(self, e):
-        QMenu.event(self, e)
-        if e.type() == QEvent.ToolTip:
-            a = self.activeAction()
-            if a and a in self.show_tt_for:
-                tt = a.toolTip()
-                if tt:
-                    QToolTip.showText(e.globalPos(), tt)
-        return True
-
-    def clear(self):
-        self.show_tt_for = []
-        QMenu.clear(self)
-
-    def show_tooltip_for_action(self, a):
-        self.show_tt_for.append(a)
+        QDialog.accept(self)
+# }}}
 
 class SearchRestrictionMixin(object):
 
@@ -139,7 +193,7 @@ class SearchRestrictionMixin(object):
         self.checked = QIcon(I('ok.png'))
         self.empty = QIcon()
 
-        self.virtual_library_menu = VirtLibMenu()
+        self.virtual_library_menu = QMenu()
 
         self.virtual_library.clicked.connect(self.virtual_library_clicked)
 
@@ -161,8 +215,7 @@ class SearchRestrictionMixin(object):
         db = self.library_view.model().db
         virt_libs = db.prefs.get('virtual_libraries', {})
         cd = CreateVirtualLibrary(self, virt_libs.keys())
-        ret = cd.exec_()
-        if ret == cd.Accepted:
+        if cd.exec_() == cd.Accepted:
             self.add_virtual_library(db, cd.library_name, cd.library_search)
             self.apply_virtual_library(cd.library_name)
 
@@ -180,11 +233,10 @@ class SearchRestrictionMixin(object):
         a = m.addAction(_('Create Virtual Library'))
         a.triggered.connect(self.do_create)
         a.setToolTip(_('Create a new virtual library from the results of a search'))
-        m.show_tooltip_for_action(a)
 
-        self.rm_menu = a = VirtLibMenu()
+        self.rm_menu = a = QMenu()
         a.setTitle(_('Remove Virtual Library'))
-        a.aboutToShow.connect(self.build_virtual_library_list);
+        a.aboutToShow.connect(self.build_virtual_library_list)
         m.addMenu(a)
 
         m.addSeparator()
@@ -194,7 +246,7 @@ class SearchRestrictionMixin(object):
         a = self.ar_menu
         a.clear()
         a.setIcon(self.checked if db.data.get_search_restriction_name() else self.empty)
-        a.aboutToShow.connect(self.build_search_restriction_list);
+        a.aboutToShow.connect(self.build_search_restriction_list)
         m.addMenu(a)
 
         m.addSeparator()
@@ -212,12 +264,11 @@ class SearchRestrictionMixin(object):
             a = m.addAction(self.checked if vl == current_lib else self.empty, vl)
             a.setToolTip(virt_libs[vl])
             a.triggered.connect(partial(self.apply_virtual_library, library=vl))
-            m.show_tooltip_for_action(a)
 
         p = QPoint(0, self.virtual_library.height())
         self.virtual_library_menu.popup(self.virtual_library.mapToGlobal(p))
 
-    def apply_virtual_library(self, library = None):
+    def apply_virtual_library(self, library=None):
         db = self.library_view.model().db
         virt_libs = db.prefs.get('virtual_libraries', {})
         if not library:
@@ -238,7 +289,6 @@ class SearchRestrictionMixin(object):
         def add_action(name, search):
             a = m.addAction(name)
             a.setToolTip(search)
-            m.show_tooltip_for_action(a)
             a.triggered.connect(partial(self.remove_vl_triggered, name=name))
 
         for n in sorted(virt_libs.keys(), key=sort_key):
@@ -268,7 +318,6 @@ class SearchRestrictionMixin(object):
             if txt.startswith('*'):
                 current_restriction_text = txt
         self.search_restriction.clear()
-
 
         current_restriction = self.library_view.model().db.data.get_search_restriction_name()
         m.setIcon(self.checked if current_restriction else self.empty)
@@ -359,9 +408,9 @@ class SearchRestrictionMixin(object):
             rows = self.current_view().row_count()
             rbc = max(rows, db.data.get_search_restriction_book_count())
             t = _("({0} of {1})").format(rows, rbc)
-            self.search_count.setStyleSheet \
-                   ('QLabel { border-radius: 8px; background-color: yellow; }')
-        else: # No restriction or not library view
+            self.search_count.setStyleSheet(
+                'QLabel { border-radius: 8px; background-color: yellow; }')
+        else:  # No restriction or not library view
             if not self.search.in_a_search():
                 t = _("(all books)")
             else:
@@ -369,3 +418,14 @@ class SearchRestrictionMixin(object):
             self.search_count.setStyleSheet(
                     'QLabel { background-color: transparent; }')
         self.search_count.setText(t)
+
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    from calibre.gui2.preferences import init_gui
+    app = Application([])
+    app
+    gui = init_gui()
+    d = CreateVirtualLibrary(gui, [])
+    d.exec_()
+
+
