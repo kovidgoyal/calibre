@@ -28,7 +28,7 @@
       description: "To enable them go to Preferences->Metadata download and enable the 'Google Image' and 'Big Book Search' sources. Google Images is useful for finding larger covers as well as alternate versions of the cover. Big Book Search searches for alternate covers from amazon.com. It can occasionally find nicer covers than the direct Amazon source. Note that both these sources download multiple covers for a single book. Some of these covers can be wrong (i.e. they may be of a different book or not covers at all, so you should inspect the results and manually pick the best match). When bulk downloading, these sources are only used if the other sources find no covers."
       type: major
 
-    - title: "Content server: Allow specifying a reestriction to use for the server when embedding it as a WSGI app."
+    - title: "Content server: Allow specifying a restriction to use for the server when embedding it as a WSGI app."
       tickets: [1167951]
 
     - title: "Get Books: Add a plugin for the Koobe Polish book store"
