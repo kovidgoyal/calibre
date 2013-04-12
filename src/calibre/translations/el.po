@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-04-05 04:01+0000\n"
-"PO-Revision-Date: 2013-01-03 19:23+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2013-04-11 21:26+0000\n"
+"Last-Translator: Costis Aspiotis <aspiotisk@gmail.com>\n"
 "Language-Team: Greek <el@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-06 05:18+0000\n"
-"X-Generator: Launchpad (build 16550)\n"
+"X-Launchpad-Export-Date: 2013-04-12 05:16+0000\n"
+"X-Generator: Launchpad (build 16564)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -5341,27 +5341,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:67
 msgid "Add Empty book. (Book entry with no formats)"
-msgstr ""
+msgstr "Προσθήκη Κενού βιβλίου. (Εισαγωγή βιβλίου χωρίς μορφοποίηση)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:68
 msgid "Shift+Ctrl+E"
-msgstr ""
+msgstr "Shift+Ctrl+E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:69
 msgid "Add from ISBN"
-msgstr ""
+msgstr "Προσθήκη από ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:71
 msgid "Add files to selected book records"
-msgstr ""
+msgstr "Προσθήκη αρχείων σε επιλεγμένες εγγραφές βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:72
 msgid "Shift+A"
-msgstr ""
+msgstr "Shift+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:74
 msgid "Control the adding of books"
-msgstr ""
+msgstr "Έλεγχος προσθήκης βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:120
@@ -5381,12 +5381,12 @@ msgstr "Δεν επιλέχθηκαν βιβλία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:96
 msgid "Cannot add files as no books are selected"
-msgstr ""
+msgstr "Αδύνατη προσθήκη αρχείων αφού δεν έχουν επιλεγεί βιβλία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:120
 msgid "Are you sure"
-msgstr ""
+msgstr "Είσαι σίγουρος(η)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:101
 #, python-format
@@ -5394,23 +5394,25 @@ msgid ""
 "Are you sure you want to add the same files to all %d books? If the format "
 "already exists for a book, it will be replaced."
 msgstr ""
+"Είσαι βέβαιος(η) ότι θέλεις να προσθέσεις τα ίδια αρχεία σε όλα τα %d "
+"βιβλία; Αν υπάρχει ήδη η μορφοποίηση για κάποιο βιβλίο, θα αντικατασταθεί."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:107
 msgid "Select book files"
-msgstr ""
+msgstr "Επιλογή αρχείων βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:189
 msgid "Adding"
-msgstr ""
+msgstr "Προσθήκη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:190
 msgid "Creating book records from ISBNs"
-msgstr ""
+msgstr "Δημιουργία εγγραφών βιβλίων από τα ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:281
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:330
 msgid "Uploading books to device."
-msgstr "Μεταφορτώνονται βιβλία στην συσκευή."
+msgstr "Μεταφόρτωση βιβλίων στην συσκευή."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:301
 msgid "Supported books"
@@ -5418,7 +5420,7 @@ msgstr "Υποστηριζόμενα βιβλία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:304
 msgid "Select books"
-msgstr "Επιλέξτε βιβλία"
+msgstr "Επιλογή βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:342
 msgid "Merged some books"
@@ -5431,14 +5433,17 @@ msgid ""
 "processed and merged into your Calibre database according to your automerge "
 "settings:"
 msgstr ""
+"Βρέθηκαν τα επόμενα %d διπλά βιβλία και έγινε επεξεργασία των μορφών "
+"εισαγωγής βιβλίων και συνένωση με την βάση δεδομένων του Calibre σου σύμφωνα "
+"με τις ρυθμίσεις σου για αυτόματη συνένωση:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:365
 msgid "Failed to read metadata"
-msgstr ""
+msgstr "Αποτυχία ανάγνωσης μεταδεδομένων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:366
 msgid "Failed to read metadata from the following"
-msgstr ""
+msgstr "Αποτυχία ανάγνωσης μεταδεδομένων από τα επόμενα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:387
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:392
@@ -5455,36 +5460,38 @@ msgstr "Προσθήκη στην βιβλιοθήκη"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:183
 msgid "No book selected"
-msgstr ""
+msgstr "Δεν επιλέχθηκε βιβλίο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:405
 msgid ""
 "The following books are virtual and cannot be added to the calibre library:"
 msgstr ""
+"Τα ακόλουθα βιβλία είναι εικονικά και δεν μπορούν να προστεθούν στην "
+"βιβλιοθήκη του calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:411
 msgid "No book files found"
-msgstr ""
+msgstr "Δεν βρέθηκαν αρχεία βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:417
 msgid "Downloading books"
-msgstr ""
+msgstr "Κατέβασμα βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:418
 msgid "Downloading books from device"
-msgstr ""
+msgstr "Κατέβασμα βιβλίων από συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:437
 msgid "Could not download files from the device"
-msgstr ""
+msgstr "Αδυναμία κατεβάσματος βιβλίων από την συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:440
 msgid "Could not download some files from the device"
-msgstr ""
+msgstr "Αδυναμία κατεβάσματος κάποιων βιβλίων από την συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:444
 msgid "Could not download files"
-msgstr ""
+msgstr "Αδυναμία κατεβάσματος αρχείων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:13
 msgid "Add books to library"
@@ -5497,7 +5504,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:26
 msgid "Merging user annotations into database"
-msgstr ""
+msgstr "Συνένωση σχολίων χρήστη στην βάση δεδομένων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:778
@@ -5510,57 +5517,61 @@ msgstr "Δεν υποστηρίζεται"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:108
 msgid "Fetching annotations is not supported for this device"
-msgstr ""
+msgstr "Προσκόμιση σχολίων δεν υποστηρίζεται για τη συσκευή αυτή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:112
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:136
 msgid "Use library only"
-msgstr ""
+msgstr "Χρήση βιβλιοθήκης μόνο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:137
 msgid "User annotations generated from main library only"
-msgstr ""
+msgstr "Παραγωγή σχολίων χρήστη μόνο από την κύρια βιβλιοθήκη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:121
 msgid "No books selected to fetch annotations from"
-msgstr ""
+msgstr "Δεν έχουν επιλεγεί τα βιβλία για την προσκόμιση σχολίων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:156
 msgid "Some errors"
-msgstr ""
+msgstr "Κάποια λάθη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:157
 msgid ""
 "Could not fetch annotations for some books. Click show details to see which "
 "ones."
 msgstr ""
+"Αδύνατη προσκόμιση σχολίων για κάποια βιβλία. Κάνε κλικ στο εμφάνιση "
+"λεπτομερειών για να δεις ποιά."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:21
 msgid "Create catalog"
-msgstr ""
+msgstr "Δημιουργία καταλόγου"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:22
 msgid ""
 "Create a catalog of the books in your calibre library in different formats"
 msgstr ""
+"Δημιουργία καταλόγου των βιβλίων της βιβλιοθήκης του calibre σου σε διάφορες "
+"μορφές"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:40
 msgid "No books selected for catalog generation"
-msgstr ""
+msgstr "Δεν επιλέχθηκαν βιβλία για την δημιουργία καταλόγου"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:63
 #, python-format
 msgid "Generating %s catalog..."
-msgstr ""
+msgstr "Δημιουργία %s καταλόγου..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:72
 msgid "Catalog generation complete, with warnings."
-msgstr ""
+msgstr "Ολοκλήρωση δημιουργίας καταλόγου, με προειδοποιήσεις."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:87
 msgid "Catalog generated."
-msgstr ""
+msgstr "Ο κατάλογος δημιουργήθηκε."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:90
 msgid "Export Catalog Directory"
@@ -7344,7 +7355,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:63
 msgid "Choose the location to add books from"
-msgstr ""
+msgstr "Επιλογή τοποθεσίας από που θα γίνει εισαγωγή βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:64
 msgid "Select a folder on your hard disk"
@@ -11091,7 +11102,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:307
 msgid "Regular Expression"
-msgstr ""
+msgstr "Κανονική Έκφραση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:310
 msgid "Replace field"
@@ -11953,7 +11964,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:72
 msgid "Items"
-msgstr ""
+msgstr "Τεμάχια"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:201
@@ -13621,7 +13632,7 @@ msgstr "Μέγεθος (MB)"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:132
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:275
 msgid "Modified"
-msgstr ""
+msgstr "Τροποποιήθηκε"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:900
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1537

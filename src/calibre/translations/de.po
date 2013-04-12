@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-04-05 04:01+0000\n"
-"PO-Revision-Date: 2013-04-10 18:09+0000\n"
+"PO-Revision-Date: 2013-04-11 13:41+0000\n"
 "Last-Translator: Simon Schütte <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-11 05:09+0000\n"
-"X-Generator: Launchpad (build 16550)\n"
+"X-Launchpad-Export-Date: 2013-04-12 05:15+0000\n"
+"X-Generator: Launchpad (build 16564)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -20328,6 +20328,9 @@ msgid ""
 "in the ToC will point to the start of the file, the text of the entry will "
 "be the \"first line\" of text from the file."
 msgstr ""
+"Generiert ein Inhaltsverzeichnis aus individuellen Dateien eines Buches. "
+"Jeder Eintrag im Inhaltsverzeichnis wird auf den Anfang der Datei verweisen. "
+"Der Texteintrag wird die \"erste Zeile\" des Dateitextes sein."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:196
 msgid "Generate ToC from &XPath"
@@ -20335,7 +20338,7 @@ msgstr "ToC aus &XPath erzeugen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:199
 msgid "Generate a Table of Contents from arbitrary XPath expressions."
-msgstr ""
+msgstr "Generiert ein Inhaltsverzeichnis aus beliebigen XPath Ausdrücken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:203
 msgid "&Flatten the ToC"
