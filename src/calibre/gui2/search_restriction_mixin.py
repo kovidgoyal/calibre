@@ -188,8 +188,8 @@ class CreateVirtualLibrary(QDialog):  # {{{
             db = self.gui.library_view.model().db
             recs = db.data.search_getting_ids('', v, use_virtual_library=False)
         except ParseException as e:
-            error_dialog(self.gui, _('Invalid search string'),
-                         _('The search string is not a valid search expression'),
+            error_dialog(self.gui, _('Invalid search'),
+                         _('The search in the search box is not valid'),
                          det_msg=e.msg, show=True)
             return
 
@@ -306,15 +306,23 @@ class SearchRestrictionMixin(object):
             db.data.set_base_restriction('')
             db.data.set_base_restriction_name('')
         elif library == '*':
-            if not _build_full_search_string(self):
+            if not self.search.current_text:
                 error_dialog(self, _('No search'),
                      _('There is no current search to use'), show=True)
                 return
 
-            self.search_based_vl = _build_full_search_string(self)
-            db.data.set_base_restriction(self.search_based_vl)
-            self.search_based_vl_name = self._trim_restriction_name(
-                                     '*' + self.search_based_vl)
+            txt = _build_full_search_string(self)
+            try:
+                db.data.search_getting_ids('', txt, use_virtual_library=False)
+            except ParseException as e:
+                error_dialog(self, _('Invalid search'),
+                             _('The search in the search box is not valid'),
+                             det_msg=e.msg, show=True)
+                return
+
+            self.search_based_vl = txt
+            db.data.set_base_restriction(txt)
+            self.search_based_vl_name = self._trim_restriction_name('*' + txt)
             db.data.set_base_restriction_name(self.search_based_vl_name)
         elif library == self.search_based_vl_name:
             db.data.set_base_restriction(self.search_based_vl)
