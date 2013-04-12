@@ -8,7 +8,7 @@ from functools import partial
 
 from PyQt4.Qt import (
     Qt, QMenu, QPoint, QIcon, QDialog, QGridLayout, QLabel, QLineEdit,
-    QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QStringList)
+    QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QStringList, QCheckBox)
 
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.widgets import ComboBoxWithHelp
@@ -31,6 +31,9 @@ class SelectNames(QDialog):  # {{{
         self._names.setSelectionMode(self._names.ExtendedSelection)
         l.addWidget(self._names)
 
+        self._and = QCheckBox(_('Match all selected %s names')%txt)
+        l.addWidget(self._and)
+
         self.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
@@ -42,6 +45,11 @@ class SelectNames(QDialog):  # {{{
     def names(self):
         for item in self._names.selectedItems():
             yield unicode(item.data(Qt.DisplayRole).toString())
+
+    @property
+    def match_type(self):
+        return ' and ' if self._and.isChecked() else ' or '
+
 # }}}
 
 MAX_VIRTUAL_LIBRARY_NAME_LENGTH = 40
@@ -154,7 +162,9 @@ class CreateVirtualLibrary(QDialog):  # {{{
             search = ['%s:"=%s"'%(prefix, x.replace('"', '\\"')) for x in d.names]
             if search:
                 self.vl_name.setText(d.names.next())
-                self.vl_text.setText(' or '.join(search))
+                self.vl_text.setText(d.match_type.join(search))
+                self.vl_text.setCursorPosition(0)
+                self.vl_name.setCursorPosition(0)
 
     def accept(self):
         n = unicode(self.vl_name.text()).strip()
