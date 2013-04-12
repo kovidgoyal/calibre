@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 2 # Needed for dynamic plugin loading
+store_version = 3 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2013, Tomasz Długosz <tomek3d@gmail.com>'
@@ -67,7 +67,7 @@ class NextoStore(BasicStoreConfig, StorePlugin):
 
                     cover_url = ''.join(data.xpath('.//img[@class="cover"]/@src'))
                     cover_url = re.sub(r'%2F', '/', cover_url)
-                    cover_url = re.sub(r'\widthMax=120&heightMax=200', 'widthMax=64&heightMax=64', cover_url)
+                    cover_url = re.sub(r'widthMax=120&heightMax=200', 'widthMax=64&heightMax=64', cover_url)
                     title = ''.join(data.xpath('.//a[@class="title"]/text()'))
                     title = re.sub(r' - ebook$', '', title)
                     formats = ', '.join(data.xpath('.//ul[@class="formats_available"]/li//b/text()'))
@@ -82,7 +82,7 @@ class NextoStore(BasicStoreConfig, StorePlugin):
                     counter -= 1
 
                     s = SearchResult()
-                    s.cover_url = 'http://www.nexto.pl' + cover_url
+                    s.cover_url = cover_url if cover_url[:4] == 'http' else 'http://www.nexto.pl' + cover_url
                     s.title = title.strip()
                     s.author = author.strip()
                     s.price = price

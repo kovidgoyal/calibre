@@ -559,11 +559,11 @@ class TOCView(QWidget): # {{{
         b.setToolTip(_('Remove all selected entries'))
         b.clicked.connect(self.del_items)
 
-        self.left_button = b = QToolButton(self)
+        self.right_button = b = QToolButton(self)
         b.setIcon(QIcon(I('forward.png')))
         b.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         l.addWidget(b, 4, 3)
-        b.setToolTip(_('Unindent the current entry [Ctrl+Left]'))
+        b.setToolTip(_('Indent the current entry [Ctrl+Right]'))
         b.clicked.connect(self.tocw.move_right)
 
         self.down_button = b = QToolButton(self)

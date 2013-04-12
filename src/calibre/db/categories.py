@@ -18,7 +18,7 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import saved_searches
 
-CATEGORY_SORTS = ('name', 'popularity', 'rating') # This has to be a tuple not a set
+CATEGORY_SORTS = ('name', 'popularity', 'rating')  # This has to be a tuple not a set
 
 class Tag(object):
 
@@ -218,7 +218,7 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
                     else:
                         items.append(taglist[label][n])
                 # else: do nothing, to not include nodes w zero counts
-            cat_name = '@' + user_cat # add the '@' to avoid name collision
+            cat_name = '@' + user_cat  # add the '@' to avoid name collision
             # Not a problem if we accumulate entries in the icon map
             if icon_map is not None:
                 icon_map[cat_name] = icon_map['user:']

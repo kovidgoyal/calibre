@@ -51,9 +51,11 @@ def reverse_tag_iter(block):
     end = len(block)
     while True:
         pgt = block.rfind(b'>', 0, end)
-        if pgt == -1: break
+        if pgt == -1:
+            break
         plt = block.rfind(b'<', 0, pgt)
-        if plt == -1: break
+        if plt == -1:
+            break
         yield block[plt:pgt+1]
         end = plt
 
@@ -231,12 +233,12 @@ class Mobi8Reader(object):
             flowpart = self.flows[j]
             nstr = '%04d' % j
             m = svg_tag_pattern.search(flowpart)
-            if m != None:
+            if m is not None:
                 # svg
                 typ = 'svg'
                 start = m.start()
                 m2 = image_tag_pattern.search(flowpart)
-                if m2 != None:
+                if m2 is not None:
                     format = 'inline'
                     dir = None
                     fname = None
@@ -320,7 +322,7 @@ class Mobi8Reader(object):
                 if len(pos_fid) != 2:
                     continue
             except TypeError:
-                continue # thumbnailstandard record, ignore it
+                continue  # thumbnailstandard record, ignore it
             linktgt, idtext = self.get_id_tag_by_pos_fid(*pos_fid)
             if idtext:
                 linktgt += b'#' + idtext
@@ -389,7 +391,7 @@ class Mobi8Reader(object):
             href = None
             if typ in {b'FLIS', b'FCIS', b'SRCS', b'\xe9\x8e\r\n',
                     b'RESC', b'BOUN', b'FDST', b'DATP', b'AUDI', b'VIDE'}:
-                pass # Ignore these records
+                pass  # Ignore these records
             elif typ == b'FONT':
                 font = read_font_record(data)
                 href = "fonts/%05d.%s" % (fname_idx, font['ext'])
@@ -406,7 +408,11 @@ class Mobi8Reader(object):
             else:
                 imgtype = what(None, data)
                 if imgtype is None:
-                    imgtype = 'unknown'
+                    from calibre.utils.magick.draw import identify_data
+                    try:
+                        imgtype = identify_data(data)[2]
+                    except Exception:
+                        imgtype = 'unknown'
                 href = 'images/%05d.%s'%(fname_idx, imgtype)
                 with open(href.replace('/', os.sep), 'wb') as f:
                     f.write(data)

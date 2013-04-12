@@ -82,7 +82,7 @@ class OneToOneTable(Table):
             self.metadata['column'], self.metadata['table'])):
             self.book_col_map[row[0]] = self.unserialize(row[1])
 
-class  PathTable(OneToOneTable):
+class PathTable(OneToOneTable):
 
     def set_path(self, book_id, path, db):
         self.book_col_map[book_id] = path

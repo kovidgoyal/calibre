@@ -1,5 +1,6 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
+import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class TVXS(BasicNewsRecipe):
@@ -8,19 +9,30 @@ class TVXS(BasicNewsRecipe):
     description            = 'News from Greece'
     max_articles_per_feed  = 100
     oldest_article         = 3
-    simultaneous_downloads = 1
     publisher              = 'TVXS'
-    category               = 'news, GR'
+    category               = 'news, sport, greece'
     language               = 'el'
     encoding               = None
     use_embedded_content = False
     remove_empty_feeds = True
-    #conversion_options     = { 'linearize_tables': True}
+    conversion_options = {'smarten_punctuation': True}
     no_stylesheets         = True
+    publication_type = 'newspaper'
     remove_tags_before     = dict(name='h1',attrs={'class':'print-title'})
     remove_tags_after      = dict(name='div',attrs={'class':'field field-type-relevant-content field-field-relevant-articles'})
-    remove_attributes      = ['width', 'src', 'header', 'footer']
-
+    remove_tags      = [dict(name='div',attrs={'class':'field field-type-relevant-content field-field-relevant-articles'}),
+                        dict(name='div',attrs={'class':'field field-type-filefield field-field-image-gallery'}),
+                        dict(name='div',attrs={'class':'filefield-file'})]
+    remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding', 'colspan', 'valign', 'vspace', 'hspace', 'alt', 'width', 'height']
+    extra_css = 'body { font-family: verdana, helvetica, sans-serif; } \
+                 table { width: 100%; } \
+                 td img { display: block; margin: 5px auto; } \
+                 ul { padding-top: 10px; } \
+                 ol { padding-top: 10px; } \
+                 li { padding-top: 5px; padding-bottom: 5px; } \
+                 h1 { text-align: center; font-size: 125%; font-weight: bold; } \
+                 h2, h3, h4, h5, h6 { text-align: center; font-size: 100%; font-weight: bold; }'
+    preprocess_regexps     = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''), (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: '')]
 
     feeds = [(u'Ελλάδα', 'http://tvxs.gr/feeds/2/feed.xml'),
         (u'Κόσμος', 'http://tvxs.gr/feeds/5/feed.xml'),
@@ -35,17 +47,10 @@ class TVXS(BasicNewsRecipe):
         (u'Ιστορία', 'http://tvxs.gr/feeds/1573/feed.xml'),
         (u'Χιούμορ', 'http://tvxs.gr/feeds/692/feed.xml')]
 
-
     def print_version(self, url):
-        import urllib2, urlparse, StringIO, gzip
-
-        fp = urllib2.urlopen(url)
-        data = fp.read()
-        if fp.info()['content-encoding'] == 'gzip':
-            gzip_data = StringIO.StringIO(data)
-            gzipper = gzip.GzipFile(fileobj=gzip_data)
-            data = gzipper.read()
-        fp.close()
+        br = self.get_browser()
+        response = br.open(url)
+        data = response.read()
 
         pos_1 = data.find('<a href="/print/')
         if pos_1 == -1:
@@ -57,5 +62,5 @@ class TVXS(BasicNewsRecipe):
         pos_1 += len('<a href="')
         new_url = data[pos_1:pos_2]
 
-        print_url = urlparse.urljoin(url, new_url)
+        print_url = "http://tvxs.gr" + new_url
         return print_url

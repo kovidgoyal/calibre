@@ -37,7 +37,13 @@ class Polish(QDialog): # {{{
         self.setWindowTitle(title)
 
         self.help_text = {
-            'polish': _('<h3>About Polishing books</h3>%s')%HELP['about'],
+            'polish': _('<h3>About Polishing books</h3>%s')%HELP['about'].format(
+                _('''<p>If you have both EPUB and ORIGINAL_EPUB in your book,
+                  then polishing will run on ORIGINAL_EPUB (the same for other
+                  ORIGINAL_* formats).  So if you
+                  want Polishing to not run on the ORIGINAL_* format, delete the
+                  ORIGINAL_* format before running it.</p>''')
+            ),
 
             'subset':_('<h3>Subsetting fonts</h3>%s')%HELP['subset'],
 

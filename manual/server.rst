@@ -91,7 +91,11 @@ First, we have to create a WSGI *adapter* for the calibre content server. Here i
             # Path to the calibre library to be served
             # The server process must have write permission for all files/dirs
             # in this directory or BAD things will happen
-            path_to_library='/home/kovid/documents/demo library'
+            path_to_library='/home/kovid/documents/demo library',
+
+            # The virtual library (restriction) to be used when serving this
+            # library. 
+            virtual_library=None
     )
 
     del create_wsgi_app

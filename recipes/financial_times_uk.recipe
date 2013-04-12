@@ -110,10 +110,12 @@ class FinancialTimes(BasicNewsRecipe):
         soup = self.index_to_soup(self.INDEX)
         #dates= self.tag_to_string(soup.find('div', attrs={'class':'btm-links'}).find('div'))
         #self.timefmt = ' [%s]'%dates
+        section_title = 'Untitled'
 
         for column in soup.findAll('div', attrs = {'class':'feedBoxes clearfix'}):
             for section in column. findAll('div', attrs = {'class':'feedBox'}):
-                section_title=self.tag_to_string(section.find('h4'))
+                sectiontitle=self.tag_to_string(section.find('h4'))
+                if '...' not in sectiontitle: section_title=sectiontitle
                 for article in section.ul.findAll('li'):
                     articles = []
                     title=self.tag_to_string(article.a)
