@@ -270,7 +270,7 @@ BINARY_MIME    = 'application/octet-stream'
 
 XHTML_CSS_NAMESPACE = u'@namespace "%s";\n' % XHTML_NS
 
-OEB_STYLES        = set([CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css'])
+OEB_STYLES        = set([CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css', 'xhtml/css'])
 OEB_DOCS          = set([XHTML_MIME, 'text/html', OEB_DOC_MIME,
                          'text/x-oeb-document'])
 OEB_RASTER_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME])
