@@ -17,7 +17,7 @@ from PyQt4.Qt import (QDialog, QGridLayout, QIcon, QCheckBox, QLabel, QFrame,
                       QSizePolicy, QTimer, QModelIndex, QTextEdit,
                       QInputDialog, QMenu)
 
-from calibre.gui2 import error_dialog, Dispatcher, gprefs
+from calibre.gui2 import error_dialog, Dispatcher, gprefs, question_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.convert.metadata import create_opf_file
 from calibre.gui2.dialogs.progress import ProgressDialog
@@ -204,6 +204,15 @@ class Polish(QDialog):  # {{{
             ac[action] = saved_prefs[action] = bool(getattr(self, 'opt_'+action).isChecked())
             if ac[action]:
                 something = True
+        if ac['jacket'] and not ac['metadata']:
+            if not question_dialog(self, _('Must update metadata'),
+                _('You have selected the option to add metadata as '
+                  'a "book jacket". For this option to work, you '
+                  'must also select the option to update metadata in'
+                  ' the book files. Do you want to select it?')):
+                return
+            ac['metadata'] = saved_prefs['metadata'] = True
+            self.opt_metadata.setChecked(True)
         if not something:
             return error_dialog(self, _('No actions selected'),
                 _('You must select at least one action, or click Cancel.'),
