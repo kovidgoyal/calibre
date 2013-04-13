@@ -24,7 +24,7 @@ from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.config_base import tweaks
 
-class Polish(QDialog): # {{{
+class Polish(QDialog):  # {{{
 
     def __init__(self, db, book_id_map, parent=None):
         from calibre.ebooks.oeb.polish.main import HELP
@@ -58,7 +58,7 @@ class Polish(QDialog): # {{{
                          ' formats are not capable of supporting all the'
                          ' metadata in calibre.</p><p>There is a separate option to'
                          ' update the cover.</p>'),
-            'do_cover':  _('<p>Update the covers in the ebook files to match the'
+            'do_cover': _('<p>Update the covers in the ebook files to match the'
                         ' current cover in the calibre library.</p>'
                         '<p>If the ebook file does not have'
                         ' an identifiable cover, a new cover is inserted.</p>'
@@ -275,7 +275,7 @@ class Polish(QDialog): # {{{
         self.jobs.append((desc, data, book_id, base, is_orig))
 # }}}
 
-class Report(QDialog): # {{{
+class Report(QDialog):  # {{{
 
     def __init__(self, parent):
         QDialog.__init__(self, parent)
@@ -427,7 +427,7 @@ class PolishAction(InterfaceAction):
         supported = set(SUPPORTED)
         for x in SUPPORTED:
             supported.add('ORIGINAL_'+x)
-        ans = [(x, set( (db.formats(x, index_is_id=True) or '').split(',') )
+        ans = [(x, set((db.formats(x, index_is_id=True) or '').split(','))
                .intersection(supported)) for x in book_ids]
         ans = [x for x in ans if x[1]]
         if not ans:
@@ -476,8 +476,7 @@ class PolishAction(InterfaceAction):
                 db.save_original_format(book_id, fmt, notify=False)
             with open(path, 'rb') as f:
                 db.add_format(book_id, fmt, f, index_is_id=True)
-        self.gui.status_bar.show_message(job.description + \
-                (' completed'), 2000)
+        self.gui.status_bar.show_message(job.description + (' completed'), 2000)
         try:
             shutil.rmtree(base)
             parent = os.path.dirname(base)
