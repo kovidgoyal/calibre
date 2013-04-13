@@ -205,25 +205,31 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
 
     def set_database(self, db):
         self.db = db
+        virt_libs = db.prefs.get('virtual_libraries', {})
         sr = getattr(self.opts, 'restriction', None)
-        sr = db.prefs.get('cs_restriction', '') if sr is None else sr
-        self.set_search_restriction(sr)
+        if sr:
+            if sr in virt_libs:
+                sr = virt_libs[sr]
+            elif sr not in saved_searches().names():
+                prints('WARNING: Content server: search restriction ',
+                       sr, ' does not exist')
+                sr = ''
+            else:
+                sr = 'search:"%s"'%sr
+        else:
+            sr = db.prefs.get('cs_virtual_lib_on_startup', '')
+            if sr:
+                if sr not in virt_libs:
+                    prints('WARNING: Content server: virtual library ',
+                           sr, ' does not exist')
+                    sr = ''
+                else:
+                    sr = virt_libs[sr]
+        self.search_restriction = sr
+        self.reset_caches()
 
     def graceful(self):
         cherrypy.engine.graceful()
-
-    def set_search_restriction(self, restriction):
-        self.search_restriction_name = restriction
-        if restriction:
-            if restriction not in saved_searches().names():
-                prints('WARNING: Content server: search restriction ',
-                       restriction, ' does not exist')
-                self.search_restriction = ''
-            else:
-                self.search_restriction = 'search:"%s"'%restriction
-        else:
-            self.search_restriction = ''
-        self.reset_caches()
 
     def setup_loggers(self):
         access_file = log_access_file

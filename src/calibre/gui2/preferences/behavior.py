@@ -14,7 +14,6 @@ from calibre.gui2.preferences.behavior_ui import Ui_Form
 from calibre.gui2 import config, info_dialog, dynamic, gprefs
 from calibre.utils.config import prefs
 from calibre.customize.ui import available_output_formats, all_input_formats
-from calibre.utils.search_query_parser import saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
 from calibre.constants import iswindows
@@ -48,9 +47,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices = [(x.upper(), x) for x in output_formats]
         r('output_format', prefs, choices=choices, setting=OutputFormatSetting)
 
-        restrictions = sorted(saved_searches().names(), key=sort_key)
+        restrictions = sorted(db.prefs['virtual_libraries'].iterkeys(), key=sort_key)
         choices = [('', '')] + [(x, x) for x in restrictions]
-        r('gui_restriction', db.prefs, choices=choices)
+        # check that the virtual library still exists
+        vls = db.prefs['virtual_lib_on_startup']
+        if vls and vls not in restrictions:
+            db.prefs['virtual_lib_on_startup'] = ''
+        r('virtual_lib_on_startup', db.prefs, choices=choices)
         self.reset_confirmation_button.clicked.connect(self.reset_confirmation_dialogs)
 
         self.input_up_button.clicked.connect(self.up_input)
