@@ -11,14 +11,14 @@ from base64 import b64encode
 
 from PyQt4.Qt import (QWidget, QGridLayout, QListWidget, QSize, Qt, QUrl,
                       pyqtSlot, pyqtSignal, QVBoxLayout, QFrame, QLabel,
-                      QLineEdit, QTimer, QPushButton, QIcon)
+                      QLineEdit, QTimer, QPushButton, QIcon, QSplitter)
 from PyQt4.QtWebKit import QWebView, QWebPage, QWebElement
 
 from calibre.ebooks.oeb.display.webview import load_html
-from calibre.gui2 import error_dialog, question_dialog
+from calibre.gui2 import error_dialog, question_dialog, gprefs
 from calibre.utils.logging import default_log
 
-class Page(QWebPage): # {{{
+class Page(QWebPage):  # {{{
 
     elem_clicked = pyqtSignal(object, object, object, object)
 
@@ -67,7 +67,7 @@ class Page(QWebPage): # {{{
         self.evaljs(self.js)
 # }}}
 
-class WebView(QWebView): # {{{
+class WebView(QWebView):  # {{{
 
     elem_clicked = pyqtSignal(object, object, object, object)
 
@@ -106,38 +106,46 @@ class ItemEdit(QWidget):
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self.l = l = QGridLayout()
-        self.setLayout(l)
+        self.setLayout(QVBoxLayout())
 
         self.la = la = QLabel('<b>'+_(
             'Select a destination for the Table of Contents entry'))
-        l.addWidget(la, 0, 0, 1, 3)
+        self.layout().addWidget(la)
+        self.splitter = sp = QSplitter(self)
+        self.layout().addWidget(sp)
+        self.layout().setStretch(1, 10)
+        sp.setOpaqueResize(False)
+        sp.setChildrenCollapsible(False)
 
         self.dest_list = dl = QListWidget(self)
         dl.setMinimumWidth(250)
         dl.currentItemChanged.connect(self.current_changed)
-        l.addWidget(dl, 1, 0, 2, 1)
+        sp.addWidget(dl)
 
+        w = self.w = QWidget(self)
+        l = w.l = QGridLayout()
+        w.setLayout(l)
         self.view = WebView(self)
         self.view.elem_clicked.connect(self.elem_clicked)
-        l.addWidget(self.view, 1, 1, 1, 3)
+        l.addWidget(self.view, 0, 0, 1, 3)
+        sp.addWidget(w)
+
+        self.search_text = s = QLineEdit(self)
+        s.setPlaceholderText(_('Search for text...'))
+        l.addWidget(s, 1, 0)
+        self.ns_button = b = QPushButton(QIcon(I('arrow-down.png')), _('Find &next'), self)
+        b.clicked.connect(self.find_next)
+        l.addWidget(b, 1, 1)
+        self.ps_button = b = QPushButton(QIcon(I('arrow-up.png')), _('Find &previous'), self)
+        l.addWidget(b, 1, 2)
+        b.clicked.connect(self.find_previous)
 
         self.f = f = QFrame()
         f.setFrameShape(f.StyledPanel)
         f.setMinimumWidth(250)
-        l.addWidget(f, 1, 4, 2, 1)
-        self.search_text = s = QLineEdit(self)
-        s.setPlaceholderText(_('Search for text...'))
-        l.addWidget(s, 2, 1, 1, 1)
-        self.ns_button = b = QPushButton(QIcon(I('arrow-down.png')), _('Find &next'), self)
-        b.clicked.connect(self.find_next)
-        l.addWidget(b, 2, 2, 1, 1)
-        self.ps_button = b = QPushButton(QIcon(I('arrow-up.png')), _('Find &previous'), self)
-        l.addWidget(b, 2, 3, 1, 1)
-        b.clicked.connect(self.find_previous)
-        l.setRowStretch(1, 10)
         l = f.l = QVBoxLayout()
         f.setLayout(l)
+        sp.addWidget(f)
 
         f.la = la = QLabel('<p>'+_(
             'Here you can choose a destination for the Table of Contents\' entry'
@@ -166,6 +174,10 @@ class ItemEdit(QWidget):
         l.addWidget(la)
 
         l.addStretch()
+
+        state = gprefs.get('toc_edit_splitter_state', None)
+        if state is not None:
+            sp.restoreState(state)
 
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key_Return, Qt.Key_Enter) and self.search_text.hasFocus():
@@ -236,6 +248,7 @@ class ItemEdit(QWidget):
         if item is not None:
             if where is None:
                 self.name.setText(item.data(0, Qt.DisplayRole).toString())
+                self.name.setCursorPosition(0)
             toc = item.data(0, Qt.UserRole).toPyObject()
             if toc.dest:
                 for i in xrange(self.dest_list.count()):
@@ -271,7 +284,6 @@ class ItemEdit(QWidget):
         else:
             loctext =  _('Approximately %d%% from the top')%frac
         return loctext
-
 
     def elem_clicked(self, tag, frac, elem_id, loc):
         self.current_frag = elem_id or loc
