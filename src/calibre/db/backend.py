@@ -306,7 +306,8 @@ class DB(object):
 
     # Initialize database {{{
 
-    def __init__(self, library_path, default_prefs=None, read_only=False):
+    def __init__(self, library_path, default_prefs=None, read_only=False,
+                 restore_all_prefs=False, progress_callback=lambda x, y:True):
         try:
             if isbytestring(library_path):
                 library_path = library_path.decode(filesystem_encoding)
@@ -377,23 +378,27 @@ class DB(object):
         UPDATE authors SET sort=author_to_author_sort(name) WHERE sort IS NULL;
         ''')
 
-        self.initialize_prefs(default_prefs)
+        self.initialize_prefs(default_prefs, restore_all_prefs, progress_callback)
         self.initialize_custom_columns()
         self.initialize_tables()
 
-    def initialize_prefs(self, default_prefs):  # {{{
+    def initialize_prefs(self, default_prefs, restore_all_prefs, progress_callback):  # {{{
         self.prefs = DBPrefs(self)
 
         if default_prefs is not None and not self._exists:
+            progress_callback(None, len(default_prefs))
             # Only apply default prefs to a new database
-            for key in default_prefs:
+            for i, key in enumerate(default_prefs):
                 # be sure that prefs not to be copied are listed below
-                if key not in frozenset(['news_to_be_synced']):
+                if restore_all_prefs or key not in frozenset(['news_to_be_synced']):
                     self.prefs[key] = default_prefs[key]
+                    progress_callback(_('restored preference ') + key, i+1)
             if 'field_metadata' in default_prefs:
                 fmvals = [f for f in default_prefs['field_metadata'].values()
                                 if f['is_custom']]
-                for f in fmvals:
+                progress_callback(None, len(fmvals))
+                for i, f in enumerate(fmvals):
+                    progress_callback(_('creating custom column ') + f['label'], i)
                     self.create_custom_column(f['label'], f['name'],
                             f['datatype'],
                             (f['is_multiple'] is not None and
@@ -773,6 +778,11 @@ class DB(object):
                 os.remove(self.dbpath)
                 self._conn = Connection(self.dbpath)
         return self._conn
+
+    def close(self):
+        if self._conn is not None:
+            self._conn.close()
+            del self._conn
 
     @dynamic_property
     def user_version(self):
