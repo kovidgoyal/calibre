@@ -288,7 +288,8 @@ class SearchRestrictionMixin(object):
             if editing:
                 self._remove_vl(editing, reapply=False)
             self.add_virtual_library(db, cd.library_name, cd.library_search)
-            self.apply_virtual_library(cd.library_name)
+            if not editing or editing == db.data.get_base_restriction_name():
+                self.apply_virtual_library(cd.library_name)
 
     def virtual_library_clicked(self):
         m = self.virtual_library_menu
