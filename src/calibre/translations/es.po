@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-04-12 05:42+0000\n"
-"PO-Revision-Date: 2013-04-09 21:10+0000\n"
-"Last-Translator: Jose Ponce <jpl1953es@gmail.com>\n"
+"PO-Revision-Date: 2013-04-13 09:13+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-13 05:26+0000\n"
+"X-Launchpad-Export-Date: 2013-04-14 05:11+0000\n"
 "X-Generator: Launchpad (build 16564)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:540
@@ -3638,14 +3638,17 @@ msgid ""
 "An HTML template used to generate %s on every page. The strings _PAGENUM_, "
 "_TITLE_, _AUTHOR_ and _SECTION_ will be replaced by their current values."
 msgstr ""
+"Una plantilla HTML usada para generar %s en cada página. Los textos "
+"_PAGENUM_, _TITLE_, _AUTHOR_ y _SECTION_ se sustituyen por sus valores "
+"actuales."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:108
 msgid "footers"
-msgstr ""
+msgstr "pies de página"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:111
 msgid "headers"
-msgstr "encabezados"
+msgstr "cabeceras"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -3847,9 +3850,9 @@ msgid ""
 "for compatibility with Mac OS 9 and earlier. For Mac OS X use 'unix'. "
 "'system' will default to the newline type used by this OS."
 msgstr ""
-"Tipo de fin de línea. Las opciones son %s. El valor predeterminado es "
+"Tipo de salto de línea. Las opciones son %s. El valor predeterminado es "
 "«system». Usar «old_mac» para compatibilidad con Mac OS 9 y anteriores. Para "
-"Mac OS X usar «unix». Con «system» se empleará el final de linea usado por "
+"Mac OS X usar «unix». Con «system» se empleará el salto de línea usado por "
 "el actual sistema operativo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_output.py:47
@@ -3955,11 +3958,11 @@ msgid ""
 "fonts in the output bigger and vice versa. By default, the base font size is "
 "chosen based on the output profile you chose."
 msgstr ""
-"El tamaño de letra base en pt. Todos los tamaños de letra en el libro "
-"generado se pondrán en relación a este tamaño. Si elige un tamaño mayor, "
-"hará que todas las letras de salida sean más grandes, o al contrario. De "
-"manera predeterminada, el tamaño de letra base se decide basándose en el "
-"perfil de salida seleccionado."
+"Tamaño de letra base en pt. Todos los tamaños de letra en el libro generado "
+"se pondrán en relación a este tamaño. Si elige un tamaño mayor, hará que "
+"todas las letras de salida sean más grandes, o al contrario. De manera "
+"predeterminada, el tamaño de letra base se decide basándose en el perfil de "
+"salida seleccionado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:154
 msgid ""
@@ -3990,8 +3993,8 @@ msgid ""
 "line height specification, unless you know what you are doing. For example, "
 "you can achieve \"double spaced\" text by setting this to 240."
 msgstr ""
-"La altura mínima de la línea, como porcentaje del tamaño de letra del "
-"elemento calculado. calibre se asegurará de que cada elemento tenga esta "
+"La altura mínima de la línea, como porcentaje del tamaño de letra calculado "
+"para el elemento. calibre se asegurará de que cada elemento tenga esta "
 "altura de línea como mínimo, a pesar de lo que indique el documento de "
 "entrada. Asignar 0 para desactivar. El valor predeterminado es 120%. Utilice "
 "esta opción preferentemente a la especificación directa de la altura de "
@@ -4005,7 +4008,7 @@ msgid ""
 "cases, the minimum line height option is more useful. By default no line "
 "height manipulation is performed."
 msgstr ""
-"Altura de línea en puntos. Controla el espacio entre líneas consecutivas de "
+"Altura de línea en pt. Controla el espacio entre líneas consecutivas de "
 "texto. Sólo se aplica a elementos que no definen su propia altura de línea. "
 "En la mayoría de los casos, la opción de altura de línea mínima es más útil. "
 "De manera predeterminada no se modifica la altura de línea."
@@ -5226,19 +5229,23 @@ msgstr "Fuente de metadatos"
 msgid ""
 "Downloads multiple book covers from Amazon. Useful to find alternate covers."
 msgstr ""
+"Descargar múltiples portadas desde Amazon. Útil para encontrar portadas "
+"alternativas."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:33
 msgid "Configure the Big Book Search plugin"
-msgstr ""
+msgstr "Configurar el complemento Big Book Search"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:35
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:22
 msgid "Maximum number of covers to get"
-msgstr "Número máximo de"
+msgstr "Número máximo de portadas que se obtendrán"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:36
 msgid "The maximum number of covers to process from the search result"
 msgstr ""
+"El número máximo de portadas para procesar a partir del resultado de la "
+"búsqueda"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/douban.py:155
 msgid ""
@@ -5265,26 +5272,30 @@ msgid ""
 "Downloads covers from a Google Image search. Useful to find larger/alternate "
 "covers."
 msgstr ""
+"Descargar portadas desde una búsqueda de imágenes de Google. Útil para "
+"encontrar portadas mayores o alternativas."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:20
 msgid "Configure the Google Image Search plugin"
-msgstr ""
+msgstr "Configurar el complemento Google Image Search"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:23
 msgid "The maximum number of covers to process from the google search result"
 msgstr ""
+"El número máximo de portadas para procesar a partir del resultado de la "
+"búsqueda de Google."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:24
 msgid "Cover size"
-msgstr ""
+msgstr "Tamaño de portada"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:25
 msgid "Search for covers larger than the specified size"
-msgstr ""
+msgstr "Buscar portadas mayores que el tamaño especificado"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:27
 msgid "Any size"
-msgstr ""
+msgstr "Cualquier tamaño"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:146
@@ -5299,7 +5310,7 @@ msgstr "Grande"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:34
 #, python-format
 msgid "Larger than %s"
-msgstr ""
+msgstr "Mayores que %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:24
 msgid "Downloads metadata from isbndb.com"
@@ -5528,6 +5539,23 @@ msgid ""
 "{0}\n"
 "<p>Note that polishing only works on files in the %s formats.</p>"
 msgstr ""
+"<p><i>Pulir libros</i> le permite poner un toque de perfección en los "
+"libros\n"
+"creados con esmero.</p>\n"
+"\n"
+"<p>Al pulir se intenta mantener al mínimo los cambios en el código interno\n"
+"del libro. Contrariamente a la conversión, <i>no</i> aplana el código CSS,\n"
+"ni renombra ficheros, ni cambia tamaños de letra, ni ajusta los márgenes, "
+"etc.\n"
+"Toda acción se realiza con el menor conjunto de cambios necesario para "
+"obtener\n"
+"el efecto deseado.</p>\n"
+"\n"
+"<p>Debería usar esta herramienta como el último paso en el proceso de\n"
+"creación de un libro.</p>\n"
+"{0}\n"
+"<p>Tenga en cuenta que esta acción sólo funciona con archivos en los\n"
+"formatos <b>%s</b>.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:437
@@ -5564,13 +5592,13 @@ msgstr ""
 "considerablemente el tamaño de los archivos de tipo de letra (una reducción "
 "del 50% es normal).</p>\n"
 "\n"
-"<p>Por ejemplo, si el libro usa un tipo de letra determinado para los "
-"encabezamientos, la reducción de caracteres mantendrá sólo los caracteres "
-"presentes en los encabezamientos del libro. O si un libro incluye las "
-"versiones negrita y cursiva de un tipo de letra, pero los textos en negrita "
-"o cursiva son infrecuentes o inexistentes, entonces los archivos "
-"correspondientes a las versiones negrita y cursiva pueden reducirse a unos "
-"pocos caracteres o incluso eliminarse por completo.</p>\n"
+"<p>Por ejemplo, si el libro usa un tipo de letra determinado para las "
+"cabeceras, la reducción de caracteres mantendrá sólo los caracteres "
+"presentes en las cabeceras del libro. O si un libro incluye las versiones "
+"negrita y cursiva de un tipo de letra, pero los textos en negrita o cursiva "
+"son infrecuentes o inexistentes, entonces los archivos correspondientes a "
+"las versiones negrita y cursiva pueden reducirse a unos pocos caracteres o "
+"incluso eliminarse por completo.</p>\n"
 "\n"
 "<p>La única desventaja de reducir los caracteres de los tipos de letra es "
 "que si más adelante decide añadir más texto a los libros, el nuevo texto "
@@ -5582,6 +5610,9 @@ msgid ""
 "all the book metadata such as title, tags, authors, series, comments,\n"
 "etc. Any previous book jacket will be replaced.</p>"
 msgstr ""
+"<p>Insertar una página de «sobrecubierta» al principio del libro con\n"
+"todos los metadatos del libro, como título, etiquetas, autores, serie,\n"
+"comentarios, etc. Se sustituirá cualquier sobrecubierta ya existente.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:74
 msgid "<p>Remove a previous inserted book jacket page.</p>\n"
@@ -5790,7 +5821,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/render/from_html.py:310
 msgid "Untitled"
-msgstr ""
+msgstr "Sin título"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:97
@@ -6908,6 +6939,8 @@ msgid ""
 "The %d selected book(s) will be <b>permanently deleted</b> and the files "
 "removed from your calibre library. Are you sure?"
 msgstr ""
+"Los %d libros seleccionados serán <b>borrados permanentemente</b> y los "
+"archivos eliminados de la biblioteca calibre. ¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:392
 #, python-format
@@ -6915,6 +6948,8 @@ msgid ""
 "The %d selected book(s) will be <b>permanently deleted</b> from your device. "
 "Are you sure?"
 msgstr ""
+"Los %d libros seleccionados se <b>borrarán permanentemente</b> del "
+"dispositivo. ¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:33
 msgid "Start wireless device connection"
@@ -7352,6 +7387,10 @@ msgid ""
 "the\n"
 "                  ORIGINAL_* format before running it.</p>"
 msgstr ""
+"<p>Si tiene tanto EPUB como ORIGINAL_EPUB en un libro, la acción de pulir se "
+"llevará a cabo sobre ORIGINAL_EPUB (igualmente sobre otros formatos "
+"ORIGINAL_*). Si desea que esto no ocurra, borre el formato ORIGINAL_* antes "
+"de pulir."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:48
 #, python-format
@@ -8432,7 +8471,7 @@ msgstr "Guardar el formato %s en el disco"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:487
 #, python-format
 msgid "Restore the %s format"
-msgstr ""
+msgstr "Restaurar el formato %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -10114,7 +10153,7 @@ msgstr "Tamaño de &letra monoespaciada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:155
 msgid "Page headers and footers"
-msgstr ""
+msgstr "Cabeceras y pies de página"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:156
 msgid ""
@@ -10123,14 +10162,18 @@ msgid ""
 "href=\"http://manual.calibre-ebook.com/conversion.html#converting-to-"
 "pdf\">documentation</a>."
 msgstr ""
+"Puede insertar cabeceras y pies de página en todas las páginas del PDF "
+"generado usando plantillas de cabecera y pie de página. Para ver ejemplos, "
+"véase la <a href=\"http://manual.calibre-"
+"ebook.com/conversion.html#converting-to-pdf\">documentación</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:157
 msgid "&Header template:"
-msgstr ""
+msgstr "Plantilla de %cabecera:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:158
 msgid "&Footer template:"
-msgstr ""
+msgstr "Plantilla de &pie de página:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -16034,6 +16077,8 @@ msgid ""
 "Found <b>%(num)d</b> possible covers for %(title)s. When the download "
 "completes, the covers will be sorted by size."
 msgstr ""
+"Se encontraron <b>%(num)d</b> posibles portadas para %(title)s. Cuando "
+"finalice la descarga, las portadas se ordenarán por tamaño."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:981
 msgid "Downloading metadata..."
@@ -20172,7 +20217,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:187
 msgid "Generate ToC from &files"
-msgstr ""
+msgstr "Generar Índice a partir de &archivos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:190
 msgid ""
@@ -20180,6 +20225,9 @@ msgid ""
 "in the ToC will point to the start of the file, the text of the entry will "
 "be the \"first line\" of text from the file."
 msgstr ""
+"Generar un Índice a partir de los archivos individuales en el libro. Cada "
+"entrada del Índice apuntará al inicio de un archivo, el texto de la entrada "
+"será la «primera línea» de texto del archivo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:196
 msgid "Generate ToC from &XPath"
@@ -20191,7 +20239,7 @@ msgstr "Generar un Índice a partir de expresiones XPath arbitrarias."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:203
 msgid "&Flatten the ToC"
-msgstr ""
+msgstr "&Aplanar Índice"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:206
 msgid "Flatten the Table of Contents, putting all entries at the top level"
@@ -20267,38 +20315,39 @@ msgstr "La posición a la que apunta esta entrada no existe"
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:519
 #, python-format
 msgid "Move \"%s\" up"
-msgstr ""
+msgstr "Mover «%s» hacia arriba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:521
 #, python-format
 msgid "Move \"%s\" down"
-msgstr ""
+msgstr "Mover «%s» hacia abajo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:522
 msgid "Remove all selected items"
-msgstr ""
+msgstr "Eliminar todos los elementos seleccionados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:524
 #, python-format
 msgid "Unindent \"%s\""
-msgstr ""
+msgstr "Quitar sangría de «%s»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:526
 #, python-format
 msgid "Indent \"%s\""
-msgstr ""
+msgstr "Sangrar «%s»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:527
 msgid "Change all selected items to title case"
 msgstr ""
+"Poner mayúscula inicial en cada palabra de los elementos seleccionados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:545
 msgid "Move current entry up [Ctrl+Up]"
-msgstr ""
+msgstr "Mover la entrada actual hacia arriba [Crtl+Arriba]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:552
 msgid "Unindent the current entry [Ctrl+Left]"
-msgstr ""
+msgstr "Quitar sangría de la entrada actual [Ctrl+Izquierda]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:559
 msgid "Remove all selected entries"
@@ -20306,11 +20355,11 @@ msgstr "Eliminar todas las entradas seleccionadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:566
 msgid "Indent the current entry [Ctrl+Right]"
-msgstr ""
+msgstr "Sangrar la entrada actual [Ctrl+Derecha]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:573
 msgid "Move current entry down [Ctrl+Down]"
-msgstr ""
+msgstr "Mover la entrada actual hacia abajo [Ctrl+Abajo]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:575
 msgid "&Expand all"
@@ -20353,7 +20402,7 @@ msgstr "No se encontró ningún enlace que se pueda añadir al Índice."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:796
 msgid "No files were found that could be added to the Table of Contents."
-msgstr ""
+msgstr "No se encontraron archivos que se puedan añadir al Índice."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:814
 #, python-format
@@ -22848,7 +22897,7 @@ msgstr "Debe especificar al menos un libro para eliminar"
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:434
 #, python-format
 msgid "A %s file already exists for book: %d, not replacing"
-msgstr ""
+msgstr "Ya existe un archivo %s para el libro: %d, no se sustituirá"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:440
 msgid ""
@@ -22859,10 +22908,16 @@ msgid ""
 "already exists, it is replaced, unless the do not replace option is "
 "specified."
 msgstr ""
+"%prog add_format [opciones] ID archivo_libro\n"
+"\n"
+"Añadir el libro electrónico archivo_libro a los formatos disponibles para el "
+"libro identificado por ID. Se puede obtener el ID usando la orden «list». Si "
+"el formato ya existe, será sustituido por el nuevo, a no ser que se use la "
+"opción de no sustituir."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:448
 msgid "Do not replace the format if it already exists"
-msgstr ""
+msgstr "No sustituir el formato si ya existe"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:458
 msgid "You must specify an id and an ebook file"
@@ -25903,6 +25958,12 @@ msgid ""
 "specified regular expression matches, in addition to ampersands.\n"
 "Default: r'(?i),?\\s+(and|with)\\s+'"
 msgstr ""
+"De manera predeterminada, calibre divide un texto que contiene múltiples\n"
+"autores en los caracteres «&» y en las palabras «and» y  «with». Puede\n"
+"personalizar cómo se hace la división cambiando la expresión regular de\n"
+"más abajo. Los textos se dividen en cualquier posición que coincida con la\n"
+"expresión, además de «&».\n"
+"Valor predeterminado: r'(?i),?\\\\s+(and|with)\\\\s+'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:85
 msgid "Use author sort in Tag Browser"
