@@ -30,7 +30,7 @@ from calibre.ebooks.oeb.base import (
 from calibre.ebooks.oeb.polish.errors import InvalidBook, DRMError
 from calibre.ebooks.oeb.parse_utils import NotHTML, parse_html, RECOVER_PARSER
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
-from calibre.utils.ipc.simple_worker  import fork_job, WorkerError
+from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.utils.logging import default_log
 from calibre.utils.zipfile import ZipFile
 
@@ -406,8 +406,9 @@ class Container(object):
                     child.get('content', '').strip() in {'{}', ''}):
                     remove.add(child)
             except AttributeError:
-                continue # Happens for XML comments
-        for child in remove: mdata.remove(child)
+                continue  # Happens for XML comments
+        for child in remove:
+            mdata.remove(child)
         if len(mdata) > 0:
             mdata[-1].tail = '\n  '
 
@@ -473,12 +474,12 @@ class EpubContainer(Container):
     book_type = 'epub'
 
     META_INF = {
-            'container.xml' : True,
-            'manifest.xml' : False,
-            'encryption.xml' : False,
-            'metadata.xml' : False,
-            'signatures.xml' : False,
-            'rights.xml' : False,
+            'container.xml': True,
+            'manifest.xml': False,
+            'encryption.xml': False,
+            'metadata.xml': False,
+            'signatures.xml': False,
+            'rights.xml': False,
     }
 
     def __init__(self, pathtoepub, log):
@@ -670,7 +671,8 @@ class AZW3Container(Container):
 # }}}
 
 def get_container(path, log=None):
-    if log is None: log = default_log
+    if log is None:
+        log = default_log
     ebook = (AZW3Container if path.rpartition('.')[-1].lower() in {'azw3', 'mobi'}
             else EpubContainer)(path, log)
     return ebook
