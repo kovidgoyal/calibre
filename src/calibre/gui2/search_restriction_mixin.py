@@ -7,7 +7,7 @@ Created on 10 Jun 2010
 from functools import partial
 
 from PyQt4.Qt import (
-    Qt, QMenu, QPoint, QIcon, QDialog, QGridLayout, QLabel, QLineEdit,
+    Qt, QMenu, QPoint, QIcon, QDialog, QGridLayout, QLabel, QLineEdit, QComboBox,
     QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QStringList, QCheckBox)
 
 from calibre.gui2 import error_dialog, question_dialog
@@ -98,13 +98,12 @@ class CreateVirtualLibrary(QDialog):  # {{{
         self.setLayout(gl)
         self.la1 = la1 = QLabel(_('Virtual library &name:'))
         gl.addWidget(la1, 0, 0)
-        self.vl_name = QLineEdit()
-        self.vl_name.setMaxLength(MAX_VIRTUAL_LIBRARY_NAME_LENGTH)
+        self.vl_name = QComboBox()
+        self.vl_name.setEditable(True)
+        self.vl_name.lineEdit().setMaxLength(MAX_VIRTUAL_LIBRARY_NAME_LENGTH)
         la1.setBuddy(self.vl_name)
         gl.addWidget(self.vl_name, 0, 1)
         self.editing = editing
-        if editing:
-            self.vl_name.setText(editing)
 
         self.la2 = la2 = QLabel(_('&Search expression:'))
         gl.addWidget(la2, 1, 0)
@@ -117,7 +116,9 @@ class CreateVirtualLibrary(QDialog):  # {{{
             ('<a href="author.{0}">{0}</a>, '
             '<a href="tag.{1}">{1}</a>, '
             '<a href="publisher.{2}">{2}</a>, '
-            '<a href="series.{3}">{3}</a>.').format(_('Authors'), _('Tags'), _('Publishers'), _('Series')))
+            '<a href="series.{3}">{3}</a>, '
+            '<a href="search.{4}">{4}</a> ').format(_('Authors'), _('Tags'),
+                                            _('Publishers'), _('Series'), _('Saved Searches')))
         sl.setWordWrap(True)
         sl.setTextInteractionFlags(Qt.LinksAccessibleByMouse)
         sl.linkActivated.connect(self.link_activated)
@@ -148,26 +149,62 @@ class CreateVirtualLibrary(QDialog):  # {{{
         if editing:
             db = self.gui.current_db
             virt_libs = db.prefs.get('virtual_libraries', {})
-            self.vl_text.setText(virt_libs.get(editing, ''))
+            for dex,vl in enumerate(sorted(virt_libs.keys(), key=sort_key)):
+                self.vl_name.addItem(vl, virt_libs.get(vl, ''))
+                if vl == editing:
+                    self.vl_name.setCurrentIndex(dex)
+                    self.original_index = dex
+            self.original_search = virt_libs.get(editing, '')
+            self.vl_text.setText(self.original_search)
+            self.new_name = editing
+            self.vl_name.currentIndexChanged[int].connect(self.name_index_changed)
+            self.vl_name.lineEdit().textEdited.connect(self.name_text_edited)
 
         self.resize(self.sizeHint()+QSize(150, 25))
+
+    def name_text_edited(self, new_name):
+        self.new_name = unicode(new_name)
+
+    def name_index_changed(self, dex):
+        if self.editing and (self.vl_text.text() != self.original_search or
+                             self.new_name != self.editing):
+            if not question_dialog(self.gui, _('Search text changed'),
+                         _('The virtual library name or the search text has changed. '
+                           'Do you want to discard these changes?'),
+                         default_yes=False):
+                self.vl_name.blockSignals(True)
+                self.vl_name.setCurrentIndex(self.original_index)
+                self.vl_name.lineEdit().setText(self.new_name)
+                self.vl_name.blockSignals(False)
+                return
+        self.new_name = self.editing = self.vl_name.currentText()
+        self.original_index = dex
+        self.original_search = unicode(self.vl_name.itemData(dex).toString())
+        self.vl_text.setText(self.original_search)
 
     def link_activated(self, url):
         db = self.gui.current_db
         f, txt = unicode(url).partition('.')[0::2]
-        names = getattr(db, 'all_%s_names'%f)()
+        if f == 'search':
+            names = saved_searches().names()
+        else:
+            names = getattr(db, 'all_%s_names'%f)()
         d = SelectNames(names, txt, parent=self)
         if d.exec_() == d.Accepted:
             prefix = f+'s' if f in {'tag', 'author'} else f
-            search = ['%s:"=%s"'%(prefix, x.replace('"', '\\"')) for x in d.names]
+            if f == 'search':
+                search = ['(%s)'%(saved_searches().lookup(x)) for x in d.names]
+            else:
+                search = ['%s:"=%s"'%(prefix, x.replace('"', '\\"')) for x in d.names]
             if search:
-                self.vl_name.setText(d.names.next())
+                if not self.editing:
+                    self.vl_name.lineEdit().setText(d.names.next())
+                    self.vl_name.lineEdit().setCursorPosition(0)
                 self.vl_text.setText(d.match_type.join(search))
                 self.vl_text.setCursorPosition(0)
-                self.vl_name.setCursorPosition(0)
 
     def accept(self):
-        n = unicode(self.vl_name.text()).strip()
+        n = unicode(self.vl_name.currentText()).strip()
         if not n:
             error_dialog(self.gui, _('No name'),
                          _('You must provide a name for the new virtual library'),
@@ -181,10 +218,10 @@ class CreateVirtualLibrary(QDialog):  # {{{
             return
 
         if n in self.existing_names and n != self.editing:
-            if question_dialog(self.gui, _('Name already in use'),
+            if not question_dialog(self.gui, _('Name already in use'),
                          _('That name is already in use. Do you want to replace it '
                            'with the new search?'),
-                            default_yes=False) == self.Rejected:
+                            default_yes=False):
                 return
 
         v = unicode(self.vl_text.text()).strip()
@@ -300,6 +337,8 @@ class SearchRestrictionMixin(object):
                              self.search_based_vl_name)
             a.triggered.connect(partial(self.apply_virtual_library,
                                 library=self.search_based_vl_name))
+
+        m.addSeparator()
 
         virt_libs = db.prefs.get('virtual_libraries', {})
         for vl in sorted(virt_libs.keys(), key=sort_key):
