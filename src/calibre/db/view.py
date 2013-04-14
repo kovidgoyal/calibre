@@ -72,6 +72,10 @@ class View(object):
         self._map = tuple(self.cache.all_book_ids())
         self._map_filtered = tuple(self._map)
 
+    def get_property(self, id_or_index, index_is_id=False, loc=-1):
+        book_id = id_or_index if index_is_id else self._map_filtered[id_or_index]
+        return self._field_getters[loc](book_id)
+
     @property
     def field_metadata(self):
         return self.cache.field_metadata

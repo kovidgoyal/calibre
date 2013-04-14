@@ -117,7 +117,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
             '<a href="tag.{1}">{1}</a>, '
             '<a href="publisher.{2}">{2}</a>, '
             '<a href="series.{3}">{3}</a>, '
-            '<a href="search.{4}">{4}</a>, ').format(_('Authors'), _('Tags'),
+            '<a href="search.{4}">{4}</a>.').format(_('Authors'), _('Tags'),
                                             _('Publishers'), _('Series'), _('Saved Searches')))
         sl.setWordWrap(True)
         sl.setTextInteractionFlags(Qt.LinksAccessibleByMouse)
