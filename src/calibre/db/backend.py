@@ -716,11 +716,13 @@ class DB(object):
 
         tables['size'] = SizeTable('size', self.field_metadata['size'].copy())
 
-        self.FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'timestamp':3,
-             'size':4, 'rating':5, 'tags':6, 'comments':7, 'series':8,
-             'publisher':9, 'series_index':10, 'sort':11, 'author_sort':12,
-             'formats':13, 'path':14, 'pubdate':15, 'uuid':16, 'cover':17,
-             'au_map':18, 'last_modified':19, 'identifiers':20}
+        self.FIELD_MAP = {
+            'id':0, 'title':1, 'authors':2, 'timestamp':3, 'size':4,
+            'rating':5, 'tags':6, 'comments':7, 'series':8, 'publisher':9,
+            'series_index':10, 'sort':11, 'author_sort':12, 'formats':13,
+            'path':14, 'pubdate':15, 'uuid':16, 'cover':17, 'au_map':18,
+            'last_modified':19, 'identifiers':20, 'languages':21,
+        }
 
         for k,v in self.FIELD_MAP.iteritems():
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
@@ -766,6 +768,8 @@ class DB(object):
         self.field_metadata.set_field_record_index('ondevice', base, prefer_custom=False)
         self.FIELD_MAP['marked'] = base = base+1
         self.field_metadata.set_field_record_index('marked', base, prefer_custom=False)
+        self.FIELD_MAP['series_sort'] = base = base+1
+        self.field_metadata.set_field_record_index('series_sort', base, prefer_custom=False)
 
     # }}}
 

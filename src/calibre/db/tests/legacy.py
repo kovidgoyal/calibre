@@ -14,16 +14,21 @@ class LegacyTest(BaseTest):
 
     def test_library_wide_properties(self):  # {{{
         'Test library wide properties'
+        def get_props(db):
+            props = ('user_version', 'is_second_db', 'library_id', 'field_metadata',
+                    'custom_column_label_map', 'custom_column_num_map')
+            fprops = ('last_modified', )
+            ans = {x:getattr(db, x) for x in props}
+            ans.update({x:getattr(db, x)() for x in fprops})
+            ans['all_ids'] = frozenset(db.all_ids())
+            return ans
+
         old = self.init_old()
-        props = ('user_version', 'is_second_db', 'library_id', 'field_metadata',
-                 'custom_column_label_map', 'custom_column_num_map')
-        oldvals = {x:getattr(old, x) for x in props}
-        oldvals['last_modified'] = old.last_modified()
+        oldvals = get_props(old)
         old.close()
-        old = None
+        del old
         db = self.init_legacy()
-        newvals = {x:getattr(db, x) for x in props}
-        newvals['last_modified'] = db.last_modified()
+        newvals = get_props(db)
         self.assertEqual(oldvals, newvals)
         db.close()
     # }}}
@@ -38,6 +43,14 @@ class LegacyTest(BaseTest):
                 label = type('')(label)
                 ans[label] = tuple(db.get_property(i, index_is_id=True, loc=loc)
                                    for i in db.all_ids())
+                if label in ('id', 'title', '#tags'):
+                    with self.assertRaises(IndexError):
+                        db.get_property(9999, loc=loc)
+                    with self.assertRaises(IndexError):
+                        db.get_property(9999, index_is_id=True, loc=loc)
+                if label in {'tags', 'formats'}:
+                    # Order is random in the old db for these
+                    ans[label] = tuple(set(x.split(',')) if x else x for x in ans[label])
             return ans
 
         old = self.init_old()
