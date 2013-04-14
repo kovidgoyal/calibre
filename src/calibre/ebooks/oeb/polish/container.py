@@ -77,7 +77,7 @@ class Container(object):
 
         # Map of relative paths with '/' separators from root of unzipped ePub
         # to absolute paths on filesystem with os-specific separators
-        opfpath = os.path.abspath(opfpath)
+        opfpath = os.path.abspath(os.path.realpath(opfpath))
         for dirpath, _dirnames, filenames in os.walk(self.root):
             for f in filenames:
                 path = join(dirpath, f)
@@ -483,7 +483,7 @@ class EpubContainer(Container):
 
     def __init__(self, pathtoepub, log):
         self.pathtoepub = pathtoepub
-        tdir = self.root = PersistentTemporaryDirectory('_epub_container')
+        tdir = self.root = os.path.abspath(os.path.realpath(PersistentTemporaryDirectory('_epub_container')))
         with open(self.pathtoepub, 'rb') as stream:
             try:
                 zf = ZipFile(stream)
@@ -616,7 +616,7 @@ class AZW3Container(Container):
 
     def __init__(self, pathtoazw3, log):
         self.pathtoazw3 = pathtoazw3
-        tdir = self.root = PersistentTemporaryDirectory('_azw3_container')
+        tdir = self.root = os.path.abspath(os.path.realpath(PersistentTemporaryDirectory('_azw3_container')))
         with open(pathtoazw3, 'rb') as stream:
             raw = stream.read(3)
             if raw == b'TPZ':
