@@ -105,9 +105,14 @@ class CreateVirtualLibrary(QDialog):  # {{{
         gl.addWidget(self.vl_name, 0, 1)
         self.editing = editing
 
+        self.saved_searches_label = QLabel('')
+        self.saved_searches_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        gl.addWidget(self.saved_searches_label, 2, 0, 1, 2)
+
         self.la2 = la2 = QLabel(_('&Search expression:'))
         gl.addWidget(la2, 1, 0)
         self.vl_text = QLineEdit()
+        self.vl_text.textChanged.connect(self.search_text_changed)
         la2.setBuddy(self.vl_text)
         gl.addWidget(self.vl_text, 1, 1)
         self.vl_text.setText(_build_full_search_string(self.gui))
@@ -122,7 +127,8 @@ class CreateVirtualLibrary(QDialog):  # {{{
         sl.setWordWrap(True)
         sl.setTextInteractionFlags(Qt.LinksAccessibleByMouse)
         sl.linkActivated.connect(self.link_activated)
-        gl.addWidget(sl, 2, 0, 1, 2)
+        gl.addWidget(sl, 3, 0, 1, 2)
+        gl.setRowStretch(3,10)
 
         self.hl = hl = QLabel(_('''
             <h2>Virtual Libraries</h2>
@@ -161,6 +167,41 @@ class CreateVirtualLibrary(QDialog):  # {{{
             self.vl_name.lineEdit().textEdited.connect(self.name_text_edited)
 
         self.resize(self.sizeHint()+QSize(150, 25))
+
+    def search_text_changed(self, txt):
+        searches = [_('Saved searches recognized in the expression:')]
+        txt = unicode(txt)
+        while txt:
+            p = txt.partition('search:')
+            if p[1]: # found 'search:'
+                possible_search = p[2]
+                if possible_search: # something follows the 'search:'
+                    if possible_search[0] == '"': # strip any quotes
+                        possible_search = possible_search[1:].partition('"')
+                    else: # find end of the search name. Is EOL, space, rparen
+                        sp = possible_search.find(' ')
+                        pp = possible_search.find(')')
+                        if pp < 0 or (sp > 0 and sp <= pp):
+                            # space in string before rparen, or neither found
+                            possible_search = possible_search.partition(' ')
+                        else:
+                            # rparen in string before space
+                            possible_search = possible_search.partition(')')
+                    txt = possible_search[2] # grab remainder of the string
+                    search_name = possible_search[0]
+                    if search_name.startswith('='):
+                        search_name = search_name[1:]
+                    if search_name in saved_searches().names():
+                        searches.append(search_name + ':' +
+                                        saved_searches().lookup(search_name))
+                else:
+                    txt = ''
+            else:
+                txt = ''
+        if len(searches) > 1:
+            self.saved_searches_label.setText('\n'.join(searches))
+        else:
+            self.saved_searches_label.setText('')
 
     def name_text_edited(self, new_name):
         self.new_name = unicode(new_name)
@@ -380,6 +421,8 @@ class SearchRestrictionMixin(object):
         elif library in virt_libs:
             db.data.set_base_restriction(virt_libs[library])
             db.data.set_base_restriction_name(library)
+        self.virtual_library.setToolTip(self.virtual_library_tooltip + '\n' +
+                                        db.data.get_base_restriction())
         self._apply_search_restriction(db.data.get_search_restriction(),
                                        db.data.get_search_restriction_name())
 
