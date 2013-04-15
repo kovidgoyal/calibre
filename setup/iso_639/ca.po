@@ -12,13 +12,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-04-13 21:08+0000\n"
+"PO-Revision-Date: 2013-04-14 10:33+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-04-14 05:12+0000\n"
+"X-Launchpad-Export-Date: 2013-04-15 05:22+0000\n"
 "X-Generator: Launchpad (build 16564)\n"
 "Language: ca\n"
 
@@ -29924,11 +29924,11 @@ msgstr "Yarí"
 
 #. name for yrk
 msgid "Nenets"
-msgstr ""
+msgstr "Nènets"
 
 #. name for yrl
 msgid "Nhengatu"
-msgstr ""
+msgstr "Yeral"
 
 #. name for yrn
 msgid "Yerong"
@@ -29948,7 +29948,7 @@ msgstr "Yassic"
 
 #. name for ysd
 msgid "Samatao"
-msgstr ""
+msgstr "Samatau"
 
 #. name for ysl
 msgid "Yugoslavian Sign Language"
@@ -29956,7 +29956,7 @@ msgstr "Llenguatge de signes iugoslau"
 
 #. name for ysn
 msgid "Sani"
-msgstr ""
+msgstr "Yi; Sani"
 
 #. name for yso
 msgid "Nisi (China)"
@@ -29984,7 +29984,7 @@ msgstr ""
 
 #. name for ytl
 msgid "Tanglang"
-msgstr ""
+msgstr "Tanglang"
 
 #. name for ytp
 msgid "Thopho"
@@ -29996,7 +29996,7 @@ msgstr ""
 
 #. name for yua
 msgid "Maya; Yucatec"
-msgstr ""
+msgstr "Maia; Yucatan"
 
 #. name for yub
 msgid "Yugambal"
@@ -30040,11 +30040,11 @@ msgstr "Yulu"
 
 #. name for yum
 msgid "Quechan"
-msgstr ""
+msgstr "Yuma"
 
 #. name for yun
 msgid "Bena (Nigeria)"
-msgstr ""
+msgstr "Bena (Nigèria)"
 
 #. name for yup
 msgid "Yukpa"
@@ -30092,11 +30092,11 @@ msgstr "Yavitero"
 
 #. name for ywa
 msgid "Kalou"
-msgstr ""
+msgstr "Kalou"
 
 #. name for ywl
 msgid "Lalu; Western"
-msgstr ""
+msgstr "Yi; Lalu occidental"
 
 #. name for ywn
 msgid "Yawanawa"
@@ -30112,7 +30112,7 @@ msgstr "Yawuru"
 
 #. name for ywt
 msgid "Lalo; Xishanba"
-msgstr ""
+msgstr "Yi; occidental"
 
 #. name for ywu
 msgid "Nasu; Wumeng"
@@ -30128,7 +30128,7 @@ msgstr "Yau (Província de Sandaun)"
 
 #. name for yyz
 msgid "Ayizi"
-msgstr ""
+msgstr "Ayizi"
 
 #. name for yzg
 msgid "Buyang; E'ma"
@@ -30240,23 +30240,23 @@ msgstr "Zari"
 
 #. name for zbc
 msgid "Berawan; Central"
-msgstr ""
+msgstr "Berawan; Batu Bla"
 
 #. name for zbe
 msgid "Berawan; East"
-msgstr ""
+msgstr "Berawan; Jegan Long"
 
 #. name for zbl
 msgid "Blissymbols"
-msgstr ""
+msgstr "Blissymbols"
 
 #. name for zbt
 msgid "Batui"
-msgstr ""
+msgstr "Pamona; Batui"
 
 #. name for zbw
 msgid "Berawan; West"
-msgstr ""
+msgstr "Berawan; occidental"
 
 #. name for zca
 msgid "Zapotec; Coatecas Altas"
@@ -30284,11 +30284,11 @@ msgstr ""
 
 #. name for zen
 msgid "Zenaga"
-msgstr ""
+msgstr "Tamazight; Sanhaga"
 
 #. name for zga
 msgid "Kinga"
-msgstr ""
+msgstr "Kinga"
 
 #. name for zgb
 msgid "Zhuang; Guibei"
@@ -30304,7 +30304,7 @@ msgstr "Zhuang; Guibià"
 
 #. name for zgr
 msgid "Magori"
-msgstr ""
+msgstr "Magori"
 
 #. name for zha
 msgid "Zhuang"
@@ -30352,7 +30352,7 @@ msgstr ""
 
 #. name for zim
 msgid "Mesme"
-msgstr ""
+msgstr "Mesme"
 
 #. name for zin
 msgid "Zinza"
@@ -30372,31 +30372,31 @@ msgstr "Zizilivakan"
 
 #. name for zka
 msgid "Kaimbulawa"
-msgstr ""
+msgstr "Kaimbulawa"
 
 #. name for zkb
 msgid "Koibal"
-msgstr ""
+msgstr "Camassià; Koibal"
 
 #. name for zkg
 msgid "Koguryo"
-msgstr ""
+msgstr "Koguryo"
 
 #. name for zkh
 msgid "Khorezmian"
-msgstr ""
+msgstr "Corasmià"
 
 #. name for zkk
 msgid "Karankawa"
-msgstr ""
+msgstr "Karankawa"
 
 #. name for zko
 msgid "Kott"
-msgstr ""
+msgstr "Kot"
 
 #. name for zkp
 msgid "Kaingáng; São Paulo"
-msgstr ""
+msgstr "Kaigan; Sao Paulo"
 
 #. name for zkr
 msgid "Zakhring"
@@ -30404,19 +30404,19 @@ msgstr "Zakhring"
 
 #. name for zkt
 msgid "Kitan"
-msgstr ""
+msgstr "Kitan"
 
 #. name for zku
 msgid "Kaurna"
-msgstr ""
+msgstr "Kaurna"
 
 #. name for zkv
 msgid "Krevinian"
-msgstr ""
+msgstr "Vòtic; Krevinià"
 
 #. name for zkz
 msgid "Khazar"
-msgstr ""
+msgstr "Khazar"
 
 #. name for zlj
 msgid "Zhuang; Liujiang"
@@ -30444,27 +30444,27 @@ msgstr "Zimba"
 
 #. name for zmc
 msgid "Margany"
-msgstr ""
+msgstr "Margany"
 
 #. name for zmd
 msgid "Maridan"
-msgstr ""
+msgstr "Maridan"
 
 #. name for zme
 msgid "Mangerr"
-msgstr ""
+msgstr "Mangerr"
 
 #. name for zmf
 msgid "Mfinu"
-msgstr ""
+msgstr "Mfinu"
 
 #. name for zmg
 msgid "Marti Ke"
-msgstr ""
+msgstr "Magadige"
 
 #. name for zmh
 msgid "Makolkol"
-msgstr ""
+msgstr "Makolkol"
 
 #. name for zmi
 msgid "Negeri Sembilan Malay"
@@ -30472,71 +30472,71 @@ msgstr "Malai; Negeri Sembilan"
 
 #. name for zmj
 msgid "Maridjabin"
-msgstr ""
+msgstr "Maridjabin"
 
 #. name for zmk
 msgid "Mandandanyi"
-msgstr ""
+msgstr "Mandandanyi"
 
 #. name for zml
 msgid "Madngele"
-msgstr ""
+msgstr "Madngele"
 
 #. name for zmm
 msgid "Marimanindji"
-msgstr ""
+msgstr "Marimanindji"
 
 #. name for zmn
 msgid "Mbangwe"
-msgstr ""
+msgstr "Mbangwe"
 
 #. name for zmo
 msgid "Molo"
-msgstr ""
+msgstr "Molo"
 
 #. name for zmp
 msgid "Mpuono"
-msgstr ""
+msgstr "Mpuono"
 
 #. name for zmq
 msgid "Mituku"
-msgstr ""
+msgstr "Mituku"
 
 #. name for zmr
 msgid "Maranunggu"
-msgstr ""
+msgstr "Maranungku"
 
 #. name for zms
 msgid "Mbesa"
-msgstr ""
+msgstr "Mbesa"
 
 #. name for zmt
 msgid "Maringarr"
-msgstr ""
+msgstr "Maringarr"
 
 #. name for zmu
 msgid "Muruwari"
-msgstr ""
+msgstr "Muruwari"
 
 #. name for zmv
 msgid "Mbariman-Gudhinma"
-msgstr ""
+msgstr "Mbariman-Gudhinma"
 
 #. name for zmw
 msgid "Mbo (Democratic Republic of Congo)"
-msgstr ""
+msgstr "Mbo (República Democràtica del Congo)"
 
 #. name for zmx
 msgid "Bomitaba"
-msgstr ""
+msgstr "Bomitaba"
 
 #. name for zmy
 msgid "Mariyedi"
-msgstr ""
+msgstr "Mariyedi"
 
 #. name for zmz
 msgid "Mbandja"
-msgstr ""
+msgstr "Mbandja"
 
 #. name for zna
 msgid "Zan Gula"
@@ -30548,15 +30548,15 @@ msgstr "Zande (llengua individual)"
 
 #. name for zng
 msgid "Mang"
-msgstr ""
+msgstr "Mang"
 
 #. name for znk
 msgid "Manangkari"
-msgstr ""
+msgstr "Manangkari"
 
 #. name for zns
 msgid "Mangas"
-msgstr ""
+msgstr "Mangas"
 
 #. name for zoc
 msgid "Zoque; Copainalá"
@@ -30700,7 +30700,7 @@ msgstr "Kara (Corea)"
 
 #. name for zrg
 msgid "Mirgan"
-msgstr ""
+msgstr "Mirgan"
 
 #. name for zrn
 msgid "Zerenkel"
@@ -30716,15 +30716,15 @@ msgstr "Zarphatic"
 
 #. name for zrs
 msgid "Mairasi"
-msgstr ""
+msgstr "Mairasi"
 
 #. name for zsa
 msgid "Sarasira"
-msgstr ""
+msgstr "Adzera; Sarasira"
 
 #. name for zsk
 msgid "Kaskean"
-msgstr ""
+msgstr "Kaskeà"
 
 #. name for zsl
 msgid "Zambian Sign Language"

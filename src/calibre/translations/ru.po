@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-04-12 05:42+0000\n"
-"PO-Revision-Date: 2013-04-08 16:33+0000\n"
+"PO-Revision-Date: 2013-04-14 10:11+0000\n"
 "Last-Translator: Baz <_baz_@rambler.ru>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-04-13 05:24+0000\n"
+"X-Launchpad-Export-Date: 2013-04-15 05:22+0000\n"
 "X-Generator: Launchpad (build 16564)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -5141,10 +5141,12 @@ msgstr "Источник метаданных"
 msgid ""
 "Downloads multiple book covers from Amazon. Useful to find alternate covers."
 msgstr ""
+"Загружать множественные обложки из Amazon. Полезно для поиска альтернативных "
+"обложек."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:33
 msgid "Configure the Big Book Search plugin"
-msgstr ""
+msgstr "Настроить плагин Поиска Большой Книги"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:35
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:22
@@ -5153,7 +5155,7 @@ msgstr "Максимальное количество обложек для за
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:36
 msgid "The maximum number of covers to process from the search result"
-msgstr ""
+msgstr "Максимальное количество обложек для обработки из результатов поиска"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/douban.py:155
 msgid ""
@@ -5440,6 +5442,19 @@ msgid ""
 "{0}\n"
 "<p>Note that polishing only works on files in the %s formats.</p>"
 msgstr ""
+"<p><i>Полировка книг</i> наводит блеск совершенства на \n"
+"ваши тщательно разработанные книги.</p>\n"
+"\n"
+"<p>Полировка пытается минимизировать изменения в исходном коде ваших книг.\n"
+"В отличие от преобразования тут <i>не поддерживается</i> сглаживание CSS, \n"
+"переименование файлов, изменение размера шрифта, \n"
+"дополнительные отступы и т.д. Каждое действие производит \n"
+"минимальные изменения, необходимые для достижения эффекта.</p>\n"
+"\n"
+"<p> Вы должны использовать этот инструмент на последнем шаге создания ваших "
+"книг.</p>\n"
+"{0}\n"
+"<p>Помните, что полировка работает только с файлами форматов %s.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:437
@@ -5494,6 +5509,9 @@ msgid ""
 "all the book metadata such as title, tags, authors, series, comments,\n"
 "etc. Any previous book jacket will be replaced.</p>"
 msgstr ""
+"<p>Вставить в начале книги страницу обложки, которая будет содержать \n"
+"все метаданные: название, тэги, авторов, серии, комментарии, и т.д. \n"
+"Любые предыдущие обложки будут заменены.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:74
 msgid "<p>Remove a previous inserted book jacket page.</p>\n"
@@ -7226,6 +7244,12 @@ msgid ""
 "the\n"
 "                  ORIGINAL_* format before running it.</p>"
 msgstr ""
+"<p> Если ваша книга сожержит одновременно EPUB и ORIGINAL_EPUB, \n"
+"                  то полировка использует ORIGINAL_EPUB (тоже для остальных "
+"\n"
+"                  форматов ORIGINAL_*). Поэтому если вы хотите произвести \n"
+"                  полировку другого формата, то удалите формат ORIGINAL_* \n"
+"                  перед запуском.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:48
 #, python-format
@@ -8307,7 +8331,7 @@ msgstr "Сохранить формат %s на диск"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:487
 #, python-format
 msgid "Restore the %s format"
-msgstr ""
+msgstr "Восстановить формат %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -20078,7 +20102,7 @@ msgstr "Переместить выделенную запись вверх [Ctr
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:552
 msgid "Unindent the current entry [Ctrl+Left]"
-msgstr "Переместить выделенную запись вниз [Ctrl+Left]"
+msgstr "Уменьшить отступ [Ctrl+Left]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:559
 msgid "Remove all selected entries"
@@ -20086,7 +20110,7 @@ msgstr "Удалить все выделенные записи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:566
 msgid "Indent the current entry [Ctrl+Right]"
-msgstr ""
+msgstr "Увеличить отступ [Ctrl+Right]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:573
 msgid "Move current entry down [Ctrl+Down]"
@@ -22593,7 +22617,7 @@ msgstr "Вы должны указать не менее одной книги �
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:434
 #, python-format
 msgid "A %s file already exists for book: %d, not replacing"
-msgstr ""
+msgstr "Файл %s уже существует для этой книги: %d, не заменяется."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:440
 msgid ""
@@ -22604,10 +22628,15 @@ msgid ""
 "already exists, it is replaced, unless the do not replace option is "
 "specified."
 msgstr ""
+"%prog add_format [options] id ebook_file\n"
+"\n"
+"Добавляет книгу в ebook_file к списку форматов книги, определённой по id. Вы "
+"можете получить id используя комманду list. Если формат уже существует, то "
+"он будет заменён, если не изменена настройка замены."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:448
 msgid "Do not replace the format if it already exists"
-msgstr ""
+msgstr "Не заменять формат, если он уже существует"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:458
 msgid "You must specify an id and an ebook file"
