@@ -192,7 +192,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
                     if search_name.startswith('='):
                         search_name = search_name[1:]
                     if search_name in saved_searches().names():
-                        searches.append(search_name + ':' +
+                        searches.append(search_name + '=' +
                                         saved_searches().lookup(search_name))
                 else:
                     txt = ''
