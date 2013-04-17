@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-04-12 05:42+0000\n"
-"PO-Revision-Date: 2013-04-15 12:23+0000\n"
-"Last-Translator: Arkadiusz Szergowski <settifusion@gmail.com>\n"
+"PO-Revision-Date: 2013-04-16 16:17+0000\n"
+"Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-04-16 04:36+0000\n"
-"X-Generator: Launchpad (build 16564)\n"
+"X-Launchpad-Export-Date: 2013-04-17 05:14+0000\n"
+"X-Generator: Launchpad (build 16567)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -5137,7 +5137,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:33
 msgid "Configure the Big Book Search plugin"
-msgstr ""
+msgstr "Konfiguruj wtyczkę Big Book Search"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:35
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:22
@@ -5435,6 +5435,18 @@ msgid ""
 "{0}\n"
 "<p>Note that polishing only works on files in the %s formats.</p>"
 msgstr ""
+"<p><i>Dopracowywanie książek</i> jest dodawaniem ostatniego szlifu do \n"
+"twoich książek.</p>\n"
+"\n"
+"<p>Dopracowywanie powoduje jedynie niewielkie zmiany w kodzie książki.\n"
+"W odróżnieniu od konwersji w tym przypadku nie są zmieniane arkusze CSS, \n"
+"nazwy plików, rozmiar czcionki, marginesy itp. Na każdym etapie wykonywane "
+"są\n"
+"jedynie minimalne zmiany, potrzebne do uzyskania pożądanego efektu.</p>\n"
+"\n"
+"<p>Tego narzędzia należy użyć na ostatnim etapie tworzenia książki</p>\n"
+"{0}\n"
+"<p>Należy pamiętać, że dopracować można jedynie książki w formatach %s</p>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:437
@@ -5487,6 +5499,10 @@ msgid ""
 "all the book metadata such as title, tags, authors, series, comments,\n"
 "etc. Any previous book jacket will be replaced.</p>"
 msgstr ""
+"<p>Wstaw na początku książki \"metryczkę\", która zawiera wszystkie\n"
+"informacje o książce takie jak tytuł, etykiety, autorów, serię, komentarze "
+"itp.\n"
+"Jeśli wcześniej wstawiono metryczkę zostanie ona zamieniona na nową.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:74
 msgid "<p>Remove a previous inserted book jacket page.</p>\n"
@@ -7231,6 +7247,11 @@ msgid ""
 "the\n"
 "                  ORIGINAL_* format before running it.</p>"
 msgstr ""
+"<p>Jeśli w książce istnieją formaty EPUB i ORIGINAL_EPUB to \n"
+"dopracowany zostanie ORIGINAL_EPUB (tak samo dzieje się z innymi\n"
+"formatami ORIGINAL_*). Jeśli więc nie chcesz pracować na oryginalnym "
+"formacie\n"
+"należy usunąc ORIGINAL_* przed uruchomieniem dopracowywania ksiażki.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:48
 #, python-format
@@ -20126,7 +20147,7 @@ msgstr "Usuń wszystkie wybrane pozycje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:566
 msgid "Indent the current entry [Ctrl+Right]"
-msgstr ""
+msgstr "Zwiększ wcięcie aktualnej pozycji [Ctrl+Prawo]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:573
 msgid "Move current entry down [Ctrl+Down]"
@@ -22638,7 +22659,7 @@ msgstr "Wybierz co najmniej jedną książkę do usunięcia"
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:434
 #, python-format
 msgid "A %s file already exists for book: %d, not replacing"
-msgstr ""
+msgstr "Plik %s już istnieje w książce %d, nie zamieniam"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:440
 msgid ""
@@ -22649,6 +22670,11 @@ msgid ""
 "already exists, it is replaced, unless the do not replace option is "
 "specified."
 msgstr ""
+"%prog add_format [opcje] id plik_książki\n"
+"\n"
+"Dodaj plik_książki do dostępnych formatów książki o identyfikatorze id. "
+"Identyfikator można uzyskać za pomocą polecenia list. Jeśli format istnieje, "
+"jest zamieniany - o ile nie użyto opcji do not replace."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:448
 msgid "Do not replace the format if it already exists"
