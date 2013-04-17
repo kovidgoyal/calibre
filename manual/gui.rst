@@ -367,6 +367,8 @@ For example::
 
     date:>10daysago
     date:<=45daysago
+	
+To avoid potential problems with translated strings when using a non-English version of calibre, the strings ``_today``, ``_yesterday``, ``_thismonth``, and ``_daysago`` are always available. They are not translated.
 
 You can search for books that have a format of a certain size like this::
 

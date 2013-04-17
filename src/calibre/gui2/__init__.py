@@ -716,10 +716,11 @@ def choose_save_file(window, name, title, filters=[], all_files=True):
             ans = ans[0]
     return ans
 
-def choose_images(window, name, title, select_only_single_file=True):
+def choose_images(window, name, title, select_only_single_file=True,
+                  formats=('png', 'gif', 'jpg', 'jpeg', 'svg')):
     mode = QFileDialog.ExistingFile if select_only_single_file else QFileDialog.ExistingFiles
     fd = FileDialog(title=title, name=name,
-                    filters=[('Images', ['png', 'gif', 'jpeg', 'jpg', 'svg'])],
+                    filters=[('Images', list(formats))],
                     parent=window, add_all_files_filter=False, mode=mode,
                     )
     fd.setParent(None)
