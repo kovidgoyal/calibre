@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-04-12 05:42+0000\n"
-"PO-Revision-Date: 2013-04-11 12:56+0000\n"
-"Last-Translator: Paolo Mariano <eagle209@gmail.com>\n"
+"PO-Revision-Date: 2013-04-17 10:12+0000\n"
+"Last-Translator: Laura Cattaneo <laura.a.cattaneo@gmail.com>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-13 05:19+0000\n"
-"X-Generator: Launchpad (build 16564)\n"
+"X-Launchpad-Export-Date: 2013-04-18 05:09+0000\n"
+"X-Generator: Launchpad (build 16567)\n"
 "Language: it\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -3629,14 +3629,17 @@ msgid ""
 "An HTML template used to generate %s on every page. The strings _PAGENUM_, "
 "_TITLE_, _AUTHOR_ and _SECTION_ will be replaced by their current values."
 msgstr ""
+"Su ogni pagina viene utilizzato un template HTML per generare %s. Le stringe "
+"_PAGENUM_, _TITLE_, _AUTHOR_ e _SECTION_ verranno sostituite dai relativi "
+"valori attuali."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:108
 msgid "footers"
-msgstr ""
+msgstr "piè di pagina"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:111
 msgid "headers"
-msgstr ""
+msgstr "intestazioni"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -5206,6 +5209,8 @@ msgstr "Sorgente metadati"
 msgid ""
 "Downloads multiple book covers from Amazon. Useful to find alternate covers."
 msgstr ""
+"Scarica molteplici copertine da Amazon. Utile per trovare copertine "
+"alternative."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:33
 msgid "Configure the Big Book Search plugin"
@@ -5214,11 +5219,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:35
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:22
 msgid "Maximum number of covers to get"
-msgstr ""
+msgstr "Numero massimo di copertine da scaricare"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:36
 msgid "The maximum number of covers to process from the search result"
 msgstr ""
+"Il numero massimo di copertine da processare dal risultato della ricerca"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/douban.py:155
 msgid ""
@@ -5245,10 +5251,12 @@ msgid ""
 "Downloads covers from a Google Image search. Useful to find larger/alternate "
 "covers."
 msgstr ""
+"Scarica copertine dalla Ricerca immagini di Google. Utile per trovare "
+"copertine di dimensioni superiori o alternative."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:20
 msgid "Configure the Google Image Search plugin"
-msgstr ""
+msgstr "Configura il plugin di Ricerca immagini di Google"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:23
 msgid "The maximum number of covers to process from the google search result"
@@ -5256,15 +5264,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:24
 msgid "Cover size"
-msgstr ""
+msgstr "Dimensioni copertina"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:25
 msgid "Search for covers larger than the specified size"
 msgstr ""
+"Cerca copertine di dimensioni maggiori rispetto alle dimensioni specificate"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:27
 msgid "Any size"
-msgstr ""
+msgstr "Qualsiasi dimensione"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:146
@@ -5279,7 +5288,7 @@ msgstr "Grande"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:34
 #, python-format
 msgid "Larger than %s"
-msgstr ""
+msgstr "Più grande di %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:24
 msgid "Downloads metadata from isbndb.com"
@@ -5620,6 +5629,9 @@ msgid ""
 "Path to a cover image. Changes the cover specified in the ebook. If no cover "
 "is present, or the cover is not properly identified, inserts a new cover."
 msgstr ""
+"Percorso a un'immagine di copertina. Cambia la copertina specificate "
+"nell'ebook. Se non è presente alcuna copertina, o la copertina non viene "
+"identificata correttamente, inserisce una nuova copertina."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:205
 msgid ""
@@ -5736,7 +5748,7 @@ msgstr "Impossibile trovare pdftohtml, verificare che sia nel proprio PATH"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/render/from_html.py:310
 msgid "Untitled"
-msgstr ""
+msgstr "Senza titolo"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:97
@@ -8350,7 +8362,7 @@ msgstr "Salva il formato %s su disco"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:487
 #, python-format
 msgid "Restore the %s format"
-msgstr ""
+msgstr "Ripristina il formato %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -8683,7 +8695,7 @@ msgstr "&Titoli"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:358
 msgid "List of series books, sorted by Series"
-msgstr ""
+msgstr "Lista di serie di libri, ordinata per Serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:359
 msgid "&Series"
@@ -10017,7 +10029,7 @@ msgstr "Dimensione carattere a spa&ziatura fissa:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:155
 msgid "Page headers and footers"
-msgstr ""
+msgstr "Intestazioni e piè di pagina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:156
 msgid ""
@@ -10026,14 +10038,19 @@ msgid ""
 "href=\"http://manual.calibre-ebook.com/conversion.html#converting-to-"
 "pdf\">documentation</a>."
 msgstr ""
+"È possibile inserire intestazioni e piè di pagina in ogni pagina del file "
+"PDF prodotto utilizzando i template Intestazioni e piè di pagina. Ad "
+"esempio, fare riferimento alla documentazione <a "
+"href=\"http://manual.calibre-ebook.com/conversion.html#converting-to-"
+"pdf\"></a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:157
 msgid "&Header template:"
-msgstr ""
+msgstr "Template &Intestazione:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:158
 msgid "&Footer template:"
-msgstr ""
+msgstr "Template &Piè di pagina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -15925,6 +15942,8 @@ msgid ""
 "Found <b>%(num)d</b> possible covers for %(title)s. When the download "
 "completes, the covers will be sorted by size."
 msgstr ""
+"Sono state trovate <b>%(num)d</b> possibili copertine di %(title)s. Al "
+"termine del download le copertine saranno ordinate per dimensione."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:981
 msgid "Downloading metadata..."
@@ -20034,7 +20053,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:522
 msgid "Remove all selected items"
-msgstr ""
+msgstr "Rimuovi gli oggetti selezionati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:524
 #, python-format

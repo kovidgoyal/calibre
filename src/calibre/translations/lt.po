@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-04-12 05:42+0000\n"
-"PO-Revision-Date: 2011-08-05 16:44+0000\n"
-"Last-Translator: Mantas Kriaučiūnas <mantas@akl.lt>\n"
+"PO-Revision-Date: 2013-04-17 20:15+0000\n"
+"Last-Translator: Mindaugas B. <Unknown>\n"
 "Language-Team: Lithuanian <lt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "(n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-04-13 05:21+0000\n"
-"X-Generator: Launchpad (build 16564)\n"
+"X-Launchpad-Export-Date: 2013-04-18 05:09+0000\n"
+"X-Generator: Launchpad (build 16567)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -198,7 +198,7 @@ msgstr "Nieko nedaro"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:45
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:53
 msgid "Unknown"
-msgstr "Nežinomas"
+msgstr "Nežinoma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
@@ -208,22 +208,22 @@ msgstr "Pagrindas"
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:397
 msgid "Customize"
-msgstr "Adaptuoti"
+msgstr "Derinti"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:357
 msgid "Cannot configure"
-msgstr ""
+msgstr "Konfigūruoti negalima"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:331
 msgid "File type"
-msgstr "Bylos tipas"
+msgstr "Failo tipas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:377
 msgid "Metadata reader"
-msgstr "Meta duomenu skaitytuvas"
+msgstr "Meta duomenų skaitymas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:407
 msgid "Metadata writer"
@@ -231,11 +231,11 @@ msgstr "Meta duomenų rašymas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:437
 msgid "Catalog generator"
-msgstr "Katalogo generatorius"
+msgstr "Katalogo generavimas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:560
 msgid "User Interface Action"
-msgstr "Vartotojo sąsajos veiksmas"
+msgstr "Naudotojo sąsajos veiksmas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:594
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
@@ -245,16 +245,16 @@ msgstr "Vartotojo sąsajos veiksmas"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:311
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:228
 msgid "Preferences"
-msgstr "Pasirinkimai"
+msgstr "Nuostatos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:646
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:39
 msgid "Store"
-msgstr ""
+msgstr "Saugykla"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:650
 msgid "An ebook store."
-msgstr ""
+msgstr "Knygų saugykla"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:21
 msgid ""
@@ -298,15 +298,15 @@ msgstr "Ištraukti viršelį iš comic bylu"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:400
 #, python-format
 msgid "Read metadata from %s files"
-msgstr "Meta duomenu skaitymas iš %s bylu"
+msgstr "Nuskaityti meta duomenis iš %s failų"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:337
 msgid "Read metadata from ebooks in RAR archives"
-msgstr ""
+msgstr "Nuskaityti meta duomenis iš el.knygų, esančių RAR archyve"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:411
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr ""
+msgstr "Nuskaityti meta duomenis iš el.knygų, esančių ZIP archyve"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:428
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:438
@@ -317,18 +317,18 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:512
 #, python-format
 msgid "Set metadata in %s files"
-msgstr "Nustatyti meta duomenys %s byluose"
+msgstr "Nustatyti metaduomenis %s failuose"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:448
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:480
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:523
 #, python-format
 msgid "Set metadata from %s files"
-msgstr "Nustatyti meta duomenys iš %s bylu"
+msgstr "Nustatyti meta duomenys iš %s failų"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:772
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "Įtraukti knygas į „Calibre“  biblioteką arba į prijungtą įrenginį"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:777
 msgid "Fetch annotations from a connected Kindle (experimental)"
@@ -336,11 +336,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:782
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "Sukurti knygų katalogą jūsų „Calibre“  bibliotekoje"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:787
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "El. knygas konvertuoti į kitus formatus"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:792
 msgid "Fine tune your ebooks"
@@ -349,19 +349,20 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:797
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "Edit the Table of Contents in your books"
-msgstr ""
+msgstr "Redaguoti jūsų knygų turinį"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 msgid "Delete books from your calibre library or connected device"
 msgstr ""
+"Šalinti knygas, esančias „Calibre“  bibliotekoje arba prijungtame įrenginyje"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:807
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Keisti „Calibre“ bibliotekoje esančių knygų meta duomenis"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "Skaityti „Calibre“ bibliotekos knygas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid "Download news from the internet in ebook form"
@@ -382,15 +383,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:837
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "Restart calibre"
-msgstr ""
+msgstr "Iš naujo paleisti „Calibre“"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid "Open the folder that contains the book files in your calibre library"
 msgstr ""
+"Atverti katalogą, kuriame laikomi „Calibre“  bibliotekos knygų failai"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:848
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "Siųsti knygas į prijungtą įrenginį"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid ""
@@ -401,15 +403,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:859
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr ""
+msgstr "Atverti „Calibre“ naudotojo žinyną"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
 msgid "Customize calibre"
-msgstr ""
+msgstr "Derinti „Calibre“"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:869
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "Nesudėtinga panašių knygų paieška"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid ""
@@ -418,15 +420,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:880
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "Knygas iš įrenginio kopijuoti į „Calibre“  biblioteką"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:885
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "Tvarkyti kolekcijas, laikomas jūsų įrenginyje"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:890
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "Knygas kopijuoti iš vienos „Calibre“ bibliotekos į kitą"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
@@ -440,15 +442,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:906
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Atsitiktinai parinkti kokią nors „Calibre“ bibliotekos knygą"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:913
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "Ieškoti knygų įvairiose saugyklose, parduotuvėse"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:929
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "Ieškoti „Calibre“ papildinių arba atnaujinti esamus"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:948
 msgid "Look and Feel"
@@ -460,19 +462,19 @@ msgstr "Išvaizda ir elgsena"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:984
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:996
 msgid "Interface"
-msgstr "Įrenginys"
+msgstr "Sąsaja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:954
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr ""
+msgstr "Pagal savo skonį pasikeiskite „Calibre“ išvaizdą ir elgseną"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:960
 msgid "Behavior"
-msgstr "Veikimas"
+msgstr "Elgsena"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:966
 msgid "Change the way calibre behaves"
-msgstr "Pakeisti calibre veikimą"
+msgstr "Pakeisti „Calibre“ elgseną"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:971
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:276
@@ -485,7 +487,7 @@ msgstr "pridėti/šalinti savo stulpelius į calibre knygų sąrašą"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:982
 msgid "Toolbar"
-msgstr ""
+msgstr "Įrankių juosta"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:988
 msgid ""
@@ -495,7 +497,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:994
 msgid "Searching"
-msgstr ""
+msgstr "Ieškoma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1000
 msgid "Customize the way searching for books works in calibre"
