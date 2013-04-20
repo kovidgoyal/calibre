@@ -1,5 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class HindustanTimes(BasicNewsRecipe):
     title          = u'Voice of America'
