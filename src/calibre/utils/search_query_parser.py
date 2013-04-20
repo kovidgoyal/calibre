@@ -18,7 +18,6 @@ If this module is run, it will perform a series of unit tests.
 
 import sys, operator, weakref, re
 
-from calibre.utils.pyparsing import ParseException
 from calibre.constants import preferred_encoding
 from calibre.utils.icu import sort_key
 from calibre import prints
@@ -197,10 +196,10 @@ class Parser(object):
                 self.advance()
                 res = self.or_expression()
                 if self.token(advance=True) != ')':
-                    raise ParseException('missing )')
+                    raise ParseException(_('missing )'))
                 return res
             if self.token_type() not in [ self.WORD, self.QUOTED_WORD ]:
-                raise ParseException('Invalid syntax. Expected a lookup name or a word')
+                raise ParseException(_('Invalid syntax. Expected a lookup name or a word'))
 
             return self.base_token()
 
@@ -230,6 +229,14 @@ class Parser(object):
                 return ['token', loc, ':'.join(words)]
 
             return ['token', 'all', ':'.join(words)]
+
+class ParseException(Exception):
+
+    @property
+    def msg(self):
+        if len(self.args) > 0:
+            return self.args[0]
+        return ""
 
 class SearchQueryParser(object):
     '''
@@ -295,7 +302,7 @@ class SearchQueryParser(object):
         try:
             res = self.parser.parse(query, self.locations)
         except RuntimeError:
-            raise ParseException('Failed to parse query, recursion limit reached: %s'%repr(query))
+            raise ParseException(_('Failed to parse query, recursion limit reached: %s')%repr(query))
         if candidates is None:
             candidates = self.universal_set()
         t = self.evaluate(res, candidates)
@@ -339,12 +346,16 @@ class SearchQueryParser(object):
                 query = query[1:]
             try:
                 if query in self.searches_seen:
-                    raise ParseException(query, len(query), 'undefined saved search', self)
+                    raise ParseException(_('Recursive saved search: {0}').format(query))
                 if self.recurse_level > 5:
                     self.searches_seen.add(query)
                 return self._parse(saved_searches().lookup(query), candidates)
+            except ParseException as e:
+                raise e
             except: # convert all exceptions (e.g., missing key) to a parse error
-                raise ParseException(query, len(query), 'undefined saved search', self)
+                import traceback
+                traceback.print_exc()
+                raise ParseException(_('Unknown error in saved search: {0}').format(query))
         return self._get_matches(location, query, candidates)
 
     def _get_matches(self, location, query, candidates):

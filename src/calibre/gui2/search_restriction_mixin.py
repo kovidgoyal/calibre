@@ -13,7 +13,7 @@ from PyQt4.Qt import (
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.utils.icu import sort_key
-from calibre.utils.pyparsing import ParseException
+from calibre.utils.search_query_parser import ParseException
 from calibre.utils.search_query_parser import saved_searches
 
 class SelectNames(QDialog):  # {{{
