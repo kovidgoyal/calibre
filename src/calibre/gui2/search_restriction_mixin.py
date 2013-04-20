@@ -13,7 +13,7 @@ from PyQt4.Qt import (
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.utils.icu import sort_key
-from calibre.utils.pyparsing import ParseException
+from calibre.utils.search_query_parser import ParseException
 from calibre.utils.search_query_parser import saved_searches
 
 class SelectNames(QDialog):  # {{{
@@ -299,7 +299,7 @@ class SearchRestrictionMixin(object):
 
     def __init__(self):
         self.checked = QIcon(I('ok.png'))
-        self.empty = QIcon()
+        self.empty = QIcon(I('blank.png'))
         self.search_based_vl_name = None
         self.search_based_vl = None
 
@@ -315,21 +315,24 @@ class SearchRestrictionMixin(object):
         self.search_restriction.setVisible(False)
         self.search_count.setText(_("(all books)"))
         self.ar_menu = QMenu(_('Additional restriction'))
+        self.edit_menu = QMenu(_('Edit Virtual Library'))
+        self.rm_menu = QMenu(_('Remove Virtual Library'))
+
 
     def add_virtual_library(self, db, name, search):
         virt_libs = db.prefs.get('virtual_libraries', {})
         virt_libs[name] = search
         db.prefs.set('virtual_libraries', virt_libs)
 
-    def do_create_edit(self, editing=None):
+    def do_create_edit(self, name=None):
         db = self.library_view.model().db
         virt_libs = db.prefs.get('virtual_libraries', {})
-        cd = CreateVirtualLibrary(self, virt_libs.keys(), editing=editing)
+        cd = CreateVirtualLibrary(self, virt_libs.keys(), editing=name)
         if cd.exec_() == cd.Accepted:
-            if editing:
-                self._remove_vl(editing, reapply=False)
+            if name:
+                self._remove_vl(name, reapply=False)
             self.add_virtual_library(db, cd.library_name, cd.library_search)
-            if not editing or editing == db.data.get_base_restriction_name():
+            if not name or name == db.data.get_base_restriction_name():
                 self.apply_virtual_library(cd.library_name)
 
     def virtual_library_clicked(self):
@@ -337,16 +340,14 @@ class SearchRestrictionMixin(object):
         m.clear()
 
         a = m.addAction(_('Create Virtual Library'))
-        a.triggered.connect(partial(self.do_create_edit, editing=None))
+        a.triggered.connect(partial(self.do_create_edit, name=None))
 
-        self.edit_menu = a = QMenu()
-        a.setTitle(_('Edit Virtual Library'))
-        a.aboutToShow.connect(partial(self.build_virtual_library_list, remove=False))
+        a = self.edit_menu
+        self.build_virtual_library_list(a, self.do_create_edit)
         m.addMenu(a)
 
-        self.rm_menu = a = QMenu()
-        a.setTitle(_('Remove Virtual Library'))
-        a.aboutToShow.connect(partial(self.build_virtual_library_list, remove=True))
+        a = self.rm_menu
+        self.build_virtual_library_list(a, self.remove_vl_triggered)
         m.addMenu(a)
 
         m.addSeparator()
@@ -356,7 +357,7 @@ class SearchRestrictionMixin(object):
         a = self.ar_menu
         a.clear()
         a.setIcon(self.checked if db.data.get_search_restriction_name() else self.empty)
-        a.aboutToShow.connect(self.build_search_restriction_list)
+        self.build_search_restriction_list()
         m.addMenu(a)
 
         m.addSeparator()
@@ -426,24 +427,24 @@ class SearchRestrictionMixin(object):
         self._apply_search_restriction(db.data.get_search_restriction(),
                                        db.data.get_search_restriction_name())
 
-    def build_virtual_library_list(self, remove=False):
+    def build_virtual_library_list(self, menu, handler):
         db = self.library_view.model().db
         virt_libs = db.prefs.get('virtual_libraries', {})
-        if remove:
-            m = self.rm_menu
-        else:
-            m = self.edit_menu
-        m.clear()
+        menu.clear()
+        menu.setIcon(self.empty)
 
         def add_action(name, search):
-            a = m.addAction(name)
-            if remove:
-                a.triggered.connect(partial(self.remove_vl_triggered, name=name))
-            else:
-                a.triggered.connect(partial(self.do_create_edit, editing=name))
+            a = menu.addAction(name)
+            a.triggered.connect(partial(handler, name=name))
+            a.setIcon(self.empty)
 
-        for n in sorted(virt_libs.keys(), key=sort_key):
-            add_action(n, virt_libs[n])
+        libs = sorted(virt_libs.keys(), key=sort_key)
+        if libs:
+            menu.setEnabled(True)
+            for n in libs:
+                add_action(n, virt_libs[n])
+        else:
+            menu.setEnabled(False)
 
     def remove_vl_triggered(self, name=None):
         if not question_dialog(self, _('Are you sure?'),

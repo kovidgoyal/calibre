@@ -195,13 +195,13 @@ class DateSearch(object):  # {{{
                 try:
                     qd = now() - timedelta(int(num))
                 except:
-                    raise ParseException(query, len(query), 'Number conversion error')
+                    raise ParseException(_('Number conversion error: {0}').format(num))
                 field_count = 3
             else:
                 try:
                     qd = parse_date(query, as_utc=False)
                 except:
-                    raise ParseException(query, len(query), 'Date conversion error')
+                    raise ParseException(_('Date conversion error: {0}').format(query))
                 if '-' in query:
                     field_count = query.count('-') + 1
                 else:
@@ -285,8 +285,8 @@ class NumericSearch(object):  # {{{
             try:
                 q = cast(query) * mult
             except:
-                raise ParseException(query, len(query),
-                                     'Non-numeric value in query: %r'%query)
+                raise ParseException(
+                        _('Non-numeric value in query: {0}').format(query))
 
         for val, book_ids in field_iter():
             if val is None:
@@ -351,8 +351,8 @@ class KeyPairSearch(object):  # {{{
         if ':' in query:
             q = [q.strip() for q in query.split(':')]
             if len(q) != 2:
-                raise ParseException(query, len(query),
-                        'Invalid query format for colon-separated search')
+                raise ParseException(
+                 _('Invalid query format for colon-separated search: {0}').format(query))
             keyq, valq = q
             keyq_mkind, keyq = _matchkind(keyq)
             valq_mkind, valq = _matchkind(valq)
@@ -465,7 +465,8 @@ class Parser(SearchQueryParser):
                 if invert:
                     matches = self.all_book_ids - matches
                 return matches
-            raise ParseException(query, len(query), 'Recursive query group detected')
+            raise ParseException(
+                       _('Recursive query group detected: {0}').format(query))
 
         # If the user has asked to restrict searching over all field, apply
         # that restriction
