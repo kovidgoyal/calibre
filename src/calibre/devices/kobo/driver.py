@@ -35,11 +35,11 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 0, 7)
+    version = (2, 0, 8)
 
     dbversion = 0
     fwversion = 0
-    supported_dbversion = 75
+    supported_dbversion = 80
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -419,7 +419,7 @@ class KOBO(USBMS):
         # If all this succeeds we need to delete the images files via the ImageID
         return ImageID
 
-    def delete_images(self, ImageID):
+    def delete_images(self, ImageID, book_path):
         if ImageID != None:
             path_prefix = '.kobo/images/'
             path = self._main_prefix + path_prefix + ImageID
@@ -449,7 +449,7 @@ class KOBO(USBMS):
 
             ImageID = self.delete_via_sql(ContentID, ContentType)
             #print " We would now delete the Images for" + ImageID
-            self.delete_images(ImageID)
+            self.delete_images(ImageID, path)
 
             if os.path.exists(path):
                 # Delete the ebook
@@ -1204,10 +1204,16 @@ class KOBOTOUCH(KOBO):
     description = 'Communicate with the Kobo Touch, Glo and Mini firmware. Based on the existing Kobo driver by %s.' % (KOBO.author)
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion     = 75
-    min_supported_dbversion = 53
-    min_dbversion_series    = 65
-    min_dbversion_archive   = 71
+    supported_dbversion             = 80
+    min_supported_dbversion         = 53
+    min_dbversion_series            = 65
+    min_dbversion_archive           = 71
+    min_dbversion_images_on_sdcard  = 77
+    
+    max_supported_fwversion         = (2,5,1)
+    min_fwversion_images_on_sdcard  = (2,4,1)
+    
+    has_kepubs = True
 
     booklist_class = KTCollectionsBookList
     book_class = Book
@@ -1354,14 +1360,13 @@ class KOBOTOUCH(KOBO):
 
         # Determine the firmware version
         try:
-            with open(self.normalize_path(self._main_prefix + '.kobo/version'),
-                    'rb') as f:
+            with open(self.normalize_path(self._main_prefix + '.kobo/version'), 'rb') as f:
                 self.fwversion = f.readline().split(',')[2]
+                self.fwversion = tuple((int(x) for x in self.fwversion.split('.')))
         except:
-            self.fwversion = 'unknown'
+            self.fwversion = (0,0,0)
 
-        if self.fwversion != '1.0' and self.fwversion != '1.4':
-            self.has_kepubs = True
+
         debug_print('Version of driver:', self.version, 'Has kepubs:', self.has_kepubs)
         debug_print('Version of firmware:', self.fwversion, 'Has kepubs:', self.has_kepubs)
 
@@ -1466,6 +1471,7 @@ class KOBOTOUCH(KOBO):
                     if show_debug:
                         self.debug_index = idx
                         debug_print("KoboTouch:update_booklist - idx=%d"%idx)
+                        debug_print("KoboTouch:update_booklist - lpath=%s"%lpath)
                         debug_print('KoboTouch:update_booklist - bl[idx].device_collections=', bl[idx].device_collections)
                         debug_print('KoboTouch:update_booklist - playlist_map=', playlist_map)
                         debug_print('KoboTouch:update_booklist - bookshelves=', bookshelves)
@@ -1477,7 +1483,7 @@ class KOBOTOUCH(KOBO):
                     bl_cache[lpath] = None
 
                     if ImageID is not None:
-                        imagename = self.imagefilename_from_imageID(ImageID)
+                        imagename = self.imagefilename_from_imageID(prefix, ImageID)
                         if imagename is not None:
                             bl[idx].thumbnail = ImageWrapper(imagename)
                     if (ContentType == '6' and MimeType != 'application/x-kobo-epub+zip'):
@@ -1717,12 +1723,14 @@ class KOBOTOUCH(KOBO):
         debug_print("KoboTouch:books - end - oncard='%s'"%oncard)
         return bl
 
-    def imagefilename_from_imageID(self, ImageID):
+    def imagefilename_from_imageID(self, prefix, ImageID):
         show_debug = self.is_debugging_title(ImageID)
 
+        path = self.images_path(prefix)
+        path = self.normalize_path(path.replace('/', os.sep))
+
         for ending, cover_options in self.cover_file_endings().items():
-            fpath = self._main_prefix + '.kobo/images/' + ImageID + ending
-            fpath = self.normalize_path(fpath.replace('/', os.sep))
+            fpath = path + ImageID + ending
             if os.path.exists(fpath):
                 if show_debug:
                     debug_print("KoboTouch:imagefilename_from_imageID - have cover image fpath=%s" % (fpath))
@@ -1764,7 +1772,7 @@ class KOBOTOUCH(KOBO):
 
                         if not self.copying_covers():
                             imageID = self.imageid_from_contentid(contentID)
-                            self.delete_images(imageID)
+                            self.delete_images(imageID, fname)
                     connection.commit()
 
                     cursor.close()
@@ -1821,11 +1829,11 @@ class KOBOTOUCH(KOBO):
 
         return imageId
 
-    def delete_images(self, ImageID):
+    def delete_images(self, ImageID, book_path):
         debug_print("KoboTouch:delete_images - ImageID=", ImageID)
         if ImageID != None:
-            path_prefix = '.kobo/images/'
-            path = self._main_prefix + path_prefix + ImageID
+            path = self.images_path(book_path)
+            path = path + ImageID
 
             for ending in self.cover_file_endings().keys():
                 fpath = path + ending
@@ -1872,12 +1880,14 @@ class KOBOTOUCH(KOBO):
     def get_content_type_from_extension(self, extension):
         debug_print("KoboTouch:get_content_type_from_extension - start")
         # With new firmware, ContentType appears to be 6 for all types of sideloaded books.
-        if self.fwversion.startswith('2.'):
+        if self.fwversion >= (1,9,17) or extension == '.kobo' or extension == '.mobi':
             debug_print("KoboTouch:get_content_type_from_extension - V2 firmware")
             ContentType = 6
+        # For older firmware, it depends on the type of file.
+        elif extension == '.kobo' or extension == '.mobi':
+            ContentType = 6
         else:
-            debug_print("KoboTouch:get_content_type_from_extension - calling super")
-            ContentType = super(KOBOTOUCH, self).get_content_type_from_extension(extension)
+            ContentType = 901
         return ContentType
 
     def update_device_database_collections(self, booklists, collections_attributes, oncard):
@@ -2088,8 +2098,8 @@ class KOBOTOUCH(KOBO):
 #            debug_print('KoboTouch: not uploading cover')
             return
 
-        # Don't upload covers if book is on the SD card
-        if self._card_a_prefix and path.startswith(self._card_a_prefix):
+        # Only upload covers to SD card if that is supported
+        if self._card_a_prefix and path.startswith(self._card_a_prefix) and not self.supports_covers_on_sdcard():
             return
 
         if not opts.extra_customization[self.OPT_UPLOAD_GRAYSCALE_COVERS]:
@@ -2110,6 +2120,16 @@ class KOBOTOUCH(KOBO):
         ImageID = ImageID.replace(':', '_')
         ImageID = ImageID.replace('.', '_')
         return ImageID
+
+
+    def images_path(self, path):
+        if self._card_a_prefix and path.startswith(self._card_a_prefix) and self.supports_covers_on_sdcard():
+            path_prefix = 'koboExtStorage/images/'
+            path = self._card_a_prefix + path_prefix
+        else:
+            path_prefix = '.kobo/images/'
+            path = self._main_prefix + path_prefix
+        return path
 
     def _upload_cover(self, path, filename, metadata, filepath, uploadgrayscale, keep_cover_aspect=False):
         from calibre.utils.magick.draw import save_cover_data_to, identify_data
@@ -2151,8 +2171,8 @@ class KOBOTOUCH(KOBO):
                         cursor.close()
 
                     if ImageID != None:
-                        path_prefix = '.kobo/images/'
-                        path = self._main_prefix + path_prefix + ImageID
+                        path = self.images_path(path) + ImageID
+
                         if show_debug:
                             debug_print("KoboTouch:_upload_cover - About to loop over cover endings")
 
@@ -2523,6 +2543,52 @@ class KOBOTOUCH(KOBO):
 
     def supports_kobo_archive(self):
         return self.dbversion >= self.min_dbversion_archive
+
+    def supports_covers_on_sdcard(self):
+        return self.dbversion >= 77 and self.fwversion >= self.min_fwversion_images_on_sdcard
+
+    def modify_database_check(self, function):
+        # Checks to see whether the database version is supported
+        # and whether the user has chosen to support the firmware version
+#        debug_print("KoboTouch:modify_database_check - self.fwversion <= self.max_supported_fwversion=", self.fwversion > self.max_supported_fwversion)
+        if self.dbversion > self.supported_dbversion or self.fwversion > self.max_supported_fwversion:
+            # Unsupported database
+            opts = self.settings()
+            if not opts.extra_customization[self.OPT_SUPPORT_NEWER_FIRMWARE]:
+                debug_print('The database has been upgraded past supported version')
+                self.report_progress(1.0, _('Removing books from device...'))
+                from calibre.devices.errors import UserFeedback
+                raise UserFeedback(_("Kobo database version unsupported - See details"),
+                    _('Your Kobo is running an updated firmware/database version.'
+                    ' As calibre does not know about this updated firmware,'
+                    ' database editing is disabled, to prevent corruption.'
+                    ' You can still send books to your Kobo with calibre, '
+                    ' but deleting books and managing collections is disabled.'
+                    ' If you are willing to experiment and know how to reset'
+                    ' your Kobo to Factory defaults, you can override this'
+                    ' check by right clicking the device icon in calibre and'
+                    ' selecting "Configure this device" and then the '
+                    ' "Attempt to support newer firmware" option.'
+                    ' Doing so may require you to perform a factory reset of'
+                    ' your Kobo.'
+                     ),
+                     UserFeedback.WARN)
+
+                return False
+            else:
+                # The user chose to edit the database anyway
+                return True
+        else:
+            # Supported database version
+            return True
+
+#    @classmethod
+#    def get_gui_name(cls):
+#        if hasattr(cls, 'gui_name'):
+#            return cls.gui_name
+#        if hasattr(cls, '__name__'):
+#            return cls.__name__
+#        return cls.name
 
 
     @classmethod
