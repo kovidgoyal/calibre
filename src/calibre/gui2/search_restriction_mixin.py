@@ -299,7 +299,7 @@ class SearchRestrictionMixin(object):
 
     def __init__(self):
         self.checked = QIcon(I('ok.png'))
-        self.empty = QIcon(I('empty.png'))
+        self.empty = QIcon(I('blank.png'))
         self.search_based_vl_name = None
         self.search_based_vl = None
 
