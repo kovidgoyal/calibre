@@ -436,8 +436,8 @@ generate a Table of Contents in the converted ebook, based on the actual content
 
 .. note:: Using these options can be a little challenging to get exactly right.
     If you prefer creating/editing the Table of Contents by hand, convert to
-    the EPUB or AZW3 formats and select the checkbox at the bottom of the
-    screen that says 
+    the EPUB or AZW3 formats and select the checkbox at the bottom of the Table
+    of Contents section of the conversion dialog that says 
     :guilabel:`Manually fine-tune the Table of Contents after conversion`. 
     This will launch the ToC Editor tool after the conversion. It allows you to
     create entries in the Table of Contents by simply clicking the place in the

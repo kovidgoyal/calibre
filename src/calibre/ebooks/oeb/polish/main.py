@@ -175,7 +175,7 @@ def gui_polish(data):
     if not data.pop('metadata'):
         data.pop('opf')
     if not data.pop('do_cover'):
-        data.pop('cover')
+        data.pop('cover', None)
     file_map = {x:x for x in files}
     opts = ALL_OPTS.copy()
     opts.update(data)

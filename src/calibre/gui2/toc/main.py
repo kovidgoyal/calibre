@@ -14,7 +14,7 @@ from functools import partial
 from PyQt4.Qt import (QPushButton, QFrame, QVariant, QMenu, QInputDialog,
     QDialog, QVBoxLayout, QDialogButtonBox, QSize, QStackedWidget, QWidget,
     QLabel, Qt, pyqtSignal, QIcon, QTreeWidget, QGridLayout, QTreeWidgetItem,
-    QToolButton, QItemSelectionModel, QCursor)
+    QToolButton, QItemSelectionModel, QCursor, QKeySequence)
 
 from calibre.ebooks.oeb.polish.container import get_container, AZW3Container
 from calibre.ebooks.oeb.polish.toc import (
@@ -27,7 +27,7 @@ from calibre.utils.logging import GUILog
 
 ICON_SIZE = 24
 
-class XPathDialog(QDialog): # {{{
+class XPathDialog(QDialog):  # {{{
 
     def __init__(self, parent):
         QDialog.__init__(self, parent)
@@ -118,7 +118,7 @@ class XPathDialog(QDialog): # {{{
         return [w.xpath for w in self.widgets if w.xpath.strip()]
 # }}}
 
-class ItemView(QFrame): # {{{
+class ItemView(QFrame):  # {{{
 
     add_new_item = pyqtSignal(object, object)
     delete_item = pyqtSignal()
@@ -206,7 +206,6 @@ class ItemView(QFrame): # {{{
             'Flatten the Table of Contents, putting all entries at the top level'
         )))
         l.addWidget(b)
-
 
         l.addStretch()
         self.w1 = la = QLabel(_('<b>WARNING:</b> calibre only supports the '
@@ -349,7 +348,9 @@ class ItemView(QFrame): # {{{
 
 # }}}
 
-class TreeWidget(QTreeWidget): # {{{
+class TreeWidget(QTreeWidget):  # {{{
+
+    edit_item = pyqtSignal()
 
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
@@ -510,25 +511,30 @@ class TreeWidget(QTreeWidget): # {{{
 
     def show_context_menu(self, point):
         item = self.currentItem()
+        def key(k):
+            sc = unicode(QKeySequence(k | Qt.CTRL).toString(QKeySequence.NativeText))
+            return ' [%s]'%sc
+
         if item is not None:
             m = QMenu()
             ci = unicode(item.data(0, Qt.DisplayRole).toString())
             p = item.parent() or self.invisibleRootItem()
             idx = p.indexOfChild(item)
             if idx > 0:
-                m.addAction(QIcon(I('arrow-up.png')), _('Move "%s" up')%ci, self.move_up)
+                m.addAction(QIcon(I('arrow-up.png')), (_('Move "%s" up')%ci)+key(Qt.Key_Up), self.move_up)
             if idx + 1 < p.childCount():
-                m.addAction(QIcon(I('arrow-down.png')), _('Move "%s" down')%ci, self.move_down)
+                m.addAction(QIcon(I('arrow-down.png')), (_('Move "%s" down')%ci)+key(Qt.Key_Down), self.move_down)
             m.addAction(QIcon(I('trash.png')), _('Remove all selected items'), self.del_items)
             if item.parent() is not None:
-                m.addAction(QIcon(I('back.png')), _('Unindent "%s"')%ci, self.move_left)
+                m.addAction(QIcon(I('back.png')), (_('Unindent "%s"')%ci)+key(Qt.Key_Left), self.move_left)
             if idx > 0:
-                m.addAction(QIcon(I('forward.png')), _('Indent "%s"')%ci, self.move_right)
+                m.addAction(QIcon(I('forward.png')), (_('Indent "%s"')%ci)+key(Qt.Key_Right), self.move_right)
+            m.addAction(QIcon(I('edit_input.png')), _('Change the location this entry points to'), self.edit_item)
             m.addAction(_('Change all selected items to title case'), self.title_case)
             m.exec_(QCursor.pos())
 # }}}
 
-class TOCView(QWidget): # {{{
+class TOCView(QWidget):  # {{{
 
     add_new_item = pyqtSignal(object, object)
 
@@ -537,6 +543,7 @@ class TOCView(QWidget): # {{{
         l = self.l = QGridLayout()
         self.setLayout(l)
         self.tocw = t = TreeWidget(self)
+        self.tocw.edit_item.connect(self.edit_item)
         l.addWidget(t, 0, 0, 7, 3)
         self.up_button = b = QToolButton(self)
         b.setIcon(QIcon(I('arrow-up.png')))
@@ -594,6 +601,9 @@ class TOCView(QWidget): # {{{
         l.addWidget(i, 0, 4, col, 1)
 
         l.setColumnStretch(2, 10)
+
+    def edit_item(self):
+        self.item_view.edit_item()
 
     def event(self, e):
         if e.type() == e.StatusTip:
@@ -742,11 +752,11 @@ class TOCView(QWidget): # {{{
                 else:
                     parent = item.parent() or self.root
                     idx = parent.indexOfChild(item)
-                    if where == 'after': idx += 1
+                    if where == 'after':
+                        idx += 1
                 c = self.create_item(parent, child, idx=idx)
                 self.tocw.setCurrentItem(c, 0, QItemSelectionModel.ClearAndSelect)
                 self.tocw.scrollToItem(c)
-
 
     def create_toc(self):
         root = TOC()
@@ -799,7 +809,7 @@ class TOCView(QWidget): # {{{
 
 # }}}
 
-class TOCEditor(QDialog): # {{{
+class TOCEditor(QDialog):  # {{{
 
     explode_done = pyqtSignal(object)
     writing_done = pyqtSignal(object)
@@ -857,6 +867,7 @@ class TOCEditor(QDialog): # {{{
     def accept(self):
         if self.stacks.currentIndex() == 2:
             self.toc_view.update_item(*self.item_edit.result)
+            gprefs['toc_edit_splitter_state'] = bytearray(self.item_edit.splitter.saveState())
             self.stacks.setCurrentIndex(1)
         elif self.stacks.currentIndex() == 1:
             self.working = False
@@ -883,6 +894,7 @@ class TOCEditor(QDialog): # {{{
         if not self.bb.isEnabled():
             return
         if self.stacks.currentIndex() == 2:
+            gprefs['toc_edit_splitter_state'] = bytearray(self.item_edit.splitter.saveState())
             self.stacks.setCurrentIndex(1)
         else:
             self.working = False
@@ -938,5 +950,5 @@ if __name__ == '__main__':
     d = TOCEditor(sys.argv[-1])
     d.start()
     d.exec_()
-    del d # Needed to prevent sigsegv in exit cleanup
+    del d  # Needed to prevent sigsegv in exit cleanup
 

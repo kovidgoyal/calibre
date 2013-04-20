@@ -232,10 +232,6 @@ class TagsView(QTreeView): # {{{
         except:
             pass
 
-    def set_search_restriction(self, s):
-        s = s if s else None
-        self._model.set_search_restriction(s)
-
     def mouseMoveEvent(self, event):
         dex = self.indexAt(event.pos())
         if self.in_drag_drop or not dex.isValid():

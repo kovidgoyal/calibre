@@ -1,8 +1,11 @@
 #!/usr/bin/env  python
 __license__   = 'GPL v3'
-__author__    = 'Lorenzo Vigentini'
-__copyright__ = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
-description   = 'the Escapist Magazine - v1.02 (09, January 2010)'
+__author__    = 'Lorenzo Vigentini and Tom Surace'
+__copyright__ = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>, 2013 Tom Surace <tekhedd@byteheaven.net>'
+description   = 'The Escapist Magazine - v1.3 (2013, April 2013)'
+
+#
+# Based on 'the Escapist Magazine - v1.02 (09, January 2010)'
 
 '''
 http://www.escapistmagazine.com/
@@ -11,12 +14,11 @@ http://www.escapistmagazine.com/
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class al(BasicNewsRecipe):
-    author        = 'Lorenzo Vigentini'
+    author        = 'Lorenzo Vigentini and Tom Surace'
     description   = 'The Escapist Magazine'
-
     cover_url      = 'http://cdn.themis-media.com/themes/escapistmagazine/default/images/logo.png'
     title          = u'The Escapist Magazine'
-    publisher      = 'Themis media'
+    publisher      = 'Themis Media'
     category       = 'Video games news, lifestyle, gaming culture'
 
     language       = 'en'
@@ -36,18 +38,19 @@ class al(BasicNewsRecipe):
                      ]
 
     def print_version(self,url):
+        # Expect article url in the format:
+        # http://www.escapistmagazine.com/news/view/123198-article-name?utm_source=rss&utm_medium=rss&utm_campaign=news
+        # 
         baseURL='http://www.escapistmagazine.com'
         segments = url.split('/')
-        #basename = '/'.join(segments[:3]) + '/'
         subPath= '/'+ segments[3] + '/'
-        articleURL=(segments[len(segments)-1])[0:5]
 
-        if articleURL[4] =='-':
-            articleURL=articleURL[:4]
+        # The article number is the "number" that starts the name
+        articleNumber = segments[len(segments)-1];   # the "article name"
+        articleNumber = articleNumber.split('-')[0]; # keep part before hyphen
 
-        printVerString='print/'+ articleURL
-        s=  baseURL + subPath + printVerString
-        return s
+        fullUrl =  baseURL + subPath + 'print/' + articleNumber
+        return fullUrl
 
     keep_only_tags     = [
                             dict(name='div', attrs={'id':'article'})

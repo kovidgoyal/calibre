@@ -10,8 +10,7 @@ from functools import partial
 from threading import Thread
 from contextlib import closing
 
-from PyQt4.Qt import (QToolButton, QDialog, QGridLayout, QIcon, QLabel,
-                      QCheckBox, QDialogButtonBox)
+from PyQt4.Qt import (QToolButton, QDialog, QGridLayout, QIcon, QLabel, QDialogButtonBox)
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import (error_dialog, Dispatcher, warning_dialog, gprefs,
@@ -21,7 +20,7 @@ from calibre.gui2.widgets import HistoryLineEdit
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import now
 
-class Worker(Thread): # {{{
+class Worker(Thread):  # {{{
 
     def __init__(self, ids, db, loc, progress, done, delete_after):
         Thread.__init__(self)
@@ -71,8 +70,10 @@ class Worker(Thread): # {{{
                 mi.timestamp = now()
             self.progress(i, mi.title)
             fmts = self.db.formats(x, index_is_id=True)
-            if not fmts: fmts = []
-            else: fmts = fmts.split(',')
+            if not fmts:
+                fmts = []
+            else:
+                fmts = fmts.split(',')
             paths = []
             for fmt in fmts:
                 p = self.db.format(x, fmt, index_is_id=True,
@@ -82,7 +83,7 @@ class Worker(Thread): # {{{
             automerged = False
             if prefs['add_formats_to_existing']:
                 identical_book_list = newdb.find_identical_books(mi)
-                if identical_book_list: # books with same author and nearly same title exist in newdb
+                if identical_book_list:  # books with same author and nearly same title exist in newdb
                     self.auto_merged_ids[x] = _('%(title)s by %(author)s')%\
                     dict(title=mi.title, author=mi.format_field('authors')[1])
                     automerged = True
@@ -127,7 +128,7 @@ class Worker(Thread): # {{{
 
 # }}}
 
-class ChooseLibrary(QDialog): # {{{
+class ChooseLibrary(QDialog):  # {{{
 
     def __init__(self, parent):
         super(ChooseLibrary, self).__init__(parent)
@@ -146,12 +147,19 @@ class ChooseLibrary(QDialog): # {{{
         b.setToolTip(_('Browse for library'))
         b.clicked.connect(self.browse)
         l.addWidget(b, 0, 2)
-        self.c = c = QCheckBox(_('&Delete after copy'))
-        l.addWidget(c, 1, 0, 1, 3)
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
-        l.addWidget(bb, 2, 0, 1, 3)
+        self.delete_after_copy = False
+        b = bb.addButton(_('&Copy'), bb.AcceptRole)
+        b.setIcon(QIcon(I('edit-copy.png')))
+        b.setToolTip(_('Copy to the specified library'))
+        b2 = bb.addButton(_('&Move'), bb.AcceptRole)
+        b2.clicked.connect(lambda: setattr(self, 'delete_after_copy', True))
+        b2.setIcon(QIcon(I('edit-cut.png')))
+        b2.setToolTip(_('Copy to the specified library and delete from the current library'))
+        b.setDefault(True)
+        l.addWidget(bb, 1, 0, 1, 3)
         le.setMinimumWidth(350)
         self.resize(self.sizeHint())
 
@@ -163,7 +171,7 @@ class ChooseLibrary(QDialog): # {{{
 
     @property
     def args(self):
-        return (unicode(self.le.text()), self.c.isChecked())
+        return (unicode(self.le.text()), self.delete_after_copy)
 # }}}
 
 class CopyToLibraryAction(InterfaceAction):
@@ -204,7 +212,7 @@ class CopyToLibraryAction(InterfaceAction):
             self.menu.addAction(name, partial(self.copy_to_library,
                 loc))
             self.menu.addAction(name + ' ' + _('(delete after copy)'),
-                    partial(self.copy_to_library,  loc, delete_after=True))
+                    partial(self.copy_to_library, loc, delete_after=True))
             self.menu.addSeparator()
 
         self.menu.addAction(_('Choose library by path...'), self.choose_library)
@@ -214,6 +222,8 @@ class CopyToLibraryAction(InterfaceAction):
         d = ChooseLibrary(self.gui)
         if d.exec_() == d.Accepted:
             path, delete_after = d.args
+            if not path:
+                return
             db = self.gui.library_view.model().db
             current = os.path.normcase(os.path.abspath(db.library_path))
             if current == os.path.normcase(os.path.abspath(path)):

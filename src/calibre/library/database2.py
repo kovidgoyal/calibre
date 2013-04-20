@@ -229,6 +229,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
         ('last_modified', False), ('size', False), ('languages', False),
         ]
+        defs['virtual_libraries'] = {}
+        defs['virtual_lib_on_startup'] = defs['cs_virtual_lib_on_startup'] = ''
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
@@ -278,6 +280,24 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.prefs.set('grouped_search_terms', ngst)
             except:
                 pass
+
+        # migrate the gui_restriction preference to a virtual library
+        gr_pref = self.prefs.get('gui_restriction', None)
+        if gr_pref:
+            virt_libs = self.prefs.get('virtual_libraries', {})
+            virt_libs[gr_pref] = 'search:"' + gr_pref + '"'
+            self.prefs['virtual_libraries'] = virt_libs
+            self.prefs['gui_restriction'] = ''
+            self.prefs['virtual_lib_on_startup'] = gr_pref
+
+        # migrate the cs_restriction preference to a virtual library
+        gr_pref = self.prefs.get('cs_restriction', None)
+        if gr_pref:
+            virt_libs = self.prefs.get('virtual_libraries', {})
+            virt_libs[gr_pref] = 'search:"' + gr_pref + '"'
+            self.prefs['virtual_libraries'] = virt_libs
+            self.prefs['cs_restriction'] = ''
+            self.prefs['cs_virtual_lib_on_startup'] = gr_pref
 
         # Rename any user categories with names that differ only in case
         user_cats = self.prefs.get('user_categories', [])
