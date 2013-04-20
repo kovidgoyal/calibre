@@ -46,10 +46,11 @@ def is_raster_image(media_type):
     return media_type and media_type.lower() in {
         'image/png', 'image/jpeg', 'image/jpg', 'image/gif'}
 
-COVER_TYPES = {            'coverimagestandard', 'other.ms-coverimage-standard',
-            'other.ms-titleimage-standard', 'other.ms-titleimage',
-            'other.ms-coverimage', 'other.ms-thumbimage-standard',
-            'other.ms-thumbimage', 'thumbimagestandard', 'cover'}
+COVER_TYPES = {
+    'coverimagestandard', 'other.ms-coverimage-standard',
+    'other.ms-titleimage-standard', 'other.ms-titleimage',
+    'other.ms-coverimage', 'other.ms-thumbimage-standard',
+    'other.ms-thumbimage', 'thumbimagestandard', 'cover'}
 
 def find_cover_image(container):
     'Find a raster image marked as a cover in the OPF'
@@ -92,7 +93,8 @@ def find_cover_page(container):
 def find_cover_image_in_page(container, cover_page):
     root = container.parsed(cover_page)
     body = XPath('//h:body')(root)
-    if len(body) != 1: return
+    if len(body) != 1:
+        return
     body = body[0]
     images = []
     for img in XPath('descendant::h:img[@src]|descendant::svg:svg/descendant::svg:image')(body):
@@ -152,7 +154,7 @@ def create_epub_cover(container, cover_path):
         ar = 'xMidYMid meet' if keep_aspect else 'none'
         templ = CoverManager.SVG_TEMPLATE.replace('__ar__', ar)
         templ = templ.replace('__viewbox__', '0 0 %d %d'%(width, height))
-        templ = templ.replace('__width__',  str(width))
+        templ = templ.replace('__width__', str(width))
         templ = templ.replace('__height__', str(height))
     titlepage_item = container.generate_item('titlepage.xhtml',
                                              id_prefix='titlepage')
@@ -179,7 +181,7 @@ def create_epub_cover(container, cover_path):
     guide = container.opf_get_or_create('guide')
     container.insert_into_xml(guide, guide.makeelement(
         OPF('reference'), type='cover', title=_('Cover'),
-        href=container.name_to_href(titlepage)))
+        href=container.name_to_href(titlepage, base=container.opf_name)))
     metadata = container.opf_get_or_create('metadata')
     meta = metadata.makeelement(OPF('meta'), name='cover')
     meta.set('content', raster_cover_item.get('id'))
