@@ -13,7 +13,7 @@ from PyQt4.Qt import (
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.utils.icu import sort_key
-from calibre.utils.pyparsing import ParseException
+from calibre.utils.search_query_parser import ParseException
 from calibre.utils.search_query_parser import saved_searches
 
 class SelectNames(QDialog):  # {{{
@@ -299,7 +299,7 @@ class SearchRestrictionMixin(object):
 
     def __init__(self):
         self.checked = QIcon(I('ok.png'))
-        self.empty = QIcon(I('empty.png'))
+        self.empty = QIcon(I('blank.png'))
         self.search_based_vl_name = None
         self.search_based_vl = None
 

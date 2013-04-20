@@ -19,7 +19,7 @@ from calibre.web.feeds.recipes.collection import \
         SchedulerConfig, download_builtin_recipe, update_custom_recipe, \
         add_custom_recipe, remove_custom_recipe, get_custom_recipe, \
         get_builtin_recipe
-from calibre.utils.pyparsing import ParseException
+from calibre.utils.search_query_parser import ParseException
 
 class NewsTreeItem(object):
 
