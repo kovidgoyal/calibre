@@ -75,7 +75,7 @@ class GroupModel(QAbstractListModel):
 def get_preferred_input_format_for_book(db, book_id):
     recs = load_specifics(db, book_id)
     if recs:
-        return recs.get('gui_preferred_input_format',  None)
+        return recs.get('gui_preferred_input_format', None)
 
 def get_available_formats_for_book(db, book_id):
     available_formats = db.formats(book_id, index_is_id=True)
@@ -147,6 +147,7 @@ class Config(ResizableDialog, Ui_Dialog):
         self.connect(self.groups, SIGNAL('entered(QModelIndex)'),
                 self.show_group_help)
         rb = self.buttonBox.button(self.buttonBox.RestoreDefaults)
+        rb.setText(_('Restore &Defaults'))
         self.connect(rb, SIGNAL('clicked()'), self.restore_defaults)
         self.groups.setMouseTracking(True)
         geom = gprefs.get('convert_single_dialog_geom', None)
@@ -188,7 +189,6 @@ class Config(ResizableDialog, Ui_Dialog):
             return cls(self.stack, self.plumber.get_option_by_name,
                 self.plumber.get_option_help, self.db, self.book_id)
 
-
         self.mw = widget_factory(MetadataWidget)
         self.setWindowTitle(_('Convert')+ ' ' + unicode(self.mw.title.text()))
         lf = widget_factory(LookAndFeelWidget)
@@ -209,7 +209,8 @@ class Config(ResizableDialog, Ui_Dialog):
                 self.plumber.get_option_help, self.db, self.book_id)
         while True:
             c = self.stack.currentWidget()
-            if not c: break
+            if not c:
+                break
             self.stack.removeWidget(c)
 
         widgets = [self.mw, lf, hw, ps, sd, toc, sr]
@@ -233,7 +234,6 @@ class Config(ResizableDialog, Ui_Dialog):
             shutil.rmtree(self.plumber.archive_input_tdir, ignore_errors=True)
         except:
             pass
-
 
     def setup_input_output_formats(self, db, book_id, preferred_input_format,
             preferred_output_format):
