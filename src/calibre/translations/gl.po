@@ -9,14 +9,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-04-12 05:42+0000\n"
-"PO-Revision-Date: 2013-04-20 02:31+0000\n"
+"PO-Revision-Date: 2013-04-21 00:31+0000\n"
 "Last-Translator: Xosé <Unknown>\n"
 "Language-Team: Galician <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-20 05:09+0000\n"
+"X-Launchpad-Export-Date: 2013-04-21 04:37+0000\n"
 "X-Generator: Launchpad (build 16567)\n"
 "Language: gl\n"
 
@@ -4327,7 +4327,7 @@ msgstr "Aplicando transformacións ao libro electrónico..."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:1153
 #, python-format
 msgid "Running %s plugin"
-msgstr ""
+msgstr "A executar o engadido %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:18
 msgid ""
@@ -4344,6 +4344,8 @@ msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "cp1251, latin1 and utf-8."
 msgstr ""
+"Codificación de caracteres dos ficheiros HTML de entrada. As escollas máis "
+"frecuentes inclúen: cp1252, cp1251, latin1 e utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:91
 msgid "Add linked files in breadth first order"
@@ -4390,7 +4392,7 @@ msgstr "\tConvertendo a BBeB..."
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:551
 #, python-format
 msgid "Could not parse file: %s"
-msgstr "Non foi posíbel analizarr o ficheiro: %s"
+msgstr "Non foi posíbel analizar o ficheiro: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:543
 #, python-format
@@ -4405,7 +4407,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:609
 #, python-format
 msgid "Cannot add link %s to TOC"
-msgstr "Non foi posíbel engadir a ligazón %s a TOC"
+msgstr "Non foi posíbel engadir a ligazón %s ao índice"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:959
 #, python-format
@@ -4481,7 +4483,7 @@ msgstr "LRS gardado en "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:267
 msgid "Could not read from thumbnail file:"
-msgstr "Non se puido ler o ficheiro da miniatura:"
+msgstr "Non foi posíbel ler o ficheiro da miniatura:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:287
 msgid ""
