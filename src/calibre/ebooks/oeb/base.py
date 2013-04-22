@@ -1,7 +1,6 @@
 '''
 Basic support for manipulating OEB 1.x/2.0 content and metadata.
 '''
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
@@ -11,7 +10,7 @@ import os, re, uuid, logging
 from collections import defaultdict
 from itertools import count
 from urlparse import urldefrag, urlparse, urlunparse, urljoin
-from urllib import unquote as urlunquote
+from urllib import unquote
 
 from lxml import etree, html
 from calibre.constants import filesystem_encoding, __version__
@@ -372,6 +371,19 @@ def urlquote(href):
         result.append(char)
     return ''.join(result)
 
+def urlunquote(href):
+    # unquote must run on a bytestring and will return a bytestring
+    # If it runs on a unicode object, it returns a double encoded unicode
+    # string: unquote(u'%C3%A4') != unquote(b'%C3%A4').decode('utf-8')
+    # and the latter is correct
+    want_unicode = isinstance(href, unicode)
+    if want_unicode:
+        href = href.encode('utf-8')
+    href = unquote(href)
+    if want_unicode:
+        href = href.decode('utf-8')
+    return href
+
 def urlnormalize(href):
     """Convert a URL into normalized form, with all and only URL-unsafe
     characters URL quoted.
@@ -468,7 +480,7 @@ class DirContainer(object):
                     return
 
     def _unquote(self, path):
-        # urlunquote must run on a bytestring and will return a bytestring
+        # unquote must run on a bytestring and will return a bytestring
         # If it runs on a unicode object, it returns a double encoded unicode
         # string: unquote(u'%C3%A4') != unquote(b'%C3%A4').decode('utf-8')
         # and the latter is correct

@@ -196,6 +196,8 @@ class OEBReader(object):
                         item.media_type[-4:] in ('/xml', '+xml')):
                     hrefs = [r[2] for r in iterlinks(data)]
                     for href in hrefs:
+                        if isinstance(href, bytes):
+                            href = href.decode('utf-8')
                         href, _ = urldefrag(href)
                         if not href:
                             continue
