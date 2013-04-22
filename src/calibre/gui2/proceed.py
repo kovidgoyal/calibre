@@ -18,7 +18,8 @@ from calibre.gui2.dialogs.message_box import ViewLog
 
 Question = namedtuple('Question', 'payload callback cancel_callback '
         'title msg html_log log_viewer_title log_is_file det_msg '
-        'show_copy_button checkbox_msg checkbox_checked')
+        'show_copy_button checkbox_msg checkbox_checked action_callback '
+        'action_label action_icon')
 
 class ProceedQuestion(QDialog):
 
@@ -51,6 +52,8 @@ class ProceedQuestion(QDialog):
         self.copy_button = self.bb.addButton(_('&Copy to clipboard'),
                 self.bb.ActionRole)
         self.copy_button.clicked.connect(self.copy_to_clipboard)
+        self.action_button = self.bb.addButton('', self.bb.ActionRole)
+        self.action_button.clicked.connect(self.action_clicked)
         self.show_det_msg = _('Show &details')
         self.hide_det_msg = _('Hide &details')
         self.det_msg_toggle = self.bb.addButton(self.show_det_msg, self.bb.ActionRole)
@@ -80,6 +83,12 @@ class ProceedQuestion(QDialog):
                     unicode(self.msg_label.text()),
                     unicode(self.det_msg.toPlainText())))
         self.copy_button.setText(_('Copied'))
+
+    def action_clicked(self):
+        if self.questions:
+            q = self.questions[0]
+            self.questions[0] = q._replace(callback=q.action_callback)
+        self.accept()
 
     def accept(self):
         if self.questions:
@@ -123,13 +132,19 @@ class ProceedQuestion(QDialog):
         self.resize(sz)
 
     def show_question(self):
-        if self.isVisible(): return
+        if self.isVisible():
+            return
         if self.questions:
             question = self.questions[0]
             self.msg_label.setText(question.msg)
             self.setWindowTitle(question.title)
             self.log_button.setVisible(bool(question.html_log))
             self.copy_button.setVisible(bool(question.show_copy_button))
+            self.action_button.setVisible(question.action_callback is not None)
+            if question.action_callback is not None:
+                self.action_button.setText(question.action_label or '')
+                self.action_button.setIcon(
+                    QIcon() if question.action_icon is None else question.action_icon)
             self.det_msg.setPlainText(question.det_msg or '')
             self.det_msg.setVisible(False)
             self.det_msg_toggle.setVisible(bool(question.det_msg))
@@ -145,7 +160,8 @@ class ProceedQuestion(QDialog):
 
     def __call__(self, callback, payload, html_log, log_viewer_title, title,
             msg, det_msg='', show_copy_button=False, cancel_callback=None,
-            log_is_file=False, checkbox_msg=None, checkbox_checked=False):
+            log_is_file=False, checkbox_msg=None, checkbox_checked=False,
+            action_callback=None, action_label=None, action_icon=None):
         '''
         A non modal popup that notifies the user that a background task has
         been completed. This class guarantees that only a single popup is
@@ -170,11 +186,19 @@ class ProceedQuestion(QDialog):
                              called with both the payload and the state of the
                              checkbox as arguments.
         :param checkbox_checked: If True the checkbox is checked by default.
+        :param action_callback: If not None, an extra button is added, which
+                                when clicked will cause action_callback to be called
+                                instead of callback. action_callback is called in
+                                exactly the same way as callback.
+        :param action_label: The text on the action button
+        :param action_icon: The icon for the action button, must be a QIcon object or None
 
         '''
-        question = Question(payload, callback, cancel_callback, title, msg,
-                html_log, log_viewer_title, log_is_file, det_msg,
-                show_copy_button, checkbox_msg, checkbox_checked)
+        question = Question(
+            payload, callback, cancel_callback, title, msg, html_log,
+            log_viewer_title, log_is_file, det_msg, show_copy_button,
+            checkbox_msg, checkbox_checked, action_callback, action_label,
+            action_icon)
         self.questions.append(question)
         self.show_question()
 

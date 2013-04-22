@@ -1,91 +1,104 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 2 # Needed for dynamic plugin loading
+store_version = 3 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
+__copyright__ = '2011, 2013, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import base64
 import mimetypes
+import re
 import urllib
 from contextlib import closing
 
-from lxml import html
+from lxml import etree
 
-from PyQt4.Qt import QUrl
-
-from calibre import browser, random_user_agent, url_slash_cleaner
-from calibre.gui2 import open_url
-from calibre.gui2.store import StorePlugin
+from calibre import browser, url_slash_cleaner
+from calibre.constants import __version__
 from calibre.gui2.store.basic_config import BasicStoreConfig
+from calibre.gui2.store.opensearch_store import OpenSearchOPDSStore
 from calibre.gui2.store.search_result import SearchResult
-from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
-class GutenbergStore(BasicStoreConfig, StorePlugin):
+class GutenbergStore(BasicStoreConfig, OpenSearchOPDSStore):
 
-    def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://gutenberg.org/'
-
-        if detail_item:
-            detail_item = url_slash_cleaner(url + detail_item)
-
-        if external or self.config.get('open_external', False):
-            open_url(QUrl(detail_item if detail_item else url))
-        else:
-            d = WebStoreDialog(self.gui, url, parent, detail_item)
-            d.setWindowTitle(self.name)
-            d.set_tags(self.config.get('tags', ''))
-            d.exec_()
+    open_search_url = 'http://www.gutenberg.org/catalog/osd-books.xml'
+    web_url = 'http://m.gutenberg.org/'
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://m.gutenberg.org/ebooks/search.mobile/?default_prefix=all&sort_order=title&query=' + urllib.quote_plus(query)
+        '''
+        Gutenberg's ODPS feed is poorly implmented and has a number of issues
+        which require very special handling to fix the results.
 
-        br = browser(user_agent=random_user_agent())
+        Issues:
+          * "Sort Alphabetically" and "Sort by Release Date" are returned
+            as book entries.
+          * The author is put into a "content" tag and not the author tag.
+          * The link to the book itself goes to an odps page which we need
+            to turn into a link to a web page.
+          * acquisition links are not part of the search result so we have
+            to go to the odps item itself. Detail item pages have a nasty
+            note saying:
+              DON'T USE THIS PAGE FOR SCRAPING. 
+              Seriously. You'll only get your IP blocked.
+            We're using the ODPS feed because people are getting blocked with
+            the previous implementation so due to this using ODPS probably
+            won't solve this issue.
+          * Images are not links but base64 encoded strings. They are also not
+            real cover images but a little blue book thumbnail.
+        '''
+
+        url = 'http://m.gutenberg.org/ebooks/search.opds/?query=' + urllib.quote_plus(query)
 
         counter = max_results
+        br = browser(user_agent='calibre/'+__version__)
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read())
-            for data in doc.xpath('//ol[@class="results"]/li[@class="booklink"]'):
+            doc = etree.fromstring(f.read())
+            for data in doc.xpath('//*[local-name() = "entry"]'):
                 if counter <= 0:
                     break
-
-                id = ''.join(data.xpath('./a/@href'))
-                id = id.split('.mobile')[0]
-
-                title = ''.join(data.xpath('.//span[@class="title"]/text()'))
-                author = ''.join(data.xpath('.//span[@class="subtitle"]/text()'))
 
                 counter -= 1
 
                 s = SearchResult()
-                s.cover_url = ''
 
-                s.detail_item = id.strip()
-                s.title = title.strip()
-                s.author = author.strip()
-                s.price = '$0.00'
-                s.drm = SearchResult.DRM_UNLOCKED
+                # We could use the <link rel="alternate" type="text/html" ...> tag from the
+                # detail odps page but this is easier.
+                id = ''.join(data.xpath('./*[local-name() = "id"]/text()')).strip()
+                s.detail_item = url_slash_cleaner('%s/ebooks/%s' % (self.web_url, re.sub('[^\d]', '', id)))
+                if not s.detail_item:
+                    continue
+
+                s.title = ' '.join(data.xpath('./*[local-name() = "title"]//text()')).strip()
+                s.author = ', '.join(data.xpath('./*[local-name() = "content"]//text()')).strip()
+                if not s.title or not s.author:
+                    continue
+
+                # Get the formats and direct download links.
+                with closing(br.open(id, timeout=timeout/4)) as nf:
+                    ndoc = etree.fromstring(nf.read())
+                    for link in ndoc.xpath('//*[local-name() = "link" and @rel = "http://opds-spec.org/acquisition"]'):
+                        type = link.get('type')
+                        href = link.get('href')
+                        if type:
+                            ext = mimetypes.guess_extension(type)
+                            if ext:
+                                ext = ext[1:].upper().strip()
+                                s.downloads[ext] = href
+
+                s.formats = ', '.join(s.downloads.keys())
+                if not s.formats:
+                    continue
+
+                for link in data.xpath('./*[local-name() = "link"]'):
+                    rel = link.get('rel')
+                    href = link.get('href')
+                    type = link.get('type')
+
+                    if rel and href and type:
+                        if rel in ('http://opds-spec.org/thumbnail', 'http://opds-spec.org/image/thumbnail'):
+                            if href.startswith('data:image/png;base64,'):
+                                s.cover_data = base64.b64decode(href.replace('data:image/png;base64,', ''))
 
                 yield s
-
-    def get_details(self, search_result, timeout):
-        url = url_slash_cleaner('http://m.gutenberg.org/' + search_result.detail_item)
-
-        br = browser(user_agent=random_user_agent())
-        with closing(br.open(url, timeout=timeout)) as nf:
-            doc = html.fromstring(nf.read())
-
-            for save_item in doc.xpath('//li[contains(@class, "icon_save")]/a'):
-                type = save_item.get('type')
-                href = save_item.get('href')
-
-                if type:
-                    ext = mimetypes.guess_extension(type)
-                    if ext:
-                        ext = ext[1:].upper().strip()
-                        search_result.downloads[ext] = href
-
-                search_result.formats = ', '.join(search_result.downloads.keys())
-
-        return True

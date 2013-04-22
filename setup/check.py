@@ -22,40 +22,12 @@ class Message:
         self.filename, self.lineno, self.msg = filename, lineno, msg
 
     def __str__(self):
-        return '%s:%s: %s'%(self.filename, self.lineno, self.msg)
-
-def check_for_python_errors(code_string, filename):
-    import _ast
-    # First, compile into an AST and handle syntax errors.
-    try:
-        tree = compile(code_string, filename, "exec", _ast.PyCF_ONLY_AST)
-    except (SyntaxError, IndentationError) as value:
-        msg = value.args[0]
-
-        (lineno, offset, text) = value.lineno, value.offset, value.text
-
-        # If there's an encoding problem with the file, the text is None.
-        if text is None:
-            # Avoid using msg, since for the only known case, it contains a
-            # bogus message that claims the encoding the file declared was
-            # unknown.
-            msg = "%s: problem decoding source" % filename
-
-        return [Message(filename, lineno, msg)]
-    else:
-        checker = __import__('pyflakes.checker').checker
-        # Okay, it's syntactically valid.  Now check it.
-        w = checker.Checker(tree, filename)
-        w.messages.sort(lambda a, b: cmp(a.lineno, b.lineno))
-        return [Message(x.filename, x.lineno, x.message%x.message_args) for x in
-                w.messages]
+        return '%s:%s: %s' % (self.filename, self.lineno, self.msg)
 
 class Check(Command):
 
     description = 'Check for errors in the calibre source code'
 
-    BUILTINS = ['_', '__', 'dynamic_property', 'I', 'P', 'lopen', 'icu_lower',
-            'icu_upper', 'icu_title', 'ngettext']
     CACHE = '.check-cache.pickle'
 
     def get_files(self, cache):
@@ -65,10 +37,10 @@ class Check(Command):
                 mtime = os.stat(y).st_mtime
                 if cache.get(y, 0) == mtime:
                     continue
-                if (f.endswith('.py') and f not in ('feedparser.py',
-                    'pyparsing.py', 'markdown.py') and
-                    'prs500/driver.py' not in y):
-                        yield y, mtime
+                if (f.endswith('.py') and f not in (
+                        'feedparser.py', 'markdown.py') and
+                        'prs500/driver.py' not in y):
+                    yield y, mtime
                 if f.endswith('.coffee'):
                     yield y, mtime
 
@@ -79,25 +51,22 @@ class Check(Command):
                 if f.endswith('.recipe') and cache.get(f, 0) != mtime:
                     yield f, mtime
 
-
     def run(self, opts):
         cache = {}
         if os.path.exists(self.CACHE):
             cache = cPickle.load(open(self.CACHE, 'rb'))
-        builtins = list(set_builtins(self.BUILTINS))
         for f, mtime in self.get_files(cache):
             self.info('\tChecking', f)
             errors = False
             ext = os.path.splitext(f)[1]
             if ext in {'.py', '.recipe'}:
-                w = check_for_python_errors(open(f, 'rb').read(), f)
-                if w:
+                p = subprocess.Popen(['flake8', '--ignore=E,W', f])
+                if p.wait() != 0:
                     errors = True
-                    self.report_errors(w)
             else:
                 from calibre.utils.serve_coffee import check_coffeescript
                 try:
-                   check_coffeescript(f)
+                    check_coffeescript(f)
                 except:
                     errors = True
             if errors:
@@ -106,8 +75,6 @@ class Check(Command):
                                  self.j(self.SRC, '../session.vim'), '-f', f])
                 raise SystemExit(1)
             cache[f] = mtime
-        for x in builtins:
-            delattr(__builtin__, x)
         cPickle.dump(cache, open(self.CACHE, 'wb'), -1)
         wn_path = os.path.expanduser('~/work/servers/src/calibre_servers/main')
         if os.path.exists(wn_path):

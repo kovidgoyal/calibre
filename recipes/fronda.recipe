@@ -6,6 +6,7 @@ __copyright__ = u'2010-2013, Tomasz Dlugosz <tomek3d@gmail.com>'
 fronda.pl
 '''
 
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import timedelta, date
 
@@ -23,6 +24,7 @@ class Fronda(BasicNewsRecipe):
     extra_css = '''
         h1 {font-size:150%}
         .body {text-align:left;}
+        div#featured-image {font-style:italic; font-size:70%}
     '''
 
     earliest_date = date.today() - timedelta(days=oldest_article)
@@ -55,7 +57,10 @@ class Fronda(BasicNewsRecipe):
         articles = {}
 
         for url, genName in genres:
-            soup = self.index_to_soup('http://www.fronda.pl/c/'+ url)
+            try:
+                soup = self.index_to_soup('http://www.fronda.pl/c/'+ url)
+            except:
+                continue
             articles[genName] = []
             for item in soup.findAll('li'):
                 article_h = item.find('h2')
@@ -77,16 +82,15 @@ class Fronda(BasicNewsRecipe):
         ]
 
     remove_tags = [
-        dict(name='div', attrs={'class':['related-articles',
-                'button right',
-                'pagination']}),
+        dict(name='div', attrs={'class':['related-articles','button right','pagination','related-articles content']}),
         dict(name='h3', attrs={'class':'block-header article comments'}),
-        dict(name='ul', attrs={'class':'comment-list'}),
-        dict(name='ul', attrs={'class':'category'}),
-        dict(name='ul', attrs={'class':'tag-list'}),
+        dict(name='ul', attrs={'class':['comment-list','category','tag-list']}),
         dict(name='p', attrs={'id':'comments-disclaimer'}),
         dict(name='div', attrs={'style':'text-align: left; margin-bottom: 15px;'}),
         dict(name='div', attrs={'style':'text-align: left; margin-top: 15px; margin-bottom: 30px;'}),
-        dict(name='div', attrs={'class':'related-articles content'}),
-        dict(name='div', attrs={'id':'comment-form'})
+        dict(name='div', attrs={'id':'comment-form'}),
+        dict(name='span', attrs={'class':'separator'})
         ]
+
+    preprocess_regexps = [
+        (re.compile(r'komentarzy: .*?</h6>', re.IGNORECASE | re.DOTALL | re.M ), lambda match: '</h6>')]

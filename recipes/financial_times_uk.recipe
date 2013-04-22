@@ -1,13 +1,14 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010-2012, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
-www.ft.com/uk-edition
+www.ft.com/intl/uk-edition
 '''
 
 import datetime
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
+from collections import OrderedDict
 
 class FinancialTimes(BasicNewsRecipe):
     title                 = 'Financial Times (UK)'
@@ -28,7 +29,7 @@ class FinancialTimes(BasicNewsRecipe):
     masthead_url          = 'http://im.media.ft.com/m/img/masthead_main.jpg'
     LOGIN                 = 'https://registration.ft.com/registration/barrier/login'
     LOGIN2                = 'http://media.ft.com/h/subs3.html'
-    INDEX                 = 'http://www.ft.com/uk-edition'
+    INDEX                 = 'http://www.ft.com/intl/uk-edition'
     PREFIX                = 'http://www.ft.com'
 
     conversion_options = {
@@ -93,7 +94,7 @@ class FinancialTimes(BasicNewsRecipe):
             try:
                 urlverified = self.browser.open_novisit(url).geturl() # resolve redirect.
             except:
-                continue 
+                continue
             title = self.tag_to_string(item)
             date = strftime(self.timefmt)
             articles.append({
@@ -105,29 +106,30 @@ class FinancialTimes(BasicNewsRecipe):
         return articles
 
     def parse_index(self):
-        feeds = []
+        feeds = OrderedDict()
         soup = self.index_to_soup(self.INDEX)
-        dates= self.tag_to_string(soup.find('div', attrs={'class':'btm-links'}).find('div'))
-        self.timefmt = ' [%s]'%dates
-        wide = soup.find('div',attrs={'class':'wide'})
-        if not wide:
-           return feeds
-        allsections = wide.findAll(attrs={'class':lambda x: x and 'footwell' in x.split()})
-        if not allsections:
-           return feeds
-        count = 0
-        for item in allsections:
-            count = count + 1
-            if self.test and count > 2:
-               return feeds
-            fitem = item.h3
-            if not fitem:
-               fitem = item.h4
-            ftitle = self.tag_to_string(fitem)   
-            self.report_progress(0, _('Fetching feed')+' %s...'%(ftitle))
-            feedarts = self.get_artlinks(item.ul)
-            feeds.append((ftitle,feedarts))
-        return feeds
+        #dates= self.tag_to_string(soup.find('div', attrs={'class':'btm-links'}).find('div'))
+        #self.timefmt = ' [%s]'%dates
+        section_title = 'Untitled'
+
+        for column in soup.findAll('div', attrs = {'class':'feedBoxes clearfix'}):
+            for section in column. findAll('div', attrs = {'class':'feedBox'}):
+                sectiontitle=self.tag_to_string(section.find('h4'))
+                if '...' not in sectiontitle: section_title=sectiontitle
+                for article in section.ul.findAll('li'):
+                    articles = []
+                    title=self.tag_to_string(article.a)
+                    url=article.a['href']
+                    articles.append({'title':title, 'url':url, 'description':'', 'date':''})
+
+                    if articles:
+                        if section_title not in feeds:
+                            feeds[section_title] = []
+                        feeds[section_title] += articles
+
+
+        ans = [(key, val) for key, val in feeds.iteritems()]
+        return ans
 
     def preprocess_html(self, soup):
         items = ['promo-box','promo-title',
@@ -174,9 +176,6 @@ class FinancialTimes(BasicNewsRecipe):
             count += 1
         tfile = PersistentTemporaryFile('_fa.html')
         tfile.write(html)
-        tfile.close()        
+        tfile.close()
         self.temp_files.append(tfile)
         return tfile.name
-
-    def cleanup(self):
-        self.browser.open('https://registration.ft.com/registration/login/logout?location=')

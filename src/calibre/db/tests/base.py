@@ -16,6 +16,9 @@ rmtree = partial(shutil.rmtree, ignore_errors=True)
 
 class BaseTest(unittest.TestCase):
 
+    longMessage = True
+    maxDiff = None
+
     def setUp(self):
         self.library_path = self.mkdtemp()
         self.create_db(self.library_path)
@@ -40,10 +43,10 @@ class BaseTest(unittest.TestCase):
         db.conn.close()
         return dest
 
-    def init_cache(self, library_path):
+    def init_cache(self, library_path=None):
         from calibre.db.backend import DB
         from calibre.db.cache import Cache
-        backend = DB(library_path)
+        backend = DB(library_path or self.library_path)
         cache = Cache(backend)
         cache.init()
         return cache
@@ -53,9 +56,13 @@ class BaseTest(unittest.TestCase):
         atexit.register(rmtree, ans)
         return ans
 
-    def init_old(self, library_path):
+    def init_old(self, library_path=None):
         from calibre.library.database2 import LibraryDatabase2
-        return LibraryDatabase2(library_path)
+        return LibraryDatabase2(library_path or self.library_path)
+
+    def init_legacy(self, library_path=None):
+        from calibre.db.legacy import LibraryDatabase
+        return LibraryDatabase(library_path or self.library_path)
 
     def clone_library(self, library_path):
         if not hasattr(self, 'clone_dir'):
@@ -81,7 +88,8 @@ class BaseTest(unittest.TestCase):
                     'ondevice_col', 'last_modified', 'has_cover',
                     'cover_data'}.union(allfk1)
         for attr in all_keys:
-            if attr == 'user_metadata': continue
+            if attr == 'user_metadata':
+                continue
             attr1, attr2 = getattr(mi1, attr), getattr(mi2, attr)
             if attr == 'formats':
                 attr1, attr2 = map(lambda x:tuple(x) if x else (), (attr1, attr2))

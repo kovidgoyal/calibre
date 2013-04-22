@@ -757,9 +757,10 @@ from calibre.ebooks.metadata.sources.isbndb import ISBNDB
 from calibre.ebooks.metadata.sources.overdrive import OverDrive
 from calibre.ebooks.metadata.sources.douban import Douban
 from calibre.ebooks.metadata.sources.ozon import Ozon
-# from calibre.ebooks.metadata.sources.google_images import GoogleImages
+from calibre.ebooks.metadata.sources.google_images import GoogleImages
+from calibre.ebooks.metadata.sources.big_book_search import BigBookSearch
 
-plugins += [GoogleBooks, Amazon, Edelweiss, OpenLibrary, ISBNDB, OverDrive, Douban, Ozon]
+plugins += [GoogleBooks, GoogleImages, Amazon, Edelweiss, OpenLibrary, ISBNDB, OverDrive, Douban, Ozon, BigBookSearch]
 
 # }}}
 
@@ -1467,6 +1468,17 @@ class StoreKoboStore(StoreBase):
     formats = ['EPUB']
     affiliate = True
 
+class StoreKoobeStore(StoreBase):
+    name = 'Koobe'
+    author = u'Tomasz Długosz'
+    description = u'Księgarnia internetowa oferuje ebooki (książki elektroniczne) w postaci plików epub, mobi i pdf.'
+    actual_plugin = 'calibre.gui2.store.stores.koobe_plugin:KoobeStore'
+
+    drm_free_only = True
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
+
 class StoreLegimiStore(StoreBase):
     name = 'Legimi'
     author = u'Tomasz Długosz'
@@ -1649,6 +1661,7 @@ class StoreWoblinkStore(StoreBase):
 
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF', 'WOBLINK']
+    affiliate = True
 
 class XinXiiStore(StoreBase):
     name = 'XinXii'
@@ -1686,6 +1699,7 @@ plugins += [
     StoreGoogleBooksStore,
     StoreGutenbergStore,
     StoreKoboStore,
+    StoreKoobeStore,
     StoreLegimiStore,
     StoreLibreDEStore,
     StoreLitResStore,

@@ -13,9 +13,9 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
 
     masthead_url = 'http://www.nmauk.co.uk/nma/images/daily_mirror.gif'
 
-
+    compress_news_images = True
     oldest_article = 1
-    max_articles_per_feed = 1
+    max_articles_per_feed = 12
     remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets = True

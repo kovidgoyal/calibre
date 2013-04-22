@@ -180,6 +180,13 @@ class DeleteAction(InterfaceAction):
                 self.gui.library_view.currentIndex())
         self.gui.tags_view.recount()
 
+    def restore_format(self, book_id, original_fmt):
+        self.gui.current_db.restore_original_format(book_id, original_fmt)
+        self.gui.library_view.model().refresh_ids([book_id])
+        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
+                self.gui.library_view.currentIndex())
+        self.gui.tags_view.recount()
+
     def delete_selected_formats(self, *args):
         ids = self._get_selected_ids()
         if not ids:

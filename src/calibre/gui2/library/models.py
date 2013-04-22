@@ -12,7 +12,7 @@ from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
         QModelIndex, QVariant, QDateTime, QColor, QPixmap)
 
 from calibre.gui2 import NONE, UNDEFINED_QDATETIME, error_dialog
-from calibre.utils.pyparsing import ParseException
+from calibre.utils.search_query_parser import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import SafeFormat
 from calibre.ptempfile import PersistentTemporaryFile

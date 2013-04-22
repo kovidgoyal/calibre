@@ -16,11 +16,10 @@ from calibre.constants import __appname__
 from calibre.gui2.search_box import SearchBox2, SavedSearchBox
 from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2.bars import BarsManager
-from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.utils.config_base import tweaks
 from calibre import human_readable
 
-class LocationManager(QObject): # {{{
+class LocationManager(QObject):  # {{{
 
     locations_changed = pyqtSignal()
     unmount_device = pyqtSignal()
@@ -165,7 +164,7 @@ class LocationManager(QObject): # {{{
 
 # }}}
 
-class SearchBar(QWidget): # {{{
+class SearchBar(QWidget):  # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -173,11 +172,13 @@ class SearchBar(QWidget): # {{{
         self.setLayout(self._layout)
         self._layout.setContentsMargins(0,5,0,0)
 
-        x = ComboBoxWithHelp(self)
-        x.setMaximumSize(QSize(150, 16777215))
-        x.setObjectName("search_restriction")
+        x = QToolButton(self)
+        x.setText(_('Virtual Library'))
+        x.setIcon(QIcon(I('lt.png')))
+        x.setObjectName("virtual_library")
+        x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         l.addWidget(x)
-        parent.search_restriction = x
+        parent.virtual_library = x
 
         x = QLabel(self)
         x.setObjectName("search_count")
@@ -243,7 +244,7 @@ class SearchBar(QWidget): # {{{
 
 # }}}
 
-class Spacer(QWidget): # {{{
+class Spacer(QWidget):  # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -252,7 +253,7 @@ class Spacer(QWidget): # {{{
         self.l.addStretch(10)
 # }}}
 
-class MainWindowMixin(object): # {{{
+class MainWindowMixin(object):  # {{{
 
     def __init__(self, db):
         self.setObjectName('MainWindow')

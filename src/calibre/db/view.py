@@ -11,6 +11,9 @@ import weakref
 from functools import partial
 from itertools import izip, imap
 
+from calibre.ebooks.metadata import title_sort
+from calibre.utils.config_base import tweaks
+
 def sanitize_sort_field_name(field_metadata, field):
     field = field_metadata.search_term_to_field_key(field.lower().strip())
     # translate some fields to their hidden equivalent
@@ -40,6 +43,18 @@ class TableRow(list):
         else:
             return view._field_getters[obj](self.book_id)
 
+def format_is_multiple(x, sep=',', repl=None):
+    if not x:
+        return None
+    if repl is not None:
+        x = (y.replace(sep, repl) for y in x)
+    return sep.join(x)
+
+def format_identifiers(x):
+    if not x:
+        return None
+    return ','.join('%s:%s'%(k, v) for k, v in x.iteritems())
+
 class View(object):
 
     ''' A table view of the database, with rows and columns. Also supports
@@ -49,33 +64,63 @@ class View(object):
         self.cache = cache
         self.marked_ids = {}
         self.search_restriction_book_count = 0
-        self.search_restriction = ''
+        self.search_restriction = self.base_restriction = ''
+        self.search_restriction_name = self.base_restriction_name = ''
         self._field_getters = {}
         for col, idx in cache.backend.FIELD_MAP.iteritems():
+            label, fmt = col, lambda x:x
+            func = {
+                    'id': self._get_id,
+                    'au_map': self.get_author_data,
+                    'ondevice': self.get_ondevice,
+                    'marked': self.get_marked,
+                    'series_sort':self.get_series_sort,
+                }.get(col, self._get)
             if isinstance(col, int):
                 label = self.cache.backend.custom_column_num_map[col]['label']
                 label = (self.cache.backend.field_metadata.custom_field_prefix
                         + label)
-                self._field_getters[idx] = partial(self.get, label)
-            else:
+            if label.endswith('_index'):
                 try:
-                    self._field_getters[idx] = {
-                        'id'      : self._get_id,
-                        'au_map'  : self.get_author_data,
-                        'ondevice': self.get_ondevice,
-                        'marked'  : self.get_marked,
-                    }[col]
-                except KeyError:
-                    self._field_getters[idx] = partial(self.get, col)
+                    num = int(label.partition('_')[0])
+                except ValueError:
+                    pass  # series_index
+                else:
+                    label = self.cache.backend.custom_column_num_map[num]['label']
+                    label = (self.cache.backend.field_metadata.custom_field_prefix
+                            + label + '_index')
+
+            fm = self.field_metadata[label]
+            fm
+            if label == 'authors':
+                fmt = partial(format_is_multiple, repl='|')
+            elif label in {'tags', 'languages', 'formats'}:
+                fmt = format_is_multiple
+            elif label == 'cover':
+                fmt = bool
+            elif label == 'identifiers':
+                fmt = format_identifiers
+            elif fm['datatype'] == 'text' and fm['is_multiple']:
+                sep = fm['is_multiple']['cache_to_list']
+                if sep not in {'&','|'}:
+                    sep = '|'
+                fmt = partial(format_is_multiple, sep=sep)
+            self._field_getters[idx] = partial(func, label, fmt=fmt) if func == self._get else func
 
         self._map = tuple(self.cache.all_book_ids())
         self._map_filtered = tuple(self._map)
+
+    def get_property(self, id_or_index, index_is_id=False, loc=-1):
+        book_id = id_or_index if index_is_id else self._map_filtered[id_or_index]
+        return self._field_getters[loc](book_id)
 
     @property
     def field_metadata(self):
         return self.cache.field_metadata
 
     def _get_id(self, idx, index_is_id=True):
+        if index_is_id and idx not in self.cache.all_book_ids():
+            raise IndexError('No book with id %s present'%idx)
         return idx if index_is_id else self.index_to_id(idx)
 
     def __getitem__(self, row):
@@ -107,9 +152,21 @@ class View(object):
     def index_to_id(self, idx):
         return self._map_filtered[idx]
 
-    def get(self, field, idx, index_is_id=True, default_value=None):
+    def _get(self, field, idx, index_is_id=True, default_value=None, fmt=lambda x:x):
         id_ = idx if index_is_id else self.index_to_id(idx)
-        return self.cache.field_for(field, id_)
+        if index_is_id and id_ not in self.cache.all_book_ids():
+            raise IndexError('No book with id %s present'%idx)
+        return fmt(self.cache.field_for(field, id_, default_value=default_value))
+
+    def get_series_sort(self, idx, index_is_id=True, default_value=''):
+        book_id = idx if index_is_id else self.index_to_id(idx)
+        with self.cache.read_lock:
+            lang_map = self.cache.fields['languages'].book_value_map
+            lang = lang_map.get(book_id, None) or None
+            if lang:
+                lang = lang[0]
+            return title_sort(self.cache._field_for('series', book_id, default_value=''),
+                              order=tweaks['title_series_sorting'], lang=lang)
 
     def get_ondevice(self, idx, index_is_id=True, default_value=''):
         id_ = idx if index_is_id else self.index_to_id(idx)
@@ -119,26 +176,15 @@ class View(object):
         id_ = idx if index_is_id else self.index_to_id(idx)
         return self.marked_ids.get(id_, default_value)
 
-    def get_author_data(self, idx, index_is_id=True, default_value=()):
-        '''
-        Return author data for all authors of the book identified by idx as a
-        tuple of dictionaries. The dictionaries should never be empty, unless
-        there is a bug somewhere. The list could be empty if idx point to an
-        non existent book, or book with no authors (though again a book with no
-        authors should never happen).
-
-        Each dictionary has the keys: name, sort, link. Link can be an empty
-        string.
-
-        default_value is ignored, this method always returns a tuple
-        '''
+    def get_author_data(self, idx, index_is_id=True, default_value=None):
         id_ = idx if index_is_id else self.index_to_id(idx)
         with self.cache.read_lock:
             ids = self.cache._field_ids_for('authors', id_)
             ans = []
             for id_ in ids:
-                ans.append(self.cache._author_data(id_))
-        return tuple(ans)
+                data = self.cache._author_data(id_)
+                ans.append(':::'.join((data['name'], data['sort'], data['link'])))
+        return ':#:'.join(ans) if ans else default_value
 
     def multisort(self, fields=[], subsort=False, only_ids=None):
         fields = [(sanitize_sort_field_name(self.field_metadata, x), bool(y)) for x, y in fields]
@@ -168,8 +214,19 @@ class View(object):
             return ans
         self._map_filtered = tuple(ans)
 
+    def _build_restriction_string(self, restriction):
+        if self.base_restriction:
+            if restriction:
+                return u'(%s) and (%s)' % (self.base_restriction, restriction)
+            else:
+                return self.base_restriction
+        else:
+            return restriction
+
     def search_getting_ids(self, query, search_restriction,
-                           set_restriction_count=False):
+                           set_restriction_count=False, use_virtual_library=True):
+        if use_virtual_library:
+            search_restriction = self._build_restriction_string(search_restriction)
         q = ''
         if not query or not query.strip():
             q = search_restriction
@@ -188,11 +245,32 @@ class View(object):
             self.search_restriction_book_count = len(rv)
         return rv
 
+    def get_search_restriction(self):
+        return self.search_restriction
+
     def set_search_restriction(self, s):
         self.search_restriction = s
 
+    def get_base_restriction(self):
+        return self.base_restriction
+
+    def set_base_restriction(self, s):
+        self.base_restriction = s
+
+    def get_base_restriction_name(self):
+        return self.base_restriction_name
+
+    def set_base_restriction_name(self, s):
+        self.base_restriction_name = s
+
+    def get_search_restriction_name(self):
+        return self.search_restriction_name
+
+    def set_search_restriction_name(self, s):
+        self.search_restriction_name = s
+
     def search_restriction_applied(self):
-        return bool(self.search_restriction)
+        return bool(self.search_restriction) or bool(self.base_restriction)
 
     def get_search_restriction_book_count(self):
         return self.search_restriction_book_count

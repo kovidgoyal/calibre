@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback
+import os, traceback, random
 from io import BytesIO
 from collections import defaultdict
 from functools import wraps, partial
@@ -15,7 +15,7 @@ from functools import wraps, partial
 from calibre.constants import iswindows
 from calibre.db import SPOOL_SIZE
 from calibre.db.categories import get_categories
-from calibre.db.locking import create_locks, RecordLock
+from calibre.db.locking import create_locks
 from calibre.db.errors import NoSuchFormat
 from calibre.db.fields import create_field
 from calibre.db.search import Search
@@ -23,9 +23,10 @@ from calibre.db.tables import VirtualTable
 from calibre.db.write import get_series_values
 from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import (base_dir, PersistentTemporaryFile,
                                SpooledTemporaryFile)
-from calibre.utils.date import now
+from calibre.utils.date import now as nowf
 from calibre.utils.icu import sort_key
 
 def api(f):
@@ -57,9 +58,10 @@ class Cache(object):
         self.fields = {}
         self.composites = set()
         self.read_lock, self.write_lock = create_locks()
-        self.record_lock = RecordLock(self.read_lock)
         self.format_metadata_cache = defaultdict(dict)
         self.formatter_template_cache = {}
+        self.dirtied_cache = {}
+        self.dirtied_sequence = 0
         self._search_api = Search(self.field_metadata.get_search_terms())
 
         # Implement locking for all simple read/write API methods
@@ -78,17 +80,18 @@ class Cache(object):
 
         self.initialize_dynamic()
 
+    @write_api
     def initialize_dynamic(self):
         # Reconstruct the user categories, putting them into field_metadata
         # Assumption is that someone else will fix them if they change.
         self.field_metadata.remove_dynamic_categories()
-        for user_cat in sorted(self.pref('user_categories', {}).iterkeys(), key=sort_key):
-            cat_name = '@' + user_cat # add the '@' to avoid name collision
+        for user_cat in sorted(self._pref('user_categories', {}).iterkeys(), key=sort_key):
+            cat_name = '@' + user_cat  # add the '@' to avoid name collision
             self.field_metadata.add_user_category(label=cat_name, name=user_cat)
 
         # add grouped search term user categories
-        muc = frozenset(self.pref('grouped_search_make_user_categories', []))
-        for cat in sorted(self.pref('grouped_search_terms', {}).iterkeys(), key=sort_key):
+        muc = frozenset(self._pref('grouped_search_make_user_categories', []))
+        for cat in sorted(self._pref('grouped_search_terms', {}).iterkeys(), key=sort_key):
             if cat in muc:
                 # There is a chance that these can be duplicates of an existing
                 # user category. Print the exception and continue.
@@ -102,15 +105,20 @@ class Cache(object):
         #     self.field_metadata.add_search_category(label='search', name=_('Searches'))
 
         self.field_metadata.add_grouped_search_terms(
-                                    self.pref('grouped_search_terms', {}))
+                                    self._pref('grouped_search_terms', {}))
 
         self._search_api.change_locations(self.field_metadata.get_search_terms())
+
+        self.dirtied_cache = {x:i for i, (x,) in enumerate(
+            self.backend.conn.execute('SELECT book FROM metadata_dirtied'))}
+        if self.dirtied_cache:
+            self.dirtied_sequence = max(self.dirtied_cache.itervalues())+1
 
     @property
     def field_metadata(self):
         return self.backend.field_metadata
 
-    def _get_metadata(self, book_id, get_user_categories=True): # {{{
+    def _get_metadata(self, book_id, get_user_categories=True):  # {{{
         mi = Metadata(None, template_cache=self.formatter_template_cache)
         author_ids = self._field_ids_for('authors', book_id)
         aut_list = [self._author_data(i) for i in author_ids]
@@ -131,7 +139,7 @@ class Cache(object):
         mi.author_link_map = aul
         mi.comments    = self._field_for('comments', book_id)
         mi.publisher   = self._field_for('publisher', book_id)
-        n = now()
+        n = nowf()
         mi.timestamp   = self._field_for('timestamp', book_id, default_value=n)
         mi.pubdate     = self._field_for('pubdate', book_id, default_value=n)
         mi.uuid        = self._field_for('uuid', book_id,
@@ -395,16 +403,19 @@ class Cache(object):
         '''
         if as_file:
             ret = SpooledTemporaryFile(SPOOL_SIZE)
-            if not self.copy_cover_to(book_id, ret): return
+            if not self.copy_cover_to(book_id, ret):
+                return
             ret.seek(0)
         elif as_path:
             pt = PersistentTemporaryFile('_dbcover.jpg')
             with pt:
-                if not self.copy_cover_to(book_id, pt): return
+                if not self.copy_cover_to(book_id, pt):
+                    return
             ret = pt.name
         else:
             buf = BytesIO()
-            if not self.copy_cover_to(book_id, buf): return
+            if not self.copy_cover_to(book_id, buf):
+                return
             ret = buf.getvalue()
             if as_image:
                 from PyQt4.Qt import QImage
@@ -413,7 +424,7 @@ class Cache(object):
                 ret = i
         return ret
 
-    @api
+    @read_api
     def copy_cover_to(self, book_id, dest, use_hardlink=False):
         '''
         Copy the cover to the file like object ``dest``. Returns False
@@ -422,17 +433,15 @@ class Cache(object):
         copied to it iff the path is different from the current path (taking
         case sensitivity into account).
         '''
-        with self.read_lock:
-            try:
-                path = self._field_for('path', book_id).replace('/', os.sep)
-            except:
-                return False
+        try:
+            path = self._field_for('path', book_id).replace('/', os.sep)
+        except AttributeError:
+            return False
 
-        with self.record_lock.lock(book_id):
-            return self.backend.copy_cover_to(path, dest,
+        return self.backend.copy_cover_to(path, dest,
                                               use_hardlink=use_hardlink)
 
-    @api
+    @read_api
     def copy_format_to(self, book_id, fmt, dest, use_hardlink=False):
         '''
         Copy the format ``fmt`` to the file like object ``dest``. If the
@@ -441,15 +450,13 @@ class Cache(object):
         the path is different from the current path (taking case sensitivity
         into account).
         '''
-        with self.read_lock:
-            try:
-                name = self.fields['formats'].format_fname(book_id, fmt)
-                path = self._field_for('path', book_id).replace('/', os.sep)
-            except:
-                raise NoSuchFormat('Record %d has no %s file'%(book_id, fmt))
+        try:
+            name = self.fields['formats'].format_fname(book_id, fmt)
+            path = self._field_for('path', book_id).replace('/', os.sep)
+        except (KeyError, AttributeError):
+            raise NoSuchFormat('Record %d has no %s file'%(book_id, fmt))
 
-        with self.record_lock.lock(book_id):
-            return self.backend.copy_format_to(book_id, fmt, name, path, dest,
+        return self.backend.copy_format_to(book_id, fmt, name, path, dest,
                                                use_hardlink=use_hardlink)
 
     @read_api
@@ -520,16 +527,16 @@ class Cache(object):
                                   this means that repeated calls yield the same
                                   temp file (which is re-created each time)
         '''
-        with self.read_lock:
-            ext = ('.'+fmt.lower()) if fmt else ''
-            try:
-                fname = self.fields['formats'].format_fname(book_id, fmt)
-            except:
-                return None
-            fname += ext
-
+        ext = ('.'+fmt.lower()) if fmt else ''
         if as_path:
             if preserve_filename:
+                with self.read_lock:
+                    try:
+                        fname = self.fields['formats'].format_fname(book_id, fmt)
+                    except:
+                        return None
+                    fname += ext
+
                 bd = base_dir()
                 d = os.path.join(bd, 'format_abspath')
                 try:
@@ -537,36 +544,40 @@ class Cache(object):
                 except:
                     pass
                 ret = os.path.join(d, fname)
-                with self.record_lock.lock(book_id):
-                    try:
-                        self.copy_format_to(book_id, fmt, ret)
-                    except NoSuchFormat:
-                        return None
+                try:
+                    self.copy_format_to(book_id, fmt, ret)
+                except NoSuchFormat:
+                    return None
             else:
-                with PersistentTemporaryFile(ext) as pt, self.record_lock.lock(book_id):
+                with PersistentTemporaryFile(ext) as pt:
                     try:
                         self.copy_format_to(book_id, fmt, pt)
                     except NoSuchFormat:
                         return None
                     ret = pt.name
         elif as_file:
-            ret = SpooledTemporaryFile(SPOOL_SIZE)
-            with self.record_lock.lock(book_id):
+            with self.read_lock:
                 try:
-                    self.copy_format_to(book_id, fmt, ret)
-                except NoSuchFormat:
+                    fname = self.fields['formats'].format_fname(book_id, fmt)
+                except:
                     return None
+                fname += ext
+
+            ret = SpooledTemporaryFile(SPOOL_SIZE)
+            try:
+                self.copy_format_to(book_id, fmt, ret)
+            except NoSuchFormat:
+                return None
             ret.seek(0)
             # Various bits of code try to use the name as the default
             # title when reading metadata, so set it
             ret.name = fname
         else:
             buf = BytesIO()
-            with self.record_lock.lock(book_id):
-                try:
-                    self.copy_format_to(book_id, fmt, buf)
-                except NoSuchFormat:
-                    return None
+            try:
+                self.copy_format_to(book_id, fmt, buf)
+            except NoSuchFormat:
+                return None
 
             ret = buf.getvalue()
 
@@ -621,6 +632,30 @@ class Cache(object):
                               icon_map=icon_map)
 
     @write_api
+    def update_last_modified(self, book_ids, now=None):
+        if now is None:
+            now = nowf()
+        if book_ids:
+            f = self.fields['last_modified']
+            f.writer.set_books({book_id:now for book_id in book_ids}, self.backend)
+
+    @write_api
+    def mark_as_dirty(self, book_ids):
+        self._update_last_modified(book_ids)
+        already_dirtied = set(self.dirtied_cache).intersection(book_ids)
+        new_dirtied = book_ids - already_dirtied
+        already_dirtied = {book_id:self.dirtied_sequence+i for i, book_id in enumerate(already_dirtied)}
+        if already_dirtied:
+            self.dirtied_sequence = max(already_dirtied.itervalues()) + 1
+        self.dirtied_cache.update(already_dirtied)
+        if new_dirtied:
+            self.backend.conn.executemany('INSERT OR IGNORE INTO metadata_dirtied (book) VALUES (?)',
+                                    ((x,) for x in new_dirtied))
+            new_dirtied = {book_id:self.dirtied_sequence+i for i, book_id in enumerate(new_dirtied)}
+            self.dirtied_sequence = max(new_dirtied.itervalues()) + 1
+            self.dirtied_cache.update(new_dirtied)
+
+    @write_api
     def set_field(self, name, book_id_to_val_map, allow_case_change=True):
         f = self.fields[name]
         is_series = f.metadata['datatype'] == 'series'
@@ -637,7 +672,7 @@ class Cache(object):
                 else:
                     v = sid = None
                 if name.startswith('#') and sid is None:
-                    sid = 1.0 # The value will be set to 1.0 in the db table
+                    sid = 1.0  # The value will be set to 1.0 in the db table
                 bimap[k] = v
                 if sid is not None:
                     simap[k] = sid
@@ -657,7 +692,7 @@ class Cache(object):
         if dirtied and update_path:
             self._update_path(dirtied, mark_as_dirtied=False)
 
-        # TODO: Mark these as dirtied so that the opf is regenerated
+        self._mark_as_dirty(dirtied)
 
         return dirtied
 
@@ -668,13 +703,115 @@ class Cache(object):
             author = self._field_for('authors', book_id, default_value=(_('Unknown'),))[0]
             self.backend.update_path(book_id, title, author, self.fields['path'], self.fields['formats'])
             if mark_as_dirtied:
+                self._mark_as_dirty(book_ids)
+
+    @read_api
+    def get_a_dirtied_book(self):
+        if self.dirtied_cache:
+            return random.choice(tuple(self.dirtied_cache.iterkeys()))
+        return None
+
+    @read_api
+    def get_metadata_for_dump(self, book_id):
+        mi = None
+        # get the current sequence number for this book to pass back to the
+        # backup thread. This will avoid double calls in the case where the
+        # thread has not done the work between the put and the get_metadata
+        sequence = self.dirtied_cache.get(book_id, None)
+        if sequence is not None:
+            try:
+                # While a book is being created, the path is empty. Don't bother to
+                # try to write the opf, because it will go to the wrong folder.
+                if self._field_for('path', book_id):
+                    mi = self._get_metadata(book_id)
+                    # Always set cover to cover.jpg. Even if cover doesn't exist,
+                    # no harm done. This way no need to call dirtied when
+                    # cover is set/removed
+                    mi.cover = 'cover.jpg'
+            except:
+                # This almost certainly means that the book has been deleted while
+                # the backup operation sat in the queue.
                 pass
-            # TODO: Mark these books as dirtied so that metadata.opf is
-            # re-created
+        return mi, sequence
+
+    @write_api
+    def clear_dirtied(self, book_id, sequence):
+        '''
+        Clear the dirtied indicator for the books. This is used when fetching
+        metadata, creating an OPF, and writing a file are separated into steps.
+        The last step is clearing the indicator
+        '''
+        dc_sequence = self.dirtied_cache.get(book_id, None)
+        if dc_sequence is None or sequence is None or dc_sequence == sequence:
+            self.backend.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
+                    (book_id,))
+            self.dirtied_cache.pop(book_id, None)
+
+    @write_api
+    def write_backup(self, book_id, raw):
+        try:
+            path = self._field_for('path', book_id).replace('/', os.sep)
+        except:
+            return
+
+        self.backend.write_backup(path, raw)
+
+    @read_api
+    def dirty_queue_length(self):
+        return len(self.dirtied_cache)
+
+    @read_api
+    def read_backup(self, book_id):
+        ''' Return the OPF metadata backup for the book as a bytestring or None
+        if no such backup exists.  '''
+        try:
+            path = self._field_for('path', book_id).replace('/', os.sep)
+        except:
+            return
+
+        try:
+            return self.backend.read_backup(path)
+        except EnvironmentError:
+            return None
+
+    @write_api
+    def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
+            callback=None):
+        '''
+        Write metadata for each record to an individual OPF file. If callback
+        is not None, it is called once at the start with the number of book_ids
+        being processed. And once for every book_id, with arguments (book_id,
+        mi, ok).
+        '''
+        if book_ids is None:
+            book_ids = set(self.dirtied_cache)
+
+        if callback is not None:
+            callback(len(book_ids), True, False)
+
+        for book_id in book_ids:
+            if self._field_for('path', book_id) is None:
+                if callback is not None:
+                    callback(book_id, None, False)
+                continue
+            mi, sequence = self._get_metadata_for_dump(book_id)
+            if mi is None:
+                if callback is not None:
+                    callback(book_id, mi, False)
+                continue
+            try:
+                raw = metadata_to_opf(mi)
+                self._write_backup(book_id, raw)
+                if remove_from_dirtied:
+                    self._clear_dirtied(book_id, sequence)
+            except:
+                pass
+            if callback is not None:
+                callback(book_id, mi, True)
 
     # }}}
 
-class SortKey(object): # {{{
+class SortKey(object):  # {{{
 
     def __init__(self, fields, sort_keys, book_id):
         self.orders = tuple(1 if f[1] else -1 for f in fields)
