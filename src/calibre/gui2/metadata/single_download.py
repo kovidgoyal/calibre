@@ -21,7 +21,7 @@ from PyQt4.Qt import (
     QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QStyle, QStackedWidget,
     QWidget, QTableView, QGridLayout, QFontInfo, QPalette, QTimer, pyqtSignal,
     QAbstractTableModel, QVariant, QSize, QListView, QPixmap, QModelIndex,
-    QAbstractListModel, QColor, QRect, QTextBrowser, QStringListModel)
+    QAbstractListModel, QColor, QRect, QTextBrowser, QStringListModel, QMenu, QCursor)
 from PyQt4.QtWebKit import QWebView
 
 from calibre.customize.ui import metadata_plugins
@@ -40,7 +40,7 @@ from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ptempfile import TemporaryDirectory
 # }}}
 
-class RichTextDelegate(QStyledItemDelegate): # {{{
+class RichTextDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, parent=None, max_width=160):
         QStyledItemDelegate.__init__(self, parent)
@@ -77,7 +77,7 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
         painter.restore()
 # }}}
 
-class CoverDelegate(QStyledItemDelegate): # {{{
+class CoverDelegate(QStyledItemDelegate):  # {{{
 
     needs_redraw = pyqtSignal()
 
@@ -143,7 +143,7 @@ class CoverDelegate(QStyledItemDelegate): # {{{
 
 # }}}
 
-class ResultsModel(QAbstractTableModel): # {{{
+class ResultsModel(QAbstractTableModel):  # {{{
 
     COLUMNS = (
             '#', _('Title'), _('Published'), _('Has cover'), _('Has summary')
@@ -181,7 +181,6 @@ class ResultsModel(QAbstractTableModel): # {{{
             d = format_date(book.pubdate, 'yyyy') if book.pubdate else _('Unknown')
             p = book.publisher if book.publisher else ''
             return '<b>%s</b><br><i>%s</i>' % (d, p)
-
 
     def data(self, index, role):
         row, col = index.row(), index.column()
@@ -233,7 +232,7 @@ class ResultsModel(QAbstractTableModel): # {{{
 
 # }}}
 
-class ResultsView(QTableView): # {{{
+class ResultsView(QTableView):  # {{{
 
     show_details_signal = pyqtSignal(object)
     book_selected = pyqtSignal(object)
@@ -316,7 +315,7 @@ class ResultsView(QTableView): # {{{
 
 # }}}
 
-class Comments(QWebView): # {{{
+class Comments(QWebView):  # {{{
 
     def __init__(self, parent=None):
         QWebView.__init__(self, parent)
@@ -384,7 +383,7 @@ class Comments(QWebView): # {{{
         return QSize(800, 300)
 # }}}
 
-class IdentifyWorker(Thread): # {{{
+class IdentifyWorker(Thread):  # {{{
 
     def __init__(self, log, abort, title, authors, identifiers, caches):
         Thread.__init__(self)
@@ -441,7 +440,7 @@ class IdentifyWorker(Thread): # {{{
 
 # }}}
 
-class IdentifyWidget(QWidget): # {{{
+class IdentifyWidget(QWidget):  # {{{
 
     rejected = pyqtSignal()
     results_found = pyqtSignal()
@@ -552,12 +551,11 @@ class IdentifyWidget(QWidget): # {{{
         self.results_view.show_results(self.worker.results)
         self.results_found.emit()
 
-
     def cancel(self):
         self.abort.set()
 # }}}
 
-class CoverWorker(Thread): # {{{
+class CoverWorker(Thread):  # {{{
 
     def __init__(self, log, abort, title, authors, identifiers, caches):
         Thread.__init__(self)
@@ -609,7 +607,8 @@ class CoverWorker(Thread): # {{{
 
     def scan_once(self, tdir, seen):
         for x in list(os.listdir(tdir)):
-            if x in seen: continue
+            if x in seen:
+                continue
             if x.endswith('.cover') and os.path.exists(os.path.join(tdir,
                     x+'.done')):
                 name = x.rpartition('.')[0]
@@ -635,7 +634,7 @@ class CoverWorker(Thread): # {{{
 
 # }}}
 
-class CoversModel(QAbstractListModel): # {{{
+class CoversModel(QAbstractListModel):  # {{{
 
     def __init__(self, current_cover, parent=None):
         QAbstractListModel.__init__(self, parent)
@@ -770,7 +769,7 @@ class CoversModel(QAbstractListModel): # {{{
 
 # }}}
 
-class CoversView(QListView): # {{{
+class CoversView(QListView):  # {{{
 
     chosen = pyqtSignal()
 
@@ -793,6 +792,8 @@ class CoversView(QListView): # {{{
                 type=Qt.QueuedConnection)
 
         self.doubleClicked.connect(self.chosen, type=Qt.QueuedConnection)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
 
     def select(self, num):
         current = self.model().index(num)
@@ -814,9 +815,24 @@ class CoversView(QListView): # {{{
         else:
             self.select(self.m.index_from_pointer(pointer).row())
 
+    def show_context_menu(self, point):
+        idx = self.currentIndex()
+        if idx and idx.isValid() and not idx.data(Qt.UserRole).toPyObject():
+            m = QMenu()
+            m.addAction(QIcon(I('view.png')), _('View this cover at full size'), self.show_cover)
+            m.exec_(QCursor.pos())
+
+    def show_cover(self):
+        idx = self.currentIndex()
+        pmap = self.model().cover_pixmap(idx)
+        if pmap is not None:
+            from calibre.gui2.viewer.image_popup import ImageView
+            d = ImageView(self, pmap, unicode(idx.data(Qt.DisplayRole).toString()), geom_name='metadata_download_cover_popup_geom')
+            d(use_exec=True)
+
 # }}}
 
-class CoversWidget(QWidget): # {{{
+class CoversWidget(QWidget):  # {{{
 
     chosen = pyqtSignal()
     finished = pyqtSignal()
@@ -922,7 +938,7 @@ class CoversWidget(QWidget): # {{{
 
 # }}}
 
-class LogViewer(QDialog): # {{{
+class LogViewer(QDialog):  # {{{
 
     def __init__(self, log, parent=None):
         QDialog.__init__(self, parent)
@@ -970,7 +986,7 @@ class LogViewer(QDialog): # {{{
 
 # }}}
 
-class FullFetch(QDialog): # {{{
+class FullFetch(QDialog):  # {{{
 
     def __init__(self, current_cover=None, parent=None):
         QDialog.__init__(self, parent)
@@ -1085,7 +1101,7 @@ class FullFetch(QDialog): # {{{
         return self.exec_()
 # }}}
 
-class CoverFetch(QDialog): # {{{
+class CoverFetch(QDialog):  # {{{
 
     def __init__(self, current_cover=None, parent=None):
         QDialog.__init__(self, parent)
