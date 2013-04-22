@@ -361,7 +361,9 @@ URL_SAFE      = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 URL_UNSAFE = [ASCII_CHARS - URL_SAFE, UNIBYTE_CHARS - URL_SAFE]
 
 def urlquote(href):
-    """Quote URL-unsafe characters, allowing IRI-safe characters."""
+    """ Quote URL-unsafe characters, allowing IRI-safe characters.
+    That is, this function returns valid IRIs not valid URIs. In particular,
+    IRIs can contain non-ascii characters.  """
     result = []
     unsafe = 0 if isinstance(href, unicode) else 1
     unsafe = URL_UNSAFE[unsafe]
