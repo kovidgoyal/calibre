@@ -1199,9 +1199,9 @@ class KOBO(USBMS):
 
 class KOBOTOUCH(KOBO):
     name        = 'KoboTouch'
-    gui_name    = 'Kobo Touch'
+    gui_name    = 'Kobo Touch/Glo/Mini/Aura HD'
     author      = 'David Forrester'
-    description = 'Communicate with the Kobo Touch, Glo and Mini firmware. Based on the existing Kobo driver by %s.' % (KOBO.author)
+    description = 'Communicate with the Kobo Touch, Glo, Mini and Aura HD ereaders. Based on the existing Kobo driver by %s.' % (KOBO.author)
 #    icon        = I('devices/kobotouch.jpg')
 
     supported_dbversion             = 80
@@ -1297,12 +1297,13 @@ class KOBOTOUCH(KOBO):
 
     TIMESTAMP_STRING = "%Y-%m-%dT%H:%M:%SZ"
 
-    GLO_PRODUCT_ID   = [0x4173]
-    MINI_PRODUCT_ID  = [0x4183]
-    TOUCH_PRODUCT_ID = [0x4163]
-    PRODUCT_ID = GLO_PRODUCT_ID + MINI_PRODUCT_ID + TOUCH_PRODUCT_ID
+    AURA_HD_PRODUCT_ID  = [0x4193]
+    GLO_PRODUCT_ID      = [0x4173]
+    MINI_PRODUCT_ID     = [0x4183]
+    TOUCH_PRODUCT_ID    = [0x4163]
+    PRODUCT_ID          = AURA_HD_PRODUCT_ID + GLO_PRODUCT_ID + MINI_PRODUCT_ID + TOUCH_PRODUCT_ID
 
-    BCD        = [0x0110, 0x0326]
+    BCD = [0x0110, 0x0326]
 
     # Image file name endings. Made up of: image size, min_dbversion, max_dbversion,
     COVER_FILE_ENDINGS = {
@@ -1319,6 +1320,11 @@ class KOBOTOUCH(KOBO):
 #                          ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,],
 #                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
                           }
+    AURA_HD_COVER_FILE_ENDINGS = {
+                          ' - N3_FULL.parsed':        [(1080,1440), 0, 99,True,],  # Used for screensaver, home screen
+                          ' - N3_LIBRARY_FULL.parsed':[(355,  471), 0, 99,False,], # Used for Details screen
+                          ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 99,False,], # Used for library lists
+                          }
     #Following are the sizes used with pre2.1.4 firmware
 #    COVER_FILE_ENDINGS = {
 #                          ' - N3_LIBRARY_FULL.parsed':[(355,530),0, 99,],   # Used for Details screen
@@ -1333,6 +1339,10 @@ class KOBOTOUCH(KOBO):
     def initialize(self):
         super(KOBOTOUCH, self).initialize()
         self.bookshelvelist = []
+
+    def get_device_information(self, end_session=True):
+        self.set_device_name()
+        return super(KOBOTOUCH, self).get_device_information(end_session)
 
     def books(self, oncard=None, end_session=True):
         debug_print("KoboTouch:books - oncard='%s'"%oncard)
@@ -1366,7 +1376,7 @@ class KOBOTOUCH(KOBO):
         except:
             self.fwversion = (0,0,0)
 
-
+        debug_print('Kobo device: %s' % self.gui_name)
         debug_print('Version of driver:', self.version, 'Has kepubs:', self.has_kepubs)
         debug_print('Version of firmware:', self.fwversion, 'Has kepubs:', self.has_kepubs)
 
@@ -1379,7 +1389,7 @@ class KOBOTOUCH(KOBO):
         debug_print(opts.extra_customization)
         if opts.extra_customization:
             debugging_title = opts.extra_customization[self.OPT_DEBUGGING_TITLE]
-            debug_print("KoboTouch:books - set_debugging_title to", debugging_title )
+            debug_print("KoboTouch:books - set_debugging_title to '%s'" % debugging_title )
             bl.set_debugging_title(debugging_title)
         debug_print("KoboTouch:books - length bl=%d"%len(bl))
         need_sync = self.parse_metadata_cache(bl, prefix, self.METADATA_CACHE)
@@ -1930,7 +1940,7 @@ class KOBOTOUCH(KOBO):
             delete_empty_shelves    = opts.extra_customization[self.OPT_DELETE_BOOKSHELVES] and self.supports_bookshelves()
             update_series_details   = opts.extra_customization[self.OPT_UPDATE_SERIES_DETAILS] and self.supports_series()
             debugging_title         = opts.extra_customization[self.OPT_DEBUGGING_TITLE]
-            debug_print("KoboTouch:update_device_database_collections - set_debugging_title to", debugging_title )
+            debug_print("KoboTouch:update_device_database_collections - set_debugging_title to '%s'" % debugging_title )
             booklists.set_debugging_title(debugging_title)
         else:
             delete_empty_shelves    = False
@@ -2516,6 +2526,8 @@ class KOBOTOUCH(KOBO):
         return opts
 
 
+    def isAuraHD(self):
+        return self.detected_device.idProduct in self.AURA_HD_PRODUCT_ID
     def isGlo(self):
         return self.detected_device.idProduct in self.GLO_PRODUCT_ID
     def isMini(self):
@@ -2524,7 +2536,21 @@ class KOBOTOUCH(KOBO):
         return self.detected_device.idProduct in self.TOUCH_PRODUCT_ID
 
     def cover_file_endings(self):
-        return self.GLO_COVER_FILE_ENDINGS if self.isGlo() else self.COVER_FILE_ENDINGS
+        return self.GLO_COVER_FILE_ENDINGS if self.isGlo() else self.AURA_HD_COVER_FILE_ENDINGS if self.isAuraHD() else self.COVER_FILE_ENDINGS
+
+    def set_device_name(self):
+        device_name = self.gui_name
+        if self.isAuraHD():
+            device_name = 'Kobo Aura HD'
+        elif self.isGlo():
+            device_name = 'Kobo Glo'
+        elif self.isMini():
+            device_name = 'Kobo Mini'
+        elif self.isTouch():
+            device_name = 'Kobo Touch'
+        self.__class__.gui_name = device_name
+        return device_name
+
 
     def copying_covers(self):
         opts = self.settings()
@@ -2581,14 +2607,6 @@ class KOBOTOUCH(KOBO):
         else:
             # Supported database version
             return True
-
-#    @classmethod
-#    def get_gui_name(cls):
-#        if hasattr(cls, 'gui_name'):
-#            return cls.gui_name
-#        if hasattr(cls, '__name__'):
-#            return cls.__name__
-#        return cls.name
 
 
     @classmethod
