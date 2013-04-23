@@ -51,6 +51,11 @@ class LegacyTest(BaseTest):
                 if label in {'tags', 'formats'}:
                     # Order is random in the old db for these
                     ans[label] = tuple(set(x.split(',')) if x else x for x in ans[label])
+                if label == 'series_sort':
+                    # The old db code did not take book language into account
+                    # when generating series_sort values (the first book has
+                    # lang=deu)
+                    ans[label] = ans[label][1:]
             return ans
 
         old = self.init_old()
