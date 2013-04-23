@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os
+import os, traceback
 from functools import partial
 
 from calibre.db.backend import DB
@@ -30,6 +30,7 @@ class LibraryDatabase(object):
             progress_callback=lambda x, y:True, restore_all_prefs=False):
 
         self.is_second_db = is_second_db  # TODO: Use is_second_db
+        self.listeners = set([])
 
         backend = self.backend = DB(library_path, default_prefs=default_prefs,
                      read_only=read_only, restore_all_prefs=restore_all_prefs,
@@ -116,6 +117,22 @@ class LibraryDatabase(object):
     def refresh(self, field=None, ascending=True):
         self.data.cache.refresh()
         self.data.refresh(field=field, ascending=ascending)
+
+    def add_listener(self, listener):
+        '''
+        Add a listener. Will be called on change events with two arguments.
+        Event name and list of affected ids.
+        '''
+        self.listeners.add(listener)
+
+    def notify(self, event, ids=[]):
+        'Notify all listeners'
+        for listener in self.listeners:
+            try:
+                listener(event, ids)
+            except:
+                traceback.print_exc()
+                continue
 
     # }}}
 
