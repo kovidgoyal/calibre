@@ -484,7 +484,7 @@ class BookInfo(QWebView):
                 menu.removeAction(action)
         if not r.isNull():
             if url.startswith('http'):
-                for a, t in [('copy', _('Copy Link')),
+                for a, t in [('copy', _('&Copy Link')),
                 ]:
                     ac = getattr(self, '%s_link_action'%a)
                     ac.current_url = url
