@@ -16,7 +16,7 @@ class LegacyTest(BaseTest):
         'Test library wide properties'
         def get_props(db):
             props = ('user_version', 'is_second_db', 'library_id', 'field_metadata',
-                    'custom_column_label_map', 'custom_column_num_map')
+                    'custom_column_label_map', 'custom_column_num_map', 'library_path', 'dbpath')
             fprops = ('last_modified', )
             ans = {x:getattr(db, x) for x in props}
             ans.update({x:getattr(db, x)() for x in fprops})
@@ -74,5 +74,21 @@ class LegacyTest(BaseTest):
         self.assertNotEqual(db.title(1, index_is_id=True), 'xxx')
         db.check_if_modified()
         self.assertEqual(db.title(1, index_is_id=True), 'xxx')
+    # }}}
+
+    def test_legacy_getters(self):  # {{{
+        old = self.init_old()
+        getters = ('path', 'abspath', 'title', 'authors', 'series',
+                   'publisher', 'author_sort', 'authors', 'comments',
+                   'comment', 'publisher', 'rating', 'series_index', 'tags',
+                   'timestamp', 'uuid', 'pubdate', 'ondevice',
+                   'metadata_last_modified', 'languages')
+        oldvals = {g:tuple(getattr(old, g)(x) for x in xrange(3)) for g in getters}
+        old.close()
+        db = self.init_legacy()
+        newvals = {g:tuple(getattr(db, g)(x) for x in xrange(3)) for g in getters}
+        for x in (oldvals, newvals):
+            x['tags'] = tuple(set(y.split(',')) if y else y for y in x['tags'])
+        self.assertEqual(oldvals, newvals)
     # }}}
 

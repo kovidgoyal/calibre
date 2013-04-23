@@ -74,6 +74,14 @@ class LibraryDatabase(object):
     def library_id(self):
         return self.backend.library_id
 
+    @property
+    def library_path(self):
+        return self.backend.library_path
+
+    @property
+    def dbpath(self):
+        return self.backend.dbpath
+
     def last_modified(self):
         return self.backend.last_modified()
 
@@ -111,4 +119,15 @@ class LibraryDatabase(object):
 
     # }}}
 
+    def path(self, index, index_is_id=False):
+        'Return the relative path to the directory containing this books files as a unicode string.'
+        book_id = index if index_is_id else self.data.index_to_id(index)
+        return self.data.cache.field_for('path', book_id).replace('/', os.sep)
+
+    def abspath(self, index, index_is_id=False, create_dirs=True):
+        'Return the absolute path to the directory containing this books files as a unicode string.'
+        path = os.path.join(self.library_path, self.path(index, index_is_id=index_is_id))
+        if create_dirs and not os.path.exists(path):
+            os.makedirs(path)
+        return path
 
