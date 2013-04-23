@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import functools
 
-from PyQt4.Qt import (Qt, QStackedWidget, QMenu, QTimer,
+from PyQt4.Qt import (Qt, QApplication, QStackedWidget, QMenu, QTimer,
         QSize, QSizePolicy, QStatusBar, QLabel, QFont)
 
 from calibre.utils.config import prefs
@@ -274,6 +274,8 @@ class LayoutMixin(object): # {{{
                 self.iactions['Save To Disk'].save_library_format_by_ids)
         self.book_details.restore_specific_format.connect(
             self.iactions['Remove Books'].restore_format)
+        self.book_details.copy_link.connect(self.bd_copy_link,
+                type=Qt.QueuedConnection)
         self.book_details.view_device_book.connect(
                 self.iactions['View'].view_device_book)
 
@@ -294,6 +296,10 @@ class LayoutMixin(object): # {{{
                 notify=False)
         if self.cover_flow:
             self.cover_flow.dataChanged()
+
+    def bd_copy_link(self, url):
+        if url:
+            QApplication.clipboard().setText(url)
 
     def save_layout_state(self):
         for x in ('library', 'memory', 'card_a', 'card_b'):
