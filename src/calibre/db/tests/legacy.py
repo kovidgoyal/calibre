@@ -16,7 +16,7 @@ class LegacyTest(BaseTest):
         'Test library wide properties'
         def get_props(db):
             props = ('user_version', 'is_second_db', 'library_id', 'field_metadata',
-                    'custom_column_label_map', 'custom_column_num_map')
+                    'custom_column_label_map', 'custom_column_num_map', 'library_path', 'dbpath')
             fprops = ('last_modified', )
             ans = {x:getattr(db, x) for x in props}
             ans.update({x:getattr(db, x)() for x in fprops})
@@ -51,6 +51,11 @@ class LegacyTest(BaseTest):
                 if label in {'tags', 'formats'}:
                     # Order is random in the old db for these
                     ans[label] = tuple(set(x.split(',')) if x else x for x in ans[label])
+                if label == 'series_sort':
+                    # The old db code did not take book language into account
+                    # when generating series_sort values (the first book has
+                    # lang=deu)
+                    ans[label] = ans[label][1:]
             return ans
 
         old = self.init_old()
@@ -62,5 +67,33 @@ class LegacyTest(BaseTest):
         db.close()
         self.assertEqual(old_vals, new_vals)
 
+    # }}}
+
+    def test_refresh(self):  # {{{
+        ' Test refreshing the view after a change to metadata.db '
+        db = self.init_legacy()
+        db2 = self.init_legacy()
+        self.assertEqual(db2.data.cache.set_field('title', {1:'xxx'}), set([1]))
+        db2.close()
+        del db2
+        self.assertNotEqual(db.title(1, index_is_id=True), 'xxx')
+        db.check_if_modified()
+        self.assertEqual(db.title(1, index_is_id=True), 'xxx')
+    # }}}
+
+    def test_legacy_getters(self):  # {{{
+        old = self.init_old()
+        getters = ('path', 'abspath', 'title', 'authors', 'series',
+                   'publisher', 'author_sort', 'authors', 'comments',
+                   'comment', 'publisher', 'rating', 'series_index', 'tags',
+                   'timestamp', 'uuid', 'pubdate', 'ondevice',
+                   'metadata_last_modified', 'languages')
+        oldvals = {g:tuple(getattr(old, g)(x) for x in xrange(3)) + tuple(getattr(old, g)(x, True) for x in (1,2,3)) for g in getters}
+        old.close()
+        db = self.init_legacy()
+        newvals = {g:tuple(getattr(db, g)(x) for x in xrange(3)) + tuple(getattr(db, g)(x, True) for x in (1,2,3)) for g in getters}
+        for x in (oldvals, newvals):
+            x['tags'] = tuple(set(y.split(',')) if y else y for y in x['tags'])
+        self.assertEqual(oldvals, newvals)
     # }}}
 

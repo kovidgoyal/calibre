@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 2 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -25,25 +25,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class GoogleBooksStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        aff_id = {
-            'lid': '41000000033185143',
-            'pubid': '21000000000352219',
-            'ganpub': 'k352219',
-            'ganclk': 'GOOG_1335334761',
-        }
-        # Use Kovid's affiliate id 30% of the time.
-        if random.randint(1, 10) in (1, 2, 3):
-            aff_id = {
-                'lid': '41000000031855266',
-                'pubid': '21000000000352583',
-                'ganpub': 'k352583',
-                'ganclk': 'GOOG_1335335464',
-            }
-
-        url = 'http://gan.doubleclick.net/gan_click?lid=%(lid)s&pubid=%(pubid)s' % aff_id
-        if detail_item:
-            detail_item += '&ganpub=%(ganpub)s&ganclk=%(ganclk)s' % aff_id
-
+        url = 'http://books.google.com/books'
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
         else:

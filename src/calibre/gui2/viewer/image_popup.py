@@ -15,16 +15,17 @@ from calibre.gui2 import choose_save_file, gprefs
 
 class ImageView(QDialog):
 
-    def __init__(self, parent, current_img, current_url):
+    def __init__(self, parent, current_img, current_url, geom_name='viewer_image_popup_geometry'):
         QDialog.__init__(self)
         dw = QApplication.instance().desktop()
         self.avail_geom = dw.availableGeometry(parent)
         self.current_img = current_img
         self.current_url = current_url
         self.factor = 1.0
+        self.geom_name = geom_name
 
         self.label = l = QLabel()
-        l.setBackgroundRole(QPalette.Base);
+        l.setBackgroundRole(QPalette.Base)
         l.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         l.setScaledContents(True)
 
@@ -88,21 +89,27 @@ class ImageView(QDialog):
         self.label.setPixmap(pm)
         self.label.adjustSize()
 
-    def __call__(self):
+    def __call__(self, use_exec=False):
         geom = self.avail_geom
         self.label.setPixmap(self.current_img)
         self.label.adjustSize()
         self.resize(QSize(int(geom.width()/2.5), geom.height()-50))
-        geom = gprefs.get('viewer_image_popup_geometry', None)
+        geom = gprefs.get(self.geom_name, None)
         if geom is not None:
             self.restoreGeometry(geom)
-        self.current_image_name = unicode(self.current_url.toString()).rpartition('/')[-1]
+        try:
+            self.current_image_name = unicode(self.current_url.toString()).rpartition('/')[-1]
+        except AttributeError:
+            self.current_image_name = self.current_url
         title = _('View Image: %s')%self.current_image_name
         self.setWindowTitle(title)
-        self.show()
+        if use_exec:
+            self.exec_()
+        else:
+            self.show()
 
     def done(self, e):
-        gprefs['viewer_image_popup_geometry'] = bytearray(self.saveGeometry())
+        gprefs[self.geom_name] = bytearray(self.saveGeometry())
         return QDialog.done(self, e)
 
     def wheelEvent(self, event):

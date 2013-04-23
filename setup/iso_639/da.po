@@ -10253,7 +10253,7 @@ msgstr ""
 
 #. name for inh
 msgid "Ingush"
-msgstr "Engelsk"
+msgstr "Ingush"
 
 #. name for inj
 msgid "Inga; Jungle"
