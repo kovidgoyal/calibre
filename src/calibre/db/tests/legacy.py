@@ -83,10 +83,10 @@ class LegacyTest(BaseTest):
                    'comment', 'publisher', 'rating', 'series_index', 'tags',
                    'timestamp', 'uuid', 'pubdate', 'ondevice',
                    'metadata_last_modified', 'languages')
-        oldvals = {g:tuple(getattr(old, g)(x) for x in xrange(3)) for g in getters}
+        oldvals = {g:tuple(getattr(old, g)(x) for x in xrange(3)) + tuple(getattr(old, g)(x, True) for x in (1,2,3)) for g in getters}
         old.close()
         db = self.init_legacy()
-        newvals = {g:tuple(getattr(db, g)(x) for x in xrange(3)) for g in getters}
+        newvals = {g:tuple(getattr(db, g)(x) for x in xrange(3)) + tuple(getattr(db, g)(x, True) for x in (1,2,3)) for g in getters}
         for x in (oldvals, newvals):
             x['tags'] = tuple(set(y.split(',')) if y else y for y in x['tags'])
         self.assertEqual(oldvals, newvals)
