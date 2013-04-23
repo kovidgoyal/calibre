@@ -114,6 +114,19 @@ class Cache(object):
         if self.dirtied_cache:
             self.dirtied_sequence = max(self.dirtied_cache.itervalues())+1
 
+    @write_api
+    def initialize_template_cache(self):
+        self.formatter_template_cache = {}
+
+    @write_api
+    def refresh(self):
+        self._initialize_template_cache()
+        for field in self.fields.itervalues():
+            if hasattr(field, 'clear_cache'):
+                field.clear_cache()  # Clear the composite cache
+            if hasattr(field, 'table'):
+                field.table.read(self.backend)  # Reread data from metadata.db
+
     @property
     def field_metadata(self):
         return self.backend.field_metadata

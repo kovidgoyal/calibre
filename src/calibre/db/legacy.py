@@ -12,6 +12,7 @@ from functools import partial
 from calibre.db.backend import DB
 from calibre.db.cache import Cache
 from calibre.db.view import View
+from calibre.utils.date import utcnow
 
 class LibraryDatabase(object):
 
@@ -50,6 +51,8 @@ class LibraryDatabase(object):
             setattr(self, prop, partial(self.get_property,
                     loc=self.FIELD_MAP[fm]))
 
+        self.last_update_check = self.last_modified()
+
     def close(self):
         self.backend.close()
 
@@ -74,6 +77,11 @@ class LibraryDatabase(object):
     def last_modified(self):
         return self.backend.last_modified()
 
+    def check_if_modified(self):
+        if self.last_modified() > self.last_update_check:
+            self.refresh()
+        self.last_update_check = utcnow()
+
     @property
     def custom_column_num_map(self):
         return self.backend.custom_column_num_map
@@ -86,9 +94,21 @@ class LibraryDatabase(object):
     def FIELD_MAP(self):
         return self.backend.FIELD_MAP
 
+    @property
+    def formatter_template_cache(self):
+        return self.data.cache.formatter_template_cache
+
+    def initialize_template_cache(self):
+        self.data.cache.initialize_template_cache()
+
     def all_ids(self):
         for book_id in self.data.cache.all_book_ids():
             yield book_id
+
+    def refresh(self, field=None, ascending=True):
+        self.data.cache.refresh()
+        self.data.refresh(field=field, ascending=ascending)
+
     # }}}
 
 

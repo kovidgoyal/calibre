@@ -64,3 +64,15 @@ class LegacyTest(BaseTest):
 
     # }}}
 
+    def test_refresh(self):  # {{{
+        ' Test refreshing the view after a change to metadata.db '
+        db = self.init_legacy()
+        db2 = self.init_legacy()
+        self.assertEqual(db2.data.cache.set_field('title', {1:'xxx'}), set([1]))
+        db2.close()
+        del db2
+        self.assertNotEqual(db.title(1, index_is_id=True), 'xxx')
+        db.check_if_modified()
+        self.assertEqual(db.title(1, index_is_id=True), 'xxx')
+    # }}}
+
