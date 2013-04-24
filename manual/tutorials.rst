@@ -20,4 +20,5 @@ Here you will find tutorials to get you started using |app|'s more advanced feat
    creating_plugins
    typesetting_math
    catalogs
+   virtual_libraries
 

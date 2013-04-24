@@ -426,6 +426,8 @@ Identifiers (e.g., isbn, doi, lccn etc) also use an extended syntax. First, note
 
     :guilabel:`Advanced Search Dialog`
 
+.. _saved_searches:
+
 Saving searches
 -----------------
 
@@ -434,6 +436,15 @@ Saving searches
 Now you can access your saved search in the Tag Browser under "Searches". A single click will allow you to reuse any arbitrarily complex search easily, without needing to re-create it.
 
 .. _config_filename_metadata:
+
+Virtual Libraries
+-------------------
+
+A :guilabel:`Virtual Library` is a way to pretend that your |app| library has
+only a few books instead of its full collection. This is an excellent way to
+partition your large collection of books into smaller, manageable chunks. To
+learn how to create and use virtual libraries, see the tutorial:
+:ref:`virtual_libraries`.
 
 Guessing metadata from file names
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
