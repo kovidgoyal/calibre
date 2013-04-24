@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 2 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2012, John Schember <john@nachtimwald.com>'
@@ -25,11 +25,19 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class NookUKStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = "http://uk.nook.com"
+        url = 'http://www.awin1.com/awclick.php?mid=5266&id=120917'
+        detail_url = 'http://www.awin1.com/cread.php?awinmid=5266&awinaffid=120917&clickref=&p='
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
+            if detail_item:
+                url = detail_url + detail_item
+
+            open_url(QUrl(url_slash_cleaner(url)))
         else:
+            if detail_item:
+                detail_url = detail_url + detail_item
+            else:
+                detail_url = None
             d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
