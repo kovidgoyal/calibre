@@ -148,7 +148,6 @@ class OEBReader(object):
         if not has_aut:
             m.add('creator', self.oeb.translate(__('Unknown')), role='aut')
 
-
     def _manifest_prune_invalid(self):
         '''
         Remove items from manifest that contain invalid data. This prevents
@@ -197,6 +196,8 @@ class OEBReader(object):
                         item.media_type[-4:] in ('/xml', '+xml')):
                     hrefs = [r[2] for r in iterlinks(data)]
                     for href in hrefs:
+                        if isinstance(href, bytes):
+                            href = href.decode('utf-8')
                         href, _ = urldefrag(href)
                         if not href:
                             continue
@@ -293,7 +294,7 @@ class OEBReader(object):
                         continue
                     try:
                         href = item.abshref(urlnormalize(href))
-                    except ValueError: # Malformed URL
+                    except ValueError:  # Malformed URL
                         continue
                     if href not in manifest.hrefs:
                         continue
@@ -394,9 +395,9 @@ class OEBReader(object):
 
             authorElement = xpath(child,
                     'descendant::calibre:meta[@name = "author"]')
-            if authorElement :
+            if authorElement:
                 author = authorElement[0].text
-            else :
+            else:
                 author = None
 
             descriptionElement = xpath(child,
@@ -406,7 +407,7 @@ class OEBReader(object):
                 method='text', encoding=unicode).strip()
                 if not description:
                     description = None
-            else :
+            else:
                 description = None
 
             index_image = xpath(child,
@@ -497,7 +498,8 @@ class OEBReader(object):
         titles = []
         headers = []
         for item in self.oeb.spine:
-            if not item.linear: continue
+            if not item.linear:
+                continue
             html = item.data
             title = ''.join(xpath(html, '/h:html/h:head/h:title/text()'))
             title = COLLAPSE_RE.sub(' ', title.strip())
@@ -515,17 +517,21 @@ class OEBReader(object):
         if len(titles) > len(set(titles)):
             use = headers
         for title, item in izip(use, self.oeb.spine):
-            if not item.linear: continue
+            if not item.linear:
+                continue
             toc.add(title, item.href)
         return True
 
     def _toc_from_opf(self, opf, item):
         self.oeb.auto_generated_toc = False
-        if self._toc_from_ncx(item): return
+        if self._toc_from_ncx(item):
+            return
         # Prefer HTML to tour based TOC, since several LIT files
         # have good HTML TOCs but bad tour based TOCs
-        if self._toc_from_html(opf): return
-        if self._toc_from_tour(opf): return
+        if self._toc_from_html(opf):
+            return
+        if self._toc_from_tour(opf):
+            return
         self._toc_from_spine(opf)
         self.oeb.auto_generated_toc = True
 
@@ -589,8 +595,10 @@ class OEBReader(object):
         return True
 
     def _pages_from_opf(self, opf, item):
-        if self._pages_from_ncx(opf, item): return
-        if self._pages_from_page_map(opf): return
+        if self._pages_from_ncx(opf, item):
+            return
+        if self._pages_from_page_map(opf):
+            return
         return
 
     def _cover_from_html(self, hcover):
