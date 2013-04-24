@@ -146,6 +146,14 @@ class Parser(object):
                 self.current_token += 1
             return res
 
+        def lcase_token(self, advance=False):
+            if self.is_eof():
+                return None
+            res = self.tokens[self.current_token][1]
+            if advance:
+                self.current_token += 1
+            return icu_lower(res)
+
         def token_type(self):
             if self.is_eof():
                 return self.EOF
@@ -159,7 +167,7 @@ class Parser(object):
 
         def parse(self, expr, locations):
             self.locations = locations
-            self.tokens = self.lex_scanner.scan(icu_lower(expr))[0]
+            self.tokens = self.lex_scanner.scan(expr)[0]
             self.current_token = 0
             prog = self.or_expression()
             if not self.is_eof():
@@ -169,24 +177,25 @@ class Parser(object):
 
         def or_expression(self):
             lhs = self.and_expression()
-            if self.token() == 'or':
+            if self.lcase_token() == 'or':
                 self.advance()
                 return ['or', lhs, self.or_expression()]
             return lhs
 
         def and_expression(self):
             lhs = self.not_expression()
-            if self.token() == 'and':
+            if self.lcase_token() == 'and':
                 self.advance()
                 return ['and', lhs, self.and_expression()]
 
             # Account for the optional 'and'
-            if self.token_type() in [self.WORD, self.QUOTED_WORD] and self.token() != 'or':
+            if (self.token_type() in [self.WORD, self.QUOTED_WORD] and
+                            self.lcase_token() != 'or'):
                 return ['and', lhs, self.and_expression()]
             return lhs
 
         def not_expression(self):
-            if self.token() == 'not':
+            if self.lcase_token() == 'not':
                 self.advance()
                 return ['not', self.not_expression()]
             return self.location_expression()
@@ -226,7 +235,7 @@ class Parser(object):
                 words = words[1:]
                 if len(words) == 1 and self.token_type() == self.QUOTED_WORD:
                     return ['token', loc, self.token(advance=True)]
-                return ['token', loc, ':'.join(words)]
+                return ['token', icu_lower(loc), ':'.join(words)]
 
             return ['token', 'all', ':'.join(words)]
 
