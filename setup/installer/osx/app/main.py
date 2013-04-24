@@ -398,7 +398,7 @@ class Py2App(object):
     def add_fontconfig(self):
         info('\nAdding fontconfig')
         for x in ('fontconfig.1', 'freetype.6', 'expat.1',
-                  'plist.1', 'usbmuxd.2', 'imobiledevice.3'):
+                  'plist.1', 'usbmuxd.2', 'imobiledevice.4'):
             src = os.path.join(SW, 'lib', 'lib'+x+'.dylib')
             self.install_dylib(src)
         dst = os.path.join(self.resources_dir, 'fonts')
