@@ -37,7 +37,6 @@ class OSX32_Freeze(Command):
                 action='store_true',
                 help='Only build launchers')
 
-
     def run(self, opts):
         global info, warn
         info, warn = self.info, self.warn
@@ -332,7 +331,7 @@ class Py2App(object):
     def create_plist(self):
         from calibre.ebooks import BOOK_EXTENSIONS
         env = dict(**ENV)
-        env['CALIBRE_LAUNCHED_FROM_BUNDLE']='1';
+        env['CALIBRE_LAUNCHED_FROM_BUNDLE']='1'
         docs = [{'CFBundleTypeName':'E-book',
             'CFBundleTypeExtensions':list(BOOK_EXTENSIONS),
             'CFBundleTypeRole':'Viewer',
@@ -394,7 +393,6 @@ class Py2App(object):
         info('\nAdding libpng')
         self.install_dylib(os.path.join(SW, 'lib', 'libpng12.0.dylib'))
         self.install_dylib(os.path.join(SW, 'lib', 'libpng.3.dylib'))
-
 
     @flush
     def add_fontconfig(self):
@@ -568,7 +566,7 @@ class Py2App(object):
 
     @flush
     def compile_py_modules(self):
-        info( '\nCompiling Python modules')
+        info('\nCompiling Python modules')
         base = join(self.resources_dir, 'Python')
         for x in os.walk(base):
             root = x[0]
@@ -584,7 +582,7 @@ class Py2App(object):
 
     @flush
     def create_console_app(self):
-        info( '\nCreating console.app')
+        info('\nCreating console.app')
         cc_dir = os.path.join(self.contents_dir, 'console.app', 'Contents')
         os.makedirs(cc_dir)
         for x in os.listdir(self.contents_dir):
@@ -606,7 +604,6 @@ class Py2App(object):
         base = os.path.dirname(__file__)
         shutil.copy2(join(base, 'site.py'), join(self.resources_dir, 'Python',
             'lib', 'python'+self.version_info))
-
 
     @flush
     def makedmg(self, d, volname,
@@ -630,7 +627,7 @@ class Py2App(object):
                                '-volname', volname, '-format', format, dmg])
         shutil.rmtree(tdir)
         if internet_enable:
-           subprocess.check_call(['/usr/bin/hdiutil', 'internet-enable', '-yes', dmg])
+            subprocess.check_call(['/usr/bin/hdiutil', 'internet-enable', '-yes', dmg])
         size = os.stat(dmg).st_size/(1024*1024.)
         info('\nInstaller size: %.2fMB\n'%size)
         return dmg
