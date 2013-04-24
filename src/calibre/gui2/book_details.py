@@ -406,6 +406,7 @@ class BookInfo(QWebView):
     remove_format = pyqtSignal(int, object)
     save_format = pyqtSignal(int, object)
     restore_format = pyqtSignal(int, object)
+    copy_link = pyqtSignal(object)
 
     def __init__(self, vertical, parent=None):
         QWebView.__init__(self, parent)
@@ -419,26 +420,33 @@ class BookInfo(QWebView):
         palette.setBrush(QPalette.Base, Qt.transparent)
         self.page().setPalette(palette)
         self.css = P('templates/book_details.css', data=True).decode('utf-8')
-        for x, icon in [('remove', 'trash.png'), ('save', 'save.png'), ('restore', 'edit-undo.png')]:
+        for x, icon in [('remove_format', 'trash.png'), ('save_format', 'save.png'), ('restore_format', 'edit-undo.png'), ('copy_link','edit-copy.png')]:
             ac = QAction(QIcon(I(icon)), '', self)
             ac.current_fmt = None
-            ac.triggered.connect(getattr(self, '%s_format_triggerred'%x))
-            setattr(self, '%s_format_action'%x, ac)
+            ac.current_url = None
+            ac.triggered.connect(getattr(self, '%s_triggerred'%x))
+            setattr(self, '%s_action'%x, ac)
 
     def context_action_triggered(self, which):
-        f = getattr(self, '%s_format_action'%which).current_fmt
-        if f:
+        f = getattr(self, '%s_action'%which).current_fmt
+        url = getattr(self, '%s_action'%which).current_url
+        if f and 'format' in which:
             book_id, fmt = f
-            getattr(self, '%s_format'%which).emit(book_id, fmt)
+            getattr(self, which).emit(book_id, fmt)
+        if url and 'link' in which:
+            getattr(self, which).emit(url)
 
     def remove_format_triggerred(self):
-        self.context_action_triggered('remove')
+        self.context_action_triggered('remove_format')
 
     def save_format_triggerred(self):
-        self.context_action_triggered('save')
+        self.context_action_triggered('save_format')
 
     def restore_format_triggerred(self):
-        self.context_action_triggered('restore')
+        self.context_action_triggered('restore_format')
+
+    def copy_link_triggerred(self):
+        self.context_action_triggered('copy_link')
 
     def link_activated(self, link):
         self._link_clicked = True
@@ -474,24 +482,33 @@ class BookInfo(QWebView):
         for action in list(menu.actions()):
             if action is not ca:
                 menu.removeAction(action)
-        if not r.isNull() and url.startswith('format:'):
-            parts = url.split(':')
-            try:
-                book_id, fmt = int(parts[1]), parts[2]
-            except:
-                import traceback
-                traceback.print_exc()
-            else:
-                for a, t in [('remove', _('Delete the %s format')),
-                    ('save', _('Save the %s format to disk')),
-                    ('restore', _('Restore the %s format')),
+        if not r.isNull():
+            if url.startswith('http'):
+                for a, t in [('copy', _('&Copy Link')),
                 ]:
-                    if a == 'restore' and not fmt.upper().startswith('ORIGINAL_'):
-                        continue
-                    ac = getattr(self, '%s_format_action'%a)
-                    ac.current_fmt = (book_id, fmt)
-                    ac.setText(t%parts[2])
+                    ac = getattr(self, '%s_link_action'%a)
+                    ac.current_url = url
+                    ac.setText(t)
                     menu.addAction(ac)
+                
+            if url.startswith('format:'):
+                parts = url.split(':')
+                try:
+                    book_id, fmt = int(parts[1]), parts[2]
+                except:
+                    import traceback
+                    traceback.print_exc()
+                else:
+                    for a, t in [('remove', _('Delete the %s format')),
+                        ('save', _('Save the %s format to disk')),
+                        ('restore', _('Restore the %s format')),
+                    ]:
+                        if a == 'restore' and not fmt.upper().startswith('ORIGINAL_'):
+                            continue
+                        ac = getattr(self, '%s_format_action'%a)
+                        ac.current_fmt = (book_id, fmt)
+                        ac.setText(t%parts[2])
+                        menu.addAction(ac)
         if len(menu.actions()) > 0:
             menu.exec_(ev.globalPos())
 
@@ -594,6 +611,7 @@ class BookDetails(QWidget): # {{{
     remove_specific_format = pyqtSignal(int, object)
     save_specific_format = pyqtSignal(int, object)
     restore_specific_format = pyqtSignal(int, object)
+    copy_link = pyqtSignal(object)
     remote_file_dropped = pyqtSignal(object, object)
     files_dropped = pyqtSignal(object, object)
     cover_changed = pyqtSignal(object, object)
@@ -664,6 +682,7 @@ class BookDetails(QWidget): # {{{
         self.book_info.remove_format.connect(self.remove_specific_format)
         self.book_info.save_format.connect(self.save_specific_format)
         self.book_info.restore_format.connect(self.restore_specific_format)
+        self.book_info.copy_link.connect(self.copy_link)
         self.setCursor(Qt.PointingHandCursor)
 
     def handle_click(self, link):

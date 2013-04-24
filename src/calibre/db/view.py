@@ -294,3 +294,11 @@ class View(object):
             self.marked_ids = dict(izip(id_dict.iterkeys(), imap(unicode,
                 id_dict.itervalues())))
 
+    def refresh(self, field=None, ascending=True):
+        self._map = tuple(self.cache.all_book_ids())
+        self._map_filtered = tuple(self._map)
+        if field is not None:
+            self.sort(field, ascending)
+        if self.search_restriction or self.base_restriction:
+            self.search('', return_matches=False)
+

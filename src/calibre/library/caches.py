@@ -493,7 +493,6 @@ class ResultCache(SearchQueryParser): # {{{
         return matches
 
     def get_keypair_matches(self, location, query, candidates):
-        print query
         matches = set([])
         if query.find(':') >= 0:
             q = [q.strip() for q in query.split(':')]

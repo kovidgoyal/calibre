@@ -51,7 +51,7 @@ class Links(object):
         for link in self.links:
             path, href, frag = link[0]
             page, rect = link[1:]
-            combined_path = os.path.abspath(os.path.join(os.path.dirname(path), *href.split('/')))
+            combined_path = os.path.abspath(os.path.join(os.path.dirname(path), *unquote(href).split('/')))
             is_local = not href or combined_path in self.anchors
             annot = Dictionary({
                 'Type':Name('Annot'), 'Subtype':Name('Link'),

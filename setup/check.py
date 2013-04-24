@@ -38,7 +38,7 @@ class Check(Command):
                 if cache.get(y, 0) == mtime:
                     continue
                 if (f.endswith('.py') and f not in (
-                        'feedparser.py', 'pyparsing.py', 'markdown.py') and
+                        'feedparser.py', 'markdown.py') and
                         'prs500/driver.py' not in y):
                     yield y, mtime
                 if f.endswith('.coffee'):
