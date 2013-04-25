@@ -191,43 +191,40 @@ button.
 Build libimobiledevice
 ----------------------------
 
-In VS Solution Explorer, select the libimobiledevice project, then click the 'Show all files'
-button.
+In VS Solution Explorer, right-click Solution 'imobiledevice', then click
+Add|New Project.
+    - Name: libimobiledevice
+    - Visual C++: Win32, Template: Win32 Project
+    - Location: Add \imobiledevice to the end of the default location
+    - Click OK
+    - Application Settings: DLL (Empty project)
+    - Click Finish
+
     - Right-click the include folder, select Include In Project
     - Right-click the src folder, select Include In Project
-    - Set 3 C files to compile as C++
+    - Set .c files to compile as C++
         Advanced|Compile As: Compile as C++ Code (/TP)
-        afc.c, debug.c, device_link_service.c, diagnostics_relay.c, file_relay.c,
-        heartbeat.c, house_arrest.c, idevice.c, installation_proxy.c, lockdown.c,
-        misagent.c, mobile_image_mounter.c, mobilebackup.c, mobilebackup2.c,
-        mobilesync.c, notification_proxy.c, property_list_service.c, restore.c,
-        sbservices.c, screenshotr.c, service.c, userpref.c, webinspector.c
     - Properties|Configuration Properties|C/C++:
         General|Additional Include Directories:
         $(ProjectDir)\include
+        $(SolutionDir)\include
         $(SolutionDir)\libplist\include
-        $(SolutionDir)\vendors\include
         $(SolutionDir)\libgen
         $(SolutionDir)\libusbmuxd
-        $(SolutionDir)\vendors\gnutls\include
-        $(SolutionDir)\vendors\openssl\include
-    - Edit vendors/gnutls/include/gnutls/compat.h #227:
-        Comment out lines #101-103
-    - Edit libimobiledevice/src/afc.c #35:
+        $SW\private\openssl\include
+    - Edit afc.c #35:
         Comment out lines 35-37 (Synchapi.h is a Windows 8 include file)
-    - Project Dependencies:
-        libcnary
-        libgen
-        libplist
-        libusbmuxd
+    - Edit userprofile.c and add at line 25:
+        #include <Windows.h>
+    - Properties -> Linker -> General -> Additional library directories:
+        $SW\private\openssl\lib
+        $(OutDir)
     - Properties|Linker|Input|Additional Dependencies:
-        "$(SolutionDir)\vendors\openssl\lib\libcrypto.a"
-        "$(SolutionDir)\vendors\openssl\lib\libeay32.dll.a"
-        "$(SolutionDir)\vendors\openssl\lib\libssl.a"
-        "$(SolutionDir)\vendors\openssl\lib\libssl32.dll.a"
-        "$(SolutionDir)\vendors\libgcc\lib\libgcc.a"
-        "$(OutDir)\libplist.lib"
-        "$(SolutionDir)\vendors\libxml2\lib\libxml2.lib"
+        libeay32.lib
+        ssleay32.lib
+        libplist.lib
+        libgen.lib
+        libusbmuxd.lib
         ws2_32.lib
     - Properties|C/C++|Preprocessor
         Preprocessor Definitions:
@@ -235,18 +232,13 @@ button.
             HAVE_OPENSSL
             __LITTLE_ENDIAN__
             _LIB
-    - Right-click libimobiledevice, Build.
-        0 errors, 48 warnings.
-    - Properties|C/C++|General
-        Warning Level: Level 2
-
-
-Exporting libimobiledevice entry points
-------------------------------------------
-
-The project now builds without errors. Next, we need to export public entry points from
-libimobiledevice.
-
+    - Project Dependencies:
+        libcnary
+        libgen
+        libplist
+        libusbmuxd
+    - If 64bits, then Right click->Properties->Configuration Manager change
+      Win32 to x64 for the libcnary project and check the Build checkbox
     - Edit libimobiledevice\include\libimobiledevice\afc.h
         At #26, insert
         #define AFC_API __declspec( dllexport )
@@ -349,21 +341,12 @@ libimobiledevice.
         lockdownd_data_classes_free
         lockdownd_service_descriptor_free
 
-    - Right-click libimobiledevice, Rebuild
+    - Right-click libimobiledevice, Build.
+        0 errors, 60 warnings.
 
+Copy the DLLs
+-----------------
 
-Finished
----------------
-
-The contents of the Release\ directory now includes the targets:
- • libimobiledevice.dll (866KB)
- • libusbmuxd.dll (46KB)
-
-Confirm public entry points using Dependency Walker
-    open libimobiledevice.dll, 130 entry points
-    open libusbmuxd.dll, 64 entry points
-
-
-
-
+Run::
+    cp `find . -name '*.dll'` ~/sw/bin/
 
