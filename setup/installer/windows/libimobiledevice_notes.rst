@@ -96,8 +96,8 @@ button.
         $(ProjectDir)\include
         $(SolutionDir)\include
         $(SolutionDir)\libcnary\include
-        $SW\include (for iconv.h)
-        $SW\include\libxml2
+        $SW\include\libxml2 (if it exists)
+        $SW\include (make sure this is last in the list)
     - Properties|C/C++|Preprocessor
         Preprocessor Definitions: Add the following items
         __STDC_FORMAT_MACROS
