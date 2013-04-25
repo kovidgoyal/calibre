@@ -212,10 +212,6 @@ Add|New Project.
         $(SolutionDir)\libgen
         $(SolutionDir)\libusbmuxd
         $SW\private\openssl\include
-    - Edit afc.c #35:
-        Comment out lines 35-37 (Synchapi.h is a Windows 8 include file)
-    - Edit userprofile.c and add at line 25:
-        #include <Windows.h>
     - Properties -> Linker -> General -> Additional library directories:
         $SW\private\openssl\lib
         $(OutDir)
@@ -237,8 +233,10 @@ Add|New Project.
         libgen
         libplist
         libusbmuxd
-    - If 64bits, then Right click->Properties->Configuration Manager change
-      Win32 to x64 for the libcnary project and check the Build checkbox
+    - Edit afc.c #35:
+        Comment out lines 35-37 (Synchapi.h is a Windows 8 include file)
+    - Edit userprofile.c and add at line 25:
+        #include <Windows.h>
     - Edit libimobiledevice\include\libimobiledevice\afc.h
         At #26, insert
         #define AFC_API __declspec( dllexport )
@@ -341,6 +339,8 @@ Add|New Project.
         lockdownd_data_classes_free
         lockdownd_service_descriptor_free
 
+    - If 64bits, then Right click->Properties->Configuration Manager change
+      Win32 to x64 for the libcnary project and check the Build checkbox
     - Right-click libimobiledevice, Build.
         0 errors, 60 warnings.
 
