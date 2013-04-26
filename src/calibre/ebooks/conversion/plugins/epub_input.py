@@ -188,7 +188,6 @@ class EPUBInput(InputFormatPlugin):
                 raise DRMError(os.path.basename(path))
         self.encrypted_fonts = self._encrypted_font_uris
 
-
         if len(parts) > 1 and parts[0]:
             delta = '/'.join(parts[:-1])+'/'
             for elem in opf.itermanifest():

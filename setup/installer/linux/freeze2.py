@@ -48,7 +48,7 @@ binary_includes = [
                 '/usr/lib/libpng14.so.14',
                 '/usr/lib/libexslt.so.0',
                 # Ensure that libimobiledevice is compiled against openssl, not gnutls
-                '/usr/lib/libimobiledevice.so.3',
+                '/usr/lib/libimobiledevice.so.4',
                 '/usr/lib/libusbmuxd.so.2',
                 '/usr/lib/libplist.so.1',
                 MAGICK_PREFIX+'/lib/libMagickWand.so.5',
@@ -111,7 +111,6 @@ class LinuxFreeze(Command):
             ffi = ffi[-1]
         else:
             ffi = glob.glob('/usr/lib/libffi.so.?')[-1]
-
 
         for x in binary_includes + [stdcpp, ffi]:
             dest = self.bin_dir if '/bin/' in x else self.lib_dir
@@ -226,7 +225,6 @@ class LinuxFreeze(Command):
                     except:
                         self.warn('Failed to byte-compile', y)
 
-
     def run_builder(self, cmd, verbose=True):
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
@@ -256,7 +254,6 @@ class LinuxFreeze(Command):
         self.info('Archive %s created: %.2f MB'%(dist,
             os.stat(dist).st_size/(1024.**2)))
 
-
     def build_launchers(self):
         self.obj_dir = self.j(self.src_root, 'build', 'launcher')
         if not os.path.exists(self.obj_dir):
@@ -268,7 +265,8 @@ class LinuxFreeze(Command):
         cflags  = '-fno-strict-aliasing -W -Wall -c -O2 -pipe -DPYTHON_VER="python%s"'%self.py_ver
         cflags  = cflags.split() + ['-I/usr/include/python'+self.py_ver]
         for src, obj in zip(sources, objects):
-            if not self.newer(obj, headers+[src, __file__]): continue
+            if not self.newer(obj, headers+[src, __file__]):
+                continue
             cmd = ['gcc'] + cflags + ['-fPIC', '-o', obj, src]
             self.run_builder(cmd)
 
@@ -330,8 +328,7 @@ class LinuxFreeze(Command):
 
                     self.run_builder(cmd, verbose=False)
 
-
-    def create_site_py(self): # {{{
+    def create_site_py(self):  # {{{
         with open(self.j(self.py_dir, 'site.py'), 'wb') as f:
             f.write(textwrap.dedent('''\
             import sys

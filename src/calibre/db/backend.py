@@ -306,7 +306,8 @@ class DB(object):
 
     # Initialize database {{{
 
-    def __init__(self, library_path, default_prefs=None, read_only=False):
+    def __init__(self, library_path, default_prefs=None, read_only=False,
+                 restore_all_prefs=False, progress_callback=lambda x, y:True):
         try:
             if isbytestring(library_path):
                 library_path = library_path.decode(filesystem_encoding)
@@ -377,23 +378,27 @@ class DB(object):
         UPDATE authors SET sort=author_to_author_sort(name) WHERE sort IS NULL;
         ''')
 
-        self.initialize_prefs(default_prefs)
+        self.initialize_prefs(default_prefs, restore_all_prefs, progress_callback)
         self.initialize_custom_columns()
         self.initialize_tables()
 
-    def initialize_prefs(self, default_prefs):  # {{{
+    def initialize_prefs(self, default_prefs, restore_all_prefs, progress_callback):  # {{{
         self.prefs = DBPrefs(self)
 
         if default_prefs is not None and not self._exists:
+            progress_callback(None, len(default_prefs))
             # Only apply default prefs to a new database
-            for key in default_prefs:
+            for i, key in enumerate(default_prefs):
                 # be sure that prefs not to be copied are listed below
-                if key not in frozenset(['news_to_be_synced']):
+                if restore_all_prefs or key not in frozenset(['news_to_be_synced']):
                     self.prefs[key] = default_prefs[key]
+                    progress_callback(_('restored preference ') + key, i+1)
             if 'field_metadata' in default_prefs:
                 fmvals = [f for f in default_prefs['field_metadata'].values()
                                 if f['is_custom']]
-                for f in fmvals:
+                progress_callback(None, len(fmvals))
+                for i, f in enumerate(fmvals):
+                    progress_callback(_('creating custom column ') + f['label'], i)
                     self.create_custom_column(f['label'], f['name'],
                             f['datatype'],
                             (f['is_multiple'] is not None and
@@ -422,6 +427,8 @@ class DB(object):
         ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
         ('last_modified', False), ('size', False), ('languages', False),
         ]
+        defs['virtual_libraries'] = {}
+        defs['virtual_lib_on_startup'] = defs['cs_virtual_lib_on_startup'] = ''
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
@@ -469,6 +476,24 @@ class DB(object):
                 self.prefs.set('grouped_search_terms', ngst)
             except:
                 pass
+
+        # migrate the gui_restriction preference to a virtual library
+        gr_pref = self.prefs.get('gui_restriction', None)
+        if gr_pref:
+            virt_libs = self.prefs.get('virtual_libraries', {})
+            virt_libs[gr_pref] = 'search:"' + gr_pref + '"'
+            self.prefs['virtual_libraries'] = virt_libs
+            self.prefs['gui_restriction'] = ''
+            self.prefs['virtual_lib_on_startup'] = gr_pref
+
+        # migrate the cs_restriction preference to a virtual library
+        gr_pref = self.prefs.get('cs_restriction', None)
+        if gr_pref:
+            virt_libs = self.prefs.get('virtual_libraries', {})
+            virt_libs[gr_pref] = 'search:"' + gr_pref + '"'
+            self.prefs['virtual_libraries'] = virt_libs
+            self.prefs['cs_restriction'] = ''
+            self.prefs['cs_virtual_lib_on_startup'] = gr_pref
 
         # Rename any user categories with names that differ only in case
         user_cats = self.prefs.get('user_categories', [])
@@ -691,11 +716,13 @@ class DB(object):
 
         tables['size'] = SizeTable('size', self.field_metadata['size'].copy())
 
-        self.FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'timestamp':3,
-             'size':4, 'rating':5, 'tags':6, 'comments':7, 'series':8,
-             'publisher':9, 'series_index':10, 'sort':11, 'author_sort':12,
-             'formats':13, 'path':14, 'pubdate':15, 'uuid':16, 'cover':17,
-             'au_map':18, 'last_modified':19, 'identifiers':20}
+        self.FIELD_MAP = {
+            'id':0, 'title':1, 'authors':2, 'timestamp':3, 'size':4,
+            'rating':5, 'tags':6, 'comments':7, 'series':8, 'publisher':9,
+            'series_index':10, 'sort':11, 'author_sort':12, 'formats':13,
+            'path':14, 'pubdate':15, 'uuid':16, 'cover':17, 'au_map':18,
+            'last_modified':19, 'identifiers':20, 'languages':21,
+        }
 
         for k,v in self.FIELD_MAP.iteritems():
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
@@ -741,6 +768,8 @@ class DB(object):
         self.field_metadata.set_field_record_index('ondevice', base, prefer_custom=False)
         self.FIELD_MAP['marked'] = base = base+1
         self.field_metadata.set_field_record_index('marked', base, prefer_custom=False)
+        self.FIELD_MAP['series_sort'] = base = base+1
+        self.field_metadata.set_field_record_index('series_sort', base, prefer_custom=False)
 
     # }}}
 
@@ -753,6 +782,11 @@ class DB(object):
                 os.remove(self.dbpath)
                 self._conn = Connection(self.dbpath)
         return self._conn
+
+    def close(self):
+        if self._conn is not None:
+            self._conn.close()
+            del self._conn
 
     @dynamic_property
     def user_version(self):

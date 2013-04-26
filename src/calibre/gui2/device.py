@@ -1131,6 +1131,13 @@ class DeviceMixin(object): # {{{
         # so we don't need to worry about whether some succeeded or not.
         self.refresh_ondevice(reset_only=False)
 
+        try:
+            if not self.current_view().currentIndex().isValid():
+                self.current_view().set_current_row()
+            self.current_view().refresh_book_details()
+        except:
+            traceback.print_exc()
+
     def dispatch_sync_event(self, dest, delete, specific):
         rows = self.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:

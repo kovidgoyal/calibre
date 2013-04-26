@@ -15,7 +15,7 @@ from threading import Thread
 from collections import OrderedDict
 
 from PyQt4.Qt import (Qt, SIGNAL, QTimer, QHelpEvent, QAction,
-                     QMenu, QIcon, pyqtSignal, QUrl,
+                     QMenu, QIcon, pyqtSignal, QUrl, QFont,
                      QDialog, QSystemTrayIcon, QApplication)
 
 from calibre import prints, force_unicode
@@ -47,7 +47,7 @@ from calibre.gui2.proceed import ProceedQuestion
 from calibre.gui2.dialogs.message_box import JobError
 from calibre.gui2.job_indicator import Pointer
 
-class Listener(Thread): # {{{
+class Listener(Thread):  # {{{
 
     def __init__(self, listener):
         Thread.__init__(self)
@@ -76,7 +76,7 @@ class Listener(Thread): # {{{
 
 # }}}
 
-class SystemTrayIcon(QSystemTrayIcon): # {{{
+class SystemTrayIcon(QSystemTrayIcon):  # {{{
 
     tooltip_requested = pyqtSignal(object)
 
@@ -98,7 +98,7 @@ _gui = None
 def get_gui():
     return _gui
 
-class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
+class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
         SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin,
         EbookDownloadMixin
@@ -186,7 +186,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 stmap[st.name] = st
         else:
             stmap[st.name] = st
-
 
     def initialize(self, library_path, db, listener, actions, show_gui=True):
         opts = self.opts
@@ -279,6 +278,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         UpdateMixin.__init__(self, opts)
 
         ####################### Search boxes ########################
+        SearchRestrictionMixin.__init__(self)
         SavedSearchBoxMixin.__init__(self)
         SearchBoxMixin.__init__(self)
 
@@ -313,9 +313,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         TagBrowserMixin.__init__(self, db)
 
         ######################### Search Restriction ##########################
-        SearchRestrictionMixin.__init__(self)
-        if db.prefs['gui_restriction']:
-            self.apply_named_search_restriction(db.prefs['gui_restriction'])
+        if db.prefs['virtual_lib_on_startup']:
+            self.apply_virtual_library(db.prefs['virtual_lib_on_startup'])
 
         ########################### Cover Flow ################################
 
@@ -338,7 +337,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         if config['autolaunch_server']:
             self.start_content_server()
-
 
         self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
 
@@ -393,7 +391,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             if not self.device_manager.is_running('Wireless Devices'):
                     error_dialog(self, _('Problem starting the wireless device'),
                                  _('The wireless device driver did not start. '
-                                   'It said "%s"')%message,  show=True)
+                                   'It said "%s"')%message, show=True)
         self.iactions['Connect Share'].set_smartdevice_action_state()
 
     def start_content_server(self, check_started=True):
@@ -494,7 +492,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 path = os.path.abspath(argv[1])
                 if os.access(path, os.R_OK):
                     self.iactions['Add Books'].add_filesystem_book(path)
-            self.setWindowState(self.windowState() & \
+            self.setWindowState(self.windowState() &
                     ~Qt.WindowMinimized|Qt.WindowActive)
             self.show_windows()
             self.raise_()
@@ -526,7 +524,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
     def library_moved(self, newloc, copy_structure=False, call_close=True,
             allow_rebuild=False):
-        if newloc is None: return
+        if newloc is None:
+            return
         default_prefs = None
         try:
             olddb = self.library_view.model().db
@@ -537,7 +536,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         try:
             db = LibraryDatabase2(newloc, default_prefs=default_prefs)
         except (DatabaseException, sqlite.Error):
-            if not allow_rebuild: raise
+            if not allow_rebuild:
+                raise
             import traceback
             repair = question_dialog(self, _('Corrupted database'),
                     _('The library database at %s appears to be corrupted. Do '
@@ -571,8 +571,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         db = self.library_view.model().db
         self.iactions['Choose Library'].count_changed(db.count())
         self.set_window_title()
-        self.apply_named_search_restriction('') # reset restriction to null
-        self.saved_searches_changed(recount=False) # reload the search restrictions combo box
+        self.apply_named_search_restriction('')  # reset restriction to null
+        self.saved_searches_changed(recount=False)  # reload the search restrictions combo box
         self.apply_named_search_restriction(db.prefs['gui_restriction'])
         for action in self.iactions.values():
             action.library_changed(db)
@@ -596,9 +596,19 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         # interface later
         gc.collect()
 
-
     def set_window_title(self):
-        self.setWindowTitle(__appname__ + u' - || %s ||'%self.iactions['Choose Library'].library_name())
+        db = self.current_db
+        restrictions = [x for x in (db.data.get_base_restriction_name(),
+                        db.data.get_search_restriction_name()) if x]
+        restrictions = ' :: '.join(restrictions)
+        font = QFont()
+        if restrictions:
+            restrictions = ' :: ' + restrictions
+            font.setBold(True)
+        self.virtual_library.setFont(font)
+        title = u'{0} - || {1}{2} ||'.format(
+                __appname__, self.iactions['Choose Library'].library_name(), restrictions)
+        self.setWindowTitle(title)
 
     def location_selected(self, location):
         '''
@@ -613,16 +623,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         for action in self.iactions.values():
             action.location_selected(location)
         if location == 'library':
-            self.search_restriction.setEnabled(True)
+            self.virtual_library_menu.setEnabled(True)
             self.highlight_only_button.setEnabled(True)
         else:
-            self.search_restriction.setEnabled(False)
+            self.virtual_library_menu.setEnabled(False)
             self.highlight_only_button.setEnabled(False)
             # Reset the view in case something changed while it was invisible
             self.current_view().reset()
         self.set_number_of_books_shown()
-
-
 
     def job_exception(self, job, dialog_title=_('Conversion Error')):
         if not hasattr(self, '_modeless_dialogs'):
@@ -715,7 +723,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.read_layout_settings()
 
     def write_settings(self):
-        with gprefs: # Only write to gprefs once
+        with gprefs:  # Only write to gprefs once
             config.set('main_window_geometry', self.saveGeometry())
             dynamic.set('sort_history', self.library_view.model().sort_history)
             self.save_layout_state()
@@ -747,7 +755,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             if not question_dialog(self, _('Active jobs'), msg):
                 return False
         return True
-
 
     def shutdown(self, write_settings=True):
         try:
@@ -808,13 +815,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 pass
             QApplication.instance().quit()
 
-
-
     def closeEvent(self, e):
         self.write_settings()
         if self.system_tray_icon.isVisible():
             if not dynamic['systray_msg'] and not isosx:
-                info_dialog(self, 'calibre', 'calibre '+ \
+                info_dialog(self, 'calibre', 'calibre '+
                         _('will keep running in the system tray. To close it, '
                         'choose <b>Quit</b> in the context menu of the '
                         'system tray.'), show_copy_button=False).exec_()
