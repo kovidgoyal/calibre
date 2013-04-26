@@ -9,7 +9,7 @@ __copyright__ = '2013, Gregory Riker'
     http://www.libimobiledevice.org/docs/html/globals.html
 '''
 
-import binascii, os, plistlib, sys, time
+import binascii, os, sys, time
 
 from collections import OrderedDict
 from ctypes import *
@@ -17,6 +17,9 @@ from datetime import datetime
 
 from calibre.constants import DEBUG, islinux, isosx, iswindows
 from calibre.devices.usbms.driver import debug_print
+
+from calibre_plugins.marvin.parse_xml import XmlPropertyListParser
+#from calibre.devices.idevice.parse_xml import XmlPropertyListParser
 
 class libiMobileDeviceException(Exception):
     def __init__(self, value):
@@ -999,7 +1002,7 @@ class libiMobileDevice():
         xml = POINTER(c_void_p)()
         xml_len = c_long(0)
         self.lib.plist_to_xml(c_void_p.from_buffer(plist), byref(xml), byref(xml_len))
-        result = plistlib.readPlistFromString(string_at(xml, xml_len.value))
+        result = XmlPropertyListParser().parse(string_at(xml, xml_len.value))
         self.lib.plist_free(plist)
 
         # To determine success, we need to inspect the returned plist
@@ -1158,7 +1161,7 @@ class libiMobileDevice():
             xml = POINTER(c_void_p)()
             xml_len = c_long(0)
             self.lib.plist_to_xml(c_void_p.from_buffer(apps), byref(xml), byref(xml_len))
-            app_list = plistlib.readPlistFromString(string_at(xml, xml_len.value))
+            app_list = XmlPropertyListParser().parse(string_at(xml, xml_len.value))
             installed_apps = {}
             for app in app_list:
                 if not applist:
