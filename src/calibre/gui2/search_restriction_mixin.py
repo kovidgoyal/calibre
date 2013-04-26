@@ -308,7 +308,7 @@ class SearchRestrictionMixin(object):
         self.virtual_library.clicked.connect(self.virtual_library_clicked)
 
         self.virtual_library_tooltip = \
-            _('Books display will show only those books matching the search')
+            _('Use a "virtual library" to show only a subset of the books present in this library')
         self.virtual_library.setToolTip(self.virtual_library_tooltip)
 
         self.search_restriction = ComboBoxWithHelp(self)
