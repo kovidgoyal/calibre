@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-26 05:13+0000\n"
+"X-Launchpad-Export-Date: 2013-04-27 05:25+0000\n"
 "X-Generator: Launchpad (build 16580)\n"
 "Generated-By: pygettext.py 1.5\n"
 

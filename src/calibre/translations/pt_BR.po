@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-04-26 05:30+0000\n"
+"X-Launchpad-Export-Date: 2013-04-27 05:41+0000\n"
 "X-Generator: Launchpad (build 16580)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -25384,56 +25384,3 @@ msgid ""
 "number of such libraries, the sorting becomes alphabetic. You can set that\n"
 "number here. The default is ten libraries."
 msgstr ""
-
-#~ msgid ""
-#~ "Specifies a restriction to be used for this invocation. This option "
-#~ "overrides any per-library settings specified in the GUI"
-#~ msgstr ""
-#~ "Especifica uma restriçao para ser usada neste pedido. Esta opção sobrepõe "
-#~ "qualquer configurações por biblioteca especificadas na Interface gráfica."
-
-#~ msgid ""
-#~ "Apply this restriction on calibre startup if the current library is being "
-#~ "used. Also applied when switching to this library. Note that this setting is "
-#~ "per library. "
-#~ msgstr ""
-#~ "Aplica esta restrição quando calibre inicia se a biblioteca atual estiver "
-#~ "sendo usada. Também aplicada quando mudando para esta biblioteca. Note que "
-#~ "está é uma configuração por biblioteca. "
-
-#~ msgid ""
-#~ "This restriction (based on a saved search) will restrict the books the "
-#~ "content server makes available to those matching the search. This setting is "
-#~ "per library (i.e. you can have a different restriction per library)."
-#~ msgstr ""
-#~ "Esta restrição (baseada em uma pesquisa salva) irá restringir os livros do "
-#~ "servidor de conteúdo torna disponíveis para aqueles correspondentes a "
-#~ "pesquisa. Esta definição é por biblioteca (isto é, você pode ter uma "
-#~ "restrição diferente por biblioteca)."
-
-#~ msgid "&Delete after copy"
-#~ msgstr "Excluir &depois de copiar"
-
-#~ msgid "*Current search"
-#~ msgstr "*Pesquisa atual"
-
-#~ msgid "Restrict to"
-#~ msgstr "Restringir a"
-
-#~ msgid ""
-#~ "Books display will be restricted to those matching a selected saved search"
-#~ msgstr ""
-#~ "Exibição de livros será restrita àqueles que correspondem a uma pesquisa "
-#~ "salva selecionada"
-
-#~ msgid " or the search "
-#~ msgstr " ou a pesquisa "
-
-#~ msgid "Restriction to apply when the current library is opened:"
-#~ msgstr "Restrição a aplicar quando a biblioteca atual é aberta:"
-
-#~ msgid "Max. OPDS &ungrouped items:"
-#~ msgstr "Máx. de itens OPDS desagr&upados:"
-
-#~ msgid "Restriction (saved search) to apply:"
-#~ msgstr "Restrição (busca salva) a aplicar:"

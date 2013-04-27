@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-04-26 04:42+0000\n"
-"PO-Revision-Date: 2013-04-25 17:12+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2013-04-26 11:20+0000\n"
+"Last-Translator: Inmaca <magenta79@gmail.com>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-26 05:26+0000\n"
+"X-Launchpad-Export-Date: 2013-04-27 05:38+0000\n"
 "X-Generator: Launchpad (build 16580)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:540
@@ -1156,12 +1156,12 @@ msgstr "díasatrás"
 #: /home/kovid/work/calibre/src/calibre/db/search.py:198
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:374
 msgid "Number conversion error: {0}"
-msgstr ""
+msgstr "Error de conversión numérica: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:204
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:380
 msgid "Date conversion error: {0}"
-msgstr ""
+msgstr "Error de conversión de datos: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:289
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:456
@@ -7588,6 +7588,9 @@ msgid ""
 "option to work, you must also select the option to update metadata in the "
 "book files. Do you want to select it?"
 msgstr ""
+"Has seleccionado la opción de añadir metadatos como \"sobrecubierta\". Para "
+"que esta opción funcione, debes seleccionar también la opción de actualizar "
+"los metadatos en los archivos del libro. ¿Quieres seleccionarla?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:218
 msgid "You must select at least one action, or click Cancel."
@@ -15163,7 +15166,7 @@ msgstr "disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:176
 msgid "Virtual Library"
-msgstr ""
+msgstr "Biblioteca virtual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:193
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:198
@@ -16138,7 +16141,7 @@ msgstr "Buscando..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:822
 msgid "View this cover at full size"
-msgstr ""
+msgstr "Ver esta portada a tamaño completo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:868
 #, python-format
@@ -16357,6 +16360,8 @@ msgstr "&Proceso de adición"
 msgid ""
 "<b>Ignore</b> files with the following extensions when automatically adding "
 msgstr ""
+"<b>Ignorar</b> archivos con las siguientes extensiones cuando se añadan "
+"automáticamente "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:162
 msgid ""
@@ -19310,11 +19315,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:92
 msgid "Edit virtual library"
-msgstr ""
+msgstr "Editar biblioteca virtual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:94
 msgid "Create virtual library"
-msgstr ""
+msgstr "Crear biblioteca virtual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:99
 msgid "Virtual library &name:"
@@ -19326,7 +19331,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:120
 msgid "Create a virtual library based on: "
-msgstr ""
+msgstr "Crear biblioteca virtual basada en: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:133
 msgid ""
@@ -19366,27 +19371,31 @@ msgid ""
 "The virtual library name or the search text has changed. Do you want to "
 "discard these changes?"
 msgstr ""
+"El nombre de la biblioteca virtual o el texto de búsqueda han cambiado. "
+"¿Quieres descartas estos cambios?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:250
 msgid "No name"
-msgstr ""
+msgstr "Sin nombre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:251
 msgid "You must provide a name for the new virtual library"
-msgstr ""
+msgstr "Debes indicar un nombre para la nueva biblioteca virtual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:257
 msgid "A virtual library name cannot begin with \"*\""
-msgstr ""
+msgstr "El nombre de una biblioteca virtual no puede empezar por \"*\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:262
 msgid "Name already in use"
-msgstr ""
+msgstr "El nombre ya está en uso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:263
 msgid ""
 "That name is already in use. Do you want to replace it with the new search?"
 msgstr ""
+"Ese nombre ya se está usando. ¿Quieres reemplazarlo por el de la nueva "
+"búsqueda?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:270
 msgid "No search string"
@@ -27263,61 +27272,3 @@ msgstr ""
 "ordenación\n"
 "se hace alfabéticamente. Puede configurar aquí el número. El valor\n"
 "predeterminado es diez bibliotecas."
-
-#~ msgid "Max. OPDS &ungrouped items:"
-#~ msgstr "&Máximo número de elementos OPDS sin agrupar:"
-
-#~ msgid "Restrict to"
-#~ msgstr "Restringir a"
-
-#~ msgid "Restriction (saved search) to apply:"
-#~ msgstr "Restricción (búsqueda guardada) para aplicar:"
-
-#~ msgid ""
-#~ "Specifies a restriction to be used for this invocation. This option "
-#~ "overrides any per-library settings specified in the GUI"
-#~ msgstr ""
-#~ "Especifica una restricción para usar con esta invocación. Esta opción tiene "
-#~ "prioridad sobre cualquier configuración para cada biblioteca especificada en "
-#~ "la interfaz gráfica."
-
-#~ msgid "*Current search"
-#~ msgstr "*Búsqueda actual"
-
-#~ msgid ""
-#~ "Books display will be restricted to those matching a selected saved search"
-#~ msgstr ""
-#~ "Se mostrarán sólo los libros que coincidan con la búsqueda guardada "
-#~ "seleccionada"
-
-#~ msgid " or the search "
-#~ msgstr " o la búsqueda "
-
-#~ msgid "Ignore files with the following extensions when automatically adding "
-#~ msgstr ""
-#~ "Al añadir automáticamente, ignorar archivos con las siguientes extensiones "
-
-#~ msgid ""
-#~ "This restriction (based on a saved search) will restrict the books the "
-#~ "content server makes available to those matching the search. This setting is "
-#~ "per library (i.e. you can have a different restriction per library)."
-#~ msgstr ""
-#~ "Esta restricción (basada en una búsqueda guardada) hace que el servidor de "
-#~ "contenidos muestre únicamente los libros seleccionados para la búsqueda. "
-#~ "Esta configuración es independiente para cada biblioteca, es decir, puede "
-#~ "tener una restricción distinta para cada biblioteca."
-
-#~ msgid "&Delete after copy"
-#~ msgstr "&Borrar después de copiar"
-
-#~ msgid ""
-#~ "Apply this restriction on calibre startup if the current library is being "
-#~ "used. Also applied when switching to this library. Note that this setting is "
-#~ "per library. "
-#~ msgstr ""
-#~ "Aplicar esta restricción al iniciar calibre si se está usando la biblioteca "
-#~ "actual. También se aplica cuando se selecciona esta biblioteca. Tenga en "
-#~ "cuenta que esta configuración es individual para cada biblioteca. "
-
-#~ msgid "Restriction to apply when the current library is opened:"
-#~ msgstr "Restricción que se aplicará cuando se abre la biblioteca actual:"

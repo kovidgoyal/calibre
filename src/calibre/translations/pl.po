@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-04-26 05:24+0000\n"
+"X-Launchpad-Export-Date: 2013-04-27 05:35+0000\n"
 "X-Generator: Launchpad (build 16580)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
@@ -26988,58 +26988,3 @@ msgstr ""
 "jest duża, są one ustawiane alfabetycznie. Tu można ustawić liczbę "
 "bibliotek,\n"
 "od której tak się dzieje. Domyślnie jest to dziesięć."
-
-#~ msgid "Restriction to apply when the current library is opened:"
-#~ msgstr "Zastosowane ograniczenie gdy jest otwarta bieżąca biblioteka:"
-
-#~ msgid ""
-#~ "Apply this restriction on calibre startup if the current library is being "
-#~ "used. Also applied when switching to this library. Note that this setting is "
-#~ "per library. "
-#~ msgstr ""
-#~ "Zastosuj to ograniczenie podczas uruchamiania programu calibre jeśli bieżąca "
-#~ "biblioteka jest w użyciu. To ustawienie jest dla biblioteki. "
-
-#~ msgid "Restriction (saved search) to apply:"
-#~ msgstr "Ograniczenie (zapisane wyszukiwanie) do zastosowania:"
-
-#~ msgid ""
-#~ "This restriction (based on a saved search) will restrict the books the "
-#~ "content server makes available to those matching the search. This setting is "
-#~ "per library (i.e. you can have a different restriction per library)."
-#~ msgstr ""
-#~ "To ograniczenie (oparte na zapisanym wyszukaniu) ograniczy ilość dostępnych "
-#~ "książek na serwerze zawartości do tych spełniających kryteria wyszukiwania. "
-#~ "To ustawienie dotyczy biblioteki (np. możesz mieć różne ograniczenia dla "
-#~ "każdej biblioteki)."
-
-#~ msgid "Max. OPDS &ungrouped items:"
-#~ msgstr "Maks. niezgr&upowane elementy OPDS:"
-
-#~ msgid "Restrict to"
-#~ msgstr "Ogranicz do:"
-
-#~ msgid ""
-#~ "Specifies a restriction to be used for this invocation. This option "
-#~ "overrides any per-library settings specified in the GUI"
-#~ msgstr ""
-#~ "Określa ograniczenia użyte w tej inwokacji. Ta opcja nadpisuje wszystkie "
-#~ "ustawienia dla biblioteki określone w interfejsie graficznym"
-
-#~ msgid "*Current search"
-#~ msgstr "*Bieżące wyszukiwanie"
-
-#~ msgid " or the search "
-#~ msgstr " lub wyszukiwanie "
-
-#~ msgid ""
-#~ "Books display will be restricted to those matching a selected saved search"
-#~ msgstr ""
-#~ "Lista wyświetlanych książek zostanie ograniczona do zapisanego wyszukiwania"
-
-#~ msgid "Ignore files with the following extensions when automatically adding "
-#~ msgstr ""
-#~ "Ignoruj pliki z następującymi rozszerzeniami przy automatycznym dodawaniu "
-
-#~ msgid "&Delete after copy"
-#~ msgstr "&Usuń po skopiowaniu"

@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-26 05:14+0000\n"
+"X-Launchpad-Export-Date: 2013-04-27 05:25+0000\n"
 "X-Generator: Launchpad (build 16580)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -27300,60 +27300,3 @@ msgstr ""
 "s'ordenen normalment per freqüència d'ús. Tanmateix, si hi ha més d'un\n"
 "nombre concret de biblioteques l'ordre esdevé alfabètic. Aquí podeu\n"
 "establir aquest nombre. Per defecte és 10 biblioteques."
-
-#~ msgid "Restriction to apply when the current library is opened:"
-#~ msgstr "Restriccions que s'aplicaran quan la biblioteca actual s'obri:"
-
-#~ msgid ""
-#~ "Apply this restriction on calibre startup if the current library is being "
-#~ "used. Also applied when switching to this library. Note that this setting is "
-#~ "per library. "
-#~ msgstr ""
-#~ "Aplica aquesta restricció a l'inici del calibre si s'està fent servir la "
-#~ "biblioteca actual. També s'aplica si es canvia a aquesta biblioteca. Tingueu "
-#~ "en compte que aquest paràmetre és per a cada biblioteca. "
-
-#~ msgid "Restriction (saved search) to apply:"
-#~ msgstr "Restricció (cerca desada) que s'aplicarà:"
-
-#~ msgid "Max. OPDS &ungrouped items:"
-#~ msgstr "Número màxim d'elements OPDS sense agr&upar:"
-
-#~ msgid ""
-#~ "This restriction (based on a saved search) will restrict the books the "
-#~ "content server makes available to those matching the search. This setting is "
-#~ "per library (i.e. you can have a different restriction per library)."
-#~ msgstr ""
-#~ "Aquesta restricció (basada en un cerca desada) fa que el servidor de "
-#~ "contingut només deixi disponibles els llibres que coincideixen amb la cerca. "
-#~ "Aquest paràmetre és independent per a cada biblioteca (és a dir, podeu tenir "
-#~ "restriccions diferents per a cada biblioteca)."
-
-#~ msgid ""
-#~ "Specifies a restriction to be used for this invocation. This option "
-#~ "overrides any per-library settings specified in the GUI"
-#~ msgstr ""
-#~ "Indica una restricció per a la invocació. Anul·la qualsevol paràmetre d'una "
-#~ "biblioteca que s'hagi indicat a la interfície gràfica"
-
-#~ msgid "Restrict to"
-#~ msgstr "Restringeix a"
-
-#~ msgid "*Current search"
-#~ msgstr "*Cerca actual"
-
-#~ msgid ""
-#~ "Books display will be restricted to those matching a selected saved search"
-#~ msgstr ""
-#~ "Només és mostraran els llibres que coincideixin amb la cerca desada "
-#~ "seleccionada"
-
-#~ msgid " or the search "
-#~ msgstr " o la cerca "
-
-#~ msgid "Ignore files with the following extensions when automatically adding "
-#~ msgstr ""
-#~ "En afegir automàticament ignora els fitxers amb les extensions següents "
-
-#~ msgid "&Delete after copy"
-#~ msgstr "Suprimeix &després de copiar"

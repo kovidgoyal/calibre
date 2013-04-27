@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-26 05:30+0000\n"
+"X-Launchpad-Export-Date: 2013-04-27 05:42+0000\n"
 "X-Generator: Launchpad (build 16580)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -26012,55 +26012,3 @@ msgid ""
 "number of such libraries, the sorting becomes alphabetic. You can set that\n"
 "number here. The default is ten libraries."
 msgstr ""
-
-#~ msgid "Restriction to apply when the current library is opened:"
-#~ msgstr "Restriction to apply when the current library is opened:"
-
-#~ msgid ""
-#~ "Apply this restriction on calibre startup if the current library is being "
-#~ "used. Also applied when switching to this library. Note that this setting is "
-#~ "per library. "
-#~ msgstr ""
-#~ "Apply this restriction on calibre startup if the current library is being "
-#~ "used. Also applied when switching to this library. Note that this setting is "
-#~ "per library. "
-
-#~ msgid "Restriction (saved search) to apply:"
-#~ msgstr "Restriction (saved search) to apply:"
-
-#~ msgid "Max. OPDS &ungrouped items:"
-#~ msgstr "Max. OPDS &ungrouped items:"
-
-#~ msgid ""
-#~ "This restriction (based on a saved search) will restrict the books the "
-#~ "content server makes available to those matching the search. This setting is "
-#~ "per library (i.e. you can have a different restriction per library)."
-#~ msgstr ""
-#~ "This restriction (based on a saved search) will restrict the books the "
-#~ "content server makes available to those matching the search. This setting is "
-#~ "per library (i.e. you can have a different restriction per library)."
-
-#~ msgid "Restrict to"
-#~ msgstr "Restrict to"
-
-#~ msgid ""
-#~ "Specifies a restriction to be used for this invocation. This option "
-#~ "overrides any per-library settings specified in the GUI"
-#~ msgstr ""
-#~ "Specifies a restriction to be used for this invocation. This option "
-#~ "overrides any per-library settings specified in the GUI"
-
-#~ msgid "*Current search"
-#~ msgstr "*Current search"
-
-#~ msgid ""
-#~ "Books display will be restricted to those matching a selected saved search"
-#~ msgstr ""
-#~ "Books display will be restricted to those matching a selected saved search"
-
-#~ msgid " or the search "
-#~ msgstr " or the search "
-
-#~ msgid "Ignore files with the following extensions when automatically adding "
-#~ msgstr ""
-#~ "Ignore files with the following extensions when automatically adding "

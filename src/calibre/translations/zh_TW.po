@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-04-26 05:31+0000\n"
+"X-Launchpad-Export-Date: 2013-04-27 05:42+0000\n"
 "X-Generator: Launchpad (build 16580)\n"
 "Language: zh_TW\n"
 
@@ -23936,34 +23936,3 @@ msgid ""
 "number of such libraries, the sorting becomes alphabetic. You can set that\n"
 "number here. The default is ten libraries."
 msgstr ""
-
-#~ msgid "Restriction to apply when the current library is opened:"
-#~ msgstr "當目前的書庫開啟時套用限制："
-
-#~ msgid "Restrict to"
-#~ msgstr "限制為"
-
-#~ msgid ""
-#~ "Apply this restriction on calibre startup if the current library is being "
-#~ "used. Also applied when switching to this library. Note that this setting is "
-#~ "per library. "
-#~ msgstr "如果目前的書庫在使用中，於 calibre 啟動時套用這個限制。同時在切換到這個書庫時也進行套用。注意這個設定值是每個書庫分開的。 "
-
-#~ msgid "Max. OPDS &ungrouped items:"
-#~ msgstr "最大 OPDS 未群組項目(&U):"
-
-#~ msgid "Restriction (saved search) to apply:"
-#~ msgstr "要套用的限制(已儲存搜尋)："
-
-#~ msgid "*Current search"
-#~ msgstr "*目前的搜尋"
-
-#~ msgid ""
-#~ "Books display will be restricted to those matching a selected saved search"
-#~ msgstr "書籍的顯示會限制在符合選取的已儲存搜尋"
-
-#~ msgid " or the search "
-#~ msgstr " 或搜尋 "
-
-#~ msgid "Ignore files with the following extensions when automatically adding "
-#~ msgstr "自動加入時忽略具有以下延伸檔名的檔案 "

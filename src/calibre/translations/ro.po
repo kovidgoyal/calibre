@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
 "== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2013-04-26 05:25+0000\n"
+"X-Launchpad-Export-Date: 2013-04-27 05:36+0000\n"
 "X-Generator: Launchpad (build 16580)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -25875,54 +25875,3 @@ msgid ""
 "number of such libraries, the sorting becomes alphabetic. You can set that\n"
 "number here. The default is ten libraries."
 msgstr ""
-
-#~ msgid ""
-#~ "Specifies a restriction to be used for this invocation. This option "
-#~ "overrides any per-library settings specified in the GUI"
-#~ msgstr ""
-#~ "Specifică o restricţie care să fie folosită pentru această invocare. Această "
-#~ "opţiune este folosită în detrimentul oricărei alte setări a bibliotecii "
-#~ "specificate în GUI."
-
-#~ msgid "Restriction to apply when the current library is opened:"
-#~ msgstr "Restricţie de aplicat atunci când o bibliotecă e deschisă:"
-
-#~ msgid ""
-#~ "Apply this restriction on calibre startup if the current library is being "
-#~ "used. Also applied when switching to this library. Note that this setting is "
-#~ "per library. "
-#~ msgstr ""
-#~ "Aplică acestă restricţie la pornirea calibre dacă biblioteca curentă este "
-#~ "folosită. De asemena aplică restricţia la activarea bibliotecii curente. De "
-#~ "notat că această setare este per bibliotecă. "
-
-#~ msgid "Max. OPDS &ungrouped items:"
-#~ msgstr "Nr. max. de elem. OPDS negr&upate:"
-
-#~ msgid "Restriction (saved search) to apply:"
-#~ msgstr "Restricţie (căutare salvată) de aplicat:"
-
-#~ msgid ""
-#~ "This restriction (based on a saved search) will restrict the books the "
-#~ "content server makes available to those matching the search. This setting is "
-#~ "per library (i.e. you can have a different restriction per library)."
-#~ msgstr ""
-#~ "Această restricţie (bazată pe o căutare salvată) va restricţiona cărţile pe "
-#~ "care serverul de conţinut le face disponibile pentru potrivirea la căutare. "
-#~ "Această setare este per bibliotecă (de ex. puteţi avea câte o restricţie "
-#~ "diferită pentru fiecare bibliotecă)."
-
-#~ msgid "*Current search"
-#~ msgstr "*Căutare curentă"
-
-#~ msgid ""
-#~ "Books display will be restricted to those matching a selected saved search"
-#~ msgstr ""
-#~ "Afişarea cărţilor va fi restricţionată la cele potrivite cu o căutare "
-#~ "salvată selectată"
-
-#~ msgid " or the search "
-#~ msgstr " sau căutarea "
-
-#~ msgid "Restrict to"
-#~ msgstr "Restricţionează la"

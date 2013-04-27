@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Launchpad-Export-Date: 2013-04-26 05:26+0000\n"
+"X-Launchpad-Export-Date: 2013-04-27 05:37+0000\n"
 "X-Generator: Launchpad (build 16580)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -26094,57 +26094,3 @@ msgid ""
 "number of such libraries, the sorting becomes alphabetic. You can set that\n"
 "number here. The default is ten libraries."
 msgstr ""
-
-#~ msgid "Restrict to"
-#~ msgstr "Obmedziť na"
-
-#~ msgid "Restriction to apply when the current library is opened:"
-#~ msgstr "Použiť nasledujúce obmedzenia pri otvorení aktuálnej knižnice:"
-
-#~ msgid ""
-#~ "Apply this restriction on calibre startup if the current library is being "
-#~ "used. Also applied when switching to this library. Note that this setting is "
-#~ "per library. "
-#~ msgstr ""
-#~ "Použiť tieto obmedzenia pri spustení Calibre pri použití aktuálnej knižnice, "
-#~ "alebo tiež pri prepnutí do tejto knižnice. Uvedomte si, že toto nastavenie "
-#~ "sa týka konkrétnej knižnice. "
-
-#~ msgid "Restriction (saved search) to apply:"
-#~ msgstr "Aplikované obmedzenie (uložené hľadania):"
-
-#~ msgid ""
-#~ "This restriction (based on a saved search) will restrict the books the "
-#~ "content server makes available to those matching the search. This setting is "
-#~ "per library (i.e. you can have a different restriction per library)."
-#~ msgstr ""
-#~ "Obmedzenie (na základe uloženého hľadania) obmedzí zoznam kníh dostupných "
-#~ "cez server obsahu len na také, ktoré vyhovujú hľadaniu. Toto nastavenie "
-#~ "platí pre konkrétnu knižnicu (tzn. pre rôzne knižnice môžete mať rozdielne "
-#~ "obmedzenia)."
-
-#~ msgid "Max. OPDS &ungrouped items:"
-#~ msgstr "Max. &nezoskupených OPDS položiek:"
-
-#~ msgid "*Current search"
-#~ msgstr "*Aktuálne hľadanie"
-
-#~ msgid ""
-#~ "Books display will be restricted to those matching a selected saved search"
-#~ msgstr ""
-#~ "Zobrazenie kníh bude obmedzené len na knihy vyhovujúce vybranému uloženému "
-#~ "hľadaniu"
-
-#~ msgid " or the search "
-#~ msgstr " alebo hľadanie "
-
-#~ msgid ""
-#~ "Specifies a restriction to be used for this invocation. This option "
-#~ "overrides any per-library settings specified in the GUI"
-#~ msgstr ""
-#~ "Určí obmedzenia pre toto volanie. Táto voľba nahradí akékoľvek nastavenia "
-#~ "knižnice zadané v GUI."
-
-#~ msgid "Ignore files with the following extensions when automatically adding "
-#~ msgstr ""
-#~ "Pri automatickom pridávaní ignorovať súbory s nasledujúcimi príponami "
