@@ -40,20 +40,50 @@ class AFC_CLIENT_T(Structure):
     http://www.libimobiledevice.org/docs/html/structafc__client__private.html
     '''
     _fields_ = [
-        ('connection', c_long),
+        # afc_client_private (afc.h)
+        # service_client_private (service.h)
+        # idevice_connection_private (idevice.h)
+        ('connection_type', c_int),
+        ('data', c_void_p),
+
+        # ssl_data_private (idevice.h)
+        ('session', c_void_p),
+        ('ctx', c_void_p),
+        ('bio', c_void_p),
+
+        # afc_client_private (afc.h)
         ('afc_packet', c_void_p),
         ('file_handle', c_int),
         ('lock', c_int),
-        ('mutex', c_long),
-        ('own_connection', c_int)]
+
+        # mutex - (Windows only?) (WinNT.h)
+        ('LockCount', c_long),
+        ('RecursionCount', c_long),
+        ('OwningThread', c_void_p),
+        ('LockSemaphore', c_void_p),
+        ('SpinCount', c_void_p),
+
+        # afc_client_private (afc.h)
+        ('free_parent', c_int)]
 
 class HOUSE_ARREST_CLIENT_T(Structure):
     '''
     http://www.libimobiledevice.org/docs/html/structhouse__arrest__client__private.html
     '''
     _fields_ = [
-        ("parent", c_long),
-        ("mode", c_int)]
+        # property_list_service_client
+        # idevice_connection_private (idevice.h)
+        ('type', c_int),
+        ('data', c_void_p),
+
+        # ssl_data_private (idevice.h)
+        ('session', c_void_p),
+        ('ctx', c_void_p),
+        ('bio', c_void_p),
+
+        # (house_arrest.h)
+        ('mode', c_int)
+        ]
 
 class IDEVICE_T(Structure):
     '''
@@ -69,20 +99,55 @@ class INSTPROXY_CLIENT_T(Structure):
     http://www.libimobiledevice.org/docs/html/structinstproxy__client__private.html
     '''
     _fields_ = [
-        ("parent", c_long),
-        ("mutex", c_long),
-        ("status_updater", c_long)]
+        # instproxy_client_private (installation_proxy.h)
+        # idevice_connection_private (idevice.h)
+        ('connection_type', c_int),
+        ('data', c_void_p),
+
+        # ssl_data_private (idevice.h)
+        ('session', c_void_p),
+        ('ctx', c_void_p),
+        ('bio', c_void_p),
+
+        # mutex - Windows only (WinNT.h)
+        ('LockCount', c_long),
+        ('RecursionCount', c_long),
+        ('OwningThread', c_void_p),
+        ('LockSemaphore', c_void_p),
+        ('SpinCount', c_void_p),
+        ('status_updater', c_void_p)
+    ]
 
 class LOCKDOWND_CLIENT_T(Structure):
     '''
     http://www.libimobiledevice.org/docs/html/structlockdownd__client__private.html
     '''
     _fields_ = [
-        ('parent', c_long),
+        # lockdownd_client_private
+        # property_list_service_client
+        # idevice_connection_private
+        ('connection_type', c_int),
+        ('data', c_void_p),
+
+        # ssl_data_private
+        ('session', c_char_p),
+        ('ctx', c_char_p),
+        ('bio', c_char_p),
+
+        # lockdown_client_private
         ('ssl_enabled', c_int),
         ('session_id', c_char_p),
         ('udid', c_char_p),
         ('label', c_char_p)]
+
+class LOCKDOWND_SERVICE_DESCRIPTOR(Structure):
+    '''
+    from libimobiledevice/include/libimobiledevice/lockdown.h
+    '''
+    _fields_ = [
+        ('port', c_uint),
+        ('ssl_enabled', c_ubyte)
+        ]
 
 
 class libiMobileDevice():
@@ -245,6 +310,7 @@ class libiMobileDevice():
                 index += 1
             if self.verbose:
                 self.log(" %s" % repr(device_list))
+        #self.lib.idevice_device_list_free()
         return device_list
 
     def get_installed_apps(self, applist):
@@ -475,7 +541,7 @@ class libiMobileDevice():
         '''
         self._log_location()
 
-        error = self.lib.afc_client_free(byref(self.afc))
+        error = self.lib.afc_client_free(byref(self.afc)) & 0xFFFF
         if error and self.verbose:
             self.log(" ERROR: %s" % self.afc_error(error))
 
@@ -486,7 +552,9 @@ class libiMobileDevice():
         self._log_location()
         self.afc = None
         afc_client_t = POINTER(AFC_CLIENT_T)()
-        error = self.lib.afc_client_new(byref(self.device), self.port, byref(afc_client_t))
+        error = self.lib.afc_client_new(byref(self.device),
+                                        self.lockdown,
+                                        byref(afc_client_t)) & 0xFFFF
 
         if error:
             error_description = self.LIB_ERROR_TEMPLATE.format(
@@ -531,7 +599,8 @@ class libiMobileDevice():
 
         self.afc = None
         afc_client_t = POINTER(AFC_CLIENT_T)()
-        error = self.lib.afc_client_new_from_house_arrest_client(byref(self.house_arrest), byref(afc_client_t))
+        error = self.lib.afc_client_new_from_house_arrest_client(byref(self.house_arrest),
+                                                                 byref(afc_client_t)) & 0xFFFF
 
         if error:
             error_description = self.LIB_ERROR_TEMPLATE.format(
@@ -631,7 +700,8 @@ class libiMobileDevice():
         '''
         self._log_location(handle.value)
 
-        error = self.lib.afc_file_close(byref(self.afc), handle)
+        error = self.lib.afc_file_close(byref(self.afc),
+                                        handle) & 0xFFFF
         if error and self.verbose:
             self.log(" ERROR: %s" % self._afc_error(error))
 
@@ -662,9 +732,15 @@ class libiMobileDevice():
         handle = c_ulonglong(0)
 
         if 'r' in mode:
-            error = self.lib.afc_file_open(byref(self.afc), str(filename), self.AFC_FOPEN_RDONLY, byref(handle))
+            error = self.lib.afc_file_open(byref(self.afc),
+                                           str(filename),
+                                           self.AFC_FOPEN_RDONLY,
+                                           byref(handle)) & 0xFFFF
         elif 'w' in mode:
-            error = self.lib.afc_file_open(byref(self.afc), str(filename), self.AFC_FOPEN_WRONLY, byref(handle))
+            error = self.lib.afc_file_open(byref(self.afc),
+                                           str(filename),
+                                           self.AFC_FOPEN_WRONLY,
+                                           byref(handle)) & 0xFFFF
 
         if error:
             if self.verbose:
@@ -699,7 +775,11 @@ class libiMobileDevice():
         if 'b' in mode:
             data = bytearray(size)
             datatype = c_char * size
-            error = self.lib.afc_file_read(byref(self.afc), handle, byref(datatype.from_buffer(data)), size, byref(bytes_read))
+            error = self.lib.afc_file_read(byref(self.afc),
+                                           handle,
+                                           byref(datatype.from_buffer(data)),
+                                           size,
+                                           byref(bytes_read)) & 0xFFFF
             if error:
                 if self.verbose:
                     self.log(" ERROR: %s" % self._afc_error(error))
@@ -743,7 +823,11 @@ class libiMobileDevice():
             data = bytearray(content,'utf-8')
             datatype = c_char * len(content)
 
-        error = self.lib.afc_file_write(byref(self.afc), handle, byref(datatype.from_buffer(data)), len(content), byref(bytes_written))
+        error = self.lib.afc_file_write(byref(self.afc),
+                                        handle,
+                                        byref(datatype.from_buffer(data)),
+                                        len(content),
+                                        byref(bytes_written)) & 0xFFFF
         if error:
             if self.verbose:
                 self.log(" ERROR: %s" % self._afc_error(error))
@@ -775,7 +859,8 @@ class libiMobileDevice():
             info_raw_p = c_char_p
             info_raw = POINTER(info_raw_p)()
 
-            error = self.lib.afc_get_device_info(byref(self.afc), byref(info_raw))
+            error = self.lib.afc_get_device_info(byref(self.afc),
+                                                 byref(info_raw)) & 0xFFFF
             if not error:
                 num_items = 0
                 item_list = []
@@ -821,7 +906,9 @@ class libiMobileDevice():
 
         infolist_p = c_char * 1024
         infolist = POINTER(POINTER(infolist_p))()
-        error = self.lib.afc_get_file_info(byref(self.afc), str(path), byref(infolist))
+        error = self.lib.afc_get_file_info(byref(self.afc),
+                                           str(path),
+                                           byref(infolist)) & 0xFFFF
         file_stats = {}
         if error:
             if self.verbose:
@@ -868,7 +955,9 @@ class libiMobileDevice():
         file_stats = {}
         dirs_p = c_char_p
         dirs = POINTER(dirs_p)()
-        error = self.lib.afc_read_directory(byref(self.afc), str(directory), byref(dirs))
+        error = self.lib.afc_read_directory(byref(self.afc),
+                                            str(directory),
+                                            byref(dirs)) & 0xFFFF
         if error:
             if self.verbose:
                 self.log(" ERROR: %s" % self._afc_error(error))
@@ -912,7 +1001,7 @@ class libiMobileDevice():
 
         self._log_location()
 
-        error = self.lib.house_arrest_client_free(byref(self.house_arrest))
+        error = self.lib.house_arrest_client_free(byref(self.house_arrest)) & 0xFFFF
         if error:
             if self.verbose:
                 self.log(" ERROR: %s" % self._house_arrest_error(error))
@@ -936,7 +1025,9 @@ class libiMobileDevice():
         self._log_location()
 
         house_arrest_client_t = POINTER(HOUSE_ARREST_CLIENT_T)()
-        error = self.lib.house_arrest_client_new(byref(self.device), self.port, byref(house_arrest_client_t))
+        error = self.lib.house_arrest_client_new(byref(self.device),
+                                                 self.lockdown,
+                                                 byref(house_arrest_client_t)) & 0xFFFF
         if error:
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
@@ -953,9 +1044,6 @@ class libiMobileDevice():
                     self.log("  6. Bad version")
                 return None
             else:
-                if self.verbose:
-                    self.log("          parent: %s" % house_arrest_client_t.contents.parent)
-                    self.log("            mode: %s" % house_arrest_client_t.contents.mode)
                 return house_arrest_client_t.contents
 
     def _house_arrest_error(self, error):
@@ -995,7 +1083,8 @@ class libiMobileDevice():
         self._log_location()
 
         plist = c_char_p()
-        error = self.lib.house_arrest_get_result(byref(self.house_arrest), byref(plist))
+        error = self.lib.house_arrest_get_result(byref(self.house_arrest),
+                                                 byref(plist)) & 0xFFFF
         plist = c_void_p.from_buffer(plist)
 
         # Convert the plist to xml
@@ -1047,7 +1136,9 @@ class libiMobileDevice():
         _command = create_string_buffer(command)
         _appid = create_string_buffer(appid)
 
-        error = self.lib.house_arrest_send_command(byref(self.house_arrest), _command, _appid)
+        error = self.lib.house_arrest_send_command(byref(self.house_arrest),
+                                                   _command,
+                                                   _appid) & 0xFFFF
         if error:
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
@@ -1086,7 +1177,8 @@ class libiMobileDevice():
         '''
         self._log_location()
 
-        error = self.lib.idevice_free(byref(self.device))
+        error = self.lib.idevice_free(byref(self.device)) & 0xFFFF
+
         if error:
             if self.verbose:
                 self.log(" ERROR: %s" % self._idevice_error(error))
@@ -1107,7 +1199,8 @@ class libiMobileDevice():
         self._log_location()
 
         idevice_t = POINTER(IDEVICE_T)()
-        error = self.lib.idevice_new(byref(idevice_t), c_void_p())
+        error = self.lib.idevice_new(byref(idevice_t),
+                                     c_void_p()) & 0xFFFF
 
         if error:
             error_description = self.LIB_ERROR_TEMPLATE.format(
@@ -1121,7 +1214,6 @@ class libiMobileDevice():
                     self.log("       conn_type: CONNECTION_USBMUXD")
                 else:
                     self.log("       conn_type: Unknown (%d)" % idevice_t.contents.conn_type)
-                self.log("       conn_data: %s" % idevice_t.contents.conn_data)
                 self.log("            udid: %s" % idevice_t.contents.udid)
             return idevice_t.contents
 
@@ -1144,7 +1236,9 @@ class libiMobileDevice():
         self._log_location(applist)
 
         apps = c_void_p()
-        error = self.lib.instproxy_browse(byref(self.instproxy), self.client_options, byref(apps))
+        error = self.lib.instproxy_browse(byref(self.instproxy),
+                                          self.client_options,
+                                          byref(apps)) & 0xFFFF
 
         if error:
             error_description = self.LIB_ERROR_TEMPLATE.format(
@@ -1201,8 +1295,9 @@ class libiMobileDevice():
         self._log_location()
 
         instproxy_client_t = POINTER(INSTPROXY_CLIENT_T)()
-        #error = self.lib.instproxy_client_new(byref(self.device), self.port.value, byref(instproxy_client_t))
-        error = self.lib.instproxy_client_new(byref(self.device), self.port, byref(instproxy_client_t))
+        error = self.lib.instproxy_client_new(byref(self.device),
+                                              self.lockdown,
+                                              byref(instproxy_client_t)) & 0xFFFF
         if error:
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
@@ -1210,10 +1305,6 @@ class libiMobileDevice():
                 desc=self._instproxy_error(error))
             raise libiMobileDeviceException(error_description)
         else:
-            if self.verbose:
-                self.log("          parent: %s" % instproxy_client_t.contents.parent)
-                self.log("           mutex: %s" % instproxy_client_t.contents.mutex)
-                self.log("  status_updater: %s" % instproxy_client_t.contents.status_updater)
             return instproxy_client_t.contents
 
     def _instproxy_client_free(self):
@@ -1221,7 +1312,7 @@ class libiMobileDevice():
         '''
         self._log_location()
 
-        error = self.lib.instproxy_client_free(byref(self.instproxy))
+        error = self.lib.instproxy_client_free(byref(self.instproxy)) & 0xFFFF
         if error:
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
@@ -1288,7 +1379,7 @@ class libiMobileDevice():
         '''
         self._log_location()
 
-        error = self.lib.lockdownd_client_free(byref(self.control))
+        error = self.lib.lockdownd_client_free(byref(self.control)) & 0xFFFF
         if error:
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
@@ -1325,8 +1416,8 @@ class libiMobileDevice():
         lockdownd_client_t = POINTER(LOCKDOWND_CLIENT_T)()
         SERVICE_NAME = create_string_buffer('calibre')
         error = self.lib.lockdownd_client_new_with_handshake(byref(self.device),
-            byref(lockdownd_client_t),
-            SERVICE_NAME)
+                                                             byref(lockdownd_client_t),
+                                                             SERVICE_NAME) & 0xFFFF
 
         if error:
             error_description = self.LIB_ERROR_TEMPLATE.format(
@@ -1335,12 +1426,6 @@ class libiMobileDevice():
                 desc=self._lockdown_error(error))
             raise libiMobileDeviceException(error_description)
         else:
-            if self.verbose:
-                self.log("          parent: %s" % lockdownd_client_t.contents.parent)
-                self.log("     ssl_enabled: %s" % lockdownd_client_t.contents.ssl_enabled)
-                self.log("      session_id: %s" % lockdownd_client_t.contents.session_id)
-                self.log("            udid: %s" % lockdownd_client_t.contents.udid)
-                self.log("           label: %s" % lockdownd_client_t.contents.label)
             return lockdownd_client_t.contents
 
     def _lockdown_error(self, error):
@@ -1405,7 +1490,8 @@ class libiMobileDevice():
         device_name_b = c_char * 32
         device_name_p = POINTER(device_name_b)()
         device_name = None
-        error = self.lib.lockdownd_get_device_name(byref(self.control), byref(device_name_p))
+        error = self.lib.lockdownd_get_device_name(byref(self.control),
+                                                   byref(device_name_p)) & 0xFFFF
         if error:
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
@@ -1434,7 +1520,7 @@ class libiMobileDevice():
         self._log_location()
 
         if self.control:
-            error = self.lib.lockdownd_goodbye(byref(self.control))
+            error = self.lib.lockdownd_goodbye(byref(self.control)) & 0xFFFF
             if self.verbose:
                 self.log(" ERROR: %s" % self.error_lockdown(error))
         else:
@@ -1460,17 +1546,16 @@ class libiMobileDevice():
         self._log_location(service_name)
 
         SERVICE_NAME = create_string_buffer(service_name)
-        self.port = POINTER(c_uint)()
-        error = self.lib.lockdownd_start_service(byref(self.control), SERVICE_NAME, byref(self.port))
+        self.lockdown = POINTER(LOCKDOWND_SERVICE_DESCRIPTOR)()
+        error = self.lib.lockdownd_start_service(byref(self.control),
+                                                 SERVICE_NAME,
+                                                 byref(self.lockdown)) & 0xFFFF
         if error:
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
                 func=sys._getframe().f_code.co_name,
                 desc=self._lockdown_error(error))
             raise libiMobileDeviceException(error_description)
-        else:
-            if self.verbose:
-                self.log("            port: %s" % self.port.contents.value)
 
 
     def _log_location(self, *args):
