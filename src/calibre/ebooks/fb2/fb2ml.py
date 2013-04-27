@@ -19,6 +19,7 @@ from calibre import prepare_string_for_xml
 from calibre.constants import __appname__, __version__
 from calibre.utils.magick import Image
 from calibre.utils.localization import lang_as_iso639_1
+from calibre.ebooks.oeb.base import urlnormalize
 
 class FB2MLizer(object):
     '''
@@ -281,7 +282,7 @@ class FB2MLizer(object):
                         data += char
                     images.append('<binary id="%s" content-type="image/jpeg">%s\n</binary>' % (self.image_hrefs[item.href], data))
                 except Exception as e:
-                    self.log.error('Error: Could not include file %s because ' \
+                    self.log.error('Error: Could not include file %s because '
                         '%s.' % (item.href, e))
         return ''.join(images)
 
@@ -420,13 +421,16 @@ class FB2MLizer(object):
         if tag == 'img':
             if elem_tree.attrib.get('src', None):
                 # Only write the image tag if it is in the manifest.
-                if page.abshref(elem_tree.attrib['src']) in self.oeb_book.manifest.hrefs.keys():
-                    if page.abshref(elem_tree.attrib['src']) not in self.image_hrefs.keys():
-                        self.image_hrefs[page.abshref(elem_tree.attrib['src'])] = '_%s.jpg' % len(self.image_hrefs.keys())
+                ihref = urlnormalize(page.abshref(elem_tree.attrib['src']))
+                if ihref in self.oeb_book.manifest.hrefs:
+                    if ihref not in self.image_hrefs:
+                        self.image_hrefs[ihref] = '_%s.jpg' % len(self.image_hrefs)
                     p_txt, p_tag = self.ensure_p()
                     fb2_out += p_txt
                     tags += p_tag
-                    fb2_out.append('<image xlink:href="#%s" />' % self.image_hrefs[page.abshref(elem_tree.attrib['src'])])
+                    fb2_out.append('<image xlink:href="#%s" />' % self.image_hrefs[ihref])
+                else:
+                    self.log.warn(u'Ignoring image not in manifest: %s'%ihref)
         if tag in ('br', 'hr') or ems >= 1:
             if ems < 1:
                 multiplier = 1
