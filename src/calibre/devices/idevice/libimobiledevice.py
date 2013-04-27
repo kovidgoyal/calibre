@@ -871,7 +871,7 @@ class libiMobileDevice():
                     device_info[item_list[i]] = item_list[i+1]
                 if self.verbose:
                     for key in device_info.keys():
-                        self.log("  %s: %s" % (key, device_info[key]))
+                        self.log("{0:>16}: {1}".format(key, device_info[key]))
             else:
                 if self.verbose:
                     self.log(" ERROR: %s" % self._afc_error(error))
@@ -1090,9 +1090,9 @@ class libiMobileDevice():
         # Convert the plist to xml
         xml = POINTER(c_void_p)()
         xml_len = c_long(0)
-        self.lib.plist_to_xml(c_void_p.from_buffer(plist), byref(xml), byref(xml_len))
+        self.plist_lib.plist_to_xml(c_void_p.from_buffer(plist), byref(xml), byref(xml_len))
         result = XmlPropertyListParser().parse(string_at(xml, xml_len.value))
-        self.lib.plist_free(plist)
+        self.plist_lib.plist_free(plist)
 
         # To determine success, we need to inspect the returned plist
         if hasattr(result, 'Status'):
@@ -1254,7 +1254,7 @@ class libiMobileDevice():
             # Convert the app plist to xml
             xml = POINTER(c_void_p)()
             xml_len = c_long(0)
-            self.lib.plist_to_xml(c_void_p.from_buffer(apps), byref(xml), byref(xml_len))
+            self.plist_lib.plist_to_xml(c_void_p.from_buffer(apps), byref(xml), byref(xml_len))
             app_list = XmlPropertyListParser().parse(string_at(xml, xml_len.value))
             installed_apps = {}
             for app in app_list:
@@ -1285,7 +1285,7 @@ class libiMobileDevice():
                     attrs = {'app_name': app, 'app_id': installed_apps[app]['app_id'], 'app_version': installed_apps[app]['app_version']}
                     self.log("  {app_name:<30}  {app_id:<40} {app_version}".format(**attrs))
 
-        self.lib.plist_free(apps)
+        self.plist_lib.plist_free(apps)
         return installed_apps
 
     def _instproxy_client_new(self):
