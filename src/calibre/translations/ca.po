@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-04-26 04:42+0000\n"
-"PO-Revision-Date: 2013-04-13 10:03+0000\n"
+"PO-Revision-Date: 2013-04-27 10:58+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-27 05:25+0000\n"
+"X-Launchpad-Export-Date: 2013-04-28 04:34+0000\n"
 "X-Generator: Launchpad (build 16580)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1146,17 +1146,17 @@ msgstr "fa dies"
 #: /home/kovid/work/calibre/src/calibre/db/search.py:198
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:374
 msgid "Number conversion error: {0}"
-msgstr ""
+msgstr "Error de conversió de nombre: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:204
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:380
 msgid "Date conversion error: {0}"
-msgstr ""
+msgstr "Error de conversió de data: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:289
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:456
 msgid "Non-numeric value in query: {0}"
-msgstr ""
+msgstr "Valor no numèric a la consulta: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:313
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:571
@@ -1177,11 +1177,12 @@ msgstr "Consulta booleana no vàlida «{0}»"
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:501
 msgid "Invalid query format for colon-separated search: {0}"
 msgstr ""
+"Format de consulta no vàlid per la la cerca separada per dos punts: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:469
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:650
 msgid "Recursive query group detected: {0}"
-msgstr ""
+msgstr "S'ha detectat un grup de consulta recursiu: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:47
@@ -6704,15 +6705,16 @@ msgstr "&Copia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:156
 msgid "Copy to the specified library"
-msgstr ""
+msgstr "Copia a la biblioteca especificada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:157
 msgid "&Move"
-msgstr ""
+msgstr "&Mou"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:160
 msgid "Copy to the specified library and delete from the current library"
 msgstr ""
+"Copia a la biblioteca especificada i suprimeix de la biblioteca actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:180
 msgid "Copy to library"
@@ -7542,7 +7544,7 @@ msgstr "Suprimeix els paràmetres desats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:208
 msgid "Must update metadata"
-msgstr ""
+msgstr "Cal actualitzar les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:209
 msgid ""
@@ -7550,6 +7552,9 @@ msgid ""
 "option to work, you must also select the option to update metadata in the "
 "book files. Do you want to select it?"
 msgstr ""
+"Heu seleccionat l'opció d'afegir les metadades com a «sobrecoberta». Per tal "
+"que funcioni l'opció també heu de seleccionar l'opció d'actualitzar les "
+"metadades als fitxers de llibre. Voleu seleccionar-la?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:218
 msgid "You must select at least one action, or click Cancel."
@@ -8493,7 +8498,7 @@ msgstr "Mida de la portada: %(width)d×%(height)d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:487
 msgid "&Copy Link"
-msgstr ""
+msgstr "&Copia l'enllaç"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:502
 #, python-format
@@ -10473,7 +10478,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:150
 msgid "Restore &Defaults"
-msgstr ""
+msgstr "Restaura els pre&determinats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:193
 msgid "Convert"
@@ -15160,7 +15165,7 @@ msgstr "disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:176
 msgid "Virtual Library"
-msgstr ""
+msgstr "Biblioteca virtual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:193
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:198
@@ -16138,7 +16143,7 @@ msgstr "S'està cercant..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:822
 msgid "View this cover at full size"
-msgstr ""
+msgstr "Visualitza la portada a mida completa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:868
 #, python-format
@@ -16360,6 +16365,8 @@ msgstr "Procés d'addició"
 msgid ""
 "<b>Ignore</b> files with the following extensions when automatically adding "
 msgstr ""
+"En afegir automàticament, <b>ignora</b> els fitxers amb les extensions "
+"següents "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:162
 msgid ""
@@ -16495,7 +16502,7 @@ msgstr "&Prioritat de les tasques:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:168
 msgid "Virtual library to apply when the current library is opened:"
-msgstr ""
+msgstr "Biblioteca virtual que s'aplicarà en obrir la biblioteca actual:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:169
 msgid ""
@@ -16503,6 +16510,9 @@ msgid ""
 "used. Also applied when switching to this library. Note that this setting is "
 "per library. "
 msgstr ""
+"Utilitza aquesta biblioteca virtual a l'inici del calibre si s'està "
+"utilitzant la biblioteca actual. També s'aplica en canviar a aquesta "
+"biblioteca. Tingueu en compte que aquest paràmetre és per a cada biblioteca. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:170
 msgid "Edit metadata (single) layout:"
@@ -18762,11 +18772,11 @@ msgstr "Número màxim d'elements &OPDS per consulta:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:157
 msgid "Max. &ungrouped items:"
-msgstr ""
+msgstr "Màxim d'elements desa&grupats:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:158
 msgid "Virtual library to apply:"
-msgstr ""
+msgstr "Biblioteca virtual que s'aplicarà:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:159
 msgid ""
@@ -18774,6 +18784,10 @@ msgid ""
 "available to those in the library. This setting is per library (i.e. you can "
 "have a different value per library)."
 msgstr ""
+"En establir una biblioteca virtual es restringeixen els llibres que el "
+"servidor de continguts ofereix als de la biblioteca. Aquest paràmetre és per "
+"a cada biblioteca (és a dir, podeu tenir un valor diferent a cada "
+"biblioteca)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:160
 msgid ""
@@ -19260,7 +19274,7 @@ msgstr "Crea una cerca per desar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:336
 msgid "There is no search to save"
-msgstr ""
+msgstr "No hi ha cap cerca per desar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:351
 msgid "Delete current search"
@@ -19316,32 +19330,32 @@ msgstr "Gestiona les cerques desades"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:26
 #, python-format
 msgid "Create a Virtual Library based on %s"
-msgstr ""
+msgstr "Crea una biblioteca virtual basada en %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:34
 #, python-format
 msgid "Match all selected %s names"
-msgstr ""
+msgstr "Fes coincidir tots els noms de %s seleccionats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:92
 msgid "Edit virtual library"
-msgstr ""
+msgstr "Edita la biblioteca virtual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:94
 msgid "Create virtual library"
-msgstr ""
+msgstr "Crea una biblioteca virtual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:99
 msgid "Virtual library &name:"
-msgstr ""
+msgstr "&Nom de la biblioteca virtual:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:112
 msgid "&Search expression:"
-msgstr ""
+msgstr "Expre&ssió de cerca:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:120
 msgid "Create a virtual library based on: "
-msgstr ""
+msgstr "Crea una biblioteca virtual basada en: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:133
 msgid ""
@@ -19367,79 +19381,106 @@ msgid ""
 "a particular series.</p>\n"
 "            "
 msgstr ""
+"\n"
+"            <h2>Biblioteques virtuals</h2>\n"
+"\n"
+"            <p>Amb les <i>biblioteques virtuals</i> podeu fer que el calibre "
+"només mostri els llibres que\n"
+"            coincideixen amb una cerca. Quan una biblioteca virtual està "
+"activa, el calibre es comporta\n"
+"            com si la biblioteca comés contingués els llibres que "
+"coincideixen. El navegador d'etiquetes\n"
+"            només mostra les etiquetes/autors/sèrie/... que corresponen als "
+"llibres coincidents i qualsevol\n"
+"            cerca que feu només cercarà entre els llibres de la biblioteca "
+"virtual. És una bona manera de\n"
+"            dividir una biblioteca gran en subgrups més petits i "
+"manejables.</p>\n"
+"\n"
+"            <p>Per exemple, podeu utilitzar una biblioteca virtual per "
+"mostrar només els llibres amb l'etiqueta\n"
+"            <i>«No llegit»</i> o les d'<i>«el meu autor preferit»</i> o "
+"només els s'una sèrie concreta.</p>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:172
 msgid "Saved searches recognized in the expression:"
-msgstr ""
+msgstr "Cerques desades reconegudes a l'expressió:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:212
 msgid "Search text changed"
-msgstr ""
+msgstr "Ha canviat el text de cerca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:213
 msgid ""
 "The virtual library name or the search text has changed. Do you want to "
 "discard these changes?"
 msgstr ""
+"El nom de la biblioteca virtual o el text de cerca ha canviat. Voleu "
+"descartar els canvis?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:250
 msgid "No name"
-msgstr ""
+msgstr "Sense nom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:251
 msgid "You must provide a name for the new virtual library"
-msgstr ""
+msgstr "Heu de donar un nom per a la nova biblioteca virtual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:257
 msgid "A virtual library name cannot begin with \"*\""
-msgstr ""
+msgstr "Un nom de biblioteca virtual no pot començar per «*»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:262
 msgid "Name already in use"
-msgstr ""
+msgstr "El nom ja està en ús"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:263
 msgid ""
 "That name is already in use. Do you want to replace it with the new search?"
-msgstr ""
+msgstr "El nom ja està en ús. Voleu reemplaçar-lo amb el de la nova cerca?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:270
 msgid "No search string"
-msgstr ""
+msgstr "No hi ha cadena de cerca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:271
 msgid "You must provide a search to define the new virtual library"
-msgstr ""
+msgstr "Heu d'introduir una cerca per definir la nova biblioteca virtual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:279
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:410
 msgid "Invalid search"
-msgstr ""
+msgstr "Cerca no vàlida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:280
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:411
 msgid "The search in the search box is not valid"
-msgstr ""
+msgstr "La cerca del quadre de cerca no és vàlida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:285
 msgid "Search found no books"
-msgstr ""
+msgstr "La cerca no ha trobat cap llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:286
 msgid ""
 "The search found no books, so the virtual library will be empty. Do you "
 "really want to use that search?"
 msgstr ""
+"La cerca no ha trobat cap llibre, per tant la biblioteca virtual estarà "
+"buida. Segur que voleu utilitzar aquesta cerca?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:298
 msgid "<None>"
-msgstr ""
+msgstr "<Cap>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:311
 msgid ""
 "Use a \"virtual library\" to show only a subset of the books present in this "
 "library"
 msgstr ""
+"Utilitzeu una «biblioteca virtual» per mostrar només un subgrup dels llibres "
+"que hi ha a la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:316
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:574
@@ -19448,36 +19489,36 @@ msgstr "(tots els llibres)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:317
 msgid "Additional restriction"
-msgstr ""
+msgstr "Restricció addicional"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:318
 msgid "Edit Virtual Library"
-msgstr ""
+msgstr "Edita la biblioteca virtual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:319
 msgid "Remove Virtual Library"
-msgstr ""
+msgstr "Suprimeix la biblioteca virtual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:342
 msgid "Create Virtual Library"
-msgstr ""
+msgstr "Crea una biblioteca virtual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:373
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:494
 msgid "*current search"
-msgstr ""
+msgstr "*cerca actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:402
 msgid "No search"
-msgstr ""
+msgstr "Cap cerca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:403
 msgid "There is no current search to use"
-msgstr ""
+msgstr "No hi ha cap cerca actual per utilitzar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:451
 msgid "Are you sure you want to remove the virtual library {0}"
-msgstr ""
+msgstr "Esteu segur que voleu suprimir la biblioteca virtual {0}?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:569
 msgid "({0} of {1})"
@@ -20583,7 +20624,7 @@ msgstr "Sagna «%s»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:532
 msgid "Change the location this entry points to"
-msgstr ""
+msgstr "Canvia la ubicació que apunta aquesta entrada a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:533
 msgid "Change all selected items to title case"
@@ -24284,6 +24325,10 @@ msgid ""
 "if the value is not a virtual library but is a saved search, that saved "
 "search is used."
 msgstr ""
+"Especifica la biblioteca virtual que s'utilitzarà amb aquesta crida. Aquesta "
+"opció anul·la qualsevol paràmetre per a cada biblioteca especificat a la "
+"interfície gràfica. Per motius de compatibilitat si el valor no és una "
+"biblioteca virtual però és una cerca desada, s'utilitza la cerca desada."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:64
 msgid ""
@@ -25668,28 +25713,29 @@ msgstr "Reinicia la consola"
 
 #: /home/kovid/work/calibre/src/calibre/utils/search_query_parser.py:174
 msgid "Extra characters at end of search"
-msgstr ""
+msgstr "Caràcters addicionals al final de la cerca"
 
 #: /home/kovid/work/calibre/src/calibre/utils/search_query_parser.py:208
 msgid "missing )"
-msgstr ""
+msgstr "falta un «)»"
 
 #: /home/kovid/work/calibre/src/calibre/utils/search_query_parser.py:211
 msgid "Invalid syntax. Expected a lookup name or a word"
-msgstr ""
+msgstr "Sintaxi no vàlida. S'esperava un nom de cerca o una paraula"
 
 #: /home/kovid/work/calibre/src/calibre/utils/search_query_parser.py:314
 #, python-format
 msgid "Failed to parse query, recursion limit reached: %s"
 msgstr ""
+"Ha fallat el procés de consulta, s'ha arribat al límit de recursió: %s"
 
 #: /home/kovid/work/calibre/src/calibre/utils/search_query_parser.py:358
 msgid "Recursive saved search: {0}"
-msgstr ""
+msgstr "S'ha desat la cerca recursiva: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/search_query_parser.py:367
 msgid "Unknown error in saved search: {0}"
-msgstr ""
+msgstr "Error desconegut a la cerca desada: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"

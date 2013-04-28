@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-04-25 18:51+0000\n"
-"Last-Translator: Miguel Angel del Olmo <silinio45@gmail.com>\n"
+"PO-Revision-Date: 2013-04-27 08:20+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-04-26 05:33+0000\n"
+"X-Launchpad-Export-Date: 2013-04-28 04:35+0000\n"
 "X-Generator: Launchpad (build 16580)\n"
 
 #. name for aaa
@@ -9680,7 +9680,7 @@ msgstr "Hunsrik"
 
 #. name for hrz
 msgid "Harzani"
-msgstr "Harzani"
+msgstr "Harzaní"
 
 #. name for hsb
 msgid "Sorbian; Upper"
@@ -9708,7 +9708,7 @@ msgstr "Hoti"
 
 #. name for hto
 msgid "Huitoto; Minica"
-msgstr "Huitoto; Meneca"
+msgstr "Meneca huitoto"
 
 #. name for hts
 msgid "Hadza"
@@ -9736,7 +9736,7 @@ msgstr "Huaulu"
 
 #. name for hue
 msgid "Huave; San Francisco Del Mar"
-msgstr "Huave; San Francisco Del Mar"
+msgstr "Huave de San Francisco del Mar"
 
 #. name for huf
 msgid "Humene"
@@ -9800,11 +9800,11 @@ msgstr "Humla"
 
 #. name for huu
 msgid "Huitoto; Murui"
-msgstr "Huitoto; Murui"
+msgstr "Murui huitoto"
 
 #. name for huv
 msgid "Huave; San Mateo Del Mar"
-msgstr "Huave; San Mateo Del Mar"
+msgstr "Huave de San Mateo del Mar"
 
 #. name for huw
 msgid "Hukumina"
@@ -9812,7 +9812,7 @@ msgstr "Hukumina"
 
 #. name for hux
 msgid "Huitoto; Nüpode"
-msgstr "Huitoto; Nipode"
+msgstr "Nipode huitoto"
 
 #. name for huy
 msgid "Hulaulá"
@@ -9824,11 +9824,11 @@ msgstr "Hunzib"
 
 #. name for hvc
 msgid "Haitian Vodoun Culture Language"
-msgstr "Idioma de la cultura haitiana vodoun"
+msgstr "Idioma de la cultura vudú haitiana"
 
 #. name for hve
 msgid "Huave; San Dionisio Del Mar"
-msgstr "Huave; San Dionisio Del Mar"
+msgstr "Huave de San Dionisio del Mar"
 
 #. name for hvk
 msgid "Haveke"
@@ -9840,7 +9840,7 @@ msgstr "Sabu"
 
 #. name for hvv
 msgid "Huave; Santa María Del Mar"
-msgstr "Huave; Santa María Del Mar"
+msgstr "Huave de Santa María del Mar"
 
 #. name for hwa
 msgid "Wané"
@@ -9932,7 +9932,7 @@ msgstr "Ibani"
 
 #. name for ica
 msgid "Ede Ica"
-msgstr "Ede Ica"
+msgstr "Ede ica"
 
 #. name for ich
 msgid "Etkywan"
@@ -9948,7 +9948,7 @@ msgstr "Inglés criollo isleño"
 
 #. name for ida
 msgid "Idakho-Isukha-Tiriki"
-msgstr "Idakho-Isukha-Tiriki"
+msgstr "Idakho-isukha-tiriki"
 
 #. name for idb
 msgid "Indo-Portuguese"
@@ -9960,7 +9960,7 @@ msgstr "Idon"
 
 #. name for idd
 msgid "Ede Idaca"
-msgstr "Ede Idaca"
+msgstr "Ede idaca"
 
 #. name for ide
 msgid "Idere"
@@ -9992,11 +9992,11 @@ msgstr "Idoma"
 
 #. name for ifa
 msgid "Ifugao; Amganad"
-msgstr ""
+msgstr "Ifugao de Amganad"
 
 #. name for ifb
 msgid "Ifugao; Batad"
-msgstr "Ifugao; Batad"
+msgstr "Ifugao de Batad"
 
 #. name for ife
 msgid "Ifè"
@@ -10008,7 +10008,7 @@ msgstr "Ifo"
 
 #. name for ifk
 msgid "Ifugao; Tuwali"
-msgstr "Ifugao; Tuwali"
+msgstr "Ifugao tuwali"
 
 #. name for ifm
 msgid "Teke-Fuumu"
@@ -10016,11 +10016,11 @@ msgstr ""
 
 #. name for ifu
 msgid "Ifugao; Mayoyao"
-msgstr "Ifugao; Mayoyao"
+msgstr "Ifugao de Mayoyao"
 
 #. name for ify
 msgid "Kallahan; Keley-I"
-msgstr "Kallahan; Keley-I"
+msgstr "Kallahan keley-i"
 
 #. name for igb
 msgid "Ebira"
@@ -10044,7 +10044,7 @@ msgstr "Kanggape"
 
 #. name for ign
 msgid "Ignaciano"
-msgstr "Ignaciano"
+msgstr "Mojo ignaciano"
 
 #. name for igo
 msgid "Isebe"
@@ -10060,7 +10060,7 @@ msgstr "Igwe"
 
 #. name for ihb
 msgid "Iha Based Pidgin"
-msgstr "Pidgin basado en el iha"
+msgstr "Pidyin basado en el iha"
 
 #. name for ihi
 msgid "Ihievbe"
@@ -10084,7 +10084,7 @@ msgstr "Biseni"
 
 #. name for ijj
 msgid "Ede Ije"
-msgstr "Ede Ije"
+msgstr "Ede ije"
 
 #. name for ijn
 msgid "Kalabari"
@@ -10112,7 +10112,7 @@ msgstr "Ikulu"
 
 #. name for iko
 msgid "Olulumo-Ikom"
-msgstr "Olulumo-Ikom"
+msgstr "Olulumo-ikom"
 
 #. name for ikp
 msgid "Ikpeshi"
@@ -10128,7 +10128,7 @@ msgstr "Inuktitut"
 
 #. name for ikv
 msgid "Iku-Gora-Ankwa"
-msgstr "Iku-Gora-Ankwa"
+msgstr "Iku-gora-ankwa"
 
 #. name for ikw
 msgid "Ikwere"
@@ -10144,7 +10144,7 @@ msgstr "Ikizu"
 
 #. name for ila
 msgid "Ile Ape"
-msgstr "Ile Ape"
+msgstr "Ile ape"
 
 #. name for ilb
 msgid "Ila"
@@ -10156,11 +10156,11 @@ msgstr "Interlingue"
 
 #. name for ilg
 msgid "Garig-Ilgar"
-msgstr "Garig-Ilgar"
+msgstr "Garig-ilgar"
 
 #. name for ili
 msgid "Ili Turki"
-msgstr "Ili Turki"
+msgstr "Ili turki"
 
 #. name for ilk
 msgid "Ilongot"
@@ -10224,7 +10224,7 @@ msgstr "Marso"
 
 #. name for imy
 msgid "Milyan"
-msgstr "Milyan"
+msgstr "Milio"
 
 #. name for ina
 msgid "Interlingua (International Auxiliary Language Association)"
@@ -10256,7 +10256,7 @@ msgstr "Lengua de signos indonesia"
 
 #. name for inm
 msgid "Minaean"
-msgstr "Minaean"
+msgstr "Mineo"
 
 #. name for inn
 msgid "Isinai"
@@ -10264,7 +10264,7 @@ msgstr "Isinai"
 
 #. name for ino
 msgid "Inoke-Yate"
-msgstr "Inoke-Yate"
+msgstr "Inoke-yate"
 
 #. name for inp
 msgid "Iñapari"
@@ -10288,11 +10288,11 @@ msgstr "Inor"
 
 #. name for iou
 msgid "Tuma-Irumu"
-msgstr "Tuma-Irumu"
+msgstr "Tuma-irumu"
 
 #. name for iow
 msgid "Iowa-Oto"
-msgstr "Iowa-Oto"
+msgstr "Iowa-oto"
 
 #. name for ipi
 msgid "Ipili"
@@ -10328,7 +10328,7 @@ msgstr "Iraqw"
 
 #. name for irn
 msgid "Irántxe"
-msgstr "Irántxe"
+msgstr "Irantxe"
 
 #. name for irr
 msgid "Ir"
@@ -10340,7 +10340,7 @@ msgstr "Irula"
 
 #. name for irx
 msgid "Kamberau"
-msgstr "Kamberó"
+msgstr "Kamberau"
 
 #. name for iry
 msgid "Iraya"
@@ -10372,11 +10372,11 @@ msgstr "Esan"
 
 #. name for isi
 msgid "Nkem-Nkum"
-msgstr "Nkem-Nkum"
+msgstr "Nkem-nkum"
 
 #. name for isk
 msgid "Ishkashimi"
-msgstr "Ishkashimi"
+msgstr "Ishkashimí"
 
 #. name for isl
 msgid "Icelandic"
@@ -10400,7 +10400,7 @@ msgstr "Lengua de signos israelí"
 
 #. name for ist
 msgid "Istriot"
-msgstr "Istriot"
+msgstr "Istriano"
 
 #. name for isu
 msgid "Isu (Menchum Division)"
@@ -10432,7 +10432,7 @@ msgstr "Itelmen"
 
 #. name for itm
 msgid "Itu Mbon Uzo"
-msgstr "Itu Mbon Uzo"
+msgstr "Itu mbon uzo"
 
 #. name for ito
 msgid "Itonama"
@@ -10484,7 +10484,7 @@ msgstr "Ivatan"
 
 #. name for iwk
 msgid "I-Wak"
-msgstr "I-Wak"
+msgstr "I-wak"
 
 #. name for iwm
 msgid "Iwam"
@@ -10524,7 +10524,7 @@ msgstr "Ingrio"
 
 #. name for izi
 msgid "Izi-Ezaa-Ikwo-Mgbo"
-msgstr "Izi-Ezaa-Ikwo-Mgbo"
+msgstr "Izi-ezaa-ikwo-mgbo"
 
 #. name for izr
 msgid "Izere"
@@ -11068,7 +11068,7 @@ msgstr ""
 
 #. name for kak
 msgid "Kallahan; Kayapa"
-msgstr ""
+msgstr "Kallahan de Kayapa"
 
 #. name for kal
 msgid "Kalaallisut"
@@ -25516,7 +25516,7 @@ msgstr ""
 
 #. name for tne
 msgid "Kallahan; Tinoc"
-msgstr ""
+msgstr "Kallahan de Tinoc"
 
 #. name for tng
 msgid "Tobanga"
@@ -25868,7 +25868,7 @@ msgstr ""
 
 #. name for trn
 msgid "Trinitario"
-msgstr ""
+msgstr "Mojo trinitario"
 
 #. name for tro
 msgid "Naga; Tarao"
@@ -30144,19 +30144,19 @@ msgstr "Zapoteco de San Juan Guelavía"
 
 #. name for zac
 msgid "Zapotec; Ocotlán"
-msgstr ""
+msgstr "Zapoteco del Poniente de Ocotlán"
 
 #. name for zad
 msgid "Zapotec; Cajonos"
-msgstr ""
+msgstr "Zapoteco de San Pedro Cajonos"
 
 #. name for zae
 msgid "Zapotec; Yareni"
-msgstr ""
+msgstr "Zapoteco de Santa Ana Yareni"
 
 #. name for zaf
 msgid "Zapotec; Ayoquesco"
-msgstr ""
+msgstr "Zapoteco de Santa María Ayoquesco"
 
 #. name for zag
 msgid "Zaghawa"
@@ -30168,7 +30168,7 @@ msgstr "Zangwal"
 
 #. name for zai
 msgid "Zapotec; Isthmus"
-msgstr ""
+msgstr "Zapoteco del istmo"
 
 #. name for zaj
 msgid "Zaramo"
@@ -30184,11 +30184,11 @@ msgstr "Zauzou"
 
 #. name for zam
 msgid "Zapotec; Miahuatlán"
-msgstr ""
+msgstr "Zapoteco de Miahuatlán"
 
 #. name for zao
 msgid "Zapotec; Ozolotepec"
-msgstr ""
+msgstr "Zapoteco de Ozolotepec"
 
 #. name for zap
 msgid "Zapotec"
@@ -30196,19 +30196,19 @@ msgstr "Zapoteco"
 
 #. name for zaq
 msgid "Zapotec; Aloápam"
-msgstr ""
+msgstr "Zapoteco de Aloápam"
 
 #. name for zar
 msgid "Zapotec; Rincón"
-msgstr ""
+msgstr "Zapoteco del Rincón"
 
 #. name for zas
 msgid "Zapotec; Santo Domingo Albarradas"
-msgstr ""
+msgstr "Zapoteco de Santo Domingo Albarradas"
 
 #. name for zat
 msgid "Zapotec; Tabaa"
-msgstr ""
+msgstr "Zapoteco de Tabaa"
 
 #. name for zau
 msgid "Zangskari"
@@ -30216,15 +30216,15 @@ msgstr "Zangskari"
 
 #. name for zav
 msgid "Zapotec; Yatzachi"
-msgstr ""
+msgstr "Zapoteco de Yatzachi"
 
 #. name for zaw
 msgid "Zapotec; Mitla"
-msgstr ""
+msgstr "Zapoteco de Mitla"
 
 #. name for zax
 msgid "Zapotec; Xadani"
-msgstr ""
+msgstr "Zapoteco de Santa María Xadani"
 
 #. name for zay
 msgid "Zayse-Zergulla"
@@ -30256,7 +30256,7 @@ msgstr "Berawan occidental"
 
 #. name for zca
 msgid "Zapotec; Coatecas Altas"
-msgstr ""
+msgstr "Zapoteco de San Juan Coatecas Altas"
 
 #. name for zch
 msgid "Zhuang; Central Hongshuihe"
@@ -30568,7 +30568,7 @@ msgstr "Zou"
 
 #. name for zoo
 msgid "Zapotec; Asunción Mixtepec"
-msgstr ""
+msgstr "Zapoteco de Asunción Mixtepec"
 
 #. name for zoq
 msgid "Zoque; Tabasco"
@@ -30584,107 +30584,107 @@ msgstr "Zoque de Francisco León"
 
 #. name for zpa
 msgid "Zapotec; Lachiguiri"
-msgstr ""
+msgstr "Zapoteco de Santiago Lachiguiri"
 
 #. name for zpb
 msgid "Zapotec; Yautepec"
-msgstr ""
+msgstr "Zapoteco de San Bartolo Yautepec"
 
 #. name for zpc
 msgid "Zapotec; Choapan"
-msgstr ""
+msgstr "Zapoteco de Choapán"
 
 #. name for zpd
 msgid "Zapotec; Southeastern Ixtlán"
-msgstr ""
+msgstr "Zapoteco de Ixtlán sudoriental"
 
 #. name for zpe
 msgid "Zapotec; Petapa"
-msgstr ""
+msgstr "Zapoteco de Santa María Petapa"
 
 #. name for zpf
 msgid "Zapotec; San Pedro Quiatoni"
-msgstr ""
+msgstr "Zapoteco de San Pedro Quiatoni"
 
 #. name for zpg
 msgid "Zapotec; Guevea De Humboldt"
-msgstr ""
+msgstr "Zapoteco de Guevea de Humboldt"
 
 #. name for zph
 msgid "Zapotec; Totomachapan"
-msgstr ""
+msgstr "Zapoteco de San Pedro Totomachapan"
 
 #. name for zpi
 msgid "Zapotec; Santa María Quiegolani"
-msgstr ""
+msgstr "Zapoteco de Santa María Quiegolani"
 
 #. name for zpj
 msgid "Zapotec; Quiavicuzas"
-msgstr ""
+msgstr "Zapoteco de Quiavicuzas"
 
 #. name for zpk
 msgid "Zapotec; Tlacolulita"
-msgstr ""
+msgstr "Zapoteco de Asunción Tlacolulita"
 
 #. name for zpl
 msgid "Zapotec; Lachixío"
-msgstr ""
+msgstr "Zapoteco de Lachixío"
 
 #. name for zpm
 msgid "Zapotec; Mixtepec"
-msgstr ""
+msgstr "Zapoteco de San Juan Mixtepec"
 
 #. name for zpn
 msgid "Zapotec; Santa Inés Yatzechi"
-msgstr ""
+msgstr "Zapoteco de Santa Inés Yatzechi"
 
 #. name for zpo
 msgid "Zapotec; Amatlán"
-msgstr ""
+msgstr "Zapoteco de San Cristóbal Amatlán"
 
 #. name for zpp
 msgid "Zapotec; El Alto"
-msgstr ""
+msgstr "Zapoteco de San Pedro el Alto"
 
 #. name for zpq
 msgid "Zapotec; Zoogocho"
-msgstr ""
+msgstr "Zapoteco de San Bartolomé Zoogocho"
 
 #. name for zpr
 msgid "Zapotec; Santiago Xanica"
-msgstr ""
+msgstr "Zapoteco de Santiago Xanica"
 
 #. name for zps
 msgid "Zapotec; Coatlán"
-msgstr ""
+msgstr "Zapoteco de Santa María Coatlán"
 
 #. name for zpt
 msgid "Zapotec; San Vicente Coatlán"
-msgstr ""
+msgstr "Zapoteco de San Vicente Coatlán"
 
 #. name for zpu
 msgid "Zapotec; Yalálag"
-msgstr "Zapotec; Yalálag"
+msgstr "Zapoteco de Yalálag"
 
 #. name for zpv
 msgid "Zapotec; Chichicapan"
-msgstr "Zapotec; Chichicapan"
+msgstr "Zapoteco de San Baltazar Chichicapan"
 
 #. name for zpw
 msgid "Zapotec; Zaniza"
-msgstr "Zapotec; Zaniza"
+msgstr "Zapoteco de Santa María Zaniza"
 
 #. name for zpx
 msgid "Zapotec; San Baltazar Loxicha"
-msgstr "Zapotec; San Baltazar Loxicha"
+msgstr "Zapoteco de San Baltazar Loxicha"
 
 #. name for zpy
 msgid "Zapotec; Mazaltepec"
-msgstr "Zapotec; Mazaltepec"
+msgstr "Zapoteco de Santo Tomás Mazaltepec"
 
 #. name for zpz
 msgid "Zapotec; Texmelucan"
-msgstr "Zapotec; Texmelucan"
+msgstr "Zapoteco de San Lorenzo Texmelucan"
 
 #. name for zqe
 msgid "Zhuang; Qiubei"
@@ -30732,7 +30732,7 @@ msgstr "Malayo estándar"
 
 #. name for zsr
 msgid "Zapotec; Southern Rincon"
-msgstr "Zapotec; Southern Rincon"
+msgstr "Zapoteco de Rincón Sur"
 
 #. name for zsu
 msgid "Sukurum"
@@ -30740,11 +30740,11 @@ msgstr "Sukurum"
 
 #. name for zte
 msgid "Zapotec; Elotepec"
-msgstr "Zapoteco de Elotepec"
+msgstr "Zapoteco de San Juan Elotepec"
 
 #. name for ztg
 msgid "Zapotec; Xanaguía"
-msgstr "Zapoteco de Xanaguía"
+msgstr "Zapoteco de Santa Catarina Xanaguía"
 
 #. name for ztl
 msgid "Zapotec; Lapaguía-Guivini"
@@ -30760,23 +30760,23 @@ msgstr "Zapoteco de Santa Catarina Albarradas"
 
 #. name for ztp
 msgid "Zapotec; Loxicha"
-msgstr "Zapotec; Loxicha"
+msgstr "Zapoteco de Loxicha"
 
 #. name for ztq
 msgid "Zapotec; Quioquitani-Quierí"
-msgstr "Zapotec; Quioquitani-Quierí"
+msgstr "Zapoteco de Quioquitani y Quierí"
 
 #. name for zts
 msgid "Zapotec; Tilquiapan"
-msgstr "Zapoteco; Tilquiapan"
+msgstr "Zapoteco de San Miguel Tilquiapan"
 
 #. name for ztt
 msgid "Zapotec; Tejalapan"
-msgstr "Zapoteco de Tejalapan"
+msgstr "Zapoteco de San Felipe Tejalapan"
 
 #. name for ztu
 msgid "Zapotec; Güilá"
-msgstr "Zapoteco de Güilá"
+msgstr "Zapoteco de San Pablo Güilá"
 
 #. name for ztx
 msgid "Zapotec; Zaachila"
