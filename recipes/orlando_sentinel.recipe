@@ -7,19 +7,18 @@ class AdvancedUserRecipe1279258912(BasicNewsRecipe):
     max_articles_per_feed = 100
 
     feeds          = [
-	(u'News', u'http://feeds.feedburner.com/orlandosentinel/news'),
-	(u'Opinion', u'http://feeds.feedburner.com/orlandosentinel/news/opinion'),
-	(u'Business', u'http://feeds.feedburner.com/orlandosentinel/business'),
-	(u'Technology', u'http://feeds.feedburner.com/orlandosentinel/technology'),
-	(u'Space and Science', u'http://feeds.feedburner.com/orlandosentinel/news/space'),
-	(u'Entertainment', u'http://feeds.feedburner.com/orlandosentinel/entertainment'),
-	(u'Life and Family', u'http://feeds.feedburner.com/orlandosentinel/features/lifestyle'),
-	]
+    (u'News', u'http://feeds.feedburner.com/orlandosentinel/news'),
+    (u'Opinion', u'http://feeds.feedburner.com/orlandosentinel/news/opinion'),
+    (u'Business', u'http://feeds.feedburner.com/orlandosentinel/business'),
+    (u'Technology', u'http://feeds.feedburner.com/orlandosentinel/technology'),
+    (u'Space and Science', u'http://feeds.feedburner.com/orlandosentinel/news/space'),
+    (u'Entertainment', u'http://feeds.feedburner.com/orlandosentinel/entertainment'),
+    (u'Life and Family', u'http://feeds.feedburner.com/orlandosentinel/features/lifestyle'),
+    ]
     __author__ = 'rty'
     pubisher  = 'OrlandoSentinel.com'
     description           = 'Orlando, Florida, Newspaper'
     category              = 'News, Orlando, Florida'
-
 
     remove_javascript = True
     use_embedded_content   = False
@@ -27,7 +26,7 @@ class AdvancedUserRecipe1279258912(BasicNewsRecipe):
     language = 'en'
     encoding               = 'utf-8'
     conversion_options = {'linearize_tables':True}
-    masthead_url = 'http://www.orlandosentinel.com/media/graphic/2009-07/46844851.gif'
+    remove_empty_feeds = True
 
     auto_cleanup = True
 
@@ -45,7 +44,7 @@ class AdvancedUserRecipe1279258912(BasicNewsRecipe):
                 link=link.split('/')[-2]
                 encoding = {'0B': '.', '0C': '/', '0A': '0', '0F': '=', '0G': '&',
                         '0D': '?', '0E': '-', '0N': '.com', '0L': 'http:',
-                        '0S':'//'}
+                            '0S':'//', '0H':','}
                 for k, v in encoding.iteritems():
                     link = link.replace(k, v)
                 ans = link
