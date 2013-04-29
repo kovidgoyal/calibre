@@ -151,6 +151,7 @@ class FB2MLizer(object):
                 index = self.oeb_book.metadata.series_index[0]
             metadata['sequence'] = u'<sequence name="%s" number="%s" />' % (prepare_string_for_xml(u'%s' % self.oeb_book.metadata.series[0]), index)
 
+        year = publisher = isbn = u''
         identifiers = self.oeb_book.metadata['identifier']
         for x in identifiers:
             if x.get(OPF('scheme'), None).lower() == 'uuid' or unicode(x).startswith('urn:uuid:'):
@@ -160,8 +161,27 @@ class FB2MLizer(object):
             self.log.warn('No UUID identifier found')
             metadata['id'] = str(uuid.uuid4())
 
+        try:
+            date = self.oeb_book.metadata['date'][0]
+        except IndexError:
+            pass
+        else:
+            year = '<year>%s</year>' % prepare_string_for_xml(date.value.partition('-')[0])
+
+        try:
+            publisher = self.oeb_book.metadata['publisher'][0]
+        except IndexError:
+            pass
+        else:
+            publisher = '<publisher>%s</publisher>' % prepare_string_for_xml(publisher.value)
+
+        for x in identifiers:
+            if x.get(OPF('scheme'), None).lower() == 'isbn':
+                isbn = '<isbn>%s</isbn>' % prepare_string_for_xml(x.value)
+
+        metadata['year'], metadata['isbn'], metadata['publisher'] = year, isbn, publisher
         for key, value in metadata.items():
-            if key not in ('author', 'cover', 'sequence', 'keywords'):
+            if key not in ('author', 'cover', 'sequence', 'keywords', 'year', 'publisher', 'isbn'):
                 metadata[key] = prepare_string_for_xml(value)
 
         return textwrap.dedent(u'''
@@ -183,6 +203,11 @@ class FB2MLizer(object):
                         <id>%(id)s</id>
                         <version>1.0</version>
                     </document-info>
+                    <publish-info>
+                        %(year)s
+                        %(publisher)s
+                        %(isbn)s
+                    </publish-info>
                 </description>\n''') % metadata
 
     def fb2_footer(self):
