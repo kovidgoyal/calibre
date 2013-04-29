@@ -13,7 +13,7 @@ class XkcdCom(BasicNewsRecipe):
     use_embedded_content   = False
     oldest_article = 60
     # add image and text
-   # add an horizontal line after the question
+    # add an horizontal line after the question
     preprocess_regexps = [
         (re.compile(r'(<img.*title=")([^"]+)(".*>)'),
          lambda m: '<div>%s%s<p id="photo_text">(%s)</p></div>' % (m.group(1), m.group(3), m.group(2))),
@@ -22,3 +22,6 @@ class XkcdCom(BasicNewsRecipe):
     ]
 
     extra_css = "#photo_text{font-size:small;}"
+
+    feeds          = [(u'What If...', u'http://what-if.xkcd.com/feed.atom')]
+
