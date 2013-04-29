@@ -13,14 +13,14 @@ class BaltimoreSun(BasicNewsRecipe):
     __author__ = 'Josh Hall'
     description = 'Complete local news and blogs from Baltimore'
     language    = 'en'
-    version     = 2.4
-    oldest_article = 1.5
+    version     = 2.5
+    oldest_article = 1
     max_articles_per_feed = 100
     use_embedded_content = False
     no_stylesheets       = True
     remove_javascript    = True
     remove_empty_feeds= True
-    recursions           = 3
+    recursions           = 1
 
     ignore_duplicate_articles = {'title'}
     keep_only_tags = [dict(name='div', attrs={'class':["story","entry-asset asset hentry"]}),
