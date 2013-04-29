@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-04-26 04:42+0000\n"
-"PO-Revision-Date: 2013-04-25 07:22+0000\n"
+"PO-Revision-Date: 2013-04-28 19:13+0000\n"
 "Last-Translator: pedro jorge oliveira <pedrojorgeoliveira93@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-27 05:36+0000\n"
+"X-Launchpad-Export-Date: 2013-04-29 04:37+0000\n"
 "X-Generator: Launchpad (build 16580)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1139,7 +1139,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/db/search.py:204
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:380
 msgid "Date conversion error: {0}"
-msgstr ""
+msgstr "Data do erro na conversão : {0}"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:289
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:456
@@ -6652,15 +6652,16 @@ msgstr "&Copiar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:156
 msgid "Copy to the specified library"
-msgstr ""
+msgstr "Copiar para a biblioteca especificada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:157
 msgid "&Move"
-msgstr ""
+msgstr "&Mover"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:160
 msgid "Copy to the specified library and delete from the current library"
 msgstr ""
+"Copiar para a biblioteca especificada e eliminar da biblioteca actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:180
 msgid "Copy to library"
@@ -7469,7 +7470,7 @@ msgstr "Remover definições guardadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:208
 msgid "Must update metadata"
-msgstr ""
+msgstr "Deve actualizar os meta dados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:209
 msgid ""
@@ -8396,7 +8397,7 @@ msgstr "tamanho da capa: %(width)d x %(height)d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:487
 msgid "&Copy Link"
-msgstr ""
+msgstr "&Copiar ligações"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:502
 #, python-format
@@ -8411,7 +8412,7 @@ msgstr "guardar o formato  %s  no disco"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:504
 #, python-format
 msgid "Restore the %s format"
-msgstr ""
+msgstr "Restaurar o formato %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -10085,7 +10086,7 @@ msgstr "Tamanho do tipo de letra mo&nospace:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:155
 msgid "Page headers and footers"
-msgstr ""
+msgstr "Rodapés e cabeçalhos da pagina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:156
 msgid ""
@@ -10097,11 +10098,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:157
 msgid "&Header template:"
-msgstr ""
+msgstr "&Modelo de cabeçalho:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:158
 msgid "&Footer template:"
-msgstr ""
+msgstr "&Modelo de rodapé:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -10360,7 +10361,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:150
 msgid "Restore &Defaults"
-msgstr ""
+msgstr "&Repor as Predefinições"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:193
 msgid "Convert"
@@ -11407,12 +11408,12 @@ msgstr "E&tiquetas a definir nas entradas de livros criadas:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:50
 #, python-format
 msgid "Next [%s]"
-msgstr ""
+msgstr "Próximo [%s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:52
 #, python-format
 msgid "Previous [%s]"
-msgstr ""
+msgstr "Anterior [%s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:71
 msgid "Fit &cover within view"
@@ -13267,6 +13268,14 @@ msgid ""
 "                soon after 9:00 AM as possible.\n"
 "            "
 msgstr ""
+"                Transferir este (jornal) periódico a cada semana nos dias "
+"indicados e após\n"
+"                 o tempo especificado. Por exemplo, se você escolher: "
+"segunda-feira após\n"
+"                 09h00, de seguida, o periódico será transferido a cada "
+"segunda-feira logo\n"
+"                  após 9h00 assim que  possível.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:64
 msgid "&Download after:"
@@ -14850,7 +14859,7 @@ msgstr "disponível"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:176
 msgid "Virtual Library"
-msgstr ""
+msgstr "Biblioteca virtual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:193
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:198
@@ -15805,7 +15814,7 @@ msgstr "A Procurar..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:822
 msgid "View this cover at full size"
-msgstr ""
+msgstr "Visualizar esta capa em tamanho grande"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:868
 #, python-format
@@ -15828,6 +15837,8 @@ msgid ""
 "Found <b>%(num)d</b> possible covers for %(title)s. When the download "
 "completes, the covers will be sorted by size."
 msgstr ""
+"Foram encontrados <b>%(num)d</b> capas possíveis para %(title)s. Quando a "
+"transferência estiver completa, as capas serão organizadas por tamanho"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:997
 msgid "Downloading metadata..."
@@ -15996,6 +16007,8 @@ msgstr "& O Processo de adicionar"
 msgid ""
 "<b>Ignore</b> files with the following extensions when automatically adding "
 msgstr ""
+"<b>Ignorar</b> ficheiros com a seguinte extensão quando adicionados "
+"automaticamente "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:162
 msgid ""
@@ -18752,7 +18765,7 @@ msgstr "Guardar pesquisa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:336
 msgid "There is no search to save"
-msgstr ""
+msgstr "Não existe pesquisa para guardar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:351
 msgid "Delete current search"
@@ -18808,7 +18821,7 @@ msgstr "Gerir pesquisas guardadas"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:26
 #, python-format
 msgid "Create a Virtual Library based on %s"
-msgstr ""
+msgstr "Criar biblioteca virtual baseada em %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:34
 #, python-format

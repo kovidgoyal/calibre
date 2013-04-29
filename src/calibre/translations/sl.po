@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.8.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-04-26 04:42+0000\n"
-"PO-Revision-Date: 2013-03-11 23:36+0000\n"
+"PO-Revision-Date: 2013-04-28 14:45+0000\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Martin Srebotnjak <miles@filmsi.net>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
-"X-Launchpad-Export-Date: 2013-04-27 05:38+0000\n"
+"X-Launchpad-Export-Date: 2013-04-29 04:37+0000\n"
 "X-Generator: Launchpad (build 16580)\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
@@ -358,7 +358,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:797
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "Edit the Table of Contents in your books"
-msgstr ""
+msgstr "Uredite kazalo vsebine v svojih knjigah"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 msgid "Delete books from your calibre library or connected device"
@@ -442,8 +442,8 @@ msgstr "Kopirajte knjigo iz ene knjižnice calibre v drugo"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
-"Opravite manjše prilagoditve datotekam epub ali htmlz v svoji knjižnici "
-"calibre"
+"Opravite manjše prilagoditve datotek epub ali htmlz v svoji knjižnici "
+"calibre."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:900
 msgid ""
@@ -1116,7 +1116,7 @@ msgstr "včeraj"
 #: /home/kovid/work/calibre/src/calibre/db/search.py:111
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:316
 msgid "thismonth"
-msgstr ""
+msgstr "tamesec"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:112
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:317
@@ -1184,7 +1184,7 @@ msgstr "Dnevnik razhroščevanja"
 #: /home/kovid/work/calibre/src/calibre/debug.py:272
 #, python-format
 msgid "No plugin named %s found"
-msgstr ""
+msgstr "Ni vtičnika z imenom %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:19
 msgid "Communicate with Android phones."
@@ -1274,7 +1274,7 @@ msgstr "Povezovanje z iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:214
 msgid "Apple iDevice detected, launching iTunes, please wait ..."
-msgstr ""
+msgstr "Zaznana iNaprava Apple, zaganjanje iTunes, počakajte trenutek ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:216
 msgid ""
@@ -1505,7 +1505,7 @@ msgstr "Povezovanje z bralnikom e-knjig EB600."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:56
 msgid "Communicate with the Tolino Shine reader."
-msgstr ""
+msgstr "Povezovanje z bralnikom Tolino Shine."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:214
 msgid "Communicate with the Astak Mentor EB600"
@@ -1517,11 +1517,11 @@ msgstr "Povezovanje z bralnikom PocketBook 301."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:254
 msgid "Communicate with the PocketBook 602/603/902/903/Pro 912 reader."
-msgstr ""
+msgstr "Povezovanje z bralnikom PocketBook 602/603/902/903/Pro 912."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:274
 msgid "Communicate with the PocketBook 622 reader."
-msgstr ""
+msgstr "Povezovanje z bralnikom PocketBook 622."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:287
 msgid "Communicate with the PocketBook 360+ reader."
@@ -1587,7 +1587,7 @@ msgstr "Povezovanje z bralnikom e-knjig Hanvon N520."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:48
 msgid "Communicate with the Kibano eBook reader."
-msgstr ""
+msgstr "Povezovanje z bralnikom e-knjig Kibano."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:61
 msgid "Communicate with The Book reader."
@@ -1689,7 +1689,7 @@ msgstr "<b>Mesto %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:289
 msgid "Communicate with the Kindle 2/3/4/Touch/PaperWhite eBook reader."
-msgstr ""
+msgstr "Povezovanje z bralnikom e-knjig Kindle 2/3/4/Touch/PaperWhite."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:301
 msgid "Send page number information when sending books"
@@ -1915,17 +1915,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1231
 msgid "Upload covers for books"
-msgstr ""
+msgstr "Naloži naslovnice knjig na napravo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1232
 msgid ""
 "Upload cover images from the calibre library when sending books to the "
 "device."
 msgstr ""
+"Ob prenosu knjig na napravo naloži tudi njihove naslovnice iz knjižnice "
+"calibre."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1234
 msgid "Keep cover aspect ratio"
-msgstr ""
+msgstr "Ohrani razmerje stranic naslovnice"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1235
 msgid ""
@@ -2039,11 +2041,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
-msgstr ""
+msgstr "Naprava MTP"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:31
 msgid "Communicate with MTP devices"
-msgstr ""
+msgstr "Povezovanje z napravami MTP."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/driver.py:167
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:960
@@ -2129,7 +2131,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:61
 msgid "MTP devices are not supported on Windows XP"
-msgstr ""
+msgstr "Naprave MTP v Windows XP niso podprte."
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/windows/driver.py:69
 msgid ""
@@ -3343,16 +3345,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:108
 msgid "footers"
-msgstr ""
+msgstr "noge"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:111
 msgid "headers"
-msgstr ""
+msgstr "glave"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
 "Specify the character encoding of the output document. The default is cp1252."
 msgstr ""
+"Določite kodiranje znakov v izhodnem dokumentu. Privzeto je to cp1252."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:29
 msgid ""
@@ -3363,7 +3366,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/recipe_input.py:22
 msgid "Download periodical content from the internet"
-msgstr ""
+msgstr "Prenesi vsebino periodike z interneta"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/recipe_input.py:37
 msgid ""
@@ -4661,15 +4664,15 @@ msgstr "Italija"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:533
 msgid "Japan"
-msgstr ""
+msgstr "Japonska"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:534
 msgid "Spain"
-msgstr ""
+msgstr "Španija"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:535
 msgid "Brazil"
-msgstr ""
+msgstr "Brazilija"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:539
 msgid "Amazon website to use:"
@@ -4738,7 +4741,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:24
 msgid "Cover size"
-msgstr ""
+msgstr "Velikost naslovnice"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:25
 msgid "Search for covers larger than the specified size"
@@ -4824,12 +4827,12 @@ msgstr "To je knjiga Amazon Topaz. Ni je mogoče obdelati."
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:46
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:624
 msgid "This is not a MOBI file. It is a Topaz file."
-msgstr ""
+msgstr "To ni datoteka MOBI. Gre za datoteko Topaz."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:51
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/container.py:629
 msgid "This is not a MOBI file."
-msgstr ""
+msgstr "To ni datoteka MOBI."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/tweak.py:54
 msgid "This file is locked with DRM. It cannot be tweaked."
@@ -5030,7 +5033,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:131
 msgid "Metadata updated\n"
-msgstr ""
+msgstr "Metapodatki posodobljeni\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:134
 msgid "Setting cover"
@@ -5110,12 +5113,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:138
 #, python-format
 msgid "No file named %s exists"
-msgstr ""
+msgstr "Datoteka z imenom %s ne obstaja."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:142
 #, python-format
 msgid "No HTML file named %s exists"
-msgstr ""
+msgstr "Datoteka HTML z imenom %s ne obstaja."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/toc.py:152
 #, python-format
@@ -5127,7 +5130,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:679
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:694
 msgid "(Untitled)"
-msgstr ""
+msgstr "(Neimenovano)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:187
@@ -5184,7 +5187,7 @@ msgstr "Stranska vrstica"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/outline_writer.py:60
 #, python-format
 msgid "Page %d"
-msgstr ""
+msgstr "Stran %d"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:71
 msgid "Could not find pdftohtml, check it is in your PATH"
@@ -5192,7 +5195,7 @@ msgstr "Ni mogoče najti pdftohtml, preverite, če se nahaja v PATH"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/render/from_html.py:310
 msgid "Untitled"
-msgstr ""
+msgstr "Neimenovano"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:97
@@ -5454,7 +5457,7 @@ msgstr "Dodaj prazno knjigo (vnos knjige brez zapisa)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:68
 msgid "Shift+Ctrl+E"
-msgstr "Shift+Ctrl+E"
+msgstr "Dvigalka+krmilka+E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:69
 msgid "Add from ISBN"
@@ -5466,7 +5469,7 @@ msgstr "Dodaj datoteke obstoječim knjižnim zapisom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:72
 msgid "Shift+A"
-msgstr "Shift+A"
+msgstr "Dvigalka+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:74
 msgid "Control the adding of books"
@@ -6594,12 +6597,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Shift+N"
-msgstr "Shift+N"
+msgstr "Dvigalka+N"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:235
 msgid "Shift+F3"
-msgstr "Shift+F3"
+msgstr "Dvigalka+F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/open.py:14
 msgid "Open containing folder"
@@ -6865,7 +6868,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 msgid "Ctrl+P"
-msgstr "Ctrl+P"
+msgstr "Krmilka+P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:22
 msgid "Change calibre behavior"
@@ -6895,7 +6898,7 @@ msgstr "Ni mogoče nastaviti, preden znova ne zaženete calibre."
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:59
 msgid "Ctrl+R"
-msgstr "Ctrl+R"
+msgstr "Krmilka+R"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "Restart"
@@ -7017,7 +7020,7 @@ msgstr "Podobne knjige ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Alt+A"
-msgstr "Alt+A"
+msgstr "Izmenjalka+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Books by same author"
@@ -7029,11 +7032,11 @@ msgstr "Knjige iz te zbirke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:27
 msgid "Alt+Shift+S"
-msgstr "Alt+Shift+S"
+msgstr "Izmenjalka+dvigalka+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:28
 msgid "Alt+P"
-msgstr "Alt+P"
+msgstr "Izmenjalka+P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:28
 msgid "Books by this publisher"
@@ -7041,7 +7044,7 @@ msgstr "Knjige tega izdajatelja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:29
 msgid "Alt+T"
-msgstr "Alt+T"
+msgstr "Izmenjalka+T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:29
 msgid "Books with the same tags"
@@ -7164,11 +7167,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:288
 msgid "Tweak Book"
-msgstr ""
+msgstr "Prilagodi knjigo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:64
 msgid "Choose the format to tweak:"
-msgstr ""
+msgstr "Izberite zapis, ki ga želite prilagoditi:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:74
 msgid ""
@@ -7277,11 +7280,11 @@ msgstr "T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:326
 msgid "Cannot tweak Book"
-msgstr ""
+msgstr "Knjige ni mogoče prilagoditi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:339
 msgid "Cannot Tweak Book"
-msgstr ""
+msgstr "Knjige ni mogoče prilagoditi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:340
 msgid ""
@@ -7289,6 +7292,9 @@ msgid ""
 "\n"
 "First convert the book to one of these formats."
 msgstr ""
+"Knjiga mora biti v zapisu ePub, HTMLZ ali AZW3, da jo lahko prilagodite.\n"
+"\n"
+"Najprej pretvorite knjigo v enega od teh zapisov."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "Read books"
@@ -10997,7 +11003,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:147
 msgid "Ctrl+S"
-msgstr "Ctrl+S"
+msgstr "Krmilka+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/drm_error_ui.py:54
 msgid "This book is DRMed"
@@ -11170,7 +11176,7 @@ msgstr "&Ustavi izbrana opravila"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:77
 msgid "&Hide selected jobs"
-msgstr ""
+msgstr "&Skrij izbrana opravila"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:78
 msgid "Show job &details"
@@ -11186,7 +11192,7 @@ msgstr "Ustavi vsa opravila, ki niso pove&zana z napravo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:81
 msgid "&Hide all jobs"
-msgstr ""
+msgstr "&Skrij vsa opravila"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:298
@@ -11230,7 +11236,7 @@ msgstr "Pokaži zapisnik"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:322
 #, python-format
 msgid "Hide the remaining %d error messages"
-msgstr ""
+msgstr "Skrij preostalih %d sporočil o napaki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:61
 msgid "Title/Author"
@@ -13513,7 +13519,7 @@ msgstr "Brskalnik naslovnic"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:116
 msgid "Shift+Alt+B"
-msgstr "Shift+Alt+B"
+msgstr "Dvigalka+izmenjalka+B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:130
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:321
@@ -13522,7 +13528,7 @@ msgstr "Brskalnik značk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:132
 msgid "Shift+Alt+T"
-msgstr "Shift+Alt+T"
+msgstr "Dvigalka+izmenjalka+T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:164
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:29
@@ -13547,7 +13553,7 @@ msgstr "Podrobnosti o knjigi"
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:231
 msgid "Shift+Alt+D"
-msgstr "Shift+Alt+D"
+msgstr "Dvigalka+izmenjalka+D"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:67
 msgid "Job"
@@ -13614,7 +13620,7 @@ msgstr "Opravila:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:444
 msgid "Shift+Alt+J"
-msgstr "Shift+Alt+J"
+msgstr "Dvigalka+izmenjalka+J"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:461
 msgid "Click to see list of jobs"
@@ -13753,7 +13759,7 @@ msgstr "na voljo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:176
 msgid "Virtual Library"
-msgstr ""
+msgstr "Navidezna knjižnica"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:193
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:198
@@ -13762,7 +13768,7 @@ msgstr "Napredno iskanje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:193
 msgid "Shift+Ctrl+F"
-msgstr "Ctrl+Shift+F"
+msgstr "Krmilka+dvigalka+F"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:203
 msgid ""
@@ -14944,6 +14950,7 @@ msgstr "Prednos&t opravila:"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:168
 msgid "Virtual library to apply when the current library is opened:"
 msgstr ""
+"Katera navidezna knjižnica naj velja, ko je odprta trenutna knjižnica:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:169
 msgid ""
@@ -17242,7 +17249,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:420
 msgid "Invalid tweaks"
-msgstr ""
+msgstr "Neveljavne prilagoditve"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:421
 msgid ""
@@ -17267,7 +17274,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:119
 msgid "Edit tweak"
-msgstr ""
+msgstr "Uredi prilagoditev"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:120
 msgid "Restore this tweak to its default value"
@@ -17342,7 +17349,7 @@ msgstr "Upravljaj s shranjenimi iskanji"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:26
 #, python-format
 msgid "Create a Virtual Library based on %s"
-msgstr ""
+msgstr "Ustvari navidezno knjižnico glede na %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:34
 #, python-format
@@ -17351,15 +17358,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:92
 msgid "Edit virtual library"
-msgstr ""
+msgstr "Uredi navidezno knjižnico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:94
 msgid "Create virtual library"
-msgstr ""
+msgstr "Ustvari navidezno knjižnico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:99
 msgid "Virtual library &name:"
-msgstr ""
+msgstr "Ime %navidezne knjižnice:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:112
 msgid "&Search expression:"
@@ -17367,7 +17374,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:120
 msgid "Create a virtual library based on: "
-msgstr ""
+msgstr "Ustvari navidezno knjižnico glede na: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:133
 msgid ""
@@ -17414,7 +17421,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:251
 msgid "You must provide a name for the new virtual library"
-msgstr ""
+msgstr "Novo navidezno knjižnico morate poimenovati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:257
 msgid "A virtual library name cannot begin with \"*\""
@@ -17466,6 +17473,8 @@ msgid ""
 "Use a \"virtual library\" to show only a subset of the books present in this "
 "library"
 msgstr ""
+"Uporabite \"navidezno knjižnico\", da prikažete le podmnožico knjig iz te "
+"knjižnice."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:316
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:574
@@ -17478,15 +17487,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:318
 msgid "Edit Virtual Library"
-msgstr ""
+msgstr "Uredi navidezno knjižnico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:319
 msgid "Remove Virtual Library"
-msgstr ""
+msgstr "Odstrani navidezno knjižnico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:342
 msgid "Create Virtual Library"
-msgstr ""
+msgstr "Ustvari navidezno knjižnico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:373
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:494
@@ -17503,7 +17512,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:451
 msgid "Are you sure you want to remove the virtual library {0}"
-msgstr ""
+msgstr "Ste prepričani, da želite odstraniti navidezno knjižnico {0}?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:569
 msgid "({0} of {1})"
@@ -18071,7 +18080,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:347
 msgid "ALT+f"
-msgstr "ALT+F"
+msgstr "Izmenjalka+F"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:352
 msgid "Find the first/next matching item"
@@ -19707,7 +19716,7 @@ msgstr "Pokaži"
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:958
 #, python-format
 msgid "Hide %(label)s %(shortcut)s"
-msgstr ""
+msgstr "Skrij %(label)s %(shortcut)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:995
 msgid "Toggle"
