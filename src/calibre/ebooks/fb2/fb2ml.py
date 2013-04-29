@@ -139,6 +139,12 @@ class FB2MLizer(object):
         if not metadata['author']:
             metadata['author'] = u'<author><first-name></first-name><last-name><last-name></author>'
 
+        metadata['keywords'] = u''
+        tags = list(map(unicode, self.oeb_book.metadata.subject))
+        if tags:
+            tags = ', '.join(prepare_string_for_xml(x) for x in tags)
+            metadata['keywords'] = '<keywords>%s</keywords>'%tags
+
         metadata['sequence'] = u''
         if self.oeb_book.metadata.series:
             index = '1'
@@ -156,27 +162,28 @@ class FB2MLizer(object):
             metadata['id'] = str(uuid.uuid4())
 
         for key, value in metadata.items():
-            if key not in ('author', 'cover', 'sequence'):
+            if key not in ('author', 'cover', 'sequence', 'keywords'):
                 metadata[key] = prepare_string_for_xml(value)
 
-        return u'<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">' \
-                '<description>' \
-                    '<title-info>' \
-                        '<genre>%(genre)s</genre>' \
-                            '%(author)s' \
-                        '<book-title>%(title)s</book-title>' \
-                        '%(cover)s' \
-                        '<lang>%(lang)s</lang>' \
-                        '%(sequence)s' \
-                    '</title-info>' \
-                    '<document-info>' \
-                        '%(author)s' \
-                        '<program-used>%(appname)s %(version)s</program-used>' \
-                        '<date>%(date)s</date>' \
-                        '<id>%(id)s</id>' \
-                        '<version>1.0</version>' \
-                    '</document-info>' \
-                '</description>' % metadata
+        return (u'<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">'
+                '<description>'
+                    '<title-info>'
+                        '<genre>%(genre)s</genre>'
+                            '%(author)s'
+                        '<book-title>%(title)s</book-title>'
+                        '%(cover)s'
+                        '<lang>%(lang)s</lang>'
+                        '%(keywords)s'
+                        '%(sequence)s'
+                    '</title-info>'
+                    '<document-info>'
+                        '%(author)s'
+                        '<program-used>%(appname)s %(version)s</program-used>'
+                        '<date>%(date)s</date>'
+                        '<id>%(id)s</id>'
+                        '<version>1.0</version>'
+                    '</document-info>'
+                '</description>') % metadata
 
     def fb2_footer(self):
         return u'</FictionBook>'
