@@ -8,10 +8,9 @@ __docformat__ = 'restructuredtext en'
 Transform OEB content into FB2 markup
 '''
 
+import re, textwrap, uuid
 from base64 import b64encode
 from datetime import datetime
-import re
-import uuid
 
 from lxml import etree
 
@@ -165,28 +164,29 @@ class FB2MLizer(object):
             if key not in ('author', 'cover', 'sequence', 'keywords'):
                 metadata[key] = prepare_string_for_xml(value)
 
-        return (u'<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">'
-                '<description>'
-                    '<title-info>'
-                        '<genre>%(genre)s</genre>'
-                            '%(author)s'
-                        '<book-title>%(title)s</book-title>'
-                        '%(cover)s'
-                        '<lang>%(lang)s</lang>'
-                        '%(keywords)s'
-                        '%(sequence)s'
-                    '</title-info>'
-                    '<document-info>'
-                        '%(author)s'
-                        '<program-used>%(appname)s %(version)s</program-used>'
-                        '<date>%(date)s</date>'
-                        '<id>%(id)s</id>'
-                        '<version>1.0</version>'
-                    '</document-info>'
-                '</description>') % metadata
+        return textwrap.dedent(u'''
+            <FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <description>
+                    <title-info>
+                        <genre>%(genre)s</genre>
+                            %(author)s
+                        <book-title>%(title)s</book-title>
+                        %(cover)s
+                        <lang>%(lang)s</lang>
+                        %(keywords)s
+                        %(sequence)s
+                    </title-info>
+                    <document-info>
+                        %(author)s
+                        <program-used>%(appname)s %(version)s</program-used>
+                        <date>%(date)s</date>
+                        <id>%(id)s</id>
+                        <version>1.0</version>
+                    </document-info>
+                </description>\n''') % metadata
 
     def fb2_footer(self):
-        return u'</FictionBook>'
+        return u'\n</FictionBook>'
 
     def get_cover(self):
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
