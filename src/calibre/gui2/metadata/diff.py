@@ -9,6 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 from collections import OrderedDict, namedtuple
 from functools import partial
+from future_builtins import zip
 
 from PyQt4.Qt import (
     QDialog, QWidget, QGridLayout, QLineEdit, QLabel, QToolButton, QIcon,
@@ -506,7 +507,7 @@ if __name__ == '__main__':
     from calibre.library import db
     db = db()
     ids = sorted(db.all_ids(), reverse=True)
-    ids = [(x, ids[i+1]) for i, x in enumerate(ids[0::2])]
+    ids = tuple(zip(ids[0::2], ids[1::2]))
     gm = partial(db.get_metadata, index_is_id=True, get_cover=True, cover_as_data=True)
     get_metadata = lambda x:map(gm, ids[x])
     d = CompareMany(list(xrange(len(ids))), get_metadata, db.field_metadata)
