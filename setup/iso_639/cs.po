@@ -10,13 +10,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-04-25 09:03+0000\n"
+"PO-Revision-Date: 2013-04-29 11:25+0000\n"
 "Last-Translator: Tadeáš Pařík <tadeas.parik@gmail.com>\n"
 "Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-04-26 05:33+0000\n"
+"X-Launchpad-Export-Date: 2013-04-30 05:16+0000\n"
 "X-Generator: Launchpad (build 16580)\n"
 "Language: cs\n"
 
@@ -30790,11 +30790,11 @@ msgstr ""
 
 #. name for zua
 msgid "Zeem"
-msgstr ""
+msgstr "zeem"
 
 #. name for zuh
 msgid "Tokano"
-msgstr ""
+msgstr "tokano"
 
 #. name for zul
 msgid "Zulu"
@@ -30802,7 +30802,7 @@ msgstr "Zulu"
 
 #. name for zum
 msgid "Kumzari"
-msgstr ""
+msgstr "kumzari"
 
 #. name for zun
 msgid "Zuni"
@@ -30810,40 +30810,40 @@ msgstr "zunijština"
 
 #. name for zuy
 msgid "Zumaya"
-msgstr ""
+msgstr "zumaya"
 
 #. name for zwa
 msgid "Zay"
-msgstr ""
+msgstr "zay"
 
 #. name for zxx
 msgid "No linguistic content"
-msgstr ""
+msgstr "bez lingvistického obsahu"
 
 #. name for zyb
 msgid "Zhuang; Yongbei"
-msgstr ""
+msgstr "zhuang; Yongbei"
 
 #. name for zyg
 msgid "Zhuang; Yang"
-msgstr ""
+msgstr "zhuang; Yang"
 
 #. name for zyj
 msgid "Zhuang; Youjiang"
-msgstr ""
+msgstr "zhuang; Youjiang"
 
 #. name for zyn
 msgid "Zhuang; Yongnan"
-msgstr ""
+msgstr "zhuang; Youjiang"
 
 #. name for zyp
 msgid "Zyphe"
-msgstr ""
+msgstr "zyphe"
 
 #. name for zza
 msgid "Zaza"
-msgstr ""
+msgstr "zaza"
 
 #. name for zzj
 msgid "Zhuang; Zuojiang"
-msgstr ""
+msgstr "zhuang; Zuojiang"
