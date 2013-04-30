@@ -252,7 +252,7 @@ class FieldMetadata(dict):
                            'datatype':'int',
                            'is_multiple':{},
                            'kind':'field',
-                           'name':None,
+                           'name':_('Cover'),
                            'search_terms':['cover'],
                            'is_custom':False,
                            'is_category':False,

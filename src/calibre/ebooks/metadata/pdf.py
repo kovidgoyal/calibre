@@ -46,7 +46,8 @@ def read_info(outputdir, get_cover):
 
     ans = {}
     for line in raw.splitlines():
-        if u':' not in line: continue
+        if u':' not in line:
+            continue
         field, val = line.partition(u':')[::2]
         val = val.strip()
         if field and val:
@@ -54,7 +55,7 @@ def read_info(outputdir, get_cover):
 
     if get_cover:
         try:
-            subprocess.check_call([pdftoppm, '-singlefile', '-jpeg',
+            subprocess.check_call([pdftoppm, '-singlefile', '-jpeg', '-cropbox',
                 'src.pdf', 'cover'])
         except subprocess.CalledProcessError as e:
             prints('pdftoppm errored out with return code: %d'%e.returncode)
@@ -69,7 +70,7 @@ def page_images(pdfpath, outputdir, first=1, last=1):
         import win32process as w
         args['creationflags'] = w.HIGH_PRIORITY_CLASS | w.CREATE_NO_WINDOW
     try:
-        subprocess.check_call([pdftoppm, '-jpeg', '-f', unicode(first),
+        subprocess.check_call([pdftoppm, '-cropbox', '-jpeg', '-f', unicode(first),
                                '-l', unicode(last), pdfpath,
                                os.path.join(outputdir, 'page-images')], **args)
     except subprocess.CalledProcessError as e:

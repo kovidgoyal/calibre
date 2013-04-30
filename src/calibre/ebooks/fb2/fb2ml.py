@@ -8,10 +8,9 @@ __docformat__ = 'restructuredtext en'
 Transform OEB content into FB2 markup
 '''
 
+import re, textwrap, uuid
 from base64 import b64encode
 from datetime import datetime
-import re
-import uuid
 
 from lxml import etree
 
@@ -19,6 +18,7 @@ from calibre import prepare_string_for_xml
 from calibre.constants import __appname__, __version__
 from calibre.utils.magick import Image
 from calibre.utils.localization import lang_as_iso639_1
+from calibre.ebooks.oeb.base import urlnormalize
 
 class FB2MLizer(object):
     '''
@@ -138,6 +138,12 @@ class FB2MLizer(object):
         if not metadata['author']:
             metadata['author'] = u'<author><first-name></first-name><last-name><last-name></author>'
 
+        metadata['keywords'] = u''
+        tags = list(map(unicode, self.oeb_book.metadata.subject))
+        if tags:
+            tags = ', '.join(prepare_string_for_xml(x) for x in tags)
+            metadata['keywords'] = '<keywords>%s</keywords>'%tags
+
         metadata['sequence'] = u''
         if self.oeb_book.metadata.series:
             index = '1'
@@ -145,6 +151,7 @@ class FB2MLizer(object):
                 index = self.oeb_book.metadata.series_index[0]
             metadata['sequence'] = u'<sequence name="%s" number="%s" />' % (prepare_string_for_xml(u'%s' % self.oeb_book.metadata.series[0]), index)
 
+        year = publisher = isbn = u''
         identifiers = self.oeb_book.metadata['identifier']
         for x in identifiers:
             if x.get(OPF('scheme'), None).lower() == 'uuid' or unicode(x).startswith('urn:uuid:'):
@@ -154,31 +161,57 @@ class FB2MLizer(object):
             self.log.warn('No UUID identifier found')
             metadata['id'] = str(uuid.uuid4())
 
+        try:
+            date = self.oeb_book.metadata['date'][0]
+        except IndexError:
+            pass
+        else:
+            year = '<year>%s</year>' % prepare_string_for_xml(date.value.partition('-')[0])
+
+        try:
+            publisher = self.oeb_book.metadata['publisher'][0]
+        except IndexError:
+            pass
+        else:
+            publisher = '<publisher>%s</publisher>' % prepare_string_for_xml(publisher.value)
+
+        for x in identifiers:
+            if x.get(OPF('scheme'), None).lower() == 'isbn':
+                isbn = '<isbn>%s</isbn>' % prepare_string_for_xml(x.value)
+
+        metadata['year'], metadata['isbn'], metadata['publisher'] = year, isbn, publisher
         for key, value in metadata.items():
-            if key not in ('author', 'cover', 'sequence'):
+            if key not in ('author', 'cover', 'sequence', 'keywords', 'year', 'publisher', 'isbn'):
                 metadata[key] = prepare_string_for_xml(value)
 
-        return u'<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">' \
-                '<description>' \
-                    '<title-info>' \
-                        '<genre>%(genre)s</genre>' \
-                            '%(author)s' \
-                        '<book-title>%(title)s</book-title>' \
-                        '%(cover)s' \
-                        '<lang>%(lang)s</lang>' \
-                        '%(sequence)s' \
-                    '</title-info>' \
-                    '<document-info>' \
-                        '%(author)s' \
-                        '<program-used>%(appname)s %(version)s</program-used>' \
-                        '<date>%(date)s</date>' \
-                        '<id>%(id)s</id>' \
-                        '<version>1.0</version>' \
-                    '</document-info>' \
-                '</description>' % metadata
+        return textwrap.dedent(u'''
+            <FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <description>
+                    <title-info>
+                        <genre>%(genre)s</genre>
+                            %(author)s
+                        <book-title>%(title)s</book-title>
+                        %(cover)s
+                        <lang>%(lang)s</lang>
+                        %(keywords)s
+                        %(sequence)s
+                    </title-info>
+                    <document-info>
+                        %(author)s
+                        <program-used>%(appname)s %(version)s</program-used>
+                        <date>%(date)s</date>
+                        <id>%(id)s</id>
+                        <version>1.0</version>
+                    </document-info>
+                    <publish-info>
+                        %(year)s
+                        %(publisher)s
+                        %(isbn)s
+                    </publish-info>
+                </description>\n''') % metadata
 
     def fb2_footer(self):
-        return u'</FictionBook>'
+        return u'\n</FictionBook>'
 
     def get_cover(self):
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
@@ -281,7 +314,7 @@ class FB2MLizer(object):
                         data += char
                     images.append('<binary id="%s" content-type="image/jpeg">%s\n</binary>' % (self.image_hrefs[item.href], data))
                 except Exception as e:
-                    self.log.error('Error: Could not include file %s because ' \
+                    self.log.error('Error: Could not include file %s because '
                         '%s.' % (item.href, e))
         return ''.join(images)
 
@@ -420,13 +453,16 @@ class FB2MLizer(object):
         if tag == 'img':
             if elem_tree.attrib.get('src', None):
                 # Only write the image tag if it is in the manifest.
-                if page.abshref(elem_tree.attrib['src']) in self.oeb_book.manifest.hrefs.keys():
-                    if page.abshref(elem_tree.attrib['src']) not in self.image_hrefs.keys():
-                        self.image_hrefs[page.abshref(elem_tree.attrib['src'])] = '_%s.jpg' % len(self.image_hrefs.keys())
+                ihref = urlnormalize(page.abshref(elem_tree.attrib['src']))
+                if ihref in self.oeb_book.manifest.hrefs:
+                    if ihref not in self.image_hrefs:
+                        self.image_hrefs[ihref] = '_%s.jpg' % len(self.image_hrefs)
                     p_txt, p_tag = self.ensure_p()
                     fb2_out += p_txt
                     tags += p_tag
-                    fb2_out.append('<image xlink:href="#%s" />' % self.image_hrefs[page.abshref(elem_tree.attrib['src'])])
+                    fb2_out.append('<image xlink:href="#%s" />' % self.image_hrefs[ihref])
+                else:
+                    self.log.warn(u'Ignoring image not in manifest: %s'%ihref)
         if tag in ('br', 'hr') or ems >= 1:
             if ems < 1:
                 multiplier = 1

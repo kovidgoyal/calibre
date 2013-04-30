@@ -23,7 +23,7 @@ from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
 
-class TagBrowserMixin(object): # {{{
+class TagBrowserMixin(object):  # {{{
 
     def __init__(self, db):
         self.library_view.model().count_changed_signal.connect(self.tags_view.recount)
@@ -60,7 +60,7 @@ class TagBrowserMixin(object): # {{{
                         self.do_saved_search_edit, (None,), 'search')
             ):
             m = self.alter_tb.manage_menu
-            m.addAction( QIcon(I(category_icon_map[cat_name])), text,
+            m.addAction(QIcon(I(category_icon_map[cat_name])), text,
                     partial(func, *args))
 
     def do_restriction_error(self):
@@ -213,9 +213,9 @@ class TagBrowserMixin(object): # {{{
                           tag_to_match=tag, data=result, sorter=key)
         d.exec_()
         if d.result() == d.Accepted:
-            to_rename = d.to_rename # dict of old id to new name
-            to_delete = d.to_delete # list of ids
-            orig_name = d.original_names # dict of id: name
+            to_rename = d.to_rename  # dict of old id to new name
+            to_delete = d.to_delete  # list of ids
+            orig_name = d.original_names  # dict of id: name
 
             rename_func = None
             if category == 'tags':
@@ -227,7 +227,7 @@ class TagBrowserMixin(object): # {{{
             elif category == 'publisher':
                 rename_func = db.rename_publisher
                 delete_func = db.delete_publisher_using_id
-            else: # must be custom
+            else:  # must be custom
                 cc_label = db.field_metadata[category]['label']
                 rename_func = partial(db.rename_custom_item, label=cc_label)
                 delete_func = partial(db.delete_custom_item_using_id, label=cc_label)
@@ -265,7 +265,7 @@ class TagBrowserMixin(object): # {{{
             delete_func = db.delete_series_using_id
         elif category == 'publisher':
             delete_func = db.delete_publisher_using_id
-        else: # must be custom
+        else:  # must be custom
             cc_label = db.field_metadata[category]['label']
             delete_func = partial(db.delete_custom_item_using_id, label=cc_label)
         m = self.tags_view.model()
@@ -280,7 +280,7 @@ class TagBrowserMixin(object): # {{{
     def do_tag_item_renamed(self):
         # Clean up library view and search
         # get information to redo the selection
-        rows = [r.row() for r in \
+        rows = [r.row() for r in
                 self.library_view.selectionModel().selectedRows()]
         m = self.library_view.model()
         ids = [m.id(r) for r in rows]
@@ -315,7 +315,7 @@ class TagBrowserMixin(object): # {{{
 
 # }}}
 
-class TagBrowserWidget(QWidget): # {{{
+class TagBrowserWidget(QWidget):  # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -407,22 +407,24 @@ class TagBrowserWidget(QWidget): # {{{
             a = sb.m.addAction(x)
             sb.bg.addAction(a)
             a.setCheckable(True)
-            if i == 0: a.setChecked(True)
+            if i == 0:
+                a.setChecked(True)
         sb.setToolTip(
                 _('Set the sort order for entries in the Tag Browser'))
         sb.setStatusTip(sb.toolTip())
 
-        ma = l.m.addAction(_('Match type'))
+        ma = l.m.addAction(_('Search type when selecting multiple items'))
         ma.m = l.match_menu = QMenu(l.m)
         ma.setMenu(ma.m)
         ma.ag = QActionGroup(ma)
 
         # Must be in the same order as db2.MATCH_TYPE
-        for i, x in enumerate((_('Match any'), _('Match all'))):
+        for i, x in enumerate((_('Match any of the items'), _('Match all of the items'))):
             a = ma.m.addAction(x)
             ma.ag.addAction(a)
             a.setCheckable(True)
-            if i == 0: a.setChecked(True)
+            if i == 0:
+                a.setChecked(True)
         ma.setToolTip(
                 _('When selecting multiple entries in the Tag Browser '
                     'match any or all of them'))

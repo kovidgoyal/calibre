@@ -42,7 +42,6 @@ class Nzz(BasicNewsRecipe):
         soup = self.index_to_soup(baseref)
 
         articles = {}
-        key = None
         ans = []
 
         issuelist = soup.find(id="issueSelectorList")
@@ -52,27 +51,25 @@ class Nzz(BasicNewsRecipe):
             section = f.string
             sectionref = baseref + f['href']
 
-            # print "section is "+section +" and ref is "+sectionref
             ans.append(section)
 
             articlesoup = self.index_to_soup(sectionref)
 
             articlesoup = articlesoup.findAll('article','article')
             for a in articlesoup:
-                 artlink = a.find('a')
+                artlink = a.find('a')
 
-                 arthref = baseref + artlink['href']
-                 arthead = a.find('h2')
-                 artcaption = arthead.string
+                arthref = baseref + artlink['href']
+                arthead = a.find('h2')
+                artcaption = arthead.string
 
-                 pubdate = strftime('%a, %d %b')
+                pubdate = strftime('%a, %d %b')
 
-                 if not artcaption is None:
-                         # print "     found article named "+artcaption+" at "+arthref
-                         if not articles.has_key(section):
-                             articles[section] = []
-                         articles[section].append(
-                               dict(title=artcaption, url=arthref, date=pubdate, description='', content=''))
+                if not artcaption is None:
+                    if not articles.has_key(section):
+                        articles[section] = []
+                    articles[section].append(
+                        dict(title=artcaption, url=arthref, date=pubdate, description='', content=''))
 
         ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
         return ans
@@ -80,10 +77,10 @@ class Nzz(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open('https://webpaper.nzz.ch/login')
+            br.open('https://cas.nzz.ch/cas/login')
             br.select_form(nr=0)
-            br['_username']   = self.username
-            br['_password'] = self.password
+            br['username']   = self.username
+            br['password'] = self.password
             br.submit()
         return br
 

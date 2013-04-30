@@ -540,6 +540,11 @@ Then open ChmLib.dsw in Visual Studio, change the configuration to Release
 (Win32|x64) and build solution, this will generate a static library in
 Release/ChmLib.lib
 
+libimobiledevice
+------------------
+
+See libimobiledevice_notes.rst
+
 calibre
 ---------
 

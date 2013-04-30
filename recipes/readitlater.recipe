@@ -1,15 +1,21 @@
 """
-Pocket Calibre Recipe v1.2
+Pocket Calibre Recipe v1.3
 """
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+import urllib2
+import urllib
+import json
+import operator
+import tempfile
+import re
+
 __license__   = 'GPL v3'
 __copyright__ = '''
 2010, Darko Miletic <darko.miletic at gmail.com>
 2011, Przemyslaw Kryger <pkryger at gmail.com>
 2012, tBunnyMan <Wag That Tail At Me dot com>
 '''
-
-from calibre import strftime
-from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Pocket(BasicNewsRecipe):
@@ -21,109 +27,150 @@ class Pocket(BasicNewsRecipe):
                             read after downloading.'''
     publisher             = 'getpocket.com'
     category              = 'news, custom'
-    oldest_article        = 7
     max_articles_per_feed = 50
     minimum_articles      = 10
-    mark_as_read_after_dl = True
+    #Set this to False for testing
+    mark_as_read_after_dl = False
+    #MUST be either 'oldest' or 'newest'
+    sort_method           = 'oldest'
+    #To filter by tag this needs to be a single tag in quotes; IE 'calibre'
+    only_pull_tag         = None
+
+    #You don't want to change anything under here unless you REALLY know what you are doing
     no_stylesheets        = True
     use_embedded_content  = False
     needs_subscription    = True
-    INDEX                 = u'http://getpocket.com'
-    LOGIN                 = INDEX + u'/l'
-    readList              = []
+    articles_are_obfuscated = True
+    apikey                = '19eg0e47pbT32z4793Tf021k99Afl889'
+    index_url             = u'http://getpocket.com'
+    ajax_url              = u'http://getpocket.com/a/x/getArticle.php'
+    read_api_url          = index_url + u'/v3/get'
+    modify_api_url        = index_url + u'/v3/send'
+    legacy_login_url      = index_url + u'/l'  # We use this to cheat oAuth
+    articles              = []
 
-
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        if self.username is not None:
-            br.open(self.LOGIN)
+    def get_browser(self, *args, **kwargs):
+        """
+        We need to pretend to be a recent version of safari for the mac to prevent User-Agent checks
+        Pocket api requires username and password so fail loudly if it's missing from the config.
+        """
+        br = BasicNewsRecipe.get_browser(self,
+            user_agent='Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-us) AppleWebKit/533.19.4 (KHTML, like Gecko) Version/5.0.3 Safari/533.19.4')
+        if self.username is not None and self.password is not None:
+            br.open(self.legacy_login_url)
             br.select_form(nr=0)
             br['feed_id'] = self.username
-            if self.password is not None:
-                br['password'] = self.password
+            br['password'] = self.password
             br.submit()
+        else:
+            self.user_error("This Recipe requires authentication, please configured user & pass")
         return br
 
-    def get_feeds(self):
-        self.report_progress(0, ('Fetching list of pages...'))
-        lfeeds = []
-        i = 1
-        feedurl = self.INDEX + u'/unread/1'
-        while True:
-            title = u'Unread articles, page ' + str(i)
-            lfeeds.insert(0, (title, feedurl))
-            self.report_progress(0, ('Got ') + str(i) + (' pages'))
-            i += 1
-            soup = self.index_to_soup(feedurl)
-            ritem = soup.find('a', attrs={'id':'next', 'class':'active'})
-            if ritem is None:
-                break
-            feedurl = self.INDEX + ritem['href']
-        return lfeeds
+    def get_auth_uri(self):
+        """Quick function to return the authentication part of the url"""
+        uri = ""
+        uri = u'{0}&apikey={1!s}'.format(uri, self.apikey)
+        if self.username is None or self.password is None:
+            self.user_error("Username or password is blank. Pocket no longer supports blank passwords")
+        else:
+            uri = u'{0}&username={1!s}'.format(uri, self.username)
+            uri = u'{0}&password={1!s}'.format(uri, self.password)
+        return uri
+
+    def get_pull_articles_uri(self):
+        """Return the part of the uri that has all of the get request settings"""
+        uri = ""
+        uri = u'{0}&state={1}'.format(uri, u'unread')  # TODO This could be modded to allow pulling archives
+        uri = u'{0}&contentType={1}'.format(uri, u'article')  # TODO This COULD return images too
+        uri = u'{0}&sort={1}'.format(uri, self.sort_method)
+        uri = u'{0}&count={1!s}'.format(uri, self.max_articles_per_feed)
+        if self.only_pull_tag is not None:
+            uri = u'{0}tag={1}'.format(uri, self.only_pull_tag)
+        return uri
 
     def parse_index(self):
-        totalfeeds = []
-        articlesToGrab = self.max_articles_per_feed
-        lfeeds = self.get_feeds()
-        for feedobj in lfeeds:
-            if articlesToGrab < 1:
-                break
-            feedtitle, feedurl = feedobj
-            self.report_progress(0, ('Fetching feed')+' %s...'%(feedtitle if feedtitle else feedurl))
-            articles = []
-            soup = self.index_to_soup(feedurl)
-            ritem = soup.find('ul', attrs={'id':'list'})
-            if ritem is None:
-                self.log.exception("Page %s skipped: invalid HTML" % (feedtitle if feedtitle else feedurl))
-                continue
-            for item in reversed(ritem.findAll('li')):
-                if articlesToGrab < 1:
-                    break
-                else:
-                    articlesToGrab -= 1
-                description = ''
-                atag = item.find('a', attrs={'class':'text'})
-                if atag and atag.has_key('href'):
-                    url         = self.INDEX + atag['href']
-                    title       = self.tag_to_string(item.div)
-                    date        = strftime(self.timefmt)
-                    articles.append({
-                                      'title'      :title
-                                     ,'date'       :date
-                                     ,'url'        :url
-                                     ,'description':description
-                                    })
-                    readLink = item.find('a', attrs={'class':'check'})['href']
-                    self.readList.append(readLink)
-            totalfeeds.append((feedtitle, articles))
-        if len(self.readList) < self.minimum_articles:
+        pocket_feed = []
+        fetch_url = u"{0}?{1}{2}".format(
+            self.read_api_url,
+            self.get_auth_uri(),
+            self.get_pull_articles_uri()
+        )
+        try:
+            request = urllib2.Request(fetch_url)
+            response = urllib2.urlopen(request)
+            pocket_feed = json.load(response)['list']
+        except urllib2.HTTPError as e:
+            self.log.exception("Pocket returned an error: {0}\nurl: {1}".format(e, fetch_url))
+            return []
+        except urllib2.URLError as e:
+            self.log.exception("Unable to connect to getpocket.com's api: {0}\nurl: {1}".format(e, fetch_url))
+            return []
+        if len(pocket_feed) < self.minimum_articles:
             self.mark_as_read_after_dl = False
-            if hasattr(self, 'abort_recipe_processing'):
-               self.abort_recipe_processing("Only %d articles retrieved, minimum_articles not reached" % len(self.readList))
-            else:
-                self.log.exception("Only %d articles retrieved, minimum_articles not reached" % len(self.readList))
-                return []
-        return totalfeeds
+            self.user_error("Only {0} articles retrieved, minimum_articles not reached".format(len(pocket_feed)))
 
-    def mark_as_read(self, markList):
-        br = self.get_browser()
-        for link in markList:
-            url = self.INDEX + link
-            print 'Marking read: ', url
-            response = br.open(url)
-            print response.info()
+        for pocket_article in pocket_feed.iteritems():
+            self.articles.append({
+                'item_id':      pocket_article[0],
+                'title':        pocket_article[1]['resolved_title'],
+                'date':         pocket_article[1]['time_updated'],
+                'url':          u'{0}/a/read/{1}'.format(self.index_url, pocket_article[0]),
+                'real_url':     pocket_article[1]['resolved_url'],
+                'description':  pocket_article[1]['excerpt'],
+                'sort':         pocket_article[1]['sort_id']
+            })
+        self.articles = sorted(self.articles, key=operator.itemgetter('sort'))
+        print self.articles
+        return [("My Pocket Articles for {0}".format(strftime('[%I:%M %p]')), self.articles)]
+
+    def get_obfuscated_article(self, url):
+        soup = self.index_to_soup(url)
+        formcheck_script_tag = soup.find('script', text=re.compile("formCheck"))
+        form_check = formcheck_script_tag.split("=")[1].replace("'", "").replace(";", "").strip()
+        article_id = url.split("/")[-1]
+        data = urllib.urlencode({'itemId': article_id, 'formCheck': form_check})
+        response = self.browser.open(self.ajax_url, data)
+        article_json = json.load(response)['article']['article']
+        with tempfile.NamedTemporaryFile(delete=False) as tf:
+            tf.write(article_json)
+        return tf.name
+
+    def mark_as_read(self, mark_list):
+        formatted_list = []
+        for article_id in mark_list:
+            formatted_list.append({
+                'action': 'archive',
+                'item_id': article_id
+            })
+        command = {
+            'actions': formatted_list
+        }
+        mark_read_url = u'{0}?{1}'.format(
+            self.modify_api_url,
+            self.get_auth_uri()
+        )
+        try:
+            request = urllib2.Request(mark_read_url, json.dumps(command))
+            response = urllib2.urlopen(request)
+            print u'response = {0}'.format(response.info())
+        except urllib2.HTTPError as e:
+            self.log.exception('Pocket returned an error while archiving articles: {0}'.format(e))
+            return []
+        except urllib2.URLError as e:
+            self.log.exception("Unable to connect to getpocket.com's modify api: {0}".format(e))
+            return []
 
     def cleanup(self):
         if self.mark_as_read_after_dl:
-            self.mark_as_read(self.readList)
+            self.mark_as_read([x[1]['item_id'] for x in self.articles])
         else:
             pass
 
     def default_cover(self, cover_file):
-        '''
+        """
         Create a generic cover for recipes that don't have a cover
         This override adds time to the cover
-        '''
+        """
         try:
             from calibre.ebooks import calibre_cover
             title = self.title if isinstance(self.title, unicode) else \
@@ -137,3 +184,12 @@ class Pocket(BasicNewsRecipe):
             self.log.exception('Failed to generate default cover')
             return False
         return True
+
+    def user_error(self, error_message):
+        if hasattr(self, 'abort_recipe_processing'):
+            self.abort_recipe_processing(error_message)
+        else:
+            self.log.exception(error_message)
+            raise RuntimeError(error_message)
+
+# vim:ft=python

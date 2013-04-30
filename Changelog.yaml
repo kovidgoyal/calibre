@@ -20,6 +20,82 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.28
+  date: 2013-04-26
+
+  new features:
+    - title: "Virtual Libraries: Easily partition your large calibre library into smaller 'virtual' libraries"
+      type: major
+      description: "A virtual library is a way to tell calibre to open only a subset of a normal library. For example, you might want to only work with books by a certain author, or books having only a certain tag. To use this feature, click the button labeled 'Virtual Library' to the left of the search bar. For details, see http://manual.calibre-ebook.com/virtual_libraries.html. This feature used to be called 'Search restriction', the new virtual libraries are easier to use, but otherwise fulfil the same function."
+
+    - title: "Book details panel: Allow copying of links in the book details panel by right clicking on them."
+      tickets: [1171963]
+
+    - title: "Kobo driver: Add support for the new Kobo Aura HD and firmware version 2.5.0"
+      tickets: [1169571,1169968]
+
+    - title: "Metadata download: When showing downloaded covers, allow right clicking on a cover to view a full size version."
+      tickets: [1170544]
+
+    - title: "Driver for Easy player cyber book e touch and Droid 4"
+      tickets: [1171633,1170763]
+
+    - title: "Edit ToC: Allow the size of the panels in the location view to be adjusted"
+
+    - title: "When copying to a library by path, make it more efficient to choose between moving and copying"
+      tickets: [1168231]
+
+    - title: "When checking if a zip/rar file is a comic or contains a single ebook to be auto-extracted, ignore thumbs.db files inside the archive"
+
+  bug fixes:
+    - title: "EPUB Input: Fix handling of EPUB files that contain images with non-ascii filenames."
+      tickets: [1171186]
+
+    - title: "Device driver: Detect Laser EB720 with newer firmware."
+      tickets: [1171341]
+
+    - title: "Fix bug in Danish translation causing books with language Ingush being incorrectly translated as Engelsk"
+
+    - title: "PDF Output: Fix hyperlinks not working when converting an EPUB whose individual files have names with URL unsafe characters."
+      tickets: [1169795]
+
+    - title: "Book polishing: Fix inserting cover into an epub with no cover could lead to incorrect guide entry if the opf is not at the root of the epub."
+      tickets: [1167941]
+
+    - title: "ZIP Output: Fix links containing backslashes on windows"
+      tickets: [1169910]
+
+    - title: "Fix polishing of AZW3 files not working on OS X."
+      tickets: [1168789]
+
+    - title: "Polishing books: Fix polishing erroring out if the book being polished has no cover"
+
+    - title: "RTF Input: Add partial support for hyperlinks to web resources."
+      tickets: [1167562]
+
+    - title: "Fix book details panel showing incorrect info after deleting books from a connected device"
+      tickets: [1172839]
+
+  improved recipes:
+    - NZZ Online
+    - Baltimore Sun
+    - Metro NL
+    - Financial Times
+    - EcoGeek
+    - comics.com
+    - Psychology Today
+    - Science News
+
+  new recipes:
+    - title: Voice of America 
+      author: Krittika Goyal
+
+    - title: Lightspeed Magazine 
+      author: Jose Pinto
+
+    - title: The Feature 
+      author: Jose Pinto
+
 - version: 0.9.27
   date: 2013-04-12
 
