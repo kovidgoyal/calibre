@@ -19,6 +19,7 @@ from calibre import fit_image
 from calibre.ebooks.metadata import title_sort, authors_to_sort_string
 from calibre.gui2 import pixmap_to_data, gprefs
 from calibre.gui2.comments_editor import Editor
+from calibre.gui2.languages import LanguagesEdit as LE
 from calibre.gui2.metadata.basic_widgets import PubdateEdit, RatingEdit
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import UNDEFINED_DATE
@@ -77,6 +78,37 @@ class LineEdit(QLineEdit):
     @property
     def is_blank(self):
         return not self.current_val.strip()
+
+class LanguagesEdit(LE):
+
+    changed = pyqtSignal()
+
+    def __init__(self, field, is_new, parent, metadata, extra):
+        LE.__init__(self, parent=parent)
+        self.is_new = is_new
+        self.field = field
+        self.metadata = metadata
+        self.textChanged.connect(self.changed)
+        if not is_new:
+            self.lineEdit().setReadOnly(True)
+
+    @dynamic_property
+    def current_val(self):
+        def fget(self):
+            return self.lang_codes
+        def fset(self, val):
+            self.lang_codes = val
+        return property(fget=fget, fset=fset)
+
+    def from_mi(self, mi):
+        self.lang_codes = mi.languages
+
+    def to_mi(self, mi):
+        mi.languages = self.lang_codes
+
+    @property
+    def is_blank(self):
+        return not self.current_val
 
 class RatingsEdit(RatingEdit):
 
@@ -152,6 +184,7 @@ class IdentifiersEdit(LineEdit):
     def from_mi(self, mi):
         val = ('%s:%s' % (k, v) for k, v in mi.identifiers.iteritems())
         self.setText(', '.join(val))
+        self.setCursorPosition(0)
 
     def to_mi(self, mi):
         parts = (x.strip() for x in self.current_val.split(',') if x.strip())
@@ -285,7 +318,7 @@ class CompareSingle(QWidget):
     def __init__(
             self, field_metadata, parent=None, revert_tooltip=None,
             datetime_fmt='MMMM yyyy', blank_as_equal=True,
-            fields=('title', 'authors', 'series', 'tags', 'rating', 'publisher', 'pubdate', 'identifiers', 'comments', 'cover')):
+            fields=('title', 'authors', 'series', 'tags', 'rating', 'publisher', 'pubdate', 'identifiers', 'languages', 'comments', 'cover')):
         QWidget.__init__(self, parent)
         self.l = l = QGridLayout()
         l.setContentsMargins(0, 0, 0, 0)
@@ -308,6 +341,8 @@ class CompareSingle(QWidget):
                 cls = SeriesEdit
             elif field == 'identifiers':
                 cls = IdentifiersEdit
+            elif field == 'languages':
+                cls = LanguagesEdit
             elif 'comments' in {field, dt}:
                 cls = CommentsEdit
             elif 'rating' in {field, dt}:
