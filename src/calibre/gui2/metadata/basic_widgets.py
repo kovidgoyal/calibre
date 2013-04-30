@@ -101,7 +101,7 @@ class TitleEdit(EnLineEdit):
                     getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False,
                             commit=False)
             except (IOError, OSError) as err:
-                if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
+                if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
                     import traceback
                     fname = getattr(err, 'filename', None)
                     p = 'Locked file: %s\n\n'%fname if fname else ''
@@ -273,7 +273,7 @@ class AuthorsEdit(EditWithComplete):
                 self.books_to_refresh |= db.set_authors(id_, authors, notify=False,
                     allow_case_change=True)
             except (IOError, OSError) as err:
-                if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
+                if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
                     import traceback
                     fname = getattr(err, 'filename', None)
                     p = 'Locked file: %s\n\n'%fname if fname else ''
@@ -485,7 +485,7 @@ class SeriesEdit(EditWithComplete):
     def initialize(self, db, id_):
         self.books_to_refresh = set([])
         all_series = db.all_series()
-        all_series.sort(key=lambda x : sort_key(x[1]))
+        all_series.sort(key=lambda x: sort_key(x[1]))
         self.update_items_cache([x[1] for x in all_series])
         series_id = db.series_id(id_, index_is_id=True)
         inval = ''
@@ -586,7 +586,7 @@ class SeriesIndexEdit(QDoubleSpinBox):
 
 # }}}
 
-class BuddyLabel(QLabel): # {{{
+class BuddyLabel(QLabel):  # {{{
 
     def __init__(self, buddy):
         QLabel.__init__(self, buddy.LABEL)
@@ -698,11 +698,11 @@ class FormatsManager(QWidget):
         self.formats.setIconSize(QSize(32, 32))
         self.formats.setMaximumWidth(200)
 
-        l.addWidget(self.cover_from_format_button,    0, 0, 1, 1)
+        l.addWidget(self.cover_from_format_button, 0, 0, 1, 1)
         l.addWidget(self.metadata_from_format_button, 2, 0, 1, 1)
-        l.addWidget(self.add_format_button,           0, 2, 1, 1)
-        l.addWidget(self.remove_format_button,        2, 2, 1, 1)
-        l.addWidget(self.formats,                     0, 1, 3, 1)
+        l.addWidget(self.add_format_button, 0, 2, 1, 1)
+        l.addWidget(self.remove_format_button, 2, 2, 1, 1)
+        l.addWidget(self.formats, 0, 1, 3, 1)
 
         self.temp_files = []
 
@@ -882,7 +882,7 @@ class FormatsManager(QWidget):
         self.temp_files = []
 # }}}
 
-class Cover(ImageView): # {{{
+class Cover(ImageView):  # {{{
 
     download_cover = pyqtSignal()
 
@@ -1052,7 +1052,7 @@ class Cover(ImageView): # {{{
 
 # }}}
 
-class CommentsEdit(Editor): # {{{
+class CommentsEdit(Editor):  # {{{
 
     @dynamic_property
     def current_val(self):
@@ -1076,7 +1076,7 @@ class CommentsEdit(Editor): # {{{
         return True
 # }}}
 
-class RatingEdit(QSpinBox): # {{{
+class RatingEdit(QSpinBox):  # {{{
     LABEL = _('&Rating:')
     TOOLTIP = _('Rating of this book. 0-5 stars')
 
@@ -1120,7 +1120,7 @@ class RatingEdit(QSpinBox): # {{{
 
 # }}}
 
-class TagsEdit(EditWithComplete): # {{{
+class TagsEdit(EditWithComplete):  # {{{
     LABEL = _('Ta&gs:')
     TOOLTIP = '<p>'+_('Tags categorize the book. This is particularly '
             'useful while searching. <br><br>They can be any words '
@@ -1174,7 +1174,6 @@ class TagsEdit(EditWithComplete): # {{{
             self.current_val = d.tags
             self.all_items = db.all_tags()
 
-
     def commit(self, db, id_):
         self.books_to_refresh |= db.set_tags(
                 id_, self.current_val, notify=False, commit=False,
@@ -1183,7 +1182,7 @@ class TagsEdit(EditWithComplete): # {{{
 
 # }}}
 
-class LanguagesEdit(LE): # {{{
+class LanguagesEdit(LE):  # {{{
 
     LABEL = _('&Languages:')
     TOOLTIP = _('A comma separated list of languages for this book')
@@ -1194,8 +1193,10 @@ class LanguagesEdit(LE): # {{{
 
     @dynamic_property
     def current_val(self):
-        def fget(self): return self.lang_codes
-        def fset(self, val): self.lang_codes = val
+        def fget(self):
+            return self.lang_codes
+        def fset(self, val):
+            self.lang_codes = val
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
@@ -1221,7 +1222,7 @@ class LanguagesEdit(LE): # {{{
         return True
 # }}}
 
-class IdentifiersEdit(QLineEdit): # {{{
+class IdentifiersEdit(QLineEdit):  # {{{
     LABEL = _('I&ds:')
     BASE_TT = _('Edit the identifiers for this book. '
             'For example: \n\n%s')%(
@@ -1309,7 +1310,7 @@ class IdentifiersEdit(QLineEdit): # {{{
 
 # }}}
 
-class ISBNDialog(QDialog) : # {{{
+class ISBNDialog(QDialog):  # {{{
 
     def __init__(self, parent, txt):
         QDialog.__init__(self, parent)
@@ -1320,7 +1321,7 @@ class ISBNDialog(QDialog) : # {{{
         l.addWidget(w, 0, 0, 1, 2)
         w = QLabel(_('ISBN:'))
         l.addWidget(w, 1, 0, 1, 1)
-        self.line_edit = w = QLineEdit();
+        self.line_edit = w = QLineEdit()
         w.setText(txt)
         w.selectAll()
         w.textChanged.connect(self.checkText)
@@ -1361,7 +1362,7 @@ class ISBNDialog(QDialog) : # {{{
 
 # }}}
 
-class PublisherEdit(EditWithComplete): # {{{
+class PublisherEdit(EditWithComplete):  # {{{
     LABEL = _('&Publisher:')
 
     def __init__(self, parent):
@@ -1388,7 +1389,7 @@ class PublisherEdit(EditWithComplete): # {{{
     def initialize(self, db, id_):
         self.books_to_refresh = set([])
         all_publishers = db.all_publishers()
-        all_publishers.sort(key=lambda x : sort_key(x[1]))
+        all_publishers.sort(key=lambda x: sort_key(x[1]))
         self.update_items_cache([x[1] for x in all_publishers])
         publisher_id = db.publisher_id(id_, index_is_id=True)
         inval = ''
@@ -1421,7 +1422,7 @@ class DateEdit(QDateTimeEdit):
     ATTR = 'timestamp'
     TWEAK = 'gui_timestamp_display_format'
 
-    def __init__(self, parent):
+    def __init__(self, parent, create_clear_button=True):
         QDateTimeEdit.__init__(self, parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
@@ -1435,10 +1436,11 @@ class DateEdit(QDateTimeEdit):
         self.setCalendarWidget(self.cw)
         self.setMinimumDateTime(UNDEFINED_QDATETIME)
         self.setSpecialValueText(_('Undefined'))
-        self.clear_button = QToolButton(parent)
-        self.clear_button.setIcon(QIcon(I('trash.png')))
-        self.clear_button.setToolTip(_('Clear date'))
-        self.clear_button.clicked.connect(self.reset_date)
+        if create_clear_button:
+            self.clear_button = QToolButton(parent)
+            self.clear_button.setIcon(QIcon(I('trash.png')))
+            self.clear_button.setToolTip(_('Clear date'))
+            self.clear_button.clicked.connect(self.reset_date)
 
     def reset_date(self, *args):
         self.current_val = None
