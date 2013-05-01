@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-04-26 04:42+0000\n"
-"PO-Revision-Date: 2013-04-26 13:13+0000\n"
-"Last-Translator: Simon Schütte <simonschuette@arcor.de>\n"
+"PO-Revision-Date: 2013-04-30 11:44+0000\n"
+"Last-Translator: MilliMarg <mirian.margiani@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-27 05:28+0000\n"
+"X-Launchpad-Export-Date: 2013-05-01 04:43+0000\n"
 "X-Generator: Launchpad (build 16580)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1146,7 +1146,7 @@ msgstr "vor Tagen"
 #: /home/kovid/work/calibre/src/calibre/db/search.py:198
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:374
 msgid "Number conversion error: {0}"
-msgstr ""
+msgstr "Zahl der Konvertierungsfehler: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:204
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:380
@@ -5299,6 +5299,8 @@ msgstr "Maximale Anzahl der zu findenden Coverbilder"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:36
 msgid "The maximum number of covers to process from the search result"
 msgstr ""
+"Die maximale Anzahl an Titelseiten, die aus den Suchergebnissen verarbeitet "
+"werden sollen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/douban.py:155
 msgid ""
@@ -5591,6 +5593,20 @@ msgid ""
 "{0}\n"
 "<p>Note that polishing only works on files in the %s formats.</p>"
 msgstr ""
+"<p><i>Den letzten Schliff geben</i> ist alles, was die Bücher den Eindruck "
+"der Perfektion vermitteln lässt.</p>\n"
+"\n"
+"<p>Das Polieren versucht, die Veränderungen im internen Code des Buches zu "
+"minimieren.\n"
+"Nicht wie bei der Konvertierung, vereinfacht es kein CSS, nennt <i>keine</i> "
+"Datein um, verändert die Schriftgrösse <i>nicht</i>, passt <i>keine</i> "
+"Einzüge an, etc. Alles führt nur dazu, dass eine minimale Anzahl Änderungen "
+"für den erwünschten Effekt benötigt werden.</p>\n"
+"\n"
+"<p>Sie sollten dies als letzten Schritt bei der Erstellung Ihres E-Books "
+"verwenden.</p>\n"
+"{0}\n"
+"<p>Merke, dass dies nur bei Büchern im %s Format funktioniert.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:446
@@ -11576,12 +11592,12 @@ msgstr "E&tiketten für neue Bücher auswäheln:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:50
 #, python-format
 msgid "Next [%s]"
-msgstr ""
+msgstr "Nächste(s) [%s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:52
 #, python-format
 msgid "Previous [%s]"
-msgstr ""
+msgstr "Vorherige(s) [%s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:71
 msgid "Fit &cover within view"
@@ -12791,6 +12807,13 @@ msgid ""
 " the EPUB from ORIGINAL_EPUB. Useful if you did a bulk\n"
 " conversion of a large number of books and something went wrong."
 msgstr ""
+"Wenn eine Konvertierung in dasselbe Format, das jetzt schon vorhanden ist, "
+"stattfindet,\n"
+"z.B. EPUB nach EPUB, speichert Calibre die Original-Datei\n"
+" als ORIGINAL_EPUB. Diese Option lässt Calibre\n"
+" das EPUB von ORIGINAL_EPUB wiederherstellen. Nützlich,\n"
+" wenn Sie eine Massen-Konvertierung einer grossen Menge Bücher\n"
+" machen, und etwas schief geht."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:608
 msgid "Restore pre conversion &originals, if available"
@@ -16571,6 +16594,8 @@ msgstr "Auftrags&priorität:"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:168
 msgid "Virtual library to apply when the current library is opened:"
 msgstr ""
+"Virtuelle Bibliothek zur Anwendung, wenn die aktuelle Bibliothek geöffnet "
+"ist:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:169
 msgid ""
@@ -18873,7 +18898,7 @@ msgstr "Max. &ungruppierte Posten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:158
 msgid "Virtual library to apply:"
-msgstr ""
+msgstr "Virtuelle Bibliothek zur Anwendung:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:159
 msgid ""
@@ -19368,7 +19393,7 @@ msgstr "Gespeicherte Suche erstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:336
 msgid "There is no search to save"
-msgstr ""
+msgstr "Keine Suche zum Speichern vorhanden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:351
 msgid "Delete current search"
@@ -19423,7 +19448,7 @@ msgstr "Gespeicherte Suchen verwalten"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:26
 #, python-format
 msgid "Create a Virtual Library based on %s"
-msgstr ""
+msgstr "Erstelle eine virtuelle Bibliothek, basierend auf %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:34
 #, python-format
@@ -19477,7 +19502,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:172
 msgid "Saved searches recognized in the expression:"
-msgstr ""
+msgstr "Gespeicherte Suchen im Ausdruck erkannt:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:212
 msgid "Search text changed"
@@ -19488,6 +19513,8 @@ msgid ""
 "The virtual library name or the search text has changed. Do you want to "
 "discard these changes?"
 msgstr ""
+"Der Name der virtuellen Bibliothek oder der Suchtext hat sich geändert. "
+"Wollen Sie diese Änderungen verwerfen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:250
 msgid "No name"
@@ -19495,11 +19522,11 @@ msgstr "Kein Name"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:251
 msgid "You must provide a name for the new virtual library"
-msgstr ""
+msgstr "Sie müssen einen Name für die neue virtuelle Bibliothek angeben."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:257
 msgid "A virtual library name cannot begin with \"*\""
-msgstr ""
+msgstr "Der Name einer virtuellen Bibliothek kann nicht mit \"*\" beginnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:262
 msgid "Name already in use"
