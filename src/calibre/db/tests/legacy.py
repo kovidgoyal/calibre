@@ -82,6 +82,7 @@ class LegacyTest(BaseTest):
     # }}}
 
     def test_legacy_getters(self):  # {{{
+        ' Test various functions to get individual bits of metadata '
         old = self.init_old()
         getters = ('path', 'abspath', 'title', 'authors', 'series',
                    'publisher', 'author_sort', 'authors', 'comments',
@@ -89,11 +90,29 @@ class LegacyTest(BaseTest):
                    'timestamp', 'uuid', 'pubdate', 'ondevice',
                    'metadata_last_modified', 'languages')
         oldvals = {g:tuple(getattr(old, g)(x) for x in xrange(3)) + tuple(getattr(old, g)(x, True) for x in (1,2,3)) for g in getters}
+        old_rows = {tuple(r)[:5] for r in old}
         old.close()
         db = self.init_legacy()
         newvals = {g:tuple(getattr(db, g)(x) for x in xrange(3)) + tuple(getattr(db, g)(x, True) for x in (1,2,3)) for g in getters}
+        new_rows = {tuple(r)[:5] for r in db}
         for x in (oldvals, newvals):
             x['tags'] = tuple(set(y.split(',')) if y else y for y in x['tags'])
         self.assertEqual(oldvals, newvals)
+        self.assertEqual(old_rows, new_rows)
+
     # }}}
 
+    def test_legacy_coverage(self):  # {{{
+        ' Check that the emulation of the legacy interface is (almost) total '
+        cl = self.cloned_library
+        db = self.init_old(cl)
+        ndb = self.init_legacy()
+
+        SKIP_ATTRS = {'TCat_Tag'}
+
+        for attr in dir(db):
+            if attr in SKIP_ATTRS:
+                continue
+            self.assertTrue(hasattr(ndb, attr), 'The attribute %s is missing' % attr)
+            # obj = getattr(db, attr)
+    # }}}

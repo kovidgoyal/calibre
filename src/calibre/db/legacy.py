@@ -11,6 +11,7 @@ from functools import partial
 
 from calibre.db.backend import DB
 from calibre.db.cache import Cache
+from calibre.db.categories import CATEGORY_SORTS
 from calibre.db.view import View
 from calibre.utils.date import utcnow
 
@@ -20,6 +21,10 @@ class LibraryDatabase(object):
 
     PATH_LIMIT = DB.PATH_LIMIT
     WINDOWS_LIBRARY_PATH_LIMIT = DB.WINDOWS_LIBRARY_PATH_LIMIT
+    CATEGORY_SORTS = CATEGORY_SORTS
+    MATCH_TYPE = ('any', 'all')
+    CUSTOM_DATA_TYPES = frozenset(['rating', 'text', 'comments', 'datetime',
+        'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
 
     @classmethod
     def exists_at(cls, path):
@@ -147,4 +152,8 @@ class LibraryDatabase(object):
         if create_dirs and not os.path.exists(path):
             os.makedirs(path)
         return path
+
+    def __iter__(self):
+        for row in self.data.iterall():
+            yield row
 
