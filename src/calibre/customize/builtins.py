@@ -630,7 +630,6 @@ plugins += input_profiles + output_profiles
 # }}}
 
 # Device driver plugins {{{
-from calibre.devices.apple.driver import ITUNES
 from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
 from calibre.devices.blackberry.driver import BLACKBERRY, PLAYBOOK
 from calibre.devices.cybook.driver import CYBOOK, ORIZON
@@ -644,6 +643,7 @@ from calibre.devices.jetbook.driver import (JETBOOK, MIBUK, JETBOOK_MINI,
         JETBOOK_COLOR)
 from calibre.devices.kindle.driver import (KINDLE, KINDLE2, KINDLE_DX,
         KINDLE_FIRE)
+from calibre.devices.apple.driver import ITUNES
 from calibre.devices.nook.driver import NOOK, NOOK_COLOR
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.prst1.driver import PRST1
