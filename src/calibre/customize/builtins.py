@@ -68,7 +68,7 @@ class TXT2TXTZ(FileTypePlugin):
                 images.append(path)
 
         # Markdown inline
-        for m in re.finditer(ur'(?mu)\!\[([^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*)\]\s*\((?P<path>[^\)]*)\)', txt):
+        for m in re.finditer(ur'(?mu)\!\[([^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*)\]\s*\((?P<path>[^\)]*)\)', txt):  # noqa
             path = m.group('path')
             if path and not os.path.isabs(path) and guess_type(path)[0] in OEB_IMAGES and os.path.exists(os.path.join(base_dir, path)):
                 images.append(path)
@@ -78,7 +78,7 @@ class TXT2TXTZ(FileTypePlugin):
         for m in re.finditer(ur'(?mu)^(\ ?\ ?\ ?)\[(?P<id>[^\]]*)\]:\s*(?P<path>[^\s]*)$', txt):
             if m.group('id') and m.group('path'):
                 refs[m.group('id')] = m.group('path')
-        for m in re.finditer(ur'(?mu)\!\[([^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*)\]\s*\[(?P<id>[^\]]*)\]', txt):
+        for m in re.finditer(ur'(?mu)\!\[([^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*)\]\s*\[(?P<id>[^\]]*)\]', txt):  # noqa
             path = refs.get(m.group('id'), None)
             if path and not os.path.isabs(path) and guess_type(path)[0] in OEB_IMAGES and os.path.exists(os.path.join(base_dir, path)):
                 images.append(path)
@@ -414,7 +414,7 @@ class ZipMetadataReader(MetadataReaderPlugin):
         from calibre.ebooks.metadata.zip import get_metadata
         return get_metadata(stream)
 
-plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
+plugins += [x for x in list(locals().values()) if isinstance(x, type) and
                                         x.__name__.endswith('MetadataReader')]
 
 # }}}
@@ -527,7 +527,7 @@ class TXTZMetadataWriter(MetadataWriterPlugin):
         from calibre.ebooks.metadata.extz import set_metadata
         set_metadata(stream, mi)
 
-plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
+plugins += [x for x in list(locals().values()) if isinstance(x, type) and
                                         x.__name__.endswith('MetadataWriter')]
 
 # }}}
@@ -1263,7 +1263,7 @@ class StoreAmazonUKKindleStore(StoreBase):
 
 class StoreArchiveOrgStore(StoreBase):
     name = 'Archive.org'
-    description = u'An Internet library offering permanent access for researchers, historians, scholars, people with disabilities, and the general public to historical collections that exist in digital format.'
+    description = u'An Internet library offering permanent access for researchers, historians, scholars, people with disabilities, and the general public to historical collections that exist in digital format.'  # noqa
     actual_plugin = 'calibre.gui2.store.stores.archive_org_plugin:ArchiveOrgStore'
 
     drm_free_only = True
@@ -1290,7 +1290,7 @@ class StoreBNStore(StoreBase):
 class StoreBeamEBooksDEStore(StoreBase):
     name = 'Beam EBooks DE'
     author = 'Charles Haley'
-    description = u'Bei uns finden Sie: Tausende deutschsprachige eBooks; Alle eBooks ohne hartes DRM; PDF, ePub und Mobipocket Format; Sofortige Verfügbarkeit - 24 Stunden am Tag; Günstige Preise; eBooks für viele Lesegeräte, PC,Mac und Smartphones; Viele Gratis eBooks'
+    description = u'Bei uns finden Sie: Tausende deutschsprachige eBooks; Alle eBooks ohne hartes DRM; PDF, ePub und Mobipocket Format; Sofortige Verfügbarkeit - 24 Stunden am Tag; Günstige Preise; eBooks für viele Lesegeräte, PC,Mac und Smartphones; Viele Gratis eBooks'  # noqa
     actual_plugin = 'calibre.gui2.store.stores.beam_ebooks_de_plugin:BeamEBooksDEStore'
 
     drm_free_only = True
@@ -1310,7 +1310,7 @@ class StoreBiblioStore(StoreBase):
 class StoreBookotekaStore(StoreBase):
     name = 'Bookoteka'
     author = u'Tomasz Długosz'
-    description = u'E-booki w Bookotece dostępne są w formacie EPUB oraz PDF. Publikacje sprzedawane w Bookotece są objęte prawami autorskimi. Zobowiązaliśmy się chronić te prawa, ale bez ograniczania dostępu do książki użytkownikowi, który nabył ją w legalny sposób. Dlatego też Bookoteka stosuje tak zwany „watermarking transakcyjny” czyli swego rodzaju znaki wodne.'
+    description = u'E-booki w Bookotece dostępne są w formacie EPUB oraz PDF. Publikacje sprzedawane w Bookotece są objęte prawami autorskimi. Zobowiązaliśmy się chronić te prawa, ale bez ograniczania dostępu do książki użytkownikowi, który nabył ją w legalny sposób. Dlatego też Bookoteka stosuje tak zwany „watermarking transakcyjny” czyli swego rodzaju znaki wodne.'  # noqa
     actual_plugin = 'calibre.gui2.store.stores.bookoteka_plugin:BookotekaStore'
 
     drm_free_only = True
@@ -1329,7 +1329,7 @@ class StoreChitankaStore(StoreBase):
 
 class StoreDieselEbooksStore(StoreBase):
     name = 'Diesel eBooks'
-    description = u'Instant access to over 2.4 million titles from hundreds of publishers including Harlequin, HarperCollins, John Wiley & Sons, McGraw-Hill, Simon & Schuster and Random House.'
+    description = u'Instant access to over 2.4 million titles from hundreds of publishers including Harlequin, HarperCollins, John Wiley & Sons, McGraw-Hill, Simon & Schuster and Random House.'  # noqa
     actual_plugin = 'calibre.gui2.store.stores.diesel_ebooks_plugin:DieselEbooksStore'
 
     headquarters = 'US'
@@ -1358,7 +1358,7 @@ class StoreEbookpointStore(StoreBase):
 
 class StoreEbookscomStore(StoreBase):
     name = 'eBooks.com'
-    description = u'Sells books in multiple electronic formats in all categories. Technical infrastructure is cutting edge, robust and scalable, with servers in the US and Europe.'
+    description = u'Sells books in multiple electronic formats in all categories. Technical infrastructure is cutting edge, robust and scalable, with servers in the US and Europe.'  # noqa
     actual_plugin = 'calibre.gui2.store.stores.ebooks_com_plugin:EbookscomStore'
 
     headquarters = 'US'
@@ -1386,7 +1386,7 @@ class StoreEbooksGratuitsStore(StoreBase):
 
 class StoreEHarlequinStore(StoreBase):
     name = 'eHarlequin'
-    description = u'A global leader in series romance and one of the world\'s leading publishers of books for women. Offers women a broad range of reading from romance to bestseller fiction, from young adult novels to erotic literature, from nonfiction to fantasy, from African-American novels to inspirational romance, and more.'
+    description = u'A global leader in series romance and one of the world\'s leading publishers of books for women. Offers women a broad range of reading from romance to bestseller fiction, from young adult novels to erotic literature, from nonfiction to fantasy, from African-American novels to inspirational romance, and more.'  # noqa
     actual_plugin = 'calibre.gui2.store.stores.eharlequin_plugin:EHarlequinStore'
 
     headquarters = 'CA'
@@ -1406,7 +1406,7 @@ class StoreEKnigiStore(StoreBase):
 class StoreEmpikStore(StoreBase):
     name = 'Empik'
     author = u'Tomasz Długosz'
-    description  = u'Empik to marka o unikalnym dziedzictwie i legendarne miejsce, dawne “okno na świat”. Jest obecna w polskim krajobrazie kulturalnym od 60 lat (wcześniej jako Kluby Międzynarodowej Prasy i Książki).'
+    description  = u'Empik to marka o unikalnym dziedzictwie i legendarne miejsce, dawne “okno na świat”. Jest obecna w polskim krajobrazie kulturalnym od 60 lat (wcześniej jako Kluby Międzynarodowej Prasy i Książki).'  # noqa
     actual_plugin = 'calibre.gui2.store.stores.empik_plugin:EmpikStore'
 
     headquarters = 'PL'
@@ -1425,7 +1425,7 @@ class StoreEscapeMagazineStore(StoreBase):
 
 class StoreFeedbooksStore(StoreBase):
     name = 'Feedbooks'
-    description = u'Feedbooks is a cloud publishing and distribution service, connected to a large ecosystem of reading systems and social networks. Provides a variety of genres from independent and classic books.'
+    description = u'Feedbooks is a cloud publishing and distribution service, connected to a large ecosystem of reading systems and social networks. Provides a variety of genres from independent and classic books.'  # noqa
     actual_plugin = 'calibre.gui2.store.stores.feedbooks_plugin:FeedbooksStore'
 
     headquarters = 'FR'
@@ -1451,7 +1451,7 @@ class StoreGoogleBooksStore(StoreBase):
 
 class StoreGutenbergStore(StoreBase):
     name = 'Project Gutenberg'
-    description = u'The first producer of free ebooks. Free in the United States because their copyright has expired. They may not be free of copyright in other countries. Readers outside of the United States must check the copyright laws of their countries before downloading or redistributing our ebooks.'
+    description = u'The first producer of free ebooks. Free in the United States because their copyright has expired. They may not be free of copyright in other countries. Readers outside of the United States must check the copyright laws of their countries before downloading or redistributing our ebooks.'  # noqa
     actual_plugin = 'calibre.gui2.store.stores.gutenberg_plugin:GutenbergStore'
 
     drm_free_only = True
@@ -1460,7 +1460,7 @@ class StoreGutenbergStore(StoreBase):
 
 class StoreKoboStore(StoreBase):
     name = 'Kobo'
-    description = u'With over 2.3 million eBooks to browse we have engaged readers in over 200 countries in Kobo eReading. Our eBook listings include New York Times Bestsellers, award winners, classics and more!'
+    description = u'With over 2.3 million eBooks to browse we have engaged readers in over 200 countries in Kobo eReading. Our eBook listings include New York Times Bestsellers, award winners, classics and more!'  # noqa
     actual_plugin = 'calibre.gui2.store.stores.kobo_plugin:KoboStore'
 
     headquarters = 'CA'
@@ -1550,7 +1550,7 @@ class StoreNextoStore(StoreBase):
 class StoreNookUKStore(StoreBase):
     name = 'Nook UK'
     author = 'John Schember'
-    description = u'Barnes & Noble S.Ã  r.l, a subsidiary of Barnes & Noble, Inc., a leading retailer of content, digital media and educational products, is proud to bring the award-winning NOOKÂ® reading experience and a leading digital bookstore to the UK.'
+    description = u'Barnes & Noble S.Ã  r.l, a subsidiary of Barnes & Noble, Inc., a leading retailer of content, digital media and educational products, is proud to bring the award-winning NOOKÂ® reading experience and a leading digital bookstore to the UK.'  # noqa
     actual_plugin = 'calibre.gui2.store.stores.nook_uk_plugin:NookUKStore'
 
     headquarters = 'UK'
@@ -1627,7 +1627,7 @@ class StoreVirtualoStore(StoreBase):
 class StoreWaterstonesUKStore(StoreBase):
     name = 'Waterstones UK'
     author = 'Charles Haley'
-    description = u'Waterstone\'s mission is to be the leading Bookseller on the High Street and online providing customers the widest choice, great value and expert advice from a team passionate about Bookselling.'
+    description = u'Waterstone\'s mission is to be the leading Bookseller on the High Street and online providing customers the widest choice, great value and expert advice from a team passionate about Bookselling.'  # noqa
     actual_plugin = 'calibre.gui2.store.stores.waterstones_uk_plugin:WaterstonesUKStore'
 
     headquarters = 'UK'
