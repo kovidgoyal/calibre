@@ -1730,6 +1730,28 @@ if __name__ == '__main__':
     try:
         subprocess.check_call(['python', '-c', textwrap.dedent(
         '''
+        import init_calibre  # noqa
+
+        def doit():
+            import calibre.customize.builtins as b  # noqa
+
+        def show_stats():
+            from pstats import Stats
+            s = Stats('/tmp/calibre_stats')
+            s.sort_stats('cumulative')
+            s.print_stats(30)
+
+        import cProfile
+        cProfile.run('doit()', '/tmp/calibre_stats')
+        show_stats()
+
+        '''
+        )])
+    except subprocess.CalledProcessError:
+        raise SystemExit(1)
+    try:
+        subprocess.check_call(['python', '-c', textwrap.dedent(
+        '''
         from __future__ import print_function
         import time, sys, init_calibre
         st = time.time()
