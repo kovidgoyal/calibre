@@ -13,7 +13,8 @@ from threading import Thread, Event
 from io import BytesIO
 
 from calibre.customize.ui import metadata_plugins
-from calibre.ebooks.metadata.sources.base import msprefs, create_log
+from calibre.ebooks.metadata.sources.base import create_log
+from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.utils.magick.draw import Image, save_cover_data_to
 
 class Worker(Thread):

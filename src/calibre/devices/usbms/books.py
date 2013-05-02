@@ -12,7 +12,7 @@ from calibre.devices.mime import mime_type_ext
 from calibre.devices.interface import BookList as _BookList
 from calibre.constants import preferred_encoding
 from calibre import isbytestring, force_unicode
-from calibre.utils.config import device_prefs, tweaks
+from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 
 class Book(Metadata):
@@ -124,6 +124,7 @@ class CollectionsBookList(BookList):
 
     def get_collections(self, collection_attributes):
         from calibre.devices.usbms.driver import debug_print
+        from calibre.utils.config import device_prefs
         debug_print('Starting get_collections:', device_prefs['manage_device_metadata'])
         debug_print('Renaming rules:', tweaks['sony_collection_renaming_rules'])
         debug_print('Formatting template:', tweaks['sony_collection_name_template'])

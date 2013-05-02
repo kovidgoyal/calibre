@@ -4,7 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from calibre.utils.config import Config, ConfigProxy
+from calibre.utils.config_base import Config, ConfigProxy
 
 
 class DeviceConfig(object):

@@ -26,7 +26,7 @@ from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre import prints
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.constants import DEBUG
-from calibre.utils.config import prefs
+from calibre.utils.config_base import prefs
 
 
 class KOBO(USBMS):
@@ -1193,7 +1193,7 @@ class KOBO(USBMS):
             db.set_comment(db_id, mi.comments)
 
             # Add bookmark file to db_id
-            # NOTE: As it is, this copied the book from the device back to the library. That meant it replaced the 
+            # NOTE: As it is, this copied the book from the device back to the library. That meant it replaced the
             #     existing file. Taking this out for that reason, but some books have a ANNOT file that could be
             #     copied.
 #            db.add_format_with_hooks(db_id, bm.value.bookmark_extension,
@@ -1212,10 +1212,10 @@ class KOBOTOUCH(KOBO):
     min_dbversion_series            = 65
     min_dbversion_archive           = 71
     min_dbversion_images_on_sdcard  = 77
-    
+
     max_supported_fwversion         = (2,5,1)
     min_fwversion_images_on_sdcard  = (2,4,1)
-    
+
     has_kepubs = True
 
     booklist_class = KTCollectionsBookList

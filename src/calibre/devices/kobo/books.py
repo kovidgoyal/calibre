@@ -10,7 +10,7 @@ from calibre.utils.icu import sort_key
 
 from calibre.devices.usbms.books import Book as Book_
 from calibre.devices.usbms.books import CollectionsBookList
-from calibre.utils.config import prefs
+from calibre.utils.config_base import prefs
 from calibre.devices.usbms.driver import debug_print
 from calibre.ebooks.metadata import author_to_author_sort
 

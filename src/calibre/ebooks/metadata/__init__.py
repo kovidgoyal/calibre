@@ -11,7 +11,7 @@ from urlparse import urlparse
 
 from calibre import relpath, guess_type, remove_bracketed_text, prints
 
-from calibre.utils.config import tweaks
+from calibre.utils.config_base import tweaks
 
 try:
     _author_pat = re.compile(tweaks['authors_split_regex'])

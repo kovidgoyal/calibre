@@ -5,7 +5,7 @@ __copyright__ = '2010, Gregory Riker'
 __docformat__ = 'restructuredtext en'
 
 
-import cStringIO, ctypes, datetime, os, platform, re, shutil, sys, tempfile, time
+import cStringIO, ctypes, datetime, os, re, shutil, sys, tempfile, time
 
 from calibre import fit_image, confirm_config_name, strftime as _strftime
 from calibre.constants import (
@@ -17,7 +17,7 @@ from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.metadata import (author_to_author_sort, authors_to_string,
     MetaInformation, title_sort)
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.utils.config import config_dir, dynamic, prefs
+from calibre.utils.config_base import config_dir, prefs
 from calibre.utils.zipfile import ZipFile
 
 DEBUG = CALIBRE_DEBUG
@@ -96,6 +96,7 @@ class AppleOpenFeedback(OpenFeedback):
 
             def do_it(self, return_code):
                 from calibre.utils.logging import default_log
+                from calibre.utils.config import dynamic
                 if return_code == self.Accepted:
                     default_log.info(" Apple driver ENABLED")
                     dynamic[confirm_config_name(self.cd.plugin.DISPLAY_DISABLE_DIALOG)] = False
@@ -882,6 +883,7 @@ class ITUNES(DriverBase):
         if False:
             # Display a dialog recommending using 'Connect to iTunes' if user hasn't
             # previously disabled the dialog
+            from calibre.utils.config import dynamic
             if dynamic.get(confirm_config_name(self.DISPLAY_DISABLE_DIALOG), True):
                 raise AppleOpenFeedback(self)
             else:
@@ -2480,6 +2482,7 @@ class ITUNES(DriverBase):
             '''
 
             if DEBUG:
+                import platform
                 logger().info("  %s %s" % (__appname__, __version__))
                 logger().info("  [OSX %s, %s %s (%s), %s driver version %d.%d.%d]" %
                  (platform.mac_ver()[0],
