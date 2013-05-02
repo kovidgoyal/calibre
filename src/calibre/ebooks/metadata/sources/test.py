@@ -14,8 +14,8 @@ from threading import Event
 from calibre.customize.ui import all_metadata_plugins
 from calibre import prints, sanitize_file_name2
 from calibre.ebooks.metadata import check_isbn
-from calibre.ebooks.metadata.sources.base import (create_log,
-        get_cached_cover_urls, msprefs)
+from calibre.ebooks.metadata.sources.base import create_log, get_cached_cover_urls
+from calibre.ebooks.metadata.sources.prefs import msprefs
 
 def isbn_test(isbn):
     isbn_ = check_isbn(isbn)

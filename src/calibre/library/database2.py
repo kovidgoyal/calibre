@@ -11,7 +11,6 @@ import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
 from collections import defaultdict
 import threading, random
 from itertools import repeat
-from math import ceil, floor
 
 from calibre import prints, force_unicode
 from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
@@ -42,6 +41,7 @@ from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.formatter_functions import load_user_template_functions
+from calibre.db import _get_next_series_num_for_list, _get_series_values
 from calibre.db.errors import NoSuchFormat
 from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.db.categories import Tag, CATEGORY_SORTS
@@ -2194,31 +2194,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return self._get_next_series_num_for_list(series_indices)
 
     def _get_next_series_num_for_list(self, series_indices):
-        if not series_indices:
-            if isinstance(tweaks['series_index_auto_increment'], (int, float)):
-                return float(tweaks['series_index_auto_increment'])
-            return 1.0
-        series_indices = [x[0] for x in series_indices]
-        if tweaks['series_index_auto_increment'] == 'next':
-            return floor(series_indices[-1]) + 1
-        if tweaks['series_index_auto_increment'] == 'first_free':
-            for i in range(1, 10000):
-                if i not in series_indices:
-                    return i
-            # really shouldn't get here.
-        if tweaks['series_index_auto_increment'] == 'next_free':
-            for i in range(int(ceil(series_indices[0])), 10000):
-                if i not in series_indices:
-                    return i
-            # really shouldn't get here.
-        if tweaks['series_index_auto_increment'] == 'last_free':
-            for i in range(int(ceil(series_indices[-1])), 0, -1):
-                if i not in series_indices:
-                    return i
-            return series_indices[-1] + 1
-        if isinstance(tweaks['series_index_auto_increment'], (int, float)):
-            return float(tweaks['series_index_auto_increment'])
-        return 1.0
+        return _get_next_series_num_for_list(series_indices)
 
     def set(self, row, column, val, allow_case_change=False):
         '''
@@ -3156,17 +3132,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     series_index_pat = re.compile(r'(.*)\s+\[([.0-9]+)\]$')
 
     def _get_series_values(self, val):
-        if not val:
-            return (val, None)
-        match = self.series_index_pat.match(val.strip())
-        if match is not None:
-            idx = match.group(2)
-            try:
-                idx = float(idx)
-                return (match.group(1).strip(), idx)
-            except:
-                pass
-        return (val, None)
+        return _get_series_values(val)
 
     def set_series(self, id, series, notify=True, commit=True, allow_case_change=True):
         self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))

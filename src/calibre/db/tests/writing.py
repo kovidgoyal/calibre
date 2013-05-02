@@ -355,4 +355,7 @@ class WritingTest(BaseTest):
             ae(opf.authors, ['author1', 'author2'])
     # }}}
 
+    def test_set_cover(self):
+        ' Test setting of cover '
+        self.assertTrue(False, 'TODO: test set_cover() and set_metadata()')
 

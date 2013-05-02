@@ -11,7 +11,8 @@ from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 from calibre.utils.formatter_functions import formatter_functions
-from calibre.ebooks.metadata.book.base import SafeFormat, Metadata
+from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.library.coloring import (displayable_columns)
 
 
@@ -178,7 +179,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
                 list = reversed(self.paren_positions[0:found_pp])
             for pp in list:
                 if pp.paren == chr:
-                    stack += 1;
+                    stack += 1
                 elif stack:
                     stack -= 1
                 else:

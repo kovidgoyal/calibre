@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import inspect
 from calibre.db.tests.base import BaseTest
 
 class LegacyTest(BaseTest):
@@ -82,6 +83,7 @@ class LegacyTest(BaseTest):
     # }}}
 
     def test_legacy_getters(self):  # {{{
+        ' Test various functions to get individual bits of metadata '
         old = self.init_old()
         getters = ('path', 'abspath', 'title', 'authors', 'series',
                    'publisher', 'author_sort', 'authors', 'comments',
@@ -89,11 +91,43 @@ class LegacyTest(BaseTest):
                    'timestamp', 'uuid', 'pubdate', 'ondevice',
                    'metadata_last_modified', 'languages')
         oldvals = {g:tuple(getattr(old, g)(x) for x in xrange(3)) + tuple(getattr(old, g)(x, True) for x in (1,2,3)) for g in getters}
+        old_rows = {tuple(r)[:5] for r in old}
         old.close()
         db = self.init_legacy()
         newvals = {g:tuple(getattr(db, g)(x) for x in xrange(3)) + tuple(getattr(db, g)(x, True) for x in (1,2,3)) for g in getters}
+        new_rows = {tuple(r)[:5] for r in db}
         for x in (oldvals, newvals):
             x['tags'] = tuple(set(y.split(',')) if y else y for y in x['tags'])
         self.assertEqual(oldvals, newvals)
+        self.assertEqual(old_rows, new_rows)
+
+    # }}}
+
+    def test_legacy_coverage(self):  # {{{
+        ' Check that the emulation of the legacy interface is (almost) total '
+        cl = self.cloned_library
+        db = self.init_old(cl)
+        ndb = self.init_legacy()
+
+        SKIP_ATTRS = {
+            'TCat_Tag', '_add_newbook_tag', '_clean_identifier', '_library_id_', '_set_authors',
+            '_set_title', '_set_custom', '_update_author_in_cache',
+        }
+        SKIP_ARGSPEC = {
+            '__init__',
+        }
+
+        for attr in dir(db):
+            if attr in SKIP_ATTRS:
+                continue
+            self.assertTrue(hasattr(ndb, attr), 'The attribute %s is missing' % attr)
+            obj, nobj  = getattr(db, attr), getattr(ndb, attr)
+            if attr not in SKIP_ARGSPEC:
+                try:
+                    argspec = inspect.getargspec(obj)
+                except TypeError:
+                    pass
+                else:
+                    self.assertEqual(argspec, inspect.getargspec(nobj), 'argspec for %s not the same' % attr)
     # }}}
 

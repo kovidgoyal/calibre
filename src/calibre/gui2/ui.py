@@ -606,6 +606,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if restrictions:
             restrictions = ' :: ' + restrictions
             font.setBold(True)
+            font.setItalic(True)
         self.virtual_library.setFont(font)
         title = u'{0} - || {1}{2} ||'.format(
                 __appname__, self.iactions['Choose Library'].library_name(), restrictions)

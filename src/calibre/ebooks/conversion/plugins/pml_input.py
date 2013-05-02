@@ -10,7 +10,6 @@ import shutil
 
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
-from calibre.utils.zipfile import ZipFile
 
 class PMLInput(InputFormatPlugin):
 
@@ -86,6 +85,7 @@ class PMLInput(InputFormatPlugin):
                 accelerators):
         from calibre.ebooks.metadata.toc import TOC
         from calibre.ebooks.metadata.opf2 import OPFCreator
+        from calibre.utils.zipfile import ZipFile
 
         self.options = options
         self.log = log

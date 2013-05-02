@@ -6,7 +6,7 @@ Created on 25 May 2010
 import copy, traceback
 from collections import OrderedDict
 
-from calibre.utils.config import tweaks
+from calibre.utils.config_base import tweaks
 
 class TagsIcons(dict):
     '''

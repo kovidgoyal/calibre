@@ -17,8 +17,6 @@ from calibre.devices.errors import PathError
 from calibre.devices.mtp.base import debug
 from calibre.devices.mtp.defaults import DeviceDefaults
 from calibre.ptempfile import SpooledTemporaryFile, PersistentTemporaryDirectory
-from calibre.utils.config import from_json, to_json, JSONConfig
-from calibre.utils.date import now, isoformat, utcnow
 from calibre.utils.filenames import shorten_components_to
 
 BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
@@ -57,6 +55,7 @@ class MTP_DEVICE(BASE):
 
     @property
     def prefs(self):
+        from calibre.utils.config import JSONConfig
         if self._prefs is None:
             self._prefs = p = JSONConfig('mtp_devices')
             p.defaults['format_map'] = self.FORMATS
@@ -103,6 +102,7 @@ class MTP_DEVICE(BASE):
                 del self.prefs[x]
 
     def open(self, device, library_uuid):
+        from calibre.utils.date import isoformat, utcnow
         self.current_library_uuid = library_uuid
         self.location_paths = None
         self.driveinfo = {}
@@ -128,6 +128,8 @@ class MTP_DEVICE(BASE):
 
     # Device information {{{
     def _update_drive_info(self, storage, location_code, name=None):
+        from calibre.utils.date import isoformat, now
+        from calibre.utils.config import from_json, to_json
         import uuid
         f = storage.find_path((self.DRIVEINFO,))
         dinfo = {}

@@ -421,7 +421,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         ret = d.start(title=self.title.current_val, authors=self.authors.current_val,
                 identifiers=self.identifiers.current_val)
         if ret == d.Accepted:
-            from calibre.ebooks.metadata.sources.base import msprefs
+            from calibre.ebooks.metadata.sources.prefs import msprefs
             mi = d.book
             dummy = Metadata(_('Unknown'))
             for f in msprefs['ignore_fields']:

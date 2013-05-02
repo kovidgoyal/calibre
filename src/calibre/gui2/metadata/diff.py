@@ -78,7 +78,13 @@ class LineEdit(QLineEdit):
 
     @property
     def is_blank(self):
-        return not self.current_val.strip()
+        val = self.current_val.strip()
+        if self.field in {'title', 'authors'}:
+            return val in {'', _('Unknown')}
+        return not val
+
+    def same_as(self, other):
+        return self.current_val == other.current_val
 
 class LanguagesEdit(LE):
 
@@ -111,6 +117,9 @@ class LanguagesEdit(LE):
     def is_blank(self):
         return not self.current_val
 
+    def same_as(self, other):
+        return self.current_val == other.current_val
+
 class RatingsEdit(RatingEdit):
 
     changed = pyqtSignal()
@@ -135,6 +144,9 @@ class RatingsEdit(RatingEdit):
     def is_blank(self):
         return self.value() == 0
 
+    def same_as(self, other):
+        return self.current_val == other.current_val
+
 class DateEdit(PubdateEdit):
 
     changed = pyqtSignal()
@@ -157,7 +169,10 @@ class DateEdit(PubdateEdit):
 
     @property
     def is_blank(self):
-        return self.current_val == UNDEFINED_DATE
+        return self.current_val.year <= UNDEFINED_DATE.year
+
+    def same_as(self, other):
+        return self.text() == other.text()
 
 class SeriesEdit(LineEdit):
 
@@ -229,6 +244,9 @@ class CommentsEdit(Editor):
     def is_blank(self):
         return not self.current_val.strip()
 
+    def same_as(self, other):
+        return self.current_val == other.current_val
+
 class CoverView(QWidget):
 
     changed = pyqtSignal()
@@ -287,6 +305,9 @@ class CoverView(QWidget):
             with PersistentTemporaryFile('.jpg') as pt:
                 pt.write(pixmap_to_data(self.pixmap))
                 mi.cover = pt.name
+
+    def same_as(self, other):
+        return self.current_val == other.current_val
 
     def sizeHint(self):
         return QSize(225, 300)
@@ -383,7 +404,7 @@ class CompareSingle(QWidget):
 
     def changed(self, field):
         w = self.widgets[field]
-        if w.new.current_val != w.old.current_val and (not self.blank_as_equal or not w.new.is_blank):
+        if not w.new.same_as(w.old) and (not self.blank_as_equal or not w.new.is_blank):
             w.label.setFont(self.changed_font)
         else:
             w.label.setFont(QApplication.font())
@@ -412,8 +433,14 @@ class CompareSingle(QWidget):
 
 class CompareMany(QDialog):
 
-    def __init__(self, ids, get_metadata, field_metadata, parent=None, window_title=None, skip_button_tooltip=None,
-                 accept_all_tooltip=None, reject_all_tooltip=None, **kwargs):
+    def __init__(self, ids, get_metadata, field_metadata, parent=None,
+                 window_title=None,
+                 reject_button_tooltip=None,
+                 accept_all_tooltip=None,
+                 reject_all_tooltip=None,
+                 revert_tooltip=None,
+                 intro_msg=None,
+                 **kwargs):
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -424,7 +451,12 @@ class CompareMany(QDialog):
         self.accepted = OrderedDict()
         self.window_title = window_title or _('Compare metadata')
 
-        self.compare_widget = CompareSingle(field_metadata, parent=parent, **kwargs)
+        if intro_msg:
+            self.la = la = QLabel(intro_msg)
+            la.setWordWrap(True)
+            l.addWidget(la)
+
+        self.compare_widget = CompareSingle(field_metadata, parent=parent, revert_tooltip=revert_tooltip, **kwargs)
         self.sa = sa = QScrollArea()
         l.addWidget(sa)
         sa.setWidget(self.compare_widget)
@@ -432,20 +464,24 @@ class CompareMany(QDialog):
 
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.Cancel)
         bb.rejected.connect(self.reject)
-        self.aarb = b = bb.addButton(_('&Accept all remaining'), bb.YesRole)
-        if accept_all_tooltip:
-            b.setToolTip(accept_all_tooltip)
-        b.clicked.connect(self.accept_all_remaining)
-        self.rarb = b = bb.addButton(_('Re&ject all remaining'), bb.NoRole)
-        if reject_all_tooltip:
-            b.setToolTip(reject_all_tooltip)
-        b.clicked.connect(self.reject_all_remaining)
-        self.sb = b = bb.addButton(_('&Reject'), bb.ActionRole)
-        b.clicked.connect(partial(self.next_item, False))
-        if skip_button_tooltip:
-            b.setToolTip(skip_button_tooltip)
-        self.nb = b = bb.addButton(_('&Next'), bb.ActionRole)
-        b.setIcon(QIcon(I('forward.png')))
+        if self.total > 1:
+            self.aarb = b = bb.addButton(_('&Accept all remaining'), bb.YesRole)
+            b.setIcon(QIcon(I('ok.png')))
+            if accept_all_tooltip:
+                b.setToolTip(accept_all_tooltip)
+            b.clicked.connect(self.accept_all_remaining)
+            self.rarb = b = bb.addButton(_('Re&ject all remaining'), bb.NoRole)
+            b.setIcon(QIcon(I('minus.png')))
+            if reject_all_tooltip:
+                b.setToolTip(reject_all_tooltip)
+            b.clicked.connect(self.reject_all_remaining)
+            self.sb = b = bb.addButton(_('&Reject'), bb.ActionRole)
+            b.clicked.connect(partial(self.next_item, False))
+            b.setIcon(QIcon(I('minus.png')))
+            if reject_button_tooltip:
+                b.setToolTip(reject_button_tooltip)
+        self.nb = b = bb.addButton(_('&Next') if self.total > 1 else _('&OK'), bb.ActionRole)
+        b.setIcon(QIcon(I('forward.png' if self.total > 1 else 'ok.png')))
         b.clicked.connect(partial(self.next_item, True))
         b.setDefault(True)
         l.addWidget(bb)
@@ -460,6 +496,7 @@ class CompareMany(QDialog):
         geom = gprefs.get('diff_dialog_geom', None)
         if geom is not None:
             self.restoreGeometry(geom)
+        b.setFocus(Qt.OtherFocusReason)
 
     def accept(self):
         gprefs.set('diff_dialog_geom', bytearray(self.saveGeometry()))
@@ -478,12 +515,14 @@ class CompareMany(QDialog):
             return self.accept()
         if self.current_mi is not None:
             changed = self.compare_widget.apply_changes()
+        if self.current_mi is not None:
+            old_id = self.ids.pop(0)
+            self.accepted[old_id] = (changed, self.current_mi) if accept else (False, None)
+        if not self.ids:
+            return self.accept()
         self.setWindowTitle(self.window_title + _(' [%(num)d of %(tot)d]') % dict(
             num=(self.total - len(self.ids) + 1), tot=self.total))
         oldmi, newmi = self.get_metadata(self.ids[0])
-        old_id = self.ids.pop(0)
-        if self.current_mi is not None:
-            self.accepted[old_id] = (changed, self.current_mi) if accept else (False, None)
         self.compare_widget(oldmi, newmi)
 
     def accept_all_remaining(self):
