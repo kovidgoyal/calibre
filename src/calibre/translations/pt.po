@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-04-26 04:42+0000\n"
-"PO-Revision-Date: 2013-04-30 10:39+0000\n"
+"PO-Revision-Date: 2013-05-01 17:38+0000\n"
 "Last-Translator: pedro jorge oliveira <pedrojorgeoliveira93@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-05-01 04:43+0000\n"
+"X-Launchpad-Export-Date: 2013-05-02 05:10+0000\n"
 "X-Generator: Launchpad (build 16580)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -253,7 +253,7 @@ msgstr "Loja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:650
 msgid "An ebook store."
-msgstr "Uma loja de ebooks."
+msgstr "Uma loja de livros digitais."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:21
 msgid ""
@@ -307,11 +307,11 @@ msgstr "Ler metadados de %s ficheiros"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:337
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Ler metadados de ebooks em arquivos RAR"
+msgstr "Lê meta-dados de livros digitais em ficheiros RAR"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:411
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Ler metadados de ebooks em arquivos ZIP"
+msgstr "Lê meta-dados de livros digitais em ficheiros ZIP"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:428
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:438
@@ -349,7 +349,7 @@ msgstr "Converter livros para diversos formatos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:792
 msgid "Fine tune your ebooks"
-msgstr "Ajuste os seus livros"
+msgstr "Ajuste os seus livros digitais"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:797
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
@@ -370,7 +370,7 @@ msgstr "Ler livros na biblioteca Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid "Download news from the internet in ebook form"
-msgstr "Transferir novidades da Internet no formato \"ebook\""
+msgstr "Transferir novidades da Internet no formato de livro digital"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:822
 msgid "Show a list of related books quickly"
@@ -579,8 +579,8 @@ msgstr "Enviar livros para os dispositivos"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1068
 msgid "Control how calibre transfers files to your ebook reader"
 msgstr ""
-"Controlar a forma como o Calibre envia os livros para o seu leitor de "
-"\"ebooks\""
+"Controlar a forma como o Calibre envia os livros para o seu leitor de livros "
+"digitais"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1074
 msgid "Metadata plugboards"
@@ -732,7 +732,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:310
 #, python-format
 msgid "Convert ebooks to the %s format"
-msgstr "Converter \"ebooks\" para o formato %s"
+msgstr "Converter livros digitais para o formato %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:47
 msgid "Input profile"
@@ -1283,7 +1283,7 @@ msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
 msgstr ""
-"\"Copiar arquivos à pasta de mídia %s do iTunes\" está ativo nas "
+"\"Copiar ficheiros à pasta de mídia %s do iTunes\" está ativo nas "
 "Preferências|Avançadas do iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:131
@@ -4087,10 +4087,10 @@ msgid ""
 "of Contents at level three. Each entry is added under the previous level two "
 "entry. See the XPath Tutorial in the calibre User Manual for examples."
 msgstr ""
-"Expressão XPath que especifica todas as estiquetas que deverão ser "
+"Expressão XPath que especifica todas as etiquetas que deverão ser "
 "adicionadas no sumário do terceiro nível. Cada entrada será adicionada "
 "abaixo da entrada anterior no nível dois. Consulte o tutorial do XPath no "
-"Manual do Usuário do calibre para exemplos."
+"Manual do Utilizador do calibre para exemplos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:256
 msgid ""
@@ -5580,10 +5580,13 @@ msgid ""
 "all the book metadata such as title, tags, authors, series, comments,\n"
 "etc. Any previous book jacket will be replaced.</p>"
 msgstr ""
+"<p> Insere uma pagina de \"sobrecapa\" no inicio do livro que  contem\n"
+"todos os metadados como o titulo, etiquetas,autor, series, comentários,\n"
+"etc.Qualquer sobrecapa anterior será substituída.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:74
 msgid "<p>Remove a previous inserted book jacket page.</p>\n"
-msgstr "<p>Remover a sobre capa inserida anteriormente.</p>\n"
+msgstr "<p>Remover a sobrecapa inserida anteriormente.</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:78
 msgid ""
@@ -6099,7 +6102,7 @@ msgstr "Nenhuns livros seleccionados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:96
 msgid "Cannot add files as no books are selected"
-msgstr "Não pôde adicionar arquivos porque nenhum livro está selecionado"
+msgstr "Não pôde adicionar ficheiros porque nenhum livro está selecionado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:120
@@ -7336,6 +7339,13 @@ msgid ""
 "the\n"
 "                  ORIGINAL_* format before running it.</p>"
 msgstr ""
+"<p>se você tem ambos EPUB e EPUB_ORIGINAL na sua biblioteca,\n"
+"                  então o refinamento irá ser executado no EPUB_ORIGINAL \n"
+"                  (o mesmo irá acontecer para outros * formatos_ORIGINAL).  "
+"então se\n"
+"                   quer  que o refinamento não aconteça no  ORIGINAL_* "
+"formato, elimine o \n"
+"                formato_ORIGINAL antes de executar.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:48
 #, python-format
@@ -7374,12 +7384,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:66
 #, python-format
 msgid "<h3>Book Jacket</h3>%s"
-msgstr "<h3>Lombada do Livro</h3>%s"
+msgstr "<h3>Sobrecapa do Livro</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:67
 #, python-format
 msgid "<h3>Remove Book Jacket</h3>%s"
-msgstr "<h3>Remover a Lombada do Livro</h3>%s"
+msgstr "<h3>Remover a Sobrecapa do Livro</h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:73
 msgid "Select actions to perform:"
@@ -7409,7 +7419,7 @@ msgstr "Adicionar metadados como \"&lombada do livro\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:83
 msgid "&Remove a previously inserted book jacket"
-msgstr "&Remover uma lombada previamente inserida"
+msgstr "&Remover a Sobrecapa previamente inserida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:93
 msgid "About"
@@ -7478,6 +7488,9 @@ msgid ""
 "option to work, you must also select the option to update metadata in the "
 "book files. Do you want to select it?"
 msgstr ""
+"Você seleccionou a opção de adicionar metadados como a\"sobrecapa\".Para que "
+"está opção funcione, você deve também seleccionar a opção para actualizar os "
+"metadados no ficheiro do livro. Deseja selecciona-la?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:218
 msgid "You must select at least one action, or click Cancel."
@@ -7769,7 +7782,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:22
 msgid "Search for ebooks"
-msgstr "Procurar por ebooks"
+msgstr "Procurar por livros digitais"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "this author"
@@ -7811,8 +7824,8 @@ msgid ""
 "Calibre helps you find the ebooks you want by searching the websites of "
 "various commercial and public domain book sources for you."
 msgstr ""
-"O Calibre ajuda-o a encontrar os ebooks que deseja procurando em vários "
-"sites de livros de domínio público e comerciais."
+"O Calibre ajuda-o a encontrar os livros digitais que deseja procurando em "
+"vários sites de livros de domínio público e comerciais."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:138
 msgid ""
@@ -9317,7 +9330,7 @@ msgstr " KB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:63
 msgid "&Flatten EPUB file structure"
-msgstr "Ni&velar a estrutura de arquivos do EPUB"
+msgstr "Ni&velar a estrutura de ficheiros do EPUB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:12
 msgid "FB2 Input"
@@ -9358,7 +9371,7 @@ msgid ""
 "size-rescaling\">User Manual</a> for a discussion of how font size rescaling "
 "works.</p>"
 msgstr ""
-"<p>Este assitente irá ajudá-lo a escolher uma chave de tamanho de fonte "
+"<p>Este assistente irá ajudá-lo a escolher uma chave de tamanho de fonte "
 "apropriada às suas necessidades. Introduza o tamanho base da fonte no "
 "documento de entrada e depois introduza um tamanho de fonte de entrada. O "
 "assistente irá exibir para que tamanho de fonte ele será mapeado pelo "
@@ -9369,8 +9382,8 @@ msgstr ""
 "tamanho de fonte chave for especificado, o calibre irá usar os valores do "
 "perfil de saída actual. </p>\n"
 "<p>Consulte o <a href=\"http://manual.calibre-ebook.com/conversion.html#font-"
-"size-rescaling\">Manual do Usuário</a> para saber como o reescalonamento de "
-"fontes funciona.</p>"
+"size-rescaling\">Manual do Utilizador</a> para saber como o reescalonamento "
+"de fontes funciona.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:108
 msgid "&Output document"
@@ -9445,14 +9458,14 @@ msgid ""
 "processing\">User Manual</a>."
 msgstr ""
 "<b>Processamento heurístico</b> significa que o calibre irá buscar no seu "
-"livro padrões comuns e corrigí-los. Como o nome implica, isto envolve "
+"livro padrões comuns e corrigi-los. Como o nome implica, isto envolve "
 "trabalho de estimativa, o que significa que pode acabar piorando o resultado "
 "da conversão se o calibre estimar erradamente. Portanto, ele está "
 "desactivado por padrão. Frequentemente, se a conversão não ficar como "
 "esperava, activar o processamento heurístico pode melhorar o resultado. Leia "
 "mais sobre as várias opções de processamento heurístico no <a "
 "href=\"http://manual.calibre-ebook.com/conversion.html#heuristic-"
-"processing\">manual do usuário</a>"
+"processing\">Manual do Utilizador</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:114
 msgid "Enable &heuristic processing"
@@ -10861,7 +10874,7 @@ msgstr "Listar os livros presentes no aparelho"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:485
 msgid "Prepare files for transfer from device"
-msgstr "Preparar arquivos para transferência a partir do dispositivo"
+msgstr "Preparar ficheiros para transferência a partir do dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:496
 msgid "Get annotations from device"
@@ -12905,11 +12918,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:484
 msgid "User plugins"
-msgstr "Plugins de usuário"
+msgstr "Plugins de utilizador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:489
 msgid "User Plugins"
-msgstr "Plugins de usuário"
+msgstr "Plugins de Utilizador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:497
 msgid "Filter list of plugins"
@@ -15155,7 +15168,7 @@ msgstr "Escolha um local para a sua nova biblioteca de e-books do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:183
 msgid "Initializing user interface..."
-msgstr "Iniciando interface de usuário"
+msgstr "A iniciar o interface do utilizador..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:214
 msgid "Repairing failed"
@@ -15963,8 +15976,8 @@ msgid ""
 "Swap the firstname and lastname of the author. This affects only metadata "
 "read from file names."
 msgstr ""
-"Trocar o primeiro e último nome do autor. Isso afeta apenas metadados lidos "
-"de nomes de arquivos."
+"Trocar o primeiro e último nome do autor. Isso afecta apenas metadados lidos "
+"de nomes de ficheiros."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:154
 msgid "&Swap author firstname and lastname"
@@ -16023,7 +16036,7 @@ msgid ""
 "<b>WARNING:</b> Files in the above folder will be deleted after being added "
 "to calibre."
 msgstr ""
-"<b>AVISO:</b> Os arquivos na pasta acima serão excluídos depois de serem "
+"<b>AVISO:</b> Os ficheiros na pasta acima serão excluídos depois de serem "
 "adicionados ao calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:164
@@ -16040,7 +16053,7 @@ msgstr "Verificar por  & duplicados quando os ficheiros são auto adicionados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:169
 msgid "Folder to auto-add files from"
-msgstr "Pasta da qual adicionar automaticamente arquivos"
+msgstr "Pasta da qual adicionar automaticamente ficheiros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:170
 msgid "Browse for folder"
@@ -16049,7 +16062,7 @@ msgstr "Procurar pasta"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:172
 msgid "Automatically &convert added files to the current output format"
 msgstr ""
-"&Converter automaticamente arquivos adicionados ao formado de saída actual"
+"&Converter automaticamente ficheiros adicionados ao formado de saída actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:173
 msgid "&Automatic Adding"
@@ -19150,7 +19163,7 @@ msgstr "Comprar nesta loja apoia o criador do calibre: %s."
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:145
 #, python-format
 msgid "This store distributes ebooks in the following formats: %s"
-msgstr "Esta loja distribui ebooks nos seguintes formatos: %s"
+msgstr "Esta loja distribui livros digitais nos seguintes formatos: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/results_view.py:47
 msgid "Configure..."
@@ -19411,7 +19424,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:88
 msgid "File is not a supported ebook type. Save to disk?"
-msgstr "O ficheiro não é um tipo de ebook suportado. Guardar no disco?"
+msgstr "O ficheiro não é um tipo de livro suportado. Guardar no disco?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:59
 msgid "Home"
@@ -19972,7 +19985,7 @@ msgstr ""
 "<b>AVISO:</b> O calibre suporta apenas a criação de Tabelas de Conteúdos "
 "lineares em arquivos AZW3. Numa TdC linear, cada entrada deve apontar para "
 "um local depois da entrada anterior. Se criar uma TdC não-linear, ela será "
-"automaticamente rearranjada dentro do arquivo AZW3."
+"automaticamente rerranjada dentro do arquivo AZW3."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:227
 msgid ""
@@ -20189,7 +20202,7 @@ msgstr "Nenhum dos formatos é suportados (formatos disponíveis: %s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:116
 msgid "This book has no actual ebook files"
-msgstr "Este livro não tem arquivos de ebook reais"
+msgstr "Este livro não tem ficheiros de ebook reais"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:121
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:247
@@ -21023,8 +21036,8 @@ msgid ""
 "This ebook is corrupted and cannot be opened. If you downloaded it from "
 "somewhere, try downloading it again."
 msgstr ""
-"Este ebook está danificado e não pode ser aberto. Se tiver transferido de "
-"algum lugar, tente fazer o transferir novamente."
+"Este livro digital está danificado e não pode ser aberto. Se tiver "
+"transferido de algum lugar, tente fazer a transferência novamente."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:117
 msgid "Book format"
@@ -21112,7 +21125,7 @@ msgstr "Escolher o livro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:712
 msgid "Ebooks"
-msgstr "Livros"
+msgstr "Livros digitais"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:728
 #, python-format
