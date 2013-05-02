@@ -18,12 +18,12 @@ from calibre.ebooks.metadata import (author_to_author_sort, authors_to_string,
     MetaInformation, title_sort)
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.config import config_dir, dynamic, prefs
-from calibre.utils.date import now, parse_date
 from calibre.utils.zipfile import ZipFile
 
 DEBUG = CALIBRE_DEBUG
 
 def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
+    from calibre.utils.date import now
 
     if not hasattr(dt, 'timetuple'):
         dt = now()
@@ -413,6 +413,7 @@ class ITUNES(DriverBase):
         list of device books.
 
         """
+        from calibre.utils.date import parse_date
         if not oncard:
             if DEBUG:
                 logger().info("%s.books():" % self.__class__.__name__)
@@ -1557,6 +1558,7 @@ class ITUNES(DriverBase):
     def _create_new_book(self, fpath, metadata, path, db_added, lb_added, thumb, format):
         '''
         '''
+        from calibre.utils.date import parse_date
         if DEBUG:
             logger().info(" %s._create_new_book()" % self.__class__.__name__)
 
@@ -2776,6 +2778,7 @@ class ITUNES(DriverBase):
     def _update_epub_metadata(self, fpath, metadata):
         '''
         '''
+        from calibre.utils.date import parse_date, now
         from calibre.ebooks.metadata.epub import set_metadata
         from lxml import etree
 
@@ -3248,6 +3251,7 @@ class ITUNES_ASYNC(ITUNES):
         list of device books.
 
         """
+        from calibre.utils.date import parse_date
         if not oncard:
             if DEBUG:
                 logger().info("%s.books()" % self.__class__.__name__)

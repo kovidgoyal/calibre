@@ -17,7 +17,6 @@ from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import (Source, Option, fixcase,
         fixauthors)
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.utils.date import parse_only_date
 from calibre.utils.localization import canonicalize_lang
 
 class Worker(Thread):  # Get details {{{
@@ -494,6 +493,7 @@ class Worker(Thread):  # Get details {{{
     def parse_pubdate(self, pd):
         for x in reversed(pd.xpath(self.publisher_xpath)):
             if x.tail:
+                from calibre.utils.date import parse_only_date
                 ans = x.tail
                 date = ans.rpartition('(')[-1].replace(')', '').strip()
                 date = self.delocalize_datestr(date)

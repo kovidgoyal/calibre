@@ -13,7 +13,6 @@ from calibre.ebooks.metadata.book import (SC_COPYABLE_FIELDS,
         SC_FIELDS_COPY_NOT_NULL, STANDARD_METADATA_FIELDS,
         TOP_LEVEL_IDENTIFIERS, ALL_METADATA_FIELDS)
 from calibre.library.field_metadata import FieldMetadata
-from calibre.utils.date import isoformat, format_date, parse_only_date
 from calibre.utils.icu import sort_key
 
 # Special sets used to optimize the performance of getting and setting
@@ -602,6 +601,7 @@ class Metadata(object):
         returns the tuple (display_name, formatted_value, original_value,
         field_metadata)
         '''
+        from calibre.utils.date import format_date
 
         # Handle custom series index
         if key.startswith('#') and key.endswith('_index'):
@@ -686,6 +686,7 @@ class Metadata(object):
         A string representation of this object, suitable for printing to
         console
         '''
+        from calibre.utils.date import isoformat
         from calibre.ebooks.metadata import authors_to_string
         ans = []
         def fmt(x, y):
@@ -778,6 +779,7 @@ def field_from_string(field, raw, field_metadata):
     elif dt == 'rating':
         val = float(raw) * 2
     elif dt == 'datetime':
+        from calibre.utils.date import parse_only_date
         val = parse_only_date(raw)
     elif dt == 'bool':
         if raw.lower() in {'true', 'yes', 'y'}:

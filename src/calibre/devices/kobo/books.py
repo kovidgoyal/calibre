@@ -11,7 +11,6 @@ from calibre.utils.icu import sort_key
 from calibre.devices.usbms.books import Book as Book_
 from calibre.devices.usbms.books import CollectionsBookList
 from calibre.utils.config import prefs
-from calibre.utils.date import parse_date
 from calibre.devices.usbms.driver import debug_print
 from calibre.ebooks.metadata import author_to_author_sort
 
@@ -19,6 +18,7 @@ class Book(Book_):
 
     def __init__(self, prefix, lpath, title=None, authors=None, mime=None, date=None, ContentType=None,
                  thumbnail_name=None, size=None, other=None):
+        from calibre.utils.date import parse_date
 #        debug_print('Book::__init__ - title=', title)
         show_debug = title is not None and title.lower().find("xxxxx") >= 0
         if show_debug:

@@ -13,7 +13,6 @@ from future_builtins import map
 from calibre import browser, random_user_agent
 from calibre.customize import Plugin
 from calibre.utils.config import JSONConfig
-from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, lower, upper
 from calibre.ebooks.metadata import check_isbn
 
@@ -162,6 +161,7 @@ def fixauthors(authors):
 
 def fixcase(x):
     if x:
+        from calibre.utils.titlecase import titlecase
         x = titlecase(x)
     return x
 

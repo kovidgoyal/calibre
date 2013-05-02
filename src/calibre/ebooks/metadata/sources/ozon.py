@@ -12,7 +12,6 @@ from calibre import as_unicode
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.utils.date import parse_only_date
 
 class Ozon(Source):
     name = 'OZON.ru'
@@ -460,6 +459,7 @@ def _normalizeAuthorNameWithInitials(name): # {{{
 # }}}
 
 def toPubdate(log, yearAsString): # {{{
+    from calibre.utils.date import parse_only_date
     res = None
     if yearAsString:
         try:
