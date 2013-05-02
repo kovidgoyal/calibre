@@ -5,10 +5,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil
+import os, shutil, copy
 from functools import partial
 
-from PyQt4.Qt import QMenu, QModelIndex, QTimer
+from PyQt4.Qt import QMenu, QModelIndex, QTimer, QIcon
 
 from calibre.gui2 import error_dialog, Dispatcher, question_dialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
@@ -16,7 +16,8 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.device_category_editor import DeviceCategoryEditor
 from calibre.gui2.actions import InterfaceAction
 from calibre.ebooks.metadata import authors_to_string
-from calibre.ebooks.metadata.opf2 import OPF
+from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.opf2 import OPF, metadata_to_opf
 from calibre.utils.icu import sort_key
 from calibre.db.errors import NoSuchFormat
 
@@ -147,14 +148,18 @@ class EditMetadataAction(InterfaceAction):
 
         payload = (id_map, tdir, log_file, lm_map,
                 failed_ids.union(failed_covers))
-        self.gui.proceed_question(self.apply_downloaded_metadata, payload,
+        review_apply = partial(self.apply_downloaded_metadata, True)
+        normal_apply = partial(self.apply_downloaded_metadata, False)
+        self.gui.proceed_question(normal_apply, payload,
                 log_file, _('Download log'), _('Download complete'), msg,
                 det_msg=det_msg, show_copy_button=show_copy_button,
                 cancel_callback=partial(self.cleanup_bulk_download, tdir),
                 log_is_file=True, checkbox_msg=checkbox_msg,
-                checkbox_checked=False)
+                checkbox_checked=False, action_callback=review_apply,
+                action_label=_('Review downloaded metadata'),
+                action_icon=QIcon(I('auto_author_sort.png')))
 
-    def apply_downloaded_metadata(self, payload, *args):
+    def apply_downloaded_metadata(self, review, payload, *args):
         good_ids, tdir, log_file, lm_map, failed_ids = payload
         if not good_ids:
             return
@@ -193,6 +198,57 @@ class EditMetadataAction(InterfaceAction):
             if not os.path.exists(cov):
                 cov = None
             id_map[bid] = (opf, cov)
+
+        if review:
+            def get_metadata(book_id):
+                oldmi = db.get_metadata(book_id, index_is_id=True, get_cover=True, cover_as_data=True)
+                opf, cov = id_map[book_id]
+                if opf is None:
+                    newmi = Metadata(oldmi.title, authors=tuple(oldmi.authors))
+                else:
+                    with open(opf, 'rb') as f:
+                        newmi = OPF(f, basedir=os.path.dirname(opf), populate_spine=False).to_book_metadata()
+                        newmi.cover, newmi.cover_data = None, (None, None)
+                        for x in ('title', 'authors'):
+                            if newmi.is_null(x):
+                                # Title and author are set to null if they are
+                                # the same as the originals as an optimization,
+                                # we undo that, as it is confusing.
+                                newmi.set(x, copy.copy(oldmi.get(x)))
+                if cov:
+                    with open(cov, 'rb') as f:
+                        newmi.cover_data = ('jpg', f.read())
+                return oldmi, newmi
+            from calibre.gui2.metadata.diff import CompareMany
+            d = CompareMany(
+                set(id_map), get_metadata, db.field_metadata, parent=self.gui,
+                window_title=_('Review downloaded metadata'),
+                reject_button_tooltip=_('Discard downloaded metadata for this book'),
+                accept_all_tooltip=_('Use the downloaded metadata for all remaining books'),
+                reject_all_tooltip=_('Discard downloaded metadata for all remaining books'),
+                revert_tooltip=_('Discard the downloaded value for: %s'),
+                intro_msg=_('The downloaded metadata is on the left and the original metadata'
+                            ' is on the right. If a downloaded value is blank or unknown,'
+                            ' the original value is used.')
+            )
+            if d.exec_() == d.Accepted:
+                nid_map = {}
+                for book_id, (changed, mi) in d.accepted.iteritems():
+                    if mi is None:  # discarded
+                        continue
+                    if changed:
+                        opf, cov = id_map[book_id]
+                        cfile = mi.cover
+                        mi.cover, mi.cover_data = None, (None, None)
+                        with open(opf, 'wb') as f:
+                            f.write(metadata_to_opf(mi))
+                        if cfile:
+                            shutil.copyfile(cfile, cov)
+                            os.remove(cfile)
+                    nid_map[book_id] = id_map[book_id]
+                id_map = nid_map
+            else:
+                id_map = {}
 
         restrict_to_failed = bool(args and args[0])
         if restrict_to_failed:
