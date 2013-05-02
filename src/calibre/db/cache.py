@@ -22,6 +22,7 @@ from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
 from calibre.db.write import get_series_values
 from calibre.db.lazy import FormatMetadata, FormatsList
+from calibre.ebooks.metadata import string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import (base_dir, PersistentTemporaryFile,
@@ -669,7 +670,7 @@ class Cache(object):
             self.dirtied_cache.update(new_dirtied)
 
     @write_api
-    def set_field(self, name, book_id_to_val_map, allow_case_change=True):
+    def set_field(self, name, book_id_to_val_map, allow_case_change=True, do_path_update=True):
         f = self.fields[name]
         is_series = f.metadata['datatype'] == 'series'
         update_path = name in {'title', 'authors'}
@@ -702,7 +703,7 @@ class Cache(object):
             for name in self.composites:
                 self.fields[name].pop_cache(dirtied)
 
-        if dirtied and update_path:
+        if dirtied and update_path and do_path_update:
             self._update_path(dirtied, mark_as_dirtied=False)
 
         self._mark_as_dirty(dirtied)
@@ -821,6 +822,102 @@ class Cache(object):
                 pass
             if callback is not None:
                 callback(book_id, mi, True)
+
+    @write_api
+    def set_cover(self, book_id_data_map):
+        ''' Set the cover for this book.  data can be either a QImage,
+        QPixmap, file object or bytestring '''
+
+        for book_id, data in book_id_data_map.iteritems():
+            try:
+                path = self._field_for('path', book_id).replace('/', os.sep)
+            except AttributeError:
+                self._update_path((book_id,))
+                path = self._field_for('path', book_id).replace('/', os.sep)
+
+            self.backend.set_cover(book_id, path, data)
+        self._set_field('cover', {book_id:1 for book_id in book_id_data_map})
+
+    @write_api
+    def set_metadata(self, book_id, mi, ignore_errors=False, force_changes=False,
+                     set_title=True, set_authors=True):
+        if callable(getattr(mi, 'to_book_metadata', None)):
+            # Handle code passing in an OPF object instead of a Metadata object
+            mi = mi.to_book_metadata()
+
+        def set_field(name, val, **kwargs):
+            self._set_field(name, {book_id:val}, **kwargs)
+
+        path_changed = False
+        if set_title and mi.title:
+            path_changed = True
+            set_field('title', mi.title, do_path_update=False)
+        if set_authors:
+            path_changed = True
+            if not mi.authors:
+                mi.authors = [_('Unknown')]
+            authors = []
+            for a in mi.authors:
+                authors += string_to_authors(a)
+            set_field('authors', authors, do_path_update=False)
+
+        if path_changed:
+            self._update_path((book_id,))
+
+        def protected_set_field(name, val, **kwargs):
+            try:
+                set_field(name, val, **kwargs)
+            except:
+                if ignore_errors:
+                    traceback.print_exc()
+                else:
+                    raise
+
+        for field in ('rating', 'series_index', 'timestamp'):
+            val = getattr(mi, field)
+            if val is not None:
+                protected_set_field(field, val)
+
+        # force_changes has no effect on cover manipulation
+        cdata = mi.cover_data[1]
+        if cdata is None and isinstance(mi.cover, basestring) and mi.cover and os.access(mi.cover, os.R_OK):
+            with lopen(mi.cover, 'rb') as f:
+                raw = f.read()
+                if raw:
+                    cdata = raw
+        if cdata is not None:
+            self._set_cover({book_id: cdata})
+
+        for field in ('title_sort', 'author_sort', 'publisher', 'series',
+            'tags', 'comments', 'languages', 'pubdate'):
+            val = mi.get(field, None)
+            if (force_changes and val is not None) or not mi.is_null(field):
+                protected_set_field(field, val)
+
+        # identifiers will always be replaced if force_changes is True
+        mi_idents = mi.get_identifiers()
+        if force_changes:
+            protected_set_field('identifiers', mi_idents)
+        elif mi_idents:
+            identifiers = self._field_for('identifiers', book_id, default_value={})
+            for key, val in mi_idents.iteritems():
+                if val and val.strip():  # Don't delete an existing identifier
+                    identifiers[icu_lower(key)] = val
+            protected_set_field('identifiers', identifiers)
+
+        user_mi = mi.get_all_user_metadata(make_copy=False)
+        fm = self.field_metadata
+        for key in user_mi.iterkeys():
+            if (key in fm and
+                    user_mi[key]['datatype'] == fm[key]['datatype'] and
+                    (user_mi[key]['datatype'] != 'text' or
+                     user_mi[key]['is_multiple'] == fm[key]['is_multiple'])):
+                val = mi.get(key, None)
+                if force_changes or val is not None:
+                    protected_set_field(key, val)
+                    extra = mi.get_extra(key)
+                    if extra is not None:
+                        protected_set_field(key+'_index', extra)
 
     # }}}
 

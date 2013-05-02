@@ -25,6 +25,7 @@ from calibre.utils.config import to_json, from_json, prefs, tweaks
 from calibre.utils.date import utcfromtimestamp, parse_date
 from calibre.utils.filenames import (is_case_sensitive, samefile, hardlink_file, ascii_filename,
                                      WindowsAtomicFolderMove)
+from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_tree
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
@@ -972,6 +973,23 @@ class DB(object):
                             shutil.copyfileobj(f, d)
                         return True
         return False
+
+    def set_cover(self, book_id, path, data):
+        path = os.path.abspath(os.path.join(self.library_path, path))
+        if not os.path.exists(path):
+            os.makedirs(path)
+        path = os.path.join(path, 'cover.jpg')
+        if callable(getattr(data, 'save', None)):
+            from calibre.gui2 import pixmap_to_data
+            data = pixmap_to_data(data)
+        else:
+            if callable(getattr(data, 'read', None)):
+                data = data.read()
+            try:
+                save_cover_data_to(data, path)
+            except (IOError, OSError):
+                time.sleep(0.2)
+                save_cover_data_to(data, path)
 
     def copy_format_to(self, book_id, fmt, fname, path, dest,
                        windows_atomic_move=None, use_hardlink=False):
