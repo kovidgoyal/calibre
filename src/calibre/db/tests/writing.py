@@ -357,5 +357,5 @@ class WritingTest(BaseTest):
 
     def test_set_cover(self):
         ' Test setting of cover '
-        # TODO: test set_cover() and set_metadata()
+        self.assertTrue(False, 'TODO: test set_cover() and set_metadata()')
 
