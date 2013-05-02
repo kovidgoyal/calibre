@@ -8,7 +8,6 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import time, hashlib
-from urllib import urlencode
 from functools import partial
 from Queue import Queue, Empty
 
@@ -179,6 +178,7 @@ class GoogleBooks(Source):
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
+        from urllib import urlencode
         BASE_URL = 'http://books.google.com/books/feeds/volumes?'
         isbn = check_isbn(identifiers.get('isbn', None))
         q = ''

@@ -8,7 +8,6 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import socket, time, re
-from urllib import urlencode
 from threading import Thread
 from Queue import Queue, Empty
 
@@ -637,6 +636,7 @@ class Amazon(Source):
 
     def create_query(self, log, title=None, authors=None, identifiers={},  # {{{
             domain=None):
+        from urllib import urlencode
         if domain is None:
             domain = self.domain
 

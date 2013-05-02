@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 Provides abstraction for metadata reading.writing from a variety of ebook formats.
 """
 import os, sys, re
-from urllib import unquote, quote
 from urlparse import urlparse
 
 from calibre import relpath, guess_type, remove_bracketed_text, prints
@@ -188,6 +187,7 @@ class Resource(object):
     '''
 
     def __init__(self, href_or_path, basedir=os.getcwdu(), is_path=True):
+        from urllib import unquote
         self._href = None
         self._basedir = basedir
         self.path = None
@@ -226,6 +226,7 @@ class Resource(object):
         `basedir`: If None, the basedir of this resource is used (see :method:`set_basedir`).
         If this resource has no basedir, then the current working directory is used as the basedir.
         '''
+        from urllib import quote
         if basedir is None:
             if self._basedir:
                 basedir = self._basedir

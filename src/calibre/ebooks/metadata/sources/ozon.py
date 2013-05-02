@@ -6,7 +6,6 @@ __copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from urllib import quote_plus
 from Queue import Queue, Empty
 
 from calibre import as_unicode
@@ -49,6 +48,7 @@ class Ozon(Source):
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
+        from urllib import quote_plus
         # div_book -> search only books, ebooks and audio books
         search_url = self.ozon_url + '/webservice/webservice.asmx/SearchWebService?searchContext=div_book&searchText='
 
