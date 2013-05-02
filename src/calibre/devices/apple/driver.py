@@ -18,7 +18,6 @@ from calibre.ebooks.metadata import (author_to_author_sort, authors_to_string,
     MetaInformation, title_sort)
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.config_base import config_dir, prefs
-from calibre.utils.zipfile import ZipFile
 
 DEBUG = CALIBRE_DEBUG
 
@@ -862,6 +861,7 @@ class ITUNES(DriverBase):
         Note that most of the initialization is necessarily performed in can_handle(), as
         we need to talk to iTunes to discover if there's a connected iPod
         '''
+        from calibre.utils.zipfile import ZipFile
         if self.iTunes is None:
             raise OpenFeedback(self.ITUNES_SANDBOX_LOCKOUT_MESSAGE)
 
@@ -933,6 +933,7 @@ class ITUNES(DriverBase):
         NB: This will not find books that were added by a different installation of calibre
             as uuids are different
         '''
+        from calibre.utils.zipfile import ZipFile
         if DEBUG:
             logger().info("%s.remove_books_from_metadata()" % self.__class__.__name__)
         for path in paths:
@@ -1432,6 +1433,7 @@ class ITUNES(DriverBase):
         as of iTunes 9.2, iBooks 1.1, can't set artwork for PDF files via automation
         '''
         from PIL import Image as PILImage
+        from calibre.utils.zipfile import ZipFile
 
         if DEBUG:
             logger().info(" %s._cover_to_thumb()" % self.__class__.__name__)
@@ -1765,6 +1767,7 @@ class ITUNES(DriverBase):
         '''
         '''
         from calibre.ebooks.BeautifulSoup import BeautifulSoup
+        from calibre.utils.zipfile import ZipFile
 
         logger().info(" %s.__get_epub_metadata()" % self.__class__.__name__)
         title = None
@@ -2018,6 +2021,7 @@ class ITUNES(DriverBase):
         as of iTunes 9.2, iBooks 1.1, can't set artwork for PDF files via automation
         '''
         from PIL import Image as PILImage
+        from calibre.utils.zipfile import ZipFile
 
         if not self.settings().extra_customization[self.CACHE_COVERS]:
             thumb_data = None
@@ -2130,6 +2134,7 @@ class ITUNES(DriverBase):
         '''
         Calculate the exploded size of file
         '''
+        from calibre.utils.zipfile import ZipFile
         exploded_file_size = compressed_size
         format = file.rpartition('.')[2].lower()
         if format == 'epub':
@@ -2784,6 +2789,7 @@ class ITUNES(DriverBase):
         from calibre.utils.date import parse_date, now
         from calibre.ebooks.metadata.epub import set_metadata
         from lxml import etree
+        from calibre.utils.zipfile import ZipFile
 
         if DEBUG:
             logger().info(" %s._update_epub_metadata()" % self.__class__.__name__)
@@ -3425,6 +3431,7 @@ class ITUNES_ASYNC(ITUNES):
         Note that most of the initialization is necessarily performed in can_handle(), as
         we need to talk to iTunes to discover if there's a connected iPod
         '''
+        from calibre.utils.zipfile import ZipFile
         if self.iTunes is None:
             raise OpenFeedback(self.ITUNES_SANDBOX_LOCKOUT_MESSAGE)
 
