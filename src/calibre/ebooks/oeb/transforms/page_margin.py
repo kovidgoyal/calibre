@@ -20,9 +20,10 @@ class RemoveAdobeMargins(object):
         self.oeb, self.opts, self.log = oeb, opts, log
 
         for item in self.oeb.manifest:
-            if (item.media_type in ('application/vnd.adobe-page-template+xml',
-                    'application/vnd.adobe.page-template+xml') and
-                    hasattr(item.data, 'xpath')):
+            if item.media_type in {
+                'application/vnd.adobe-page-template+xml', 'application/vnd.adobe.page-template+xml',
+                'application/adobe-page-template+xml', 'application/adobe.page-template+xml',
+            } and hasattr(item.data, 'xpath'):
                 self.log('Removing page margins specified in the'
                         ' Adobe page template')
                 for elem in item.data.xpath(
@@ -84,12 +85,11 @@ class RemoveFakeMargins(object):
                 except:
                     pass
                 else:
-                    if ( (hasattr(ti, 'startswith') and ti.startswith('-')) or
+                    if ((hasattr(ti, 'startswith') and ti.startswith('-')) or
                             isinstance(ti, (int, float)) and ti < 0):
                         raise NegativeTextIndent()
                 return style.marginLeft, style.marginRight, style
         return '', '', None
-
 
     def process_level(self, level):
         elems = self.levels[level]
@@ -106,7 +106,6 @@ class RemoveFakeMargins(object):
 
         remove_left = self.analyze_stats(self.stats[level+'_left'])
         remove_right = self.analyze_stats(self.stats[level+'_right'])
-
 
         if remove_left:
             mcl = self.stats[level+'_left'].most_common(1)[0][0]
