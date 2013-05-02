@@ -2622,7 +2622,7 @@ class ITUNES(DriverBase):
             # for deletion from booklist[0] during add_books_to_metadata
             for book in self.cached_books:
                 if (self.cached_books[book]['uuid'] == metadata.uuid or
-                    (self.cached_books[book]['title'] == metadata.title and \
+                    (self.cached_books[book]['title'] == metadata.title and
                      self.cached_books[book]['author'] == metadata.author)):
                     self.update_list.append(self.cached_books[book])
                     if DEBUG:

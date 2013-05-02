@@ -15,7 +15,6 @@ from calibre.ebooks.metadata.book import (SC_COPYABLE_FIELDS,
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import isoformat, format_date, parse_only_date
 from calibre.utils.icu import sort_key
-from calibre.utils.formatter import TemplateFormatter
 
 # Special sets used to optimize the performance of getting and setting
 # attributes on Metadata objects
@@ -44,38 +43,6 @@ NULL_VALUES = {
 
 field_metadata = FieldMetadata()
 
-class SafeFormat(TemplateFormatter):
-
-    def get_value(self, orig_key, args, kwargs):
-        if not orig_key:
-            return ''
-        key = orig_key = orig_key.lower()
-        if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS and \
-                key not in ALL_METADATA_FIELDS:
-            key = field_metadata.search_term_to_field_key(key)
-            if key is None or (self.book and
-                                key not in self.book.all_field_keys()):
-                if hasattr(self.book, orig_key):
-                    key = orig_key
-                else:
-                    raise ValueError(_('Value: unknown field ') + orig_key)
-        try:
-            b = self.book.get_user_metadata(key, False)
-        except:
-            b = None
-        if b and ((b['datatype'] == 'int' and self.book.get(key, 0) == 0) or
-                  (b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0)):
-            v = ''
-        else:
-            v = self.book.format_field(key, series_with_index=False)[1]
-        if v is None:
-            return ''
-        if v == '':
-            return ''
-        return v
-
-# DEPRECATED. This is not thread safe. Do not use.
-composite_formatter = SafeFormat()
 
 class Metadata(object):
 
@@ -116,6 +83,7 @@ class Metadata(object):
                 # List of strings or []
                 self.author = list(authors) if authors else []# Needed for backward compatibility
                 self.authors = list(authors) if authors else []
+        from calibre.ebooks.metadata.book.formatter import SafeFormat
         self.formatter = SafeFormat()
         self.template_cache = template_cache
 
@@ -454,6 +422,7 @@ class Metadata(object):
         '''
         if not ops:
             return
+        from calibre.ebooks.metadata.book.formatter import SafeFormat
         formatter = SafeFormat()
         for op in ops:
             try:

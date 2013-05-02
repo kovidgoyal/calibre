@@ -7,7 +7,7 @@ Created on 29 Jun 2012
 
 @author: charles
 '''
-import socket, select, json, inspect, os, traceback, time, sys, random
+import socket, select, json, os, traceback, time, sys, random
 import posixpath
 import hashlib, threading
 import Queue
@@ -345,6 +345,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _debug(self, *args):
         # manual synchronization so we don't lose the calling method name
+        import inspect
         with self.sync_lock:
             if not DEBUG:
                 return

@@ -14,7 +14,6 @@ from calibre.constants import preferred_encoding
 from calibre import isbytestring, force_unicode
 from calibre.utils.config import device_prefs, tweaks
 from calibre.utils.icu import sort_key
-from calibre.utils.formatter import EvalFormatter
 
 class Book(Metadata):
     def __init__(self, prefix, lpath, size=None, other=None):
@@ -109,6 +108,7 @@ class CollectionsBookList(BookList):
         return None
 
     def compute_category_name(self, field_key, field_value, field_meta):
+        from calibre.utils.formatter import EvalFormatter
         renames = tweaks['sony_collection_renaming_rules']
         field_name = renames.get(field_key, None)
         if field_name is None:

@@ -1761,7 +1761,7 @@ if __name__ == '__main__':
 
         for x in ('lxml', 'calibre.ebooks.BeautifulSoup', 'uuid',
             'calibre.utils.terminal', 'calibre.utils.magick', 'PIL', 'Image',
-            'sqlite3', 'mechanize', 'httplib', 'xml'):
+            'sqlite3', 'mechanize', 'httplib', 'xml', 'inspect'):
             if x in sys.modules:
                 ret = 1
                 print (x, 'has been loaded by a plugin')
