@@ -21,13 +21,13 @@
 #     - title: 
 
 - version: 0.9.29
-date: 2013-05-03
+  date: 2013-05-03
 
   new features:
     - title: "Bulk metadata download: Allow reviewing of the downloaded metadata before it is applied"
 
     - title: "FB2 Output: Write ISBN, pubdate, tags and publisher metadata when creating fb2 files"
-    tickets: [1174047]
+      tickets: [1174047]
  
   bug fixes:
     - title: "When reading metadata from EPUB 3 files, use the first <dc:title> element rather than the last."
