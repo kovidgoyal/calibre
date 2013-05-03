@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-04-26 04:42+0000\n"
-"PO-Revision-Date: 2013-04-30 11:44+0000\n"
+"PO-Revision-Date: 2013-05-02 22:34+0000\n"
 "Last-Translator: MilliMarg <mirian.margiani@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-05-01 04:43+0000\n"
-"X-Generator: Launchpad (build 16580)\n"
+"X-Launchpad-Export-Date: 2013-05-03 05:13+0000\n"
+"X-Generator: Launchpad (build 16598)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1182,7 +1182,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/db/search.py:469
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:650
 msgid "Recursive query group detected: {0}"
-msgstr ""
+msgstr "Rekursive Abfrage-Gruppe erkannt: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:47
@@ -5637,6 +5637,10 @@ msgid ""
 "date you decide to add more text to your books, the newly added\n"
 "text might not be covered by the subset font.</p>\n"
 msgstr ""
+"<p>Eine Schrift heruntersetzen heisst, eine eingebettete Schrift\n"
+"auf die Buchstaben zu reduzieren, welche im Buch verwendet werden.\n"
+"Diese Option vermindert die Grösse der Schrift-Datei enorm (die\n"
+"Dateigrösse zu halbieren ist fast immer möglich).</p>\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:69
 msgid ""
@@ -5644,6 +5648,9 @@ msgid ""
 "all the book metadata such as title, tags, authors, series, comments,\n"
 "etc. Any previous book jacket will be replaced.</p>"
 msgstr ""
+"<p>Fügt eine \"Buch-Hülle\" als erste Seite des Buches ein, welche alle\n"
+"Metadaten des Buches wie Titel, Tags, Author(en), Reihe, Kommentare,\n"
+"etc. beinhaltet. Jede ältere Buch-Hülle wird ersetzt.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:74
 msgid "<p>Remove a previous inserted book jacket page.</p>\n"
@@ -7432,6 +7439,13 @@ msgid ""
 "the\n"
 "                  ORIGINAL_* format before running it.</p>"
 msgstr ""
+"<p>Wenn Sie EPUB und ORIGINAL_EPUB in Ihrem Buch haben,\n"
+"                   dann wird das Polieren ORIGINAL_EPUB verändern (das "
+"Gleiche\n"
+"                   gilt für alle anderen ORIGINAL_* Formate). Das heisst,\n"
+"                   wollen Sie den Feinschliff nicht dem ORIGINAL_* geben, "
+"so\n"
+"                   müssen Sie ORIGINAL_* zuerst löschen.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:48
 #, python-format
@@ -19453,7 +19467,7 @@ msgstr "Erstelle eine virtuelle Bibliothek, basierend auf %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:34
 #, python-format
 msgid "Match all selected %s names"
-msgstr ""
+msgstr "Entspricht allen ausgewählten %s Namen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:92
 msgid "Edit virtual library"
@@ -19469,7 +19483,7 @@ msgstr "&Name der Virtuellen Bibliothek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:112
 msgid "&Search expression:"
-msgstr "%Suchausdruck:"
+msgstr "&Suchausdruck:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:120
 msgid "Create a virtual library based on: "
@@ -19536,10 +19550,12 @@ msgstr "Name wird bereits verwendet"
 msgid ""
 "That name is already in use. Do you want to replace it with the new search?"
 msgstr ""
+"Dieser Name wird bereits verwendet. Möchten Sie ihn durch die neue Suche "
+"ersetzen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:270
 msgid "No search string"
-msgstr ""
+msgstr "Kein Suchtext"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:271
 msgid "You must provide a search to define the new virtual library"
@@ -19557,13 +19573,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:285
 msgid "Search found no books"
-msgstr ""
+msgstr "Die Suche konnte keine Bücher finden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:286
 msgid ""
 "The search found no books, so the virtual library will be empty. Do you "
 "really want to use that search?"
 msgstr ""
+"Die Suche konnte keine Bücher finden, folglich wird die Virtuelle Bibliothek "
+"leer sein. Möchten Sie diese Suche wirklich verwenden?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:298
 msgid "<None>"
@@ -19607,11 +19625,11 @@ msgstr "Keine Suche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:403
 msgid "There is no current search to use"
-msgstr ""
+msgstr "Es ist keine aktuelle Suche in Verwendung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:451
 msgid "Are you sure you want to remove the virtual library {0}"
-msgstr ""
+msgstr "Möchten Sie die Virtuelle Bibliothek {0} wirklich entfernen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:569
 msgid "({0} of {1})"
@@ -20707,15 +20725,15 @@ msgstr "Einrücken:  \"%s\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:532
 msgid "Change the location this entry points to"
-msgstr ""
+msgstr "Den Ort der Eintrittspunkte ändern zu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:533
 msgid "Change all selected items to title case"
-msgstr ""
+msgstr "Ändere alle ausgewählten Dinge in Titel-Schriften"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:552
 msgid "Move current entry up [Ctrl+Up]"
-msgstr ""
+msgstr "Verschiebe den aktuellen Eintrag nach oben [Strg+Hoch]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:559
 msgid "Unindent the current entry [Ctrl+Left]"
@@ -20728,11 +20746,11 @@ msgstr "Alle gewählten Einträge löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:573
 msgid "Indent the current entry [Ctrl+Right]"
-msgstr ""
+msgstr "Rücke den aktuellen Eintrag ein [Strg+Rechts]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:580
 msgid "Move current entry down [Ctrl+Down]"
-msgstr ""
+msgstr "Verschiebe den aktuellen Eintrag nach unten [Strg+Unten]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:582
 msgid "&Expand all"
@@ -23276,7 +23294,7 @@ msgstr "Sie müssen wenigstens ein Buch auswählen, das entfernt werden soll"
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:434
 #, python-format
 msgid "A %s file already exists for book: %d, not replacing"
-msgstr ""
+msgstr "Eine %s Datei existiert bereits im Buch: %d, nicht ersetzen"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:440
 msgid ""
@@ -23290,7 +23308,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:448
 msgid "Do not replace the format if it already exists"
-msgstr ""
+msgstr "Ersetzen Sie das Format nicht, falls es schon existiert"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:458
 msgid "You must specify an id and an ebook file"
@@ -23619,7 +23637,7 @@ msgstr "Details jeder Spalte anzeigen."
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:960
 #, python-format
 msgid "You will lose all data in the column: %s. Are you sure (y/n)? "
-msgstr ""
+msgstr "Sie werden alle Daten in Zeile %s verlieren. Sind Sie sicher (J/N)? "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:962
 msgid "y"

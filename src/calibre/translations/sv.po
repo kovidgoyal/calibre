@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-04-26 04:42+0000\n"
-"PO-Revision-Date: 2013-04-28 21:17+0000\n"
-"Last-Translator: Merarom <Unknown>\n"
+"PO-Revision-Date: 2013-05-02 22:04+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-04-29 04:37+0000\n"
-"X-Generator: Launchpad (build 16580)\n"
+"X-Launchpad-Export-Date: 2013-05-03 05:14+0000\n"
+"X-Generator: Launchpad (build 16598)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
 
@@ -7110,7 +7110,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:40
 #, python-format
 msgid "<h3>About Polishing books</h3>%s"
-msgstr "<h3> Om Polering AV Böcker </ h3>% s"
+msgstr "<h3> Om Polering AV Böcker </ h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:41
 msgid ""
@@ -8419,7 +8419,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:981
 #, python-format
 msgid "Are you sure you want to delete '%s'?"
-msgstr "Ar du Saker In ATT du Vill ta Bort '% s'?"
+msgstr "Ar du Saker In ATT du Vill ta Bort '%s'?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:983
 #, python-format
@@ -10694,7 +10694,7 @@ msgstr "Kan inte anpassa enheten medan det finns aktiva jobb på enheten."
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:360
 #, python-format
 msgid "Configure %s"
-msgstr "Anpassa% s"
+msgstr "Anpassa %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:939
 #, python-format
@@ -10947,7 +10947,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:370
 #, python-format
 msgid "Choose the formats to send to the %s"
-msgstr "På Välj format för ATT SKICKA till% s"
+msgstr "På Välj format för ATT SKICKA till %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:373
 #, python-format
@@ -11098,12 +11098,12 @@ msgstr "&Märken att sätta på skapade värdeandelar:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:50
 #, python-format
 msgid "Next [%s]"
-msgstr "Nasta [% s]"
+msgstr "Nasta [%s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:52
 #, python-format
 msgid "Previous [%s]"
-msgstr "Föregående [% s]"
+msgstr "Föregående [%s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:71
 msgid "Fit &cover within view"
