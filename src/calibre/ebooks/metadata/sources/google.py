@@ -8,7 +8,6 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import time, hashlib
-from urllib import urlencode
 from functools import partial
 from Queue import Queue, Empty
 
@@ -16,7 +15,6 @@ from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.utils.date import parse_date, utcnow
 from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.localization import canonicalize_lang
 from calibre import as_unicode
@@ -131,6 +129,7 @@ def to_metadata(browser, log, entry_, timeout): # {{{
     # pubdate
     pubdate = get_text(extra, date)
     if pubdate:
+        from calibre.utils.date import parse_date, utcnow
         try:
             default = utcnow().replace(day=15)
             mi.pubdate = parse_date(pubdate, assume_utc=True, default=default)
@@ -179,6 +178,7 @@ class GoogleBooks(Source):
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
+        from urllib import urlencode
         BASE_URL = 'http://books.google.com/books/feeds/volumes?'
         isbn = check_isbn(identifiers.get('isbn', None))
         q = ''

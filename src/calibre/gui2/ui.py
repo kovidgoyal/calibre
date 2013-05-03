@@ -573,7 +573,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.set_window_title()
         self.apply_named_search_restriction('')  # reset restriction to null
         self.saved_searches_changed(recount=False)  # reload the search restrictions combo box
-        self.apply_named_search_restriction(db.prefs['gui_restriction'])
+        if db.prefs['virtual_lib_on_startup']:
+            self.apply_virtual_library(db.prefs['virtual_lib_on_startup'])
         for action in self.iactions.values():
             action.library_changed(db)
         if olddb is not None:
@@ -605,6 +606,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if restrictions:
             restrictions = ' :: ' + restrictions
             font.setBold(True)
+            font.setItalic(True)
         self.virtual_library.setFont(font)
         title = u'{0} - || {1}{2} ||'.format(
                 __appname__, self.iactions['Choose Library'].library_name(), restrictions)

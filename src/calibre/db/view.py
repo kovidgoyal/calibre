@@ -29,11 +29,12 @@ class MarkedVirtualField(object):
         for book_id in candidates:
             yield self.marked_ids.get(book_id, default_value), {book_id}
 
-class TableRow(list):
+class TableRow(object):
 
     def __init__(self, book_id, view):
         self.book_id = book_id
         self.view = weakref.ref(view)
+        self.column_count = view.column_count
 
     def __getitem__(self, obj):
         view = self.view()
@@ -42,6 +43,13 @@ class TableRow(list):
                     for c in xrange(*obj.indices(len(view._field_getters)))]
         else:
             return view._field_getters[obj](self.book_id)
+
+    def __len__(self):
+        return self.column_count
+
+    def __iter__(self):
+        for i in xrange(self.column_count):
+            yield self[i]
 
 def format_is_multiple(x, sep=',', repl=None):
     if not x:
@@ -67,6 +75,7 @@ class View(object):
         self.search_restriction = self.base_restriction = ''
         self.search_restriction_name = self.base_restriction_name = ''
         self._field_getters = {}
+        self.column_count = len(cache.backend.FIELD_MAP)
         for col, idx in cache.backend.FIELD_MAP.iteritems():
             label, fmt = col, lambda x:x
             func = {
@@ -107,7 +116,7 @@ class View(object):
                 fmt = partial(format_is_multiple, sep=sep)
             self._field_getters[idx] = partial(func, label, fmt=fmt) if func == self._get else func
 
-        self._map = tuple(self.cache.all_book_ids())
+        self._map = tuple(sorted(self.cache.all_book_ids()))
         self._map_filtered = tuple(self._map)
 
     def get_property(self, id_or_index, index_is_id=False, loc=-1):
@@ -124,21 +133,21 @@ class View(object):
         return idx if index_is_id else self.index_to_id(idx)
 
     def __getitem__(self, row):
-        return TableRow(self._map_filtered[row], self.cache)
+        return TableRow(self._map_filtered[row], self)
 
     def __len__(self):
         return len(self._map_filtered)
 
     def __iter__(self):
         for book_id in self._map_filtered:
-            yield self._data[book_id]
+            yield TableRow(book_id, self)
 
     def iterall(self):
-        for book_id in self._map:
-            yield self[book_id]
+        for book_id in self.iterallids():
+            yield TableRow(book_id, self)
 
     def iterallids(self):
-        for book_id in self._map:
+        for book_id in sorted(self._map):
             yield book_id
 
     def get_field_map_field(self, row, col, index_is_id=True):

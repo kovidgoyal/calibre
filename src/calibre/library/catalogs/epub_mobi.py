@@ -17,7 +17,6 @@ from calibre.ebooks import calibre_cover
 from calibre.library import current_library_name
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.config import JSONConfig
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang, get_lang
 
 Option = namedtuple('Option', 'option, default, dest, action, help')
@@ -191,6 +190,7 @@ class EPUB_MOBI(CatalogPlugin):
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
         from calibre.library.catalogs.epub_mobi_builder import CatalogBuilder
         from calibre.utils.logging import default_log as log
+        from calibre.utils.config import JSONConfig
 
         # If preset specified from the cli, insert stored options from JSON file
         if hasattr(opts, 'preset') and opts.preset:

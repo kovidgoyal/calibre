@@ -26,7 +26,7 @@ from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre import prints
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.constants import DEBUG
-from calibre.utils.config import prefs
+from calibre.utils.config_base import prefs
 
 
 class KOBO(USBMS):
@@ -35,7 +35,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 0, 8)
+    version = (2, 0, 9)
 
     dbversion = 0
     fwversion = 0
@@ -1193,8 +1193,11 @@ class KOBO(USBMS):
             db.set_comment(db_id, mi.comments)
 
             # Add bookmark file to db_id
-            db.add_format_with_hooks(db_id, bm.value.bookmark_extension,
-                                            bm.value.path, index_is_id=True)
+            # NOTE: As it is, this copied the book from the device back to the library. That meant it replaced the
+            #     existing file. Taking this out for that reason, but some books have a ANNOT file that could be
+            #     copied.
+#            db.add_format_with_hooks(db_id, bm.value.bookmark_extension,
+#                                            bm.value.path, index_is_id=True)
 
 
 class KOBOTOUCH(KOBO):
@@ -1209,10 +1212,10 @@ class KOBOTOUCH(KOBO):
     min_dbversion_series            = 65
     min_dbversion_archive           = 71
     min_dbversion_images_on_sdcard  = 77
-    
+
     max_supported_fwversion         = (2,5,1)
     min_fwversion_images_on_sdcard  = (2,4,1)
-    
+
     has_kepubs = True
 
     booklist_class = KTCollectionsBookList
@@ -1366,7 +1369,7 @@ class KOBOTOUCH(KOBO):
         prefix = self._card_a_prefix if oncard == 'carda' else \
                  self._card_b_prefix if oncard == 'cardb' \
                  else self._main_prefix
-        debug_print("KoboTouch:books - prefix='%s'"%oncard)
+        debug_print("KoboTouch:books - oncard='%s', prefix='%s'"%(oncard, prefix))
 
         # Determine the firmware version
         try:
@@ -2100,7 +2103,8 @@ class KOBOTOUCH(KOBO):
         :param filepath: The full path to the ebook file
 
         '''
-#        debug_print("KoboTouch:upload_cover - path='%s' filename='%s'"%(path, filename))
+        debug_print("KoboTouch:upload_cover - path='%s' filename='%s' "%(path, filename))
+        debug_print("        filepath='%s' "%(filepath))
 
         opts = self.settings()
         if not self.copying_covers():
@@ -2109,7 +2113,7 @@ class KOBOTOUCH(KOBO):
             return
 
         # Only upload covers to SD card if that is supported
-        if self._card_a_prefix and path.startswith(self._card_a_prefix) and not self.supports_covers_on_sdcard():
+        if self._card_a_prefix and os.path.abspath(path).startswith(os.path.abspath(self._card_a_prefix)) and not self.supports_covers_on_sdcard():
             return
 
         if not opts.extra_customization[self.OPT_UPLOAD_GRAYSCALE_COVERS]:
@@ -2133,12 +2137,13 @@ class KOBOTOUCH(KOBO):
 
 
     def images_path(self, path):
-        if self._card_a_prefix and path.startswith(self._card_a_prefix) and self.supports_covers_on_sdcard():
+        if self._card_a_prefix and os.path.abspath(path).startswith(os.path.abspath(self._card_a_prefix)) and self.supports_covers_on_sdcard():
             path_prefix = 'koboExtStorage/images/'
-            path = self._card_a_prefix + path_prefix
+            path = os.path.join(self._card_a_prefix, path_prefix)
         else:
             path_prefix = '.kobo/images/'
-            path = self._main_prefix + path_prefix
+            path = os.path.join(self._main_prefix, path_prefix)
+
         return path
 
     def _upload_cover(self, path, filename, metadata, filepath, uploadgrayscale, keep_cover_aspect=False):
@@ -2181,10 +2186,15 @@ class KOBOTOUCH(KOBO):
                         cursor.close()
 
                     if ImageID != None:
-                        path = self.images_path(path) + ImageID
+                        path = os.path.join(self.images_path(path), ImageID)
 
                         if show_debug:
                             debug_print("KoboTouch:_upload_cover - About to loop over cover endings")
+
+                        image_dir = os.path.dirname(os.path.abspath(path))
+                        if not os.path.exists(image_dir):
+                            debug_print("KoboTouch:_upload_cover - Image directory does not exust. Creating path='%s'" % (image_dir))
+                            os.makedirs(image_dir)
 
                         for ending, cover_options in self.cover_file_endings().items():
                             resize, min_dbversion, max_dbversion, isFullsize = cover_options

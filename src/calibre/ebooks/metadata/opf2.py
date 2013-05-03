@@ -554,6 +554,10 @@ class OPF(object):  # {{{
                 resolve_entities=True, assume_utf8=True)
         raw = raw[raw.find('<'):]
         self.root     = etree.fromstring(raw, self.PARSER)
+        try:
+            self.package_version = float(self.root.get('version', None))
+        except (AttributeError, TypeError, ValueError):
+            self.package_version = 0
         self.metadata = self.metadata_path(self.root)
         if not self.metadata:
             raise ValueError('Malformed OPF file: No <metadata> element')
@@ -1116,7 +1120,10 @@ class OPF(object):  # {{{
     def get_metadata_element(self, name):
         matches = self.metadata_elem_path(self.metadata, name=name)
         if matches:
-            return matches[-1]
+            num = -1
+            if self.package_version >= 3 and name == 'title':
+                num = 0
+            return matches[num]
 
     def create_metadata_element(self, name, attrib=None, is_dc=True):
         if is_dc:

@@ -9,8 +9,10 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, traceback
 from functools import partial
 
+from calibre.db import _get_next_series_num_for_list, _get_series_values
 from calibre.db.backend import DB
 from calibre.db.cache import Cache
+from calibre.db.categories import CATEGORY_SORTS
 from calibre.db.view import View
 from calibre.utils.date import utcnow
 
@@ -20,6 +22,10 @@ class LibraryDatabase(object):
 
     PATH_LIMIT = DB.PATH_LIMIT
     WINDOWS_LIBRARY_PATH_LIMIT = DB.WINDOWS_LIBRARY_PATH_LIMIT
+    CATEGORY_SORTS = CATEGORY_SORTS
+    MATCH_TYPE = ('any', 'all')
+    CUSTOM_DATA_TYPES = frozenset(['rating', 'text', 'comments', 'datetime',
+        'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
 
     @classmethod
     def exists_at(cls, path):
@@ -147,4 +153,18 @@ class LibraryDatabase(object):
         if create_dirs and not os.path.exists(path):
             os.makedirs(path)
         return path
+
+    # Private interface {{{
+
+    def __iter__(self):
+        for row in self.data.iterall():
+            yield row
+
+    def _get_next_series_num_for_list(self, series_indices):
+        return _get_next_series_num_for_list(series_indices)
+
+    def _get_series_values(self, val):
+        return _get_series_values(val)
+
+    # }}}
 

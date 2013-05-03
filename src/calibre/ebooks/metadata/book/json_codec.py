@@ -11,17 +11,18 @@ from datetime import datetime, time
 from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
-from calibre.utils.date import parse_date, isoformat, UNDEFINED_DATE, local_tz
 from calibre import isbytestring
 
 # Translate datetimes to and from strings. The string form is the datetime in
 # UTC. The returned date is also UTC
 def string_to_datetime(src):
+    from calibre.utils.date import parse_date
     if src == "None":
         return None
     return parse_date(src)
 
 def datetime_to_string(dateval):
+    from calibre.utils.date import isoformat, UNDEFINED_DATE, local_tz
     if dateval is None:
         return "None"
     if not isinstance(dateval, datetime):

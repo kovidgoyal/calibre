@@ -8,7 +8,6 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import socket, time, re
-from urllib import urlencode
 from threading import Thread
 from Queue import Queue, Empty
 
@@ -18,7 +17,6 @@ from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import (Source, Option, fixcase,
         fixauthors)
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.utils.date import parse_only_date
 from calibre.utils.localization import canonicalize_lang
 
 class Worker(Thread):  # Get details {{{
@@ -495,6 +493,7 @@ class Worker(Thread):  # Get details {{{
     def parse_pubdate(self, pd):
         for x in reversed(pd.xpath(self.publisher_xpath)):
             if x.tail:
+                from calibre.utils.date import parse_only_date
                 ans = x.tail
                 date = ans.rpartition('(')[-1].replace(')', '').strip()
                 date = self.delocalize_datestr(date)
@@ -637,6 +636,7 @@ class Amazon(Source):
 
     def create_query(self, log, title=None, authors=None, identifiers={},  # {{{
             domain=None):
+        from urllib import urlencode
         if domain is None:
             domain = self.domain
 

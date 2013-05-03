@@ -20,6 +20,54 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.29
+  date: 2013-05-03
+
+  new features:
+    - title: "Bulk metadata download: Allow reviewing of the downloaded metadata before it is applied"
+
+    - title: "FB2 Output: Write ISBN, pubdate, tags and publisher metadata when creating fb2 files"
+      tickets: [1174047]
+ 
+  bug fixes:
+    - title: "When reading metadata from EPUB 3 files, use the first <dc:title> element rather than the last."
+      tickets: [1175184]
+
+    - title: "Fix regression causing the search query parser to not parse search string containing newlines/tabs instead of spaces correctly"
+      tickets: [1174629]
+
+    - title: "Kobo driver: Fix covers written to wrong place on OS X/linux when books sent to SD card. Fix covers not sent to SD card is images directory missing."
+      tickets: [1174147,1174126]
+
+    - title: "Fix 'Preferences->Behavior->Virtual library to use when this library is opened' being applied only on calibre startup and not when switching to the library"
+
+    - title: "PDF metadata: When rendering the first page as the cover, respect the PDF CropBox."
+      tickets: [1173795]
+
+    - title: "PDF Output: Fix link generation broken on windows when converting epubs if the filenames contained uppercase letters."
+      tickets: [1169795]
+
+    - title: "Tolino driver: Fix card and main memory swapped on windows"
+      tickets: [1173544]
+
+    - title: "FB2 Output: Fix images being ignored when converting a EPUB with image filenames that contain URL unsafe characters."
+      tickets: [1173351]
+
+    - title: "EPUB Input: Fix page margins specified in Adobe page template files with incorrect mime-types not being removed."
+
+  improved recipes:
+    - The New Republic
+    - io9
+    - What if
+    - Orlando Sentinel
+    - Read It Later recipe
+    - Smithsonian
+    - Business Week Magazine
+
+  new recipes:
+    - title: Diario Extra
+      author: Douglas Delgado
+
 - version: 0.9.28
   date: 2013-04-26
 

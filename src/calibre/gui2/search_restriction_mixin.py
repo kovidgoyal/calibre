@@ -8,7 +8,7 @@ from functools import partial
 
 from PyQt4.Qt import (
     Qt, QMenu, QPoint, QIcon, QDialog, QGridLayout, QLabel, QLineEdit, QComboBox,
-    QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QStringList, QCheckBox)
+    QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QStringList, QRadioButton)
 
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.widgets import ComboBoxWithHelp
@@ -31,7 +31,10 @@ class SelectNames(QDialog):  # {{{
         self._names.setSelectionMode(self._names.ExtendedSelection)
         l.addWidget(self._names)
 
-        self._and = QCheckBox(_('Match all selected %s names')%txt)
+        self._or = QRadioButton(_('Match any of the selected %s names')%txt)
+        self._and = QRadioButton(_('Match all of the selected %s names')%txt)
+        self._or.setChecked(True)
+        l.addWidget(self._or)
         l.addWidget(self._and)
 
         self.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -173,12 +176,12 @@ class CreateVirtualLibrary(QDialog):  # {{{
         txt = unicode(txt)
         while txt:
             p = txt.partition('search:')
-            if p[1]: # found 'search:'
+            if p[1]:  # found 'search:'
                 possible_search = p[2]
-                if possible_search: # something follows the 'search:'
-                    if possible_search[0] == '"': # strip any quotes
+                if possible_search:  # something follows the 'search:'
+                    if possible_search[0] == '"':  # strip any quotes
                         possible_search = possible_search[1:].partition('"')
-                    else: # find end of the search name. Is EOL, space, rparen
+                    else:  # find end of the search name. Is EOL, space, rparen
                         sp = possible_search.find(' ')
                         pp = possible_search.find(')')
                         if pp < 0 or (sp > 0 and sp <= pp):
@@ -187,7 +190,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
                         else:
                             # rparen in string before space
                             possible_search = possible_search.partition(')')
-                    txt = possible_search[2] # grab remainder of the string
+                    txt = possible_search[2]  # grab remainder of the string
                     search_name = possible_search[0]
                     if search_name.startswith('='):
                         search_name = search_name[1:]
@@ -317,7 +320,6 @@ class SearchRestrictionMixin(object):
         self.ar_menu = QMenu(_('Additional restriction'))
         self.edit_menu = QMenu(_('Edit Virtual Library'))
         self.rm_menu = QMenu(_('Remove Virtual Library'))
-
 
     def add_virtual_library(self, db, name, search):
         virt_libs = db.prefs.get('virtual_libraries', {})

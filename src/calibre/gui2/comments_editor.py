@@ -66,6 +66,7 @@ class EditorWidget(QWebView): # {{{
 
     def __init__(self, parent=None):
         QWebView.__init__(self, parent)
+        self.readonly = False
 
         self.comments_pat = re.compile(r'<!--.*?-->', re.DOTALL)
 
@@ -163,7 +164,11 @@ class EditorWidget(QWebView): # {{{
         self.page().linkClicked.connect(self.link_clicked)
 
         self.setHtml('')
-        self.page().setContentEditable(True)
+        self.set_readonly(False)
+
+    def set_readonly(self, what):
+        self.readonly = what
+        self.page().setContentEditable(not self.readonly)
 
     def clear_text(self, *args):
         us = self.page().undoStack()
@@ -313,7 +318,7 @@ class EditorWidget(QWebView): # {{{
         # toList() is needed because PyQt on Debian is old/broken
         for body in self.page().mainFrame().documentElement().findAll('body').toList():
             body.setAttribute('style', style)
-        self.page().setContentEditable(True)
+        self.page().setContentEditable(not self.readonly)
 
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key_Tab, Qt.Key_Escape, Qt.Key_Backtab):
@@ -585,6 +590,7 @@ class Editor(QWidget): # {{{
         self.tabs.addTab(self.code_edit, _('HTML Source'))
         self.tabs.currentChanged[int].connect(self.change_tab)
         self.highlighter = Highlighter(self.code_edit.document())
+        self.layout().setContentsMargins(0, 0, 0, 0)
 
         # toolbar1 {{{
         self.toolbar1.addAction(self.editor.action_undo)
@@ -665,6 +671,12 @@ class Editor(QWidget): # {{{
         self.toolbar1.setVisible(False)
         self.toolbar2.setVisible(False)
         self.toolbar3.setVisible(False)
+
+    def set_readonly(self, what):
+        self.editor.set_readonly(what)
+
+    def hide_tabs(self):
+        self.tabs.tabBar().setVisible(False)
 
 # }}}
 

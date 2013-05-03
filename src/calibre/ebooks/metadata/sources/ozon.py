@@ -6,14 +6,12 @@ __copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from urllib import quote_plus
 from Queue import Queue, Empty
 
 from calibre import as_unicode
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.utils.date import parse_only_date
 
 class Ozon(Source):
     name = 'OZON.ru'
@@ -49,6 +47,7 @@ class Ozon(Source):
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
+        from urllib import quote_plus
         # div_book -> search only books, ebooks and audio books
         search_url = self.ozon_url + '/webservice/webservice.asmx/SearchWebService?searchContext=div_book&searchText='
 
@@ -390,33 +389,34 @@ def _get_affiliateId(): # {{{
     return aff_id
 # }}}
 
-# for now only RUS ISBN are supported
-#http://ru.wikipedia.org/wiki/ISBN_российских_издательств
-isbn_pat = re.compile(r"""
-    ^
-    (\d{3})?            # match GS1 Prefix for ISBN13
-    (5)                 # group identifier for rRussian-speaking countries
-    (                   # begin variable length for Publisher
-        [01]\d{1}|      # 2x
-        [2-6]\d{2}|     # 3x
-        7\d{3}|         # 4x (starting with 7)
-        8[0-4]\d{2}|    # 4x (starting with 8)
-        9[2567]\d{2}|   # 4x (starting with 9)
-        99[26]\d{1}|    # 4x (starting with 99)
-        8[5-9]\d{3}|    # 5x (starting with 8)
-        9[348]\d{3}|    # 5x (starting with 9)
-        900\d{2}|       # 5x (starting with 900)
-        91[0-8]\d{2}|   # 5x (starting with 91)
-        90[1-9]\d{3}|   # 6x (starting with 90)
-        919\d{3}|       # 6x (starting with 919)
-        99[^26]\d{4}    # 7x (starting with 99)
-    )                   # end variable length for Publisher
-    (\d+)               # Title
-    ([\dX])             # Check digit
-    $
-""", re.VERBOSE)
-
 def _format_isbn(log, isbn):  # {{{
+    # for now only RUS ISBN are supported
+    #http://ru.wikipedia.org/wiki/ISBN_российских_издательств
+    isbn_pat = re.compile(r"""
+        ^
+        (\d{3})?            # match GS1 Prefix for ISBN13
+        (5)                 # group identifier for rRussian-speaking countries
+        (                   # begin variable length for Publisher
+            [01]\d{1}|      # 2x
+            [2-6]\d{2}|     # 3x
+            7\d{3}|         # 4x (starting with 7)
+            8[0-4]\d{2}|    # 4x (starting with 8)
+            9[2567]\d{2}|   # 4x (starting with 9)
+            99[26]\d{1}|    # 4x (starting with 99)
+            8[5-9]\d{3}|    # 5x (starting with 8)
+            9[348]\d{3}|    # 5x (starting with 9)
+            900\d{2}|       # 5x (starting with 900)
+            91[0-8]\d{2}|   # 5x (starting with 91)
+            90[1-9]\d{3}|   # 6x (starting with 90)
+            919\d{3}|       # 6x (starting with 919)
+            99[^26]\d{4}    # 7x (starting with 99)
+        )                   # end variable length for Publisher
+        (\d+)               # Title
+        ([\dX])             # Check digit
+        $
+    """, re.VERBOSE)
+
+
     res = check_isbn(isbn)
     if res:
         m = isbn_pat.match(res)
@@ -460,6 +460,7 @@ def _normalizeAuthorNameWithInitials(name): # {{{
 # }}}
 
 def toPubdate(log, yearAsString): # {{{
+    from calibre.utils.date import parse_only_date
     res = None
     if yearAsString:
         try:

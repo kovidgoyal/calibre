@@ -14,7 +14,7 @@ from PyQt4.Qt import (QAbstractTableModel, Qt, QAbstractListModel, QWidget,
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.metadata_sources_ui import Ui_Form
-from calibre.ebooks.metadata.sources.base import msprefs
+from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.customize.ui import (all_metadata_plugins, is_disabled,
         enable_plugin, disable_plugin, default_disabled_plugins)
 from calibre.gui2 import NONE, error_dialog, question_dialog

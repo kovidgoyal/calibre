@@ -44,14 +44,18 @@ class Links(object):
         for link in links:
             href, page, rect = link
             p, frag = href.partition('#')[0::2]
-            link = ((path, p, frag or None), self.pdf.get_pageref(page).obj, Array(rect))
+            try:
+                link = ((path, p, frag or None), self.pdf.get_pageref(page).obj, Array(rect))
+            except IndexError:
+                self.log.warn('Unable to find page for link: %r, ignoring it' % link)
+                continue
             self.links.append(link)
 
     def add_links(self):
         for link in self.links:
             path, href, frag = link[0]
             page, rect = link[1:]
-            combined_path = os.path.abspath(os.path.join(os.path.dirname(path), *unquote(href).split('/')))
+            combined_path = os.path.normcase(os.path.abspath(os.path.join(os.path.dirname(path), *unquote(href).split('/'))))
             is_local = not href or combined_path in self.anchors
             annot = Dictionary({
                 'Type':Name('Annot'), 'Subtype':Name('Link'),
