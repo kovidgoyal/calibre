@@ -24,6 +24,7 @@ from calibre.ebooks.oeb.base import namespace, barename, XPath, xpath, \
                                     urlnormalize, BINARY_MIME, \
                                     OEBError, OEBBook, DirContainer
 from calibre.ebooks.oeb.writer import OEBWriter
+from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.localization import get_lang
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
@@ -106,7 +107,7 @@ class OEBReader(object):
         try:
             opf = etree.fromstring(data)
         except etree.XMLSyntaxError:
-            data = xml_replace_entities(data, encoding=None)
+            data = xml_replace_entities(clean_xml_chars(data), encoding=None)
             try:
                 opf = etree.fromstring(data)
                 self.logger.warn('OPF contains invalid HTML named entities')

@@ -549,6 +549,9 @@ class SearchRestrictionMixin(object):
                 restriction = ''
             self._apply_search_restriction(restriction, r)
 
+    def clear_additional_restriction(self):
+        self._apply_search_restriction('', '')
+
     def _apply_search_restriction(self, restriction, name):
         self.saved_search.clear()
         # The order below is important. Set the restriction, force a '' search
@@ -561,6 +564,10 @@ class SearchRestrictionMixin(object):
         self.set_number_of_books_shown()
         self.current_view().setFocus(Qt.OtherFocusReason)
         self.set_window_title()
+        v = self.current_view()
+        if not v.currentIndex().isValid():
+            v.set_current_row()
+        v.refresh_book_details()
 
     def set_number_of_books_shown(self):
         db = self.library_view.model().db

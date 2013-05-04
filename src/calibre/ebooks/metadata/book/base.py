@@ -178,6 +178,8 @@ class Metadata(object):
         return key in object.__getattribute__(self, '_data')
 
     def deepcopy(self):
+        ''' Do not use this method unless you know what you are doing, if you want to create a simple clone of
+        this object, use :method:`deepcopy_metadata` instead. '''
         m = Metadata(None)
         m.__dict__ = copy.deepcopy(self.__dict__)
         object.__setattr__(m, '_data', copy.deepcopy(object.__getattribute__(self, '_data')))
