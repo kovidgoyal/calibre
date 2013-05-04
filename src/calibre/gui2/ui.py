@@ -279,6 +279,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 action=self.ctrl_esc_action)
         self.ctrl_esc_action.triggered.connect(self.ctrl_esc)
 
+        self.alt_esc_action = QAction(self)
+        self.addAction(self.alt_esc_action)
+        self.keyboard.register_shortcut('clear additional restriction',
+                _('Clear the additional restriction'), default_keys=('Alt+Esc',),
+                action=self.alt_esc_action)
+        self.alt_esc_action.triggered.connect(self.clear_additional_restriction)
+
         ####################### Start spare job server ########################
         QTimer.singleShot(1000, self.add_spare_server)
 

@@ -549,6 +549,9 @@ class SearchRestrictionMixin(object):
                 restriction = ''
             self._apply_search_restriction(restriction, r)
 
+    def clear_additional_restriction(self):
+        self._apply_search_restriction('', '')
+
     def _apply_search_restriction(self, restriction, name):
         self.saved_search.clear()
         # The order below is important. Set the restriction, force a '' search
