@@ -6,7 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from lxml.etree import XPath as X
+
 DOCUMENT = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument'
+DOCPROPS = 'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties'
+APPPROPS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties'
 
 namespaces = {
     'mo': 'http://schemas.microsoft.com/office/mac/office/2008/main',
@@ -37,4 +41,7 @@ namespaces = {
     'dcmitype': 'http://purl.org/dc/dcmitype/',
     'dcterms': 'http://purl.org/dc/terms/'
 }
+
+def XPath(expr):
+    return X(expr, namespaces=namespaces)
 
