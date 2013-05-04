@@ -1763,7 +1763,7 @@ if __name__ == '__main__':
             'calibre.utils.terminal', 'calibre.utils.magick', 'PIL', 'Image',
             'sqlite3', 'mechanize', 'httplib', 'xml', 'inspect', 'urllib',
             'calibre.utils.date', 'calibre.utils.config', 'platform',
-            'calibre.utils.zipfile',
+            'calibre.utils.zipfile', 'calibre.utils.formatter',
         ):
             if x in sys.modules:
                 ret = 1

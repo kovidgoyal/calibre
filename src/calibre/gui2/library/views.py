@@ -807,6 +807,14 @@ class BooksView(QTableView): # {{{
                 sm = self.selectionModel()
                 sm.select(index, sm.ClearAndSelect|sm.Rows)
 
+    def keyPressEvent(self, ev):
+        val = self.horizontalScrollBar().value()
+        ret = super(BooksView, self).keyPressEvent(ev)
+        if ev.isAccepted() and ev.key() in (Qt.Key_Home, Qt.Key_End
+                                            ) and ev.modifiers() & Qt.ControlModifier:
+            self.horizontalScrollBar().setValue(val)
+        return ret
+
     def ids_to_rows(self, ids):
         row_map = OrderedDict()
         ids = frozenset(ids)

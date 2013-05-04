@@ -5574,7 +5574,7 @@ msgstr ""
 "<p>Цим інструментом слід користуватися на останньому кроці створення вашої \n"
 "електронної книги.</p>\n"
 "{0}\n"
-"<p>Зауважте, що покращення працює лише для файлів у форматах %s.</p>\n"
+"<p>Зауважте, що покращення працює лише для файлів у форматах %s.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:446
