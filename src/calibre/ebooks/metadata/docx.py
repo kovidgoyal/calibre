@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 from lxml import etree
 
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.utils.localization import canonicalize_lang
 from calibre.utils.zipfile import ZipFile
 from calibre.utils.magick.draw import identify_data
 from calibre.ebooks.oeb.base import DC11_NS
@@ -51,6 +52,15 @@ def _read_doc_props(raw, mi):
     if desc:
         raw = etree.tostring(desc[0], method='text', encoding=unicode)
         mi.comments = raw
+
+    langs = []
+    for lang in XPath('//dc:language')(root):
+        if lang.text and lang.text.strip():
+            l = canonicalize_lang(lang.text)
+            if l:
+                langs.append(l)
+    if langs:
+        mi.languages = langs
 
 def _read_app_props(raw, mi):
     root = etree.fromstring(raw, parser=RECOVER_PARSER)
