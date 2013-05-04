@@ -14,16 +14,15 @@ class SafeFormat(TemplateFormatter):
 
     def __init__(self):
         TemplateFormatter.__init__(self)
-        from calibre.ebooks.metadata.book.base import field_metadata
-        self.field_metadata = field_metadata
 
     def get_value(self, orig_key, args, kwargs):
         if not orig_key:
             return ''
         key = orig_key = orig_key.lower()
-        if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS and \
-                key not in ALL_METADATA_FIELDS:
-            key = self.field_metadata.search_term_to_field_key(key)
+        if (key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS and
+                key not in ALL_METADATA_FIELDS):
+            from calibre.ebooks.metadata.book.base import field_metadata
+            key = field_metadata.search_term_to_field_key(key)
             if key is None or (self.book and
                                 key not in self.book.all_field_keys()):
                 if hasattr(self.book, orig_key):
