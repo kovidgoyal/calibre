@@ -133,6 +133,7 @@ class Parser(object):
         # Had to translate named constants to numeric values
         lex_scanner = re.Scanner([
                 (r'[()]',             lambda x,t: (1, t)),
+                (r'@.+?:[^")\s]+',    lambda x,t: (2, unicode(t))),
                 (r'[^"()\s]+',        lambda x,t: (2, unicode(t))),
                 (r'".*?((?<!\\)")',   lambda x,t: (3, t[1:-1])),
                 (r'\s+',              None)
