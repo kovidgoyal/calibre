@@ -240,9 +240,10 @@ class EditMetadataAction(InterfaceAction):
                         opf, cov = id_map[book_id]
                         cfile = mi.cover
                         mi.cover, mi.cover_data = None, (None, None)
-                        with open(opf, 'wb') as f:
-                            f.write(metadata_to_opf(mi))
-                        if cfile:
+                        if opf is not None:
+                            with open(opf, 'wb') as f:
+                                f.write(metadata_to_opf(mi))
+                        if cfile and cov:
                             shutil.copyfile(cfile, cov)
                             os.remove(cfile)
                     nid_map[book_id] = id_map[book_id]
