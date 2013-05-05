@@ -39,7 +39,7 @@ def create_locks():
     l = SHLock()
     return RWLockWrapper(l), RWLockWrapper(l, is_shared=False)
 
-class SHLock(object): # {{{
+class SHLock(object):  # {{{
     '''
     Shareable lock class. Used to implement the Multiple readers-single writer
     paradigm. As best as I can tell, neither writer nor reader starvation
@@ -191,7 +191,7 @@ class SHLock(object): # {{{
         try:
             return self._free_waiters.pop()
         except IndexError:
-            return Condition(self._lock)#, verbose=True)
+            return Condition(self._lock)
 
     def _return_waiter(self, waiter):
         self._free_waiters.append(waiter)

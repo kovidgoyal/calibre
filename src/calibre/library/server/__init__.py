@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.utils.config import Config, StringConfig, config_dir, tweaks
+from calibre.utils.config_base import Config, StringConfig, config_dir, tweaks
 
 
 listen_on = tweaks['server_listen_on']

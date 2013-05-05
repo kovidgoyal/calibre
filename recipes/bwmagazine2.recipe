@@ -1,3 +1,4 @@
+import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from collections import OrderedDict
 
@@ -11,7 +12,7 @@ class BusinessWeekMagazine(BasicNewsRecipe):
     category = 'news'
     encoding = 'UTF-8'
     keep_only_tags = [
-            dict(name='div', attrs={'id':'article_body_container'}),
+            dict(name='div', attrs={'id':['article_body_container','story_body']}),
             ]
     remove_tags = [dict(name='ui'),dict(name='li'),dict(name='div', attrs={'id':['share-email']})]
     no_javascript = True
@@ -25,43 +26,45 @@ class BusinessWeekMagazine(BasicNewsRecipe):
 
         #Find date
         mag=soup.find('h2',text='Magazine')
-        self.log(mag)
         dates=self.tag_to_string(mag.findNext('h3'))
         self.timefmt = u' [%s]'%dates
 
         #Go to the main body
-        div0 = soup.find ('div', attrs={'class':'column left'})
+        div0 = soup.find('div', attrs={'class':'column left'})
         section_title = ''
         feeds = OrderedDict()
-        for div in div0.findAll(['h4','h5']):
+        for div in div0.findAll('a', attrs={'class': None}):
             articles = []
             section_title = self.tag_to_string(div.findPrevious('h3')).strip()
-            title=self.tag_to_string(div.a).strip()
-            url=div.a['href']
+            title=self.tag_to_string(div).strip()
+            url=div['href']
             soup0 = self.index_to_soup(url)
-            urlprint=soup0.find('li', attrs={'class':'print tracked'}).a['href']
-            articles.append({'title':title, 'url':urlprint, 'description':'', 'date':''})
-
+            urlprint=soup0.find('a', attrs={'href':re.compile('.*printer.*')})
+            if urlprint is not None:
+                url=urlprint['href']
+            articles.append({'title':title, 'url':url, 'description':'', 'date':''})
 
             if articles:
                 if section_title not in feeds:
                     feeds[section_title] = []
                 feeds[section_title] += articles
-        div1 = soup.find ('div', attrs={'class':'column center'})
+        div1 = soup.find('div', attrs={'class':'column center'})
         section_title = ''
-        for div in div1.findAll(['h4','h5']):
+        for div in div1.findAll('a'):
             articles = []
             desc=self.tag_to_string(div.findNext('p')).strip()
             section_title = self.tag_to_string(div.findPrevious('h3')).strip()
-            title=self.tag_to_string(div.a).strip()
-            url=div.a['href']
+            title=self.tag_to_string(div).strip()
+            url=div['href']
             soup0 = self.index_to_soup(url)
-            urlprint=soup0.find('li', attrs={'class':'print tracked'}).a['href']
-            articles.append({'title':title, 'url':urlprint, 'description':desc, 'date':''})
-
+            urlprint=soup0.find('a', attrs={'href':re.compile('.*printer.*')})
+            if urlprint is not None:
+                url=urlprint['href']
+            articles.append({'title':title, 'url':url, 'description':desc, 'date':''})
             if articles:
                 if section_title not in feeds:
                     feeds[section_title] = []
                 feeds[section_title] += articles
+
         ans = [(key, val) for key, val in feeds.iteritems()]
         return ans

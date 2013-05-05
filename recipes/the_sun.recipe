@@ -1,4 +1,4 @@
-import re, random
+import random
 
 from calibre import browser
 from calibre.web.feeds.recipes import BasicNewsRecipe
@@ -8,7 +8,7 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     title          = u'The Sun UK'
     description = 'Articles from The Sun tabloid UK'
     __author__ = 'Dave Asbury'
-    # last updated 19/10/12 better cover fetch
+    # last updated 5/5/13 better cover fetch
     language = 'en_GB'
     oldest_article = 1
     max_articles_per_feed = 15
@@ -29,16 +29,12 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
         dict(name='div',attrs={'class' : 'intro'}),
                                 dict(name='h3'),
         dict(name='div',attrs={'id' : 'articlebody'}),
-           #dict(attrs={'class' : ['right_col_branding','related-stories','mystery-meat-link','ltbx-container','ltbx-var ltbx-hbxpn','ltbx-var ltbx-nav-loop','ltbx-var ltbx-url']}),
-           #                dict(name='div',attrs={'class' : 'cf'}),
-          # dict(attrs={'title' : 'download flash'}),
-          #                 dict(attrs={'style' : 'padding: 5px'})
 
-           ]
+    ]
     remove_tags_after = [dict(id='bodyText')]
     remove_tags=[
-                  dict(name='li'),
-                              dict(attrs={'class' : 'grid-4 right-hand-column'}),
+                    dict(name='li'),
+                    dict(attrs={'class' : 'grid-4 right-hand-column'}),
         ]
 
     feeds          = [
@@ -47,40 +43,24 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     (u'Showbiz', u'http://www.thesun.co.uk/sol/homepage/showbiz/rss'),
     (u'Woman', u'http://www.thesun.co.uk/sol/homepage/woman/rss'),
     ]
-# starsons code
-    def parse_feeds (self):
-      feeds = BasicNewsRecipe.parse_feeds(self)
-      for feed in feeds:
-        for article in feed.articles[:]:
-          print 'article.title is: ', article.title
-          if 'Try out The Sun' in article.title.upper() or 'Try-out-The-Suns' in article.url:
-            feed.articles.remove(article)
-          if 'Web porn harms kids' in article.title.upper() or 'Sun-says-Web-porn' in article.url:
-            feed.articles.remove(article)
-      return feeds
+    # starsons code
+    def parse_feeds(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        for feed in feeds:
+            for article in feed.articles[:]:
+                if 'Try out The Sun' in article.title.upper() or 'Try-out-The-Suns' in article.url:
+                    feed.articles.remove(article)
+                if 'Web porn harms kids' in article.title.upper() or 'Sun-says-Web-porn' in article.url:
+                    feed.articles.remove(article)
+        return feeds
 
     def get_cover_url(self):
-        soup = self.index_to_soup('http://www.politicshome.com/uk/latest_frontpage.html')
-        # look for the block containing the sun button and url
-        cov = soup.find(attrs={'style' : 'background-image: url(http://www.politicshome.com/images/sources/source_frontpage_button_84.gif);'})
-
-        #cov = soup.find(attrs={'id' : 'large'})
-        cov2 = str(cov)
-
-        cov2='http://www.politicshome.com'+cov2[9:-133]
-        #cov2 now contains url of the page containing pic
-        #cov2 now contains url of the page containing pic
-        soup = self.index_to_soup(cov2)
-        cov = soup.find(attrs={'id' : 'large'})
-        cov=str(cov)
-        cov2 =  re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
-        cov2 = str(cov2)
-        cov2=cov2[2:len(cov2)-2]
         br = browser()
         br.set_handle_redirect(False)
+        cover_url = 'http://www.thepaperboy.com/frontpages/current/The_Sun_newspaper_front_page.jpg'
+
         try:
-            br.open_novisit(cov2)
-            cover_url = cov2
+            br.open_novisit('http://www.thepaperboy.com/frontpages/current/The_Sun_newspaper_front_page.jpg')
         except:
             cover_url = random.choice([
                 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage6_677961a_905507a.jpg'
@@ -88,6 +68,6 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
                 ,'http://img.thesun.co.uk/multimedia/archive/00905/errorpage5_677960a_905512a.jpg'
                 ,'http://img.thesun.co.uk/multimedia/archive/00905/errorpage2_677957a_905502a.jpg'
                 ,'http://img.thesun.co.uk/multimedia/archive/00905/errorpage3_677958a_905503a.jpg'
-                ])
+            ])
 
         return cover_url

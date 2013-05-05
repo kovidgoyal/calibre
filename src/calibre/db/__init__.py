@@ -9,6 +9,50 @@ __docformat__ = 'restructuredtext en'
 
 SPOOL_SIZE = 30*1024*1024
 
+def _get_next_series_num_for_list(series_indices):
+    from calibre.utils.config_base import tweaks
+    from math import ceil, floor
+    if not series_indices:
+        if isinstance(tweaks['series_index_auto_increment'], (int, float)):
+            return float(tweaks['series_index_auto_increment'])
+        return 1.0
+    series_indices = [x[0] for x in series_indices]
+    if tweaks['series_index_auto_increment'] == 'next':
+        return floor(series_indices[-1]) + 1
+    if tweaks['series_index_auto_increment'] == 'first_free':
+        for i in xrange(1, 10000):
+            if i not in series_indices:
+                return i
+        # really shouldn't get here.
+    if tweaks['series_index_auto_increment'] == 'next_free':
+        for i in xrange(int(ceil(series_indices[0])), 10000):
+            if i not in series_indices:
+                return i
+        # really shouldn't get here.
+    if tweaks['series_index_auto_increment'] == 'last_free':
+        for i in xrange(int(ceil(series_indices[-1])), 0, -1):
+            if i not in series_indices:
+                return i
+        return series_indices[-1] + 1
+    if isinstance(tweaks['series_index_auto_increment'], (int, float)):
+        return float(tweaks['series_index_auto_increment'])
+    return 1.0
+
+def _get_series_values(val):
+    import re
+    series_index_pat = re.compile(r'(.*)\s+\[([.0-9]+)\]$')
+    if not val:
+        return (val, None)
+    match = series_index_pat.match(val.strip())
+    if match is not None:
+        idx = match.group(2)
+        try:
+            idx = float(idx)
+            return (match.group(1).strip(), idx)
+        except:
+            pass
+    return (val, None)
+
 '''
 Rewrite of the calibre database backend.
 
@@ -68,4 +112,5 @@ Various things that require other things before they can be migrated:
     libraries/switching/on calibre startup.
     3. From refresh in the legacy interface: Rember to flush the composite
     column template cache.
+    4. Replace the metadatabackup thread with the new implementation when using the new backend.
 '''

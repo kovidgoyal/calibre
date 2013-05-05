@@ -4,11 +4,14 @@ __copyright__ = '2010, Fabian Grassl <fg@jusmeum.de>'
 __docformat__ = 'restructuredtext en'
 
 import os, re, shutil
-from os.path import dirname, abspath, relpath, exists, basename
+from os.path import dirname, abspath, relpath as _relpath, exists, basename
 
 from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
 from calibre import CurrentDir
 from calibre.ptempfile import PersistentTemporaryDirectory
+
+def relpath(*args):
+    return _relpath(*args).replace(os.sep, '/')
 
 class HTMLOutput(OutputFormatPlugin):
 

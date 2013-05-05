@@ -11,7 +11,8 @@ class PsychologyToday(BasicNewsRecipe):
     language = 'en'
     category = 'news'
     encoding = 'UTF-8'
-    keep_only_tags = [dict(attrs={'class':['print-title', 'print-submitted', 'print-content', 'print-footer', 'print-source_url', 'print-links']})]
+    auto_cleanup = True
+    #keep_only_tags = [dict(attrs={'class':['print-title', 'print-submitted', 'print-content', 'print-footer', 'print-source_url', 'print-links']})]
     no_javascript = True
     no_stylesheets = True
 
@@ -31,50 +32,32 @@ class PsychologyToday(BasicNewsRecipe):
         self.timefmt = u' [%s]'%date
 
         articles = []
-        for post in div.findAll('div', attrs={'class':'collections-node-feature-info'}):
+        for post in div.findAll('div', attrs={'class':'collections-node-feature collection-node-even'}):
             title = self.tag_to_string(post.find('h2'))
             author_item=post.find('div', attrs={'class':'collection-node-byline'})
             author = re.sub(r'.*by\s',"",self.tag_to_string(author_item).strip())
             title = title + u' (%s)'%author
-            article_page= self.index_to_soup('http://www.psychologytoday.com'+post.find('a', href=True)['href'])
-            print_page=article_page.find('li', attrs={'class':'print_html first'})
-            url='http://www.psychologytoday.com'+print_page.find('a',href=True)['href']
+            url= 'http://www.psychologytoday.com'+post.find('a', href=True)['href']
+            #print_page=article_page.find('li', attrs={'class':'print_html first'})
+            #url='http://www.psychologytoday.com'+print_page.find('a',href=True)['href']
+            desc = self.tag_to_string(post.find('div', attrs={'class':'collection-node-description'})).strip()
+            self.log('Found article:', title)
+            self.log('\t', url)
+            self.log('\t', desc)
+            articles.append({'title':title, 'url':url, 'date':'','description':desc})
+        for post in div.findAll('div', attrs={'class':'collections-node-feature collection-node-odd'}):
+            title = self.tag_to_string(post.find('h2'))
+            author_item=post.find('div', attrs={'class':'collection-node-byline'})
+            author = re.sub(r'.*by\s',"",self.tag_to_string(author_item).strip())
+            title = title + u' (%s)'%author
+            url= 'http://www.psychologytoday.com'+post.find('a', href=True)['href']
+            #print_page=article_page.find('li', attrs={'class':'print_html first'})
+            #url='http://www.psychologytoday.com'+print_page.find('a',href=True)['href']
             desc = self.tag_to_string(post.find('div', attrs={'class':'collection-node-description'})).strip()
             self.log('Found article:', title)
             self.log('\t', url)
             self.log('\t', desc)
             articles.append({'title':title, 'url':url, 'date':'','description':desc})
 
-        for post in div.findAll('div', attrs={'class':'collections-node-thumbnail-info'}):
-            title = self.tag_to_string(post.find('h2'))
-            author_item=post.find('div', attrs={'class':'collection-node-byline'})
-            article_page= self.index_to_soup('http://www.psychologytoday.com'+post.find('a', href=True)['href'])
-            print_page=article_page.find('li', attrs={'class':'print_html first'})
-            description = post.find('div', attrs={'class':'collection-node-description'})
-            author = re.sub(r'.*by\s',"",self.tag_to_string(description.nextSibling).strip())
-            desc = self.tag_to_string(description).strip()
-            url='http://www.psychologytoday.com'+print_page.find('a',href=True)['href']
-            title = title + u' (%s)'%author
-            self.log('Found article:', title)
-            self.log('\t', url)
-            self.log('\t', desc)
-            articles.append({'title':title, 'url':url, 'date':'','description':desc})
-
-        for post in div.findAll('li', attrs={'class':['collection-item-list-odd','collection-item-list-even']}):
-            title = self.tag_to_string(post.find('h2'))
-            author_item=post.find('div', attrs={'class':'collection-node-byline'})
-            author = re.sub(r'.*by\s',"",self.tag_to_string(author_item).strip())
-            title = title + u' (%s)'%author
-            article_page= self.index_to_soup('http://www.psychologytoday.com'+post.find('a', href=True)['href'])
-            print_page=article_page.find('li', attrs={'class':'print_html first'})
-            if print_page is not None:
-                url='http://www.psychologytoday.com'+print_page.find('a',href=True)['href']
-                desc = self.tag_to_string(post.find('div', attrs={'class':'collection-node-description'})).strip()
-                self.log('Found article:', title)
-                self.log('\t', url)
-                self.log('\t', desc)
-                articles.append({'title':title, 'url':url, 'date':'','description':desc})
 
         return [('Current Issue', articles)]
-
-

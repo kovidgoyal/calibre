@@ -30,7 +30,7 @@ from calibre.ebooks.oeb.base import (
 from calibre.ebooks.oeb.polish.errors import InvalidBook, DRMError
 from calibre.ebooks.oeb.parse_utils import NotHTML, parse_html, RECOVER_PARSER
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
-from calibre.utils.ipc.simple_worker  import fork_job, WorkerError
+from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.utils.logging import default_log
 from calibre.utils.zipfile import ZipFile
 
@@ -77,7 +77,7 @@ class Container(object):
 
         # Map of relative paths with '/' separators from root of unzipped ePub
         # to absolute paths on filesystem with os-specific separators
-        opfpath = os.path.abspath(opfpath)
+        opfpath = os.path.abspath(os.path.realpath(opfpath))
         for dirpath, _dirnames, filenames in os.walk(self.root):
             for f in filenames:
                 path = join(dirpath, f)
@@ -406,8 +406,9 @@ class Container(object):
                     child.get('content', '').strip() in {'{}', ''}):
                     remove.add(child)
             except AttributeError:
-                continue # Happens for XML comments
-        for child in remove: mdata.remove(child)
+                continue  # Happens for XML comments
+        for child in remove:
+            mdata.remove(child)
         if len(mdata) > 0:
             mdata[-1].tail = '\n  '
 
@@ -473,17 +474,17 @@ class EpubContainer(Container):
     book_type = 'epub'
 
     META_INF = {
-            'container.xml' : True,
-            'manifest.xml' : False,
-            'encryption.xml' : False,
-            'metadata.xml' : False,
-            'signatures.xml' : False,
-            'rights.xml' : False,
+            'container.xml': True,
+            'manifest.xml': False,
+            'encryption.xml': False,
+            'metadata.xml': False,
+            'signatures.xml': False,
+            'rights.xml': False,
     }
 
     def __init__(self, pathtoepub, log):
         self.pathtoepub = pathtoepub
-        tdir = self.root = PersistentTemporaryDirectory('_epub_container')
+        tdir = self.root = os.path.abspath(os.path.realpath(PersistentTemporaryDirectory('_epub_container')))
         with open(self.pathtoepub, 'rb') as stream:
             try:
                 zf = ZipFile(stream)
@@ -616,7 +617,7 @@ class AZW3Container(Container):
 
     def __init__(self, pathtoazw3, log):
         self.pathtoazw3 = pathtoazw3
-        tdir = self.root = PersistentTemporaryDirectory('_azw3_container')
+        tdir = self.root = os.path.abspath(os.path.realpath(PersistentTemporaryDirectory('_azw3_container')))
         with open(pathtoazw3, 'rb') as stream:
             raw = stream.read(3)
             if raw == b'TPZ':
@@ -670,7 +671,8 @@ class AZW3Container(Container):
 # }}}
 
 def get_container(path, log=None):
-    if log is None: log = default_log
+    if log is None:
+        log = default_log
     ebook = (AZW3Container if path.rpartition('.')[-1].lower() in {'azw3', 'mobi'}
             else EpubContainer)(path, log)
     return ebook

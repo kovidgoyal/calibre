@@ -1,0 +1,11 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1366025923(BasicNewsRecipe):
+    title          = u'Lightspeed Magazine'
+    language = 'en'
+    __author__ = 'Jose Pinto'
+    oldest_article = 31
+    max_articles_per_feed = 100
+    auto_cleanup = True
+    use_embedded_content = False
+    feeds          = [(u'Lastest Stories', u'http://www.lightspeedmagazine.com/rss-2/')]

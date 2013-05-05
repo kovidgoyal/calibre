@@ -25,7 +25,7 @@ class Smithsonian(BasicNewsRecipe):
         soup = self.index_to_soup(current_issue_url)
 
         #Go to the main body
-        div = soup.find ('div', attrs={'id':'article-body'})
+        div = soup.find('div', attrs={'id':'article-body'})
 
         #Find date
         date = re.sub('.*\:\W*', "", self.tag_to_string(div.find('h2')).strip())
@@ -49,16 +49,20 @@ class Smithsonian(BasicNewsRecipe):
                 self.log('Found section:', section_title)
             else:
                 link=post.find('a',href=True)
+                article_cat=link.findPrevious('p', attrs={'class':'article-cat'})
                 url=link['href']+'?c=y&story=fullstory'
-                description=self.tag_to_string(post.find('p')).strip()
-                desc=re.sub('\sBy\s.*', '', description, re.DOTALL)
-                author=re.sub('.*By\s', '', description, re.DOTALL)
-                title=self.tag_to_string(link).strip()+ u' (%s)'%author
+                description=self.tag_to_string(post.findAll('p')[-1]).strip()
+                title=self.tag_to_string(link).strip()
+                if article_cat is not None:
+                    title += u' (%s)'%self.tag_to_string(article_cat).strip()
                 self.log('\tFound article:', title)
-                articles.append({'title':title, 'url':url, 'description':desc, 'date':''})
+                articles.append({'title':title, 'url':url, 'description':description, 'date':''})
 
-        if articles:
-            feeds[section_title] = articles
+            if articles:
+                if section_title not in feeds:
+                    feeds[section_title] = []
+                feeds[section_title] += articles
+            articles = []
 
         ans = [(key, val) for key, val in feeds.iteritems()]
         return ans

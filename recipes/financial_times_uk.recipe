@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010-2012, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
-www.ft.com/uk-edition
+www.ft.com/intl/uk-edition
 '''
 
 import datetime
@@ -29,7 +29,7 @@ class FinancialTimes(BasicNewsRecipe):
     masthead_url          = 'http://im.media.ft.com/m/img/masthead_main.jpg'
     LOGIN                 = 'https://registration.ft.com/registration/barrier/login'
     LOGIN2                = 'http://media.ft.com/h/subs3.html'
-    INDEX                 = 'http://www.ft.com/uk-edition'
+    INDEX                 = 'http://www.ft.com/intl/uk-edition'
     PREFIX                = 'http://www.ft.com'
 
     conversion_options = {
@@ -110,10 +110,12 @@ class FinancialTimes(BasicNewsRecipe):
         soup = self.index_to_soup(self.INDEX)
         #dates= self.tag_to_string(soup.find('div', attrs={'class':'btm-links'}).find('div'))
         #self.timefmt = ' [%s]'%dates
+        section_title = 'Untitled'
 
         for column in soup.findAll('div', attrs = {'class':'feedBoxes clearfix'}):
             for section in column. findAll('div', attrs = {'class':'feedBox'}):
-                section_title=self.tag_to_string(section.find('h4'))
+                sectiontitle=self.tag_to_string(section.find('h4'))
+                if '...' not in sectiontitle: section_title=sectiontitle
                 for article in section.ul.findAll('li'):
                     articles = []
                     title=self.tag_to_string(article.a)

@@ -63,7 +63,6 @@ class TXTInput(InputFormatPlugin):
                 normalize_line_endings, convert_textile, remove_indents,
                 block_to_single_line, separate_hard_scene_breaks)
 
-
         self.log = log
         txt = ''
         log.debug('Reading text from file...')
@@ -92,11 +91,23 @@ class TXTInput(InputFormatPlugin):
             log.debug('Using user specified input encoding of %s' % ienc)
         else:
             det_encoding = detect(txt)
+            if det_encoding and det_encoding.lower().replace('_', '-').strip() in (
+                    'gb2312', 'chinese', 'csiso58gb231280', 'euc-cn', 'euccn',
+                    'eucgb2312-cn', 'gb2312-1980', 'gb2312-80', 'iso-ir-58'):
+                # Microsoft Word exports to HTML with encoding incorrectly set to
+                # gb2312 instead of gbk. gbk is a superset of gb2312, anyway.
+                det_encoding = 'gbk'
             ienc = det_encoding['encoding']
             log.debug('Detected input encoding as %s with a confidence of %s%%' % (ienc, det_encoding['confidence'] * 100))
         if not ienc:
             ienc = 'utf-8'
             log.debug('No input encoding specified and could not auto detect using %s' % ienc)
+        # Remove BOM from start of txt as its presence can confuse markdown
+        import codecs
+        for bom in (codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE, codecs.BOM_UTF8, codecs.BOM_UTF32_LE, codecs.BOM_UTF32_BE):
+            if txt.startswith(bom):
+                txt = txt[len(bom):]
+                break
         txt = txt.decode(ienc, 'replace')
 
         # Replace entities

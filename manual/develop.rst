@@ -67,8 +67,12 @@ and you will most likely get help from one of |app|'s many developers.
 Getting the code
 ------------------
 
-|app| uses `Bazaar <http://bazaar-vcs.org/>`_, a distributed version control system. Bazaar is available on all the platforms |app| supports.
-After installing Bazaar, you can get the |app| source code with the command::
+You can get the |app| source code in two ways, using a version control system or
+directly downloading a `tarball <http://status.calibre-ebook.com/dist/src>`_.
+
+|app| uses `Bazaar <http://bazaar-vcs.org/>`_, a distributed version control
+system. Bazaar is available on all the platforms |app| supports.  After
+installing Bazaar, you can get the |app| source code with the command::
 
     bzr branch lp:calibre
 
@@ -124,6 +128,8 @@ discuss them in the forum or contact Kovid directly (his email address is all ov
 Windows development environment
 ---------------------------------
 
+.. note:: You must also get the |app| source code separately as described above.
+
 Install |app| normally, using the Windows installer. Then open a Command Prompt and change to
 the previously checked out |app| code directory. For example::
 
@@ -152,6 +158,8 @@ near the top of the file. Now run the command :command:`calibredb`. The very fir
 
 OS X development environment
 ------------------------------
+
+.. note:: You must also get the |app| source code separately as described above.
 
 Install |app| normally using the provided .dmg. Then open a Terminal and change to
 the previously checked out |app| code directory, for example::
@@ -182,6 +190,8 @@ window, indicating that you are running from source.
 
 Linux development environment
 ------------------------------
+
+.. note:: You must also get the |app| source code separately as described above.
 
 |app| is primarily developed on Linux. You have two choices in setting up the development environment. You can install the
 |app| binary as normal and use that as a runtime environment to do your development. This approach is similar to that

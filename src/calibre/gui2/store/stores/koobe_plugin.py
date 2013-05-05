@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 1  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2013, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import re
 import urllib
 from base64 import b64encode
 from contextlib import closing

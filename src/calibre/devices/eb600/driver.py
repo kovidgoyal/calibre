@@ -60,12 +60,23 @@ class TOLINO(EB600):
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['_TELEKOMTOLINO']
 
     def linux_swap_drives(self, drives):
-        if len(drives) < 2 or not drives[1] or not drives[2]: return drives
+        if len(drives) < 2 or not drives[1] or not drives[2]:
+            return drives
         drives = list(drives)
         t = drives[0]
         drives[0] = drives[1]
         drives[1] = t
         return tuple(drives)
+
+    def windows_sort_drives(self, drives):
+        if len(drives) < 2:
+            return drives
+        main = drives.get('main', None)
+        carda = drives.get('carda', None)
+        if main and carda:
+            drives['main'] = carda
+            drives['carda'] = main
+        return drives
 
 class COOL_ER(EB600):
 
@@ -94,11 +105,9 @@ class SHINEBOOK(EB600):
     MAIN_MEMORY_VOLUME_LABEL  = 'ShineBook Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'ShineBook Storage Card'
 
-
     @classmethod
     def can_handle(cls, dev, debug=False):
         return dev[4] == 'ShineBook'
-
 
 
 class POCKETBOOK360(EB600):
@@ -112,7 +121,6 @@ class POCKETBOOK360(EB600):
     VENDOR_ID   = [0x1f85, 0x525]
     PRODUCT_ID  = [0x1688, 0xa4a5]
     BCD         = [0x110]
-
 
     FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm', 'txt']
 
@@ -312,7 +320,8 @@ class POCKETBOOK701(USBMS):
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '__UMS_COMPOSITE'
 
     def windows_sort_drives(self, drives):
-        if len(drives) < 2: return drives
+        if len(drives) < 2:
+            return drives
         main = drives.get('main', None)
         carda = drives.get('carda', None)
         if main and carda:

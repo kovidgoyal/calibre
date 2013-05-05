@@ -13,17 +13,19 @@ from threading import Thread, Event
 from io import BytesIO
 
 from calibre.customize.ui import metadata_plugins
-from calibre.ebooks.metadata.sources.base import msprefs, create_log
+from calibre.ebooks.metadata.sources.base import create_log
+from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.utils.magick.draw import Image, save_cover_data_to
 
 class Worker(Thread):
 
-    def __init__(self, plugin, abort, title, authors, identifiers, timeout, rq):
+    def __init__(self, plugin, abort, title, authors, identifiers, timeout, rq, get_best_cover=False):
         Thread.__init__(self)
         self.daemon = True
 
         self.plugin = plugin
         self.abort = abort
+        self.get_best_cover = get_best_cover
         self.buf = BytesIO()
         self.log = create_log(self.buf)
         self.title, self.authors, self.identifiers = (title, authors,
@@ -37,7 +39,7 @@ class Worker(Thread):
             try:
                 if self.plugin.can_get_multiple_covers:
                     self.plugin.download_cover(self.log, self.rq, self.abort,
-                        title=self.title, authors=self.authors, get_best_cover=True,
+                        title=self.title, authors=self.authors, get_best_cover=self.get_best_cover,
                         identifiers=self.identifiers, timeout=self.timeout)
                 else:
                     self.plugin.download_cover(self.log, self.rq, self.abort,
@@ -72,7 +74,7 @@ def process_result(log, result):
     return (plugin, width, height, fmt, data)
 
 def run_download(log, results, abort,
-        title=None, authors=None, identifiers={}, timeout=30):
+        title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
     '''
     Run the cover download, putting results into the queue :param:`results`.
 
@@ -89,7 +91,7 @@ def run_download(log, results, abort,
     plugins = [p for p in metadata_plugins(['cover']) if p.is_configured()]
 
     rq = Queue()
-    workers = [Worker(p, abort, title, authors, identifiers, timeout, rq) for p
+    workers = [Worker(p, abort, title, authors, identifiers, timeout, rq, get_best_cover=get_best_cover) for p
             in plugins]
     for w in workers:
         w.start()
@@ -163,7 +165,7 @@ def download_cover(log,
     abort = Event()
 
     run_download(log, rq, abort, title=title, authors=authors,
-            identifiers=identifiers, timeout=timeout)
+            identifiers=identifiers, timeout=timeout, get_best_cover=True)
 
     results = []
 

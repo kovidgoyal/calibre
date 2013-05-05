@@ -11,7 +11,6 @@ import os, time, re
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre.devices.prs505 import MEDIA_XML, MEDIA_EXT, CACHE_XML, CACHE_EXT, \
             MEDIA_THUMBNAIL, CACHE_THUMBNAIL
-from calibre.devices.prs505.sony_cache import XMLCache
 from calibre import __appname__, prints
 from calibre.devices.usbms.books import CollectionsBookList
 
@@ -178,6 +177,7 @@ class PRS505(USBMS):
         return fname
 
     def initialize_XML_cache(self):
+        from calibre.devices.prs505.sony_cache import XMLCache
         paths, prefixes, ext_paths = {}, {}, {}
         for prefix, path, ext_path, source_id in [
                 ('main', MEDIA_XML, MEDIA_EXT, 0),

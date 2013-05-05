@@ -647,12 +647,17 @@ computers. Run |app| on a single computer and access it via the Content Server
 or a Remote Desktop solution.
 
 If you must share the actual library, use a file syncing tool like
-DropBox or rsync or Microsoft SkyDrive instead of a networked drive. Even with
-these tools there is danger of data corruption/loss, so only do this if you are
-willing to live with that risk. In particular, be aware that **Google Drive**
-is incompatible with |app|, if you put your |app| library in Google Drive, you
-*will* suffer data loss. See
-`this thread <http://www.mobileread.com/forums/showthread.php?t=205581>`_ for details.
+DropBox or rsync or Microsoft SkyDrive instead of a networked drive. If you are
+using a file-syncing tool it is **essential** that you make sure that both
+|app| and the file syncing tool do not try to access the |app| library at the
+same time. In other words, **do not** run the file syncing tool and |app| at
+the same time.
+
+Even with these tools there is danger of data corruption/loss, so only do this
+if you are willing to live with that risk. In particular, be aware that
+**Google Drive** is incompatible with |app|, if you put your |app| library in
+Google Drive, **you will suffer data loss**. See `this thread
+<http://www.mobileread.com/forums/showthread.php?t=205581>`_ for details.
 
 Content From The Web
 ---------------------
@@ -797,6 +802,12 @@ Downloading from the Internet can sometimes result in a corrupted download. If t
     * Try temporarily disabling your antivirus program (Microsoft Security Essentials, or Kaspersky or Norton or McAfee or whatever). This is most likely the culprit if the upgrade process is hanging in the middle.
     * Try rebooting your computer and running a registry cleaner like `Wise registry cleaner <http://www.wisecleaner.com>`_.
     * Try downloading the installer with an alternate browser. For example if you are using Internet Explorer, try using Firefox or Chrome instead.
+    * If you get an error about a missing DLL on windows, then most likely, the
+      permissions on your temporary folder are incorrect. Go to the folder
+      :file:`C:\\Users\\USERNAME\\AppData\\Local` in Windows explorer and then
+      right click on the :file:`Temp` folder and select :guilabel:`Properties` and go to
+      the :guilabel:`Security` tab. Make sure that your user account has full control 
+      for this folder.
       
 If you still cannot get the installer to work and you are on windows, you can use the `calibre portable install <http://calibre-ebook.com/download_portable>`_, which does not need an installer (it is just a zip file).
 

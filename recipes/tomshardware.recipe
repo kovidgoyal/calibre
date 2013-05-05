@@ -1,7 +1,5 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
 tomshardware.com/us
 '''
@@ -16,22 +14,20 @@ class Tomshardware(BasicNewsRecipe):
     publisher           = "Tom's Hardware"
     category            = 'news, IT, hardware, USA'
     no_stylesheets      = True
-    needs_subscription  = True
-    language = 'en'
-
+    needs_subscription  = 'optional'
+    language            = 'en'
     INDEX               = 'http://www.tomshardware.com'
     LOGIN               = INDEX + '/membres/'
     remove_javascript   = True
     use_embedded_content= False
 
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
-
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
-
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+    
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.INDEX+'/us/')
@@ -50,8 +46,8 @@ class Tomshardware(BasicNewsRecipe):
                   ]
 
     feeds = [
-              (u'Latest Articles', u'http://www.tomshardware.com/feeds/atom/tom-s-hardware-us,18-2.xml'          )
-             ,(u'Latest News'    , u'http://www.tomshardware.com/feeds/atom/tom-s-hardware-us,18-1.xml')
+              (u'Reviews', u'http://www.tomshardware.com/feeds/rss2/tom-s-hardware-us,18-2.xml')
+             ,(u'News'   , u'http://www.tomshardware.com/feeds/rss2/tom-s-hardware-us,18-1.xml')
             ]
 
     def print_version(self, url):

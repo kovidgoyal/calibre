@@ -5,7 +5,7 @@ __copyright__ = '2010, Gregory Riker'
 __docformat__ = 'restructuredtext en'
 
 
-import cStringIO, ctypes, datetime, os, platform, re, shutil, sys, tempfile, time
+import cStringIO, ctypes, datetime, os, re, shutil, sys, tempfile, time
 
 from calibre import fit_image, confirm_config_name, strftime as _strftime
 from calibre.constants import (
@@ -17,13 +17,12 @@ from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.metadata import (author_to_author_sort, authors_to_string,
     MetaInformation, title_sort)
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.utils.config import config_dir, dynamic, prefs
-from calibre.utils.date import now, parse_date
-from calibre.utils.zipfile import ZipFile
+from calibre.utils.config_base import config_dir, prefs
 
 DEBUG = CALIBRE_DEBUG
 
 def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
+    from calibre.utils.date import now
 
     if not hasattr(dt, 'timetuple'):
         dt = now()
@@ -96,6 +95,7 @@ class AppleOpenFeedback(OpenFeedback):
 
             def do_it(self, return_code):
                 from calibre.utils.logging import default_log
+                from calibre.utils.config import dynamic
                 if return_code == self.Accepted:
                     default_log.info(" Apple driver ENABLED")
                     dynamic[confirm_config_name(self.cd.plugin.DISPLAY_DISABLE_DIALOG)] = False
@@ -413,6 +413,7 @@ class ITUNES(DriverBase):
         list of device books.
 
         """
+        from calibre.utils.date import parse_date
         if not oncard:
             if DEBUG:
                 logger().info("%s.books():" % self.__class__.__name__)
@@ -860,6 +861,7 @@ class ITUNES(DriverBase):
         Note that most of the initialization is necessarily performed in can_handle(), as
         we need to talk to iTunes to discover if there's a connected iPod
         '''
+        from calibre.utils.zipfile import ZipFile
         if self.iTunes is None:
             raise OpenFeedback(self.ITUNES_SANDBOX_LOCKOUT_MESSAGE)
 
@@ -881,6 +883,7 @@ class ITUNES(DriverBase):
         if False:
             # Display a dialog recommending using 'Connect to iTunes' if user hasn't
             # previously disabled the dialog
+            from calibre.utils.config import dynamic
             if dynamic.get(confirm_config_name(self.DISPLAY_DISABLE_DIALOG), True):
                 raise AppleOpenFeedback(self)
             else:
@@ -930,6 +933,7 @@ class ITUNES(DriverBase):
         NB: This will not find books that were added by a different installation of calibre
             as uuids are different
         '''
+        from calibre.utils.zipfile import ZipFile
         if DEBUG:
             logger().info("%s.remove_books_from_metadata()" % self.__class__.__name__)
         for path in paths:
@@ -1429,6 +1433,7 @@ class ITUNES(DriverBase):
         as of iTunes 9.2, iBooks 1.1, can't set artwork for PDF files via automation
         '''
         from PIL import Image as PILImage
+        from calibre.utils.zipfile import ZipFile
 
         if DEBUG:
             logger().info(" %s._cover_to_thumb()" % self.__class__.__name__)
@@ -1557,6 +1562,7 @@ class ITUNES(DriverBase):
     def _create_new_book(self, fpath, metadata, path, db_added, lb_added, thumb, format):
         '''
         '''
+        from calibre.utils.date import parse_date
         if DEBUG:
             logger().info(" %s._create_new_book()" % self.__class__.__name__)
 
@@ -1761,6 +1767,7 @@ class ITUNES(DriverBase):
         '''
         '''
         from calibre.ebooks.BeautifulSoup import BeautifulSoup
+        from calibre.utils.zipfile import ZipFile
 
         logger().info(" %s.__get_epub_metadata()" % self.__class__.__name__)
         title = None
@@ -2014,6 +2021,7 @@ class ITUNES(DriverBase):
         as of iTunes 9.2, iBooks 1.1, can't set artwork for PDF files via automation
         '''
         from PIL import Image as PILImage
+        from calibre.utils.zipfile import ZipFile
 
         if not self.settings().extra_customization[self.CACHE_COVERS]:
             thumb_data = None
@@ -2126,6 +2134,7 @@ class ITUNES(DriverBase):
         '''
         Calculate the exploded size of file
         '''
+        from calibre.utils.zipfile import ZipFile
         exploded_file_size = compressed_size
         format = file.rpartition('.')[2].lower()
         if format == 'epub':
@@ -2478,6 +2487,7 @@ class ITUNES(DriverBase):
             '''
 
             if DEBUG:
+                import platform
                 logger().info("  %s %s" % (__appname__, __version__))
                 logger().info("  [OSX %s, %s %s (%s), %s driver version %d.%d.%d]" %
                  (platform.mac_ver()[0],
@@ -2622,7 +2632,7 @@ class ITUNES(DriverBase):
             # for deletion from booklist[0] during add_books_to_metadata
             for book in self.cached_books:
                 if (self.cached_books[book]['uuid'] == metadata.uuid or
-                    (self.cached_books[book]['title'] == metadata.title and \
+                    (self.cached_books[book]['title'] == metadata.title and
                      self.cached_books[book]['author'] == metadata.author)):
                     self.update_list.append(self.cached_books[book])
                     if DEBUG:
@@ -2776,8 +2786,10 @@ class ITUNES(DriverBase):
     def _update_epub_metadata(self, fpath, metadata):
         '''
         '''
+        from calibre.utils.date import parse_date, now
         from calibre.ebooks.metadata.epub import set_metadata
         from lxml import etree
+        from calibre.utils.zipfile import ZipFile
 
         if DEBUG:
             logger().info(" %s._update_epub_metadata()" % self.__class__.__name__)
@@ -3248,6 +3260,7 @@ class ITUNES_ASYNC(ITUNES):
         list of device books.
 
         """
+        from calibre.utils.date import parse_date
         if not oncard:
             if DEBUG:
                 logger().info("%s.books()" % self.__class__.__name__)
@@ -3418,6 +3431,7 @@ class ITUNES_ASYNC(ITUNES):
         Note that most of the initialization is necessarily performed in can_handle(), as
         we need to talk to iTunes to discover if there's a connected iPod
         '''
+        from calibre.utils.zipfile import ZipFile
         if self.iTunes is None:
             raise OpenFeedback(self.ITUNES_SANDBOX_LOCKOUT_MESSAGE)
 

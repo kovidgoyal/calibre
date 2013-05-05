@@ -1,6 +1,3 @@
-" Project wide builtins
-let $PYFLAKES_BUILTINS = "_,dynamic_property,__,P,I,lopen,icu_lower,icu_upper,icu_title,ngettext"
-
 " Include directories for C++ modules
 let g:syntastic_cpp_include_dirs = [ 
             \'/usr/include/python2.7',

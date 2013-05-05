@@ -7,7 +7,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from urllib import quote
 
 
 from calibre.ebooks.metadata import check_isbn
@@ -66,6 +65,7 @@ class ISBNDB(Source):
         return self.isbndb_key is not None
 
     def create_query(self, title=None, authors=None, identifiers={}): # {{{
+        from urllib import quote
         base_url = BASE_URL%self.isbndb_key
         isbn = check_isbn(identifiers.get('isbn', None))
         q = ''

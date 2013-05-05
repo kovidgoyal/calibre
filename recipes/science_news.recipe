@@ -50,12 +50,22 @@ class ScienceNewsIssue(BasicNewsRecipe):
                        dict(name='ul', attrs={'id':'toc'})
                      ]
 
+    remove_tags= [ dict(name='a', attrs={'class':'enlarge print-no'}),
+                   dict(name='a', attrs={'rel':'shadowbox'})
+                 ]
+
     feeds       = [(u"Science News Current Issues", u'http://www.sciencenews.org/view/feed/type/edition/name/issues.rss')]
 
     match_regexps = [
             r'www.sciencenews.org/view/feature/id/',
             r'www.sciencenews.org/view/generic/id'
             ]
+
+    def image_url_processor(self, baseurl, url):
+        x = url.split('/')
+        if x[4] == u'scale':
+            url = u'http://www.sciencenews.org/view/download/id/' + x[6] + u'/name/' + x[-1]
+        return url
 
     def get_cover_url(self):
         cover_url = None
@@ -64,7 +74,6 @@ class ScienceNewsIssue(BasicNewsRecipe):
         link_item = soup.find(name = 'img',alt = "issue")
         if link_item:
            cover_url = 'http://www.sciencenews.org' + link_item['src'] + '.jpg'
-
         return cover_url
 
     def preprocess_html(self, soup):
