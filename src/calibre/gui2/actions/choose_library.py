@@ -116,11 +116,12 @@ class MovedDialog(QDialog): # {{{
         self.cd.setIcon(QIcon(I('document_open.png')))
         self.cd.clicked.connect(self.choose_dir)
         l.addWidget(self.cd, 2, 1, 1, 1)
-        self.bb = QDialogButtonBox(self)
+        self.bb = QDialogButtonBox(QDialogButtonBox.Abort)
         b = self.bb.addButton(_('Library moved'), self.bb.AcceptRole)
         b.setIcon(QIcon(I('ok.png')))
         b = self.bb.addButton(_('Forget library'), self.bb.RejectRole)
         b.setIcon(QIcon(I('edit-clear.png')))
+        b.clicked.connect(self.forget_library)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
         l.addWidget(self.bb, 3, 0, 1, ncols)
@@ -132,9 +133,8 @@ class MovedDialog(QDialog): # {{{
         if d is not None:
             self.loc.setText(d)
 
-    def reject(self):
+    def forget_library(self):
         self.stats.remove(self.location)
-        QDialog.reject(self)
 
     def accept(self):
         newloc = unicode(self.loc.text())
