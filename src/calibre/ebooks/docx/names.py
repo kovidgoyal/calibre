@@ -11,6 +11,7 @@ from lxml.etree import XPath as X
 DOCUMENT = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument'
 DOCPROPS = 'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties'
 APPPROPS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties'
+STYLES   = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles'
 
 namespaces = {
     'mo': 'http://schemas.microsoft.com/office/mac/office/2008/main',
@@ -20,6 +21,7 @@ namespaces = {
     'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
     'w10': 'urn:schemas-microsoft-com:office:word',
     'wne': 'http://schemas.microsoft.com/office/word/2006/wordml',
+    'xml': 'http://www.w3.org/XML/1998/namespace',
     # Drawing
     'a': 'http://schemas.openxmlformats.org/drawingml/2006/main',
     'm': 'http://schemas.openxmlformats.org/officeDocument/2006/math',
@@ -44,4 +46,19 @@ namespaces = {
 
 def XPath(expr):
     return X(expr, namespaces=namespaces)
+
+def is_tag(x, q):
+    tag = getattr(x, 'tag', x)
+    ns, name = q.partition(':')[0::2]
+    return '{%s}%s' % (namespaces.get(ns, None), name) == tag
+
+def barename(x):
+    return x.rpartition('}')[-1]
+
+def XML(x):
+    return '{%s}%s' % (namespaces['xml'], x)
+
+def get(x, attr, default=None):
+    ns, name = attr.partition(':')[0::2]
+    return x.attrib.get('{%s}%s' % (namespaces[ns], name), default)
 
