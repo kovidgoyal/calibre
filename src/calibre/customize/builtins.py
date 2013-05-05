@@ -1476,7 +1476,6 @@ class StoreKoobeStore(StoreBase):
     drm_free_only = True
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF']
-    affiliate = True
 
 class StoreLegimiStore(StoreBase):
     name = 'Legimi'
@@ -1660,7 +1659,6 @@ class StoreWoblinkStore(StoreBase):
 
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF', 'WOBLINK']
-    affiliate = True
 
 class XinXiiStore(StoreBase):
     name = 'XinXii'
