@@ -31,6 +31,14 @@ class Gildia(BasicNewsRecipe):
             for link in content.findAll(name='a'):
                 if 'fragment' in link['href']:
                     return self.index_to_soup(link['href'], raw=True)
+        if 'relacj' in soup.title.string.lower():
+            for link in content.findAll(name='a'):
+                if 'relacj' in link['href']:
+                    return self.index_to_soup(link['href'], raw=True)
+        if 'wywiad' in soup.title.string.lower():
+            for link in content.findAll(name='a'):
+                if 'wywiad' in link['href']:
+                    return self.index_to_soup(link['href'], raw=True)
 
 
     def preprocess_html(self, soup):

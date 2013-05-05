@@ -16,6 +16,7 @@ class EchoDnia(BasicNewsRecipe):
     max_articles_per_feed = 100
     remove_empty_feeds = True
     no_stylesheets = True
+    use_embedded_content = False
     ignore_duplicate_articles = {'title', 'url'}
 
     preprocess_regexps = [(re.compile(ur'Czytaj:.*?</a>', re.DOTALL), lambda match: ''), (re.compile(ur'Przeczytaj także:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''), 

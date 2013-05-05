@@ -10,7 +10,7 @@ import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class swiatczytnikow(BasicNewsRecipe):
-    title          = u'Swiat Czytnikow'
+    title          = u'Świat Czytników'
     description    = u'Czytniki e-książek w Polsce. Jak wybrać, kupić i korzystać z Amazon Kindle i innych'
     language = 'pl'
     __author__ = u'Tomasz D\u0142ugosz'

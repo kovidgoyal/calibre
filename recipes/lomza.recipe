@@ -8,6 +8,7 @@ class Lomza(BasicNewsRecipe):
     language       = 'pl'
     oldest_article = 15
     no_stylesheets = True
+    extra_css = '#foto {float: right; max-width: 200px; margin-left: 10px;} #fotogaleria > div {float:left;} .br {clear: both;}'
     max_articles_per_feed = 100
     remove_tags=[dict(name='div', attrs={'class':['bxbanner', 'drukuj', 'wyslijznajomemu']})]
     keep_only_tags=[dict(name='div', attrs={'class':'wiadomosc'})]

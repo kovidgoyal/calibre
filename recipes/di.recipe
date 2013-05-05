@@ -14,7 +14,7 @@ class DziennikInternautowRecipe(BasicNewsRecipe):
     __author__ = 'Mori'
     language = 'pl'
 
-    title = u'Dziennik Internautow'
+    title = u'Dziennik Internautów'
     publisher = u'Dziennik Internaut\u00f3w Sp. z o.o.'
     description = u'Internet w \u017cyciu i biznesie. Porady, wywiady, interwencje, bezpiecze\u0144stwo w Sieci, technologia.'
 
