@@ -8,7 +8,6 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>; 2011, Li Fanxi <lifan
 __docformat__ = 'restructuredtext en'
 
 import time
-from urllib import urlencode
 from functools import partial
 from Queue import Queue, Empty
 
@@ -172,6 +171,7 @@ class Douban(Source):
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
+        from urllib import urlencode
         SEARCH_URL = 'http://api.douban.com/book/subjects?'
         ISBN_URL = 'http://api.douban.com/book/subject/isbn/'
         SUBJECT_URL = 'http://api.douban.com/book/subject/'

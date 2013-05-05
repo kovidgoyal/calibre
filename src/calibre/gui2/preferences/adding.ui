@@ -164,7 +164,7 @@ Author matching is exact.</string>
           <item>
            <widget class="QLabel" name="label_3">
             <property name="text">
-             <string>Ignore files with the following extensions when automatically adding </string>
+             <string>&lt;b&gt;Ignore&lt;/b&gt; files with the following extensions when automatically adding </string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>

@@ -30,23 +30,23 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2011-09-27 16:53+0000\n"
-"Last-Translator: Christian Rose <menthos@menthos.com>\n"
+"PO-Revision-Date: 2013-04-28 21:03+0000\n"
+"Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-11-26 05:39+0000\n"
-"X-Generator: Launchpad (build 14381)\n"
+"X-Launchpad-Export-Date: 2013-04-29 04:38+0000\n"
+"X-Generator: Launchpad (build 16580)\n"
 "Language: sv\n"
 
 #. name for aaa
 msgid "Ghotuo"
-msgstr ""
+msgstr "Ghotuo"
 
 #. name for aab
 msgid "Alumu-Tesu"
-msgstr ""
+msgstr "Alumu-Tesu"
 
 #. name for aac
 msgid "Ari"
@@ -58,7 +58,7 @@ msgstr ""
 
 #. name for aae
 msgid "Albanian; Arbëreshë"
-msgstr ""
+msgstr "Albanska; Arbëreshë"
 
 #. name for aaf
 msgid "Aranadan"
@@ -78,7 +78,7 @@ msgstr ""
 
 #. name for aak
 msgid "Ankave"
-msgstr ""
+msgstr "Ankave"
 
 #. name for aal
 msgid "Afade"
@@ -94,7 +94,7 @@ msgstr ""
 
 #. name for aao
 msgid "Arabic; Algerian Saharan"
-msgstr ""
+msgstr "Arabiska;algeriska Sahara"
 
 #. name for aap
 msgid "Arára; Pará"
@@ -114,7 +114,7 @@ msgstr ""
 
 #. name for aat
 msgid "Albanian; Arvanitika"
-msgstr ""
+msgstr "Albanska; Arvanitika"
 
 #. name for aau
 msgid "Abau"
@@ -218,7 +218,7 @@ msgstr ""
 
 #. name for abv
 msgid "Arabic; Baharna"
-msgstr ""
+msgstr "Arabiska; Baharna"
 
 #. name for abw
 msgid "Pal"
@@ -311,7 +311,7 @@ msgstr ""
 
 #. name for acw
 msgid "Arabic; Hijazi"
-msgstr ""
+msgstr "Arabiska; Hijazi"
 
 #. name for acx
 msgid "Arabic; Omani"
@@ -319,7 +319,7 @@ msgstr ""
 
 #. name for acy
 msgid "Arabic; Cypriot"
-msgstr ""
+msgstr "Arabiska; Cypriotiska"
 
 #. name for acz
 msgid "Acheron"
@@ -343,7 +343,7 @@ msgstr ""
 
 #. name for adf
 msgid "Arabic; Dhofari"
-msgstr ""
+msgstr "Arabiska; Dhofari"
 
 #. name for adg
 msgid "Andegerebinha"
@@ -419,11 +419,11 @@ msgstr ""
 
 #. name for aeb
 msgid "Arabic; Tunisian"
-msgstr ""
+msgstr "Arabiska; Tunisiska"
 
 #. name for aec
 msgid "Arabic; Saidi"
-msgstr ""
+msgstr "Arabiska,; Saidi"
 
 #. name for aed
 msgid "Argentine Sign Language"
@@ -479,7 +479,7 @@ msgstr ""
 
 #. name for afb
 msgid "Arabic; Gulf"
-msgstr ""
+msgstr "Arabiska,; Gulf"
 
 #. name for afd
 msgid "Andai"
@@ -803,7 +803,7 @@ msgstr ""
 
 #. name for ajt
 msgid "Arabic; Judeo-Tunisian"
-msgstr ""
+msgstr "Arabiska; judisk-tunisiska"
 
 #. name for aju
 msgid "Arabic; Judeo-Moroccan"
@@ -963,7 +963,7 @@ msgstr ""
 
 #. name for aln
 msgid "Albanian; Gheg"
-msgstr ""
+msgstr "Albanska; Gheg"
 
 #. name for alo
 msgid "Larike-Wakasihu"
@@ -9431,7 +9431,7 @@ msgstr ""
 
 #. name for hlb
 msgid "Halbi"
-msgstr ""
+msgstr "Halbi"
 
 #. name for hld
 msgid "Halang Doan"

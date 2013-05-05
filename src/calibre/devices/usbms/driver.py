@@ -20,8 +20,6 @@ from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
-from calibre.utils.config import from_json, to_json
-from calibre.utils.date import now, isoformat
 
 BASE_TIME = None
 def debug_print(*args):
@@ -58,6 +56,7 @@ class USBMS(CLI, Device):
     SCAN_FROM_ROOT = False
 
     def _update_driveinfo_record(self, dinfo, prefix, location_code, name=None):
+        from calibre.utils.date import now, isoformat
         import uuid
         if not isinstance(dinfo, dict):
             dinfo = {}
@@ -75,6 +74,7 @@ class USBMS(CLI, Device):
         return dinfo
 
     def _update_driveinfo_file(self, prefix, location_code, name=None):
+        from calibre.utils.config import from_json, to_json
         if os.path.exists(os.path.join(prefix, self.DRIVEINFO)):
             with open(os.path.join(prefix, self.DRIVEINFO), 'rb') as f:
                 try:

@@ -1,0 +1,27 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class HindustanTimes(BasicNewsRecipe):
+    title          = u'Voice of America'
+    language       = 'en'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 15 #days
+    max_articles_per_feed = 25
+    #encoding = 'cp1252'
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
+
+
+    feeds          = [
+('All Zones',
+ 'http://learningenglish.voanews.com/rss/?count=20'),
+('World',
+ 'http://learningenglish.voanews.com/rss/?count=20&zoneid=957'),
+('USA',
+ 'http://learningenglish.voanews.com/rss/?count=20&zoneid=958'),
+('Health',
+ 'http://learningenglish.voanews.com/rss/?count=20&zoneid=955'),
+
+]
+

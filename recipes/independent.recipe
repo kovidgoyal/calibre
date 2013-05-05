@@ -41,6 +41,7 @@ class TheIndependentNew(BasicNewsRecipe):
     publication_type        = 'newspaper'
     masthead_url            = 'http://www.independent.co.uk/independent.co.uk/editorial/logo/independent_Masthead.png'
     encoding                = 'utf-8'
+    compress_news_images    = True
     remove_tags             =[
                                dict(attrs={'id' : ['RelatedArtTag','renderBiography']}),
                                dict(attrs={'class' : ['autoplay','openBiogPopup']}),
@@ -343,7 +344,7 @@ class TheIndependentNew(BasicNewsRecipe):
             if 'class' in subtitle_div:
                 clazz = subtitle_div['class'] + ' '
             clazz = clazz + 'subtitle'
-            subtitle_div['class'] = clazz    
+            subtitle_div['class'] = clazz
 
         #find broken images and remove captions
         items_to_extract = []

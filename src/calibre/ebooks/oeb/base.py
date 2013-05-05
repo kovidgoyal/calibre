@@ -1,7 +1,6 @@
 '''
 Basic support for manipulating OEB 1.x/2.0 content and metadata.
 '''
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
@@ -11,7 +10,7 @@ import os, re, uuid, logging
 from collections import defaultdict
 from itertools import count
 from urlparse import urldefrag, urlparse, urlunparse, urljoin
-from urllib import unquote as urlunquote
+from urllib import unquote
 
 from lxml import etree, html
 from calibre.constants import filesystem_encoding, __version__
@@ -40,11 +39,11 @@ CALIBRE_NS   = 'http://calibre.kovidgoyal.net/2009/metadata'
 RE_NS        = 'http://exslt.org/regular-expressions'
 MBP_NS       = 'http://www.mobipocket.com'
 
-XPNSMAP      = {'h'  : XHTML_NS, 'o1' : OPF1_NS,    'o2' : OPF2_NS,
-                'd09': DC09_NS,  'd10': DC10_NS,    'd11': DC11_NS,
-                'xsi': XSI_NS,   'dt' : DCTERMS_NS, 'ncx': NCX_NS,
-                'svg': SVG_NS,   'xl' : XLINK_NS,   're': RE_NS,
-                'mbp': MBP_NS, 'calibre': CALIBRE_NS }
+XPNSMAP      = {'h': XHTML_NS, 'o1': OPF1_NS, 'o2': OPF2_NS,
+                'd09': DC09_NS, 'd10': DC10_NS, 'd11': DC11_NS,
+                'xsi': XSI_NS, 'dt': DCTERMS_NS, 'ncx': NCX_NS,
+                'svg': SVG_NS, 'xl': XLINK_NS, 're': RE_NS,
+                'mbp': MBP_NS, 'calibre': CALIBRE_NS}
 
 OPF1_NSMAP   = {'dc': DC11_NS, 'oebpackage': OPF1_NS}
 OPF2_NSMAP   = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
@@ -141,7 +140,6 @@ def iterlinks(root, find_links_in_css=True):
             for attr in attribs:
                 if attr in link_attrs:
                     yield (el, attr, attribs[attr], 0)
-
 
         if not find_links_in_css:
             continue
@@ -270,7 +268,7 @@ BINARY_MIME    = 'application/octet-stream'
 
 XHTML_CSS_NAMESPACE = u'@namespace "%s";\n' % XHTML_NS
 
-OEB_STYLES        = set([CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css'])
+OEB_STYLES        = set([CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css', 'xhtml/css'])
 OEB_DOCS          = set([XHTML_MIME, 'text/html', OEB_DOC_MIME,
                          'text/x-oeb-document'])
 OEB_RASTER_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME])
@@ -363,7 +361,9 @@ URL_SAFE      = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 URL_UNSAFE = [ASCII_CHARS - URL_SAFE, UNIBYTE_CHARS - URL_SAFE]
 
 def urlquote(href):
-    """Quote URL-unsafe characters, allowing IRI-safe characters."""
+    """ Quote URL-unsafe characters, allowing IRI-safe characters.
+    That is, this function returns valid IRIs not valid URIs. In particular,
+    IRIs can contain non-ascii characters.  """
     result = []
     unsafe = 0 if isinstance(href, unicode) else 1
     unsafe = URL_UNSAFE[unsafe]
@@ -372,6 +372,19 @@ def urlquote(href):
             char = "%%%02x" % ord(char)
         result.append(char)
     return ''.join(result)
+
+def urlunquote(href):
+    # unquote must run on a bytestring and will return a bytestring
+    # If it runs on a unicode object, it returns a double encoded unicode
+    # string: unquote(u'%C3%A4') != unquote(b'%C3%A4').decode('utf-8')
+    # and the latter is correct
+    want_unicode = isinstance(href, unicode)
+    if want_unicode:
+        href = href.encode('utf-8')
+    href = unquote(href)
+    if want_unicode:
+        href = href.decode('utf-8')
+    return href
 
 def urlnormalize(href):
     """Convert a URL into normalized form, with all and only URL-unsafe
@@ -469,7 +482,7 @@ class DirContainer(object):
                     return
 
     def _unquote(self, path):
-        # urlunquote must run on a bytestring and will return a bytestring
+        # unquote must run on a bytestring and will return a bytestring
         # If it runs on a unicode object, it returns a double encoded unicode
         # string: unquote(u'%C3%A4') != unquote(b'%C3%A4').decode('utf-8')
         # and the latter is correct
@@ -497,7 +510,7 @@ class DirContainer(object):
             return False
         try:
             path = os.path.join(self.rootdir, self._unquote(path))
-        except ValueError: #Happens if path contains quoted special chars
+        except ValueError:  # Happens if path contains quoted special chars
             return False
         try:
             return os.path.isfile(path)
@@ -577,12 +590,13 @@ class Metadata(object):
                 allowed = self.allowed
                 if allowed is not None and term not in allowed:
                     raise AttributeError(
-                        'attribute %r not valid for metadata term %r' \
+                        'attribute %r not valid for metadata term %r'
                             % (self.attr(term), barename(obj.term)))
                 return self.attr(term)
 
             def __get__(self, obj, cls):
-                if obj is None: return None
+                if obj is None:
+                    return None
                 return obj.attrib.get(self.term_attr(obj), '')
 
             def __set__(self, obj, value):
@@ -628,8 +642,8 @@ class Metadata(object):
                 self.value = value
             return property(fget=fget, fset=fset)
 
-        scheme  = Attribute(lambda term: 'scheme' if \
-                                term == OPF('meta') else OPF('scheme'),
+        scheme  = Attribute(lambda term: 'scheme' if
+                            term == OPF('meta') else OPF('scheme'),
                             [DC('identifier'), OPF('meta')])
         file_as = Attribute(OPF('file-as'), [DC('creator'), DC('contributor'),
                                              DC('title')])
@@ -882,7 +896,6 @@ class Manifest(object):
 
             return self._parse_xhtml(convert_markdown(data, title=title))
 
-
         def _parse_css(self, data):
             from cssutils import CSSParser, log, resolveImports
             log.setLevel(logging.WARN)
@@ -935,7 +948,7 @@ class Manifest(object):
                     data = self._loader(getattr(self, 'html_input_href',
                         self.href))
                 if not isinstance(data, basestring):
-                    pass # already parsed
+                    pass  # already parsed
                 elif self.media_type.lower() in OEB_DOCS:
                     data = self._parse_xhtml(data)
                 elif self.media_type.lower()[-4:] in ('+xml', '/xml'):
@@ -1022,7 +1035,8 @@ class Manifest(object):
             target, frag = urldefrag(href)
             target = target.split('/')
             for index in xrange(min(len(base), len(target))):
-                if base[index] != target[index]: break
+                if base[index] != target[index]:
+                    break
             else:
                 index += 1
             relhref = (['..'] * (len(base) - index)) + target[index:]

@@ -95,7 +95,6 @@ class PDNOVEL(USBMS):
     SUPPORTS_SUB_DIRS = False
     DELETE_EXTS = ['.jpg', '.jpeg', '.png']
 
-
     def upload_cover(self, path, filename, metadata, filepath):
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
@@ -226,9 +225,9 @@ class TREKSTOR(USBMS):
 
     VENDOR_ID   = [0x1e68]
     PRODUCT_ID  = [0x0041, 0x0042, 0x0052, 0x004e, 0x0056,
-            0x0067, # This is for the Pyrus Mini
-            0x003e, # This is for the EBOOK_PLAYER_5M https://bugs.launchpad.net/bugs/792091
-            0x5cL, # This is for the 4ink http://www.mobileread.com/forums/showthread.php?t=191318
+            0x0067,  # This is for the Pyrus Mini
+            0x003e,  # This is for the EBOOK_PLAYER_5M https://bugs.launchpad.net/bugs/792091
+            0x5cL,  # This is for the 4ink http://www.mobileread.com/forums/showthread.php?t=191318
             ]
     BCD         = [0x0002, 0x100]
 
@@ -427,8 +426,8 @@ class WAYTEQ(USBMS):
     EBOOK_DIR_MAIN = 'Documents'
     SCAN_FROM_ROOT = True
 
-    VENDOR_NAME = 'ROCKCHIP'
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'RK28_SDK_DEMO'
+    VENDOR_NAME = ['ROCKCHIP', 'CBR']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['RK28_SDK_DEMO', 'EINK_EBOOK_READE']
     SUPPORTS_SUB_DIRS = True
 
     def get_gui_name(self):
@@ -445,7 +444,8 @@ class WAYTEQ(USBMS):
         return self.EBOOK_DIR_CARD_A
 
     def windows_sort_drives(self, drives):
-        if len(drives) < 2: return drives
+        if len(drives) < 2:
+            return drives
         main = drives.get('main', None)
         carda = drives.get('carda', None)
         if main and carda:
@@ -455,7 +455,8 @@ class WAYTEQ(USBMS):
 
     def linux_swap_drives(self, drives):
         # See https://bugs.launchpad.net/bugs/1151901
-        if len(drives) < 2 or not drives[1] or not drives[2]: return drives
+        if len(drives) < 2 or not drives[1] or not drives[2]:
+            return drives
         drives = list(drives)
         t = drives[0]
         drives[0] = drives[1]
@@ -463,7 +464,8 @@ class WAYTEQ(USBMS):
         return tuple(drives)
 
     def osx_sort_names(self, names):
-        if len(names) < 2: return names
+        if len(names) < 2:
+            return names
         main = names.get('main', None)
         card = names.get('carda', None)
 

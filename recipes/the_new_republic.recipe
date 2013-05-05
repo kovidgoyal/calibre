@@ -1,68 +1,63 @@
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from collections import OrderedDict
+
 
 class TNR(BasicNewsRecipe):
 
-    title       = 'The New Republic'
-    __author__  = 'Rick Shang'
+    title = 'The New Republic'
+    __author__ = 'Krittika Goyal'
 
-    description = 'The New Republic is a journal of opinion with an emphasis on politics and domestic and international affairs. It carries feature articles by staff and contributing editors. The second half of each issue is devoted to book and the arts, theater, motion pictures, music and art.'
+    description = '''The New Republic is a journal of opinion with an emphasis
+    on politics and domestic and international affairs. It carries feature
+    articles by staff and contributing editors. The second half of each issue
+    is devoted to book and the arts, theater, motion pictures, music and art.'''
+
     language = 'en'
-    category = 'news'
     encoding = 'UTF-8'
-    remove_tags = [dict(attrs={'class':['print-logo','print-site_name','print-hr']})]
-    no_javascript = True
-    no_stylesheets = True
+    needs_subscription = True
 
+    preprocess_regexps = [
+        (re.compile(r'<!--.*?-->', re.DOTALL), lambda m: ''),
+        (re.compile(r'<script.*?</script>', re.DOTALL), lambda m: ''),
+    ]
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.open('http://www.newrepublic.com/user')
+        br.select_form(nr=1)
+        try:
+            br['user'] = self.username
+        except:
+            br['name'] = self.username
+        br['pass'] = self.password
+        self.log('Logging in...')
+        raw = br.submit().read()
+        if 'SIGN OUT' not in raw:
+            raise ValueError('Failed to log in to tnr.com, check your username and password')
+        self.log('Logged in successfully')
+        return br
 
     def parse_index(self):
+        raw = self.index_to_soup('http://www.newrepublic.com/current-issue', raw=True)
+        # raw = self.index_to_soup(open('/t/raw.html').read().decode('utf-8'), raw=True)
+        for pat, sub in self.preprocess_regexps:
+            raw = pat.sub(sub, raw)
+        soup = self.index_to_soup(raw)
+        feed_title = 'The New Republic Magazine Articles'
 
-        #Go to the issue
-        soup0 = self.index_to_soup('http://www.tnr.com/magazine-issues')
-        issue = soup0.find('div',attrs={'id':'current_issue'})
+        articles = []
+        for div in soup.findAll('div', attrs={'class':lambda x: x and 'field-item' in x.split()}):
+            a = div.find('a', href=True, attrs={'class':lambda x: x != 'author'})
+            if a is not None:
+                art_title = self.tag_to_string(a)
+                url = a.get('href')
+                num = re.search(r'/(\d+)/', url)
+                if num is not None:
+                    art = num.group(1)
+                    url = 'http://www.newrepublic.com/node/%s/print'%art
+                    self.log.info('\tFound article:', art_title, 'at', url)
+                    article = {'title':art_title, 'url':url, 'description':'', 'date':''}
+                    articles.append(article)
 
-        #Find date
-        date = self.tag_to_string(issue.find('div',attrs={'class':'date'})).strip()
-        self.timefmt = u' [%s]'%date
+        return [(feed_title, articles)]
 
-        #Go to the main body
-        current_issue_url = 'http://www.tnr.com' + issue.find('a', href=True)['href']
-        soup = self.index_to_soup(current_issue_url)
-        div = soup.find ('div', attrs={'class':'article_detail_body'})
-
-
-
-        #Find cover
-        self.cover_url = div.find('img',src=True)['src']
-
-        feeds = OrderedDict()
-        section_title = ''
-        subsection_title = ''
-        for post in div.findAll('p'):
-            articles = []
-            em=post.find('em')
-            b=post.find('b')
-            a=post.find('a',href=True)
-            p=post.find('img', src=True)
-            #Find cover
-            if p is not None:
-                self.cover_url = p['src'].strip()
-            if em is not None:
-                section_title = self.tag_to_string(em).strip()
-                subsection_title = ''
-            elif b is not None:
-                subsection_title=self.tag_to_string(b).strip()
-            elif a is not None:
-                prefix = (subsection_title+': ') if subsection_title else ''
-                url=re.sub('www.tnr.com','www.tnr.com/print', a['href'])
-                author=re.sub('.*by\s', '', self.tag_to_string(post), re.DOTALL)
-                title=prefix + self.tag_to_string(a).strip()+ u' (%s)'%author
-                articles.append({'title':title, 'url':url, 'description':'', 'date':''})
-
-            if articles:
-                if section_title not in feeds:
-                    feeds[section_title] = []
-                feeds[section_title] += articles
-        ans = [(key, val) for key, val in feeds.iteritems()]
-        return ans

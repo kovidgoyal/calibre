@@ -187,7 +187,7 @@ def _config(): # {{{
     c.add_opt('shortcuts_search_history', default=[],
         help='Search history for the keyboard preferences')
     c.add_opt('jobs_search_history', default=[],
-        help='Search history for the keyboard preferences')
+        help='Search history for the tweaks preferences')
     c.add_opt('tweaks_search_history', default=[],
         help='Search history for tweaks')
     c.add_opt('worker_limit', default=6,
@@ -716,10 +716,11 @@ def choose_save_file(window, name, title, filters=[], all_files=True):
             ans = ans[0]
     return ans
 
-def choose_images(window, name, title, select_only_single_file=True):
+def choose_images(window, name, title, select_only_single_file=True,
+                  formats=('png', 'gif', 'jpg', 'jpeg', 'svg')):
     mode = QFileDialog.ExistingFile if select_only_single_file else QFileDialog.ExistingFiles
     fd = FileDialog(title=title, name=name,
-                    filters=[('Images', ['png', 'gif', 'jpeg', 'jpg', 'svg'])],
+                    filters=[('Images', list(formats))],
                     parent=window, add_all_files_filter=False, mode=mode,
                     )
     fd.setParent(None)

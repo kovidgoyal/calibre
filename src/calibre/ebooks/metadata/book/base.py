@@ -13,9 +13,7 @@ from calibre.ebooks.metadata.book import (SC_COPYABLE_FIELDS,
         SC_FIELDS_COPY_NOT_NULL, STANDARD_METADATA_FIELDS,
         TOP_LEVEL_IDENTIFIERS, ALL_METADATA_FIELDS)
 from calibre.library.field_metadata import FieldMetadata
-from calibre.utils.date import isoformat, format_date, parse_only_date
 from calibre.utils.icu import sort_key
-from calibre.utils.formatter import TemplateFormatter
 
 # Special sets used to optimize the performance of getting and setting
 # attributes on Metadata objects
@@ -44,38 +42,6 @@ NULL_VALUES = {
 
 field_metadata = FieldMetadata()
 
-class SafeFormat(TemplateFormatter):
-
-    def get_value(self, orig_key, args, kwargs):
-        if not orig_key:
-            return ''
-        key = orig_key = orig_key.lower()
-        if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS and \
-                key not in ALL_METADATA_FIELDS:
-            key = field_metadata.search_term_to_field_key(key)
-            if key is None or (self.book and
-                                key not in self.book.all_field_keys()):
-                if hasattr(self.book, orig_key):
-                    key = orig_key
-                else:
-                    raise ValueError(_('Value: unknown field ') + orig_key)
-        try:
-            b = self.book.get_user_metadata(key, False)
-        except:
-            b = None
-        if b and ((b['datatype'] == 'int' and self.book.get(key, 0) == 0) or
-                  (b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0)):
-            v = ''
-        else:
-            v = self.book.format_field(key, series_with_index=False)[1]
-        if v is None:
-            return ''
-        if v == '':
-            return ''
-        return v
-
-# DEPRECATED. This is not thread safe. Do not use.
-composite_formatter = SafeFormat()
 
 class Metadata(object):
 
@@ -116,6 +82,7 @@ class Metadata(object):
                 # List of strings or []
                 self.author = list(authors) if authors else []# Needed for backward compatibility
                 self.authors = list(authors) if authors else []
+        from calibre.ebooks.metadata.book.formatter import SafeFormat
         self.formatter = SafeFormat()
         self.template_cache = template_cache
 
@@ -211,6 +178,8 @@ class Metadata(object):
         return key in object.__getattribute__(self, '_data')
 
     def deepcopy(self):
+        ''' Do not use this method unless you know what you are doing, if you want to create a simple clone of
+        this object, use :method:`deepcopy_metadata` instead. '''
         m = Metadata(None)
         m.__dict__ = copy.deepcopy(self.__dict__)
         object.__setattr__(m, '_data', copy.deepcopy(object.__getattribute__(self, '_data')))
@@ -454,6 +423,7 @@ class Metadata(object):
         '''
         if not ops:
             return
+        from calibre.ebooks.metadata.book.formatter import SafeFormat
         formatter = SafeFormat()
         for op in ops:
             try:
@@ -633,6 +603,7 @@ class Metadata(object):
         returns the tuple (display_name, formatted_value, original_value,
         field_metadata)
         '''
+        from calibre.utils.date import format_date
 
         # Handle custom series index
         if key.startswith('#') and key.endswith('_index'):
@@ -717,6 +688,7 @@ class Metadata(object):
         A string representation of this object, suitable for printing to
         console
         '''
+        from calibre.utils.date import isoformat
         from calibre.ebooks.metadata import authors_to_string
         ans = []
         def fmt(x, y):
@@ -809,6 +781,7 @@ def field_from_string(field, raw, field_metadata):
     elif dt == 'rating':
         val = float(raw) * 2
     elif dt == 'datetime':
+        from calibre.utils.date import parse_only_date
         val = parse_only_date(raw)
     elif dt == 'bool':
         if raw.lower() in {'true', 'yes', 'y'}:

@@ -47,6 +47,8 @@ class ManifestTrimmer(object):
                    item.data is not None:
                     hrefs = [r[2] for r in iterlinks(item.data)]
                     for href in hrefs:
+                        if isinstance(href, bytes):
+                            href = href.decode('utf-8')
                         try:
                             href = item.abshref(urlnormalize(href))
                         except:

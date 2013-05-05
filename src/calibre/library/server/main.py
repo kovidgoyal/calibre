@@ -24,7 +24,7 @@ def stop_threaded_server(server):
     server.exit()
     server.thread = None
 
-def create_wsgi_app(path_to_library=None, prefix=''):
+def create_wsgi_app(path_to_library=None, prefix='', virtual_library=None):
     'WSGI entry point'
     from calibre.library import db
     cherrypy.config.update({'environment': 'embedded'})
@@ -32,6 +32,7 @@ def create_wsgi_app(path_to_library=None, prefix=''):
     parser = option_parser()
     opts, args = parser.parse_args(['calibre-server'])
     opts.url_prefix = prefix
+    opts.restriction = virtual_library
     server = LibraryServer(db, opts, wsgi=True, show_tracebacks=True)
     return cherrypy.Application(server, script_name=None, config=server.config)
 
@@ -54,10 +55,11 @@ The OPDS interface is advertised via BonJour automatically.
             help=_('Write process PID to the specified file'))
     parser.add_option('--daemonize', default=False, action='store_true',
             help='Run process in background as a daemon. No effect on windows.')
-    parser.add_option('--restriction', default=None,
-            help=_('Specifies a restriction to be used for this invocation. '
+    parser.add_option('--restriction', '--virtual-library', default=None,
+            help=_('Specifies a virtual library to be used for this invocation. '
                    'This option overrides any per-library settings specified'
-                   ' in the GUI'))
+                   ' in the GUI. For compatibility, if the value is not a '
+                   'virtual library but is a saved search, that saved search is used.'))
     parser.add_option('--auto-reload', default=False, action='store_true',
             help=_('Auto reload server when source code changes. May not'
                 ' work in all environments.'))
@@ -95,7 +97,6 @@ def daemonize(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     os.dup2(si.fileno(), sys.stdin.fileno())
     os.dup2(so.fileno(), sys.stdout.fileno())
     os.dup2(se.fileno(), sys.stderr.fileno())
-
 
 
 def main(args=sys.argv):

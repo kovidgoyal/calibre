@@ -10,14 +10,15 @@ import os
 from contextlib import closing
 
 from calibre.customize import FileTypePlugin
-from calibre.utils.zipfile import ZipFile, stringFileHeader
 
 def is_comic(list_of_names):
-    extensions = set([x.rpartition('.')[-1].lower() for x in list_of_names])
+    extensions = set([x.rpartition('.')[-1].lower() for x in list_of_names
+                      if '.' in x and x.lower().rpartition('/')[-1] != 'thumbs.db'])
     comic_extensions = set(['jpg', 'jpeg', 'png'])
     return len(extensions - comic_extensions) == 0
 
 def archive_type(stream):
+    from calibre.utils.zipfile import stringFileHeader
     try:
         pos = stream.tell()
     except:
@@ -46,6 +47,7 @@ class ArchiveExtract(FileTypePlugin):
     on_import = True
 
     def run(self, archive):
+        from calibre.utils.zipfile import ZipFile
         is_rar = archive.lower().endswith('.rar')
         if is_rar:
             from calibre.utils.unrar import extract_member, names
@@ -58,7 +60,7 @@ class ArchiveExtract(FileTypePlugin):
         else:
             fnames = zf.namelist()
 
-        fnames = [x for x in fnames if '.' in x]
+        fnames = [x for x in fnames if '.' in x and x.lower().rpartition('/')[-1] != 'thumbs.db']
         if is_comic(fnames):
             ext = '.cbr' if is_rar else '.cbz'
             of = self.temporary_file('_archive_extract'+ext)

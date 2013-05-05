@@ -12,26 +12,8 @@ from future_builtins import map
 
 from calibre import browser, random_user_agent
 from calibre.customize import Plugin
-from calibre.utils.config import JSONConfig
-from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, lower, upper
 from calibre.ebooks.metadata import check_isbn
-
-msprefs = JSONConfig('metadata_sources/global.json')
-msprefs.defaults['txt_comments'] = False
-msprefs.defaults['ignore_fields'] = []
-msprefs.defaults['user_default_ignore_fields'] = []
-msprefs.defaults['max_tags'] = 20
-msprefs.defaults['wait_after_first_identify_result'] = 30 # seconds
-msprefs.defaults['wait_after_first_cover_result'] = 60 # seconds
-msprefs.defaults['swap_author_names'] = False
-msprefs.defaults['fewer_tags'] = True
-msprefs.defaults['find_first_edition_date'] = False
-
-# Google covers are often poor quality (scans/errors) but they have high
-# resolution, so they trump covers from better sources. So make sure they
-# are only used if no other covers are found.
-msprefs.defaults['cover_priorities'] = {'Google':2, 'Google Images':2, 'Big Book Search':2}
 
 def create_log(ostream=None):
     from calibre.utils.logging import ThreadSafeLog, FileStream
@@ -162,6 +144,7 @@ def fixauthors(authors):
 
 def fixcase(x):
     if x:
+        from calibre.utils.titlecase import titlecase
         x = titlecase(x)
     return x
 
@@ -263,6 +246,7 @@ class Source(Plugin):
     @property
     def prefs(self):
         if self._config_obj is None:
+            from calibre.utils.config import JSONConfig
             self._config_obj = JSONConfig('metadata_sources/%s.json'%self.name)
         return self._config_obj
     # }}}

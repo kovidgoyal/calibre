@@ -7,7 +7,7 @@ Created on 29 Jun 2012
 
 @author: charles
 '''
-import socket, select, json, inspect, os, traceback, time, sys, random
+import socket, select, json, os, traceback, time, sys, random
 import posixpath
 import hashlib, threading
 import Queue
@@ -34,8 +34,7 @@ from calibre.library import current_library_name
 from calibre.library.server import server_config as content_server_config
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc import eintr_retry_call
-from calibre.utils.config import from_json, tweaks
-from calibre.utils.date import isoformat, now
+from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
         unpublish_zeroconf, get_all_ips)
@@ -345,6 +344,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _debug(self, *args):
         # manual synchronization so we don't lose the calling method name
+        import inspect
         with self.sync_lock:
             if not DEBUG:
                 return
@@ -373,6 +373,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     # copied from USBMS. Perhaps this could be a classmethod in usbms?
     def _update_driveinfo_record(self, dinfo, prefix, location_code, name=None):
+        from calibre.utils.date import isoformat, now
         import uuid
         if not isinstance(dinfo, dict):
             dinfo = {}
@@ -593,6 +594,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         raise ControlError(desc='Device responded with incorrect information')
 
     def _receive_from_client(self, print_debug_info=True):
+        from calibre.utils.config import from_json
         extra_debug = self.settings().extra_customization[self.OPT_EXTRA_DEBUG]
         try:
             v = self._read_string_from_net()
@@ -816,6 +818,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def open(self, connected_device, library_uuid):
+        from calibre.utils.date import isoformat, now
         self._debug()
         if not self.is_connected:
             # We have been called to retry the connection. Give up immediately

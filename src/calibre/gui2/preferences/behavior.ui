@@ -147,15 +147,15 @@ If not checked, the values can be Yes or No.</string>
      <item>
       <widget class="QLabel" name="label_170">
        <property name="text">
-        <string>Restriction to apply when the current library is opened:</string>
+        <string>Virtual library to apply when the current library is opened:</string>
        </property>
        <property name="buddy">
-        <cstring>opt_gui_restriction</cstring>
+        <cstring>opt_virtual_lib_on_startup</cstring>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="opt_gui_restriction">
+      <widget class="QComboBox" name="opt_virtual_lib_on_startup">
        <property name="maximumSize">
         <size>
          <width>250</width>
@@ -163,7 +163,7 @@ If not checked, the values can be Yes or No.</string>
         </size>
        </property>
        <property name="toolTip">
-        <string>Apply this restriction on calibre startup if the current library is being used. Also applied when switching to this library. Note that this setting is per library. </string>
+        <string>Use this virtual library on calibre startup if the current library is being used. Also applied when switching to this library. Note that this setting is per library. </string>
        </property>
        <property name="sizeAdjustPolicy">
         <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>

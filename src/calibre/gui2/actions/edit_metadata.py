@@ -5,10 +5,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil
+import os, shutil, copy
 from functools import partial
 
-from PyQt4.Qt import QMenu, QModelIndex, QTimer
+from PyQt4.Qt import QMenu, QModelIndex, QTimer, QIcon
 
 from calibre.gui2 import error_dialog, Dispatcher, question_dialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
@@ -16,7 +16,8 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.device_category_editor import DeviceCategoryEditor
 from calibre.gui2.actions import InterfaceAction
 from calibre.ebooks.metadata import authors_to_string
-from calibre.ebooks.metadata.opf2 import OPF
+from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.opf2 import OPF, metadata_to_opf
 from calibre.utils.icu import sort_key
 from calibre.db.errors import NoSuchFormat
 
@@ -147,14 +148,18 @@ class EditMetadataAction(InterfaceAction):
 
         payload = (id_map, tdir, log_file, lm_map,
                 failed_ids.union(failed_covers))
-        self.gui.proceed_question(self.apply_downloaded_metadata, payload,
+        review_apply = partial(self.apply_downloaded_metadata, True)
+        normal_apply = partial(self.apply_downloaded_metadata, False)
+        self.gui.proceed_question(normal_apply, payload,
                 log_file, _('Download log'), _('Download complete'), msg,
                 det_msg=det_msg, show_copy_button=show_copy_button,
                 cancel_callback=partial(self.cleanup_bulk_download, tdir),
                 log_is_file=True, checkbox_msg=checkbox_msg,
-                checkbox_checked=False)
+                checkbox_checked=False, action_callback=review_apply,
+                action_label=_('Review downloaded metadata'),
+                action_icon=QIcon(I('auto_author_sort.png')))
 
-    def apply_downloaded_metadata(self, payload, *args):
+    def apply_downloaded_metadata(self, review, payload, *args):
         good_ids, tdir, log_file, lm_map, failed_ids = payload
         if not good_ids:
             return
@@ -193,6 +198,58 @@ class EditMetadataAction(InterfaceAction):
             if not os.path.exists(cov):
                 cov = None
             id_map[bid] = (opf, cov)
+
+        if review:
+            def get_metadata(book_id):
+                oldmi = db.get_metadata(book_id, index_is_id=True, get_cover=True, cover_as_data=True)
+                opf, cov = id_map[book_id]
+                if opf is None:
+                    newmi = Metadata(oldmi.title, authors=tuple(oldmi.authors))
+                else:
+                    with open(opf, 'rb') as f:
+                        newmi = OPF(f, basedir=os.path.dirname(opf), populate_spine=False).to_book_metadata()
+                        newmi.cover, newmi.cover_data = None, (None, None)
+                        for x in ('title', 'authors'):
+                            if newmi.is_null(x):
+                                # Title and author are set to null if they are
+                                # the same as the originals as an optimization,
+                                # we undo that, as it is confusing.
+                                newmi.set(x, copy.copy(oldmi.get(x)))
+                if cov:
+                    with open(cov, 'rb') as f:
+                        newmi.cover_data = ('jpg', f.read())
+                return oldmi, newmi
+            from calibre.gui2.metadata.diff import CompareMany
+            d = CompareMany(
+                set(id_map), get_metadata, db.field_metadata, parent=self.gui,
+                window_title=_('Review downloaded metadata'),
+                reject_button_tooltip=_('Discard downloaded metadata for this book'),
+                accept_all_tooltip=_('Use the downloaded metadata for all remaining books'),
+                reject_all_tooltip=_('Discard downloaded metadata for all remaining books'),
+                revert_tooltip=_('Discard the downloaded value for: %s'),
+                intro_msg=_('The downloaded metadata is on the left and the original metadata'
+                            ' is on the right. If a downloaded value is blank or unknown,'
+                            ' the original value is used.')
+            )
+            if d.exec_() == d.Accepted:
+                nid_map = {}
+                for book_id, (changed, mi) in d.accepted.iteritems():
+                    if mi is None:  # discarded
+                        continue
+                    if changed:
+                        opf, cov = id_map[book_id]
+                        cfile = mi.cover
+                        mi.cover, mi.cover_data = None, (None, None)
+                        if opf is not None:
+                            with open(opf, 'wb') as f:
+                                f.write(metadata_to_opf(mi))
+                        if cfile and cov:
+                            shutil.copyfile(cfile, cov)
+                            os.remove(cfile)
+                    nid_map[book_id] = id_map[book_id]
+                id_map = nid_map
+            else:
+                id_map = {}
 
         restrict_to_failed = bool(args and args[0])
         if restrict_to_failed:
@@ -279,7 +336,7 @@ class EditMetadataAction(InterfaceAction):
         '''
         Edit metadata of selected books in library in bulk.
         '''
-        rows = [r.row() for r in \
+        rows = [r.row() for r in
                 self.gui.library_view.selectionModel().selectedRows()]
         m = self.gui.library_view.model()
         ids = [m.id(r) for r in rows]
@@ -469,45 +526,39 @@ class EditMetadataAction(InterfaceAction):
         if not had_orig_cover and dest_cover:
             db.set_cover(dest_id, dest_cover)
 
-        for key in db.field_metadata: #loop thru all defined fields
-          if db.field_metadata[key]['is_custom']:
-            colnum = db.field_metadata[key]['colnum']
+        for key in db.field_metadata:  # loop thru all defined fields
+            fm = db.field_metadata[key]
+            if not fm['is_custom']:
+                continue
+            dt = fm['datatype']
+            colnum = fm['colnum']
             # Get orig_dest_comments before it gets changed
-            if db.field_metadata[key]['datatype'] == 'comments':
-              orig_dest_value = db.get_custom(dest_id, num=colnum, index_is_id=True)
+            if dt == 'comments':
+                orig_dest_value = db.get_custom(dest_id, num=colnum, index_is_id=True)
+
             for src_id in src_ids:
-              dest_value = db.get_custom(dest_id, num=colnum, index_is_id=True)
-              src_value = db.get_custom(src_id, num=colnum, index_is_id=True)
-              if db.field_metadata[key]['datatype'] == 'comments':
-                if src_value and src_value != orig_dest_value:
-                  if not dest_value:
+                dest_value = db.get_custom(dest_id, num=colnum, index_is_id=True)
+                src_value = db.get_custom(src_id, num=colnum, index_is_id=True)
+                if (dt == 'comments' and src_value and src_value != orig_dest_value):
+                    if not dest_value:
+                        db.set_custom(dest_id, src_value, num=colnum)
+                    else:
+                        dest_value = unicode(dest_value) + u'\n\n' + unicode(src_value)
+                        db.set_custom(dest_id, dest_value, num=colnum)
+                if (dt in {'bool', 'int', 'float', 'rating', 'datetime'} and dest_value is None):
                     db.set_custom(dest_id, src_value, num=colnum)
-                  else:
-                    dest_value = unicode(dest_value) + u'\n\n' + unicode(src_value)
+                if (dt == 'series' and not dest_value and src_value):
+                    src_index = db.get_custom_extra(src_id, num=colnum, index_is_id=True)
+                    db.set_custom(dest_id, src_value, num=colnum, extra=src_index)
+                if (dt == 'enumeration' or (dt == 'text' and not fm['is_multiple']) and not dest_value):
+                    db.set_custom(dest_id, src_value, num=colnum)
+                if (dt == 'text' and fm['is_multiple'] and src_value):
+                    if not dest_value:
+                        dest_value = src_value
+                    else:
+                        dest_value.extend(src_value)
                     db.set_custom(dest_id, dest_value, num=colnum)
-              if db.field_metadata[key]['datatype'] in \
-                ('bool', 'int', 'float', 'rating', 'datetime') \
-                and dest_value is None:
-                db.set_custom(dest_id, src_value, num=colnum)
-              if db.field_metadata[key]['datatype'] == 'series' \
-                and not dest_value:
-                if src_value:
-                  src_index = db.get_custom_extra(src_id, num=colnum, index_is_id=True)
-                  db.set_custom(dest_id, src_value, num=colnum, extra=src_index)
-              if (db.field_metadata[key]['datatype'] == 'enumeration' or
-                        (db.field_metadata[key]['datatype'] == 'text' and
-                         not db.field_metadata[key]['is_multiple'])
-                    and not dest_value):
-                db.set_custom(dest_id, src_value, num=colnum)
-              if db.field_metadata[key]['datatype'] == 'text' \
-                and db.field_metadata[key]['is_multiple']:
-                if src_value:
-                  if not dest_value:
-                    dest_value = src_value
-                  else:
-                    dest_value.extend(src_value)
-                  db.set_custom(dest_id, dest_value, num=colnum)
-        # }}}
+    # }}}
 
     def edit_device_collections(self, view, oncard=None):
         model = view.model()
@@ -515,8 +566,8 @@ class EditMetadataAction(InterfaceAction):
         d = DeviceCategoryEditor(self.gui, tag_to_match=None, data=result, key=sort_key)
         d.exec_()
         if d.result() == d.Accepted:
-            to_rename = d.to_rename # dict of new text to old ids
-            to_delete = d.to_delete # list of ids
+            to_rename = d.to_rename  # dict of new text to old ids
+            to_delete = d.to_delete  # list of ids
             for old_id, new_name in to_rename.iteritems():
                 model.rename_collection(old_id, new_name=unicode(new_name))
             for item in to_delete:
@@ -584,7 +635,6 @@ class EditMetadataAction(InterfaceAction):
         if self.apply_pd is not None:
             self.apply_pd.value += 1
         QTimer.singleShot(50, self.do_one_apply)
-
 
     def apply_mi(self, book_id, mi):
         db = self.gui.current_db

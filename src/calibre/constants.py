@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 9, 26)
+numeric_version = (0, 9, 29)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -29,7 +29,7 @@ isportable = os.environ.get('CALIBRE_PORTABLE_BUILD', None) is not None
 ispy3 = sys.version_info.major > 2
 isxp = iswindows and sys.getwindowsversion().major < 6
 is64bit = sys.maxsize > (1 << 32)
-isworker = os.environ.has_key('CALIBRE_WORKER') or os.environ.has_key('CALIBRE_SIMPLE_WORKER')
+isworker = 'CALIBRE_WORKER' in os.environ or 'CALIBRE_SIMPLE_WORKER' in os.environ
 if isworker:
     os.environ.pop('CALIBRE_FORCE_ANSI', None)
 
@@ -58,7 +58,8 @@ def get_osx_version():
     return _osx_ver
 
 filesystem_encoding = sys.getfilesystemencoding()
-if filesystem_encoding is None: filesystem_encoding = 'utf-8'
+if filesystem_encoding is None:
+    filesystem_encoding = 'utf-8'
 else:
     try:
         if codecs.lookup(filesystem_encoding).name == 'ascii':
@@ -85,7 +86,7 @@ def _get_cache_dir():
     confcache = os.path.join(config_dir, u'caches')
     if isportable:
         return confcache
-    if os.environ.has_key('CALIBRE_CACHE_DIRECTORY'):
+    if 'CALIBRE_CACHE_DIRECTORY' in os.environ:
         return os.path.abspath(os.environ['CALIBRE_CACHE_DIRECTORY'])
 
     if iswindows:
@@ -184,7 +185,7 @@ if plugins is None:
 
 CONFIG_DIR_MODE = 0700
 
-if os.environ.has_key('CALIBRE_CONFIG_DIRECTORY'):
+if 'CALIBRE_CONFIG_DIRECTORY' in os.environ:
     config_dir = os.path.abspath(os.environ['CALIBRE_CONFIG_DIRECTORY'])
 elif iswindows:
     if plugins['winutil'][0] is None:

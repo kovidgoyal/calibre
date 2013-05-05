@@ -12,7 +12,6 @@ from PyQt4.Qt import Qt, QUrl, QDialog, QSize, QVBoxLayout, QLabel, \
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.server_ui import Ui_Form
-from calibre.utils.search_query_parser import saved_searches
 from calibre.library.server import server_config
 from calibre.utils.config import ConfigProxy
 from calibre.gui2 import error_dialog, config, open_url, warning_dialog, \
@@ -44,13 +43,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                          else self.opt_password.Password))
         self.opt_password.setEchoMode(self.opt_password.Password)
 
-        restrictions = sorted(saved_searches().names(), key=sort_key)
-        # verify that the current restriction still exists. If not, clear it.
-        csr = db.prefs.get('cs_restriction', None)
-        if csr and csr not in restrictions:
-            db.prefs.set('cs_restriction', '')
+        restrictions = sorted(db.prefs['virtual_libraries'].iterkeys(), key=sort_key)
         choices = [('', '')] + [(x, x) for x in restrictions]
-        r('cs_restriction', db.prefs, choices=choices)
+        # check that the virtual library still exists
+        vls = db.prefs['cs_virtual_lib_on_startup']
+        if vls and vls not in restrictions:
+            db.prefs['cs_virtual_lib_on_startup'] = ''
+        r('cs_virtual_lib_on_startup', db.prefs, choices=choices)
 
         self.start_button.setEnabled(not getattr(self.server, 'is_running', False))
         self.test_button.setEnabled(not self.start_button.isEnabled())

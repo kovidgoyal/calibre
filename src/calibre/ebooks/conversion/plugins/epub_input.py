@@ -188,7 +188,6 @@ class EPUBInput(InputFormatPlugin):
                 raise DRMError(os.path.basename(path))
         self.encrypted_fonts = self._encrypted_font_uris
 
-
         if len(parts) > 1 and parts[0]:
             delta = '/'.join(parts[:-1])+'/'
             for elem in opf.itermanifest():
@@ -207,9 +206,11 @@ class EPUBInput(InputFormatPlugin):
         not_for_spine = set()
         for y in opf.itermanifest():
             id_ = y.get('id', None)
-            if id_ and y.get('media-type', None) in \
-                ('application/vnd.adobe-page-template+xml','application/text'):
-                    not_for_spine.add(id_)
+            if id_ and y.get('media-type', None) in {
+                    'application/vnd.adobe-page-template+xml', 'application/vnd.adobe.page-template+xml',
+                    'application/adobe-page-template+xml', 'application/adobe.page-template+xml',
+                    'application/text'}:
+                not_for_spine.add(id_)
 
         seen = set()
         for x in list(opf.iterspine()):

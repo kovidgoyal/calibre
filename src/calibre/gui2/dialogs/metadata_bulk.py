@@ -12,7 +12,7 @@ from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, title_sort
-from calibre.ebooks.metadata.book.base import SafeFormat
+from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATETIME, \
     gprefs, question_dialog

@@ -24,7 +24,7 @@ from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.config import tweaks
 
-class Resource(object): # {{{
+class Resource(object):  # {{{
     '''
     Represents a resource (usually a file on the filesystem or a URL pointing
     to the web. Such resources are commonly referred to in OPF files.
@@ -68,7 +68,6 @@ class Resource(object): # {{{
                 self.path = os.path.abspath(os.path.join(basedir, pc.replace('/', os.sep)))
                 self.fragment = url[-1]
 
-
     def href(self, basedir=None):
         '''
         Return a URL pointing to this resource. If it is a file on the filesystem
@@ -90,7 +89,7 @@ class Resource(object): # {{{
             return ''+frag
         try:
             rpath = os.path.relpath(self.path, basedir)
-        except ValueError: # On windows path and basedir could be on different drives
+        except ValueError:  # On windows path and basedir could be on different drives
             rpath = self.path
         if isinstance(rpath, unicode):
             rpath = rpath.encode('utf-8')
@@ -107,7 +106,7 @@ class Resource(object): # {{{
 
 # }}}
 
-class ResourceCollection(object): # {{{
+class ResourceCollection(object):  # {{{
 
     def __init__(self):
         self._resources = []
@@ -160,7 +159,7 @@ class ResourceCollection(object): # {{{
 
 # }}}
 
-class ManifestItem(Resource): # {{{
+class ManifestItem(Resource):  # {{{
 
     @staticmethod
     def from_opf_manifest_item(item, basedir):
@@ -180,7 +179,6 @@ class ManifestItem(Resource): # {{{
             self.mime_type = val
         return property(fget=fget, fset=fset)
 
-
     def __unicode__(self):
         return u'<item id="%s" href="%s" media-type="%s" />'%(self.id, self.href(), self.media_type)
 
@@ -189,7 +187,6 @@ class ManifestItem(Resource): # {{{
 
     def __repr__(self):
         return unicode(self)
-
 
     def __getitem__(self, index):
         if index == 0:
@@ -200,7 +197,7 @@ class ManifestItem(Resource): # {{{
 
 # }}}
 
-class Manifest(ResourceCollection): # {{{
+class Manifest(ResourceCollection):  # {{{
 
     @staticmethod
     def from_opf_manifest_element(items, dir):
@@ -245,7 +242,6 @@ class Manifest(ResourceCollection): # {{{
         ResourceCollection.__init__(self)
         self.next_id = 1
 
-
     def item(self, id):
         for i in self:
             if i.id == id:
@@ -269,7 +265,7 @@ class Manifest(ResourceCollection): # {{{
 
 # }}}
 
-class Spine(ResourceCollection): # {{{
+class Spine(ResourceCollection):  # {{{
 
     class Item(Resource):
 
@@ -309,12 +305,9 @@ class Spine(ResourceCollection): # {{{
                 continue
         return s
 
-
-
     def __init__(self, manifest):
         ResourceCollection.__init__(self)
         self.manifest = manifest
-
 
     def replace(self, start, end, ids):
         '''
@@ -345,7 +338,7 @@ class Spine(ResourceCollection): # {{{
 
 # }}}
 
-class Guide(ResourceCollection): # {{{
+class Guide(ResourceCollection):  # {{{
 
     class Reference(Resource):
 
@@ -362,7 +355,6 @@ class Guide(ResourceCollection): # {{{
             if self.title:
                 ans += 'title="%s" '%self.title
             return ans + '/>'
-
 
     @staticmethod
     def from_opf_guide(references, base_dir=os.getcwdu()):
@@ -484,14 +476,14 @@ def dump_dict(cats):
     return json.dumps(object_to_unicode(cats), ensure_ascii=False,
             skipkeys=True)
 
-class OPF(object): # {{{
+class OPF(object):  # {{{
 
     MIMETYPE         = 'application/oebps-package+xml'
     PARSER           = etree.XMLParser(recover=True)
     NAMESPACES       = {
-                        None  : "http://www.idpf.org/2007/opf",
-                        'dc'  : "http://purl.org/dc/elements/1.1/",
-                        'opf' : "http://www.idpf.org/2007/opf",
+                        None: "http://www.idpf.org/2007/opf",
+                        'dc': "http://purl.org/dc/elements/1.1/",
+                        'opf': "http://www.idpf.org/2007/opf",
                        }
     META             = '{%s}meta' % NAMESPACES['opf']
     xpn = NAMESPACES.copy()
@@ -501,9 +493,10 @@ class OPF(object): # {{{
     CONTENT          = XPath('self::*[re:match(name(), "meta$", "i")]/@content')
     TEXT             = XPath('string()')
 
-
     metadata_path   = XPath('descendant::*[re:match(name(), "metadata", "i")]')
-    metadata_elem_path = XPath('descendant::*[re:match(name(), concat($name, "$"), "i") or (re:match(name(), "meta$", "i") and re:match(@name, concat("^calibre:", $name, "$"), "i"))]')
+    metadata_elem_path = XPath(
+        'descendant::*[re:match(name(), concat($name, "$"), "i") or (re:match(name(), "meta$", "i") '
+        'and re:match(@name, concat("^calibre:", $name, "$"), "i"))]')
     title_path      = XPath('descendant::*[re:match(name(), "title", "i")]')
     authors_path    = XPath('descendant::*[re:match(name(), "creator", "i") and (@role="aut" or @opf:role="aut" or (not(@role) and not(@opf:role)))]')
     bkp_path        = XPath('descendant::*[re:match(name(), "contributor", "i") and (@role="bkp" or @opf:role="bkp")]')
@@ -561,6 +554,10 @@ class OPF(object): # {{{
                 resolve_entities=True, assume_utf8=True)
         raw = raw[raw.find('<'):]
         self.root     = etree.fromstring(raw, self.PARSER)
+        try:
+            self.package_version = float(self.root.get('version', None))
+        except (AttributeError, TypeError, ValueError):
+            self.package_version = 0
         self.metadata = self.metadata_path(self.root)
         if not self.metadata:
             raise ValueError('Malformed OPF file: No <metadata> element')
@@ -640,7 +637,8 @@ class OPF(object): # {{{
                     if 'toc' in item.href().lower():
                         toc = item.path
 
-            if toc is None: return
+            if toc is None:
+                return
             self.toc = TOC(base_path=self.base_dir)
             is_ncx = getattr(self, 'manifest', None) is not None and \
                      self.manifest.type_for_id(toc) is not None and \
@@ -976,7 +974,6 @@ class OPF(object): # {{{
 
         return property(fget=fget, fset=fset)
 
-
     @dynamic_property
     def language(self):
 
@@ -989,7 +986,6 @@ class OPF(object): # {{{
             self.languages = [val]
 
         return property(fget=fget, fset=fset)
-
 
     @dynamic_property
     def languages(self):
@@ -1014,7 +1010,6 @@ class OPF(object): # {{{
                 self.set_text(l, unicode(lang))
 
         return property(fget=fget, fset=fset)
-
 
     @dynamic_property
     def book_producer(self):
@@ -1125,7 +1120,10 @@ class OPF(object): # {{{
     def get_metadata_element(self, name):
         matches = self.metadata_elem_path(self.metadata, name=name)
         if matches:
-            return matches[-1]
+            num = -1
+            if self.package_version >= 3 and name == 'title':
+                num = 0
+            return matches[num]
 
     def create_metadata_element(self, name, attrib=None, is_dc=True):
         if is_dc:
@@ -1195,7 +1193,6 @@ class OPFCreator(Metadata):
             self.guide = Guide()
         if self.cover:
             self.guide.set_cover(self.cover)
-
 
     def create_manifest(self, entries):
         '''
@@ -1615,9 +1612,9 @@ def test_user_metadata():
     from cStringIO import StringIO
     mi = Metadata('Test title', ['test author1', 'test author2'])
     um = {
-        '#myseries': { '#value#': u'test series\xe4', 'datatype':'text',
+        '#myseries': {'#value#': u'test series\xe4', 'datatype':'text',
             'is_multiple': None, 'name': u'My Series'},
-        '#myseries_index': { '#value#': 2.45, 'datatype': 'float',
+        '#myseries_index': {'#value#': 2.45, 'datatype': 'float',
             'is_multiple': None},
         '#mytags': {'#value#':['t1','t2','t3'], 'datatype':'text',
             'is_multiple': '|', 'name': u'My Tags'}

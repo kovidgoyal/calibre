@@ -14,7 +14,7 @@ from threading import Thread
 from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE, clean_date_for_sort
 from calibre.utils.search_query_parser import SearchQueryParser
-from calibre.utils.pyparsing import ParseException
+from calibre.utils.search_query_parser import ParseException
 from calibre.utils.localization import (canonicalize_lang, lang_map, get_udc)
 from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
@@ -209,7 +209,8 @@ class ResultCache(SearchQueryParser): # {{{
         self._data = []
         self._map = self._map_filtered = []
         self.first_sort = True
-        self.search_restriction = ''
+        self.search_restriction = self.base_restriction = ''
+        self.base_restriction_name = self.search_restriction_name = ''
         self.search_restriction_book_count = 0
         self.marked_ids_dict = {}
         self.field_metadata = field_metadata
@@ -365,25 +366,18 @@ class ResultCache(SearchQueryParser): # {{{
         elif query in self.local_thismonth:
             qd = now()
             field_count = 2
-        elif query.endswith(self.local_daysago):
+        elif query.endswith(self.local_daysago) or query.endswith(self.untrans_daysago):
             num = query[0:-self.local_daysago_len]
             try:
                 qd = now() - timedelta(int(num))
             except:
-                raise ParseException(query, len(query), 'Number conversion error', self)
-            field_count = 3
-        elif query.endswith(self.untrans_daysago):
-            num = query[0:-self.untrans_daysago_len]
-            try:
-                qd = now() - timedelta(int(num))
-            except:
-                raise ParseException(query, len(query), 'Number conversion error', self)
+                raise ParseException(_('Number conversion error: {0}').format(num))
             field_count = 3
         else:
             try:
                 qd = parse_date(query, as_utc=False)
             except:
-                raise ParseException(query, len(query), 'Date conversion error', self)
+                raise ParseException(_('Date conversion error: {0}').format(query))
             if '-' in query:
                 field_count = query.count('-') + 1
             else:
@@ -459,8 +453,7 @@ class ResultCache(SearchQueryParser): # {{{
             try:
                 q = cast(query) * mult
             except:
-                raise ParseException(query, len(query),
-                                     'Non-numeric value in query', self)
+                raise ParseException(_('Non-numeric value in query: {0}').format(query))
 
         for id_ in candidates:
             item = self._data[id_]
@@ -504,8 +497,8 @@ class ResultCache(SearchQueryParser): # {{{
         if query.find(':') >= 0:
             q = [q.strip() for q in query.split(':')]
             if len(q) != 2:
-                raise ParseException(query, len(query),
-                        'Invalid query format for colon-separated search', self)
+                raise ParseException(
+                 _('Invalid query format for colon-separated search: {0}').format(query))
             (keyq, valq) = q
             keyq_mkind, keyq = self._matchkind(keyq)
             valq_mkind, valq = self._matchkind(valq)
@@ -654,7 +647,7 @@ class ResultCache(SearchQueryParser): # {{{
                     if invert:
                         matches = self.universal_set() - matches
                     return matches
-                raise ParseException(query, len(query), 'Recursive query group detected', self)
+                raise ParseException(_('Recursive query group detected: {0}').format(query))
 
             # apply the limit if appropriate
             if location == 'all' and prefs['limit_search_columns'] and \
@@ -825,8 +818,19 @@ class ResultCache(SearchQueryParser): # {{{
             return ans
         self._map_filtered = ans
 
+    def _build_restriction_string(self, restriction):
+        if self.base_restriction:
+            if restriction:
+                return u'(%s) and (%s)' % (self.base_restriction, restriction)
+            else:
+                return self.base_restriction
+        else:
+            return restriction
+
     def search_getting_ids(self, query, search_restriction,
-                           set_restriction_count=False):
+                           set_restriction_count=False, use_virtual_library=True):
+        if use_virtual_library:
+            search_restriction = self._build_restriction_string(search_restriction)
         q = ''
         if not query or not query.strip():
             q = search_restriction
@@ -847,11 +851,32 @@ class ResultCache(SearchQueryParser): # {{{
             self.search_restriction_book_count = len(rv)
         return rv
 
+    def get_search_restriction(self):
+        return self.search_restriction
+
     def set_search_restriction(self, s):
         self.search_restriction = s
 
+    def get_base_restriction(self):
+        return self.base_restriction
+
+    def set_base_restriction(self, s):
+        self.base_restriction = s
+
+    def get_base_restriction_name(self):
+        return self.base_restriction_name
+
+    def set_base_restriction_name(self, s):
+        self.base_restriction_name = s
+
+    def get_search_restriction_name(self):
+        return self.search_restriction_name
+
+    def set_search_restriction_name(self, s):
+        self.search_restriction_name = s
+
     def search_restriction_applied(self):
-        return bool(self.search_restriction)
+        return bool(self.search_restriction) or bool((self.base_restriction))
 
     def get_search_restriction_book_count(self):
         return self.search_restriction_book_count
@@ -1002,7 +1027,7 @@ class ResultCache(SearchQueryParser): # {{{
         if field is not None:
             self.sort(field, ascending)
         self._map_filtered = list(self._map)
-        if self.search_restriction:
+        if self.search_restriction or self.base_restriction:
             self.search('', return_matches=False)
 
     # Sorting functions {{{

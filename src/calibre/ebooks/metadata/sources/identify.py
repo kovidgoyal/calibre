@@ -16,7 +16,8 @@ from operator import attrgetter
 from urlparse import urlparse
 
 from calibre.customize.ui import metadata_plugins, all_metadata_plugins
-from calibre.ebooks.metadata.sources.base import create_log, msprefs
+from calibre.ebooks.metadata.sources.base import create_log
+from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.ebooks.metadata.xisbn import xisbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import utc_tz, as_utc
