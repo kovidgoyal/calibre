@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-05-03 05:21+0000\n"
-"PO-Revision-Date: 2013-05-02 22:34+0000\n"
-"Last-Translator: MilliMarg <mirian.margiani@gmail.com>\n"
+"PO-Revision-Date: 2013-05-04 18:03+0000\n"
+"Last-Translator: Simon Schütte <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-05-04 05:42+0000\n"
+"X-Launchpad-Export-Date: 2013-05-05 05:19+0000\n"
 "X-Generator: Launchpad (build 16598)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -5653,7 +5653,7 @@ msgid ""
 msgstr ""
 "<p>Fügt eine \"Buch-Hülle\" als erste Seite des Buches ein, welche alle\n"
 "Metadaten des Buches wie Titel, Tags, Author(en), Reihe, Kommentare,\n"
-"etc. beinhaltet. Jede ältere Buch-Hülle wird ersetzt.</p>"
+"etc. beinhaltet. Jede ältere Buchumschlag wird ersetzt.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:74
 msgid "<p>Remove a previous inserted book jacket page.</p>\n"
@@ -7224,7 +7224,7 @@ msgstr "Protokoll des Herunterladens"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:159
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:225
 msgid "Review downloaded metadata"
-msgstr ""
+msgstr "Heruntergeladenen Metadaten überprüfen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:184
 msgid "Some books changed"
@@ -7244,15 +7244,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:226
 msgid "Discard downloaded metadata for this book"
-msgstr ""
+msgstr "Heruntergeladenen Metadaten für dieses Buch verwerfen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:227
 msgid "Use the downloaded metadata for all remaining books"
 msgstr ""
+"Die heruntergeladenen Metadaten für alle verbleibenden Bücher verwenden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:228
 msgid "Discard downloaded metadata for all remaining books"
 msgstr ""
+"Die heruntergeladenen Metadaten für alle verbleibenden Bücher verwerfen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:229
 #, python-format
@@ -7620,6 +7622,9 @@ msgid ""
 "option to work, you must also select the option to update metadata in the "
 "book files. Do you want to select it?"
 msgstr ""
+"Sie haben ausgewählt, dass die Metadaten als \"Buchumschlag\" eingefügt "
+"werden. Damit diese Option arbeitet, müssen Sie auch aktivieren, dass "
+"Metadaten auf dem neuesten Stand gehalten werden. Wollen Sie es aktivieren?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:218
 msgid "You must select at least one action, or click Cancel."
@@ -15304,7 +15309,7 @@ msgstr "verfügbar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:176
 msgid "Vi&rtual Library"
-msgstr ""
+msgstr "Vi&rtuelle Bibliothek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:193
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:198
@@ -16033,23 +16038,23 @@ msgstr "Metadaten-Felder heruntergeladen"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:348
 #, python-format
 msgid "Revert %s"
-msgstr ""
+msgstr "%s zurück"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:452
 msgid "Compare metadata"
-msgstr ""
+msgstr "Metadaten vergleichen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:468
 msgid "&Accept all remaining"
-msgstr ""
+msgstr "Alle verbleibenden &akzeptieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:473
 msgid "Re&ject all remaining"
-msgstr ""
+msgstr "Alle verbleibenden zurückwe&isen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:478
 msgid "&Reject"
-msgstr ""
+msgstr "Zu&rückweisen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:523
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:301

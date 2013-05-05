@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-05-03 05:21+0000\n"
-"PO-Revision-Date: 2013-04-27 10:58+0000\n"
+"PO-Revision-Date: 2013-05-04 10:33+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-05-04 05:39+0000\n"
+"X-Launchpad-Export-Date: 2013-05-05 05:18+0000\n"
 "X-Generator: Launchpad (build 16598)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -7193,7 +7193,7 @@ msgstr "Registre de baixades"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:159
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:225
 msgid "Review downloaded metadata"
-msgstr ""
+msgstr "Revisa les metadades baixades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:184
 msgid "Some books changed"
@@ -7213,26 +7213,28 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:226
 msgid "Discard downloaded metadata for this book"
-msgstr ""
+msgstr "Descarta les metadades baixades per a aquest llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:227
 msgid "Use the downloaded metadata for all remaining books"
-msgstr ""
+msgstr "Utilitza les metadades baixades per a la resta de llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:228
 msgid "Discard downloaded metadata for all remaining books"
-msgstr ""
+msgstr "Descarta les metadades baixades per a la resta de llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:229
 #, python-format
 msgid "Discard the downloaded value for: %s"
-msgstr ""
+msgstr "Descarta el valor baixat per a: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:230
 msgid ""
 "The downloaded metadata is on the left and the original metadata is on the "
 "right. If a downloaded value is blank or unknown, the original value is used."
 msgstr ""
+"Les metadades baixades estan a l'esquerra i les originals a la dreta. Si un "
+"valor baixat està en blanc o és desconegut, s'utilitza el valor original."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:274
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:343
@@ -15198,7 +15200,7 @@ msgstr "disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:176
 msgid "Vi&rtual Library"
-msgstr ""
+msgstr "Biblioteca vi&rtual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:193
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:198
@@ -15926,23 +15928,23 @@ msgstr "Camps de metadades descarregats"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:348
 #, python-format
 msgid "Revert %s"
-msgstr ""
+msgstr "Desfés %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:452
 msgid "Compare metadata"
-msgstr ""
+msgstr "Comparació de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:468
 msgid "&Accept all remaining"
-msgstr ""
+msgstr "&Accepta la resta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:473
 msgid "Re&ject all remaining"
-msgstr ""
+msgstr "Rebut&ja la resta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:478
 msgid "&Reject"
-msgstr ""
+msgstr "&Rebutja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:523
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:301
@@ -19388,12 +19390,12 @@ msgstr "Crea una biblioteca virtual basada en %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:34
 #, python-format
 msgid "Match any of the selected %s names"
-msgstr ""
+msgstr "Coincidència amb qualsevol dels %s noms seleccionats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:35
 #, python-format
 msgid "Match all of the selected %s names"
-msgstr ""
+msgstr "Coincidència amb tots els %s noms seleccionats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:95
 msgid "Edit virtual library"
@@ -20231,15 +20233,15 @@ msgstr "Estableix l'ordre de les entrades a l'explorador d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:416
 msgid "Search type when selecting multiple items"
-msgstr ""
+msgstr "Tipus de cerca en seleccionar elements múltiples"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:422
 msgid "Match all of the items"
-msgstr ""
+msgstr "Coincidència de tots els elements"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:422
 msgid "Match any of the items"
-msgstr ""
+msgstr "Coincidència amb qualsevol dels elements"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:429
 msgid ""
