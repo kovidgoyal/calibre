@@ -940,6 +940,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def do_config(self):
         self.view.config(self)
         self.load_theme_menu()
+        from calibre.gui2 import config
+        if not config['viewer_search_history']:
+            self.search.clear_history()
 
     def bookmark(self, *args):
         num = 1

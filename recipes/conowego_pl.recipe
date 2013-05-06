@@ -15,6 +15,7 @@ class CoNowegoPl(BasicNewsRecipe):
     no_stylesheets = True
     remove_empty_feeds = True
     use_embedded_content = False
+    ignore_duplicate_articles = {'title', 'url'}
     keep_only_tags = [dict(name='div', attrs={'class':'news_list single_view'})]
     remove_tags = [dict(name='div', attrs={'class':['ni_bottom', 'ni_rank', 'ni_date']})]
     feeds          = [(u'Aktualno\u015bci', u'http://www.conowego.pl/rss/aktualnosci-5/?type=100'), (u'Gaming', u'http://www.conowego.pl/rss/gaming-6/?type=100'), (u'Porady', u'http://www.conowego.pl/rss/porady-3/?type=100'), (u'Testy', u'http://www.conowego.pl/rss/testy-2/?type=100')]

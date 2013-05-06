@@ -13764,7 +13764,7 @@ msgstr "Laba"
 
 #. name for lav
 msgid "Latvian"
-msgstr "Lituano"
+msgstr ""
 
 #. name for law
 msgid "Lauje"
@@ -22212,7 +22212,7 @@ msgstr "Roglai do norte"
 
 #. name for roh
 msgid "Romansh"
-msgstr "Romanés"
+msgstr ""
 
 #. name for rol
 msgid "Romblomanon"

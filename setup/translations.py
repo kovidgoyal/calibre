@@ -18,7 +18,7 @@ def qt_sources():
             'src/gui/widgets/qdialogbuttonbox.cpp',
     ]))
 
-class POT(Command): # {{{
+class POT(Command):  # {{{
 
     description = 'Update the .pot translation template'
     PATH = os.path.join(Command.SRC, __appname__, 'translations')
@@ -62,7 +62,6 @@ class POT(Command): # {{{
             ans.append('')
 
         return '\n'.join(ans)
-
 
     def run(self, opts):
         pot_header = textwrap.dedent('''\
@@ -117,11 +116,10 @@ class POT(Command): # {{{
                 f.write(src)
             self.info('Translations template:', os.path.abspath(pot))
 
-
         return pot
 # }}}
 
-class Translations(POT): # {{{
+class Translations(POT):  # {{{
     description='''Compile the translations'''
     DEST = os.path.join(os.path.dirname(POT.SRC), 'resources', 'localization',
             'locales')
@@ -134,6 +132,7 @@ class Translations(POT): # {{{
         return locale, os.path.join(self.DEST, locale, 'messages.mo')
 
     def run(self, opts):
+        self.iso639_errors = []
         for f in self.po_files():
             locale, dest = self.mo_file(f)
             base = os.path.dirname(dest)
@@ -146,17 +145,45 @@ class Translations(POT): # {{{
                     '%s.po'%iscpo)
 
             if os.path.exists(iso639):
+                self.check_iso639(iso639)
                 dest = self.j(self.d(dest), 'iso639.mo')
                 if self.newer(dest, iso639):
-                    self.info('\tCopying ISO 639 translations')
+                    self.info('\tCopying ISO 639 translations for %s' % iscpo)
                     subprocess.check_call(['msgfmt', '-o', dest, iso639])
             elif locale not in ('en_GB', 'en_CA', 'en_AU', 'si', 'ur', 'sc',
                     'ltg', 'nds', 'te', 'yi', 'fo', 'sq', 'ast', 'ml', 'ku',
                     'fr_CA', 'him', 'jv', 'ka', 'fur', 'ber'):
                 self.warn('No ISO 639 translations for locale:', locale)
 
+        if self.iso639_errors:
+            for err in self.iso639_errors:
+                print (err)
+            raise SystemExit(1)
+
         self.write_stats()
         self.freeze_locales()
+
+    def check_iso639(self, path):
+        from calibre.utils.localization import langnames_to_langcodes
+        with open(path, 'rb') as f:
+            raw = f.read()
+        rmap = {}
+        msgid = None
+        for match in re.finditer(r'^(msgid|msgstr)\s+"(.*?)"', raw, re.M):
+            if match.group(1) == 'msgid':
+                msgid = match.group(2)
+            else:
+                msgstr = match.group(2)
+                if not msgstr:
+                    continue
+                omsgid = rmap.get(msgstr, None)
+                if omsgid is not None:
+                    cm = langnames_to_langcodes([omsgid, msgid])
+                    if cm[msgid] and cm[omsgid] and cm[msgid] != cm[omsgid]:
+                        self.iso639_errors.append('In file %s the name %s is used as translation for both %s and %s' % (
+                            os.path.basename(path), msgstr, msgid, rmap[msgstr]))
+                    # raise SystemExit(1)
+                rmap[msgstr] = msgid
 
     def freeze_locales(self):
         zf = self.DEST + '.zip'
@@ -191,7 +218,6 @@ class Translations(POT): # {{{
             locale = self.mo_file(f)[0]
             stats[locale] = min(1.0, float(trans)/total)
 
-
         import cPickle
         cPickle.dump(stats, open(dest, 'wb'), -1)
 
@@ -211,7 +237,7 @@ class Translations(POT): # {{{
 
 # }}}
 
-class GetTranslations(Translations): # {{{
+class GetTranslations(Translations):  # {{{
 
     description = 'Get updated translations from Launchpad'
     BRANCH = 'lp:~kovid/calibre/translations'
@@ -286,7 +312,7 @@ class GetTranslations(Translations): # {{{
 
 # }}}
 
-class ISO639(Command): # {{{
+class ISO639(Command):  # {{{
 
     description = 'Compile translations for ISO 639 codes'
     DEST = os.path.join(os.path.dirname(POT.SRC), 'resources', 'localization',

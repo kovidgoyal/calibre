@@ -9862,7 +9862,7 @@ msgstr "Hya"
 
 #. name for hye
 msgid "Armenian"
-msgstr "Albanés"
+msgstr ""
 
 #. name for iai
 msgid "Iaai"
@@ -13762,7 +13762,7 @@ msgstr "Laba"
 
 #. name for lav
 msgid "Latvian"
-msgstr "Lituanian"
+msgstr ""
 
 #. name for law
 msgid "Lauje"

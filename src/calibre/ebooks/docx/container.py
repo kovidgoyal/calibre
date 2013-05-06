@@ -105,6 +105,9 @@ class DOCX(object):
             name = os.path.relpath(f, self.tdir).replace(os.sep, '/')
             self.names[name] = f
 
+    def exists(self, name):
+        return name in self.names
+
     def read(self, name):
         if hasattr(self, 'zipf'):
             return self.zipf.open(name).read()
@@ -149,14 +152,39 @@ class DOCX(object):
             self.relationships_rmap[target] = typ
 
     @property
-    def document(self):
+    def document_name(self):
         name = self.relationships.get(DOCUMENT, None)
         if name is None:
             names = tuple(n for n in self.names if n == 'document.xml' or n.endswith('/document.xml'))
             if not names:
                 raise InvalidDOCX('The file %s docx file has no main document' % self.name)
             name = names[0]
-        return fromstring(self.read(name))
+        return name
+
+    @property
+    def document(self):
+        return fromstring(self.read(self.document_name))
+
+    @property
+    def document_relationships(self):
+        name = self.document_name
+        base = '/'.join(name.split('/')[:-1])
+        by_id, by_type = {}, {}
+        parts = name.split('/')
+        name = '/'.join(parts[:-1] + ['_rels', parts[-1] + '.rels'])
+        try:
+            raw = self.read(name)
+        except KeyError:
+            pass
+        else:
+            root = fromstring(raw)
+            for item in root.xpath('//*[local-name()="Relationships"]/*[local-name()="Relationship" and @Type and @Target]'):
+                target = '/'.join((base, item.get('Target').lstrip('/')))
+                typ = item.get('Type')
+                Id = item.get('Id')
+                by_id[Id] = by_type[typ] = target
+
+        return by_id, by_type
 
     @property
     def metadata(self):
