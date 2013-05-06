@@ -412,8 +412,8 @@ class Styles(object):
             if s.style_id:
                 self.id_map[s.style_id] = s
 
-        # Nuke based_on, link attributes that refer to non-existing/incompatible
-        # parents
+        # Nuke based_on, link attributes that refer to missing/incompatible
+        # styles
         for s in self:
             bo = s.based_on
             if bo is not None:
