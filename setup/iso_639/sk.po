@@ -13763,7 +13763,7 @@ msgstr ""
 
 #. name for lav
 msgid "Latvian"
-msgstr "Lotyšský"
+msgstr ""
 
 #. name for law
 msgid "Lauje"

@@ -13762,7 +13762,7 @@ msgstr ""
 
 #. name for lav
 msgid "Latvian"
-msgstr "litevština"
+msgstr ""
 
 #. name for law
 msgid "Lauje"

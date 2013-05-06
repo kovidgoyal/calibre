@@ -2024,7 +2024,7 @@ msgstr "Àzeri meridional"
 
 #. name for aze
 msgid "Azerbaijani"
-msgstr "Serbi"
+msgstr ""
 
 #. name for azg
 msgid "Amuzgo; San Pedro Amuzgos"
@@ -21816,7 +21816,7 @@ msgstr "Ramoaaina"
 
 #. name for raj
 msgid "Rajasthani"
-msgstr "Marwari"
+msgstr ""
 
 #. name for rak
 msgid "Tulu-Bohuai"

@@ -319,7 +319,7 @@ msgstr "Adangme"
 
 #. name for adb
 msgid "Adabe"
-msgstr "Adangme"
+msgstr "Adabe"
 
 #. name for add
 msgid "Dzodinka"
@@ -367,7 +367,7 @@ msgstr "Adap"
 
 #. name for adq
 msgid "Adangbe"
-msgstr "Adangme"
+msgstr "Adangbe"
 
 #. name for adr
 msgid "Adonara"
