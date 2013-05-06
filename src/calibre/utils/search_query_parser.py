@@ -135,7 +135,7 @@ class Parser(object):
                 (r'[()]',             lambda x,t: (1, t)),
                 (r'@.+?:[^")\s]+',    lambda x,t: (2, unicode(t))),
                 (r'[^"()\s]+',        lambda x,t: (2, unicode(t))),
-                (r'".*?((?<!\\)")',   lambda x,t: (3, t[1:-1])),
+                (r'".*?((?<!\\)")',   lambda x,t: (3, t[1:-1].replace('\\"', '"'))),
                 (r'\s+',              None)
         ], flags=re.DOTALL)
 
