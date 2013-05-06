@@ -12,7 +12,7 @@ class swiatczytnikow(BasicNewsRecipe):
     __author__ = u'Artur Stachecki'
     oldest_article = 7
     max_articles_per_feed = 100
-
+    remove_empty_feeds = True
     remove_tags = [dict(name = 'div', attrs = {'class' : 'feedflare'})]
 
     feeds = [(u'Wpisy', u'http://feeds.feedburner.com/Ekundelekpl?format=xml')]

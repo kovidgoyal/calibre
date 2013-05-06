@@ -11,6 +11,7 @@ class eMuzyka(BasicNewsRecipe):
     cover_url='http://s.emuzyka.pl/img/emuzyka_invert_small.jpg'
     no_stylesheets = True
     oldest_article = 7
+    remove_empty_feeds = True
     max_articles_per_feed = 100
     remove_attributes = ['style']
     keep_only_tags=[dict(name='div', attrs={'id':'news_container'}), dict(name='h3'), dict(name='div', attrs={'class':'review_text'})]

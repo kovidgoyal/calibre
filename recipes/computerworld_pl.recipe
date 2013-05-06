@@ -16,7 +16,7 @@ class Computerworld_pl(BasicNewsRecipe):
     preprocess_regexps = [(re.compile(u'Zobacz również:', re.IGNORECASE), lambda m: ''), (re.compile(ur'[*]+reklama[*]+', re.IGNORECASE), lambda m: ''),]
     keep_only_tags = [dict(id=['szpaltaL', 's2011'])]
     remove_tags_after = dict(name='div', attrs={'class':'tresc'})
-    remove_tags = [dict(attrs={'class':['nnav', 'rMobi', 'tagi', 'rec']}),]
+    remove_tags = [dict(attrs={'class':['nnav', 'rMobi', 'tagi', 'rec']}), dict(name='a', attrs={'target':'_blank'})]
     feeds          = [(u'Wiadomo\u015bci', u'http://rssout.idg.pl/cw/news_iso.xml')]
 
     def skip_ad_pages(self, soup):
