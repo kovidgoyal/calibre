@@ -7288,7 +7288,7 @@ msgstr "Epie"
 
 #. name for epo
 msgid "Esperanto"
-msgstr "Alemany"
+msgstr "Esperanto"
 
 #. name for era
 msgid "Eravallan"
