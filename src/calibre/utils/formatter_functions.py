@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 
 import inspect, re, traceback
 from math import trunc
-from threading import RLock
 
 from calibre import human_readable
 from calibre.constants import DEBUG
@@ -26,15 +25,6 @@ class FormatterFunctions(object):
     def __init__(self):
         self._builtins = {}
         self._functions = {}
-        self._lock = RLock()
-        self._loaded = False
-
-    def load_builtins(self):
-        with self._lock:
-            if not self._loaded:
-                self._loaded = True
-                for c in _formatter_builtins:
-                    c()
 
     def register_builtin(self, func_class):
         if not isinstance(func_class, FormatterFunction):
@@ -49,7 +39,6 @@ class FormatterFunctions(object):
             self._functions[a] = func_class
 
     def register_function(self, func_class):
-        self.load_builtins()
         if not isinstance(func_class, FormatterFunction):
             raise ValueError('Class %s is not an instance of FormatterFunction'%(
                                     func_class.__class__.__name__))
@@ -59,11 +48,9 @@ class FormatterFunctions(object):
         self._functions[name] = func_class
 
     def get_builtins(self):
-        self.load_builtins()
         return self._builtins
 
     def get_builtins_and_aliases(self):
-        self.load_builtins()
         res = {}
         for f in self._builtins.itervalues():
             res[f.name] = f
@@ -72,12 +59,10 @@ class FormatterFunctions(object):
         return res
 
     def get_functions(self):
-        self.load_builtins()
         return self._functions
 
     def reset_to_builtins(self):
         self._functions = {}
-        self.load_builtins()
         for n,c in self._builtins.items():
             self._functions[n] = c
             for a in c.aliases:
@@ -1225,27 +1210,27 @@ class BuiltinFinishFormatting(BuiltinFormatterFunction):
         return prefix + formatter._do_format(val, fmt) + suffix
 
 _formatter_builtins = [
-    BuiltinAdd, BuiltinAnd, BuiltinApproximateFormats,
-    BuiltinAssign, BuiltinBooksize,
-    BuiltinCapitalize, BuiltinCmp, BuiltinContains, BuiltinCount,
-    BuiltinCurrentLibraryName, BuiltinCurrentLibraryPath,
-    BuiltinDaysBetween, BuiltinDivide, BuiltinEval, BuiltinFirstNonEmpty,
-    BuiltinField, BuiltinFinishFormatting, BuiltinFormatDate,
-    BuiltinFormatNumber, BuiltinFormatsModtimes, BuiltinFormatsPaths,
-    BuiltinFormatsSizes,
-    BuiltinHasCover, BuiltinHumanReadable, BuiltinIdentifierInList,
-    BuiltinIfempty, BuiltinLanguageCodes, BuiltinLanguageStrings,
-    BuiltinInList, BuiltinListDifference, BuiltinListEquals,
-    BuiltinListIntersection, BuiltinListitem, BuiltinListRe,
-    BuiltinListSort, BuiltinListUnion, BuiltinLookup,
-    BuiltinLowercase, BuiltinMultiply, BuiltinNot,
-    BuiltinOndevice, BuiltinOr, BuiltinPrint, BuiltinRawField,
-    BuiltinRe, BuiltinSelect, BuiltinSeriesSort, BuiltinShorten,
-    BuiltinStrcat, BuiltinStrcatMax,
-    BuiltinStrcmp, BuiltinStrInList, BuiltinStrlen, BuiltinSubitems,
-    BuiltinSublist,BuiltinSubstr, BuiltinSubtract, BuiltinSwapAroundComma,
-    BuiltinSwitch, BuiltinTemplate, BuiltinTest, BuiltinTitlecase,
-    BuiltinToday, BuiltinUppercase,
+    BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(),
+    BuiltinAssign(), BuiltinBooksize(),
+    BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
+    BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
+    BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
+    BuiltinField(), BuiltinFinishFormatting(), BuiltinFormatDate(),
+    BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsPaths(),
+    BuiltinFormatsSizes(),
+    BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
+    BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
+    BuiltinInList(), BuiltinListDifference(), BuiltinListEquals(),
+    BuiltinListIntersection(), BuiltinListitem(), BuiltinListRe(),
+    BuiltinListSort(), BuiltinListUnion(), BuiltinLookup(),
+    BuiltinLowercase(), BuiltinMultiply(), BuiltinNot(),
+    BuiltinOndevice(), BuiltinOr(), BuiltinPrint(), BuiltinRawField(),
+    BuiltinRe(), BuiltinSelect(), BuiltinSeriesSort(), BuiltinShorten(),
+    BuiltinStrcat(), BuiltinStrcatMax(),
+    BuiltinStrcmp(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
+    BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
+    BuiltinSwitch(), BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),
+    BuiltinToday(), BuiltinUppercase(),
 ]
 
 class FormatterUserFunction(FormatterFunction):
@@ -1275,11 +1260,10 @@ class UserFunction(FormatterUserFunction):
     return cls
 
 def load_user_template_functions(funcs):
-    if funcs:
-        formatter_functions().reset_to_builtins()
-        for func in funcs:
-            try:
-                cls = compile_user_function(*func)
-                formatter_functions().register_function(cls)
-            except:
-                traceback.print_exc()
+    formatter_functions().reset_to_builtins()
+    for func in funcs:
+        try:
+            cls = compile_user_function(*func)
+            formatter_functions().register_function(cls)
+        except:
+            traceback.print_exc()
