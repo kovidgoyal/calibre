@@ -35,7 +35,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 0, 9)
+    version = (2, 0, 10)
 
     dbversion = 0
     fwversion = 0
@@ -1213,7 +1213,7 @@ class KOBOTOUCH(KOBO):
     min_dbversion_archive           = 71
     min_dbversion_images_on_sdcard  = 77
 
-    max_supported_fwversion         = (2,5,1)
+    max_supported_fwversion         = (2,5,3)
     min_fwversion_images_on_sdcard  = (2,4,1)
 
     has_kepubs = True
@@ -1237,11 +1237,9 @@ class KOBOTOUCH(KOBO):
             _('Keep cover aspect ratio') +
             ':::'+_('When uploading covers, do not change the aspect ratio when resizing for the device.'
                     ' This is for firmware versions 2.3.1 and later.'),
-            _('Show expired books') +
-            ':::'+_('A bug in an earlier version left non kepubs book records'
-                ' in the database.  With this option Calibre will show the '
-                'expired records and allow you to delete them with '
-                'the new delete logic.'),
+            _('Show archived books') +
+            ':::'+_('Archived books are listed on the device but need to be downloaded to read.'
+                    ' Use this option to show these books and match them with books in the calibtre library.'),
             _('Show Previews') +
             ':::'+_('Kobo previews are included on the Touch and some other versions'
                 ' by default they are no longer displayed as there is no good reason to '
@@ -1289,7 +1287,7 @@ class KOBOTOUCH(KOBO):
     OPT_UPLOAD_COVERS               = 3
     OPT_UPLOAD_GRAYSCALE_COVERS     = 4
     OPT_KEEP_COVER_ASPECT_RATIO     = 5
-    OPT_SHOW_EXPIRED_BOOK_RECORDS   = 6
+    OPT_SHOW_ARCHIVED_BOOK_RECORDS  = 6
     OPT_SHOW_PREVIEWS               = 7
     OPT_SHOW_RECOMMENDATIONS        = 8
     OPT_UPDATE_SERIES_DETAILS       = 9
@@ -1346,6 +1344,10 @@ class KOBOTOUCH(KOBO):
     def get_device_information(self, end_session=True):
         self.set_device_name()
         return super(KOBOTOUCH, self).get_device_information(end_session)
+
+
+    def device_database_path(self):
+        return self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite')
 
     def books(self, oncard=None, end_session=True):
         debug_print("KoboTouch:books - oncard='%s'"%oncard)
@@ -1599,9 +1601,7 @@ class KOBOTOUCH(KOBO):
 
         self.debug_index = 0
         import sqlite3 as sqlite
-        with closing(sqlite.connect(
-            self.normalize_path(self._main_prefix +
-                '.kobo/KoboReader.sqlite'))) as connection:
+        with closing(sqlite.connect(self.device_database_path())) as connection:
             debug_print("KoboTouch:books - reading device database")
 
             # return bytestrings if the content cannot the decoded as unicode
@@ -1618,7 +1618,21 @@ class KOBOTOUCH(KOBO):
             debug_print("KoboTouch:books - shelf list:", self.bookshelvelist)
 
             opts = self.settings()
-            if self.supports_series():
+            if self.supports_kobo_archive():
+                query= ("select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, " \
+                    "ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, " \
+                    "IsDownloaded, Series, SeriesNumber, ___UserID " \
+                    " from content " \
+                    " where BookID is Null " \
+                    " and ((Accessibility = -1 and IsDownloaded in ('true', 1 )) or (Accessibility in (1,2) %(expiry)s) " \
+                    "    %(previews)s %(recomendations)s )" \
+                    " and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) and ContentType = 6)") % \
+                        dict(\
+                             expiry="" if opts.extra_customization[self.OPT_SHOW_ARCHIVED_BOOK_RECORDS] else "and IsDownloaded in ('true', 1)", \
+                             previews=" or (Accessibility in (6) and ___UserID <> '')" if opts.extra_customization[self.OPT_SHOW_PREVIEWS] else "", \
+                             recomendations=" or (Accessibility in (-1, 4, 6) and ___UserId = '')" if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] else "" \
+                             )
+            elif self.supports_series():
                 query= ("select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, " \
                     "ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, " \
                     "IsDownloaded, Series, SeriesNumber, ___UserID " \
@@ -1627,7 +1641,7 @@ class KOBOTOUCH(KOBO):
                     " and ((Accessibility = -1 and IsDownloaded in ('true', 1)) or (Accessibility in (1,2)) %(previews)s %(recomendations)s )" \
                     " and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s") % \
                         dict(\
-                             expiry=" and ContentType = 6)" if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ")", \
+                             expiry=" and ContentType = 6)" if opts.extra_customization[self.OPT_SHOW_ARCHIVED_BOOK_RECORDS] else ")", \
                              previews=" or (Accessibility in (6) and ___UserID <> '')" if opts.extra_customization[self.OPT_SHOW_PREVIEWS] else "", \
                              recomendations=" or (Accessibility in (-1, 4, 6) and ___UserId = '')" if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] else "" \
                              )
@@ -1638,7 +1652,7 @@ class KOBOTOUCH(KOBO):
                     ' from content ' \
                     ' where BookID is Null %(previews)s %(recomendations)s and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % \
                         dict(\
-                             expiry=' and ContentType = 6)' if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')', \
+                             expiry=' and ContentType = 6)' if opts.extra_customization[self.OPT_SHOW_ARCHIVED_BOOK_RECORDS] else ')', \
                              previews=' and Accessibility <> 6' if opts.extra_customization[self.OPT_SHOW_PREVIEWS] == False else '', \
                              recomendations=' and IsDownloaded in (\'true\', 1)' if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] == False else ''\
                              )
@@ -1648,7 +1662,7 @@ class KOBOTOUCH(KOBO):
                     '"1" as IsDownloaded, null as Series, null as SeriesNumber, ___UserID' \
                     ' from content where ' \
                     'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
-                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
+                    if opts.extra_customization[self.OPT_SHOW_ARCHIVED_BOOK_RECORDS] else ')')
             else:
                 query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
                     'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility, ' \
@@ -2586,7 +2600,7 @@ class KOBOTOUCH(KOBO):
     def modify_database_check(self, function):
         # Checks to see whether the database version is supported
         # and whether the user has chosen to support the firmware version
-#        debug_print("KoboTouch:modify_database_check - self.fwversion <= self.max_supported_fwversion=", self.fwversion > self.max_supported_fwversion)
+#        debug_print("KoboTouch:modify_database_check - self.fwversion > self.max_supported_fwversion=", self.fwversion > self.max_supported_fwversion)
         if self.dbversion > self.supported_dbversion or self.fwversion > self.max_supported_fwversion:
             # Unsupported database
             opts = self.settings()
