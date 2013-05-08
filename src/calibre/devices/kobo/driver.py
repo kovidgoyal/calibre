@@ -45,6 +45,7 @@ class KOBO(USBMS):
     supported_platforms = ['windows', 'osx', 'linux']
 
     booklist_class = CollectionsBookList
+    book_class = Book
 
     # Ordered list of supported formats
     FORMATS     = ['epub', 'pdf', 'txt', 'cbz', 'cbr']
@@ -115,7 +116,6 @@ class KOBO(USBMS):
 
     def initialize(self):
         USBMS.initialize(self)
-        self.book_class = Book
         self.dbversion = 7
 
     def books(self, oncard=None, end_session=True):
