@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-05-03 05:21+0000\n"
-"PO-Revision-Date: 2013-04-29 18:36+0000\n"
+"PO-Revision-Date: 2013-05-07 12:24+0000\n"
 "Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-05-04 05:50+0000\n"
+"X-Launchpad-Export-Date: 2013-05-08 05:16+0000\n"
 "X-Generator: Launchpad (build 16598)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
@@ -7092,7 +7092,7 @@ msgstr "Dziennik pobierania"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:159
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:225
 msgid "Review downloaded metadata"
-msgstr ""
+msgstr "Przejrzyj pobrane metadane"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:184
 msgid "Some books changed"
@@ -7112,26 +7112,28 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:226
 msgid "Discard downloaded metadata for this book"
-msgstr ""
+msgstr "Od&rzuć pobrane metadane dla tej książki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:227
 msgid "Use the downloaded metadata for all remaining books"
-msgstr ""
+msgstr "Użyj pobranych danych dla pozostałych książek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:228
 msgid "Discard downloaded metadata for all remaining books"
-msgstr ""
+msgstr "Od&rzuć pobrane metadane dla pozostałych książek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:229
 #, python-format
 msgid "Discard the downloaded value for: %s"
-msgstr ""
+msgstr "Odrzuć pobraną wartość dla %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:230
 msgid ""
 "The downloaded metadata is on the left and the original metadata is on the "
 "right. If a downloaded value is blank or unknown, the original value is used."
 msgstr ""
+"Pobrane dane są po lewej, a oryginalne po prawej stronie. Jeśli pobrane dane "
+"są puste lub nieznane użyta zostanie oryginalna wartość."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:274
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:343
@@ -15033,7 +15035,7 @@ msgstr "dostępne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:176
 msgid "Vi&rtual Library"
-msgstr ""
+msgstr "Wi&rtualna Biblioteka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:193
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:198
@@ -15759,23 +15761,23 @@ msgstr "Pobrane pola metadanych"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:348
 #, python-format
 msgid "Revert %s"
-msgstr ""
+msgstr "Przywróć %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:452
 msgid "Compare metadata"
-msgstr ""
+msgstr "Porównaj metadane"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:468
 msgid "&Accept all remaining"
-msgstr ""
+msgstr "Z&aakceptuj pozostałe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:473
 msgid "Re&ject all remaining"
-msgstr ""
+msgstr "O&drzuć pozostałe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:478
 msgid "&Reject"
-msgstr ""
+msgstr "Od&rzuć"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:523
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:301
@@ -19173,12 +19175,12 @@ msgstr "Utwórz Wirtualną bibliotekę na podstawie %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:34
 #, python-format
 msgid "Match any of the selected %s names"
-msgstr ""
+msgstr "Dopasuj dowolną nazwę z wybranych %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:35
 #, python-format
 msgid "Match all of the selected %s names"
-msgstr ""
+msgstr "Dopasuj &wszystkie wybrane nazwy %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:95
 msgid "Edit virtual library"
@@ -19998,15 +20000,15 @@ msgstr "Ustaw porządek sortowania dla wpisów w przeglądarce etykiet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:416
 msgid "Search type when selecting multiple items"
-msgstr ""
+msgstr "Typ wyszukiwania przy wybranych wielu elementach"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:422
 msgid "Match all of the items"
-msgstr ""
+msgstr "Dopasuj wszystkie elementy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:422
 msgid "Match any of the items"
-msgstr ""
+msgstr "Dopasuj którykolwiek element"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:429
 msgid ""
