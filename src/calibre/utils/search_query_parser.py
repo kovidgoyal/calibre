@@ -135,7 +135,7 @@ class Parser(object):
                 (r'[()]',             lambda x,t: (1, t)),
                 (r'@.+?:[^")\s]+',    lambda x,t: (2, unicode(t))),
                 (r'[^"()\s]+',        lambda x,t: (2, unicode(t))),
-                (r'".*?((?<!\\)")',   lambda x,t: (3, t[1:-1].replace('\\"', '"'))),
+                (r'".*?((?<!\\)")',   lambda x,t: (3, t[1:-1])),
                 (r'\s+',              None)
         ], flags=re.DOTALL)
 
@@ -168,7 +168,16 @@ class Parser(object):
 
         def parse(self, expr, locations):
             self.locations = locations
+
+            # Strip out escaped backslashes and escaped quotes so that the
+            # lex scanner doesn't get confused. We put them back later.
+            expr = expr.replace(u'\\\\', u'\x01').replace(u'\\"', u'\x02')
             self.tokens = self.lex_scanner.scan(expr)[0]
+            for (i,tok) in enumerate(self.tokens):
+                tt, tv = tok
+                if tt == self.WORD or tt == self.QUOTED_WORD:
+                    self.tokens[i] = (tt, tv.replace(u'\x01', u'\\').replace(u'\x02', u'"'))
+
             self.current_token = 0
             prog = self.or_expression()
             if not self.is_eof():
@@ -658,7 +667,7 @@ class Tester(SearchQueryParser):
        u'John Scalzi',
        u'Tor Science Fiction',
        u'html,lrf'],
- 343: [u'The Last Colony', u'John Scalzi', u'Tor Books', u'html,lrf'],
+ 343: [u'The Last Colony', u'John S"calzi', u'Tor Books', u'html,lrf'],
  344: [u'Gossip Girl', u'Cecily von Ziegesar', u'Warner Books', u'lrf,rtf'],
  347: [u'Little Brother', u'Cory Doctorow', u'Tor Teen', u'lrf'],
  348: [u'The Reality Dysfunction',
@@ -676,7 +685,7 @@ class Tester(SearchQueryParser):
        u'lit,lrf'],
  356: [u'The Naked God', u'Peter F. Hamilton', u'Aspect', u'lit,lrf'],
  421: [u'A Shadow in Summer', u'Daniel Abraham', u'Tor Fantasy', u'lrf,rar'],
- 427: [u'Lonesome Dove', u'Larry McMurtry', None, u'lit,lrf'],
+ 427: [u'Lonesome Dove', u'Larry M\\cMurtry', None, u'lit,lrf'],
  440: [u'Ghost', u'John Ringo', u'Baen', u'lit,lrf'],
  441: [u'Kildar', u'John Ringo', u'Baen', u'lit,lrf'],
  443: [u'Hidden Empire ', u'Kevin J. Anderson', u'Aspect', u'lrf,rar'],
@@ -702,6 +711,10 @@ class Tester(SearchQueryParser):
              'publisher:london:thames': set([13]),
              '"(1977)"': set([13]),
              'jack weatherford orc': set([30]),
+             'S\\"calzi': {343},
+             'author:S\\"calzi': {343},
+             '"S\\"calzi"': {343},
+             'M\\\\cMurty': {427},
              }
     fields = {'title':0, 'author':1, 'publisher':2, 'tag':3}
 
