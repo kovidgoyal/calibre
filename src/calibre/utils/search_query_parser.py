@@ -135,7 +135,7 @@ class Parser(object):
                 (r'[()]',             lambda x,t: (1, t)),
                 (r'@.+?:[^")\s]+',    lambda x,t: (2, unicode(t))),
                 (r'[^"()\s]+',        lambda x,t: (2, unicode(t))),
-                (r'".*?((?<!\\)")',   lambda x,t: (3, t[1:-1].replace('\\"', '"'))),
+                (r'".*?((?<!\\)")',   lambda x,t: (3, t[1:-1])),
                 (r'\s+',              None)
         ], flags=re.DOTALL)
 
@@ -168,7 +168,16 @@ class Parser(object):
 
         def parse(self, expr, locations):
             self.locations = locations
+
+            # Strip out escaped backslashes and escaped quotes so that the
+            # lex scanner doesn't get confused. We put them back later.
+            expr = expr.replace(u'\\\\', u'\001').replace(u'\\"', u'\002')
             self.tokens = self.lex_scanner.scan(expr)[0]
+            for (i,tok) in enumerate(self.tokens):
+                tt, tv = tok
+                if tt == self.WORD or tt == self.QUOTED_WORD:
+                    self.tokens[i] = (tt, tv.replace('\001', '\\').replace('\002', '"'))
+
             self.current_token = 0
             prog = self.or_expression()
             if not self.is_eof():
