@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os
+import sys, os, re
 
 from lxml import html
 from lxml.html.builder import (
@@ -14,7 +14,7 @@ from lxml.html.builder import (
 
 from calibre.ebooks.docx.container import DOCX, fromstring
 from calibre.ebooks.docx.names import XPath, is_tag, barename, XML, STYLES
-from calibre.ebooks.docx.styles import Styles
+from calibre.ebooks.docx.styles import Styles, inherit
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
 class Text:
@@ -35,6 +35,7 @@ class Convert(object):
         self.mi = self.docx.metadata
         self.body = BODY()
         self.styles = Styles()
+        self.object_map = {}
         self.html = HTML(
             HEAD(
                 META(charset='utf-8'),
@@ -75,6 +76,16 @@ class Convert(object):
             for child in self.body:
                 child.tail = '\n\t'
             self.body[-1].tail = '\n'
+
+        self.styles.generate_classes()
+        for obj, html_obj in self.object_map.iteritems():
+            style = self.styles.resolve(obj)
+            if style is not None:
+                css = style.css
+                if css:
+                    cls = self.styles.class_name(css)
+                    if cls:
+                        html_obj.set('class', cls)
         self.write()
 
     def read_styles(self, relationships_by_type):
@@ -96,6 +107,10 @@ class Convert(object):
         raw = html.tostring(self.html, encoding='utf-8', doctype='<!DOCTYPE html>')
         with open(os.path.join(self.dest_dir, 'index.html'), 'wb') as f:
             f.write(raw)
+        css = self.styles.generate_css()
+        if css:
+            with open(os.path.join(self.dest_dir, 'docx.css'), 'wb') as f:
+                f.write(css.encode('utf-8'))
 
     def convert_p(self, p):
         dest = P()
@@ -103,10 +118,58 @@ class Convert(object):
             span = self.convert_run(run)
             dest.append(span)
 
+        style = self.styles.resolve_paragraph(p)
+        m = re.match(r'heading\s+(\d+)$', style.style_name or '', re.IGNORECASE)
+        if m is not None:
+            n = min(1, max(6, int(m.group(1))))
+            dest.tag = 'h%d' % n
+
+        if style.direction == 'rtl':
+            dest.set('dir', 'rtl')
+
+        border_runs = []
+        common_borders = []
+        for span in dest:
+            run = self.object_map[span]
+            style = self.styles.resolve_run(run)
+            if not border_runs or border_runs[-1][1].same_border(style):
+                border_runs.append((span, style))
+            elif border_runs:
+                if len(border_runs) > 1:
+                    common_borders.append(border_runs)
+                border_runs = []
+
+        for border_run in common_borders:
+            spans = []
+            bs = {}
+            for span, style in border_run:
+                c = style.css
+                spans.append(span)
+                for x in ('width', 'color', 'style'):
+                    val = c.pop('border-%s' % x, None)
+                    if val is not None:
+                        bs['border-%s' % x] = val
+            if bs:
+                cls = self.styles.register(bs, 'text_border')
+                wrapper = self.wrap_elems(spans, SPAN())
+                wrapper.set('class', cls)
+
+        self.object_map[p] = dest
         return dest
+
+    def wrap_elems(self, elems, wrapper):
+        p = elems[0].getparent()
+        idx = p.index(elems[0])
+        p.insert(idx, wrapper)
+        wrapper.tail = elems[-1].tail
+        elems[-1].tail = None
+        for elem in elems:
+            p.remove(elem)
+            wrapper.append(elem)
 
     def convert_run(self, run):
         ans = SPAN()
+        ans.run = run
         text = Text(ans, 'text', [])
 
         for child in run:
@@ -121,6 +184,7 @@ class Convert(object):
                     text.buf.append(child.text)
             elif is_tag(child, 'w:cr'):
                 text.add_elem(BR())
+                ans.append(text.elem)
             elif is_tag(child, 'w:br'):
                 typ = child.get('type', None)
                 if typ in {'column', 'page'}:
@@ -132,8 +196,16 @@ class Convert(object):
                     else:
                         br = BR()
                 text.add_elem(br)
+                ans.append(text.elem)
         if text.buf:
             setattr(text.elem, text.attr, ''.join(text.buf))
+
+        style = self.styles.resolve_run(run)
+        if style.vert_align in {'superscript', 'subscript'}:
+            ans.tag = 'sub' if style.vert_align == 'subscript' else 'sup'
+        if style.lang is not inherit:
+            ans.lang = style.lang
+        self.object_map[ans] = run
         return ans
 
 if __name__ == '__main__':
