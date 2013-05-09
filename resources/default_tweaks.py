@@ -536,3 +536,4 @@ many_libraries = 10
 # yellow when using a Virtual Library. By setting this to False, you can turn
 # that off.
 highlight_virtual_library_book_count = True
+
