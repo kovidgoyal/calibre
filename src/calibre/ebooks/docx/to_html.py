@@ -78,7 +78,7 @@ class Convert(object):
             self.body[-1].tail = '\n'
 
         self.styles.generate_classes()
-        for obj, html_obj in self.object_map.iteritems():
+        for html_obj, obj in self.object_map.iteritems():
             style = self.styles.resolve(obj)
             if style is not None:
                 css = style.css
@@ -154,7 +154,7 @@ class Convert(object):
                 wrapper = self.wrap_elems(spans, SPAN())
                 wrapper.set('class', cls)
 
-        self.object_map[p] = dest
+        self.object_map[dest] = p
         return dest
 
     def wrap_elems(self, elems, wrapper):

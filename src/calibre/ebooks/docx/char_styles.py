@@ -126,7 +126,7 @@ class RunStyle(object):
     }
 
     toggle_properties = {
-        'b', 'bCs', 'caps', 'emboss', 'i', 'iCs', 'imprint', 'shadow', 'smallCaps', 'strike', 'vanish',
+        'b', 'bCs', 'caps', 'emboss', 'i', 'iCs', 'imprint', 'shadow', 'smallCaps', 'strike', 'dstrike', 'vanish',
     }
 
     def __init__(self, rPr=None):
@@ -174,7 +174,6 @@ class RunStyle(object):
             if self.strike:
                 td.add('line-through')
             if self.dstrike:
-                td.add('overline')
                 td.add('line-through')
             if td:
                 c['text-decoration'] = ' '.join(td)
