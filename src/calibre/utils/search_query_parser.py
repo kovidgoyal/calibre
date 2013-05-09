@@ -714,7 +714,7 @@ class Tester(SearchQueryParser):
              'S\\"calzi': {343},
              'author:S\\"calzi': {343},
              '"S\\"calzi"': {343},
-             'M\\\\cMurty': {427},
+             'M\\\\cMurtry': {427},
              }
     fields = {'title':0, 'author':1, 'publisher':2, 'tag':3}
 
