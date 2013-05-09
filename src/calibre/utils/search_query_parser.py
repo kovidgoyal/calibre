@@ -33,7 +33,7 @@ class SavedSearchQueries(object):
     opt_name = ''
 
     def __init__(self, db, _opt_name):
-        self.opt_name = _opt_name;
+        self.opt_name = _opt_name
         if db is not None:
             self.queries = db.prefs.get(self.opt_name, {})
         else:
@@ -217,7 +217,7 @@ class Parser(object):
                 if self.token(advance=True) != ')':
                     raise ParseException(_('missing )'))
                 return res
-            if self.token_type() not in [ self.WORD, self.QUOTED_WORD ]:
+            if self.token_type() not in (self.WORD, self.QUOTED_WORD):
                 raise ParseException(_('Invalid syntax. Expected a lookup name or a word'))
 
             return self.base_token()
@@ -278,7 +278,6 @@ class SearchQueryParser(object):
       * `author:Asimov or author:Hardy` [search for books by Asimov or Hardy]
       * `(author:Asimov or author:Hardy) and not tag:read` [search for unread books by Asimov or Hardy]
     '''
-
 
     @staticmethod
     def run_tests(parser, result, tests):
@@ -371,7 +370,7 @@ class SearchQueryParser(object):
                 return self._parse(saved_searches().lookup(query), candidates)
             except ParseException as e:
                 raise e
-            except: # convert all exceptions (e.g., missing key) to a parse error
+            except:  # convert all exceptions (e.g., missing key) to a parse error
                 import traceback
                 traceback.print_exc()
                 raise ParseException(_('Unknown error in saved search: {0}').format(query))
@@ -736,14 +735,12 @@ class Tester(SearchQueryParser):
             return set([])
         query = query.lower()
         if candidates:
-            return set(key for key, val in self.texts.items() \
+            return set(key for key, val in self.texts.items()
                 if key in candidates and query and query
                         in getattr(getter(val), 'lower', lambda : '')())
         else:
-            return set(key for key, val in self.texts.items() \
+            return set(key for key, val in self.texts.items()
                 if query and query in getattr(getter(val), 'lower', lambda : '')())
-
-
 
     def run_tests(self):
         failed = []
