@@ -113,6 +113,8 @@ def read_indent(parent, dest):
 
         h, hc = get(indent, 'w:hanging'), get(indent, 'w:hangingChars')
         fl, flc = get(indent, 'w:firstLine'), get(indent, 'w:firstLineChars')
+        h = h if h is None else '-'+h
+        hc = hc if hc is None else '-'+hc
         ti = (simple_float(hc, 0.01) if hc is not None else simple_float(h, 0.05) if h is not None else
               simple_float(flc, 0.01) if flc is not None else simple_float(fl, 0.05) if fl is not None else None)
         if ti is not None:
