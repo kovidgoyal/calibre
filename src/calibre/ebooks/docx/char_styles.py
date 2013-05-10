@@ -209,6 +209,9 @@ class RunStyle(object):
 
             if self.highlight is not inherit and self.highlight != 'transparent':
                 c['background-color'] = self.highlight
+
+            if self.b:
+                c['font-weight'] = 'bold'
         return self._css
 
     def same_border(self, other):
