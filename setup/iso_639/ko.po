@@ -3742,7 +3742,7 @@ msgstr ""
 
 #. name for bre
 msgid "Breton"
-msgstr "프랑스어"
+msgstr ""
 
 #. name for brf
 msgid "Bera"

@@ -12,6 +12,7 @@ from PyQt4.Qt import (
 
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.widgets import ComboBoxWithHelp
+from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import ParseException
 from calibre.utils.search_query_parser import saved_searches
@@ -549,6 +550,9 @@ class SearchRestrictionMixin(object):
                 restriction = ''
             self._apply_search_restriction(restriction, r)
 
+    def clear_additional_restriction(self):
+        self._apply_search_restriction('', '')
+
     def _apply_search_restriction(self, restriction, name):
         self.saved_search.clear()
         # The order below is important. Set the restriction, force a '' search
@@ -561,6 +565,10 @@ class SearchRestrictionMixin(object):
         self.set_number_of_books_shown()
         self.current_view().setFocus(Qt.OtherFocusReason)
         self.set_window_title()
+        v = self.current_view()
+        if not v.currentIndex().isValid():
+            v.set_current_row()
+        v.refresh_book_details()
 
     def set_number_of_books_shown(self):
         db = self.library_view.model().db
@@ -569,8 +577,9 @@ class SearchRestrictionMixin(object):
             rows = self.current_view().row_count()
             rbc = max(rows, db.data.get_search_restriction_book_count())
             t = _("({0} of {1})").format(rows, rbc)
-            self.search_count.setStyleSheet(
-                'QLabel { border-radius: 8px; background-color: yellow; }')
+            if tweaks['highlight_virtual_library_book_count']:
+                self.search_count.setStyleSheet(
+                    'QLabel { border-radius: 8px; background-color: yellow; }')
         else:  # No restriction or not library view
             if not self.search.in_a_search():
                 t = _("(all books)")

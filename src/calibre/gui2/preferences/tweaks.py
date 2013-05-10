@@ -172,7 +172,10 @@ class Tweaks(QAbstractListModel, SearchQueryParser): # {{{
             doc.append(line[1:].strip())
         doc = '\n'.join(doc)
         while True:
-            line = lines[pos]
+            try:
+                line = lines[pos]
+            except IndexError:
+                break
             if not line.strip():
                 break
             spidx1 = line.find(' ')

@@ -20,6 +20,60 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.30
+  date: 2013-05-10
+
+  new features:
+    - title: "Kobo driver: Add support for showing 'Archived' books on the device. Also up the supported firmware version to 2.5.3."
+      tickets: [1177677]
+
+    - title: "Driver for Blackberry 9790"
+      tickets: [1176607]
+
+    - title: "Add a tweak to turn off the highlighting of the book count when using a virtual library (Preferences->Tweaks)"
+
+    - title: "Add a button to clear the viewer search history in the viewer Preferences, under Miscellaneous"
+
+    - title: "Add keyboard shortcuts to clear the virtual Library and the additional restriction (Ctrl+Esc and Alt+Esc). Also use Shift+Esc to bring keyboard focus back tot he book list. Can be changed under Preferences->Keyboard"
+
+    - title: "Docx metadata: Read the language of the file, if present"
+ 
+  bug fixes:
+    - title: "Kobo driver: Fix unable to read SD card on OS X/Linux"
+      tickets: [1174815]
+
+    - title: "Content server: Fix unable to download ORIGINAL_* formats"
+      tickets: [1177158]
+
+    - title: "Fix regression that broke searching for terms containing a quote mark"
+      tickets: [1177114]
+
+    - title: "Fix regression that broke conversion of txt files when no input encoding is specified"
+      tickets: [1176622]
+
+    - title: "When changing to a virtual library, refresh the Book Details panel."
+      tickets: [1176296]
+
+    - title: "Fix regression that caused searching for user categories to break."
+      tickets: [1176187]
+
+    - title: "Fix error when downloading only covers and reviewing downloaded metadata."
+      tickets: [1176253]
+
+    - title: "MOBI metadata: Strip XML unsafe unicode codepoints when reading metadata from MOBI files."
+      tickets: [1175965]
+
+    - title: "Txt Input: Use the gbk encoding for txt files with detected encoding of gb2312."
+      tickets: [1175974]
+
+    - title: "When pressing Ctrl+Home/End preserve the horizontal scroll position in the book list"
+
+  improved recipes:
+    - NSFW
+    - Go Comics
+    - Various Polish news sources
+    - The Sun
+
 - version: 0.9.29
   date: 2013-05-03
 

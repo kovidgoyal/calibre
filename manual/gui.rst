@@ -582,6 +582,12 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Open the advanced search dialog
     * - :kbd:`Esc`
       - Clear the current search
+    * - :kbd:`Shift+Esc`
+      - Focus the book list
+    * - :kbd:`Ctrl+Esc`
+      - Clear the virtual library
+    * - :kbd:`Alt+Esc`
+      - Clear the additional restriction
     * - :kbd:`N or F3`
       - Find the next book that matches the current search (only works if the highlight checkbox next to the search bar is checked)
     * - :kbd:`Shift+N or Shift+F3`

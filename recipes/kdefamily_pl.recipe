@@ -12,5 +12,6 @@ class KDEFamilyPl(BasicNewsRecipe):
     max_articles_per_feed = 100
     preprocess_regexps = [(re.compile(r"Podobne wpisy.*", re.IGNORECASE|re.DOTALL), lambda m: '')]
     no_stylesheets = True
+    remove_empty_feeds = True
     use_embedded_content = True
     feeds = [(u'Wszystko', u'http://kdefamily.pl/feed/')]

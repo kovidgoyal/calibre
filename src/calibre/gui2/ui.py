@@ -265,6 +265,27 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 action=self.esc_action)
         self.esc_action.triggered.connect(self.esc)
 
+        self.shift_esc_action = QAction(self)
+        self.addAction(self.shift_esc_action)
+        self.keyboard.register_shortcut('focus book list',
+                _('Focus the book list'), default_keys=('Shift+Esc',),
+                action=self.shift_esc_action)
+        self.shift_esc_action.triggered.connect(self.shift_esc)
+
+        self.ctrl_esc_action = QAction(self)
+        self.addAction(self.ctrl_esc_action)
+        self.keyboard.register_shortcut('clear virtual library',
+                _('Clear the virtual library'), default_keys=('Ctrl+Esc',),
+                action=self.ctrl_esc_action)
+        self.ctrl_esc_action.triggered.connect(self.ctrl_esc)
+
+        self.alt_esc_action = QAction(self)
+        self.addAction(self.alt_esc_action)
+        self.keyboard.register_shortcut('clear additional restriction',
+                _('Clear the additional restriction'), default_keys=('Alt+Esc',),
+                action=self.alt_esc_action)
+        self.alt_esc_action.triggered.connect(self.clear_additional_restriction)
+
         ####################### Start spare job server ########################
         QTimer.singleShot(1000, self.add_spare_server)
 
@@ -376,6 +397,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def esc(self, *args):
         self.clear_button.click()
+
+    def shift_esc(self):
+        self.current_view().setFocus(Qt.OtherFocusReason)
+
+    def ctrl_esc(self):
+        self.apply_virtual_library()
+        self.current_view().setFocus(Qt.OtherFocusReason)
 
     def start_smartdevice(self):
         message = None

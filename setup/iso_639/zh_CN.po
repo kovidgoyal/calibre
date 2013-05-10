@@ -1016,7 +1016,7 @@ msgstr ""
 
 #. name for amh
 msgid "Amharic"
-msgstr "阿拉伯语"
+msgstr ""
 
 #. name for ami
 msgid "Amis"

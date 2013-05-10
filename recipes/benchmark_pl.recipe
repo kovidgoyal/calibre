@@ -12,14 +12,17 @@ class BenchmarkPl(BasicNewsRecipe):
     language       = 'pl'
     oldest_article = 8
     max_articles_per_feed = 100
+    extra_css = 'ul {list-style-type: none;}'
     no_stylesheets = True
-    remove_attributes = ['style']
+    #remove_attributes = ['style']
     preprocess_regexps = [(re.compile(ur'<h3><span style="font-size: small;">&nbsp;Zobacz poprzednie <a href="http://www.benchmark.pl/news/zestawienie/grupa_id/135">Opinie dnia:</a></span>.*</body>', re.DOTALL|re.IGNORECASE), lambda match: '</body>'), (re.compile(ur'Więcej o .*?</ul>', re.DOTALL|re.IGNORECASE), lambda match: '')]
-    keep_only_tags = [dict(name='div', attrs={'class':['m_zwykly', 'gallery']}), dict(id='article')]
+
+    keep_only_tags = [dict(id=['articleHeader', 'articleGallery']), dict(name='div', attrs={'class':['m_zwykly', 'gallery']}), dict(id='article')]
     remove_tags_after = dict(id='article')
     remove_tags = [dict(name='div', attrs={'class':['comments', 'body', 'kategoria', 'socialize', 'thumb', 'panelOcenaObserwowane', 'categoryNextToSocializeGallery', 'breadcrumb', 'footer', 'moreTopics']}), dict(name='table', attrs = {'background':'http://www.benchmark.pl/uploads/backend_img/a/fotki_newsy/opinie_dnia/bg.png'}), dict(name='table', attrs={'width':'210', 'cellspacing':'1', 'cellpadding':'4', 'border':'0', 'align':'right'})]
+
     INDEX = 'http://www.benchmark.pl'
-    feeds          = [(u'Aktualności', u'http://www.benchmark.pl/rss/aktualnosci-pliki.xml'), 
+    feeds          = [(u'Aktualności', u'http://www.benchmark.pl/rss/aktualnosci-pliki.xml'),
                           (u'Testy i recenzje', u'http://www.benchmark.pl/rss/testy-recenzje-minirecenzje.xml')]
 
 
@@ -42,46 +45,16 @@ class BenchmarkPl(BasicNewsRecipe):
         for r in appendtag.findAll(attrs={'class':'changePage'}):
             r.extract()
 
-
-    def image_article(self, soup, appendtag):
-        nexturl = soup.find('div', attrs={'class':'preview'})
-        if nexturl:
-            nexturl = nexturl.find('a', attrs={'class':'move_next'})
-            image = appendtag.find('div', attrs={'class':'preview'}).div['style'][16:]
-            image = self.INDEX + image[:image.find("')")]
-            appendtag.find(attrs={'class':'preview'}).name='img'
-            appendtag.find(attrs={'class':'preview'})['src']=image
-            appendtag.find('a', attrs={'class':'move_next'}).extract()
-        while nexturl:
-            nexturl = self.INDEX + nexturl['href']
-            soup2 = self.index_to_soup(nexturl)
-            nexturl = soup2.find('a', attrs={'class':'move_next'})
-            image = soup2.find('div', attrs={'class':'preview'}).div['style'][16:]
-            image = self.INDEX + image[:image.find("')")]
-            soup2.find(attrs={'class':'preview'}).name='img'
-            soup2.find(attrs={'class':'preview'})['src']=image
-            pagetext = soup2.find('div', attrs={'class':'gallery'})
-            pagetext.find('div', attrs={'class':'title'}).extract()
-            pagetext.find('div', attrs={'class':'thumb'}).extract()
-            pagetext.find('div', attrs={'class':'panelOcenaObserwowane'}).extract()       
-            if nexturl:
-                pagetext.find('a', attrs={'class':'move_next'}).extract()
-            pagetext.find('a', attrs={'class':'move_back'}).extract()
-            comments = pagetext.findAll(text=lambda text:isinstance(text, Comment))
-            for comment in comments:
-                comment.extract()
-            pos = len(appendtag.contents)
-            appendtag.insert(pos, pagetext)
-            
-
     def preprocess_html(self, soup):
-        if soup.find('div', attrs={'class':'preview'}):
-            self.image_article(soup, soup.body)
-        else:
-            self.append_page(soup, soup.body)
+        self.append_page(soup, soup.body)
         for a in soup('a'):
             if a.has_key('href') and not a['href'].startswith('http'):
                 a['href'] = self.INDEX + a['href']
         for r in soup.findAll(attrs={'class':['comments', 'body']}):
             r.extract()
+        tag1 = soup.find(attrs={'class':'inlineGallery'})
+        if tag1:
+            for tag in tag1.findAll('li'):
+                tag['style'] = 'float: left; margin-right: 10px;'
+            tag1.findNext('p')['style'] = 'clear: both;'
         return soup

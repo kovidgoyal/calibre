@@ -1,9 +1,9 @@
-from __future__ import with_statement
 __license__ = 'GPL 3'
 __copyright__ = '2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re, htmlentitydefs
+from future_builtins import map
 
 _ascii_pat = None
 
@@ -27,6 +27,12 @@ def clean_ascii_chars(txt, charlist=None):
     else:
         pat = re.compile(u'|'.join(map(unichr, charlist)))
     return pat.sub('', txt)
+
+def clean_xml_chars(unicode_string):
+    def allowed(x):
+        x = ord(x)
+        return (0x0001 < x < 0xd7ff) or (0xe000 < x < 0xfffd) or (0x10000 < x < 0x10ffff)
+    return u''.join(filter(allowed, unicode_string))
 
 ##
 # Fredrik Lundh: http://effbot.org/zone/re-sub.htm#unescape-html

@@ -15049,7 +15049,7 @@ msgstr "Magahi"
 
 #. name for mah
 msgid "Marshallese"
-msgstr "Maltneska"
+msgstr ""
 
 #. name for mai
 msgid "Maithili"

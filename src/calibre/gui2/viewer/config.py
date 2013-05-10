@@ -139,12 +139,20 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.load_options(opts)
         self.init_load_themes()
 
+        self.clear_search_history_button.clicked.connect(self.clear_search_history)
+
+    def clear_search_history(self):
+        from calibre.gui2 import config
+        config['viewer_search_history'] = []
+
     def save_theme(self):
         themename, ok = QInputDialog.getText(self, _('Theme name'),
                 _('Choose a name for this theme'))
-        if not ok: return
+        if not ok:
+            return
         themename = unicode(themename).strip()
-        if not themename: return
+        if not themename:
+            return
         c = config('')
         c.add_opt('theme_name_xxx', default=themename)
         self.save_options(c)
@@ -247,7 +255,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
     def update_sample_colors(self):
         for x in ('text', 'background'):
             val = getattr(self, 'current_%s_color'%x)
-            if not val: val = 'inherit' if x == 'text' else 'transparent'
+            if not val:
+                val = 'inherit' if x == 'text' else 'transparent'
             ss = 'QLabel { %s: %s }'%('background-color' if x == 'background'
                     else 'color', val)
             getattr(self, '%s_color_sample'%x).setStyleSheet(ss)

@@ -28,7 +28,10 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
 
         all_formats = set(all_formats)
         self.calibre_known_formats = device.FORMATS
-        self.device_name = device.get_gui_name()
+        try:
+            self.device_name = device.get_gui_name()
+        except TypeError:
+            self.device_name = getattr(device, 'gui_name', None) or _('Device')
         if device.USER_CAN_ADD_NEW_FORMATS:
             all_formats = set(all_formats) | set(BOOK_EXTENSIONS)
 

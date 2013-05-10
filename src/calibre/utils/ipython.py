@@ -8,18 +8,48 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from calibre.constants import iswindows, config_dir, get_version
+from calibre.constants import iswindows, cache_dir, get_version
 
-ipydir = os.path.join(config_dir, ('_' if iswindows else '.')+'ipython')
+ipydir = os.path.join(cache_dir(), 'ipython')
 
 BANNER = ('Welcome to the interactive calibre shell!\n')
 
-def simple_repl(user_ns={}):
+def setup_pyreadline():
     try:
-        import readline
-        readline
+        import pyreadline.rlmain
+        #pyreadline.rlmain.config_path=r"c:\xxx\pyreadlineconfig.ini"
+        import readline, atexit
+        import pyreadline.unicode_helper  # noqa
+        #Normally the codepage for pyreadline is set to be sys.stdout.encoding
+        #if you need to change this uncomment the following line
+        #pyreadline.unicode_helper.pyreadline_codepage="utf8"
     except ImportError:
-        pass
+        print("Module readline not available.")
+    else:
+        #import tab completion functionality
+        import rlcompleter
+
+        #Override completer from rlcompleter to disable automatic ( on callable
+        completer_obj = rlcompleter.Completer()
+        def nop(val, word):
+            return word
+        completer_obj._callable_postfix = nop
+        readline.set_completer(completer_obj.complete)
+
+        #activate tab completion
+        readline.parse_and_bind("tab: complete")
+        readline.read_history_file()
+        atexit.register(readline.write_history_file)
+        del readline, rlcompleter, atexit
+
+def simple_repl(user_ns={}):
+    if iswindows:
+        setup_pyreadline()
+    else:
+        try:
+            import readline  # noqa
+        except ImportError:
+            pass
 
     import code
     code.interact(BANNER, raw_input, user_ns)

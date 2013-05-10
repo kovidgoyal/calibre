@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 2 # Needed for dynamic plugin loading
+store_version = 3 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2013, Tomasz Długosz <tomek3d@gmail.com>'
@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 
 import re
 import urllib
-from base64 import b64encode
 from contextlib import closing
 
 from lxml import html
@@ -26,19 +25,21 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class WoblinkStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/16/58/'
+        #aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/16/58/'
         url = 'http://woblink.com/publication'
 
-        aff_url = aff_root + str(b64encode(url))
+        #aff_url = aff_root + str(b64encode(url))
         detail_url = None
 
         if detail_item:
-            detail_url = aff_root + str(b64encode('http://woblink.com' + detail_item))
+            detail_url = 'http://woblink.com' + detail_item #aff_root + str(b64encode('http://woblink.com' + detail_item))
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else aff_url)))
+            #open_url(QUrl(url_slash_cleaner(detail_url if detail_url else aff_url)))
+            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
         else:
-            d = WebStoreDialog(self.gui, url, parent, detail_url if detail_url else aff_url)
+            #d = WebStoreDialog(self.gui, url, parent, detail_url if detail_url else aff_url)
+            d = WebStoreDialog(self.gui, url, parent, detail_url if detail_url else url)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()

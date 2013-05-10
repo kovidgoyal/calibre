@@ -21,7 +21,7 @@ class LegeArtisRecipe(BasicNewsRecipe):
 
     no_stylesheets = True
     remove_javascript = True
-
+    remove_empty_feeds = True
     extra_css = '''
             img{clear: both;}
     '''
