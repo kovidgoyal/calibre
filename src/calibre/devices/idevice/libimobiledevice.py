@@ -789,9 +789,39 @@ class libiMobileDevice():
         else:
             if self.verbose:
                 self.log(" could not open file")
-            raise libiMobileDeviceIOException("could not open file for reading")
+            raise libiMobileDeviceIOException("could not open file '%s' for reading" % path)
 
         return data
+
+    def rename(self, from_name, to_name):
+        '''
+        Renames a file or directory on the device
+
+        client: (afc_client_t) The client to have rename
+        from_name:   (const char *) The fully-qualified path to rename from
+        to_name:     (const char *) The fully-qualified path to rename to
+        '''
+        self._log_location("from: '%s' to: '%s'" % (from_name, to_name))
+
+        error = self.lib.afc_rename_path(byref(self.afc),
+                                      str(from_name),
+                                      str(to_name))
+        if error and self.verbose:
+            self.log(" ERROR: %s" % self.afc_error(error))
+
+    def remove(self, path):
+        '''
+        Deletes a file or directory
+
+        client  (afc_client_t) The client to use
+        path    (const char *) The fully-qualified path to delete
+        '''
+        self._log_location("'%s'" % path)
+
+        error = self.lib.afc_remove_path(byref(self.afc), str(path))
+
+        if error and self.verbose:
+            self.log(" ERROR: %s" % self.afc_error(error))
 
     def stat(self, path):
         '''
