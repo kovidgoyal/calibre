@@ -4,7 +4,6 @@ __copyright__ = '2012-2013, Darko Miletic <darko.miletic at gmail.com>'
 www.nsfwcorp.com
 '''
 
-import urllib
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class NotSafeForWork(BasicNewsRecipe):
@@ -55,7 +54,7 @@ class NotSafeForWork(BasicNewsRecipe):
             br['password'] = self.password
             br.submit()
         return br
-                        
+
     def get_feeds(self):
         self.feeds = []
         soup = self.index_to_soup(self.SETTINGS)
