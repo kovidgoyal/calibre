@@ -114,11 +114,11 @@ class Convert(object):
 
     def convert_p(self, p):
         dest = P()
+        style = self.styles.resolve_paragraph(p)
         for run in XPath('descendant::w:r')(p):
             span = self.convert_run(run)
             dest.append(span)
 
-        style = self.styles.resolve_paragraph(p)
         m = re.match(r'heading\s+(\d+)$', style.style_name or '', re.IGNORECASE)
         if m is not None:
             n = min(1, max(6, int(m.group(1))))
