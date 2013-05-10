@@ -136,7 +136,7 @@ class FB2MLizer(object):
             metadata['author'] += '<last-name>%s</last-name>' % prepare_string_for_xml(author_last)
             metadata['author'] += '</author>'
         if not metadata['author']:
-            metadata['author'] = u'<author><first-name></first-name><last-name><last-name></author>'
+            metadata['author'] = u'<author><first-name></first-name><last-name></last-name></author>'
 
         metadata['keywords'] = u''
         tags = list(map(unicode, self.oeb_book.metadata.subject))

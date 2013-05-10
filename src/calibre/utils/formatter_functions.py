@@ -1090,7 +1090,7 @@ class BuiltinListRe(BuiltinFormatterFunction):
             if re.search(search_re, item, flags=re.I) is not None:
                 if opt_replace:
                     item = re.sub(search_re, opt_replace, item)
-                for i in [l.strip() for l in item.split(',') if l.strip()]:
+                for i in [t.strip() for t in item.split(',') if t.strip()]:
                     if i not in res:
                         res.append(i)
         if separator == ',':

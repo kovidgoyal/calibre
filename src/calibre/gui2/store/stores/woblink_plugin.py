@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 
 import re
 import urllib
-from base64 import b64encode
 from contextlib import closing
 
 from lxml import html
