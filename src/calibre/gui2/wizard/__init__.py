@@ -113,7 +113,7 @@ class KindleDX(Kindle):
     id = 'kindledx'
 
 class KindleFire(KindleDX):
-    name = 'Kindle Fire'
+    name = 'Kindle Fire and Fire HD'
     id = 'kindle_fire'
     output_profile = 'kindle_fire'
     supports_color = True
