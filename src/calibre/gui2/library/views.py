@@ -197,6 +197,16 @@ class BooksView(QTableView): # {{{
         elif action.startswith('align_'):
             alignment = action.partition('_')[-1]
             self._model.change_alignment(column, alignment)
+        elif action == 'quickview':
+            from calibre.customize.ui import find_plugin
+            qv = find_plugin('Show Quickview')
+            if qv:
+                rows = self.selectionModel().selectedRows()
+                if len(rows) > 0:
+                    current_row = rows[0].row()
+                    current_col = self.column_map.index(column)
+                    index = self.model().index(current_row, current_col)
+                    qv.actual_plugin_.change_quickview_column(index)
 
         self.save_state()
 
@@ -240,7 +250,14 @@ class BooksView(QTableView): # {{{
                             a.setCheckable(True)
                             a.setChecked(True)
 
-
+            if self._model.db.field_metadata[col]['is_category']:
+                act = self.column_header_context_menu.addAction(_('Quickview column %s') %
+                        name,
+                    partial(self.column_header_context_handler, action='quickview',
+                        column=col))
+                rows = self.selectionModel().selectedRows()
+                if len(rows) > 1:
+                    act.setEnabled(False)
 
             hidden_cols = [self.column_map[i] for i in
                     range(self.column_header.count()) if

@@ -38,6 +38,13 @@ class ShowQuickviewAction(InterfaceAction):
                 Quickview(self.gui, self.gui.library_view, index)
             self.current_instance.show()
 
+    def change_quickview_column(self, idx):
+        self.show_quickview()
+        if self.current_instance:
+            if self.current_instance.is_closed:
+                return
+            self.current_instance.change_quickview_column.emit(idx)
+
     def library_changed(self, db):
         if self.current_instance and not self.current_instance.is_closed:
             self.current_instance.set_database(db)
