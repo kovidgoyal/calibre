@@ -873,7 +873,7 @@ class Application(QApplication):
             v = pcache[v]
             icon_map[type('')(getattr(style, 'SP_'+k))] = v
         style.setProperty(u'calibre_icon_map', icon_map)
-        style.setProperty(u'calibre_item_view_focus', True)
+        style.setProperty(u'calibre_item_view_focus', 1)
         self.__icon_map_memory_ = icon_map
 
     def setup_styles(self, force_calibre_style):

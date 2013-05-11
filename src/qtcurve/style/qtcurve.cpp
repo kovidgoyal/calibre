@@ -3698,7 +3698,7 @@ bool Style::event(QEvent *event) {
             }
             return true;
         } else if (e->propertyName() == QString("calibre_item_view_focus")) {
-            calibre_item_view_focus = property("calibre_item_view_focus").toBool();
+            calibre_item_view_focus = property("calibre_item_view_focus").toInt();
             return true;
         }
     }
@@ -4803,10 +4803,11 @@ void Style::drawPrimitive(PrimitiveElement element, const QStyleOption *option, 
                     painter->setBrush(QBrush(patternCol, Qt::Dense4Pattern));
                     painter->setBrushOrigin(r.topLeft());
                     painter->setPen(Qt::NoPen);
-                    painter->drawRect(r.left(), r.top(), r.width(), 1);    // Top
-                    painter->drawRect(r.left(), r.bottom(), r.width(), 1); // Bottom
-                    painter->drawRect(r.left(), r.top(), 1, r.height());   // Left
-                    painter->drawRect(r.right(), r.top(), 1, r.height());  // Right
+                    int fwidth = (calibre_item_view_focus > 1) ? 2 : 1;
+                    painter->drawRect(r.left(), r.top(), r.width(), fwidth);    // Top
+                    painter->drawRect(r.left(), r.bottom(), r.width(), fwidth); // Bottom
+                    painter->drawRect(r.left(), r.top(), fwidth, r.height());   // Left
+                    painter->drawRect(r.right(), r.top(), fwidth, r.height());  // Right
                     painter->restore();
                 }
                 else
