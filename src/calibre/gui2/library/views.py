@@ -169,6 +169,9 @@ class BooksView(QTableView): # {{{
         self._model.sorting_done.connect(self.sorting_done,
                 type=Qt.QueuedConnection)
 
+        if tweaks['selected_cell_highlight_css']:
+            self.setStyleSheet(tweaks['selected_cell_highlight_css'])
+
     def currentChanged(self, current, previous):
         self.model().set_current_cell(current)
         QTableView.currentChanged(self, current, previous)
