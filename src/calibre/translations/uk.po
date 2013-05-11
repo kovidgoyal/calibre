@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-05-10 04:31+0000\n"
-"PO-Revision-Date: 2013-05-03 06:03+0000\n"
+"PO-Revision-Date: 2013-05-10 09:53+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-05-10 05:36+0000\n"
+"X-Launchpad-Export-Date: 2013-05-11 05:32+0000\n"
 "X-Generator: Launchpad (build 16598)\n"
 "Language: uk\n"
 
@@ -2041,7 +2041,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
 msgid "Show archived books"
-msgstr ""
+msgstr "Показувати книги з архіву"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1241
 msgid ""
@@ -2049,6 +2049,10 @@ msgid ""
 "Use this option to show these books and match them with books in the calibre "
 "library."
 msgstr ""
+"Книги з архіву — це книги, які зберігаються у списку книг пристрою, але дані "
+"яких слід додатково отримати перед читанням. Скористайтеся цим пунктом, щоб "
+"наказати програми показувати записи таких книг і знаходити їхні відповідники "
+"у бібліотеці calibre."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1248
 msgid ""
@@ -20935,15 +20939,15 @@ msgstr "Спорожнити поточний пошук"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:271
 msgid "Focus the book list"
-msgstr ""
+msgstr "Фокусувати список книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:278
 msgid "Clear the virtual library"
-msgstr ""
+msgstr "Спорожнити віртуальну бібліотеку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:285
 msgid "Clear the additional restriction"
-msgstr ""
+msgstr "Вилучити додаткове обмеження"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:389
 msgid "Debug mode"
@@ -21521,7 +21525,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:453
 msgid "Clear search history"
-msgstr ""
+msgstr "Спорожнити журнал пошуку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:454
 msgid "Show &controls in the viewer window"
@@ -27444,6 +27448,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:533
 msgid "Highlight the count of books when using a Virtual Library"
 msgstr ""
+"Підсвічувати кількість книг під час користування вірутальною бібліотекою"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:534
 msgid ""
@@ -27451,3 +27456,7 @@ msgid ""
 "yellow when using a Virtual Library. By setting this to False, you can turn\n"
 "that off."
 msgstr ""
+"Під час користування віртуальною бібліотекою кількість книг, показану\n"
+"поряд з кнопкою віртуальної бібліотеки, буде підсвічено жовтим кольором.\n"
+"Якщо встановити для цього параметра значення False, підсвічування\n"
+"буде вимкнено."

@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-05-10 04:31+0000\n"
-"PO-Revision-Date: 2013-04-28 23:36+0000\n"
-"Last-Translator: Arnaud V. <Unknown>\n"
+"PO-Revision-Date: 2013-05-10 16:40+0000\n"
+"Last-Translator: cyma <Unknown>\n"
 "Language-Team: PCGen\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-05-10 05:23+0000\n"
+"X-Launchpad-Export-Date: 2013-05-11 05:18+0000\n"
 "X-Generator: Launchpad (build 16598)\n"
 "Language: fr\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
@@ -1197,12 +1197,12 @@ msgstr "Requête booléenne invalide \"{0}\""
 #: /home/kovid/work/calibre/src/calibre/db/search.py:355
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:501
 msgid "Invalid query format for colon-separated search: {0}"
-msgstr ""
+msgstr "Format invalide de recherche avec le séparateur double point: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:469
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:650
 msgid "Recursive query group detected: {0}"
-msgstr ""
+msgstr "Recherche récursive de groupe détectée"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:47
@@ -2077,7 +2077,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
 msgid "Show archived books"
-msgstr ""
+msgstr "Afficher les livres archivés"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1241
 msgid ""
@@ -2085,6 +2085,9 @@ msgid ""
 "Use this option to show these books and match them with books in the calibre "
 "library."
 msgstr ""
+"Les livres archivés sont listés sur l'appareil mais doivent être téléchargés "
+"pour être lus. Utiliser cette option pour afficher ces livres et les faire "
+"correspondre  avec ceux de la librairie Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1248
 msgid ""
@@ -2207,7 +2210,7 @@ msgstr "Communique avec le Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:415
 msgid "Communicate with the WayteQ and SPC Dickens Readers"
-msgstr ""
+msgstr "Communiquer avec les lecteurs WayteQ et SPC Dickens"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"
@@ -5362,7 +5365,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:33
 msgid "Configure the Big Book Search plugin"
-msgstr ""
+msgstr "Configurer le plugin Big Book Search"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:35
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:22
@@ -5372,6 +5375,7 @@ msgstr "Nombre maximal de jaquettes à obtenir"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:36
 msgid "The maximum number of covers to process from the search result"
 msgstr ""
+"Le nombre maximum de couverture à afficher depuis le résultat de recherche"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/douban.py:154
 msgid ""
@@ -5399,14 +5403,17 @@ msgid ""
 "Downloads covers from a Google Image search. Useful to find larger/alternate "
 "covers."
 msgstr ""
+"Télécharger les couvertures depuis Google Image Search. Pratique pour "
+"trouver des couvertures plus grandes/alternative."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:20
 msgid "Configure the Google Image Search plugin"
-msgstr ""
+msgstr "Configurer le plugin Google Image Search"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:23
 msgid "The maximum number of covers to process from the google search result"
 msgstr ""
+"Le nombre maximum de couverture à afficher depuis le résultat de recherche"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:24
 msgid "Cover size"
