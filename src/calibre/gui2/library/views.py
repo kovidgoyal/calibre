@@ -169,6 +169,10 @@ class BooksView(QTableView): # {{{
         self._model.sorting_done.connect(self.sorting_done,
                 type=Qt.QueuedConnection)
 
+    def currentChanged(self, current, previous):
+        self.model().set_current_cell(current)
+        QTableView.currentChanged(self, current, previous)
+
     # Column Header Context Menu {{{
     def column_header_context_handler(self, action=None, column=None):
         if not action or not column:

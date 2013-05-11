@@ -537,3 +537,9 @@ many_libraries = 10
 # that off.
 highlight_virtual_library_book_count = True
 
+#: Color for the current column highlight in the library view
+# This color is used to highlight the column header of the column containing the
+# currently-selected cell. It must be an valid color name. See
+# http://webdesign.about.com/od/colorcharts/l/bl_namedcolors.htm
+# for a list of valid color names
+column_highlight_color = 'lightgrey'

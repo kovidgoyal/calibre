@@ -164,6 +164,8 @@ class BooksModel(QAbstractTableModel): # {{{
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None
         self.highlight_only = False
+        self.current_index_column = -1
+        self.column_highlight_color = QVariant(QColor(tweaks['column_highlight_color']))
         self.read_config()
 
     def _clear_caches(self):
@@ -889,6 +891,12 @@ class BooksModel(QAbstractTableModel): # {{{
         #        return QVariant(_("Double click to <b>edit</b> me<br><br>"))
         return NONE
 
+    def set_current_cell(self, idx):
+        if idx and idx.isValid():
+            self.current_index_column = idx.column()
+        else:
+            self.current_index_column = -1
+
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal:
             if section >= len(self.column_map): # same problem as in data, the column_map can be wrong
@@ -900,6 +908,8 @@ class BooksModel(QAbstractTableModel): # {{{
                 return QVariant(_('The lookup/search name is "{0}"').format(ht))
             if role == Qt.DisplayRole:
                 return QVariant(self.headers[self.column_map[section]])
+            if role == Qt.BackgroundRole and section == self.current_index_column:
+                return self.column_highlight_color
             return NONE
         if DEBUG and role == Qt.ToolTipRole and orientation == Qt.Vertical:
                 col = self.db.field_metadata['uuid']['rec_index']
