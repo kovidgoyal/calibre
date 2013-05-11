@@ -139,6 +139,7 @@ class BooksView(QTableView):  # {{{
 
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
+        self.setProperty('highlight_current_item', True)
         self.row_sizing_done = False
 
         if not tweaks['horizontal_scrolling_per_column']:

@@ -5250,6 +5250,9 @@ void Style::drawPrimitive(PrimitiveElement element, const QStyleOption *option, 
                 QColor color(hasCustomBackground && hasSolidBackground
                                 ? v4Opt->backgroundBrush.color()
                                 : palette.color(cg, QPalette::Highlight));
+                if (state & State_HasFocus && widget->property("highlight_current_item").toBool()) {
+                    color = color.darker(130);
+                }
                 bool   square((opts.square&SQUARE_LISTVIEW_SELECTION) &&
                               (/*(!widget && r.height()<=40 && r.width()>=48) || */
                                (widget && !widget->inherits("KFilePlacesView") &&
