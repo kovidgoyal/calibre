@@ -25,7 +25,7 @@ from calibre.gui2.library import DEFAULT_SORT
 from calibre.constants import filesystem_encoding
 from calibre import force_unicode
 
-class PreserveViewState(object): # {{{
+class PreserveViewState(object):  # {{{
 
     '''
     Save the set of selected books at enter time. If at exit time there are no
@@ -72,13 +72,14 @@ class PreserveViewState(object): # {{{
             return {x:getattr(self, x) for x in ('selected_ids', 'current_id',
                 'vscroll', 'hscroll')}
         def fset(self, state):
-            for k, v in state.iteritems(): setattr(self, k, v)
+            for k, v in state.iteritems():
+                setattr(self, k, v)
             self.__exit__()
         return property(fget=fget, fset=fset)
 
 # }}}
 
-class BooksView(QTableView): # {{{
+class BooksView(QTableView):  # {{{
 
     files_dropped = pyqtSignal(object)
     add_column_signal = pyqtSignal()
@@ -235,7 +236,7 @@ class BooksView(QTableView): # {{{
                 ac.setCheckable(True)
                 ac.setChecked(True)
             if col not in ('ondevice', 'inlibrary') and \
-                    (not self.model().is_custom_column(col) or \
+                    (not self.model().is_custom_column(col) or
                     self.model().custom_columns[col]['datatype'] not in ('bool',
                         )):
                 m = self.column_header_context_menu.addMenu(
@@ -276,7 +277,6 @@ class BooksView(QTableView): # {{{
                     m.addAction(name,
                         partial(self.column_header_context_handler,
                         action='show', column=col))
-
 
             self.column_header_context_menu.addSeparator()
             self.column_header_context_menu.addAction(
@@ -366,7 +366,7 @@ class BooksView(QTableView): # {{{
         h = self.column_header
         cm = self.column_map
         state = {}
-        state['hidden_columns'] = [cm[i] for i in  range(h.count())
+        state['hidden_columns'] = [cm[i] for i in range(h.count())
                 if h.isSectionHidden(i) and cm[i] != 'ondevice']
         state['last_modified_injected'] = True
         state['languages_injected'] = True
@@ -513,7 +513,6 @@ class BooksView(QTableView): # {{{
                     if injected:
                         db.prefs[name] = ans
         return ans
-
 
     def restore_state(self):
         old_state = self.get_old_state()
@@ -837,7 +836,8 @@ class BooksView(QTableView): # {{{
         ids = frozenset(ids)
         m = self.model()
         for row in xrange(m.rowCount(QModelIndex())):
-            if len(row_map) >= len(ids): break
+            if len(row_map) >= len(ids):
+                break
             c = m.id(row)
             if c in ids:
                 row_map[c] = row
@@ -897,7 +897,8 @@ class BooksView(QTableView): # {{{
                 pass
             return None
         def fset(self, val):
-            if val is None: return
+            if val is None:
+                return
             m = self.model()
             for row in xrange(m.rowCount(QModelIndex())):
                 if m.id(row) == val:
@@ -919,7 +920,8 @@ class BooksView(QTableView): # {{{
         column = ci.column()
 
         for i in xrange(ci.row()+1, self.row_count()):
-            if i in selected_rows: continue
+            if i in selected_rows:
+                continue
             try:
                 return self.model().id(self.model().index(i, column))
             except:
@@ -927,7 +929,8 @@ class BooksView(QTableView): # {{{
 
         # No unselected rows after the current row, look before
         for i in xrange(ci.row()-1, -1, -1):
-            if i in selected_rows: continue
+            if i in selected_rows:
+                continue
             try:
                 return self.model().id(self.model().index(i, column))
             except:
@@ -975,7 +978,7 @@ class BooksView(QTableView): # {{{
 
 # }}}
 
-class DeviceBooksView(BooksView): # {{{
+class DeviceBooksView(BooksView):  # {{{
 
     def __init__(self, parent):
         BooksView.__init__(self, parent, DeviceBooksModel,
