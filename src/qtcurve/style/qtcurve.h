@@ -355,6 +355,7 @@ class Style : public QCommonStyle
     mutable QList<int>                 itsMdiButtons[2]; // 0=left, 1=right
     mutable int                        itsTitlebarHeight;
     QHash<int,QString>                 calibre_icon_map;
+    bool                               calibre_item_view_focus;
     bool                               is_kde_session;
 
     // Required for Q3Header hover...

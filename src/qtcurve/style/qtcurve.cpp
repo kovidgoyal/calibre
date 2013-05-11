@@ -964,6 +964,7 @@ Style::Style()
         itsAnimateStep(0),
         itsTitlebarHeight(0),
         calibre_icon_map(QHash<int,QString>()),
+        calibre_item_view_focus(0),
         is_kde_session(0),
         itsPos(-1, -1),
         itsHoverWidget(0L),
@@ -3696,6 +3697,9 @@ bool Style::event(QEvent *event) {
                 ++i;
             }
             return true;
+        } else if (e->propertyName() == QString("calibre_item_view_focus")) {
+            calibre_item_view_focus = property("calibre_item_view_focus").toBool();
+            return true;
         }
     }
     return BASE_STYLE::event(event);
@@ -4784,11 +4788,7 @@ void Style::drawPrimitive(PrimitiveElement element, const QStyleOption *option, 
                 if(widget && ::qobject_cast<const QGroupBox *>(widget))
                    r2.adjust(0, 2, 0, 0);
 
-                // Added by Kovid so that the highlight does not cover the text
-                if(widget && ::qobject_cast<const QListView *>(widget))
-                   r2.adjust(0, 0, 0, 2);
-
-                if(FOCUS_STANDARD==opts.focus)
+                if(calibre_item_view_focus || FOCUS_STANDARD==opts.focus) // Changed by Kovid, as the underline focus does not work well in item views
                 {
                     // Taken from QWindowsStyle...
                     painter->save();
