@@ -32,7 +32,7 @@ defaults.
 # Set the use_series_auto_increment_tweak_when_importing tweak to True to
 # use the above values when importing/adding books. If this tweak is set to
 # False (the default) then the series number will be set to 1 if it is not
-# explicitly set during the import. If set to True, then the
+# explicitly set to during the import. If set to True, then the
 # series index will be set according to the series_index_auto_increment setting.
 # Note that the use_series_auto_increment_tweak_when_importing tweak is used
 # only when a value is not provided during import. If the importing regular
@@ -537,22 +537,3 @@ many_libraries = 10
 # that off.
 highlight_virtual_library_book_count = True
 
-#: Control how the currently selected cell is marked.
-# You can control how the currently selected cell is marked using something
-# very similar to a CSS style sheet.
-# This is a very experimental feature. There may be problems using this on some
-# platforms or with some setting values. Some system defaults cannot be
-# overridded. See
-# http://qt-project.org/doc/qt-4.8/stylesheet-reference.html#list-of-properties
-# for a list of the CSS properties that are (in theory) supported.
-# Example: on windows 7 the following style sheet results in a cell with the
-# default background color, black text, and a black border around the cell.
-# selected_cell_highlight_css = ('QTableView::item:focus { '
-#                                    'background:transparent; '
-#                                    'color:black;  '
-#                                    'border: 1px; '
-#                                    'border-style: solid; '
-#                                    'border-color: black; '
-#                                    '}')
-# Default (no style): cell_highlight_css = ''
-selected_cell_highlight_css = ''

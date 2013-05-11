@@ -222,9 +222,6 @@ class BooksView(QTableView):  # {{{
         self._model.sorting_done.connect(self.sorting_done,
                 type=Qt.QueuedConnection)
 
-        if tweaks['selected_cell_highlight_css']:
-            self.setStyleSheet(tweaks['selected_cell_highlight_css'])
-
     # Column Header Context Menu {{{
     def column_header_context_handler(self, action=None, column=None):
         if not action or not column:
