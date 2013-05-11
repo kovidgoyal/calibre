@@ -4784,11 +4784,7 @@ void Style::drawPrimitive(PrimitiveElement element, const QStyleOption *option, 
                 if(widget && ::qobject_cast<const QGroupBox *>(widget))
                    r2.adjust(0, 2, 0, 0);
 
-                // Added by Kovid so that the highlight does not cover the text
-                if(widget && ::qobject_cast<const QListView *>(widget))
-                   r2.adjust(0, 0, 0, 2);
-
-                if(FOCUS_STANDARD==opts.focus)
+                if(1 || FOCUS_STANDARD==opts.focus) // Changed by Kovid, as the underline focus does not work well in item views
                 {
                     // Taken from QWindowsStyle...
                     painter->save();
