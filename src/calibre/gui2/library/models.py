@@ -9,7 +9,7 @@ import functools, re, os, traceback, errno, time
 from collections import defaultdict
 
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
-        QModelIndex, QVariant, QDateTime, QColor, QPixmap)
+        QModelIndex, QVariant, QDateTime, QColor, QPixmap, QFont)
 
 from calibre.gui2 import NONE, UNDEFINED_QDATETIME, error_dialog
 from calibre.utils.search_query_parser import ParseException
@@ -165,8 +165,11 @@ class BooksModel(QAbstractTableModel): # {{{
         self.current_highlighted_idx = None
         self.highlight_only = False
         self.current_index_column = -1
-        self.column_header_highlight_color = \
-                    QVariant(QColor(tweaks['column_header_highlight_color']))
+        self.current_index_row = -1
+        self.selected_header_font = QFont()
+        self.selected_header_font.setBold(True)
+        self.selected_header_font.setItalic(True)
+
         self.read_config()
 
     def _clear_caches(self):
@@ -894,9 +897,12 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def set_current_cell(self, idx):
         if idx and idx.isValid():
+            # Copy these out here for performance, avoiding using idx in headerData
             self.current_index_column = idx.column()
+            self.current_index_row = idx.row()
         else:
             self.current_index_column = -1
+            self.current_index_row = -1
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal:
@@ -909,8 +915,8 @@ class BooksModel(QAbstractTableModel): # {{{
                 return QVariant(_('The lookup/search name is "{0}"').format(ht))
             if role == Qt.DisplayRole:
                 return QVariant(self.headers[self.column_map[section]])
-            if role == Qt.BackgroundRole and section == self.current_index_column:
-                return self.column_header_highlight_color
+            if role == Qt.FontRole and self.current_index_column == section:
+                return QVariant(self.selected_header_font)
             return NONE
         if DEBUG and role == Qt.ToolTipRole and orientation == Qt.Vertical:
                 col = self.db.field_metadata['uuid']['rec_index']
@@ -918,6 +924,8 @@ class BooksModel(QAbstractTableModel): # {{{
 
         if role == Qt.DisplayRole: # orientation is vertical
             return QVariant(section+1)
+        if role == Qt.FontRole and self.current_index_row == section:
+            return QVariant(self.selected_header_font)
         return NONE
 
 
