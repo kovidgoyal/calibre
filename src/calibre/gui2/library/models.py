@@ -165,7 +165,8 @@ class BooksModel(QAbstractTableModel): # {{{
         self.current_highlighted_idx = None
         self.highlight_only = False
         self.current_index_column = -1
-        self.column_highlight_color = QVariant(QColor(tweaks['column_highlight_color']))
+        self.column_header_highlight_color = \
+                    QVariant(QColor(tweaks['column_header_highlight_color']))
         self.read_config()
 
     def _clear_caches(self):
@@ -909,7 +910,7 @@ class BooksModel(QAbstractTableModel): # {{{
             if role == Qt.DisplayRole:
                 return QVariant(self.headers[self.column_map[section]])
             if role == Qt.BackgroundRole and section == self.current_index_column:
-                return self.column_highlight_color
+                return self.column_header_highlight_color
             return NONE
         if DEBUG and role == Qt.ToolTipRole and orientation == Qt.Vertical:
                 col = self.db.field_metadata['uuid']['rec_index']
