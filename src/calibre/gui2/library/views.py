@@ -224,10 +224,6 @@ class BooksView(QTableView):  # {{{
         if tweaks['selected_cell_highlight_css']:
             self.setStyleSheet(tweaks['selected_cell_highlight_css'])
 
-    def currentChanged(self, current, previous):
-        self.model().set_current_cell(current)
-        QTableView.currentChanged(self, current, previous)
-
     # Column Header Context Menu {{{
     def column_header_context_handler(self, action=None, column=None):
         if not action or not column:
