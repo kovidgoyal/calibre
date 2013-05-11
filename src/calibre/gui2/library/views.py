@@ -10,9 +10,9 @@ from functools import partial
 from future_builtins import map
 from collections import OrderedDict
 
-from PyQt4.Qt import (QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal,
-    QModelIndex, QIcon, QItemSelection, QMimeData, QDrag, QApplication,
-    QPoint, QPixmap, QUrl, QImage, QPainter, QColor, QRect)
+from PyQt4.Qt import (QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, QFont,
+    QModelIndex, QIcon, QItemSelection, QMimeData, QDrag, QApplication, QStyle,
+    QPoint, QPixmap, QUrl, QImage, QPainter, QColor, QRect, QHeaderView, QStyleOptionHeader)
 
 from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
     TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate,
@@ -24,6 +24,53 @@ from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.constants import filesystem_encoding
 from calibre import force_unicode
+
+class HeaderView(QHeaderView):  # {{{
+
+    def __init__(self, *args):
+        QHeaderView.__init__(self, *args)
+        self.hover = -1
+        self.current_font = QFont(self.font())
+        self.current_font.setBold(True)
+
+    def event(self, e):
+        if e.type() in (e.HoverMove, e.HoverEnter):
+            self.hover = self.logicalIndexAt(e.pos())
+        elif e.type() in (e.Leave, e.HoverLeave):
+            self.hover = -1
+        return QHeaderView.event(self, e)
+
+    def paintSection(self, painter, rect, logical_index):
+        opt = QStyleOptionHeader()
+        self.initStyleOption(opt)
+        opt.rect = rect
+        opt.section = logical_index
+        opt.orientation = self.orientation()
+        opt.textAlignment = Qt.AlignHCenter | Qt.AlignVCenter
+        model = self.parent().model()
+        opt.text = model.headerData(logical_index, opt.orientation, Qt.DisplayRole).toString()
+        if self.isSortIndicatorShown() and self.sortIndicatorSection() == logical_index:
+            opt.sortIndicator = QStyleOptionHeader.SortDown if self.sortIndicatorOrder() == Qt.AscendingOrder else QStyleOptionHeader.SortUp
+        opt.text = opt.fontMetrics.elidedText(opt.text, Qt.ElideRight, rect.width() - 4)
+        if self.isEnabled():
+            opt.state |= QStyle.State_Enabled
+            if self.window().isActiveWindow():
+                opt.state |= QStyle.State_Active
+                if self.hover == logical_index:
+                    opt.state |= QStyle.State_MouseOver
+        sm = self.selectionModel()
+        if opt.orientation == Qt.Vertical:
+            if sm.isRowSelected(logical_index, QModelIndex()):
+                opt.state |= QStyle.State_Sunken
+
+        painter.save()
+        if (
+                (opt.orientation == Qt.Horizontal and sm.currentIndex().column() == logical_index) or
+                (opt.orientation == Qt.Vertical and sm.currentIndex().row() == logical_index)):
+            painter.setFont(self.current_font)
+        self.style().drawControl(QStyle.CE_Header, opt, painter, self)
+        painter.restore()
+# }}}
 
 class PreserveViewState(object):  # {{{
 
@@ -153,12 +200,16 @@ class BooksView(QTableView):  # {{{
         # {{{ Column Header setup
         self.can_add_columns = True
         self.was_restored = False
-        self.column_header = self.horizontalHeader()
+        self.column_header = HeaderView(Qt.Horizontal, self)
+        self.setHorizontalHeader(self.column_header)
         self.column_header.setMovable(True)
+        self.column_header.setClickable(True)
         self.column_header.sectionMoved.connect(self.save_state)
         self.column_header.setContextMenuPolicy(Qt.CustomContextMenu)
         self.column_header.customContextMenuRequested.connect(self.show_column_header_context_menu)
         self.column_header.sectionResized.connect(self.column_resized, Qt.QueuedConnection)
+        self.row_header = HeaderView(Qt.Vertical, self)
+        self.setVerticalHeader(self.row_header)
         # }}}
 
         self._model.database_changed.connect(self.database_changed)
