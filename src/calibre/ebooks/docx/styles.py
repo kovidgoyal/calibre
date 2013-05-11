@@ -52,6 +52,11 @@ class Style(object):
                 else:
                     self.character_style.update(rs)
 
+        if self.style_type == 'numbering':
+            self.numbering_style_link = None
+            for x in XPath('./w:pPr/w:numPr/w:numId[@w:val]')(elem):
+                self.numbering_style_link = get(x, 'w:val')
+
     def resolve_based_on(self, parent):
         if parent.paragraph_style is not None:
             if self.paragraph_style is None:
@@ -77,6 +82,7 @@ class Styles(object):
         self.classes = {}
         self.counter = Counter()
         self.default_styles = {}
+        self.numbering_style_links = {}
 
     def __iter__(self):
         for s in self.id_map.itervalues():
@@ -98,6 +104,8 @@ class Styles(object):
                 self.id_map[s.style_id] = s
             if s.is_default:
                 self.default_styles[s.style_type] = s
+            if s.style_type == 'numbering' and s.numbering_style_link:
+                self.numbering_style_links[s.style_id] = s.numbering_style_link
 
         self.default_paragraph_style = self.default_character_style = None
 
@@ -234,6 +242,9 @@ class Styles(object):
             return self.resolve_paragraph(obj)
         if obj.tag.endswith('}r'):
             return self.resolve_run(obj)
+
+    def resolve_numbering(self, numbering):
+        pass  # TODO: Implement this
 
     def register(self, css, prefix):
         h = hash(tuple(css.iteritems()))

@@ -13,8 +13,9 @@ from lxml.html.builder import (
     HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR)
 
 from calibre.ebooks.docx.container import DOCX, fromstring
-from calibre.ebooks.docx.names import XPath, is_tag, barename, XML, STYLES
+from calibre.ebooks.docx.names import XPath, is_tag, barename, XML, STYLES, NUMBERING
 from calibre.ebooks.docx.styles import Styles, inherit
+from calibre.ebooks.docx.numbering import Numbering
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
 class Text:
@@ -89,12 +90,20 @@ class Convert(object):
         self.write()
 
     def read_styles(self, relationships_by_type):
-        sname = relationships_by_type.get(STYLES, None)
-        if sname is None:
-            name = self.docx.document_name.split('/')
-            name[-1] = 'styles.xml'
-            if self.docx.exists(name):
-                sname = name
+
+        def get_name(rtype, defname):
+            name = relationships_by_type.get(rtype, None)
+            if name is None:
+                cname = self.docx.document_name.split('/')
+                cname[-1] = defname
+                if self.docx.exists(cname):
+                    name = name
+            return name
+
+        nname = get_name(NUMBERING, 'numbering.xml')
+        sname = get_name(STYLES, 'styles.xml')
+        numbering = Numbering()
+
         if sname is not None:
             try:
                 raw = self.docx.read(sname)
@@ -102,6 +111,16 @@ class Convert(object):
                 self.log.warn('Styles %s do not exist' % sname)
             else:
                 self.styles(fromstring(raw))
+
+        if nname is not None:
+            try:
+                raw = self.docx.read(nname)
+            except KeyError:
+                self.log.warn('Numbering styles %s do not exist' % nname)
+            else:
+                numbering(fromstring(raw), self.styles)
+
+        self.styles.resolve_numbering(numbering)
 
     def write(self):
         raw = html.tostring(self.html, encoding='utf-8', doctype='<!DOCTYPE html>')
