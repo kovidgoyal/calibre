@@ -149,6 +149,9 @@ class Quickview(QDialog, Ui_Quickview):
         key = self.view.model().column_map[self.current_column]
         book_id = self.view.model().id(bv_row)
 
+        if self.current_book_id == book_id and self.current_key == key:
+            return
+
         # Only show items for categories
         if not self.db.field_metadata[key]['is_category']:
             if self.current_key is None:
@@ -203,8 +206,7 @@ class Quickview(QDialog, Ui_Quickview):
             sv = selected_item
         sv = sv.replace('"', r'\"')
         self.last_search = self.current_key+':"=' + sv + '"'
-        books = self.db.search_getting_ids(self.last_search,
-                                           self.db.data.search_restriction)
+        books = self.db.search(self.last_search, return_matches=True)
 
         self.books_table.setRowCount(len(books))
         self.books_label.setText(_('Books with selected item "{0}": {1}').
