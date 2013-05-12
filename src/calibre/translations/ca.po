@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-05-10 04:31+0000\n"
-"PO-Revision-Date: 2013-05-04 10:33+0000\n"
+"PO-Revision-Date: 2013-05-11 11:16+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-05-11 05:16+0000\n"
+"X-Launchpad-Export-Date: 2013-05-12 05:26+0000\n"
 "X-Generator: Launchpad (build 16598)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -2055,7 +2055,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
 msgid "Show archived books"
-msgstr ""
+msgstr "Mostra els llibres arxivats"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1241
 msgid ""
@@ -2063,6 +2063,9 @@ msgid ""
 "Use this option to show these books and match them with books in the calibre "
 "library."
 msgstr ""
+"Els llibres arxivats estan a la llista del dispositiu però per llegir-los "
+"cal baixar-los. Utilitzeu aquesta opció per mostrar aquests llibres i fer-"
+"los coincidir amb llibres de la biblioteca del calibre."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1248
 msgid ""
@@ -20914,15 +20917,15 @@ msgstr "Suprimeix la cerca actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:271
 msgid "Focus the book list"
-msgstr ""
+msgstr "Focus a la llista de llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:278
 msgid "Clear the virtual library"
-msgstr ""
+msgstr "Neteja la biblioteca virtual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:285
 msgid "Clear the additional restriction"
-msgstr ""
+msgstr "Neteja la restricció addicional"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:389
 msgid "Debug mode"
@@ -21500,7 +21503,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:453
 msgid "Clear search history"
-msgstr ""
+msgstr "Neteja l'historial de cerca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:454
 msgid "Show &controls in the viewer window"
@@ -27444,7 +27447,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:533
 msgid "Highlight the count of books when using a Virtual Library"
-msgstr ""
+msgstr "En utilitzar una biblioteca virtual, realça el recompte de llibres"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:534
 msgid ""
@@ -27452,3 +27455,6 @@ msgid ""
 "yellow when using a Virtual Library. By setting this to False, you can turn\n"
 "that off."
 msgstr ""
+"El recompte de llibres del costat del botó de biblioteca virtual\n"
+"es realça en groc en utilitzar una biblioteca virtual. Si s'estableix\n"
+"a «Fals», ho desactivareu."

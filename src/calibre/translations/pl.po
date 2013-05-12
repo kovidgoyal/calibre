@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-05-10 04:31+0000\n"
-"PO-Revision-Date: 2013-05-07 12:24+0000\n"
+"PO-Revision-Date: 2013-05-11 11:27+0000\n"
 "Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-05-11 05:27+0000\n"
+"X-Launchpad-Export-Date: 2013-05-12 05:27+0000\n"
 "X-Generator: Launchpad (build 16598)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
@@ -2021,7 +2021,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
 msgid "Show archived books"
-msgstr ""
+msgstr "Pokaż zarchiwizowane książki"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1241
 msgid ""
@@ -2029,6 +2029,9 @@ msgid ""
 "Use this option to show these books and match them with books in the calibre "
 "library."
 msgstr ""
+"Zarchiwizowane książki są zarejestrowane na urządzeniu, ale wymagają "
+"załadowania na urządzenie przed czytaniem. Użyj tej opcji by porównać te "
+"książki z książkami w bibliote e."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1248
 msgid ""
@@ -20691,11 +20694,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:278
 msgid "Clear the virtual library"
-msgstr ""
+msgstr "Wyczyść wirtualną bibliotekę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:285
 msgid "Clear the additional restriction"
-msgstr ""
+msgstr "Wyczyść dodatkowe ograniczenia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:389
 msgid "Debug mode"
@@ -21268,7 +21271,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:453
 msgid "Clear search history"
-msgstr ""
+msgstr "Wyczyść historię wyszukiwania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:454
 msgid "Show &controls in the viewer window"
@@ -27127,7 +27130,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:533
 msgid "Highlight the count of books when using a Virtual Library"
-msgstr ""
+msgstr "Podświetl liczbę książek kiedy używana jest wirtualna biblioteka"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:534
 msgid ""
@@ -27135,3 +27138,6 @@ msgid ""
 "yellow when using a Virtual Library. By setting this to False, you can turn\n"
 "that off."
 msgstr ""
+"Liczba książek przy przycisku Wirtualna Biblioteka jest podświetlana\n"
+"na żółto jeśli Wirtualna Biblioteka jest używan. Ustawiając ten parametr\n"
+"na False można to wyłączyć."

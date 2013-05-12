@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-05-10 04:31+0000\n"
-"PO-Revision-Date: 2013-05-10 18:13+0000\n"
+"PO-Revision-Date: 2013-05-11 19:02+0000\n"
 "Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-05-11 05:30+0000\n"
+"X-Launchpad-Export-Date: 2013-05-12 05:27+0000\n"
 "X-Generator: Launchpad (build 16598)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
@@ -967,6 +967,9 @@ msgid ""
 "plugin. This command will automatically zip up the plugin and update it in "
 "calibre."
 msgstr ""
+"För tilläggsutvecklare: Sökväg till den katalog där du utvecklar "
+"tilläggsprogram. Detta kommando kommer automatiskt att komprimera tillägget "
+"och uppdatera Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:616
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
@@ -1007,7 +1010,7 @@ msgstr "Sökväg till biblioteket för lång. Måste vara mindre än tecken %d."
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:396
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:187
 msgid "restored preference "
-msgstr ""
+msgstr "återställda förval "
 
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:402
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:192
@@ -1135,7 +1138,7 @@ msgstr "Datumkonverteringsfel: {0}"
 #: /home/kovid/work/calibre/src/calibre/db/search.py:289
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:456
 msgid "Non-numeric value in query: {0}"
-msgstr ""
+msgstr "Icke-numeriskt värde i fråga: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:313
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:571
@@ -1177,6 +1180,9 @@ msgid ""
 "calibre-debug -r \"Add Books\" -- file1 --option1\n"
 "Everything after the -- will be passed to the plugin as arguments."
 msgstr ""
+"Kör ett tillägg som ger ett kommandoradsgränssnitt. Till exempel: \n"
+"calibre-debug-r \"Lägg till böcker\" - file1 - option1 \n"
+"Allt efter - kommer att skickas till tilläggsprogrammet som argument."
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:180
 msgid "Debug log"
@@ -1185,7 +1191,7 @@ msgstr "Felsökningslogg"
 #: /home/kovid/work/calibre/src/calibre/debug.py:272
 #, python-format
 msgid "No plugin named %s found"
-msgstr ""
+msgstr "Inget tillägg som heter %s hittades"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:19
 msgid "Communicate with Android phones."
@@ -1929,7 +1935,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1227
 msgid "The Kobo Touch from firmware V2.0.0 supports bookshelves."
-msgstr ""
+msgstr "Den Kobo Touch från firmware V2.0.0 stöder bokhyllor."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1229
 msgid "Specify a tags type column for automatic management"
@@ -1985,7 +1991,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
 msgid "Show archived books"
-msgstr ""
+msgstr "Visa arkiverade böcker"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1241
 msgid ""
@@ -2355,7 +2361,7 @@ msgstr "Namnlös"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:36
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
-msgstr ""
+msgstr "Kommunicera Med PRST1 och Sonys nya e-bokläsare"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:71
 msgid "Upload separate cover thumbnails for books"
@@ -2426,6 +2432,8 @@ msgid ""
 "If checked, use the port number in the \"Port\" box, otherwise the driver "
 "will pick a random port"
 msgstr ""
+"Om markerad, använder portnummer från \"Port\" rutan, annars kommer "
+"drivenheten att välja en slumpmässig port"
 
 #: /home/kovid/work/calibre/src/calibre/devices/smart_device_app/driver.py:285
 msgid "Port number: "
@@ -3458,6 +3466,10 @@ msgid ""
 "options. This option will cause the  page size settings under PDF Output to "
 "override the  size specified by the output profile."
 msgstr ""
+"Normalt bestäms PDF-sidans storlek av den utgående profilen som väljs enligt "
+"sidalternativen. Detta alternativ kommer att påverka "
+"sidstorleksinställningarna under PDF-utdata att åsidosätta storleken som "
+"anges av utgående profilen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:58
 #, python-format
@@ -3519,11 +3531,11 @@ msgstr "Den förvalda teckenstorleken för monospace-text"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:95
 msgid "Surround all links with a red box, useful for debugging."
-msgstr ""
+msgstr "Omge alla länkar med en röd ruta, användbart för felsökning."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:97
 msgid "Use the old, less capable engine to generate the PDF"
-msgstr ""
+msgstr "Använd den gamla, mindre kapabla motorn för att generera PDF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:100
 msgid ""
@@ -5460,7 +5472,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:117
 #, python-format
 msgid "## Polishing: %s"
-msgstr ""
+msgstr "## Polering: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:125
 msgid "Updating metadata"
@@ -5514,7 +5526,7 @@ msgstr "Delinställning inbäddat teckensnitt"
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:169
 #, python-format
 msgid "Polishing took: %.1f seconds"
-msgstr ""
+msgstr "Polering ihop: % .1f sekunder"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:202
 msgid ""
@@ -6043,11 +6055,11 @@ msgstr "Hämtar böcker från enheten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:437
 msgid "Could not download files from the device"
-msgstr ""
+msgstr "Kan inte hämta ner filer från enheten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:440
 msgid "Could not download some files from the device"
-msgstr ""
+msgstr "Kan inte ladda ner några filer från enheten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:444
 msgid "Could not download files"
@@ -6471,11 +6483,11 @@ msgstr "Välj bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:139
 msgid "Library &path:"
-msgstr ""
+msgstr "Bibliotek&sökväg:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:147
 msgid "Browse for library"
-msgstr ""
+msgstr "Bläddra efter bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:154
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:205
@@ -6484,7 +6496,7 @@ msgstr "&Kopiera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:156
 msgid "Copy to the specified library"
-msgstr ""
+msgstr "Kopiera till angiven biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:157
 msgid "&Move"
@@ -6813,6 +6825,8 @@ msgstr "Anslut/dela ut"
 msgid ""
 "Share books using a web server or email. Connect to special devices, etc."
 msgstr ""
+"Dela böcker genom att använda en webbserver eller e-post. Anslut till "
+"särskilda enheter, etc."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:84
@@ -6826,21 +6840,23 @@ msgstr "Stoppa server, kan detta ta upp till en minut, vänta ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:240
 msgid "Disable autostart"
-msgstr ""
+msgstr "Inaktivera autostart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:241
 msgid ""
 "Do you want wireless device connections to be started automatically when "
 "calibre starts?"
 msgstr ""
+"Vill du trådlösa enhetsanslutningar ska startas automatiskt när Calibre "
+"startar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:264
 msgid "Still looking for IP addresses"
-msgstr ""
+msgstr "Fortfarande letar efter IP-adresser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:267
 msgid "Many IP addresses. See Start/Stop dialog."
-msgstr ""
+msgstr "Många IP-adresser. Se Start / Stopp dialogrutan."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
@@ -7204,7 +7220,7 @@ msgstr "<h3> Delinställning av typsnitt </h3> %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:51
 #, python-format
 msgid "<h3>Smarten punctuation</h3>%s"
-msgstr ""
+msgstr "<h3> intelligent skiljetecken hantering </h3>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:53
 msgid ""
@@ -7239,7 +7255,7 @@ msgstr "På Välj åtgärder SOM SKA utföras:"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:78
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:249
 msgid "&Subset all embedded fonts"
-msgstr ""
+msgstr "&Delmängd av alla inbakade typsnitt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:240
@@ -7248,7 +7264,7 @@ msgstr "Snygga till &interpunktion"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:80
 msgid "Update &metadata in the book files"
-msgstr ""
+msgstr "Uppdatera &metadata i bokens filer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:81
 msgid "Update the &cover in the book files"
@@ -7300,7 +7316,7 @@ msgstr "Inga åtgärder valda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:144
 msgid "You must select at least one action before saving"
-msgstr ""
+msgstr "Du måste välja minst en åtgärd innan du sparar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:146
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:71
@@ -7330,16 +7346,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:218
 msgid "You must select at least one action, or click Cancel."
-msgstr ""
+msgstr "Du måste välja minst en åtgärd, eller klicka på Avbryt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:232
 msgid "Queueing books for polishing"
-msgstr ""
+msgstr "Köar böcker för polering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:276
 #, python-format
 msgid "Polish %s"
-msgstr ""
+msgstr "Polera %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:277
 #, python-format
@@ -7459,7 +7475,7 @@ msgstr "Spara till disk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:21
 msgid "Export ebook files from the calibre library"
-msgstr ""
+msgstr "Exportera e-bokfiler från Calibre biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:21
 msgid "S"
@@ -7615,6 +7631,7 @@ msgstr "Hämta böcker"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Search dozens of online ebook retailers for the cheapest books"
 msgstr ""
+"Sök bland dussinstals av e-bokåterförsäljare för de billigaste böckerna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:22
 msgid "Search for ebooks"
@@ -7768,7 +7785,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:103
 msgid "&Explode Book"
-msgstr ""
+msgstr "&Bryt i sär boken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:104
 msgid "&Preview Book"
@@ -7784,11 +7801,11 @@ msgstr "&Avbryt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:106
 msgid "&Rebuild Book"
-msgstr ""
+msgstr "&Återbygg Bok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:109
 msgid "Explode the book to edit its components"
-msgstr ""
+msgstr "Bryt i sär boken för att redigera dess komponenter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:111
 msgid "Preview the result of your tweaks"
@@ -7804,7 +7821,7 @@ msgstr "Spara ändringarna OCH uppdatera Boken i Calibre-biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:155
 msgid "Exploding, please wait..."
-msgstr ""
+msgstr "Bryter i sär, var god vänta..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:187
@@ -7832,6 +7849,8 @@ msgstr "DET gick integrerade ATT återskapa Filén"
 #, python-format
 msgid "Failed to rebuild %s. For more information, click \"Show details\"."
 msgstr ""
+"Misslyckades med att återuppbygga %s. För mer information, klicka på \"Visa "
+"detaljer\"."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:231
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:240
@@ -8718,7 +8737,7 @@ msgstr "&Slå samman med Kommentarer:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:388
 msgid "Catalog cover:"
-msgstr ""
+msgstr "Katalogomslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:389
 msgid "Generate new cover"
@@ -9521,7 +9540,7 @@ msgstr "&Linjestorlek:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:247
 msgid "&Embed font family:"
-msgstr ""
+msgstr "&Bädda in typsnittsfamilj:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:248
 msgid "&Disable font size rescaling"
@@ -9729,6 +9748,8 @@ msgid ""
 "Do not convert all images to &JPEG (may result in images not working in "
 "older viewers)"
 msgstr ""
+"Konvertera inte alla bilder till &JPEG (kan resultera i bilder som inte "
+"fungerar i äldre läsare)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:87
 msgid "Kindle options"
@@ -10346,6 +10367,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:96
 msgid "&Manually fine-tune the ToC after conversion is completed"
 msgstr ""
+"&Manuellt finjustera innehållsförteckning efter konverteringen är klar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:12
 msgid "TXT Input"
@@ -11009,7 +11031,7 @@ msgstr "& Ta Bort Regeln"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:273
 msgid "Format specific sending"
-msgstr ""
+msgstr "Formatspecifik sändning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:278
 msgid ""
@@ -11103,6 +11125,8 @@ msgid ""
 "You can select which top level folders calibre will scan when searching this "
 "device for books."
 msgstr ""
+"Du kan välja vilka toppnivå mappar Calibre kommer att skanna när du söker "
+"den här enheten för böcker."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:131
 msgid "Select &All"
@@ -11114,7 +11138,7 @@ msgstr "Markera i&nget"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_folder_browser.py:136
 msgid "Choose folders to scan"
-msgstr ""
+msgstr "Välj mappar för att skanna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:19
 msgid "How many empty books?"
@@ -11149,6 +11173,8 @@ msgid ""
 "Some of the ISBNs you entered were invalid. They will be ignored. Click Show "
 "Details to see which ones. Do you want to proceed?"
 msgstr ""
+"Några av de ISBN värden som du angav var ogiltiga. De kommer att ignoreras. "
+"Klicka på Visa detaljer för att se vilka som. Vill du fortsätta?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:79
 msgid "All invalid ISBNs"
@@ -11215,7 +11241,7 @@ msgstr "Ingen hjälp finns tillgänglig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:203
 msgid "No help available for this output format."
-msgstr ""
+msgstr "Ingen hjälp finns tillgänglig för detta utdataformat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:353
@@ -11534,6 +11560,8 @@ msgid ""
 "You should not create a library inside the Calibre folder as this folder is "
 "automatically deleted during upgrades."
 msgstr ""
+"Du bör inte skapa ett bibliotek inuti Calibres mapp eftersom den här mappen "
+"raderas automatiskt under uppgraderingar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:78
 #, python-format
@@ -13258,7 +13286,7 @@ msgstr "Skapad av: "
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:384
 #, python-format
 msgid "Download %s now"
-msgstr ""
+msgstr "Ladda ner %s nu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:388
 msgid "Last downloaded: never"
@@ -13616,12 +13644,18 @@ msgid ""
 "will not need to do this. However, if your device consistently fails to "
 "connect to calibre, try checking this box and entering a number."
 msgstr ""
+"Markera den här rutan om du vill Calibre ska använda en fast nätverksport. "
+"Normalt behöver du inte göra detta. Men om din enhet konsekvent struntar i "
+"att ansluta till Calibre, prova att markera kryssrutan och ange ett nummer."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:63
 msgid ""
 "Try 9090. If calibre says that it fails to connect to the port, try another "
 "number. You can use any number between 8,000 and 32,000."
 msgstr ""
+"Försök med 9090. Om Calibre säger att det inte går ansluta till porten, "
+"prova ett annat nummer. Du kan använda valfritt antal mellan 8.000 och "
+"32.000."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/smartdevice.py:69
 msgid ""
@@ -14456,7 +14490,7 @@ msgstr "Korrupta typsnitt"
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:275
 #, python-format
 msgid "Failed to read metadata from the font file: %s"
-msgstr ""
+msgstr "Misslyckades med att läsa metadata från typsnittetsfilen: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/font_family_chooser.py:294
 msgid "Added fonts"
@@ -14726,7 +14760,7 @@ msgstr "tillgängligt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:176
 msgid "Vi&rtual Library"
-msgstr ""
+msgstr "Vi&rtuellt bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:193
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:198
@@ -14803,6 +14837,8 @@ msgid ""
 "Could not change the on disk location of this book. Is it open in another "
 "program?"
 msgstr ""
+"Det gick inte att ändra på diskplatsen för denna bok. Är öppna den i ett "
+"annat program?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:998
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1004
@@ -15430,7 +15466,7 @@ msgstr "(Misslyckades omslag)"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:200
 #, python-format
 msgid "Processed %s"
-msgstr ""
+msgstr "Bearbetat% s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:131
@@ -15440,7 +15476,7 @@ msgstr "Hämtade metadatafält"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:348
 #, python-format
 msgid "Revert %s"
-msgstr ""
+msgstr "Återställer %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:452
 msgid "Compare metadata"
@@ -15452,7 +15488,7 @@ msgstr "&Acceptera alla återstående"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:473
 msgid "Re&ject all remaining"
-msgstr ""
+msgstr "Av&färda alla återstående"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:478
 msgid "&Reject"
@@ -24759,20 +24795,20 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/search_query_parser.py:221
 msgid "Invalid syntax. Expected a lookup name or a word"
-msgstr ""
+msgstr "Ogiltig syntax. Förväntas ett uppslagsnamn eller ett ord"
 
 #: /home/kovid/work/calibre/src/calibre/utils/search_query_parser.py:323
 #, python-format
 msgid "Failed to parse query, recursion limit reached: %s"
-msgstr ""
+msgstr "Misslyckades med att tolka frågan, nådde rekursion gräns: %s"
 
 #: /home/kovid/work/calibre/src/calibre/utils/search_query_parser.py:367
 msgid "Recursive saved search: {0}"
-msgstr ""
+msgstr "Sparad rekursivsökning: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/search_query_parser.py:376
 msgid "Unknown error in saved search: {0}"
-msgstr ""
+msgstr "Okänt fel i sparad sökning: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
@@ -24815,7 +24851,7 @@ msgstr "Okänd nyhetskälla"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:771
 #, python-format
 msgid "Failed to download %s"
-msgstr ""
+msgstr "Misslyckades med att hämta %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:867
 #, python-format
@@ -25713,7 +25749,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:373
 msgid "Choose whether dates are sorted using visible fields"
-msgstr ""
+msgstr "Välj om datum ska sorteras med hjälp av synliga fält"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:374
 msgid ""
@@ -25980,7 +26016,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:497
 msgid "What format to default to when using the Tweak feature"
-msgstr ""
+msgstr "Vilket format ska användas när du använder justeringsfunktionen"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:498
 msgid ""
@@ -26038,7 +26074,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:533
 msgid "Highlight the count of books when using a Virtual Library"
-msgstr ""
+msgstr "Visa räkningen av böcker när du använder ett virtuellt bibliotek"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:534
 msgid ""
