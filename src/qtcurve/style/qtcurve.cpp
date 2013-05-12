@@ -5250,8 +5250,13 @@ void Style::drawPrimitive(PrimitiveElement element, const QStyleOption *option, 
                 QColor color(hasCustomBackground && hasSolidBackground
                                 ? v4Opt->backgroundBrush.color()
                                 : palette.color(cg, QPalette::Highlight));
-                if (state & State_HasFocus && widget && widget->property("highlight_current_item").toBool())
-                    color = color.darker(widget->property("highlight_current_item").toInt()); // Added by Kovid to highlight the current cell in the book list
+                if (state & State_HasFocus && widget && widget->property("highlight_current_item").toBool()) {
+                    // Added by Kovid to highlight the current cell in the book list
+                    if (color.lightness() > 128)
+                        color = color.darker(widget->property("highlight_current_item").toInt());
+                    else
+                        color = color.lighter();
+                }
                 
                 bool   square((opts.square&SQUARE_LISTVIEW_SELECTION) &&
                               (/*(!widget && r.height()<=40 && r.width()>=48) || */
