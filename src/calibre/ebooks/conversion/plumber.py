@@ -77,7 +77,7 @@ class Plumber(object):
 
     def __init__(self, input, output, log, report_progress=DummyReporter(),
             dummy=False, merge_plugin_recs=True, abort_after_input_dump=False,
-            override_input_metadata=False):
+            override_input_metadata=False, for_regex_wizard=False):
         '''
         :param input: Path to input file.
         :param output: Path to output file/directory
@@ -87,6 +87,7 @@ class Plumber(object):
         if isbytestring(output):
             output = output.decode(filesystem_encoding)
         self.original_input_arg = input
+        self.for_regex_wizard = for_regex_wizard
         self.input = os.path.abspath(input)
         self.output = os.path.abspath(output)
         self.log = log
@@ -123,7 +124,7 @@ OptionRecommendation(name='input_profile',
                    'conversion system information on how to interpret '
                    'various information in the input document. For '
                    'example resolution dependent lengths (i.e. lengths in '
-                   'pixels). Choices are:')+\
+                   'pixels). Choices are:')+
                         ', '.join([x.short_name for x in input_profiles()])
         ),
 
@@ -135,7 +136,7 @@ OptionRecommendation(name='output_profile',
                    'created document for the specified device. In some cases, '
                    'an output profile is required to produce documents that '
                    'will work on a device. For example EPUB on the SONY reader. '
-                   'Choices are:') + \
+                   'Choices are:') +
                            ', '.join([x.short_name for x in output_profiles()])
         ),
 
@@ -490,7 +491,7 @@ OptionRecommendation(name='asciiize',
             'cases where there are multiple representations of a character '
             '(characters shared by Chinese and Japanese for instance) the '
             'representation based on the current calibre interface language will be '
-            'used.')%\
+            'used.')%
             u'\u041c\u0438\u0445\u0430\u0438\u043b '
             u'\u0413\u043e\u0440\u0431\u0430\u0447\u0451\u0432'
 )
@@ -711,7 +712,6 @@ OptionRecommendation(name='search_replace',
         self.input_fmt = input_fmt
         self.output_fmt = output_fmt
 
-
         self.all_format_options = set()
         self.input_options = set()
         self.output_options = set()
@@ -775,15 +775,13 @@ OptionRecommendation(name='search_replace',
         if not html_files:
             raise ValueError(_('Could not find an ebook inside the archive'))
         html_files = [(f, os.stat(f).st_size) for f in html_files]
-        html_files.sort(cmp = lambda x, y: cmp(x[1], y[1]))
+        html_files.sort(cmp=lambda x, y: cmp(x[1], y[1]))
         html_files = [f[0] for f in html_files]
         for q in ('toc', 'index'):
             for f in html_files:
                 if os.path.splitext(os.path.basename(f))[0].lower() == q:
                     return f, os.path.splitext(f)[1].lower()[1:]
         return html_files[-1], os.path.splitext(html_files[-1])[1].lower()[1:]
-
-
 
     def get_option_by_name(self, name):
         for group in (self.input_options, self.pipeline_options,
@@ -956,7 +954,6 @@ OptionRecommendation(name='search_replace',
 
         self.log.info('Input debug saved to:', out_dir)
 
-
     def run(self):
         '''
         Run the conversion pipeline
@@ -965,10 +962,12 @@ OptionRecommendation(name='search_replace',
         self.setup_options()
         if self.opts.verbose:
             self.log.filter_level = self.log.DEBUG
+        if self.for_regex_wizard and hasattr(self.opts, 'no_process'):
+            self.opts.no_process = True
         self.flush()
         import cssutils, logging
         cssutils.log.setLevel(logging.WARN)
-        get_types_map() # Ensure the mimetypes module is intialized
+        get_types_map()  # Ensure the mimetypes module is intialized
 
         if self.opts.debug_pipeline is not None:
             self.opts.verbose = max(self.opts.verbose, 4)
@@ -1003,6 +1002,8 @@ OptionRecommendation(name='search_replace',
         self.ui_reporter(0.01, _('Converting input to HTML...'))
         ir = CompositeProgressReporter(0.01, 0.34, self.ui_reporter)
         self.input_plugin.report_progress = ir
+        if self.for_regex_wizard:
+            self.input_plugin.for_viewer = True
         with self.input_plugin:
             self.oeb = self.input_plugin(stream, self.opts,
                                         self.input_fmt, self.log,
@@ -1014,8 +1015,12 @@ OptionRecommendation(name='search_replace',
             if self.input_fmt in ('recipe', 'downloaded_recipe'):
                 self.opts_to_mi(self.user_metadata)
             if not hasattr(self.oeb, 'manifest'):
-                self.oeb = create_oebbook(self.log, self.oeb, self.opts,
-                        encoding=self.input_plugin.output_encoding)
+                self.oeb = create_oebbook(
+                    self.log, self.oeb, self.opts,
+                    encoding=self.input_plugin.output_encoding,
+                    for_regex_wizard=self.for_regex_wizard)
+            if self.for_regex_wizard:
+                return
             self.input_plugin.postprocess_book(self.oeb, self.opts, self.log)
             self.opts.is_image_collection = self.input_plugin.is_image_collection
             pr = CompositeProgressReporter(0.34, 0.67, self.ui_reporter)
@@ -1080,7 +1085,6 @@ OptionRecommendation(name='search_replace',
             out_dir = os.path.join(self.opts.debug_pipeline, 'structure')
             self.dump_oeb(self.oeb, out_dir)
             self.log('Structured HTML written to:', out_dir)
-
 
         if self.opts.extra_css and os.path.exists(self.opts.extra_css):
             self.opts.extra_css = open(self.opts.extra_css, 'rb').read()
@@ -1161,13 +1165,20 @@ OptionRecommendation(name='search_replace',
         self.log(self.output_fmt.upper(), 'output written to', self.output)
         self.flush()
 
+# This has to be global as create_oebbook can be called from other locations
+# (for example in the html input plugin)
+regex_wizard_callback = None
+def set_regex_wizard_callback(f):
+    global regex_wizard_callback
+    regex_wizard_callback = f
+
 def create_oebbook(log, path_or_stream, opts, reader=None,
-        encoding='utf-8', populate=True):
+        encoding='utf-8', populate=True, for_regex_wizard=False):
     '''
     Create an OEBBook.
     '''
     from calibre.ebooks.oeb.base import OEBBook
-    html_preprocessor = HTMLPreProcessor(log, opts)
+    html_preprocessor = HTMLPreProcessor(log, opts, regex_wizard_callback=regex_wizard_callback)
     if not encoding:
         encoding = None
     oeb = OEBBook(log, html_preprocessor,
@@ -1182,3 +1193,4 @@ def create_oebbook(log, path_or_stream, opts, reader=None,
 
     reader()(oeb, path_or_stream)
     return oeb
+

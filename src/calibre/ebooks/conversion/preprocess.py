@@ -497,9 +497,11 @@ class HTMLPreProcessor(object):
                      (re.compile('<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
                       lambda match : '<h3 class="subtitle">%s</h3>'%(match.group(1),)),
                      ]
-    def __init__(self, log=None, extra_opts=None):
+    def __init__(self, log=None, extra_opts=None, regex_wizard_callback=None):
         self.log = log
         self.extra_opts = extra_opts
+        self.regex_wizard_callback = regex_wizard_callback
+        self.current_href = None
 
     def is_baen(self, src):
         return re.compile(r'<meta\s+name="Publisher"\s+content=".*?Baen.*?"',
@@ -585,6 +587,9 @@ class HTMLPreProcessor(object):
 
         for rule in self.PREPROCESS + start_rules:
             html = rule[0].sub(rule[1], html)
+
+        if self.regex_wizard_callback is not None:
+            self.regex_wizard_callback(self.current_href, html)
 
         if get_preprocess_html:
             return html
