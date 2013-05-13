@@ -175,6 +175,20 @@ def read_shd(parent, dest):
         if val:
             ans = simple_color(val, auto='transparent')
     setattr(dest, 'background_color', ans)
+
+def read_numbering(parent, dest):
+    lvl = num_id = None
+    for np in XPath('./w:numPr')(parent):
+        for ilvl in XPath('./w:ilvl[@w:val]')(np):
+            try:
+                lvl = int(get(ilvl, 'w:val'))
+            except (ValueError, TypeError):
+                pass
+        for num in XPath('./w:numId[@w:val]')(np):
+            num_id = get(num, 'w:val')
+    val = (num_id, lvl) if num_id is not None or lvl is not None else inherit
+    setattr(dest, 'numbering', val)
+
 # }}}
 
 class ParagraphStyle(object):
@@ -194,6 +208,7 @@ class ParagraphStyle(object):
 
         # Misc.
         'text_indent', 'text_align', 'line_height', 'direction', 'background_color',
+        'numbering',
     )
 
     def __init__(self, pPr=None):
@@ -210,7 +225,7 @@ class ParagraphStyle(object):
             ):
                 setattr(self, p, binary_property(pPr, p))
 
-            for x in ('border', 'indent', 'justification', 'spacing', 'direction', 'shd'):
+            for x in ('border', 'indent', 'justification', 'spacing', 'direction', 'shd', 'numbering'):
                 f = globals()['read_%s' % x]
                 f(pPr, self)
 

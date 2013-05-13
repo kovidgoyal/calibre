@@ -198,8 +198,19 @@ class Styles(object):
                 if default_para.character_style is not None:
                     self.para_char_cache[p] = default_para.character_style
 
+            is_numbering = direct_formatting.numbering is not inherit
+            if is_numbering:
+                num_id, lvl = direct_formatting.numbering
+                if num_id is not None:
+                    p.set('calibre_num_id', '%s:%s' % (lvl, num_id))
+                if num_id is not None and lvl is not None:
+                    ps = self.numbering.get_para_style(num_id, lvl)
+                    if ps is not None:
+                        parent_styles.append(ps)
+
             for attr in ans.all_properties:
-                setattr(ans, attr, self.para_val(parent_styles, direct_formatting, attr))
+                if not (is_numbering and attr == 'text_indent'):  # skip text-indent for lists
+                    setattr(ans, attr, self.para_val(parent_styles, direct_formatting, attr))
         return ans
 
     def resolve_run(self, r):
@@ -244,10 +255,20 @@ class Styles(object):
             return self.resolve_run(obj)
 
     def resolve_numbering(self, numbering):
-        pass  # TODO: Implement this
+        # When a numPr element appears inside a paragraph style, the lvl info
+        # must be discarder and pStyle used instead.
+        self.numbering = numbering
+        for style in self:
+            ps = style.paragraph_style
+            if ps is not None and ps.numbering is not inherit:
+                lvl = numbering.get_pstyle(ps.numbering[0], style.style_id)
+                if lvl is None:
+                    ps.numbering = inherit
+                else:
+                    ps.numbering = (ps.numbering[0], lvl)
 
     def register(self, css, prefix):
-        h = hash(tuple(css.iteritems()))
+        h = hash(frozenset(css.iteritems()))
         ans, _ = self.classes.get(h, (None, None))
         if ans is None:
             self.counter[prefix] += 1
@@ -266,13 +287,15 @@ class Styles(object):
                 self.register(css, 'text')
 
     def class_name(self, css):
-        h = hash(tuple(css.iteritems()))
+        h = hash(frozenset(css.iteritems()))
         return self.classes.get(h, (None, None))[0]
 
     def generate_css(self):
         prefix = textwrap.dedent(
             '''\
-            p { margin: 0; padding: 0; text-indent: 1.5em }
+            p { text-indent: 1.5em }
+
+            ul, ol, p { margin: 0; padding: 0 }
             ''')
 
         ans = []
