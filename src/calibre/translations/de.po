@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-05-10 04:31+0000\n"
-"PO-Revision-Date: 2013-05-04 18:03+0000\n"
+"PO-Revision-Date: 2013-05-13 10:02+0000\n"
 "Last-Translator: Simon Schütte <simonschuette@arcor.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-05-11 05:19+0000\n"
-"X-Generator: Launchpad (build 16598)\n"
+"X-Launchpad-Export-Date: 2013-05-14 05:28+0000\n"
+"X-Generator: Launchpad (build 16617)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -2053,7 +2053,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
 msgid "Show archived books"
-msgstr ""
+msgstr "Archivierte Bücher anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1241
 msgid ""
@@ -2061,6 +2061,9 @@ msgid ""
 "Use this option to show these books and match them with books in the calibre "
 "library."
 msgstr ""
+"Archivierte Bücher werden auf dem Gerät gelistet, müssen aber zum Lesen "
+"Heruntergeladen werden. Verwenden Sie diese Option, um die Bücher anzuzeigen "
+"und sie mit den Büchern in der Calibre Bibliothek abzugleichen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1248
 msgid ""
@@ -7269,13 +7272,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:229
 #, python-format
 msgid "Discard the downloaded value for: %s"
-msgstr ""
+msgstr "Verwerfen des heruntergeladenen Wertes für: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:230
 msgid ""
 "The downloaded metadata is on the left and the original metadata is on the "
 "right. If a downloaded value is blank or unknown, the original value is used."
 msgstr ""
+"Die heruntergeladene Metadaten befinden sich links, die Original Metadaten "
+"rechts. Wenn ein heruntergeladener Wert leer oder unbekannt ist, wird der "
+"Originalwert verwendet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:275
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:344
@@ -19536,12 +19542,12 @@ msgstr "Erstelle eine virtuelle Bibliothek, basierend auf %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:35
 #, python-format
 msgid "Match any of the selected %s names"
-msgstr ""
+msgstr "Übereinstimmung mit jedem der gewählten %s Namen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:36
 #, python-format
 msgid "Match all of the selected %s names"
-msgstr ""
+msgstr "Übereinstimmung mit allen gewählten %s Namen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:96
 msgid "Edit virtual library"
@@ -21031,11 +21037,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:278
 msgid "Clear the virtual library"
-msgstr ""
+msgstr "Virtuelle Bibliothek leeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:285
 msgid "Clear the additional restriction"
-msgstr ""
+msgstr "Zusätzliche Einschränkungen leeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:389
 msgid "Debug mode"
@@ -21616,7 +21622,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:453
 msgid "Clear search history"
-msgstr ""
+msgstr "Suchverlauf leeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:454
 msgid "Show &controls in the viewer window"
@@ -25878,7 +25884,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/search_query_parser.py:218
 msgid "missing )"
-msgstr ""
+msgstr "fehlende )"
 
 #: /home/kovid/work/calibre/src/calibre/utils/search_query_parser.py:221
 msgid "Invalid syntax. Expected a lookup name or a word"
@@ -27391,6 +27397,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:533
 msgid "Highlight the count of books when using a Virtual Library"
 msgstr ""
+"Die Zählung der Bücher hervorheben, wenn eine Virtuelle Bibliothek verwendet "
+"wird"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:534
 msgid ""
@@ -27398,3 +27406,6 @@ msgid ""
 "yellow when using a Virtual Library. By setting this to False, you can turn\n"
 "that off."
 msgstr ""
+"Die Zählung der Bücher am Button \"Virtuelle Bibliothek\"  wird in gelb\n"
+"hervorgehoben, wenn die Virtuelle Bibliothek genutzt wird. \n"
+"Duch das Setzen auf False können Sie das abstellen."

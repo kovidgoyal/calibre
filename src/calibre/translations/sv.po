@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-05-10 04:31+0000\n"
-"PO-Revision-Date: 2013-05-12 21:07+0000\n"
+"PO-Revision-Date: 2013-05-13 05:57+0000\n"
 "Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-05-13 05:16+0000\n"
-"X-Generator: Launchpad (build 16614)\n"
+"X-Launchpad-Export-Date: 2013-05-14 05:29+0000\n"
+"X-Generator: Launchpad (build 16617)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
 
@@ -1934,6 +1934,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><hr />"
 msgstr ""
+"<b>Kapitel %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Kapitel bearbetas:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
+"%(text)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1139
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1149
@@ -1943,6 +1946,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />"
 msgstr ""
+"<b>Kapitel %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Kapitel bearbetas:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
+"%(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1227
 msgid "The Kobo Touch from firmware V2.0.0 supports bookshelves."
@@ -6146,7 +6152,7 @@ msgstr "Skapa katalog"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:22
 msgid ""
 "Create a catalog of the books in your calibre library in different formats"
-msgstr ""
+msgstr "Skapa en katalog av böcker i ditt Calibre bibliotek i olika format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:40
 msgid "No books selected for catalog generation"
@@ -6327,6 +6333,9 @@ msgid ""
 "Cannot rename as no library was found at %s. Try switching to this library "
 "first, then switch back and retry the renaming."
 msgstr ""
+"Kan inte byta namn eftersom inget bibliotek hittades i %s. Försök byta till "
+"detta bibliotek först, sedan växla tillbaka och försök igen med "
+"namnändringen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:339
 msgid "Rename failed"
@@ -6497,7 +6506,7 @@ msgstr "Tom utfil, förmodligen kraschade konverteringsprocessen"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:87
 #, python-format
 msgid "%(title)s by %(author)s"
-msgstr ""
+msgstr "%(title)s per %(author)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:138
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:60
@@ -7260,6 +7269,9 @@ msgid ""
 "calibre library.</p><p>If the ebook file does not have an identifiable "
 "cover, a new cover is inserted.</p>"
 msgstr ""
+"<p>Uppdatera omslagen i ebokfiler som hör ihop med nuvarande omslag i "
+"Calibre-biblioteket in the calibre library.</p><p>Om ebokfilen inte har "
+"passande omslag kommer ett nytt omslag användas.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:66
 #, python-format
@@ -8707,7 +8719,7 @@ msgstr "Uteslutna genrer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:374
 msgid "Genres to &exclude (regex):"
-msgstr ""
+msgstr "Genrer att &exkludera (regex):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:375
 msgid "Reset to default"
@@ -8777,7 +8789,7 @@ msgstr "Använd existerande omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:391
 msgid "E&xtra Description note:"
-msgstr ""
+msgstr "E&xtra beskrivningsnot:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:392
 msgid "Custom column source for text to include in Descriptions section."
@@ -9509,10 +9521,11 @@ msgstr "&Utfyllnad"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:230
 msgid "Convert floating images/text into static images/text"
 msgstr ""
+"Omvandla flytande bilder eller texter till statiska bilder och texter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:231
 msgid "F&loats"
-msgstr ""
+msgstr "F&lytande"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:232
 msgid "Removes foreground and background colors"
@@ -9524,7 +9537,7 @@ msgstr "&Färger"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:234
 msgid "&Other CSS Properties:"
-msgstr ""
+msgstr "&Andra CSS egenskaper:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:235
 msgid ""

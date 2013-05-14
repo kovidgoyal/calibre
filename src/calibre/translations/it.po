@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-05-10 04:31+0000\n"
-"PO-Revision-Date: 2013-05-11 02:33+0000\n"
+"PO-Revision-Date: 2013-05-13 10:04+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-05-12 05:26+0000\n"
-"X-Generator: Launchpad (build 16598)\n"
+"X-Launchpad-Export-Date: 2013-05-14 05:29+0000\n"
+"X-Generator: Launchpad (build 16617)\n"
 "Language: it\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1152,12 +1152,12 @@ msgstr "giornifa"
 #: /home/kovid/work/calibre/src/calibre/db/search.py:198
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:374
 msgid "Number conversion error: {0}"
-msgstr ""
+msgstr "Errore di conversione del numero: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:204
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:380
 msgid "Date conversion error: {0}"
-msgstr ""
+msgstr "Errore di conversione della data: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:289
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:456
@@ -1205,7 +1205,7 @@ msgid ""
 "calibre-debug -r \"Add Books\" -- file1 --option1\n"
 "Everything after the -- will be passed to the plugin as arguments."
 msgstr ""
-"Esegui un plugin con interfaccia a linea di comando. Per esempio:\n"
+"Esegui un plugin con interfaccia a riga di comando. Ad esempio:\n"
 "calibre-debug -r \"Add Books\" -- file1 --option1\n"
 "Ogni cosa dopo il -- sarà passata al plugin come argomento."
 
@@ -2780,7 +2780,7 @@ msgstr "Product ID USB (in hex)"
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
 msgid "USB Revision ID (in hex)"
-msgstr "ID di revisione USB (in hex)"
+msgstr "ID di revisione USB (esadecimale)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
@@ -4525,8 +4525,8 @@ msgid ""
 "Enable heuristic processing. This option must be set for any heuristic "
 "processing to take place."
 msgstr ""
-"Abilita il processo euristico. Questa opzione deve essere impostata per "
-"attivare il processo euristico."
+"Abilita l'elaborazione euristica. Questa opzione deve essere impostata per "
+"attivare l'elaborazione euristica."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:583
 msgid ""
@@ -5272,7 +5272,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:33
 msgid "Configure the Big Book Search plugin"
-msgstr ""
+msgstr "Configura il plugin Big Book Search"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:35
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:22
@@ -5319,6 +5319,8 @@ msgstr "Configura il plugin di Ricerca immagini di Google"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:23
 msgid "The maximum number of covers to process from the google search result"
 msgstr ""
+"Il numero massimo di copertine da elaborare dai risultati di ricerca di "
+"Google"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:24
 msgid "Cover size"
@@ -5974,7 +5976,7 @@ msgstr "categorie del navigatore dei tag da non visualizzare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:283
 msgid "WARNING:"
-msgstr "ATTENZIONE:"
+msgstr "AVVISO:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:293
 msgid "ERROR:"
@@ -6679,7 +6681,7 @@ msgstr "&Copia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:156
 msgid "Copy to the specified library"
-msgstr ""
+msgstr "Copia nella biblioteca specificata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:157
 msgid "&Move"
@@ -6688,6 +6690,7 @@ msgstr "S&posta"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:160
 msgid "Copy to the specified library and delete from the current library"
 msgstr ""
+"Copia nella biblioteca specificata ed elimina dalla biblioteca attuale"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:180
 msgid "Copy to library"
@@ -6931,6 +6934,8 @@ msgid ""
 "The %d selected book(s) will be <b>permanently deleted</b> and the files "
 "removed from your calibre library. Are you sure?"
 msgstr ""
+"I %d libri selezionati saranno <b>eliminati definitivamente</b> e i file "
+"saranno rimossi dalla biblioteca di calibre. Sei sicuro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:392
 #, python-format
@@ -6938,6 +6943,8 @@ msgid ""
 "The %d selected book(s) will be <b>permanently deleted</b> from your device. "
 "Are you sure?"
 msgstr ""
+"I %d libri selezionati saranno <b>eliminati definitivamente</b> dal tuo "
+"dispositivo. Sei sicuro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:33
 msgid "Start wireless device connection"
@@ -7176,15 +7183,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:226
 msgid "Discard downloaded metadata for this book"
-msgstr ""
+msgstr "Rimuovi i metadati scaricati per questo libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:227
 msgid "Use the downloaded metadata for all remaining books"
-msgstr ""
+msgstr "Utilizza i metadati scaricati per tutti i libri rimanenti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:228
 msgid "Discard downloaded metadata for all remaining books"
-msgstr ""
+msgstr "Rimuovi i metadati scaricati per tutti i libri rimanenti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:229
 #, python-format
@@ -7522,7 +7529,7 @@ msgstr "Rimuovi le impostazioni salvate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:208
 msgid "Must update metadata"
-msgstr ""
+msgstr "Necessario aggiornare i metadati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:209
 msgid ""
@@ -7814,7 +7821,7 @@ msgstr "Ottieni libri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Search dozens of online ebook retailers for the cheapest books"
-msgstr "Cerca gli ebooks più economici tra decine di venditori online"
+msgstr "Cerca gli ebook più economici tra decine di venditori in linea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:22
 msgid "Search for ebooks"
@@ -8715,6 +8722,7 @@ msgstr "Devi fornire un nome."
 msgid ""
 "That saved preset already exists and will be overwritten. Are you sure?"
 msgstr ""
+"La preimpostazione salvata esiste già e sarà sovrascritta. Sei sicuro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:981
 #, python-format
@@ -8845,6 +8853,8 @@ msgstr "Aggiunti di &recente"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:365
 msgid "Individual descriptions of books with cover thumbs, sorted by author"
 msgstr ""
+"Descrizioni dei singoli libri con miniature della copertine, ordinate per "
+"autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:366
 msgid "&Descriptions"
@@ -16103,7 +16113,7 @@ msgid ""
 "completes, the covers will be sorted by size."
 msgstr ""
 "Sono state trovate <b>%(num)d</b> possibili copertine di %(title)s. Al "
-"termine dellol scaricamento le copertine saranno ordinate per dimensione."
+"termine dello scaricamento le copertine saranno ordinate per dimensione."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:997
 msgid "Downloading metadata..."
@@ -19332,7 +19342,7 @@ msgstr "Doppio clic per cambiare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:73
 msgid "Frame"
-msgstr "Frame"
+msgstr "Cornice"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:75
 msgid "&Custom"
@@ -20206,7 +20216,7 @@ msgstr "Carica &le impostazioni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:67
 msgid "No XPaths"
-msgstr "Nsessun XPath"
+msgstr "Nessun XPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/toc/main.py:68
 msgid "No XPaths have been entered"
@@ -20691,7 +20701,7 @@ msgstr ""
 "di\n"
 "                conversione. Nota che se aumenti troppo la dimensione della "
 "suddivisione,\n"
-"                il dispositivo di lettura potrebbe avere preoblemi nel "
+"                il dispositivo di lettura potrebbe avere problemi nel "
 "leggere l'EPUB.\n"
 "                        "
 
@@ -20961,7 +20971,7 @@ msgstr "Il tipo di carattere predefinito"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:85
 msgid "The minimum font size in px"
-msgstr "La dimensione minina dei caratteri in px"
+msgstr "La dimensione minima dei caratteri in px"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config.py:149
 msgid "Theme name"
@@ -21045,7 +21055,7 @@ msgstr "Dimensione m&inima dei caratteri:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:411
 msgid "The minimum font size in pixels"
-msgstr "La dimensione minina dei caratteri in pixel"
+msgstr "La dimensione minima dei caratteri in pixel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:413
 msgid "&Font options"
@@ -26215,10 +26225,10 @@ msgid ""
 "comments are rendered in the metadata edit dialog. Set it to a positive or\n"
 "negative number to increase or decrease the font size."
 msgstr ""
-"Cambia la dimensione del font con cui i dettagli dei libri sono mostrati nel "
-"pannello laterale e i commenti sono mostrati nel dialogo di modifica dei "
-"metadati. Imposta il campo ad un valore positivo o negativo per aumentare o "
-"diminuire la dimensione del font."
+"Cambia la dimensione del carattere con cui i dettagli dei libri sono "
+"mostrati nel pannello laterale e i commenti sono mostrati nel dialogo di "
+"modifica dei metadati. Imposta il campo ad un valore positivo o negativo per "
+"aumentare o diminuire la dimensione del carattere."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:487
 msgid "Compile General Program Mode templates to Python"
@@ -26238,8 +26248,8 @@ msgstr ""
 "I modelli compilati in modalità programma generale sono significativamente "
 "più veloci che i modelli interpretati. Impostare questa ottimizzazione a "
 "Vero produce (nella maggior parte dei casi) una versione compilata da "
-"Calibre dei modelli di modalità programma generale. Impostarla a Falso fa "
-"usare a Calibre il vecchio comportamento - interpretare i modelli. Imposta "
+"calibre dei modelli di modalità programma generale. Impostarla a Falso fa "
+"usare a calibre il vecchio comportamento - interpretare i modelli. Imposta "
 "questa ottimizzazione a Falso qualora alcuni modelli compilati dovessero "
 "produrre valori errati.\n"
 "Predefinito: compile_gpm_templates = Vero\n"
@@ -26319,7 +26329,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:526
 msgid "Sort the list of libraries alphabetically"
-msgstr "Mette in ordine alfabetico l'elenco delle biblioteche"
+msgstr "Metti in ordine alfabetico l'elenco delle biblioteche"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:527
 msgid ""
@@ -26328,15 +26338,15 @@ msgid ""
 "number of such libraries, the sorting becomes alphabetic. You can set that\n"
 "number here. The default is ten libraries."
 msgstr ""
-"L'elenco delle biblioteche nei Menu \"Copia nella Biblioteca\" e \"Cambio "
-"Veloce\" sono normalmente ordinate dalla maggior parte degli utenti. "
-"Tuttavia, ove ci fossero biblioteche in numero eccedente, l'ordinamento "
-"diviene alfabetico. Puoi definire tale numero qui. Il valore predefinito è "
-"dieci biblioteche."
+"L'elenco delle biblioteche nei menu \"Copia nella biblioteca\" e "
+"\"Cambiamento rapido\" sono normalmente ordinate dalla maggior parte degli "
+"utenti. Tuttavia, ove ci fossero biblioteche in numero eccedente, "
+"l'ordinamento diviene alfabetico. Puoi definire tale numero qui. Il valore "
+"predefinito è dieci biblioteche."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:533
 msgid "Highlight the count of books when using a Virtual Library"
-msgstr ""
+msgstr "Evidenzia il numero di libri quando utilizzi una biblioteca virtuale"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:534
 msgid ""
