@@ -793,7 +793,7 @@ class EditRules(QWidget): # {{{
                     self.rules_view.scrollTo(idx)
                     self.changed.emit()
         else:
-            td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, icon_file='')
+            td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, icon_field_key='')
             if td.exec_() == td.Accepted:
                 print(td.rule)
                 typ, col, r = td.rule
@@ -813,7 +813,7 @@ class EditRules(QWidget): # {{{
         elif self.pref_name == 'column_color_rules':
             d = TemplateDialog(self, rule, mi=self.mi, fm=self.fm, color_field=col)
         else:
-            d = TemplateDialog(self, rule, mi=self.mi, fm=self.fm, icon_file=col,
+            d = TemplateDialog(self, rule, mi=self.mi, fm=self.fm, icon_field_key=col,
                                icon_rule_kind=kind)
 
         if d.exec_() == d.Accepted:

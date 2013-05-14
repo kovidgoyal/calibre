@@ -203,13 +203,13 @@ class TemplateHighlighter(QSyntaxHighlighter):
 class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def __init__(self, parent, text, mi=None, fm=None, color_field=None,
-                 icon_file=None, icon_rule_kind=None):
+                 icon_field_key=None, icon_rule_kind=None):
         QDialog.__init__(self, parent)
         Ui_TemplateDialog.__init__(self)
         self.setupUi(self)
 
         self.coloring = color_field is not None
-        self.iconing = icon_file is not None
+        self.iconing = icon_field_key is not None
 
         cols = []
         if fm is not None:
@@ -229,7 +229,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.color_layout.setVisible(True)
             for n1, k1 in cols:
                 self.colored_field.addItem(n1, k1)
-            self.colored_field.setCurrentIndex(self.colored_field.findText(color_field))
+            self.colored_field.setCurrentIndex(self.colored_field.findData(color_field))
             colors = QColor.colorNames()
             colors.sort()
             self.color_name.addItems(colors)
@@ -250,6 +250,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.icon_with_text.setChecked(True)
             if icon_rule_kind == 'icon_only':
                 self.icon_without_text.setChecked(True)
+            self.icon_field.setCurrentIndex(self.icon_field.findData(icon_field_key))
 
         if mi:
             self.mi = mi
