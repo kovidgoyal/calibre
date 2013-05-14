@@ -3,17 +3,21 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
-import json
+import json, os, traceback
 
 from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
-                      QRegExp, QApplication, QTextCharFormat, QColor, QCursor)
+                      QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
+                      QIcon, QSize)
 
-from calibre.gui2 import error_dialog
+from calibre import sanitize_file_name_unicode
+from calibre.constants import config_dir
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 from calibre.utils.formatter_functions import formatter_functions
+from calibre.utils.icu import sort_key
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.library.coloring import (displayable_columns)
+from calibre.library.coloring import (displayable_columns, color_row_key)
+from calibre.gui2 import error_dialog, choose_files, pixmap_to_data
 
 
 class ParenPosition:
@@ -198,25 +202,55 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
 class TemplateDialog(QDialog, Ui_TemplateDialog):
 
-    def __init__(self, parent, text, mi=None, fm=None, color_field=None):
+    def __init__(self, parent, text, mi=None, fm=None, color_field=None,
+                 icon_file=None, icon_rule_kind=None):
         QDialog.__init__(self, parent)
         Ui_TemplateDialog.__init__(self)
         self.setupUi(self)
 
         self.coloring = color_field is not None
+        self.iconing = icon_file is not None
+
+        cols = []
+        if fm is not None:
+            for key in sorted(displayable_columns(fm),
+                              key=lambda(k): sort_key(fm[k]['name']) if k != color_row_key else 0):
+                if key == color_row_key and not self.coloring:
+                    continue
+                from calibre.gui2.preferences.coloring import all_columns_string
+                name = all_columns_string if key == color_row_key else fm[key]['name']
+                if name:
+                    cols.append((name, key))
+
+        self.color_layout.setVisible(False)
+        self.icon_layout.setVisible(False)
+
         if self.coloring:
-            cols = sorted([k for k in displayable_columns(fm)])
-            self.colored_field.addItems(cols)
+            self.color_layout.setVisible(True)
+            for n1, k1 in cols:
+                self.colored_field.addItem(n1, k1)
             self.colored_field.setCurrentIndex(self.colored_field.findText(color_field))
             colors = QColor.colorNames()
             colors.sort()
             self.color_name.addItems(colors)
-        else:
-            self.colored_field.setVisible(False)
-            self.colored_field_label.setVisible(False)
-            self.color_chooser_label.setVisible(False)
-            self.color_name.setVisible(False)
-            self.color_copy_button.setVisible(False)
+        elif self.iconing:
+            self.icon_layout.setVisible(True)
+            for n1, k1 in cols:
+                self.icon_field.addItem(n1, k1)
+            self.icon_file_names = []
+            d = os.path.join(config_dir, 'cc_icons')
+            if os.path.exists(d):
+                for icon_file in os.listdir(d):
+                    icon_file = icu_lower(icon_file)
+                    if os.path.exists(os.path.join(d, icon_file)):
+                        if icon_file.endswith('.png'):
+                            self.icon_file_names.append(icon_file)
+            self.icon_file_names.sort(key=sort_key)
+            self.update_filename_box()
+            self.icon_with_text.setChecked(True)
+            if icon_rule_kind == 'icon_only':
+                self.icon_without_text.setChecked(True)
+
         if mi:
             self.mi = mi
         else:
@@ -248,6 +282,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
         self.buttonBox.button(QDialogButtonBox.Cancel).setText(_('&Cancel'))
         self.color_copy_button.clicked.connect(self.color_to_clipboard)
+        self.filename_button.clicked.connect(self.filename_button_clicked)
+        self.icon_copy_button.clicked.connect(self.icon_to_clipboard)
 
         try:
             with open(P('template-functions.json'), 'rb') as f:
@@ -276,10 +312,54 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 '<a href="http://manual.calibre-ebook.com/template_ref.html">'
                 '%s</a>'%tt)
 
+    def filename_button_clicked(self):
+        try:
+            path = choose_files(self, 'choose_category_icon',
+                        _('Select Icon'), filters=[
+                        ('Images', ['png', 'gif', 'jpg', 'jpeg'])],
+                    all_files=False, select_only_single_file=True)
+            if path:
+                icon_path = path[0]
+                icon_name = sanitize_file_name_unicode(
+                             os.path.splitext(
+                                   os.path.basename(icon_path))[0]+'.png')
+                if icon_name not in self.icon_file_names:
+                    self.icon_file_names.append(icon_name)
+                    self.update_filename_box()
+                    try:
+                        p = QIcon(icon_path).pixmap(QSize(128, 128))
+                        d = os.path.join(config_dir, 'cc_icons')
+                        if not os.path.exists(os.path.join(d, icon_name)):
+                            if not os.path.exists(d):
+                                os.makedirs(d)
+                            with open(os.path.join(d, icon_name), 'wb') as f:
+                                f.write(pixmap_to_data(p, format='PNG'))
+                    except:
+                        traceback.print_exc()
+                self.icon_files.setCurrentIndex(self.icon_files.findText(icon_name))
+                self.icon_files.adjustSize()
+        except:
+            traceback.print_exc()
+        return
+
+    def update_filename_box(self):
+        self.icon_files.clear()
+        self.icon_file_names.sort(key=sort_key)
+        self.icon_files.addItem('')
+        self.icon_files.addItems(self.icon_file_names)
+        for i,filename in enumerate(self.icon_file_names):
+            icon = QIcon(os.path.join(config_dir, 'cc_icons', filename))
+            self.icon_files.setItemIcon(i+1, icon)
+
     def color_to_clipboard(self):
         app = QApplication.instance()
         c = app.clipboard()
         c.setText(unicode(self.color_name.currentText()))
+
+    def icon_to_clipboard(self):
+        app = QApplication.instance()
+        c = app.clipboard()
+        c.setText(unicode(self.icon_files.currentText()))
 
     def textbox_changed(self):
         cur_text = unicode(self.textbox.toPlainText())
@@ -324,5 +404,14 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                     _('The template box cannot be empty'), show=True)
                 return
 
-        self.rule = (unicode(self.colored_field.currentText()), txt)
+            self.rule = (unicode(self.colored_field.itemData(
+                                self.colored_field.currentIndex()).toString()), txt)
+        elif self.iconing:
+            rt = 'icon' if self.icon_with_text.isChecked() else 'icon_only'
+            self.rule = (rt,
+                         unicode(self.icon_field.itemData(
+                                self.icon_field.currentIndex()).toString()),
+                         txt)
+        else:
+            self.rule = ('', txt)
         QDialog.accept(self)

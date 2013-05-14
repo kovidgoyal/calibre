@@ -21,47 +21,136 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="colored_field_label">
-       <property name="text">
-        <string>Set the color of the column:</string>
-       </property>
-       <property name="buddy">
-        <cstring>colored_field</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="colored_field">
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="color_chooser_label">
-       <property name="text">
-        <string>Copy a color name to the clipboard:</string>
-       </property>
-       <property name="buddy">
-        <cstring>color_name</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="color_name">
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QToolButton" name="color_copy_button">
-       <property name="icon">
-        <iconset resource="../../../../resources/images.qrc">
-         <normaloff>:/images/edit-copy.png</normaloff>:/images/edit-copy.png</iconset>
-       </property>
-       <property name="toolTip">
-        <string>Copy the selected color name to the clipboard</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QWidget" name="color_layout">
+     <layout class="QGridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="colored_field_label">
+        <property name="text">
+         <string>Set the color of the column:</string>
+        </property>
+        <property name="buddy">
+         <cstring>colored_field</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="colored_field">
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="color_chooser_label">
+        <property name="text">
+         <string>Copy a color name to the clipboard:</string>
+        </property>
+        <property name="buddy">
+         <cstring>color_name</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="color_name">
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QToolButton" name="color_copy_button">
+        <property name="icon">
+         <iconset resource="../../../../resources/images.qrc">
+          <normaloff>:/images/edit-copy.png</normaloff>:/images/edit-copy.png</iconset>
+        </property>
+        <property name="toolTip">
+         <string>Copy the selected color name to the clipboard</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="icon_layout">
+     <layout class="QGridLayout">
+      <item row="0" column="0" colspan="2">
+       <widget class="QGroupBox">
+        <property name="title">
+         <string>Kind</string>
+        </property>
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="QRadioButton" name="icon_without_text">
+           <property name="text">
+            <string>icon with no text</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="icon_with_text">
+           <property name="text">
+            <string>icon with text</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>100</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="icon_chooser_label">
+        <property name="text">
+         <string>Apply the icon to column:</string>
+        </property>
+        <property name="buddy">
+         <cstring>icon_field</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="icon_field">
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="image_chooser_label">
+        <property name="text">
+         <string>Copy a icon file name to the clipboard:</string>
+        </property>
+        <property name="buddy">
+         <cstring>color_name</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QWidget">
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="QComboBox" name="icon_files">
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="icon_copy_button">
+           <property name="icon">
+            <iconset resource="../../../../resources/images.qrc">
+             <normaloff>:/images/edit-copy.png</normaloff>:/images/edit-copy.png</iconset>
+           </property>
+           <property name="toolTip">
+            <string>Copy the selected color name to the clipboard</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="filename_button">
+           <property name="text">
+            <string>Add file</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <widget class="QPlainTextEdit" name="textbox"/>

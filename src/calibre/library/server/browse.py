@@ -749,6 +749,7 @@ class BrowseServer(object):
 
     @Endpoint(mimetype='application/json; charset=utf-8')
     def browse_booklist_page(self, ids=None, sort=None):
+        print('here')
         if sort == 'null':
             sort = None
         if ids is None:
