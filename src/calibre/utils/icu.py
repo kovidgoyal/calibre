@@ -163,10 +163,21 @@ load_collator()
 _icu_not_ok = _icu is None or _collator is None
 
 try:
-    if sys.getdefaultencoding().lower() == 'ascii':
+    senc = sys.getdefaultencoding()
+    if not senc or senc.lower() == 'ascii':
         _icu.set_default_encoding('utf-8')
+    del senc
 except:
     pass
+
+try:
+    fenc = sys.getfilesystemencoding()
+    if not fenc or fenc.lower() == 'ascii':
+        _icu.set_filesystem_encoding('utf-8')
+    del fenc
+except:
+    pass
+
 
 # }}}
 
@@ -247,7 +258,7 @@ def collation_order(a):
 
 ################################################################################
 
-def test(): # {{{
+def test():  # {{{
     from calibre import prints
     # Data {{{
     german = '''

@@ -66,10 +66,8 @@ else:
             filesystem_encoding = 'utf-8'
             # On linux, unicode arguments to os file functions are coerced to an ascii
             # bytestring if sys.getfilesystemencoding() == 'ascii', which is
-            # just plain dumb. So issue a warning.
-            print ('WARNING: You do not have the LANG environment variable set correctly. '
-                    'This will cause problems with non-ascii filenames. '
-                    'Set it to something like en_US.UTF-8.\n')
+            # just plain dumb. This is fixed by the icu.py module which, when
+            # imported changes ascii to utf-8
     except:
         filesystem_encoding = 'utf-8'
 
