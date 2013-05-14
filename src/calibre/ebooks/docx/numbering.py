@@ -214,6 +214,8 @@ class Numbering(object):
                         p.set('list-template', val)
                     self.update_counter(counter, ilvl, d.levels)
 
+        templates = {}
+
         def commit(current_run):
             if not current_run:
                 return
@@ -244,6 +246,9 @@ class Numbering(object):
                         span.append(gc)
                     child.append(span)
                     span = SPAN(child.get('list-template'))
+                    last = templates.get(lvlid, '')
+                    if span.text and len(span.text) > len(last):
+                        templates[lvlid] = span.text
                     child.insert(0, span)
                 for attr in ('list-lvl', 'list-id', 'list-template'):
                     child.attrib.pop(attr, None)
@@ -272,9 +277,10 @@ class Numbering(object):
             commit(current_run)
 
         for wrap in body.xpath('//ol[@lvlid]'):
-            wrap.attrib.pop('lvlid')
+            lvlid = wrap.attrib.pop('lvlid')
             wrap.tag = 'div'
             text = ''
+            maxtext = templates.get(lvlid, '').replace('.', '')[:-1]
             for li in wrap.iterchildren('li'):
                 t = li[0].text
                 if t and len(t) > len(text):
@@ -286,7 +292,7 @@ class Numbering(object):
                 obj = object_map[li]
                 bs = styles.para_cache[obj]
                 if i == 0:
-                    m = len(text)//2  # Move the table left to simulate the behavior of a list (number is to the left of text margin)
+                    m = len(maxtext)  # Move the table left to simulate the behavior of a list (number is to the left of text margin)
                     wrap.set('style', 'display:table; margin-left: -%dem; padding-left: %s' % (m, bs.css.get('margin-left', 0)))
                 bs.css.pop('margin-left', None)
                 for child in li:
