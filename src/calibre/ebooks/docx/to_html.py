@@ -14,7 +14,7 @@ from lxml.html.builder import (
     HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR)
 
 from calibre.ebooks.docx.container import DOCX, fromstring
-from calibre.ebooks.docx.names import XPath, is_tag, barename, XML, STYLES, NUMBERING, FONTS
+from calibre.ebooks.docx.names import XPath, is_tag, XML, STYLES, NUMBERING, FONTS
 from calibre.ebooks.docx.styles import Styles, inherit
 from calibre.ebooks.docx.numbering import Numbering
 from calibre.ebooks.docx.fonts import Fonts
@@ -64,16 +64,11 @@ class Convert(object):
         doc = self.docx.document
         relationships_by_id, relationships_by_type = self.docx.document_relationships
         self.read_styles(relationships_by_type)
-        for top_level in XPath('/w:document/w:body/*')(doc):
-            if is_tag(top_level, 'w:p'):
-                p = self.convert_p(top_level)
-                self.body.append(p)
-            elif is_tag(top_level, 'w:tbl'):
-                pass  # TODO: tables
-            elif is_tag(top_level, 'w:sectPr'):
-                pass  # TODO: Last section properties
-            else:
-                self.log.debug('Unknown top-level tag: %s, ignoring' % barename(top_level.tag))
+        for wp in XPath('//w:p')(doc):
+            p = self.convert_p(wp)
+            self.body.append(p)
+        # TODO: tables <w:tbl> child of <w:body> (nested tables?)
+        # TODO: Last section properties <w:sectPr> child of <w:body>
 
         numbered = []
         for html_obj, obj in self.object_map.iteritems():
