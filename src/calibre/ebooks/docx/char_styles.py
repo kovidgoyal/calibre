@@ -172,6 +172,18 @@ class RunStyle(object):
             if val is inherit:
                 setattr(self, p, getattr(parent, p))
 
+    def get_border_css(self, ans):
+        for x in ('color', 'style', 'width'):
+            val = getattr(self, 'border_'+x)
+            if x == 'width' and val is not inherit:
+                val = '%.3gpt' % val
+            if val is not inherit:
+                ans['border-%s' % x] = val
+
+    def clear_border_css(self):
+        for x in ('color', 'style', 'width'):
+            setattr(self, 'border_'+x, inherit)
+
     @property
     def css(self):
         if self._css is None:
@@ -196,12 +208,7 @@ class RunStyle(object):
             if self.vanish is True:
                 c['display'] = 'none'
 
-            for x in ('color', 'style', 'width'):
-                val = getattr(self, 'border_'+x)
-                if x == 'width' and val is not inherit:
-                    val = '%.3gpt' % val
-                if val is not inherit:
-                    c['border-%s' % x] = val
+            self.get_border_css(c)
             if self.padding is not inherit:
                 c['padding'] = '%.3gpt' % self.padding
 
@@ -223,6 +230,7 @@ class RunStyle(object):
 
             if self.font_family is not inherit:
                 c['font-family'] = self.font_family
+
         return self._css
 
     def same_border(self, other):

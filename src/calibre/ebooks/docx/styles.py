@@ -258,6 +258,55 @@ class Styles(object):
         if obj.tag.endswith('}r'):
             return self.resolve_run(obj)
 
+    def cascade(self, layers):
+        self.body_font_family = 'serif'
+        self.body_font_size = '10pt'
+
+        for p, runs in layers.iteritems():
+            char_styles = [self.resolve_run(r) for r in runs]
+            block_style = self.resolve_paragraph(p)
+            c = Counter()
+            for s in char_styles:
+                if s.font_family is not inherit:
+                    c[s.font_family] += 1
+            if c:
+                family = c.most_common(1)[0][0]
+                block_style.font_family = family
+                for s in char_styles:
+                    if s.font_family == family:
+                        s.font_family = inherit
+
+            sizes = [s.font_size for s in char_styles if s.font_size is not inherit]
+            if sizes:
+                sz = block_style.font_size = sizes[0]
+                for s in char_styles:
+                    if s.font_size == sz:
+                        s.font_size = inherit
+
+        block_styles = [self.resolve_paragraph(p) for p in layers]
+        c = Counter()
+        for s in block_styles:
+            if s.font_family is not inherit:
+                c[s.font_family] += 1
+
+        if c:
+            self.body_font_family = family = c.most_common(1)[0][0]
+            for s in block_styles:
+                if s.font_family == family:
+                    s.font_family = inherit
+
+        c = Counter()
+        for s in block_styles:
+            if s.font_size is not inherit:
+                c[s.font_size] += 1
+
+        if c:
+            sz = c.most_common(1)[0][0]
+            for s in block_styles:
+                if s.font_size == sz:
+                    s.font_size = inherit
+            self.body_font_size = '%.3gpt' % sz
+
     def resolve_numbering(self, numbering):
         # When a numPr element appears inside a paragraph style, the lvl info
         # must be discarder and pStyle used instead.
@@ -298,12 +347,14 @@ class Styles(object):
         ef = self.fonts.embed_fonts(dest_dir, docx)
         prefix = textwrap.dedent(
             '''\
+            body { font-family: %s; font-size: %s }
+
             p { text-indent: 1.5em }
 
             ul, ol, p { margin: 0; padding: 0 }
-            ''')
+            ''') % (self.body_font_family, self.body_font_size)
         if ef:
-            prefix += '\n' + ef
+            prefix = ef + '\n' + prefix
 
         ans = []
         for (cls, css) in sorted(self.classes.itervalues(), key=lambda x:x[0]):

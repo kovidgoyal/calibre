@@ -64,11 +64,14 @@ class Convert(object):
         doc = self.docx.document
         relationships_by_id, relationships_by_type = self.docx.document_relationships
         self.read_styles(relationships_by_type)
+        self.layers = OrderedDict()
         for wp in XPath('//w:p')(doc):
             p = self.convert_p(wp)
             self.body.append(p)
         # TODO: tables <w:tbl> child of <w:body> (nested tables?)
         # TODO: Last section properties <w:sectPr> child of <w:body>
+
+        self.styles.cascade(self.layers)
 
         numbered = []
         for html_obj, obj in self.object_map.iteritems():
@@ -156,9 +159,11 @@ class Convert(object):
         dest = P()
         self.object_map[dest] = p
         style = self.styles.resolve_paragraph(p)
+        self.layers[p] = []
         for run in XPath('descendant::w:r')(p):
             span = self.convert_run(run)
             dest.append(span)
+            self.layers[p].append(run)
 
         m = re.match(r'heading\s+(\d+)$', style.style_name or '', re.IGNORECASE)
         if m is not None:
@@ -184,12 +189,9 @@ class Convert(object):
             spans = []
             bs = {}
             for span, style in border_run:
-                c = style.css
+                style.get_border_css(bs)
+                style.clear_border_css()
                 spans.append(span)
-                for x in ('width', 'color', 'style'):
-                    val = c.pop('border-%s' % x, None)
-                    if val is not None:
-                        bs['border-%s' % x] = val
             if bs:
                 cls = self.styles.register(bs, 'text_border')
                 wrapper = self.wrap_elems(spans, SPAN())
