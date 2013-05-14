@@ -113,6 +113,14 @@ def read_vert_align(parent, dest):
         if val and val in {'baseline', 'subscript', 'superscript'}:
             ans = val
     setattr(dest, 'vert_align', ans)
+
+def read_font_family(parent, dest):
+    ans = inherit
+    for col in XPath('./w:rFonts[@w:ascii]')(parent):
+        val = get(col, 'w:ascii')
+        if val:
+            ans = val
+    setattr(dest, 'font_family', ans)
 # }}}
 
 class RunStyle(object):
@@ -122,7 +130,7 @@ class RunStyle(object):
         'rtl', 'shadow', 'smallCaps', 'strike', 'vanish',
 
         'border_color', 'border_style', 'border_width', 'padding', 'color', 'highlight', 'background_color',
-        'letter_spacing', 'font_size', 'text_decoration', 'vert_align', 'lang',
+        'letter_spacing', 'font_size', 'text_decoration', 'vert_align', 'lang', 'font_family'
     }
 
     toggle_properties = {
@@ -141,7 +149,7 @@ class RunStyle(object):
             ):
                 setattr(self, p, binary_property(rPr, p))
 
-            for x in ('text_border', 'color', 'highlight', 'shd', 'letter_spacing', 'sz', 'underline', 'vert_align', 'lang'):
+            for x in ('text_border', 'color', 'highlight', 'shd', 'letter_spacing', 'sz', 'underline', 'vert_align', 'lang', 'font_family'):
                 f = globals()['read_%s' % x]
                 f(rPr, self)
 
@@ -212,6 +220,9 @@ class RunStyle(object):
 
             if self.b:
                 c['font-weight'] = 'bold'
+
+            if self.font_family is not inherit:
+                c['font-family'] = self.font_family
         return self._css
 
     def same_border(self, other):

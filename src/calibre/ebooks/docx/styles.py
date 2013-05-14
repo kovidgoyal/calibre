@@ -97,7 +97,8 @@ class Styles(object):
     def get(self, key, default=None):
         return self.id_map.get(key, default)
 
-    def __call__(self, root):
+    def __call__(self, root, fonts):
+        self.fonts = fonts
         for s in XPath('//w:style')(root):
             s = Style(s)
             if s.style_id:
@@ -246,6 +247,9 @@ class Styles(object):
             for attr in ans.all_properties:
                 setattr(ans, attr, self.run_val(parent_styles, direct_formatting, attr))
 
+            if ans.font_family is not inherit:
+                ans.font_family = self.fonts.family_for(ans.font_family, ans.b, ans.i)
+
         return ans
 
     def resolve(self, obj):
@@ -290,13 +294,16 @@ class Styles(object):
         h = hash(frozenset(css.iteritems()))
         return self.classes.get(h, (None, None))[0]
 
-    def generate_css(self):
+    def generate_css(self, dest_dir, docx):
+        ef = self.fonts.embed_fonts(dest_dir, docx)
         prefix = textwrap.dedent(
             '''\
             p { text-indent: 1.5em }
 
             ul, ol, p { margin: 0; padding: 0 }
             ''')
+        if ef:
+            prefix += '\n' + ef
 
         ans = []
         for (cls, css) in sorted(self.classes.itervalues(), key=lambda x:x[0]):

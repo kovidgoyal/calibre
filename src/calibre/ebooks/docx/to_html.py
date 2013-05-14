@@ -14,9 +14,10 @@ from lxml.html.builder import (
     HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR)
 
 from calibre.ebooks.docx.container import DOCX, fromstring
-from calibre.ebooks.docx.names import XPath, is_tag, barename, XML, STYLES, NUMBERING
+from calibre.ebooks.docx.names import XPath, is_tag, barename, XML, STYLES, NUMBERING, FONTS
 from calibre.ebooks.docx.styles import Styles, inherit
 from calibre.ebooks.docx.numbering import Numbering
+from calibre.ebooks.docx.fonts import Fonts
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
 class Text:
@@ -116,7 +117,18 @@ class Convert(object):
 
         nname = get_name(NUMBERING, 'numbering.xml')
         sname = get_name(STYLES, 'styles.xml')
+        fname = get_name(FONTS, 'fontTable.xml')
         numbering = self.numbering = Numbering()
+        fonts = self.fonts = Fonts()
+
+        if fname is not None:
+            embed_relationships = self.docx.get_relationships(fname)[0]
+            try:
+                raw = self.docx.read(fname)
+            except KeyError:
+                self.log.warn('Fonts table %s does not exist' % fname)
+            else:
+                fonts(fromstring(raw), embed_relationships, self.docx, self.dest_dir)
 
         if sname is not None:
             try:
@@ -124,7 +136,7 @@ class Convert(object):
             except KeyError:
                 self.log.warn('Styles %s do not exist' % sname)
             else:
-                self.styles(fromstring(raw))
+                self.styles(fromstring(raw), fonts)
 
         if nname is not None:
             try:
@@ -140,7 +152,7 @@ class Convert(object):
         raw = html.tostring(self.html, encoding='utf-8', doctype='<!DOCTYPE html>')
         with open(os.path.join(self.dest_dir, 'index.html'), 'wb') as f:
             f.write(raw)
-        css = self.styles.generate_css()
+        css = self.styles.generate_css(self.dest_dir, self.docx)
         if css:
             with open(os.path.join(self.dest_dir, 'docx.css'), 'wb') as f:
                 f.write(css.encode('utf-8'))

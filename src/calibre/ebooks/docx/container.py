@@ -167,7 +167,9 @@ class DOCX(object):
 
     @property
     def document_relationships(self):
-        name = self.document_name
+        return self.get_relationships(self.document_name)
+
+    def get_relationships(self, name):
         base = '/'.join(name.split('/')[:-1])
         by_id, by_type = {}, {}
         parts = name.split('/')
