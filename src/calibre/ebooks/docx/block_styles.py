@@ -271,7 +271,10 @@ class ParagraphStyle(object):
                 if val is not inherit:
                     c['margin-%s' % edge] = val
 
-            for x in ('text_indent', 'text_align', 'line_height', 'background_color'):
+            if self.line_height not in {inherit, '1'}:
+                c['line-height'] = self.line_height
+
+            for x in ('text_indent', 'text_align', 'background_color'):
                 val = getattr(self, x)
                 if val is not inherit:
                     c[x.replace('_', '-')] = val
