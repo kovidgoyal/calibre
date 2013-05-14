@@ -39,8 +39,8 @@ class PRST1(USBMS):
     path_sep = '/'
     booklist_class = CollectionsBookList
 
-    FORMATS      = ['epub', 'pdf', 'txt', 'book', 'zbf'] # The last two are
-                                                         # used in japan
+    FORMATS      = ['epub', 'pdf', 'txt', 'book', 'zbf']  # The last two are
+                                                          # used in japan
     CAN_SET_METADATA = ['collections']
     CAN_DO_DEVICE_DB_PLUGBOARD = True
 
@@ -50,10 +50,10 @@ class PRST1(USBMS):
 
     VENDOR_NAME        = 'SONY'
     WINDOWS_MAIN_MEM   = re.compile(
-            r'(PRS-T(1|2)&)'
+            r'(PRS-T(1|2|2N)&)'
             )
     WINDOWS_CARD_A_MEM = re.compile(
-            r'(PRS-T(1|2)__SD&)'
+            r'(PRS-T(1|2|2N)__SD&)'
             )
     MAIN_MEMORY_VOLUME_LABEL = 'SONY Reader Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'SONY Reader Storage Card'
@@ -66,7 +66,7 @@ class PRST1(USBMS):
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Comma separated list of metadata fields '
-            'to turn into collections on the device. Possibilities include: ')+\
+            'to turn into collections on the device. Possibilities include: ')+
                     'series, tags, authors',
         _('Upload separate cover thumbnails for books') +
              ':::'+_('Normally, the SONY readers get the cover image from the'
@@ -194,17 +194,17 @@ class PRST1(USBMS):
                 time_offsets = {}
                 for i, row in enumerate(cursor):
                     try:
-                        comp_date = int(os.path.getmtime(self.normalize_path(prefix + row[0])) * 1000);
+                        comp_date = int(os.path.getmtime(self.normalize_path(prefix + row[0])) * 1000)
                     except (OSError, IOError, TypeError):
                         # In case the db has incorrect path info
                         continue
-                    device_date = int(row[1]);
+                    device_date = int(row[1])
                     offset = device_date - comp_date
                     time_offsets.setdefault(offset, 0)
                     time_offsets[offset] = time_offsets[offset] + 1
 
                 try:
-                    device_offset = max(time_offsets,key = lambda a: time_offsets.get(a))
+                    device_offset = max(time_offsets, key=lambda a: time_offsets.get(a))
                     debug_print("Device Offset: %d ms"%device_offset)
                     self.device_offset = device_offset
                 except ValueError:
@@ -213,7 +213,7 @@ class PRST1(USBMS):
             for idx, book in enumerate(bl):
                 query = 'SELECT _id, thumbnail FROM books WHERE file_path = ?'
                 t = (book.lpath,)
-                cursor.execute (query, t)
+                cursor.execute(query, t)
 
                 for i, row in enumerate(cursor):
                     book.device_collections = bl_collections.get(row[0], None)
@@ -318,14 +318,14 @@ class PRST1(USBMS):
                     ' any notes/highlights, etc.')%dbpath)+' Underlying error:'
                     '\n'+tb)
 
-	def get_lastrowid(self, cursor):
-		# SQLite3 + Python has a fun issue on 32-bit systems with integer overflows.
-		# Issue a SQL query instead, getting the value as a string, and then converting to a long python int manually.
-		query = 'SELECT last_insert_rowid()'
-		cursor.execute(query)
-		row = cursor.fetchone()
+    def get_lastrowid(self, cursor):
+        # SQLite3 + Python has a fun issue on 32-bit systems with integer overflows.
+        # Issue a SQL query instead, getting the value as a string, and then converting to a long python int manually.
+        query = 'SELECT last_insert_rowid()'
+        cursor.execute(query)
+        row = cursor.fetchone()
 
-		return long(row[0])
+        return long(row[0])
 
     def get_database_min_id(self, source_id):
         sequence_min = 0L
@@ -345,7 +345,7 @@ class PRST1(USBMS):
         # Insert the sequence Id if it doesn't
         query = ('INSERT INTO sqlite_sequence (name, seq) '
                 'SELECT ?, ? '
-                'WHERE NOT EXISTS (SELECT 1 FROM sqlite_sequence WHERE name = ?)');
+                'WHERE NOT EXISTS (SELECT 1 FROM sqlite_sequence WHERE name = ?)')
         cursor.execute(query, (table, sequence_id, table,))
 
         cursor.close()

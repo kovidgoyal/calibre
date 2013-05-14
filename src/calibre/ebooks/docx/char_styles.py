@@ -113,6 +113,14 @@ def read_vert_align(parent, dest):
         if val and val in {'baseline', 'subscript', 'superscript'}:
             ans = val
     setattr(dest, 'vert_align', ans)
+
+def read_font_family(parent, dest):
+    ans = inherit
+    for col in XPath('./w:rFonts[@w:ascii]')(parent):
+        val = get(col, 'w:ascii')
+        if val:
+            ans = val
+    setattr(dest, 'font_family', ans)
 # }}}
 
 class RunStyle(object):
@@ -122,7 +130,7 @@ class RunStyle(object):
         'rtl', 'shadow', 'smallCaps', 'strike', 'vanish',
 
         'border_color', 'border_style', 'border_width', 'padding', 'color', 'highlight', 'background_color',
-        'letter_spacing', 'font_size', 'text_decoration', 'vert_align', 'lang',
+        'letter_spacing', 'font_size', 'text_decoration', 'vert_align', 'lang', 'font_family'
     }
 
     toggle_properties = {
@@ -141,7 +149,7 @@ class RunStyle(object):
             ):
                 setattr(self, p, binary_property(rPr, p))
 
-            for x in ('text_border', 'color', 'highlight', 'shd', 'letter_spacing', 'sz', 'underline', 'vert_align', 'lang'):
+            for x in ('text_border', 'color', 'highlight', 'shd', 'letter_spacing', 'sz', 'underline', 'vert_align', 'lang', 'font_family'):
                 f = globals()['read_%s' % x]
                 f(rPr, self)
 
@@ -163,6 +171,18 @@ class RunStyle(object):
             val = getattr(self, p)
             if val is inherit:
                 setattr(self, p, getattr(parent, p))
+
+    def get_border_css(self, ans):
+        for x in ('color', 'style', 'width'):
+            val = getattr(self, 'border_'+x)
+            if x == 'width' and val is not inherit:
+                val = '%.3gpt' % val
+            if val is not inherit:
+                ans['border-%s' % x] = val
+
+    def clear_border_css(self):
+        for x in ('color', 'style', 'width'):
+            setattr(self, 'border_'+x, inherit)
 
     @property
     def css(self):
@@ -188,12 +208,7 @@ class RunStyle(object):
             if self.vanish is True:
                 c['display'] = 'none'
 
-            for x in ('color', 'style', 'width'):
-                val = getattr(self, 'border_'+x)
-                if x == 'width' and val is not inherit:
-                    val = '%.3gpt' % val
-                if val is not inherit:
-                    c['border-%s' % x] = val
+            self.get_border_css(c)
             if self.padding is not inherit:
                 c['padding'] = '%.3gpt' % self.padding
 
@@ -212,6 +227,10 @@ class RunStyle(object):
 
             if self.b:
                 c['font-weight'] = 'bold'
+
+            if self.font_family is not inherit:
+                c['font-family'] = self.font_family
+
         return self._css
 
     def same_border(self, other):

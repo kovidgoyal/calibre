@@ -175,6 +175,20 @@ def read_shd(parent, dest):
         if val:
             ans = simple_color(val, auto='transparent')
     setattr(dest, 'background_color', ans)
+
+def read_numbering(parent, dest):
+    lvl = num_id = None
+    for np in XPath('./w:numPr')(parent):
+        for ilvl in XPath('./w:ilvl[@w:val]')(np):
+            try:
+                lvl = int(get(ilvl, 'w:val'))
+            except (ValueError, TypeError):
+                pass
+        for num in XPath('./w:numId[@w:val]')(np):
+            num_id = get(num, 'w:val')
+    val = (num_id, lvl) if num_id is not None or lvl is not None else inherit
+    setattr(dest, 'numbering', val)
+
 # }}}
 
 class ParagraphStyle(object):
@@ -194,6 +208,7 @@ class ParagraphStyle(object):
 
         # Misc.
         'text_indent', 'text_align', 'line_height', 'direction', 'background_color',
+        'numbering', 'font_family', 'font_size',
     )
 
     def __init__(self, pPr=None):
@@ -210,12 +225,14 @@ class ParagraphStyle(object):
             ):
                 setattr(self, p, binary_property(pPr, p))
 
-            for x in ('border', 'indent', 'justification', 'spacing', 'direction', 'shd'):
+            for x in ('border', 'indent', 'justification', 'spacing', 'direction', 'shd', 'numbering'):
                 f = globals()['read_%s' % x]
                 f(pPr, self)
 
             for s in XPath('./w:pStyle[@w:val]')(pPr):
                 self.linked_style = get(s, 'w:val')
+
+            self.font_family = self.font_size = inherit
 
         self._css = None
 
@@ -256,10 +273,16 @@ class ParagraphStyle(object):
                 if val is not inherit:
                     c['margin-%s' % edge] = val
 
-            for x in ('text_indent', 'text_align', 'line_height', 'background_color'):
+            if self.line_height not in {inherit, '1'}:
+                c['line-height'] = self.line_height
+
+            for x in ('text_indent', 'text_align', 'background_color', 'font_family', 'font_size'):
                 val = getattr(self, x)
                 if val is not inherit:
+                    if x == 'font_size':
+                        val = '%.3gpt' % val
                     c[x.replace('_', '-')] = val
+
         return self._css
 
         # TODO: keepNext must be done at markup level

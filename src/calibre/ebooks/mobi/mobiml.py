@@ -16,7 +16,8 @@ from calibre.ebooks.oeb.transforms.flatcss import KeyMapper
 from calibre.utils.magick.draw import identify_data
 
 MBP_NS = 'http://mobipocket.com/ns/mbp'
-def MBP(name): return '{%s}%s' % (MBP_NS, name)
+def MBP(name):
+    return '{%s}%s' % (MBP_NS, name)
 
 MOBI_NSMAP = {None: XHTML_NS, 'mbp': MBP_NS}
 
@@ -413,7 +414,7 @@ class MobiMLizer(object):
                         # img sizes in units other than px
                         # See #7520 for test case
                         try:
-                            pixs = int(round(float(value) / \
+                            pixs = int(round(float(value) /
                                 (72./self.profile.dpi)))
                         except:
                             continue
@@ -488,8 +489,6 @@ class MobiMLizer(object):
         if elem.text:
             if istate.preserve:
                 text = elem.text
-            elif len(elem) > 0 and isspace(elem.text):
-                text = None
             else:
                 text = COLLAPSE.sub(' ', elem.text)
         valign = style['vertical-align']

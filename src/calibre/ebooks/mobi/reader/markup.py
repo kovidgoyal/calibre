@@ -112,7 +112,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
     url_css_index_pattern = re.compile(r'''kindle:flow:([0-9|A-V]+)\?mime=text/css[^\)]*''', re.IGNORECASE)
 
     for flow in mr.flows:
-        if flow is None: # 0th flow is None
+        if flow is None:  # 0th flow is None
             flows.append(flow)
             continue
 
@@ -330,7 +330,7 @@ def expand_mobi8_markup(mobi8_reader, resource_map, log):
     mobi8_reader.flows = flows
 
     # write out the parts and file flows
-    os.mkdir('text') # directory containing all parts
+    os.mkdir('text')  # directory containing all parts
     spine = []
     for i, part in enumerate(parts):
         pi = mobi8_reader.partinfo[i]

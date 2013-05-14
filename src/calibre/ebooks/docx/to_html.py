@@ -7,15 +7,17 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, os, re
+from collections import OrderedDict
 
 from lxml import html
 from lxml.html.builder import (
     HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR)
 
 from calibre.ebooks.docx.container import DOCX, fromstring
-from calibre.ebooks.docx.names import XPath, is_tag, barename, XML, STYLES, NUMBERING
+from calibre.ebooks.docx.names import XPath, is_tag, XML, STYLES, NUMBERING, FONTS
 from calibre.ebooks.docx.styles import Styles, inherit
 from calibre.ebooks.docx.numbering import Numbering
+from calibre.ebooks.docx.fonts import Fonts
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
 class Text:
@@ -36,7 +38,7 @@ class Convert(object):
         self.mi = self.docx.metadata
         self.body = BODY()
         self.styles = Styles()
-        self.object_map = {}
+        self.object_map = OrderedDict()
         self.html = HTML(
             HEAD(
                 META(charset='utf-8'),
@@ -62,16 +64,27 @@ class Convert(object):
         doc = self.docx.document
         relationships_by_id, relationships_by_type = self.docx.document_relationships
         self.read_styles(relationships_by_type)
-        for top_level in XPath('/w:document/w:body/*')(doc):
-            if is_tag(top_level, 'w:p'):
-                p = self.convert_p(top_level)
-                self.body.append(p)
-            elif is_tag(top_level, 'w:tbl'):
-                pass  # TODO: tables
-            elif is_tag(top_level, 'w:sectPr'):
-                pass  # TODO: Last section properties
-            else:
-                self.log.debug('Unknown top-level tag: %s, ignoring' % barename(top_level.tag))
+        self.layers = OrderedDict()
+        for wp in XPath('//w:p')(doc):
+            p = self.convert_p(wp)
+            self.body.append(p)
+        # TODO: tables <w:tbl> child of <w:body> (nested tables?)
+        # TODO: Last section properties <w:sectPr> child of <w:body>
+
+        self.styles.cascade(self.layers)
+
+        numbered = []
+        for html_obj, obj in self.object_map.iteritems():
+            raw = obj.get('calibre_num_id', None)
+            if raw is not None:
+                lvl, num_id = raw.partition(':')[0::2]
+                try:
+                    lvl = int(lvl)
+                except (TypeError, ValueError):
+                    lvl = 0
+                numbered.append((html_obj, num_id, lvl))
+        self.numbering.apply_markup(numbered, self.body, self.styles, self.object_map)
+
         if len(self.body) > 0:
             self.body.text = '\n\t'
             for child in self.body:
@@ -102,7 +115,18 @@ class Convert(object):
 
         nname = get_name(NUMBERING, 'numbering.xml')
         sname = get_name(STYLES, 'styles.xml')
-        numbering = Numbering()
+        fname = get_name(FONTS, 'fontTable.xml')
+        numbering = self.numbering = Numbering()
+        fonts = self.fonts = Fonts()
+
+        if fname is not None:
+            embed_relationships = self.docx.get_relationships(fname)[0]
+            try:
+                raw = self.docx.read(fname)
+            except KeyError:
+                self.log.warn('Fonts table %s does not exist' % fname)
+            else:
+                fonts(fromstring(raw), embed_relationships, self.docx, self.dest_dir)
 
         if sname is not None:
             try:
@@ -110,7 +134,7 @@ class Convert(object):
             except KeyError:
                 self.log.warn('Styles %s do not exist' % sname)
             else:
-                self.styles(fromstring(raw))
+                self.styles(fromstring(raw), fonts)
 
         if nname is not None:
             try:
@@ -126,17 +150,20 @@ class Convert(object):
         raw = html.tostring(self.html, encoding='utf-8', doctype='<!DOCTYPE html>')
         with open(os.path.join(self.dest_dir, 'index.html'), 'wb') as f:
             f.write(raw)
-        css = self.styles.generate_css()
+        css = self.styles.generate_css(self.dest_dir, self.docx)
         if css:
             with open(os.path.join(self.dest_dir, 'docx.css'), 'wb') as f:
                 f.write(css.encode('utf-8'))
 
     def convert_p(self, p):
         dest = P()
+        self.object_map[dest] = p
         style = self.styles.resolve_paragraph(p)
+        self.layers[p] = []
         for run in XPath('descendant::w:r')(p):
             span = self.convert_run(run)
             dest.append(span)
+            self.layers[p].append(run)
 
         m = re.match(r'heading\s+(\d+)$', style.style_name or '', re.IGNORECASE)
         if m is not None:
@@ -162,18 +189,14 @@ class Convert(object):
             spans = []
             bs = {}
             for span, style in border_run:
-                c = style.css
+                style.get_border_css(bs)
+                style.clear_border_css()
                 spans.append(span)
-                for x in ('width', 'color', 'style'):
-                    val = c.pop('border-%s' % x, None)
-                    if val is not None:
-                        bs['border-%s' % x] = val
             if bs:
                 cls = self.styles.register(bs, 'text_border')
                 wrapper = self.wrap_elems(spans, SPAN())
                 wrapper.set('class', cls)
 
-        self.object_map[dest] = p
         return dest
 
     def wrap_elems(self, elems, wrapper):
@@ -188,7 +211,7 @@ class Convert(object):
 
     def convert_run(self, run):
         ans = SPAN()
-        ans.run = run
+        self.object_map[ans] = run
         text = Text(ans, 'text', [])
 
         for child in run:
@@ -224,7 +247,6 @@ class Convert(object):
             ans.tag = 'sub' if style.vert_align == 'subscript' else 'sup'
         if style.lang is not inherit:
             ans.lang = style.lang
-        self.object_map[ans] = run
         return ans
 
 if __name__ == '__main__':

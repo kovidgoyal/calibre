@@ -13,6 +13,7 @@ DOCPROPS  = 'http://schemas.openxmlformats.org/package/2006/relationships/metada
 APPPROPS  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties'
 STYLES    = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles'
 NUMBERING = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering'
+FONTS     = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable'
 
 namespaces = {
     'mo': 'http://schemas.microsoft.com/office/mac/office/2008/main',

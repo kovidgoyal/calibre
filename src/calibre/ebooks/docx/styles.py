@@ -97,7 +97,8 @@ class Styles(object):
     def get(self, key, default=None):
         return self.id_map.get(key, default)
 
-    def __call__(self, root):
+    def __call__(self, root, fonts):
+        self.fonts = fonts
         for s in XPath('//w:style')(root):
             s = Style(s)
             if s.style_id:
@@ -198,8 +199,19 @@ class Styles(object):
                 if default_para.character_style is not None:
                     self.para_char_cache[p] = default_para.character_style
 
+            is_numbering = direct_formatting.numbering is not inherit
+            if is_numbering:
+                num_id, lvl = direct_formatting.numbering
+                if num_id is not None:
+                    p.set('calibre_num_id', '%s:%s' % (lvl, num_id))
+                if num_id is not None and lvl is not None:
+                    ps = self.numbering.get_para_style(num_id, lvl)
+                    if ps is not None:
+                        parent_styles.append(ps)
+
             for attr in ans.all_properties:
-                setattr(ans, attr, self.para_val(parent_styles, direct_formatting, attr))
+                if not (is_numbering and attr == 'text_indent'):  # skip text-indent for lists
+                    setattr(ans, attr, self.para_val(parent_styles, direct_formatting, attr))
         return ans
 
     def resolve_run(self, r):
@@ -235,6 +247,9 @@ class Styles(object):
             for attr in ans.all_properties:
                 setattr(ans, attr, self.run_val(parent_styles, direct_formatting, attr))
 
+            if ans.font_family is not inherit:
+                ans.font_family = self.fonts.family_for(ans.font_family, ans.b, ans.i)
+
         return ans
 
     def resolve(self, obj):
@@ -243,11 +258,70 @@ class Styles(object):
         if obj.tag.endswith('}r'):
             return self.resolve_run(obj)
 
+    def cascade(self, layers):
+        self.body_font_family = 'serif'
+        self.body_font_size = '10pt'
+
+        for p, runs in layers.iteritems():
+            char_styles = [self.resolve_run(r) for r in runs]
+            block_style = self.resolve_paragraph(p)
+            c = Counter()
+            for s in char_styles:
+                if s.font_family is not inherit:
+                    c[s.font_family] += 1
+            if c:
+                family = c.most_common(1)[0][0]
+                block_style.font_family = family
+                for s in char_styles:
+                    if s.font_family == family:
+                        s.font_family = inherit
+
+            sizes = [s.font_size for s in char_styles if s.font_size is not inherit]
+            if sizes:
+                sz = block_style.font_size = sizes[0]
+                for s in char_styles:
+                    if s.font_size == sz:
+                        s.font_size = inherit
+
+        block_styles = [self.resolve_paragraph(p) for p in layers]
+        c = Counter()
+        for s in block_styles:
+            if s.font_family is not inherit:
+                c[s.font_family] += 1
+
+        if c:
+            self.body_font_family = family = c.most_common(1)[0][0]
+            for s in block_styles:
+                if s.font_family == family:
+                    s.font_family = inherit
+
+        c = Counter()
+        for s in block_styles:
+            if s.font_size is not inherit:
+                c[s.font_size] += 1
+
+        if c:
+            sz = c.most_common(1)[0][0]
+            for s in block_styles:
+                if s.font_size == sz:
+                    s.font_size = inherit
+            self.body_font_size = '%.3gpt' % sz
+
     def resolve_numbering(self, numbering):
-        pass  # TODO: Implement this
+        # When a numPr element appears inside a paragraph style, the lvl info
+        # must be discarder and pStyle used instead.
+        self.numbering = numbering
+        for style in self:
+            ps = style.paragraph_style
+            if ps is not None and ps.numbering is not inherit:
+                lvl = numbering.get_pstyle(ps.numbering[0], style.style_id)
+                if lvl is None:
+                    ps.numbering = inherit
+                else:
+                    ps.numbering = (ps.numbering[0], lvl)
 
     def register(self, css, prefix):
-        h = hash(tuple(css.iteritems()))
+        h = hash(frozenset(css.iteritems()))
         ans, _ = self.classes.get(h, (None, None))
         if ans is None:
             self.counter[prefix] += 1
@@ -266,14 +340,21 @@ class Styles(object):
                 self.register(css, 'text')
 
     def class_name(self, css):
-        h = hash(tuple(css.iteritems()))
+        h = hash(frozenset(css.iteritems()))
         return self.classes.get(h, (None, None))[0]
 
-    def generate_css(self):
+    def generate_css(self, dest_dir, docx):
+        ef = self.fonts.embed_fonts(dest_dir, docx)
         prefix = textwrap.dedent(
             '''\
-            p { margin: 0; padding: 0; text-indent: 1.5em }
-            ''')
+            body { font-family: %s; font-size: %s }
+
+            p { text-indent: 1.5em }
+
+            ul, ol, p { margin: 0; padding: 0 }
+            ''') % (self.body_font_family, self.body_font_size)
+        if ef:
+            prefix = ef + '\n' + prefix
 
         ans = []
         for (cls, css) in sorted(self.classes.itervalues(), key=lambda x:x[0]):
