@@ -274,6 +274,11 @@ class Numbering(object):
         for wrap in body.xpath('//ol[@lvlid]'):
             wrap.attrib.pop('lvlid')
             wrap.tag = 'div'
+            text = ''
+            for li in wrap.iterchildren('li'):
+                t = li[0].text
+                if t and len(t) > len(text):
+                    text = t
             for i, li in enumerate(wrap.iterchildren('li')):
                 li.tag = 'div'
                 li.attrib.pop('value', None)
@@ -281,7 +286,8 @@ class Numbering(object):
                 obj = object_map[li]
                 bs = styles.para_cache[obj]
                 if i == 0:
-                    wrap.set('style', 'display:table; margin-left: %s' % (bs.css.get('margin-left', 0)))
+                    m = len(text)//2  # Move the table left to simulate the behavior of a list (number is to the left of text margin)
+                    wrap.set('style', 'display:table; margin-left: -%dem; padding-left: %s' % (m, bs.css.get('margin-left', 0)))
                 bs.css.pop('margin-left', None)
                 for child in li:
                     child.set('style', 'display:table-cell')
