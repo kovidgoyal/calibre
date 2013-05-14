@@ -122,7 +122,8 @@ def device_name_for_plugboards(device_class):
 class DeviceManager(Thread): # {{{
 
     def __init__(self, connected_slot, job_manager, open_feedback_slot,
-            open_feedback_msg, allow_connect_slot, sleep_time=2):
+                 open_feedback_msg, allow_connect_slot,
+                 after_callback_feedback_slot, sleep_time=2):
         '''
         :sleep_time: Time to sleep between device probes in secs
         '''
@@ -150,6 +151,7 @@ class DeviceManager(Thread): # {{{
         self.ejected_devices  = set([])
         self.mount_connection_requests = Queue.Queue(0)
         self.open_feedback_slot = open_feedback_slot
+        self.after_callback_feedback_slot = after_callback_feedback_slot
         self.open_feedback_msg = open_feedback_msg
         self._device_information = None
         self.current_library_uuid = None
@@ -392,6 +394,10 @@ class DeviceManager(Thread): # {{{
                         self.device.set_progress_reporter(job.report_progress)
                     self.current_job.run()
                     self.current_job = None
+                    feedback = getattr(self.device, 'user_feedback_after_callback', None)
+                    if feedback is not None:
+                        self.device.user_feedback_after_callback = None
+                        self.after_callback_feedback_slot(feedback)
                 else:
                     break
             if do_sleep:
@@ -850,7 +856,7 @@ class DeviceMixin(object): # {{{
         self.device_manager = DeviceManager(FunctionDispatcher(self.device_detected),
                 self.job_manager, Dispatcher(self.status_bar.show_message),
                 Dispatcher(self.show_open_feedback),
-                FunctionDispatcher(self.allow_connect))
+                FunctionDispatcher(self.allow_connect), Dispatcher(self.after_callback_feedback))
         self.device_manager.start()
         self.device_manager.devices_initialized.wait()
         if tweaks['auto_connect_to_folder']:
@@ -861,6 +867,10 @@ class DeviceMixin(object): # {{{
                 _('Detected the <b>%s</b>. Do you want calibre to manage it?')%
                 name, show_copy_button=False,
                 override_icon=QIcon(icon))
+
+    def after_callback_feedback(self, feedback):
+        title, msg, det_msg = feedback
+        info_dialog(self, feedback['title'], feedback['msg'], det_msg=feedback['det_msg']).show()
 
     def debug_detection(self, done):
         self.debug_detection_callback = weakref.ref(done)
@@ -1116,7 +1126,7 @@ class DeviceMixin(object): # {{{
             return
 
         dm = self.iactions['Remove Books'].delete_memory
-        if dm.has_key(job):
+        if job in dm:
             paths, model = dm.pop(job)
             self.device_manager.remove_books_from_metadata(paths,
                     self.booklists())
@@ -1141,7 +1151,7 @@ class DeviceMixin(object): # {{{
     def dispatch_sync_event(self, dest, delete, specific):
         rows = self.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            error_dialog(self, _('No books'), _('No books')+' '+\
+            error_dialog(self, _('No books'), _('No books')+' '+
                     _('selected to send')).exec_()
             return
 
@@ -1160,7 +1170,7 @@ class DeviceMixin(object): # {{{
                 if fmts:
                     for f in fmts.split(','):
                         f = f.lower()
-                        if format_count.has_key(f):
+                        if f in format_count:
                             format_count[f] += 1
                         else:
                             format_count[f] = 1

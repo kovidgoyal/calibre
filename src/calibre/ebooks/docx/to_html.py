@@ -7,6 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, os, re
+from collections import OrderedDict
 
 from lxml import html
 from lxml.html.builder import (
@@ -36,7 +37,7 @@ class Convert(object):
         self.mi = self.docx.metadata
         self.body = BODY()
         self.styles = Styles()
-        self.object_map = {}
+        self.object_map = OrderedDict()
         self.html = HTML(
             HEAD(
                 META(charset='utf-8'),
@@ -72,6 +73,19 @@ class Convert(object):
                 pass  # TODO: Last section properties
             else:
                 self.log.debug('Unknown top-level tag: %s, ignoring' % barename(top_level.tag))
+
+        numbered = []
+        for html_obj, obj in self.object_map.iteritems():
+            raw = obj.get('calibre_num_id', None)
+            if raw is not None:
+                lvl, num_id = raw.partition(':')[0::2]
+                try:
+                    lvl = int(lvl)
+                except (TypeError, ValueError):
+                    lvl = 0
+                numbered.append((html_obj, num_id, lvl))
+        self.numbering.apply_markup(numbered, self.body, self.styles, self.object_map)
+
         if len(self.body) > 0:
             self.body.text = '\n\t'
             for child in self.body:
@@ -102,7 +116,7 @@ class Convert(object):
 
         nname = get_name(NUMBERING, 'numbering.xml')
         sname = get_name(STYLES, 'styles.xml')
-        numbering = Numbering()
+        numbering = self.numbering = Numbering()
 
         if sname is not None:
             try:
@@ -133,6 +147,7 @@ class Convert(object):
 
     def convert_p(self, p):
         dest = P()
+        self.object_map[dest] = p
         style = self.styles.resolve_paragraph(p)
         for run in XPath('descendant::w:r')(p):
             span = self.convert_run(run)
@@ -173,7 +188,6 @@ class Convert(object):
                 wrapper = self.wrap_elems(spans, SPAN())
                 wrapper.set('class', cls)
 
-        self.object_map[dest] = p
         return dest
 
     def wrap_elems(self, elems, wrapper):
@@ -188,7 +202,7 @@ class Convert(object):
 
     def convert_run(self, run):
         ans = SPAN()
-        ans.run = run
+        self.object_map[ans] = run
         text = Text(ans, 'text', [])
 
         for child in run:
@@ -224,7 +238,6 @@ class Convert(object):
             ans.tag = 'sub' if style.vert_align == 'subscript' else 'sup'
         if style.lang is not inherit:
             ans.lang = style.lang
-        self.object_map[ans] = run
         return ans
 
 if __name__ == '__main__':

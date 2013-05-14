@@ -32,7 +32,7 @@ defaults.
 # Set the use_series_auto_increment_tweak_when_importing tweak to True to
 # use the above values when importing/adding books. If this tweak is set to
 # False (the default) then the series number will be set to 1 if it is not
-# explicitly set to during the import. If set to True, then the
+# explicitly set during the import. If set to True, then the
 # series index will be set according to the series_index_auto_increment setting.
 # Note that the use_series_auto_increment_tweak_when_importing tweak is used
 # only when a value is not provided during import. If the importing regular

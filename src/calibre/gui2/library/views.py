@@ -10,9 +10,9 @@ from functools import partial
 from future_builtins import map
 from collections import OrderedDict
 
-from PyQt4.Qt import (QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal,
-    QModelIndex, QIcon, QItemSelection, QMimeData, QDrag, QApplication,
-    QPoint, QPixmap, QUrl, QImage, QPainter, QColor, QRect)
+from PyQt4.Qt import (QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, QFont,
+    QModelIndex, QIcon, QItemSelection, QMimeData, QDrag, QApplication, QStyle,
+    QPoint, QPixmap, QUrl, QImage, QPainter, QColor, QRect, QHeaderView, QStyleOptionHeader)
 
 from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
     TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate,
@@ -25,7 +25,55 @@ from calibre.gui2.library import DEFAULT_SORT
 from calibre.constants import filesystem_encoding
 from calibre import force_unicode
 
-class PreserveViewState(object): # {{{
+class HeaderView(QHeaderView):  # {{{
+
+    def __init__(self, *args):
+        QHeaderView.__init__(self, *args)
+        self.hover = -1
+        self.current_font = QFont(self.font())
+        self.current_font.setBold(True)
+        self.current_font.setItalic(True)
+
+    def event(self, e):
+        if e.type() in (e.HoverMove, e.HoverEnter):
+            self.hover = self.logicalIndexAt(e.pos())
+        elif e.type() in (e.Leave, e.HoverLeave):
+            self.hover = -1
+        return QHeaderView.event(self, e)
+
+    def paintSection(self, painter, rect, logical_index):
+        opt = QStyleOptionHeader()
+        self.initStyleOption(opt)
+        opt.rect = rect
+        opt.section = logical_index
+        opt.orientation = self.orientation()
+        opt.textAlignment = Qt.AlignHCenter | Qt.AlignVCenter
+        model = self.parent().model()
+        opt.text = model.headerData(logical_index, opt.orientation, Qt.DisplayRole).toString()
+        if self.isSortIndicatorShown() and self.sortIndicatorSection() == logical_index:
+            opt.sortIndicator = QStyleOptionHeader.SortDown if self.sortIndicatorOrder() == Qt.AscendingOrder else QStyleOptionHeader.SortUp
+        opt.text = opt.fontMetrics.elidedText(opt.text, Qt.ElideRight, rect.width() - 4)
+        if self.isEnabled():
+            opt.state |= QStyle.State_Enabled
+            if self.window().isActiveWindow():
+                opt.state |= QStyle.State_Active
+                if self.hover == logical_index:
+                    opt.state |= QStyle.State_MouseOver
+        sm = self.selectionModel()
+        if opt.orientation == Qt.Vertical:
+            if sm.isRowSelected(logical_index, QModelIndex()):
+                opt.state |= QStyle.State_Sunken
+
+        painter.save()
+        if (
+                (opt.orientation == Qt.Horizontal and sm.currentIndex().column() == logical_index) or
+                (opt.orientation == Qt.Vertical and sm.currentIndex().row() == logical_index)):
+            painter.setFont(self.current_font)
+        self.style().drawControl(QStyle.CE_Header, opt, painter, self)
+        painter.restore()
+# }}}
+
+class PreserveViewState(object):  # {{{
 
     '''
     Save the set of selected books at enter time. If at exit time there are no
@@ -72,13 +120,14 @@ class PreserveViewState(object): # {{{
             return {x:getattr(self, x) for x in ('selected_ids', 'current_id',
                 'vscroll', 'hscroll')}
         def fset(self, state):
-            for k, v in state.iteritems(): setattr(self, k, v)
+            for k, v in state.iteritems():
+                setattr(self, k, v)
             self.__exit__()
         return property(fget=fget, fset=fset)
 
 # }}}
 
-class BooksView(QTableView): # {{{
+class BooksView(QTableView):  # {{{
 
     files_dropped = pyqtSignal(object)
     add_column_signal = pyqtSignal()
@@ -90,6 +139,7 @@ class BooksView(QTableView): # {{{
 
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
+        self.setProperty('highlight_current_item', 150)
         self.row_sizing_done = False
 
         if not tweaks['horizontal_scrolling_per_column']:
@@ -152,12 +202,16 @@ class BooksView(QTableView): # {{{
         # {{{ Column Header setup
         self.can_add_columns = True
         self.was_restored = False
-        self.column_header = self.horizontalHeader()
+        self.column_header = HeaderView(Qt.Horizontal, self)
+        self.setHorizontalHeader(self.column_header)
         self.column_header.setMovable(True)
+        self.column_header.setClickable(True)
         self.column_header.sectionMoved.connect(self.save_state)
         self.column_header.setContextMenuPolicy(Qt.CustomContextMenu)
         self.column_header.customContextMenuRequested.connect(self.show_column_header_context_menu)
         self.column_header.sectionResized.connect(self.column_resized, Qt.QueuedConnection)
+        self.row_header = HeaderView(Qt.Vertical, self)
+        self.setVerticalHeader(self.row_header)
         # }}}
 
         self._model.database_changed.connect(self.database_changed)
@@ -235,7 +289,7 @@ class BooksView(QTableView): # {{{
                 ac.setCheckable(True)
                 ac.setChecked(True)
             if col not in ('ondevice', 'inlibrary') and \
-                    (not self.model().is_custom_column(col) or \
+                    (not self.model().is_custom_column(col) or
                     self.model().custom_columns[col]['datatype'] not in ('bool',
                         )):
                 m = self.column_header_context_menu.addMenu(
@@ -276,7 +330,6 @@ class BooksView(QTableView): # {{{
                     m.addAction(name,
                         partial(self.column_header_context_handler,
                         action='show', column=col))
-
 
             self.column_header_context_menu.addSeparator()
             self.column_header_context_menu.addAction(
@@ -366,7 +419,7 @@ class BooksView(QTableView): # {{{
         h = self.column_header
         cm = self.column_map
         state = {}
-        state['hidden_columns'] = [cm[i] for i in  range(h.count())
+        state['hidden_columns'] = [cm[i] for i in range(h.count())
                 if h.isSectionHidden(i) and cm[i] != 'ondevice']
         state['last_modified_injected'] = True
         state['languages_injected'] = True
@@ -513,7 +566,6 @@ class BooksView(QTableView): # {{{
                     if injected:
                         db.prefs[name] = ans
         return ans
-
 
     def restore_state(self):
         old_state = self.get_old_state()
@@ -837,7 +889,8 @@ class BooksView(QTableView): # {{{
         ids = frozenset(ids)
         m = self.model()
         for row in xrange(m.rowCount(QModelIndex())):
-            if len(row_map) >= len(ids): break
+            if len(row_map) >= len(ids):
+                break
             c = m.id(row)
             if c in ids:
                 row_map[c] = row
@@ -897,7 +950,8 @@ class BooksView(QTableView): # {{{
                 pass
             return None
         def fset(self, val):
-            if val is None: return
+            if val is None:
+                return
             m = self.model()
             for row in xrange(m.rowCount(QModelIndex())):
                 if m.id(row) == val:
@@ -919,7 +973,8 @@ class BooksView(QTableView): # {{{
         column = ci.column()
 
         for i in xrange(ci.row()+1, self.row_count()):
-            if i in selected_rows: continue
+            if i in selected_rows:
+                continue
             try:
                 return self.model().id(self.model().index(i, column))
             except:
@@ -927,7 +982,8 @@ class BooksView(QTableView): # {{{
 
         # No unselected rows after the current row, look before
         for i in xrange(ci.row()-1, -1, -1):
-            if i in selected_rows: continue
+            if i in selected_rows:
+                continue
             try:
                 return self.model().id(self.model().index(i, column))
             except:
@@ -975,7 +1031,7 @@ class BooksView(QTableView): # {{{
 
 # }}}
 
-class DeviceBooksView(BooksView): # {{{
+class DeviceBooksView(BooksView):  # {{{
 
     def __init__(self, parent):
         BooksView.__init__(self, parent, DeviceBooksModel,

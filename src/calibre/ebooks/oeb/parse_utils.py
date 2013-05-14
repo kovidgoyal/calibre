@@ -44,8 +44,10 @@ META_XP = XPath('/h:html/h:head/h:meta[@http-equiv="Content-Type"]')
 
 def merge_multiple_html_heads_and_bodies(root, log=None):
     heads, bodies = xpath(root, '//h:head'), xpath(root, '//h:body')
-    if not (len(heads) > 1 or len(bodies) > 1): return root
-    for child in root: root.remove(child)
+    if not (len(heads) > 1 or len(bodies) > 1):
+        return root
+    for child in root:
+        root.remove(child)
     head = root.makeelement(XHTML('head'))
     body = root.makeelement(XHTML('body'))
     for h in heads:
@@ -88,7 +90,7 @@ def html5_parse(data, max_nesting_depth=100):
     # Check that the asinine HTML 5 algorithm did not result in a tree with
     # insane nesting depths
     for x in data.iterdescendants():
-        if isinstance(x.tag, basestring) and len(x) is 0: # Leaf node
+        if isinstance(x.tag, basestring) and len(x) is 0:  # Leaf node
             depth = node_depth(x)
             if depth > max_nesting_depth:
                 raise ValueError('html5lib resulted in a tree with nesting'
@@ -228,7 +230,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
     if idx > -1:
         pre = data[:idx]
         data = data[idx:]
-        if '<!DOCTYPE' in pre: # Handle user defined entities
+        if '<!DOCTYPE' in pre:  # Handle user defined entities
             user_entities = {}
             for match in re.finditer(r'<!ENTITY\s+(\S+)\s+([^>]+)', pre):
                 val = match.group(2)
@@ -368,8 +370,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         meta.getparent().remove(meta)
     meta = etree.SubElement(head, XHTML('meta'),
         attrib={'http-equiv': 'Content-Type'})
-    meta.set('content', 'text/html; charset=utf-8') # Ensure content is second
-                                                    # attribute
+    meta.set('content', 'text/html; charset=utf-8')  # Ensure content is second attribute
 
     # Ensure has a <body/>
     if not xpath(data, '/h:html/h:body'):

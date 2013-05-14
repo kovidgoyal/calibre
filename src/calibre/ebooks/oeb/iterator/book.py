@@ -25,7 +25,7 @@ from calibre.ebooks.oeb.transforms.cover import CoverManager
 from calibre.ebooks.oeb.iterator.spine import (SpineItem, create_indexing_data)
 from calibre.ebooks.oeb.iterator.bookmarks import BookmarksMixin
 
-TITLEPAGE = CoverManager.SVG_TEMPLATE.decode('utf-8').replace(\
+TITLEPAGE = CoverManager.SVG_TEMPLATE.decode('utf-8').replace(
         '__ar__', 'none').replace('__viewbox__', '0 0 600 800'
         ).replace('__width__', '600').replace('__height__', '800')
 

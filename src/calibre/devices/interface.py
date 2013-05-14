@@ -107,6 +107,12 @@ class DevicePlugin(Plugin):
     #: :meth:`set_user_blacklisted_devices`
     ASK_TO_ALLOW_CONNECT = False
 
+    #: Set this to a dictionary of the form {'title':title, 'msg':msg, 'det_msg':detailed_msg} to have calibre popup
+    #: a message to the user after some callbacks are run (currently only upload_books).
+    #: Be careful to not spam the user with too many messages. This variable is checked after *every* callback,
+    #: so only set it when you really need to.
+    user_feedback_after_callback = None
+
     @classmethod
     def get_gui_name(cls):
         if hasattr(cls, 'gui_name'):
@@ -157,16 +163,15 @@ class DevicePlugin(Plugin):
                 if (vid in device_id or vidd in device_id) and \
                    (pid in device_id or pidd in device_id) and \
                    self.test_bcd_windows(device_id, bcd):
-                       if debug:
-                           self.print_usb_device_info(device_id)
-                       if only_presence or self.can_handle_windows(device_id, debug=debug):
-                           try:
-                               bcd = int(device_id.rpartition(
-                                   'rev_')[-1].replace(':', 'a'), 16)
-                           except:
-                               bcd = None
-                           return True, (vendor_id, product_id, bcd, None,
-                                   None, None)
+                        if debug:
+                            self.print_usb_device_info(device_id)
+                        if only_presence or self.can_handle_windows(device_id, debug=debug):
+                            try:
+                                bcd = int(device_id.rpartition(
+                                            'rev_')[-1].replace(':', 'a'), 16)
+                            except:
+                                bcd = None
+                            return True, (vendor_id, product_id, bcd, None, None, None)
         return False, None
 
     def test_bcd(self, bcdDevice, bcd):
@@ -637,7 +642,6 @@ class DevicePlugin(Plugin):
         metadata management (prefs['manage_device_metadata'])
         '''
         device_prefs.set_overrides()
-
 
     # Dynamic control interface.
     # The following methods are probably called on the GUI thread. Any driver

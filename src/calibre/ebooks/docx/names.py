@@ -45,8 +45,13 @@ namespaces = {
     'dcterms': 'http://purl.org/dc/terms/'
 }
 
+xpath_cache = {}
+
 def XPath(expr):
-    return X(expr, namespaces=namespaces)
+    ans = xpath_cache.get(expr, None)
+    if ans is None:
+        xpath_cache[expr] = ans = X(expr, namespaces=namespaces)
+    return ans
 
 def is_tag(x, q):
     tag = getattr(x, 'tag', x)

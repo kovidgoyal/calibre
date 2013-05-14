@@ -163,7 +163,8 @@ class MOBIFile(object):
             ext = 'dat'
             prefix = 'binary'
             suffix = ''
-            if sig in {b'HUFF', b'CDIC', b'INDX'}: continue
+            if sig in {b'HUFF', b'CDIC', b'INDX'}:
+                continue
             # TODO: Ignore CNCX records as well
             if sig == b'FONT':
                 font = read_font_record(rec.raw)
@@ -195,7 +196,6 @@ class MOBIFile(object):
         for index in self.ncx_index:
             vals = list(index)[:-1] + [None, None, None, None]
             entry_map.append(Entry(*(vals[:12])))
-
 
         indexing_data = collect_indexing_data(entry_map, list(map(len,
             self.text_records)))
