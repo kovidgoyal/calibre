@@ -875,6 +875,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self.client_device_kind = result.get('deviceKind', '')
             self._debug('Client device kind', self.client_device_kind)
 
+            self.client_device_name = result.get('deviceName', self.client_device_kind)
+            self._debug('Client device name', self.client_device_name)
+
             self.max_book_packet_len = result.get('maxBookContentPacketLen',
                                                   self.BASE_PACKET_LEN)
             self._debug('max_book_packet_len', self.max_book_packet_len)
@@ -946,6 +949,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return False
 
     def get_gui_name(self):
+        if getattr(self, 'client_device_name', None):
+            return self.gui_name_template%(self.gui_name, self.client_device_name)
         if getattr(self, 'client_device_kind', None):
             return self.gui_name_template%(self.gui_name, self.client_device_kind)
         return self.gui_name
