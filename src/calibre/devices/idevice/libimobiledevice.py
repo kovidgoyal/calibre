@@ -15,6 +15,7 @@ from collections import OrderedDict
 from ctypes import *
 
 from calibre.constants import DEBUG, islinux, isosx, iswindows
+from calibre.devices.idevice.parse_xml import XmlPropertyListParser
 from calibre.devices.usbms.driver import debug_print
 
 
