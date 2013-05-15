@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 # coding: utf-8
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Gregory Riker'
+
 
 '''
     Wrapper for libiMobileDevice library based on API documentation at
@@ -365,6 +368,13 @@ class libiMobileDevice():
         # Free the resources
         self._instproxy_client_options_free()
         self._instproxy_client_free()
+
+    def get_preferences(self):
+        '''
+        Get a partial list device-specific information
+        '''
+        self._log_location()
+        return self._lockdown_get_value()
 
     def listdir(self, path):
         '''
@@ -1034,7 +1044,10 @@ class libiMobileDevice():
             for i, this_item in enumerate(dir_list):
                 if this_item.startswith('.'):
                     continue
-                path = '/'.join([directory, this_item])
+                if directory == '/':
+                    path = '/' + this_item
+                else:
+                    path = '/'.join([directory, this_item])
                 file_stats[os.path.basename(path)] = self._afc_get_file_info(path)
             self.current_dir = directory
         return file_stats
@@ -1323,27 +1336,27 @@ class libiMobileDevice():
             app_list = XmlPropertyListParser().parse(string_at(xml, xml_len.value))
             installed_apps = {}
             for app in app_list:
-                if not applist:
-                    try:
-                        installed_apps[app['CFBundleName']] = {'app_id': app['CFBundleIdentifier'], 'app_version': app['CFBundleVersion']}
-                    except:
-                        installed_apps[app['CFBundleDisplayName']] = {'app_id': app['CFBundleDisplayName'], 'app_version': app['CFBundleDisplayName']}
+                if 'CFBundleName' in app:
+                    app_name = app['CFBundleName']
+                elif 'CFBundleDisplayName' in app:
+                    app_name = app['CFBundleDisplayName']
+                elif 'CFBundleExecutable' in app:
+                    app_name = app['CFBundleExecutable']
                 else:
-                    if 'CFBundleName' in app:
-                        if app['CFBundleName'] in applist:
-                            installed_apps[app['CFBundleName']] = {'app_id': app['CFBundleIdentifier'], 'app_version': app['CFBundleVersion']}
-                            if len(installed_apps) == len(app_list):
-                                break
-                    elif 'CFBundleDisplayName' in app:
-                        if app['CFBundleDisplayName'] in applist:
-                            installed_apps[app['CFBundleDisplayName']] = {'app_id': app['CFBundleIdentifier'], 'app_version': app['CFBundleVersion']}
-                            if len(installed_apps) == len(app_list):
-                                break
-                    else:
-                        self.log(" unable to find app name")
-                        for key in sorted(app.keys()):
-                            print(" %s \t %s" % (key, app[key]))
-                        continue
+                    self.log(" unable to find app name in bundle:")
+                    for key in sorted(app.keys()):
+                        self.log("  %s   %s" % (repr(key), repr(app[key])))
+                    continue
+
+                if not applist:
+                    # Collecting all installed apps info
+                    installed_apps[app_name] = {'app_id': app['CFBundleIdentifier'], 'app_version': app['CFBundleVersion']}
+                else:
+                    # Selectively collecting app info
+                    if app_name in applist:
+                        installed_apps[app['CFBundleName']] = {'app_id': app['CFBundleIdentifier'], 'app_version': app['CFBundleVersion']}
+                        if len(installed_apps) == len(app_list):
+                            break
 
             if self.verbose:
                 for app in sorted(installed_apps, key=lambda s: s.lower()):

@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
 """
 https://github.com/ishikawa/python-plist-parser/blob/master/plist_parser.py
 
@@ -246,7 +249,7 @@ class XmlPropertyListParser(object):
     def _parse_using_etree(self, xml_input):
         from xml.etree.cElementTree import iterparse
 
-        parser = iterparse(self._to_stream(xml_input), events=('start', 'end'))
+        parser = iterparse(self._to_stream(xml_input), events=(b'start', b'end'))
         self.startDocument()
         try:
             for action, element in parser:

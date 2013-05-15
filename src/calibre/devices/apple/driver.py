@@ -320,6 +320,7 @@ class ITUNES(DriverBase):
         self.verbose = self.settings().extra_customization[self.DEBUG_LOGGING]
         if self.verbose:
             logger().info("%s.__init__():" % self.__class__.__name__)
+            logger().info(" Debug logging enabled in iTunes plugin settings")
 
     @property
     def cache_dir(self):
