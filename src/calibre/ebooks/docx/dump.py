@@ -22,7 +22,7 @@ def dump(path):
         zf.extractall(dest)
 
     for f in walk(dest):
-        if f.endswith('.xml'):
+        if f.endswith('.xml') or f.endswith('.rels'):
             with open(f, 'r+b') as stream:
                 raw = stream.read()
                 root = etree.fromstring(raw)

@@ -15,7 +15,9 @@ __copyright__ = '2013, Gregory Riker'
 import os, sys
 
 from collections import OrderedDict
-from ctypes import *
+from ctypes import (
+    c_int, c_long, c_void_p, c_char_p, Structure, POINTER, byref, cdll, c_char, c_ulonglong,
+    c_uint, c_ubyte, create_string_buffer, string_at)
 
 from calibre.constants import DEBUG, islinux, isosx, iswindows
 from calibre.devices.idevice.parse_xml import XmlPropertyListParser

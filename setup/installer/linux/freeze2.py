@@ -38,7 +38,7 @@ binary_includes = [
                 '/lib/libz.so.1',
                 '/usr/lib/libtiff.so.5',
                 '/lib/libbz2.so.1',
-                '/usr/lib/libpoppler.so.28',
+                '/usr/lib/libpoppler.so.37',
                 '/usr/lib/libxml2.so.2',
                 '/usr/lib/libopenjpeg.so.2',
                 '/usr/lib/libxslt.so.1',

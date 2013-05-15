@@ -663,6 +663,17 @@ icu_set_default_encoding(PyObject *self, PyObject *args) {
 
 // set_default_encoding {{{
 static PyObject *
+icu_set_filesystem_encoding(PyObject *self, PyObject *args) {
+    char *encoding;
+    if (!PyArg_ParseTuple(args, "s:setfilesystemencoding", &encoding))
+        return NULL;
+    Py_FileSystemDefaultEncoding = strdup(encoding);
+    Py_RETURN_NONE;
+
+}
+// }}}
+// set_default_encoding {{{
+static PyObject *
 icu_get_available_transliterators(PyObject *self, PyObject *args) {
     PyObject *ans, *l;
     UErrorCode status = U_ZERO_ERROR;
@@ -705,6 +716,10 @@ static PyMethodDef icu_methods[] = {
 
     {"set_default_encoding", icu_set_default_encoding, METH_VARARGS,
         "set_default_encoding(encoding) -> Set the default encoding for the python unicode implementation."
+    },
+
+    {"set_filesystem_encoding", icu_set_filesystem_encoding, METH_VARARGS,
+        "set_filesystem_encoding(encoding) -> Set the filesystem encoding for python."
     },
 
     {"get_available_transliterators", icu_get_available_transliterators, METH_VARARGS,

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import cStringIO, ctypes, datetime, os, re, shutil, sys, tempfile, time
 
-from calibre import fit_image, confirm_config_name, osx_version, strftime as _strftime
+from calibre import fit_image, confirm_config_name, strftime as _strftime
 from calibre.constants import (
     __appname__, __version__, isosx, iswindows, cache_dir as _cache_dir)
 from calibre.devices.errors import OpenFeedback, UserFeedback
@@ -1609,7 +1609,6 @@ class ITUNES(DriverBase):
                             if self.verbose:
                                 logger().info(" failed to write artwork")
 
-
             elif format == 'pdf':
                 if self.verbose:
                     logger().info("   unable to set PDF cover via automation interface")
@@ -1647,6 +1646,7 @@ class ITUNES(DriverBase):
     def _create_new_book(self, fpath, metadata, path, db_added, lb_added, thumb, format):
         '''
         '''
+        from calibre.utils.date import parse_date
         if self.verbose:
             logger().info(" %s._create_new_book()" % self.__class__.__name__)
 
