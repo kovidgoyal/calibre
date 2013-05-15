@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-05-10 04:31+0000\n"
-"PO-Revision-Date: 2013-05-10 04:11+0000\n"
+"PO-Revision-Date: 2013-05-14 11:38+0000\n"
 "Last-Translator: Martin Mikšl <marduke@centrum.cz>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-05-11 05:16+0000\n"
-"X-Generator: Launchpad (build 16598)\n"
+"X-Launchpad-Export-Date: 2013-05-15 05:14+0000\n"
+"X-Generator: Launchpad (build 16617)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -352,7 +352,7 @@ msgstr "Převést knihy do různých formátů e-knih"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:792
 msgid "Fine tune your ebooks"
-msgstr ""
+msgstr "Upravit knihy"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:797
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
@@ -1153,7 +1153,7 @@ msgstr "Neplatný boolean dotaz \"{0}\""
 #: /home/kovid/work/calibre/src/calibre/db/search.py:355
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:501
 msgid "Invalid query format for colon-separated search: {0}"
-msgstr ""
+msgstr "Nespraávný dotaz pro dělítkem oddělené hledání:"
 
 #: /home/kovid/work/calibre/src/calibre/db/search.py:469
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:650
@@ -1529,7 +1529,7 @@ msgstr "Komunikace se čtečkou EB600."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:56
 msgid "Communicate with the Tolino Shine reader."
-msgstr ""
+msgstr "Spojit se se čtečkou Tolino Shine"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:222
 msgid "Communicate with the Astak Mentor EB600"
@@ -1840,7 +1840,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:91
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1256
 msgid "Attempt to support newer firmware"
-msgstr ""
+msgstr "Pokusit se o podporu novějšího firmwaru"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:92
 msgid ""
@@ -1969,7 +1969,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
 msgid "Show archived books"
-msgstr ""
+msgstr "Zobrazit archivované knihy"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1241
 msgid ""
@@ -3475,7 +3475,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:111
 msgid "headers"
-msgstr ""
+msgstr "hlavičky"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
@@ -4889,7 +4889,7 @@ msgstr "Španělsko"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:534
 msgid "Brazil"
-msgstr ""
+msgstr "Brazílie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:538
 msgid "Amazon website to use:"
@@ -4912,15 +4912,16 @@ msgstr "Zdroj meta dat"
 msgid ""
 "Downloads multiple book covers from Amazon. Useful to find alternate covers."
 msgstr ""
+"Stáhnout více obálek z Amazonu. Vhodné pro hledání alternativních obálek."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:33
 msgid "Configure the Big Book Search plugin"
-msgstr ""
+msgstr "Nastavit Big Book search plugin"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:35
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:22
 msgid "Maximum number of covers to get"
-msgstr ""
+msgstr "Maximum obálek ke stažení"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/big_book_search.py:36
 msgid "The maximum number of covers to process from the search result"
@@ -4952,23 +4953,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:20
 msgid "Configure the Google Image Search plugin"
-msgstr ""
+msgstr "Nastavit plugin pro vyhledávání obálek z Google Obrázků"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:23
 msgid "The maximum number of covers to process from the google search result"
-msgstr ""
+msgstr "Maximální počet obálek pro zpracování  přes Google vyheldávání"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:24
 msgid "Cover size"
-msgstr ""
+msgstr "Velikost obalu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:25
 msgid "Search for covers larger than the specified size"
-msgstr ""
+msgstr "Hledat obálky větší než uvedené hodnota"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:27
 msgid "Any size"
-msgstr ""
+msgstr "Jakákoli velikost"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:146
@@ -4983,7 +4984,7 @@ msgstr "Velké"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:34
 #, python-format
 msgid "Larger than %s"
-msgstr ""
+msgstr "Větší než %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:23
 msgid "Downloads metadata from isbndb.com"
