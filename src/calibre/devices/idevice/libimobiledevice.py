@@ -9,293 +9,14 @@ __copyright__ = '2013, Gregory Riker'
     http://www.libimobiledevice.org/docs/html/globals.html
 '''
 
-import binascii, os, sys, time
+import os, sys
 
 from collections import OrderedDict
 from ctypes import *
-from datetime import datetime
 
 from calibre.constants import DEBUG, islinux, isosx, iswindows
 from calibre.devices.usbms.driver import debug_print
 
-
-#from calibre.devices.idevice.parse_xml import XmlPropertyListParser
-# *** Temporarily here until added to the code tree
-
-class PropertyListParseError(Exception):
-    """Raised when parsing a property list is failed."""
-    pass
-
-class XmlPropertyListParser(object):
-    """
-    The ``XmlPropertyListParser`` class provides methods that
-    convert `Property Lists`_ objects from xml format.
-    Property list objects include ``string``, ``unicode``,
-    ``list``, ``dict``, ``datetime``, and ``int`` or ``float``.
-
-        :copyright: 2008 by Takanori Ishikawa <takanori.ishikawa@gmail.com>
-        :license: MIT License
-
-    .. _Property List: http://developer.apple.com/documentation/Cocoa/Conceptual/PropertyLists/
-    """
-
-    def _assert(self, test, message):
-        if not test:
-            raise PropertyListParseError(message)
-
-    # ------------------------------------------------
-    # SAX2: ContentHandler
-    # ------------------------------------------------
-    def setDocumentLocator(self, locator):
-        pass
-    def startPrefixMapping(self, prefix, uri):
-        pass
-    def endPrefixMapping(self, prefix):
-        pass
-    def startElementNS(self, name, qname, attrs):
-        pass
-    def endElementNS(self, name, qname):
-        pass
-    def ignorableWhitespace(self, whitespace):
-        pass
-    def processingInstruction(self, target, data):
-        pass
-    def skippedEntity(self, name):
-        pass
-
-    def startDocument(self):
-        self.__stack = []
-        self.__plist = self.__key = self.__characters = None
-        # For reducing runtime type checking,
-        # the parser caches top level object type.
-        self.__in_dict = False
-
-    def endDocument(self):
-        self._assert(self.__plist is not None, "A top level element must be <plist>.")
-        self._assert(
-            len(self.__stack) is 0,
-            "multiple objects at top level.")
-
-    def startElement(self, name, attributes):
-        if name in XmlPropertyListParser.START_CALLBACKS:
-            XmlPropertyListParser.START_CALLBACKS[name](self, name, attributes)
-        if name in XmlPropertyListParser.PARSE_CALLBACKS:
-            self.__characters = []
-
-    def endElement(self, name):
-        if name in XmlPropertyListParser.END_CALLBACKS:
-            XmlPropertyListParser.END_CALLBACKS[name](self, name)
-        if name in XmlPropertyListParser.PARSE_CALLBACKS:
-            # Creates character string from buffered characters.
-            content = ''.join(self.__characters)
-            # For compatibility with ``xml.etree`` and ``plistlib``,
-            # convert text string to ascii, if possible
-            try:
-                content = content.encode('ascii')
-            except (UnicodeError, AttributeError):
-                pass
-            XmlPropertyListParser.PARSE_CALLBACKS[name](self, name, content)
-            self.__characters = None
-
-    def characters(self, content):
-        if self.__characters is not None:
-            self.__characters.append(content)
-
-    # ------------------------------------------------
-    # XmlPropertyListParser private
-    # ------------------------------------------------
-    def _push_value(self, value):
-        if not self.__stack:
-            self._assert(self.__plist is None, "Multiple objects at top level")
-            self.__plist = value
-        else:
-            top = self.__stack[-1]
-            #assert isinstance(top, (dict, list))
-            if self.__in_dict:
-                k = self.__key
-                if k is None:
-                    raise PropertyListParseError("Missing key for dictionary.")
-                top[k] = value
-                self.__key = None
-            else:
-                top.append(value)
-
-    def _push_stack(self, value):
-        self.__stack.append(value)
-        self.__in_dict = isinstance(value, dict)
-
-    def _pop_stack(self):
-        self.__stack.pop()
-        self.__in_dict = self.__stack and isinstance(self.__stack[-1], dict)
-
-    def _start_plist(self, name, attrs):
-        self._assert(not self.__stack and self.__plist is None, "<plist> more than once.")
-        self._assert(attrs.get('version', '1.0') == '1.0',
-            "version 1.0 is only supported, but was '%s'." % attrs.get('version'))
-
-    def _start_array(self, name, attrs):
-        v = list()
-        self._push_value(v)
-        self._push_stack(v)
-
-    def _start_dict(self, name, attrs):
-        v = dict()
-        self._push_value(v)
-        self._push_stack(v)
-
-    def _end_array(self, name):
-        self._pop_stack()
-
-    def _end_dict(self, name):
-        if self.__key is not None:
-            raise PropertyListParseError("Missing value for key '%s'" % self.__key)
-        self._pop_stack()
-
-    def _start_true(self, name, attrs):
-        self._push_value(True)
-
-    def _start_false(self, name, attrs):
-        self._push_value(False)
-
-    def _parse_key(self, name, content):
-        if not self.__in_dict:
-            print("XmlPropertyListParser() WARNING: ignoring <key>%s</key> (<key> elements must be contained in <dict> element)" % content)
-            #raise PropertyListParseError("<key> element '%s' must be in <dict> element." % content)
-        else:
-            self.__key = content
-
-    def _parse_string(self, name, content):
-        self._push_value(content)
-
-    def _parse_data(self, name, content):
-        import base64
-        self._push_value(base64.b64decode(content))
-
-    # http://www.apple.com/DTDs/PropertyList-1.0.dtd says:
-    #
-    # Contents should conform to a subset of ISO 8601
-    # (in particular, YYYY '-' MM '-' DD 'T' HH ':' MM ':' SS 'Z'.
-    # Smaller units may be omitted with a loss of precision)
-    import re
-    DATETIME_PATTERN = re.compile(r"(?P<year>\d\d\d\d)(?:-(?P<month>\d\d)(?:-(?P<day>\d\d)(?:T(?P<hour>\d\d)(?::(?P<minute>\d\d)(?::(?P<second>\d\d))?)?)?)?)?Z$")
-
-    def _parse_date(self, name, content):
-        import datetime
-
-        units = ('year', 'month', 'day', 'hour', 'minute', 'second', )
-        pattern = XmlPropertyListParser.DATETIME_PATTERN
-        match = pattern.match(content)
-        if not match:
-            raise PropertyListParseError("Failed to parse datetime '%s'" % content)
-
-        groups, components = match.groupdict(), []
-        for key in units:
-            value = groups[key]
-            if value is None:
-                break
-            components.append(int(value))
-        while len(components) < 3:
-            components.append(1)
-
-        d = datetime.datetime(*components)
-        self._push_value(d)
-
-    def _parse_real(self, name, content):
-        self._push_value(float(content))
-
-    def _parse_integer(self, name, content):
-        self._push_value(int(content))
-
-    START_CALLBACKS = {
-        'plist': _start_plist,
-        'array': _start_array,
-        'dict': _start_dict,
-        'true': _start_true,
-        'false': _start_false,
-    }
-
-    END_CALLBACKS = {
-        'array': _end_array,
-        'dict': _end_dict,
-    }
-
-    PARSE_CALLBACKS = {
-        'key': _parse_key,
-        'string': _parse_string,
-        'data': _parse_data,
-        'date': _parse_date,
-        'real': _parse_real,
-        'integer': _parse_integer,
-    }
-
-    # ------------------------------------------------
-    # XmlPropertyListParser
-    # ------------------------------------------------
-    def _to_stream(self, io_or_string):
-        if isinstance(io_or_string, basestring):
-            # Creates a string stream for in-memory contents.
-            from cStringIO import StringIO
-            return StringIO(io_or_string)
-        elif hasattr(io_or_string, 'read') and callable(getattr(io_or_string, 'read')):
-            return io_or_string
-        else:
-            raise TypeError('Can\'t convert %s to file-like-object' % type(io_or_string))
-
-    def _parse_using_etree(self, xml_input):
-        from xml.etree.cElementTree import iterparse
-
-        parser = iterparse(self._to_stream(xml_input), events=('start', 'end'))
-        self.startDocument()
-        try:
-            for action, element in parser:
-                name = element.tag
-                if action == 'start':
-                    if name in XmlPropertyListParser.START_CALLBACKS:
-                        XmlPropertyListParser.START_CALLBACKS[name](self, element.tag, element.attrib)
-                elif action == 'end':
-                    if name in XmlPropertyListParser.END_CALLBACKS:
-                        XmlPropertyListParser.END_CALLBACKS[name](self, name)
-                    if name in XmlPropertyListParser.PARSE_CALLBACKS:
-                        XmlPropertyListParser.PARSE_CALLBACKS[name](self, name, element.text or "")
-                    element.clear()
-        except SyntaxError, e:
-            raise PropertyListParseError(e)
-
-        self.endDocument()
-        return self.__plist
-
-    def _parse_using_sax_parser(self, xml_input):
-        from xml.sax import make_parser, handler, xmlreader, \
-                            SAXParseException
-        source = xmlreader.InputSource()
-        source.setByteStream(self._to_stream(xml_input))
-        reader = make_parser()
-        reader.setContentHandler(self)
-        try:
-            reader.parse(source)
-        except SAXParseException, e:
-            raise PropertyListParseError(e)
-
-        return self.__plist
-
-    def parse(self, xml_input):
-        """
-        Parse the property list (`.plist`, `.xml, for example) ``xml_input``,
-        which can be either a string or a file-like object.
-
-        >>> parser = XmlPropertyListParser()
-        >>> parser.parse(r'<plist version="1.0">'
-        ...              r'<dict><key>Python</key><string>.py</string></dict>'
-        ...              r'</plist>')
-        {'Python': '.py'}
-        """
-        try:
-            return self._parse_using_etree(xml_input)
-        except ImportError:
-            # No xml.etree.ccElementTree found.
-            return self._parse_using_sax_parser(xml_input)
-
-# *** End temporary addition
 
 class libiMobileDeviceException(Exception):
     def __init__(self, value):
@@ -304,12 +25,14 @@ class libiMobileDeviceException(Exception):
     def __str__(self):
         return repr(self.value)
 
+
 class libiMobileDeviceIOException(Exception):
     def __init__(self, value):
         self.value = value
 
     def __str__(self):
         return repr(self.value)
+
 
 class AFC_CLIENT_T(Structure):
     '''
@@ -342,6 +65,7 @@ class AFC_CLIENT_T(Structure):
         # afc_client_private (afc.h)
         ('free_parent', c_int)]
 
+
 class HOUSE_ARREST_CLIENT_T(Structure):
     '''
     http://www.libimobiledevice.org/docs/html/structhouse__arrest__client__private.html
@@ -359,7 +83,8 @@ class HOUSE_ARREST_CLIENT_T(Structure):
 
         # (house_arrest.h)
         ('mode', c_int)
-        ]
+    ]
+
 
 class IDEVICE_T(Structure):
     '''
@@ -369,6 +94,7 @@ class IDEVICE_T(Structure):
         ("udid", c_char_p),
         ("conn_type", c_int),
         ("conn_data", c_void_p)]
+
 
 class INSTPROXY_CLIENT_T(Structure):
     '''
@@ -394,6 +120,7 @@ class INSTPROXY_CLIENT_T(Structure):
         ('status_updater', c_void_p)
     ]
 
+
 class LOCKDOWND_CLIENT_T(Structure):
     '''
     http://www.libimobiledevice.org/docs/html/structlockdownd__client__private.html
@@ -416,6 +143,7 @@ class LOCKDOWND_CLIENT_T(Structure):
         ('udid', c_char_p),
         ('label', c_char_p)]
 
+
 class LOCKDOWND_SERVICE_DESCRIPTOR(Structure):
     '''
     from libimobiledevice/include/libimobiledevice/lockdown.h
@@ -423,7 +151,7 @@ class LOCKDOWND_SERVICE_DESCRIPTOR(Structure):
     _fields_ = [
         ('port', c_uint),
         ('ssl_enabled', c_ubyte)
-        ]
+    ]
 
 
 class libiMobileDevice():
@@ -467,7 +195,6 @@ class libiMobileDevice():
         self.instproxy = None
 
         self.load_library()
-
 
     # ~~~ Public methods ~~~
     def connect_idevice(self):
@@ -551,14 +278,18 @@ class libiMobileDevice():
         '''
         Determine if path exists
 
-        Returns [True|False] or file_info
+        Returns file_info or {}
         '''
         self._log_location("'%s'" % path)
         return self._afc_get_file_info(path)
 
     def get_device_info(self):
         '''
-        Return device profile
+        Return device profile:
+          {'Model': 'iPad2,5',
+           'FSTotalBytes': '14738952192',
+           'FSFreeBytes':  '11264917504',
+           'FSBlockSize': '4096'}
         '''
         self._log_location()
         self.device_info = self._afc_get_device_info()
@@ -709,7 +440,7 @@ class libiMobileDevice():
                     self._lockdown_start_service("com.apple.mobile.house_arrest")
                     self.house_arrest = self._house_arrest_client_new()
                     self._house_arrest_send_command(command='VendContainer',
-                        appid=self.installed_apps[app_name]['app_id'])
+                                                    appid=self.installed_apps[app_name]['app_id'])
                     self._house_arrest_get_result()
                     self.afc = self._afc_client_new_from_house_arrest_client()
                     self._lockdown_client_free()
@@ -804,8 +535,8 @@ class libiMobileDevice():
         self._log_location("from: '%s' to: '%s'" % (from_name, to_name))
 
         error = self.lib.afc_rename_path(byref(self.afc),
-                                      str(from_name),
-                                      str(to_name))
+                                         str(from_name),
+                                         str(to_name))
         if error and self.verbose:
             self.log(" ERROR: %s" % self.afc_error(error))
 
@@ -855,7 +586,8 @@ class libiMobileDevice():
                 self.log(" could not open file for writing")
             raise libiMobileDeviceIOException("could not open file for writing")
 
-    # ~~~ lib helpers ~~~
+    # ~~~ AFC functions ~~~
+    # http://www.libimobiledevice.org/docs/html/include_2libimobiledevice_2afc_8h.html
     def _afc_client_free(self):
         '''
         Frees up an AFC client.
@@ -1148,7 +880,7 @@ class libiMobileDevice():
             data = content
             datatype = c_char * len(content)
         else:
-            data = bytearray(content,'utf-8')
+            data = bytearray(content, 'utf-8')
             datatype = c_char * len(content)
 
         error = self.lib.afc_file_write(byref(self.afc),
@@ -1247,7 +979,6 @@ class libiMobileDevice():
             while infolist[num_items]:
                 item_list.append(infolist[num_items])
                 num_items += 1
-            item_type = None
             for i in range(0, len(item_list), 2):
                 if item_list[i].contents.value in ['st_mtime', 'st_birthtime']:
                     integer = item_list[i+1].contents.value[:10]
@@ -1305,7 +1036,8 @@ class libiMobileDevice():
             self.current_dir = directory
         return file_stats
 
-
+    # ~~~ house_arrest functions ~~~
+    # http://www.libimobiledevice.org/docs/html/include_2libimobiledevice_2house__arrest_8h.html
     def _house_arrest_client_free(self):
         '''
         Disconnects a house_arrest client from the device, frees up the
@@ -1411,8 +1143,8 @@ class libiMobileDevice():
         self._log_location()
 
         plist = c_char_p()
-        error = self.lib.house_arrest_get_result(byref(self.house_arrest),
-                                                 byref(plist)) & 0xFFFF
+        self.lib.house_arrest_get_result(byref(self.house_arrest),
+                                         byref(plist)) & 0xFFFF
         plist = c_void_p.from_buffer(plist)
 
         # Convert the plist to xml
@@ -1474,7 +1206,8 @@ class libiMobileDevice():
                 desc=self._house_arrest_error(error))
             raise libiMobileDeviceException(error_description)
 
-
+    # ~~~ idevice functions ~~~
+    # http://www.libimobiledevice.org/docs/html/libimobiledevice_8h.html
     def _idevice_error(self, error):
         e = "UNKNOWN ERROR"
         if not error:
@@ -1556,7 +1289,8 @@ class libiMobileDevice():
         self._log_location(debug)
         self.lib.idevice_set_debug_level(debug)
 
-
+    # ~~~ instproxy functions ~~~
+    # http://www.libimobiledevice.org/docs/html/include_2libimobiledevice_2installation__proxy_8h.html
     def _instproxy_browse(self, applist=[]):
         '''
         Fetch the app list
@@ -1655,7 +1389,7 @@ class libiMobileDevice():
         self._log_location("'%s', '%s'" % (app_type, domain))
 
         self.lib.instproxy_client_options_add(self.client_options,
-            app_type, domain, None)
+                                              app_type, domain, None)
 
     def _instproxy_client_options_free(self):
         '''
@@ -1693,7 +1427,8 @@ class libiMobileDevice():
             e = "Operation failed (-5)"
         return e
 
-
+    # ~~~ lockdown functions ~~~
+    # http://www.libimobiledevice.org/docs/html/include_2libimobiledevice_2lockdown_8h.html
     def _lockdown_client_free(self):
         '''
         Close the lockdownd client session if one is running, free up the lockdown_client struct
@@ -1930,7 +1665,7 @@ class libiMobileDevice():
                 desc=self._lockdown_error(error))
             raise libiMobileDeviceException(error_description)
 
-
+    # ~~~ logging ~~~
     def _log_location(self, *args):
         '''
         '''
@@ -1945,5 +1680,4 @@ class libiMobileDevice():
             arg2 = args[1]
 
         self.log(self.LOCATION_TEMPLATE.format(cls=self.__class__.__name__,
-            func=sys._getframe(1).f_code.co_name, arg1=arg1, arg2=arg2))
-
+                 func=sys._getframe(1).f_code.co_name, arg1=arg1, arg2=arg2))

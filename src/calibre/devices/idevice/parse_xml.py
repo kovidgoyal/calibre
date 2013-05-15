@@ -15,6 +15,7 @@ a property list file and get back a python native data structure.
 .. _Property Lists: http://developer.apple.com/documentation/Cocoa/Conceptual/PropertyLists/
 """
 
+
 class PropertyListParseError(Exception):
     """Raised when parsing a property list is failed."""
     pass
@@ -42,18 +43,25 @@ class XmlPropertyListParser(object):
     # ------------------------------------------------
     def setDocumentLocator(self, locator):
         pass
+
     def startPrefixMapping(self, prefix, uri):
         pass
+
     def endPrefixMapping(self, prefix):
         pass
+
     def startElementNS(self, name, qname, attrs):
         pass
+
     def endElementNS(self, name, qname):
         pass
+
     def ignorableWhitespace(self, whitespace):
         pass
+
     def processingInstruction(self, target, data):
         pass
+
     def skippedEntity(self, name):
         pass
 
@@ -125,7 +133,7 @@ class XmlPropertyListParser(object):
     def _start_plist(self, name, attrs):
         self._assert(not self.__stack and self.__plist is None, "<plist> more than once.")
         self._assert(attrs.get('version', '1.0') == '1.0',
-            "version 1.0 is only supported, but was '%s'." % attrs.get('version'))
+                     "version 1.0 is only supported, but was '%s'." % attrs.get('version'))
 
     def _start_array(self, name, attrs):
         v = list()
@@ -259,8 +267,7 @@ class XmlPropertyListParser(object):
         return self.__plist
 
     def _parse_using_sax_parser(self, xml_input):
-        from xml.sax import make_parser, handler, xmlreader, \
-                            SAXParseException
+        from xml.sax import make_parser, xmlreader, SAXParseException
         source = xmlreader.InputSource()
         source.setByteStream(self._to_stream(xml_input))
         reader = make_parser()
