@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 2 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2012, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2012-2013, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import urllib
@@ -25,12 +25,12 @@ class PublioStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
         google_analytics = '?utm_source=tdcalibre&utm_medium=calibre'
-        url = 'http://www.publio.pl/e-booki.html' + google_analytics
+        url = 'http://www.publio.pl/' + google_analytics
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner((detail_item + google_analytics) if detail_item else url)))
         else:
-            d = WebStoreDialog(self.gui, url, parent, detail_item)
+            d = WebStoreDialog(self.gui, url, parent, detail_item if detail_item else url)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
@@ -42,7 +42,7 @@ class PublioStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         page = 1
         while counter:
-            with closing(br.open('http://www.publio.pl/e-booki,strona' + str(page) + '.html?q=' + urllib.quote(query), timeout=timeout)) as f:
+            with closing(br.open('http://www.publio.pl/szukaj,strona' + str(page) + '.html?q=' + urllib.quote(query) + '&sections=EMAGAZINE&sections=MINIBOOK&sections=EBOOK', timeout=timeout)) as f:
                 doc = html.fromstring(f.read())
                 for data in doc.xpath('//div[@class="item"]'):
                     if counter <= 0:
