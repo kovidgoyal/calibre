@@ -27,7 +27,7 @@ class NOOK(USBMS):
     # Ordered list of supported formats
     FORMATS     = ['epub', 'pdb', 'pdf']
 
-    VENDOR_ID   = [0x2080, 0x18d1] # 0x18d1 is for softrooted nook
+    VENDOR_ID   = [0x2080, 0x18d1]  # 0x18d1 is for softrooted nook
     PRODUCT_ID  = [0x001]
     BCD         = [0x322]
 
@@ -52,7 +52,6 @@ class NOOK(USBMS):
             Image, ImageDraw
         except ImportError:
             import Image, ImageDraw
-
 
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
@@ -87,12 +86,13 @@ class NOOK_COLOR(NOOK):
 
     PRODUCT_ID  = [0x002, 0x003, 0x004]
     if isosx:
-        PRODUCT_ID.append(0x005) # Nook HD+
+        PRODUCT_ID.append(0x005)  # Nook HD+
     BCD         = [0x216]
 
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOK_DISK', 'NOOK_TABLET',
             'NOOK_SIMPLETOUCH']
     EBOOK_DIR_MAIN = 'My Files'
+    # SCAN_FROM_ROOT = True
     NEWS_IN_FOLDER = False
 
     def upload_cover(self, path, filename, metadata, filepath):
