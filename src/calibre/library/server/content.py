@@ -61,7 +61,6 @@ class ContentServer(object):
                  8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12:'Dec'}
         return lm.replace('month', month[updated.month])
 
-
     def sort(self, items, field, order):
         field = self.db.data.sanitize_sort_field_name(field)
         if field not in self.db.field_metadata.sortable_field_keys():
@@ -77,7 +76,7 @@ class ContentServer(object):
         try:
             id = int(id)
         except ValueError:
-            id = id.rpartition('_')[-1].partition('.')[0]
+            id = id.rpartition('.')[0].rpartition('_')[-1]
             match = re.search(r'\d+', id)
             if not match:
                 raise cherrypy.HTTPError(404, 'id:%s not an integer'%id)

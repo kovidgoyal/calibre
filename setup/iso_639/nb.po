@@ -27790,7 +27790,7 @@ msgstr ""
 
 #. name for wln
 msgid "Walloon"
-msgstr "Vietnamesisk"
+msgstr ""
 
 #. name for wlo
 msgid "Wolio"

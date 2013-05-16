@@ -636,10 +636,20 @@ class RulesModel(QAbstractListModel): # {{{
 
     def rule_to_html(self, kind, col, rule):
         if not isinstance(rule, Rule):
-            return _('''
-            <p>Advanced Rule for column <b>%(col)s</b>:
-            <pre>%(rule)s</pre>
-            ''')%dict(col=col, rule=prepare_string_for_xml(rule))
+            if kind == 'color':
+                return _('''
+                <p>Advanced Rule for column <b>%(col)s</b>:
+                <pre>%(rule)s</pre>
+                ''')%dict(col=col, rule=prepare_string_for_xml(rule))
+            else:
+                return _('''
+                <p>Advanced Rule: set <b>%(typ)s</b> for column <b>%(col)s</b>:
+                <pre>%(rule)s</pre>
+                ''')%dict(col=col,
+                          typ=icon_rule_kinds[0][0]
+                            if kind == icon_rule_kinds[0][1] else icon_rule_kinds[1][0],
+                          rule=prepare_string_for_xml(rule))
+
         conditions = [self.condition_to_html(c) for c in rule.conditions]
 
         trans_kind = 'not found'
@@ -761,7 +771,7 @@ class EditRules(QWidget): # {{{
                 ' what icon to use. Click the Add Rule button below'
                 ' to get started.<p>You can <b>change an existing rule</b> by'
                 ' double clicking it.'))
-            self.add_advanced_button.setVisible(False)
+#             self.add_advanced_button.setVisible(False)
 
     def add_rule(self):
         d = RuleEditor(self.model.fm, self.pref_name)
@@ -774,13 +784,23 @@ class EditRules(QWidget): # {{{
                 self.changed.emit()
 
     def add_advanced(self):
-        td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, color_field='')
-        if td.exec_() == td.Accepted:
-            col, r = td.rule
-            if r and col:
-                idx = self.model.add_rule('color', col, r)
-                self.rules_view.scrollTo(idx)
-                self.changed.emit()
+        if self.pref_name == 'column_color_rules':
+            td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, color_field='')
+            if td.exec_() == td.Accepted:
+                col, r = td.rule
+                if r and col:
+                    idx = self.model.add_rule('color', col, r)
+                    self.rules_view.scrollTo(idx)
+                    self.changed.emit()
+        else:
+            td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, icon_field_key='')
+            if td.exec_() == td.Accepted:
+                print(td.rule)
+                typ, col, r = td.rule
+                if typ and r and col:
+                    idx = self.model.add_rule(typ, col, r)
+                    self.rules_view.scrollTo(idx)
+                    self.changed.emit()
 
     def edit_rule(self, index):
         try:
@@ -790,8 +810,12 @@ class EditRules(QWidget): # {{{
         if isinstance(rule, Rule):
             d = RuleEditor(self.model.fm, self.pref_name)
             d.apply_rule(kind, col, rule)
-        else:
+        elif self.pref_name == 'column_color_rules':
             d = TemplateDialog(self, rule, mi=self.mi, fm=self.fm, color_field=col)
+        else:
+            d = TemplateDialog(self, rule, mi=self.mi, fm=self.fm, icon_field_key=col,
+                               icon_rule_kind=kind)
+
         if d.exec_() == d.Accepted:
             if len(d.rule) == 2: # Convert template dialog rules to a triple
                 d.rule = ('color', d.rule[0], d.rule[1])

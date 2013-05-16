@@ -2022,7 +2022,7 @@ msgstr ""
 
 #. name for aze
 msgid "Azerbaijani"
-msgstr "Turkiera"
+msgstr ""
 
 #. name for azg
 msgid "Amuzgo; San Pedro Amuzgos"
@@ -13126,7 +13126,7 @@ msgstr ""
 
 #. name for kur
 msgid "Kurdish"
-msgstr "Turkiera"
+msgstr ""
 
 #. name for kus
 msgid "Kusaal"
@@ -16190,7 +16190,7 @@ msgstr ""
 
 #. name for mlt
 msgid "Maltese"
-msgstr "Koreera"
+msgstr ""
 
 #. name for mlu
 msgid "To'abaita"

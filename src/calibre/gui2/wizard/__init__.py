@@ -113,7 +113,7 @@ class KindleDX(Kindle):
     id = 'kindledx'
 
 class KindleFire(KindleDX):
-    name = 'Kindle Fire'
+    name = 'Kindle Fire and Fire HD'
     id = 'kindle_fire'
     output_profile = 'kindle_fire'
     supports_color = True
@@ -431,7 +431,8 @@ class KindlePage(QWizardPage, KindleUI):
             default = ac[2]
             if x.strip().endswith('@kindle.com'):
                 accs.append((x, default))
-                if default: has_default = True
+                if default:
+                    has_default = True
         if has_default:
             accs = [x for x in accs if x[1]]
         if accs:
@@ -450,7 +451,8 @@ class KindlePage(QWizardPage, KindleUI):
         if (len(parts) >= 2 and parts[0] and self.send_email_widget.set_email_settings(True)):
             conf = smtp_prefs()
             accounts = conf.parse().accounts
-            if not accounts: accounts = {}
+            if not accounts:
+                accounts = {}
             for y in accounts.values():
                 y[2] = False
             accounts[x] = ['AZW, MOBI, TPZ, PRC, AZW1', True, True]
@@ -484,9 +486,9 @@ class StanzaPage(QWizardPage, StanzaUI):
             c = server_config()
             c.set('port', p)
 
-
     def set_port(self, *args):
-        if not self.content_server.isChecked(): return
+        if not self.content_server.isChecked():
+            return
         import socket
         s = socket.socket()
         with closing(s):
@@ -518,8 +520,7 @@ class DevicePage(QWizardPage, DeviceUI):
         self.manufacturer_view.setModel(self.man_model)
         previous = dynamic.get('welcome_wizard_device', False)
         if previous:
-            previous = [x for x in get_devices() if \
-                    x.id == previous]
+            previous = [x for x in get_devices() if x.id == previous]
             if not previous:
                 previous = [Device]
             previous = previous[0]
@@ -841,7 +842,6 @@ class FinishPage(QWizardPage, FinishUI):
         pass
 
 
-
 class Wizard(QWizard):
 
     BUTTON_TEXTS = {
@@ -858,7 +858,6 @@ class Wizard(QWizard):
             _('Cancel')
             _('&Finish')
             _('Commit')
-
 
     def __init__(self, parent):
         QWizard.__init__(self, parent)

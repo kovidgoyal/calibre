@@ -14,7 +14,7 @@ SVG_NS       = 'http://www.w3.org/2000/svg'
 XLINK_NS     = 'http://www.w3.org/1999/xlink'
 
 convert_entities = functools.partial(entity_to_unicode,
-        result_exceptions = {
+        result_exceptions={
             u'<' : '&lt;',
             u'>' : '&gt;',
             u"'" : '&apos;',
@@ -144,9 +144,9 @@ class DocAnalysis(object):
         percent is the percentage of lines that should be in a single bucket to return true
         The majority of the lines will exist in 1-2 buckets in typical docs with hard line breaks
         '''
-        minLineLength=20 # Ignore lines under 20 chars (typical of spaces)
-        maxLineLength=1900 # Discard larger than this to stay in range
-        buckets=20 # Each line is divided into a bucket based on length
+        minLineLength=20  # Ignore lines under 20 chars (typical of spaces)
+        maxLineLength=1900  # Discard larger than this to stay in range
+        buckets=20  # Each line is divided into a bucket based on length
 
         #print "there are "+str(len(lines))+" lines"
         #max = 0
@@ -156,7 +156,7 @@ class DocAnalysis(object):
         #        max = l
         #print "max line found is "+str(max)
         # Build the line length histogram
-        hRaw = [ 0 for i in range(0,buckets) ]
+        hRaw = [0 for i in range(0,buckets)]
         for line in self.lines:
             l = len(line)
             if l > minLineLength and l < maxLineLength:
@@ -167,7 +167,7 @@ class DocAnalysis(object):
         # Normalize the histogram into percents
         totalLines = len(self.lines)
         if totalLines > 0:
-            h = [ float(count)/totalLines for count in hRaw ]
+            h = [float(count)/totalLines for count in hRaw]
         else:
             h = []
         #print "\nhRaw histogram lengths are: "+str(hRaw)
@@ -200,7 +200,7 @@ class Dehyphenator(object):
         # Add common suffixes to the regex below to increase the likelihood of a match -
         # don't add suffixes which are also complete words, such as 'able' or 'sex'
         # only remove if it's not already the point of hyphenation
-        self.suffix_string = "((ed)?ly|'?e?s||a?(t|s)?ion(s|al(ly)?)?|ings?|er|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic(ally)?|(e|a)nce|m?ents?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex|ian)$"
+        self.suffix_string = "((ed)?ly|'?e?s||a?(t|s)?ion(s|al(ly)?)?|ings?|er|(i)?ous|(i|a)ty|(it)?ies|ive|gence|istic(ally)?|(e|a)nce|m?ents?|ism|ated|(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex|ian)$"  # noqa
         self.suffixes = re.compile(r"^%s" % self.suffix_string, re.IGNORECASE)
         self.removesuffixes = re.compile(r"%s" % self.suffix_string, re.IGNORECASE)
         # remove prefixes if the prefix was not already the point of hyphenation
@@ -265,18 +265,17 @@ class Dehyphenator(object):
         self.html = html
         self.format = format
         if format == 'html':
-            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)\s*(?=<)(?P<wraptags>(</span>)?\s*(</[iubp]>\s*){1,2}(?P<up2threeblanks><(p|div)[^>]*>\s*(<p[^>]*>\s*</p>\s*)?</(p|div)>\s+){0,3}\s*(<[iubp][^>]*>\s*){1,2}(<span[^>]*>)?)\s*(?P<secondpart>[\w\d]+)' % length)
+            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)\s*(?=<)(?P<wraptags>(</span>)?\s*(</[iubp]>\s*){1,2}(?P<up2threeblanks><(p|div)[^>]*>\s*(<p[^>]*>\s*</p>\s*)?</(p|div)>\s+){0,3}\s*(<[iubp][^>]*>\s*){1,2}(<span[^>]*>)?)\s*(?P<secondpart>[\w\d]+)' % length)  # noqa
         elif format == 'pdf':
             intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)\s*(?P<wraptags><p>|</[iub]>\s*<p>\s*<[iub]>)\s*(?P<secondpart>[\w\d]+)'% length)
         elif format == 'txt':
-            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)(\u0020|\u0009)*(?P<wraptags>(\n(\u0020|\u0009)*)+)(?P<secondpart>[\w\d]+)'% length)
+            intextmatch = re.compile(u'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)(\u0020|\u0009)*(?P<wraptags>(\n(\u0020|\u0009)*)+)(?P<secondpart>[\w\d]+)'% length)  # noqa
         elif format == 'individual_words':
             intextmatch = re.compile(u'(?!<)(?P<firstpart>[^\W\-]+)(-|‐)\s*(?P<secondpart>\w+)(?![^<]*?>)')
         elif format == 'html_cleanup':
-            intextmatch = re.compile(u'(?P<firstpart>[^\W\-]+)(-|‐)\s*(?=<)(?P<wraptags></span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)')
+            intextmatch = re.compile(u'(?P<firstpart>[^\W\-]+)(-|‐)\s*(?=<)(?P<wraptags></span>\s*(</[iubp]>\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)')  # noqa
         elif format == 'txt_cleanup':
             intextmatch = re.compile(u'(?P<firstpart>[^\W\-]+)(-|‐)(?P<wraptags>\s+)(?P<secondpart>[\w\d]+)')
-
 
         html = intextmatch.sub(self.dehyphenate, html)
         return html
@@ -498,9 +497,11 @@ class HTMLPreProcessor(object):
                      (re.compile('<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
                       lambda match : '<h3 class="subtitle">%s</h3>'%(match.group(1),)),
                      ]
-    def __init__(self, log=None, extra_opts=None):
+    def __init__(self, log=None, extra_opts=None, regex_wizard_callback=None):
         self.log = log
         self.extra_opts = extra_opts
+        self.regex_wizard_callback = regex_wizard_callback
+        self.current_href = None
 
     def is_baen(self, src):
         return re.compile(r'<meta\s+name="Publisher"\s+content=".*?Baen.*?"',
@@ -581,11 +582,14 @@ class HTMLPreProcessor(object):
                 end_rules.append((re.compile(u'(?<=.{%i}[–—])\s*<p>\s*(?=[[a-z\d])' % length), lambda match: ''))
                 end_rules.append(
                     # Un wrap using punctuation
-                    (re.compile(u'(?<=.{%i}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\IA\u00DF]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(</p>\s*<p>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
+                    (re.compile(u'(?<=.{%i}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\IA\u00DF]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(</p>\s*<p>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),  # noqa
                 )
 
         for rule in self.PREPROCESS + start_rules:
             html = rule[0].sub(rule[1], html)
+
+        if self.regex_wizard_callback is not None:
+            self.regex_wizard_callback(self.current_href, html)
 
         if get_preprocess_html:
             return html

@@ -20538,7 +20538,7 @@ msgstr ""
 
 #. name for peo
 msgid "Persian; Old (ca. 600-400 B.C.)"
-msgstr "perzsa"
+msgstr ""
 
 #. name for pep
 msgid "Kunja"

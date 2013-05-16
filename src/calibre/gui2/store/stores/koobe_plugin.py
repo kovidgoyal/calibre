@@ -8,7 +8,6 @@ __copyright__ = '2013, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import urllib
-from base64 import b64encode
 from contextlib import closing
 
 from lxml import html

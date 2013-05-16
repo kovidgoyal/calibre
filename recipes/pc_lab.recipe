@@ -1,6 +1,6 @@
 #!/usr/bin/env  python
 from calibre.web.feeds.recipes import BasicNewsRecipe
-
+from calibre.ebooks.BeautifulSoup import Comment
 class PCLab(BasicNewsRecipe):
     cover_url             = 'http://pclab.pl/img/logo.png'
     title                 = u"PC Lab"
@@ -52,6 +52,9 @@ class PCLab(BasicNewsRecipe):
             pager = soup2.find('div', attrs={'class':'next'})
             pagetext = soup2.find('div', attrs={'class':'substance'})
             pagetext = pagetext.find('div', attrs={'class':'data'})
+            comments = pagetext.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
 
             pos = len(appendtag.contents)
             appendtag.insert(pos, pagetext)

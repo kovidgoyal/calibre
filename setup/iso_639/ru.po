@@ -2089,7 +2089,7 @@ msgstr "Башкирский"
 
 #. name for bal
 msgid "Baluchi"
-msgstr "Балийский"
+msgstr ""
 
 #. name for bam
 msgid "Bambara"

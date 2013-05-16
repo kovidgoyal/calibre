@@ -1,11 +1,9 @@
-
 __license__   = 'GPL v3'
-__copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2012-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.nsfwcorp.com
 '''
 
-import urllib
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class NotSafeForWork(BasicNewsRecipe):
@@ -20,8 +18,8 @@ class NotSafeForWork(BasicNewsRecipe):
     needs_subscription     = True
     auto_cleanup           = False
     INDEX                  = 'https://www.nsfwcorp.com'
-    LOGIN                  = INDEX + '/login/target/'
-    SETTINGS               = INDEX + '/settings/'
+    LOGIN                  = INDEX + '/account/login/?next=%2F'
+    SETTINGS               = INDEX + '/account/settings/'
     use_embedded_content   = True
     language               = 'en'
     publication_type       = 'magazine'
@@ -48,19 +46,20 @@ class NotSafeForWork(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        br.open(self.LOGIN)
+        br.open(self.INDEX)
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({ 'email':self.username
-                                     ,'password':self.password
-                                   })
-            br.open(self.LOGIN, data)
+            br.open(self.LOGIN)
+            br.select_form(nr=0)
+            br['email'   ] = self.username
+            br['password'] = self.password
+            br.submit()
         return br
 
     def get_feeds(self):
         self.feeds = []
         soup = self.index_to_soup(self.SETTINGS)
         for item in soup.findAll('input', attrs={'type':'text'}):
-            if item.has_key('value') and item['value'].startswith('http://www.nsfwcorp.com/feed/'):
+            if item.has_key('value') and item['value'].startswith('https://www.nsfwcorp.com/feed/'):
                self.feeds.append(item['value'])
                return self.feeds
         return self.feeds

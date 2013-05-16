@@ -116,7 +116,9 @@ tarball. Edit setup.py and set zip_safe=False. Then run::
 
 Run the following command to install python dependencies::
 
-    easy_install --always-unzip -U mechanize pyreadline python-dateutil dnspython cssutils clientform pycrypto cssselect
+    easy_install --always-unzip -U mechanize python-dateutil dnspython cssutils clientform pycrypto cssselect
+
+Install pyreadline from https://pypi.python.org/pypi/pyreadline/2.0
 
 Install pywin32 and edit win32com\__init__.py setting _frozen = True and
 __gen_path__ to a temp dir (otherwise it tries to set it to a dir in the

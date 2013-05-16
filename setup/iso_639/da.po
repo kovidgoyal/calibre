@@ -1429,7 +1429,7 @@ msgstr ""
 
 #. name for arg
 msgid "Aragonese"
-msgstr "Færøsk"
+msgstr ""
 
 #. name for arh
 msgid "Arhuaco"

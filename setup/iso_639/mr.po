@@ -6804,7 +6804,7 @@ msgstr "डोगोन; तेबुल उरे"
 
 #. name for dua
 msgid "Duala"
-msgstr "ड्युला"
+msgstr ""
 
 #. name for dub
 msgid "Dubli"

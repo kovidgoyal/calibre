@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 9, 29)
+numeric_version = (0, 9, 30)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -66,10 +66,8 @@ else:
             filesystem_encoding = 'utf-8'
             # On linux, unicode arguments to os file functions are coerced to an ascii
             # bytestring if sys.getfilesystemencoding() == 'ascii', which is
-            # just plain dumb. So issue a warning.
-            print ('WARNING: You do not have the LANG environment variable set correctly. '
-                    'This will cause problems with non-ascii filenames. '
-                    'Set it to something like en_US.UTF-8.\n')
+            # just plain dumb. This is fixed by the icu.py module which, when
+            # imported changes ascii to utf-8
     except:
         filesystem_encoding = 'utf-8'
 

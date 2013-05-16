@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re
+import sys, os, re
 
 from calibre.customize.ui import available_input_formats
 
@@ -26,17 +26,18 @@ def EbookIterator(*args, **kwargs):
     from calibre.ebooks.oeb.iterator.book import EbookIterator
     return EbookIterator(*args, **kwargs)
 
-def get_preprocess_html(path_to_ebook, output):
-    from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
-    iterator = EbookIterator(path_to_ebook)
-    iterator.__enter__(only_input_plugin=True, run_char_count=False,
-            read_anchor_map=False)
-    preprocessor = HTMLPreProcessor(None, False)
-    with open(output, 'wb') as out:
-        for path in iterator.spine:
-            with open(path, 'rb') as f:
-                html = f.read().decode('utf-8', 'replace')
-            html = preprocessor(html, get_preprocess_html=True)
+def get_preprocess_html(path_to_ebook, output=None):
+    from calibre.ebooks.conversion.plumber import set_regex_wizard_callback, Plumber
+    from calibre.utils.logging import DevNull
+    from calibre.ptempfile import TemporaryDirectory
+    raw = {}
+    set_regex_wizard_callback(raw.__setitem__)
+    with TemporaryDirectory('_regex_wiz') as tdir:
+        pl = Plumber(path_to_ebook, os.path.join(tdir, 'a.epub'), DevNull(), for_regex_wizard=True)
+        pl.run()
+        items = [raw[item.href] for item in pl.oeb.spine if item.href in raw]
+
+    with (sys.stdout if output is None else open(output, 'wb')) as out:
+        for html in items:
             out.write(html.encode('utf-8'))
             out.write(b'\n\n' + b'-'*80 + b'\n\n')
-

@@ -871,6 +871,7 @@ class Manifest(object):
             orig_data = data
             fname = urlunquote(self.href)
             self.oeb.log.debug('Parsing', fname, '...')
+            self.oeb.html_preprocessor.current_href = self.href
             try:
                 data = parse_html(data, log=self.oeb.log,
                         decoder=self.oeb.decode,
@@ -1312,9 +1313,9 @@ class Guide(object):
                          ('notes', __('Notes')),
                          ('preface', __('Preface')),
                          ('text', __('Main Text'))]
-        TYPES = set(t for t, _ in _TYPES_TITLES)
+        TYPES = set(t for t, _ in _TYPES_TITLES)  # noqa
         TITLES = dict(_TYPES_TITLES)
-        ORDER = dict((t, i) for i, (t, _) in enumerate(_TYPES_TITLES))
+        ORDER = dict((t, i) for i, (t, _) in enumerate(_TYPES_TITLES))  # noqa
 
         def __init__(self, oeb, type, title, href):
             self.oeb = oeb
