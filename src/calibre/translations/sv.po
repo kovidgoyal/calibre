@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-05-10 04:31+0000\n"
-"PO-Revision-Date: 2013-05-13 05:57+0000\n"
-"Last-Translator: Merarom <Unknown>\n"
+"PO-Revision-Date: 2013-05-16 11:28+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-05-14 05:29+0000\n"
-"X-Generator: Launchpad (build 16617)\n"
+"X-Launchpad-Export-Date: 2013-05-17 05:32+0000\n"
+"X-Generator: Launchpad (build 16626)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
 
@@ -1181,7 +1181,7 @@ msgid ""
 "Everything after the -- will be passed to the plugin as arguments."
 msgstr ""
 "Kör ett tillägg som ger ett kommandoradsgränssnitt. Till exempel: \n"
-"calibre-debug-r \"Lägg till böcker\" - file1 - option1 \n"
+"calibre-debug-r \"Lägg till böcker\" -- file1 --option1 \n"
 "Allt efter - kommer att skickas till tilläggsprogrammet som argument."
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:180
@@ -1912,8 +1912,6 @@ msgid ""
 "%(pr)d%%<hr />"
 msgstr ""
 "<hr /><b> Senast lästa bok: </b> %(time)s<br /><b>Procent läst:</b> "
-"%(pr)d%%<hr />\r\n"
-"<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> "
 "%(pr)d%%<hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1121
@@ -5227,7 +5225,7 @@ msgstr "Stor"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google_images.py:34
 #, python-format
 msgid "Larger than %s"
-msgstr "Större AN% s"
+msgstr "Större An %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:23
 msgid "Downloads metadata from isbndb.com"
@@ -5555,7 +5553,7 @@ msgstr "Delinställning inbäddat teckensnitt"
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:169
 #, python-format
 msgid "Polishing took: %.1f seconds"
-msgstr "Polering ihop: % .1f sekunder"
+msgstr "Polering ihop: %.1f sekunder"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/polish/main.py:202
 msgid ""
@@ -7408,7 +7406,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:307
 #, python-format
 msgid "Ignore remaining %d reports"
-msgstr "Ignorera återstående% d Rapporter"
+msgstr "Ignorera återstående %d Rapporter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:314
 msgid "View full &log"
@@ -10820,7 +10818,7 @@ msgstr "Fel vid kommunikation med enheten"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:860
 #, python-format
 msgid "Manage the %s?"
-msgstr "Hantera för% s?"
+msgstr "Hantera för %s?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:861
 #, python-format
@@ -11064,7 +11062,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:212
 #, python-format
 msgid "Send the %s format to the folder:"
-msgstr "SKICKA% s format till mappen:"
+msgstr "SKICKA %s format till mappen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:220
 msgid "Folder on the device"
@@ -12114,7 +12112,7 @@ msgstr "Visa logg"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:322
 #, python-format
 msgid "Hide the remaining %d error messages"
-msgstr "Dölj resterande% d felmeddelanden"
+msgstr "Dölj resterande %d felmeddelanden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:61
 msgid "Title/Author"
@@ -15511,7 +15509,7 @@ msgstr "(Misslyckades omslag)"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:200
 #, python-format
 msgid "Processed %s"
-msgstr "Bearbetat% s"
+msgstr "Bearbetat %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:131
@@ -18849,7 +18847,7 @@ msgstr "Passar något av de valda %s namnen"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:36
 #, python-format
 msgid "Match all of the selected %s names"
-msgstr "Passa Alla Valda% s namnen"
+msgstr "Passa Alla Valda %s namnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:96
 msgid "Edit virtual library"
@@ -22070,7 +22068,7 @@ msgid ""
 "Applies to: AZW3, ePub, MOBI output formats"
 msgstr ""
 "Ersätt befintliga omslag när du skapar katalogen. \n"
-"Grundinställning: '% default' \n"
+"Grundinställning: '%default' \n"
 "Gäller: AZW3, ePub, MOBI utdataformat"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:183
@@ -22234,12 +22232,12 @@ msgstr "NCX to författare"
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3475
 #, python-format
 msgid "Authors beginning with %s"
-msgstr "Författare SOM börjar Med% s"
+msgstr "Författare SOM börjar Med %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3477
 #, python-format
 msgid "Authors beginning with '%s'"
-msgstr "Författare SOM börjar Meds '% s'"
+msgstr "Författare SOM börjar Meds '%s'"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:3518
 msgid "NCX for Recently Added"
@@ -22604,7 +22602,7 @@ msgstr ""
 msgid ""
 "List the metadata field names that can be used with the --field option"
 msgstr ""
-"Ange namn på metadatafält som kan användas med det - fältet är alternativt"
+"Ange namn på metadatafält som kan användas med det --field är alternativt"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:580
 msgid "Field name"
