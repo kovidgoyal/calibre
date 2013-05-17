@@ -20,6 +20,44 @@
 #   new recipes:
 #     - title: 
 
+
+- version: 0.9.31
+  date: 2013-05-17
+
+  new features:
+    - title: "Book list: Highlight the current cell in the book list, particularly convenient for usage with the keyboard."
+
+    - title: "Allow creation of advanced rules for column icons."
+
+    - title: "Driver for the limited edition SONY PRS-T2N"
+
+    - title: "MOBI Input: Add support for MOBI/KF8 files generated with the to be released kindlegen 2.9."
+      tickets: [1179144]
+ 
+  bug fixes:
+    - title: "ToC Editor: Fix incorrect playOrders in the generated toc.ncx when editing the toc in an epub file. This apparently affects FBReader."
+
+    - title: "PDF Input: Fix crashes on some malformed files, by updating the PDF library calibre uses (poppler 0.22.4)"
+
+    - title: "PDF Output: Ignore invalid links instead of erroring out on them."
+      tickets: [1179314]
+
+    - title: "MOBI Output: Fix space errorneously being removed when the input document contains a tag with leading space and sub-tags."
+      tickets: [1179216]
+
+    - title: "Search and replace wizard: Fix generated html being slightly different from the actual html in the conversion pipeline for some input formats (mainly HTML, CHM, LIT)."
+
+    - title: "Nook Color/Touch driver: Scan for ebooks in the entire main memory, not just under My Files"
+
+
+  improved recipes:
+    - Weblogs SL
+    - .net magazine
+
+  new recipes:
+    - title: nrc-next 
+      author: Niels Giesen
+
 - version: 0.9.30
   date: 2013-05-10
 
