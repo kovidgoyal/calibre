@@ -431,7 +431,7 @@ def do_add_format(db, id, fmt, path, opts):
     done = db.add_format_with_hooks(id, fmt.upper(), path, index_is_id=True,
                              replace=opts.replace)
     if not done and not opts.replace:
-        prints(_('A %s file already exists for book: %d, not replacing')%(fmt.upper(), id))
+        prints(_('A %(fmt)s file already exists for book: %(id)d, not replacing')%dict(fmt=fmt.upper(), id=id))
     else:
         send_message()
 

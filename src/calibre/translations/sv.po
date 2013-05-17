@@ -1911,7 +1911,7 @@ msgid ""
 "<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> "
 "%(pr)d%%<hr />"
 msgstr "<hr /><b> Senast lästa bok: </b> %(time)s<br /><b>Procent läst:</b> %(pr)d%%"
-"<hr />\r\n"
+"<hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1121
 #, python-format
