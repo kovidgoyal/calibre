@@ -159,7 +159,11 @@ class Split(object):
         except ValueError:
             # Unparseable URL
             return url
-        href = urlnormalize(href)
+        try:
+            href = urlnormalize(href)
+        except ValueError:
+            # href has non utf-8 quoting
+            return url
         if href in self.map:
             anchor_map = self.map[href]
             nhref = anchor_map[frag if frag else None]
