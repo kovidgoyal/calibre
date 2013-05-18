@@ -113,7 +113,7 @@ class Split(object):
         for i, elem in enumerate(item.data.iter()):
             try:
                 elem.set('pb_order', str(i))
-            except TypeError: # Cant set attributes on comment nodes etc.
+            except TypeError:  # Cant set attributes on comment nodes etc.
                 continue
 
         page_breaks = list(page_breaks)
@@ -169,7 +169,6 @@ class Split(object):
 
             return nhref
         return url
-
 
 
 class FlowSplitter(object):
@@ -313,7 +312,6 @@ class FlowSplitter(object):
         split_point  = root.xpath(path)[0]
         split_point2 = root2.xpath(path)[0]
 
-
         def nix_element(elem, top=True):
             # Remove elem unless top is False in which case replace elem by its
             # children
@@ -393,7 +391,6 @@ class FlowSplitter(object):
                 buf = part
         return ans
 
-
     def split_to_size(self, tree):
         self.log.debug('\t\tSplitting...')
         root = tree.getroot()
@@ -440,7 +437,7 @@ class FlowSplitter(object):
                                len(self.split_trees), size/1024.))
             else:
                 self.log.debug(
-                        '\t\t\tSplit tree still too large: %d KB' % \
+                        '\t\t\tSplit tree still too large: %d KB' %
                                 (size/1024.))
                 self.split_to_size(t)
 
@@ -545,7 +542,6 @@ class FlowSplitter(object):
                     toc.href = nhref
             for x in toc:
                 fix_toc_entry(x)
-
 
         if self.oeb.toc:
             fix_toc_entry(self.oeb.toc)
