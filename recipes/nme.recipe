@@ -4,7 +4,7 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     title          = u'New Musical Express Magazine'
     description = 'Author D.Asbury. UK Rock & Pop Mag. '
     __author__ = 'Dave Asbury'
-    # last updated 7/10/12
+    # last updated 17/5/13 News feed url altered
     remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets = True
@@ -13,14 +13,13 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     #auto_cleanup = True
     language = 'en_GB'
     compress_news_images = True
-
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.nme.com/component/subscribe')
         cov = soup.find(attrs={'id' : 'magazine_cover'})
+
         cov2 = str(cov['src'])
         # print '**** Cov url =*', cover_url,'***'
         #print '**** Cov url =*','http://www.magazinesdirect.com/article_images/articledir_3138/1569221/1_largelisting.jpg','***'
-
 
         br = browser()
         br.set_handle_redirect(False)
@@ -28,47 +27,43 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
             br.open_novisit(cov2)
             cover_url = str(cov2)
         except:
-            cover_url = 'http://tawanda3000.files.wordpress.com/2011/02/nme-logo.jpg'
+                cover_url = 'http://tawanda3000.files.wordpress.com/2011/02/nme-logo.jpg'
         return cover_url
-
     masthead_url   = 'http://tawanda3000.files.wordpress.com/2011/02/nme-logo.jpg'
 
     remove_tags = [
-        dict( attrs={'class':'clear_icons'}),
-        dict( attrs={'class':'share_links'}),
-                        dict( attrs={'id':'right_panel'}),
-        dict( attrs={'class':'today box'}),
+            dict(attrs={'class':'clear_icons'}),
+            dict(attrs={'class':'share_links'}),
+                            dict(attrs={'id':'right_panel'}),
+            dict(attrs={'class':'today box'}),
 
 
                       ]
 
     keep_only_tags = [
 
-    dict(name='h1'),
-    #dict(name='h3'),
-    dict(attrs={'class' :  'BText'}),
-    dict(attrs={'class' :  'Bmore'}),
-    dict(attrs={'class' : 'bPosts'}),
-    dict(attrs={'class' :  'text'}),
-    dict(attrs={'id' :  'article_gallery'}),
-                    #dict(attrs={'class' :  'image'}),
-    dict(attrs={'class' :  'article_text'})
-
-]
-
-
-
-
-    feeds          = [
-    (u'NME News', u'http://feeds.feedburner.com/nmecom/rss/newsxml?format=xml'),
-    #(u'Reviews', u'http://feeds2.feedburner.com/nme/SdML'),
-    (u'Reviews',u'http://feed43.com/1817687144061333.xml'),
-                    (u'Bloggs',u'http://feed43.com/3326754333186048.xml'),
+        dict(name='h1'),
+        #dict(name='h3'),
+        dict(attrs={'class' :  'BText'}),
+        dict(attrs={'class' :  'Bmore'}),
+        dict(attrs={'class' : 'bPosts'}),
+        dict(attrs={'class' :  'text'}),
+        dict(attrs={'id' :  'article_gallery'}),
+                        #dict(attrs={'class' :  'image'}),
+        dict(attrs={'class' :  'article_text'})
 
     ]
+
+    feeds          = [
+        (u'NME News', u'http://www.nme.com/news?alt=rss' ), #http://feeds.feedburner.com/nmecom/rss/newsxml?format=xml'),
+        #(u'Reviews', u'http://feeds2.feedburner.com/nme/SdML'),
+        (u'Reviews',u'http://feed43.com/1817687144061333.xml'),
+                        (u'Bloggs',u'http://feed43.com/3326754333186048.xml'),
+
+	]
     extra_css = '''
                     h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
                     h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
                     p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
                     body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-        '''
+		'''
