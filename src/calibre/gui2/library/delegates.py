@@ -9,7 +9,7 @@ import sys
 
 from PyQt4.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox,
         QVariant, QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument,
-        QAbstractTextDocumentLayout, QFont, QFontInfo, QDate)
+        QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime)
 
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, rating_font
 from calibre.constants import iswindows
@@ -23,6 +23,26 @@ from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.languages import LanguagesEdit
 
+class DateTimeEdit(QDateTimeEdit):  # {{{
+
+    def __init__(self, parent, format):
+        QDateTimeEdit.__init__(self, parent)
+        self.setFrame(False)
+        self.setMinimumDateTime(UNDEFINED_QDATETIME)
+        self.setSpecialValueText(_('Undefined'))
+        self.setCalendarPopup(True)
+        self.setDisplayFormat(format)
+
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_Minus:
+            ev.accept()
+            self.setDateTime(self.minimumDateTime())
+        elif ev.key() == Qt.Key_Equal:
+            ev.accept()
+            self.setDateTime(QDateTime.currentDateTime())
+        else:
+            return QDateTimeEdit.keyPressEvent(self, ev)
+# }}}
 
 class RatingDelegate(QStyledItemDelegate):  # {{{
 
@@ -77,12 +97,7 @@ class DateDelegate(QStyledItemDelegate):  # {{{
         return format_date(qt_to_dt(d, as_utc=False), self.format)
 
     def createEditor(self, parent, option, index):
-        qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat(self.format)
-        qde.setMinimumDateTime(UNDEFINED_QDATETIME)
-        qde.setSpecialValueText(_('Undefined'))
-        qde.setCalendarPopup(True)
-        return qde
+        return DateTimeEdit(parent, self.format)
 
 # }}}
 
@@ -101,12 +116,7 @@ class PubDateDelegate(QStyledItemDelegate):  # {{{
         return format_date(qt_to_dt(d, as_utc=False), self.format)
 
     def createEditor(self, parent, option, index):
-        qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat(self.format)
-        qde.setMinimumDateTime(UNDEFINED_QDATETIME)
-        qde.setSpecialValueText(_('Undefined'))
-        qde.setCalendarPopup(True)
-        return qde
+        return DateTimeEdit(parent, self.format)
 
     def setEditorData(self, editor, index):
         val = index.data(Qt.EditRole).toDate()
@@ -230,12 +240,7 @@ class CcDateDelegate(QStyledItemDelegate):  # {{{
         return format_date(qt_to_dt(d, as_utc=False), self.format)
 
     def createEditor(self, parent, option, index):
-        qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat(self.format)
-        qde.setMinimumDateTime(UNDEFINED_QDATETIME)
-        qde.setSpecialValueText(_('Undefined'))
-        qde.setCalendarPopup(True)
-        return qde
+        return DateTimeEdit(parent, self.format)
 
     def setEditorData(self, editor, index):
         m = index.model()

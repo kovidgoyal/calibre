@@ -13,7 +13,7 @@ from PyQt4.Qt import (Qt, QDateTimeEdit, pyqtSignal, QMessageBox, QIcon,
         QToolButton, QWidget, QLabel, QGridLayout, QApplication,
         QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, QDialog, QMenu,
         QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox,
-        QAction, QCalendarWidget, QDate)
+        QAction, QCalendarWidget, QDate, QDateTime)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
 from calibre.utils.icu import sort_key
@@ -1471,6 +1471,16 @@ class DateEdit(QDateTimeEdit):
     def changed(self):
         o, c = self.original_val, self.current_val
         return o != c
+
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_Minus:
+            ev.accept()
+            self.setDateTime(self.minimumDateTime())
+        elif ev.key() == Qt.Key_Equal:
+            ev.accept()
+            self.setDateTime(QDateTime.currentDateTime())
+        else:
+            return QDateTimeEdit.keyPressEvent(self, ev)
 
 class PubdateEdit(DateEdit):
     LABEL = _('Publishe&d:')
