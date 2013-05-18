@@ -54,14 +54,13 @@ class FoylesUKStore(BasicStoreConfig, StorePlugin):
                 id_ = ''.join(data.xpath('.//p[@class="doc-cover"]/a/@href')).strip()
                 if not id_:
                     continue
+                id_ = 'http://ebooks.foyles.co.uk' + id_
 
                 cover_url = ''.join(data.xpath('.//p[@class="doc-cover"]/a/img/@src'))
                 title = ''.join(data.xpath('.//span[@class="title"]/a/text()'))
                 author = ', '.join(data.xpath('.//span[@class="author"]/span[@class="author"]/text()'))
-                price = ''.join(data.xpath('.//span[@itemprop="price"]/text()'))
+                price = ''.join(data.xpath('.//span[@itemprop="price"]/text()')).strip()
                 format_ = ''.join(data.xpath('.//p[@class="doc-meta-format"]/span[last()]/text()'))
-                format_, ign, drm = format_.partition(' ')
-                drm = SearchResult.DRM_LOCKED if 'DRM' in drm else SearchResult.DRM_UNLOCKED
 
                 counter -= 1
 
@@ -71,7 +70,7 @@ class FoylesUKStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price
                 s.detail_item = id_
-                s.drm = drm
+                s.drm = SearchResult.DRM_LOCKED
                 s.formats = format_
 
                 yield s
