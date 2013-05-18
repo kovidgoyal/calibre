@@ -24,7 +24,7 @@ from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.languages import LanguagesEdit
 
 
-class RatingDelegate(QStyledItemDelegate): # {{{
+class RatingDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, *args, **kwargs):
         QStyledItemDelegate.__init__(self, *args, **kwargs)
@@ -60,7 +60,7 @@ class RatingDelegate(QStyledItemDelegate): # {{{
 
 # }}}
 
-class DateDelegate(QStyledItemDelegate): # {{{
+class DateDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, parent, tweak_name='gui_timestamp_display_format',
             default_format='dd MMM yyyy'):
@@ -86,7 +86,7 @@ class DateDelegate(QStyledItemDelegate): # {{{
 
 # }}}
 
-class PubDateDelegate(QStyledItemDelegate): # {{{
+class PubDateDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, *args, **kwargs):
         QStyledItemDelegate.__init__(self, *args, **kwargs)
@@ -116,7 +116,7 @@ class PubDateDelegate(QStyledItemDelegate): # {{{
 
 # }}}
 
-class TextDelegate(QStyledItemDelegate): # {{{
+class TextDelegate(QStyledItemDelegate):  # {{{
     def __init__(self, parent):
         '''
         Delegate for text data. If auto_complete_function needs to return a list
@@ -153,7 +153,7 @@ class TextDelegate(QStyledItemDelegate): # {{{
 
 #}}}
 
-class CompleteDelegate(QStyledItemDelegate): # {{{
+class CompleteDelegate(QStyledItemDelegate):  # {{{
     def __init__(self, parent, sep, items_func_name, space_before_sep=False):
         QStyledItemDelegate.__init__(self, parent)
         self.sep = sep
@@ -194,7 +194,7 @@ class CompleteDelegate(QStyledItemDelegate): # {{{
             QStyledItemDelegate.setModelData(self, editor, model, index)
 # }}}
 
-class LanguagesDelegate(QStyledItemDelegate): # {{{
+class LanguagesDelegate(QStyledItemDelegate):  # {{{
 
     def createEditor(self, parent, option, index):
         editor = LanguagesEdit(parent=parent)
@@ -210,7 +210,7 @@ class LanguagesDelegate(QStyledItemDelegate): # {{{
         model.setData(index, QVariant(val), Qt.EditRole)
 # }}}
 
-class CcDateDelegate(QStyledItemDelegate): # {{{
+class CcDateDelegate(QStyledItemDelegate):  # {{{
     '''
     Delegate for custom columns dates. Because this delegate stores the
     format as an instance variable, a new instance must be created for each
@@ -254,7 +254,7 @@ class CcDateDelegate(QStyledItemDelegate): # {{{
 
 # }}}
 
-class CcTextDelegate(QStyledItemDelegate): # {{{
+class CcTextDelegate(QStyledItemDelegate):  # {{{
     '''
     Delegate for text data.
     '''
@@ -279,7 +279,7 @@ class CcTextDelegate(QStyledItemDelegate): # {{{
         model.setData(index, QVariant(val), Qt.EditRole)
 # }}}
 
-class CcNumberDelegate(QStyledItemDelegate): # {{{
+class CcNumberDelegate(QStyledItemDelegate):  # {{{
     '''
     Delegate for text/int/float data.
     '''
@@ -314,7 +314,7 @@ class CcNumberDelegate(QStyledItemDelegate): # {{{
 
 # }}}
 
-class CcEnumDelegate(QStyledItemDelegate): # {{{
+class CcEnumDelegate(QStyledItemDelegate):  # {{{
     '''
     Delegate for text/int/float data.
     '''
@@ -346,7 +346,7 @@ class CcEnumDelegate(QStyledItemDelegate): # {{{
             editor.setCurrentIndex(idx)
 # }}}
 
-class CcCommentsDelegate(QStyledItemDelegate): # {{{
+class CcCommentsDelegate(QStyledItemDelegate):  # {{{
     '''
     Delegate for comments data.
     '''
@@ -364,7 +364,7 @@ class CcCommentsDelegate(QStyledItemDelegate): # {{{
         if hasattr(QStyle, 'CE_ItemViewItem'):
             style.drawControl(QStyle.CE_ItemViewItem, option, painter)
         ctx = QAbstractTextDocumentLayout.PaintContext()
-        ctx.palette = option.palette #.setColor(QPalette.Text, QColor("red"));
+        ctx.palette = option.palette  # .setColor(QPalette.Text, QColor("red"));
         if hasattr(QStyle, 'SE_ItemViewItemText'):
             textRect = style.subElementRect(QStyle.SE_ItemViewItemText, option)
             painter.save()
@@ -387,7 +387,7 @@ class CcCommentsDelegate(QStyledItemDelegate): # {{{
         model.setData(index, QVariant(editor.textbox.html), Qt.EditRole)
 # }}}
 
-class DelegateCB(QComboBox): # {{{
+class DelegateCB(QComboBox):  # {{{
 
     def __init__(self, parent):
         QComboBox.__init__(self, parent)
@@ -398,7 +398,7 @@ class DelegateCB(QComboBox): # {{{
         return QComboBox.event(self, e)
 # }}}
 
-class CcBoolDelegate(QStyledItemDelegate): # {{{
+class CcBoolDelegate(QStyledItemDelegate):  # {{{
     def __init__(self, parent):
         '''
         Delegate for custom_column bool data.
@@ -431,7 +431,7 @@ class CcBoolDelegate(QStyledItemDelegate): # {{{
 
 # }}}
 
-class CcTemplateDelegate(QStyledItemDelegate): # {{{
+class CcTemplateDelegate(QStyledItemDelegate):  # {{{
     def __init__(self, parent):
         '''
         Delegate for custom_column bool data.
@@ -457,7 +457,7 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
             validation_formatter.validate(val)
         except Exception as err:
             error_dialog(self.parent(), _('Invalid template'),
-                    '<p>'+_('The template %s is invalid:')%val + \
+                    '<p>'+_('The template %s is invalid:')%val +
                     '<br>'+str(err), show=True)
         model.setData(index, QVariant(val), Qt.EditRole)
 
@@ -468,4 +468,5 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
 
 
 # }}}
+
 
