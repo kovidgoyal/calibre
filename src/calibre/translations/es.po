@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-05-17 05:42+0000\n"
-"PO-Revision-Date: 2013-05-17 22:55+0000\n"
-"Last-Translator: Andres Muniz <Unknown>\n"
+"PO-Revision-Date: 2013-05-18 19:33+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Español; Castellano <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-05-18 05:28+0000\n"
+"X-Launchpad-Export-Date: 2013-05-19 05:15+0000\n"
 "X-Generator: Launchpad (build 16626)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:540
@@ -1333,7 +1333,7 @@ msgstr "Habilitar el registro de depuración"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:133
 msgid "Print driver debug messages to console"
-msgstr ""
+msgstr "Escribir mensajes de depuración de controladores en la consola"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:203
 msgid "Apple device"
@@ -2079,7 +2079,7 @@ msgid ""
 msgstr ""
 "Los libros archivados aparecen en la lista del dispositivo, pero tienen que "
 "descargarse para leerlos. Use esta opción para mostrar estos libros y "
-"asignarlos a los los libros de la biblioteca de calibre."
+"asignarlos a los libros de la biblioteca de calibre."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1248
 msgid ""
@@ -7271,7 +7271,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:226
 msgid "Discard downloaded metadata for this book"
-msgstr "Descargar los metadatos descargados para este libro"
+msgstr "Descartar los metadatos descargados para este libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:227
 msgid "Use the downloaded metadata for all remaining books"
@@ -14440,7 +14440,7 @@ msgstr "Copiar un nombre de color al portapapeles:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:172
 msgid "Kind"
-msgstr ""
+msgstr "Tipo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
@@ -14454,11 +14454,11 @@ msgstr "icono con texto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:175
 msgid "Apply the icon to column:"
-msgstr ""
+msgstr "Aplicar el icono a la columna:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:176
 msgid "Copy an icon file name to the clipboard:"
-msgstr ""
+msgstr "Copiar un nombr de archivo de icono al portapapeles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:177
 msgid "Copy the selected icon file name to the clipboard"
@@ -14466,11 +14466,11 @@ msgstr "Copia el archivo de icono seleccionado al portapapeles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:178
 msgid "Add icon"
-msgstr "Añade icono"
+msgstr "Añadir icono"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:179
 msgid "Add an icon file to the set of choices"
-msgstr ""
+msgstr "Añadir un archivo de icono al conjunto de opciones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:180
 msgid "Template value:"
@@ -15412,7 +15412,7 @@ msgstr "Centro"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:308
 #, python-format
 msgid "Quickview column %s"
-msgstr ""
+msgstr "Vista rápida de la columna %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:325
 msgid "Show column"
@@ -16926,6 +16926,10 @@ msgid ""
 "                <pre>%(rule)s</pre>\n"
 "                "
 msgstr ""
+"\n"
+"                <p>Regla avanzada para la columna <b>%(col)s</b>:\n"
+"<pre>%(rule)s</pre>\n"
+"                "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:645
 #, python-format
@@ -16936,6 +16940,11 @@ msgid ""
 "                <pre>%(rule)s</pre>\n"
 "                "
 msgstr ""
+"\n"
+"                <p>Regla avanzada: <b>%(typ)s</b> para la columna "
+"<b>%(col)s</b>:\n"
+"<pre>%(rule)s</pre>\n"
+"                "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:664
 #, python-format
@@ -23308,7 +23317,7 @@ msgstr "Debe especificar al menos un libro para eliminar"
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:434
 #, python-format
 msgid "A %(fmt)s file already exists for book: %(id)d, not replacing"
-msgstr ""
+msgstr "Ya existe un archivo %(fmt)s para el libro: %(id)d, no se sustituye"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:440
 msgid ""
@@ -24082,7 +24091,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:50
 msgid "The language(s) of this book"
-msgstr "Los lenguaje(s) de este libro"
+msgstr "El(los) idioma(s) de este libro"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:51
 msgid "The calibre internal id"
@@ -26273,6 +26282,42 @@ msgid ""
 "from books and the import plugin produces a value, than that value will\n"
 "be used irrespective of the setting of the tweak."
 msgstr ""
+"El algoritmo usado para asignar un número dentro de una serie existente a\n"
+"un nuevo libro. Los nuevos números asignados con este ajuste son siempre\n"
+"enteros, excepto si se especifica un número constante que no sea entero.\n"
+"Los valores posibles son:\n"
+"next: El primer entero disponible mayor que el mayor de los números en uso\n"
+"first_free: El primer entero disponible mayor que 0\n"
+"next_free: El primer entero disponible mayor que el menor de los números en "
+"uso\n"
+"last_free: El primer entero disponible menor que el mayor de los números en "
+"uso.\n"
+"Devuelve el mayor en uso + 1 si no hay otro disponible\n"
+"const: Asigna siempre el número 1\n"
+"no_change: No cambia el número de serie\n"
+"un número: Asigna siempre ese número. El número no está entre comillas.\n"
+"Se puede usar 0.0 aquí\n"
+"Ejemplos:\n"
+"series_index_auto_increment = 'next'\n"
+"series_index_auto_increment = 'next_free'\n"
+"series_index_auto_increment = 16.5\n"
+"\n"
+"Establezca el ajuste «use_series_auto_increment_tweak_when_importing»\n"
+"a  «True» para usar los valores anteriores al importar o añadir libros. Si "
+"dicho ajuste\n"
+"es «False» (el valor predeterminado), el número dentro de la serie será "
+"siempre 1\n"
+"si no se establece explícitamente al importar. Si es «True», entonces el "
+"número\n"
+"dentro de la serie se establecerá según el ajuste "
+"«series_index_auto_increment».\n"
+"Tenga en cuenta que «use_series_auto_increment_tweak_when_importing»\n"
+"sólo se usa cuando no hay un valor explícito al importar. Si la expresión "
+"regular\n"
+"empleada para importar produce un valor para «series_index», o si está "
+"leyendo\n"
+"metadatos de libros y el complemento de importación proporciona un valor,\n"
+"entonces se usará ese valor sea cual sea el valor de este ajuste."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:44
 msgid "Add separator after completing an author name"

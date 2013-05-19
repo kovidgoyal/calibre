@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-05-17 05:42+0000\n"
-"PO-Revision-Date: 2011-12-15 15:14+0000\n"
-"Last-Translator: akarong <Unknown>\n"
+"PO-Revision-Date: 2013-05-18 15:34+0000\n"
+"Last-Translator: Vatin <vatin.p@gmail.com>\n"
 "Language-Team: Thai <th@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-05-18 05:29+0000\n"
+"X-Launchpad-Export-Date: 2013-05-19 05:15+0000\n"
 "X-Generator: Launchpad (build 16626)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:428
@@ -31,7 +31,7 @@ msgstr "ตั้งค่าข้อมูลใน %s ไฟล์"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
-msgstr "ไม่มีอะไรเลย"
+msgstr "ไม่ทำอะไร"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:59
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:840
@@ -228,7 +228,7 @@ msgstr "กำหนดค่า"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:357
 msgid "Cannot configure"
-msgstr ""
+msgstr "ไม่สามารถตั้งค่า"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:331
 msgid "File type"
@@ -267,7 +267,7 @@ msgstr "จัดเก็บ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:650
 msgid "An ebook store."
-msgstr ""
+msgstr "ร้านค้าอีบุ๊ค"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:21
 msgid ""
@@ -284,6 +284,9 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"สร้างการจัดเก็บแฟ้ม TXTZ เมื่อแฟ้ม TXT ที่ถูกนำเข้ามีการบรรจุ Markdown หรือ "
+"Textile ที่อ้างอิงไปยังรูปภาพ รูปภาพที่ถูกอ้างอิงจะเป็นเช่นเดียวกับแฟ้ม TXT "
+"ที่ถูกเพิ่มไปยังที่จัดเก็บแฟ้ม"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:131
 msgid "Extract cover from comic files"
@@ -332,127 +335,131 @@ msgstr "ตั้งค่าข้อมูลจาก %s ไฟล์"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:772
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "เพิ่มหนังสือไปยัง Calibre หรืออุปกรณ์ที่เชื่อมต่ออยู่"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:777
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr ""
+msgstr "รับหมายเหตุประกอบจาก Kindle ที่เชื่อมต่อ (มืออาชีพ)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:782
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "สร้างหมวดหมู่หนังสือในห้องสมุด Calibre ของคุณ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:787
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "แปลงหนังสือในหลายรูปแบบ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:792
 msgid "Fine tune your ebooks"
-msgstr ""
+msgstr "ปรับแต่งค่าอีบุ๊คอย่างละเอียด"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:797
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/toc_edit.py:63
 msgid "Edit the Table of Contents in your books"
-msgstr ""
+msgstr "แก้ไขสารบัญในหนังสือของคุณ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "ลบหนังสือจากห้องสมุด Calibre ของคุณหรืออุปกรณ์ที่เชื่อมต่ออยู่"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:807
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "แก้ไข Metadata ของหนังสือในห้องสมุด Calibre ของคุณ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "อ่านหนังสือในห้องสมุด Calibre ของคุณ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "ดาวน์โหลดข่าวจากอินเตอร์เนตในรูปแบบ Ebook"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:822
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "แสดงรายการของหนังสือที่เกี่ยวข้อง"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:827
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "ส่งออกหนังสือจากห้องสมุด Calibre ของคุณไปยังฮาร์ดดิสก์"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:832
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "แสดงรายละเอียดหนังสือในป๊อปอัพแยก"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:837
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "Restart calibre"
-msgstr ""
+msgstr "เริ่มต้น Calibre ใหม่"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid "Open the folder that contains the book files in your calibre library"
-msgstr ""
+msgstr "เปิดโฟลเดอร์ที่บรรจุแฟ้มหนังสือในห้องสมุด Calibre ของคุณ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:848
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "ส่งหนังสือไปยังอุปกรณ์ที่เชื่อมต่ออยู่"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"ส่งหนังสือผ่าน Email หรือเวบที่เชื่อมต่อกับ iTunes "
+"หรือโฟลเดอร์บนคอมพิวเตอร์เสมือนว่าพวกมันเป็นอุปกรณ์หนึ่ง"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:859
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr ""
+msgstr "เปิดคู่มือการใช้งาน Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
 msgid "Customize calibre"
-msgstr ""
+msgstr "ปรับแต่ง Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:869
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "ค้นหาหนังสือที่คล้ายกับที่เลือกอยู่นี้อย่างง่ายดาย"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
-msgstr ""
+msgstr "สลับระหว่างห้องสมุด Calibre ต่างๆ และดำเนินการบำรุงรักษา"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:880
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "คัดลอกหนังสือจากอุปกรณ์ไปยังห้องสมุด Calibre ของคุณ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:885
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "แก้ไขชุดสะสมที่หนังสือถูกวางไว้ในอุปกรณ์ของคุณ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:890
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "คัดลอกหนังสือจากห้องสมุด Calibre ไปยังอีกที่หนึ่ง"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
-msgstr ""
+msgstr "ปรับแต่งแฟ้ม epub หรือ htmlz เล็กน้อยในห้องสมุด Calibre ของคุณ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:900
 msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
 msgstr ""
+"ค้นหารายการถัดไปหรือรายการก่อนหน้าที่ตรงกันเมื่อค้นหาในห้องสมุด Calibre "
+"ในโหมดไฮไลท์"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:906
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "เลือกสุ่มหนังสือจากห้องสมุด Calibre ของคุณ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:913
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "ค้นหาหนังสือจากผู้ขายหนังสืออื่นๆ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:929
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "รับปลั๊กอินหรือการปรับปรุงใหม่ของ Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:948
 msgid "Look and Feel"
@@ -505,7 +512,7 @@ msgstr "กำลังค้นหา"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1000
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "ปรับแต่งวิธีค้นหาสำหรับหนังสือที่ทำงานใน Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1005
 msgid "Input Options"
@@ -580,7 +587,7 @@ msgstr "เปลี่ยนช่อง Metadata ก่อนทำการ �
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1085
 msgid "Template Functions"
-msgstr ""
+msgstr "แม่แบบการทำงาน"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1087
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1147
@@ -592,7 +599,7 @@ msgstr "เชี่ยวชาญ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1091
 msgid "Create your own template functions"
-msgstr ""
+msgstr "สร้างแม่แบบการทำงานของคุณเอง"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1096
 msgid "Sharing books by email"
@@ -631,18 +638,19 @@ msgstr "ดาวน์โหลด Metadata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1127
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "ควบคุมวิธีที่ Calibre จะดาวน์โหลด Metadata จากอินเตอร์เนต"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1132
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/mtp_config.py:400
 msgid "Ignored devices"
-msgstr ""
+msgstr "อุปกรณ์ที่ถูกเพิกเฉย"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1138
 msgid ""
 "Control which devices calibre will ignore when they are connected to the "
 "computer."
 msgstr ""
+"ควบคุมว่าอุปกรณ์ใดที่ Calibre จะเพิกเฉยเมื่อเชื่อมต่อเข้ากับคอมพิวเตอร์"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1145
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:296
@@ -667,7 +675,7 @@ msgstr "แป้นพิมพ์"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1174
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "ปรับแต่งแป้นพิมพ์ทางลัดที่ใช้โดย Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1179
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
@@ -680,11 +688,11 @@ msgstr "การปรับแต่งค่าตั้งต้นอื่
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:108
 msgid "Options specific to the output format."
-msgstr ""
+msgstr "ตัวเลือกสำหรับใช้เฉพาะรูปแบบเอาต์พุต"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:118
 msgid "Options specific to the input format."
-msgstr ""
+msgstr "ตัวเลือกสำหรับใช้เฉพาะรูปแบบอินพุต"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:133
 msgid "Conversion Input"
@@ -717,7 +725,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:310
 #, python-format
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "แปลง Ebook ไปยังรูปแบบ %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:47
 msgid "Input profile"
@@ -828,22 +836,26 @@ msgstr ""
 msgid ""
 "Intended for the iPad 3 and similar devices with a resolution of 1536x2048"
 msgstr ""
+"มีไว้สำหรับ iPad 3 และอุปกรณ์อื่นๆ ที่คล้ายกันที่มีความละเอียด 1536x2048"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:443
 msgid "Intended for generic tablet devices, does no resizing of images"
-msgstr ""
+msgstr "มีไว้สำหรับอุปกรณ์แท็บเล็ตทั่วๆไป ที่ไม่มีการปรับขนาดรูปภาพ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:451
 msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"มีไว้สำหรับ Samsung Galaxy และอุปกรณ์แท็บเล็ตที่คล้ายกันที่มีความคมชัด "
+"600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:458
 msgid ""
 "Intended for the Nook HD+ and similar tablet devices with a resolution of "
 "1280x1920"
 msgstr ""
+"มีไว้สำหรับ Nook HD+ และอุปกรณ์แท็บเล็ตที่คล้ายกันที่มีความคมชัด 1280x1920"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:484
 msgid "This profile is intended for the Kobo Reader."
@@ -855,11 +867,11 @@ msgstr "ชุดข้อมูลนี้ทำมาสำหรับ SONY 
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:515
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "เหมาะสมสำหรับใช้กับอุปกรณ์ e-ink ใดๆ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:522
 msgid "Suitable for use with any large screen e-ink device"
-msgstr ""
+msgstr "เหมาะสมสำหรับอุปกรณ์ e-ink หน้าจอขนาดใหญ่"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:531
 msgid "This profile is intended for the 5-inch JetBook."
@@ -879,7 +891,7 @@ msgstr "ชุดข้อมูลนี้ทำมาสำหรับ Amazo
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:668
 msgid "This profile is intended for the Amazon Kindle PaperWhite"
-msgstr ""
+msgstr "โพรไฟล์นี้มีไว้สำหรับ Amazon Kindle PaperWhite"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:679
 msgid "This profile is intended for the Amazon Kindle Fire."
