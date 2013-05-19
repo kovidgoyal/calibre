@@ -1,0 +1,86 @@
+__license__   = 'GPL v3'
+__copyright__ = '2013, Armin Geller'
+
+'''
+Fetch WirtschaftsWoche Online
+'''
+import re
+# import time
+from calibre.web.feeds.news import BasicNewsRecipe
+class WirtschaftsWocheOnline(BasicNewsRecipe):
+    title                 = u'WirtschaftsWoche Online'
+    __author__            = 'Hegi'  # Update AGE 2013-01-05; Modified by Hegi 2013-04-28
+    description           = u'Wirtschaftswoche Online - basierend auf den RRS-Feeds von Wiwo.de'
+    tags 	                = 'Nachrichten, Blog, Wirtschaft'
+    publisher             = 'Verlagsgruppe Handelsblatt GmbH / Redaktion WirtschaftsWoche Online'
+    category              = 'business, economy, news, Germany'
+    publication_type      = 'weekly magazine'
+    language              = 'de'
+    oldest_article        = 7
+    max_articles_per_feed = 100
+    simultaneous_downloads= 20
+
+    auto_cleanup          = False
+    no_stylesheets        = True
+    remove_javascript     = True
+    remove_empty_feeds    = True
+
+    # don't duplicate articles from "Schlagzeilen" / "Exklusiv" to other rubrics
+    ignore_duplicate_articles = {'title', 'url'}
+
+    # if you want to reduce size for an b/w or E-ink device, uncomment this:
+    # compress_news_images  = True
+    # compress_news_images_auto_size = 16
+    # scale_news_images     = (400,300)
+
+    timefmt               = ' [%a, %d %b %Y]'
+
+    conversion_options    = {'smarten_punctuation' : True,
+                        'authors'		  : publisher,
+                        'publisher'  	  : publisher}
+    language              = 'de_DE'
+    encoding              = 'UTF-8'
+    cover_source          = 'http://www.wiwo-shop.de/wirtschaftswoche/wirtschaftswoche-emagazin-p1952.html'
+    masthead_url          = 'http://www.wiwo.de/images/wiwo_logo/5748610/1-formatOriginal.png'
+
+    def get_cover_url(self):
+        cover_source_soup = self.index_to_soup(self.cover_source)
+        preview_image_div = cover_source_soup.find(attrs={'class':'container vorschau'})
+        return 'http://www.wiwo-shop.de'+preview_image_div.a.img['src']
+
+    # Insert ". " after "Place" in <span class="hcf-location-mark">Place</span>
+    # If you use .epub format you could also do this as extra_css '.hcf-location-mark:after {content: ". "}'
+    preprocess_regexps    = [(re.compile(r'(<span class="hcf-location-mark">[^<]*)(</span>)',
+                              re.DOTALL|re.IGNORECASE), lambda match: match.group(1) + '. ' + match.group(2))]
+
+    extra_css      =  'h1 {font-size: 1.6em; text-align: left} \
+                       h2 {font-size: 1em; font-style: italic; font-weight: normal} \
+                       h3 {font-size: 1.3em;text-align: left} \
+                       h4, h5, h6, a {font-size: 1em;text-align: left} \
+                       .hcf-caption {font-size: 1em;text-align: left; font-style: italic} \
+                       .hcf-location-mark {font-style: italic}'
+
+    keep_only_tags    = [
+                          dict(name='div', attrs={'class':['hcf-column hcf-column1 hcf-teasercontainer hcf-maincol']}),
+                          dict(name='div', attrs={'id':['contentMain']})
+                        ]
+
+    remove_tags = [
+                    dict(name='div', attrs={'class':['hcf-link-block hcf-faq-open', 'hcf-article-related']})
+                  ]
+
+    feeds = [
+              (u'Schlagzeilen', u'http://www.wiwo.de/contentexport/feed/rss/schlagzeilen'),
+              (u'Exklusiv', u'http://www.wiwo.de/contentexport/feed/rss/exklusiv'),
+              # (u'Themen', u'http://www.wiwo.de/contentexport/feed/rss/themen'), # AGE no print version
+              (u'Unternehmen', u'http://www.wiwo.de/contentexport/feed/rss/unternehmen'),
+              (u'Finanzen', u'http://www.wiwo.de/contentexport/feed/rss/finanzen'),
+              (u'Politik', u'http://www.wiwo.de/contentexport/feed/rss/politik'),
+              (u'Erfolg', u'http://www.wiwo.de/contentexport/feed/rss/erfolg'),
+              (u'Technologie', u'http://www.wiwo.de/contentexport/feed/rss/technologie'),
+              # (u'Green-WiWo', u'http://green.wiwo.de/feed/rss/') # AGE no print version
+            ]
+    def print_version(self, url):
+        main, sep, id = url.rpartition('/')
+        return main + '/v_detail_tab_print/' + id
+
