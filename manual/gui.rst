@@ -516,6 +516,7 @@ Some example Quickview usages: quickly seeing what other books:
 	- are in the same series as the current book
 	- have the same values in a custom column as the current book
 	- are written by one of the same authors of the current book
+
 without changing the contents of the library view.
 
 The Quickview window opens on top of the |app| window and will stay open until you explicitly close it. You can use Quickview and the |app| library view at the same time. For example, if in the |app| library view you click on a category column (tags, series, publisher, authors, etc) for a book, the Quickview window contents will change to show you in the left-hand side pane the items in that category for the selected book (e.g., the tags for that book). The first item in that list will be selected, and Quickview will show you on the right-hand side pane all the books in your library that reference that item. Click on an different item in the left-hand pane to see the books with that different item. 
