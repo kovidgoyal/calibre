@@ -560,7 +560,9 @@ class OPF(object):  # {{{
             self.package_version = 0
         self.metadata = self.metadata_path(self.root)
         if not self.metadata:
-            raise ValueError('Malformed OPF file: No <metadata> element')
+            self.metadata = [self.root.makeelement('{http://www.idpf.org/2007/opf}metadata')]
+            self.root.insert(0, self.metadata[0])
+            self.metadata[0].tail = '\n'
         self.metadata      = self.metadata[0]
         if unquote_urls:
             self.unquote_urls()
