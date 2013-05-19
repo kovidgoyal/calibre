@@ -897,7 +897,11 @@ class BooksModel(QAbstractTableModel): # {{{
                 ht = self.column_map[section]
                 if ht == 'timestamp': # change help text because users know this field as 'date'
                     ht = 'date'
-                return QVariant(_('The lookup/search name is "{0}"').format(ht))
+                if self.db.field_metadata[self.column_map[section]]['is_category']:
+                    is_cat = _('.  This column can be Quickview\'ed')
+                else:
+                    is_cat = ''
+                return QVariant(_('The lookup/search name is "{0}"{1}').format(ht, is_cat))
             if role == Qt.DisplayRole:
                 return QVariant(self.headers[self.column_map[section]])
             return NONE
