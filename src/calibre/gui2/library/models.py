@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import functools, re, os, traceback, errno, time
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
         QModelIndex, QVariant, QDateTime, QColor, QPixmap)
@@ -29,6 +29,8 @@ from calibre.gui2.library import DEFAULT_SORT
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.coloring import color_row_key
 
+Counts = namedtuple('Counts', 'total current')
+
 def human_readable(size, precision=1):
     """ Convert a size in bytes into megabytes """
     return ('%.'+str(precision)+'f') % ((size/(1024.*1024.)),)
@@ -46,7 +48,7 @@ def default_image():
         _default_image = QImage(I('default_cover.png'))
     return _default_image
 
-class ColumnColor(object):
+class ColumnColor(object):  # {{{
 
     def __init__(self, formatter, colors):
         self.mi = None
@@ -70,9 +72,9 @@ class ColumnColor(object):
                     return color
         except:
             pass
+# }}}
 
-
-class ColumnIcon(object):
+class ColumnIcon(object):  # {{{
 
     def __init__(self, formatter):
         self.mi = None
@@ -108,6 +110,7 @@ class ColumnIcon(object):
                     return icon_bitmap
         except:
             pass
+# }}}
 
 class BooksModel(QAbstractTableModel):  # {{{
 
@@ -280,6 +283,13 @@ class BooksModel(QAbstractTableModel):  # {{{
     def count_changed(self, *args):
         self._clear_caches()
         self.count_changed_signal.emit(self.db.count())
+
+    def counts(self):
+        if self.db.data.search_restriction_applied():
+            total  = self.db.data.get_search_restriction_book_count()
+        else:
+            total = self.db.count()
+        return Counts(total, self.count())
 
     def row_indices(self, index):
         ''' Return list indices of all cells in index.row()'''
@@ -1195,6 +1205,12 @@ class DeviceBooksModel(BooksModel):  # {{{
         self.editable = ['title', 'authors', 'collections']
         self.book_in_library = None
 
+    def counts(self):
+        return Counts(len(self.db), len(self.map))
+
+    def count_changed(self, *args):
+        self.count_changed_signal.emit(len(self.db))
+
     def mark_for_deletion(self, job, rows, rows_are_ids=False):
         db_indices = rows if rows_are_ids else self.indices(rows)
         db_items = [self.db[i] for i in db_indices if -1 < i < len(self.db)]
@@ -1234,11 +1250,13 @@ class DeviceBooksModel(BooksModel):  # {{{
             if not succeeded:
                 indices = self.row_indices(self.index(row, 0))
                 self.dataChanged.emit(indices[0], indices[-1])
+        self.count_changed()
 
     def paths_deleted(self, paths):
         self.map = list(range(0, len(self.db)))
         self.resort(False)
         self.research(True)
+        self.count_changed()
 
     def is_row_marked_for_deletion(self, row):
         try:
@@ -1301,6 +1319,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         self.last_search = text
         if self.last_search:
             self.searched.emit(True)
+        self.count_changed()
 
     def research(self, reset=True):
         self.search(self.last_search, reset)
@@ -1370,6 +1389,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         self.map = list(range(0, len(db)))
         self.research(reset=False)
         self.resort()
+        self.count_changed()
 
     def cover(self, row):
         item = self.db[self.map[row]]

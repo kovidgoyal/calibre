@@ -27,7 +27,7 @@ def partial(*args, **kwargs):
     _keep_refs.append(ans)
     return ans
 
-class LibraryViewMixin(object): # {{{
+class LibraryViewMixin(object):  # {{{
 
     def __init__(self, db):
         self.library_view.files_dropped.connect(self.iactions['Add Books'].files_dropped, type=Qt.QueuedConnection)
@@ -100,7 +100,7 @@ class LibraryViewMixin(object): # {{{
 
     # }}}
 
-class LibraryWidget(Splitter): # {{{
+class LibraryWidget(Splitter):  # {{{
 
     def __init__(self, parent):
         orientation = Qt.Vertical
@@ -119,7 +119,7 @@ class LibraryWidget(Splitter): # {{{
         self.addWidget(parent.library_view)
 # }}}
 
-class Stack(QStackedWidget): # {{{
+class Stack(QStackedWidget):  # {{{
 
     def __init__(self, parent):
         QStackedWidget.__init__(self, parent)
@@ -147,7 +147,7 @@ class Stack(QStackedWidget): # {{{
 
 # }}}
 
-class UpdateLabel(QLabel): # {{{
+class UpdateLabel(QLabel):  # {{{
 
     def __init__(self, *args, **kwargs):
         QLabel.__init__(self, *args, **kwargs)
@@ -157,22 +157,22 @@ class UpdateLabel(QLabel): # {{{
         pass
 # }}}
 
-class StatusBar(QStatusBar): # {{{
+class StatusBar(QStatusBar):  # {{{
 
     def __init__(self, parent=None):
         QStatusBar.__init__(self, parent)
-        self.default_message = __appname__ + ' ' + _('version') + ' ' + \
-                self.get_version() + ' ' + _('created by Kovid Goyal')
         self.device_string = ''
         self.update_label = UpdateLabel('')
+        self.total = self.current = self.selected = 0
         self.addPermanentWidget(self.update_label)
         self.update_label.setVisible(False)
         self._font = QFont()
         self._font.setBold(True)
         self.setFont(self._font)
-        self.defmsg = QLabel(self.default_message)
+        self.defmsg = QLabel('')
         self.defmsg.setFont(self._font)
         self.addWidget(self.defmsg)
+        self.set_label()
 
     def initialize(self, systray=None):
         self.systray = systray
@@ -180,17 +180,41 @@ class StatusBar(QStatusBar): # {{{
 
     def device_connected(self, devname):
         self.device_string = _('Connected ') + devname
-        self.defmsg.setText(self.default_message + ' ..::.. ' +
-                self.device_string)
+        self.set_label()
+
+    def update_state(self, total, current, selected):
+        self.total, self.current, self.selected = total, current, selected
+        self.set_label()
+
+    def set_label(self):
+        try:
+            self._set_label()
+        except:
+            import traceback
+            traceback.print_exc()
+
+    def _set_label(self):
+        msg = '%s %s %s' % (__appname__, _('version'), get_version())
+        if self.device_string:
+            msg += ' ..::.. ' + self.device_string
+        else:
+            msg += _(' %(created)s %(name)s') % dict(created=_('created by'), name='Kovid Goyal')
+
+        if self.total != self.current:
+            base = _('%(num)d of %(total)d books') % dict(num=self.current, total=self.total)
+        else:
+            base = _('%d books') % self.total
+        if self.selected > 0:
+            base = _('%(num)s, %(sel)d selected') % dict(num=base, sel=self.selected)
+
+        self.defmsg.setText('%s [%s]' % (msg, base))
         self.clearMessage()
 
     def device_disconnected(self):
         self.device_string = ''
+        self.set_label()
         self.defmsg.setText(self.default_message)
         self.clearMessage()
-
-    def get_version(self):
-        return get_version()
 
     def show_message(self, msg, timeout=0):
         self.showMessage(msg, timeout)
@@ -207,11 +231,11 @@ class StatusBar(QStatusBar): # {{{
 
 # }}}
 
-class LayoutMixin(object): # {{{
+class LayoutMixin(object):  # {{{
 
     def __init__(self):
 
-        if config['gui_layout'] == 'narrow': # narrow {{{
+        if config['gui_layout'] == 'narrow':  # narrow {{{
             self.book_details = BookDetails(False, self)
             self.stack = Stack(self)
             self.bd_splitter = Splitter('book_details_splitter',
@@ -224,7 +248,7 @@ class LayoutMixin(object): # {{{
             self.centralwidget.layout().addWidget(self.bd_splitter)
             button_order = ('tb', 'bd', 'cb')
         # }}}
-        else: # wide {{{
+        else:  # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.png'), initial_side_size=200,
                     orientation=Qt.Horizontal, parent=self, side_index=1,
@@ -312,9 +336,15 @@ class LayoutMixin(object): # {{{
 
     def read_layout_settings(self):
         # View states are restored automatically when set_database is called
-
         for x in ('cb', 'tb', 'bd'):
             getattr(self, x+'_splitter').restore_state()
 
+    def update_status_bar(self, *args):
+        v = self.current_view()
+        selected = len(v.selectionModel().selectedRows())
+        total, current = v.model().counts()
+        self.status_bar.update_state(total, current, selected)
+
 # }}}
+
 

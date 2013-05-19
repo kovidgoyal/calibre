@@ -325,6 +325,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             if self.library_view.model().rowCount(None) < 3:
                 self.library_view.resizeColumnsToContents()
 
+        for view in ('library', 'memory', 'card_a', 'card_b'):
+            v = getattr(self, '%s_view' % view)
+            v.selectionModel().selectionChanged.connect(self.update_status_bar)
+            v.model().count_changed_signal.connect(self.update_status_bar)
+
         self.library_view.model().count_changed()
         self.bars_manager.database_changed(self.library_view.model().db)
         self.library_view.model().database_changed.connect(self.bars_manager.database_changed,
@@ -661,6 +666,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             # Reset the view in case something changed while it was invisible
             self.current_view().reset()
         self.set_number_of_books_shown()
+        self.update_status_bar()
 
     def job_exception(self, job, dialog_title=_('Conversion Error')):
         if not hasattr(self, '_modeless_dialogs'):
