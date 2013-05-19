@@ -949,8 +949,8 @@ class LayoutButton(QToolButton):
 
     def set_state_to_hide(self, *args):
         self.setChecked(True)
-        self.setText(_('Hide %(label)s %(shortcut)s'%dict(
-            label=self.label, shortcut=self.shortcut)))
+        self.setText(_('Hide %(label)s %(shortcut)s')%dict(
+            label=self.label, shortcut=self.shortcut))
         self.setToolTip(self.text())
         self.setStatusTip(self.text())
 
