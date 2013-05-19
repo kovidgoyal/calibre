@@ -24,7 +24,7 @@ from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
 
 history = XMLConfig('history')
 
-class ProgressIndicator(QWidget): # {{{
+class ProgressIndicator(QWidget):  # {{{
 
     def __init__(self, *args):
         QWidget.__init__(self, *args)
@@ -57,7 +57,7 @@ class ProgressIndicator(QWidget): # {{{
         self.setVisible(False)
 # }}}
 
-class FilenamePattern(QWidget, Ui_Form): # {{{
+class FilenamePattern(QWidget, Ui_Form):  # {{{
 
     changed_signal = pyqtSignal()
 
@@ -82,7 +82,8 @@ class FilenamePattern(QWidget, Ui_Form): # {{{
             val = prefs['filename_pattern']
         self.re.lineEdit().setText(val)
 
-        val_hist += gprefs.get('filename_pattern_history', ['(?P<title>.+)', '(?P<author>[^_-]+) -?\s*(?P<series>[^_0-9-]*)(?P<series_index>[0-9]*)\s*-\s*(?P<title>[^_].+) ?'])
+        val_hist += gprefs.get('filename_pattern_history', [
+                               '(?P<title>.+)', '(?P<author>[^_-]+) -?\s*(?P<series>[^_0-9-]*)(?P<series_index>[0-9]*)\s*-\s*(?P<title>[^_].+) ?'])
         if val in val_hist:
             del val_hist[val_hist.index(val)]
         val_hist.insert(0, val)
@@ -136,7 +137,6 @@ class FilenamePattern(QWidget, Ui_Form): # {{{
 
         self.isbn.setText(_('No match') if mi.isbn is None else str(mi.isbn))
 
-
     def pattern(self):
         pat = unicode(self.re.lineEdit().text())
         return re.compile(pat)
@@ -157,7 +157,7 @@ class FilenamePattern(QWidget, Ui_Form): # {{{
 
 # }}}
 
-class FormatList(QListWidget): # {{{
+class FormatList(QListWidget):  # {{{
     DROPABBLE_EXTENSIONS = BOOK_EXTENSIONS
     formats_dropped = pyqtSignal(object, object)
     delete_format = pyqtSignal()
@@ -186,7 +186,6 @@ class FormatList(QListWidget): # {{{
             if d.err is None:
                 self.formats_dropped.emit(event, [d.fpath])
 
-
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
 
@@ -198,7 +197,7 @@ class FormatList(QListWidget): # {{{
 
 # }}}
 
-class ImageDropMixin(object): # {{{
+class ImageDropMixin(object):  # {{{
     '''
     Adds support for dropping images onto widgets and a context menu for
     copy/pasting images.
@@ -272,7 +271,7 @@ class ImageDropMixin(object): # {{{
                     pixmap_to_data(pmap))
 # }}}
 
-class ImageView(QWidget, ImageDropMixin): # {{{
+class ImageView(QWidget, ImageDropMixin):  # {{{
 
     BORDER_WIDTH = 1
     cover_changed = pyqtSignal(object)
@@ -338,7 +337,7 @@ class ImageView(QWidget, ImageDropMixin): # {{{
         p.end()
 # }}}
 
-class CoverView(QGraphicsView, ImageDropMixin): # {{{
+class CoverView(QGraphicsView, ImageDropMixin):  # {{{
 
     cover_changed = pyqtSignal(object)
 
@@ -393,7 +392,7 @@ class BasicList(QListWidget):
             yield self.item(i)
 # }}}
 
-class LineEditECM(object): # {{{
+class LineEditECM(object):  # {{{
 
     '''
     Extend the context menu of a QLineEdit to include more actions.
@@ -438,7 +437,7 @@ class LineEditECM(object): # {{{
 
 # }}}
 
-class EnLineEdit(LineEditECM, QLineEdit): # {{{
+class EnLineEdit(LineEditECM, QLineEdit):  # {{{
 
     '''
     Enhanced QLineEdit.
@@ -449,7 +448,7 @@ class EnLineEdit(LineEditECM, QLineEdit): # {{{
     pass
 # }}}
 
-class ItemsCompleter(QCompleter): # {{{
+class ItemsCompleter(QCompleter):  # {{{
 
     '''
     A completer object that completes a list of tags. It is used in conjunction
@@ -541,7 +540,7 @@ class CompleteLineEdit(EnLineEdit):  # {{{
 
 # }}}
 
-class EnComboBox(QComboBox): # {{{
+class EnComboBox(QComboBox):  # {{{
 
     '''
     Enhanced QComboBox.
@@ -567,7 +566,7 @@ class EnComboBox(QComboBox): # {{{
 
 # }}}
 
-class CompleteComboBox(EnComboBox): # {{{
+class CompleteComboBox(EnComboBox):  # {{{
 
     def __init__(self, *args):
         EnComboBox.__init__(self, *args)
@@ -584,7 +583,7 @@ class CompleteComboBox(EnComboBox): # {{{
 
 # }}}
 
-class HistoryLineEdit(QComboBox): # {{{
+class HistoryLineEdit(QComboBox):  # {{{
 
     lost_focus = pyqtSignal()
 
@@ -637,7 +636,7 @@ class HistoryLineEdit(QComboBox): # {{{
 
 # }}}
 
-class ComboBoxWithHelp(QComboBox): # {{{
+class ComboBoxWithHelp(QComboBox):  # {{{
     '''
     A combobox where item 0 is help text. CurrentText will return '' for item 0.
     Be sure to always fetch the text with currentText. Don't use the signals
@@ -686,7 +685,7 @@ class ComboBoxWithHelp(QComboBox): # {{{
 
 # }}}
 
-class EncodingComboBox(QComboBox): # {{{
+class EncodingComboBox(QComboBox):  # {{{
     '''
     A combobox that holds text encodings support
     by Python. This is only populated with the most
@@ -711,7 +710,7 @@ class EncodingComboBox(QComboBox): # {{{
 
 # }}}
 
-class PythonHighlighter(QSyntaxHighlighter): # {{{
+class PythonHighlighter(QSyntaxHighlighter):  # {{{
 
     Rules = []
     Formats = {}
@@ -736,12 +735,10 @@ class PythonHighlighter(QSyntaxHighlighter): # {{{
 
     CONSTANTS = ["False", "True", "None", "NotImplemented", "Ellipsis"]
 
-
     def __init__(self, parent=None):
         super(PythonHighlighter, self).__init__(parent)
         if not self.Config:
             self.loadConfig()
-
 
         self.initializeFormats()
 
@@ -752,7 +749,7 @@ class PythonHighlighter(QSyntaxHighlighter): # {{{
                 "|".join([r"\b%s\b" % builtin for builtin in self.BUILTINS])),
                 "builtin"))
         PythonHighlighter.Rules.append((QRegExp(
-                "|".join([r"\b%s\b" % constant \
+                "|".join([r"\b%s\b" % constant
                 for constant in self.CONSTANTS])), "constant"))
         PythonHighlighter.Rules.append((QRegExp(
                 r"\b[+-]?[0-9]+[lL]?\b"
@@ -812,7 +809,6 @@ class PythonHighlighter(QSyntaxHighlighter): # {{{
             Config["%sfontbold" % name] = QVariant(bold).toBool()
             Config["%sfontitalic" % name] = QVariant(italic).toBool()
 
-
     @classmethod
     def initializeFormats(cls):
         Config = cls.Config
@@ -828,7 +824,6 @@ class PythonHighlighter(QSyntaxHighlighter): # {{{
                 format.setFontWeight(QFont.Bold)
             format.setFontItalic(Config["%sfontitalic" % name])
             PythonHighlighter.Formats[name] = format
-
 
     def highlightBlock(self, text):
         NORMAL, TRIPLESINGLE, TRIPLEDOUBLE, ERROR = range(4)
@@ -861,7 +856,7 @@ class PythonHighlighter(QSyntaxHighlighter): # {{{
 
         # Slow but good quality highlighting for comments. For more
         # speed, comment this out and add the following to __init__:
-        #   PythonHighlighter.Rules.append((QRegExp(r"#.*"), "comment"))
+        # PythonHighlighter.Rules.append((QRegExp(r"#.*"), "comment"))
         if text.isEmpty():
             pass
         elif text[0] == "#":
@@ -899,7 +894,6 @@ class PythonHighlighter(QSyntaxHighlighter): # {{{
                 self.setCurrentBlockState(state)
                 self.setFormat(i, text.length(),
                                PythonHighlighter.Formats["string"])
-
 
     def rehighlight(self):
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
@@ -1045,11 +1039,13 @@ class Splitter(QSplitter):
     @dynamic_property
     def side_index_size(self):
         def fget(self):
-            if self.count() < 2: return 0
+            if self.count() < 2:
+                return 0
             return self.sizes()[self.side_index]
 
         def fset(self, val):
-            if self.count() < 2: return
+            if self.count() < 2:
+                return
             if val == 0 and not self.is_side_index_hidden:
                 self.save_state()
             sizes = list(self.sizes())
@@ -1081,7 +1077,8 @@ class Splitter(QSplitter):
         self.resize_timer.start()
 
     def get_state(self):
-        if self.count() < 2: return (False, 200)
+        if self.count() < 2:
+            return (False, 200)
         return (self.desired_show, self.desired_side_size)
 
     def apply_state(self, state, save_desired=True):
@@ -1141,4 +1138,5 @@ class Splitter(QSplitter):
     # }}}
 
 # }}}
+
 
