@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import functools, re, os, traceback, errno, time
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
         QModelIndex, QVariant, QDateTime, QColor, QPixmap)
@@ -29,6 +29,8 @@ from calibre.gui2.library import DEFAULT_SORT
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.coloring import color_row_key
 
+Counts = namedtuple('Counts', 'total current')
+
 def human_readable(size, precision=1):
     """ Convert a size in bytes into megabytes """
     return ('%.'+str(precision)+'f') % ((size/(1024.*1024.)),)
@@ -46,7 +48,7 @@ def default_image():
         _default_image = QImage(I('default_cover.png'))
     return _default_image
 
-class ColumnColor(object):
+class ColumnColor(object):  # {{{
 
     def __init__(self, formatter, colors):
         self.mi = None
@@ -70,9 +72,9 @@ class ColumnColor(object):
                     return color
         except:
             pass
+# }}}
 
-
-class ColumnIcon(object):
+class ColumnIcon(object):  # {{{
 
     def __init__(self, formatter):
         self.mi = None
@@ -108,8 +110,9 @@ class ColumnIcon(object):
                     return icon_bitmap
         except:
             pass
+# }}}
 
-class BooksModel(QAbstractTableModel): # {{{
+class BooksModel(QAbstractTableModel):  # {{{
 
     about_to_be_sorted   = pyqtSignal(object, name='aboutToBeSorted')
     sorting_done         = pyqtSignal(object, name='sortingDone')
@@ -150,7 +153,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.default_image = default_image()
         self.sorted_on = DEFAULT_SORT
         self.sort_history = [self.sorted_on]
-        self.last_search = '' # The last search performed on this model
+        self.last_search = ''  # The last search performed on this model
         self.column_map = []
         self.headers = {}
         self.alignment_map = {}
@@ -240,7 +243,6 @@ class BooksModel(QAbstractTableModel): # {{{
             # Would like to to a join here, but the thread might be waiting to
             # do something on the GUI thread. Deadlock.
 
-
     def refresh_ids(self, ids, current_row=-1):
         self._clear_caches()
         rows = self.db.refresh_ids(ids)
@@ -282,9 +284,16 @@ class BooksModel(QAbstractTableModel): # {{{
         self._clear_caches()
         self.count_changed_signal.emit(self.db.count())
 
+    def counts(self):
+        if self.db.data.search_restriction_applied():
+            total  = self.db.data.get_search_restriction_book_count()
+        else:
+            total = self.db.count()
+        return Counts(total, self.count())
+
     def row_indices(self, index):
         ''' Return list indices of all cells in index.row()'''
-        return [ self.index(index.row(), c) for c in range(self.columnCount(None))]
+        return [self.index(index.row(), c) for c in range(self.columnCount(None))]
 
     @property
     def by_author(self):
@@ -332,7 +341,7 @@ class BooksModel(QAbstractTableModel): # {{{
         while True:
             row_ += 1 if forward else -1
             if row_ < 0:
-                row_ = self.count() - 1;
+                row_ = self.count() - 1
             elif row_ >= self.count():
                 row_ = 0
             if self.id(row_) in self.ids_to_highlight_set:
@@ -611,7 +620,7 @@ class BooksModel(QAbstractTableModel): # {{{
         data = None
         try:
             data = self.db.cover(row_number)
-        except IndexError: # Happens if database has not yet been refreshed
+        except IndexError:  # Happens if database has not yet been refreshed
             pass
 
         if not data:
@@ -673,7 +682,7 @@ class BooksModel(QAbstractTableModel): # {{{
                 return QVariant(UNDEFINED_QDATETIME)
 
         def bool_type(r, idx=-1):
-            return None # displayed using a decorator
+            return None  # displayed using a decorator
 
         def bool_type_decorator(r, idx=-1, bool_cols_are_tristate=True):
             val = force_to_bool(self.db.data[r][idx])
@@ -884,18 +893,18 @@ class BooksModel(QAbstractTableModel): # {{{
             ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
                 'left')]
             return QVariant(ans)
-        #elif role == Qt.ToolTipRole and index.isValid():
+        # elif role == Qt.ToolTipRole and index.isValid():
         #    if self.column_map[index.column()] in self.editable_cols:
         #        return QVariant(_("Double click to <b>edit</b> me<br><br>"))
         return NONE
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal:
-            if section >= len(self.column_map): # same problem as in data, the column_map can be wrong
+            if section >= len(self.column_map):  # same problem as in data, the column_map can be wrong
                 return None
             if role == Qt.ToolTipRole:
                 ht = self.column_map[section]
-                if ht == 'timestamp': # change help text because users know this field as 'date'
+                if ht == 'timestamp':  # change help text because users know this field as 'date'
                     ht = 'date'
                 if self.db.field_metadata[self.column_map[section]]['is_category']:
                     is_cat = _('.  This column can be Quickview\'ed')
@@ -909,10 +918,9 @@ class BooksModel(QAbstractTableModel): # {{{
                 col = self.db.field_metadata['uuid']['rec_index']
                 return QVariant(_('This book\'s UUID is "{0}"').format(self.db.data[section][col]))
 
-        if role == Qt.DisplayRole: # orientation is vertical
+        if role == Qt.DisplayRole:  # orientation is vertical
             return QVariant(section+1)
         return NONE
-
 
     def flags(self, index):
         flags = QAbstractTableModel.flags(self, index)
@@ -973,7 +981,7 @@ class BooksModel(QAbstractTableModel): # {{{
             tmpl = unicode(value.toString()).strip()
             disp = cc['display']
             disp['composite_template'] = tmpl
-            self.db.set_custom_column_metadata(cc['colnum'], display = disp)
+            self.db.set_custom_column_metadata(cc['colnum'], display=disp)
             self.refresh(reset=True)
             return True
 
@@ -991,7 +999,7 @@ class BooksModel(QAbstractTableModel): # {{{
                 return self._set_data(index, value)
             except (IOError, OSError) as err:
                 import traceback
-                if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
+                if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
                     fname = getattr(err, 'filename', None)
                     p = 'Locked file: %s\n\n'%fname if fname else ''
                     error_dialog(get_gui(), _('Permission denied'),
@@ -1069,7 +1077,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
 # }}}
 
-class OnDeviceSearch(SearchQueryParser): # {{{
+class OnDeviceSearch(SearchQueryParser):  # {{{
 
     USABLE_LOCATIONS = [
         'all',
@@ -1081,7 +1089,6 @@ class OnDeviceSearch(SearchQueryParser): # {{{
         'title',
         'inlibrary'
     ]
-
 
     def __init__(self, model):
         SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
@@ -1105,7 +1112,7 @@ class OnDeviceSearch(SearchQueryParser): # {{{
             elif query.startswith('~'):
                 matchkind = REGEXP_MATCH
                 query = query[1:]
-        if matchkind != REGEXP_MATCH: ### leave case in regexps because it can be significant e.g. \S \W \D
+        if matchkind != REGEXP_MATCH:  # leave case in regexps because it can be significant e.g. \S \W \D
             query = query.lower()
 
         if location not in self.USABLE_LOCATIONS:
@@ -1137,9 +1144,9 @@ class OnDeviceSearch(SearchQueryParser): # {{{
                 if locvalue == 'inlibrary':
                     continue    # this is bool, so can't match below
                 try:
-                    ### Can't separate authors because comma is used for name sep and author sep
-                    ### Exact match might not get what you want. For that reason, turn author
-                    ### exactmatch searches into contains searches.
+                    # Can't separate authors because comma is used for name sep and author sep
+                    # Exact match might not get what you want. For that reason, turn author
+                    # exactmatch searches into contains searches.
                     if locvalue == 'author' and matchkind == EQUALS_MATCH:
                         m = CONTAINS_MATCH
                     else:
@@ -1152,13 +1159,13 @@ class OnDeviceSearch(SearchQueryParser): # {{{
                     if _match(query, vals, m, use_primary_find_in_search=upf):
                         matches.add(index)
                         break
-                except ValueError: # Unicode errors
+                except ValueError:  # Unicode errors
                     traceback.print_exc()
         return matches
 
 # }}}
 
-class DeviceDBSortKeyGen(object): # {{{
+class DeviceDBSortKeyGen(object):  # {{{
 
     def __init__(self, attr, keyfunc, db):
         self.attr = attr
@@ -1173,7 +1180,7 @@ class DeviceDBSortKeyGen(object): # {{{
         return ans
 # }}}
 
-class DeviceBooksModel(BooksModel): # {{{
+class DeviceBooksModel(BooksModel):  # {{{
 
     booklist_dirtied = pyqtSignal()
     upload_collections = pyqtSignal(object)
@@ -1201,6 +1208,12 @@ class DeviceBooksModel(BooksModel): # {{{
         self.search_engine = OnDeviceSearch(self)
         self.editable = ['title', 'authors', 'collections']
         self.book_in_library = None
+
+    def counts(self):
+        return Counts(len(self.db), len(self.map))
+
+    def count_changed(self, *args):
+        self.count_changed_signal.emit(len(self.db))
 
     def mark_for_deletion(self, job, rows, rows_are_ids=False):
         db_indices = rows if rows_are_ids else self.indices(rows)
@@ -1241,11 +1254,13 @@ class DeviceBooksModel(BooksModel): # {{{
             if not succeeded:
                 indices = self.row_indices(self.index(row, 0))
                 self.dataChanged.emit(indices[0], indices[-1])
+        self.count_changed()
 
     def paths_deleted(self, paths):
         self.map = list(range(0, len(self.db)))
         self.resort(False)
         self.research(True)
+        self.count_changed()
 
     def is_row_marked_for_deletion(self, row):
         try:
@@ -1276,9 +1291,9 @@ class DeviceBooksModel(BooksModel): # {{{
         if index.isValid():
             cname = self.column_map[index.column()]
             if cname in self.editable and \
-                     (cname != 'collections' or \
-                     (callable(getattr(self.db, 'supports_collections', None)) and \
-                      self.db.supports_collections() and \
+                     (cname != 'collections' or
+                     (callable(getattr(self.db, 'supports_collections', None)) and
+                      self.db.supports_collections() and
                       device_prefs['manage_device_metadata']=='manual')):
                 flags |= Qt.ItemIsEditable
         return flags
@@ -1308,6 +1323,7 @@ class DeviceBooksModel(BooksModel): # {{{
         self.last_search = text
         if self.last_search:
             self.searched.emit(True)
+        self.count_changed()
 
     def research(self, reset=True):
         self.search(self.last_search, reset)
@@ -1377,6 +1393,7 @@ class DeviceBooksModel(BooksModel): # {{{
         self.map = list(range(0, len(db)))
         self.research(reset=False)
         self.resort()
+        self.count_changed()
 
     def cover(self, row):
         item = self.db[self.map[row]]
@@ -1436,7 +1453,7 @@ class DeviceBooksModel(BooksModel): # {{{
                 return data
 
     def paths(self, rows):
-        return [self.db[self.map[r.row()]].path for r in rows ]
+        return [self.db[self.map[r.row()]].path for r in rows]
 
     def paths_for_db_ids(self, db_ids, as_map=False):
         res = defaultdict(list) if as_map else []
@@ -1521,7 +1538,7 @@ class DeviceBooksModel(BooksModel): # {{{
         elif role == Qt.ToolTipRole and index.isValid():
             if self.is_row_marked_for_deletion(row):
                 return QVariant(_('Marked for deletion'))
-            if cname in ['title', 'authors'] or (cname == 'collections' and \
+            if cname in ['title', 'authors'] or (cname == 'collections' and
                     self.db.supports_collections()):
                 return QVariant(_("Double click to <b>edit</b> me<br><br>"))
         elif role == Qt.DecorationRole and cname == 'inlibrary':
@@ -1589,4 +1606,5 @@ class DeviceBooksModel(BooksModel): # {{{
             self.editable = []
 
 # }}}
+
 

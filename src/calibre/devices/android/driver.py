@@ -25,7 +25,7 @@ class ANDROID(USBMS):
 
     VENDOR_ID   = {
             # HTC
-            0x0bb4 : { 0xc02  : HTC_BCDS,
+            0x0bb4 : {0xc02  : HTC_BCDS,
                        0xc01  : HTC_BCDS,
                        0xff9  : HTC_BCDS,
                        0xc86  : HTC_BCDS,
@@ -52,13 +52,13 @@ class ANDROID(USBMS):
             },
 
             # Eken
-            0x040d : { 0x8510 : [0x0001], 0x0851 : [0x1] },
+            0x040d : {0x8510 : [0x0001], 0x0851 : [0x1]},
 
             # Trekstor
-            0x1e68 : { 0x006a : [0x0231] },
+            0x1e68 : {0x006a : [0x0231]},
 
             # Motorola
-            0x22b8 : { 0x41d9 : [0x216], 0x2d61 : [0x100], 0x2d67 : [0x100],
+            0x22b8 : {0x41d9 : [0x216], 0x2d61 : [0x100], 0x2d67 : [0x100],
                        0x2de8 : [0x229],
                        0x41db : [0x216], 0x4285 : [0x216], 0x42a3 : [0x216],
                        0x4286 : [0x216], 0x42b3 : [0x216], 0x42b4 : [0x216],
@@ -111,7 +111,7 @@ class ANDROID(USBMS):
             },
 
             # Samsung
-            0x04e8 : { 0x681d : [0x0222, 0x0223, 0x0224, 0x0400],
+            0x04e8 : {0x681d : [0x0222, 0x0223, 0x0224, 0x0400],
                        0x681c : [0x0222, 0x0223, 0x0224, 0x0400],
                        0x6640 : [0x0100],
                        0x685b : [0x0400, 0x0226],
@@ -130,7 +130,7 @@ class ANDROID(USBMS):
                     0xc001 : [0x0226],
                     0xc004 : [0x0226],
                     0x8801 : [0x0226, 0x0227],
-                    0xe115 : [0x0216], # PocketBook A10
+                    0xe115 : [0x0216],  # PocketBook A10
             },
 
             # Another Viewsonic
@@ -139,10 +139,10 @@ class ANDROID(USBMS):
             },
 
             # Acer
-            0x502 : { 0x3203 : [0x0100, 0x224]},
+            0x502 : {0x3203 : [0x0100, 0x224]},
 
             # Dell
-            0x413c : { 0xb007 : [0x0100, 0x0224, 0x0226]},
+            0x413c : {0xb007 : [0x0100, 0x0224, 0x0226]},
 
             # LG
             0x1004 : {
@@ -166,25 +166,25 @@ class ANDROID(USBMS):
 
             # Huawei
             # Disabled as this USB id is used by various USB flash drives
-            #0x45e : { 0x00e1 : [0x007], },
+            # 0x45e : { 0x00e1 : [0x007], },
 
             # T-Mobile
-            0x0408 : { 0x03ba : [0x0109], },
+            0x0408 : {0x03ba : [0x0109], },
 
             # Xperia
-            0x13d3 : { 0x3304 : [0x0001, 0x0002] },
+            0x13d3 : {0x3304 : [0x0001, 0x0002]},
 
             # CREEL?? Also Nextbook and Wayteq
-            0x5e3 : { 0x726 : [0x222] },
+            0x5e3 : {0x726 : [0x222]},
 
             # ZTE
-            0x19d2 : { 0x1353 : [0x226], 0x1351 : [0x227] },
+            0x19d2 : {0x1353 : [0x226], 0x1351 : [0x227]},
 
             # Advent
-            0x0955 : { 0x7100 : [0x9999] }, # This is the same as the Notion Ink Adam
+            0x0955 : {0x7100 : [0x9999]},  # This is the same as the Notion Ink Adam
 
             # Kobo
-            0x2237: { 0x2208 : [0x0226] },
+            0x2237: {0x2208 : [0x0226]},
 
             # Lenovo
             0x17ef : {
@@ -193,10 +193,10 @@ class ANDROID(USBMS):
             },
 
             # Pantech
-            0x10a9 : { 0x6050 : [0x227] },
+            0x10a9 : {0x6050 : [0x227]},
 
             # Prestigio and Teclast
-            0x2207 : { 0 : [0x222], 0x10 : [0x222] },
+            0x2207 : {0 : [0x222], 0x10 : [0x222]},
 
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books',
@@ -219,7 +219,7 @@ class ANDROID(USBMS):
             'POCKET', 'ONDA_MID', 'ZENITHIN', 'INGENIC', 'PMID701C', 'PD',
             'PMP5097C', 'MASS', 'NOVO7', 'ZEKI', 'COBY', 'SXZ', 'USB_2.0',
             'COBY_MID', 'VS', 'AINOL', 'TOPWISE', 'PAD703', 'NEXT8D12',
-            'MEDIATEK', 'KEENHI', 'TECLAST', 'SURFTAB']
+            'MEDIATEK', 'KEENHI', 'TECLAST', 'SURFTAB', 'XENTA',]
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'A953', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -241,6 +241,7 @@ class ANDROID(USBMS):
             'S5830I_CARD', 'MID7042', 'LINK-CREATE', '7035', 'VIEWPAD_7E',
             'NOVO7', 'MB526', '_USB#WYK7MSF8KE', 'TABLET_PC', 'F', 'MT65XX_MS',
             'ICS', 'E400', '__FILE-STOR_GADG', 'ST80208-1', 'GT-S5660M_CARD', 'XT894', '_USB',
+            'PROD_TAB13-201',
     ]
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
@@ -253,7 +254,7 @@ class ANDROID(USBMS):
             'UMS_COMPOSITE', 'PRO', '.KOBO_VOX', 'SGH-T989_CARD', 'SGH-I727',
             'USB_FLASH_DRIVER', 'ANDROID', 'MID7042', '7035', 'VIEWPAD_7E',
             'NOVO7', 'ADVANCED', 'TABLET_PC', 'F', 'E400_SD_CARD', 'ST80208-1', 'XT894',
-            '_USB',
+            '_USB', 'PROD_TAB13-201',
     ]
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
@@ -369,7 +370,6 @@ class WEBOS(USBMS):
         except ImportError:
             import Image, ImageDraw
 
-
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
             cover = Image.open(cStringIO.StringIO(coverdata[2]))
@@ -416,5 +416,6 @@ class WEBOS(USBMS):
         with open(os.path.join(path, 'coverCache', filename +
             '-small.jpg'), 'wb') as coverfile:
             coverfile.write(coverdata)
+
 
 
