@@ -213,8 +213,6 @@ class StatusBar(QStatusBar):  # {{{
     def device_disconnected(self):
         self.device_string = ''
         self.set_label()
-        self.defmsg.setText(self.default_message)
-        self.clearMessage()
 
     def show_message(self, msg, timeout=0):
         self.showMessage(msg, timeout)
