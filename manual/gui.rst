@@ -504,6 +504,30 @@ There is a search bar at the top of the Tag Browser that allows you to easily fi
 
 You can control how items are sorted in the Tag browser via the box at the bottom of the Tag Browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example, the popularity of Isaac Asimov is the number of books in your library by Isaac Asimov).
 
+Quickview
+----------
+
+Sometimes you want to to select a book and quickly get a list of books with the same value in some category (authors, tags, publisher, series, etc) as the currently selected book, but without changing the current view of the library. You can do this with Quickview. Quickview opens a second window showing the list of books matching the value of interest.
+
+For example, assume you want to see a list of all the books with the same author of the currently-selected book. Click in the author cell you are interested in and press the 'Q' key. A window will open with all the authors for that book on the left, and all the books by the selected author on the right. 
+
+Some example Quickview usages: quickly seeing what other books:
+	- have some tag that is applied to the currently selected book,
+	- are in the same series as the current book
+	- have the same values in a custom column as the current book
+	- are written by one of the same authors of the current book
+without changing the contents of the library view.
+
+The Quickview window opens on top of the |app| window and will stay open until you explicitly close it. You can use Quickview and the |app| library view at the same time. For example, if in the |app| library view you click on a category column (tags, series, publisher, authors, etc) for a book, the Quickview window contents will change to show you in the left-hand side pane the items in that category for the selected book (e.g., the tags for that book). The first item in that list will be selected, and Quickview will show you on the right-hand side pane all the books in your library that reference that item. Click on an different item in the left-hand pane to see the books with that different item. 
+
+Double-click on a book in the Quickview window to select that book in the library view. This will also change the items display in the QuickView window(the left-hand pane) to show the items in the newly-selected book.
+
+Shift- (or Ctrl-) double-click on a book in the Quickview window to open the edit metadata dialog on that book in the |app| window.
+
+You can see if a column can be Quickview'ed by hovering your mouse over the column heading and looking at the tooltip for that heading. You can also know by right-clicking on the column heading to see of the "Quickview" option is shown in the menu, in which case choosing that Quickview option is equivalent to pressing 'Q' in the current cell.
+
+Quickview respects the virtual library setting, showing only books in the current virtual library.
+
 Jobs
 -----
 .. image:: images/jobs.png
