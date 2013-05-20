@@ -58,8 +58,12 @@ def get_image_margins(elem):
     return ans
 
 def get_hpos(anchor, page_width):
-    # TODO: Handle relativeFrom on positionH
     for ph in XPath('./wp:positionH')(anchor):
+        rp = ph.get('relativeFrom', None)
+        if rp == 'leftMargin':
+            return 0
+        if rp == 'rightMargin':
+            return 1
         for align in XPath('./wp:align')(ph):
             al = align.text
             if al == 'left':
