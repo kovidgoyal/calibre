@@ -15,9 +15,10 @@ from lxml.html.builder import (
 
 from calibre.ebooks.docx.container import DOCX, fromstring
 from calibre.ebooks.docx.names import XPath, is_tag, XML, STYLES, NUMBERING, FONTS
-from calibre.ebooks.docx.styles import Styles, inherit
+from calibre.ebooks.docx.styles import Styles, inherit, PageProperties
 from calibre.ebooks.docx.numbering import Numbering
 from calibre.ebooks.docx.fonts import Fonts
+from calibre.ebooks.docx.images import Images
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
 class Text:
@@ -38,6 +39,7 @@ class Convert(object):
         self.mi = self.docx.metadata
         self.body = BODY()
         self.styles = Styles()
+        self.images = Images()
         self.object_map = OrderedDict()
         self.html = HTML(
             HEAD(
@@ -64,8 +66,12 @@ class Convert(object):
         doc = self.docx.document
         relationships_by_id, relationships_by_type = self.docx.document_relationships
         self.read_styles(relationships_by_type)
+        self.images(relationships_by_id)
         self.layers = OrderedDict()
-        for wp in XPath('//w:p')(doc):
+
+        self.read_page_properties(doc)
+        for wp, page_properties in self.page_map.iteritems():
+            self.current_page = page_properties
             p = self.convert_p(wp)
             self.body.append(p)
         # TODO: tables <w:tbl> child of <w:body> (nested tables?)
@@ -101,6 +107,25 @@ class Convert(object):
                     if cls:
                         html_obj.set('class', cls)
         self.write()
+
+    def read_page_properties(self, doc):
+        current = []
+        self.page_map = OrderedDict()
+
+        for p in XPath('//w:p')(doc):
+            sect = XPath('descendant::w:sectPr')(p)
+            if sect:
+                pr = PageProperties(sect)
+                for x in current + [p]:
+                    self.page_map[x] = pr
+                current = []
+            else:
+                current.append(p)
+        if current:
+            last = XPath('./w:body/w:sectPr')(doc)
+            pr = PageProperties(last)
+            for x in current:
+                self.page_map[x] = pr
 
     def read_styles(self, relationships_by_type):
 
@@ -239,6 +264,10 @@ class Convert(object):
                         br = BR()
                 text.add_elem(br)
                 ans.append(text.elem)
+            elif is_tag(child, 'w:drawing') or is_tag(child, 'w:pict'):
+                for img in self.images.to_html(child, self.current_page, self.docx, self.dest_dir):
+                    text.add_elem(img)
+                    ans.append(text.elem)
         if text.buf:
             setattr(text.elem, text.attr, ''.join(text.buf))
 
@@ -253,3 +282,4 @@ if __name__ == '__main__':
     from calibre.utils.logging import default_log
     default_log.filter_level = default_log.DEBUG
     Convert(sys.argv[-1], log=default_log)()
+

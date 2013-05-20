@@ -13,6 +13,38 @@ from calibre.ebooks.docx.block_styles import ParagraphStyle, inherit
 from calibre.ebooks.docx.char_styles import RunStyle
 from calibre.ebooks.docx.names import XPath, get
 
+class PageProperties(object):
+
+    '''
+    Class representing page level properties (page size/margins) read from
+    sectPr elements.
+    '''
+
+    def __init__(self, elems=()):
+        self.width = self.height = 595.28, 841.89  # pts, A4
+        self.margin_left = self.margin_right = 72  # pts
+        for sectPr in elems:
+            for pgSz in XPath('./w:pgSz')(sectPr):
+                w, h = get(pgSz, 'w:w'), get(pgSz, 'w:h')
+                try:
+                    self.width = int(w)/20
+                except (ValueError, TypeError):
+                    pass
+                try:
+                    self.height = int(h)/20
+                except (ValueError, TypeError):
+                    pass
+            for pgMar in XPath('./w:pgMar')(sectPr):
+                l, r = get(pgMar, 'w:left'), get(pgMar, 'w:right')
+                try:
+                    self.margin_left = int(l)/20
+                except (ValueError, TypeError):
+                    pass
+                try:
+                    self.margin_right = int(r)/20
+                except (ValueError, TypeError):
+                    pass
+
 
 class Style(object):
     '''
