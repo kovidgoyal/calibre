@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-05-17 05:42+0000\n"
-"PO-Revision-Date: 2013-05-11 11:16+0000\n"
+"PO-Revision-Date: 2013-05-19 17:57+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-05-18 05:15+0000\n"
+"X-Launchpad-Export-Date: 2013-05-20 05:32+0000\n"
 "X-Generator: Launchpad (build 16626)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1320,11 +1320,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:131
 msgid "Enable debug logging"
-msgstr ""
+msgstr "Habilita el registre de depuració"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:133
 msgid "Print driver debug messages to console"
-msgstr ""
+msgstr "Dóna sortida als missatges de depuració de controladors a la consola"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:203
 msgid "Apple device"
@@ -14446,7 +14446,7 @@ msgstr "Copia un nom de color al porta-retalls:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:172
 msgid "Kind"
-msgstr ""
+msgstr "Tipus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
@@ -14460,23 +14460,23 @@ msgstr "icona amb text"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:175
 msgid "Apply the icon to column:"
-msgstr ""
+msgstr "Aplica la icona a la columna:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:176
 msgid "Copy an icon file name to the clipboard:"
-msgstr ""
+msgstr "Copia un nom de fitxer d'icona al porta-retalls:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:177
 msgid "Copy the selected icon file name to the clipboard"
-msgstr ""
+msgstr "Copia el nom del fitxer seleccionat al porta-retallls"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:178
 msgid "Add icon"
-msgstr ""
+msgstr "Afegeix una icona"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:179
 msgid "Add an icon file to the set of choices"
-msgstr ""
+msgstr "Afegeix un fitxer d'icona a un conjunt d'opcions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:180
 msgid "Template value:"
@@ -15409,7 +15409,7 @@ msgstr "Centrat"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:308
 #, python-format
 msgid "Quickview column %s"
-msgstr ""
+msgstr "Vista ràpida de la columna %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:325
 msgid "Show column"
@@ -16932,6 +16932,10 @@ msgid ""
 "                <pre>%(rule)s</pre>\n"
 "                "
 msgstr ""
+"\n"
+"                <p>Regla avançada per a la columna <b>%(col)s</b>:\n"
+"                <pre>%(rule)s</pre>\n"
+"                "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:645
 #, python-format
@@ -16942,6 +16946,11 @@ msgid ""
 "                <pre>%(rule)s</pre>\n"
 "                "
 msgstr ""
+"\n"
+"                <p>Regla avançada: estableix <b>%(typ)s</b> per a la columna "
+"<b>%(col)s</b>:\n"
+"                <pre>%(rule)s</pre>\n"
+"                "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:664
 #, python-format
@@ -23328,7 +23337,7 @@ msgstr "Heu d'especificar almenys un llibre per suprimir"
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:434
 #, python-format
 msgid "A %(fmt)s file already exists for book: %(id)d, not replacing"
-msgstr ""
+msgstr "Ja hi ha un fitxer %(fmt)s per al llibre: %(id)d, no es substitueix"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:440
 msgid ""
@@ -24109,7 +24118,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:50
 msgid "The language(s) of this book"
-msgstr ""
+msgstr "L'idioma(es) del llibre"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:51
 msgid "The calibre internal id"
@@ -26269,6 +26278,42 @@ msgid ""
 "from books and the import plugin produces a value, than that value will\n"
 "be used irrespective of the setting of the tweak."
 msgstr ""
+"L'algorisme que s'utilitza per assignar un nombre de sèrie a una sèrie "
+"existent a un\n"
+"llibre afegit. Els nombres de sèrie nous assignats mitjançant aquest "
+"ajustament són\n"
+"sempre nombres enters, excepte si s'ha especificat una constant no entera.\n"
+"Els valors possibles són:\n"
+"next - El primer enter disponible més gran que el major nombre existent\n"
+"first_free - El primer enter disponible major de 0\n"
+"next_free - El primer enter disponible major que el menor nombre existent\n"
+"last_free - El primer enter disponible menor que el major nombre existent\n"
+"S'obté el major existent +1 si no es troba un nombre lliure\n"
+"const - Assigna sempre el nombre 1\n"
+"no_change - No es canvia l'índex de la sèrie\n"
+"a number - Assigna sempre aquest nombre. El nombre no està entre cometes.\n"
+"Tingueu en compte que aquí es pot utilitzar 0.0.\n"
+"Exemples:\n"
+"series_index_auto_increment= 'next'\n"
+"series_index_auto_increment= 'next_free'\n"
+"series_index_auto_increment= 16.5\n"
+"\n"
+"Establiu l'ajustament use_series_auto_increment_tweak_when_importing a "
+"«True»\n"
+"per utilitzar els valors de dalt en importar/afegir llibres. Si s'estableix "
+"a «False» (per\n"
+"defecte), s'establirà el nombre de sèrie a 1 si no s'estableix explícitament "
+"durant la\n"
+"importació. Si s'estableix a «Trues», s'establirà l'índex de sèrie d'acord "
+"amb l'ajustament\n"
+"use_series_auto_increment_tweak_when_importing. Tingueu en compte que només\n"
+"s'utilitza l'ajustament use_series_auto_increment_tweak_when_importing quan "
+"no\n"
+"es subministra un valor durant la importació. Si l'expressió regular "
+"d'importació dóna\n"
+"un valor per a series_index o si esteu llegint metadades, s'utilitzarà "
+"aquest valor\n"
+"independentment de la configuració d'aquest ajustament."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:44
 msgid "Add separator after completing an author name"
