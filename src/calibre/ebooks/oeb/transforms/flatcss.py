@@ -32,7 +32,8 @@ def dynamic_rescale_factor(node):
     classes = node.get('class', '').split(' ')
     classes = [x.replace('calibre_rescale_', '') for x in classes if
             x.startswith('calibre_rescale_')]
-    if not classes: return None
+    if not classes:
+        return None
     factor = 1.0
     for x in classes:
         try:
@@ -54,7 +55,8 @@ class KeyMapper(object):
             return base
         size = float(size)
         base = float(base)
-        if abs(size - base) < 0.1: return 0
+        if abs(size - base) < 0.1:
+            return 0
         sign = -1 if size < base else 1
         endp = 0 if size < base else 36
         diff = (abs(base - size) * 3) + ((36 - size) / 100)
@@ -110,7 +112,8 @@ class EmbedFontsCSSRules(object):
         self.href = None
 
     def __call__(self, oeb):
-        if not self.body_font_family: return None
+        if not self.body_font_family:
+            return None
         if not self.href:
             iid, href = oeb.manifest.generate(u'page_styles', u'page_styles.css')
             rules = [x.cssText for x in self.rules]
@@ -228,10 +231,10 @@ class CSSFlattener(object):
             bs.append('margin-top: 0pt')
             bs.append('margin-bottom: 0pt')
             if float(self.context.margin_left) >= 0:
-                bs.append('margin-left : %gpt'%\
+                bs.append('margin-left : %gpt'%
                         float(self.context.margin_left))
             if float(self.context.margin_right) >= 0:
-                bs.append('margin-right : %gpt'%\
+                bs.append('margin-right : %gpt'%
                         float(self.context.margin_right))
             bs.extend(['padding-left: 0pt', 'padding-right: 0pt'])
             if self.page_break_on_body:
@@ -277,8 +280,10 @@ class CSSFlattener(object):
         for kind in ('margin', 'padding'):
             for edge in ('bottom', 'top'):
                 property = "%s-%s" % (kind, edge)
-                if property not in cssdict: continue
-                if '%' in cssdict[property]: continue
+                if property not in cssdict:
+                    continue
+                if '%' in cssdict[property]:
+                    continue
                 value = style[property]
                 if value == 0:
                     continue
@@ -296,7 +301,7 @@ class CSSFlattener(object):
     def flatten_node(self, node, stylizer, names, styles, pseudo_styles, psize, item_id):
         if not isinstance(node.tag, basestring) \
            or namespace(node.tag) != XHTML_NS:
-               return
+            return
         tag = barename(node.tag)
         style = stylizer.style(node)
         cssdict = style.cssdict()
@@ -360,7 +365,7 @@ class CSSFlattener(object):
                 pass
             del node.attrib['bgcolor']
         if cssdict.get('font-weight', '').lower() == 'medium':
-            cssdict['font-weight'] = 'normal' # ADE chokes on font-weight medium
+            cssdict['font-weight'] = 'normal'  # ADE chokes on font-weight medium
 
         fsize = font_size
         is_drop_cap = (cssdict.get('float', None) == 'left' and 'font-size' in
@@ -436,8 +441,7 @@ class CSSFlattener(object):
             keep_classes = set()
 
             if cssdict:
-                items = cssdict.items()
-                items.sort()
+                items = sorted(cssdict.items())
                 css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
                 classes = node.get('class', '').strip() or 'calibre'
                 klass = ascii_text(STRIPNUM.sub('', classes.split()[0].replace('_', '')))
@@ -519,8 +523,7 @@ class CSSFlattener(object):
             if float(self.context.margin_bottom) >= 0:
                 stylizer.page_rule['margin-bottom'] = '%gpt'%\
                         float(self.context.margin_bottom)
-            items = stylizer.page_rule.items()
-            items.sort()
+            items = sorted(stylizer.page_rule.items())
             css = ';\n'.join("%s: %s" % (key, val) for key, val in items)
             css = ('@page {\n%s\n}\n'%css) if items else ''
             rules = [r.cssText for r in stylizer.font_face_rules +
@@ -556,14 +559,14 @@ class CSSFlattener(object):
             body = html.find(XHTML('body'))
             fsize = self.context.dest.fbase
             self.flatten_node(body, stylizer, names, styles, pseudo_styles, fsize, item.id)
-        items = [(key, val) for (val, key) in styles.items()]
-        items.sort()
+        items = sorted([(key, val) for (val, key) in styles.items()])
         # :hover must come after link and :active must come after :hover
         psels = sorted(pseudo_styles.iterkeys(), key=lambda x :
                 {'hover':1, 'active':2}.get(x, 0))
         for psel in psels:
             styles = pseudo_styles[psel]
-            if not styles: continue
+            if not styles:
+                continue
             x = sorted(((k+':'+psel, v) for v, k in styles.iteritems()))
             items.extend(x)
 
