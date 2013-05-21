@@ -320,7 +320,7 @@ class ITUNES(DriverBase):
         self.verbose = self.settings().extra_customization[self.DEBUG_LOGGING]
         if self.verbose:
             logger().info("%s.__init__():" % self.__class__.__name__)
-            logger().info(" Debug logging enabled in iTunes plugin settings")
+            logger().info(" Debug logging enabled")
 
     @property
     def cache_dir(self):
@@ -1288,7 +1288,7 @@ class ITUNES(DriverBase):
                         logger().error(" failed to add '%s' to Device|Books" % metadata.title)
                     raise UserFeedback("Unable to add '%s' in direct connect mode" % metadata.title,
                                         details=None, level=UserFeedback.ERROR)
-                self._wait_for_writable_metadata(added)
+                #self._wait_for_writable_metadata(added)
                 return added
 
         elif iswindows:
@@ -1471,6 +1471,7 @@ class ITUNES(DriverBase):
 
         if self.verbose:
             logger().info(" %s._cover_to_thumb()" % self.__class__.__name__)
+            #logger().info("db_added: %s  lb_added: %s" % (db_added, lb_added))
 
         thumb = None
         if metadata.cover:
@@ -1514,13 +1515,13 @@ class ITUNES(DriverBase):
                     '''
                     if lb_added:
                         delay = 2.0
-                        self._wait_for_writable_metadata(db_added, delay=delay)
 
                         # Wait for updatable artwork
                         attempts = 9
                         while attempts:
                             try:
                                 lb_added.artworks[1].data_.set(cover_data)
+                                break
                             except:
                                 attempts -= 1
                                 time.sleep(delay)
@@ -3228,6 +3229,11 @@ class ITUNES(DriverBase):
         '''
         if self.verbose:
             logger().info(" %s._wait_for_writable_metadata()" % self.__class__.__name__)
+
+        if not db_added:
+            if self.verbose:
+                logger().info("called from %s() with null db_added" % sys._getframe(1).f_code.co_name)
+            return
 
         attempts = 9
         while attempts:
