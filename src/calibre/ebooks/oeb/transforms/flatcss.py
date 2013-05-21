@@ -371,6 +371,11 @@ class CSSFlattener(object):
         is_drop_cap = (cssdict.get('float', None) == 'left' and 'font-size' in
                        cssdict and len(node) == 0 and node.text and
                        len(node.text) == 1)
+        is_drop_cap = is_drop_cap or (
+            # The docx input plugin generates drop caps that look like this
+            len(node) == 1 and not node.text and len(node[0]) == 0 and
+            node[0].text and not node[0].tail and len(node[0].text) == 1 and
+            'line-height' in cssdict and 'font-size' in cssdict)
         if not self.context.disable_font_rescaling and not is_drop_cap:
             _sbase = self.sbase if self.sbase is not None else \
                 self.context.source.fbase
