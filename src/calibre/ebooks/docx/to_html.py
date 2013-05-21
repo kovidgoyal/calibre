@@ -11,7 +11,7 @@ from collections import OrderedDict
 
 from lxml import html
 from lxml.html.builder import (
-    HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR)
+    HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR, DIV)
 
 from calibre.ebooks.docx.container import DOCX, fromstring
 from calibre.ebooks.docx.names import XPath, is_tag, XML, STYLES, NUMBERING, FONTS
@@ -68,6 +68,8 @@ class Convert(object):
         self.read_styles(relationships_by_type)
         self.images(relationships_by_id)
         self.layers = OrderedDict()
+        self.framed = [[]]
+        self.framed_map = {}
 
         self.read_page_properties(doc)
         for wp, page_properties in self.page_map.iteritems():
@@ -75,7 +77,6 @@ class Convert(object):
             p = self.convert_p(wp)
             self.body.append(p)
         # TODO: tables <w:tbl> child of <w:body> (nested tables?)
-        # TODO: Last section properties <w:sectPr> child of <w:body>
 
         self.styles.cascade(self.layers)
 
@@ -90,6 +91,7 @@ class Convert(object):
                     lvl = 0
                 numbered.append((html_obj, num_id, lvl))
         self.numbering.apply_markup(numbered, self.body, self.styles, self.object_map)
+        self.apply_frames()
 
         if len(self.body) > 0:
             self.body.text = '\n\t'
@@ -106,6 +108,11 @@ class Convert(object):
                     cls = self.styles.class_name(css)
                     if cls:
                         html_obj.set('class', cls)
+        for html_obj, css in self.framed_map.iteritems():
+            cls = self.styles.class_name(css)
+            if cls:
+                html_obj.set('class', cls)
+
         self.write()
 
     def read_page_properties(self, doc):
@@ -185,6 +192,7 @@ class Convert(object):
         self.object_map[dest] = p
         style = self.styles.resolve_paragraph(p)
         self.layers[p] = []
+        self.add_frame(dest, style.frame)
         for run in XPath('descendant::w:r')(p):
             span = self.convert_run(run)
             dest.append(span)
@@ -277,6 +285,32 @@ class Convert(object):
         if style.lang is not inherit:
             ans.lang = style.lang
         return ans
+
+    def add_frame(self, html_obj, style):
+        last_run = self.framed[-1]
+        if style is inherit:
+            if last_run:
+                self.framed.append([])
+            return
+
+        if last_run:
+            if last_run[-1][1] == style:
+                last_run.append((html_obj, style))
+            else:
+                self.framed.append((html_obj, style))
+        else:
+            last_run.append((html_obj, style))
+
+    def apply_frames(self):
+        for run in filter(None, self.framed):
+            style = run[0][1]
+            paras = tuple(x[0] for x in run)
+            parent = paras[0].getparent()
+            idx = parent.index(paras[0])
+            frame = DIV(*paras)
+            parent.insert(idx, frame)
+            self.framed_map[frame] = css = style.css(self.page_map[self.object_map[paras[0]]])
+            self.styles.register(css, 'frame')
 
 if __name__ == '__main__':
     from calibre.utils.logging import default_log

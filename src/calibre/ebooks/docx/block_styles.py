@@ -151,8 +151,8 @@ def read_spacing(parent, dest):
 
         l, lr = get(s, 'w:line'), get(s, 'w:lineRule', 'auto')
         if l is not None:
-            lh = simple_float(l, 0.05) if lr in {'exactly', 'atLeast'} else simple_float(l, 1/240.0)
-            line_height = '%.3g%s' % (lh, 'pt' if lr in {'exactly', 'atLeast'} else '')
+            lh = simple_float(l, 0.05) if lr in {'exact', 'atLeast'} else simple_float(l, 1/240.0)
+            line_height = '%.3g%s' % (lh, 'pt' if lr in {'exact', 'atLeast'} else '')
 
     setattr(dest, 'margin_top', padding_top)
     setattr(dest, 'margin_bottom', padding_bottom)
@@ -189,6 +189,89 @@ def read_numbering(parent, dest):
     val = (num_id, lvl) if num_id is not None or lvl is not None else inherit
     setattr(dest, 'numbering', val)
 
+class Frame(object):
+
+    all_attributes = ('drop_cap', 'h', 'w', 'h_anchor', 'h_rule', 'v_anchor', 'wrap',
+                      'h_space', 'v_space', 'lines', 'x_align', 'y_align', 'x', 'y')
+
+    def __init__(self, fp):
+        self.drop_cap = get(fp, 'w:dropCap', 'none')
+        try:
+            self.h = int(get(fp, 'w:h'))/20
+        except (ValueError, TypeError):
+            self.h = 0
+        try:
+            self.w = int(get(fp, 'w:w'))/20
+        except (ValueError, TypeError):
+            self.w = None
+        try:
+            self.x = int(get(fp, 'w:x'))/20
+        except (ValueError, TypeError):
+            self.x = 0
+        try:
+            self.y = int(get(fp, 'w:y'))/20
+        except (ValueError, TypeError):
+            self.y = 0
+
+        self.h_anchor = get(fp, 'w:hAnchor', 'page')
+        self.h_rule = get(fp, 'w:hRule', 'auto')
+        self.v_anchor = get(fp, 'w:vAnchor', 'page')
+        self.wrap = get(fp, 'w:wrap', 'around')
+        self.x_align = get(fp, 'w:xAlign')
+        self.y_align = get(fp, 'w:yAlign')
+
+        try:
+            self.h_space = int(get(fp, 'w:hSpace'))/20
+        except (ValueError, TypeError):
+            self.h_space = 0
+        try:
+            self.v_space = int(get(fp, 'w:vSpace'))/20
+        except (ValueError, TypeError):
+            self.v_space = 0
+        try:
+            self.lines = int(get(fp, 'w:lines'))
+        except (ValueError, TypeError):
+            self.lines = 1
+
+    def css(self, page):
+        is_dropcap = self.drop_cap in {'drop', 'margin'}
+        ans = {'overflow': 'hidden'}
+
+        if is_dropcap:
+            ans['float'] = 'left'
+            ans['margin'] = '0'
+            ans['padding-right'] = '0.2em'
+        else:
+            if self.h_rule != 'auto':
+                t = 'min-height' if self.h_rule == 'atLeast' else 'height'
+                ans[t] = '%.3gpt' % self.h
+            if self.w is not None:
+                ans['width'] = '%.3gpt' % self.w
+            ans['padding-top'] = ans['padding-bottom'] = '%.3gpt' % self.v_space
+            if self.wrap not in {None, 'none'}:
+                ans['padding-left'] = ans['padding-right'] = '%.3gpt' % self.h_space
+                if self.x_align is None:
+                    fl = 'left' if self.x/page.width < 0.5 else 'right'
+                else:
+                    fl = 'right' if self.x_align == 'right' else 'left'
+                ans['float'] = fl
+        return ans
+
+    def __eq__(self, other):
+        for x in self.all_attributes:
+            if getattr(other, x, inherit) != getattr(self, x):
+                return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+def read_frame(parent, dest):
+    ans = inherit
+    for fp in XPath('./w:framePr')(parent):
+        ans = Frame(fp)
+    setattr(dest, 'frame', ans)
+
 # }}}
 
 class ParagraphStyle(object):
@@ -208,7 +291,7 @@ class ParagraphStyle(object):
 
         # Misc.
         'text_indent', 'text_align', 'line_height', 'direction', 'background_color',
-        'numbering', 'font_family', 'font_size',
+        'numbering', 'font_family', 'font_size', 'frame',
     )
 
     def __init__(self, pPr=None):
@@ -225,7 +308,7 @@ class ParagraphStyle(object):
             ):
                 setattr(self, p, binary_property(pPr, p))
 
-            for x in ('border', 'indent', 'justification', 'spacing', 'direction', 'shd', 'numbering'):
+            for x in ('border', 'indent', 'justification', 'spacing', 'direction', 'shd', 'numbering', 'frame'):
                 f = globals()['read_%s' % x]
                 f(pPr, self)
 
@@ -286,5 +369,3 @@ class ParagraphStyle(object):
         return self._css
 
         # TODO: keepNext must be done at markup level
-
-
