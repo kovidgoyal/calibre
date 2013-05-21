@@ -533,7 +533,7 @@ class libiMobileDevice():
         else:
             if self.verbose:
                 self.log(" could not open file")
-            raise libiMobileDeviceIOException("could not open file '%s' for reading" % path)
+            raise libiMobileDeviceIOException("could not open file %s for reading" % repr(path))
 
         return data
 
