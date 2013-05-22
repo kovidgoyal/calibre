@@ -161,13 +161,15 @@ class ChooseLibraryAction(InterfaceAction):
     def genesis(self):
         self.base_text = _('%d books')
         self.count_changed(0)
-        self.qaction.triggered.connect(self.choose_library,
-                type=Qt.QueuedConnection)
         self.action_choose = self.menuless_qaction
 
         self.stats = LibraryUsageStats()
         self.popup_type = (QToolButton.InstantPopup if len(self.stats.stats) > 1 else
                 QToolButton.MenuButtonPopup)
+        if len(self.stats.stats) > 1:
+            self.action_choose.triggered.connect(self.choose_library)
+        else:
+            self.qaction.triggered.connect(self.choose_library)
 
         self.choose_menu = self.qaction.menu()
 
