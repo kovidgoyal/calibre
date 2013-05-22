@@ -74,7 +74,7 @@ def read_border(parent, dest):
 
     for border in XPath('./w:pBdr')(parent):
         for edge in ('left', 'top', 'right', 'bottom'):
-            for elem in XPath('./w:%s' % edge):
+            for elem in XPath('./w:%s' % edge)(border):
                 color = get(elem, 'w:color')
                 if color is not None:
                     vals['border_%s_color' % edge] = simple_color(color)
