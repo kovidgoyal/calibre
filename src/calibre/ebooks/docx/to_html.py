@@ -14,7 +14,9 @@ from lxml.html.builder import (
     HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR, DIV)
 
 from calibre.ebooks.docx.container import DOCX, fromstring
-from calibre.ebooks.docx.names import XPath, is_tag, XML, STYLES, NUMBERING, FONTS, expand, get, generate_anchor
+from calibre.ebooks.docx.names import (
+    XPath, is_tag, XML, STYLES, NUMBERING, FONTS, get, generate_anchor,
+    descendants)
 from calibre.ebooks.docx.styles import Styles, inherit, PageProperties
 from calibre.ebooks.docx.numbering import Numbering
 from calibre.ebooks.docx.fonts import Fonts
@@ -120,8 +122,8 @@ class Convert(object):
         current = []
         self.page_map = OrderedDict()
 
-        for p in XPath('//w:p')(doc):
-            sect = XPath('descendant::w:sectPr')(p)
+        for p in descendants(doc, 'w:p'):
+            sect = tuple(descendants(p, 'w:sectPr'))
             if sect:
                 pr = PageProperties(sect)
                 for x in current + [p]:
@@ -197,7 +199,7 @@ class Convert(object):
 
         current_anchor = None
 
-        for x in p.iterdescendants(expand('w:r'), expand('w:bookmarkStart')):
+        for x in descendants(p, 'w:r', 'w:bookmarkStart'):
             if x.tag.endswith('}r'):
                 span = self.convert_run(x)
                 if current_anchor is not None:
