@@ -6,7 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import re
+
 from lxml.etree import XPath as X
+
+from calibre.utils.filenames import ascii_text
 
 DOCUMENT  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument'
 DOCPROPS  = 'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties'
@@ -66,7 +70,27 @@ def barename(x):
 def XML(x):
     return '{%s}%s' % (namespaces['xml'], x)
 
+def expand(name):
+    ns, tag = name.partition(':')[0::2]
+    if ns:
+        tag = '{%s}%s' % (namespaces[ns], tag)
+    return tag
+
 def get(x, attr, default=None):
-    ns, name = attr.partition(':')[0::2]
-    return x.attrib.get('{%s}%s' % (namespaces[ns], name), default)
+    return x.attrib.get(expand(attr), default)
+
+def ancestor(elem, name):
+    tag = expand(name)
+    while elem is not None:
+        elem = elem.getparent()
+        if getattr(elem, 'tag', None) == tag:
+            return elem
+
+def generate_anchor(name, existing):
+    x = y = 'id_' + re.sub(r'[^0-9a-zA-Z_]', '', ascii_text(name)).lstrip('_')
+    c = 1
+    while y in existing:
+        y = '%s_%d' % (x, c)
+        c += 1
+    return y
 

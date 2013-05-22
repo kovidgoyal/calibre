@@ -14,7 +14,7 @@ from lxml.html.builder import (
     HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR, DIV)
 
 from calibre.ebooks.docx.container import DOCX, fromstring
-from calibre.ebooks.docx.names import XPath, is_tag, XML, STYLES, NUMBERING, FONTS
+from calibre.ebooks.docx.names import XPath, is_tag, XML, STYLES, NUMBERING, FONTS, expand, get, generate_anchor
 from calibre.ebooks.docx.styles import Styles, inherit, PageProperties
 from calibre.ebooks.docx.numbering import Numbering
 from calibre.ebooks.docx.fonts import Fonts
@@ -70,6 +70,7 @@ class Convert(object):
         self.layers = OrderedDict()
         self.framed = [[]]
         self.framed_map = {}
+        self.anchor_map = {}
 
         self.read_page_properties(doc)
         for wp, page_properties in self.page_map.iteritems():
@@ -141,7 +142,7 @@ class Convert(object):
             if name is None:
                 cname = self.docx.document_name.split('/')
                 cname[-1] = defname
-                if self.docx.exists(cname):
+                if self.docx.exists('/'.join(cname)):
                     name = name
             return name
 
@@ -193,10 +194,21 @@ class Convert(object):
         style = self.styles.resolve_paragraph(p)
         self.layers[p] = []
         self.add_frame(dest, style.frame)
-        for run in XPath('descendant::w:r')(p):
-            span = self.convert_run(run)
-            dest.append(span)
-            self.layers[p].append(run)
+
+        current_anchor = None
+
+        for x in p.iterdescendants(expand('w:r'), expand('w:bookmarkStart')):
+            if x.tag.endswith('}r'):
+                span = self.convert_run(x)
+                if current_anchor is not None:
+                    (dest if len(dest) == 0 else span).set('id', current_anchor)
+                    current_anchor = None
+                dest.append(span)
+                self.layers[p].append(x)
+            elif x.tag.endswith('}bookmarkStart'):
+                anchor = get(x, 'w:name')
+                if anchor and anchor not in self.anchor_map:
+                    self.anchor_map[anchor] = current_anchor = generate_anchor(anchor, frozenset(self.anchor_map.itervalues()))
 
         m = re.match(r'heading\s+(\d+)$', style.style_name or '', re.IGNORECASE)
         if m is not None:
