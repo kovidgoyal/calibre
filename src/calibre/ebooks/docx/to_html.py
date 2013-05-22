@@ -11,7 +11,7 @@ from collections import OrderedDict, defaultdict
 
 from lxml import html
 from lxml.html.builder import (
-    HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR, DIV)
+    HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR, DIV, HR)
 
 from calibre.ebooks.docx.container import DOCX, fromstring
 from calibre.ebooks.docx.names import (
@@ -327,6 +327,9 @@ class Convert(object):
                 for img in self.images.to_html(child, self.current_page, self.docx, self.dest_dir):
                     text.add_elem(img)
                     ans.append(text.elem)
+            elif is_tag(child, 'w:continuationSeparator'):
+                text.add_elem(HR())
+                ans.append(text.elem)
         if text.buf:
             setattr(text.elem, text.attr, ''.join(text.buf))
 
