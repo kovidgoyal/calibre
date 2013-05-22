@@ -146,8 +146,12 @@ class CreateVirtualLibrary(QDialog):  # {{{
 
             <p>For example you can use a Virtual Library to only show you books with the Tag <i>"Unread"</i>
             or only books by <i>"My Favorite Author"</i> or only books in a particular series.</p>
+
+            <p>More information and examples are available in the
+            <a href="http://manual.calibre-ebook.com/virtual_libraries.html">User Manual</a>.</p>
             '''))
         hl.setWordWrap(True)
+        hl.setOpenExternalLinks(True)
         hl.setFrameStyle(hl.StyledPanel)
         gl.addWidget(hl, 0, 3, 4, 1)
 
