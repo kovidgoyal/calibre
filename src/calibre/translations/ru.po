@@ -7,15 +7,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-05-17 05:42+0000\n"
-"PO-Revision-Date: 2013-04-14 10:11+0000\n"
-"Last-Translator: Baz <_baz_@rambler.ru>\n"
+"PO-Revision-Date: 2013-05-21 06:41+0000\n"
+"Last-Translator: Dasha <dashasokol@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-05-18 05:26+0000\n"
+"X-Launchpad-Export-Date: 2013-05-22 04:37+0000\n"
 "X-Generator: Launchpad (build 16626)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -2031,7 +2031,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1240
 msgid "Show archived books"
-msgstr ""
+msgstr "Показать архивированные книги"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1241
 msgid ""
@@ -6638,7 +6638,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:160
 msgid "Copy to the specified library and delete from the current library"
-msgstr ""
+msgstr "Копировать в указанную библиотеку и удалить из текущей библиотеки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:180
 msgid "Copy to library"
@@ -7111,7 +7111,7 @@ msgstr "Журнал загрузки"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:159
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:225
 msgid "Review downloaded metadata"
-msgstr ""
+msgstr "Проверить загруженные метаданные"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:184
 msgid "Some books changed"
@@ -7131,7 +7131,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:226
 msgid "Discard downloaded metadata for this book"
-msgstr ""
+msgstr "Не сохранять загруженные метаданные для этой книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:227
 msgid "Use the downloaded metadata for all remaining books"
@@ -7485,7 +7485,7 @@ msgstr "Удалить сохранённые настройки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:208
 msgid "Must update metadata"
-msgstr ""
+msgstr "Необходимо обновить метаданные"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/polish.py:209
 msgid ""
@@ -15209,7 +15209,7 @@ msgstr "По центру"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:308
 #, python-format
 msgid "Quickview column %s"
-msgstr ""
+msgstr "Быстрый просмотр колонки %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:325
 msgid "Show column"
@@ -15795,7 +15795,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:452
 msgid "Compare metadata"
-msgstr ""
+msgstr "Сравнить метаданные"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:468
 msgid "&Accept all remaining"
@@ -15807,7 +15807,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:478
 msgid "&Reject"
-msgstr ""
+msgstr "&Отклонить"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/diff.py:523
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:301
@@ -16058,7 +16058,7 @@ msgstr "Поиск..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:822
 msgid "View this cover at full size"
-msgstr ""
+msgstr "Посмотреть обложку в полном размере"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:868
 #, python-format
@@ -16275,6 +16275,8 @@ msgstr "Добавление"
 msgid ""
 "<b>Ignore</b> files with the following extensions when automatically adding "
 msgstr ""
+"<b> Игнорировать </b> файлы со следующими расширениями при автоматическом "
+"добавлении "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:162
 msgid ""
@@ -16408,7 +16410,7 @@ msgstr "&Приоритет задачи"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:168
 msgid "Virtual library to apply when the current library is opened:"
-msgstr ""
+msgstr "Виртуальная библиотека открыта для применения в текущей библиотеке:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:169
 msgid ""

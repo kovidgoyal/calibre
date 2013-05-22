@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-05-17 05:42+0000\n"
-"PO-Revision-Date: 2013-05-11 11:27+0000\n"
+"PO-Revision-Date: 2013-05-21 13:51+0000\n"
 "Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-05-18 05:26+0000\n"
+"X-Launchpad-Export-Date: 2013-05-22 04:37+0000\n"
 "X-Generator: Launchpad (build 16626)\n"
 "X-Poedit-Bookmarks: -1,3588,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
@@ -1300,11 +1300,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:131
 msgid "Enable debug logging"
-msgstr ""
+msgstr "Włącz logowanie debugowania"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:133
 msgid "Print driver debug messages to console"
-msgstr ""
+msgstr "Wyświetlaj w konsoli  informacje debugowania sterownika"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:203
 msgid "Apple device"
@@ -14277,7 +14277,7 @@ msgstr "Skopiuj nazwę koloru do schowka:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:172
 msgid "Kind"
-msgstr ""
+msgstr "Rodzaj"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
@@ -14291,23 +14291,23 @@ msgstr "ikonkę z tekstem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:175
 msgid "Apply the icon to column:"
-msgstr ""
+msgstr "Przypisz ikonę do kolumny:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:176
 msgid "Copy an icon file name to the clipboard:"
-msgstr ""
+msgstr "Skopiuj nazwę pliku ikony do schowka:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:177
 msgid "Copy the selected icon file name to the clipboard"
-msgstr ""
+msgstr "Skopiuj do schowka nazwę pliku wybranej ikony"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:178
 msgid "Add icon"
-msgstr ""
+msgstr "Dodaj ikonę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:179
 msgid "Add an icon file to the set of choices"
-msgstr ""
+msgstr "Dodaj plik z ikoną do zestawu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:180
 msgid "Template value:"
@@ -15244,7 +15244,7 @@ msgstr "Wyśrodkuj"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:308
 #, python-format
 msgid "Quickview column %s"
-msgstr ""
+msgstr "Szybki podgląd kolumny %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:325
 msgid "Show column"
@@ -16748,6 +16748,10 @@ msgid ""
 "                <pre>%(rule)s</pre>\n"
 "                "
 msgstr ""
+"\n"
+"                <p>Zaawansowana reguła dla kolumny <b>%(col)s</b>:\n"
+"                <pre>%(rule)s</pre>\n"
+"                "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:645
 #, python-format
@@ -16758,6 +16762,11 @@ msgid ""
 "                <pre>%(rule)s</pre>\n"
 "                "
 msgstr ""
+"\n"
+"                <p>Zaawansowana reguła: ustaw <b>%(typ)s</b> dla kolumny "
+"<b>%(col)s</b>:\n"
+"                <pre>%(rule)s</pre>\n"
+"                "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:664
 #, python-format
@@ -20736,7 +20745,7 @@ msgstr "Wyczyść aktualne wyszukiwanie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:271
 msgid "Focus the book list"
-msgstr ""
+msgstr "Przełącz na listę książek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:278
 msgid "Clear the virtual library"
@@ -23071,6 +23080,7 @@ msgstr "Wybierz co najmniej jedną książkę do usunięcia"
 #, python-format
 msgid "A %(fmt)s file already exists for book: %(id)d, not replacing"
 msgstr ""
+"Plik %(fmt)s już istnieje w książce: %(id)d i nie zostanie zamieniony"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:440
 msgid ""
@@ -23826,7 +23836,7 @@ msgstr "Czas ostatniej modyfikacji metadanych"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:50
 msgid "The language(s) of this book"
-msgstr ""
+msgstr "Język(i) tej książki"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:51
 msgid "The calibre internal id"
@@ -26001,6 +26011,35 @@ msgid ""
 "from books and the import plugin produces a value, than that value will\n"
 "be used irrespective of the setting of the tweak."
 msgstr ""
+"Algorytm używany w trakcie przypisywania książek do istniejących serii.\n"
+"Nowy numer w serii, przypisywany do książki jest zawsze liczbą całkowitą, \n"
+"chyba, że zostanie konkretnie określona liczba niecałkowita..\n"
+"Możliwe wartości parametru:\n"
+"next - pierwszy dostępny numer większy od najwyższego istniejącego w serii\n"
+"first_free - pierwszy dostępny numer większy od 0\n"
+"next_free - pierwszy dostępny numer większy od najniższego istniejącego w "
+"serii\n"
+"last_free - pierwszy dostępny numer mniejszy od najwyższego istniejącego w "
+"serii\n"
+"Jeżeli nie znaleziono odpowiadającego numeru to jest zwracany najwyższy+1\n"
+"const - zawsze 1\n"
+"no_change - nie zmieniaj numeru w seriiliczba - przypisz zawsze tę liczbę. "
+"Liczba nie jest zawarta w cudzysłowie. 0.0 również może zostać użyte.\n"
+"Przykłady:\n"
+"series_index_auto_increment = 'next'\n"
+"series_index_auto_increment = 'next_free'\n"
+"series_index_auto_increment = 16.5\n"
+"\n"
+"Aby ten parametr działał należy ustawić na True parametr \n"
+"use_series_auto_increment_tweak_when_importing. W przeciwnym wypadku \n"
+"nowy numer w serii będzie zawsze ustawiany na 1 o ile nie jest ustawiany w "
+"trakcie importu.Parametr use_series_auto_increment_tweak_when_importing jest "
+"używany jedynie wtedy,\n"
+"gdy numer w serii nie jest podawany explicite w czasie importu książki. "
+"Jeśli wyrażenie regularne\n"
+"zwraca numer w serii lub jest on pobierany z metadanych to będzie on użyty "
+"niezależnie od\n"
+"ustawienia tego parametru."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:44
 msgid "Add separator after completing an author name"
