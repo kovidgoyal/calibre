@@ -181,7 +181,9 @@ class DOCX(object):
         else:
             root = fromstring(raw)
             for item in root.xpath('//*[local-name()="Relationships"]/*[local-name()="Relationship" and @Type and @Target]'):
-                target = '/'.join((base, item.get('Target').lstrip('/')))
+                target = item.get('Target')
+                if item.get('TargetMode', None) != 'External':
+                    target = '/'.join((base, target.lstrip('/')))
                 typ = item.get('Type')
                 Id = item.get('Id')
                 by_id[Id] = by_type[typ] = target

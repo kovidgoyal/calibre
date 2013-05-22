@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, os, re
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 from lxml import html
 from lxml.html.builder import (
@@ -16,7 +16,7 @@ from lxml.html.builder import (
 from calibre.ebooks.docx.container import DOCX, fromstring
 from calibre.ebooks.docx.names import (
     XPath, is_tag, XML, STYLES, NUMBERING, FONTS, get, generate_anchor,
-    descendants)
+    descendants, ancestor)
 from calibre.ebooks.docx.styles import Styles, inherit, PageProperties
 from calibre.ebooks.docx.numbering import Numbering
 from calibre.ebooks.docx.fonts import Fonts
@@ -73,12 +73,15 @@ class Convert(object):
         self.framed = [[]]
         self.framed_map = {}
         self.anchor_map = {}
+        self.link_map = defaultdict(list)
 
         self.read_page_properties(doc)
         for wp, page_properties in self.page_map.iteritems():
             self.current_page = page_properties
             p = self.convert_p(wp)
             self.body.append(p)
+
+        self.resolve_links(relationships_by_id)
         # TODO: tables <w:tbl> child of <w:body> (nested tables?)
 
         self.styles.cascade(self.layers)
@@ -198,19 +201,28 @@ class Convert(object):
         self.add_frame(dest, style.frame)
 
         current_anchor = None
+        current_hyperlink = None
 
-        for x in descendants(p, 'w:r', 'w:bookmarkStart'):
+        for x in descendants(p, 'w:r', 'w:bookmarkStart', 'w:hyperlink'):
             if x.tag.endswith('}r'):
                 span = self.convert_run(x)
                 if current_anchor is not None:
                     (dest if len(dest) == 0 else span).set('id', current_anchor)
                     current_anchor = None
+                if current_hyperlink is not None:
+                    hl = ancestor(x, 'w:hyperlink')
+                    if hl is not None:
+                        self.link_map[hl].append(span)
+                    else:
+                        current_hyperlink = None
                 dest.append(span)
                 self.layers[p].append(x)
             elif x.tag.endswith('}bookmarkStart'):
                 anchor = get(x, 'w:name')
                 if anchor and anchor not in self.anchor_map:
                     self.anchor_map[anchor] = current_anchor = generate_anchor(anchor, frozenset(self.anchor_map.itervalues()))
+            elif x.tag.endswith('}hyperlink'):
+                current_hyperlink = x
 
         m = re.match(r'heading\s+(\d+)$', style.style_name or '', re.IGNORECASE)
         if m is not None:
@@ -255,6 +267,31 @@ class Convert(object):
         for elem in elems:
             p.remove(elem)
             wrapper.append(elem)
+        return wrapper
+
+    def resolve_links(self, relationships_by_id):
+        for hyperlink, spans in self.link_map.iteritems():
+            span = spans[0]
+            if len(spans) > 1:
+                span = self.wrap_elems(spans, SPAN())
+            span.tag = 'a'
+            tgt = get(hyperlink, 'w:tgtFrame')
+            if tgt:
+                span.set('target', tgt)
+            tt = get(hyperlink, 'w:tooltip')
+            if tt:
+                span.set('title', tt)
+            rid = get(hyperlink, 'r:id')
+            if rid and rid in relationships_by_id:
+                span.set('href', relationships_by_id[rid])
+                continue
+            anchor = get(hyperlink, 'w:anchor')
+            if anchor and anchor in self.anchor_map:
+                span.set('href', '#' + self.anchor_map[anchor])
+                continue
+            self.log.warn('Hyperlink with unknown target (%s, %s), ignoring' %
+                          (rid, anchor))
+            span.set('href', '#')
 
     def convert_run(self, run):
         ans = SPAN()
