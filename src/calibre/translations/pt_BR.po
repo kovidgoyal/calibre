@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-05-17 05:42+0000\n"
-"PO-Revision-Date: 2013-05-17 18:49+0000\n"
-"Last-Translator: Paulo Lieuthier <Unknown>\n"
+"PO-Revision-Date: 2013-05-22 22:13+0000\n"
+"Last-Translator: Rodrigo Oliveira <rosonline@yahoo.com.br>\n"
 "Language-Team: Português Brasileiro <ubuntu-l10n-ptbr@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2013-05-18 05:32+0000\n"
-"X-Generator: Launchpad (build 16626)\n"
+"X-Launchpad-Export-Date: 2013-05-23 05:19+0000\n"
+"X-Generator: Launchpad (build 16640)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -1890,6 +1890,10 @@ msgid ""
 "be Dragons!! Enable only if you are comfortable with restoring your kobo to "
 "factory defaults and testing software"
 msgstr ""
+"Kobo atualiza a versão do firmware e da base de dados com frequência. Com "
+"essa opção, calibre tentará executar todas as funcionalidades de leitura e "
+"escrita - Há dragões aqui!! Ative essa opção se estiver confortável com "
+"restaurar seu kobo aos padrões de fábrica e testar o software"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:619
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:2611
@@ -2045,6 +2049,9 @@ msgid ""
 "Use this option to show these books and match them with books in the calibre "
 "library."
 msgstr ""
+"Livros arquivados estão listados no dispositivo mas necessita ser baixado "
+"para leitura. Use essa opção para mostrar esse livros e combiná-los com os "
+"livros da biblioteca do Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1248
 msgid ""
@@ -2164,7 +2171,7 @@ msgstr "Comunica-se com o Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:415
 msgid "Communicate with the WayteQ and SPC Dickens Readers"
-msgstr ""
+msgstr "Comunicar com os leitores WayteQ e SPC Dickens"
 
 #: /home/kovid/work/calibre/src/calibre/devices/mtp/base.py:29
 msgid "MTP Device"

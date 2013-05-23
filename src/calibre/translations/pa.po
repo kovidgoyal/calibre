@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-05-17 05:42+0000\n"
-"PO-Revision-Date: 2011-08-05 16:48+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2013-05-22 10:22+0000\n"
+"Last-Translator: jasdeep <jsbhangra@gmail.com>\n"
 "Language-Team: Punjabi <pa@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-05-18 05:25+0000\n"
-"X-Generator: Launchpad (build 16626)\n"
+"X-Launchpad-Export-Date: 2013-05-23 05:19+0000\n"
+"X-Generator: Launchpad (build 16640)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -204,7 +204,7 @@ msgstr "ਅਗਿਆਤ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
-msgstr ""
+msgstr "ਮੂਲ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:81
@@ -252,11 +252,11 @@ msgstr "ਤਰਜੀਹਾਂ"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:646
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:39
 msgid "Store"
-msgstr ""
+msgstr "ਸੰਭਾਲੋ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:650
 msgid "An ebook store."
-msgstr ""
+msgstr "ਇੱਕ ਈ ਕਿਤਾਬ ਹੱਟੀ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:21
 msgid ""
