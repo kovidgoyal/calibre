@@ -21,6 +21,8 @@ NUMBERING = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships
 FONTS     = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable'
 IMAGES    = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
 LINKS     = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink'
+FOOTNOTES = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes'
+ENDNOTES  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes'
 
 namespaces = {
     'mo': 'http://schemas.microsoft.com/office/mac/office/2008/main',

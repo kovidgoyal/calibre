@@ -11,16 +11,17 @@ from collections import OrderedDict, defaultdict
 
 from lxml import html
 from lxml.html.builder import (
-    HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR, DIV, HR)
+    HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR, DIV, SUP, A, DT, DL, DD, H1)
 
 from calibre.ebooks.docx.container import DOCX, fromstring
 from calibre.ebooks.docx.names import (
     XPath, is_tag, XML, STYLES, NUMBERING, FONTS, get, generate_anchor,
-    descendants, ancestor)
+    descendants, ancestor, FOOTNOTES, ENDNOTES)
 from calibre.ebooks.docx.styles import Styles, inherit, PageProperties
 from calibre.ebooks.docx.numbering import Numbering
 from calibre.ebooks.docx.fonts import Fonts
 from calibre.ebooks.docx.images import Images
+from calibre.ebooks.docx.footnotes import Footnotes
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
 class Text:
@@ -34,9 +35,10 @@ class Text:
 
 class Convert(object):
 
-    def __init__(self, path_or_stream, dest_dir=None, log=None):
+    def __init__(self, path_or_stream, dest_dir=None, log=None, notes_text=None):
         self.docx = DOCX(path_or_stream, log=log)
         self.log = self.docx.log
+        self.notes_text = notes_text or _('Notes')
         self.dest_dir = dest_dir or os.getcwdu()
         self.mi = self.docx.metadata
         self.body = BODY()
@@ -80,6 +82,20 @@ class Convert(object):
             self.current_page = page_properties
             p = self.convert_p(wp)
             self.body.append(p)
+
+        if self.footnotes.has_notes:
+            dl = DL()
+            dl.set('class', 'notes')
+            self.body.append(H1(self.notes_text))
+            self.body[-1].set('class', 'notes-header')
+            self.body.append(dl)
+            for anchor, text, note in self.footnotes:
+                dl.append(DT('[', A('←' + text, href='#back_%s' % anchor, title=text), id=anchor))
+                dl[-1][0].tail = ']'
+                dl.append(DD())
+                for wp in note:
+                    p = self.convert_p(wp)
+                    dl[-1].append(p)
 
         self.resolve_links(relationships_by_id)
         # TODO: tables <w:tbl> child of <w:body> (nested tables?)
@@ -154,8 +170,24 @@ class Convert(object):
         nname = get_name(NUMBERING, 'numbering.xml')
         sname = get_name(STYLES, 'styles.xml')
         fname = get_name(FONTS, 'fontTable.xml')
+        foname = get_name(FOOTNOTES, 'footnotes.xml')
+        enname = get_name(ENDNOTES, 'endnotes.xml')
         numbering = self.numbering = Numbering()
+        footnotes = self.footnotes = Footnotes()
         fonts = self.fonts = Fonts()
+
+        foraw = enraw = None
+        if foname is not None:
+            try:
+                foraw = self.docx.read(foname)
+            except KeyError:
+                self.log.warn('Footnotes %s do not exist' % foname)
+        if enname is not None:
+            try:
+                enraw = self.docx.read(enname)
+            except KeyError:
+                self.log.warn('Endnotes %s do not exist' % enname)
+        footnotes(fromstring(foraw) if foraw else None, fromstring(enraw) if enraw else None)
 
         if fname is not None:
             embed_relationships = self.docx.get_relationships(fname)[0]
@@ -327,9 +359,13 @@ class Convert(object):
                 for img in self.images.to_html(child, self.current_page, self.docx, self.dest_dir):
                     text.add_elem(img)
                     ans.append(text.elem)
-            elif is_tag(child, 'w:continuationSeparator'):
-                text.add_elem(HR())
-                ans.append(text.elem)
+            elif is_tag(child, 'w:footnoteReference') or is_tag(child, 'w:endnoteReference'):
+                anchor, name = self.footnotes.get_ref(child)
+                if anchor and name:
+                    l = SUP(A(name, href='#' + anchor, title=name), id='back_%s' % anchor)
+                    l.set('class', 'noteref')
+                    text.add_elem(l)
+                    ans.append(text.elem)
         if text.buf:
             setattr(text.elem, text.attr, ''.join(text.buf))
 

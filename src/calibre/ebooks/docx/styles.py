@@ -384,6 +384,16 @@ class Styles(object):
             p { text-indent: 1.5em }
 
             ul, ol, p { margin: 0; padding: 0 }
+
+            sup.noteref a { text-decoration: none }
+
+            h1.notes-header { page-break-before: always }
+
+            dl.notes dt { font-size: large }
+
+            dl.notes dt a { text-decoration: none }
+
+            dl.notes dd { page-break-after: always }
             ''') % (self.body_font_family, self.body_font_size)
         if ef:
             prefix = ef + '\n' + prefix
