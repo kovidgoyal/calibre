@@ -1476,6 +1476,7 @@ class StoreKoobeStore(StoreBase):
     drm_free_only = True
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
 
 class StoreLegimiStore(StoreBase):
     name = 'Legimi'
@@ -1548,12 +1549,13 @@ class StoreNextoStore(StoreBase):
 
 class StoreNookUKStore(StoreBase):
     name = 'Nook UK'
-    author = 'John Schember'
-    description = u'Barnes & Noble S.Ã  r.l, a subsidiary of Barnes & Noble, Inc., a leading retailer of content, digital media and educational products, is proud to bring the award-winning NOOKÂ® reading experience and a leading digital bookstore to the UK.'  # noqa
+    author = 'Charles Haley'
+    description = u'Barnes & Noble S.A.R.L, a subsidiary of Barnes & Noble, Inc., a leading retailer of content, digital media and educational products, is proud to bring the award-winning NOOK reading experience and a leading digital bookstore to the UK.'  # noqa
     actual_plugin = 'calibre.gui2.store.stores.nook_uk_plugin:NookUKStore'
 
     headquarters = 'UK'
     formats = ['NOOK']
+    affiliate = True
 
 class StoreOpenBooksStore(StoreBase):
     name = 'Open Books'
@@ -1659,6 +1661,7 @@ class StoreWoblinkStore(StoreBase):
 
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF', 'WOBLINK']
+    affiliate = True
 
 class XinXiiStore(StoreBase):
     name = 'XinXii'

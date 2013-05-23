@@ -45,11 +45,15 @@ class Links(object):
             href, page, rect = link
             p, frag = href.partition('#')[0::2]
             try:
-                link = ((path, p, frag or None), self.pdf.get_pageref(page).obj, Array(rect))
+                pref = self.pdf.get_pageref(page).obj
             except IndexError:
-                self.log.warn('Unable to find page for link: %r, ignoring it' % link)
-                continue
-            self.links.append(link)
+                try:
+                    pref = self.pdf.get_pageref(page-1).obj
+                except IndexError:
+                    self.pdf.debug('Unable to find page for link: %r, ignoring it' % link)
+                    continue
+                self.pdf.debug('The link %s points to non-existent page, moving it one page back' % href)
+            self.links.append(((path, p, frag or None), pref, Array(rect)))
 
     def add_links(self):
         for link in self.links:

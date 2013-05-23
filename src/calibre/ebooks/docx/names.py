@@ -6,12 +6,23 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import re
+from future_builtins import map
+
 from lxml.etree import XPath as X
 
-DOCUMENT = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument'
-DOCPROPS = 'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties'
-APPPROPS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties'
-STYLES   = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles'
+from calibre.utils.filenames import ascii_text
+
+DOCUMENT  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument'
+DOCPROPS  = 'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties'
+APPPROPS  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties'
+STYLES    = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles'
+NUMBERING = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering'
+FONTS     = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable'
+IMAGES    = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
+LINKS     = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink'
+FOOTNOTES = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes'
+ENDNOTES  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes'
 
 namespaces = {
     'mo': 'http://schemas.microsoft.com/office/mac/office/2008/main',
@@ -44,8 +55,13 @@ namespaces = {
     'dcterms': 'http://purl.org/dc/terms/'
 }
 
+xpath_cache = {}
+
 def XPath(expr):
-    return X(expr, namespaces=namespaces)
+    ans = xpath_cache.get(expr, None)
+    if ans is None:
+        xpath_cache[expr] = ans = X(expr, namespaces=namespaces)
+    return ans
 
 def is_tag(x, q):
     tag = getattr(x, 'tag', x)
@@ -58,7 +74,32 @@ def barename(x):
 def XML(x):
     return '{%s}%s' % (namespaces['xml'], x)
 
-def get(x, attr, default=None):
-    ns, name = attr.partition(':')[0::2]
-    return x.attrib.get('{%s}%s' % (namespaces[ns], name), default)
+def expand(name):
+    ns, tag = name.partition(':')[0::2]
+    if ns:
+        tag = '{%s}%s' % (namespaces[ns], tag)
+    return tag
 
+def get(x, attr, default=None):
+    return x.attrib.get(expand(attr), default)
+
+def ancestor(elem, name):
+    tag = expand(name)
+    while elem is not None:
+        elem = elem.getparent()
+        if getattr(elem, 'tag', None) == tag:
+            return elem
+
+def generate_anchor(name, existing):
+    x = y = 'id_' + re.sub(r'[^0-9a-zA-Z_]', '', ascii_text(name)).lstrip('_')
+    c = 1
+    while y in existing:
+        y = '%s_%d' % (x, c)
+        c += 1
+    return y
+
+def children(elem, *args):
+    return elem.iterchildren(*map(expand, args))
+
+def descendants(elem, *args):
+    return elem.iterdescendants(*map(expand, args))

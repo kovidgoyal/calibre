@@ -3,7 +3,7 @@ __license__     = 'GPL v3'
 __copyright__   = '4 February 2011, desUBIKado'
 __author__      = 'desUBIKado'
 __version__     = 'v0.09'
-__date__        = '02, December 2012'
+__date__        = '14, May 2013'
 '''
 http://www.weblogssl.com/
 '''
@@ -56,15 +56,16 @@ class weblogssl(BasicNewsRecipe):
                           ,(u'Zona FandoM', u'http://feeds.weblogssl.com/zonafandom')
                           ,(u'Fandemia', u'http://feeds.weblogssl.com/fandemia')
                           ,(u'Tendencias', u'http://feeds.weblogssl.com/trendencias')
-                          ,(u'Beb\xe9s y m\xe1s', u'http://feeds.weblogssl.com/bebesymas')
+                          ,(u'Tendencias Belleza', u'http://feeds.weblogssl.com/trendenciasbelleza')
+                          ,(u'Tendencias Hombre', u'http://feeds.weblogssl.com/trendenciashombre')
+                          ,(u'Tendencias Shopping', u'http://feeds.weblogssl.com/trendenciasshopping')
                           ,(u'Directo al paladar', u'http://feeds.weblogssl.com/directoalpaladar')
                           ,(u'Compradicci\xf3n', u'http://feeds.weblogssl.com/compradiccion')
                           ,(u'Decoesfera', u'http://feeds.weblogssl.com/decoesfera')
                           ,(u'Embelezzia', u'http://feeds.weblogssl.com/embelezzia')
                           ,(u'Vit\xf3nica', u'http://feeds.weblogssl.com/vitonica')
                           ,(u'Ambiente G', u'http://feeds.weblogssl.com/ambienteg')
-                          ,(u'Tendencias Belleza', u'http://feeds.weblogssl.com/trendenciasbelleza')
-                          ,(u'Tendencias Hombre', u'http://feeds.weblogssl.com/trendenciashombre')
+                          ,(u'Beb\xe9s y m\xe1s', u'http://feeds.weblogssl.com/bebesymas')
                           ,(u'Peques y m\xe1s', u'http://feeds.weblogssl.com/pequesymas')
                           ,(u'Motorpasi\xf3n', u'http://feeds.weblogssl.com/motorpasion')
                           ,(u'Motorpasi\xf3n F1', u'http://feeds.weblogssl.com/motorpasionf1')
@@ -90,7 +91,7 @@ class weblogssl(BasicNewsRecipe):
                           dict(name='section' , attrs={'class':'comments'}),      #m.xataka.com
                           dict(name='div' , attrs={'class':'article-comments'}),  #m.xataka.com
                           dict(name='nav' , attrs={'class':'article-taxonomy'})   #m.xataka.com
-			 ]
+    ]
 
     remove_tags_after  = dict(name='section' , attrs={'class':'comments'})
 
@@ -119,23 +120,6 @@ class weblogssl(BasicNewsRecipe):
 
         return soup
 
-    # Para obtener la url original del articulo a partir de la de "feedsportal"
-    # El siguiente código es gracias al usuario "bosplans" de www.mobileread.com
-    # http://www.mobileread.com/forums/showthread.php?t=130297
 
     def get_article_url(self, article):
-       link = article.get('link', None)
-       if link is None:
-           return article
-       # if link.split('/')[-4]=="xataka2":
-       #     return article.get('feedburner_origlink', article.get('link', article.get('guid')))
-       if link.split('/')[-4]=="xataka2":
            return article.get('guid', None)
-       if link.split('/')[-1]=="story01.htm":
-           link=link.split('/')[-2]
-           a=['0B','0C','0D','0E','0F','0G','0N'  ,'0L0S','0A']
-           b=['.' ,'/' ,'?' ,'-' ,'=' ,'&' ,'.com','www.','0']
-           for i in range(0,len(a)):
-              link=link.replace(a[i],b[i])
-           link="http://"+link
-       return link

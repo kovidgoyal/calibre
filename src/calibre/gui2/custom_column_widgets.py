@@ -7,10 +7,10 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateTimeEdit, \
-        QDateTime, QGroupBox, QVBoxLayout, QSizePolicy, QGridLayout, \
-        QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL, \
-        QPushButton, QMessageBox, QToolButton
+from PyQt4.Qt import (QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateTimeEdit,
+        QDateTime, QGroupBox, QVBoxLayout, QSizePolicy, QGridLayout,
+        QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL,
+        QPushButton, QMessageBox, QToolButton, Qt)
 
 from calibre.utils.date import qt_to_dt, now
 from calibre.gui2.complete2 import EditWithComplete
@@ -38,7 +38,6 @@ class Base(object):
     @property
     def gui_val(self):
         return self.getter()
-
 
     def commit(self, book_id, notify=False):
         val = self.gui_val
@@ -159,6 +158,17 @@ class DateTimeEdit(QDateTimeEdit):
     def set_to_clear(self):
         self.setDateTime(UNDEFINED_QDATETIME)
 
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_Minus:
+            ev.accept()
+            self.setDateTime(self.minimumDateTime())
+        elif ev.key() == Qt.Key_Equal:
+            ev.accept()
+            self.setDateTime(QDateTime.currentDateTime())
+        else:
+            return QDateTimeEdit.keyPressEvent(self, ev)
+
+
 class DateTime(Base):
 
     def setup_ui(self, parent):
@@ -211,7 +221,7 @@ class Comments(Base):
         self._layout = QVBoxLayout()
         self._tb = CommentsEditor(self._box)
         self._tb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        #self._tb.setTabChangesFocus(True)
+        # self._tb.setTabChangesFocus(True)
         self._layout.addWidget(self._tb)
         self._box.setLayout(self._layout)
         self.widgets = [self._box]
@@ -534,7 +544,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
     column = row = base_row = max_row = 0
     for key in cols:
         if not fm[key]['is_editable']:
-            continue # this almost never happens
+            continue  # this almost never happens
         dt = fm[key]['datatype']
         if dt == 'composite' or (bulk and dt == 'comments'):
             continue
@@ -595,7 +605,6 @@ class BulkBase(Base):
             self._cached_gui_val_ = self.getter()
         return self._cached_gui_val_
 
-
     def get_initial_value(self, book_ids):
         values = set([])
         for book_id in book_ids:
@@ -633,7 +642,7 @@ class BulkBase(Base):
         self.main_widget = main_widget_class(w)
         l.addWidget(self.main_widget)
         l.setStretchFactor(self.main_widget, 10)
-        self.a_c_checkbox = QCheckBox( _('Apply changes'), w)
+        self.a_c_checkbox = QCheckBox(_('Apply changes'), w)
         l.addWidget(self.a_c_checkbox)
         self.ignore_change_signals = True
 
@@ -1054,3 +1063,5 @@ bulk_widgets = {
         'series': BulkSeries,
         'enumeration': BulkEnumeration,
 }
+
+

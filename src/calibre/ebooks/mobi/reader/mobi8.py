@@ -228,7 +228,7 @@ class Mobi8Reader(object):
 
         self.flowinfo.append(FlowInfo(None, None, None, None))
         svg_tag_pattern = re.compile(br'''(<svg[^>]*>)''', re.IGNORECASE)
-        image_tag_pattern = re.compile(br'''(<image[^>]*>)''', re.IGNORECASE)
+        image_tag_pattern = re.compile(br'''(<(?:svg:)?image[^>]*>)''', re.IGNORECASE)
         for j in xrange(1, len(self.flows)):
             flowpart = self.flows[j]
             nstr = '%04d' % j
@@ -243,7 +243,7 @@ class Mobi8Reader(object):
                     dir = None
                     fname = None
                     # strip off anything before <svg if inlining
-                    flowpart = flowpart[start:]
+                    flowpart = re.sub(br'(</?)svg:', r'\1', flowpart[start:])
                 else:
                     format = 'file'
                     dir = "images"

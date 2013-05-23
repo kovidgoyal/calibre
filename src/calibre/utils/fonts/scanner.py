@@ -13,12 +13,81 @@ from threading import Thread
 
 from calibre import walk, prints, as_unicode
 from calibre.constants import (config_dir, iswindows, isosx, plugins, DEBUG,
-        isworker)
+        isworker, filesystem_encoding)
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.icu import sort_key
 
 class NoFonts(ValueError):
     pass
+
+
+def default_font_dirs():
+    return [
+        '/opt/share/fonts',
+        '/usr/share/fonts',
+        '/usr/local/share/fonts',
+        os.path.expanduser('~/.local/share/fonts'),
+        os.path.expanduser('~/.fonts')
+    ]
+
+
+def fc_list():
+    import ctypes
+    from ctypes.util import find_library
+
+    lib = find_library('fontconfig')
+    if lib is None:
+        return default_font_dirs()
+    try:
+        lib = ctypes.CDLL(lib)
+    except:
+        return default_font_dirs()
+
+    prototype = ctypes.CFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p)
+    try:
+        get_font_dirs = prototype(('FcConfigGetFontDirs', lib))
+    except (AttributeError):
+        return default_font_dirs()
+    prototype = ctypes.CFUNCTYPE(ctypes.c_char_p, ctypes.c_void_p)
+    try:
+        next_dir = prototype(('FcStrListNext', lib))
+    except (AttributeError):
+        return default_font_dirs()
+
+    prototype = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+    try:
+        end = prototype(('FcStrListDone', lib))
+    except (AttributeError):
+        return default_font_dirs()
+
+    str_list = get_font_dirs(ctypes.c_void_p())
+    if not str_list:
+        return default_font_dirs()
+
+    ans = []
+    while True:
+        d = next_dir(str_list)
+        if not d:
+            break
+        if d:
+            try:
+                ans.append(d.decode(filesystem_encoding))
+            except ValueError:
+                return default_font_dirs
+    end(str_list)
+    if len(ans) < 3:
+        return default_font_dirs()
+    parents = []
+    for f in ans:
+        found = False
+        for p in parents:
+            if f.startswith(p):
+                found = True
+                break
+        if not found:
+            parents.append(f)
+    return parents
+
 
 def font_dirs():
     if iswindows:
@@ -35,12 +104,7 @@ def font_dirs():
                 os.path.expanduser('~/.fonts'),
                 os.path.expanduser('~/Library/Fonts'),
                 ]
-    return [
-            '/opt/share/fonts',
-            '/usr/share/fonts',
-            '/usr/local/share/fonts',
-            os.path.expanduser('~/.fonts')
-            ]
+    return fc_list()
 
 class Scanner(Thread):
 
@@ -133,7 +197,8 @@ class Scanner(Thread):
 
         for family in self.find_font_families():
             faces = filter(filter_faces, self.fonts_for_family(family))
-            if not faces: continue
+            if not faces:
+                continue
             generic_family = panose_to_css_generic_family(faces[0]['panose'])
             if generic_family in allowed_families or generic_family == preferred_families[0]:
                 return (family, faces)
@@ -233,7 +298,8 @@ class Scanner(Thread):
     def build_families(self):
         families = defaultdict(list)
         for f in self.cached_fonts.itervalues():
-            if not f: continue
+            if not f:
+                continue
             lf = icu_lower(f['font-family'] or '')
             if lf:
                 families[lf].append(f)

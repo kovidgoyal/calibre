@@ -57,6 +57,26 @@ library. The virtual library will then be created based on the search
 you just typed in. Searches are very powerful, for examples of the kinds 
 of things you can do with them, see :ref:`search_interface`. 
 
+Examples of useful Virtual Libraries
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  * Books added to |app| in the last day::
+        date:>1daysago
+  * Books added to |app| in the last month::
+        date:>30daysago
+  * Books with a rating of 5 stars::
+        rating:5
+  * Books with a rating of at least 4 stars::
+        rating:>=4
+  * Books with no rating::
+        rating:false
+  * Periodicals downloaded by the Fetch News function in |app|::
+        tags:=News and author:=calibre
+  * Books with no tags::
+        tags:false
+  * Books with no covers::
+        cover:false
+
 Working with Virtual Libraries
 -------------------------------------
 

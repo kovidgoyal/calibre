@@ -47,6 +47,7 @@ FORMAT_ARG_DESCS = dict(
         pubdate=_('The published date'),
         last_modified=_('The date when the metadata for this book record'
             ' was last modified'),
+        languages=_('The language(s) of this book'),
         id=_('The calibre internal id')
         )
 
@@ -281,7 +282,6 @@ def save_book_to_disk(id_, db, root, opts, length):
                 os.remove(temp)
             except:
                 pass
-
 
 
 def do_save_book_to_disk(id_, mi, cover, plugboards,

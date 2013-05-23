@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from urlparse import urlparse
-from collections import deque
+from collections import deque, Counter
 from functools import partial
 
 from lxml import etree
@@ -29,7 +29,8 @@ class TOC(object):
     def __init__(self, title=None, dest=None, frag=None):
         self.title, self.dest, self.frag = title, dest, frag
         self.dest_exists = self.dest_error = None
-        if self.title: self.title = self.title.strip()
+        if self.title:
+            self.title = self.title.strip()
         self.parent = None
         self.children = []
 
@@ -326,11 +327,13 @@ def create_ncx(toc, to_href, btitle, lang, uid):
     navmap = etree.SubElement(ncx, NCX('navMap'))
     spat = re.compile(r'\s+')
 
-    def process_node(xml_parent, toc_parent, play_order=0):
+    play_order = Counter()
+
+    def process_node(xml_parent, toc_parent):
         for child in toc_parent:
-            play_order += 1
+            play_order['c'] += 1
             point = etree.SubElement(xml_parent, NCX('navPoint'), id=uuid_id(),
-                            playOrder=str(play_order))
+                            playOrder=str(play_order['c']))
             label = etree.SubElement(point, NCX('navLabel'))
             title = child.title
             if title:
@@ -341,7 +344,7 @@ def create_ncx(toc, to_href, btitle, lang, uid):
                 if child.frag:
                     href += '#'+child.frag
                 etree.SubElement(point, NCX('content'), src=href)
-            process_node(point, child, play_order)
+            process_node(point, child)
 
     process_node(navmap, toc)
     return ncx

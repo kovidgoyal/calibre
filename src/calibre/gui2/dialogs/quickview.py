@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import (Qt, QDialog, QAbstractItemView, QTableWidgetItem,
                       QListWidgetItem, QByteArray, QCoreApplication,
-                      QApplication)
+                      QApplication, pyqtSignal)
 
 from calibre.customize.ui import find_plugin
 from calibre.gui2 import gprefs
@@ -43,6 +43,8 @@ class TableItem(QTableWidgetItem):
         return 0
 
 class Quickview(QDialog, Ui_Quickview):
+
+    change_quickview_column   = pyqtSignal(object)
 
     def __init__(self, gui, view, row):
         QDialog.__init__(self, gui, flags=Qt.Window)
@@ -105,6 +107,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.refresh(row)
 
         self.view.clicked.connect(self.slave)
+        self.change_quickview_column.connect(self.slave)
         QCoreApplication.instance().aboutToQuit.connect(self.save_state)
         self.search_button.clicked.connect(self.do_search)
         view.model().new_bookdisplay_data.connect(self.book_was_changed)
@@ -146,6 +149,9 @@ class Quickview(QDialog, Ui_Quickview):
         key = self.view.model().column_map[self.current_column]
         book_id = self.view.model().id(bv_row)
 
+        if self.current_book_id == book_id and self.current_key == key:
+            return
+
         # Only show items for categories
         if not self.db.field_metadata[key]['is_category']:
             if self.current_key is None:
@@ -164,6 +170,8 @@ class Quickview(QDialog, Ui_Quickview):
 
         if vals:
             self.no_valid_items = False
+            if self.db.field_metadata[key]['datatype'] == 'rating':
+                vals = unicode(vals/2)
             if not isinstance(vals, list):
                 vals = [vals]
             vals.sort(key=sort_key)
@@ -198,8 +206,7 @@ class Quickview(QDialog, Ui_Quickview):
             sv = selected_item
         sv = sv.replace('"', r'\"')
         self.last_search = self.current_key+':"=' + sv + '"'
-        books = self.db.search_getting_ids(self.last_search,
-                                           self.db.data.search_restriction)
+        books = self.db.search(self.last_search, return_matches=True)
 
         self.books_table.setRowCount(len(books))
         self.books_label.setText(_('Books with selected item "{0}": {1}').

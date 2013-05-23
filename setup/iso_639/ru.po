@@ -13,14 +13,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2013-03-23 10:17+0000\n"
+"PO-Revision-Date: 2013-05-21 06:13+0000\n"
 "Last-Translator: Глория Хрусталёва <gloriya@hushmail.com>\n"
 "Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-03-24 04:45+0000\n"
-"X-Generator: Launchpad (build 16540)\n"
+"X-Launchpad-Export-Date: 2013-05-22 04:38+0000\n"
+"X-Generator: Launchpad (build 16626)\n"
 "Language: ru\n"
 
 #. name for aaa
@@ -2089,7 +2089,7 @@ msgstr "Башкирский"
 
 #. name for bal
 msgid "Baluchi"
-msgstr "Балийский"
+msgstr ""
 
 #. name for bam
 msgid "Bambara"
@@ -5361,7 +5361,7 @@ msgstr ""
 
 #. name for coa
 msgid "Malay; Cocos Islands"
-msgstr ""
+msgstr "Малайский; Кокосовые острова"
 
 #. name for cob
 msgid "Chicomuceltec"

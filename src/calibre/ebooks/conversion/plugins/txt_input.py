@@ -91,14 +91,15 @@ class TXTInput(InputFormatPlugin):
             log.debug('Using user specified input encoding of %s' % ienc)
         else:
             det_encoding = detect(txt)
+            det_encoding, confidence = det_encoding['encoding'], det_encoding['confidence']
             if det_encoding and det_encoding.lower().replace('_', '-').strip() in (
                     'gb2312', 'chinese', 'csiso58gb231280', 'euc-cn', 'euccn',
                     'eucgb2312-cn', 'gb2312-1980', 'gb2312-80', 'iso-ir-58'):
                 # Microsoft Word exports to HTML with encoding incorrectly set to
                 # gb2312 instead of gbk. gbk is a superset of gb2312, anyway.
                 det_encoding = 'gbk'
-            ienc = det_encoding['encoding']
-            log.debug('Detected input encoding as %s with a confidence of %s%%' % (ienc, det_encoding['confidence'] * 100))
+            ienc = det_encoding
+            log.debug('Detected input encoding as %s with a confidence of %s%%' % (ienc, confidence * 100))
         if not ienc:
             ienc = 'utf-8'
             log.debug('No input encoding specified and could not auto detect using %s' % ienc)
