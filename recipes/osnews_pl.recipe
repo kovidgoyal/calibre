@@ -20,7 +20,7 @@ class OSNewsRecipe(BasicNewsRecipe):
     remove_javascript = True
     encoding = 'utf-8'
     use_embedded_content = False;
-
+    remove_empty_feeds = True
     oldest_article = 7
     max_articles_per_feed = 100
     cover_url='http://osnews.pl/wp-content/themes/osnews/img/logo.png'
@@ -31,22 +31,18 @@ class OSNewsRecipe(BasicNewsRecipe):
     '''
 
     feeds = [
-        (u'OSNews.pl', u'http://feeds.feedburner.com/OSnewspl')
+        (u'Niusy', u'http://feeds.feedburner.com/OSnewspl'),
+        (u'Wylęgarnia', u'http://feeds.feedburner.com/osnewspl_nowe')
     ]
 
     keep_only_tags = [
-        dict(name = 'a', attrs = {'class' : 'news-heading'}),
-        dict(name = 'div', attrs = {'class' : 'newsinformations'}),
-        dict(name = 'div', attrs = {'id' : 'news-content'})
+        dict(name = 'div', attrs = {'id' : 'content'})
     ]
 
     remove_tags = [
-        dict(name = 'div', attrs = {'class' : 'sociable'}),
-        dict(name = 'div', attrs = {'class' : 'post_prev'}),
-        dict(name = 'div', attrs = {'class' : 'post_next'}),
-        dict(name = 'div', attrs = {'class' : 'clr'}),
-        dict(name = 'div', attrs = {'class' : 'tw_button'}),
-        dict(name = 'div', attrs = {'style' : 'width:56px;height:60px;float:left;margin-right:10px'})
+        dict(name = 'div', attrs = {'class' : ['newstags', 'tw_button', 'post_prev']}),
+        dict(name = 'div', attrs = {'id' : 'newspage_upinfo'}),
     ]
 
-    preprocess_regexps = [(re.compile(u'</span>Komentarze: \(?[0-9]+\)? ?<span'), lambda match: '</span><span')]
+    remove_tags_after = dict(name = 'div', attrs = {'class' : 'post_prev'})
+    preprocess_regexps = [(re.compile(u'</span>Komentarze: \(?[0-9]+\)? ?<span'), lambda match: '</span><span'), (re.compile(u'<iframe.+?</iframe>'), lambda match: '')]

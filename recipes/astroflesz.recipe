@@ -13,6 +13,7 @@ class Astroflesz(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
+    remove_empty_feeds = True
     remove_attributes = ['style']
     keep_only_tags = [dict(id="k2Container")]
     remove_tags_after = dict(name='div', attrs={'class':'itemLinks'})

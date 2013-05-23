@@ -6,42 +6,20 @@ class Adventure_zone(BasicNewsRecipe):
     description   = u'Czytaj więcej o przygodzie - codzienne nowinki. Szukaj u nas solucji i poradników, czytaj recenzje i zapowiedzi. Także galeria, pliki oraz forum dla wszystkich fanów gier przygodowych.'
     category       = 'games'
     language       = 'pl'
+    BASEURL = 'http://www.adventure-zone.info/fusion/'
     no_stylesheets = True
+    extra_css = '.image {float: left; margin-right: 5px;}'
     oldest_article = 20
     max_articles_per_feed = 100
     cover_url = 'http://www.adventure-zone.info/inne/logoaz_2012.png'
-    index = 'http://www.adventure-zone.info/fusion/'
+    remove_attributes = ['style']
     use_embedded_content = False
-    preprocess_regexps     = [(re.compile(r"<td class='capmain'>Komentarze</td>", re.IGNORECASE), lambda m: ''),
-    (re.compile(r'</?table.*?>'), lambda match: ''),
-    (re.compile(r'</?tbody.*?>'), lambda match: '')]
-    remove_tags_before = dict(name='td', attrs={'class':'main-bg'})
-    remove_tags = [dict(name='img', attrs={'alt':'Drukuj'})]
-    remove_tags_after = dict(id='comments')
-    extra_css              = '.main-bg{text-align: left;}  td.capmain{ font-size: 22px; } img.news-category {float: left; margin-right: 5px;}'
-    feeds          = [(u'Nowinki', u'http://www.adventure-zone.info/fusion/feeds/news.php')]
-
-    '''def get_cover_url(self):
-        soup = self.index_to_soup('http://www.adventure-zone.info/fusion/news.php')
-        cover=soup.find(id='box_OstatninumerAZ')
-        self.cover_url='http://www.adventure-zone.info/fusion/'+ cover.center.a.img['src']
-        return getattr(self, 'cover_url', self.cover_url)'''
-
-    def populate_article_metadata(self, article, soup, first):
-        result = re.search('(.+) - Adventure Zone', soup.title.string)
-        if result:
-            result = result.group(1)
-        else:
-            result = soup.body.find('strong')
-            if result:
-                result = result.string
-        if result:
-            result = result.replace('&amp;', '&')
-            result = result.replace('&#39;', '’')
-            article.title = result
+    keep_only_tags = [dict(attrs={'class':'content'})]
+    remove_tags = [dict(attrs={'class':'footer'})]
+    feeds          = [(u'Nowinki', u'http://www.adventure-zone.info/fusion/rss/index.php')]
 
     def skip_ad_pages(self, soup):
-        skip_tag = soup.body.find(name='td', attrs={'class':'main-bg'})
+        skip_tag = soup.body.find(attrs={'class':'content'})
         skip_tag = skip_tag.findAll(name='a')
         title = soup.title.string.lower()
         if (('zapowied' in title) or ('recenzj' in title)  or ('solucj' in title) or ('poradnik' in title)):
@@ -49,20 +27,10 @@ class Adventure_zone(BasicNewsRecipe):
                 if r.strong and r.strong.string:
                    word=r.strong.string.lower()
                    if (('zapowied' in word) or ('recenzj' in word)  or ('solucj' in word) or ('poradnik' in word)):
-                       return self.index_to_soup('http://www.adventure-zone.info/fusion/print.php?type=A&item'+r['href'][r['href'].find('article_id')+7:], raw=True)
+                       return self.index_to_soup(self.BASEURL+r['href'], raw=True)
 
     def preprocess_html(self, soup):
-        footer=soup.find(attrs={'class':'news-footer middle-border'})
-        r = soup.find(name='td', attrs={'class':'capmain'})
-        if r:
-            r.name='h1'
-        for item in soup.findAll(name=['tr', 'td']):
-            item.name='div'
-        if footer and len(footer('a'))>=2:
-            footer('a')[1].extract()
-        for item in soup.findAll(style=True):
-            del item['style']
-        for a in soup('a'):
-            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
-                a['href']=self.index + a['href']
+        for link in soup.findAll('a', href=True):
+            if not link['href'].startswith('http'):
+                link['href'] = self.BASEURL + link['href']
         return soup
