@@ -112,7 +112,7 @@ class WallStreetJournal(BasicNewsRecipe):
         if date is not None:
             self.timefmt = ' [%s]'%self.tag_to_string(date)
 
-        cov = soup.find('div', attrs={'class':'itpSectionHeaderPdf'})
+        cov = soup.find('div', attrs={'class':lambda x: x and 'itpSectionHeaderPdf' in x.split()})
         if cov is not None:
             a = cov.find('a', href=True)
             if a is not None:
