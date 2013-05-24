@@ -394,6 +394,9 @@ class Styles(object):
             dl.notes dt a { text-decoration: none }
 
             dl.notes dd { page-break-after: always }
+
+            dl.notes dd:last-of-type { page-break-after: avoid }
+
             ''') % (self.body_font_family, self.body_font_size)
         if ef:
             prefix = ef + '\n' + prefix
