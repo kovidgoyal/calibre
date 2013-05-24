@@ -304,14 +304,15 @@ class BooksView(QTableView):  # {{{
                             a.setCheckable(True)
                             a.setChecked(True)
 
-            if self._model.db.field_metadata[col]['is_category']:
-                act = self.column_header_context_menu.addAction(_('Quickview column %s') %
-                        name,
-                    partial(self.column_header_context_handler, action='quickview',
-                        column=col))
-                rows = self.selectionModel().selectedRows()
-                if len(rows) > 1:
-                    act.setEnabled(False)
+            if not isinstance(self, DeviceBooksView):
+                if self._model.db.field_metadata[col]['is_category']:
+                    act = self.column_header_context_menu.addAction(_('Quickview column %s') %
+                            name,
+                        partial(self.column_header_context_handler, action='quickview',
+                            column=col))
+                    rows = self.selectionModel().selectedRows()
+                    if len(rows) > 1:
+                        act.setEnabled(False)
 
             hidden_cols = [self.column_map[i] for i in
                     range(self.column_header.count()) if
