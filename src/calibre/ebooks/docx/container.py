@@ -11,7 +11,7 @@ import os, sys, shutil
 from lxml import etree
 
 from calibre import walk, guess_type
-from calibre.ebooks.metadata import string_to_authors
+from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.docx import InvalidDOCX
 from calibre.ebooks.docx.names import DOCUMENT, DOCPROPS, XPath, APPPROPS
@@ -49,6 +49,7 @@ def read_doc_props(raw, mi):
             aut.extend(string_to_authors(author.text))
     if aut:
         mi.authors = aut
+        mi.author_sort = authors_to_sort_string(aut)
 
     desc = XPath('//dc:description')(root)
     if desc:

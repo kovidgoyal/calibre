@@ -22,6 +22,7 @@ from calibre.ebooks.docx.numbering import Numbering
 from calibre.ebooks.docx.fonts import Fonts
 from calibre.ebooks.docx.images import Images
 from calibre.ebooks.docx.footnotes import Footnotes
+from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
 class Text:
@@ -145,7 +146,7 @@ class Convert(object):
                     notes_header.set('class', '%s notes-header' % cls)
                 break
 
-        self.write()
+        return self.write()
 
     def read_page_properties(self, doc):
         current = []
@@ -234,6 +235,13 @@ class Convert(object):
         if css:
             with open(os.path.join(self.dest_dir, 'docx.css'), 'wb') as f:
                 f.write(css.encode('utf-8'))
+
+        opf = OPFCreator(self.dest_dir, self.mi)
+        opf.create_manifest_from_files_in([self.dest_dir])
+        opf.create_spine(['index.html'])
+        with open(os.path.join(self.dest_dir, 'metadata.opf'), 'wb') as of, open(os.path.join(self.dest_dir, 'toc.ncx'), 'wb') as ncx:
+            opf.render(of, ncx, 'toc.ncx')
+        return os.path.join(self.dest_dir, 'metadata.opf')
 
     def convert_p(self, p):
         dest = P()
@@ -413,7 +421,12 @@ class Convert(object):
             self.styles.register(css, 'frame')
 
 if __name__ == '__main__':
+    import shutil
     from calibre.utils.logging import default_log
     default_log.filter_level = default_log.DEBUG
-    Convert(sys.argv[-1], log=default_log)()
+    dest_dir = os.path.join(os.getcwdu(), 'docx_input')
+    if os.path.exists(dest_dir):
+        shutil.rmtree(dest_dir)
+    os.mkdir(dest_dir)
+    Convert(sys.argv[-1], dest_dir=dest_dir, log=default_log)()
 
