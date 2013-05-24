@@ -9,8 +9,9 @@ import copy
 # http://online.wsj.com/page/us_in_todays_paper.html
 
 def filter_classes(x):
-    if not x: return False
-    bad_classes = {'sTools', 'printSummary', 'mostPopular', 'relatedCollection'}
+    if not x:
+        return False
+    bad_classes = {'articleInsetPoll', 'trendingNow', 'sTools', 'printSummary', 'mostPopular', 'relatedCollection'}
     classes = frozenset(x.split())
     return len(bad_classes.intersection(classes)) > 0
 
@@ -42,14 +43,15 @@ class WallStreetJournal(BasicNewsRecipe):
     remove_tags_before = dict(name='h1')
     remove_tags = [
                     dict(id=["articleTabs_tab_article",
-                        "articleTabs_tab_comments",
-                        'articleTabs_panel_comments', 'footer',
+                             "articleTabs_tab_comments", 'msnLinkback', 'yahooLinkback',
+                        'articleTabs_panel_comments', 'footer', 'emailThisScrim', 'emailConfScrim', 'emailErrorScrim',
                         "articleTabs_tab_interactive", "articleTabs_tab_video",
                         "articleTabs_tab_map", "articleTabs_tab_slideshow",
                         "articleTabs_tab_quotes", "articleTabs_tab_document",
                         "printModeAd", "aFbLikeAuth", "videoModule",
                         "mostRecommendations", "topDiscussions"]),
-                    {'class':['footer_columns','network','insetCol3wide','interactive','video','slideshow','map','insettip','insetClose','more_in', "insetContent", 'articleTools_bottom', 'aTools', "tooltip", "adSummary", "nav-inline"]},
+                    {'class':['footer_columns','hidden', 'network','insetCol3wide','interactive','video','slideshow','map','insettip',
+                        'insetClose','more_in', "insetContent", 'articleTools_bottom', 'aTools', "tooltip", "adSummary", "nav-inline"]},
                     dict(rel='shortcut icon'),
                     {'class':filter_classes},
                     ]
@@ -74,7 +76,10 @@ class WallStreetJournal(BasicNewsRecipe):
         for tag in soup.findAll(name=['table', 'tr', 'td']):
             tag.name = 'div'
 
-        for tag in soup.findAll('div', dict(id=["articleThumbnail_1", "articleThumbnail_2", "articleThumbnail_3", "articleThumbnail_4", "articleThumbnail_5", "articleThumbnail_6", "articleThumbnail_7"])):
+        for tag in soup.findAll('div', dict(id=[
+            "articleThumbnail_1", "articleThumbnail_2", "articleThumbnail_3",
+            "articleThumbnail_4", "articleThumbnail_5", "articleThumbnail_6",
+            "articleThumbnail_7"])):
             tag.extract()
 
         return soup
@@ -92,7 +97,7 @@ class WallStreetJournal(BasicNewsRecipe):
         except:
             articles = []
         if articles:
-           feeds.append((title, articles))
+            feeds.append((title, articles))
         return feeds
 
     def abs_wsj_url(self, href):
@@ -107,7 +112,7 @@ class WallStreetJournal(BasicNewsRecipe):
         if date is not None:
             self.timefmt = ' [%s]'%self.tag_to_string(date)
 
-        cov = soup.find('div', attrs={'class':'itpSectionHeaderPdf'})
+        cov = soup.find('div', attrs={'class':lambda x: x and 'itpSectionHeaderPdf' in x.split()})
         if cov is not None:
             a = cov.find('a', href=True)
             if a is not None:
@@ -119,16 +124,16 @@ class WallStreetJournal(BasicNewsRecipe):
         for a in div.findAll('a', href=lambda x: x and '/itp/' in x):
             pageone = a['href'].endswith('pageone')
             if pageone:
-               title = 'Front Section'
-               url = self.abs_wsj_url(a['href'])
-               feeds = self.wsj_add_feed(feeds,title,url)
-               title = "What's News"
-               url = url.replace('pageone','whatsnews')
-               feeds = self.wsj_add_feed(feeds,title,url)
+                title = 'Front Section'
+                url = self.abs_wsj_url(a['href'])
+                feeds = self.wsj_add_feed(feeds,title,url)
+                title = "What's News"
+                url = url.replace('pageone','whatsnews')
+                feeds = self.wsj_add_feed(feeds,title,url)
             else:
-               title = self.tag_to_string(a)
-               url = self.abs_wsj_url(a['href'])
-               feeds = self.wsj_add_feed(feeds,title,url)
+                title = self.tag_to_string(a)
+                url = self.abs_wsj_url(a['href'])
+                feeds = self.wsj_add_feed(feeds,title,url)
         return feeds
 
     def wsj_find_wn_articles(self, url):
@@ -137,22 +142,22 @@ class WallStreetJournal(BasicNewsRecipe):
 
         whats_news = soup.find('div', attrs={'class':lambda x: x and 'whatsNews-simple' in x})
         if whats_news is not None:
-          for a in whats_news.findAll('a', href=lambda x: x and '/article/' in x):
-            container = a.findParent(['p'])
-            meta = a.find(attrs={'class':'meta_sectionName'})
-            if meta is not None:
-                meta.extract()
-            title = self.tag_to_string(a).strip()
-            url = a['href']
-            desc = ''
-            if container is not None:
-                desc = self.tag_to_string(container)
+            for a in whats_news.findAll('a', href=lambda x: x and '/article/' in x):
+                container = a.findParent(['p'])
+                meta = a.find(attrs={'class':'meta_sectionName'})
+                if meta is not None:
+                    meta.extract()
+                title = self.tag_to_string(a).strip()
+                url = a['href']
+                desc = ''
+                if container is not None:
+                    desc = self.tag_to_string(container)
 
-            articles.append({'title':title, 'url':url,
-                'description':desc, 'date':''})
+                articles.append({'title':title, 'url':url,
+                    'description':desc, 'date':''})
 
-            self.log('\tFound WN article:', title)
-            self.log('\t\t', desc)
+                self.log('\tFound WN article:', title)
+                self.log('\t\t', desc)
 
         return articles
 
@@ -161,18 +166,18 @@ class WallStreetJournal(BasicNewsRecipe):
 
         whats_news = soup.find('div', attrs={'class':lambda x: x and 'whatsNews-simple' in x})
         if whats_news is not None:
-           whats_news.extract()
+            whats_news.extract()
 
         articles = []
 
         flavorarea = soup.find('div', attrs={'class':lambda x: x and 'ahed' in x})
         if flavorarea is not None:
-           flavorstory = flavorarea.find('a', href=lambda x: x and x.startswith('/article'))
-           if flavorstory is not None:
-              flavorstory['class'] = 'mjLinkItem'
-              metapage = soup.find('span', attrs={'class':lambda x: x and 'meta_sectionName' in x})
-              if metapage is not None:
-                 flavorstory.append( copy.copy(metapage) ) #metapage should always be A1 because that should be first on the page
+            flavorstory = flavorarea.find('a', href=lambda x: x and x.startswith('/article'))
+            if flavorstory is not None:
+                flavorstory['class'] = 'mjLinkItem'
+                metapage = soup.find('span', attrs={'class':lambda x: x and 'meta_sectionName' in x})
+                if metapage is not None:
+                    flavorstory.append(copy.copy(metapage))  # metapage should always be A1 because that should be first on the page
 
         for a in soup.findAll('a', attrs={'class':'mjLinkItem'}, href=True):
             container = a.findParent(['li', 'div'])
@@ -198,7 +203,6 @@ class WallStreetJournal(BasicNewsRecipe):
             self.log('\t\t', desc)
 
         return articles
-
 
     def cleanup(self):
         self.browser.open('http://online.wsj.com/logout?url=http://online.wsj.com')

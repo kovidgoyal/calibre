@@ -279,11 +279,11 @@ class POCKETBOOK602(USBMS):
 class POCKETBOOK622(POCKETBOOK602):
 
     name = 'PocketBook 622 Device Interface'
-    description    = _('Communicate with the PocketBook 622 reader.')
+    description    = _('Communicate with the PocketBook 622 and 623 readers.')
     EBOOK_DIR_MAIN = ''
 
     VENDOR_ID   = [0x0489]
-    PRODUCT_ID  = [0xe107]
+    PRODUCT_ID  = [0xe107, 0xcff1]
     BCD         = [0x0326]
 
     VENDOR_NAME = 'LINUX'

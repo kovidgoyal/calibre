@@ -373,7 +373,7 @@ def urlquote(href):
         result.append(char)
     return ''.join(result)
 
-def urlunquote(href):
+def urlunquote(href, error_handling='strict'):
     # unquote must run on a bytestring and will return a bytestring
     # If it runs on a unicode object, it returns a double encoded unicode
     # string: unquote(u'%C3%A4') != unquote(b'%C3%A4').decode('utf-8')
@@ -383,7 +383,10 @@ def urlunquote(href):
         href = href.encode('utf-8')
     href = unquote(href)
     if want_unicode:
-        href = href.decode('utf-8')
+        # The quoted characters could have been in some encoding other than
+        # UTF-8, this often happens with old/broken web servers. There is no
+        # way to know what that encoding should be in this context.
+        href = href.decode('utf-8', error_handling)
     return href
 
 def urlnormalize(href):

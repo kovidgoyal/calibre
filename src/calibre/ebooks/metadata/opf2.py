@@ -21,7 +21,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat
 from calibre.utils.localization import get_lang, canonicalize_lang
 from calibre import prints, guess_type
-from calibre.utils.cleantext import clean_ascii_chars
+from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import tweaks
 
 class Resource(object):  # {{{
@@ -560,7 +560,9 @@ class OPF(object):  # {{{
             self.package_version = 0
         self.metadata = self.metadata_path(self.root)
         if not self.metadata:
-            raise ValueError('Malformed OPF file: No <metadata> element')
+            self.metadata = [self.root.makeelement('{http://www.idpf.org/2007/opf}metadata')]
+            self.root.insert(0, self.metadata[0])
+            self.metadata[0].tail = '\n'
         self.metadata      = self.metadata[0]
         if unquote_urls:
             self.unquote_urls()
@@ -1434,7 +1436,10 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
             attrib['name'] = name
         if content:
             attrib['content'] = content
-        elem = metadata.makeelement(tag, attrib=attrib)
+        try:
+            elem = metadata.makeelement(tag, attrib=attrib)
+        except ValueError:
+            elem = metadata.makeelement(tag, attrib={k:clean_xml_chars(v) for k, v in attrib.iteritems()})
         elem.tail = '\n'+(' '*8)
         if text:
             try:

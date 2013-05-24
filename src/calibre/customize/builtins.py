@@ -1661,6 +1661,7 @@ class StoreWoblinkStore(StoreBase):
 
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF', 'WOBLINK']
+    affiliate = True
 
 class XinXiiStore(StoreBase):
     name = 'XinXii'

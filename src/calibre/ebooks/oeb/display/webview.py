@@ -11,7 +11,7 @@ import re
 
 from calibre import guess_type
 
-class EntityDeclarationProcessor(object): # {{{
+class EntityDeclarationProcessor(object):  # {{{
 
     def __init__(self, html):
         self.declared_entities = {}
@@ -51,7 +51,7 @@ def load_html(path, view, codec='utf-8', mime_type=None,
     loading_url = QUrl.fromLocalFile(path)
     pre_load_callback(loading_url)
 
-    if force_as_html or re.search(r'<[:a-zA-Z0-9-]*svg', html) is None:
+    if force_as_html or re.search(r'<[a-zA-Z0-9-]+:svg', html) is None:
         view.setHtml(html, loading_url)
     else:
         view.setContent(QByteArray(html.encode(codec)), mime_type,
@@ -61,4 +61,3 @@ def load_html(path, view, codec='utf-8', mime_type=None,
         if not elem.isNull():
             return False
     return True
-

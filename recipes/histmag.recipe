@@ -13,11 +13,12 @@ class Histmag(BasicNewsRecipe):
     __author__ = 'matek09'
     description = u"Artykuly historyczne i publicystyczne"
     encoding = 'utf-8'
+    extra_css = '''.center img {display: block;}'''
     #preprocess_regexps = [(re.compile(r'</span>'), lambda match: '</span><br><br>'),(re.compile(r'<span>'), lambda match: '<br><br><span>')]
     no_stylesheets = True
     language = 'pl'
     remove_javascript = True
     keep_only_tags=[dict(id='article')]
-    remove_tags=[dict(name = 'p', attrs = {'class' : 'article-tags'})]
+    remove_tags=[dict(name = 'p', attrs = {'class' : 'article-tags'}), dict(attrs={'class':'twitter-share-button'})]
 
     feeds          = [(u'Wszystkie', u'http://histmag.org/rss/wszystkie.xml'), (u'Wydarzenia', u'http://histmag.org/rss/wydarzenia.xml'), (u'Recenzje', u'http://histmag.org/rss/recenzje.xml'), (u'Artykuły historyczne', u'http://histmag.org/rss/historia.xml'), (u'Publicystyka', u'http://histmag.org/rss/publicystyka.xml')]

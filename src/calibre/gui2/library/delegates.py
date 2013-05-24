@@ -9,7 +9,7 @@ import sys
 
 from PyQt4.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox,
         QVariant, QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument,
-        QAbstractTextDocumentLayout, QFont, QFontInfo, QDate)
+        QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime)
 
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, rating_font
 from calibre.constants import iswindows
@@ -23,8 +23,28 @@ from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.languages import LanguagesEdit
 
+class DateTimeEdit(QDateTimeEdit):  # {{{
 
-class RatingDelegate(QStyledItemDelegate): # {{{
+    def __init__(self, parent, format):
+        QDateTimeEdit.__init__(self, parent)
+        self.setFrame(False)
+        self.setMinimumDateTime(UNDEFINED_QDATETIME)
+        self.setSpecialValueText(_('Undefined'))
+        self.setCalendarPopup(True)
+        self.setDisplayFormat(format)
+
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_Minus:
+            ev.accept()
+            self.setDateTime(self.minimumDateTime())
+        elif ev.key() == Qt.Key_Equal:
+            ev.accept()
+            self.setDateTime(QDateTime.currentDateTime())
+        else:
+            return QDateTimeEdit.keyPressEvent(self, ev)
+# }}}
+
+class RatingDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, *args, **kwargs):
         QStyledItemDelegate.__init__(self, *args, **kwargs)
@@ -60,7 +80,7 @@ class RatingDelegate(QStyledItemDelegate): # {{{
 
 # }}}
 
-class DateDelegate(QStyledItemDelegate): # {{{
+class DateDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, parent, tweak_name='gui_timestamp_display_format',
             default_format='dd MMM yyyy'):
@@ -77,16 +97,11 @@ class DateDelegate(QStyledItemDelegate): # {{{
         return format_date(qt_to_dt(d, as_utc=False), self.format)
 
     def createEditor(self, parent, option, index):
-        qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat(self.format)
-        qde.setMinimumDateTime(UNDEFINED_QDATETIME)
-        qde.setSpecialValueText(_('Undefined'))
-        qde.setCalendarPopup(True)
-        return qde
+        return DateTimeEdit(parent, self.format)
 
 # }}}
 
-class PubDateDelegate(QStyledItemDelegate): # {{{
+class PubDateDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, *args, **kwargs):
         QStyledItemDelegate.__init__(self, *args, **kwargs)
@@ -101,12 +116,7 @@ class PubDateDelegate(QStyledItemDelegate): # {{{
         return format_date(qt_to_dt(d, as_utc=False), self.format)
 
     def createEditor(self, parent, option, index):
-        qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat(self.format)
-        qde.setMinimumDateTime(UNDEFINED_QDATETIME)
-        qde.setSpecialValueText(_('Undefined'))
-        qde.setCalendarPopup(True)
-        return qde
+        return DateTimeEdit(parent, self.format)
 
     def setEditorData(self, editor, index):
         val = index.data(Qt.EditRole).toDate()
@@ -116,7 +126,7 @@ class PubDateDelegate(QStyledItemDelegate): # {{{
 
 # }}}
 
-class TextDelegate(QStyledItemDelegate): # {{{
+class TextDelegate(QStyledItemDelegate):  # {{{
     def __init__(self, parent):
         '''
         Delegate for text data. If auto_complete_function needs to return a list
@@ -153,7 +163,7 @@ class TextDelegate(QStyledItemDelegate): # {{{
 
 #}}}
 
-class CompleteDelegate(QStyledItemDelegate): # {{{
+class CompleteDelegate(QStyledItemDelegate):  # {{{
     def __init__(self, parent, sep, items_func_name, space_before_sep=False):
         QStyledItemDelegate.__init__(self, parent)
         self.sep = sep
@@ -194,7 +204,7 @@ class CompleteDelegate(QStyledItemDelegate): # {{{
             QStyledItemDelegate.setModelData(self, editor, model, index)
 # }}}
 
-class LanguagesDelegate(QStyledItemDelegate): # {{{
+class LanguagesDelegate(QStyledItemDelegate):  # {{{
 
     def createEditor(self, parent, option, index):
         editor = LanguagesEdit(parent=parent)
@@ -210,7 +220,7 @@ class LanguagesDelegate(QStyledItemDelegate): # {{{
         model.setData(index, QVariant(val), Qt.EditRole)
 # }}}
 
-class CcDateDelegate(QStyledItemDelegate): # {{{
+class CcDateDelegate(QStyledItemDelegate):  # {{{
     '''
     Delegate for custom columns dates. Because this delegate stores the
     format as an instance variable, a new instance must be created for each
@@ -230,12 +240,7 @@ class CcDateDelegate(QStyledItemDelegate): # {{{
         return format_date(qt_to_dt(d, as_utc=False), self.format)
 
     def createEditor(self, parent, option, index):
-        qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat(self.format)
-        qde.setMinimumDateTime(UNDEFINED_QDATETIME)
-        qde.setSpecialValueText(_('Undefined'))
-        qde.setCalendarPopup(True)
-        return qde
+        return DateTimeEdit(parent, self.format)
 
     def setEditorData(self, editor, index):
         m = index.model()
@@ -254,7 +259,7 @@ class CcDateDelegate(QStyledItemDelegate): # {{{
 
 # }}}
 
-class CcTextDelegate(QStyledItemDelegate): # {{{
+class CcTextDelegate(QStyledItemDelegate):  # {{{
     '''
     Delegate for text data.
     '''
@@ -279,7 +284,7 @@ class CcTextDelegate(QStyledItemDelegate): # {{{
         model.setData(index, QVariant(val), Qt.EditRole)
 # }}}
 
-class CcNumberDelegate(QStyledItemDelegate): # {{{
+class CcNumberDelegate(QStyledItemDelegate):  # {{{
     '''
     Delegate for text/int/float data.
     '''
@@ -314,7 +319,7 @@ class CcNumberDelegate(QStyledItemDelegate): # {{{
 
 # }}}
 
-class CcEnumDelegate(QStyledItemDelegate): # {{{
+class CcEnumDelegate(QStyledItemDelegate):  # {{{
     '''
     Delegate for text/int/float data.
     '''
@@ -346,7 +351,7 @@ class CcEnumDelegate(QStyledItemDelegate): # {{{
             editor.setCurrentIndex(idx)
 # }}}
 
-class CcCommentsDelegate(QStyledItemDelegate): # {{{
+class CcCommentsDelegate(QStyledItemDelegate):  # {{{
     '''
     Delegate for comments data.
     '''
@@ -364,7 +369,7 @@ class CcCommentsDelegate(QStyledItemDelegate): # {{{
         if hasattr(QStyle, 'CE_ItemViewItem'):
             style.drawControl(QStyle.CE_ItemViewItem, option, painter)
         ctx = QAbstractTextDocumentLayout.PaintContext()
-        ctx.palette = option.palette #.setColor(QPalette.Text, QColor("red"));
+        ctx.palette = option.palette  # .setColor(QPalette.Text, QColor("red"));
         if hasattr(QStyle, 'SE_ItemViewItemText'):
             textRect = style.subElementRect(QStyle.SE_ItemViewItemText, option)
             painter.save()
@@ -387,7 +392,7 @@ class CcCommentsDelegate(QStyledItemDelegate): # {{{
         model.setData(index, QVariant(editor.textbox.html), Qt.EditRole)
 # }}}
 
-class DelegateCB(QComboBox): # {{{
+class DelegateCB(QComboBox):  # {{{
 
     def __init__(self, parent):
         QComboBox.__init__(self, parent)
@@ -398,7 +403,7 @@ class DelegateCB(QComboBox): # {{{
         return QComboBox.event(self, e)
 # }}}
 
-class CcBoolDelegate(QStyledItemDelegate): # {{{
+class CcBoolDelegate(QStyledItemDelegate):  # {{{
     def __init__(self, parent):
         '''
         Delegate for custom_column bool data.
@@ -431,7 +436,7 @@ class CcBoolDelegate(QStyledItemDelegate): # {{{
 
 # }}}
 
-class CcTemplateDelegate(QStyledItemDelegate): # {{{
+class CcTemplateDelegate(QStyledItemDelegate):  # {{{
     def __init__(self, parent):
         '''
         Delegate for custom_column bool data.
@@ -457,7 +462,7 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
             validation_formatter.validate(val)
         except Exception as err:
             error_dialog(self.parent(), _('Invalid template'),
-                    '<p>'+_('The template %s is invalid:')%val + \
+                    '<p>'+_('The template %s is invalid:')%val +
                     '<br>'+str(err), show=True)
         model.setData(index, QVariant(val), Qt.EditRole)
 
@@ -468,4 +473,5 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
 
 
 # }}}
+
 

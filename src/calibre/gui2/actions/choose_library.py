@@ -22,7 +22,7 @@ from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
 from calibre.library.database2 import LibraryDatabase2
 from calibre.gui2.actions import InterfaceAction
 
-class LibraryUsageStats(object): # {{{
+class LibraryUsageStats(object):  # {{{
 
     def __init__(self):
         self.stats = {}
@@ -92,7 +92,7 @@ class LibraryUsageStats(object): # {{{
         self.write_stats()
 # }}}
 
-class MovedDialog(QDialog): # {{{
+class MovedDialog(QDialog):  # {{{
 
     def __init__(self, stats, location, parent=None):
         QDialog.__init__(self, parent)
@@ -161,13 +161,15 @@ class ChooseLibraryAction(InterfaceAction):
     def genesis(self):
         self.base_text = _('%d books')
         self.count_changed(0)
-        self.qaction.triggered.connect(self.choose_library,
-                type=Qt.QueuedConnection)
         self.action_choose = self.menuless_qaction
 
         self.stats = LibraryUsageStats()
         self.popup_type = (QToolButton.InstantPopup if len(self.stats.stats) > 1 else
                 QToolButton.MenuButtonPopup)
+        if len(self.stats.stats) > 1:
+            self.action_choose.triggered.connect(self.choose_library)
+        else:
+            self.qaction.triggered.connect(self.choose_library)
 
         self.choose_menu = self.qaction.menu()
 
@@ -199,7 +201,6 @@ class ChooseLibraryAction(InterfaceAction):
             ac.triggered.connect(partial(self.qs_requested, i),
                     type=Qt.QueuedConnection)
             self.choose_menu.addAction(ac)
-
 
         self.rename_separator = self.choose_menu.addSeparator()
 
@@ -477,19 +478,20 @@ class ChooseLibraryAction(InterfaceAction):
             else:
                 return
 
-        #from calibre.utils.mem import memory
-        #import weakref
-        #from PyQt4.Qt import QTimer
-        #self.dbref = weakref.ref(self.gui.library_view.model().db)
-        #self.before_mem = memory()/1024**2
+        # from calibre.utils.mem import memory
+        # import weakref
+        # from PyQt4.Qt import QTimer
+        # self.dbref = weakref.ref(self.gui.library_view.model().db)
+        # self.before_mem = memory()/1024**2
         self.gui.library_moved(loc, allow_rebuild=True)
-        #QTimer.singleShot(5000, self.debug_leak)
+        # QTimer.singleShot(5000, self.debug_leak)
 
     def debug_leak(self):
         import gc
         from calibre.utils.mem import memory
         ref = self.dbref
-        for i in xrange(3): gc.collect()
+        for i in xrange(3):
+            gc.collect()
         if ref() is not None:
             print 'DB object alive:', ref()
             for r in gc.get_referrers(ref())[:10]:
@@ -499,7 +501,6 @@ class ChooseLibraryAction(InterfaceAction):
         print 'after:', memory()/1024**2
         print
         self.dbref = self.before_mem = None
-
 
     def qs_requested(self, idx, *args):
         self.switch_requested(self.qs_locations[idx])
@@ -546,3 +547,4 @@ class ChooseLibraryAction(InterfaceAction):
             return False
 
         return True
+
