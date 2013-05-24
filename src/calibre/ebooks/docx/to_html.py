@@ -83,11 +83,13 @@ class Convert(object):
             p = self.convert_p(wp)
             self.body.append(p)
 
+        notes_header = None
         if self.footnotes.has_notes:
             dl = DL()
             dl.set('class', 'notes')
             self.body.append(H1(self.notes_text))
-            self.body[-1].set('class', 'notes-header')
+            notes_header = self.body[-1]
+            notes_header.set('class', 'notes-header')
             self.body.append(dl)
             for anchor, text, note in self.footnotes:
                 dl.append(DT('[', A('←' + text, href='#back_%s' % anchor, title=text), id=anchor))
@@ -134,6 +136,14 @@ class Convert(object):
             cls = self.styles.class_name(css)
             if cls:
                 html_obj.set('class', cls)
+
+        if notes_header is not None:
+            for h in self.body.iterchildren('h1', 'h2', 'h3'):
+                notes_header.tag = h.tag
+                cls = h.get('class', None)
+                if cls and cls != 'notes-header':
+                    notes_header.set('class', '%s notes-header' % cls)
+                break
 
         self.write()
 
