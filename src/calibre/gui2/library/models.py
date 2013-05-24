@@ -907,7 +907,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 if ht == 'timestamp':  # change help text because users know this field as 'date'
                     ht = 'date'
                 if self.db.field_metadata[self.column_map[section]]['is_category']:
-                    is_cat = '.\n\n' + _('Click in this column and press Q to to Quickview books with the same %s' % ht)
+                    is_cat = '.\n\n' + _('Click in this column and press Q to Quickview books with the same %s' % ht)
                 else:
                     is_cat = ''
                 return QVariant(_('The lookup/search name is "{0}"{1}').format(ht, is_cat))

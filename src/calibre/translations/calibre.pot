@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.9.32\n"
-"POT-Creation-Date: 2013-05-24 09:01+IST\n"
-"PO-Revision-Date: 2013-05-24 09:01+IST\n"
+"POT-Creation-Date: 2013-05-24 10:26+IST\n"
+"PO-Revision-Date: 2013-05-24 10:26+IST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -12503,7 +12503,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:910
 #, python-format
-msgid "Click in this column and press Q to to Quickview books with the same %s"
+msgid "Click in this column and press Q to Quickview books with the same %s"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:913
