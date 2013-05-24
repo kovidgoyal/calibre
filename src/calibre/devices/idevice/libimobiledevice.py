@@ -224,16 +224,19 @@ class libiMobileDevice():
 
     def copy_to_iDevice(self, src, dst):
         '''
-        High-level convenience method to copy src on local filesystem to
+        High-level convenience method to copy src from local filesystem to
         dst on iDevice.
+        Assumed to be a binary file (epub, sqlite, etc)
         src: file on local filesystem
         dst: file to be created on iOS filesystem
         '''
-        self._log_location("src='%s', dst='%s'" % (src, dst))
-        with open(src) as f:
+        self._log_location("src=%s, dst=%s" % (repr(src), repr(dst)))
+        mode = 'rb'
+        with open(src, mode) as f:
             content = bytearray(f.read())
+
         mode = 'wb'
-        handle = self._afc_file_open(dst, mode=mode)
+        handle = self._afc_file_open(str(dst), mode=mode)
         if handle is not None:
             success = self._afc_file_write(handle, content, mode=mode)
             if self.verbose:
@@ -533,7 +536,7 @@ class libiMobileDevice():
         else:
             if self.verbose:
                 self.log(" could not open file")
-            raise libiMobileDeviceIOException("could not open file '%s' for reading" % path)
+            raise libiMobileDeviceIOException("could not open file %s for reading" % repr(path))
 
         return data
 
@@ -800,7 +803,7 @@ class libiMobileDevice():
          error:      (afc_error_t) AFC_E_SUCCESS (0) on success or AFC_E_* error value
 
         '''
-        self._log_location("'%s', mode='%s'" % (filename, mode))
+        self._log_location("%s, mode='%s'" % (repr(filename), mode))
 
         handle = c_ulonglong(0)
 
@@ -1682,6 +1685,18 @@ class libiMobileDevice():
             raise libiMobileDeviceException(error_description)
 
     # ~~~ logging ~~~
+    def _log_diagnostic(self, msg=None):
+        '''
+        Print msg to console
+        '''
+        if not self.verbose:
+            return
+
+        if msg:
+            debug_print(" %s" % msg)
+        else:
+            debug_print()
+
     def _log_location(self, *args):
         '''
         '''

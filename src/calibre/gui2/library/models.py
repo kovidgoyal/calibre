@@ -907,7 +907,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 if ht == 'timestamp':  # change help text because users know this field as 'date'
                     ht = 'date'
                 if self.db.field_metadata[self.column_map[section]]['is_category']:
-                    is_cat = '.\n\n' + _('Click in this column and press Q to to Quickview books with the same %s' % ht)
+                    is_cat = '.\n\n' + _('Click in this column and press Q to Quickview books with the same %s' % ht)
                 else:
                     is_cat = ''
                 return QVariant(_('The lookup/search name is "{0}"{1}').format(ht, is_cat))
@@ -1029,7 +1029,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return False
             val = (int(value.toInt()[0]) if column == 'rating' else
                     value.toDateTime() if column in ('timestamp', 'pubdate')
-                    else unicode(value.toString()).strip())
+                    else re.sub(ur'\s', u' ', unicode(value.toString()).strip()))
             id = self.db.id(row)
             books_to_refresh = set([id])
             if column == 'rating':

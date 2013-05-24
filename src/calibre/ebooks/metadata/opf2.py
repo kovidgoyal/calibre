@@ -21,7 +21,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat
 from calibre.utils.localization import get_lang, canonicalize_lang
 from calibre import prints, guess_type
-from calibre.utils.cleantext import clean_ascii_chars
+from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import tweaks
 
 class Resource(object):  # {{{
@@ -1436,7 +1436,10 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
             attrib['name'] = name
         if content:
             attrib['content'] = content
-        elem = metadata.makeelement(tag, attrib=attrib)
+        try:
+            elem = metadata.makeelement(tag, attrib=attrib)
+        except ValueError:
+            elem = metadata.makeelement(tag, attrib={k:clean_xml_chars(v) for k, v in attrib.iteritems()})
         elem.tail = '\n'+(' '*8)
         if text:
             try:

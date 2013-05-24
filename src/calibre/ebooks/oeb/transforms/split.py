@@ -375,6 +375,8 @@ class FlowSplitter(object):
         for img in root.xpath('//h:img', namespaces=NAMESPACES):
             if img.get('style', '') != 'display:none':
                 return False
+        if root.xpath('//*[local-name() = "svg"]'):
+            return False
         return True
 
     def split_text(self, text, root, size):

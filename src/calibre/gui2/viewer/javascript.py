@@ -41,7 +41,6 @@ class JavaScriptLoader(object):
             'hyphenation', 'hyphenator', 'utils', 'cfi', 'indexing', 'paged',
             'fs', 'math', 'extract')
 
-
     def __init__(self, dynamic_coffeescript=False):
         self._dynamic_coffeescript = dynamic_coffeescript
         if self._dynamic_coffeescript:
@@ -68,7 +67,8 @@ class JavaScriptLoader(object):
                         allow_user_override=False).decode('utf-8')
             else:
                 dynamic = (self._dynamic_coffeescript and
-                        os.path.exists(calibre.__file__))
+                           calibre.__file__ and not calibre.__file__.endswith('.pyo') and
+                           os.path.exists(calibre.__file__))
                 ans = compiled_coffeescript(src, dynamic=dynamic).decode('utf-8')
             self._cache[name] = ans
 
@@ -105,4 +105,3 @@ class JavaScriptLoader(object):
         evaljs('\n\n'.join(self._hp_cache.itervalues()))
 
         return lang
-

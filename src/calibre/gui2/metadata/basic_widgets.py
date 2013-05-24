@@ -45,6 +45,9 @@ def save_dialog(parent, title, msg, det_msg=''):
     d.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
     return d.exec_()
 
+def clean_text(x):
+    return re.sub(r'\s', ' ', x.strip())
+
 '''
 The interface common to all widgets used to set basic metadata
 class BasicMetadataWidget(object):
@@ -117,7 +120,7 @@ class TitleEdit(EnLineEdit):
     def current_val(self):
 
         def fget(self):
-            title = unicode(self.text()).strip()
+            title = clean_text(unicode(self.text()))
             if not title:
                 title = self.get_default()
             return title
@@ -289,7 +292,7 @@ class AuthorsEdit(EditWithComplete):
     def current_val(self):
 
         def fget(self):
-            au = unicode(self.text()).strip()
+            au = clean_text(unicode(self.text()))
             if not au:
                 au = self.get_default()
             return string_to_authors(au)
@@ -352,7 +355,7 @@ class AuthorSortEdit(EnLineEdit):
     def current_val(self):
 
         def fget(self):
-            return unicode(self.text()).strip()
+            return clean_text(unicode(self.text()))
 
         def fset(self, val):
             if not val:
@@ -472,7 +475,7 @@ class SeriesEdit(EditWithComplete):
     def current_val(self):
 
         def fget(self):
-            return unicode(self.currentText()).strip()
+            return clean_text(unicode(self.currentText()))
 
         def fset(self, val):
             if not val:
@@ -1135,7 +1138,7 @@ class TagsEdit(EditWithComplete):  # {{{
     @dynamic_property
     def current_val(self):
         def fget(self):
-            return [x.strip() for x in unicode(self.text()).split(',')]
+            return [clean_text(x) for x in unicode(self.text()).split(',')]
         def fset(self, val):
             if not val:
                 val = []
@@ -1237,7 +1240,7 @@ class IdentifiersEdit(QLineEdit):  # {{{
     def current_val(self):
         def fget(self):
             raw = unicode(self.text()).strip()
-            parts = [x.strip() for x in raw.split(',')]
+            parts = [clean_text(x) for x in raw.split(',')]
             ans = {}
             for x in parts:
                 c = x.split(':')
@@ -1376,7 +1379,7 @@ class PublisherEdit(EditWithComplete):  # {{{
     def current_val(self):
 
         def fget(self):
-            return unicode(self.currentText()).strip()
+            return clean_text(unicode(self.currentText()))
 
         def fset(self, val):
             if not val:

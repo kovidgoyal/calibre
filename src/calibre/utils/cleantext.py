@@ -28,13 +28,14 @@ def clean_ascii_chars(txt, charlist=None):
         pat = re.compile(u'|'.join(map(unichr, charlist)))
     return pat.sub('', txt)
 
+def allowed(x):
+    x = ord(x)
+    return (x != 127 and (31 < x < 0xd7ff or x in (9, 10, 13))) or (0xe000 < x < 0xfffd) or (0x10000 < x < 0x10ffff)
+
 def clean_xml_chars(unicode_string):
-    def allowed(x):
-        x = ord(x)
-        return (0x0001 < x < 0xd7ff) or (0xe000 < x < 0xfffd) or (0x10000 < x < 0x10ffff)
     return u''.join(filter(allowed, unicode_string))
 
-##
+
 # Fredrik Lundh: http://effbot.org/zone/re-sub.htm#unescape-html
 # Removes HTML or XML character references and entities from a text string.
 #
@@ -60,6 +61,7 @@ def unescape(text, rm=False, rchar=u''):
             except KeyError:
                 pass
         if rm:
-            return rchar #replace by char
-        return text # leave as is
+            return rchar  # replace by char
+        return text  # leave as is
     return re.sub("&#?\w+;", fixup, text)
+

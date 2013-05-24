@@ -1,16 +1,61 @@
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Handelsblatt(BasicNewsRecipe):
     title          = u'Handelsblatt'
-    __author__ = 'malfi'
-    oldest_article = 7
+    __author__ = 'malfi'  # modified by Hegi, last change 2013-05-20
+    description           = u'Handelsblatt - basierend auf den RRS-Feeds von Handelsblatt.de'
+    tags 	                = 'Nachrichten, Blog, Wirtschaft'
+    publisher             = 'Verlagsgruppe Handelsblatt GmbH'
+    category              = 'business, economy, news, Germany'
+    publication_type      = 'daily newspaper'
+    language              = 'de_DE'
+    oldest_article        = 7
     max_articles_per_feed = 100
-    no_stylesheets = True
-#    cover_url = 'http://www.handelsblatt.com/images/logo/logo_handelsblatt.com.png'
-    language = 'de'
+    simultaneous_downloads= 20
 
-    remove_tags_before =  dict(attrs={'class':'hcf-overline'})
-    remove_tags_after  =  dict(attrs={'class':'hcf-footer'})
+    auto_cleanup          = False
+    no_stylesheets        = True
+    remove_javascript     = True
+    remove_empty_feeds    = True
+
+    # don't duplicate articles from "Schlagzeilen" / "Exklusiv" to other rubrics
+    ignore_duplicate_articles = {'title', 'url'}
+
+    # if you want to reduce size for an b/w or E-ink device, uncomment this:
+    # compress_news_images  = True
+    # compress_news_images_auto_size = 16
+    # scale_news_images     = (400,300)
+
+    timefmt               = ' [%a, %d %b %Y]'
+
+    conversion_options    = {'smarten_punctuation' : True,
+                        'authors'		  : publisher,
+                        'publisher'  	  : publisher}
+    language              = 'de_DE'
+    encoding              = 'UTF-8'
+
+    cover_source          = 'http://www.handelsblatt-shop.com/epaper/482/'
+    # masthead_url          = 'http://www.handelsblatt.com/images/hb_logo/6543086/1-format3.jpg'
+    masthead_url          = 'http://www.handelsblatt-chemie.de/wp-content/uploads/2012/01/hb-logo.gif'
+
+    def get_cover_url(self):
+        cover_source_soup = self.index_to_soup(self.cover_source)
+        preview_image_div = cover_source_soup.find(attrs={'class':'vorschau'})
+        return 'http://www.handelsblatt-shop.com'+preview_image_div.a.img['src']
+
+    # remove_tags_before =  dict(attrs={'class':'hcf-overline'})
+    # remove_tags_after  =  dict(attrs={'class':'hcf-footer'})
+    # Alternatively use this:
+
+    keep_only_tags    = [
+                          dict(name='div', attrs={'class':['hcf-column hcf-column1 hcf-teasercontainer hcf-maincol']}),
+                          dict(name='div', attrs={'id':['contentMain']})
+                        ]
+
+    remove_tags = [
+                    dict(name='div', attrs={'class':['hcf-link-block hcf-faq-open', 'hcf-article-related']})
+                  ]
 
     feeds          = [
                         (u'Handelsblatt Exklusiv',u'http://www.handelsblatt.com/rss/exklusiv'),
@@ -25,15 +70,19 @@ class Handelsblatt(BasicNewsRecipe):
                         (u'Handelsblatt Weblogs',u'http://www.handelsblatt.com/rss/blogs')
                      ]
 
-    extra_css = '''
-        h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
-        h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
-        p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-        body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-        '''
+    # Insert ". " after "Place" in <span class="hcf-location-mark">Place</span>
+    # If you use .epub format you could also do this as extra_css '.hcf-location-mark:after {content: ". "}'
+    preprocess_regexps    = [(re.compile(r'(<span class="hcf-location-mark">[^<]*)(</span>)',
+                              re.DOTALL|re.IGNORECASE), lambda match: match.group(1) + '. ' + match.group(2))]
+
+    extra_css      =  'h1 {font-size: 1.6em; text-align: left} \
+                       h2 {font-size: 1em; font-style: italic; font-weight: normal} \
+                       h3 {font-size: 1.3em;text-align: left} \
+                       h4, h5, h6, a {font-size: 1em;text-align: left} \
+                       .hcf-caption {font-size: 1em;text-align: left; font-style: italic} \
+                       .hcf-location-mark {font-style: italic}'
 
     def print_version(self, url):
-        url = url.split('/')
-        url[-1] = 'v_detail_tab_print,'+url[-1]
-        url = '/'.join(url)
-        return url
+        main, sep, id = url.rpartition('/')
+        return main + '/v_detail_tab_print/' + id
+

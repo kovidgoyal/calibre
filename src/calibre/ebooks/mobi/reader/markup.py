@@ -100,7 +100,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
     mr = mobi8_reader
     flows = []
 
-    img_pattern = re.compile(r'''(<[img\s|image\s][^>]*>)''', re.IGNORECASE)
+    img_pattern = re.compile(r'''(<[img\s|image\s|svg:image\s][^>]*>)''', re.IGNORECASE)
     img_index_pattern = re.compile(r'''['"]kindle:embed:([0-9|A-V]+)[^'"]*['"]''', re.IGNORECASE)
 
     tag_pattern = re.compile(r'''(<[^>]*>)''')
@@ -128,7 +128,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
         srcpieces = img_pattern.split(flow)
         for j in range(1, len(srcpieces), 2):
             tag = srcpieces[j]
-            if tag.startswith('<im'):
+            if tag.startswith('<im') or tag.startswith('<svg:image'):
                 for m in img_index_pattern.finditer(tag):
                     num = int(m.group(1), 32)
                     href = resource_map[num-1]
