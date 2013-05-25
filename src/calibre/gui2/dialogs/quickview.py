@@ -134,7 +134,16 @@ class Quickview(QDialog, Ui_Quickview):
     def book_was_changed(self, mi):
         if self.is_closed or self.current_column is None:
             return
-        self.refresh(self.view.model().index(self.db.row(mi.id), self.current_column))
+        # There is an ordering problem when libraries are changed. The library
+        # view is changed, triggering a book_was_changed signal. Unfortunately
+        # this happens before the library_changed actions are run, meaning we
+        # still have the old database. To avoid the problem we just ignore the
+        # operation if we get an exception. The set_database will come
+        # eventually.
+        try:
+            self.refresh(self.view.model().index(self.db.row(mi.id), self.current_column))
+        except:
+            pass
 
     # clicks on the items listWidget
     def item_selected(self, txt):
