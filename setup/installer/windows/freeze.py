@@ -15,7 +15,7 @@ from setup.installer.windows.wix import WixMixIn
 
 ICU_DIR = os.environ.get('ICU_DIR', r'Q:\icu')
 OPENSSL_DIR = os.environ.get('OPENSSL_DIR', r'Q:\openssl')
-QT_DIR = os.environ.get('QT_DIR', 'Q:\\Qt\\4.8.2')
+QT_DIR = os.environ.get('QT_DIR', 'Q:\\Qt\\current')
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
 SW               = r'C:\cygwin\home\kovid\sw'
 IMAGEMAGICK = os.path.join(SW, 'build',
@@ -173,7 +173,8 @@ class Win32Freeze(Command, WixMixIn):
             shutil.copy2(x, self.dll_dir)
         for x in QT_DLLS:
             x += '4.dll'
-            if not x.startswith('phonon'): x = 'Qt'+x
+            if not x.startswith('phonon'):
+                x = 'Qt'+x
             shutil.copy2(os.path.join(QT_DIR, 'bin', x), self.dll_dir)
         shutil.copy2(r'C:\windows\system32\python%s.dll'%self.py_ver,
                     self.dll_dir)
@@ -280,7 +281,8 @@ class Win32Freeze(Command, WixMixIn):
                 for ex in ('expatw', 'testplug'):
                     if ex in f.lower():
                         ok = False
-                if not ok: continue
+                if not ok:
+                    continue
                 dest = self.dll_dir
                 shutil.copy2(f, dest)
         for x in ('zlib1.dll', 'libxml2.dll', 'libxslt.dll', 'libexslt.dll'):
@@ -294,8 +296,10 @@ class Win32Freeze(Command, WixMixIn):
             for f in glob.glob(self.j(impath, pat)):
                 ok = True
                 for ex in ('magick++', 'x11.dll', 'xext.dll'):
-                    if ex in f.lower(): ok = False
-                if not ok: continue
+                    if ex in f.lower():
+                        ok = False
+                if not ok:
+                    continue
                 shutil.copy2(f, self.dll_dir)
 
     def embed_manifests(self):
@@ -303,7 +307,8 @@ class Win32Freeze(Command, WixMixIn):
         for x in os.walk(self.base):
             for f in x[-1]:
                 base, ext = os.path.splitext(f)
-                if ext != '.manifest': continue
+                if ext != '.manifest':
+                    continue
                 dll = self.j(x[0], base)
                 manifest = self.j(x[0], f)
                 res = 2
@@ -337,7 +342,8 @@ class Win32Freeze(Command, WixMixIn):
                     'An executable program'
             desc = DESCRIPTIONS.get(internal_name, defdesc)
         license = 'GNU GPL v3.0'
-        def e(val): return val.replace('"', r'\"')
+        def e(val):
+            return val.replace('"', r'\"')
         if product_description is None:
             product_description = __appname__ + ' - E-book management'
         rc = template.format(
@@ -353,7 +359,7 @@ class Win32Freeze(Command, WixMixIn):
                 product_name=e(__appname__),
                 product_description=e(product_description),
                 legal_copyright=e(license),
-                legal_trademarks=e(__appname__ + \
+                legal_trademarks=e(__appname__ +
                         ' is a registered U.S. trademark number 3,666,525')
         )
         if extra_data:
@@ -540,7 +546,8 @@ class Win32Freeze(Command, WixMixIn):
         cflags  = '/c /EHsc /MD /W3 /Ox /nologo /D_UNICODE'.split()
         cflags += ['/DPYDLL="python%s.dll"'%self.py_ver, '/IC:/Python%s/include'%self.py_ver]
         for src, obj in zip(sources, objects):
-            if not self.newer(obj, headers+[src]): continue
+            if not self.newer(obj, headers+[src]):
+                continue
             cmd = [msvc.cc] + cflags + dflags + ['/Fo'+obj, '/Tc'+src]
             self.run_builder(cmd, show_output=True)
 
@@ -681,7 +688,7 @@ class Win32Freeze(Command, WixMixIn):
         if os.path.isdir(abspath):
             if not os.listdir(abspath):
                 return
-            zinfo.external_attr = 0700 << 16
+            zinfo.external_attr = 0o700 << 16
             zf.writestr(zinfo, '')
             for x in os.listdir(abspath):
                 if x not in exclude:
@@ -690,12 +697,13 @@ class Win32Freeze(Command, WixMixIn):
             ext = os.path.splitext(name)[1].lower()
             if ext in ('.dll',):
                 raise ValueError('Cannot add %r to zipfile'%abspath)
-            zinfo.external_attr = 0600 << 16
+            zinfo.external_attr = 0o600 << 16
             if ext in ('.py', '.pyc', '.pyo', '.pyd'):
                 with open(abspath, 'rb') as f:
                     zf.writestr(zinfo, f.read())
 
         self.zf_names.add(name)
+
 
 
 
