@@ -290,25 +290,31 @@ class TagBrowserMixin(object):  # {{{
         self.library_view.select_rows(ids)
         # refreshing the tags view happens at the emit()/call() site
 
-    def do_author_sort_edit(self, parent, id, select_sort=True, select_link=False):
+    def do_author_sort_edit(self, parent, id_, select_sort=True, select_link=False):
         '''
         Open the manage authors dialog
         '''
+
         db = self.library_view.model().db
-        editor = EditAuthorsDialog(parent, db, id, select_sort, select_link)
+        editor = EditAuthorsDialog(parent, db, id_, select_sort, select_link)
         d = editor.exec_()
         if d:
-            for (id, old_author, new_author, new_sort, new_link) in editor.result:
-                if old_author != new_author:
-                    # The id might change if the new author already exists
-                    id = db.rename_author(id, new_author)
-                db.set_sort_field_for_author(id, unicode(new_sort),
-                                             commit=False, notify=False)
-                db.set_link_field_for_author(id, unicode(new_link),
-                                             commit=False, notify=False)
-            db.commit()
-            self.library_view.model().refresh()
-            self.tags_view.recount()
+            # Save and restore the current selections. Note that some changes
+            # will cause sort orders to change, so don't bother with attempting
+            # to restore the position. Restoring the state has the side effect
+            # of refreshing book details.
+            with self.library_view.preserve_state(preserve_hpos=False, preserve_vpos=False):
+                for (id2, old_author, new_author, new_sort, new_link) in editor.result:
+                    if old_author != new_author:
+                        # The id might change if the new author already exists
+                        id2 = db.rename_author(id2, new_author)
+                    db.set_sort_field_for_author(id2, unicode(new_sort),
+                                                 commit=False, notify=False)
+                    db.set_link_field_for_author(id2, unicode(new_link),
+                                                 commit=False, notify=False)
+                db.commit()
+                self.library_view.model().refresh()
+                self.tags_view.recount()
 
     def drag_drop_finished(self, ids):
         self.library_view.model().refresh_ids(ids)
