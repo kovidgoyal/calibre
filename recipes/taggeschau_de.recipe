@@ -3,13 +3,15 @@ from calibre.web.feeds.news import BasicNewsRecipe
 ## 1: Base Version
 ## 2: Added rules for wdr.de, ndr.de, br-online.de
 ## 3: Added rules for rbb-online.de, boerse.ard.de, sportschau.de
+## 4: New design of tagesschau.de implemented. Simplyfied.
+## 5: Taken out the pictures.
 
 class Tagesschau(BasicNewsRecipe):
      title          = 'Tagesschau'
      description    = 'Nachrichten der ARD'
      publisher      = 'ARD'
      language       = 'de'
-     version        = 3
+     version        = 5
 
      __author__            = 'Florian Andreas Pfaff, a.peter'
      oldest_article        = 7
@@ -20,21 +22,20 @@ class Tagesschau(BasicNewsRecipe):
      feeds          = [('Tagesschau', 'http://www.tagesschau.de/xml/rss2')]
 
      remove_tags    = [
-                       dict(name='div', attrs={'class':['linksZumThema schmal','teaserBox','boxMoreLinks','directLinks','teaserBox boxtext','fPlayer','zitatBox breit flashaudio','infobox ','footer clearfix','inner recommendations','teaser teaser-08 nachrichten smallstandard','infobox-rechts','infobox-links','csl2','teaserBox metaBlock','articleA archiveDisclaimer']}),
-                       dict(name='div', attrs={'id':['pageFunctions']}), ## wdr.de
-                       dict(name='div', attrs={'class':['chart','footerService','toplink','assetsLeft','assetsFullsize']}), ## boerse.ard.de
-                       dict(name='div', attrs={'class':['ardMehrZumThemaLinks','socialBookmarks','ardContentEnd','ardDisclaimer']}), ## sportschau.de
-                       dict(name='div', attrs={'id':['socialBookmarks','seitenanfang','comment']}),
-                       dict(name='ul',  attrs={'class':['directLinks','directLinks weltatlas','iconList','right']}),
-                       dict(name='strong', attrs={'class':['boxTitle inv','inv']}),
-                       dict(name='div', attrs={'class':['moreInfo right','moreInfo']}),
-                       dict(name='span', attrs={'class':['videoLink']}),
-                       dict(name='img', attrs={'class':['zoom float_right']}),
-                       dict(name='a', attrs={'id':['zoom']})
+						dict(name='div', attrs={'class':['inline']}),
+						dict(name='div', attrs={'class':re.compile(r'.*linklist.*')}),
+						dict(name='div', attrs={'class':re.compile(r'.*media(Left|Right|Top|Bottom|Info).*')}),
+						dict(name='div', attrs={'class':re.compile(r'.*mod(Socialbar|ConComments).*')}),
+						dict(name='div', attrs={'class':re.compile(r'.*infokasten.*')}),
+						dict(name='div', attrs={'class':re.compile(r'.*articlePictureA.*')}),
+						dict(name='div', attrs={'id':   re.compile(r'.*zoomTeaser.*')}),
+						dict(name='h2',  attrs={'class':re.compile(r'.*conHeadline.*')}),
+						dict(name='ul',  attrs={'class':['iconList']})
                       ]
-     keep_only_tags = [dict(name='div', attrs={'id':'centerCol'}),
-                       dict(name='div', attrs={'id':['mainColumn','ardContent']}),
-                       dict(name='div', attrs={'class':['narrow clearfix','beitrag','detail_inlay','containerArticle noBorder','span-8']})]
+     keep_only_tags = [
+						dict(name='div', attrs={'class':['section sectionZ sectionArticle']}),
+						dict(name='div', attrs={'class':re.compile(r'.*containerArticle.*')})
+					  ]
 
      def get_masthead_url(self):
           return 'http://intern.tagesschau.de/html/img/image.jpg' 
