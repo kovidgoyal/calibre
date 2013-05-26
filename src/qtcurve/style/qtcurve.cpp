@@ -5255,7 +5255,7 @@ void Style::drawPrimitive(PrimitiveElement element, const QStyleOption *option, 
                     if (color.lightness() > 128)
                         color = color.darker(widget->property("highlight_current_item").toInt());
                     else
-                        color = color.lighter();
+                        color = color.lighter(135);
                 }
                 
                 bool   square((opts.square&SQUARE_LISTVIEW_SELECTION) &&
