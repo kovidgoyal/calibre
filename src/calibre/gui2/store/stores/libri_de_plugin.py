@@ -53,7 +53,7 @@ class LibreDEStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
 
-                details = data.xpath('./div[@class="articleinfobox"]')
+                details = data.xpath('./div[contains(@class, "articleinfobox")]')
                 if not details:
                     continue
                 details = details[0]
