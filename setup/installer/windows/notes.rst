@@ -196,11 +196,13 @@ following patch to have Qt load the openssl libraries bundled with calibre:
      searchOrder << qSystemDirectory();
  
 
-Now, run configure and make::
+Now, run configure and make:
 
 -no-plugin-manifests is needed so that loading the plugins does not fail looking for the CRT assembly
 
-    ./configure.exe -ltcg -opensource -release -qt-zlib -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc2008 -no-qt3support -webkit -xmlpatterns -no-phonon -no-style-plastique -no-style-cleanlooks -no-style-motif -no-style-cde -no-declarative -no-scripttools -no-audio-backend -no-multimedia -no-dbus -no-openvg -no-opengl -no-qt3support -confirm-license -nomake examples -nomake demos -nomake docs -nomake tools -no-plugin-manifests -openssl -I $OPENSSL_DIR/include -L $OPENSSL_DIR/lib && nmake
+-no-accessibility is added because accessibility may be causing crashes on win 8 64 bit
+
+    ./configure.exe -ltcg -opensource -release -qt-zlib -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc2008 -no-qt3support -webkit -xmlpatterns -no-phonon -no-style-plastique -no-style-cleanlooks -no-style-motif -no-style-cde -no-accessibility -no-declarative -no-scripttools -no-audio-backend -no-multimedia -no-dbus -no-openvg -no-opengl -no-qt3support -confirm-license -nomake examples -nomake demos -nomake docs -nomake tools -no-plugin-manifests -openssl -I $OPENSSL_DIR/include -L $OPENSSL_DIR/lib && nmake
 
 Add the path to the bin folder inside the Qt dir to your system PATH.
 
