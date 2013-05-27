@@ -229,7 +229,8 @@ class EditMetadataAction(InterfaceAction):
                 revert_tooltip=_('Discard the downloaded value for: %s'),
                 intro_msg=_('The downloaded metadata is on the left and the original metadata'
                             ' is on the right. If a downloaded value is blank or unknown,'
-                            ' the original value is used.')
+                            ' the original value is used.'),
+                action_button=(_('&View Book'), I('view.png'), self.gui.iactions['View'].view_historical),
             )
             if d.exec_() == d.Accepted:
                 nid_map = {}

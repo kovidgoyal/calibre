@@ -440,6 +440,7 @@ class CompareMany(QDialog):
                  reject_all_tooltip=None,
                  revert_tooltip=None,
                  intro_msg=None,
+                 action_button=None,
                  **kwargs):
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout()
@@ -480,6 +481,11 @@ class CompareMany(QDialog):
             b.setIcon(QIcon(I('minus.png')))
             if reject_button_tooltip:
                 b.setToolTip(reject_button_tooltip)
+        if action_button is not None:
+            self.acb = b = bb.addButton(action_button[0], bb.ActionRole)
+            b.setIcon(QIcon(action_button[1]))
+            self.action_button_action = action_button[2]
+            b.clicked.connect(self.action_button_clicked)
         self.nb = b = bb.addButton(_('&Next') if self.total > 1 else _('&OK'), bb.ActionRole)
         b.setIcon(QIcon(I('forward.png' if self.total > 1 else 'ok.png')))
         b.clicked.connect(partial(self.next_item, True))
@@ -497,6 +503,9 @@ class CompareMany(QDialog):
         if geom is not None:
             self.restoreGeometry(geom)
         b.setFocus(Qt.OtherFocusReason)
+
+    def action_button_clicked(self):
+        self.action_button_action(self.ids[0])
 
     def accept(self):
         gprefs.set('diff_dialog_geom', bytearray(self.saveGeometry()))
