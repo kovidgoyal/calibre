@@ -372,12 +372,28 @@ class libiMobileDevice():
         self._instproxy_client_options_free()
         self._instproxy_client_free()
 
-    def get_preferences(self):
+    def get_preferences(self, requested_items=[
+                                                'DeviceClass',
+                                                'DeviceColor',
+                                                'DeviceName',
+                                                'FirmwareVersion',
+                                                'HardwareModel',
+                                                'ModelNumber',
+                                                'PasswordProtected',
+                                                'ProductType',
+                                                'ProductVersion',
+                                                'SerialNumber',
+                                                'TimeZone',
+                                                'TimeZoneOffsetFromUTC',
+                                                'UniqueDeviceID',
+                                                'TimeIntervalSince1970',
+                                                ]):
         '''
         Get a partial list device-specific information
+        See _lockdown_get_value() for all known items
         '''
         self._log_location()
-        return self._lockdown_get_value()
+        return self._lockdown_get_value(requested_items)
 
     def listdir(self, path):
         '''
@@ -1586,10 +1602,13 @@ class libiMobileDevice():
                 self.log("     device_name: %s" % device_name)
         return device_name
 
-    def _lockdown_get_value(self):
+    def _lockdown_get_value(self, requested_items=[]):
+
         '''
         Retrieves a preferences plist using an optional domain and/or key name.
 
+        requested_items: A python list of specific preference items to retrieve
+                         An empty list (default) retrieves all available values
         Args:
          client: (LOCKDOWND_CLIENT_T) An initialized lockdown client
          domain: (const char *) The domain to query on or NULL for global domain
@@ -1599,14 +1618,90 @@ class libiMobileDevice():
         Return:
          error:  LOCKDOWN_E_SUCCESS on success,
                  NP_E_INVALID_ARG when client is NULL
+
+        preferences_dict: A dict of requested device values
+
+        Available values (as of iOS 6.3):
+        --------------------------
+        ActivationState
+        ActivationStateAcknowledged
+        ActivityURL
+        BasebandActivationTicketVersion
+        BasebandCertID
+        BasebandChipID
+        BasebandKeyHashInformation
+        BasebandMasterKeyHash
+        BasebandRegioSKU
+        BasebandSerialNumber
+        BasebandStatus
+        BluetoothAddress
+        BoardID
+        BuildVersion
+        CPUArchitecture
+        CarrierBundleInfoArray
+        CertID
+        ChipID
+        ChipSerialNo
+        CompassCalibration
+        DeviceCertificate
+        DeviceClass
+        DeviceColor
+        DeviceName
+        DevicePublicKey
+        DieID
+        EthernetAddress
+        FirmwareVersion
+        FusingStatus
+        HardwareModel
+        HardwarePlatform
+        HostAttached
+        IMLockdownEventRegisteredKey
+        IntegratedCircuitCardIdentity
+        InternationalMobileEquipmentIdentity
+        InternationalMobileSubscriberIdentity
+        MLBSerailNumber
+        MobileSubscriberCountryCode
+        MobileSubscriberNetworkCode
+        ModelNumber
+        NonVolatileRAM
+        PartitionType
+        PasswordProtected
+        PhoneNumber
+        ProductType
+        ProductVersion
+        ProductSOC
+        ProtocolVersion
+        ProximitySensorCalibration
+        RegionInfo
+        SBLockdownEverRegisteredKey
+        SIMGID1
+        SIMGID2
+        SIMStatus
+        SIMTrayStatus
+        SerialNumber
+        SoftwareBehavior
+        SoftwareBundleVersion
+        SupportedDeviceFamilies
+        TelephonyCapability
+        TimeIntervalSince1970
+        TimeZone
+        TimeZoneOffsetFromUTC
+        TrustedHostAttached
+        UniqueChipID
+        UniqueDeviceID
+        UseActivityURL
+        UseRaptorCerts
+        Use24HourClock
+        WeDelivered
+        WiFiAddress
+        kCTPostponementInfoPRIVersion
+        kCTPostponementInfoPRLName
+        kCTPostponementInfoUniqueID
+        kCTPostponementStatus
         '''
         self._log_location()
 
         preferences = c_char_p()
-        profiles_preferences = ['SerialNumber', 'ModelNumber', 'DeviceColor', 'ProductType',
-                                'TimeZone', 'DeviceName', 'UniqueDeviceID', 'TimeZoneOffsetFromUTC',
-                                'DeviceClass', 'HardwareModel', 'TimeIntervalSince1970',
-                                'FirmwareVersion', 'PasswordProtected', 'ProductVersion']
         preferences_dict = {}
 
         error = self.lib.lockdownd_get_value(byref(self.control),
@@ -1624,8 +1719,10 @@ class libiMobileDevice():
             xml_len = c_uint(0)
             self.plist_lib.plist_to_xml(c_char_p.from_buffer(preferences), byref(xml), byref(xml_len))
             preferences_list = XmlPropertyListParser().parse(string_at(xml, xml_len.value))
-            for pref in sorted(profiles_preferences):
-                #self.log(" {0:21}: {1}".format(pref, preferences_list[pref]))
+            source_list = preferences_list.keys()
+            if requested_items:
+                source_list = requested_items
+            for pref in source_list:
                 preferences_dict[pref] = preferences_list[pref]
 
         self.plist_lib.plist_free(preferences)
@@ -1685,7 +1782,7 @@ class libiMobileDevice():
             raise libiMobileDeviceException(error_description)
 
     # ~~~ logging ~~~
-    def _log_diagnostic(self, msg=None):
+    def _log(self, msg=None):
         '''
         Print msg to console
         '''
