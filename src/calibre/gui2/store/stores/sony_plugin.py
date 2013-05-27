@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 2  # Needed for dynamic plugin loading
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -50,23 +50,27 @@ class SonyStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
 
-                curr = ''.join(item.xpath('descendant::div[@class="pricing"]/descendant::*[@class="currency"]/@title')).strip()
-                amt = ''.join(item.xpath('descendant::div[@class="pricing"]/descendant::*[@class="amount"]/text()')).strip()
+                curr = ''.join(item.xpath('descendant::div[@class="pricing"]/p[@class="price money"]/descendant::*[@class="currency"]/@title')).strip()
+                amt = ''.join(item.xpath('descendant::div[@class="pricing"]/p[@class="price money"]/descendant::*[@class="amount"]/text()')).strip()
                 s = SearchResult()
                 s.price = (curr+' '+amt) if (curr and amt) else _('Not Available')
                 title = item.xpath('descendant::h3[@class="item"]')
-                if not title: continue
+                if not title:
+                    continue
                 title = etree.tostring(title[0], method='text',
                         encoding=unicode)
-                if not title: continue
+                if not title:
+                    continue
                 s.title = title.strip()
                 s.author = ''.join(item.xpath(
                         'descendant::li[contains(@class, "author")]/'
                         'a[@class="fn"]/text()')).strip()
-                if not s.author: continue
+                if not s.author:
+                    continue
                 detail_url = ''.join(item.xpath('descendant::h3[@class="item"]'
                     '/descendant::a[@class="fn" and @href]/@href'))
-                if not detail_url: continue
+                if not detail_url:
+                    continue
                 if detail_url.startswith('/'):
                     detail_url = 'http:'+detail_url
                 s.detail_item = detail_url
@@ -87,3 +91,4 @@ class SonyStore(BasicStoreConfig, StorePlugin):
                 s.formats = 'Sony'
 
                 yield s
+
