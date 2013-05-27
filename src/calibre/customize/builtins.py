@@ -1211,6 +1211,13 @@ class StoreSonyStore(StoreBase):
     formats = ['SONY']
     affiliate = False
 
+class StoreSonyAUStore(StoreSonyStore):
+    name = 'SONY Reader (Australia) Store'
+    description = u'SONY Reader books (Australia).'
+    actual_plugin = 'calibre.gui2.store.stores.sony_au_plugin:SonyStore'
+    headquarters = 'AU'
+
+
 class StoreAmazonDEKindleStore(StoreBase):
     name = 'Amazon DE Kindle'
     author = 'Charles Haley'
@@ -1714,7 +1721,7 @@ plugins += [
     StorePublioStore,
     StoreRW2010Store,
     StoreSmashwordsStore,
-    StoreSonyStore,
+    StoreSonyStore, StoreSonyAUStore,
     StoreVirtualoStore,
     StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
