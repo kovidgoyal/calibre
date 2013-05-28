@@ -27,20 +27,20 @@ class Stage1(Command):
 
 class Stage2(Command):
 
-   description = 'Stage 2 of the publish process'
-   sub_commands = ['linux', 'win', 'osx']
+    description = 'Stage 2 of the publish process'
+    sub_commands = ['linux', 'win', 'osx']
 
-   def pre_sub_commands(self, opts):
-       for x in glob.glob(os.path.join(self.d(self.SRC), 'dist', '*')):
-           os.remove(x)
-       build = os.path.join(self.d(self.SRC), 'build')
-       if os.path.exists(build):
-           shutil.rmtree(build)
+    def pre_sub_commands(self, opts):
+        for x in glob.glob(os.path.join(self.d(self.SRC), 'dist', '*')):
+            os.remove(x)
+        build = os.path.join(self.d(self.SRC), 'build')
+        if os.path.exists(build):
+            shutil.rmtree(build)
 
 class Stage3(Command):
 
-   description = 'Stage 3 of the publish process'
-   sub_commands = ['upload_user_manual', 'upload_demo', 'sdist', 'tag_release']
+    description = 'Stage 3 of the publish process'
+    sub_commands = ['upload_user_manual', 'upload_demo', 'sdist', 'tag_release']
 
 class Stage4(Command):
 
@@ -105,11 +105,10 @@ class Manual(Command):
 
 class TagRelease(Command):
 
-    description = 'Tag a new release in bzr'
+    description = 'Tag a new release in git'
 
     def run(self, opts):
         self.info('Tagging release')
-        subprocess.check_call(('bzr tag '+__version__).split())
-        subprocess.check_call('bzr commit --unchanged -m'.split() + ['IGN:Tag release'])
-
+        subprocess.check_call('git tag -a {0} -m "version-{0}"'.format(__version__).split())
+        subprocess.check_call('git push origin {0}'.format(__version__).split())
 
