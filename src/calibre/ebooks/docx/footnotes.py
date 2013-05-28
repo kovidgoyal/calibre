@@ -17,7 +17,7 @@ class Note(object):
         self.parent = parent
 
     def __iter__(self):
-        for p in descendants(self.parent, 'w:p'):
+        for p in descendants(self.parent, 'w:p', 'w:tbl'):
             yield p
 
 class Footnotes(object):

@@ -65,35 +65,41 @@ LINE_STYLES = {  # {{{
 }  # }}}
 
 # Read from XML {{{
-def read_border(parent, dest):
-    tvals = {'padding_%s':inherit, 'border_%s_width':inherit,
-            'border_%s_style':inherit, 'border_%s_color':inherit}
-    vals = {}
-    for edge in ('left', 'top', 'right', 'bottom'):
-        vals.update({k % edge:v for k, v in tvals.iteritems()})
 
-    for border in XPath('./w:pBdr')(parent):
-        for edge in ('left', 'top', 'right', 'bottom'):
-            for elem in XPath('./w:%s' % edge)(border):
-                color = get(elem, 'w:color')
-                if color is not None:
-                    vals['border_%s_color' % edge] = simple_color(color)
-                style = get(elem, 'w:val')
-                if style is not None:
-                    vals['border_%s_style' % edge] = LINE_STYLES.get(style, 'solid')
-                space = get(elem, 'w:space')
-                if space is not None:
-                    try:
-                        vals['padding_%s' % edge] = float(space)
-                    except (ValueError, TypeError):
-                        pass
-                sz = get(elem, 'w:sz')
-                if sz is not None:
-                    # we dont care about art borders (they are only used for page borders)
-                    try:
-                        vals['border_%s_width' % edge] = min(96, max(2, float(sz))) / 8
-                    except (ValueError, TypeError):
-                        pass
+border_props = ('padding_%s', 'border_%s_width', 'border_%s_style', 'border_%s_color')
+
+def read_single_border(parent, edge):
+    color = style = width = padding = None
+    for elem in XPath('./w:%s' % edge)(parent):
+        c = get(elem, 'w:color')
+        if c is not None:
+            color = simple_color(c)
+        s = get(elem, 'w:val')
+        if s is not None:
+            style = LINE_STYLES.get(s, 'solid')
+        space = get(elem, 'w:space')
+        if space is not None:
+            try:
+                padding = float(space)
+            except (ValueError, TypeError):
+                pass
+        sz = get(elem, 'w:sz')
+        if sz is not None:
+            # we dont care about art borders (they are only used for page borders)
+            try:
+                width = min(96, max(2, float(sz))) / 8
+            except (ValueError, TypeError):
+                pass
+    return {p:v for p, v in zip(border_props, (padding, width, style, color))}
+
+def read_border(parent, dest, border_edges=('left', 'top', 'right', 'bottom'), name='pBdr'):
+    vals = {k % edge:inherit for edge in border_edges for k in border_props}
+
+    for border in XPath('./w:' + name)(parent):
+        for edge in border_edges:
+            for prop, val in read_single_border(border, edge).iteritems():
+                if val is not None:
+                    vals[prop % edge] = val
 
     for key, val in vals.iteritems():
         setattr(dest, key, val)

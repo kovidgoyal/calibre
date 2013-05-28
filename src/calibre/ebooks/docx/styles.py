@@ -11,6 +11,7 @@ from collections import OrderedDict, Counter
 
 from calibre.ebooks.docx.block_styles import ParagraphStyle, inherit
 from calibre.ebooks.docx.char_styles import RunStyle
+from calibre.ebooks.docx.tables import TableStyle
 from calibre.ebooks.docx.names import XPath, get
 
 class PageProperties(object):
@@ -66,10 +67,17 @@ class Style(object):
             self.based_on = None
         self.is_default = get(elem, 'w:default') in {'1', 'on', 'true'}
 
-        self.paragraph_style = self.character_style = None
+        self.paragraph_style = self.character_style = self.table_style = None
 
-        if self.style_type in {'paragraph', 'character'}:
-            if self.style_type == 'paragraph':
+        if self.style_type in {'paragraph', 'character', 'table'}:
+            if self.style_type == 'table':
+                for tblPr in XPath('./w:tblPr')(elem):
+                    ts = TableStyle(tblPr)
+                    if self.table_style is None:
+                        self.table_style = ts
+                    else:
+                        self.table_style.update(ts)
+            if self.style_type in {'paragraph', 'table'}:
                 for pPr in XPath('./w:pPr')(elem):
                     ps = ParagraphStyle(pPr)
                     if self.paragraph_style is None:
@@ -90,6 +98,10 @@ class Style(object):
                 self.numbering_style_link = get(x, 'w:val')
 
     def resolve_based_on(self, parent):
+        if parent.table_style is not None:
+            if self.table_style is None:
+                self.table_style = TableStyle()
+            self.table_style.resolve_based_on(parent.table_style)
         if parent.paragraph_style is not None:
             if self.paragraph_style is None:
                 self.paragraph_style = ParagraphStyle()

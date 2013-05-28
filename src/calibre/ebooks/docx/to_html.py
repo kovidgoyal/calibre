@@ -21,6 +21,7 @@ from calibre.ebooks.docx.styles import Styles, inherit, PageProperties
 from calibre.ebooks.docx.numbering import Numbering
 from calibre.ebooks.docx.fonts import Fonts
 from calibre.ebooks.docx.images import Images
+from calibre.ebooks.docx.tables import Tables
 from calibre.ebooks.docx.footnotes import Footnotes
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.metadata.toc import TOC
@@ -47,6 +48,7 @@ class Convert(object):
         self.body = BODY()
         self.styles = Styles()
         self.images = Images()
+        self.tables = Tables()
         self.object_map = OrderedDict()
         self.html = HTML(
             HEAD(
@@ -98,14 +100,25 @@ class Convert(object):
                 dl.append(DT('[', A('←' + text, href='#back_%s' % anchor, title=text), id=anchor))
                 dl[-1][0].tail = ']'
                 dl.append(DD())
+                in_table = False
                 for wp in note:
+                    if wp.tag.endswith('}tbl'):
+                        self.tables.register(wp)
+                        in_table = True
+                        continue
+                    if in_table:
+                        if ancestor(wp, 'w:tbl') is not None:
+                            self.tables.add(wp)
+                        else:
+                            in_table = False
                     p = self.convert_p(wp)
                     dl[-1].append(p)
 
         self.resolve_links(relationships_by_id)
-        # TODO: tables <w:tbl> child of <w:body> (nested tables?)
 
         self.styles.cascade(self.layers)
+
+        self.tables.apply_markup(self.object_map)
 
         numbered = []
         for html_obj, obj in self.object_map.iteritems():
@@ -154,7 +167,13 @@ class Convert(object):
         current = []
         self.page_map = OrderedDict()
 
-        for p in descendants(doc, 'w:p'):
+        in_table = False
+
+        for p in descendants(doc, 'w:p', 'w:tbl'):
+            if p.tag.endswith('}tbl'):
+                in_table = True
+                self.tables.register(p)
+                continue
             sect = tuple(descendants(p, 'w:sectPr'))
             if sect:
                 pr = PageProperties(sect)
@@ -163,6 +182,11 @@ class Convert(object):
                 current = []
             else:
                 current.append(p)
+            if in_table:
+                if ancestor(p, 'w:tbl') is not None:
+                    self.tables.add(p)
+                else:
+                    in_table = False
         if current:
             last = XPath('./w:body/w:sectPr')(doc)
             pr = PageProperties(last)
