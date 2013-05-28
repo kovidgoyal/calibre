@@ -2,6 +2,7 @@
 *.pyc
 *.pyo
 .bzr
+.bzrignore
 .check-cache.pickle
 src/calibre/plugins
 resources/images.qrc
