@@ -222,7 +222,7 @@ class libiMobileDevice():
 
         return self.device_connected
 
-    def copy_to_iDevice(self, src, dst):
+    def copy_to_idevice(self, src, dst):
         '''
         High-level convenience method to copy src from local filesystem to
         dst on iDevice.
@@ -246,7 +246,7 @@ class libiMobileDevice():
             if self.verbose:
                 self.log(" could not create copy")
 
-    def copy_from_iDevice(self, src, dst):
+    def copy_from_idevice(self, src, dst):
         '''
         High-level convenience method to copy from src on iDevice to
         dst on local filesystem.
@@ -372,22 +372,21 @@ class libiMobileDevice():
         self._instproxy_client_options_free()
         self._instproxy_client_free()
 
-    def get_preferences(self, requested_items=[
-                                                'DeviceClass',
-                                                'DeviceColor',
-                                                'DeviceName',
-                                                'FirmwareVersion',
-                                                'HardwareModel',
-                                                'ModelNumber',
-                                                'PasswordProtected',
-                                                'ProductType',
-                                                'ProductVersion',
-                                                'SerialNumber',
-                                                'TimeZone',
-                                                'TimeZoneOffsetFromUTC',
-                                                'UniqueDeviceID',
-                                                'TimeIntervalSince1970',
-                                                ]):
+    def get_preferences(self, requested_items=(
+        'DeviceClass',
+        'DeviceColor',
+        'DeviceName',
+        'FirmwareVersion',
+        'HardwareModel',
+        'ModelNumber',
+        'PasswordProtected',
+        'ProductType',
+        'ProductVersion',
+        'SerialNumber',
+        'TimeIntervalSince1970',
+        'TimeZone',
+        'TimeZoneOffsetFromUTC',
+        'UniqueDeviceID')):
         '''
         Get a partial list device-specific information
         See _lockdown_get_value() for all known items
