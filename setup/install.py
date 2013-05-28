@@ -54,7 +54,7 @@ class Develop(Command):
             via the --prefix option.
             ''')
     short_description = 'Setup a development environment for calibre'
-    MODE = 0755
+    MODE = 0o755
 
     sub_commands = ['build', 'resources', 'iso639', 'gui',]
 
@@ -65,7 +65,6 @@ class Develop(Command):
             dest='postinstall', default=True,
             help='Don\'t run post install actions like creating MAN pages, setting'+
                     ' up desktop integration and so on')
-
 
     def add_options(self, parser):
         parser.add_option('--prefix',
@@ -114,7 +113,6 @@ class Develop(Command):
             self.info('INSTALL paths:')
             self.info('\tLIB:', self.staging_libdir)
             self.info('\tSHARE:', self.staging_sharedir)
-
 
     def pre_sub_commands(self, opts):
         if not (islinux or isbsd):
@@ -287,12 +285,14 @@ class Sdist(Command):
         if not self.e(self.d(self.DEST)):
             os.makedirs(self.d(self.DEST))
         tdir = tempfile.mkdtemp()
-        tdir = self.j(tdir, 'calibre')
         atexit.register(shutil.rmtree, tdir)
-        self.info('\tRunning bzr export...')
-        subprocess.check_call(['bzr', 'export', '--format', 'dir', tdir])
-        for x in open('.bzrignore').readlines():
-            if not x.startswith('resources/'): continue
+        tdir = self.j(tdir, 'calibre')
+        self.info('\tRunning git export...')
+        os.mkdir(tdir)
+        subprocess.check_call('git archive master | tar -x -C ' + tdir, shell=True)
+        for x in open('.gitignore').readlines():
+            if not x.startswith('resources/'):
+                continue
             p = x.strip().replace('/', os.sep)
             for p in glob.glob(p):
                 d = self.j(tdir, os.path.dirname(p))
@@ -304,7 +304,8 @@ class Sdist(Command):
                     shutil.copy2(p, d)
         for x in os.walk(os.path.join(self.SRC, 'calibre')):
             for f in x[-1]:
-                if not f.endswith('_ui.py'): continue
+                if not f.endswith('_ui.py'):
+                    continue
                 f = os.path.join(x[0], f)
                 f = os.path.relpath(f)
                 dest = os.path.join(tdir, self.d(f))
@@ -317,5 +318,6 @@ class Sdist(Command):
     def clean(self):
         if os.path.exists(self.DEST):
             os.remove(self.DEST)
+
 
 
