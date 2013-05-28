@@ -1,8 +1,8 @@
 from __future__ import with_statement
 __license__ = 'GPL 3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
+__copyright__ = '2013, dhiru <dhirendralal@yahoo.com>'
 
-import re
+import time
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class TheHindu(BasicNewsRecipe):
@@ -14,40 +14,41 @@ class TheHindu(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
 
-    remove_tags_before = {'name':'font', 'class':'storyhead'}
-    preprocess_regexps = [
-                (re.compile(r'<!-- story ends -->.*', re.DOTALL),
-                 lambda match: '</body></html>'),
-                          ]
-    extra_css = '''
-                .storyhead{font-family:Arial,Helvetica,sans-serif; font-size:large; color:#000099;}
-                body{font-family:Verdana,Arial,Helvetica,sans-serif; font-size:x-small; text-align:left;}
-                '''
-    feeds          = [
-     (u'Main - Latest News', u'http://www.thehindubusinessline.com/rss/blnus.xml'),
-       (u'Main - Front Page', u'http://www.thehindubusinessline.com/rss/14hdline.xml'),
-      (u'Main - Corporate', u'http://www.thehindubusinessline.com/rss/02hdline.xml'),
-      (u'Main - Market', u'http://www.thehindubusinessline.com/rss/05hdline.xml'),
-      (u'Main - Opinion', u'http://www.thehindubusinessline.com/rss/04hdline.xml'),
-      (u'Main - Infotech', u'http://www.thehindubusinessline.com/rss/15hdline.xml'),
-      (u'Main - Marketing', u'http://www.thehindubusinessline.com/rss/19hdline.xml'),
-      (u'Main - Money & banking',
-       u'http://www.thehindubusinessline.com/rss/06hdline.xml'),
-      (u'Main - Agri & Commodities', u'http://www.thehindubusinessline.com/rss/07hdline.xml'),
-      (u'Industry',
-       u'http://www.thehindubusinessline.com/rss/03hdline.xml'),
-      (u'Logistic',
-       u'http://www.thehindubusinessline.com/rss/09hdline.xml'),
-      (u'Result', u'http://www.thehindubusinessline.com/rss/26hdline.xml'),
-      (u'Government',
-       u'http://www.thehindubusinessline.com/rss/27hdline.xml'),
-      (u'Investment World',
-       u'http://www.thehindubusinessline.com/rss/iw20hdline.xml'),
-      (u'Supplement - Life',
-       u'http://www.thehindubusinessline.com/rss/lf10hdline.xml')
-      ]
+    keep_only_tags = [dict(id='content')]
+    remove_tags = [dict(attrs={'class':['article-links', 'breadcr']}),
+            dict(id=['email-section', 'right-column', 'printfooter', 'topover',
+                     'slidebox', 'th_footer'])]
+
+    extra_css = '.photo-caption { font-size: smaller }'
+
+    def preprocess_raw_html(self, raw, url):
+        return raw.replace('<body><p>', '<p>').replace('</p></body>', '</p>')
 
     def postprocess_html(self, soup, first_fetch):
         for t in soup.findAll(['table', 'tr', 'td','center']):
             t.name = 'div'
         return soup
+
+    def parse_index(self):
+        today = time.strftime('%Y-%m-%d')
+        soup = self.index_to_soup(
+                'http://www.thehindubusinessline.com/todays-paper/tp-index/?date=' + today)
+        div = soup.find(id='left-column')
+        feeds = []
+        current_section = None
+        current_articles = []
+        for x in div.findAll(['h3', 'div']):
+            if current_section and x.get('class', '') == 'tpaper':
+                a = x.find('a', href=True)
+                if a is not None:
+                    current_articles.append({'url':a['href']+'?css=print',
+                        'title':self.tag_to_string(a), 'date': '',
+                        'description':''})
+            if x.name == 'h3':
+                if current_section and current_articles:
+                    feeds.append((current_section, current_articles))
+                current_section = self.tag_to_string(x)
+                current_articles = []
+        return feeds
+
+
