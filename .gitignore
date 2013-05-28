@@ -1,4 +1,7 @@
 *_ui.py
+*.pyc
+*.pyo
+.bzr
 .check-cache.pickle
 src/calibre/plugins
 resources/images.qrc

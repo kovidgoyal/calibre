@@ -1,0 +1,38 @@
+# Tell git what files are txt
+*.py  text
+*.recipe  text
+*.coffee  text
+*.js      text
+*.pot     text
+*.po      text
+*.html    text
+*.css     text
+*.htm     text
+*.rst     text
+*.md      text
+*.txt     text
+*.session text
+*.cfg     text
+*.yaml    text
+*.svg     text
+*.xml     text
+*.xsl     text
+*.tmpl    text
+*.qrc     text
+*.bat     eol=crlf
+*.sh      text
+*.xhtml   text
+
+# Tell git what files are binary
+*.zip     binary
+*.epub    binary
+*.jpg     binary
+*.jpeg    binary
+*.png     binary
+*.gif     binary
+*.pickle  binary
+*.pdf     binary
+
+# Prevent certain files from being exported:
+.gitattributes  export-ignore
+.gitignore      export-ignore
