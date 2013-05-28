@@ -3,7 +3,7 @@ import re
 
 class dotnetMagazine (BasicNewsRecipe):
     __author__ = u'Bonni Salles'
-    __version__ = '1.0'
+    __version__ = '1.1'
     __license__   = 'GPL v3'
     __copyright__ = u'2013, Bonni Salles'
     title                 = '.net magazine'
@@ -11,6 +11,7 @@ class dotnetMagazine (BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'utf8'
     use_embedded_content  = False
+    # recursion = 1
     language              = 'en'
     remove_empty_feeds    = True
     extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } img{margin-bottom: 0.4em} '
@@ -22,16 +23,25 @@ class dotnetMagazine (BasicNewsRecipe):
     remove_tags = [
          dict(name='div', attrs={'class': 'item-list'}),
          dict(name='h4', attrs={'class': 'std-hdr'}),
-         dict(name='div', attrs={'class': 'item-list share-links'}), #removes share links
+         dict(name='div', attrs={'class': 'item-list share-links'}),  # removes share links
          dict(name=['script', 'noscript']),
-         dict(name='div', attrs={'id': 'comments-form'}), #comment these out if you want the comments to show
+         dict(name='div', attrs={'id': 'comments-form'}),  # comment these out if you want the comments to show
          dict(name='div', attrs={'id': re.compile('advertorial_block_($|| )')}),
          dict(name='div', attrs={'id': 'right-col'}),
-         dict(name='div', attrs={'id': 'comments'}), #comment these out if you want the comments to show
+         dict(name='div', attrs={'id': 'comments'}),  # comment these out if you want the comments to show
          dict(name='div', attrs={'class': 'item-list related-content'}),
 
          ]
 
     feeds = [
-               (u'net', u'http://feeds.feedburner.com/net/topstories')
+               (u'net', u'http://feeds.feedburner.com/net/topstories?format=xml')
             ]
+
+    def skip_ad_pages(self, soup):
+        text = soup.find(text='click here to continue to article')
+        if text:
+            a = text.parent
+            url = a.get('href')
+            if url:
+                return self.index_to_soup(url, raw=True)
+
