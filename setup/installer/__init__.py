@@ -15,7 +15,7 @@ BASE_RSYNC = ['rsync', '-avz', '--delete', '--force']
 EXCLUDES = []
 for x in [
     'src/calibre/plugins', 'src/calibre/manual', 'src/calibre/trac',
-    '.bzr', '.build', '.svn', 'build', 'dist', 'imgsrc', '*.pyc', '*.pyo', '*.swp',
+    '.bzr', '.git', '.build', '.svn', 'build', 'dist', 'imgsrc', '*.pyc', '*.pyo', '*.swp',
     '*.swo', 'format_docs']:
     EXCLUDES.extend(['--exclude', x])
 SAFE_EXCLUDES = ['"%s"'%x if '*' in x else x for x in EXCLUDES]
@@ -31,7 +31,7 @@ def is_vm_running(name):
         try:
             cmdline = open(os.path.join('/proc', pid, 'cmdline'), 'rb').read()
         except IOError:
-            continue # file went away
+            continue  # file went away
         if 'vmware-vmx' in cmdline and pat in cmdline:
             return True
     return False
@@ -76,7 +76,6 @@ class Push(Command):
             thread.join()
 
 
-
 class VMInstaller(Command):
 
     EXTRA_SLEEP = 5
@@ -102,7 +101,6 @@ class VMInstaller(Command):
                 action='store_true', help='Dont shutdown the VM after building')
         if not parser.has_option('--vm'):
             parser.add_option('--vm', help='Path to VM launcher script')
-
 
     def get_build_script(self):
         rs = ['export RSYNC_PASSWORD=%s'%get_rsync_pw()]
@@ -133,9 +131,9 @@ class VMInstaller(Command):
             while 'vmblock' in open('/proc/modules').read():
                 subprocess.check_call('sudo rmmod -f vmblock')
 
-
     def run_vm(self):
-        if is_vm_running(self.VM_CHECK or self.VM_NAME): return
+        if is_vm_running(self.VM_CHECK or self.VM_NAME):
+            return
         self.__p = subprocess.Popen([self.vm])
 
     def start_vm(self, sleep=75):
@@ -182,3 +180,4 @@ class VMInstaller(Command):
         installer = self.installer()
         if os.path.exists(installer):
             os.remove(installer)
+
