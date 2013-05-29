@@ -234,7 +234,7 @@ class UploadToServer(Command): # {{{
                 shell=True)
         check_call('scp dist/calibre-*.tar.xz.asc divok:%s/signatures/'%DOWNLOADS,
                 shell=True)
-        check_call('ssh divok bzr update /usr/local/calibre',
+        check_call('ssh divok /usr/local/bin/update-calibre',
                    shell=True)
         check_call('''ssh divok echo %s \\> %s/latest_version'''\
                    %(__version__, DOWNLOADS), shell=True)
