@@ -1,0 +1,38 @@
+__license__ = 'GPL v3'
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class TawernaRPG(BasicNewsRecipe):
+    title          = u'Tawerna RPG'
+    __author__        = 'fenuks'
+    description   = u'Tawerna RPG to ogólnopolski serwis zajmujący się fantastyką i grami fantastycznymi. Znajdziesz u nas zarówno gry fabularne, karciane, planszowe i komputerowe, a także recenzje, opowiadania i sporą dawkę humoru.'
+    category       = 'fantasy, rpg, board games'
+    #publication_type = ''
+    language       = 'pl'
+    #encoding = ''
+    extra_css = '.slajd {list-style-type: none; padding-left: 0px; margin-left: 0px;} .lewanc {float: left; margin-right: 5px;} .srodek {display: block; margin-left: auto; margin-right: auto;}'
+    cover_url = 'http://www.tawerna.rpg.pl/img/logo.png'
+    #masthead_url = ''
+    preprocess_regexps = [(re.compile(ur'<h2>Dodaj komentarz</h2>.*</body>', re.DOTALL|re.IGNORECASE), lambda match: '</body>')]
+    use_embedded_content = False
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    remove_javascript = True
+    remove_attributes = ['style', 'font']
+    ignore_duplicate_articles = {'title', 'url'}
+
+    keep_only_tags = [dict(id='site')]
+    remove_tags = [dict(id=['player', 'komentarz'])]
+    remove_tags_after = dict(id='komentarz')
+    #remove_tags_before = dict()
+
+    feeds = [(u'Artykuły', 'http://www.tawerna.rpg.pl/css/rss.rss')]
+
+    def preprocess_html(self, soup):
+        for r in soup.findAll(attrs={'class':'powi'}):
+            r.parent.extract()
+        for c in soup.findAll(name=['li', 'ol', 'ul']):
+            c.name = 'div'
+        return soup

@@ -1,0 +1,43 @@
+__license__ = 'GPL v3'
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Poltergeist(BasicNewsRecipe):
+    title          = u'Poltergeist'
+    __author__        = 'fenuks'
+    description   = u'Największy polski serwis poświęcony ogólno pojętej fantastyce - grom fabularnym (RPG), książkom, filmowi, komiksowi, grom planszowym, karcianym i bitewnym.'
+    category       = 'fantasy, books, rpg, games'
+    #publication_type = ''
+    language       = 'pl'
+    #encoding = ''
+    extra_css = '.image, .floatright {float: right; margin-left: 10px;} .floatleft {float: left; margin-right: 10px;}'
+    cover_url = 'http://static.polter.pl/sub/promo/bpromo2524.jpg'
+    #masthead_url = ''
+    use_embedded_content = False
+    oldest_article = 7
+    preprocess_regexps = [(re.compile(ur'<div[^>]*?id="pol_lista"[^>]*?>.*</body>', re.DOTALL|re.IGNORECASE), lambda match: '</body>'), (re.compile(ur'<a[^>]*?>wersja do druku</a>', re.DOTALL|re.IGNORECASE), lambda match: '')]
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    remove_javascript = True
+    remove_attributes = ['style', 'font']
+    ignore_duplicate_articles = {'title', 'url'}
+
+    keep_only_tags = [dict(attrs={'class':'boxcontent'})]
+    remove_tags = [dict(attrs={'class':'fb-like'}), dict(attrs={'alt':'Wersja do druku'}), dict(id='pol_liczba'), dict(attrs={'scr':'http://static.polter.pl/tplimg/buttons/ceneo_140_40.gif'})]
+    remove_tags_after = dict(attrs={'class':'fb-like'})
+    #remove_tags_before = dict()
+
+    feeds = [(u'Wieści', 'http://polter.pl/wiesci,rss.html'), (u'RPG', 'http://rpg.polter.pl/wiesci,rss.html'), (u'Książki', 'http://ksiazki.polter.pl/wiesci,rss.html'), (u'Film', 'http://film.polter.pl/wiesci,rss.html'), (u'Komiks', 'http://komiks.polter.pl/wiesci,rss.html'), (u'Gry bitewne', 'http://bitewniaki.polter.pl/wiesci,rss.html'), (u'Gry karciane', 'http://karcianki.polter.pl/wiesci,rss.html'), (u'Gry planszowe', 'http://planszowki.polter.pl/wiesci,rss.html'), (u'Gry PC', 'http://gry.polter.pl/wiesci,rss.html'), (u'Gry konsolowe', 'http://konsole.polter.pl/wiesci,rss.html'), (u'Konwenty', 'http://konwenty.polter.pl/wiesci,rss.html'), (u'Blogi', 'http://polter.pl/blogi,rss.html')]
+
+    def preprocess_html(self, soup):
+        for s in soup.findAll(attrs={'style':re.compile('float: ?left')}):
+            s['class'] = 'floatleft'
+        for s in soup.findAll(attrs={'style':re.compile('float: ?right')}):
+            s['class'] = 'floatright'
+        tag = soup.find(id='twoja_ocena')
+        if tag:
+            tag.parent.extract()
+        for tag in soup.findAll(id='lista_chce_ile'):
+            tag.parent.parent.extract()
+        return soup

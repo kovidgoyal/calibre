@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Comment
-
+import re
 class Gazeta_Wyborcza(BasicNewsRecipe):
     title = u'Gazeta Wyborcza'
     __author__ = 'fenuks, Artur Stachecki'
@@ -9,7 +9,7 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
     description = 'Wiadomości z Polski i ze świata. Serwisy tematyczne i lokalne w 20 miastach.'
     category = 'newspaper'
     publication_type = 'newspaper'
-    #encoding = 'iso-8859-2'
+    # encoding = 'iso-8859-2'
     masthead_url = 'http://bi.gazeta.pl/im/5/10285/z10285445AA.jpg'
     INDEX = 'http://wyborcza.pl'
     remove_empty_feeds = True
@@ -19,10 +19,18 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     ignore_duplicate_articles = {'title', 'url'}
-    remove_tags_before = dict(id='k0')
-    remove_tags_after = dict(id='banP4')
-    remove_tags = [dict(name='div', attrs={'class':'rel_box'}), dict(attrs={'class':['date', 'zdjP', 'zdjM', 'pollCont', 'rel_video', 'brand', 'txt_upl']}), dict(name='div', attrs={'id':'footer'})]
-    feeds = [(u'Kraj', u'http://rss.feedsportal.com/c/32739/f/530266/index.rss'), (u'\u015awiat', u'http://rss.feedsportal.com/c/32739/f/530270/index.rss'),
+
+    # rules for gazeta.pl
+    preprocess_regexps = [(re.compile(u'<b>Czytaj więcej</b>.*', re.DOTALL), lambda m: '</body>')]
+    keep_only_tags = [dict(id='gazeta_article')]
+    remove_tags = [dict(id=['gazeta_article_tools', 'gazeta_article_miniatures']), dict(attrs={'class':['mod mod_sociallist', 'c0', 'fb', 'voteNeedLogin']})]
+    remove_tags_after = dict(id='gazeta_article_body')
+
+    # rules for wyborcza.biz
+    preprocess_regexps.append((re.compile(u'(<br>)?(<br>)?        Czytaj (także|też):.*?</a>\.?<br>', re.DOTALL), lambda m: ''))
+
+    feeds = [(u'Kraj', u'http://rss.feedsportal.com/c/32739/f/530266/index.rss'),
+             (u'\u015awiat', u'http://rss.feedsportal.com/c/32739/f/530270/index.rss'),
              (u'Wyborcza.biz', u'http://wyborcza.biz/pub/rss/wyborcza_biz_wiadomosci.htm'),
              (u'Komentarze', u'http://rss.feedsportal.com/c/32739/f/530312/index.rss'),
              (u'Kultura', u'http://rss.gazeta.pl/pub/rss/gazetawyborcza_kultura.xml'),
@@ -39,86 +47,55 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
              (u'\u015aroda w \u015brod\u0119', u'http://rss.feedsportal.com/c/32739/f/530428/index.rss'),
              (u'W pi\u0105tek - Olejnik', u'http://rss.feedsportal.com/c/32739/f/530364/index.rss'),
              (u'Nekrologi', u'http://rss.feedsportal.com/c/32739/f/530358/index.rss')
-             ]
-
-    def skip_ad_pages(self, soup):
-        tag = soup.find(name='a', attrs={'class': 'btn'})
-        if tag:
-            new_soup = self.index_to_soup(tag['href'], raw=True)
-            return new_soup
-
-    def append_page(self, soup, appendtag):
-        loop = False
-        tag = soup.find('div', attrs={'id': 'Str'})
-        if appendtag.find('div', attrs={'id': 'Str'}):
-            nexturl = tag.findAll('a')
-            appendtag.find('div', attrs={'id': 'Str'}).extract()
-            loop = True
-            if appendtag.find(id='source'):
-                appendtag.find(id='source').extract()
-        while loop:
-            loop = False
-            for link in nexturl:
-                if u'następne' in link.string:
-                    url = self.INDEX + link['href']
-                    soup2 = self.index_to_soup(url)
-                    pagetext = soup2.find(id='artykul')
-                    comments = pagetext.findAll(text=lambda text:isinstance(text, Comment))
-                    for comment in comments:
-                        comment.extract()
-                    pos = len(appendtag.contents)
-                    appendtag.insert(pos, pagetext)
-                    tag = soup2.find('div', attrs={'id': 'Str'})
-                    nexturl = tag.findAll('a')
-                    loop = True
-
-    def gallery_article(self, appendtag):
-        tag = appendtag.find(id='container_gal')
-        if tag:
-            nexturl = appendtag.find(id='gal_btn_next').a['href']
-            appendtag.find(id='gal_navi').extract()
-        while nexturl:
-            soup2 = self.index_to_soup(nexturl)
-            pagetext = soup2.find(id='container_gal')
-            nexturl = pagetext.find(id='gal_btn_next')
-            if nexturl:
-                nexturl = nexturl.a['href']
-                comments = pagetext.findAll(text=lambda text:isinstance(text, Comment))
-                for comment in comments:
-                    comment.extract()
-                pos = len(appendtag.contents)
-                appendtag.insert(pos, pagetext)
-            rem = appendtag.find(id='gal_navi')
-            if rem:
-                rem.extract()
-
-    def preprocess_html(self, soup):
-        if soup.find(attrs={'class': 'piano_btn_1'}):
-            return None
-        else:
-            self.append_page(soup, soup.body)
-            if soup.find(id='container_gal'):
-                self.gallery_article(soup.body)
-            return soup
+            ]
 
     def print_version(self, url):
-        if url.count('rss.feedsportal.com'):
-            u = url.find('wyborcza0Bpl')
-            u = 'http://www.wyborcza.pl/' + url[u + 11:]
+        if 'feedsportal.com' in url:
+            s = url.rpartition('wyborcza0Bpl')
+            u = s[2]
+            if not s[0]:
+                u = url.rpartition('gazeta0Bpl')[2]
+            u = u.replace('/l/', '/')
+            u = u.replace('/ia1.htm', '')
+            u = u.replace('/story01.htm', '')
             u = u.replace('0C', '/')
             u = u.replace('A', '')
             u = u.replace('0E', '-')
             u = u.replace('0H', ',')
             u = u.replace('0I', '_')
             u = u.replace('0B', '.')
-            u = u.replace('/1,', '/2029020,')
-            u = u.replace('/story01.htm', '')
-            print(u)
+            u = self.INDEX + u
             return u
-        elif 'http://wyborcza.pl/1' in url:
-            return url.replace('http://wyborcza.pl/1', 'http://wyborcza.pl/2029020')
         else:
-            return url.replace('http://wyborcza.biz/biznes/1', 'http://wyborcza.biz/biznes/2029020')
+            return url
+
+    def preprocess_html(self, soup):
+        tag = soup.find(id='Str')
+        if soup.find(attrs={'class': 'piano_btn_1'}):
+            return None
+        elif tag and tag.findAll('a'):
+            self.append_page(soup, soup.body)
+        return soup
+
+    def append_page(self, soup, appendtag):
+        tag = soup.find('div', attrs={'id': 'Str'})
+        try:
+            baseurl = soup.find(name='meta', attrs={'property':'og:url'})['content']
+        except:
+            return 1
+        link = tag.findAll('a')[-1]
+        while link:
+            soup2 = self.index_to_soup(baseurl + link['href'])
+            link = soup2.find('div', attrs={'id': 'Str'}).findAll('a')[-1]
+            if not u'następne' in link.string:
+                link = ''
+            pagetext = soup2.find(id='artykul')
+            comments = pagetext.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
+            pos = len(appendtag.contents)
+            appendtag.insert(pos, pagetext)
+        tag.extract()
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://wyborcza.pl/0,76762,3751429.html')
@@ -127,6 +104,9 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
         self.cover_url = 'http://wyborcza.pl' + soup.img['src']
         return getattr(self, 'cover_url', self.cover_url)
 
-    '''def image_url_processor(self, baseurl, url):
-        print "@@@@@@@@", url
-        return url.replace('http://wyborcza.pl/ ', '')'''
+    def image_url_processor(self, baseurl, url):
+        if url.startswith(' '):
+            return url.strip()
+        else:
+            return url
+

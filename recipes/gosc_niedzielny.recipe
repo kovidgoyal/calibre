@@ -13,7 +13,7 @@ class GN(BasicNewsRecipe):
 
         __author__ = 'Piotr Kontek, Tomasz Długosz'
         title = u'Gość Niedzielny'
-        description = 'Ogólnopolski tygodnik katolicki'
+        description = 'Ogólnopolski tygodnik katolicki - fragmenty artykułów z poprzedniego numeru'
         encoding = 'utf-8'
         no_stylesheets = True
         language = 'pl'
@@ -33,7 +33,7 @@ class GN(BasicNewsRecipe):
                 a = soup.find('div',attrs={'class':'release-wp-b'}).find('a')
                 articles = [
                             {'title' : self.tag_to_string(a),
-                             'url'   : 'http://www.gosc.pl' + a['href'].replace('/doc/','/doc_pr/')
+                             'url'   : 'http://www.gosc.pl' + a['href']
                             }]
                 feeds.append((u'Wstępniak',articles))
                 #kategorie
@@ -71,12 +71,11 @@ class GN(BasicNewsRecipe):
 
         def preprocess_html(self, soup):
             self.append_page(soup, soup.body)
-            '''
-            for image_div in soup.findAll(attrs={'class':'doc_image'}):
-                link =
-                if 'm.jpg' in image['src']:
-                    image['src'] = image['src'].replace('m.jpg', '.jpg')
-            '''
+            return soup
+
+        def postprocess_html(self, soup, first_fetch):
+            for r in soup.findAll(attrs={'class':'pgr'}):
+                r.extract()
             return soup
 
         keep_only_tags = [
@@ -85,12 +84,14 @@ class GN(BasicNewsRecipe):
 
         remove_tags = [
             dict(name='p', attrs={'class':['r tr', 'l l-2', 'wykop']}),
-            dict(name='div', attrs={'class':['doc_actions', 'pgr', 'fr1_cl']}),
-            dict(name='div', attrs={'id':'vote'})
+            dict(name='div', attrs={'class':['doc_actions', 'cf', 'fr1_cl']}),
+            dict(name='div', attrs={'id':'vote'}),
+            dict(name='a', attrs={'class':'img_enlarge'})
         ]
 
         extra_css = '''
             h1 {font-size:150%}
-            div#doc_image {font-style:italic; font-size:70%}
             p.limiter {font-size:150%; font-weight: bold}
+            span.cm-i-a {text-transform:uppercase;}
+            span.cm-i-p {font-style:italic; font-size:70%}
         '''

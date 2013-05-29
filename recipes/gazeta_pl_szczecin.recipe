@@ -1,8 +1,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 import re
-import string
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Comment
 
 class GazetaPlSzczecin(BasicNewsRecipe):
     title          = u'Gazeta Wyborcza Szczecin'
@@ -12,24 +12,74 @@ class GazetaPlSzczecin(BasicNewsRecipe):
     language       = 'pl'
     publisher      = 'Agora S.A.'
     category       = 'news, szczecin'
-    oldest_article = 2
+    INDEX = 'http://szczecin.gazeta.pl'
+    cover_url = 'http://bi.gazeta.pl/i/hp/hp2009/logo.gif'
+    remove_empty_feeds = True
+    oldest_article = 3
     max_articles_per_feed = 100
-    auto_cleanup   = True
-    remove_tags    = [ { "name" : "a", "attrs" : { "href" : "http://szczecin.gazeta.pl/szczecin/www.gazeta.pl" }}]
-    cover_url      = "http://bi.gazeta.pl/i/hp/hp2009/logo.gif"
+    remove_javascript = True
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'title', 'url'}
+
+    # rules for gazeta.pl
+    preprocess_regexps = [(re.compile(u'<b>Czytaj więcej</b>.*', re.DOTALL), lambda m: '</body>')]
+    keep_only_tags = [dict(id='gazeta_article')]
+    remove_tags = [dict(id=['gazeta_article_tools', 'gazeta_article_miniatures']), dict(attrs={'class':['mod mod_sociallist', 'c0', 'fb', 'voteNeedLogin']})]
+    remove_tags_after = dict(id='gazeta_article_body')
     feeds          = [(u'Wszystkie', u'http://rss.feedsportal.com/c/32739/f/530434/index.rss')]
 
-    def get_article_url(self, article):
-        s = re.search("""/0L(szczecin.*)/story01.htm""", article.link)
-        s = s.group(1)
-        replacements = { "0B" : ".", "0C" : "/", "0H" : ",", "0I"  : "_"}
-        for (a, b) in replacements.iteritems():
-            s = string.replace(s, a, b)
-        s = string.replace(s, "0A", "0")
-        return "http://"+s
-
     def print_version(self, url):
-        s = re.search("""/(\d*),(\d*),(\d*),.*\.html""", url)
-        no1 = s.group(2)
-        no2 = s.group(3)
-        return """http://szczecin.gazeta.pl/szczecin/2029020,%s,%s.html""" % (no1, no2)
+        if 'feedsportal.com' in url:
+            s = url.rpartition('gazeta0Bpl')
+            u = s[2]
+            if not s[0]:
+                u = url.rpartition('wyborcza0Bpl')[2]
+            u = u.replace('/l/', '/')
+            u = u.replace('/ia1.htm', '')
+            u = u.replace('/story01.htm', '')
+            u = u.replace('0C', '/')
+            u = u.replace('A', '')
+            u = u.replace('0E', '-')
+            u = u.replace('0H', ',')
+            u = u.replace('0I', '_')
+            u = u.replace('0B', '.')
+            u = self.INDEX + u
+            return u
+        else:
+            return url
+
+    def preprocess_html(self, soup):
+        tag = soup.find(id='Str')
+        if soup.find(attrs={'class': 'piano_btn_1'}):
+            return None
+        elif tag and tag.findAll('a'):
+            self.append_page(soup, soup.body)
+        return soup
+
+    def append_page(self, soup, appendtag):
+        tag = soup.find('div', attrs={'id': 'Str'})
+        try:
+            baseurl = soup.find(name='meta', attrs={'property':'og:url'})['content']
+        except:
+            return 1
+        link = tag.findAll('a')[-1]
+        while link:
+            soup2 = self.index_to_soup(baseurl + link['href'])
+            link = soup2.find('div', attrs={'id': 'Str'}).findAll('a')[-1]
+            if not u'następne' in link.string:
+                link = ''
+            pagetext = soup2.find(id='artykul')
+            comments = pagetext.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
+            pos = len(appendtag.contents)
+            appendtag.insert(pos, pagetext)
+        tag.extract()
+
+    def image_url_processor(self, baseurl, url):
+        if url.startswith(' '):
+            return url.strip()
+        else:
+            return url
+

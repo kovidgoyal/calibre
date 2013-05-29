@@ -1,0 +1,33 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+class Pikoboard(BasicNewsRecipe):
+    title = u'Pikoboard.pl'
+    __author__ = 'fenuks'
+    description = u'Portal poświęcony takim urządzeniom jak: Raspberry Pi, XBMC, ODROID-X, BeagleBoard czy CuBox. Systemy operacyjne, modyfikacje oraz obudowy i innego rodzaju dodatki.'
+    category = 'IT, open source, Linux, Raspberry Pi'
+    language = 'pl'
+    cover_url = 'http://picoboard.pl/wp-content/themes/portal/img/logo.jpg'
+    extra_css = 'img.alignleft {float: left; margin-right: 5px;}'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    use_embedded_content = False
+    keep_only_tags = [dict(id=['dzial', 'posts'])]
+    remove_tags = [dict(attrs={'class':'post-comments'})]
+    remove_tags_after = dict(attrs={'class':'entry clr'})
+    feeds = [(u'Newsy', u'http://picoboard.pl/feed/atom/'), (u'Artyku\u0142y', u'http://picoboard.pl/category/artykuly/feed/')]
+
+    def append_page(self, soup, appendtag):
+        tag = appendtag.find(attrs={'id':'paginacja'})
+        if tag:
+            for nexturl in tag.findAll('a'):
+                soup2 = self.index_to_soup(nexturl['href'])
+                pagetext = soup2.find(attrs={'class':'entry clr'})
+                pos = len(appendtag.contents)
+                appendtag.insert(pos, pagetext)
+            for r in appendtag.findAll(attrs={'id':'paginacja'}):
+                r.extract()
+
+    def preprocess_html(self, soup):
+         self.append_page(soup, soup.body)
+         return soup

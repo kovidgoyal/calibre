@@ -4,10 +4,9 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class IHNed(BasicNewsRecipe):
 
-
     stahnout_vsechny = True
-        #True   = stahuje vsechny z homepage
-        #False  = stahuje pouze dnesni clanky (ze dne, kdy je skript spusten)
+        # True   = stahuje vsechny z homepage
+        # False  = stahuje pouze dnesni clanky (ze dne, kdy je skript spusten)
 
     title       = 'iHNed'
     __author__  = 'Karel Bílek'
@@ -28,38 +27,33 @@ class IHNed(BasicNewsRecipe):
       'linearize_tables' : True,
     }
 
-
-
     def preprocess_html(self, soup):
 
         def makeurl(wat):
-            return "http://ihned.cz"+wat;
+            return "http://ihned.cz"+wat
 
         for h1 in soup.findAll('h1'):
-             a = h1.find('a')
-             if a:
-                 string = a.string
-                 if string:
-                     soup.a.replaceWith(string)
+            a = h1.find('a')
+            if a:
+                string = a.string
+                if string:
+                    soup.a.replaceWith(string)
         for a in soup.findAll('a',  href=True) :
             cil = str(a['href'])
-            if cil.startswith("/") or  cil.startswith("index"):
+            if cil.startswith("/") or cil.startswith("index"):
                 a['href'] = makeurl(cil)
         return soup
-
 
     def parse_index(self):
 
         def makeurl(wat):
-            if wat.startswith("/") or  wat.startswith("index"):
-                return "http://ihned.cz"+wat;
+            if wat.startswith("/") or wat.startswith("index"):
+                return "http://ihned.cz"+wat
             else:
                 return wat
 
-
-        articles = {} #vysledek, asi
-        key = None #soucasna sekce
-        ans = [] #vsechny sekce
+        articles = {}  # vysledek, asi
+        ans = []  # vsechny sekce
 
         articles["Hlavní"] = []
         ans.append("Hlavní")
@@ -70,12 +64,11 @@ class IHNed(BasicNewsRecipe):
             articles[name] = []
             ans.append(name)
 
-
             soup = self.index_to_soup(url)
             otvirak = soup.find(True, attrs={'class':['otv']})
             if otvirak:
 
-                #the code is copypasted here because I don't know python. simple as that.
+                # the code is copypasted here because I don't know python. simple as that.
                 a = otvirak.find('a', href=True)
                 title = self.tag_to_string(a, use_alt=True).strip()
                 txt = otvirak.find(True, attrs={'class':['txt']})
@@ -98,13 +91,13 @@ class IHNed(BasicNewsRecipe):
                     a = ow.find('a', href=True)
                     title = self.tag_to_string(a, use_alt=True).strip()
                     description=''
-                    prx = ow.find(True, attrs={'class':['prx']});
+                    prx = ow.find(True, attrs={'class':['prx']})
                     if prx:
                         description = str(prx.string)
-                    nfo = ow.find(True, attrs={'class':['nfo']});
+                    nfo = ow.find(True, attrs={'class':['nfo']})
                     pubdate = ''
                     if nfo:
-                        dtime = time.localtime();
+                        dtime = time.localtime()
                         day = dtime[2]
                         month = dtime[1]
 
@@ -118,11 +111,6 @@ class IHNed(BasicNewsRecipe):
                                       dict(title=title, url=makeurl(a['href']), date=pubdate,
                                             description=description,
                                             content=''))
-
-
-
-
-
 
         soup = self.index_to_soup('http://ihned.cz/')
         otvirak = soup.find(True, attrs={'class':['otv']})
@@ -150,7 +138,7 @@ class IHNed(BasicNewsRecipe):
                 a = otv2.find('a', attrs={'class':['tit2']}, href=True)
                 title = self.tag_to_string(a, use_alt=True).strip()
                 description=''
-                span = otv2.find('span');
+                span = otv2.find('span')
                 if span:
                     match = re.match(r'<span>\s*([^<]*)\s*<a', str(span), re.L)
                     if match:
@@ -163,20 +151,19 @@ class IHNed(BasicNewsRecipe):
                                 content=''))
                 was[title]=1
 
-
         parse_subpage("http://komentare.ihned.cz/", "Komentáře")
         parse_subpage("http://domaci.ihned.cz", "Domácí")
         parse_subpage("http://ekonomika.ihned.cz", "Ekonomika")
-        parse_subpage("http://zahranicni.ihned.cz/", "Zahraničí");
-        parse_subpage("http://finweb.ihned.cz/", "Finance");
-        parse_subpage("http://digiweb.ihned.cz/", "DigiWeb");
+        parse_subpage("http://zahranicni.ihned.cz/", "Zahraničí")
+        parse_subpage("http://finweb.ihned.cz/", "Finance")
+        parse_subpage("http://digiweb.ihned.cz/", "DigiWeb")
         parse_subpage("http://kultura.ihned.cz/", "Kultura")
-        parse_subpage("http://sport.ihned.cz/", "Sport");
+        parse_subpage("http://sport.ihned.cz/", "Sport")
 
-        #seradi kategorie
+        # seradi kategorie
         ans = self.sort_index_by(ans, {'Hlavni':1, 'Domácí':2, 'Ekonomika':5, 'Zahraničí':3, 'Finance':6, 'DigiWeb':7, 'Kultura':8, 'Sport':9, 'Komentáře':4})
 
-        #vrati, ale pouze, kdyz je v kategoriich...
-        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
+        # vrati, ale pouze, kdyz je v kategoriich...
+        ans = [(key, articles[key]) for key in ans if key in articles]
         return ans
 

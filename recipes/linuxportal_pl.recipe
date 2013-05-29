@@ -1,0 +1,62 @@
+__license__ = 'GPL v3'
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class LinuxPortal(BasicNewsRecipe):
+    title          = u'LinuxPortal'
+    __author__        = 'fenuks'
+    description   = u'Na LinuxPortal.pl znajdziesz wiadomości o systemie Linux, open source oraz Androidzie.'
+    category       = 'it'
+    #publication_type = ''
+    language       = 'pl'
+    #encoding = ''
+    #extra_css = ''
+    cover_url = 'http://www.linuxportal.pl/templates/css/loga/Linuxportal.gif'
+    masthead_url = 'http://www.linuxportal.pl/templates/css/loga/Linuxportal.gif'
+    use_embedded_content = False
+    oldest_article = 7
+    max_articles_per_feed = 20
+    no_stylesheets = True
+    remove_empty_feeds = True
+    remove_javascript = True
+    remove_attributes = ['style', 'font']
+    ignore_duplicate_articles = {'title', 'url'}
+    auto_cleanup = True
+    #keep_only_tags = [dict()]
+    #remove_tags = [dict()]
+    #remove_tags_after = dict()
+    #remove_tags_before = dict()
+
+    def parse_index(self):
+         feeds = []
+         feeds.append((u'Wszystkie wiadomości', self.get_articles('http://www.linuxportal.pl/news/wszystkie')))
+         return feeds
+
+    def get_articles(self, url):
+        articles = []
+        blacklist = {'dobreprogramy.pl', 'osworld.pl', 'osnews.pl',}
+        nexturl = url
+        counter = 0
+        skip = False
+        while counter < self.max_articles_per_feed:
+            soup = self.index_to_soup(nexturl)
+            nexturl = soup.find(attrs={'title':'Starsze wyniki'})['href']
+            for tag in soup.findAll(attrs={'class':'lista_wizyt_kol_tytul_news'}):
+                title = tag.h2.a.string
+                url = tag.find(attrs={'class':'linkzrodlo'})['href']
+                date = ''
+                for item in blacklist:
+                    if item in url:
+                        counter -= 1
+                        skip = True
+                        break
+                if skip:
+                    skip = False
+                    continue
+
+                articles.append({'title' : title,
+                       'url'   : url,
+                       'date'  : date,
+                       'description' : ''
+                        })
+                counter += 1
+        return articles

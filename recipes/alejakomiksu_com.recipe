@@ -1,0 +1,37 @@
+__license__ = 'GPL v3'
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AlejaKomiksu(BasicNewsRecipe):
+    title          = u'Aleja Komiksu'
+    __author__        = 'fenuks'
+    description   = u'Serwis poświęcony komiksom. Najnowsze wieści, recenzje, artykuły, wywiady, galerie, komiksy online, konkursy, linki, baza komiksów online.'
+    category       = 'comics'
+    #publication_type = ''
+    language       = 'pl'
+    #encoding = ''
+    extra_css = 'ul {list-style-type: none;} .gfx_news {float: right;}'
+    preprocess_regexps = [(re.compile(ur'((<li class="no_img_b">(Do poczytania)|(Nowości):</li>)|(<p class="head2">Komentarze</p>)).*</body>', re.DOTALL|re.IGNORECASE), lambda match: '</body>')]
+    cover_url = 'http://www.alejakomiksu.com/gfx/build/logo.png'
+    masthead_url = 'http://www.alejakomiksu.com/gfx/build/logo.png'
+    use_embedded_content = False
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    remove_javascript = True
+    remove_attributes = ['style', 'font']
+    ignore_duplicate_articles = {'title', 'url'}
+
+    keep_only_tags = [dict(attrs={'class':'cont_tresc'})]
+    #remove_tags = [dict()]
+    #remove_tags_before = dict()
+
+    feeds = [(u'Wiadomości', 'http://www.alejakomiksu.com/rss.php5')]
+
+    def skip_ad_pages(self, soup):
+        tag = soup.find(attrs={'class':'rodzaj'})
+        if tag and tag.a.string.lower().strip() == 'recenzje':
+            link = soup.find(text=re.compile('recenzuje'))
+            if link:
+                return self.index_to_soup(link.parent['href'], raw=True)
