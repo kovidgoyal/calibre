@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, re, os, platform
+import sys, re, os, platform, subprocess
 
 is64bit = platform.architecture()[0] == '64bit'
 iswindows = re.search('win(32|64)', sys.platform)
@@ -21,6 +21,24 @@ sys.resources_location = os.path.join(os.path.dirname(SRC), 'resources')
 sys.extensions_location = os.path.join(SRC, 'calibre', 'plugins')
 
 __version__ = __appname__ = modules = functions = basenames = scripts = None
+
+def require_git_master():
+    if subprocess.check_output(['git', 'symbolic-ref', '--short', 'HEAD']).strip() != 'master':
+        print >>sys.stderr, 'You must be in the master git branch'
+        raise SystemExit(1)
+
+def require_clean_git():
+    c = subprocess.check_call
+    p = subprocess.Popen
+    with open(os.devnull, 'wb') as null:
+        c('git rev-parse --verify HEAD'.split(), stdout=null)
+        c('git update-index -q --ignore-submodules --refresh'.split())
+        if p('git diff-files --quiet --ignore-submodules'.split()).wait() != 0:
+            print >>sys.stderr, 'You have unstaged changes in your working tree'
+            raise SystemExit(1)
+        if p('git diff-index --cached --quiet --ignore-submodules HEAD --'.split()).wait() != 0:
+            print >>sys.stderr, 'Your git index contains uncommitted changes'
+            raise SystemExit(1)
 
 def initialize_constants():
     global __version__, __appname__, modules, functions, basenames, scripts
@@ -158,7 +176,6 @@ class Command(object):
         self.running(cmd)
         cmd.run(opts)
 
-
     def run_all(self, opts):
         self.run_cmd(self, opts)
 
@@ -171,10 +188,8 @@ class Command(object):
 
         command.add_options(parser)
 
-
     def add_all_options(self, parser):
         self.add_command_options(self, parser)
-
 
     def run(self, opts):
         pass
@@ -228,5 +243,6 @@ def installer_name(ext, is64bit=False):
     if is64bit:
         ans = ans.replace('i686', 'x86_64')
     return ans
+
 
 

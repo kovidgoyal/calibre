@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, tempfile, shutil, subprocess, glob, re, time, textwrap
 from functools import partial
 
-from setup import Command, __appname__, __version__
+from setup import Command, __appname__, __version__, require_git_master
 
 def qt_sources():
     qtdir = glob.glob('/usr/src/qt-*')[-1]
@@ -20,8 +20,24 @@ def qt_sources():
 
 class POT(Command):  # {{{
 
-    description = 'Update the .pot translation template'
-    PATH = os.path.join(Command.SRC, __appname__, 'translations')
+    description = 'Update the .pot translation template and upload it'
+    POT_PATH = os.path.join(__appname__, 'translations')
+    PATH = os.path.join(Command.SRC, POT_PATH)
+    LP_SRC = os.path.join(os.path.dirname(os.path.dirname(Command.SRC)), 'calibre-translations', 'src')
+    LP_PATH = os.path.join(LP_SRC, POT_PATH)
+
+    def upload_pot(self, pot):
+        upot = os.path.join(self.LP_PATH, os.path.basename(pot))
+        with open(pot, 'rb') as src, open(upot, 'wb') as dest:
+            shutil.copyfileobj(src, dest)
+        if subprocess.check_output(['git', 'status', '-z', pot]):
+            # pot has changed
+            msg = 'Updated translations template'
+            subprocess.check_call(['bzr', 'commit', '-m', msg, upot])
+            subprocess.check_call(['git', 'commit', '-m', msg, pot])
+            subprocess.check_call(['git', 'push'])
+        else:
+            print ('No updated translations')
 
     def source_files(self):
         ans = []
@@ -64,6 +80,7 @@ class POT(Command):  # {{{
         return '\n'.join(ans)
 
     def run(self, opts):
+        require_git_master()
         pot_header = textwrap.dedent('''\
         # Translation template file..
         # Copyright (C) %(year)s Kovid Goyal
@@ -115,6 +132,7 @@ class POT(Command):  # {{{
             with open(pot, 'wb') as f:
                 f.write(src)
             self.info('Translations template:', os.path.abspath(pot))
+            self.upload_pot(os.path.abspath(pot))
 
         return pot
 # }}}
@@ -241,11 +259,12 @@ class GetTranslations(Translations):  # {{{
 
     description = 'Get updated translations from Launchpad'
     BRANCH = 'lp:~kovid/calibre/translations'
+    LP_BASE = os.path.dirname(POT.LP_SRC)
+    CMSG = 'Updated translations'
 
     @property
     def modified_translations(self):
-        raw = subprocess.Popen(['bzr', 'status', '-S', self.PATH],
-                stdout=subprocess.PIPE).stdout.read().strip()
+        raw = subprocess.check_output(['bzr', 'status', '-S', self.LP_PATH]).strip()
         ans = []
         for line in raw.splitlines():
             line = line.strip()
@@ -255,34 +274,49 @@ class GetTranslations(Translations):  # {{{
 
     def resolve_conflicts(self):
         conflict = False
-        for line in subprocess.check_output(['bzr', 'status']).splitlines():
+        for line in subprocess.check_output(['bzr', 'status'], cwd=self.LP_BASE).splitlines():
             if line == 'conflicts:':
                 conflict = True
                 break
         if not conflict:
             raise Exception('bzr merge failed and no conflicts found')
-        subprocess.check_call(['bzr', 'resolve', '--take-other'])
+        subprocess.check_call(['bzr', 'resolve', '--take-other'], cwd=self.LP_BASE)
 
     def run(self, opts):
+        require_git_master()
         if not self.modified_translations:
             try:
-                subprocess.check_call(['bzr', 'merge', self.BRANCH])
+                subprocess.check_call(['bzr', 'merge', self.BRANCH], cwd=self.LP_BASE)
             except subprocess.CalledProcessError:
                 self.resolve_conflicts()
         self.check_for_errors()
 
         if self.modified_translations:
             subprocess.check_call(['bzr', 'commit', '-m',
-                'IGN:Updated translations'])
+                self.CMSG], cwd=self.LP_BASE)
+            self.copy_translations()
         else:
             print('No updated translations available')
+
+    def copy_translations(self):
+        changed = set()
+        for src in glob.glob(os.path.join(self.LP_PATH, '*.po')):
+            dest = os.path.join(self.PATH, os.path.basename(src))
+            with open(src, 'rb') as fsrc, open(dest, 'wb') as fdst:
+                shutil.copyfileobj(fsrc, fdst)
+            if subprocess.check_output(['git', 'status', '-z', dest]):
+                changed.add(dest)
+        if changed:
+            subprocess.check_call(['git', 'commit', '--author', 'Translators',
+                                   '-m', self.CMSG] + list(changed))
+            subprocess.check_call(['git', 'push'])
 
     def check_for_errors(self):
         errors = os.path.join(tempfile.gettempdir(), 'calibre-translation-errors')
         if os.path.exists(errors):
             shutil.rmtree(errors)
         os.mkdir(errors)
-        pofilter = ('pofilter', '-i', self.PATH, '-o', errors,
+        pofilter = ('pofilter', '-i', self.LP_PATH, '-o', errors,
                 '-t', 'accelerators', '-t', 'escapes', '-t', 'variables',
                 #'-t', 'xmltags',
                 #'-t', 'brackets',
@@ -305,8 +339,8 @@ class GetTranslations(Translations):  # {{{
                     f.truncate()
                     f.write(raw)
 
-            subprocess.check_call(['pomerge', '-t', self.PATH, '-i', errors, '-o',
-                self.PATH])
+            subprocess.check_call(['pomerge', '-t', self.LP_PATH, '-i', errors, '-o',
+                self.LP_PATH])
             return True
         return False
 

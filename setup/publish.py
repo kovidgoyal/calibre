@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, shutil, subprocess, glob
 
-from setup import Command, __appname__, __version__
+from setup import Command, __appname__, __version__, require_clean_git, require_git_master
 
 
 class Stage1(Command):
@@ -59,6 +59,10 @@ class Publish(Command):
 
     description = 'Publish a new calibre release'
     sub_commands = ['stage1', 'stage2', 'stage3', 'stage4', 'stage5', ]
+
+    def pre_sub_commands(self, opts):
+        require_git_master()
+        require_clean_git()
 
 class Manual(Command):
 
