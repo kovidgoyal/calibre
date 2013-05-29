@@ -18,7 +18,7 @@ from calibre import prints, force_unicode, as_unicode
 
 single_shot = partial(QTimer.singleShot, 75)
 
-class DuplicatesAdder(QObject): # {{{
+class DuplicatesAdder(QObject):  # {{{
 
     added = pyqtSignal(object)
     adding_done = pyqtSignal()
@@ -49,7 +49,7 @@ class DuplicatesAdder(QObject): # {{{
 
 # }}}
 
-class RecursiveFind(QThread): # {{{
+class RecursiveFind(QThread):  # {{{
 
     update = pyqtSignal(object)
     found  = pyqtSignal(object)
@@ -95,7 +95,7 @@ class RecursiveFind(QThread): # {{{
 
 # }}}
 
-class DBAdder(QObject): # {{{
+class DBAdder(QObject):  # {{{
 
     def __init__(self, parent, db, ids, nmap):
         QObject.__init__(self, parent)
@@ -185,8 +185,8 @@ class DBAdder(QObject): # {{{
                 with open(cover, 'rb') as f:
                     cover = f.read()
             orig_formats = formats
-            formats = [f for f in formats if not f.lower().endswith('.opf')]
-            if prefs['add_formats_to_existing']: #automerge is on
+            formats = [f2 for f2 in formats if not f2.lower().endswith('.opf')]
+            if prefs['add_formats_to_existing']:  # automerge is on
                 identical_book_list = self.db.find_identical_books(mi)
                 if identical_book_list:  # books with same author and nearly same title exist in db
                     self.merged_books.add(mi.title)
@@ -221,7 +221,7 @@ class DBAdder(QObject): # {{{
                     self.number_of_books_added += 1
                     self.add_formats(id_, formats)
 
-            else: #automerge is off
+            else:  # automerge is off
                 id_ = self.db.create_book_entry(mi, cover=cover, add_duplicates=False)
                 if id_ is None:
                     self.duplicates.append((mi, cover, orig_formats))
@@ -244,9 +244,9 @@ class DBAdder(QObject): # {{{
 
 # }}}
 
-class Adder(QObject): # {{{
+class Adder(QObject):  # {{{
 
-    ADD_TIMEOUT = 900 # seconds (15 minutes)
+    ADD_TIMEOUT = 900  # seconds (15 minutes)
 
     def __init__(self, parent, db, callback, spare_server=None):
         QObject.__init__(self, parent)
@@ -385,7 +385,6 @@ class Adder(QObject): # {{{
         if self.continue_updating:
             single_shot(self.update)
 
-
     def process_duplicates(self):
         duplicates = self.db_adder.duplicates
         if not duplicates:
@@ -427,7 +426,6 @@ class Adder(QObject): # {{{
             del self.db_adder
             self.db_adder = None
 
-
     @property
     def number_of_books_added(self):
         return getattr(getattr(self, 'db_adder', None), 'number_of_books_added',
@@ -459,7 +457,7 @@ class Adder(QObject): # {{{
 
 # }}}
 
-class Saver(QObject): # {{{
+class Saver(QObject):  # {{{
 
     def __init__(self, parent, db, callback, rows, path, opts,
             spare_server=None):
@@ -489,7 +487,6 @@ class Saver(QObject): # {{{
         self.continue_updating = True
         single_shot(self.update)
 
-
     def canceled(self):
         self.continue_updating = False
         if self.worker is not None:
@@ -498,7 +495,6 @@ class Saver(QObject): # {{{
         if not self.callback_called:
             self.callback(self.worker.path, self.failures, self.worker.error)
             self.callback_called = True
-
 
     def update(self):
         if not self.continue_updating:
@@ -523,14 +519,13 @@ class Saver(QObject): # {{{
                     # Give the worker time to clean up and set worker.error
                     self.worker.join(2)
                 except:
-                    pass # The worker was not yet started
+                    pass  # The worker was not yet started
                 self.callback_called = True
                 self.callback(self.worker.path, self.failures, self.worker.error)
 
         if self.continue_updating:
             self.get_result()
             single_shot(self.update)
-
 
     def get_result(self):
         try:
@@ -548,4 +543,5 @@ class Saver(QObject): # {{{
         if not ok:
             self.failures.add((title, tb))
 # }}}
+
 

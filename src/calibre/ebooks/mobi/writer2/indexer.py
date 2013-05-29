@@ -15,7 +15,7 @@ from collections import OrderedDict, defaultdict
 from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex,
         encode_tbs, align_block, RECORD_SIZE, CNCX as CNCX_)
 
-class CNCX(CNCX_): # {{{
+class CNCX(CNCX_):  # {{{
 
     def __init__(self, toc, is_periodical):
         strings = []
@@ -30,7 +30,7 @@ class CNCX(CNCX_): # {{{
         CNCX_.__init__(self, strings)
 # }}}
 
-class TAGX(object): # {{{
+class TAGX(object):  # {{{
 
     BITMASKS = {11:0b1}
     BITMASKS.update({x:(1 << i) for i, x in enumerate([1, 2, 3, 4, 5, 21, 22, 23])})
@@ -105,8 +105,7 @@ class IndexEntry(object):
             'author_offset': 71,
 
     }
-    RTAG_MAP = {v:k for k, v in TAG_VALUES.iteritems()}
-
+    RTAG_MAP = {v:k for k, v in TAG_VALUES.iteritems()}  # noqa
 
     def __init__(self, offset, label_offset):
         self.offset, self.label_offset = offset, label_offset
@@ -131,8 +130,10 @@ class IndexEntry(object):
 
     @dynamic_property
     def size(self):
-        def fget(self): return self.length
-        def fset(self, val): self.length = val
+        def fget(self):
+            return self.length
+        def fset(self, val):
+            self.length = val
         return property(fget=fget, fset=fset, doc='Alias for length')
 
     @property
@@ -237,7 +238,7 @@ class SecondaryIndexEntry(IndexEntry):
 
 # }}}
 
-class TBS(object): # {{{
+class TBS(object):  # {{{
 
     '''
     Take the list of index nodes starting/ending on a record and calculate the
@@ -383,7 +384,6 @@ class TBS(object): # {{{
                     buf.write(encode_tbs(last_article.index-next_sec.index,
                         {0b1000: 0}))
 
-
                 # If a section TOC starts and extends into the next record add
                 # a trailing vwi. We detect this by TBS type==3, processing last
                 # section present in the record, and the last article in that
@@ -424,7 +424,7 @@ class TBS(object): # {{{
 
 # }}}
 
-class Indexer(object): # {{{
+class Indexer(object):  # {{{
 
     def __init__(self, serializer, number_of_text_records,
             size_of_last_text_record, masthead_offset, is_periodical,
@@ -460,8 +460,10 @@ class Indexer(object): # {{{
             for node in oeb.toc.iterdescendants():
                 if node.klass == 'article':
                     aut, desc = node.author, node.description
-                    if not aut: aut = _('Unknown')
-                    if not desc: desc = _('No details available')
+                    if not aut:
+                        aut = _('Unknown')
+                    if not desc:
+                        desc = _('No details available')
                     node.author, node.description = aut, desc
 
         self.cncx = CNCX(oeb.toc, self.is_periodical)
@@ -485,7 +487,7 @@ class Indexer(object): # {{{
 
         self.calculate_trailing_byte_sequences()
 
-    def create_index_record(self, secondary=False): # {{{
+    def create_index_record(self, secondary=False):  # {{{
         header_length = 192
         buf = StringIO()
         indices = list(SecondaryIndexEntry.entries()) if secondary else self.indices
@@ -509,9 +511,9 @@ class Indexer(object): # {{{
         header = b'INDX'
         buf.seek(0), buf.truncate(0)
         buf.write(pack(b'>I', header_length))
-        buf.write(b'\0'*4) # Unknown
-        buf.write(pack(b'>I', 1)) # Header type? Or index record number?
-        buf.write(b'\0'*4) # Unknown
+        buf.write(b'\0'*4)  # Unknown
+        buf.write(pack(b'>I', 1))  # Header type? Or index record number?
+        buf.write(b'\0'*4)  # Unknown
         # IDXT block offset
         buf.write(pack(b'>I', header_length + len(index_block)))
         # Number of index entries
@@ -529,7 +531,7 @@ class Indexer(object): # {{{
         return ans
     # }}}
 
-    def create_header(self, secondary=False): # {{{
+    def create_header(self, secondary=False):  # {{{
         buf = StringIO()
         if secondary:
             tagx_block = TAGX().secondary
@@ -551,13 +553,13 @@ class Indexer(object): # {{{
         buf.write(pack(b'>I', 2))
 
         # IDXT offset 20-24
-        buf.write(pack(b'>I', 0)) # Filled in later
+        buf.write(pack(b'>I', 0))  # Filled in later
 
         # Number of index records 24-28
         buf.write(pack(b'>I', 1 if secondary else len(self.records)))
 
         # Index Encoding 28-32
-        buf.write(pack(b'>I', 65001)) # utf-8
+        buf.write(pack(b'>I', 65001))  # utf-8
 
         # Unknown 32-36
         buf.write(b'\xff'*4)
@@ -620,7 +622,7 @@ class Indexer(object): # {{{
         return align_block(buf.getvalue())
     # }}}
 
-    def create_book_index(self): # {{{
+    def create_book_index(self):  # {{{
         indices = []
         seen = set()
         id_offsets = self.serializer.id_offsets
@@ -652,7 +654,6 @@ class Indexer(object): # {{{
                 next_offset = self.serializer.body_end_offset
             index.length = next_offset - index.offset
 
-
         # Remove empty indices
         indices = [x for x in indices if x.length > 0]
 
@@ -672,7 +673,7 @@ class Indexer(object): # {{{
 
     # }}}
 
-    def create_periodical_index(self): # {{{
+    def create_periodical_index(self):  # {{{
         periodical_node = iter(self.oeb.toc).next()
         periodical_node_offset = self.serializer.body_start_offset
         periodical_node_size = (self.serializer.body_end_offset -
@@ -727,7 +728,7 @@ class Indexer(object): # {{{
                         if ii > -1:
                             article.image_index = ii
                     except KeyError:
-                        pass # Image not found in serializer
+                        pass  # Image not found in serializer
 
             if normalized_articles:
                 normalized_articles.sort(key=lambda x:x.offset)
@@ -884,4 +885,5 @@ class Indexer(object): # {{{
     # }}}
 
 # }}}
+
 

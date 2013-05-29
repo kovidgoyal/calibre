@@ -114,7 +114,7 @@ class FB2Input(InputFormatPlugin):
                     break
 
         opf = OPFCreator(os.getcwdu(), mi)
-        entries = [(f, guess_type(f)[0]) for f in os.listdir(u'.')]
+        entries = [(f2, guess_type(f)[0]) for f2 in os.listdir(u'.')]
         opf.create_manifest(entries)
         opf.create_spine([u'index.xhtml'])
         if cpath:
@@ -127,7 +127,7 @@ class FB2Input(InputFormatPlugin):
         from calibre.ebooks.fb2 import base64_decode
         self.binary_map = {}
         for elem in doc.xpath('./*'):
-            if elem.text and 'binary' in elem.tag and elem.attrib.has_key('id'):
+            if elem.text and 'binary' in elem.tag and 'id' in elem.attrib:
                 ct = elem.get('content-type', '')
                 fname = elem.attrib['id']
                 ext = ct.rpartition('/')[-1].lower()
@@ -145,4 +145,5 @@ class FB2Input(InputFormatPlugin):
                 else:
                     with open(fname, 'wb') as f:
                         f.write(data)
+
 

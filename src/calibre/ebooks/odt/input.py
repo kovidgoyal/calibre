@@ -64,7 +64,8 @@ class Extract(ODF2XHTML):
             f.write(css.encode('utf-8'))
 
     def get_css_for_class(self, cls):
-        if not cls: return None
+        if not cls:
+            return None
         for rule in self.css.cssRules.rulesOfType(CSSRule.STYLE_RULE):
             for sel in rule.selectorList:
                 q = sel.selectorText
@@ -94,7 +95,7 @@ class Extract(ODF2XHTML):
                 style = div.attrib.get('style', '')
                 if style and not style.endswith(';'):
                     style = style + ';'
-                style += 'position:static' # Ensures position of containing
+                style += 'position:static'  # Ensures position of containing
                                            # div is static
                 # Ensure that the img is always contained in its frame
                 div.attrib['style'] = style
@@ -112,7 +113,8 @@ class Extract(ODF2XHTML):
         for img in imgpath(root):
             div2 = img.getparent()
             div1 = div2.getparent()
-            if (len(div1), len(div2)) != (1, 1): continue
+            if (len(div1), len(div2)) != (1, 1):
+                continue
             cls = div1.get('class', '')
             first_rules = filter(None, [self.get_css_for_class(x) for x in
                 cls.split()])
@@ -150,7 +152,6 @@ class Extract(ODF2XHTML):
                 # effect
                 style = div2.attrib['style']
                 div2.attrib['style'] = 'display:inline;'+style
-
 
     def filter_css(self, root, log):
         style = root.xpath('//*[local-name() = "style" and @type="text/css"]')
@@ -236,7 +237,7 @@ class Extract(ODF2XHTML):
         self.lines = []
         self._wfunc = self._wlines
         if isinstance(odffile, basestring) \
-                or hasattr(odffile, 'read'): # Added by Kovid
+                or hasattr(odffile, 'read'):  # Added by Kovid
             self.document = odLoad(odffile)
         else:
             self.document = odffile
@@ -282,12 +283,13 @@ class Extract(ODF2XHTML):
             zf = ZipFile(stream, 'r')
             self.extract_pictures(zf)
             opf = OPFCreator(os.path.abspath(os.getcwdu()), mi)
-            opf.create_manifest([(os.path.abspath(f), None) for f in
+            opf.create_manifest([(os.path.abspath(f2), None) for f2 in
                 walk(os.getcwdu())])
             opf.create_spine([os.path.abspath('index.xhtml')])
             with open('metadata.opf', 'wb') as f:
                 opf.render(f)
             return os.path.abspath('metadata.opf')
+
 
 
 

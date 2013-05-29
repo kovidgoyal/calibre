@@ -22,7 +22,7 @@ class WeeklyLWN(BasicNewsRecipe):
     remove_javascript = True
 
     cover_url = site_url + '/images/lcorner.png'
-    #masthead_url = 'http://lwn.net/images/lcorner.png'
+    # masthead_url = 'http://lwn.net/images/lcorner.png'
     publication_type = 'magazine'
 
     remove_tags_before = dict(attrs={'class':'PageHeadline'})
@@ -83,9 +83,9 @@ class WeeklyLWN(BasicNewsRecipe):
         subsection = None
 
         while True:
-            curr = curr.findNext(attrs = {'class': ['SummaryHL', 'Cat1HL', 'Cat2HL'] })
+            curr = curr.findNext(attrs={'class': ['SummaryHL', 'Cat1HL', 'Cat2HL']})
 
-            if curr == None:
+            if curr is None:
                 break
 
             text = curr.contents[0].string
@@ -106,7 +106,7 @@ class WeeklyLWN(BasicNewsRecipe):
                     section_title = section
 
                 # Most articles have anchors in their titles, *except* the security vulnerabilities
-                article_anchor = curr.findNext(name = 'a', attrs = { 'href': re.compile('^/Articles/') } )
+                article_anchor = curr.findNext(name='a', attrs={'href': re.compile('^/Articles/')})
 
                 if article_anchor:
                     article_url = article_anchor.get('href')
@@ -134,10 +134,11 @@ class WeeklyLWN(BasicNewsRecipe):
             else:
                 print >>sys.stderr, "lwn_weekly.recipe: something bad happened; should not be able to reach this"
 
-        ans = [(section, articles[section]) for section in ans if section in articles]
-        #from pprint import pprint
-        #pprint(ans)
+        ans = [(section2, articles[section2]) for section2 in ans if section2 in articles]
+        # from pprint import pprint
+        # pprint(ans)
 
         return ans
 
 # vim: expandtab:ts=4:sw=4
+

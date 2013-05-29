@@ -22,7 +22,7 @@ from calibre.gui2 import error_dialog
 
 IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png', 'bmp']
 
-class Worker(Thread): # {{{
+class Worker(Thread):  # {{{
 
     def __init__(self, url, fpath, rq):
         Thread.__init__(self)
@@ -44,7 +44,7 @@ class Worker(Thread): # {{{
         self.rq.put((a, b, c))
 # }}}
 
-class DownloadDialog(QDialog): # {{{
+class DownloadDialog(QDialog):  # {{{
 
     def __init__(self, url, fname, parent):
         QDialog.__init__(self, parent)
@@ -248,7 +248,7 @@ def dnd_get_files(md, exts):
         purls = [urlparse(u) for u in urls]
         # First look for a local file
         local_files = [u2p(x) for x in purls if x.scheme in ('', 'file')]
-        local_files = [ p for p in local_files if
+        local_files = [p for p in local_files if
                 posixpath.splitext(urllib.unquote(p))[1][1:].lower() in
                 exts]
         local_files = [x for x in local_files if os.path.exists(x)]
@@ -266,7 +266,7 @@ def dnd_get_files(md, exts):
         remote_urls = [x for x in purls if x.scheme in ('http', 'https',
             'ftp') and posixpath.splitext(x.path)[1][1:].lower() in exts]
         if remote_urls:
-            filenames = [posixpath.basename(urllib.unquote(rurl.path)) for rurl in
+            filenames = [posixpath.basename(urllib.unquote(rurl2.path)) for rurl2 in
                     remote_urls]
             return [urlunparse(x) for x in remote_urls], filenames
 
@@ -335,4 +335,5 @@ def get_firefox_rurl(md, exts):
 
 def has_firefox_ext(md, exts):
     return bool(get_firefox_rurl(md, exts)[0])
+
 

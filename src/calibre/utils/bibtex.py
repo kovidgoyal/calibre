@@ -77,35 +77,35 @@ utf8enc2latex_mapping = {
     # The extraction has been done by the "create_unimap.py" script
     # located at <http://docutils.sf.net/tools/dev/create_unimap.py>.
 
-    #Fix some encoding problem between cp1252 and latin1
+    # Fix some encoding problem between cp1252 and latin1
     # from http://www.microsoft.com/typography/unicode/1252.htm
-    u'\x80': '{\\texteuro}', # EURO SIGN
-    u'\x82': '{,}', # SINGLE LOW-9 QUOTATION MARK
-    u'\x83': '$f$', # LATIN SMALL LETTER F WITH HOOK
-    u'\x84': '{,,}', # DOUBLE LOW-9 QUOTATION MARK
-    u'\x85': '{\\ldots}', # HORIZONTAL ELLIPSIS
-    u'\x86': '{\\textdagger}', # DAGGER
-    u'\x87': '{\\textdaggerdbl}', # DOUBLE DAGGER
-    u'\x88': '{\textasciicircum}', # MODIFIER LETTER CIRCUMFLEX ACCENT
-    u'\x89': '{\\textperthousand}', # PER MILLE SIGN
-    u'\x8A': '{\\v{S}}', # LATIN CAPITAL LETTER S WITH CARON
-    u'\x8B': '{\\guilsinglleft}', # SINGLE LEFT-POINTING ANGLE QUOTATION MARK
-    u'\x8C': '{\\OE}', # LATIN CAPITAL LIGATURE OE
-    u'\x8E': '{\\v{Z}}', # LATIN CAPITAL LETTER Z WITH CARON
-    u'\x91': '{`}', # LEFT SINGLE QUOTATION MARK
-    u'\x92': "{'}", # RIGHT SINGLE QUOTATION MARK
-    u'\x93': '{\\textquotedblleft}', # LEFT DOUBLE QUOTATION MARK
-    u'\x94': '{\\textquotedblright}', # RIGHT DOUBLE QUOTATION MARK
-    u'\x95': '{\\textbullet}', # BULLET
-    u'\x96': '{\\textendash}', # EN DASH
-    u'\x97': '{\\textemdash}', # EM DASH
-    u'\x98': '{\\texttildelow}', # SMALL TILDE
-    u'\x99': '{\\texttrademark}', # TRADE MARK SIGN
-    u'\x9A': '{\\v{s}}', # LATIN SMALL LETTER S WITH CARON
-    u'\x9B': '{\\guilsinglright}', # SINGLE RIGHT-POINTING ANGLE QUOTATION MARK
-    u'\x9C': '{\\oe}', # LATIN SMALL LIGATURE OE
-    u'\x9E': '{\\v{z}}', # LATIN SMALL LETTER Z WITH CARON
-    u'\x9F': '{\\"{Y}}', # LATIN CAPITAL LETTER Y WITH DIAERESIS
+    u'\x80': '{\\texteuro}',  # EURO SIGN
+    u'\x82': '{,}',  # SINGLE LOW-9 QUOTATION MARK
+    u'\x83': '$f$',  # LATIN SMALL LETTER F WITH HOOK
+    u'\x84': '{,,}',  # DOUBLE LOW-9 QUOTATION MARK
+    u'\x85': '{\\ldots}',  # HORIZONTAL ELLIPSIS
+    u'\x86': '{\\textdagger}',  # DAGGER
+    u'\x87': '{\\textdaggerdbl}',  # DOUBLE DAGGER
+    u'\x88': '{\textasciicircum}',  # MODIFIER LETTER CIRCUMFLEX ACCENT
+    u'\x89': '{\\textperthousand}',  # PER MILLE SIGN
+    u'\x8A': '{\\v{S}}',  # LATIN CAPITAL LETTER S WITH CARON
+    u'\x8B': '{\\guilsinglleft}',  # SINGLE LEFT-POINTING ANGLE QUOTATION MARK
+    u'\x8C': '{\\OE}',  # LATIN CAPITAL LIGATURE OE
+    u'\x8E': '{\\v{Z}}',  # LATIN CAPITAL LETTER Z WITH CARON
+    u'\x91': '{`}',  # LEFT SINGLE QUOTATION MARK
+    u'\x92': "{'}",  # RIGHT SINGLE QUOTATION MARK
+    u'\x93': '{\\textquotedblleft}',  # LEFT DOUBLE QUOTATION MARK
+    u'\x94': '{\\textquotedblright}',  # RIGHT DOUBLE QUOTATION MARK
+    u'\x95': '{\\textbullet}',  # BULLET
+    u'\x96': '{\\textendash}',  # EN DASH
+    u'\x97': '{\\textemdash}',  # EM DASH
+    u'\x98': '{\\texttildelow}',  # SMALL TILDE
+    u'\x99': '{\\texttrademark}',  # TRADE MARK SIGN
+    u'\x9A': '{\\v{s}}',  # LATIN SMALL LETTER S WITH CARON
+    u'\x9B': '{\\guilsinglright}',  # SINGLE RIGHT-POINTING ANGLE QUOTATION MARK
+    u'\x9C': '{\\oe}',  # LATIN SMALL LIGATURE OE
+    u'\x9E': '{\\v{z}}',  # LATIN SMALL LETTER Z WITH CARON
+    u'\x9F': '{\\"{Y}}',  # LATIN CAPITAL LETTER Y WITH DIAERESIS
 
     u'\xa0': '$~$',
     u'\xa1': '{\\textexclamdown}',
@@ -2465,7 +2465,7 @@ utf8enc2latex_mapping = {
     u'\U0001d7fe': '$\\mathtt{8}$',
     u'\U0001d7ff': '$\\mathtt{9}$',
 
-    #Items from simple list
+    # Items from simple list
     u'\u0106': "{\\a\\'C}",
     u'\u0408': '{\\CYRJE}',
     u'\u20ac': '{\\texteuro}',
@@ -2796,45 +2796,45 @@ utf8enc2latex_mapping = {
     u'\u016f': '{\\r u}',
     u'\xfa': "{\\'u}"
 
-    #Items to add at a latter date (check first)
-    #u'\u0000': r'{$\alpha$}',
-    #u'\u0000': r'{$\beta$}',
-    #u'\u0000': r'{$\gamma$}',
-    #u'\u0000': r'{$\delta$}',
-    #u'\u0000': r'{$\epsilon$}',
-    #u'\u0000': r'{$\varepsilon$}',
-    #u'\u0000': r'{$\zeta$}',
-    #u'\u0000': r'{$\eta$}',
-    #u'\u0000': r'{$\theta$}',
-    #u'\u0000': r'{$\vartheta$}',
-    #u'\u0000': r'{$\iota$}',
-    #u'\u0000': r'{$\kappa$}',
-    #u'\u0000': r'{$\lambda$}',
-    #u'\u0000': r'{$\mu$}',
-    #u'\u0000': r'{$\xi$}',
-    #u'\u0000': r'{$\pi$}',
-    #u'\u0000': r'{$\varpi$}',
-    #u'\u0000': r'{$\rho$}',
-    #u'\u0000': r'{$\varrho$}',
-    #u'\u0000': r'{$\sigma$}',
-    #u'\u0000': r'{$\varsigma$}',
-    #u'\u0000': r'{$\tau$}',
-    #u'\u0000': r'{$\upsilon$}',
-    #u'\u0000': r'{$\phi$}',
-    #u'\u0000': r'{$\varphi$}',
-    #u'\u0000': r'{$\psi$}',
-    #u'\u0000': r'{$\omega$}',
-    #u'\u0000': r'{$\Gamma$}',
-    #u'\u0000': r'{$\Delta$}',
-    #u'\u0000': r'{$\Theta$}',
-    #u'\u0000': r'{$\Lambda$}',
-    #u'\u0000': r'{$\Xi$}',
-    #u'\u0000': r'{$\Pi$}',
-    #u'\u0000': r'{$\Sigma$}',
-    #u'\u0000': r'{$\Upsilon$}',
-    #u'\u0000': r'{$\Phi$}',
-    #u'\u0000': r'{$\Psi$}',
-    #u'\u0000': r'{$\Omega$}',
+    # Items to add at a latter date (check first)
+    # u'\u0000': r'{$\alpha$}',
+    # u'\u0000': r'{$\beta$}',
+    # u'\u0000': r'{$\gamma$}',
+    # u'\u0000': r'{$\delta$}',
+    # u'\u0000': r'{$\epsilon$}',
+    # u'\u0000': r'{$\varepsilon$}',
+    # u'\u0000': r'{$\zeta$}',
+    # u'\u0000': r'{$\eta$}',
+    # u'\u0000': r'{$\theta$}',
+    # u'\u0000': r'{$\vartheta$}',
+    # u'\u0000': r'{$\iota$}',
+    # u'\u0000': r'{$\kappa$}',
+    # u'\u0000': r'{$\lambda$}',
+    # u'\u0000': r'{$\mu$}',
+    # u'\u0000': r'{$\xi$}',
+    # u'\u0000': r'{$\pi$}',
+    # u'\u0000': r'{$\varpi$}',
+    # u'\u0000': r'{$\rho$}',
+    # u'\u0000': r'{$\varrho$}',
+    # u'\u0000': r'{$\sigma$}',
+    # u'\u0000': r'{$\varsigma$}',
+    # u'\u0000': r'{$\tau$}',
+    # u'\u0000': r'{$\upsilon$}',
+    # u'\u0000': r'{$\phi$}',
+    # u'\u0000': r'{$\varphi$}',
+    # u'\u0000': r'{$\psi$}',
+    # u'\u0000': r'{$\omega$}',
+    # u'\u0000': r'{$\Gamma$}',
+    # u'\u0000': r'{$\Delta$}',
+    # u'\u0000': r'{$\Theta$}',
+    # u'\u0000': r'{$\Lambda$}',
+    # u'\u0000': r'{$\Xi$}',
+    # u'\u0000': r'{$\Pi$}',
+    # u'\u0000': r'{$\Sigma$}',
+    # u'\u0000': r'{$\Upsilon$}',
+    # u'\u0000': r'{$\Phi$}',
+    # u'\u0000': r'{$\Psi$}',
+    # u'\u0000': r'{$\Omega$}',
     }
 
 entity_mapping = {
@@ -2847,7 +2847,7 @@ class BibTeX:
     def __init__(self):
         self.rep_utf8 = MReplace(utf8enc2latex_mapping)
         self.rep_ent = MReplace(entity_mapping)
-        #Set default conversion to ASCII BibTeX
+        # Set default conversion to ASCII BibTeX
         self.ascii_bibtex = True
         # This substitution is based on the description of cite key restrictions at
         # http://bibdesk.sourceforge.net/manual/BibDesk%20Help_2.html
@@ -2859,27 +2859,23 @@ class BibTeX:
     def ValidateCitationKey(self, text):
         """
         removes characters not allowed in BibTeX keys
-        >>> ValidateCitationKey(DummyEntry('my@id'))
-        'myid'
         """
         return self.invalid_cit.sub(u'', text)
 
     def braceUppercase(self, text):
         """ Convert uppercase letters to bibtex encoded uppercase
-            >>> braceUppercase('Foo Bar')
-            '{F}oo {B}ar'
         """
         return self.upper.sub(lambda m: u'{%s}' % m.group(), text)
 
     def resolveEntities(self, text):
-        #for entity, entity_map in entity_mapping.iteritems():
+        # for entity, entity_map in entity_mapping.iteritems():
         #   text = text.replace(entity, entity_map)
-        #return text
+        # return text
         return self.rep_ent.mreplace(text)
 
     def resolveUnicode(self, text):
-        #UTF-8 text as entry
-        #for unichar, latexenc in utf8enc2latex_mapping.iteritems() :
+        # UTF-8 text as entry
+        # for unichar, latexenc in utf8enc2latex_mapping.iteritems() :
         #    text = text.replace(unichar, latexenc)
         text = self.rep_utf8.mreplace(text)
         return text.replace(u'$}{$', u'')
@@ -2891,9 +2887,9 @@ class BibTeX:
         text.replace('\\', '\\\\')
         return self.escape.sub(lambda m: u'\\%s' % m.group(), text)
 
-    #Calibre functions
-    #Option to go to official ASCII Bibtex or unofficial UTF-8
-    #Go from an unicode entry to ASCII Bibtex format without encoding
+    # Calibre functions
+    # Option to go to official ASCII Bibtex or unofficial UTF-8
+    # Go from an unicode entry to ASCII Bibtex format without encoding
     def utf8ToBibtex(self, text):
         if len(text) == 0:
             return ''
@@ -2904,5 +2900,6 @@ class BibTeX:
         return self.escapeSpecialCharacters(text)
 
     def bibtex_author_format(self, item):
-        #Format authors for Bibtex compliance (get a list as input)
+        # Format authors for Bibtex compliance (get a list as input)
         return self.utf8ToBibtex(u' and '.join([author for author in item]))
+
