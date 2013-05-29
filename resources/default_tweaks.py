@@ -531,9 +531,9 @@ numeric_collation = False
 # number here. The default is ten libraries.
 many_libraries = 10
 
-#: Highlight the count of books when using a Virtual Library
-# The count of books next to the Virtual Library button is highlighted in
-# yellow when using a Virtual Library. By setting this to False, you can turn
-# that off.
-highlight_virtual_library_book_count = True
+#: Highlight the virtual library name when using a Virtual Library
+# The virtual library name next to the Virtual Library button is highlighted in
+# yellow when using a Virtual Library. You can choose the color used for the
+# highlight with this tweak. Set it to 'transparent' to disable highlighting.
+highlight_virtual_library = 'yellow'
 

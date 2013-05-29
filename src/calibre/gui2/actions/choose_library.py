@@ -67,6 +67,7 @@ class LibraryUsageStats(object):  # {{{
             self.stats[lpath] = 0
         self.stats[lpath] += 1
         self.write_stats()
+        return self.pretty(lpath)
 
     def locations(self, db):
         lpath = self.canonicalize_path(db.library_path)
@@ -159,7 +160,6 @@ class ChooseLibraryAction(InterfaceAction):
     restore_view_state = pyqtSignal(object)
 
     def genesis(self):
-        self.base_text = _('%d books')
         self.count_changed(0)
         self.action_choose = self.menuless_qaction
 
@@ -248,7 +248,15 @@ class ChooseLibraryAction(InterfaceAction):
         return self.stats.pretty(path)
 
     def library_changed(self, db):
-        self.stats.library_used(db)
+        lname = self.stats.library_used(db)
+        tooltip = self.action_spec[2] + '\n\n' + _('{0} [{1} books]').format(lname, db.count())
+        if len(lname) > 16:
+            lname = lname[:16] + u'…'
+        a = self.qaction
+        a.setText(lname)
+        a.setToolTip(tooltip)
+        a.setStatusTip(tooltip)
+        a.setWhatsThis(tooltip)
         self.build_menus()
         state = self.view_state_map.get(self.stats.canonicalize_path(
             db.library_path), None)
@@ -506,13 +514,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.switch_requested(self.qs_locations[idx])
 
     def count_changed(self, new_count):
-        text = self.base_text%new_count
-        a = self.qaction
-        a.setText(text)
-        tooltip = self.action_spec[2] + '\n\n' + text
-        a.setToolTip(tooltip)
-        a.setStatusTip(tooltip)
-        a.setWhatsThis(tooltip)
+        pass
 
     def choose_library(self, *args):
         if not self.change_library_allowed():

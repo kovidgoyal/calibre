@@ -1,8 +1,10 @@
-'''
-Created on 10 Jun 2010
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
-@author: charles
-'''
+__license__ = 'GPL v3'
+__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
 
@@ -578,17 +580,16 @@ class SearchRestrictionMixin(object):
         db = self.library_view.model().db
         if self.current_view() == self.library_view and db is not None and \
                                             db.data.search_restriction_applied():
-            rows = self.current_view().row_count()
-            rbc = max(rows, db.data.get_search_restriction_book_count())
-            t = _("({0} of {1})").format(rows, rbc)
-            if tweaks['highlight_virtual_library_book_count']:
-                self.search_count.setStyleSheet(
-                    'QLabel { border-radius: 8px; background-color: yellow; }')
+            restrictions = [x for x in (db.data.get_base_restriction_name(),
+                            db.data.get_search_restriction_name()) if x]
+            t = ' :: '.join(restrictions)
+            if len(t) > 20:
+                t = t[:19] + u'…'
+            self.search_count.setStyleSheet(
+                    'QLabel { border-radius: 6px; background-color: %s }' %
+                    tweaks['highlight_virtual_library'])
         else:  # No restriction or not library view
-            if not self.search.in_a_search():
-                t = _("(all books)")
-            else:
-                t = _("({0} of all)").format(self.current_view().row_count())
+            t = ''
             self.search_count.setStyleSheet(
                     'QLabel { background-color: transparent; }')
         self.search_count.setText(t)

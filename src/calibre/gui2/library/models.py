@@ -29,7 +29,7 @@ from calibre.gui2.library import DEFAULT_SORT
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.coloring import color_row_key
 
-Counts = namedtuple('Counts', 'total current')
+Counts = namedtuple('Counts', 'library_total total current')
 
 def human_readable(size, precision=1):
     """ Convert a size in bytes into megabytes """
@@ -285,11 +285,10 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.count_changed_signal.emit(self.db.count())
 
     def counts(self):
+        library_total = total = self.db.count()
         if self.db.data.search_restriction_applied():
             total  = self.db.data.get_search_restriction_book_count()
-        else:
-            total = self.db.count()
-        return Counts(total, self.count())
+        return Counts(library_total, total, self.count())
 
     def row_indices(self, index):
         ''' Return list indices of all cells in index.row()'''
@@ -1210,7 +1209,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         self.book_in_library = None
 
     def counts(self):
-        return Counts(len(self.db), len(self.map))
+        return Counts(len(self.db), len(self.db), len(self.map))
 
     def count_changed(self, *args):
         self.count_changed_signal.emit(len(self.db))

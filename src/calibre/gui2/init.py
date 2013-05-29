@@ -161,9 +161,11 @@ class StatusBar(QStatusBar):  # {{{
 
     def __init__(self, parent=None):
         QStatusBar.__init__(self, parent)
+        self.base_msg = '%s %s' % (__appname__, get_version())
+        self.version = get_version()
         self.device_string = ''
         self.update_label = UpdateLabel('')
-        self.total = self.current = self.selected = 0
+        self.total = self.current = self.selected = self.library_total = 0
         self.addPermanentWidget(self.update_label)
         self.update_label.setVisible(False)
         self._font = QFont()
@@ -182,7 +184,8 @@ class StatusBar(QStatusBar):  # {{{
         self.device_string = _('Connected ') + devname
         self.set_label()
 
-    def update_state(self, total, current, selected):
+    def update_state(self, library_total, total, current, selected):
+        self.library_total = library_total
         self.total, self.current, self.selected = total, current, selected
         self.set_label()
 
@@ -194,7 +197,7 @@ class StatusBar(QStatusBar):  # {{{
             traceback.print_exc()
 
     def _set_label(self):
-        msg = '%s %s %s' % (__appname__, _('version'), get_version())
+        msg = self.base_msg
         if self.device_string:
             msg += ' ..::.. ' + self.device_string
         else:
@@ -206,6 +209,8 @@ class StatusBar(QStatusBar):  # {{{
             base = _('%d books') % self.total
         if self.selected > 0:
             base = _('%(num)s, %(sel)d selected') % dict(num=base, sel=self.selected)
+        if self.library_total != self.total:
+            base = _('{0}, {1} total').format(base, self.library_total)
 
         self.defmsg.setText('%s [%s]' % (msg, base))
         self.clearMessage()
@@ -340,8 +345,8 @@ class LayoutMixin(object):  # {{{
     def update_status_bar(self, *args):
         v = self.current_view()
         selected = len(v.selectionModel().selectedRows())
-        total, current = v.model().counts()
-        self.status_bar.update_state(total, current, selected)
+        library_total, total, current = v.model().counts()
+        self.status_bar.update_state(library_total, total, current, selected)
 
 # }}}
 
