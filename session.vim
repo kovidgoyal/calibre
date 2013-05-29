@@ -22,9 +22,8 @@ fun! CalibreLog()
     " Setup buffers to edit the calibre changelog and version info prior to
     " making a release.
     enew
-    read ! git log -500
+    read ! git log "--pretty=\%an:\%n\%s\%n" -500
     setl nomodifiable noswapfile buftype=nofile
-    setl ft=git
     normal! gg
     edit Changelog.yaml
     edit src/calibre/constants.py
