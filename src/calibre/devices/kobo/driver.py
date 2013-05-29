@@ -35,7 +35,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 0, 10)
+    version = (2, 0, 11)
 
     dbversion = 0
     fwversion = 0
@@ -117,6 +117,9 @@ class KOBO(USBMS):
     def initialize(self):
         USBMS.initialize(self)
         self.dbversion = 7
+
+    def device_database_path(self):
+        return self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite')
 
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
@@ -1210,8 +1213,10 @@ class KOBOTOUCH(KOBO):
     supported_dbversion             = 80
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
+    min_dbversion_externalid        = 65
     min_dbversion_archive           = 71
     min_dbversion_images_on_sdcard  = 77
+    min_dbversion_activiy           = 77
 
     max_supported_fwversion         = (2,5,3)
     min_fwversion_images_on_sdcard  = (2,4,1)
@@ -1346,9 +1351,6 @@ class KOBOTOUCH(KOBO):
         return super(KOBOTOUCH, self).get_device_information(end_session)
 
 
-    def device_database_path(self):
-        return self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite')
-
     def books(self, oncard=None, end_session=True):
         debug_print("KoboTouch:books - oncard='%s'"%oncard)
         from calibre.ebooks.metadata.meta import path_to_ext
@@ -1391,7 +1393,8 @@ class KOBOTOUCH(KOBO):
         bl = self.booklist_class(oncard, prefix, self.settings)
 
         opts = self.settings()
-        debug_print(opts.extra_customization)
+        debug_print("KoboTouch:books - opts.extra_customization=", opts.extra_customization)
+        debug_print("KoboTouch:books - prefs['manage_device_metadata']=", prefs['manage_device_metadata'])
         if opts.extra_customization:
             debugging_title = opts.extra_customization[self.OPT_DEBUGGING_TITLE]
             debug_print("KoboTouch:books - set_debugging_title to '%s'" % debugging_title )
@@ -1618,12 +1621,24 @@ class KOBOTOUCH(KOBO):
             debug_print("KoboTouch:books - shelf list:", self.bookshelvelist)
 
             opts = self.settings()
+            
+            columns = 'Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ImageID, ReadStatus'
+            if self.dbversion >= 16:
+                columns += ', ___ExpirationStatus, FavouritesIndex, Accessibility'
+            else:
+                columns += ', "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility'
+            if self.dbversion >= 33:
+                columns += ', IsDownloaded'
+            else:
+                columns += ', "1" as IsDownloaded'
+            if self.supports_series():
+                columns += ", Series, SeriesNumber, ___UserID, ExternalId"
+            else:
+                columns += ', null as Series, null as SeriesNumber, ___UserID, null as ExternalId'
+            
+            where_clause = ''
             if self.supports_kobo_archive():
-                query= ("select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, " \
-                    "ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, " \
-                    "IsDownloaded, Series, SeriesNumber, ___UserID " \
-                    " from content " \
-                    " where BookID is Null " \
+                where_clause = (" where BookID is Null " \
                     " and ((Accessibility = -1 and IsDownloaded in ('true', 1 )) or (Accessibility in (1,2) %(expiry)s) " \
                     "    %(previews)s %(recomendations)s )" \
                     " and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) and ContentType = 6)") % \
@@ -1633,42 +1648,37 @@ class KOBOTOUCH(KOBO):
                              recomendations=" or (Accessibility in (-1, 4, 6) and ___UserId = '')" if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] else "" \
                              )
             elif self.supports_series():
-                query= ("select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, " \
-                    "ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, " \
-                    "IsDownloaded, Series, SeriesNumber, ___UserID " \
-                    " from content " \
-                    " where BookID is Null " \
+                where_clause = (" where BookID is Null " \
                     " and ((Accessibility = -1 and IsDownloaded in ('true', 1)) or (Accessibility in (1,2)) %(previews)s %(recomendations)s )" \
-                    " and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s") % \
+                    " and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s)") % \
                         dict(\
-                             expiry=" and ContentType = 6)" if opts.extra_customization[self.OPT_SHOW_ARCHIVED_BOOK_RECORDS] else ")", \
+                             expiry=" and ContentType = 6" if opts.extra_customization[self.OPT_SHOW_ARCHIVED_BOOK_RECORDS] else "", \
                              previews=" or (Accessibility in (6) and ___UserID <> '')" if opts.extra_customization[self.OPT_SHOW_PREVIEWS] else "", \
                              recomendations=" or (Accessibility in (-1, 4, 6) and ___UserId = '')" if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] else "" \
                              )
             elif self.dbversion >= 33:
-                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, ' \
-                    'IsDownloaded, null as Series, null as SeriesNumber, ___UserID' \
-                    ' from content ' \
-                    ' where BookID is Null %(previews)s %(recomendations)s and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % \
+                where_clause = (' where BookID is Null %(previews)s %(recomendations)s and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s)') % \
                         dict(\
-                             expiry=' and ContentType = 6)' if opts.extra_customization[self.OPT_SHOW_ARCHIVED_BOOK_RECORDS] else ')', \
+                             expiry=' and ContentType = 6' if opts.extra_customization[self.OPT_SHOW_ARCHIVED_BOOK_RECORDS] else '', \
                              previews=' and Accessibility <> 6' if opts.extra_customization[self.OPT_SHOW_PREVIEWS] == False else '', \
                              recomendations=' and IsDownloaded in (\'true\', 1)' if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] == False else ''\
                              )
-            elif self.dbversion >= 16 and self.dbversion < 33:
-                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, ' \
-                    '"1" as IsDownloaded, null as Series, null as SeriesNumber, ___UserID' \
-                    ' from content where ' \
-                    'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
-                    if opts.extra_customization[self.OPT_SHOW_ARCHIVED_BOOK_RECORDS] else ')')
+            elif self.dbversion >= 16:
+                where_clause = (' where BookID is Null ' \
+                    'and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s)') % \
+                        dict(expiry=' and ContentType = 6' if opts.extra_customization[self.OPT_SHOW_ARCHIVED_BOOK_RECORDS] else '')
             else:
-                query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                    'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility, ' \
-                    '"1" as IsDownloaded, null as Series, null as SeriesNumber, ___UserID' \
-                    ' from content where BookID is Null'
+                where_clause = ' where BookID is Null'
 
+            # Note: The card condition should not need the contentId test for the SD card. But the ExternalId does not get set for sideloaded kepubs on the SD card.  
+            card_condition = ''
+            if self.has_externalid():
+                card_condition = " AND (externalId IS NOT NULL AND externalId <> '' OR contentId LIKE 'file:///mnt/sd/%')" if oncard == 'carda' else " AND (externalId IS NULL OR externalId = '') AND contentId NOT LIKE 'file:///mnt/sd/%'"
+            else:
+                card_condition = " AND contentId LIKE 'file:///mnt/sd/%'" if oncard == 'carda' else " AND contentId NOT LIKE'file:///mnt/sd/%'"
+                
+
+            query = 'SELECT ' + columns + ' FROM content ' + where_clause + card_condition
             debug_print("KoboTouch:books - query=", query)
             try:
                 cursor.execute (query)
@@ -1679,6 +1689,7 @@ class KOBOTOUCH(KOBO):
                         or 'Accessibility' in err
                         or 'IsDownloaded' in err
                         or 'Series' in err
+                        or 'ExternalId' in err
                         ):
                     raise
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
@@ -1698,19 +1709,17 @@ class KOBOTOUCH(KOBO):
                 if not hasattr(row[3], 'startswith') or row[3].lower().startswith("file:///usr/local/kobo/help/") or row[3].lower().startswith("/usr/local/kobo/help/"):
                     # These are internal to the Kobo device and do not exist
                     continue
-                path = self.path_from_contentid(row[3], row[5], row[4], oncard)
+                externalId = None if row[15] and len(row[15]) == 0 else row[15]
+                path = self.path_from_contentid(row[3], row[5], row[4], oncard, externalId)
                 mime = mime_type_ext(path_to_ext(path)) if path.find('kepub') == -1 else 'application/x-kobo-epub+zip'
                 # debug_print("mime:", mime)
                 if show_debug:
-                    debug_print("KoboTouch:books - path='%s'"%path, "  ContentID='%s'"%row[3])
+                    debug_print("KoboTouch:books - path='%s'"%path, "  ContentID='%s'"%row[3], " externalId=%s" % externalId)
 
                 bookshelves = get_bookshelvesforbook(connection, row[3])
 
-                if oncard != 'carda' and oncard != 'cardb' and not row[3].startswith("file:///mnt/sd/"):
-                    changed = update_booklist(self._main_prefix,   path, row[0], row[1], mime, row[2], row[3], row[5], row[6], row[7], row[4], row[8], row[9], row[10], row[11], row[12], row[13], row[14], bookshelves)
-                    # print "shortbook: " + path
-                elif oncard == 'carda' and row[3].startswith("file:///mnt/sd/"):
-                    changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[3], row[5], row[6], row[7], row[4], row[8], row[9], row[10], row[11], row[12], row[13], row[14], bookshelves)
+                prefix = self._card_a_prefix if oncard == 'carda' else self._main_prefix
+                changed = update_booklist(prefix,   path, row[0], row[1], mime, row[2], row[3], row[5], row[6], row[7], row[4], row[8], row[9], row[10], row[11], row[12], row[13], row[14], bookshelves)
 
                 if changed:
                     need_sync = True
@@ -1749,6 +1758,34 @@ class KOBOTOUCH(KOBO):
         self.report_progress(1.0, _('Getting list of books on device...'))
         debug_print("KoboTouch:books - end - oncard='%s'"%oncard)
         return bl
+
+    def path_from_contentid(self, ContentID, ContentType, MimeType, oncard, externalId):
+        path = ContentID
+
+        if not externalId:
+            return super(KOBOTOUCH, self).path_from_contentid(ContentID, ContentType, MimeType, oncard)
+
+        if oncard == 'cardb':
+            print 'path from_contentid cardb'
+        else:
+            if (ContentType == "6" or ContentType == "10"): # and MimeType == 'application/x-kobo-epub+zip':
+                if path.startswith("file:///mnt/onboard/"):
+                    path = self._main_prefix + path.replace("file:///mnt/onboard/", '')
+                elif path.startswith("file:///mnt/sd/"):
+                    path = self._card_a_prefix + path.replace("file:///mnt/sd/", '')
+                elif externalId:
+                    path = self._card_a_prefix + 'koboExtStorage/kepub/' + path
+                else:
+                    path = self._main_prefix + '.kobo/kepub/' + path
+            else:   # Should never get here, but, just in case...
+                # if path.startswith("file:///mnt/onboard/"):
+                path = path.replace("file:///mnt/onboard/", self._main_prefix)
+                path = path.replace("file:///mnt/sd/", self._card_a_prefix)
+                path = path.replace("/mnt/onboard/", self._main_prefix)
+                # print "Internal: " + path
+
+        return path
+
 
     def imagefilename_from_imageID(self, prefix, ImageID):
         show_debug = self.is_debugging_title(ImageID)
@@ -1817,8 +1854,7 @@ class KOBOTOUCH(KOBO):
             import sqlite3 as sqlite
             debug_print('KoboTouch:delete_via_sql: ContentID="%s"'%ContentID, 'ContentType="%s"'%ContentType)
             try:
-                with closing(sqlite.connect(self.normalize_path(self._main_prefix +
-                                                                '.kobo/KoboReader.sqlite'))) as connection:
+                with closing(sqlite.connect(self.device_database_path())) as connection:
                     debug_print('KoboTouch:delete_via_sql: have database connection')
                     # return bytestrings if the content cannot the decoded as unicode
                     connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
@@ -1841,6 +1877,11 @@ class KOBOTOUCH(KOBO):
                     # Remove the ratings entry
                     debug_print('KoboTouch:delete_via_sql: detete from ratings')
                     cursor.execute('delete from ratings where ContentID =?',t)
+
+                    # Remove any entries for the Activity table - removes tile from new home page
+                    if self.has_activity_table():
+                        debug_print('KoboTouch:delete_via_sql: detete from Activity')
+                        cursor.execute('delete from Activity where Id =?', t)
 
                     connection.commit()
 
@@ -2595,7 +2636,13 @@ class KOBOTOUCH(KOBO):
         return self.dbversion >= self.min_dbversion_archive
 
     def supports_covers_on_sdcard(self):
-        return self.dbversion >= 77 and self.fwversion >= self.min_fwversion_images_on_sdcard
+        return self.dbversion >= self.min_dbversion_images_on_sdcard and self.fwversion >= self.min_fwversion_images_on_sdcard
+
+    def has_externalid(self):
+        return self.dbversion >= self.min_dbversion_externalid
+
+    def has_activity_table(self):
+        return self.dbversion >= self.min_dbversion_activiy
 
     def modify_database_check(self, function):
         # Checks to see whether the database version is supported
