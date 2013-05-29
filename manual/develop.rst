@@ -70,60 +70,64 @@ Getting the code
 You can get the |app| source code in two ways, using a version control system or
 directly downloading a `tarball <http://status.calibre-ebook.com/dist/src>`_.
 
-|app| uses `Bazaar <http://bazaar-vcs.org/>`_, a distributed version control
-system. Bazaar is available on all the platforms |app| supports.  After
-installing Bazaar, you can get the |app| source code with the command::
+|app| uses `Git <http://www.git-scm.com/>`_, a distributed version control
+system. Git is available on all the platforms |app| supports.  After
+installing Git, you can get the |app| source code with the command::
 
-    bzr branch lp:calibre
+    git clone git://github.com/kovidgoyal/calibre.git
 
-On Windows you will need the complete path name, that will be something like :file:`C:\\Program Files\\Bazaar\\bzr.exe`. 
+On Windows you will need the complete path name, that will be something like :file:`C:\\Program Files\\Git\\git.exe`. 
 
 |app| is a very large project with a very long source control history, so the
 above can take a while (10mins to an hour depending on your internet speed).
 
 If you want to get the code faster, the sourcecode for the latest release is
 always available as an `archive <http://status.calibre-ebook.com/dist/src>`_.
-You can also use bzr to just download the source code, without the history,
-using::
-
-  bzr branch --stacked lp:calibre
-
 
 To update a branch to the latest code, use the command::
 
-    bzr merge
+    git pull --no-edit
 
 Submitting your changes to be included
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you only plan to make a few small changes, you can make your changes and create a
-"merge directive" which you can then attach to a ticket in the |app| bug tracker for consideration. To do
-this, make your changes, then run::
+If you only plan to make a few small changes, you can make your changes and
+create a "merge directive" which you can then attach to a ticket in the |app|
+`bug tracker <https://bugs.launchpad.net/calibre>`_. To do this, make your
+changes, then run::
 
-    bzr commit -m "Comment describing your changes"
-    bzr send -o my-changes
+    git commit -am "Comment describing your changes"
+    git format-patch origin/master --stdout > my-changes
 
 This will create a :file:`my-changes` file in the current directory,
 simply attach that to a ticket on the |app| `bug tracker <https://bugs.launchpad.net/calibre>`_.
+Note that this will include *all* the commits you have made. If you only want
+to send some commits, you have to change ``origin/master`` above. To send only
+the last commit, use::
+
+    git format-patch HEAD~1 --stdout > my-changes
+
+To send the last *n* commits, replace *1* with *n*, for example, for the last 3
+commits::
+
+    git format-patch HEAD~3 --stdout > my-changes
+
+Be careful to not include merges when using ``HEAD~n``.
 
 If you plan to do a lot of development on |app|, then the best method is to create a
-`Launchpad <http://launchpad.net>`_ account. Once you have an account, you can use it to register
-your bzr branch created by the `bzr branch` command above. First run the
-following command to tell bzr about your launchpad account::
+`GitHub <http://github.com>`_ account. Once you have an account, follow the
+steps at `Setup Git <https://help.github.com/articles/set-up-git>`_ and
+`Fork A Repo <https://help.github.com/articles/fork-a-repo>`_ to create your own fork of the
+`calibre GitHub repository <https://github.com/kovidgoyal/calibre>`_.
 
-    bzr launchpad-login your_launchpad_username
+You can contribute your code in the form of `Pull Requests
+<https://help.github.com/articles/using-pull-requests>`_. Generally, you should
+create a new branch for any feature that is non-trivial.
 
-Now, you have to setup SSH access to Launchpad. First create an SSH public/private keypair. Then upload
-the public key to Launchpad by going to your Launchpad account page. Instructions for setting up the
-private key in bzr are at http://bazaar-vcs.org/Bzr_and_SSH. Now you can upload your branch to the |app|
-project in Launchpad by following the instructions at https://help.launchpad.net/Code/UploadingABranch.
-Whenever you commit changes to your branch with the command::
-
-    bzr commit -m "Comment describing your change"
-
-Kovid can merge it directly from your branch into the main |app| source tree. You should also keep an eye on the |app|
-`development forum <http://www.mobileread.com/forums/forumdisplay.php?f=240>`_. Before making major changes, you should
-discuss them in the forum or contact Kovid directly (his email address is all over the source code).
+You should also keep an eye on the |app| `development forum
+<http://www.mobileread.com/forums/forumdisplay.php?f=240>`_. Before making
+major changes, you should discuss them in the forum or contact Kovid directly
+(his email address is all over the source code).
 
 Windows development environment
 ---------------------------------

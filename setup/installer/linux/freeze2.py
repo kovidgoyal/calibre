@@ -161,7 +161,7 @@ class LinuxFreeze(Command):
                 x = os.path.join(base, y)
                 if (os.path.isfile(x) and os.path.splitext(x)[1] in ('.so',
                         '.py')) or \
-                   (os.path.isdir(x) and x not in ('.svn', '.bzr', 'test', 'tests',
+                   (os.path.isdir(x) and x not in ('.svn', '.bzr', '.git', 'test', 'tests',
                        'testing')):
                     continue
                 ans.append(y)
