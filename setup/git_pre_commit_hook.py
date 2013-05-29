@@ -75,7 +75,6 @@ def main():
             f.seek(0)
             f.truncate()
             f.write(msg.encode('utf-8'))
-    raise SystemExit(1)
 
 if __name__ == '__main__':
     main()
