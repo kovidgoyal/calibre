@@ -47,6 +47,7 @@ class Bug:
             print ('Working on bug:', summary)
             if int(bug) > 100000:
                 self.close_bug(bug, action)
+                return match.group() + ' [%s](%s)' % (summary, LAUNCHPAD_BUG % bug)
             return match.group() + ' (%s)' % summary
         return match.group()
 
