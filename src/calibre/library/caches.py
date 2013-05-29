@@ -367,7 +367,7 @@ class ResultCache(SearchQueryParser): # {{{
             qd = now()
             field_count = 2
         elif query.endswith(self.local_daysago) or query.endswith(self.untrans_daysago):
-            num = query[0:-self.local_daysago_len]
+            num = query[0:-(self.local_daysago_len if query.endswith(self.local_daysago) else self.untrans_daysago_len)]
             try:
                 qd = now() - timedelta(int(num))
             except:
