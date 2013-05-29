@@ -19,7 +19,6 @@
 *.xsl     text
 *.tmpl    text
 *.qrc     text
-*.bat     eol=crlf
 *.sh      text
 *.xhtml   text
 
@@ -32,6 +31,8 @@
 *.gif     binary
 *.pickle  binary
 *.pdf     binary
+# This is binary so that git stores it with cr-lf endings in the repo, which means that bzr qdiff does not think it has changed
+*.bat     binary
 
 # Prevent certain files from being exported:
 .gitattributes  export-ignore

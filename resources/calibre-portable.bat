@@ -42,7 +42,6 @@ REM 22 Jan 2012	itimpi	- Updated to keep it in line with the calibre-portable.sh
 REM			  file for Linux systems
 
 
-
 REM -------------------------------------
 REM Set up Calibre Config folder
 REM
