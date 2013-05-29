@@ -21,30 +21,21 @@ def qt_sources():
 class POT(Command):  # {{{
 
     description = 'Update the .pot translation template and upload it'
-    POT_PATH = os.path.join(__appname__, 'translations')
-    PATH = os.path.join(Command.SRC, POT_PATH)
-    LP_SRC = os.path.join(os.path.dirname(os.path.dirname(Command.SRC)), 'calibre-translations', 'src')
-    LP_PATH = os.path.join(LP_SRC, POT_PATH)
+    LP_BASE = os.path.join(os.path.dirname(os.path.dirname(Command.SRC)), 'calibre-translations')
+    LP_SRC = os.path.join(LP_BASE, 'src')
+    LP_PATH = os.path.join(LP_SRC, os.path.join(__appname__, 'translations'))
+    LP_ISO_PATH = os.path.join(LP_BASE, 'setup', 'iso_639')
 
     def upload_pot(self, pot):
-        upot = os.path.join(self.LP_PATH, os.path.basename(pot))
-        with open(pot, 'rb') as src, open(upot, 'wb') as dest:
-            shutil.copyfileobj(src, dest)
-        if subprocess.check_output(['git', 'status', '-z', pot]):
-            # pot has changed
-            msg = 'Updated translations template'
-            subprocess.check_call(['bzr', 'commit', '-m', msg, upot])
-            subprocess.check_call(['git', 'commit', '-m', msg, pot])
-            subprocess.check_call(['git', 'push'])
-        else:
-            print ('No updated translations')
+        msg = 'Updated translations template'
+        subprocess.check_call(['bzr', 'commit', '-m', msg, pot])
 
     def source_files(self):
         ans = []
-        for root, _, files in os.walk(os.path.dirname(self.PATH)):
+        for root, _, files in os.walk(self.j(self.SRC, __appname__)):
             for name in files:
                 if name.endswith('.py'):
-                    ans.append(os.path.abspath(os.path.join(root, name)))
+                    ans.append(self.a(self.j(root, name)))
         return ans
 
     def get_tweaks_docs(self):
@@ -128,7 +119,7 @@ class POT(Command):  # {{{
             os.remove(out.name)
             src = pot_header + '\n' + src
             src += '\n\n' + self.get_tweaks_docs()
-            pot = os.path.join(self.PATH, __appname__+'.pot')
+            pot = os.path.join(self.LP_PATH, __appname__+'.pot')
             with open(pot, 'wb') as f:
                 f.write(src)
             self.info('Translations template:', os.path.abspath(pot))
@@ -143,7 +134,7 @@ class Translations(POT):  # {{{
             'locales')
 
     def po_files(self):
-        return glob.glob(os.path.join(self.PATH, '*.po'))
+        return glob.glob(os.path.join(self.LP_PATH, '*.po'))
 
     def mo_file(self, po_file):
         locale = os.path.splitext(os.path.basename(po_file))[0]
@@ -159,8 +150,7 @@ class Translations(POT):  # {{{
             self.info('\tCompiling translations for', locale)
             subprocess.check_call(['msgfmt', '-o', dest, f])
             iscpo = {'bn':'bn_IN', 'zh_HK':'zh_CN'}.get(locale, locale)
-            iso639 = self.j(self.d(self.SRC), 'setup', 'iso_639',
-                    '%s.po'%iscpo)
+            iso639 = self.j(self.LP_ISO_PATH, '%s.po'%iscpo)
 
             if os.path.exists(iso639):
                 self.check_iso639(iso639)
@@ -227,7 +217,7 @@ class Translations(POT):  # {{{
         if not self.newer(dest, files):
             return
         self.info('Calculating translation statistics...')
-        raw = self.get_stats(self.j(self.PATH, 'calibre.pot'))
+        raw = self.get_stats(self.j(self.LP_PATH, 'calibre.pot'))
         total = int(raw.split(',')[-1].strip().split()[0])
         stats = {}
         for f in files:
@@ -242,13 +232,6 @@ class Translations(POT):  # {{{
     def clean(self):
         if os.path.exists(self.stats):
             os.remove(self.stats)
-        for f in self.po_files():
-            l, d = self.mo_file(f)
-            i = self.j(self.d(d), 'iso639.mo')
-            j = self.j(self.d(d), 'qt.qm')
-            for x in (i, j, d):
-                if os.path.exists(x):
-                    os.remove(x)
         zf = self.DEST + '.zip'
         if os.path.exists(zf):
             os.remove(zf)
@@ -294,22 +277,8 @@ class GetTranslations(Translations):  # {{{
         if self.modified_translations:
             subprocess.check_call(['bzr', 'commit', '-m',
                 self.CMSG], cwd=self.LP_BASE)
-            self.copy_translations()
         else:
             print('No updated translations available')
-
-    def copy_translations(self):
-        changed = set()
-        for src in glob.glob(os.path.join(self.LP_PATH, '*.po')):
-            dest = os.path.join(self.PATH, os.path.basename(src))
-            with open(src, 'rb') as fsrc, open(dest, 'wb') as fdst:
-                shutil.copyfileobj(fsrc, fdst)
-            if subprocess.check_output(['git', 'status', '-z', dest]):
-                changed.add(dest)
-        if changed:
-            subprocess.check_call(['git', 'commit', '--author', 'Translators',
-                                   '-m', self.CMSG] + list(changed))
-            subprocess.check_call(['git', 'push'])
 
     def check_for_errors(self):
         errors = os.path.join(tempfile.gettempdir(), 'calibre-translation-errors')
@@ -353,7 +322,7 @@ class ISO639(Command):  # {{{
             'iso639.pickle')
 
     def run(self, opts):
-        src = self.j(self.d(self.SRC), 'setup', 'iso_639')
+        src = POT.LP_ISO_PATH
         if not os.path.exists(src):
             raise Exception(src + ' does not exist')
         dest = self.DEST

@@ -311,6 +311,16 @@ class Sdist(Command):
                 dest = os.path.join(tdir, self.d(f))
                 shutil.copy2(f, dest)
 
+        tbase = self.j(self.d(self.d(self.SRC)), 'calibre-translations')
+        for x in ('setup/iso_639', 'src/calibre/translations'):
+            destdir = self.j(tdir, x)
+            if not os.path.exists(destdir):
+                os.mkdir(destdir)
+            for y in glob.glob(self.j(tbase, x, '*')):
+                dest = self.j(destdir, self.b(y))
+                if y.rpartition('.')[-1] not in {'pyc', 'pyo'} and not os.path.exists(dest):
+                    shutil.copy2(y, dest)
+
         self.info('\tCreating tarfile...')
         subprocess.check_call(['tar', '-cJf', self.a(self.DEST),
             'calibre'], cwd=self.d(tdir))
