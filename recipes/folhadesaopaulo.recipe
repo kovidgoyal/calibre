@@ -6,7 +6,7 @@ from calibre.utils.magick import Image, PixelWand
 from urllib2 import Request, urlopen, URLError
 
 class FolhaOnline(BasicNewsRecipe):
-    THUMBALIZR_API        = '' # ---->Get your at http://www.thumbalizr.com/ and put here
+    THUMBALIZR_API        = ''  # ---->Get your at http://www.thumbalizr.com/ and put here
     LANGUAGE              = 'pt_br'
     language = 'pt_BR'
     LANGHTM               = 'pt-br'
@@ -63,14 +63,14 @@ class FolhaOnline(BasicNewsRecipe):
                         ,dict(name='div',
                             attrs={'class':[
                             'openBox adslibraryArticle'
-	       ,'toolbar'
+               ,'toolbar'
                             ]})
 
                         ,dict(name='a')
                         ,dict(name='iframe')
                         ,dict(name='link')
                         ,dict(name='script')
-	    ,dict(name='li')
+            ,dict(name='li')
     ]
     remove_tags_after = 	dict(name='div',attrs={'id':'articleEnd'})
 
@@ -109,7 +109,6 @@ class FolhaOnline(BasicNewsRecipe):
     ,(u'Valdo Cruz', u'http://feeds.folha.uol.com.br/colunas/valdocruz/rss091.xml')
     ]
 
-
     conversion_options = {
     'title'            : title
     ,'comments'        : description
@@ -131,8 +130,8 @@ class FolhaOnline(BasicNewsRecipe):
         return soup
 
     def postprocess_html(self, soup, first):
-        #process all the images. assumes that the new html has the correct path
-        for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
+        # process all the images. assumes that the new html has the correct path
+        for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and 'src' in tag):
             iurl = tag['src']
             img = Image()
             img.open(iurl)
@@ -141,7 +140,7 @@ class FolhaOnline(BasicNewsRecipe):
             if img < 0:
                 raise RuntimeError('Out of memory')
             pw = PixelWand()
-            if( width > height and width > 590) :
+            if(width > height and width > 590) :
                 print 'Rotate image'
                 img.rotate(pw, -90)
                 img.save(iurl)
@@ -163,3 +162,4 @@ class FolhaOnline(BasicNewsRecipe):
         except URLError:
             cover_url='http://api.thumbalizr.com/?api_key='+self.THUMBALIZR_API+'&url='+self.SCREENSHOT+'&width=600&quality=90'
             return cover_url
+
