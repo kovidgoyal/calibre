@@ -309,25 +309,7 @@ class libiMobileDevice():
         Return a list of connected udids
         '''
         self._log_location()
-
-        self.lib.idevice_get_device_list.argtypes = [POINTER(POINTER(POINTER(c_char * self.UDID_SIZE))), POINTER(c_long)]
-
-        count = c_long(0)
-        udid = c_char * self.UDID_SIZE
-        devices = POINTER(POINTER(udid))()
-        device_list = []
-        error = self.lib.idevice_get_device_list(byref(devices), byref(count))
-        if error and self.verbose:
-            self.log(" ERROR: %s" % self._idevice_error(error))
-        else:
-            index = 0
-            while devices[index]:
-                device_list.append(devices[index].contents.value)
-                index += 1
-            if self.verbose:
-                self.log(" %s" % repr(device_list))
-        #self.lib.idevice_device_list_free()
-        return device_list
+        return self._idevice_get_device_list()
 
     def get_folder_size(self, path):
         '''
@@ -1243,21 +1225,21 @@ class libiMobileDevice():
     # ~~~ idevice functions ~~~
     # http://www.libimobiledevice.org/docs/html/libimobiledevice_8h.html
     def _idevice_error(self, error):
-        e = "UNKNOWN ERROR"
+        e = "UNKNOWN ERROR (%d)" % error
         if not error:
             e = "Success"
         elif error == -1:
-            e = "INVALID_ARG"
+            e = "INVALID_ARG (-1)"
         elif error == -2:
-            e = "UNKNOWN_ERROR"
+            e = "UNKNOWN_ERROR (-2)"
         elif error == -3:
-            e = "NO_DEVICE"
+            e = "NO_DEVICE (-3)"
         elif error == -4:
-            e = "NOT_ENOUGH_DATA"
+            e = "NOT_ENOUGH_DATA (-4)"
         elif error == -5:
-            e = "BAD_HEADER"
+            e = "BAD_HEADER (-5)"
         elif error == -6:
-            e = "SSL_ERROR"
+            e = "SSL_ERROR (-6)"
         return e
 
     def _idevice_free(self):
@@ -1277,6 +1259,40 @@ class libiMobileDevice():
         if error:
             if self.verbose:
                 self.log(" ERROR: %s" % self._idevice_error(error))
+
+    def _idevice_get_device_list(self):
+        '''
+        Return a list of connected udids
+        n devices: [udid, udid,...]
+        0 devices: []
+        Error:     None
+        '''
+        self._log_location()
+
+        self.lib.idevice_get_device_list.argtypes = [POINTER(POINTER(POINTER(c_char * self.UDID_SIZE))), POINTER(c_long)]
+
+        count = c_long(0)
+        udid = c_char * self.UDID_SIZE
+        devices = POINTER(POINTER(udid))()
+        device_list = []
+        error = self.lib.idevice_get_device_list(byref(devices), byref(count))
+        if error:
+            if error == -3:
+                if self.verbose:
+                    self.log(" no connected devices")
+            else:
+                device_list = None
+                if self.verbose:
+                    self.log(" ERROR: %s" % self._idevice_error(error))
+        else:
+            index = 0
+            while devices[index]:
+                device_list.append(devices[index].contents.value)
+                index += 1
+            if self.verbose:
+                self.log(" %s" % repr(device_list))
+        #self.lib.idevice_device_list_free()
+        return device_list
 
     def _idevice_new(self):
         '''
