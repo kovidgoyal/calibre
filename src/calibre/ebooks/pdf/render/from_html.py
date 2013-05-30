@@ -21,8 +21,9 @@ from calibre.ebooks.oeb.display.webview import load_html
 from calibre.ebooks.pdf.render.common import (inch, cm, mm, pica, cicero,
                                               didot, PAPER_SIZES)
 from calibre.ebooks.pdf.render.engine import PdfDevice
+from calibre.ptempfile import PersistentTemporaryFile
 
-def get_page_size(opts, for_comic=False): # {{{
+def get_page_size(opts, for_comic=False):  # {{{
     use_profile = not (opts.override_profile_size or
                        opts.output_profile.short_name == 'default' or
                        opts.output_profile.width > 9999)
@@ -36,7 +37,7 @@ def get_page_size(opts, for_comic=False): # {{{
         page_size = (factor * w, factor * h)
     else:
         page_size = None
-        if opts.custom_size != None:
+        if opts.custom_size is not None:
             width, sep, height = opts.custom_size.partition('x')
             if height:
                 try:
@@ -57,7 +58,7 @@ def get_page_size(opts, for_comic=False): # {{{
     return page_size
 # }}}
 
-class Page(QWebPage): # {{{
+class Page(QWebPage):  # {{{
 
     def __init__(self, opts, log):
         self.log = log
@@ -107,7 +108,7 @@ def draw_image_page(page_rect, painter, p, preserve_aspect_ratio=True):
         nw, nh = page_rect.width(), page_rect.height()
         if aspect_ratio > 1:
             nh = int(page_rect.width()/aspect_ratio)
-        else: # Width is smaller than height
+        else:  # Width is smaller than height
             nw = page_rect.height()*aspect_ratio
         __, nnw, nnh = fit_image(nw, nh, page_rect.width(),
                 page_rect.height())
@@ -237,11 +238,23 @@ class PDFWriter(QObject):
         if self.doc.errors_occurred:
             raise Exception('PDF Output failed, see log for details')
 
+    def render_inline_toc(self):
+        self.rendered_inline_toc = True
+        from calibre.ebooks.pdf.render.toc import toc_as_html
+        raw = toc_as_html(self.toc, self.doc, self.opts)
+        pt = PersistentTemporaryFile('_pdf_itoc.htm')
+        pt.write(raw)
+        pt.close()
+        self.render_queue.append(pt.name)
+        self.render_next()
+
     def render_book(self):
         if self.doc.errors_occurred:
             return self.loop.exit(1)
         try:
             if not self.render_queue:
+                if self.toc is not None and len(self.toc) > 0 and not hasattr(self, 'rendered_inline_toc'):
+                    return self.render_inline_toc()
                 self.loop.exit()
             else:
                 self.render_next()
@@ -344,7 +357,7 @@ class PDFWriter(QObject):
 
         amap = self.bridge_value
         if not isinstance(amap, dict):
-            amap = {'links':[], 'anchors':{}} # Some javascript error occurred
+            amap = {'links':[], 'anchors':{}}  # Some javascript error occurred
         sections = self.get_sections(amap['anchors'])
         col = 0
 
@@ -381,5 +394,6 @@ class PDFWriter(QObject):
         if not self.doc.errors_occurred:
             self.doc.add_links(self.current_item, start_page, amap['links'],
                             amap['anchors'])
+
 
 

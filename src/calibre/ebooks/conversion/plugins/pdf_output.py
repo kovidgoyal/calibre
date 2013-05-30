@@ -21,7 +21,7 @@ UNITS = ['millimeter', 'centimeter', 'point', 'inch' , 'pica' , 'didot',
 PAPER_SIZES = [u'a0', u'a1', u'a2', u'a3', u'a4', u'a5', u'a6', u'b0', u'b1',
                u'b2', u'b3', u'b4', u'b5', u'b6', u'legal', u'letter']
 
-class PDFMetadata(object): # {{{
+class PDFMetadata(object):  # {{{
     def __init__(self, oeb_metadata=None):
         from calibre import force_unicode
         from calibre.ebooks.metadata import authors_to_string
@@ -29,7 +29,7 @@ class PDFMetadata(object): # {{{
         self.author = _(u'Unknown')
         self.tags = u''
 
-        if oeb_metadata != None:
+        if oeb_metadata is not None:
             if len(oeb_metadata.title) >= 1:
                 self.title = oeb_metadata.title[0].value
             if len(oeb_metadata.creator) >= 1:
@@ -109,6 +109,9 @@ class PDFOutput(OutputFormatPlugin):
         OptionRecommendation(name='pdf_header_template', recommended_value=None,
             help=_('An HTML template used to generate %s on every page.'
                    ' The strings _PAGENUM_, _TITLE_, _AUTHOR_ and _SECTION_ will be replaced by their current values.')%_('headers')),
+        OptionRecommendation(name='pdf_add_toc', recommended_value=False,
+            help=_('Add a Table of Contents at the end of the PDF that lists page numbers. '
+                   'Useful if you want to print out the PDF. If this PDF is intended for electronic use, use the PDF Outline instead.')),
         ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
@@ -121,7 +124,6 @@ class PDFOutput(OutputFormatPlugin):
         self.output_path = output_path
         self.metadata = oeb_book.metadata
         self.cover_data = None
-
 
         if input_plugin.is_image_collection:
             log.debug('Converting input as an image collection...')
@@ -156,7 +158,8 @@ class PDFOutput(OutputFormatPlugin):
         # fonts to Qt
         family_map = {}
         for item in list(self.oeb.manifest):
-            if not hasattr(item.data, 'cssRules'): continue
+            if not hasattr(item.data, 'cssRules'):
+                continue
             remove = set()
             for i, rule in enumerate(item.data.cssRules):
                 if rule.type == rule.FONT_FACE_RULE:
@@ -195,11 +198,14 @@ class PDFOutput(OutputFormatPlugin):
         # family name of the embedded font (they may be different in general).
         font_warnings = set()
         for item in self.oeb.manifest:
-            if not hasattr(item.data, 'cssRules'): continue
+            if not hasattr(item.data, 'cssRules'):
+                continue
             for i, rule in enumerate(item.data.cssRules):
-                if rule.type != rule.STYLE_RULE: continue
+                if rule.type != rule.STYLE_RULE:
+                    continue
                 ff = rule.style.getProperty('font-family')
-                if ff is None: continue
+                if ff is None:
+                    continue
                 val = ff.propertyValue
                 for i in xrange(val.length):
                     try:
@@ -278,4 +284,6 @@ class PDFOutput(OutputFormatPlugin):
 
         if close:
             out_stream.close()
+
+
 

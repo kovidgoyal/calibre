@@ -23,7 +23,7 @@ class PluginWidget(Widget, Ui_Form):
             'preserve_cover_aspect_ratio', 'pdf_serif_family', 'unit',
             'pdf_sans_family', 'pdf_mono_family', 'pdf_standard_font',
             'pdf_default_font_size', 'pdf_mono_font_size', 'pdf_page_numbers',
-            'pdf_footer_template', 'pdf_header_template',
+            'pdf_footer_template', 'pdf_header_template', 'pdf_add_toc',
         ])
         self.db, self.book_id = db, book_id
 

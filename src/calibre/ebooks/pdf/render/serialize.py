@@ -187,6 +187,12 @@ class PageTree(Dictionary):
     def get_ref(self, num):
         return self['Kids'][num-1]
 
+    def get_num(self, pageref):
+        try:
+            return self['Kids'].index(pageref) + 1
+        except ValueError:
+            return -1
+
 class HashingStream(object):
 
     def __init__(self, f):
@@ -237,14 +243,14 @@ class PDFStream(object):
 
     PATH_OPS = {
         # stroke fill   fill-rule
-        ( False, False, 'winding')  : 'n',
-        ( False, False, 'evenodd')  : 'n',
-        ( False, True,  'winding')  : 'f',
-        ( False, True,  'evenodd')  : 'f*',
-        ( True,  False, 'winding')  : 'S',
-        ( True,  False, 'evenodd')  : 'S',
-        ( True,  True,  'winding')  : 'B',
-        ( True,  True,  'evenodd')  : 'B*',
+        (False, False, 'winding')  : 'n',
+        (False, False, 'evenodd')  : 'n',
+        (False, True,  'winding')  : 'f',
+        (False, True,  'evenodd')  : 'f*',
+        (True,  False, 'winding')  : 'S',
+        (True,  False, 'evenodd')  : 'S',
+        (True,  True,  'winding')  : 'B',
+        (True,  True,  'evenodd')  : 'B*',
     }
 
     def __init__(self, stream, page_size, compress=False, mark_links=False,
@@ -329,12 +335,14 @@ class PDFStream(object):
                 (fmtnum(x) if isinstance(x, (int, long, float)) else x) + ' ')
 
     def draw_path(self, path, stroke=True, fill=False, fill_rule='winding'):
-        if not path.ops: return
+        if not path.ops:
+            return
         self.write_path(path)
         self.current_page.write_line(self.PATH_OPS[(stroke, fill, fill_rule)])
 
     def add_clip(self, path, fill_rule='winding'):
-        if not path.ops: return
+        if not path.ops:
+            return
         self.write_path(path)
         op = 'W' if fill_rule == 'winding' else 'W*'
         self.current_page.write_line(op + ' ' + 'n')
@@ -502,4 +510,5 @@ class PDFStream(object):
         self.write_line('startxref')
         self.write_line('%d'%startxref)
         self.stream.write('%%EOF')
+
 
