@@ -20,7 +20,7 @@ class Metadata(object):
     author_email = 'kovid@kovidgoyal.net'
     url = 'http://calibre-ebook.com'
     description = 'E-book management application.'
-    long_description = open('README', 'rb').read()
+    long_description = open('README.md', 'rb').read()
     license = 'GPL'
     keywords = ['e-book', 'ebook', 'news', 'reading', 'catalog', 'books']
     platforms = ['Linux', 'Windows', 'OS X']
