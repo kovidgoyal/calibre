@@ -118,7 +118,9 @@ If you plan to do a lot of development on |app|, then the best method is to crea
 `GitHub <http://github.com>`_ account. Once you have an account, follow the
 steps at `Setup Git <https://help.github.com/articles/set-up-git>`_ and
 `Fork A Repo <https://help.github.com/articles/fork-a-repo>`_ to create your own fork of the
-`calibre GitHub repository <https://github.com/kovidgoyal/calibre>`_.
+`calibre GitHub repository <https://github.com/kovidgoyal/calibre>`_. Read
+`Pushing to a remote <https://help.github.com/articles/pushing-to-a-remote>`_
+to learn how to upload your commits to GitHub.
 
 You can contribute your code in the form of `Pull Requests
 <https://help.github.com/articles/using-pull-requests>`_. Generally, you should
