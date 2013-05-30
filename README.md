@@ -7,20 +7,20 @@ devices. It can go out to the internet and fetch metadata for your books.
 It can download newspapers and convert them into e-books for convenient 
 reading. It is cross platform, running on Linux, Windows and OS X.
 
-For more information: http://calibre-ebook.com/about
+For more information, see the [calibre About page](http://calibre-ebook.com/about)
 
 Screenshots
 -------------
-https://calibre-ebook.com/demo
+[Screenshots page](https://calibre-ebook.com/demo)
 
 Usage
 -------
-http://manual.calibre-ebook.com
+See the [User Manual](http://manual.calibre-ebook.com)
 
 Development
 -------------
-http://manual.calibre-ebook.com/develop.html
+[Setting up a development environment for calibre](http://manual.calibre-ebook.com/develop.html)
 
 
-A tarball of the source code for the current release is available at:
-http://status.calibre-ebook.com/dist/src
+A [tarball of the source code](http://status.calibre-ebook.com/dist/src) for the 
+current calibre release.
