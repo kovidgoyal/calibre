@@ -1276,7 +1276,7 @@ class libiMobileDevice():
         udid = c_char * self.UDID_SIZE
         devices = POINTER(POINTER(udid))()
         device_list = []
-        error = self.lib.idevice_get_device_list(byref(devices), byref(count))
+        error = self.lib.idevice_get_device_list(byref(devices), byref(count)) & 0xFFFF
         if error:
             if error == -3:
                 if self.verbose:
