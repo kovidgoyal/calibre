@@ -16,6 +16,7 @@ from lxml.builder import ElementMaker
 from calibre import browser, force_unicode
 from calibre.utils.date import parse_date, now as nowf, utcnow, tzlocal, \
         isoformat, fromordinal
+from calibre.utils.recycle_bin import delete_file
 
 NS = 'http://calibre-ebook.com/recipe_collection'
 E = ElementMaker(namespace=NS, nsmap={None:NS})
@@ -167,7 +168,7 @@ def remove_custom_recipe(id_):
         fname = existing[1]
         del custom_recipes[id_]
         try:
-            os.remove(os.path.join(bdir, fname))
+            delete_file(os.path.join(bdir, fname))
         except:
             pass
 
@@ -400,7 +401,7 @@ class SchedulerConfig(object):
             now = nowf()
             ld_local = ld.astimezone(tzlocal())
             day, hour, minute = sch
-            return  is_weekday(day, now) and \
+            return is_weekday(day, now) and \
                     not was_downloaded_already_today(ld_local, now) and \
                     is_time(now, hour, minute)
         elif typ == 'days_of_week':
@@ -412,7 +413,7 @@ class SchedulerConfig(object):
                 if is_weekday(day, now):
                     have_day = True
                     break
-            return  have_day and \
+            return have_day and \
                     not was_downloaded_already_today(ld_local, now) and \
                     is_time(now, hour, minute)
         elif typ == 'days_of_month':
@@ -420,7 +421,7 @@ class SchedulerConfig(object):
             ld_local = ld.astimezone(tzlocal())
             days, hour, minute = sch
             have_day = now.day in days
-            return  have_day and \
+            return have_day and \
                     not was_downloaded_already_today(ld_local, now) and \
                     is_time(now, hour, minute)
 
@@ -445,10 +446,10 @@ class SchedulerConfig(object):
     def clear_account_info(self, urn):
         with self.lock:
             for x in self.iter_accounts():
-                 if x.get('id', False) == urn:
-                     x.getparent().remove(x)
-                     self.write_scheduler_file()
-                     break
+                if x.get('id', False) == urn:
+                    x.getparent().remove(x)
+                    self.write_scheduler_file()
+                    break
 
     def get_customize_info(self, urn):
         keep_issues = 0
@@ -525,7 +526,4 @@ class SchedulerConfig(object):
         recipe = {'id':urn, 'title':r['title']}
         self.schedule_recipe(recipe, typ, schedule,
         last_downloaded=r['last_downloaded'])
-
-
-
 
