@@ -23,10 +23,10 @@ fun! CalibreLog()
     " making a release.
     enew
     read ! git log --first-parent "--pretty=\%an:::\%n\%s\%n\%b\%n" -500
-    setl nomodifiable noswapfile buftype=nofile nohlsearch
+    setl nomodifiable noswapfile buftype=nofile
     hi def link au Keyword
     syntax match au /^.*:::$/
-    nnoremap <silent> <buffer> ]n /:::$/1<CR>
+    nnoremap <silent> <buffer> n :call cursor(1+search('\V:::\$', 'n'), 0)<CR>
     nnoremap <silent> <buffer> yb vt#t<Space>y
     normal! gg2j
     edit Changelog.yaml
