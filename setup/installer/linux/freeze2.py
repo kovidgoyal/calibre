@@ -105,14 +105,13 @@ class LinuxFreeze(Command):
         gcc_lib = '/usr/lib/gcc/%s/%s/'%(chost.strip(), gcc.strip())
         stdcpp = gcc_lib+'libstdc++.so.?'
         stdcpp = glob.glob(stdcpp)[-1]
+        ffi_libs = [glob.glob('/usr/lib/libffi.so.?')[-1]]
         ffi = gcc_lib+'libffi.so.?'
         ffi = glob.glob(ffi)
-        if ffi:
-            ffi = ffi[-1]
-        else:
-            ffi = glob.glob('/usr/lib/libffi.so.?')[-1]
+        if ffi and ffi[-1] not in ffi_libs:
+            ffi_libs.append(ffi[-1])
 
-        for x in binary_includes + [stdcpp, ffi]:
+        for x in binary_includes + [stdcpp] + ffi_libs:
             dest = self.bin_dir if '/bin/' in x else self.lib_dir
             shutil.copy2(x, dest)
         shutil.copy2('/usr/lib/libpython%s.so.1.0'%self.py_ver, dest)
