@@ -71,7 +71,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.table.setItem(row, 0, aut)
             self.table.setItem(row, 1, sort)
             self.table.setItem(row, 2, link)
-            if id == id_to_select:
+            if id_to_select in (id, author):
                 if select_sort:
                     select_item = sort
                 elif select_link:

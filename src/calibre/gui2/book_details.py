@@ -28,7 +28,7 @@ from calibre.utils.date import is_date_undefined
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.utils.config import tweaks
 
-def render_html(mi, css, vertical, widget, all_fields=False): # {{{
+def render_html(mi, css, vertical, widget, all_fields=False):  # {{{
     table = render_data(mi, all_fields=all_fields,
             use_roman_numbers=config['use_roman_numerals_for_series_number'])
 
@@ -158,14 +158,15 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                 if isdevice:
                     durl = url
                     if durl.startswith('mtp:::'):
-                        durl = ':::'.join( (durl.split(':::'))[2:] )
+                        durl = ':::'.join((durl.split(':::'))[2:])
                     extra = '<br><span style="font-size:smaller">%s</span>'%(
                             prepare_string_for_xml(durl))
                 link = u'<a href="%s:%s" title="%s">%s</a>%s' % (scheme, url,
                         prepare_string_for_xml(path, True), pathstr, extra)
                 ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name, link)))
         elif field == 'formats':
-            if isdevice: continue
+            if isdevice:
+                continue
             fmts = [u'<a href="format:%s:%s">%s</a>' % (mi.id, x, x) for x
                         in mi.formats]
             ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,
@@ -195,7 +196,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                             gprefs.get('default_author_link'), vals, '', vals)
                 if link:
                     link = prepare_string_for_xml(link)
-                    authors.append(u'<a href="%s">%s</a>'%(link, aut))
+                    authors.append(u'<a calibre-data="authors" href="%s">%s</a>'%(link, aut))
                 else:
                     authors.append(aut)
             ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,
@@ -246,7 +247,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
 
 # }}}
 
-class CoverView(QWidget): # {{{
+class CoverView(QWidget):  # {{{
 
     cover_changed = pyqtSignal(object, object)
     cover_removed = pyqtSignal(object)
@@ -314,11 +315,13 @@ class CoverView(QWidget): # {{{
         canvas_size = self.rect()
         width = self.current_pixmap_size.width()
         extrax = canvas_size.width() - width
-        if extrax < 0: extrax = 0
+        if extrax < 0:
+            extrax = 0
         x = int(extrax/2.)
         height = self.current_pixmap_size.height()
         extray = canvas_size.height() - height
-        if extray < 0: extray = 0
+        if extray < 0:
+            extray = 0
         y = int(extray/2.)
         target = QRect(x, y, width, height)
         p = QPainter(self)
@@ -407,6 +410,7 @@ class BookInfo(QWebView):
     save_format = pyqtSignal(int, object)
     restore_format = pyqtSignal(int, object)
     copy_link = pyqtSignal(object)
+    manage_author = pyqtSignal(object)
 
     def __init__(self, vertical, parent=None):
         QWebView.__init__(self, parent)
@@ -420,7 +424,10 @@ class BookInfo(QWebView):
         palette.setBrush(QPalette.Base, Qt.transparent)
         self.page().setPalette(palette)
         self.css = P('templates/book_details.css', data=True).decode('utf-8')
-        for x, icon in [('remove_format', 'trash.png'), ('save_format', 'save.png'), ('restore_format', 'edit-undo.png'), ('copy_link','edit-copy.png')]:
+        for x, icon in [
+            ('remove_format', 'trash.png'), ('save_format', 'save.png'),
+            ('restore_format', 'edit-undo.png'), ('copy_link','edit-copy.png'),
+            ('manage_author', 'user_profile.png')]:
             ac = QAction(QIcon(I(icon)), '', self)
             ac.current_fmt = None
             ac.current_url = None
@@ -447,6 +454,9 @@ class BookInfo(QWebView):
 
     def copy_link_triggerred(self):
         self.context_action_triggered('copy_link')
+
+    def manage_author_triggerred(self):
+        self.manage_author.emit(self.manage_author_action.current_fmt)
 
     def link_activated(self, link):
         self._link_clicked = True
@@ -483,14 +493,21 @@ class BookInfo(QWebView):
             if action is not ca:
                 menu.removeAction(action)
         if not r.isNull():
-            if url.startswith('http'):
+            if url.startswith('http') or url.startswith('file:'):
+                el = r.linkElement()
+                author = el.toPlainText() if unicode(el.attribute('calibre-data')) == u'authors' else None
                 for a, t in [('copy', _('&Copy Link')),
                 ]:
                     ac = getattr(self, '%s_link_action'%a)
                     ac.current_url = url
                     ac.setText(t)
                     menu.addAction(ac)
-                
+                if author is not None:
+                    ac = self.manage_author_action
+                    ac.current_fmt = author
+                    ac.setText(_('Manage %s') % author)
+                    menu.addAction(ac)
+
             if url.startswith('format:'):
                 parts = url.split(':')
                 try:
@@ -515,7 +532,7 @@ class BookInfo(QWebView):
 
 # }}}
 
-class DetailsLayout(QLayout): # {{{
+class DetailsLayout(QLayout):  # {{{
 
     def __init__(self, vertical, parent):
         QLayout.__init__(self, parent)
@@ -558,7 +575,8 @@ class DetailsLayout(QLayout): # {{{
         self.do_layout(r)
 
     def cover_height(self, r):
-        if not self._children[0].widget().isVisible(): return 0
+        if not self._children[0].widget().isVisible():
+            return 0
         mh = min(int(r.height()/2.), int(4/3. * r.width())+1)
         try:
             ph = self._children[0].widget().pixmap.height()
@@ -569,7 +587,8 @@ class DetailsLayout(QLayout): # {{{
         return mh
 
     def cover_width(self, r):
-        if not self._children[0].widget().isVisible(): return 0
+        if not self._children[0].widget().isVisible():
+            return 0
         mw = 1 + int(3/4. * r.height())
         try:
             pw = self._children[0].widget().pixmap.width()
@@ -578,7 +597,6 @@ class DetailsLayout(QLayout): # {{{
         if pw > 0:
             mw = min(mw, pw)
         return mw
-
 
     def do_layout(self, rect):
         if len(self._children) != 2:
@@ -603,7 +621,7 @@ class DetailsLayout(QLayout): # {{{
 
 # }}}
 
-class BookDetails(QWidget): # {{{
+class BookDetails(QWidget):  # {{{
 
     show_book_info = pyqtSignal()
     open_containing_folder = pyqtSignal(int)
@@ -617,6 +635,7 @@ class BookDetails(QWidget): # {{{
     cover_changed = pyqtSignal(object, object)
     cover_removed = pyqtSignal(object)
     view_device_book = pyqtSignal(object)
+    manage_author = pyqtSignal(object)
 
     # Drag 'n drop {{{
     DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS+BOOK_EXTENSIONS
@@ -659,7 +678,6 @@ class BookDetails(QWidget): # {{{
             self.remote_file_dropped.emit(urls[0], filenames[0])
         event.accept()
 
-
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
 
@@ -683,6 +701,7 @@ class BookDetails(QWidget): # {{{
         self.book_info.save_format.connect(self.save_specific_format)
         self.book_info.restore_format.connect(self.restore_specific_format)
         self.book_info.copy_link.connect(self.copy_link)
+        self.book_info.manage_author.connect(self.manage_author)
         self.setCursor(Qt.PointingHandCursor)
 
     def handle_click(self, link):
@@ -700,7 +719,6 @@ class BookDetails(QWidget): # {{{
             except:
                 import traceback
                 traceback.print_exc()
-
 
     def mouseDoubleClickEvent(self, ev):
         ev.accept()

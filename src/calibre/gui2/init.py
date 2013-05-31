@@ -305,6 +305,7 @@ class LayoutMixin(object):  # {{{
                 type=Qt.QueuedConnection)
         self.book_details.view_device_book.connect(
                 self.iactions['View'].view_device_book)
+        self.book_details.manage_author.connect(lambda author:self.do_author_sort_edit(self, author, select_sort=False, select_link=False))
 
         m = self.library_view.model()
         if m.rowCount(None) > 0:
