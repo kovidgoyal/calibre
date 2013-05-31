@@ -20,6 +20,50 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.33
+  date: 2013-05-31
+
+  new features:
+    - title: "PDF Output: Add an option to generate a printable Table of Contents (that lists page numbers). Useful if you intend to print out the PDF."
+
+    - title: "Replace the book counts in the choose library button and next to the virtual library button with the names of the current library and virtual library. The count information is now displayed in the status bar at the bottom."
+
+    - title: "When reviewing downloaded metadata, add a button to view the book being reviewed."
+      tickets: [1184546]
+
+    - title: "Get Books: Add SONY Reader Store (Australia)."
+      tickets: [1184524]
+
+    - title: "For users running calibre from source, note that calibre has moved to using git for source control. See http://www.mobileread.com/forums/showthread.php?t=214465 for details"
+ 
+  bug fixes:
+    - title: "Windows build: Update the version of Qt calibre uses to fix crashes on some Windows 8 64 bit machines with touchscreens"
+
+    - title: "Fix error when using _daysago in search queries."
+      tickets: [1185398]
+
+    - title: "Kobo driver: When deleting books from the Kobo Aura, do not leave empty entries on the home screen. Also show downloaded books stored in the SD card as on the card, not the main memory."
+      tickets: [1185294]
+
+    - title: "Get Books: Fix price information for Sony store incorrect, also fix libri.de store plugin"
+
+    - title: "Fix error generated when changing libraries with the quickview window open"
+
+    - title: "Fix regression that broke clicking on column headers in the device views"
+
+  improved recipes:
+    - Folha de Sao Paolo
+    - Various Polish news sources
+    - Melbourne Herald Sun
+    - Hindu Business Line
+    - .net magazine
+    - Pocket
+    - Tagesschau.de
+
+  new recipes:
+    - title: "Various Polish News sources"
+      author: Tomasz Dlugoz
+
 - version: 0.9.32
   date: 2013-05-24
 
