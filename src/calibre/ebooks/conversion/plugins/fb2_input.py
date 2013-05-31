@@ -114,7 +114,7 @@ class FB2Input(InputFormatPlugin):
                     break
 
         opf = OPFCreator(os.getcwdu(), mi)
-        entries = [(f2, guess_type(f)[0]) for f2 in os.listdir(u'.')]
+        entries = [(f2, guess_type(f2)[0]) for f2 in os.listdir(u'.')]
         opf.create_manifest(entries)
         opf.create_spine([u'index.xhtml'])
         if cpath:
