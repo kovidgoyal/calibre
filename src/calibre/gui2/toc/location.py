@@ -226,7 +226,16 @@ class ItemEdit(QWidget):
         name = self.current_name = unicode(item.data(Qt.DisplayRole).toString())
         path = self.container.name_to_abspath(name)
         # Ensure encoding map is populated
-        self.container.parsed(name)
+        root = self.container.parsed(name)
+        nasty = root.xpath('//*[local-name()="head"]/*[local-name()="p"]')
+        if nasty:
+            body = root.xpath('//*[local-name()="body"]')
+            if not body:
+                return error_dialog(self, _('Bad markup'),
+                             _('This book has severely broken markup, it\'s ToC cannot be edited.'), show=True)
+            for x in reversed(nasty):
+                body[0].insert(0, x)
+            self.container.commit_item(name, keep_parsed=True)
         encoding = self.container.encoding_map.get(name, None) or 'utf-8'
 
         load_html(path, self.view, codec=encoding,
