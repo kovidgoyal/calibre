@@ -2661,6 +2661,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def get_id_from_uuid(self, uuid):
         if uuid:
+            res = self.data._uuid_map.get(uuid, None)
+            if res:
+                return res
             return self.conn.get('SELECT id FROM books WHERE uuid=?', (uuid,),
                                  all=False)
 
