@@ -232,7 +232,7 @@ class ItemEdit(QWidget):
             body = root.xpath('//*[local-name()="body"]')
             if not body:
                 return error_dialog(self, _('Bad markup'),
-                             _('This book has severely broken markup, it\'s ToC cannot be edited.'), show=True)
+                             _('This book has severely broken markup, its ToC cannot be edited.'), show=True)
             for x in reversed(nasty):
                 body[0].insert(0, x)
             self.container.commit_item(name, keep_parsed=True)
