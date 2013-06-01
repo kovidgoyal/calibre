@@ -10,9 +10,11 @@ from collections import OrderedDict
 
 from lxml.html.builder import TABLE, TR, TD
 
-from calibre.ebooks.docx.block_styles import inherit, read_shd, read_border ,border_props  # noqa
-from calibre.ebooks.docx.names import XPath, get
+from calibre.ebooks.docx.block_styles import inherit, read_shd, read_border, binary_property, border_props, ParagraphStyle  # noqa
+from calibre.ebooks.docx.char_styles import RunStyle
+from calibre.ebooks.docx.names import XPath, get, is_tag
 
+# Read from XML {{{
 def _read_width(elem):
     ans = inherit
     try:
@@ -33,6 +35,12 @@ def _read_width(elem):
 def read_width(parent, dest):
     ans = inherit
     for tblW in XPath('./w:tblW')(parent):
+        ans = _read_width(tblW)
+    setattr(dest, 'width', ans)
+
+def read_cell_width(parent, dest):
+    ans = inherit
+    for tblW in XPath('./w:tcW')(parent):
         ans = _read_width(tblW)
     setattr(dest, 'width', ans)
 
@@ -79,12 +87,91 @@ def read_borders(parent, dest):
     name = 'tblBorders' if parent.tag.endswith('}tblPr') else 'tcBorders'
     read_border(parent, dest, border_edges, name)
 
+def read_height(parent, dest):
+    ans = inherit
+    for rh in XPath('./w:trHeight')(parent):
+        rule = get(rh, 'w:hRule', 'auto')
+        if rule in {'auto', 'atLeast', 'exact'}:
+            val = get(rh, 'w:val')
+            ans = (rule, val)
+    setattr(dest, 'height', ans)
+
+def read_vertical_align(parent, dest):
+    ans = inherit
+    for va in XPath('./w:vAlign')(parent):
+        val = get(va, 'w:val')
+        ans = {'center': 'middle', 'top': 'top', 'bottom': 'bottom'}.get(val, 'middle')
+    setattr(dest, 'vertical_align', ans)
+
+def read_col_span(parent, dest):
+    ans = inherit
+    for gs in XPath('./w:gridSpan')(parent):
+        try:
+            ans = int(get(gs, 'w:val'))
+        except (TypeError, ValueError):
+            continue
+    setattr(dest, 'col_span', ans)
+
+def read_merge(parent, dest):
+    for x in ('hMerge', 'vMerge'):
+        ans = inherit
+        for m in XPath('./w:%s' % x)(parent):
+            ans = get(m, 'w:val', 'continue')
+        setattr(dest, x, ans)
+
+def read_band_size(parent, dest):
+    for x in ('Col', 'Row'):
+        ans = 1
+        for y in XPath('./w:tblStyle%sBandSize' % x)(parent):
+            try:
+                ans = int(get(y, 'w:val'))
+            except (TypeError, ValueError):
+                continue
+        setattr(dest, '%s_band_size' % x.lower(), ans)
+
+def read_look(parent, dest):
+    ans = 0
+    for x in XPath('./w:tblLook')(parent):
+        try:
+            ans = int(get(x, 'w:val'), 16)
+        except (ValueError, TypeError):
+            continue
+    setattr(dest, 'look', ans)
+
+# }}}
+
+class RowStyle(object):
+
+    all_properties = ('height', 'cantSplit', 'hidden', 'spacing',)
+
+    def __init__(self, tcPr=None):
+        if tcPr is None:
+            for p in self.all_properties:
+                setattr(self, p, inherit)
+        else:
+            pass
+
+class CellStyle(object):
+
+    all_properties = ('background_color', 'cell_padding_left', 'cell_padding_right', 'cell_padding_top',
+        'cell_padding_bottom', 'width', 'vertical_align', 'col_span', 'vMerge', 'hMerge',
+    ) + tuple(k % edge for edge in border_edges for k in border_props)
+
+    def __init__(self, trPr=None):
+        if trPr is None:
+            for p in self.all_properties:
+                setattr(self, p, inherit)
+        else:
+            for x in ('borders', 'shd', 'padding', 'cell_width', 'vertical_align', 'col_span', 'merge'):
+                f = globals()['read_%s' % x]
+                f(trPr, self)
+
 class TableStyle(object):
 
     all_properties = (
         'width', 'cell_padding_left', 'cell_padding_right', 'cell_padding_top',
         'cell_padding_bottom', 'margin_left', 'margin_right', 'background_color',
-        'spacing', 'indent',
+        'spacing', 'indent', 'overrides', 'col_band_size', 'row_band_size', 'look',
     ) + tuple(k % edge for edge in border_edges for k in border_props)
 
     def __init__(self, tblPr=None):
@@ -92,11 +179,26 @@ class TableStyle(object):
             for p in self.all_properties:
                 setattr(self, p, inherit)
         else:
-            for x in ('width', 'padding', 'shd', 'justification', 'spacing', 'indent', 'borders'):
+            self.overrides = inherit
+            for x in ('width', 'padding', 'shd', 'justification', 'spacing', 'indent', 'borders', 'band_size', 'look'):
                 f = globals()['read_%s' % x]
                 f(tblPr, self)
-
-        self._css = None
+            parent = tblPr.getparent()
+            if is_tag(parent, 'w:style'):
+                self.overrides = {}
+                for tblStylePr in XPath('./w:tblStylePr[@w:type]')(parent):
+                    otype = get(tblStylePr, 'w:type')
+                    orides = self.overrides[otype] = {}
+                    for tblPr in XPath('./w:tblPr')(tblStylePr):
+                        orides['table'] = TableStyle(tblPr)
+                    for trPr in XPath('./w:trPr')(tblStylePr):
+                        orides['row'] = RowStyle(trPr)
+                    for tcPr in XPath('./w:tcPr')(tblStylePr):
+                        orides['cell'] = tcPr
+                    for pPr in XPath('./w:pPr')(tblStylePr):
+                        orides['block'] = ParagraphStyle(pPr)
+                    for rPr in XPath('./w:rPr')(tblStylePr):
+                        orides['char'] = RunStyle(rPr)
 
     def update(self, other):
         for prop in self.all_properties:
@@ -110,9 +212,6 @@ class TableStyle(object):
             if val is inherit:
                 setattr(self, p, getattr(parent, p))
 
-    @property
-    def css(self):
-        return self._css
 
 class Tables(object):
 
@@ -149,4 +248,5 @@ class Tables(object):
                     tr[-1].tail = '\n\t\t'
             if len(table):
                 table[-1].tail = '\n\t'
+
 
