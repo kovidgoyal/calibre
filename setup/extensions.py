@@ -535,6 +535,8 @@ class Build(Command):
             src = (glob.glob('*.so') + glob.glob('release/*.dll') +
                     glob.glob('*.dylib'))
             ext = 'pyd' if iswindows else 'so'
+            if not os.path.exists(dest):
+                os.makedirs(dest)
             shutil.copy2(src[0], self.j(dest, 'calibre_style.'+ext))
         finally:
             os.chdir(ocwd)
