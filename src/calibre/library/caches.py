@@ -221,6 +221,8 @@ class ResultCache(SearchQueryParser):  # {{{
         # Do this here so the var get updated when a library changes
         global pref_use_primary_find_in_search
         pref_use_primary_find_in_search = prefs['use_primary_find_in_search']
+        self._uuid_column_index = self.FIELD_MAP['uuid']
+        self._uuid_map = {}
 
     def break_cycles(self):
         self._data = self.field_metadata = self.FIELD_MAP = \
@@ -918,6 +920,11 @@ class ResultCache(SearchQueryParser):  # {{{
 
     def remove(self, id):
         try:
+            uuid = self._data[id][self._uuid_column_index]
+        except IndexError:
+            # id is out of bounds -- no uuid in the map to remove
+            uuid = None
+        try:
             self._data[id] = None
         except IndexError:
             # id is out of bounds, no point setting it to None anyway
@@ -931,10 +938,20 @@ class ResultCache(SearchQueryParser):  # {{{
         except ValueError:
             pass
 
+        if uuid:
+            try:
+                self._uuid_map.pop(uuid, None)
+            except ValueError:
+                pass
+
     def set(self, row, col, val, row_is_id=False):
         id = row if row_is_id else self._map_filtered[row]
         d = self._data[id]
+        if col == self._uuid_column_index:
+            self._uuid_map.pop(d[col], None)
         d[col] = val
+        if col == self._uuid_column_index:
+            self._uuid_map[d[col]] = id
         d.refresh_composites()
 
     def get(self, row, col, row_is_id=False):
@@ -968,6 +985,8 @@ class ResultCache(SearchQueryParser):  # {{{
                 self._data[id].append(db.book_on_device_string(id))
                 self._data[id].append(self.marked_ids_dict.get(id, None))
                 self._data[id].append(None)
+
+                self._uuid_map[self._data[id][self._uuid_column_index]] = id
             except IndexError:
                 return None
         try:
@@ -987,6 +1006,8 @@ class ResultCache(SearchQueryParser):  # {{{
             self._data[id].append(db.book_on_device_string(id))
             self._data[id].append(self.marked_ids_dict.get(id, None))
             self._data[id].append(None)  # Series sort column
+
+            self._uuid_map[self._data[id][self._uuid_column_index]] = id
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -1013,6 +1034,8 @@ class ResultCache(SearchQueryParser):  # {{{
         for r in temp:
             self._data[r[0]] = CacheRow(db, self.composites, r,
                                         self.series_col, self.series_sort_col)
+            self._uuid_map[self._data[r[0]][self._uuid_column_index]] = r[0]
+
         for item in self._data:
             if item is not None:
                 item.append(db.book_on_device_string(item[0]))
