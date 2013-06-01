@@ -174,11 +174,18 @@ def one_one_in_books(book_id_val_map, db, field, *args):
         db.conn.executemany(
             'UPDATE books SET %s=? WHERE id=?'%field.metadata['column'], sequence)
         field.table.book_col_map.update(book_id_val_map)
-    if field.name == 'title':
-        # Set the title sort field
-        field.title_sort_field.writer.set_books(
-            {k:title_sort(v) for k, v in book_id_val_map.iteritems()}, db)
     return set(book_id_val_map)
+
+def set_uuid(book_id_val_map, db, field, *args):
+    field.table.update_uuid_cache(book_id_val_map)
+    return one_one_in_books(book_id_val_map, db, field, *args)
+
+def set_title(book_id_val_map, db, field, *args):
+    ans = one_one_in_books(book_id_val_map, db, field, *args)
+    # Set the title sort field
+    field.title_sort_field.writer.set_books(
+        {k:title_sort(v) for k, v in book_id_val_map.iteritems()}, db)
+    return ans
 
 def one_one_in_other(book_id_val_map, db, field, *args):
     'Set a one-one field in the non-books table, like comments'
@@ -460,6 +467,10 @@ class Writer(object):
             self.set_books_func = custom_series_index
         elif self.name == 'identifiers':
             self.set_books_func = identifiers
+        elif self.name == 'uuid':
+            self.set_books_func = set_uuid
+        elif self.name == 'title':
+            self.set_books_func = set_title
         elif field.is_many_many:
             self.set_books_func = many_many
         elif field.is_many:

@@ -29,7 +29,7 @@ from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_tree
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
-        CompositeTable, LanguagesTable)
+        CompositeTable, LanguagesTable, UUIDTable)
 # }}}
 
 '''
@@ -701,7 +701,7 @@ class DB(object):
                         if col == 'cover' else col)
             if not metadata['column']:
                 metadata['column'] = col
-            tables[col] = (PathTable if col == 'path' else OneToOneTable)(col, metadata)
+            tables[col] = (PathTable if col == 'path' else UUIDTable if col == 'uuid' else OneToOneTable)(col, metadata)
 
         for col in ('series', 'publisher', 'rating'):
             tables[col] = ManyToOneTable(col, self.field_metadata[col].copy())

@@ -98,6 +98,17 @@ class SizeTable(OneToOneTable):
                 'WHERE data.book=books.id) FROM books'):
             self.book_col_map[row[0]] = self.unserialize(row[1])
 
+class UUIDTable(OneToOneTable):
+
+    def read(self, db):
+        OneToOneTable.read(self, db)
+        self.uuid_to_id_map = {v:k for k, v in self.book_col_map.iteritems()}
+
+    def update_uuid_cache(self, book_id_val_map):
+        for book_id, uuid in book_id_val_map.iteritems():
+            self.uuid_to_id_map.pop(self.book_col_map[book_id], None)  # discard old uuid
+            self.uuid_to_id_map[uuid] = book_id
+
 class CompositeTable(OneToOneTable):
 
     def read(self, db):
