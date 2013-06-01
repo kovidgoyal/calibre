@@ -20,7 +20,7 @@ def MBP(name):
     return '{%s}%s' % (MBP_NS, name)
 
 MOBI_NSMAP = {None: XHTML_NS, 'mbp': MBP_NS}
-
+INLINE_TAGS = {'span', 'a', 'code', 'u', 's', 'big', 'strike', 'tt', 'font', 'q', 'i', 'b', 'em', 'strong', 'sup', 'sub'}
 HEADER_TAGS = set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
 # GR: Added 'caption' to both sets
 NESTABLE_TAGS = set(['ol', 'ul', 'li', 'table', 'tr', 'td', 'th', 'caption'])
@@ -489,6 +489,9 @@ class MobiMLizer(object):
         if elem.text:
             if istate.preserve:
                 text = elem.text
+            elif (len(elem) > 0 and isspace(elem.text) and elem[0].tag and
+                  elem[0].tag.rpartition('}')[-1] not in INLINE_TAGS):
+                text = None
             else:
                 text = COLLAPSE.sub(' ', elem.text)
         valign = style['vertical-align']
