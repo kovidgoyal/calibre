@@ -920,15 +920,13 @@ class ResultCache(SearchQueryParser):  # {{{
 
     def remove(self, id):
         try:
-            uuid = self._data[id][self._uuid_column_index]
+            self._uuid_map.pop(self._data[id][self._uuid_column_index], None)
         except IndexError:
-            # id is out of bounds -- no uuid in the map to remove
-            uuid = None
+            pass  # id is out of bounds -- no uuid in the map to remove
         try:
             self._data[id] = None
         except IndexError:
-            # id is out of bounds, no point setting it to None anyway
-            pass
+            pass  # id is out of bounds, no point setting it to None anyway
         try:
             self._map.remove(id)
         except ValueError:
@@ -938,12 +936,6 @@ class ResultCache(SearchQueryParser):  # {{{
         except ValueError:
             pass
 
-        if uuid:
-            try:
-                self._uuid_map.pop(uuid, None)
-            except ValueError:
-                pass
-
     def set(self, row, col, val, row_is_id=False):
         id = row if row_is_id else self._map_filtered[row]
         d = self._data[id]
@@ -951,7 +943,7 @@ class ResultCache(SearchQueryParser):  # {{{
             self._uuid_map.pop(d[col], None)
         d[col] = val
         if col == self._uuid_column_index:
-            self._uuid_map[d[col]] = id
+            self._uuid_map[val] = id
         d.refresh_composites()
 
     def get(self, row, col, row_is_id=False):
@@ -985,7 +977,6 @@ class ResultCache(SearchQueryParser):  # {{{
                 self._data[id].append(db.book_on_device_string(id))
                 self._data[id].append(self.marked_ids_dict.get(id, None))
                 self._data[id].append(None)
-
                 self._uuid_map[self._data[id][self._uuid_column_index]] = id
             except IndexError:
                 return None
@@ -1006,7 +997,6 @@ class ResultCache(SearchQueryParser):  # {{{
             self._data[id].append(db.book_on_device_string(id))
             self._data[id].append(self.marked_ids_dict.get(id, None))
             self._data[id].append(None)  # Series sort column
-
             self._uuid_map[self._data[id][self._uuid_column_index]] = id
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
