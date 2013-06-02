@@ -46,9 +46,9 @@ class Convert(object):
         self.dest_dir = dest_dir or os.getcwdu()
         self.mi = self.docx.metadata
         self.body = BODY()
-        self.styles = Styles()
-        self.images = Images()
         self.tables = Tables()
+        self.styles = Styles(self.tables)
+        self.images = Images()
         self.object_map = OrderedDict()
         self.html = HTML(
             HEAD(
@@ -100,17 +100,9 @@ class Convert(object):
                 dl.append(DT('[', A('←' + text, href='#back_%s' % anchor, title=text), id=anchor))
                 dl[-1][0].tail = ']'
                 dl.append(DD())
-                in_table = False
                 for wp in note:
                     if wp.tag.endswith('}tbl'):
-                        self.tables.register(wp)
-                        in_table = True
-                        continue
-                    if in_table:
-                        if ancestor(wp, 'w:tbl') is not None:
-                            self.tables.add(wp)
-                        else:
-                            in_table = False
+                        self.tables.register(wp, self.styles)
                     p = self.convert_p(wp)
                     dl[-1].append(p)
 
@@ -167,12 +159,9 @@ class Convert(object):
         current = []
         self.page_map = OrderedDict()
 
-        in_table = False
-
         for p in descendants(doc, 'w:p', 'w:tbl'):
             if p.tag.endswith('}tbl'):
-                in_table = True
-                self.tables.register(p)
+                self.tables.register(p, self.styles)
                 continue
             sect = tuple(descendants(p, 'w:sectPr'))
             if sect:
@@ -182,11 +171,7 @@ class Convert(object):
                 current = []
             else:
                 current.append(p)
-            if in_table:
-                if ancestor(p, 'w:tbl') is not None:
-                    self.tables.add(p)
-                else:
-                    in_table = False
+
         if current:
             last = XPath('./w:body/w:sectPr')(doc)
             pr = PageProperties(last)

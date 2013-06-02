@@ -118,7 +118,7 @@ class Styles(object):
     Collection of all styles defined in the document. Used to get the final styles applicable to elements in the document markup.
     '''
 
-    def __init__(self):
+    def __init__(self, tables):
         self.id_map = OrderedDict()
         self.para_cache = {}
         self.para_char_cache = {}
@@ -126,6 +126,7 @@ class Styles(object):
         self.classes = {}
         self.counter = Counter()
         self.default_styles = {}
+        self.tables = tables
         self.numbering_style_links = {}
 
     def __iter__(self):
@@ -226,6 +227,9 @@ class Styles(object):
             parent_styles = []
             if self.default_paragraph_style is not None:
                 parent_styles.append(self.default_paragraph_style)
+            ts = self.tables.para_style(p)
+            if ts is not None:
+                parent_styles.append(ts)
 
             default_para = self.default_styles.get('paragraph', None)
             if direct_formatting.linked_style is not None:
@@ -278,6 +282,9 @@ class Styles(object):
             default_char = self.default_styles.get('character', None)
             if self.default_character_style is not None:
                 parent_styles.append(self.default_character_style)
+            ts = self.tables.run_style(p)
+            if ts is not None:
+                parent_styles.append(ts)
             pstyle = self.para_char_cache.get(p, None)
             if pstyle is not None:
                 parent_styles.append(pstyle)

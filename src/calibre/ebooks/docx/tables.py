@@ -6,8 +6,6 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from collections import OrderedDict
-
 from lxml.html.builder import TABLE, TR, TD
 
 from calibre.ebooks.docx.block_styles import inherit, read_shd, read_border, binary_property, border_props, ParagraphStyle  # noqa
@@ -212,41 +210,94 @@ class TableStyle(object):
             if val is inherit:
                 setattr(self, p, getattr(parent, p))
 
+class Table(object):
+
+    def __init__(self, tbl, styles, para_map):
+        self.tbl = tbl
+        self.styles = styles
+
+        # Read Table Style
+        style = {'table':TableStyle()}
+        for tblPr in XPath('./w:tblPr')(tbl):
+            for ts in XPath('./w:tblStyle[@w:val]')(tblPr):
+                style_id = get(ts, 'w:val')
+                s = styles.get(style_id)
+                if s is not None:
+                    if s.table_style is not None:
+                        style['table'].update(s.table_style)
+                    if s.paragraph_style is not None:
+                        if 'paragraph' in style:
+                            style['paragraph'].update(s.paragraph_style)
+                        else:
+                            style['paragraph'] = s.paragraph_style
+                    if s.character_style is not None:
+                        if 'run' in style:
+                            style['run'].update(s.character_style)
+                        else:
+                            style['run'] = s.character_style
+            style['table'].update(TableStyle(tblPr))
+        self.table_style, self.paragraph_style = style['table'], style.get('paragraph', None)
+        self.run_style = style.get('run', None)
+        self.paragraphs = XPath('./w:tr/w:tc/w:p')(tbl)
+
+        self.sub_tables = {x:Table(x, styles, para_map) for x in XPath('./w:tr/w:tc/w:tbl')(tbl)}
+        para_map.update({p:self for p in self.paragraphs})
+
+    def __iter__(self):
+        for p in self.paragraphs:
+            yield p
+        for t in self.sub_tables.itervalues():
+            for p in t:
+                yield p
+
+    def apply_markup(self, rmap, parent=None):
+        table = TABLE('\n\t\t')
+        if parent is None:
+            try:
+                first_para = rmap[next(iter(self))]
+            except StopIteration:
+                return
+            parent = first_para.getparent()
+            idx = parent.index(first_para)
+            parent.insert(idx, table)
+        else:
+            parent.append(table)
+        for row in XPath('./w:tr')(self.tbl):
+            tr = TR('\n\t\t\t')
+            tr.tail = '\n\t\t'
+            table.append(tr)
+            for tc in XPath('./w:tc')(row):
+                td = TD()
+                td.tail = '\n\t\t\t'
+                tr.append(td)
+                for x in XPath('./w:p|./w:tbl')(tc):
+                    if x.tag.endswith('}p'):
+                        td.append(rmap[x])
+                    else:
+                        self.sub_tables[x].apply_markup(rmap, parent=td)
+            if len(tr):
+                tr[-1].tail = '\n\t\t'
+        if len(table):
+            table[-1].tail = '\n\t'
+
 
 class Tables(object):
 
     def __init__(self):
-        self.tables = OrderedDict()
+        self.tables = []
+        self.para_map = {}
 
-    def register(self, tbl):
-        self.tables[tbl] = self.current_table = []
-
-    def add(self, p):
-        self.current_table.append(p)
+    def register(self, tbl, styles):
+        self.tables.append(Table(tbl, styles, self.para_map))
 
     def apply_markup(self, object_map):
         rmap = {v:k for k, v in object_map.iteritems()}
-        for tbl, blocks in self.tables.iteritems():
-            if not blocks:
-                continue
-            parent = rmap[blocks[0]].getparent()
-            table = TABLE('\n\t\t')
-            idx = parent.index(rmap[blocks[0]])
-            parent.insert(idx, table)
-            for row in XPath('./w:tr')(tbl):
-                tr = TR('\n\t\t\t')
-                tr.tail = '\n\t\t'
-                table.append(tr)
-                for tc in XPath('./w:tc')(row):
-                    td = TD()
-                    td.tail = '\n\t\t\t'
-                    tr.append(td)
-                    for p in XPath('./w:p')(tc):
-                        block = rmap[p]
-                        td.append(block)
-                if len(tr):
-                    tr[-1].tail = '\n\t\t'
-            if len(table):
-                table[-1].tail = '\n\t'
+        for table in self.tables:
+            table.apply_markup(rmap)
 
+    def para_style(self, p):
+        return getattr(self.para_map.get(p, None), 'paragraph_style', None)
+
+    def run_style(self, p):
+        return getattr(self.para_map.get(p, None), 'run_style', None)
 
