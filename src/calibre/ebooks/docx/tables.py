@@ -138,6 +138,11 @@ def read_look(parent, dest):
 
 # }}}
 
+def clone(style):
+    ans = type(style)()
+    ans.update(style)
+    return ans
+
 class RowStyle(object):
 
     all_properties = ('height', 'cantSplit', 'hidden', 'spacing',)
@@ -194,9 +199,9 @@ class TableStyle(object):
                     for tcPr in XPath('./w:tcPr')(tblStylePr):
                         orides['cell'] = tcPr
                     for pPr in XPath('./w:pPr')(tblStylePr):
-                        orides['block'] = ParagraphStyle(pPr)
+                        orides['para'] = ParagraphStyle(pPr)
                     for rPr in XPath('./w:rPr')(tblStylePr):
-                        orides['char'] = RunStyle(rPr)
+                        orides['run'] = RunStyle(rPr)
 
     def update(self, other):
         for prop in self.all_properties:
@@ -238,10 +243,81 @@ class Table(object):
             style['table'].update(TableStyle(tblPr))
         self.table_style, self.paragraph_style = style['table'], style.get('paragraph', None)
         self.run_style = style.get('run', None)
-        self.paragraphs = XPath('./w:tr/w:tc/w:p')(tbl)
+
+        self.style_map = {}
+        self.paragraphs = []
+
+        rows = XPath('./w:tr')(tbl)
+        for r, tr in enumerate(rows):
+            cells = XPath('./w:tc')(tr)
+            for c, tc in enumerate(cells):
+                overrides = self.get_overrides(r, c, len(rows), len(cells))
+                for p in XPath('./w:p')(tc):
+                    para_map[p] = self
+                    self.paragraphs.append(p)
+                    self.resolve_para_style(p, overrides)
 
         self.sub_tables = {x:Table(x, styles, para_map) for x in XPath('./w:tr/w:tc/w:tbl')(tbl)}
-        para_map.update({p:self for p in self.paragraphs})
+
+    def override_allowed(self, name):
+        'Check if the named override is allowed by the tblLook element'
+        if name.endswith('Cell') or name == 'wholeTable':
+            return True
+        look = self.table_style.look
+        if (look & 0x0020 and name == 'firstRow') or (look & 0x0040 and name == 'lastRow') or \
+           (look & 0x0080 and name == 'firstCol') or (look & 0x0100 and name == 'lastCol'):
+            return True
+        if name.startswith('band'):
+            if name.endswith('Horz'):
+                return not bool(look & 0x0200)
+            if name.endswith('Vert'):
+                return not bool(look & 0x0400)
+        return False
+
+    def get_overrides(self, r, c, num_of_rows, num_of_cols_in_row):
+        'List of possible overrides for the given para'
+        overrides = ['wholeTable']
+        def divisor(m, n):
+            return (m - (m % n)) // n
+        odd_column_band = (divisor(c, self.table_style.col_band_size) % 2) == 0
+        overrides.append('band%dVert' % (1 if odd_column_band else 2))
+        odd_row_band = (divisor(r, self.table_style.row_band_size) % 2) == 0
+        overrides.append('band%dHorz' % (1 if odd_row_band else 2))
+        if r == 0:
+            overrides.append('firstRow')
+        if r >= num_of_rows - 1:
+            overrides.append('lastRow')
+        if c == 0:
+            overrides.append('firstCol')
+        if c >= num_of_cols_in_row - 1:
+            overrides.append('lastCol')
+        if r == 0:
+            if c == 0:
+                overrides.append('nwCell')
+            if c == num_of_cols_in_row - 1:
+                overrides.append('neCell')
+        if r == num_of_rows - 1:
+            if c == 0:
+                overrides.append('swCell')
+            if c == num_of_cols_in_row - 1:
+                overrides.append('seCell')
+        return tuple(filter(self.override_allowed, overrides))
+
+    def resolve_para_style(self, p, overrides):
+        text_styles = [None if self.paragraph_style is None else clone(self.paragraph_style),
+                       None if self.run_style is None else clone(self.run_style)]
+
+        for o in overrides:
+            if o in self.table_style.overrides:
+                ovr = self.table_style.overrides[o]
+                for i, name in enumerate(('para', 'run')):
+                    ops = ovr.get(name, None)
+                    if ops is not None:
+                        if text_styles[i] is None:
+                            text_styles[i] = ops
+                        else:
+                            text_styles[i].update(ops)
+        self.style_map[p] = text_styles
 
     def __iter__(self):
         for p in self.paragraphs:
@@ -296,8 +372,12 @@ class Tables(object):
             table.apply_markup(rmap)
 
     def para_style(self, p):
-        return getattr(self.para_map.get(p, None), 'paragraph_style', None)
+        table = self.para_map.get(p, None)
+        if table is not None:
+            return table.style_map.get(p, (None, None))[0]
 
     def run_style(self, p):
-        return getattr(self.para_map.get(p, None), 'run_style', None)
+        table = self.para_map.get(p, None)
+        if table is not None:
+            return table.style_map.get(p, (None, None))[1]
 
