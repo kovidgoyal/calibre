@@ -1689,7 +1689,6 @@ plugins += [
     StoreEHarlequinStore,
     StoreEKnigiStore,
     StoreEmpikStore,
-    StoreEscapeMagazineStore,
     StoreFeedbooksStore,
     StoreFoylesUKStore,
     StoreGoogleBooksStore,
