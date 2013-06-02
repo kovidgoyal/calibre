@@ -703,7 +703,7 @@ class libiMobileDevice():
          (str) describing error
 
         '''
-        e = "UNKNOWN ERROR (%s)" % error
+        e = "UNKNOWN ERROR (%d)" % error
         if not error:
             e = "Success (0)"
         elif error == 2:
@@ -1080,6 +1080,7 @@ class libiMobileDevice():
 
         error = self.lib.house_arrest_client_free(byref(self.house_arrest)) & 0xFFFF
         if error:
+            error = error - 0x10000
             if self.verbose:
                 self.log(" ERROR: %s" % self._house_arrest_error(error))
 
@@ -1106,6 +1107,7 @@ class libiMobileDevice():
                                                  self.lockdown,
                                                  byref(house_arrest_client_t)) & 0xFFFF
         if error:
+            error = error - 0x10000
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
                 func=sys._getframe().f_code.co_name,
@@ -1124,7 +1126,7 @@ class libiMobileDevice():
                 return house_arrest_client_t.contents
 
     def _house_arrest_error(self, error):
-        e = "UNKNOWN ERROR"
+        e = "UNKNOWN ERROR (%d)" % error
         if not error:
             e = "Success (0)"
         elif error == -1:
@@ -1217,6 +1219,7 @@ class libiMobileDevice():
                                                    _command,
                                                    _appid) & 0xFFFF
         if error:
+            error = error - 0x10000
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
                 func=sys._getframe().f_code.co_name,
@@ -1258,6 +1261,7 @@ class libiMobileDevice():
         error = self.lib.idevice_free(byref(self.device)) & 0xFFFF
 
         if error:
+            error = error - 0x10000
             if self.verbose:
                 self.log(" ERROR: %s" % self._idevice_error(error))
 
@@ -1278,6 +1282,7 @@ class libiMobileDevice():
         device_list = []
         error = self.lib.idevice_get_device_list(byref(devices), byref(count)) & 0xFFFF
         if error:
+            error = error - 0x10000
             if error == -3:
                 if self.verbose:
                     self.log(" no connected devices")
@@ -1315,6 +1320,7 @@ class libiMobileDevice():
                                      c_void_p()) & 0xFFFF
 
         if error:
+            error = error - 0x10000
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
                 func=sys._getframe().f_code.co_name,
@@ -1354,6 +1360,7 @@ class libiMobileDevice():
                                           byref(apps)) & 0xFFFF
 
         if error:
+            error = error - 0x10000
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
                 func=sys._getframe().f_code.co_name,
@@ -1412,6 +1419,7 @@ class libiMobileDevice():
                                               self.lockdown,
                                               byref(instproxy_client_t)) & 0xFFFF
         if error:
+            error = error - 0x10000
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
                 func=sys._getframe().f_code.co_name,
@@ -1427,6 +1435,7 @@ class libiMobileDevice():
 
         error = self.lib.instproxy_client_free(byref(self.instproxy)) & 0xFFFF
         if error:
+            error = error - 0x10000
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
                 func=sys._getframe().f_code.co_name,
@@ -1463,7 +1472,7 @@ class libiMobileDevice():
         '''
         Return a string version of the error code
         '''
-        e = "UNKNOWN ERROR"
+        e = "UNKNOWN ERROR (%d)" % error
         if not error:
             e = "Success"
         elif error == -1:
@@ -1495,6 +1504,7 @@ class libiMobileDevice():
 
         error = self.lib.lockdownd_client_free(byref(self.control)) & 0xFFFF
         if error:
+            error = error - 0x10000
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
                 func=sys._getframe().f_code.co_name,
@@ -1534,6 +1544,7 @@ class libiMobileDevice():
                                                              SERVICE_NAME) & 0xFFFF
 
         if error:
+            error = error - 0x10000
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
                 func=sys._getframe().f_code.co_name,
@@ -1543,7 +1554,7 @@ class libiMobileDevice():
             return lockdownd_client_t.contents
 
     def _lockdown_error(self, error):
-        e = "UNKNOWN ERROR"
+        e = "UNKNOWN ERROR (%d)" % error
         if not error:
             e = "Success"
         elif error == -1:
@@ -1607,6 +1618,7 @@ class libiMobileDevice():
         error = self.lib.lockdownd_get_device_name(byref(self.control),
                                                    byref(device_name_p)) & 0xFFFF
         if error:
+            error = error - 0x10000
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
                 func=sys._getframe().f_code.co_name,
@@ -1725,6 +1737,7 @@ class libiMobileDevice():
                                              None,
                                              byref(preferences)) & 0xFFFF
         if error:
+            error = error - 0x10000
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
                 func=sys._getframe().f_code.co_name,
@@ -1761,6 +1774,7 @@ class libiMobileDevice():
 
         if self.control:
             error = self.lib.lockdownd_goodbye(byref(self.control)) & 0xFFFF
+            error = error - 0x10000
             if self.verbose:
                 self.log(" ERROR: %s" % self.error_lockdown(error))
         else:
@@ -1791,6 +1805,7 @@ class libiMobileDevice():
                                                  SERVICE_NAME,
                                                  byref(self.lockdown)) & 0xFFFF
         if error:
+            error = error - 0x10000
             error_description = self.LIB_ERROR_TEMPLATE.format(
                 cls=self.__class__.__name__,
                 func=sys._getframe().f_code.co_name,
