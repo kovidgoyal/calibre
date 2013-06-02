@@ -1419,17 +1419,6 @@ class StoreEmpikStore(StoreBase):
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF']
 
-class StoreEscapeMagazineStore(StoreBase):
-    name = 'EscapeMagazine'
-    author = u'Tomasz Długosz'
-    description = u'Książki elektroniczne w formie pliku komputerowego PDF. Zabezpieczone hasłem.'
-    actual_plugin = 'calibre.gui2.store.stores.escapemagazine_plugin:EscapeMagazineStore'
-
-    drm_free_only = True
-    headquarters = 'PL'
-    formats = ['PDF']
-    affiliate = True
-
 class StoreFeedbooksStore(StoreBase):
     name = 'Feedbooks'
     description = u'Feedbooks is a cloud publishing and distribution service, connected to a large ecosystem of reading systems and social networks. Provides a variety of genres from independent and classic books.'  # noqa
