@@ -153,7 +153,8 @@ class XmlPropertyListParser(object):
 
     def _end_dict(self, name):
         if self.__key is not None:
-            raise PropertyListParseError("Missing value for key '%s'" % self.__key)
+            print("XmlPropertyListParser() WARNING: Missing value for key '%s'" % self.__key)
+            #raise PropertyListParseError("Missing value for key '%s'" % self.__key)
         self._pop_stack()
 
     def _start_true(self, name, attrs):
