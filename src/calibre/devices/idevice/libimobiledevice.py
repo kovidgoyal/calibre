@@ -1293,7 +1293,9 @@ class libiMobileDevice():
         else:
             index = 0
             while devices[index]:
-                device_list.append(devices[index].contents.value)
+                # Filter out redundant entries
+                if devices[index].contents.value not in device_list:
+                    device_list.append(devices[index].contents.value)
                 index += 1
             if self.verbose:
                 self.log(" %s" % repr(device_list))
