@@ -731,10 +731,10 @@ datatype is one of: {0}
                 'int, float: number_format\n'
                 'text: is_names, use_decorations\n'
                 '\n'
-                'The best way to find legal combinations is to create a custom'
-                'column of the appropriate type in the GUI then look at the'
-                'backup OPF for a book (ensure that a new OPF has been created'
-                'since the column was added). You will see the JSON for the'
+                'The best way to find legal combinations is to create a custom '
+                'column of the appropriate type in the GUI then look at the '
+                'backup OPF for a book (ensure that a new OPF has been created '
+                'since the column was added). You will see the JSON for the '
                 '"display" for the new column in the OPF.'))
     return parser
 
