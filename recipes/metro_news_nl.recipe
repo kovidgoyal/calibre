@@ -39,6 +39,8 @@ from BeautifulSoup import BeautifulSoup
  Version 1.9.4 19-04-2013
     Added regex filter for mailto
     Updated for new layout of metro-site
+ Version 1.9.5 28-05-2013
+    Added some extra id's and classes to remove
 '''
 
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
@@ -46,7 +48,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     oldest_article = 1.2
     max_articles_per_feed = 25
     __author__  = u'DrMerry'
-    description = u'Metro Nederland v1.9.4 2013-04-19'
+    description = u'Metro Nederland v1.9.5 2013-05-28, Download nieuws van de Nederlandse editie van de krant Metro'
     language = u'nl'
     simultaneous_downloads = 5
     masthead_url = 'http://blog.metronieuws.nl/wp-content/themes/metro/images/header.gif'
@@ -70,7 +72,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
         #(re.compile(r'<(a |/a)[^>]*>', re.DOTALL|re.IGNORECASE),lambda match:'')
         #(re.compile('(</?)h2', re.DOTALL|re.IGNORECASE),lambda match:'\1em')
         ]
-        
+
     remove_tags_before= dict(id='subwrapper')
     remove_tags_after = dict(name='div', attrs={'class':['body-area','article-main-area']})
 #name='div', attrs={'class':['subwrapper']})]
@@ -80,13 +82,13 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['iframe','script','noscript','style']),
-        dict(name='div', attrs={'class':['aside clearfix','aside clearfix middle-col-line','comments','share-tools','article-right-column','column-4-5','column-1-5','ad-msg','col-179 ','col-373 ','clear','ad','navigation',re.compile('share-tools(-top)?'),'tools','metroCommentFormWrap','article-tools-below-title','related-links','padding-top-15',re.compile('^promo.*?$'),'teaser-component',re.compile('fb(-comments|_iframe_widget)'),'promos','header-links','promo-2']}),
-        dict(id=['article-2','googleads','column-1-5-bottom','column-4-5',re.compile('^ad(\d+|adcomp.*?)?$'),'adadcomp-4','margin-5','sidebar',re.compile('^article-\d'),'comments','gallery-1','sharez_container','ts-container','topshares','ts-title']),
+        dict(name='div', attrs={'class':['fact-related-box','aside clearfix','aside clearfix middle-col-line','comments','share-tools','article-right-column','column-4-5','column-1-5','ad-msg','col-179 ','col-373 ','clear','ad','navigation',re.compile('share-tools(-top)?'),'tools','metroCommentFormWrap','article-tools-below-title','related-links','padding-top-15',re.compile('^promo.*?$'),'teaser-component',re.compile('fb(-comments|_iframe_widget)'),'promos','header-links','promo-2']}),
+        dict(id=['super-carousel','article-2','googleads','column-1-5-bottom','column-4-5',re.compile('^ad(\d+|adcomp.*?)?$'),'adadcomp-4','margin-5','sidebar',re.compile('^article-\d'),'comments','gallery-1','sharez_container','ts-container','topshares','ts-title']),
         dict(name='a', attrs={'name':'comments'}),
         #dict(name='div', attrs={'data-href'}),
         dict(name='img', attrs={'class':'top-line','title':'volledig scherm'}),
         dict(attrs={'style':re.compile('^(.*(display\s?:\s?none|img-mask|white)\s?;?.*)$'),'title':'volledig scherm'})]
-        
+
     '''removed by before/after:
         id:
         column-1-5-top,'hidden_div','footer',
@@ -182,7 +184,7 @@ class MerryProcess(BeautifulSoup):
           except:
               pass
         return soup
-        
+
     def moveTitleAndAuthor(self, soup):
         moveitem = soup.h1
         pubdate = soup.find(id="date")
