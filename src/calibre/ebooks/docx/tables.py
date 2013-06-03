@@ -14,6 +14,7 @@ from calibre.ebooks.docx.names import XPath, get, is_tag
 
 # Read from XML {{{
 read_shd = rs
+edges = ('left', 'top', 'right', 'bottom')
 
 def _read_width(elem):
     ans = inherit
@@ -46,13 +47,13 @@ def read_cell_width(parent, dest):
 
 def read_padding(parent, dest):
     name = 'tblCellMar' if parent.tag.endswith('}tblPr') else 'tcMar'
-    left = top = bottom = right = inherit
+    ans = {x:inherit for x in edges}
     for mar in XPath('./w:%s' % name)(parent):
-        for x in ('left', 'top', 'right', 'bottom'):
+        for x in edges:
             for edge in XPath('./w:%s' % x)(mar):
-                locals()[x] = _read_width(edge)
-    for x in ('left', 'top', 'right', 'bottom'):
-        setattr(dest, 'cell_padding_%s' % x, locals()[x])
+                ans[x] = _read_width(edge)
+    for x in edges:
+        setattr(dest, 'cell_padding_%s' % x, ans[x])
 
 def read_justification(parent, dest):
     left = right = inherit
@@ -162,6 +163,16 @@ class Style(object):
             if nval is not inherit:
                 setattr(self, prop, nval)
 
+    def convert_spacing(self):
+        ans = {}
+        if self.spacing is not inherit:
+            if self.spacing in {'auto', '0'}:
+                ans['border-collapse'] = 'collapse'
+            else:
+                ans['border-collapse'] = 'separate'
+                ans['border-spacing'] = self.spacing
+        return ans
+
 class RowStyle(Style):
 
     all_properties = ('height', 'cantSplit', 'hidden', 'spacing',)
@@ -193,6 +204,7 @@ class RowStyle(Style):
                         c['min-height' if rule == 'atLeast' else 'height'] = '%.3gpt' % (int(val)/20)
                     except (ValueError, TypeError):
                         pass
+            c.update(self.convert_spacing())
         return self._css
 
 class CellStyle(Style):
@@ -209,6 +221,26 @@ class CellStyle(Style):
             for x in ('borders', 'shd', 'padding', 'cell_width', 'vertical_align', 'col_span', 'merge'):
                 f = globals()['read_%s' % x]
                 f(tcPr, self)
+        self._css = None
+
+    @property
+    def css(self):
+        if self._css is None:
+            self._css = c = {}
+            if self.background_color is not inherit:
+                c['background-color'] = self.background_color
+            if self.width not in (inherit, 'auto'):
+                c['width'] = self.width
+            if self.vertical_align is not inherit:
+                c['vertical-align'] = self.vertical_align
+            for x in edges:
+                val = getattr(self, 'cell_padding_%s' % x)
+                if val not in (inherit, 'auto'):
+                    c['padding-%s' % x] =  val
+                elif val is inherit and x in {'left', 'right'}:
+                    c['padding-%s' % x] = '%.3gpt' % (115/20)
+
+        return self._css
 
 class TableStyle(Style):
 
@@ -238,7 +270,7 @@ class TableStyle(Style):
                     for trPr in XPath('./w:trPr')(tblStylePr):
                         orides['row'] = RowStyle(trPr)
                     for tcPr in XPath('./w:tcPr')(tblStylePr):
-                        orides['cell'] = tcPr
+                        orides['cell'] = CellStyle(tcPr)
                     for pPr in XPath('./w:pPr')(tblStylePr):
                         orides['para'] = ParagraphStyle(pPr)
                     for rPr in XPath('./w:rPr')(tblStylePr):
@@ -255,7 +287,9 @@ class TableStyle(Style):
     def css(self):
         if self._css is None:
             c = self._css = {}
-            for x in ('width', 'background_color', 'margin_left', 'margin_right'):
+            if self.width not in (inherit, 'auto'):
+                c['width'] = self.width
+            for x in ('background_color', 'margin_left', 'margin_right'):
                 val = getattr(self, x)
                 if val is not inherit:
                     c[x.replace('_', '-')] = val
@@ -279,6 +313,9 @@ class TableStyle(Style):
                     except (KeyError, ValueError, TypeError):
                         x = 0
                     c['float'] = 'left' if (x/page_width) < 0.65 else 'right'
+            c.update(self.convert_spacing())
+            if 'border-collapse' not in c:
+                c['border-collapse'] = 'collapse'
         return self._css
 
 
@@ -324,6 +361,7 @@ class Table(object):
             cells = XPath('./w:tc')(tr)
             for c, tc in enumerate(cells):
                 overrides = self.get_overrides(r, c, len(rows), len(cells))
+                self.resolve_cell_style(tc, overrides)
                 for p in XPath('./w:p')(tc):
                     para_map[p] = self
                     self.paragraphs.append(p)
@@ -352,9 +390,9 @@ class Table(object):
         def divisor(m, n):
             return (m - (m % n)) // n
         if c is not None:
-            odd_column_band = (divisor(c, self.table_style.col_band_size) % 2) == 0
+            odd_column_band = (divisor(c, self.table_style.col_band_size) % 2) == 1
             overrides.append('band%dVert' % (1 if odd_column_band else 2))
-        odd_row_band = (divisor(r, self.table_style.row_band_size) % 2) == 0
+        odd_row_band = (divisor(r, self.table_style.row_band_size) % 2) == 1
         overrides.append('band%dHorz' % (1 if odd_row_band else 2))
         if r == 0:
             overrides.append('firstRow')
@@ -390,6 +428,25 @@ class Table(object):
             rs.update(RowStyle(trPr))
         self.style_map[tr] = rs
 
+    def resolve_cell_style(self, tc, overrides):
+        cs = CellStyle()
+        for o in overrides:
+            if o in self.overrides:
+                ovr = self.overrides[o]
+                ors = ovr.get('cell', None)
+                if ors is not None:
+                    cs.update(ors)
+
+        for tcPr in XPath('./w:tcPr')(tc):
+            cs.update(CellStyle(tcPr))
+
+        for x in ('left', 'top', 'right', 'bottom'):
+            p = 'cell_padding_%s' % x
+            val = getattr(cs, p)
+            if val is inherit:
+                setattr(cs, p, getattr(self.table_style, p))
+        self.style_map[tc] = cs
+
     def resolve_para_style(self, p, overrides):
         text_styles = [clone(self.paragraph_style), clone(self.run_style)]
 
@@ -415,9 +472,7 @@ class Table(object):
     def apply_markup(self, rmap, page, parent=None):
         table = TABLE('\n\t\t')
         self.table_style.page = page
-        table_style = self.table_style.css
-        if table_style:
-            table.set('class', self.styles.register(table_style, 'table'))
+        style_map = {}
         if parent is None:
             try:
                 first_para = rmap[next(iter(self))]
@@ -430,13 +485,14 @@ class Table(object):
             parent.append(table)
         for row in XPath('./w:tr')(self.tbl):
             tr = TR('\n\t\t\t')
-            row_style = self.style_map[row].css
-            if row_style:
-                tr.set('class', self.styles.register(row_style, 'row'))
+            style_map[tr] = self.style_map[row]
             tr.tail = '\n\t\t'
             table.append(tr)
             for tc in XPath('./w:tc')(row):
                 td = TD()
+                style_map[td] = s = self.style_map[tc]
+                if s.col_span is not inherit:
+                    td.set('colspan', type('')(s.col_span))
                 td.tail = '\n\t\t\t'
                 tr.append(td)
                 for x in XPath('./w:p|./w:tbl')(tc):
@@ -449,6 +505,13 @@ class Table(object):
         if len(table):
             table[-1].tail = '\n\t'
 
+        table_style = self.table_style.css
+        if table_style:
+            table.set('class', self.styles.register(table_style, 'table'))
+        for elem, style in style_map.iteritems():
+            css = style.css
+            if css:
+                elem.set('class', self.styles.register(css, elem.tag))
 
 class Tables(object):
 
