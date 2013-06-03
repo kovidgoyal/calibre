@@ -44,4 +44,10 @@ SHORTCUTS = {
         'Right' : (['L', 'Right'],
             _('Scroll right')),
 
+        'Back': (['Alt+Left'],
+            _('Back')),
+
+        'Forward': (['Alt+Right'],
+            _('Forward')),
+
 }

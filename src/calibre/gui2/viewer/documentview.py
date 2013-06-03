@@ -1218,6 +1218,12 @@ class DocumentView(QWebView): # {{{
                 self.paged_col_scroll()
             else:
                 self.scroll_by(x=15)
+        elif key == 'Back':
+            if self.manager is not None:
+                self.manager.back(None)
+        elif key == 'Forward':
+            if self.manager is not None:
+                self.manager.forward(None)
         else:
             handled = False
         return handled
