@@ -87,7 +87,7 @@ class HTMLInput(InputFormatPlugin):
             return self._is_case_sensitive
         if not path or not os.path.exists(path):
             return islinux or isbsd
-        self._is_case_sensitive = not (os.path.exists(path.lower()) \
+        self._is_case_sensitive = not (os.path.exists(path.lower())
                 and os.path.exists(path.upper()))
         return self._is_case_sensitive
 
@@ -101,6 +101,8 @@ class HTMLInput(InputFormatPlugin):
         from calibre.ebooks.oeb.transforms.metadata import \
             meta_info_to_oeb_metadata
         from calibre.ebooks.html.input import get_filelist
+        from calibre.ebooks.metadata import string_to_authors
+        from calibre.utils.localization import canonicalize_lang
         import cssutils, logging
         cssutils.log.setLevel(logging.WARN)
         self.OEB_STYLES = OEB_STYLES
@@ -111,11 +113,20 @@ class HTMLInput(InputFormatPlugin):
         metadata = oeb.metadata
         meta_info_to_oeb_metadata(mi, metadata, log)
         if not metadata.language:
-            oeb.logger.warn(u'Language not specified')
-            metadata.add('language', get_lang().replace('_', '-'))
+            l = canonicalize_lang(getattr(opts, 'language', None))
+            if not l:
+                oeb.logger.warn(u'Language not specified')
+                l = get_lang().replace('_', '-')
+            metadata.add('language', l)
         if not metadata.creator:
-            oeb.logger.warn('Creator not specified')
-            metadata.add('creator', self.oeb.translate(__('Unknown')))
+            a = getattr(opts, 'authors', None)
+            if a:
+                a = string_to_authors(a)
+            if not a:
+                oeb.logger.warn('Creator not specified')
+                a = [self.oeb.translate(__('Unknown'))]
+            for aut in a:
+                metadata.add('creator', aut)
         if not metadata.title:
             oeb.logger.warn('Title not specified')
             metadata.add('title', self.oeb.translate(__('Unknown')))
@@ -175,7 +186,8 @@ class HTMLInput(InputFormatPlugin):
         titles = []
         headers = []
         for item in self.oeb.spine:
-            if not item.linear: continue
+            if not item.linear:
+                continue
             html = item.data
             title = ''.join(xpath(html, '/h:html/h:head/h:title/text()'))
             title = re.sub(r'\s+', ' ', title.strip())
@@ -193,7 +205,8 @@ class HTMLInput(InputFormatPlugin):
         if len(titles) > len(set(titles)):
             use = headers
         for title, item in izip(use, self.oeb.spine):
-            if not item.linear: continue
+            if not item.linear:
+                continue
             toc.add(title, item.href)
 
         oeb.container = DirContainer(os.getcwdu(), oeb.log, ignore_opf=True)
@@ -291,3 +304,4 @@ class HTMLInput(InputFormatPlugin):
             self.log.exception('Failed to read CSS file: %r'%link)
             return (None, None)
         return (None, raw)
+
