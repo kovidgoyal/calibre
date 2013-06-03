@@ -85,8 +85,9 @@ class Convert(object):
         self.read_page_properties(doc)
         for wp, page_properties in self.page_map.iteritems():
             self.current_page = page_properties
-            p = self.convert_p(wp)
-            self.body.append(p)
+            if wp.tag.endswith('}p'):
+                p = self.convert_p(wp)
+                self.body.append(p)
 
         notes_header = None
         if self.footnotes.has_notes:
@@ -103,6 +104,7 @@ class Convert(object):
                 for wp in note:
                     if wp.tag.endswith('}tbl'):
                         self.tables.register(wp, self.styles)
+                        self.page_map[wp] = self.current_page
                     p = self.convert_p(wp)
                     dl[-1].append(p)
 
@@ -110,7 +112,7 @@ class Convert(object):
 
         self.styles.cascade(self.layers)
 
-        self.tables.apply_markup(self.object_map)
+        self.tables.apply_markup(self.object_map, self.page_map)
 
         numbered = []
         for html_obj, obj in self.object_map.iteritems():
@@ -162,6 +164,7 @@ class Convert(object):
         for p in descendants(doc, 'w:p', 'w:tbl'):
             if p.tag.endswith('}tbl'):
                 self.tables.register(p, self.styles)
+                current.append(p)
                 continue
             sect = tuple(descendants(p, 'w:sectPr'))
             if sect:

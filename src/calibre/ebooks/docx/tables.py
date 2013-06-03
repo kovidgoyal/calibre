@@ -8,11 +8,13 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from lxml.html.builder import TABLE, TR, TD
 
-from calibre.ebooks.docx.block_styles import inherit, read_shd, read_border, binary_property, border_props, ParagraphStyle  # noqa
+from calibre.ebooks.docx.block_styles import inherit, read_shd as rs, read_border, binary_property, border_props, ParagraphStyle
 from calibre.ebooks.docx.char_styles import RunStyle
 from calibre.ebooks.docx.names import XPath, get, is_tag
 
 # Read from XML {{{
+read_shd = rs
+
 def _read_width(elem):
     ans = inherit
     try:
@@ -72,6 +74,12 @@ def read_spacing(parent, dest):
     for cs in XPath('./w:tblCellSpacing')(parent):
         ans = _read_width(cs)
     setattr(dest, 'spacing', ans)
+
+def read_float(parent, dest):
+    ans = inherit
+    for x in XPath('./w:tblpPr')(parent):
+        ans = x.attrib
+    setattr(dest, 'float', ans)
 
 def read_indent(parent, dest):
     ans = inherit
@@ -139,7 +147,10 @@ def read_look(parent, dest):
 # }}}
 
 def clone(style):
-    ans = type(style)()
+    try:
+        ans = type(style)()
+    except TypeError:
+        return None
     ans.update(style)
     return ans
 
@@ -147,12 +158,16 @@ class RowStyle(object):
 
     all_properties = ('height', 'cantSplit', 'hidden', 'spacing',)
 
-    def __init__(self, tcPr=None):
-        if tcPr is None:
+    def __init__(self, trPr=None):
+        if trPr is None:
             for p in self.all_properties:
                 setattr(self, p, inherit)
         else:
-            pass
+            for p in ('hidden', 'cantSplit'):
+                setattr(self, p, binary_property(trPr, p))
+            for p in ('spacing', 'height'):
+                f = globals()['read_%s' % p]
+                f(trPr, self)
 
 class CellStyle(object):
 
@@ -160,19 +175,19 @@ class CellStyle(object):
         'cell_padding_bottom', 'width', 'vertical_align', 'col_span', 'vMerge', 'hMerge',
     ) + tuple(k % edge for edge in border_edges for k in border_props)
 
-    def __init__(self, trPr=None):
-        if trPr is None:
+    def __init__(self, tcPr=None):
+        if tcPr is None:
             for p in self.all_properties:
                 setattr(self, p, inherit)
         else:
             for x in ('borders', 'shd', 'padding', 'cell_width', 'vertical_align', 'col_span', 'merge'):
                 f = globals()['read_%s' % x]
-                f(trPr, self)
+                f(tcPr, self)
 
 class TableStyle(object):
 
     all_properties = (
-        'width', 'cell_padding_left', 'cell_padding_right', 'cell_padding_top',
+        'width', 'float', 'cell_padding_left', 'cell_padding_right', 'cell_padding_top',
         'cell_padding_bottom', 'margin_left', 'margin_right', 'background_color',
         'spacing', 'indent', 'overrides', 'col_band_size', 'row_band_size', 'look',
     ) + tuple(k % edge for edge in border_edges for k in border_props)
@@ -183,7 +198,7 @@ class TableStyle(object):
                 setattr(self, p, inherit)
         else:
             self.overrides = inherit
-            for x in ('width', 'padding', 'shd', 'justification', 'spacing', 'indent', 'borders', 'band_size', 'look'):
+            for x in ('width', 'float', 'padding', 'shd', 'justification', 'spacing', 'indent', 'borders', 'band_size', 'look'):
                 f = globals()['read_%s' % x]
                 f(tblPr, self)
             parent = tblPr.getparent()
@@ -202,6 +217,7 @@ class TableStyle(object):
                         orides['para'] = ParagraphStyle(pPr)
                     for rPr in XPath('./w:rPr')(tblStylePr):
                         orides['run'] = RunStyle(rPr)
+        self._css = None
 
     def update(self, other):
         for prop in self.all_properties:
@@ -214,6 +230,37 @@ class TableStyle(object):
             val = getattr(self, p)
             if val is inherit:
                 setattr(self, p, getattr(parent, p))
+
+    @property
+    def css(self):
+        if self._css is None:
+            c = self._css = {}
+            for x in ('width', 'background_color', 'margin_left', 'margin_right'):
+                val = getattr(self, x)
+                if val is not inherit:
+                    c[x.replace('_', '-')] = val
+            if self.indent not in (inherit, 'auto') and self.margin_left != 'auto':
+                c['margin-left'] = self.indent
+            if self.float is not inherit:
+                for x in ('left', 'top', 'right', 'bottom'):
+                    val = self.float.get('%sFromText' % x, 0)
+                    try:
+                        val = '%.3gpt' % (int(val) / 20)
+                    except (ValueError, TypeError):
+                        val = '0'
+                    c['margin-%s' % x] = val
+                if 'tblpXSpec' in self.float:
+                    c['float'] = 'right' if self.float['tblpXSpec'] in {'right', 'outside'} else 'left'
+                else:
+                    page = self.page
+                    page_width = page.width - page.margin_left - page.margin_right
+                    try:
+                        x = int(self.float['tblpX']) / 20
+                    except (KeyError, ValueError, TypeError):
+                        x = 0
+                    c['float'] = 'left' if (x/page_width) < 0.65 else 'right'
+        return self._css
+
 
 class Table(object):
 
@@ -243,6 +290,9 @@ class Table(object):
             style['table'].update(TableStyle(tblPr))
         self.table_style, self.paragraph_style = style['table'], style.get('paragraph', None)
         self.run_style = style.get('run', None)
+        self.overrides = self.table_style.overrides
+        if 'wholeTable' in self.overrides and 'table' in self.overrides['wholeTable']:
+            self.table_style.update(self.overrides['wholeTable']['table'])
 
         self.style_map = {}
         self.paragraphs = []
@@ -304,12 +354,11 @@ class Table(object):
         return tuple(filter(self.override_allowed, overrides))
 
     def resolve_para_style(self, p, overrides):
-        text_styles = [None if self.paragraph_style is None else clone(self.paragraph_style),
-                       None if self.run_style is None else clone(self.run_style)]
+        text_styles = [clone(self.paragraph_style), clone(self.run_style)]
 
         for o in overrides:
-            if o in self.table_style.overrides:
-                ovr = self.table_style.overrides[o]
+            if o in self.overrides:
+                ovr = self.overrides[o]
                 for i, name in enumerate(('para', 'run')):
                     ops = ovr.get(name, None)
                     if ops is not None:
@@ -326,8 +375,10 @@ class Table(object):
             for p in t:
                 yield p
 
-    def apply_markup(self, rmap, parent=None):
+    def apply_markup(self, rmap, page, parent=None):
         table = TABLE('\n\t\t')
+        self.table_style.page = page
+        table.set('class', self.styles.register(self.table_style.css, 'table'))
         if parent is None:
             try:
                 first_para = rmap[next(iter(self))]
@@ -350,7 +401,7 @@ class Table(object):
                     if x.tag.endswith('}p'):
                         td.append(rmap[x])
                     else:
-                        self.sub_tables[x].apply_markup(rmap, parent=td)
+                        self.sub_tables[x].apply_markup(rmap, page, parent=td)
             if len(tr):
                 tr[-1].tail = '\n\t\t'
         if len(table):
@@ -366,10 +417,10 @@ class Tables(object):
     def register(self, tbl, styles):
         self.tables.append(Table(tbl, styles, self.para_map))
 
-    def apply_markup(self, object_map):
+    def apply_markup(self, object_map, page_map):
         rmap = {v:k for k, v in object_map.iteritems()}
         for table in self.tables:
-            table.apply_markup(rmap)
+            table.apply_markup(rmap, page_map[table.tbl])
 
     def para_style(self, p):
         table = self.para_map.get(p, None)
