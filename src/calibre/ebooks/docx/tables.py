@@ -154,7 +154,15 @@ def clone(style):
     ans.update(style)
     return ans
 
-class RowStyle(object):
+class Style(object):
+
+    def update(self, other):
+        for prop in self.all_properties:
+            nval = getattr(other, prop)
+            if nval is not inherit:
+                setattr(self, prop, nval)
+
+class RowStyle(Style):
 
     all_properties = ('height', 'cantSplit', 'hidden', 'spacing',)
 
@@ -168,8 +176,26 @@ class RowStyle(object):
             for p in ('spacing', 'height'):
                 f = globals()['read_%s' % p]
                 f(trPr, self)
+        self._css = None
 
-class CellStyle(object):
+    @property
+    def css(self):
+        if self._css is None:
+            c = self._css = {}
+            if self.hidden is True:
+                c['display'] = 'none'
+            if self.cantSplit is True:
+                c['page-break-inside'] = 'avoid'
+            if self.height is not inherit:
+                rule, val = self.height
+                if rule != 'auto':
+                    try:
+                        c['min-height' if rule == 'atLeast' else 'height'] = '%.3gpt' % (int(val)/20)
+                    except (ValueError, TypeError):
+                        pass
+        return self._css
+
+class CellStyle(Style):
 
     all_properties = ('background_color', 'cell_padding_left', 'cell_padding_right', 'cell_padding_top',
         'cell_padding_bottom', 'width', 'vertical_align', 'col_span', 'vMerge', 'hMerge',
@@ -184,7 +210,7 @@ class CellStyle(object):
                 f = globals()['read_%s' % x]
                 f(tcPr, self)
 
-class TableStyle(object):
+class TableStyle(Style):
 
     all_properties = (
         'width', 'float', 'cell_padding_left', 'cell_padding_right', 'cell_padding_top',
@@ -218,12 +244,6 @@ class TableStyle(object):
                     for rPr in XPath('./w:rPr')(tblStylePr):
                         orides['run'] = RunStyle(rPr)
         self._css = None
-
-    def update(self, other):
-        for prop in self.all_properties:
-            nval = getattr(other, prop)
-            if nval is not inherit:
-                setattr(self, prop, nval)
 
     def resolve_based_on(self, parent):
         for p in self.all_properties:
@@ -299,6 +319,8 @@ class Table(object):
 
         rows = XPath('./w:tr')(tbl)
         for r, tr in enumerate(rows):
+            overrides = self.get_overrides(r, None, len(rows), None)
+            self.resolve_row_style(tr, overrides)
             cells = XPath('./w:tc')(tr)
             for c, tc in enumerate(cells):
                 overrides = self.get_overrides(r, c, len(rows), len(cells))
@@ -329,29 +351,44 @@ class Table(object):
         overrides = ['wholeTable']
         def divisor(m, n):
             return (m - (m % n)) // n
-        odd_column_band = (divisor(c, self.table_style.col_band_size) % 2) == 0
-        overrides.append('band%dVert' % (1 if odd_column_band else 2))
+        if c is not None:
+            odd_column_band = (divisor(c, self.table_style.col_band_size) % 2) == 0
+            overrides.append('band%dVert' % (1 if odd_column_band else 2))
         odd_row_band = (divisor(r, self.table_style.row_band_size) % 2) == 0
         overrides.append('band%dHorz' % (1 if odd_row_band else 2))
         if r == 0:
             overrides.append('firstRow')
         if r >= num_of_rows - 1:
             overrides.append('lastRow')
-        if c == 0:
-            overrides.append('firstCol')
-        if c >= num_of_cols_in_row - 1:
-            overrides.append('lastCol')
-        if r == 0:
+        if c is not None:
             if c == 0:
-                overrides.append('nwCell')
-            if c == num_of_cols_in_row - 1:
-                overrides.append('neCell')
-        if r == num_of_rows - 1:
-            if c == 0:
-                overrides.append('swCell')
-            if c == num_of_cols_in_row - 1:
-                overrides.append('seCell')
+                overrides.append('firstCol')
+            if c >= num_of_cols_in_row - 1:
+                overrides.append('lastCol')
+            if r == 0:
+                if c == 0:
+                    overrides.append('nwCell')
+                if c == num_of_cols_in_row - 1:
+                    overrides.append('neCell')
+            if r == num_of_rows - 1:
+                if c == 0:
+                    overrides.append('swCell')
+                if c == num_of_cols_in_row - 1:
+                    overrides.append('seCell')
         return tuple(filter(self.override_allowed, overrides))
+
+    def resolve_row_style(self, tr, overrides):
+        rs = RowStyle()
+        for o in overrides:
+            if o in self.overrides:
+                ovr = self.overrides[o]
+                ors = ovr.get('row', None)
+                if ors is not None:
+                    rs.update(ors)
+
+        for trPr in XPath('./w:trPr')(tr):
+            rs.update(RowStyle(trPr))
+        self.style_map[tr] = rs
 
     def resolve_para_style(self, p, overrides):
         text_styles = [clone(self.paragraph_style), clone(self.run_style)]
@@ -378,7 +415,9 @@ class Table(object):
     def apply_markup(self, rmap, page, parent=None):
         table = TABLE('\n\t\t')
         self.table_style.page = page
-        table.set('class', self.styles.register(self.table_style.css, 'table'))
+        table_style = self.table_style.css
+        if table_style:
+            table.set('class', self.styles.register(table_style, 'table'))
         if parent is None:
             try:
                 first_para = rmap[next(iter(self))]
@@ -391,6 +430,9 @@ class Table(object):
             parent.append(table)
         for row in XPath('./w:tr')(self.tbl):
             tr = TR('\n\t\t\t')
+            row_style = self.style_map[row].css
+            if row_style:
+                tr.set('class', self.styles.register(row_style, 'row'))
             tr.tail = '\n\t\t'
             table.append(tr)
             for tc in XPath('./w:tc')(row):
