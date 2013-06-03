@@ -321,9 +321,10 @@ class TableStyle(Style):
 
 class Table(object):
 
-    def __init__(self, tbl, styles, para_map):
+    def __init__(self, tbl, styles, para_map, is_sub_table=False):
         self.tbl = tbl
         self.styles = styles
+        self.is_sub_table = is_sub_table
 
         # Read Table Style
         style = {'table':TableStyle()}
@@ -367,7 +368,7 @@ class Table(object):
                     self.paragraphs.append(p)
                     self.resolve_para_style(p, overrides)
 
-        self.sub_tables = {x:Table(x, styles, para_map) for x in XPath('./w:tr/w:tc/w:tbl')(tbl)}
+        self.sub_tables = {x:Table(x, styles, para_map, is_sub_table=True) for x in XPath('./w:tr/w:tc/w:tbl')(tbl)}
 
     def override_allowed(self, name):
         'Check if the named override is allowed by the tblLook element'
