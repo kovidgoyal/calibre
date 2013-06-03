@@ -518,9 +518,13 @@ class Tables(object):
     def __init__(self):
         self.tables = []
         self.para_map = {}
+        self.sub_tables = set()
 
     def register(self, tbl, styles):
+        if tbl in self.sub_tables:
+            return
         self.tables.append(Table(tbl, styles, self.para_map))
+        self.sub_tables |= set(self.tables[-1].sub_tables)
 
     def apply_markup(self, object_map, page_map):
         rmap = {v:k for k, v in object_map.iteritems()}
