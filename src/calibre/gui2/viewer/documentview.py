@@ -29,7 +29,7 @@ from calibre.ebooks.oeb.display.webview import load_html
 from calibre.constants import isxp, iswindows
 # }}}
 
-class Document(QWebPage): # {{{
+class Document(QWebPage):  # {{{
 
     page_turn = pyqtSignal(object)
     mark_element = pyqtSignal(QWebElement)
@@ -356,7 +356,8 @@ class Document(QWebPage): # {{{
         self.mainFrame().setScrollPosition(QPoint(x, y))
 
     def jump_to_anchor(self, anchor):
-        if not self.loaded_javascript: return
+        if not self.loaded_javascript:
+            return
         self.javascript('window.paged_display.jump_to_anchor("%s")'%anchor)
 
     def element_ypos(self, elem):
@@ -447,7 +448,7 @@ class Document(QWebPage): # {{{
 
     @property
     def width(self):
-        return self.mainFrame().contentsSize().width() # offsetWidth gives inaccurate results
+        return self.mainFrame().contentsSize().width()  # offsetWidth gives inaccurate results
 
     def set_bottom_padding(self, amount):
         s = QSize(-1, -1) if amount == 0 else QSize(self.viewportSize().width(),
@@ -460,7 +461,7 @@ class Document(QWebPage): # {{{
 
 # }}}
 
-class DocumentView(QWebView): # {{{
+class DocumentView(QWebView):  # {{{
 
     magnification_changed = pyqtSignal(object)
     DISABLED_BRUSH = QBrush(Qt.lightGray, Qt.Dense5Pattern)
@@ -766,8 +767,10 @@ class DocumentView(QWebView): # {{{
 
     @dynamic_property
     def current_language(self):
-        def fget(self): return self.document.current_language
-        def fset(self, val): self.document.current_language = val
+        def fget(self):
+            return self.document.current_language
+        def fset(self, val):
+            self.document.current_language = val
         return property(fget=fget, fset=fset)
 
     def search(self, text, backwards=False):
@@ -815,7 +818,6 @@ class DocumentView(QWebView): # {{{
             self.scrollbar.setVisible(delta > 0)
             self.scrollbar.blockSignals(False)
             self._ignore_scrollbar_signals = False
-
 
     def load_finished(self, ok):
         if self.loading_url is None:
@@ -960,8 +962,8 @@ class DocumentView(QWebView): # {{{
         window_height = self.document.window_height
         document_height = self.document.height
         ddelta = document_height - window_height
-        #print '\nWindow height:', window_height
-        #print 'Document height:', self.document.height
+        # print '\nWindow height:', window_height
+        # print 'Document height:', self.document.height
 
         delta_y = window_height - 25
         if self.document.at_bottom or ddelta <= 0:
@@ -974,19 +976,19 @@ class DocumentView(QWebView): # {{{
             return
         else:
             oopos = self.document.ypos
-            #print 'Original position:', oopos
+            # print 'Original position:', oopos
             self.document.set_bottom_padding(0)
             opos = self.document.ypos
-            #print 'After set padding=0:', self.document.ypos
+            # print 'After set padding=0:', self.document.ypos
             if opos < oopos:
                 if self.manager is not None:
                     if epf:
                         self.flipper.initialize(self.current_page_image())
                     self.manager.next_document()
                 return
-            #oheight = self.document.height
-            lower_limit = opos + delta_y # Max value of top y co-ord after scrolling
-            max_y = self.document.height - window_height # The maximum possible top y co-ord
+            # oheight = self.document.height
+            lower_limit = opos + delta_y  # Max value of top y co-ord after scrolling
+            max_y = self.document.height - window_height  # The maximum possible top y co-ord
             if max_y < lower_limit:
                 padding = lower_limit - max_y
                 if padding == window_height:
@@ -995,28 +997,28 @@ class DocumentView(QWebView): # {{{
                             self.flipper.initialize(self.current_page_image())
                         self.manager.next_document()
                     return
-                #print 'Setting padding to:', lower_limit - max_y
+                # print 'Setting padding to:', lower_limit - max_y
                 self.document.set_bottom_padding(lower_limit - max_y)
             if epf:
                 self.flipper.initialize(self.current_page_image())
-            #print 'Document height:', self.document.height
-            #print 'Height change:', (self.document.height - oheight)
+            # print 'Document height:', self.document.height
+            # print 'Height change:', (self.document.height - oheight)
             max_y = self.document.height - window_height
             lower_limit = min(max_y, lower_limit)
-            #print 'Scroll to:', lower_limit
+            # print 'Scroll to:', lower_limit
             if lower_limit > opos:
                 self.document.scroll_to(self.document.xpos, lower_limit)
             actually_scrolled = self.document.ypos - opos
-            #print 'After scroll pos:', self.document.ypos
-            #print 'Scrolled by:', self.document.ypos - opos
+            # print 'After scroll pos:', self.document.ypos
+            # print 'Scrolled by:', self.document.ypos - opos
             self.find_next_blank_line(window_height - actually_scrolled)
-            #print 'After blank line pos:', self.document.ypos
+            # print 'After blank line pos:', self.document.ypos
             if epf:
                 self.flipper(self.current_page_image(),
                         duration=self.document.page_flip_duration)
             if self.manager is not None:
                 self.manager.scrolled(self.scroll_fraction)
-            #print 'After all:', self.document.ypos
+            # print 'After all:', self.document.ypos
 
     def page_turn_requested(self, backwards):
         if backwards:
@@ -1110,7 +1112,8 @@ class DocumentView(QWebView): # {{{
                 return
 
         if self.document.in_paged_mode:
-            if abs(event.delta()) < 15: return
+            if abs(event.delta()) < 15:
+                return
             typ = 'screen' if self.document.wheel_flips_pages else 'col'
             direction = 'next' if event.delta() < 0 else 'previous'
             loc = self.document.javascript('paged_display.%s_%s_location()'%(
@@ -1134,7 +1137,7 @@ class DocumentView(QWebView): # {{{
                 event.accept()
                 return
             if self.document.at_bottom:
-                self.scroll_by(y=15) # at_bottom can lie on windows
+                self.scroll_by(y=15)  # at_bottom can lie on windows
                 if self.manager is not None:
                     self.manager.next_document()
                     event.accept()
@@ -1261,4 +1264,5 @@ class DocumentView(QWebView): # {{{
         return ret
 
 # }}}
+
 
