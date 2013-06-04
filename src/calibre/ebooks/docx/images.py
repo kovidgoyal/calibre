@@ -157,6 +157,17 @@ class Images(object):
                         ans.set('style', '; '.join('%s: %s' % (k, v) for k, v in style.iteritems()))
                     yield ans
 
+    def pict_to_html(self, pict, page):
+        for imagedata in XPath('descendant::v:imagedata[@r:id]')(pict):
+            rid = get(imagedata, 'r:id')
+            if rid in self.rid_map:
+                src = self.generate_filename(rid)
+                img = IMG(src='images/%s' % src, style="display:block")
+                alt = get(imagedata, 'o:title')
+                if alt:
+                    img(alt=alt)
+                yield img
+
     def get_float_properties(self, anchor, style, page):
         if 'display' not in style:
             style['display'] = 'block'
@@ -200,6 +211,8 @@ class Images(object):
         if elem.tag.endswith('}drawing'):
             for tag in self.drawing_to_html(elem, page):
                 yield tag
-        # TODO: Handle w:pict
+        else:
+            for tag in self.pict_to_html(elem, page):
+                yield tag
 
 
