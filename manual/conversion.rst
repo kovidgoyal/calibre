@@ -574,28 +574,27 @@ format, whether input or output are available in the conversion dialog under the
 Convert Microsoft Word documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-|app| does not directly convert .doc/.docx files from Microsoft Word. However, in Word, you can save the document
-as HTML and then convert the resulting HTML file with |app|. When saving as HTML, be sure to use the
-"Save as Web Page, Filtered" option as this will produce clean HTML that will convert well. Note that Word
-produces really messy HTML, converting it can take a long time, so be patient. Another alternative is to
-use the free OpenOffice. Open your .doc file in OpenOffice and save it in OpenOffice's format .odt. |app| can
-directly convert .odt files.
+|app| can automatically convert .docx files created by Microsoft Word 2007 and
+newer. Just add the file to |app| and click convert.
 
-There is a Word macro package that can automate the conversion of Word documents using |app|. It also makes
-generating the Table of Contents much simpler. It is called BookCreator and is available for free
-at `mobileread <http://www.mobileread.com/forums/showthread.php?t=28313>`_.
+|app| will automatically generate a Table of Contents based on headings if you mark
+your headings with the ``Heading 1``, ``Heading 2``, etc. styles in Word. Open
+the output ebook in the calibre viewer and click the Table of Contents button
+to view the generated Table of Contents.
 
-An easy way to generate a Table of Contents when converting a Word document is:
+Older .doc files
+-----------------
 
- 1. Mark your Chapters and sub-Chapters in the doc file with one of the MS built-in styles called 'Heading 1', 'Heading 2', ..., 'Heading 6'. 'Heading 1' equates to the HTML tag <h1>, 'Heading 2' to <h2> etc
+For older .doc files, you can save the document as HTML with Microsoft Word
+and then convert the resulting HTML file with |app|. When saving as
+HTML, be sure to use the "Save as Web Page, Filtered" option as this will
+produce clean HTML that will convert well. Note that Word produces really messy
+HTML, converting it can take a long time, so be patient. If you have a newer
+version of Word available, you can directly save it as docx as well.
 
- 2. Save the doc as Webpage-filtered (rather than Webpage) and import the html file into |app|
-
- 3. When you convert in |app| you use what you did in step 1 to set the box called 'Detect chapters at' on the Convert - Structure Detection page. For example:
-
-  * If you mark Chapters with style 'Heading 2' then set the 'Detect chapters at' box to //h:h2 This will give you a proper external metadata TOC in the converted epub.
-  * A slightly more complex example...if your book has Sections and Chapters and you want a 2-level nested metadata TOC. Mark the doc Sections with style 'Heading 2' and the Chapters with style 'Heading 3'. When you convert set the 'Detect chapters at' box to //h:h2|//h:h3. On the Convert - TOC page set the 'Level 1 TOC' box to //h:h2 and the 'Level 2 TOC' box to //h:h3.
-
+Another alternative is to use the free OpenOffice. Open your .doc file in
+OpenOffice and save it in OpenOffice's format .odt. |app| can directly convert
+.odt files.
 
 Convert TXT documents
 ~~~~~~~~~~~~~~~~~~~~~~
