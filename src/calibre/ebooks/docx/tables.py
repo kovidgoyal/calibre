@@ -223,7 +223,7 @@ class RowStyle(Style):
 class CellStyle(Style):
 
     all_properties = ('background_color', 'cell_padding_left', 'cell_padding_right', 'cell_padding_top',
-        'cell_padding_bottom', 'width', 'vertical_align', 'col_span', 'vMerge', 'hMerge',
+        'cell_padding_bottom', 'width', 'vertical_align', 'col_span', 'vMerge', 'hMerge', 'row_span',
     ) + tuple(k % edge for edge in border_edges for k in border_props)
 
     def __init__(self, tcPr=None):
@@ -234,6 +234,7 @@ class CellStyle(Style):
             for x in ('borders', 'shd', 'padding', 'cell_width', 'vertical_align', 'col_span', 'merge'):
                 f = globals()['read_%s' % x]
                 f(tcPr, self)
+            self.row_span = inherit
         self._css = None
 
     @property
@@ -375,20 +376,24 @@ class Table(object):
 
         self.style_map = {}
         self.paragraphs = []
+        self.cell_map = []
 
         rows = XPath('./w:tr')(tbl)
         for r, tr in enumerate(rows):
             overrides = self.get_overrides(r, None, len(rows), None)
             self.resolve_row_style(tr, overrides)
             cells = XPath('./w:tc')(tr)
+            self.cell_map.append([])
             for c, tc in enumerate(cells):
                 overrides = self.get_overrides(r, c, len(rows), len(cells))
                 self.resolve_cell_style(tc, overrides, r, c, len(rows), len(cells))
+                self.cell_map[-1].append(tc)
                 for p in XPath('./w:p')(tc):
                     para_map[p] = self
                     self.paragraphs.append(p)
                     self.resolve_para_style(p, overrides)
 
+        self.handle_merged_cells()
         self.sub_tables = {x:Table(x, styles, para_map, is_sub_table=True) for x in XPath('./w:tr/w:tc/w:tbl')(tbl)}
 
     def override_allowed(self, name):
@@ -516,6 +521,55 @@ class Table(object):
                             text_styles[i].update(ops)
         self.style_map[p] = text_styles
 
+    def handle_merged_cells(self):
+        if not self.cell_map:
+            return
+        # Handle vMerge
+        max_col_num = max(len(r) for r in self.cell_map)
+        for c in xrange(max_col_num):
+            cells = [row[c] if c < len(row) else None for row in self.cell_map]
+            runs = [[]]
+            for cell in cells:
+                try:
+                    s = self.style_map[cell]
+                except KeyError:  # cell is None
+                    s = CellStyle()
+                if s.vMerge == 'restart':
+                    runs.append([cell])
+                elif s.vMerge == 'continue':
+                    runs[-1].append(cell)
+                else:
+                    runs.append([])
+            for run in runs:
+                if len(run) > 1:
+                    self.style_map[run[0]].row_span = len(run)
+                    for tc in run[1:]:
+                        tc.getparent().remove(tc)
+
+        # Handle hMerge
+        for cells in self.cell_map:
+            runs = [[]]
+            for cell in cells:
+                try:
+                    s = self.style_map[cell]
+                except KeyError:  # cell is None
+                    s = CellStyle()
+                if s.col_span is not inherit:
+                    runs.append([])
+                    continue
+                if s.hMerge == 'restart':
+                    runs.append([cell])
+                elif s.hMerge == 'continue':
+                    runs[-1].append(cell)
+                else:
+                    runs.append([])
+
+            for run in runs:
+                if len(run) > 1:
+                    self.style_map[run[0]].col_span = len(run)
+                    for tc in run[1:]:
+                        tc.getparent().remove(tc)
+
     def __iter__(self):
         for p in self.paragraphs:
             yield p
@@ -547,6 +601,8 @@ class Table(object):
                 style_map[td] = s = self.style_map[tc]
                 if s.col_span is not inherit:
                     td.set('colspan', type('')(s.col_span))
+                if s.row_span is not inherit:
+                    td.set('rowspan', type('')(s.row_span))
                 td.tail = '\n\t\t\t'
                 tr.append(td)
                 for x in XPath('./w:p|./w:tbl')(tc):
