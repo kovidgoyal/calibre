@@ -1,3 +1,6 @@
+" Scan the following dirs (recursively for tags
+let g:project_tags_dirs = ['src/calibre']
+
 " Include directories for C++ modules
 let g:syntastic_cpp_include_dirs = [ 
             \'/usr/include/python2.7',
