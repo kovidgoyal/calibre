@@ -173,6 +173,19 @@ class Style(object):
                 ans['border-spacing'] = self.spacing
         return ans
 
+    def convert_border(self):
+        c = {}
+        for x in edges:
+            for prop in border_props:
+                prop = prop % x
+                if prop.startswith('border'):
+                    val = getattr(self, prop)
+                    if val is not inherit:
+                        if isinstance(val, (int, float)):
+                            val = '%.3gpt' % val
+                        c[prop.replace('_', '-')] = val
+        return c
+
 class RowStyle(Style):
 
     all_properties = ('height', 'cantSplit', 'hidden', 'spacing',)
@@ -231,14 +244,20 @@ class CellStyle(Style):
                 c['background-color'] = self.background_color
             if self.width not in (inherit, 'auto'):
                 c['width'] = self.width
-            if self.vertical_align is not inherit:
-                c['vertical-align'] = self.vertical_align
+            c['vertical-align'] = 'top' if self.vertical_align is inherit else self.vertical_align
             for x in edges:
                 val = getattr(self, 'cell_padding_%s' % x)
                 if val not in (inherit, 'auto'):
                     c['padding-%s' % x] =  val
                 elif val is inherit and x in {'left', 'right'}:
                     c['padding-%s' % x] = '%.3gpt' % (115/20)
+            # In Word, tables are apparently rendered with some default top and
+            # bottom padding irrespective of the cellMargin values. Simulate
+            # that here.
+            for x in ('top', 'bottom'):
+                if c.get('padding-%s' % x, '0pt') == '0pt':
+                    c['padding-%s' % x] = '0.5ex'
+            c.update(self.convert_border())
 
         return self._css
 
@@ -316,6 +335,8 @@ class TableStyle(Style):
             c.update(self.convert_spacing())
             if 'border-collapse' not in c:
                 c['border-collapse'] = 'collapse'
+            c.update(self.convert_border())
+
         return self._css
 
 
@@ -362,7 +383,7 @@ class Table(object):
             cells = XPath('./w:tc')(tr)
             for c, tc in enumerate(cells):
                 overrides = self.get_overrides(r, c, len(rows), len(cells))
-                self.resolve_cell_style(tc, overrides)
+                self.resolve_cell_style(tc, overrides, r, c, len(rows), len(cells))
                 for p in XPath('./w:p')(tc):
                     para_map[p] = self
                     self.paragraphs.append(p)
@@ -395,15 +416,19 @@ class Table(object):
             overrides.append('band%dVert' % (1 if odd_column_band else 2))
         odd_row_band = (divisor(r, self.table_style.row_band_size) % 2) == 1
         overrides.append('band%dHorz' % (1 if odd_row_band else 2))
-        if r == 0:
-            overrides.append('firstRow')
-        if r >= num_of_rows - 1:
-            overrides.append('lastRow')
+
+        # According to the OOXML spec columns should have higher override
+        # priority than rows, but Word seems to do it the other way around.
         if c is not None:
             if c == 0:
                 overrides.append('firstCol')
             if c >= num_of_cols_in_row - 1:
                 overrides.append('lastCol')
+        if r == 0:
+            overrides.append('firstRow')
+        if r >= num_of_rows - 1:
+            overrides.append('lastRow')
+        if c is not None:
             if r == 0:
                 if c == 0:
                     overrides.append('nwCell')
@@ -429,8 +454,10 @@ class Table(object):
             rs.update(RowStyle(trPr))
         self.style_map[tr] = rs
 
-    def resolve_cell_style(self, tc, overrides):
+    def resolve_cell_style(self, tc, overrides, row, col, rows, cols_in_row):
         cs = CellStyle()
+        # from lxml.etree import tostring
+        # txt = tostring(tc, method='text', encoding=unicode)
         for o in overrides:
             if o in self.overrides:
                 ovr = self.overrides[o]
@@ -441,11 +468,37 @@ class Table(object):
         for tcPr in XPath('./w:tcPr')(tc):
             cs.update(CellStyle(tcPr))
 
-        for x in ('left', 'top', 'right', 'bottom'):
+        for x in edges:
             p = 'cell_padding_%s' % x
             val = getattr(cs, p)
             if val is inherit:
                 setattr(cs, p, getattr(self.table_style, p))
+
+            is_inside_edge = (
+                (x == 'left' and col > 0) or
+                (x == 'top' and row > 0) or
+                (x == 'right' and col < cols_in_row - 1) or
+                (x == 'bottom' and row < rows -1)
+            )
+            inside_edge = ('insideH' if x in {'top', 'bottom'} else 'insideV') if is_inside_edge else None
+            for prop in border_props:
+                if not prop.startswith('border'):
+                    continue
+                eprop = prop % x
+                iprop = (prop % inside_edge) if inside_edge else None
+                val = getattr(cs, eprop)
+                if val is inherit and iprop is not None:
+                    # Use the insideX borders if the main cell borders are not
+                    # specified
+                    val = getattr(cs, iprop)
+                    if val is inherit:
+                        val = getattr(self.table_style, iprop)
+                if not is_inside_edge and val == 'none':
+                    # Cell borders must override table borders even when the
+                    # table border is not null and the cell border is null.
+                    val = 'hidden'
+                setattr(cs, eprop, val)
+
         self.style_map[tc] = cs
 
     def resolve_para_style(self, p, overrides):
