@@ -15,6 +15,7 @@ from PyQt4.Qt import (QFont, QVariant, QDialog, Qt, QColor, QColorDialog,
 
 from calibre.constants import iswindows, isxp
 from calibre.utils.config import Config, StringConfig, JSONConfig
+from calibre.gui2 import min_available_height
 from calibre.gui2.shortcuts import ShortcutConfig
 from calibre.gui2.viewer.config_ui import Ui_Dialog
 from calibre.utils.localization import get_language
@@ -140,6 +141,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.init_load_themes()
 
         self.clear_search_history_button.clicked.connect(self.clear_search_history)
+        self.resize(self.width(), min(self.height(), max(575, min_available_height()-25)))
 
     def clear_search_history(self):
         from calibre.gui2 import config
