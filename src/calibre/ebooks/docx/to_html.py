@@ -410,7 +410,7 @@ class Convert(object):
                     continue
                 space = child.get(XML('space'), None)
                 if space == 'preserve':
-                    text.add_elem(SPAN(child.text, style="whitespace:pre-wrap"))
+                    text.add_elem(SPAN(child.text, style="white-space:pre-wrap"))
                     ans.append(text.elem)
                 else:
                     text.buf.append(child.text)
