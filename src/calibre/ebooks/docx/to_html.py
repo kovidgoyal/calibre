@@ -440,6 +440,8 @@ class Convert(object):
                     l.set('class', 'noteref')
                     text.add_elem(l)
                     ans.append(text.elem)
+            elif is_tag(child, 'w:fldChar') and get(child, 'w:fldCharType') == 'separate':
+                text.buf.append('\xa0')
         if text.buf:
             setattr(text.elem, text.attr, ''.join(text.buf))
 
