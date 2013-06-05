@@ -132,7 +132,7 @@ class Images(object):
                     src = self.generate_filename(rid, name)
                     img = IMG(src='images/%s' % src)
                     if alt:
-                        img(alt=alt)
+                        img.set('alt', alt)
                     return img
 
     def drawing_to_html(self, drawing, page):
