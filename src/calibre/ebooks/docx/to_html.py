@@ -16,7 +16,7 @@ from lxml.html.builder import (
 from calibre.ebooks.docx.container import DOCX, fromstring
 from calibre.ebooks.docx.names import (
     XPath, is_tag, XML, STYLES, NUMBERING, FONTS, get, generate_anchor,
-    descendants, ancestor, FOOTNOTES, ENDNOTES)
+    descendants, ancestor, FOOTNOTES, ENDNOTES, children)
 from calibre.ebooks.docx.styles import Styles, inherit, PageProperties
 from calibre.ebooks.docx.numbering import Numbering
 from calibre.ebooks.docx.fonts import Fonts
@@ -148,7 +148,7 @@ class Convert(object):
                 html_obj.set('class', cls)
 
         if notes_header is not None:
-            for h in self.body.iterchildren('h1', 'h2', 'h3'):
+            for h in children(self.body, 'h1', 'h2', 'h3'):
                 notes_header.tag = h.tag
                 cls = h.get('class', None)
                 if cls and cls != 'notes-header':
@@ -262,7 +262,7 @@ class Convert(object):
                 elem.set('id', ans)
             return ans
 
-        for item in root.iterdescendants(*headings):
+        for item in descendants(root, *headings):
             lvl = plvl = item_level_map.get(item, None)
             if lvl is None:
                 continue

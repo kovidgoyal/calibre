@@ -7,7 +7,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
-from future_builtins import map
 
 from lxml.etree import XPath as X
 
@@ -99,7 +98,7 @@ def generate_anchor(name, existing):
     return y
 
 def children(elem, *args):
-    return elem.iterchildren(*map(expand, args))
+    return XPath('|'.join('child::%s' % a for a in args))(elem)
 
 def descendants(elem, *args):
-    return elem.iterdescendants(*map(expand, args))
+    return XPath('|'.join('descendant::%s' % a for a in args))(elem)
