@@ -371,6 +371,8 @@ class Table(object):
         self.table_style, self.paragraph_style = style['table'], style.get('paragraph', None)
         self.run_style = style.get('run', None)
         self.overrides = self.table_style.overrides
+        if self.overrides is inherit:
+            self.overrides = {}
         if 'wholeTable' in self.overrides and 'table' in self.overrides['wholeTable']:
             self.table_style.update(self.overrides['wholeTable']['table'])
 
