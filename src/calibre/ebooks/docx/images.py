@@ -104,9 +104,12 @@ class Images(object):
         if rid in self.used:
             return self.used[rid]
         raw = self.docx.read(self.rid_map[rid])
-        base = base or ascii_filename(self.rid_map[rid].rpartition('/')[-1]).replace(' ', '_')
+        base = base or ascii_filename(self.rid_map[rid].rpartition('/')[-1]).replace(' ', '_') or 'image'
         ext = what(None, raw) or base.rpartition('.')[-1] or 'jpeg'
-        base = base.rpartition('.')[0] + '.' + ext
+        base = base.rpartition('.')[0]
+        if not base:
+            base = 'image'
+        base += '.' + ext
         exists = frozenset(self.used.itervalues())
         c = 1
         while base in exists:
