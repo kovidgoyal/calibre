@@ -6,13 +6,15 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from calibre.customize.conversion import InputFormatPlugin
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 
 class DOCXInput(InputFormatPlugin):
     name        = 'DOCX Input'
     author      = 'Kovid Goyal'
     description = 'Convert DOCX files (.docx) to HTML'
     file_types = set(['docx'])
+
+    recommendations = set([('page_breaks_before', '/', OptionRecommendation.MED)])
 
     def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.ebooks.docx.to_html import Convert
