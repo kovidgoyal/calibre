@@ -400,8 +400,6 @@ class Styles(object):
             '''\
             body { font-family: %s; font-size: %s }
 
-            p { text-indent: 1.5em }
-
             ul, ol, p { margin: 0; padding: 0 }
 
             sup.noteref a { text-decoration: none }
