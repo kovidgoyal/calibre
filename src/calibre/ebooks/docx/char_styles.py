@@ -36,7 +36,8 @@ def read_text_border(parent, dest):
         if sz is not None:
             # we dont care about art borders (they are only used for page borders)
             try:
-                border_width = min(96, max(2, float(sz))) / 8
+                # A border of less than 1pt is not rendered by WebKit
+                border_width = min(96, max(8, float(sz))) / 8
             except (ValueError, TypeError):
                 pass
 
