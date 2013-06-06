@@ -282,12 +282,16 @@ class Styles(object):
             default_char = self.default_styles.get('character', None)
             if self.default_character_style is not None:
                 parent_styles.append(self.default_character_style)
-            ts = self.tables.run_style(p)
-            if ts is not None:
-                parent_styles.append(ts)
             pstyle = self.para_char_cache.get(p, None)
             if pstyle is not None:
                 parent_styles.append(pstyle)
+            # As best as I can understand the spec, table overrides should be
+            # applied before paragraph overrides, but word does it
+            # this way, see the December 2007 table header in the demo
+            # document.
+            ts = self.tables.run_style(p)
+            if ts is not None:
+                parent_styles.append(ts)
             if direct_formatting.linked_style is not None:
                 ls = self.get(direct_formatting.linked_style).character_style
                 if ls is not None:
