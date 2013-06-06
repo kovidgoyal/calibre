@@ -87,9 +87,12 @@ def read_single_border(parent, edge):
         if sz is not None:
             # we dont care about art borders (they are only used for page borders)
             try:
-                width = min(96, max(2, float(sz))) / 8
+                # WebKit needs at least 1pt to render borders
+                width = min(96, max(8, float(sz))) / 8
             except (ValueError, TypeError):
                 pass
+    if style == 'double' and width is not None and 0 < width < 3:
+        width = 3  # WebKit needs 3pts to render double borders
     return {p:v for p, v in zip(border_props, (padding, width, style, color))}
 
 def read_border(parent, dest, border_edges=('left', 'top', 'right', 'bottom'), name='pBdr'):
