@@ -79,7 +79,7 @@ def read_spacing(parent, dest):
 def read_float(parent, dest):
     ans = inherit
     for x in XPath('./w:tblpPr')(parent):
-        ans = x.attrib
+        ans = {k.rpartition('}')[-1]: v for k, v in x.attrib.iteritems()}
     setattr(dest, 'float', ans)
 
 def read_indent(parent, dest):
