@@ -83,11 +83,10 @@ def get(x, attr, default=None):
     return x.attrib.get(expand(attr), default)
 
 def ancestor(elem, name):
-    tag = expand(name)
-    while elem is not None:
-        elem = elem.getparent()
-        if getattr(elem, 'tag', None) == tag:
-            return elem
+    try:
+        return XPath('ancestor::%s[1]' % name)(elem)[0]
+    except IndexError:
+        return None
 
 def generate_anchor(name, existing):
     x = y = 'id_' + re.sub(r'[^0-9a-zA-Z_]', '', ascii_text(name)).lstrip('_')

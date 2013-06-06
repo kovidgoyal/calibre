@@ -16,7 +16,7 @@ from lxml.html.builder import (
 from calibre.ebooks.docx.container import DOCX, fromstring
 from calibre.ebooks.docx.names import (
     XPath, is_tag, XML, STYLES, NUMBERING, FONTS, get, generate_anchor,
-    descendants, ancestor, FOOTNOTES, ENDNOTES, children)
+    descendants, FOOTNOTES, ENDNOTES, children)
 from calibre.ebooks.docx.styles import Styles, inherit, PageProperties
 from calibre.ebooks.docx.numbering import Numbering
 from calibre.ebooks.docx.fonts import Fonts
@@ -308,6 +308,7 @@ class Convert(object):
 
         current_anchor = None
         current_hyperlink = None
+        hl_xpath = XPath('ancestor::w:hyperlink[1]')
 
         for x in descendants(p, 'w:r', 'w:bookmarkStart', 'w:hyperlink'):
             if x.tag.endswith('}r'):
@@ -316,10 +317,10 @@ class Convert(object):
                     (dest if len(dest) == 0 else span).set('id', current_anchor)
                     current_anchor = None
                 if current_hyperlink is not None:
-                    hl = ancestor(x, 'w:hyperlink')
-                    if hl is not None:
+                    try:
+                        hl = hl_xpath(x)[0]
                         self.link_map[hl].append(span)
-                    else:
+                    except IndexError:
                         current_hyperlink = None
                 dest.append(span)
                 self.layers[p].append(x)
