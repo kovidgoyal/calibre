@@ -574,11 +574,12 @@ format, whether input or output are available in the conversion dialog under the
 Convert Microsoft Word documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-|app| can automatically convert .docx files created by Microsoft Word 2007 and
-newer. Just add the file to |app| and click convert.
+|app| can automatically convert ``.docx`` files created by Microsoft Word 2007 and
+newer. Just add the file to |app| and click convert (make sure you are running
+the latest version of |app| as support for ``.docx`` files is very new).
 
 .. note::
-    There is a `demo docx file <http://calibre-ebook.com/downloads/demos/demo.docx>`_
+    There is a `demo .docx file <http://calibre-ebook.com/downloads/demos/demo.docx>`_
     that demonstrates the capabilities of the |app| conversion engine. Just
     download it and convert it to EPUB or AZW3 to see what |app| can do.
 
