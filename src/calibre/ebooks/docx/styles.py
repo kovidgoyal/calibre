@@ -265,7 +265,8 @@ class Styles(object):
     def resolve_run(self, r):
         ans = self.run_cache.get(r, None)
         if ans is None:
-            p = r.getparent()
+            p = XPath('ancestor::w:p[1]')(r)
+            p = p[0] if p else None
             ans = self.run_cache[r] = RunStyle()
             direct_formatting = None
             for rPr in XPath('./w:rPr')(r):
