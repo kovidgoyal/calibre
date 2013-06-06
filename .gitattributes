@@ -6,8 +6,9 @@
 *.pot     text
 *.po      text
 *.html    text
-*.css     text
+*.xhtml   text
 *.htm     text
+*.css     text
 *.rst     text
 *.md      text
 *.txt     text
@@ -20,12 +21,13 @@
 *.tmpl    text
 *.qrc     text
 *.sh      text
-*.xhtml   text
+*.fb2     text
 *.bat     text eol=crlf
 
 # Tell git what files are binary
 *.zip     binary
 *.epub    binary
+*.docx    binary
 *.jpg     binary
 *.jpeg    binary
 *.png     binary
