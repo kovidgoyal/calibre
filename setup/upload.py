@@ -63,7 +63,7 @@ def upload_signatures():
             shell=True)
     shutil.rmtree(tdir)
 
-class ReUpload(Command): # {{{
+class ReUpload(Command):  # {{{
 
     description = 'Re-uplaod any installers present in dist/'
 
@@ -118,7 +118,7 @@ def run_remote_upload(args):
 
 # }}}
 
-class UploadInstallers(Command): # {{{
+class UploadInstallers(Command):  # {{{
 
     def add_options(self, parser):
         parser.add_option('--replace', default=False, action='store_true', help=
@@ -172,7 +172,7 @@ class UploadInstallers(Command): # {{{
         run_remote_upload(args)
 # }}}
 
-class UploadUserManual(Command): # {{{
+class UploadUserManual(Command):  # {{{
     description = 'Build and upload the User Manual'
     sub_commands = ['manual']
 
@@ -184,7 +184,8 @@ class UploadUserManual(Command): # {{{
             with CurrentDir(path):
                 with ZipFile(f, 'w') as zf:
                     for x in os.listdir('.'):
-                        if x.endswith('.swp'): continue
+                        if x.endswith('.swp'):
+                            continue
                         zf.write(x)
                         if os.path.isdir(x):
                             for y in os.listdir(x):
@@ -203,7 +204,7 @@ class UploadUserManual(Command): # {{{
                     'bugs:%s'%USER_MANUAL]), shell=True)
 # }}}
 
-class UploadDemo(Command): # {{{
+class UploadDemo(Command):  # {{{
 
     description = 'Rebuild and upload various demos'
 
@@ -223,20 +224,20 @@ class UploadDemo(Command): # {{{
         check_call('scp /tmp/html-demo.zip divok:%s/'%(DOWNLOADS,), shell=True)
 # }}}
 
-class UploadToServer(Command): # {{{
+class UploadToServer(Command):  # {{{
 
     description = 'Upload miscellaneous data to calibre server'
 
     def run(self, opts):
         check_call('ssh divok rm -f %s/calibre-\*.tar.xz'%DOWNLOADS, shell=True)
-        #check_call('scp dist/calibre-*.tar.xz divok:%s/'%DOWNLOADS, shell=True)
+        # check_call('scp dist/calibre-*.tar.xz divok:%s/'%DOWNLOADS, shell=True)
         check_call('gpg --armor --detach-sign dist/calibre-*.tar.xz',
                 shell=True)
         check_call('scp dist/calibre-*.tar.xz.asc divok:%s/signatures/'%DOWNLOADS,
                 shell=True)
         check_call('ssh divok /usr/local/bin/update-calibre',
                    shell=True)
-        check_call('''ssh divok echo %s \\> %s/latest_version'''\
+        check_call('''ssh divok echo %s \\> %s/latest_version'''
                    %(__version__, DOWNLOADS), shell=True)
         check_call('ssh divok /etc/init.d/apache2 graceful',
                    shell=True)
