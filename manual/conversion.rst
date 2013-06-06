@@ -589,7 +589,7 @@ the output ebook in the calibre viewer and click the Table of Contents button
 to view the generated Table of Contents.
 
 Older .doc files
------------------
+^^^^^^^^^^^^^^^^^
 
 For older .doc files, you can save the document as HTML with Microsoft Word
 and then convert the resulting HTML file with |app|. When saving as
