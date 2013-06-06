@@ -577,6 +577,11 @@ Convert Microsoft Word documents
 |app| can automatically convert .docx files created by Microsoft Word 2007 and
 newer. Just add the file to |app| and click convert.
 
+.. note::
+    There is a `demo docx file <http://calibre-ebook.com/downloads/demos/demo.docx>`_
+    that demonstrates the capabilities of the |app| conversion engine. Just
+    download it and convert it to EPUB or AZW3 to see what |app| can do.
+
 |app| will automatically generate a Table of Contents based on headings if you mark
 your headings with the ``Heading 1``, ``Heading 2``, etc. styles in Word. Open
 the output ebook in the calibre viewer and click the Table of Contents button
