@@ -1218,7 +1218,7 @@ class KOBOTOUCH(KOBO):
     min_dbversion_images_on_sdcard  = 77
     min_dbversion_activiy           = 77
 
-    max_supported_fwversion         = (2,6,0)
+    max_supported_fwversion         = (2,6,1)
     min_fwversion_images_on_sdcard  = (2,4,1)
 
     has_kepubs = True
