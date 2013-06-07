@@ -168,7 +168,7 @@ class Images(object):
                 img = IMG(src='images/%s' % src, style="display:block")
                 alt = get(imagedata, 'o:title')
                 if alt:
-                    img(alt=alt)
+                    img.set('alt', alt)
                 yield img
 
     def get_float_properties(self, anchor, style, page):
