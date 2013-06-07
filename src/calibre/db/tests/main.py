@@ -24,16 +24,23 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.name and args.name.startswith('.'):
         tests = find_tests()
+        q = args.name[1:]
+        if not q.startswith('test_'):
+            q = 'test_' + q
         ans = None
         try:
             for suite in tests:
                 for test in suite._tests:
                     for s in test:
-                        if s._testMethodName == args.name[1:]:
-                            tests = s
+                        if s._testMethodName == q:
+                            ans = s
                             raise StopIteration()
         except StopIteration:
             pass
+        if ans is None:
+            print ('No test named %s found' % args.name)
+            raise SystemExit(1)
+        tests = ans
     else:
         tests = unittest.defaultTestLoader.loadTestsFromName(args.name) if args.name else find_tests()
     unittest.TextTestRunner(verbosity=4).run(tests)
