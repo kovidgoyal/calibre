@@ -308,10 +308,14 @@ code, with access to the |app| modules::
 
 is great for testing a little snippet of code on the command line. It works in the same way as the -c switch to the python interpreter::
 
-    calibre-debug -e myscript.py
+    calibre-debug myscript.py
 
 can be used to execute your own Python script. It works in the same way as passing the script to the Python interpreter, except
-that the calibre environment is fully initialized, so you can use all the calibre code in your script.
+that the calibre environment is fully initialized, so you can use all the calibre code in your script. To use command line arguments with your script, use the form::
+
+    calibre-debug myscript.py -- --option1 arg1
+
+The ``--`` causes all subsequent arguments to be passed to your script.
 
 
 Using |app| in your projects
