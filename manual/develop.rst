@@ -328,7 +328,7 @@ Binary install of |app|
 
 If you have a binary install of |app|, you can use the Python interpreter bundled with |app|, like this::
 
-    calibre-debug -e /path/to/your/python/script.py
+    calibre-debug /path/to/your/python/script.py -- arguments to your script
 
 Source install on Linux
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
