@@ -221,6 +221,7 @@ class Preferences(QMainWindow):
         self.stack.addWidget(self.scroll_area)
         self.scroll_area.setWidgetResizable(True)
 
+        self.setContextMenuPolicy(Qt.NoContextMenu)
         self.bar = QToolBar(self)
         self.addToolBar(self.bar)
         self.bar.setVisible(False)
