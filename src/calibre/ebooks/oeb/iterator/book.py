@@ -125,7 +125,7 @@ class EbookIterator(BookmarksMixin):
                   [i for i in self.opf.spine if not i.is_linear]
         self.spine = []
         Spiny = partial(SpineItem, read_anchor_map=read_anchor_map,
-                run_char_count=run_char_count)
+                run_char_count=run_char_count, from_epub=self.book_format == 'EPUB')
         is_comic = plumber.input_fmt.lower() in {'cbc', 'cbz', 'cbr', 'cb7'}
         for i in ordered:
             spath = i.path
