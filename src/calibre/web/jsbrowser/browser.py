@@ -7,26 +7,29 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, pprint, time
+import os, pprint, time, uuid
 from cookielib import Cookie
 from threading import current_thread
 
 from PyQt4.Qt import (QObject, QNetworkAccessManager, QNetworkDiskCache,
         QNetworkProxy, QNetworkProxyFactory, QEventLoop, QUrl, pyqtSignal,
-        QDialog, QVBoxLayout, QSize, QNetworkCookieJar, Qt, pyqtSlot)
+        QDialog, QVBoxLayout, QSize, QNetworkCookieJar, Qt, pyqtSlot, QPixmap)
 from PyQt4.QtWebKit import QWebPage, QWebSettings, QWebView, QWebElement
 
-from calibre import USER_AGENT, prints, get_proxies, get_proxy_info
+from calibre import USER_AGENT, prints, get_proxies, get_proxy_info, prepare_string_for_xml
 from calibre.constants import ispy3, cache_dir
 from calibre.utils.logging import ThreadSafeLog
 from calibre.gui2 import must_use_qt
-from calibre.web.jsbrowser.forms import FormsMixin
+from calibre.web.jsbrowser.forms import FormsMixin, default_timeout
 
-class Timeout(Exception): pass
+class Timeout(Exception):
+    pass
 
-class LoadError(Exception): pass
+class LoadError(Exception):
+    pass
 
-class WebPage(QWebPage): # {{{
+
+class WebPage(QWebPage):  # {{{
 
     def __init__(self, log,
             confirm_callback=None,
@@ -48,6 +51,24 @@ class WebPage(QWebPage): # {{{
         QWebSettings.enablePersistentStorage(os.path.join(cache_dir(),
                 'webkit-persistence'))
         QWebSettings.setMaximumPagesInCache(0)
+        self.bridge_name = 'b' + uuid.uuid4().get_hex()
+        self.mainFrame().javaScriptWindowObjectCleared.connect(
+                self.add_window_objects)
+        self.dom_loaded = False
+
+    def add_window_objects(self):
+        self.dom_loaded = False
+        mf = self.mainFrame()
+        mf.addToJavaScriptWindowObject(self.bridge_name, self)
+        mf.evaluateJavaScript('document.addEventListener( "DOMContentLoaded", %s.content_loaded, false )' % self.bridge_name)
+
+    def load_url(self, url):
+        self.dom_loaded = False
+        self.mainFrame().load(QUrl(url))
+
+    @pyqtSlot()
+    def content_loaded(self):
+        self.dom_loaded = True
 
     def userAgentForUrl(self, url):
         return self.user_agent
@@ -96,9 +117,28 @@ class WebPage(QWebPage): # {{{
     def ready_state(self):
         return unicode(self.mainFrame().evaluateJavaScript('document.readyState').toString())
 
+    @pyqtSlot(QPixmap)
+    def transfer_image(self, img):
+        self.saved_img = img
+
+    def get_image(self, qwe_or_selector):
+        qwe = qwe_or_selector
+        if not isinstance(qwe, QWebElement):
+            qwe = self.mainFrame().findFirstElement(qwe)
+            if qwe.isNull():
+                raise ValueError('Failed to find element with selector: %r'
+                        % qwe_or_selector)
+        self.saved_img = QPixmap()
+        qwe.evaluateJavaScript('%s.transfer_image(this)' % self.bridge_name)
+        try:
+            return self.saved_img
+        finally:
+            del self.saved_img
+
+
 # }}}
 
-class ProxyFactory(QNetworkProxyFactory): # {{{
+class ProxyFactory(QNetworkProxyFactory):  # {{{
 
     def __init__(self, log):
         QNetworkProxyFactory.__init__(self)
@@ -107,9 +147,11 @@ class ProxyFactory(QNetworkProxyFactory): # {{{
         for scheme, proxy_string in proxies.iteritems():
             scheme = scheme.lower()
             info = get_proxy_info(scheme, proxy_string)
-            if info is None: continue
+            if info is None:
+                continue
             hn, port = info['hostname'], info['port']
-            if not hn or not port: continue
+            if not hn or not port:
+                continue
             log.debug('JSBrowser using proxy:', pprint.pformat(info))
             pt = {'socks5':QNetworkProxy.Socks5Proxy}.get(scheme,
                     QNetworkProxy.HttpProxy)
@@ -128,9 +170,9 @@ class ProxyFactory(QNetworkProxyFactory): # {{{
         return [self.proxies.get(scheme, self.default_proxy)]
 # }}}
 
-class NetworkAccessManager(QNetworkAccessManager): # {{{
+class NetworkAccessManager(QNetworkAccessManager):  # {{{
 
-    OPERATION_NAMES = { getattr(QNetworkAccessManager, '%sOperation'%x) :
+    OPERATION_NAMES = {getattr(QNetworkAccessManager, '%sOperation'%x) :
             x.upper() for x in ('Head', 'Get', 'Put', 'Post', 'Delete',
                 'Custom')
     }
@@ -230,18 +272,18 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
             c = Cookie(0,  # version
                     name, value,
                     None,  # port
-                    False, # port specified
+                    False,  # port specified
                     domain, domain_specified, initial_dot, path,
                     path_specified,
                     secure, expires, is_session_cookie,
-                    None, # Comment
-                    None, # Comment URL
-                    {} # rest
+                    None,  # Comment
+                    None,  # Comment URL
+                    {}  # rest
             )
             yield c
 # }}}
 
-class LoadWatcher(QObject): # {{{
+class LoadWatcher(QObject):  # {{{
 
     def __init__(self, page, parent=None):
         QObject.__init__(self, parent)
@@ -257,7 +299,7 @@ class LoadWatcher(QObject): # {{{
         self.page = None
 # }}}
 
-class BrowserView(QDialog): # {{{
+class BrowserView(QDialog):  # {{{
 
     def __init__(self, page, parent=None):
         QDialog.__init__(self, parent)
@@ -283,7 +325,7 @@ class Browser(QObject, FormsMixin):
     def __init__(self,
             # Logging. If None, uses a default log, which does not output
             # debugging info
-            log = None,
+            log=None,
             # Receives a string and returns True/False. By default, returns
             # True for all strings
             confirm_callback=None,
@@ -303,7 +345,10 @@ class Browser(QObject, FormsMixin):
             enable_developer_tools=False,
 
             # Verbosity
-            verbosity = 0
+            verbosity=0,
+
+            # The default timeout (in seconds)
+            default_timeout=30
         ):
         must_use_qt()
         QObject.__init__(self)
@@ -314,6 +359,7 @@ class Browser(QObject, FormsMixin):
         if verbosity:
             log.filter_level = log.DEBUG
         self.log = log
+        self.default_timeout = default_timeout
 
         self.page = WebPage(log, confirm_callback=confirm_callback,
                 prompt_callback=prompt_callback, user_agent=user_agent,
@@ -327,6 +373,7 @@ class Browser(QObject, FormsMixin):
         return self.page.user_agent
 
     def _wait_for_load(self, timeout, url=None):
+        timeout = self.default_timeout if timeout is default_timeout else timeout
         loop = QEventLoop(self)
         start_time = time.time()
         end_time = start_time + timeout
@@ -358,7 +405,16 @@ class Browser(QObject, FormsMixin):
             if not loop.processEvents():
                 time.sleep(0.1)
 
-    def visit(self, url, timeout=30.0):
+    def wait_for_element(self, selector, timeout=default_timeout):
+        timeout = self.default_timeout if timeout is default_timeout else timeout
+        start_time = time.time()
+        while self.css_select(selector) is None:
+            self.run_for_a_time(0.1)
+            if time.time() - start_time > timeout:
+                raise Timeout('DOM failed to load in %.1g seconds' % timeout)
+        return self.css_select(selector)
+
+    def visit(self, url, timeout=default_timeout):
         '''
         Open the page specified in URL and wait for it to complete loading.
         Note that when this method returns, there may still be javascript
@@ -369,14 +425,26 @@ class Browser(QObject, FormsMixin):
         Returns True if loading was successful, False otherwise.
         '''
         self.current_form = None
-        self.page.mainFrame().load(QUrl(url))
+        self.page.load_url(url)
         return self._wait_for_load(timeout, url)
+
+    def back(self, wait_for_load=True, timeout=default_timeout):
+        '''
+        Like clicking the back button in the browser. Waits for loading to complete.
+        This method will raise a Timeout exception if loading takes more than timeout seconds.
+
+        Returns True if loading was successful, False otherwise.
+        '''
+        self.page.triggerAction(self.page.Back)
+        if wait_for_load:
+            return self._wait_for_load(timeout)
 
     @property
     def dom_ready(self):
-        return self.page.ready_state in {'complete', 'interactive'}
+        return self.page.dom_loaded
 
-    def wait_till_dom_ready(self, timeout=30.0, url=None):
+    def wait_till_dom_ready(self, timeout=default_timeout, url=None):
+        timeout = self.default_timeout if timeout is default_timeout else timeout
         start_time = time.time()
         while not self.dom_ready:
             if time.time() - start_time > timeout:
@@ -384,18 +452,30 @@ class Browser(QObject, FormsMixin):
                     url, timeout))
             self.run_for_a_time(0.1)
 
-    def start_load(self, url, timeout=30.0):
+    def wait_till_element_exists(self, selector, timeout=default_timeout, url=None):
+        timeout = self.default_timeout if timeout is default_timeout else timeout
+        start_time = time.time()
+        while self.css_select(selector) is None:
+            if time.time() - start_time > timeout:
+                raise Timeout('Loading of %r took longer than %d seconds'%(
+                    url, timeout))
+            self.run_for_a_time(0.1)
+
+    def start_load(self, url, timeout=default_timeout, selector=None):
         '''
         Start the loading of the page at url and return once the DOM is ready,
         sub-resources such as scripts/stylesheets/images/etc. may not have all
         loaded.
         '''
         self.current_form = None
-        self.page.mainFrame().load(QUrl(url))
+        self.page.load_url(url)
         self.run_for_a_time(0.01)
-        self.wait_till_dom_ready(timeout=timeout, url=url)
+        if selector is not None:
+            self.wait_till_element_exists(selector, timeout=timeout, url=url)
+        else:
+            self.wait_till_dom_ready(timeout=timeout, url=url)
 
-    def click(self, qwe_or_selector, wait_for_load=True, ajax_replies=0, timeout=30.0):
+    def click(self, qwe_or_selector, wait_for_load=True, ajax_replies=0, timeout=default_timeout):
         '''
         Click the :class:`QWebElement` pointed to by qwe_or_selector.
 
@@ -408,8 +488,8 @@ class Browser(QObject, FormsMixin):
         initial_count = self.nam.reply_count
         qwe = qwe_or_selector
         if not isinstance(qwe, QWebElement):
-            qwe = self.page.mainFrame().findFirstElement(qwe)
-            if qwe.isNull():
+            qwe = self.css_select(qwe)
+            if qwe is None:
                 raise ValueError('Failed to find element with selector: %r'
                         % qwe_or_selector)
         js = '''
@@ -425,7 +505,7 @@ class Browser(QObject, FormsMixin):
             raise LoadError('Clicking resulted in a failed load')
 
     def click_text_link(self, text_or_regex, selector='a[href]',
-            wait_for_load=True, ajax_replies=0, timeout=30.0):
+            wait_for_load=True, ajax_replies=0, timeout=default_timeout):
         target = None
         for qwe in self.page.mainFrame().findAllElements(selector):
             src = unicode(qwe.toPlainText())
@@ -441,6 +521,59 @@ class Browser(QObject, FormsMixin):
         return self.click(target, wait_for_load=wait_for_load,
                 ajax_replies=ajax_replies, timeout=timeout)
 
+    def css_select(self, selector, all=False):
+        if all:
+            return tuple(self.page.mainFrame().findAllElements(selector).toList())
+        ans = self.page.mainFrame().findFirstElement(selector)
+        if ans.isNull():
+            ans = None
+        return ans
+
+    def get_image(self, qwe_or_selector):
+        '''
+        Return the image identified by qwe_or_selector as a QPixmap. If no such
+        image exists, the returned pixmap will be null.
+        '''
+        return self.page.get_image(qwe_or_selector)
+
+    def get_cached(self, url):
+        iod = self.nam.cache.data(QUrl(url))
+        if iod is not None:
+            return bytes(bytearray(iod.readAll()))
+
+    def get_resource(self, url, rtype='img', use_cache=True, timeout=default_timeout):
+        '''
+        Download a resource (image/stylesheet/script). The resource is
+        downloaded by visiting an simple HTML page that contains only that
+        resource. The resource is then returned from the cache (therefore, to
+        use this method you must not disable the cache). If use_cache is True
+        then the cache is queried before loading the resource. This can result
+        in a stale object if the resource has changed on the server, however,
+        it is a big performance boost in the common case, by avoiding a
+        roundtrip to the server. The resource is returned as a bytestring or None
+        if it could not be loaded.
+        '''
+        if not hasattr(self.nam, 'cache'):
+            raise RuntimeError('Cannot get resources when the cache is disabled')
+        if use_cache:
+            ans = self.get_cached(url)
+            if ans is not None:
+                return ans
+        try:
+            tag = {
+                'img': '<img src="%s">',
+                'link': '<link href="%s"></link>',
+                'script': '<script src="%s"></script>',
+            }[rtype] % prepare_string_for_xml(url, attribute=True)
+        except KeyError:
+            raise ValueError('Unknown resource type: %s' % rtype)
+
+        self.page.mainFrame().setHtml(
+            '''<!DOCTYPE html><html><body><div>{0}</div></body></html>'''.format(tag))
+        self._wait_for_load(timeout)
+        ans = self.get_cached(url)
+        if ans is not None:
+            return ans
 
     def show_browser(self):
         '''
@@ -473,4 +606,6 @@ class Browser(QObject, FormsMixin):
 
     def __exit__(self, *args):
         self.close()
+
+
 
