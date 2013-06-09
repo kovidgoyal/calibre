@@ -22,7 +22,7 @@ from calibre.customize.ui import preferences_plugins
 
 ICON_SIZE = 32
 
-class StatusBar(QStatusBar): # {{{
+class StatusBar(QStatusBar):  # {{{
 
     def __init__(self, parent=None):
         QStatusBar.__init__(self, parent)
@@ -39,7 +39,7 @@ class StatusBar(QStatusBar): # {{{
 
 # }}}
 
-class BarTitle(QWidget): # {{{
+class BarTitle(QWidget):  # {{{
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -67,7 +67,7 @@ class BarTitle(QWidget): # {{{
 
 # }}}
 
-class Category(QWidget): # {{{
+class Category(QWidget):  # {{{
 
     plugin_activated = pyqtSignal(object)
 
@@ -112,7 +112,7 @@ class Category(QWidget): # {{{
 
 # }}}
 
-class Browser(QScrollArea): # {{{
+class Browser(QScrollArea):  # {{{
 
     show_plugin = pyqtSignal(object)
 
@@ -305,7 +305,6 @@ class Preferences(QMainWindow):
         self.bar.setVisible(True)
         self.bb.setVisible(False)
 
-
     def hide_plugin(self):
         self.showing_widget = QWidget(self.scroll_area)
         self.scroll_area.setWidget(self.showing_widget)
@@ -356,7 +355,6 @@ class Preferences(QMainWindow):
         if do_restart:
             self.gui.quit(restart=True)
 
-
     def cancel(self, *args):
         if self.close_after_initial:
             self.close()
@@ -390,3 +388,4 @@ if __name__ == '__main__':
     p.show()
     app.exec_()
     gui.shutdown()
+
