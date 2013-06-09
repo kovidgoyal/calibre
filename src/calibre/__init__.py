@@ -408,6 +408,10 @@ def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None, 
 
     return opener
 
+def jsbrowser(*args, **kwargs):
+    from calibre.web.jsbrowser.browser import Browser
+    return Browser(*args, **kwargs)
+
 def fit_image(width, height, pwidth, pheight):
     '''
     Fit image in box of width pwidth and height pheight.
