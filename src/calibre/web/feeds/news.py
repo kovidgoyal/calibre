@@ -1160,26 +1160,7 @@ class BasicNewsRecipe(Recipe):
         self.report_progress(0, _('Trying to download cover...'))
         self.download_cover()
         self.report_progress(0, _('Generating masthead...'))
-        self.masthead_path = None
-
-        try:
-            murl = self.get_masthead_url()
-        except:
-            self.log.exception('Failed to get masthead url')
-            murl = None
-
-        if murl is not None:
-            # Try downloading the user-supplied masthead_url
-            # Failure sets self.masthead_path to None
-            self.download_masthead(murl)
-        if self.masthead_path is None:
-            self.log.info("Synthesizing mastheadImage")
-            self.masthead_path = os.path.join(self.output_dir, 'mastheadImage.jpg')
-            try:
-                self.default_masthead_image(self.masthead_path)
-            except:
-                self.log.exception('Failed to generate default masthead image')
-                self.masthead_path = None
+        self.resolve_masthead()
 
         if self.test:
             feeds = feeds[:2]
@@ -1268,7 +1249,10 @@ class BasicNewsRecipe(Recipe):
             if not cu:
                 return
             cdata = None
-            if os.access(cu, os.R_OK):
+            if hasattr(cu, 'read'):
+                cdata = cu.read()
+                cu = getattr(cu, 'name', 'cover.jpg')
+            elif os.access(cu, os.R_OK):
                 cdata = open(cu, 'rb').read()
             else:
                 self.report_progress(1, _('Downloading cover from %s')%cu)
@@ -1305,13 +1289,19 @@ class BasicNewsRecipe(Recipe):
             self.cover_path = None
 
     def _download_masthead(self, mu):
-        ext = mu.rpartition('.')[-1]
-        if '?' in ext:
-            ext = ''
+        if hasattr(mu, 'rpartition'):
+            ext = mu.rpartition('.')[-1]
+            if '?' in ext:
+                ext = ''
+        else:
+            ext = mu.name.rpartition('.')[-1]
         ext = ext.lower() if ext else 'jpg'
         mpath = os.path.join(self.output_dir, 'masthead_source.'+ext)
         outfile = os.path.join(self.output_dir, 'mastheadImage.jpg')
-        if os.access(mu, os.R_OK):
+        if hasattr(mu, 'read'):
+            with open(mpath, 'wb') as mfile:
+                mfile.write(mu.read())
+        elif os.access(mu, os.R_OK):
             with open(mpath, 'wb') as mfile:
                 mfile.write(open(mu, 'rb').read())
         else:
@@ -1328,6 +1318,27 @@ class BasicNewsRecipe(Recipe):
             self._download_masthead(url)
         except:
             self.log.exception("Failed to download supplied masthead_url")
+
+    def resolve_masthead(self):
+        self.masthead_path = None
+        try:
+            murl = self.get_masthead_url()
+        except:
+            self.log.exception('Failed to get masthead url')
+            murl = None
+
+        if murl is not None:
+            # Try downloading the user-supplied masthead_url
+            # Failure sets self.masthead_path to None
+            self.download_masthead(murl)
+        if self.masthead_path is None:
+            self.log.info("Synthesizing mastheadImage")
+            self.masthead_path = os.path.join(self.output_dir, 'mastheadImage.jpg')
+            try:
+                self.default_masthead_image(self.masthead_path)
+            except:
+                self.log.exception('Failed to generate default masthead image')
+                self.masthead_path = None
 
     def default_cover(self, cover_file):
         '''
