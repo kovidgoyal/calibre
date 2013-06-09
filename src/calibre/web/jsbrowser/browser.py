@@ -64,7 +64,9 @@ class WebPage(QWebPage):  # {{{
 
     def load_url(self, url):
         self.dom_loaded = False
-        self.mainFrame().load(QUrl(url))
+        url = QUrl(url)
+        self.mainFrame().load(url)
+        self.ready_state  # Without this, DOMContentLoaded does not fire for file:// URLs
 
     @pyqtSlot()
     def content_loaded(self):
@@ -469,7 +471,6 @@ class Browser(QObject, FormsMixin):
         '''
         self.current_form = None
         self.page.load_url(url)
-        self.run_for_a_time(0.01)
         if selector is not None:
             self.wait_till_element_exists(selector, timeout=timeout, url=url)
         else:
