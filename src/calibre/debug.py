@@ -152,7 +152,8 @@ def add_simple_plugin(path_to_plugin):
     shutil.rmtree(tdir)
 
 def print_basic_debug_info(out=None):
-    if out is None: out = sys.stdout
+    if out is None:
+        out = sys.stdout
     out = functools.partial(prints, file=out)
     import platform
     from calibre.constants import (__appname__, get_version, isportable, isosx,
@@ -175,7 +176,7 @@ def print_basic_debug_info(out=None):
 
 def run_debug_gui(logpath):
     import time
-    time.sleep(3) # Give previous GUI time to shutdown fully and release locks
+    time.sleep(3)  # Give previous GUI time to shutdown fully and release locks
     from calibre.constants import __appname__
     prints(__appname__, _('Debug log'))
     print_basic_debug_info()
@@ -196,6 +197,12 @@ def run_script(path, args):
     g['__name__'] = '__main__'
     g['__file__'] = ef
     execfile(ef, g)
+
+def inspect_mobi(path):
+    from calibre.ebooks.mobi.debug.main import inspect_mobi
+    prints('Inspecting:', path)
+    inspect_mobi(path)
+    print
 
 def main(args=sys.argv):
     from calibre.constants import debug
@@ -231,7 +238,7 @@ def main(args=sys.argv):
         main()
     elif opts.command:
         sys.argv = args
-        exec opts.command
+        exec(opts.command)
     elif opts.debug_device_driver:
         debug_device_driver()
     elif opts.add_simple_plugin is not None:
@@ -246,11 +253,8 @@ def main(args=sys.argv):
             sql_dump = args[-1]
         reinit_db(opts.reinitialize_db, sql_dump=sql_dump)
     elif opts.inspect_mobi:
-        from calibre.ebooks.mobi.debug.main import inspect_mobi
         for path in args[1:]:
-            prints('Inspecting:', path)
             inspect_mobi(path)
-            print
     elif opts.tweak_book:
         from calibre.ebooks.tweak import tweak
         tweak(opts.tweak_book)
@@ -274,6 +278,16 @@ def main(args=sys.argv):
         plugin.cli_main([plugin.name] + args[1:])
     elif len(args) >= 2 and args[1].rpartition('.')[-1] in {'py', 'recipe'}:
         run_script(args[1], args[2:])
+    elif len(args) >= 2 and args[1].rpartition('.')[-1] in {'mobi', 'azw', 'azw3', 'docx'}:
+        for path in args[1:]:
+            ext = path.rpartition('.')[-1]
+            if ext == 'docx':
+                from calibre.ebooks.docx.dump import dump
+                dump(path)
+            elif ext in {'mobi', 'azw', 'azw3'}:
+                inspect_mobi(path)
+            else:
+                print ('Cannot dump unknown filetype: %s' % path)
     else:
         from calibre import ipython
         ipython()
@@ -282,3 +296,4 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     sys.exit(main())
+

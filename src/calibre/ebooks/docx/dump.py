@@ -15,7 +15,7 @@ from calibre.utils.zipfile import ZipFile
 
 def dump(path):
     dest = os.path.splitext(os.path.basename(path))[0]
-    dest += '_extracted'
+    dest += '-dumped'
     if os.path.exists(dest):
         shutil.rmtree(dest)
     with ZipFile(path) as zf:
