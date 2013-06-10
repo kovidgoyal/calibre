@@ -238,10 +238,11 @@ class NetworkAccessManager(QNetworkAccessManager):  # {{{
     def report_reply(self, reply):
         reply_url = unicode(reply.url().toString())
         self.reply_count += 1
+        err = reply.error()
 
-        if reply.error():
-            self.log.warn("Reply error: %s - %d (%s)" %
-                (reply_url, reply.error(), reply.errorString()))
+        if err:
+            l = self.log.debug if err == reply.OperationCanceledError else self.log.warn
+            l("Reply error: %s - %d (%s)" % (reply_url, err, unicode(reply.errorString())))
         else:
             debug = []
             debug.append("Reply successful: %s" % reply_url)
@@ -542,6 +543,28 @@ class Browser(QObject, FormsMixin):
         if iod is not None:
             return bytes(bytearray(iod.readAll()))
 
+    def wait_for_resources(self, urls, timeout=default_timeout):
+        timeout = self.default_timeout if timeout is default_timeout else timeout
+        start_time = time.time()
+        ans = {}
+        urls = set(urls)
+
+        def get_resources():
+            for url in tuple(urls):
+                raw = self.get_cached(url)
+                if raw is not None:
+                    ans[url] = raw
+                    urls.discard(url)
+
+        while urls and time.time() - start_time > timeout and self.page.ready_state not in {'complete', 'completed'}:
+            get_resources()
+            if urls:
+                self.run_for_a_time(0.1)
+
+        if urls:
+            get_resources()
+        return ans
+
     def get_resource(self, url, rtype='img', use_cache=True, timeout=default_timeout):
         '''
         Download a resource (image/stylesheet/script). The resource is
@@ -595,11 +618,14 @@ class Browser(QObject, FormsMixin):
     def html(self):
         return unicode(self.page.mainFrame().toHtml())
 
-    def close(self):
+    def blank(self):
         try:
             self.visit('about:blank', timeout=0.01)
         except Timeout:
             pass
+
+    def close(self):
+        self.blank()
         self.nam = self.page = None
 
     def __enter__(self):
