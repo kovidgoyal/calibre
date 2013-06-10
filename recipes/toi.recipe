@@ -1,74 +1,58 @@
-import re, urllib
+# vim:fileencoding=utf-8
 from calibre.web.feeds.news import BasicNewsRecipe
+from lxml import html
+
+allowed_sections = {'Top Headlines', 'Opinion', 'Science', 'Education', 'US', 'Pakistan', 'India Business', 'Tech News', 'Cricket', 'Bollywood'}
 
 class TimesOfIndia(BasicNewsRecipe):
-    title          = u'Times of India'
-    language       = 'en_IN'
+    title          = u'Times of India Headlines'
+    language       = 'en'
+    description    = 'Headline news from the Indian daily Times of India'
     __author__     = 'Kovid Goyal'
-    oldest_article = 1 #days
-    max_articles_per_feed = 25
 
     no_stylesheets = True
-    remove_attributes = ['style']
-    keep_only_tags = [
-            {'class':re.compile(r'maintable12|prttabl')},
-            {'id':['mod-article-header',
-                'mod-a-body-after-first-para', 'mod-a-body-first-para']},
-            ]
+    no_javascript = True
+    keep_only_tags = [dict(name='h1'), dict(id=['storydiv', 'contentarea'])]
     remove_tags = [
-            {'class':re.compile('tabsintbgshow|prvnxtbg')},
-            {'id':['fbrecommend', 'relmaindiv', 'shretxt', 'fbrecos', 'twtdiv',
-                'gpls', 'auim']},
-            {'class':['twitter-share-button', 'cmtmn']},
-            ]
+        dict(name='div', attrs={'class':['video_list', 'rightpart', 'clearfix mTop15', 'footer_slider', 'read_more', 'flR', 'hide_new']}),
+        dict(name='div', attrs={'id':[
+            'most_pop', 'relartstory', 'slidebox', 'tmpFbokk', 'twittersource',
+            'reportAbuseDiv', 'result', 'yahoobuzzsyn', 'fb-root']}),
+        dict(style='float:right;margin-left:5px;'),
+    ]
 
-    feeds          = [
-('Top Stories',
- 'http://timesofindia.indiatimes.com/rssfeedstopstories.cms'),
-('India',
- 'http://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms'),
-('World',
- 'http://timesofindia.indiatimes.com/rssfeeds/296589292.cms'),
-('Mumbai',
- 'http://timesofindia.indiatimes.com/rssfeeds/-2128838597.cms'),
-('Entertainment',
- 'http://timesofindia.indiatimes.com/rssfeeds/1081479906.cms'),
-('Cricket',
- 'http://timesofindia.indiatimes.com/rssfeeds/4719161.cms'),
-('Sunday TOI',
- 'http://timesofindia.indiatimes.com/rssfeeds/1945062111.cms'),
-('Life and Style',
- 'http://timesofindia.indiatimes.com/rssfeeds/2886704.cms'),
-('Business',
- 'http://timesofindia.indiatimes.com/rssfeeds/1898055.cms'),
-('Mad Mad World',
- 'http://timesofindia.indiatimes.com/rssfeeds/2178430.cms'),
-('Most Read',
- 'http://timesofindia.indiatimes.com/rssfeedmostread.cms')
-]
+    def parse_index(self):
+        index = 'http://timesofindia.indiatimes.com/home/headlines'
+        raw = self.index_to_soup(index, raw=True)
+        root = html.fromstring(raw)
 
-    def get_article_url(self, article):
-        try:
-            s = article.summary
-            return urllib.unquote(
-                re.search(r'href=".+?bookmark.cfm.+?link=(.+?)"', s).group(1))
-        except:
-            pass
-        link = article.get('link', None)
-        if link and link.split('/')[-1]=="story01.htm":
-            link=link.split('/')[-2]
-            encoding = {'0B': '.', '0C': '/', '0A': '0', '0F': '=', '0G': '&',
-                    '0D': '?', '0E': '-', '0N': '.com', '0L': 'http://'}
-            for k, v in encoding.iteritems():
-                link = link.replace(k, v)
-            return link
+        feeds = []
+        current_section = None
+        current_articles = []
 
-    def print_version(self, url):
-        return url + '?prtpage=1'
+        toc = root.xpath('//div[@align="center"]/descendant::table[@class="cnt"]')[0]
 
-    def preprocess_html(self, soup, *args):
-        byl = soup.find(attrs={'class':'byline'})
-        if byl is not None:
-            for l in byl.findAll('label'):
-                l.extract()
-        return soup
+        for x in toc.xpath('descendant::*[name()="h3" or (name()="ul" and @class="content")]'):
+            if x.tag == 'h3':
+                if current_articles and current_section in allowed_sections:
+                    feeds.append((current_section, current_articles))
+                current_section = html.tostring(x, method='text', encoding=unicode).strip()
+                current_articles = []
+                self.log(current_section)
+            else:
+                for a in x.xpath('descendant::li/descendant::a[@href]'):
+                    title = html.tostring(a, method='text', encoding=unicode).strip()
+                    url = a.get('href')
+                    if url.startswith('/'):
+                        url = 'http://timesofindia.indiatimes.com' + url
+                    self.log('  ', title)
+                    current_articles.append({'title':title, 'url':url})
+                self.log('')
+
+        if current_articles and current_section in allowed_sections:
+            feeds.append((current_section, current_articles))
+
+        return feeds
+
+
+
