@@ -138,9 +138,9 @@ def download_resources(browser, resource_cache, output_dir):
 
     failed = set(resources) - set(loaded_resources)
     for url in failed:
+        browser.log.warn('Failed to download resource:', url)
         for elem in resources[url]:
-            attr = 'href' if is_tag(elem, 'link') else 'src'
-            elem.setAttribute(attr, '')
+            elem.removeFromDocument()
 
 def save_html(browser, output_dir, postprocess_html, url, recursion_level):
     html = strip_encoding_declarations(browser.html)
