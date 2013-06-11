@@ -18,6 +18,7 @@ from PyQt4.QtWebKit import QWebPage, QWebSettings, QWebView, QWebElement
 
 from calibre import USER_AGENT, prints, get_proxies, get_proxy_info, prepare_string_for_xml
 from calibre.constants import ispy3, cache_dir
+from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.logging import ThreadSafeLog
 from calibre.gui2 import must_use_qt
 from calibre.web.jsbrowser.forms import FormsMixin, default_timeout
@@ -180,13 +181,14 @@ class NetworkAccessManager(QNetworkAccessManager):  # {{{
     }
     report_reply_signal = pyqtSignal(object)
 
-    def __init__(self, log, use_disk_cache=True, parent=None):
+    def __init__(self, log, disk_cache_size=50, parent=None):
         QNetworkAccessManager.__init__(self, parent)
         self.reply_count = 0
         self.log = log
-        if use_disk_cache:
+        if disk_cache_size > 0:
             self.cache = QNetworkDiskCache(self)
-            self.cache.setCacheDirectory(os.path.join(cache_dir(), 'jsbrowser'))
+            self.cache.setCacheDirectory(PersistentTemporaryDirectory(prefix='disk_cache_'))
+            self.cache.setMaximumCacheSize(int(disk_cache_size * 1024 * 1024))
             self.setCache(self.cache)
         self.sslErrors.connect(self.on_ssl_errors)
         self.pf = ProxyFactory(log)
@@ -341,8 +343,11 @@ class Browser(QObject, FormsMixin):
             # User agent to be used
             user_agent=USER_AGENT,
 
-            # If True a disk cache is used
-            use_disk_cache=True,
+            # The size (in MB) of the on disk cache. Note that because the disk
+            # cache cannot be shared between different instances, we currently
+            # use a temporary dir for the cache, which is deleted on
+            # program exit. Set to zero to disable cache.
+            disk_cache_size=50,
 
             # Enable Inspect element functionality
             enable_developer_tools=False,
@@ -368,7 +373,7 @@ class Browser(QObject, FormsMixin):
                 prompt_callback=prompt_callback, user_agent=user_agent,
                 enable_developer_tools=enable_developer_tools,
                 parent=self)
-        self.nam = NetworkAccessManager(log, use_disk_cache=use_disk_cache, parent=self)
+        self.nam = NetworkAccessManager(log, disk_cache_size=disk_cache_size, parent=self)
         self.page.setNetworkAccessManager(self.nam)
 
     @property
@@ -635,7 +640,11 @@ class Browser(QObject, FormsMixin):
             pass
 
     def close(self):
+        self.stop()
         self.blank()
+        self.stop()
+        self.nam.setCache(QNetworkDiskCache())
+        self.nam.cache = None
         self.nam = self.page = None
 
     def __enter__(self):

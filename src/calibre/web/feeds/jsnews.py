@@ -55,6 +55,8 @@ class JavascriptRecipe(BasicNewsRecipe):
     :meth:`load_complete` to tell the download system when a page has finished
     loading and is ready to be scraped.
 
+    You can use the builtin recipe for time.com as an example of the usage of
+    this class.
     '''
 
     #: Minimum calibre version needed to use this recipe
