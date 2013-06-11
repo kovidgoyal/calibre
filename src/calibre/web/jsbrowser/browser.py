@@ -442,6 +442,18 @@ class Browser(QObject, FormsMixin):
         if wait_for_load:
             return self._wait_for_load(timeout)
 
+    def stop(self):
+        'Stop loading of current page'
+        self.page.triggerAction(self.page.Stop)
+
+    def stop_scheduled_refresh(self):
+        'Stop any scheduled page refresh/reloads'
+        self.page.triggerAction(self.page.StopScheduledPageRefresh)
+
+    def reload(self, bypass_cache=False):
+        action = self.page.ReloadAndBypassCache if bypass_cache else self.page.Reload
+        self.page.triggerAction(action)
+
     @property
     def dom_ready(self):
         return self.page.dom_loaded
