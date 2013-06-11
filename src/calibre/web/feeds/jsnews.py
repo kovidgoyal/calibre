@@ -60,7 +60,7 @@ class JavascriptRecipe(BasicNewsRecipe):
     '''
 
     #: Minimum calibre version needed to use this recipe
-    requires_version = (0, 9, 34)
+    requires_version = (0, 9, 35)
 
     #: List of tags to be removed. Specified tags are removed from downloaded HTML.
     #: A tag is specified using CSS selectors.
