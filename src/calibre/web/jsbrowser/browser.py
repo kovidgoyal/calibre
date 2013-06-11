@@ -467,15 +467,6 @@ class Browser(QObject, FormsMixin):
                     url, timeout))
             self.run_for_a_time(0.1)
 
-    def wait_till_element_exists(self, selector, timeout=default_timeout, url=None):
-        timeout = self.default_timeout if timeout is default_timeout else timeout
-        start_time = time.time()
-        while self.css_select(selector) is None:
-            if time.time() - start_time > timeout:
-                raise Timeout('Loading of %r took longer than %d seconds'%(
-                    url, timeout))
-            self.run_for_a_time(0.1)
-
     def start_load(self, url, timeout=default_timeout, selector=None):
         '''
         Start the loading of the page at url and return once the DOM is ready,
@@ -485,7 +476,7 @@ class Browser(QObject, FormsMixin):
         self.current_form = None
         self.page.load_url(url)
         if selector is not None:
-            self.wait_till_element_exists(selector, timeout=timeout, url=url)
+            self.wait_for_element(selector, timeout=timeout, url=url)
         else:
             self.wait_till_dom_ready(timeout=timeout, url=url)
 
