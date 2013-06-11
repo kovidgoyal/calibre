@@ -544,7 +544,14 @@ class Browser(QObject, FormsMixin):
     def get_cached(self, url):
         iod = self.nam.cache.data(QUrl(url))
         if iod is not None:
-            return bytes(bytearray(iod.readAll()))
+            try:
+                return bytes(bytearray(iod.readAll()))
+            finally:
+                # Ensure the IODevice is closed right away, so that the
+                # underlying file can be deleted if the space is needed,
+                # otherwise on windows the file stays locked
+                iod.close()
+                del iod
 
     def wait_for_resources(self, urls, timeout=default_timeout):
         timeout = self.default_timeout if timeout is default_timeout else timeout
