@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Job management.
 '''
 
-import re
+import re, time
 from Queue import Empty, Queue
 
 from PyQt4.Qt import (QAbstractTableModel, QVariant, QModelIndex, Qt,
@@ -29,7 +29,7 @@ from calibre.gui2.threaded_jobs import ThreadedJobServer, ThreadedJob
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 from calibre.utils.icu import lower
 
-class JobManager(QAbstractTableModel, SearchQueryParser): # {{{
+class JobManager(QAbstractTableModel, SearchQueryParser):  # {{{
 
     job_added = pyqtSignal(int)
     job_done  = pyqtSignal(int)
@@ -55,7 +55,7 @@ class JobManager(QAbstractTableModel, SearchQueryParser): # {{{
         self.timer.start(1000)
 
     def columnCount(self, parent=QModelIndex()):
-        return 4
+        return 5
 
     def rowCount(self, parent=QModelIndex()):
         return len(self.jobs)
@@ -64,11 +64,13 @@ class JobManager(QAbstractTableModel, SearchQueryParser): # {{{
         if role != Qt.DisplayRole:
             return NONE
         if orientation == Qt.Horizontal:
-            if   section == 0: text = _('Job')
-            elif section == 1: text = _('Status')
-            elif section == 2: text = _('Progress')
-            elif section == 3: text = _('Running time')
-            return QVariant(text)
+            return QVariant({
+              0: _('Job'),
+              1: _('Status'),
+              2: _('Progress'),
+              3: _('Running time'),
+              4: _('Start time'),
+            }.get(section, ''))
         else:
             return QVariant(section+1)
 
@@ -117,6 +119,8 @@ class JobManager(QAbstractTableModel, SearchQueryParser): # {{{
                     if rtime is None:
                         return NONE
                     return QVariant('%dm %ds'%(int(rtime)//60, int(rtime)%60))
+                if col == 4 and job.start_time is not None:
+                    return QVariant(time.strftime('%H:%M -- %d %b', time.localtime(job.start_time)))
             if role == Qt.DecorationRole and col == 0:
                 state = job.run_state
                 if state == job.WAITING:
@@ -220,7 +224,7 @@ class JobManager(QAbstractTableModel, SearchQueryParser): # {{{
     def has_device_jobs(self, queued_also=False):
         for job in self.jobs:
             if isinstance(job, DeviceJob):
-                if job.duration is None: # Running or waiting
+                if job.duration is None:  # Running or waiting
                     if (job.is_running or queued_also):
                         return True
         return False
@@ -341,7 +345,7 @@ class JobManager(QAbstractTableModel, SearchQueryParser): # {{{
 
 # }}}
 
-class FilterModel(QSortFilterProxyModel): # {{{
+class FilterModel(QSortFilterProxyModel):  # {{{
 
     search_done = pyqtSignal(object)
 
@@ -376,7 +380,7 @@ class FilterModel(QSortFilterProxyModel): # {{{
 
 # Jobs UI {{{
 
-class ProgressBarDelegate(QAbstractItemDelegate): # {{{
+class ProgressBarDelegate(QAbstractItemDelegate):  # {{{
 
     def sizeHint(self, option, index):
         return QSize(120, 30)
@@ -395,7 +399,7 @@ class ProgressBarDelegate(QAbstractItemDelegate): # {{{
         QApplication.style().drawControl(QStyle.CE_ProgressBar, opts, painter)
 # }}}
 
-class DetailView(QDialog, Ui_Dialog): # {{{
+class DetailView(QDialog, Ui_Dialog):  # {{{
 
     def __init__(self, parent, job):
         QDialog.__init__(self, parent)
@@ -432,7 +436,7 @@ class DetailView(QDialog, Ui_Dialog): # {{{
                 self.log.appendPlainText(more.decode('utf-8', 'replace'))
 # }}}
 
-class JobsButton(QFrame): # {{{
+class JobsButton(QFrame):  # {{{
 
     def __init__(self, horizontal=False, size=48, parent=None):
         QFrame.__init__(self, parent)
@@ -470,7 +474,6 @@ class JobsButton(QFrame): # {{{
         job_manager.job_added.connect(self.job_added)
         job_manager.job_done.connect(self.job_done)
         self.jobs_dialog.addAction(self.action_toggle)
-
 
     def mouseReleaseEvent(self, event):
         self.toggle()
@@ -554,7 +557,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         try:
             geom = gprefs.get('jobs_dialog_geometry', bytearray(''))
             self.restoreGeometry(QByteArray(geom))
-            state = gprefs.get('jobs view column layout', bytearray(''))
+            state = gprefs.get('jobs view column layout2', bytearray(''))
             self.jobs_view.horizontalHeader().restoreState(QByteArray(state))
         except:
             pass
@@ -566,7 +569,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
     def save_state(self):
         try:
             state = bytearray(self.jobs_view.horizontalHeader().saveState())
-            gprefs['jobs view column layout'] = state
+            gprefs['jobs view column layout2'] = state
             geom = bytearray(self.saveGeometry())
             gprefs['jobs_dialog_geometry'] = geom
         except:
@@ -640,8 +643,13 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.save_state()
         return QDialog.hide(self, *args)
 
+    def reject(self):
+        self.save_state()
+        QDialog.reject(self)
+
     def find(self, query):
         self.proxy_model.find(query)
 
 # }}}
+
 
