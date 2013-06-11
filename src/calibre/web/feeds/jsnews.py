@@ -31,6 +31,32 @@ def image_data_to_url(data, base='cover'):
 
 class JavascriptRecipe(BasicNewsRecipe):
 
+    '''
+
+    This recipe class is used to download content from javascript heavy
+    sites. It uses a full WebKit browser to do the downloading, therefore it
+    can support sites that use javascript to dynamically fetch content.
+
+    Most of the parameters from :class:`BasicNewsRecipe` still apply, apart
+    from those noted specifically below. The biggest difference is that you use
+    CSS selectors to specify tags to keep and remove as well as links to
+    follow, instead of the BeautifulSoup selectors used in
+    :class:`BasicNewsRecipe`. Indeed, BeautifulSoup has been completely removed
+    and replaced by lxml, whereever you previously expected BeautifulSoup to
+    represent parsed HTML, you will now get lxml trees. See
+    http://lxml.de/tutorial.html for a tutorial on using lxml.
+
+    The various article pre-processing callbacks such as ``preprocess_html()``
+    and ``skip_ad_pages()`` have all been replaced by just two callbacks,
+    :meth:`preprocess_stage1` and :meth:`preprocess_stage2`. These methods are
+    a passed the browser instance, and can thus do anything they like.
+
+    An important method that you will often have to implement is
+    :meth:`load_complete` to tell the download system when a page has finished
+    loading and is ready to be scraped.
+
+    '''
+
     #: Minimum calibre version needed to use this recipe
     requires_version = (0, 9, 34)
 
@@ -79,12 +105,15 @@ class JavascriptRecipe(BasicNewsRecipe):
 
     def select_links(self, browser, url, recursion_level):
         '''
-        Override this method in your sub-class to implement arbitrary link following logic. It must return a
+        Override this method in your recipe to implement arbitrary link following logic. It must return a
         list of URLs, each of which will be downloaded in turn.
         '''
         return links_from_selectors(self.links_from_selectors, self.recursions, browser, url, recursion_level)
 
     def get_jsbrowser(self, *args, **kwargs):
+        '''
+        Override this method in your recipe if you want to use a non-standard Browser object.
+        '''
         from calibre.web.jsbrowser.browser import Browser
         return Browser(default_timeout=kwargs.get('default_timeout', 120))
 
@@ -133,21 +162,49 @@ class JavascriptRecipe(BasicNewsRecipe):
         return True
 
     def abort_article(self, msg=None):
+        '''
+        Call this method in any article processing callback to abort the download of the article.
+        For example::
+            def postprocess_html(self, article, root, url, recursion_level):
+                if '/video/' in url:
+                    self.abort_article()
+                return root
+
+        This will cause this article to be ignored.
+        '''
         raise AbortFetch(msg or 'Article fetch aborted')
 
     def preprocess_stage1(self, article, browser, url, recursion_level):
+        '''
+        This method is a callback called for every downloaded page, before any cleanup is done.
+        '''
         pass
 
     def preprocess_stage2(self, article, browser, url, recursion_level):
+        '''
+        This method is a callback called for every downloaded page, after the cleanup is done.
+        '''
         pass
 
     def postprocess_html(self, article, root, url, recursion_level):
+        '''
+        This method is called with the downloaded html for every page as an lxml
+        tree. It is called after all cleanup and related processing is completed.
+        You can use it to perform any extra cleanup,or to abort the article
+        download (see :meth:`abort_article`).
+
+        :param article: The Article object, which represents the article being currently downloaded
+        :param root: The parsed downloaded HTML, as an lxml tree, see http://lxml.de/tutorial.html
+        for help with using lxml to manipulate HTML.
+        :param url: The URL from which this HTML was downloaded
+        :param recursion_level: This is zero for the first page in an article and > 0 for subsequent pages.
+        '''
         return root
 
     def index_to_soup(self, url_or_raw, raw=False):
         '''
         Convenience method that takes an URL to the index page and returns
-        a parsed lxml tree representation of it.
+        a parsed lxml tree representation of it. See http://lxml.de/tutorial.html
 
         `url_or_raw`: Either a URL or the downloaded index page as a string
         '''
@@ -179,10 +236,13 @@ class JavascriptRecipe(BasicNewsRecipe):
                     link.getparent().remove(link)
             for style in root.xpath('//style'):
                 style.getparent().remove(style)
+
+        # Add recipe specific styling
         head = root.xpath('//head|//body')
         head = head[0] if head else next(root.iterdescendants())
-        head.append(STYLE(self.template_css + '\n\n' + (self.extra_css or '')))
+        head.append(STYLE(self.template_css + '\n\n' + (self.extra_css or '') + '\n'))
 
+        # Add the top navbar
         if recursion_level == 0:
             body = root.xpath('//body')
             if body:
@@ -190,23 +250,27 @@ class JavascriptRecipe(BasicNewsRecipe):
                     False, feed_num, art_num, feed_len, not self.has_single_feed, url,
                     __appname__, center=self.center_navbar,
                     extra_css=self.extra_css)
-                body.insert(0, templ.root.xpath('//div')[0])
+                body[0].insert(0, templ.root.xpath('//div')[0])
 
+        # Remove javascript
         remove_attrs = set(self.remove_attributes)
         if self.remove_javascript:
             remove_attrs.add('onload')
             for script in root.xpath('//*[name()="script" or name()="noscript"]'):
                 script.getparent().remove(script)
 
+        # Remove specified attributes
         for attr in remove_attrs:
             for tag in root.xpath('//*[@%s]' % attr):
                 tag.attrib.pop(attr, None)
 
+        # Remove tags that cause problems on ebook devices
         nuke = ['base', 'iframe', 'canvas', 'embed', 'command', 'datalist', 'video', 'audio', 'form']
         for tag in root.xpath('|'.join('//%s' % tag for tag in nuke)):
             tag.getparent().remove(tag)
 
         root = self.postprocess_html(article, root, url, recursion_level)
+
         if root is not None:
             # Nuke HTML5 tags
             tags = ['article', 'aside', 'header', 'footer', 'nav', 'figcaption', 'figure', 'section']
@@ -298,7 +362,7 @@ class JavascriptRecipe(BasicNewsRecipe):
                 if not url:
                     continue
 
-                self.log('Fetching article:', article.title, 'from', url)
+                self.log.debug('Downloading article:', article.title, 'from', url)
                 try:
                     pages = fetch_page(
                         url,
