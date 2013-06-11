@@ -7,11 +7,12 @@ Builtin recipes.
 import re, time, io
 from calibre.web.feeds.news import (BasicNewsRecipe, CustomIndexRecipe,
     AutomaticNewsRecipe, CalibrePeriodical)
+from calibre.web.feeds.jsnews import JavascriptRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.utils.config import JSONConfig
 
 basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe,
-        CalibrePeriodical)
+        CalibrePeriodical, JavascriptRecipe)
 
 custom_recipes = JSONConfig('custom_recipes/index.json')
 
