@@ -197,6 +197,7 @@ def fetch_page(
     remove_before=None,
     remove=(),
     remove_javascript=True,
+    delay=0,
     preprocess_browser=lambda browser, url, stage, recursion_level:None,
     postprocess_html=lambda root, url, recursion_level: root,
     resource_cache={},
@@ -208,6 +209,9 @@ def fetch_page(
     output_dir = output_dir or os.getcwdu()
     if browser is None:
         browser = jsbrowser()
+
+    if delay:
+        time.sleep(delay)
 
     # Load the DOM
     if url is not None:
@@ -241,7 +245,7 @@ def fetch_page(
                 curl, load_complete=load_complete, links=links, keep_only=keep_only,
                 remove_after=remove_after, remove_before=remove_before, remove=remove,
                 preprocess_browser=preprocess_browser, postprocess_html=postprocess_html,
-                resource_cache=resource_cache, output_dir=odir, browser=browser,
+                resource_cache=resource_cache, output_dir=odir, browser=browser, delay=delay,
                 recursion_level=recursion_level+1))
         except AbortFetch:
             continue

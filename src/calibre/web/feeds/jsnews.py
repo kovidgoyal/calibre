@@ -115,7 +115,7 @@ class JavascriptRecipe(BasicNewsRecipe):
         Override this method in your recipe if you want to use a non-standard Browser object.
         '''
         from calibre.web.jsbrowser.browser import Browser
-        return Browser(default_timeout=kwargs.get('default_timeout', 120))
+        return Browser(default_timeout=kwargs.get('default_timeout', self.timeout))
 
     def do_login(self, browser, username, password):
         '''
@@ -375,6 +375,7 @@ class JavascriptRecipe(BasicNewsRecipe):
                         remove_before=self.remove_tags_before,
                         remove_after=self.remove_tags_after,
                         remove_javascript=self.remove_javascript,
+                        delay=self.delay,
                         resource_cache=resource_cache, output_dir=art_dir, browser=browser)
                 except AbortFetch:
                     self.log.exception('Fetching of article: %r aborted' % article.title)
