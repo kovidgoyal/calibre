@@ -41,6 +41,8 @@ class Convert(object):
 
     def __init__(self, path_or_stream, dest_dir=None, log=None, notes_text=None):
         self.docx = DOCX(path_or_stream, log=log)
+        self.ms_pat = re.compile(r'\s{2,}')
+        self.ws_pat = re.compile(r'[\n\r\t]')
         self.log = self.docx.log
         self.notes_text = notes_text or _('Notes')
         self.dest_dir = dest_dir or os.getcwdu()
@@ -414,7 +416,14 @@ class Convert(object):
                 if not child.text:
                     continue
                 space = child.get(XML('space'), None)
+                preserve = False
                 if space == 'preserve':
+                    # Only use a <span> with white-space:pre-wrap if this element
+                    # actually needs it, i.e. if it has more than one
+                    # consecutive space or it has newlines or tabs.
+                    multi_spaces = self.ms_pat.search(child.text) is not None
+                    preserve = multi_spaces or self.ws_pat.search(child.text) is not None
+                if preserve:
                     text.add_elem(SPAN(child.text, style="white-space:pre-wrap"))
                     ans.append(text.elem)
                 else:
