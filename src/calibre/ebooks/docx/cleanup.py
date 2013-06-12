@@ -43,6 +43,12 @@ def merge_run(run):
         merge(parent, span)
 
 
+def liftable(css):
+    # A <span> is liftable if all its styling would work just as well if it is
+    # specified on the parent element.
+    prefixes = {x.partition('-')[0] for x in css.iterkeys()}
+    return not (prefixes - {'text', 'font', 'letter', 'color', 'background'})
+
 def cleanup_markup(root, styles):
     # Merge consecutive spans that have the same styling
     current_run = []
@@ -57,3 +63,24 @@ def cleanup_markup(root, styles):
                 if len(current_run) > 1:
                     merge_run(current_run)
                 current_run = [span]
+
+    # Remove unnecessary span tags that are the only child of a parent block
+    # element
+    class_map = dict(styles.classes.itervalues())
+    parents = ('p', 'div') + tuple('h%d' % i for i in xrange(1, 7))
+    for parent in root.xpath('//*[(%s) and count(span)=1]' % ' or '.join('name()="%s"' % t for t in parents)):
+        if len(parent) == 1 and not parent.text and not parent[0].tail:
+            # We have a block whose contents are entirely enclosed in a <span>
+            span = parent[0]
+            span_class = span.get('class', None)
+            span_css = class_map.get(span_class, {})
+            if liftable(span_css):
+                pclass = parent.get('class', None)
+                if span_class:
+                    pclass = (pclass + ' ' + span_class) if pclass else span_class
+                    parent.set('class', pclass)
+                parent.text = span.text
+                parent.remove(span)
+                for child in span:
+                    parent.append(span)
+
