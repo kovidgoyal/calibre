@@ -1,3 +1,4 @@
+
 __license__   = 'GPL v3'
 __copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
@@ -5,7 +6,6 @@ frontlineonnet.com
 '''
 
 import re
-from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Frontlineonnet(BasicNewsRecipe):
@@ -18,7 +18,7 @@ class Frontlineonnet(BasicNewsRecipe):
     delay                = 1
     INDEX                = 'http://frontlineonnet.com/'
     use_embedded_content = False
-    encoding             = 'cp1252'
+    encoding             = 'utf-8'
     language             = 'en_IN'
     publication_type     = 'magazine'
     masthead_url         = 'http://frontlineonnet.com/images/newfline.jpg'
@@ -45,37 +45,36 @@ class Frontlineonnet(BasicNewsRecipe):
                          ]
 
     keep_only_tags= [
-                      dict(name='font', attrs={'class':'storyhead'})
-                     ,dict(attrs={'class':'byline'})
+                      dict(name='div', attrs={'id':'content'})
+                     #,dict(attrs={'class':'byline'})
                     ]
-    remove_attributes=['size','noshade','border']
+    #remove_attributes=['size','noshade','border']
 
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):
-               item['alt'] = 'image'
-        return soup
+    #def preprocess_html(self, soup):
+        #for item in soup.findAll(style=True):
+            #del item['style']
+        #for item in soup.findAll('img'):
+            #if not item.has_key('alt'):
+               #item['alt'] = 'image'
+        #return soup
 
     def parse_index(self):
         articles = []
         soup = self.index_to_soup(self.INDEX)
-        for feed_link in soup.findAll('a',href=True):
-            if feed_link['href'].startswith('stories/'):
-                url   = self.INDEX + feed_link['href']
-                title = self.tag_to_string(feed_link)
-                date  = strftime(self.timefmt)
-                articles.append({
-                                  'title'      :title
-                                 ,'date'       :date
-                                 ,'url'        :url
-                                 ,'description':''
-                                })
+        for feed_link in soup.findAll('div', id='headseccol'):
+            a = feed_link.find('a', href=True)
+            title = self.tag_to_string(a)
+            url = a['href']
+            articles.append({
+                              'title'      :title
+                             ,'date'       :''
+                             ,'url'        :url
+                             ,'description':''
+                            })
         return [('Frontline', articles)]
 
-    def print_version(self, url):
-        return "http://www.hinduonnet.com/thehindu/thscrip/print.pl?prd=fline&file=" + url.rpartition('/')[2]
+    #def print_version(self, url):
+        #return "http://www.hinduonnet.com/thehindu/thscrip/print.pl?prd=fline&file=" + url.rpartition('/')[2]
 
-    def image_url_processor(self, baseurl, url):
-        return url.replace('../images/', self.INDEX + 'images/').strip()
+    #def image_url_processor(self, baseurl, url):
+        #return url.replace('../images/', self.INDEX + 'images/').strip()
