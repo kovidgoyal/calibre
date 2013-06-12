@@ -36,7 +36,8 @@ class Header(OrderedDict):
 
         for line in self.DEFINITION.splitlines():
             line = line.strip()
-            if not line or line.startswith('#'): continue
+            if not line or line.startswith('#'):
+                continue
             name, val = [x.strip() for x in line.partition('=')[0::2]]
             if val:
                 val = eval(val, {'zeroes':zeroes, 'NULL':NULL, 'DYN':None,
@@ -66,7 +67,7 @@ class Header(OrderedDict):
             if val is None:
                 raise ValueError('Dynamic field %r not set'%name)
             if isinstance(val, (int, long)):
-                fmt = 'H' if name in self.SHORT_FIELDS else 'I'
+                fmt = b'H' if name in self.SHORT_FIELDS else b'I'
                 val = pack(b'>'+fmt, val)
             buf.write(val)
 
@@ -79,8 +80,8 @@ class Header(OrderedDict):
             ans = align_block(ans)
         return ans
 
-
     def format_value(self, name, val):
         return val
+
 
 
