@@ -423,7 +423,7 @@ class Convert(object):
                 text.add_elem(BR())
                 ans.append(text.elem)
             elif is_tag(child, 'w:br'):
-                typ = child.get('type', None)
+                typ = get(child, 'w:type')
                 if typ in {'column', 'page'}:
                     br = BR(style='page-break-after:always')
                 else:
