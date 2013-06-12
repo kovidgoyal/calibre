@@ -23,6 +23,7 @@ from calibre.ebooks.docx.fonts import Fonts
 from calibre.ebooks.docx.images import Images
 from calibre.ebooks.docx.tables import Tables
 from calibre.ebooks.docx.footnotes import Footnotes
+from calibre.ebooks.docx.cleanup import cleanup_markup
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.oeb.polish.toc import elem_to_toc_text
@@ -156,6 +157,8 @@ class Convert(object):
                 if cls and cls != 'notes-header':
                     notes_header.set('class', '%s notes-header' % cls)
                 break
+
+        cleanup_markup(self.html, self.styles)
 
         return self.write()
 
