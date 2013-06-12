@@ -104,7 +104,7 @@ def read_underline(parent, dest):
     for col in XPath('./w:u[@w:val]')(parent):
         val = get(col, 'w:val')
         if val:
-            ans = 'underline'
+            ans = val if val == 'none' else 'underline'
     setattr(dest, 'text_decoration', ans)
 
 def read_vert_align(parent, dest):
