@@ -235,16 +235,5 @@ class RunStyle(object):
         return self._css
 
     def same_border(self, other):
-        for x in (self, other):
-            has_border = False
-            for y in ('color', 'style', 'width'):
-                if ('border-%s' % y) in x.css:
-                    has_border = True
-                    break
-            if not has_border:
-                return False
-
-        s = tuple(self.css.get('border-%s' % y, None) for y in ('color', 'style', 'width'))
-        o = tuple(other.css.get('border-%s' % y, None) for y in ('color', 'style', 'width'))
-        return s == o
+        return self.get_border_css({}) == other.get_border_css({})
 
