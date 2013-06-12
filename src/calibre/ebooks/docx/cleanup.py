@@ -69,7 +69,7 @@ def cleanup_markup(root, styles):
     class_map = dict(styles.classes.itervalues())
     parents = ('p', 'div') + tuple('h%d' % i for i in xrange(1, 7))
     for parent in root.xpath('//*[(%s) and count(span)=1]' % ' or '.join('name()="%s"' % t for t in parents)):
-        if len(parent) == 1 and not parent.text and not parent[0].tail:
+        if len(parent) == 1 and not parent.text and not parent[0].tail and not parent[0].get('id', None):
             # We have a block whose contents are entirely enclosed in a <span>
             span = parent[0]
             span_class = span.get('class', None)
