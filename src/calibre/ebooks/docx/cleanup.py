@@ -49,6 +49,41 @@ def liftable(css):
     prefixes = {x.partition('-')[0] for x in css.iterkeys()}
     return not (prefixes - {'text', 'font', 'letter', 'color', 'background'})
 
+
+def add_text(elem, attr, text):
+    old = getattr(elem, attr) or ''
+    setattr(elem, attr, old + text)
+
+
+def lift(span):
+    # Replace an element by its content (text, children and tail)
+    parent = span.getparent()
+    idx = parent.index(span)
+    try:
+        last_child = span[-1]
+    except IndexError:
+        last_child = None
+
+    if span.text:
+        if idx == 0:
+            add_text(parent, 'text', span.text)
+        else:
+            add_text(parent[idx - 1], 'tail', span.text)
+
+    for child in reversed(span):
+        parent.insert(idx, child)
+    parent.remove(span)
+
+    if span.tail:
+        if last_child is None:
+            if idx == 0:
+                add_text(parent, 'text', span.tail)
+            else:
+                add_text(parent[idx - 1], 'tail', span.tail)
+        else:
+            add_text(last_child, 'tail', span.tail)
+
+
 def cleanup_markup(root, styles):
     # Merge consecutive spans that have the same styling
     current_run = []
@@ -94,4 +129,8 @@ def cleanup_markup(root, styles):
             elif css == {'font-weight':'bold'}:
                 span.tag = 'b'
                 del span.attrib['class']
+
+    # Get rid of <span>s that have no styling
+    for span in root.xpath('//span[not(@class) and not(@id)]'):
+        lift(span)
 
