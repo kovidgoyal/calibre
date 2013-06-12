@@ -82,5 +82,5 @@ def cleanup_markup(root, styles):
                 parent.text = span.text
                 parent.remove(span)
                 for child in span:
-                    parent.append(span)
+                    parent.append(child)
 
