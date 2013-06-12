@@ -325,6 +325,7 @@ class Convert(object):
                     try:
                         hl = hl_xpath(x)[0]
                         self.link_map[hl].append(span)
+                        x.set('is-link', '1')
                     except IndexError:
                         current_hyperlink = None
                 dest.append(span)
