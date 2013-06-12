@@ -84,3 +84,14 @@ def cleanup_markup(root, styles):
                 for child in span:
                     parent.append(child)
 
+    # Make spans whose only styling is bold or italic into <b> and <i> tags
+    for span in root.xpath('//span[@class]'):
+        css = class_map.get(span.get('class', None), {})
+        if len(css) == 1:
+            if css == {'font-style':'italic'}:
+                span.tag = 'i'
+                del span.attrib['class']
+            elif css == {'font-weight':'bold'}:
+                span.tag = 'b'
+                del span.attrib['class']
+
