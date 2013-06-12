@@ -363,6 +363,10 @@ class Convert(object):
                 wrapper = self.wrap_elems(spans, SPAN())
                 wrapper.set('class', cls)
 
+        if not dest.text and len(dest) == 0:
+            # Empty paragraph add a non-breaking space so that it is rendered
+            # by WebKit
+            dest.text = '\xa0'
         return dest
 
     def wrap_elems(self, elems, wrapper):
