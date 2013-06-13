@@ -64,13 +64,15 @@ def get_db(dbpath, options):
     return LibraryDatabase2(dbpath)
 
 def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, separator,
-            prefix, subtitle='Books in the calibre database'):
+            prefix, limit, subtitle='Books in the calibre database'):
     from calibre.utils.terminal import ColoredStream, geometry
     if sort_by:
         db.sort(sort_by, ascending)
     if search_text:
         db.search(search_text)
     data = db.get_data_as_dict(prefix, authors_as_string=True)
+    if limit > -1:
+        data = data[:limit]
     fields = ['id'] + fields
     title_fields = fields
     def field_name(f):
@@ -170,6 +172,7 @@ List the books available in the calibre database.
                       help=_('The maximum width of a single line in the output. Defaults to detecting screen size.'))
     parser.add_option('--separator', default=' ', help=_('The string used to separate fields. Default is a space.'))
     parser.add_option('--prefix', default=None, help=_('The prefix for all file paths. Default is the absolute path to the library folder.'))
+    parser.add_option('--limit', default=-1, type=int, help=_('The maximum number of results to display. Default: all'))
     return parser
 
 
@@ -205,7 +208,7 @@ def command_list(args, dbpath):
         return 1
 
     print do_list(db, fields, afields, opts.sort_by, opts.ascending, opts.search, opts.line_width, opts.separator,
-            opts.prefix)
+            opts.prefix, opts.limit)
     return 0
 
 
