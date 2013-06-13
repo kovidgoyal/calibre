@@ -106,7 +106,7 @@ img { background: none !important; float: none; margin: 0px; }
 
     def parse_index(self):
         #Searching for the index page on the HOMEPAGE
-        hpsoup = self.index_to_soup(self.HOMEPAGE)
+        # hpsoup = self.index_to_soup(self.HOMEPAGE)
         #indexref = hpsoup.find('a', href=re.compile('^indices.*'))
         #self.log('--> tag containing the today s index: ', indexref)
         #INDEX = indexref['href']
