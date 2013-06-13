@@ -8,6 +8,7 @@ Command line interface to the calibre database.
 '''
 
 import sys, os, cStringIO, re
+import unicodedata
 from textwrap import TextWrapper
 
 from calibre import preferred_encoding, prints, isbytestring
@@ -98,9 +99,14 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
             else:
                 record[f] = unicode(record[f])
             record[f] = record[f].replace('\n', ' ')
+    def chr_width(x):
+        return 1 + unicodedata.east_asian_width(x).startswith('W')
+    def str_width(x):
+        return sum(map(chr_width, x))
+
     for i in data:
         for j, field in enumerate(fields):
-            widths[j] = max(widths[j], len(unicode(i[field])))
+            widths[j] = max(widths[j], str_width(i[field]))
 
     screen_width = geometry()[0] if line_width < 0 else line_width
     if not screen_width:
@@ -128,14 +134,14 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
     o = cStringIO.StringIO()
 
     for record in data:
-        text = [wrappers[i].wrap(unicode(record[field]).encode('utf-8')) for i, field in enumerate(fields)]
+        text = [wrappers[i].wrap(unicode(record[field])) for i, field in enumerate(fields)]
         lines = max(map(len, text))
         for l in range(lines):
             for i, field in enumerate(text):
-                ft = text[i][l] if l < len(text[i]) else ''
-                filler = '%*s'%(widths[i]-len(ft)-1, '')
-                o.write(ft)
-                o.write(filler+separator)
+                ft = text[i][l] if l < len(text[i]) else u''
+                filler = u'%*s'%(widths[i]-str_width(ft)-1, u'')
+                o.write(ft.encode('utf-8'))
+                o.write((filler+separator).encode('utf-8'))
             print >>o
     return o.getvalue()
 
