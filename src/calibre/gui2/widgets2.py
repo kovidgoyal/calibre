@@ -25,10 +25,12 @@ class HistoryLineEdit2(LineEdit):
 
     def save_history(self):
         ct = unicode(self.text())
-        try:
-            self.history.remove(ct)
-        except ValueError:
-            pass
-        self.history.insert(0, ct)
-        history.set(self.store_name, self.history)
+        if len(ct) > 2:
+            try:
+                self.history.remove(ct)
+            except ValueError:
+                pass
+            self.history.insert(0, ct)
+            history.set(self.store_name, self.history)
+            self.update_items_cache(self.history)
 
