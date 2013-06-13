@@ -10,6 +10,8 @@ __docformat__ = 'restructuredtext en'
 
 from calibre import as_unicode
 
+default_timeout = object()
+
 # Forms {{{
 class Control(object):
 
@@ -43,7 +45,7 @@ class Control(object):
                 self.qwe.setAttribute('value', as_unicode(val))
             elif self.type in ('number', 'range'):
                 self.qwe.setAttribute('value', '%d'%int(val))
-            else: # Unknown type treat as text
+            else:  # Unknown type treat as text
                 self.qwe.setAttribute('value', as_unicode(val))
 
         return property(fget=fget, fset=fset)
@@ -221,7 +223,7 @@ class FormsMixin(object):
         return self.current_form
 
     def submit(self, submit_control_selector=None, wait_for_load=True,
-            ajax_replies=0, timeout=30.0):
+            ajax_replies=0, timeout=default_timeout):
         '''
         Submit the currently selected form. Tries to autodetect the submit
         control. You can override auto-detection by specifying a CSS2 selector
@@ -238,7 +240,7 @@ class FormsMixin(object):
                 ajax_replies=ajax_replies, timeout=timeout)
 
     def ajax_submit(self, submit_control_selector=None,
-            num_of_replies=1, timeout=30.0):
+            num_of_replies=1, timeout=default_timeout):
         '''
         Submit the current form. This method is meant for those forms that
         use AJAX rather than a plain submit. It will block until the specified
@@ -248,4 +250,5 @@ class FormsMixin(object):
         self.submit(submit_control_selector=submit_control_selector,
                 wait_for_load=False, ajax_replies=num_of_replies,
                 timeout=timeout)
+
 

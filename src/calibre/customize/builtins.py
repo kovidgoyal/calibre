@@ -554,6 +554,7 @@ from calibre.ebooks.conversion.plugins.txt_input import TXTInput
 from calibre.ebooks.conversion.plugins.lrf_input import LRFInput
 from calibre.ebooks.conversion.plugins.chm_input import CHMInput
 from calibre.ebooks.conversion.plugins.snb_input import SNBInput
+from calibre.ebooks.conversion.plugins.docx_input import DOCXInput
 
 from calibre.ebooks.conversion.plugins.epub_output import EPUBOutput
 from calibre.ebooks.conversion.plugins.fb2_output import FB2Output
@@ -595,6 +596,7 @@ plugins += [
     LRFInput,
     CHMInput,
     SNBInput,
+    DOCXInput,
 ]
 plugins += [
     EPUBOutput,

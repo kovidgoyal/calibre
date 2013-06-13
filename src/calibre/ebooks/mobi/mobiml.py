@@ -489,7 +489,7 @@ class MobiMLizer(object):
         if elem.text:
             if istate.preserve:
                 text = elem.text
-            elif (len(elem) > 0 and isspace(elem.text) and elem[0].tag and
+            elif (len(elem) > 0 and isspace(elem.text) and hasattr(elem[0].tag, 'rpartition') and
                   elem[0].tag.rpartition('}')[-1] not in INLINE_TAGS):
                 text = None
             else:

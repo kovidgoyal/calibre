@@ -35,7 +35,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 0, 11)
+    version = (2, 0, 12)
 
     dbversion = 0
     fwversion = 0
@@ -1218,7 +1218,7 @@ class KOBOTOUCH(KOBO):
     min_dbversion_images_on_sdcard  = 77
     min_dbversion_activiy           = 77
 
-    max_supported_fwversion         = (2,5,3)
+    max_supported_fwversion         = (2,6,1)
     min_fwversion_images_on_sdcard  = (2,4,1)
 
     has_kepubs = True
@@ -2381,9 +2381,17 @@ class KOBOTOUCH(KOBO):
                         "WHERE Shelf.Name = C.ShelfName "
                         "AND c._IsDeleted <> 'true')")
 
+        delete_activity_query = ("DELETE FROM Activity "
+                                 "WHERE Type = 'Shelf' "
+                                 "AND NOT EXISTS "
+                                    "(SELECT 1 FROM Shelf "
+                                    "WHERE Shelf.Name = Activity.Id)"
+                                 )
+
         cursor = connection.cursor()
         cursor.execute(delete_query)
         cursor.execute(update_query)
+        cursor.execute(delete_activity_query)
         connection.commit()
         cursor.close()
 

@@ -36,14 +36,30 @@ def anchor_map(html):
 class SpineItem(unicode):
 
     def __new__(cls, path, mime_type=None, read_anchor_map=True,
-            run_char_count=True):
+            run_char_count=True, from_epub=False):
         ppath = path.partition('#')[0]
         if not os.path.exists(path) and os.path.exists(ppath):
             path = ppath
         obj = super(SpineItem, cls).__new__(cls, path)
         with open(path, 'rb') as f:
             raw = f.read()
-        raw, obj.encoding = xml_to_unicode(raw)
+        if from_epub:
+            # According to the spec, HTML in EPUB must be encoded in utf-8 or
+            # utf-16. Furthermore, there exist epub files produced by the usual
+            # incompetents that have utf-8 encoded HTML files that contain
+            # incorrect encoding declarations. See
+            # http://www.idpf.org/epub/20/spec/OPS_2.0.1_draft.htm#Section1.4.1.2
+            # http://www.idpf.org/epub/30/spec/epub30-publications.html#confreq-xml-enc
+            # https://bugs.launchpad.net/bugs/1188843
+            # So we first decode with utf-8 and only if that fails we try xml_to_unicode. This
+            # is the same algorithm as that used by the conversion pipeline (modulo
+            # some BOM based detection). Sigh.
+            try:
+                raw, obj.encoding = raw.decode('utf-8'), 'utf-8'
+            except UnicodeDecodeError:
+                raw, obj.encoding = xml_to_unicode(raw)
+        else:
+            raw, obj.encoding = xml_to_unicode(raw)
         obj.character_count = character_count(raw) if run_char_count else 10000
         obj.anchor_map = anchor_map(raw) if read_anchor_map else {}
         obj.start_page = -1
@@ -100,22 +116,24 @@ class IndexEntry(object):
             self.end_anchor = None
 
 def create_indexing_data(spine, toc):
-    if not toc: return
+    if not toc:
+        return
     f = partial(IndexEntry, spine)
     index_entries = list(map(f,
         (t for t in toc.flat() if t is not toc),
         (i-1 for i, t in enumerate(toc.flat()) if t is not toc)
         ))
     index_entries.sort(key=attrgetter('sort_key'))
-    [ i.find_end(index_entries) for i in index_entries ]
+    [i.find_end(index_entries) for i in index_entries]
 
     ie = namedtuple('IndexEntry', 'entry start_anchor end_anchor')
 
     for spine_pos, spine_item in enumerate(spine):
         for i in index_entries:
             if i.end_spine_pos < spine_pos or i.spine_pos > spine_pos:
-                continue # Does not touch this file
+                continue  # Does not touch this file
             start = i.anchor if i.spine_pos == spine_pos else None
             end = i.end_anchor if i.spine_pos == spine_pos else None
             spine_item.index_entries.append(ie(i, start, end))
+
 

@@ -104,9 +104,12 @@ class Images(object):
         if rid in self.used:
             return self.used[rid]
         raw = self.docx.read(self.rid_map[rid])
-        base = base or ascii_filename(self.rid_map[rid].rpartition('/')[-1]).replace(' ', '_')
+        base = base or ascii_filename(self.rid_map[rid].rpartition('/')[-1]).replace(' ', '_') or 'image'
         ext = what(None, raw) or base.rpartition('.')[-1] or 'jpeg'
-        base = base.rpartition('.')[0] + '.' + ext
+        base = base.rpartition('.')[0]
+        if not base:
+            base = 'image'
+        base += '.' + ext
         exists = frozenset(self.used.itervalues())
         c = 1
         while base in exists:
@@ -132,7 +135,7 @@ class Images(object):
                     src = self.generate_filename(rid, name)
                     img = IMG(src='images/%s' % src)
                     if alt:
-                        img(alt=alt)
+                        img.set('alt', alt)
                     return img
 
     def drawing_to_html(self, drawing, page):
@@ -156,6 +159,17 @@ class Images(object):
                     if style:
                         ans.set('style', '; '.join('%s: %s' % (k, v) for k, v in style.iteritems()))
                     yield ans
+
+    def pict_to_html(self, pict, page):
+        for imagedata in XPath('descendant::v:imagedata[@r:id]')(pict):
+            rid = get(imagedata, 'r:id')
+            if rid in self.rid_map:
+                src = self.generate_filename(rid)
+                img = IMG(src='images/%s' % src, style="display:block")
+                alt = get(imagedata, 'o:title')
+                if alt:
+                    img.set('alt', alt)
+                yield img
 
     def get_float_properties(self, anchor, style, page):
         if 'display' not in style:
@@ -200,6 +214,8 @@ class Images(object):
         if elem.tag.endswith('}drawing'):
             for tag in self.drawing_to_html(elem, page):
                 yield tag
-        # TODO: Handle w:pict
+        else:
+            for tag in self.pict_to_html(elem, page):
+                yield tag
 
 

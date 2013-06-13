@@ -29,24 +29,22 @@ class NYTimesSports(BasicNewsRecipe):
     category = 'Sports'
     oldest_article = 3
     max_articles_per_feed = 25
+    use_embedded_content = False
     no_stylesheets = True
     language = 'en'
-    #cover_url ='http://bit.ly/h8F4DO'
+    auto_cleanup = True
+    auto_cleanup_keep = '//div[@class="articleSpanImage"]'
     feeds = [
-               (u'The Fifth Down', u'http://fifthdown.blogs.nytimes.com/feed/'),
-               (u'Off The Dribble', u'http://offthedribble.blogs.nytimes.com/feed/'),
-               (u'The Quad', u'http://thequad.blogs.nytimes.com/feed/'),
-               (u'Slap Shot', u'http://slapshot.blogs.nytimes.com/feed/'),
-               (u'Goal', u'http://goal.blogs.nytimes.com/feed/'),
-               (u'Bats', u'http://bats.blogs.nytimes.com/feed/'),
-               (u'Straight Sets', u'http://straightsets.blogs.nytimes.com/feed/'),
-               (u'Formula One', u'http://formulaone.blogs.nytimes.com/feed/'),
-               (u'On Par', u'http://onpar.blogs.nytimes.com/feed/'),
-           ]
-    keep_only_tags = [dict(name='div', attrs={'id':'header'}),
-            dict(name='h1'),
-            dict(name='h2'),
-            dict(name='div', attrs={'class':'entry-content'})]
+        (u'The Fifth Down', u'http://fifthdown.blogs.nytimes.com/feed/'),
+        (u'Off The Dribble', u'http://offthedribble.blogs.nytimes.com/feed/'),
+        (u'The Quad', u'http://thequad.blogs.nytimes.com/feed/'),
+        (u'Slap Shot', u'http://slapshot.blogs.nytimes.com/feed/'),
+        (u'Goal', u'http://goal.blogs.nytimes.com/feed/'),
+        (u'Bats', u'http://bats.blogs.nytimes.com/feed/'),
+        (u'Straight Sets', u'http://straightsets.blogs.nytimes.com/feed/'),
+        (u'Formula One', u'http://formulaone.blogs.nytimes.com/feed/'),
+        (u'On Par', u'http://onpar.blogs.nytimes.com/feed/'),
+    ]
     extra_css =    '''
            h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
            h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}

@@ -1,5 +1,4 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
 lanacion.com.ar
 '''
@@ -45,36 +44,32 @@ class Lanacion(BasicNewsRecipe):
     remove_tags_after  = dict(attrs={'id':'relacionadas'})
 
     feeds          = [
-                         (u'Politica'             , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=30'  )
-                        ,(u'Deportes'             , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=131' )
-                        ,(u'Economia'             , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=272' )
-                        ,(u'Informacion General'  , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=21'  )
-                        ,(u'Cultura'              , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=1'   )
-                        ,(u'Opinion'              , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=28'  )                        
-                        ,(u'Espectaculos'         , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=120' )
-                        ,(u'Exterior'             , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=7'   )
-                        ,(u'Ciencia&Salud'        , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=498' )
-                        ,(u'Revista'              , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=494' )
-                        ,(u'Enfoques'             , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=421' )
-                        ,(u'Comercio Exterior'    , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=347' )
-                        ,(u'Tecnologia'           , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=432' )
-                        ,(u'Arquitectura'         , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=366' )
-                        ,(u'Turismo'              , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=504' )
-                        ,(u'Al volante'           , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=371' )
-                        ,(u'El Campo'             , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=337' )
-                        ,(u'Moda y Belleza'       , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=1312')
-                        ,(u'Inmuebles Comerciales', u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=1363')
-                        ,(u'Countries'            , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=1348')
-                        ,(u'adnCultura'           , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=6734')
-                        ,(u'The WSJ Americas'     , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=6373')
-                        ,(u'Comunidad'            , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=1344')
-                        ,(u'Management'           , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=7380')
-                        ,(u'Bicentenario'         , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=7276')
+                         (u'Politica'             , u'http://lanacion.com.ar.feedsportal.com/politica'                 )
+                        ,(u'Deportes'             , u'http://lanacion.com.ar.feedsportal.com/deportes'                 )
+                        ,(u'Economia'             , u'http://lanacion.com.ar.feedsportal.com/economia'                 )
+                        ,(u'Sociedad'             , u'http://lanacion.com.ar.feedsportal.com/sociedad'                 )
+                        ,(u'Seguridad'            , u'http://lanacion.com.ar.feedsportal.com/seguridad'                )
+                        ,(u'Buenos Aires'         , u'http://lanacion.com.ar.feedsportal.com/buenosaires'              )                        
+                        ,(u'Opinion'              , u'http://lanacion.com.ar.feedsportal.com/opinion'                  )
+                        ,(u'Espectaculos'         , u'http://lanacion.com.ar.feedsportal.com/espectaculos'             )
+                        ,(u'El Mundo'             , u'http://lanacion.com.ar.feedsportal.com/mundo'                    )
+                        ,(u'Revista'              , u'http://lanacion.com.ar.feedsportal.com/revistalanacion'          )
+                        ,(u'Enfoques'             , u'http://lanacion.com.ar.feedsportal.com/enfoques'                 )
+                        ,(u'Comercio Exterior'    , u'http://lanacion.com.ar.feedsportal.com/comercioexterior'         )
+                        ,(u'Tecnologia'           , u'http://lanacion.com.ar.feedsportal.com/tecnologia'               )
+                        ,(u'Turismo'              , u'http://lanacion.com.ar.feedsportal.com/turismo'                  )
+                        ,(u'Al volante'           , u'http://lanacion.com.ar.feedsportal.com/alvolante'                )
+                        ,(u'El Campo'             , u'http://lanacion.com.ar.feedsportal.com/elcampo'                  )
+                        ,(u'Moda y Belleza'       , u'http://lanacion.com.ar.feedsportal.com/modaybelleza'             )
+                        ,(u'Inmuebles Comerciales', u'http://lanacion.com.ar.feedsportal.com/inmueblescomerciales'     )
+                        ,(u'Countries'            , u'http://lanacion.com.ar.feedsportal.com/countries'                )
+                        ,(u'adnCultura'           , u'http://lanacion.com.ar.feedsportal.com/adncultura'               )
+                        ,(u'The WSJ Americas'     , u'http://lanacion.com.ar.feedsportal.com/wallstreetjournalamericas')
                      ]
 
                      
     def get_article_url(self, article):
-        link = BasicNewsRecipe.get_article_url(self,article)
+        link = article.get('guid',  None)
         if link.startswith('http://blogs.lanacion') and not link.endswith('/'):
            return self.browser.open_novisit(link).geturl()
         if link.rfind('galeria=') > 0:

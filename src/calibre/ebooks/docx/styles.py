@@ -142,8 +142,8 @@ class Styles(object):
     def get(self, key, default=None):
         return self.id_map.get(key, default)
 
-    def __call__(self, root, fonts):
-        self.fonts = fonts
+    def __call__(self, root, fonts, theme):
+        self.fonts, self.theme = fonts, theme
         for s in XPath('//w:style')(root):
             s = Style(s)
             if s.style_id:
@@ -265,7 +265,8 @@ class Styles(object):
     def resolve_run(self, r):
         ans = self.run_cache.get(r, None)
         if ans is None:
-            p = r.getparent()
+            p = XPath('ancestor::w:p[1]')(r)
+            p = p[0] if p else None
             ans = self.run_cache[r] = RunStyle()
             direct_formatting = None
             for rPr in XPath('./w:rPr')(r):
@@ -282,12 +283,16 @@ class Styles(object):
             default_char = self.default_styles.get('character', None)
             if self.default_character_style is not None:
                 parent_styles.append(self.default_character_style)
-            ts = self.tables.run_style(p)
-            if ts is not None:
-                parent_styles.append(ts)
             pstyle = self.para_char_cache.get(p, None)
             if pstyle is not None:
                 parent_styles.append(pstyle)
+            # As best as I can understand the spec, table overrides should be
+            # applied before paragraph overrides, but word does it
+            # this way, see the December 2007 table header in the demo
+            # document.
+            ts = self.tables.run_style(p)
+            if ts is not None:
+                parent_styles.append(ts)
             if direct_formatting.linked_style is not None:
                 ls = self.get(direct_formatting.linked_style).character_style
                 if ls is not None:
@@ -299,7 +304,8 @@ class Styles(object):
                 setattr(ans, attr, self.run_val(parent_styles, direct_formatting, attr))
 
             if ans.font_family is not inherit:
-                ans.font_family = self.fonts.family_for(ans.font_family, ans.b, ans.i)
+                ff = self.theme.resolve_font_family(ans.font_family)
+                ans.font_family = self.fonts.family_for(ff, ans.b, ans.i)
 
         return ans
 
@@ -312,51 +318,63 @@ class Styles(object):
     def cascade(self, layers):
         self.body_font_family = 'serif'
         self.body_font_size = '10pt'
+        self.body_color = 'black'
+
+        def promote_property(char_styles, block_style, prop):
+            vals = {getattr(s, prop) for s in char_styles}
+            if len(vals) == 1:
+                # All the character styles have the same value
+                for s in char_styles:
+                    setattr(s, prop, inherit)
+                setattr(block_style, prop, next(iter(vals)))
 
         for p, runs in layers.iteritems():
+            has_links = '1' in {r.get('is-link', None) for r in runs}
             char_styles = [self.resolve_run(r) for r in runs]
             block_style = self.resolve_paragraph(p)
-            c = Counter()
+            for prop in ('font_family', 'font_size', 'color'):
+                if has_links and prop == 'color':
+                    # We cannot promote color as browser rendering engines will
+                    # override the link color setting it to blue, unless the
+                    # color is specified on the link element itself
+                    continue
+                promote_property(char_styles, block_style, prop)
             for s in char_styles:
-                if s.font_family is not inherit:
-                    c[s.font_family] += 1
+                if s.text_decoration == 'none':
+                    # The default text decoration is 'none'
+                    s.text_decoration = inherit
+
+        def promote_most_common(block_styles, prop, default):
+            c = Counter()
+            for s in block_styles:
+                val = getattr(s, prop)
+                if val is not inherit:
+                    c[val] += 1
+            val = None
             if c:
-                family = c.most_common(1)[0][0]
-                block_style.font_family = family
-                for s in char_styles:
-                    if s.font_family == family:
-                        s.font_family = inherit
+                val = c.most_common(1)[0][0]
+                for s in block_styles:
+                    oval = getattr(s, prop)
+                    if oval is inherit:
+                        if default != val:
+                            setattr(s, prop, default)
+                    elif oval == val:
+                        setattr(s, prop, inherit)
+            return val
 
-            sizes = [s.font_size for s in char_styles if s.font_size is not inherit]
-            if sizes:
-                sz = block_style.font_size = sizes[0]
-                for s in char_styles:
-                    if s.font_size == sz:
-                        s.font_size = inherit
+        block_styles = tuple(self.resolve_paragraph(p) for p in layers)
 
-        block_styles = [self.resolve_paragraph(p) for p in layers]
-        c = Counter()
-        for s in block_styles:
-            if s.font_family is not inherit:
-                c[s.font_family] += 1
+        ff = promote_most_common(block_styles, 'font_family', self.body_font_family)
+        if ff is not None:
+            self.body_font_family = ff
 
-        if c:
-            self.body_font_family = family = c.most_common(1)[0][0]
-            for s in block_styles:
-                if s.font_family == family:
-                    s.font_family = inherit
+        fs = promote_most_common(block_styles, 'font_size', int(self.body_font_size[:2]))
+        if fs is not None:
+            self.body_font_size = '%.3gpt' % fs
 
-        c = Counter()
-        for s in block_styles:
-            if s.font_size is not inherit:
-                c[s.font_size] += 1
-
-        if c:
-            sz = c.most_common(1)[0][0]
-            for s in block_styles:
-                if s.font_size == sz:
-                    s.font_size = inherit
-            self.body_font_size = '%.3gpt' % sz
+        color = promote_most_common(block_styles, 'color', self.body_color)
+        if color is not None:
+            self.body_color = color
 
     def resolve_numbering(self, numbering):
         # When a numPr element appears inside a paragraph style, the lvl info
@@ -398,9 +416,7 @@ class Styles(object):
         ef = self.fonts.embed_fonts(dest_dir, docx)
         prefix = textwrap.dedent(
             '''\
-            body { font-family: %s; font-size: %s }
-
-            p { text-indent: 1.5em }
+            body { font-family: %s; font-size: %s; color: %s }
 
             ul, ol, p { margin: 0; padding: 0 }
 
@@ -416,7 +432,7 @@ class Styles(object):
 
             dl.notes dd:last-of-type { page-break-after: avoid }
 
-            ''') % (self.body_font_family, self.body_font_size)
+            ''') % (self.body_font_family, self.body_font_size, self.body_color)
         if ef:
             prefix = ef + '\n' + prefix
 
@@ -426,4 +442,5 @@ class Styles(object):
             b = '\n'.join(b)
             ans.append('.%s {\n%s\n}\n' % (cls, b.rstrip(';')))
         return prefix + '\n' + '\n'.join(ans)
+
 

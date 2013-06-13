@@ -36,7 +36,8 @@ def read_text_border(parent, dest):
         if sz is not None:
             # we dont care about art borders (they are only used for page borders)
             try:
-                border_width = min(96, max(2, float(sz))) / 8
+                # A border of less than 1pt is not rendered by WebKit
+                border_width = min(96, max(8, float(sz))) / 8
             except (ValueError, TypeError):
                 pass
 
@@ -103,7 +104,7 @@ def read_underline(parent, dest):
     for col in XPath('./w:u[@w:val]')(parent):
         val = get(col, 'w:val')
         if val:
-            ans = 'underline'
+            ans = val if val == 'none' else 'underline'
     setattr(dest, 'text_decoration', ans)
 
 def read_vert_align(parent, dest):
@@ -116,8 +117,12 @@ def read_vert_align(parent, dest):
 
 def read_font_family(parent, dest):
     ans = inherit
-    for col in XPath('./w:rFonts[@w:ascii]')(parent):
-        val = get(col, 'w:ascii')
+    for col in XPath('./w:rFonts')(parent):
+        val = get(col, 'w:asciiTheme')
+        if val:
+            val = '|%s|' % val
+        else:
+            val = get(col, 'w:ascii')
         if val:
             ans = val
     setattr(dest, 'font_family', ans)
@@ -234,16 +239,5 @@ class RunStyle(object):
         return self._css
 
     def same_border(self, other):
-        for x in (self, other):
-            has_border = False
-            for y in ('color', 'style', 'width'):
-                if ('border-%s' % y) in x.css:
-                    has_border = True
-                    break
-            if not has_border:
-                return False
-
-        s = tuple(self.css.get('border-%s' % y, None) for y in ('color', 'style', 'width'))
-        o = tuple(other.css.get('border-%s' % y, None) for y in ('color', 'style', 'width'))
-        return s == o
+        return self.get_border_css({}) == other.get_border_css({})
 

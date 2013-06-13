@@ -1,3 +1,6 @@
+" Scan the following dirs (recursively for tags
+let g:project_tags_dirs = ['src/calibre']
+
 " Include directories for C++ modules
 let g:syntastic_cpp_include_dirs = [ 
             \'/usr/include/python2.7',
@@ -27,7 +30,7 @@ fun! CalibreLog()
     hi def link au Keyword
     syntax match au /^.*:::$/
     nnoremap <silent> <buffer> n :call cursor(1+search('\V:::\$', 'n'), 0)<CR>
-    nnoremap <silent> <buffer> yb vt#t<Space>y
+    nnoremap <silent> <buffer> yb v/#<CR>t<Space>y:nohl<CR>
     normal! gg2j
     edit Changelog.yaml
     edit src/calibre/constants.py

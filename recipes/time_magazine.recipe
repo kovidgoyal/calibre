@@ -1,77 +1,67 @@
 #!/usr/bin/env  python
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
+__copyright__ = '2013, Kovid Goyal <kovid@kovidgoyal.net>'
 
 '''
 time.com
 '''
 
-import re
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.jsnews import JavascriptRecipe
 from lxml import html
 
-class Time(BasicNewsRecipe):
+def wait_for_load(browser):
+    # This element is present in the black login bar at the top
+    browser.wait_for_element('#site-header p.constrain', timeout=180)
+
+# Keep the login method as standalone, so it can be easily tested
+def do_login(browser, username, password):
+    from calibre.web.jsbrowser.browser import Timeout
+    browser.visit('http://www.time.com/time/magazine')
+    form = browser.select_form('#magazine-signup')
+    form['username'] = username
+    form['password'] = password
+    browser.submit('#paid-wall-submit')
+    try:
+        wait_for_load(browser)
+    except Timeout:
+        raise ValueError('Failed to login to time.com, check your username and password and try again in a little while.')
+
+
+class Time(JavascriptRecipe):
     title                 = u'Time'
-    __author__            = 'Kovid Goyal, Rick Shang'
-    description           = ('Weekly US magazine.')
-    encoding = 'utf-8'
+    __author__            = 'Kovid Goyal'
+    description           = 'Weekly US magazine.'
+    language              = 'en'
+    needs_subscription    = True
+    requires_version      = (0, 9, 35)
+
     no_stylesheets        = True
-    language = 'en'
     remove_javascript     = True
-    needs_subscription = True
+    keep_only_tags = ['article.post']
+    remove_tags = ['meta', '.entry-sharing', '.entry-footer', '.wp-paginate',
+                   '.post-rail', '.entry-comments', '.entry-tools',
+                   '#paid-wall-cm-ad']
 
-    keep_only_tags = [
-            {
-                'class':['primary-col', 'tout1']
-            },
-        ]
-    remove_tags = [
-            {'class':['button', 'entry-sharing group', 'wp-paginate',
-                'moving-markup', 'entry-comments']},
+    recursions = 1
+    links_from_selectors = ['.wp-paginate a.page[href]']
 
-            ]
     extra_css = '.entry-date { padding-left: 2ex }'
 
-    preprocess_regexps = [(re.compile(
-        r'<meta .+/>'), lambda m:'')]
+    def do_login(self, browser, username, password):
+        do_login(browser, username, password)
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        # This site uses javascript in its login process
-        if self.username is not None and self.password is not None:
-            br.open('http://www.time.com/time/magazine')
-            br.select_form(predicate=lambda f: 'action' in f.attrs and f.attrs['action'] == 'https://auth.time.com/login.php')
-            br['username']   = self.username
-            br['password'] = self.password
-            # br['magcode'] = ['TD']
-            br.find_control('turl').readonly = False
-            br['turl'] = 'http://www.time.com/time/magazine'
-            br.find_control('rurl').readonly = False
-            br['rurl'] = 'http://www.time.com/time/magazine'
-            br['remember'] = False
-            raw = br.submit().read()
-            if False and '>Log Out<' not in raw:
-                # This check is disabled as it does not work (there is probably
-                # some cookie missing) however, the login is "sufficient" for
-                # the actual article downloads to work.
-                raise ValueError('Failed to login to time.com, check'
-                    ' your username and password')
-        return br
-
-    def parse_index(self):
-        raw = self.index_to_soup('http://www.time.com/time/magazine', raw=True)
+    def get_publication_data(self, browser):
+        selector = 'section.sec-mag-showcase ul.ul-mag-showcase img[src]'
+        cover = browser.css_select(selector)
+        # URL for large cover
+        cover_url = unicode(cover.evaluateJavaScript('this.src').toString()).replace('_400.', '_600.')
+        raw = browser.html
+        ans = {'cover': browser.get_resource(cover_url)}
+        # We are already at the magazine page thanks to the do_login() method
         root = html.fromstring(raw)
-        img = root.xpath('//a[.="View Large Cover" and @href]')
-        if img:
-            cover_url = 'http://www.time.com' + img[0].get('href')
-            try:
-                nsoup = self.index_to_soup(cover_url)
-                img = nsoup.find('img', src=re.compile('archive/covers'))
-                if img is not None:
-                    self.cover_url = img['src']
-            except:
-                self.log.exception('Failed to fetch cover')
 
         dates = ''.join(root.xpath('//time[@class="updated"]/text()'))
         if dates:
@@ -90,27 +80,22 @@ class Time(BasicNewsRecipe):
                 if articles:
                     feeds.append((section, articles))
 
-        return feeds
+        ans['index'] = feeds
+        return ans
 
     def find_articles(self, sec):
-
         for article in sec.xpath('./article'):
             h2 = article.xpath('./*[@class="entry-title"]')
-            if not h2: continue
+            if not h2:
+                continue
             a = h2[0].xpath('./a[@href]')
-            if not a: continue
+            if not a:
+                continue
             title = html.tostring(a[0], encoding=unicode,
                         method='text').strip()
-            if not title: continue
+            if not title:
+                continue
             url = a[0].get('href')
-            if url.startswith('/'):
-                url = 'http://www.time.com'+url
-            if '/article/0,' in url:
-                soup = self.index_to_soup(url)
-                a = soup.find('a', href=lambda x:x and '/printout/' in x)
-                url = a['href'].replace('/printout', '/subscriber/printout')
-            else:
-                url += 'print/' if url.endswith('/') else '/print/'
             if url.startswith('/'):
                 url = 'http://www.time.com'+url
             desc = ''
@@ -126,10 +111,35 @@ class Time(BasicNewsRecipe):
                     'description' : desc
                     }
 
-    def preprocess_html(self, soup):
-        for fig in soup.findAll('figure'):
-            img = fig.find('img')
-            if img is not None:
-                fig.replaceWith(img)
-        return soup
+    def load_complete(self, browser, url, recursion_level):
+        # This is needed as without it, subscriber content is blank. time.com
+        # appears to be using some crazy iframe+js callback for loading content
+        wait_for_load(browser)
+        return True
 
+    def postprocess_html(self, article, root, url, recursion_level):
+        # Remove the header and page n of m messages from pages after the first
+        # page
+        if recursion_level > 0:
+            for h in root.xpath('//header[@class="entry-header"]|//span[@class="page"]'):
+                h.getparent().remove(h)
+        # Unfloat the article images and also remove them from pages after the
+        # first page as they are repeated on every page.
+        for fig in root.xpath('//figure'):
+            parent = fig.getparent()
+            if recursion_level > 0:
+                parent.remove(fig)
+            else:
+                idx = parent.index(fig)
+                for img in reversed(fig.xpath('descendant::img')):
+                    parent.insert(idx, img)
+                parent.remove(fig)
+        return root
+
+if __name__ == '__main__':
+    # Test the login
+    import sys
+    from calibre import jsbrowser
+    br = jsbrowser(default_timeout=120)
+    do_login(br, sys.argv[-2], sys.argv[-1])
+    br.show_browser()

@@ -7,7 +7,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
-from future_builtins import map
 
 from lxml.etree import XPath as X
 
@@ -23,6 +22,7 @@ IMAGES    = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships
 LINKS     = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink'
 FOOTNOTES = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes'
 ENDNOTES  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes'
+THEMES    = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme'
 
 namespaces = {
     'mo': 'http://schemas.microsoft.com/office/mac/office/2008/main',
@@ -84,11 +84,10 @@ def get(x, attr, default=None):
     return x.attrib.get(expand(attr), default)
 
 def ancestor(elem, name):
-    tag = expand(name)
-    while elem is not None:
-        elem = elem.getparent()
-        if getattr(elem, 'tag', None) == tag:
-            return elem
+    try:
+        return XPath('ancestor::%s[1]' % name)(elem)[0]
+    except IndexError:
+        return None
 
 def generate_anchor(name, existing):
     x = y = 'id_' + re.sub(r'[^0-9a-zA-Z_]', '', ascii_text(name)).lstrip('_')
@@ -99,7 +98,7 @@ def generate_anchor(name, existing):
     return y
 
 def children(elem, *args):
-    return elem.iterchildren(*map(expand, args))
+    return XPath('|'.join('child::%s' % a for a in args))(elem)
 
 def descendants(elem, *args):
-    return elem.iterdescendants(*map(expand, args))
+    return XPath('|'.join('descendant::%s' % a for a in args))(elem)

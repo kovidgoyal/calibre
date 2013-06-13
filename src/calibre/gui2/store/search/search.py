@@ -26,6 +26,9 @@ from calibre.utils.filenames import ascii_filename
 
 class SearchDialog(QDialog, Ui_Dialog):
 
+    SEARCH_TEXT = _('&Search')
+    STOP_TEXT = _('&Stop')
+
     def __init__(self, gui, parent=None, query=''):
         QDialog.__init__(self, parent)
         self.setupUi(self)
@@ -89,7 +92,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.configure.setIcon(QIcon(I('config.png')))
 
         self.adv_search_button.clicked.connect(self.build_adv_search)
-        self.search.clicked.connect(self.do_search)
+        self.search.clicked.connect(self.toggle_search)
         self.checker.timeout.connect(self.get_results)
         self.progress_checker.timeout.connect(self.check_progress)
         self.results_view.activated.connect(self.result_item_activated)
@@ -101,6 +104,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.select_none_stores.clicked.connect(self.stores_select_none)
         self.configure.clicked.connect(self.do_config)
         self.finished.connect(self.dialog_closed)
+        self.searching = False
 
         self.progress_checker.start(100)
 
@@ -161,6 +165,18 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Affiliate
         self.results_view.setColumnWidth(6, 20)
 
+    def toggle_search(self):
+        if self.searching:
+            self.search_pool.abort()
+            m = self.results_view.model()
+            m.details_pool.abort()
+            m.cover_pool.abort()
+            self.search.setText(self.SEARCH_TEXT)
+            self.checker.stop()
+            self.searching = False
+        else:
+            self.do_search()
+
     def do_search(self):
         # Stop all running threads.
         self.checker.stop()
@@ -182,6 +198,8 @@ class SearchDialog(QDialog, Ui_Dialog):
                         _('You must enter a title, author or keyword to'
                           ' search for.'), show=True)
             return
+        self.searching = True
+        self.search.setText(self.STOP_TEXT)
         # Give the query to the results model so it can do
         # futher filtering.
         self.results_view.model().set_query(query)
@@ -198,7 +216,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         query = self.clean_query(query)
         shuffle(store_names)
         # Add plugins that the user has checked to the search pool's work queue.
-        self.gui.istores.join(4.0) # Wait for updated plugins to load
+        self.gui.istores.join(4.0)  # Wait for updated plugins to load
         for n in store_names:
             if self.store_checks[n].isChecked():
                 self.search_pool.add_task(query, n, self.gui.istores[n], self.max_results, self.timeout)
@@ -387,9 +405,15 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.gui.istores[result.store_name].open(self, result.detail_item, self.open_external.isChecked())
 
     def check_progress(self):
-        if not self.search_pool.threads_running() and not self.results_view.model().cover_pool.threads_running() and not self.results_view.model().details_pool.threads_running():
+        m = self.results_view.model()
+        if not self.search_pool.threads_running() and not m.cover_pool.threads_running() and not m.details_pool.threads_running():
             self.pi.stopAnimation()
+            self.search.setText(self.SEARCH_TEXT)
+            self.searching = False
         else:
+            self.searching = True
+            if unicode(self.search.text()) != self.STOP_TEXT:
+                self.search.setText(self.STOP_TEXT)
             if not self.pi.isAnimated():
                 self.pi.startAnimation()
 
@@ -426,4 +450,5 @@ if __name__ == '__main__':
 
     s = SearchDialog(gui, query=' '.join(sys.argv[1:]))
     s.exec_()
+
 

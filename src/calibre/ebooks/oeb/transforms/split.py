@@ -353,12 +353,19 @@ class FlowSplitter(object):
                 nix_element(elem)
 
         # Tree 2
+        ancestors = frozenset(XPath('ancestor::*')(split_point2))
         for elem in tuple(body2.iterdescendants()):
             if elem is split_point2:
                 if not before:
                     nix_element(elem)
                 break
-            nix_element(elem, top=False)
+            if elem in ancestors:
+                # We have to preserve the ancestors as they could have CSS
+                # styles that are inherited/applicable, like font or
+                # width. So we only remove the text, if any.
+                elem.text = '\n'
+            else:
+                nix_element(elem, top=False)
 
         body2.text = '\n'
 

@@ -27,7 +27,13 @@ class ProfileModel(QAbstractListModel):
         if role == Qt.DisplayRole:
             return QVariant(profile.name)
         if role in (Qt.ToolTipRole, Qt.StatusTipRole, Qt.WhatsThisRole):
-            return QVariant(profile.description)
+            w, h = profile.screen_size
+            if w >= 10000:
+                ss = _('unlimited')
+            else:
+                ss = _('%d x %d pixels') % (w, h)
+            ss = _('Screen size: %s') % ss
+            return QVariant('%s [%s]' % (profile.description, ss))
         return NONE
 
 class PageSetupWidget(Widget, Ui_Form):

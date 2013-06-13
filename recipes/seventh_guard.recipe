@@ -1,0 +1,35 @@
+# -*- coding: utf-8 -*-
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+__license__ = 'GPL v3'
+
+class SeventhGuard(BasicNewsRecipe):
+    title          = '7th Guard'
+    description= u""" 7thGuard.net jest jednym z najstarszych w polskiej części internetu serwisem poświęconym otwartości standardów,
+wolności oprogramowania, szeroko pojętych wolności w internecie, walce z praktykami monopolistycznymi w świecie informatyki oraz
+– co jest coraz ważniejsze w dzisiejszym świecie – rozwojowi społeczeństwa informacyjnego."""
+    __author__        = 'koliberek'
+    masthead_url='http://beta.7thguard.net/wp-content/uploads/2013/05/7thguard-bladerunner-logo1.png'
+    cover_url = 'http://beta.7thguard.net/wp-content/uploads/2013/05/7thguard-bladerunner-logo1.png'
+    language = 'pl'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    timefmt = ' [%A, %d %B %Y]'
+    auto_cleanup = True
+    remove_javascript=True
+    no_stylesheets = True
+    remove_empty_feeds = True
+    conversion_options = {'smarten_punctuation' : True}
+    extra_css="""h2 {font-size:12pt; font-family:Arial,Helvetica,sans serif;}
+h1 {font-size:14pt; font-family:Arial,Helvetica,sans serif;}
+p {text-align:justify;}
+.article, .feed, .calibre_feed_description, .article_description {font-family:Arial,Helvetica,sans serif;}
+.article_description {text-style:italic;}
+"""
+    remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding', 'colspan', 'valign', 'vspace', 'hspace', 'alt', 'width', 'height', 'font']
+    preprocess_regexps = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''), (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: '')]
+
+    feeds          = [(u'Aktualno\u015bci', u'http://7thguard.net/feed/')]
+
+

@@ -115,16 +115,27 @@ commits::
 Be careful to not include merges when using ``HEAD~n``.
 
 If you plan to do a lot of development on |app|, then the best method is to create a
-`GitHub <http://github.com>`_ account. Once you have an account, follow the
-steps at `Setup Git <https://help.github.com/articles/set-up-git>`_ and
-`Fork A Repo <https://help.github.com/articles/fork-a-repo>`_ to create your own fork of the
-`calibre GitHub repository <https://github.com/kovidgoyal/calibre>`_. Read
-`Pushing to a remote <https://help.github.com/articles/pushing-to-a-remote>`_
-to learn how to upload your commits to GitHub.
+`GitHub <http://github.com>`_ account. Below is a basic guide to setting up
+your own fork of calibre in a way that will allow you to submit pull requests
+for inclusion into the main |app| repository:
 
-You can contribute your code in the form of `Pull Requests
-<https://help.github.com/articles/using-pull-requests>`_. Generally, you should
-create a new branch for any feature that is non-trivial.
+  * Setup git on your machine as described in this article: `Setup Git <https://help.github.com/articles/set-up-git>`_
+  * Setup ssh keys for authentication to GitHub, as described here: `Generating SSH keys <https://help.github.com/articles/generating-ssh-keys>`_
+  * Go to https://github.com/kovidgoyal/calibre and click the :guilabel:`Fork` button.
+  * In a Terminal do::
+
+        git clone git@github.com:<username>/calibre.git
+
+    Replace <username> above with your github username. That will get your fork checked out locally.
+  * You can make changes and commit them whenever you like. When you are ready to have your work merged, do a::
+
+        git push
+
+    and go to ``https://github.com/<username>/calibre`` and click the :guilabel:`Pull Request` button to generate a pull request that can be merged.
+  * You can update your local copy with code from the main repo at any time by doing::
+
+        git pull upstream
+
 
 You should also keep an eye on the |app| `development forum
 <http://www.mobileread.com/forums/forumdisplay.php?f=240>`_. Before making
@@ -297,10 +308,14 @@ code, with access to the |app| modules::
 
 is great for testing a little snippet of code on the command line. It works in the same way as the -c switch to the python interpreter::
 
-    calibre-debug -e myscript.py
+    calibre-debug myscript.py
 
 can be used to execute your own Python script. It works in the same way as passing the script to the Python interpreter, except
-that the calibre environment is fully initialized, so you can use all the calibre code in your script.
+that the calibre environment is fully initialized, so you can use all the calibre code in your script. To use command line arguments with your script, use the form::
+
+    calibre-debug myscript.py -- --option1 arg1
+
+The ``--`` causes all subsequent arguments to be passed to your script.
 
 
 Using |app| in your projects
@@ -313,7 +328,7 @@ Binary install of |app|
 
 If you have a binary install of |app|, you can use the Python interpreter bundled with |app|, like this::
 
-    calibre-debug -e /path/to/your/python/script.py
+    calibre-debug /path/to/your/python/script.py -- arguments to your script
 
 Source install on Linux
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

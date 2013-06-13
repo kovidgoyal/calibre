@@ -1174,10 +1174,10 @@ class libiMobileDevice():
         self.plist_lib.plist_free(plist)
 
         # To determine success, we need to inspect the returned plist
-        if hasattr(result, 'Status'):
+        if 'Status' in result:
             if self.verbose:
                 self.log("          STATUS: %s" % result['Status'])
-        elif hasattr(result, 'Error'):
+        elif 'Error' in result:
             if self.verbose:
                 self.log("           ERROR: %s" % result['Error'])
             raise libiMobileDeviceException(result['Error'])
@@ -1293,7 +1293,9 @@ class libiMobileDevice():
         else:
             index = 0
             while devices[index]:
-                device_list.append(devices[index].contents.value)
+                # Filter out redundant entries
+                if devices[index].contents.value not in device_list:
+                    device_list.append(devices[index].contents.value)
                 index += 1
             if self.verbose:
                 self.log(" %s" % repr(device_list))

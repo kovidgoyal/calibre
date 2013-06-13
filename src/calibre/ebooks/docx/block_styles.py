@@ -87,9 +87,12 @@ def read_single_border(parent, edge):
         if sz is not None:
             # we dont care about art borders (they are only used for page borders)
             try:
-                width = min(96, max(2, float(sz))) / 8
+                # WebKit needs at least 1pt to render borders
+                width = min(96, max(8, float(sz))) / 8
             except (ValueError, TypeError):
                 pass
+    if style == 'double' and width is not None and 0 < width < 3:
+        width = 3  # WebKit needs 3pts to render double borders
     return {p:v for p, v in zip(border_props, (padding, width, style, color))}
 
 def read_border(parent, dest, border_edges=('left', 'top', 'right', 'bottom'), name='pBdr'):
@@ -297,7 +300,7 @@ class ParagraphStyle(object):
 
         # Misc.
         'text_indent', 'text_align', 'line_height', 'direction', 'background_color',
-        'numbering', 'font_family', 'font_size', 'frame',
+        'numbering', 'font_family', 'font_size', 'color', 'frame',
     )
 
     def __init__(self, pPr=None):
@@ -321,7 +324,7 @@ class ParagraphStyle(object):
             for s in XPath('./w:pStyle[@w:val]')(pPr):
                 self.linked_style = get(s, 'w:val')
 
-            self.font_family = self.font_size = inherit
+            self.font_family = self.font_size = self.color = inherit
 
         self._css = None
 
@@ -365,7 +368,7 @@ class ParagraphStyle(object):
             if self.line_height not in {inherit, '1'}:
                 c['line-height'] = self.line_height
 
-            for x in ('text_indent', 'text_align', 'background_color', 'font_family', 'font_size'):
+            for x in ('text_indent', 'text_align', 'background_color', 'font_family', 'font_size', 'color'):
                 val = getattr(self, x)
                 if val is not inherit:
                     if x == 'font_size':

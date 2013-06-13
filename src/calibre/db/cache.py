@@ -826,7 +826,8 @@ class Cache(object):
     @write_api
     def set_cover(self, book_id_data_map):
         ''' Set the cover for this book.  data can be either a QImage,
-        QPixmap, file object or bytestring '''
+        QPixmap, file object or bytestring. It can also be None, in which
+        case any existing cover is removed. '''
 
         for book_id, data in book_id_data_map.iteritems():
             try:
@@ -836,7 +837,8 @@ class Cache(object):
                 path = self._field_for('path', book_id).replace('/', os.sep)
 
             self.backend.set_cover(book_id, path, data)
-        self._set_field('cover', {book_id:1 for book_id in book_id_data_map})
+        return self._set_field('cover', {
+            book_id:(0 if data is None else 1) for book_id, data in book_id_data_map.iteritems()})
 
     @write_api
     def set_metadata(self, book_id, mi, ignore_errors=False, force_changes=False,

@@ -39,7 +39,7 @@ def read_doc_props(raw, mi):
     for keywords in XPath('//cp:keywords')(root):
         if keywords.text and keywords.text.strip():
             for x in keywords.text.split():
-                tags.extend(y.strip() for y in x.split(','))
+                tags.extend(y.strip() for y in x.split(',') if y.strip())
     if tags:
         mi.tags = tags
     authors = XPath('//dc:creator')(root)

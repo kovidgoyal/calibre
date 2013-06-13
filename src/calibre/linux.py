@@ -7,7 +7,7 @@ import sys, os, cPickle, textwrap, stat
 from subprocess import check_call
 from functools import partial
 
-from calibre import  __appname__, prints, guess_type
+from calibre import __appname__, prints, guess_type
 from calibre.constants import islinux, isnetbsd, isbsd
 from calibre.customize.ui import all_input_formats
 from calibre.ptempfile import TemporaryDirectory
@@ -15,7 +15,7 @@ from calibre import CurrentDir
 
 
 entry_points = {
-        'console_scripts': [ \
+        'console_scripts': [
              'ebook-device       = calibre.devices.cli:main',
              'ebook-meta         = calibre.ebooks.metadata.cli:main',
              'ebook-convert      = calibre.ebooks.conversion.cli:main',
@@ -123,7 +123,7 @@ os.remove(os.path.abspath(__file__))
 
 # }}}
 
-class ZshCompleter(object): # {{{
+class ZshCompleter(object):  # {{{
 
     def __init__(self, opts):
         self.opts = opts
@@ -196,7 +196,8 @@ class ZshCompleter(object): # {{{
 
     def opts_and_exts(self, name, op, exts, cover_opts=('--cover',),
                       opf_opts=('--opf',), file_map={}):
-        if not self.dest: return
+        if not self.dest:
+            return
         exts = set(exts).union(x.upper() for x in exts)
         pats = ('*.%s'%x for x in exts)
         extra = ("'*:filename:_files -g \"%s\"' "%' '.join(pats),)
@@ -206,7 +207,8 @@ class ZshCompleter(object): # {{{
         self.commands[name] = txt
 
     def opts_and_words(self, name, op, words, takes_files=False):
-        if not self.dest: return
+        if not self.dest:
+            return
         extra = ("'*:filename:_files' ",) if takes_files else ()
         opts = '\\\n  '.join(tuple(self.get_options(op())) + extra)
         txt = '_arguments -s \\\n  ' + opts
@@ -273,7 +275,8 @@ class ZshCompleter(object): # {{{
         ):
             for fmt in fmts:
                 is_input = group_title == input_group
-                if is_input and fmt in {'rar', 'zip', 'oebzip'}: continue
+                if is_input and fmt in {'rar', 'zip', 'oebzip'}:
+                    continue
                 p = (get_parser(input_fmt=fmt) if is_input
                      else get_parser(output_fmt=fmt))
                 opts = None
@@ -282,7 +285,8 @@ class ZshCompleter(object): # {{{
                         opts = [o for o in group.option_list if
                                 '--pretty-print' not in o._long_opts and
                                 '--input-encoding' not in o._long_opts]
-                if not opts: continue
+                if not opts:
+                    continue
                 opts = '\\\n  '.join(tuple(self.get_options(opts)))
                 w('\n%s() {'%(func%fmt))
                 w('\n  _arguments -s \\\n  ' + opts)
@@ -407,7 +411,6 @@ class PostInstall:
         self.warnings.append((args, kwargs))
         sys.stdout.flush()
 
-
     def __init__(self, opts, info=prints, warn=None, manifest=None):
         self.opts = opts
         self.info = info
@@ -482,8 +485,7 @@ class PostInstall:
                 raise
             self.task_failed('Creating uninstaller failed')
 
-
-    def setup_completion(self): # {{{
+    def setup_completion(self):  # {{{
         try:
             self.info('Setting up command-line completion...')
             from calibre.ebooks.metadata.cli import option_parser as metaop, filetypes as meta_filetypes
@@ -542,7 +544,7 @@ class PostInstall:
                 o_and_w('fetch-ebook-metadata', fem_op, [])
                 o_and_w('calibre-smtp', smtp_op, [])
                 o_and_w('calibre-server', serv_op, [])
-                o_and_e('calibre-debug', debug_op, ['py', 'recipe'], file_map={
+                o_and_e('calibre-debug', debug_op, ['py', 'recipe', 'mobi', 'azw', 'azw3', 'docx'], file_map={
                     '--tweak-book':['epub', 'azw3', 'mobi'],
                     '--subset-font':['ttf', 'otf'],
                     '--exec-file':['py', 'recipe'],
@@ -636,7 +638,7 @@ class PostInstall:
             self.task_failed('Setting up completion failed')
     # }}}
 
-    def setup_desktop_integration(self): # {{{
+    def setup_desktop_integration(self):  # {{{
         try:
             self.info('Setting up desktop integration...')
 
@@ -745,7 +747,7 @@ def opts_and_words(name, op, words, takes_files=False):
     opts  = '|'.join(options(op))
     words = '|'.join([w.replace("'", "\\'") for w in words])
     fname = name.replace('-', '_')
-    return ('_'+fname+'()'+\
+    return ('_'+fname+'()'+
 '''
 {
     local cur opts
@@ -922,3 +924,4 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
+

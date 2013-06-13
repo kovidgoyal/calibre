@@ -461,7 +461,7 @@ class Writer(object):
         dt = field.metadata['datatype']
         self.accept_vals = lambda x: True
         if dt == 'composite' or field.name in {
-            'id', 'cover', 'size', 'path', 'formats', 'news'}:
+            'id', 'size', 'path', 'formats', 'news'}:
             self.set_books_func = dummy
         elif self.name[0] == '#' and self.name.endswith('_index'):
             self.set_books_func = custom_series_index

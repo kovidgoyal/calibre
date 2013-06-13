@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AdvancedUserRecipe1274742400(BasicNewsRecipe):
 
     title = u'Las Vegas Review Journal'
@@ -9,24 +10,24 @@ class AdvancedUserRecipe1274742400(BasicNewsRecipe):
     oldest_article = 7
 
     max_articles_per_feed = 100
-    #keep_only_tags = [dict(id='content-main')]
-    #remove_tags = [dict(id=['right-col-content', 'trending-topics']),
+    # keep_only_tags = [dict(id='content-main')]
+    # remove_tags = [dict(id=['right-col-content', 'trending-topics']),
             #{'class':['ppy-outer']}
             #]
     no_stylesheets = True
     use_embedded_content = False
     auto_cleanup = True
 
-
     feeds = [
-    (u'News', u'http://www.lvrj.com/news.rss'),
-    (u'Business', u'http://www.lvrj.com/business.rss'),
-    (u'Living', u'http://www.lvrj.com/living.rss'),
-    (u'Opinion', u'http://www.lvrj.com/opinion.rss'),
-    (u'Neon', u'http://www.lvrj.com/neon.rss'),
-    #(u'Image', u'http://www.lvrj.com/image.rss'),
-    #(u'Home & Garden', u'http://www.lvrj.com/home_and_garden.rss'),
-    #(u'Furniture & Design', u'http://www.lvrj.com/furniture_and_design.rss'),
-    #(u'Drive', u'http://www.lvrj.com/drive.rss'),
-    #(u'Real Estate', u'http://www.lvrj.com/real_estate.rss'),
-    (u'Sports', u'http://www.lvrj.com/sports.rss')]
+        (u'Top Stories', u'http://www.reviewjournal.com/rss.xml'),
+        (u'News', u'http://www.reviewjournal.com/news/feed'),
+        (u'Business', u'http://www.reviewjournal.com/business/feed'),
+        (u'Living', u'http://www.reviewjournal.com/living/feed'),
+        (u'Opinion', u'http://www.reviewjournal.com/opinion/feed'),
+        (u'Neon', u'http://www.reviewjournal.com/neon/feed'),
+        #(u'Image', u'http://www.lvrj.com/image.rss'),
+        #(u'Home & Garden', u'http://www.lvrj.com/home_and_garden.rss'),
+        #(u'Furniture & Design', u'http://www.lvrj.com/furniture_and_design.rss'),
+        #(u'Drive', u'http://www.lvrj.com/drive.rss'),
+        #(u'Real Estate', u'http://www.lvrj.com/real_estate.rss'),
+        (u'Sports', u'http://www.reviewjournal.com/sports/feed')]
