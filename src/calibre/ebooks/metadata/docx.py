@@ -27,7 +27,7 @@ def get_metadata(stream):
                     width, height, fmt = identify_data(raw)
                 except:
                     continue
-                if 0.8 <= height/width <= 1.8 and height*width >= 12000:
+                if 0.8 <= height/width <= 1.8 and height*width >= 160000:
                     cdata = (fmt, raw)
         if cdata is not None:
             mi.cover_data = cdata
