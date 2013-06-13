@@ -166,6 +166,10 @@ class SearchDialog(QDialog, Ui_Dialog):
             self.searching = False
         else:
             self.do_search()
+            # Prevent hitting the enter key twice in quick succession causing
+            # the search to start and stop
+            self.search.setEnabled(False)
+            QTimer.singleShot(1000, lambda :self.search.setEnabled(True))
 
     def do_search(self):
         # Stop all running threads.
