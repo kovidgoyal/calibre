@@ -14,7 +14,7 @@
    <string>Get Books</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../../../resources/images.qrc">
+   <iconset resource="../../../../work/calibre/resources/images.qrc">
     <normaloff>:/images/store.png</normaloff>:/images/store.png</iconset>
   </property>
   <property name="sizeGripEnabled">
@@ -22,7 +22,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="2">
-    <widget class="HistoryLineEdit" name="search_title">
+    <widget class="HistoryLineEdit2" name="search_title">
      <property name="placeholderText">
       <string>Search by title</string>
      </property>
@@ -42,7 +42,7 @@
     </widget>
    </item>
    <item row="1" column="2">
-    <widget class="HistoryLineEdit" name="search_author">
+    <widget class="HistoryLineEdit2" name="search_author">
      <property name="placeholderText">
       <string>Search by author</string>
      </property>
@@ -69,7 +69,7 @@
     </widget>
    </item>
    <item row="2" column="2">
-    <widget class="HistoryLineEdit" name="search_edit">
+    <widget class="HistoryLineEdit2" name="search_edit">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -107,8 +107,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>204</width>
-            <height>141</height>
+            <width>207</width>
+            <height>163</height>
            </rect>
           </property>
          </widget>
@@ -314,9 +314,9 @@
    <header>results_view.h</header>
   </customwidget>
   <customwidget>
-   <class>HistoryLineEdit</class>
+   <class>HistoryLineEdit2</class>
    <extends>QLineEdit</extends>
-   <header>widgets.h</header>
+   <header>calibre/gui2/widgets2.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -335,7 +335,7 @@
   <tabstop>close</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../../../resources/images.qrc"/>
+  <include location="../../../../work/calibre/resources/images.qrc"/>
  </resources>
  <connections>
   <connection>

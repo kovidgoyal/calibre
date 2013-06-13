@@ -10,8 +10,7 @@ import re
 from random import shuffle
 
 from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox, QLabel,
-                      QVBoxLayout, QIcon, QWidget, QTabWidget, QGridLayout,
-                      QComboBox)
+                      QVBoxLayout, QIcon, QWidget, QTabWidget, QGridLayout)
 
 from calibre.gui2 import JSONConfig, info_dialog, error_dialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
@@ -72,15 +71,6 @@ class SearchDialog(QDialog, Ui_Dialog):
                 self.search_author.setText(query['author'])
             if 'title' in query:
                 self.search_title.setText(query['title'])
-        # Title
-        self.search_title.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
-        self.search_title.setMinimumContentsLength(25)
-        # Author
-        self.search_author.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
-        self.search_author.setMinimumContentsLength(25)
-        # Keyword
-        self.search_edit.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
-        self.search_edit.setMinimumContentsLength(25)
 
         # Create and add the progress indicator
         self.pi = ProgressIndicator(self, 24)
