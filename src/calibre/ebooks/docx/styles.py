@@ -142,8 +142,8 @@ class Styles(object):
     def get(self, key, default=None):
         return self.id_map.get(key, default)
 
-    def __call__(self, root, fonts):
-        self.fonts = fonts
+    def __call__(self, root, fonts, theme):
+        self.fonts, self.theme = fonts, theme
         for s in XPath('//w:style')(root):
             s = Style(s)
             if s.style_id:
@@ -304,7 +304,8 @@ class Styles(object):
                 setattr(ans, attr, self.run_val(parent_styles, direct_formatting, attr))
 
             if ans.font_family is not inherit:
-                ans.font_family = self.fonts.family_for(ans.font_family, ans.b, ans.i)
+                ff = self.theme.resolve_font_family(ans.font_family)
+                ans.font_family = self.fonts.family_for(ff, ans.b, ans.i)
 
         return ans
 

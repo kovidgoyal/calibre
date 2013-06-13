@@ -22,6 +22,7 @@ IMAGES    = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships
 LINKS     = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink'
 FOOTNOTES = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes'
 ENDNOTES  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes'
+THEMES    = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme'
 
 namespaces = {
     'mo': 'http://schemas.microsoft.com/office/mac/office/2008/main',

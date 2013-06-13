@@ -117,8 +117,12 @@ def read_vert_align(parent, dest):
 
 def read_font_family(parent, dest):
     ans = inherit
-    for col in XPath('./w:rFonts[@w:ascii]')(parent):
-        val = get(col, 'w:ascii')
+    for col in XPath('./w:rFonts')(parent):
+        val = get(col, 'w:asciiTheme')
+        if val:
+            val = '|%s|' % val
+        else:
+            val = get(col, 'w:ascii')
         if val:
             ans = val
     setattr(dest, 'font_family', ans)

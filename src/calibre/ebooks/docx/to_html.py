@@ -16,7 +16,7 @@ from lxml.html.builder import (
 from calibre.ebooks.docx.container import DOCX, fromstring
 from calibre.ebooks.docx.names import (
     XPath, is_tag, XML, STYLES, NUMBERING, FONTS, get, generate_anchor,
-    descendants, FOOTNOTES, ENDNOTES, children)
+    descendants, FOOTNOTES, ENDNOTES, children, THEMES)
 from calibre.ebooks.docx.styles import Styles, inherit, PageProperties
 from calibre.ebooks.docx.numbering import Numbering
 from calibre.ebooks.docx.fonts import Fonts
@@ -24,6 +24,7 @@ from calibre.ebooks.docx.images import Images
 from calibre.ebooks.docx.tables import Tables
 from calibre.ebooks.docx.footnotes import Footnotes
 from calibre.ebooks.docx.cleanup import cleanup_markup
+from calibre.ebooks.docx.theme import Theme
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.oeb.polish.toc import elem_to_toc_text
@@ -49,6 +50,7 @@ class Convert(object):
         self.dest_dir = dest_dir or os.getcwdu()
         self.mi = self.docx.metadata
         self.body = BODY()
+        self.theme = Theme()
         self.tables = Tables()
         self.styles = Styles(self.tables)
         self.images = Images()
@@ -203,6 +205,7 @@ class Convert(object):
         nname = get_name(NUMBERING, 'numbering.xml')
         sname = get_name(STYLES, 'styles.xml')
         fname = get_name(FONTS, 'fontTable.xml')
+        tname = get_name(THEMES, 'theme1.xml')
         foname = get_name(FOOTNOTES, 'footnotes.xml')
         enname = get_name(ENDNOTES, 'endnotes.xml')
         numbering = self.numbering = Numbering()
@@ -231,13 +234,21 @@ class Convert(object):
             else:
                 fonts(fromstring(raw), embed_relationships, self.docx, self.dest_dir)
 
+        if tname is not None:
+            try:
+                raw = self.docx.read(tname)
+            except KeyError:
+                self.log.warn('Styles %s do not exist' % sname)
+            else:
+                self.theme(fromstring(raw))
+
         if sname is not None:
             try:
                 raw = self.docx.read(sname)
             except KeyError:
                 self.log.warn('Styles %s do not exist' % sname)
             else:
-                self.styles(fromstring(raw), fonts)
+                self.styles(fromstring(raw), fonts, self.theme)
 
         if nname is not None:
             try:
