@@ -25,11 +25,11 @@ def comparable_price(text):
     if match:
         # replace all separators with '.'
         m = re.sub(r'[.,\' ]', '.', match.group())
-        # remove all separators accept fraction, 
+        # remove all separators accept fraction,
         # leave only 2 digits in fraction
         m = re.sub(r'\.(?!\d*$)', r'', m)
         text = '{0:0>8.0f}'.format(float(m) * 100.)
-    return text  
+    return text
 
 
 class Matches(QAbstractItemModel):
@@ -138,7 +138,7 @@ class Matches(QAbstractItemModel):
     def set_query(self, query):
         self.query = query
         self.filterable_query = self.is_filterable_query(query)
-        
+
     def is_filterable_query(self, query):
         # Remove control modifiers.
         query = query.replace('\\', '')
@@ -398,13 +398,14 @@ class SearchFilter(SearchQueryParser):
             q[x+'s'] = q[x]
         q['author2'] = q['author']
         q['title2'] = q['title']
-        
+
         # make the price in query the same format as result
         if location == 'price':
             query = comparable_price(query)
-        
+
         for sr in self.srs:
             for locvalue in locations:
+                final_query = query
                 accessor = q[locvalue]
                 if query == 'true':
                     # True/False.
@@ -451,10 +452,10 @@ class SearchFilter(SearchQueryParser):
                     elif locvalue in ('author2', 'title2'):
                         m = self.IN_MATCH
                         vals = re.sub(r'(^|\s)(and|not|or|a|the|is|of|,)(\s|$)', ' ', accessor(sr)).split(' ')
-                        query = query.lower()
+                        final_query = query.lower()
                     else:
                         vals = [accessor(sr)]
-                    if self._match(query, vals, m):
+                    if self._match(final_query, vals, m):
                         matches.add(sr)
                         break
                 except ValueError: # Unicode errors
