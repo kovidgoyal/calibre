@@ -134,8 +134,7 @@ class Images(object):
                 if rid in self.rid_map:
                     src = self.generate_filename(rid, name)
                     img = IMG(src='images/%s' % src)
-                    if alt:
-                        img.set('alt', alt)
+                    img.set('alt', alt or 'Image')
                     return img
 
     def drawing_to_html(self, drawing, page):
@@ -167,8 +166,7 @@ class Images(object):
                 src = self.generate_filename(rid)
                 img = IMG(src='images/%s' % src, style="display:block")
                 alt = get(imagedata, 'o:title')
-                if alt:
-                    img.set('alt', alt)
+                img.set('alt', alt or 'Image')
                 yield img
 
     def get_float_properties(self, anchor, style, page):

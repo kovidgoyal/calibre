@@ -420,9 +420,9 @@ class Convert(object):
             if anchor and anchor in self.anchor_map:
                 span.set('href', '#' + self.anchor_map[anchor])
                 continue
-            self.log.warn('Hyperlink with unknown target (%s, %s), ignoring' %
+            self.log.warn('Hyperlink with unknown target (rid=%s, anchor=%s), ignoring' %
                           (rid, anchor))
-            span.set('href', '#')
+            # span.set('href', '#')
 
     def convert_run(self, run):
         ans = SPAN()
