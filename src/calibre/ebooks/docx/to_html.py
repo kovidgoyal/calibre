@@ -422,6 +422,8 @@ class Convert(object):
                 continue
             self.log.warn('Hyperlink with unknown target (rid=%s, anchor=%s), ignoring' %
                           (rid, anchor))
+            # hrefs that point nowhere give epubcheck a hernia. The element
+            # should be styled explicitly by Word anyway.
             # span.set('href', '#')
 
     def convert_run(self, run):
