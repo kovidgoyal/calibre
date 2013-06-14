@@ -9,7 +9,7 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 import os
 from urlparse import urldefrag
 from lxml import etree
-from PyQt4.QtCore import Qt, QUrl
+from PyQt4.QtCore import Qt
 from PyQt4.QtCore import QByteArray
 from PyQt4.QtCore import QBuffer
 from PyQt4.QtCore import QIODevice
@@ -17,7 +17,6 @@ from PyQt4.QtGui import QColor
 from PyQt4.QtGui import QImage
 from PyQt4.QtGui import QPainter
 from PyQt4.QtSvg import QSvgRenderer
-from calibre.constants import iswindows
 from calibre.ebooks.oeb.base import XHTML, XLINK
 from calibre.ebooks.oeb.base import SVG_MIME, PNG_MIME
 from calibre.ebooks.oeb.base import xml2str, xpath
@@ -125,10 +124,7 @@ class SVGRasterizer(object):
             with PersistentTemporaryFile(suffix='.'+ext) as pt:
                 pt.write(data)
                 self.temp_files.append(pt.name)
-            href = unicode(QUrl.fromLocalFile(pt.name).toString())[len('file://'):]
-            if iswindows:
-                href = href[1:]
-            elem.attrib[XLINK('href')] = href
+            elem.attrib[XLINK('href')] = pt.name
         return svg
 
     def stylizer(self, item):
