@@ -132,10 +132,10 @@ class RunStyle(object):
 
     all_properties = {
         'b', 'bCs', 'caps', 'cs', 'dstrike', 'emboss', 'i', 'iCs', 'imprint',
-        'rtl', 'shadow', 'smallCaps', 'strike', 'vanish',
+        'rtl', 'shadow', 'smallCaps', 'strike', 'vanish', 'webHidden',
 
         'border_color', 'border_style', 'border_width', 'padding', 'color', 'highlight', 'background_color',
-        'letter_spacing', 'font_size', 'text_decoration', 'vert_align', 'lang', 'font_family'
+        'letter_spacing', 'font_size', 'text_decoration', 'vert_align', 'lang', 'font_family',
     }
 
     toggle_properties = {
@@ -150,7 +150,7 @@ class RunStyle(object):
         else:
             for p in (
                 'b', 'bCs', 'caps', 'cs', 'dstrike', 'emboss', 'i', 'iCs', 'imprint', 'rtl', 'shadow',
-                'smallCaps', 'strike', 'vanish',
+                'smallCaps', 'strike', 'vanish', 'webHidden',
             ):
                 setattr(self, p, binary_property(rPr, p))
 
@@ -210,7 +210,7 @@ class RunStyle(object):
                 c['text-shadow'] = '2px 2px'
             if self.smallCaps is True:
                 c['font-variant'] = 'small-caps'
-            if self.vanish is True:
+            if self.vanish is True or self.webHidden is True:
                 c['display'] = 'none'
 
             self.get_border_css(c)
