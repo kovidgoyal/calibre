@@ -6,7 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from calibre.ebooks.docx.names import XPath, descendants
+from collections import namedtuple
+
+from lxml.etree import tostring
+
+from calibre.ebooks.docx.names import XPath, descendants, get, ancestor
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.oeb.polish.toc import elem_to_toc_text
 
@@ -17,7 +21,7 @@ class Count(object):
     def __init__(self):
         self.val = 0
 
-def create_toc(body):
+def from_headings(body):
     ' Create a TOC from headings in the document '
     headings = ('h1', 'h2', 'h3')
     tocroot = TOC()
@@ -56,5 +60,81 @@ def create_toc(body):
     if len(tuple(tocroot.flat())) > 1:
         return tocroot
 
+def structure_toc(entries):
+    indent_vals = sorted({x.indent for x in entries})
+    last_found = [None for i in indent_vals]
+    newtoc = TOC()
+
+    if len(indent_vals) > 6:
+        for x in entries:
+            newtoc.add_item('index.html', x.anchor, x.text)
+        return newtoc
+
+    def find_parent(level):
+        candidates = last_found[:level]
+        for x in reversed(candidates):
+            if x is not None:
+                return x
+        return newtoc
+
+    for item in entries:
+        level = indent_vals.index(item.indent)
+        parent = find_parent(level)
+        last_found[level] = parent.add_item('index.html', item.anchor,
+                    item.text)
+        for i in xrange(level+1, len(last_found)):
+            last_found[i] = None
+
+    return newtoc
+
+def link_to_txt(a, styles, object_map):
+    if len(a) > 1:
+        for child in a:
+            run = object_map.get(child, None)
+            if run is not None:
+                rs = styles.resolve(run)
+                if rs.css.get('display', None) == 'none':
+                    a.remove(child)
+
+    return tostring(a, method='text', with_tail=False, encoding=unicode).strip()
+
+def from_toc(docx, link_map, styles, object_map):
+    toc_level = None
+    level = 0
+    TI = namedtuple('TI', 'text anchor indent')
+    toc = []
+    for tag in XPath('//*[(@w:fldCharType and name()="w:fldChar") or name()="w:hyperlink" or name()="w:instrText"]')(docx):
+        n = tag.tag.rpartition('}')[-1]
+        if n == 'fldChar':
+            t = get(tag, 'w:fldCharType')
+            if t == 'begin':
+                level += 1
+            elif t == 'end':
+                level -= 1
+                if toc_level is not None and level < toc_level:
+                    break
+        elif n == 'instrText':
+            if level > 0 and tag.text and tag.text.strip().startswith('TOC '):
+                toc_level = level
+        elif n == 'hyperlink':
+            if toc_level is not None and level >= toc_level and tag in link_map:
+                a = link_map[tag]
+                href = a.get('href', None)
+                txt = link_to_txt(a, styles, object_map)
+                p = ancestor(tag, 'w:p')
+                if txt and href and p is not None:
+                    ps = styles.resolve_paragraph(p)
+                    try:
+                        ml = int(ps.margin_left[:-2])
+                    except (TypeError, ValueError, AttributeError):
+                        ml = 0
+                    if ps.text_align in {'center', 'right'}:
+                        ml = 0
+                    toc.append(TI(txt, href[1:], ml))
+    if toc:
+        return structure_toc(toc)
+
+def create_toc(docx, body, link_map, styles, object_map):
+    return from_toc(docx, link_map, styles, object_map) or from_headings(body)
 
 
