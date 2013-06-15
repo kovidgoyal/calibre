@@ -19,7 +19,7 @@ from calibre.gui2.dialogs.message_box import ViewLog
 Question = namedtuple('Question', 'payload callback cancel_callback '
         'title msg html_log log_viewer_title log_is_file det_msg '
         'show_copy_button checkbox_msg checkbox_checked action_callback '
-        'action_label action_icon')
+        'action_label action_icon focus_action')
 
 class ProceedQuestion(QDialog):
 
@@ -155,13 +155,14 @@ class ProceedQuestion(QDialog):
                 self.checkbox.setChecked(question.checkbox_checked)
             self.do_resize()
             self.show()
-            self.bb.button(self.bb.Yes).setDefault(True)
-            self.bb.button(self.bb.Yes).setFocus(Qt.OtherFocusReason)
+            button = self.action_button if question.focus_action and question.action_callback is not None else self.bb.button(self.bb.Yes)
+            button.setDefault(True)
+            button.setFocus(Qt.OtherFocusReason)
 
     def __call__(self, callback, payload, html_log, log_viewer_title, title,
             msg, det_msg='', show_copy_button=False, cancel_callback=None,
             log_is_file=False, checkbox_msg=None, checkbox_checked=False,
-            action_callback=None, action_label=None, action_icon=None):
+            action_callback=None, action_label=None, action_icon=None, focus_action=False):
         '''
         A non modal popup that notifies the user that a background task has
         been completed. This class guarantees that only a single popup is
@@ -192,13 +193,14 @@ class ProceedQuestion(QDialog):
                                 exactly the same way as callback.
         :param action_label: The text on the action button
         :param action_icon: The icon for the action button, must be a QIcon object or None
+        :param focus_action: If True, the action button will be focused instead of the Yes button
 
         '''
         question = Question(
             payload, callback, cancel_callback, title, msg, html_log,
             log_viewer_title, log_is_file, det_msg, show_copy_button,
             checkbox_msg, checkbox_checked, action_callback, action_label,
-            action_icon)
+            action_icon, focus_action)
         self.questions.append(question)
         self.show_question()
 
