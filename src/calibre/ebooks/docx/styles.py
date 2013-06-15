@@ -397,9 +397,9 @@ class Styles(object):
                 ls = self.resolve_paragraph(last_para)
                 ps = self.resolve_paragraph(p)
                 if ls.linked_style is not None and ls.linked_style == ps.linked_style:
-                    if ls.contextualSpacing:
+                    if ls.contextualSpacing is True:
                         ls.margin_bottom = 0
-                    if ps.contextualSpacing:
+                    if ps.contextualSpacing is True:
                         ps.margin_top = 0
             last_para = p
 
