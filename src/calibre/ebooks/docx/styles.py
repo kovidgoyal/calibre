@@ -260,6 +260,7 @@ class Styles(object):
             for attr in ans.all_properties:
                 if not (is_numbering and attr == 'text_indent'):  # skip text-indent for lists
                     setattr(ans, attr, self.para_val(parent_styles, direct_formatting, attr))
+            ans.linked_style = direct_formatting.linked_style
         return ans
 
     def resolve_run(self, r):
@@ -388,6 +389,19 @@ class Styles(object):
                     ps.numbering = inherit
                 else:
                     ps.numbering = (ps.numbering[0], lvl)
+
+    def apply_contextual_spacing(self, paras):
+        last_para = None
+        for p in paras:
+            if last_para is not None:
+                ls = self.resolve_paragraph(last_para)
+                ps = self.resolve_paragraph(p)
+                if ls.linked_style is not None and ls.linked_style == ps.linked_style:
+                    if ls.contextualSpacing:
+                        ls.margin_bottom = 0
+                    if ps.contextualSpacing:
+                        ps.margin_top = 0
+            last_para = p
 
     def register(self, css, prefix):
         h = hash(frozenset(css.iteritems()))

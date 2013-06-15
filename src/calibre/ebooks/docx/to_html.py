@@ -86,6 +86,7 @@ class Convert(object):
         self.framed_map = {}
         self.anchor_map = {}
         self.link_map = defaultdict(list)
+        paras = []
 
         self.log.debug('Converting Word markup to HTML')
         self.read_page_properties(doc)
@@ -94,6 +95,8 @@ class Convert(object):
             if wp.tag.endswith('}p'):
                 p = self.convert_p(wp)
                 self.body.append(p)
+                paras.append(wp)
+        self.styles.apply_contextual_spacing(paras)
 
         notes_header = None
         if self.footnotes.has_notes:
@@ -107,12 +110,16 @@ class Convert(object):
                 dl.append(DT('[', A('←' + text, href='#back_%s' % anchor, title=text), id=anchor))
                 dl[-1][0].tail = ']'
                 dl.append(DD())
+                paras = []
                 for wp in note:
                     if wp.tag.endswith('}tbl'):
                         self.tables.register(wp, self.styles)
                         self.page_map[wp] = self.current_page
-                    p = self.convert_p(wp)
-                    dl[-1].append(p)
+                    else:
+                        p = self.convert_p(wp)
+                        dl[-1].append(p)
+                        paras.append(wp)
+                self.styles.apply_contextual_spacing(paras)
 
         self.resolve_links(relationships_by_id)
 
