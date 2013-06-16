@@ -698,6 +698,8 @@ class CatalogBuilder(object):
                         if last_c in exceptions.keys():
                             last_c = exceptions[unicode(last_c)]
                         last_ordnum = ordnum
+                    else:
+                        last_c = cl_list[idx-1]
                     cl_list[idx] = last_c
 
             else:
