@@ -112,15 +112,16 @@ class Images(object):
         base += '.' + ext
         exists = frozenset(self.used.itervalues())
         c = 1
-        while base in exists:
+        name = base
+        while name in exists:
             n, e = base.rpartition('.')[0::2]
-            base = '%s-%d.%s' % (n, c, e)
+            name = '%s-%d.%s' % (n, c, e)
             c += 1
-        self.used[rid] = base
-        with open(os.path.join(self.dest_dir, base), 'wb') as f:
+        self.used[rid] = name
+        with open(os.path.join(self.dest_dir, name), 'wb') as f:
             f.write(raw)
-        self.all_images.add('images/' + base)
-        return base
+        self.all_images.add('images/' + name)
+        return name
 
     def pic_to_img(self, pic, alt=None):
         name = None
