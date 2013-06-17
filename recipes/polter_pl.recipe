@@ -3,7 +3,7 @@ import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Poltergeist(BasicNewsRecipe):
-    title          = u'Poltergeist'
+    title          = u'Polter.pl'
     __author__        = 'fenuks'
     description   = u'Największy polski serwis poświęcony ogólno pojętej fantastyce - grom fabularnym (RPG), książkom, filmowi, komiksowi, grom planszowym, karcianym i bitewnym.'
     category       = 'fantasy, books, rpg, games'

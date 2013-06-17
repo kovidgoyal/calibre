@@ -1,7 +1,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 class NaukawPolsce(BasicNewsRecipe):
-    title = u'Nauka w Polsce'
+    title = u'PAP Nauka w Polsce'
     __author__ = 'fenuks'
     description = u'Serwis Nauka w Polsce ma za zadanie popularyzację polskiej nauki. Można na nim znaleźć wiadomości takie jak: osiągnięcia polskich naukowców, wydarzenia na polskich uczelniach, osiągnięcia studentów, konkursy dla badaczy, staże i stypendia naukowe, wydarzenia w polskiej nauce, kalendarium wydarzeń w nauce, materiały wideo o nauce.'
     category = 'science'

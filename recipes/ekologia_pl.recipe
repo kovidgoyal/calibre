@@ -9,13 +9,15 @@ class EkologiaPl(BasicNewsRecipe):
     language       = 'pl'
     cover_url = 'http://www.ekologia.pl/assets/images/logo/ekologia_pl_223x69.png'
     ignore_duplicate_articles = {'title', 'url'}
-    extra_css = '.title {font-size: 200%;} .imagePowiazane, .imgCon {float:left; margin-right:5px;}'
+    extra_css = '.title {font-size: 200%;} .imagePowiazane {float:left; margin-right:5px; width: 200px;}'
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True
     remove_empty_feeds = True
+    remove_javascript = True
     use_embedded_content = False
     remove_attrs = ['style']
+    keep_only_tags = [dict(attrs={'class':'contentParent'})]
     remove_tags = [dict(attrs={'class':['ekoLogo', 'powrocArt', 'butonDrukuj', 'widget-social-buttons']})]
 
     feeds          = [(u'Wiadomo\u015bci', u'http://www.ekologia.pl/rss/20,53,0'), (u'\u015arodowisko', u'http://www.ekologia.pl/rss/20,56,0'), (u'Styl \u017cycia', u'http://www.ekologia.pl/rss/20,55,0')]

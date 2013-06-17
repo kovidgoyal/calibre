@@ -16,40 +16,47 @@ class Gildia(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     preprocess_regexps = [(re.compile(ur'</?sup>'), lambda match: '') ]
     ignore_duplicate_articles = {'title', 'url'}
-    remove_tags = [dict(name='div', attrs={'class':'backlink'}), dict(name='div', attrs={'class':'im_img'}), dict(name='div', attrs={'class':'addthis_toolbox addthis_default_style'})]
-    keep_only_tags = dict(name='div', attrs={'class':'widetext'})
-    feeds          = [(u'Gry', u'http://www.gry.gildia.pl/rss'), (u'Literatura', u'http://www.literatura.gildia.pl/rss'), (u'Film', u'http://www.film.gildia.pl/rss'), (u'Horror', u'http://www.horror.gildia.pl/rss'), (u'Konwenty', u'http://www.konwenty.gildia.pl/rss'), (u'Plansz\xf3wki', u'http://www.planszowki.gildia.pl/rss'), (u'Manga i anime', u'http://www.manga.gildia.pl/rss'), (u'Star Wars', u'http://www.starwars.gildia.pl/rss'), (u'Techno', u'http://www.techno.gildia.pl/rss'), (u'Historia', u'http://www.historia.gildia.pl/rss'), (u'Magia', u'http://www.magia.gildia.pl/rss'), (u'Bitewniaki', u'http://www.bitewniaki.gildia.pl/rss'), (u'RPG', u'http://www.rpg.gildia.pl/rss'), (u'LARP', u'http://www.larp.gildia.pl/rss'), (u'Muzyka', u'http://www.muzyka.gildia.pl/rss'), (u'Nauka', u'http://www.nauka.gildia.pl/rss')]
-
+    remove_tags = [dict(name='div', attrs={'class':['backlink', 'im_img', 'addthis_toolbox addthis_default_style', 'banner-bottom']})]
+    keep_only_tags = [dict(name='div', attrs={'class':'widetext'})]
+    feeds          = [(u'Gry', u'http://www.gry.gildia.pl/rss'),
+                        (u'Literatura', u'http://www.literatura.gildia.pl/rss'),
+                        (u'Film', u'http://www.film.gildia.pl/rss'),
+                        (u'Horror', u'http://www.horror.gildia.pl/rss'),
+                        (u'Konwenty', u'http://www.konwenty.gildia.pl/rss'),
+                        (u'Plansz\xf3wki', u'http://www.planszowki.gildia.pl/rss'),
+                        (u'Manga i anime', u'http://www.manga.gildia.pl/rss'),
+                        (u'Star Wars', u'http://www.starwars.gildia.pl/rss'),
+                        (u'Techno', u'http://www.techno.gildia.pl/rss'),
+                        (u'Historia', u'http://www.historia.gildia.pl/rss'),
+                        (u'Magia', u'http://www.magia.gildia.pl/rss'),
+                        (u'Bitewniaki', u'http://www.bitewniaki.gildia.pl/rss'),
+                        (u'RPG', u'http://www.rpg.gildia.pl/rss'),
+                        (u'LARP', u'http://www.larp.gildia.pl/rss'),
+                        (u'Muzyka', u'http://www.muzyka.gildia.pl/rss'),
+                        (u'Nauka', u'http://www.nauka.gildia.pl/rss'),
+                    ]
 
     def skip_ad_pages(self, soup):
         content = soup.find('div', attrs={'class':'news'})
-        if 'recenzj' in soup.title.string.lower():
-            for link in content.findAll(name='a'):
-                if 'recenzj' in link['href'] or 'muzyka/plyty' in link['href']:
-                    return self.index_to_soup(link['href'], raw=True)
-        if 'fragmen' in soup.title.string.lower():
-            for link in content.findAll(name='a'):
-                if 'fragment' in link['href']:
-                    return self.index_to_soup(link['href'], raw=True)
-        if 'relacj' in soup.title.string.lower():
-            for link in content.findAll(name='a'):
-                if 'relacj' in link['href']:
-                    return self.index_to_soup(link['href'], raw=True)
-        if 'wywiad' in soup.title.string.lower():
-            for link in content.findAll(name='a'):
-                if 'wywiad' in link['href']:
-                    return self.index_to_soup(link['href'], raw=True)
-
+        words = ('recenzj', 'zapowied','fragmen', 'relacj', 'wywiad', 'nominacj')
+        for word in words:
+            if word in soup.title.string.lower():
+                for link in content.findAll(name='a'):
+                    if word in link['href'] or (link.string and word in link.string):
+                        return self.index_to_soup(link['href'], raw=True)
+        for tag in content.findAll(name='a', href=re.compile('/publicystyka/')):
+            if 'Wi&#281;cej...' == tag.string:
+                return self.index_to_soup(tag['href'], raw=True)
 
     def preprocess_html(self, soup):
         for a in soup('a'):
             if a.has_key('href') and not a['href'].startswith('http'):
                 if '/gry/' in a['href']:
-                    a['href']='http://www.gry.gildia.pl' + a['href']
+                    a['href'] = 'http://www.gry.gildia.pl' + a['href']
                 elif u'książk' in soup.title.string.lower() or u'komiks' in soup.title.string.lower():
-                    a['href']='http://www.literatura.gildia.pl' + a['href']
+                    a['href'] = 'http://www.literatura.gildia.pl' + a['href']
                 elif u'komiks' in soup.title.string.lower():
-                    a['href']='http://www.literatura.gildia.pl' + a['href']
+                    a['href'] = 'http://www.literatura.gildia.pl' + a['href']
                 else:
-                    a['href']='http://www.gildia.pl' + a['href']
+                    a['href'] = 'http://www.gildia.pl' + a['href']
         return soup

@@ -3,33 +3,29 @@
 __license__ = 'GPL v3'
 __copyright__ = 'teepel'
 
-'''
-media2.pl
-'''
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class media2_pl(BasicNewsRecipe):
     title = u'Media2'
     __author__ = 'teepel <teepel44@gmail.com>'
     language = 'pl'
-    description =u'Media2.pl to jeden z najczęściej odwiedzanych serwisów dla profesjonalistów z branży medialnej, telekomunikacyjnej, public relations oraz nowych technologii.'
-    masthead_url='http://media2.pl/res/logo/www.png'
-    remove_empty_feeds= True
-    oldest_article = 1
+    description = u'Media2.pl to jeden z najczęściej odwiedzanych serwisów dla profesjonalistów z branży medialnej, telekomunikacyjnej, public relations oraz nowych technologii.'
+    masthead_url = 'http://media2.pl/res/logo/www.png'
+    cover_url = 'http://media2.pl/res/logo/www.png'
+    remove_empty_feeds = True
+    oldest_article = 7
     max_articles_per_feed = 100
-    remove_javascript=True
-    no_stylesheets=True
-    simultaneous_downloads = 5
-
+    remove_javascript = True
+    no_stylesheets = True
+    remove_attributes = ['style']
+    ignore_duplicate_articles = {'title', 'url'}
     extra_css = '''.news-lead{font-weight: bold; }'''
 
-    keep_only_tags =[]
-    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'news-item tpl-big'}))
+    keep_only_tags = [dict(name = 'div', attrs = {'class' : 'news-item tpl-big'})]
+    remove_tags = [dict(name = 'span', attrs = {'class' : 'news-comments'}), dict(name = 'div', attrs = {'class' : 'item-sidebar'}), dict(name = 'div', attrs = {'class' : 'news-tags'})]
 
-    remove_tags =[]
-    remove_tags.append(dict(name = 'span', attrs = {'class' : 'news-comments'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'item-sidebar'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'news-tags'}))
-
-    feeds          = [(u'Media2', u'http://feeds.feedburner.com/media2')]
+    feeds = [(u'Media2', u'http://feeds.feedburner.com/media2'), (u'Internet', u'http://feeds.feedburner.com/media2/internet'),
+            (u'Media', 'http://feeds.feedburner.com/media2/media'), (u'Telekomunikacja', 'http://feeds.feedburner.com/media2/telekomunikacja'),
+            (u'Reklama/PR', 'http://feeds.feedburner.com/media2/reklama-pr'), (u'Technologie', 'http://feeds.feedburner.com/media2/technologie'),
+            (u'Badania', 'http://feeds.feedburner.com/media2/badania')
+            ]
