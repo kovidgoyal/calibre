@@ -86,7 +86,14 @@ def getimagesize(url):
     """
 
     try:
-        import ImageFile
+        from PIL import ImageFile
+    except ImportError:
+        try:
+            import ImageFile
+        except ImportError:
+            return None
+
+    try:
         import urllib2
     except ImportError:
         return None
@@ -220,7 +227,7 @@ class Textile(object):
 
         (re.compile(r'{(S\^|\^S)}'),     r'&#348;'),   #  S-circumflex
         (re.compile(r'{(s\^|\^s)}'),     r'&#349;'),   #  s-circumflex
-        
+
         (re.compile(r'{(S\ˇ|\ˇS)}'),     r'&#352;'),   #  S-caron
         (re.compile(r'{(s\ˇ|\ˇs)}'),     r'&#353;'),   #  s-caron
         (re.compile(r'{(T\ˇ|\ˇT)}'),     r'&#356;'),   #  T-caron
@@ -229,7 +236,7 @@ class Textile(object):
         (re.compile(r'{(u\°|\°u)}'),     r'&#367;'),   #  u-ring
         (re.compile(r'{(Z\ˇ|\ˇZ)}'),     r'&#381;'),   #  Z-caron
         (re.compile(r'{(z\ˇ|\ˇz)}'),     r'&#382;'),   #  z-caron
-        
+
         (re.compile(r'{\*}'),            r'&#8226;'),  #  bullet
         (re.compile(r'{Fr}'),            r'&#8355;'),  #  Franc
         (re.compile(r'{(L=|=L)}'),       r'&#8356;'),  #  Lira
@@ -245,7 +252,7 @@ class Textile(object):
         (re.compile(r"{(’|'/|/')}"),     r'&#8217;'),  #  closing-single-quote - apostrophe
         (re.compile(r"{(‘|\\'|'\\)}"),   r'&#8216;'),  #  opening-single-quote
         (re.compile(r'{(”|"/|/")}'),     r'&#8221;'),  #  closing-double-quote
-        (re.compile(r'{(“|\\"|"\\)}'),   r'&#8220;'),  #  opening-double-quote        
+        (re.compile(r'{(“|\\"|"\\)}'),   r'&#8220;'),  #  opening-double-quote
     ]
     glyph_defaults = [
         (re.compile(r'(\d+\'?\"?)( ?)x( ?)(?=\d+)'),                   r'\1\2&#215;\3'),                       #  dimension sign
