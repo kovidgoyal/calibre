@@ -1,0 +1,65 @@
+__license__ = 'GPL v3'
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Comment
+class cdrinfo(BasicNewsRecipe):
+    title          = u'CDRinfo.pl'
+    __author__        = 'fenuks'
+    description   = u'Serwis poświęcony archiwizacji danych. Testy i recenzje nagrywarek. Programy do nagrywania płyt.  Dyski twarde, dyski SSD i serwery sieciowe NAS. Rankingi dyskow twardych, najszybsze dyski twarde, newsy, artykuły, testy, recenzje, porady, oprogramowanie. Zestawienie nagrywarek, najnowsze biosy do nagrywarek, programy dla dysków twardych.'
+    category       = 'it, hardware'
+    #publication_type = ''
+    language       = 'pl'
+    #encoding = ''
+    #extra_css = ''
+    cover_url = 'http://www.cdrinfo.pl/gfx/graph3/top.jpg'
+    #masthead_url = ''
+    use_embedded_content = False
+    oldest_article = 777
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_empty_feeds = True
+    remove_javascript = True
+    remove_attributes = ['style']
+    preprocess_regexps = [(re.compile(u'<p[^>]*?>Uprzejmie prosimy o przestrzeganie netykiety.+?www\.gravatar\.com</a>\.</p>', re.DOTALL), lambda match: '')]
+    ignore_duplicate_articles = {'title', 'url'}
+
+    keep_only_tags = [dict(name='input', attrs={'name':'ref'}), dict(id='text')]
+    remove_tags = [dict(attrs={'class':['navigation', 'sociable']}), dict(name='hr'), dict(id='respond')]
+    remove_tags_after = dict(id='artnawigacja')
+    feeds = [(u'Wiadomości', 'http://feeds.feedburner.com/cdrinfo'), (u'Recenzje', 'http://www.cdrinfo.pl/rss/rss_recenzje.php'),
+            (u'Konsole', 'http://konsole.cdrinfo.pl/rss/rss_konsole_news.xml'),
+            (u'Pliki', 'http://www.cdrinfo.pl/rss/rss_pliki.xml')
+            ]
+
+    def preprocess_html(self, soup):
+        if soup.find(id='artnawigacja'):
+            self.append_page(soup, soup.body)
+        return soup
+        
+    def append_page(self, soup, appendtag):
+        baseurl = 'http://cdrinfo.pl' + soup.find(name='input', attrs={'name':'ref'})['value'] + '/'
+        if baseurl[-2] == '/':
+            baseurl = baseurl[:-1]
+        tag = soup.find(id='artnawigacja')
+        div = tag.find('div', attrs={'align':'right'})
+        while div:
+            counter = 0
+            while counter < 5:
+                try:
+                    soup2 = self.index_to_soup(baseurl+div.a['href'])
+                    break
+                except:
+                    counter += 1
+            tag2 = soup2.find(id='artnawigacja')
+            div = tag2.find('div', attrs={'align':'right'})
+            pagetext = soup2.find(attrs={'class':'art'})
+            comments = pagetext.findAll(text=lambda text:isinstance(text, Comment))
+            for comment in comments:
+                comment.extract()
+            for r in soup2.findAll(attrs={'class':'star-rating'}):
+                r.extract()
+            for r in soup2.findAll(attrs={'class':'star-rating2'}):
+                r.extract()
+            pos = len(appendtag.contents)
+            appendtag.insert(pos, pagetext)
+        tag.extract()
