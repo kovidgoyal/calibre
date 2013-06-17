@@ -1,3 +1,4 @@
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Comment
 
@@ -11,6 +12,7 @@ class PurePC(BasicNewsRecipe):
     language       = 'pl'
     masthead_url= 'http://www.purepc.pl/themes/new/images/purepc.jpg'
     cover_url= 'http://www.purepc.pl/themes/new/images/purepc.jpg'
+    extra_css = '.wykres_logo {float: left; margin-right: 5px;}'
     no_stylesheets = True
     keep_only_tags= [dict(id='content')]
     remove_tags_after= dict(attrs={'class':'fivestar-widget'})
@@ -19,11 +21,14 @@ class PurePC(BasicNewsRecipe):
 
 
     def append_page(self, soup, appendtag):
-        nexturl= appendtag.find(attrs={'class':'pager-next'})
-        if nexturl:
-            while nexturl:
-                soup2 = self.index_to_soup('http://www.purepc.pl'+ nexturl.a['href'])
-                nexturl=soup2.find(attrs={'class':'pager-next'})
+        lasturl = appendtag.find(attrs={'class':'pager-last'})
+        if lasturl:
+            regex = re.search('(.+?2C)(\d+)', lasturl.a['href'])
+            baseurl = regex.group(1).replace('?page=0%2C', '?page=1%2C')
+            baseurl = 'http://www.purepc.pl' + baseurl
+            nr = int(regex.group(2))
+            for page_nr in range(1, nr+1):
+                soup2 = self.index_to_soup(baseurl+str(page_nr))
                 pagetext = soup2.find(attrs={'class':'article'})
                 pos = len(appendtag.contents)
                 appendtag.insert(pos, pagetext)
