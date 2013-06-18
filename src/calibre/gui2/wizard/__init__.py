@@ -139,7 +139,7 @@ class Kobo(Device):
     id = 'kobo'
 
 class KoboVox(Kobo):
-    name = 'Kobo Vox'
+    name = 'Kobo Vox and Kobo Aura HD'
     output_profile = 'tablet'
     id = 'kobo_vox'
 
