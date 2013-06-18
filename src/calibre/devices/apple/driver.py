@@ -1073,6 +1073,24 @@ class ITUNES(DriverBase):
         self.plugboards = plugboards
         self.plugboard_func = pb_func
 
+    def settings(self):
+        '''
+        iBooks won't accept PDFs through the automation interface (11.0.4), not sure
+        when that became a problem. If we're directly connected to the iDevice,
+        remove PDF from list of supported formats.
+        '''
+        if self.verbose:
+            logger().info("%s.settings()" % self.__class__.__name__)
+
+        # If direct connection, remove PDF support
+        if self.manual_sync_mode:
+            opts = super(ITUNES, self).settings()
+            if 'pdf' in opts.format_map:
+                opts.format_map.remove('pdf')
+            return opts
+        else:
+            return super(ITUNES, self).settings()
+
     def shutdown(self):
         if False and self.verbose:
             logger().info("%s.shutdown()\n" % self.__class__.__name__)
@@ -3014,6 +3032,7 @@ class ITUNES(DriverBase):
                 lb_added.year.set(metadata_x.pubdate.year)
 
             if db_added:
+                # This will fail for PDF files
                 db_added.name.set(metadata_x.title)
                 db_added.album.set(metadata_x.title)
                 db_added.artist.set(authors_to_string(metadata_x.authors))
