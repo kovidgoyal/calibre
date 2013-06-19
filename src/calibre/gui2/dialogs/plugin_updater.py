@@ -254,7 +254,7 @@ Platforms: Windows, OSX, Linux; History: Yes;</span></i></li>
         return self.installed_version is not None
 
     def is_upgrade_available(self):
-        return self.is_installed() and (self.installed_version < self.available_version \
+        return self.is_installed() and (self.installed_version < self.available_version
                 or self.is_deprecated)
 
     def is_valid_platform(self):
@@ -317,7 +317,7 @@ class DisplayPluginModel(QAbstractTableModel):
 
     def data(self, index, role):
         if not index.isValid():
-            return NONE;
+            return NONE
         row, col = index.row(), index.column()
         if row < 0 or row >= self.rowCount():
             return NONE
@@ -357,7 +357,7 @@ class DisplayPluginModel(QAbstractTableModel):
             else:
                 return self._get_status_tooltip(display_plugin)
         elif role == Qt.ForegroundRole:
-            if col != 1: # Never change colour of the donation column
+            if col != 1:  # Never change colour of the donation column
                 if display_plugin.is_deprecated:
                     return QVariant(QBrush(Qt.blue))
                 if display_plugin.is_disabled():
@@ -417,7 +417,7 @@ class DisplayPluginModel(QAbstractTableModel):
                     icon_name = 'plugin_upgrade_invalid.png'
             else:
                 icon_name = 'plugin_upgrade_ok.png'
-        else: # A plugin available not currently installed
+        else:  # A plugin available not currently installed
             if display_plugin.is_valid_to_install():
                 icon_name = 'plugin_new_valid.png'
             else:
@@ -429,11 +429,11 @@ class DisplayPluginModel(QAbstractTableModel):
             return QVariant(_('This plugin has been deprecated and should be uninstalled')+'\n\n'+
                             _('Right-click to see more options'))
         if not display_plugin.is_valid_platform():
-            return QVariant(_('This plugin can only be installed on: %s') % \
+            return QVariant(_('This plugin can only be installed on: %s') %
                             ', '.join(display_plugin.platforms)+'\n\n'+
                             _('Right-click to see more options'))
         if numeric_version < display_plugin.calibre_required_version:
-            return QVariant(_('You must upgrade to at least Calibre %s before installing this plugin') % \
+            return QVariant(_('You must upgrade to at least Calibre %s before installing this plugin') %
                             self._get_display_version(display_plugin.calibre_required_version)+'\n\n'+
                             _('Right-click to see more options'))
         if display_plugin.installed_version < display_plugin.available_version:
@@ -687,7 +687,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
     def _install_clicked(self):
         display_plugin = self._selected_display_plugin()
-        if not question_dialog(self, _('Install %s')%display_plugin.name, '<p>' + \
+        if not question_dialog(self, _('Install %s')%display_plugin.name, '<p>' +
                 _('Installing plugins is a <b>security risk</b>. '
                 'Plugins can contain a virus/malware. '
                     'Only install it if you got it from a trusted source.'
@@ -886,3 +886,4 @@ class PluginUpdaterDialog(SizePersistedDialog):
         pt.write(raw)
         pt.close()
         return pt.name
+
