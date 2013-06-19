@@ -89,7 +89,7 @@ def get_installed_plugin_status(display_plugin):
     display_plugin.installed_version = None
     display_plugin.plugin = None
     for plugin in initialized_plugins():
-        if plugin.name == display_plugin.name:
+        if plugin.name == display_plugin.name and plugin.plugin_path is not None:
             display_plugin.plugin = plugin
             display_plugin.installed_version = plugin.version
             break
