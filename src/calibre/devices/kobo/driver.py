@@ -1880,7 +1880,7 @@ class KOBOTOUCH(KOBO):
 
                     # Remove any entries for the Activity table - removes tile from new home page
                     if self.has_activity_table():
-                        debug_print('KoboTouch:delete_via_sql: detete from Activity')
+                        debug_print('KoboTouch:delete_via_sql: delete from Activity')
                         cursor.execute('delete from Activity where Id =?', t)
 
                     connection.commit()
@@ -2391,7 +2391,8 @@ class KOBOTOUCH(KOBO):
         cursor = connection.cursor()
         cursor.execute(delete_query)
         cursor.execute(update_query)
-        cursor.execute(delete_activity_query)
+        if self.has_activity_table():
+            cursor.execute(delete_activity_query)
         connection.commit()
         cursor.close()
 
