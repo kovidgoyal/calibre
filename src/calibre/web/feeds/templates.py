@@ -387,6 +387,14 @@ class TouchscreenNavBarTemplate(Template):
         navbar_t = TABLE(CLASS('touchscreen_navbar'))
         navbar_tr = TR()
 
+        if bottom and not url.startswith('file://'):
+            navbar.append(HR())
+            text = 'This article was downloaded by '
+            p = PT(text, STRONG(__appname__), A(url, href=url),
+                    style='text-align:left; max-width: 100%; overflow: hidden;')
+            p[0].tail = ' from '
+            navbar.append(p)
+            navbar.append(BR())
         # | Previous
         if art > 0:
             link = A(CLASS('article_link'),_('Previous'),href='%s../article_%d/index.html'%(prefix, art-1))
