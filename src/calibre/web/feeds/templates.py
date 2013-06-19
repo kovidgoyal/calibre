@@ -13,7 +13,7 @@ from lxml.html.builder import HTML, HEAD, TITLE, STYLE, DIV, BODY, \
 
 from calibre import preferred_encoding, strftime, isbytestring
 
-def CLASS(*args, **kwargs): # class is a reserved word in Python
+def CLASS(*args, **kwargs):  # class is a reserved word in Python
     kwargs['class'] = ' '.join(args)
     return kwargs
 
@@ -26,7 +26,7 @@ class Template(object):
         self.html_lang = lang
 
     def generate(self, *args, **kwargs):
-        if not kwargs.has_key('style'):
+        if 'style' not in kwargs:
             kwargs['style'] = ''
         for key in kwargs.keys():
             if isbytestring(kwargs[key]):
@@ -152,8 +152,8 @@ class FeedTemplate(Template):
         body.append(div)
         if getattr(feed, 'image', None):
             div.append(DIV(IMG(
-                alt = feed.image_alt if feed.image_alt else '',
-                src = feed.image_url
+                alt=feed.image_alt if feed.image_alt else '',
+                src=feed.image_url
                 ),
                 CLASS('calibre_feed_image')))
         if getattr(feed, 'description', None):
@@ -261,8 +261,8 @@ class TouchscreenIndexTemplate(Template):
         for i, feed in enumerate(feeds):
             if feed:
                 tr = TR()
-                tr.append(TD( CLASS('calibre_rescale_120'), A(feed.title, href='feed_%d/index.html'%i)))
-                tr.append(TD( '%s' % len(feed.articles), style="text-align:right"))
+                tr.append(TD(CLASS('calibre_rescale_120'), A(feed.title, href='feed_%d/index.html'%i)))
+                tr.append(TD('%s' % len(feed.articles), style="text-align:right"))
                 toc.append(tr)
         div = DIV(
                 masthead_p,
@@ -307,7 +307,7 @@ class TouchscreenFeedTemplate(Template):
         if f > 0:
             link = A(CLASS('feed_link'),
                      trim_title(feeds[f-1].title),
-                     href = '../feed_%d/index.html' % int(f-1))
+                     href='../feed_%d/index.html' % int(f-1))
         navbar_tr.append(TD(CLASS('feed_prev'),link))
 
         # Up to Sections
@@ -319,13 +319,12 @@ class TouchscreenFeedTemplate(Template):
         if f < len(feeds)-1:
             link = A(CLASS('feed_link'),
                      trim_title(feeds[f+1].title),
-                     href = '../feed_%d/index.html' % int(f+1))
+                     href='../feed_%d/index.html' % int(f+1))
         navbar_tr.append(TD(CLASS('feed_next'),link))
         navbar_t.append(navbar_tr)
         top_navbar = navbar_t
         bottom_navbar = copy.copy(navbar_t)
-        #print "\n%s\n" % etree.tostring(navbar_t, pretty_print=True)
-
+        # print "\n%s\n" % etree.tostring(navbar_t, pretty_print=True)
 
         # Build the page
         head = HEAD(TITLE(feed.title))
@@ -342,8 +341,8 @@ class TouchscreenFeedTemplate(Template):
 
         if getattr(feed, 'image', None):
             div.append(DIV(IMG(
-                alt = feed.image_alt if feed.image_alt else '',
-                src = feed.image_url
+                alt=feed.image_alt if feed.image_alt else '',
+                src=feed.image_url
                 ),
                 CLASS('calibre_feed_image')))
         if getattr(feed, 'description', None):
@@ -388,6 +387,14 @@ class TouchscreenNavBarTemplate(Template):
         navbar_t = TABLE(CLASS('touchscreen_navbar'))
         navbar_tr = TR()
 
+        if bottom and not url.startswith('file://'):
+            navbar.append(HR())
+            text = 'This article was downloaded by '
+            p = PT(text, STRONG(__appname__), A(url, href=url),
+                    style='text-align:left; max-width: 100%; overflow: hidden;')
+            p[0].tail = ' from '
+            navbar.append(p)
+            navbar.append(BR())
         # | Previous
         if art > 0:
             link = A(CLASS('article_link'),_('Previous'),href='%s../article_%d/index.html'%(prefix, art-1))
@@ -411,6 +418,7 @@ class TouchscreenNavBarTemplate(Template):
         navbar_tr.append(TD(CLASS('article_next'),link))
         navbar_t.append(navbar_tr)
         navbar.append(navbar_t)
-        #print "\n%s\n" % etree.tostring(navbar, pretty_print=True)
+        # print "\n%s\n" % etree.tostring(navbar, pretty_print=True)
 
         self.root = HTML(head, BODY(navbar))
+

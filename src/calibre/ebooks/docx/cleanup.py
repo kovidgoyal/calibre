@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import os
 
 def mergeable(previous, current):
     if previous.tail or current.tail:
@@ -83,8 +84,19 @@ def lift(span):
         else:
             add_text(last_child, 'tail', span.tail)
 
+def before_count(root, tag, limit=10):
+    body = root.xpath('//body[1]')
+    if not body:
+        return limit
+    ans = 0
+    for elem in body[0].iterdescendants():
+        if elem is tag:
+            return ans
+        ans += 1
+        if ans > limit:
+            return limit
 
-def cleanup_markup(root, styles):
+def cleanup_markup(log, root, styles, dest_dir, detect_cover):
     # Merge consecutive spans that have the same styling
     current_run = []
     for span in root.xpath('//span'):
@@ -133,4 +145,23 @@ def cleanup_markup(root, styles):
     # Get rid of <span>s that have no styling
     for span in root.xpath('//span[not(@class) and not(@id)]'):
         lift(span)
+
+    if detect_cover:
+        # Check if the first image in the document is possibly a cover
+        img = root.xpath('//img[@src][1]')
+        if img:
+            img = img[0]
+            path = os.path.join(dest_dir, img.get('src'))
+            if os.path.exists(path) and before_count(root, img, limit=10) < 5:
+                from calibre.utils.magick.draw import identify
+                try:
+                    width, height, fmt = identify(path)
+                except:
+                    width, height, fmt = 0, 0, None
+                is_cover = 0.8 <= height/width <= 1.8 and height*width >= 160000
+                if is_cover:
+                    log.debug('Detected an image that looks like a cover')
+                    img.getparent().remove(img)
+                    return path
+
 

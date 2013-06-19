@@ -82,7 +82,8 @@ class History(list):
             return None
         item = self[self.forward_pos]
         self.back_pos = self.forward_pos - 1
-        if self.back_pos < 0: self.back_pos = None
+        if self.back_pos < 0:
+            self.back_pos = None
         self.insert_pos = self.back_pos or 0
         self.forward_pos = None if self.forward_pos > len(self) - 2 else self.forward_pos + 1
         self.set_actions()
@@ -268,7 +269,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                     self.action_full_screen.shortcuts()]))
         self.action_back.triggered[bool].connect(self.back)
         self.action_forward.triggered[bool].connect(self.forward)
-        self.action_bookmark.triggered[bool].connect(self.bookmark)
         self.action_preferences.triggered.connect(self.do_config)
         self.pos.editingFinished.connect(self.goto_page_num)
         self.vertical_scrollbar.valueChanged[int].connect(lambda
@@ -294,7 +294,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.toc.setCursor(Qt.PointingHandCursor)
         self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
         self.tool_bar2.setContextMenuPolicy(Qt.PreventContextMenu)
-        self.tool_bar.widgetForAction(self.action_bookmark).setPopupMode(QToolButton.MenuButtonPopup)
+        self.tool_bar.widgetForAction(self.action_bookmark).setPopupMode(QToolButton.InstantPopup)
         self.action_full_screen.setCheckable(True)
         self.full_screen_label = QLabel('''
                 <center>
@@ -394,7 +394,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_toggle_paged_mode.setToolTip(self.FLOW_MODE_TT if
                 self.action_toggle_paged_mode.isChecked() else
                 self.PAGED_MODE_TT)
-        if at_start: return
+        if at_start:
+            return
         self.reload()
 
     def settings_changed(self):
@@ -486,8 +487,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 at_start=True)
 
     def lookup(self, word):
-        self.dictionary_view.setHtml('<html><body><p>'+ \
-            _('Connecting to dict.org to lookup: <b>%s</b>&hellip;')%word + \
+        self.dictionary_view.setHtml('<html><body><p>'+
+            _('Connecting to dict.org to lookup: <b>%s</b>&hellip;')%word +
             '</p></body></html>')
         self.dictionary_box.show()
         self._lookup = Lookup(word, parent=self)
@@ -964,6 +965,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def set_bookmarks(self, bookmarks):
         self.bookmarks_menu.clear()
+        self.bookmarks_menu.addAction(_("Bookmark this location"), self.bookmark)
         self.bookmarks_menu.addAction(_("Manage Bookmarks"), self.manage_bookmarks)
         self.bookmarks_menu.addSeparator()
         current_page = None
@@ -1202,3 +1204,4 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     sys.exit(main())
+

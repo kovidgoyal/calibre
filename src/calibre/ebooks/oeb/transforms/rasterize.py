@@ -8,7 +8,6 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import os
 from urlparse import urldefrag
-import base64
 from lxml import etree
 from PyQt4.QtCore import Qt
 from PyQt4.QtCore import QByteArray
@@ -23,6 +22,8 @@ from calibre.ebooks.oeb.base import SVG_MIME, PNG_MIME
 from calibre.ebooks.oeb.base import xml2str, xpath
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.imghdr import what
 
 IMAGE_TAGS = set([XHTML('img'), XHTML('object')])
 KEEP_ATTRS = set(['class', 'style', 'width', 'height', 'align'])
@@ -46,6 +47,7 @@ class SVGRasterizer(object):
 
     def __call__(self, oeb, context):
         oeb.logger.info('Rasterizing SVG images...')
+        self.temp_files = []
         self.stylizer_cache = {}
         self.oeb = oeb
         self.opts = context
@@ -54,6 +56,11 @@ class SVGRasterizer(object):
         self.dataize_manifest()
         self.rasterize_spine()
         self.rasterize_cover()
+        for pt in self.temp_files:
+            try:
+                os.remove(pt)
+            except:
+                pass
 
     def rasterize_svg(self, elem, width=0, height=0, format='PNG'):
         view_box = elem.get('viewBox', elem.get('viewbox', None))
@@ -112,9 +119,12 @@ class SVGRasterizer(object):
             if abshref not in hrefs:
                 continue
             linkee = hrefs[abshref]
-            data = base64.encodestring(str(linkee))
-            data = "data:%s;base64,%s" % (linkee.media_type, data)
-            elem.attrib[XLINK('href')] = data
+            data = str(linkee)
+            ext = what(None, data) or 'jpg'
+            with PersistentTemporaryFile(suffix='.'+ext) as pt:
+                pt.write(data)
+                self.temp_files.append(pt.name)
+            elem.attrib[XLINK('href')] = pt.name
         return svg
 
     def stylizer(self, item):

@@ -92,7 +92,7 @@ defs['tags_browser_partition_method'] = 'first letter'
 defs['tags_browser_collapse_at'] = 100
 defs['tag_browser_dont_collapse'] = []
 defs['edit_metadata_single_layout'] = 'default'
-defs['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
+defs['default_author_link'] = 'https://en.wikipedia.org/w/index.php?search={author}'
 defs['preserve_date_on_ctl'] = True
 defs['manual_add_auto_convert'] = False
 defs['cb_fullscreen'] = False

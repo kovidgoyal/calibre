@@ -24,8 +24,10 @@ class NPWebView(QWebView):
         self.gui = None
         self.tags = ''
 
-        self.setPage(NPWebPage())
-        self.page().networkAccessManager().setCookieJar(QNetworkCookieJar())
+        self._page = NPWebPage()
+        self.setPage(self._page)
+        self.cookie_jar = QNetworkCookieJar()
+        self.page().networkAccessManager().setCookieJar(self.cookie_jar)
 
         http_proxy = get_proxies().get('http', None)
         if http_proxy:
