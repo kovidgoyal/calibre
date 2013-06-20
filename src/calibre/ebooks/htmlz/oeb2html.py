@@ -18,7 +18,7 @@ from urlparse import urldefrag
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace,\
-    OEB_IMAGES, XLINK, rewrite_links
+    OEB_IMAGES, XLINK, rewrite_links, urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.logging import default_log
 
@@ -100,7 +100,7 @@ class OEB2HTML(object):
     def rewrite_link(self, url, page=None):
         if not page:
             return url
-        abs_url = page.abshref(url)
+        abs_url = page.abshref(urlnormalize(url))
         if abs_url in self.images:
             return 'images/%s' % self.images[abs_url]
         if abs_url in self.links:
