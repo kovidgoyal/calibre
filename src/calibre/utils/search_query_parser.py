@@ -240,8 +240,8 @@ class Parser(object):
             # the search string is something like 'author: "foo"' because it
             # will be interpreted as 'author:"foo"'. I am choosing to accept the
             # possible error. The expression should be written '"author:" foo'
-            if len(words) > 1 and words[0] in self.locations:
-                loc = words[0]
+            if len(words) > 1 and words[0].lower() in self.locations:
+                loc = words[0].lower()
                 words = words[1:]
                 if len(words) == 1 and self.token_type() == self.QUOTED_WORD:
                     return ['token', loc, self.token(advance=True)]
