@@ -197,7 +197,7 @@ class SearchBox2(QComboBox):  # {{{
         self.search.emit(text)
 
         if store_in_history:
-            idx = self.findText(text, Qt.MatchFixedString)
+            idx = self.findText(text, Qt.MatchFixedString|Qt.MatchCaseSensitive)
             self.block_signals(True)
             if idx < 0:
                 self.insertItem(0, text)
