@@ -357,9 +357,9 @@ class SearchQueryParser(object):
 #         return self.evaluate(argument[0], candidates)
 
     def evaluate_token(self, argument, candidates):
-        location = argument[0]
+        location = argument[0].lower()
         query = argument[1]
-        if location.lower() == 'search':
+        if location == 'search':
             if query.startswith('='):
                 query = query[1:]
             try:
