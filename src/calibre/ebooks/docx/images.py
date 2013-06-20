@@ -101,10 +101,11 @@ class Images(object):
         self.rid_map = relationships_by_id
 
     def generate_filename(self, rid, base=None, rid_map=None):
-        if rid in self.used:
-            return self.used[rid]
         rid_map = self.rid_map if rid_map is None else rid_map
-        raw = self.docx.read(rid_map[rid])
+        fname = rid_map[rid]
+        if fname in self.used:
+            return self.used[fname]
+        raw = self.docx.read(fname)
         base = base or ascii_filename(rid_map[rid].rpartition('/')[-1]).replace(' ', '_') or 'image'
         ext = what(None, raw) or base.rpartition('.')[-1] or 'jpeg'
         base = base.rpartition('.')[0]
@@ -118,7 +119,7 @@ class Images(object):
             n, e = base.rpartition('.')[0::2]
             name = '%s-%d.%s' % (n, c, e)
             c += 1
-        self.used[rid] = name
+        self.used[fname] = name
         with open(os.path.join(self.dest_dir, name), 'wb') as f:
             f.write(raw)
         self.all_images.add('images/' + name)
