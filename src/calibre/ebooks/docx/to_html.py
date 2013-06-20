@@ -137,7 +137,7 @@ class Convert(object):
                 except (TypeError, ValueError):
                     lvl = 0
                 numbered.append((html_obj, num_id, lvl))
-        self.numbering.apply_markup(numbered, self.body, self.styles, self.object_map)
+        self.numbering.apply_markup(numbered, self.body, self.styles, self.object_map, self.images)
         self.apply_frames()
 
         if len(self.body) > 0:
@@ -263,7 +263,7 @@ class Convert(object):
             except KeyError:
                 self.log.warn('Numbering styles %s do not exist' % nname)
             else:
-                numbering(fromstring(raw), self.styles)
+                numbering(fromstring(raw), self.styles, self.docx.get_relationships(nname)[0])
 
         self.styles.resolve_numbering(numbering)
 

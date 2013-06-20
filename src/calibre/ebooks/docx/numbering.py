@@ -40,13 +40,14 @@ class Level(object):
         self.paragraph_style = self.character_style = None
         self.is_numbered = False
         self.num_template = None
+        self.pic_id = None
 
         if lvl is not None:
             self.read_from_xml(lvl)
 
     def copy(self):
         ans = Level()
-        for x in ('restart', 'start', 'fmt', 'para_link', 'paragraph_style', 'character_style', 'is_numbered', 'num_template'):
+        for x in ('restart', 'pic_id', 'start', 'fmt', 'para_link', 'paragraph_style', 'character_style', 'is_numbered', 'num_template'):
             setattr(ans, x, getattr(self, x))
         return ans
 
@@ -80,6 +81,8 @@ class Level(object):
             if val == 'bullet':
                 self.is_numbered = False
                 self.fmt = {'\uf0a7':'square', 'o':'circle'}.get(lt, 'disc')
+                for lpid in XPath('./w:lvlPicBulletId[@w:val]')(lvl):
+                    self.pic_id = get(lpid, 'w:val')
             else:
                 self.is_numbered = True
                 self.fmt = STYLE_MAP.get(val, 'decimal')
@@ -102,6 +105,19 @@ class Level(object):
                 self.character_style = ps
             else:
                 self.character_style.update(ps)
+
+    def css(self, images, pic_map, rid_map):
+        ans = {'list-style-type': self.fmt}
+        if self.pic_id:
+            rid = pic_map.get(self.pic_id, None)
+            if rid:
+                try:
+                    fname = images.generate_filename(rid, rid_map=rid_map)
+                except Exception:
+                    fname = None
+                else:
+                    ans['list-style-image'] = 'url("images/%s")' % fname
+        return ans
 
 class NumberingDefinition(object):
 
@@ -127,9 +143,16 @@ class Numbering(object):
         self.definitions = {}
         self.instances = {}
         self.counters = {}
+        self.pic_map = {}
 
-    def __call__(self, root, styles):
+    def __call__(self, root, styles, rid_map):
         ' Read all numbering style definitions '
+        self.rid_map = rid_map
+        for npb in XPath('./w:numPicBullet[@w:numPicBulletId]')(root):
+            npbid = get(npb, 'w:numPicBulletId')
+            for idata in XPath('descendant::v:imagedata[@r:id]')(npb):
+                rid = get(idata, 'r:id')
+                self.pic_map[npbid] = rid
         lazy_load = {}
         for an in XPath('./w:abstractNum[@w:abstractNumId]')(root):
             an_id = get(an, 'w:abstractNumId')
@@ -198,7 +221,7 @@ class Numbering(object):
             if (restart is None and ilvl == levelnum + 1) or restart == levelnum + 1:
                 counter[ilvl] = lvl.start
 
-    def apply_markup(self, items, body, styles, object_map):
+    def apply_markup(self, items, body, styles, object_map, images):
         for p, num_id, ilvl in items:
             d = self.instances.get(num_id, None)
             if d is not None:
@@ -232,7 +255,7 @@ class Numbering(object):
             if has_template:
                 wrap.set('lvlid', lvlid)
             else:
-                wrap.set('class', styles.register({'list-style-type': lvl.fmt}, 'list'))
+                wrap.set('class', styles.register(lvl.css(images, self.pic_map, self.rid_map), 'list'))
             parent.insert(idx, wrap)
             last_val = None
             for child in current_run:

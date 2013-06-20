@@ -100,11 +100,12 @@ class Images(object):
     def __call__(self, relationships_by_id):
         self.rid_map = relationships_by_id
 
-    def generate_filename(self, rid, base=None):
+    def generate_filename(self, rid, base=None, rid_map=None):
         if rid in self.used:
             return self.used[rid]
-        raw = self.docx.read(self.rid_map[rid])
-        base = base or ascii_filename(self.rid_map[rid].rpartition('/')[-1]).replace(' ', '_') or 'image'
+        rid_map = self.rid_map if rid_map is None else rid_map
+        raw = self.docx.read(rid_map[rid])
+        base = base or ascii_filename(rid_map[rid].rpartition('/')[-1]).replace(' ', '_') or 'image'
         ext = what(None, raw) or base.rpartition('.')[-1] or 'jpeg'
         base = base.rpartition('.')[0]
         if not base:
