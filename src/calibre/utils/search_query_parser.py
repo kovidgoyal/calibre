@@ -697,6 +697,7 @@ class Tester(SearchQueryParser):
     tests = {
              'Dysfunction' : set([348]),
              'title:Dysfunction' : set([348]),
+             'Title:Dysfunction' : set([348]),
              'title:Dysfunction OR author:Laurie': set([348, 444]),
              '(tag:txt or tag:pdf)': set([33, 258, 354, 305, 242, 51, 55, 56, 154]),
              '(tag:txt OR tag:pdf) and author:Tolstoy': set([55, 56]),
