@@ -120,7 +120,8 @@ class LegacyTest(BaseTest):
         for attr in dir(db):
             if attr in SKIP_ATTRS:
                 continue
-            self.assertTrue(hasattr(ndb, attr), 'The attribute %s is missing' % attr)
+            if not hasattr(ndb, attr):
+                raise AssertionError('The attribute %s is missing' % attr)
             obj, nobj  = getattr(db, attr), getattr(ndb, attr)
             if attr not in SKIP_ARGSPEC:
                 try:
