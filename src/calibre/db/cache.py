@@ -843,9 +843,25 @@ class Cache(object):
     @write_api
     def set_metadata(self, book_id, mi, ignore_errors=False, force_changes=False,
                      set_title=True, set_authors=True):
-        if callable(getattr(mi, 'to_book_metadata', None)):
+        '''
+        Set metadata for the book `id` from the `Metadata` object `mi`
+
+        Setting force_changes=True will force set_metadata to update fields even
+        if mi contains empty values. In this case, 'None' is distinguished from
+        'empty'. If mi.XXX is None, the XXX is not replaced, otherwise it is.
+        The tags, identifiers, and cover attributes are special cases. Tags and
+        identifiers cannot be set to None so then will always be replaced if
+        force_changes is true. You must ensure that mi contains the values you
+        want the book to have. Covers are always changed if a new cover is
+        provided, but are never deleted. Also note that force_changes has no
+        effect on setting title or authors.
+        '''
+
+        try:
             # Handle code passing in an OPF object instead of a Metadata object
             mi = mi.to_book_metadata()
+        except (AttributeError, TypeError):
+            pass
 
         def set_field(name, val, **kwargs):
             self._set_field(name, {book_id:val}, **kwargs)
@@ -864,7 +880,7 @@ class Cache(object):
             set_field('authors', authors, do_path_update=False)
 
         if path_changed:
-            self._update_path((book_id,))
+            self._update_path({book_id})
 
         def protected_set_field(name, val, **kwargs):
             try:
@@ -890,11 +906,15 @@ class Cache(object):
         if cdata is not None:
             self._set_cover({book_id: cdata})
 
-        for field in ('title_sort', 'author_sort', 'publisher', 'series',
-            'tags', 'comments', 'languages', 'pubdate'):
+        for field in ('author_sort', 'publisher', 'series', 'tags', 'comments',
+            'languages', 'pubdate'):
             val = mi.get(field, None)
             if (force_changes and val is not None) or not mi.is_null(field):
                 protected_set_field(field, val)
+
+        val = mi.get('title_sort', None)
+        if (force_changes and val is not None) or not mi.is_null('title_sort'):
+            protected_set_field('sort', val)
 
         # identifiers will always be replaced if force_changes is True
         mi_idents = mi.get_identifiers()
@@ -917,9 +937,11 @@ class Cache(object):
                 val = mi.get(key, None)
                 if force_changes or val is not None:
                     protected_set_field(key, val)
-                    extra = mi.get_extra(key)
-                    if extra is not None:
-                        protected_set_field(key+'_index', extra)
+                    idx = key + '_index'
+                    if idx in self.fields:
+                        extra = mi.get_extra(key)
+                        if extra is not None or force_changes:
+                            protected_set_field(idx, extra)
 
     # }}}
 

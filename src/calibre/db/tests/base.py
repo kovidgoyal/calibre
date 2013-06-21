@@ -78,7 +78,7 @@ class BaseTest(unittest.TestCase):
     def cloned_library(self):
         return self.clone_library(self.library_path)
 
-    def compare_metadata(self, mi1, mi2):
+    def compare_metadata(self, mi1, mi2, exclude=()):
         allfk1 = mi1.all_field_keys()
         allfk2 = mi2.all_field_keys()
         self.assertEqual(allfk1, allfk2)
@@ -88,7 +88,7 @@ class BaseTest(unittest.TestCase):
                     'ondevice_col', 'last_modified', 'has_cover',
                     'cover_data'}.union(allfk1)
         for attr in all_keys:
-            if attr == 'user_metadata':
+            if attr == 'user_metadata' or attr in exclude:
                 continue
             attr1, attr2 = getattr(mi1, attr), getattr(mi2, attr)
             if attr == 'formats':
@@ -97,7 +97,7 @@ class BaseTest(unittest.TestCase):
                 attr1, attr2 = set(attr1), set(attr2)
             self.assertEqual(attr1, attr2,
                     '%s not the same: %r != %r'%(attr, attr1, attr2))
-            if attr.startswith('#'):
+            if attr.startswith('#') and attr + '_index' not in exclude:
                 attr1, attr2 = mi1.get_extra(attr), mi2.get_extra(attr)
                 self.assertEqual(attr1, attr2,
                     '%s {#extra} not the same: %r != %r'%(attr, attr1, attr2))
