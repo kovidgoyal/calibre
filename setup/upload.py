@@ -81,7 +81,7 @@ class ReUpload(Command):  # {{{
 
 # Data {{{
 def get_google_data():
-    with open(os.path.expanduser('~/work/kde/conf/googlecodecalibre'), 'rb') as f:
+    with open(os.path.expanduser('~/work/env/private/googlecodecalibre'), 'rb') as f:
         gc_password, ga_un, pw = f.read().strip().split('|')
 
     return {
@@ -111,6 +111,9 @@ def sf_cmdline(ver, sdata):
     return [__appname__, ver, 'fmap', 'sourceforge', sdata['project'],
             sdata['username']]
 
+def calibre_cmdline(ver):
+    return [__appname__, ver, 'fmap', 'calibre']
+
 def run_remote_upload(args):
     print 'Running remotely:', ' '.join(args)
     subprocess.check_call(['ssh', '-x', '%s@%s'%(STAGING_USER, STAGING_HOST),
@@ -133,7 +136,8 @@ class UploadInstallers(Command):  # {{{
         try:
             self.upload_to_staging(tdir, files)
             self.upload_to_sourceforge()
-            self.upload_to_google(opts.replace)
+            self.upload_to_calibre()
+            # self.upload_to_google(opts.replace)
         finally:
             shutil.rmtree(tdir, ignore_errors=True)
 
@@ -170,6 +174,10 @@ class UploadInstallers(Command):  # {{{
         sdata = get_sourceforge_data()
         args = sf_cmdline(__version__, sdata)
         run_remote_upload(args)
+
+    def upload_to_calibre(self):
+        run_remote_upload(calibre_cmdline(__version__))
+
 # }}}
 
 class UploadUserManual(Command):  # {{{

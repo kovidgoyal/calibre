@@ -10,13 +10,13 @@ __docformat__ = 'restructuredtext en'
 import os, time, sys, traceback, subprocess, urllib2, re, base64, httplib
 from argparse import ArgumentParser, FileType
 from subprocess import check_call
-from tempfile import NamedTemporaryFile#, mkdtemp
+from tempfile import NamedTemporaryFile
 from collections import OrderedDict
 
 import mechanize
 from lxml import html
 
-def login_to_google(username, password):
+def login_to_google(username, password):  # {{{
     br = mechanize.Browser()
     br.addheaders = [('User-agent',
         'Mozilla/5.0 (X11; Linux x86_64; rv:9.0) Gecko/20100101 Firefox/9.0')]
@@ -30,15 +30,16 @@ def login_to_google(username, password):
         x = re.search(br'(?is)<title>.*?</title>', raw)
         if x is not None:
             print ('Title of post login page: %s'%x.group())
-        #open('/tmp/goog.html', 'wb').write(raw)
+        # open('/tmp/goog.html', 'wb').write(raw)
         raise ValueError(('Failed to login to google with credentials: %s %s'
             '\nGoogle sometimes requires verification when logging in from a '
             'new IP address. Use lynx to login and supply the verification, '
             'at: lynx -accept_all_cookies https://accounts.google.com/ServiceLogin?service=code')
                 %(username, password))
     return br
+# }}}
 
-class ReadFileWithProgressReporting(file): # {{{
+class ReadFileWithProgressReporting(file):  # {{{
 
     def __init__(self, path, mode='rb'):
         file.__init__(self, path, mode)
@@ -101,7 +102,7 @@ class Base(object):  # {{{
 
 #}}}
 
-class GoogleCode(Base):# {{{
+class GoogleCode(Base):  # {{{
 
     def __init__(self,
             # A mapping of filenames to file descriptions. The descriptions are
@@ -141,7 +142,7 @@ class GoogleCode(Base):# {{{
             # The pattern to match filenames for the files being uploaded and
             # extract version information from them. Must have a named group
             # named version
-            filename_pattern=r'{appname}-(?:portable-installer-)?(?P<version>.+?)(?:-(?:i686|x86_64|32bit|64bit))?\.(?:zip|exe|msi|dmg|tar\.bz2|tar\.xz|txz|tbz2)'
+            filename_pattern=r'{appname}-(?:portable-installer-)?(?P<version>.+?)(?:-(?:i686|x86_64|32bit|64bit))?\.(?:zip|exe|msi|dmg|tar\.bz2|tar\.xz|txz|tbz2)'  # noqa
 
             ):
         self.username, self.password, = username, password
@@ -227,7 +228,8 @@ class GoogleCode(Base):# {{{
             paths = eval(raw) if raw else {}
             paths.update(self.paths)
             rem = [x for x in paths if self.version not in x]
-            for x in rem: paths.pop(x)
+            for x in rem:
+                paths.pop(x)
             raw = ['%r : %r,'%(k, v) for k, v in paths.items()]
             raw = '{\n\n%s\n\n}\n'%('\n'.join(raw))
             with NamedTemporaryFile() as t:
@@ -347,7 +349,7 @@ class GoogleCode(Base):# {{{
 
 # }}}
 
-class SourceForge(Base): # {{{
+class SourceForge(Base):  # {{{
 
     # Note that you should manually ssh once to username,project@frs.sourceforge.net
     # on the staging server so that the host key is setup
@@ -376,6 +378,28 @@ class SourceForge(Base): # {{{
                     break
             print ('Uploaded in', int(time.time() - start), 'seconds\n\n')
 
+# }}}
+
+def upload_to_servers(files, version):  # {{{
+    for server, rdir in {'files':'/usr/share/nginx/html'}.iteritems():
+        print('Uploading to server:', server)
+        server = '%s.calibre-ebook.com' % server
+        rdir = '%s/%s/' % (rdir, version)
+        for x in files:
+            start = time.time()
+            print ('Uploading', x)
+            for i in range(5):
+                try:
+                    check_call(['rsync', '-h', '-z', '--progress', '-e', 'ssh -x', x,
+                    'root@%s:%s'%(server, rdir)])
+                except KeyboardInterrupt:
+                    raise SystemExit(1)
+                except:
+                    print ('\nUpload failed, trying again in 30 seconds')
+                    time.sleep(30)
+                else:
+                    break
+            print ('Uploaded in', int(time.time() - start), 'seconds\n\n')
 # }}}
 
 # CLI {{{
@@ -409,6 +433,7 @@ def cli_parser():
     sf = subparsers.add_parser('sourceforge', help='Upload to sourceforge',
             epilog=epilog)
     cron = subparsers.add_parser('cron', help='Call script from cron')
+    subparsers.add_parser('calibre', help='Upload to calibre file servers')
 
     a = gc.add_argument
 
@@ -471,8 +496,11 @@ def main(args=None):
         sf()
     elif args.service == 'cron':
         login_to_google(args.username, args.password)
+    elif args.service == 'calibre':
+        upload_to_servers(ofiles, args.version)
 
 if __name__ == '__main__':
     main()
 # }}}
+
 
