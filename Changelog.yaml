@@ -20,6 +20,65 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.36
+  date: 2013-06-21
+
+  new features:
+    - title: "DOCX Input: Support for Table of Contents created using the Word Table of Contents tool. calibre now first looks for such a Table of Contents and only if one is not found does it generate a ToC from headings."
+
+    - title: "DOCX Input: Add support for images used as bullets in lists"
+
+    - title: "DOCX Input: If a large image that looks like a cover is present at the start of the document, remove it and use it as the cover of the output ebook. This can be turned off under the DOCX Input section of the conversion dialog."
+
+    - title: "When dropping files onto the Book Details panel, ask for confirmation before adding the files to the book. The confirmation can be disabled."
+
+    - title: "News download: Add the 'downloaded from' link at the bottom of every article when using a touchscreen output profile (like the Tablet profile)."
+
+    - title: "E-book viewer: Change the bookmark button to always popup a menu when clicked, makes accessing existing bookmarks easier."
+
+    - title: "After a bulk metadata download, focus the review button on the popup notification, instead of the OK button."
+      tickets: [1190931]
+ 
+  bug fixes:
+    - title: "DOCX Input: Hide text that has been marked as not being visible in the web view in Word."
+
+    - title: "DOCX Input: When converting docx files with large numbers of unnamed images, do not crash on windows."
+      tickets: [1191354]
+
+    - title: "DOCX Input: Add support for the Word setting 'No space between paragraphs with the same style'."
+      tickets: [119100]
+
+    - title: "MOBI Output: Fix rendering of SVG images that embed large raster images in 64bit calibre installs."
+      tickets: [1191020]
+
+    - title: "HTMLZ Output: Fix handling of images with URL unsafe filenames."
+      tickets: [1192687]
+
+    - title: "Fix unable to change the case of a previously used search because of the search history."
+
+    - title: "When searching allow use of uppercase location names, such as AUTHOR instead of author, automatically lowercasing them."
+      tickets: [1192785]
+
+    - title: "DOCX metadata: When reading covers from DOCX files use the first image as specified in the actual markup instead of just the first image in the container."
+
+    - title: "Kobo driver: Fix a regression when deleting empty shelves on Kobo devices with older firmware."
+      tickets: [1192441]
+
+    - title: "Do not show builtin plugins in the get new plugins dialog If a builtin plugin with the same name as a third party plugin exists, then the builtin plagin was displayed in the get new plugins dialog as installed (happened with the new DOCX Input plugin)."
+
+    - title: "Apple driver: When in synchronous mode (direct to iBooks), disable PDF transfers, as we can't update metadata in iTunes. Not sure when this started, but as of iTunes 11.0.4 it's broken."
+
+    - title: "Get Books: Fix error when using internal browser on some systems"
+      tickets: [1191199]
+
+  improved recipes:
+    - The Walrus Mag
+    - Various Polish news sources
+
+  new recipes:
+    - title: Various Polish news sources
+      author: fenuks
+
 - version: 0.9.35
   date: 2013-06-14
 
