@@ -133,15 +133,18 @@ class UploadInstallers(Command):  # {{{
         files = {x:installer_description(x) for x in
                 all_possible.intersection(available)}
         tdir = mkdtemp()
+        backup = os.path.join('/mnt/external/calibre/%s' % __version__)
+        if not os.path.exists(backup):
+            os.mkdir(backup)
         try:
-            self.upload_to_staging(tdir, files)
+            self.upload_to_staging(tdir, backup, files)
             self.upload_to_sourceforge()
             self.upload_to_calibre()
             # self.upload_to_google(opts.replace)
         finally:
             shutil.rmtree(tdir, ignore_errors=True)
 
-    def upload_to_staging(self, tdir, files):
+    def upload_to_staging(self, tdir, backup, files):
         os.mkdir(tdir+'/dist')
         hosting = os.path.join(os.path.dirname(os.path.abspath(__file__)),
             'hosting.py')
@@ -149,6 +152,7 @@ class UploadInstallers(Command):  # {{{
 
         for f in files:
             shutil.copyfile(f, os.path.join(tdir, f))
+            shutil.copyfile(f, os.path.join(backup, f))
 
         with open(os.path.join(tdir, 'fmap'), 'wb') as fo:
             for f, desc in files.iteritems():
