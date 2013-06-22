@@ -151,8 +151,10 @@ class UploadInstallers(Command):  # {{{
         shutil.copyfile(hosting, os.path.join(tdir, 'hosting.py'))
 
         for f in files:
-            shutil.copyfile(f, os.path.join(tdir, f))
-            shutil.copyfile(f, os.path.join(backup, f))
+            for x in (tdir, backup):
+                dest = os.path.join(x, f)
+                shutil.copyfile(f, dest)
+                os.chmod(dest, stat.S_IREAD|stat.S_IWRITE|stat.S_IRGRP|stat.S_IROTH)
 
         with open(os.path.join(tdir, 'fmap'), 'wb') as fo:
             for f, desc in files.iteritems():
