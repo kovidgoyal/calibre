@@ -10,8 +10,8 @@ class recipeMagic(BasicNewsRecipe):
     title                  = 'National Geographic PL'
     __author__             = 'Marcin Urban 2011'
     __modified_by__        = 'fenuks'
-    description            = 'legenda wśród magazynów z historią sięgającą 120 lat'
-    #cover_url      	       = 'http://www.guj.pl/var/guj/storage/images/media/nasze_magazyny/national_geographic/logo/ng_logo/2606-1-pol-PL/ng_logo.jpg'
+    description            = 'Legenda wśród magazynów z historią sięgającą 120 lat'
+    #cover_url                 = 'http://www.guj.pl/var/guj/storage/images/media/nasze_magazyny/national_geographic/logo/ng_logo/2606-1-pol-PL/ng_logo.jpg'
     oldest_article         = 7
     max_articles_per_feed  = 100
     no_stylesheets         = True
@@ -21,13 +21,14 @@ class recipeMagic(BasicNewsRecipe):
     publisher              = 'G+J Gruner+Jahr Polska'
     category               = 'news, PL,'
     language               = 'pl'
+    remove_empty_feeds = True
     publication_type       = 'newsportal'
     extra_css              = ''' body {font-family: verdana, arial, helvetica, geneva, sans-serif ;}
-	                    h1{text-align: center;}
-        	 	           h2{font-size: medium; font-weight: bold;}
-        	   	         .authordate {font-size: small; color: #696969;}
-        		            p.lead {font-weight: bold; text-align: center;}
-        		            .fot{font-size: x-small; color: #666666;} '''
+                        h1{text-align: center;}
+                           h2{font-size: medium; font-weight: bold;}
+                         .authordate {font-size: small; color: #696969;}
+                            p.lead {font-weight: bold; text-align: center;}
+                            .fot{font-size: x-small; color: #666666;} '''
     preprocess_regexps     = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
     conversion_options = {
                              'comments'        : description
@@ -37,9 +38,9 @@ class recipeMagic(BasicNewsRecipe):
                             ,'linearize_tables': True
                          }
 
-    remove_tags 	= [
-			dict(name='div', attrs={'class':'add_inf'}),
-			dict(name='div', attrs={'class':'add_f'}),
+    remove_tags     = [
+            dict(name='div', attrs={'class':'add_inf'}),
+            dict(name='div', attrs={'class':'add_f'}),
                         ]
 
     remove_attributes = ['width','height']
@@ -47,14 +48,16 @@ class recipeMagic(BasicNewsRecipe):
 
     def find_articles(self, url):
         articles = []
-        soup=self.index_to_soup(url)
-        tag=soup.find(attrs={'class':'arl'})
-        art=tag.ul.findAll('li')
+        soup = self.index_to_soup(url)
+        tag = soup.find(attrs={'class':'arl'})
+        if not tag:
+            return articles
+        art = tag.ul.findAll('li')
         for i in art:
-            title=i.a['title']
-            url=i.a['href']
+            title = i.a['title']
+            url = i.a['href']
             #date=soup.find(id='footer').ul.li.string[41:-1]
-            desc=i.div.p.string
+            desc = i.div.p.string
             articles.append({'title' : title,
                    'url'   : url,
                    'date'  : '',

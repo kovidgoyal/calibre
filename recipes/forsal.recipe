@@ -9,6 +9,7 @@ class ForsalPL(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
     use_embedded_content = False
+    remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
     cover_url = 'http://www.bizneswnieruchomosciach.pl/wp-content/uploads/2010/07/logo_forsal.jpg'
     no_stylesheets = True

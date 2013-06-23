@@ -8,7 +8,7 @@ class Kosmonauta(BasicNewsRecipe):
     category = 'astronomy'
     language = 'pl'
     cover_url = 'http://bi.gazeta.pl/im/4/10393/z10393414X,Kosmonauta-net.jpg'
-    extra_css = '.thumbnail {float:left;margin-right:5px;}'
+    extra_css = '.thumb-left {float:left; margin-right:5px;} .calibre_navbar {clear: both;}'
     no_stylesheets = True
     INDEX = 'http://www.kosmonauta.net'
     oldest_article = 7
