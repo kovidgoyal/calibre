@@ -192,22 +192,30 @@ class XmlPropertyListParser(object):
         pattern = XmlPropertyListParser.DATETIME_PATTERN
         match = pattern.match(content)
         if not match:
-            raise PropertyListParseError("Failed to parse datetime '%s'" % content)
+            print("XmlPropertyListParser() ERROR: error parsing %s as datetime" % repr(content))
+            #raise PropertyListParseError("Failed to parse datetime '%s'" % content)
+            d = datetime.datetime.today()
+        else:
+            groups, components = match.groupdict(), []
+            for key in units:
+                value = groups[key]
+                if value is None:
+                    break
+                components.append(int(value))
+            while len(components) < 3:
+                components.append(1)
 
-        groups, components = match.groupdict(), []
-        for key in units:
-            value = groups[key]
-            if value is None:
-                break
-            components.append(int(value))
-        while len(components) < 3:
-            components.append(1)
+            d = datetime.datetime(*components)
 
-        d = datetime.datetime(*components)
         self._push_value(d)
 
     def _parse_real(self, name, content):
-        self._push_value(float(content))
+        content = content.replace(',', '.')
+        try:
+            self._push_value(float(content))
+        except:
+            print("XmlPropertyListParser() WARNING: error converting %s to float" % repr(content))
+            self._push_value(0.0)
 
     def _parse_integer(self, name, content):
         self._push_value(int(content))
