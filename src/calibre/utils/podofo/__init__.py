@@ -36,7 +36,7 @@ def set_metadata(stream, mi):
         except WorkerError as e:
             raise Exception('Failed to set PDF metadata: %s'%e.orig_tb)
         if touched:
-            with open(os.path.join(tdir, u'output.pdf'), 'rb') as f:
+            with open(os.path.join(tdir, u'input.pdf'), 'rb') as f:
                 f.seek(0, 2)
                 if f.tell() > 100:
                     f.seek(0)
