@@ -1,18 +1,17 @@
-#!/usr/bin/env  python
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
-elargentino.com
+sur.infonews.com
 '''
 
+import datetime
+from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
 class MiradasAlSur(BasicNewsRecipe):
     title                 = 'Miradas al Sur'
     __author__            = 'Darko Miletic'
-    description           = 'Revista Argentina'
+    description           = 'Semanario Argentino'
     publisher             = 'ElArgentino.com'
     category              = 'news, politics, Argentina'
     oldest_article        = 7
@@ -20,53 +19,51 @@ class MiradasAlSur(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf-8'
-    language = 'es_AR'
+    language              = 'es_AR'
+    remove_empty_feeds    = True
+    masthead_url          = 'http://sur.infonews.com/sites/default/files/www_miradas_al_sur_com_logo.gif'
+    extra_css             = """
+                             body{font-family: Arial,Helvetica,sans-serif}
+                             h1{font-family: Georgia,Times,serif}
+                             .field-field-story-author{color: gray; font-size: small}                             
+                            """
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        , 'series'    : title
+                        }
+                            
+    keep_only_tags = [dict(name='div', attrs={'id':['content-header', 'content-area']})]
+    remove_tags    = [ 
+                      dict(name=['link','meta','iframe','embed','object']), 
+                      dict(name='form', attrs={'class':'fivestar-widget'}),
+                      dict(attrs={'class':lambda x: x and 'terms-inline' in x.split()})
+                     ]
 
-    lang                  = 'es-AR'
-    direction             = 'ltr'
-    INDEX                 = 'http://www.elargentino.com/medios/123/Miradas-al-Sur.html'
-    extra_css             = ' .titulo{font-size: x-large; font-weight: bold} .volantaImp{font-size: small; font-weight: bold} '
-
-    html2lrf_options = [
-                          '--comment'  , description
-                        , '--category' , category
-                        , '--publisher', publisher
-                        ]
-
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\noverride_css=" p {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em} "'
-
-    keep_only_tags = [dict(name='div', attrs={'class':'ContainerPop'})]
-
-    remove_tags = [dict(name='link')]
-
-    feeds = [(u'Articulos', u'http://www.elargentino.com/Highlights.aspx?ParentType=Section&ParentId=123&Content-Type=text/xml&ChannelDesc=Miradas%20al%20Sur')]
-
-    def print_version(self, url):
-        main, sep, article_part = url.partition('/nota-')
-        article_id, rsep, rrest = article_part.partition('-')
-        return u'http://www.elargentino.com/Impresion.aspx?Id=' + article_id
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        soup.html['lang'] = self.lang
-        soup.html['dir' ] = self.direction
-        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
-        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=utf-8")])
-        soup.head.insert(0,mlang)
-        soup.head.insert(1,mcharset)
-        return soup
+    feeds = [
+             (u'Politica'           , u'http://sur.infonews.com/taxonomy/term/1/0/feed' ),
+             (u'Internacional'      , u'http://sur.infonews.com/taxonomy/term/2/0/feed' ),
+             (u'Informe Especial'   , u'http://sur.infonews.com/taxonomy/term/14/0/feed'),
+             (u'Delitos y pesquisas', u'http://sur.infonews.com/taxonomy/term/6/0/feed' ),
+             (u'Lesa Humanidad'     , u'http://sur.infonews.com/taxonomy/term/7/0/feed' ),
+             (u'Cultura'            , u'http://sur.infonews.com/taxonomy/term/8/0/feed' ),
+             (u'Deportes'           , u'http://sur.infonews.com/taxonomy/term/9/0/feed' ),
+             (u'Contratapa'         , u'http://sur.infonews.com/taxonomy/term/10/0/feed'),
+            ]
 
     def get_cover_url(self):
+        # determine the series number, unfortunately not gonna happen now
+        #self.conversion_options.update({'series_index':seriesnr})
         cover_url = None
-        soup = self.index_to_soup(self.INDEX)
-        cover_item = soup.find('div',attrs={'class':'colder'})
+        cdate = datetime.date.today()
+        todayweekday = cdate.isoweekday()
+        if (todayweekday != 7):
+            cdate -= datetime.timedelta(days=todayweekday)        
+        cover_page_url = cdate.strftime('http://sur.infonews.com/ediciones/%Y-%m-%d/tapa');
+        soup = self.index_to_soup(cover_page_url)
+        cover_item = soup.find('img', attrs={'class':lambda x: x and 'imagecache-tapa_edicion_full' in x.split()})
         if cover_item:
-           clean_url = self.image_url_processor(None,cover_item.div.img['src'])
-           cover_url = 'http://www.elargentino.com' + clean_url + '&height=600'
+           cover_url = cover_item['src']
         return cover_url
-
-    def image_url_processor(self, baseurl, url):
-        base, sep, rest = url.rpartition('?Id=')
-        img, sep2, rrest = rest.partition('&')
-        return base + sep + img
