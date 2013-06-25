@@ -399,8 +399,7 @@ class EditMetadataAction(InterfaceAction):
         if safe_merge:
             if not confirm('<p>'+_(
                 'Book formats and metadata from the selected books '
-                'will be added to the <b>first selected book</b> (%s). '
-                'ISBN will <i>not</i> be merged.<br><br> '
+                'will be added to the <b>first selected book</b> (%s).<br> '
                 'The second and subsequently selected books will not '
                 'be deleted or changed.<br><br>'
                 'Please confirm you want to proceed.')%title
@@ -413,7 +412,7 @@ class EditMetadataAction(InterfaceAction):
                 'Book formats from the selected books will be merged '
                 'into the <b>first selected book</b> (%s). '
                 'Metadata in the first selected book will not be changed. '
-                'Author, Title, ISBN and all other metadata will <i>not</i> be merged.<br><br>'
+                'Author, Title and all other metadata will <i>not</i> be merged.<br><br>'
                 'After merger the second and subsequently '
                 'selected books, with any metadata they have will be <b>deleted</b>. <br><br>'
                 'All book formats of the first selected book will be kept '
@@ -427,8 +426,7 @@ class EditMetadataAction(InterfaceAction):
         else:
             if not confirm('<p>'+_(
                 'Book formats and metadata from the selected books will be merged '
-                'into the <b>first selected book</b> (%s). '
-                'ISBN will <i>not</i> be merged.<br><br>'
+                'into the <b>first selected book</b> (%s).<br> '
                 'After merger the second and '
                 'subsequently selected books will be <b>deleted</b>. <br><br>'
                 'All book formats of the first selected book will be kept '
@@ -490,11 +488,13 @@ class EditMetadataAction(InterfaceAction):
     def merge_metadata(self, dest_id, src_ids):
         db = self.gui.library_view.model().db
         dest_mi = db.get_metadata(dest_id, index_is_id=True)
+        merged_identifiers = db.get_identifiers(dest_id, index_is_id=True)
         orig_dest_comments = dest_mi.comments
         dest_cover = db.cover(dest_id, index_is_id=True)
         had_orig_cover = bool(dest_cover)
         for src_id in src_ids:
             src_mi = db.get_metadata(src_id, index_is_id=True)
+
             if src_mi.comments and orig_dest_comments != src_mi.comments:
                 if not dest_mi.comments:
                     dest_mi.comments = src_mi.comments
@@ -523,7 +523,15 @@ class EditMetadataAction(InterfaceAction):
             if not dest_mi.series:
                 dest_mi.series = src_mi.series
                 dest_mi.series_index = src_mi.series_index
+
+            src_identifiers = db.get_identifiers(src_id, index_is_id=True)
+            src_identifiers.update(merged_identifiers)
+            merged_identifiers = src_identifiers.copy()
+
+        if merged_identifiers:
+            dest_mi.set_identifiers(merged_identifiers)
         db.set_metadata(dest_id, dest_mi, ignore_errors=False)
+
         if not had_orig_cover and dest_cover:
             db.set_cover(dest_id, dest_cover)
 
