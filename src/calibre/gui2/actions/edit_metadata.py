@@ -426,7 +426,7 @@ class EditMetadataAction(InterfaceAction):
         else:
             if not confirm('<p>'+_(
                 'Book formats and metadata from the selected books will be merged '
-                'into the <b>first selected book</b> (%s).<br> '
+                'into the <b>first selected book</b> (%s).<br><br>'
                 'After merger the second and '
                 'subsequently selected books will be <b>deleted</b>. <br><br>'
                 'All book formats of the first selected book will be kept '
