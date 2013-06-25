@@ -24,7 +24,7 @@ class SaveTemplate(QWidget, Ui_Form):
         Ui_Form.__init__(self)
         self.setupUi(self)
 
-    def initialize(self, name, default, help):
+    def initialize(self, name, default, help, field_metadata):
         variables = sorted(FORMAT_ARG_DESCS.keys())
         rows = []
         for var in variables:
@@ -36,6 +36,7 @@ class SaveTemplate(QWidget, Ui_Form):
         table = u'<table>%s</table>'%(u'\n'.join(rows))
         self.template_variables.setText(table)
 
+        self.field_metadata = field_metadata
         self.opt_template.initialize(name+'_template_history',
                 default, help)
         self.opt_template.editTextChanged.connect(self.changed)
@@ -44,7 +45,7 @@ class SaveTemplate(QWidget, Ui_Form):
         self.open_editor.clicked.connect(self.do_open_editor)
 
     def do_open_editor(self):
-        t = TemplateDialog(self, self.opt_template.text())
+        t = TemplateDialog(self, self.opt_template.text(), fm=self.field_metadata)
         t.setWindowTitle(_('Edit template'))
         if t.exec_():
             self.opt_template.set_value(t.rule[1])
