@@ -44,7 +44,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         ConfigWidgetBase.initialize(self)
         self.send_template.blockSignals(True)
         self.send_template.initialize('send_to_device', self.proxy['send_template'],
-                self.proxy.help('send_template'))
+                self.proxy.help('send_template'),
+                self.gui.library_view.model().db.field_metadata)
         self.send_template.blockSignals(False)
 
     def restore_defaults(self):
