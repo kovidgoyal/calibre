@@ -114,6 +114,9 @@ def sf_cmdline(ver, sdata):
 def calibre_cmdline(ver):
     return [__appname__, ver, 'fmap', 'calibre']
 
+def dbs_cmdline(ver):
+    return [__appname__, ver, 'fmap', 'dbs']
+
 def run_remote_upload(args):
     print 'Running remotely:', ' '.join(args)
     subprocess.check_call(['ssh', '-x', '%s@%s'%(STAGING_USER, STAGING_HOST),
@@ -140,6 +143,7 @@ class UploadInstallers(Command):  # {{{
             self.upload_to_staging(tdir, backup, files)
             self.upload_to_sourceforge()
             self.upload_to_calibre()
+            self.upload_to_dbs()
             # self.upload_to_google(opts.replace)
         finally:
             shutil.rmtree(tdir, ignore_errors=True)
@@ -184,6 +188,8 @@ class UploadInstallers(Command):  # {{{
     def upload_to_calibre(self):
         run_remote_upload(calibre_cmdline(__version__))
 
+    def upload_to_dbs(self):
+        run_remote_upload(dbs_cmdline(__version__))
 # }}}
 
 class UploadUserManual(Command):  # {{{

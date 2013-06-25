@@ -402,6 +402,29 @@ def upload_to_servers(files, version):  # {{{
             print ('Uploaded in', int(time.time() - start), 'seconds\n\n')
 # }}}
 
+def upload_to_dbs(files, version):  # {{{
+    print('Uploading to downloadbestsoftware.com')
+    server = 'www.downloadbestsoft-mirror1.com'
+    rdir = 'release/'
+    check_call(['ssh', 'kovid@%s' % server, 'rm -f release/*'])
+    for x in files:
+        start = time.time()
+        print ('Uploading', x)
+        for i in range(5):
+            try:
+                check_call(['rsync', '-h', '-z', '--progress', '-e', 'ssh -x', x,
+                'kovid@%s:%s'%(server, rdir)])
+            except KeyboardInterrupt:
+                raise SystemExit(1)
+            except:
+                print ('\nUpload failed, trying again in 30 seconds')
+                time.sleep(30)
+            else:
+                break
+        print ('Uploaded in', int(time.time() - start), 'seconds\n\n')
+    check_call(['ssh', 'kovid@%s' % server, '/home/kovid/uploadFiles'])
+# }}}
+
 # CLI {{{
 def cli_parser():
     epilog='Copyright Kovid Goyal 2012'
@@ -434,6 +457,7 @@ def cli_parser():
             epilog=epilog)
     cron = subparsers.add_parser('cron', help='Call script from cron')
     subparsers.add_parser('calibre', help='Upload to calibre file servers')
+    subparsers.add_parser('dbs', help='Upload to downloadbestsoftware.com')
 
     a = gc.add_argument
 
@@ -498,6 +522,8 @@ def main(args=None):
         login_to_google(args.username, args.password)
     elif args.service == 'calibre':
         upload_to_servers(ofiles, args.version)
+    elif args.service == 'dbs':
+        upload_to_dbs(ofiles, args.version)
 
 if __name__ == '__main__':
     main()
