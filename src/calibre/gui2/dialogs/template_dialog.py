@@ -262,6 +262,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.mi.rating = 4.0
             self.mi.tags = [_('Tag 1'), _('Tag 2')]
             self.mi.languages = ['eng']
+            if fm is not None:
+                self.mi.set_all_user_metadata(fm.custom_field_metadata())
 
         # Remove help icon on title bar
         icon = self.windowIcon()
