@@ -19,10 +19,9 @@ from setup import Command, __version__, installer_name, __appname__
 PREFIX = "/var/www/calibre-ebook.com"
 DOWNLOADS = PREFIX+"/htdocs/downloads"
 BETAS = DOWNLOADS +'/betas'
-USER_MANUAL = '/var/www/localhost/htdocs/'
 HTML2LRF = "calibre/ebooks/lrf/html/demo"
 TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"
-STAGING_HOST = '67.207.135.179'
+STAGING_HOST = 'download.calibre-ebook.com'
 STAGING_USER = 'root'
 STAGING_DIR = '/root/staging'
 
@@ -141,8 +140,8 @@ class UploadInstallers(Command):  # {{{
             os.mkdir(backup)
         try:
             self.upload_to_staging(tdir, backup, files)
-            self.upload_to_sourceforge()
             self.upload_to_calibre()
+            self.upload_to_sourceforge()
             self.upload_to_dbs()
             # self.upload_to_google(opts.replace)
         finally:
@@ -219,9 +218,9 @@ class UploadUserManual(Command):  # {{{
         for x in glob.glob(self.j(path, '*')):
             self.build_plugin_example(x)
 
-        check_call(' '.join(['rsync', '-z', '-r', '--progress',
-            'manual/.build/html/',
-                    'bugs:%s'%USER_MANUAL]), shell=True)
+        for host in ('download', 'files'):
+            check_call(' '.join(['rsync', '-z', '-r', '--progress',
+                'manual/.build/html/', '%s:/srv/manual/' % host]), shell=True)
 # }}}
 
 class UploadDemo(Command):  # {{{
