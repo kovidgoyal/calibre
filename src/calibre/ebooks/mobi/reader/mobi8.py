@@ -20,7 +20,7 @@ from calibre.ebooks.mobi.reader.ncx import read_ncx, build_toc
 from calibre.ebooks.mobi.reader.markup import expand_mobi8_markup
 from calibre.ebooks.metadata.opf2 import Guide, OPFCreator
 from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.mobi.utils import read_font_record
+from calibre.ebooks.mobi.utils import read_font_record, read_resc_record
 from calibre.ebooks.oeb.parse_utils import parse_html
 from calibre.ebooks.oeb.base import XPath, XHTML, xml2text
 from calibre.utils.imghdr import what
@@ -65,6 +65,7 @@ class Mobi8Reader(object):
         self.mobi6_reader, self.log = mobi6_reader, log
         self.header = mobi6_reader.book_header
         self.encrypted_fonts = []
+        self.resc_data = {}
 
     def __call__(self):
         self.mobi6_reader.check_for_drm()
@@ -389,9 +390,11 @@ class Mobi8Reader(object):
             data = sec[0]
             typ = data[:4]
             href = None
-            if typ in {b'FLIS', b'FCIS', b'SRCS', b'\xe9\x8e\r\n',
-                    b'RESC', b'BOUN', b'FDST', b'DATP', b'AUDI', b'VIDE'}:
+            if typ in {b'FLIS', b'FCIS', b'SRCS', b'\xe9\x8e\r\n', b'BOUN',
+                       b'FDST', b'DATP', b'AUDI', b'VIDE'}:
                 pass  # Ignore these records
+            elif typ == b'RESC':
+                self.resc_data = read_resc_record(data)
             elif typ == b'FONT':
                 font = read_font_record(data)
                 href = "fonts/%05d.%s" % (fname_idx, font['ext'])
@@ -452,6 +455,9 @@ class Mobi8Reader(object):
         opf.create_manifest_from_files_in([os.getcwdu()], exclude=exclude)
         opf.create_spine(spine)
         opf.set_toc(toc)
+        ppd = self.resc_data.get('page-progression-direction', None)
+        if ppd:
+            opf.page_progression_direction = ppd
 
         with open('metadata.opf', 'wb') as of, open('toc.ncx', 'wb') as ncx:
             opf.render(of, ncx, 'toc.ncx')

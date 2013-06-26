@@ -1210,6 +1210,7 @@ class Spine(object):
     def __init__(self, oeb):
         self.oeb = oeb
         self.items = []
+        self.page_progression_direction = None
 
     def _linear(self, linear):
         if isinstance(linear, basestring):
@@ -1896,4 +1897,6 @@ class OEBBook(object):
                              attrib={'media-type': PAGE_MAP_MIME})
             spine.attrib['page-map'] = id
             results[PAGE_MAP_MIME] = (href, self.pages.to_page_map())
+        if self.spine.page_progression_direction in {'ltr', 'rtl'}:
+            spine.attrib['page-progression-direction'] = self.spine.page_progression_direction
         return results
