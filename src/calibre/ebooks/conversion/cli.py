@@ -136,7 +136,7 @@ def add_pipeline_options(parser, plumber):
                   [
                       'base_font_size', 'disable_font_rescaling',
                       'font_size_mapping', 'embed_font_family',
-                      'subset_embedded_fonts',
+                      'subset_embedded_fonts', 'embed_all_fonts',
                       'line_height', 'minimum_line_height',
                       'linearize_tables',
                       'extra_css', 'filter_css',
@@ -320,7 +320,7 @@ def main(args=sys.argv):
         opts.search_replace = read_sr_patterns(opts.search_replace, log)
 
     recommendations = [(n.dest, getattr(opts, n.dest),
-                        OptionRecommendation.HIGH) \
+                        OptionRecommendation.HIGH)
                                         for n in parser.options_iter()
                                         if n.dest]
     plumber.merge_ui_recommendations(recommendations)
@@ -342,3 +342,4 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     sys.exit(main())
+
