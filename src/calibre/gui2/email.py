@@ -94,7 +94,7 @@ class Sendmail(object):
     def sendmail(self, attachment, aname, to, subject, text, log):
         logged = False
         while time.time() - self.last_send_time <= self.rate_limit:
-            if not logged:
+            if not logged and self.rate_limit > 0:
                 log('Waiting %s seconds before sending, to avoid being marked as spam.\nYou can control this delay via Preferences->Tweaks' % self.rate_limit)
                 logged = True
             time.sleep(1)
