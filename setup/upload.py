@@ -134,6 +134,8 @@ class UploadInstallers(Command):  # {{{
         available = set(glob.glob('dist/*'))
         files = {x:installer_description(x) for x in
                 all_possible.intersection(available)}
+        sizes = {os.path.basename(x):os.path.getsize(x) for x in files}
+        self.record_sizes(sizes)
         tdir = mkdtemp()
         backup = os.path.join('/mnt/external/calibre/%s' % __version__)
         if not os.path.exists(backup):
@@ -147,6 +149,11 @@ class UploadInstallers(Command):  # {{{
         finally:
             shutil.rmtree(tdir, ignore_errors=True)
 
+    def record_sizes(self, sizes):
+        print ('\nRecording dist sizes')
+        args = ['%s:%s:%s' % (__version__, fname, size) for fname, size in sizes.iteritems()]
+        check_call(['ssh', 'divok', 'dist_sizes'] + args)
+
     def upload_to_staging(self, tdir, backup, files):
         os.mkdir(tdir+'/dist')
         hosting = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -154,9 +161,9 @@ class UploadInstallers(Command):  # {{{
         shutil.copyfile(hosting, os.path.join(tdir, 'hosting.py'))
 
         for f in files:
-            for x in (tdir, backup):
-                dest = os.path.join(x, f)
-                shutil.copyfile(f, dest)
+            for x in (tdir+'/dist', backup):
+                dest = os.path.join(x, os.path.basename(f))
+                shutil.copy2(f, x)
                 os.chmod(dest, stat.S_IREAD|stat.S_IWRITE|stat.S_IRGRP|stat.S_IROTH)
 
         with open(os.path.join(tdir, 'fmap'), 'wb') as fo:
