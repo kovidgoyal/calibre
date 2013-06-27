@@ -6,6 +6,11 @@ Create the ssh authorized keys file.
 Edit /etc/ssh/sshd_config and change PermitRootLogin to without-password.
 Restart sshd.
 
+hostname whatever
+Edit /etc/hosts and put in FQDN in the appropriate places, for example::
+    27.0.1.1       download.calibre-ebook.com download
+    46.28.49.116 download.calibre-ebook.com download
+
 apt-get install vim nginx zsh python-lxml python-mechanize iotop htop smartmontools
 chsh -s /bin/zsh
 
@@ -15,9 +20,9 @@ scp .zshrc .vimrc  server:
 scp -r ~/work/vim/zsh-syntax-highlighting server:work/vim
 
 If the server has a backup hard-disk, mount it at /mnt/backup and edit /etc/fstab so that it is auto-mounted.
-Then, add the following to crontab
-@daily     /usr/bin/rsync -ha /srv /mnt/backup
-@daily     /usr/bin/rsync -ha /etc /mnt/backup
+Then, add the following to crontab::
+    @daily     /usr/bin/rsync -ha /srv /mnt/backup
+    @daily     /usr/bin/rsync -ha /etc /mnt/backup
 
 Nginx
 ------
