@@ -24,7 +24,7 @@ from calibre.ebooks.conversion.config import GuiRecommendations, \
     load_defaults, load_specifics, save_specifics
 from calibre.gui2.convert import bulk_defaults_for_input_format
 
-def convert_single_ebook(parent, db, book_ids, auto_conversion=False, # {{{
+def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
         out_format=None, show_no_format_warning=True):
     changed = False
     jobs = []
@@ -47,7 +47,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, # {{{
                 result = d.exec_()
 
             if result == QDialog.Accepted:
-                #if not convert_existing(parent, db, [book_id], d.output_format):
+                # if not convert_existing(parent, db, [book_id], d.output_format):
                 #    continue
 
                 mi = db.get_metadata(book_id, True)
@@ -115,7 +115,6 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, # {{{
                 else:
                     msg = _('This book has no actual ebook files')
                 res.append('%s - %s'%(title, msg))
-
 
             msg = '%s' % '\n'.join(res)
             warning_dialog(parent, _('Could not convert some books'),
@@ -254,7 +253,7 @@ class QueueBulk(QProgressDialog):
 
 # }}}
 
-def fetch_scheduled_recipe(arg): # {{{
+def fetch_scheduled_recipe(arg):  # {{{
     fmt = prefs['output_format'].lower()
     # Never use AZW3 for periodicals...
     if fmt == 'azw3':
@@ -266,6 +265,10 @@ def fetch_scheduled_recipe(arg): # {{{
     if 'output_profile' in ps:
         recs.append(('output_profile', ps['output_profile'],
             OptionRecommendation.HIGH))
+    for edge in ('left', 'top', 'bottom', 'right'):
+        edge = 'margin_' + edge
+        if edge in ps:
+            recs.append((edge, ps[edge], OptionRecommendation.HIGH))
 
     lf = load_defaults('look_and_feel')
     if lf.get('base_font_size', 0.0) != 0.0:
@@ -283,18 +286,24 @@ def fetch_scheduled_recipe(arg): # {{{
     if epub.get('epub_flatten', False):
         recs.append(('epub_flatten', True, OptionRecommendation.HIGH))
 
+    if fmt == 'pdf':
+        pdf = load_defaults('pdf_output')
+        from calibre.customize.ui import plugin_for_output_format
+        p = plugin_for_output_format('pdf')
+        for opt in p.options:
+            recs.append(opt.name, pdf.get(opt.name, opt.recommended_value), OptionRecommendation.HIGH)
+
     args = [arg['recipe'], pt.name, recs]
     if arg['username'] is not None:
         recs.append(('username', arg['username'], OptionRecommendation.HIGH))
     if arg['password'] is not None:
         recs.append(('password', arg['password'], OptionRecommendation.HIGH))
 
-
     return 'gui_convert', args, _('Fetch news from ')+arg['title'], fmt.upper(), [pt]
 
 # }}}
 
-def generate_catalog(parent, dbspec, ids, device_manager, db): # {{{
+def generate_catalog(parent, dbspec, ids, device_manager, db):  # {{{
     from calibre.gui2.dialogs.catalog import Catalog
 
     # Build the Catalog dialog in gui2.dialogs.catalog
@@ -354,7 +363,7 @@ def generate_catalog(parent, dbspec, ids, device_manager, db): # {{{
             d.catalog_title
 # }}}
 
-def convert_existing(parent, db, book_ids, output_format): # {{{
+def convert_existing(parent, db, book_ids, output_format):  # {{{
     already_converted_ids = []
     already_converted_titles = []
     for book_id in book_ids:
@@ -371,4 +380,5 @@ def convert_existing(parent, db, book_ids, output_format): # {{{
 
     return book_ids
 # }}}
+
 

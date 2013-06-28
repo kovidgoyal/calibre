@@ -376,7 +376,43 @@ class WritingTest(BaseTest):
             self.assertTrue(old.has_cover(book_id))
     # }}}
 
-    def test_set_metadata(self):
+    def test_set_metadata(self):  # {{{
         ' Test setting of metadata '
-        self.assertTrue(False, 'TODO: test set_metadata()')
+        ae = self.assertEqual
+        cache = self.init_cache(self.cloned_library)
+
+        # Check that changing title/author updates the path
+        mi = cache.get_metadata(1)
+        old_path = cache.field_for('path', 1)
+        old_title, old_author = mi.title, mi.authors[0]
+        ae(old_path, '%s/%s (1)' % (old_author, old_title))
+        mi.title, mi.authors = 'New Title', ['New Author']
+        cache.set_metadata(1, mi)
+        ae(cache.field_for('path', 1), '%s/%s (1)' % (mi.authors[0], mi.title))
+        p = cache.format_abspath(1, 'FMT1')
+        self.assertTrue(mi.authors[0] in p and mi.title in p)
+
+        # Compare old and new set_metadata()
+        db = self.init_old(self.cloned_library)
+        mi = db.get_metadata(1, index_is_id=True, get_cover=True, cover_as_data=True)
+        mi2 = db.get_metadata(3, index_is_id=True, get_cover=True, cover_as_data=True)
+        db.set_metadata(2, mi)
+        db.set_metadata(1, mi2, force_changes=True)
+        oldmi = db.get_metadata(2, index_is_id=True, get_cover=True, cover_as_data=True)
+        oldmi2 = db.get_metadata(1, index_is_id=True, get_cover=True, cover_as_data=True)
+        db.close()
+        del db
+        cache = self.init_cache(self.cloned_library)
+        cache.set_metadata(2, mi)
+        nmi = cache.get_metadata(2, get_cover=True, cover_as_data=True)
+        ae(oldmi.cover_data, nmi.cover_data)
+        self.compare_metadata(nmi, oldmi, exclude={'last_modified', 'format_metadata'})
+        cache.set_metadata(1, mi2, force_changes=True)
+        nmi2 = cache.get_metadata(1, get_cover=True, cover_as_data=True)
+        # The new code does not allow setting of #series_index to None, instead
+        # it is reset to 1.0
+        ae(nmi2.get_extra('#series'), 1.0)
+        self.compare_metadata(nmi2, oldmi2, exclude={'last_modified', 'format_metadata', '#series_index'})
+
+    # }}}
 

@@ -32,7 +32,7 @@ class Worker(Thread):
         self.func, self.args = func, args
 
     def run(self):
-        #time.sleep(1000)
+        # time.sleep(1000)
         try:
             self.func(*self.args)
         except Exception as e:
@@ -46,7 +46,7 @@ class Worker(Thread):
 class Sendmail(object):
 
     MAX_RETRIES = 1
-    TIMEOUT = 15 * 60 # seconds
+    TIMEOUT = 15 * 60  # seconds
 
     def __init__(self):
         self.calculate_rate_limit()
@@ -92,7 +92,11 @@ class Sendmail(object):
                 raise worker.exception
 
     def sendmail(self, attachment, aname, to, subject, text, log):
+        logged = False
         while time.time() - self.last_send_time <= self.rate_limit:
+            if not logged and self.rate_limit > 0:
+                log('Waiting %s seconds before sending, to avoid being marked as spam.\nYou can control this delay via Preferences->Tweaks' % self.rate_limit)
+                logged = True
             time.sleep(1)
         try:
             opts = email_config().parse()
@@ -162,7 +166,7 @@ def email_news(mi, remove, get_fmts, done, job_manager):
 plugboard_email_value = 'email'
 plugboard_email_formats = ['epub', 'mobi', 'azw3']
 
-class EmailMixin(object): # {{{
+class EmailMixin(object):  # {{{
 
     def send_by_mail(self, to, fmts, delete_from_library, subject='', send_ids=None,
             do_auto_convert=True, specific_format=None):
@@ -204,10 +208,10 @@ class EmailMixin(object): # {{{
                     if not components:
                         components = [mi.title]
                     subjects.append(os.path.join(*components))
-                a = authors_to_string(mi.authors if mi.authors else \
+                a = authors_to_string(mi.authors if mi.authors else
                         [_('Unknown')])
-                texts.append(_('Attached, you will find the e-book') + \
-                        '\n\n' + t + '\n\t' + _('by') + ' ' + a + '\n\n' + \
+                texts.append(_('Attached, you will find the e-book') +
+                        '\n\n' + t + '\n\t' + _('by') + ' ' + a + '\n\n' +
                         _('in the %s format.') %
                         os.path.splitext(f)[1][1:].upper())
                 prefix = ascii_filename(t+' - '+a)
@@ -227,7 +231,7 @@ class EmailMixin(object): # {{{
         auto = []
         if _auto_ids != []:
             for id in _auto_ids:
-                if specific_format == None:
+                if specific_format is None:
                     dbfmts = self.library_view.model().db.formats(id, index_is_id=True)
                     formats = [f.lower() for f in (dbfmts.split(',') if dbfmts else
                         [])]
@@ -298,8 +302,9 @@ class EmailMixin(object): # {{{
         sent_mails = email_news(mi, remove,
                 get_fmts, self.email_sent, self.job_manager)
         if sent_mails:
-            self.status_bar.show_message(_('Sent news to')+' '+\
+            self.status_bar.show_message(_('Sent news to')+' '+
                     ', '.join(sent_mails),  3000)
 
 # }}}
+
 

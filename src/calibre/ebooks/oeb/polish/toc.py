@@ -281,15 +281,18 @@ def find_text(node):
 
 def from_files(container):
     toc = TOC()
-    for spinepath in container.spine_items:
+    for i, spinepath in enumerate(container.spine_items):
         name = container.abspath_to_name(spinepath)
         root = container.parsed(name)
         body = XPath('//h:body')(root)
         if not body:
             continue
         text = find_text(body[0])
-        if text:
-            toc.add(text, name)
+        if not text:
+            text = name.rpartition('/')[-1]
+            if i == 0 and text.rpartition('.')[0].lower() in {'titlepage', 'cover'}:
+                text = _('Cover')
+        toc.add(text, name)
     return toc
 
 def add_id(container, name, loc):

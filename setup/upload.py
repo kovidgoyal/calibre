@@ -19,10 +19,9 @@ from setup import Command, __version__, installer_name, __appname__
 PREFIX = "/var/www/calibre-ebook.com"
 DOWNLOADS = PREFIX+"/htdocs/downloads"
 BETAS = DOWNLOADS +'/betas'
-USER_MANUAL = '/var/www/localhost/htdocs/'
 HTML2LRF = "calibre/ebooks/lrf/html/demo"
 TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"
-STAGING_HOST = '67.207.135.179'
+STAGING_HOST = 'download.calibre-ebook.com'
 STAGING_USER = 'root'
 STAGING_DIR = '/root/staging'
 
@@ -81,7 +80,7 @@ class ReUpload(Command):  # {{{
 
 # Data {{{
 def get_google_data():
-    with open(os.path.expanduser('~/work/kde/conf/googlecodecalibre'), 'rb') as f:
+    with open(os.path.expanduser('~/work/env/private/googlecodecalibre'), 'rb') as f:
         gc_password, ga_un, pw = f.read().strip().split('|')
 
     return {
@@ -111,6 +110,12 @@ def sf_cmdline(ver, sdata):
     return [__appname__, ver, 'fmap', 'sourceforge', sdata['project'],
             sdata['username']]
 
+def calibre_cmdline(ver):
+    return [__appname__, ver, 'fmap', 'calibre']
+
+def dbs_cmdline(ver):
+    return [__appname__, ver, 'fmap', 'dbs']
+
 def run_remote_upload(args):
     print 'Running remotely:', ' '.join(args)
     subprocess.check_call(['ssh', '-x', '%s@%s'%(STAGING_USER, STAGING_HOST),
@@ -129,22 +134,37 @@ class UploadInstallers(Command):  # {{{
         available = set(glob.glob('dist/*'))
         files = {x:installer_description(x) for x in
                 all_possible.intersection(available)}
+        sizes = {os.path.basename(x):os.path.getsize(x) for x in files}
+        self.record_sizes(sizes)
         tdir = mkdtemp()
+        backup = os.path.join('/mnt/external/calibre/%s' % __version__)
+        if not os.path.exists(backup):
+            os.mkdir(backup)
         try:
-            self.upload_to_staging(tdir, files)
+            self.upload_to_staging(tdir, backup, files)
+            self.upload_to_calibre()
             self.upload_to_sourceforge()
-            self.upload_to_google(opts.replace)
+            self.upload_to_dbs()
+            # self.upload_to_google(opts.replace)
         finally:
             shutil.rmtree(tdir, ignore_errors=True)
 
-    def upload_to_staging(self, tdir, files):
+    def record_sizes(self, sizes):
+        print ('\nRecording dist sizes')
+        args = ['%s:%s:%s' % (__version__, fname, size) for fname, size in sizes.iteritems()]
+        check_call(['ssh', 'divok', 'dist_sizes'] + args)
+
+    def upload_to_staging(self, tdir, backup, files):
         os.mkdir(tdir+'/dist')
         hosting = os.path.join(os.path.dirname(os.path.abspath(__file__)),
             'hosting.py')
         shutil.copyfile(hosting, os.path.join(tdir, 'hosting.py'))
 
         for f in files:
-            shutil.copyfile(f, os.path.join(tdir, f))
+            for x in (tdir+'/dist', backup):
+                dest = os.path.join(x, os.path.basename(f))
+                shutil.copy2(f, x)
+                os.chmod(dest, stat.S_IREAD|stat.S_IWRITE|stat.S_IRGRP|stat.S_IROTH)
 
         with open(os.path.join(tdir, 'fmap'), 'wb') as fo:
             for f, desc in files.iteritems():
@@ -170,6 +190,12 @@ class UploadInstallers(Command):  # {{{
         sdata = get_sourceforge_data()
         args = sf_cmdline(__version__, sdata)
         run_remote_upload(args)
+
+    def upload_to_calibre(self):
+        run_remote_upload(calibre_cmdline(__version__))
+
+    def upload_to_dbs(self):
+        run_remote_upload(dbs_cmdline(__version__))
 # }}}
 
 class UploadUserManual(Command):  # {{{
@@ -199,9 +225,9 @@ class UploadUserManual(Command):  # {{{
         for x in glob.glob(self.j(path, '*')):
             self.build_plugin_example(x)
 
-        check_call(' '.join(['rsync', '-z', '-r', '--progress',
-            'manual/.build/html/',
-                    'bugs:%s'%USER_MANUAL]), shell=True)
+        for host in ('download', 'files'):
+            check_call(' '.join(['rsync', '-z', '-r', '--progress',
+                'manual/.build/html/', '%s:/srv/manual/' % host]), shell=True)
 # }}}
 
 class UploadDemo(Command):  # {{{
@@ -229,8 +255,6 @@ class UploadToServer(Command):  # {{{
     description = 'Upload miscellaneous data to calibre server'
 
     def run(self, opts):
-        check_call('ssh divok rm -f %s/calibre-\*.tar.xz'%DOWNLOADS, shell=True)
-        # check_call('scp dist/calibre-*.tar.xz divok:%s/'%DOWNLOADS, shell=True)
         check_call('gpg --armor --detach-sign dist/calibre-*.tar.xz',
                 shell=True)
         check_call('scp dist/calibre-*.tar.xz.asc divok:%s/signatures/'%DOWNLOADS,

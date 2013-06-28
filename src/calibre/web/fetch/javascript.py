@@ -128,6 +128,8 @@ def download_resources(browser, resource_cache, output_dir):
             else:
                 img_counter += 1
                 ext = what(None, raw) or 'jpg'
+                if ext == 'jpeg':
+                    ext = 'jpg'  # Apparently Moon+ cannot handle .jpeg
                 href = 'img_%d.%s' % (img_counter, ext)
             dest = os.path.join(output_dir, href)
             resource_cache[h] = dest

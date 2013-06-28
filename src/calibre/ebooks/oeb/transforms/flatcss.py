@@ -194,7 +194,7 @@ class CSSFlattener(object):
         for i, font in enumerate(faces):
             ext = 'otf' if font['is_otf'] else 'ttf'
             fid, href = self.oeb.manifest.generate(id=u'font',
-                href=u'%s.%s'%(ascii_filename(font['full_name']).replace(u' ', u'-'), ext))
+                href=u'fonts/%s.%s'%(ascii_filename(font['full_name']).replace(u' ', u'-'), ext))
             item = self.oeb.manifest.add(fid, href,
                     guess_type('dummy.'+ext)[0],
                     data=font_scanner.get_font_data(font))

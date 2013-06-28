@@ -1047,6 +1047,14 @@ class OPF(object):  # {{{
                     if raw:
                         return raw.rpartition(':')[-1]
 
+    @property
+    def page_progression_direction(self):
+        spine = self.XPath('descendant::*[re:match(name(), "spine", "i")][1]')(self.root)
+        if spine:
+            for k, v in spine[0].attrib.iteritems():
+                if k == 'page-progression-direction' or k.endswith('}page-progression-direction'):
+                    return v
+
     def guess_cover(self):
         '''
         Try to guess a cover. Needed for some old/badly formed OPF files.
@@ -1185,6 +1193,7 @@ class OPFCreator(Metadata):
         '''
         Metadata.__init__(self, title='', other=other)
         self.base_path = os.path.abspath(base_path)
+        self.page_progression_direction = None
         if self.application_id is None:
             self.application_id = str(uuid.uuid4())
         if not isinstance(self.toc, TOC):
@@ -1356,6 +1365,8 @@ class OPFCreator(Metadata):
         spine = E.spine()
         if self.toc is not None:
             spine.set('toc', 'ncx')
+        if self.page_progression_direction is not None:
+            spine.set('page-progression-direction', self.page_progression_direction)
         if self.spine is not None:
             for ref in self.spine:
                 if ref.id is not None:

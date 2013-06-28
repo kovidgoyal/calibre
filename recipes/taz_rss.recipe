@@ -18,7 +18,6 @@ class TazRSSRecipe(BasicNewsRecipe):
 
     feeds          = [(u'TAZ main feed', u'http://www.taz.de/rss.xml')]
     keep_only_tags = [dict(name='div', attrs={'class': 'sect sect_article'})]
-    remove_tags_after = dict(name='div', attrs={'class': 'rack'})
     remove_tags = [
          dict(name=['div'], attrs={'class': 'artikelwerbung'}),
          dict(name=['ul'], attrs={'class': 'toolbar'}),]

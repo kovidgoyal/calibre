@@ -34,7 +34,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         ConfigWidgetBase.initialize(self)
         self.save_template.blockSignals(True)
         self.save_template.initialize('save_to_disk', self.proxy['template'],
-                self.proxy.help('template'))
+                self.proxy.help('template'),
+                self.gui.library_view.model().db.field_metadata)
         self.save_template.blockSignals(False)
 
     def restore_defaults(self):

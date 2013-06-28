@@ -46,35 +46,34 @@ class Frontlineonnet(BasicNewsRecipe):
 
     keep_only_tags= [
                       dict(name='div', attrs={'id':'content'})
-                     #,dict(attrs={'class':'byline'})
                     ]
-    #remove_attributes=['size','noshade','border']
-
-    #def preprocess_html(self, soup):
-        #for item in soup.findAll(style=True):
-            #del item['style']
-        #for item in soup.findAll('img'):
-            #if not item.has_key('alt'):
-               #item['alt'] = 'image'
-        #return soup
+    remove_attributes=['size','noshade','border']
 
     def parse_index(self):
         articles = []
+        current_section = None
+        feeds = []
         soup = self.index_to_soup(self.INDEX)
-        for feed_link in soup.findAll('div', id='headseccol'):
-            a = feed_link.find('a', href=True)
-            title = self.tag_to_string(a)
-            url = a['href']
-            articles.append({
-                              'title'      :title
-                             ,'date'       :''
-                             ,'url'        :url
-                             ,'description':''
-                            })
-        return [('Frontline', articles)]
+        for h3 in soup.findAll('h3'):
+            if h3.get('class', None) == 'artListSec':
+                if articles:
+                    feeds.append((current_section, articles))
+                articles = []
+                current_section = self.tag_to_string(h3).strip()
+                self.log(current_section)
+            elif h3.get('id', None) in {'headseccol', 'headsec'}:
+                a = h3.find('a', href=True)
+                if a is not None:
+                    title = self.tag_to_string(a)
+                    url = a['href']
+                    articles.append({
+                                    'title'      :title
+                                    ,'date'       :''
+                                    ,'url'        :url
+                                    ,'description':''
+                                    })
+                    self.log('\t', title, url)
+        if articles:
+            feeds.append((current_section, articles))
+        return feeds
 
-    #def print_version(self, url):
-        #return "http://www.hinduonnet.com/thehindu/thscrip/print.pl?prd=fline&file=" + url.rpartition('/')[2]
-
-    #def image_url_processor(self, baseurl, url):
-        #return url.replace('../images/', self.INDEX + 'images/').strip()

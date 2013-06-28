@@ -12,6 +12,111 @@ from collections import defaultdict
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.utils.fonts.sfnt.subset import subset, NoGlyphs, UnsupportedFont
 
+def get_font_properties(rule, default=None):
+    '''
+    Given a CSS rule, extract normalized font properties from
+    it. Note that shorthand font property should already have been expanded
+    by the CSS flattening code.
+    '''
+    props = {}
+    s = rule.style
+    for q in ('font-family', 'src', 'font-weight', 'font-stretch',
+            'font-style'):
+        g = 'uri' if q == 'src' else 'value'
+        try:
+            val = s.getProperty(q).propertyValue[0]
+            val = getattr(val, g)
+            if q == 'font-family':
+                val = [x.value for x in s.getProperty(q).propertyValue]
+                if val and val[0] == 'inherit':
+                    val = None
+        except (IndexError, KeyError, AttributeError, TypeError, ValueError):
+            val = None if q in {'src', 'font-family'} else default
+        if q in {'font-weight', 'font-stretch', 'font-style'}:
+            val = unicode(val).lower() if (val or val == 0) else val
+            if val == 'inherit':
+                val = default
+        if q == 'font-weight':
+            val = {'normal':'400', 'bold':'700'}.get(val, val)
+            if val not in {'100', '200', '300', '400', '500', '600', '700',
+                    '800', '900', 'bolder', 'lighter'}:
+                val = default
+            if val == 'normal':
+                val = '400'
+        elif q == 'font-style':
+            if val not in {'normal', 'italic', 'oblique'}:
+                val = default
+        elif q == 'font-stretch':
+            if val not in {'normal', 'ultra-condensed', 'extra-condensed',
+                    'condensed', 'semi-condensed', 'semi-expanded',
+                    'expanded', 'extra-expanded', 'ultra-expanded'}:
+                val = default
+        props[q] = val
+    return props
+
+
+def find_font_face_rules(sheet, oeb):
+    '''
+    Find all @font-face rules in the given sheet and extract the relevant info from them.
+    sheet can be either a ManifestItem or a CSSStyleSheet.
+    '''
+    ans = []
+    try:
+        rules = sheet.data.cssRules
+    except AttributeError:
+        rules = sheet.cssRules
+
+    for i, rule in enumerate(rules):
+        if rule.type != rule.FONT_FACE_RULE:
+            continue
+        props = get_font_properties(rule, default='normal')
+        if not props['font-family'] or not props['src']:
+            continue
+
+        try:
+            path = sheet.abshref(props['src'])
+        except AttributeError:
+            path = props['src']
+        ff = oeb.manifest.hrefs.get(urlnormalize(path), None)
+        if not ff:
+            continue
+        props['item'] = ff
+        if props['font-weight'] in {'bolder', 'lighter'}:
+            props['font-weight'] = '400'
+        props['weight'] = int(props['font-weight'])
+        props['rule'] = rule
+        props['chars'] = set()
+        ans.append(props)
+
+    return ans
+
+
+def elem_style(style_rules, cls, inherited_style):
+    '''
+    Find the effective style for the given element.
+    '''
+    classes = cls.split()
+    style = inherited_style.copy()
+    for cls in classes:
+        style.update(style_rules.get(cls, {}))
+    wt = style.get('font-weight', None)
+    pwt = inherited_style.get('font-weight', '400')
+    if wt == 'bolder':
+        style['font-weight'] = {
+                '100':'400',
+                '200':'400',
+                '300':'400',
+                '400':'700',
+                '500':'700',
+                }.get(pwt, '900')
+    elif wt == 'lighter':
+        style['font-weight'] = {
+                '600':'400', '700':'400',
+                '800':'700', '900':'700'}.get(pwt, '100')
+
+    return style
+
+
 class SubsetFonts(object):
 
     '''
@@ -76,72 +181,15 @@ class SubsetFonts(object):
             self.log('Reduced total font size to %.1f%% of original'%
                     (totals[0]/totals[1] * 100))
 
-    def get_font_properties(self, rule, default=None):
-        '''
-        Given a CSS rule, extract normalized font properties from
-        it. Note that shorthand font property should already have been expanded
-        by the CSS flattening code.
-        '''
-        props = {}
-        s = rule.style
-        for q in ('font-family', 'src', 'font-weight', 'font-stretch',
-                'font-style'):
-            g = 'uri' if q == 'src' else 'value'
-            try:
-                val = s.getProperty(q).propertyValue[0]
-                val = getattr(val, g)
-                if q == 'font-family':
-                    val = [x.value for x in s.getProperty(q).propertyValue]
-                    if val and val[0] == 'inherit':
-                        val = None
-            except (IndexError, KeyError, AttributeError, TypeError, ValueError):
-                val = None if q in {'src', 'font-family'} else default
-            if q in {'font-weight', 'font-stretch', 'font-style'}:
-                val = unicode(val).lower() if (val or val == 0) else val
-                if val == 'inherit':
-                    val = default
-            if q == 'font-weight':
-                val = {'normal':'400', 'bold':'700'}.get(val, val)
-                if val not in {'100', '200', '300', '400', '500', '600', '700',
-                        '800', '900', 'bolder', 'lighter'}:
-                    val = default
-                if val == 'normal': val = '400'
-            elif q == 'font-style':
-                if val not in {'normal', 'italic', 'oblique'}:
-                    val = default
-            elif q == 'font-stretch':
-                if val not in { 'normal', 'ultra-condensed', 'extra-condensed',
-                        'condensed', 'semi-condensed', 'semi-expanded',
-                        'expanded', 'extra-expanded', 'ultra-expanded'}:
-                    val = default
-            props[q] = val
-        return props
-
     def find_embedded_fonts(self):
         '''
         Find all @font-face rules and extract the relevant info from them.
         '''
         self.embedded_fonts = []
         for item in self.oeb.manifest:
-            if not hasattr(item.data, 'cssRules'): continue
-            for i, rule in enumerate(item.data.cssRules):
-                if rule.type != rule.FONT_FACE_RULE:
-                    continue
-                props = self.get_font_properties(rule, default='normal')
-                if not props['font-family'] or not props['src']:
-                    continue
-
-                path = item.abshref(props['src'])
-                ff = self.oeb.manifest.hrefs.get(urlnormalize(path), None)
-                if not ff:
-                    continue
-                props['item'] = ff
-                if props['font-weight'] in {'bolder', 'lighter'}:
-                    props['font-weight'] = '400'
-                props['weight'] = int(props['font-weight'])
-                props['chars'] = set()
-                props['rule'] = rule
-                self.embedded_fonts.append(props)
+            if not hasattr(item.data, 'cssRules'):
+                continue
+            self.embedded_fonts.extend(find_font_face_rules(item, self.oeb))
 
     def find_style_rules(self):
         '''
@@ -151,12 +199,13 @@ class SubsetFonts(object):
         '''
         rules = defaultdict(dict)
         for item in self.oeb.manifest:
-            if not hasattr(item.data, 'cssRules'): continue
+            if not hasattr(item.data, 'cssRules'):
+                continue
             for i, rule in enumerate(item.data.cssRules):
                 if rule.type != rule.STYLE_RULE:
                     continue
                 props = {k:v for k,v in
-                        self.get_font_properties(rule).iteritems() if v}
+                        get_font_properties(rule).iteritems() if v}
                 if not props:
                     continue
                 for sel in rule.selectorList:
@@ -172,41 +221,17 @@ class SubsetFonts(object):
 
     def find_font_usage(self):
         for item in self.oeb.manifest:
-            if not hasattr(item.data, 'xpath'): continue
+            if not hasattr(item.data, 'xpath'):
+                continue
             for body in item.data.xpath('//*[local-name()="body"]'):
                 base = {'font-family':['serif'], 'font-weight': '400',
                         'font-style':'normal', 'font-stretch':'normal'}
                 self.find_usage_in(body, base)
 
-    def elem_style(self, cls, inherited_style):
-        '''
-        Find the effective style for the given element.
-        '''
-        classes = cls.split()
-        style = inherited_style.copy()
-        for cls in classes:
-            style.update(self.style_rules.get(cls, {}))
-        wt = style.get('font-weight', None)
-        pwt = inherited_style.get('font-weight', '400')
-        if wt == 'bolder':
-            style['font-weight'] = {
-                    '100':'400',
-                    '200':'400',
-                    '300':'400',
-                    '400':'700',
-                    '500':'700',
-                    }.get(pwt, '900')
-        elif wt == 'lighter':
-            style['font-weight'] = {
-                    '600':'400', '700':'400',
-                    '800':'700', '900':'700'}.get(pwt, '100')
-
-        return style
-
     def used_font(self, style):
         '''
         Given a style find the embedded font that matches it. Returns None if
-        no match is found ( can happen if not family matches).
+        no match is found (can happen if no family matches).
         '''
         ff = style.get('font-family', [])
         lnames = {unicode(x).lower() for x in ff}
@@ -222,7 +247,7 @@ class SubsetFonts(object):
             return None
 
         # Filter on font-stretch
-        widths = {x:i for i, x in enumerate(( 'ultra-condensed',
+        widths = {x:i for i, x in enumerate(('ultra-condensed',
                 'extra-condensed', 'condensed', 'semi-condensed', 'normal',
                 'semi-expanded', 'expanded', 'extra-expanded', 'ultra-expanded'
                 ))}
@@ -280,7 +305,7 @@ class SubsetFonts(object):
         return ans
 
     def find_usage_in(self, elem, inherited_style):
-        style = self.elem_style(elem.get('class', '') or '', inherited_style)
+        style = elem_style(self.style_rules, elem.get('class', '') or '', inherited_style)
         for child in elem:
             self.find_usage_in(child, style)
         font = self.used_font(style)
@@ -288,5 +313,6 @@ class SubsetFonts(object):
             chars = self.find_chars(elem)
             if chars:
                 font['chars'] |= chars
+
 
 
