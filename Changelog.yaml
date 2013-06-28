@@ -20,6 +20,50 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.37
+  date: 2013-06-28
+
+  new features:
+    - title: "Conversion: Add option to embed all referenced fonts"
+      type: major
+      description: "Add an option to embed all fonts that are referenced in the input document but are not already embedded. This will search your system for the referenced font, and if found, the font will be embedded.  Only works if the output format supports font embedding (for example: EPUB or AZW3). The option is under the Look & Feel section of the conversion dialog."
+
+    - title: "ToC Editor: When generating a ToC from files, if the file has no text, do not skip it. Instead create an entry using the filename of the file."
+
+    - title: "AZW3 Input: Add support for the page-progression-direction that is used to indicate page turns should happen from right to left. The attribute is passed into EPUB when converting."
+      tickets: [1194766]
+
+    - title: "ebook-convert: Add a --from-opf option to read metadata from OPF files directly, instead of having to run ebook-meta --from-opf after conversion"
+ 
+  bug fixes:
+    - title: "PDF Output: Fix Table of Contents being added to the end of the PDF even without the Add Table of Contents option being enabled."
+      tickets: [1194836]
+
+    - title: "When auto-merging books on add, also merge identifiers."
+
+    - title: "Fix an error when using the Template Editor to create a template that uses custom columns."
+      tickets: [1193763]
+
+    - title: "LRF Output: Fix &quot; entities in attribute values causing problems"
+
+    - title: "News download: Apply the default page margin conversion settings. Also, when converting to PDF, apply the pdf conversion defaults."
+      tickets: [1193912]
+
+    - title: "Fix a regression that broke scanning for books on all devices that used the Aluratek Color driver."
+      tickets: [1192940]
+
+    - title: "fetch-ebbok-metadata: Fix --opf argument erroneously requiring a value"
+
+    - title: "When waiting before sending email, log the wait."
+      tickets: [1195173]
+
+  improved recipes:
+    - taz.de (RSS)
+    - Miradas al sur
+    - Frontline
+    - La Nacion (Costa Rica)
+
+
 - version: 0.9.36
   date: 2013-06-21
 
