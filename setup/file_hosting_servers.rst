@@ -35,3 +35,13 @@ rsync /srv from another file server
 
 service nginx start
 
+Services
+---------
+
+SSH into sourceforge and downloadbestsoftware so that their host keys are
+stored.
+
+   ssh -oStrictHostKeyChecking=no kovid@www.downloadbestsoft-mirror1.com
+   ssh -oStrictHostKeyChecking=no kovidgoyal,calibre@frs.sourceforge.net
+   ssh -oStrictHostKeyChecking=no files.calibre-ebook.com (and whatever other mirrors are present)
+

@@ -473,14 +473,18 @@ def upload_to_servers(files, version):  # {{{
         os.mkdir(dest)
     for src in files:
         shutil.copyfile(src, os.path.join(dest, os.path.basename(src)))
-    generate_index()
+    cwd = os.getcwd()
+    try:
+        generate_index()
+    finally:
+        os.chdir(cwd)
 
     for server, rdir in {'files':'/srv/download/'}.iteritems():
         print('Uploading to server:', server)
         server = '%s.calibre-ebook.com' % server
         # Copy the generated index files
         print ('Copying generated index')
-        check_call(['rsync', '-hzr', '-e', 'ssh -x', '--include', '*.html',
+        check_call(['rsync', '-hza', '-e', 'ssh -x', '--include', '*.html',
                     '--filter', '-! */', base, 'root@%s:%s' % (server, rdir)])
         # Copy the release files
         rdir = '%s%s/' % (rdir, version)
