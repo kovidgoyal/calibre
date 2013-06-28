@@ -94,6 +94,8 @@ def option_recommendation_to_cli_option(add_option, rec):
     if opt.long_switch == 'verbose':
         attrs['action'] = 'count'
         attrs.pop('type', '')
+    if opt.name == 'read_metadata_from_opf':
+        switches.append('--from-opf')
     if opt.name in DEFAULT_TRUE_OPTIONS and rec.recommended_value is True:
         switches = ['--disable-'+opt.long_switch]
     add_option(Option(*switches, **attrs))
@@ -190,7 +192,7 @@ def add_pipeline_options(parser, plumber):
                   ),
 
               'METADATA' : (_('Options to set metadata in the output'),
-                            plumber.metadata_option_names,
+                            plumber.metadata_option_names + ['read_metadata_from_opf'],
                             ),
               'DEBUG': (_('Options to help with debugging the conversion'),
                         [
