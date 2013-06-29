@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 
-from lxml.html.builder import IMG
+from lxml.html.builder import IMG, HR
 
 from calibre.ebooks.docx.names import XPath, get, barename
 from calibre.utils.filenames import ascii_filename
@@ -163,6 +163,26 @@ class Images(object):
                     yield ans
 
     def pict_to_html(self, pict, page):
+        # First see if we have an <hr>
+        is_hr = len(pict) == 1 and get(pict[0], 'o:hr') in {'t', 'true'}
+        if is_hr:
+            style = {}
+            hr = HR()
+            try:
+                pct = float(get(pict[0], 'o:hrpct'))
+            except (ValueError, TypeError, AttributeError):
+                pass
+            else:
+                if pct > 0:
+                    style['width'] = '%.3g%%' % pct
+            align = get(pict[0], 'o:hralign', 'center')
+            if align in {'left', 'right'}:
+                style['margin-left'] = '0' if align == 'left' else 'auto'
+                style['margin-right'] = 'auto' if align == 'left' else '0'
+            if style:
+                hr.set('style', '; '.join(('%s:%s' % (k, v) for k, v in style.iteritems())))
+            yield hr
+
         for imagedata in XPath('descendant::v:imagedata[@r:id]')(pict):
             rid = get(imagedata, 'r:id')
             if rid in self.rid_map:
