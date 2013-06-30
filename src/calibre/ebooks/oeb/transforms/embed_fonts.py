@@ -197,7 +197,7 @@ class EmbedFonts(object):
         if not ff:
             return
         ff = ff[0]
-        if ff in self.warned:
+        if ff in self.warned or ff == 'inherit':
             return
         try:
             fonts = font_scanner.fonts_for_family(ff)
