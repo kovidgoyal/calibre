@@ -7,10 +7,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json, sys, os
+import json, sys, os, logging
 from urllib import unquote
+from collections import defaultdict
 
-from cssutils import parseStyle
+from cssutils import CSSParser
 from PyQt4.Qt import (pyqtProperty, QString, QEventLoop, Qt, QSize, QTimer,
                       pyqtSlot)
 from PyQt4.QtWebKit import QWebPage, QWebView
@@ -41,14 +42,14 @@ def normalize_font_properties(font):
                    'extra-expanded', 'ultra-expanded'}:
         val = 'normal'
     font['font-stretch'] = val
+    return font
 
-widths = {x:i for i, x in enumerate(( 'ultra-condensed',
+widths = {x:i for i, x in enumerate(('ultra-condensed',
         'extra-condensed', 'condensed', 'semi-condensed', 'normal',
         'semi-expanded', 'expanded', 'extra-expanded', 'ultra-expanded'
         ))}
 
 def get_matching_rules(rules, font):
-    normalize_font_properties(font)
     matches = []
 
     # Filter on family
@@ -100,7 +101,7 @@ def get_matching_rules(rules, font):
             return m
     return []
 
-class Page(QWebPage): # {{{
+class Page(QWebPage):  # {{{
 
     def __init__(self, log):
         self.log = log
@@ -157,10 +158,12 @@ class Page(QWebPage): # {{{
 
 class StatsCollector(object):
 
-    def __init__(self, container):
+    def __init__(self, container, do_embed=False):
         self.container = container
         self.log = self.logger = container.log
+        self.do_embed = do_embed
         must_use_qt()
+        self.parser = CSSParser(loglevel=logging.CRITICAL, log=logging.getLogger('calibre.css'))
 
         self.loop = QEventLoop()
         self.view = QWebView()
@@ -173,6 +176,10 @@ class StatsCollector(object):
 
         self.render_queue = list(container.spine_items)
         self.font_stats = {}
+        self.font_usage_map = {}
+        self.font_spec_map = {}
+        self.font_rule_map = {}
+        self.all_font_rules = {}
 
         QTimer.singleShot(0, self.render_book)
 
@@ -235,26 +242,34 @@ class StatsCollector(object):
         rules = []
         for rule in font_face_rules:
             ff = rule.get('font-family', None)
-            if not ff: continue
-            style = parseStyle('font-family:%s'%ff, validate=False)
+            if not ff:
+                continue
+            style = self.parser.parseStyle('font-family:%s'%ff, validate=False)
             ff = [x.value for x in
                   style.getProperty('font-family').propertyValue]
             if not ff or ff[0] == 'inherit':
                 continue
             rule['font-family'] = frozenset(icu_lower(f) for f in ff)
             src = rule.get('src', None)
-            if not src: continue
-            style = parseStyle('background-image:%s'%src, validate=False)
+            if not src:
+                continue
+            style = self.parser.parseStyle('background-image:%s'%src, validate=False)
             src = style.getProperty('background-image').propertyValue[0].uri
             name = self.href_to_name(src, '@font-face rule')
+            if name is None:
+                continue
             rule['src'] = name
             normalize_font_properties(rule)
             rule['width'] = widths[rule['font-stretch']]
             rule['weight'] = int(rule['font-weight'])
             rules.append(rule)
 
-        if not rules:
+        if not rules and not self.do_embed:
             return
+
+        self.font_rule_map[self.container.abspath_to_name(self.current_item)] = rules
+        for rule in rules:
+            self.all_font_rules[rule['src']] = rule
 
         for rule in rules:
             if rule['src'] not in self.font_stats:
@@ -265,19 +280,48 @@ class StatsCollector(object):
         if not isinstance(font_usage, list):
             raise Exception('Unknown error occurred while reading font usage')
         exclude = {'\n', '\r', '\t'}
+        self.font_usage_map[self.container.abspath_to_name(self.current_item)] = fu = defaultdict(dict)
+        bad_fonts = {'serif', 'sans-serif', 'monospace', 'cursive', 'fantasy', 'sansserif', 'inherit'}
         for font in font_usage:
             text = set()
             for t in font['text']:
                 text |= frozenset(t)
             text.difference_update(exclude)
-            if not text: continue
+            if not text:
+                continue
+            normalize_font_properties(font)
             for rule in get_matching_rules(rules, font):
                 self.font_stats[rule['src']] |= text
+            if self.do_embed:
+                ff = [icu_lower(x) for x in font.get('font-family', [])]
+                if ff and ff[0] not in bad_fonts:
+                    keys = {'font-weight', 'font-style', 'font-stretch', 'font-family'}
+                    key = frozenset(((k, ff[0] if k == 'font-family' else v) for k, v in font.iteritems() if k in keys))
+                    val = fu[key]
+                    if not val:
+                        val.update({k:(font[k][0] if k == 'font-family' else font[k]) for k in keys})
+                        val['text'] = set()
+                    val['text'] |= text
+        self.font_usage_map[self.container.abspath_to_name(self.current_item)] = dict(fu)
+
+        if self.do_embed:
+            self.page.evaljs('window.font_stats.get_font_families()')
+            font_families = self.page.bridge_value
+            if not isinstance(font_families, dict):
+                raise Exception('Unknown error occurred while reading font families')
+            self.font_spec_map[self.container.abspath_to_name(self.current_item)] = fs = set()
+            for raw in font_families.iterkeys():
+                style = self.parser.parseStyle('font-family:' + raw, validate=False).getProperty('font-family')
+                for x in style.propertyValue:
+                    x = x.value
+                    if x and x.lower() not in bad_fonts:
+                        fs.add(x)
 
 if __name__ == '__main__':
     from calibre.ebooks.oeb.polish.container import get_container
     from calibre.utils.logging import default_log
     default_log.filter_level = default_log.DEBUG
     ebook = get_container(sys.argv[-1], default_log)
-    print (StatsCollector(ebook).font_stats)
+    print (StatsCollector(ebook, do_embed=True).font_stats)
+
 

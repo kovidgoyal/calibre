@@ -45,6 +45,7 @@ class Polish(QDialog):  # {{{
                   ORIGINAL_* format before running it.</p>''')
             ),
 
+            'embed':_('<h3>Embed referenced fonts</h3>%s')%HELP['embed'],
             'subset':_('<h3>Subsetting fonts</h3>%s')%HELP['subset'],
 
             'smarten_punctuation':
@@ -75,6 +76,7 @@ class Polish(QDialog):  # {{{
 
         count = 0
         self.all_actions = OrderedDict([
+            ('embed', _('&Embed all referenced fonts')),
             ('subset', _('&Subset all embedded fonts')),
             ('smarten_punctuation', _('Smarten &punctuation')),
             ('metadata', _('Update &metadata in the book files')),
