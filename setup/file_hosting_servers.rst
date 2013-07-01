@@ -11,6 +11,10 @@ Edit /etc/hosts and put in FQDN in the appropriate places, for example::
     27.0.1.1       download.calibre-ebook.com download
     46.28.49.116 download.calibre-ebook.com download
 
+dpkg-reconfigure tzdata
+set timezone to Asia/Kolkata
+service cron restart
+
 apt-get install vim nginx zsh python-lxml python-mechanize iotop htop smartmontools mosh
 chsh -s /bin/zsh
 
