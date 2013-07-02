@@ -227,16 +227,17 @@ class TREKSTOR(USBMS):
     VENDOR_ID   = [0x1e68]
     PRODUCT_ID  = [0x0041, 0x0042, 0x0052, 0x004e, 0x0056,
             0x0067,  # This is for the Pyrus Mini
+            0x006f,  # This is for the Pyrus Maxi
             0x003e,  # This is for the EBOOK_PLAYER_5M https://bugs.launchpad.net/bugs/792091
             0x5cL,  # This is for the 4ink http://www.mobileread.com/forums/showthread.php?t=191318
             ]
-    BCD         = [0x0002, 0x100]
+    BCD         = [0x0002, 0x100, 0x0222]
 
     EBOOK_DIR_MAIN = 'Ebooks'
 
     VENDOR_NAME = 'TREKSTOR'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOK_PLAYER_7',
-            'EBOOK_PLAYER_5M', 'EBOOK-READER_3.0', 'EREADER_PYRUS', 'PYRUS_MINI']
+            'EBOOK_PLAYER_5M', 'EBOOK-READER_3.0', 'EREADER_PYRUS', 'PYRUS_MINI', 'PYRUS_MAXI']
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_SUB_DIRS_DEFAULT = False
 
