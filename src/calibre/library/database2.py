@@ -1502,7 +1502,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         format = check_ebook_format(stream, format)
         retval = self.add_format(index, format, stream, replace=replace,
                                index_is_id=index_is_id, path=path, notify=notify)
-        run_plugins_on_postimport(self, id, format)
+        run_plugins_on_postimport(self, index, format)
         return retval
 
     def add_format(self, index, format, stream, index_is_id=False, path=None,
