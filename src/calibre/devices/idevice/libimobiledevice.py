@@ -418,6 +418,14 @@ class libiMobileDevice():
         if False:
             self._idevice_set_debug_level(DEBUG)
 
+    def mkdir(self, path):
+        '''
+        Mimic mkdir(), creating a directory at path. Does not create
+        intermediate folders
+        '''
+        self._log_location("'%s'" % path)
+        return self._afc_make_directory(path)
+
     def mount_ios_app(self, app_name=None, app_id=None):
         '''
         Convenience method to get iDevice ready to talk to app_name or app_id
@@ -1006,6 +1014,27 @@ class libiMobileDevice():
                 for key in file_stats.keys():
                     self.log(" %s: %s" % (key, file_stats[key]))
         return file_stats
+
+    def _afc_make_directory(self, path):
+        '''
+        Creates a directory on the device. Does not create intermediate dirs.
+
+        Args:
+         client: (AFC_CLIENT_T) The client to use to make a directory
+         dir:    (const char *) The directory's fully-qualified path
+
+        Result:
+         error:  AFC_E_SUCCESS on success or an AFC_E_* error value
+        '''
+        self._log_location("%s" % repr(path))
+
+        error = self.lib.afc_make_directory(byref(self.afc),
+                                            str(path)) & 0xFFFF
+        if error:
+            if self.verbose:
+                self.log(" ERROR: %s" % self._afc_error(error))
+
+        return error
 
     def _afc_read_directory(self, directory=''):
         '''
