@@ -212,7 +212,7 @@ OptionRecommendation(name='embed_all_fonts',
             'fonts, and if found, they will be embedded. Embedding will only work '
             'if the format you are converting to supports embedded fonts, such as '
             'EPUB, AZW3 or PDF. Please ensure that you have the proper license for embedding '
-            'the fonts used in this book.'
+            'the fonts used in this document.'
         )),
 
 OptionRecommendation(name='subset_embedded_fonts',
