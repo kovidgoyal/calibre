@@ -53,6 +53,7 @@ changes needed for the desired effect.</p>
 <p>Embed all fonts that are referenced in the document and are not already embedded.
 This will scan your computer for the fonts, and if they are found, they will be
 embedded into the document.</p>
+<p>Please ensure that you have the proper license for embedding the fonts used in this book.</p>
 '''),
 
 'subset': _('''\

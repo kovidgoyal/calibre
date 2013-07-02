@@ -211,7 +211,8 @@ OptionRecommendation(name='embed_all_fonts',
             'but not already embedded. This will search your system for the '
             'fonts, and if found, they will be embedded. Embedding will only work '
             'if the format you are converting to supports embedded fonts, such as '
-            'EPUB, AZW3 or PDF.'
+            'EPUB, AZW3 or PDF. Please ensure that you have the proper license for embedding '
+            'the fonts used in this book.'
         )),
 
 OptionRecommendation(name='subset_embedded_fonts',
