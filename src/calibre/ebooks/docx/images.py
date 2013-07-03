@@ -96,6 +96,7 @@ class Images(object):
         self.used = {}
         self.names = set()
         self.all_images = set()
+        self.links = []
 
     def __call__(self, relationships_by_id):
         self.rid_map = relationships_by_id
@@ -125,8 +126,18 @@ class Images(object):
         self.all_images.add('images/' + name)
         return name
 
-    def pic_to_img(self, pic, alt=None):
+    def pic_to_img(self, pic, alt, parent):
         name = None
+        link = None
+        for hl in XPath('descendant::a:hlinkClick[@r:id]')(parent):
+            link = {'id':get(hl, 'r:id')}
+            tgt = hl.get('tgtFrame', None)
+            if tgt:
+                link['target'] = tgt
+            title = hl.get('tooltip', None)
+            if title:
+                link['title'] = title
+
         for pr in XPath('descendant::pic:cNvPr')(pic):
             name = pr.get('name', None)
             if name:
@@ -138,6 +149,8 @@ class Images(object):
                     src = self.generate_filename(rid, name)
                     img = IMG(src='images/%s' % src)
                     img.set('alt', alt or 'Image')
+                    if link is not None:
+                        self.links.append((img, link))
                     return img
 
     def drawing_to_html(self, drawing, page):
@@ -145,7 +158,7 @@ class Images(object):
         for inline in XPath('./wp:inline')(drawing):
             style, alt = get_image_properties(inline)
             for pic in XPath('descendant::pic:pic')(inline):
-                ans = self.pic_to_img(pic, alt)
+                ans = self.pic_to_img(pic, alt, inline)
                 if ans is not None:
                     if style:
                         ans.set('style', '; '.join('%s: %s' % (k, v) for k, v in style.iteritems()))
@@ -156,7 +169,7 @@ class Images(object):
             style, alt = get_image_properties(anchor)
             self.get_float_properties(anchor, style, page)
             for pic in XPath('descendant::pic:pic')(anchor):
-                ans = self.pic_to_img(pic, alt)
+                ans = self.pic_to_img(pic, alt, anchor)
                 if ans is not None:
                     if style:
                         ans.set('style', '; '.join('%s: %s' % (k, v) for k, v in style.iteritems()))

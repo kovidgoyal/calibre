@@ -442,6 +442,27 @@ class Convert(object):
                 continue
             span.set('href', url)
 
+        for img, link in self.images.links:
+            parent = img.getparent()
+            idx = parent.index(img)
+            a = A(img)
+            a.tail, img.tail = img.tail, None
+            parent.insert(idx, a)
+            tgt = link.get('target', None)
+            if tgt:
+                a.set('target', tgt)
+            tt = link.get('title', None)
+            if tt:
+                a.set('title', tt)
+            rid = link['id']
+            if rid in relationships_by_id:
+                dest = relationships_by_id[rid]
+                if dest.startswith('#'):
+                    if dest[1:] in self.anchor_map:
+                        a.set('href', '#' + self.anchor_map[dest[1:]])
+                else:
+                    a.set('href', dest)
+
     def convert_run(self, run):
         ans = SPAN()
         self.object_map[ans] = run
