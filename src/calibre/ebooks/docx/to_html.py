@@ -26,6 +26,7 @@ from calibre.ebooks.docx.footnotes import Footnotes
 from calibre.ebooks.docx.cleanup import cleanup_markup
 from calibre.ebooks.docx.theme import Theme
 from calibre.ebooks.docx.toc import create_toc
+from calibre.ebooks.docx.fields import Fields
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
@@ -52,6 +53,7 @@ class Convert(object):
         self.body = BODY()
         self.theme = Theme()
         self.tables = Tables()
+        self.fields = Fields()
         self.styles = Styles(self.tables)
         self.images = Images()
         self.object_map = OrderedDict()
@@ -79,6 +81,7 @@ class Convert(object):
     def __call__(self):
         doc = self.docx.document
         relationships_by_id, relationships_by_type = self.docx.document_relationships
+        self.fields(doc, self.log)
         self.read_styles(relationships_by_type)
         self.images(relationships_by_id)
         self.layers = OrderedDict()
@@ -96,7 +99,11 @@ class Convert(object):
                 p = self.convert_p(wp)
                 self.body.append(p)
                 paras.append(wp)
+        self.read_block_anchors(doc)
         self.styles.apply_contextual_spacing(paras)
+        # Apply page breaks at the start of every section, except the first
+        # section (since that will be the start of the file)
+        self.styles.apply_section_page_breaks(self.section_starts[1:])
 
         notes_header = None
         if self.footnotes.has_notes:
@@ -177,6 +184,7 @@ class Convert(object):
     def read_page_properties(self, doc):
         current = []
         self.page_map = OrderedDict()
+        self.section_starts = []
 
         for p in descendants(doc, 'w:p', 'w:tbl'):
             if p.tag.endswith('}tbl'):
@@ -186,8 +194,10 @@ class Convert(object):
             sect = tuple(descendants(p, 'w:sectPr'))
             if sect:
                 pr = PageProperties(sect)
-                for x in current + [p]:
+                paras = current + [p]
+                for x in paras:
                     self.page_map[x] = pr
+                self.section_starts.append(paras[0])
                 current = []
             else:
                 current.append(p)
@@ -287,6 +297,22 @@ class Convert(object):
             opf.render(of, ncx, 'toc.ncx')
         return os.path.join(self.dest_dir, 'metadata.opf')
 
+    def read_block_anchors(self, doc):
+        doc_anchors = frozenset(XPath('./w:body/w:bookmarkStart[@w:name]')(doc))
+        if doc_anchors:
+            current_bm = None
+            rmap = {v:k for k, v in self.object_map.iteritems()}
+            for p in descendants(doc, 'w:p', 'w:bookmarkStart[@w:name]'):
+                if p.tag.endswith('}p'):
+                    if current_bm and p in rmap:
+                        para = rmap[p]
+                        if 'id' not in para.attrib:
+                            para.set('id', generate_anchor(current_bm, frozenset(self.anchor_map.itervalues())))
+                        self.anchor_map[current_bm] = para.get('id')
+                        current_bm = None
+                elif p in doc_anchors:
+                    current_bm = get(p, 'w:name')
+
     def convert_p(self, p):
         dest = P()
         self.object_map[dest] = p
@@ -316,7 +342,13 @@ class Convert(object):
             elif x.tag.endswith('}bookmarkStart'):
                 anchor = get(x, 'w:name')
                 if anchor and anchor not in self.anchor_map:
+                    old_anchor = current_anchor
                     self.anchor_map[anchor] = current_anchor = generate_anchor(anchor, frozenset(self.anchor_map.itervalues()))
+                    if old_anchor is not None:
+                        # The previous anchor was not applied to any element
+                        for a, t in tuple(self.anchor_map.iteritems()):
+                            if t == old_anchor:
+                                self.anchor_map[a] = current_anchor
             elif x.tag.endswith('}hyperlink'):
                 current_hyperlink = x
 
@@ -396,6 +428,46 @@ class Convert(object):
             # hrefs that point nowhere give epubcheck a hernia. The element
             # should be styled explicitly by Word anyway.
             # span.set('href', '#')
+        rmap = {v:k for k, v in self.object_map.iteritems()}
+        for hyperlink, runs in self.fields.hyperlink_fields:
+            spans = [rmap[r] for r in runs if r in rmap]
+            if not spans:
+                continue
+            if len(spans) > 1:
+                span = self.wrap_elems(spans, SPAN())
+            span.tag = 'a'
+            tgt = hyperlink.get('target', None)
+            if tgt:
+                span.set('target', tgt)
+            tt = hyperlink.get('title', None)
+            if tt:
+                span.set('title', tt)
+            url = hyperlink['url']
+            if url in self.anchor_map:
+                span.set('href', '#' + self.anchor_map[url])
+                continue
+            span.set('href', url)
+
+        for img, link in self.images.links:
+            parent = img.getparent()
+            idx = parent.index(img)
+            a = A(img)
+            a.tail, img.tail = img.tail, None
+            parent.insert(idx, a)
+            tgt = link.get('target', None)
+            if tgt:
+                a.set('target', tgt)
+            tt = link.get('title', None)
+            if tt:
+                a.set('title', tt)
+            rid = link['id']
+            if rid in relationships_by_id:
+                dest = relationships_by_id[rid]
+                if dest.startswith('#'):
+                    if dest[1:] in self.anchor_map:
+                        a.set('href', '#' + self.anchor_map[dest[1:]])
+                else:
+                    a.set('href', dest)
 
     def convert_run(self, run):
         ans = SPAN()

@@ -403,6 +403,11 @@ class Styles(object):
                         ps.margin_top = 0
             last_para = p
 
+    def apply_section_page_breaks(self, paras):
+        for p in paras:
+            ps = self.resolve_paragraph(p)
+            ps.pageBreakBefore = True
+
     def register(self, css, prefix):
         h = hash(frozenset(css.iteritems()))
         ans, _ = self.classes.get(h, (None, None))
