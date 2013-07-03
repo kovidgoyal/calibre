@@ -1006,7 +1006,7 @@ class FullFetch(QDialog):  # {{{
         l.addWidget(self.bb)
         self.bb.rejected.connect(self.reject)
         self.bb.accepted.connect(self.accept)
-        self.next_button = self.bb.addButton(_('Next'), self.bb.AcceptRole)
+        self.next_button = self.bb.addButton(_('Next'), self.bb.ActionRole)
         self.next_button.setDefault(True)
         self.next_button.setEnabled(False)
         self.next_button.setIcon(QIcon(I('ok.png')))
@@ -1019,7 +1019,7 @@ class FullFetch(QDialog):  # {{{
         self.log_button = self.bb.addButton(_('View log'), self.bb.ActionRole)
         self.log_button.clicked.connect(self.view_log)
         self.log_button.setIcon(QIcon(I('debug.png')))
-        self.ok_button.setVisible(False)
+        self.ok_button.setEnabled(False)
         self.prev_button.setVisible(False)
 
         self.identify_widget = IdentifyWidget(self.log, self)
@@ -1044,7 +1044,7 @@ class FullFetch(QDialog):  # {{{
 
     def book_selected(self, book, caches):
         self.next_button.setVisible(False)
-        self.ok_button.setVisible(True)
+        self.ok_button.setEnabled(True)
         self.prev_button.setVisible(True)
         self.book = book
         self.stack.setCurrentIndex(1)
@@ -1055,8 +1055,9 @@ class FullFetch(QDialog):  # {{{
 
     def back_clicked(self):
         self.next_button.setVisible(True)
-        self.ok_button.setVisible(False)
+        self.ok_button.setEnabled(False)
         self.prev_button.setVisible(False)
+        self.next_button.setFocus()
         self.stack.setCurrentIndex(0)
         self.covers_widget.cancel()
         self.covers_widget.reset_covers()
@@ -1081,6 +1082,7 @@ class FullFetch(QDialog):  # {{{
         self.next_button.setEnabled(True)
 
     def next_clicked(self, *args):
+        gprefs['metadata_single_gui_geom'] = bytearray(self.saveGeometry())
         self.identify_widget.get_result()
 
     def ok_clicked(self, *args):
