@@ -100,6 +100,9 @@ class Convert(object):
                 self.body.append(p)
                 paras.append(wp)
         self.styles.apply_contextual_spacing(paras)
+        # Apply page breaks at the start of every section, except the first
+        # section (since that will be the start of the file)
+        self.styles.apply_section_page_breaks(self.section_starts[1:])
 
         notes_header = None
         if self.footnotes.has_notes:
@@ -180,6 +183,7 @@ class Convert(object):
     def read_page_properties(self, doc):
         current = []
         self.page_map = OrderedDict()
+        self.section_starts = []
 
         for p in descendants(doc, 'w:p', 'w:tbl'):
             if p.tag.endswith('}tbl'):
@@ -189,8 +193,10 @@ class Convert(object):
             sect = tuple(descendants(p, 'w:sectPr'))
             if sect:
                 pr = PageProperties(sect)
-                for x in current + [p]:
+                paras = current + [p]
+                for x in paras:
                     self.page_map[x] = pr
+                self.section_starts.append(paras[0])
                 current = []
             else:
                 current.append(p)
