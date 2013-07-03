@@ -342,7 +342,13 @@ class Convert(object):
             elif x.tag.endswith('}bookmarkStart'):
                 anchor = get(x, 'w:name')
                 if anchor and anchor not in self.anchor_map:
+                    old_anchor = current_anchor
                     self.anchor_map[anchor] = current_anchor = generate_anchor(anchor, frozenset(self.anchor_map.itervalues()))
+                    if old_anchor is not None:
+                        # The previous anchor was not applied to any element
+                        for a, t in tuple(self.anchor_map.iteritems()):
+                            if t == old_anchor:
+                                self.anchor_map[a] = current_anchor
             elif x.tag.endswith('}hyperlink'):
                 current_hyperlink = x
 
