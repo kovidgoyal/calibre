@@ -26,6 +26,7 @@ from calibre.ebooks.docx.footnotes import Footnotes
 from calibre.ebooks.docx.cleanup import cleanup_markup
 from calibre.ebooks.docx.theme import Theme
 from calibre.ebooks.docx.toc import create_toc
+from calibre.ebooks.docx.fields import Fields
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
@@ -52,6 +53,7 @@ class Convert(object):
         self.body = BODY()
         self.theme = Theme()
         self.tables = Tables()
+        self.fields = Fields()
         self.styles = Styles(self.tables)
         self.images = Images()
         self.object_map = OrderedDict()
@@ -79,6 +81,7 @@ class Convert(object):
     def __call__(self):
         doc = self.docx.document
         relationships_by_id, relationships_by_type = self.docx.document_relationships
+        self.fields(doc, self.log)
         self.read_styles(relationships_by_type)
         self.images(relationships_by_id)
         self.layers = OrderedDict()
@@ -396,6 +399,25 @@ class Convert(object):
             # hrefs that point nowhere give epubcheck a hernia. The element
             # should be styled explicitly by Word anyway.
             # span.set('href', '#')
+        rmap = {v:k for k, v in self.object_map.iteritems()}
+        for hyperlink, runs in self.fields.hyperlink_fields:
+            spans = [rmap[r] for r in runs if r in rmap]
+            if not spans:
+                continue
+            if len(spans) > 1:
+                span = self.wrap_elems(spans, SPAN())
+            span.tag = 'a'
+            tgt = hyperlink.get('target', None)
+            if tgt:
+                span.set('target', tgt)
+            tt = hyperlink.get('title', None)
+            if tt:
+                span.set('title', tt)
+            url = hyperlink['url']
+            if url in self.anchor_map:
+                span.set('href', '#' + self.anchor_map[url])
+                continue
+            span.set('href', url)
 
     def convert_run(self, run):
         ans = SPAN()
