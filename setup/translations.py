@@ -21,7 +21,12 @@ def qt_sources():
 class POT(Command):  # {{{
 
     description = 'Update the .pot translation template and upload it'
-    LP_BASE = os.path.join(os.path.dirname(os.path.dirname(Command.SRC)), 'calibre-translations')
+    LP_BASE = os.path.join(os.path.dirname(Command.SRC))
+    if not os.path.exists(os.path.join(LP_BASE, 'setup', 'iso_639')):
+        # We are in a git checkout, translations are assumed to be in a
+        # directory called calibre-translations at the same level as the
+        # calibre directory.
+        LP_BASE = os.path.join(os.path.dirname(os.path.dirname(Command.SRC)), 'calibre-translations')
     LP_SRC = os.path.join(LP_BASE, 'src')
     LP_PATH = os.path.join(LP_SRC, os.path.join(__appname__, 'translations'))
     LP_ISO_PATH = os.path.join(LP_BASE, 'setup', 'iso_639')
