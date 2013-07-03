@@ -83,6 +83,8 @@ class Links(object):
                     action = Dictionary({
                         'Type':Name('Action'), 'S':Name('URI'),
                     })
+                    # Do not try to normalize/quote/unquote this URL as if it
+                    # has a query part, it will get corrupted
                     action['URI'] = String(url)
                     annot['A'] = action
             if 'A' in annot or 'Dest' in annot:
