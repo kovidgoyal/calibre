@@ -99,6 +99,7 @@ class Convert(object):
                 p = self.convert_p(wp)
                 self.body.append(p)
                 paras.append(wp)
+        self.read_block_anchors(doc)
         self.styles.apply_contextual_spacing(paras)
         # Apply page breaks at the start of every section, except the first
         # section (since that will be the start of the file)
@@ -295,6 +296,22 @@ class Convert(object):
         with open(os.path.join(self.dest_dir, 'metadata.opf'), 'wb') as of, open(os.path.join(self.dest_dir, 'toc.ncx'), 'wb') as ncx:
             opf.render(of, ncx, 'toc.ncx')
         return os.path.join(self.dest_dir, 'metadata.opf')
+
+    def read_block_anchors(self, doc):
+        doc_anchors = frozenset(XPath('./w:body/w:bookmarkStart[@w:name]')(doc))
+        if doc_anchors:
+            current_bm = None
+            rmap = {v:k for k, v in self.object_map.iteritems()}
+            for p in descendants(doc, 'w:p', 'w:bookmarkStart[@w:name]'):
+                if p.tag.endswith('}p'):
+                    if current_bm and p in rmap:
+                        para = rmap[p]
+                        if 'id' not in para.attrib:
+                            para.set('id', generate_anchor(current_bm, frozenset(self.anchor_map.itervalues())))
+                        self.anchor_map[current_bm] = para.get('id')
+                        current_bm = None
+                elif p in doc_anchors:
+                    current_bm = get(p, 'w:name')
 
     def convert_p(self, p):
         dest = P()
