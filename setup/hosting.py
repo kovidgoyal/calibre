@@ -7,16 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time, sys, traceback, subprocess, urllib2, re, base64, httplib
+import os, time, sys, traceback, subprocess, urllib2, re, base64, httplib, shutil
 from argparse import ArgumentParser, FileType
 from subprocess import check_call
 from tempfile import NamedTemporaryFile
 from collections import OrderedDict
 
-import mechanize
-from lxml import html
-
 def login_to_google(username, password):  # {{{
+    import mechanize
     br = mechanize.Browser()
     br.addheaders = [('User-agent',
         'Mozilla/5.0 (X11; Linux x86_64; rv:9.0) Gecko/20100101 Firefox/9.0')]
@@ -246,6 +244,7 @@ class GoogleCode(Base):  # {{{
         return login_to_google(self.username, self.gmail_password)
 
     def get_files_hosted_by_google_code(self):
+        from lxml import html
         self.info('Getting existing files in google code:', self.gc_project)
         raw = urllib2.urlopen(self.files_list).read()
         root = html.fromstring(raw)
@@ -380,11 +379,115 @@ class SourceForge(Base):  # {{{
 
 # }}}
 
+def generate_index():  # {{{
+    os.chdir('/srv/download')
+    releases = set()
+    for x in os.listdir('.'):
+        if os.path.isdir(x) and '.' in x:
+            releases.add(tuple((int(y) for y in x.split('.'))))
+    rmap = OrderedDict()
+    for rnum in sorted(releases, reverse=True):
+        series = rnum[:2] if rnum[0] == 0 else rnum[:1]
+        if series not in rmap:
+            rmap[series] = []
+        rmap[series].append(rnum)
+
+    template = '''<!DOCTYPE html>\n<html lang="en"> <head> <meta charset="utf-8"> <title>{title}</title> <style type="text/css"> {style} </style> </head> <body> <h1>{title}</h1> <p>{msg}</p> {body} </body> </html> '''  # noqa
+    style = '''
+    body { font-family: sans-serif; background-color: #eee; }
+    a { text-decoration: none; }
+    a:visited { color: blue }
+    a:hover { color: red }
+    ul { list-style-type: none }
+    li { padding-bottom: 1ex }
+    dd li { text-indent: 0; margin: 0 }
+    dd ul { padding: 0; margin: 0 }
+    dt { font-weight: bold }
+    dd { margin-bottom: 2ex }
+    '''
+    body = []
+    for series in rmap:
+        body.append('<li><a href="{0}.html" title="Releases in the {0}.x series">{0}.x</a>\xa0\xa0\xa0<span style="font-size:smaller">[{1} releases]</span></li>'.format(  # noqa
+                '.'.join(map(type(''), series)), len(rmap[series])))
+    body = '<ul>{0}</ul>'.format(' '.join(body))
+    index = template.format(title='Previous calibre releases', style=style, msg='Choose a series of calibre releases', body=body)
+    with open('index.html', 'wb') as f:
+        f.write(index.encode('utf-8'))
+
+    for series, releases in rmap.iteritems():
+        sname = '.'.join(map(type(''), series))
+        body = [
+            '<li><a href="{0}/" title="Release {0}">{0}</a></li>'.format('.'.join(map(type(''), r)))
+            for r in releases]
+        body = '<ul class="release-list">{0}</ul>'.format(' '.join(body))
+        index = template.format(title='Previous calibre releases (%s.x)' % sname, style=style,
+                                msg='Choose a calibre release', body=body)
+        with open('%s.html' % sname, 'wb') as f:
+            f.write(index.encode('utf-8'))
+
+        for r in releases:
+            rname = '.'.join(map(type(''), r))
+            os.chdir(rname)
+            try:
+                body = []
+                files = os.listdir('.')
+                windows = [x for x in files if x.endswith('.msi')]
+                if windows:
+                    windows = ['<li><a href="{0}" title="{1}">{1}</a></li>'.format(
+                        x, 'Windows 64-bit Installer' if '64bit' in x else 'Windows 32-bit Installer')
+                        for x in windows]
+                    body.append('<dt>Windows</dt><dd><ul>{0}</ul></dd>'.format(' '.join(windows)))
+                portable = [x for x in files if '-portable-' in x]
+                if portable:
+                    body.append('<dt>Calibre Portable</dt><dd><a href="{0}" title="{1}">{1}</a></dd>'.format(
+                        portable[0], 'Calibre Portable Installer'))
+                osx = [x for x in files if x.endswith('.dmg')]
+                if osx:
+                    body.append('<dt>Apple Mac</dt><dd><a href="{0}" title="{1}">{1}</a></dd>'.format(
+                        osx[0], 'OS X Disk Image (.dmg)'))
+                linux = [x for x in files if x.endswith('.bz2')]
+                if linux:
+                    linux = ['<li><a href="{0}" title="{1}">{1}</a></li>'.format(
+                        x, 'Linux 64-bit binary' if 'x86_64' in x else 'Linux 32-bit binary')
+                        for x in linux]
+                    body.append('<dt>Linux</dt><dd><ul>{0}</ul></dd>'.format(' '.join(linux)))
+                source = [x for x in files if x.endswith('.xz') or x.endswith('.gz')]
+                if source:
+                    body.append('<dt>Source Code</dt><dd><a href="{0}" title="{1}">{1}</a></dd>'.format(
+                        source[0], 'Source code (all platforms)'))
+
+                body = '<dl>{0}</dl>'.format(''.join(body))
+                index = template.format(title='calibre release (%s)' % rname, style=style,
+                                msg='', body=body)
+                with open('index.html', 'wb') as f:
+                    f.write(index.encode('utf-8'))
+            finally:
+                os.chdir('..')
+
+# }}}
+
 def upload_to_servers(files, version):  # {{{
-    for server, rdir in {'files':'/usr/share/nginx/html'}.iteritems():
+    base = '/srv/download/'
+    dest = os.path.join(base, version)
+    if not os.path.exists(dest):
+        os.mkdir(dest)
+    for src in files:
+        shutil.copyfile(src, os.path.join(dest, os.path.basename(src)))
+    cwd = os.getcwd()
+    try:
+        generate_index()
+    finally:
+        os.chdir(cwd)
+
+    for server, rdir in {'files':'/srv/download/'}.iteritems():
         print('Uploading to server:', server)
         server = '%s.calibre-ebook.com' % server
-        rdir = '%s/%s/' % (rdir, version)
+        # Copy the generated index files
+        print ('Copying generated index')
+        check_call(['rsync', '-hza', '-e', 'ssh -x', '--include', '*.html',
+                    '--filter', '-! */', base, 'root@%s:%s' % (server, rdir)])
+        # Copy the release files
+        rdir = '%s%s/' % (rdir, version)
         for x in files:
             start = time.time()
             print ('Uploading', x)
@@ -400,6 +503,7 @@ def upload_to_servers(files, version):  # {{{
                 else:
                     break
             print ('Uploaded in', int(time.time() - start), 'seconds\n\n')
+
 # }}}
 
 def upload_to_dbs(files, version):  # {{{
@@ -528,5 +632,6 @@ def main(args=None):
 if __name__ == '__main__':
     main()
 # }}}
+
 
 

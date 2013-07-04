@@ -1500,8 +1500,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
         stream = lopen(npath, 'rb')
         format = check_ebook_format(stream, format)
-        retval = self.add_format(index, format, stream, replace=replace,
-                               index_is_id=index_is_id, path=path, notify=notify)
+        id = index if index_is_id else self.id(index)
+        retval = self.add_format(id, format, stream, replace=replace,
+                               index_is_id=True, path=path, notify=notify)
         run_plugins_on_postimport(self, id, format)
         return retval
 

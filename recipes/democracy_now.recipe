@@ -1,0 +1,45 @@
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class DemocracyNowRecipe(BasicNewsRecipe):
+    title = u'Democracy now!'
+    __author__ = u'Antoine Beaupré'
+    description = 'A daily TV/radio news program, hosted by Amy Goodman and Juan Gonzalez, airing on over 1,100 stations, pioneering the largest community media collaboration in the United States.'  # noqa
+    language = 'en'
+    cover_url = 'http://www.democracynow.org/images/dn-logo-for-podcast.png'
+
+    oldest_article = 1
+    max_articles_per_feed = 10
+    publication_type = 'magazine'
+
+    auto_cleanup = False
+    use_embedded_content = False
+    no_stylesheets = True
+    remove_javascript = True
+
+    feeds = [
+        (u'Daily news', u'http://www.democracynow.org/democracynow.rss')]
+
+    keep_only_tags = [dict(name='div', attrs={'id': 'page'}), ]
+    remove_tags = [dict(name='div', attrs={'id': 'topics_list'}),
+                   dict(name='div', attrs={'id': 'header'}),
+                   dict(name='div', attrs={'id': 'footer'}),
+                   dict(name='div', attrs={'id': 'right'}),
+                   dict(name='div', attrs={'id': 'left-panel'}),
+                   dict(name='div', attrs={'id': 'top-video-content'}),
+                   dict(name='div', attrs={'id': 'google-news-date'}),
+                   dict(name='div', attrs={'id': 'story-donate'}),
+                   dict(
+                   name='div', attrs={'id': 'transcript-expand-collapse'}),
+                   dict(name='span', attrs={'class': 'show-links'}),
+                   dict(name='span', attrs={'class': 'storyNav'}),
+                   dict(name='div', attrs={'class': 'headline_share'}),
+                   dict(name='div', attrs={'class': 'mediaBar'}),
+                   dict(name='div', attrs={'class': 'shareAndPrinterBar'}),
+                   dict(name='div', attrs={'class': 'utility-navigation'}),
+                   dict(name='div', attrs={'class': 'bottomContentNav'}),
+                   dict(name='div', attrs={'class': 'recentShows'}),
+                   dict(
+                   name='div', attrs={'class': 'printer-and-transcript-links'}),
+                   ]
+

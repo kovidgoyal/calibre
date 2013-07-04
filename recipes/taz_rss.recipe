@@ -1,23 +1,43 @@
-__license__   = 'GPL v3'
-__copyright__ = '2010, Alexander Schremmer <alex@alexanderweb.de>'
+__license__ = 'GPL v3'
+__copyright__ = '2013, Alexander Schremmer <alex@alexanderweb.de>, Robert Riemann <robert@riemann.cc>'
 
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class TazRSSRecipe(BasicNewsRecipe):
-    title = u'Taz.de (die tageszeitung) RSS Feed - German'
-    __author__ = 'Alexander Schremmer'
+    title = u'Taz - die Tageszeitung'
+    description = u'Taz.de - die tageszeitung'
+    __author__ = 'Alexander Schremmer, Robert Riemann'
     language = 'de'
     lang = 'de-DE'
     oldest_article = 7
     max_articles_per_feed = 100
     publisher = 'taz Entwicklungs GmbH & Co. Medien KG'
+    # masthead_url = u'http://galeria-autonomica.de/wp-content/uploads/a_taz-logo.gif'
+    masthead_url = u'http://upload.wikimedia.org/wikipedia/de/thumb/1/15/Die-Tageszeitung-Logo.svg/500px-Die-Tageszeitung-Logo.svg.png'
 
     conversion_options = {'publisher': publisher,
                           'language': lang,
                         }
-
-    feeds          = [(u'TAZ main feed', u'http://www.taz.de/rss.xml')]
+    feeds = [
+             (u'Schlagzeilen', u'http://www.taz.de/!p3270;rss/'),
+             (u'Politik', u'http://www.taz.de/Politik/!p2;rss/'),
+             (u'Zukunft', u'http://www.taz.de/Zukunft/!p4;rss/'),
+             (u'Netz', u'http://www.taz.de/Netz/!p5;rss/'),
+             (u'Debatte', u'http://www.taz.de/Debatte/!p9;rss/'),
+             (u'Leben', u'http://www.taz.de/Leben/!p10;rss/'),
+             (u'Sport', u'http://www.taz.de/Sport/!p12;rss/'),
+             (u'Wahrheit', u'http://www.taz.de/Wahrheit/!p13;rss/'),
+             (u'Berlin', u'http://www.taz.de/Berlin/!p14;rss/'),
+             (u'Nord', u'http://www.taz.de/Nord/!p11;rss/')
+            ]
     keep_only_tags = [dict(name='div', attrs={'class': 'sect sect_article'})]
     remove_tags = [
-         dict(name=['div'], attrs={'class': 'artikelwerbung'}),
-         dict(name=['ul'], attrs={'class': 'toolbar'}),]
+                   dict(name=['div'], attrs={'class': 'artikelwerbung'}),
+                   dict(name=['ul'], attrs={'class': 'toolbar'}),
+                   # remove: taz paywall
+                   dict(name=['div'], attrs={'id': 'tzi_paywall'}),
+                   # remove: Artikel zum Thema (not working on Kindle)
+                   dict(name=['div'], attrs={'class': re.compile(r".*\bsect_seealso\b.*")}),
+                   dict(name=['div'], attrs={'class': 'sectfoot'})
+                  ]

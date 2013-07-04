@@ -134,8 +134,7 @@ OptionRecommendation(name='output_profile',
             help=_('Specify the output profile. The output profile '
                    'tells the conversion system how to optimize the '
                    'created document for the specified device. In some cases, '
-                   'an output profile is required to produce documents that '
-                   'will work on a device. For example EPUB on the SONY reader. '
+                   'an output profile can be used to optimize the output for a particular device, but this is rarely necessary. '
                    'Choices are:') +
                            ', '.join([x.short_name for x in output_profiles()])
         ),
@@ -204,6 +203,17 @@ OptionRecommendation(name='embed_font_family',
             'input document. Note that font embedding only works '
             'with some output formats, principally EPUB and AZW3.')
         ),
+
+OptionRecommendation(name='embed_all_fonts',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_(
+            'Embed every font that is referenced in the input document '
+            'but not already embedded. This will search your system for the '
+            'fonts, and if found, they will be embedded. Embedding will only work '
+            'if the format you are converting to supports embedded fonts, such as '
+            'EPUB, AZW3 or PDF. Please ensure that you have the proper license for embedding '
+            'the fonts used in this document.'
+        )),
 
 OptionRecommendation(name='subset_embedded_fonts',
         recommended_value=False, level=OptionRecommendation.LOW,
@@ -965,6 +975,9 @@ OptionRecommendation(name='search_replace',
         if self.for_regex_wizard and hasattr(self.opts, 'no_process'):
             self.opts.no_process = True
         self.flush()
+        if self.opts.embed_all_fonts or self.opts.embed_font_family:
+            # Start the threaded font scanner now, for performance
+            from calibre.utils.fonts.scanner import font_scanner  # noqa
         import cssutils, logging
         cssutils.log.setLevel(logging.WARN)
         get_types_map()  # Ensure the mimetypes module is intialized
@@ -1128,6 +1141,10 @@ OptionRecommendation(name='search_replace',
             RemoveFakeMargins, RemoveAdobeMargins
         RemoveFakeMargins()(self.oeb, self.log, self.opts)
         RemoveAdobeMargins()(self.oeb, self.log, self.opts)
+
+        if self.opts.embed_all_fonts:
+            from calibre.ebooks.oeb.transforms.embed_fonts import EmbedFonts
+            EmbedFonts()(self.oeb, self.log, self.opts)
 
         if self.opts.subset_embedded_fonts and self.output_plugin.file_type != 'pdf':
             from calibre.ebooks.oeb.transforms.subset import SubsetFonts

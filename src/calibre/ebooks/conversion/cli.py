@@ -27,7 +27,7 @@ specified as the first two arguments to the command.
 The output ebook format is guessed from the file extension of \
 output_file. output_file can also be of the special format .EXT where \
 EXT is the output file extension. In this case, the name of the output \
-file is derived the name of the input file. Note that the filenames must \
+file is derived from the name of the input file. Note that the filenames must \
 not start with a hyphen. Finally, if output_file has no extension, then \
 it is treated as a directory and an "open ebook" (OEB) consisting of HTML \
 files is written to that directory. These files are the files that would \
@@ -94,6 +94,8 @@ def option_recommendation_to_cli_option(add_option, rec):
     if opt.long_switch == 'verbose':
         attrs['action'] = 'count'
         attrs.pop('type', '')
+    if opt.name == 'read_metadata_from_opf':
+        switches.append('--from-opf')
     if opt.name in DEFAULT_TRUE_OPTIONS and rec.recommended_value is True:
         switches = ['--disable-'+opt.long_switch]
     add_option(Option(*switches, **attrs))
@@ -136,7 +138,7 @@ def add_pipeline_options(parser, plumber):
                   [
                       'base_font_size', 'disable_font_rescaling',
                       'font_size_mapping', 'embed_font_family',
-                      'subset_embedded_fonts',
+                      'subset_embedded_fonts', 'embed_all_fonts',
                       'line_height', 'minimum_line_height',
                       'linearize_tables',
                       'extra_css', 'filter_css',
@@ -190,7 +192,7 @@ def add_pipeline_options(parser, plumber):
                   ),
 
               'METADATA' : (_('Options to set metadata in the output'),
-                            plumber.metadata_option_names,
+                            plumber.metadata_option_names + ['read_metadata_from_opf'],
                             ),
               'DEBUG': (_('Options to help with debugging the conversion'),
                         [
@@ -320,7 +322,7 @@ def main(args=sys.argv):
         opts.search_replace = read_sr_patterns(opts.search_replace, log)
 
     recommendations = [(n.dest, getattr(opts, n.dest),
-                        OptionRecommendation.HIGH) \
+                        OptionRecommendation.HIGH)
                                         for n in parser.options_iter()
                                         if n.dest]
     plumber.merge_ui_recommendations(recommendations)
@@ -342,3 +344,4 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     sys.exit(main())
+

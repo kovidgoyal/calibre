@@ -4,9 +4,7 @@ sur.infonews.com
 '''
 
 import datetime
-from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 class MiradasAlSur(BasicNewsRecipe):
     title                 = 'Miradas al Sur'
@@ -25,7 +23,7 @@ class MiradasAlSur(BasicNewsRecipe):
     extra_css             = """
                              body{font-family: Arial,Helvetica,sans-serif}
                              h1{font-family: Georgia,Times,serif}
-                             .field-field-story-author{color: gray; font-size: small}                             
+                             .field-field-story-author{color: gray; font-size: small}
                             """
     conversion_options = {
                           'comment'   : description
@@ -34,22 +32,22 @@ class MiradasAlSur(BasicNewsRecipe):
                         , 'language'  : language
                         , 'series'    : title
                         }
-                            
+
     keep_only_tags = [dict(name='div', attrs={'id':['content-header', 'content-area']})]
-    remove_tags    = [ 
-                      dict(name=['link','meta','iframe','embed','object']), 
+    remove_tags    = [
+                      dict(name=['link','meta','iframe','embed','object']),
                       dict(name='form', attrs={'class':'fivestar-widget'}),
                       dict(attrs={'class':lambda x: x and 'terms-inline' in x.split()})
                      ]
 
     feeds = [
-             (u'Politica'           , u'http://sur.infonews.com/taxonomy/term/1/0/feed' ),
-             (u'Internacional'      , u'http://sur.infonews.com/taxonomy/term/2/0/feed' ),
+             (u'Politica'           , u'http://sur.infonews.com/taxonomy/term/1/0/feed'),
+             (u'Internacional'      , u'http://sur.infonews.com/taxonomy/term/2/0/feed'),
              (u'Informe Especial'   , u'http://sur.infonews.com/taxonomy/term/14/0/feed'),
-             (u'Delitos y pesquisas', u'http://sur.infonews.com/taxonomy/term/6/0/feed' ),
-             (u'Lesa Humanidad'     , u'http://sur.infonews.com/taxonomy/term/7/0/feed' ),
-             (u'Cultura'            , u'http://sur.infonews.com/taxonomy/term/8/0/feed' ),
-             (u'Deportes'           , u'http://sur.infonews.com/taxonomy/term/9/0/feed' ),
+             (u'Delitos y pesquisas', u'http://sur.infonews.com/taxonomy/term/6/0/feed'),
+             (u'Lesa Humanidad'     , u'http://sur.infonews.com/taxonomy/term/7/0/feed'),
+             (u'Cultura'            , u'http://sur.infonews.com/taxonomy/term/8/0/feed'),
+             (u'Deportes'           , u'http://sur.infonews.com/taxonomy/term/9/0/feed'),
              (u'Contratapa'         , u'http://sur.infonews.com/taxonomy/term/10/0/feed'),
             ]
 
@@ -60,10 +58,10 @@ class MiradasAlSur(BasicNewsRecipe):
         cdate = datetime.date.today()
         todayweekday = cdate.isoweekday()
         if (todayweekday != 7):
-            cdate -= datetime.timedelta(days=todayweekday)        
-        cover_page_url = cdate.strftime('http://sur.infonews.com/ediciones/%Y-%m-%d/tapa');
+            cdate -= datetime.timedelta(days=todayweekday)
+        cover_page_url = cdate.strftime('http://sur.infonews.com/ediciones/%Y-%m-%d/tapa')
         soup = self.index_to_soup(cover_page_url)
         cover_item = soup.find('img', attrs={'class':lambda x: x and 'imagecache-tapa_edicion_full' in x.split()})
         if cover_item:
-           cover_url = cover_item['src']
+            cover_url = cover_item['src']
         return cover_url

@@ -330,6 +330,9 @@ class OEBReader(object):
         if len(spine) == 0:
             raise OEBError("Spine is empty")
         self._spine_add_extra()
+        for val in xpath(opf, '/o2:package/o2:spine/@page-progression-direction'):
+            if val in {'ltr', 'rtl'}:
+                spine.page_progression_direction = val
 
     def _guide_from_opf(self, opf):
         guide = self.oeb.guide

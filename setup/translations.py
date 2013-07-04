@@ -21,7 +21,12 @@ def qt_sources():
 class POT(Command):  # {{{
 
     description = 'Update the .pot translation template and upload it'
-    LP_BASE = os.path.join(os.path.dirname(os.path.dirname(Command.SRC)), 'calibre-translations')
+    LP_BASE = os.path.join(os.path.dirname(Command.SRC))
+    if not os.path.exists(os.path.join(LP_BASE, 'setup', 'iso_639')):
+        # We are in a git checkout, translations are assumed to be in a
+        # directory called calibre-translations at the same level as the
+        # calibre directory.
+        LP_BASE = os.path.join(os.path.dirname(os.path.dirname(Command.SRC)), 'calibre-translations')
     LP_SRC = os.path.join(LP_BASE, 'src')
     LP_PATH = os.path.join(LP_SRC, os.path.join(__appname__, 'translations'))
     LP_ISO_PATH = os.path.join(LP_BASE, 'setup', 'iso_639')
@@ -317,21 +322,24 @@ class GetTranslations(Translations):  # {{{
 
 class ISO639(Command):  # {{{
 
-    description = 'Compile translations for ISO 639 codes'
+    description = 'Compile language code maps for performance'
     DEST = os.path.join(os.path.dirname(POT.SRC), 'resources', 'localization',
             'iso639.pickle')
 
     def run(self, opts):
-        src = POT.LP_ISO_PATH
+        src = self.j(self.d(self.SRC), 'setup', 'iso_639_3.xml')
         if not os.path.exists(src):
             raise Exception(src + ' does not exist')
         dest = self.DEST
+        base = self.d(dest)
+        if not os.path.exists(base):
+            os.makedirs(base)
         if not self.newer(dest, [src, __file__]):
             self.info('Pickled code is up to date')
             return
         self.info('Pickling ISO-639 codes to', dest)
         from lxml import etree
-        root = etree.fromstring(open(self.j(src, 'iso_639_3.xml'), 'rb').read())
+        root = etree.fromstring(open(src, 'rb').read())
         by_2 = {}
         by_3b = {}
         by_3t = {}
@@ -345,7 +353,7 @@ class ISO639(Command):  # {{{
             threet = x.get('id')
             threeb = x.get('part2_code', None)
             if threeb is None:
-                # Only recognize langauges in ISO-639-2
+                # Only recognize languages in ISO-639-2
                 continue
             name = x.get('name')
 

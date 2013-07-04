@@ -19,10 +19,9 @@ from setup import Command, __version__, installer_name, __appname__
 PREFIX = "/var/www/calibre-ebook.com"
 DOWNLOADS = PREFIX+"/htdocs/downloads"
 BETAS = DOWNLOADS +'/betas'
-USER_MANUAL = '/var/www/localhost/htdocs/'
 HTML2LRF = "calibre/ebooks/lrf/html/demo"
 TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"
-STAGING_HOST = '67.207.135.179'
+STAGING_HOST = 'download.calibre-ebook.com'
 STAGING_USER = 'root'
 STAGING_DIR = '/root/staging'
 
@@ -135,18 +134,25 @@ class UploadInstallers(Command):  # {{{
         available = set(glob.glob('dist/*'))
         files = {x:installer_description(x) for x in
                 all_possible.intersection(available)}
+        sizes = {os.path.basename(x):os.path.getsize(x) for x in files}
+        self.record_sizes(sizes)
         tdir = mkdtemp()
         backup = os.path.join('/mnt/external/calibre/%s' % __version__)
         if not os.path.exists(backup):
             os.mkdir(backup)
         try:
             self.upload_to_staging(tdir, backup, files)
-            self.upload_to_sourceforge()
             self.upload_to_calibre()
+            self.upload_to_sourceforge()
             self.upload_to_dbs()
             # self.upload_to_google(opts.replace)
         finally:
             shutil.rmtree(tdir, ignore_errors=True)
+
+    def record_sizes(self, sizes):
+        print ('\nRecording dist sizes')
+        args = ['%s:%s:%s' % (__version__, fname, size) for fname, size in sizes.iteritems()]
+        check_call(['ssh', 'divok', 'dist_sizes'] + args)
 
     def upload_to_staging(self, tdir, backup, files):
         os.mkdir(tdir+'/dist')
@@ -155,9 +161,9 @@ class UploadInstallers(Command):  # {{{
         shutil.copyfile(hosting, os.path.join(tdir, 'hosting.py'))
 
         for f in files:
-            for x in (tdir, backup):
-                dest = os.path.join(x, f)
-                shutil.copyfile(f, dest)
+            for x in (tdir+'/dist', backup):
+                dest = os.path.join(x, os.path.basename(f))
+                shutil.copy2(f, x)
                 os.chmod(dest, stat.S_IREAD|stat.S_IWRITE|stat.S_IRGRP|stat.S_IROTH)
 
         with open(os.path.join(tdir, 'fmap'), 'wb') as fo:
@@ -219,9 +225,9 @@ class UploadUserManual(Command):  # {{{
         for x in glob.glob(self.j(path, '*')):
             self.build_plugin_example(x)
 
-        check_call(' '.join(['rsync', '-z', '-r', '--progress',
-            'manual/.build/html/',
-                    'bugs:%s'%USER_MANUAL]), shell=True)
+        for host in ('download', 'files'):
+            check_call(' '.join(['rsync', '-z', '-r', '--progress',
+                'manual/.build/html/', '%s:/srv/manual/' % host]), shell=True)
 # }}}
 
 class UploadDemo(Command):  # {{{
@@ -249,8 +255,6 @@ class UploadToServer(Command):  # {{{
     description = 'Upload miscellaneous data to calibre server'
 
     def run(self, opts):
-        check_call('ssh divok rm -f %s/calibre-\*.tar.xz'%DOWNLOADS, shell=True)
-        # check_call('scp dist/calibre-*.tar.xz divok:%s/'%DOWNLOADS, shell=True)
         check_call('gpg --armor --detach-sign dist/calibre-*.tar.xz',
                 shell=True)
         check_call('scp dist/calibre-*.tar.xz.asc divok:%s/signatures/'%DOWNLOADS,

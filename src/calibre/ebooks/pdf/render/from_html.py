@@ -253,7 +253,7 @@ class PDFWriter(QObject):
             return self.loop.exit(1)
         try:
             if not self.render_queue:
-                if self.toc is not None and len(self.toc) > 0 and not hasattr(self, 'rendered_inline_toc'):
+                if self.opts.pdf_add_toc and self.toc is not None and len(self.toc) > 0 and not hasattr(self, 'rendered_inline_toc'):
                     return self.render_inline_toc()
                 self.loop.exit()
             else:

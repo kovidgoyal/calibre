@@ -8,9 +8,8 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from future_builtins import map
-from urlparse import urlparse, urlunparse
-from urllib2 import quote, unquote
+from urlparse import urlparse
+from urllib2 import unquote
 
 from calibre.ebooks.pdf.render.common import Array, Name, Dictionary, String
 
@@ -84,10 +83,8 @@ class Links(object):
                     action = Dictionary({
                         'Type':Name('Action'), 'S':Name('URI'),
                     })
-                    parts = (x.encode('utf-8') if isinstance(x, type(u'')) else
-                             x for x in purl)
-                    url = urlunparse(map(quote, map(unquote,
-                                                    parts))).decode('ascii')
+                    # Do not try to normalize/quote/unquote this URL as if it
+                    # has a query part, it will get corrupted
                     action['URI'] = String(url)
                     annot['A'] = action
             if 'A' in annot or 'Dest' in annot:
