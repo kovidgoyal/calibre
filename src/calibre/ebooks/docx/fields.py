@@ -37,7 +37,9 @@ scanner = re.Scanner([
 def parse_hyperlink(raw, log):
     ans = {}
     last_option = None
+    raw = raw.replace('\\\\', '\x01').replace('\\"', '\x02')
     for token, token_type in scanner.scan(raw)[0]:
+        token = token.replace('\x01', '\\').replace('\x02', '"')
         if not ans:
             if token_type is not WORD:
                 log('Invalid hyperlink, first token is not a URL (%s)' % raw)
