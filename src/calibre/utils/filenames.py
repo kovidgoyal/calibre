@@ -269,8 +269,10 @@ def windows_hardlink(src, dest):
     h = win32file.CreateFile(
         dest, 0, win32file.FILE_SHARE_READ | win32file.FILE_SHARE_WRITE | win32file.FILE_SHARE_DELETE,
         None, win32file.OPEN_EXISTING, 0, None)
-    sz = win32file.GetFileSize(h)
-    win32file.CloseHandle(h)
+    try:
+        sz = win32file.GetFileSize(h)
+    finally:
+        win32file.CloseHandle(h)
 
     if sz != os.path.getsize(src):
         msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
