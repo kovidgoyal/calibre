@@ -374,6 +374,9 @@ class WritingTest(BaseTest):
             ae(cache.field_for('cover', book_id), 1)
             ae(old.cover(book_id, index_is_id=True), img, 'Cover was not set correctly for book %d' % book_id)
             self.assertTrue(old.has_cover(book_id))
+        old.close()
+        old.break_cycles()
+        del old
     # }}}
 
     def test_set_metadata(self):  # {{{

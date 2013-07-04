@@ -64,9 +64,11 @@ class LibraryDatabase(object):
         self.backend.close()
 
     def break_cycles(self):
+        delattr(self.backend, 'field_metadata')
         self.data.cache.backend = None
         self.data.cache = None
-        self.data = self.backend = self.new_api = self.field_metadata = self.prefs = self.listeners = self.refresh_ondevice = None
+        for x in ('data', 'backend', 'new_api', 'listeners',):
+            delattr(self, x)
 
     # Library wide properties {{{
     @property

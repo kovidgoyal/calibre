@@ -117,18 +117,24 @@ class LegacyTest(BaseTest):
             '__init__',
         }
 
-        for attr in dir(db):
-            if attr in SKIP_ATTRS:
-                continue
-            if not hasattr(ndb, attr):
-                raise AssertionError('The attribute %s is missing' % attr)
-            obj, nobj  = getattr(db, attr), getattr(ndb, attr)
-            if attr not in SKIP_ARGSPEC:
-                try:
-                    argspec = inspect.getargspec(obj)
-                except TypeError:
-                    pass
-                else:
-                    self.assertEqual(argspec, inspect.getargspec(nobj), 'argspec for %s not the same' % attr)
+        try:
+            for attr in dir(db):
+                if attr in SKIP_ATTRS:
+                    continue
+                if not hasattr(ndb, attr):
+                    raise AssertionError('The attribute %s is missing' % attr)
+                obj, nobj  = getattr(db, attr), getattr(ndb, attr)
+                if attr not in SKIP_ARGSPEC:
+                    try:
+                        argspec = inspect.getargspec(obj)
+                    except TypeError:
+                        pass
+                    else:
+                        self.assertEqual(argspec, inspect.getargspec(nobj), 'argspec for %s not the same' % attr)
+        finally:
+            for db in (ndb, db):
+                db.close()
+                db.break_cycles()
+
     # }}}
 
