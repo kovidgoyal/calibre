@@ -1088,7 +1088,7 @@ class DB(object):
 
     def update_path(self, book_id, title, author, path_field, formats_field):
         path = self.construct_path_name(book_id, title, author)
-        current_path = path_field.for_book(book_id)
+        current_path = path_field.for_book(book_id, default_value='')
         formats = formats_field.for_book(book_id, default_value=())
         fname = self.construct_file_name(book_id, title, author)
         # Check if the metadata used to construct paths has changed

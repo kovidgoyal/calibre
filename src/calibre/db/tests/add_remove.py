@@ -10,9 +10,11 @@ __docformat__ = 'restructuredtext en'
 import os
 from io import BytesIO
 from tempfile import NamedTemporaryFile
+from datetime import timedelta
 
-from calibre.db.tests.base import BaseTest
+from calibre.db.tests.base import BaseTest, IMG
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.date import now, UNDEFINED_DATE
 
 def import_test(replacement_data, replacement_fmt=None):
     def func(path, fmt):
@@ -138,4 +140,51 @@ class AddRemoveTest(BaseTest):
         del db
     # }}}
 
+    def test_create_book_entry(self):  # {{{
+        'Test the creation of new book entries'
+        from calibre.ebooks.metadata.book.base import Metadata
+        cache = self.init_cache()
+        mi = Metadata('Created One', authors=('Creator One', 'Creator Two'))
+
+        book_id = cache.create_book_entry(mi)
+        self.assertIsNot(book_id, None)
+
+        def do_test(cache, book_id):
+            for field in ('path', 'uuid', 'author_sort', 'timestamp', 'pubdate', 'title', 'authors', 'series_index', 'sort'):
+                self.assertTrue(cache.field_for(field, book_id))
+            for field in ('size', 'cover'):
+                self.assertFalse(cache.field_for(field, book_id))
+            self.assertEqual(book_id, cache.fields['uuid'].table.uuid_to_id_map[cache.field_for('uuid', book_id)])
+            self.assertLess(now() - cache.field_for('timestamp', book_id), timedelta(seconds=30))
+            self.assertEqual(('Created One', ('Creator One', 'Creator Two')), (cache.field_for('title', book_id), cache.field_for('authors', book_id)))
+            self.assertEqual(cache.field_for('series_index', book_id), 1.0)
+            self.assertEqual(cache.field_for('pubdate', book_id), UNDEFINED_DATE)
+
+        do_test(cache, book_id)
+        # Test that the db contains correct data
+        cache = self.init_cache()
+        do_test(cache, book_id)
+
+        self.assertIs(None, cache.create_book_entry(mi, add_duplicates=False), 'Duplicate added incorrectly')
+        book_id = cache.create_book_entry(mi, cover=IMG)
+        self.assertIsNot(book_id, None)
+        self.assertEqual(IMG, cache.cover(book_id))
+
+        import calibre.db.cache as c
+        orig = c.prefs
+        c.prefs = {'new_book_tags':('newbook', 'newbook2')}
+        try:
+            book_id = cache.create_book_entry(mi)
+            self.assertEqual(('newbook', 'newbook2'), cache.field_for('tags', book_id))
+            mi.tags = ('one', 'two')
+            book_id = cache.create_book_entry(mi)
+            self.assertEqual(('one', 'two') + ('newbook', 'newbook2'), cache.field_for('tags', book_id))
+            mi.tags = ()
+        finally:
+            c.prefs = orig
+
+        mi.uuid = 'a preserved uuid'
+        book_id = cache.create_book_entry(mi, preserve_uuid=True)
+        self.assertEqual(mi.uuid, cache.field_for('uuid', book_id))
+    # }}}
 

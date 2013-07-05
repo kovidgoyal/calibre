@@ -12,9 +12,10 @@ from io import BytesIO
 from collections import defaultdict
 from functools import wraps, partial
 
-from calibre.constants import iswindows
+from calibre import isbytestring
+from calibre.constants import iswindows, preferred_encoding
 from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postimport
-from calibre.db import SPOOL_SIZE
+from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.categories import get_categories
 from calibre.db.locking import create_locks
 from calibre.db.errors import NoSuchFormat
@@ -24,12 +25,13 @@ from calibre.db.tables import VirtualTable
 from calibre.db.write import get_series_values
 from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.ebooks import check_ebook_format
-from calibre.ebooks.metadata import string_to_authors
+from calibre.ebooks.metadata import string_to_authors, author_to_author_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import (base_dir, PersistentTemporaryFile,
                                SpooledTemporaryFile)
-from calibre.utils.date import now as nowf
+from calibre.utils.config import prefs
+from calibre.utils.date import now as nowf, utcnow, UNDEFINED_DATE
 from calibre.utils.icu import sort_key
 
 def api(f):
@@ -64,6 +66,16 @@ def run_import_plugins(path_or_stream, fmt):
     else:
         path = path_or_stream
     return run_plugins_on_import(path, fmt)
+
+def _add_newbook_tag(mi):
+    tags = prefs['new_book_tags']
+    if tags:
+        for tag in [t.strip() for t in tags]:
+            if tag:
+                if not mi.tags:
+                    mi.tags = [tag]
+                elif tag not in mi.tags:
+                    mi.tags.append(tag)
 
 
 class Cache(object):
@@ -1021,6 +1033,95 @@ class Cache(object):
 
         self._update_last_modified(tuple(formats_map.iterkeys()))
 
+    @read_api
+    def get_next_series_num_for(self, series):
+        books = ()
+        sf = self.fields['series']
+        if series:
+            q = icu_lower(series)
+            for val, book_ids in sf.iter_searchable_values(self._get_metadata, frozenset(self.all_book_ids())):
+                if q == icu_lower(val):
+                    books = book_ids
+                    break
+        series_indices = sorted(self._field_for('series_index', book_id) for book_id in books)
+        return _get_next_series_num_for_list(tuple(series_indices), unwrap=False)
+
+    @read_api
+    def author_sort_from_authors(self, authors):
+        '''Given a list of authors, return the author_sort string for the authors,
+        preferring the author sort associated with the author over the computed
+        string. '''
+        table = self.fields['authors'].table
+        result = []
+        rmap = {icu_lower(v):k for k, v in table.id_map.iteritems()}
+        for aut in authors:
+            aid = rmap.get(icu_lower(aut), None)
+            result.append(author_to_author_sort(aut) if aid is None else table.asort_map[aid])
+        return ' & '.join(result)
+
+    @read_api
+    def has_book(self, mi):
+        title = mi.title
+        if title:
+            if isbytestring(title):
+                title = title.decode(preferred_encoding, 'replace')
+            q = icu_lower(title)
+            for title in self.fields['title'].table.book_col_map.itervalues():
+                if q == icu_lower(title):
+                    return True
+        return False
+
+    @write_api
+    def create_book_entry(self, mi, cover=None, add_duplicates=True, force_id=None, apply_import_tags=True, preserve_uuid=False):
+        if mi.tags:
+            mi.tags = list(mi.tags)
+        if apply_import_tags:
+            _add_newbook_tag(mi)
+        if not add_duplicates and self._has_book(mi):
+            return
+        series_index = (self._get_next_series_num_for(mi.series) if mi.series_index is None else mi.series_index)
+        if not mi.authors:
+            mi.authors = (_('Unknown'),)
+        aus = mi.author_sort if mi.author_sort else self._author_sort_from_authors(mi.authors)
+        mi.title = mi.title or _('Unknown')
+        if isbytestring(aus):
+            aus = aus.decode(preferred_encoding, 'replace')
+        if isbytestring(mi.title):
+            mi.title = mi.title.decode(preferred_encoding, 'replace')
+        conn = self.backend.conn
+        if force_id is None:
+            conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
+                         (mi.title, series_index, aus))
+        else:
+            conn.execute('INSERT INTO books(id, title, series_index, author_sort) VALUES (?, ?, ?, ?)',
+                         (force_id, mi.title, series_index, aus))
+        book_id = conn.last_insert_rowid()
+
+        mi.timestamp = utcnow() if mi.timestamp is None else mi.timestamp
+        mi.pubdate = UNDEFINED_DATE if mi.pubdate is None else mi.pubdate
+        if cover is not None:
+            mi.cover, mi.cover_data = None, (None, cover)
+        self._set_metadata(book_id, mi, ignore_errors=True)
+        if preserve_uuid and mi.uuid:
+            self._set_field('uuid', {book_id:mi.uuid})
+        # Update the caches for fields from the books table
+        self.fields['size'].table.book_col_map[book_id] = 0
+        row = next(conn.execute('SELECT sort, series_index, author_sort, uuid, has_cover FROM books WHERE id=?', (book_id,)))
+        for field, val in zip(('sort', 'series_index', 'author_sort', 'uuid', 'cover'), row):
+            if field == 'cover':
+                val = bool(val)
+            elif field == 'uuid':
+                self.fields[field].table.uuid_to_id_map[val] = book_id
+            self.fields[field].table.book_col_map[book_id] = val
+
+        return book_id
+
+    @write_api
+    def add_books(self, books, add_duplicates=True):
+        duplicates, ids = [], []
+        for mi, format_map in books:
+            pass
+
     # }}}
 
 class SortKey(object):  # {{{
@@ -1036,5 +1137,6 @@ class SortKey(object):  # {{{
                 return ans * order
         return 0
 # }}}
+
 
 

@@ -110,7 +110,7 @@ class UUIDTable(OneToOneTable):
 
     def update_uuid_cache(self, book_id_val_map):
         for book_id, uuid in book_id_val_map.iteritems():
-            self.uuid_to_id_map.pop(self.book_col_map[book_id], None)  # discard old uuid
+            self.uuid_to_id_map.pop(self.book_col_map.get(book_id, None), None)  # discard old uuid
             self.uuid_to_id_map[uuid] = book_id
 
 class CompositeTable(OneToOneTable):
@@ -191,6 +191,11 @@ class AuthorsTable(ManyToManyTable):
             self.asort_map[row[0]] = (row[2] if row[2] else
                     author_to_author_sort(row[1]))
             self.alink_map[row[0]] = row[3]
+
+    def set_sort_names(self, aus_map, db):
+        self.asort_map.update(aus_map)
+        db.conn.executemany('UPDATE authors SET sort=? WHERE id=?',
+            [(v, k) for k, v in aus_map.iteritems()])
 
 class FormatsTable(ManyToManyTable):
 
