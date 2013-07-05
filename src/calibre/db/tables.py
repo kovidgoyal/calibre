@@ -221,6 +221,19 @@ class FormatsTable(ManyToManyTable):
                         (fname, book_id, fmt))
 
     def update_fmt(self, book_id, fmt, fname, size, db):
+        fmts = list(self.book_col_map.get(book_id, []))
+        try:
+            fmts.remove(fmt)
+        except ValueError:
+            pass
+        fmts.append(fmt)
+        self.book_col_map[book_id] = tuple(fmts)
+
+        try:
+            self.col_book_map[fmt].add(book_id)
+        except KeyError:
+            self.col_book_map[fmt] = {book_id}
+
         self.fname_map[book_id][fmt] = fname
         self.size_map[book_id][fmt] = size
         db.conn.execute('INSERT OR REPLACE INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
