@@ -99,8 +99,8 @@ class SizeTable(OneToOneTable):
                 'WHERE data.book=books.id) FROM books'):
             self.book_col_map[row[0]] = self.unserialize(row[1])
 
-    def update_size(self, book_id, size):
-        self.book_col_map[book_id] = size
+    def update_sizes(self, size_map):
+        self.book_col_map.update(size_map)
 
 class UUIDTable(OneToOneTable):
 
@@ -220,6 +220,26 @@ class FormatsTable(ManyToManyTable):
         db.conn.execute('UPDATE data SET name=? WHERE book=? AND format=?',
                         (fname, book_id, fmt))
 
+    def remove_formats(self, formats_map, db):
+        for book_id, fmts in formats_map.iteritems():
+            self.book_col_map[book_id] = [fmt for fmt in self.book_col_map.get(book_id, []) if fmt not in fmts]
+            for m in (self.fname_map, self.size_map):
+                m[book_id] = {k:v for k, v in m[book_id].iteritems() if k not in fmts}
+            for fmt in fmts:
+                try:
+                    self.col_book_map[fmt].discard(book_id)
+                except KeyError:
+                    pass
+        db.conn.executemany('DELETE FROM data WHERE book=? AND format=?',
+            [(book_id, fmt) for book_id, fmts in formats_map.iteritems() for fmt in fmts])
+        def zero_max(book_id):
+            try:
+                return max(self.size_map[book_id].itervalues())
+            except ValueError:
+                return 0
+
+        return {book_id:zero_max(book_id) for book_id in formats_map}
+
     def update_fmt(self, book_id, fmt, fname, size, db):
         fmts = list(self.book_col_map.get(book_id, []))
         try:
@@ -259,3 +279,4 @@ class LanguagesTable(ManyToManyTable):
 
     def read_id_maps(self, db):
         ManyToManyTable.read_id_maps(self, db)
+

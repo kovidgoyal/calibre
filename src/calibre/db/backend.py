@@ -26,7 +26,7 @@ from calibre.utils.date import utcfromtimestamp, parse_date
 from calibre.utils.filenames import (is_case_sensitive, samefile, hardlink_file, ascii_filename,
                                      WindowsAtomicFolderMove)
 from calibre.utils.magick.draw import save_cover_data_to
-from calibre.utils.recycle_bin import delete_tree
+from calibre.utils.recycle_bin import delete_tree, delete_file
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
         CompositeTable, LanguagesTable, UUIDTable)
@@ -939,6 +939,15 @@ class DB(object):
 
     def has_format(self, book_id, fmt, fname, path):
         return self.format_abspath(book_id, fmt, fname, path) is not None
+
+    def remove_format(self, book_id, fmt, fname, path):
+        path = self.format_abspath(book_id, fmt, fname, path)
+        if path is not None:
+            try:
+                delete_file(path)
+            except:
+                import traceback
+                traceback.print_exc()
 
     def copy_cover_to(self, path, dest, windows_atomic_move=None, use_hardlink=False):
         path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))

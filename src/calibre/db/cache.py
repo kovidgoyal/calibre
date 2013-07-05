@@ -984,7 +984,7 @@ class Cache(object):
         del stream
 
         max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
-        self.fields['size'].table.update_size(book_id, max_size)
+        self.fields['size'].table.update_sizes({book_id: max_size})
         self._update_last_modified((book_id,))
 
         if run_hooks:
@@ -993,6 +993,33 @@ class Cache(object):
             stream_or_path.close()
 
         return True
+
+    @write_api
+    def remove_formats(self, formats_map, db_only=False):
+        table = self.fields['formats'].table
+        formats_map = {book_id:frozenset((f or '').upper() for f in fmts) for book_id, fmts in formats_map.iteritems()}
+        size_map = table.remove_formats(formats_map, self.backend)
+        self.fields['size'].table.update_sizes(size_map)
+
+        for book_id, fmts in formats_map.iteritems():
+            for fmt in fmts:
+                self.format_metadata_cache[book_id].pop(fmt, None)
+
+        if not db_only:
+            for book_id, fmts in formats_map.iteritems():
+                try:
+                    path = self._field_for('path', book_id).replace('/', os.sep)
+                except:
+                    continue
+                for fmt in fmts:
+                    try:
+                        name = self.fields['formats'].format_fname(book_id, fmt)
+                    except:
+                        continue
+                    if name and path:
+                        self.backend.remove_format(book_id, fmt, name, path)
+
+        self._update_last_modified(tuple(formats_map.iterkeys()))
 
     # }}}
 

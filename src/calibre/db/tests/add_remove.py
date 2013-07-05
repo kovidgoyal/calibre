@@ -7,6 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 
@@ -96,6 +97,45 @@ class AddRemoveTest(BaseTest):
         db.close()
         del db
 
+    # }}}
+
+    def test_remove_formats(self):  # {{{
+        'Test removal of formats from book records'
+        af, ae, at = self.assertFalse, self.assertEqual, self.assertTrue
+
+        cache = self.init_cache()
+
+        # Test removal of non-existing format does nothing
+        formats = {bid:tuple(cache.formats(bid)) for bid in (1, 2, 3)}
+        cache.remove_formats({1:{'NF'}, 2:{'NF'}, 3:{'NF'}})
+        nformats = {bid:tuple(cache.formats(bid)) for bid in (1, 2, 3)}
+        ae(formats, nformats)
+
+        # Test full removal of format
+        af(cache.format(1, 'FMT1') is None)
+        at(cache.has_format(1, 'FMT1'))
+        cache.remove_formats({1:{'FMT1'}})
+        at(cache.format(1, 'FMT1') is None)
+        af(bool(cache.format_metadata(1, 'FMT1')))
+        af(bool(cache.format_metadata(1, 'FMT1', allow_cache=False)))
+        af('FMT1' in cache.formats(1))
+        af(cache.has_format(1, 'FMT1'))
+
+        # Test db only removal
+        at(cache.has_format(1, 'FMT2'))
+        ap = cache.format_abspath(1, 'FMT2')
+        if ap and os.path.exists(ap):
+            cache.remove_formats({1:{'FMT2'}})
+            af(bool(cache.format_metadata(1, 'FMT2')))
+            af(cache.has_format(1, 'FMT2'))
+            at(os.path.exists(ap))
+
+        # Test that the old interface agrees
+        db = self.init_old()
+        at(db.format(1, 'FMT1', index_is_id=True) is None)
+
+        db.close()
+        del db
     # }}}
 
 
