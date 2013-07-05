@@ -1059,6 +1059,24 @@ class DB(object):
                         if wam is not None:
                             wam.close_handles()
 
+    def add_format(self, book_id, fmt, stream, title, author, path):
+        fname = self.construct_file_name(book_id, title, author)
+        path = os.path.join(self.library_path, path)
+        fmt = ('.' + fmt.lower()) if fmt else ''
+        dest = os.path.join(path, fname + fmt)
+        if not os.path.exists(path):
+            os.makedirs(path)
+        size = 0
+
+        if (not getattr(stream, 'name', False) or not samefile(dest, stream.name)):
+            with lopen(dest, 'wb') as f:
+                shutil.copyfileobj(stream, f)
+                size = f.tell()
+        elif os.path.exists(dest):
+            size = os.path.getsize(dest)
+
+        return size, fname
+
     def update_path(self, book_id, title, author, path_field, formats_field):
         path = self.construct_path_name(book_id, title, author)
         current_path = path_field.for_book(book_id)

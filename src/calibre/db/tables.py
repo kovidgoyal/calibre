@@ -8,6 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from datetime import datetime
+from collections import defaultdict
 
 from dateutil.tz import tzoffset
 
@@ -97,6 +98,9 @@ class SizeTable(OneToOneTable):
                 'SELECT books.id, (SELECT MAX(uncompressed_size) FROM data '
                 'WHERE data.book=books.id) FROM books'):
             self.book_col_map[row[0]] = self.unserialize(row[1])
+
+    def update_size(self, book_id, size):
+        self.book_col_map[book_id] = size
 
 class UUIDTable(OneToOneTable):
 
@@ -194,8 +198,9 @@ class FormatsTable(ManyToManyTable):
         pass
 
     def read_maps(self, db):
-        self.fname_map = {}
-        for row in db.conn.execute('SELECT book, format, name FROM data'):
+        self.fname_map = defaultdict(dict)
+        self.size_map = defaultdict(dict)
+        for row in db.conn.execute('SELECT book, format, name, uncompressed_size FROM data'):
             if row[1] is not None:
                 fmt = row[1].upper()
                 if fmt not in self.col_book_map:
@@ -204,9 +209,8 @@ class FormatsTable(ManyToManyTable):
                 if row[0] not in self.book_col_map:
                     self.book_col_map[row[0]] = []
                 self.book_col_map[row[0]].append(fmt)
-                if row[0] not in self.fname_map:
-                    self.fname_map[row[0]] = {}
                 self.fname_map[row[0]][fmt] = row[2]
+                self.size_map[row[0]][fmt] = row[3]
 
         for key in tuple(self.book_col_map.iterkeys()):
             self.book_col_map[key] = tuple(sorted(self.book_col_map[key]))
@@ -215,6 +219,13 @@ class FormatsTable(ManyToManyTable):
         self.fname_map[book_id][fmt] = fname
         db.conn.execute('UPDATE data SET name=? WHERE book=? AND format=?',
                         (fname, book_id, fmt))
+
+    def update_fmt(self, book_id, fmt, fname, size, db):
+        self.fname_map[book_id][fmt] = fname
+        self.size_map[book_id][fmt] = size
+        db.conn.execute('INSERT OR REPLACE INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
+                        (book_id, fmt, size, fname))
+        return max(self.size_map[book_id].itervalues())
 
 class IdentifiersTable(ManyToManyTable):
 

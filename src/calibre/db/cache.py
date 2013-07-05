@@ -7,12 +7,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, random
+import os, traceback, random, shutil
 from io import BytesIO
 from collections import defaultdict
 from functools import wraps, partial
 
 from calibre.constants import iswindows
+from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postimport
 from calibre.db import SPOOL_SIZE
 from calibre.db.categories import get_categories
 from calibre.db.locking import create_locks
@@ -22,6 +23,7 @@ from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
 from calibre.db.write import get_series_values
 from calibre.db.lazy import FormatMetadata, FormatsList
+from calibre.ebooks import check_ebook_format
 from calibre.ebooks.metadata import string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
@@ -50,6 +52,18 @@ def wrap_simple(lock, func):
         with lock:
             return func(*args, **kwargs)
     return ans
+
+def run_import_plugins(path_or_stream, fmt):
+    fmt = fmt.lower()
+    if hasattr(path_or_stream, 'seek'):
+        path_or_stream.seek(0)
+        pt = PersistentTemporaryFile('_import_plugin.'+fmt)
+        shutil.copyfileobj(path_or_stream, pt, 1024**2)
+        pt.close()
+        path = pt.name
+    else:
+        path = path_or_stream
+    return run_plugins_on_import(path, fmt)
 
 
 class Cache(object):
@@ -943,6 +957,43 @@ class Cache(object):
                         if extra is not None or force_changes:
                             protected_set_field(idx, extra)
 
+    @write_api
+    def add_format(self, book_id, fmt, stream_or_path, replace=True, run_hooks=True, dbapi=None):
+        if run_hooks:
+            # Run import plugins
+            npath = run_import_plugins(stream_or_path, fmt)
+            fmt = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
+            stream_or_path = lopen(npath, 'rb')
+            fmt = check_ebook_format(stream_or_path, fmt)
+
+        fmt = (fmt or '').upper()
+        self.format_metadata_cache[book_id].pop(fmt, None)
+        try:
+            name = self.fields['formats'].format_fname(book_id, fmt)
+        except:
+            name = None
+
+        if name and not replace:
+            return False
+
+        path = self._field_for('path', book_id).replace('/', os.sep)
+        title = self._field_for('title', book_id, default_value=_('Unknown'))
+        author = self._field_for('authors', book_id, default_value=(_('Unknown'),))[0]
+        stream = stream_or_path if hasattr(stream_or_path, 'read') else lopen(stream_or_path, 'rb')
+        size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path)
+        del stream
+
+        max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
+        self.fields['size'].table.update_size(book_id, max_size)
+        self._update_last_modified((book_id,))
+
+        if run_hooks:
+            # Run post import plugins
+            run_plugins_on_postimport(dbapi or self, book_id, fmt)
+            stream_or_path.close()
+
+        return True
+
     # }}}
 
 class SortKey(object):  # {{{
@@ -958,4 +1009,5 @@ class SortKey(object):  # {{{
                 return ans * order
         return 0
 # }}}
+
 
