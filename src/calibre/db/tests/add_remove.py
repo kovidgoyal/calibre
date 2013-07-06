@@ -188,3 +188,19 @@ class AddRemoveTest(BaseTest):
         self.assertEqual(mi.uuid, cache.field_for('uuid', book_id))
     # }}}
 
+    def test_add_books(self):  # {{{
+        'Test the adding of new books'
+        from calibre.ebooks.metadata.book.base import Metadata
+        cache = self.init_cache()
+        mi = Metadata('Created One', authors=('Creator One', 'Creator Two'))
+        FMT1, FMT2 = b'format1', b'format2'
+        format_map = {'FMT1':BytesIO(FMT1), 'FMT2':BytesIO(FMT2)}
+        ids, duplicates = cache.add_books([(mi, format_map)])
+        self.assertTrue(len(ids) == 1)
+        self.assertFalse(duplicates)
+        book_id = ids[0]
+        self.assertEqual(set(cache.formats(book_id)), {'FMT1', 'FMT2'})
+        self.assertEqual(cache.format(book_id, 'FMT1'), FMT1)
+        self.assertEqual(cache.format(book_id, 'FMT2'), FMT2)
+    # }}}
+

@@ -1117,10 +1117,17 @@ class Cache(object):
         return book_id
 
     @write_api
-    def add_books(self, books, add_duplicates=True):
+    def add_books(self, books, add_duplicates=True, apply_import_tags=True, preserve_uuid=False, dbapi=None):
         duplicates, ids = [], []
         for mi, format_map in books:
-            pass
+            book_id = self._create_book_entry(mi, add_duplicates=add_duplicates, apply_import_tags=apply_import_tags, preserve_uuid=preserve_uuid)
+            if book_id is None:
+                duplicates.append((mi, format_map))
+            else:
+                ids.append(book_id)
+                for fmt, stream_or_path in format_map.iteritems():
+                    self._add_format(book_id, fmt, stream_or_path, dbapi=dbapi)
+        return ids, duplicates
 
     # }}}
 
