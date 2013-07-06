@@ -203,6 +203,7 @@ class Convert(object):
                 current.append(p)
 
         if current:
+            self.section_starts.append(current[0])
             last = XPath('./w:body/w:sectPr')(doc)
             pr = PageProperties(last)
             for x in current:
