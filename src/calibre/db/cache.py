@@ -1129,6 +1129,19 @@ class Cache(object):
                     self._add_format(book_id, fmt, stream_or_path, dbapi=dbapi)
         return ids, duplicates
 
+    @write_api
+    def remove_books(self, book_ids, permanent=False):
+        path_map = {}
+        for book_id in book_ids:
+            try:
+                path = self._field_for('path', book_id).replace('/', os.sep)
+            except:
+                path = None
+            path_map[book_id] = path
+        self.backend.remove_books(path_map, permanent=permanent)
+        for field in self.fields.itervalues():
+            field.table.remove_books(book_ids, self.backend)
+
     # }}}
 
 class SortKey(object):  # {{{

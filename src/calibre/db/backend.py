@@ -29,7 +29,7 @@ from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_tree, delete_file
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
-        CompositeTable, LanguagesTable, UUIDTable)
+        CompositeTable, UUIDTable)
 # }}}
 
 '''
@@ -711,7 +711,6 @@ class DB(object):
                     'authors':AuthorsTable,
                     'formats':FormatsTable,
                     'identifiers':IdentifiersTable,
-                    'languages':LanguagesTable,
                   }.get(col, ManyToManyTable)
             tables[col] = cls(col, self.field_metadata[col].copy())
 
@@ -1165,5 +1164,16 @@ class DB(object):
         with lopen(path, 'rb') as f:
             return f.read()
 
+    def remove_books(self, path_map, permanent=False):
+        for book_id, path in path_map.iteritems():
+            if path:
+                path = os.path.join(self.library_path, path)
+                if os.path.exists(path):
+                    self.rmtree(path, permanent=permanent)
+                    parent = os.path.dirname(path)
+                    if len(os.listdir(parent)) == 0:
+                        self.rmtree(parent, permanent=permanent)
+        self.conn.executemany(
+            'DELETE FROM books WHERE id=?', [(x,) for x in path_map])
    # }}}
 
