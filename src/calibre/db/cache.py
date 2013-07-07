@@ -1140,7 +1140,12 @@ class Cache(object):
             path_map[book_id] = path
         self.backend.remove_books(path_map, permanent=permanent)
         for field in self.fields.itervalues():
-            field.table.remove_books(book_ids, self.backend)
+            try:
+                table = field.table
+            except AttributeError:
+                continue  # Some fields like ondevice do not have tables
+            else:
+                table.remove_books(book_ids, self.backend)
 
     # }}}
 
