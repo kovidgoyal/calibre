@@ -58,6 +58,9 @@ class LibraryDatabase(object):
             setattr(self, prop, partial(self.get_property,
                     loc=self.FIELD_MAP[fm]))
 
+        for meth in ('get_next_series_num_for', 'has_book', 'author_sort_from_authors'):
+            setattr(self, meth, getattr(self.new_api, meth))
+
         self.last_update_check = self.last_modified()
 
     def close(self):
