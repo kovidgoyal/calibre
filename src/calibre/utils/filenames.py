@@ -259,20 +259,23 @@ def samefile(src, dst):
 
 def windows_hardlink(src, dest):
     import win32file, pywintypes
-    msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
     try:
         win32file.CreateHardLink(dest, src)
     except pywintypes.error as e:
+        msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
         raise Exception(msg % e)
     # We open and close dest, to ensure its directory entry is updated
     # see http://blogs.msdn.com/b/oldnewthing/archive/2011/12/26/10251026.aspx
     h = win32file.CreateFile(
         dest, 0, win32file.FILE_SHARE_READ | win32file.FILE_SHARE_WRITE | win32file.FILE_SHARE_DELETE,
         None, win32file.OPEN_EXISTING, 0, None)
-    sz = win32file.GetFileSize(h)
-    win32file.CloseHandle(h)
+    try:
+        sz = win32file.GetFileSize(h)
+    finally:
+        win32file.CloseHandle(h)
 
     if sz != os.path.getsize(src):
+        msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
         raise Exception(msg % ('hardlink size: %d not the same as source size' % sz))
 
 class WindowsAtomicFolderMove(object):

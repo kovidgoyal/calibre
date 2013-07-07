@@ -1,0 +1,10 @@
+from calibre.web.feeds.news import AutomaticNewsRecipe
+class BasicUserRecipe1373130920(AutomaticNewsRecipe):
+    title          = u'Glenn Greenwald | guardian.co.uk'
+    language = 'en_GB'
+    __author__ = 'anywho'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup = True
+
+    feeds          = [(u'Latest', u'http://www.guardian.co.uk/profile/glenn-greenwald/rss')]

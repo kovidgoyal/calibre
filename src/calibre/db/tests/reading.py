@@ -15,7 +15,7 @@ from calibre.db.tests.base import BaseTest
 
 class ReadingTest(BaseTest):
 
-    def test_read(self): # {{{
+    def test_read(self):  # {{{
         'Test the reading of data from the database'
         cache = self.init_cache(self.library_path)
         tests = {
@@ -123,7 +123,7 @@ class ReadingTest(BaseTest):
                             book_id, field, expected_val, val))
         # }}}
 
-    def test_sorting(self): # {{{
+    def test_sorting(self):  # {{{
         'Test sorting'
         cache = self.init_cache(self.library_path)
         for field, order in {
@@ -165,7 +165,7 @@ class ReadingTest(BaseTest):
             ('title', True)]), 'Subsort failed')
     # }}}
 
-    def test_get_metadata(self): # {{{
+    def test_get_metadata(self):  # {{{
         'Test get_metadata() returns the same data for both backends'
         from calibre.library.database2 import LibraryDatabase2
         old = LibraryDatabase2(self.library_path)
@@ -188,7 +188,7 @@ class ReadingTest(BaseTest):
             self.compare_metadata(mi1, mi2)
     # }}}
 
-    def test_get_cover(self): # {{{
+    def test_get_cover(self):  # {{{
         'Test cover() returns the same data for both backends'
         from calibre.library.database2 import LibraryDatabase2
         old = LibraryDatabase2(self.library_path)
@@ -212,7 +212,7 @@ class ReadingTest(BaseTest):
 
     # }}}
 
-    def test_searching(self): # {{{
+    def test_searching(self):  # {{{
         'Test searching returns the same data for both backends'
         from calibre.library.database2 import LibraryDatabase2
         old = LibraryDatabase2(self.library_path)
@@ -267,7 +267,7 @@ class ReadingTest(BaseTest):
 
     # }}}
 
-    def test_get_categories(self): # {{{
+    def test_get_categories(self):  # {{{
         'Check that get_categories() returns the same data for both backends'
         from calibre.library.database2 import LibraryDatabase2
         old = LibraryDatabase2(self.library_path)
@@ -286,9 +286,9 @@ class ReadingTest(BaseTest):
                 oval, nval = getattr(old, attr), getattr(new, attr)
                 if (
                     (category in {'rating', '#rating'} and attr in {'id_set', 'sort'}) or
-                    (category == 'series' and attr == 'sort') or # Sorting is wrong in old
+                    (category == 'series' and attr == 'sort') or  # Sorting is wrong in old
                     (category == 'identifiers' and attr == 'id_set') or
-                    (category == '@Good Series') or # Sorting is wrong in old
+                    (category == '@Good Series') or  # Sorting is wrong in old
                     (category == 'news' and attr in {'count', 'id_set'}) or
                     (category == 'formats' and attr == 'id_set')
                 ):
@@ -306,7 +306,7 @@ class ReadingTest(BaseTest):
 
     # }}}
 
-    def test_get_formats(self): # {{{
+    def test_get_formats(self):  # {{{
         'Test reading ebook formats using the format() method'
         from calibre.library.database2 import LibraryDatabase2
         from calibre.db.cache import NoSuchFormat
@@ -343,3 +343,47 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_author_sort_for_authors(self):  # {{{
+        'Test getting the author sort for authors from the db'
+        cache = self.init_cache()
+        table = cache.fields['authors'].table
+        table.set_sort_names({next(table.id_map.iterkeys()): 'Fake Sort'}, cache.backend)
+
+        authors = tuple(table.id_map.itervalues())
+        nval = cache.author_sort_from_authors(authors)
+        self.assertIn('Fake Sort', nval)
+
+        db = self.init_old()
+        self.assertEqual(db.author_sort_from_authors(authors), nval)
+        db.close()
+        del db
+
+    # }}}
+
+    def test_get_next_series_num(self):  # {{{
+        'Test getting the next series number for a series'
+        cache = self.init_cache()
+        cache.set_field('series', {3:'test series'})
+        cache.set_field('series_index', {3:13})
+        table = cache.fields['series'].table
+        series = tuple(table.id_map.itervalues())
+        nvals = {s:cache.get_next_series_num_for(s) for s in series}
+        db = self.init_old()
+        self.assertEqual({s:db.get_next_series_num_for(s) for s in series}, nvals)
+        db.close()
+
+    # }}}
+
+    def test_has_book(self):  # {{{
+        'Test detecting duplicates'
+        from calibre.ebooks.metadata.book.base import Metadata
+        cache = self.init_cache()
+        db = self.init_old()
+        for title in cache.fields['title'].table.book_col_map.itervalues():
+            for x in (db, cache):
+                self.assertTrue(x.has_book(Metadata(title)))
+                self.assertTrue(x.has_book(Metadata(title.upper())))
+                self.assertFalse(x.has_book(Metadata(title + 'XXX')))
+                self.assertFalse(x.has_book(Metadata(title[:1])))
+        db.close()
+    # }}}

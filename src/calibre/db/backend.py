@@ -26,10 +26,10 @@ from calibre.utils.date import utcfromtimestamp, parse_date
 from calibre.utils.filenames import (is_case_sensitive, samefile, hardlink_file, ascii_filename,
                                      WindowsAtomicFolderMove)
 from calibre.utils.magick.draw import save_cover_data_to
-from calibre.utils.recycle_bin import delete_tree
+from calibre.utils.recycle_bin import delete_tree, delete_file
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
-        CompositeTable, LanguagesTable, UUIDTable)
+        CompositeTable, UUIDTable)
 # }}}
 
 '''
@@ -711,7 +711,6 @@ class DB(object):
                     'authors':AuthorsTable,
                     'formats':FormatsTable,
                     'identifiers':IdentifiersTable,
-                    'languages':LanguagesTable,
                   }.get(col, ManyToManyTable)
             tables[col] = cls(col, self.field_metadata[col].copy())
 
@@ -940,6 +939,15 @@ class DB(object):
     def has_format(self, book_id, fmt, fname, path):
         return self.format_abspath(book_id, fmt, fname, path) is not None
 
+    def remove_format(self, book_id, fmt, fname, path):
+        path = self.format_abspath(book_id, fmt, fname, path)
+        if path is not None:
+            try:
+                delete_file(path)
+            except:
+                import traceback
+                traceback.print_exc()
+
     def copy_cover_to(self, path, dest, windows_atomic_move=None, use_hardlink=False):
         path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
         if windows_atomic_move is not None:
@@ -1059,9 +1067,27 @@ class DB(object):
                         if wam is not None:
                             wam.close_handles()
 
+    def add_format(self, book_id, fmt, stream, title, author, path):
+        fname = self.construct_file_name(book_id, title, author)
+        path = os.path.join(self.library_path, path)
+        fmt = ('.' + fmt.lower()) if fmt else ''
+        dest = os.path.join(path, fname + fmt)
+        if not os.path.exists(path):
+            os.makedirs(path)
+        size = 0
+
+        if (not getattr(stream, 'name', False) or not samefile(dest, stream.name)):
+            with lopen(dest, 'wb') as f:
+                shutil.copyfileobj(stream, f)
+                size = f.tell()
+        elif os.path.exists(dest):
+            size = os.path.getsize(dest)
+
+        return size, fname
+
     def update_path(self, book_id, title, author, path_field, formats_field):
         path = self.construct_path_name(book_id, title, author)
-        current_path = path_field.for_book(book_id)
+        current_path = path_field.for_book(book_id, default_value='')
         formats = formats_field.for_book(book_id, default_value=())
         fname = self.construct_file_name(book_id, title, author)
         # Check if the metadata used to construct paths has changed
@@ -1138,5 +1164,16 @@ class DB(object):
         with lopen(path, 'rb') as f:
             return f.read()
 
+    def remove_books(self, path_map, permanent=False):
+        for book_id, path in path_map.iteritems():
+            if path:
+                path = os.path.join(self.library_path, path)
+                if os.path.exists(path):
+                    self.rmtree(path, permanent=permanent)
+                    parent = os.path.dirname(path)
+                    if len(os.listdir(parent)) == 0:
+                        self.rmtree(parent, permanent=permanent)
+        self.conn.executemany(
+            'DELETE FROM books WHERE id=?', [(x,) for x in path_map])
    # }}}
 

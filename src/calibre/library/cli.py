@@ -543,13 +543,14 @@ def do_set_metadata(db, id, stream):
 def set_metadata_option_parser():
     return get_parser(_(
 '''
-%prog set_metadata [options] id /path/to/metadata.opf
+%prog set_metadata [options] id [/path/to/metadata.opf]
 
 Set the metadata stored in the calibre database for the book identified by id
 from the OPF file metadata.opf. id is an id number from the list command. You
 can get a quick feel for the OPF format by using the --as-opf switch to the
 show_metadata command. You can also set the metadata of individual fields with
-the --field option.
+the --field option. If you use the --field option, there is no need to specify
+an OPF file.
 '''))
 
 def command_set_metadata(args, dbpath):

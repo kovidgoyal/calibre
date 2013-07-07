@@ -103,6 +103,22 @@ class LegacyTest(BaseTest):
 
     # }}}
 
+    def test_legacy_direct(self):  # {{{
+        'Test methods that are directly equivalent in the old and new interface'
+        from calibre.ebooks.metadata.book.base import Metadata
+        ndb = self.init_legacy()
+        db = self.init_old()
+        for meth, args in {
+            'get_next_series_num_for': [('A Series One',)],
+            'author_sort_from_authors': [(['Author One', 'Author Two', 'Unknown'],)],
+            'has_book':[(Metadata('title one'),), (Metadata('xxxx1111'),)],
+        }.iteritems():
+            for a in args:
+                self.assertEqual(getattr(db, meth)(*a), getattr(ndb, meth)(*a),
+                                 'The method: %s() returned different results for argument %s' % (meth, a))
+        db.close()
+        # }}}
+
     def test_legacy_coverage(self):  # {{{
         ' Check that the emulation of the legacy interface is (almost) total '
         cl = self.cloned_library
@@ -117,18 +133,24 @@ class LegacyTest(BaseTest):
             '__init__',
         }
 
-        for attr in dir(db):
-            if attr in SKIP_ATTRS:
-                continue
-            if not hasattr(ndb, attr):
-                raise AssertionError('The attribute %s is missing' % attr)
-            obj, nobj  = getattr(db, attr), getattr(ndb, attr)
-            if attr not in SKIP_ARGSPEC:
-                try:
-                    argspec = inspect.getargspec(obj)
-                except TypeError:
-                    pass
-                else:
-                    self.assertEqual(argspec, inspect.getargspec(nobj), 'argspec for %s not the same' % attr)
+        try:
+            for attr in dir(db):
+                if attr in SKIP_ATTRS:
+                    continue
+                if not hasattr(ndb, attr):
+                    raise AssertionError('The attribute %s is missing' % attr)
+                obj, nobj  = getattr(db, attr), getattr(ndb, attr)
+                if attr not in SKIP_ARGSPEC:
+                    try:
+                        argspec = inspect.getargspec(obj)
+                    except TypeError:
+                        pass
+                    else:
+                        self.assertEqual(argspec, inspect.getargspec(nobj), 'argspec for %s not the same' % attr)
+        finally:
+            for db in (ndb, db):
+                db.close()
+                db.break_cycles()
+
     # }}}
 

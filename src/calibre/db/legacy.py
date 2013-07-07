@@ -58,15 +58,20 @@ class LibraryDatabase(object):
             setattr(self, prop, partial(self.get_property,
                     loc=self.FIELD_MAP[fm]))
 
+        for meth in ('get_next_series_num_for', 'has_book', 'author_sort_from_authors'):
+            setattr(self, meth, getattr(self.new_api, meth))
+
         self.last_update_check = self.last_modified()
 
     def close(self):
         self.backend.close()
 
     def break_cycles(self):
+        delattr(self.backend, 'field_metadata')
         self.data.cache.backend = None
         self.data.cache = None
-        self.data = self.backend = self.new_api = self.field_metadata = self.prefs = self.listeners = self.refresh_ondevice = None
+        for x in ('data', 'backend', 'new_api', 'listeners',):
+            delattr(self, x)
 
     # Library wide properties {{{
     @property
