@@ -240,6 +240,15 @@ class AddRemoveTest(BaseTest):
             self.assertNotIn('My Series Two', set(c.fields['#series'].table.id_map.itervalues()))
             self.assertNotIn(item_id, c.fields['#series'].table.col_book_map)
             self.assertNotIn(1, c.fields['#series'].table.book_col_map)
+
+        # Test emptying the db
+        cache.remove_books(cache.all_book_ids(), permanent=True)
+        for f in ('authors', 'series', '#series', 'tags'):
+            table = cache.fields[f].table
+            self.assertFalse(table.id_map)
+            self.assertFalse(table.book_col_map)
+            self.assertFalse(table.col_book_map)
+
     # }}}
 
 
