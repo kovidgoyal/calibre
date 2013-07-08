@@ -776,6 +776,29 @@ The only way to find the culprit is to eliminate the programs one by one and
 see which one is causing the issue. Basically, stop a program, run calibre,
 check for crashes. If they still happen, stop another program and repeat.
 
+
+Using the viewer or doing any conversions results in a permission denied error on windows
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Something on your computer is preventing calibre from accessing its own
+temporary files. Most likely the permissions on your Temp folder are incorrect.
+Go to the folder file:`C:\\Users\\USERNAME\\AppData\\Local` in Windows
+Explorer and then right click on the file:`Temp` folder, select Properties and go to
+the Security tab. Make sure that your user account has full control for this
+folder.
+
+Some users have reported that running the following command in an Administrator
+Command Prompt fixed their permissions.  To get an Administrator Command Prompt
+search for cmd.exe in the start menu, then right click on the command prompt
+entry and select Run as Administrator::
+    icacls "%appdata%\..\Local\Temp" /reset /T
+
+Alternately, you can run calibre as Administrator, but doing so will cause
+some functionality, such as drag and drop to not work.
+
+Finally, some users have reported that disabling UAC fixes the problem.
+
+
 |app| is not starting on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
