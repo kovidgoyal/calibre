@@ -790,7 +790,9 @@ folder.
 Some users have reported that running the following command in an Administrator
 Command Prompt fixed their permissions.  To get an Administrator Command Prompt
 search for cmd.exe in the start menu, then right click on the command prompt
-entry and select Run as Administrator::
+entry and select Run as Administrator. At the command prompt type the following
+command and press Enter::
+
     icacls "%appdata%\..\Local\Temp" /reset /T
 
 Alternately, you can run calibre as Administrator, but doing so will cause

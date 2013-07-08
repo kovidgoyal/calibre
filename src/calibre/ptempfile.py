@@ -34,6 +34,19 @@ def app_prefix(prefix):
         return '%s_'%__appname__
     return '%s_%s_%s'%(__appname__, __version__, prefix)
 
+def reset_temp_folder_permissions():
+    # There are some broken windows installs where the permissions for the temp
+    # folder are set to not be executable, which means chdir() into temp
+    # folders fails. Try to fix that by resetting the permissions on the temp
+    # folder.
+    global _base_dir
+    if iswindows and _base_dir:
+        import subprocess
+        from calibre import prints
+        parent = os.path.dirname(_base_dir)
+        retcode = subprocess.Popen(['icacls.exe', parent, '/reset', '/Q', '/T']).wait()
+        prints('Trying to reset permissions of temp folder', parent, 'return code:', retcode)
+
 def base_dir():
     global _base_dir
     if _base_dir is not None and not os.path.exists(_base_dir):
