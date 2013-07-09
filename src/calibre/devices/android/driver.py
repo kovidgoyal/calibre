@@ -107,7 +107,7 @@ class ANDROID(USBMS):
                 0x0ff9 : [0x0226],
                 0xc91  : HTC_BCDS,
                 0xdddd : [0x216],
-                0xdeed : [0x231],
+                0xdeed : [0x231, 0x226],
             },
 
             # Samsung
@@ -241,7 +241,7 @@ class ANDROID(USBMS):
             'S5830I_CARD', 'MID7042', 'LINK-CREATE', '7035', 'VIEWPAD_7E',
             'NOVO7', 'MB526', '_USB#WYK7MSF8KE', 'TABLET_PC', 'F', 'MT65XX_MS',
             'ICS', 'E400', '__FILE-STOR_GADG', 'ST80208-1', 'GT-S5660M_CARD', 'XT894', '_USB',
-            'PROD_TAB13-201', 'URFPAD2',
+            'PROD_TAB13-201', 'URFPAD2', 'MID1126',
     ]
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
@@ -254,7 +254,7 @@ class ANDROID(USBMS):
             'UMS_COMPOSITE', 'PRO', '.KOBO_VOX', 'SGH-T989_CARD', 'SGH-I727',
             'USB_FLASH_DRIVER', 'ANDROID', 'MID7042', '7035', 'VIEWPAD_7E',
             'NOVO7', 'ADVANCED', 'TABLET_PC', 'F', 'E400_SD_CARD', 'ST80208-1', 'XT894',
-            '_USB', 'PROD_TAB13-201', 'URFPAD2'
+            '_USB', 'PROD_TAB13-201', 'URFPAD2', 'MID1126',
     ]
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
