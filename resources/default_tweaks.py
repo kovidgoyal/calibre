@@ -537,3 +537,10 @@ many_libraries = 10
 # highlight with this tweak. Set it to 'transparent' to disable highlighting.
 highlight_virtual_library = 'yellow'
 
+#: Choose available output formats for conversion
+# Restrict the list of available output formats in the conversion dialogs.
+# For example, if you only want to convert to EPUB and AZW3, change this to
+# restrict_output_formats = ['EPUB', 'AZW3']. The default value of None causes
+# all available output formats to be present.
+restrict_output_formats = None
+

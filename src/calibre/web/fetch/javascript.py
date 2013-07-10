@@ -145,8 +145,11 @@ def download_resources(browser, resource_cache, output_dir):
             elem.removeFromDocument()
 
 def save_html(browser, output_dir, postprocess_html, url, recursion_level):
-    html = strip_encoding_declarations(browser.html)
     import html5lib
+    from calibre.utils.cleantext import clean_xml_chars
+    html = strip_encoding_declarations(browser.html)
+    if isinstance(html, unicode):
+        html = clean_xml_chars(html)
     root = html5lib.parse(html, treebuilder='lxml', namespaceHTMLElements=False).getroot()
     root = postprocess_html(root, url, recursion_level)
     if root is None:

@@ -772,9 +772,11 @@ size. By default, |app| uses a page size defined by the current
 :guilabel:`Output profile`. So if your output profile is set to Kindle, |app|
 will create a PDF with page size suitable for viewing on the small kindle
 screen. However, if you view this PDF file on a computer screen, then it will
-appear to have too large fonts. To create "normal" sized PDFs, use the override
-page size option under :guilabel:`PDF Output` in the conversion dialog.
+appear to have too large fonts. To create "normal" sized PDFs, use the
+:guilabel:`Override page size` option under :guilabel:`PDF Output` in the conversion dialog.
 
+Headers and Footers
+^^^^^^^^^^^^^^^^^^^^
 You can insert arbitrary headers and footers on each page of the PDF by
 specifying header and footer templates. Templates are just snippets of HTML
 code that get rendered in the header and footer locations. For example, to
@@ -812,6 +814,9 @@ the page will be used.
 .. note:: When adding headers and footers make sure you set the page top and
     bottom margins to large enough values, under the Page Setup section of the
     conversion dialog.
+
+Printable Table of Contents
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can also insert a printable Table of Contents at the end of the PDF that
 lists the page numbers for every section. This is very useful if you intend to

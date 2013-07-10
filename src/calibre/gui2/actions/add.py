@@ -110,6 +110,19 @@ class AddAction(InterfaceAction):
             return
 
         db = view.model().db
+        if len(ids) == 1:
+            formats = db.formats(ids[0], index_is_id=True)
+            if formats:
+                formats = {x.upper() for x in formats.split(',')}
+                nformats = {f.rpartition('.')[-1].upper() for f in books}
+                override = formats.intersection(nformats)
+                if override:
+                    title = db.title(ids[0], index_is_id=True)
+                    msg = _('The {0} format(s) will be replaced in the book {1}. Are you sure?').format(
+                        ', '.join(override), title)
+                    if not confirm(msg, 'confirm_format_override_on_add', title=_('Are you sure'), parent=self.gui):
+                        return
+
         for id_ in ids:
             for fpath in books:
                 fmt = os.path.splitext(fpath)[1][1:].upper()
