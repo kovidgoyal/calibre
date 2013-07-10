@@ -73,7 +73,7 @@ defs['action-layout-context-menu'] = (
 
 defs['action-layout-context-menu-device'] = (
         'View', 'Save To Disk', None, 'Remove Books', None,
-        'Add To Library', 'Edit Collections',
+        'Add To Library', 'Edit Collections', 'Match Books'
         )
 
 defs['action-layout-context-menu-cover-browser'] = (

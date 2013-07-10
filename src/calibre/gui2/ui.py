@@ -293,6 +293,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.location_manager.location_selected.connect(self.location_selected)
         self.location_manager.unmount_device.connect(self.device_manager.umount_device)
         self.location_manager.configure_device.connect(self.configure_connected_device)
+        self.location_manager.update_device_metadata.connect(self.update_metadata_on_device)
         self.eject_action.triggered.connect(self.device_manager.umount_device)
 
         #################### Update notification ###################

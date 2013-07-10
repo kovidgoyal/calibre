@@ -1604,6 +1604,10 @@ class DeviceMixin(object): # {{{
                 except:
                     pass
 
+    def update_metadata_on_device(self):
+        self.set_books_in_library(self.booklists(), reset=True, force_send=True)
+        self.refresh_ondevice()
+
     def book_on_device(self, id, reset=False):
         '''
         Return an indication of whether the given book represented by its db id
@@ -1652,7 +1656,8 @@ class DeviceMixin(object): # {{{
                 loc[4] |= self.book_db_uuid_path_map[id]
         return loc
 
-    def set_books_in_library(self, booklists, reset=False, add_as_step_to_job=None):
+    def set_books_in_library(self, booklists, reset=False, add_as_step_to_job=None,
+                             force_send=False):
         '''
         Set the ondevice indications in the device database.
         This method should be called before book_on_device is called, because
@@ -1675,7 +1680,8 @@ class DeviceMixin(object): # {{{
             x = x.lower() if x else ''
             return string_pat.sub('', x)
 
-        update_metadata = device_prefs['manage_device_metadata'] == 'on_connect'
+        update_metadata = (
+           device_prefs['manage_device_metadata'] == 'on_connect' or force_send)
 
         get_covers = False
         desired_thumbnail_height = 0
