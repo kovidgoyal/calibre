@@ -11,6 +11,7 @@ from functools import partial
 from future_builtins import zip
 
 from calibre.db import _get_next_series_num_for_list, _get_series_values
+from calibre.db.adding import find_books_in_directory, import_book_directory_multiple, import_book_directory, recursive_import
 from calibre.db.backend import DB
 from calibre.db.cache import Cache
 from calibre.db.categories import CATEGORY_SORTS
@@ -160,6 +161,7 @@ class LibraryDatabase(object):
             os.makedirs(path)
         return path
 
+    # Adding books {{{
     def create_book_entry(self, mi, cover=None, add_duplicates=True, force_id=None):
         return self.new_api.create_book_entry(mi, cover=cover, add_duplicates=add_duplicates, force_id=force_id)
 
@@ -189,6 +191,21 @@ class LibraryDatabase(object):
         if notify:
             self.notify('add', book_ids)
         return book_ids[0]
+
+    def find_books_in_directory(self, dirpath, single_book_per_directory):
+        return find_books_in_directory(dirpath, single_book_per_directory)
+
+    def import_book_directory_multiple(self, dirpath, callback=None,
+            added_ids=None):
+        return import_book_directory_multiple(self, dirpath, callback=callback, added_ids=added_ids)
+
+    def import_book_directory(self, dirpath, callback=None, added_ids=None):
+        return import_book_directory(self, dirpath, callback=callback, added_ids=added_ids)
+
+    def recursive_import(self, root, single_book_per_directory=True,
+            callback=None, added_ids=None):
+        return recursive_import(self, root, single_book_per_directory=single_book_per_directory, callback=callback, added_ids=added_ids)
+    # }}}
 
     # Private interface {{{
 
