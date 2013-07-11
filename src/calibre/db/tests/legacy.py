@@ -7,7 +7,26 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import inspect
+from repr import repr
+from functools import partial
+from tempfile import NamedTemporaryFile
+
 from calibre.db.tests.base import BaseTest
+
+class ET(object):
+
+    def __init__(self, func_name, args, kwargs={}, old=None, legacy=None):
+        self.func_name = func_name
+        self.args, self.kwargs = args, kwargs
+        self.old, self.legacy = old, legacy
+
+    def __call__(self, test):
+        old = self.old or test.init_old(test.cloned_library)
+        legacy = self.legacy or test.init_legacy(test.cloned_library)
+        oldres = getattr(old, self.func_name)(*self.args, **self.kwargs)
+        newres = getattr(legacy, self.func_name)(*self.args, **self.kwargs)
+        test.assertEqual(oldres, newres, 'Equivalence test for %s with args: %s and kwargs: %s failed' % (
+            self.func_name, repr(self.args), repr(self.kwargs)))
 
 class LegacyTest(BaseTest):
 
@@ -118,6 +137,26 @@ class LegacyTest(BaseTest):
                                  'The method: %s() returned different results for argument %s' % (meth, a))
         db.close()
         # }}}
+
+    def test_legacy_adding_books(self):  # {{{
+        'Test various adding books methods'
+        from calibre.ebooks.metadata.book.base import Metadata
+        legacy, old = self.init_legacy(self.cloned_library), self.init_old(self.cloned_library)
+        mi = Metadata('Added Book', authors=('Added Author',))
+        with NamedTemporaryFile(suffix='.aff') as f:
+            f.write(b'xxx')
+            f.flush()
+            T = partial(ET, 'add_books', ([f.name], ['AFF'], [mi]), old=old, legacy=legacy)
+            T()(self)
+            T(kwargs={'return_ids':True})(self)
+            T(kwargs={'add_duplicates':False})(self)
+
+        mi.title = 'Added Book2'
+        T = partial(ET, 'create_book_entry', (mi,), old=old, legacy=legacy)
+        T()
+        T({'add_duplicates':False})
+        T({'force_id':1000})
+    # }}}
 
     def test_legacy_coverage(self):  # {{{
         ' Check that the emulation of the legacy interface is (almost) total '

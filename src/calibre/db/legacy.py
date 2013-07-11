@@ -8,6 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, traceback
 from functools import partial
+from future_builtins import zip
 
 from calibre.db import _get_next_series_num_for_list, _get_series_values
 from calibre.db.backend import DB
@@ -150,7 +151,7 @@ class LibraryDatabase(object):
     def path(self, index, index_is_id=False):
         'Return the relative path to the directory containing this books files as a unicode string.'
         book_id = index if index_is_id else self.data.index_to_id(index)
-        return self.data.cache.field_for('path', book_id).replace('/', os.sep)
+        return self.new_api.field_for('path', book_id).replace('/', os.sep)
 
     def abspath(self, index, index_is_id=False, create_dirs=True):
         'Return the absolute path to the directory containing this books files as a unicode string.'
@@ -158,6 +159,23 @@ class LibraryDatabase(object):
         if create_dirs and not os.path.exists(path):
             os.makedirs(path)
         return path
+
+    def create_book_entry(self, mi, cover=None, add_duplicates=True, force_id=None):
+        return self.new_api.create_book_entry(mi, cover=cover, add_duplicates=add_duplicates, force_id=force_id)
+
+    def add_books(self, paths, formats, metadata, add_duplicates=True, return_ids=False):
+        books = [(mi, {fmt:path}) for mi, path, fmt in zip(metadata, paths, formats)]
+        book_ids, duplicates = self.new_api.add_books(books, add_duplicates=add_duplicates, dbapi=self)
+        if duplicates:
+            paths, formats, metadata = [], [], []
+            for mi, format_map in duplicates:
+                metadata.append(mi)
+                for fmt, path in format_map.iteritems():
+                    formats.append(fmt)
+                    paths.append(path)
+            duplicates = (paths, formats, metadata)
+        ids = book_ids if return_ids else len(book_ids)
+        return duplicates or None, ids
 
     # Private interface {{{
 
