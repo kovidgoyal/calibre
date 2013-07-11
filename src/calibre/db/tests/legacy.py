@@ -27,6 +27,13 @@ class ET(object):
         newres = getattr(legacy, self.func_name)(*self.args, **self.kwargs)
         test.assertEqual(oldres, newres, 'Equivalence test for %s with args: %s and kwargs: %s failed' % (
             self.func_name, repr(self.args), repr(self.kwargs)))
+        self.retval = newres
+        return newres
+
+def compare_argspecs(old, new, attr):
+    ok = len(old.args) == len(new.args) and len(old.defaults or ()) == len(new.defaults or ()) and old.args[-len(old.defaults or ()):] == new.args[-len(new.defaults or ()):]  # noqa
+    if not ok:
+        raise AssertionError('The argspec for %s does not match. %r != %r' % (attr, old, new))
 
 class LegacyTest(BaseTest):
 
@@ -169,15 +176,20 @@ class LegacyTest(BaseTest):
             '_set_title', '_set_custom', '_update_author_in_cache',
         }
         SKIP_ARGSPEC = {
-            '__init__',
+            '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors',
         }
 
+        missing = []
+
         try:
+            total = 0
             for attr in dir(db):
                 if attr in SKIP_ATTRS:
                     continue
+                total += 1
                 if not hasattr(ndb, attr):
-                    raise AssertionError('The attribute %s is missing' % attr)
+                    missing.append(attr)
+                    continue
                 obj, nobj  = getattr(db, attr), getattr(ndb, attr)
                 if attr not in SKIP_ARGSPEC:
                     try:
@@ -185,11 +197,15 @@ class LegacyTest(BaseTest):
                     except TypeError:
                         pass
                     else:
-                        self.assertEqual(argspec, inspect.getargspec(nobj), 'argspec for %s not the same' % attr)
+                        compare_argspecs(argspec, inspect.getargspec(nobj), attr)
         finally:
             for db in (ndb, db):
                 db.close()
                 db.break_cycles()
+
+        if missing:
+            pc = len(missing)/total
+            raise AssertionError('{0:.1%} of API ({2} attrs) are missing. For example: {1}'.format(pc, missing[0], len(missing)))
 
     # }}}
 
