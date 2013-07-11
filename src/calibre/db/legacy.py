@@ -37,7 +37,7 @@ class LibraryDatabase(object):
             progress_callback=lambda x, y:True, restore_all_prefs=False):
 
         self.is_second_db = is_second_db  # TODO: Use is_second_db
-        self.listeners = set([])
+        self.listeners = set()
 
         backend = self.backend = DB(library_path, default_prefs=default_prefs,
                      read_only=read_only, restore_all_prefs=restore_all_prefs,
@@ -176,6 +176,19 @@ class LibraryDatabase(object):
             duplicates = (paths, formats, metadata)
         ids = book_ids if return_ids else len(book_ids)
         return duplicates or None, ids
+
+    def import_book(self, mi, formats, notify=True, import_hooks=True, apply_import_tags=True, preserve_uuid=False):
+        format_map = {}
+        for path in formats:
+            ext = os.path.splitext(path)[1][1:].upper()
+            if ext == 'OPF':
+                continue
+            format_map[ext] = path
+        book_ids, duplicates = self.new_api.add_books(
+            [(mi, format_map)], add_duplicates=True, apply_import_tags=apply_import_tags, preserve_uuid=preserve_uuid, dbapi=self, run_hooks=import_hooks)
+        if notify:
+            self.notify('add', book_ids)
+        return book_ids[0]
 
     # Private interface {{{
 

@@ -149,14 +149,29 @@ class LegacyTest(BaseTest):
         'Test various adding books methods'
         from calibre.ebooks.metadata.book.base import Metadata
         legacy, old = self.init_legacy(self.cloned_library), self.init_old(self.cloned_library)
-        mi = Metadata('Added Book', authors=('Added Author',))
+        mi = Metadata('Added Book0', authors=('Added Author',))
         with NamedTemporaryFile(suffix='.aff') as f:
             f.write(b'xxx')
             f.flush()
             T = partial(ET, 'add_books', ([f.name], ['AFF'], [mi]), old=old, legacy=legacy)
             T()(self)
-            T(kwargs={'return_ids':True})(self)
+            book_id = T(kwargs={'return_ids':True})(self)[1][0]
+            self.assertEqual(legacy.new_api.formats(book_id), ('AFF',))
             T(kwargs={'add_duplicates':False})(self)
+            mi.title = 'Added Book1'
+            mi.uuid = 'uuu'
+            T = partial(ET, 'import_book', (mi,[f.name]), old=old, legacy=legacy)
+            book_id = T()(self)
+            self.assertNotEqual(legacy.uuid(book_id, index_is_id=True), old.uuid(book_id, index_is_id=True))
+            book_id = T(kwargs={'preserve_uuid':True})(self)
+            self.assertEqual(legacy.uuid(book_id, index_is_id=True), old.uuid(book_id, index_is_id=True))
+            self.assertEqual(legacy.new_api.formats(book_id), ('AFF',))
+        with NamedTemporaryFile(suffix='.opf') as f:
+            f.write(b'zzzz')
+            f.flush()
+            T = partial(ET, 'import_book', (mi,[f.name]), old=old, legacy=legacy)
+            book_id = T()(self)
+            self.assertFalse(legacy.new_api.formats(book_id))
 
         mi.title = 'Added Book2'
         T = partial(ET, 'create_book_entry', (mi,), old=old, legacy=legacy)
