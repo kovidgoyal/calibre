@@ -11,7 +11,9 @@ from functools import partial
 from future_builtins import zip
 
 from calibre.db import _get_next_series_num_for_list, _get_series_values
-from calibre.db.adding import find_books_in_directory, import_book_directory_multiple, import_book_directory, recursive_import
+from calibre.db.adding import (
+    find_books_in_directory, import_book_directory_multiple,
+    import_book_directory, recursive_import, add_catalog, add_news)
 from calibre.db.backend import DB
 from calibre.db.cache import Cache
 from calibre.db.categories import CATEGORY_SORTS
@@ -205,6 +207,13 @@ class LibraryDatabase(object):
     def recursive_import(self, root, single_book_per_directory=True,
             callback=None, added_ids=None):
         return recursive_import(self, root, single_book_per_directory=single_book_per_directory, callback=callback, added_ids=added_ids)
+
+    def add_catalog(self, path, title):
+        return add_catalog(self.new_api, path, title)
+
+    def add_news(self, path, arg):
+        return add_news(self.new_api, path, arg)
+
     # }}}
 
     # Private interface {{{

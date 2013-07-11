@@ -526,7 +526,7 @@ class Parser(SearchQueryParser):
             if dt == 'bool':
                 return self.bool_search(icu_lower(query),
                                 partial(self.field_iter, location, candidates),
-                                self.dbcache.pref('bools_are_tristate'))
+                                self.dbcache._pref('bools_are_tristate'))
 
             # special case: colon-separated fields such as identifiers. isbn
             # is a special case within the case
@@ -630,7 +630,7 @@ class Parser(SearchQueryParser):
         if len(query) < 2:
             return matches
 
-        user_cats = self.dbcache.pref('user_categories')
+        user_cats = self.dbcache._pref('user_categories')
         c = set(candidates)
 
         if query.startswith('.'):
@@ -674,7 +674,7 @@ class Search(object):
             if search_restriction:
                 q = u'(%s) and (%s)' % (search_restriction, query)
 
-        all_book_ids = dbcache.all_book_ids(type=set)
+        all_book_ids = dbcache._all_book_ids(type=set)
         if not q:
             return all_book_ids
 
@@ -686,7 +686,7 @@ class Search(object):
         # takes 0.000975 seconds and restoring it from a pickle takes
         # 0.000974 seconds.
         sqp = Parser(
-            dbcache, all_book_ids, dbcache.pref('grouped_search_terms'),
+            dbcache, all_book_ids, dbcache._pref('grouped_search_terms'),
             self.date_search, self.num_search, self.bool_search,
             self.keypair_search,
             prefs['limit_search_columns'],

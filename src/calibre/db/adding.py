@@ -100,3 +100,66 @@ def recursive_import(db, root, single_book_per_directory=True,
                 break
     return duplicates
 
+def add_catalog(cache, path, title):
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.ebooks.metadata.meta import get_metadata
+    from calibre.utils.date import utcnow
+
+    fmt = os.path.splitext(path)[1][1:].lower()
+    with lopen(path, 'rb') as stream, cache.write_lock:
+        matches = cache._search('title:="%s" and tags:="%s"' % (title.replace('"', '\\"'), _('Catalog')), None)
+        db_id = None
+        if matches:
+            db_id = list(matches)[0]
+        try:
+            mi = get_metadata(stream, fmt)
+            mi.authors = ['calibre']
+        except:
+            mi = Metadata(title, ['calibre'])
+        mi.title, mi.authors = title, ['calibre']
+        mi.tags = [_('Catalog')]
+        mi.pubdate = mi.timestamp = utcnow()
+        if fmt == 'mobi':
+            mi.cover, mi.cover_data = None, (None, None)
+        if db_id is None:
+            db_id = cache._create_book_entry(mi, apply_import_tags=False)
+        else:
+            cache._set_metadata(db_id, mi)
+        cache._add_format(db_id, fmt, stream)
+
+    return db_id
+
+def add_news(cache, path, arg):
+    from calibre.ebooks.metadata.meta import get_metadata
+    from calibre.utils.date import utcnow
+
+    fmt = os.path.splitext(getattr(path, 'name', path))[1][1:].lower()
+    stream = path if hasattr(path, 'read') else lopen(path, 'rb')
+    stream.seek(0)
+    mi = get_metadata(stream, fmt, use_libprs_metadata=False,
+            force_read_metadata=True)
+    # Force the author to calibre as the auto delete of old news checks for
+    # both the author==calibre and the tag News
+    mi.authors = ['calibre']
+    stream.seek(0)
+    with cache.write_lock:
+        if mi.series_index is None:
+            mi.series_index = cache._get_next_series_num_for(mi.series)
+        mi.tags = [_('News')]
+        if arg['add_title_tag']:
+            mi.tags += [arg['title']]
+        if arg['custom_tags']:
+            mi.tags += arg['custom_tags']
+        if mi.pubdate is None:
+            mi.pubdate = utcnow()
+        if mi.timestamp is None:
+            mi.timestamp = utcnow()
+
+        db_id = cache._create_book_entry(mi, apply_import_tags=False)
+        cache._add_format(db_id, fmt, stream)
+
+    if not hasattr(path, 'read'):
+        stream.close()
+    return db_id
+
+

@@ -178,6 +178,25 @@ class LegacyTest(BaseTest):
         T()
         T({'add_duplicates':False})
         T({'force_id':1000})
+
+        with NamedTemporaryFile(suffix='.txt') as f:
+            f.write(b'tttttt')
+            f.seek(0)
+            bid = legacy.add_catalog(f.name, 'My Catalog')
+            cache = legacy.new_api
+            self.assertEqual(cache.formats(bid), ('TXT',))
+            self.assertEqual(cache.field_for('title', bid), 'My Catalog')
+            self.assertEqual(cache.field_for('authors', bid), ('calibre',))
+            self.assertEqual(cache.field_for('tags', bid), (_('Catalog'),))
+            self.assertTrue(bid < legacy.add_catalog(f.name, 'Something else'))
+            self.assertEqual(legacy.add_catalog(f.name, 'My Catalog'), bid)
+
+            bid = legacy.add_news(f.name, {'title':'Events', 'add_title_tag':True, 'custom_tags':('one', 'two')})
+            self.assertEqual(cache.formats(bid), ('TXT',))
+            self.assertEqual(cache.field_for('authors', bid), ('calibre',))
+            self.assertEqual(cache.field_for('tags', bid), (_('News'), 'Events', 'one', 'two'))
+
+        old.close()
     # }}}
 
     def test_legacy_coverage(self):  # {{{
