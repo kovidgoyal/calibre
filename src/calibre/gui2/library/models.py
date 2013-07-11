@@ -1545,10 +1545,10 @@ class DeviceBooksModel(BooksModel):  # {{{
                     self.db.supports_collections()):
                 return QVariant(_("Double click to <b>edit</b> me<br><br>"))
         elif role == Qt.DecorationRole and cname == 'inlibrary':
-            if self.db[self.map[row]].in_library:
-                return QVariant(self.bool_yes_icon)
-            elif hasattr(self.db[self.map[row]], 'in_library_waiting'):
+            if hasattr(self.db[self.map[row]], 'in_library_waiting'):
                 return QVariant(self.sync_icon)
+            elif self.db[self.map[row]].in_library:
+                return QVariant(self.bool_yes_icon)
             elif self.db[self.map[row]].in_library is not None:
                 return QVariant(self.bool_no_icon)
         elif role == Qt.TextAlignmentRole:
