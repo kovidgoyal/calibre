@@ -317,6 +317,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         Ui_MetadataBulkDialog.__init__(self)
         self.model = model
         self.db = model.db
+        self.refresh_book_list.setChecked(gprefs['refresh_book_list_on_bulk_edit'])
+        self.refresh_book_list.toggled.connect(self.save_refresh_booklist)
         self.ids = [self.db.id(r) for r in rows]
         self.box_title.setText('<p>' +
                 _('Editing meta information for <b>%d books</b>') %
@@ -379,6 +381,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.languages.setEditText('')
         self.authors.setFocus(Qt.OtherFocusReason)
         self.exec_()
+
+    def save_refresh_booklist(self, *args):
+        gprefs['refresh_book_list_on_bulk_edit'] = bool(self.refresh_book_list.isChecked())
 
     def save_state(self, *args):
         gprefs['bulk_metadata_window_geometry'] = \
