@@ -45,7 +45,7 @@
         <x>0</x>
         <y>0</y>
         <width>950</width>
-        <height>576</height>
+        <height>577</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -1113,7 +1113,7 @@ not multiple and the destination field is multiple</string>
                 <x>0</x>
                 <y>0</y>
                 <width>934</width>
-                <height>213</height>
+                <height>256</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">
@@ -1170,14 +1170,30 @@ not multiple and the destination field is multiple</string>
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QDialogButtonBox" name="button_box">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_8">
+     <item>
+      <widget class="QCheckBox" name="refresh_book_list">
+       <property name="toolTip">
+        <string>If enabled, the book list will be re-sorted and any existing
+search or Virtual LIbrary will be refreshed after the edit
+is completed. This can be slow on large libraries.</string>
+       </property>
+       <property name="text">
+        <string>&amp;Refresh book list after edit</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="button_box">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
@@ -1241,7 +1257,6 @@ not multiple and the destination field is multiple</string>
   <tabstop>scrollArea</tabstop>
   <tabstop>central_widget</tabstop>
   <tabstop>query_field</tabstop>
-  <tabstop>button_box</tabstop>
   <tabstop>save_button</tabstop>
   <tabstop>remove_button</tabstop>
   <tabstop>search_field</tabstop>

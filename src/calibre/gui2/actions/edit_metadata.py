@@ -10,7 +10,7 @@ from functools import partial
 
 from PyQt4.Qt import QMenu, QModelIndex, QTimer, QIcon
 
-from calibre.gui2 import error_dialog, Dispatcher, question_dialog
+from calibre.gui2 import error_dialog, Dispatcher, question_dialog, gprefs
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.device_category_editor import DeviceCategoryEditor
@@ -366,8 +366,11 @@ class EditMetadataAction(InterfaceAction):
             self.gui.tags_view.blockSignals(False)
         if changed:
             m = self.gui.library_view.model()
-            m.refresh(reset=False)
-            m.research()
+            if gprefs['refresh_book_list_on_bulk_edit']:
+                m.refresh(reset=False)
+                m.research()
+            else:
+                m.refresh_ids(book_ids)
             self.gui.tags_view.recount()
             if self.gui.cover_flow:
                 self.gui.cover_flow.dataChanged()

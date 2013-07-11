@@ -8,8 +8,10 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, traceback
 from functools import partial
+from future_builtins import zip
 
 from calibre.db import _get_next_series_num_for_list, _get_series_values
+from calibre.db.adding import find_books_in_directory, import_book_directory_multiple, import_book_directory, recursive_import
 from calibre.db.backend import DB
 from calibre.db.cache import Cache
 from calibre.db.categories import CATEGORY_SORTS
@@ -36,7 +38,7 @@ class LibraryDatabase(object):
             progress_callback=lambda x, y:True, restore_all_prefs=False):
 
         self.is_second_db = is_second_db  # TODO: Use is_second_db
-        self.listeners = set([])
+        self.listeners = set()
 
         backend = self.backend = DB(library_path, default_prefs=default_prefs,
                      read_only=read_only, restore_all_prefs=restore_all_prefs,
@@ -150,7 +152,7 @@ class LibraryDatabase(object):
     def path(self, index, index_is_id=False):
         'Return the relative path to the directory containing this books files as a unicode string.'
         book_id = index if index_is_id else self.data.index_to_id(index)
-        return self.data.cache.field_for('path', book_id).replace('/', os.sep)
+        return self.new_api.field_for('path', book_id).replace('/', os.sep)
 
     def abspath(self, index, index_is_id=False, create_dirs=True):
         'Return the absolute path to the directory containing this books files as a unicode string.'
@@ -158,6 +160,52 @@ class LibraryDatabase(object):
         if create_dirs and not os.path.exists(path):
             os.makedirs(path)
         return path
+
+    # Adding books {{{
+    def create_book_entry(self, mi, cover=None, add_duplicates=True, force_id=None):
+        return self.new_api.create_book_entry(mi, cover=cover, add_duplicates=add_duplicates, force_id=force_id)
+
+    def add_books(self, paths, formats, metadata, add_duplicates=True, return_ids=False):
+        books = [(mi, {fmt:path}) for mi, path, fmt in zip(metadata, paths, formats)]
+        book_ids, duplicates = self.new_api.add_books(books, add_duplicates=add_duplicates, dbapi=self)
+        if duplicates:
+            paths, formats, metadata = [], [], []
+            for mi, format_map in duplicates:
+                metadata.append(mi)
+                for fmt, path in format_map.iteritems():
+                    formats.append(fmt)
+                    paths.append(path)
+            duplicates = (paths, formats, metadata)
+        ids = book_ids if return_ids else len(book_ids)
+        return duplicates or None, ids
+
+    def import_book(self, mi, formats, notify=True, import_hooks=True, apply_import_tags=True, preserve_uuid=False):
+        format_map = {}
+        for path in formats:
+            ext = os.path.splitext(path)[1][1:].upper()
+            if ext == 'OPF':
+                continue
+            format_map[ext] = path
+        book_ids, duplicates = self.new_api.add_books(
+            [(mi, format_map)], add_duplicates=True, apply_import_tags=apply_import_tags, preserve_uuid=preserve_uuid, dbapi=self, run_hooks=import_hooks)
+        if notify:
+            self.notify('add', book_ids)
+        return book_ids[0]
+
+    def find_books_in_directory(self, dirpath, single_book_per_directory):
+        return find_books_in_directory(dirpath, single_book_per_directory)
+
+    def import_book_directory_multiple(self, dirpath, callback=None,
+            added_ids=None):
+        return import_book_directory_multiple(self, dirpath, callback=callback, added_ids=added_ids)
+
+    def import_book_directory(self, dirpath, callback=None, added_ids=None):
+        return import_book_directory(self, dirpath, callback=callback, added_ids=added_ids)
+
+    def recursive_import(self, root, single_book_per_directory=True,
+            callback=None, added_ids=None):
+        return recursive_import(self, root, single_book_per_directory=single_book_per_directory, callback=callback, added_ids=added_ids)
+    # }}}
 
     # Private interface {{{
 

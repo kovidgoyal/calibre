@@ -37,11 +37,12 @@ from calibre.utils.date import (utcnow, now as nowf, utcfromtimestamp,
 from calibre.utils.config import prefs, tweaks, from_json, to_json
 from calibre.utils.icu import sort_key, strcmp, lower
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
-from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
+from calibre.ebooks import check_ebook_format
 from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.db import _get_next_series_num_for_list, _get_series_values
+from calibre.db.adding import find_books_in_directory, import_book_directory_multiple, import_book_directory, recursive_import
 from calibre.db.errors import NoSuchFormat
 from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.db.categories import Tag, CATEGORY_SORTS
@@ -3728,95 +3729,18 @@ books_series_link      feeds
         return len(books)
 
     def find_books_in_directory(self, dirpath, single_book_per_directory):
-        dirpath = os.path.abspath(dirpath)
-        if single_book_per_directory:
-            formats = []
-            for path in os.listdir(dirpath):
-                path = os.path.abspath(os.path.join(dirpath, path))
-                if os.path.isdir(path) or not os.access(path, os.R_OK):
-                    continue
-                ext = os.path.splitext(path)[1]
-                if not ext:
-                    continue
-                ext = ext[1:].lower()
-                if ext not in BOOK_EXTENSIONS and ext != 'opf':
-                    continue
-                formats.append(path)
-            yield formats
-        else:
-            books = {}
-            for path in os.listdir(dirpath):
-                path = os.path.abspath(os.path.join(dirpath, path))
-                if os.path.isdir(path) or not os.access(path, os.R_OK):
-                    continue
-                ext = os.path.splitext(path)[1]
-                if not ext:
-                    continue
-                ext = ext[1:].lower()
-                if ext not in BOOK_EXTENSIONS:
-                    continue
-
-                key = os.path.splitext(path)[0]
-                if key not in books:
-                    books[key] = []
-                books[key].append(path)
-
-            for formats in books.values():
-                yield formats
+        return find_books_in_directory(dirpath, single_book_per_directory)
 
     def import_book_directory_multiple(self, dirpath, callback=None,
             added_ids=None):
-        from calibre.ebooks.metadata.meta import metadata_from_formats
-
-        duplicates = []
-        for formats in self.find_books_in_directory(dirpath, False):
-            mi = metadata_from_formats(formats)
-            if mi.title is None:
-                continue
-            if self.has_book(mi):
-                duplicates.append((mi, formats))
-                continue
-            book_id = self.import_book(mi, formats)
-            if added_ids is not None:
-                added_ids.add(book_id)
-            if callable(callback):
-                if callback(mi.title):
-                    break
-        return duplicates
+        return import_book_directory_multiple(self, dirpath, callback=callback, added_ids=added_ids)
 
     def import_book_directory(self, dirpath, callback=None, added_ids=None):
-        from calibre.ebooks.metadata.meta import metadata_from_formats
-        dirpath = os.path.abspath(dirpath)
-        formats = self.find_books_in_directory(dirpath, True)
-        formats = list(formats)[0]
-        if not formats:
-            return
-        mi = metadata_from_formats(formats)
-        if mi.title is None:
-            return
-        if self.has_book(mi):
-            return [(mi, formats)]
-        book_id = self.import_book(mi, formats)
-        if added_ids is not None:
-            added_ids.add(book_id)
-        if callable(callback):
-            callback(mi.title)
+        return import_book_directory(self, dirpath, callback=callback, added_ids=added_ids)
 
     def recursive_import(self, root, single_book_per_directory=True,
             callback=None, added_ids=None):
-        root = os.path.abspath(root)
-        duplicates  = []
-        for dirpath in os.walk(root):
-            res = (self.import_book_directory(dirpath[0], callback=callback,
-                added_ids=added_ids) if single_book_per_directory else
-                self.import_book_directory_multiple(dirpath[0],
-                    callback=callback, added_ids=added_ids))
-            if res is not None:
-                duplicates.extend(res)
-            if callable(callback):
-                if callback(''):
-                    break
-        return duplicates
+        return recursive_import(self, root, single_book_per_directory=single_book_per_directory, callback=callback, added_ids=added_ids)
 
     def add_custom_book_data(self, book_id, name, val):
         x = self.conn.get('SELECT id FROM books WHERE ID=?', (book_id,), all=False)

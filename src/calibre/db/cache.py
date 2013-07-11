@@ -1117,7 +1117,7 @@ class Cache(object):
         return book_id
 
     @write_api
-    def add_books(self, books, add_duplicates=True, apply_import_tags=True, preserve_uuid=False, dbapi=None):
+    def add_books(self, books, add_duplicates=True, apply_import_tags=True, preserve_uuid=False, run_hooks=True, dbapi=None):
         duplicates, ids = [], []
         for mi, format_map in books:
             book_id = self._create_book_entry(mi, add_duplicates=add_duplicates, apply_import_tags=apply_import_tags, preserve_uuid=preserve_uuid)
@@ -1126,7 +1126,7 @@ class Cache(object):
             else:
                 ids.append(book_id)
                 for fmt, stream_or_path in format_map.iteritems():
-                    self._add_format(book_id, fmt, stream_or_path, dbapi=dbapi)
+                    self._add_format(book_id, fmt, stream_or_path, dbapi=dbapi, run_hooks=run_hooks)
         return ids, duplicates
 
     @write_api
