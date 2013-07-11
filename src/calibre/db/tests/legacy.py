@@ -183,6 +183,7 @@ class LegacyTest(BaseTest):
             f.write(b'tttttt')
             f.seek(0)
             bid = legacy.add_catalog(f.name, 'My Catalog')
+            self.assertEqual(old.add_catalog(f.name, 'My Catalog'), bid)
             cache = legacy.new_api
             self.assertEqual(cache.formats(bid), ('TXT',))
             self.assertEqual(cache.field_for('title', bid), 'My Catalog')
@@ -190,6 +191,7 @@ class LegacyTest(BaseTest):
             self.assertEqual(cache.field_for('tags', bid), (_('Catalog'),))
             self.assertTrue(bid < legacy.add_catalog(f.name, 'Something else'))
             self.assertEqual(legacy.add_catalog(f.name, 'My Catalog'), bid)
+            self.assertEqual(old.add_catalog(f.name, 'My Catalog'), bid)
 
             bid = legacy.add_news(f.name, {'title':'Events', 'add_title_tag':True, 'custom_tags':('one', 'two')})
             self.assertEqual(cache.formats(bid), ('TXT',))
