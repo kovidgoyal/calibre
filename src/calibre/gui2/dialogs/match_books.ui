@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>768</width>
+    <width>751</width>
     <height>342</height>
    </rect>
   </property>
@@ -50,7 +50,7 @@
     </widget>
    </item>
    <item row="1" column="0" colspan="2">
-    <widget class="QLabel">
+    <widget class="QLabel" name="label">
      <property name="text">
       <string>Do a search to find the book you want to match</string>
      </property>
@@ -59,24 +59,26 @@
    <item row="2" column="0" colspan="2">
     <widget class="QTableWidget" name="books_table">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding" >
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>4</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="columnCount">
+     <property name="rowCount">
       <number>0</number>
      </property>
-     <property name="rowCount">
+     <property name="columnCount">
       <number>0</number>
      </property>
     </widget>
    </item>
    <item row="3" column="0" colspan="2">
-    <widget class="QLabel">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;p&gt;Be sure to update metadata on the device when you are
-      finished matching books (Device -> Update Metadata)&lt;/p&gt;</string>
+      <string>&lt;p&gt;Remember to update metadata on the device when you are done (Right click the device icon and select &lt;i&gt;Update cached metadata&lt;/i&gt;)&lt;/p&gt;</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -109,7 +111,6 @@
    </item>
   </layout>
  </widget>
- <resources/>
  <customwidgets>
   <customwidget>
    <class>HistoryLineEdit</class>
@@ -117,6 +118,7 @@
    <header>calibre/gui2/widgets.h</header>
   </customwidget>
  </customwidgets>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

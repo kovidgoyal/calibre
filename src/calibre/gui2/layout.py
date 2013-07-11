@@ -61,7 +61,7 @@ class LocationManager(QObject):  # {{{
                 a = m.addAction(QIcon(I('config.png')), _('Configure this device'))
                 a.triggered.connect(self._configure_requested)
                 self._mem.append(a)
-                a = m.addAction(QIcon(I('sync.png')), _('Update metadata on device'))
+                a = m.addAction(QIcon(I('sync.png')), _('Update cached metadata on device'))
                 a.triggered.connect(lambda x : self.update_device_metadata.emit())
                 self._mem.append(a)
 

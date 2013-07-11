@@ -279,7 +279,7 @@ class Convert(object):
         self.styles.resolve_numbering(numbering)
 
     def write(self, doc):
-        toc = create_toc(doc, self.body, self.resolved_link_map, self.styles, self.object_map)
+        toc = create_toc(doc, self.body, self.resolved_link_map, self.styles, self.object_map, self.log)
         raw = html.tostring(self.html, encoding='utf-8', doctype='<!DOCTYPE html>')
         with open(os.path.join(self.dest_dir, 'index.html'), 'wb') as f:
             f.write(raw)

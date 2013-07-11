@@ -1,6 +1,10 @@
 #!/usr/bin/env  python
+# vim:fileencoding=utf-8
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
+__copyright__ = '2013, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 
@@ -158,7 +162,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         self.save_state()
 
     def book_clicked(self, row, column):
-        self.book_selected = True;
+        self.book_selected = True
         id_ = self.books_table.item(row, 0).data(Qt.UserRole).toInt()[0]
         self.current_library_book_id = id_
 
@@ -195,3 +199,4 @@ class MatchBooks(QDialog, Ui_MatchBooks):
     def reject(self):
         self.close()
         QDialog.reject(self)
+
