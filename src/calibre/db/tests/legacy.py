@@ -32,6 +32,8 @@ class ET(object):
         return newres
 
 def compare_argspecs(old, new, attr):
+    # We dont compare the names of the non-keyword arguments as they are often
+    # different and they dont affect the usage of the API.
     num = len(old.defaults or ())
 
     ok = len(old.args) == len(new.args) and old.defaults == new.defaults and (num == 0 or old.args[-num:] == new.args[-num:])
