@@ -216,6 +216,29 @@ class LibraryDatabase(object):
 
     # }}}
 
+    # Custom data {{{
+    def add_custom_book_data(self, book_id, name, val):
+        self.new_api.add_custom_book_data(name, {book_id:val})
+
+    def add_multiple_custom_book_data(self, name, val_map, delete_first=False):
+        self.new_api.add_custom_book_data(name, val_map, delete_first=delete_first)
+
+    def get_custom_book_data(self, book_id, name, default=None):
+        return self.new_api.get_custom_book_data(name, book_ids={book_id}, default=default).get(book_id, default)
+
+    def get_all_custom_book_data(self, name, default=None):
+        return self.new_api.get_custom_book_data(name, default=default)
+
+    def delete_custom_book_data(self, book_id, name):
+        self.new_api.delete_custom_book_data(name, book_ids=(book_id,))
+
+    def delete_all_custom_book_data(self, name):
+        self.new_api.delete_custom_book_data(name)
+
+    def get_ids_for_custom_book_data(self, name):
+        return list(self.new_api.get_ids_for_custom_book_data(name))
+    # }}}
+
     # Private interface {{{
 
     def __iter__(self):

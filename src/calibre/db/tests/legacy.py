@@ -245,3 +245,34 @@ class LegacyTest(BaseTest):
 
     # }}}
 
+    def test_legacy_custom_data(self):  # {{{
+        'Test the API for custom data storage'
+        legacy, old = self.init_legacy(self.cloned_library), self.init_old(self.cloned_library)
+        for name in ('name1', 'name2', 'name3'):
+            T = partial(ET, 'add_custom_book_data', old=old, legacy=legacy)
+            T((1, name, 'val1'))(self)
+            T((2, name, 'val2'))(self)
+            T((3, name, 'val3'))(self)
+            T = partial(ET, 'get_ids_for_custom_book_data', old=old, legacy=legacy)
+            T((name,))(self)
+            T = partial(ET, 'get_custom_book_data', old=old, legacy=legacy)
+            T((1, name, object()))
+            T((9, name, object()))
+            T = partial(ET, 'get_all_custom_book_data', old=old, legacy=legacy)
+            T((name, object()))
+            T((name+'!', object()))
+            T = partial(ET, 'delete_custom_book_data', old=old, legacy=legacy)
+            T((name, 1))
+            T = partial(ET, 'get_all_custom_book_data', old=old, legacy=legacy)
+            T((name, object()))
+            T = partial(ET, 'delete_all_custom_book_data', old=old, legacy=legacy)
+            T((name))
+            T = partial(ET, 'get_all_custom_book_data', old=old, legacy=legacy)
+            T((name, object()))
+
+        T = partial(ET, 'add_multiple_custom_book_data', old=old, legacy=legacy)
+        T(('n', {1:'val1', 2:'val2'}))(self)
+        T = partial(ET, 'get_all_custom_book_data', old=old, legacy=legacy)
+        T(('n', object()))
+        old.close()
+    # }}}
