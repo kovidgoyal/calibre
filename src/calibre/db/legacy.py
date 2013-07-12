@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, traceback
+import os, traceback, types
 from functools import partial
 from future_builtins import zip
 
@@ -62,24 +62,36 @@ class LibraryDatabase(object):
             setattr(self, prop, partial(self.get_property,
                     loc=self.FIELD_MAP[fm]))
 
+        MT = lambda func: types.MethodType(func, self, LibraryDatabase)
+
         for meth in ('get_next_series_num_for', 'has_book', 'author_sort_from_authors'):
             setattr(self, meth, getattr(self.new_api, meth))
 
+        # Legacy API to get information about many-(one, many) fields
         for field in ('authors', 'tags', 'publisher', 'series'):
+            def getter(field):
+                def func(self):
+                    return self.new_api.all_field_names(field)
+                return func
             name = field[:-1] if field in {'authors', 'tags'} else field
-            setattr(self, 'all_%s_names' % name, partial(self.new_api.all_field_names, field))
-        self.all_formats = partial(self.new_api.all_field_names, 'formats')
+            setattr(self, 'all_%s_names' % name, MT(getter(field)))
+            self.all_formats = MT(lambda self:self.new_api.all_field_names('formats'))
 
         for func, field in {'all_authors':'authors', 'all_titles':'title', 'all_tags2':'tags', 'all_series':'series', 'all_publishers':'publisher'}.iteritems():
             setattr(self, func, partial(self.field_id_map, field))
-        self.all_tags = lambda : list(self.all_tag_names())
-        self.get_authors_with_ids = lambda : [[aid, adata['name'], adata['sort'], adata['link']] for aid, adata in self.new_api.author_data().iteritems()]
-        self.get_tags_with_ids = lambda : [[tid, tag] for tid, tag in self.new_api.get_id_map('tags').iteritems()]
-        self.get_series_with_ids = lambda : [[tid, tag] for tid, tag in self.new_api.get_id_map('series').iteritems()]
-        self.get_publishers_with_ids = lambda : [[tid, tag] for tid, tag in self.new_api.get_id_map('publisher').iteritems()]
-        self.get_ratings_with_ids = lambda : [[tid, tag] for tid, tag in self.new_api.get_id_map('rating').iteritems()]
-        self.get_languages_with_ids = lambda : [[tid, tag] for tid, tag in self.new_api.get_id_map('languages').iteritems()]
+        self.all_tags = MT(lambda self: list(self.all_tag_names()))
+        self.get_authors_with_ids = MT(
+            lambda self: [[aid, adata['name'], adata['sort'], adata['link']] for aid, adata in self.new_api.author_data().iteritems()])
+        for field in ('tags', 'series', 'publishers', 'ratings', 'languages'):
+            def getter(field):
+                fname = field[:-1] if field in {'publishers', 'ratings'} else field
+                def func(self):
+                    return [[tid, tag] for tid, tag in self.new_api.get_id_map(fname).iteritems()]
+                return func
+            setattr(self, 'get_%s_with_ids' % field,
+                    MT(getter(field)))
 
+        # Legacy field API
         for func in (
             'standard_field_keys', 'custom_field_keys', 'all_field_keys',
             'searchable_fields', 'sortable_field_keys',

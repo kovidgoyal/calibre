@@ -254,7 +254,7 @@ class LegacyTest(BaseTest):
             'author_id',  # replaced by get_author_id
         }
         SKIP_ARGSPEC = {
-            '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors', 'all_tags',
+            '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors',
         }
 
         missing = []
