@@ -172,6 +172,9 @@ class LegacyTest(BaseTest):
             'tag_name':[(3,)],
             'author_name':[(3,)],
             'series_name':[(3,)],
+            'authors_sort_strings':[(0,), (1,), (2,)],
+            'author_sort_from_book':[(0,), (1,), (2,)],
+            'authors_with_sort_strings':[(0,), (1,), (2,)],
         }.iteritems():
             for a in args:
                 fmt = lambda x: x

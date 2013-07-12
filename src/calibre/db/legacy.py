@@ -312,6 +312,25 @@ class LibraryDatabase(object):
         mi = self.new_api.get_metadata(book_id, get_cover=key == 'cover')
         return mi.get(key, default)
 
+    def authors_sort_strings(self, index, index_is_id=False):
+        book_id = index if index_is_id else self.data.index_to_id(index)
+        with self.new_api.read_lock:
+            af = self.new_api.fields['authors'].table
+            authors = af.book_col_map.get(book_id, ())
+            adata = self.new_api._author_data(authors)
+            return [adata[aid]['sort'] for aid in authors]
+
+    def author_sort_from_book(self, index, index_is_id=False):
+        return ' & '.join(self.authors_sort_strings(index, index_is_id=index_is_id))
+
+    def authors_with_sort_strings(self, index, index_is_id=False):
+        book_id = index if index_is_id else self.data.index_to_id(index)
+        with self.new_api.read_lock:
+            af = self.new_api.fields['authors'].table
+            authors = af.book_col_map.get(book_id, ())
+            adata = self.new_api._author_data(authors)
+            return [(aid, adata[aid]['name'], adata[aid]['sort'], adata[aid]['link']) for aid in authors]
+
     # Private interface {{{
 
     def __iter__(self):
