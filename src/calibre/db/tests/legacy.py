@@ -210,6 +210,8 @@ class LegacyTest(BaseTest):
         SKIP_ATTRS = {
             'TCat_Tag', '_add_newbook_tag', '_clean_identifier', '_library_id_', '_set_authors',
             '_set_title', '_set_custom', '_update_author_in_cache',
+            # Feeds are now stored in the config folder
+            'get_feeds', 'get_feed', 'update_feed', 'remove_feeds', 'add_feed', 'set_feeds',
         }
         SKIP_ARGSPEC = {
             '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors',
@@ -241,7 +243,7 @@ class LegacyTest(BaseTest):
 
         if missing:
             pc = len(missing)/total
-            raise AssertionError('{0:.1%} of API ({2} attrs) are missing. For example: {1}'.format(pc, missing[0], len(missing)))
+            raise AssertionError('{0:.1%} of API ({2} attrs) are missing. For example: {1}'.format(pc, ', '.join(missing[:5]), len(missing)))
 
     # }}}
 
