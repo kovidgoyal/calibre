@@ -10,6 +10,7 @@ import os, traceback, types
 from functools import partial
 from future_builtins import zip
 
+from calibre import force_unicode
 from calibre.db import _get_next_series_num_for_list, _get_series_values
 from calibre.db.adding import (
     find_books_in_directory, import_book_directory_multiple,
@@ -112,6 +113,8 @@ class LibraryDatabase(object):
         # Cleaning is not required anymore
         self.clean = self.clean_custom = MT(lambda self:None)
         self.clean_standard_field = MT(lambda self, field, commit=False:None)
+        # apsw operates in autocommit mode
+        self.commit = MT(lambda self:None)
 
     def close(self):
         self.backend.close()
@@ -368,8 +371,19 @@ class LibraryDatabase(object):
             return []
         return self.books_in_series(series_ids[0])
 
-    # Private interface {{{
+    def books_with_same_title(self, mi, all_matches=True):
+        title = mi.title
+        ans = set()
+        if title:
+            title = icu_lower(force_unicode(title))
+            for book_id, x in self.new_api.get_id_map('title').iteritems():
+                if icu_lower(x) == title:
+                    ans.add(book_id)
+                    if not all_matches:
+                        break
+        return ans
 
+    # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():
             yield row
