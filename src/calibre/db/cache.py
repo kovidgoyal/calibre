@@ -361,6 +361,30 @@ class Cache(object):
         return frozenset(iter(self.fields[name]))
 
     @read_api
+    def all_field_names(self, field):
+        ''' Frozen set of all fields names (should only be used for many-one and many-many fields) '''
+        try:
+            return frozenset(self.fields[field].table.id_map.itervalues())
+        except AttributeError:
+            raise ValueError('%s is not a many-one or many-many field' % field)
+
+    @read_api
+    def get_usage_count_by_id(self, field):
+        try:
+            return {k:len(v) for k, v in self.fields[field].table.col_book_map.iteritems()}
+        except AttributeError:
+            raise ValueError('%s is not a many-one or many-many field' % field)
+
+    @read_api
+    def get_id_map(self, field):
+        try:
+            return self.fields[field].table.id_map.copy()
+        except AttributeError:
+            if field == 'title':
+                return self.fields[field].table.book_col_map.copy()
+            raise ValueError('%s is not a many-one or many-many field' % field)
+
+    @read_api
     def author_data(self, author_id):
         '''
         Return author data as a dictionary with keys: name, sort, link
