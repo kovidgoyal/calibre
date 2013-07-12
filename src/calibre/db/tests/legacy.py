@@ -32,7 +32,9 @@ class ET(object):
         return newres
 
 def compare_argspecs(old, new, attr):
-    ok = len(old.args) == len(new.args) and len(old.defaults or ()) == len(new.defaults or ()) and old.args[-len(old.defaults or ()):] == new.args[-len(new.defaults or ()):]  # noqa
+    num = len(old.defaults or ())
+
+    ok = len(old.args) == len(new.args) and old.defaults == new.defaults and (num == 0 or old.args[-num:] == new.args[-num:])
     if not ok:
         raise AssertionError('The argspec for %s does not match. %r != %r' % (attr, old, new))
 
@@ -165,6 +167,9 @@ class LegacyTest(BaseTest):
             '!get_publishers_with_ids':[()],
             '!get_ratings_with_ids':[()],
             '!get_languages_with_ids':[()],
+            'tag_name':[(3,)],
+            'author_name':[(3,)],
+            'series_name':[(3,)],
         }.iteritems():
             for a in args:
                 fmt = lambda x: x

@@ -90,6 +90,13 @@ class LibraryDatabase(object):
                 return func
             setattr(self, 'get_%s_with_ids' % field,
                     MT(getter(field)))
+        for field in ('author', 'tag', 'series'):
+            def getter(field):
+                field = field if field == 'series' else (field+'s')
+                def func(self, item_id):
+                    return self.new_api.get_item_name(field, item_id)
+                return func
+            setattr(self, '%s_name' % field, MT(getter(field)))
 
         # Legacy field API
         for func in (
