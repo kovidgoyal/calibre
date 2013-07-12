@@ -65,6 +65,14 @@ class LibraryDatabase(object):
         for meth in ('get_next_series_num_for', 'has_book', 'author_sort_from_authors'):
             setattr(self, meth, getattr(self.new_api, meth))
 
+        for field in ('authors', 'tags', 'publisher', 'series'):
+            name = field[:-1] if field in {'authors', 'tags'} else field
+            setattr(self, 'all_%s_names' % name, partial(self.new_api.all_field_names, field))
+
+        for func, field in {'all_authors':'authors', 'all_titles':'title', 'all_tags2':'tags', 'all_series':'series', 'all_publishers':'publisher'}.iteritems():
+            setattr(self, func, partial(self.field_id_map, field))
+        self.all_tags = lambda : list(self.all_tag_names())
+
         self.last_update_check = self.last_modified()
 
     def close(self):
@@ -128,6 +136,12 @@ class LibraryDatabase(object):
     def all_ids(self):
         for book_id in self.data.cache.all_book_ids():
             yield book_id
+
+    def get_usage_count_by_id(self, field):
+        return [[k, v] for k, v in self.new_api.get_usage_count_by_id(field).iteritems()]
+
+    def field_id_map(self, field):
+        return [(k, v) for k, v in self.new_api.get_id_map(field).iteritems()]
 
     def refresh(self, field=None, ascending=True):
         self.data.cache.refresh()

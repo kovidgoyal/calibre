@@ -139,9 +139,25 @@ class LegacyTest(BaseTest):
             'get_next_series_num_for': [('A Series One',)],
             'author_sort_from_authors': [(['Author One', 'Author Two', 'Unknown'],)],
             'has_book':[(Metadata('title one'),), (Metadata('xxxx1111'),)],
+            'all_author_names':[()],
+            'all_tag_names':[()],
+            'all_series_names':[()],
+            'all_publisher_names':[()],
+            'all_authors':[()],
+            'all_tags2':[()],
+            'all_tags':[()],
+            'all_publishers':[()],
+            'all_titles':[()],
+            'all_series':[()],
+            'get_usage_count_by_id':[('authors',), ('tags',), ('series',), ('publisher',), ('#tags',), ('languages',)],
         }.iteritems():
             for a in args:
-                self.assertEqual(getattr(db, meth)(*a), getattr(ndb, meth)(*a),
+                fmt = lambda x: x
+                if meth in {'get_usage_count_by_id', 'all_series', 'all_authors', 'all_tags2', 'all_publishers', 'all_titles'}:
+                    fmt = dict
+                elif meth in {'all_tags'}:
+                    fmt = frozenset
+                self.assertEqual(fmt(getattr(db, meth)(*a)), fmt(getattr(ndb, meth)(*a)),
                                  'The method: %s() returned different results for argument %s' % (meth, a))
         db.close()
         # }}}
@@ -220,7 +236,7 @@ class LegacyTest(BaseTest):
             'get_feeds', 'get_feed', 'update_feed', 'remove_feeds', 'add_feed', 'set_feeds',
         }
         SKIP_ARGSPEC = {
-            '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors',
+            '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors', 'all_tags',
         }
 
         missing = []
@@ -238,10 +254,11 @@ class LegacyTest(BaseTest):
                 if attr not in SKIP_ARGSPEC:
                     try:
                         argspec = inspect.getargspec(obj)
+                        nargspec = inspect.getargspec(nobj)
                     except TypeError:
                         pass
                     else:
-                        compare_argspecs(argspec, inspect.getargspec(nobj), attr)
+                        compare_argspecs(argspec, nargspec, attr)
         finally:
             for db in (ndb, db):
                 db.close()
