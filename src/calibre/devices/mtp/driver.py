@@ -83,7 +83,7 @@ class MTP_DEVICE(BASE):
         return name in {
             'alarms', 'android', 'dcim', 'movies', 'music', 'notifications',
             'pictures', 'ringtones', 'samsung', 'sony', 'htc', 'bluetooth',
-            'games', 'lost.dir', 'video', 'whatsapp', 'image'}
+            'games', 'lost.dir', 'video', 'whatsapp', 'image', 'com.zinio.mobile.android.reader'}
 
     def configure_for_kindle_app(self):
         proxy = self.prefs
@@ -159,16 +159,17 @@ class MTP_DEVICE(BASE):
     def get_driveinfo(self):
         if not self.driveinfo:
             self.driveinfo = {}
-            for sid, location_code in ( (self._main_id, 'main'), (self._carda_id,
+            for sid, location_code in ((self._main_id, 'main'), (self._carda_id,
                 'A'), (self._cardb_id, 'B')):
-                if sid is None: continue
+                if sid is None:
+                    continue
                 self._update_drive_info(self.filesystem_cache.storage(sid), location_code)
         return self.driveinfo
 
     def get_device_information(self, end_session=True):
         self.report_progress(1.0, _('Get device information...'))
         dinfo = self.get_basic_device_information()
-        return tuple( list(dinfo) + [self.driveinfo] )
+        return tuple(list(dinfo) + [self.driveinfo])
 
     def card_prefix(self, end_session=True):
         return (self._carda_id, self._cardb_id)
@@ -190,7 +191,7 @@ class MTP_DEVICE(BASE):
         from calibre.devices.mtp.books import JSONCodec
         from calibre.devices.mtp.books import BookList, Book
         self.report_progress(0, _('Listing files, this can take a while'))
-        self.get_driveinfo() # Ensure driveinfo is loaded
+        self.get_driveinfo()  # Ensure driveinfo is loaded
         sid = {'carda':self._carda_id, 'cardb':self._cardb_id}.get(oncard,
                 self._main_id)
         if sid is None:
@@ -230,7 +231,7 @@ class MTP_DEVICE(BASE):
                     cached_metadata.path = mtp_file.mtp_id_path
                     debug('Using cached metadata for',
                             '/'.join(mtp_file.full_path))
-                    continue # No need to update metadata
+                    continue  # No need to update metadata
                 book = cached_metadata
             else:
                 book = Book(sid, '/'.join(relpath))
@@ -352,8 +353,8 @@ class MTP_DEVICE(BASE):
     def prefix_for_location(self, on_card):
         if self.location_paths is None:
             self.location_paths = {}
-            for sid, loc in ( (self._main_id, None), (self._carda_id, 'carda'),
-                    (self._cardb_id, 'cardb') ):
+            for sid, loc in ((self._main_id, None), (self._carda_id, 'carda'),
+                    (self._cardb_id, 'cardb')):
                 if sid is not None:
                     storage = self.filesystem_cache.storage(sid)
                     prefixes = self.get_pref('send_to')
@@ -470,7 +471,8 @@ class MTP_DEVICE(BASE):
 
     def remove_books_from_metadata(self, paths, booklists):
         self.report_progress(0, _('Removing books from metadata'))
-        class NextPath(Exception): pass
+        class NextPath(Exception):
+            pass
 
         for i, path in enumerate(paths):
             try:
@@ -547,5 +549,6 @@ if __name__ == '__main__':
         print ('Prefix for main mem:', dev.prefix_for_location(None))
     finally:
         dev.shutdown()
+
 
 

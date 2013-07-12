@@ -26,10 +26,10 @@ from calibre.utils.date import utcfromtimestamp, parse_date
 from calibre.utils.filenames import (is_case_sensitive, samefile, hardlink_file, ascii_filename,
                                      WindowsAtomicFolderMove)
 from calibre.utils.magick.draw import save_cover_data_to
-from calibre.utils.recycle_bin import delete_tree
+from calibre.utils.recycle_bin import delete_tree, delete_file
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
-        CompositeTable, LanguagesTable, UUIDTable)
+        CompositeTable, UUIDTable)
 # }}}
 
 '''
@@ -711,7 +711,6 @@ class DB(object):
                     'authors':AuthorsTable,
                     'formats':FormatsTable,
                     'identifiers':IdentifiersTable,
-                    'languages':LanguagesTable,
                   }.get(col, ManyToManyTable)
             tables[col] = cls(col, self.field_metadata[col].copy())
 
@@ -940,6 +939,15 @@ class DB(object):
     def has_format(self, book_id, fmt, fname, path):
         return self.format_abspath(book_id, fmt, fname, path) is not None
 
+    def remove_format(self, book_id, fmt, fname, path):
+        path = self.format_abspath(book_id, fmt, fname, path)
+        if path is not None:
+            try:
+                delete_file(path)
+            except:
+                import traceback
+                traceback.print_exc()
+
     def copy_cover_to(self, path, dest, windows_atomic_move=None, use_hardlink=False):
         path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
         if windows_atomic_move is not None:
@@ -1059,9 +1067,27 @@ class DB(object):
                         if wam is not None:
                             wam.close_handles()
 
+    def add_format(self, book_id, fmt, stream, title, author, path):
+        fname = self.construct_file_name(book_id, title, author)
+        path = os.path.join(self.library_path, path)
+        fmt = ('.' + fmt.lower()) if fmt else ''
+        dest = os.path.join(path, fname + fmt)
+        if not os.path.exists(path):
+            os.makedirs(path)
+        size = 0
+
+        if (not getattr(stream, 'name', False) or not samefile(dest, stream.name)):
+            with lopen(dest, 'wb') as f:
+                shutil.copyfileobj(stream, f)
+                size = f.tell()
+        elif os.path.exists(dest):
+            size = os.path.getsize(dest)
+
+        return size, fname
+
     def update_path(self, book_id, title, author, path_field, formats_field):
         path = self.construct_path_name(book_id, title, author)
-        current_path = path_field.for_book(book_id)
+        current_path = path_field.for_book(book_id, default_value='')
         formats = formats_field.for_book(book_id, default_value=())
         fname = self.construct_file_name(book_id, title, author)
         # Check if the metadata used to construct paths has changed
@@ -1137,6 +1163,58 @@ class DB(object):
         path = os.path.abspath(os.path.join(self.library_path, path, 'metadata.opf'))
         with lopen(path, 'rb') as f:
             return f.read()
+
+    def remove_books(self, path_map, permanent=False):
+        for book_id, path in path_map.iteritems():
+            if path:
+                path = os.path.join(self.library_path, path)
+                if os.path.exists(path):
+                    self.rmtree(path, permanent=permanent)
+                    parent = os.path.dirname(path)
+                    if len(os.listdir(parent)) == 0:
+                        self.rmtree(parent, permanent=permanent)
+        self.conn.executemany(
+            'DELETE FROM books WHERE id=?', [(x,) for x in path_map])
+
+    def add_custom_data(self, name, val_map, delete_first):
+        if delete_first:
+            self.conn.execute('DELETE FROM books_plugin_data WHERE name=?', (name, ))
+        self.conn.executemany(
+            'INSERT OR REPLACE INTO books_plugin_data (book, name, val) VALUES (?, ?, ?)',
+            [(book_id, name, json.dumps(val, default=to_json))
+                    for book_id, val in val_map.iteritems()])
+
+    def get_custom_book_data(self, name, book_ids, default=None):
+        book_ids = frozenset(book_ids)
+        def safe_load(val):
+            try:
+                return json.loads(val, object_hook=from_json)
+            except:
+                return default
+
+        if len(book_ids) == 1:
+            bid = next(iter(book_ids))
+            ans = {book_id:safe_load(val) for book_id, val in
+                   self.conn.execute('SELECT book, val FROM books_plugin_data WHERE book=? AND name=?', (bid, name))}
+            return ans or {bid:default}
+
+        ans = {}
+        for book_id, val in self.conn.execute(
+            'SELECT book, val FROM books_plugin_data WHERE name=?', (name,)):
+            if not book_ids or book_id in book_ids:
+                val = safe_load(val)
+                ans[book_id] = val
+        return ans
+
+    def delete_custom_book_data(self, name, book_ids):
+        if book_ids:
+            self.conn.executemany('DELETE FROM books_plugin_data WHERE book=? AND name=?',
+                                  [(book_id, name) for book_id in book_ids])
+        else:
+            self.conn.execute('DELETE FROM books_plugin_data WHERE name=?', (name,))
+
+    def get_ids_for_custom_book_data(self, name):
+        return frozenset(r[0] for r in self.conn.execute('SELECT book FROM books_plugin_data WHERE name=?', (name,)))
 
    # }}}
 

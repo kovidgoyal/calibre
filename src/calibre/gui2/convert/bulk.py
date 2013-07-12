@@ -9,8 +9,7 @@ import shutil
 from PyQt4.Qt import QString, SIGNAL
 
 from calibre.gui2.convert.single import (Config, sort_formats_by_preference,
-    GroupModel, gprefs)
-from calibre.customize.ui import available_output_formats
+    GroupModel, gprefs, get_output_formats)
 from calibre.gui2 import ResizableDialog
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
 from calibre.gui2.convert.heuristics import HeuristicsWidget
@@ -42,7 +41,6 @@ class BulkConfig(Config):
             'settings that cannot be specified in this dialog, use the '
             'values saved in a previous conversion (if they exist) instead '
             'of using the defaults specified in the Preferences'))
-
 
         self.connect(self.output_formats, SIGNAL('currentIndexChanged(QString)'),
                 self.setup_pipeline)
@@ -96,7 +94,8 @@ class BulkConfig(Config):
 
         while True:
             c = self.stack.currentWidget()
-            if not c: break
+            if not c:
+                break
             self.stack.removeWidget(c)
 
         widgets = [lf, hw, ps, sd, toc, sr]
@@ -118,17 +117,14 @@ class BulkConfig(Config):
         except:
             pass
 
-
     def setup_output_formats(self, db, preferred_output_format):
         if preferred_output_format:
             preferred_output_format = preferred_output_format.lower()
-        output_formats = sorted(available_output_formats(),
-                key=lambda x:{'EPUB':'!A', 'MOBI':'!B'}.get(x.upper(), x))
-        output_formats.remove('oeb')
+        output_formats = get_output_formats(preferred_output_format)
         preferred_output_format = preferred_output_format if \
             preferred_output_format and preferred_output_format \
             in output_formats else sort_formats_by_preference(output_formats,
-                    prefs['output_format'])[0]
+                    [prefs['output_format']])[0]
         self.output_formats.addItems(list(map(QString, [x.upper() for x in
             output_formats])))
         self.output_formats.setCurrentIndex(output_formats.index(preferred_output_format))
@@ -148,4 +144,5 @@ class BulkConfig(Config):
             gprefs['convert_bulk_dialog_geom'] = \
                 bytearray(self.saveGeometry())
         return ResizableDialog.done(self, r)
+
 

@@ -8,6 +8,8 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 
+from calibre.ebooks.docx.names import ancestor
+
 def mergeable(previous, current):
     if previous.tail or current.tail:
         return False
@@ -97,6 +99,16 @@ def before_count(root, tag, limit=10):
             return limit
 
 def cleanup_markup(log, root, styles, dest_dir, detect_cover):
+    # Move <hr>s outside paragraphs, if possible.
+    for hr in root.xpath('//span/hr'):
+        p = ancestor(hr, 'p')
+        descendants = tuple(p.iterdescendants())
+        if descendants[-1] is hr:
+            parent = p.getparent()
+            idx = parent.index(p)
+            parent.insert(idx+1, hr)
+            hr.tail = '\n\t'
+
     # Merge consecutive spans that have the same styling
     current_run = []
     for span in root.xpath('//span'):
@@ -163,5 +175,6 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover):
                     log.debug('Detected an image that looks like a cover')
                     img.getparent().remove(img)
                     return path
+
 
 

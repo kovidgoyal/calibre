@@ -29,7 +29,7 @@ from calibre.ebooks.conversion.plumber import (Plumber,
 from calibre.ebooks.conversion.config import delete_specifics
 from calibre.customize.ui import available_output_formats
 from calibre.customize.conversion import OptionRecommendation
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 from calibre.utils.logging import Log
 
 class NoSupportedInputFormats(Exception):
@@ -47,6 +47,20 @@ def sort_formats_by_preference(formats, prefs):
             pass
         return len(prefs)
     return sorted(formats, key=key)
+
+def get_output_formats(preferred_output_format):
+    all_formats = {x.upper() for x in available_output_formats()}
+    all_formats.discard('OEB')
+    pfo = preferred_output_format.upper() if preferred_output_format else ''
+    restrict = tweaks['restrict_output_formats']
+    if restrict:
+        fmts = [x.upper() for x in restrict]
+        if pfo and pfo not in fmts and pfo in all_formats:
+            fmts.append(pfo)
+    else:
+        fmts = list(sorted(all_formats,
+                key=lambda x:{'EPUB':'!A', 'MOBI':'!B'}.get(x.upper(), x)))
+    return fmts
 
 class GroupModel(QAbstractListModel):
 
@@ -239,15 +253,13 @@ class Config(ResizableDialog, Ui_Dialog):
             preferred_output_format):
         if preferred_output_format:
             preferred_output_format = preferred_output_format.lower()
-        output_formats = sorted(available_output_formats(),
-                key=lambda x:{'EPUB':'!A', 'MOBI':'!B'}.get(x.upper(), x))
-        output_formats.remove('oeb')
+        output_formats = get_output_formats(preferred_output_format)
         input_format, input_formats = get_input_format_for_book(db, book_id,
                 preferred_input_format)
         preferred_output_format = preferred_output_format if \
             preferred_output_format in output_formats else \
             sort_formats_by_preference(output_formats,
-                    prefs['output_format'])[0]
+                    [prefs['output_format']])[0]
         self.input_formats.addItems(list(map(QString, [x.upper() for x in
             input_formats])))
         self.output_formats.addItems(list(map(QString, [x.upper() for x in

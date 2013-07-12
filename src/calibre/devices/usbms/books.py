@@ -283,11 +283,17 @@ class CollectionsBookList(BookList):
                 return -1
             if isinstance(x, basestring) and isinstance(y, basestring):
                 x, y = sort_key(force_unicode(x)), sort_key(force_unicode(y))
-            c = cmp(x, y)
+            try:
+                c = cmp(x, y)
+            except TypeError:
+                c = 0
             if c != 0:
                 return c
             # same as above -- no sort_key needed here
-            return cmp(xx[2], yy[2])
+            try:
+                return cmp(xx[2], yy[2])
+            except TypeError:
+                return 0
 
         for category, lpaths in collections.items():
             books = lpaths.values()

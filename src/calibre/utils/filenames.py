@@ -70,9 +70,11 @@ def shorten_components_to(length, components, more_to_take=0):
         else:
             if x is components[-1]:
                 b, e = os.path.splitext(x)
-                if e == '.': e = ''
+                if e == '.':
+                    e = ''
                 r = shorten_component(b, delta)+e
-                if r.startswith('.'): r = x[0]+r
+                if r.startswith('.'):
+                    r = x[0]+r
             else:
                 r = shorten_component(x, delta)
             r = r.strip()
@@ -115,7 +117,7 @@ def is_case_sensitive(path):
         os.remove(f1)
     return is_case_sensitive
 
-def case_preserving_open_file(path, mode='wb', mkdir_mode=0777):
+def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
     '''
     Open the file pointed to by path with the specified mode. If any
     directories in path do not exist, they are created. Returns the
@@ -211,7 +213,8 @@ def samefile_windows(src, dst):
     handles = []
 
     def get_fileid(x):
-        if isbytestring(x): x = x.decode(filesystem_encoding)
+        if isbytestring(x):
+            x = x.decode(filesystem_encoding)
         try:
             h = win32file.CreateFile(x, 0, 0, None, win32file.OPEN_EXISTING,
                     win32file.FILE_FLAG_BACKUP_SEMANTICS, 0)
@@ -254,6 +257,27 @@ def samefile(src, dst):
             os.path.normcase(os.path.abspath(dst)))
     return samestring
 
+def windows_hardlink(src, dest):
+    import win32file, pywintypes
+    try:
+        win32file.CreateHardLink(dest, src)
+    except pywintypes.error as e:
+        msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
+        raise Exception(msg % e)
+    # We open and close dest, to ensure its directory entry is updated
+    # see http://blogs.msdn.com/b/oldnewthing/archive/2011/12/26/10251026.aspx
+    h = win32file.CreateFile(
+        dest, 0, win32file.FILE_SHARE_READ | win32file.FILE_SHARE_WRITE | win32file.FILE_SHARE_DELETE,
+        None, win32file.OPEN_EXISTING, 0, None)
+    try:
+        sz = win32file.GetFileSize(h)
+    finally:
+        win32file.CloseHandle(h)
+
+    if sz != os.path.getsize(src):
+        msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
+        raise Exception(msg % ('hardlink size: %d not the same as source size' % sz))
+
 class WindowsAtomicFolderMove(object):
 
     '''
@@ -270,14 +294,16 @@ class WindowsAtomicFolderMove(object):
         import win32file, winerror
         from pywintypes import error
 
-        if isbytestring(path): path = path.decode(filesystem_encoding)
+        if isbytestring(path):
+            path = path.decode(filesystem_encoding)
 
         if not os.path.exists(path):
             return
 
         for x in os.listdir(path):
             f = os.path.normcase(os.path.abspath(os.path.join(path, x)))
-            if not os.path.isfile(f): continue
+            if not os.path.isfile(f):
+                continue
             try:
                 # Ensure the file is not read-only
                 win32file.SetFileAttributes(f, win32file.FILE_ATTRIBUTE_NORMAL)
@@ -315,9 +341,7 @@ class WindowsAtomicFolderMove(object):
             else:
                 raise ValueError(u'The file %r does not exist'%path)
         try:
-            win32file.CreateHardLink(dest, path)
-            if os.path.getsize(dest) != os.path.getsize(path):
-                raise Exception('This apparently can happen on network shares. Sigh.')
+            windows_hardlink(path, dest)
             return
         except:
             pass
@@ -355,10 +379,8 @@ class WindowsAtomicFolderMove(object):
 
 def hardlink_file(src, dest):
     if iswindows:
-        import win32file
-        win32file.CreateHardLink(dest, src)
-        if os.path.getsize(dest) != os.path.getsize(src):
-            raise Exception('This apparently can happen on network shares. Sigh.')
+        windows_hardlink(src, dest)
         return
     os.link(src, dest)
+
 

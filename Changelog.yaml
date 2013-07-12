@@ -20,6 +20,95 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.39
+  date: 2013-07-12
+
+  new features:
+    - title: "Bulk metadata edit: Add a checkbox to prevent the refreshing of the book list after the bulk edit. This means that the book list will not be resorted and any existing search/virtual library will not be refreshed.  Useful if you have a large library as the refresh can be slow."
+
+    - title: "Allow manually marking a book in the calibre library as being on the device. To do so click the device icon in calibre, then right click on the book you want marked and choose 'Match book to library'. Once you are done marking all the books, right click the device icon and choose 'Update cached metadata'"
+
+    - title: "Driver for Coby Kyros MID1126"
+      tickets: [1199410]
+
+    - title: "When adding formats to an existing book, by right clicking the add books button, ask for confirmation if some formats will be overwritten."
+
+    - title: "Add a tweak to restrict the list of output formats available in the conversion dialog. Go to Preferences->Tweaks to change it."
+ 
+  bug fixes:
+    - title: "Amazon metadata download: Update plugin to deal with the new amazon.com website"
+
+    - title: "Edelweiss metadata download plugin: Workaround for advanced search being broken at the Edelweiss website."
+
+    - title: "Invalid data in the device database on sony readers could cause errors when sorting device collections, ignore those errors."
+
+    - title: "DOCX Input: Fix no page break being inserted before the last section."
+      tickets: [1198414]
+
+    - title: "Metadata download dialog: Have the OK button enabled in the results screen as well."
+      tickets: [1198288]
+
+    - title: "Get Books: Update empik store plugin"
+
+  improved recipes:
+    - Houston Chronicle
+    - cracked.com
+    - mediapart.fr
+
+  new recipes:
+    - title: Glenn Brenwald and Ludwig von Mises Institute 
+      author: anywho
+
+- version: 0.9.38
+  date: 2013-07-05
+
+  new features:
+    - title: "Book polishing: Add option to embed all referenced fonts when polishing books using the 'Polish Books' tool."
+      tickets: [1196038]
+
+    - title: "DOCX Input: Add support for clickable (hyperlinked) images"
+      tickets: [1196728]
+
+    - title: "DOCX Input: Insert page breaks at the start of every new section"
+      tickets: [1196728]
+
+    - title: "Drivers for Trekstor Pyrus Maxi and PocketBook Surfpad 2"
+      tickets: [1196931, 1182850]
+
+    - title: "DOCX Input: Add support for horizontal rules created by typing three hyphens and pressing enter."
+ 
+  bug fixes:
+    - title: "Fix detection of SD Card in some PRS-T2N devices"
+      tickets: [1197970]
+
+    - title: "MOBI Input: Fix a regression that broke parsing of MOBI files with malformed markup that also used entities for apostrophes."
+      ticket: [1197585]
+
+    - title: "Get Books: Update Woblink store plugin"
+
+    - title: "Metadata download dialog: Prevent the buttons from being re-ordered when the Next button is clicked."
+
+    - title: "PDF Output: Fix links that point to URLs with query parameters being mangled by the conversion process."
+      tickets: [1197006]
+
+    - title: "DOCX Input: Fix links pointing to locations in the same document that contain multiple, redundant bookmarks not working."
+
+    - title: "EPUB/AZW3 Output: Fix splitting on page-break-after with plain text immediately following the split point causing the text to be added before rather than after the split point."
+      tickets: [1196728]
+
+    - title: "DOCX Input: handle bookmarks defined at the paragraph level"
+      tickets: [1196728]
+
+    - title: "DOCX Input: Handle hyperlinks created as fields"
+      tickets: [1196728]
+
+  improved recipes:
+    - iprofessional
+
+  new recipes:
+    - title: Democracy Now 
+      author: Antoine Beaupre
+     
 - version: 0.9.37
   date: 2013-06-28
 

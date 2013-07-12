@@ -106,7 +106,6 @@ def single_identify(title, authors, identifiers):
         r in results], dump_caches(), log.dump()
 
 def single_covers(title, authors, identifiers, caches, tdir):
-    os.chdir(tdir)
     load_caches(caches)
     log = GUILog()
     results = Queue()
@@ -126,9 +125,9 @@ def single_covers(title, authors, identifiers, caches, tdir):
                 name += '{%d}'%c[plugin.name]
                 c[plugin.name] += 1
             name = '%s,,%s,,%s,,%s.cover'%(name, width, height, fmt)
-            with open(name, 'wb') as f:
+            with open(os.path.join(tdir, name), 'wb') as f:
                 f.write(data)
-            os.mkdir(name+'.done')
+            os.mkdir(os.path.join(tdir, name+'.done'))
 
     return log.dump()
 

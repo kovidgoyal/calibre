@@ -13,6 +13,8 @@ class LamebookRecipe(BasicNewsRecipe):
     language = 'en'
     use_embedded_content  = False
     publication_type = 'blog'
+    reverse_article_order = True
+    encoding = 'utf-8'
 
     keep_only_tags = [
         dict(name='div', attrs={'class':'entry'})

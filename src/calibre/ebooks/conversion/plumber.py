@@ -134,8 +134,7 @@ OptionRecommendation(name='output_profile',
             help=_('Specify the output profile. The output profile '
                    'tells the conversion system how to optimize the '
                    'created document for the specified device. In some cases, '
-                   'an output profile is required to produce documents that '
-                   'will work on a device. For example EPUB on the SONY reader. '
+                   'an output profile can be used to optimize the output for a particular device, but this is rarely necessary. '
                    'Choices are:') +
                            ', '.join([x.short_name for x in output_profiles()])
         ),
@@ -212,7 +211,8 @@ OptionRecommendation(name='embed_all_fonts',
             'but not already embedded. This will search your system for the '
             'fonts, and if found, they will be embedded. Embedding will only work '
             'if the format you are converting to supports embedded fonts, such as '
-            'EPUB, AZW3 or PDF.'
+            'EPUB, AZW3 or PDF. Please ensure that you have the proper license for embedding '
+            'the fonts used in this document.'
         )),
 
 OptionRecommendation(name='subset_embedded_fonts',

@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 
-from lxml.html.builder import IMG
+from lxml.html.builder import IMG, HR
 
 from calibre.ebooks.docx.names import XPath, get, barename
 from calibre.utils.filenames import ascii_filename
@@ -96,6 +96,7 @@ class Images(object):
         self.used = {}
         self.names = set()
         self.all_images = set()
+        self.links = []
 
     def __call__(self, relationships_by_id):
         self.rid_map = relationships_by_id
@@ -125,8 +126,18 @@ class Images(object):
         self.all_images.add('images/' + name)
         return name
 
-    def pic_to_img(self, pic, alt=None):
+    def pic_to_img(self, pic, alt, parent):
         name = None
+        link = None
+        for hl in XPath('descendant::a:hlinkClick[@r:id]')(parent):
+            link = {'id':get(hl, 'r:id')}
+            tgt = hl.get('tgtFrame', None)
+            if tgt:
+                link['target'] = tgt
+            title = hl.get('tooltip', None)
+            if title:
+                link['title'] = title
+
         for pr in XPath('descendant::pic:cNvPr')(pic):
             name = pr.get('name', None)
             if name:
@@ -138,6 +149,8 @@ class Images(object):
                     src = self.generate_filename(rid, name)
                     img = IMG(src='images/%s' % src)
                     img.set('alt', alt or 'Image')
+                    if link is not None:
+                        self.links.append((img, link))
                     return img
 
     def drawing_to_html(self, drawing, page):
@@ -145,7 +158,7 @@ class Images(object):
         for inline in XPath('./wp:inline')(drawing):
             style, alt = get_image_properties(inline)
             for pic in XPath('descendant::pic:pic')(inline):
-                ans = self.pic_to_img(pic, alt)
+                ans = self.pic_to_img(pic, alt, inline)
                 if ans is not None:
                     if style:
                         ans.set('style', '; '.join('%s: %s' % (k, v) for k, v in style.iteritems()))
@@ -156,13 +169,33 @@ class Images(object):
             style, alt = get_image_properties(anchor)
             self.get_float_properties(anchor, style, page)
             for pic in XPath('descendant::pic:pic')(anchor):
-                ans = self.pic_to_img(pic, alt)
+                ans = self.pic_to_img(pic, alt, anchor)
                 if ans is not None:
                     if style:
                         ans.set('style', '; '.join('%s: %s' % (k, v) for k, v in style.iteritems()))
                     yield ans
 
     def pict_to_html(self, pict, page):
+        # First see if we have an <hr>
+        is_hr = len(pict) == 1 and get(pict[0], 'o:hr') in {'t', 'true'}
+        if is_hr:
+            style = {}
+            hr = HR()
+            try:
+                pct = float(get(pict[0], 'o:hrpct'))
+            except (ValueError, TypeError, AttributeError):
+                pass
+            else:
+                if pct > 0:
+                    style['width'] = '%.3g%%' % pct
+            align = get(pict[0], 'o:hralign', 'center')
+            if align in {'left', 'right'}:
+                style['margin-left'] = '0' if align == 'left' else 'auto'
+                style['margin-right'] = 'auto' if align == 'left' else '0'
+            if style:
+                hr.set('style', '; '.join(('%s:%s' % (k, v) for k, v in style.iteritems())))
+            yield hr
+
         for imagedata in XPath('descendant::v:imagedata[@r:id]')(pict):
             rid = get(imagedata, 'r:id')
             if rid in self.rid_map:

@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 9, 37)
+numeric_version = (0, 9, 39)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -281,4 +281,9 @@ def get_windows_user_locale_name():
     if n == 0:
         return None
     return u'_'.join(buf.value.split(u'-')[:2])
+
+def is_modern_webkit():
+    # Check if we are using QtWebKit >= 2.3
+    from PyQt4.QtWebKit import qWebKitMajorVersion
+    return qWebKitMajorVersion() >= 537
 

@@ -7,13 +7,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, random
+import os, traceback, random, shutil
 from io import BytesIO
 from collections import defaultdict
 from functools import wraps, partial
 
-from calibre.constants import iswindows
-from calibre.db import SPOOL_SIZE
+from calibre import isbytestring
+from calibre.constants import iswindows, preferred_encoding
+from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postimport
+from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.categories import get_categories
 from calibre.db.locking import create_locks
 from calibre.db.errors import NoSuchFormat
@@ -22,12 +24,14 @@ from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
 from calibre.db.write import get_series_values
 from calibre.db.lazy import FormatMetadata, FormatsList
-from calibre.ebooks.metadata import string_to_authors
+from calibre.ebooks import check_ebook_format
+from calibre.ebooks.metadata import string_to_authors, author_to_author_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import (base_dir, PersistentTemporaryFile,
                                SpooledTemporaryFile)
-from calibre.utils.date import now as nowf
+from calibre.utils.config import prefs
+from calibre.utils.date import now as nowf, utcnow, UNDEFINED_DATE
 from calibre.utils.icu import sort_key
 
 def api(f):
@@ -50,6 +54,28 @@ def wrap_simple(lock, func):
         with lock:
             return func(*args, **kwargs)
     return ans
+
+def run_import_plugins(path_or_stream, fmt):
+    fmt = fmt.lower()
+    if hasattr(path_or_stream, 'seek'):
+        path_or_stream.seek(0)
+        pt = PersistentTemporaryFile('_import_plugin.'+fmt)
+        shutil.copyfileobj(path_or_stream, pt, 1024**2)
+        pt.close()
+        path = pt.name
+    else:
+        path = path_or_stream
+    return run_plugins_on_import(path, fmt)
+
+def _add_newbook_tag(mi):
+    tags = prefs['new_book_tags']
+    if tags:
+        for tag in [t.strip() for t in tags]:
+            if tag:
+                if not mi.tags:
+                    mi.tags = [tag]
+                elif tag not in mi.tags:
+                    mi.tags.append(tag)
 
 
 class Cache(object):
@@ -135,7 +161,8 @@ class Cache(object):
     def _get_metadata(self, book_id, get_user_categories=True):  # {{{
         mi = Metadata(None, template_cache=self.formatter_template_cache)
         author_ids = self._field_ids_for('authors', book_id)
-        aut_list = [self._author_data(i) for i in author_ids]
+        adata = self._author_data(author_ids)
+        aut_list = [adata[i] for i in author_ids]
         aum = []
         aus = {}
         aul = {}
@@ -335,17 +362,48 @@ class Cache(object):
         return frozenset(iter(self.fields[name]))
 
     @read_api
-    def author_data(self, author_id):
+    def all_field_names(self, field):
+        ''' Frozen set of all fields names (should only be used for many-one and many-many fields) '''
+        if field == 'formats':
+            return frozenset(self.fields[field].table.col_book_map)
+
+        try:
+            return frozenset(self.fields[field].table.id_map.itervalues())
+        except AttributeError:
+            raise ValueError('%s is not a many-one or many-many field' % field)
+
+    @read_api
+    def get_usage_count_by_id(self, field):
+        try:
+            return {k:len(v) for k, v in self.fields[field].table.col_book_map.iteritems()}
+        except AttributeError:
+            raise ValueError('%s is not a many-one or many-many field' % field)
+
+    @read_api
+    def get_id_map(self, field):
+        try:
+            return self.fields[field].table.id_map.copy()
+        except AttributeError:
+            if field == 'title':
+                return self.fields[field].table.book_col_map.copy()
+            raise ValueError('%s is not a many-one or many-many field' % field)
+
+    @read_api
+    def get_item_name(self, field, item_id):
+        return self.fields[field].table.id_map[item_id]
+
+    @read_api
+    def author_data(self, author_ids=None):
         '''
         Return author data as a dictionary with keys: name, sort, link
 
-        If no author with the specified id is found an empty dictionary is
-        returned.
+        If no authors with the specified ids are found an empty dictionary is
+        returned. If author_ids is None, data for all authors is returned.
         '''
-        try:
-            return self.fields['authors'].author_data(author_id)
-        except (KeyError, IndexError):
-            return {}
+        af = self.fields['authors']
+        if author_ids is None:
+            author_ids = tuple(af.table.id_map)
+        return {aid:af.author_data(aid) for aid in author_ids if aid in af.table.id_map}
 
     @read_api
     def format_metadata(self, book_id, fmt, allow_cache=True):
@@ -943,6 +1001,214 @@ class Cache(object):
                         if extra is not None or force_changes:
                             protected_set_field(idx, extra)
 
+    @write_api
+    def add_format(self, book_id, fmt, stream_or_path, replace=True, run_hooks=True, dbapi=None):
+        if run_hooks:
+            # Run import plugins
+            npath = run_import_plugins(stream_or_path, fmt)
+            fmt = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
+            stream_or_path = lopen(npath, 'rb')
+            fmt = check_ebook_format(stream_or_path, fmt)
+
+        fmt = (fmt or '').upper()
+        self.format_metadata_cache[book_id].pop(fmt, None)
+        try:
+            name = self.fields['formats'].format_fname(book_id, fmt)
+        except:
+            name = None
+
+        if name and not replace:
+            return False
+
+        path = self._field_for('path', book_id).replace('/', os.sep)
+        title = self._field_for('title', book_id, default_value=_('Unknown'))
+        author = self._field_for('authors', book_id, default_value=(_('Unknown'),))[0]
+        stream = stream_or_path if hasattr(stream_or_path, 'read') else lopen(stream_or_path, 'rb')
+        size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path)
+        del stream
+
+        max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
+        self.fields['size'].table.update_sizes({book_id: max_size})
+        self._update_last_modified((book_id,))
+
+        if run_hooks:
+            # Run post import plugins
+            run_plugins_on_postimport(dbapi or self, book_id, fmt)
+            stream_or_path.close()
+
+        return True
+
+    @write_api
+    def remove_formats(self, formats_map, db_only=False):
+        table = self.fields['formats'].table
+        formats_map = {book_id:frozenset((f or '').upper() for f in fmts) for book_id, fmts in formats_map.iteritems()}
+        size_map = table.remove_formats(formats_map, self.backend)
+        self.fields['size'].table.update_sizes(size_map)
+
+        for book_id, fmts in formats_map.iteritems():
+            for fmt in fmts:
+                self.format_metadata_cache[book_id].pop(fmt, None)
+
+        if not db_only:
+            for book_id, fmts in formats_map.iteritems():
+                try:
+                    path = self._field_for('path', book_id).replace('/', os.sep)
+                except:
+                    continue
+                for fmt in fmts:
+                    try:
+                        name = self.fields['formats'].format_fname(book_id, fmt)
+                    except:
+                        continue
+                    if name and path:
+                        self.backend.remove_format(book_id, fmt, name, path)
+
+        self._update_last_modified(tuple(formats_map.iterkeys()))
+
+    @read_api
+    def get_next_series_num_for(self, series):
+        books = ()
+        sf = self.fields['series']
+        if series:
+            q = icu_lower(series)
+            for val, book_ids in sf.iter_searchable_values(self._get_metadata, frozenset(self.all_book_ids())):
+                if q == icu_lower(val):
+                    books = book_ids
+                    break
+        series_indices = sorted(self._field_for('series_index', book_id) for book_id in books)
+        return _get_next_series_num_for_list(tuple(series_indices), unwrap=False)
+
+    @read_api
+    def author_sort_from_authors(self, authors):
+        '''Given a list of authors, return the author_sort string for the authors,
+        preferring the author sort associated with the author over the computed
+        string. '''
+        table = self.fields['authors'].table
+        result = []
+        rmap = {icu_lower(v):k for k, v in table.id_map.iteritems()}
+        for aut in authors:
+            aid = rmap.get(icu_lower(aut), None)
+            result.append(author_to_author_sort(aut) if aid is None else table.asort_map[aid])
+        return ' & '.join(result)
+
+    @read_api
+    def has_book(self, mi):
+        title = mi.title
+        if title:
+            if isbytestring(title):
+                title = title.decode(preferred_encoding, 'replace')
+            q = icu_lower(title)
+            for title in self.fields['title'].table.book_col_map.itervalues():
+                if q == icu_lower(title):
+                    return True
+        return False
+
+    @write_api
+    def create_book_entry(self, mi, cover=None, add_duplicates=True, force_id=None, apply_import_tags=True, preserve_uuid=False):
+        if mi.tags:
+            mi.tags = list(mi.tags)
+        if apply_import_tags:
+            _add_newbook_tag(mi)
+        if not add_duplicates and self._has_book(mi):
+            return
+        series_index = (self._get_next_series_num_for(mi.series) if mi.series_index is None else mi.series_index)
+        if not mi.authors:
+            mi.authors = (_('Unknown'),)
+        aus = mi.author_sort if mi.author_sort else self._author_sort_from_authors(mi.authors)
+        mi.title = mi.title or _('Unknown')
+        if isbytestring(aus):
+            aus = aus.decode(preferred_encoding, 'replace')
+        if isbytestring(mi.title):
+            mi.title = mi.title.decode(preferred_encoding, 'replace')
+        conn = self.backend.conn
+        if force_id is None:
+            conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
+                         (mi.title, series_index, aus))
+        else:
+            conn.execute('INSERT INTO books(id, title, series_index, author_sort) VALUES (?, ?, ?, ?)',
+                         (force_id, mi.title, series_index, aus))
+        book_id = conn.last_insert_rowid()
+
+        mi.timestamp = utcnow() if mi.timestamp is None else mi.timestamp
+        mi.pubdate = UNDEFINED_DATE if mi.pubdate is None else mi.pubdate
+        if cover is not None:
+            mi.cover, mi.cover_data = None, (None, cover)
+        self._set_metadata(book_id, mi, ignore_errors=True)
+        if preserve_uuid and mi.uuid:
+            self._set_field('uuid', {book_id:mi.uuid})
+        # Update the caches for fields from the books table
+        self.fields['size'].table.book_col_map[book_id] = 0
+        row = next(conn.execute('SELECT sort, series_index, author_sort, uuid, has_cover FROM books WHERE id=?', (book_id,)))
+        for field, val in zip(('sort', 'series_index', 'author_sort', 'uuid', 'cover'), row):
+            if field == 'cover':
+                val = bool(val)
+            elif field == 'uuid':
+                self.fields[field].table.uuid_to_id_map[val] = book_id
+            self.fields[field].table.book_col_map[book_id] = val
+
+        return book_id
+
+    @write_api
+    def add_books(self, books, add_duplicates=True, apply_import_tags=True, preserve_uuid=False, run_hooks=True, dbapi=None):
+        duplicates, ids = [], []
+        for mi, format_map in books:
+            book_id = self._create_book_entry(mi, add_duplicates=add_duplicates, apply_import_tags=apply_import_tags, preserve_uuid=preserve_uuid)
+            if book_id is None:
+                duplicates.append((mi, format_map))
+            else:
+                ids.append(book_id)
+                for fmt, stream_or_path in format_map.iteritems():
+                    self._add_format(book_id, fmt, stream_or_path, dbapi=dbapi, run_hooks=run_hooks)
+        return ids, duplicates
+
+    @write_api
+    def remove_books(self, book_ids, permanent=False):
+        path_map = {}
+        for book_id in book_ids:
+            try:
+                path = self._field_for('path', book_id).replace('/', os.sep)
+            except:
+                path = None
+            path_map[book_id] = path
+        self.backend.remove_books(path_map, permanent=permanent)
+        for field in self.fields.itervalues():
+            try:
+                table = field.table
+            except AttributeError:
+                continue  # Some fields like ondevice do not have tables
+            else:
+                table.remove_books(book_ids, self.backend)
+
+    @write_api
+    def add_custom_book_data(self, name, val_map, delete_first=False):
+        ''' Add data for name where val_map is a map of book_ids to values. If
+        delete_first is True, all previously stored data for name will be
+        removed. '''
+        missing = frozenset(val_map) - self._all_book_ids()
+        if missing:
+            raise ValueError('add_custom_book_data: no such book_ids: %d'%missing)
+        self.backend.add_custom_data(name, val_map, delete_first)
+
+    @read_api
+    def get_custom_book_data(self, name, book_ids=(), default=None):
+        ''' Get data for name. By default returns data for all book_ids, pass
+        in a list of book ids if you only want some data. Returns a map of
+        book_id to values. If a particular value could not be decoded, uses
+        default for it. '''
+        return self.backend.get_custom_book_data(name, book_ids, default)
+
+    @write_api
+    def delete_custom_book_data(self, name, book_ids=()):
+        ''' Delete data for name. By default deletes all data, if you only want
+        to delete data for some book ids, pass in a list of book ids. '''
+        self.backend.delete_custom_book_data(name, book_ids)
+
+    @read_api
+    def get_ids_for_custom_book_data(self, name):
+        ''' Return the set of book ids for which name has data. '''
+        return self.backend.get_ids_for_custom_book_data(name)
+
+
     # }}}
 
 class SortKey(object):  # {{{
@@ -958,4 +1224,6 @@ class SortKey(object):  # {{{
                 return ans * order
         return 0
 # }}}
+
+
 

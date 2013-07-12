@@ -1,17 +1,18 @@
 __license__   = 'GPL v3'
-__copyright__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>; 2010-2012, Louis Gesbert <meta at antislash dot info>'
+__copyright__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>; 2010-2012, Louis Gesbert <meta at antislash dot info>; 2013, Malah <malah at neuf.fr>'
 '''
 Mediapart
 '''
 
-__author__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>; 2010-2012, Louis Gesbert <meta at antislash dot info>'
+__author__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>; 2010-2012, Louis Gesbert <meta at antislash dot info>; 2013, Malah <malah at neuf.fr>'
 
+import re
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Mediapart(BasicNewsRecipe):
     title          = 'Mediapart'
-    __author__ = 'Mathieu Godlewski, Louis Gesbert'
+    __author__ = 'Mathieu Godlewski, Louis Gesbert, Malah'
     description = 'Global news in french from news site Mediapart'
     oldest_article = 7
     language = 'fr'
@@ -21,6 +22,7 @@ class Mediapart(BasicNewsRecipe):
     use_embedded_content = False
     no_stylesheets = True
 
+    masthead_url       = 'https://upload.wikimedia.org/wikipedia/fr/2/23/Mediapart.png'
     cover_url = 'http://static.mediapart.fr/files/pave_mediapart.jpg'
 
     feeds =  [
@@ -36,18 +38,18 @@ class Mediapart(BasicNewsRecipe):
     def print_version(self, url):
         raw = self.browser.open(url).read()
         soup = BeautifulSoup(raw.decode('utf8', 'replace'))
-        link = soup.find('a', {'title':'Imprimer'})
+        link = soup.find('a', {'href':re.compile('^/print/[0-9]+')})
         if link is None:
             return None
-        return link['href']
+        return 'http://www.mediapart.fr' + link['href']
 
 # -- Handle login
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open('http://www.mediapart.fr/')
-            br.select_form(nr=0)
+            br.open('http://blogs.mediapart.fr/editions/guide-du-coordonnateur-d-edition')
+            br.select_form(nr=1)
             br['name'] = self.username
             br['pass'] = self.password
             br.submit()

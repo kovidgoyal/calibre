@@ -77,7 +77,7 @@ class OptionRecommendation(object):
                                                     self.option.choices:
             raise ValueError('OpRec: %s: Recommended value not in choices'%
                              self.option.name)
-        if not (isinstance(self.recommended_value, (int, float, str, unicode))\
+        if not (isinstance(self.recommended_value, (int, float, str, unicode))
             or self.recommended_value is None):
             raise ValueError('OpRec: %s:'%self.option.name +
                              repr(self.recommended_value) +
@@ -139,8 +139,10 @@ class InputFormatPlugin(Plugin):
     file_types     = set([])
 
     #: If True, this input plugin generates a collection of images,
-    #: one per HTML file. You can obtain access to the images via
-    #: convenience method, :meth:`get_image_collection`.
+    #: one per HTML file. This can be set dynamically, in the convert method
+    #: if the input files can be both image collections and non-image collections.
+    #: If you set this to True, you must implement the get_images() method that returns
+    #: a list of images.
     is_image_collection = False
 
     #: Number of CPU cores used by this plugin
@@ -231,13 +233,12 @@ class InputFormatPlugin(Plugin):
             # In case stdout is broken
             pass
 
-        with CurrentDir(output_dir):
+        with CurrentDir(output_dir, workaround_temp_folder_permissions=True):
             for x in os.listdir('.'):
                 shutil.rmtree(x) if os.path.isdir(x) else os.remove(x)
 
             ret = self.convert(stream, options, file_ext,
                                log, accelerators)
-
 
         return ret
 
@@ -313,7 +314,6 @@ class OutputFormatPlugin(Plugin):
         Plugin.__init__(self, *args)
         self.report_progress = DummyReporter()
 
-
     def convert(self, oeb_book, output, input_plugin, opts, log):
         '''
         Render the contents of `oeb_book` (which is an instance of
@@ -360,6 +360,7 @@ class OutputFormatPlugin(Plugin):
         name = self.name.lower().replace(' ', '_')
         return gui_configuration_widget(name, parent, get_option_by_name,
                 get_option_help, db, book_id, for_output=True)
+
 
 
 

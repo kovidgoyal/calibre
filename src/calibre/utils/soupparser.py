@@ -62,7 +62,7 @@ def _parse(source, beautifulsoup, makeelement, **bsargs):
     if makeelement is None:
         makeelement = html.html_parser.makeelement
     if 'convertEntities' not in bsargs:
-        bsargs['convertEntities'] = 'html'
+        bsargs['convertEntities'] = 'xhtml'  # Changed by Kovid, otherwise &apos; is mangled, see https://bugs.launchpad.net/calibre/+bug/1197585
     tree = beautifulsoup(source, **bsargs)
     root = _convert_tree(tree, makeelement)
     # from ET: wrap the document in a html root element, if necessary

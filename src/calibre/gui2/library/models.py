@@ -1207,6 +1207,8 @@ class DeviceBooksModel(BooksModel):  # {{{
         self.search_engine = OnDeviceSearch(self)
         self.editable = ['title', 'authors', 'collections']
         self.book_in_library = None
+        self.sync_icon = QIcon(I('sync.png'))
+
 
     def counts(self):
         return Counts(len(self.db), len(self.db), len(self.map))
@@ -1535,13 +1537,17 @@ class DeviceBooksModel(BooksModel):  # {{{
             elif DEBUG and cname == 'inlibrary':
                 return QVariant(self.db[self.map[row]].in_library)
         elif role == Qt.ToolTipRole and index.isValid():
+            if col == 0 and hasattr(self.db[self.map[row]], 'in_library_waiting'):
+                return QVariant(_('Waiting for metadata to be updated'))
             if self.is_row_marked_for_deletion(row):
                 return QVariant(_('Marked for deletion'))
             if cname in ['title', 'authors'] or (cname == 'collections' and
                     self.db.supports_collections()):
                 return QVariant(_("Double click to <b>edit</b> me<br><br>"))
         elif role == Qt.DecorationRole and cname == 'inlibrary':
-            if self.db[self.map[row]].in_library:
+            if hasattr(self.db[self.map[row]], 'in_library_waiting'):
+                return QVariant(self.sync_icon)
+            elif self.db[self.map[row]].in_library:
                 return QVariant(self.bool_yes_icon)
             elif self.db[self.map[row]].in_library is not None:
                 return QVariant(self.bool_no_icon)

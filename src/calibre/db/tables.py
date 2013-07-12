@@ -8,6 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from datetime import datetime
+from collections import defaultdict
 
 from dateutil.tz import tzoffset
 
@@ -18,6 +19,10 @@ from calibre.ebooks.metadata import author_to_author_sort
 _c_speedup = plugins['speedup'][0]
 
 ONE_ONE, MANY_ONE, MANY_MANY = xrange(3)
+
+class Null:
+    pass
+null = Null()
 
 def _c_convert_timestamp(val):
     if not val:
@@ -54,6 +59,9 @@ class Table(object):
         self.link_table = (link_table if link_table else
                 'books_%s_link'%self.metadata['table'])
 
+    def remove_books(self, book_ids, db):
+        return set()
+
 class VirtualTable(Table):
 
     '''
@@ -82,6 +90,14 @@ class OneToOneTable(Table):
             self.metadata['column'], self.metadata['table'])):
             self.book_col_map[row[0]] = self.unserialize(row[1])
 
+    def remove_books(self, book_ids, db):
+        clean = set()
+        for book_id in book_ids:
+            val = self.book_col_map.pop(book_id, null)
+            if val is not null:
+                clean.add(val)
+        return clean
+
 class PathTable(OneToOneTable):
 
     def set_path(self, book_id, path, db):
@@ -98,6 +114,9 @@ class SizeTable(OneToOneTable):
                 'WHERE data.book=books.id) FROM books'):
             self.book_col_map[row[0]] = self.unserialize(row[1])
 
+    def update_sizes(self, size_map):
+        self.book_col_map.update(size_map)
+
 class UUIDTable(OneToOneTable):
 
     def read(self, db):
@@ -106,8 +125,17 @@ class UUIDTable(OneToOneTable):
 
     def update_uuid_cache(self, book_id_val_map):
         for book_id, uuid in book_id_val_map.iteritems():
-            self.uuid_to_id_map.pop(self.book_col_map[book_id], None)  # discard old uuid
+            self.uuid_to_id_map.pop(self.book_col_map.get(book_id, None), None)  # discard old uuid
             self.uuid_to_id_map[uuid] = book_id
+
+    def remove_books(self, book_ids, db):
+        clean = set()
+        for book_id in book_ids:
+            val = self.book_col_map.pop(book_id, null)
+            if val is not null:
+                self.uuid_to_id_map.pop(val, None)
+                clean.add(val)
+        return clean
 
 class CompositeTable(OneToOneTable):
 
@@ -119,6 +147,9 @@ class CompositeTable(OneToOneTable):
         self.make_category = d.get('make_category', False)
         self.composite_sort = d.get('composite_sort', False)
         self.use_decorations = d.get('use_decorations', False)
+
+    def remove_books(self, book_ids, db):
+        return set()
 
 class ManyToOneTable(Table):
 
@@ -152,6 +183,27 @@ class ManyToOneTable(Table):
             self.col_book_map[row[1]].add(row[0])
             self.book_col_map[row[0]] = row[1]
 
+    def remove_books(self, book_ids, db):
+        clean = set()
+        for book_id in book_ids:
+            item_id = self.book_col_map.pop(book_id, None)
+            if item_id is not None:
+                try:
+                    self.col_book_map[item_id].discard(book_id)
+                except KeyError:
+                    if self.id_map.pop(item_id, null) is not null:
+                        clean.add(item_id)
+                else:
+                    if not self.col_book_map[item_id]:
+                        del self.col_book_map[item_id]
+                        if self.id_map.pop(item_id, null) is not null:
+                            clean.add(item_id)
+        if clean:
+            db.conn.executemany(
+                'DELETE FROM {0} WHERE id=?'.format(self.metadata['table']),
+                [(x,) for x in clean])
+        return clean
+
 class ManyToManyTable(ManyToOneTable):
 
     '''
@@ -162,6 +214,7 @@ class ManyToManyTable(ManyToOneTable):
 
     table_type = MANY_MANY
     selectq = 'SELECT book, {0} FROM {1} ORDER BY id'
+    do_clean_on_remove = True
 
     def read_maps(self, db):
         for row in db.conn.execute(
@@ -176,6 +229,27 @@ class ManyToManyTable(ManyToOneTable):
         for key in tuple(self.book_col_map.iterkeys()):
             self.book_col_map[key] = tuple(self.book_col_map[key])
 
+    def remove_books(self, book_ids, db):
+        clean = set()
+        for book_id in book_ids:
+            item_ids = self.book_col_map.pop(book_id, ())
+            for item_id in item_ids:
+                try:
+                    self.col_book_map[item_id].discard(book_id)
+                except KeyError:
+                    if self.id_map.pop(item_id, null) is not null:
+                        clean.add(item_id)
+                else:
+                    if not self.col_book_map[item_id]:
+                        del self.col_book_map[item_id]
+                        if self.id_map.pop(item_id, null) is not null:
+                            clean.add(item_id)
+        if clean and self.do_clean_on_remove:
+            db.conn.executemany(
+                'DELETE FROM {0} WHERE id=?'.format(self.metadata['table']),
+                [(x,) for x in clean])
+        return clean
+
 class AuthorsTable(ManyToManyTable):
 
     def read_id_maps(self, db):
@@ -188,14 +262,29 @@ class AuthorsTable(ManyToManyTable):
                     author_to_author_sort(row[1]))
             self.alink_map[row[0]] = row[3]
 
+    def set_sort_names(self, aus_map, db):
+        self.asort_map.update(aus_map)
+        db.conn.executemany('UPDATE authors SET sort=? WHERE id=?',
+            [(v, k) for k, v in aus_map.iteritems()])
+
+    def remove_books(self, book_ids, db):
+        clean = ManyToManyTable.remove_books(self, book_ids, db)
+        for item_id in clean:
+            self.alink_map.pop(item_id, None)
+            self.asort_map.pop(item_id, None)
+        return clean
+
 class FormatsTable(ManyToManyTable):
+
+    do_clean_on_remove = False
 
     def read_id_maps(self, db):
         pass
 
     def read_maps(self, db):
-        self.fname_map = {}
-        for row in db.conn.execute('SELECT book, format, name FROM data'):
+        self.fname_map = defaultdict(dict)
+        self.size_map = defaultdict(dict)
+        for row in db.conn.execute('SELECT book, format, name, uncompressed_size FROM data'):
             if row[1] is not None:
                 fmt = row[1].upper()
                 if fmt not in self.col_book_map:
@@ -204,17 +293,63 @@ class FormatsTable(ManyToManyTable):
                 if row[0] not in self.book_col_map:
                     self.book_col_map[row[0]] = []
                 self.book_col_map[row[0]].append(fmt)
-                if row[0] not in self.fname_map:
-                    self.fname_map[row[0]] = {}
                 self.fname_map[row[0]][fmt] = row[2]
+                self.size_map[row[0]][fmt] = row[3]
 
         for key in tuple(self.book_col_map.iterkeys()):
             self.book_col_map[key] = tuple(sorted(self.book_col_map[key]))
+
+    def remove_books(self, book_ids, db):
+        clean = ManyToManyTable.remove_books(self, book_ids, db)
+        for book_id in book_ids:
+            self.fname_map.pop(book_id, None)
+            self.size_map.pop(book_id, None)
+        return clean
 
     def set_fname(self, book_id, fmt, fname, db):
         self.fname_map[book_id][fmt] = fname
         db.conn.execute('UPDATE data SET name=? WHERE book=? AND format=?',
                         (fname, book_id, fmt))
+
+    def remove_formats(self, formats_map, db):
+        for book_id, fmts in formats_map.iteritems():
+            self.book_col_map[book_id] = [fmt for fmt in self.book_col_map.get(book_id, []) if fmt not in fmts]
+            for m in (self.fname_map, self.size_map):
+                m[book_id] = {k:v for k, v in m[book_id].iteritems() if k not in fmts}
+            for fmt in fmts:
+                try:
+                    self.col_book_map[fmt].discard(book_id)
+                except KeyError:
+                    pass
+        db.conn.executemany('DELETE FROM data WHERE book=? AND format=?',
+            [(book_id, fmt) for book_id, fmts in formats_map.iteritems() for fmt in fmts])
+        def zero_max(book_id):
+            try:
+                return max(self.size_map[book_id].itervalues())
+            except ValueError:
+                return 0
+
+        return {book_id:zero_max(book_id) for book_id in formats_map}
+
+    def update_fmt(self, book_id, fmt, fname, size, db):
+        fmts = list(self.book_col_map.get(book_id, []))
+        try:
+            fmts.remove(fmt)
+        except ValueError:
+            pass
+        fmts.append(fmt)
+        self.book_col_map[book_id] = tuple(fmts)
+
+        try:
+            self.col_book_map[fmt].add(book_id)
+        except KeyError:
+            self.col_book_map[fmt] = {book_id}
+
+        self.fname_map[book_id][fmt] = fname
+        self.size_map[book_id][fmt] = size
+        db.conn.execute('INSERT OR REPLACE INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
+                        (book_id, fmt, size, fname))
+        return max(self.size_map[book_id].itervalues())
 
 class IdentifiersTable(ManyToManyTable):
 
@@ -231,7 +366,19 @@ class IdentifiersTable(ManyToManyTable):
                     self.book_col_map[row[0]] = {}
                 self.book_col_map[row[0]][row[1]] = row[2]
 
-class LanguagesTable(ManyToManyTable):
+    def remove_books(self, book_ids, db):
+        clean = set()
+        for book_id in book_ids:
+            item_map = self.book_col_map.pop(book_id, {})
+            for item_id in item_map:
+                try:
+                    self.col_book_map[item_id].discard(book_id)
+                except KeyError:
+                    clean.add(item_id)
+                else:
+                    if not self.col_book_map[item_id]:
+                        del self.col_book_map[item_id]
+                        clean.add(item_id)
+        return clean
 
-    def read_id_maps(self, db):
-        ManyToManyTable.read_id_maps(self, db)
+
