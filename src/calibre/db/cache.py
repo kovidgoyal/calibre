@@ -161,7 +161,8 @@ class Cache(object):
     def _get_metadata(self, book_id, get_user_categories=True):  # {{{
         mi = Metadata(None, template_cache=self.formatter_template_cache)
         author_ids = self._field_ids_for('authors', book_id)
-        aut_list = [self._author_data(i) for i in author_ids]
+        adata = self._author_data(author_ids)
+        aut_list = [adata[i] for i in author_ids]
         aum = []
         aus = {}
         aul = {}
@@ -363,6 +364,9 @@ class Cache(object):
     @read_api
     def all_field_names(self, field):
         ''' Frozen set of all fields names (should only be used for many-one and many-many fields) '''
+        if field == 'formats':
+            return frozenset(self.fields[field].table.col_book_map)
+
         try:
             return frozenset(self.fields[field].table.id_map.itervalues())
         except AttributeError:
@@ -385,17 +389,21 @@ class Cache(object):
             raise ValueError('%s is not a many-one or many-many field' % field)
 
     @read_api
-    def author_data(self, author_id):
+    def get_item_name(self, field, item_id):
+        return self.fields[field].table.id_map[item_id]
+
+    @read_api
+    def author_data(self, author_ids=None):
         '''
         Return author data as a dictionary with keys: name, sort, link
 
-        If no author with the specified id is found an empty dictionary is
-        returned.
+        If no authors with the specified ids are found an empty dictionary is
+        returned. If author_ids is None, data for all authors is returned.
         '''
-        try:
-            return self.fields['authors'].author_data(author_id)
-        except (KeyError, IndexError):
-            return {}
+        af = self.fields['authors']
+        if author_ids is None:
+            author_ids = tuple(af.table.id_map)
+        return {aid:af.author_data(aid) for aid in author_ids if aid in af.table.id_map}
 
     @read_api
     def format_metadata(self, book_id, fmt, allow_cache=True):

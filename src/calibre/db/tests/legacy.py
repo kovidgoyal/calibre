@@ -32,7 +32,11 @@ class ET(object):
         return newres
 
 def compare_argspecs(old, new, attr):
-    ok = len(old.args) == len(new.args) and len(old.defaults or ()) == len(new.defaults or ()) and old.args[-len(old.defaults or ()):] == new.args[-len(new.defaults or ()):]  # noqa
+    # We dont compare the names of the non-keyword arguments as they are often
+    # different and they dont affect the usage of the API.
+    num = len(old.defaults or ())
+
+    ok = len(old.args) == len(new.args) and old.defaults == new.defaults and (num == 0 or old.args[-num:] == new.args[-num:])
     if not ok:
         raise AssertionError('The argspec for %s does not match. %r != %r' % (attr, old, new))
 
@@ -143,12 +147,12 @@ class LegacyTest(BaseTest):
             'all_tag_names':[()],
             'all_series_names':[()],
             'all_publisher_names':[()],
-            'all_authors':[()],
-            'all_tags2':[()],
-            'all_tags':[()],
-            'all_publishers':[()],
-            'all_titles':[()],
-            'all_series':[()],
+            '!all_authors':[()],
+            '!all_tags2':[()],
+            '@all_tags':[()],
+            '!all_publishers':[()],
+            '!all_titles':[()],
+            '!all_series':[()],
             'standard_field_keys':[()],
             'all_field_keys':[()],
             'searchable_fields':[()],
@@ -156,15 +160,32 @@ class LegacyTest(BaseTest):
             'metadata_for_field':[('title',), ('tags',)],
             'sortable_field_keys':[()],
             'custom_field_keys':[(True,), (False,)],
-            'get_usage_count_by_id':[('authors',), ('tags',), ('series',), ('publisher',), ('#tags',), ('languages',)],
+            '!get_usage_count_by_id':[('authors',), ('tags',), ('series',), ('publisher',), ('#tags',), ('languages',)],
             'get_field':[(1, 'title'), (2, 'tags'), (0, 'rating'), (1, 'authors'), (2, 'series'), (1, '#tags')],
+            'all_formats':[()],
+            'get_authors_with_ids':[()],
+            '!get_tags_with_ids':[()],
+            '!get_series_with_ids':[()],
+            '!get_publishers_with_ids':[()],
+            '!get_ratings_with_ids':[()],
+            '!get_languages_with_ids':[()],
+            'tag_name':[(3,)],
+            'author_name':[(3,)],
+            'series_name':[(3,)],
+            'authors_sort_strings':[(0,), (1,), (2,)],
+            'author_sort_from_book':[(0,), (1,), (2,)],
+            'authors_with_sort_strings':[(0,), (1,), (2,)],
+            'book_on_device_string':[(1,), (2,), (3,)],
+            'books_in_series_of':[(0,), (1,), (2,)],
+            'books_with_same_title':[(Metadata(db.title(0)),), (Metadata(db.title(1)),), (Metadata('1234'),)],
         }.iteritems():
             for a in args:
                 fmt = lambda x: x
-                if meth in {'get_usage_count_by_id', 'all_series', 'all_authors', 'all_tags2', 'all_publishers', 'all_titles'}:
-                    fmt = dict
-                elif meth in {'all_tags'}:
-                    fmt = frozenset
+                if meth[0] in {'!', '@'}:
+                    fmt = {'!':dict, '@':frozenset}[meth[0]]
+                    meth = meth[1:]
+                elif meth == 'get_authors_with_ids':
+                    fmt = lambda val:{x[0]:tuple(x[1:]) for x in val}
                 self.assertEqual(fmt(getattr(db, meth)(*a)), fmt(getattr(ndb, meth)(*a)),
                                  'The method: %s() returned different results for argument %s' % (meth, a))
         db.close()
@@ -242,9 +263,16 @@ class LegacyTest(BaseTest):
             '_set_title', '_set_custom', '_update_author_in_cache',
             # Feeds are now stored in the config folder
             'get_feeds', 'get_feed', 'update_feed', 'remove_feeds', 'add_feed', 'set_feeds',
+            # Obsolete/broken methods
+            'author_id',  # replaced by get_author_id
+            'books_for_author',  # broken
+            'books_in_old_database',  # unused
+
+            # Internal API
+            'clean_user_categories',  'cleanup_tags',  'books_list_filter',
         }
         SKIP_ARGSPEC = {
-            '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors', 'all_tags',
+            '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors',
         }
 
         missing = []
@@ -309,3 +337,4 @@ class LegacyTest(BaseTest):
         T(('n', object()))
         old.close()
     # }}}
+

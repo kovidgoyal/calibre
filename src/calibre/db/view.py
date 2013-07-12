@@ -189,10 +189,8 @@ class View(object):
         id_ = idx if index_is_id else self.index_to_id(idx)
         with self.cache.read_lock:
             ids = self.cache._field_ids_for('authors', id_)
-            ans = []
-            for id_ in ids:
-                data = self.cache._author_data(id_)
-                ans.append(':::'.join((data['name'], data['sort'], data['link'])))
+            adata = self.cache._author_data(ids)
+            ans = [':::'.join((adata[aid]['name'], adata[aid]['sort'], adata[aid]['link'])) for aid in ids if aid in adata]
         return ':#:'.join(ans) if ans else default_value
 
     def multisort(self, fields=[], subsort=False, only_ids=None):

@@ -6,10 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, traceback
+import os, traceback, types
 from functools import partial
 from future_builtins import zip
 
+from calibre import force_unicode
 from calibre.db import _get_next_series_num_for_list, _get_series_values
 from calibre.db.adding import (
     find_books_in_directory, import_book_directory_multiple,
@@ -62,17 +63,43 @@ class LibraryDatabase(object):
             setattr(self, prop, partial(self.get_property,
                     loc=self.FIELD_MAP[fm]))
 
+        MT = lambda func: types.MethodType(func, self, LibraryDatabase)
+
         for meth in ('get_next_series_num_for', 'has_book', 'author_sort_from_authors'):
             setattr(self, meth, getattr(self.new_api, meth))
 
+        # Legacy API to get information about many-(one, many) fields
         for field in ('authors', 'tags', 'publisher', 'series'):
+            def getter(field):
+                def func(self):
+                    return self.new_api.all_field_names(field)
+                return func
             name = field[:-1] if field in {'authors', 'tags'} else field
-            setattr(self, 'all_%s_names' % name, partial(self.new_api.all_field_names, field))
+            setattr(self, 'all_%s_names' % name, MT(getter(field)))
+            self.all_formats = MT(lambda self:self.new_api.all_field_names('formats'))
 
         for func, field in {'all_authors':'authors', 'all_titles':'title', 'all_tags2':'tags', 'all_series':'series', 'all_publishers':'publisher'}.iteritems():
             setattr(self, func, partial(self.field_id_map, field))
-        self.all_tags = lambda : list(self.all_tag_names())
+        self.all_tags = MT(lambda self: list(self.all_tag_names()))
+        self.get_authors_with_ids = MT(
+            lambda self: [[aid, adata['name'], adata['sort'], adata['link']] for aid, adata in self.new_api.author_data().iteritems()])
+        for field in ('tags', 'series', 'publishers', 'ratings', 'languages'):
+            def getter(field):
+                fname = field[:-1] if field in {'publishers', 'ratings'} else field
+                def func(self):
+                    return [[tid, tag] for tid, tag in self.new_api.get_id_map(fname).iteritems()]
+                return func
+            setattr(self, 'get_%s_with_ids' % field,
+                    MT(getter(field)))
+        for field in ('author', 'tag', 'series'):
+            def getter(field):
+                field = field if field == 'series' else (field+'s')
+                def func(self, item_id):
+                    return self.new_api.get_item_name(field, item_id)
+                return func
+            setattr(self, '%s_name' % field, MT(getter(field)))
 
+        # Legacy field API
         for func in (
             'standard_field_keys', 'custom_field_keys', 'all_field_keys',
             'searchable_fields', 'sortable_field_keys',
@@ -82,6 +109,12 @@ class LibraryDatabase(object):
         self.metadata_for_field = self.field_metadata.get
 
         self.last_update_check = self.last_modified()
+        self.book_on_device_func = None
+        # Cleaning is not required anymore
+        self.clean = self.clean_custom = MT(lambda self:None)
+        self.clean_standard_field = MT(lambda self, field, commit=False:None)
+        # apsw operates in autocommit mode
+        self.commit = MT(lambda self:None)
 
     def close(self):
         self.backend.close()
@@ -286,8 +319,71 @@ class LibraryDatabase(object):
         mi = self.new_api.get_metadata(book_id, get_cover=key == 'cover')
         return mi.get(key, default)
 
-    # Private interface {{{
+    def authors_sort_strings(self, index, index_is_id=False):
+        book_id = index if index_is_id else self.data.index_to_id(index)
+        with self.new_api.read_lock:
+            authors = self.new_api._field_ids_for('authors', book_id)
+            adata = self.new_api._author_data(authors)
+            return [adata[aid]['sort'] for aid in authors]
 
+    def author_sort_from_book(self, index, index_is_id=False):
+        return ' & '.join(self.authors_sort_strings(index, index_is_id=index_is_id))
+
+    def authors_with_sort_strings(self, index, index_is_id=False):
+        book_id = index if index_is_id else self.data.index_to_id(index)
+        with self.new_api.read_lock:
+            authors = self.new_api._field_ids_for('authors', book_id)
+            adata = self.new_api._author_data(authors)
+            return [(aid, adata[aid]['name'], adata[aid]['sort'], adata[aid]['link']) for aid in authors]
+
+    def book_on_device(self, book_id):
+        if callable(self.book_on_device_func):
+            return self.book_on_device_func(book_id)
+        return None
+
+    def book_on_device_string(self, book_id):
+        loc = []
+        count = 0
+        on = self.book_on_device(book_id)
+        if on is not None:
+            m, a, b, count = on[:4]
+            if m is not None:
+                loc.append(_('Main'))
+            if a is not None:
+                loc.append(_('Card A'))
+            if b is not None:
+                loc.append(_('Card B'))
+        return ', '.join(loc) + ((_(' (%s books)')%count) if count > 1 else '')
+
+    def set_book_on_device_func(self, func):
+        self.book_on_device_func = func
+
+    def books_in_series(self, series_id):
+        with self.new_api.read_lock:
+            book_ids = self.new_api._books_for_field('series', series_id)
+            ff = self.new_api._field_for
+            return sorted(book_ids, key=lambda x:ff('series_index', x))
+
+    def books_in_series_of(self, index, index_is_id=False):
+        book_id = index if index_is_id else self.data.index_to_id(index)
+        series_ids = self.new_api.field_ids_for('series', book_id)
+        if not series_ids:
+            return []
+        return self.books_in_series(series_ids[0])
+
+    def books_with_same_title(self, mi, all_matches=True):
+        title = mi.title
+        ans = set()
+        if title:
+            title = icu_lower(force_unicode(title))
+            for book_id, x in self.new_api.get_id_map('title').iteritems():
+                if icu_lower(x) == title:
+                    ans.add(book_id)
+                    if not all_matches:
+                        break
+        return ans
+
+    # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():
             yield row
