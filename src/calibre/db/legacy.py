@@ -68,6 +68,7 @@ class LibraryDatabase(object):
         for field in ('authors', 'tags', 'publisher', 'series'):
             name = field[:-1] if field in {'authors', 'tags'} else field
             setattr(self, 'all_%s_names' % name, partial(self.new_api.all_field_names, field))
+        self.all_formats = partial(self.new_api.all_field_names, 'formats')
 
         for func, field in {'all_authors':'authors', 'all_titles':'title', 'all_tags2':'tags', 'all_series':'series', 'all_publishers':'publisher'}.iteritems():
             setattr(self, func, partial(self.field_id_map, field))

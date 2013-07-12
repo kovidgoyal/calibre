@@ -158,6 +158,7 @@ class LegacyTest(BaseTest):
             'custom_field_keys':[(True,), (False,)],
             'get_usage_count_by_id':[('authors',), ('tags',), ('series',), ('publisher',), ('#tags',), ('languages',)],
             'get_field':[(1, 'title'), (2, 'tags'), (0, 'rating'), (1, 'authors'), (2, 'series'), (1, '#tags')],
+            'all_formats':[()],
         }.iteritems():
             for a in args:
                 fmt = lambda x: x

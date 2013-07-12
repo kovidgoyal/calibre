@@ -363,6 +363,9 @@ class Cache(object):
     @read_api
     def all_field_names(self, field):
         ''' Frozen set of all fields names (should only be used for many-one and many-many fields) '''
+        if field == 'formats':
+            return frozenset(self.fields[field].table.col_book_map)
+
         try:
             return frozenset(self.fields[field].table.id_map.itervalues())
         except AttributeError:
