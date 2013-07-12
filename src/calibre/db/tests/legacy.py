@@ -176,6 +176,7 @@ class LegacyTest(BaseTest):
             'author_sort_from_book':[(0,), (1,), (2,)],
             'authors_with_sort_strings':[(0,), (1,), (2,)],
             'book_on_device_string':[(1,), (2,), (3,)],
+            'books_in_series_of':[(0,), (1,), (2,)],
         }.iteritems():
             for a in args:
                 fmt = lambda x: x
@@ -265,6 +266,8 @@ class LegacyTest(BaseTest):
             'author_id',  # replaced by get_author_id
             'books_for_author',  # broken
             'books_in_old_database',  # unused
+            'clean_user_categories',  # internal API
+            'cleanup_tags',  # internal API
         }
         SKIP_ARGSPEC = {
             '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors',

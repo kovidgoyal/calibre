@@ -109,6 +109,9 @@ class LibraryDatabase(object):
 
         self.last_update_check = self.last_modified()
         self.book_on_device_func = None
+        # Cleaning is not required anymore
+        self.clean = self.clean_custom = MT(lambda self:None)
+        self.clean_standard_field = MT(lambda self, field, commit=False:None)
 
     def close(self):
         self.backend.close()
@@ -351,6 +354,19 @@ class LibraryDatabase(object):
 
     def set_book_on_device_func(self, func):
         self.book_on_device_func = func
+
+    def books_in_series(self, series_id):
+        with self.new_api.read_lock:
+            book_ids = self.new_api._books_for_field('series', series_id)
+            ff = self.new_api._field_for
+            return sorted(book_ids, key=lambda x:ff('series_index', x))
+
+    def books_in_series_of(self, index, index_is_id=False):
+        book_id = index if index_is_id else self.data.index_to_id(index)
+        series_ids = self.new_api.field_ids_for('series', book_id)
+        if not series_ids:
+            return []
+        return self.books_in_series(series_ids[0])
 
     # Private interface {{{
 
