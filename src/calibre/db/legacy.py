@@ -315,8 +315,7 @@ class LibraryDatabase(object):
     def authors_sort_strings(self, index, index_is_id=False):
         book_id = index if index_is_id else self.data.index_to_id(index)
         with self.new_api.read_lock:
-            af = self.new_api.fields['authors'].table
-            authors = af.book_col_map.get(book_id, ())
+            authors = self.new_api._field_ids_for('authors', book_id)
             adata = self.new_api._author_data(authors)
             return [adata[aid]['sort'] for aid in authors]
 
@@ -326,8 +325,7 @@ class LibraryDatabase(object):
     def authors_with_sort_strings(self, index, index_is_id=False):
         book_id = index if index_is_id else self.data.index_to_id(index)
         with self.new_api.read_lock:
-            af = self.new_api.fields['authors'].table
-            authors = af.book_col_map.get(book_id, ())
+            authors = self.new_api._field_ids_for('authors', book_id)
             adata = self.new_api._author_data(authors)
             return [(aid, adata[aid]['name'], adata[aid]['sort'], adata[aid]['link']) for aid in authors]
 

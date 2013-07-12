@@ -262,6 +262,8 @@ class LegacyTest(BaseTest):
             'get_feeds', 'get_feed', 'update_feed', 'remove_feeds', 'add_feed', 'set_feeds',
             # Obsolete/broken methods
             'author_id',  # replaced by get_author_id
+            'books_for_author',  # broken
+            'books_in_old_database',  # unused
         }
         SKIP_ARGSPEC = {
             '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors',
@@ -329,3 +331,4 @@ class LegacyTest(BaseTest):
         T(('n', object()))
         old.close()
     # }}}
+
