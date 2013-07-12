@@ -1147,6 +1147,36 @@ class Cache(object):
             else:
                 table.remove_books(book_ids, self.backend)
 
+    @write_api
+    def add_custom_book_data(self, name, val_map, delete_first=False):
+        ''' Add data for name where val_map is a map of book_ids to values. If
+        delete_first is True, all previously stored data for name will be
+        removed. '''
+        missing = frozenset(val_map) - self._all_book_ids()
+        if missing:
+            raise ValueError('add_custom_book_data: no such book_ids: %d'%missing)
+        self.backend.add_custom_data(name, val_map, delete_first)
+
+    @read_api
+    def get_custom_book_data(self, name, book_ids=(), default=None):
+        ''' Get data for name. By default returns data for all book_ids, pass
+        in a list of book ids if you only want some data. Returns a map of
+        book_id to values. If a particular value could not be decoded, uses
+        default for it. '''
+        return self.backend.get_custom_book_data(name, book_ids, default)
+
+    @write_api
+    def delete_custom_book_data(self, name, book_ids=()):
+        ''' Delete data for name. By default deletes all data, if you only want
+        to delete data for some book ids, pass in a list of book ids. '''
+        self.backend.delete_custom_book_data(name, book_ids)
+
+    @read_api
+    def get_ids_for_custom_book_data(self, name):
+        ''' Return the set of book ids for which name has data. '''
+        return self.backend.get_ids_for_custom_book_data(name)
+
+
     # }}}
 
 class SortKey(object):  # {{{

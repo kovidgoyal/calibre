@@ -7,6 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import inspect
+from io import BytesIO
 from repr import repr
 from functools import partial
 from tempfile import NamedTemporaryFile
@@ -166,6 +167,11 @@ class LegacyTest(BaseTest):
             book_id = T(kwargs={'preserve_uuid':True})(self)
             self.assertEqual(legacy.uuid(book_id, index_is_id=True), old.uuid(book_id, index_is_id=True))
             self.assertEqual(legacy.new_api.formats(book_id), ('AFF',))
+
+            T = partial(ET, 'add_format', old=old, legacy=legacy)
+            T((0, 'AFF', BytesIO(b'fffff')))(self)
+            T((0, 'AFF', BytesIO(b'fffff')))(self)
+            T((0, 'AFF', BytesIO(b'fffff')), {'replace':True})(self)
         with NamedTemporaryFile(suffix='.opf') as f:
             f.write(b'zzzz')
             f.flush()
@@ -178,6 +184,27 @@ class LegacyTest(BaseTest):
         T()
         T({'add_duplicates':False})
         T({'force_id':1000})
+
+        with NamedTemporaryFile(suffix='.txt') as f:
+            f.write(b'tttttt')
+            f.seek(0)
+            bid = legacy.add_catalog(f.name, 'My Catalog')
+            self.assertEqual(old.add_catalog(f.name, 'My Catalog'), bid)
+            cache = legacy.new_api
+            self.assertEqual(cache.formats(bid), ('TXT',))
+            self.assertEqual(cache.field_for('title', bid), 'My Catalog')
+            self.assertEqual(cache.field_for('authors', bid), ('calibre',))
+            self.assertEqual(cache.field_for('tags', bid), (_('Catalog'),))
+            self.assertTrue(bid < legacy.add_catalog(f.name, 'Something else'))
+            self.assertEqual(legacy.add_catalog(f.name, 'My Catalog'), bid)
+            self.assertEqual(old.add_catalog(f.name, 'My Catalog'), bid)
+
+            bid = legacy.add_news(f.name, {'title':'Events', 'add_title_tag':True, 'custom_tags':('one', 'two')})
+            self.assertEqual(cache.formats(bid), ('TXT',))
+            self.assertEqual(cache.field_for('authors', bid), ('calibre',))
+            self.assertEqual(cache.field_for('tags', bid), (_('News'), 'Events', 'one', 'two'))
+
+        old.close()
     # }}}
 
     def test_legacy_coverage(self):  # {{{
@@ -189,6 +216,8 @@ class LegacyTest(BaseTest):
         SKIP_ATTRS = {
             'TCat_Tag', '_add_newbook_tag', '_clean_identifier', '_library_id_', '_set_authors',
             '_set_title', '_set_custom', '_update_author_in_cache',
+            # Feeds are now stored in the config folder
+            'get_feeds', 'get_feed', 'update_feed', 'remove_feeds', 'add_feed', 'set_feeds',
         }
         SKIP_ARGSPEC = {
             '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors',
@@ -220,7 +249,38 @@ class LegacyTest(BaseTest):
 
         if missing:
             pc = len(missing)/total
-            raise AssertionError('{0:.1%} of API ({2} attrs) are missing. For example: {1}'.format(pc, missing[0], len(missing)))
+            raise AssertionError('{0:.1%} of API ({2} attrs) are missing. For example: {1}'.format(pc, ', '.join(missing[:5]), len(missing)))
 
     # }}}
 
+    def test_legacy_custom_data(self):  # {{{
+        'Test the API for custom data storage'
+        legacy, old = self.init_legacy(self.cloned_library), self.init_old(self.cloned_library)
+        for name in ('name1', 'name2', 'name3'):
+            T = partial(ET, 'add_custom_book_data', old=old, legacy=legacy)
+            T((1, name, 'val1'))(self)
+            T((2, name, 'val2'))(self)
+            T((3, name, 'val3'))(self)
+            T = partial(ET, 'get_ids_for_custom_book_data', old=old, legacy=legacy)
+            T((name,))(self)
+            T = partial(ET, 'get_custom_book_data', old=old, legacy=legacy)
+            T((1, name, object()))
+            T((9, name, object()))
+            T = partial(ET, 'get_all_custom_book_data', old=old, legacy=legacy)
+            T((name, object()))
+            T((name+'!', object()))
+            T = partial(ET, 'delete_custom_book_data', old=old, legacy=legacy)
+            T((name, 1))
+            T = partial(ET, 'get_all_custom_book_data', old=old, legacy=legacy)
+            T((name, object()))
+            T = partial(ET, 'delete_all_custom_book_data', old=old, legacy=legacy)
+            T((name))
+            T = partial(ET, 'get_all_custom_book_data', old=old, legacy=legacy)
+            T((name, object()))
+
+        T = partial(ET, 'add_multiple_custom_book_data', old=old, legacy=legacy)
+        T(('n', {1:'val1', 2:'val2'}))(self)
+        T = partial(ET, 'get_all_custom_book_data', old=old, legacy=legacy)
+        T(('n', object()))
+        old.close()
+    # }}}

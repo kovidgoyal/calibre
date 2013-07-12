@@ -1175,5 +1175,46 @@ class DB(object):
                         self.rmtree(parent, permanent=permanent)
         self.conn.executemany(
             'DELETE FROM books WHERE id=?', [(x,) for x in path_map])
+
+    def add_custom_data(self, name, val_map, delete_first):
+        if delete_first:
+            self.conn.execute('DELETE FROM books_plugin_data WHERE name=?', (name, ))
+        self.conn.executemany(
+            'INSERT OR REPLACE INTO books_plugin_data (book, name, val) VALUES (?, ?, ?)',
+            [(book_id, name, json.dumps(val, default=to_json))
+                    for book_id, val in val_map.iteritems()])
+
+    def get_custom_book_data(self, name, book_ids, default=None):
+        book_ids = frozenset(book_ids)
+        def safe_load(val):
+            try:
+                return json.loads(val, object_hook=from_json)
+            except:
+                return default
+
+        if len(book_ids) == 1:
+            bid = next(iter(book_ids))
+            ans = {book_id:safe_load(val) for book_id, val in
+                   self.conn.execute('SELECT book, val FROM books_plugin_data WHERE book=? AND name=?', (bid, name))}
+            return ans or {bid:default}
+
+        ans = {}
+        for book_id, val in self.conn.execute(
+            'SELECT book, val FROM books_plugin_data WHERE name=?', (name,)):
+            if not book_ids or book_id in book_ids:
+                val = safe_load(val)
+                ans[book_id] = val
+        return ans
+
+    def delete_custom_book_data(self, name, book_ids):
+        if book_ids:
+            self.conn.executemany('DELETE FROM books_plugin_data WHERE book=? AND name=?',
+                                  [(book_id, name) for book_id in book_ids])
+        else:
+            self.conn.execute('DELETE FROM books_plugin_data WHERE name=?', (name,))
+
+    def get_ids_for_custom_book_data(self, name):
+        return frozenset(r[0] for r in self.conn.execute('SELECT book FROM books_plugin_data WHERE name=?', (name,)))
+
    # }}}
 

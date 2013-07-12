@@ -11,7 +11,9 @@ from functools import partial
 from future_builtins import zip
 
 from calibre.db import _get_next_series_num_for_list, _get_series_values
-from calibre.db.adding import find_books_in_directory, import_book_directory_multiple, import_book_directory, recursive_import
+from calibre.db.adding import (
+    find_books_in_directory, import_book_directory_multiple,
+    import_book_directory, recursive_import, add_catalog, add_news)
 from calibre.db.backend import DB
 from calibre.db.cache import Cache
 from calibre.db.categories import CATEGORY_SORTS
@@ -205,6 +207,56 @@ class LibraryDatabase(object):
     def recursive_import(self, root, single_book_per_directory=True,
             callback=None, added_ids=None):
         return recursive_import(self, root, single_book_per_directory=single_book_per_directory, callback=callback, added_ids=added_ids)
+
+    def add_catalog(self, path, title):
+        return add_catalog(self.new_api, path, title)
+
+    def add_news(self, path, arg):
+        return add_news(self.new_api, path, arg)
+
+    def add_format(self, index, fmt, stream, index_is_id=False, path=None, notify=True, replace=True, copy_function=None):
+        ''' path and copy_function are ignored by the new API '''
+        book_id = index if index_is_id else self.data.index_to_id(index)
+        try:
+            return self.new_api.add_format(book_id, fmt, stream, replace=replace, run_hooks=False, dbapi=self)
+        except:
+            raise
+        else:
+            self.notify('metadata', [book_id])
+
+    def add_format_with_hooks(self, index, fmt, fpath, index_is_id=False, path=None, notify=True, replace=True):
+        ''' path is ignored by the new API '''
+        book_id = index if index_is_id else self.data.index_to_id(index)
+        try:
+            return self.new_api.add_format(book_id, fmt, fpath, replace=replace, run_hooks=True, dbapi=self)
+        except:
+            raise
+        else:
+            self.notify('metadata', [book_id])
+
+    # }}}
+
+    # Custom data {{{
+    def add_custom_book_data(self, book_id, name, val):
+        self.new_api.add_custom_book_data(name, {book_id:val})
+
+    def add_multiple_custom_book_data(self, name, val_map, delete_first=False):
+        self.new_api.add_custom_book_data(name, val_map, delete_first=delete_first)
+
+    def get_custom_book_data(self, book_id, name, default=None):
+        return self.new_api.get_custom_book_data(name, book_ids={book_id}, default=default).get(book_id, default)
+
+    def get_all_custom_book_data(self, name, default=None):
+        return self.new_api.get_custom_book_data(name, default=default)
+
+    def delete_custom_book_data(self, book_id, name):
+        self.new_api.delete_custom_book_data(name, book_ids=(book_id,))
+
+    def delete_all_custom_book_data(self, name):
+        self.new_api.delete_custom_book_data(name)
+
+    def get_ids_for_custom_book_data(self, name):
+        return list(self.new_api.get_ids_for_custom_book_data(name))
     # }}}
 
     # Private interface {{{
