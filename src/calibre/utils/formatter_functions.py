@@ -1209,9 +1209,19 @@ class BuiltinFinishFormatting(BuiltinFormatterFunction):
             return val
         return prefix + formatter._do_format(val, fmt) + suffix
 
+class BuiltinBookInVirtualLibraries(BuiltinFormatterFunction):
+    name = 'book_in_virtual_libraries'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('book_in_virtual_libraries() -- returns a list of '
+                      'virtual libraries that this book is in.')
+
+    def evaluate(self, formatter, kwargs, mi, locals_):
+        return mi._base_db_row[mi._virt_lib_column ]
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(),
-    BuiltinAssign(), BuiltinBooksize(),
+    BuiltinAssign(), BuiltinBookInVirtualLibraries(), BuiltinBooksize(),
     BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
     BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),

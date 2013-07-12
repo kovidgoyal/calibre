@@ -575,7 +575,7 @@ def command_set_metadata(args, dbpath):
         for key in sorted(db.field_metadata.all_field_keys()):
             m = db.field_metadata[key]
             if (key not in {'formats', 'series_sort', 'ondevice', 'path',
-                'last_modified'} and m['is_editable'] and m['name']):
+                'virtual_libraries', 'last_modified'} and m['is_editable'] and m['name']):
                 yield key, m
                 if m['datatype'] == 'series':
                     si = m.copy()
