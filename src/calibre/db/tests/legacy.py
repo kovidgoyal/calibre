@@ -243,6 +243,8 @@ class LegacyTest(BaseTest):
             '_set_title', '_set_custom', '_update_author_in_cache',
             # Feeds are now stored in the config folder
             'get_feeds', 'get_feed', 'update_feed', 'remove_feeds', 'add_feed', 'set_feeds',
+            # Obsolete/broken methods
+            'author_id',  # replaced by get_author_id
         }
         SKIP_ARGSPEC = {
             '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors', 'all_tags',
