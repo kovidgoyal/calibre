@@ -73,6 +73,12 @@ class LibraryDatabase(object):
         for func, field in {'all_authors':'authors', 'all_titles':'title', 'all_tags2':'tags', 'all_series':'series', 'all_publishers':'publisher'}.iteritems():
             setattr(self, func, partial(self.field_id_map, field))
         self.all_tags = lambda : list(self.all_tag_names())
+        self.get_authors_with_ids = lambda : [[aid, adata['name'], adata['sort'], adata['link']] for aid, adata in self.new_api.author_data().iteritems()]
+        self.get_tags_with_ids = lambda : [[tid, tag] for tid, tag in self.new_api.get_id_map('tags').iteritems()]
+        self.get_series_with_ids = lambda : [[tid, tag] for tid, tag in self.new_api.get_id_map('series').iteritems()]
+        self.get_publishers_with_ids = lambda : [[tid, tag] for tid, tag in self.new_api.get_id_map('publisher').iteritems()]
+        self.get_ratings_with_ids = lambda : [[tid, tag] for tid, tag in self.new_api.get_id_map('rating').iteritems()]
+        self.get_languages_with_ids = lambda : [[tid, tag] for tid, tag in self.new_api.get_id_map('languages').iteritems()]
 
         for func in (
             'standard_field_keys', 'custom_field_keys', 'all_field_keys',

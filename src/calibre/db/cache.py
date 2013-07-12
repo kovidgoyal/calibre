@@ -389,7 +389,7 @@ class Cache(object):
             raise ValueError('%s is not a many-one or many-many field' % field)
 
     @read_api
-    def author_data(self, author_ids):
+    def author_data(self, author_ids=None):
         '''
         Return author data as a dictionary with keys: name, sort, link
 

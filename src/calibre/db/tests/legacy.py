@@ -143,12 +143,12 @@ class LegacyTest(BaseTest):
             'all_tag_names':[()],
             'all_series_names':[()],
             'all_publisher_names':[()],
-            'all_authors':[()],
-            'all_tags2':[()],
-            'all_tags':[()],
-            'all_publishers':[()],
-            'all_titles':[()],
-            'all_series':[()],
+            '!all_authors':[()],
+            '!all_tags2':[()],
+            '@all_tags':[()],
+            '!all_publishers':[()],
+            '!all_titles':[()],
+            '!all_series':[()],
             'standard_field_keys':[()],
             'all_field_keys':[()],
             'searchable_fields':[()],
@@ -156,16 +156,23 @@ class LegacyTest(BaseTest):
             'metadata_for_field':[('title',), ('tags',)],
             'sortable_field_keys':[()],
             'custom_field_keys':[(True,), (False,)],
-            'get_usage_count_by_id':[('authors',), ('tags',), ('series',), ('publisher',), ('#tags',), ('languages',)],
+            '!get_usage_count_by_id':[('authors',), ('tags',), ('series',), ('publisher',), ('#tags',), ('languages',)],
             'get_field':[(1, 'title'), (2, 'tags'), (0, 'rating'), (1, 'authors'), (2, 'series'), (1, '#tags')],
             'all_formats':[()],
+            'get_authors_with_ids':[()],
+            '!get_tags_with_ids':[()],
+            '!get_series_with_ids':[()],
+            '!get_publishers_with_ids':[()],
+            '!get_ratings_with_ids':[()],
+            '!get_languages_with_ids':[()],
         }.iteritems():
             for a in args:
                 fmt = lambda x: x
-                if meth in {'get_usage_count_by_id', 'all_series', 'all_authors', 'all_tags2', 'all_publishers', 'all_titles'}:
-                    fmt = dict
-                elif meth in {'all_tags'}:
-                    fmt = frozenset
+                if meth[0] in {'!', '@'}:
+                    fmt = {'!':dict, '@':frozenset}[meth[0]]
+                    meth = meth[1:]
+                elif meth == 'get_authors_with_ids':
+                    fmt = lambda val:{x[0]:tuple(x[1:]) for x in val}
                 self.assertEqual(fmt(getattr(db, meth)(*a)), fmt(getattr(ndb, meth)(*a)),
                                  'The method: %s() returned different results for argument %s' % (meth, a))
         db.close()
