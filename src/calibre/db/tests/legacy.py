@@ -149,7 +149,15 @@ class LegacyTest(BaseTest):
             'all_publishers':[()],
             'all_titles':[()],
             'all_series':[()],
+            'standard_field_keys':[()],
+            'all_field_keys':[()],
+            'searchable_fields':[()],
+            'search_term_to_field_key':[('author',), ('tag',)],
+            'metadata_for_field':[('title',), ('tags',)],
+            'sortable_field_keys':[()],
+            'custom_field_keys':[(True,), (False,)],
             'get_usage_count_by_id':[('authors',), ('tags',), ('series',), ('publisher',), ('#tags',), ('languages',)],
+            'get_field':[(1, 'title'), (2, 'tags'), (0, 'rating'), (1, 'authors'), (2, 'series'), (1, '#tags')],
         }.iteritems():
             for a in args:
                 fmt = lambda x: x

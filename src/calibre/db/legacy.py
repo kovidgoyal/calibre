@@ -73,6 +73,14 @@ class LibraryDatabase(object):
             setattr(self, func, partial(self.field_id_map, field))
         self.all_tags = lambda : list(self.all_tag_names())
 
+        for func in (
+            'standard_field_keys', 'custom_field_keys', 'all_field_keys',
+            'searchable_fields', 'sortable_field_keys',
+            'search_term_to_field_key', 'custom_field_metadata',
+            'all_metadata'):
+            setattr(self, func, getattr(self.field_metadata, func))
+        self.metadata_for_field = self.field_metadata.get
+
         self.last_update_check = self.last_modified()
 
     def close(self):
@@ -272,6 +280,11 @@ class LibraryDatabase(object):
     def get_ids_for_custom_book_data(self, name):
         return list(self.new_api.get_ids_for_custom_book_data(name))
     # }}}
+
+    def get_field(self, index, key, default=None, index_is_id=False):
+        book_id = index if index_is_id else self.data.index_to_id(index)
+        mi = self.new_api.get_metadata(book_id, get_cover=key == 'cover')
+        return mi.get(key, default)
 
     # Private interface {{{
 
