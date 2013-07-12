@@ -7,6 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import inspect
+from io import BytesIO
 from repr import repr
 from functools import partial
 from tempfile import NamedTemporaryFile
@@ -166,6 +167,11 @@ class LegacyTest(BaseTest):
             book_id = T(kwargs={'preserve_uuid':True})(self)
             self.assertEqual(legacy.uuid(book_id, index_is_id=True), old.uuid(book_id, index_is_id=True))
             self.assertEqual(legacy.new_api.formats(book_id), ('AFF',))
+
+            T = partial(ET, 'add_format', old=old, legacy=legacy)
+            T((0, 'AFF', BytesIO(b'fffff')))(self)
+            T((0, 'AFF', BytesIO(b'fffff')))(self)
+            T((0, 'AFF', BytesIO(b'fffff')), {'replace':True})(self)
         with NamedTemporaryFile(suffix='.opf') as f:
             f.write(b'zzzz')
             f.flush()
