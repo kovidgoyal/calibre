@@ -108,6 +108,7 @@ class LibraryDatabase(object):
         self.metadata_for_field = self.field_metadata.get
 
         self.last_update_check = self.last_modified()
+        self.book_on_device_func = None
 
     def close(self):
         self.backend.close()
@@ -328,6 +329,28 @@ class LibraryDatabase(object):
             authors = self.new_api._field_ids_for('authors', book_id)
             adata = self.new_api._author_data(authors)
             return [(aid, adata[aid]['name'], adata[aid]['sort'], adata[aid]['link']) for aid in authors]
+
+    def book_on_device(self, book_id):
+        if callable(self.book_on_device_func):
+            return self.book_on_device_func(book_id)
+        return None
+
+    def book_on_device_string(self, book_id):
+        loc = []
+        count = 0
+        on = self.book_on_device(book_id)
+        if on is not None:
+            m, a, b, count = on[:4]
+            if m is not None:
+                loc.append(_('Main'))
+            if a is not None:
+                loc.append(_('Card A'))
+            if b is not None:
+                loc.append(_('Card B'))
+        return ', '.join(loc) + ((_(' (%s books)')%count) if count > 1 else '')
+
+    def set_book_on_device_func(self, func):
+        self.book_on_device_func = func
 
     # Private interface {{{
 

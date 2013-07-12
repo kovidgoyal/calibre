@@ -175,6 +175,7 @@ class LegacyTest(BaseTest):
             'authors_sort_strings':[(0,), (1,), (2,)],
             'author_sort_from_book':[(0,), (1,), (2,)],
             'authors_with_sort_strings':[(0,), (1,), (2,)],
+            'book_on_device_string':[(1,), (2,), (3,)],
         }.iteritems():
             for a in args:
                 fmt = lambda x: x
