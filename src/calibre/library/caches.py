@@ -212,6 +212,8 @@ class CacheRow(list):  # {{{
             self[c] = None
         self._must_do = True
 
+    def refresh_virtual_libraries(self):
+        self._virt_libs = None
 # }}}
 
 class ResultCache(SearchQueryParser):  # {{{
@@ -247,6 +249,8 @@ class ResultCache(SearchQueryParser):  # {{{
         pref_use_primary_find_in_search = prefs['use_primary_find_in_search']
         self._uuid_column_index = self.FIELD_MAP['uuid']
         self._uuid_map = {}
+        self._virt_libs_computed = False
+        self._ids_in_virt_libs = {}
 
     def break_cycles(self):
         self._data = self.field_metadata = self.FIELD_MAP = \
@@ -840,8 +844,14 @@ class ResultCache(SearchQueryParser):  # {{{
                 current_candidates -= matches
         return matches
 
-    def invalidate_virtual_libraries_caches(self, db):
-        self.refresh(db)
+    def invalidate_virtual_libraries_caches(self):
+        self._virt_libs_computed = False
+        self._ids_in_virt_libs = {}
+
+        for row in self._data:
+            if row is not None:
+                row.refresh_virtual_libraries()
+                row.refresh_composites()
 
     def search_raw(self, query):
         matches = self.parse(query)

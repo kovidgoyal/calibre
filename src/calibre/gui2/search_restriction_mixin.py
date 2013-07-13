@@ -332,7 +332,7 @@ class SearchRestrictionMixin(object):
         virt_libs = db.prefs.get('virtual_libraries', {})
         virt_libs[name] = search
         db.prefs.set('virtual_libraries', virt_libs)
-        db.data.invalidate_virtual_libraries_caches(db)
+        db.data.invalidate_virtual_libraries_caches()
 
     def do_create_edit(self, name=None):
         db = self.library_view.model().db
@@ -342,7 +342,7 @@ class SearchRestrictionMixin(object):
             if name:
                 self._remove_vl(name, reapply=False)
             self.add_virtual_library(db, cd.library_name, cd.library_search)
-            db.data.invalidate_virtual_libraries_caches(db)
+            db.data.invalidate_virtual_libraries_caches()
             if not name or name == db.data.get_base_restriction_name():
                 self.apply_virtual_library(cd.library_name)
             else:
@@ -467,7 +467,7 @@ class SearchRestrictionMixin(object):
             return
         self._remove_vl(name, reapply=True)
         db = self.library_view.model().db
-        db.data.invalidate_virtual_libraries_caches(db)
+        db.data.invalidate_virtual_libraries_caches()
         self.tags_view.recount()
 
     def _remove_vl(self, name, reapply=True):
