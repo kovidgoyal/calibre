@@ -269,7 +269,9 @@ class LegacyTest(BaseTest):
             'books_in_old_database',  # unused
 
             # Internal API
-            'clean_user_categories',  'cleanup_tags',  'books_list_filter',
+            'clean_user_categories',  'cleanup_tags',  'books_list_filter', 'conn', 'connect', 'construct_file_name',
+            'construct_path_name', 'clear_dirtied', 'commit_dirty_cache', 'initialize_database', 'initialize_dynamic',
+            'run_import_plugins',
         }
         SKIP_ARGSPEC = {
             '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors',
@@ -280,7 +282,7 @@ class LegacyTest(BaseTest):
         try:
             total = 0
             for attr in dir(db):
-                if attr in SKIP_ATTRS:
+                if attr in SKIP_ATTRS or attr.startswith('upgrade_version'):
                     continue
                 total += 1
                 if not hasattr(ndb, attr):
@@ -302,7 +304,7 @@ class LegacyTest(BaseTest):
 
         if missing:
             pc = len(missing)/total
-            raise AssertionError('{0:.1%} of API ({2} attrs) are missing. For example: {1}'.format(pc, ', '.join(missing[:5]), len(missing)))
+            raise AssertionError('{0:.1%} of API ({2} attrs) are missing: {1}'.format(pc, ', '.join(missing), len(missing)))
 
     # }}}
 
