@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -144,7 +144,8 @@ def force_to_bool(val):
 
 class CacheRow(list):  # {{{
 
-    def __init__(self, db, composites, val, series_col, series_sort_col):
+    def __init__(self, db, composites, val, series_col, series_sort_col,
+                 virtual_library_col):
         self.db = db
         self._composites = composites
         list.__init__(self, val)
@@ -152,6 +153,8 @@ class CacheRow(list):  # {{{
         self._series_col = series_col
         self._series_sort_col = series_sort_col
         self._series_sort = None
+        self._virt_lib_col = virtual_library_col
+        self._virt_libs = None
 
     def __getitem__(self, col):
         if self._must_do:
@@ -171,7 +174,7 @@ class CacheRow(list):  # {{{
                 mi = self.db.get_metadata(id_, index_is_id=True,
                                           get_user_categories=False)
                 for c in self._composites:
-                    self[c] =  mi.get(self._composites[c])
+                    self[c] = mi.get(self._composites[c])
         if col == self._series_sort_col and self._series_sort is None:
             if self[self._series_col]:
                 self._series_sort = title_sort(self[self._series_col])
@@ -179,6 +182,26 @@ class CacheRow(list):  # {{{
             else:
                 self._series_sort = ''
                 self[self._series_sort_col] = ''
+
+        if col == self._virt_lib_col and self._virt_libs is None:
+            try:
+                if not getattr(self.db.data, '_virt_libs_computed', False):
+                    self.db.data._ids_in_virt_libs = {}
+                    for v,s in self.db.prefs.get('virtual_libraries', {}).iteritems():
+                        self.db.data._ids_in_virt_libs[v] = self.db.data.search_raw(s)
+                    self.db.data._virt_libs_computed = True
+                r = []
+                for v in self.db.prefs.get('virtual_libraries', {}).keys():
+                    # optimize the lookup of the ID -- it is always zero
+                    if self[0] in self.db.data._ids_in_virt_libs[v]:
+                        r.append(v)
+                from calibre.utils.icu import sort_key
+                self._virt_libs = ", ".join(sorted(r, key=sort_key))
+                self[self._virt_lib_col] = self._virt_libs
+            except:
+                print len(self)
+                traceback.print_exc()
+
         return list.__getitem__(self, col)
 
     def __getslice__(self, i, j):
@@ -186,9 +209,11 @@ class CacheRow(list):  # {{{
 
     def refresh_composites(self):
         for c in self._composites:
-            self[c] =  None
+            self[c] = None
         self._must_do = True
 
+    def refresh_virtual_libraries(self):
+        self._virt_libs = None
 # }}}
 
 class ResultCache(SearchQueryParser):  # {{{
@@ -206,6 +231,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 self.composites[field_metadata[key]['rec_index']] = key
         self.series_col = field_metadata['series']['rec_index']
         self.series_sort_col = field_metadata['series_sort']['rec_index']
+        self.virtual_libraries_col = field_metadata['virtual_libraries']['rec_index']
         self._data = []
         self._map = self._map_filtered = []
         self.first_sort = True
@@ -223,6 +249,8 @@ class ResultCache(SearchQueryParser):  # {{{
         pref_use_primary_find_in_search = prefs['use_primary_find_in_search']
         self._uuid_column_index = self.FIELD_MAP['uuid']
         self._uuid_map = {}
+        self._virt_libs_computed = False
+        self._ids_in_virt_libs = {}
 
     def break_cycles(self):
         self._data = self.field_metadata = self.FIELD_MAP = \
@@ -312,12 +340,12 @@ class ResultCache(SearchQueryParser):  # {{{
                             '<=':[2, relop_le]
                         }
 
-    local_today         = ('_today', icu_lower(_('today')))
-    local_yesterday     = ('_yesterday', icu_lower(_('yesterday')))
-    local_thismonth     = ('_thismonth', icu_lower(_('thismonth')))
-    local_daysago       = icu_lower(_('daysago'))
-    local_daysago_len   = len(local_daysago)
-    untrans_daysago     = '_daysago'
+    local_today = ('_today', icu_lower(_('today')))
+    local_yesterday = ('_yesterday', icu_lower(_('yesterday')))
+    local_thismonth = ('_thismonth', icu_lower(_('thismonth')))
+    local_daysago = icu_lower(_('daysago'))
+    local_daysago_len = len(local_daysago)
+    untrans_daysago = '_daysago'
     untrans_daysago_len = len('_daysago')
 
     def get_dates_matches(self, location, query, candidates):
@@ -413,21 +441,21 @@ class ResultCache(SearchQueryParser):  # {{{
 
         if val_func is None:
             loc = self.field_metadata[location]['rec_index']
-            val_func = lambda item, loc=loc: item[loc]
+            val_func = lambda item, loc = loc: item[loc]
         q = ''
         cast = adjust = lambda x: x
         dt = self.field_metadata[location]['datatype']
 
         if query == 'false':
             if dt == 'rating' or location == 'cover':
-                relop = lambda x,y: not bool(x)
+                relop = lambda x, y: not bool(x)
             else:
-                relop = lambda x,y: x is None
+                relop = lambda x, y: x is None
         elif query == 'true':
             if dt == 'rating' or location == 'cover':
-                relop = lambda x,y: bool(x)
+                relop = lambda x, y: bool(x)
             else:
-                relop = lambda x,y: x is not None
+                relop = lambda x, y: x is not None
         else:
             relop = None
             for k in self.numeric_search_relops.keys():
@@ -441,7 +469,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 cast = lambda x: int(x)
             elif dt == 'rating':
                 cast = lambda x: 0 if x is None else int(x)
-                adjust = lambda x: x/2
+                adjust = lambda x: x / 2
             elif dt in ('float', 'composite'):
                 cast = lambda x : float(x)
             else:  # count operation
@@ -449,7 +477,7 @@ class ResultCache(SearchQueryParser):  # {{{
 
             if len(query) > 1:
                 mult = query[-1:].lower()
-                mult = {'k':1024.,'m': 1024.**2, 'g': 1024.**3}.get(mult, 1.0)
+                mult = {'k':1024., 'm': 1024.**2, 'g': 1024.**3}.get(mult, 1.0)
                 if mult != 1.0:
                     query = query[:-1]
             else:
@@ -568,12 +596,12 @@ class ResultCache(SearchQueryParser):  # {{{
             query = icu_lower(query)
         return matchkind, query
 
-    local_no        = icu_lower(_('no'))
-    local_yes       = icu_lower(_('yes'))
+    local_no = icu_lower(_('no'))
+    local_yes = icu_lower(_('yes'))
     local_unchecked = icu_lower(_('unchecked'))
-    local_checked   = icu_lower(_('checked'))
-    local_empty     = icu_lower(_('empty'))
-    local_blank     = icu_lower(_('blank'))
+    local_checked = icu_lower(_('checked'))
+    local_empty = icu_lower(_('empty'))
+    local_blank = icu_lower(_('blank'))
     local_bool_values = (
                     local_no, local_unchecked, '_no', 'false',
                     local_yes, local_checked, '_yes', 'true',
@@ -696,8 +724,8 @@ class ResultCache(SearchQueryParser):  # {{{
                 if fm['is_multiple'] and \
                         len(query) > 1 and query.startswith('#') and \
                         query[1:1] in '=<>!':
-                    vf = lambda item, loc=fm['rec_index'], \
-                                ms=fm['is_multiple']['cache_to_list']:\
+                    vf = lambda item, loc = fm['rec_index'], \
+                                ms = fm['is_multiple']['cache_to_list']:\
                             len(item[loc].split(ms)) if item[loc] is not None else 0
                     return self.get_numeric_matches(location, query[1:],
                                                     candidates, val_func=vf)
@@ -707,7 +735,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 if fm.get('is_csp', False):
                     if location == 'identifiers' and original_location == 'isbn':
                         return self.get_keypair_matches('identifiers',
-                                                   '=isbn:'+query, candidates)
+                                                   '=isbn:' + query, candidates)
                     return self.get_keypair_matches(location, query, candidates)
 
             # check for user categories
@@ -759,7 +787,7 @@ class ResultCache(SearchQueryParser):  # {{{
                     q = canonicalize_lang(query)
                     if q is None:
                         lm = lang_map()
-                        rm = {v.lower():k for k,v in lm.iteritems()}
+                        rm = {v.lower():k for k, v in lm.iteritems()}
                         q = rm.get(query, query)
                 else:
                     q = query
@@ -772,7 +800,7 @@ class ResultCache(SearchQueryParser):  # {{{
                     if not item[loc]:
                         if q == 'false' and matchkind == CONTAINS_MATCH:
                             matches.add(item[0])
-                        continue     # item is empty. No possible matches below
+                        continue  # item is empty. No possible matches below
                     if q == 'false'and matchkind == CONTAINS_MATCH:
                         # Field has something in it, so a false query does not match
                         continue
@@ -814,6 +842,19 @@ class ResultCache(SearchQueryParser):  # {{{
                             matches.add(item[0])
                             continue
                 current_candidates -= matches
+        return matches
+
+    def invalidate_virtual_libraries_caches(self):
+        self._virt_libs_computed = False
+        self._ids_in_virt_libs = {}
+
+        for row in self._data:
+            if row is not None:
+                row.refresh_virtual_libraries()
+                row.refresh_composites()
+
+    def search_raw(self, query):
+        matches = self.parse(query)
         return matches
 
     def search(self, query, return_matches=False):
@@ -973,10 +1014,11 @@ class ResultCache(SearchQueryParser):  # {{{
             try:
                 self._data[id] = CacheRow(db, self.composites,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0],
-                        self.series_col, self.series_sort_col)
+                        self.series_col, self.series_sort_col,
+                        self.virtual_libraries_col)
                 self._data[id].append(db.book_on_device_string(id))
-                self._data[id].append(self.marked_ids_dict.get(id, None))
-                self._data[id].append(None)
+                self._data[id].extend((self.marked_ids_dict.get(id, None), None, None))
+                self._virt_libs_computed = False
                 self._uuid_map[self._data[id][self._uuid_column_index]] = id
             except IndexError:
                 return None
@@ -989,14 +1031,15 @@ class ResultCache(SearchQueryParser):  # {{{
     def books_added(self, ids, db):
         if not ids:
             return
-        self._data.extend(repeat(None, max(ids)-len(self._data)+2))
+        self._data.extend(repeat(None, max(ids) - len(self._data) + 2))
         for id in ids:
             self._data[id] = CacheRow(db, self.composites,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0],
-                        self.series_col, self.series_sort_col)
+                        self.series_col, self.series_sort_col,
+                        self.virtual_libraries_col)
             self._data[id].append(db.book_on_device_string(id))
-            self._data[id].append(self.marked_ids_dict.get(id, None))
-            self._data[id].append(None)  # Series sort column
+            self._data[id].extend((self.marked_ids_dict.get(id, None), None, None))
+            self._virt_libs_computed = False
             self._uuid_map[self._data[id][self._uuid_column_index]] = id
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
@@ -1020,20 +1063,22 @@ class ResultCache(SearchQueryParser):  # {{{
         db.initialize_template_cache()
 
         temp = db.conn.get('SELECT * FROM meta2')
-        self._data = list(itertools.repeat(None, temp[-1][0]+2)) if temp else []
+        self._data = list(itertools.repeat(None, temp[-1][0] + 2)) if temp else []
         for r in temp:
             self._data[r[0]] = CacheRow(db, self.composites, r,
-                                        self.series_col, self.series_sort_col)
+                                        self.series_col, self.series_sort_col,
+                                        self.virtual_libraries_col)
             self._uuid_map[self._data[r[0]][self._uuid_column_index]] = r[0]
 
         for item in self._data:
             if item is not None:
                 item.append(db.book_on_device_string(item[0]))
-                # Temp mark and series_sort columns
-                item.extend((None, None))
+                # Temp mark, series_sort, virtual_library columns
+                item.extend((None, None, None))
 
+        self._virt_libs_computed = False
         marked_col = self.FIELD_MAP['marked']
-        for id_,val in self.marked_ids_dict.iteritems():
+        for id_, val in self.marked_ids_dict.iteritems():
             try:
                 self._data[id_][marked_col] = val
             except:
@@ -1134,7 +1179,7 @@ class SortKeyGenerator(object):
                         for i, candidate in enumerate(
                                     ('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
                             if val.endswith(candidate):
-                                p = 1024**(i)
+                                p = 1024 ** (i)
                                 val = val[:-len(candidate)].strip()
                                 break
                         val = locale.atof(val) * p

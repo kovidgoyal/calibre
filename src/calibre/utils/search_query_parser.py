@@ -294,6 +294,7 @@ class SearchQueryParser(object):
 
     def __init__(self, locations, test=False, optimize=False):
         self.sqp_initialize(locations, test=test, optimize=optimize)
+        self.sqp_parsed_search_cache = {}
         self.parser = Parser()
 
     def sqp_change_locations(self, locations):
@@ -308,8 +309,7 @@ class SearchQueryParser(object):
         # empty the list of searches used for recursion testing
         self.recurse_level = 0
         self.searches_seen = set([])
-        candidates = self.universal_set()
-        return self._parse(query, candidates)
+        return self._parse(query)
 
     # this parse is used internally because it doesn't clear the
     # recursive search test list. However, we permit seeing the
@@ -317,10 +317,13 @@ class SearchQueryParser(object):
     # another search.
     def _parse(self, query, candidates=None):
         self.recurse_level += 1
-        try:
-            res = self.parser.parse(query, self.locations)
-        except RuntimeError:
-            raise ParseException(_('Failed to parse query, recursion limit reached: %s')%repr(query))
+        res = self.sqp_parsed_search_cache.get(query, None)
+        if res is None:
+            try:
+                res = self.parser.parse(query, self.locations)
+                self.sqp_parsed_search_cache[query] = res
+            except RuntimeError:
+                raise ParseException(_('Failed to parse query, recursion limit reached: %s')%repr(query))
         if candidates is None:
             candidates = self.universal_set()
         t = self.evaluate(res, candidates)
