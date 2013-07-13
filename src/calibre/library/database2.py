@@ -449,8 +449,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.field_metadata.set_field_record_index('marked', base, prefer_custom=False)
         self.FIELD_MAP['series_sort'] = base = base+1
         self.field_metadata.set_field_record_index('series_sort', base, prefer_custom=False)
-        self.FIELD_MAP['virtual_libraries'] = base = base+1
-        self.field_metadata.set_field_record_index('virtual_libraries', base, prefer_custom=False)
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -994,10 +992,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.book_size   = row[fm['size']]
         mi.ondevice_col= row[fm['ondevice']]
         mi.last_modified = row[fm['last_modified']]
-
-        mi._base_db_row = row # So the formatter functions can see the underlying data
-        mi._virt_lib_column = fm['virtual_libraries']
-
         formats = row[fm['formats']]
         mi.format_metadata = {}
         if not formats:
