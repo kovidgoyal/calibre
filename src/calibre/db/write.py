@@ -142,7 +142,7 @@ def get_adapter(name, metadata):
     elif dt == 'comments':
         ans = single_text
     elif dt == 'rating':
-        ans = lambda x: None if x in {None, 0} else min(10., max(0., adapt_number(float, x)))
+        ans = lambda x: None if x in {None, 0} else min(10, max(0, adapt_number(int, x)))
     elif dt == 'enumeration':
         ans = single_text
     elif dt == 'composite':

@@ -402,6 +402,13 @@ class LibraryDatabase(object):
     def delete_conversion_options(self, book_id, fmt, commit=True):
         self.new_api.delete_conversion_options((book_id,), fmt=fmt)
 
+    def set(self, index, field, val, allow_case_change=False):
+        book_id = self.data.index_to_id(index)
+        try:
+            return self.new_api.set_field(field, {book_id:val}, allow_case_change=allow_case_change)
+        finally:
+            self.notify('metadata', [book_id])
+
     # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():

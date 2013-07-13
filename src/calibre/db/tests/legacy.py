@@ -40,6 +40,19 @@ def compare_argspecs(old, new, attr):
     if not ok:
         raise AssertionError('The argspec for %s does not match. %r != %r' % (attr, old, new))
 
+def run_funcs(self, db, ndb, funcs):
+    for func in funcs:
+        meth, args = func[0], func[1:]
+        if callable(meth):
+            meth(*args)
+        else:
+            fmt = lambda x:x
+            if meth[0] in {'!', '@', '#'}:
+                fmt = {'!':dict, '@':frozenset, '#':lambda x:set((x or '').split(','))}[meth[0]]
+                meth = meth[1:]
+            self.assertEqual(fmt(getattr(db, meth)(*args)), fmt(getattr(ndb, meth)(*args)),
+                                'The method: %s() returned different results for argument %s' % (meth, args))
+
 class LegacyTest(BaseTest):
 
     ''' Test the emulation of the legacy interface. '''
@@ -137,8 +150,9 @@ class LegacyTest(BaseTest):
     def test_legacy_direct(self):  # {{{
         'Test methods that are directly equivalent in the old and new interface'
         from calibre.ebooks.metadata.book.base import Metadata
-        ndb = self.init_legacy()
+        ndb = self.init_legacy(self.cloned_library)
         db = self.init_old()
+
         for meth, args in {
             'get_next_series_num_for': [('A Series One',)],
             'author_sort_from_authors': [(['Author One', 'Author Two', 'Unknown'],)],
@@ -221,19 +235,13 @@ class LegacyTest(BaseTest):
         t = next(tmap.iterkeys())
         pmap = cache.get_id_map('publisher')
         p = next(pmap.iterkeys())
-        for x in (
+        run_funcs(self, db, ndb, (
             ('delete_tag_using_id', t),
             ('delete_publisher_using_id', p),
             (db.refresh,),
             ('all_tag_names',), ('tags', 0), ('tags', 1), ('tags', 2),
             ('all_publisher_names',), ('publisher', 0), ('publisher', 1), ('publisher', 2),
-        ):
-            meth, args = x[0], x[1:]
-            if callable(meth):
-                meth(*args)
-            else:
-                self.assertEqual((getattr(db, meth)(*args)), (getattr(ndb, meth)(*args)),
-                                 'The method: %s() returned different results for argument %s' % (meth, args))
+        ))
         db.close()
     # }}}
 
@@ -387,3 +395,24 @@ class LegacyTest(BaseTest):
         old.close()
     # }}}
 
+    def test_legacy_setters(self):  # {{{
+        'Test methods that are directly equivalent in the old and new interface'
+        ndb = self.init_legacy(self.cloned_library)
+        db = self.init_old(self.cloned_library)
+
+        run_funcs(self, db, ndb, (
+            ('set', 0, 'title', 'newtitle'),
+            ('set', 0, 'tags', 't1,t2,tag one', True),
+            ('set', 0, 'authors', 'author one & Author Two', True),
+            ('set', 0, 'rating', 3.2),
+            ('set', 0, 'publisher', 'publisher one', True),
+            (db.refresh,),
+            ('title', 0),
+            ('rating', 0),
+            ('#tags', 0), ('#tags', 1), ('#tags', 2),
+            ('authors', 0), ('authors', 1), ('authors', 2),
+            ('publisher', 0), ('publisher', 1), ('publisher', 2),
+        ))
+        db.close()
+
+    # }}}
