@@ -419,3 +419,58 @@ class WritingTest(BaseTest):
 
     # }}}
 
+    def test_conversion_options(self):  # {{{
+        ' Test saving of conversion options '
+        cache = self.init_cache()
+        all_ids = cache.all_book_ids()
+        self.assertFalse(cache.has_conversion_options(all_ids))
+        self.assertIsNone(cache.conversion_options(1))
+        op1, op2 = {'xx':'yy'}, {'yy':'zz'}
+        cache.set_conversion_options({1:op1, 2:op2})
+        self.assertTrue(cache.has_conversion_options(all_ids))
+        self.assertEqual(cache.conversion_options(1), op1)
+        self.assertEqual(cache.conversion_options(2), op2)
+        cache.set_conversion_options({1:op2})
+        self.assertEqual(cache.conversion_options(1), op2)
+        cache.delete_conversion_options(all_ids)
+        self.assertFalse(cache.has_conversion_options(all_ids))
+    # }}}
+
+    def test_remove_items(self):  # {{{
+        ' Test removal of many-(many,one) items '
+        cache = self.init_cache()
+        tmap = cache.get_id_map('tags')
+        self.assertEqual(cache.remove_items('tags', tmap), {1, 2})
+        tmap = cache.get_id_map('#tags')
+        t = {v:k for k, v in tmap.iteritems()}['My Tag Two']
+        self.assertEqual(cache.remove_items('#tags', (t,)), {1, 2})
+
+        smap = cache.get_id_map('series')
+        self.assertEqual(cache.remove_items('series', smap), {1, 2})
+        smap = cache.get_id_map('#series')
+        s = {v:k for k, v in smap.iteritems()}['My Series Two']
+        self.assertEqual(cache.remove_items('#series', (s,)), {1})
+
+        for c in (cache, self.init_cache()):
+            self.assertFalse(c.get_id_map('tags'))
+            self.assertFalse(c.all_field_names('tags'))
+            for bid in c.all_book_ids():
+                self.assertFalse(c.field_for('tags', bid))
+
+            self.assertEqual(len(c.get_id_map('#tags')), 1)
+            self.assertEqual(c.all_field_names('#tags'), {'My Tag One'})
+            for bid in c.all_book_ids():
+                self.assertIn(c.field_for('#tags', bid), ((), ('My Tag One',)))
+
+            for bid in (1, 2):
+                self.assertEqual(c.field_for('series_index', bid), 1.0)
+            self.assertFalse(c.get_id_map('series'))
+            self.assertFalse(c.all_field_names('series'))
+            for bid in c.all_book_ids():
+                self.assertFalse(c.field_for('series', bid))
+
+            self.assertEqual(c.field_for('series_index', 1), 1.0)
+            self.assertEqual(c.all_field_names('#series'), {'My Series One'})
+            for bid in c.all_book_ids():
+                self.assertIn(c.field_for('#series', bid), (None, 'My Series One'))
+    # }}}

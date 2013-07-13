@@ -191,6 +191,52 @@ class LegacyTest(BaseTest):
         db.close()
         # }}}
 
+    def test_legacy_conversion_options(self):  # {{{
+        'Test conversion options API'
+        ndb = self.init_legacy()
+        db = self.init_old()
+        all_ids = ndb.new_api.all_book_ids()
+        op1, op2 = {'xx':'yy'}, {'yy':'zz'}
+        for x in (
+            ('has_conversion_options', all_ids),
+            ('conversion_options', 1, 'PIPE'),
+            ('set_conversion_options', 1, 'PIPE', op1),
+            ('has_conversion_options', all_ids),
+            ('conversion_options', 1, 'PIPE'),
+            ('delete_conversion_options', 1, 'PIPE'),
+            ('has_conversion_options', all_ids),
+        ):
+            meth, args = x[0], x[1:]
+            self.assertEqual((getattr(db, meth)(*args)), (getattr(ndb, meth)(*args)),
+                                 'The method: %s() returned different results for argument %s' % (meth, args))
+        db.close()
+    # }}}
+
+    def test_legacy_delete_using(self):  # {{{
+        'Test delete_using() API'
+        ndb = self.init_legacy()
+        db = self.init_old()
+        cache = ndb.new_api
+        tmap = cache.get_id_map('tags')
+        t = next(tmap.iterkeys())
+        pmap = cache.get_id_map('publisher')
+        p = next(pmap.iterkeys())
+        for x in (
+            ('delete_tag_using_id', t),
+            ('delete_publisher_using_id', p),
+            (db.refresh,),
+            ('all_tag_names',), ('tags', 0), ('tags', 1), ('tags', 2),
+            ('all_publisher_names',), ('publisher', 0), ('publisher', 1), ('publisher', 2),
+        ):
+            meth, args = x[0], x[1:]
+            if callable(meth):
+                meth(*args)
+            else:
+                self.assertEqual((getattr(db, meth)(*args)), (getattr(ndb, meth)(*args)),
+                                 'The method: %s() returned different results for argument %s' % (meth, args))
+        db.close()
+    # }}}
+
     def test_legacy_adding_books(self):  # {{{
         'Test various adding books methods'
         from calibre.ebooks.metadata.book.base import Metadata
@@ -269,7 +315,10 @@ class LegacyTest(BaseTest):
             'books_in_old_database',  # unused
 
             # Internal API
-            'clean_user_categories',  'cleanup_tags',  'books_list_filter',
+            'clean_user_categories',  'cleanup_tags',  'books_list_filter', 'conn', 'connect', 'construct_file_name',
+            'construct_path_name', 'clear_dirtied', 'commit_dirty_cache', 'initialize_database', 'initialize_dynamic',
+            'run_import_plugins', 'vacuum', 'set_path', 'row', 'row_factory', 'rows', 'rmtree', 'series_index_pat',
+            'import_old_database', 'dirtied_lock', 'dirtied_cache', 'dirty_queue_length', 'dirty_books_referencing',
         }
         SKIP_ARGSPEC = {
             '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors',
@@ -280,7 +329,7 @@ class LegacyTest(BaseTest):
         try:
             total = 0
             for attr in dir(db):
-                if attr in SKIP_ATTRS:
+                if attr in SKIP_ATTRS or attr.startswith('upgrade_version'):
                     continue
                 total += 1
                 if not hasattr(ndb, attr):
@@ -302,7 +351,7 @@ class LegacyTest(BaseTest):
 
         if missing:
             pc = len(missing)/total
-            raise AssertionError('{0:.1%} of API ({2} attrs) are missing. For example: {1}'.format(pc, ', '.join(missing[:5]), len(missing)))
+            raise AssertionError('{0:.1%} of API ({2} attrs) are missing: {1}'.format(pc, ', '.join(missing), len(missing)))
 
     # }}}
 
