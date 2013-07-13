@@ -383,6 +383,18 @@ class LibraryDatabase(object):
                         break
         return ans
 
+    def set_conversion_options(self, book_id, fmt, options):
+        self.new_api.set_conversion_options({book_id:options}, fmt=fmt)
+
+    def conversion_options(self, book_id, fmt):
+        return self.new_api.conversion_options(book_id, fmt=fmt)
+
+    def has_conversion_options(self, ids, format='PIPE'):
+        return self.new_api.has_conversion_options(ids, fmt=format)
+
+    def delete_conversion_options(self, book_id, fmt, commit=True):
+        self.new_api.delete_conversion_options((book_id,), fmt=fmt)
+
     # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():

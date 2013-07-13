@@ -191,6 +191,27 @@ class LegacyTest(BaseTest):
         db.close()
         # }}}
 
+    def test_legacy_conversion_options(self):  # {{{
+        'Test conversion options API'
+        ndb = self.init_legacy()
+        db = self.init_old()
+        all_ids = ndb.new_api.all_book_ids()
+        op1, op2 = {'xx':'yy'}, {'yy':'zz'}
+        for x in (
+            ('has_conversion_options', all_ids),
+            ('conversion_options', 1, 'PIPE'),
+            ('set_conversion_options', 1, 'PIPE', op1),
+            ('has_conversion_options', all_ids),
+            ('conversion_options', 1, 'PIPE'),
+            ('delete_conversion_options', 1, 'PIPE'),
+            ('has_conversion_options', all_ids),
+        ):
+            meth, args = x[0], x[1:]
+            self.assertEqual((getattr(db, meth)(*args)), (getattr(ndb, meth)(*args)),
+                                 'The method: %s() returned different results for argument %s' % (meth, args))
+        db.close()
+    # }}}
+
     def test_legacy_adding_books(self):  # {{{
         'Test various adding books methods'
         from calibre.ebooks.metadata.book.base import Metadata
@@ -271,7 +292,8 @@ class LegacyTest(BaseTest):
             # Internal API
             'clean_user_categories',  'cleanup_tags',  'books_list_filter', 'conn', 'connect', 'construct_file_name',
             'construct_path_name', 'clear_dirtied', 'commit_dirty_cache', 'initialize_database', 'initialize_dynamic',
-            'run_import_plugins',
+            'run_import_plugins', 'vacuum', 'set_path', 'row', 'row_factory', 'rows', 'rmtree', 'series_index_pat',
+            'import_old_database', 'dirtied_lock', 'dirtied_cache', 'dirty_queue_length',
         }
         SKIP_ARGSPEC = {
             '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors',

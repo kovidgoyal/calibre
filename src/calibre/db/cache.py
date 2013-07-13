@@ -1208,6 +1208,22 @@ class Cache(object):
         ''' Return the set of book ids for which name has data. '''
         return self.backend.get_ids_for_custom_book_data(name)
 
+    @read_api
+    def conversion_options(self, book_id, fmt='PIPE'):
+        return self.backend.conversion_options(book_id, fmt)
+
+    @read_api
+    def has_conversion_options(self, ids, fmt='PIPE'):
+        return self.backend.has_conversion_options(ids, fmt)
+
+    @write_api
+    def delete_conversion_options(self, book_ids, fmt='PIPE'):
+        return self.backend.delete_conversion_options(book_ids, fmt)
+
+    @write_api
+    def set_conversion_options(self, options, fmt='PIPE'):
+        ''' options must be a map of the form {book_id:conversion_options} '''
+        return self.backend.set_conversion_options(options, fmt)
 
     # }}}
 

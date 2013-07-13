@@ -419,3 +419,20 @@ class WritingTest(BaseTest):
 
     # }}}
 
+    def test_conversion_options(self):  # {{{
+        ' Test saving of conversion options '
+        cache = self.init_cache()
+        all_ids = cache.all_book_ids()
+        self.assertFalse(cache.has_conversion_options(all_ids))
+        self.assertIsNone(cache.conversion_options(1))
+        op1, op2 = {'xx':'yy'}, {'yy':'zz'}
+        cache.set_conversion_options({1:op1, 2:op2})
+        self.assertTrue(cache.has_conversion_options(all_ids))
+        self.assertEqual(cache.conversion_options(1), op1)
+        self.assertEqual(cache.conversion_options(2), op2)
+        cache.set_conversion_options({1:op2})
+        self.assertEqual(cache.conversion_options(1), op2)
+        cache.delete_conversion_options(all_ids)
+        self.assertFalse(cache.has_conversion_options(all_ids))
+    # }}}
+

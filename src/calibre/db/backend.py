@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, shutil, uuid, json, glob, time
+import os, shutil, uuid, json, glob, time, cPickle
 from functools import partial
 
 import apsw
@@ -1215,6 +1215,28 @@ class DB(object):
 
     def get_ids_for_custom_book_data(self, name):
         return frozenset(r[0] for r in self.conn.execute('SELECT book FROM books_plugin_data WHERE name=?', (name,)))
+
+    def conversion_options(self, book_id, fmt):
+        for (data,) in self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (book_id, fmt.upper())):
+            if data:
+                return cPickle.loads(bytes(data))
+
+    def has_conversion_options(self, ids, fmt='PIPE'):
+        ids = frozenset(ids)
+        self.conn.execute('DROP TABLE IF EXISTS conversion_options_temp; CREATE TEMP TABLE conversion_options_temp (id INTEGER PRIMARY KEY);')
+        self.conn.executemany('INSERT INTO conversion_options_temp VALUES (?)', [(x,) for x in ids])
+        for (book_id,) in self.conn.get(
+            'SELECT book FROM conversion_options WHERE format=? AND book IN (SELECT id FROM conversion_options_temp)', (fmt.upper(),)):
+            return True
+        return False
+
+    def delete_conversion_options(self, book_ids, fmt):
+        self.conn.executemany('DELETE FROM conversion_options WHERE book=? AND format=?',
+            [(book_id, fmt.upper()) for book_id in book_ids])
+
+    def set_conversion_options(self, options, fmt):
+        options = [(book_id, fmt.upper(), buffer(cPickle.dumps(data, -1))) for book_id, data in options.iteritems()]
+        self.conn.executemany('INSERT OR REPLACE INTO conversion_options(book,format,data) VALUES (?,?,?)', options)
 
    # }}}
 
