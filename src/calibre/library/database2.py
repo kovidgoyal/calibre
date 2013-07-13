@@ -2423,7 +2423,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if not authors:
             authors = [_('Unknown')]
         self.conn.execute('DELETE FROM books_authors_link WHERE book=?',(id,))
-        books_to_refresh = set([])
+        books_to_refresh = {id}
         final_authors = []
         for a in authors:
             case_change = False
@@ -2615,10 +2615,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def set_publisher(self, id, publisher, notify=True, commit=True,
                       allow_case_change=False):
         self.conn.execute('DELETE FROM books_publishers_link WHERE book=?',(id,))
-        self.conn.execute('''DELETE FROM publishers WHERE (SELECT COUNT(id)
-                             FROM books_publishers_link
-                             WHERE publisher=publishers.id) < 1''')
-        books_to_refresh = set([])
+        books_to_refresh = {id}
         if publisher:
             case_change = False
             if not isinstance(publisher, unicode):
@@ -2634,6 +2631,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         case_change = True
                     else:
                         publisher = cur_name
+                        books_to_refresh = set()
             else:
                 aid = self.conn.execute('''INSERT INTO publishers(name)
                                            VALUES (?)''', (publisher,)).lastrowid
@@ -2643,6 +2641,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 bks = self.conn.get('''SELECT book FROM books_publishers_link
                                        WHERE publisher=?''', (aid,))
                 books_to_refresh |= set([bk[0] for bk in bks])
+        self.conn.execute('''DELETE FROM publishers WHERE (SELECT COUNT(id)
+                             FROM books_publishers_link
+                             WHERE publisher=publishers.id) < 1''')
+
         self.dirtied(set([id])|books_to_refresh, commit=False)
         if commit:
             self.conn.commit()
@@ -3054,11 +3056,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             tags = []
         if not append:
             self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
-            self.conn.execute('''DELETE FROM tags WHERE (SELECT COUNT(id)
-                                 FROM books_tags_link WHERE tag=tags.id) < 1''')
         otags = self.get_tags(id)
         tags = self.cleanup_tags(tags)
-        books_to_refresh = set([])
+        books_to_refresh = {id}
         for tag in (set(tags)-otags):
             case_changed = False
             tag = tag.strip()
@@ -3089,6 +3089,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 bks = self.conn.get('SELECT book FROM books_tags_link WHERE tag=?',
                                         (tid,))
                 books_to_refresh |= set([bk[0] for bk in bks])
+        self.conn.execute('''DELETE FROM tags WHERE (SELECT COUNT(id)
+                                FROM books_tags_link WHERE tag=tags.id) < 1''')
         self.dirtied(set([id])|books_to_refresh, commit=False)
         if commit:
             self.conn.commit()
@@ -3139,11 +3141,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_series(self, id, series, notify=True, commit=True, allow_case_change=True):
         self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))
-        self.conn.execute('''DELETE FROM series
-                             WHERE (SELECT COUNT(id) FROM books_series_link
-                                    WHERE series=series.id) < 1''')
         (series, idx) = self._get_series_values(series)
-        books_to_refresh = set([])
+        books_to_refresh = {id}
         if series:
             case_change = False
             if not isinstance(series, unicode):
@@ -3159,6 +3158,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         case_change = True
                     else:
                         series = cur_name
+                        books_to_refresh = set()
             else:
                 aid = self.conn.execute('INSERT INTO series(name) VALUES (?)', (series,)).lastrowid
             self.conn.execute('INSERT INTO books_series_link(book, series) VALUES (?,?)', (id, aid))
@@ -3168,6 +3168,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 bks = self.conn.get('SELECT book FROM books_series_link WHERE series=?',
                                         (aid,))
                 books_to_refresh |= set([bk[0] for bk in bks])
+        self.conn.execute('''DELETE FROM series
+                             WHERE (SELECT COUNT(id) FROM books_series_link
+                                    WHERE series=series.id) < 1''')
         self.dirtied([id], commit=False)
         if commit:
             self.conn.commit()
