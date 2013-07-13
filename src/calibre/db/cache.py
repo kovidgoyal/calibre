@@ -265,8 +265,10 @@ class Cache(object):
             for name, field in self.fields.iteritems():
                 if name[0] == '#' and name.endswith('_index'):
                     field.series_field = self.fields[name[:-len('_index')]]
+                    self.fields[name[:-len('_index')]].index_field = field
                 elif name == 'series_index':
                     field.series_field = self.fields['series']
+                    self.fields['series'].index_field = field
                 elif name == 'authors':
                     field.author_sort_field = self.fields['author_sort']
                 elif name == 'title':
@@ -1178,6 +1180,18 @@ class Cache(object):
                 continue  # Some fields like ondevice do not have tables
             else:
                 table.remove_books(book_ids, self.backend)
+
+    @write_api
+    def remove_items(self, field, item_ids):
+        ''' Delete all items in the specified field with the specified ids. Returns the set of affected book ids. '''
+        field = self.fields[field]
+        affected_books = field.table.remove_items(item_ids, self.backend)
+        if affected_books:
+            if hasattr(field, 'index_field'):
+                self._set_field(field.index_field.name, {bid:1.0 for bid in affected_books})
+            else:
+                self._mark_as_dirty(affected_books)
+        return affected_books
 
     @write_api
     def add_custom_book_data(self, name, val_map, delete_first=False):

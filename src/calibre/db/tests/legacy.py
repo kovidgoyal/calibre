@@ -293,7 +293,7 @@ class LegacyTest(BaseTest):
             'clean_user_categories',  'cleanup_tags',  'books_list_filter', 'conn', 'connect', 'construct_file_name',
             'construct_path_name', 'clear_dirtied', 'commit_dirty_cache', 'initialize_database', 'initialize_dynamic',
             'run_import_plugins', 'vacuum', 'set_path', 'row', 'row_factory', 'rows', 'rmtree', 'series_index_pat',
-            'import_old_database', 'dirtied_lock', 'dirtied_cache', 'dirty_queue_length',
+            'import_old_database', 'dirtied_lock', 'dirtied_cache', 'dirty_queue_length', 'dirty_books_referencing',
         }
         SKIP_ARGSPEC = {
             '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors',
