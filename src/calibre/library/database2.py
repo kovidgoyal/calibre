@@ -2212,7 +2212,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         id = self.data[row][0]
         col = self.FIELD_MAP[column]
 
-        books_to_refresh = set()
+        books_to_refresh = {id}
         set_args = (row, col, val)
         if column == 'authors':
             val = string_to_authors(val)
