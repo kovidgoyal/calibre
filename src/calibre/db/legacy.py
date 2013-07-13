@@ -98,6 +98,13 @@ class LibraryDatabase(object):
                     return self.new_api.get_item_name(field, item_id)
                 return func
             setattr(self, '%s_name' % field, MT(getter(field)))
+        for field in ('publisher', 'series', 'tag'):
+            def getter(field):
+                fname = 'tags' if field == 'tag' else field
+                def func(self, item_id):
+                    self.new_api.remove_items(fname, (item_id,))
+                return func
+            setattr(self, 'delete_%s_using_id' % field, MT(getter(field)))
 
         # Legacy field API
         for func in (
@@ -382,6 +389,25 @@ class LibraryDatabase(object):
                     if not all_matches:
                         break
         return ans
+
+    def set_conversion_options(self, book_id, fmt, options):
+        self.new_api.set_conversion_options({book_id:options}, fmt=fmt)
+
+    def conversion_options(self, book_id, fmt):
+        return self.new_api.conversion_options(book_id, fmt=fmt)
+
+    def has_conversion_options(self, ids, format='PIPE'):
+        return self.new_api.has_conversion_options(ids, fmt=format)
+
+    def delete_conversion_options(self, book_id, fmt, commit=True):
+        self.new_api.delete_conversion_options((book_id,), fmt=fmt)
+
+    def set(self, index, field, val, allow_case_change=False):
+        book_id = self.data.index_to_id(index)
+        try:
+            return self.new_api.set_field(field, {book_id:val}, allow_case_change=allow_case_change)
+        finally:
+            self.notify('metadata', [book_id])
 
     # Private interface {{{
     def __iter__(self):

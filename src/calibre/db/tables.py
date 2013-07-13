@@ -204,6 +204,21 @@ class ManyToOneTable(Table):
                 [(x,) for x in clean])
         return clean
 
+    def remove_items(self, item_ids, db):
+        affected_books = set()
+        for item_id in item_ids:
+            val = self.id_map.pop(item_id, null)
+            if val is null:
+                continue
+            book_ids = self.col_book_map.pop(item_id, set())
+            for book_id in book_ids:
+                self.book_col_map.pop(book_id, None)
+            affected_books.update(book_ids)
+        item_ids = tuple((x,) for x in item_ids)
+        db.conn.executemany('DELETE FROM {0} WHERE {1}=?'.format(self.link_table, self.metadata['link_column']), item_ids)
+        db.conn.executemany('DELETE FROM {0} WHERE id=?'.format(self.metadata['table']), item_ids)
+        return affected_books
+
 class ManyToManyTable(ManyToOneTable):
 
     '''
@@ -250,6 +265,21 @@ class ManyToManyTable(ManyToOneTable):
                 [(x,) for x in clean])
         return clean
 
+    def remove_items(self, item_ids, db):
+        affected_books = set()
+        for item_id in item_ids:
+            val = self.id_map.pop(item_id, null)
+            if val is null:
+                continue
+            book_ids = self.col_book_map.pop(item_id, set())
+            for book_id in book_ids:
+                self.book_col_map[book_id] = tuple(x for x in self.book_col_map.get(book_id, ()) if x != item_id)
+            affected_books.update(book_ids)
+        item_ids = tuple((x,) for x in item_ids)
+        db.conn.executemany('DELETE FROM {0} WHERE {1}=?'.format(self.link_table, self.metadata['link_column']), item_ids)
+        db.conn.executemany('DELETE FROM {0} WHERE id=?'.format(self.metadata['table']), item_ids)
+        return affected_books
+
 class AuthorsTable(ManyToManyTable):
 
     def read_id_maps(self, db):
@@ -273,6 +303,9 @@ class AuthorsTable(ManyToManyTable):
             self.alink_map.pop(item_id, None)
             self.asort_map.pop(item_id, None)
         return clean
+
+    def remove_items(self, item_ids, db):
+        raise ValueError('Direct removal of authors is not allowed')
 
 class FormatsTable(ManyToManyTable):
 
@@ -331,6 +364,9 @@ class FormatsTable(ManyToManyTable):
 
         return {book_id:zero_max(book_id) for book_id in formats_map}
 
+    def remove_items(self, item_ids, db):
+        raise NotImplementedError('Cannot delete a format directly')
+
     def update_fmt(self, book_id, fmt, fname, size, db):
         fmts = list(self.book_col_map.get(book_id, []))
         try:
@@ -381,4 +417,6 @@ class IdentifiersTable(ManyToManyTable):
                         clean.add(item_id)
         return clean
 
+    def remove_items(self, item_ids, db):
+        raise NotImplementedError('Direct deletion of identifiers is not implemented')
 

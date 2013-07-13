@@ -265,8 +265,10 @@ class Cache(object):
             for name, field in self.fields.iteritems():
                 if name[0] == '#' and name.endswith('_index'):
                     field.series_field = self.fields[name[:-len('_index')]]
+                    self.fields[name[:-len('_index')]].index_field = field
                 elif name == 'series_index':
                     field.series_field = self.fields['series']
+                    self.fields['series'].index_field = field
                 elif name == 'authors':
                     field.author_sort_field = self.fields['author_sort']
                 elif name == 'title':
@@ -1180,6 +1182,18 @@ class Cache(object):
                 table.remove_books(book_ids, self.backend)
 
     @write_api
+    def remove_items(self, field, item_ids):
+        ''' Delete all items in the specified field with the specified ids. Returns the set of affected book ids. '''
+        field = self.fields[field]
+        affected_books = field.table.remove_items(item_ids, self.backend)
+        if affected_books:
+            if hasattr(field, 'index_field'):
+                self._set_field(field.index_field.name, {bid:1.0 for bid in affected_books})
+            else:
+                self._mark_as_dirty(affected_books)
+        return affected_books
+
+    @write_api
     def add_custom_book_data(self, name, val_map, delete_first=False):
         ''' Add data for name where val_map is a map of book_ids to values. If
         delete_first is True, all previously stored data for name will be
@@ -1208,6 +1222,22 @@ class Cache(object):
         ''' Return the set of book ids for which name has data. '''
         return self.backend.get_ids_for_custom_book_data(name)
 
+    @read_api
+    def conversion_options(self, book_id, fmt='PIPE'):
+        return self.backend.conversion_options(book_id, fmt)
+
+    @read_api
+    def has_conversion_options(self, ids, fmt='PIPE'):
+        return self.backend.has_conversion_options(ids, fmt)
+
+    @write_api
+    def delete_conversion_options(self, book_ids, fmt='PIPE'):
+        return self.backend.delete_conversion_options(book_ids, fmt)
+
+    @write_api
+    def set_conversion_options(self, options, fmt='PIPE'):
+        ''' options must be a map of the form {book_id:conversion_options} '''
+        return self.backend.set_conversion_options(options, fmt)
 
     # }}}
 

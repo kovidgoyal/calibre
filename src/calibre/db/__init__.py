@@ -114,4 +114,7 @@ Various things that require other things before they can be migrated:
     3. From refresh in the legacy interface: Rember to flush the composite
     column template cache.
     4. Replace the metadatabackup thread with the new implementation when using the new backend.
+    5. In the new API refresh() does not re-read from disk. That might break a
+    few things, for example content server reloading on db change as well as
+    dump/restore of db?
 '''
