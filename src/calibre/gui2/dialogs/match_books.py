@@ -107,6 +107,8 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         self.buttonBox.rejected.connect(self.reject)
         self.ignore_next_key = False
 
+        self.search_text.setText(self.device_db[self.current_device_book_id].title)
+
     def return_pressed(self):
         self.ignore_next_key = True
         self.do_search()
