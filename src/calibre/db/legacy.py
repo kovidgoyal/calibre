@@ -98,6 +98,13 @@ class LibraryDatabase(object):
                     return self.new_api.get_item_name(field, item_id)
                 return func
             setattr(self, '%s_name' % field, MT(getter(field)))
+        for field in ('publisher', 'series', 'tag'):
+            def getter(field):
+                fname = 'tags' if field == 'tag' else field
+                def func(self, item_id):
+                    self.new_api.remove_items(fname, (item_id,))
+                return func
+            setattr(self, 'delete_%s_using_id' % field, MT(getter(field)))
 
         # Legacy field API
         for func in (

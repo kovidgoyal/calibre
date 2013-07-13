@@ -212,6 +212,31 @@ class LegacyTest(BaseTest):
         db.close()
     # }}}
 
+    def test_legacy_delete_using(self):  # {{{
+        'Test delete_using() API'
+        ndb = self.init_legacy()
+        db = self.init_old()
+        cache = ndb.new_api
+        tmap = cache.get_id_map('tags')
+        t = next(tmap.iterkeys())
+        pmap = cache.get_id_map('publisher')
+        p = next(pmap.iterkeys())
+        for x in (
+            ('delete_tag_using_id', t),
+            ('delete_publisher_using_id', p),
+            (db.refresh,),
+            ('all_tag_names',), ('tags', 0), ('tags', 1), ('tags', 2),
+            ('all_publisher_names',), ('publisher', 0), ('publisher', 1), ('publisher', 2),
+        ):
+            meth, args = x[0], x[1:]
+            if callable(meth):
+                meth(*args)
+            else:
+                self.assertEqual((getattr(db, meth)(*args)), (getattr(ndb, meth)(*args)),
+                                 'The method: %s() returned different results for argument %s' % (meth, args))
+        db.close()
+    # }}}
+
     def test_legacy_adding_books(self):  # {{{
         'Test various adding books methods'
         from calibre.ebooks.metadata.book.base import Metadata
