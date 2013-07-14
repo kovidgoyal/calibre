@@ -7,7 +7,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, traceback, types
-from functools import partial
 from future_builtins import zip
 
 from calibre import force_unicode
@@ -19,6 +18,7 @@ from calibre.db.backend import DB
 from calibre.db.cache import Cache
 from calibre.db.categories import CATEGORY_SORTS
 from calibre.db.view import View
+from calibre.db.write import clean_identifier
 from calibre.utils.date import utcnow
 
 class LibraryDatabase(object):
@@ -52,76 +52,8 @@ class LibraryDatabase(object):
 
         self.get_property = self.data.get_property
 
-        for prop in (
-                'author_sort', 'authors', 'comment', 'comments',
-                'publisher', 'rating', 'series', 'series_index', 'tags',
-                'title', 'timestamp', 'uuid', 'pubdate', 'ondevice',
-                'metadata_last_modified', 'languages',
-                ):
-            fm = {'comment':'comments', 'metadata_last_modified':
-                  'last_modified', 'title_sort':'sort'}.get(prop, prop)
-            setattr(self, prop, partial(self.get_property,
-                    loc=self.FIELD_MAP[fm]))
-
-        MT = lambda func: types.MethodType(func, self, LibraryDatabase)
-
-        for meth in ('get_next_series_num_for', 'has_book', 'author_sort_from_authors'):
-            setattr(self, meth, getattr(self.new_api, meth))
-
-        # Legacy API to get information about many-(one, many) fields
-        for field in ('authors', 'tags', 'publisher', 'series'):
-            def getter(field):
-                def func(self):
-                    return self.new_api.all_field_names(field)
-                return func
-            name = field[:-1] if field in {'authors', 'tags'} else field
-            setattr(self, 'all_%s_names' % name, MT(getter(field)))
-            self.all_formats = MT(lambda self:self.new_api.all_field_names('formats'))
-
-        for func, field in {'all_authors':'authors', 'all_titles':'title', 'all_tags2':'tags', 'all_series':'series', 'all_publishers':'publisher'}.iteritems():
-            setattr(self, func, partial(self.field_id_map, field))
-        self.all_tags = MT(lambda self: list(self.all_tag_names()))
-        self.get_authors_with_ids = MT(
-            lambda self: [[aid, adata['name'], adata['sort'], adata['link']] for aid, adata in self.new_api.author_data().iteritems()])
-        for field in ('tags', 'series', 'publishers', 'ratings', 'languages'):
-            def getter(field):
-                fname = field[:-1] if field in {'publishers', 'ratings'} else field
-                def func(self):
-                    return [[tid, tag] for tid, tag in self.new_api.get_id_map(fname).iteritems()]
-                return func
-            setattr(self, 'get_%s_with_ids' % field,
-                    MT(getter(field)))
-        for field in ('author', 'tag', 'series'):
-            def getter(field):
-                field = field if field == 'series' else (field+'s')
-                def func(self, item_id):
-                    return self.new_api.get_item_name(field, item_id)
-                return func
-            setattr(self, '%s_name' % field, MT(getter(field)))
-        for field in ('publisher', 'series', 'tag'):
-            def getter(field):
-                fname = 'tags' if field == 'tag' else field
-                def func(self, item_id):
-                    self.new_api.remove_items(fname, (item_id,))
-                return func
-            setattr(self, 'delete_%s_using_id' % field, MT(getter(field)))
-
-        # Legacy field API
-        for func in (
-            'standard_field_keys', 'custom_field_keys', 'all_field_keys',
-            'searchable_fields', 'sortable_field_keys',
-            'search_term_to_field_key', 'custom_field_metadata',
-            'all_metadata'):
-            setattr(self, func, getattr(self.field_metadata, func))
-        self.metadata_for_field = self.field_metadata.get
-
         self.last_update_check = self.last_modified()
         self.book_on_device_func = None
-        # Cleaning is not required anymore
-        self.clean = self.clean_custom = MT(lambda self:None)
-        self.clean_standard_field = MT(lambda self, field, commit=False:None)
-        # apsw operates in autocommit mode
-        self.commit = MT(lambda self:None)
 
     def close(self):
         self.backend.close()
@@ -409,6 +341,36 @@ class LibraryDatabase(object):
         finally:
             self.notify('metadata', [book_id])
 
+    def set_identifier(self, book_id, typ, val, notify=True, commit=True):
+        with self.new_api.write_lock:
+            identifiers = self.new_api._field_for('identifiers', book_id)
+            typ, val = clean_identifier(typ, val)
+            if typ:
+                identifiers[typ] = val
+                self.new_api._set_field('identifiers', {book_id:identifiers})
+                self.notify('metadata', [book_id])
+
+    def set_isbn(self, book_id, isbn, notify=True, commit=True):
+        self.set_identifier(book_id, 'isbn', isbn, notify=notify, commit=commit)
+
+    def set_tags(self, book_id, tags, append=False, notify=True, commit=True, allow_case_change=False):
+        tags = tags or []
+        with self.new_api.write_lock:
+            if append:
+                otags = self.new_api._field_for('tags', book_id)
+                existing = {icu_lower(x) for x in otags}
+                tags = list(otags) + [x for x in tags if icu_lower(x) not in existing]
+            ret = self.new_api._set_field('tags', {book_id:tags}, allow_case_change=allow_case_change)
+            if notify:
+                self.notify('metadata', [book_id])
+            return ret
+
+    def set_metadata(self, book_id, mi, ignore_errors=False, set_title=True,
+                     set_authors=True, commit=True, force_changes=False, notify=True):
+        self.new_api.set_metadata(book_id, mi, ignore_errors=ignore_errors, set_title=set_title, set_authors=set_authors, force_changes=force_changes)
+        if notify:
+            self.notify('metadata', [book_id])
+
     # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():
@@ -421,4 +383,144 @@ class LibraryDatabase(object):
         return _get_series_values(val)
 
     # }}}
+
+MT = lambda func: types.MethodType(func, None, LibraryDatabase)
+
+# Legacy getter API {{{
+for prop in ('author_sort', 'authors', 'comment', 'comments', 'publisher',
+             'rating', 'series', 'series_index', 'tags', 'title', 'title_sort',
+             'timestamp', 'uuid', 'pubdate', 'ondevice', 'metadata_last_modified', 'languages',):
+    def getter(prop):
+        fm = {'comment':'comments', 'metadata_last_modified':
+                'last_modified', 'title_sort':'sort'}.get(prop, prop)
+        def func(self, index, index_is_id=False):
+            return self.get_property(index, index_is_id=index_is_id, loc=self.FIELD_MAP[fm])
+        return func
+    setattr(LibraryDatabase, prop, MT(getter(prop)))
+
+LibraryDatabase.has_cover = MT(lambda self, book_id:self.new_api.field_for('cover', book_id))
+LibraryDatabase.get_identifiers = MT(
+    lambda self, index, index_is_id=False: self.new_api.field_for('identifiers', index if index_is_id else self.data.index_to_id(index)))
+# }}}
+
+# Legacy setter API {{{
+for field in (
+    '!authors', 'author_sort', 'comment', 'has_cover', 'identifiers', 'languages',
+    'pubdate', '!publisher', 'rating', '!series', 'series_index', 'timestamp', 'uuid',
+    'title', 'title_sort',
+):
+    def setter(field):
+        has_case_change = field.startswith('!')
+        field = {'comment':'comments', 'title_sort':'sort'}.get(field, field)
+        if has_case_change:
+            field = field[1:]
+            acc = field == 'series'
+            def func(self, book_id, val, notify=True, commit=True, allow_case_change=acc):
+                ret = self.new_api.set_field(field, {book_id:val}, allow_case_change=allow_case_change)
+                if notify:
+                    self.notify([book_id])
+                return ret
+        elif field == 'has_cover':
+            def func(self, book_id, val):
+                self.new_api.set_field('cover', {book_id:bool(val)})
+        else:
+            null_field = field in {'title', 'sort', 'uuid'}
+            retval = (True if field == 'sort' else None)
+            def func(self, book_id, val, notify=True, commit=True):
+                if not val and null_field:
+                    return (False if field == 'sort' else None)
+                ret = self.new_api.set_field(field, {book_id:val})
+                if notify:
+                    self.notify([book_id])
+                return ret if field == 'languages' else retval
+        return func
+    setattr(LibraryDatabase, 'set_%s' % field.replace('!', ''), MT(setter(field)))
+# }}}
+
+# Legacy API to get information about many-(one, many) fields {{{
+for field in ('authors', 'tags', 'publisher', 'series'):
+    def getter(field):
+        def func(self):
+            return self.new_api.all_field_names(field)
+        return func
+    name = field[:-1] if field in {'authors', 'tags'} else field
+    setattr(LibraryDatabase, 'all_%s_names' % name, MT(getter(field)))
+    LibraryDatabase.all_formats = MT(lambda self:self.new_api.all_field_names('formats'))
+
+for func, field in {'all_authors':'authors', 'all_titles':'title', 'all_tags2':'tags', 'all_series':'series', 'all_publishers':'publisher'}.iteritems():
+    def getter(field):
+        def func(self):
+            return self.field_id_map(field)
+        return func
+    setattr(LibraryDatabase, func, MT(getter(field)))
+
+LibraryDatabase.all_tags = MT(lambda self: list(self.all_tag_names()))
+LibraryDatabase.get_all_identifier_types = MT(lambda self: list(self.new_api.fields['identifiers'].table.all_identifier_types()))
+LibraryDatabase.get_authors_with_ids = MT(
+    lambda self: [[aid, adata['name'], adata['sort'], adata['link']] for aid, adata in self.new_api.author_data().iteritems()])
+
+for field in ('tags', 'series', 'publishers', 'ratings', 'languages'):
+    def getter(field):
+        fname = field[:-1] if field in {'publishers', 'ratings'} else field
+        def func(self):
+            return [[tid, tag] for tid, tag in self.new_api.get_id_map(fname).iteritems()]
+        return func
+    setattr(LibraryDatabase, 'get_%s_with_ids' % field, MT(getter(field)))
+
+for field in ('author', 'tag', 'series'):
+    def getter(field):
+        field = field if field == 'series' else (field+'s')
+        def func(self, item_id):
+            return self.new_api.get_item_name(field, item_id)
+        return func
+    setattr(LibraryDatabase, '%s_name' % field, MT(getter(field)))
+
+for field in ('publisher', 'series', 'tag'):
+    def getter(field):
+        fname = 'tags' if field == 'tag' else field
+        def func(self, item_id):
+            self.new_api.remove_items(fname, (item_id,))
+        return func
+    setattr(LibraryDatabase, 'delete_%s_using_id' % field, MT(getter(field)))
+# }}}
+
+# Legacy field API {{{
+for func in (
+    'standard_field_keys', '!custom_field_keys', 'all_field_keys',
+    'searchable_fields', 'sortable_field_keys',
+    'search_term_to_field_key', '!custom_field_metadata',
+    'all_metadata'):
+    def getter(func):
+        if func.startswith('!'):
+            func = func[1:]
+            def meth(self, include_composites=True):
+                return getattr(self.field_metadata, func)(include_composites=include_composites)
+        elif func == 'search_term_to_field_key':
+            def meth(self, term):
+                return self.field_metadata.search_term_to_field_key(term)
+        else:
+            def meth(self):
+                return getattr(self.field_metadata, func)()
+        return meth
+    setattr(LibraryDatabase, func.replace('!', ''), MT(getter(func)))
+LibraryDatabase.metadata_for_field = MT(lambda self, field:self.field_metadata.get(field))
+
+# }}}
+
+# Miscellaneous API {{{
+for meth in ('get_next_series_num_for', 'has_book', 'author_sort_from_authors'):
+    def getter(meth):
+        def func(self, x):
+            return getattr(self.new_api, meth)(x)
+        return func
+    setattr(LibraryDatabase, meth, MT(getter(meth)))
+
+# Cleaning is not required anymore
+LibraryDatabase.clean = LibraryDatabase.clean_custom = MT(lambda self:None)
+LibraryDatabase.clean_standard_field = MT(lambda self, field, commit=False:None)
+# apsw operates in autocommit mode
+LibraryDatabase.commit = MT(lambda self:None)
+# }}}
+
+del MT
 
