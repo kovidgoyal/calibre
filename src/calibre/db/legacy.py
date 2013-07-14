@@ -9,7 +9,8 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, traceback, types
 from future_builtins import zip
 
-from calibre import force_unicode
+from calibre import force_unicode, isbytestring
+from calibre.constants import preferred_encoding
 from calibre.db import _get_next_series_num_for_list, _get_series_values
 from calibre.db.adding import (
     find_books_in_directory, import_book_directory_multiple,
@@ -20,6 +21,19 @@ from calibre.db.categories import CATEGORY_SORTS
 from calibre.db.view import View
 from calibre.db.write import clean_identifier
 from calibre.utils.date import utcnow
+
+def cleanup_tags(tags):
+    tags = [x.strip().replace(',', ';') for x in tags if x.strip()]
+    tags = [x.decode(preferred_encoding, 'replace')
+                if isbytestring(x) else x for x in tags]
+    tags = [u' '.join(x.split()) for x in tags]
+    ans, seen = [], set([])
+    for tag in tags:
+        if tag.lower() not in seen:
+            seen.add(tag.lower())
+            ans.append(tag)
+    return ans
+
 
 class LibraryDatabase(object):
 
@@ -371,6 +385,44 @@ class LibraryDatabase(object):
         if notify:
             self.notify('metadata', [book_id])
 
+    def remove_all_tags(self, ids, notify=False, commit=True):
+        self.new_api.set_field('tags', {book_id:() for book_id in ids})
+        if notify:
+            self.notify('metadata', ids)
+
+    def bulk_modify_tags(self, ids, add=[], remove=[], notify=False):
+        add = cleanup_tags(add)
+        remove = cleanup_tags(remove)
+        remove = set(remove) - set(add)
+        if not ids or (not add and not remove):
+            return
+        remove = {icu_lower(x) for x in remove}
+        with self.new_api.write_lock:
+            val_map = {}
+            for book_id in ids:
+                tags = list(self.new_api._field_for('tags', book_id))
+                existing = {icu_lower(x) for x in tags}
+                tags.extend(t for t in add if icu_lower(t) not in existing)
+                tags = tuple(t for t in tags if icu_lower(t) not in remove)
+                val_map[book_id] = tags
+            self.new_api._set_field('tags', val_map, allow_case_change=False)
+
+        if notify:
+            self.notify('metadata', ids)
+
+    def unapply_tags(self, book_id, tags, notify=True):
+        self.bulk_modify_tags((book_id,), remove=tags, notify=notify)
+
+    def is_tag_used(self, tag):
+        return icu_lower(tag) in {icu_lower(x) for x in self.new_api.all_field_names('tags')}
+
+    def delete_tag(self, tag):
+        with self.new_api.write_lock:
+            tag_map = {icu_lower(v):k for k, v in self.new_api._get_id_map('tags').iteritems()}
+            tid = tag_map.get(icu_lower(tag), None)
+            if tid is not None:
+                self.new_api._remove_items('tags', (tid,))
+
     # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():
@@ -399,6 +451,7 @@ for prop in ('author_sort', 'authors', 'comment', 'comments', 'publisher',
     setattr(LibraryDatabase, prop, MT(getter(prop)))
 
 LibraryDatabase.has_cover = MT(lambda self, book_id:self.new_api.field_for('cover', book_id))
+LibraryDatabase.get_tags = MT(lambda self, book_id:set(self.new_api.field_for('tags', book_id)))
 LibraryDatabase.get_identifiers = MT(
     lambda self, index, index_is_id=False: self.new_api.field_for('identifiers', index if index_is_id else self.data.index_to_id(index)))
 # }}}
@@ -523,4 +576,5 @@ LibraryDatabase.commit = MT(lambda self:None)
 # }}}
 
 del MT
+
 

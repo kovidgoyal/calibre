@@ -406,6 +406,26 @@ class LegacyTest(BaseTest):
         from calibre.ebooks.metadata.book.base import Metadata
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old(self.cloned_library)
+        run_funcs(self, db, ndb, (
+            ('get_tags', 0), ('get_tags', 1), ('get_tags', 2),
+            ('is_tag_used', 'News'), ('is_tag_used', 'xchkjgfh'),
+            ('bulk_modify_tags', (1,), ['t1'], ['News']),
+            ('bulk_modify_tags', (2,), ['t1'], ['Tag One', 'Tag Two']),
+            ('bulk_modify_tags', (3,), ['t1', 't2', 't3']),
+            (db.clean,),
+            ('@all_tags',),
+            ('@tags', 0), ('@tags', 1), ('@tags', 2),
+
+            ('unapply_tags', 1, ['t1']),
+            ('unapply_tags', 2, ['xxxx']),
+            ('unapply_tags', 3, ['t2', 't3']),
+            (db.clean,),
+            ('@all_tags',),
+            ('@tags', 0), ('@tags', 1), ('@tags', 2),
+        ))
+
+        ndb = self.init_legacy(self.cloned_library)
+        db = self.init_old(self.cloned_library)
 
         run_funcs(self, db, ndb, (
             ('set_authors', 1, ('author one',),), ('set_authors', 2, ('author two',), True, True, True),
@@ -479,5 +499,20 @@ class LegacyTest(BaseTest):
             ('#tags', 0), ('#tags', 1), ('#tags', 2),
             ('authors', 0), ('authors', 1), ('authors', 2),
             ('publisher', 0), ('publisher', 1), ('publisher', 2),
+            ('delete_tag', 'T1'), ('delete_tag', 'T2'), ('delete_tag', 'Tag one'), ('delete_tag', 'News'),
+            (db.clean,), (db.refresh,),
+            ('@all_tags',),
+            ('#tags', 0), ('#tags', 1), ('#tags', 2),
         ))
+
+        ndb = self.init_legacy(self.cloned_library)
+        db = self.init_old(self.cloned_library)
+        run_funcs(self, db, ndb, (
+            ('remove_all_tags', (1, 2, 3)),
+            (db.clean,),
+            ('@all_tags',),
+            ('@tags', 0), ('@tags', 1), ('@tags', 2),
+        ))
+
+
     # }}}
