@@ -417,11 +417,15 @@ class LibraryDatabase(object):
         return icu_lower(tag) in {icu_lower(x) for x in self.new_api.all_field_names('tags')}
 
     def delete_tag(self, tag):
+        self.delete_tags((tag,))
+
+    def delete_tags(self, tags):
         with self.new_api.write_lock:
             tag_map = {icu_lower(v):k for k, v in self.new_api._get_id_map('tags').iteritems()}
-            tid = tag_map.get(icu_lower(tag), None)
-            if tid is not None:
-                self.new_api._remove_items('tags', (tid,))
+            tag_ids = (tag_map.get(icu_lower(tag), None) for tag in tags)
+            tag_ids = tuple(tid for tid in tag_ids if tid is not None)
+            if tag_ids:
+                self.new_api._remove_items('tags', tag_ids)
 
     # Private interface {{{
     def __iter__(self):
