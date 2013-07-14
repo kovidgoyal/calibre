@@ -257,8 +257,8 @@ class EmailMixin(object):  # {{{
             else:
                 autos = [self.library_view.model().db.title(id, index_is_id=True) for id in auto]
                 if self.auto_convert_question(
-                    _('Auto convert the following books before sending via '
-                        'email?'), autos):
+                    _('Auto convert the following books to %s before sending via '
+                        'email?') % format.upper(), autos):
                     self.iactions['Convert Books'].auto_convert_mail(to, fmts, delete_from_library, auto, format, subject)
 
         if bad:
