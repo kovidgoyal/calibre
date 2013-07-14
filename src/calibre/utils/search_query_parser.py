@@ -305,11 +305,11 @@ class SearchQueryParser(object):
         self._tests_failed = False
         self.optimize = optimize
 
-    def parse(self, query):
+    def parse(self, query, candidates=None):
         # empty the list of searches used for recursion testing
         self.recurse_level = 0
         self.searches_seen = set([])
-        return self._parse(query)
+        return self._parse(query, candidates=candidates)
 
     # this parse is used internally because it doesn't clear the
     # recursive search test list. However, we permit seeing the

@@ -185,16 +185,15 @@ class CacheRow(list):  # {{{
 
         if col == self._virt_lib_col and self._virt_libs is None:
             try:
-                if not getattr(self.db.data, '_virt_libs_computed', False):
-                    self.db.data._ids_in_virt_libs = {}
-                    for v,s in self.db.prefs.get('virtual_libraries', {}).iteritems():
-                        self.db.data._ids_in_virt_libs[v] = self.db.data.search_raw(s)
-                    self.db.data._virt_libs_computed = True
+                self.db.data._compute_books_in_all_virt_libs()
                 r = []
-                for v in self.db.prefs.get('virtual_libraries', {}).keys():
-                    # optimize the lookup of the ID -- it is always zero
-                    if self[0] in self.db.data._ids_in_virt_libs[v]:
-                        r.append(v)
+                # optimize the lookup of the ID -- it is always zero
+                id_ = self[0]
+                for n,v in self.db.data._virt_lib_id_cache.iteritems():
+                    #if not isinstance(v, set):
+                    #    print (n, 'is not a set')
+                    if id_ in v:
+                        r.append(n)
                 from calibre.utils.icu import sort_key
                 self._virt_libs = ", ".join(sorted(r, key=sort_key))
                 self[self._virt_lib_col] = self._virt_libs
@@ -249,8 +248,8 @@ class ResultCache(SearchQueryParser):  # {{{
         pref_use_primary_find_in_search = prefs['use_primary_find_in_search']
         self._uuid_column_index = self.FIELD_MAP['uuid']
         self._uuid_map = {}
-        self._virt_libs_computed = False
-        self._ids_in_virt_libs = {}
+        self._virt_lib_id_cache = {}
+        self._virt_lib_search_expressions = {}
 
     def break_cycles(self):
         self._data = self.field_metadata = self.FIELD_MAP = \
@@ -844,17 +843,48 @@ class ResultCache(SearchQueryParser):  # {{{
                 current_candidates -= matches
         return matches
 
-    def invalidate_virtual_libraries_caches(self):
-        self._virt_libs_computed = False
-        self._ids_in_virt_libs = {}
+    def _invalidate_virtual_libraries_caches(self, db):
+        self._virt_lib_id_cache = {}
+        self._virt_lib_search_expressions = {}
+        for n,v in db.prefs['virtual_libraries'].iteritems():
+            self._virt_lib_search_expressions[n] = v
+
+    def invalidate_virtual_libraries_caches(self, db):
+        self._invalidate_virtual_libraries_caches(db)
 
         for row in self._data:
             if row is not None:
                 row.refresh_virtual_libraries()
                 row.refresh_composites()
 
-    def search_raw(self, query):
-        matches = self.parse(query)
+    def _get_books_in_virt_lib(self, vl):
+        if vl not in self._virt_lib_id_cache:
+            self._virt_lib_id_cache[vl] = self.search_raw(
+                                 self._virt_lib_search_expressions[vl], None)
+        return self._virt_lib_id_cache[vl]
+
+    def _update_books_in_all_virt_libs(self, candidates):
+        for vl in self._virt_lib_search_expressions:
+            if vl in self._virt_lib_id_cache:
+                if candidates is not None:
+                    candidates = set(candidates)
+                    current = self._virt_lib_id_cache[vl]
+                    current -= candidates
+                    current |= self.search_raw(
+                                 self._virt_lib_search_expressions[vl], candidates)
+                    self._virt_lib_id_cache[vl] = current
+                else:
+                    self.virt_lib_id_cache[vl] = self.search_raw(
+                                 self._virt_lib_search_expressions[vl], candidates)
+
+    def _compute_books_in_all_virt_libs(self):
+        for vl in self._virt_lib_search_expressions:
+            if vl not in self._virt_lib_id_cache:
+                self._virt_lib_id_cache[vl] = self.search_raw(
+                                 self._virt_lib_search_expressions[vl], None)
+
+    def search_raw(self, query, candidates):
+        matches = self.parse(query, candidates=candidates)
         return matches
 
     def search(self, query, return_matches=False):
@@ -864,19 +894,13 @@ class ResultCache(SearchQueryParser):  # {{{
             return ans
         self._map_filtered = ans
 
-    def _build_restriction_string(self, restriction):
-        if self.base_restriction:
-            if restriction:
-                return u'(%s) and (%s)' % (self.base_restriction, restriction)
-            else:
-                return self.base_restriction
-        else:
-            return restriction
-
     def search_getting_ids(self, query, search_restriction,
                            set_restriction_count=False, use_virtual_library=True):
+        candidates = None
         if use_virtual_library:
-            search_restriction = self._build_restriction_string(search_restriction)
+            if self.base_restriction:
+                candidates = self._get_books_in_virt_lib(self.base_restriction_name)
+
         q = ''
         if not query or not query.strip():
             q = search_restriction
@@ -884,11 +908,14 @@ class ResultCache(SearchQueryParser):  # {{{
             q = query
             if search_restriction:
                 q = u'(%s) and (%s)' % (search_restriction, query)
-        if not q:
+        if candidates is None and not q:
             if set_restriction_count:
                 self.search_restriction_book_count = len(self._map)
             return list(self._map)
-        matches = self.parse(q)
+        if q:
+            matches = self.parse(q, candidates)
+        else:
+            matches = candidates
         tmap = list(itertools.repeat(False, len(self._data)))
         for x in matches:
             tmap[x] = True
@@ -1018,8 +1045,8 @@ class ResultCache(SearchQueryParser):  # {{{
                         self.virtual_libraries_col)
                 self._data[id].append(db.book_on_device_string(id))
                 self._data[id].extend((self.marked_ids_dict.get(id, None), None, None))
-                self._virt_libs_computed = False
                 self._uuid_map[self._data[id][self._uuid_column_index]] = id
+                self._update_books_in_all_virt_libs(ids)
             except IndexError:
                 return None
         try:
@@ -1039,8 +1066,8 @@ class ResultCache(SearchQueryParser):  # {{{
                         self.virtual_libraries_col)
             self._data[id].append(db.book_on_device_string(id))
             self._data[id].extend((self.marked_ids_dict.get(id, None), None, None))
-            self._virt_libs_computed = False
             self._uuid_map[self._data[id][self._uuid_column_index]] = id
+        self._update_books_in_all_virt_libs(ids)
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -1076,7 +1103,8 @@ class ResultCache(SearchQueryParser):  # {{{
                 # Temp mark, series_sort, virtual_library columns
                 item.extend((None, None, None))
 
-        self._virt_libs_computed = False
+        self._invalidate_virtual_libraries_caches(db)
+
         marked_col = self.FIELD_MAP['marked']
         for id_, val in self.marked_ids_dict.iteritems():
             try:
