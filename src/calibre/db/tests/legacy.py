@@ -11,6 +11,7 @@ from io import BytesIO
 from repr import repr
 from functools import partial
 from tempfile import NamedTemporaryFile
+from operator import itemgetter
 
 from calibre.db.tests.base import BaseTest
 
@@ -159,6 +160,11 @@ class LegacyTest(BaseTest):
 
         for meth, args in {
             'get_next_series_num_for': [('A Series One',)],
+            'format':[(1, 'FMT1', True), (2, 'FMT1', True), (0, 'xxxxxx')],
+            'has_format':[(1, 'FMT1', True), (2, 'FMT1', True), (0, 'xxxxxx')],
+            '@format_files':[(0,),(1,),(2,)],
+            'formats':[(0,),(1,),(2,)],
+            'format_hash':[(1, 'FMT1'),(1, 'FMT2'), (2, 'FMT1')],
             'author_sort_from_authors': [(['Author One', 'Author Two', 'Unknown'],)],
             'has_book':[(Metadata('title one'),), (Metadata('xxxx1111'),)],
             'has_id':[(1,), (2,), (3,), (9999,)],
@@ -330,6 +336,7 @@ class LegacyTest(BaseTest):
             'author_id',  # replaced by get_author_id
             'books_for_author',  # broken
             'books_in_old_database',  # unused
+            'migrate_old',  # no longer supported
 
             # Internal API
             'clean_user_categories',  'cleanup_tags',  'books_list_filter', 'conn', 'connect', 'construct_file_name',
@@ -337,6 +344,7 @@ class LegacyTest(BaseTest):
             'run_import_plugins', 'vacuum', 'set_path', 'row', 'row_factory', 'rows', 'rmtree', 'series_index_pat',
             'import_old_database', 'dirtied_lock', 'dirtied_cache', 'dirty_queue_length', 'dirty_books_referencing',
             'windows_check_if_files_in_use', 'get_metadata_for_dump', 'get_a_dirtied_book', 'dirtied_sequence',
+            'format_filename_cache', 'format_metadata_cache', 'filter', 'create_version1',
         }
         SKIP_ARGSPEC = {
             '__init__',
@@ -411,6 +419,9 @@ class LegacyTest(BaseTest):
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old(self.cloned_library)
         run_funcs(self, db, ndb, (
+            ('+format_metadata', 1, 'FMT1', itemgetter('size')),
+            ('+format_metadata', 1, 'FMT2', itemgetter('size')),
+            ('+format_metadata', 2, 'FMT1', itemgetter('size')),
             ('get_tags', 0), ('get_tags', 1), ('get_tags', 2),
             ('is_tag_used', 'News'), ('is_tag_used', 'xchkjgfh'),
             ('bulk_modify_tags', (1,), ['t1'], ['News']),

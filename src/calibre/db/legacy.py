@@ -17,6 +17,7 @@ from calibre.db.adding import (
     import_book_directory, recursive_import, add_catalog, add_news)
 from calibre.db.backend import DB
 from calibre.db.cache import Cache
+from calibre.db.errors import NoSuchFormat
 from calibre.db.categories import CATEGORY_SORTS
 from calibre.db.view import View
 from calibre.db.write import clean_identifier
@@ -436,6 +437,43 @@ class LibraryDatabase(object):
     def has_id(self, book_id):
         return book_id in self.new_api.all_book_ids()
 
+    def format(self, index, fmt, index_is_id=False, as_file=False, mode='r+b', as_path=False, preserve_filename=False):
+        book_id = index if index_is_id else self.id(index)
+        return self.new_api.format(book_id, fmt, as_file=as_file, as_path=as_path, preserve_filename=preserve_filename)
+
+    def format_abspath(self, index, fmt, index_is_id=False):
+        book_id = index if index_is_id else self.id(index)
+        return self.new_api.format_abspath(book_id, fmt)
+
+    def format_path(self, index, fmt, index_is_id=False):
+        book_id = index if index_is_id else self.id(index)
+        ans = self.new_api.format_abspath(book_id, fmt)
+        if ans is None:
+            raise NoSuchFormat('Record %d has no format: %s'%(book_id, fmt))
+        return ans
+
+    def format_files(self, index, index_is_id=False):
+        book_id = index if index_is_id else self.id(index)
+        return [(v, k) for k, v in self.new_api.format_files(book_id).iteritems()]
+
+    def format_metadata(self, book_id, fmt, allow_cache=True, update_db=False, commit=False):
+        return self.new_api.format_metadata(book_id, fmt, allow_cache=allow_cache, update_db=update_db)
+
+    def format_last_modified(self, book_id, fmt):
+        m = self.format_metadata(book_id, fmt)
+        if m:
+            return m['mtime']
+
+    def formats(self, index, index_is_id=False, verify_formats=True):
+        book_id = index if index_is_id else self.id(index)
+        ans = self.new_api.formats(book_id, verify_formats=verify_formats)
+        if ans:
+            return ','.join(ans)
+
+    def has_format(self, index, fmt, index_is_id=False):
+        book_id = index if index_is_id else self.id(index)
+        return self.new_api.has_format(book_id, fmt)
+
     # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():
@@ -463,6 +501,7 @@ for prop in ('author_sort', 'authors', 'comment', 'comments', 'publisher',
         return func
     setattr(LibraryDatabase, prop, MT(getter(prop)))
 
+LibraryDatabase.format_hash = MT(lambda self, book_id, fmt:self.new_api.format_hash(book_id, fmt))
 LibraryDatabase.index = MT(lambda self, book_id, cache=False:self.data.id_to_index(book_id))
 LibraryDatabase.has_cover = MT(lambda self, book_id:self.new_api.field_for('cover', book_id))
 LibraryDatabase.get_tags = MT(lambda self, book_id:set(self.new_api.field_for('tags', book_id)))

@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, shutil, uuid, json, glob, time, cPickle
+import os, shutil, uuid, json, glob, time, cPickle, hashlib
 from functools import partial
 
 import apsw
@@ -17,7 +17,9 @@ from calibre import isbytestring, force_unicode, prints
 from calibre.constants import (iswindows, filesystem_encoding,
         preferred_encoding)
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.db import SPOOL_SIZE
 from calibre.db.schema_upgrades import SchemaUpgrade
+from calibre.db.errors import NoSuchFormat
 from calibre.library.field_metadata import FieldMetadata
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.icu import sort_key
@@ -925,6 +927,19 @@ class DB(object):
         if fmt and candidates and os.path.exists(candidates[0]):
             shutil.copyfile(candidates[0], fmt_path)
             return fmt_path
+
+    def format_hash(self, book_id, fmt, fname, path):
+        path = self.format_abspath(book_id, fmt, fname, path)
+        if path is None:
+            raise NoSuchFormat('Record %d has no fmt: %s'%(book_id, fmt))
+        sha = hashlib.sha256()
+        with lopen(path, 'rb') as f:
+            while True:
+                raw = f.read(SPOOL_SIZE)
+                sha.update(raw)
+                if len(raw) < SPOOL_SIZE:
+                    break
+        return sha.hexdigest()
 
     def format_metadata(self, book_id, fmt, fname, path):
         path = self.format_abspath(book_id, fmt, fname, path)

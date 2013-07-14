@@ -408,7 +408,16 @@ class Cache(object):
         return {aid:af.author_data(aid) for aid in author_ids if aid in af.table.id_map}
 
     @read_api
-    def format_metadata(self, book_id, fmt, allow_cache=True):
+    def format_hash(self, book_id, fmt):
+        try:
+            name = self.fields['formats'].format_fname(book_id, fmt)
+            path = self._field_for('path', book_id).replace('/', os.sep)
+        except:
+            raise NoSuchFormat('Record %d has no fmt: %s'%(book_id, fmt))
+        return self.backend.format_hash(book_id, fmt, name, path)
+
+    @api
+    def format_metadata(self, book_id, fmt, allow_cache=True, update_db=False):
         if not fmt:
             return {}
         fmt = fmt.upper()
@@ -416,17 +425,29 @@ class Cache(object):
             x = self.format_metadata_cache[book_id].get(fmt, None)
             if x is not None:
                 return x
-        try:
-            name = self.fields['formats'].format_fname(book_id, fmt)
-            path = self._field_for('path', book_id).replace('/', os.sep)
-        except:
-            return {}
+        with self.read_lock:
+            try:
+                name = self.fields['formats'].format_fname(book_id, fmt)
+                path = self._field_for('path', book_id).replace('/', os.sep)
+            except:
+                return {}
 
-        ans = {}
-        if path and name:
-            ans = self.backend.format_metadata(book_id, fmt, name, path)
-            self.format_metadata_cache[book_id][fmt] = ans
+            ans = {}
+            if path and name:
+                ans = self.backend.format_metadata(book_id, fmt, name, path)
+                self.format_metadata_cache[book_id][fmt] = ans
+        if update_db and 'size' in ans:
+            with self.write_lock:
+                max_size = self.fields['formats'].table.update_fmt(book_id, fmt, name, ans['size'], self.backend)
+                self.fields['size'].table.update_sizes({book_id: max_size})
+
         return ans
+
+    @read_api
+    def format_files(self, book_id):
+        field = self.fields['formats']
+        fmts = field.table.book_col_map.get(book_id, ())
+        return {fmt:field.format_fname(book_id, fmt) for fmt in fmts}
 
     @read_api
     def pref(self, name, default=None):
@@ -524,6 +545,7 @@ class Cache(object):
         the path is different from the current path (taking case sensitivity
         into account).
         '''
+        fmt = (fmt or '').upper()
         try:
             name = self.fields['formats'].format_fname(book_id, fmt)
             path = self._field_for('path', book_id).replace('/', os.sep)
@@ -544,6 +566,7 @@ class Cache(object):
         Apart from the viewer, I don't believe any of the others do any file
         I/O with the results of this call.
         '''
+        fmt = (fmt or '').upper()
         try:
             name = self.fields['formats'].format_fname(book_id, fmt)
             path = self._field_for('path', book_id).replace('/', os.sep)
@@ -555,6 +578,7 @@ class Cache(object):
     @read_api
     def has_format(self, book_id, fmt):
         'Return True iff the format exists on disk'
+        fmt = (fmt or '').upper()
         try:
             name = self.fields['formats'].format_fname(book_id, fmt)
             path = self._field_for('path', book_id).replace('/', os.sep)
@@ -601,6 +625,7 @@ class Cache(object):
                                   this means that repeated calls yield the same
                                   temp file (which is re-created each time)
         '''
+        fmt = (fmt or '').upper()
         ext = ('.'+fmt.lower()) if fmt else ''
         if as_path:
             if preserve_filename:
