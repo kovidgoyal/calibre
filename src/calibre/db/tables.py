@@ -420,3 +420,6 @@ class IdentifiersTable(ManyToManyTable):
     def remove_items(self, item_ids, db):
         raise NotImplementedError('Direct deletion of identifiers is not implemented')
 
+    def all_identifier_types(self):
+        return frozenset(k for k, v in self.col_book_map.iteritems() if v)
+

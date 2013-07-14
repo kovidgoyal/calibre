@@ -49,7 +49,7 @@ def run_funcs(self, db, ndb, funcs):
             fmt = lambda x:x
             if meth[0] in {'!', '@', '#', '+'}:
                 if meth[0] != '+':
-                    fmt = {'!':dict, '@':frozenset, '#':lambda x:set((x or '').split(','))}[meth[0]]
+                    fmt = {'!':dict, '@':lambda x:frozenset(x or ()), '#':lambda x:set((x or '').split(','))}[meth[0]]
                 else:
                     fmt = args[-1]
                     args = args[:-1]
@@ -168,6 +168,7 @@ class LegacyTest(BaseTest):
             '!all_authors':[()],
             '!all_tags2':[()],
             '@all_tags':[()],
+            '@get_all_identifier_types':[()],
             '!all_publishers':[()],
             '!all_titles':[()],
             '!all_series':[()],
@@ -331,7 +332,7 @@ class LegacyTest(BaseTest):
             'construct_path_name', 'clear_dirtied', 'commit_dirty_cache', 'initialize_database', 'initialize_dynamic',
             'run_import_plugins', 'vacuum', 'set_path', 'row', 'row_factory', 'rows', 'rmtree', 'series_index_pat',
             'import_old_database', 'dirtied_lock', 'dirtied_cache', 'dirty_queue_length', 'dirty_books_referencing',
-            'windows_check_if_files_in_use',
+            'windows_check_if_files_in_use', 'get_metadata_for_dump', 'get_a_dirtied_book',
         }
         SKIP_ARGSPEC = {
             '__init__',
@@ -402,6 +403,7 @@ class LegacyTest(BaseTest):
 
     def test_legacy_setters(self):  # {{{
         'Test methods that are directly equivalent in the old and new interface'
+        from calibre.ebooks.metadata.book.base import Metadata
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old(self.cloned_library)
 
@@ -421,9 +423,8 @@ class LegacyTest(BaseTest):
             ('set_timestamp', 1, None), ('set_timestamp', 2, '2011-1-7'),
             ('set_uuid', 1, None), ('set_uuid', 2, 'a test uuid'),
             ('set_title', 1, 'title two'), ('set_title', 2, None), ('set_title', 3, 'The Test Title'),
-
+            ('set_tags', 1, ['a1', 'a2'], True), ('set_tags', 2, ['b1', 'tag one'], False, False, False, True), ('set_tags', 3, ['A1']),
             (db.refresh,),
-
             ('title', 0), ('title', 1), ('title', 2),
             ('title_sort', 0), ('title_sort', 1), ('title_sort', 2),
             ('authors', 0), ('authors', 1), ('authors', 2),
@@ -437,12 +438,29 @@ class LegacyTest(BaseTest):
             ('series', 0), ('series', 1), ('series', 2),
             ('series_index', 0), ('series_index', 1), ('series_index', 2),
             ('uuid', 0), ('uuid', 1), ('uuid', 2),
+            ('@tags', 0), ('@tags', 1), ('@tags', 2),
+            ('@all_tags',),
+            ('@get_all_identifier_types',),
 
             ('set_title_sort', 1, 'Title Two'), ('set_title_sort', 2, None), ('set_title_sort', 3, 'The Test Title_sort'),
             ('set_series_index', 1, 2.3), ('set_series_index', 2, 0), ('set_series_index', 3, 8),
+            ('set_identifier', 1, 'moose', 'val'), ('set_identifier', 2, 'test', ''), ('set_identifier', 3, '', ''),
             (db.refresh,),
             ('series_index', 0), ('series_index', 1), ('series_index', 2),
             ('title_sort', 0), ('title_sort', 1), ('title_sort', 2),
+            ('get_identifiers', 0), ('get_identifiers', 1), ('get_identifiers', 2),
+            ('@get_all_identifier_types',),
+
+            ('set_metadata', 1, Metadata('title', ('a1',)), False, False, False, True, True),
+            ('set_metadata', 3, Metadata('title', ('a1',))),
+            (db.refresh,),
+            ('title', 0), ('title', 1), ('title', 2),
+            ('title_sort', 0), ('title_sort', 1), ('title_sort', 2),
+            ('authors', 0), ('authors', 1), ('authors', 2),
+            ('author_sort', 0), ('author_sort', 1), ('author_sort', 2),
+            ('@tags', 0), ('@tags', 1), ('@tags', 2),
+            ('@all_tags',),
+            ('@get_all_identifier_types',),
         ))
         db.close()
 

@@ -18,6 +18,7 @@ from calibre.db.backend import DB
 from calibre.db.cache import Cache
 from calibre.db.categories import CATEGORY_SORTS
 from calibre.db.view import View
+from calibre.db.write import clean_identifier
 from calibre.utils.date import utcnow
 
 class LibraryDatabase(object):
@@ -340,6 +341,36 @@ class LibraryDatabase(object):
         finally:
             self.notify('metadata', [book_id])
 
+    def set_identifier(self, book_id, typ, val, notify=True, commit=True):
+        with self.new_api.write_lock:
+            identifiers = self.new_api._field_for('identifiers', book_id)
+            typ, val = clean_identifier(typ, val)
+            if typ:
+                identifiers[typ] = val
+                self.new_api._set_field('identifiers', {book_id:identifiers})
+                self.notify('metadata', [book_id])
+
+    def set_isbn(self, book_id, isbn, notify=True, commit=True):
+        self.set_identifier(book_id, 'isbn', isbn, notify=notify, commit=commit)
+
+    def set_tags(self, book_id, tags, append=False, notify=True, commit=True, allow_case_change=False):
+        tags = tags or []
+        with self.new_api.write_lock:
+            if append:
+                otags = self.new_api._field_for('tags', book_id)
+                existing = {icu_lower(x) for x in otags}
+                tags = list(otags) + [x for x in tags if icu_lower(x) not in existing]
+            ret = self.new_api._set_field('tags', {book_id:tags}, allow_case_change=allow_case_change)
+            if notify:
+                self.notify('metadata', [book_id])
+            return ret
+
+    def set_metadata(self, book_id, mi, ignore_errors=False, set_title=True,
+                     set_authors=True, commit=True, force_changes=False, notify=True):
+        self.new_api.set_metadata(book_id, mi, ignore_errors=ignore_errors, set_title=set_title, set_authors=set_authors, force_changes=force_changes)
+        if notify:
+            self.notify('metadata', [book_id])
+
     # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():
@@ -424,6 +455,7 @@ for func, field in {'all_authors':'authors', 'all_titles':'title', 'all_tags2':'
     setattr(LibraryDatabase, func, MT(getter(field)))
 
 LibraryDatabase.all_tags = MT(lambda self: list(self.all_tag_names()))
+LibraryDatabase.get_all_identifier_types = MT(lambda self: list(self.new_api.fields['identifiers'].table.all_identifier_types()))
 LibraryDatabase.get_authors_with_ids = MT(
     lambda self: [[aid, adata['name'], adata['sort'], adata['link']] for aid, adata in self.new_api.author_data().iteritems()])
 
