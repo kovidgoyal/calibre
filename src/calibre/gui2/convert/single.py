@@ -252,7 +252,7 @@ class Config(ResizableDialog, Ui_Dialog):
     def setup_input_output_formats(self, db, book_id, preferred_input_format,
             preferred_output_format):
         if preferred_output_format:
-            preferred_output_format = preferred_output_format.lower()
+            preferred_output_format = preferred_output_format.upper()
         output_formats = get_output_formats(preferred_output_format)
         input_format, input_formats = get_input_format_for_book(db, book_id,
                 preferred_input_format)
