@@ -420,9 +420,12 @@ class LegacyTest(BaseTest):
             ('set_rating', 1, 2.3), ('set_rating', 2, 0), ('set_rating', 3, 8),
             ('set_timestamp', 1, None), ('set_timestamp', 2, '2011-1-7'),
             ('set_uuid', 1, None), ('set_uuid', 2, 'a test uuid'),
+            ('set_title', 1, 'title two'), ('set_title', 2, None), ('set_title', 3, 'The Test Title'),
 
             (db.refresh,),
 
+            ('title', 0), ('title', 1), ('title', 2),
+            ('title_sort', 0), ('title_sort', 1), ('title_sort', 2),
             ('authors', 0), ('authors', 1), ('authors', 2),
             ('author_sort', 0), ('author_sort', 1), ('author_sort', 2),
             ('has_cover', 3), ('has_cover', 1), ('has_cover', 2),
@@ -435,9 +438,11 @@ class LegacyTest(BaseTest):
             ('series_index', 0), ('series_index', 1), ('series_index', 2),
             ('uuid', 0), ('uuid', 1), ('uuid', 2),
 
+            ('set_title_sort', 1, 'Title Two'), ('set_title_sort', 2, None), ('set_title_sort', 3, 'The Test Title_sort'),
             ('set_series_index', 1, 2.3), ('set_series_index', 2, 0), ('set_series_index', 3, 8),
             (db.refresh,),
             ('series_index', 0), ('series_index', 1), ('series_index', 2),
+            ('title_sort', 0), ('title_sort', 1), ('title_sort', 2),
         ))
         db.close()
 

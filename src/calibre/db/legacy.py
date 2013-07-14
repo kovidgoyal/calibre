@@ -376,10 +376,11 @@ LibraryDatabase.get_identifiers = MT(
 for field in (
     '!authors', 'author_sort', 'comment', 'has_cover', 'identifiers', 'languages',
     'pubdate', '!publisher', 'rating', '!series', 'series_index', 'timestamp', 'uuid',
+    'title', 'title_sort',
 ):
     def setter(field):
         has_case_change = field.startswith('!')
-        field = {'comment':'comments',}.get(field, field)
+        field = {'comment':'comments', 'title_sort':'sort'}.get(field, field)
         if has_case_change:
             field = field[1:]
             acc = field == 'series'
@@ -392,13 +393,15 @@ for field in (
             def func(self, book_id, val):
                 self.new_api.set_field('cover', {book_id:bool(val)})
         else:
+            null_field = field in {'title', 'sort', 'uuid'}
+            retval = (True if field == 'sort' else None)
             def func(self, book_id, val, notify=True, commit=True):
-                if not val and field == 'uuid':
-                    return
+                if not val and null_field:
+                    return (False if field == 'sort' else None)
                 ret = self.new_api.set_field(field, {book_id:val})
                 if notify:
                     self.notify([book_id])
-                return ret if field == 'languages' else None
+                return ret if field == 'languages' else retval
         return func
     setattr(LibraryDatabase, 'set_%s' % field.replace('!', ''), MT(setter(field)))
 # }}}
