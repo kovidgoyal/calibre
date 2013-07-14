@@ -52,18 +52,22 @@ class LibraryDatabase(object):
 
         self.get_property = self.data.get_property
 
+        MT = lambda func: types.MethodType(func, self, LibraryDatabase)
+
         for prop in (
-                'author_sort', 'authors', 'comment', 'comments',
-                'publisher', 'rating', 'series', 'series_index', 'tags',
-                'title', 'timestamp', 'uuid', 'pubdate', 'ondevice',
-                'metadata_last_modified', 'languages',
+            'author_sort', 'authors', 'comment', 'comments', 'publisher',
+            'rating', 'series', 'series_index', 'tags', 'title', 'title_sort',
+            'timestamp', 'uuid', 'pubdate', 'ondevice',
+            'metadata_last_modified', 'languages',
                 ):
             fm = {'comment':'comments', 'metadata_last_modified':
                   'last_modified', 'title_sort':'sort'}.get(prop, prop)
             setattr(self, prop, partial(self.get_property,
                     loc=self.FIELD_MAP[fm]))
 
-        MT = lambda func: types.MethodType(func, self, LibraryDatabase)
+        self.has_cover = MT(lambda self, book_id:self.new_api.field_for('cover', book_id))
+        self.get_identifiers = MT(
+            lambda self, index, index_is_id=False: self.new_api.field_for('identifiers', index if index_is_id else self.data.index_to_id(index)))
 
         for meth in ('get_next_series_num_for', 'has_book', 'author_sort_from_authors'):
             setattr(self, meth, getattr(self.new_api, meth))
@@ -114,6 +118,36 @@ class LibraryDatabase(object):
             'all_metadata'):
             setattr(self, func, getattr(self.field_metadata, func))
         self.metadata_for_field = self.field_metadata.get
+
+        # Legacy setter API
+        for field in (
+            '!authors', 'author_sort', 'comment', 'has_cover', 'identifiers', 'languages',
+            'pubdate', '!publisher', 'rating', '!series', 'series_index', 'timestamp', 'uuid',
+        ):
+            def setter(field):
+                has_case_change = field.startswith('!')
+                field = {'comment':'comments',}.get(field, field)
+                if has_case_change:
+                    field = field[1:]
+                    acc = field == 'series'
+                    def func(self, book_id, val, notify=True, commit=True, allow_case_change=acc):
+                        ret = self.new_api.set_field(field, {book_id:val}, allow_case_change=allow_case_change)
+                        if notify:
+                            self.notify([book_id])
+                        return ret
+                elif field == 'has_cover':
+                    def func(self, book_id, val):
+                        self.new_api.set_field('cover', {book_id:bool(val)})
+                else:
+                    def func(self, book_id, val, notify=True, commit=True):
+                        if not val and field == 'uuid':
+                            return
+                        ret = self.new_api.set_field(field, {book_id:val})
+                        if notify:
+                            self.notify([book_id])
+                        return ret if field == 'languages' else None
+                return func
+            setattr(self, 'set_%s' % field.replace('!', ''), MT(setter(field)))
 
         self.last_update_check = self.last_modified()
         self.book_on_device_func = None

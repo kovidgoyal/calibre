@@ -47,11 +47,15 @@ def run_funcs(self, db, ndb, funcs):
             meth(*args)
         else:
             fmt = lambda x:x
-            if meth[0] in {'!', '@', '#'}:
-                fmt = {'!':dict, '@':frozenset, '#':lambda x:set((x or '').split(','))}[meth[0]]
+            if meth[0] in {'!', '@', '#', '+'}:
+                if meth[0] != '+':
+                    fmt = {'!':dict, '@':frozenset, '#':lambda x:set((x or '').split(','))}[meth[0]]
+                else:
+                    fmt = args[-1]
+                    args = args[:-1]
                 meth = meth[1:]
-            self.assertEqual(fmt(getattr(db, meth)(*args)), fmt(getattr(ndb, meth)(*args)),
-                                'The method: %s() returned different results for argument %s' % (meth, args))
+            res1, res2 = fmt(getattr(db, meth)(*args)), fmt(getattr(ndb, meth)(*args))
+            self.assertEqual(res1, res2, 'The method: %s() returned different results for argument %s' % (meth, args))
 
 class LegacyTest(BaseTest):
 
@@ -129,7 +133,7 @@ class LegacyTest(BaseTest):
     def test_legacy_getters(self):  # {{{
         ' Test various functions to get individual bits of metadata '
         old = self.init_old()
-        getters = ('path', 'abspath', 'title', 'authors', 'series',
+        getters = ('path', 'abspath', 'title', 'title_sort', 'authors', 'series',
                    'publisher', 'author_sort', 'authors', 'comments',
                    'comment', 'publisher', 'rating', 'series_index', 'tags',
                    'timestamp', 'uuid', 'pubdate', 'ondevice',
@@ -327,6 +331,7 @@ class LegacyTest(BaseTest):
             'construct_path_name', 'clear_dirtied', 'commit_dirty_cache', 'initialize_database', 'initialize_dynamic',
             'run_import_plugins', 'vacuum', 'set_path', 'row', 'row_factory', 'rows', 'rmtree', 'series_index_pat',
             'import_old_database', 'dirtied_lock', 'dirtied_cache', 'dirty_queue_length', 'dirty_books_referencing',
+            'windows_check_if_files_in_use',
         }
         SKIP_ARGSPEC = {
             '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors',
@@ -401,11 +406,50 @@ class LegacyTest(BaseTest):
         db = self.init_old(self.cloned_library)
 
         run_funcs(self, db, ndb, (
+            ('set_authors', 1, ('author one',),), ('set_authors', 2, ('author two',), True, True, True),
+            ('set_author_sort', 3, 'new_aus'),
+            ('set_comment', 1, ''), ('set_comment', 2, None), ('set_comment', 3, '<p>a comment</p>'),
+            ('set_has_cover', 1, True), ('set_has_cover', 2, True), ('set_has_cover', 3, 1),
+            ('set_identifiers', 2, {'test':'', 'a':'b'}), ('set_identifiers', 3, {'id':'1', 'url':'http://acme.com'}), ('set_identifiers', 1, {}),
+            ('set_languages', 1, ('en',)),
+            ('set_languages', 2, ()),
+            ('set_languages', 3, ('deu', 'spa', 'fra')),
+            ('set_pubdate', 1, None), ('set_pubdate', 2, '2011-1-7'),
+            ('set_series', 1, 'a series one'), ('set_series', 2, 'another series [7]'), ('set_series', 3, 'a third series'),
+            ('set_publisher', 1, 'publisher two'), ('set_publisher', 2, None), ('set_publisher', 3, 'a third puB'),
+            ('set_rating', 1, 2.3), ('set_rating', 2, 0), ('set_rating', 3, 8),
+            ('set_timestamp', 1, None), ('set_timestamp', 2, '2011-1-7'),
+            ('set_uuid', 1, None), ('set_uuid', 2, 'a test uuid'),
+
+            (db.refresh,),
+
+            ('authors', 0), ('authors', 1), ('authors', 2),
+            ('author_sort', 0), ('author_sort', 1), ('author_sort', 2),
+            ('has_cover', 3), ('has_cover', 1), ('has_cover', 2),
+            ('get_identifiers', 0), ('get_identifiers', 1), ('get_identifiers', 2),
+            ('pubdate', 0), ('pubdate', 1), ('pubdate', 2),
+            ('timestamp', 0), ('timestamp', 1), ('timestamp', 2),
+            ('publisher', 0), ('publisher', 1), ('publisher', 2),
+            ('rating', 0), ('+rating', 1, lambda x: x or 0), ('rating', 2),
+            ('series', 0), ('series', 1), ('series', 2),
+            ('series_index', 0), ('series_index', 1), ('series_index', 2),
+            ('uuid', 0), ('uuid', 1), ('uuid', 2),
+
+            ('set_series_index', 1, 2.3), ('set_series_index', 2, 0), ('set_series_index', 3, 8),
+            (db.refresh,),
+            ('series_index', 0), ('series_index', 1), ('series_index', 2),
+        ))
+        db.close()
+
+        ndb = self.init_legacy(self.cloned_library)
+        db = self.init_old(self.cloned_library)
+
+        run_funcs(self, db, ndb, (
             ('set', 0, 'title', 'newtitle'),
             ('set', 0, 'tags', 't1,t2,tag one', True),
             ('set', 0, 'authors', 'author one & Author Two', True),
             ('set', 0, 'rating', 3.2),
-            ('set', 0, 'publisher', 'publisher one', True),
+            ('set', 0, 'publisher', 'publisher one', False),
             (db.refresh,),
             ('title', 0),
             ('rating', 0),
@@ -413,6 +457,4 @@ class LegacyTest(BaseTest):
             ('authors', 0), ('authors', 1), ('authors', 2),
             ('publisher', 0), ('publisher', 1), ('publisher', 2),
         ))
-        db.close()
-
     # }}}
