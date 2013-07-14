@@ -161,6 +161,10 @@ class LegacyTest(BaseTest):
             'get_next_series_num_for': [('A Series One',)],
             'author_sort_from_authors': [(['Author One', 'Author Two', 'Unknown'],)],
             'has_book':[(Metadata('title one'),), (Metadata('xxxx1111'),)],
+            'has_id':[(1,), (2,), (3,), (9999,)],
+            'id':[(1,), (2,), (0,),],
+            'index':[(1,), (2,), (3,), ],
+            'is_empty':[()],
             'all_author_names':[()],
             'all_tag_names':[()],
             'all_series_names':[()],
@@ -332,7 +336,7 @@ class LegacyTest(BaseTest):
             'construct_path_name', 'clear_dirtied', 'commit_dirty_cache', 'initialize_database', 'initialize_dynamic',
             'run_import_plugins', 'vacuum', 'set_path', 'row', 'row_factory', 'rows', 'rmtree', 'series_index_pat',
             'import_old_database', 'dirtied_lock', 'dirtied_cache', 'dirty_queue_length', 'dirty_books_referencing',
-            'windows_check_if_files_in_use', 'get_metadata_for_dump', 'get_a_dirtied_book',
+            'windows_check_if_files_in_use', 'get_metadata_for_dump', 'get_a_dirtied_book', 'dirtied_sequence',
         }
         SKIP_ARGSPEC = {
             '__init__',
@@ -432,7 +436,7 @@ class LegacyTest(BaseTest):
             ('set_author_sort', 3, 'new_aus'),
             ('set_comment', 1, ''), ('set_comment', 2, None), ('set_comment', 3, '<p>a comment</p>'),
             ('set_has_cover', 1, True), ('set_has_cover', 2, True), ('set_has_cover', 3, 1),
-            ('set_identifiers', 2, {'test':'', 'a':'b'}), ('set_identifiers', 3, {'id':'1', 'url':'http://acme.com'}), ('set_identifiers', 1, {}),
+            ('set_identifiers', 2, {'test':'', 'a':'b'}), ('set_identifiers', 3, {'id':'1', 'isbn':'9783161484100'}), ('set_identifiers', 1, {}),
             ('set_languages', 1, ('en',)),
             ('set_languages', 2, ()),
             ('set_languages', 3, ('deu', 'spa', 'fra')),
@@ -458,6 +462,7 @@ class LegacyTest(BaseTest):
             ('series', 0), ('series', 1), ('series', 2),
             ('series_index', 0), ('series_index', 1), ('series_index', 2),
             ('uuid', 0), ('uuid', 1), ('uuid', 2),
+            ('isbn', 0), ('isbn', 1), ('isbn', 2),
             ('@tags', 0), ('@tags', 1), ('@tags', 2),
             ('@all_tags',),
             ('@get_all_identifier_types',),
@@ -516,3 +521,4 @@ class LegacyTest(BaseTest):
 
 
     # }}}
+

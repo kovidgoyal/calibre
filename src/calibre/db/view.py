@@ -161,6 +161,9 @@ class View(object):
     def index_to_id(self, idx):
         return self._map_filtered[idx]
 
+    def id_to_index(self, book_id):
+        return self._map.index(book_id)
+
     def _get(self, field, idx, index_is_id=True, default_value=None, fmt=lambda x:x):
         id_ = idx if index_is_id else self.index_to_id(idx)
         if index_is_id and id_ not in self.cache.all_book_ids():

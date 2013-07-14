@@ -63,11 +63,13 @@ class LibraryDatabase(object):
         cache = self.new_api = Cache(backend)
         cache.init()
         self.data = View(cache)
+        self.id = self.data.index_to_id
 
         self.get_property = self.data.get_property
 
         self.last_update_check = self.last_modified()
         self.book_on_device_func = None
+        self.is_case_sensitive = getattr(backend, 'is_case_sensitive', False)
 
     def close(self):
         self.backend.close()
@@ -131,6 +133,10 @@ class LibraryDatabase(object):
         for book_id in self.data.cache.all_book_ids():
             yield book_id
 
+    def is_empty(self):
+        with self.new_api.read_lock:
+            return not bool(self.new_api.fields['title'].table.book_col_map)
+
     def get_usage_count_by_id(self, field):
         return [[k, v] for k, v in self.new_api.get_usage_count_by_id(field).iteritems()]
 
@@ -161,7 +167,7 @@ class LibraryDatabase(object):
 
     def path(self, index, index_is_id=False):
         'Return the relative path to the directory containing this books files as a unicode string.'
-        book_id = index if index_is_id else self.data.index_to_id(index)
+        book_id = index if index_is_id else self.id(index)
         return self.new_api.field_for('path', book_id).replace('/', os.sep)
 
     def abspath(self, index, index_is_id=False, create_dirs=True):
@@ -224,7 +230,7 @@ class LibraryDatabase(object):
 
     def add_format(self, index, fmt, stream, index_is_id=False, path=None, notify=True, replace=True, copy_function=None):
         ''' path and copy_function are ignored by the new API '''
-        book_id = index if index_is_id else self.data.index_to_id(index)
+        book_id = index if index_is_id else self.id(index)
         try:
             return self.new_api.add_format(book_id, fmt, stream, replace=replace, run_hooks=False, dbapi=self)
         except:
@@ -234,7 +240,7 @@ class LibraryDatabase(object):
 
     def add_format_with_hooks(self, index, fmt, fpath, index_is_id=False, path=None, notify=True, replace=True):
         ''' path is ignored by the new API '''
-        book_id = index if index_is_id else self.data.index_to_id(index)
+        book_id = index if index_is_id else self.id(index)
         try:
             return self.new_api.add_format(book_id, fmt, fpath, replace=replace, run_hooks=True, dbapi=self)
         except:
@@ -268,12 +274,12 @@ class LibraryDatabase(object):
     # }}}
 
     def get_field(self, index, key, default=None, index_is_id=False):
-        book_id = index if index_is_id else self.data.index_to_id(index)
+        book_id = index if index_is_id else self.id(index)
         mi = self.new_api.get_metadata(book_id, get_cover=key == 'cover')
         return mi.get(key, default)
 
     def authors_sort_strings(self, index, index_is_id=False):
-        book_id = index if index_is_id else self.data.index_to_id(index)
+        book_id = index if index_is_id else self.id(index)
         with self.new_api.read_lock:
             authors = self.new_api._field_ids_for('authors', book_id)
             adata = self.new_api._author_data(authors)
@@ -283,7 +289,7 @@ class LibraryDatabase(object):
         return ' & '.join(self.authors_sort_strings(index, index_is_id=index_is_id))
 
     def authors_with_sort_strings(self, index, index_is_id=False):
-        book_id = index if index_is_id else self.data.index_to_id(index)
+        book_id = index if index_is_id else self.id(index)
         with self.new_api.read_lock:
             authors = self.new_api._field_ids_for('authors', book_id)
             adata = self.new_api._author_data(authors)
@@ -318,7 +324,7 @@ class LibraryDatabase(object):
             return sorted(book_ids, key=lambda x:ff('series_index', x))
 
     def books_in_series_of(self, index, index_is_id=False):
-        book_id = index if index_is_id else self.data.index_to_id(index)
+        book_id = index if index_is_id else self.id(index)
         series_ids = self.new_api.field_ids_for('series', book_id)
         if not series_ids:
             return []
@@ -349,7 +355,7 @@ class LibraryDatabase(object):
         self.new_api.delete_conversion_options((book_id,), fmt=fmt)
 
     def set(self, index, field, val, allow_case_change=False):
-        book_id = self.data.index_to_id(index)
+        book_id = self.id(index)
         try:
             return self.new_api.set_field(field, {book_id:val}, allow_case_change=allow_case_change)
         finally:
@@ -427,6 +433,9 @@ class LibraryDatabase(object):
             if tag_ids:
                 self.new_api._remove_items('tags', tag_ids)
 
+    def has_id(self, book_id):
+        return book_id in self.new_api.all_book_ids()
+
     # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():
@@ -454,10 +463,13 @@ for prop in ('author_sort', 'authors', 'comment', 'comments', 'publisher',
         return func
     setattr(LibraryDatabase, prop, MT(getter(prop)))
 
+LibraryDatabase.index = MT(lambda self, book_id, cache=False:self.data.id_to_index(book_id))
 LibraryDatabase.has_cover = MT(lambda self, book_id:self.new_api.field_for('cover', book_id))
 LibraryDatabase.get_tags = MT(lambda self, book_id:set(self.new_api.field_for('tags', book_id)))
 LibraryDatabase.get_identifiers = MT(
-    lambda self, index, index_is_id=False: self.new_api.field_for('identifiers', index if index_is_id else self.data.index_to_id(index)))
+    lambda self, index, index_is_id=False: self.new_api.field_for('identifiers', index if index_is_id else self.id(index)))
+LibraryDatabase.isbn = MT(
+    lambda self, index, index_is_id=False: self.get_identifiers(index, index_is_id=index_is_id).get('isbn', None))
 # }}}
 
 # Legacy setter API {{{
