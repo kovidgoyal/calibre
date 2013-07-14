@@ -334,7 +334,7 @@ class LegacyTest(BaseTest):
             'windows_check_if_files_in_use',
         }
         SKIP_ARGSPEC = {
-            '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors',
+            '__init__',
         }
 
         missing = []
