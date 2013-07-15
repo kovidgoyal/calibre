@@ -65,6 +65,7 @@ class LibraryDatabase(object):
         cache.init()
         self.data = View(cache)
         self.id = self.data.index_to_id
+        self.count = self.data.count
 
         self.get_property = self.data.get_property
 
@@ -84,6 +85,10 @@ class LibraryDatabase(object):
             delattr(self, x)
 
     # Library wide properties {{{
+    @property
+    def prefs(self):
+        return self.new_api.backend.prefs
+
     @property
     def field_metadata(self):
         return self.backend.field_metadata
@@ -521,6 +526,18 @@ for prop in ('author_sort', 'authors', 'comment', 'comments', 'publisher',
         return func
     setattr(LibraryDatabase, prop, MT(getter(prop)))
 
+for prop in ('series', 'publisher'):
+    def getter(field):
+        def func(self, index, index_is_id=False):
+            book_id = index if index_is_id else self.id(index)
+            ans = self.new_api.field_ids_for(field, book_id)
+            try:
+                return ans[0]
+            except IndexError:
+                pass
+        return func
+    setattr(LibraryDatabase, prop + '_id', MT(getter(prop)))
+
 LibraryDatabase.format_hash = MT(lambda self, book_id, fmt:self.new_api.format_hash(book_id, fmt))
 LibraryDatabase.index = MT(lambda self, book_id, cache=False:self.data.id_to_index(book_id))
 LibraryDatabase.has_cover = MT(lambda self, book_id:self.new_api.field_for('cover', book_id))
@@ -590,6 +607,8 @@ LibraryDatabase.all_tags = MT(lambda self: list(self.all_tag_names()))
 LibraryDatabase.get_all_identifier_types = MT(lambda self: list(self.new_api.fields['identifiers'].table.all_identifier_types()))
 LibraryDatabase.get_authors_with_ids = MT(
     lambda self: [[aid, adata['name'], adata['sort'], adata['link']] for aid, adata in self.new_api.author_data().iteritems()])
+LibraryDatabase.get_author_id = MT(
+    lambda self, author: {icu_lower(v):k for k, v in self.new_api.get_id_map('authors').iteritems()}.get(icu_lower(author), None))
 
 for field in ('tags', 'series', 'publishers', 'ratings', 'languages'):
     def getter(field):

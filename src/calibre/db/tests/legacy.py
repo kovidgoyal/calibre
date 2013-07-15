@@ -159,8 +159,13 @@ class LegacyTest(BaseTest):
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old()
 
+        self.assertEqual(dict(db.prefs), dict(ndb.prefs))
+
         for meth, args in {
             'get_next_series_num_for': [('A Series One',)],
+            'get_author_id': [('author one',), ('unknown',), ('xxxxx',)],
+            'series_id': [(0,), (1,), (2,)],
+            'publisher_id': [(0,), (1,), (2,)],
             '@tags_older_than': [
                 ('News', None), ('Tag One', None), ('xxxx', None), ('Tag One', None, 'News'), ('News', None, 'xxxx'),
                 ('News', None, None, ['xxxxxxx']), ('News', None, 'Tag One', ['Author Two', 'Author One']),
@@ -178,6 +183,7 @@ class LegacyTest(BaseTest):
             'id':[(1,), (2,), (0,),],
             'index':[(1,), (2,), (3,), ],
             'is_empty':[()],
+            'count':[()],
             'all_author_names':[()],
             'all_tag_names':[()],
             'all_series_names':[()],
@@ -352,7 +358,7 @@ class LegacyTest(BaseTest):
             'run_import_plugins', 'vacuum', 'set_path', 'row', 'row_factory', 'rows', 'rmtree', 'series_index_pat',
             'import_old_database', 'dirtied_lock', 'dirtied_cache', 'dirty_queue_length', 'dirty_books_referencing',
             'windows_check_if_files_in_use', 'get_metadata_for_dump', 'get_a_dirtied_book', 'dirtied_sequence',
-            'format_filename_cache', 'format_metadata_cache', 'filter', 'create_version1',
+            'format_filename_cache', 'format_metadata_cache', 'filter', 'create_version1', 'normpath',
         }
         SKIP_ARGSPEC = {
             '__init__',
