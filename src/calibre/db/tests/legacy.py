@@ -344,6 +344,7 @@ class LegacyTest(BaseTest):
             'books_for_author',  # broken
             'books_in_old_database', 'sizeof_old_database',  # unused
             'migrate_old',  # no longer supported
+            'remove_unused_series',  # superseded by clean API
 
             # Internal API
             'clean_user_categories',  'cleanup_tags',  'books_list_filter', 'conn', 'connect', 'construct_file_name',
