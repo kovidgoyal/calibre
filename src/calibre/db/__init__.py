@@ -112,10 +112,6 @@ Various things that require other things before they can be migrated:
     libraries/switching/on calibre startup.
     3. Port library/restore.py
     4. Replace the metadatabackup thread with the new implementation when using the new backend.
-    5. In the new API refresh() does not re-read from disk. That might break a
-    few things, for example content server reloading on db change as well as
-    dump/restore of db and the refreshdb: action in gui2/ui.py. Probaly you'll have to create a dedicated API for
-    refreshing the db from disk and change the code to use it instead of the overloaded refresh (which is often used
-    to reread data from the db after writing to it). See reload_from_db() in cache.py
-    6. grep the sources for TODO
+    5. grep the sources for TODO
+    6. Check that content server reloading on metadata,db change, metadata backup, refresh gui on calibredb add all work
 '''
