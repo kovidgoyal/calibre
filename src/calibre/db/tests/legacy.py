@@ -416,6 +416,8 @@ class LegacyTest(BaseTest):
     def test_legacy_setters(self):  # {{{
         'Test methods that are directly equivalent in the old and new interface'
         from calibre.ebooks.metadata.book.base import Metadata
+        from calibre.utils.date import now
+        n = now()
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old(self.cloned_library)
         run_funcs(self, db, ndb, (
@@ -437,6 +439,9 @@ class LegacyTest(BaseTest):
             (db.clean,),
             ('@all_tags',),
             ('@tags', 0), ('@tags', 1), ('@tags', 2),
+
+            ('update_last_modified', (1,), True, n), ('update_last_modified', (3,), True, n),
+            ('metadata_last_modified', 1, True), ('metadata_last_modified', 3, True),
         ))
 
         ndb = self.init_legacy(self.cloned_library)

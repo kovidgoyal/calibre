@@ -70,6 +70,7 @@ class LibraryDatabase(object):
 
         self.last_update_check = self.last_modified()
         self.refresh_ids = self.data.refresh_ids
+        self.set_marked_ids = self.data.set_marked_ids
         self.is_case_sensitive = getattr(backend, 'is_case_sensitive', False)
 
     def close(self):
@@ -540,6 +541,10 @@ for field in (
                 return ret if field == 'languages' else retval
         return func
     setattr(LibraryDatabase, 'set_%s' % field.replace('!', ''), MT(setter(field)))
+
+LibraryDatabase.update_last_modified = MT(
+    lambda self, book_ids, commit=False, now=None: self.new_api.update_last_modified(book_ids, now=now))
+
 # }}}
 
 # Legacy API to get information about many-(one, many) fields {{{
