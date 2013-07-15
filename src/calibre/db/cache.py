@@ -1341,6 +1341,7 @@ class Cache(object):
                     val_map[book_id] = ' & '.join(sorts)
             if val_map:
                 self._set_field('author_sort', val_map)
+        self._mark_as_dirty(changed_books)
         return changed_books
 
     @write_api
@@ -1349,6 +1350,7 @@ class Cache(object):
         changed_books = set()
         for author_id in author_id_to_link_map:
             changed_books |= self._books_for_field('authors', author_id)
+        self._mark_as_dirty(changed_books)
         return changed_books
 
     # }}}
