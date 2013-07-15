@@ -472,6 +472,10 @@ class LibraryDatabase(object):
     def refresh_ondevice(self):
         self.new_api.refresh_ondevice()
 
+    def tags_older_than(self, tag, delta, must_have_tag=None, must_have_authors=None):
+        for book_id in sorted(self.new_api.tags_older_than(tag, delta=delta, must_have_tag=must_have_tag, must_have_authors=must_have_authors)):
+            yield book_id
+
     # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():

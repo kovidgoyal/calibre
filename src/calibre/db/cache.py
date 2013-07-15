@@ -1280,6 +1280,51 @@ class Cache(object):
     def refresh_ondevice(self):
         self.fields['ondevice'].clear_caches()
 
+    @read_api
+    def tags_older_than(self, tag, delta=None, must_have_tag=None, must_have_authors=None):
+        '''
+        Return the ids of all books having the tag ``tag`` that are older than
+        than the specified time. tag comparison is case insensitive.
+
+        :param delta: A timedelta object or None. If None, then all ids with
+        the tag are returned.
+        :param must_have_tag: If not None the list of matches will be
+        restricted to books that have this tag
+        :param must_have_authors: A list of authors. If not None the list of
+        matches will be restricted to books that have these authors (case
+        insensitive).
+        '''
+        tag_map = {icu_lower(v):k for k, v in self._get_id_map('tags').iteritems()}
+        tag = icu_lower(tag.strip())
+        mht = icu_lower(must_have_tag.strip()) if must_have_tag else None
+        tag_id, mht_id = tag_map.get(tag, None), tag_map.get(mht, None)
+        ans = set()
+        if mht_id is None and mht:
+            return ans
+        if tag_id is not None:
+            tagged_books = self._books_for_field('tags', tag_id)
+            if mht_id is not None and tagged_books:
+                tagged_books = tagged_books.intersection(self._books_for_field('tags', mht_id))
+            if tagged_books:
+                if must_have_authors is not None:
+                    amap = {icu_lower(v):k for k, v in self._get_id_map('authors').iteritems()}
+                    books = None
+                    for author in must_have_authors:
+                        abooks = self._books_for_field('authors', amap.get(icu_lower(author), None))
+                        books = abooks if books is None else books.intersection(abooks)
+                        if not books:
+                            break
+                    tagged_books = tagged_books.intersection(books or set())
+                if delta is None:
+                    ans = tagged_books
+                else:
+                    now = nowf()
+                    for book_id in tagged_books:
+                        ts = self._field_for('timestamp', book_id)
+                        if (now - ts) > delta:
+                            ans.add(book_id)
+        return ans
+
     # }}}
 
 class SortKey(object):  # {{{

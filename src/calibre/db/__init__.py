@@ -107,12 +107,10 @@ Various things that require other things before they can be migrated:
     1. From initialize_dynamic(): set_saved_searches,
                     load_user_template_functions. Also add custom
                     columns/categories/searches info into
-                    self.field_metadata. Finally, implement metadata dirtied
-                    functionality.
+                    self.field_metadata.
     2. Catching DatabaseException and sqlite.Error when creating new
     libraries/switching/on calibre startup.
-    3. From refresh in the legacy interface: Rember to flush the composite
-    column template cache.
+    3. Port library/restore.py
     4. Replace the metadatabackup thread with the new implementation when using the new backend.
     5. In the new API refresh() does not re-read from disk. That might break a
     few things, for example content server reloading on db change as well as

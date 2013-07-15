@@ -153,13 +153,19 @@ class LegacyTest(BaseTest):
     # }}}
 
     def test_legacy_direct(self):  # {{{
-        'Test methods that are directly equivalent in the old and new interface'
+        'Test read-only methods that are directly equivalent in the old and new interface'
         from calibre.ebooks.metadata.book.base import Metadata
+        from datetime import timedelta
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old()
 
         for meth, args in {
             'get_next_series_num_for': [('A Series One',)],
+            '@tags_older_than': [
+                ('News', None), ('Tag One', None), ('xxxx', None), ('Tag One', None, 'News'), ('News', None, 'xxxx'),
+                ('News', None, None, ['xxxxxxx']), ('News', None, 'Tag One', ['Author Two', 'Author One']),
+                ('News', timedelta(0), None, None), ('News', timedelta(100000)),
+            ],
             'format':[(1, 'FMT1', True), (2, 'FMT1', True), (0, 'xxxxxx')],
             'has_format':[(1, 'FMT1', True), (2, 'FMT1', True), (0, 'xxxxxx')],
             '@format_files':[(0,),(1,),(2,)],
@@ -208,13 +214,13 @@ class LegacyTest(BaseTest):
             'books_in_series_of':[(0,), (1,), (2,)],
             'books_with_same_title':[(Metadata(db.title(0)),), (Metadata(db.title(1)),), (Metadata('1234'),)],
         }.iteritems():
+            fmt = lambda x: x
+            if meth[0] in {'!', '@'}:
+                fmt = {'!':dict, '@':frozenset}[meth[0]]
+                meth = meth[1:]
+            elif meth == 'get_authors_with_ids':
+                fmt = lambda val:{x[0]:tuple(x[1:]) for x in val}
             for a in args:
-                fmt = lambda x: x
-                if meth[0] in {'!', '@'}:
-                    fmt = {'!':dict, '@':frozenset}[meth[0]]
-                    meth = meth[1:]
-                elif meth == 'get_authors_with_ids':
-                    fmt = lambda val:{x[0]:tuple(x[1:]) for x in val}
                 self.assertEqual(fmt(getattr(db, meth)(*a)), fmt(getattr(ndb, meth)(*a)),
                                  'The method: %s() returned different results for argument %s' % (meth, a))
         db.close()
