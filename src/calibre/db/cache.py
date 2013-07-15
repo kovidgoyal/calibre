@@ -146,11 +146,18 @@ class Cache(object):
         self.formatter_template_cache = {}
 
     @write_api
-    def refresh(self):
-        self._initialize_template_cache()
+    def clear_caches(self, book_ids=None):
+        self._initialize_template_cache()  # Clear the formatter template cache
         for field in self.fields.itervalues():
-            if hasattr(field, 'clear_cache'):
-                field.clear_cache()  # Clear the composite cache
+            if hasattr(field, 'clear_caches'):
+                field.clear_caches(book_ids=book_ids)  # Clear the composite cache and ondevice caches
+        self.format_metadata_cache.clear()
+
+    @write_api
+    def reload_from_db(self, clear_caches=True):
+        if clear_caches:
+            self._clear_caches()
+        for field in self.fields.itervalues():
             if hasattr(field, 'table'):
                 field.table.read(self.backend)  # Reread data from metadata.db
 
@@ -786,7 +793,7 @@ class Cache(object):
 
         if dirtied and self.composites:
             for name in self.composites:
-                self.fields[name].pop_cache(dirtied)
+                self.fields[name].clear_caches(book_ids=dirtied)
 
         if dirtied and update_path and do_path_update:
             self._update_path(dirtied, mark_as_dirtied=False)
@@ -1263,6 +1270,15 @@ class Cache(object):
     def set_conversion_options(self, options, fmt='PIPE'):
         ''' options must be a map of the form {book_id:conversion_options} '''
         return self.backend.set_conversion_options(options, fmt)
+
+    @write_api
+    def refresh_format_cache(self):
+        self.fields['formats'].table.read(self.backend)
+        self.format_metadata_cache.clear()
+
+    @write_api
+    def refresh_ondevice(self):
+        self.fields['ondevice'].clear_caches()
 
     # }}}
 

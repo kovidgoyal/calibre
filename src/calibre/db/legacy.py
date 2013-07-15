@@ -69,7 +69,7 @@ class LibraryDatabase(object):
         self.get_property = self.data.get_property
 
         self.last_update_check = self.last_modified()
-        self.book_on_device_func = None
+        self.refresh_ids = self.data.refresh_ids
         self.is_case_sensitive = getattr(backend, 'is_case_sensitive', False)
 
     def close(self):
@@ -108,7 +108,7 @@ class LibraryDatabase(object):
 
     def check_if_modified(self):
         if self.last_modified() > self.last_update_check:
-            self.refresh()
+            self.new_api.reload_from_db()
         self.last_update_check = utcnow()
 
     @property
@@ -145,7 +145,6 @@ class LibraryDatabase(object):
         return [(k, v) for k, v in self.new_api.get_id_map(field).iteritems()]
 
     def refresh(self, field=None, ascending=True):
-        self.data.cache.refresh()
         self.data.refresh(field=field, ascending=ascending)
 
     def add_listener(self, listener):
@@ -297,26 +296,18 @@ class LibraryDatabase(object):
             return [(aid, adata[aid]['name'], adata[aid]['sort'], adata[aid]['link']) for aid in authors]
 
     def book_on_device(self, book_id):
-        if callable(self.book_on_device_func):
-            return self.book_on_device_func(book_id)
-        return None
+        with self.new_api.read_lock:
+            return self.new_api.fields['ondevice'].book_on_device(book_id)
 
     def book_on_device_string(self, book_id):
-        loc = []
-        count = 0
-        on = self.book_on_device(book_id)
-        if on is not None:
-            m, a, b, count = on[:4]
-            if m is not None:
-                loc.append(_('Main'))
-            if a is not None:
-                loc.append(_('Card A'))
-            if b is not None:
-                loc.append(_('Card B'))
-        return ', '.join(loc) + ((_(' (%s books)')%count) if count > 1 else '')
+        return self.new_api.field_for('ondevice', book_id)
 
     def set_book_on_device_func(self, func):
-        self.book_on_device_func = func
+        self.new_api.fields['ondevice'].set_book_on_device_func(func)
+
+    @property
+    def book_on_device_func(self):
+        return self.new_api.fields['ondevice'].book_on_device_func
 
     def books_in_series(self, series_id):
         with self.new_api.read_lock:
@@ -473,6 +464,12 @@ class LibraryDatabase(object):
     def has_format(self, index, fmt, index_is_id=False):
         book_id = index if index_is_id else self.id(index)
         return self.new_api.has_format(book_id, fmt)
+
+    def refresh_format_cache(self):
+        self.new_api.refresh_format_cache()
+
+    def refresh_ondevice(self):
+        self.new_api.refresh_ondevice()
 
     # Private interface {{{
     def __iter__(self):

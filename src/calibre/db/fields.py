@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext en'
 from threading import Lock
 from collections import defaultdict, Counter
 
-from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY
+from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY, null
 from calibre.db.write import Writer
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config_base import tweaks
@@ -163,14 +163,13 @@ class CompositeField(OneToOneField):
                 self._render_cache[book_id] = ans
         return ans
 
-    def clear_cache(self):
+    def clear_caches(self, book_ids=None):
         with self._lock:
-            self._render_cache = {}
-
-    def pop_cache(self, book_ids):
-        with self._lock:
-            for book_id in book_ids:
-                self._render_cache.pop(book_id, None)
+            if book_ids is None:
+                self._render_cache.clear()
+            else:
+                for book_id in book_ids:
+                    self._render_cache.pop(book_id, None)
 
     def get_value_with_cache(self, book_id, get_metadata):
         with self._lock:
@@ -218,11 +217,25 @@ class OnDeviceField(OneToOneField):
         self.name = name
         self.book_on_device_func = None
         self.is_multiple = False
+        self.cache = {}
+        self._lock = Lock()
+
+    def clear_caches(self, book_ids=None):
+        with self._lock:
+            if book_ids is None:
+                self.cache.clear()
+            else:
+                for book_id in book_ids:
+                    self.cache.pop(book_id, None)
 
     def book_on_device(self, book_id):
-        if callable(self.book_on_device_func):
-            return self.book_on_device_func(book_id)
-        return None
+        with self._lock:
+            ans = self.cache.get(book_id, null)
+        if ans is null and callable(self.book_on_device_func):
+            ans = self.book_on_device_func(book_id)
+            with self._lock:
+                self.cache[book_id] = ans
+        return None if ans is null else ans
 
     def set_book_on_device_func(self, func):
         self.book_on_device_func = func

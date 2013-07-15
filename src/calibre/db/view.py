@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import weakref
 from functools import partial
 from itertools import izip, imap
+from future_builtins import map
 
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config_base import tweaks
@@ -163,6 +164,7 @@ class View(object):
 
     def id_to_index(self, book_id):
         return self._map.index(book_id)
+    row = index_to_id
 
     def _get(self, field, idx, index_is_id=True, default_value=None, fmt=lambda x:x):
         id_ = idx if index_is_id else self.index_to_id(idx)
@@ -307,8 +309,17 @@ class View(object):
     def refresh(self, field=None, ascending=True):
         self._map = tuple(self.cache.all_book_ids())
         self._map_filtered = tuple(self._map)
+        self.cache.clear_caches()
         if field is not None:
             self.sort(field, ascending)
         if self.search_restriction or self.base_restriction:
             self.search('', return_matches=False)
+
+    def refresh_ids(self, db, ids):
+        self.cache.clear_caches(book_ids=ids)
+        try:
+            return list(map(self.id_to_index, ids))
+        except ValueError:
+            pass
+        return None
 
