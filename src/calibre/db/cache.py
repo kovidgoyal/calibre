@@ -1325,6 +1325,32 @@ class Cache(object):
                             ans.add(book_id)
         return ans
 
+    @write_api
+    def set_sort_for_authors(self, author_id_to_sort_map, update_books=True):
+        self.fields['authors'].table.set_sort_names(author_id_to_sort_map, self.backend)
+        changed_books = set()
+        if update_books:
+            val_map = {}
+            for author_id in author_id_to_sort_map:
+                books = self._books_for_field('authors', author_id)
+                changed_books |= books
+                for book_id in books:
+                    authors = self._field_ids_for('authors', book_id)
+                    adata = self._author_data(authors)
+                    sorts = [adata[x]['sort'] for x in authors]
+                    val_map[book_id] = ' & '.join(sorts)
+            if val_map:
+                self._set_field('author_sort', val_map)
+        return changed_books
+
+    @write_api
+    def set_link_for_authors(self, author_id_to_link_map):
+        self.fields['authors'].table.set_links(author_id_to_link_map, self.backend)
+        changed_books = set()
+        for author_id in author_id_to_link_map:
+            changed_books |= self._books_for_field('authors', author_id)
+        return changed_books
+
     # }}}
 
 class SortKey(object):  # {{{

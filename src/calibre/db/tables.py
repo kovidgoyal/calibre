@@ -293,9 +293,16 @@ class AuthorsTable(ManyToManyTable):
             self.alink_map[row[0]] = row[3]
 
     def set_sort_names(self, aus_map, db):
+        aus_map = {aid:(a or '').strip() for aid, a in aus_map.iteritems()}
         self.asort_map.update(aus_map)
         db.conn.executemany('UPDATE authors SET sort=? WHERE id=?',
             [(v, k) for k, v in aus_map.iteritems()])
+
+    def set_links(self, link_map, db):
+        link_map = {aid:(l or '').strip() for aid, l in link_map.iteritems()}
+        self.alink_map.update(link_map)
+        db.conn.executemany('UPDATE authors SET link=? WHERE id=?',
+            [(v, k) for k, v in link_map.iteritems()])
 
     def remove_books(self, book_ids, db):
         clean = ManyToManyTable.remove_books(self, book_ids, db)

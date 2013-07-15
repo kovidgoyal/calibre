@@ -168,6 +168,7 @@ class LegacyTest(BaseTest):
             ],
             'format':[(1, 'FMT1', True), (2, 'FMT1', True), (0, 'xxxxxx')],
             'has_format':[(1, 'FMT1', True), (2, 'FMT1', True), (0, 'xxxxxx')],
+            'sizeof_format':[(1, 'FMT1', True), (2, 'FMT1', True), (0, 'xxxxxx')],
             '@format_files':[(0,),(1,),(2,)],
             'formats':[(0,),(1,),(2,)],
             'format_hash':[(1, 'FMT1'),(1, 'FMT2'), (2, 'FMT1')],
@@ -341,7 +342,7 @@ class LegacyTest(BaseTest):
             # Obsolete/broken methods
             'author_id',  # replaced by get_author_id
             'books_for_author',  # broken
-            'books_in_old_database',  # unused
+            'books_in_old_database', 'sizeof_old_database',  # unused
             'migrate_old',  # no longer supported
 
             # Internal API
@@ -425,6 +426,8 @@ class LegacyTest(BaseTest):
         from calibre.utils.date import now
         n = now()
         ndb = self.init_legacy(self.cloned_library)
+        amap = ndb.new_api.get_id_map('authors')
+        sorts = [(aid, 's%d' % aid) for aid in amap]
         db = self.init_old(self.cloned_library)
         run_funcs(self, db, ndb, (
             ('+format_metadata', 1, 'FMT1', itemgetter('size')),
@@ -448,7 +451,19 @@ class LegacyTest(BaseTest):
 
             ('update_last_modified', (1,), True, n), ('update_last_modified', (3,), True, n),
             ('metadata_last_modified', 1, True), ('metadata_last_modified', 3, True),
+            ('set_sort_field_for_author', sorts[0][0], sorts[0][1]),
+            ('set_sort_field_for_author', sorts[1][0], sorts[1][1]),
+            ('set_sort_field_for_author', sorts[2][0], sorts[2][1]),
+            ('set_link_field_for_author', sorts[0][0], sorts[0][1]),
+            ('set_link_field_for_author', sorts[1][0], sorts[1][1]),
+            ('set_link_field_for_author', sorts[2][0], sorts[2][1]),
+            (db.refresh,),
+            ('author_sort', 0), ('author_sort', 1), ('author_sort', 2),
         ))
+        omi = [db.get_metadata(x) for x in (0, 1, 2)]
+        nmi = [ndb.get_metadata(x) for x in (0, 1, 2)]
+        self.assertEqual([x.author_sort_map for x in omi], [x.author_sort_map for x in nmi])
+        self.assertEqual([x.author_link_map for x in omi], [x.author_link_map for x in nmi])
 
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old(self.cloned_library)

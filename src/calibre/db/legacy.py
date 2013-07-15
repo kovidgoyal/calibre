@@ -296,6 +296,16 @@ class LibraryDatabase(object):
             adata = self.new_api._author_data(authors)
             return [(aid, adata[aid]['name'], adata[aid]['sort'], adata[aid]['link']) for aid in authors]
 
+    def set_sort_field_for_author(self, old_id, new_sort, commit=True, notify=False):
+        changed_books = self.new_api.set_sort_for_authors({old_id:new_sort})
+        if notify:
+            self.notify('metadata', list(changed_books))
+
+    def set_link_field_for_author(self, aid, link, commit=True, notify=False):
+        changed_books = self.new_api.set_link_for_authors({aid:link})
+        if notify:
+            self.notify('metadata', list(changed_books))
+
     def book_on_device(self, book_id):
         with self.new_api.read_lock:
             return self.new_api.fields['ondevice'].book_on_device(book_id)
@@ -475,6 +485,14 @@ class LibraryDatabase(object):
     def tags_older_than(self, tag, delta, must_have_tag=None, must_have_authors=None):
         for book_id in sorted(self.new_api.tags_older_than(tag, delta=delta, must_have_tag=must_have_tag, must_have_authors=must_have_authors)):
             yield book_id
+
+    def sizeof_format(self, index, fmt, index_is_id=False):
+        book_id = index if index_is_id else self.id(index)
+        return self.new_api.format_metadata(book_id, fmt).get('size', None)
+
+    def get_metadata(self, index, index_is_id=False, get_cover=False, get_user_categories=True, cover_as_data=False):
+        book_id = index if index_is_id else self.id(index)
+        return self.new_api.get_metadata(book_id, get_cover=get_cover, get_user_categories=get_user_categories, cover_as_data=cover_as_data)
 
     # Private interface {{{
     def __iter__(self):
