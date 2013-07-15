@@ -1353,6 +1353,11 @@ class Cache(object):
         self._mark_as_dirty(changed_books)
         return changed_books
 
+    @read_api
+    def lookup_by_uuid(self, uuid):
+        return self.fields['uuid'].table.lookup_by_uuid(uuid)
+
+
     # }}}
 
 class SortKey(object):  # {{{

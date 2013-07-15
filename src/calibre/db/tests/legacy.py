@@ -163,6 +163,7 @@ class LegacyTest(BaseTest):
 
         for meth, args in {
             'get_next_series_num_for': [('A Series One',)],
+            'get_id_from_uuid':[('ddddd',), (db.uuid(1, True),)],
             'get_author_id': [('author one',), ('unknown',), ('xxxxx',)],
             'series_id': [(0,), (1,), (2,)],
             'publisher_id': [(0,), (1,), (2,)],

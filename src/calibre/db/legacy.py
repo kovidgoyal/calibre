@@ -153,6 +153,10 @@ class LibraryDatabase(object):
     def refresh(self, field=None, ascending=True):
         self.data.refresh(field=field, ascending=ascending)
 
+    def get_id_from_uuid(self, uuid):
+        if uuid:
+            return self.new_api.lookup_by_uuid(uuid)
+
     def add_listener(self, listener):
         '''
         Add a listener. Will be called on change events with two arguments.

@@ -137,6 +137,9 @@ class UUIDTable(OneToOneTable):
                 clean.add(val)
         return clean
 
+    def lookup_by_uuid(self, uuid):
+        return self.uuid_to_id_map.get(uuid, None)
+
 class CompositeTable(OneToOneTable):
 
     def read(self, db):
