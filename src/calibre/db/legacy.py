@@ -150,6 +150,12 @@ class LibraryDatabase(object):
     def field_id_map(self, field):
         return [(k, v) for k, v in self.new_api.get_id_map(field).iteritems()]
 
+    def get_custom_items_with_ids(self, label=None, num=None):
+        try:
+            return [[k, v] for k, v in self.new_api.get_id_map(self.custom_field_name(label, num)).iteritems()]
+        except ValueError:
+            return []
+
     def refresh(self, field=None, ascending=True):
         self.data.refresh(field=field, ascending=ascending)
 

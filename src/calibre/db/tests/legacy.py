@@ -48,9 +48,10 @@ def run_funcs(self, db, ndb, funcs):
             meth(*args)
         else:
             fmt = lambda x:x
-            if meth[0] in {'!', '@', '#', '+'}:
+            if meth[0] in {'!', '@', '#', '+', '$'}:
                 if meth[0] != '+':
-                    fmt = {'!':dict, '@':lambda x:frozenset(x or ()), '#':lambda x:set((x or '').split(','))}[meth[0]]
+                    fmt = {'!':dict, '@':lambda x:frozenset(x or ()), '#':lambda x:set((x or '').split(',')),
+                           '$':lambda x:set(tuple(y) for y in x)}[meth[0]]
                 else:
                     fmt = args[-1]
                     args = args[:-1]
@@ -611,10 +612,9 @@ class LegacyTest(BaseTest):
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old(self.cloned_library)
         run_funcs(self, db, ndb, (
-            ('all_custom', 'series'),
-            ('all_custom', 'tags'),
-            ('all_custom', 'rating'),
-            ('all_custom', 'authors'),
+            ('all_custom', 'series'), ('all_custom', 'tags'), ('all_custom', 'rating'), ('all_custom', 'authors'),
+            ('$get_custom_items_with_ids', 'series'), ('$get_custom_items_with_ids', 'tags'), ('$get_custom_items_with_ids', 'float'),
+            ('$get_custom_items_with_ids', 'rating'), ('$get_custom_items_with_ids', 'authors'),
         ))
     # }}}
 
