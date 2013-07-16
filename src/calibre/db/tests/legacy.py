@@ -359,7 +359,8 @@ class LegacyTest(BaseTest):
             'run_import_plugins', 'vacuum', 'set_path', 'row', 'row_factory', 'rows', 'rmtree', 'series_index_pat',
             'import_old_database', 'dirtied_lock', 'dirtied_cache', 'dirty_queue_length', 'dirty_books_referencing',
             'windows_check_if_files_in_use', 'get_metadata_for_dump', 'get_a_dirtied_book', 'dirtied_sequence',
-            'format_filename_cache', 'format_metadata_cache', 'filter', 'create_version1', 'normpath',
+            'format_filename_cache', 'format_metadata_cache', 'filter', 'create_version1', 'normpath', 'custom_data_adapters',
+            'custom_table_names', 'custom_columns_in_meta', 'custom_tables',
         }
         SKIP_ARGSPEC = {
             '__init__',

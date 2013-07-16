@@ -65,14 +65,13 @@ class LibraryDatabase(object):
         cache.init()
         self.data = View(cache)
         self.id = self.data.index_to_id
-        self.count = self.data.count
+        for x in ('get_property', 'count', 'refresh_ids', 'set_marked_ids',
+                  'multisort', 'search', 'search_getting_ids'):
+            setattr(self, x, getattr(self.data, x))
 
-        self.get_property = self.data.get_property
+        self.is_case_sensitive = getattr(backend, 'is_case_sensitive', False)
 
         self.last_update_check = self.last_modified()
-        self.refresh_ids = self.data.refresh_ids
-        self.set_marked_ids = self.data.set_marked_ids
-        self.is_case_sensitive = getattr(backend, 'is_case_sensitive', False)
 
     def close(self):
         self.backend.close()
@@ -282,6 +281,9 @@ class LibraryDatabase(object):
     def get_ids_for_custom_book_data(self, name):
         return list(self.new_api.get_ids_for_custom_book_data(name))
     # }}}
+
+    def sort(self, field, ascending, subsort=False):
+        self.multisort([(field, ascending)])
 
     def get_field(self, index, key, default=None, index_is_id=False):
         book_id = index if index_is_id else self.id(index)
