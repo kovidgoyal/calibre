@@ -227,12 +227,14 @@ class ManyToOneTable(Table):
         existing_item = rmap.get(icu_lower(new_name), None)
         table, col, lcol = self.metadata['table'], self.metadata['column'], self.metadata['link_column']
         affected_books = self.col_book_map.get(item_id, set())
+        new_id = item_id
         if existing_item is None or existing_item == item_id:
             # A simple rename will do the trick
             self.id_map[item_id] = new_name
             db.conn.execute('UPDATE {0} SET {1}=? WHERE id=?'.format(table, col), (new_name, item_id))
         else:
             # We have to replace
+            new_id = existing_item
             self.id_map.pop(item_id, None)
             books = self.col_book_map.pop(item_id, set())
             for book_id in books:
@@ -243,7 +245,7 @@ class ManyToOneTable(Table):
             # handle that in this context.
             db.conn.execute('UPDATE {0} SET {1}=? WHERE {1}=?; DELETE FROM {2} WHERE id=?'.format(
                 self.link_table, lcol, table), (existing_item, item_id, item_id))
-        return affected_books
+        return affected_books, new_id
 
 class ManyToManyTable(ManyToOneTable):
 
@@ -311,12 +313,14 @@ class ManyToManyTable(ManyToOneTable):
         existing_item = rmap.get(icu_lower(new_name), None)
         table, col, lcol = self.metadata['table'], self.metadata['column'], self.metadata['link_column']
         affected_books = self.col_book_map.get(item_id, set())
+        new_id = item_id
         if existing_item is None or existing_item == item_id:
             # A simple rename will do the trick
             self.id_map[item_id] = new_name
             db.conn.execute('UPDATE {0} SET {1}=? WHERE id=?'.format(table, col), (new_name, item_id))
         else:
             # We have to replace
+            new_id = existing_item
             self.id_map.pop(item_id, None)
             books = self.col_book_map.pop(item_id, set())
             # Replacing item_id with existing_item could cause the same id to
@@ -329,7 +333,7 @@ class ManyToManyTable(ManyToOneTable):
                 (book_id, existing_item) for book_id in books])
             db.conn.execute('UPDATE {0} SET {1}=? WHERE {1}=?; DELETE FROM {2} WHERE id=?'.format(
                 self.link_table, lcol, table), (existing_item, item_id, item_id))
-        return affected_books
+        return affected_books, new_id
 
 
 class AuthorsTable(ManyToManyTable):

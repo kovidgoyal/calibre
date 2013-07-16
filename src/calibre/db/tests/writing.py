@@ -481,9 +481,9 @@ class WritingTest(BaseTest):
         cache = self.init_cache(cl)
         # Check that renaming authors updates author sort and path
         a = {v:k for k, v in cache.get_id_map('authors').iteritems()}['Unknown']
-        self.assertEqual(cache.rename_items('authors', {a:'New Author'}), {3})
+        self.assertEqual(cache.rename_items('authors', {a:'New Author'})[0], {3})
         a = {v:k for k, v in cache.get_id_map('authors').iteritems()}['Author One']
-        self.assertEqual(cache.rename_items('authors', {a:'Author Two'}), {1, 2})
+        self.assertEqual(cache.rename_items('authors', {a:'Author Two'})[0], {1, 2})
         for c in (cache, self.init_cache(cl)):
             self.assertEqual(c.all_field_names('authors'), {'New Author', 'Author Two'})
             self.assertEqual(c.field_for('author_sort', 3), 'Author, New')
@@ -493,26 +493,26 @@ class WritingTest(BaseTest):
 
         t = {v:k for k, v in cache.get_id_map('tags').iteritems()}['Tag One']
         # Test case change
-        self.assertEqual(cache.rename_items('tags', {t:'tag one'}), {1, 2})
+        self.assertEqual(cache.rename_items('tags', {t:'tag one'}), ({1, 2}, {t:t}))
         for c in (cache, self.init_cache(cl)):
             self.assertEqual(c.all_field_names('tags'), {'tag one', 'Tag Two', 'News'})
             self.assertEqual(set(c.field_for('tags', 1)), {'tag one', 'News'})
             self.assertEqual(set(c.field_for('tags', 2)), {'tag one', 'Tag Two'})
         # Test new name
-        self.assertEqual(cache.rename_items('tags', {t:'t1'}), {1,2})
+        self.assertEqual(cache.rename_items('tags', {t:'t1'})[0], {1,2})
         for c in (cache, self.init_cache(cl)):
             self.assertEqual(c.all_field_names('tags'), {'t1', 'Tag Two', 'News'})
             self.assertEqual(set(c.field_for('tags', 1)), {'t1', 'News'})
             self.assertEqual(set(c.field_for('tags', 2)), {'t1', 'Tag Two'})
         # Test rename to existing
-        self.assertEqual(cache.rename_items('tags', {t:'Tag Two'}), {1,2})
+        self.assertEqual(cache.rename_items('tags', {t:'Tag Two'})[0], {1,2})
         for c in (cache, self.init_cache(cl)):
             self.assertEqual(c.all_field_names('tags'), {'Tag Two', 'News'})
             self.assertEqual(set(c.field_for('tags', 1)), {'Tag Two', 'News'})
             self.assertEqual(set(c.field_for('tags', 2)), {'Tag Two'})
         # Test on a custom column
         t = {v:k for k, v in cache.get_id_map('#tags').iteritems()}['My Tag One']
-        self.assertEqual(cache.rename_items('#tags', {t:'My Tag Two'}), {2})
+        self.assertEqual(cache.rename_items('#tags', {t:'My Tag Two'})[0], {2})
         for c in (cache, self.init_cache(cl)):
             self.assertEqual(c.all_field_names('#tags'), {'My Tag Two'})
             self.assertEqual(set(c.field_for('#tags', 2)), {'My Tag Two'})
@@ -520,14 +520,14 @@ class WritingTest(BaseTest):
         # Test a Many-one field
         s = {v:k for k, v in cache.get_id_map('series').iteritems()}['A Series One']
         # Test case change
-        self.assertEqual(cache.rename_items('series', {s:'a series one'}), {1, 2})
+        self.assertEqual(cache.rename_items('series', {s:'a series one'}), ({1, 2}, {s:s}))
         for c in (cache, self.init_cache(cl)):
             self.assertEqual(c.all_field_names('series'), {'a series one'})
             self.assertEqual(c.field_for('series', 1), 'a series one')
             self.assertEqual(c.field_for('series_index', 1), 2.0)
 
         # Test new name
-        self.assertEqual(cache.rename_items('series', {s:'series'}), {1, 2})
+        self.assertEqual(cache.rename_items('series', {s:'series'})[0], {1, 2})
         for c in (cache, self.init_cache(cl)):
             self.assertEqual(c.all_field_names('series'), {'series'})
             self.assertEqual(c.field_for('series', 1), 'series')
@@ -536,7 +536,7 @@ class WritingTest(BaseTest):
 
         s = {v:k for k, v in cache.get_id_map('#series').iteritems()}['My Series One']
         # Test custom column with rename to existing
-        self.assertEqual(cache.rename_items('#series', {s:'My Series Two'}), {2})
+        self.assertEqual(cache.rename_items('#series', {s:'My Series Two'})[0], {2})
         for c in (cache, self.init_cache(cl)):
             self.assertEqual(c.all_field_names('#series'), {'My Series Two'})
             self.assertEqual(c.field_for('#series', 2), 'My Series Two')

@@ -1229,8 +1229,11 @@ class Cache(object):
         except AttributeError:
             raise ValueError('Cannot rename items for one-one fields: %s' % field)
         affected_books = set()
+        id_map = {}
         for item_id, new_name in item_id_to_new_name_map.iteritems():
-            affected_books.update(func(item_id, new_name, self.backend))
+            books, new_id = func(item_id, new_name, self.backend)
+            affected_books.update(books)
+            id_map[item_id] = new_id
         if affected_books:
             if field == 'authors':
                 self._set_field('author_sort',  # also marks as dirty
@@ -1238,7 +1241,7 @@ class Cache(object):
                 self._update_path(affected_books, mark_as_dirtied=False)
             else:
                 self._mark_as_dirty(affected_books)
-        return affected_books
+        return affected_books, id_map
 
     @write_api
     def remove_items(self, field, item_ids):
