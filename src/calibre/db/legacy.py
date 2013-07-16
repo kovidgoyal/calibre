@@ -290,10 +290,7 @@ class LibraryDatabase(object):
 
     def authors_sort_strings(self, index, index_is_id=False):
         book_id = index if index_is_id else self.id(index)
-        with self.new_api.read_lock:
-            authors = self.new_api._field_ids_for('authors', book_id)
-            adata = self.new_api._author_data(authors)
-            return [adata[aid]['sort'] for aid in authors]
+        return list(self.author_sort_strings_for_books.canonical_author_sort_for_books((book_id,))[book_id])
 
     def author_sort_from_book(self, index, index_is_id=False):
         return ' & '.join(self.authors_sort_strings(index, index_is_id=index_is_id))

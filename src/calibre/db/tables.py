@@ -222,6 +222,29 @@ class ManyToOneTable(Table):
         db.conn.executemany('DELETE FROM {0} WHERE id=?'.format(self.metadata['table']), item_ids)
         return affected_books
 
+    def rename_item(self, item_id, new_name, db):
+        rmap = {icu_lower(v):k for k, v in self.id_map.iteritems()}
+        existing_item = rmap.get(icu_lower(new_name), None)
+        table, col, lcol = self.metadata['table'], self.metadata['column'], self.metadata['link_column']
+        affected_books = self.col_book_map.get(item_id, set())
+        if existing_item is None or existing_item == item_id:
+            # A simple rename will do the trick
+            self.id_map[item_id] = new_name
+            db.conn.execute('UPDATE {0} SET {1}=? WHERE id=?'.format(table, col), (new_name, item_id))
+        else:
+            # We have to replace
+            self.id_map.pop(item_id, None)
+            books = self.col_book_map.pop(item_id, set())
+            for book_id in books:
+                self.book_col_map[book_id] = existing_item
+            self.col_book_map[existing_item].update(books)
+            # For custom series this means that the series index can
+            # potentially have duplicates/be incorrect, but there is no way to
+            # handle that in this context.
+            db.conn.execute('UPDATE {0} SET {1}=? WHERE {1}=?; DELETE FROM {2} WHERE id=?'.format(
+                self.link_table, lcol, table), (existing_item, item_id, item_id))
+        return affected_books
+
 class ManyToManyTable(ManyToOneTable):
 
     '''
@@ -283,6 +306,32 @@ class ManyToManyTable(ManyToOneTable):
         db.conn.executemany('DELETE FROM {0} WHERE id=?'.format(self.metadata['table']), item_ids)
         return affected_books
 
+    def rename_item(self, item_id, new_name, db):
+        rmap = {icu_lower(v):k for k, v in self.id_map.iteritems()}
+        existing_item = rmap.get(icu_lower(new_name), None)
+        table, col, lcol = self.metadata['table'], self.metadata['column'], self.metadata['link_column']
+        affected_books = self.col_book_map.get(item_id, set())
+        if existing_item is None or existing_item == item_id:
+            # A simple rename will do the trick
+            self.id_map[item_id] = new_name
+            db.conn.execute('UPDATE {0} SET {1}=? WHERE id=?'.format(table, col), (new_name, item_id))
+        else:
+            # We have to replace
+            self.id_map.pop(item_id, None)
+            books = self.col_book_map.pop(item_id, set())
+            # Replacing item_id with existing_item could cause the same id to
+            # appear twice in the book list. Handle that by removing existing
+            # item from the book list before replacing.
+            for book_id in books:
+                self.book_col_map[book_id] = tuple((existing_item if x == item_id else x) for x in self.book_col_map.get(book_id, ()) if x != existing_item)
+            self.col_book_map[existing_item].update(books)
+            db.conn.executemany('DELETE FROM {0} WHERE book=? AND {1}=?'.format(self.link_table, lcol), [
+                (book_id, existing_item) for book_id in books])
+            db.conn.execute('UPDATE {0} SET {1}=? WHERE {1}=?; DELETE FROM {2} WHERE id=?'.format(
+                self.link_table, lcol, table), (existing_item, item_id, item_id))
+        return affected_books
+
+
 class AuthorsTable(ManyToManyTable):
 
     def read_id_maps(self, db):
@@ -313,6 +362,17 @@ class AuthorsTable(ManyToManyTable):
             self.alink_map.pop(item_id, None)
             self.asort_map.pop(item_id, None)
         return clean
+
+    def rename_item(self, item_id, new_name, db):
+        ret = ManyToManyTable.rename_item(self, item_id, new_name, db)
+        if item_id not in self.id_map:
+            self.alink_map.pop(item_id, None)
+            self.asort_map.pop(item_id, None)
+        else:
+            # Was a simple rename, update the author sort value
+            self.set_sort_names({item_id:author_to_author_sort(new_name)}, db)
+
+        return ret
 
     def remove_items(self, item_ids, db):
         raise ValueError('Direct removal of authors is not allowed')
@@ -377,6 +437,9 @@ class FormatsTable(ManyToManyTable):
     def remove_items(self, item_ids, db):
         raise NotImplementedError('Cannot delete a format directly')
 
+    def rename_item(self, item_id, new_name, db):
+        raise NotImplementedError('Cannot rename formats')
+
     def update_fmt(self, book_id, fmt, fname, size, db):
         fmts = list(self.book_col_map.get(book_id, []))
         try:
@@ -429,6 +492,9 @@ class IdentifiersTable(ManyToManyTable):
 
     def remove_items(self, item_ids, db):
         raise NotImplementedError('Direct deletion of identifiers is not implemented')
+
+    def rename_item(self, item_id, new_name, db):
+        raise NotImplementedError('Cannot rename identifiers')
 
     def all_identifier_types(self):
         return frozenset(k for k, v in self.col_book_map.iteritems() if v)

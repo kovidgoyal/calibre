@@ -1213,6 +1213,33 @@ class Cache(object):
             else:
                 table.remove_books(book_ids, self.backend)
 
+    @read_api
+    def author_sort_strings_for_books(self, book_ids):
+        val_map = {}
+        for book_id in book_ids:
+            authors = self._field_ids_for('authors', book_id)
+            adata = self._author_data(authors)
+            val_map[book_id] = tuple(adata[aid]['sort'] for aid in authors)
+        return val_map
+
+    @write_api
+    def rename_items(self, field, item_id_to_new_name_map):
+        try:
+            func = self.fields[field].table.rename_item
+        except AttributeError:
+            raise ValueError('Cannot rename items for one-one fields: %s' % field)
+        affected_books = set()
+        for item_id, new_name in item_id_to_new_name_map.iteritems():
+            affected_books.update(func(item_id, new_name, self.backend))
+        if affected_books:
+            if field == 'authors':
+                self._set_field('author_sort',  # also marks as dirty
+                                {k:' & '.join(v) for k, v in self._author_sort_strings_for_books(affected_books).iteritems()})
+                self._update_path(affected_books, mark_as_dirtied=False)
+            else:
+                self._mark_as_dirty(affected_books)
+        return affected_books
+
     @write_api
     def remove_items(self, field, item_ids):
         ''' Delete all items in the specified field with the specified ids. Returns the set of affected book ids. '''
