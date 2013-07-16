@@ -30,7 +30,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import (base_dir, PersistentTemporaryFile,
                                SpooledTemporaryFile)
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import now as nowf, utcnow, UNDEFINED_DATE
 from calibre.utils.icu import sort_key
 
@@ -1100,16 +1100,16 @@ class Cache(object):
         self._update_last_modified(tuple(formats_map.iterkeys()))
 
     @read_api
-    def get_next_series_num_for(self, series):
+    def get_next_series_num_for(self, series, field='series'):
         books = ()
-        sf = self.fields['series']
+        sf = self.fields[field]
         if series:
             q = icu_lower(series)
-            for val, book_ids in sf.iter_searchable_values(self._get_metadata, frozenset(self.all_book_ids())):
+            for val, book_ids in sf.iter_searchable_values(self._get_metadata, frozenset(self._all_book_ids())):
                 if q == icu_lower(val):
                     books = book_ids
                     break
-        series_indices = sorted(self._field_for('series_index', book_id) for book_id in books)
+        series_indices = sorted(self._field_for(sf.index_field.name, book_id) for book_id in books)
         return _get_next_series_num_for_list(tuple(series_indices), unwrap=False)
 
     @read_api
@@ -1223,24 +1223,30 @@ class Cache(object):
         return val_map
 
     @write_api
-    def rename_items(self, field, item_id_to_new_name_map):
+    def rename_items(self, field, item_id_to_new_name_map, change_index=True):
+        f = self.fields[field]
         try:
-            func = self.fields[field].table.rename_item
+            func = f.table.rename_item
         except AttributeError:
             raise ValueError('Cannot rename items for one-one fields: %s' % field)
         affected_books = set()
+        moved_books = set()
         id_map = {}
         for item_id, new_name in item_id_to_new_name_map.iteritems():
             books, new_id = func(item_id, new_name, self.backend)
             affected_books.update(books)
             id_map[item_id] = new_id
+            if new_id != item_id:
+                moved_books.update(books)
         if affected_books:
             if field == 'authors':
-                self._set_field('author_sort',  # also marks as dirty
+                self._set_field('author_sort',
                                 {k:' & '.join(v) for k, v in self._author_sort_strings_for_books(affected_books).iteritems()})
                 self._update_path(affected_books, mark_as_dirtied=False)
-            else:
-                self._mark_as_dirty(affected_books)
+            elif change_index and hasattr(f, 'index_field') and tweaks['series_index_auto_increment'] != 'no_change':
+                for book_id in moved_books:
+                    self._set_field(f.index_field.name, {book_id:self._get_next_series_num_for(self._field_for(field, book_id), field=field)})
+            self._mark_as_dirty(affected_books)
         return affected_books, id_map
 
     @write_api

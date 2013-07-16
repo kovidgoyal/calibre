@@ -541,5 +541,5 @@ class WritingTest(BaseTest):
             self.assertEqual(c.all_field_names('#series'), {'My Series Two'})
             self.assertEqual(c.field_for('#series', 2), 'My Series Two')
             self.assertEqual(c.field_for('#series_index', 1), 3.0)
-            self.assertEqual(c.field_for('#series_index', 2), 1.0)
+            self.assertEqual(c.field_for('#series_index', 2), 4.0)
     # }}}

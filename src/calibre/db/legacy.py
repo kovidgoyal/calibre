@@ -290,7 +290,7 @@ class LibraryDatabase(object):
 
     def authors_sort_strings(self, index, index_is_id=False):
         book_id = index if index_is_id else self.id(index)
-        return list(self.author_sort_strings_for_books.canonical_author_sort_for_books((book_id,))[book_id])
+        return list(self.new_api.author_sort_strings_for_books((book_id,))[book_id])
 
     def author_sort_from_book(self, index, index_is_id=False):
         return ' & '.join(self.authors_sort_strings(index, index_is_id=index_is_id))
@@ -500,6 +500,9 @@ class LibraryDatabase(object):
         book_id = index if index_is_id else self.id(index)
         return self.new_api.get_metadata(book_id, get_cover=get_cover, get_user_categories=get_user_categories, cover_as_data=cover_as_data)
 
+    def rename_series(self, old_id, new_name, change_index=True):
+        self.new_api.rename_items('series', {old_id:new_name}, change_index=change_index)
+
     # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():
@@ -581,6 +584,16 @@ for field in (
                 return ret if field == 'languages' else retval
         return func
     setattr(LibraryDatabase, 'set_%s' % field.replace('!', ''), MT(setter(field)))
+
+for field in ('authors', 'tags', 'publisher'):
+    def renamer(field):
+        def func(self, old_id, new_name):
+            id_map = self.new_api.rename_items(field, {old_id:new_name})[1]
+            if field == 'authors':
+                return id_map[old_id]
+        return func
+    fname = field[:-1] if field in {'tags', 'authors'} else field
+    setattr(LibraryDatabase, 'rename_%s' % fname, MT(renamer(field)))
 
 LibraryDatabase.update_last_modified = MT(
     lambda self, book_ids, commit=False, now=None: self.new_api.update_last_modified(book_ids, now=now))

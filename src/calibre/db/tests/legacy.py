@@ -472,6 +472,7 @@ class LegacyTest(BaseTest):
         nmi = [ndb.get_metadata(x) for x in (0, 1, 2)]
         self.assertEqual([x.author_sort_map for x in omi], [x.author_sort_map for x in nmi])
         self.assertEqual([x.author_link_map for x in omi], [x.author_link_map for x in nmi])
+        db.close()
 
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old(self.cloned_library)
@@ -554,6 +555,7 @@ class LegacyTest(BaseTest):
             ('@all_tags',),
             ('#tags', 0), ('#tags', 1), ('#tags', 2),
         ))
+        db.close()
 
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old(self.cloned_library)
@@ -563,6 +565,31 @@ class LegacyTest(BaseTest):
             ('@all_tags',),
             ('@tags', 0), ('@tags', 1), ('@tags', 2),
         ))
+        db.close()
+
+        ndb = self.init_legacy(self.cloned_library)
+        db = self.init_old(self.cloned_library)
+        a = {v:k for k, v in ndb.new_api.get_id_map('authors').iteritems()}['Author One']
+        t = {v:k for k, v in ndb.new_api.get_id_map('tags').iteritems()}['Tag One']
+        s = {v:k for k, v in ndb.new_api.get_id_map('series').iteritems()}['A Series One']
+        p = {v:k for k, v in ndb.new_api.get_id_map('publisher').iteritems()}['Publisher One']
+        run_funcs(self, db, ndb, (
+            ('rename_author', a, 'Author Two'),
+            ('rename_tag', t, 'News'),
+            ('rename_series', s, 'ss'),
+            ('rename_publisher', p, 'publisher one'),
+            (db.clean,),
+            (db.refresh,),
+            ('@all_tags',),
+            ('tags', 0), ('tags', 1), ('tags', 2),
+            ('series', 0), ('series', 1), ('series', 2),
+            ('publisher', 0), ('publisher', 1), ('publisher', 2),
+            ('series_index', 0), ('series_index', 1), ('series_index', 2),
+            ('authors', 0), ('authors', 1), ('authors', 2),
+            ('author_sort', 0), ('author_sort', 1), ('author_sort', 2),
+        ))
+        db.close()
+
 
 
     # }}}
