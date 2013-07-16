@@ -70,6 +70,7 @@ class LibraryDatabase(object):
             setattr(self, x, getattr(self.data, x))
 
         self.is_case_sensitive = getattr(backend, 'is_case_sensitive', False)
+        self.custom_field_name = backend.custom_field_name
 
         self.last_update_check = self.last_modified()
 
@@ -637,7 +638,8 @@ for field in ('authors', 'tags', 'publisher', 'series'):
         return func
     name = field[:-1] if field in {'authors', 'tags'} else field
     setattr(LibraryDatabase, 'all_%s_names' % name, MT(getter(field)))
-    LibraryDatabase.all_formats = MT(lambda self:self.new_api.all_field_names('formats'))
+LibraryDatabase.all_formats = MT(lambda self:self.new_api.all_field_names('formats'))
+LibraryDatabase.all_custom = MT(lambda self, label=None, num=None:self.new_api.all_field_names(self.custom_field_name(label, num)))
 
 for func, field in {'all_authors':'authors', 'all_titles':'title', 'all_tags2':'tags', 'all_series':'series', 'all_publishers':'publisher'}.iteritems():
     def getter(field):

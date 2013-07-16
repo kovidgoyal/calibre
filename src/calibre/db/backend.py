@@ -549,6 +549,7 @@ class DB(object):
 
         # Load metadata for custom columns
         self.custom_column_label_map, self.custom_column_num_map = {}, {}
+        self.custom_column_num_to_label_map = {}
         triggers = []
         remove = []
         custom_tables = self.custom_tables
@@ -586,6 +587,7 @@ class DB(object):
 
             self.custom_column_num_map[data['num']] = \
                 self.custom_column_label_map[data['label']] = data
+            self.custom_column_num_to_label_map[data['num']] = data['label']
 
             # Create Foreign Key triggers
             if data['normalized']:
@@ -784,6 +786,11 @@ class DB(object):
                 os.remove(self.dbpath)
                 self._conn = Connection(self.dbpath)
         return self._conn
+
+    def custom_field_name(self, label=None, num=None):
+        if label is not None:
+            return self.field_metadata.custom_field_prefix + label
+        return self.field_metadata.custom_field_prefix + self.custom_column_num_to_label_map[num]
 
     def close(self):
         if self._conn is not None:

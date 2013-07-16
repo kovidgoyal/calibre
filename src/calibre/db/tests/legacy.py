@@ -604,7 +604,17 @@ class LegacyTest(BaseTest):
         ))
         db.close()
 
+    # }}}
 
-
+    def test_legacy_custom(self):  # {{{
+        'Test the legacy API for custom columns'
+        ndb = self.init_legacy(self.cloned_library)
+        db = self.init_old(self.cloned_library)
+        run_funcs(self, db, ndb, (
+            ('all_custom', 'series'),
+            ('all_custom', 'tags'),
+            ('all_custom', 'rating'),
+            ('all_custom', 'authors'),
+        ))
     # }}}
 
