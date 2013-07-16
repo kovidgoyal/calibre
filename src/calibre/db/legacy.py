@@ -294,6 +294,23 @@ class LibraryDatabase(object):
         book_id = index if index_is_id else self.id(index)
         return self.new_api.cover_last_modified(book_id) or self.last_modified()
 
+    def cover(self, index, index_is_id=False, as_file=False, as_image=False, as_path=False):
+        book_id = index if index_is_id else self.id(index)
+        return self.new_api.cover(book_id, as_file=as_file, as_image=as_image, as_path=as_path)
+
+    def copy_cover_to(self, index, dest, index_is_id=False, windows_atomic_move=None, use_hardlink=False):
+        book_id = index if index_is_id else self.id(index)
+        return self.new_api.copy_cover_to(book_id, dest, use_hardlink=use_hardlink)
+
+    def copy_format_to(self, index, fmt, dest, index_is_id=False, windows_atomic_move=None, use_hardlink=False):
+        book_id = index if index_is_id else self.id(index)
+        return self.new_api.copy_format_to(book_id, fmt, dest, use_hardlink=use_hardlink)
+
+    def delete_book(self, book_id, notify=True, commit=True, permanent=False, do_clean=True):
+        self.new_api.remove_books((book_id,), permanent=permanent)
+        if notify:
+            self.notify('delete', [id])
+
     def authors_sort_strings(self, index, index_is_id=False):
         book_id = index if index_is_id else self.id(index)
         return list(self.new_api.author_sort_strings_for_books((book_id,))[book_id])

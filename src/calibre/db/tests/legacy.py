@@ -164,6 +164,7 @@ class LegacyTest(BaseTest):
         for meth, args in {
             'get_next_series_num_for': [('A Series One',)],
             'get_id_from_uuid':[('ddddd',), (db.uuid(1, True),)],
+            'cover':[(0,), (1,), (2,)],
             'get_author_id': [('author one',), ('unknown',), ('xxxxx',)],
             'series_id': [(0,), (1,), (2,)],
             'publisher_id': [(0,), (1,), (2,)],
@@ -231,6 +232,14 @@ class LegacyTest(BaseTest):
             for a in args:
                 self.assertEqual(fmt(getattr(db, meth)(*a)), fmt(getattr(ndb, meth)(*a)),
                                  'The method: %s() returned different results for argument %s' % (meth, a))
+        d1, d2 = BytesIO(), BytesIO()
+        db.copy_cover_to(1, d1, True)
+        ndb.copy_cover_to(1, d2, True)
+        self.assertTrue(d1.getvalue() == d2.getvalue())
+        d1, d2 = BytesIO(), BytesIO()
+        db.copy_format_to(1, 'FMT1', d1, True)
+        ndb.copy_format_to(1, 'FMT1', d2, True)
+        self.assertTrue(d1.getvalue() == d2.getvalue())
         db.close()
         # }}}
 
@@ -275,7 +284,7 @@ class LegacyTest(BaseTest):
     # }}}
 
     def test_legacy_adding_books(self):  # {{{
-        'Test various adding books methods'
+        'Test various adding/deleting books methods'
         from calibre.ebooks.metadata.book.base import Metadata
         legacy, old = self.init_legacy(self.cloned_library), self.init_old(self.cloned_library)
         mi = Metadata('Added Book0', authors=('Added Author',))
@@ -332,6 +341,9 @@ class LegacyTest(BaseTest):
             self.assertEqual(cache.field_for('authors', bid), ('calibre',))
             self.assertEqual(cache.field_for('tags', bid), (_('News'), 'Events', 'one', 'two'))
 
+        legacy.delete_book(1)
+        old.delete_book(1)
+        self.assertNotIn(1, legacy.all_ids())
         old.close()
     # }}}
 
