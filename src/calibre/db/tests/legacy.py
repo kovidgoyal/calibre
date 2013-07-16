@@ -344,6 +344,7 @@ class LegacyTest(BaseTest):
         legacy.delete_book(1)
         old.delete_book(1)
         self.assertNotIn(1, legacy.all_ids())
+        legacy.dump_metadata((2,3))
         old.close()
     # }}}
 

@@ -311,6 +311,12 @@ class LibraryDatabase(object):
         if notify:
             self.notify('delete', [id])
 
+    def dirtied(self, book_ids, commit=True):
+        self.new_api.mark_as_dirty(book_ids)
+
+    def dump_metadata(self, book_ids=None, remove_from_dirtied=True, commit=True, callback=None):
+        self.new_api.dump_metadata(book_ids=book_ids, remove_from_dirtied=remove_from_dirtied, callback=callback)
+
     def authors_sort_strings(self, index, index_is_id=False):
         book_id = index if index_is_id else self.id(index)
         return list(self.new_api.author_sort_strings_for_books((book_id,))[book_id])
