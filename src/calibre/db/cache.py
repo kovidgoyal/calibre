@@ -527,6 +527,14 @@ class Cache(object):
         return ret
 
     @read_api
+    def cover_last_modified(self, book_id):
+        try:
+            path = self._field_for('path', book_id).replace('/', os.sep)
+        except AttributeError:
+            return
+        return self.backend.cover_last_modified(path)
+
+    @read_api
     def copy_cover_to(self, book_id, dest, use_hardlink=False):
         '''
         Copy the cover to the file like object ``dest``. Returns False

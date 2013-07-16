@@ -963,6 +963,13 @@ class DB(object):
                 import traceback
                 traceback.print_exc()
 
+    def cover_last_modified(self, path):
+        path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
+        try:
+            return utcfromtimestamp(os.stat(path).st_mtime)
+        except EnvironmentError:
+            pass  # Cover doesn't exist
+
     def copy_cover_to(self, path, dest, windows_atomic_move=None, use_hardlink=False):
         path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
         if windows_atomic_move is not None:

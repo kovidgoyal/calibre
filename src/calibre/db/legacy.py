@@ -290,6 +290,10 @@ class LibraryDatabase(object):
         mi = self.new_api.get_metadata(book_id, get_cover=key == 'cover')
         return mi.get(key, default)
 
+    def cover_last_modified(self, index, index_is_id=False):
+        book_id = index if index_is_id else self.id(index)
+        return self.new_api.cover_last_modified(book_id) or self.last_modified()
+
     def authors_sort_strings(self, index, index_is_id=False):
         book_id = index if index_is_id else self.id(index)
         return list(self.new_api.author_sort_strings_for_books((book_id,))[book_id])
