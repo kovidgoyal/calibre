@@ -151,6 +151,7 @@ class ANDROID(USBMS):
                     0x61ce : [0x226, 0x227, 0x9999, 0x100],
                     0x618e : [0x226, 0x227, 0x9999, 0x100],
                     0x6205 : [0x226, 0x227, 0x9999, 0x100],
+                    0x6234 : [0x231],
                     },
 
             # Archos
@@ -254,7 +255,7 @@ class ANDROID(USBMS):
             'UMS_COMPOSITE', 'PRO', '.KOBO_VOX', 'SGH-T989_CARD', 'SGH-I727',
             'USB_FLASH_DRIVER', 'ANDROID', 'MID7042', '7035', 'VIEWPAD_7E',
             'NOVO7', 'ADVANCED', 'TABLET_PC', 'F', 'E400_SD_CARD', 'ST80208-1', 'XT894',
-            '_USB', 'PROD_TAB13-201', 'URFPAD2', 'MID1126',
+            '_USB', 'PROD_TAB13-201', 'URFPAD2', 'MID1126', 'ANDROID_PLATFORM',
     ]
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
