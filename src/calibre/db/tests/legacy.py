@@ -611,6 +611,7 @@ class LegacyTest(BaseTest):
         'Test the legacy API for custom columns'
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old(self.cloned_library)
+        # Test getting
         run_funcs(self, db, ndb, (
             ('all_custom', 'series'), ('all_custom', 'tags'), ('all_custom', 'rating'), ('all_custom', 'authors'), ('all_custom', None, 7),
             ('get_next_cc_series_num_for', 'My Series One', 'series'), ('get_next_cc_series_num_for', 'My Series Two', 'series'),
@@ -622,6 +623,26 @@ class LegacyTest(BaseTest):
         for label in ('tags', 'series', 'authors', 'comments', 'rating', 'date', 'yesno', 'isbn', 'enum', 'formats', 'float', 'comp_tags'):
             for func in ('get_custom', 'get_custom_extra', 'get_custom_and_extra'):
                 run_funcs(self, db, ndb, [(func, idx, label) for idx in range(3)])
+
+        # Test renaming/deleting
+        t = {v:k for k, v in ndb.new_api.get_id_map('#tags').iteritems()}['My Tag One']
+        t2 = {v:k for k, v in ndb.new_api.get_id_map('#tags').iteritems()}['My Tag Two']
+        a = {v:k for k, v in ndb.new_api.get_id_map('#authors').iteritems()}['My Author Two']
+        a2 = {v:k for k, v in ndb.new_api.get_id_map('#authors').iteritems()}['Custom One']
+        s = {v:k for k, v in ndb.new_api.get_id_map('#series').iteritems()}['My Series One']
+        run_funcs(self, db, ndb, (
+            ('delete_custom_item_using_id', t, 'tags'),
+            ('delete_custom_item_using_id', a, 'authors'),
+            ('rename_custom_item', t2, 't2', 'tags'),
+            ('rename_custom_item', a2, 'custom one', 'authors'),
+            ('rename_custom_item', s, 'My Series Two', 'series'),
+            ('delete_item_from_multiple', 'custom two', 'authors'),
+            (db.clean,),
+            (db.refresh,),
+            ('all_custom', 'series'), ('all_custom', 'tags'), ('all_custom', 'authors'),
+        ))
+        for label in ('tags', 'authors', 'series'):
+            run_funcs(self, db, ndb, [('get_custom_and_extra', idx, label) for idx in range(3)])
         db.close()
     # }}}
 

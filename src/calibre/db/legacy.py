@@ -574,6 +574,21 @@ class LibraryDatabase(object):
         existing_tags = self.all_custom(label=label, num=num)
         return icu_lower(item) in {icu_lower(t) for t in existing_tags}
 
+    def delete_custom_item_using_id(self, item_id, label=None, num=None):
+        self.new_api.remove_items(self.custom_field_name(label, num), (item_id,))
+
+    def rename_custom_item(self, old_id, new_name, label=None, num=None):
+        self.new_api.rename_items(self.custom_field_name(label, num), {old_id:new_name}, change_index=False)
+
+    def delete_item_from_multiple(self, item, label=None, num=None):
+        field = self.custom_field_name(label, num)
+        existing = self.new_api.get_id_map(field)
+        rmap = {icu_lower(v):k for k, v in existing.iteritems()}
+        item_id = rmap.get(icu_lower(item), None)
+        if item_id is None:
+            return []
+        return list(self.new_api.remove_items(field, (item_id,)))
+
     # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():
