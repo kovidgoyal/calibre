@@ -680,12 +680,12 @@ class LibraryDatabase(object):
 MT = lambda func: types.MethodType(func, None, LibraryDatabase)
 
 # Legacy getter API {{{
-for prop in ('author_sort', 'authors', 'comment', 'comments', 'publisher',
+for prop in ('author_sort', 'authors', 'comment', 'comments', 'publisher', 'max_size',
              'rating', 'series', 'series_index', 'tags', 'title', 'title_sort',
              'timestamp', 'uuid', 'pubdate', 'ondevice', 'metadata_last_modified', 'languages',):
     def getter(prop):
         fm = {'comment':'comments', 'metadata_last_modified':
-                'last_modified', 'title_sort':'sort'}.get(prop, prop)
+              'last_modified', 'title_sort':'sort', 'max_size':'size'}.get(prop, prop)
         def func(self, index, index_is_id=False):
             return self.get_property(index, index_is_id=index_is_id, loc=self.FIELD_MAP[fm])
         return func

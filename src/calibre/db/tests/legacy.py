@@ -15,6 +15,7 @@ from operator import itemgetter
 
 from calibre.db.tests.base import BaseTest
 
+# Utils {{{
 class ET(object):
 
     def __init__(self, func_name, args, kwargs={}, old=None, legacy=None):
@@ -58,6 +59,7 @@ def run_funcs(self, db, ndb, funcs):
                 meth = meth[1:]
             res1, res2 = fmt(getattr(db, meth)(*args)), fmt(getattr(ndb, meth)(*args))
             self.assertEqual(res1, res2, 'The method: %s() returned different results for argument %s' % (meth, args))
+# }}}
 
 class LegacyTest(BaseTest):
 
@@ -179,6 +181,7 @@ class LegacyTest(BaseTest):
             'sizeof_format':[(1, 'FMT1', True), (2, 'FMT1', True), (0, 'xxxxxx')],
             '@format_files':[(0,),(1,),(2,)],
             'formats':[(0,),(1,),(2,)],
+            'max_size':[(0,),(1,),(2,)],
             'format_hash':[(1, 'FMT1'),(1, 'FMT2'), (2, 'FMT1')],
             'author_sort_from_authors': [(['Author One', 'Author Two', 'Unknown'],)],
             'has_book':[(Metadata('title one'),), (Metadata('xxxx1111'),)],
