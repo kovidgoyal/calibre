@@ -48,10 +48,10 @@ def run_funcs(self, db, ndb, funcs):
             meth(*args)
         else:
             fmt = lambda x:x
-            if meth[0] in {'!', '@', '#', '+', '$'}:
+            if meth[0] in {'!', '@', '#', '+', '$', '-'}:
                 if meth[0] != '+':
                     fmt = {'!':dict, '@':lambda x:frozenset(x or ()), '#':lambda x:set((x or '').split(',')),
-                           '$':lambda x:set(tuple(y) for y in x)}[meth[0]]
+                           '$':lambda x:set(tuple(y) for y in x), '-':lambda x:None}[meth[0]]
                 else:
                     fmt = args[-1]
                     args = args[:-1]
@@ -643,6 +643,51 @@ class LegacyTest(BaseTest):
         ))
         for label in ('tags', 'authors', 'series'):
             run_funcs(self, db, ndb, [('get_custom_and_extra', idx, label) for idx in range(3)])
+        db.close()
+
+        ndb = self.init_legacy(self.cloned_library)
+        db = self.init_old(self.cloned_library)
+        # Test setting
+        run_funcs(self, db, ndb, (
+            ('-set_custom', 1, 't1 & t2', 'authors'),
+            ('-set_custom', 1, 't3 & t4', 'authors', None, True),
+            ('-set_custom', 3, 'test one & test Two', 'authors'),
+            ('-set_custom', 1, 'ijfkghkjdf', 'enum'),
+            ('-set_custom', 3, 'One', 'enum'),
+            ('-set_custom', 3, 'xxx', 'formats'),
+            ('-set_custom', 1, 'my tag two', 'tags', None, False, False, None, True, True),
+            (db.clean,), (db.refresh,),
+            ('all_custom', 'series'), ('all_custom', 'tags'), ('all_custom', 'authors'),
+        ))
+        for label in ('tags', 'series', 'authors', 'comments', 'rating', 'date', 'yesno', 'isbn', 'enum', 'formats', 'float', 'comp_tags'):
+            for func in ('get_custom', 'get_custom_extra', 'get_custom_and_extra'):
+                run_funcs(self, db, ndb, [(func, idx, label) for idx in range(3)])
+        db.close()
+
+        ndb = self.init_legacy(self.cloned_library)
+        db = self.init_old(self.cloned_library)
+        # Test setting bulk
+        run_funcs(self, db, ndb, (
+            ('set_custom_bulk', (1,2,3), 't1 & t2', 'authors'),
+            ('set_custom_bulk', (1,2,3), 'a series', 'series', None, False, False, (9, 10, 11)),
+            ('set_custom_bulk', (1,2,3), 't1', 'tags', None, True),
+            (db.clean,), (db.refresh,),
+            ('all_custom', 'series'), ('all_custom', 'tags'), ('all_custom', 'authors'),
+        ))
+        for label in ('tags', 'series', 'authors', 'comments', 'rating', 'date', 'yesno', 'isbn', 'enum', 'formats', 'float', 'comp_tags'):
+            for func in ('get_custom', 'get_custom_extra', 'get_custom_and_extra'):
+                run_funcs(self, db, ndb, [(func, idx, label) for idx in range(3)])
+        db.close()
+
+        ndb = self.init_legacy(self.cloned_library)
+        db = self.init_old(self.cloned_library)
+        # Test bulk multiple
+        run_funcs(self, db, ndb, (
+            ('set_custom_bulk_multiple', (1,2,3), ['t1'], ['My Tag One'], 'tags'),
+            (db.clean,), (db.refresh,),
+            ('all_custom', 'tags'),
+            ('get_custom', 0, 'tags'), ('get_custom', 1, 'tags'), ('get_custom', 2, 'tags'),
+        ))
         db.close()
     # }}}
 

@@ -441,25 +441,38 @@ class LibraryDatabase(object):
         if notify:
             self.notify('metadata', ids)
 
-    def bulk_modify_tags(self, ids, add=[], remove=[], notify=False):
+    def _do_bulk_modify(self, field, ids, add, remove, notify):
         add = cleanup_tags(add)
         remove = cleanup_tags(remove)
         remove = set(remove) - set(add)
         if not ids or (not add and not remove):
             return
+
         remove = {icu_lower(x) for x in remove}
         with self.new_api.write_lock:
             val_map = {}
             for book_id in ids:
-                tags = list(self.new_api._field_for('tags', book_id))
+                tags = list(self.new_api._field_for(field, book_id))
                 existing = {icu_lower(x) for x in tags}
                 tags.extend(t for t in add if icu_lower(t) not in existing)
                 tags = tuple(t for t in tags if icu_lower(t) not in remove)
                 val_map[book_id] = tags
-            self.new_api._set_field('tags', val_map, allow_case_change=False)
+            self.new_api._set_field(field, val_map, allow_case_change=False)
 
         if notify:
             self.notify('metadata', ids)
+
+    def bulk_modify_tags(self, ids, add=[], remove=[], notify=False):
+        self._do_bulk_modify('tags', ids, add, remove, notify)
+
+    def set_custom_bulk_multiple(self, ids, add=[], remove=[], label=None, num=None, notify=False):
+        data = self.backend.custom_field_metadata(label, num)
+        if not data['editable']:
+            raise ValueError('Column %r is not editable'%data['label'])
+        if data['datatype'] != 'text' or not data['is_multiple']:
+            raise ValueError('Column %r is not text/multiple'%data['label'])
+        field = self.custom_field_name(label, num)
+        self._do_bulk_modify(field, ids, add, remove, notify)
 
     def unapply_tags(self, book_id, tags, notify=True):
         self.bulk_modify_tags((book_id,), remove=tags, notify=notify)
@@ -588,6 +601,57 @@ class LibraryDatabase(object):
         if item_id is None:
             return []
         return list(self.new_api.remove_items(field, (item_id,)))
+
+    def set_custom(self, book_id, val, label=None, num=None, append=False,
+                   notify=True, extra=None, commit=True, allow_case_change=False):
+        field = self.custom_field_name(label, num)
+        data = self.backend.custom_field_metadata(label, num)
+        if data['datatype'] == 'composite':
+            return set()
+        if not data['editable']:
+            raise ValueError('Column %r is not editable'%data['label'])
+        if data['datatype'] == 'enumeration' and (
+                val and val not in data['display']['enum_values']):
+            return set()
+        with self.new_api.write_lock:
+            if append and data['is_multiple']:
+                current = self.new_api._field_for(field, book_id)
+                existing = {icu_lower(x) for x in current}
+                val = current + tuple(x for x in self.new_api.fields[field].writer.adapter(val) if icu_lower(x) not in existing)
+                affected_books = self.new_api._set_field(field, {book_id:val}, allow_case_change=allow_case_change)
+            else:
+                affected_books = self.new_api._set_field(field, {book_id:val}, allow_case_change=allow_case_change)
+            if data['datatype'] == 'series':
+                extra = 1.0 if extra is None else extra
+                self.new_api._set_field(field + '_index', {book_id:extra})
+        if notify and affected_books:
+            self.notify('metadata', list(affected_books))
+        return affected_books
+
+    def set_custom_bulk(self, ids, val, label=None, num=None,
+                   append=False, notify=True, extras=None):
+        if extras is not None and len(extras) != len(ids):
+            raise ValueError('Length of ids and extras is not the same')
+        field = self.custom_field_name(label, num)
+        data = self.backend.custom_field_metadata(label, num)
+        if data['datatype'] == 'composite':
+            return set()
+        if data['datatype'] == 'enumeration' and (
+                val and val not in data['display']['enum_values']):
+            return
+        if not data['editable']:
+            raise ValueError('Column %r is not editable'%data['label'])
+
+        if append:
+            for book_id in ids:
+                self.set_custom(book_id, val, label=label, num=num, append=True, notify=False)
+        else:
+            with self.new_api.write_lock:
+                self.new_api._set_field(field, {book_id:val for book_id in ids}, allow_case_change=False)
+            if extras is not None:
+                self.new_api._set_field(field + '_index', {book_id:val for book_id, val in zip(ids, extras)})
+        if notify:
+            self.notify('metadata', list(ids))
 
     # Private interface {{{
     def __iter__(self):
@@ -775,5 +839,7 @@ LibraryDatabase.commit = MT(lambda self:None)
 # }}}
 
 del MT
+
+
 
 
