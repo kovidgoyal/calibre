@@ -772,12 +772,14 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.scrolled(self.view.scroll_fraction)
 
     def internal_link_clicked(self, frac):
+        self.update_page_number()  # Ensure page number is accurate as it is used for history
         self.history.add(self.pos.value())
 
     def link_clicked(self, url):
         path = os.path.abspath(unicode(url.toLocalFile()))
         frag = None
         if path in self.iterator.spine:
+            self.update_page_number()  # Ensure page number is accurate as it is used for history
             self.history.add(self.pos.value())
             path = self.iterator.spine[self.iterator.spine.index(path)]
             if url.hasFragment():
@@ -913,6 +915,14 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         else:
             self.view.document.page_position.restore()
         self.view.document.after_resize()
+        # For some reason scroll_fraction returns incorrect results in paged
+        # mode for some time after a resize is finished. No way of knowing
+        # exactly how long, so we update it in a second, in the hopes that it
+        # will be enough *most* of the time.
+        QTimer.singleShot(1000, self.update_page_number)
+
+    def update_page_number(self):
+        self.set_page_number(self.view.document.scroll_fraction)
 
     def close_progress_indicator(self):
         self.pi.stop()
