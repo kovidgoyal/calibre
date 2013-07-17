@@ -1401,6 +1401,17 @@ class Cache(object):
     def lookup_by_uuid(self, uuid):
         return self.fields['uuid'].table.lookup_by_uuid(uuid)
 
+    @write_api
+    def delete_custom_column(self, label=None, num=None):
+        self.backend.delete_custom_column(label, num)
+
+    @write_api
+    def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display={}):
+        self.backend.create_custom_column(label, name, datatype, is_multiple, editable=editable, display=display)
+
+    @write_api
+    def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None, display=None):
+        return self.backend.set_custom_column_metadata(num, name=name, label=label, is_editable=is_editable, display=display)
 
     # }}}
 

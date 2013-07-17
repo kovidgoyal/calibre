@@ -689,5 +689,25 @@ class LegacyTest(BaseTest):
             ('get_custom', 0, 'tags'), ('get_custom', 1, 'tags'), ('get_custom', 2, 'tags'),
         ))
         db.close()
+
+        o = self.cloned_library
+        n = self.cloned_library
+        ndb, db = self.init_legacy(n), self.init_old(o)
+        ndb.create_custom_column('created', 'Created', 'text', True, True, {'moose':'cat'})
+        db.create_custom_column('created', 'Created', 'text', True, True, {'moose':'cat'})
+        db.close()
+        ndb, db = self.init_legacy(n), self.init_old(o)
+        self.assertEqual(db.custom_column_label_map['created'], ndb.backend.custom_field_metadata('created'))
+        num = db.custom_column_label_map['created']['num']
+        ndb.set_custom_column_metadata(num, is_editable=False, name='Crikey', display={})
+        db.set_custom_column_metadata(num, is_editable=False, name='Crikey', display={})
+        db.close()
+        ndb, db = self.init_legacy(n), self.init_old(o)
+        self.assertEqual(db.custom_column_label_map['created'], ndb.backend.custom_field_metadata('created'))
+        db.close()
+        ndb = self.init_legacy(n)
+        ndb.delete_custom_column('created')
+        ndb = self.init_legacy(n)
+        self.assertRaises(KeyError, ndb.custom_field_name, num=num)
     # }}}
 

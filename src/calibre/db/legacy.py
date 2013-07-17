@@ -653,6 +653,17 @@ class LibraryDatabase(object):
         if notify:
             self.notify('metadata', list(ids))
 
+    def delete_custom_column(self, label=None, num=None):
+        self.new_api.delete_custom_column(label, num)
+
+    def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display={}):
+        self.new_api.create_custom_column(label, name, datatype, is_multiple, editable=editable, display=display)
+
+    def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None, display=None, notify=True):
+        changed = self.new_api.set_custom_column_metadata(num, name=name, label=label, is_editable=is_editable, display=display)
+        if changed and notify:
+            self.notify('metadata', [])
+
     # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():
@@ -839,6 +850,7 @@ LibraryDatabase.commit = MT(lambda self:None)
 # }}}
 
 del MT
+
 
 
 
