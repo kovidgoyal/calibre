@@ -150,31 +150,40 @@ class CacheRow(list):  # {{{
         self._composites = composites
         list.__init__(self, val)
         self._must_do = len(composites) > 0
+        self._have_done = set()
         self._series_col = series_col
         self._series_sort_col = series_sort_col
         self._series_sort = None
         self._virt_lib_col = virtual_library_col
         self._virt_libs = None
 
+    # Evaluate the required composite column. By calling get_metadata and then
+    # mi.get, an composite columns that the required column depends on will also
+    # be evaluated, but no other column will be. The goal is to prevent
+    # evaluation of columns not needed for the current operation, such as a sort.
+
+    def _evaluate_composite(self, col):
+        if col not in self._have_done:
+            id_ = list.__getitem__(self, 0)
+            mi = self.db.get_metadata(id_, index_is_id=True,
+                                      get_user_categories=False,
+                                      evaluate_composites=False)
+            self[col] = mi.get(self._composites[col])
+            self._have_done.add(col)
+            if len(self._have_done) == len(self._composites):
+                self._must_do = False
+
     def __getitem__(self, col):
         if self._must_do:
-            is_comp = False
             if isinstance(col, slice):
                 start = 0 if col.start is None else col.start
                 step = 1 if col.stop is None else col.stop
                 for c in range(start, col.stop, step):
                     if c in self._composites:
-                        is_comp = True
-                        break
+                        self._evaluate_composite(c)
             elif col in self._composites:
-                is_comp = True
-            if is_comp:
-                id_ = list.__getitem__(self, 0)
-                self._must_do = False
-                mi = self.db.get_metadata(id_, index_is_id=True,
-                                          get_user_categories=False)
-                for c in self._composites:
-                    self[c] = mi.get(self._composites[c])
+                self._evaluate_composite(col)
+
         if col == self._series_sort_col and self._series_sort is None:
             if self[self._series_col]:
                 self._series_sort = title_sort(self[self._series_col])
