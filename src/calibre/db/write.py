@@ -107,8 +107,8 @@ def adapt_languages(to_tuple, x):
     return tuple(ans)
 
 def clean_identifier(typ, val):
-    typ = icu_lower(typ).strip().replace(':', '').replace(',', '')
-    val = val.strip().replace(',', '|').replace(':', '|')
+    typ = icu_lower(typ or '').strip().replace(':', '').replace(',', '')
+    val = (val or '').strip().replace(',', '|').replace(':', '|')
     return typ, val
 
 def adapt_identifiers(to_tuple, x):
@@ -142,7 +142,7 @@ def get_adapter(name, metadata):
     elif dt == 'comments':
         ans = single_text
     elif dt == 'rating':
-        ans = lambda x: None if x in {None, 0} else min(10., max(0., adapt_number(float, x)))
+        ans = lambda x: None if x in {None, 0} else min(10, max(0, adapt_number(int, x)))
     elif dt == 'enumeration':
         ans = single_text
     elif dt == 'composite':

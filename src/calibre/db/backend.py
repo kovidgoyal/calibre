@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, shutil, uuid, json, glob, time, cPickle
+import os, shutil, uuid, json, glob, time, cPickle, hashlib
 from functools import partial
 
 import apsw
@@ -17,7 +17,9 @@ from calibre import isbytestring, force_unicode, prints
 from calibre.constants import (iswindows, filesystem_encoding,
         preferred_encoding)
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.db import SPOOL_SIZE
 from calibre.db.schema_upgrades import SchemaUpgrade
+from calibre.db.errors import NoSuchFormat
 from calibre.library.field_metadata import FieldMetadata
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.icu import sort_key
@@ -547,6 +549,7 @@ class DB(object):
 
         # Load metadata for custom columns
         self.custom_column_label_map, self.custom_column_num_map = {}, {}
+        self.custom_column_num_to_label_map = {}
         triggers = []
         remove = []
         custom_tables = self.custom_tables
@@ -584,6 +587,7 @@ class DB(object):
 
             self.custom_column_num_map[data['num']] = \
                 self.custom_column_label_map[data['label']] = data
+            self.custom_column_num_to_label_map[data['num']] = data['label']
 
             # Create Foreign Key triggers
             if data['normalized']:
@@ -783,6 +787,16 @@ class DB(object):
                 self._conn = Connection(self.dbpath)
         return self._conn
 
+    def custom_field_name(self, label=None, num=None):
+        if label is not None:
+            return self.field_metadata.custom_field_prefix + label
+        return self.field_metadata.custom_field_prefix + self.custom_column_num_to_label_map[num]
+
+    def custom_field_metadata(self, label=None, num=None):
+        if label is not None:
+            return self.custom_column_label_map[label]
+        return self.custom_column_num_map[num]
+
     def close(self):
         if self._conn is not None:
             self._conn.close()
@@ -926,6 +940,19 @@ class DB(object):
             shutil.copyfile(candidates[0], fmt_path)
             return fmt_path
 
+    def format_hash(self, book_id, fmt, fname, path):
+        path = self.format_abspath(book_id, fmt, fname, path)
+        if path is None:
+            raise NoSuchFormat('Record %d has no fmt: %s'%(book_id, fmt))
+        sha = hashlib.sha256()
+        with lopen(path, 'rb') as f:
+            while True:
+                raw = f.read(SPOOL_SIZE)
+                sha.update(raw)
+                if len(raw) < SPOOL_SIZE:
+                    break
+        return sha.hexdigest()
+
     def format_metadata(self, book_id, fmt, fname, path):
         path = self.format_abspath(book_id, fmt, fname, path)
         ans = {}
@@ -947,6 +974,13 @@ class DB(object):
             except:
                 import traceback
                 traceback.print_exc()
+
+    def cover_last_modified(self, path):
+        path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
+        try:
+            return utcfromtimestamp(os.stat(path).st_mtime)
+        except EnvironmentError:
+            pass  # Cover doesn't exist
 
     def copy_cover_to(self, path, dest, windows_atomic_move=None, use_hardlink=False):
         path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))

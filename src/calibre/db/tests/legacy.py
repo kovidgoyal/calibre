@@ -11,6 +11,7 @@ from io import BytesIO
 from repr import repr
 from functools import partial
 from tempfile import NamedTemporaryFile
+from operator import itemgetter
 
 from calibre.db.tests.base import BaseTest
 
@@ -39,6 +40,24 @@ def compare_argspecs(old, new, attr):
     ok = len(old.args) == len(new.args) and old.defaults == new.defaults and (num == 0 or old.args[-num:] == new.args[-num:])
     if not ok:
         raise AssertionError('The argspec for %s does not match. %r != %r' % (attr, old, new))
+
+def run_funcs(self, db, ndb, funcs):
+    for func in funcs:
+        meth, args = func[0], func[1:]
+        if callable(meth):
+            meth(*args)
+        else:
+            fmt = lambda x:x
+            if meth[0] in {'!', '@', '#', '+', '$'}:
+                if meth[0] != '+':
+                    fmt = {'!':dict, '@':lambda x:frozenset(x or ()), '#':lambda x:set((x or '').split(',')),
+                           '$':lambda x:set(tuple(y) for y in x)}[meth[0]]
+                else:
+                    fmt = args[-1]
+                    args = args[:-1]
+                meth = meth[1:]
+            res1, res2 = fmt(getattr(db, meth)(*args)), fmt(getattr(ndb, meth)(*args))
+            self.assertEqual(res1, res2, 'The method: %s() returned different results for argument %s' % (meth, args))
 
 class LegacyTest(BaseTest):
 
@@ -116,7 +135,7 @@ class LegacyTest(BaseTest):
     def test_legacy_getters(self):  # {{{
         ' Test various functions to get individual bits of metadata '
         old = self.init_old()
-        getters = ('path', 'abspath', 'title', 'authors', 'series',
+        getters = ('path', 'abspath', 'title', 'title_sort', 'authors', 'series',
                    'publisher', 'author_sort', 'authors', 'comments',
                    'comment', 'publisher', 'rating', 'series_index', 'tags',
                    'timestamp', 'uuid', 'pubdate', 'ondevice',
@@ -135,14 +154,39 @@ class LegacyTest(BaseTest):
     # }}}
 
     def test_legacy_direct(self):  # {{{
-        'Test methods that are directly equivalent in the old and new interface'
+        'Test read-only methods that are directly equivalent in the old and new interface'
         from calibre.ebooks.metadata.book.base import Metadata
-        ndb = self.init_legacy()
+        from datetime import timedelta
+        ndb = self.init_legacy(self.cloned_library)
         db = self.init_old()
+
+        self.assertEqual(dict(db.prefs), dict(ndb.prefs))
+
         for meth, args in {
             'get_next_series_num_for': [('A Series One',)],
+            'get_id_from_uuid':[('ddddd',), (db.uuid(1, True),)],
+            'cover':[(0,), (1,), (2,)],
+            'get_author_id': [('author one',), ('unknown',), ('xxxxx',)],
+            'series_id': [(0,), (1,), (2,)],
+            'publisher_id': [(0,), (1,), (2,)],
+            '@tags_older_than': [
+                ('News', None), ('Tag One', None), ('xxxx', None), ('Tag One', None, 'News'), ('News', None, 'xxxx'),
+                ('News', None, None, ['xxxxxxx']), ('News', None, 'Tag One', ['Author Two', 'Author One']),
+                ('News', timedelta(0), None, None), ('News', timedelta(100000)),
+            ],
+            'format':[(1, 'FMT1', True), (2, 'FMT1', True), (0, 'xxxxxx')],
+            'has_format':[(1, 'FMT1', True), (2, 'FMT1', True), (0, 'xxxxxx')],
+            'sizeof_format':[(1, 'FMT1', True), (2, 'FMT1', True), (0, 'xxxxxx')],
+            '@format_files':[(0,),(1,),(2,)],
+            'formats':[(0,),(1,),(2,)],
+            'format_hash':[(1, 'FMT1'),(1, 'FMT2'), (2, 'FMT1')],
             'author_sort_from_authors': [(['Author One', 'Author Two', 'Unknown'],)],
             'has_book':[(Metadata('title one'),), (Metadata('xxxx1111'),)],
+            'has_id':[(1,), (2,), (3,), (9999,)],
+            'id':[(1,), (2,), (0,),],
+            'index':[(1,), (2,), (3,), ],
+            'is_empty':[()],
+            'count':[()],
             'all_author_names':[()],
             'all_tag_names':[()],
             'all_series_names':[()],
@@ -150,6 +194,7 @@ class LegacyTest(BaseTest):
             '!all_authors':[()],
             '!all_tags2':[()],
             '@all_tags':[()],
+            '@get_all_identifier_types':[()],
             '!all_publishers':[()],
             '!all_titles':[()],
             '!all_series':[()],
@@ -179,15 +224,23 @@ class LegacyTest(BaseTest):
             'books_in_series_of':[(0,), (1,), (2,)],
             'books_with_same_title':[(Metadata(db.title(0)),), (Metadata(db.title(1)),), (Metadata('1234'),)],
         }.iteritems():
+            fmt = lambda x: x
+            if meth[0] in {'!', '@'}:
+                fmt = {'!':dict, '@':frozenset}[meth[0]]
+                meth = meth[1:]
+            elif meth == 'get_authors_with_ids':
+                fmt = lambda val:{x[0]:tuple(x[1:]) for x in val}
             for a in args:
-                fmt = lambda x: x
-                if meth[0] in {'!', '@'}:
-                    fmt = {'!':dict, '@':frozenset}[meth[0]]
-                    meth = meth[1:]
-                elif meth == 'get_authors_with_ids':
-                    fmt = lambda val:{x[0]:tuple(x[1:]) for x in val}
                 self.assertEqual(fmt(getattr(db, meth)(*a)), fmt(getattr(ndb, meth)(*a)),
                                  'The method: %s() returned different results for argument %s' % (meth, a))
+        d1, d2 = BytesIO(), BytesIO()
+        db.copy_cover_to(1, d1, True)
+        ndb.copy_cover_to(1, d2, True)
+        self.assertTrue(d1.getvalue() == d2.getvalue())
+        d1, d2 = BytesIO(), BytesIO()
+        db.copy_format_to(1, 'FMT1', d1, True)
+        ndb.copy_format_to(1, 'FMT1', d2, True)
+        self.assertTrue(d1.getvalue() == d2.getvalue())
         db.close()
         # }}}
 
@@ -221,24 +274,18 @@ class LegacyTest(BaseTest):
         t = next(tmap.iterkeys())
         pmap = cache.get_id_map('publisher')
         p = next(pmap.iterkeys())
-        for x in (
+        run_funcs(self, db, ndb, (
             ('delete_tag_using_id', t),
             ('delete_publisher_using_id', p),
             (db.refresh,),
             ('all_tag_names',), ('tags', 0), ('tags', 1), ('tags', 2),
             ('all_publisher_names',), ('publisher', 0), ('publisher', 1), ('publisher', 2),
-        ):
-            meth, args = x[0], x[1:]
-            if callable(meth):
-                meth(*args)
-            else:
-                self.assertEqual((getattr(db, meth)(*args)), (getattr(ndb, meth)(*args)),
-                                 'The method: %s() returned different results for argument %s' % (meth, args))
+        ))
         db.close()
     # }}}
 
     def test_legacy_adding_books(self):  # {{{
-        'Test various adding books methods'
+        'Test various adding/deleting books methods'
         from calibre.ebooks.metadata.book.base import Metadata
         legacy, old = self.init_legacy(self.cloned_library), self.init_old(self.cloned_library)
         mi = Metadata('Added Book0', authors=('Added Author',))
@@ -295,6 +342,10 @@ class LegacyTest(BaseTest):
             self.assertEqual(cache.field_for('authors', bid), ('calibre',))
             self.assertEqual(cache.field_for('tags', bid), (_('News'), 'Events', 'one', 'two'))
 
+        legacy.delete_book(1)
+        old.delete_book(1)
+        self.assertNotIn(1, legacy.all_ids())
+        legacy.dump_metadata((2,3))
         old.close()
     # }}}
 
@@ -312,16 +363,21 @@ class LegacyTest(BaseTest):
             # Obsolete/broken methods
             'author_id',  # replaced by get_author_id
             'books_for_author',  # broken
-            'books_in_old_database',  # unused
+            'books_in_old_database', 'sizeof_old_database',  # unused
+            'migrate_old',  # no longer supported
+            'remove_unused_series',  # superseded by clean API
 
             # Internal API
             'clean_user_categories',  'cleanup_tags',  'books_list_filter', 'conn', 'connect', 'construct_file_name',
             'construct_path_name', 'clear_dirtied', 'commit_dirty_cache', 'initialize_database', 'initialize_dynamic',
             'run_import_plugins', 'vacuum', 'set_path', 'row', 'row_factory', 'rows', 'rmtree', 'series_index_pat',
             'import_old_database', 'dirtied_lock', 'dirtied_cache', 'dirty_queue_length', 'dirty_books_referencing',
+            'windows_check_if_files_in_use', 'get_metadata_for_dump', 'get_a_dirtied_book', 'dirtied_sequence',
+            'format_filename_cache', 'format_metadata_cache', 'filter', 'create_version1', 'normpath', 'custom_data_adapters',
+            'custom_table_names', 'custom_columns_in_meta', 'custom_tables',
         }
         SKIP_ARGSPEC = {
-            '__init__', 'get_next_series_num_for', 'has_book', 'author_sort_from_authors',
+            '__init__',
         }
 
         missing = []
@@ -385,5 +441,208 @@ class LegacyTest(BaseTest):
         T = partial(ET, 'get_all_custom_book_data', old=old, legacy=legacy)
         T(('n', object()))
         old.close()
+    # }}}
+
+    def test_legacy_setters(self):  # {{{
+        'Test methods that are directly equivalent in the old and new interface'
+        from calibre.ebooks.metadata.book.base import Metadata
+        from calibre.utils.date import now
+        n = now()
+        ndb = self.init_legacy(self.cloned_library)
+        amap = ndb.new_api.get_id_map('authors')
+        sorts = [(aid, 's%d' % aid) for aid in amap]
+        db = self.init_old(self.cloned_library)
+        run_funcs(self, db, ndb, (
+            ('+format_metadata', 1, 'FMT1', itemgetter('size')),
+            ('+format_metadata', 1, 'FMT2', itemgetter('size')),
+            ('+format_metadata', 2, 'FMT1', itemgetter('size')),
+            ('get_tags', 0), ('get_tags', 1), ('get_tags', 2),
+            ('is_tag_used', 'News'), ('is_tag_used', 'xchkjgfh'),
+            ('bulk_modify_tags', (1,), ['t1'], ['News']),
+            ('bulk_modify_tags', (2,), ['t1'], ['Tag One', 'Tag Two']),
+            ('bulk_modify_tags', (3,), ['t1', 't2', 't3']),
+            (db.clean,),
+            ('@all_tags',),
+            ('@tags', 0), ('@tags', 1), ('@tags', 2),
+
+            ('unapply_tags', 1, ['t1']),
+            ('unapply_tags', 2, ['xxxx']),
+            ('unapply_tags', 3, ['t2', 't3']),
+            (db.clean,),
+            ('@all_tags',),
+            ('@tags', 0), ('@tags', 1), ('@tags', 2),
+
+            ('update_last_modified', (1,), True, n), ('update_last_modified', (3,), True, n),
+            ('metadata_last_modified', 1, True), ('metadata_last_modified', 3, True),
+            ('set_sort_field_for_author', sorts[0][0], sorts[0][1]),
+            ('set_sort_field_for_author', sorts[1][0], sorts[1][1]),
+            ('set_sort_field_for_author', sorts[2][0], sorts[2][1]),
+            ('set_link_field_for_author', sorts[0][0], sorts[0][1]),
+            ('set_link_field_for_author', sorts[1][0], sorts[1][1]),
+            ('set_link_field_for_author', sorts[2][0], sorts[2][1]),
+            (db.refresh,),
+            ('author_sort', 0), ('author_sort', 1), ('author_sort', 2),
+        ))
+        omi = [db.get_metadata(x) for x in (0, 1, 2)]
+        nmi = [ndb.get_metadata(x) for x in (0, 1, 2)]
+        self.assertEqual([x.author_sort_map for x in omi], [x.author_sort_map for x in nmi])
+        self.assertEqual([x.author_link_map for x in omi], [x.author_link_map for x in nmi])
+        db.close()
+
+        ndb = self.init_legacy(self.cloned_library)
+        db = self.init_old(self.cloned_library)
+
+        run_funcs(self, db, ndb, (
+            ('set_authors', 1, ('author one',),), ('set_authors', 2, ('author two',), True, True, True),
+            ('set_author_sort', 3, 'new_aus'),
+            ('set_comment', 1, ''), ('set_comment', 2, None), ('set_comment', 3, '<p>a comment</p>'),
+            ('set_has_cover', 1, True), ('set_has_cover', 2, True), ('set_has_cover', 3, 1),
+            ('set_identifiers', 2, {'test':'', 'a':'b'}), ('set_identifiers', 3, {'id':'1', 'isbn':'9783161484100'}), ('set_identifiers', 1, {}),
+            ('set_languages', 1, ('en',)),
+            ('set_languages', 2, ()),
+            ('set_languages', 3, ('deu', 'spa', 'fra')),
+            ('set_pubdate', 1, None), ('set_pubdate', 2, '2011-1-7'),
+            ('set_series', 1, 'a series one'), ('set_series', 2, 'another series [7]'), ('set_series', 3, 'a third series'),
+            ('set_publisher', 1, 'publisher two'), ('set_publisher', 2, None), ('set_publisher', 3, 'a third puB'),
+            ('set_rating', 1, 2.3), ('set_rating', 2, 0), ('set_rating', 3, 8),
+            ('set_timestamp', 1, None), ('set_timestamp', 2, '2011-1-7'),
+            ('set_uuid', 1, None), ('set_uuid', 2, 'a test uuid'),
+            ('set_title', 1, 'title two'), ('set_title', 2, None), ('set_title', 3, 'The Test Title'),
+            ('set_tags', 1, ['a1', 'a2'], True), ('set_tags', 2, ['b1', 'tag one'], False, False, False, True), ('set_tags', 3, ['A1']),
+            (db.refresh,),
+            ('title', 0), ('title', 1), ('title', 2),
+            ('title_sort', 0), ('title_sort', 1), ('title_sort', 2),
+            ('authors', 0), ('authors', 1), ('authors', 2),
+            ('author_sort', 0), ('author_sort', 1), ('author_sort', 2),
+            ('has_cover', 3), ('has_cover', 1), ('has_cover', 2),
+            ('get_identifiers', 0), ('get_identifiers', 1), ('get_identifiers', 2),
+            ('pubdate', 0), ('pubdate', 1), ('pubdate', 2),
+            ('timestamp', 0), ('timestamp', 1), ('timestamp', 2),
+            ('publisher', 0), ('publisher', 1), ('publisher', 2),
+            ('rating', 0), ('+rating', 1, lambda x: x or 0), ('rating', 2),
+            ('series', 0), ('series', 1), ('series', 2),
+            ('series_index', 0), ('series_index', 1), ('series_index', 2),
+            ('uuid', 0), ('uuid', 1), ('uuid', 2),
+            ('isbn', 0), ('isbn', 1), ('isbn', 2),
+            ('@tags', 0), ('@tags', 1), ('@tags', 2),
+            ('@all_tags',),
+            ('@get_all_identifier_types',),
+
+            ('set_title_sort', 1, 'Title Two'), ('set_title_sort', 2, None), ('set_title_sort', 3, 'The Test Title_sort'),
+            ('set_series_index', 1, 2.3), ('set_series_index', 2, 0), ('set_series_index', 3, 8),
+            ('set_identifier', 1, 'moose', 'val'), ('set_identifier', 2, 'test', ''), ('set_identifier', 3, '', ''),
+            (db.refresh,),
+            ('series_index', 0), ('series_index', 1), ('series_index', 2),
+            ('title_sort', 0), ('title_sort', 1), ('title_sort', 2),
+            ('get_identifiers', 0), ('get_identifiers', 1), ('get_identifiers', 2),
+            ('@get_all_identifier_types',),
+
+            ('set_metadata', 1, Metadata('title', ('a1',)), False, False, False, True, True),
+            ('set_metadata', 3, Metadata('title', ('a1',))),
+            (db.refresh,),
+            ('title', 0), ('title', 1), ('title', 2),
+            ('title_sort', 0), ('title_sort', 1), ('title_sort', 2),
+            ('authors', 0), ('authors', 1), ('authors', 2),
+            ('author_sort', 0), ('author_sort', 1), ('author_sort', 2),
+            ('@tags', 0), ('@tags', 1), ('@tags', 2),
+            ('@all_tags',),
+            ('@get_all_identifier_types',),
+        ))
+        db.close()
+
+        ndb = self.init_legacy(self.cloned_library)
+        db = self.init_old(self.cloned_library)
+
+        run_funcs(self, db, ndb, (
+            ('set', 0, 'title', 'newtitle'),
+            ('set', 0, 'tags', 't1,t2,tag one', True),
+            ('set', 0, 'authors', 'author one & Author Two', True),
+            ('set', 0, 'rating', 3.2),
+            ('set', 0, 'publisher', 'publisher one', False),
+            (db.refresh,),
+            ('title', 0),
+            ('rating', 0),
+            ('#tags', 0), ('#tags', 1), ('#tags', 2),
+            ('authors', 0), ('authors', 1), ('authors', 2),
+            ('publisher', 0), ('publisher', 1), ('publisher', 2),
+            ('delete_tag', 'T1'), ('delete_tag', 'T2'), ('delete_tag', 'Tag one'), ('delete_tag', 'News'),
+            (db.clean,), (db.refresh,),
+            ('@all_tags',),
+            ('#tags', 0), ('#tags', 1), ('#tags', 2),
+        ))
+        db.close()
+
+        ndb = self.init_legacy(self.cloned_library)
+        db = self.init_old(self.cloned_library)
+        run_funcs(self, db, ndb, (
+            ('remove_all_tags', (1, 2, 3)),
+            (db.clean,),
+            ('@all_tags',),
+            ('@tags', 0), ('@tags', 1), ('@tags', 2),
+        ))
+        db.close()
+
+        ndb = self.init_legacy(self.cloned_library)
+        db = self.init_old(self.cloned_library)
+        a = {v:k for k, v in ndb.new_api.get_id_map('authors').iteritems()}['Author One']
+        t = {v:k for k, v in ndb.new_api.get_id_map('tags').iteritems()}['Tag One']
+        s = {v:k for k, v in ndb.new_api.get_id_map('series').iteritems()}['A Series One']
+        p = {v:k for k, v in ndb.new_api.get_id_map('publisher').iteritems()}['Publisher One']
+        run_funcs(self, db, ndb, (
+            ('rename_author', a, 'Author Two'),
+            ('rename_tag', t, 'News'),
+            ('rename_series', s, 'ss'),
+            ('rename_publisher', p, 'publisher one'),
+            (db.clean,),
+            (db.refresh,),
+            ('@all_tags',),
+            ('tags', 0), ('tags', 1), ('tags', 2),
+            ('series', 0), ('series', 1), ('series', 2),
+            ('publisher', 0), ('publisher', 1), ('publisher', 2),
+            ('series_index', 0), ('series_index', 1), ('series_index', 2),
+            ('authors', 0), ('authors', 1), ('authors', 2),
+            ('author_sort', 0), ('author_sort', 1), ('author_sort', 2),
+        ))
+        db.close()
+
+    # }}}
+
+    def test_legacy_custom(self):  # {{{
+        'Test the legacy API for custom columns'
+        ndb = self.init_legacy(self.cloned_library)
+        db = self.init_old(self.cloned_library)
+        # Test getting
+        run_funcs(self, db, ndb, (
+            ('all_custom', 'series'), ('all_custom', 'tags'), ('all_custom', 'rating'), ('all_custom', 'authors'), ('all_custom', None, 7),
+            ('get_next_cc_series_num_for', 'My Series One', 'series'), ('get_next_cc_series_num_for', 'My Series Two', 'series'),
+            ('is_item_used_in_multiple', 'My Tag One', 'tags'),
+            ('is_item_used_in_multiple', 'My Series One', 'series'),
+            ('$get_custom_items_with_ids', 'series'), ('$get_custom_items_with_ids', 'tags'), ('$get_custom_items_with_ids', 'float'),
+            ('$get_custom_items_with_ids', 'rating'), ('$get_custom_items_with_ids', 'authors'), ('$get_custom_items_with_ids', None, 7),
+        ))
+        for label in ('tags', 'series', 'authors', 'comments', 'rating', 'date', 'yesno', 'isbn', 'enum', 'formats', 'float', 'comp_tags'):
+            for func in ('get_custom', 'get_custom_extra', 'get_custom_and_extra'):
+                run_funcs(self, db, ndb, [(func, idx, label) for idx in range(3)])
+
+        # Test renaming/deleting
+        t = {v:k for k, v in ndb.new_api.get_id_map('#tags').iteritems()}['My Tag One']
+        t2 = {v:k for k, v in ndb.new_api.get_id_map('#tags').iteritems()}['My Tag Two']
+        a = {v:k for k, v in ndb.new_api.get_id_map('#authors').iteritems()}['My Author Two']
+        a2 = {v:k for k, v in ndb.new_api.get_id_map('#authors').iteritems()}['Custom One']
+        s = {v:k for k, v in ndb.new_api.get_id_map('#series').iteritems()}['My Series One']
+        run_funcs(self, db, ndb, (
+            ('delete_custom_item_using_id', t, 'tags'),
+            ('delete_custom_item_using_id', a, 'authors'),
+            ('rename_custom_item', t2, 't2', 'tags'),
+            ('rename_custom_item', a2, 'custom one', 'authors'),
+            ('rename_custom_item', s, 'My Series Two', 'series'),
+            ('delete_item_from_multiple', 'custom two', 'authors'),
+            (db.clean,),
+            (db.refresh,),
+            ('all_custom', 'series'), ('all_custom', 'tags'), ('all_custom', 'authors'),
+        ))
+        for label in ('tags', 'authors', 'series'):
+            run_funcs(self, db, ndb, [('get_custom_and_extra', idx, label) for idx in range(3)])
+        db.close()
     # }}}
 

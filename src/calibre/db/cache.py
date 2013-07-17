@@ -30,7 +30,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import (base_dir, PersistentTemporaryFile,
                                SpooledTemporaryFile)
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import now as nowf, utcnow, UNDEFINED_DATE
 from calibre.utils.icu import sort_key
 
@@ -146,11 +146,18 @@ class Cache(object):
         self.formatter_template_cache = {}
 
     @write_api
-    def refresh(self):
-        self._initialize_template_cache()
+    def clear_caches(self, book_ids=None):
+        self._initialize_template_cache()  # Clear the formatter template cache
         for field in self.fields.itervalues():
-            if hasattr(field, 'clear_cache'):
-                field.clear_cache()  # Clear the composite cache
+            if hasattr(field, 'clear_caches'):
+                field.clear_caches(book_ids=book_ids)  # Clear the composite cache and ondevice caches
+        self.format_metadata_cache.clear()
+
+    @write_api
+    def reload_from_db(self, clear_caches=True):
+        if clear_caches:
+            self._clear_caches()
+        for field in self.fields.itervalues():
             if hasattr(field, 'table'):
                 field.table.read(self.backend)  # Reread data from metadata.db
 
@@ -408,7 +415,16 @@ class Cache(object):
         return {aid:af.author_data(aid) for aid in author_ids if aid in af.table.id_map}
 
     @read_api
-    def format_metadata(self, book_id, fmt, allow_cache=True):
+    def format_hash(self, book_id, fmt):
+        try:
+            name = self.fields['formats'].format_fname(book_id, fmt)
+            path = self._field_for('path', book_id).replace('/', os.sep)
+        except:
+            raise NoSuchFormat('Record %d has no fmt: %s'%(book_id, fmt))
+        return self.backend.format_hash(book_id, fmt, name, path)
+
+    @api
+    def format_metadata(self, book_id, fmt, allow_cache=True, update_db=False):
         if not fmt:
             return {}
         fmt = fmt.upper()
@@ -416,17 +432,29 @@ class Cache(object):
             x = self.format_metadata_cache[book_id].get(fmt, None)
             if x is not None:
                 return x
-        try:
-            name = self.fields['formats'].format_fname(book_id, fmt)
-            path = self._field_for('path', book_id).replace('/', os.sep)
-        except:
-            return {}
+        with self.read_lock:
+            try:
+                name = self.fields['formats'].format_fname(book_id, fmt)
+                path = self._field_for('path', book_id).replace('/', os.sep)
+            except:
+                return {}
 
-        ans = {}
-        if path and name:
-            ans = self.backend.format_metadata(book_id, fmt, name, path)
-            self.format_metadata_cache[book_id][fmt] = ans
+            ans = {}
+            if path and name:
+                ans = self.backend.format_metadata(book_id, fmt, name, path)
+                self.format_metadata_cache[book_id][fmt] = ans
+        if update_db and 'size' in ans:
+            with self.write_lock:
+                max_size = self.fields['formats'].table.update_fmt(book_id, fmt, name, ans['size'], self.backend)
+                self.fields['size'].table.update_sizes({book_id: max_size})
+
         return ans
+
+    @read_api
+    def format_files(self, book_id):
+        field = self.fields['formats']
+        fmts = field.table.book_col_map.get(book_id, ())
+        return {fmt:field.format_fname(book_id, fmt) for fmt in fmts}
 
     @read_api
     def pref(self, name, default=None):
@@ -499,6 +527,14 @@ class Cache(object):
         return ret
 
     @read_api
+    def cover_last_modified(self, book_id):
+        try:
+            path = self._field_for('path', book_id).replace('/', os.sep)
+        except AttributeError:
+            return
+        return self.backend.cover_last_modified(path)
+
+    @read_api
     def copy_cover_to(self, book_id, dest, use_hardlink=False):
         '''
         Copy the cover to the file like object ``dest``. Returns False
@@ -524,6 +560,7 @@ class Cache(object):
         the path is different from the current path (taking case sensitivity
         into account).
         '''
+        fmt = (fmt or '').upper()
         try:
             name = self.fields['formats'].format_fname(book_id, fmt)
             path = self._field_for('path', book_id).replace('/', os.sep)
@@ -544,6 +581,7 @@ class Cache(object):
         Apart from the viewer, I don't believe any of the others do any file
         I/O with the results of this call.
         '''
+        fmt = (fmt or '').upper()
         try:
             name = self.fields['formats'].format_fname(book_id, fmt)
             path = self._field_for('path', book_id).replace('/', os.sep)
@@ -555,6 +593,7 @@ class Cache(object):
     @read_api
     def has_format(self, book_id, fmt):
         'Return True iff the format exists on disk'
+        fmt = (fmt or '').upper()
         try:
             name = self.fields['formats'].format_fname(book_id, fmt)
             path = self._field_for('path', book_id).replace('/', os.sep)
@@ -601,6 +640,7 @@ class Cache(object):
                                   this means that repeated calls yield the same
                                   temp file (which is re-created each time)
         '''
+        fmt = (fmt or '').upper()
         ext = ('.'+fmt.lower()) if fmt else ''
         if as_path:
             if preserve_filename:
@@ -761,7 +801,7 @@ class Cache(object):
 
         if dirtied and self.composites:
             for name in self.composites:
-                self.fields[name].pop_cache(dirtied)
+                self.fields[name].clear_caches(book_ids=dirtied)
 
         if dirtied and update_path and do_path_update:
             self._update_path(dirtied, mark_as_dirtied=False)
@@ -1068,16 +1108,16 @@ class Cache(object):
         self._update_last_modified(tuple(formats_map.iterkeys()))
 
     @read_api
-    def get_next_series_num_for(self, series):
+    def get_next_series_num_for(self, series, field='series'):
         books = ()
-        sf = self.fields['series']
+        sf = self.fields[field]
         if series:
             q = icu_lower(series)
-            for val, book_ids in sf.iter_searchable_values(self._get_metadata, frozenset(self.all_book_ids())):
+            for val, book_ids in sf.iter_searchable_values(self._get_metadata, frozenset(self._all_book_ids())):
                 if q == icu_lower(val):
                     books = book_ids
                     break
-        series_indices = sorted(self._field_for('series_index', book_id) for book_id in books)
+        series_indices = sorted(self._field_for(sf.index_field.name, book_id) for book_id in books)
         return _get_next_series_num_for_list(tuple(series_indices), unwrap=False)
 
     @read_api
@@ -1181,6 +1221,42 @@ class Cache(object):
             else:
                 table.remove_books(book_ids, self.backend)
 
+    @read_api
+    def author_sort_strings_for_books(self, book_ids):
+        val_map = {}
+        for book_id in book_ids:
+            authors = self._field_ids_for('authors', book_id)
+            adata = self._author_data(authors)
+            val_map[book_id] = tuple(adata[aid]['sort'] for aid in authors)
+        return val_map
+
+    @write_api
+    def rename_items(self, field, item_id_to_new_name_map, change_index=True):
+        f = self.fields[field]
+        try:
+            func = f.table.rename_item
+        except AttributeError:
+            raise ValueError('Cannot rename items for one-one fields: %s' % field)
+        affected_books = set()
+        moved_books = set()
+        id_map = {}
+        for item_id, new_name in item_id_to_new_name_map.iteritems():
+            books, new_id = func(item_id, new_name, self.backend)
+            affected_books.update(books)
+            id_map[item_id] = new_id
+            if new_id != item_id:
+                moved_books.update(books)
+        if affected_books:
+            if field == 'authors':
+                self._set_field('author_sort',
+                                {k:' & '.join(v) for k, v in self._author_sort_strings_for_books(affected_books).iteritems()})
+                self._update_path(affected_books, mark_as_dirtied=False)
+            elif change_index and hasattr(f, 'index_field') and tweaks['series_index_auto_increment'] != 'no_change':
+                for book_id in moved_books:
+                    self._set_field(f.index_field.name, {book_id:self._get_next_series_num_for(self._field_for(field, book_id), field=field)})
+            self._mark_as_dirty(affected_books)
+        return affected_books, id_map
+
     @write_api
     def remove_items(self, field, item_ids):
         ''' Delete all items in the specified field with the specified ids. Returns the set of affected book ids. '''
@@ -1238,6 +1314,93 @@ class Cache(object):
     def set_conversion_options(self, options, fmt='PIPE'):
         ''' options must be a map of the form {book_id:conversion_options} '''
         return self.backend.set_conversion_options(options, fmt)
+
+    @write_api
+    def refresh_format_cache(self):
+        self.fields['formats'].table.read(self.backend)
+        self.format_metadata_cache.clear()
+
+    @write_api
+    def refresh_ondevice(self):
+        self.fields['ondevice'].clear_caches()
+
+    @read_api
+    def tags_older_than(self, tag, delta=None, must_have_tag=None, must_have_authors=None):
+        '''
+        Return the ids of all books having the tag ``tag`` that are older than
+        than the specified time. tag comparison is case insensitive.
+
+        :param delta: A timedelta object or None. If None, then all ids with
+        the tag are returned.
+        :param must_have_tag: If not None the list of matches will be
+        restricted to books that have this tag
+        :param must_have_authors: A list of authors. If not None the list of
+        matches will be restricted to books that have these authors (case
+        insensitive).
+        '''
+        tag_map = {icu_lower(v):k for k, v in self._get_id_map('tags').iteritems()}
+        tag = icu_lower(tag.strip())
+        mht = icu_lower(must_have_tag.strip()) if must_have_tag else None
+        tag_id, mht_id = tag_map.get(tag, None), tag_map.get(mht, None)
+        ans = set()
+        if mht_id is None and mht:
+            return ans
+        if tag_id is not None:
+            tagged_books = self._books_for_field('tags', tag_id)
+            if mht_id is not None and tagged_books:
+                tagged_books = tagged_books.intersection(self._books_for_field('tags', mht_id))
+            if tagged_books:
+                if must_have_authors is not None:
+                    amap = {icu_lower(v):k for k, v in self._get_id_map('authors').iteritems()}
+                    books = None
+                    for author in must_have_authors:
+                        abooks = self._books_for_field('authors', amap.get(icu_lower(author), None))
+                        books = abooks if books is None else books.intersection(abooks)
+                        if not books:
+                            break
+                    tagged_books = tagged_books.intersection(books or set())
+                if delta is None:
+                    ans = tagged_books
+                else:
+                    now = nowf()
+                    for book_id in tagged_books:
+                        ts = self._field_for('timestamp', book_id)
+                        if (now - ts) > delta:
+                            ans.add(book_id)
+        return ans
+
+    @write_api
+    def set_sort_for_authors(self, author_id_to_sort_map, update_books=True):
+        self.fields['authors'].table.set_sort_names(author_id_to_sort_map, self.backend)
+        changed_books = set()
+        if update_books:
+            val_map = {}
+            for author_id in author_id_to_sort_map:
+                books = self._books_for_field('authors', author_id)
+                changed_books |= books
+                for book_id in books:
+                    authors = self._field_ids_for('authors', book_id)
+                    adata = self._author_data(authors)
+                    sorts = [adata[x]['sort'] for x in authors]
+                    val_map[book_id] = ' & '.join(sorts)
+            if val_map:
+                self._set_field('author_sort', val_map)
+        self._mark_as_dirty(changed_books)
+        return changed_books
+
+    @write_api
+    def set_link_for_authors(self, author_id_to_link_map):
+        self.fields['authors'].table.set_links(author_id_to_link_map, self.backend)
+        changed_books = set()
+        for author_id in author_id_to_link_map:
+            changed_books |= self._books_for_field('authors', author_id)
+        self._mark_as_dirty(changed_books)
+        return changed_books
+
+    @read_api
+    def lookup_by_uuid(self, uuid):
+        return self.fields['uuid'].table.lookup_by_uuid(uuid)
+
 
     # }}}
 

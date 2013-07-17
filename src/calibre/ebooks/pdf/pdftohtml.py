@@ -118,7 +118,7 @@ def flip_image(img, flip):
     im.save(img)
 
 def flip_images(raw):
-    for match in re.finditer(b'<IMG[^>]+/?>', raw):
+    for match in re.finditer(b'<IMG[^>]+/?>', raw, flags=re.I):
         img = match.group()
         m = re.search(br'class="(x|y|xy)flip"', img)
         if m is None: continue
@@ -127,7 +127,6 @@ def flip_images(raw):
         if src is None: continue
         img = src.group(1)
         if not os.path.exists(img): continue
-        print ('Flipping image %s: %s'%(img, flip))
         flip_image(img, flip)
     raw = re.sub(br'<STYLE.+?</STYLE>\s*', b'', raw, flags=re.I|re.DOTALL)
     return raw
