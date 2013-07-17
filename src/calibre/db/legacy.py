@@ -539,6 +539,41 @@ class LibraryDatabase(object):
     def rename_series(self, old_id, new_name, change_index=True):
         self.new_api.rename_items('series', {old_id:new_name}, change_index=change_index)
 
+    def get_custom(self, index, label=None, num=None, index_is_id=False):
+        book_id = index if index_is_id else self.id(index)
+        ans = self.new_api.field_for(self.custom_field_name(label, num), book_id)
+        if isinstance(ans, tuple):
+            ans = list(ans)
+        return ans
+
+    def get_custom_extra(self, index, label=None, num=None, index_is_id=False):
+        data = self.backend.custom_field_metadata(label, num)
+        # add future datatypes with an extra column here
+        if data['datatype'] != 'series':
+            return None
+        book_id = index if index_is_id else self.id(index)
+        return self.new_api.field_for(self.custom_field_name(label, num) + '_index', book_id)
+
+    def get_custom_and_extra(self, index, label=None, num=None, index_is_id=False):
+        book_id = index if index_is_id else self.id(index)
+        data = self.backend.custom_field_metadata(label, num)
+        ans = self.new_api.field_for(self.custom_field_name(label, num), book_id)
+        if isinstance(ans, tuple):
+            ans = list(ans)
+        if data['datatype'] != 'series':
+            return (ans, None)
+        return (ans, self.new_api.field_for(self.custom_field_name(label, num) + '_index', book_id))
+
+    def get_next_cc_series_num_for(self, series, label=None, num=None):
+        data = self.backend.custom_field_metadata(label, num)
+        if data['datatype'] != 'series':
+            return None
+        return self.new_api.get_next_series_num_for(series, field=self.custom_field_name(label, num))
+
+    def is_item_used_in_multiple(self, item, label=None, num=None):
+        existing_tags = self.all_custom(label=label, num=num)
+        return icu_lower(item) in {icu_lower(t) for t in existing_tags}
+
     # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():

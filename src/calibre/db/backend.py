@@ -792,6 +792,11 @@ class DB(object):
             return self.field_metadata.custom_field_prefix + label
         return self.field_metadata.custom_field_prefix + self.custom_column_num_to_label_map[num]
 
+    def custom_field_metadata(self, label=None, num=None):
+        if label is not None:
+            return self.custom_column_label_map[label]
+        return self.custom_column_num_map[num]
+
     def close(self):
         if self._conn is not None:
             self._conn.close()

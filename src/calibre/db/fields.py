@@ -325,7 +325,11 @@ class ManyToManyField(Field):
     def for_book(self, book_id, default_value=None):
         ids = self.table.book_col_map.get(book_id, ())
         if ids:
-            ans = tuple(self.table.id_map[i] for i in ids)
+            ans = (self.table.id_map[i] for i in ids)
+            if self.table.sort_alpha:
+                ans = tuple(sorted(ans, key=sort_key))
+            else:
+                ans = tuple(ans)
         else:
             ans = default_value
         return ans

@@ -612,9 +612,16 @@ class LegacyTest(BaseTest):
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old(self.cloned_library)
         run_funcs(self, db, ndb, (
-            ('all_custom', 'series'), ('all_custom', 'tags'), ('all_custom', 'rating'), ('all_custom', 'authors'),
+            ('all_custom', 'series'), ('all_custom', 'tags'), ('all_custom', 'rating'), ('all_custom', 'authors'), ('all_custom', None, 7),
+            ('get_next_cc_series_num_for', 'My Series One', 'series'), ('get_next_cc_series_num_for', 'My Series Two', 'series'),
+            ('is_item_used_in_multiple', 'My Tag One', 'tags'),
+            ('is_item_used_in_multiple', 'My Series One', 'series'),
             ('$get_custom_items_with_ids', 'series'), ('$get_custom_items_with_ids', 'tags'), ('$get_custom_items_with_ids', 'float'),
-            ('$get_custom_items_with_ids', 'rating'), ('$get_custom_items_with_ids', 'authors'),
+            ('$get_custom_items_with_ids', 'rating'), ('$get_custom_items_with_ids', 'authors'), ('$get_custom_items_with_ids', None, 7),
         ))
+        for label in ('tags', 'series', 'authors', 'comments', 'rating', 'date', 'yesno', 'isbn', 'enum', 'formats', 'float', 'comp_tags'):
+            for func in ('get_custom', 'get_custom_extra', 'get_custom_and_extra'):
+                run_funcs(self, db, ndb, [(func, idx, label) for idx in range(3)])
+        db.close()
     # }}}
 

@@ -44,6 +44,7 @@ class Table(object):
 
     def __init__(self, name, metadata, link_table=None):
         self.name, self.metadata = name, metadata
+        self.sort_alpha = metadata.get('is_multiple', False) and metadata.get('display', {}).get('sort_alpha', False)
 
         # self.unserialize() maps values from the db to python objects
         self.unserialize = \
