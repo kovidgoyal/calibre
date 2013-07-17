@@ -345,6 +345,12 @@ class LegacyTest(BaseTest):
             self.assertEqual(cache.field_for('authors', bid), ('calibre',))
             self.assertEqual(cache.field_for('tags', bid), (_('News'), 'Events', 'one', 'two'))
 
+        self.assertTrue(legacy.cover(1, index_is_id=True))
+        self.assertTrue(legacy.has_cover(1))
+        legacy.remove_cover(1)
+        self.assertFalse(legacy.has_cover(1))
+        self.assertFalse(legacy.cover(1, index_is_id=True))
+
         legacy.delete_book(1)
         old.delete_book(1)
         self.assertNotIn(1, legacy.all_ids())

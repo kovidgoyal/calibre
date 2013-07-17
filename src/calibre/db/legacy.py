@@ -664,6 +664,11 @@ class LibraryDatabase(object):
         if changed and notify:
             self.notify('metadata', [])
 
+    def remove_cover(self, book_id, notify=True, commit=True):
+        self.new_api.set_cover({book_id:None})
+        if notify:
+            self.notify('cover', [id])
+
     # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():
