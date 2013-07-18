@@ -49,10 +49,10 @@ def run_funcs(self, db, ndb, funcs):
             meth(*args)
         else:
             fmt = lambda x:x
-            if meth[0] in {'!', '@', '#', '+', '$', '-'}:
+            if meth[0] in {'!', '@', '#', '+', '$', '-', '%'}:
                 if meth[0] != '+':
                     fmt = {'!':dict, '@':lambda x:frozenset(x or ()), '#':lambda x:set((x or '').split(',')),
-                           '$':lambda x:set(tuple(y) for y in x), '-':lambda x:None}[meth[0]]
+                           '$':lambda x:set(tuple(y) for y in x), '-':lambda x:None, '%':lambda x: set((x or '').split(','))}[meth[0]]
                 else:
                     fmt = args[-1]
                     args = args[:-1]
@@ -356,6 +356,10 @@ class LegacyTest(BaseTest):
         legacy.set_cover(3, origcov)
         self.assertEqual(legacy.cover(3, index_is_id=True), origcov)
         self.assertTrue(legacy.has_cover(3))
+
+        self.assertTrue(legacy.format(1, 'FMT1', index_is_id=True))
+        legacy.remove_format(1, 'FMT1', index_is_id=True)
+        self.assertIsNone(legacy.format(1, 'FMT1', index_is_id=True))
 
         legacy.delete_book(1)
         old.delete_book(1)
@@ -726,3 +730,16 @@ class LegacyTest(BaseTest):
         self.assertRaises(KeyError, ndb.custom_field_name, num=num)
     # }}}
 
+    def test_legacy_original_fmt(self):  # {{{
+        db, ndb = self.init_old(), self.init_legacy()
+        run_funcs(self, db, ndb, (
+            ('original_fmt', 1, 'FMT1'),
+            ('save_original_format', 1, 'FMT1'),
+            ('original_fmt', 1, 'FMT1'),
+            ('restore_original_format', 1, 'ORIGINAL_FMT1'),
+            ('original_fmt', 1, 'FMT1'),
+            ('%formats', 1, True),
+        ))
+        db.close()
+
+    # }}}

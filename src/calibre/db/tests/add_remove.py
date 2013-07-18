@@ -251,4 +251,21 @@ class AddRemoveTest(BaseTest):
 
     # }}}
 
+    def test_original_fmt(self):  # {{{
+        ' Test management of original fmt '
+        af, ae, at = self.assertFalse, self.assertEqual, self.assertTrue
+        db = self.init_cache()
+        fmts = db.formats(1)
+        af(db.has_format(1, 'ORIGINAL_FMT1'))
+        at(db.save_original_format(1, 'FMT1'))
+        at(db.has_format(1, 'ORIGINAL_FMT1'))
+        raw = db.format(1, 'FMT1')
+        ae(raw, db.format(1, 'ORIGINAL_FMT1'))
+        db.add_format(1, 'FMT1', BytesIO(b'replacedfmt'))
+        self.assertNotEqual(db.format(1, 'FMT1'), db.format(1, 'ORIGINAL_FMT1'))
+        at(db.restore_original_format(1, 'ORIGINAL_FMT1'))
+        ae(raw, db.format(1, 'FMT1'))
+        af(db.has_format(1, 'ORIGINAL_FMT1'))
+        ae(set(fmts), set(db.formats(1, verify_formats=False)))
+    # }}}
 

@@ -607,6 +607,31 @@ class Cache(object):
             return False
         return self.backend.has_format(book_id, fmt, name, path)
 
+    @api
+    def save_original_format(self, book_id, fmt):
+        fmt = fmt.upper()
+        if 'ORIGINAL' in fmt:
+            raise ValueError('Cannot save original of an original fmt')
+        fmtfile = self.format(book_id, fmt, as_file=True)
+        if fmtfile is None:
+            return False
+        with fmtfile:
+            nfmt = 'ORIGINAL_'+fmt
+            return self.add_format(book_id, nfmt, fmtfile, run_hooks=False)
+
+    @api
+    def restore_original_format(self, book_id, original_fmt):
+        original_fmt = original_fmt.upper()
+        fmtfile = self.format(book_id, original_fmt, as_file=True)
+        if fmtfile is not None:
+            fmt = original_fmt.partition('_')[2]
+            with self.write_lock:
+                with fmtfile:
+                    self._add_format(book_id, fmt, fmtfile, run_hooks=False)
+                self._remove_formats({book_id:(original_fmt,)})
+                return True
+        return False
+
     @read_api
     def formats(self, book_id, verify_formats=True):
         '''

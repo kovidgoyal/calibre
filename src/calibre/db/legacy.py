@@ -674,6 +674,28 @@ class LibraryDatabase(object):
         if notify:
             self.notify('cover', [book_id])
 
+    def original_fmt(self, book_id, fmt):
+        nfmt = ('ORIGINAL_%s'%fmt).upper()
+        return nfmt if self.new_api.has_format(book_id, nfmt) else fmt
+
+    def save_original_format(self, book_id, fmt, notify=True):
+        ret = self.new_api.save_original_format(book_id, fmt)
+        if ret and notify:
+            self.notify('metadata', [book_id])
+        return ret
+
+    def restore_original_format(self, book_id, original_fmt, notify=True):
+        ret = self.new_api.restore_original_format(book_id, original_fmt)
+        if ret and notify:
+            self.notify('metadata', [book_id])
+        return ret
+
+    def remove_format(self, index, fmt, index_is_id=False, notify=True, commit=True, db_only=False):
+        book_id = index if index_is_id else self.id(index)
+        self.new_api.remove_formats({book_id:(fmt,)}, db_only=db_only)
+        if notify:
+            self.notify('metadata', [book_id])
+
     # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():

@@ -1570,6 +1570,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             with lopen(opath, 'rb') as f:
                 self.add_format(book_id, fmt, f, index_is_id=True, notify=False)
             self.remove_format(book_id, original_fmt, index_is_id=True, notify=notify)
+            return True
+        return False
 
     def delete_book(self, id, notify=True, commit=True, permanent=False,
             do_clean=True):
