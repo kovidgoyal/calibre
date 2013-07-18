@@ -26,6 +26,10 @@ def what(file, h=None):
     finally:
         if f:
             f.close()
+    # There exist some jpeg files with no headers, only the starting two bits
+    # If we cannot identify as anything else, identify as jpeg.
+    if h[:2] == b'\xff\xd8':
+        return 'jpeg'
     return None
 
 
