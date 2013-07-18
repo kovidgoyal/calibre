@@ -113,5 +113,7 @@ Various things that require other things before they can be migrated:
     3. Port library/restore.py
     4. Replace the metadatabackup thread with the new implementation when using the new backend.
     5. grep the sources for TODO
-    6. Check that content server reloading on metadata,db change, metadata backup, refresh gui on calibredb add all work
+    6. Check that content server reloading on metadata,db change, metadata
+    backup, refresh gui on calibredb add and moving libraries all work (check
+    them on windows as well for file locking issues)
 '''
