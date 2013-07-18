@@ -346,10 +346,14 @@ class LegacyTest(BaseTest):
             self.assertEqual(cache.field_for('tags', bid), (_('News'), 'Events', 'one', 'two'))
 
         self.assertTrue(legacy.cover(1, index_is_id=True))
+        origcov = legacy.cover(1, index_is_id=True)
         self.assertTrue(legacy.has_cover(1))
         legacy.remove_cover(1)
         self.assertFalse(legacy.has_cover(1))
         self.assertFalse(legacy.cover(1, index_is_id=True))
+        legacy.set_cover(3, origcov)
+        self.assertEqual(legacy.cover(3, index_is_id=True), origcov)
+        self.assertTrue(legacy.has_cover(3))
 
         legacy.delete_book(1)
         old.delete_book(1)

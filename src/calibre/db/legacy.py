@@ -667,7 +667,12 @@ class LibraryDatabase(object):
     def remove_cover(self, book_id, notify=True, commit=True):
         self.new_api.set_cover({book_id:None})
         if notify:
-            self.notify('cover', [id])
+            self.notify('cover', [book_id])
+
+    def set_cover(self, book_id, data, notify=True, commit=True):
+        self.new_api.set_cover({book_id:data})
+        if notify:
+            self.notify('cover', [book_id])
 
     # Private interface {{{
     def __iter__(self):
