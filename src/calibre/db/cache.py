@@ -402,6 +402,12 @@ class Cache(object):
         return self.fields[field].table.id_map[item_id]
 
     @read_api
+    def get_item_id(self, field, item_name):
+        ' Return the item id for item_name (case-insensitive) '
+        rmap = {icu_lower(v) if isinstance(v, unicode) else v:k for k, v in self.fields[field].table.id_map.iteritems()}
+        return rmap.get(icu_lower(item_name) if isinstance(item_name, unicode) else item_name, None)
+
+    @read_api
     def author_data(self, author_ids=None):
         '''
         Return author data as a dictionary with keys: name, sort, link
@@ -1412,6 +1418,14 @@ class Cache(object):
     @write_api
     def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None, display=None):
         return self.backend.set_custom_column_metadata(num, name=name, label=label, is_editable=is_editable, display=display)
+
+    @read_api
+    def get_books_for_category(self, category, item_id_or_composite_value):
+        f = self.fields[category]
+        if hasattr(f, 'get_books_for_val'):
+            # Composite field
+            return f.get_books_for_val(item_id_or_composite_value, self._get_metadata, self._all_book_ids())
+        return self._books_for_field(f.name, item_id_or_composite_value)
 
     # }}}
 

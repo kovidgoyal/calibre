@@ -211,6 +211,16 @@ class CompositeField(OneToOneField):
             ans.append(c)
         return ans
 
+    def get_books_for_val(self, value, get_metadata, book_ids):
+        is_multiple = self.table.metadata['is_multiple'].get('cache_to_list', None)
+        ans = set()
+        for book_id in book_ids:
+            val = self.get_value_with_cache(book_id, get_metadata)
+            vals = {x.strip() for x in val.split(is_multiple)} if is_multiple else [val]
+            if value in vals:
+                ans.add(book_id)
+        return ans
+
 class OnDeviceField(OneToOneField):
 
     def __init__(self, name, table):

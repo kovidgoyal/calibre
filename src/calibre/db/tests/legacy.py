@@ -161,10 +161,12 @@ class LegacyTest(BaseTest):
         from datetime import timedelta
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old()
+        newstag = ndb.new_api.get_item_id('tags', 'news')
 
         self.assertEqual(dict(db.prefs), dict(ndb.prefs))
 
         for meth, args in {
+            'get_books_for_category': [('tags', newstag), ('#formats', 'FMT1')],
             'get_next_series_num_for': [('A Series One',)],
             'get_id_from_uuid':[('ddddd',), (db.uuid(1, True),)],
             'cover':[(0,), (1,), (2,)],
