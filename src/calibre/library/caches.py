@@ -170,6 +170,16 @@ class CacheRow(list):  # {{{
                                       evaluate_composites=False)
             self[col] = mi.get(self._composites[col])
             self._have_done.add(col)
+
+            # Check if any other composites were evaluated as a prerequisite for
+            # the one we want.
+            for c,n in self._composites.iteritems():
+                if c not in self._have_done:
+                    v =  mi.get_raw_composite(n)
+                    if v is not None:
+                        self[c] = v
+                        self._have_done.add(c)
+
             if len(self._have_done) == len(self._composites):
                 self._must_do = False
 
