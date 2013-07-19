@@ -120,6 +120,9 @@ class LibraryDatabase(object):
             self.new_api.reload_from_db()
         self.last_update_check = utcnow()
 
+    def get_saved_searches(self):
+        return self.new_api._search_api.get_saved_searches()
+
     @property
     def custom_column_num_map(self):
         return self.backend.custom_column_num_map

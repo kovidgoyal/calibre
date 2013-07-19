@@ -537,6 +537,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if self.user_version == 0:
             self.user_version = 1
 
+    def get_saved_searches(self):
+        return saved_searches()
+
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object'''
         return utcfromtimestamp(os.stat(self.dbpath).st_mtime)

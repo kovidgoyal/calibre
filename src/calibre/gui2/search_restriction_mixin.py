@@ -17,7 +17,6 @@ from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import ParseException
-from calibre.utils.search_query_parser import saved_searches
 
 class SelectNames(QDialog):  # {{{
 
@@ -179,6 +178,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
         self.resize(self.sizeHint()+QSize(150, 25))
 
     def search_text_changed(self, txt):
+        from calibre.gui2.ui import saved_searches
         searches = [_('Saved searches recognized in the expression:')]
         txt = unicode(txt)
         while txt:
@@ -234,6 +234,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
         self.vl_text.setText(self.original_search)
 
     def link_activated(self, url):
+        from calibre.gui2.ui import saved_searches
         db = self.gui.current_db
         f, txt = unicode(url).partition('.')[0::2]
         if f == 'search':
@@ -475,6 +476,7 @@ class SearchRestrictionMixin(object):
         return name[0:MAX_VIRTUAL_LIBRARY_NAME_LENGTH].strip()
 
     def build_search_restriction_list(self):
+        from calibre.gui2.ui import saved_searches
         m = self.ar_menu
         m.clear()
 

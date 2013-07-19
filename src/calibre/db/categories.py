@@ -16,7 +16,6 @@ from calibre.ebooks.metadata import author_to_author_sort
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
-from calibre.utils.search_query_parser import saved_searches
 
 CATEGORY_SORTS = ('name', 'popularity', 'rating')  # This has to be a tuple not a set
 
@@ -229,7 +228,7 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
     icon = None
     if icon_map and 'search' in icon_map:
         icon = icon_map['search']
-    ss = saved_searches()
+    ss = dbcache._search_api.get_saved_searches()
     for srch in ss.names():
         items.append(Tag(srch, tooltip=ss.lookup(srch),
                             sort=srch, icon=icon, category='search',
