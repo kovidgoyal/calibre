@@ -228,11 +228,10 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
     icon = None
     if icon_map and 'search' in icon_map:
         icon = icon_map['search']
-    ss = dbcache._search_api.get_saved_searches()
-    for srch in ss.names():
-        items.append(Tag(srch, tooltip=ss.lookup(srch),
-                            sort=srch, icon=icon, category='search',
-                            is_editable=False))
+    queries = dbcache._search_api.saved_searches.queries
+    for srch in sorted(queries, key=sort_key):
+        items.append(Tag(srch, tooltip=queries[srch], sort=srch, icon=icon,
+                         category='search', is_editable=False))
     if len(items):
         categories['search'] = items
 

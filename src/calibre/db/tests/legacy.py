@@ -751,3 +751,24 @@ class LegacyTest(BaseTest):
         db.close()
 
     # }}}
+
+    def test_legacy_saved_search(self):  # {{{
+        ' Test legacy saved search API '
+        db, ndb = self.init_old(), self.init_legacy()
+        run_funcs(self, db, ndb, (
+            ('saved_search_set_all', {'one':'a', 'two':'b'}),
+            ('saved_search_names',),
+            ('saved_search_lookup', 'one'),
+            ('saved_search_lookup', 'two'),
+            ('saved_search_lookup', 'xxx'),
+            ('saved_search_rename', 'one', '1'),
+            ('saved_search_names',),
+            ('saved_search_lookup', '1'),
+            ('saved_search_delete', '1'),
+            ('saved_search_names',),
+            ('saved_search_add', 'n', 'm'),
+            ('saved_search_names',),
+            ('saved_search_lookup', 'n'),
+        ))
+    # }}}
+

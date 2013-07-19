@@ -308,28 +308,35 @@ class SavedSearchBox(QComboBox):  # {{{
             self.saved_search_selected(self.currentText())
 
     def saved_search_selected(self, qname):
-        from calibre.gui2.ui import saved_searches
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db
         qname = unicode(qname)
         if qname is None or not qname.strip():
             self.search_box.clear()
             return
-        if not saved_searches().lookup(qname):
+        if not db.saved_search_lookup(qname):
             self.search_box.clear()
             self.setEditText(qname)
             return
         self.search_box.set_search_string(u'search:"%s"' % qname, emit_changed=False)
         self.setEditText(qname)
-        self.setToolTip(saved_searches().lookup(qname))
+        self.setToolTip(db.saved_search_lookup(qname))
 
     def initialize_saved_search_names(self):
-        from calibre.gui2.ui import saved_searches
-        qnames = saved_searches().names()
-        self.addItems(qnames)
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
+        try:
+            names = gui.current_db.saved_search_names()
+        except AttributeError:
+            # Happens during gui initialization
+            names = []
+        self.addItems(names)
         self.setCurrentIndex(-1)
 
     # SIGNALed from the main UI
     def save_search_button_clicked(self):
-        from calibre.gui2.ui import saved_searches
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db
         name = unicode(self.currentText())
         if not name.strip():
             name = unicode(self.search_box.text()).replace('"', '')
@@ -337,8 +344,8 @@ class SavedSearchBox(QComboBox):  # {{{
             error_dialog(self, _('Create saved search'),
                          _('There is no search to save'), show=True)
             return
-        saved_searches().delete(name)
-        saved_searches().add(name, unicode(self.search_box.text()))
+        db.saved_search_delete(name)
+        db.saved_search_add(name, unicode(self.search_box.text()))
         # now go through an initialization cycle to ensure that the combobox has
         # the new search in it, that it is selected, and that the search box
         # references the new search instead of the text in the search.
@@ -348,7 +355,8 @@ class SavedSearchBox(QComboBox):  # {{{
         self.changed.emit()
 
     def delete_current_search(self):
-        from calibre.gui2.ui import saved_searches
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db
         idx = self.currentIndex()
         if idx <= 0:
             error_dialog(self, _('Delete current search'),
@@ -358,21 +366,22 @@ class SavedSearchBox(QComboBox):  # {{{
                        '<b>permanently deleted</b>. Are you sure?')
                     +'</p>', 'saved_search_delete', self):
             return
-        ss = saved_searches().lookup(unicode(self.currentText()))
+        ss = db.saved_search_lookup(unicode(self.currentText()))
         if ss is None:
             return
-        saved_searches().delete(unicode(self.currentText()))
+        db.saved_search_delete(unicode(self.currentText()))
         self.clear()
         self.search_box.clear()
         self.changed.emit()
 
     # SIGNALed from the main UI
     def copy_search_button_clicked(self):
-        from calibre.gui2.ui import saved_searches
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db
         idx = self.currentIndex()
         if idx < 0:
             return
-        self.search_box.set_search_string(saved_searches().lookup(unicode(self.currentText())))
+        self.search_box.set_search_string(db.saved_search_lookup(unicode(self.currentText())))
 
     # }}}
 

@@ -70,6 +70,10 @@ class DBPrefs(dict):  # {{{
         self.db = db
         self.defaults = {}
         self.disable_setting = False
+        self.load_from_db()
+
+    def load_from_db(self):
+        self.clear()
         for key, val in self.db.conn.get('SELECT key,val FROM preferences'):
             try:
                 val = self.raw_to_object(val)
@@ -136,28 +140,10 @@ class DBPrefs(dict):  # {{{
 
     @classmethod
     def read_serialized(cls, library_path, recreate_prefs=False):
-        try:
-            from_filename = os.path.join(library_path,
-                    'metadata_db_prefs_backup.json')
-            with open(from_filename, "rb") as f:
-                d = json.load(f, object_hook=from_json)
-                if not recreate_prefs:
-                    return d
-                cls.clear()
-                cls.db.conn.execute('DELETE FROM preferences')
-                for k,v in d.iteritems():
-                    raw = cls.to_raw(v)
-                    cls.db.conn.execute(
-                        'INSERT INTO preferences (key,val) VALUES (?,?)', (k, raw))
-                cls.db.conn.commit()
-                cls.clear()
-                cls.update(d)
-                return d
-        except:
-            import traceback
-            traceback.print_exc()
-            raise
-        return None
+        from_filename = os.path.join(library_path,
+                'metadata_db_prefs_backup.json')
+        with open(from_filename, "rb") as f:
+            return json.load(f, object_hook=from_json)
 # }}}
 
 # Extra collators {{{

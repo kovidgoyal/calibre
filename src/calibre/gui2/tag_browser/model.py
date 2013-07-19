@@ -878,7 +878,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     traceback.print_exc()
         self.db.data.change_search_locations(self.db.field_metadata.get_search_terms())
 
-        if len(self.db.get_saved_searches().names()):
+        if len(self.db.saved_search_names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))
 
         if self.filter_categories_by:
@@ -1004,11 +1004,11 @@ class TagsModel(QAbstractItemModel): # {{{
                         _('Author names cannot contain & characters.')).exec_()
                 return False
         if key == 'search':
-            if val in self.db.get_saved_searches().names():
+            if val in self.db.saved_search_names():
                 error_dialog(self.gui_parent, _('Duplicate search name'),
                     _('The saved search name %s is already used.')%val).exec_()
                 return False
-            self.db.get_saved_searches().rename(unicode(item.data(role).toString()), val)
+            self.db.saved_search_rename(unicode(item.data(role).toString()), val)
             item.tag.name = val
             self.search_item_renamed.emit() # Does a refresh
         else:

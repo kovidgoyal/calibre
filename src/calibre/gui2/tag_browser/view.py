@@ -354,8 +354,7 @@ class TagsView(QTreeView): # {{{
                 self.delete_user_category.emit(key)
                 return
             if action == 'delete_search':
-                from calibre.gui2.ui import saved_searches
-                saved_searches().delete(key)
+                self.model().db.saved_search_delete(key)
                 self.rebuild_saved_searches.emit()
                 return
             if action == 'delete_item_from_user_category':
