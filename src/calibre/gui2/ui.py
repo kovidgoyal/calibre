@@ -876,7 +876,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 try:
                     self.shutdown(write_settings=False)
                 except:
-                    pass
+                    import traceback
+                    traceback.print_exc()
                 e.accept()
             else:
                 e.ignore()

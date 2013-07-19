@@ -890,6 +890,7 @@ LibraryDatabase.saved_search_set_all = MT(lambda self, smap:self.new_api.saved_s
 LibraryDatabase.saved_search_delete = MT(lambda self, x:self.new_api.saved_search_delete(x))
 LibraryDatabase.saved_search_add = MT(lambda self, x, y:self.new_api.saved_search_add(x, y))
 LibraryDatabase.saved_search_rename = MT(lambda self, x, y:self.new_api.saved_search_rename(x, y))
+LibraryDatabase.commit_dirty_cache = MT(lambda self: self.new_api.commit_dirty_cache())
 # Cleaning is not required anymore
 LibraryDatabase.clean = LibraryDatabase.clean_custom = MT(lambda self:None)
 LibraryDatabase.clean_standard_field = MT(lambda self, field, commit=False:None)
@@ -898,9 +899,4 @@ LibraryDatabase.commit = MT(lambda self:None)
 # }}}
 
 del MT
-
-
-
-
-
 

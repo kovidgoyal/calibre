@@ -801,6 +801,12 @@ class Cache(object):
             self.dirtied_cache.update(new_dirtied)
 
     @write_api
+    def commit_dirty_cache(self):
+        book_ids = [(x,) for x in self.dirtied_cache]
+        if book_ids:
+            self.backend.conn.executemany('INSERT OR IGNORE INTO metadata_dirtied (book) VALUES (?)', book_ids)
+
+    @write_api
     def set_field(self, name, book_id_to_val_map, allow_case_change=True, do_path_update=True):
         f = self.fields[name]
         is_series = f.metadata['datatype'] == 'series'
