@@ -325,7 +325,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.prefs.set('user_categories', user_cats)
 
         if not self.is_second_db:
-            load_user_template_functions(self.prefs.get('user_template_functions', []))
+            load_user_template_functions(self.library_id,
+                                         self.prefs.get('user_template_functions', []))
 
         # Load the format filename cache
         self.refresh_format_cache()
