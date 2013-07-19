@@ -168,8 +168,7 @@ How this will proceed:
     work.
 
 Various things that require other things before they can be migrated:
-    1. From initialize_dynamic(): set_saved_searches,
-                    load_user_template_functions. Also add custom
+    1. From initialize_dynamic(): Also add custom
                     columns/categories/searches info into
                     self.field_metadata.
     2. Catching DatabaseException and sqlite.Error when creating new

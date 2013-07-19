@@ -55,7 +55,7 @@ class LibraryDatabase(object):
             default_prefs=None, read_only=False, is_second_db=False,
             progress_callback=lambda x, y:True, restore_all_prefs=False):
 
-        self.is_second_db = is_second_db  # TODO: Use is_second_db
+        self.is_second_db = is_second_db
         self.listeners = set()
 
         backend = self.backend = DB(library_path, default_prefs=default_prefs,
