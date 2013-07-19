@@ -209,7 +209,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         if sr:
             if sr in virt_libs:
                 sr = virt_libs[sr]
-            elif sr not in self.db.get_saved_searches().names():
+            elif sr not in self.db.saved_search_names():
                 prints('WARNING: Content server: search restriction ',
                        sr, ' does not exist')
                 sr = ''

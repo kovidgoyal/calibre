@@ -538,8 +538,23 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if self.user_version == 0:
             self.user_version = 1
 
-    def get_saved_searches(self):
-        return saved_searches()
+    def saved_search_names(self):
+        return saved_searches().names()
+
+    def saved_search_rename(self, old_name, new_name):
+        saved_searches().rename(old_name, new_name)
+
+    def saved_search_lookup(self, name):
+        return saved_searches().lookup(name)
+
+    def saved_search_add(self, name, val):
+        saved_searches().add(name, val)
+
+    def saved_search_delete(self, name):
+        saved_searches().delete(name)
+
+    def saved_search_set_all(self, smap):
+        saved_searches().set_all(smap)
 
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object'''

@@ -89,7 +89,6 @@ class Cache(object):
         self.formatter_template_cache = {}
         self.dirtied_cache = {}
         self.dirtied_sequence = 0
-        self._search_api = Search(self, 'saved_searches', self.field_metadata.get_search_terms())
 
         # Implement locking for all simple read/write API methods
         # An unlocked version of the method is stored with the name starting
@@ -105,6 +104,7 @@ class Cache(object):
                 lock = self.read_lock if ira else self.write_lock
                 setattr(self, name, wrap_simple(lock, func))
 
+        self._search_api = Search(self, 'saved_searches', self.field_metadata.get_search_terms())
         self.initialize_dynamic()
 
     @write_api
@@ -127,7 +127,7 @@ class Cache(object):
                 except:
                     traceback.print_exc()
 
-        if len(self._search_api.get_saved_searches().names()):
+        if len(self._search_api.saved_searches.names()) > 0:
             self.field_metadata.add_search_category(label='search', name=_('Searches'))
 
         self.field_metadata.add_grouped_search_terms(
@@ -139,11 +139,6 @@ class Cache(object):
             self.backend.conn.execute('SELECT book FROM metadata_dirtied'))}
         if self.dirtied_cache:
             self.dirtied_sequence = max(self.dirtied_cache.itervalues())+1
-
-    @property
-    def prefs(self):
-        'For internal use only (used by SavedSearchQueries). For thread-safe access to the preferences, use the pref() and set_pref() methods.'
-        return self.backend.prefs
 
     @write_api
     def initialize_template_cache(self):
@@ -161,6 +156,8 @@ class Cache(object):
     def reload_from_db(self, clear_caches=True):
         if clear_caches:
             self._clear_caches()
+        self.backend.prefs.load_from_db()
+        self._search_api.saved_searches.load_from_db()
         for field in self.fields.itervalues():
             if hasattr(field, 'table'):
                 field.table.read(self.backend)  # Reread data from metadata.db
@@ -1519,6 +1516,30 @@ class Cache(object):
             progress = lambda x:x
         all_paths = {self._field_for('path', book_id).partition('/')[0] for book_id in self._all_book_ids()}
         self.backend.move_library_to(all_paths, newloc, progress=progress)
+
+    @read_api
+    def saved_search_names(self):
+        return self._search_api.saved_searches.names()
+
+    @read_api
+    def saved_search_lookup(self, name):
+        return self._search_api.saved_searches.lookup(name)
+
+    @write_api
+    def saved_search_set_all(self, smap):
+        self._search_api.saved_searches.set_all(smap)
+
+    @write_api
+    def saved_search_delete(self, name):
+        self._search_api.saved_searches.delete(name)
+
+    @write_api
+    def saved_search_add(self, name, val):
+        self._search_api.saved_searches.add(name, val)
+
+    @write_api
+    def saved_search_rename(self, old_name, new_name):
+        self._search_api.saved_searches.rename(old_name, new_name)
 
     # }}}
 
