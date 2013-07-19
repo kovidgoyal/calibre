@@ -166,6 +166,7 @@ class LegacyTest(BaseTest):
         self.assertEqual(dict(db.prefs), dict(ndb.prefs))
 
         for meth, args in {
+            'find_identical_books': [(Metadata('title one', ['author one']),), (Metadata('unknown'),), (Metadata('xxxx'),)],
             'get_books_for_category': [('tags', newstag), ('#formats', 'FMT1')],
             'get_next_series_num_for': [('A Series One',)],
             'get_id_from_uuid':[('ddddd',), (db.uuid(1, True),)],

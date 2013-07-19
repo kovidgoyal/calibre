@@ -661,7 +661,7 @@ class Search(object):
     def change_locations(self, newlocs):
         self.all_search_locations = newlocs
 
-    def __call__(self, dbcache, query, search_restriction, virtual_fields=None):
+    def __call__(self, dbcache, query, search_restriction, virtual_fields=None, book_ids=None):
         '''
         Return the set of ids of all records that match the specified
         query and restriction
@@ -674,17 +674,15 @@ class Search(object):
             if search_restriction:
                 q = u'(%s) and (%s)' % (search_restriction, query)
 
-        all_book_ids = dbcache._all_book_ids(type=set)
+        all_book_ids = dbcache._all_book_ids(type=set) if book_ids is None else set(book_ids)
         if not q:
             return all_book_ids
 
         if not isinstance(q, type(u'')):
             q = q.decode('utf-8')
 
-        # We construct a new parser instance per search as pyparsing is not
-        # thread safe. On my desktop, constructing a SearchQueryParser instance
-        # takes 0.000975 seconds and restoring it from a pickle takes
-        # 0.000974 seconds.
+        # We construct a new parser instance per search as the parse is not
+        # thread safe.
         sqp = Parser(
             dbcache, all_book_ids, dbcache._pref('grouped_search_terms'),
             self.date_search, self.num_search, self.bool_search,

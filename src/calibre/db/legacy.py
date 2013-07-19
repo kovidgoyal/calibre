@@ -746,6 +746,7 @@ LibraryDatabase.isbn = MT(
 LibraryDatabase.get_books_for_category = MT(
     lambda self, category, id_:self.new_api.get_books_for_category(category, id_))
 LibraryDatabase.get_data_as_dict = MT(get_data_as_dict)
+LibraryDatabase.find_identical_books = MT(lambda self, mi:self.new_api.find_identical_books(mi))
 # }}}
 
 # Legacy setter API {{{

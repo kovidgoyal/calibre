@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, random, shutil
+import os, traceback, random, shutil, re
 from io import BytesIO
 from collections import defaultdict
 from functools import wraps, partial
@@ -25,7 +25,7 @@ from calibre.db.tables import VirtualTable
 from calibre.db.write import get_series_values
 from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.ebooks import check_ebook_format
-from calibre.ebooks.metadata import string_to_authors, author_to_author_sort
+from calibre.ebooks.metadata import string_to_authors, author_to_author_sort, get_title_sort_pat
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import (base_dir, PersistentTemporaryFile,
@@ -767,9 +767,8 @@ class Cache(object):
             return sorted(all_book_ids, key=partial(SortKey, fields, sort_keys))
 
     @read_api
-    def search(self, query, restriction, virtual_fields=None):
-        return self._search_api(self, query, restriction,
-                                virtual_fields=virtual_fields)
+    def search(self, query, restriction='', virtual_fields=None, book_ids=None):
+        return self._search_api(self, query, restriction, virtual_fields=virtual_fields, book_ids=book_ids)
 
     @read_api
     def get_categories(self, sort='name', book_ids=None, icon_map=None):
@@ -1451,6 +1450,59 @@ class Cache(object):
             # Composite field
             return f.get_books_for_val(item_id_or_composite_value, self._get_metadata, self._all_book_ids())
         return self._books_for_field(f.name, item_id_or_composite_value)
+
+    @read_api
+    def find_identical_books(self, mi, search_restriction='', book_ids=None):
+        ''' Finds books that have a superset of the authors in mi and the same
+        title (title is fuzzy matched) '''
+        fuzzy_title_patterns = [(re.compile(pat, re.IGNORECASE) if
+            isinstance(pat, basestring) else pat, repl) for pat, repl in
+                [
+                    (r'[\[\](){}<>\'";,:#]', ''),
+                    (get_title_sort_pat(), ''),
+                    (r'[-._]', ' '),
+                    (r'\s+', ' ')
+                ]
+        ]
+
+        def fuzzy_title(title):
+            title = icu_lower(title.strip())
+            for pat, repl in fuzzy_title_patterns:
+                title = pat.sub(repl, title)
+            return title
+
+        identical_book_ids = set()
+        if mi.authors:
+            try:
+                quathors = mi.authors[:20]  # Too many authors causes parsing of
+                                            # the search expression to fail
+                query = ' and '.join('authors:"=%s"'%(a.replace('"', '')) for a in quathors)
+                qauthors = mi.authors[20:]
+            except ValueError:
+                return identical_book_ids
+            try:
+                book_ids = self._search(query, restriction=search_restriction, book_ids=book_ids)
+            except:
+                traceback.print_exc()
+                return identical_book_ids
+            if qauthors and book_ids:
+                matches = set()
+                qauthors = {icu_lower(x) for x in qauthors}
+                for book_id in book_ids:
+                    aut = self._field_for('authors', book_id)
+                    if aut:
+                        aut = {icu_lower(x) for x in aut}
+                        if aut.issuperset(qauthors):
+                            matches.add(book_id)
+                book_ids = matches
+
+            for book_id in book_ids:
+                fbook_title = self._field_for('title', book_id)
+                fbook_title = fuzzy_title(fbook_title)
+                mbook_title = fuzzy_title(mi.title)
+                if fbook_title == mbook_title:
+                    identical_book_ids.add(book_id)
+        return identical_book_ids
 
     # }}}
 
