@@ -29,6 +29,7 @@ from calibre.utils.filenames import (is_case_sensitive, samefile, hardlink_file,
                                      WindowsAtomicFolderMove)
 from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_tree, delete_file
+from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
         CompositeTable, UUIDTable)
@@ -372,6 +373,8 @@ class DB(object):
         self.initialize_prefs(default_prefs, restore_all_prefs, progress_callback)
         self.initialize_custom_columns()
         self.initialize_tables()
+        load_user_template_functions(self.library_id,
+                                        self.prefs.get('user_template_functions', []))
 
     def initialize_prefs(self, default_prefs, restore_all_prefs, progress_callback):  # {{{
         self.prefs = DBPrefs(self)
