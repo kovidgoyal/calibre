@@ -50,6 +50,8 @@ class BookIndexing
         this.last_check = [null, null]
 
     cache_valid: (anchors) ->
+        if not anchors
+            return false
         for a in anchors
             if not Object.prototype.hasOwnProperty.call(this.cache, a)
                 return false
@@ -65,6 +67,8 @@ class BookIndexing
             return this.cache
 
         ans = {}
+        if not anchors
+            return ans
         for anchor in anchors
             elem = document.getElementById(anchor)
             if elem == null

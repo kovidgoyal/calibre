@@ -40,7 +40,7 @@ class SavedSearchQueries(object):
             self.queries = {}
         try:
             self._db = weakref.ref(db)
-        except:
+        except TypeError:
             # db could be None
             self._db = lambda : None
 
@@ -76,6 +76,11 @@ class SavedSearchQueries(object):
             self.queries.pop(self.force_unicode(old_name), False)
             db.prefs[self.opt_name] = self.queries
 
+    def set_all(self, smap):
+        db = self.db
+        if db is not None:
+            self.queries = db.prefs[self.opt_name] = smap
+
     def names(self):
         return sorted(self.queries.keys(),key=sort_key)
 
@@ -92,6 +97,9 @@ def set_saved_searches(db, opt_name):
 def saved_searches():
     global ss
     return ss
+
+def global_lookup_saved_search(name):
+    return ss.lookup(name)
 
 '''
 Parse a search expression into a series of potentially recursive operations.
@@ -292,9 +300,10 @@ class SearchQueryParser(object):
                 failed.append(test[0])
         return failed
 
-    def __init__(self, locations, test=False, optimize=False):
+    def __init__(self, locations, test=False, optimize=False, lookup_saved_search=None):
         self.sqp_initialize(locations, test=test, optimize=optimize)
         self.parser = Parser()
+        self.lookup_saved_search = global_lookup_saved_search if lookup_saved_search is None else lookup_saved_search
 
     def sqp_change_locations(self, locations):
         self.sqp_initialize(locations, optimize=self.optimize)
@@ -367,7 +376,7 @@ class SearchQueryParser(object):
                     raise ParseException(_('Recursive saved search: {0}').format(query))
                 if self.recurse_level > 5:
                     self.searches_seen.add(query)
-                return self._parse(saved_searches().lookup(query), candidates)
+                return self._parse(self.lookup_saved_search(query), candidates)
             except ParseException as e:
                 raise e
             except:  # convert all exceptions (e.g., missing key) to a parse error

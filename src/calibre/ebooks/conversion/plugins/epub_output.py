@@ -105,14 +105,23 @@ class EPUBOutput(OutputFormatPlugin):
                 ' EPUB, putting all files into the top level.')
         ),
 
+        OptionRecommendation(name='epub_inline_toc', recommended_value=False,
+            help=_('Insert an inline Table of Contents that will appear as part of the main book content.')
+        ),
+
+        OptionRecommendation(name='epub_toc_at_end', recommended_value=False,
+            help=_('Put the inserted inline Table of Contents at the end of the book instead of the start.')
+        ),
+
+        OptionRecommendation(name='toc_title', recommended_value=None,
+            help=_('Title for any generated in-line table of contents.')
+        ),
 
         ])
 
     recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
 
-
-
-    def workaround_webkit_quirks(self): # {{{
+    def workaround_webkit_quirks(self):  # {{{
         from calibre.ebooks.oeb.base import XPath
         for x in self.oeb.spine:
             root = x.data
@@ -128,13 +137,13 @@ class EPUBOutput(OutputFormatPlugin):
                     pre.tag = 'div'
     # }}}
 
-    def upshift_markup(self): # {{{
+    def upshift_markup(self):  # {{{
         'Upgrade markup to comply with XHTML 1.1 where possible'
         from calibre.ebooks.oeb.base import XPath, XML
         for x in self.oeb.spine:
             root = x.data
             if (not root.get(XML('lang'))) and (root.get('lang')):
-               root.set(XML('lang'), root.get('lang'))
+                root.set(XML('lang'), root.get('lang'))
             body = XPath('//h:body')(root)
             if body:
                 body = body[0]
@@ -159,11 +168,16 @@ class EPUBOutput(OutputFormatPlugin):
                     else:
                         seen_names.add(name)
 
-
     # }}}
-
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
+
+        if self.opts.epub_inline_toc:
+            from calibre.ebooks.mobi.writer8.toc import TOCAdder
+            opts.mobi_toc_at_start = not opts.epub_toc_at_end
+            opts.mobi_passthrough = False
+            opts.no_inline_toc = False
+            TOCAdder(oeb, opts, replace_previous_inline_toc=True, ignore_existing_toc=True)
 
         if self.opts.epub_flatten:
             from calibre.ebooks.oeb.transforms.filenames import FlatFilenames
@@ -234,7 +248,7 @@ class EPUBOutput(OutputFormatPlugin):
             oeb_output = plugin_for_output_format('oeb')
             oeb_output.convert(oeb, tdir, input_plugin, opts, log)
             opf = [x for x in os.listdir(tdir) if x.endswith('.opf')][0]
-            self.condense_ncx([os.path.join(tdir, x) for x in os.listdir(tdir)\
+            self.condense_ncx([os.path.join(tdir, x) for x in os.listdir(tdir)
                     if x.endswith('.ncx')][0])
             encryption = None
             if encrypted_fonts:
@@ -261,7 +275,7 @@ class EPUBOutput(OutputFormatPlugin):
                     zf.extractall(path=opts.extract_to)
                 self.log.info('EPUB extracted to', opts.extract_to)
 
-    def encrypt_fonts(self, uris, tdir, uuid): # {{{
+    def encrypt_fonts(self, uris, tdir, uuid):  # {{{
         from binascii import unhexlify
 
         key = re.sub(r'[^a-fA-F0-9]', '', uuid)
@@ -301,14 +315,14 @@ class EPUBOutput(OutputFormatPlugin):
                 </enc:EncryptedData>
                 '''%(uri.replace('"', '\\"')))
             if fonts:
-                    ans = '''<encryption
+                ans = '''<encryption
                     xmlns="urn:oasis:names:tc:opendocument:xmlns:container"
                     xmlns:enc="http://www.w3.org/2001/04/xmlenc#"
                     xmlns:deenc="http://ns.adobe.com/digitaleditions/enc">
                     '''
-                    ans += (u'\n'.join(fonts)).encode('utf-8')
-                    ans += '\n</encryption>'
-                    return ans
+                ans += (u'\n'.join(fonts)).encode('utf-8')
+                ans += '\n</encryption>'
+                return ans
     # }}}
 
     def condense_ncx(self, ncx_path):
@@ -323,7 +337,7 @@ class EPUBOutput(OutputFormatPlugin):
             compressed = etree.tostring(tree.getroot(), encoding='utf-8')
             open(ncx_path, 'wb').write(compressed)
 
-    def workaround_ade_quirks(self): # {{{
+    def workaround_ade_quirks(self):  # {{{
         '''
         Perform various markup transforms to get the output to render correctly
         in the quirky ADE.
@@ -462,7 +476,7 @@ class EPUBOutput(OutputFormatPlugin):
 
     # }}}
 
-    def workaround_sony_quirks(self): # {{{
+    def workaround_sony_quirks(self):  # {{{
         '''
         Perform toc link transforms to alleviate slow loading.
         '''

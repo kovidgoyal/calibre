@@ -21,7 +21,6 @@ from calibre.utils.icu import sort_key, lower, strcmp, collation_order
 from calibre.library.field_metadata import TagsIcons, category_icon_map
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.formatter import EvalFormatter
-from calibre.utils.search_query_parser import saved_searches
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}
@@ -879,7 +878,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     traceback.print_exc()
         self.db.data.change_search_locations(self.db.field_metadata.get_search_terms())
 
-        if len(saved_searches().names()):
+        if len(self.db.saved_search_names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))
 
         if self.filter_categories_by:
@@ -1005,11 +1004,11 @@ class TagsModel(QAbstractItemModel): # {{{
                         _('Author names cannot contain & characters.')).exec_()
                 return False
         if key == 'search':
-            if val in saved_searches().names():
+            if val in self.db.saved_search_names():
                 error_dialog(self.gui_parent, _('Duplicate search name'),
                     _('The saved search name %s is already used.')%val).exec_()
                 return False
-            saved_searches().rename(unicode(item.data(role).toString()), val)
+            self.db.saved_search_rename(unicode(item.data(role).toString()), val)
             item.tag.name = val
             self.search_item_renamed.emit() # Does a refresh
         else:

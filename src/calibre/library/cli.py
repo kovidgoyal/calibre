@@ -1028,14 +1028,11 @@ def command_saved_searches(args, dbpath):
         print
         prints(_('Error: You must specify an action (add|remove|list)'), file=sys.stderr)
         return 1
-    from calibre.utils.search_query_parser import saved_searches
     db = get_db(dbpath, opts)
-    db
-    ss = saved_searches()
     if args[0] == 'list':
-        for name in ss.names():
+        for name in db.saved_search_names():
             prints(_('Name:'), name)
-            prints(_('Search string:'), ss.lookup(name))
+            prints(_('Search string:'), db.saved_search_lookup(name))
             print
     elif args[0] == 'add':
         if len(args) < 3:
@@ -1043,7 +1040,7 @@ def command_saved_searches(args, dbpath):
             print
             prints(_('Error: You must specify a name and a search string'), file=sys.stderr)
             return 1
-        ss.add(args[1], args[2])
+        db.saved_search_add(args[1], args[2])
         prints(args[1], _('added'))
     elif args[0] == 'remove':
         if len(args) < 2:
@@ -1051,7 +1048,7 @@ def command_saved_searches(args, dbpath):
             print
             prints(_('Error: You must specify a name'), file=sys.stderr)
             return 1
-        ss.delete(args[1])
+        db.saved_search_delete(args[1])
         prints(args[1], _('removed'))
     else:
         parser.print_help()

@@ -79,4 +79,21 @@ class FilesystemTest(BaseTest):
         f.close()
         self.assertNotEqual(cache.field_for('title', 1), 'Moved', 'Title was changed despite file lock')
 
+    def test_library_move(self):
+        ' Test moving of library '
+        from calibre.ptempfile import TemporaryDirectory
+        cache = self.init_cache()
+        self.assertIn('metadata.db', cache.get_top_level_move_items()[0])
+        all_ids = cache.all_book_ids()
+        fmt1 = cache.format(1, 'FMT1')
+        cov = cache.cover(1)
+        with TemporaryDirectory('moved_lib') as tdir:
+            cache.move_library_to(tdir)
+            self.assertIn('moved_lib', cache.backend.library_path)
+            self.assertIn('moved_lib', cache.backend.dbpath)
+            self.assertEqual(fmt1, cache.format(1, 'FMT1'))
+            self.assertEqual(cov, cache.cover(1))
+            cache.reload_from_db()
+            self.assertEqual(all_ids, cache.all_book_ids())
+            cache.backend.close()
 

@@ -32,7 +32,7 @@ class TestEmail(QDialog, TE_Dialog):
             self.to.setText(pa)
         if opts.relay_host:
             self.label.setText(_('Using: %(un)s:%(pw)s@%(host)s:%(port)s and %(enc)s encryption')%
-                    dict(un=opts.relay_username, pw=unhexlify(opts.relay_password),
+                    dict(un=opts.relay_username, pw=unhexlify(opts.relay_password).decode('utf-8'),
                         host=opts.relay_host, port=opts.relay_port, enc=opts.encryption))
 
     def test(self, *args):
@@ -129,7 +129,7 @@ class SendEmail(QWidget, Ui_Form):
             self.relay_username.setText(opts.relay_username)
         self.relay_username.textChanged.connect(self.changed)
         if opts.relay_password:
-            self.relay_password.setText(unhexlify(opts.relay_password))
+            self.relay_password.setText(unhexlify(opts.relay_password).decode('utf-8'))
         self.relay_password.textChanged.connect(self.changed)
         getattr(self, 'relay_'+opts.encryption.lower()).setChecked(True)
         self.relay_tls.toggled.connect(self.changed)
@@ -169,7 +169,7 @@ class SendEmail(QWidget, Ui_Form):
             sendmail(msg, from_=opts.from_, to=[to],
                 verbose=3, timeout=30, relay=opts.relay_host,
                 username=opts.relay_username,
-                password=unhexlify(opts.relay_password),
+                password=unhexlify(opts.relay_password).decode('utf-8'),
                 encryption=opts.encryption, port=opts.relay_port)
         except:
             import traceback
@@ -248,7 +248,7 @@ class SendEmail(QWidget, Ui_Form):
         conf.set('relay_host', host if host else None)
         conf.set('relay_port', self.relay_port.value())
         conf.set('relay_username', username if username else None)
-        conf.set('relay_password', hexlify(password))
+        conf.set('relay_password', hexlify(password.encode('utf-8')))
         conf.set('encryption', enc_method)
         return True
 

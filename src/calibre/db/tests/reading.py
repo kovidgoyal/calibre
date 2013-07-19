@@ -149,8 +149,6 @@ class ReadingTest(BaseTest):
             '#tags':[3, 2, 1],
             '#yesno':[3, 1, 2],
             '#comments':[3, 2, 1],
-            # TODO: Add an empty book to the db and ensure that empty
-            # fields sort the same as they do in db2
         }.iteritems():
             x = list(reversed(order))
             self.assertEqual(order, cache.multisort([(field, True)],

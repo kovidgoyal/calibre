@@ -86,7 +86,7 @@ class COOL_ER(EB600):
     FORMATS = ['epub', 'mobi', 'prc', 'pdf', 'txt']
 
     VENDOR_NAME = 'COOL-ER'
-    WINDOWS_MAIN_MEM = 'EREADER'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EREADER'
 
     OSX_MAIN_MEM = 'COOL-ER eReader Media'
 

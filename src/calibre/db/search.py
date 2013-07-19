@@ -7,13 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, weakref
 from functools import partial
 from datetime import timedelta
 
+from calibre.constants import preferred_encoding
 from calibre.utils.config_base import prefs
 from calibre.utils.date import parse_date, UNDEFINED_DATE, now
-from calibre.utils.icu import primary_find
+from calibre.utils.icu import primary_find, sort_key
 from calibre.utils.localization import lang_map, canonicalize_lang
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 
@@ -388,11 +389,72 @@ class KeyPairSearch(object):  # {{{
 
 # }}}
 
+class SavedSearchQueries(object):  # {{{
+    queries = {}
+    opt_name = ''
+
+    def __init__(self, db, _opt_name):
+        self.opt_name = _opt_name
+        try:
+            self._db = weakref.ref(db)
+        except TypeError:
+            # db could be None
+            self._db = lambda : None
+        self.load_from_db()
+
+    def load_from_db(self):
+        db = self.db
+        if db is not None:
+            self.queries = db._pref(self.opt_name, default={})
+        else:
+            self.queries = {}
+
+    @property
+    def db(self):
+        return self._db()
+
+    def force_unicode(self, x):
+        if not isinstance(x, unicode):
+            x = x.decode(preferred_encoding, 'replace')
+        return x
+
+    def add(self, name, value):
+        db = self.db
+        if db is not None:
+            self.queries[self.force_unicode(name)] = self.force_unicode(value).strip()
+            db._set_pref(self.opt_name, self.queries)
+
+    def lookup(self, name):
+        return self.queries.get(self.force_unicode(name), None)
+
+    def delete(self, name):
+        db = self.db
+        if db is not None:
+            self.queries.pop(self.force_unicode(name), False)
+            db._set_pref(self.opt_name, self.queries)
+
+    def rename(self, old_name, new_name):
+        db = self.db
+        if db is not None:
+            self.queries[self.force_unicode(new_name)] = self.queries.get(self.force_unicode(old_name), None)
+            self.queries.pop(self.force_unicode(old_name), False)
+            db._set_pref(self.opt_name, self.queries)
+
+    def set_all(self, smap):
+        db = self.db
+        if db is not None:
+            self.queries = smap
+            db._set_pref(self.opt_name, smap)
+
+    def names(self):
+        return sorted(self.queries.iterkeys(), key=sort_key)
+# }}}
+
 class Parser(SearchQueryParser):
 
     def __init__(self, dbcache, all_book_ids, gst, date_search, num_search,
                  bool_search, keypair_search, limit_search_columns, limit_search_columns_to,
-                 locations, virtual_fields):
+                 locations, virtual_fields, lookup_saved_search):
         self.dbcache, self.all_book_ids = dbcache, all_book_ids
         self.all_search_locations = frozenset(locations)
         self.grouped_search_terms = gst
@@ -403,7 +465,7 @@ class Parser(SearchQueryParser):
         self.virtual_fields = virtual_fields or {}
         if 'marked' not in self.virtual_fields:
             self.virtual_fields['marked'] = self
-        super(Parser, self).__init__(locations, optimize=True)
+        super(Parser, self).__init__(locations, optimize=True, lookup_saved_search=lookup_saved_search)
 
     @property
     def field_metadata(self):
@@ -651,17 +713,21 @@ class Parser(SearchQueryParser):
 
 class Search(object):
 
-    def __init__(self, all_search_locations=()):
+    def __init__(self, db, opt_name, all_search_locations=()):
         self.all_search_locations = all_search_locations
         self.date_search = DateSearch()
         self.num_search = NumericSearch()
         self.bool_search = BooleanSearch()
         self.keypair_search = KeyPairSearch()
+        self.saved_searches = SavedSearchQueries(db, opt_name)
+
+    def get_saved_searches(self):
+        return self.saved_searches
 
     def change_locations(self, newlocs):
         self.all_search_locations = newlocs
 
-    def __call__(self, dbcache, query, search_restriction, virtual_fields=None):
+    def __call__(self, dbcache, query, search_restriction, virtual_fields=None, book_ids=None):
         '''
         Return the set of ids of all records that match the specified
         query and restriction
@@ -674,28 +740,26 @@ class Search(object):
             if search_restriction:
                 q = u'(%s) and (%s)' % (search_restriction, query)
 
-        all_book_ids = dbcache._all_book_ids(type=set)
+        all_book_ids = dbcache._all_book_ids(type=set) if book_ids is None else set(book_ids)
         if not q:
             return all_book_ids
 
         if not isinstance(q, type(u'')):
             q = q.decode('utf-8')
 
-        # We construct a new parser instance per search as pyparsing is not
-        # thread safe. On my desktop, constructing a SearchQueryParser instance
-        # takes 0.000975 seconds and restoring it from a pickle takes
-        # 0.000974 seconds.
+        # We construct a new parser instance per search as the parse is not
+        # thread safe.
         sqp = Parser(
             dbcache, all_book_ids, dbcache._pref('grouped_search_terms'),
             self.date_search, self.num_search, self.bool_search,
             self.keypair_search,
             prefs['limit_search_columns'],
             prefs['limit_search_columns_to'], self.all_search_locations,
-            virtual_fields)
+            virtual_fields, self.saved_searches.lookup)
 
         try:
             ret = sqp.parse(q)
         finally:
-            sqp.dbcache = None
+            sqp.dbcache = sqp.lookup_saved_search = None
         return ret
 

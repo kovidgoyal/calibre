@@ -302,10 +302,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         ####################### Search boxes ########################
         SearchRestrictionMixin.__init__(self)
         SavedSearchBoxMixin.__init__(self)
-        SearchBoxMixin.__init__(self)
 
         ####################### Library view ########################
         LibraryViewMixin.__init__(self, db)
+        SearchBoxMixin.__init__(self)  # Requires current_db
 
         if show_gui:
             self.show()
@@ -532,7 +532,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.raise_()
             self.activateWindow()
         elif msg.startswith('refreshdb:'):
-            self.library_view.model().refresh()
+            db = self.library_view.model().db
+            if hasattr(db, 'new_api'):
+                db.new_api.reload_from_db()
+                self.library_view.model().resort()
+            else:
+                self.library_view.model().refresh()
             self.library_view.model().research()
             self.tags_view.recount()
             self.library_view.model().db.refresh_format_cache()
@@ -565,6 +570,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             olddb = self.library_view.model().db
             if copy_structure:
                 default_prefs = olddb.prefs
+
+            from calibre.utils.formatter_functions import unload_user_template_functions
+            unload_user_template_functions(olddb.library_id )
         except:
             olddb = None
         try:

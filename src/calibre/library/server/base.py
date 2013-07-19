@@ -25,7 +25,6 @@ from calibre.library.server.opds import OPDSServer
 from calibre.library.server.cache import Cache
 from calibre.library.server.browse import BrowseServer
 from calibre.library.server.ajax import AjaxServer
-from calibre.utils.search_query_parser import saved_searches
 from calibre import prints, as_unicode
 
 
@@ -210,7 +209,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         if sr:
             if sr in virt_libs:
                 sr = virt_libs[sr]
-            elif sr not in saved_searches().names():
+            elif sr not in self.db.saved_search_names():
                 prints('WARNING: Content server: search restriction ',
                        sr, ' does not exist')
                 sr = ''

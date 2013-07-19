@@ -17,7 +17,6 @@ from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import ParseException
-from calibre.utils.search_query_parser import saved_searches
 
 class SelectNames(QDialog):  # {{{
 
@@ -179,6 +178,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
         self.resize(self.sizeHint()+QSize(150, 25))
 
     def search_text_changed(self, txt):
+        db = self.gui.current_db
         searches = [_('Saved searches recognized in the expression:')]
         txt = unicode(txt)
         while txt:
@@ -201,9 +201,9 @@ class CreateVirtualLibrary(QDialog):  # {{{
                     search_name = possible_search[0]
                     if search_name.startswith('='):
                         search_name = search_name[1:]
-                    if search_name in saved_searches().names():
+                    if search_name in db.saved_search_names():
                         searches.append(search_name + '=' +
-                                        saved_searches().lookup(search_name))
+                                        db.saved_search_lookup(search_name))
                 else:
                     txt = ''
             else:
@@ -237,14 +237,14 @@ class CreateVirtualLibrary(QDialog):  # {{{
         db = self.gui.current_db
         f, txt = unicode(url).partition('.')[0::2]
         if f == 'search':
-            names = saved_searches().names()
+            names = db.saved_search_names()
         else:
             names = getattr(db, 'all_%s_names'%f)()
         d = SelectNames(names, txt, parent=self)
         if d.exec_() == d.Accepted:
             prefix = f+'s' if f in {'tag', 'author'} else f
             if f == 'search':
-                search = ['(%s)'%(saved_searches().lookup(x)) for x in d.names]
+                search = ['(%s)'%(db.saved_search_lookup(x)) for x in d.names]
             else:
                 search = ['%s:"=%s"'%(prefix, x.replace('"', '\\"')) for x in d.names]
             if search:
@@ -475,6 +475,7 @@ class SearchRestrictionMixin(object):
         return name[0:MAX_VIRTUAL_LIBRARY_NAME_LENGTH].strip()
 
     def build_search_restriction_list(self):
+        from calibre.gui2.ui import get_gui
         m = self.ar_menu
         m.clear()
 
@@ -506,7 +507,7 @@ class SearchRestrictionMixin(object):
             add_action(current_restriction_text, 2)
             dex += 1
 
-        for n in sorted(saved_searches().names(), key=sort_key):
+        for n in sorted(get_gui().current_db.saved_search_names(), key=sort_key):
             add_action(n, dex)
             dex += 1
 

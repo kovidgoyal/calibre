@@ -20,7 +20,6 @@ from calibre.constants import config_dir
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel)
 from calibre.gui2 import config, gprefs, choose_files, pixmap_to_data
-from calibre.utils.search_query_parser import saved_searches
 from calibre.utils.icu import sort_key
 
 class TagDelegate(QStyledItemDelegate): # {{{
@@ -355,7 +354,7 @@ class TagsView(QTreeView): # {{{
                 self.delete_user_category.emit(key)
                 return
             if action == 'delete_search':
-                saved_searches().delete(key)
+                self.model().db.saved_search_delete(key)
                 self.rebuild_saved_searches.emit()
                 return
             if action == 'delete_item_from_user_category':
