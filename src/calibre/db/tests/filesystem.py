@@ -91,9 +91,9 @@ class FilesystemTest(BaseTest):
             cache.move_library_to(tdir)
             self.assertIn('moved_lib', cache.backend.library_path)
             self.assertIn('moved_lib', cache.backend.dbpath)
-            cache.reload_from_db()
-            self.assertEqual(all_ids, cache.all_book_ids())
             self.assertEqual(fmt1, cache.format(1, 'FMT1'))
             self.assertEqual(cov, cache.cover(1))
+            cache.reload_from_db()
+            self.assertEqual(all_ids, cache.all_book_ids())
             cache.backend.close()
 
