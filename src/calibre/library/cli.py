@@ -15,14 +15,17 @@ from calibre import preferred_encoding, prints, isbytestring
 from calibre.utils.config import OptionParser, prefs, tweaks
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks.metadata.book.base import field_from_string
-from calibre.library.database2 import LibraryDatabase2
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.utils.date import isoformat
+from calibre.db import get_db_loader
 
 FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating',
     'timestamp', 'size', 'tags', 'comments', 'series', 'series_index',
     'formats', 'isbn', 'uuid', 'pubdate', 'cover', 'last_modified',
     'identifiers'])
+
+def db_class():
+    return get_db_loader()[0]
 
 do_notify = True
 def send_message(msg=''):
@@ -62,7 +65,7 @@ def get_db(dbpath, options):
     dbpath = os.path.abspath(dbpath)
     if options.dont_notify_gui:
         do_notify = False
-    return LibraryDatabase2(dbpath)
+    return db_class()(dbpath)
 
 def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, separator,
             prefix, limit, subtitle='Books in the calibre database'):
@@ -1101,7 +1104,7 @@ def command_backup_metadata(args, dbpath):
         dbpath = opts.library_path
     if isbytestring(dbpath):
         dbpath = dbpath.decode(preferred_encoding)
-    db = LibraryDatabase2(dbpath)
+    db = db_class()(dbpath)
     book_ids = None
     if opts.all:
         book_ids = db.all_ids()
@@ -1183,7 +1186,7 @@ def command_check_library(args, dbpath):
             for i in list:
                 print '    %-40.40s - %-40.40s'%(i[0], i[1])
 
-    db = LibraryDatabase2(dbpath)
+    db = db_class()(dbpath)
     checker = CheckLibrary(dbpath, db)
     checker.scan_library(names, exts)
     for check in checks:
@@ -1296,7 +1299,7 @@ def command_list_categories(args, dbpath):
     if isbytestring(dbpath):
         dbpath = dbpath.decode(preferred_encoding)
 
-    db = LibraryDatabase2(dbpath)
+    db = db_class()(dbpath)
     category_data = db.get_categories()
     data = []
     report_on = [c.strip() for c in opts.report.split(',') if c.strip()]

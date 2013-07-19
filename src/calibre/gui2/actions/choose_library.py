@@ -19,8 +19,11 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
 from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
     question_dialog, info_dialog, open_local_file, choose_dir)
-from calibre.library.database2 import LibraryDatabase2
 from calibre.gui2.actions import InterfaceAction
+
+def db_class():
+    from calibre.db import get_db_loader
+    return get_db_loader()[0]
 
 class LibraryUsageStats(object):  # {{{
 
@@ -139,7 +142,7 @@ class MovedDialog(QDialog):  # {{{
 
     def accept(self):
         newloc = unicode(self.loc.text())
-        if not LibraryDatabase2.exists_at(newloc):
+        if not db_class.exists_at(newloc):
             error_dialog(self, _('No library found'),
                     _('No existing calibre library found at %s')%newloc,
                     show=True)
@@ -313,6 +316,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.qaction.setEnabled(enabled)
 
     def rename_requested(self, name, location):
+        LibraryDatabase = db_class()
         loc = location.replace('/', os.sep)
         base = os.path.dirname(loc)
         newname, ok = QInputDialog.getText(self.gui, _('Rename') + ' ' + name,
@@ -328,10 +332,10 @@ class ChooseLibraryAction(InterfaceAction):
                     _('The folder %s already exists. Delete it first.') %
                     newloc, show=True)
         if (iswindows and len(newloc) >
-                LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT):
+                LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
             return error_dialog(self.gui, _('Too long'),
                     _('Path to library too long. Must be less than'
-                    ' %d characters.')%LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
+                    ' %d characters.')%LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT,
                     show=True)
         if not os.path.exists(loc):
             error_dialog(self.gui, _('Not found'),
@@ -387,16 +391,17 @@ class ChooseLibraryAction(InterfaceAction):
               'rate of approximately 1 book every three seconds.'), show=True)
 
     def restore_database(self):
+        LibraryDatabase = db_class()
         m = self.gui.library_view.model()
         db = m.db
         if (iswindows and len(db.library_path) >
-                LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT):
+                LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
             return error_dialog(self.gui, _('Too long'),
                     _('Path to library too long. Must be less than'
                     ' %d characters. Move your library to a location with'
                     ' a shorter path using Windows Explorer, then point'
                     ' calibre to the new location and try again.')%
-                    LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
+                    LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT,
                     show=True)
 
         from calibre.gui2.dialogs.restore_library import restore_database

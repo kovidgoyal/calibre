@@ -14,7 +14,6 @@ from contextlib import closing
 from PyQt4.Qt import (QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel,
     QVariant, QItemSelectionModel, SIGNAL, QObject, QTimer, pyqtSignal)
 from calibre import __appname__, patheq
-from calibre.library.database2 import LibraryDatabase2
 from calibre.library.move import MoveLibrary
 from calibre.constants import (filesystem_encoding, iswindows, plugins,
         isportable)
@@ -33,6 +32,10 @@ from calibre.customize.ui import device_plugins
 
 if iswindows:
     winutil = plugins['winutil'][0]
+
+def db_class():
+    from calibre.db import get_db_loader
+    return get_db_loader()[0]
 
 # Devices {{{
 
@@ -623,7 +626,7 @@ def move_library(oldloc, newloc, parent, callback_on_complete):
             if oldloc and os.access(os.path.join(oldloc, 'metadata.db'), os.R_OK):
                 # Move old library to new location
                 try:
-                    db = LibraryDatabase2(oldloc)
+                    db = db_class()(oldloc)
                 except:
                     return move_library(None, newloc, parent,
                         callback)
@@ -636,13 +639,13 @@ def move_library(oldloc, newloc, parent, callback_on_complete):
                     return
             else:
                 # Create new library at new location
-                db = LibraryDatabase2(newloc)
+                db = db_class()(newloc)
                 callback(newloc)
                 return
 
         # Try to load existing library at new location
         try:
-            LibraryDatabase2(newloc)
+            db_class()(newloc)
         except Exception as err:
             det = traceback.format_exc()
             error_dialog(parent, _('Invalid database'),
@@ -729,7 +732,7 @@ class LibraryPage(QWizardPage, LibraryUI):
 
     def is_library_dir_suitable(self, x):
         try:
-            return LibraryDatabase2.exists_at(x) or not os.listdir(x)
+            return db_class().exists_at(x) or not os.listdir(x)
         except:
             return False
 
@@ -745,10 +748,10 @@ class LibraryPage(QWizardPage, LibraryUI):
                          _('Select location for books'))
         if x:
             if (iswindows and len(x) >
-                    LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT):
+                    db_class().WINDOWS_LIBRARY_PATH_LIMIT):
                 return error_dialog(self, _('Too long'),
                     _('Path to library too long. Must be less than'
-                    ' %d characters.')%LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
+                    ' %d characters.')%(db_class().WINDOWS_LIBRARY_PATH_LIMIT),
                     show=True)
             if not os.path.exists(x):
                 try:

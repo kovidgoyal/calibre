@@ -55,8 +55,8 @@ class Worker(Thread):  # {{{
                         notify=False, replace=replace)
 
     def doit(self):
-        from calibre.library.database2 import LibraryDatabase2
-        newdb = LibraryDatabase2(self.loc, is_second_db=True)
+        from calibre.db import get_db_loader
+        newdb = get_db_loader()[0](self.loc, is_second_db=True)
         with closing(newdb):
             self._doit(newdb)
         newdb.break_cycles()
