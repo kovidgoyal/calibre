@@ -40,7 +40,7 @@ class SavedSearchQueries(object):
             self.queries = {}
         try:
             self._db = weakref.ref(db)
-        except:
+        except TypeError:
             # db could be None
             self._db = lambda : None
 
@@ -292,9 +292,10 @@ class SearchQueryParser(object):
                 failed.append(test[0])
         return failed
 
-    def __init__(self, locations, test=False, optimize=False):
+    def __init__(self, locations, test=False, optimize=False, get_saved_searches=None):
         self.sqp_initialize(locations, test=test, optimize=optimize)
         self.parser = Parser()
+        self.get_saved_searches = saved_searches if get_saved_searches is None else get_saved_searches
 
     def sqp_change_locations(self, locations):
         self.sqp_initialize(locations, optimize=self.optimize)
@@ -367,7 +368,7 @@ class SearchQueryParser(object):
                     raise ParseException(_('Recursive saved search: {0}').format(query))
                 if self.recurse_level > 5:
                     self.searches_seen.add(query)
-                return self._parse(saved_searches().lookup(query), candidates)
+                return self._parse(self.get_saved_searches().lookup(query), candidates)
             except ParseException as e:
                 raise e
             except:  # convert all exceptions (e.g., missing key) to a parse error

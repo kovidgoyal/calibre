@@ -89,7 +89,7 @@ class Cache(object):
         self.formatter_template_cache = {}
         self.dirtied_cache = {}
         self.dirtied_sequence = 0
-        self._search_api = Search(self.field_metadata.get_search_terms())
+        self._search_api = Search(self, 'saved_searches', self.field_metadata.get_search_terms())
 
         # Implement locking for all simple read/write API methods
         # An unlocked version of the method is stored with the name starting
@@ -127,9 +127,8 @@ class Cache(object):
                 except:
                     traceback.print_exc()
 
-        # TODO: Saved searches
-        # if len(saved_searches().names()):
-        #     self.field_metadata.add_search_category(label='search', name=_('Searches'))
+        if len(self._search_api.get_saved_searches().names()):
+            self.field_metadata.add_search_category(label='search', name=_('Searches'))
 
         self.field_metadata.add_grouped_search_terms(
                                     self._pref('grouped_search_terms', {}))
@@ -140,6 +139,11 @@ class Cache(object):
             self.backend.conn.execute('SELECT book FROM metadata_dirtied'))}
         if self.dirtied_cache:
             self.dirtied_sequence = max(self.dirtied_cache.itervalues())+1
+
+    @property
+    def prefs(self):
+        'For internal use only (used by SavedSearchQueries). For thread-safe access to the preferences, use the pref() and set_pref() methods.'
+        return self.backend.prefs
 
     @write_api
     def initialize_template_cache(self):

@@ -22,6 +22,7 @@ from calibre.db.categories import CATEGORY_SORTS
 from calibre.db.view import View
 from calibre.db.write import clean_identifier
 from calibre.utils.date import utcnow
+from calibre.utils.search_query_parser import set_saved_searches
 
 def cleanup_tags(tags):
     tags = [x.strip().replace(',', ';') for x in tags if x.strip()]
@@ -72,6 +73,9 @@ class LibraryDatabase(object):
         self.custom_field_name = backend.custom_field_name
 
         self.last_update_check = self.last_modified()
+
+        if not self.is_second_db:
+            set_saved_searches(self, 'saved_searches')
 
     def close(self):
         self.backend.close()
