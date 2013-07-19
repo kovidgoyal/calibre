@@ -21,7 +21,7 @@ from calibre.utils.date import dt_factory, qt_to_dt, as_local_time
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.db.search import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
-from calibre.library.caches import (MetadataBackup, force_to_bool)
+from calibre.library.caches import force_to_bool
 from calibre.library.save_to_disk import find_plugboard
 from calibre import strftime, isbytestring
 from calibre.constants import filesystem_encoding, DEBUG, config_dir
@@ -234,6 +234,10 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.start_metadata_backup()
 
     def start_metadata_backup(self):
+        if hasattr(self.db, 'new_api'):
+            from calibre.db.backup import MetadataBackup
+        else:
+            from calibre.library.caches import MetadataBackup
         self.metadata_backup = MetadataBackup(self.db)
         self.metadata_backup.start()
 
@@ -1209,7 +1213,6 @@ class DeviceBooksModel(BooksModel):  # {{{
         self.book_in_library = None
         self.sync_icon = QIcon(I('sync.png'))
 
-
     def counts(self):
         return Counts(len(self.db), len(self.db), len(self.map))
 
@@ -1611,5 +1614,6 @@ class DeviceBooksModel(BooksModel):  # {{{
             self.editable = []
 
 # }}}
+
 
 

@@ -136,8 +136,7 @@ Various things that require other things before they can be migrated:
                     columns/categories/searches info into
                     self.field_metadata.
     2. Port library/restore.py
-    3. Replace the metadatabackup thread with the new implementation when using the new backend.
-    4. Check that content server reloading on metadata,db change, metadata
+    3. Check that content server reloading on metadata,db change, metadata
     backup, refresh gui on calibredb add and moving libraries all work (check
     them on windows as well for file locking issues)
 '''
