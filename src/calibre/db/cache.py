@@ -1541,6 +1541,10 @@ class Cache(object):
     def saved_search_rename(self, old_name, new_name):
         self._search_api.saved_searches.rename(old_name, new_name)
 
+    @write_api
+    def change_search_locations(self, newlocs):
+        self._search_api.change_locations(newlocs)
+
     # }}}
 
 class SortKey(object):  # {{{

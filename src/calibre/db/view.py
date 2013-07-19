@@ -290,6 +290,9 @@ class View(object):
     def get_search_restriction_book_count(self):
         return self.search_restriction_book_count
 
+    def change_search_locations(self, newlocs):
+        self.cache.change_search_locations(newlocs)
+
     def set_marked_ids(self, id_dict):
         '''
         ids in id_dict are "marked". They can be searched for by
