@@ -130,7 +130,7 @@ class Restore(Thread):
                                  restore_all_prefs=True,
                                  progress_callback=self.progress_callback)
             db.commit()
-            db.conn.close()
+            db.close()
             self.progress_callback(None, 1)
             if 'field_metadata' in prefs:
                 self.progress_callback(_('Finished restoring preferences and column metadata'), 1)
@@ -232,7 +232,7 @@ class Restore(Thread):
             for i,args in enumerate(self.custom_columns.values()):
                 db.create_custom_column(*args)
                 self.progress_callback(_('creating custom column ')+args[0], i+1)
-        db.conn.close()
+        db.close()
 
     def restore_books(self):
         self.progress_callback(None, len(self.books))
@@ -252,7 +252,7 @@ class Restore(Thread):
             db.conn.execute('UPDATE authors SET link=? WHERE name=?',
                             (link, author.replace(',', '|')))
         db.conn.commit()
-        db.conn.close()
+        db.close()
 
     def restore_book(self, book, db):
         db.create_book_entry(book['mi'], add_duplicates=True,

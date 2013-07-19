@@ -622,7 +622,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if olddb is not None:
             try:
                 if call_close:
-                    olddb.conn.close()
+                    olddb.close()
             except:
                 import traceback
                 traceback.print_exc()

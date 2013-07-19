@@ -103,7 +103,7 @@ def restore_database(db, parent=None):
                 'blank list of books.'
                 '<p>Do you want to restore the database?')):
         return False
-    db.conn.close()
+    db.close()
     d = DBRestore(parent, db.library_path)
     d.exec_()
     r = d.restorer

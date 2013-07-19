@@ -45,7 +45,7 @@ class DBCheck(QDialog): # {{{
         self.user_version = self.db.user_version
         self.rejected = False
         self.db.clean()
-        self.db.conn.close()
+        self.db.close()
         self.closed_orig_conn = True
         t = DBThread(self.db.dbpath, False)
         t.connect()
@@ -80,7 +80,7 @@ class DBCheck(QDialog): # {{{
             self.pb.setMaximum(self.count)
             self.pb.setValue(0)
             self.msg.setText(_('Loading database from SQL'))
-            self.db.conn.close()
+            self.db.close()
             self.ndbpath = PersistentTemporaryFile('.db')
             self.ndbpath.close()
             self.ndbpath = self.ndbpath.name
