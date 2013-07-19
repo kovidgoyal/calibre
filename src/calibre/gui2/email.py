@@ -113,7 +113,7 @@ class Sendmail(object):
                         verbose=1,
                         relay=opts.relay_host,
                         username=opts.relay_username,
-                        password=unhexlify(opts.relay_password), port=opts.relay_port,
+                        password=unhexlify(opts.relay_password).decode('utf-8'), port=opts.relay_port,
                         encryption=opts.encryption,
                         debug_output=log.debug)
         finally:
