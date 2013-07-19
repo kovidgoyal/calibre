@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>644</width>
     <height>300</height>
    </rect>
   </property>
@@ -14,27 +14,6 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QCheckBox" name="opt_dont_split_on_page_breaks">
-     <property name="text">
-      <string>Do not &amp;split on page breaks</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QCheckBox" name="opt_no_default_epub_cover">
-     <property name="text">
-      <string>No default &amp;cover</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QCheckBox" name="opt_no_svg_cover">
-     <property name="text">
-      <string>No &amp;SVG cover</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="1">
     <widget class="QCheckBox" name="opt_preserve_cover_aspect_ratio">
      <property name="text">
@@ -42,7 +21,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="5" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Split files &amp;larger than:</string>
@@ -52,7 +31,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="5" column="1">
     <widget class="QSpinBox" name="opt_flow_size">
      <property name="suffix">
       <string> KB</string>
@@ -68,7 +47,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="6" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -81,12 +60,60 @@
      </property>
     </spacer>
    </item>
+   <item row="1" column="0">
+    <widget class="QCheckBox" name="opt_no_default_epub_cover">
+     <property name="text">
+      <string>No default &amp;cover</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QCheckBox" name="opt_no_svg_cover">
+     <property name="text">
+      <string>No &amp;SVG cover</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="opt_epub_inline_toc">
+     <property name="text">
+      <string>Insert inline &amp;Table of Contents</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_dont_split_on_page_breaks">
+     <property name="text">
+      <string>Do not &amp;split on page breaks</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QCheckBox" name="opt_epub_toc_at_end">
+     <property name="text">
+      <string>Put inserted Table of Contents at the &amp;end of the book</string>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="1">
     <widget class="QCheckBox" name="opt_epub_flatten">
      <property name="text">
       <string>&amp;Flatten EPUB file structure</string>
      </property>
     </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>&amp;Title for inserted ToC:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_toc_title</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLineEdit" name="opt_toc_title"/>
    </item>
   </layout>
  </widget>

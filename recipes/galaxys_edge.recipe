@@ -14,19 +14,12 @@ class GalaxyEdge(BasicNewsRecipe):
 
     auto_cleanup = True
 
-    #keep_only_tags = [dict(id='content')]
-    #remove_tags = [dict(attrs={'class':['article-links', 'breadcr']}),
-            #dict(id=['email-section', 'right-column', 'printfooter', 'topover',
-                     #'slidebox', 'th_footer'])]
-
     extra_css = '.photo-caption { font-size: smaller }'
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.galaxysedge.com/')
-        main = soup.find('table', attrs={'width':'911'})
-        toc = main.find('td', attrs={'width':'225'})
-
-
+        main = soup.find('table', attrs={'width':'944'})
+        toc = main.find('td', attrs={'width':'204'})
 
         current_section = None
         current_articles = []
@@ -68,41 +61,7 @@ class GalaxyEdge(BasicNewsRecipe):
                     current_articles.append({'title': title, 'url':url,
                         'description':'', 'date':''})
             if current_articles and current_section:
-                 feeds.append((current_section, current_articles))
+                feeds.append((current_section, current_articles))
 
         return feeds
-
-
-
-
-    #def preprocess_raw_html(self, raw, url):
-        #return raw.replace('<body><p>', '<p>').replace('</p></body>', '</p>')
-
-    #def postprocess_html(self, soup, first_fetch):
-        #for t in soup.findAll(['table', 'tr', 'td','center']):
-            #t.name = 'div'
-        #return soup
-
-    #def parse_index(self):
-        #today = time.strftime('%Y-%m-%d')
-        #soup = self.index_to_soup(
-                #'http://www.thehindu.com/todays-paper/tp-index/?date=' + today)
-        #div = soup.find(id='left-column')
-        #feeds = []
-        #current_section = None
-        #current_articles = []
-        #for x in div.findAll(['h3', 'div']):
-            #if current_section and x.get('class', '') == 'tpaper':
-                #a = x.find('a', href=True)
-                #if a is not None:
-                    #current_articles.append({'url':a['href']+'?css=print',
-                        #'title':self.tag_to_string(a), 'date': '',
-                        #'description':''})
-            #if x.name == 'h3':
-                #if current_section and current_articles:
-                    #feeds.append((current_section, current_articles))
-                #current_section = self.tag_to_string(x)
-                #current_articles = []
-        #return feeds
-
 

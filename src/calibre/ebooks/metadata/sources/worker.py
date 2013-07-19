@@ -50,14 +50,13 @@ def merge_result(oldmi, newmi, ensure_fields=None):
     return newmi
 
 def main(do_identify, covers, metadata, ensure_fields, tdir):
-    os.chdir(tdir)
     failed_ids = set()
     failed_covers = set()
     all_failed = True
     log = GUILog()
 
     for book_id, mi in metadata.iteritems():
-        mi = OPF(BytesIO(mi), basedir=os.getcwdu(),
+        mi = OPF(BytesIO(mi), basedir=tdir,
                 populate_spine=False).to_book_metadata()
         title, authors, identifiers = mi.title, mi.authors, mi.identifiers
         cdata = None
@@ -77,7 +76,7 @@ def main(do_identify, covers, metadata, ensure_fields, tdir):
                 if not mi.is_null('rating'):
                     # set_metadata expects a rating out of 10
                     mi.rating *= 2
-                with open('%d.mi'%book_id, 'wb') as f:
+                with open(os.path.join(tdir, '%d.mi'%book_id), 'wb') as f:
                     f.write(metadata_to_opf(mi, default_lang='und'))
             else:
                 log.error('Failed to download metadata for', title)
@@ -89,11 +88,11 @@ def main(do_identify, covers, metadata, ensure_fields, tdir):
             if cdata is None:
                 failed_covers.add(book_id)
             else:
-                with open('%d.cover'%book_id, 'wb') as f:
+                with open(os.path.join(tdir, '%d.cover'%book_id), 'wb') as f:
                     f.write(cdata[-1])
                 all_failed = False
 
-        with open('%d.log'%book_id, 'wb') as f:
+        with open(os.path.join(tdir, '%d.log'%book_id), 'wb') as f:
             f.write(log.plain_text.encode('utf-8'))
 
     return failed_ids, failed_covers, all_failed

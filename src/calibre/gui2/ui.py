@@ -98,6 +98,16 @@ _gui = None
 def get_gui():
     return _gui
 
+def saved_searches():
+    'Return the saved searches defined in the currently open library'
+    try:
+        return _gui.library_view.model().db.get_saved_searches()
+    except AttributeError:
+        # Happens during initialization of the gui
+        from calibre.utils.search_query_parser import saved_searches
+        return saved_searches()
+
+
 class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
         SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin,
@@ -532,7 +542,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.raise_()
             self.activateWindow()
         elif msg.startswith('refreshdb:'):
-            self.library_view.model().refresh()
+            db = self.library_view.model().db
+            if hasattr(db, 'new_api'):
+                db.new_api.reload_from_db()
+                self.library_view.model().resort()
+            else:
+                self.library_view.model().refresh()
             self.library_view.model().research()
             self.tags_view.recount()
             self.library_view.model().db.refresh_format_cache()

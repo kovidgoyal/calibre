@@ -236,11 +236,11 @@ class SearchDialog(QDialog, Ui_Dialog):
             query = re.sub(r'%s:"[^"]"' % loc, '', query)
             query = re.sub(r'%s:[^\s]*' % loc, '', query)
         # Remove logic.
-        query = re.sub(r'(^|\s)(and|not|or|a|the|is|of)(\s|$)', ' ', query)
+        query = re.sub(r'(^|\s|")(and|not|or|a|the|is|of)(\s|$|")', r' ', query)
         # Remove "
         query = query.replace('"', '')
         # Remove excess whitespace.
-        query = re.sub(r'\s{2,}', ' ', query)
+        query = re.sub(r'\s+', ' ', query)
         query = query.strip()
         return query.encode('utf-8')
 

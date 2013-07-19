@@ -22,6 +22,7 @@ mkdir -p /root/staging /root/work/vim /srv/download /srv/manual
 
 scp .zshrc .vimrc  server:
 scp -r ~/work/vim/zsh-syntax-highlighting server:work/vim
+scp -r ~/work/vim/zsh-history-substring-search server:work/vim
 
 If the server has a backup hard-disk, mount it at /mnt/backup and edit /etc/fstab so that it is auto-mounted.
 Then, add the following to crontab::

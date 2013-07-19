@@ -294,9 +294,21 @@ class PagedDisplay
         return Math.floor(xpos/this.page_width)
 
     column_location: (elem) ->
-        # Return the location of elem relative to its containing column
+        # Return the location of elem relative to its containing column.
+        # WARNING: This method may cause the viewport to scroll (to workaround
+        # a bug in WebKit).
         br = elem.getBoundingClientRect()
-        [left, top] = calibre_utils.viewport_to_document(br.left, br.top, elem.ownerDocument)
+        # Because of a bug in WebKit's getBoundingClientRect() in column
+        # mode, this position can be inaccurate, see
+        # https://bugs.launchpad.net/calibre/+bug/1202390 for a test case.
+        # The usual symptom of the inaccuracy is br.top is highly negative.
+        if br.top < -100
+            # We have to actually scroll the element into view to get its
+            # position
+            elem.scrollIntoView()
+            [left, top] = calibre_utils.viewport_to_document(elem.scrollLeft, elem.scrollTop, elem.ownerDocument)
+        else
+            [left, top] = calibre_utils.viewport_to_document(br.left, br.top, elem.ownerDocument)
         c = this.column_at(left)
         width = Math.min(br.right, (c+1)*this.page_width) - br.left
         if br.bottom < br.top

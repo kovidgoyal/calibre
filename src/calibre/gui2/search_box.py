@@ -18,7 +18,6 @@ from calibre.gui2 import config, error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
-from calibre.utils.search_query_parser import saved_searches
 
 class SearchLineEdit(QLineEdit):  # {{{
     key_pressed = pyqtSignal(object)
@@ -309,6 +308,7 @@ class SavedSearchBox(QComboBox):  # {{{
             self.saved_search_selected(self.currentText())
 
     def saved_search_selected(self, qname):
+        from calibre.gui2.ui import saved_searches
         qname = unicode(qname)
         if qname is None or not qname.strip():
             self.search_box.clear()
@@ -322,12 +322,14 @@ class SavedSearchBox(QComboBox):  # {{{
         self.setToolTip(saved_searches().lookup(qname))
 
     def initialize_saved_search_names(self):
+        from calibre.gui2.ui import saved_searches
         qnames = saved_searches().names()
         self.addItems(qnames)
         self.setCurrentIndex(-1)
 
     # SIGNALed from the main UI
     def save_search_button_clicked(self):
+        from calibre.gui2.ui import saved_searches
         name = unicode(self.currentText())
         if not name.strip():
             name = unicode(self.search_box.text()).replace('"', '')
@@ -346,6 +348,7 @@ class SavedSearchBox(QComboBox):  # {{{
         self.changed.emit()
 
     def delete_current_search(self):
+        from calibre.gui2.ui import saved_searches
         idx = self.currentIndex()
         if idx <= 0:
             error_dialog(self, _('Delete current search'),
@@ -365,6 +368,7 @@ class SavedSearchBox(QComboBox):  # {{{
 
     # SIGNALed from the main UI
     def copy_search_button_clicked(self):
+        from calibre.gui2.ui import saved_searches
         idx = self.currentIndex()
         if idx < 0:
             return

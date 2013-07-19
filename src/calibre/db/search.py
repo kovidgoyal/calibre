@@ -15,7 +15,7 @@ from calibre.utils.config_base import prefs
 from calibre.utils.date import parse_date, UNDEFINED_DATE, now
 from calibre.utils.icu import primary_find
 from calibre.utils.localization import lang_map, canonicalize_lang
-from calibre.utils.search_query_parser import SearchQueryParser, ParseException
+from calibre.utils.search_query_parser import SearchQueryParser, ParseException, SavedSearchQueries
 
 CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
@@ -392,7 +392,7 @@ class Parser(SearchQueryParser):
 
     def __init__(self, dbcache, all_book_ids, gst, date_search, num_search,
                  bool_search, keypair_search, limit_search_columns, limit_search_columns_to,
-                 locations, virtual_fields):
+                 locations, virtual_fields, get_saved_searches):
         self.dbcache, self.all_book_ids = dbcache, all_book_ids
         self.all_search_locations = frozenset(locations)
         self.grouped_search_terms = gst
@@ -403,7 +403,7 @@ class Parser(SearchQueryParser):
         self.virtual_fields = virtual_fields or {}
         if 'marked' not in self.virtual_fields:
             self.virtual_fields['marked'] = self
-        super(Parser, self).__init__(locations, optimize=True)
+        super(Parser, self).__init__(locations, optimize=True, get_saved_searches=get_saved_searches)
 
     @property
     def field_metadata(self):
@@ -651,17 +651,21 @@ class Parser(SearchQueryParser):
 
 class Search(object):
 
-    def __init__(self, all_search_locations=()):
+    def __init__(self, db, opt_name, all_search_locations=()):
         self.all_search_locations = all_search_locations
         self.date_search = DateSearch()
         self.num_search = NumericSearch()
         self.bool_search = BooleanSearch()
         self.keypair_search = KeyPairSearch()
+        self.saved_searches = SavedSearchQueries(db, opt_name)
+
+    def get_saved_searches(self):
+        return self.saved_searches
 
     def change_locations(self, newlocs):
         self.all_search_locations = newlocs
 
-    def __call__(self, dbcache, query, search_restriction, virtual_fields=None):
+    def __call__(self, dbcache, query, search_restriction, virtual_fields=None, book_ids=None):
         '''
         Return the set of ids of all records that match the specified
         query and restriction
@@ -674,28 +678,26 @@ class Search(object):
             if search_restriction:
                 q = u'(%s) and (%s)' % (search_restriction, query)
 
-        all_book_ids = dbcache._all_book_ids(type=set)
+        all_book_ids = dbcache._all_book_ids(type=set) if book_ids is None else set(book_ids)
         if not q:
             return all_book_ids
 
         if not isinstance(q, type(u'')):
             q = q.decode('utf-8')
 
-        # We construct a new parser instance per search as pyparsing is not
-        # thread safe. On my desktop, constructing a SearchQueryParser instance
-        # takes 0.000975 seconds and restoring it from a pickle takes
-        # 0.000974 seconds.
+        # We construct a new parser instance per search as the parse is not
+        # thread safe.
         sqp = Parser(
             dbcache, all_book_ids, dbcache._pref('grouped_search_terms'),
             self.date_search, self.num_search, self.bool_search,
             self.keypair_search,
             prefs['limit_search_columns'],
             prefs['limit_search_columns_to'], self.all_search_locations,
-            virtual_fields)
+            virtual_fields, self.get_saved_searches)
 
         try:
             ret = sqp.parse(q)
         finally:
-            sqp.dbcache = None
+            sqp.dbcache = sqp.get_saved_searches = None
         return ret
 

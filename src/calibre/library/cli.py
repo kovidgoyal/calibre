@@ -1028,10 +1028,8 @@ def command_saved_searches(args, dbpath):
         print
         prints(_('Error: You must specify an action (add|remove|list)'), file=sys.stderr)
         return 1
-    from calibre.utils.search_query_parser import saved_searches
     db = get_db(dbpath, opts)
-    db
-    ss = saved_searches()
+    ss = db.get_saved_searches()
     if args[0] == 'list':
         for name in ss.names():
             prints(_('Name:'), name)
