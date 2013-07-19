@@ -1504,6 +1504,18 @@ class Cache(object):
                     identical_book_ids.add(book_id)
         return identical_book_ids
 
+    @read_api
+    def get_top_level_move_items(self):
+        all_paths = {self._field_for('path', book_id).partition('/')[0] for book_id in self._all_book_ids()}
+        return self.backend.get_top_level_move_items(all_paths)
+
+    @write_api
+    def move_library_to(self, newloc, progress=None):
+        if progress is None:
+            progress = lambda x:x
+        all_paths = {self._field_for('path', book_id).partition('/')[0] for book_id in self._all_book_ids()}
+        self.backend.move_library_to(all_paths, newloc, progress=progress)
+
     # }}}
 
 class SortKey(object):  # {{{

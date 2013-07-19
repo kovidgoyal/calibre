@@ -747,6 +747,7 @@ LibraryDatabase.get_books_for_category = MT(
     lambda self, category, id_:self.new_api.get_books_for_category(category, id_))
 LibraryDatabase.get_data_as_dict = MT(get_data_as_dict)
 LibraryDatabase.find_identical_books = MT(lambda self, mi:self.new_api.find_identical_books(mi))
+LibraryDatabase.get_top_level_move_items = MT(lambda self:self.new_api.get_top_level_move_items())
 # }}}
 
 # Legacy setter API {{{
@@ -878,6 +879,7 @@ for meth in ('get_next_series_num_for', 'has_book', 'author_sort_from_authors'):
         return func
     setattr(LibraryDatabase, meth, MT(getter(meth)))
 
+LibraryDatabase.move_library_to = MT(lambda self, newloc, progress=None:self.new_api.move_library_to(newloc, progress=progress))
 # Cleaning is not required anymore
 LibraryDatabase.clean = LibraryDatabase.clean_custom = MT(lambda self:None)
 LibraryDatabase.clean_standard_field = MT(lambda self, field, commit=False:None)

@@ -3561,7 +3561,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             path = self.path(x, index_is_id=True)
             path = path.split(os.sep)[0]
             paths.add(path)
-        paths.add('metadata.db')
+        paths.update({'metadata.db', 'metadata_db_prefs_backup.json'})
         path_map = {}
         for x in paths:
             path_map[x] = x
@@ -3573,7 +3573,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         items = items.intersection(paths)
         return items, path_map
 
-    def move_library_to(self, newloc, progress=lambda x: x):
+    def move_library_to(self, newloc, progress=None):
+        if progress is None:
+            progress = lambda x:x
         if not os.path.exists(newloc):
             os.makedirs(newloc)
         old_dirs = set([])

@@ -1452,6 +1452,59 @@ class DB(object):
         options = [(book_id, fmt.upper(), buffer(cPickle.dumps(data, -1))) for book_id, data in options.iteritems()]
         self.conn.executemany('INSERT OR REPLACE INTO conversion_options(book,format,data) VALUES (?,?,?)', options)
 
+    def get_top_level_move_items(self, all_paths):
+        items = set(os.listdir(self.library_path))
+        paths = set(all_paths)
+        paths.update({'metadata.db', 'metadata_db_prefs_backup.json'})
+        path_map = {x:x for x in paths}
+        if not self.is_case_sensitive:
+            for x in items:
+                path_map[x.lower()] = x
+            items = set(path_map)
+            paths = {x.lower() for x in paths}
+        items = items.intersection(paths)
+        return items, path_map
+
+    def move_library_to(self, all_paths, newloc, progress=lambda x: x):
+        if not os.path.exists(newloc):
+            os.makedirs(newloc)
+        old_dirs = set()
+        items, path_map = self.get_top_level_move_items(all_paths)
+        for x in items:
+            src = os.path.join(self.library_path, x)
+            dest = os.path.join(newloc, path_map[x])
+            if os.path.isdir(src):
+                if os.path.exists(dest):
+                    shutil.rmtree(dest)
+                shutil.copytree(src, dest)
+                old_dirs.add(src)
+            else:
+                if os.path.exists(dest):
+                    os.remove(dest)
+                shutil.copyfile(src, dest)
+            x = path_map[x]
+            if not isinstance(x, unicode):
+                x = x.decode(filesystem_encoding, 'replace')
+            progress(x)
+
+        dbpath = os.path.join(newloc, os.path.basename(self.dbpath))
+        opath = self.dbpath
+        self.conn.close()
+        self.library_path, self.dbpath = newloc, dbpath
+        if self._conn is not None:
+            self._conn.close()
+        self._conn = None
+        self.conn
+        try:
+            os.unlink(opath)
+        except:
+            pass
+        for loc in old_dirs:
+            try:
+                shutil.rmtree(loc)
+            except:
+                pass
+
    # }}}
 
 
