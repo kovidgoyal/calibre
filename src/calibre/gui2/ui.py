@@ -570,6 +570,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             olddb = self.library_view.model().db
             if copy_structure:
                 default_prefs = olddb.prefs
+
+            from calibre.utils.formatter_functions import unload_user_template_functions
+            unload_user_template_functions(olddb.library_id )
         except:
             olddb = None
         try:

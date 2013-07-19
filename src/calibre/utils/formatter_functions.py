@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 
 import inspect, re, traceback
 from math import trunc
+from collections import defaultdict
 
 from calibre import human_readable
 from calibre.constants import DEBUG
@@ -25,6 +26,7 @@ class FormatterFunctions(object):
     def __init__(self):
         self._builtins = {}
         self._functions = {}
+        self._functions_from_library = defaultdict(list)
 
     def register_builtin(self, func_class):
         if not isinstance(func_class, FormatterFunction):
@@ -38,14 +40,24 @@ class FormatterFunctions(object):
         for a in func_class.aliases:
             self._functions[a] = func_class
 
-    def register_function(self, func_class):
+    def register_function(self, library_uuid, func_class, replace=False):
         if not isinstance(func_class, FormatterFunction):
             raise ValueError('Class %s is not an instance of FormatterFunction'%(
                                     func_class.__class__.__name__))
         name = func_class.name
-        if name in self._functions:
+        if not replace and name in self._functions:
             raise ValueError('Name %s already used'%name)
         self._functions[name] = func_class
+        self._functions_from_library[library_uuid].append(name)
+
+    def function_exists(self, name):
+        return self._functions.get(name, None)
+
+    def unregister_functions(self, library_uuid):
+        if library_uuid in self._functions_from_library:
+            for name in self._functions_from_library[library_uuid]:
+                self._functions.pop(name)
+            self._functions_from_library.pop(library_uuid)
 
     def get_builtins(self):
         return self._builtins
@@ -1259,11 +1271,45 @@ class UserFunction(FormatterUserFunction):
     cls = locals_['UserFunction'](name, doc, arg_count, eval_func)
     return cls
 
-def load_user_template_functions(funcs):
-    formatter_functions().reset_to_builtins()
+error_function_body = ('def evaluate(self, formatter, kwargs, mi, locals):\n'
+                       '\treturn "' +
+                            _('Duplicate user function name {0}. '
+                              'Change the name or ensure that the functions are identical')
+                                       + '"')
+
+def load_user_template_functions(library_uuid, funcs):
+    unload_user_template_functions(library_uuid)
+
     for func in funcs:
         try:
+            # Force a name conflict to test the logic
+            # if func[0] == 'myFunc2':
+            #     func[0] = 'myFunc3'
+
+            # Compile the function so that the tab processing is done on the
+            # source. This helps ensure that if the function already is defined
+            # then white space differences don't cause them to compare differently
+
             cls = compile_user_function(*func)
-            formatter_functions().register_function(cls)
+            f = formatter_functions().function_exists(cls.name)
+            replace = False
+            if f is not None:
+                existing_body = f.program_text
+                new_body = cls.program_text
+                if new_body != existing_body:
+                    # Change the body of the template function to one that will
+                    # return an error message. Also change the arg count to
+                    # -1 (variable) to avoid template compilation errors
+                    replace = True
+                    func[3] = error_function_body.format(func[0])
+                    func[2] = -1
+                    cls = compile_user_function(*func)
+                else:
+                    continue
+
+            formatter_functions().register_function(library_uuid, cls, replace=replace)
         except:
             traceback.print_exc()
+
+def unload_user_template_functions(library_uuid):
+    formatter_functions().unregister_functions(library_uuid)

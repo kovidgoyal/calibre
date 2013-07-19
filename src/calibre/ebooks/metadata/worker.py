@@ -318,7 +318,7 @@ def save_book(ids, dpath, plugboards, template_functions, path, recs,
     from calibre.library.save_to_disk import config, save_serialized_to_disk
     from calibre.customize.ui import apply_null_metadata
     from calibre.utils.formatter_functions import load_user_template_functions
-    load_user_template_functions(template_functions)
+    load_user_template_functions('', template_functions)
     opts = config().parse()
     for name in recs:
         setattr(opts, name, recs[name])

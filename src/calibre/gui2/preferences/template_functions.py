@@ -223,7 +223,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if f in self.builtins:
                 continue
             func = self.funcs[f]
-            formatter_functions().register_function(func)
+            formatter_functions().register_function(self.db.library_id, func)
             pref_value.append((func.name, func.doc, func.arg_count, func.program_text))
         self.db.prefs.set('user_template_functions', pref_value)
 
