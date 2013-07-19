@@ -54,6 +54,70 @@ def _get_series_values(val):
             pass
     return (val, None)
 
+def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None):
+    '''
+    Return all metadata stored in the database as a dict. Includes paths to
+    the cover and each format.
+
+    :param prefix: The prefix for all paths. By default, the prefix is the absolute path
+    to the library folder.
+    :param ids: Set of ids to return the data for. If None return data for
+    all entries in database.
+    '''
+    import os
+    from calibre.ebooks.metadata import authors_to_string
+    backend = getattr(self, 'backend', self)  # Works with both old and legacy interfaces
+    if prefix is None:
+        prefix = backend.library_path
+    fdata = backend.custom_column_num_map
+
+    FIELDS = set(['title', 'sort', 'authors', 'author_sort', 'publisher',
+        'rating', 'timestamp', 'size', 'tags', 'comments', 'series',
+        'series_index', 'uuid', 'pubdate', 'last_modified', 'identifiers',
+        'languages']).union(set(fdata))
+    for x, data in fdata.iteritems():
+        if data['datatype'] == 'series':
+            FIELDS.add('%d_index'%x)
+    data = []
+    for record in self.data:
+        if record is None:
+            continue
+        db_id = record[self.FIELD_MAP['id']]
+        if ids is not None and db_id not in ids:
+            continue
+        x = {}
+        for field in FIELDS:
+            x[field] = record[self.FIELD_MAP[field]]
+        data.append(x)
+        x['id'] = db_id
+        x['formats'] = []
+        isbn = self.isbn(db_id, index_is_id=True)
+        x['isbn'] = isbn if isbn else ''
+        if not x['authors']:
+            x['authors'] = _('Unknown')
+        x['authors'] = [i.replace('|', ',') for i in x['authors'].split(',')]
+        if authors_as_string:
+            x['authors'] = authors_to_string(x['authors'])
+        x['tags'] = [i.replace('|', ',').strip() for i in x['tags'].split(',')] if x['tags'] else []
+        path = os.path.join(prefix, self.path(record[self.FIELD_MAP['id']], index_is_id=True))
+        x['cover'] = os.path.join(path, 'cover.jpg')
+        if not record[self.FIELD_MAP['cover']]:
+            x['cover'] = None
+        formats = self.formats(record[self.FIELD_MAP['id']], index_is_id=True)
+        if formats:
+            for fmt in formats.split(','):
+                path = self.format_abspath(x['id'], fmt, index_is_id=True)
+                if path is None:
+                    continue
+                if prefix != self.library_path:
+                    path = os.path.relpath(path, self.library_path)
+                    path = os.path.join(prefix, path)
+                x['formats'].append(path)
+                x['fmt_'+fmt.lower()] = path
+            x['available_formats'] = [i.upper() for i in formats.split(',')]
+
+    return data
+
 '''
 Rewrite of the calibre database backend.
 

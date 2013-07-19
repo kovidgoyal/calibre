@@ -246,6 +246,12 @@ class LegacyTest(BaseTest):
         db.copy_format_to(1, 'FMT1', d1, True)
         ndb.copy_format_to(1, 'FMT1', d2, True)
         self.assertTrue(d1.getvalue() == d2.getvalue())
+        old = db.get_data_as_dict(prefix='test-prefix')
+        new = ndb.get_data_as_dict(prefix='test-prefix')
+        for o, n in zip(old, new):
+            o = {type('')(k) if isinstance(k, bytes) else k:set(v) if isinstance(v, list) else v for k, v in o.iteritems()}
+            n = {k:set(v) if isinstance(v, list) else v for k, v in n.iteritems()}
+            self.assertEqual(o, n)
         db.close()
         # }}}
 

@@ -11,7 +11,7 @@ from future_builtins import zip
 
 from calibre import force_unicode, isbytestring
 from calibre.constants import preferred_encoding
-from calibre.db import _get_next_series_num_for_list, _get_series_values
+from calibre.db import _get_next_series_num_for_list, _get_series_values, get_data_as_dict
 from calibre.db.adding import (
     find_books_in_directory, import_book_directory_multiple,
     import_book_directory, recursive_import, add_catalog, add_news)
@@ -34,7 +34,6 @@ def cleanup_tags(tags):
             seen.add(tag.lower())
             ans.append(tag)
     return ans
-
 
 class LibraryDatabase(object):
 
@@ -746,6 +745,7 @@ LibraryDatabase.isbn = MT(
     lambda self, index, index_is_id=False: self.get_identifiers(index, index_is_id=index_is_id).get('isbn', None))
 LibraryDatabase.get_books_for_category = MT(
     lambda self, category, id_:self.new_api.get_books_for_category(category, id_))
+LibraryDatabase.get_data_as_dict = MT(get_data_as_dict)
 # }}}
 
 # Legacy setter API {{{
@@ -885,6 +885,7 @@ LibraryDatabase.commit = MT(lambda self:None)
 # }}}
 
 del MT
+
 
 
 
