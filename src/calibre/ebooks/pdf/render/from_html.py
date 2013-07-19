@@ -353,6 +353,7 @@ class PDFWriter(QObject):
         paged_display.layout();
         paged_display.fit_images();
         py_bridge.value = book_indexing.all_links_and_anchors();
+        window.scrollTo(0, 0); // This is needed as getting anchor positions could have caused the viewport to scroll
         '''%(self.margin_top, 0, self.margin_bottom))
 
         amap = self.bridge_value

@@ -840,6 +840,19 @@ If you still cannot get the installer to work and you are on windows, you can us
 My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. note :: 
+    As of July, 2013 McAfee Site Advisor has started warning that
+    http://calibre-ebook.com is unsafe, with no stated reason or justification.
+    McAfee is wrong, the mistake has been reported to them, by several people,
+    but they have not corrected it. McAfee SiteAdvisor is a notoriously
+    unreliable service, see for example
+    `this page <http://www.naturalnews.com/041170_McAfee_Site_Advisor_false_information.html>`_ or
+    `this page <http://www.snapfiles.com/siteadvisor.html>`_ or
+    `this Wikipedia entry <http://en.wikipedia.org/wiki/McAfee_SiteAdvisor#Criticism>`_.
+    We strongly urge you to stop using McAfee products, find a more competent security provider
+    to give your business to.
+    Instructions on how to `uninstall McAfee SiteAdvisor <http://service.mcafee.com/faqdocument.aspx?id=TS100162>`_.
+
 The first thing to check is that you are downloading |app| from the official
 website: `<http://calibre-ebook.com/download>`_. |app| is a very popular program
 and unscrupulous people try to setup websites offering it for download to fool

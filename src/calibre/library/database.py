@@ -959,7 +959,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def max_size(self, index, index_is_id=False):
         if index_is_id:
             return self.conn.get('SELECT size FROM meta WHERE id=?', (index,), all=False)
-        return self.data[index][6]
+        return self.data[index][4]
 
     def cover(self, index, index_is_id=False):
         '''Cover as a data string or None'''

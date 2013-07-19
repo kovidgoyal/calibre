@@ -42,6 +42,8 @@ Differences in semantics from pysqlite:
     3. There is no executescript
 
 '''
+CUSTOM_DATA_TYPES = frozenset(['rating', 'text', 'comments', 'datetime',
+    'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
 
 
 class DynamicFilter(object):  # {{{
@@ -797,6 +799,184 @@ class DB(object):
             return self.custom_column_label_map[label]
         return self.custom_column_num_map[num]
 
+    def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None, display=None):
+        changed = False
+        if name is not None:
+            self.conn.execute('UPDATE custom_columns SET name=? WHERE id=?', (name, num))
+            changed = True
+        if label is not None:
+            self.conn.execute('UPDATE custom_columns SET label=? WHERE id=?', (label, num))
+            changed = True
+        if is_editable is not None:
+            self.conn.execute('UPDATE custom_columns SET editable=? WHERE id=?', (bool(is_editable), num))
+            self.custom_column_num_map[num]['is_editable'] = bool(is_editable)
+            changed = True
+        if display is not None:
+            self.conn.execute('UPDATE custom_columns SET display=? WHERE id=?', (json.dumps(display), num))
+            changed = True
+        return changed
+
+    def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display={}):  # {{{
+        import re
+        if not label:
+            raise ValueError(_('No label was provided'))
+        if re.match('^\w*$', label) is None or not label[0].isalpha() or label.lower() != label:
+            raise ValueError(_('The label must contain only lower case letters, digits and underscores, and start with a letter'))
+        if datatype not in CUSTOM_DATA_TYPES:
+            raise ValueError('%r is not a supported data type'%datatype)
+        normalized  = datatype not in ('datetime', 'comments', 'int', 'bool',
+                'float', 'composite')
+        is_multiple = is_multiple and datatype in ('text', 'composite')
+        self.conn.execute(
+                ('INSERT INTO '
+                'custom_columns(label,name,datatype,is_multiple,editable,display,normalized)'
+                'VALUES (?,?,?,?,?,?,?)'),
+                (label, name, datatype, is_multiple, editable, json.dumps(display), normalized))
+        num = self.conn.last_insert_rowid()
+
+        if datatype in ('rating', 'int'):
+            dt = 'INT'
+        elif datatype in ('text', 'comments', 'series', 'composite', 'enumeration'):
+            dt = 'TEXT'
+        elif datatype in ('float',):
+            dt = 'REAL'
+        elif datatype == 'datetime':
+            dt = 'timestamp'
+        elif datatype == 'bool':
+            dt = 'BOOL'
+        collate = 'COLLATE NOCASE' if dt == 'TEXT' else ''
+        table, lt = self.custom_table_names(num)
+        if normalized:
+            if datatype == 'series':
+                s_index = 'extra REAL,'
+            else:
+                s_index = ''
+            lines = [
+                '''\
+                CREATE TABLE %s(
+                    id    INTEGER PRIMARY KEY AUTOINCREMENT,
+                    value %s NOT NULL %s,
+                    UNIQUE(value));
+                '''%(table, dt, collate),
+
+                'CREATE INDEX %s_idx ON %s (value %s);'%(table, table, collate),
+
+                '''\
+                CREATE TABLE %s(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    book INTEGER NOT NULL,
+                    value INTEGER NOT NULL,
+                    %s
+                    UNIQUE(book, value)
+                    );'''%(lt, s_index),
+
+                'CREATE INDEX %s_aidx ON %s (value);'%(lt,lt),
+                'CREATE INDEX %s_bidx ON %s (book);'%(lt,lt),
+
+                '''\
+                CREATE TRIGGER fkc_update_{lt}_a
+                        BEFORE UPDATE OF book ON {lt}
+                        BEGIN
+                            SELECT CASE
+                                WHEN (SELECT id from books WHERE id=NEW.book) IS NULL
+                                THEN RAISE(ABORT, 'Foreign key violation: book not in books')
+                            END;
+                        END;
+                CREATE TRIGGER fkc_update_{lt}_b
+                        BEFORE UPDATE OF author ON {lt}
+                        BEGIN
+                            SELECT CASE
+                                WHEN (SELECT id from {table} WHERE id=NEW.value) IS NULL
+                                THEN RAISE(ABORT, 'Foreign key violation: value not in {table}')
+                            END;
+                        END;
+                CREATE TRIGGER fkc_insert_{lt}
+                        BEFORE INSERT ON {lt}
+                        BEGIN
+                            SELECT CASE
+                                WHEN (SELECT id from books WHERE id=NEW.book) IS NULL
+                                THEN RAISE(ABORT, 'Foreign key violation: book not in books')
+                                WHEN (SELECT id from {table} WHERE id=NEW.value) IS NULL
+                                THEN RAISE(ABORT, 'Foreign key violation: value not in {table}')
+                            END;
+                        END;
+                CREATE TRIGGER fkc_delete_{lt}
+                        AFTER DELETE ON {table}
+                        BEGIN
+                            DELETE FROM {lt} WHERE value=OLD.id;
+                        END;
+
+                CREATE VIEW tag_browser_{table} AS SELECT
+                    id,
+                    value,
+                    (SELECT COUNT(id) FROM {lt} WHERE value={table}.id) count,
+                    (SELECT AVG(r.rating)
+                     FROM {lt},
+                          books_ratings_link as bl,
+                          ratings as r
+                     WHERE {lt}.value={table}.id and bl.book={lt}.book and
+                           r.id = bl.rating and r.rating <> 0) avg_rating,
+                    value AS sort
+                FROM {table};
+
+                CREATE VIEW tag_browser_filtered_{table} AS SELECT
+                    id,
+                    value,
+                    (SELECT COUNT({lt}.id) FROM {lt} WHERE value={table}.id AND
+                    books_list_filter(book)) count,
+                    (SELECT AVG(r.rating)
+                     FROM {lt},
+                          books_ratings_link as bl,
+                          ratings as r
+                     WHERE {lt}.value={table}.id AND bl.book={lt}.book AND
+                           r.id = bl.rating AND r.rating <> 0 AND
+                           books_list_filter(bl.book)) avg_rating,
+                    value AS sort
+                FROM {table};
+
+                '''.format(lt=lt, table=table),
+
+            ]
+        else:
+            lines = [
+                '''\
+                CREATE TABLE %s(
+                    id    INTEGER PRIMARY KEY AUTOINCREMENT,
+                    book  INTEGER,
+                    value %s NOT NULL %s,
+                    UNIQUE(book));
+                '''%(table, dt, collate),
+
+                'CREATE INDEX %s_idx ON %s (book);'%(table, table),
+
+                '''\
+                CREATE TRIGGER fkc_insert_{table}
+                        BEFORE INSERT ON {table}
+                        BEGIN
+                            SELECT CASE
+                                WHEN (SELECT id from books WHERE id=NEW.book) IS NULL
+                                THEN RAISE(ABORT, 'Foreign key violation: book not in books')
+                            END;
+                        END;
+                CREATE TRIGGER fkc_update_{table}
+                        BEFORE UPDATE OF book ON {table}
+                        BEGIN
+                            SELECT CASE
+                                WHEN (SELECT id from books WHERE id=NEW.book) IS NULL
+                                THEN RAISE(ABORT, 'Foreign key violation: book not in books')
+                            END;
+                        END;
+                '''.format(table=table),
+            ]
+        script = ' \n'.join(lines)
+        self.conn.execute(script)
+        return num
+    # }}}
+
+    def delete_custom_column(self, label=None, num=None):
+        data = self.custom_field_metadata(label, num)
+        self.conn.execute('UPDATE custom_columns SET mark_for_delete=1 WHERE id=?', (data['num'],))
+
     def close(self):
         if self._conn is not None:
             self._conn.close()
@@ -1272,5 +1452,59 @@ class DB(object):
         options = [(book_id, fmt.upper(), buffer(cPickle.dumps(data, -1))) for book_id, data in options.iteritems()]
         self.conn.executemany('INSERT OR REPLACE INTO conversion_options(book,format,data) VALUES (?,?,?)', options)
 
+    def get_top_level_move_items(self, all_paths):
+        items = set(os.listdir(self.library_path))
+        paths = set(all_paths)
+        paths.update({'metadata.db', 'metadata_db_prefs_backup.json'})
+        path_map = {x:x for x in paths}
+        if not self.is_case_sensitive:
+            for x in items:
+                path_map[x.lower()] = x
+            items = set(path_map)
+            paths = {x.lower() for x in paths}
+        items = items.intersection(paths)
+        return items, path_map
+
+    def move_library_to(self, all_paths, newloc, progress=lambda x: x):
+        if not os.path.exists(newloc):
+            os.makedirs(newloc)
+        old_dirs = set()
+        items, path_map = self.get_top_level_move_items(all_paths)
+        for x in items:
+            src = os.path.join(self.library_path, x)
+            dest = os.path.join(newloc, path_map[x])
+            if os.path.isdir(src):
+                if os.path.exists(dest):
+                    shutil.rmtree(dest)
+                shutil.copytree(src, dest)
+                old_dirs.add(src)
+            else:
+                if os.path.exists(dest):
+                    os.remove(dest)
+                shutil.copyfile(src, dest)
+            x = path_map[x]
+            if not isinstance(x, unicode):
+                x = x.decode(filesystem_encoding, 'replace')
+            progress(x)
+
+        dbpath = os.path.join(newloc, os.path.basename(self.dbpath))
+        opath = self.dbpath
+        self.conn.close()
+        self.library_path, self.dbpath = newloc, dbpath
+        if self._conn is not None:
+            self._conn.close()
+        self._conn = None
+        self.conn
+        try:
+            os.unlink(opath)
+        except:
+            pass
+        for loc in old_dirs:
+            try:
+                shutil.rmtree(loc)
+            except:
+                pass
+
    # }}}
+
 

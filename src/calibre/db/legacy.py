@@ -11,7 +11,7 @@ from future_builtins import zip
 
 from calibre import force_unicode, isbytestring
 from calibre.constants import preferred_encoding
-from calibre.db import _get_next_series_num_for_list, _get_series_values
+from calibre.db import _get_next_series_num_for_list, _get_series_values, get_data_as_dict
 from calibre.db.adding import (
     find_books_in_directory, import_book_directory_multiple,
     import_book_directory, recursive_import, add_catalog, add_news)
@@ -34,7 +34,6 @@ def cleanup_tags(tags):
             seen.add(tag.lower())
             ans.append(tag)
     return ans
-
 
 class LibraryDatabase(object):
 
@@ -441,25 +440,38 @@ class LibraryDatabase(object):
         if notify:
             self.notify('metadata', ids)
 
-    def bulk_modify_tags(self, ids, add=[], remove=[], notify=False):
+    def _do_bulk_modify(self, field, ids, add, remove, notify):
         add = cleanup_tags(add)
         remove = cleanup_tags(remove)
         remove = set(remove) - set(add)
         if not ids or (not add and not remove):
             return
+
         remove = {icu_lower(x) for x in remove}
         with self.new_api.write_lock:
             val_map = {}
             for book_id in ids:
-                tags = list(self.new_api._field_for('tags', book_id))
+                tags = list(self.new_api._field_for(field, book_id))
                 existing = {icu_lower(x) for x in tags}
                 tags.extend(t for t in add if icu_lower(t) not in existing)
                 tags = tuple(t for t in tags if icu_lower(t) not in remove)
                 val_map[book_id] = tags
-            self.new_api._set_field('tags', val_map, allow_case_change=False)
+            self.new_api._set_field(field, val_map, allow_case_change=False)
 
         if notify:
             self.notify('metadata', ids)
+
+    def bulk_modify_tags(self, ids, add=[], remove=[], notify=False):
+        self._do_bulk_modify('tags', ids, add, remove, notify)
+
+    def set_custom_bulk_multiple(self, ids, add=[], remove=[], label=None, num=None, notify=False):
+        data = self.backend.custom_field_metadata(label, num)
+        if not data['editable']:
+            raise ValueError('Column %r is not editable'%data['label'])
+        if data['datatype'] != 'text' or not data['is_multiple']:
+            raise ValueError('Column %r is not text/multiple'%data['label'])
+        field = self.custom_field_name(label, num)
+        self._do_bulk_modify(field, ids, add, remove, notify)
 
     def unapply_tags(self, book_id, tags, notify=True):
         self.bulk_modify_tags((book_id,), remove=tags, notify=notify)
@@ -589,6 +601,100 @@ class LibraryDatabase(object):
             return []
         return list(self.new_api.remove_items(field, (item_id,)))
 
+    def set_custom(self, book_id, val, label=None, num=None, append=False,
+                   notify=True, extra=None, commit=True, allow_case_change=False):
+        field = self.custom_field_name(label, num)
+        data = self.backend.custom_field_metadata(label, num)
+        if data['datatype'] == 'composite':
+            return set()
+        if not data['editable']:
+            raise ValueError('Column %r is not editable'%data['label'])
+        if data['datatype'] == 'enumeration' and (
+                val and val not in data['display']['enum_values']):
+            return set()
+        with self.new_api.write_lock:
+            if append and data['is_multiple']:
+                current = self.new_api._field_for(field, book_id)
+                existing = {icu_lower(x) for x in current}
+                val = current + tuple(x for x in self.new_api.fields[field].writer.adapter(val) if icu_lower(x) not in existing)
+                affected_books = self.new_api._set_field(field, {book_id:val}, allow_case_change=allow_case_change)
+            else:
+                affected_books = self.new_api._set_field(field, {book_id:val}, allow_case_change=allow_case_change)
+            if data['datatype'] == 'series':
+                extra = 1.0 if extra is None else extra
+                self.new_api._set_field(field + '_index', {book_id:extra})
+        if notify and affected_books:
+            self.notify('metadata', list(affected_books))
+        return affected_books
+
+    def set_custom_bulk(self, ids, val, label=None, num=None,
+                   append=False, notify=True, extras=None):
+        if extras is not None and len(extras) != len(ids):
+            raise ValueError('Length of ids and extras is not the same')
+        field = self.custom_field_name(label, num)
+        data = self.backend.custom_field_metadata(label, num)
+        if data['datatype'] == 'composite':
+            return set()
+        if data['datatype'] == 'enumeration' and (
+                val and val not in data['display']['enum_values']):
+            return
+        if not data['editable']:
+            raise ValueError('Column %r is not editable'%data['label'])
+
+        if append:
+            for book_id in ids:
+                self.set_custom(book_id, val, label=label, num=num, append=True, notify=False)
+        else:
+            with self.new_api.write_lock:
+                self.new_api._set_field(field, {book_id:val for book_id in ids}, allow_case_change=False)
+            if extras is not None:
+                self.new_api._set_field(field + '_index', {book_id:val for book_id, val in zip(ids, extras)})
+        if notify:
+            self.notify('metadata', list(ids))
+
+    def delete_custom_column(self, label=None, num=None):
+        self.new_api.delete_custom_column(label, num)
+
+    def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display={}):
+        self.new_api.create_custom_column(label, name, datatype, is_multiple, editable=editable, display=display)
+
+    def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None, display=None, notify=True):
+        changed = self.new_api.set_custom_column_metadata(num, name=name, label=label, is_editable=is_editable, display=display)
+        if changed and notify:
+            self.notify('metadata', [])
+
+    def remove_cover(self, book_id, notify=True, commit=True):
+        self.new_api.set_cover({book_id:None})
+        if notify:
+            self.notify('cover', [book_id])
+
+    def set_cover(self, book_id, data, notify=True, commit=True):
+        self.new_api.set_cover({book_id:data})
+        if notify:
+            self.notify('cover', [book_id])
+
+    def original_fmt(self, book_id, fmt):
+        nfmt = ('ORIGINAL_%s'%fmt).upper()
+        return nfmt if self.new_api.has_format(book_id, nfmt) else fmt
+
+    def save_original_format(self, book_id, fmt, notify=True):
+        ret = self.new_api.save_original_format(book_id, fmt)
+        if ret and notify:
+            self.notify('metadata', [book_id])
+        return ret
+
+    def restore_original_format(self, book_id, original_fmt, notify=True):
+        ret = self.new_api.restore_original_format(book_id, original_fmt)
+        if ret and notify:
+            self.notify('metadata', [book_id])
+        return ret
+
+    def remove_format(self, index, fmt, index_is_id=False, notify=True, commit=True, db_only=False):
+        book_id = index if index_is_id else self.id(index)
+        self.new_api.remove_formats({book_id:(fmt,)}, db_only=db_only)
+        if notify:
+            self.notify('metadata', [book_id])
+
     # Private interface {{{
     def __iter__(self):
         for row in self.data.iterall():
@@ -605,12 +711,12 @@ class LibraryDatabase(object):
 MT = lambda func: types.MethodType(func, None, LibraryDatabase)
 
 # Legacy getter API {{{
-for prop in ('author_sort', 'authors', 'comment', 'comments', 'publisher',
+for prop in ('author_sort', 'authors', 'comment', 'comments', 'publisher', 'max_size',
              'rating', 'series', 'series_index', 'tags', 'title', 'title_sort',
              'timestamp', 'uuid', 'pubdate', 'ondevice', 'metadata_last_modified', 'languages',):
     def getter(prop):
         fm = {'comment':'comments', 'metadata_last_modified':
-                'last_modified', 'title_sort':'sort'}.get(prop, prop)
+              'last_modified', 'title_sort':'sort', 'max_size':'size'}.get(prop, prop)
         def func(self, index, index_is_id=False):
             return self.get_property(index, index_is_id=index_is_id, loc=self.FIELD_MAP[fm])
         return func
@@ -632,10 +738,16 @@ LibraryDatabase.format_hash = MT(lambda self, book_id, fmt:self.new_api.format_h
 LibraryDatabase.index = MT(lambda self, book_id, cache=False:self.data.id_to_index(book_id))
 LibraryDatabase.has_cover = MT(lambda self, book_id:self.new_api.field_for('cover', book_id))
 LibraryDatabase.get_tags = MT(lambda self, book_id:set(self.new_api.field_for('tags', book_id)))
+LibraryDatabase.get_categories = MT(lambda self, sort='name', ids=None, icon_map=None:self.new_api.get_categories(sort=sort, book_ids=ids, icon_map=icon_map))
 LibraryDatabase.get_identifiers = MT(
     lambda self, index, index_is_id=False: self.new_api.field_for('identifiers', index if index_is_id else self.id(index)))
 LibraryDatabase.isbn = MT(
     lambda self, index, index_is_id=False: self.get_identifiers(index, index_is_id=index_is_id).get('isbn', None))
+LibraryDatabase.get_books_for_category = MT(
+    lambda self, category, id_:self.new_api.get_books_for_category(category, id_))
+LibraryDatabase.get_data_as_dict = MT(get_data_as_dict)
+LibraryDatabase.find_identical_books = MT(lambda self, mi:self.new_api.find_identical_books(mi))
+LibraryDatabase.get_top_level_move_items = MT(lambda self:self.new_api.get_top_level_move_items())
 # }}}
 
 # Legacy setter API {{{
@@ -767,6 +879,7 @@ for meth in ('get_next_series_num_for', 'has_book', 'author_sort_from_authors'):
         return func
     setattr(LibraryDatabase, meth, MT(getter(meth)))
 
+LibraryDatabase.move_library_to = MT(lambda self, newloc, progress=None:self.new_api.move_library_to(newloc, progress=progress))
 # Cleaning is not required anymore
 LibraryDatabase.clean = LibraryDatabase.clean_custom = MT(lambda self:None)
 LibraryDatabase.clean_standard_field = MT(lambda self, field, commit=False:None)
@@ -775,5 +888,9 @@ LibraryDatabase.commit = MT(lambda self:None)
 # }}}
 
 del MT
+
+
+
+
 
 
