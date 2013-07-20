@@ -132,12 +132,9 @@ def get_db_loader():
 
 '''
 Various things that require other things before they can be migrated:
-    1. From initialize_dynamic(): Also add custom
-                    columns/categories/searches info into
-                    self.field_metadata.
-    2. Port library/restore.py, check_library.py and reinit_db() from debug.py
-    3. Check that content server reloading on metadata,db change, metadata
+    1. Port library/restore.py, check_library.py and reinit_db() from debug.py
+    2. Check that content server reloading on metadata,db change, metadata
     backup, refresh gui on calibredb add and moving libraries all work (check
     them on windows as well for file locking issues)
-    4. Check for mem leaks when switching libraries
+    3. Check for mem leaks when switching libraries
 '''
