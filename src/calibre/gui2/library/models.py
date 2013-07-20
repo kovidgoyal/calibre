@@ -674,7 +674,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 def func(idx):
                     return by if fffunc(field_obj, idfunc(idx)) else bb
             elif dt in {'text', 'comments', 'composite', 'enumeration'}:
-                if m['is_multiple']:
+                if m['is_multiple'] and not field_obj.is_composite:
                     jv = m['is_multiple']['list_to_ui']
                     do_sort = field == 'tags'
                     if do_sort:
@@ -717,7 +717,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                     if fmt:
                         try:
                             return QVariant(fmt.format(val))
-                        except (TypeError, ValueError, AttributeError, IndexError):
+                        except (TypeError, ValueError, AttributeError, IndexError, KeyError):
                             pass
                     return QVariant(val)
             else:
