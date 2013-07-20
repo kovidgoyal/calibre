@@ -321,7 +321,7 @@ class View(object):
         if self.search_restriction or self.base_restriction:
             self.search('', return_matches=False)
 
-    def refresh_ids(self, db, ids):
+    def refresh_ids(self, ids):
         self.cache.clear_caches(book_ids=ids)
         try:
             return list(map(self.id_to_index, ids))

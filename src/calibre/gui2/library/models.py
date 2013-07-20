@@ -17,7 +17,7 @@ from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_autho
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks, device_prefs, prefs
-from calibre.utils.date import dt_factory, qt_to_dt, as_local_time
+from calibre.utils.date import dt_factory, qt_to_dt, as_local_time, UNDEFINED_DATE
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.db.search import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
@@ -661,10 +661,10 @@ class BooksModel(QAbstractTableModel):  # {{{
                 sz_mult = 1.0/(1024**2)
                 def func(idx):
                     val = fffunc(field_obj, idfunc(idx), default_value=0) or 0
+                    if val is 0:
+                        return NONE
                     ans = u'%.1f' % (val * sz_mult)
-                    if val > 0 and ans == u'0.0':
-                        ans = u'<0.1'
-                    return QVariant(ans)
+                    return QVariant(u'<0.1' if ans == u'0.0' else ans)
             elif field == 'languages':
                 def func(idx):
                     return QVariant(', '.join(calibre_langcode_to_name(x) for x in fffunc(field_obj, idfunc(idx))))
@@ -693,7 +693,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                             return QVariant(fffunc(field_obj, idfunc(idx), default_value=''))
             elif dt == 'datetime':
                 def func(idx):
-                    return QVariant(fffunc(field_obj, idfunc(idx), default_value=UNDEFINED_QDATETIME))
+                    return QVariant(QDateTime(as_local_time(fffunc(field_obj, idfunc(idx), default_value=UNDEFINED_DATE))))
             elif dt == 'rating':
                 def func(idx):
                     return QVariant(int(fffunc(field_obj, idfunc(idx), default_value=0)/2.0))
