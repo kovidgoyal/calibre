@@ -660,7 +660,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             elif field == 'size':
                 sz_mult = 1.0/(1024**2)
                 def func(idx):
-                    val = fffunc(field_obj, idfunc(idx), default_value=0)
+                    val = fffunc(field_obj, idfunc(idx), default_value=0) or 0
                     ans = u'%.1f' % (val * sz_mult)
                     if val > 0 and ans == u'0.0':
                         ans = u'<0.1'
