@@ -84,9 +84,47 @@ Everything after the -- is passed to the script.
 
     return parser
 
+def reinit_db_new(dbpath, callback=None, sql_dump=None):
+    from calibre.db.backend import Connection
+    import apsw
+    import shutil
+    from io import StringIO
+    from contextlib import closing
+    if callback is None:
+        callback = lambda x, y: None
+
+    with closing(Connection(dbpath)) as conn:
+        uv = conn.get('PRAGMA user_version;', all=False)
+        if sql_dump is None:
+            buf = StringIO()
+            shell = apsw.Shell(db=conn, stdout=buf)
+            shell.process_command('.dump')
+            sql = buf.getvalue().encode('utf-8')
+        else:
+            sql = open(sql_dump, 'rb').read()
+
+    dest = dbpath + '.tmp'
+    callback(1, True)
+    try:
+        with closing(Connection(dest)) as conn:
+            conn.execute(sql)
+            conn.execute('PRAGMA User_version=%d;'%int(uv))
+        os.remove(dbpath)
+        shutil.copyfile(dest, dbpath)
+    finally:
+        callback(1, False)
+        if os.path.exists(dest):
+            os.remove(dest)
+    prints('Database successfully re-initialized')
+
+
 def reinit_db(dbpath, callback=None, sql_dump=None):
     if not os.path.exists(dbpath):
         raise ValueError(dbpath + ' does not exist')
+    from calibre.utils.config_base import tweaks
+    if tweaks.get('use_new_db', False):
+        return reinit_db_new(dbpath, callback, sql_dump)
+
     from calibre.library.sqlite import connect
     from contextlib import closing
     import shutil
