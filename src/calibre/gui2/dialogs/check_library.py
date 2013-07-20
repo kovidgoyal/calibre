@@ -17,7 +17,8 @@ from calibre import prints, as_unicode
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.library.sqlite import DBThread, OperationalError
 
-class DBCheck(QDialog): # {{{
+
+class DBCheck(QDialog):  # {{{
 
     def __init__(self, parent, db):
         QDialog.__init__(self, parent)
@@ -95,7 +96,6 @@ class DBCheck(QDialog): # {{{
             import traceback
             self.error = (as_unicode(e), traceback.format_exc())
             self.reject()
-
 
     def do_one_load(self):
         if self.rejected:
@@ -338,7 +338,7 @@ class CheckLibraryDialog(QDialog):
 
         t = self.log
         t.clear()
-        t.setColumnCount(2);
+        t.setColumnCount(2)
         t.setHeaderLabels([_('Name'), _('Path from library')])
         self.all_items = []
         self.top_level_items = {}
@@ -396,7 +396,7 @@ class CheckLibraryDialog(QDialog):
         tl = self.top_level_items['missing_formats']
         child_count = tl.childCount()
         for i in range(0, child_count):
-            item = tl.child(i);
+            item = tl.child(i)
             id = item.data(0, Qt.UserRole).toInt()[0]
             all = self.db.formats(id, index_is_id=True, verify_formats=False)
             all = set([f.strip() for f in all.split(',')]) if all else set()
@@ -409,7 +409,7 @@ class CheckLibraryDialog(QDialog):
         tl = self.top_level_items['missing_covers']
         child_count = tl.childCount()
         for i in range(0, child_count):
-            item = tl.child(i);
+            item = tl.child(i)
             id = item.data(0, Qt.UserRole).toInt()[0]
             self.db.set_has_cover(id, False)
 
@@ -417,7 +417,7 @@ class CheckLibraryDialog(QDialog):
         tl = self.top_level_items['extra_covers']
         child_count = tl.childCount()
         for i in range(0, child_count):
-            item = tl.child(i);
+            item = tl.child(i)
             id = item.data(0, Qt.UserRole).toInt()[0]
             self.db.set_has_cover(id, True)
 
@@ -441,3 +441,4 @@ if __name__ == '__main__':
     from calibre.library import db
     d = CheckLibraryDialog(None, db())
     d.exec_()
+
