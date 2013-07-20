@@ -113,7 +113,7 @@ class SizeTable(OneToOneTable):
         for row in db.conn.execute(
                 'SELECT books.id, (SELECT MAX(uncompressed_size) FROM data '
                 'WHERE data.book=books.id) FROM books'):
-            self.book_col_map[row[0]] = self.unserialize(row[1])
+            self.book_col_map[row[0]] = self.unserialize(row[1] or 0)
 
     def update_sizes(self, size_map):
         self.book_col_map.update(size_map)

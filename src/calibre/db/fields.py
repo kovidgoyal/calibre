@@ -23,6 +23,7 @@ class Field(object):
 
     is_many = False
     is_many_many = False
+    is_composite = False
 
     def __init__(self, name, table):
         self.name, self.table = name, table
@@ -148,6 +149,8 @@ class OneToOneField(Field):
 
 class CompositeField(OneToOneField):
 
+    is_composite = True
+
     def __init__(self, *args, **kwargs):
         OneToOneField.__init__(self, *args, **kwargs)
 
@@ -229,6 +232,14 @@ class OnDeviceField(OneToOneField):
         self.is_multiple = False
         self.cache = {}
         self._lock = Lock()
+        self._metadata = {
+            'table':None, 'column':None, 'datatype':'text', 'is_multiple':{},
+            'kind':'field', 'name':_('On Device'), 'search_terms':['ondevice'],
+            'is_custom':False, 'is_category':False, 'is_csp': False, 'display':{}}
+
+    @property
+    def metadata(self):
+        return self._metadata
 
     def clear_caches(self, book_ids=None):
         with self._lock:
@@ -330,7 +341,6 @@ class ManyToManyField(Field):
 
     def __init__(self, *args, **kwargs):
         Field.__init__(self, *args, **kwargs)
-        self.alphabetical_sort = self.name != 'authors'
 
     def for_book(self, book_id, default_value=None):
         ids = self.table.book_col_map.get(book_id, ())

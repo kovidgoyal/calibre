@@ -319,6 +319,16 @@ class Cache(object):
             return default_value
 
     @read_api
+    def fast_field_for(self, field_obj, book_id, default_value=None):
+        ' Same as field_for, except that it avoids the extra lookup to get the field object '
+        if field_obj.is_composite:
+            return field_obj.get_value_with_cache(book_id, partial(self._get_metadata, get_user_categories=False))
+        try:
+            return field_obj.for_book(book_id, default_value=default_value)
+        except (KeyError, IndexError):
+            return default_value
+
+    @read_api
     def composite_for(self, name, book_id, mi=None, default_value=''):
         try:
             f = self.fields[name]

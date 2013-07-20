@@ -227,7 +227,10 @@ class BooksModel(QAbstractTableModel):  # {{{
             elif col in self.custom_columns:
                 self.headers[col] = self.custom_columns[col]['name']
 
-        self.build_data_convertors()
+        if hasattr(self.db, 'new_api'):
+            self.build_new_data_convertors()
+        else:
+            self.build_data_convertors()
         self.reset()
         self.database_changed.emit(db)
         self.stop_metadata_backup()
@@ -633,6 +636,112 @@ class BooksModel(QAbstractTableModel):  # {{{
         if img.isNull():
             img = self.default_image
         return img
+
+    def build_new_data_convertors(self):
+
+        def renderer(field, decorator=False):
+            idfunc = self.db.id
+            fffunc = self.db.new_api.fast_field_for
+            field_obj = self.db.new_api.fields[field]
+            m = field_obj.metadata.copy()
+            if 'display' not in m:
+                m['display'] = {}
+            dt = m['datatype']
+
+            if decorator == 'bool':
+                bt = self.db.new_api.pref('bools_are_tristate')
+                bn = self.bool_no_icon
+                by = self.bool_yes_icon
+                def func(idx):
+                    val = force_to_bool(fffunc(field_obj, idfunc(idx)))
+                    if val is None:
+                        return NONE if bt else bn
+                    return by if val else bn
+            elif field == 'size':
+                sz_mult = 1.0/(1024**2)
+                def func(idx):
+                    val = fffunc(field_obj, idfunc(idx), default_value=0)
+                    ans = u'%.1f' % (val * sz_mult)
+                    if val > 0 and ans == u'0.0':
+                        ans = u'<0.1'
+                    return QVariant(ans)
+            elif field == 'languages':
+                def func(idx):
+                    return QVariant(', '.join(calibre_langcode_to_name(x) for x in fffunc(field_obj, idfunc(idx))))
+            elif field == 'ondevice' and decorator:
+                by = self.bool_yes_icon
+                bb = self.bool_blank_icon
+                def func(idx):
+                    return by if fffunc(field_obj, idfunc(idx)) else bb
+            elif dt in {'text', 'comments', 'composite', 'enumeration'}:
+                if m['is_multiple']:
+                    jv = m['is_multiple']['list_to_ui']
+                    do_sort = field == 'tags'
+                    if do_sort:
+                        def func(idx):
+                            return QVariant(jv.join(sorted(fffunc(field_obj, idfunc(idx), default_value=()), key=sort_key)))
+                    else:
+                        def func(idx):
+                            return QVariant(jv.join(fffunc(field_obj, idfunc(idx), default_value=())))
+                else:
+                    if dt in {'text', 'composite', 'enumeration'} and m['display'].get('use_decorations', False):
+                        def func(idx):
+                            text = fffunc(field_obj, idfunc(idx))
+                            return QVariant(text) if force_to_bool(text) is None else NONE
+                    else:
+                        def func(idx):
+                            return QVariant(fffunc(field_obj, idfunc(idx), default_value=''))
+            elif dt == 'datetime':
+                def func(idx):
+                    return QVariant(fffunc(field_obj, idfunc(idx), default_value=UNDEFINED_QDATETIME))
+            elif dt == 'rating':
+                def func(idx):
+                    return QVariant(int(fffunc(field_obj, idfunc(idx), default_value=0)/2.0))
+            elif dt == 'series':
+                sidx_field = self.db.new_api.fields[field + '_index']
+                fffunc = self.db.new_api._fast_field_for
+                read_lock = self.db.new_api.read_lock
+                def func(idx):
+                    book_id = idfunc(idx)
+                    with read_lock:
+                        series = fffunc(field_obj, book_id, default_value=False)
+                        if series:
+                            return QVariant('%s [%s]' % (series, fmt_sidx(fffunc(sidx_field, book_id, default_value=1.0))))
+                    return NONE
+            elif dt in {'int', 'float'}:
+                fmt = m['display'].get('number_format', None)
+                def func(idx):
+                    val = fffunc(field_obj, idfunc(idx))
+                    if val is None:
+                        return NONE
+                    if fmt:
+                        try:
+                            return QVariant(fmt.format(val))
+                        except (TypeError, ValueError, AttributeError, IndexError):
+                            pass
+                    return QVariant(val)
+            else:
+                def func(idx):
+                    return NONE
+
+            return func
+
+        self.dc = {f:renderer(f) for f in 'title authors size timestamp pubdate last_modified rating publisher tags series ondevice languages'.split()}
+        self.dc_decorator = {f:renderer(f, True) for f in ('ondevice',)}
+
+        for col in self.custom_columns:
+            self.dc[col] = renderer(col)
+            m = self.custom_columns[col]
+            dt = m['datatype']
+            mult = m['is_multiple']
+            if dt in {'text', 'composite', 'enumeration'} and not mult and m['display'].get('use_decorations', False):
+                self.dc_decorator[col] = renderer(col, 'bool')
+            elif dt == 'bool':
+                self.dc_decorator[col] = renderer(col, 'bool')
+
+        # build a index column to data converter map, to remove the string lookup in the data loop
+        self.column_to_dc_map = [self.dc[col] for col in self.column_map]
+        self.column_to_dc_decorator_map = [self.dc_decorator.get(col, None) for col in self.column_map]
 
     def build_data_convertors(self):
         def authors(r, idx=-1):
