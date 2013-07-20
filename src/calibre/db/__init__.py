@@ -132,7 +132,7 @@ def get_db_loader():
 
 '''
 Various things that require other things before they can be migrated:
-    1. Port library/restore.py, check_library.py
+    1. Port library/restore.py
     2. Check that content server reloading on metadata,db change, metadata
     backup, refresh gui on calibredb add and moving libraries all work (check
     them on windows as well for file locking issues)

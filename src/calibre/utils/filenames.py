@@ -383,4 +383,12 @@ def hardlink_file(src, dest):
         return
     os.link(src, dest)
 
-
+def atomic_rename(oldpath, newpath):
+    '''Replace the file newpath with the file oldpath. Can fail if the files
+    are on different volumes. If succeeds, guaranteed to be atomic. newpath may
+    or may not exist. If it exists, it is replaced. '''
+    if iswindows:
+        import win32file
+        win32file.MoveFileEx(oldpath, newpath, win32file.MOVEFILE_REPLACE_EXISTING|win32file.MOVEFILE_WRITE_THROUGH)
+    else:
+        os.rename(oldpath, newpath)

@@ -413,14 +413,17 @@ class ChooseLibraryAction(InterfaceAction):
             self.gui.library_moved(db.library_path, call_close=False)
 
     def check_library(self):
-        from calibre.gui2.dialogs.check_library import CheckLibraryDialog, DBCheck
+        from calibre.gui2.dialogs.check_library import CheckLibraryDialog, DBCheck, DBCheckNew
         self.gui.library_view.save_state()
         m = self.gui.library_view.model()
         m.stop_metadata_backup()
         db = m.db
         db.prefs.disable_setting = True
 
-        d = DBCheck(self.gui, db)
+        if hasattr(db, 'new_api'):
+            d = DBCheckNew(self.gui, db)
+        else:
+            d = DBCheck(self.gui, db)
         d.start()
         try:
             d.conn.close()

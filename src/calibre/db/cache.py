@@ -1564,6 +1564,10 @@ class Cache(object):
     def change_search_locations(self, newlocs):
         self._search_api.change_locations(newlocs)
 
+    @write_api
+    def dump_and_restore(self, callback=None, sql=None):
+        return self.backend.dump_and_restore(callback=callback, sql=sql)
+
     # }}}
 
 class SortKey(object):  # {{{
