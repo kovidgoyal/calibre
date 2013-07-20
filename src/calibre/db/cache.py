@@ -83,7 +83,7 @@ class Cache(object):
     def __init__(self, backend):
         self.backend = backend
         self.fields = {}
-        self.composites = set()
+        self.composites = {}
         self.read_lock, self.write_lock = create_locks()
         self.format_metadata_cache = defaultdict(dict)
         self.formatter_template_cache = {}
@@ -143,6 +143,11 @@ class Cache(object):
     @write_api
     def initialize_template_cache(self):
         self.formatter_template_cache = {}
+
+    @write_api
+    def clear_composite_caches(self, book_ids=None):
+        for field in self.composites.itervalues():
+            field.clear_caches(book_ids=book_ids)
 
     @write_api
     def clear_caches(self, book_ids=None):
@@ -265,7 +270,7 @@ class Cache(object):
             for field, table in self.backend.tables.iteritems():
                 self.fields[field] = create_field(field, table)
                 if table.metadata['datatype'] == 'composite':
-                    self.composites.add(field)
+                    self.composites[field] = self.fields[field]
 
             self.fields['ondevice'] = create_field('ondevice',
                     VirtualTable('ondevice'))
@@ -788,11 +793,13 @@ class Cache(object):
 
     @write_api
     def update_last_modified(self, book_ids, now=None):
-        if now is None:
-            now = nowf()
         if book_ids:
+            if now is None:
+                now = nowf()
             f = self.fields['last_modified']
             f.writer.set_books({book_id:now for book_id in book_ids}, self.backend)
+            if self.composites:
+                self._clear_composite_caches(book_ids)
 
     @write_api
     def mark_as_dirty(self, book_ids):
@@ -845,10 +852,6 @@ class Cache(object):
         if is_series and simap:
             sf = self.fields[f.name+'_index']
             dirtied |= sf.writer.set_books(simap, self.backend, allow_case_change=False)
-
-        if dirtied and self.composites:
-            for name in self.composites:
-                self.fields[name].clear_caches(book_ids=dirtied)
 
         if dirtied and update_path and do_path_update:
             self._update_path(dirtied, mark_as_dirtied=False)
