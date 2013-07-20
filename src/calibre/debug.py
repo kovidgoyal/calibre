@@ -94,21 +94,21 @@ def reinit_db_new(dbpath, callback=None, sql_dump=None):
         callback = lambda x, y: None
 
     with closing(Connection(dbpath)) as conn:
-        uv = conn.get('PRAGMA user_version;', all=False)
+        uv = int(conn.get('PRAGMA user_version;', all=False))
         if sql_dump is None:
             buf = StringIO()
             shell = apsw.Shell(db=conn, stdout=buf)
             shell.process_command('.dump')
-            sql = buf.getvalue().encode('utf-8')
+            sql = buf.getvalue()
         else:
-            sql = open(sql_dump, 'rb').read()
+            sql = open(sql_dump, 'rb').read().decode('utf-8')
 
     dest = dbpath + '.tmp'
     callback(1, True)
     try:
         with closing(Connection(dest)) as conn:
             conn.execute(sql)
-            conn.execute('PRAGMA User_version=%d;'%int(uv))
+            conn.execute('PRAGMA user_version=%d;'%int(uv))
         os.remove(dbpath)
         shutil.copyfile(dest, dbpath)
     finally:
