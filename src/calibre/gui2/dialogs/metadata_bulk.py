@@ -4,6 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Dialog to edit metadata in bulk'''
 
 import re, os, inspect
+from collections import namedtuple
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
                      pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
@@ -27,7 +28,7 @@ from calibre.utils.date import qt_to_dt
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.db import SPOOL_SIZE
 
-def get_cover_data(stream, ext): # {{{
+def get_cover_data(stream, ext):  # {{{
     from calibre.ebooks.metadata.meta import get_metadata
     old = prefs['read_file_metadata']
     if not old:
@@ -53,7 +54,11 @@ def get_cover_data(stream, ext): # {{{
     return cdata, area
 # }}}
 
-class MyBlockingBusy(QDialog): # {{{
+Settings = namedtuple('Settings', 'remove_all remove add au aus do_aus rating pub do_series do_autonumber do_remove_format '
+                      'remove_format do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value '
+                      'do_title_case cover_action clear_series pubdate adddate do_title_sort languages clear_languages restore_original')
+
+class MyBlockingBusy(QDialog):  # {{{
 
     do_one_signal = pyqtSignal()
 
@@ -71,8 +76,8 @@ class MyBlockingBusy(QDialog): # {{{
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
         self.msg_text = msg
-        self.msg = QLabel(msg+'        ') # Ensure dialog is wide enough
-        #self.msg.setWordWrap(True)
+        self.msg = QLabel(msg+'        ')  # Ensure dialog is wide enough
+        # self.msg.setWordWrap(True)
         self.font = QFont()
         self.font.setPointSize(self.font.pointSize() + 8)
         self.msg.setFont(self.font)
@@ -140,7 +145,6 @@ class MyBlockingBusy(QDialog): # {{{
             pubdate, adddate, do_title_sort, languages, clear_languages, \
             restore_original = self.args
 
-
         # first loop: All changes that modify the filesystem and commit
         # immediately. We want to
         # try hard to keep the DB and the file system in sync, even in the face
@@ -199,7 +203,8 @@ class MyBlockingBusy(QDialog): # {{{
                     for fmt in fmts.split(','):
                         fmtf = self.db.format(id, fmt, index_is_id=True,
                                 as_file=True)
-                        if fmtf is None: continue
+                        if fmtf is None:
+                            continue
                         cdata, area = get_cover_data(fmtf, fmt)
                         if cdata:
                             covers.append((cdata, area))
@@ -264,7 +269,7 @@ class MyBlockingBusy(QDialog): # {{{
                 self.db.set_series(id, series, notify=False, commit=False)
                 if not series:
                     self.db.set_series_index(id, 1.0, notify=False, commit=False)
-                elif do_autonumber: # is True if do_series_restart is True
+                elif do_autonumber:  # is True if do_series_restart is True
                     self.db.set_series_index(id, next, notify=False, commit=False)
                 elif tweaks['series_index_auto_increment'] != 'no_change':
                     self.db.set_series_index(id, 1.0, notify=False, commit=False)
@@ -296,18 +301,18 @@ class MyBlockingBusy(QDialog): # {{{
 
 class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
-    s_r_functions = {       ''              : lambda x: x,
+    s_r_functions = {''              : lambda x: x,
                             _('Lower Case') : lambda x: icu_lower(x),
                             _('Upper Case') : lambda x: icu_upper(x),
                             _('Title Case') : lambda x: titlecase(x),
                             _('Capitalize') : lambda x: capitalize(x),
                     }
 
-    s_r_match_modes = [     _('Character match'),
+    s_r_match_modes = [_('Character match'),
                             _('Regular Expression'),
                       ]
 
-    s_r_replace_modes = [   _('Replace field'),
+    s_r_replace_modes = [_('Replace field'),
                             _('Prepend to field'),
                             _('Append to field'),
                         ]
@@ -559,8 +564,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
     def s_r_get_field(self, mi, field):
         if field:
             if field == '{template}':
-                v = SafeFormat().safe_format\
-                    (unicode(self.s_r_template.text()), mi, _('S/R TEMPLATE ERROR'), mi)
+                v = SafeFormat().safe_format(
+                    unicode(self.s_r_template.text()), mi, _('S/R TEMPLATE ERROR'), mi)
                 return [v]
             fm = self.db.metadata_for_field(field)
             if field == 'sort':
@@ -605,7 +610,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.template_label.setVisible(False)
         self.s_r_src_ident_label.setVisible(False)
         self.s_r_src_ident.setVisible(False)
-        if idx == 1: # Template
+        if idx == 1:  # Template
             self.s_r_template.setVisible(True)
             self.template_label.setVisible(True)
         elif self.s_r_sf_itemdata(idx) == 'identifiers':
@@ -998,7 +1003,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         elif self.cover_from_fmt.isChecked():
             cover_action = 'fromfmt'
 
-        args = (remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
+        args = Settings(remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
                 series_start_value, do_title_case, cover_action, clear_series,
@@ -1146,9 +1151,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         set_index(self.search_field, 'search_field')
         set_text(self.s_r_template, 's_r_template')
 
-        self.s_r_template_changed() #simulate gain/loss of focus
+        self.s_r_template_changed()  # simulate gain/loss of focus
 
-        set_index(self.s_r_src_ident, 's_r_src_ident');
+        set_index(self.s_r_src_ident, 's_r_src_ident')
         set_text(self.s_r_dst_ident, 's_r_dst_ident')
         set_text(self.search_for, 'search_for')
         set_checked(self.case_sensitive, 'case_sensitive')
@@ -1178,4 +1183,5 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.results_count.setValue(999)
         self.starting_from.setValue(1)
         self.multiple_separator.setText(" ::: ")
+
 
