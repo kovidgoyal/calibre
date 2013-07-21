@@ -65,6 +65,7 @@ class LibraryDatabase(object):
         cache.init()
         self.data = View(cache)
         self.id = self.data.index_to_id
+        self.row = self.index = self.data.id_to_index
         for x in ('get_property', 'count', 'refresh_ids', 'set_marked_ids',
                   'multisort', 'search', 'search_getting_ids'):
             setattr(self, x, getattr(self.data, x))
