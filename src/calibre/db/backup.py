@@ -26,7 +26,7 @@ class MetadataBackup(Thread):
     def __init__(self, db, interval=2, scheduling_interval=0.1):
         Thread.__init__(self)
         self.daemon = True
-        self._db = weakref.ref(db)
+        self._db = weakref.ref(db.new_api)
         self.stop_running = Event()
         self.interval = interval
         self.scheduling_interval = scheduling_interval
