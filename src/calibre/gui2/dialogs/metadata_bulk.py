@@ -17,7 +17,7 @@ from calibre.ebooks.metadata import string_to_authors, authors_to_string, title_
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATETIME, \
-    gprefs, question_dialog
+    gprefs, question_dialog, FunctionDispatcher
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.metadata.basic_widgets import CalendarWidget
 from calibre.utils.config import dynamic, JSONConfig
@@ -63,8 +63,7 @@ class MyBlockingBusyNew(QDialog):
 
     all_done = pyqtSignal()
 
-    def __init__(self, args, ids, db, cc_widgets, s_r_func,
-                 parent=None, window_title=_('Working')):
+    def __init__(self, args, ids, db, cc_widgets, s_r_func, do_sr, parent=None, window_title=_('Working')):
         QDialog.__init__(self, parent)
 
         self._layout =  l = QVBoxLayout()
@@ -84,8 +83,10 @@ class MyBlockingBusyNew(QDialog):
         self.resize(self.sizeHint())
         self.error = None
         self.all_done.connect(self.on_all_done, type=Qt.QueuedConnection)
-        self.args, self.ids, self.s_r_func = args, ids, s_r_func
+        self.args, self.ids = args, ids
         self.db, self.cc_widgets = db, cc_widgets
+        self.s_r_func = FunctionDispatcher(s_r_func)
+        self.do_sr = do_sr
 
     def accept(self):
         pass
@@ -253,6 +254,10 @@ class MyBlockingBusyNew(QDialog):
             cache.set_field('tags', {bid:() for bid in self.ids})
         if args.add or args.remove:
             self.db.bulk_modify_tags(self.ids, add=args.add, remove=args.remove)
+
+        if self.do_sr:
+            for book_id in self.ids:
+                self.s_r_func(book_id)
 
 
 class MyBlockingBusy(QDialog):  # {{{
@@ -1016,7 +1021,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         if not dest:
             dest = source
         dfm = self.db.field_metadata[dest]
-        mi = self.db.get_metadata(id, index_is_id=True,)
+        mi = self.db.get_metadata(id, index_is_id=True)
         val = self.s_r_do_regexp(mi)
         val = self.s_r_do_destination(mi, val)
         if dfm['is_multiple']:
@@ -1208,9 +1213,11 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 restore_original)
 
         if hasattr(self.db, 'new_api'):
+            source = self.s_r_sf_itemdata(None)
+            do_sr = source and self.s_r_obj
             bb = MyBlockingBusyNew(args, self.ids, self.db,
                 getattr(self, 'custom_column_widgets', []),
-                self.do_search_replace, parent=self)
+                self.do_search_replace, do_sr, parent=self)
         else:
             bb = MyBlockingBusy(_('Applying changes to %d books.\nPhase {0} {1}%%.')
                 %len(self.ids), args, self.db, self.ids,
