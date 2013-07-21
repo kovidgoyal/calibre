@@ -220,11 +220,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def commit(self):
         # formatter_functions().reset_to_builtins()
         pref_value = []
-        for f in self.funcs:
-            func = self.funcs[f]
-            pref_value.append((func.name, func.doc, func.arg_count, func.program_text))
+        for name, cls in self.funcs.iteritems():
+            if name not in self.builtins:
+                pref_value.append((cls.name, cls.doc, cls.arg_count, cls.program_text))
         self.db.prefs.set('user_template_functions', pref_value)
-        formatter_functions().unregister_functions(self.db.library_id)
         load_user_template_functions(self.db.library_id, pref_value)
         return False
 
