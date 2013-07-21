@@ -1146,8 +1146,6 @@ class Cache(object):
     def remove_formats(self, formats_map, db_only=False):
         table = self.fields['formats'].table
         formats_map = {book_id:frozenset((f or '').upper() for f in fmts) for book_id, fmts in formats_map.iteritems()}
-        size_map = table.remove_formats(formats_map, self.backend)
-        self.fields['size'].table.update_sizes(size_map)
 
         for book_id, fmts in formats_map.iteritems():
             for fmt in fmts:
@@ -1167,6 +1165,8 @@ class Cache(object):
                     if name and path:
                         self.backend.remove_format(book_id, fmt, name, path)
 
+        size_map = table.remove_formats(formats_map, self.backend)
+        self.fields['size'].table.update_sizes(size_map)
         self._update_last_modified(tuple(formats_map.iterkeys()))
 
     @read_api
