@@ -276,6 +276,7 @@ class DisplayPluginSortFilterModel(QSortFilterProxyModel):
     def __init__(self, parent):
         QSortFilterProxyModel.__init__(self, parent)
         self.setSortRole(Qt.UserRole)
+        self.setSortCaseSensitivity(Qt.CaseInsensitive)
         self.filter_criteria = FILTER_ALL
 
     def filterAcceptsRow(self, sourceRow, sourceParent):
