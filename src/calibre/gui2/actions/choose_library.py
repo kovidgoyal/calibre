@@ -376,7 +376,7 @@ class ChooseLibraryAction(InterfaceAction):
         dirty_text = 'no'
         try:
             dirty_text = \
-                  unicode(self.gui.library_view.model().db.dirty_queue_length())
+                  unicode(self.gui.current_db.dirty_queue_length())
         except:
             dirty_text = _('none')
         info_dialog(self.gui, _('Backup status'), '<p>'+

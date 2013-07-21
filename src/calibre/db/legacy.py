@@ -323,7 +323,10 @@ class LibraryDatabase(object):
             self.notify('delete', [id])
 
     def dirtied(self, book_ids, commit=True):
-        self.new_api.mark_as_dirty(book_ids)
+        self.new_api.mark_as_dirty(frozenset(book_ids) if book_ids is not None else book_ids)
+
+    def dirty_queue_length(self):
+        return self.new_api.dirty_queue_length()
 
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True, commit=True, callback=None):
         self.new_api.dump_metadata(book_ids=book_ids, remove_from_dirtied=remove_from_dirtied, callback=callback)
