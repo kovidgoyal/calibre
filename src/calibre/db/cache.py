@@ -334,6 +334,12 @@ class Cache(object):
             return default_value
 
     @read_api
+    def all_field_for(self, field, book_ids, default_value=None):
+        ' Same as field_for, except that it operates on multiple books at once '
+        field_obj = self.fields[field]
+        return {book_id:self._fast_field_for(field_obj, book_id, default_value=default_value) for book_id in book_ids}
+
+    @read_api
     def composite_for(self, name, book_id, mi=None, default_value=''):
         try:
             f = self.fields[name]

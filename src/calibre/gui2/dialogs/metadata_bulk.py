@@ -5,6 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, os, inspect
 from collections import namedtuple
+from threading import Thread
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
                      pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
@@ -57,6 +58,106 @@ def get_cover_data(stream, ext):  # {{{
 Settings = namedtuple('Settings', 'remove_all remove add au aus do_aus rating pub do_series do_autonumber do_remove_format '
                       'remove_format do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value '
                       'do_title_case cover_action clear_series pubdate adddate do_title_sort languages clear_languages restore_original')
+
+class MyBlockingBusyNew(QDialog):
+
+    all_done = pyqtSignal()
+
+    def __init__(self, args, ids, db, cc_widgets, s_r_func,
+                 parent=None, window_title=_('Working')):
+        QDialog.__init__(self, parent)
+
+        self._layout =  l = QVBoxLayout()
+        self.setLayout(l)
+
+        self.msg = QLabel(_('Processing %d books, please wait...') % len(ids))
+        self.font = QFont()
+        self.font.setPointSize(self.font.pointSize() + 8)
+        self.msg.setFont(self.font)
+        self.pi = ProgressIndicator(self)
+        self.pi.setDisplaySize(100)
+        self._layout.addWidget(self.pi, 0, Qt.AlignHCenter)
+        self._layout.addSpacing(15)
+        self._layout.addWidget(self.msg, 0, Qt.AlignHCenter)
+        self.setWindowTitle(window_title + '...')
+        self.setMinimumWidth(200)
+        self.resize(self.sizeHint())
+        self.error = None
+        self.all_done.connect(self.on_all_done, type=Qt.QueuedConnection)
+        self.args, self.ids, self.s_r_func = args, ids, s_r_func
+        self.db, self.cc_widgets = db, cc_widgets
+
+    def accept(self):
+        pass
+
+    def reject(self):
+        pass
+
+    def on_all_done(self):
+        QDialog.accept(self)
+
+    def exec_(self):
+        self.thread = Thread(target=self.do_it)
+        self.thread.start()
+        return QDialog.exec_(self)
+
+    def do_it(self):
+        try:
+            self.do_all()
+        except Exception as err:
+            import traceback
+            try:
+                err = unicode(err)
+            except:
+                err = repr(err)
+            self.error = (err, traceback.format_exc())
+
+        self.all_done.emit()
+
+    def do_all(self):
+        cache = self.db.new_api
+        args = self.args
+
+        # Title and authors
+        if args.do_swap_ta:
+            title_map = cache.all_field_for('title', self.ids)
+            authors_map = cache.all_field_for('authors', self.ids)
+            def new_title(authors):
+                ans = authors_to_string(authors)
+                return titlecase(ans) if args.do_title_case else ans
+            new_title_map = {bid:new_title(authors) for bid, authors in authors_map.iteritems()}
+            new_authors_map = {bid:string_to_authors(title) for bid, title in title_map.iteritems()}
+            cache.set_field('authors', new_authors_map)
+            cache.set_field('title', new_title_map)
+
+        if args.do_title_case and not args.do_swap_ta:
+            title_map = cache.all_field_for('title', self.ids)
+            cache.set_field('title', {bid:titlecase(title) for bid, title in title_map.iteritems()})
+
+        if args.do_title_sort:
+            lang_map = cache.all_field_for('languages', self.ids)
+            title_map = cache.all_field_for('title', self.ids)
+            def get_sort(book_id):
+                if args.languages:
+                    lang = args.languages[0]
+                else:
+                    try:
+                        lang = lang_map[book_id][0]
+                    except (KeyError, IndexError, TypeError, AttributeError):
+                        lang = 'eng'
+                return title_sort(title_map[book_id], lang=lang)
+            cache.set_field('sort', {bid:get_sort(bid) for bid in self.ids})
+
+        if args.au:
+            authors = string_to_authors(args.au)
+            cache.set_field('authors', {bid:authors for bid in self.ids})
+
+        if args.do_auto_author:
+            aus_map = cache.author_sort_strings_for_books(self.ids)
+            cache.set_field('author_sort', {book_id:' & '.join(aus_map[book_id]) for book_id in aus_map})
+
+        if args.aus and args.do_aus:
+            cache.set_field('author_sort', {bid:args.aus for bid in self.ids})
 
 class MyBlockingBusy(QDialog):  # {{{
 
@@ -1010,7 +1111,12 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 pubdate, adddate, do_title_sort, languages, clear_languages,
                 restore_original)
 
-        bb = MyBlockingBusy(_('Applying changes to %d books.\nPhase {0} {1}%%.')
+        if hasattr(self.db, 'new_api'):
+            bb = MyBlockingBusyNew(args, self.ids, self.db,
+                getattr(self, 'custom_column_widgets', []),
+                self.do_search_replace, parent=self)
+        else:
+            bb = MyBlockingBusy(_('Applying changes to %d books.\nPhase {0} {1}%%.')
                 %len(self.ids), args, self.db, self.ids,
                 getattr(self, 'custom_column_widgets', []),
                 self.do_search_replace, parent=self)
@@ -1022,6 +1128,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             bb.exec_()
         finally:
             self.model.start_metadata_backup()
+
+        bb.thread = bb.db = bb.cc_widgets = None
 
         if bb.error is not None:
             return error_dialog(self, _('Failed'),
