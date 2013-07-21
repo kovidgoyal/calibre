@@ -159,6 +159,52 @@ class MyBlockingBusyNew(QDialog):
         if args.aus and args.do_aus:
             cache.set_field('author_sort', {bid:args.aus for bid in self.ids})
 
+        # Covers
+        if args.cover_action == 'remove':
+            cache.set_cover({bid:None for bid in self.ids})
+        elif args.cover_action == 'generate':
+            from calibre.ebooks import calibre_cover
+            from calibre.ebooks.metadata import fmt_sidx
+            from calibre.gui2 import config
+            for book_id in self.ids:
+                mi = self.db.get_metadata(book_id, index_is_id=True)
+                series_string = None
+                if mi.series:
+                    series_string = _('Book %(sidx)s of %(series)s')%dict(
+                        sidx=fmt_sidx(mi.series_index,
+                        use_roman=config['use_roman_numerals_for_series_number']),
+                        series=mi.series)
+
+                cdata = calibre_cover(mi.title, mi.format_field('authors')[-1],
+                        series_string=series_string)
+                cache.set_cover({book_id:cdata})
+        elif args.cover_action == 'fromfmt':
+            for book_id in self.ids:
+                fmts = cache.formats(book_id, verify_formats=False)
+                if fmts:
+                    covers = []
+                    for fmt in fmts:
+                        fmtf = cache.format(book_id, fmt, as_file=True)
+                        if fmtf is None:
+                            continue
+                        cdata, area = get_cover_data(fmtf, fmt)
+                        if cdata:
+                            covers.append((cdata, area))
+                    covers.sort(key=lambda x: x[1])
+                    if covers:
+                        cache.set_cover({book_id:covers[-1][0]})
+
+        # Formats
+        if args.do_remove_format:
+            cache.remove_formats({bid:(args.remove_format,) for bid in self.ids})
+
+        if args.restore_original:
+            for book_id in self.ids:
+                formats = cache.formats(book_id)
+                originals = tuple(x.upper() for x in formats if x.upper().startswith('ORIGINAL_'))
+                for ofmt in originals:
+                    cache.restore_original_format(book_id, ofmt)
+
 class MyBlockingBusy(QDialog):  # {{{
 
     do_one_signal = pyqtSignal()
@@ -438,7 +484,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
         self.initialize_combos()
 
-        for f in self.db.all_formats():
+        for f in sorted(self.db.all_formats()):
             self.remove_format.addItem(f)
 
         self.remove_format.setCurrentIndex(-1)
