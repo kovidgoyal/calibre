@@ -1525,6 +1525,10 @@ class DB(object):
             except:
                 pass
 
+    def restore_book(self, book_id, path, formats):
+        self.conn.execute('UPDATE books SET path=? WHERE id=?', (path.replace(os.sep, '/'), book_id))
+        vals = [(book_id, fmt, size, name) for fmt, size, name in formats]
+        self.conn.executemany('INSERT INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)', vals)
    # }}}
 
 

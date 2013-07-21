@@ -1214,7 +1214,6 @@ what is found in the OPF files.
     return parser
 
 def command_restore_database(args, dbpath):
-    from calibre.library.restore import Restore
     parser = restore_database_option_parser()
     opts, args = parser.parse_args(args)
     if len(args) != 0:
@@ -1242,6 +1241,10 @@ def command_restore_database(args, dbpath):
                 self.total = float(step)
             else:
                 prints(msg, '...', '%d%%'%int(100*(step/self.total)))
+    if tweaks.get('use_new_db', False):
+        from calibre.db.restore import Restore
+    else:
+        from calibre.library.restore import Restore
     r = Restore(dbpath, progress_callback=Progress())
     r.start()
     r.join()

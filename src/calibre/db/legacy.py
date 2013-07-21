@@ -78,7 +78,7 @@ class LibraryDatabase(object):
             set_saved_searches(self, 'saved_searches')
 
     def close(self):
-        self.backend.close()
+        self.new_api.close()
 
     def break_cycles(self):
         delattr(self.backend, 'field_metadata')

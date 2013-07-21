@@ -424,6 +424,12 @@ class Cache(object):
         return rmap.get(icu_lower(item_name) if isinstance(item_name, unicode) else item_name, None)
 
     @read_api
+    def get_item_ids(self, field, item_names):
+        ' Return the item id for item_name (case-insensitive) '
+        rmap = {icu_lower(v) if isinstance(v, unicode) else v:k for k, v in self.fields[field].table.id_map.iteritems()}
+        return {name:rmap.get(icu_lower(name) if isinstance(name, unicode) else name, None) for name in item_names}
+
+    @read_api
     def author_data(self, author_ids=None):
         '''
         Return author data as a dictionary with keys: name, sort, link
@@ -1568,6 +1574,21 @@ class Cache(object):
     def dump_and_restore(self, callback=None, sql=None):
         return self.backend.dump_and_restore(callback=callback, sql=sql)
 
+    @write_api
+    def close(self):
+        self.backend.close()
+
+    @write_api
+    def restore_book(self, book_id, mi, last_modified, path, formats):
+        ''' Restore the book entry in the database for a book that already exists on the filesystem '''
+        cover = mi.cover
+        mi.cover = None
+        self._create_book_entry(mi, add_duplicates=True,
+                force_id=book_id, apply_import_tags=False, preserve_uuid=True)
+        self._update_last_modified((book_id,), last_modified)
+        if cover and os.path.exists(cover):
+            self._set_field('cover', {book_id:1})
+        self.backend.restore_book(book_id, path, formats)
     # }}}
 
 class SortKey(object):  # {{{
