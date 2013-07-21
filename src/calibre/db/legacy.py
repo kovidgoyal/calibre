@@ -117,6 +117,7 @@ class LibraryDatabase(object):
 
     def check_if_modified(self):
         if self.last_modified() > self.last_update_check:
+            self.backend.reopen()
             self.new_api.reload_from_db()
         self.last_update_check = utcnow()
 
