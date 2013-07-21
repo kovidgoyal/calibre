@@ -397,7 +397,7 @@ class LegacyTest(BaseTest):
             # Internal API
             'clean_user_categories',  'cleanup_tags',  'books_list_filter', 'conn', 'connect', 'construct_file_name',
             'construct_path_name', 'clear_dirtied', 'initialize_database', 'initialize_dynamic',
-            'run_import_plugins', 'vacuum', 'set_path', 'row', 'row_factory', 'rows', 'rmtree', 'series_index_pat',
+            'run_import_plugins', 'vacuum', 'set_path', 'row_factory', 'rows', 'rmtree', 'series_index_pat',
             'import_old_database', 'dirtied_lock', 'dirtied_cache', 'dirty_books_referencing',
             'windows_check_if_files_in_use', 'get_metadata_for_dump', 'get_a_dirtied_book', 'dirtied_sequence',
             'format_filename_cache', 'format_metadata_cache', 'filter', 'create_version1', 'normpath', 'custom_data_adapters',
