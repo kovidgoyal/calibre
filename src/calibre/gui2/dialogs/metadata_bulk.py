@@ -94,11 +94,21 @@ class MyBlockingBusyNew(QDialog):
         pass
 
     def on_all_done(self):
+        if not self.error:
+            # The cc widgets can only be accessed in the GUI thread
+            try:
+                for w in self.cc_widgets:
+                    w.commit(self.ids)
+            except Exception as err:
+                import traceback
+                self.error = (err, traceback.format_exc())
+        self.pi.stopAnimation()
         QDialog.accept(self)
 
     def exec_(self):
         self.thread = Thread(target=self.do_it)
         self.thread.start()
+        self.pi.startAnimation()
         return QDialog.exec_(self)
 
     def do_it(self):
@@ -204,6 +214,46 @@ class MyBlockingBusyNew(QDialog):
                 originals = tuple(x.upper() for x in formats if x.upper().startswith('ORIGINAL_'))
                 for ofmt in originals:
                     cache.restore_original_format(book_id, ofmt)
+
+        # Various fields
+        if args.rating != -1:
+            cache.set_field('rating', {bid:args.rating*2 for bid in self.ids})
+
+        if args.pub:
+            cache.set_field('publisher', {bid:args.pub for bid in self.ids})
+
+        if args.clear_series:
+            cache.set_field('series', {bid:'' for bid in self.ids})
+
+        if args.pubdate is not None:
+            cache.set_field('pubdate', {bid:args.pubdate for bid in self.ids})
+
+        if args.adddate is not None:
+            cache.set_field('timestamp', {bid:args.adddate for bid in self.ids})
+
+        if args.do_series:
+            cache.set_field('series', {bid:args.series for bid in self.ids})
+            if not args.series:
+                cache.set_field('series_index', {bid:1.0 for bid in self.ids})
+            else:
+                sval = args.series_start_value if args.do_series_restart else cache.get_next_series_num_for(args.series)
+                smap = {bid:((sval + i) if args.do_autonumber else 1.0) for i, bid in enumerate(self.ids)}
+                if args.do_autonumber or tweaks['series_index_auto_increment'] != 'no_change':
+                    cache.set_field('series_index', smap)
+
+        if args.do_remove_conv:
+            cache.delete_conversion_options(self.ids)
+
+        if args.clear_languages:
+            cache.set_field('languages', {bid:() for bid in self.ids})
+        elif args.languages:
+            cache.set_field('languages', {bid:args.languages for bid in self.ids})
+
+        if args.remove_all:
+            cache.set_field('tags', {bid:() for bid in self.ids})
+        if args.add or args.remove:
+            self.db.bulk_modify_tags(self.ids, add=args.add, remove=args.remove)
+
 
 class MyBlockingBusy(QDialog):  # {{{
 
