@@ -94,10 +94,10 @@ class OneToOneTable(Table):
         query = db.conn.execute('SELECT {0}, {1} FROM {2}'.format(idcol,
             self.metadata['column'], self.metadata['table']))
         if self.unserialize is None:
-            self.book_col_map = {row[0]:row[1] for row in query}
+            self.book_col_map = dict(query)
         else:
             us = self.unserialize
-            self.book_col_map = {row[0]:us(row[1]) for row in query}
+            self.book_col_map = {book_id:us(val) for book_id, val in query}
 
     def remove_books(self, book_ids, db):
         clean = set()
@@ -117,11 +117,10 @@ class PathTable(OneToOneTable):
 class SizeTable(OneToOneTable):
 
     def read(self, db):
-        self.book_col_map = {}
-        for row in db.conn.execute(
-                'SELECT books.id, (SELECT MAX(uncompressed_size) FROM data '
-                'WHERE data.book=books.id) FROM books'):
-            self.book_col_map[row[0]] = row[1]
+        query = db.conn.execute(
+            'SELECT books.id, (SELECT MAX(uncompressed_size) FROM data '
+            'WHERE data.book=books.id) FROM books')
+        self.book_col_map = dict(query)
 
     def update_sizes(self, size_map):
         self.book_col_map.update(size_map)
@@ -185,10 +184,10 @@ class ManyToOneTable(Table):
         query = db.conn.execute('SELECT id, {0} FROM {1}'.format(
             self.metadata['column'], self.metadata['table']))
         if self.unserialize is None:
-            self.id_map = {row[0]:row[1] for row in query}
+            self.id_map = dict(query)
         else:
             us = self.unserialize
-            self.id_map = {row[0]:us(row[1]) for row in query}
+            self.id_map = {book_id:us(val) for book_id, val in query}
 
     def read_maps(self, db):
         for row in db.conn.execute(
