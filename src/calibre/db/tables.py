@@ -29,6 +29,12 @@ def _c_convert_timestamp(val):
         return None
     try:
         ret = _c_speedup.parse_date(val.strip())
+    except AttributeError:
+        # If a value like 2001 is stored in the column, apsw will return it as
+        # an int
+        if isinstance(val, (int, float)):
+            return datetime(int(val), 1, 1, tzinfo=tzoffset(None, 0)).astimezone(local_tz)
+        ret = None
     except:
         ret = None
     if ret is None:
