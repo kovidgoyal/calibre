@@ -498,7 +498,7 @@ class ChooseLibraryAction(InterfaceAction):
         # import weakref
         # from PyQt4.Qt import QTimer
         # self.dbref = weakref.ref(self.gui.library_view.model().db)
-        # self.before_mem = memory()/1024**2
+        # self.before_mem = memory()
         self.gui.library_moved(loc, allow_rebuild=True)
         # QTimer.singleShot(5000, self.debug_leak)
 
@@ -514,7 +514,7 @@ class ChooseLibraryAction(InterfaceAction):
                 print r
                 print
         print 'before:', self.before_mem
-        print 'after:', memory()/1024**2
+        print 'after:', memory()
         print
         self.dbref = self.before_mem = None
 
