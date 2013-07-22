@@ -35,7 +35,7 @@ def at_start(elem):
     for x in body.iter():
         if x is elem:
             return True
-        if getattr(x, 'tag', None) and x.tag.rpartition('}')[-1] in {'img', 'svg'}:
+        if hasattr(getattr(x, 'tag', None), 'rpartition') and x.tag.rpartition('}')[-1] in {'img', 'svg'}:
             return False
         if isspace(getattr(x, 'text', None)) and (x in ancestors or isspace(getattr(x, 'tail', None))):
             continue
