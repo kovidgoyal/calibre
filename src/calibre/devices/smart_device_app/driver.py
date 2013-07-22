@@ -141,21 +141,6 @@ class ConnectionListener(Thread):
                         device_socket.settimeout(None)
 
                         try:
-                            peer = self.driver.device_socket.getpeername()[0]
-                            attempts = self.drjver.connection_attempts.get(peer, 0)
-                            if attempts >= self.MAX_UNSUCCESSFUL_CONNECTS:
-                                self.driver._debug('too many connection attempts from', peer)
-                                device_socket.close()
-                                device_socket = None
-#                                raise InitialConnectionError(_('Too many connection attempts from %s') % peer)
-                            else:
-                                self.driver.connection_attempts[peer] = attempts + 1
-                        except InitialConnectionError:
-                            raise
-                        except:
-                            pass
-
-                        try:
                             self.driver.connection_queue.put_nowait(device_socket)
                         except Queue.Full:
                             device_socket.close()
