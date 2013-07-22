@@ -59,7 +59,7 @@ Settings = namedtuple('Settings', 'remove_all remove add au aus do_aus rating pu
                       'remove_format do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value '
                       'do_title_case cover_action clear_series pubdate adddate do_title_sort languages clear_languages restore_original')
 
-class MyBlockingBusyNew(QDialog):
+class MyBlockingBusyNew(QDialog):  # {{{
 
     all_done = pyqtSignal()
 
@@ -267,7 +267,7 @@ class MyBlockingBusyNew(QDialog):
         if self.do_sr:
             for book_id in self.ids:
                 self.s_r_func(book_id)
-
+# }}}
 
 class MyBlockingBusy(QDialog):  # {{{
 
