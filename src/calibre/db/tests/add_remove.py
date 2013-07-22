@@ -117,6 +117,7 @@ class AddRemoveTest(BaseTest):
         af(cache.format(1, 'FMT1') is None)
         at(cache.has_format(1, 'FMT1'))
         ap = cache.format_abspath(1, 'FMT1')
+        at(os.path.exists(ap))
         cache.remove_formats({1:{'FMT1'}})
         at(cache.format(1, 'FMT1') is None)
         af(bool(cache.format_metadata(1, 'FMT1')))
