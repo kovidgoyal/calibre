@@ -233,19 +233,19 @@ class MyBlockingBusyNew(QDialog):  # {{{
             cache.set_field('timestamp', {bid:args.adddate for bid in self.ids})
 
         if args.do_series:
-            sval = args.series_start_value if args.do_series_restart else list(cache.get_next_series_num_for(args.series, current_indices=True))
+            sval = args.series_start_value if args.do_series_restart else cache.get_next_series_num_for(args.series, current_indices=True)
             cache.set_field('series', {bid:args.series for bid in self.ids})
             if not args.series:
                 cache.set_field('series_index', {bid:1.0 for bid in self.ids})
             else:
-                def next_series_num(i):
+                def next_series_num(bid, i):
                     if args.do_series_restart:
                         return sval + i
-                    next_num = _get_next_series_num_for_list(sval, unwrap=False)
-                    sval.append(next_num)
+                    next_num = _get_next_series_num_for_list(sorted(sval.itervalues()), unwrap=False)
+                    sval[bid] = next_num
                     return next_num
 
-                smap = {bid:next_series_num(i) for i, bid in enumerate(self.ids)}
+                smap = {bid:next_series_num(bid, i) for i, bid in enumerate(self.ids)}
                 if args.do_autonumber:
                     cache.set_field('series_index', smap)
                 elif tweaks['series_index_auto_increment'] != 'no_change':

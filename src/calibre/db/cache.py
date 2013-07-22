@@ -1179,9 +1179,11 @@ class Cache(object):
                 if q == icu_lower(val):
                     books = book_ids
                     break
-        series_indices = sorted(self._field_for(sf.index_field.name, book_id) for book_id in books)
+        idf = sf.index_field
+        index_map = {book_id:self._fast_field_for(idf, book_id, default_value=1.0) for book_id in books}
         if current_indices:
-            return series_indices
+            return index_map
+        series_indices = sorted(index_map.itervalues())
         return _get_next_series_num_for_list(tuple(series_indices), unwrap=False)
 
     @read_api
