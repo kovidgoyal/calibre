@@ -31,7 +31,13 @@ class Field(object):
         self.has_text_data = dt in {'text', 'comments', 'series', 'enumeration'}
         self.table_type = self.table.table_type
         self._sort_key = (sort_key if dt in ('text', 'series', 'enumeration') else lambda x: x)
+
+        # This will be compared to the output of sort_key() which is a
+        # bytestring, therefore it is safer to have it be a bytestring.
+        # Coercing an empty bytestring to unicode will never fail, but the
+        # output of sort_key cannot be coerced to unicode
         self._default_sort_key = b''
+
         if dt in {'int', 'float', 'rating'}:
             self._default_sort_key = 0
         elif dt == 'bool':
