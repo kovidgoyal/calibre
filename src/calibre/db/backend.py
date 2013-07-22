@@ -1390,8 +1390,13 @@ class DB(object):
 
     def write_backup(self, path, raw):
         path = os.path.abspath(os.path.join(self.library_path, path, 'metadata.opf'))
-        with lopen(path, 'wb') as f:
-            f.write(raw)
+        try:
+            with lopen(path, 'wb') as f:
+                f.write(raw)
+        except EnvironmentError:
+            os.makedirs(os.path.dirname(path))
+            with lopen(path, 'wb') as f:
+                f.write(raw)
 
     def read_backup(self, path):
         path = os.path.abspath(os.path.join(self.library_path, path, 'metadata.opf'))

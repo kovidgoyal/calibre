@@ -100,11 +100,13 @@ class MetadataBackup(Thread):
             self.db.write_backup(book_id, raw)
         except:
             prints('Failed to write backup metadata for id:', book_id, 'once')
+            traceback.print_exc()
             self.wait(self.interval)
             try:
                 self.db.write_backup(book_id, raw)
             except:
                 prints('Failed to write backup metadata for id:', book_id, 'again, giving up')
+                traceback.print_exc()
                 return
 
         self.db.clear_dirtied(book_id, sequence)
