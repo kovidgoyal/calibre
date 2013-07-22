@@ -116,18 +116,20 @@ class AddRemoveTest(BaseTest):
         # Test full removal of format
         af(cache.format(1, 'FMT1') is None)
         at(cache.has_format(1, 'FMT1'))
+        ap = cache.format_abspath(1, 'FMT1')
         cache.remove_formats({1:{'FMT1'}})
         at(cache.format(1, 'FMT1') is None)
         af(bool(cache.format_metadata(1, 'FMT1')))
         af(bool(cache.format_metadata(1, 'FMT1', allow_cache=False)))
         af('FMT1' in cache.formats(1))
         af(cache.has_format(1, 'FMT1'))
+        af(os.path.exists(ap))
 
         # Test db only removal
         at(cache.has_format(1, 'FMT2'))
         ap = cache.format_abspath(1, 'FMT2')
         if ap and os.path.exists(ap):
-            cache.remove_formats({1:{'FMT2'}})
+            cache.remove_formats({1:{'FMT2'}}, db_only=True)
             af(bool(cache.format_metadata(1, 'FMT2')))
             af(cache.has_format(1, 'FMT2'))
             at(os.path.exists(ap))
