@@ -28,7 +28,7 @@ def xml(*args, **kwargs):
     ans = prepare_string_for_xml(*args, **kwargs)
     return ans.replace('&apos;', '&#39;')
 
-def render_book_list(ids, prefix, suffix=''): # {{{
+def render_book_list(ids, prefix, suffix=''):  # {{{
     pages = []
     num = len(ids)
     pos = 0
@@ -113,13 +113,13 @@ def render_book_list(ids, prefix, suffix=''): # {{{
 
 # }}}
 
-def utf8(x): # {{{
+def utf8(x):  # {{{
     if isinstance(x, unicode):
         x = x.encode('utf-8')
     return x
 # }}}
 
-def render_rating(rating, url_prefix, container='span', prefix=None): # {{{
+def render_rating(rating, url_prefix, container='span', prefix=None):  # {{{
     if rating < 0.1:
         return '', ''
     added = 0
@@ -145,7 +145,7 @@ def render_rating(rating, url_prefix, container='span', prefix=None): # {{{
 
 # }}}
 
-def get_category_items(category, items, datatype, prefix): # {{{
+def get_category_items(category, items, datatype, prefix):  # {{{
 
     def item(i):
         templ = (u'<div title="{4}" class="category-item">'
@@ -179,7 +179,7 @@ def get_category_items(category, items, datatype, prefix): # {{{
 
 # }}}
 
-class Endpoint(object): # {{{
+class Endpoint(object):  # {{{
     'Manage encoding, mime-type, last modified, cookies, etc.'
 
     def __init__(self, mimetype='text/html; charset=utf-8', sort_type='category'):
@@ -194,7 +194,7 @@ class Endpoint(object): # {{{
             if 'json' not in eself.mimetype:
                 sort_val = None
                 cookie = cherrypy.request.cookie
-                if cookie.has_key(eself.sort_cookie_name):
+                if eself.sort_cookie_name in cookie:
                     sort_val = cookie[eself.sort_cookie_name].value
                 kwargs[eself.sort_kwarg] = sort_val
 
@@ -523,8 +523,6 @@ class BrowseServer(object):
             items = '\n\n'.join(items)
             items = u'<div id="groups">\n{0}</div>'.format(items)
 
-
-
         if cats:
             script = 'toplevel();category(%s);'%script
         else:
@@ -586,12 +584,11 @@ class BrowseServer(object):
                 datatype, self.opts.url_prefix)
         return json.dumps(entries, ensure_ascii=True)
 
-
     @Endpoint()
     def browse_catalog(self, category=None, category_sort=None):
         'Entry point for top-level, categories and sub-categories'
         prefix = '' if self.is_wsgi else self.opts.url_prefix
-        if category == None:
+        if category is None:
             ans = self.browse_toplevel()
         elif category == 'newest':
             raise cherrypy.InternalRedirect(prefix +
@@ -670,7 +667,10 @@ class BrowseServer(object):
                 ids = self.db.get_books_for_category(q, cid)
                 ids = [x for x in ids if x in all_ids]
 
-        items = [self.db.data._data[x] for x in ids]
+        if hasattr(self.db, 'new_api'):
+            items = [self.db.data.tablerow_for_id(x) for x in ids]
+        else:
+            items = [self.db.data._data[x] for x in ids]
         if category == 'newest':
             list_sort = 'timestamp'
         if dt == 'series':
@@ -770,7 +770,7 @@ class BrowseServer(object):
             if fmts and fmt:
                 other_fmts = [x for x in fmts if x.lower() != fmt.lower()]
                 if other_fmts:
-                    ofmts = [u'<a href="{4}/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
+                    ofmts = [u'<a href="{4}/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'
                             .format(f, fname, id_, f.upper(),
                                 self.opts.url_prefix) for f in
                             other_fmts]
@@ -783,7 +783,7 @@ class BrowseServer(object):
             if fmt:
                 href = self.opts.url_prefix + '/get/%s/%s_%d.%s'%(
                         fmt, fname, id_, fmt)
-                rt = xml(_('Read %(title)s in the %(fmt)s format')% \
+                rt = xml(_('Read %(title)s in the %(fmt)s format')%
                         {'title':args['title'], 'fmt':fmt.upper()}, True)
 
                 args['get_button'] = \
@@ -809,7 +809,6 @@ class BrowseServer(object):
 
             summs.append(self.browse_summary_template.format(**args))
 
-
         raw = json.dumps('\n'.join(summs), ensure_ascii=True)
         return raw
 
@@ -829,7 +828,7 @@ class BrowseServer(object):
                 args['get_url'] = ''
             args['formats'] = ''
             if fmts:
-                ofmts = [u'<a href="{4}/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
+                ofmts = [u'<a href="{4}/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'
                         .format(xfmt, fname, id_, xfmt.upper(),
                             self.opts.url_prefix) for xfmt in fmts]
                 ofmts = ', '.join(ofmts)
@@ -842,7 +841,7 @@ class BrowseServer(object):
                                 field not in displayed_custom_fields:
                     continue
                 if m['datatype'] == 'comments' or field == 'comments' or (
-                        m['datatype'] == 'composite' and \
+                        m['datatype'] == 'composite' and
                             m['display'].get('contains_html', False)):
                     val = mi.get(field, '')
                     if val and val.strip():
@@ -924,16 +923,17 @@ class BrowseServer(object):
         return self.browse_template('').format(
                 title='', script='book();', main=ans)
 
-
     # }}}
-
     # Search {{{
     @Endpoint(sort_type='list')
     def browse_search(self, query='', list_sort=None):
         if isbytestring(query):
             query = query.decode('UTF-8')
         ids = self.db.search_getting_ids(query.strip(), self.search_restriction)
-        items = [self.db.data._data[x] for x in ids]
+        if hasattr(self.db, 'new_api'):
+            items = [self.db.data.tablerow_for_id(x) for x in ids]
+        else:
+            items = [self.db.data._data[x] for x in ids]
         sort = self.browse_sort_book_list(items, list_sort)
         ids = [x[0] for x in items]
         html = render_book_list(ids, self.opts.url_prefix,
@@ -943,5 +943,6 @@ class BrowseServer(object):
                 script='search_result();', main=html)
 
     # }}}
+
 
 

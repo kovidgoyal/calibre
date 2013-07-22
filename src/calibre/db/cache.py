@@ -1483,7 +1483,7 @@ class Cache(object):
         if hasattr(f, 'get_books_for_val'):
             # Composite field
             return f.get_books_for_val(item_id_or_composite_value, self._get_metadata, self._all_book_ids())
-        return self._books_for_field(f.name, item_id_or_composite_value)
+        return self._books_for_field(f.name, int(item_id_or_composite_value))
 
     @read_api
     def find_identical_books(self, mi, search_restriction='', book_ids=None):

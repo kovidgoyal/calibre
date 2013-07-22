@@ -127,6 +127,9 @@ class View(object):
         book_id = id_or_index if index_is_id else self._map_filtered[id_or_index]
         return self._field_getters[loc](book_id)
 
+    def sanitize_sort_field_name(self, field):
+        return sanitize_sort_field_name(self.field_metadata, field)
+
     @property
     def field_metadata(self):
         return self.cache.field_metadata
@@ -153,6 +156,9 @@ class View(object):
     def iterallids(self):
         for book_id in sorted(self._map):
             yield book_id
+
+    def tablerow_for_id(self, book_id):
+        return TableRow(book_id, self)
 
     def get_field_map_field(self, row, col, index_is_id=True):
         '''
