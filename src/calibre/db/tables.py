@@ -52,16 +52,10 @@ class Table(object):
         self.name, self.metadata = name, metadata
         self.sort_alpha = metadata.get('is_multiple', False) and metadata.get('display', {}).get('sort_alpha', False)
 
-        text = lambda x:x.decode('utf-8', 'replace') if isinstance(x, bytes) else x
-
         # self.unserialize() maps values from the db to python objects
         self.unserialize = \
             {
                 'datetime': _c_convert_timestamp,
-                'text': text,
-                'comments': text,
-                'series': text,
-                'enumeration': text,
                 'bool': bool
             }.get(
                 metadata['datatype'], lambda x: x)
