@@ -1613,5 +1613,3 @@ class SortKey(object):  # {{{
         return 0
 # }}}
 
-
-
