@@ -21,6 +21,11 @@ CATEGORY_SORTS = ('name', 'popularity', 'rating')  # This has to be a tuple not 
 
 class Tag(object):
 
+    if tweaks.get('use_new_db', False):
+        __slots__ = ('name', 'original_name', 'id', 'count', 'state', 'is_hierarchical',
+               'is_editable', 'is_searchable', 'id_set', 'avg_rating', 'sort',
+               'use_sort_as_name', 'tooltip', 'icon', 'category')
+
     def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
                  tooltip=None, icon=None, category=None, id_set=None,
                  is_editable=True, is_searchable=True, use_sort_as_name=False):
