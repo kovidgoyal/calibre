@@ -53,12 +53,10 @@ class Table(object):
         self.sort_alpha = metadata.get('is_multiple', False) and metadata.get('display', {}).get('sort_alpha', False)
 
         # self.unserialize() maps values from the db to python objects
-        self.unserialize = \
-            {
-                'datetime': _c_convert_timestamp,
-                'bool': bool
-            }.get(
-                metadata['datatype'], lambda x: x)
+        self.unserialize = {
+            'datetime': _c_convert_timestamp,
+            'bool': bool
+        }.get(metadata['datatype'], None)
         if name == 'authors':
             # Legacy
             self.unserialize = lambda x: x.replace('|', ',') if x else None
@@ -93,9 +91,13 @@ class OneToOneTable(Table):
     def read(self, db):
         self.book_col_map = {}
         idcol = 'id' if self.metadata['table'] == 'books' else 'book'
-        for row in db.conn.execute('SELECT {0}, {1} FROM {2}'.format(idcol,
-            self.metadata['column'], self.metadata['table'])):
-            self.book_col_map[row[0]] = self.unserialize(row[1])
+        query = db.conn.execute('SELECT {0}, {1} FROM {2}'.format(idcol,
+            self.metadata['column'], self.metadata['table']))
+        if self.unserialize is None:
+            self.book_col_map = {row[0]:row[1] for row in query}
+        else:
+            us = self.unserialize
+            self.book_col_map = {row[0]:us(row[1]) for row in query}
 
     def remove_books(self, book_ids, db):
         clean = set()
@@ -119,7 +121,7 @@ class SizeTable(OneToOneTable):
         for row in db.conn.execute(
                 'SELECT books.id, (SELECT MAX(uncompressed_size) FROM data '
                 'WHERE data.book=books.id) FROM books'):
-            self.book_col_map[row[0]] = self.unserialize(row[1])
+            self.book_col_map[row[0]] = row[1]
 
     def update_sizes(self, size_map):
         self.book_col_map.update(size_map)
@@ -180,9 +182,13 @@ class ManyToOneTable(Table):
         self.read_maps(db)
 
     def read_id_maps(self, db):
-        for row in db.conn.execute('SELECT id, {0} FROM {1}'.format(
-                self.metadata['column'], self.metadata['table'])):
-            self.id_map[row[0]] = self.unserialize(row[1])
+        query = db.conn.execute('SELECT id, {0} FROM {1}'.format(
+            self.metadata['column'], self.metadata['table']))
+        if self.unserialize is None:
+            self.id_map = {row[0]:row[1] for row in query}
+        else:
+            us = self.unserialize
+            self.id_map = {row[0]:us(row[1]) for row in query}
 
     def read_maps(self, db):
         for row in db.conn.execute(
@@ -348,11 +354,14 @@ class AuthorsTable(ManyToManyTable):
     def read_id_maps(self, db):
         self.alink_map = {}
         self.asort_map  = {}
+        self.id_map = {}
+        us = self.unserialize
         for row in db.conn.execute(
                 'SELECT id, name, sort, link FROM authors'):
-            self.id_map[row[0]] = self.unserialize(row[1])
+            val = us(row[1])
+            self.id_map[row[0]] = self.unserialize(val)
             self.asort_map[row[0]] = (row[2] if row[2] else
-                    author_to_author_sort(row[1]))
+                    author_to_author_sort(val))
             self.alink_map[row[0]] = row[3]
 
     def set_sort_names(self, aus_map, db):
