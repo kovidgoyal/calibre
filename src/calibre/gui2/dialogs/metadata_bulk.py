@@ -27,7 +27,7 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.magick.draw import identify_data
 from calibre.utils.date import qt_to_dt
 from calibre.ptempfile import SpooledTemporaryFile
-from calibre.db import SPOOL_SIZE
+from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 
 def get_cover_data(stream, ext):  # {{{
     from calibre.ebooks.metadata.meta import get_metadata
@@ -237,8 +237,15 @@ class MyBlockingBusyNew(QDialog):
             if not args.series:
                 cache.set_field('series_index', {bid:1.0 for bid in self.ids})
             else:
-                sval = args.series_start_value if args.do_series_restart else cache.get_next_series_num_for(args.series)
-                smap = {bid:((sval + i) if args.do_autonumber else 1.0) for i, bid in enumerate(self.ids)}
+                sval = args.series_start_value if args.do_series_restart else list(cache.get_next_series_num_for(args.series, current_indices=True))
+                def next_series_num(i):
+                    if args.do_series_restart:
+                        return sval + i
+                    next_num = _get_next_series_num_for_list(sval, unwrap=False)
+                    sval.append(next_num)
+                    return next_num
+
+                smap = {bid:next_series_num(i) for i, bid in enumerate(self.ids)}
                 if args.do_autonumber or tweaks['series_index_auto_increment'] != 'no_change':
                     cache.set_field('series_index', smap)
 

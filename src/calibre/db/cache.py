@@ -1170,7 +1170,7 @@ class Cache(object):
         self._update_last_modified(tuple(formats_map.iterkeys()))
 
     @read_api
-    def get_next_series_num_for(self, series, field='series'):
+    def get_next_series_num_for(self, series, field='series', current_indices=False):
         books = ()
         sf = self.fields[field]
         if series:
@@ -1180,6 +1180,8 @@ class Cache(object):
                     books = book_ids
                     break
         series_indices = sorted(self._field_for(sf.index_field.name, book_id) for book_id in books)
+        if current_indices:
+            return series_indices
         return _get_next_series_num_for_list(tuple(series_indices), unwrap=False)
 
     @read_api
