@@ -386,7 +386,7 @@ class ReadingTest(BaseTest):
         db.close()
     # }}}
 
-    def test_datetime(self):
+    def test_datetime(self):  # {{{
         ' Test the reading of datetimes stored in the db '
         from calibre.utils.date import parse_date
         from calibre.db.tables import c_parse, UNDEFINED_DATE, _c_speedup
@@ -401,5 +401,62 @@ class ReadingTest(BaseTest):
         self.assertEqual(c_parse(2003).year, 2003)
         for x in (None, '', 'abc'):
             self.assertEqual(UNDEFINED_DATE, c_parse(x))
+    # }}}
 
+    def test_restrictions(self):  # {{{
+        ' Test searching with and without restrictions '
+        cache = self.init_cache()
+        self.assertSetEqual(cache.all_book_ids(), cache.search(''))
+        self.assertSetEqual({1, 2}, cache.search('', 'not authors:=Unknown'))
+        self.assertSetEqual(set(), cache.search('authors:=Unknown', 'not authors:=Unknown'))
+        self.assertSetEqual({2}, cache.search('not authors:"=Author Two"', 'not authors:=Unknown'))
+        self.assertSetEqual({2}, cache.search('not authors:"=Author Two"', book_ids={1, 2}))
+        self.assertSetEqual({2}, cache.search('not authors:"=Author Two"', 'not authors:=Unknown', book_ids={1,2,3}))
+        self.assertSetEqual(set(), cache.search('authors:=Unknown', 'not authors:=Unknown', book_ids={1,2,3}))
+    # }}}
+
+    def test_search_caching(self):  # {{{
+        ' Test caching of searches '
+        from calibre.db.search import LRUCache
+        class TestCache(LRUCache):
+            hit_counter = 0
+            miss_counter = 0
+            def get(self, key, default=None):
+                ans = LRUCache.get(self, key, default=default)
+                if ans is not None:
+                    self.hit_counter += 1
+                else:
+                    self.miss_counter += 1
+            @property
+            def cc(self):
+                self.hit_counter = self.miss_counter = 0
+            @property
+            def counts(self):
+                return self.hit_counter, self.miss_counter
+
+        cache = self.init_cache()
+        cache._search_api.cache = c = TestCache()
+
+        ae, at = self.assertEqual, self.assertTrue
+
+        def test(hit, result, *args):
+            c.cc
+            ae(cache.search(*args), result)
+            ae(c.counts, (1, 0) if hit else (0, 1))
+            c.cc
+
+        test(False, {3}, 'Unknown')
+        test(True, {3}, 'Unknown')
+        test(True, {3}, 'Unknown')
+        cache.set_field('title', {3:'xxx'})
+        test(False, {3}, 'Unknown')  # cache cleared
+        test(True, {3}, 'Unknown')
+        c.limit = 5
+        for i in range(6):
+            test(False, set(), 'nomatch_%s' % i)
+        test(False, {3}, 'Unknown')  # cached search expired
+        test(False, {3}, '', 'unknown')
+        test(True, {3}, '', 'unknown')
+        test(True, {3}, 'Unknown', 'unknown')
+    # }}}
 

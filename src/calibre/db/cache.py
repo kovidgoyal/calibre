@@ -150,12 +150,22 @@ class Cache(object):
             field.clear_caches(book_ids=book_ids)
 
     @write_api
-    def clear_caches(self, book_ids=None):
-        self._initialize_template_cache()  # Clear the formatter template cache
+    def clear_search_caches(self):
+        self._search_api.clear_caches()
+
+    @write_api
+    def clear_caches(self, book_ids=None, template_cache=True):
+        if template_cache:
+            self._initialize_template_cache()  # Clear the formatter template cache
         for field in self.fields.itervalues():
             if hasattr(field, 'clear_caches'):
                 field.clear_caches(book_ids=book_ids)  # Clear the composite cache and ondevice caches
-        self.format_metadata_cache.clear()
+        if book_ids:
+            for book_id in book_ids:
+                self.format_metadata_cache.pop(book_id, None)
+        else:
+            self.format_metadata_cache.clear()
+        self._clear_search_caches()
 
     @write_api
     def reload_from_db(self, clear_caches=True):
@@ -497,6 +507,8 @@ class Cache(object):
     @write_api
     def set_pref(self, name, val):
         self.backend.prefs.set(name, val)
+        if name == 'grouped_search_terms':
+            self._clear_search_caches()
 
     @api
     def get_metadata(self, book_id,
@@ -812,6 +824,7 @@ class Cache(object):
             f.writer.set_books({book_id:now for book_id in book_ids}, self.backend)
             if self.composites:
                 self._clear_composite_caches(book_ids)
+            self._clear_search_caches()
 
     @write_api
     def mark_as_dirty(self, book_ids):
@@ -1286,6 +1299,7 @@ class Cache(object):
                 continue  # Some fields like ondevice do not have tables
             else:
                 table.remove_books(book_ids, self.backend)
+        self._clear_caches(book_ids=book_ids, template_cache=False)
 
     @read_api
     def author_sort_strings_for_books(self, book_ids):
@@ -1563,10 +1577,12 @@ class Cache(object):
     @write_api
     def saved_search_set_all(self, smap):
         self._search_api.saved_searches.set_all(smap)
+        self._clear_search_caches()
 
     @write_api
     def saved_search_delete(self, name):
         self._search_api.saved_searches.delete(name)
+        self._clear_search_caches()
 
     @write_api
     def saved_search_add(self, name, val):
@@ -1575,6 +1591,7 @@ class Cache(object):
     @write_api
     def saved_search_rename(self, old_name, new_name):
         self._search_api.saved_searches.rename(old_name, new_name)
+        self._clear_search_caches()
 
     @write_api
     def change_search_locations(self, newlocs):
