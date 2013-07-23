@@ -114,6 +114,7 @@ class Field(object):
         if not self.is_many:
             return ans
 
+        id_map = self.table.id_map
         special_sort = hasattr(self, 'category_sort_value')
         for item_id, item_book_ids in self.table.col_book_map.iteritems():
             if book_ids is not None:
@@ -122,7 +123,7 @@ class Field(object):
                 ratings = tuple(r for r in (book_rating_map.get(book_id, 0) for
                                             book_id in item_book_ids) if r > 0)
                 avg = sum(ratings)/len(ratings) if ratings else 0
-                name = self.category_formatter(self.table.id_map[item_id])
+                name = self.category_formatter(id_map[item_id])
                 sval = (self.category_sort_value(item_id, item_book_ids, lang_map)
                         if special_sort else name)
                 c = tag_class(name, id=item_id, sort=sval, avg=avg,
