@@ -7,44 +7,43 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import defaultdict
 
-from dateutil.tz import tzoffset
-
 from calibre.constants import plugins
-from calibre.utils.date import parse_date, local_tz, UNDEFINED_DATE
+from calibre.utils.date import parse_date, UNDEFINED_DATE, utc_tz
 from calibre.ebooks.metadata import author_to_author_sort
 
-_c_speedup = plugins['speedup'][0]
+_c_speedup = plugins['speedup'][0].parse_date
+
+def c_parse(val):
+    try:
+        year, month, day, hour, minutes, seconds, tzsecs = _c_speedup(val)
+    except (AttributeError, TypeError):
+        # If a value like 2001 is stored in the column, apsw will return it as
+        # an int
+        if isinstance(val, (int, float)):
+            return datetime(int(val), 1, 3, tzinfo=utc_tz)
+    except:
+        pass
+    else:
+        try:
+            ans = datetime(year, month, day, hour, minutes, seconds, tzinfo=utc_tz)
+            if tzsecs is not 0:
+                ans -= timedelta(seconds=tzsecs)
+        except OverflowError:
+            ans = UNDEFINED_DATE
+        return ans
+    try:
+        return parse_date(val, as_utc=True, assume_utc=True)
+    except ValueError:
+        return UNDEFINED_DATE
 
 ONE_ONE, MANY_ONE, MANY_MANY = xrange(3)
 
 class Null:
     pass
 null = Null()
-
-def _c_convert_timestamp(val):
-    if not val:
-        return None
-    try:
-        ret = _c_speedup.parse_date(val.strip())
-    except AttributeError:
-        # If a value like 2001 is stored in the column, apsw will return it as
-        # an int
-        if isinstance(val, (int, float)):
-            return datetime(int(val), 1, 1, tzinfo=tzoffset(None, 0)).astimezone(local_tz)
-        ret = None
-    except:
-        ret = None
-    if ret is None:
-        return parse_date(val, as_utc=False)
-    year, month, day, hour, minutes, seconds, tzsecs = ret
-    try:
-        return datetime(year, month, day, hour, minutes, seconds,
-                tzinfo=tzoffset(None, tzsecs)).astimezone(local_tz)
-    except OverflowError:
-        return UNDEFINED_DATE.astimezone(local_tz)
 
 class Table(object):
 
@@ -54,7 +53,7 @@ class Table(object):
 
         # self.unserialize() maps values from the db to python objects
         self.unserialize = {
-            'datetime': _c_convert_timestamp,
+            'datetime': c_parse,
             'bool': bool
         }.get(metadata['datatype'], None)
         if name == 'authors':
@@ -89,7 +88,6 @@ class OneToOneTable(Table):
     table_type = ONE_ONE
 
     def read(self, db):
-        self.book_col_map = {}
         idcol = 'id' if self.metadata['table'] == 'books' else 'book'
         query = db.conn.execute('SELECT {0}, {1} FROM {2}'.format(idcol,
             self.metadata['column'], self.metadata['table']))
@@ -175,7 +173,7 @@ class ManyToOneTable(Table):
 
     def read(self, db):
         self.id_map = {}
-        self.col_book_map = {}
+        self.col_book_map = defaultdict(set)
         self.book_col_map = {}
         self.read_id_maps(db)
         self.read_maps(db)
@@ -190,13 +188,13 @@ class ManyToOneTable(Table):
             self.id_map = {book_id:us(val) for book_id, val in query}
 
     def read_maps(self, db):
-        for row in db.conn.execute(
+        cbm = self.col_book_map
+        bcm = self.book_col_map
+        for book, item_id in db.conn.execute(
                 'SELECT book, {0} FROM {1}'.format(
                     self.metadata['link_column'], self.link_table)):
-            if row[1] not in self.col_book_map:
-                self.col_book_map[row[1]] = set()
-            self.col_book_map[row[1]].add(row[0])
-            self.book_col_map[row[0]] = row[1]
+            cbm[item_id].add(book)
+            bcm[book] = item_id
 
     def remove_books(self, book_ids, db):
         clean = set()
@@ -272,17 +270,14 @@ class ManyToManyTable(ManyToOneTable):
     do_clean_on_remove = True
 
     def read_maps(self, db):
-        for row in db.conn.execute(
-            self.selectq.format(self.metadata['link_column'], self.link_table)):
-            if row[1] not in self.col_book_map:
-                self.col_book_map[row[1]] = set()
-            self.col_book_map[row[1]].add(row[0])
-            if row[0] not in self.book_col_map:
-                self.book_col_map[row[0]] = []
-            self.book_col_map[row[0]].append(row[1])
+        bcm = defaultdict(list)
+        cbm = self.col_book_map
+        for book, item_id in db.conn.execute(
+                self.selectq.format(self.metadata['link_column'], self.link_table)):
+            cbm[item_id].add(book)
+            bcm[book].append(item_id)
 
-        for key in tuple(self.book_col_map.iterkeys()):
-            self.book_col_map[key] = tuple(self.book_col_map[key])
+        self.book_col_map = {k:tuple(v) for k, v in bcm.iteritems()}
 
     def remove_books(self, book_ids, db):
         clean = set()
@@ -351,17 +346,16 @@ class ManyToManyTable(ManyToOneTable):
 class AuthorsTable(ManyToManyTable):
 
     def read_id_maps(self, db):
-        self.alink_map = {}
-        self.asort_map  = {}
-        self.id_map = {}
+        self.alink_map = lm = {}
+        self.asort_map = sm = {}
+        self.id_map = im = {}
         us = self.unserialize
-        for row in db.conn.execute(
+        for aid, name, sort, link in db.conn.execute(
                 'SELECT id, name, sort, link FROM authors'):
-            val = us(row[1])
-            self.id_map[row[0]] = self.unserialize(val)
-            self.asort_map[row[0]] = (row[2] if row[2] else
-                    author_to_author_sort(val))
-            self.alink_map[row[0]] = row[3]
+            name = us(name)
+            im[aid] = name
+            sm[aid] = (sort or author_to_author_sort(name))
+            lm[aid] = link
 
     def set_sort_names(self, aus_map, db):
         aus_map = {aid:(a or '').strip() for aid, a in aus_map.iteritems()}
@@ -404,22 +398,20 @@ class FormatsTable(ManyToManyTable):
         pass
 
     def read_maps(self, db):
-        self.fname_map = defaultdict(dict)
-        self.size_map = defaultdict(dict)
-        for row in db.conn.execute('SELECT book, format, name, uncompressed_size FROM data'):
-            if row[1] is not None:
-                fmt = row[1].upper()
-                if fmt not in self.col_book_map:
-                    self.col_book_map[fmt] = set()
-                self.col_book_map[fmt].add(row[0])
-                if row[0] not in self.book_col_map:
-                    self.book_col_map[row[0]] = []
-                self.book_col_map[row[0]].append(fmt)
-                self.fname_map[row[0]][fmt] = row[2]
-                self.size_map[row[0]][fmt] = row[3]
+        self.fname_map = fnm = defaultdict(dict)
+        self.size_map = sm = defaultdict(dict)
+        self.col_book_map = cbm = defaultdict(set)
+        bcm = defaultdict(list)
 
-        for key in tuple(self.book_col_map.iterkeys()):
-            self.book_col_map[key] = tuple(sorted(self.book_col_map[key]))
+        for book, fmt, name, sz in db.conn.execute('SELECT book, format, name, uncompressed_size FROM data'):
+            if fmt is not None:
+                fmt = fmt.upper()
+                cbm[fmt].add(book)
+                bcm[book].append(fmt)
+                fnm[book][fmt] = name
+                sm[book][fmt] = sz
+
+        self.book_col_map = {k:tuple(sorted(v)) for k, v in bcm.iteritems()}
 
     def remove_books(self, book_ids, db):
         clean = ManyToManyTable.remove_books(self, book_ids, db)
@@ -485,14 +477,12 @@ class IdentifiersTable(ManyToManyTable):
         pass
 
     def read_maps(self, db):
-        for row in db.conn.execute('SELECT book, type, val FROM identifiers'):
-            if row[1] is not None and row[2] is not None:
-                if row[1] not in self.col_book_map:
-                    self.col_book_map[row[1]] = set()
-                self.col_book_map[row[1]].add(row[0])
-                if row[0] not in self.book_col_map:
-                    self.book_col_map[row[0]] = {}
-                self.book_col_map[row[0]][row[1]] = row[2]
+        self.book_col_map = defaultdict(dict)
+        self.col_book_map = defaultdict(set)
+        for book, typ, val in db.conn.execute('SELECT book, type, val FROM identifiers'):
+            if typ is not None and val is not None:
+                self.col_book_map[typ].add(book)
+                self.book_col_map[book][typ] = val
 
     def remove_books(self, book_ids, db):
         clean = set()

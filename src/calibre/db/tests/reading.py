@@ -385,3 +385,21 @@ class ReadingTest(BaseTest):
                 self.assertFalse(x.has_book(Metadata(title[:1])))
         db.close()
     # }}}
+
+    def test_datetime(self):
+        ' Test the reading of datetimes stored in the db '
+        from calibre.utils.date import parse_date
+        from calibre.db.tables import c_parse, UNDEFINED_DATE, _c_speedup
+
+        # First test parsing of string to UTC time
+        for raw in ('2013-07-22 15:18:29+05:30', '  2013-07-22 15:18:29+00:00', '2013-07-22 15:18:29', '2003-09-21 23:30:00-06:00'):
+            self.assertTrue(_c_speedup(raw))
+            ctime = c_parse(raw)
+            pytime = parse_date(raw, assume_utc=True)
+            self.assertEqual(ctime, pytime)
+
+        self.assertEqual(c_parse(2003).year, 2003)
+        for x in (None, '', 'abc'):
+            self.assertEqual(UNDEFINED_DATE, c_parse(x))
+
+

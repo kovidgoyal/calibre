@@ -13,7 +13,7 @@ from datetime import timedelta
 
 from calibre.constants import preferred_encoding
 from calibre.utils.config_base import prefs
-from calibre.utils.date import parse_date, UNDEFINED_DATE, now
+from calibre.utils.date import parse_date, UNDEFINED_DATE, now, dt_as_local
 from calibre.utils.icu import primary_find, sort_key
 from calibre.utils.localization import lang_map, canonicalize_lang
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
@@ -211,7 +211,7 @@ class DateSearch(object):  # {{{
         for v, book_ids in field_iter():
             if isinstance(v, (str, unicode)):
                 v = parse_date(v)
-            if v is not None and relop(v, qd, field_count):
+            if v is not None and relop(dt_as_local(v), qd, field_count):
                 matches |= book_ids
 
         return matches

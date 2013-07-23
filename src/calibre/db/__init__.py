@@ -54,7 +54,7 @@ def _get_series_values(val):
             pass
     return (val, None)
 
-def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None):
+def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None, convert_to_local_tz=True):
     '''
     Return all metadata stored in the database as a dict. Includes paths to
     the cover and each format.
@@ -66,6 +66,7 @@ def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None):
     '''
     import os
     from calibre.ebooks.metadata import authors_to_string
+    from calibre.utils.date import as_local_time
     backend = getattr(self, 'backend', self)  # Works with both old and legacy interfaces
     if prefix is None:
         prefix = backend.library_path
@@ -88,6 +89,10 @@ def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None):
         x = {}
         for field in FIELDS:
             x[field] = record[self.FIELD_MAP[field]]
+        if convert_to_local_tz and hasattr(self, 'new_api'):
+            for tf in ('timestamp', 'pubdate', 'last_modified'):
+                x[tf] = as_local_time(x[tf])
+
         data.append(x)
         x['id'] = db_id
         x['formats'] = []

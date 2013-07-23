@@ -13,11 +13,11 @@ speedup_parse_date(PyObject *self, PyObject *args) {
     long year, month, day, hour, minute, second, tzh = 0, tzm = 0, sign = 0;
     size_t len;
     if(!PyArg_ParseTuple(args, "s", &raw)) return NULL;
+    while ((*raw == ' ' || *raw == '\t' || *raw == '\n' || *raw == '\r' || *raw == '\f' || *raw == '\v') && *raw != 0) raw++;
     len = strlen(raw);
     if (len < 19) Py_RETURN_NONE;
 
     orig = raw;
-
 
     year = strtol(raw, &end, 10);
     if ((end - raw) != 4) Py_RETURN_NONE;
@@ -27,7 +27,6 @@ speedup_parse_date(PyObject *self, PyObject *args) {
     month = strtol(raw, &end, 10);
     if ((end - raw) != 2) Py_RETURN_NONE;
     raw += 3;
-    
 
     day = strtol(raw, &end, 10);
     if ((end - raw) != 2) Py_RETURN_NONE;

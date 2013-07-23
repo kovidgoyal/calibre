@@ -74,7 +74,7 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
         db.sort(sort_by, ascending)
     if search_text:
         db.search(search_text)
-    data = db.get_data_as_dict(prefix, authors_as_string=True)
+    data = db.get_data_as_dict(prefix, authors_as_string=True, convert_to_local_tz=False)
     if limit > -1:
         data = data[:limit]
     fields = ['id'] + fields

@@ -22,6 +22,7 @@ from calibre.library.server import custom_fields_to_display
 from calibre.library.server.utils import format_tag_string, Offsets
 from calibre import guess_type, prepare_string_for_xml as xml
 from calibre.utils.icu import sort_key
+from calibre.utils.date import as_utc
 
 BASE_HREFS = {
         0 : '/stanza',
@@ -58,7 +59,7 @@ ID      = E.id
 ICON    = E.icon
 
 def UPDATED(dt, *args, **kwargs):
-    return E.updated(dt.strftime('%Y-%m-%dT%H:%M:%S+00:00'), *args, **kwargs)
+    return E.updated(as_utc(dt).strftime('%Y-%m-%dT%H:%M:%S+00:00'), *args, **kwargs)
 
 LINK = partial(E.link, type='application/atom+xml')
 NAVLINK = partial(E.link,

@@ -10,7 +10,7 @@ import re, os, posixpath
 import cherrypy
 
 from calibre import fit_image, guess_type
-from calibre.utils.date import fromtimestamp
+from calibre.utils.date import fromtimestamp, as_utc
 from calibre.library.caches import SortKeyGenerator
 from calibre.library.save_to_disk import find_plugboard
 from calibre.ebooks.metadata import authors_to_string
@@ -54,6 +54,7 @@ class ContentServer(object):
         Generates a locale independent, english timestamp from a datetime
         object
         '''
+        updated = as_utc(updated)
         lm = updated.strftime('day, %d month %Y %H:%M:%S GMT')
         day ={0:'Sun', 1:'Mon', 2:'Tue', 3:'Wed', 4:'Thu', 5:'Fri', 6:'Sat'}
         lm = lm.replace('day', day[int(updated.strftime('%w'))])
