@@ -42,6 +42,8 @@ NULL_VALUES = {
 
 field_metadata = FieldMetadata()
 
+ck = lambda typ: icu_lower(typ).strip().replace(':', '').replace(',', '')
+cv = lambda val: val.strip().replace(',', '|').replace(':', '|')
 
 class Metadata(object):
 
@@ -224,9 +226,9 @@ class Metadata(object):
 
     def _clean_identifier(self, typ, val):
         if typ:
-            typ = icu_lower(typ).strip().replace(':', '').replace(',', '')
+            typ = ck(typ)
         if val:
-            val = val.strip().replace(',', '|').replace(':', '|')
+            val = cv(val)
         return typ, val
 
     def set_identifiers(self, identifiers):
@@ -234,11 +236,7 @@ class Metadata(object):
         Set all identifiers. Note that if you previously set ISBN, calling
         this method will delete it.
         '''
-        cleaned = {}
-        for key, val in identifiers.iteritems():
-            key, val = self._clean_identifier(key, val)
-            if key and val:
-                cleaned[key] = val
+        cleaned = {ck(k):cv(v) for k, v in identifiers.iteritems() if k and v}
         object.__getattribute__(self, '_data')['identifiers'] = cleaned
 
     def set_identifier(self, typ, val):
