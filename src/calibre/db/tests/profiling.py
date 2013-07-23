@@ -25,8 +25,12 @@ def show_stats(path):
 def main():
     stats = os.path.join(gettempdir(), 'read_db.stats')
     pr = cProfile.Profile()
+    initdb('~/test library')
+    all_ids = db.new_api.all_book_ids()  # noqa
     pr.enable()
-    initdb('~/documents/largelib')
+    for book_id in all_ids:
+        db.new_api._composite_for('#isbn', book_id)
+        db.new_api._composite_for('#formats', book_id)
     pr.disable()
     pr.dump_stats(stats)
     show_stats(stats)

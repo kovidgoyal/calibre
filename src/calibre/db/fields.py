@@ -163,12 +163,13 @@ class CompositeField(OneToOneField):
 
         self._render_cache = {}
         self._lock = Lock()
+        self._composite_name = '#' + self.metadata['label']
 
     def render_composite(self, book_id, mi):
         with self._lock:
             ans = self._render_cache.get(book_id, None)
         if ans is None:
-            ans = mi.get('#'+self.metadata['label'])
+            ans = mi.get(self._composite_name)
             with self._lock:
                 self._render_cache[book_id] = ans
         return ans
@@ -186,7 +187,7 @@ class CompositeField(OneToOneField):
             ans = self._render_cache.get(book_id, None)
         if ans is None:
             mi = get_metadata(book_id)
-            ans = mi.get('#'+self.metadata['label'])
+            ans = mi.get(self._composite_name)
             with self._lock:
                 self._render_cache[book_id] = ans
         return ans
