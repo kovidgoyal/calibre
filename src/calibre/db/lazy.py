@@ -223,6 +223,7 @@ def composite_getter(mi, field, metadata, book_id, cache, formatter, template_ca
     try:
         return cache[field]
     except KeyError:
+        cache[field] = 'RECURSIVE_COMPOSITE FIELD (Metadata) ' + field
         ret = cache[field] = formatter.safe_format(
             metadata['display']['composite_template'],
             mi,
