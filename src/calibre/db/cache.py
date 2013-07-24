@@ -23,7 +23,7 @@ from calibre.db.fields import create_field
 from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
 from calibre.db.write import get_series_values
-from calibre.db.lazy import FormatMetadata, FormatsList
+from calibre.db.lazy import FormatMetadata, FormatsList, ProxyMetadata
 from calibre.ebooks import check_ebook_format
 from calibre.ebooks.metadata import string_to_authors, author_to_author_sort, get_title_sort_pat
 from calibre.ebooks.metadata.book.base import Metadata
@@ -338,7 +338,7 @@ class Cache(object):
     def fast_field_for(self, field_obj, book_id, default_value=None):
         ' Same as field_for, except that it avoids the extra lookup to get the field object '
         if field_obj.is_composite:
-            return field_obj.get_value_with_cache(book_id, partial(self._get_metadata, get_user_categories=False))
+            return field_obj.get_value_with_cache(book_id, self._get_proxy_metadata)
         try:
             return field_obj.for_book(book_id, default_value=default_value)
         except (KeyError, IndexError):
@@ -358,8 +358,7 @@ class Cache(object):
             return default_value
 
         if mi is None:
-            return f.get_value_with_cache(book_id, partial(self._get_metadata,
-                get_user_categories=False))
+            return f.get_value_with_cache(book_id, self._get_proxy_metadata)
         else:
             return f.render_composite(book_id, mi)
 
@@ -533,6 +532,10 @@ class Cache(object):
                 mi.cover = self.cover(book_id, as_path=True)
 
         return mi
+
+    @read_api
+    def get_proxy_metadata(self, book_id):
+        return ProxyMetadata(self, book_id)
 
     @api
     def cover(self, book_id,
@@ -781,7 +784,7 @@ class Cache(object):
         '''
         all_book_ids = frozenset(self._all_book_ids() if ids_to_sort is None
                 else ids_to_sort)
-        get_metadata = partial(self._get_metadata, get_user_categories=False)
+        get_metadata = self._get_proxy_metadata
         lang_map = self.fields['languages'].book_value_map
 
         fm = {'title':'sort', 'authors':'author_sort'}
@@ -1189,7 +1192,7 @@ class Cache(object):
         sf = self.fields[field]
         if series:
             q = icu_lower(series)
-            for val, book_ids in sf.iter_searchable_values(self._get_metadata, frozenset(self._all_book_ids())):
+            for val, book_ids in sf.iter_searchable_values(self._get_proxy_metadata, frozenset(self._all_book_ids())):
                 if q == icu_lower(val):
                     books = book_ids
                     break
@@ -1499,7 +1502,7 @@ class Cache(object):
         f = self.fields[category]
         if hasattr(f, 'get_books_for_val'):
             # Composite field
-            return f.get_books_for_val(item_id_or_composite_value, self._get_metadata, self._all_book_ids())
+            return f.get_books_for_val(item_id_or_composite_value, self._get_proxy_metadata, self._all_book_ids())
         return self._books_for_field(f.name, int(item_id_or_composite_value))
 
     @read_api
