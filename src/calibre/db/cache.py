@@ -203,7 +203,7 @@ class Cache(object):
         mi.author_link_map = aul
         mi.comments    = self._field_for('comments', book_id)
         mi.publisher   = self._field_for('publisher', book_id)
-        n = nowf()
+        n = utcnow()
         mi.timestamp   = self._field_for('timestamp', book_id, default_value=n)
         mi.pubdate     = self._field_for('pubdate', book_id, default_value=n)
         mi.uuid        = self._field_for('uuid', book_id,
@@ -223,6 +223,7 @@ class Cache(object):
             mi.format_metadata = FormatMetadata(self, book_id, formats)
             good_formats = FormatsList(formats, mi.format_metadata)
         mi.formats = good_formats
+        mi.db_approx_formats = formats
         mi.has_cover = _('Yes') if self._field_for('cover', book_id,
                 default_value=False) else ''
         mi.tags = list(self._field_for('tags', book_id, default_value=()))
