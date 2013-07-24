@@ -150,8 +150,8 @@ class Cache(object):
             field.clear_caches(book_ids=book_ids)
 
     @write_api
-    def clear_search_caches(self):
-        self._search_api.clear_caches()
+    def clear_search_caches(self, book_ids=None):
+        self._search_api.update_or_clear(self, book_ids)
 
     @write_api
     def clear_caches(self, book_ids=None, template_cache=True):
@@ -165,7 +165,7 @@ class Cache(object):
                 self.format_metadata_cache.pop(book_id, None)
         else:
             self.format_metadata_cache.clear()
-        self._clear_search_caches()
+        self._clear_search_caches(book_ids)
 
     @write_api
     def reload_from_db(self, clear_caches=True):
@@ -828,7 +828,7 @@ class Cache(object):
             f.writer.set_books({book_id:now for book_id in book_ids}, self.backend)
             if self.composites:
                 self._clear_composite_caches(book_ids)
-            self._clear_search_caches()
+            self._clear_search_caches(book_ids)
 
     @write_api
     def mark_as_dirty(self, book_ids):
@@ -1407,6 +1407,7 @@ class Cache(object):
     @write_api
     def refresh_ondevice(self):
         self.fields['ondevice'].clear_caches()
+        self.clear_search_caches()
 
     @read_api
     def tags_older_than(self, tag, delta=None, must_have_tag=None, must_have_authors=None):

@@ -448,6 +448,7 @@ class ReadingTest(BaseTest):
         test(False, {3}, 'Unknown')
         test(True, {3}, 'Unknown')
         test(True, {3}, 'Unknown')
+        cache._search_api.MAX_CACHE_UPDATE = 0
         cache.set_field('title', {3:'xxx'})
         test(False, {3}, 'Unknown')  # cache cleared
         test(True, {3}, 'Unknown')
@@ -458,6 +459,11 @@ class ReadingTest(BaseTest):
         test(False, {3}, '', 'unknown')
         test(True, {3}, '', 'unknown')
         test(True, {3}, 'Unknown', 'unknown')
+        cache._search_api.MAX_CACHE_UPDATE = 100
+        test(False, {2, 3}, 'title:=xxx or title:"=Title One"')
+        cache.set_field('publisher', {3:'ppppp', 2:'other'})
+        # Test cache update worked
+        test(True, {2, 3}, 'title:=xxx or title:"=Title One"')
     # }}}
 
     def test_proxy_metadata(self):  # {{{

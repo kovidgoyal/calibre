@@ -451,7 +451,7 @@ class SavedSearchQueries(object):  # {{{
         return sorted(self.queries.iterkeys(), key=sort_key)
 # }}}
 
-class Parser(SearchQueryParser):
+class Parser(SearchQueryParser):  # {{{
 
     def __init__(self, dbcache, all_book_ids, gst, date_search, num_search,
                  bool_search, keypair_search, limit_search_columns, limit_search_columns_to,
@@ -711,8 +711,9 @@ class Parser(SearchQueryParser):
         if query == 'false':
             return candidates - matches
         return matches
+# }}}
 
-class LRUCache(object):
+class LRUCache(object):  # {{{
 
     'A simple Least-Recently-Used cache'
 
@@ -748,6 +749,13 @@ class LRUCache(object):
         self.item_map.clear()
         self.age_map.clear()
 
+    def pop(self, key, default=None):
+        self.item_map.pop(key, default)
+        try:
+            self.age_map.remove(key)
+        except ValueError:
+            pass
+
     def __contains__(self, key):
         return key in self.item_map
 
@@ -757,7 +765,13 @@ class LRUCache(object):
     def __getitem__(self, key):
         return self.get(key)
 
+    def __iter__(self):
+        return self.item_map.iteritems()
+# }}}
+
 class Search(object):
+
+    MAX_CACHE_UPDATE = 50
 
     def __init__(self, db, opt_name, all_search_locations=()):
         self.all_search_locations = all_search_locations
@@ -778,8 +792,46 @@ class Search(object):
             self.parse_cache.clear()
         self.all_search_locations = newlocs
 
+    def update_or_clear(self, dbcache, book_ids=None):
+        if book_ids and (len(book_ids) * len(self.cache)) <= self.MAX_CACHE_UPDATE:
+            self.update_caches(dbcache, book_ids)
+        else:
+            self.clear_caches()
+
     def clear_caches(self):
         self.cache.clear()
+
+    def update_caches(self, dbcache, book_ids):
+        sqp = self.create_parser(dbcache)
+        try:
+            return self._update_caches(sqp, book_ids)
+        finally:
+            sqp.dbcache = sqp.lookup_saved_search = None
+
+    def _update_caches(self, sqp, book_ids):
+        book_ids = sqp.all_book_ids = set(book_ids)
+        remove = set()
+        for query, result in self.cache:
+            try:
+                matches = sqp.parse(query)
+            except ParseException:
+                remove.add(query)
+            else:
+                # remove books that no longer match
+                result.difference_update(book_ids - matches)
+                # add books that now match but did not before
+                result.update(matches)
+        for query in remove:
+            self.cache.pop(query)
+
+    def create_parser(self, dbcache, virtual_fields=None):
+        return Parser(
+            dbcache, set(), dbcache._pref('grouped_search_terms'),
+            self.date_search, self.num_search, self.bool_search,
+            self.keypair_search,
+            prefs['limit_search_columns'],
+            prefs['limit_search_columns_to'], self.all_search_locations,
+            virtual_fields, self.saved_searches.lookup, self.parse_cache)
 
     def __call__(self, dbcache, query, search_restriction, virtual_fields=None, book_ids=None):
         '''
@@ -788,13 +840,7 @@ class Search(object):
         '''
         # We construct a new parser instance per search as the parse is not
         # thread safe.
-        sqp = Parser(
-            dbcache, set(), dbcache._pref('grouped_search_terms'),
-            self.date_search, self.num_search, self.bool_search,
-            self.keypair_search,
-            prefs['limit_search_columns'],
-            prefs['limit_search_columns_to'], self.all_search_locations,
-            virtual_fields, self.saved_searches.lookup, self.parse_cache)
+        sqp = self.create_parser(dbcache, virtual_fields)
         try:
             return self._do_search(sqp, query, search_restriction, dbcache, book_ids=book_ids)
         finally:
