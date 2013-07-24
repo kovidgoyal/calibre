@@ -455,7 +455,7 @@ class Parser(SearchQueryParser):
 
     def __init__(self, dbcache, all_book_ids, gst, date_search, num_search,
                  bool_search, keypair_search, limit_search_columns, limit_search_columns_to,
-                 locations, virtual_fields, lookup_saved_search):
+                 locations, virtual_fields, lookup_saved_search, parse_cache):
         self.dbcache, self.all_book_ids = dbcache, all_book_ids
         self.all_search_locations = frozenset(locations)
         self.grouped_search_terms = gst
@@ -466,7 +466,7 @@ class Parser(SearchQueryParser):
         self.virtual_fields = virtual_fields or {}
         if 'marked' not in self.virtual_fields:
             self.virtual_fields['marked'] = self
-        super(Parser, self).__init__(locations, optimize=True, lookup_saved_search=lookup_saved_search)
+        SearchQueryParser.__init__(self, locations, optimize=True, lookup_saved_search=lookup_saved_search, parse_cache=parse_cache)
 
     @property
     def field_metadata(self):
@@ -736,6 +736,7 @@ class LRUCache(object):
 
         self.item_map[key] = val
         self.age_map.append(key)
+    __setitem__  = add
 
     def get(self, key, default=None):
         ans = self.item_map.get(key, default)
@@ -753,6 +754,9 @@ class LRUCache(object):
     def __len__(self):
         return len(self.age_map)
 
+    def __getitem__(self, key):
+        return self.get(key)
+
 class Search(object):
 
     def __init__(self, db, opt_name, all_search_locations=()):
@@ -763,6 +767,7 @@ class Search(object):
         self.keypair_search = KeyPairSearch()
         self.saved_searches = SavedSearchQueries(db, opt_name)
         self.cache = LRUCache()
+        self.parse_cache = LRUCache(limit=100)
 
     def get_saved_searches(self):
         return self.saved_searches
@@ -770,6 +775,7 @@ class Search(object):
     def change_locations(self, newlocs):
         if frozenset(newlocs) != frozenset(self.all_search_locations):
             self.clear_caches()
+            self.parse_cache.clear()
         self.all_search_locations = newlocs
 
     def clear_caches(self):
@@ -788,7 +794,7 @@ class Search(object):
             self.keypair_search,
             prefs['limit_search_columns'],
             prefs['limit_search_columns_to'], self.all_search_locations,
-            virtual_fields, self.saved_searches.lookup)
+            virtual_fields, self.saved_searches.lookup, self.parse_cache)
         try:
             return self._do_search(sqp, query, search_restriction, dbcache, book_ids=book_ids)
         finally:
