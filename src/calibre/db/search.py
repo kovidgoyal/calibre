@@ -808,6 +808,11 @@ class Search(object):
         finally:
             sqp.dbcache = sqp.lookup_saved_search = None
 
+    def discard_books(self, book_ids):
+        book_ids = set(book_ids)
+        for query, result in self.cache:
+            result.difference_update(book_ids)
+
     def _update_caches(self, sqp, book_ids):
         book_ids = sqp.all_book_ids = set(book_ids)
         remove = set()

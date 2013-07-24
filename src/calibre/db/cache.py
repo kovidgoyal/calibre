@@ -154,7 +154,7 @@ class Cache(object):
         self._search_api.update_or_clear(self, book_ids)
 
     @write_api
-    def clear_caches(self, book_ids=None, template_cache=True):
+    def clear_caches(self, book_ids=None, template_cache=True, search_cache=True):
         if template_cache:
             self._initialize_template_cache()  # Clear the formatter template cache
         for field in self.fields.itervalues():
@@ -165,7 +165,8 @@ class Cache(object):
                 self.format_metadata_cache.pop(book_id, None)
         else:
             self.format_metadata_cache.clear()
-        self._clear_search_caches(book_ids)
+        if search_cache:
+            self._clear_search_caches(book_ids)
 
     @write_api
     def reload_from_db(self, clear_caches=True):
@@ -1303,7 +1304,8 @@ class Cache(object):
                 continue  # Some fields like ondevice do not have tables
             else:
                 table.remove_books(book_ids, self.backend)
-        self._clear_caches(book_ids=book_ids, template_cache=False)
+        self._search_api.discard_books(book_ids)
+        self._clear_caches(book_ids=book_ids, template_cache=False, search_cache=False)
 
     @read_api
     def author_sort_strings_for_books(self, book_ids):
