@@ -208,6 +208,15 @@ class Metadata(object):
         raise AttributeError(
                 'Metadata object has no attribute named: '+ repr(field))
 
+    def get_raw_composite(self, field):
+        _data = object.__getattribute__(self, '_data')
+        if field not in _data['user_metadata']:
+            raise AttributeError('non-custom field passed to get_raw_composite')
+        d = _data['user_metadata'][field]
+        if d['datatype'] != 'composite':
+            raise AttributeError('non-composite field passed to get_raw_composite')
+        return d['#value#']
+
     def set(self, field, val, extra=None):
         self.__setattr__(field, val, extra)
 

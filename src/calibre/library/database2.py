@@ -451,6 +451,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.field_metadata.set_field_record_index('marked', base, prefer_custom=False)
         self.FIELD_MAP['series_sort'] = base = base+1
         self.field_metadata.set_field_record_index('series_sort', base, prefer_custom=False)
+        self.FIELD_MAP['virtual_libraries'] = base = base+1
+        self.field_metadata.set_field_record_index('virtual_libraries', base, prefer_custom=False)
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -961,7 +963,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return (path, mi, sequence)
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False,
-                     get_user_categories=True, cover_as_data=False):
+                     get_user_categories=True, cover_as_data=False,
+                     evaluate_composites=True):
         '''
         Convenience method to return metadata as a :class:`Metadata` object.
         Note that the list of formats is not verified.
@@ -1012,6 +1015,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.book_size   = row[fm['size']]
         mi.ondevice_col= row[fm['ondevice']]
         mi.last_modified = row[fm['last_modified']]
+
+        mi._base_db_row = row # So the formatter functions can see the underlying data
+        mi._virt_lib_column = fm['virtual_libraries']
+
         formats = row[fm['formats']]
         mi.format_metadata = {}
         if not formats:
@@ -1039,7 +1046,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.set_all_user_metadata(self.field_metadata.custom_field_metadata())
         for key, meta in self.field_metadata.custom_iteritems():
             if meta['datatype'] == 'composite':
-                mi.set(key, val=row[meta['rec_index']])
+                if evaluate_composites:
+                    mi.set(key, val=row[meta['rec_index']])
             else:
                 val, extra = self.get_custom_and_extra(idx, label=meta['label'],
                                                        index_is_id=True)
