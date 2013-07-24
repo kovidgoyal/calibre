@@ -342,3 +342,11 @@ class ProxyMetadata(Metadata):
         um = ga(self, '_user_metadata')
         return iter(um.custom_field_keys())
 
+    def get_standard_metadata(self, field, make_copy=False):
+        field_metadata = ga(self, '_user_metadata')
+        if field in field_metadata and field_metadata[field]['kind'] == 'field':
+            if make_copy:
+                return deepcopy(field_metadata[field])
+            return field_metadata[field]
+        return None
+

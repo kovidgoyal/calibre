@@ -477,6 +477,16 @@ class ReadingTest(BaseTest):
                                 'Standard field: %s not the same for book %s' % (field, book_id))
                 self.assertEqual(mi.format_field(field), pmi.format_field(field),
                                 'Standard field format: %s not the same for book %s' % (field, book_id))
+                def f(x):
+                    try:
+                        return x['label']
+                    except:
+                        return x
+                if field not in {'#series_index'}:
+                    v = pmi.get_standard_metadata(field)
+                    self.assertTrue(v is None or isinstance(v, dict))
+                    self.assertEqual(f(mi.get_standard_metadata(field, False)), f(v),
+                                     'get_standard_metadata() failed for field %s' % field)
             for field, meta in cache.field_metadata.custom_iteritems():
                 if meta['datatype'] != 'composite':
                     self.assertEqual(f(getattr(mi, field)), f(getattr(pmi, field)),
