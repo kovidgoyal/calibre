@@ -495,5 +495,13 @@ class ReadingTest(BaseTest):
                     self.assertEqual(mi.format_field(field), pmi.format_field(field),
                                     'Custom field format: %s not the same for book %s' % (field, book_id))
 
+        # Test handling of recursive templates
+        cache.create_custom_column('comp2', 'comp2', 'composite', False, display={'composite_template':'{title}'})
+        cache.create_custom_column('comp1', 'comp1', 'composite', False, display={'composite_template':'foo{#comp2}'})
+        cache.close()
+        cache = self.init_cache()
+        mi, pmi = cache.get_metadata(1), cache.get_proxy_metadata(1)
+        self.assertEqual(mi.get('#comp1'), pmi.get('#comp1'))
+
     # }}}
 

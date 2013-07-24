@@ -12,7 +12,7 @@ from functools import wraps
 from collections import MutableMapping, MutableSequence
 from copy import deepcopy
 
-from calibre.ebooks.metadata.book.base import Metadata, SIMPLE_GET, TOP_LEVEL_IDENTIFIERS, NULL_VALUES
+from calibre.ebooks.metadata.book.base import Metadata, SIMPLE_GET, TOP_LEVEL_IDENTIFIERS, NULL_VALUES, ALL_METADATA_FIELDS
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.utils.date import utcnow
 
@@ -349,4 +349,9 @@ class ProxyMetadata(Metadata):
                 return deepcopy(field_metadata[field])
             return field_metadata[field]
         return None
+
+    def all_field_keys(self):
+        um = ga(self, '_user_metadata')
+        return frozenset(ALL_METADATA_FIELDS.union(um.iterkeys()))
+
 
