@@ -310,6 +310,7 @@ class View(object):
         a mapping is provided, then the search can be used to search for
         particular values: ``marked:value``
         '''
+        old_marked_ids = set(self.marked_ids)
         if not hasattr(id_dict, 'items'):
             # Simple list. Make it a dict of string 'true'
             self.marked_ids = dict.fromkeys(id_dict, u'true')
@@ -317,6 +318,9 @@ class View(object):
             # Ensure that all the items in the dict are text
             self.marked_ids = dict(izip(id_dict.iterkeys(), imap(unicode,
                 id_dict.itervalues())))
+        # This invalidates all searches in the cache even though the cache may
+        # be shared by multiple views. This is not ideal, but...
+        self.cache.clear_search_caches(old_marked_ids | set(self.marked_ids))
 
     def refresh(self, field=None, ascending=True):
         self._map = tuple(self.cache.all_book_ids())
