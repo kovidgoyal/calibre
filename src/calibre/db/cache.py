@@ -1620,6 +1620,18 @@ class Cache(object):
         if cover and os.path.exists(cover):
             self._set_field('cover', {book_id:1})
         self.backend.restore_book(book_id, path, formats)
+
+    @read_api
+    def virtual_libraries_for_books(self, book_ids):
+        libraries = tuple(self._pref('virtual_libraries', {}).iterkeys())
+        ans = {book_id:[] for book_id in book_ids}
+        for lib in libraries:
+            books = self._search(lib)  # We deliberately dont use book_ids as we want to use the search cache
+            for book in book_ids:
+                if book in books:
+                    ans[book].append(lib)
+        return {k:tuple(sorted(v, key=sort_key)) for k, v in book_ids}
+
     # }}}
 
 class SortKey(object):  # {{{

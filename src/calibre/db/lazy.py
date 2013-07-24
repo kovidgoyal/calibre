@@ -231,6 +231,15 @@ def composite_getter(mi, field, metadata, book_id, cache, formatter, template_ca
             template_cache=template_cache).strip()
         return ret
 
+def virtual_libraries_getter(dbref, book_id, cache):
+    try:
+        return cache[field]
+    except KeyError:
+        db = dbref()
+        vls = db.virtual_libraries_for_books((book_id,))[book_id]
+        ret = cache[field] = ', '.join(vls)
+        return ret
+
 getters = {
     'title':simple_getter('title', _('Unknown')),
     'title_sort':simple_getter('sort', _('Unknown')),
@@ -247,6 +256,7 @@ getters = {
     'series_index':series_index_getter(),
     'application_id':lambda x, book_id, y: book_id,
     'id':lambda x, book_id, y: book_id,
+    'virtual_libraries':virtual_libraries_getter,
 }
 
 for field in ('comments', 'publisher', 'identifiers', 'series', 'rating'):
