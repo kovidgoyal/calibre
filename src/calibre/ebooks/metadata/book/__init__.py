@@ -88,7 +88,7 @@ CALIBRE_METADATA_FIELDS = frozenset([
     'user_categories',
     # a dict of author to an associated hyperlink
     'author_link_map',
-
+    'virtual_libraries',
     ]
 )
 
