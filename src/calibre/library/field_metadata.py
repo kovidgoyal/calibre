@@ -387,6 +387,16 @@ class FieldMetadata(dict):
                            'is_custom':False,
                            'is_category':False,
                            'is_csp': False}),
+            ('virtual_libraries',    {'table':None,
+                           'column':None,
+                           'datatype':'text',
+                           'is_multiple':{},
+                           'kind':'field',
+                           'name': None,
+                           'search_terms':['virtual_libraries'],
+                           'is_custom':False,
+                           'is_category':False,
+                           'is_csp': False}),
         ]
     # }}}
 

@@ -1630,7 +1630,7 @@ class Cache(object):
             for book in book_ids:
                 if book in books:
                     ans[book].append(lib)
-        return {k:tuple(sorted(v, key=sort_key)) for k, v in book_ids}
+        return {k:tuple(sorted(v, key=sort_key)) for k, v in ans.iteritems()}
 
     # }}}
 
