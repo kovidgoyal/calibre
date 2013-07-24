@@ -479,9 +479,10 @@ class ReadingTest(BaseTest):
                                 'Standard field format: %s not the same for book %s' % (field, book_id))
                 def f(x):
                     try:
-                        return x['label']
+                        x.pop('rec_index', None)
                     except:
-                        return x
+                        pass
+                    return x
                 if field not in {'#series_index'}:
                     v = pmi.get_standard_metadata(field)
                     self.assertTrue(v is None or isinstance(v, dict))
