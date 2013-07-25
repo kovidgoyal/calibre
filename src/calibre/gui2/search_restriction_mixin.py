@@ -316,6 +316,7 @@ class SearchRestrictionMixin(object):
         self.virtual_library_menu = QMenu()
 
         self.virtual_library.clicked.connect(self.virtual_library_clicked)
+        self.clear_vl.clicked.connect(lambda x: (self.apply_virtual_library(), self.clear_additional_restriction()))
 
         self.virtual_library_tooltip = \
             _('Use a "virtual library" to show only a subset of the books present in this library')
@@ -589,10 +590,12 @@ class SearchRestrictionMixin(object):
             self.search_count.setStyleSheet(
                     'QLabel { border-radius: 6px; background-color: %s }' %
                     tweaks['highlight_virtual_library'])
+            self.clear_vl.setVisible(True)
         else:  # No restriction or not library view
             t = ''
             self.search_count.setStyleSheet(
                     'QLabel { background-color: transparent; }')
+            self.clear_vl.setVisible(False)
         self.search_count.setText(t)
 
 if __name__ == '__main__':
