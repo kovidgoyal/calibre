@@ -16,7 +16,7 @@ from future_builtins import map
 from calibre import as_unicode
 from calibre.ebooks.pdf.render.common import (Array, String, Stream,
     Dictionary, Name)
-from calibre.utils.fonts.sfnt.subset import pdf_subset, UnsupportedFont
+from calibre.utils.fonts.sfnt.subset import pdf_subset, UnsupportedFont, NoGlyphs
 
 STANDARD_FONTS = {
     'Times-Roman', 'Helvetica', 'Courier', 'Symbol', 'Times-Bold',
@@ -84,7 +84,6 @@ class CMap(Stream):
         end
         ''')
 
-
     def __init__(self, name, glyph_map, compress=False):
         Stream.__init__(self, compress)
         current_map = OrderedDict()
@@ -118,7 +117,7 @@ class Font(object):
         self.font_descriptor = Dictionary({
             'Type': Name('FontDescriptor'),
             'FontName': Name('%s+%s'%(self.subset_tag, metrics.postscript_name)),
-            'Flags': 0b100, # Symbolic font
+            'Flags': 0b100,  # Symbolic font
             'FontBBox': Array(metrics.pdf_bbox),
             'ItalicAngle': metrics.post.italic_angle,
             'Ascent': metrics.pdf_ascent,
@@ -161,6 +160,11 @@ class Font(object):
         except UnsupportedFont as e:
             debug('Subsetting of %s not supported, embedding full font. Error: %s'%(
                 self.metrics.names.get('full_name', 'Unknown'), as_unicode(e)))
+        except NoGlyphs:
+            if self.used_glyphs:
+                debug(
+                    'Subsetting of %s failed, font appears to have no glyphs for the %d characters it is used with, some text may not be rendered in the PDF' %
+                    (self.metrics.names.get('full_name', 'Unknown'), len(self.used_glyphs)))
         if self.is_otf:
             self.font_stream.write(self.metrics.sfnt['CFF '].raw)
         else:
@@ -184,7 +188,7 @@ class Font(object):
         widths = {g:w for g, w in widths.iteritems() if w != most_common}
 
         groups = Array()
-        for k, g in groupby(enumerate(widths.iterkeys()), lambda (i,x):i-x):
+        for k, g in groupby(enumerate(widths.iterkeys()), lambda i_x:i_x[0]-i_x[1]):
             group = list(map(itemgetter(1), g))
             gwidths = [widths[g] for g in group]
             if len(set(gwidths)) == 1 and len(group) > 1:
@@ -229,4 +233,5 @@ class FontManager(object):
     def embed_fonts(self, debug):
         for font in self.fonts:
             font.embed(self.objects, debug)
+
 
