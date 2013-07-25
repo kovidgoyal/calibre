@@ -214,8 +214,8 @@ class Cache(object):
                 default_value='dummy')
         mi.title_sort  = self._field_for('sort', book_id,
                 default_value=_('Unknown'))
-        mi.book_size   = self._field_for('size', book_id, default_value=0)
-        mi.ondevice_col = self._field_for('ondevice', book_id, default_value='')
+#         mi.book_size   = self._field_for('size', book_id, default_value=0)
+#         mi.ondevice_col = self._field_for('ondevice', book_id, default_value='')
         mi.last_modified = self._field_for('last_modified', book_id,
                 default_value=n)
         formats = self._field_for('formats', book_id)
@@ -227,7 +227,7 @@ class Cache(object):
             mi.format_metadata = FormatMetadata(self, book_id, formats)
             good_formats = FormatsList(formats, mi.format_metadata)
         mi.formats = good_formats
-        mi.db_approx_formats = formats
+#         mi.db_approx_formats = formats
         mi.has_cover = _('Yes') if self._field_for('cover', book_id,
                 default_value=False) else ''
         mi.tags = list(self._field_for('tags', book_id, default_value=()))
@@ -1413,6 +1413,7 @@ class Cache(object):
     def refresh_ondevice(self):
         self.fields['ondevice'].clear_caches()
         self.clear_search_caches()
+        self.clear_composite_caches()
 
     @read_api
     def tags_older_than(self, tag, delta=None, must_have_tag=None, must_have_authors=None):

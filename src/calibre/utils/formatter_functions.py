@@ -640,15 +640,22 @@ class BuiltinApproximateFormats(BuiltinFormatterFunction):
                   'although it probably is. '
                   'This function can be called in template program mode using '
                   'the template "{:\'approximate_formats()\'}". '
-                  'Note that format names are always uppercase, as in EPUB.'
+                  'Note that format names are always uppercase, as in EPUB. '
+                  'This function works only in the GUI. If you want to use these values '
+                  'in save-to-disk or send-to-device templates then you '
+                  'must make a custom "Column built from other columns", use '
+                  'the function in that column\'s template, and use that '
+                  'column\'s value in your save/send templates'
             )
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        fmt_data = mi.get('db_approx_formats', [])
-        if not fmt_data:
-            return ''
-        data = sorted(fmt_data)
-        return ','.join(v.upper() for v in data)
+        if hasattr(mi, '_proxy_metadata'):
+            fmt_data = mi._proxy_metadata.db_approx_formats
+            if not fmt_data:
+                return ''
+            data = sorted(fmt_data)
+            return ','.join(v.upper() for v in data)
+        return _('This function can be used only in the GUI')
 
 class BuiltinFormatsModtimes(BuiltinFormatterFunction):
     name = 'formats_modtimes'
@@ -902,27 +909,42 @@ class BuiltinBooksize(BuiltinFormatterFunction):
     name = 'booksize'
     arg_count = 0
     category = 'Get values from metadata'
-    __doc__ = doc = _('booksize() -- return value of the size field')
+    __doc__ = doc = _('booksize() -- return value of the size field. '
+                'This function works only in the GUI. If you want to use this value '
+                'in save-to-disk or send-to-device templates then you '
+                'must make a custom "Column built from other columns", use '
+                'the function in that column\'s template, and use that '
+                'column\'s value in your save/send templates')
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        if mi.book_size is not None:
+        if hasattr(mi, '_proxy_metadata'):
             try:
-                return str(mi.book_size)
+                v = mi._proxy_metadata.book_size
+                if v is not None:
+                    return str(mi._proxy_metadata.book_size)
+                return ''
             except:
                 pass
-        return ''
+            return ''
+        return _('This function can be used only in the GUI')
 
 class BuiltinOndevice(BuiltinFormatterFunction):
     name = 'ondevice'
     arg_count = 0
     category = 'Get values from metadata'
     __doc__ = doc = _('ondevice() -- return Yes if ondevice is set, otherwise return '
-            'the empty string')
+              'the empty string. This function works only in the GUI. If you want to '
+              'use this value in save-to-disk or send-to-device templates then you '
+              'must make a custom "Column built from other columns", use '
+              'the function in that column\'s template, and use that '
+              'column\'s value in your save/send templates')
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        if mi.ondevice_col:
-            return _('Yes')
-        return ''
+        if hasattr(mi, '_proxy_metadata'):
+            if mi._proxy_metadata.ondevice_col:
+                return _('Yes')
+            return ''
+        return _('This function can be used only in the GUI')
 
 class BuiltinSeriesSort(BuiltinFormatterFunction):
     name = 'series_sort'
@@ -1259,9 +1281,6 @@ class BuiltinVirtualLibraries(BuiltinFormatterFunction):
                       'column\'s value in your save/send templates')
 
     def evaluate(self, formatter, kwargs, mi, locals_):
-        from calibre.db.lazy import ProxyMetadata
-        if isinstance(mi, ProxyMetadata):
-            return mi.virtual_libraries
         if hasattr(mi, '_proxy_metadata'):
             return mi._proxy_metadata.virtual_libraries
         return _('This function can be used only in the GUI')
