@@ -135,8 +135,4 @@ def get_db_loader():
         errs = (sqlite.Error, DatabaseException)
     return cls, errs
 
-'''
-Various things that require other things before they can be migrated:
-    1. Check that metadata backup, and moving libraries all work (check
-    them on windows as well for file locking issues)
-'''
+
