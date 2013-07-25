@@ -30,11 +30,13 @@ class ScientificAmerican(BasicNewsRecipe):
                 ,dict(name='p', attrs={'id':'articleDek'})
                 ,dict(name='p', attrs={'class':'articleInfo'})
                 ,dict(name='div', attrs={'id':['articleContent']})
-                ,dict(name='img', attrs={'src':re.compile(r'/media/inline/blog/Image/', re.DOTALL|re.IGNORECASE)}) 
+                ,dict(name='img', attrs={'src':re.compile(r'/media/inline/blog/Image/', re.DOTALL|re.IGNORECASE)})
                 ]
 
-    remove_tags = [dict(name='a', attrs={'class':'tinyCommentCount'})]
-
+    remove_tags = [dict(name='a', attrs={'class':'tinyCommentCount'})
+                                ,dict(name='div', attrs={'id':'bigCoverModule'})
+                                ,dict(name='div', attrs={'class':'addInfo'})
+                                ]
     def parse_index(self):
         soup = self.index_to_soup('http://www.scientificamerican.com/sciammag/')
         issuetag = soup.find('p',attrs={'id':'articleDek'})
@@ -43,8 +45,9 @@ class ScientificAmerican(BasicNewsRecipe):
         if img is not None:
             self.cover_url = img['src']
         features, feeds = [], []
-        for a in soup.find(attrs={'class':'primaryCol'}).findAll('a',attrs={'title':'Feature'}):
-            if a is None: continue
+        for a in soup.find(attrs={'class':'doubleWide'}).find(attrs={'class':'primaryCol'}).findAll('a',attrs={'title':'Feature'}):
+            if a is None:
+                continue
             desc = ''
             s = a.parent.parent.find(attrs={'class':'dek'})
             desc = self.tag_to_string(s)
@@ -89,3 +92,4 @@ class ScientificAmerican(BasicNewsRecipe):
                 h2{font-size:large; font-family:Arial,Helvetica,sans-serif;}
                 h3{font-size:x-small;font-family:Arial,Helvetica,sans-serif;}
                 '''
+
