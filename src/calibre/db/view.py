@@ -353,3 +353,8 @@ class View(object):
         for book_id in ids:
             self.remove(book_id)
 
+    def books_added(self, ids):
+        ids = tuple(ids)
+        self._map = ids + self._map
+        self._map_filtered = ids + self._map_filtered
+
