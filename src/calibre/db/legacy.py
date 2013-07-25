@@ -120,6 +120,7 @@ class LibraryDatabase(object):
         if self.last_modified() > self.last_update_check:
             self.backend.reopen()
             self.new_api.reload_from_db()
+            self.data.refresh(clear_caches=False)  # caches are already cleared by reload_from_db()
         self.last_update_check = utcnow()
 
     @property
