@@ -1,10 +1,10 @@
 __license__   = 'GPL v3'
-__copyright__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>; 2010-2012, Louis Gesbert <meta at antislash dot info>; 2013, Malah <malah at neuf.fr>'
+__copyright__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>; 2010-2012, Louis Gesbert <meta at antislash dot info>; 2013, Malah <malah at neuf dot fr>'
 '''
 Mediapart
 '''
 
-__author__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>; 2010-2012, Louis Gesbert <meta at antislash dot info>; 2013, Malah <malah at neuf.fr>'
+__author__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>; 2010-2012, Louis Gesbert <meta at antislash dot info>; 2013, Malah <malah at neuf dot fr>'
 
 import re
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
@@ -29,19 +29,26 @@ class Mediapart(BasicNewsRecipe):
         ('Les articles', 'http://www.mediapart.fr/articles/feed'),
     ]
 
-# -- print-version
+# -- full-page-version
 
-    conversion_options = { 'smarten_punctuation' : True }
+    conversion_options = {'smarten_punctuation' : True}
 
-    remove_tags = [ dict(name='div', attrs={'class':'print-source_url'}) ]
+    keep_only_tags = [
+        dict(name='div', attrs={'class':'col-left fractal-desktop fractal-10-desktop collapse-7-desktop fractal-tablet fractal-6-tablet collapse-4-tablet'}),
+        dict(name='div', attrs={'id':'pageFirstContent'})
+    ]
+    remove_tags = [
+        dict(name='div', attrs={'id':'lire-aussi'}),
+        dict(name='div', attrs={'class':'col-right-content'})
+    ]
 
     def print_version(self, url):
         raw = self.browser.open(url).read()
         soup = BeautifulSoup(raw.decode('utf8', 'replace'))
-        link = soup.find('a', {'href':re.compile('^/print/[0-9]+')})
+        link = soup.find('a', {'href':re.compile('^.*?onglet=full$')})
         if link is None:
             return None
-        return 'http://www.mediapart.fr' + link['href']
+        return link['href']
 
 # -- Handle login
 
@@ -62,3 +69,4 @@ class Mediapart(BasicNewsRecipe):
             legend.insert(0, Tag(soup, 'br', []))
             legend.name = 'small'
         return soup
+
