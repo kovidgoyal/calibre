@@ -8,7 +8,7 @@ The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
         json, uuid, hashlib, copy, types
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 import threading, random
 from itertools import repeat
 
@@ -51,6 +51,8 @@ from calibre.utils.localization import (canonicalize_lang,
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 SPOOL_SIZE = 30*1024*1024
+
+ProxyMetadata = namedtuple('ProxyMetadata', 'book_size ondevice_col db_approx_formats')
 
 class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     '''
@@ -1009,8 +1011,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.pubdate     = row[fm['pubdate']]
         mi.uuid        = row[fm['uuid']]
         mi.title_sort  = row[fm['sort']]
-        mi.book_size   = row[fm['size']]
-        mi.ondevice_col= row[fm['ondevice']]
         mi.last_modified = row[fm['last_modified']]
         formats = row[fm['formats']]
         mi.format_metadata = {}
@@ -1022,6 +1022,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             good_formats = FormatsList(formats, mi.format_metadata)
         mi.formats = good_formats
         mi.db_approx_formats = formats
+        mi._proxy_metadata = p = ProxyMetadata(row[fm['size']], row[fm['ondevice']], formats)
+        mi.book_size   = p.book_size
+        mi.ondevice_col= p.ondevice_col
         tags = row[fm['tags']]
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]

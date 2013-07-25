@@ -453,7 +453,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     def get_book_display_info(self, idx):
         mi = self.db.get_metadata(idx)
-        mi.size = mi.book_size
+        mi.size = mi._proxy_metadata.book_size
         mi.cover_data = ('jpg', self.cover(idx))
         mi.id = self.db.id(idx)
         mi.field_metadata = self.db.field_metadata
