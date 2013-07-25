@@ -66,7 +66,8 @@ class Metadata(object):
     becomes a reserved field name.
     '''
 
-    def __init__(self, title, authors=(_('Unknown'),), other=None, template_cache=None):
+    def __init__(self, title, authors=(_('Unknown'),), other=None, template_cache=None,
+                 formatter=None):
         '''
         @param title: title or ``_('Unknown')``
         @param authors: List of strings or []
@@ -85,7 +86,8 @@ class Metadata(object):
                 self.author = list(authors) if authors else []  # Needed for backward compatibility
                 self.authors = list(authors) if authors else []
         from calibre.ebooks.metadata.book.formatter import SafeFormat
-        self.formatter = SafeFormat()
+        if formatter is None:
+            self.formatter = SafeFormat()
         self.template_cache = template_cache
 
     def is_null(self, field):

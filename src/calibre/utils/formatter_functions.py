@@ -1246,6 +1246,26 @@ class BuiltinFinishFormatting(BuiltinFormatterFunction):
             return val
         return prefix + formatter._do_format(val, fmt) + suffix
 
+class BuiltinVirtualLibraries(BuiltinFormatterFunction):
+    name = 'virtual_libraries'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('virtual_libraries() -- return a comma-separated list of '
+                      'virtual libraries that contain this book. This function '
+                      'works only in the GUI. If you want to use these values '
+                      'in save-to-disk or send-to-device templates then you '
+                      'must make a custom "Column built from other columns", use '
+                      'the function in that column\'s template, and use that '
+                      'column\'s value in your save/send templates')
+
+    def evaluate(self, formatter, kwargs, mi, locals_):
+        from calibre.db.lazy import ProxyMetadata
+        if isinstance(mi, ProxyMetadata):
+            return mi.virtual_libraries
+        if hasattr(mi, '_proxy_metadata'):
+            return mi._proxy_metadata.virtual_libraries
+        return _('This function can be used only in the GUI')
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(),
     BuiltinAssign(), BuiltinBooksize(),
@@ -1267,7 +1287,7 @@ _formatter_builtins = [
     BuiltinStrcmp(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
     BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
     BuiltinSwitch(), BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),
-    BuiltinToday(), BuiltinUppercase(),
+    BuiltinToday(), BuiltinUppercase(), BuiltinVirtualLibraries()
 ]
 
 class FormatterUserFunction(FormatterFunction):

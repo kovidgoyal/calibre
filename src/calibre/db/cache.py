@@ -184,6 +184,9 @@ class Cache(object):
 
     def _get_metadata(self, book_id, get_user_categories=True):  # {{{
         mi = Metadata(None, template_cache=self.formatter_template_cache)
+
+        mi._proxy_metadata = ProxyMetadata(self, book_id, formatter=mi.formatter)
+
         author_ids = self._field_ids_for('authors', book_id)
         adata = self._author_data(author_ids)
         aut_list = [adata[i] for i in author_ids]
