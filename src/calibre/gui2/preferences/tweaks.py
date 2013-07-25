@@ -374,6 +374,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.changed()
 
     def current_changed(self, current, previous):
+        self.tweaks_view.scrollTo(current)
         tweak = self.tweaks.data(current, Qt.UserRole)
         self.help.setPlainText(tweak.doc)
         self.edit_tweak.setPlainText(tweak.edit_text)
