@@ -339,3 +339,17 @@ class View(object):
             pass
         return None
 
+    def remove(self, book_id):
+        try:
+            self._map = tuple(bid for bid in self._map if bid != book_id)
+        except ValueError:
+            pass
+        try:
+            self._map_filtered = tuple(bid for bid in self._map_filtered if bid != book_id)
+        except ValueError:
+            pass
+
+    def books_deleted(self, ids):
+        for book_id in ids:
+            self.remove(book_id)
+

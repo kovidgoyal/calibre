@@ -320,8 +320,9 @@ class LibraryDatabase(object):
 
     def delete_book(self, book_id, notify=True, commit=True, permanent=False, do_clean=True):
         self.new_api.remove_books((book_id,), permanent=permanent)
+        self.data.books_deleted((book_id,))
         if notify:
-            self.notify('delete', [id])
+            self.notify('delete', [book_id])
 
     def dirtied(self, book_ids, commit=True):
         self.new_api.mark_as_dirty(frozenset(book_ids) if book_ids is not None else book_ids)
