@@ -87,7 +87,7 @@ class Metadata(object):
                 self.authors = list(authors) if authors else []
         from calibre.ebooks.metadata.book.formatter import SafeFormat
         if formatter is None:
-            self.formatter = SafeFormat()
+            self.formatter = SafeFormat() if formatter is  None else formatter
         self.template_cache = template_cache
 
     def is_null(self, field):

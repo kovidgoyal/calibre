@@ -280,8 +280,7 @@ class ProxyMetadata(Metadata):
 
     def __init__(self, db, book_id, formatter=None):
         sa(self, 'template_cache', db.formatter_template_cache)
-        if formatter is None:
-            sa(self, 'formatter', SafeFormat())
+        sa(self, 'formatter', SafeFormat() if formatter is None else formatter)
         sa(self, '_db', weakref.ref(db))
         sa(self, '_book_id', book_id)
         sa(self, '_cache', {'user_categories':{}, 'cover_data':(None,None), 'device_collections':[]})
