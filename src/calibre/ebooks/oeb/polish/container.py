@@ -202,6 +202,9 @@ class Container(object):
         return data
 
     def parse_css(self, data, fname):
+        ''' WARNING: This modifies the CSS tripping out @page rules, comments
+        etc. If you wish to write back the css, you should override the
+        css_preprocessor with a dummy one. '''
         from cssutils import CSSParser, log
         log.setLevel(logging.WARN)
         log.raiseExceptions = False
