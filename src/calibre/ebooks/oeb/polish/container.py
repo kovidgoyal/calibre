@@ -21,7 +21,7 @@ from calibre.customize.ui import (plugin_for_input_format,
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.plugins.epub_input import (
     ADOBE_OBFUSCATION, IDPF_OBFUSCATION, decrypt_font)
-from calibre.ebooks.conversion.preprocess import HTMLPreProcessor, CSSPreProcessor
+from calibre.ebooks.conversion.preprocess import HTMLPreProcessor, CSSPreProcessor as cssp
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.reader.headers import MetadataHeader
 from calibre.ebooks.mobi.tweak import set_cover
@@ -41,6 +41,11 @@ def guess_type(x):
 
 OEB_FONTS = {guess_type('a.ttf'), guess_type('b.ttf')}
 OPF_NAMESPACES = {'opf':OPF2_NS, 'dc':DC11_NS}
+
+class CSSPreProcessor(cssp):
+
+    def __call__(self, data):
+        return self.MS_PAT.sub(self.ms_sub, data)
 
 class Container(object):
 
@@ -202,14 +207,11 @@ class Container(object):
         return data
 
     def parse_css(self, data, fname):
-        ''' WARNING: This modifies the CSS tripping out @page rules, comments
-        etc. If you wish to write back the css, you should override the
-        css_preprocessor with a dummy one. '''
         from cssutils import CSSParser, log
         log.setLevel(logging.WARN)
         log.raiseExceptions = False
         data = self.decode(data)
-        data = self.css_preprocessor(data, add_namespace=False)
+        data = self.css_preprocessor(data)
         parser = CSSParser(loglevel=logging.WARNING,
                            # We dont care about @import rules
                            fetcher=lambda x: (None, None), log=_css_logger)
