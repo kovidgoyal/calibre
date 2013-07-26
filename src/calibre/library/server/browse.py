@@ -291,7 +291,7 @@ class BrowseServer(object):
             lp = force_unicode(lp, filesystem_encoding)
         ans = ans.replace('{library_name}', xml(os.path.basename(lp)))
         ans = ans.replace('{library_path}', xml(lp, True))
-        ans = ans.replace('{initial_search}', initial_search)
+        ans = ans.replace('{initial_search}', xml(initial_search, attribute=True))
         return ans
 
     @property
