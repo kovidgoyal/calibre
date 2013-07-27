@@ -184,6 +184,14 @@ class SearchBar(QWidget):  # {{{
         l.addWidget(x)
         parent.virtual_library = x
 
+        x = QToolButton(self)
+        x.setIcon(QIcon(I('minus.png')))
+        x.setObjectName('clear_vl')
+        l.addWidget(x)
+        x.setVisible(False)
+        x.setToolTip(_('Close the Virtual Library'))
+        parent.clear_vl = x
+
         x = QLabel(self)
         x.setObjectName("search_count")
         l.addWidget(x)

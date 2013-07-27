@@ -25,7 +25,7 @@ from PyQt4.Qt import (QAbstractListModel, Qt, QStyledItemDelegate, QStyle,
 
 ROOT = QModelIndex()
 
-class Delegate(QStyledItemDelegate): # {{{
+class Delegate(QStyledItemDelegate):  # {{{
     def __init__(self, view):
         QStyledItemDelegate.__init__(self, view)
         self.view = view
@@ -39,7 +39,7 @@ class Delegate(QStyledItemDelegate): # {{{
 
 # }}}
 
-class Tweak(object): # {{{
+class Tweak(object):  # {{{
 
     def __init__(self, name, doc, var_names, defaults, custom):
         translate = _
@@ -98,7 +98,7 @@ class Tweak(object): # {{{
 
 # }}}
 
-class Tweaks(QAbstractListModel, SearchQueryParser): # {{{
+class Tweaks(QAbstractListModel, SearchQueryParser):  # {{{
 
     def __init__(self, parent=None):
         QAbstractListModel.__init__(self, parent)
@@ -190,7 +190,7 @@ class Tweaks(QAbstractListModel, SearchQueryParser): # {{{
         if not var_names:
             raise ValueError('Failed to find any variables for %r'%name)
         self.tweaks.append(Tweak(name, doc, var_names, defaults, custom))
-        #print '\n\n', self.tweaks[-1]
+        # print '\n\n', self.tweaks[-1]
         return pos
 
     def restore_to_default(self, idx):
@@ -289,7 +289,7 @@ class Tweaks(QAbstractListModel, SearchQueryParser): # {{{
 
 # }}}
 
-class PluginTweaks(QDialog): # {{{
+class PluginTweaks(QDialog):  # {{{
 
     def __init__(self, raw, parent=None):
         QDialog.__init__(self, parent)
@@ -353,7 +353,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         return True
 
     def copy_item_to_clipboard(self, val):
-        cb = QApplication.clipboard();
+        cb = QApplication.clipboard()
         cb.clear()
         cb.setText(val)
 
@@ -374,6 +374,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.changed()
 
     def current_changed(self, current, previous):
+        self.tweaks_view.scrollTo(current)
         tweak = self.tweaks.data(current, Qt.UserRole)
         self.help.setPlainText(tweak.doc)
         self.edit_tweak.setPlainText(tweak.edit_text)
@@ -447,7 +448,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.highlight_index(idx)
 
     def highlight_index(self, idx):
-        if not idx.isValid(): return
+        if not idx.isValid():
+            return
         self.view.scrollTo(idx)
         self.view.selectionModel().select(idx,
                 self.view.selectionModel().ClearAndSelect)
@@ -472,7 +474,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 if __name__ == '__main__':
     app = QApplication([])
-    #Tweaks()
-    #test_widget
+    # Tweaks()
+    # test_widget
     test_widget('Advanced', 'Tweaks')
+
 

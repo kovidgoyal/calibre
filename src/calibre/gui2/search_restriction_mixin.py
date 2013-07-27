@@ -13,6 +13,7 @@ from PyQt4.Qt import (
     QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QStringList, QRadioButton)
 
 from calibre.gui2 import error_dialog, question_dialog
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
@@ -316,6 +317,7 @@ class SearchRestrictionMixin(object):
         self.virtual_library_menu = QMenu()
 
         self.virtual_library.clicked.connect(self.virtual_library_clicked)
+        self.clear_vl.clicked.connect(lambda x: (self.apply_virtual_library(), self.clear_additional_restriction()))
 
         self.virtual_library_tooltip = \
             _('Use a "virtual library" to show only a subset of the books present in this library')
@@ -456,10 +458,9 @@ class SearchRestrictionMixin(object):
             menu.setEnabled(False)
 
     def remove_vl_triggered(self, name=None):
-        if not question_dialog(self, _('Are you sure?'),
-                     _('Are you sure you want to remove '
-                       'the virtual library {0}').format(name),
-                        default_yes=False):
+        if not confirm(
+            _('Are you sure you want to remove the virtual library <b>{0}</b>?').format(name),
+            'confirm_vl_removal', parent=self):
             return
         self._remove_vl(name, reapply=True)
 
@@ -589,10 +590,12 @@ class SearchRestrictionMixin(object):
             self.search_count.setStyleSheet(
                     'QLabel { border-radius: 6px; background-color: %s }' %
                     tweaks['highlight_virtual_library'])
+            self.clear_vl.setVisible(True)
         else:  # No restriction or not library view
             t = ''
             self.search_count.setStyleSheet(
                     'QLabel { background-color: transparent; }')
+            self.clear_vl.setVisible(False)
         self.search_count.setText(t)
 
 if __name__ == '__main__':

@@ -16,7 +16,7 @@ import apsw
 from calibre import isbytestring, force_unicode, prints
 from calibre.constants import (iswindows, filesystem_encoding,
         preferred_encoding)
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
 from calibre.db import SPOOL_SIZE
 from calibre.db.schema_upgrades import SchemaUpgrade
 from calibre.db.errors import NoSuchFormat
@@ -25,8 +25,8 @@ from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.icu import sort_key
 from calibre.utils.config import to_json, from_json, prefs, tweaks
 from calibre.utils.date import utcfromtimestamp, parse_date
-from calibre.utils.filenames import (is_case_sensitive, samefile, hardlink_file, ascii_filename,
-                                     WindowsAtomicFolderMove)
+from calibre.utils.filenames import (
+    is_case_sensitive, samefile, hardlink_file, ascii_filename, WindowsAtomicFolderMove, atomic_rename)
 from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_tree, delete_file
 from calibre.utils.formatter_functions import load_user_template_functions
@@ -967,9 +967,40 @@ class DB(object):
         self.conn.execute('UPDATE custom_columns SET mark_for_delete=1 WHERE id=?', (data['num'],))
 
     def close(self):
-        if self._conn is not None:
+        if getattr(self, '_conn', None) is not None:
             self._conn.close()
             del self._conn
+
+    def reopen(self):
+        self.close()
+        self._conn = None
+        self.conn
+
+    def dump_and_restore(self, callback=None, sql=None):
+        from io import StringIO
+        from contextlib import closing
+        if callback is None:
+            callback = lambda x: x
+        uv = int(self.user_version)
+
+        if sql is None:
+            callback(_('Dumping database to SQL') + '...')
+            buf = StringIO()
+            shell = apsw.Shell(db=self.conn, stdout=buf)
+            shell.process_command('.dump')
+            sql = buf.getvalue()
+
+        with TemporaryFile(suffix='_tmpdb.db', dir=os.path.dirname(self.dbpath)) as tmpdb:
+            callback(_('Restoring database from SQL') + '...')
+            with closing(Connection(tmpdb)) as conn:
+                conn.execute(sql)
+                conn.execute('PRAGMA user_version=%d;'%uv)
+
+            self.close()
+            try:
+                atomic_rename(tmpdb, self.dbpath)
+            finally:
+                self.reopen()
 
     @dynamic_property
     def user_version(self):
@@ -1359,8 +1390,13 @@ class DB(object):
 
     def write_backup(self, path, raw):
         path = os.path.abspath(os.path.join(self.library_path, path, 'metadata.opf'))
-        with lopen(path, 'wb') as f:
-            f.write(raw)
+        try:
+            with lopen(path, 'wb') as f:
+                f.write(raw)
+        except EnvironmentError:
+            os.makedirs(os.path.dirname(path))
+            with lopen(path, 'wb') as f:
+                f.write(raw)
 
     def read_backup(self, path):
         path = os.path.abspath(os.path.join(self.library_path, path, 'metadata.opf'))
@@ -1494,6 +1530,10 @@ class DB(object):
             except:
                 pass
 
+    def restore_book(self, book_id, path, formats):
+        self.conn.execute('UPDATE books SET path=? WHERE id=?', (path.replace(os.sep, '/'), book_id))
+        vals = [(book_id, fmt, size, name) for fmt, size, name in formats]
+        self.conn.executemany('INSERT INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)', vals)
    # }}}
 
 

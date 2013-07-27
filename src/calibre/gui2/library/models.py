@@ -17,11 +17,11 @@ from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_autho
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks, device_prefs, prefs
-from calibre.utils.date import dt_factory, qt_to_dt, as_local_time
+from calibre.utils.date import dt_factory, qt_to_dt, as_local_time, UNDEFINED_DATE
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.db.search import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
-from calibre.library.caches import (MetadataBackup, force_to_bool)
+from calibre.library.caches import force_to_bool
 from calibre.library.save_to_disk import find_plugboard
 from calibre import strftime, isbytestring
 from calibre.constants import filesystem_encoding, DEBUG, config_dir
@@ -227,13 +227,20 @@ class BooksModel(QAbstractTableModel):  # {{{
             elif col in self.custom_columns:
                 self.headers[col] = self.custom_columns[col]['name']
 
-        self.build_data_convertors()
+        if hasattr(self.db, 'new_api'):
+            self.build_new_data_convertors()
+        else:
+            self.build_data_convertors()
         self.reset()
         self.database_changed.emit(db)
         self.stop_metadata_backup()
         self.start_metadata_backup()
 
     def start_metadata_backup(self):
+        if hasattr(self.db, 'new_api'):
+            from calibre.db.backup import MetadataBackup
+        else:
+            from calibre.library.caches import MetadataBackup
         self.metadata_backup = MetadataBackup(self.db)
         self.metadata_backup.start()
 
@@ -446,7 +453,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     def get_book_display_info(self, idx):
         mi = self.db.get_metadata(idx)
-        mi.size = mi.book_size
+        mi.size = mi._proxy_metadata.book_size
         mi.cover_data = ('jpg', self.cover(idx))
         mi.id = self.db.id(idx)
         mi.field_metadata = self.db.field_metadata
@@ -629,6 +636,112 @@ class BooksModel(QAbstractTableModel):  # {{{
         if img.isNull():
             img = self.default_image
         return img
+
+    def build_new_data_convertors(self):
+
+        def renderer(field, decorator=False):
+            idfunc = self.db.id
+            fffunc = self.db.new_api.fast_field_for
+            field_obj = self.db.new_api.fields[field]
+            m = field_obj.metadata.copy()
+            if 'display' not in m:
+                m['display'] = {}
+            dt = m['datatype']
+
+            if decorator == 'bool':
+                bt = self.db.new_api.pref('bools_are_tristate')
+                bn = self.bool_no_icon
+                by = self.bool_yes_icon
+                def func(idx):
+                    val = force_to_bool(fffunc(field_obj, idfunc(idx)))
+                    if val is None:
+                        return NONE if bt else bn
+                    return by if val else bn
+            elif field == 'size':
+                sz_mult = 1.0/(1024**2)
+                def func(idx):
+                    val = fffunc(field_obj, idfunc(idx), default_value=0) or 0
+                    if val is 0:
+                        return NONE
+                    ans = u'%.1f' % (val * sz_mult)
+                    return QVariant(u'<0.1' if ans == u'0.0' else ans)
+            elif field == 'languages':
+                def func(idx):
+                    return QVariant(', '.join(calibre_langcode_to_name(x) for x in fffunc(field_obj, idfunc(idx))))
+            elif field == 'ondevice' and decorator:
+                by = self.bool_yes_icon
+                bb = self.bool_blank_icon
+                def func(idx):
+                    return by if fffunc(field_obj, idfunc(idx)) else bb
+            elif dt in {'text', 'comments', 'composite', 'enumeration'}:
+                if m['is_multiple'] and not field_obj.is_composite:
+                    jv = m['is_multiple']['list_to_ui']
+                    do_sort = field == 'tags'
+                    if do_sort:
+                        def func(idx):
+                            return QVariant(jv.join(sorted(fffunc(field_obj, idfunc(idx), default_value=()), key=sort_key)))
+                    else:
+                        def func(idx):
+                            return QVariant(jv.join(fffunc(field_obj, idfunc(idx), default_value=())))
+                else:
+                    if dt in {'text', 'composite', 'enumeration'} and m['display'].get('use_decorations', False):
+                        def func(idx):
+                            text = fffunc(field_obj, idfunc(idx))
+                            return QVariant(text) if force_to_bool(text) is None else NONE
+                    else:
+                        def func(idx):
+                            return QVariant(fffunc(field_obj, idfunc(idx), default_value=''))
+            elif dt == 'datetime':
+                def func(idx):
+                    return QVariant(QDateTime(as_local_time(fffunc(field_obj, idfunc(idx), default_value=UNDEFINED_DATE))))
+            elif dt == 'rating':
+                def func(idx):
+                    return QVariant(int(fffunc(field_obj, idfunc(idx), default_value=0)/2.0))
+            elif dt == 'series':
+                sidx_field = self.db.new_api.fields[field + '_index']
+                fffunc = self.db.new_api._fast_field_for
+                read_lock = self.db.new_api.read_lock
+                def func(idx):
+                    book_id = idfunc(idx)
+                    with read_lock:
+                        series = fffunc(field_obj, book_id, default_value=False)
+                        if series:
+                            return QVariant('%s [%s]' % (series, fmt_sidx(fffunc(sidx_field, book_id, default_value=1.0))))
+                    return NONE
+            elif dt in {'int', 'float'}:
+                fmt = m['display'].get('number_format', None)
+                def func(idx):
+                    val = fffunc(field_obj, idfunc(idx))
+                    if val is None:
+                        return NONE
+                    if fmt:
+                        try:
+                            return QVariant(fmt.format(val))
+                        except (TypeError, ValueError, AttributeError, IndexError, KeyError):
+                            pass
+                    return QVariant(val)
+            else:
+                def func(idx):
+                    return NONE
+
+            return func
+
+        self.dc = {f:renderer(f) for f in 'title authors size timestamp pubdate last_modified rating publisher tags series ondevice languages'.split()}
+        self.dc_decorator = {f:renderer(f, True) for f in ('ondevice',)}
+
+        for col in self.custom_columns:
+            self.dc[col] = renderer(col)
+            m = self.custom_columns[col]
+            dt = m['datatype']
+            mult = m['is_multiple']
+            if dt in {'text', 'composite', 'enumeration'} and not mult and m['display'].get('use_decorations', False):
+                self.dc_decorator[col] = renderer(col, 'bool')
+            elif dt == 'bool':
+                self.dc_decorator[col] = renderer(col, 'bool')
+
+        # build a index column to data converter map, to remove the string lookup in the data loop
+        self.column_to_dc_map = [self.dc[col] for col in self.column_map]
+        self.column_to_dc_decorator_map = [self.dc_decorator.get(col, None) for col in self.column_map]
 
     def build_data_convertors(self):
         def authors(r, idx=-1):
@@ -1209,7 +1322,6 @@ class DeviceBooksModel(BooksModel):  # {{{
         self.book_in_library = None
         self.sync_icon = QIcon(I('sync.png'))
 
-
     def counts(self):
         return Counts(len(self.db), len(self.db), len(self.map))
 
@@ -1611,5 +1723,6 @@ class DeviceBooksModel(BooksModel):  # {{{
             self.editable = []
 
 # }}}
+
 
 

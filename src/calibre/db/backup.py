@@ -26,7 +26,7 @@ class MetadataBackup(Thread):
     def __init__(self, db, interval=2, scheduling_interval=0.1):
         Thread.__init__(self)
         self.daemon = True
-        self._db = weakref.ref(db)
+        self._db = weakref.ref(getattr(db, 'new_api', db))
         self.stop_running = Event()
         self.interval = interval
         self.scheduling_interval = scheduling_interval
@@ -100,11 +100,13 @@ class MetadataBackup(Thread):
             self.db.write_backup(book_id, raw)
         except:
             prints('Failed to write backup metadata for id:', book_id, 'once')
+            traceback.print_exc()
             self.wait(self.interval)
             try:
                 self.db.write_backup(book_id, raw)
             except:
                 prints('Failed to write backup metadata for id:', book_id, 'again, giving up')
+                traceback.print_exc()
                 return
 
         self.db.clear_dirtied(book_id, sequence)

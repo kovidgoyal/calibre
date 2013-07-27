@@ -23,6 +23,7 @@ class Field(object):
 
     is_many = False
     is_many_many = False
+    is_composite = False
 
     def __init__(self, name, table):
         self.name, self.table = name, table
@@ -30,7 +31,13 @@ class Field(object):
         self.has_text_data = dt in {'text', 'comments', 'series', 'enumeration'}
         self.table_type = self.table.table_type
         self._sort_key = (sort_key if dt in ('text', 'series', 'enumeration') else lambda x: x)
-        self._default_sort_key = ''
+
+        # This will be compared to the output of sort_key() which is a
+        # bytestring, therefore it is safer to have it be a bytestring.
+        # Coercing an empty bytestring to unicode will never fail, but the
+        # output of sort_key cannot be coerced to unicode
+        self._default_sort_key = b''
+
         if dt in {'int', 'float', 'rating'}:
             self._default_sort_key = 0
         elif dt == 'bool':
@@ -107,6 +114,7 @@ class Field(object):
         if not self.is_many:
             return ans
 
+        id_map = self.table.id_map
         special_sort = hasattr(self, 'category_sort_value')
         for item_id, item_book_ids in self.table.col_book_map.iteritems():
             if book_ids is not None:
@@ -115,7 +123,7 @@ class Field(object):
                 ratings = tuple(r for r in (book_rating_map.get(book_id, 0) for
                                             book_id in item_book_ids) if r > 0)
                 avg = sum(ratings)/len(ratings) if ratings else 0
-                name = self.category_formatter(self.table.id_map[item_id])
+                name = self.category_formatter(id_map[item_id])
                 sval = (self.category_sort_value(item_id, item_book_ids, lang_map)
                         if special_sort else name)
                 c = tag_class(name, id=item_id, sort=sval, avg=avg,
@@ -148,17 +156,20 @@ class OneToOneField(Field):
 
 class CompositeField(OneToOneField):
 
+    is_composite = True
+
     def __init__(self, *args, **kwargs):
         OneToOneField.__init__(self, *args, **kwargs)
 
         self._render_cache = {}
         self._lock = Lock()
+        self._composite_name = '#' + self.metadata['label']
 
     def render_composite(self, book_id, mi):
         with self._lock:
             ans = self._render_cache.get(book_id, None)
         if ans is None:
-            ans = mi.get('#'+self.metadata['label'])
+            ans = mi.get(self._composite_name)
             with self._lock:
                 self._render_cache[book_id] = ans
         return ans
@@ -176,7 +187,7 @@ class CompositeField(OneToOneField):
             ans = self._render_cache.get(book_id, None)
         if ans is None:
             mi = get_metadata(book_id)
-            ans = mi.get('#'+self.metadata['label'])
+            ans = mi.get(self._composite_name)
             with self._lock:
                 self._render_cache[book_id] = ans
         return ans
@@ -229,6 +240,14 @@ class OnDeviceField(OneToOneField):
         self.is_multiple = False
         self.cache = {}
         self._lock = Lock()
+        self._metadata = {
+            'table':None, 'column':None, 'datatype':'text', 'is_multiple':{},
+            'kind':'field', 'name':_('On Device'), 'search_terms':['ondevice'],
+            'is_custom':False, 'is_category':False, 'is_csp': False, 'display':{}}
+
+    @property
+    def metadata(self):
+        return self._metadata
 
     def clear_caches(self, book_ids=None):
         with self._lock:
@@ -330,7 +349,6 @@ class ManyToManyField(Field):
 
     def __init__(self, *args, **kwargs):
         Field.__init__(self, *args, **kwargs)
-        self.alphabetical_sort = self.name != 'authors'
 
     def for_book(self, book_id, default_value=None):
         ids = self.table.book_col_map.get(book_id, ())

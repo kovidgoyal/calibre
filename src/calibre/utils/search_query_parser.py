@@ -300,25 +300,28 @@ class SearchQueryParser(object):
                 failed.append(test[0])
         return failed
 
-    def __init__(self, locations, test=False, optimize=False, lookup_saved_search=None):
+    def __init__(self, locations, test=False, optimize=False, lookup_saved_search=None, parse_cache=None):
         self.sqp_initialize(locations, test=test, optimize=optimize)
         self.parser = Parser()
         self.lookup_saved_search = global_lookup_saved_search if lookup_saved_search is None else lookup_saved_search
+        self.sqp_parse_cache = parse_cache
 
     def sqp_change_locations(self, locations):
         self.sqp_initialize(locations, optimize=self.optimize)
+        if self.sqp_parse_cache is not None:
+            self.sqp_parse_cache.clear()
 
     def sqp_initialize(self, locations, test=False, optimize=False):
         self.locations = locations
         self._tests_failed = False
         self.optimize = optimize
 
-    def parse(self, query):
+    def parse(self, query, candidates=None):
         # empty the list of searches used for recursion testing
         self.recurse_level = 0
         self.searches_seen = set([])
         candidates = self.universal_set()
-        return self._parse(query, candidates)
+        return self._parse(query, candidates=candidates)
 
     # this parse is used internally because it doesn't clear the
     # recursive search test list. However, we permit seeing the
@@ -327,9 +330,16 @@ class SearchQueryParser(object):
     def _parse(self, query, candidates=None):
         self.recurse_level += 1
         try:
-            res = self.parser.parse(query, self.locations)
-        except RuntimeError:
-            raise ParseException(_('Failed to parse query, recursion limit reached: %s')%repr(query))
+            res = self.sqp_parse_cache.get(query, None)
+        except AttributeError:
+            res = None
+        if res is None:
+            try:
+                res = self.parser.parse(query, self.locations)
+            except RuntimeError:
+                raise ParseException(_('Failed to parse query, recursion limit reached: %s')%repr(query))
+            if self.sqp_parse_cache is not None:
+                self.sqp_parse_cache[query] = res
         if candidates is None:
             candidates = self.universal_set()
         t = self.evaluate(res, candidates)

@@ -23,7 +23,7 @@ from calibre.db.fields import create_field
 from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
 from calibre.db.write import get_series_values
-from calibre.db.lazy import FormatMetadata, FormatsList
+from calibre.db.lazy import FormatMetadata, FormatsList, ProxyMetadata
 from calibre.ebooks import check_ebook_format
 from calibre.ebooks.metadata import string_to_authors, author_to_author_sort, get_title_sort_pat
 from calibre.ebooks.metadata.book.base import Metadata
@@ -83,7 +83,7 @@ class Cache(object):
     def __init__(self, backend):
         self.backend = backend
         self.fields = {}
-        self.composites = set()
+        self.composites = {}
         self.read_lock, self.write_lock = create_locks()
         self.format_metadata_cache = defaultdict(dict)
         self.formatter_template_cache = {}
@@ -145,12 +145,28 @@ class Cache(object):
         self.formatter_template_cache = {}
 
     @write_api
-    def clear_caches(self, book_ids=None):
-        self._initialize_template_cache()  # Clear the formatter template cache
+    def clear_composite_caches(self, book_ids=None):
+        for field in self.composites.itervalues():
+            field.clear_caches(book_ids=book_ids)
+
+    @write_api
+    def clear_search_caches(self, book_ids=None):
+        self._search_api.update_or_clear(self, book_ids)
+
+    @write_api
+    def clear_caches(self, book_ids=None, template_cache=True, search_cache=True):
+        if template_cache:
+            self._initialize_template_cache()  # Clear the formatter template cache
         for field in self.fields.itervalues():
             if hasattr(field, 'clear_caches'):
                 field.clear_caches(book_ids=book_ids)  # Clear the composite cache and ondevice caches
-        self.format_metadata_cache.clear()
+        if book_ids:
+            for book_id in book_ids:
+                self.format_metadata_cache.pop(book_id, None)
+        else:
+            self.format_metadata_cache.clear()
+        if search_cache:
+            self._clear_search_caches(book_ids)
 
     @write_api
     def reload_from_db(self, clear_caches=True):
@@ -168,6 +184,9 @@ class Cache(object):
 
     def _get_metadata(self, book_id, get_user_categories=True):  # {{{
         mi = Metadata(None, template_cache=self.formatter_template_cache)
+
+        mi._proxy_metadata = ProxyMetadata(self, book_id, formatter=mi.formatter)
+
         author_ids = self._field_ids_for('authors', book_id)
         adata = self._author_data(author_ids)
         aut_list = [adata[i] for i in author_ids]
@@ -188,15 +207,13 @@ class Cache(object):
         mi.author_link_map = aul
         mi.comments    = self._field_for('comments', book_id)
         mi.publisher   = self._field_for('publisher', book_id)
-        n = nowf()
+        n = utcnow()
         mi.timestamp   = self._field_for('timestamp', book_id, default_value=n)
         mi.pubdate     = self._field_for('pubdate', book_id, default_value=n)
         mi.uuid        = self._field_for('uuid', book_id,
                 default_value='dummy')
         mi.title_sort  = self._field_for('sort', book_id,
                 default_value=_('Unknown'))
-        mi.book_size   = self._field_for('size', book_id, default_value=0)
-        mi.ondevice_col = self._field_for('ondevice', book_id, default_value='')
         mi.last_modified = self._field_for('last_modified', book_id,
                 default_value=n)
         formats = self._field_for('formats', book_id)
@@ -207,6 +224,13 @@ class Cache(object):
         else:
             mi.format_metadata = FormatMetadata(self, book_id, formats)
             good_formats = FormatsList(formats, mi.format_metadata)
+        # These three attributes are returned by the db2 get_metadata(),
+        # however, we dont actually use them anywhere other than templates, so
+        # they have been removed, to avoid unnecessary overhead. The templates
+        # all use _proxy_metadata.
+        # mi.book_size   = self._field_for('size', book_id, default_value=0)
+        # mi.ondevice_col = self._field_for('ondevice', book_id, default_value='')
+        # mi.db_approx_formats = formats
         mi.formats = good_formats
         mi.has_cover = _('Yes') if self._field_for('cover', book_id,
                 default_value=False) else ''
@@ -265,7 +289,7 @@ class Cache(object):
             for field, table in self.backend.tables.iteritems():
                 self.fields[field] = create_field(field, table)
                 if table.metadata['datatype'] == 'composite':
-                    self.composites.add(field)
+                    self.composites[field] = self.fields[field]
 
             self.fields['ondevice'] = create_field('ondevice',
                     VirtualTable('ondevice'))
@@ -319,6 +343,22 @@ class Cache(object):
             return default_value
 
     @read_api
+    def fast_field_for(self, field_obj, book_id, default_value=None):
+        ' Same as field_for, except that it avoids the extra lookup to get the field object '
+        if field_obj.is_composite:
+            return field_obj.get_value_with_cache(book_id, self._get_proxy_metadata)
+        try:
+            return field_obj.for_book(book_id, default_value=default_value)
+        except (KeyError, IndexError):
+            return default_value
+
+    @read_api
+    def all_field_for(self, field, book_ids, default_value=None):
+        ' Same as field_for, except that it operates on multiple books at once '
+        field_obj = self.fields[field]
+        return {book_id:self._fast_field_for(field_obj, book_id, default_value=default_value) for book_id in book_ids}
+
+    @read_api
     def composite_for(self, name, book_id, mi=None, default_value=''):
         try:
             f = self.fields[name]
@@ -326,8 +366,7 @@ class Cache(object):
             return default_value
 
         if mi is None:
-            return f.get_value_with_cache(book_id, partial(self._get_metadata,
-                get_user_categories=False))
+            return f.get_value_with_cache(book_id, self._get_proxy_metadata)
         else:
             return f.render_composite(book_id, mi)
 
@@ -409,6 +448,12 @@ class Cache(object):
         return rmap.get(icu_lower(item_name) if isinstance(item_name, unicode) else item_name, None)
 
     @read_api
+    def get_item_ids(self, field, item_names):
+        ' Return the item id for item_name (case-insensitive) '
+        rmap = {icu_lower(v) if isinstance(v, unicode) else v:k for k, v in self.fields[field].table.id_map.iteritems()}
+        return {name:rmap.get(icu_lower(name) if isinstance(name, unicode) else name, None) for name in item_names}
+
+    @read_api
     def author_data(self, author_ids=None):
         '''
         Return author data as a dictionary with keys: name, sort, link
@@ -470,6 +515,8 @@ class Cache(object):
     @write_api
     def set_pref(self, name, val):
         self.backend.prefs.set(name, val)
+        if name == 'grouped_search_terms':
+            self._clear_search_caches()
 
     @api
     def get_metadata(self, book_id,
@@ -493,6 +540,10 @@ class Cache(object):
                 mi.cover = self.cover(book_id, as_path=True)
 
         return mi
+
+    @read_api
+    def get_proxy_metadata(self, book_id):
+        return ProxyMetadata(self, book_id)
 
     @api
     def cover(self, book_id,
@@ -741,7 +792,7 @@ class Cache(object):
         '''
         all_book_ids = frozenset(self._all_book_ids() if ids_to_sort is None
                 else ids_to_sort)
-        get_metadata = partial(self._get_metadata, get_user_categories=False)
+        get_metadata = self._get_proxy_metadata
         lang_map = self.fields['languages'].book_value_map
 
         fm = {'title':'sort', 'authors':'author_sort'}
@@ -778,11 +829,14 @@ class Cache(object):
 
     @write_api
     def update_last_modified(self, book_ids, now=None):
-        if now is None:
-            now = nowf()
         if book_ids:
+            if now is None:
+                now = nowf()
             f = self.fields['last_modified']
             f.writer.set_books({book_id:now for book_id in book_ids}, self.backend)
+            if self.composites:
+                self._clear_composite_caches(book_ids)
+            self._clear_search_caches(book_ids)
 
     @write_api
     def mark_as_dirty(self, book_ids):
@@ -799,6 +853,12 @@ class Cache(object):
             new_dirtied = {book_id:self.dirtied_sequence+i for i, book_id in enumerate(new_dirtied)}
             self.dirtied_sequence = max(new_dirtied.itervalues()) + 1
             self.dirtied_cache.update(new_dirtied)
+
+    @write_api
+    def commit_dirty_cache(self):
+        book_ids = [(x,) for x in self.dirtied_cache]
+        if book_ids:
+            self.backend.conn.executemany('INSERT OR IGNORE INTO metadata_dirtied (book) VALUES (?)', book_ids)
 
     @write_api
     def set_field(self, name, book_id_to_val_map, allow_case_change=True, do_path_update=True):
@@ -829,10 +889,6 @@ class Cache(object):
         if is_series and simap:
             sf = self.fields[f.name+'_index']
             dirtied |= sf.writer.set_books(simap, self.backend, allow_case_change=False)
-
-        if dirtied and self.composites:
-            for name in self.composites:
-                self.fields[name].clear_caches(book_ids=dirtied)
 
         if dirtied and update_path and do_path_update:
             self._update_path(dirtied, mark_as_dirtied=False)
@@ -1115,8 +1171,6 @@ class Cache(object):
     def remove_formats(self, formats_map, db_only=False):
         table = self.fields['formats'].table
         formats_map = {book_id:frozenset((f or '').upper() for f in fmts) for book_id, fmts in formats_map.iteritems()}
-        size_map = table.remove_formats(formats_map, self.backend)
-        self.fields['size'].table.update_sizes(size_map)
 
         for book_id, fmts in formats_map.iteritems():
             for fmt in fmts:
@@ -1136,19 +1190,25 @@ class Cache(object):
                     if name and path:
                         self.backend.remove_format(book_id, fmt, name, path)
 
+        size_map = table.remove_formats(formats_map, self.backend)
+        self.fields['size'].table.update_sizes(size_map)
         self._update_last_modified(tuple(formats_map.iterkeys()))
 
     @read_api
-    def get_next_series_num_for(self, series, field='series'):
+    def get_next_series_num_for(self, series, field='series', current_indices=False):
         books = ()
         sf = self.fields[field]
         if series:
             q = icu_lower(series)
-            for val, book_ids in sf.iter_searchable_values(self._get_metadata, frozenset(self._all_book_ids())):
+            for val, book_ids in sf.iter_searchable_values(self._get_proxy_metadata, frozenset(self._all_book_ids())):
                 if q == icu_lower(val):
                     books = book_ids
                     break
-        series_indices = sorted(self._field_for(sf.index_field.name, book_id) for book_id in books)
+        idf = sf.index_field
+        index_map = {book_id:self._fast_field_for(idf, book_id, default_value=1.0) for book_id in books}
+        if current_indices:
+            return index_map
+        series_indices = sorted(index_map.itervalues())
         return _get_next_series_num_for_list(tuple(series_indices), unwrap=False)
 
     @read_api
@@ -1251,6 +1311,8 @@ class Cache(object):
                 continue  # Some fields like ondevice do not have tables
             else:
                 table.remove_books(book_ids, self.backend)
+        self._search_api.discard_books(book_ids)
+        self._clear_caches(book_ids=book_ids, template_cache=False, search_cache=False)
 
     @read_api
     def author_sort_strings_for_books(self, book_ids):
@@ -1354,6 +1416,8 @@ class Cache(object):
     @write_api
     def refresh_ondevice(self):
         self.fields['ondevice'].clear_caches()
+        self.clear_search_caches()
+        self.clear_composite_caches()
 
     @read_api
     def tags_older_than(self, tag, delta=None, must_have_tag=None, must_have_authors=None):
@@ -1449,8 +1513,8 @@ class Cache(object):
         f = self.fields[category]
         if hasattr(f, 'get_books_for_val'):
             # Composite field
-            return f.get_books_for_val(item_id_or_composite_value, self._get_metadata, self._all_book_ids())
-        return self._books_for_field(f.name, item_id_or_composite_value)
+            return f.get_books_for_val(item_id_or_composite_value, self._get_proxy_metadata, self._all_book_ids())
+        return self._books_for_field(f.name, int(item_id_or_composite_value))
 
     @read_api
     def find_identical_books(self, mi, search_restriction='', book_ids=None):
@@ -1528,10 +1592,12 @@ class Cache(object):
     @write_api
     def saved_search_set_all(self, smap):
         self._search_api.saved_searches.set_all(smap)
+        self._clear_search_caches()
 
     @write_api
     def saved_search_delete(self, name):
         self._search_api.saved_searches.delete(name)
+        self._clear_search_caches()
 
     @write_api
     def saved_search_add(self, name, val):
@@ -1540,6 +1606,42 @@ class Cache(object):
     @write_api
     def saved_search_rename(self, old_name, new_name):
         self._search_api.saved_searches.rename(old_name, new_name)
+        self._clear_search_caches()
+
+    @write_api
+    def change_search_locations(self, newlocs):
+        self._search_api.change_locations(newlocs)
+
+    @write_api
+    def dump_and_restore(self, callback=None, sql=None):
+        return self.backend.dump_and_restore(callback=callback, sql=sql)
+
+    @write_api
+    def close(self):
+        self.backend.close()
+
+    @write_api
+    def restore_book(self, book_id, mi, last_modified, path, formats):
+        ''' Restore the book entry in the database for a book that already exists on the filesystem '''
+        cover = mi.cover
+        mi.cover = None
+        self._create_book_entry(mi, add_duplicates=True,
+                force_id=book_id, apply_import_tags=False, preserve_uuid=True)
+        self._update_last_modified((book_id,), last_modified)
+        if cover and os.path.exists(cover):
+            self._set_field('cover', {book_id:1})
+        self.backend.restore_book(book_id, path, formats)
+
+    @read_api
+    def virtual_libraries_for_books(self, book_ids):
+        libraries = tuple(self._pref('virtual_libraries', {}).iterkeys())
+        ans = {book_id:[] for book_id in book_ids}
+        for lib in libraries:
+            books = self._search(lib)  # We deliberately dont use book_ids as we want to use the search cache
+            for book in book_ids:
+                if book in books:
+                    ans[book].append(lib)
+        return {k:tuple(sorted(v, key=sort_key)) for k, v in ans.iteritems()}
 
     # }}}
 
@@ -1556,6 +1658,4 @@ class SortKey(object):  # {{{
                 return ans * order
         return 0
 # }}}
-
-
 

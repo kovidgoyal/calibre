@@ -18,7 +18,7 @@ from calibre.ebooks.metadata import author_to_author_sort
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException, \
                                      InvalidGenresSourceFieldException
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.date import format_date, is_date_undefined, now as nowf
+from calibre.utils.date import format_date, is_date_undefined, now as nowf, as_local_time
 from calibre.utils.filenames import ascii_text, shorten_components_to
 from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.magick.draw import thumbnail
@@ -940,7 +940,7 @@ class CatalogBuilder(object):
             if is_date_undefined(record['pubdate']):
                 this_title['date'] = None
             else:
-                this_title['date'] = strftime(u'%B %Y', record['pubdate'].timetuple())
+                this_title['date'] = strftime(u'%B %Y', as_local_time(record['pubdate']).timetuple())
 
             this_title['timestamp'] = record['timestamp']
 

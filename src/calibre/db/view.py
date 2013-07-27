@@ -127,6 +127,9 @@ class View(object):
         book_id = id_or_index if index_is_id else self._map_filtered[id_or_index]
         return self._field_getters[loc](book_id)
 
+    def sanitize_sort_field_name(self, field):
+        return sanitize_sort_field_name(self.field_metadata, field)
+
     @property
     def field_metadata(self):
         return self.cache.field_metadata
@@ -153,6 +156,9 @@ class View(object):
     def iterallids(self):
         for book_id in sorted(self._map):
             yield book_id
+
+    def tablerow_for_id(self, book_id):
+        return TableRow(book_id, self)
 
     def get_field_map_field(self, row, col, index_is_id=True):
         '''
@@ -290,6 +296,9 @@ class View(object):
     def get_search_restriction_book_count(self):
         return self.search_restriction_book_count
 
+    def change_search_locations(self, newlocs):
+        self.cache.change_search_locations(newlocs)
+
     def set_marked_ids(self, id_dict):
         '''
         ids in id_dict are "marked". They can be searched for by
@@ -301,6 +310,7 @@ class View(object):
         a mapping is provided, then the search can be used to search for
         particular values: ``marked:value``
         '''
+        old_marked_ids = set(self.marked_ids)
         if not hasattr(id_dict, 'items'):
             # Simple list. Make it a dict of string 'true'
             self.marked_ids = dict.fromkeys(id_dict, u'true')
@@ -308,21 +318,44 @@ class View(object):
             # Ensure that all the items in the dict are text
             self.marked_ids = dict(izip(id_dict.iterkeys(), imap(unicode,
                 id_dict.itervalues())))
+        # This invalidates all searches in the cache even though the cache may
+        # be shared by multiple views. This is not ideal, but...
+        self.cache.clear_search_caches(old_marked_ids | set(self.marked_ids))
 
-    def refresh(self, field=None, ascending=True):
+    def refresh(self, field=None, ascending=True, clear_caches=True):
         self._map = tuple(self.cache.all_book_ids())
         self._map_filtered = tuple(self._map)
-        self.cache.clear_caches()
+        if clear_caches:
+            self.cache.clear_caches()
         if field is not None:
             self.sort(field, ascending)
         if self.search_restriction or self.base_restriction:
             self.search('', return_matches=False)
 
-    def refresh_ids(self, db, ids):
+    def refresh_ids(self, ids):
         self.cache.clear_caches(book_ids=ids)
         try:
             return list(map(self.id_to_index, ids))
         except ValueError:
             pass
         return None
+
+    def remove(self, book_id):
+        try:
+            self._map = tuple(bid for bid in self._map if bid != book_id)
+        except ValueError:
+            pass
+        try:
+            self._map_filtered = tuple(bid for bid in self._map_filtered if bid != book_id)
+        except ValueError:
+            pass
+
+    def books_deleted(self, ids):
+        for book_id in ids:
+            self.remove(book_id)
+
+    def books_added(self, ids):
+        ids = tuple(ids)
+        self._map = ids + self._map
+        self._map_filtered = ids + self._map_filtered
 

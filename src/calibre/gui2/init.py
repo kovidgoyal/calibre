@@ -10,7 +10,7 @@ import functools
 from PyQt4.Qt import (Qt, QApplication, QStackedWidget, QMenu, QTimer,
         QSize, QSizePolicy, QStatusBar, QLabel, QFont)
 
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 from calibre.constants import (isosx, __appname__, preferred_encoding,
     get_version)
 from calibre.gui2 import config, is_widescreen, gprefs
@@ -161,8 +161,10 @@ class StatusBar(QStatusBar):  # {{{
 
     def __init__(self, parent=None):
         QStatusBar.__init__(self, parent)
-        self.base_msg = '%s %s' % (__appname__, get_version())
         self.version = get_version()
+        self.base_msg = '%s %s' % (__appname__, self.version)
+        if tweaks.get('use_new_db', False):
+            self.base_msg += ' [newdb]'
         self.device_string = ''
         self.update_label = UpdateLabel('')
         self.total = self.current = self.selected = self.library_total = 0

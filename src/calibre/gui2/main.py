@@ -15,8 +15,6 @@ from calibre.gui2 import (ORG_NAME, APP_UID, initialize_file_icon_provider,
     Application, choose_dir, error_dialog, question_dialog, gprefs)
 from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.utils.config import prefs, dynamic
-from calibre.library.database2 import LibraryDatabase2
-from calibre.library.sqlite import sqlite, DatabaseException
 
 if iswindows:
     winutil = plugins['winutil'][0]
@@ -51,7 +49,8 @@ path_to_ebook to the database.
 
 def find_portable_library():
     base = get_portable_base()
-    if base is None: return
+    if base is None:
+        return
     import glob
     candidates = [os.path.basename(os.path.dirname(x)) for x in glob.glob(
         os.path.join(base, u'*%smetadata.db'%os.sep))]
@@ -123,7 +122,7 @@ def get_default_library_path():
 
 def get_library_path(parent=None):
     library_path = prefs['library_path']
-    if library_path is None: # Need to migrate to new database layout
+    if library_path is None:  # Need to migrate to new database layout
         base = os.path.expanduser('~')
         if iswindows:
             base = winutil.special_folder_path(winutil.CSIDL_PERSONAL)
@@ -181,7 +180,7 @@ class GuiRunner(QObject):
         main = Main(self.opts, gui_debug=self.gui_debug)
         if self.splash_screen is not None:
             self.splash_screen.showMessage(_('Initializing user interface...'))
-        with gprefs: # Only write gui.json after initialization is complete
+        with gprefs:  # Only write gui.json after initialization is complete
             main.initialize(self.library_path, db, self.listener, self.actions)
         if self.splash_screen is not None:
             self.splash_screen.finish(main)
@@ -224,7 +223,7 @@ class GuiRunner(QObject):
 
             try:
                 self.library_path = candidate
-                db = LibraryDatabase2(candidate)
+                db = self.db_class(candidate)
             except:
                 error_dialog(self.splash_screen, _('Bad database location'),
                     _('Bad database location %r. calibre will now quit.'
@@ -235,10 +234,12 @@ class GuiRunner(QObject):
         self.start_gui(db)
 
     def initialize_db(self):
+        from calibre.db import get_db_loader
         db = None
+        self.db_class, errs = get_db_loader()
         try:
-            db = LibraryDatabase2(self.library_path)
-        except (sqlite.Error, DatabaseException):
+            db = self.db_class(self.library_path)
+        except errs:
             repair = question_dialog(self.splash_screen, _('Corrupted database'),
                     _('The library database at %s appears to be corrupted. Do '
                     'you want calibre to try and rebuild it automatically? '
@@ -249,7 +250,7 @@ class GuiRunner(QObject):
                     )
             if repair:
                 if repair_library(self.library_path):
-                    db = LibraryDatabase2(self.library_path)
+                    db = self.db_class(self.library_path)
         except:
             error_dialog(self.splash_screen, _('Bad database location'),
                     _('Bad database location %r. Will start with '
@@ -383,7 +384,7 @@ def shutdown_other(rc=None):
         rc = build_pipe(print_error=False)
         if rc.conn is None:
             prints(_('No running calibre found'))
-            return # No running instance found
+            return  # No running instance found
     from calibre.utils.lock import singleinstance
     rc.conn.send('shutdown:')
     prints(_('Shutdown command sent, waiting for shutdown...'))
@@ -441,7 +442,7 @@ def main(args=sys.argv):
     otherinstance = False
     try:
         listener = Listener(address=gui_socket_address())
-    except socket.error: # Good si is correct (on UNIX)
+    except socket.error:  # Good si is correct (on UNIX)
         otherinstance = True
     else:
         # On windows only singleinstance can be trusted
@@ -458,7 +459,8 @@ if __name__ == '__main__':
     try:
         sys.exit(main())
     except Exception as err:
-        if not iswindows: raise
+        if not iswindows:
+            raise
         tb = traceback.format_exc()
         from PyQt4.QtGui import QErrorMessage
         logfile = os.path.join(os.path.expanduser('~'), 'calibre.log')
@@ -469,4 +471,5 @@ if __name__ == '__main__':
                 '%s<b>Log:</b><br>%s')%(unicode(err),
                     unicode(tb).replace('\n', '<br>'),
                     log.replace('\n', '<br>')))
+
 

@@ -11,8 +11,8 @@ from operator import itemgetter
 
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.library.database2 import LibraryDatabase2
-from calibre.library.prefs import DBPrefs
+from calibre.db.backend import DB, DBPrefs
+from calibre.db.cache import Cache
 from calibre.constants import filesystem_encoding
 from calibre.utils.date import utcfromtimestamp
 from calibre import isbytestring
@@ -22,15 +22,17 @@ NON_EBOOK_EXTENSIONS = frozenset([
         'opf', 'swp', 'swo'
         ])
 
-class RestoreDatabase(LibraryDatabase2):
+class Restorer(Cache):
 
-    PATH_LIMIT = 10
-    WINDOWS_LIBRARY_PATH_LIMIT = 180
+    def __init__(self, library_path, default_prefs=None, restore_all_prefs=False, progress_callback=lambda x, y:True):
+        backend = DB(library_path, default_prefs=default_prefs, restore_all_prefs=restore_all_prefs, progress_callback=progress_callback)
+        Cache.__init__(self, backend)
+        for x in ('update_path', 'mark_as_dirty'):
+            setattr(self, x, self.no_op)
+            setattr(self, '_' + x, self.no_op)
+        self.init()
 
-    def set_path(self, *args, **kwargs):
-        pass
-
-    def dirtied(self, *args, **kwargs):
+    def no_op(self, *args, **kwargs):
         pass
 
 class Restore(Thread):
@@ -58,8 +60,8 @@ class Restore(Thread):
 
     @property
     def errors_occurred(self):
-        return self.failed_dirs or self.mismatched_dirs or \
-                self.conflicting_custom_cols or self.failed_restores
+        return (self.failed_dirs or self.mismatched_dirs or
+                self.conflicting_custom_cols or self.failed_restores)
 
     @property
     def report(self):
@@ -93,9 +95,7 @@ class Restore(Thread):
             for x in self.mismatched_dirs:
                 ans += '\t'+x+'\n'
 
-
         return ans
-
 
     def run(self):
         try:
@@ -126,10 +126,9 @@ class Restore(Thread):
             return False
         try:
             prefs = DBPrefs.read_serialized(self.src_library_path, recreate_prefs=False)
-            db = RestoreDatabase(self.library_path, default_prefs=prefs,
+            db = Restorer(self.library_path, default_prefs=prefs,
                                  restore_all_prefs=True,
                                  progress_callback=self.progress_callback)
-            db.commit()
             db.close()
             self.progress_callback(None, 1)
             if 'field_metadata' in prefs:
@@ -226,48 +225,33 @@ class Restore(Thread):
                             self.conflicting_custom_cols[label].append(self.custom_columns[label])
                     self.custom_columns[label] = args
 
-        db = RestoreDatabase(self.library_path)
+        db = Restorer(self.library_path)
         self.progress_callback(None, len(self.custom_columns))
         if len(self.custom_columns):
-            for i,args in enumerate(self.custom_columns.values()):
+            for i, args in enumerate(self.custom_columns.values()):
                 db.create_custom_column(*args)
-                self.progress_callback(_('creating custom column ')+args[0], i+1)
+                self.progress_callback(_('Creating custom column ')+args[0], i+1)
         db.close()
 
     def restore_books(self):
         self.progress_callback(None, len(self.books))
         self.books.sort(key=itemgetter('id'))
 
-        db = RestoreDatabase(self.library_path)
+        db = Restorer(self.library_path)
 
         for i, book in enumerate(self.books):
             try:
-                self.restore_book(book, db)
+                db.restore_book(book['id'], book['mi'], utcfromtimestamp(book['timestamp']), book['path'], book['formats'])
+                self.successes += 1
             except:
                 self.failed_restores.append((book, traceback.format_exc()))
             self.progress_callback(book['mi'].title, i+1)
 
-        for author in self.authors_links.iterkeys():
-            link, ign = self.authors_links[author]
-            db.conn.execute('UPDATE authors SET link=? WHERE name=?',
-                            (link, author.replace(',', '|')))
-        db.conn.commit()
+        id_map = db.get_item_ids('authors', [author for author in self.authors_links])
+        link_map = {aid:self.authors_links[name][0] for name, aid in id_map.iteritems() if aid is not None}
+        if link_map:
+            db.set_link_for_authors(link_map)
         db.close()
-
-    def restore_book(self, book, db):
-        db.create_book_entry(book['mi'], add_duplicates=True,
-                force_id=book['id'])
-        if book['mi'].uuid:
-            db.set_uuid(book['id'], book['mi'].uuid, commit=False, notify=False)
-        db.conn.execute('UPDATE books SET path=?,last_modified=? WHERE id=?', (book['path'],
-            utcfromtimestamp(book['timestamp']), book['id']))
-
-        for fmt, size, name in book['formats']:
-            db.conn.execute('''
-                INSERT INTO data (book,format,uncompressed_size,name)
-                VALUES (?,?,?,?)''', (book['id'], fmt, size, name))
-        db.conn.commit()
-        self.successes += 1
 
     def replace_db(self):
         dbpath = os.path.join(self.src_library_path, 'metadata.db')
@@ -278,4 +262,5 @@ class Restore(Thread):
             os.remove(save_path)
         os.rename(dbpath, save_path)
         shutil.copyfile(ndbpath, dbpath)
+
 

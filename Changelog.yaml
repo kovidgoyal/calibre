@@ -20,6 +20,47 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.41
+  date: 2013-07-27
+
+  new features:
+    - title: "Add a button to clear the current virtual library easily"
+
+    - title: "Driver for Surftab Ventos"
+      tickets: [1204885]
+
+    - title: "Ebook-viewer: Allow re-ordering bookmarks in the bookmarks manager by drag and drop."
+ 
+  bug fixes:
+    - title: "DOCX Input: Fix conversion breaking for files that use heading style paragraphs to insert line rules"
+
+    - title: "Content server: Fix last search query not being fully sanitized in results page"
+      tickets: [1205385]
+
+    - title: "Book polishing: Fix page margins being removed if an unused font was found during subsetting of embedded fonts."
+
+    - title: "PDF Output: Do not error out when the input document uses a font that cannot be subset, such as the Symbol font. Instead print a warning and embed the full font."
+      tickets: [1203449]
+
+    - title: "Conversion: Fix a regression in the last release that broke conversion of a few files with comments just before a chapter start."
+      tickets: [1188635]
+
+  improved recipes:
+    - Something Awful
+    - Spektrum der Wissenschaft
+    - mediapart.fr
+    - Dilbert 
+    - Antyweb
+    - Scientific American
+    - taz.de (RSS)
+
+  new recipes:
+    - title: Blindbuch and No names, No jackets
+      author: Armin Geller
+
+    - title: El Tribuno Salta and Jujuy 
+      author: Darko Miletic
+
 - version: 0.9.40
   date: 2013-07-19
 

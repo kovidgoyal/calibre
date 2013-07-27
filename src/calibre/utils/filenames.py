@@ -3,7 +3,7 @@ Make strings safe for use as ASCII filenames, while trying to preserve as much
 meaning as possible.
 '''
 
-import os, errno
+import os, errno, time
 from math import ceil
 
 from calibre import sanitize_file_name, isbytestring, force_unicode
@@ -257,6 +257,19 @@ def samefile(src, dst):
             os.path.normcase(os.path.abspath(dst)))
     return samestring
 
+def windows_get_size(path):
+    ''' On windows file sizes are only accurately stored in the actual file,
+    not in the directory entry (which could be out of date). So we open the
+    file, and get the actual size. '''
+    import win32file
+    h = win32file.CreateFile(
+        path, 0, win32file.FILE_SHARE_READ | win32file.FILE_SHARE_WRITE | win32file.FILE_SHARE_DELETE,
+        None, win32file.OPEN_EXISTING, 0, None)
+    try:
+        return win32file.GetFileSize(h)
+    finally:
+        win32file.CloseHandle(h)
+
 def windows_hardlink(src, dest):
     import win32file, pywintypes
     try:
@@ -264,17 +277,21 @@ def windows_hardlink(src, dest):
     except pywintypes.error as e:
         msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
         raise Exception(msg % e)
+    src_size = os.path.getsize(src)
     # We open and close dest, to ensure its directory entry is updated
     # see http://blogs.msdn.com/b/oldnewthing/archive/2011/12/26/10251026.aspx
-    h = win32file.CreateFile(
-        dest, 0, win32file.FILE_SHARE_READ | win32file.FILE_SHARE_WRITE | win32file.FILE_SHARE_DELETE,
-        None, win32file.OPEN_EXISTING, 0, None)
-    try:
-        sz = win32file.GetFileSize(h)
-    finally:
-        win32file.CloseHandle(h)
+    for i in range(10):
+        # If we are on a network filesystem, we have to wait for some indeterminate time, since
+        # network file systems are the best thing since sliced bread
+        try:
+            if windows_get_size(dest) == src_size:
+                return
+        except EnvironmentError:
+            pass
+        time.sleep(0.3)
 
-    if sz != os.path.getsize(src):
+    sz = windows_get_size(dest)
+    if sz != src_size:
         msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
         raise Exception(msg % ('hardlink size: %d not the same as source size' % sz))
 
@@ -383,4 +400,12 @@ def hardlink_file(src, dest):
         return
     os.link(src, dest)
 
-
+def atomic_rename(oldpath, newpath):
+    '''Replace the file newpath with the file oldpath. Can fail if the files
+    are on different volumes. If succeeds, guaranteed to be atomic. newpath may
+    or may not exist. If it exists, it is replaced. '''
+    if iswindows:
+        import win32file
+        win32file.MoveFileEx(oldpath, newpath, win32file.MOVEFILE_REPLACE_EXISTING|win32file.MOVEFILE_WRITE_THROUGH)
+    else:
+        os.rename(oldpath, newpath)

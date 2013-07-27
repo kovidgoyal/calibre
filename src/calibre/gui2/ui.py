@@ -22,7 +22,7 @@ from calibre import prints, force_unicode
 from calibre.constants import __appname__, isosx, filesystem_encoding
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
-from calibre.library.database2 import LibraryDatabase2
+from calibre.db import get_db_loader
 from calibre.customize.ui import interface_actions, available_store_plugins
 from calibre.gui2 import (error_dialog, GetMetadata, open_url,
         gprefs, max_available_height, config, info_dialog, Dispatcher,
@@ -42,7 +42,6 @@ from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_browser.ui import TagBrowserMixin
 from calibre.gui2.keyboard import Manager
 from calibre.gui2.auto_add import AutoAdder
-from calibre.library.sqlite import sqlite, DatabaseException
 from calibre.gui2.proceed import ProceedQuestion
 from calibre.gui2.dialogs.message_box import JobError
 from calibre.gui2.job_indicator import Pointer
@@ -572,12 +571,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 default_prefs = olddb.prefs
 
             from calibre.utils.formatter_functions import unload_user_template_functions
-            unload_user_template_functions(olddb.library_id )
+            unload_user_template_functions(olddb.library_id)
         except:
             olddb = None
+        db_class, errs = get_db_loader()
         try:
-            db = LibraryDatabase2(newloc, default_prefs=default_prefs)
-        except (DatabaseException, sqlite.Error):
+            db = db_class(newloc, default_prefs=default_prefs)
+        except errs:
             if not allow_rebuild:
                 raise
             import traceback
@@ -591,7 +591,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             if repair:
                 from calibre.gui2.dialogs.restore_library import repair_library_at
                 if repair_library_at(newloc, parent=self):
-                    db = LibraryDatabase2(newloc, default_prefs=default_prefs)
+                    db = db_class(newloc, default_prefs=default_prefs)
                 else:
                     return
             else:
@@ -622,7 +622,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if olddb is not None:
             try:
                 if call_close:
-                    olddb.conn.close()
+                    olddb.close()
             except:
                 import traceback
                 traceback.print_exc()
@@ -876,7 +876,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 try:
                     self.shutdown(write_settings=False)
                 except:
-                    pass
+                    import traceback
+                    traceback.print_exc()
                 e.accept()
             else:
                 e.ignore()

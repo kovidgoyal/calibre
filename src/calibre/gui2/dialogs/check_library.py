@@ -4,11 +4,12 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 import os, shutil
+from threading import Thread
 
 from PyQt4.Qt import (QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel,
             QPushButton, QDialogButtonBox, QApplication, QTreeWidgetItem,
             QLineEdit, Qt, QProgressBar, QSize, QTimer, QIcon, QTextEdit,
-            QSplitter, QWidget)
+            QSplitter, QWidget, pyqtSignal)
 
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.check_library import CheckLibrary, CHECKS
@@ -17,7 +18,64 @@ from calibre import prints, as_unicode
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.library.sqlite import DBThread, OperationalError
 
-class DBCheck(QDialog): # {{{
+class DBCheckNew(QDialog):  # {{{
+
+    update_msg = pyqtSignal(object)
+
+    def __init__(self, parent, db):
+        QDialog.__init__(self, parent)
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
+        self.l1 = QLabel(_('Checking database integrity') + ' ' +
+                         _('This will take a while, please wait...'))
+        self.setWindowTitle(_('Checking database integrity'))
+        self.l1.setWordWrap(True)
+        self.l.addWidget(self.l1)
+        self.msg = QLabel('')
+        self.update_msg.connect(self.msg.setText, type=Qt.QueuedConnection)
+        self.l.addWidget(self.msg)
+        self.msg.setWordWrap(True)
+        self.bb = QDialogButtonBox(QDialogButtonBox.Cancel)
+        self.l.addWidget(self.bb)
+        self.bb.rejected.connect(self.reject)
+        self.resize(self.sizeHint() + QSize(100, 50))
+        self.error = None
+        self.db = db.new_api
+        self.closed_orig_conn = False
+        self.rejected = False
+
+    def start(self):
+        t = self.thread = Thread(target=self.dump_and_restore)
+        t.daemon = True
+        t.start()
+        QTimer.singleShot(100, self.check)
+        self.exec_()
+
+    def dump_and_restore(self):
+        try:
+            self.db.dump_and_restore(self.update_msg.emit)
+        except Exception as e:
+            import traceback
+            self.error = (as_unicode(e), traceback.format_exc())
+
+    def reject(self):
+        self.rejected = True
+        return QDialog.reject(self)
+
+    def check(self):
+        if self.rejected:
+            return
+        if self.thread.is_alive():
+            QTimer.singleShot(100, self.check)
+        else:
+            self.accept()
+
+    def break_cycles(self):
+        self.db = self.thread = None
+
+# }}}
+
+class DBCheck(QDialog):  # {{{
 
     def __init__(self, parent, db):
         QDialog.__init__(self, parent)
@@ -45,7 +103,7 @@ class DBCheck(QDialog): # {{{
         self.user_version = self.db.user_version
         self.rejected = False
         self.db.clean()
-        self.db.conn.close()
+        self.db.close()
         self.closed_orig_conn = True
         t = DBThread(self.db.dbpath, False)
         t.connect()
@@ -80,7 +138,7 @@ class DBCheck(QDialog): # {{{
             self.pb.setMaximum(self.count)
             self.pb.setValue(0)
             self.msg.setText(_('Loading database from SQL'))
-            self.db.conn.close()
+            self.db.close()
             self.ndbpath = PersistentTemporaryFile('.db')
             self.ndbpath.close()
             self.ndbpath = self.ndbpath.name
@@ -95,7 +153,6 @@ class DBCheck(QDialog): # {{{
             import traceback
             self.error = (as_unicode(e), traceback.format_exc())
             self.reject()
-
 
     def do_one_load(self):
         if self.rejected:
@@ -338,7 +395,7 @@ class CheckLibraryDialog(QDialog):
 
         t = self.log
         t.clear()
-        t.setColumnCount(2);
+        t.setColumnCount(2)
         t.setHeaderLabels([_('Name'), _('Path from library')])
         self.all_items = []
         self.top_level_items = {}
@@ -396,7 +453,7 @@ class CheckLibraryDialog(QDialog):
         tl = self.top_level_items['missing_formats']
         child_count = tl.childCount()
         for i in range(0, child_count):
-            item = tl.child(i);
+            item = tl.child(i)
             id = item.data(0, Qt.UserRole).toInt()[0]
             all = self.db.formats(id, index_is_id=True, verify_formats=False)
             all = set([f.strip() for f in all.split(',')]) if all else set()
@@ -409,7 +466,7 @@ class CheckLibraryDialog(QDialog):
         tl = self.top_level_items['missing_covers']
         child_count = tl.childCount()
         for i in range(0, child_count):
-            item = tl.child(i);
+            item = tl.child(i)
             id = item.data(0, Qt.UserRole).toInt()[0]
             self.db.set_has_cover(id, False)
 
@@ -417,7 +474,7 @@ class CheckLibraryDialog(QDialog):
         tl = self.top_level_items['extra_covers']
         child_count = tl.childCount()
         for i in range(0, child_count):
-            item = tl.child(i);
+            item = tl.child(i)
             id = item.data(0, Qt.UserRole).toInt()[0]
             self.db.set_has_cover(id, True)
 
@@ -441,3 +498,4 @@ if __name__ == '__main__':
     from calibre.library import db
     d = CheckLibraryDialog(None, db())
     d.exec_()
+

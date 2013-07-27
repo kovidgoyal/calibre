@@ -21,21 +21,9 @@ class AntywebRecipe(BasicNewsRecipe):
     simultaneous_downloads = 3
 
     keep_only_tags =[]
-    keep_only_tags.append(dict(name = 'h1', attrs = { 'class' : 'mm-article-title'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'mm-article-content'}))
-
-
-    remove_tags =[]
-    remove_tags.append(dict(name = 'h2', attrs = {'class' : 'widgettitle'}))
-    remove_tags.append(dict(name = 'img', attrs = {'class' : 'alignleft'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'float: right;margin-left:1em;margin-bottom: 0.5em;padding-bottom: 3px; width: 72px;'}))
-    remove_tags.append(dict(name = 'img', attrs = {'src' : 'http://antyweb.pl/wp-content/uploads/2011/09/HOSTERSI_testy_pasek600x30.gif'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'podwpisowe'}))
-
-
-    extra_css = '''
-                    body {font-family: verdana, arial, helvetica, geneva, sans-serif ;}
-                       '''
+    keep_only_tags.append(dict(name = 'h1', attrs = { 'class' : 'entry-title '}))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'news-content'}))
+    extra_css = '''body {font-family: verdana, arial, helvetica, geneva, sans-serif ;}'''
 
     feeds          = [
                             (u'Artykuly', u'feed://feeds.feedburner.com/Antyweb?format=xml'),

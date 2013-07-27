@@ -42,6 +42,8 @@ NULL_VALUES = {
 
 field_metadata = FieldMetadata()
 
+ck = lambda typ: icu_lower(typ).strip().replace(':', '').replace(',', '')
+cv = lambda val: val.strip().replace(',', '|').replace(':', '|')
 
 class Metadata(object):
 
@@ -64,7 +66,8 @@ class Metadata(object):
     becomes a reserved field name.
     '''
 
-    def __init__(self, title, authors=(_('Unknown'),), other=None, template_cache=None):
+    def __init__(self, title, authors=(_('Unknown'),), other=None, template_cache=None,
+                 formatter=None):
         '''
         @param title: title or ``_('Unknown')``
         @param authors: List of strings or []
@@ -80,10 +83,10 @@ class Metadata(object):
                 self.title = title
             if authors:
                 # List of strings or []
-                self.author = list(authors) if authors else []# Needed for backward compatibility
+                self.author = list(authors) if authors else []  # Needed for backward compatibility
                 self.authors = list(authors) if authors else []
         from calibre.ebooks.metadata.book.formatter import SafeFormat
-        self.formatter = SafeFormat()
+        self.formatter = SafeFormat() if formatter is None else formatter
         self.template_cache = template_cache
 
     def is_null(self, field):
@@ -224,9 +227,9 @@ class Metadata(object):
 
     def _clean_identifier(self, typ, val):
         if typ:
-            typ = icu_lower(typ).strip().replace(':', '').replace(',', '')
+            typ = ck(typ)
         if val:
-            val = val.strip().replace(',', '|').replace(':', '|')
+            val = cv(val)
         return typ, val
 
     def set_identifiers(self, identifiers):
@@ -234,11 +237,7 @@ class Metadata(object):
         Set all identifiers. Note that if you previously set ISBN, calling
         this method will delete it.
         '''
-        cleaned = {}
-        for key, val in identifiers.iteritems():
-            key, val = self._clean_identifier(key, val)
-            if key and val:
-                cleaned[key] = val
+        cleaned = {ck(k):cv(v) for k, v in identifiers.iteritems() if k and v}
         object.__getattribute__(self, '_data')['identifiers'] = cleaned
 
     def set_identifier(self, typ, val):
@@ -429,8 +428,7 @@ class Metadata(object):
             try:
                 src = op[0]
                 dest = op[1]
-                val = formatter.safe_format\
-                    (src, other, 'PLUGBOARD TEMPLATE ERROR', other)
+                val = formatter.safe_format(src, other, 'PLUGBOARD TEMPLATE ERROR', other)
                 if dest == 'tags':
                     self.set(dest, [f.strip() for f in val.split(',') if f.strip()])
                 elif dest == 'authors':
@@ -476,7 +474,7 @@ class Metadata(object):
         if replace_metadata:
             # SPECIAL_FIELDS = frozenset(['lpath', 'size', 'comments', 'thumbnail'])
             for attr in SC_COPYABLE_FIELDS:
-                setattr(self, attr, getattr(other, attr, 1.0 if \
+                setattr(self, attr, getattr(other, attr, 1.0 if
                         attr == 'series_index' else None))
             self.tags = other.tags
             self.cover_data = getattr(other, 'cover_data',
@@ -507,8 +505,10 @@ class Metadata(object):
             if getattr(other, 'cover_data', False):
                 other_cover = other.cover_data[-1]
                 self_cover = self.cover_data[-1] if self.cover_data else ''
-                if not self_cover: self_cover = ''
-                if not other_cover: other_cover = ''
+                if not self_cover:
+                    self_cover = ''
+                if not other_cover:
+                    other_cover = ''
                 if len(other_cover) > len(self_cover):
                     self.cover_data = other.cover_data
 
@@ -517,7 +517,7 @@ class Metadata(object):
                     meta = other.get_user_metadata(x, make_copy=True)
                     if meta is not None:
                         self_tags = self.get(x, [])
-                        self.set_user_metadata(x, meta) # get... did the deepcopy
+                        self.set_user_metadata(x, meta)  # get... did the deepcopy
                         other_tags = other.get(x, [])
                         if meta['datatype'] == 'text' and meta['is_multiple']:
                             # Case-insensitive but case preserving merging
@@ -607,7 +607,7 @@ class Metadata(object):
 
         # Handle custom series index
         if key.startswith('#') and key.endswith('_index'):
-            tkey = key[:-6] # strip the _index
+            tkey = key[:-6]  # strip the _index
             cmeta = self.get_user_metadata(tkey, make_copy=False)
             if cmeta and cmeta['datatype'] == 'series':
                 if self.get(tkey):
@@ -698,7 +698,7 @@ class Metadata(object):
         if self.title_sort:
             fmt('Title sort', self.title_sort)
         if self.authors:
-            fmt('Author(s)',  authors_to_string(self.authors) + \
+            fmt('Author(s)',  authors_to_string(self.authors) +
                ((' [' + self.author_sort + ']')
                 if self.author_sort and self.author_sort != _('Unknown') else ''))
         if self.publisher:
@@ -803,5 +803,6 @@ def field_from_string(field, raw, field_metadata):
     if val is object:
         val = raw
     return val
+
 
 

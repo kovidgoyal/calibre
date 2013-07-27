@@ -8,11 +8,11 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import (QDialog, QLabel, QVBoxLayout, QDialogButtonBox,
         QProgressBar, QSize, QTimer, pyqtSignal, Qt)
 
-from calibre.library.restore import Restore
 from calibre.gui2 import (error_dialog, question_dialog, warning_dialog,
     info_dialog)
 from calibre import force_unicode
 from calibre.constants import filesystem_encoding
+from calibre.utils.config_base import tweaks
 
 class DBRestore(QDialog):
 
@@ -42,12 +42,15 @@ class DBRestore(QDialog):
         self.library_path = library_path
         self.update_signal.connect(self.do_update, type=Qt.QueuedConnection)
 
+        if tweaks.get('use_new_db', False):
+            from calibre.db.restore import Restore
+        else:
+            from calibre.library.restore import Restore
         self.restorer = Restore(library_path, self)
         self.restorer.daemon = True
 
         # Give the metadata backup thread time to stop
         QTimer.singleShot(2000, self.start)
-
 
     def start(self):
         self.restorer.start()
@@ -103,7 +106,7 @@ def restore_database(db, parent=None):
                 'blank list of books.'
                 '<p>Do you want to restore the database?')):
         return False
-    db.conn.close()
+    db.close()
     d = DBRestore(parent, db.library_path)
     d.exec_()
     r = d.restorer
@@ -131,5 +134,6 @@ def repair_library_at(library_path, parent=None):
         return False
     _show_success_msg(r, parent=parent)
     return True
+
 
 

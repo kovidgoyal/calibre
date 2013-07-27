@@ -65,6 +65,7 @@ class LibraryDatabase(object):
         cache.init()
         self.data = View(cache)
         self.id = self.data.index_to_id
+        self.row = self.data.id_to_index
         for x in ('get_property', 'count', 'refresh_ids', 'set_marked_ids',
                   'multisort', 'search', 'search_getting_ids'):
             setattr(self, x, getattr(self.data, x))
@@ -78,7 +79,7 @@ class LibraryDatabase(object):
             set_saved_searches(self, 'saved_searches')
 
     def close(self):
-        self.backend.close()
+        self.new_api.close()
 
     def break_cycles(self):
         delattr(self.backend, 'field_metadata')
@@ -117,7 +118,9 @@ class LibraryDatabase(object):
 
     def check_if_modified(self):
         if self.last_modified() > self.last_update_check:
+            self.backend.reopen()
             self.new_api.reload_from_db()
+            self.data.refresh(clear_caches=False)  # caches are already cleared by reload_from_db()
         self.last_update_check = utcnow()
 
     @property
@@ -198,7 +201,9 @@ class LibraryDatabase(object):
 
     # Adding books {{{
     def create_book_entry(self, mi, cover=None, add_duplicates=True, force_id=None):
-        return self.new_api.create_book_entry(mi, cover=cover, add_duplicates=add_duplicates, force_id=force_id)
+        ret = self.new_api.create_book_entry(mi, cover=cover, add_duplicates=add_duplicates, force_id=force_id)
+        self.data.books_added((ret,))
+        return ret
 
     def add_books(self, paths, formats, metadata, add_duplicates=True, return_ids=False):
         books = [(mi, {fmt:path}) for mi, path, fmt in zip(metadata, paths, formats)]
@@ -212,6 +217,7 @@ class LibraryDatabase(object):
                     paths.append(path)
             duplicates = (paths, formats, metadata)
         ids = book_ids if return_ids else len(book_ids)
+        self.data.books_added(book_ids)
         return duplicates or None, ids
 
     def import_book(self, mi, formats, notify=True, import_hooks=True, apply_import_tags=True, preserve_uuid=False):
@@ -223,6 +229,7 @@ class LibraryDatabase(object):
             format_map[ext] = path
         book_ids, duplicates = self.new_api.add_books(
             [(mi, format_map)], add_duplicates=True, apply_import_tags=apply_import_tags, preserve_uuid=preserve_uuid, dbapi=self, run_hooks=import_hooks)
+        self.data.books_added(book_ids)
         if notify:
             self.notify('add', book_ids)
         return book_ids[0]
@@ -242,10 +249,14 @@ class LibraryDatabase(object):
         return recursive_import(self, root, single_book_per_directory=single_book_per_directory, callback=callback, added_ids=added_ids)
 
     def add_catalog(self, path, title):
-        return add_catalog(self.new_api, path, title)
+        book_id = add_catalog(self.new_api, path, title)
+        self.data.books_added((book_id,))
+        return book_id
 
     def add_news(self, path, arg):
-        return add_news(self.new_api, path, arg)
+        book_id = add_news(self.new_api, path, arg)
+        self.data.books_added((book_id,))
+        return book_id
 
     def add_format(self, index, fmt, stream, index_is_id=False, path=None, notify=True, replace=True, copy_function=None):
         ''' path and copy_function are ignored by the new API '''
@@ -318,11 +329,15 @@ class LibraryDatabase(object):
 
     def delete_book(self, book_id, notify=True, commit=True, permanent=False, do_clean=True):
         self.new_api.remove_books((book_id,), permanent=permanent)
+        self.data.books_deleted((book_id,))
         if notify:
-            self.notify('delete', [id])
+            self.notify('delete', [book_id])
 
     def dirtied(self, book_ids, commit=True):
-        self.new_api.mark_as_dirty(book_ids)
+        self.new_api.mark_as_dirty(frozenset(book_ids) if book_ids is not None else book_ids)
+
+    def dirty_queue_length(self):
+        return self.new_api.dirty_queue_length()
 
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True, commit=True, callback=None):
         self.new_api.dump_metadata(book_ids=book_ids, remove_from_dirtied=remove_from_dirtied, callback=callback)
@@ -890,6 +905,7 @@ LibraryDatabase.saved_search_set_all = MT(lambda self, smap:self.new_api.saved_s
 LibraryDatabase.saved_search_delete = MT(lambda self, x:self.new_api.saved_search_delete(x))
 LibraryDatabase.saved_search_add = MT(lambda self, x, y:self.new_api.saved_search_add(x, y))
 LibraryDatabase.saved_search_rename = MT(lambda self, x, y:self.new_api.saved_search_rename(x, y))
+LibraryDatabase.commit_dirty_cache = MT(lambda self: self.new_api.commit_dirty_cache())
 # Cleaning is not required anymore
 LibraryDatabase.clean = LibraryDatabase.clean_custom = MT(lambda self:None)
 LibraryDatabase.clean_standard_field = MT(lambda self, field, commit=False:None)
@@ -898,9 +914,4 @@ LibraryDatabase.commit = MT(lambda self:None)
 # }}}
 
 del MT
-
-
-
-
-
 

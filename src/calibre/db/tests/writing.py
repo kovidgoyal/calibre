@@ -543,3 +543,32 @@ class WritingTest(BaseTest):
             self.assertEqual(c.field_for('#series_index', 1), 3.0)
             self.assertEqual(c.field_for('#series_index', 2), 4.0)
     # }}}
+
+    def test_composite(self):  # {{{
+        ' Test that the composite field cache is properly invalidated on writes '
+        cache = self.init_cache()
+        cache.create_custom_column('tc', 'TC', 'composite', False, display={
+            'composite_template':'{title} {author_sort} {title_sort} {formats} {tags} {series} {series_index}'})
+        cache = self.init_cache()
+
+        def test_invalidate():
+            c = self.init_cache()
+            for bid in cache.all_book_ids():
+                self.assertEqual(cache.field_for('#tc', bid), c.field_for('#tc', bid))
+
+        cache.set_field('title', {1:'xx', 3:'yy'})
+        test_invalidate()
+        cache.set_field('series_index', {1:9, 3:11})
+        test_invalidate()
+        cache.rename_items('tags', {cache.get_item_id('tags', 'Tag One'):'xxx', cache.get_item_id('tags', 'News'):'news'})
+        test_invalidate()
+        cache.remove_items('tags', (cache.get_item_id('tags', 'news'),))
+        test_invalidate()
+        cache.set_sort_for_authors({cache.get_item_id('authors', 'Author One'):'meow'})
+        test_invalidate()
+        cache.remove_formats({1:{'FMT1'}})
+        test_invalidate()
+        cache.add_format(1, 'ADD', BytesIO(b'xxxx'))
+        test_invalidate()
+    # }}}
+
