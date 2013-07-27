@@ -199,15 +199,18 @@ def command_list(args, dbpath):
             afields.add('*'+f)
             if data['datatype'] == 'series':
                 afields.add('*'+f+'_index')
-    fields = [str(f.strip().lower()) for f in opts.fields.split(',')]
-    if 'all' in fields:
-        fields = sorted(list(afields))
-    if not set(fields).issubset(afields):
-        parser.print_help()
-        print
-        prints(_('Invalid fields. Available fields:'),
-                ','.join(sorted(afields)), file=sys.stderr)
-        return 1
+    if opts.fields.strip():
+        fields = [str(f.strip().lower()) for f in opts.fields.split(',')]
+        if 'all' in fields:
+            fields = sorted(list(afields))
+        if not set(fields).issubset(afields):
+            parser.print_help()
+            print
+            prints(_('Invalid fields. Available fields:'),
+                    ','.join(sorted(afields)), file=sys.stderr)
+            return 1
+    else:
+        fields = []
 
     if not opts.sort_by in afields and opts.sort_by is not None:
         parser.print_help()
