@@ -920,7 +920,8 @@ class ResultCache(SearchQueryParser):  # {{{
 
     def remove(self, id):
         try:
-            self._uuid_map.pop(self._data[id][self._uuid_column_index], None)
+            if self._data[id] is not None:
+                self._uuid_map.pop(self._data[id][self._uuid_column_index], None)
         except IndexError:
             pass  # id is out of bounds -- no uuid in the map to remove
         try:
