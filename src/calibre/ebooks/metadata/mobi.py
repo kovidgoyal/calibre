@@ -169,10 +169,11 @@ class MetadataUpdater(object):
                 self.timestamp = content
             elif id == 201:
                 rindex, = self.cover_rindex, = unpack('>I', content)
-                self.cover_record = self.record(rindex + image_base)
+                if rindex != 0xffffffff:
+                    self.cover_record = self.record(rindex + image_base)
             elif id == 202:
                 rindex, = self.thumbnail_rindex, = unpack('>I', content)
-                if rindex > 0 :
+                if rindex > 0 and rindex != 0xffffffff:
                     self.thumbnail_record = self.record(rindex + image_base)
 
     def patch(self, off, new_record0):
