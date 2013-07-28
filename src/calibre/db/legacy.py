@@ -143,7 +143,7 @@ class LibraryDatabase(object):
         self.data.cache.initialize_template_cache()
 
     def all_ids(self):
-        for book_id in self.data.cache.all_book_ids():
+        for book_id in self.new_api.all_book_ids():
             yield book_id
 
     def is_empty(self):
@@ -510,7 +510,7 @@ class LibraryDatabase(object):
                 self.new_api._remove_items('tags', tag_ids)
 
     def has_id(self, book_id):
-        return book_id in self.new_api.all_book_ids()
+        return self.new_api.has_id(book_id)
 
     def format(self, index, fmt, index_is_id=False, as_file=False, mode='r+b', as_path=False, preserve_filename=False):
         book_id = index if index_is_id else self.id(index)

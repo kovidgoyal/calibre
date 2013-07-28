@@ -401,7 +401,7 @@ class Cache(object):
         '''
         Frozen set of all known book ids.
         '''
-        return type(self.fields['uuid'])
+        return type(self.fields['uuid'].table.book_col_map)
 
     @read_api
     def all_field_ids(self, name):
@@ -1235,6 +1235,10 @@ class Cache(object):
                 if q == icu_lower(title):
                     return True
         return False
+
+    @read_api
+    def has_id(self, book_id):
+        return book_id in self.fields['title'].table.book_col_map
 
     @write_api
     def create_book_entry(self, mi, cover=None, add_duplicates=True, force_id=None, apply_import_tags=True, preserve_uuid=False):
