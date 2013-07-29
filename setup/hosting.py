@@ -507,7 +507,7 @@ def upload_to_servers(files, version):  # {{{
 # }}}
 
 def upload_to_dbs(files, version):  # {{{
-    print('Uploading to downloadbestsoftware.com')
+    print('Uploading to fosshub.com')
     server = 'www.downloadbestsoft-mirror1.com'
     rdir = 'release/'
     check_call(['ssh', 'kovid@%s' % server, 'rm -f release/*'])
