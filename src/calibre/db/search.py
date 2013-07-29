@@ -619,7 +619,10 @@ class Parser(SearchQueryParser):  # {{{
             if x.startswith('@'):
                 continue
             if fm['search_terms'] and x != 'series_sort':
-                all_locs.add(x)
+                if x not in self.virtual_fields:
+                    # We dont search virtual fields because if we do, search
+                    # caching will not be used
+                    all_locs.add(x)
                 field_metadata[x] = fm
                 if fm['datatype'] in {'composite', 'text', 'comments', 'series', 'enumeration'}:
                     text_fields.add(x)
