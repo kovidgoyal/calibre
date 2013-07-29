@@ -710,3 +710,7 @@ def ipython(user_ns=None):
     from calibre.utils.ipython import ipython
     ipython(user_ns=user_ns)
 
+def fsync(fileobj):
+    fileobj.flush()
+    os.fsync(fileobj.fileno())
+

@@ -8,6 +8,7 @@ Device driver for the SONY devices
 
 import os, time, re
 
+from calibre import fsync
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre.devices.prs505 import MEDIA_XML, MEDIA_EXT, CACHE_XML, CACHE_EXT, \
             MEDIA_THUMBNAIL, CACHE_THUMBNAIL
@@ -142,6 +143,7 @@ class PRS505(USBMS):
                             <cache xmlns="http://www.kinoma.com/FskCache/1">
                             </cache>
                             '''.encode('utf8'))
+                        fsync(f)
                 return True
             except:
                 import traceback

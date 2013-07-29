@@ -12,7 +12,7 @@ import datetime, os, re, sys, json, hashlib
 
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
-from calibre import strftime
+from calibre import strftime, fsync
 
 '''
 Notes on collections:
@@ -410,6 +410,7 @@ class KINDLE2(KINDLE):
                     uuid=mh.exth.uuid, cdetype=mh.exth.cdetype))
         with open(thumbfile, 'wb') as f:
             f.write(coverdata[2])
+            fsync(f)
 
     def upload_apnx(self, path, filename, metadata, filepath):
         from calibre.devices.kindle.apnx import APNXBuilder

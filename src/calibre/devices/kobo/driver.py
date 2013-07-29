@@ -23,7 +23,7 @@ from calibre.devices.kobo.books import Book
 from calibre.devices.kobo.books import ImageWrapper
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.driver import USBMS, debug_print
-from calibre import prints
+from calibre import prints, fsync
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.constants import DEBUG
 from calibre.utils.config_base import prefs
@@ -974,6 +974,7 @@ class KOBO(USBMS):
 
                             with open(fpath, 'wb') as f:
                                 f.write(data)
+                                fsync(f)
 
                 else:
                     debug_print("ImageID could not be retreived from the database")
@@ -1621,7 +1622,7 @@ class KOBOTOUCH(KOBO):
             debug_print("KoboTouch:books - shelf list:", self.bookshelvelist)
 
             opts = self.settings()
-            
+
             columns = 'Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ImageID, ReadStatus'
             if self.dbversion >= 16:
                 columns += ', ___ExpirationStatus, FavouritesIndex, Accessibility'
@@ -1635,7 +1636,7 @@ class KOBOTOUCH(KOBO):
                 columns += ", Series, SeriesNumber, ___UserID, ExternalId"
             else:
                 columns += ', null as Series, null as SeriesNumber, ___UserID, null as ExternalId'
-            
+
             where_clause = ''
             if self.supports_kobo_archive():
                 where_clause = (" where BookID is Null " \
@@ -1670,13 +1671,13 @@ class KOBOTOUCH(KOBO):
             else:
                 where_clause = ' where BookID is Null'
 
-            # Note: The card condition should not need the contentId test for the SD card. But the ExternalId does not get set for sideloaded kepubs on the SD card.  
+            # Note: The card condition should not need the contentId test for the SD card. But the ExternalId does not get set for sideloaded kepubs on the SD card.
             card_condition = ''
             if self.has_externalid():
                 card_condition = " AND (externalId IS NOT NULL AND externalId <> '' OR contentId LIKE 'file:///mnt/sd/%')" if oncard == 'carda' else " AND (externalId IS NULL OR externalId = '') AND contentId NOT LIKE 'file:///mnt/sd/%'"
             else:
                 card_condition = " AND contentId LIKE 'file:///mnt/sd/%'" if oncard == 'carda' else " AND contentId NOT LIKE'file:///mnt/sd/%'"
-                
+
 
             query = 'SELECT ' + columns + ' FROM content ' + where_clause + card_condition
             debug_print("KoboTouch:books - query=", query)
@@ -2283,6 +2284,7 @@ class KOBOTOUCH(KOBO):
 
                                 with open(fpath, 'wb') as f:
                                     f.write(data)
+                                    fsync(f)
                 except Exception as e:
                     err = str(e)
                     debug_print("KoboTouch:_upload_cover - Exception string: %s"%err)

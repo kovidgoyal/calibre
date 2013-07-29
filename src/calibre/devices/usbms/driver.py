@@ -14,7 +14,7 @@ import os, time, json, shutil
 from itertools import cycle
 
 from calibre.constants import numeric_version
-from calibre import prints, isbytestring
+from calibre import prints, isbytestring, fsync
 from calibre.constants import filesystem_encoding, DEBUG
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
@@ -85,10 +85,12 @@ class USBMS(CLI, Device):
                                                           location_code, name)
             with open(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
                 f.write(json.dumps(driveinfo, default=to_json))
+                fsync(f)
         else:
             driveinfo = self._update_driveinfo_record({}, prefix, location_code, name)
             with open(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
                 f.write(json.dumps(driveinfo, default=to_json))
+                fsync(f)
         return driveinfo
 
     def get_device_information(self, end_session=True):
@@ -388,6 +390,7 @@ class USBMS(CLI, Device):
                     os.makedirs(self.normalize_path(prefix))
                 with open(self.normalize_path(os.path.join(prefix, self.METADATA_CACHE)), 'wb') as f:
                     json_codec.encode_to_file(f, booklists[listid])
+                    fsync(f)
         write_prefix(self._main_prefix, 0)
         write_prefix(self._card_a_prefix, 1)
         write_prefix(self._card_b_prefix, 2)

@@ -46,7 +46,7 @@ class UDisks(object):
         try:
             return unicode(d.FilesystemMount('',
                 ['auth_no_user_interaction', 'rw', 'noexec', 'nosuid',
-                'sync', 'nodev', 'uid=%d'%os.geteuid(), 'gid=%d'%os.getegid()]))
+                 'nodev', 'uid=%d'%os.geteuid(), 'gid=%d'%os.getegid()]))
         except:
             # May be already mounted, check
             mp = node_mountpoint(str(device_node_path))
@@ -123,7 +123,7 @@ class UDisks2(object):
     def mount(self, device_node_path):
         d = self.device(device_node_path)
         mount_options = ['rw', 'noexec', 'nosuid',
-                'sync', 'nodev', 'uid=%d'%os.geteuid(), 'gid=%d'%os.getegid()]
+                'nodev', 'uid=%d'%os.geteuid(), 'gid=%d'%os.getegid()]
         try:
             return unicode(d.Mount(
                 {

@@ -12,6 +12,7 @@ import os
 
 import cStringIO
 
+from calibre import fsync
 from calibre.constants import isosx
 from calibre.devices.usbms.driver import USBMS
 
@@ -76,6 +77,7 @@ class NOOK(USBMS):
 
         with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
             coverfile.write(coverdata)
+            fsync(coverfile)
 
     def sanitize_path_components(self, components):
         return [x.replace('#', '_') for x in components]
