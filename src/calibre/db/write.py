@@ -13,8 +13,8 @@ from datetime import datetime
 
 from calibre.constants import preferred_encoding, ispy3
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
-from calibre.utils.date import (parse_only_date, parse_date, UNDEFINED_DATE,
-                                isoformat)
+from calibre.utils.date import (
+    parse_only_date, parse_date, UNDEFINED_DATE, isoformat, is_date_undefined)
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.icu import strcmp
 
@@ -67,12 +67,14 @@ def multiple_text(sep, ui_sep, x):
 def adapt_datetime(x):
     if isinstance(x, (unicode, bytes)):
         x = parse_date(x, assume_utc=False, as_utc=False)
+    if x and is_date_undefined(x):
+        x = UNDEFINED_DATE
     return x
 
 def adapt_date(x):
     if isinstance(x, (unicode, bytes)):
         x = parse_only_date(x)
-    if x is None:
+    if x is None or is_date_undefined(x):
         x = UNDEFINED_DATE
     return x
 
