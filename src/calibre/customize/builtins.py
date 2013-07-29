@@ -1199,6 +1199,17 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
 #}}}
 
 # Store plugins {{{
+class StoreAllegroStore(StoreBase):
+    name = 'Ebooki Allegro'
+    author = u'Tomasz Długosz'
+    description = u'Platforma Grupy Allegro sprzedająca ebooki zabezpieczone znakiem wodnym.'
+    actual_plugin = 'calibre.gui2.store.stores.allegro_plugin:AllegroStore'
+
+    drm_free_only = True
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
+
 class StoreAmazonKindleStore(StoreBase):
     name = 'Amazon Kindle'
     description = u'Kindle books from Amazon.'
@@ -1675,6 +1686,7 @@ class XinXiiStore(StoreBase):
     formats = ['EPUB', 'PDF']
 
 plugins += [
+    StoreAllegroStore,
     StoreArchiveOrgStore,
     StoreAmazonKindleStore,
     StoreAmazonDEKindleStore,
