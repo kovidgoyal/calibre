@@ -781,7 +781,7 @@ class Cache(object):
         return ret
 
     @read_api
-    def multisort(self, fields, ids_to_sort=None):
+    def multisort(self, fields, ids_to_sort=None, virtual_fields=None):
         '''
         Return a list of sorted book ids. If ids_to_sort is None, all book ids
         are returned.
@@ -794,6 +794,7 @@ class Cache(object):
                 else ids_to_sort)
         get_metadata = self._get_proxy_metadata
         lang_map = self.fields['languages'].book_value_map
+        virtual_fields = virtual_fields or {}
 
         fm = {'title':'sort', 'authors':'author_sort'}
 
@@ -801,8 +802,12 @@ class Cache(object):
             'Handle series type fields'
             idx = field + '_index'
             is_series = idx in self.fields
-            ans = self.fields[fm.get(field, field)].sort_keys_for_books(
-                get_metadata, lang_map, all_book_ids,)
+            try:
+                ans = self.fields[fm.get(field, field)].sort_keys_for_books(
+                    get_metadata, lang_map, all_book_ids)
+            except KeyError:
+                ans = virtual_fields[fm.get(field, field)].sort_keys_for_books(
+                    get_metadata, lang_map, all_book_ids)
             if is_series:
                 idx_ans = self.fields[idx].sort_keys_for_books(
                     get_metadata, lang_map, all_book_ids)

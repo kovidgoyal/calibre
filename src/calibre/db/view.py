@@ -30,6 +30,9 @@ class MarkedVirtualField(object):
         for book_id in candidates:
             yield self.marked_ids.get(book_id, default_value), {book_id}
 
+    def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
+        return {bid:self.marked_ids.get(bid, None) for bid in all_book_ids}
+
 class TableRow(object):
 
     def __init__(self, book_id, view):
@@ -219,7 +222,7 @@ class View(object):
         if not fields:
             fields = [('timestamp', False)]
 
-        sorted_book_ids = self.cache.multisort(fields, ids_to_sort=only_ids)
+        sorted_book_ids = self.cache.multisort(fields, ids_to_sort=only_ids, virtual_fields={'marked':MarkedVirtualField(self.marked_ids)})
         if only_ids is None:
             self._map = tuple(sorted_book_ids)
             if len(self._map_filtered) == len(self._map):

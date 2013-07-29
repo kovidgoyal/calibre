@@ -511,3 +511,14 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_marked_field(self):  # {{{
+        ' Test the marked field '
+        db = self.init_legacy()
+        db.set_marked_ids({3:1, 2:3})
+        ids = [1,2,3]
+        db.multisort([('marked', True)], only_ids=ids)
+        self.assertListEqual([1, 3, 2], ids)
+        db.multisort([('marked', False)], only_ids=ids)
+        self.assertListEqual([2, 3, 1], ids)
+    # }}}
+
