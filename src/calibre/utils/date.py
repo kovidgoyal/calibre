@@ -75,7 +75,12 @@ def is_date_undefined(qt_or_dt):
     if d is None:
         return True
     if hasattr(d, 'toString'):
-        d = datetime(d.year(), d.month(), d.day(), tzinfo=utc_tz)
+        if hasattr(d, 'date'):
+            d = d.date()
+        try:
+            d = datetime(d.year(), d.month(), d.day(), tzinfo=utc_tz)
+        except ValueError:
+            return True  # Undefined QDate
     return d.year < UNDEFINED_DATE.year or (
             d.year == UNDEFINED_DATE.year and
             d.month == UNDEFINED_DATE.month and
