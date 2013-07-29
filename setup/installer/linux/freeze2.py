@@ -191,8 +191,10 @@ class LinuxFreeze(Command):
             if os.path.isdir(x):
                 shutil.copytree(x, self.j(dest, self.b(x)),
                         ignore=ignore_in_lib)
-            if os.path.isfile(x) and ext in ('.py', '.so'):
+            elif os.path.isfile(x) and ext in ('.py', '.so'):
                 shutil.copy2(x, dest)
+            else:
+                raise ValueError('%s does not exist in site-packages' % x)
 
         for x in os.listdir(self.SRC):
             shutil.copytree(self.j(self.SRC, x), self.j(dest, x),
