@@ -700,13 +700,7 @@ class EditMetadataAction(InterfaceAction):
                 _('Failed to apply updated metadata for some books'
                     ' in your library. Click "Show Details" to see '
                     'details.'), det_msg='\n\n'.join(msg), show=True)
-        if self.applied_ids:
-            cr = self.gui.library_view.currentIndex().row()
-            self.gui.library_view.model().refresh_ids(
-                list(self.applied_ids), cr)
-            if self.gui.cover_flow:
-                self.gui.cover_flow.dataChanged()
-            self.gui.tags_view.recount()
+        self.refresh_gui(self.applied_ids)
 
         self.apply_id_map = []
         self.apply_pd = None
@@ -715,6 +709,16 @@ class EditMetadataAction(InterfaceAction):
                 self.apply_callback(list(self.applied_ids))
         finally:
             self.apply_callback = None
+
+    def refresh_gui(self, book_ids, covers_changed=True, tag_browser_changed=True):
+        if book_ids:
+            cr = self.gui.library_view.currentIndex().row()
+            self.gui.library_view.model().refresh_ids(
+                list(book_ids), cr)
+            if covers_changed and self.gui.cover_flow:
+                self.gui.cover_flow.dataChanged()
+            if tag_browser_changed:
+                self.gui.tags_view.recount()
 
     # }}}
 
