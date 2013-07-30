@@ -1142,6 +1142,9 @@ class Cache(object):
                                 if extra is not None or force_changes:
                                     protected_set_field(idx, extra)
         except:
+            # sqlite will rollback the entire transaction, thanks to the with
+            # statement, so we have to re-read everything form the db to ensure
+            # the db and Cache are in sync
             self._reload_from_db()
             raise
 
