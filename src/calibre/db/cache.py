@@ -1094,48 +1094,52 @@ class Cache(object):
         if cdata is not None:
             self._set_cover({book_id: cdata})
 
-        with self.backend.conn:  # Speed up set_metadata by not operating in autocommit mode
-            for field in ('rating', 'series_index', 'timestamp'):
-                val = getattr(mi, field)
-                if val is not None:
-                    protected_set_field(field, val)
+        try:
+            with self.backend.conn:  # Speed up set_metadata by not operating in autocommit mode
+                for field in ('rating', 'series_index', 'timestamp'):
+                    val = getattr(mi, field)
+                    if val is not None:
+                        protected_set_field(field, val)
 
-            for field in ('author_sort', 'publisher', 'series', 'tags', 'comments',
-                'languages', 'pubdate'):
-                val = mi.get(field, None)
-                if (force_changes and val is not None) or not mi.is_null(field):
-                    protected_set_field(field, val)
+                for field in ('author_sort', 'publisher', 'series', 'tags', 'comments',
+                    'languages', 'pubdate'):
+                    val = mi.get(field, None)
+                    if (force_changes and val is not None) or not mi.is_null(field):
+                        protected_set_field(field, val)
 
-            val = mi.get('title_sort', None)
-            if (force_changes and val is not None) or not mi.is_null('title_sort'):
-                protected_set_field('sort', val)
+                val = mi.get('title_sort', None)
+                if (force_changes and val is not None) or not mi.is_null('title_sort'):
+                    protected_set_field('sort', val)
 
-            # identifiers will always be replaced if force_changes is True
-            mi_idents = mi.get_identifiers()
-            if force_changes:
-                protected_set_field('identifiers', mi_idents)
-            elif mi_idents:
-                identifiers = self._field_for('identifiers', book_id, default_value={})
-                for key, val in mi_idents.iteritems():
-                    if val and val.strip():  # Don't delete an existing identifier
-                        identifiers[icu_lower(key)] = val
-                protected_set_field('identifiers', identifiers)
+                # identifiers will always be replaced if force_changes is True
+                mi_idents = mi.get_identifiers()
+                if force_changes:
+                    protected_set_field('identifiers', mi_idents)
+                elif mi_idents:
+                    identifiers = self._field_for('identifiers', book_id, default_value={})
+                    for key, val in mi_idents.iteritems():
+                        if val and val.strip():  # Don't delete an existing identifier
+                            identifiers[icu_lower(key)] = val
+                    protected_set_field('identifiers', identifiers)
 
-            user_mi = mi.get_all_user_metadata(make_copy=False)
-            fm = self.field_metadata
-            for key in user_mi.iterkeys():
-                if (key in fm and
-                        user_mi[key]['datatype'] == fm[key]['datatype'] and
-                        (user_mi[key]['datatype'] != 'text' or
-                        user_mi[key]['is_multiple'] == fm[key]['is_multiple'])):
-                    val = mi.get(key, None)
-                    if force_changes or val is not None:
-                        protected_set_field(key, val)
-                        idx = key + '_index'
-                        if idx in self.fields:
-                            extra = mi.get_extra(key)
-                            if extra is not None or force_changes:
-                                protected_set_field(idx, extra)
+                user_mi = mi.get_all_user_metadata(make_copy=False)
+                fm = self.field_metadata
+                for key in user_mi.iterkeys():
+                    if (key in fm and
+                            user_mi[key]['datatype'] == fm[key]['datatype'] and
+                            (user_mi[key]['datatype'] != 'text' or
+                            user_mi[key]['is_multiple'] == fm[key]['is_multiple'])):
+                        val = mi.get(key, None)
+                        if force_changes or val is not None:
+                            protected_set_field(key, val)
+                            idx = key + '_index'
+                            if idx in self.fields:
+                                extra = mi.get_extra(key)
+                                if extra is not None or force_changes:
+                                    protected_set_field(idx, extra)
+        except:
+            self._reload_from_db()
+            raise
 
     @write_api
     def add_format(self, book_id, fmt, stream_or_path, replace=True, run_hooks=True, dbapi=None):
