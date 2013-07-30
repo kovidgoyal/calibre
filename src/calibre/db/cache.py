@@ -336,7 +336,7 @@ class Cache(object):
         except KeyError:
             return default_value
         if field.is_multiple:
-            default_value = {} if name == 'identifiers' else ()
+            default_value = field.default_value
         try:
             return field.for_book(book_id, default_value=default_value)
         except (KeyError, IndexError):
@@ -347,6 +347,8 @@ class Cache(object):
         ' Same as field_for, except that it avoids the extra lookup to get the field object '
         if field_obj.is_composite:
             return field_obj.get_value_with_cache(book_id, self._get_proxy_metadata)
+        if field_obj.is_multiple:
+            default_value = field_obj.default_value
         try:
             return field_obj.for_book(book_id, default_value=default_value)
         except (KeyError, IndexError):

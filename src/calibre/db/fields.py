@@ -48,6 +48,7 @@ class Field(object):
             self._sort_key = lambda x:sort_key(calibre_langcode_to_name(x))
         self.is_multiple = (bool(self.metadata['is_multiple']) or self.name ==
                 'formats')
+        self.default_value = {} if name == 'identifiers' else () if self.is_multiple else None
         self.category_formatter = type(u'')
         if dt == 'rating':
             self.category_formatter = lambda x:'\u2605'*int(x/2)
