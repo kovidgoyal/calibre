@@ -61,13 +61,17 @@ class MetadataWidget(Widget, Ui_Form):
         self.initialize_options(get_option, get_help, db, book_id)
         self.connect(self.cover_button, SIGNAL("clicked()"), self.select_cover)
         self.comment.hide_toolbars()
+        self.cover.cover_changed.connect(self.change_cover)
+
+    def change_cover(self, data):
+        self.cover_changed = True
+        self.cover_data = data
 
     def deduce_author_sort(self, *args):
         au = unicode(self.author.currentText())
         au = re.sub(r'\s+et al\.$', '', au)
         authors = string_to_authors(au)
         self.author_sort.setText(self.db.author_sort_from_authors(authors))
-
 
     def initialize_metadata_options(self):
         self.initialize_combos()
@@ -210,7 +214,6 @@ class MetadataWidget(Widget, Ui_Form):
                     bool(self.opt_prefer_metadata_cover.isChecked()),
                 }
 
-
     def commit(self, save_defaults=False):
         '''
         Settings are stored in two attributes: `opf_file` and `cover_file`.
@@ -241,4 +244,5 @@ class MetadataWidget(Widget, Ui_Form):
                 cf.close()
                 self.cover_file = cf
         return recs
+
 
