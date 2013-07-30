@@ -222,7 +222,9 @@ class View(object):
         if not fields:
             fields = [('timestamp', False)]
 
-        sorted_book_ids = self.cache.multisort(fields, ids_to_sort=only_ids, virtual_fields={'marked':MarkedVirtualField(self.marked_ids)})
+        sorted_book_ids = self.cache.multisort(
+            fields, ids_to_sort=self._map if only_ids is None else only_ids,
+            virtual_fields={'marked':MarkedVirtualField(self.marked_ids)})
         if only_ids is None:
             self._map = tuple(sorted_book_ids)
             if len(self._map_filtered) == len(self._map):

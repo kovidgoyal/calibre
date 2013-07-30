@@ -792,6 +792,7 @@ class Cache(object):
         '''
         all_book_ids = frozenset(self._all_book_ids() if ids_to_sort is None
                 else ids_to_sort)
+        ids_to_sort = all_book_ids if ids_to_sort is None else ids_to_sort
         get_metadata = self._get_proxy_metadata
         lang_map = self.fields['languages'].book_value_map
         virtual_fields = virtual_fields or {}
@@ -818,10 +819,10 @@ class Cache(object):
 
         if len(sort_keys) == 1:
             sk = sort_keys[0]
-            return sorted(all_book_ids, key=lambda i:sk[i], reverse=not
+            return sorted(ids_to_sort, key=lambda i:sk[i], reverse=not
                     fields[0][1])
         else:
-            return sorted(all_book_ids, key=partial(SortKey, fields, sort_keys))
+            return sorted(ids_to_sort, key=partial(SortKey, fields, sort_keys))
 
     @read_api
     def search(self, query, restriction='', virtual_fields=None, book_ids=None):
