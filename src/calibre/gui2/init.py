@@ -15,7 +15,8 @@ from calibre.constants import (isosx, __appname__, preferred_encoding,
     get_version)
 from calibre.gui2 import config, is_widescreen, gprefs
 from calibre.gui2.library.views import BooksView, DeviceBooksView
-from calibre.gui2.widgets import Splitter
+from calibre.gui2.library.alternate_views import GridView
+from calibre.gui2.widgets import Splitter, LayoutButton
 from calibre.gui2.tag_browser.ui import TagBrowserWidget
 from calibre.gui2.book_details import BookDetails
 from calibre.gui2.notify import get_notifier
@@ -116,7 +117,13 @@ class LibraryWidget(Splitter):  # {{{
                 shortcut=_('Shift+Alt+B'))
         parent.library_view = BooksView(parent)
         parent.library_view.setObjectName('library_view')
-        self.addWidget(parent.library_view)
+        stack = QStackedWidget(self)
+        av = parent.library_view.alternate_views
+        av.set_stack(stack)
+        parent.grid_view = GridView(parent)
+        parent.grid_view.setObjectName('grid_view')
+        av.add_view('grid', parent.grid_view)
+        self.addWidget(stack)
 # }}}
 
 class Stack(QStackedWidget):  # {{{
@@ -251,7 +258,7 @@ class LayoutMixin(object):  # {{{
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
             self.centralwidget.layout().addWidget(self.bd_splitter)
-            button_order = ('tb', 'bd', 'cb')
+            button_order = ('tb', 'bd', 'cb', 'gv')
         # }}}
         else:  # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
@@ -266,13 +273,16 @@ class LayoutMixin(object):  # {{{
             self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                 QSizePolicy.Expanding))
             self.centralwidget.layout().addWidget(self.bd_splitter)
-            button_order = ('tb', 'cb', 'bd')
+            button_order = ('tb', 'cb', 'bd', 'gv')
         # }}}
 
         self.status_bar = StatusBar(self)
         stylename = unicode(self.style().objectName())
+        self.grid_view_button = LayoutButton(I('grid.png'), _('Cover Grid'), parent=self, shortcut=_('Shift+Alt+G'))
+        self.grid_view_button.set_state_to_show()
+
         for x in button_order:
-            button = getattr(self, x+'_splitter').button
+            button = self.grid_view_button if x == 'gv' else getattr(self, x+'_splitter').button
             button.setIconSize(QSize(24, 24))
             if isosx and stylename != u'Calibre':
                 button.setStyleSheet('''

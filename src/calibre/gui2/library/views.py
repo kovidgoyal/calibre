@@ -19,6 +19,7 @@ from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate,
     CcEnumDelegate, CcNumberDelegate, LanguagesDelegate)
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
+from calibre.gui2.library.alternate_views import AlternateViews
 from calibre.utils.config import tweaks, prefs
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.library import DEFAULT_SORT
@@ -141,6 +142,7 @@ class BooksView(QTableView):  # {{{
         QTableView.__init__(self, parent)
         self.setProperty('highlight_current_item', 150)
         self.row_sizing_done = False
+        self.alternate_views = AlternateViews(self)
 
         if not tweaks['horizontal_scrolling_per_column']:
             self.setHorizontalScrollMode(self.ScrollPerPixel)

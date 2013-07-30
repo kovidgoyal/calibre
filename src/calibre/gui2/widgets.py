@@ -927,14 +927,15 @@ class SplitterHandle(QSplitterHandle):
 
 class LayoutButton(QToolButton):
 
-    def __init__(self, icon, text, splitter, parent=None, shortcut=None):
+    def __init__(self, icon, text, splitter=None, parent=None, shortcut=None):
         QToolButton.__init__(self, parent)
         self.label = text
         self.setIcon(QIcon(icon))
         self.setCheckable(True)
 
         self.splitter = splitter
-        splitter.state_changed.connect(self.update_state)
+        if splitter is not None:
+            splitter.state_changed.connect(self.update_state)
         self.setCursor(Qt.PointingHandCursor)
         self.shortcut = ''
         if shortcut:
@@ -942,14 +943,13 @@ class LayoutButton(QToolButton):
 
     def set_state_to_show(self, *args):
         self.setChecked(False)
-        label =_('Show')
-        self.setText(label + ' ' + self.label + u' (%s)'%self.shortcut)
+        self.setText(_('Show %(label)s [%(shortcut)s]')%dict(label=self.label, shortcut=self.shortcut))
         self.setToolTip(self.text())
         self.setStatusTip(self.text())
 
     def set_state_to_hide(self, *args):
         self.setChecked(True)
-        self.setText(_('Hide %(label)s %(shortcut)s')%dict(
+        self.setText(_('Hide %(label)s [%(shortcut)s]')%dict(
             label=self.label, shortcut=self.shortcut))
         self.setToolTip(self.text())
         self.setStatusTip(self.text())
