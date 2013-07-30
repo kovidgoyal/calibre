@@ -1,0 +1,79 @@
+# -*- coding: utf-8 -*-
+
+from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 1 # Needed for dynamic plugin loading
+
+__license__ = 'GPL 3'
+__copyright__ = '2013, Tomasz Długosz <tomek3d@gmail.com>'
+__docformat__ = 'restructuredtext en'
+
+import re
+import urllib
+from contextlib import closing
+
+from lxml import html
+
+from PyQt4.Qt import QUrl
+
+from calibre import browser, url_slash_cleaner
+from calibre.gui2 import open_url
+from calibre.gui2.store import StorePlugin
+from calibre.gui2.store.basic_config import BasicStoreConfig
+from calibre.gui2.store.search_result import SearchResult
+from calibre.gui2.store.web_store_dialog import WebStoreDialog
+
+class CdpStore(BasicStoreConfig, StorePlugin):
+
+    def open(self, parent=None, detail_item=None, external=False):
+
+        url = 'https://cdp.pl/ksiazki'
+
+        if external or self.config.get('open_external', False):
+            open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
+        else:
+            d = WebStoreDialog(self.gui, url, parent, detail_item if detail_item else url)
+            d.setWindowTitle(self.name)
+            d.set_tags(self.config.get('tags', ''))
+            d.exec_()
+
+    def search(self, query, max_results=10, timeout=60):
+        page=1
+
+        br = browser()
+
+        counter = max_results
+
+        while counter:
+            with closing(br.open(u'https://cdp.pl/products/search?utf8=✓&keywords=' + urllib.quote_plus(query) + '&page=' + str(page), timeout=timeout)) as f:
+                doc = html.fromstring(f.read())
+                for data in doc.xpath('//ul[@id="products"]/li'):
+                    if counter <= 0:
+                        break
+
+                    id = ''.join(data.xpath('.//div[@class="product-image"]/a[1]/@href'))
+                    if not id:
+                        continue
+                    if 'ksiazki' not in id:
+                        continue
+
+                    cover_url = ''.join(data.xpath('.//div[@class="product-image"]/a[1]/@data-background'))
+                    cover_url = cover_url.split('\'')[1]
+                    title = ''.join(data.xpath('.//div[@class="product-description"]/h2/a/text()'))
+                    author = ''.join(data.xpath('.//div[@class="product-description"]//ul[@class="taxons"]/li[2]/a/text()'))
+                    price = ''.join(data.xpath('.//span[@itemprop="price"]/text()'))
+
+                    counter -= 1
+
+                    s = SearchResult()
+                    s.cover_url = cover_url
+                    s.title = title.strip()
+                    s.author = author.strip()
+                    s.price = price
+                    s.detail_item = id.strip()
+                    s.drm = SearchResult.DRM_UNLOCKED
+                    #s.formats = formats.upper().strip()
+
+                    yield s
+                if not doc.xpath('//span[@class="next"]/a'):
+                    break
+            page+=1
