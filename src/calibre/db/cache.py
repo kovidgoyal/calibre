@@ -1085,14 +1085,18 @@ class Cache(object):
                     raise
 
         # force_changes has no effect on cover manipulation
-        cdata = mi.cover_data[1]
-        if cdata is None and isinstance(mi.cover, basestring) and mi.cover and os.access(mi.cover, os.R_OK):
-            with lopen(mi.cover, 'rb') as f:
-                raw = f.read()
-                if raw:
-                    cdata = raw
-        if cdata is not None:
-            self._set_cover({book_id: cdata})
+        try:
+            cdata = mi.cover_data[1]
+            if cdata is None and isinstance(mi.cover, basestring) and mi.cover and os.access(mi.cover, os.R_OK):
+                with lopen(mi.cover, 'rb') as f:
+                    cdata = f.read() or None
+            if cdata is not None:
+                self._set_cover({book_id: cdata})
+        except:
+            if ignore_errors:
+                traceback.print_exc()
+            else:
+                raise
 
         try:
             with self.backend.conn:  # Speed up set_metadata by not operating in autocommit mode
