@@ -192,6 +192,7 @@ class LegacyTest(BaseTest):
             'has_id':[(1,), (2,), (3,), (9999,)],
             'id':[(1,), (2,), (0,),],
             'index':[(1,), (2,), (3,), ],
+            'row':[(1,), (2,), (3,), ],
             'is_empty':[()],
             'count':[()],
             'all_author_names':[()],
@@ -254,6 +255,12 @@ class LegacyTest(BaseTest):
             o = {type('')(k) if isinstance(k, bytes) else k:set(v) if isinstance(v, list) else v for k, v in o.iteritems()}
             n = {k:set(v) if isinstance(v, list) else v for k, v in n.iteritems()}
             self.assertEqual(o, n)
+
+        ndb.search('title:Unknown')
+        db.search('title:Unknown')
+        self.assertEqual(db.row(3), ndb.row(3))
+        self.assertRaises(ValueError, ndb.row, 2)
+        self.assertRaises(ValueError, db.row, 2)
         db.close()
         # }}}
 
