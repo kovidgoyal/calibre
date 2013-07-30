@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (division, absolute_import, print_function)
+from __future__ import (division, absolute_import, print_function, unicode_literals)
 store_version = 1  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
@@ -27,7 +27,7 @@ class AllegroStore(BasicStoreConfig, StorePlugin):
     def open(self, parent=None, detail_item=None, external=False):
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/34/58/'
 
-        url = 'http://www.koobe.pl/'
+        url = 'http://ebooki.allegro.pl/'
 
         aff_url = aff_root + str(b64encode(url))
 
