@@ -1392,8 +1392,8 @@ def command_list_categories(args, dbpath):
 
     return parser
 
-def command_clone(args, dbpath):
-    parser = get_parser(_(
+def clone_option_parser():
+    return get_parser(_(
     '''\
 %prog clone path/to/new/library
 
@@ -1403,6 +1403,9 @@ same custom columns, virtual libraries and other settings as the current library
 The cloned library will contain no books. If you want to create a full duplicate, including
 all books, then simply use your filesystem tools to copy the library folder.
     '''))
+
+def command_clone(args, dbpath):
+    parser = clone_option_parser()
     opts, args = parser.parse_args(args)
     if len(args) < 1:
         parser.print_help()
