@@ -841,9 +841,10 @@ My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The first thing to check is that you are downloading |app| from the official
-website: `<http://calibre-ebook.com/download>`_. |app| is a very popular program
-and unscrupulous people try to setup websites offering it for download to fool
-the unwary.
+website: `<http://calibre-ebook.com/download>`_. Make sure you are clicking the
+download links on the left, not the advertisements on the right. |app| is a
+very popular program and unscrupulous people try to setup websites offering it
+for download to fool the unwary.
 
 If you have the official download and your antivirus program is still claiming
 |app| is a virus, then, your antivirus program is wrong. Antivirus programs use
