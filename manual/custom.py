@@ -83,7 +83,6 @@ def generate_calibredb_help(preamble, info):
 
     global_options = '\n'.join(render_options('calibredb', groups, False, False))
 
-
     lines, toc = [], []
     for cmd in COMMANDS:
         args = []
@@ -99,7 +98,7 @@ def generate_calibredb_help(preamble, info):
         usage = [i for i in usage.replace('%prog', 'calibredb').splitlines()]
         cmdline = '    '+usage[0]
         usage = usage[1:]
-        usage = [i.replace(cmd, ':command:`%s`'%cmd) for i in usage]
+        usage = [re.sub(r'(%s)([^a-zA-Z0-9])'%cmd, r':command:`\1`\2', i) for i in usage]
         lines += ['.. code-block:: none', '', cmdline, '']
         lines += usage
         groups = [(None, None, parser.option_list)]
@@ -152,7 +151,6 @@ def generate_ebook_convert_help(preamble, info):
         prog = 'ebook-convert-'+(pl.name.lower().replace(' ', '-'))
         raw += '\n\n' + '\n'.join(render_options(prog, groups, False, True))
 
-
     update_cli_doc(os.path.join('cli', 'ebook-convert.rst'), raw, info)
 
 def update_cli_doc(path, raw, info):
@@ -200,7 +198,8 @@ def cli_docs(app):
     for script in entry_points['console_scripts'] + entry_points['gui_scripts']:
         module = script[script.index('=')+1:script.index(':')].strip()
         cmd = script[:script.index('=')].strip()
-        if cmd in ('calibre-complete', 'calibre-parallel'): continue
+        if cmd in ('calibre-complete', 'calibre-parallel'):
+            continue
         module = __import__(module, fromlist=[module.split('.')[-1]])
         if hasattr(module, 'option_parser'):
             documented_cmds.append((cmd, getattr(module, 'option_parser')()))
@@ -259,4 +258,5 @@ def setup(app):
 
 def finished(app, exception):
     pass
+
 
