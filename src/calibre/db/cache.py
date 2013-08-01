@@ -223,7 +223,7 @@ class Cache(object):
             good_formats = None
         else:
             mi.format_metadata = FormatMetadata(self, book_id, formats)
-            good_formats = FormatsList(formats, mi.format_metadata)
+            good_formats = FormatsList(sorted(formats), mi.format_metadata)
         # These three attributes are returned by the db2 get_metadata(),
         # however, we dont actually use them anywhere other than templates, so
         # they have been removed, to avoid unnecessary overhead. The templates
