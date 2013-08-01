@@ -81,6 +81,7 @@ class MetadataBackup(Thread):
 
         if mi is None:
             self.db.clear_dirtied(book_id, sequence)
+            return
 
         # Give the GUI thread a chance to do something. Python threads don't
         # have priorities, so this thread would naturally keep the processor
