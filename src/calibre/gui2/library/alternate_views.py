@@ -11,7 +11,8 @@ from PyQt4.Qt import QListView
 class AlternateViews(object):
 
     def __init__(self, main_view):
-        self.views = {}
+        self.views = {None:main_view}
+        self.stack_positions = {None:0}
         self.current_view = self.main_view = main_view
         self.stack = None
 
@@ -21,8 +22,16 @@ class AlternateViews(object):
 
     def add_view(self, key, view):
         self.views[key] = view
+        self.stack_positions[key] = self.stack.count()
         self.stack.addWidget(view)
         self.stack.setCurrentIndex(0)
+
+    def show_view(self, key=None):
+        view = self.views[key]
+        if view is self.current_view:
+            return
+        self.stack.setCurrentIndex(self.stack_positions[key])
+        self.current_view = view
 
 class GridView(QListView):
     pass

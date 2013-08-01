@@ -293,6 +293,7 @@ class LayoutMixin(object):  # {{{
         self.status_bar = StatusBar(self)
         stylename = unicode(self.style().objectName())
         self.grid_view_button = GridViewButton(self)
+        self.grid_view_button.toggled.connect(self.toggle_grid_view)
 
         for x in button_order:
             button = self.grid_view_button if x == 'gv' else getattr(self, x+'_splitter').button
@@ -338,6 +339,9 @@ class LayoutMixin(object):  # {{{
             m.current_changed(self.library_view.currentIndex(),
                     self.library_view.currentIndex())
         self.library_view.setFocus(Qt.OtherFocusReason)
+
+    def toggle_grid_view(self, show):
+        self.library_view.alternate_views.show_view('grid' if show else None)
 
     def bd_cover_changed(self, id_, cdata):
         self.library_view.model().db.set_cover(id_, cdata)
