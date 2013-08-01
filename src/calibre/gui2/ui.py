@@ -812,6 +812,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         return True
 
     def shutdown(self, write_settings=True):
+        self.grid_view.shutdown()
         try:
             db = self.library_view.model().db
             cf = db.clean

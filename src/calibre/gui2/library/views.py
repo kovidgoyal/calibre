@@ -632,6 +632,7 @@ class BooksView(QTableView):  # {{{
     # Initialization/Delegate Setup {{{
 
     def set_database(self, db):
+        self.alternate_views.set_database(db)
         self.save_state()
         self._model.set_database(db)
         self.tags_delegate.set_database(db)
@@ -639,6 +640,7 @@ class BooksView(QTableView):  # {{{
         self.authors_delegate.set_database(db)
         self.series_delegate.set_auto_complete_function(db.all_series)
         self.publisher_delegate.set_auto_complete_function(db.all_publishers)
+        self.alternate_views.set_database(db, stage=1)
 
     def database_changed(self, db):
         for i in range(self.model().columnCount(None)):

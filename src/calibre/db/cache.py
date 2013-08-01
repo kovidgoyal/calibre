@@ -89,6 +89,7 @@ class Cache(object):
         self.formatter_template_cache = {}
         self.dirtied_cache = {}
         self.dirtied_sequence = 0
+        self.cover_caches = set()
 
         # Implement locking for all simple read/write API methods
         # An unlocked version of the method is stored with the name starting
@@ -1031,8 +1032,20 @@ class Cache(object):
                 path = self._field_for('path', book_id).replace('/', os.sep)
 
             self.backend.set_cover(book_id, path, data)
+            for cc in self.cover_caches:
+                cc.invalidate(book_id)
         return self._set_field('cover', {
             book_id:(0 if data is None else 1) for book_id, data in book_id_data_map.iteritems()})
+
+    @write_api
+    def add_cover_cache(self, cover_cache):
+        if not callable(cover_cache.invalidate):
+            raise ValueError('Cover caches must have an invalidate method')
+        self.cover_caches.add(cover_cache)
+
+    @write_api
+    def remove_cover_cache(self, cover_cache):
+        self.cover_caches.discard(cover_cache)
 
     @write_api
     def set_metadata(self, book_id, mi, ignore_errors=False, force_changes=False,
