@@ -863,7 +863,7 @@ class BooksView(QTableView):  # {{{
                     self.scrollTo(self.model().index(row, i), self.PositionAtCenter)
                     break
 
-    def set_current_row(self, row=0, select=True):
+    def set_current_row(self, row=0, select=True, for_sync=False):
         if row > -1 and row < self.model().rowCount(QModelIndex()):
             h = self.horizontalHeader()
             logical_indices = list(range(h.count()))
@@ -876,10 +876,14 @@ class BooksView(QTableView):  # {{{
             pairs.sort(cmp=lambda x,y:cmp(x[1], y[1]))
             i = pairs[0][0]
             index = self.model().index(row, i)
-            self.setCurrentIndex(index)
-            if select:
+            if for_sync:
                 sm = self.selectionModel()
-                sm.select(index, sm.ClearAndSelect|sm.Rows)
+                sm.setCurrentIndex(index, sm.NoUpdate)
+            else:
+                self.setCurrentIndex(index)
+                if select:
+                    sm = self.selectionModel()
+                    sm.select(index, sm.ClearAndSelect|sm.Rows)
 
     def keyPressEvent(self, ev):
         val = self.horizontalScrollBar().value()

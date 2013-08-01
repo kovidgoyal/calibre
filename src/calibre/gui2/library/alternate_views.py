@@ -6,15 +6,27 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import itertools, operator
 from time import time
 from collections import OrderedDict
 from threading import Lock, Event, Thread
 from Queue import Queue
+from functools import wraps
 
 from PyQt4.Qt import (
-    QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal, QPalette, QColor)
+    QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal,
+    QPalette, QColor, QItemSelection)
 
 from calibre import fit_image
+
+def sync(func):
+    @wraps(func)
+    def ans(self, *args, **kwargs):
+        if self.break_link or self.current_view is self.main_view:
+            return
+        with self:
+            return func(self, *args, **kwargs)
+    return ans
 
 class AlternateViews(object):
 
@@ -23,6 +35,8 @@ class AlternateViews(object):
         self.stack_positions = {None:0}
         self.current_view = self.main_view = main_view
         self.stack = None
+        self.break_link = False
+        self.main_connected = False
 
     def set_stack(self, stack):
         self.stack = stack
@@ -34,6 +48,8 @@ class AlternateViews(object):
         self.stack.addWidget(view)
         self.stack.setCurrentIndex(0)
         view.setModel(self.main_view._model)
+        view.selectionModel().currentChanged.connect(self.slave_current_changed)
+        view.selectionModel().selectionChanged.connect(self.slave_selection_changed)
 
     def show_view(self, key=None):
         view = self.views[key]
@@ -42,12 +58,44 @@ class AlternateViews(object):
         self.stack.setCurrentIndex(self.stack_positions[key])
         self.current_view = view
         if view is not self.main_view:
+            self.main_current_changed(self.main_view.currentIndex())
+            self.main_selection_changed()
             view.shown()
+            if not self.main_connected:
+                self.main_connected = True
+                self.main_view.selectionModel().currentChanged.connect(self.main_current_changed)
+                self.main_view.selectionModel().selectionChanged.connect(self.main_selection_changed)
+            view.setFocus(Qt.OtherFocusReason)
 
     def set_database(self, db, stage=0):
         for view in self.views.itervalues():
             if view is not self.main_view:
                 view.set_database(db, stage=stage)
+
+    def __enter__(self):
+        self.break_link = True
+
+    def __exit__(self, *args):
+        self.break_link = False
+
+    @sync
+    def slave_current_changed(self, current, *args):
+        self.main_view.set_current_row(current.row(), for_sync=True)
+
+    @sync
+    def slave_selection_changed(self, *args):
+        rows = {r.row() for r in self.current_view.selectionModel().selectedIndexes()}
+        self.main_view.select_rows(rows, using_ids=False, change_current=False, scroll=False)
+
+    @sync
+    def main_current_changed(self, current, *args):
+        self.current_view.set_current_row(current.row())
+
+    @sync
+    def main_selection_changed(self, *args):
+        rows = {r.row() for r in self.main_view.selectionModel().selectedIndexes()}
+        self.current_view.select_rows(rows)
+
 
 class CoverCache(dict):
 
@@ -232,5 +280,19 @@ class GridView(QListView):
         else:
             self.delegate.cover_cache.clear()
 
+    def select_rows(self, rows):
+        sel = QItemSelection()
+        sm = self.selectionModel()
+        m = self.model()
+        # Create a range based selector for each set of contiguous rows
+        # as supplying selectors for each individual row causes very poor
+        # performance if a large number of rows has to be selected.
+        for k, g in itertools.groupby(enumerate(rows), lambda (i,x):i-x):
+            group = list(map(operator.itemgetter(1), g))
+            sel.merge(QItemSelection(m.index(min(group), 0), m.index(max(group), 0)), sm.Select)
+        sm.select(sel, sm.ClearAndSelect)
 
+    def set_current_row(self, row):
+        sm = self.selectionModel()
+        sm.setCurrentIndex(self.model().index(row, 0), sm.NoUpdate)
 
