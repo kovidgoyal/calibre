@@ -1917,34 +1917,37 @@ class KOBOTOUCH(KOBO):
         else:
             debug_print("KoboTouch:_modify_epub: received container")
 
-        cssnames = [n for n in container.name_path_map if n.endswith('.css')]
-        for cssname in cssnames:
-            newsheet = container.parsed(cssname)
-            oldrules = len(newsheet.cssRules)
-            # remove any existing @page rules in epub css 
-            # if css to be appended contains an @page rule
-            if self.extra_sheet and len([r for r in self.extra_sheet if r.type == r.PAGE_RULE]):
-                page_rules = [r for r in newsheet if r.type == r.PAGE_RULE]
-                if len(page_rules) > 0:
-                    debug_print("KoboTouch:_modify_epub:Removing existing @page rules")
-                    for rule in page_rules:
-                        rule.style = ''
-            # remove any existing widow/orphan settings in epub css 
-            # if css to be appended contains a widow/orphan rule or we there is no extra CSS file 
-            if (len([r for r in self.extra_sheet if r.type == r.STYLE_RULE \
-                and (r.style['widows'] or r.style['orphans'])]) > 0):
-                widow_orphan_rules = [r for r in newsheet if r.type == r.STYLE_RULE \
-                    and (r.style['widows'] or r.style['orphans'])]
-                if len(widow_orphan_rules) > 0:
-                    debug_print("KoboTouch:_modify_epub:Removing existing widows/orphans attribs")
-                    for rule in widow_orphan_rules:
-                        rule.style.removeProperty('widows')
-                        rule.style.removeProperty('orphans')
-            # append all rules from kobo extra css stylesheet
-            for addrule in [r for r in self.extra_sheet.cssRules]:
-                newsheet.insertRule(addrule, len(newsheet.cssRules))
-            debug_print("KoboTouch:_modify_epub:CSS rules {0} -> {1} ({2})".format(oldrules, len(newsheet.cssRules), cssname))
-            container.dirty(cssname)
+#        cssnames = [n for n in container.name_path_map if n.endswith('.css')]
+#        for cssname in cssnames:
+        from calibre.ebooks.oeb.base import OEB_STYLES
+        for cssname, mt in container.mime_map.iteritems():
+            if mt in OEB_STYLES:
+                newsheet = container.parsed(cssname)
+                oldrules = len(newsheet.cssRules)
+                # remove any existing @page rules in epub css 
+                # if css to be appended contains an @page rule
+                if self.extra_sheet and len([r for r in self.extra_sheet if r.type == r.PAGE_RULE]):
+                    page_rules = [r for r in newsheet if r.type == r.PAGE_RULE]
+                    if len(page_rules) > 0:
+                        debug_print("KoboTouch:_modify_epub:Removing existing @page rules")
+                        for rule in page_rules:
+                            rule.style = ''
+                # remove any existing widow/orphan settings in epub css 
+                # if css to be appended contains a widow/orphan rule or we there is no extra CSS file 
+                if (len([r for r in self.extra_sheet if r.type == r.STYLE_RULE \
+                    and (r.style['widows'] or r.style['orphans'])]) > 0):
+                    widow_orphan_rules = [r for r in newsheet if r.type == r.STYLE_RULE \
+                        and (r.style['widows'] or r.style['orphans'])]
+                    if len(widow_orphan_rules) > 0:
+                        debug_print("KoboTouch:_modify_epub:Removing existing widows/orphans attribs")
+                        for rule in widow_orphan_rules:
+                            rule.style.removeProperty('widows')
+                            rule.style.removeProperty('orphans')
+                # append all rules from kobo extra css stylesheet
+                for addrule in [r for r in self.extra_sheet.cssRules]:
+                    newsheet.insertRule(addrule, len(newsheet.cssRules))
+                debug_print("KoboTouch:_modify_epub:CSS rules {0} -> {1} ({2})".format(oldrules, len(newsheet.cssRules), cssname))
+                container.dirty(cssname)
 
         if commit_container:
             debug_print("KoboTouch:_modify_epub: committing container.")
