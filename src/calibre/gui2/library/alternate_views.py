@@ -80,6 +80,9 @@ class CoverCache(dict):
         with self.lock:
             self.items.clear()
 
+    def __hash__(self):
+        return id(self)
+
 class CoverDelegate(QStyledItemDelegate):
 
     def __init__(self, parent, width, height):
@@ -212,6 +215,11 @@ class GridView(QListView):
     def set_database(self, newdb, stage=0):
         if stage == 0:
             self.ignore_render_requests.set()
+            try:
+                self.model().db.new_api.remove_cover_cache(self.delegate.cover_cache)
+            except AttributeError:
+                pass  # db is None
+            newdb.new_api.add_cover_cache(self.delegate.cover_cache)
             try:
                 # Use a timeout so that if, for some reason, the render thread
                 # gets stuck, we dont deadlock, future covers wont get
