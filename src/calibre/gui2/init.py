@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import functools
 
 from PyQt4.Qt import (Qt, QApplication, QStackedWidget, QMenu, QTimer,
-        QSize, QSizePolicy, QStatusBar, QLabel, QFont)
+        QSize, QSizePolicy, QStatusBar, QLabel, QFont, QAction)
 
 from calibre.utils.config import prefs, tweaks
 from calibre.constants import (isosx, __appname__, preferred_encoding,
@@ -243,6 +243,20 @@ class StatusBar(QStatusBar):  # {{{
 
 # }}}
 
+class GridViewButton(LayoutButton):  # {{{
+
+    def __init__(self, gui):
+        sc = _('Shift+Alt+G')
+        LayoutButton.__init__(self, I('grid.png'), _('Cover Grid'), parent=gui, shortcut=sc)
+        self.set_state_to_show()
+        self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
+        gui.addAction(self.action_toggle)
+        gui.keyboard.register_shortcut('grid view toggle' + self.label, unicode(self.action_toggle.text()),
+                                       default_keys=(sc,), action=self.action_toggle)
+        self.action_toggle.triggered.connect(self.toggle)
+
+# }}}
+
 class LayoutMixin(object):  # {{{
 
     def __init__(self):
@@ -278,8 +292,7 @@ class LayoutMixin(object):  # {{{
 
         self.status_bar = StatusBar(self)
         stylename = unicode(self.style().objectName())
-        self.grid_view_button = LayoutButton(I('grid.png'), _('Cover Grid'), parent=self, shortcut=_('Shift+Alt+G'))
-        self.grid_view_button.set_state_to_show()
+        self.grid_view_button = GridViewButton(self)
 
         for x in button_order:
             button = self.grid_view_button if x == 'gv' else getattr(self, x+'_splitter').button
