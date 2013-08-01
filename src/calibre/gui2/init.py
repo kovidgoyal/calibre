@@ -248,12 +248,33 @@ class GridViewButton(LayoutButton):  # {{{
     def __init__(self, gui):
         sc = _('Shift+Alt+G')
         LayoutButton.__init__(self, I('grid.png'), _('Cover Grid'), parent=gui, shortcut=sc)
-        self.set_state_to_show()
-        self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
-        gui.addAction(self.action_toggle)
-        gui.keyboard.register_shortcut('grid view toggle' + self.label, unicode(self.action_toggle.text()),
-                                       default_keys=(sc,), action=self.action_toggle)
-        self.action_toggle.triggered.connect(self.toggle)
+        if tweaks.get('use_new_db', False):
+            self.set_state_to_show()
+            self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
+            gui.addAction(self.action_toggle)
+            gui.keyboard.register_shortcut('grid view toggle' + self.label, unicode(self.action_toggle.text()),
+                                        default_keys=(sc,), action=self.action_toggle)
+            self.action_toggle.triggered.connect(self.toggle)
+            self.toggled.connect(self.update_state)
+            self.grid_enabled = True
+        else:
+            self.setVisible(False)
+            self.grid_enabled = False
+
+    def update_state(self, checked):
+        if checked:
+            self.set_state_to_hide()
+        else:
+            self.set_state_to_show()
+
+    def save_state(self):
+        if self.grid_enabled:
+            gprefs['grid view visible'] = bool(self.isChecked())
+
+    def restore_state(self):
+        if self.grid_enabled and gprefs.get('grid view visible', False):
+            self.toggle()
+
 
 # }}}
 
@@ -366,11 +387,13 @@ class LayoutMixin(object):  # {{{
             s = getattr(self, x+'_splitter')
             s.update_desired_state()
             s.save_state()
+        self.grid_view_button.save_state()
 
     def read_layout_settings(self):
         # View states are restored automatically when set_database is called
         for x in ('cb', 'tb', 'bd'):
             getattr(self, x+'_splitter').restore_state()
+        self.grid_view_button.restore_state()
 
     def update_status_bar(self, *args):
         v = self.current_view()
