@@ -28,6 +28,15 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.constants import DEBUG
 from calibre.utils.config_base import prefs
 
+EPUB_EXT = '.epub'
+
+
+class DummyCSSPreProcessor(object):
+
+    def __call__(self, data, add_namespace=False):
+
+        return data
+
 
 class KOBO(USBMS):
 
@@ -35,7 +44,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 0, 13)
+    version = (2, 1, 0)
 
     dbversion = 0
     fwversion = 0
@@ -1228,6 +1237,7 @@ class KOBOTOUCH(KOBO):
     book_class = Book
 
     MAX_PATH_LEN = 185  # 250 - (len(" - N3_LIBRARY_SHELF.parsed") + len("F:\.kobo\images\"))
+    KOBO_EXTRA_CSSFILE = 'kobo_extra.css'
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
             _('The Kobo Touch from firmware V2.0.0 supports bookshelves.')+\
@@ -1259,6 +1269,11 @@ class KOBOTOUCH(KOBO):
                     'This is not read by the device from the sideloaded books. '
                     'Series information can only be added to the device after the book has been processed by the device. '
                     'Enable if you wish to set series information.'),
+            _('Modify CSS') +
+            ':::'+_('This allows addition of user CSS rules and removal of some CSS. '
+                    'When sending a book, the driver adds the contents of ' + KOBO_EXTRA_CSSFILE + ' to all stylesheets in the ePub. '
+                    'This file is searched for in the root directory of the main memory of the device. '
+                    'As well as this, if the file contains settings for the "orphans" or "widows", these are removed for all styles in the original stylesheet.'),
             _('Attempt to support newer firmware') +
             ':::'+_('Kobo routinely updates the firmware and the '
                 'database version.  With this option Calibre will attempt '
@@ -1284,6 +1299,7 @@ class KOBOTOUCH(KOBO):
             False,
             False,
             False,
+            False,
             u''
             ]
 
@@ -1297,8 +1313,9 @@ class KOBOTOUCH(KOBO):
     OPT_SHOW_PREVIEWS               = 7
     OPT_SHOW_RECOMMENDATIONS        = 8
     OPT_UPDATE_SERIES_DETAILS       = 9
-    OPT_SUPPORT_NEWER_FIRMWARE      = 10
-    OPT_DEBUGGING_TITLE             = 11
+    OPT_MODIFY_CSS                  = 10
+    OPT_SUPPORT_NEWER_FIRMWARE      = 11
+    OPT_DEBUGGING_TITLE             = 12
 
     opts = None
 
@@ -1805,10 +1822,40 @@ class KOBOTOUCH(KOBO):
             debug_print("KoboTouch:imagefilename_from_imageID - no cover image found - ImageID=%s" % (ImageID))
         return None
 
+
+    def get_extra_css(self):
+        extra_sheet = None
+        
+        if self.modifying_css():
+            extra_css_path = os.path.join(self._main_prefix, self.KOBO_EXTRA_CSSFILE)
+            if os.path.exists(extra_css_path):
+                from cssutils import parseFile as cssparseFile
+                try:
+                    extra_sheet = cssparseFile(extra_css_path)
+                    debug_print("KoboTouch:get_extra_css: Using extra CSS in {0} ({1} rules)".format(extra_css_path, len(extra_sheet.cssRules)))
+                except Exception as e:
+                    debug_print("KoboTouch:get_extra_css: Problem parsing extra CSS file {0}".format(extra_css_path))
+                    debug_print("KoboTouch:get_extra_css: Exception {0}".format(e))
+        return extra_sheet
+
+
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
         debug_print('KoboTouch:upload_books - %d books'%(len(files)))
         debug_print('KoboTouch:upload_books - files=', files)
+
+        if self.modifying_epub():
+            self.extra_sheet = self.get_extra_css()
+            i = 0
+            for file, n, mi in zip(files, names, metadata):
+                debug_print("KoboTouch:upload_books: Processing book: {0} by {1}".format(mi.title, " and ".join(mi.authors)))
+                debug_print("KoboTouch:upload_books: file=%s, name=%s" % (file, n))
+                self.report_progress(i / float(len(files)), "Processing book: {0} by {1}".format(mi.title, " and ".join(mi.authors)))
+                mi.kte_calibre_name = n
+                self._modify_epub(file, mi)
+                i += 1
+
+        self.report_progress(0, 'Working...')
 
         result = super(KOBOTOUCH, self).upload_books(files, names, on_card, end_session, metadata)
 #        debug_print('KoboTouch:upload_books - result=', result)
@@ -1848,6 +1895,65 @@ class KOBOTOUCH(KOBO):
         return result
 
 
+    def _modify_epub(self, file, metadata, container=None):
+        debug_print("KoboTouch:_modify_epub:Processing {0} - {1}".format(metadata.author_sort, metadata.title))
+        
+        # Currently only modifying CSS, so if no stylesheet, don't do anything
+        if not self.extra_sheet:
+            return True
+
+        commit_container = False
+        if not container:
+            commit_container = True
+            try:
+                from calibre.ebooks.oeb.polish.container import get_container
+                debug_print("KoboTouch:_modify_epub: creating container")
+                container = get_container(file)
+                container.css_preprocessor = DummyCSSPreProcessor()
+            except Exception as e:
+                debug_print("KoboTouch:_modify_epub: exception from get_container {0} - {1}".format(metadata.author_sort, metadata.title))
+                debug_print("KoboTouch:_modify_epub: exception is: {0}".format(e))
+                return False
+        else:
+            debug_print("KoboTouch:_modify_epub: received container")
+
+        cssnames = [n for n in container.name_path_map if n.endswith('.css')]
+        for cssname in cssnames:
+            newsheet = container.parsed(cssname)
+            oldrules = len(newsheet.cssRules)
+            # remove any existing @page rules in epub css 
+            # if css to be appended contains an @page rule
+            if self.extra_sheet and len([r for r in self.extra_sheet if r.type == r.PAGE_RULE]):
+                page_rules = [r for r in newsheet if r.type == r.PAGE_RULE]
+                if len(page_rules) > 0:
+                    debug_print("KoboTouch:_modify_epub:Removing existing @page rules")
+                    for rule in page_rules:
+                        rule.style = ''
+            # remove any existing widow/orphan settings in epub css 
+            # if css to be appended contains a widow/orphan rule or we there is no extra CSS file 
+            if (len([r for r in self.extra_sheet if r.type == r.STYLE_RULE \
+                and (r.style['widows'] or r.style['orphans'])]) > 0):
+                widow_orphan_rules = [r for r in newsheet if r.type == r.STYLE_RULE \
+                    and (r.style['widows'] or r.style['orphans'])]
+                if len(widow_orphan_rules) > 0:
+                    debug_print("KoboTouch:_modify_epub:Removing existing widows/orphans attribs")
+                    for rule in widow_orphan_rules:
+                        rule.style.removeProperty('widows')
+                        rule.style.removeProperty('orphans')
+            # append all rules from kobo extra css stylesheet
+            for addrule in [r for r in self.extra_sheet.cssRules]:
+                newsheet.insertRule(addrule, len(newsheet.cssRules))
+            debug_print("KoboTouch:_modify_epub:CSS rules {0} -> {1} ({2})".format(oldrules, len(newsheet.cssRules), cssname))
+            container.dirty(cssname)
+
+        if commit_container:
+            debug_print("KoboTouch:_modify_epub: committing container.")
+            os.unlink(file)
+            container.commit(file)
+
+        return True
+
+
     def delete_via_sql(self, ContentID, ContentType):
         imageId = super(KOBOTOUCH, self).delete_via_sql(ContentID, ContentType)
 
@@ -1872,11 +1978,11 @@ class KOBOTOUCH(KOBO):
                     cursor.execute('delete from content where BookID is Null and ContentID =?',t)
 
                     # Remove the content_settings entry
-                    debug_print('KoboTouch:delete_via_sql: detete from content_settings')
+                    debug_print('KoboTouch:delete_via_sql: delete from content_settings')
                     cursor.execute('delete from content_settings where ContentID =?',t)
 
                     # Remove the ratings entry
-                    debug_print('KoboTouch:delete_via_sql: detete from ratings')
+                    debug_print('KoboTouch:delete_via_sql: delete from ratings')
                     cursor.execute('delete from ratings where ContentID =?',t)
 
                     # Remove any entries for the Activity table - removes tile from new home page
@@ -2635,6 +2741,13 @@ class KOBOTOUCH(KOBO):
     def keep_cover_aspect(self):
         opts = self.settings()
         return opts.extra_customization[self.OPT_KEEP_COVER_ASPECT_RATIO]
+
+    def modifying_epub(self):
+        return self.modifying_css()
+
+    def modifying_css(self):
+        opts = self.settings()
+        return opts.extra_customization[self.OPT_MODIFY_CSS]
 
 
     def supports_bookshelves(self):
