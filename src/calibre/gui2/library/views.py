@@ -696,6 +696,7 @@ class BooksView(QTableView):  # {{{
     def set_context_menu(self, menu, edit_collections_action):
         self.setContextMenuPolicy(Qt.DefaultContextMenu)
         self.context_menu = menu
+        self.alternate_views.set_context_menu(menu)
         self.edit_collections_action = edit_collections_action
 
     def contextMenuEvent(self, event):

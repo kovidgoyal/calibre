@@ -96,6 +96,11 @@ class AlternateViews(object):
         rows = {r.row() for r in self.main_view.selectionModel().selectedIndexes()}
         self.current_view.select_rows(rows)
 
+    def set_context_menu(self, menu):
+        for view in self.views.itervalues():
+            if view is not self.main_view:
+                view.set_context_menu(menu)
+
 
 class CoverCache(dict):
 
@@ -210,6 +215,7 @@ class GridView(QListView):
         self.ignore_render_requests = Event()
         self.render_thread = None
         self.update_item.connect(self.re_render, type=Qt.QueuedConnection)
+        self.context_menu = None
 
     def shown(self):
         if self.render_thread is None:
@@ -301,3 +307,10 @@ class GridView(QListView):
         sm = self.selectionModel()
         sm.setCurrentIndex(self.model().index(row, 0), sm.NoUpdate)
 
+    def set_context_menu(self, menu):
+        self.context_menu = menu
+
+    def contextMenuEvent(self, event):
+        if self.context_menu is not None:
+            self.context_menu.popup(event.globalPos())
+            event.accept()
