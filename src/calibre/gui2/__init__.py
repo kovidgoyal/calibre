@@ -114,20 +114,20 @@ defs['refresh_book_list_on_bulk_edit'] = True
 del defs
 # }}}
 
-NONE = QVariant() #: Null value to return from the data function of item models
+NONE = QVariant()  # : Null value to return from the data function of item models
 UNDEFINED_QDATETIME = QDateTime(UNDEFINED_DATE)
 
 ALL_COLUMNS = ['title', 'ondevice', 'authors', 'size', 'timestamp', 'rating', 'publisher',
         'tags', 'series', 'pubdate']
 
-def _config(): # {{{
+def _config():  # {{{
     c = Config('gui', 'preferences for the calibre GUI')
     c.add_opt('send_to_storage_card_by_default', default=False,
               help=_('Send file to storage card instead of main memory by default'))
     c.add_opt('confirm_delete', default=False,
               help=_('Confirm before deleting'))
     c.add_opt('main_window_geometry', default=None,
-              help=_('Main window geometry')) # value QVariant.toByteArray
+              help=_('Main window geometry'))  # value QVariant.toByteArray
     c.add_opt('new_version_notification', default=True,
               help=_('Notify when a new version is available'))
     c.add_opt('use_roman_numerals_for_series_number', default=True,
@@ -579,9 +579,9 @@ class FileDialog(QObject):
                        filters=[],
                        add_all_files_filter=True,
                        parent=None,
-                       modal = True,
-                       name = '',
-                       mode = QFileDialog.ExistingFiles,
+                       modal=True,
+                       name='',
+                       mode=QFileDialog.ExistingFiles,
                        default_dir='~',
                        no_save_dir=False
                        ):
@@ -610,7 +610,7 @@ class FileDialog(QObject):
         if not isinstance(initial_dir, basestring):
             initial_dir = os.path.expanduser(default_dir)
         self.selected_files = []
-        use_native_dialog = not os.environ.has_key('CALIBRE_NO_NATIVE_FILEDIALOGS')
+        use_native_dialog = 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ
         with SanitizeLibraryPath():
             opts = QFileDialog.Option()
             if not use_native_dialog:
@@ -630,7 +630,8 @@ class FileDialog(QObject):
                         ftext, "", opts)
                 for f in fs:
                     f = unicode(f)
-                    if not f: continue
+                    if not f:
+                        continue
                     if not os.path.exists(f):
                         # QFileDialog for some reason quotes spaces
                         # on linux if there is more than one space in a row
@@ -919,7 +920,6 @@ class Application(QApplication):
                 self.file_event_hook(self._file_open_paths)
                 self._file_open_paths = []
 
-
     def load_translations(self):
         if self._translator is not None:
             self.removeTranslator(self._translator)
@@ -1059,4 +1059,5 @@ def build_forms(srcdir, info=None):
 _df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
 if _df and os.path.exists(_df):
     build_forms(_df)
+
 
