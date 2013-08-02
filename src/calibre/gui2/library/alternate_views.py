@@ -203,6 +203,7 @@ class GridView(QListView):
         self.setLayoutMode(self.Batched)
         self.setResizeMode(self.Adjust)
         self.setSelectionMode(self.ExtendedSelection)
+        self.setVerticalScrollMode(self.ScrollPerPixel)
         self.delegate = CoverDelegate(self, 135, 180)
         self.setItemDelegate(self.delegate)
         self.setSpacing(self.delegate.spacing)
