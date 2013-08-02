@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (division, absolute_import, print_function)
+from __future__ import (unicode_literals, division, absolute_import, print_function)
 store_version = 3  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
