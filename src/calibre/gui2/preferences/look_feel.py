@@ -5,8 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog,
-        QAbstractListModel, Qt, QIcon, QKeySequence)
+from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog, QColorDialog,
+        QAbstractListModel, Qt, QIcon, QKeySequence, QPalette, QColor)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
@@ -18,7 +18,7 @@ from calibre.utils.icu import sort_key
 from calibre.gui2.book_details import get_field_list
 from calibre.gui2.preferences.coloring import EditRules
 
-class DisplayedFields(QAbstractListModel): # {{{
+class DisplayedFields(QAbstractListModel):  # {{{
 
     def __init__(self, db, parent=None):
         QAbstractListModel.__init__(self, parent)
@@ -110,6 +110,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('tag_browser_old_look', gprefs, restart_required=True)
         r('bd_show_cover', gprefs)
         r('bd_overlay_cover_size', gprefs)
+        r('cover_grid_width', gprefs)
+        r('cover_grid_height', gprefs)
+        r('cover_grid_cache_size', gprefs)
 
         r('cover_flow_queue_length', config, restart_required=True)
         r('cover_browser_reflections', gprefs)
@@ -123,7 +126,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         lang = get_lang()
         if lang is None or lang not in available_translations():
             lang = 'en'
-        items = [(l, get_esc_lang(l)) for l in available_translations() \
+        items = [(l, get_esc_lang(l)) for l in available_translations()
                  if l != lang]
         if lang != 'en':
             items.append(('en', get_esc_lang('en')))
@@ -170,7 +173,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('categories_using_hierarchy', db.prefs, setting=CommaSeparatedList,
           choices=sorted(list(choices), key=sort_key))
 
-
         self.current_font = self.initial_font = None
         self.change_font_button.clicked.connect(self.change_font)
 
@@ -197,6 +199,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         keys = [unicode(x.toString(QKeySequence.NativeText)) for x in keys]
         self.fs_help_msg.setText(unicode(self.fs_help_msg.text())%(
             _(' or ').join(keys)))
+        self.cover_grid_color_button.clicked.connect(self.change_cover_grid_color)
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
@@ -215,6 +218,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             mi=None
         self.edit_rules.initialize(db.field_metadata, db.prefs, mi, 'column_color_rules')
         self.icon_rules.initialize(db.field_metadata, db.prefs, mi, 'column_icon_rules')
+        self.set_cg_color(gprefs['cover_grid_color'])
+
+    def set_cg_color(self, val):
+        pal = QPalette()
+        pal.setColor(QPalette.Window, QColor(*val))
+        self.cover_grid_color_label.setPalette(pal)
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
@@ -227,6 +236,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.edit_rules.clear()
         self.icon_rules.clear()
         self.changed_signal.emit()
+        self.set_cg_color(gprefs.defaults['cover_grid_color'])
+
+    def change_cover_grid_color(self):
+        col = QColorDialog.getColor(self.cover_grid_color_label.palette().color(QPalette.Window),
+                              self.gui, _('Choose background color for cover grid'))
+        if col.isValid():
+            col = tuple(col.getRgb())[:3]
+            self.set_cg_color(col)
+            self.changed_signal.emit()
 
     def build_font_obj(self):
         font_info = self.current_font
@@ -286,6 +304,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.display_model.commit()
         self.edit_rules.commit(self.gui.current_db.prefs)
         self.icon_rules.commit(self.gui.current_db.prefs)
+        gprefs['cover_grid_color'] = tuple(self.cover_grid_color_label.palette().color(QPalette.Window).getRgb())[:3]
         return rr
 
     def refresh_gui(self, gui):
@@ -296,9 +315,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if hasattr(gui.cover_flow, 'setShowReflections'):
             gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
         gui.library_view.refresh_row_sizing()
+        gui.grid_view.refresh_settings()
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
     test_widget('Interface', 'Look & Feel')
+
 

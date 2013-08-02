@@ -111,6 +111,10 @@ defs['tags_browser_category_icons'] = {}
 defs['cover_browser_reflections'] = True
 defs['extra_row_spacing'] = 0
 defs['refresh_book_list_on_bulk_edit'] = True
+defs['cover_grid_width'] = 0
+defs['cover_grid_height'] = 0
+defs['cover_grid_color'] = (80, 80, 80)
+defs['cover_grid_cache_size'] = 200
 del defs
 # }}}
 

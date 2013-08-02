@@ -20,7 +20,10 @@ from PyQt4.Qt import (
     QUrl, QDrag, QPoint, QPainter, QRect)
 
 from calibre import fit_image
+from calibre.gui2 import gprefs
 from calibre.utils.config import prefs
+
+CM_TO_INCH = 0.393701
 
 # Drag 'n Drop {{{
 def dragMoveEvent(self, event):
@@ -305,15 +308,39 @@ class CoverCache(dict):
     def __hash__(self):
         return id(self)
 
+    def set_limit(self, limit):
+        with self.lock:
+            self.limit = limit
+            if len(self.items) > self.limit:
+                extra = len(self.items) - self.limit
+                remove = tuple(self.iterkeys())[:extra]
+                for k in remove:
+                    del self.items[k]
+
 class CoverDelegate(QStyledItemDelegate):
 
-    def __init__(self, parent, width, height):
+    def __init__(self, parent):
         super(CoverDelegate, self).__init__(parent)
+        self.set_dimensions()
+        self.cover_cache = CoverCache(limit=gprefs['cover_grid_cache_size'])
+        self.render_queue = Queue()
+
+    def set_dimensions(self):
+        width = self.original_width = gprefs['cover_grid_width']
+        height = self.original_height = gprefs['cover_grid_height']
+
+        if height < 0.1:
+            height = max(185, QApplication.instance().desktop().availableGeometry(self.parent()).height() / 5.0)
+        else:
+            height *= self.parent().logicalDpiY() * CM_TO_INCH
+
+        if width < 0.1:
+            width = 0.75 * height
+        else:
+            width *= self.parent().logicalDpiX() * CM_TO_INCH
         self.cover_size = QSize(width, height)
         self.item_size = self.cover_size + QSize(8, 8)
         self.spacing = max(10, min(50, int(0.1 * width)))
-        self.cover_cache = CoverCache()
-        self.render_queue = Queue()
 
     def sizeHint(self, option, index):
         return self.item_size
@@ -366,11 +393,7 @@ class GridView(QListView):
     def __init__(self, parent):
         QListView.__init__(self, parent)
         setup_dnd_interface(self)
-        pal = QPalette(self.palette())
-        r = g = b = 0x50
-        pal.setColor(pal.Base, QColor(r, g, b))
-        pal.setColor(pal.Text, QColor(Qt.white if (r + g + b)/3.0 < 128 else Qt.black))
-        self.setPalette(pal)
+        self.set_color()
         self.setUniformItemSizes(True)
         self.setWrapping(True)
         self.setFlow(self.LeftToRight)
@@ -380,7 +403,7 @@ class GridView(QListView):
         self.setResizeMode(self.Adjust)
         self.setSelectionMode(self.ExtendedSelection)
         self.setVerticalScrollMode(self.ScrollPerPixel)
-        self.delegate = CoverDelegate(self, 135, 180)
+        self.delegate = CoverDelegate(self)
         self.setItemDelegate(self.delegate)
         self.setSpacing(self.delegate.spacing)
         self.ignore_render_requests = Event()
@@ -389,6 +412,21 @@ class GridView(QListView):
         self.doubleClicked.connect(parent.iactions['View'].view_triggered)
         self.gui = parent
         self.context_menu = None
+
+    def set_color(self):
+        r, g, b = gprefs['cover_grid_color']
+        pal = QPalette()
+        pal.setColor(pal.Base, QColor(r, g, b))
+        pal.setColor(pal.Text, QColor(Qt.white if (r + g + b)/3.0 < 128 else Qt.black))
+        self.setPalette(pal)
+
+    def refresh_settings(self):
+        if gprefs['cover_grid_width'] != self.delegate.original_width or gprefs['cover_grid_height'] != self.delegate.original_height:
+            self.delegate.set_dimensions()
+            self.setSpacing(self.delegate.spacing)
+            self.delegate.cover_cache.clear()
+        self.set_color()
+        self.delegate.cover_cache.set_limit(gprefs['cover_grid_cache_size'])
 
     def shown(self):
         if self.render_thread is None:
