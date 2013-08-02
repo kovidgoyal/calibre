@@ -15,7 +15,7 @@ from functools import wraps
 
 from PyQt4.Qt import (
     QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal,
-    QPalette, QColor, QItemSelection)
+    QPalette, QColor, QItemSelection, QPixmap)
 
 from calibre import fit_image
 
@@ -108,18 +108,22 @@ class CoverCache(dict):
         with self.lock:
             self.items.pop(book_id, None)
 
-    def __call__(self, key):
+    def __getitem__(self, key):
+        ' Must be called in the GUI thread '
         with self.lock:
-            ans = self.items.pop(key, False)
+            ans = self.items.pop(key, False)  # pop() so that item is moved to the top
             if ans is not False:
+                if isinstance(ans, QImage):
+                    # Convert to QPixmap, since rendering QPixmap is much
+                    # faster
+                    ans = QPixmap.fromImage(ans)
                 self.items[key] = ans
-                if len(self.items) > self.limit:
-                    del self.items[next(self.items.iterkeys())]
 
         return ans
 
     def set(self, key, val):
         with self.lock:
+            self.items.pop(key, None)  # pop() so that item is moved to the top
             self.items[key] = val
             if len(self.items) > self.limit:
                 del self.items[next(self.items.iterkeys())]
@@ -152,7 +156,7 @@ class CoverDelegate(QStyledItemDelegate):
         except (ValueError, IndexError, KeyError):
             return
         db = db.new_api
-        cdata = self.cover_cache(book_id)
+        cdata = self.cover_cache[book_id]
         painter.save()
         try:
             rect = option.rect
@@ -166,7 +170,7 @@ class CoverDelegate(QStyledItemDelegate):
                 dx = max(0, int((rect.width() - cdata.width())/2.0))
                 dy = max(0, rect.height() - cdata.height())
                 rect.adjust(dx, dy, -dx, 0)
-                painter.drawImage(rect, cdata)
+                painter.drawPixmap(rect, cdata)
         finally:
             painter.restore()
 
