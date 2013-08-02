@@ -520,11 +520,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         except Empty:
             return
         if msg.startswith('launched:'):
-            argv = eval(msg[len('launched:'):])
-            if len(argv) > 1:
-                path = os.path.abspath(argv[1])
-                if os.access(path, os.R_OK):
-                    self.iactions['Add Books'].add_filesystem_book(path)
+            import json
+            argv = json.loads(msg[len('launched:'):])
+            if isinstance(argv, (list, tuple)) and len(argv) > 1:
+                files = [os.path.abspath(p) for p in argv[1:] if not os.path.isdir(p) and os.access(p, os.R_OK)]
+                if files:
+                    self.iactions['Add Books'].add_filesystem_book(files)
             self.setWindowState(self.windowState() &
                     ~Qt.WindowMinimized|Qt.WindowActive)
             self.show_windows()

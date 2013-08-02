@@ -401,8 +401,9 @@ def communicate(opts, args):
         shutdown_other(t)
     else:
         if len(args) > 1:
-            args[1] = os.path.abspath(args[1])
-        t.conn.send('launched:'+repr(args))
+            args[1:] = [os.path.abspath(x) if os.path.exists(x) else x for x in args[1:]]
+        import json
+        t.conn.send('launched:'+json.dumps(args))
     t.conn.close()
     raise SystemExit(0)
 
