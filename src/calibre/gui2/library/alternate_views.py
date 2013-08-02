@@ -11,11 +11,11 @@ from time import time
 from collections import OrderedDict
 from threading import Lock, Event, Thread
 from Queue import Queue
-from functools import wraps
+from functools import wraps, partial
 
 from PyQt4.Qt import (
     QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal,
-    QPalette, QColor, QItemSelection, QPixmap)
+    QPalette, QColor, QItemSelection, QPixmap, QMenu)
 
 from calibre import fit_image
 
@@ -50,6 +50,7 @@ class AlternateViews(object):
         view.setModel(self.main_view._model)
         view.selectionModel().currentChanged.connect(self.slave_current_changed)
         view.selectionModel().selectionChanged.connect(self.slave_selection_changed)
+        view.sort_requested.connect(self.main_view.sort_by_named_field)
 
     def show_view(self, key=None):
         view = self.views[key]
@@ -194,6 +195,7 @@ def join_with_timeout(q, timeout=2):
 class GridView(QListView):
 
     update_item = pyqtSignal(object)
+    sort_requested = pyqtSignal(object, object)
 
     def __init__(self, parent):
         QListView.__init__(self, parent)
@@ -216,6 +218,7 @@ class GridView(QListView):
         self.render_thread = None
         self.update_item.connect(self.re_render, type=Qt.QueuedConnection)
         self.doubleClicked.connect(parent.iactions['View'].view_triggered)
+        self.gui = parent
         self.context_menu = None
 
     def shown(self):
@@ -313,5 +316,25 @@ class GridView(QListView):
 
     def contextMenuEvent(self, event):
         if self.context_menu is not None:
-            self.context_menu.popup(event.globalPos())
+            lv = self.gui.library_view
+            menu = self._temp_menu = QMenu(self)
+            sm = QMenu(_('Sort by'), menu)
+            db = self.model().db
+            for col in lv.visible_columns:
+                m = db.metadata_for_field(col)
+                last = self.model().sorted_on
+                ascending = True
+                extra = ''
+                if last[0] == col:
+                    ascending = not last[1]
+                    extra = ' [%s]' % _('reverse')
+                sm.addAction('%s%s' % (m.get('name', col), extra), partial(self.do_sort, col, ascending))
+
+            for ac in self.context_menu.actions():
+                menu.addAction(ac)
+            menu.addMenu(sm)
+            menu.popup(event.globalPos())
             event.accept()
+
+    def do_sort(self, column, ascending):
+        self.sort_requested.emit(column, ascending)
