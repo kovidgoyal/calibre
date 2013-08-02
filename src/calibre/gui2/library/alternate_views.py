@@ -374,7 +374,9 @@ class GridView(QListView):
         self.setUniformItemSizes(True)
         self.setWrapping(True)
         self.setFlow(self.LeftToRight)
-        self.setLayoutMode(self.Batched)
+        # We cannot set layout mode to batched, because that breaks
+        # restore_vpos()
+        # self.setLayoutMode(self.Batched)
         self.setResizeMode(self.Adjust)
         self.setSelectionMode(self.ExtendedSelection)
         self.setVerticalScrollMode(self.ScrollPerPixel)
@@ -505,5 +507,11 @@ class GridView(QListView):
 
     def do_sort(self, column, ascending):
         self.sort_requested.emit(column, ascending)
+
+    def restore_vpos(self, vpos):
+        self.verticalScrollBar().setValue(vpos)
+
+    def restore_hpos(self, hpos):
+        pass
 
 setup_dnd_interface(GridView)

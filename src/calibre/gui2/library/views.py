@@ -87,18 +87,24 @@ class PreserveViewState(object):  # {{{
             require_selected_ids=True):
         self.view = view
         self.require_selected_ids = require_selected_ids
-        self.selected_ids = set()
-        self.current_id = None
         self.preserve_hpos = preserve_hpos
         self.preserve_vpos = preserve_vpos
+        self.init_vals()
+
+    def init_vals(self):
+        self.selected_ids = set()
+        self.current_id = None
         self.vscroll = self.hscroll = 0
+        self.original_view = None
 
     def __enter__(self):
+        self.init_vals()
         try:
+            view = self.original_view = self.view.alternate_views.current_view
             self.selected_ids = self.view.get_selected_ids()
             self.current_id = self.view.current_id
-            self.vscroll = self.view.verticalScrollBar().value()
-            self.hscroll = self.view.horizontalScrollBar().value()
+            self.vscroll = view.verticalScrollBar().value()
+            self.hscroll = view.horizontalScrollBar().value()
         except:
             import traceback
             traceback.print_exc()
@@ -110,10 +116,19 @@ class PreserveViewState(object):  # {{{
             if self.selected_ids:
                 self.view.select_rows(self.selected_ids, using_ids=True,
                         scroll=False, change_current=self.current_id is None)
-            if self.preserve_vpos:
-                self.view.verticalScrollBar().setValue(self.vscroll)
-            if self.preserve_hpos:
-                self.view.horizontalScrollBar().setValue(self.hscroll)
+            view = self.original_view
+            if self.view.alternate_views.current_view is view:
+                if self.preserve_vpos:
+                    if hasattr(view, 'restore_vpos'):
+                        view.restore_vpos(self.vscroll)
+                    else:
+                        view.verticalScrollBar().setValue(self.vscroll)
+                if self.preserve_hpos:
+                    if hasattr(view, 'restore_hpos'):
+                        view.restore_hpos(self.hscroll)
+                    else:
+                        view.horizontalScrollBar().setValue(self.hscroll)
+        self.init_vals()
 
     @dynamic_property
     def state(self):
