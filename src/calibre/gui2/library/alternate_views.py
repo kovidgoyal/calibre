@@ -6,7 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import itertools, operator
+import itertools, operator, os
+from types import MethodType
 from time import time
 from collections import OrderedDict
 from threading import Lock, Event, Thread
@@ -15,10 +16,171 @@ from functools import wraps, partial
 
 from PyQt4.Qt import (
     QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal,
-    QPalette, QColor, QItemSelection, QPixmap, QMenu)
+    QPalette, QColor, QItemSelection, QPixmap, QMenu, QApplication, QMimeData,
+    QUrl, QDrag, QPoint, QPainter, QRect)
 
 from calibre import fit_image
+from calibre.utils.config import prefs
 
+# Drag 'n Drop {{{
+def dragMoveEvent(self, event):
+    event.acceptProposedAction()
+
+def event_has_mods(self, event=None):
+    mods = event.modifiers() if event is not None else \
+            QApplication.keyboardModifiers()
+    return mods & Qt.ControlModifier or mods & Qt.ShiftModifier
+
+def mousePressEvent(base_class, self, event):
+    ep = event.pos()
+    if self.indexAt(ep) in self.selectionModel().selectedIndexes() and \
+            event.button() == Qt.LeftButton and not self.event_has_mods():
+        self.drag_start_pos = ep
+    return base_class.mousePressEvent(self, event)
+
+def drag_icon(self, cover, multiple):
+    cover = cover.scaledToHeight(120, Qt.SmoothTransformation)
+    if multiple:
+        base_width = cover.width()
+        base_height = cover.height()
+        base = QImage(base_width+21, base_height+21,
+                QImage.Format_ARGB32_Premultiplied)
+        base.fill(QColor(255, 255, 255, 0).rgba())
+        p = QPainter(base)
+        rect = QRect(20, 0, base_width, base_height)
+        p.fillRect(rect, QColor('white'))
+        p.drawRect(rect)
+        rect.moveLeft(10)
+        rect.moveTop(10)
+        p.fillRect(rect, QColor('white'))
+        p.drawRect(rect)
+        rect.moveLeft(0)
+        rect.moveTop(20)
+        p.fillRect(rect, QColor('white'))
+        p.save()
+        p.setCompositionMode(p.CompositionMode_SourceAtop)
+        p.drawImage(rect.topLeft(), cover)
+        p.restore()
+        p.drawRect(rect)
+        p.end()
+        cover = base
+    return QPixmap.fromImage(cover)
+
+def drag_data(self):
+    m = self.model()
+    db = m.db
+    rows = self.selectionModel().selectedIndexes()
+    selected = list(map(m.id, rows))
+    ids = ' '.join(map(str, selected))
+    md = QMimeData()
+    md.setData('application/calibre+from_library', ids)
+    fmt = prefs['output_format']
+
+    def url_for_id(i):
+        try:
+            ans = db.format_path(i, fmt, index_is_id=True)
+        except:
+            ans = None
+        if ans is None:
+            fmts = db.formats(i, index_is_id=True)
+            if fmts:
+                fmts = fmts.split(',')
+            else:
+                fmts = []
+            for f in fmts:
+                try:
+                    ans = db.format_path(i, f, index_is_id=True)
+                except:
+                    ans = None
+        if ans is None:
+            ans = db.abspath(i, index_is_id=True)
+        return QUrl.fromLocalFile(ans)
+
+    md.setUrls([url_for_id(i) for i in selected])
+    drag = QDrag(self)
+    col = self.selectionModel().currentIndex().column()
+    try:
+        md.column_name = self.column_map[col]
+    except AttributeError:
+        md.column_name = 'title'
+    drag.setMimeData(md)
+    cover = self.drag_icon(m.cover(self.currentIndex().row()),
+            len(selected) > 1)
+    drag.setHotSpot(QPoint(-15, -15))
+    drag.setPixmap(cover)
+    return drag
+
+def mouseMoveEvent(base_class, self, event):
+    if not self.drag_allowed:
+        return
+    if self.drag_start_pos is None:
+        return base_class.mouseMoveEvent(self, event)
+
+    if self.event_has_mods():
+        self.drag_start_pos = None
+        return
+
+    if not (event.buttons() & Qt.LeftButton) or \
+            (event.pos() - self.drag_start_pos).manhattanLength() \
+                    < QApplication.startDragDistance():
+        return
+
+    index = self.indexAt(event.pos())
+    if not index.isValid():
+        return
+    drag = self.drag_data()
+    drag.exec_(Qt.CopyAction)
+    self.drag_start_pos = None
+
+def dragEnterEvent(self, event):
+    if int(event.possibleActions() & Qt.CopyAction) + \
+        int(event.possibleActions() & Qt.MoveAction) == 0:
+        return
+    paths = self.paths_from_event(event)
+
+    if paths:
+        event.acceptProposedAction()
+
+def dropEvent(self, event):
+    paths = self.paths_from_event(event)
+    event.setDropAction(Qt.CopyAction)
+    event.accept()
+    self.files_dropped.emit(paths)
+
+def paths_from_event(self, event):
+    '''
+    Accept a drop event and return a list of paths that can be read from
+    and represent files with extensions.
+    '''
+    md = event.mimeData()
+    if md.hasFormat('text/uri-list') and not \
+            md.hasFormat('application/calibre+from_library'):
+        urls = [unicode(u.toLocalFile()) for u in md.urls()]
+        return [u for u in urls if os.path.splitext(u)[1] and
+                os.path.exists(u)]
+
+def setup_dnd_interface(cls_or_self):
+    if isinstance(cls_or_self, type):
+        cls = cls_or_self
+        base_class = cls.__bases__[0]
+        fmap = globals()
+        for x in (
+            'dragMoveEvent', 'event_has_mods', 'mousePressEvent', 'mouseMoveEvent',
+            'drag_data', 'drag_icon', 'dragEnterEvent', 'dropEvent', 'paths_from_event'):
+            func = fmap[x]
+            if x in {'mouseMoveEvent', 'mousePressEvent'}:
+                func = partial(func, base_class)
+            setattr(cls, x, MethodType(func, None, cls))
+    else:
+        self = cls_or_self
+        self.drag_allowed = True
+        self.drag_start_pos = None
+        self.setDragEnabled(True)
+        self.setDragDropOverwriteMode(False)
+        self.setDragDropMode(self.DragDrop)
+# }}}
+
+# Manage slave views {{{
 def sync(func):
     @wraps(func)
     def ans(self, *args, **kwargs):
@@ -51,6 +213,7 @@ class AlternateViews(object):
         view.selectionModel().currentChanged.connect(self.slave_current_changed)
         view.selectionModel().selectionChanged.connect(self.slave_selection_changed)
         view.sort_requested.connect(self.main_view.sort_by_named_field)
+        view.files_dropped.connect(self.main_view.files_dropped)
 
     def show_view(self, key=None):
         view = self.views[key]
@@ -101,8 +264,9 @@ class AlternateViews(object):
         for view in self.views.itervalues():
             if view is not self.main_view:
                 view.set_context_menu(menu)
+# }}}
 
-
+# Caching and rendering of covers {{{
 class CoverCache(dict):
 
     def __init__(self, limit=200):
@@ -191,14 +355,17 @@ def join_with_timeout(q, timeout=2):
             q.all_tasks_done.wait(remaining)
     finally:
         q.all_tasks_done.release()
+# }}}
 
 class GridView(QListView):
 
     update_item = pyqtSignal(object)
     sort_requested = pyqtSignal(object, object)
+    files_dropped = pyqtSignal(object)
 
     def __init__(self, parent):
         QListView.__init__(self, parent)
+        setup_dnd_interface(self)
         pal = QPalette(self.palette())
         r = g = b = 0x50
         pal.setColor(pal.Base, QColor(r, g, b))
@@ -338,3 +505,5 @@ class GridView(QListView):
 
     def do_sort(self, column, ascending):
         self.sort_requested.emit(column, ascending)
+
+setup_dnd_interface(GridView)

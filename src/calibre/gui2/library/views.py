@@ -5,21 +5,22 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, itertools, operator
+import itertools, operator
 from functools import partial
 from future_builtins import map
 from collections import OrderedDict
 
-from PyQt4.Qt import (QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, QFont,
-    QModelIndex, QIcon, QItemSelection, QMimeData, QDrag, QApplication, QStyle,
-    QPoint, QPixmap, QUrl, QImage, QPainter, QColor, QRect, QHeaderView, QStyleOptionHeader)
+from PyQt4.Qt import (
+    QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, QFont, QModelIndex,
+    QIcon, QItemSelection, QMimeData, QDrag, QStyle, QPoint, QUrl, QHeaderView,
+    QStyleOptionHeader)
 
 from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
     TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate,
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate,
     CcEnumDelegate, CcNumberDelegate, LanguagesDelegate)
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
-from calibre.gui2.library.alternate_views import AlternateViews
+from calibre.gui2.library.alternate_views import AlternateViews, setup_dnd_interface
 from calibre.utils.config import tweaks, prefs
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.library import DEFAULT_SORT
@@ -163,11 +164,7 @@ class BooksView(QTableView):  # {{{
             else:
                 self.setEditTriggers(self.DoubleClicked|self.editTriggers())
 
-        self.drag_allowed = True
-        self.setDragEnabled(True)
-        self.setDragDropOverwriteMode(False)
-        self.setDragDropMode(self.DragDrop)
-        self.drag_start_pos = None
+        setup_dnd_interface(self)
         self.setAlternatingRowColors(True)
         self.setSelectionBehavior(self.SelectRows)
         self.setShowGrid(False)
@@ -704,143 +701,6 @@ class BooksView(QTableView):  # {{{
         event.accept()
     # }}}
 
-    # Drag 'n Drop {{{
-    @classmethod
-    def paths_from_event(cls, event):
-        '''
-        Accept a drop event and return a list of paths that can be read from
-        and represent files with extensions.
-        '''
-        md = event.mimeData()
-        if md.hasFormat('text/uri-list') and not \
-                md.hasFormat('application/calibre+from_library'):
-            urls = [unicode(u.toLocalFile()) for u in md.urls()]
-            return [u for u in urls if os.path.splitext(u)[1] and
-                    os.path.exists(u)]
-
-    def drag_icon(self, cover, multiple):
-        cover = cover.scaledToHeight(120, Qt.SmoothTransformation)
-        if multiple:
-            base_width = cover.width()
-            base_height = cover.height()
-            base = QImage(base_width+21, base_height+21,
-                    QImage.Format_ARGB32_Premultiplied)
-            base.fill(QColor(255, 255, 255, 0).rgba())
-            p = QPainter(base)
-            rect = QRect(20, 0, base_width, base_height)
-            p.fillRect(rect, QColor('white'))
-            p.drawRect(rect)
-            rect.moveLeft(10)
-            rect.moveTop(10)
-            p.fillRect(rect, QColor('white'))
-            p.drawRect(rect)
-            rect.moveLeft(0)
-            rect.moveTop(20)
-            p.fillRect(rect, QColor('white'))
-            p.save()
-            p.setCompositionMode(p.CompositionMode_SourceAtop)
-            p.drawImage(rect.topLeft(), cover)
-            p.restore()
-            p.drawRect(rect)
-            p.end()
-            cover = base
-        return QPixmap.fromImage(cover)
-
-    def drag_data(self):
-        m = self.model()
-        db = m.db
-        rows = self.selectionModel().selectedRows()
-        selected = list(map(m.id, rows))
-        ids = ' '.join(map(str, selected))
-        md = QMimeData()
-        md.setData('application/calibre+from_library', ids)
-        fmt = prefs['output_format']
-
-        def url_for_id(i):
-            try:
-                ans = db.format_path(i, fmt, index_is_id=True)
-            except:
-                ans = None
-            if ans is None:
-                fmts = db.formats(i, index_is_id=True)
-                if fmts:
-                    fmts = fmts.split(',')
-                else:
-                    fmts = []
-                for f in fmts:
-                    try:
-                        ans = db.format_path(i, f, index_is_id=True)
-                    except:
-                        ans = None
-            if ans is None:
-                ans = db.abspath(i, index_is_id=True)
-            return QUrl.fromLocalFile(ans)
-
-        md.setUrls([url_for_id(i) for i in selected])
-        drag = QDrag(self)
-        col = self.selectionModel().currentIndex().column()
-        md.column_name = self.column_map[col]
-        drag.setMimeData(md)
-        cover = self.drag_icon(m.cover(self.currentIndex().row()),
-                len(selected) > 1)
-        drag.setHotSpot(QPoint(-15, -15))
-        drag.setPixmap(cover)
-        return drag
-
-    def event_has_mods(self, event=None):
-        mods = event.modifiers() if event is not None else \
-                QApplication.keyboardModifiers()
-        return mods & Qt.ControlModifier or mods & Qt.ShiftModifier
-
-    def mousePressEvent(self, event):
-        ep = event.pos()
-        if self.indexAt(ep) in self.selectionModel().selectedIndexes() and \
-                event.button() == Qt.LeftButton and not self.event_has_mods():
-            self.drag_start_pos = ep
-        return QTableView.mousePressEvent(self, event)
-
-    def mouseMoveEvent(self, event):
-        if not self.drag_allowed:
-            return
-        if self.drag_start_pos is None:
-            return QTableView.mouseMoveEvent(self, event)
-
-        if self.event_has_mods():
-            self.drag_start_pos = None
-            return
-
-        if not (event.buttons() & Qt.LeftButton) or \
-                (event.pos() - self.drag_start_pos).manhattanLength() \
-                      < QApplication.startDragDistance():
-            return
-
-        index = self.indexAt(event.pos())
-        if not index.isValid():
-            return
-        drag = self.drag_data()
-        drag.exec_(Qt.CopyAction)
-        self.drag_start_pos = None
-
-    def dragEnterEvent(self, event):
-        if int(event.possibleActions() & Qt.CopyAction) + \
-           int(event.possibleActions() & Qt.MoveAction) == 0:
-            return
-        paths = self.paths_from_event(event)
-
-        if paths:
-            event.acceptProposedAction()
-
-    def dragMoveEvent(self, event):
-        event.acceptProposedAction()
-
-    def dropEvent(self, event):
-        paths = self.paths_from_event(event)
-        event.setDropAction(Qt.CopyAction)
-        event.accept()
-        self.files_dropped.emit(paths)
-
-    # }}}
-
     @property
     def column_map(self):
         return self._model.column_map
@@ -1047,6 +907,8 @@ class BooksView(QTableView):  # {{{
         return self._model.count()
 
 # }}}
+
+setup_dnd_interface(BooksView)
 
 class DeviceBooksView(BooksView):  # {{{
 
