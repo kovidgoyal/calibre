@@ -62,11 +62,6 @@ class CdpStore(BasicStoreConfig, StorePlugin):
                     author = ''.join(data.xpath('.//div[@class="product-description"]//ul[@class="taxons"]/li[2]/a/text()'))
                     price = ''.join(data.xpath('.//span[@itemprop="price"]/text()'))
 
-                    with closing(br.open(id.strip(), timeout=timeout/4)) as nf:
-                        idata = html.fromstring(nf.read())
-                        formats = ', '.join(idata.xpath('//div[@id="product-bonus"]/div/ul/li/text()'))
-
-
                     counter -= 1
 
                     s = SearchResult()
@@ -76,9 +71,16 @@ class CdpStore(BasicStoreConfig, StorePlugin):
                     s.price = price
                     s.detail_item = id.strip()
                     s.drm = SearchResult.DRM_UNLOCKED
-                    s.formats = formats.upper()
 
                     yield s
                 if not doc.xpath('//span[@class="next"]/a'):
                     break
             page+=1
+
+    def get_details(self, search_result, timeout):
+        br = browser()
+        with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
+            idata = html.fromstring(nf.read())
+            formats = ', '.join(idata.xpath('//div[@id="product-bonus"]/div/ul/li/text()'))
+            search_result.formats = formats.upper()
+        return True
