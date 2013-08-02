@@ -17,6 +17,7 @@ class TheScotsman(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
+    auto_cleanup = True
     language              = 'en_GB'
     encoding              = 'utf-8'
     publication_type      = 'newspaper'
@@ -25,13 +26,13 @@ class TheScotsman(BasicNewsRecipe):
     extra_css             = 'body{font-family: Arial,Helvetica,sans-serif}'
     
     
-    keep_only_tags    = [dict(attrs={'class':'editorialSection'})]
-    remove_tags_after = dict(attrs={'class':'socialBookmarkPanel'})
-    remove_tags       = [
-                           dict(name=['meta','iframe','object','embed','link']),
-                           dict(attrs={'class':['secondaryArticlesNav','socialBookmarkPanel']}),
-                           dict(attrs={'id':'relatedArticles'})
-                        ]
+    #keep_only_tags    = [dict(attrs={'class':'editorialSection'})]
+    #remove_tags_after = dict(attrs={'class':'socialBookmarkPanel'})
+    #remove_tags       = [
+                           #dict(name=['meta','iframe','object','embed','link']),
+                           #dict(attrs={'class':['secondaryArticlesNav','socialBookmarkPanel']}),
+                           #dict(attrs={'id':'relatedArticles'})
+                        #]
     remove_attributes = ['lang']
     
     conversion_options = {
@@ -55,10 +56,10 @@ class TheScotsman(BasicNewsRecipe):
                         ('Opinion'      , 'http://www.scotsman.com/cmlink/1.957054' )
                      ]
                      
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):
-               item['alt'] = 'image'
-        return soup
+    #def preprocess_html(self, soup):
+        #for item in soup.findAll(style=True):
+            #del item['style']
+        #for item in soup.findAll('img'):
+            #if not item.has_key('alt'):
+               #item['alt'] = 'image'
+        #return soup
