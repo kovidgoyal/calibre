@@ -11,7 +11,8 @@ import sys, os, cStringIO, re
 import unicodedata
 from textwrap import TextWrapper
 
-from calibre import preferred_encoding, prints, isbytestring
+from calibre import preferred_encoding, prints, isbytestring, patheq
+from calibre.constants import iswindows
 from calibre.utils.config import OptionParser, prefs, tweaks
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks.metadata.book.base import field_from_string
@@ -1389,12 +1390,58 @@ def command_list_categories(args, dbpath):
     else:
         do_list()
 
+    return parser
+
+def clone_option_parser():
+    return get_parser(_(
+    '''\
+%prog clone path/to/new/library
+
+Create a clone of the current library. This creates a new, empty library that has all the
+same custom columns, virtual libraries and other settings as the current library.
+
+The cloned library will contain no books. If you want to create a full duplicate, including
+all books, then simply use your filesystem tools to copy the library folder.
+    '''))
+
+def command_clone(args, dbpath):
+    parser = clone_option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) < 1:
+        parser.print_help()
+        print
+        prints(_('Error: You must specify the path to the cloned library'))
+        return 1
+    db = get_db(dbpath, opts)
+    loc = args[0]
+    if not os.path.exists(loc):
+        os.makedirs(loc)
+    loc = os.path.abspath(loc)
+
+    if patheq(loc, db.library_path):
+        prints(_('The location for the new library is the same as the current library'))
+        return 1
+    empty = not os.listdir(loc)
+    if not empty:
+        prints(_('%s is not empty. You must choose an empty directory for the new library.') % loc)
+        return 1
+    from calibre.db import get_db_loader
+    LibraryDatabase = get_db_loader()[0]
+    if iswindows and len(loc) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT:
+        prints(_('Path to library too long. Must be less than'
+                    ' %d characters.')%LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT)
+        return 1
+    dbprefs = dict(db.prefs)
+    db.close()
+    LibraryDatabase(loc, default_prefs=dbprefs)
+
 
 COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
             'show_metadata', 'set_metadata', 'export', 'catalog',
             'saved_searches', 'add_custom_column', 'custom_columns',
             'remove_custom_column', 'set_custom', 'restore_database',
-            'check_library', 'list_categories', 'backup_metadata')
+            'check_library', 'list_categories', 'backup_metadata',
+            'clone')
 
 
 def option_parser():
@@ -1432,3 +1479,4 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     sys.exit(main())
+

@@ -1199,6 +1199,17 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
 #}}}
 
 # Store plugins {{{
+class StoreAllegroStore(StoreBase):
+    name = 'Ebooki Allegro'
+    author = u'Tomasz Długosz'
+    description = u'Platforma Grupy Allegro sprzedająca ebooki zabezpieczone znakiem wodnym.'
+    actual_plugin = 'calibre.gui2.store.stores.allegro_plugin:AllegroStore'
+
+    drm_free_only = True
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
+
 class StoreAmazonKindleStore(StoreBase):
     name = 'Amazon Kindle'
     description = u'Kindle books from Amazon.'
@@ -1330,6 +1341,16 @@ class StoreBookotekaStore(StoreBase):
     drm_free_only = True
     headquarters = 'PL'
     formats = ['EPUB', 'PDF']
+
+class StoreCdpStore(StoreBase):
+    name = 'Cdp.pl'
+    author = u'Tomasz Długosz'
+    description = u'Ebooki w wielu formatach zabezpieczone znakiem wodnym RuneMark'
+    actual_plugin = 'calibre.gui2.store.stores.cdp_plugin:CdpStore'
+
+    drm_free_only = True
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF']
 
 class StoreChitankaStore(StoreBase):
     name = u'Моята библиотека'
@@ -1675,6 +1696,7 @@ class XinXiiStore(StoreBase):
     formats = ['EPUB', 'PDF']
 
 plugins += [
+    StoreAllegroStore,
     StoreArchiveOrgStore,
     StoreAmazonKindleStore,
     StoreAmazonDEKindleStore,
@@ -1688,6 +1710,7 @@ plugins += [
     StoreBiblioStore,
     StoreBookotekaStore,
     StoreChitankaStore,
+    StoreCdpStore,
     StoreDieselEbooksStore,
     StoreEbookNLStore,
     StoreEbookpointStore,

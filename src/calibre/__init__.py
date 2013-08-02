@@ -509,6 +509,7 @@ def strftime(fmt, t=None):
     if iswindows:
         if isinstance(fmt, unicode):
             fmt = fmt.encode('mbcs')
+        fmt = fmt.replace(b'%e', b'%#d')
         ans = plugins['winutil'][0].strftime(fmt, t)
     else:
         ans = time.strftime(fmt, t).decode(preferred_encoding, 'replace')
@@ -709,4 +710,8 @@ def remove_bracketed_text(src,
 def ipython(user_ns=None):
     from calibre.utils.ipython import ipython
     ipython(user_ns=user_ns)
+
+def fsync(fileobj):
+    fileobj.flush()
+    os.fsync(fileobj.fileno())
 

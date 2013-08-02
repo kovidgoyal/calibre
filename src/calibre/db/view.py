@@ -30,6 +30,9 @@ class MarkedVirtualField(object):
         for book_id in candidates:
             yield self.marked_ids.get(book_id, default_value), {book_id}
 
+    def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
+        return {bid:self.marked_ids.get(bid, None) for bid in all_book_ids}
+
 class TableRow(object):
 
     def __init__(self, book_id, view):
@@ -135,9 +138,12 @@ class View(object):
         return self.cache.field_metadata
 
     def _get_id(self, idx, index_is_id=True):
-        if index_is_id and idx not in self.cache.all_book_ids():
+        if index_is_id and not self.cache.has_id(idx):
             raise IndexError('No book with id %s present'%idx)
         return idx if index_is_id else self.index_to_id(idx)
+
+    def has_id(self, book_id):
+        return self.cache.has_id(book_id)
 
     def __getitem__(self, row):
         return TableRow(self._map_filtered[row], self)
@@ -172,12 +178,16 @@ class View(object):
         return self._map_filtered[idx]
 
     def id_to_index(self, book_id):
-        return self._map.index(book_id)
+        return self._map_filtered.index(book_id)
     row = index_to_id
+
+    def index(self, book_id, cache=False):
+        x = self._map if cache else self._map_filtered
+        return x.index(book_id)
 
     def _get(self, field, idx, index_is_id=True, default_value=None, fmt=lambda x:x):
         id_ = idx if index_is_id else self.index_to_id(idx)
-        if index_is_id and id_ not in self.cache.all_book_ids():
+        if index_is_id and not self.cache.has_id(id_):
             raise IndexError('No book with id %s present'%idx)
         return fmt(self.cache.field_for(field, id_, default_value=default_value))
 
@@ -216,7 +226,9 @@ class View(object):
         if not fields:
             fields = [('timestamp', False)]
 
-        sorted_book_ids = self.cache.multisort(fields, ids_to_sort=only_ids)
+        sorted_book_ids = self.cache.multisort(
+            fields, ids_to_sort=self._map if only_ids is None else only_ids,
+            virtual_fields={'marked':MarkedVirtualField(self.marked_ids)})
         if only_ids is None:
             self._map = tuple(sorted_book_ids)
             if len(self._map_filtered) == len(self._map):
@@ -323,7 +335,7 @@ class View(object):
         self.cache.clear_search_caches(old_marked_ids | set(self.marked_ids))
 
     def refresh(self, field=None, ascending=True, clear_caches=True):
-        self._map = tuple(self.cache.all_book_ids())
+        self._map = tuple(sorted(self.cache.all_book_ids()))
         self._map_filtered = tuple(self._map)
         if clear_caches:
             self.cache.clear_caches()

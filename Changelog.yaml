@@ -20,6 +20,40 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.42
+  date: 2013-08-02
+
+  new features:
+    - title: "When downloading metadata from Amazon, convert the amazon categories into tags. You can turn this off by going to Preferences->Metadata download and configuring the Amazon source."
+      tickets: [1206763]
+
+    - title: "Kobo driver: Add an option to modify the styling in books being sent to the device, based on a template on the device."
+      tickets: [1207151]
+
+    - title: "Get Books: Add support for two more Polish ebook stores: cdp.pl and ebooki.allegro.pl"
+
+    - title: "calibredb: Add a new clone command to create clones of libraries with the same custom columns, virtual libraries, etc. as the current library."
+ 
+  bug fixes:
+    - title: "MOBI metadata: Do not fail to set metadata in MOBI files if they have EXTH fields with NULL pointers to a cover or thumbnail."
+      tickets: [1205757]
+
+    - title: "Fix editing of book metadata failing when its timestamp is out of range for the system."
+      tickets: [1191599]
+
+    - title: "Fix renaming a user category to the same name it already has erases the user category."
+      tickets: [1207131]
+
+    - title: "Fix drag 'n drop of cover onto conversion dialog not working"
+
+    - title: "Device drivers: Explicitly fsync() all files when writing to devices, to reduce chances of file corruption if the device is disconnected while jobs are running"
+
+    - title: "Fix calibre not appearing in Ubuntu's 'Open with..' menu"
+      tickets: [1207518]
+
+  improved recipes:
+    - PC World
+
 - version: 0.9.41
   date: 2013-07-27
 

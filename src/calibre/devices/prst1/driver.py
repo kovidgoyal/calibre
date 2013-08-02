@@ -15,6 +15,7 @@ import os, time, re
 from contextlib import closing
 from datetime import date
 
+from calibre import fsync
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre.devices.usbms.device import USBDevice
@@ -761,6 +762,7 @@ class PRST1(USBMS):
 
         with open(thumbnail_file_path, 'wb') as f:
             f.write(book.thumbnail[-1])
+            fsync(f)
 
         query = 'UPDATE books SET thumbnail = ? WHERE _id = ?'
         t = (thumbnail_path, book.bookId,)

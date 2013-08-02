@@ -9,7 +9,7 @@ For usage information run the script.
 import StringIO, sys, time, os
 from optparse import OptionParser
 
-from calibre import __version__, __appname__, human_readable
+from calibre import __version__, __appname__, human_readable, fsync
 from calibre.devices.errors import PathError
 from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
 from calibre.customize.ui import device_plugins
@@ -293,6 +293,7 @@ def main():
                     parser.print_help()
                     return 1
                 dev.get_file(path, outfile)
+                fsync(outfile)
                 outfile.close()
             elif args[1].startswith("dev:"):
                 try:

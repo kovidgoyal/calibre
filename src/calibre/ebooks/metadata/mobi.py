@@ -169,10 +169,11 @@ class MetadataUpdater(object):
                 self.timestamp = content
             elif id == 201:
                 rindex, = self.cover_rindex, = unpack('>I', content)
-                self.cover_record = self.record(rindex + image_base)
+                if rindex != 0xffffffff:
+                    self.cover_record = self.record(rindex + image_base)
             elif id == 202:
                 rindex, = self.thumbnail_rindex, = unpack('>I', content)
-                if rindex > 0 :
+                if rindex > 0 and rindex != 0xffffffff:
                     self.thumbnail_record = self.record(rindex + image_base)
 
     def patch(self, off, new_record0):
@@ -264,7 +265,7 @@ class MetadataUpdater(object):
 
         # Pad to a 4-byte boundary
         trail = len(new_record0.getvalue()) % 4
-        pad = '\0' * (4 - trail) # Always pad w/ at least 1 byte
+        pad = '\0' * (4 - trail)  # Always pad w/ at least 1 byte
         new_record0.write(pad)
         new_record0.write('\0'*(1024*8))
 
@@ -277,7 +278,8 @@ class MetadataUpdater(object):
     def hexdump(self, src, length=16):
         # Diagnostic
         FILTER=''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
-        N=0; result=''
+        N=0
+        result=''
         while src:
             s,src = src[:length],src[length:]
             hexa = ' '.join(["%02X"%ord(x) for x in s])
@@ -291,7 +293,7 @@ class MetadataUpdater(object):
         for i in xrange(self.nrecs):
             offset, a1,a2,a3,a4 = unpack('>LBBBB', self.data[78+i*8:78+i*8+8])
             flags, val = a1, a2<<16|a3<<8|a4
-            pdbrecords.append( [offset, flags, val] )
+            pdbrecords.append([offset, flags, val])
         return pdbrecords
 
     def update_pdbrecords(self, updated_pdbrecords):
@@ -421,7 +423,7 @@ class MetadataUpdater(object):
             exth.write(data)
         exth = exth.getvalue()
         trail = len(exth) % 4
-        pad = '\0' * (4 - trail) # Always pad w/ at least 1 byte
+        pad = '\0' * (4 - trail)  # Always pad w/ at least 1 byte
         exth = ['EXTH', pack('>II', len(exth) + 12, len(recs)), exth, pad]
         exth = ''.join(exth)
 
@@ -472,7 +474,6 @@ def get_metadata(stream):
         PILImage
     except ImportError:
         import Image as PILImage
-
 
     stream.seek(0)
     try:
@@ -529,5 +530,3 @@ def get_metadata(stream):
         im.convert('RGB').save(obuf, format='JPEG')
         mi.cover_data = ('jpg', obuf.getvalue())
     return mi
-
-

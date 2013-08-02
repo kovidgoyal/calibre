@@ -481,11 +481,16 @@ class Parser(SearchQueryParser):  # {{{
             field = self.dbcache.fields[name]
         except KeyError:
             field = self.virtual_fields[name]
+            self.virtual_field_used = True
         return field.iter_searchable_values(get_metadata, candidates)
 
     def iter_searchable_values(self, *args, **kwargs):
-        for x in []:
+        for x in ():
             yield x, set()
+
+    def parse(self, *args, **kwargs):
+        self.virtual_field_used = False
+        return SearchQueryParser.parse(self, *args, **kwargs)
 
     def get_matches(self, location, query, candidates=None,
                     allow_recursion=True):
@@ -614,7 +619,10 @@ class Parser(SearchQueryParser):  # {{{
             if x.startswith('@'):
                 continue
             if fm['search_terms'] and x != 'series_sort':
-                all_locs.add(x)
+                if x not in self.virtual_fields:
+                    # We dont search virtual fields because if we do, search
+                    # caching will not be used
+                    all_locs.add(x)
                 field_metadata[x] = fm
                 if fm['datatype'] in {'composite', 'text', 'comments', 'series', 'enumeration'}:
                     text_fields.add(x)
@@ -852,6 +860,8 @@ class Search(object):
             sqp.dbcache = sqp.lookup_saved_search = None
 
     def _do_search(self, sqp, query, search_restriction, dbcache, book_ids=None):
+        ''' Do the search, caching the results. Results are cached only if the
+        search is on the full library and no virtual field is searched on '''
         if isinstance(search_restriction, bytes):
             search_restriction = search_restriction.decode('utf-8')
 
@@ -861,7 +871,7 @@ class Search(object):
             if cached is None:
                 sqp.all_book_ids = all_book_ids if book_ids is None else book_ids
                 restricted_ids = sqp.parse(search_restriction)
-                if sqp.all_book_ids is all_book_ids:
+                if not sqp.virtual_field_used and sqp.all_book_ids is all_book_ids:
                     self.cache.add(search_restriction.strip(), restricted_ids)
             else:
                 restricted_ids = cached
@@ -884,7 +894,7 @@ class Search(object):
         sqp.all_book_ids = restricted_ids
         result = sqp.parse(query)
 
-        if sqp.all_book_ids is all_book_ids:
+        if not sqp.virtual_field_used and sqp.all_book_ids is all_book_ids:
             self.cache.add(query.strip(), result)
 
         return result

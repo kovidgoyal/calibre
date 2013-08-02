@@ -162,6 +162,18 @@ class Worker(Thread):  # Get details {{{
             '''
         self.language_names = {'Language', 'Sprache', 'Lingua', 'Idioma', 'Langue', '言語'}
 
+        self.tags_xpath = '''
+            descendant::h2[
+                text() = "Look for Similar Items by Category" or
+                text() = "Ähnliche Artikel finden" or
+                text() = "Buscar productos similares por categoría" or
+                text() = "Ricerca articoli simili per categoria" or
+                text() = "Rechercher des articles similaires par rubrique" or
+                text() = "Procure por itens similares por categoria" or
+                text() = "関連商品を探す"
+            ]/../descendant::ul/li
+        '''
+
         self.ratings_pat = re.compile(
             r'([0-9.]+) ?(out of|von|su|étoiles sur|つ星のうち|de un máximo de|de) ([\d\.]+)( (stars|Sternen|stelle|estrellas|estrelas)){0,1}')
 
@@ -311,6 +323,11 @@ class Worker(Thread):  # Get details {{{
                 mi.series, mi.series_index = 'Dummy series for testing', 1
         except:
             self.log.exception('Error parsing series for url: %r'%self.url)
+
+        try:
+            mi.tags = self.parse_tags(root)
+        except:
+            self.log.exception('Error parsing tags for url: %r'%self.url)
 
         try:
             self.cover_url = self.parse_cover(root, raw)
@@ -490,6 +507,23 @@ class Worker(Thread):  # Get details {{{
                     ans = (s, i)
         return ans
 
+    def parse_tags(self, root):
+        ans = []
+        exclude_tokens = {'kindle', 'a-z'}
+        exclude = {'special features', 'by authors', 'authors & illustrators', 'books', 'new; used & rental textbooks'}
+        seen = set()
+        for li in root.xpath(self.tags_xpath):
+            for i, a in enumerate(li.iterdescendants('a')):
+                if i > 0:
+                    # we ignore the first category since it is almost always too broad
+                    raw = (a.text or '').strip().replace(',', ';')
+                    lraw = icu_lower(raw)
+                    tokens = frozenset(lraw.split())
+                    if raw and lraw not in exclude and not tokens.intersection(exclude_tokens) and lraw not in seen:
+                        ans.append(raw)
+                        seen.add(lraw)
+        return ans
+
     def parse_cover(self, root, raw=b""):
         imgs = root.xpath('//img[(@id="prodImage" or @id="original-main-image" or @id="main-image") and @src]')
         if not imgs:
@@ -588,7 +622,7 @@ class Amazon(Source):
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
         'identifier:isbn', 'rating', 'comments', 'publisher', 'pubdate',
-        'languages', 'series'])
+        'languages', 'series', 'tags'])
     has_html_comments = True
     supports_gzip_transfer_encoding = True
 

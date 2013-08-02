@@ -143,7 +143,7 @@ class LibraryDatabase(object):
         self.data.cache.initialize_template_cache()
 
     def all_ids(self):
-        for book_id in self.data.cache.all_book_ids():
+        for book_id in self.new_api.all_book_ids():
             yield book_id
 
     def is_empty(self):
@@ -202,7 +202,8 @@ class LibraryDatabase(object):
     # Adding books {{{
     def create_book_entry(self, mi, cover=None, add_duplicates=True, force_id=None):
         ret = self.new_api.create_book_entry(mi, cover=cover, add_duplicates=add_duplicates, force_id=force_id)
-        self.data.books_added((ret,))
+        if ret is not None:
+            self.data.books_added((ret,))
         return ret
 
     def add_books(self, paths, formats, metadata, add_duplicates=True, return_ids=False):
@@ -217,7 +218,8 @@ class LibraryDatabase(object):
                     paths.append(path)
             duplicates = (paths, formats, metadata)
         ids = book_ids if return_ids else len(book_ids)
-        self.data.books_added(book_ids)
+        if book_ids:
+            self.data.books_added(book_ids)
         return duplicates or None, ids
 
     def import_book(self, mi, formats, notify=True, import_hooks=True, apply_import_tags=True, preserve_uuid=False):
@@ -229,7 +231,8 @@ class LibraryDatabase(object):
             format_map[ext] = path
         book_ids, duplicates = self.new_api.add_books(
             [(mi, format_map)], add_duplicates=True, apply_import_tags=apply_import_tags, preserve_uuid=preserve_uuid, dbapi=self, run_hooks=import_hooks)
-        self.data.books_added(book_ids)
+        if book_ids:
+            self.data.books_added(book_ids)
         if notify:
             self.notify('add', book_ids)
         return book_ids[0]
@@ -250,12 +253,14 @@ class LibraryDatabase(object):
 
     def add_catalog(self, path, title):
         book_id = add_catalog(self.new_api, path, title)
-        self.data.books_added((book_id,))
+        if book_id is not None:
+            self.data.books_added((book_id,))
         return book_id
 
     def add_news(self, path, arg):
         book_id = add_news(self.new_api, path, arg)
-        self.data.books_added((book_id,))
+        if book_id is not None:
+            self.data.books_added((book_id,))
         return book_id
 
     def add_format(self, index, fmt, stream, index_is_id=False, path=None, notify=True, replace=True, copy_function=None):
@@ -510,7 +515,7 @@ class LibraryDatabase(object):
                 self.new_api._remove_items('tags', tag_ids)
 
     def has_id(self, book_id):
-        return book_id in self.new_api.all_book_ids()
+        return self.new_api.has_id(book_id)
 
     def format(self, index, fmt, index_is_id=False, as_file=False, mode='r+b', as_path=False, preserve_filename=False):
         book_id = index if index_is_id else self.id(index)

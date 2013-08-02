@@ -7,7 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re, time
-from datetime import datetime, time as dtime, timedelta
+from datetime import datetime, time as dtime, timedelta, MINYEAR, MAXYEAR
 from functools import partial
 
 from dateutil.tz import tzlocal, tzutc, EPOCHORDINAL
@@ -75,7 +75,12 @@ def is_date_undefined(qt_or_dt):
     if d is None:
         return True
     if hasattr(d, 'toString'):
-        d = datetime(d.year(), d.month(), d.day(), tzinfo=utc_tz)
+        if hasattr(d, 'date'):
+            d = d.date()
+        try:
+            d = datetime(d.year(), d.month(), d.day(), tzinfo=utc_tz)
+        except ValueError:
+            return True  # Undefined QDate
     return d.year < UNDEFINED_DATE.year or (
             d.year == UNDEFINED_DATE.year and
             d.month == UNDEFINED_DATE.month and
@@ -136,14 +141,26 @@ def dt_factory(time_t, assume_utc=False, as_utc=True):
         dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
 
+safeyear = lambda x: min(max(x, MINYEAR), MAXYEAR)
+
 def qt_to_dt(qdate_or_qdatetime, as_utc=True):
-    from PyQt4.Qt import Qt
     o = qdate_or_qdatetime
     if hasattr(o, 'toUTC'):
         # QDateTime
-        o = unicode(o.toUTC().toString(Qt.ISODate))
-        return parse_date(o, assume_utc=True, as_utc=as_utc)
-    dt = datetime(o.year(), o.month(), o.day()).replace(tzinfo=_local_tz)
+        o = o.toUTC()
+        d, t = o.date(), o.time()
+        try:
+            ans = datetime(safeyear(d.year()), d.month(), d.day(), t.hour(), t.minute(), t.second(), t.msec()*1000, utc_tz)
+        except ValueError:
+            ans = datetime(safeyear(d.year()), d.month(), 1, t.hour(), t.minute(), t.second(), t.msec()*1000, utc_tz)
+        if not as_utc:
+            ans = ans.astimezone(local_tz)
+        return ans
+
+    try:
+        dt = datetime(safeyear(o.year()), o.month(), o.day()).replace(tzinfo=_local_tz)
+    except ValueError:
+        dt = datetime(safeyear(o.year()), o.month(), 1).replace(tzinfo=_local_tz)
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
 
 def fromtimestamp(ctime, as_utc=True):

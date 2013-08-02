@@ -11,6 +11,7 @@ Device driver for Bookeen's Cybook Gen 3 and Opus and Orizon
 import os
 import re
 
+from calibre import fsync
 from calibre.constants import isunix
 from calibre.devices.usbms.driver import USBMS
 import calibre.devices.cybook.t2b as t2b
@@ -50,6 +51,7 @@ class CYBOOK(USBMS):
             coverdata = None
         with open('%s_6090.t2b' % os.path.join(path, filename), 'wb') as t2bfile:
             t2b.write_t2b(t2bfile, coverdata)
+            fsync(t2bfile)
 
     @classmethod
     def can_handle(cls, device_info, debug=False):

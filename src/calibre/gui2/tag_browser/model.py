@@ -971,6 +971,10 @@ class TagsModel(QAbstractItemModel): # {{{
             else:
                 nkey = ckey[:dotpos+1] + val
             nkey_lower = icu_lower(nkey)
+
+            if ckey == nkey:
+                return True
+
             for c in sorted(user_cats.keys(), key=sort_key):
                 if icu_lower(c).startswith(ckey_lower):
                     if len(c) == len(ckey):

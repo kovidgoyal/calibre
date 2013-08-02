@@ -833,7 +833,7 @@ Name=LRF Viewer
 GenericName=Viewer for LRF files
 Comment=Viewer for LRF files (SONY ebook format files)
 TryExec=lrfviewer
-Exec=lrfviewer %F
+Exec=lrfviewer %f
 Icon=calibre-viewer
 MimeType=application/x-sony-bbeb;
 Categories=Graphics;Viewer;
@@ -847,7 +847,7 @@ Name=E-book Viewer
 GenericName=Viewer for E-books
 Comment=Viewer for E-books in all the major formats
 TryExec=ebook-viewer
-Exec=ebook-viewer %F
+Exec=ebook-viewer %f
 Icon=calibre-viewer
 Categories=Graphics;Viewer;
 '''
@@ -857,7 +857,7 @@ GUI = '''\
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=calibre
+Name=calibre %F
 GenericName=E-book library management
 Comment=E-book library management: Convert, view, share, catalogue all your e-books
 TryExec=calibre

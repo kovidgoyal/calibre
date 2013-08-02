@@ -41,7 +41,7 @@ class pcWorld(BasicNewsRecipe):
         br = self.get_browser()
         br.open(url+'&print')
 
-        response = br.follow_link(url, nr = 0)
+        response = br.follow_link(url, nr=0)
         html = response.read()
 
         self.temp_files.append(PersistentTemporaryFile('_fa.html'))
@@ -49,10 +49,10 @@ class pcWorld(BasicNewsRecipe):
         self.temp_files[-1].close()
         return self.temp_files[-1].name
 
-    #keep_only_tags     = [
+    # keep_only_tags     = [
                             #dict(name='div', attrs={'class':'article'})
                         #]
-    #remove_tags        = [
+    # remove_tags        = [
                             #dict(name='div', attrs={'class':['toolBar','mac_tags','toolBar  btmTools','recommend longRecommend','recommend shortRecommend','textAds']}),
                             #dict(name='div', attrs={'id':['sidebar','comments','mac_tags']}),
                             #dict(name='ul', attrs={'class':['tools', 'tools clearfix']}),
@@ -60,28 +60,26 @@ class pcWorld(BasicNewsRecipe):
                             #dict(name='p', attrs={'id':'userDesire'})
                         #]
     feeds          = [
-                       (u'PCWorld Headlines', u'http://feeds.pcworld.com/pcworld/latestnews'),
-                       (u'How-To', u'http://feeds.pcworld.com/pcworld/update/howto'),
-                       (u'Today@PCWorld', u'http://feeds.pcworld.com/pcworld/blogs/todayatpcw'),
-                       (u'Reviews', u'http://feeds.pcworld.com/pcworld/update/reviews'),
-                       (u'Most Popular Downloads', u'http://feeds.pcworld.com/pcworld/downloads/monthly'),
-                       (u'Answer Lines', u'http://feeds.pcworld.com/pcworld/blogs/answer_line'),
-                       (u'Digital Focus', u'http://feeds.pcworld.com/pcworld/blogs/digital_focus'),
-                       (u'Download this', u'http://feeds.pcworld.com/pcworld/blogs/download_this/'),
-                       (u'Game on', u'http://feeds.pcworld.com/pcworld/blogs/game_on'),
-                       (u'Geek tech', u'http://feeds.pcworld.com/pcworld/blogs/geektech/'),
-                       (u'Hassle free PC', u'http://feeds.pcworld.com/pcworld/blogs/hassle-free_pc'),
-                       (u'Mobile computing', u'http://feeds.pcworld.com/pcworld/blogs/mobile_computing'),
-                       (u'Security alert', u'http://feeds.pcworld.com/pcworld/blogs/security_alert/'),
-                       (u'BizFeed', u'http://feeds.pcworld.com/pcworld/businesscenter/bizfeed/'),
-                       (u'The Cost Cutter', u'http://feeds.pcworld.com/pcworld/businesscenter/cost_cutter/'),
-                       (u'Linux line', u'http://feeds.pcworld.com/pcworld/businesscenter/linuxline/'),
-                       (u'Net Work', u'http://feeds.pcworld.com/pcworld/businesscenter/network/'),
-                       (u'Peer-to-Peer', u'http://feeds.pcworld.com/pcworld/businesscenter/peertopeer/'),
-                       (u'Tech inciter', u'http://feeds.pcworld.com/pcworld/businesscenter/tech_inciter/'),
-                       (u'Gadgets and gear', u'http://feeds.pcworld.com/pcworld/update/gadgets'),
-                       (u'Home Entertainment', u'http://feeds.pcworld.com/pcworld/update/home-entertainment'),
-                       (u'Mobile Devices', u'http://feeds.pcworld.com/pcworld/update/mobile-devices')
+                       (u'All Stories', u'http://www.pcworld.com/index.rss'),
+                       (u'Reviews', u'http://www.pcworld.com/reviews/index.rss'),
+                       (u'How-To', u'http://www.pcworld.com/howto/index.rss'),
+                       (u'Video', u'http://www.pcworld.com/video/index.rss'),
+                       (u'Game On', u'http://www.pcworld.com/column/game-on/index.rss'),
+                       (u'Hassle free PC', u'http://www.pcworld.com/column/hassle-free-pc/index.rss'),
+                       (u'Go Social', u'http://www.pcworld.com/column/go-social/index.rss'),
+                       (u'Linux Line', u'http://www.pcworld.com/column/linux-line/index.rss'),
+                       (u'Net Work', u'http://www.pcworld.com/column/net-work/index.rss'),
+                       (u'Security Alert', u'http://www.pcworld.com/column/security-alert/index.rss'),
+                       (u'Simply Business', u'http://www.pcworld.com/column/simply-business/index.rss'),
+                       (u'Business', u'http://www.pcworld.com/category/business/index.rss'),
+                       (u'Security & Privacy', u'http://www.pcworld.com/category/privacy/index.rss'),
+                       (u'Windows', u'http://www.pcworld.com/category/windows/index.rss'),
+                       (u'Laptops', u'http://www.pcworld.com/category/laptop-computers/index.rss'),
+                       (u'Software', u'http://www.pcworld.com/category/software/index.rss'),
+                       (u'Desktops', u'http://www.pcworld.com/category/desktop-computers/index.rss'),
+                       (u'Printers', u'http://www.pcworld.com/category/printers/index.rss'),
+                       (u'Phones', u'http://www.pcworld.com/category/phones/index.rss'),
+                       (u'Tablets', u'http://www.pcworld.com/category/tablets/index.rss')
                      ]
 
     extra_css = '''
@@ -103,3 +101,4 @@ class pcWorld(BasicNewsRecipe):
                 #articleHead p {font-size:15px;font-weight:bold;margin:0px;padding:0px;}
                 #articleHead .date {color:#999;margin:0px 0px 20px;padding:0px;}
                 '''
+

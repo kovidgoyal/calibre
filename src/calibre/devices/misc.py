@@ -9,8 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.devices.usbms.driver import USBMS
-from calibre import prints
-prints
+from calibre import fsync
 
 class PALMPRE(USBMS):
 
@@ -100,6 +99,7 @@ class PDNOVEL(USBMS):
         if coverdata and coverdata[2]:
             with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
                 coverfile.write(coverdata[2])
+                fsync(coverfile)
 
 class PDNOVEL_KOBO(PDNOVEL):
     name = 'Pandigital Kobo device interface'
@@ -118,6 +118,7 @@ class PDNOVEL_KOBO(PDNOVEL):
                 os.makedirs(dirpath)
             with open(os.path.join(dirpath, filename+'.jpg'), 'wb') as coverfile:
                 coverfile.write(coverdata[2])
+                fsync(coverfile)
 
 
 class VELOCITYMICRO(USBMS):
@@ -190,6 +191,7 @@ class LUMIREAD(USBMS):
                 os.makedirs(pdir)
             with open(cfilepath+'.jpg', 'wb') as f:
                 f.write(metadata.thumbnail[-1])
+                fsync(f)
 
 class ALURATEK_COLOR(USBMS):
 
@@ -334,6 +336,7 @@ class NEXTBOOK(USBMS):
                 os.makedirs(thumbnail_dir)
             with open(os.path.join(thumbnail_dir, filename+'.jpg'), 'wb') as f:
                 f.write(metadata.thumbnail[-1])
+                fsync(f)
     '''
 
 class MOOVYBOOK(USBMS):

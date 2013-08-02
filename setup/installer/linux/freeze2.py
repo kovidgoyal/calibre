@@ -16,7 +16,7 @@ SITE_PACKAGES = ['PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
         'sip.so', 'BeautifulSoup.py', 'cssutils', 'encutils', 'lxml',
         'sipconfig.py', 'xdg', 'dbus', '_dbus_bindings.so', 'dbus_bindings.py',
         '_dbus_glib_bindings.so', 'netifaces.so', '_psutil_posix.so',
-        '_psutil_linux.so', 'psutil', 'cssselect']
+        '_psutil_linux.so', 'psutil', 'cssselect', 'apsw.so']
 
 QTDIR          = '/usr/lib/qt4'
 QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml', 'QtWebKit', 'QtDBus')
@@ -191,8 +191,10 @@ class LinuxFreeze(Command):
             if os.path.isdir(x):
                 shutil.copytree(x, self.j(dest, self.b(x)),
                         ignore=ignore_in_lib)
-            if os.path.isfile(x) and ext in ('.py', '.so'):
+            elif os.path.isfile(x) and ext in ('.py', '.so'):
                 shutil.copy2(x, dest)
+            else:
+                raise ValueError('%s does not exist in site-packages' % x)
 
         for x in os.listdir(self.SRC):
             shutil.copytree(self.j(self.SRC, x), self.j(dest, x),

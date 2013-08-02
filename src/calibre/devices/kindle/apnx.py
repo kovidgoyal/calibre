@@ -14,7 +14,7 @@ from calibre.ebooks.mobi.reader.mobi6 import MobiReader
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.ebooks.mobi.reader.headers import MetadataHeader
 from calibre.utils.logging import default_log
-from calibre import prints
+from calibre import prints, fsync
 from calibre.constants import DEBUG
 
 class APNXBuilder(object):
@@ -80,6 +80,7 @@ class APNXBuilder(object):
         # Write the APNX.
         with open(apnx_path, 'wb') as apnxf:
             apnxf.write(apnx)
+            fsync(apnxf)
 
     def generate_apnx(self, pages, apnx_meta):
         apnx = ''

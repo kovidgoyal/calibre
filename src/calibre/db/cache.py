@@ -223,7 +223,7 @@ class Cache(object):
             good_formats = None
         else:
             mi.format_metadata = FormatMetadata(self, book_id, formats)
-            good_formats = FormatsList(formats, mi.format_metadata)
+            good_formats = FormatsList(sorted(formats), mi.format_metadata)
         # These three attributes are returned by the db2 get_metadata(),
         # however, we dont actually use them anywhere other than templates, so
         # they have been removed, to avoid unnecessary overhead. The templates
@@ -336,7 +336,7 @@ class Cache(object):
         except KeyError:
             return default_value
         if field.is_multiple:
-            default_value = {} if name == 'identifiers' else ()
+            default_value = field.default_value
         try:
             return field.for_book(book_id, default_value=default_value)
         except (KeyError, IndexError):
@@ -347,6 +347,8 @@ class Cache(object):
         ' Same as field_for, except that it avoids the extra lookup to get the field object '
         if field_obj.is_composite:
             return field_obj.get_value_with_cache(book_id, self._get_proxy_metadata)
+        if field_obj.is_multiple:
+            default_value = field_obj.default_value
         try:
             return field_obj.for_book(book_id, default_value=default_value)
         except (KeyError, IndexError):
@@ -401,7 +403,7 @@ class Cache(object):
         '''
         Frozen set of all known book ids.
         '''
-        return type(self.fields['uuid'])
+        return type(self.fields['uuid'].table.book_col_map)
 
     @read_api
     def all_field_ids(self, name):
@@ -781,7 +783,7 @@ class Cache(object):
         return ret
 
     @read_api
-    def multisort(self, fields, ids_to_sort=None):
+    def multisort(self, fields, ids_to_sort=None, virtual_fields=None):
         '''
         Return a list of sorted book ids. If ids_to_sort is None, all book ids
         are returned.
@@ -792,8 +794,10 @@ class Cache(object):
         '''
         all_book_ids = frozenset(self._all_book_ids() if ids_to_sort is None
                 else ids_to_sort)
+        ids_to_sort = all_book_ids if ids_to_sort is None else ids_to_sort
         get_metadata = self._get_proxy_metadata
         lang_map = self.fields['languages'].book_value_map
+        virtual_fields = virtual_fields or {}
 
         fm = {'title':'sort', 'authors':'author_sort'}
 
@@ -801,8 +805,12 @@ class Cache(object):
             'Handle series type fields'
             idx = field + '_index'
             is_series = idx in self.fields
-            ans = self.fields[fm.get(field, field)].sort_keys_for_books(
-                get_metadata, lang_map, all_book_ids,)
+            try:
+                ans = self.fields[fm.get(field, field)].sort_keys_for_books(
+                    get_metadata, lang_map, all_book_ids)
+            except KeyError:
+                ans = virtual_fields[fm.get(field, field)].sort_keys_for_books(
+                    get_metadata, lang_map, all_book_ids)
             if is_series:
                 idx_ans = self.fields[idx].sort_keys_for_books(
                     get_metadata, lang_map, all_book_ids)
@@ -813,10 +821,10 @@ class Cache(object):
 
         if len(sort_keys) == 1:
             sk = sort_keys[0]
-            return sorted(all_book_ids, key=lambda i:sk[i], reverse=not
+            return sorted(ids_to_sort, key=lambda i:sk[i], reverse=not
                     fields[0][1])
         else:
-            return sorted(all_book_ids, key=partial(SortKey, fields, sort_keys))
+            return sorted(ids_to_sort, key=partial(SortKey, fields, sort_keys))
 
     @read_api
     def search(self, query, restriction='', virtual_fields=None, book_ids=None):
@@ -1078,57 +1086,69 @@ class Cache(object):
                 else:
                     raise
 
-        for field in ('rating', 'series_index', 'timestamp'):
-            val = getattr(mi, field)
-            if val is not None:
-                protected_set_field(field, val)
-
         # force_changes has no effect on cover manipulation
-        cdata = mi.cover_data[1]
-        if cdata is None and isinstance(mi.cover, basestring) and mi.cover and os.access(mi.cover, os.R_OK):
-            with lopen(mi.cover, 'rb') as f:
-                raw = f.read()
-                if raw:
-                    cdata = raw
-        if cdata is not None:
-            self._set_cover({book_id: cdata})
+        try:
+            cdata = mi.cover_data[1]
+            if cdata is None and isinstance(mi.cover, basestring) and mi.cover and os.access(mi.cover, os.R_OK):
+                with lopen(mi.cover, 'rb') as f:
+                    cdata = f.read() or None
+            if cdata is not None:
+                self._set_cover({book_id: cdata})
+        except:
+            if ignore_errors:
+                traceback.print_exc()
+            else:
+                raise
 
-        for field in ('author_sort', 'publisher', 'series', 'tags', 'comments',
-            'languages', 'pubdate'):
-            val = mi.get(field, None)
-            if (force_changes and val is not None) or not mi.is_null(field):
-                protected_set_field(field, val)
+        try:
+            with self.backend.conn:  # Speed up set_metadata by not operating in autocommit mode
+                for field in ('rating', 'series_index', 'timestamp'):
+                    val = getattr(mi, field)
+                    if val is not None:
+                        protected_set_field(field, val)
 
-        val = mi.get('title_sort', None)
-        if (force_changes and val is not None) or not mi.is_null('title_sort'):
-            protected_set_field('sort', val)
+                for field in ('author_sort', 'publisher', 'series', 'tags', 'comments',
+                    'languages', 'pubdate'):
+                    val = mi.get(field, None)
+                    if (force_changes and val is not None) or not mi.is_null(field):
+                        protected_set_field(field, val)
 
-        # identifiers will always be replaced if force_changes is True
-        mi_idents = mi.get_identifiers()
-        if force_changes:
-            protected_set_field('identifiers', mi_idents)
-        elif mi_idents:
-            identifiers = self._field_for('identifiers', book_id, default_value={})
-            for key, val in mi_idents.iteritems():
-                if val and val.strip():  # Don't delete an existing identifier
-                    identifiers[icu_lower(key)] = val
-            protected_set_field('identifiers', identifiers)
+                val = mi.get('title_sort', None)
+                if (force_changes and val is not None) or not mi.is_null('title_sort'):
+                    protected_set_field('sort', val)
 
-        user_mi = mi.get_all_user_metadata(make_copy=False)
-        fm = self.field_metadata
-        for key in user_mi.iterkeys():
-            if (key in fm and
-                    user_mi[key]['datatype'] == fm[key]['datatype'] and
-                    (user_mi[key]['datatype'] != 'text' or
-                     user_mi[key]['is_multiple'] == fm[key]['is_multiple'])):
-                val = mi.get(key, None)
-                if force_changes or val is not None:
-                    protected_set_field(key, val)
-                    idx = key + '_index'
-                    if idx in self.fields:
-                        extra = mi.get_extra(key)
-                        if extra is not None or force_changes:
-                            protected_set_field(idx, extra)
+                # identifiers will always be replaced if force_changes is True
+                mi_idents = mi.get_identifiers()
+                if force_changes:
+                    protected_set_field('identifiers', mi_idents)
+                elif mi_idents:
+                    identifiers = self._field_for('identifiers', book_id, default_value={})
+                    for key, val in mi_idents.iteritems():
+                        if val and val.strip():  # Don't delete an existing identifier
+                            identifiers[icu_lower(key)] = val
+                    protected_set_field('identifiers', identifiers)
+
+                user_mi = mi.get_all_user_metadata(make_copy=False)
+                fm = self.field_metadata
+                for key in user_mi.iterkeys():
+                    if (key in fm and
+                            user_mi[key]['datatype'] == fm[key]['datatype'] and
+                            (user_mi[key]['datatype'] != 'text' or
+                            user_mi[key]['is_multiple'] == fm[key]['is_multiple'])):
+                        val = mi.get(key, None)
+                        if force_changes or val is not None:
+                            protected_set_field(key, val)
+                            idx = key + '_index'
+                            if idx in self.fields:
+                                extra = mi.get_extra(key)
+                                if extra is not None or force_changes:
+                                    protected_set_field(idx, extra)
+        except:
+            # sqlite will rollback the entire transaction, thanks to the with
+            # statement, so we have to re-read everything form the db to ensure
+            # the db and Cache are in sync
+            self._reload_from_db()
+            raise
 
     @write_api
     def add_format(self, book_id, fmt, stream_or_path, replace=True, run_hooks=True, dbapi=None):
@@ -1235,6 +1255,10 @@ class Cache(object):
                 if q == icu_lower(title):
                     return True
         return False
+
+    @read_api
+    def has_id(self, book_id):
+        return book_id in self.fields['title'].table.book_col_map
 
     @write_api
     def create_book_entry(self, mi, cover=None, add_duplicates=True, force_id=None, apply_import_tags=True, preserve_uuid=False):

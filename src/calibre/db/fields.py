@@ -48,6 +48,7 @@ class Field(object):
             self._sort_key = lambda x:sort_key(calibre_langcode_to_name(x))
         self.is_multiple = (bool(self.metadata['is_multiple']) or self.name ==
                 'formats')
+        self.default_value = {} if name == 'identifiers' else () if self.is_multiple else None
         self.category_formatter = type(u'')
         if dt == 'rating':
             self.category_formatter = lambda x:'\u2605'*int(x/2)
@@ -409,7 +410,10 @@ class IdentifiersField(ManyToManyField):
     def for_book(self, book_id, default_value=None):
         ids = self.table.book_col_map.get(book_id, ())
         if not ids:
-            ids = default_value
+            try:
+                ids = default_value.copy()  # in case default_value is a mutable dict
+            except AttributeError:
+                ids = default_value
         return ids
 
     def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):

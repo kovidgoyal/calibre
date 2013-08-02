@@ -5,12 +5,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, posixpath
+import os, posixpath, weakref
 from functools import partial
 
 from PyQt4.Qt import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
         QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QIcon, QSize,
-        QCoreApplication, pyqtSignal)
+        QCoreApplication, pyqtSignal, QVBoxLayout, QTimer)
 
 from calibre import isbytestring, sanitize_file_name_unicode
 from calibre.constants import (filesystem_encoding, iswindows,
@@ -152,6 +152,52 @@ class MovedDialog(QDialog):  # {{{
         QDialog.accept(self)
 # }}}
 
+class BackupStatus(QDialog):  # {{{
+
+    def __init__(self, gui):
+        QDialog.__init__(self, gui)
+        self.l = l = QVBoxLayout(self)
+        self.msg = QLabel('')
+        self.msg.setWordWrap(True)
+        l.addWidget(self.msg)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Close)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        b = bb.addButton(_('Queue &all books for backup'), bb.ActionRole)
+        b.clicked.connect(self.mark_all_dirty)
+        b.setIcon(QIcon(I('lt.png')))
+        l.addWidget(bb)
+        self.db = weakref.ref(gui.current_db)
+        self.setResult(9)
+        self.setWindowTitle(_('Backup status'))
+        self.update()
+        self.resize(self.sizeHint())
+
+    def update(self):
+        db = self.db()
+        if db is None:
+            return
+        if self.result() != 9:
+            return
+        dirty_text = 'no'
+        try:
+            dirty_text = '%s' % db.dirty_queue_length()
+        except:
+            dirty_text = _('none')
+        self.msg.setText('<p>' +
+                _('Book metadata files remaining to be written: %s') % dirty_text)
+        QTimer.singleShot(1000, self.update)
+
+    def mark_all_dirty(self):
+        db = self.db()
+        if hasattr(db, 'new_api'):
+            db.new_api.mark_as_dirty(db.new_api.all_book_ids())
+        else:
+            db.dirtied(list(db.data.iterallids()))
+
+# }}}
+
+
 class ChooseLibraryAction(InterfaceAction):
 
     name = 'Choose Library'
@@ -211,10 +257,6 @@ class ChooseLibraryAction(InterfaceAction):
         ac = self.create_action(spec=(_('Library metadata backup status'),
                         'lt.png', None, None), attr='action_backup_status')
         ac.triggered.connect(self.backup_status, type=Qt.QueuedConnection)
-        self.maintenance_menu.addAction(ac)
-        ac = self.create_action(spec=(_('Start backing up metadata of all books'),
-                        'lt.png', None, None), attr='action_backup_metadata')
-        ac.triggered.connect(self.mark_dirty, type=Qt.QueuedConnection)
         self.maintenance_menu.addAction(ac)
         ac = self.create_action(spec=(_('Check library'), 'lt.png',
                                       None, None), attr='action_check_library')
@@ -373,15 +415,8 @@ class ChooseLibraryAction(InterfaceAction):
             open_local_file(loc)
 
     def backup_status(self, location):
-        dirty_text = 'no'
-        try:
-            dirty_text = \
-                  unicode(self.gui.current_db.dirty_queue_length())
-        except:
-            dirty_text = _('none')
-        info_dialog(self.gui, _('Backup status'), '<p>'+
-                _('Book metadata files remaining to be written: %s') % dirty_text,
-                show=True)
+        self.__backup_status_dialog = d = BackupStatus(self.gui)
+        d.show()
 
     def mark_dirty(self):
         db = self.gui.library_view.model().db

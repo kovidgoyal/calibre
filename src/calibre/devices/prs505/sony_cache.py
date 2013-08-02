@@ -9,7 +9,7 @@ import os, time
 from base64 import b64decode
 from datetime import date
 
-from calibre import prints, guess_type, isbytestring
+from calibre import prints, guess_type, isbytestring, fsync
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.driver import debug_print
 from calibre.constants import DEBUG, preferred_encoding
@@ -122,6 +122,7 @@ class XMLCache(object):
                 try:
                     with open(path, 'wb') as f:
                         f.write(EMPTY_EXT_CACHE)
+                        fsync(f)
                 except:
                     pass
             if os.access(path, os.W_OK):
@@ -726,6 +727,7 @@ class XMLCache(object):
                     '<?xml version="1.0" encoding="UTF-8"?>')
             with open(path, 'wb') as f:
                 f.write(raw)
+                fsync(f)
 
         for i, path in self.ext_paths.items():
             try:
@@ -737,6 +739,7 @@ class XMLCache(object):
                     '<?xml version="1.0" encoding="UTF-8"?>')
             with open(path, 'wb') as f:
                 f.write(raw)
+                fsync(f)
 
     # }}}
 

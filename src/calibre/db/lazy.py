@@ -175,7 +175,7 @@ def fmt_getter(field):
                 if m:
                     format_metadata[fmt] = m
         if field == 'formats':
-            return list(format_metadata) or None
+            return sorted(format_metadata) or None
         return format_metadata
     return func
 
