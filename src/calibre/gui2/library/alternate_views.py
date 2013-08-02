@@ -215,6 +215,7 @@ class GridView(QListView):
         self.ignore_render_requests = Event()
         self.render_thread = None
         self.update_item.connect(self.re_render, type=Qt.QueuedConnection)
+        self.doubleClicked.connect(parent.iactions['View'].view_triggered)
         self.context_menu = None
 
     def shown(self):
