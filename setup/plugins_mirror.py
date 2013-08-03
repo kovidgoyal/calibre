@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import urllib2, re, HTMLParser, zlib, gzip, io, sys, bz2, json, errno, urlparse, os, zipfile, ast, tempfile, glob, fcntl, atexit
+import urllib2, re, HTMLParser, zlib, gzip, io, sys, bz2, json, errno, urlparse, os, zipfile, ast, tempfile, glob, fcntl, atexit, stat
 from future_builtins import map, zip, filter
 from collections import namedtuple
 from multiprocessing.pool import ThreadPool
@@ -16,7 +16,7 @@ from contextlib import closing
 from functools import partial
 from xml.sax.saxutils import escape, quoteattr
 
-USER_AGENT = 'calibre'
+USER_AGENT = 'calibre mirror'
 MR_URL = 'http://www.mobileread.com/forums/'
 WORKDIR = '/srv/plugins' if os.path.exists('/srv') else '/t/plugins'
 PLUGINS = 'plugins.json.bz2'
@@ -291,6 +291,7 @@ def log(*args, **kwargs):
 def atomic_write(raw, name):
     with tempfile.NamedTemporaryFile(dir=os.getcwdu(), delete=False) as f:
         f.write(raw)
+        os.fchmod(f.fileno(), stat.S_IREAD|stat.S_IWRITE|stat.S_IRGRP|stat.S_IROTH)
         os.rename(f.name, name)
 
 def fetch_plugins(old_index):
