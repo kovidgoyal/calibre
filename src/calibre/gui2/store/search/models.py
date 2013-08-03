@@ -451,9 +451,15 @@ class SearchFilter(SearchQueryParser):
                         vals = accessor(sr).split(',')
                     elif locvalue in ('author2', 'title2'):
                         m = self.IN_MATCH
-                        vals = re.sub(r'(^|\s)(and|not|or|a|the|is|of|,)(\s|$)', ' ', accessor(sr)).split(' ')
+                        def field_trimmer(field):
+                            field = re.sub(r'(^|\s)(and|not|or|a|the|is|of)(\s|$)', ' ', field)
+                            field = re.sub('[.,!@#$%^&*\(\)\'"\[\]]', ' ', field)
+                            return field
+                        vals = field_trimmer(accessor(sr))
+                        vals = vals.split(' ')
                         vals = [x for x in vals if x]
-                        final_query = query.lower()
+                        final_query = field_trimmer(query.lower())
+                        final_query = re.sub('[ ]{2,}', ' ', final_query)
                     else:
                         vals = [accessor(sr)]
                     if self._match(final_query, vals, m):
