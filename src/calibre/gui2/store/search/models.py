@@ -451,7 +451,9 @@ class SearchFilter(SearchQueryParser):
                         vals = accessor(sr).split(',')
                     elif locvalue in ('author2', 'title2'):
                         m = self.IN_MATCH
-                        vals = re.sub(r'(^|\s)(and|not|or|a|the|is|of|,)(\s|$)', ' ', accessor(sr)).split(' ')
+                        vals = re.sub(r'(^|\s)(and|not|or|a|the|is|of)(\s|$)', ' ', accessor(sr))
+                        vals = re.sub('[.,!@#$%^&*\(\)\'"\[\]]', ' ', vals)
+                        vals = vals.split(' ')
                         vals = [x for x in vals if x]
                         final_query = query.lower()
                     else:
