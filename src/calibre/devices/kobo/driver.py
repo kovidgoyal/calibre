@@ -2490,7 +2490,8 @@ class KOBOTOUCH(KOBO):
                                  "WHERE Type = 'Shelf' "
                                  "AND NOT EXISTS "
                                     "(SELECT 1 FROM Shelf "
-                                    "WHERE Shelf.Name = Activity.Id)"
+                                    "WHERE Shelf.Name = Activity.Id "
+                                    "AND Shelf._IsDeleted = 'false')"
                                  )
 
         cursor = connection.cursor()
