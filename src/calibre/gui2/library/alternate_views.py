@@ -73,7 +73,7 @@ def drag_data(self):
     m = self.model()
     db = m.db
     rows = self.selectionModel().selectedIndexes()
-    selected = list(map(m.id, rows))
+    selected = list(set(map(m.id, rows)))
     ids = ' '.join(map(str, selected))
     md = QMimeData()
     md.setData('application/calibre+from_library', ids)
@@ -174,6 +174,7 @@ def setup_dnd_interface(cls_or_self):
             if x in {'mouseMoveEvent', 'mousePressEvent'}:
                 func = partial(func, base_class)
             setattr(cls, x, MethodType(func, None, cls))
+        return cls
     else:
         self = cls_or_self
         self.drag_allowed = True
@@ -417,6 +418,7 @@ def join_with_timeout(q, timeout=2):
         q.all_tasks_done.release()
 # }}}
 
+@setup_dnd_interface
 class GridView(QListView):
 
     update_item = pyqtSignal(object)
@@ -606,4 +608,3 @@ class GridView(QListView):
     def restore_hpos(self, hpos):
         pass
 
-setup_dnd_interface(GridView)

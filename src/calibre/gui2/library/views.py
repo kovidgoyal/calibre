@@ -144,6 +144,7 @@ class PreserveViewState(object):  # {{{
 
 # }}}
 
+@setup_dnd_interface
 class BooksView(QTableView):  # {{{
 
     files_dropped = pyqtSignal(object)
@@ -922,8 +923,6 @@ class BooksView(QTableView):  # {{{
         return self._model.count()
 
 # }}}
-
-setup_dnd_interface(BooksView)
 
 class DeviceBooksView(BooksView):  # {{{
 
