@@ -679,11 +679,10 @@ class Cache(object):
         fmtfile = self.format(book_id, original_fmt, as_file=True)
         if fmtfile is not None:
             fmt = original_fmt.partition('_')[2]
-            with self.write_lock:
-                with fmtfile:
-                    self._add_format(book_id, fmt, fmtfile, run_hooks=False)
-                self._remove_formats({book_id:(original_fmt,)})
-                return True
+            with fmtfile:
+                self.add_format(book_id, fmt, fmtfile, run_hooks=False)
+            self.remove_formats({book_id:(original_fmt,)})
+            return True
         return False
 
     @read_api
@@ -1150,38 +1149,40 @@ class Cache(object):
             self._reload_from_db()
             raise
 
-    @write_api
+    @api
     def add_format(self, book_id, fmt, stream_or_path, replace=True, run_hooks=True, dbapi=None):
+        with self.write_lock:
+            if run_hooks:
+                # Run import plugins
+                npath = run_import_plugins(stream_or_path, fmt)
+                fmt = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
+                stream_or_path = lopen(npath, 'rb')
+                fmt = check_ebook_format(stream_or_path, fmt)
+
+            fmt = (fmt or '').upper()
+            self.format_metadata_cache[book_id].pop(fmt, None)
+            try:
+                name = self.fields['formats'].format_fname(book_id, fmt)
+            except:
+                name = None
+
+            if name and not replace:
+                return False
+
+            path = self._field_for('path', book_id).replace('/', os.sep)
+            title = self._field_for('title', book_id, default_value=_('Unknown'))
+            author = self._field_for('authors', book_id, default_value=(_('Unknown'),))[0]
+            stream = stream_or_path if hasattr(stream_or_path, 'read') else lopen(stream_or_path, 'rb')
+            size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path)
+            del stream
+
+            max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
+            self.fields['size'].table.update_sizes({book_id: max_size})
+            self._update_last_modified((book_id,))
+
         if run_hooks:
-            # Run import plugins
-            npath = run_import_plugins(stream_or_path, fmt)
-            fmt = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-            stream_or_path = lopen(npath, 'rb')
-            fmt = check_ebook_format(stream_or_path, fmt)
-
-        fmt = (fmt or '').upper()
-        self.format_metadata_cache[book_id].pop(fmt, None)
-        try:
-            name = self.fields['formats'].format_fname(book_id, fmt)
-        except:
-            name = None
-
-        if name and not replace:
-            return False
-
-        path = self._field_for('path', book_id).replace('/', os.sep)
-        title = self._field_for('title', book_id, default_value=_('Unknown'))
-        author = self._field_for('authors', book_id, default_value=(_('Unknown'),))[0]
-        stream = stream_or_path if hasattr(stream_or_path, 'read') else lopen(stream_or_path, 'rb')
-        size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path)
-        del stream
-
-        max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
-        self.fields['size'].table.update_sizes({book_id: max_size})
-        self._update_last_modified((book_id,))
-
-        if run_hooks:
-            # Run post import plugins
+            # Run post import plugins, the write lock is released so the plugin
+            # can call api without a locking violation.
             run_plugins_on_postimport(dbapi or self, book_id, fmt)
             stream_or_path.close()
 
@@ -1305,17 +1306,17 @@ class Cache(object):
 
         return book_id
 
-    @write_api
+    @api
     def add_books(self, books, add_duplicates=True, apply_import_tags=True, preserve_uuid=False, run_hooks=True, dbapi=None):
         duplicates, ids = [], []
         for mi, format_map in books:
-            book_id = self._create_book_entry(mi, add_duplicates=add_duplicates, apply_import_tags=apply_import_tags, preserve_uuid=preserve_uuid)
+            book_id = self.create_book_entry(mi, add_duplicates=add_duplicates, apply_import_tags=apply_import_tags, preserve_uuid=preserve_uuid)
             if book_id is None:
                 duplicates.append((mi, format_map))
             else:
                 ids.append(book_id)
                 for fmt, stream_or_path in format_map.iteritems():
-                    self._add_format(book_id, fmt, stream_or_path, dbapi=dbapi, run_hooks=run_hooks)
+                    self.add_format(book_id, fmt, stream_or_path, dbapi=dbapi, run_hooks=run_hooks)
         return ids, duplicates
 
     @write_api
