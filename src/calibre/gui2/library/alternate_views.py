@@ -72,8 +72,7 @@ def drag_icon(self, cover, multiple):
 def drag_data(self):
     m = self.model()
     db = m.db
-    rows = self.selectionModel().selectedIndexes()
-    selected = list(set(map(m.id, rows)))
+    selected = self.get_selected_ids()
     ids = ' '.join(map(str, selected))
     md = QMimeData()
     md.setData('application/calibre+from_library', ids)
@@ -601,6 +600,10 @@ class GridView(QListView):
 
     def do_sort(self, column, ascending):
         self.sort_requested.emit(column, ascending)
+
+    def get_selected_ids(self):
+        m = self.model()
+        return [m.id(i) for i in self.selectionModel().selectedIndexes()]
 
     def restore_vpos(self, vpos):
         self.verticalScrollBar().setValue(vpos)
