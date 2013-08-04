@@ -47,8 +47,19 @@ class TXTInput(InputFormatPlugin):
         OptionRecommendation(name='txt_in_remove_indents', recommended_value=False,
             help=_('Normally extra space at the beginning of lines is retained. '
                    'With this option they will be removed.')),
-        OptionRecommendation(name="markdown_disable_toc", recommended_value=False,
-            help=_('Do not insert a Table of Contents into the output text.')),
+        OptionRecommendation(name="markdown_extensions", recommended_value='footnotes, tables, toc',
+            help=_('Enable extensions to markdown syntax. Extensions are formatting that is not part '
+                   'of the standard format.\n'
+                   'This should be a comma separated list of exentensions to enable:\n'
+                   '* abbr: Abbreviations.\n'
+                   '* def_list: Definition lists.\n'
+                   '* fenced_code: Alternative code block syntax.\n'
+                   '* footnotes: Footnotes\n.'
+                   '* headerid: Allow ids as part of a header.\n'
+                   '* meta: Metadata in the document.\n'
+                   '* tables: Support tables.\n'
+                   '* toc: Generate a table of contents.\n'
+                   '* wikilinks: Wiki style links.\n')),
     ])
 
     def convert(self, stream, options, file_ext, log,
@@ -178,7 +189,7 @@ class TXTInput(InputFormatPlugin):
         if options.formatting_type == 'markdown':
             log.debug('Running text through markdown conversion...')
             try:
-                html = convert_markdown(txt, disable_toc=options.markdown_disable_toc)
+                html = convert_markdown(txt, extensions=[x for x in options.markdown_extensions.split(',') if x.strip()])
             except RuntimeError:
                 raise ValueError('This txt file has malformed markup, it cannot be'
                     ' converted by calibre. See http://daringfireball.net/projects/markdown/syntax')
