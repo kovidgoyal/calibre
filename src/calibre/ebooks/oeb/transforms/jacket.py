@@ -6,12 +6,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys
+import sys, os
 from xml.sax.saxutils import escape
 
 from lxml import etree
 
 from calibre import guess_type, strftime
+from calibre.constants import iswindows
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, XHTML, xml2text, urldefrag
 from calibre.library.comments import comments_to_html
@@ -84,9 +85,17 @@ class Jacket(object):
                 alt_comments=comments)
         id, href = self.oeb.manifest.generate('calibre_jacket', 'jacket.xhtml')
 
-        item = self.oeb.manifest.add(id, href, guess_type(href)[0], data=root)
-        self.oeb.spine.insert(0, item, True)
-        self.oeb.inserted_metadata_jacket = item
+        jacket = self.oeb.manifest.add(id, href, guess_type(href)[0], data=root)
+        self.oeb.spine.insert(0, jacket, True)
+        self.oeb.inserted_metadata_jacket = jacket
+        for img, path in referenced_images(root):
+            self.oeb.log('Embedding referenced image %s into jacket' % path)
+            ext = path.rpartition('.')[-1].lower()
+            item_id, href = self.oeb.manifest.generate('jacket_image', 'jacket_img.'+ext)
+            with open(path, 'rb') as f:
+                item = self.oeb.manifest.add(item_id, href, guess_type(href)[0], data=f.read())
+            item.unload_data_from_memory()
+            img.set('src', jacket.relhref(item.href))
 
     def remove_existing_jacket(self):
         for x in self.oeb.spine[:4]:
@@ -261,4 +270,14 @@ def linearize_jacket(oeb):
             for e in XPath('//h:td')(x.data):
                 e.tag = XHTML('span')
             break
+
+def referenced_images(root):
+    for img in XPath('//h:img[@src]')(root):
+        src = img.get('src')
+        if src.startswith('file://'):
+            path = src[7:]
+            if iswindows and path.startswith('/'):
+                path = path[1:]
+            if os.path.exists(path):
+                yield img, path
 

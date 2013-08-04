@@ -12,15 +12,16 @@ import sip
 
 from PyQt4.Qt import (QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit,
     QToolBar, QVBoxLayout, QAction, QIcon, Qt, QTabWidget, QUrl, QFormLayout,
-    QSyntaxHighlighter, QColor, QChar, QColorDialog, QMenu, QDialog,
-    QHBoxLayout, QKeySequence, QLineEdit, QDialogButtonBox)
+    QSyntaxHighlighter, QColor, QChar, QColorDialog, QMenu, QDialog, QLabel,
+    QHBoxLayout, QKeySequence, QLineEdit, QDialogButtonBox, QPushButton)
 from PyQt4.QtWebKit import QWebView, QWebPage
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities, prepare_string_for_xml
-from calibre.gui2 import open_url, error_dialog
+from calibre.gui2 import open_url, error_dialog, choose_files
 from calibre.utils.soupparser import fromstring
 from calibre.utils.config import tweaks
+from calibre.utils.imghdr import what
 
 class PageAction(QAction):  # {{{
 
@@ -156,7 +157,7 @@ class EditorWidget(QWebView):  # {{{
             self.block_style_actions.append(ac)
 
         self.action_insert_link = QAction(QIcon(I('insert-link.png')),
-                _('Insert link'), self)
+                _('Insert link or image'), self)
         self.action_insert_link.triggered.connect(self.insert_link)
         self.pageAction(QWebPage.ToggleBold).changed.connect(self.update_link_action)
         self.action_insert_link.setEnabled(False)
@@ -203,14 +204,18 @@ class EditorWidget(QWebView):  # {{{
             self.exec_command('hiliteColor', unicode(col.name()))
 
     def insert_link(self, *args):
-        link, name = self.ask_link()
+        link, name, is_image = self.ask_link()
         if not link:
             return
-        url = self.parse_link(unicode(link))
+        url = self.parse_link(link)
         if url.isValid():
             url = unicode(url.toString())
             self.setFocus(Qt.OtherFocusReason)
-            if name:
+            if is_image:
+                self.exec_command('insertHTML',
+                        '<img src="%s" alt="%s"></img>'%(prepare_string_for_xml(url, True),
+                            prepare_string_for_xml(name or '', True)))
+            elif name:
                 self.exec_command('insertHTML',
                         '<a href="%s">%s</a>'%(prepare_string_for_xml(url, True),
                             prepare_string_for_xml(name)))
@@ -218,7 +223,7 @@ class EditorWidget(QWebView):  # {{{
                 self.exec_command('createLink', url)
         else:
             error_dialog(self, _('Invalid URL'),
-                         _('The url %r is invalid') % unicode(link), show=True)
+                         _('The url %r is invalid') % link, show=True)
 
     def ask_link(self):
         d = QDialog(self)
@@ -227,19 +232,43 @@ class EditorWidget(QWebView):  # {{{
         d.setLayout(l)
         d.url = QLineEdit(d)
         d.name = QLineEdit(d)
+        d.setMinimumWidth(600)
         d.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        d.br = b = QPushButton(_('&Browse'))
+        b.setIcon(QIcon(I('document_open.png')))
+        def cf():
+            files = choose_files(d, 'select link file', _('Choose file'), select_only_single_file=True)
+            if files:
+                d.url.setText(files[0])
+        b.clicked.connect(cf)
+        d.la = la = QLabel(_(
+            'Enter a URL. You can also choose to create a link to a file on '
+            'your computer. If the selected file is an image, it will be '
+            'inserted as an image. Note that if you create a link to a file on '
+            'your computer, it will stop working if the file is moved.'))
+        la.setWordWrap(True)
+        la.setStyleSheet('QLabel { margin-bottom: 1.5ex }')
+        l.setWidget(0, l.SpanningRole, la)
         l.addRow(_('Enter &URL:'), d.url)
-        l.addRow(_('Enter name (optional):'), d.name)
+        l.addRow(_('Enter &name (optional):'), d.name)
+        l.addRow(_('Choose a file on your computer:'), d.br)
         l.addRow(d.bb)
         d.bb.accepted.connect(d.accept)
         d.bb.rejected.connect(d.reject)
-        link, name = None, None
+        d.resize(d.sizeHint())
+        link, name, is_image = None, None, False
         if d.exec_() == d.Accepted:
             link, name = unicode(d.url.text()).strip(), unicode(d.name.text()).strip()
-        return link, name
+            if link and os.path.exists(link):
+                with lopen(link, 'rb') as f:
+                    q = what(f)
+                is_image = q in {'jpeg', 'png', 'gif'}
+        return link, name, is_image
 
     def parse_link(self, link):
         link = link.strip()
+        if link and os.path.exists(link):
+            return QUrl.fromLocalFile(link)
         has_schema = re.match(r'^[a-zA-Z]+:', link)
         if has_schema is not None:
             url = QUrl(link, QUrl.TolerantMode)
