@@ -17,10 +17,10 @@ from functools import wraps, partial
 from PyQt4.Qt import (
     QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal,
     QPalette, QColor, QItemSelection, QPixmap, QMenu, QApplication, QMimeData,
-    QUrl, QDrag, QPoint, QPainter, QRect)
+    QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QPropertyAnimation, QEasingCurve)
 
 from calibre import fit_image
-from calibre.gui2 import gprefs
+from calibre.gui2 import gprefs, config
 from calibre.utils.config import prefs
 
 CM_TO_INCH = 0.393701
@@ -334,11 +334,24 @@ class CoverCache(dict):
 
 class CoverDelegate(QStyledItemDelegate):
 
+    @pyqtProperty(float)
+    def animated_size(self):
+        return self._animated_size
+
+    @animated_size.setter
+    def animated_size(self, val):
+        self._animated_size = val
+
     def __init__(self, parent):
         super(CoverDelegate, self).__init__(parent)
+        self._animated_size = 1.0
+        self.animation = QPropertyAnimation(self, 'animated_size', self)
+        self.animation.setEasingCurve(QEasingCurve.OutInCirc)
+        self.animation.setDuration(500)
         self.set_dimensions()
         self.cover_cache = CoverCache(limit=gprefs['cover_grid_cache_size'])
         self.render_queue = Queue()
+        self.animating = None
 
     def set_dimensions(self):
         width = self.original_width = gprefs['cover_grid_width']
@@ -356,6 +369,9 @@ class CoverDelegate(QStyledItemDelegate):
         self.cover_size = QSize(width, height)
         self.item_size = self.cover_size + QSize(8, 8)
         self.spacing = max(10, min(50, int(0.1 * width)))
+        self.animation.setStartValue(1.0)
+        self.animation.setKeyValueAt(0.5, 0.5)
+        self.animation.setEndValue(1.0)
 
     def sizeHint(self, option, index):
         return self.item_size
@@ -379,6 +395,8 @@ class CoverDelegate(QStyledItemDelegate):
                 if cdata is False:
                     self.render_queue.put(book_id)
             else:
+                if self.animating is not None and self.animating.row() == index.row():
+                    cdata = cdata.scaled(cdata.size() * self._animated_size)
                 dx = max(0, int((rect.width() - cdata.width())/2.0))
                 dy = max(0, rect.height() - cdata.height())
                 rect.adjust(dx, dy, -dx, 0)
@@ -419,14 +437,34 @@ class GridView(QListView):
         self.setSelectionMode(self.ExtendedSelection)
         self.setVerticalScrollMode(self.ScrollPerPixel)
         self.delegate = CoverDelegate(self)
+        self.delegate.animation.valueChanged.connect(self.animation_value_changed)
+        self.delegate.animation.finished.connect(self.animation_done)
         self.setItemDelegate(self.delegate)
         self.setSpacing(self.delegate.spacing)
         self.ignore_render_requests = Event()
         self.render_thread = None
         self.update_item.connect(self.re_render, type=Qt.QueuedConnection)
-        self.doubleClicked.connect(parent.iactions['View'].view_triggered)
+        self.doubleClicked.connect(self.double_clicked)
+        self.setCursor(Qt.PointingHandCursor)
         self.gui = parent
         self.context_menu = None
+
+    def double_clicked(self, index):
+        d = self.delegate
+        if d.animating is None and not config['disable_animations']:
+            d.animating = index
+            d.animation.start()
+        self.gui.iactions['View'].view_triggered(index)
+
+    def animation_value_changed(self, value):
+        if self.delegate.animating is not None:
+            self.update(self.delegate.animating)
+
+    def animation_done(self):
+        if self.delegate.animating is not None:
+            idx = self.delegate.animating
+            self.delegate.animating = None
+            self.update(idx)
 
     def set_color(self):
         r, g, b = gprefs['cover_grid_color']
