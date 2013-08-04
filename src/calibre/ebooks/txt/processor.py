@@ -17,6 +17,7 @@ from calibre.ebooks.conversion.preprocess import DocAnalysis
 from calibre.utils.cleantext import clean_ascii_chars
 
 HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s </title></head><body>\n%s\n</body></html>'
+VALID_MARKDOWN_EXTENSIONS = ['abbr', 'def_list', 'fenced_code', 'footnotes', 'headerid', 'meta', 'tables', 'toc', 'wikilinks']
 
 def clean_txt(txt):
     '''
@@ -95,11 +96,9 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
 
     return HTML_TEMPLATE % (title, u'\n'.join(lines))
 
-def convert_markdown(txt, title='', disable_toc=False):
+def convert_markdown(txt, title='', extensions=['footnotes', 'tables', 'toc']):
     from calibre.ebooks.markdown import markdown
-    extensions=['footnotes', 'tables']
-    if not disable_toc:
-        extensions.append('toc')
+    extensions = [x for x in extensions if x.lower() in VALID_MARKDOWN_EXTENSIONS]
     md = markdown.Markdown(
           extensions,
           safe_mode=False)
