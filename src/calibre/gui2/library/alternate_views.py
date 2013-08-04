@@ -10,7 +10,7 @@ import itertools, operator, os
 from types import MethodType
 from time import time
 from collections import OrderedDict
-from threading import Lock, Event, Thread
+from threading import Lock, Event, Thread, current_thread
 from Queue import Queue
 from functools import wraps, partial
 
@@ -276,17 +276,29 @@ class CoverCache(dict):
         self.items = OrderedDict()
         self.lock = Lock()
         self.limit = limit
+        self.pixmap_staging = []
+        self.gui_thread = current_thread()
+
+    def clear_staging(self):
+        ' Must be called in the GUI thread '
+        self.pixmap_staging = []
 
     def invalidate(self, book_id):
         with self.lock:
-            self.items.pop(book_id, None)
+            self._pop(book_id)
+
+    def _pop(self, book_id):
+        val = self.items.pop(book_id, None)
+        if type(val) is QPixmap and current_thread() is not self.gui_thread:
+            self.pixmap_staging.append(val)
 
     def __getitem__(self, key):
         ' Must be called in the GUI thread '
         with self.lock:
+            self.clear_staging()
             ans = self.items.pop(key, False)  # pop() so that item is moved to the top
             if ans is not False:
-                if isinstance(ans, QImage):
+                if type(ans) is QImage:
                     # Convert to QPixmap, since rendering QPixmap is much
                     # faster
                     ans = QPixmap.fromImage(ans)
@@ -296,13 +308,16 @@ class CoverCache(dict):
 
     def set(self, key, val):
         with self.lock:
-            self.items.pop(key, None)  # pop() so that item is moved to the top
+            self._pop(key)  # pop() so that item is moved to the top
             self.items[key] = val
             if len(self.items) > self.limit:
                 del self.items[next(self.items.iterkeys())]
 
     def clear(self):
         with self.lock:
+            if current_thread() is not self.gui_thread:
+                pixmaps = (x for x in self.items.itervalues() if type(x) is QPixmap)
+                self.pixmap_staging.extend(pixmaps)
             self.items.clear()
 
     def __hash__(self):
@@ -315,7 +330,7 @@ class CoverCache(dict):
                 extra = len(self.items) - self.limit
                 remove = tuple(self.iterkeys())[:extra]
                 for k in remove:
-                    del self.items[k]
+                    self._pop(k)
 
 class CoverDelegate(QStyledItemDelegate):
 
@@ -471,6 +486,7 @@ class GridView(QListView):
         self.update_item.emit(book_id)
 
     def re_render(self, book_id):
+        self.delegate.cover_cache.clear_staging()
         m = self.model()
         try:
             index = m.db.row(book_id)
