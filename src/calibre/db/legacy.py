@@ -436,7 +436,7 @@ class LibraryDatabase(object):
             if typ:
                 identifiers[typ] = val
                 self.new_api._set_field('identifiers', {book_id:identifiers})
-                self.notify('metadata', [book_id])
+        self.notify('metadata', [book_id])
 
     def set_isbn(self, book_id, isbn, notify=True, commit=True):
         self.set_identifier(book_id, 'isbn', isbn, notify=notify, commit=commit)
@@ -449,9 +449,9 @@ class LibraryDatabase(object):
                 existing = {icu_lower(x) for x in otags}
                 tags = list(otags) + [x for x in tags if icu_lower(x) not in existing]
             ret = self.new_api._set_field('tags', {book_id:tags}, allow_case_change=allow_case_change)
-            if notify:
-                self.notify('metadata', [book_id])
-            return ret
+        if notify:
+            self.notify('metadata', [book_id])
+        return ret
 
     def set_metadata(self, book_id, mi, ignore_errors=False, set_title=True,
                      set_authors=True, commit=True, force_changes=False, notify=True):
