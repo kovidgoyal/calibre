@@ -292,16 +292,22 @@ class ChooseLibraryAction(InterfaceAction):
         path = path.replace(os.sep, '/')
         return self.stats.pretty(path)
 
+    def update_tooltip(self, count):
+        tooltip = self.action_spec[2] + '\n\n' + _('{0} [{1} books]').format(
+            getattr(self, 'last_lname', ''), count)
+        a = self.qaction
+        a.setToolTip(tooltip)
+        a.setStatusTip(tooltip)
+        a.setWhatsThis(tooltip)
+
     def library_changed(self, db):
         lname = self.stats.library_used(db)
-        tooltip = self.action_spec[2] + '\n\n' + _('{0} [{1} books]').format(lname, db.count())
+        self.last_lname = lname
         if len(lname) > 16:
             lname = lname[:16] + u'…'
         a = self.qaction
         a.setText(lname)
-        a.setToolTip(tooltip)
-        a.setStatusTip(tooltip)
-        a.setWhatsThis(tooltip)
+        self.update_tooltip(db.count())
         self.build_menus()
         state = self.view_state_map.get(self.stats.canonicalize_path(
             db.library_path), None)
@@ -557,7 +563,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.switch_requested(self.qs_locations[idx])
 
     def count_changed(self, new_count):
-        pass
+        self.update_tooltip(new_count)
 
     def choose_library(self, *args):
         if not self.change_library_allowed():
