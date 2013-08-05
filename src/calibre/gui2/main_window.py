@@ -88,7 +88,6 @@ class MainWindow(QMainWindow):
         cls.___menu_bar = mb
         cls.___menu = menu
 
-
     @classmethod
     def get_menubar_actions(cls):
         preferences_action = QAction(QIcon(I('config.png')), _('&Preferences'), None)
@@ -108,6 +107,11 @@ class MainWindow(QMainWindow):
             return
         try:
             sio = StringIO.StringIO()
+            try:
+                from calibre.debug import print_basic_debug_info
+                print_basic_debug_info(out=sio)
+            except:
+                pass
             traceback.print_exception(type, value, tb, file=sio)
             fe = sio.getvalue()
             prints(fe, file=sys.stderr)
