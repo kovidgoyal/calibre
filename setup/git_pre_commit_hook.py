@@ -20,7 +20,7 @@ from lxml import html
 SENDMAIL = ('/home/kovid/work/env', 'pgp_mail')
 LAUNCHPAD_BUG = 'https://bugs.launchpad.net/calibre/+bug/%s'
 GITHUB_BUG = 'https://api.github.com/repos/kovidgoyal/calibre/issues/%s'
-BUG_PAT = r'(Fix|Implement|Fixes|Fixed|Implemented)\s+#(\d+)'
+BUG_PAT = r'(Fix|Implement|Fixes|Fixed|Implemented|See)\s+#(\d+)'
 
 class Bug:
 
@@ -45,7 +45,7 @@ class Bug:
             summary = json.loads(urllib.urlopen(GITHUB_BUG % bug).read())['title']
         if summary:
             print ('Working on bug:', summary)
-            if int(bug) > 100000:
+            if int(bug) > 100000 and action != 'See':
                 self.close_bug(bug, action)
                 return match.group() + ' [%s](%s)' % (summary, LAUNCHPAD_BUG % bug)
             return match.group() + ' (%s)' % summary
