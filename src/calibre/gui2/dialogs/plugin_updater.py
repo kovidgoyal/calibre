@@ -185,7 +185,7 @@ class PluginFilterComboBox(QComboBox):
 class DisplayPlugin(object):
 
     def __init__(self, plugin):
-        self.name = plugin['name']
+        self.name = plugin['index_name']
         self.forum_link = plugin['thread_url']
         self.zip_url = SERVER + plugin['file']
         self.installed_version = None
