@@ -249,6 +249,9 @@
            <property name="toolTip">
             <string>The width of displayed covers</string>
            </property>
+           <property name="specialValueText">
+            <string>Automatic</string>
+           </property>
            <property name="suffix">
             <string> cm</string>
            </property>
@@ -280,16 +283,6 @@
            </property>
            <property name="decimals">
             <number>1</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_13">
-           <property name="text">
-            <string>A value of zero means set automatically based on screen size</string>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
            </property>
           </widget>
          </item>
