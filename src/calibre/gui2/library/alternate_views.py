@@ -398,7 +398,8 @@ class CoverDelegate(QStyledItemDelegate):
             rect.adjust(4, 4, -4, -4)
             if cdata is None or cdata is False:
                 title = db.field_for('title', book_id, default_value='')
-                painter.drawText(rect, Qt.AlignCenter|Qt.TextWordWrap, title)
+                authors = ' & '.join(db.field_for('authors', book_id, default_value=()))
+                painter.drawText(rect, Qt.AlignCenter|Qt.TextWordWrap, '%s\n\n%s' % (title, authors))
                 if cdata is False:
                     self.render_queue.put(book_id)
             else:
