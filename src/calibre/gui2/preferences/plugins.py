@@ -337,8 +337,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             plugin = self._plugin_model.index_to_plugin(index)
             if op == 'toggle':
                 if not plugin.can_be_disabled:
-                    error_dialog(self,_('Plugin cannot be disabled'),
-                                 _('Disabling the plugin %s is not allowed')%plugin.name).exec_()
+                    info_dialog(self, _('Plugin cannot be disabled'),
+                                 _('Disabling the plugin %s is not allowed')%plugin.name, show=True, show_copy_button=False)
                     return
                 if is_disabled(plugin):
                     enable_plugin(plugin)
