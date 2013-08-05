@@ -292,6 +292,9 @@ class WritingTest(BaseTest):
             ae(c.field_for('sort', 1), 'Moose, The')
             ae(c.field_for('sort', 2), 'Cat')
 
+        # Test setting with the same value repeated
+        ae(sf('tags', {3: ('a', 'b', 'a')}), {3})
+
     # }}}
 
     def test_dirtied(self):  # {{{
