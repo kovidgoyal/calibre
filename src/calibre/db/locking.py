@@ -7,12 +7,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import traceback, sys
 from threading import Lock, Condition, current_thread, RLock
 from functools import partial
 from collections import Counter
+from calibre.utils.config_base import tweaks
 
 class LockingError(RuntimeError):
-    pass
+
+    def __init__(self, msg, extra=None):
+        RuntimeError.__init__(self, msg)
+        self.locking_debug_msg = extra
 
 def create_locks():
     '''
@@ -37,7 +42,8 @@ def create_locks():
     the possibility of deadlocking in this scenario).
     '''
     l = SHLock()
-    return RWLockWrapper(l), RWLockWrapper(l, is_shared=False)
+    wrapper = DebugRWLockWrapper if tweaks.get('newdb_debug_locking', False) else RWLockWrapper
+    return wrapper(l), wrapper(l, is_shared=False)
 
 class SHLock(object):  # {{{
     '''
@@ -216,6 +222,31 @@ class RWLockWrapper(object):
 
     def owns_lock(self):
         return self._shlock.owns_lock()
+
+class DebugRWLockWrapper(RWLockWrapper):
+
+    def __init__(self, *args, **kwargs):
+        RWLockWrapper.__init__(self, *args, **kwargs)
+        self._last_acquire = ()
+
+    def __enter__(self):
+        try:
+            RWLockWrapper.__enter__(self)
+        except LockingError as e:
+            if self._last_acquire is None:
+                raise
+            et, ei, tb = sys.exc_info()
+            raise LockingError, LockingError(e.message, extra='Last successful call to acquire():\n' + ''.join(self._last_acquire)), tb
+        self._last_acquire = traceback.format_stack()
+
+    def release(self):
+        try:
+            RWLockWrapper.release(self)
+        except LockingError as e:
+            if self._last_acquire is None:
+                raise
+            et, ei, tb = sys.exc_info()
+            raise LockingError, LockingError(e.message, extra='Last successful call to acquire():\n' + ''.join(self._last_acquire)), tb
 
 class RecordLock(object):
 

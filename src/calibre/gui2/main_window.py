@@ -113,6 +113,8 @@ class MainWindow(QMainWindow):
             except:
                 pass
             traceback.print_exception(type, value, tb, file=sio)
+            if getattr(value, 'locking_debug_msg', None):
+                prints(value.locking_debug_msg, file=sio)
             fe = sio.getvalue()
             prints(fe, file=sys.stderr)
             msg = '<b>%s</b>:'%type.__name__ + unicode(str(value), 'utf8', 'replace')
