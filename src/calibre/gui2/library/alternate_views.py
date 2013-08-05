@@ -368,10 +368,17 @@ class CoverDelegate(QStyledItemDelegate):
             width *= self.parent().logicalDpiX() * CM_TO_INCH
         self.cover_size = QSize(width, height)
         self.item_size = self.cover_size + QSize(8, 8)
-        self.spacing = max(10, min(50, int(0.1 * width)))
+        self.calculate_spacing()
         self.animation.setStartValue(1.0)
         self.animation.setKeyValueAt(0.5, 0.5)
         self.animation.setEndValue(1.0)
+
+    def calculate_spacing(self):
+        spc = self.original_spacing = gprefs['cover_grid_spacing']
+        if spc < 0.1:
+            self.spacing = max(10, min(50, int(0.1 * self.original_width)))
+        else:
+            self.spacing = self.parent().logicalDpiX() * CM_TO_INCH * spc
 
     def sizeHint(self, option, index):
         return self.item_size
@@ -479,6 +486,9 @@ class GridView(QListView):
             self.delegate.set_dimensions()
             self.setSpacing(self.delegate.spacing)
             self.delegate.cover_cache.clear()
+        if gprefs['cover_grid_spacing'] != self.delegate.original_spacing:
+            self.delegate.calculate_spacing()
+            self.setSpacing(self.delegate.spacing)
         self.set_color()
         self.delegate.cover_cache.set_limit(gprefs['cover_grid_cache_size'])
 
