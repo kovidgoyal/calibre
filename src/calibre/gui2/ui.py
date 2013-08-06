@@ -854,6 +854,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 pass
         except KeyboardInterrupt:
             pass
+        from calibre.db.delete_service import shutdown
+        shutdown()
         time.sleep(2)
         self.istores.join()
         self.hide_windows()
