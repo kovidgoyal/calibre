@@ -16,7 +16,7 @@ from functools import wraps, partial
 
 from PyQt4.Qt import (
     QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal,
-    QPalette, QColor, QItemSelection, QPixmap, QMenu, QApplication, QMimeData,
+    QPalette, QColor, QItemSelection, QPixmap, QMenu, QApplication, QMimeData, QIcon,
     QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QPropertyAnimation, QEasingCurve)
 
 from calibre import fit_image
@@ -621,7 +621,7 @@ class GridView(QListView):
 
             for ac in self.context_menu.actions():
                 menu.addAction(ac)
-            menu.addMenu(sm)
+            menu.addMenu(sm).setIcon(QIcon(I('arrow-up.png')))
             menu.popup(event.globalPos())
             event.accept()
 
