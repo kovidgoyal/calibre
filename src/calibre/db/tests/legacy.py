@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import inspect
+import inspect, time
 from io import BytesIO
 from repr import repr
 from functools import partial
@@ -126,6 +126,9 @@ class LegacyTest(BaseTest):
         ' Test refreshing the view after a change to metadata.db '
         db = self.init_legacy()
         db2 = self.init_legacy()
+        # Ensure that the following change will actually update the timestamp
+        # on filesystems with one second resolution (OS X)
+        time.sleep(1)
         self.assertEqual(db2.data.cache.set_field('title', {1:'xxx'}), set([1]))
         db2.close()
         del db2
