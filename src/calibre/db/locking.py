@@ -227,28 +227,24 @@ class DebugRWLockWrapper(RWLockWrapper):
 
     def __init__(self, *args, **kwargs):
         RWLockWrapper.__init__(self, *args, **kwargs)
-        self._last_acquire = ()
 
     def __enter__(self):
-        try:
-            RWLockWrapper.__enter__(self)
-        except LockingError as e:
-            if self._last_acquire is None:
-                raise
-            et, ei, tb = sys.exc_info()
-            raise LockingError, LockingError(e.message, extra='Last successful call to acquire():\n' + ''.join(self._last_acquire)), tb
-        self._last_acquire = traceback.format_stack()
+        print ('#' * 120, file=sys.stderr)
+        print ('acquire called: thread id:', current_thread(), 'shared:', self._is_shared, file=sys.stderr)
+        traceback.print_stack()
+        RWLockWrapper.__enter__(self)
+        print ('acquire done: thread id:', current_thread(), file=sys.stderr)
+        print ('_' * 120, file=sys.stderr)
 
     def release(self):
-        try:
-            RWLockWrapper.release(self)
-        except LockingError as e:
-            if self._last_acquire is None:
-                raise
-            et, ei, tb = sys.exc_info()
-            raise LockingError, LockingError(e.message, extra='Last successful call to acquire():\n' + ''.join(self._last_acquire)), tb
+        print ('*' * 120, file=sys.stderr)
+        print ('release called: thread id:', current_thread(), 'shared:', self._is_shared, file=sys.stderr)
+        traceback.print_stack()
+        RWLockWrapper.release(self)
+        print ('release done: thread id:', current_thread(), 'is_shared:', self._shlock.is_shared, 'is_exclusive:', self._shlock.is_exclusive, file=sys.stderr)
+        print ('_' * 120, file=sys.stderr)
 
-class RecordLock(object):
+class RecordLock(object):  # {{{
 
     '''
     Lock records identified by hashable ids. To use
@@ -326,6 +322,7 @@ class RecordLock(object):
 
     def _return_lock(self, lock):
         self._free_locks.append(lock)
+# }}}
 
 # Tests {{{
 if __name__ == '__main__':
