@@ -10,7 +10,6 @@ import inspect, time
 from io import BytesIO
 from repr import repr
 from functools import partial
-from tempfile import NamedTemporaryFile
 from operator import itemgetter
 
 from calibre.db.tests.base import BaseTest
@@ -313,19 +312,20 @@ class LegacyTest(BaseTest):
     def test_legacy_adding_books(self):  # {{{
         'Test various adding/deleting books methods'
         from calibre.ebooks.metadata.book.base import Metadata
+        from calibre.ptempfile import TemporaryFile
         legacy, old = self.init_legacy(self.cloned_library), self.init_old(self.cloned_library)
         mi = Metadata('Added Book0', authors=('Added Author',))
-        with NamedTemporaryFile(suffix='.aff') as f:
-            f.write(b'xxx')
-            f.flush()
-            T = partial(ET, 'add_books', ([f.name], ['AFF'], [mi]), old=old, legacy=legacy)
+        with TemporaryFile(suffix='.aff') as name:
+            with open(name, 'wb') as f:
+                f.write(b'xxx')
+            T = partial(ET, 'add_books', ([name], ['AFF'], [mi]), old=old, legacy=legacy)
             T()(self)
             book_id = T(kwargs={'return_ids':True})(self)[1][0]
             self.assertEqual(legacy.new_api.formats(book_id), ('AFF',))
             T(kwargs={'add_duplicates':False})(self)
             mi.title = 'Added Book1'
             mi.uuid = 'uuu'
-            T = partial(ET, 'import_book', (mi,[f.name]), old=old, legacy=legacy)
+            T = partial(ET, 'import_book', (mi,[name]), old=old, legacy=legacy)
             book_id = T()(self)
             self.assertNotEqual(legacy.uuid(book_id, index_is_id=True), old.uuid(book_id, index_is_id=True))
             book_id = T(kwargs={'preserve_uuid':True})(self)
@@ -336,10 +336,10 @@ class LegacyTest(BaseTest):
             T((0, 'AFF', BytesIO(b'fffff')))(self)
             T((0, 'AFF', BytesIO(b'fffff')))(self)
             T((0, 'AFF', BytesIO(b'fffff')), {'replace':True})(self)
-        with NamedTemporaryFile(suffix='.opf') as f:
-            f.write(b'zzzz')
-            f.flush()
-            T = partial(ET, 'import_book', (mi,[f.name]), old=old, legacy=legacy)
+        with TemporaryFile(suffix='.opf') as name:
+            with open(name, 'wb') as f:
+                f.write(b'zzzz')
+            T = partial(ET, 'import_book', (mi,[name]), old=old, legacy=legacy)
             book_id = T()(self)
             self.assertFalse(legacy.new_api.formats(book_id))
 
@@ -349,21 +349,21 @@ class LegacyTest(BaseTest):
         T({'add_duplicates':False})
         T({'force_id':1000})
 
-        with NamedTemporaryFile(suffix='.txt') as f:
-            f.write(b'tttttt')
-            f.seek(0)
-            bid = legacy.add_catalog(f.name, 'My Catalog')
-            self.assertEqual(old.add_catalog(f.name, 'My Catalog'), bid)
+        with TemporaryFile(suffix='.txt') as name:
+            with open(name, 'wb') as f:
+                f.write(b'tttttt')
+            bid = legacy.add_catalog(name, 'My Catalog')
+            self.assertEqual(old.add_catalog(name, 'My Catalog'), bid)
             cache = legacy.new_api
             self.assertEqual(cache.formats(bid), ('TXT',))
             self.assertEqual(cache.field_for('title', bid), 'My Catalog')
             self.assertEqual(cache.field_for('authors', bid), ('calibre',))
             self.assertEqual(cache.field_for('tags', bid), (_('Catalog'),))
-            self.assertTrue(bid < legacy.add_catalog(f.name, 'Something else'))
-            self.assertEqual(legacy.add_catalog(f.name, 'My Catalog'), bid)
-            self.assertEqual(old.add_catalog(f.name, 'My Catalog'), bid)
+            self.assertTrue(bid < legacy.add_catalog(name, 'Something else'))
+            self.assertEqual(legacy.add_catalog(name, 'My Catalog'), bid)
+            self.assertEqual(old.add_catalog(name, 'My Catalog'), bid)
 
-            bid = legacy.add_news(f.name, {'title':'Events', 'add_title_tag':True, 'custom_tags':('one', 'two')})
+            bid = legacy.add_news(name, {'title':'Events', 'add_title_tag':True, 'custom_tags':('one', 'two')})
             self.assertEqual(cache.formats(bid), ('TXT',))
             self.assertEqual(cache.field_for('authors', bid), ('calibre',))
             self.assertEqual(cache.field_for('tags', bid), (_('News'), 'Events', 'one', 'two'))
@@ -783,5 +783,6 @@ class LegacyTest(BaseTest):
             ('saved_search_names',),
             ('saved_search_lookup', 'n'),
         ))
+        db.close()
     # }}}
 
