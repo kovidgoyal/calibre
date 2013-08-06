@@ -352,6 +352,7 @@ class CoverDelegate(QStyledItemDelegate):
         self.cover_cache = CoverCache(limit=gprefs['cover_grid_cache_size'])
         self.render_queue = Queue()
         self.animating = None
+        self.highlight_color = QColor(Qt.white)
 
     def set_dimensions(self):
         width = self.original_width = gprefs['cover_grid_width']
@@ -385,11 +386,20 @@ class CoverDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, QModelIndex())  # draw the hover and selection highlights
-        db = index.model().db
+        m = index.model()
+        db = m.db
         try:
             book_id = db.id(index.row())
         except (ValueError, IndexError, KeyError):
             return
+        if book_id in m.ids_to_highlight_set:
+            painter.save()
+            try:
+                painter.setPen(self.highlight_color)
+                painter.setRenderHint(QPainter.Antialiasing, True)
+                painter.drawRoundedRect(option.rect, 10, 10, Qt.RelativeSize)
+            finally:
+                painter.restore()
         db = db.new_api
         cdata = self.cover_cache[book_id]
         painter.save()
@@ -435,7 +445,6 @@ class GridView(QListView):
     def __init__(self, parent):
         QListView.__init__(self, parent)
         setup_dnd_interface(self)
-        self.set_color()
         self.setUniformItemSizes(True)
         self.setWrapping(True)
         self.setFlow(self.LeftToRight)
@@ -450,6 +459,7 @@ class GridView(QListView):
         self.delegate.animation.finished.connect(self.animation_done)
         self.setItemDelegate(self.delegate)
         self.setSpacing(self.delegate.spacing)
+        self.set_color()
         self.ignore_render_requests = Event()
         self.render_thread = None
         self.update_item.connect(self.re_render, type=Qt.QueuedConnection)
@@ -478,9 +488,12 @@ class GridView(QListView):
     def set_color(self):
         r, g, b = gprefs['cover_grid_color']
         pal = QPalette()
-        pal.setColor(pal.Base, QColor(r, g, b))
-        pal.setColor(pal.Text, QColor(Qt.white if (r + g + b)/3.0 < 128 else Qt.black))
+        col = QColor(r, g, b)
+        pal.setColor(pal.Base, col)
+        dark = (r + g + b)/3.0 < 128
+        pal.setColor(pal.Text, QColor(Qt.white if dark else Qt.black))
         self.setPalette(pal)
+        self.delegate.highlight_color = pal.color(pal.Text)
 
     def refresh_settings(self):
         if gprefs['cover_grid_width'] != self.delegate.original_width or gprefs['cover_grid_height'] != self.delegate.original_height:
