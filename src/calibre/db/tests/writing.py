@@ -343,12 +343,12 @@ class WritingTest(BaseTest):
             ae(sf('authors', {1:'author1 & author2', 2:'author1 & author2', 3:'author1 & author2'}), {1,2,3})
             count = 6
             while cache.dirty_queue_length() and count > 0:
-                mb.join(interval)
+                mb.join(2)
                 count -= 1
             af(cache.dirty_queue_length())
         finally:
             mb.stop()
-        mb.join(interval)
+        mb.join(2)
         af(mb.is_alive())
         from calibre.ebooks.metadata.opf2 import OPF
         for book_id in (1, 2, 3):
