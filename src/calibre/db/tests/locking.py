@@ -123,6 +123,7 @@ class TestLock(BaseTest):
         lock.release()
         self.assertFalse(lock.acquire(shared=False, blocking=False))
         lock.acquire(shared=False)
+        shared.join(1)
         self.assertFalse(shared.is_alive())
         lock.release()
         self.assertTrue(lock.acquire(shared=False, blocking=False))
