@@ -27,10 +27,14 @@ class BaseTest(unittest.TestCase):
         reset_tweaks_to_default()
 
     def setUp(self):
+        from calibre.utils.recycle_bin import nuke_recycle
+        nuke_recycle()
         self.library_path = self.mkdtemp()
         self.create_db(self.library_path)
 
     def tearDown(self):
+        from calibre.utils.recycle_bin import restore_recyle
+        restore_recyle()
         gc.collect(), gc.collect()
         shutil.rmtree(self.library_path)
 
