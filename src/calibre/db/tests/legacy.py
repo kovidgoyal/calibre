@@ -167,7 +167,6 @@ class LegacyTest(BaseTest):
 
         for meth, args in {
             'find_identical_books': [(Metadata('title one', ['author one']),), (Metadata('unknown'),), (Metadata('xxxx'),)],
-            'get_top_level_move_items': [()],
             'get_books_for_category': [('tags', newstag), ('#formats', 'FMT1')],
             'get_next_series_num_for': [('A Series One',)],
             'get_id_from_uuid':[('ddddd',), (db.uuid(1, True),)],
@@ -241,6 +240,10 @@ class LegacyTest(BaseTest):
             for a in args:
                 self.assertEqual(fmt(getattr(db, meth)(*a)), fmt(getattr(ndb, meth)(*a)),
                                  'The method: %s() returned different results for argument %s' % (meth, a))
+        def f(x, y):  # get_top_level_move_items is broken in the old db on case-insensitive file systems
+            x.discard('metadata_db_prefs_backup.json')
+            return x, y
+        self.assertEqual(f(*db.get_top_level_move_items()), f(*ndb.get_top_level_move_items()))
         d1, d2 = BytesIO(), BytesIO()
         db.copy_cover_to(1, d1, True)
         ndb.copy_cover_to(1, d2, True)

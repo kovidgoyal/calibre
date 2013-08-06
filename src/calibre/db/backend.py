@@ -1485,7 +1485,7 @@ class DB(object):
         if not self.is_case_sensitive:
             for x in items:
                 path_map[x.lower()] = x
-            items = set(path_map)
+            items = {x.lower() for x in items}
             paths = {x.lower() for x in paths}
         items = items.intersection(paths)
         return items, path_map
