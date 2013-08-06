@@ -62,6 +62,8 @@ class KoobeStore(BasicStoreConfig, StorePlugin):
 
                     cover_url = ''.join(data.xpath('.//div[@class="cover"]/a/img/@src'))
                     price = ''.join(data.xpath('.//span[@class="current_price"]/text()'))
+                    if not price:
+                        price = ''.join(data.xpath('.//div[@class="book_promo_price"]/span/text()'))
                     title = ''.join(data.xpath('.//h2[@class="title"]/a/text()'))
                     author = ', '.join(data.xpath('.//h3[@class="book_author"]/a/text()'))
                     formats = ', '.join(data.xpath('.//div[@class="formats"]/div/div/@title'))
