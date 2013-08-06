@@ -8,9 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import traceback, sys
-from threading import Lock, Condition, current_thread, RLock
-from functools import partial
-from collections import Counter
+from threading import Lock, Condition, current_thread
 from calibre.utils.config_base import tweaks
 
 class LockingError(RuntimeError):
@@ -244,86 +242,6 @@ class DebugRWLockWrapper(RWLockWrapper):
         print ('release done: thread id:', current_thread(), 'is_shared:', self._shlock.is_shared, 'is_exclusive:', self._shlock.is_exclusive, file=sys.stderr)
         print ('_' * 120, file=sys.stderr)
 
-class RecordLock(object):  # {{{
-
-    '''
-    Lock records identified by hashable ids. To use
-
-    rl = RecordLock()
-
-    with rl.lock(some_id):
-        # do something
-
-    This will lock the record identified by some_id exclusively. The lock is
-    recursive, which means that you can lock the same record multiple times in
-    the same thread.
-
-    This class co-operates with the SHLock class. If you try to lock a record
-    in a thread that already holds the SHLock, a LockingError is raised. This
-    is to prevent the possibility of a cross-lock deadlock.
-
-    A cross-lock deadlock is still possible if you first lock a record and then
-    acquire the SHLock, but the usage pattern for this lock makes this highly
-    unlikely (this lock should be acquired immediately before any file I/O on
-    files in the library and released immediately after).
-    '''
-
-    class Wrap(object):
-
-        def __init__(self, release):
-            self.release = release
-
-        def __enter__(self):
-            return self
-
-        def __exit__(self, *args, **kwargs):
-            self.release()
-            self.release = None
-
-    def __init__(self, sh_lock):
-        self._lock = Lock()
-        #  This is for recycling lock objects.
-        self._free_locks = [RLock()]
-        self._records = {}
-        self._counter = Counter()
-        self.sh_lock = sh_lock
-
-    def lock(self, record_id):
-        if self.sh_lock.owns_lock():
-            raise LockingError('Current thread already holds a shared lock,'
-                ' you cannot also ask for record lock as this could cause a'
-                ' deadlock.')
-        with self._lock:
-            l = self._records.get(record_id, None)
-            if l is None:
-                l = self._take_lock()
-                self._records[record_id] = l
-            self._counter[record_id] += 1
-        l.acquire()
-        return RecordLock.Wrap(partial(self.release, record_id))
-
-    def release(self, record_id):
-        with self._lock:
-            l = self._records.pop(record_id, None)
-            if l is None:
-                raise LockingError('No lock acquired for record %r'%record_id)
-            l.release()
-            self._counter[record_id] -= 1
-            if self._counter[record_id] > 0:
-                self._records[record_id] = l
-            else:
-                self._return_lock(l)
-
-    def _take_lock(self):
-        try:
-            return self._free_locks.pop()
-        except IndexError:
-            return RLock()
-
-    def _return_lock(self, lock):
-        self._free_locks.append(lock)
-# }}}
-
 # Tests {{{
 if __name__ == '__main__':
     import time, random, unittest
@@ -489,37 +407,6 @@ if __name__ == '__main__':
             self.assertEqual(len(done), len(threads), 'SHLock locking failed')
             self.assertFalse(lock.is_shared)
             self.assertFalse(lock.is_exclusive)
-
-        def test_record_lock(self):
-            shlock = SHLock()
-            lock = RecordLock(shlock)
-
-            shlock.acquire()
-            self.assertRaises(LockingError, lock.lock, 1)
-            shlock.release()
-            with lock.lock(1):
-                with lock.lock(1):
-                    pass
-
-            def dolock():
-                with lock.lock(1):
-                    time.sleep(0.1)
-
-            t = Thread(target=dolock)
-            t.daemon = True
-            with lock.lock(1):
-                t.start()
-                t.join(0.2)
-                self.assertTrue(t.is_alive())
-            t.join(0.11)
-            self.assertFalse(t.is_alive())
-
-            t = Thread(target=dolock)
-            t.daemon = True
-            with lock.lock(2):
-                t.start()
-                t.join(0.11)
-                self.assertFalse(t.is_alive())
 
     suite = unittest.TestLoader().loadTestsFromTestCase(TestLock)
     unittest.TextTestRunner(verbosity=2).run(suite)
