@@ -809,6 +809,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
             if not question_dialog(self, _('Active jobs'), msg):
                 return False
+        from calibre.db.delete_service import has_jobs
+        if has_jobs():
+            msg = _('Some deleted books are still being moved to the Recycle '
+                    'Bin, if you quit now, they will be left behind. Are you '
+                    'sure you want to quit?')
+            if not question_dialog(self, _('Active jobs'), msg):
+                return False
+
         return True
 
     def shutdown(self, write_settings=True):

@@ -113,4 +113,9 @@ def shutdown(timeout=20):
         __ds.shutdown(timeout)
         __ds = None
 
+def has_jobs():
+    global __ds
+    if __ds is not None:
+        return (not __ds.requests.empty()) or __ds.requests.unfinished_tasks
+    return False
 
