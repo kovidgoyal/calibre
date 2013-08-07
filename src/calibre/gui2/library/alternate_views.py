@@ -15,7 +15,7 @@ from Queue import Queue
 from functools import wraps, partial
 
 from PyQt4.Qt import (
-    QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal,
+    QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal, QTimer,
     QPalette, QColor, QItemSelection, QPixmap, QMenu, QApplication, QMimeData, QIcon,
     QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QPropertyAnimation, QEasingCurve)
 
@@ -470,6 +470,10 @@ class GridView(QListView):
         self.context_menu = None
         self.verticalScrollBar().sliderPressed.connect(self.slider_pressed)
         self.verticalScrollBar().sliderReleased.connect(self.slider_released)
+        self.update_timer = QTimer(self)
+        self.update_timer.setInterval(200)
+        self.update_timer.timeout.connect(self.update_viewport)
+        self.update_timer.setSingleShot(True)
 
     @property
     def first_visible_row(self):
@@ -491,6 +495,7 @@ class GridView(QListView):
                     return ans + (geom.width() // item_width)
 
     def update_viewport(self):
+        self.ignore_render_requests.clear()
         m = self.model()
         for r in xrange(self.first_visible_row or 0, self.last_visible_row or (m.count() - 1)):
             self.update(m.index(r, 0))
@@ -501,6 +506,11 @@ class GridView(QListView):
     def slider_released(self):
         self.ignore_render_requests.clear()
         self.update_viewport()
+
+    def wheelEvent(self, e):
+        self.ignore_render_requests.set()
+        QListView.wheelEvent(self, e)
+        self.update_timer.start()
 
     def double_clicked(self, index):
         d = self.delegate
