@@ -157,6 +157,7 @@ class BooksView(QTableView):  # {{{
 
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
+        self.gui = parent
         self.setProperty('highlight_current_item', 150)
         self.row_sizing_done = False
         self.alternate_views = AlternateViews(self)
@@ -713,6 +714,10 @@ class BooksView(QTableView):  # {{{
         self.edit_collections_action = edit_collections_action
 
     def contextMenuEvent(self, event):
+        sac = self.gui.iactions['Sort By']
+        sort_added = tuple(ac for ac in self.context_menu.actions() if ac is sac.qaction)
+        if sort_added:
+            sac.update_menu()
         self.context_menu.popup(event.globalPos())
         event.accept()
     # }}}

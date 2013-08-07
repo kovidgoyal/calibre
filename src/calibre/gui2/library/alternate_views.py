@@ -15,9 +15,10 @@ from Queue import Queue
 from functools import wraps, partial
 
 from PyQt4.Qt import (
-    QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal, QTimer,
-    QPalette, QColor, QItemSelection, QPixmap, QMenu, QApplication, QMimeData, QIcon,
-    QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QPropertyAnimation, QEasingCurve)
+    QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal,
+    QTimer, QPalette, QColor, QItemSelection, QPixmap, QMenu, QApplication,
+    QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty,
+    QPropertyAnimation, QEasingCurve)
 
 from calibre import fit_image
 from calibre.gui2 import gprefs, config
@@ -215,7 +216,6 @@ class AlternateViews(object):
         view.setModel(self.main_view._model)
         view.selectionModel().currentChanged.connect(self.slave_current_changed)
         view.selectionModel().selectionChanged.connect(self.slave_selection_changed)
-        view.sort_requested.connect(self.main_view.sort_by_named_field)
         view.files_dropped.connect(self.main_view.files_dropped)
 
     def show_view(self, key=None):
@@ -440,7 +440,6 @@ def join_with_timeout(q, timeout=2):
 class GridView(QListView):
 
     update_item = pyqtSignal(object)
-    sort_requested = pyqtSignal(object, object)
     files_dropped = pyqtSignal(object)
 
     def __init__(self, parent):
@@ -648,30 +647,16 @@ class GridView(QListView):
 
     def contextMenuEvent(self, event):
         if self.context_menu is not None:
-            lv = self.gui.library_view
             menu = self._temp_menu = QMenu(self)
-            sm = QMenu(_('Sort by'), menu)
-            db = self.model().db
-            for col in lv.visible_columns:
-                m = db.metadata_for_field(col)
-                last = self.model().sorted_on
-                ascending = True
-                extra = ''
-                if last[0] == col:
-                    ascending = not last[1]
-                    extra = ' [%s]' % _('reverse current sort')
-                ac = sm.addAction('%s%s' % (m.get('name', col), extra), partial(self.do_sort, col, ascending))
-                if last[0] == col:
-                    ac.setIcon(QIcon(I('ok.png')))
-
+            sac = self.gui.iactions['Sort By']
+            sort_added = tuple(ac for ac in self.context_menu.actions() if ac is sac.qaction)
+            if not sort_added:
+                menu.addAction(sac.qaction)
             for ac in self.context_menu.actions():
                 menu.addAction(ac)
-            menu.addMenu(sm).setIcon(QIcon(I('arrow-up.png')))
+            sac.update_menu()
             menu.popup(event.globalPos())
             event.accept()
-
-    def do_sort(self, column, ascending):
-        self.sort_requested.emit(column, ascending)
 
     def get_selected_ids(self):
         m = self.model()

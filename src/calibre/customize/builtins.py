@@ -912,6 +912,10 @@ class ActionPickRandom(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.random:PickRandomAction'
     description = _('Choose a random book from your calibre library')
 
+class ActionSortBy(InterfaceActionBase):
+    name = 'Sort By'
+    actual_plugin = 'calibre.gui2.actions.sort:SortByAction'
+    description = _('Sort the list of books')
 
 class ActionStore(InterfaceActionBase):
     name = 'Store'
@@ -943,7 +947,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionMatchBooks, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore,
-        ActionPluginUpdater, ActionPickRandom, ActionEditToC]
+        ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy]
 
 # }}}
 
