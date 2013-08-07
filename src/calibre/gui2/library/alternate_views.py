@@ -468,6 +468,39 @@ class GridView(QListView):
         self.setCursor(Qt.PointingHandCursor)
         self.gui = parent
         self.context_menu = None
+        self.verticalScrollBar().sliderPressed.connect(self.slider_pressed)
+        self.verticalScrollBar().sliderReleased.connect(self.slider_released)
+
+    @property
+    def first_visible_row(self):
+        geom = self.viewport().geometry()
+        for y in xrange(geom.top(), (self.spacing()*2) + geom.top(), 5):
+            for x in xrange(geom.left(), (self.spacing()*2) + geom.left(), 5):
+                ans = self.indexAt(QPoint(x, y)).row()
+                if ans > -1:
+                    return ans
+
+    @property
+    def last_visible_row(self):
+        geom = self.viewport().geometry()
+        for y in xrange(geom.bottom(), geom.bottom() - 2 * self.spacing(), -5):
+            for x in xrange(geom.left(), (self.spacing()*2) + geom.left(), 5):
+                ans = self.indexAt(QPoint(x, y)).row()
+                if ans > -1:
+                    item_width = self.delegate.item_size.width() + 2*self.spacing()
+                    return ans + (geom.width() // item_width)
+
+    def update_viewport(self):
+        m = self.model()
+        for r in xrange(self.first_visible_row or 0, self.last_visible_row or (m.count() - 1)):
+            self.update(m.index(r, 0))
+
+    def slider_pressed(self):
+        self.ignore_render_requests.set()
+
+    def slider_released(self):
+        self.ignore_render_requests.clear()
+        self.update_viewport()
 
     def double_clicked(self, index):
         d = self.delegate
