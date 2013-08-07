@@ -616,8 +616,10 @@ class GridView(QListView):
                 extra = ''
                 if last[0] == col:
                     ascending = not last[1]
-                    extra = ' [%s]' % _('reverse')
-                sm.addAction('%s%s' % (m.get('name', col), extra), partial(self.do_sort, col, ascending))
+                    extra = ' [%s]' % _('reverse current sort')
+                ac = sm.addAction('%s%s' % (m.get('name', col), extra), partial(self.do_sort, col, ascending))
+                if last[0] == col:
+                    ac.setIcon(QIcon(I('ok.png')))
 
             for ac in self.context_menu.actions():
                 menu.addAction(ac)
