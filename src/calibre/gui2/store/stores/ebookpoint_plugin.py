@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 2 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2012, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2013, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -62,7 +62,7 @@ class EbookpointStore(BasicStoreConfig, StorePlugin):
                 cover_url = ''.join(data.xpath('.//a[@class="cover"]/img/@src'))
                 title = ''.join(data.xpath('.//h3/a/@title'))
                 title = re.sub('eBook.', '', title)
-                author = ''.join(data.xpath('.//p[@class="author"]/text()'))
+                author = ''.join(data.xpath('.//p[@class="author"]//text()'))
                 price = ''.join(data.xpath('.//p[@class="price"]/ins/text()'))
 
                 formats = ', '.join(data.xpath('.//div[@class="ikony"]/span/text()'))
