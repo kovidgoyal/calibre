@@ -1,0 +1,36 @@
+from __future__ import unicode_literals
+__license__   = 'GPL v3'
+__copyright__ = '2013, Malah <malah at neuf dot fr>'
+'''
+Gamekult.com
+'''
+
+__author__ = '2013, Malah <malah at neuf dot fr>'
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class GamekultCom(BasicNewsRecipe):
+    title          = u'Gamekult.com'
+    __author__ = 'Malah'
+    description = u'Toute l`actualité du jeu vidéo PC, consoles, mobiles.'
+    oldest_article = 1.5
+    language = 'fr'
+    max_articles_per_feed = 100
+    remove_empty_feeds = True
+    use_embedded_content = False
+    no_stylesheets = True
+    ignore_duplicate_articles = {'title', 'url'}
+    keep_only_tags = [dict(id=['story-page','story-body'])]
+    remove_tags = [
+      dict(name='div', attrs={'class':'sharebar'}),
+      dict(name='object', attrs={'type':'application/x-shockwave-flash'}),
+      dict(name='span', attrs={'class':'share'}),
+      dict(name='div', attrs={'class':'story-pagination'}),
+      dict(name='div', attrs={'class':'pagination pagination-centered'}),
+    ]
+
+    masthead_url       = u'https://upload.wikimedia.org/wikipedia/fr/9/9c/Logo_-_GAMEKULT.png'
+
+    feeds =  [
+      ('Test', u'http://www.gamekult.com/feeds/test.html'),
+      ('Actu', u'http://www.gamekult.com/feeds/actu.html'),
+    ]
