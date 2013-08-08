@@ -366,6 +366,9 @@
          <property name="maximum">
           <number>50000</number>
          </property>
+         <property name="toolTip">
+          <string>The maximum number of covers to keep in memory. Increasing this will make rendering faster, at the cost of more memory usage.</string>
+         </property>
         </widget>
        </item>
        <item row="3" column="0">
