@@ -364,7 +364,7 @@
        <item row="2" column="1">
         <widget class="QSpinBox" name="opt_cover_grid_cache_size">
          <property name="maximum">
-          <number>3000</number>
+          <number>50000</number>
          </property>
         </widget>
        </item>
