@@ -11,6 +11,11 @@ from binascii import unhexlify
 from functools import partial
 from threading import Thread
 from itertools import repeat
+from collections import defaultdict
+
+from PyQt4.Qt import (
+    Qt, QDialog, QGridLayout, QIcon, QListWidget, QDialogButtonBox,
+    QListWidgetItem, QLabel, QLineEdit, QPushButton)
 
 from calibre.utils.smtp import (compose_mail, sendmail, extract_email_address,
         config as email_config)
@@ -18,9 +23,10 @@ from calibre.utils.filenames import ascii_filename
 from calibre.customize.ui import available_input_formats, available_output_formats
 from calibre.ebooks.metadata import authors_to_string
 from calibre.constants import preferred_encoding
-from calibre.gui2 import config, Dispatcher, warning_dialog
+from calibre.gui2 import config, Dispatcher, warning_dialog, error_dialog
 from calibre.library.save_to_disk import get_components
-from calibre.utils.config import tweaks
+from calibre.utils.config import tweaks, prefs
+from calibre.utils.icu import sort_key
 from calibre.gui2.threaded_jobs import ThreadedJob
 
 class Worker(Thread):
@@ -166,7 +172,163 @@ def email_news(mi, remove, get_fmts, done, job_manager):
 plugboard_email_value = 'email'
 plugboard_email_formats = ['epub', 'mobi', 'azw3']
 
+class SelectRecipients(QDialog):  # {{{
+
+    def __init__(self, parent=None):
+        QDialog.__init__(self, parent)
+        self._layout = l = QGridLayout(self)
+        self.setLayout(l)
+        self.setWindowIcon(QIcon(I('mail.png')))
+        self.setWindowTitle(_('Select recipients'))
+        self.recipients = r = QListWidget(self)
+        l.addWidget(r, 0, 0, 1, -1)
+        self.la = la = QLabel(_('Add a new recipient:'))
+        la.setStyleSheet('QLabel { font-weight: bold }')
+        l.addWidget(la, l.rowCount(), 0, 1, -1)
+
+        self.labels = tuple(map(QLabel, (
+            _('&Address'), _('A&lias'), _('&Formats'), _('&Subject'))))
+        tooltips = (
+            _('The email address of the recipient'),
+            _('The optional alias (simple name) of the recipient'),
+            _('Formats to email. The first matching one will be sent (comma separated list)'),
+            _('The optional subject for email sent to this recipient'))
+
+        for i, name in enumerate(('address', 'alias', 'formats', 'subject')):
+            c = i % 2
+            row = l.rowCount() - c
+            self.labels[i].setText(unicode(self.labels[i].text()) + ':')
+            l.addWidget(self.labels[i], row, (2*c))
+            le = QLineEdit(self)
+            le.setToolTip(tooltips[i])
+            setattr(self, name, le)
+            self.labels[i].setBuddy(le)
+            l.addWidget(le, row, (2*c) + 1)
+        self.formats.setText(prefs['output_format'].upper())
+        self.add_button = b = QPushButton(QIcon(I('plus.png')), _('&Add recipient'), self)
+        b.clicked.connect(self.add_recipient)
+        l.addWidget(b, l.rowCount(), 0, 1, -1)
+
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        l.addWidget(bb, l.rowCount(), 0, 1, -1)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        self.setMinimumWidth(500)
+        self.setMinimumHeight(400)
+        self.resize(self.sizeHint())
+        self.init_list()
+
+    def add_recipient(self):
+        to = unicode(self.address.text()).strip()
+        if not to:
+            return error_dialog(
+                self, _('Need address'), _('You must specify an address'), show=True)
+        formats = ','.join([x.strip().upper() for x in unicode(self.formats.text()).strip().split(',') if x.strip()])
+        if not formats:
+            return error_dialog(
+                self, _('Need formats'), _('You must specify at least one format to send'), show=True)
+        opts = email_config().parse()
+        if to in opts.accounts:
+            return error_dialog(
+                self, _('Already exists'), _('The recipient %s already exists') % to, show=True)
+        acc = opts.accounts
+        acc[to] = [formats, False, False]
+        c = email_config()
+        c.set('accounts', acc)
+        alias = unicode(self.alias.text()).strip()
+        if alias:
+            opts.aliases[to] = alias
+            c.set('aliases', opts.aliases)
+        subject = unicode(self.subject.text()).strip()
+        if subject:
+            opts.subjects[to] = subject
+            c.set('subjects', opts.subjects)
+        self.create_item(alias or to, to, checked=True)
+
+    def create_item(self, alias, key, checked=False):
+        i = QListWidgetItem(alias, self.recipients)
+        i.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
+        i.setCheckState(Qt.Checked if checked else Qt.Unchecked)
+        i.setData(Qt.UserRole, key)
+        self.items.append(i)
+
+    def init_list(self):
+        opts = email_config().parse()
+        self.items = []
+        for key in sorted(opts.accounts or (), key=sort_key):
+            self.create_item(opts.aliases.get(key, key), key)
+
+    @property
+    def ans(self):
+        opts = email_config().parse()
+        ans = []
+        for i in self.items:
+            if i.checkState() == Qt.Checked:
+                to = unicode(i.data(Qt.UserRole).toString())
+                fmts = tuple(x.strip().upper() for x in (opts.accounts[to][0] or '').split(','))
+                subject = opts.subjects.get(to, '')
+                ans.append((to, fmts, subject))
+        return ans
+
+def select_recipients(parent=None):
+    d = SelectRecipients(parent)
+    if d.exec_() == d.Accepted:
+        return d.ans
+    return ()
+# }}}
+
 class EmailMixin(object):  # {{{
+
+    def send_multiple_by_mail(self, recipients, delete_from_library):
+        ids = set(self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows())
+        if not ids:
+            return
+        db = self.current_db
+        db_fmt_map = {book_id:set((db.formats(book_id, index_is_id=True) or '').upper().split(',')) for book_id in ids}
+        ofmts = {x.upper() for x in available_output_formats()}
+        ifmts = {x.upper() for x in available_input_formats()}
+        bad_recipients = {}
+        auto_convert_map = defaultdict(list)
+
+        for to, fmts, subject in recipients:
+            rfmts = set(fmts)
+            ok_ids = {book_id for book_id, bfmts in db_fmt_map.iteritems() if bfmts.intersection(rfmts)}
+            convert_ids = ids - ok_ids
+            self.send_by_mail(to, fmts, delete_from_library, subject=subject, send_ids=ok_ids, do_auto_convert=False)
+            if not rfmts.intersection(ofmts):
+                bad_recipients[to] = (convert_ids, True)
+                continue
+            outfmt = tuple(f for f in fmts if f in ofmts)[0]
+            ok_ids = {book_id for book_id in convert_ids if db_fmt_map[book_id].intersection(ifmts)}
+            bad_ids = convert_ids - ok_ids
+            if bad_ids:
+                bad_recipients[to] = (bad_ids, False)
+            if ok_ids:
+                auto_convert_map[outfmt].append((to, subject, ok_ids))
+
+        if auto_convert_map:
+            titles = {book_id for x in auto_convert_map.itervalues() for data in x for book_id in data[2]}
+            titles = {db.title(book_id, index_is_id=True) for book_id in titles}
+            if self.auto_convert_question(
+                _('Auto convert the following books before sending via email?'), list(titles)):
+                for ofmt, data in auto_convert_map.iteritems():
+                    ids = {bid for x in data for bid in x[2]}
+                    data = [(to, subject) for to, subject, x in data]
+                    self.iactions['Convert Books'].auto_convert_multiple_mail(ids, data, ofmt, delete_from_library)
+
+        if bad_recipients:
+            det_msg = []
+            titles = {book_id for x in bad_recipients.itervalues() for book_id in x[0]}
+            titles = {book_id:db.title(book_id, index_is_id=True) for book_id in titles}
+            for to, (ids, nooutput) in bad_recipients.iteritems():
+                msg = _('This recipient has no valid formats defined') if nooutput else \
+                        _('These books have no suitable input formats for conversion')
+                det_msg.append('%s - %s' % (to, msg))
+                det_msg.extend('\t' + titles[bid] for bid in ids)
+                det_msg.append('\n')
+            warning_dialog(self, _('Could not send'),
+                           _('Could not send books to some recipients. Click Show Details for more information'),
+                           det_msg='\n'.join(det_msg), show=True)
 
     def send_by_mail(self, to, fmts, delete_from_library, subject='', send_ids=None,
             do_auto_convert=True, specific_format=None):
@@ -307,4 +469,8 @@ class EmailMixin(object):  # {{{
 
 # }}}
 
+if __name__ == '__main__':
+    from PyQt4.Qt import QApplication
+    app = QApplication([])  # noqa
+    print (select_recipients())
 
