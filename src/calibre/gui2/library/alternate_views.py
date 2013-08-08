@@ -503,10 +503,12 @@ class GridView(QListView):
     def slider_pressed(self):
         self.ignore_render_requests.set()
         self.verticalScrollBar().valueChanged.connect(self.value_changed_during_scroll)
+        self.update_timer.setInterval(500)
 
     def slider_released(self):
         self.update_viewport()
         self.verticalScrollBar().valueChanged.disconnect(self.value_changed_during_scroll)
+        self.update_timer.setInterval(200)
 
     def value_changed_during_scroll(self):
         if self.ignore_render_requests.is_set():
