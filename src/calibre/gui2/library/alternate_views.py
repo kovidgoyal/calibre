@@ -13,12 +13,14 @@ from collections import OrderedDict
 from threading import Lock, Event, Thread, current_thread
 from Queue import Queue
 from functools import wraps, partial
+from textwrap import wrap
 
 from PyQt4.Qt import (
     QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal,
     QTimer, QPalette, QColor, QItemSelection, QPixmap, QMenu, QApplication,
-    QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty,
-    QPropertyAnimation, QEasingCurve)
+    QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QEvent,
+    QPropertyAnimation, QEasingCurve, pyqtSlot, QHelpEvent, QAbstractItemView,
+    QStyleOptionViewItem, QToolTip)
 
 from calibre import fit_image
 from calibre.gui2 import gprefs, config
@@ -422,6 +424,26 @@ class CoverDelegate(QStyledItemDelegate):
                 painter.drawPixmap(rect, cdata)
         finally:
             painter.restore()
+
+    @pyqtSlot(QHelpEvent, QAbstractItemView, QStyleOptionViewItem, QModelIndex, result=bool)
+    def helpEvent(self, event, view, option, index):
+        if event is not None and view is not None and event.type() == QEvent.ToolTip:
+            try:
+                db = index.model().db
+            except AttributeError:
+                return False
+            try:
+                book_id = db.id(index.row())
+            except (ValueError, IndexError, KeyError):
+                return False
+            title = db.new_api.field_for('title', book_id)
+            authors = db.new_api.field_for('authors', book_id)
+            if title and authors:
+                title = '<b>%s</b>' % ('\n'.join(wrap(title, 100)))
+                authors = '\n'.join(wrap(' & '.join(authors), 100))
+                QToolTip.showText(event.globalPos(), '%s<br><br>%s' % (title, authors), view)
+                return True
+        return False
 
 def join_with_timeout(q, timeout=2):
     q.all_tasks_done.acquire()
