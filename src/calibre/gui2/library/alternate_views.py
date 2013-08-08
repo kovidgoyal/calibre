@@ -495,16 +495,24 @@ class GridView(QListView):
 
     def update_viewport(self):
         self.ignore_render_requests.clear()
+        self.update_timer.stop()
         m = self.model()
         for r in xrange(self.first_visible_row or 0, self.last_visible_row or (m.count() - 1)):
             self.update(m.index(r, 0))
 
     def slider_pressed(self):
         self.ignore_render_requests.set()
+        self.verticalScrollBar().valueChanged.connect(self.value_changed_during_scroll)
 
     def slider_released(self):
-        self.ignore_render_requests.clear()
         self.update_viewport()
+        self.verticalScrollBar().valueChanged.disconnect(self.value_changed_during_scroll)
+
+    def value_changed_during_scroll(self):
+        if self.ignore_render_requests.is_set():
+            self.update_timer.start()
+        else:
+            self.ignore_render_requests.set()
 
     def wheelEvent(self, e):
         self.ignore_render_requests.set()
