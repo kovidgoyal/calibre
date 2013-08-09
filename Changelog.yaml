@@ -20,6 +20,59 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.43
+  date: 2013-08-09
+
+  new features:
+    - title: "TXT Input: Allow using various markdown extensions for more features when converting markdown formatted txt files. See http://pythonhosted.org/Markdown/extensions/index.html for details."
+
+    - title: "Sending by email: Allow sending by email to an arbitrary combination of email address. Access it via the 'Select recipients' menu entry in the Email To menu."
+      tickets: [1207818]
+
+    - title: "A new 'Sort By' action for the right click menu. This allows sorting on all columns in the library, not just the visible columns. To use it go to Preferences->Toolbars and add it to 'The context menu for books in the calibre library'"
+
+    - title: "Allow adding images into the comments field, by clicking on the insert link button in the comments editor in the edit metadata dialog."
+
+    - title: "Allow skipping the confirm bulk reconvert dialog"
+
+    - title: "EPUB Input: If the EPUB file identifies an actual cover image in addition to the titlepage html file, use the cover image instead of rendering the titlepage. This is faster and has the advantage that an EPUB to EPUB conversion preserves internal cover structure."
+
+    - title: "Get Books: Improve searching by removing punctuation from title/authors before matching."
+ 
+  bug fixes:
+    - title: "Conversion: Fix empty inline tags that are the second child of a paragraph causing text change location."
+      tickets: [1207735]
+
+    - title: "Fix book count in tooltip of choose library button not updating"
+      ticket: [1208217]
+
+    - title: "Kobo driver: When deleting shelves that have been synced, the Activity entry for the shelf was not being deleted. This left a tile for the shelf on the home screen of the Glo and AuraHD."
+      tickets: [1208159]
+
+    - title: "Comments editor: The Insert Link button has no effect until the user clicks inside the comments box, therefore disable it until it is ready, to prevent confusion."
+      tickets: [1208073]
+
+    - title: "Get Books: Update various Polish store plugins"
+
+  improved recipes:
+    - The Sunday Times UK and The Times Online
+    - Telegraph UK
+    - Le Monde: Edition abonnés 
+    - The Scotsman
+
+  new recipes:
+    - title: Various French news sources 
+      author: Malah
+
+    - title: La Capital de Rosario 
+      author: Darko Miletic
+
+    - title: Jot Down 
+      author: desUbiKado
+
+    - title: Private Eye 
+      author: Martyn Pritchard
+
 - version: 0.9.42
   date: 2013-08-02
 
