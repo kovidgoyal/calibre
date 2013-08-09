@@ -21,7 +21,7 @@ class SortAction(QAction):
         self.triggered.connect(self)
 
     def __call__(self):
-        self.sort_requested(self.key, self.ascending)
+        self.sort_requested.emit(self.key, self.ascending)
 
 class SortByAction(InterfaceAction):
 
