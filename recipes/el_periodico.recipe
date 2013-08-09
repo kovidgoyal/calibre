@@ -5,8 +5,8 @@ __license__     = 'GPL v3'
 __copyright__   = '04 December 2010, desUBIKado'
 __author__      = 'desUBIKado'
 __description__ = 'Daily newspaper from Aragon'
-__version__     = 'v0.08'
-__date__        = '13, November 2011'
+__version__     = 'v0.09'
+__date__        = '07, August 2013'
 '''
 elperiodicodearagon.com
 '''
@@ -25,10 +25,10 @@ class elperiodicodearagon(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     language              = 'es'
+    masthead_url          = 'http://pdf.elperiodicodearagon.com/img/logotipo.gif'
     encoding              = 'iso-8859-1'
     remove_empty_feeds    = True
     remove_javascript     = True
-
 
     conversion_options = {
                              'comments'  : description
@@ -56,23 +56,21 @@ class elperiodicodearagon(BasicNewsRecipe):
                            (u'Fiestas del Pilar', u'http://zetaestaticos.com/aragon/rss/107_es.xml')
                          ]
 
-
     remove_attributes = ['height','width']
 
     keep_only_tags     = [dict(name='div', attrs={'id':'Noticia'})]
 
-
     # Recuperamos la portada de papel (la imagen format=1 tiene mayor resolucion)
-
     def get_cover_url(self):
-        index = 'http://pdf.elperiodicodearagon.com/'
+        index = 'http://pdf.elperiodicodearagon.com/edicion.php'
         soup = self.index_to_soup(index)
         for image in soup.findAll('img',src=True):
-           if image['src'].startswith('http://pdf.elperiodicodearagon.com/funciones/portada-preview.php?eid='):
-              return image['src'].rstrip('format=2') + 'format=1'
+            if image['src'].startswith('/funciones/img-public.php?key='):
+                return 'http://pdf.elperiodicodearagon.com' + image['src']
         return None
 
     # Usamos la versión para móviles
 
     def print_version(self, url):
-          return url.replace('http://www.elperiodicodearagon.com/', 'http://www.elperiodicodearagon.com/m/')
+        return url.replace('http://www.elperiodicodearagon.com/', 'http://www.elperiodicodearagon.com/m/')
+
