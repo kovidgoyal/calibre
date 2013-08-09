@@ -67,8 +67,8 @@ def embed_font(container, font, all_font_rules, report, warned):
                 rule['src'] = 'url(%s)' % href
                 rule['name'] = name
                 return rule
-        msg = _('Failed to find font matching: family: %s; weight: %s; style: %s; stretch: %s') % (
-            ff, font['font-weight'], font['font-style'], font['font-stretch'])
+        msg = _('Failed to find font matching: family: %(family)s; weight: %(weight)s; style: %(style)s; stretch: %(stretch)s') % dict(
+            family=ff, weight=font['font-weight'], style=font['font-style'], stretch=font['font-stretch'])
         if msg not in warned:
             warned.add(msg)
             report(msg)

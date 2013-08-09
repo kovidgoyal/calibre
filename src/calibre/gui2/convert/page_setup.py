@@ -31,7 +31,7 @@ class ProfileModel(QAbstractListModel):
             if w >= 10000:
                 ss = _('unlimited')
             else:
-                ss = _('%d x %d pixels') % (w, h)
+                ss = _('%(width)d x %(height)d pixels') % dict(width=w, height=h)
             ss = _('Screen size: %s') % ss
             return QVariant('%s [%s]' % (profile.description, ss))
         return NONE
