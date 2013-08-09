@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import (QCoreApplication, QModelIndex, QTimer, Qt,
+from PyQt4.Qt import (QCoreApplication, QModelIndex, QTimer, Qt, pyqtSignal,
     QDialog, QPixmap, QIcon, QSize, QPalette, QShortcut, QKeySequence)
 
 from calibre.gui2.dialogs.book_info_ui import Ui_BookInfo
@@ -13,6 +13,8 @@ from calibre import fit_image
 from calibre.gui2.book_details import render_html
 
 class BookInfo(QDialog, Ui_BookInfo):
+
+    closed = pyqtSignal(object)
 
     def __init__(self, parent, view, row, link_delegate):
         QDialog.__init__(self, parent)
@@ -58,6 +60,11 @@ class BookInfo(QDialog, Ui_BookInfo):
     def link_clicked(self, qurl):
         link = unicode(qurl.toString())
         self.link_delegate(link)
+
+    def done(self, r):
+        ret = QDialog.done(self, r)
+        self.closed.emit(self)
+        return ret
 
     def cover_changed(self, data):
         if self.current_row is not None:
