@@ -205,10 +205,10 @@ class MyBlockingBusyNew(QDialog):  # {{{
                     if covers:
                         cache.set_cover({book_id:covers[-1][0]})
         elif args.cover_action == 'trim':
+            from calibre.utils.magick import Image
             for book_id in self.ids:
                 cdata = cache.cover(book_id)
                 if cdata:
-                    from calibre.utils.magick import Image
                     im = Image()
                     im.load(cdata)
                     im.trim(10)
