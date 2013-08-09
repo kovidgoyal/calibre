@@ -63,6 +63,8 @@ class BookInfo(QDialog, Ui_BookInfo):
 
     def done(self, r):
         ret = QDialog.done(self, r)
+        self.view.selectionModel().currentChanged.disconnect(self.slave)
+        self.view = self.link_delegate = self.gui = None
         self.closed.emit(self)
         return ret
 
@@ -96,14 +98,19 @@ class BookInfo(QDialog, Ui_BookInfo):
             self.refresh(row)
 
     def move(self, delta=1):
-        idx = self.view.currentIndex()
-        if idx.isValid():
-            m = self.view.model()
-            ni = m.index(idx.row() + delta, idx.column())
-            if ni.isValid():
-                self.view.setCurrentIndex(ni)
-                if self.view.isVisible():
-                    self.view.scrollTo(ni)
+        self.view.selectionModel().currentChanged.disconnect(self.slave)
+        try:
+            idx = self.view.currentIndex()
+            if idx.isValid():
+                m = self.view.model()
+                ni = m.index(idx.row() + delta, idx.column())
+                if ni.isValid():
+                    self.view.setCurrentIndex(ni)
+                    self.refresh(ni.row())
+                    if self.view.isVisible():
+                        self.view.scrollTo(ni)
+        finally:
+            self.view.selectionModel().currentChanged.connect(self.slave)
 
     def next(self):
         self.move()

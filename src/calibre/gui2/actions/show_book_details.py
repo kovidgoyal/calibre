@@ -43,4 +43,8 @@ class ShowBookDetailsAction(InterfaceAction):
             self.memory.remove(d)
         except ValueError:
             pass
+        else:
+            import sip
+            sip.delete(d)
+            del d
 
