@@ -1351,6 +1351,9 @@ class Cache(object):
                 table.remove_books(book_ids, self.backend)
         self._search_api.discard_books(book_ids)
         self._clear_caches(book_ids=book_ids, template_cache=False, search_cache=False)
+        for cc in self.cover_caches:
+            for book_id in book_ids:
+                cc.invalidate(book_id)
 
     @read_api
     def author_sort_strings_for_books(self, book_ids):
