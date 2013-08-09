@@ -31,7 +31,6 @@ class BookInfo(QDialog, Ui_BookInfo):
         palette.setBrush(QPalette.Base, Qt.transparent)
         self.details.page().setPalette(palette)
 
-
         self.view = view
         self.current_row = None
         self.fit_cover.setChecked(dynamic.get('book_info_dialog_fit_cover',
@@ -85,20 +84,25 @@ class BookInfo(QDialog, Ui_BookInfo):
         QTimer.singleShot(1, self.resize_cover)
 
     def slave(self, current, previous):
-        row = current.row()
-        self.refresh(row)
+        if current.row() != previous.row():
+            row = current.row()
+            self.refresh(row)
+
+    def move(self, delta=1):
+        idx = self.view.currentIndex()
+        if idx.isValid():
+            m = self.view.model()
+            ni = m.index(idx.row() + delta, idx.column())
+            if ni.isValid():
+                self.view.setCurrentIndex(ni)
+                if self.view.isVisible():
+                    self.view.scrollTo(ni)
 
     def next(self):
-        row = self.view.currentIndex().row()
-        ni = self.view.model().index(row+1, 0)
-        if ni.isValid():
-            self.view.setCurrentIndex(ni)
+        self.move()
 
     def previous(self):
-        row = self.view.currentIndex().row()
-        ni = self.view.model().index(row-1, 0)
-        if ni.isValid():
-            self.view.setCurrentIndex(ni)
+        self.move(-1)
 
     def resize_cover(self):
         if self.cover_pixmap is None:
@@ -138,4 +142,3 @@ class BookInfo(QDialog, Ui_BookInfo):
         self.resize_cover()
         html = render_html(mi, self.css, True, self, all_fields=True)
         self.details.setHtml(html)
-
