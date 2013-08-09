@@ -463,6 +463,10 @@ class BooksModel(QAbstractTableModel):  # {{{
         mi.id = self.db.id(idx)
         mi.field_metadata = self.db.field_metadata
         mi.path = self.db.abspath(idx, create_dirs=False)
+        try:
+            mi.marked = self.db.data.get_marked(idx, index_is_id=False)
+        except:
+            mi.marked = None
         return mi
 
     def current_changed(self, current, previous, emit_signal=True):

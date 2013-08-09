@@ -916,6 +916,10 @@ class ResultCache(SearchQueryParser):  # {{{
             except:
                 pass
 
+    def get_marked(self, idx, index_is_id=True, default_value=None):
+        id_ = idx if index_is_id else self[idx][0]
+        return self.marked_ids_dict.get(id_, default_value)
+
     # }}}
 
     def remove(self, id):
