@@ -274,6 +274,8 @@ class AlternateViews(object):
 # Rendering of covers {{{
 class CoverDelegate(QStyledItemDelegate):
 
+    MARGIN = 4
+
     @pyqtProperty(float)
     def animated_size(self):
         return self._animated_size
@@ -297,6 +299,7 @@ class CoverDelegate(QStyledItemDelegate):
     def set_dimensions(self):
         width = self.original_width = gprefs['cover_grid_width']
         height = self.original_height = gprefs['cover_grid_height']
+        self.original_show_title = show_title = gprefs['cover_grid_show_title']
 
         if height < 0.1:
             height = max(185, QApplication.instance().desktop().availableGeometry(self.parent()).height() / 5.0)
@@ -308,7 +311,14 @@ class CoverDelegate(QStyledItemDelegate):
         else:
             width *= self.parent().logicalDpiX() * CM_TO_INCH
         self.cover_size = QSize(width, height)
-        self.item_size = self.cover_size + QSize(8, 8)
+        self.title_height = 0
+        if show_title:
+            f = self.parent().font()
+            sz = f.pixelSize()
+            if sz < 5:
+                sz = f.pointSize() * self.parent().logicalDpiY() / 72.0
+            self.title_height = max(25, sz + 10)
+        self.item_size = self.cover_size + QSize(2 * self.MARGIN, (2 * self.MARGIN) + self.title_height)
         self.calculate_spacing()
         self.animation.setStartValue(1.0)
         self.animation.setKeyValueAt(0.5, 0.5)
@@ -345,7 +355,7 @@ class CoverDelegate(QStyledItemDelegate):
         painter.save()
         try:
             rect = option.rect
-            rect.adjust(4, 4, -4, -4)
+            rect.adjust(self.MARGIN, self.MARGIN, -self.MARGIN, -self.MARGIN)
             if cdata is None or cdata is False:
                 title = db.field_for('title', book_id, default_value='')
                 authors = ' & '.join(db.field_for('authors', book_id, default_value=()))
@@ -354,12 +364,23 @@ class CoverDelegate(QStyledItemDelegate):
                 if cdata is False:
                     self.render_queue.put(book_id)
             else:
+                if self.title_height != 0:
+                    orect = QRect(rect)
+                    rect.setBottom(rect.bottom() - self.title_height)
                 if self.animating is not None and self.animating.row() == index.row():
                     cdata = cdata.scaled(cdata.size() * self._animated_size)
                 dx = max(0, int((rect.width() - cdata.width())/2.0))
                 dy = max(0, rect.height() - cdata.height())
                 rect.adjust(dx, dy, -dx, 0)
                 painter.drawPixmap(rect, cdata)
+                if self.title_height != 0:
+                    rect = orect
+                    rect.setTop(rect.bottom() - self.title_height + 5)
+                    painter.setRenderHint(QPainter.TextAntialiasing, True)
+                    title = db.field_for('title', book_id, default_value='')
+                    metrics = painter.fontMetrics()
+                    painter.drawText(rect, Qt.AlignCenter|Qt.TextSingleLine,
+                                     metrics.elidedText(title, Qt.ElideRight, rect.width()))
         finally:
             painter.restore()
 
@@ -510,10 +531,15 @@ class GridView(QListView):
         self.delegate.highlight_color = pal.color(pal.Text)
 
     def refresh_settings(self):
-        if gprefs['cover_grid_width'] != self.delegate.original_width or gprefs['cover_grid_height'] != self.delegate.original_height:
+        size_changed = (
+            gprefs['cover_grid_width'] != self.delegate.original_width or
+            gprefs['cover_grid_height'] != self.delegate.original_height
+        )
+        if (size_changed or gprefs['cover_grid_show_title'] != self.delegate.original_show_title):
             self.delegate.set_dimensions()
             self.setSpacing(self.delegate.spacing)
-            self.delegate.cover_cache.clear()
+            if size_changed:
+                self.delegate.cover_cache.clear()
         if gprefs['cover_grid_spacing'] != self.delegate.original_spacing:
             self.delegate.calculate_spacing()
             self.setSpacing(self.delegate.spacing)
