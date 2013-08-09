@@ -9,8 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import itertools, operator, os
 from types import MethodType
 from time import time
-from collections import OrderedDict
-from threading import Lock, Event, Thread, current_thread
+from threading import Event, Thread
 from Queue import Queue
 from functools import wraps, partial
 from textwrap import wrap
@@ -24,6 +23,7 @@ from PyQt4.Qt import (
 
 from calibre import fit_image
 from calibre.gui2 import gprefs, config
+from calibre.gui2.library.caches import CoverCache
 from calibre.utils.config import prefs
 
 CM_TO_INCH = 0.393701
@@ -271,69 +271,7 @@ class AlternateViews(object):
                 view.set_context_menu(menu)
 # }}}
 
-# Caching and rendering of covers {{{
-class CoverCache(dict):
-
-    def __init__(self, limit=200):
-        self.items = OrderedDict()
-        self.lock = Lock()
-        self.limit = limit
-        self.pixmap_staging = []
-        self.gui_thread = current_thread()
-
-    def clear_staging(self):
-        ' Must be called in the GUI thread '
-        self.pixmap_staging = []
-
-    def invalidate(self, book_id):
-        with self.lock:
-            self._pop(book_id)
-
-    def _pop(self, book_id):
-        val = self.items.pop(book_id, None)
-        if type(val) is QPixmap and current_thread() is not self.gui_thread:
-            self.pixmap_staging.append(val)
-
-    def __getitem__(self, key):
-        ' Must be called in the GUI thread '
-        with self.lock:
-            self.clear_staging()
-            ans = self.items.pop(key, False)  # pop() so that item is moved to the top
-            if ans is not False:
-                if type(ans) is QImage:
-                    # Convert to QPixmap, since rendering QPixmap is much
-                    # faster
-                    ans = QPixmap.fromImage(ans)
-                self.items[key] = ans
-
-        return ans
-
-    def set(self, key, val):
-        with self.lock:
-            self._pop(key)  # pop() so that item is moved to the top
-            self.items[key] = val
-            if len(self.items) > self.limit:
-                del self.items[next(self.items.iterkeys())]
-
-    def clear(self):
-        with self.lock:
-            if current_thread() is not self.gui_thread:
-                pixmaps = (x for x in self.items.itervalues() if type(x) is QPixmap)
-                self.pixmap_staging.extend(pixmaps)
-            self.items.clear()
-
-    def __hash__(self):
-        return id(self)
-
-    def set_limit(self, limit):
-        with self.lock:
-            self.limit = limit
-            if len(self.items) > self.limit:
-                extra = len(self.items) - self.limit
-                remove = tuple(self.iterkeys())[:extra]
-                for k in remove:
-                    self._pop(k)
-
+# Rendering of covers {{{
 class CoverDelegate(QStyledItemDelegate):
 
     @pyqtProperty(float)
@@ -458,6 +396,7 @@ def join_with_timeout(q, timeout=2):
         q.all_tasks_done.release()
 # }}}
 
+# The View {{{
 @setup_dnd_interface
 class GridView(QListView):
 
@@ -699,4 +638,4 @@ class GridView(QListView):
 
     def restore_hpos(self, hpos):
         pass
-
+# }}}
