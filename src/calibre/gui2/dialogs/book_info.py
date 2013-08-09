@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import (QCoreApplication, SIGNAL, QModelIndex, QTimer, Qt,
+from PyQt4.Qt import (QCoreApplication, QModelIndex, QTimer, Qt,
     QDialog, QPixmap, QIcon, QSize, QPalette, QShortcut, QKeySequence)
 
 from calibre.gui2.dialogs.book_info_ui import Ui_BookInfo
@@ -36,9 +36,9 @@ class BookInfo(QDialog, Ui_BookInfo):
         self.fit_cover.setChecked(dynamic.get('book_info_dialog_fit_cover',
             True))
         self.refresh(row)
-        self.connect(self.view.selectionModel(), SIGNAL('currentChanged(QModelIndex,QModelIndex)'), self.slave)
-        self.connect(self.next_button, SIGNAL('clicked()'), self.next)
-        self.connect(self.previous_button, SIGNAL('clicked()'), self.previous)
+        self.view.selectionModel().currentChanged.connect(self.slave)
+        self.next_button.clicked.connect(self.next)
+        self.previous_button.clicked.connect(self.previous)
         self.fit_cover.stateChanged.connect(self.toggle_cover_fit)
         self.cover.resizeEvent = self.cover_view_resized
         self.cover.cover_changed.connect(self.cover_changed)
