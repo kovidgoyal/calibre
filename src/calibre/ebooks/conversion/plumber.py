@@ -384,25 +384,29 @@ OptionRecommendation(name='remove_fake_margins',
 OptionRecommendation(name='margin_top',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the top margin in pts. Default is %default. '
-            'Setting this to less than zero will cause no margin to be set. '
+            'Setting this to less than zero will cause no margin to be set '
+            '(the margin setting in the original document will be preserved). '
             'Note: 72 pts equals 1 inch')),
 
 OptionRecommendation(name='margin_bottom',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the bottom margin in pts. Default is %default. '
-            'Setting this to less than zero will cause no margin to be set. '
+            'Setting this to less than zero will cause no margin to be set '
+            '(the margin setting in the original document will be preserved). '
             'Note: 72 pts equals 1 inch')),
 
 OptionRecommendation(name='margin_left',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the left margin in pts. Default is %default. '
-            'Setting this to less than zero will cause no margin to be set. '
+            'Setting this to less than zero will cause no margin to be set '
+            '(the margin setting in the original document will be preserved). '
             'Note: 72 pts equals 1 inch')),
 
 OptionRecommendation(name='margin_right',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the right margin in pts. Default is %default. '
-            'Setting this to less than zero will cause no margin to be set. '
+            'Setting this to less than zero will cause no margin to be set '
+            '(the margin setting in the original document will be preserved). '
             'Note: 72 pts equals 1 inch')),
 
 OptionRecommendation(name='change_justification',
