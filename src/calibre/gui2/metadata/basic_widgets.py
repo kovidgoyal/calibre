@@ -24,8 +24,8 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATETIME,
         choose_files, error_dialog, choose_images)
 from calibre.gui2.complete2 import EditWithComplete
-from calibre.utils.date import (local_tz, qt_to_dt, as_local_time,
-        UNDEFINED_DATE)
+from calibre.utils.date import (
+    local_tz, qt_to_dt, as_local_time, UNDEFINED_DATE, is_date_undefined)
 from calibre import strftime
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
@@ -1453,7 +1453,7 @@ class DateEdit(QDateTimeEdit):
         def fget(self):
             return qt_to_dt(self.dateTime(), as_utc=False)
         def fset(self, val):
-            if val is None:
+            if val is None or is_date_undefined(val):
                 val = UNDEFINED_DATE
             else:
                 val = as_local_time(val)
