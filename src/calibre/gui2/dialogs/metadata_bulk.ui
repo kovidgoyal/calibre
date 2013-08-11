@@ -604,13 +604,6 @@ Future conversion of these books will use the default settings.</string>
                </widget>
               </item>
               <item>
-               <widget class="QRadioButton" name="cover_trim">
-                <property name="text">
-                 <string>&amp;Trim cover</string>
-                </property>
-               </widget>
-              </item>
-              <item>
                <widget class="QRadioButton" name="cover_from_fmt">
                 <property name="text">
                  <string>Set from &amp;ebook file(s)</string>
