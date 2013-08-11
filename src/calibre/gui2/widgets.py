@@ -695,7 +695,7 @@ class EncodingComboBox(QComboBox):  # {{{
     will not work.
     '''
 
-    ENCODINGS = ['', 'cp1252', 'latin1', 'utf-8', '', 'ascii', 'big5', 'cp1250', 'cp1251', 'cp1253',
+    ENCODINGS = ['', 'cp1252', 'latin1', 'utf-8', 'ascii', 'big5', 'cp1250', 'cp1251', 'cp1253',
         'cp1254', 'cp1255', 'cp1256', 'euc_jp', 'euc_kr', 'gb2312', 'gb18030',
         'hz', 'iso2022_jp', 'iso2022_kr', 'iso8859_5', 'shift_jis',
     ]

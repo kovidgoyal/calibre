@@ -2858,39 +2858,36 @@ class BibTeX:
 
     def ValidateCitationKey(self, text):
         """
-        removes characters not allowed in BibTeX keys
+        Removes characters not allowed in BibTeX keys
         """
         return self.invalid_cit.sub(u'', text)
 
     def braceUppercase(self, text):
-        """ Convert uppercase letters to bibtex encoded uppercase
+        """ 
+        Convert uppercase letters to bibtex encoded uppercase
         """
         return self.upper.sub(lambda m: u'{%s}' % m.group(), text)
 
     def resolveEntities(self, text):
-        # for entity, entity_map in entity_mapping.iteritems():
-        #   text = text.replace(entity, entity_map)
-        # return text
         return self.rep_ent.mreplace(text)
 
     def resolveUnicode(self, text):
         # UTF-8 text as entry
-        # for unichar, latexenc in utf8enc2latex_mapping.iteritems() :
-        #    text = text.replace(unichar, latexenc)
         text = self.rep_utf8.mreplace(text)
         return text.replace(u'$}{$', u'')
 
     def escapeSpecialCharacters(self, text):
         """
-        latex escaping some (not all) special characters
+        Latex escaping some (not all) special characters
         """
         text.replace('\\', '\\\\')
         return self.escape.sub(lambda m: u'\\%s' % m.group(), text)
 
-    # Calibre functions
-    # Option to go to official ASCII Bibtex or unofficial UTF-8
-    # Go from an unicode entry to ASCII Bibtex format without encoding
+    # Calibre functions: Option to go to official ASCII Bibtex or unofficial UTF-8
     def utf8ToBibtex(self, text):
+        """
+        Go from an unicode entry to ASCII Bibtex format without encoding
+        """
         if len(text) == 0:
             return ''
         text.replace('\\', '\\\\')
@@ -2900,6 +2897,8 @@ class BibTeX:
         return self.escapeSpecialCharacters(text)
 
     def bibtex_author_format(self, item):
-        # Format authors for Bibtex compliance (get a list as input)
+        """
+        Format authors for Bibtex compliance (get a list as input)
+        """
         return self.utf8ToBibtex(u' and '.join([author for author in item]))
 
