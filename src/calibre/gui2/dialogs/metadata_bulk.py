@@ -211,7 +211,7 @@ class MyBlockingBusyNew(QDialog):  # {{{
                 if cdata:
                     im = Image()
                     im.load(cdata)
-                    im.trim(10)
+                    im.trim(tweaks['cover_trim_fuzz_value'])
                     cdata = im.export('png')
                     cache.set_cover({book_id:cdata})
 
@@ -439,7 +439,7 @@ class MyBlockingBusy(QDialog):  # {{{
                 if cdata:
                     im = Image()
                     im.load(cdata)
-                    im.trim(10)
+                    im.trim(tweaks['cover_trim_fuzz_value'])
                     cdata = im.export('png')
                     self.db.set_cover(id, cdata)
 
