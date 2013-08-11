@@ -433,6 +433,15 @@ class MyBlockingBusy(QDialog):  # {{{
                     if covers:
                         self.db.set_cover(id, covers[-1][0])
                     covers = []
+            elif cover_action == 'trim':
+                from calibre.utils.magick import Image
+                cdata = self.db.cover(id, index_is_id=True)
+                if cdata:
+                    im = Image()
+                    im.load(cdata)
+                    im.trim(10)
+                    cdata = im.export('png')
+                    self.db.set_cover(id, cdata)
 
             if do_remove_format:
                 self.db.remove_format(id, remove_format, index_is_id=True,
