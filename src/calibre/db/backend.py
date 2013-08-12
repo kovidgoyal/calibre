@@ -1225,6 +1225,22 @@ class DB(object):
                         return True
         return False
 
+    def cover_or_cache(self, path, timestamp):
+        path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
+        try:
+            stat = os.stat(path)
+        except EnvironmentError:
+            return False, None, None
+        if abs(timestamp - stat.st_mtime) < 0.1:
+            return True, None, None
+        try:
+            f = lopen(path, 'rb')
+        except (IOError, OSError):
+            time.sleep(0.2)
+        f = lopen(path, 'rb')
+        with f:
+            return True, f.read(), stat.st_mtime
+
     def set_cover(self, book_id, path, data):
         path = os.path.abspath(os.path.join(self.library_path, path))
         if not os.path.exists(path):

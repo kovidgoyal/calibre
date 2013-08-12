@@ -19,14 +19,29 @@ from PyQt4.Qt import (
     QTimer, QPalette, QColor, QItemSelection, QPixmap, QMenu, QApplication,
     QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QEvent,
     QPropertyAnimation, QEasingCurve, pyqtSlot, QHelpEvent, QAbstractItemView,
-    QStyleOptionViewItem, QToolTip)
+    QStyleOptionViewItem, QToolTip, QByteArray, QBuffer)
 
-from calibre import fit_image
+from calibre import fit_image, prints
 from calibre.gui2 import gprefs, config
-from calibre.gui2.library.caches import CoverCache
+from calibre.gui2.library.caches import CoverCache, ThumbnailCache
 from calibre.utils.config import prefs
 
 CM_TO_INCH = 0.393701
+CACHE_FORMAT = 'PPM'
+
+class EncodeError(ValueError):
+    pass
+
+def image_to_data(image):  # {{{
+    ba = QByteArray()
+    buf = QBuffer(ba)
+    buf.open(QBuffer.WriteOnly)
+    if not image.save(buf, CACHE_FORMAT):
+        raise EncodeError('Failed to encode thumbnail')
+    ret = bytes(ba.data())
+    buf.close()
+    return ret
+# }}}
 
 # Drag 'n Drop {{{
 def dragMoveEvent(self, event):
@@ -443,6 +458,8 @@ class GridView(QListView):
         self.setSpacing(self.delegate.spacing)
         self.set_color()
         self.ignore_render_requests = Event()
+        self.thumbnail_cache = ThumbnailCache(max_size=gprefs['cover_grid_disk_cache_size'],
+            thumbnail_size=(self.delegate.cover_size.width(), self.delegate.cover_size.height()))
         self.render_thread = None
         self.update_item.connect(self.re_render, type=Qt.QueuedConnection)
         self.doubleClicked.connect(self.double_clicked)
@@ -485,12 +502,10 @@ class GridView(QListView):
     def slider_pressed(self):
         self.ignore_render_requests.set()
         self.verticalScrollBar().valueChanged.connect(self.value_changed_during_scroll)
-        self.update_timer.setInterval(500)
 
     def slider_released(self):
         self.update_viewport()
         self.verticalScrollBar().valueChanged.disconnect(self.value_changed_during_scroll)
-        self.update_timer.setInterval(200)
 
     def value_changed_during_scroll(self):
         if self.ignore_render_requests.is_set():
@@ -545,9 +560,15 @@ class GridView(QListView):
             self.setSpacing(self.delegate.spacing)
         self.set_color()
         self.delegate.cover_cache.set_limit(gprefs['cover_grid_cache_size'])
+        if size_changed:
+            self.thumbnail_cache.set_thumbnail_size(self.delegate.cover_size.width(), self.delegate.cover_size.height())
+        cs = gprefs['cover_grid_disk_cache_size']
+        if (cs*(1024**2)) != self.thumbnail_cache.max_size:
+            self.thumbnail_cache.set_size(cs)
 
     def shown(self):
         if self.render_thread is None:
+            self.thumbnail_cache.set_database(self.gui.current_db)
             self.render_thread = Thread(target=self.render_covers)
             self.render_thread.daemon = True
             self.render_thread.start()
@@ -572,19 +593,51 @@ class GridView(QListView):
     def render_cover(self, book_id):
         if self.ignore_render_requests.is_set():
             return
-        cdata = self.model().db.new_api.cover(book_id)
-        if cdata is not None:
+        tcdata, timestamp = self.thumbnail_cache[book_id]
+        use_cache = False
+        if timestamp is None:
+            # Not in cache
+            has_cover, cdata, timestamp = self.model().db.new_api.cover_or_cache(book_id, 0)
+        else:
+            has_cover, cdata, timestamp = self.model().db.new_api.cover_or_cache(book_id, timestamp)
+            if has_cover and cdata is None:
+                # The cached cover is fresh
+                cdata = tcdata
+                use_cache = True
+
+        if has_cover:
             p = QImage()
-            p.loadFromData(cdata)
-            cdata = None
-            if not p.isNull():
-                width, height = p.width(), p.height()
-                scaled, nwidth, nheight = fit_image(width, height, self.delegate.cover_size.width(), self.delegate.cover_size.height())
-                if scaled:
-                    if self.ignore_render_requests.is_set():
-                        return
-                    p = p.scaled(nwidth, nheight, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-                cdata = p
+            p.loadFromData(cdata, CACHE_FORMAT if cdata is tcdata else 'JPEG')
+            if p.isNull() and cdata is tcdata:
+                # Invalid image in cache
+                self.thumbnail_cache.invalidate((book_id,))
+                self.update_item.emit(book_id)
+                return
+            cdata = None if p.isNull() else p
+            if not use_cache:  # cache is stale
+                if cdata is not None:
+                    width, height = p.width(), p.height()
+                    scaled, nwidth, nheight = fit_image(width, height, self.delegate.cover_size.width(), self.delegate.cover_size.height())
+                    if scaled:
+                        if self.ignore_render_requests.is_set():
+                            return
+                        p = p.scaled(nwidth, nheight, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+                    cdata = p
+                # update cache
+                if cdata is None:
+                    self.thumbnail_cache.invalidate((book_id,))
+                else:
+                    try:
+                        self.thumbnail_cache.insert(book_id, timestamp, image_to_data(cdata))
+                    except EncodeError as err:
+                        self.thumbnail_cache.invalidate((book_id,))
+                        prints(err)
+                    except Exception:
+                        import traceback
+                        traceback.print_exc()
+        elif tcdata is not None:
+            # Cover was removed, but it exists in cache, remove from cache
+            self.thumbnail_cache.invalidate((book_id,))
         self.delegate.cover_cache.set(book_id, cdata)
         self.update_item.emit(book_id)
 
@@ -600,6 +653,7 @@ class GridView(QListView):
     def shutdown(self):
         self.ignore_render_requests.set()
         self.delegate.render_queue.put(None)
+        self.thumbnail_cache.shutdown()
 
     def set_database(self, newdb, stage=0):
         if not hasattr(newdb, 'new_api'):
@@ -607,10 +661,12 @@ class GridView(QListView):
         if stage == 0:
             self.ignore_render_requests.set()
             try:
-                self.model().db.new_api.remove_cover_cache(self.delegate.cover_cache)
+                for x in (self.delegate.cover_cache, self.thumbnail_cache):
+                    self.model().db.new_api.remove_cover_cache(x)
             except AttributeError:
                 pass  # db is None
-            newdb.new_api.add_cover_cache(self.delegate.cover_cache)
+            for x in (self.delegate.cover_cache, self.thumbnail_cache):
+                newdb.new_api.add_cover_cache(x)
             try:
                 # Use a timeout so that if, for some reason, the render thread
                 # gets stuck, we dont deadlock, future covers wont get

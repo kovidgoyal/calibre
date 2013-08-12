@@ -11,6 +11,15 @@ from collections import OrderedDict
 
 from PyQt4.Qt import QImage, QPixmap
 
+from calibre.db.utils import ThumbnailCache as TC
+
+class ThumbnailCache(TC):
+    def __init__(self, max_size=1024, thumbnail_size=(100, 100)):
+        TC.__init__(self, name='gui-thumbnail-cache', min_disk_cache=100, max_size=max_size, thumbnail_size=thumbnail_size)
+
+    def set_database(self, db):
+        TC.set_group_id(self, db.library_id)
+
 class CoverCache(dict):
 
     ' This is a RAM cache to speed up rendering of covers by storing them as QPixmaps '
@@ -26,9 +35,10 @@ class CoverCache(dict):
         ' Must be called in the GUI thread '
         self.pixmap_staging = []
 
-    def invalidate(self, book_id):
+    def invalidate(self, book_ids):
         with self.lock:
-            self._pop(book_id)
+            for book_id in book_ids:
+                self._pop(book_id)
 
     def _pop(self, book_id):
         val = self.items.pop(book_id, None)
@@ -74,4 +84,5 @@ class CoverCache(dict):
                 remove = tuple(self.iterkeys())[:extra]
                 for k in remove:
                     self._pop(k)
+
 

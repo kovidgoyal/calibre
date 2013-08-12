@@ -5,12 +5,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog, QColorDialog,
-        QAbstractListModel, Qt, QIcon, QKeySequence, QPalette, QColor)
+from threading import Thread
 
+from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog, QColorDialog,
+        QAbstractListModel, Qt, QIcon, QKeySequence, QPalette, QColor, pyqtSignal)
+
+from calibre import human_readable
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
-from calibre.gui2 import config, gprefs, qt_app, NONE
+from calibre.gui2 import config, gprefs, qt_app, NONE, open_local_file
 from calibre.utils.localization import (available_translations,
     get_language, get_lang)
 from calibre.utils.config import prefs, tweaks
@@ -95,6 +98,8 @@ class DisplayedFields(QAbstractListModel):  # {{{
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
+    size_calculated = pyqtSignal(object)
+
     def genesis(self, gui):
         self.gui = gui
         db = gui.library_view.model().db
@@ -113,6 +118,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('cover_grid_width', gprefs)
         r('cover_grid_height', gprefs)
         r('cover_grid_cache_size', gprefs)
+        r('cover_grid_disk_cache_size', gprefs)
         r('cover_grid_spacing', gprefs)
         r('cover_grid_show_title', gprefs)
 
@@ -206,6 +212,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             for i in range(self.tabWidget.count()):
                 if self.tabWidget.widget(i) is self.cover_grid_tab:
                     self.tabWidget.removeTab(i)
+        self.size_calculated.connect(self.update_cg_cache_size, type=Qt.QueuedConnection)
+        self.tabWidget.currentChanged.connect(self.tab_changed)
+        self.cover_grid_empty_cache.clicked.connect(self.empty_cache)
+        self.cover_grid_open_cache.clicked.connect(self.open_cg_cache)
+        self.opt_cover_grid_disk_cache_size.setMinimum(self.gui.grid_view.thumbnail_cache.min_disk_cache)
+        self.opt_cover_grid_disk_cache_size.setMaximum(self.gui.grid_view.thumbnail_cache.min_disk_cache * 100)
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
@@ -226,10 +238,33 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.icon_rules.initialize(db.field_metadata, db.prefs, mi, 'column_icon_rules')
         self.set_cg_color(gprefs['cover_grid_color'])
 
+    def open_cg_cache(self):
+        open_local_file(self.gui.grid_view.thumbnail_cache.location)
+
+    def update_cg_cache_size(self, size):
+        self.cover_grid_current_disk_cache.setText(
+            _('Current space used: %s') % human_readable(size))
+
+    def tab_changed(self, index):
+        if self.tabWidget.currentWidget() is self.cover_grid_tab:
+            self.show_current_cache_usage()
+
+    def show_current_cache_usage(self):
+        t = Thread(target=self.calc_cache_size)
+        t.daemon = True
+        t.start()
+
+    def calc_cache_size(self):
+        self.size_calculated.emit(self.gui.grid_view.thumbnail_cache.current_size)
+
     def set_cg_color(self, val):
         pal = QPalette()
         pal.setColor(QPalette.Window, QColor(*val))
         self.cover_grid_color_label.setPalette(pal)
+
+    def empty_cache(self):
+        self.gui.grid_view.thumbnail_cache.empty()
+        self.calc_cache_size()
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
