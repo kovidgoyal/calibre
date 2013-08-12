@@ -385,6 +385,12 @@ sort_dates_using_visible_fields = False
 generate_cover_title_font = None
 generate_cover_foot_font = None
 
+#: Fuzz parameter value for cover trim
+# The value used by ImageMagick for the fuzz distance when trimming a cover.
+# Colors within this distance are considered equal. 
+# The distance is in absolute intensity units.
+cover_trim_fuzz_value = 10
+
 #: Control behavior of the book list
 # You can control the behavior of doubleclicks on the books list.
 # Choices: open_viewer, do_nothing,

@@ -971,8 +971,8 @@ class Cover(ImageView):  # {{{
             return
         im = Image()
         im.load(cdata)
-        im.trim(10)
-        cdata = im.export('png')
+        im.trim(tweaks['cover_trim_fuzz_value'])
+        cdata = im.export('jpg')
         self.current_val = cdata
 
     def generate_cover(self, *args):
