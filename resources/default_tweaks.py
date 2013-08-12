@@ -386,11 +386,9 @@ generate_cover_title_font = None
 generate_cover_foot_font = None
 
 #: Fuzz parameter value for cover trim
-# The value used by ImageMagick for the
-# fuzz distance when triming a cover.
+# The value used by ImageMagick for the fuzz distance when trimming a cover.
 # Colors within this distance are considered equal. 
-# The distance can be in absolute intensity units or,
-# by appending %, a percentage of the maximum possible intensity
+# The distance is in absolute intensity units.
 cover_trim_fuzz_value = 10
 
 #: Control behavior of the book list
