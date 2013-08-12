@@ -438,6 +438,7 @@ class GridView(QListView):
 
     update_item = pyqtSignal(object)
     files_dropped = pyqtSignal(object)
+    delay_render = False
 
     def __init__(self, parent):
         QListView.__init__(self, parent)
@@ -466,8 +467,9 @@ class GridView(QListView):
         self.setCursor(Qt.PointingHandCursor)
         self.gui = parent
         self.context_menu = None
-        self.verticalScrollBar().sliderPressed.connect(self.slider_pressed)
-        self.verticalScrollBar().sliderReleased.connect(self.slider_released)
+        if self.delay_render:
+            self.verticalScrollBar().sliderPressed.connect(self.slider_pressed)
+            self.verticalScrollBar().sliderReleased.connect(self.slider_released)
         self.update_timer = QTimer(self)
         self.update_timer.setInterval(200)
         self.update_timer.timeout.connect(self.update_viewport)
@@ -513,10 +515,11 @@ class GridView(QListView):
         else:
             self.ignore_render_requests.set()
 
-    def wheelEvent(self, e):
-        self.ignore_render_requests.set()
-        QListView.wheelEvent(self, e)
-        self.update_timer.start()
+    if delay_render:
+        def wheelEvent(self, e):
+            self.ignore_render_requests.set()
+            QListView.wheelEvent(self, e)
+            self.update_timer.start()
 
     def double_clicked(self, index):
         d = self.delegate

@@ -24,7 +24,7 @@ class CoverCache(dict):
 
     ' This is a RAM cache to speed up rendering of covers by storing them as QPixmaps '
 
-    def __init__(self, limit=200):
+    def __init__(self, limit=100):
         self.items = OrderedDict()
         self.lock = Lock()
         self.limit = limit

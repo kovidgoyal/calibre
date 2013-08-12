@@ -113,10 +113,10 @@ defs['extra_row_spacing'] = 0
 defs['refresh_book_list_on_bulk_edit'] = True
 defs['cover_grid_width'] = 0
 defs['cover_grid_height'] = 0
-defs['cover_grid_color'] = (80, 80, 80)
-defs['cover_grid_cache_size'] = 200
-defs['cover_grid_disk_cache_size'] = 2000
 defs['cover_grid_spacing'] = 0
+defs['cover_grid_color'] = (80, 80, 80)
+defs['cover_grid_cache_size'] = 100
+defs['cover_grid_disk_cache_size'] = 2500
 defs['cover_grid_show_title'] = False
 del defs
 # }}}
