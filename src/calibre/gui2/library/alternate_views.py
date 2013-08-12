@@ -345,7 +345,7 @@ class CoverDelegate(QStyledItemDelegate):
 
     def calculate_spacing(self):
         spc = self.original_spacing = gprefs['cover_grid_spacing']
-        if spc < 0.1:
+        if spc < 0.01:
             self.spacing = max(10, min(50, int(0.1 * self.original_width)))
         else:
             self.spacing = self.parent().logicalDpiX() * CM_TO_INCH * spc
