@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from threading import Thread
+from functools import partial
 
 from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog, QColorDialog,
         QAbstractListModel, Qt, QIcon, QKeySequence, QPalette, QColor, pyqtSignal)
@@ -20,6 +21,7 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
 from calibre.gui2.book_details import get_field_list
 from calibre.gui2.preferences.coloring import EditRules
+from calibre.gui2.library.alternate_views import auto_height, CM_TO_INCH
 
 class DisplayedFields(QAbstractListModel):  # {{{
 
@@ -216,8 +218,25 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.tabWidget.currentChanged.connect(self.tab_changed)
         self.cover_grid_empty_cache.clicked.connect(self.empty_cache)
         self.cover_grid_open_cache.clicked.connect(self.open_cg_cache)
+        self.cover_grid_smaller_cover.clicked.connect(partial(self.resize_cover, True))
+        self.cover_grid_larger_cover.clicked.connect(partial(self.resize_cover, False))
         self.opt_cover_grid_disk_cache_size.setMinimum(self.gui.grid_view.thumbnail_cache.min_disk_cache)
         self.opt_cover_grid_disk_cache_size.setMaximum(self.gui.grid_view.thumbnail_cache.min_disk_cache * 100)
+
+    def resize_cover(self, smaller):
+        cval = self.opt_cover_grid_height.value()
+        wval = self.opt_cover_grid_width.value()
+        if cval < 0.1:
+            dpi = self.opt_cover_grid_height.logicalDpiY()
+            cval = auto_height(self.opt_cover_grid_height) / dpi / CM_TO_INCH
+        if wval < 0.1:
+            wval = 0.75 * cval
+        ar = wval / cval
+        delta = 0.2 * (-1 if smaller else 1)
+        cval += delta
+        cval = max(0, cval)
+        self.opt_cover_grid_height.setValue(cval)
+        self.opt_cover_grid_width.setValue(cval * ar)
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)

@@ -29,6 +29,9 @@ from calibre.utils.config import prefs
 CM_TO_INCH = 0.393701
 CACHE_FORMAT = 'PPM'
 
+def auto_height(widget):
+    return max(185, QApplication.instance().desktop().availableGeometry(widget).height() / 5.0)
+
 class EncodeError(ValueError):
     pass
 
@@ -317,7 +320,7 @@ class CoverDelegate(QStyledItemDelegate):
         self.original_show_title = show_title = gprefs['cover_grid_show_title']
 
         if height < 0.1:
-            height = max(185, QApplication.instance().desktop().availableGeometry(self.parent()).height() / 5.0)
+            height = auto_height(self.parent())
         else:
             height *= self.parent().logicalDpiY() * CM_TO_INCH
 
