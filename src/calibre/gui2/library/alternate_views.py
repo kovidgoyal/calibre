@@ -21,7 +21,8 @@ from PyQt4.Qt import (
     QPropertyAnimation, QEasingCurve, pyqtSlot, QHelpEvent, QAbstractItemView,
     QStyleOptionViewItem, QToolTip, QByteArray, QBuffer)
 
-from calibre import fit_image, prints
+from calibre import fit_image, prints, prepare_string_for_xml
+from calibre.ebooks.metadata import fmt_sidx
 from calibre.gui2 import gprefs, config
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
 from calibre.utils.config import prefs
@@ -413,12 +414,22 @@ class CoverDelegate(QStyledItemDelegate):
                 book_id = db.id(index.row())
             except (ValueError, IndexError, KeyError):
                 return False
-            title = db.new_api.field_for('title', book_id)
-            authors = db.new_api.field_for('authors', book_id)
+            db = db.new_api
+            p = prepare_string_for_xml
+            title = db.field_for('title', book_id)
+            authors = db.field_for('authors', book_id)
             if title and authors:
-                title = '<b>%s</b>' % ('\n'.join(wrap(title, 100)))
-                authors = '\n'.join(wrap(' & '.join(authors), 100))
-                QToolTip.showText(event.globalPos(), '%s<br><br>%s' % (title, authors), view)
+                title = '<b>%s</b>' % ('<br>'.join(wrap(p(title), 120)))
+                authors = '<br>'.join(wrap(p(' & '.join(authors)), 120))
+                tt = '%s<br><br>%s' % (title, authors)
+                series = db.field_for('series', book_id)
+                if series:
+                    use_roman_numbers=config['use_roman_numerals_for_series_number']
+                    val = _('Book %(sidx)s of <span class="series_name">%(series)s</span>')%dict(
+                        sidx=fmt_sidx(db.field_for('series_index', book_id), use_roman=use_roman_numbers),
+                        series=p(series))
+                    tt += '<br><br>' + val
+                QToolTip.showText(event.globalPos(), tt, view)
                 return True
         return False
 
