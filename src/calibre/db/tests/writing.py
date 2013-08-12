@@ -420,6 +420,13 @@ class WritingTest(BaseTest):
         ae(nmi2.get_extra('#series'), 1.0)
         self.compare_metadata(nmi2, oldmi2, exclude={'last_modified', 'format_metadata', '#series_index'})
 
+        cache = self.init_cache(self.cloned_library)
+        mi = cache.get_metadata(1)
+        otags = mi.tags
+        mi.tags = [x.upper() for x in mi.tags]
+        cache.set_metadata(3, mi)
+        self.assertEqual(set(otags), set(cache.field_for('tags', 3)), 'case changes should not be allowed in set_metadata')
+
     # }}}
 
     def test_conversion_options(self):  # {{{
@@ -574,4 +581,3 @@ class WritingTest(BaseTest):
         cache.add_format(1, 'ADD', BytesIO(b'xxxx'))
         test_invalidate()
     # }}}
-
