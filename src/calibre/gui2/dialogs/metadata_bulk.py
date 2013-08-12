@@ -212,7 +212,7 @@ class MyBlockingBusyNew(QDialog):  # {{{
                     im = Image()
                     im.load(cdata)
                     im.trim(tweaks['cover_trim_fuzz_value'])
-                    cdata = im.export('png')
+                    cdata = im.export('jpg')
                     cache.set_cover({book_id:cdata})
 
         # Formats
@@ -440,7 +440,7 @@ class MyBlockingBusy(QDialog):  # {{{
                     im = Image()
                     im.load(cdata)
                     im.trim(tweaks['cover_trim_fuzz_value'])
-                    cdata = im.export('png')
+                    cdata = im.export('jpg')
                     self.db.set_cover(id, cdata)
 
             if do_remove_format:
