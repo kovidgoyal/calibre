@@ -96,8 +96,6 @@ class DefaultEncoding:
         self.__platform = 'Windows'
         self.__default_num = 'not-defined'
         self.__code_page = self.ENCODINGS.get(default_encoding, '1252')
-        if default_encoding in self.ENCODINGS.iterkeys():
-            self.__code_page = self.ENCODINGS[default_encoding]
         self.__datafetched = False
         self.__fetchraw = check_raw
 
