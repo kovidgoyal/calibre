@@ -61,7 +61,7 @@ class DefaultEncoding:
     """
     Find the default encoding for the doc
     """
-    
+
     #Note: not all those encoding are really supported by rtf2xml
     # See http://msdn.microsoft.com/en-us/library/windows/desktop/dd317756%28v=vs.85%29.aspx
     # and src\calibre\gui2\widgets.py for the input list in calibre
@@ -95,7 +95,7 @@ class DefaultEncoding:
         self.__bug_handler = bug_handler
         self.__platform = 'Windows'
         self.__default_num = 'not-defined'
-        self.__code_page = '1252'
+        self.__code_page = self.ENCODINGS.get(default_encoding, '1252')
         if default_encoding in self.ENCODINGS.iterkeys():
             self.__code_page = self.ENCODINGS[default_encoding]
         self.__datafetched = False

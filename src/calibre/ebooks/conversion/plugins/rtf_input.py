@@ -100,7 +100,7 @@ class RTFInput(InputFormatPlugin):
             deb_dir = debug_dir,
 
             # Default encoding
-            default_encoding = getattr(self.opts, 'input_encoding', 'cp1252'),
+            default_encoding = getattr(self.opts, 'input_encoding', 'cp1252') or 'cp1252',
 
             # Run level
             run_level = run_lev,

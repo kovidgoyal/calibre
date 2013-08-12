@@ -570,9 +570,9 @@ class GridView(QListView):
                 q.task_done()
 
     def render_cover(self, book_id):
-        cdata = self.model().db.new_api.cover(book_id)
         if self.ignore_render_requests.is_set():
             return
+        cdata = self.model().db.new_api.cover(book_id)
         if cdata is not None:
             p = QImage()
             p.loadFromData(cdata)

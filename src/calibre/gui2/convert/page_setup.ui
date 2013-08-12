@@ -110,7 +110,7 @@
         <item row="0" column="1">
          <widget class="QDoubleSpinBox" name="opt_margin_left">
           <property name="specialValueText">
-           <string>No margin</string>
+           <string>Unchanged</string>
           </property>
           <property name="suffix">
            <string> pt</string>
@@ -139,7 +139,7 @@
         <item row="1" column="1">
          <widget class="QDoubleSpinBox" name="opt_margin_top">
           <property name="specialValueText">
-           <string>No margin</string>
+           <string>Unchanged</string>
           </property>
           <property name="suffix">
            <string> pt</string>
@@ -168,7 +168,7 @@
         <item row="2" column="1">
          <widget class="QDoubleSpinBox" name="opt_margin_right">
           <property name="specialValueText">
-           <string>No margin</string>
+           <string>Unchanged</string>
           </property>
           <property name="suffix">
            <string> pt</string>
@@ -197,7 +197,7 @@
         <item row="3" column="1">
          <widget class="QDoubleSpinBox" name="opt_margin_bottom">
           <property name="specialValueText">
-           <string>No margin</string>
+           <string>Unchanged</string>
           </property>
           <property name="suffix">
            <string> pt</string>
