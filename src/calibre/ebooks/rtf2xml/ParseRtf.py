@@ -58,6 +58,8 @@ def Handle_Main():
             group_borders = 1,
             # Write or do not write paragraphs. Default is 0.
             empty_paragraphs = 0,
+            # Allow to use a custom default encoding as fallback
+            default_encoding = 'cp1252',
     )
     try:
         parse_obj.parse_rtf()
@@ -101,6 +103,7 @@ class ParseRtf:
                 empty_paragraphs = 1,
                 no_dtd = 0,
                 char_data = '',
+                default_encoding = 'cp1252',
                 ):
 
         """
@@ -144,6 +147,7 @@ class ParseRtf:
         self.__group_borders = group_borders
         self.__empty_paragraphs = empty_paragraphs
         self.__no_dtd = no_dtd
+        self.__default_encoding = default_encoding
 
     def __check_file(self, the_file, type):
         """Check to see if files exist"""
@@ -227,14 +231,15 @@ class ParseRtf:
             run_level = self.__run_level,
             bug_handler = RtfInvalidCodeException,
             check_raw = True,
+            default_encoding = self.__default_encoding,
             )
             platform, code_page, default_font_num = encode_obj.find_default_encoding()
             check_encoding_obj = check_encoding.CheckEncoding(
                     bug_handler = RtfInvalidCodeException,
                         )
             enc = encode_obj.get_codepage()
-            if enc != 'mac_roman':
-                enc = 'cp' + enc
+            #TODO: to check if cp is a good idea or if I should use a dict to convert
+            enc = 'cp' + enc
             msg = '%s\nException in token processing' % str(msg)
             if check_encoding_obj.check_encoding(self.__file, enc):
                 file_name = self.__file if isinstance(self.__file, str) \
@@ -308,6 +313,7 @@ class ParseRtf:
             in_file = self.__temp_file,
             run_level = self.__run_level,
             bug_handler = RtfInvalidCodeException,
+            default_encoding = self.__default_encoding,
             )
         platform, code_page, default_font_num = encode_obj.find_default_encoding()
         hex2utf_obj = hex_2_utf8.Hex2Utf8(
