@@ -63,7 +63,7 @@ class SortByAction(InterfaceAction):
         self._sactions = []
         for name in sorted(name_map, key=sort_key):
             key = name_map[name]
-            if key == 'title':
+            if key in {'title', 'series_sort', 'formats', 'path'}:
                 continue
             if key == 'sort':
                 name = _('Title')
