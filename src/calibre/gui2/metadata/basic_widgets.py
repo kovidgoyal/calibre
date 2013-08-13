@@ -867,8 +867,10 @@ class FormatsManager(QWidget):
                     mi = get_metadata(stream, ext)
                 return mi, ext
             except:
+                import traceback
                 error_dialog(self, _('Could not read metadata'),
-                            _('Could not read metadata from %s format')%ext).exec_()
+                            _('Could not read metadata from %s format')%ext.upper(),
+                             det_msg=traceback.format_exc(), show=True)
             return None, None
         finally:
             if old != prefs['read_file_metadata']:
