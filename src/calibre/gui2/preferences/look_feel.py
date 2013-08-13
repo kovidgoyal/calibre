@@ -222,8 +222,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.cover_grid_larger_cover.clicked.connect(partial(self.resize_cover, False))
         self.opt_cover_grid_disk_cache_size.setMinimum(self.gui.grid_view.thumbnail_cache.min_disk_cache)
         self.opt_cover_grid_disk_cache_size.setMaximum(self.gui.grid_view.thumbnail_cache.min_disk_cache * 100)
+        self.opt_cover_grid_width.valueChanged.connect(self.update_aspect_ratio)
+        self.opt_cover_grid_height.valueChanged.connect(self.update_aspect_ratio)
 
-    def resize_cover(self, smaller):
+    @property
+    def current_cover_size(self):
         cval = self.opt_cover_grid_height.value()
         wval = self.opt_cover_grid_width.value()
         if cval < 0.1:
@@ -231,6 +234,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             cval = auto_height(self.opt_cover_grid_height) / dpi / CM_TO_INCH
         if wval < 0.1:
             wval = 0.75 * cval
+        return wval, cval
+
+    def update_aspect_ratio(self, *args):
+        width, height = self.current_cover_size
+        ar = width / height
+        self.cover_grid_aspect_ratio.setText(_('Current aspect ratio (width/height): %.2g') % ar)
+
+    def resize_cover(self, smaller):
+        wval, cval = self.current_cover_size
         ar = wval / cval
         delta = 0.2 * (-1 if smaller else 1)
         cval += delta
@@ -256,6 +268,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.edit_rules.initialize(db.field_metadata, db.prefs, mi, 'column_color_rules')
         self.icon_rules.initialize(db.field_metadata, db.prefs, mi, 'column_icon_rules')
         self.set_cg_color(gprefs['cover_grid_color'])
+        self.update_aspect_ratio()
 
     def open_cg_cache(self):
         open_local_file(self.gui.grid_view.thumbnail_cache.location)
