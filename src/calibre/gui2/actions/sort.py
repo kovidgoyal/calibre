@@ -53,7 +53,13 @@ class SortByAction(InterfaceAction):
         except TypeError:
             sort_col, order = 'date', True
         fm = db.field_metadata
-        name_map = {fm[k]['name']:k for k in fm.sortable_field_keys() if fm[k]['name']}
+        def get_name(k):
+            ans = fm[k]['name']
+            if k == 'cover':
+                ans = _('Has cover')
+            return ans
+
+        name_map = {get_name(k):k for k in fm.sortable_field_keys() if fm[k]['name']}
         self._sactions = []
         for name in sorted(name_map, key=sort_key):
             key = name_map[name]
