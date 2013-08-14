@@ -314,6 +314,7 @@ class CoverDelegate(QStyledItemDelegate):
         self.render_queue = Queue()
         self.animating = None
         self.highlight_color = QColor(Qt.white)
+        self.on_device_emblem = QPixmap(I('ok.png')).scaled(48, 48, transformMode=Qt.SmoothTransformation)
 
     def set_dimensions(self):
         width = self.original_width = gprefs['cover_grid_width']
@@ -371,10 +372,14 @@ class CoverDelegate(QStyledItemDelegate):
                 painter.restore()
         db = db.new_api
         cdata = self.cover_cache[book_id]
+        device_connected = self.parent().gui.device_connected is not None
+        on_device = device_connected and db.field_for('ondevice', book_id)
         painter.save()
+        right_adjust = 0
         try:
             rect = option.rect
             rect.adjust(self.MARGIN, self.MARGIN, -self.MARGIN, -self.MARGIN)
+            orect = QRect(rect)
             if cdata is None or cdata is False:
                 title = db.field_for('title', book_id, default_value='')
                 authors = ' & '.join(db.field_for('authors', book_id, default_value=()))
@@ -384,22 +389,31 @@ class CoverDelegate(QStyledItemDelegate):
                     self.render_queue.put(book_id)
             else:
                 if self.title_height != 0:
-                    orect = QRect(rect)
+                    trect = QRect(rect)
                     rect.setBottom(rect.bottom() - self.title_height)
                 if self.animating is not None and self.animating.row() == index.row():
                     cdata = cdata.scaled(cdata.size() * self._animated_size)
                 dx = max(0, int((rect.width() - cdata.width())/2.0))
                 dy = max(0, rect.height() - cdata.height())
+                right_adjust = dx
                 rect.adjust(dx, dy, -dx, 0)
                 painter.drawPixmap(rect, cdata)
                 if self.title_height != 0:
-                    rect = orect
+                    rect = trect
                     rect.setTop(rect.bottom() - self.title_height + 5)
                     painter.setRenderHint(QPainter.TextAntialiasing, True)
                     title = db.field_for('title', book_id, default_value='')
                     metrics = painter.fontMetrics()
                     painter.drawText(rect, Qt.AlignCenter|Qt.TextSingleLine,
                                      metrics.elidedText(title, Qt.ElideRight, rect.width()))
+            if on_device:
+                p = self.on_device_emblem
+                drect = QRect(orect)
+                drect.setRight(drect.right() - right_adjust)
+                drect.setBottom(drect.bottom() - self.title_height)
+                drect.setTop(drect.bottom() - p.height() + 1)
+                drect.setLeft(drect.right() - p.width() + 1)
+                painter.drawPixmap(drect, p)
         finally:
             painter.restore()
 
@@ -415,6 +429,8 @@ class CoverDelegate(QStyledItemDelegate):
             except (ValueError, IndexError, KeyError):
                 return False
             db = db.new_api
+            device_connected = self.parent().gui.device_connected
+            on_device = device_connected is not None and db.field_for('ondevice', book_id)
             p = prepare_string_for_xml
             title = db.field_for('title', book_id)
             authors = db.field_for('authors', book_id)
@@ -428,6 +444,9 @@ class CoverDelegate(QStyledItemDelegate):
                     val = _('Book %(sidx)s of <span class="series_name">%(series)s</span>')%dict(
                         sidx=fmt_sidx(db.field_for('series_index', book_id), use_roman=use_roman_numbers),
                         series=p(series))
+                    tt += '<br><br>' + val
+                if on_device:
+                    val = _('This book is on the device in %s') % on_device
                     tt += '<br><br>' + val
                 QToolTip.showText(event.globalPos(), tt, view)
                 return True
