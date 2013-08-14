@@ -489,6 +489,7 @@ class GridView(QListView):
         self.delegate.animation.finished.connect(self.animation_done)
         self.setItemDelegate(self.delegate)
         self.setSpacing(self.delegate.spacing)
+        self.padding_left = 0
         self.set_color()
         self.ignore_render_requests = Event()
         self.thumbnail_cache = ThumbnailCache(max_size=gprefs['cover_grid_disk_cache_size'],
@@ -557,6 +558,32 @@ class GridView(QListView):
         self.setPalette(pal)
         self.delegate.highlight_color = pal.color(pal.Text)
 
+    def center_grid(self):
+        if self.gui.library_view.alternate_views.current_view is not self:
+            return
+        try:
+            sz = self.spacing()*2 + self.delegate.item_size.width()
+            num = self.width() // sz
+        except (AttributeError, ZeroDivisionError):
+            return
+        extra = max(0, int((self.width() - (num * sz)) / 2) - self.spacing())
+        if extra != self.padding_left:
+            self.padding_left = extra
+            self.setViewportMargins(self.padding_left, 0, 0, 0)
+
+    def resizeEvent(self, e):
+        self.center_grid()
+        return QListView.resizeEvent(self, e)
+
+    def event(self, e):
+        if e.type() == e.Paint:
+            p = QPainter(self)
+            # Without this the viewport margin is rendered in QPalette::Window
+            # instead of QPalette::Base
+            p.fillRect(0, 0, self.padding_left+2, self.height(), self.palette().color(QPalette.Base))
+            p.end()
+        return QListView.event(self, e)
+
     def refresh_settings(self):
         size_changed = (
             gprefs['cover_grid_width'] != self.delegate.original_width or
@@ -584,6 +611,7 @@ class GridView(QListView):
             self.render_thread = Thread(target=self.render_covers)
             self.render_thread.daemon = True
             self.render_thread.start()
+        self.center_grid()
 
     def render_covers(self):
         q = self.delegate.render_queue
