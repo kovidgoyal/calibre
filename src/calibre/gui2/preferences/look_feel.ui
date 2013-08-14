@@ -367,6 +367,13 @@
           <string>Cover size</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
+          <item row="3" column="0" colspan="5">
+           <widget class="QLabel" name="cover_grid_aspect_ratio">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_11">
             <property name="text">
@@ -449,7 +456,7 @@ A value of zero means calculate automatically.</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="3">
+          <item row="1" column="4">
            <spacer name="horizontalSpacer_4">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -462,7 +469,7 @@ A value of zero means calculate automatically.</string>
             </property>
            </spacer>
           </item>
-          <item row="0" column="0" colspan="4">
+          <item row="0" column="0" colspan="5">
            <widget class="QLabel" name="label_20">
             <property name="text">
              <string>By default, calibre chooses a cover size based on your computer's screen size. You can change the cover size here:</string>
@@ -472,10 +479,13 @@ A value of zero means calculate automatically.</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="4">
-           <widget class="QLabel" name="cover_grid_aspect_ratio">
+          <item row="1" column="3" rowspan="2">
+           <widget class="QPushButton" name="cover_grid_reset_size">
+            <property name="toolTip">
+             <string>Reset size to automatic</string>
+            </property>
             <property name="text">
-             <string/>
+             <string>&amp;Reset size</string>
             </property>
            </widget>
           </item>

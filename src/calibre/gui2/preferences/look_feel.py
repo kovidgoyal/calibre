@@ -220,6 +220,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.cover_grid_open_cache.clicked.connect(self.open_cg_cache)
         self.cover_grid_smaller_cover.clicked.connect(partial(self.resize_cover, True))
         self.cover_grid_larger_cover.clicked.connect(partial(self.resize_cover, False))
+        self.cover_grid_reset_size.clicked.connect(self.cg_reset_size)
         self.opt_cover_grid_disk_cache_size.setMinimum(self.gui.grid_view.thumbnail_cache.min_disk_cache)
         self.opt_cover_grid_disk_cache_size.setMaximum(self.gui.grid_view.thumbnail_cache.min_disk_cache * 100)
         self.opt_cover_grid_width.valueChanged.connect(self.update_aspect_ratio)
@@ -249,6 +250,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         cval = max(0, cval)
         self.opt_cover_grid_height.setValue(cval)
         self.opt_cover_grid_width.setValue(cval * ar)
+
+    def cg_reset_size(self):
+        self.opt_cover_grid_width.setValue(0)
+        self.opt_cover_grid_height.setValue(0)
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
