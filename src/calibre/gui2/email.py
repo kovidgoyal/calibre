@@ -258,6 +258,12 @@ class SelectRecipients(QDialog):  # {{{
         for key in sorted(opts.accounts or (), key=sort_key):
             self.create_item(opts.aliases.get(key, key), key)
 
+    def accept(self):
+        if not self.ans:
+            return error_dialog(self, _('No recipients'),
+                                _('You must select at least one recipient'), show=True)
+        QDialog.accept(self)
+
     @property
     def ans(self):
         opts = email_config().parse()

@@ -145,6 +145,11 @@ class ShareConnMenu(QMenu):  # {{{
             self.email_to_menu.addAction(action1)
             self.email_to_and_delete_menu.addAction(action2)
             map(self.memory.append, (action1, action2))
+            tac1 = DeviceAction('choosemail:', False, False, I('mail.png'),
+                    _('Email to selected recipients...'))
+            self.addAction(tac1)
+            tac1.a_s.connect(sync_menu.action_triggered)
+            self.memory.append(tac1)
             ac = self.addMenu(self.email_to_and_delete_menu)
             self.email_actions.append(ac)
             action1.a_s.connect(sync_menu.action_triggered)
