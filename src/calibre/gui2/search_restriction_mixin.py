@@ -12,7 +12,7 @@ from PyQt4.Qt import (
     Qt, QMenu, QPoint, QIcon, QDialog, QGridLayout, QLabel, QLineEdit, QComboBox,
     QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QStringList, QRadioButton)
 
-from calibre.gui2 import error_dialog, question_dialog
+from calibre.gui2 import error_dialog, question_dialog, gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.utils.config_base import tweaks
@@ -334,6 +334,7 @@ class SearchRestrictionMixin(object):
         virt_libs = db.prefs.get('virtual_libraries', {})
         virt_libs[name] = search
         db.prefs.set('virtual_libraries', virt_libs)
+        self.rebuild_vl_tabs()
 
     def do_create_edit(self, name=None):
         db = self.library_view.model().db
@@ -360,6 +361,11 @@ class SearchRestrictionMixin(object):
         a = self.rm_menu
         self.build_virtual_library_list(a, self.remove_vl_triggered)
         m.addMenu(a)
+
+        if gprefs['show_vl_tabs']:
+            m.addAction(_('Hide virtual library tabs'), self.vl_tabs.disable_bar)
+        else:
+            m.addAction(_('Show virtual libraries as tabs'), self.vl_tabs.enable_bar)
 
         m.addSeparator()
 
@@ -401,6 +407,9 @@ class SearchRestrictionMixin(object):
 
         p = QPoint(0, self.virtual_library.height())
         self.virtual_library_menu.popup(self.virtual_library.mapToGlobal(p))
+
+    def rebuild_vl_tabs(self):
+        self.vl_tabs.rebuild()
 
     def apply_virtual_library(self, library=None):
         db = self.library_view.model().db
@@ -471,6 +480,7 @@ class SearchRestrictionMixin(object):
         db.prefs.set('virtual_libraries', virt_libs)
         if reapply and db.data.get_base_restriction_name() == name:
             self.apply_virtual_library('')
+        self.rebuild_vl_tabs()
 
     def _trim_restriction_name(self, name):
         return name[0:MAX_VIRTUAL_LIBRARY_NAME_LENGTH].strip()
@@ -591,11 +601,13 @@ class SearchRestrictionMixin(object):
                     'QLabel { border-radius: 6px; background-color: %s }' %
                     tweaks['highlight_virtual_library'])
             self.clear_vl.setVisible(True)
+            self.search_count.setVisible(not gprefs['show_vl_tabs'])
         else:  # No restriction or not library view
             t = ''
             self.search_count.setStyleSheet(
                     'QLabel { background-color: transparent; }')
             self.clear_vl.setVisible(False)
+            self.search_count.setVisible(False)
         self.search_count.setText(t)
 
 if __name__ == '__main__':

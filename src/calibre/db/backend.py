@@ -423,6 +423,7 @@ class DB(object):
         ]
         defs['virtual_libraries'] = {}
         defs['virtual_lib_on_startup'] = defs['cs_virtual_lib_on_startup'] = ''
+        defs['virt_libs_hidden'] = defs['virt_libs_order'] = ()
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \

@@ -341,6 +341,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         ######################### Search Restriction ##########################
         if db.prefs['virtual_lib_on_startup']:
             self.apply_virtual_library(db.prefs['virtual_lib_on_startup'])
+        self.rebuild_vl_tabs()
 
         ########################### Cover Flow ################################
 
@@ -627,6 +628,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.saved_searches_changed(recount=False)  # reload the search restrictions combo box
         if db.prefs['virtual_lib_on_startup']:
             self.apply_virtual_library(db.prefs['virtual_lib_on_startup'])
+        self.rebuild_vl_tabs()
         for action in self.iactions.values():
             action.library_changed(db)
         if olddb is not None:

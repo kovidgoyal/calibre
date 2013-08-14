@@ -8,9 +8,10 @@ __docformat__ = 'restructuredtext en'
 import functools
 
 from PyQt4.Qt import (Qt, QApplication, QStackedWidget, QMenu, QTimer,
-        QSize, QSizePolicy, QStatusBar, QLabel, QFont, QAction)
+        QSize, QSizePolicy, QStatusBar, QLabel, QFont, QAction, QTabBar)
 
 from calibre.utils.config import prefs, tweaks
+from calibre.utils.icu import sort_key
 from calibre.constants import (isosx, __appname__, preferred_encoding,
     get_version)
 from calibre.gui2 import config, is_widescreen, gprefs
@@ -278,9 +279,99 @@ class GridViewButton(LayoutButton):  # {{{
 
 # }}}
 
+class VLTabs(QTabBar):  # {{{
+
+    def __init__(self, parent):
+        QTabBar.__init__(self, parent)
+        self.setDocumentMode(True)
+        self.setDrawBase(False)
+        self.setMovable(True)
+        self.setTabsClosable(True)
+        self.gui = parent
+        self.currentChanged.connect(self.tab_changed)
+        self.tabMoved.connect(self.tab_moved, type=Qt.QueuedConnection)
+        self.tabCloseRequested.connect(self.tab_close)
+        self.setStyleSheet('QTabBar::tab:selected { font-weight: bold } QTabBar::tab { text-align: center }')
+        self.setVisible(gprefs['show_vl_tabs'])
+
+    def enable_bar(self):
+        gprefs['show_vl_tabs'] = True
+        self.setVisible(True)
+
+    def disable_bar(self):
+        gprefs['show_vl_tabs'] = False
+        self.setVisible(False)
+
+    def tab_changed(self, idx):
+        vl = unicode(self.tabData(idx).toString()).strip() or None
+        self.gui.apply_virtual_library(vl)
+
+    def tab_moved(self, from_, to):
+        self.current_db.prefs['virt_libs_order'] = [unicode(self.tabData(i).toString()) for i in range(self.count())]
+
+    def tab_close(self, index):
+        vl = unicode(self.tabData(index).toString())
+        if vl:  # Dont allow closing the All Books tab
+            self.current_db.prefs['virt_libs_hidden'] = list(
+                self.current_db.prefs['virt_libs_hidden']) + [vl]
+            self.removeTab(index)
+
+    @property
+    def current_db(self):
+        return self.gui.current_db
+
+    def rebuild(self):
+        self.currentChanged.disconnect(self.tab_changed)
+        db = self.current_db
+        virt_libs = frozenset(db.prefs.get('virtual_libraries', {}))
+        hidden = frozenset(db.prefs['virt_libs_hidden'])
+        if hidden - virt_libs:
+            db.prefs['virt_libs_hidden'] = list(hidden.intersection(virt_libs))
+        order = db.prefs['virt_libs_order']
+        while self.count():
+            self.removeTab(0)
+        current_lib = db.data.get_base_restriction_name()
+        current_idx = all_idx = None
+        virt_libs = (set(virt_libs) - hidden) | {''}
+        order = {x:i for i, x in enumerate(order)}
+        for i, vl in enumerate(sorted(virt_libs, key=lambda x:(order.get(x, 0), sort_key(x)))):
+            self.addTab(vl or _('All books'))
+            self.setTabData(i, vl)
+            if vl == current_lib:
+                current_idx = i
+            if not vl:
+                all_idx = i
+        self.setCurrentIndex(all_idx if current_idx is None else current_idx)
+        self.currentChanged.connect(self.tab_changed)
+        self.tabButton(all_idx, self.RightSide).setVisible(False)
+
+    def contextMenuEvent(self, ev):
+        m = QMenu(self)
+        m.addAction(_('Sort alphabetically'), self.sort_alphabetically)
+        hidden = self.current_db.prefs['virt_libs_hidden']
+        if hidden:
+            s = m._s = m.addMenu(_('Restore hidden tabs'))
+            for x in hidden:
+                s.addAction(x, partial(self.restore, x))
+        m.addAction(_('Hide virtual library tabs'), self.disable_bar)
+        m.exec_(ev.globalPos())
+
+    def sort_alphabetically(self):
+        self.current_db.prefs['virt_libs_order'] = ()
+        self.rebuild()
+
+    def restore(self, x):
+        h = self.current_db.prefs['virt_libs_hidden']
+        self.current_db.prefs['virt_libs_hidden'] = list(set(h) - {x})
+        self.rebuild()
+
+# }}}
+
 class LayoutMixin(object):  # {{{
 
     def __init__(self):
+        self.vl_tabs = VLTabs(self)
+        self.centralwidget.layout().addWidget(self.vl_tabs)
 
         if config['gui_layout'] == 'narrow':  # narrow {{{
             self.book_details = BookDetails(False, self)
