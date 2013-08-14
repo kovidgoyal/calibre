@@ -15,7 +15,7 @@ dpkg-reconfigure tzdata
 set timezone to Asia/Kolkata
 service cron restart
 
-apt-get install vim nginx zsh python-lxml python-mechanize iotop htop smartmontools mosh
+apt-get install vim nginx zsh python-lxml python-mechanize iotop htop smartmontools mosh git
 chsh -s /bin/zsh
 
 mkdir -p /root/staging /root/work/vim /srv/download /srv/manual
@@ -23,6 +23,10 @@ mkdir -p /root/staging /root/work/vim /srv/download /srv/manual
 scp .zshrc .vimrc  server:
 scp -r ~/work/vim/zsh-syntax-highlighting server:work/vim
 scp -r ~/work/vim/zsh-history-substring-search server:work/vim
+cd /usr/local && git clone https://github.com/kovidgoyal/calibre.git
+
+Add the following to crontab::
+    @hourly    /usr/bin/python /usr/local/calibre/setup/plugins_mirror.py
 
 If the server has a backup hard-disk, mount it at /mnt/backup and edit /etc/fstab so that it is auto-mounted.
 Then, add the following to crontab::

@@ -8,14 +8,15 @@ __docformat__ = 'restructuredtext en'
 import functools
 
 from PyQt4.Qt import (Qt, QApplication, QStackedWidget, QMenu, QTimer,
-        QSize, QSizePolicy, QStatusBar, QLabel, QFont)
+        QSize, QSizePolicy, QStatusBar, QLabel, QFont, QAction)
 
 from calibre.utils.config import prefs, tweaks
 from calibre.constants import (isosx, __appname__, preferred_encoding,
     get_version)
 from calibre.gui2 import config, is_widescreen, gprefs
 from calibre.gui2.library.views import BooksView, DeviceBooksView
-from calibre.gui2.widgets import Splitter
+from calibre.gui2.library.alternate_views import GridView
+from calibre.gui2.widgets import Splitter, LayoutButton
 from calibre.gui2.tag_browser.ui import TagBrowserWidget
 from calibre.gui2.book_details import BookDetails
 from calibre.gui2.notify import get_notifier
@@ -116,7 +117,13 @@ class LibraryWidget(Splitter):  # {{{
                 shortcut=_('Shift+Alt+B'))
         parent.library_view = BooksView(parent)
         parent.library_view.setObjectName('library_view')
-        self.addWidget(parent.library_view)
+        stack = QStackedWidget(self)
+        av = parent.library_view.alternate_views
+        av.set_stack(stack)
+        parent.grid_view = GridView(parent)
+        parent.grid_view.setObjectName('grid_view')
+        av.add_view('grid', parent.grid_view)
+        self.addWidget(stack)
 # }}}
 
 class Stack(QStackedWidget):  # {{{
@@ -236,6 +243,41 @@ class StatusBar(QStatusBar):  # {{{
 
 # }}}
 
+class GridViewButton(LayoutButton):  # {{{
+
+    def __init__(self, gui):
+        sc = _('Shift+Alt+G')
+        LayoutButton.__init__(self, I('grid.png'), _('Cover Grid'), parent=gui, shortcut=sc)
+        if tweaks.get('use_new_db', False):
+            self.set_state_to_show()
+            self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
+            gui.addAction(self.action_toggle)
+            gui.keyboard.register_shortcut('grid view toggle' + self.label, unicode(self.action_toggle.text()),
+                                        default_keys=(sc,), action=self.action_toggle)
+            self.action_toggle.triggered.connect(self.toggle)
+            self.toggled.connect(self.update_state)
+            self.grid_enabled = True
+        else:
+            self.setVisible(False)
+            self.grid_enabled = False
+
+    def update_state(self, checked):
+        if checked:
+            self.set_state_to_hide()
+        else:
+            self.set_state_to_show()
+
+    def save_state(self):
+        if self.grid_enabled:
+            gprefs['grid view visible'] = bool(self.isChecked())
+
+    def restore_state(self):
+        if self.grid_enabled and gprefs.get('grid view visible', False):
+            self.toggle()
+
+
+# }}}
+
 class LayoutMixin(object):  # {{{
 
     def __init__(self):
@@ -251,7 +293,7 @@ class LayoutMixin(object):  # {{{
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
             self.centralwidget.layout().addWidget(self.bd_splitter)
-            button_order = ('tb', 'bd', 'cb')
+            button_order = ('tb', 'bd', 'cb', 'gv')
         # }}}
         else:  # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
@@ -266,13 +308,16 @@ class LayoutMixin(object):  # {{{
             self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                 QSizePolicy.Expanding))
             self.centralwidget.layout().addWidget(self.bd_splitter)
-            button_order = ('tb', 'cb', 'bd')
+            button_order = ('tb', 'cb', 'bd', 'gv')
         # }}}
 
         self.status_bar = StatusBar(self)
         stylename = unicode(self.style().objectName())
+        self.grid_view_button = GridViewButton(self)
+        self.grid_view_button.toggled.connect(self.toggle_grid_view)
+
         for x in button_order:
-            button = getattr(self, x+'_splitter').button
+            button = self.grid_view_button if x == 'gv' else getattr(self, x+'_splitter').button
             button.setIconSize(QSize(24, 24))
             if isosx and stylename != u'Calibre':
                 button.setStyleSheet('''
@@ -316,6 +361,9 @@ class LayoutMixin(object):  # {{{
                     self.library_view.currentIndex())
         self.library_view.setFocus(Qt.OtherFocusReason)
 
+    def toggle_grid_view(self, show):
+        self.library_view.alternate_views.show_view('grid' if show else None)
+
     def bd_cover_changed(self, id_, cdata):
         self.library_view.model().db.set_cover(id_, cdata)
         if self.cover_flow:
@@ -339,11 +387,13 @@ class LayoutMixin(object):  # {{{
             s = getattr(self, x+'_splitter')
             s.update_desired_state()
             s.save_state()
+        self.grid_view_button.save_state()
 
     def read_layout_settings(self):
         # View states are restored automatically when set_database is called
         for x in ('cb', 'tb', 'bd'):
             getattr(self, x+'_splitter').restore_state()
+        self.grid_view_button.restore_state()
 
     def update_status_bar(self, *args):
         v = self.current_view()

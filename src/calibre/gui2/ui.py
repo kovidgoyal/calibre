@@ -19,7 +19,7 @@ from PyQt4.Qt import (Qt, SIGNAL, QTimer, QHelpEvent, QAction,
                      QDialog, QSystemTrayIcon, QApplication)
 
 from calibre import prints, force_unicode
-from calibre.constants import __appname__, isosx, filesystem_encoding
+from calibre.constants import __appname__, isosx, filesystem_encoding, DEBUG
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.db import get_db_loader
@@ -521,7 +521,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             return
         if msg.startswith('launched:'):
             import json
-            argv = json.loads(msg[len('launched:'):])
+            try:
+                argv = json.loads(msg[len('launched:'):])
+            except ValueError:
+                prints('Failed to decode message from other instance: %r' % msg)
+                if DEBUG:
+                    error_dialog(self, 'Invalid message',
+                                 'Received an invalid message from other calibre instance.'
+                                 ' Do you have multiple versions of calibre installed?',
+                                 det_msg='Invalid msg: %r' % msg, show=True)
+                argv = ()
             if isinstance(argv, (list, tuple)) and len(argv) > 1:
                 files = [os.path.abspath(p) for p in argv[1:] if not os.path.isdir(p) and os.access(p, os.R_OK)]
                 if files:
@@ -800,9 +809,18 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
             if not question_dialog(self, _('Active jobs'), msg):
                 return False
+        from calibre.db.delete_service import has_jobs
+        if has_jobs():
+            msg = _('Some deleted books are still being moved to the Recycle '
+                    'Bin, if you quit now, they will be left behind. Are you '
+                    'sure you want to quit?')
+            if not question_dialog(self, _('Active jobs'), msg):
+                return False
+
         return True
 
     def shutdown(self, write_settings=True):
+        self.grid_view.shutdown()
         try:
             db = self.library_view.model().db
             cf = db.clean
@@ -844,6 +862,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 pass
         except KeyboardInterrupt:
             pass
+        from calibre.db.delete_service import shutdown
+        shutdown()
         time.sleep(2)
         self.istores.join()
         self.hide_windows()

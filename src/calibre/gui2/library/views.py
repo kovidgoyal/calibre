@@ -5,20 +5,22 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, itertools, operator
+import itertools, operator
 from functools import partial
 from future_builtins import map
 from collections import OrderedDict
 
-from PyQt4.Qt import (QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, QFont,
-    QModelIndex, QIcon, QItemSelection, QMimeData, QDrag, QApplication, QStyle,
-    QPoint, QPixmap, QUrl, QImage, QPainter, QColor, QRect, QHeaderView, QStyleOptionHeader)
+from PyQt4.Qt import (
+    QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, QFont, QModelIndex,
+    QIcon, QItemSelection, QMimeData, QDrag, QStyle, QPoint, QUrl, QHeaderView,
+    QStyleOptionHeader)
 
 from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
     TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate,
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate,
     CcEnumDelegate, CcNumberDelegate, LanguagesDelegate)
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
+from calibre.gui2.library.alternate_views import AlternateViews, setup_dnd_interface
 from calibre.utils.config import tweaks, prefs
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.library import DEFAULT_SORT
@@ -85,18 +87,24 @@ class PreserveViewState(object):  # {{{
             require_selected_ids=True):
         self.view = view
         self.require_selected_ids = require_selected_ids
-        self.selected_ids = set()
-        self.current_id = None
         self.preserve_hpos = preserve_hpos
         self.preserve_vpos = preserve_vpos
+        self.init_vals()
+
+    def init_vals(self):
+        self.selected_ids = set()
+        self.current_id = None
         self.vscroll = self.hscroll = 0
+        self.original_view = None
 
     def __enter__(self):
+        self.init_vals()
         try:
+            view = self.original_view = self.view.alternate_views.current_view
             self.selected_ids = self.view.get_selected_ids()
             self.current_id = self.view.current_id
-            self.vscroll = self.view.verticalScrollBar().value()
-            self.hscroll = self.view.horizontalScrollBar().value()
+            self.vscroll = view.verticalScrollBar().value()
+            self.hscroll = view.horizontalScrollBar().value()
         except:
             import traceback
             traceback.print_exc()
@@ -108,10 +116,19 @@ class PreserveViewState(object):  # {{{
             if self.selected_ids:
                 self.view.select_rows(self.selected_ids, using_ids=True,
                         scroll=False, change_current=self.current_id is None)
-            if self.preserve_vpos:
-                self.view.verticalScrollBar().setValue(self.vscroll)
-            if self.preserve_hpos:
-                self.view.horizontalScrollBar().setValue(self.hscroll)
+            view = self.original_view
+            if self.view.alternate_views.current_view is view:
+                if self.preserve_vpos:
+                    if hasattr(view, 'restore_vpos'):
+                        view.restore_vpos(self.vscroll)
+                    else:
+                        view.verticalScrollBar().setValue(self.vscroll)
+                if self.preserve_hpos:
+                    if hasattr(view, 'restore_hpos'):
+                        view.restore_hpos(self.hscroll)
+                    else:
+                        view.horizontalScrollBar().setValue(self.hscroll)
+        self.init_vals()
 
     @dynamic_property
     def state(self):
@@ -127,6 +144,7 @@ class PreserveViewState(object):  # {{{
 
 # }}}
 
+@setup_dnd_interface
 class BooksView(QTableView):  # {{{
 
     files_dropped = pyqtSignal(object)
@@ -139,8 +157,10 @@ class BooksView(QTableView):  # {{{
 
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
+        self.gui = parent
         self.setProperty('highlight_current_item', 150)
         self.row_sizing_done = False
+        self.alternate_views = AlternateViews(self)
 
         if not tweaks['horizontal_scrolling_per_column']:
             self.setHorizontalScrollMode(self.ScrollPerPixel)
@@ -161,11 +181,7 @@ class BooksView(QTableView):  # {{{
             else:
                 self.setEditTriggers(self.DoubleClicked|self.editTriggers())
 
-        self.drag_allowed = True
-        self.setDragEnabled(True)
-        self.setDragDropOverwriteMode(False)
-        self.setDragDropMode(self.DragDrop)
-        self.drag_start_pos = None
+        setup_dnd_interface(self)
         self.setAlternatingRowColors(True)
         self.setSelectionBehavior(self.SelectRows)
         self.setShowGrid(False)
@@ -630,6 +646,7 @@ class BooksView(QTableView):  # {{{
     # Initialization/Delegate Setup {{{
 
     def set_database(self, db):
+        self.alternate_views.set_database(db)
         self.save_state()
         self._model.set_database(db)
         self.tags_delegate.set_database(db)
@@ -637,6 +654,7 @@ class BooksView(QTableView):  # {{{
         self.authors_delegate.set_database(db)
         self.series_delegate.set_auto_complete_function(db.all_series)
         self.publisher_delegate.set_auto_complete_function(db.all_publishers)
+        self.alternate_views.set_database(db, stage=1)
 
     def database_changed(self, db):
         for i in range(self.model().columnCount(None)):
@@ -692,153 +710,28 @@ class BooksView(QTableView):  # {{{
     def set_context_menu(self, menu, edit_collections_action):
         self.setContextMenuPolicy(Qt.DefaultContextMenu)
         self.context_menu = menu
+        self.alternate_views.set_context_menu(menu)
         self.edit_collections_action = edit_collections_action
 
     def contextMenuEvent(self, event):
+        sac = self.gui.iactions['Sort By']
+        sort_added = tuple(ac for ac in self.context_menu.actions() if ac is sac.qaction)
+        if sort_added:
+            sac.update_menu()
         self.context_menu.popup(event.globalPos())
         event.accept()
-    # }}}
-
-    # Drag 'n Drop {{{
-    @classmethod
-    def paths_from_event(cls, event):
-        '''
-        Accept a drop event and return a list of paths that can be read from
-        and represent files with extensions.
-        '''
-        md = event.mimeData()
-        if md.hasFormat('text/uri-list') and not \
-                md.hasFormat('application/calibre+from_library'):
-            urls = [unicode(u.toLocalFile()) for u in md.urls()]
-            return [u for u in urls if os.path.splitext(u)[1] and
-                    os.path.exists(u)]
-
-    def drag_icon(self, cover, multiple):
-        cover = cover.scaledToHeight(120, Qt.SmoothTransformation)
-        if multiple:
-            base_width = cover.width()
-            base_height = cover.height()
-            base = QImage(base_width+21, base_height+21,
-                    QImage.Format_ARGB32_Premultiplied)
-            base.fill(QColor(255, 255, 255, 0).rgba())
-            p = QPainter(base)
-            rect = QRect(20, 0, base_width, base_height)
-            p.fillRect(rect, QColor('white'))
-            p.drawRect(rect)
-            rect.moveLeft(10)
-            rect.moveTop(10)
-            p.fillRect(rect, QColor('white'))
-            p.drawRect(rect)
-            rect.moveLeft(0)
-            rect.moveTop(20)
-            p.fillRect(rect, QColor('white'))
-            p.save()
-            p.setCompositionMode(p.CompositionMode_SourceAtop)
-            p.drawImage(rect.topLeft(), cover)
-            p.restore()
-            p.drawRect(rect)
-            p.end()
-            cover = base
-        return QPixmap.fromImage(cover)
-
-    def drag_data(self):
-        m = self.model()
-        db = m.db
-        rows = self.selectionModel().selectedRows()
-        selected = list(map(m.id, rows))
-        ids = ' '.join(map(str, selected))
-        md = QMimeData()
-        md.setData('application/calibre+from_library', ids)
-        fmt = prefs['output_format']
-
-        def url_for_id(i):
-            try:
-                ans = db.format_path(i, fmt, index_is_id=True)
-            except:
-                ans = None
-            if ans is None:
-                fmts = db.formats(i, index_is_id=True)
-                if fmts:
-                    fmts = fmts.split(',')
-                else:
-                    fmts = []
-                for f in fmts:
-                    try:
-                        ans = db.format_path(i, f, index_is_id=True)
-                    except:
-                        ans = None
-            if ans is None:
-                ans = db.abspath(i, index_is_id=True)
-            return QUrl.fromLocalFile(ans)
-
-        md.setUrls([url_for_id(i) for i in selected])
-        drag = QDrag(self)
-        col = self.selectionModel().currentIndex().column()
-        md.column_name = self.column_map[col]
-        drag.setMimeData(md)
-        cover = self.drag_icon(m.cover(self.currentIndex().row()),
-                len(selected) > 1)
-        drag.setHotSpot(QPoint(-15, -15))
-        drag.setPixmap(cover)
-        return drag
-
-    def event_has_mods(self, event=None):
-        mods = event.modifiers() if event is not None else \
-                QApplication.keyboardModifiers()
-        return mods & Qt.ControlModifier or mods & Qt.ShiftModifier
-
-    def mousePressEvent(self, event):
-        ep = event.pos()
-        if self.indexAt(ep) in self.selectionModel().selectedIndexes() and \
-                event.button() == Qt.LeftButton and not self.event_has_mods():
-            self.drag_start_pos = ep
-        return QTableView.mousePressEvent(self, event)
-
-    def mouseMoveEvent(self, event):
-        if not self.drag_allowed:
-            return
-        if self.drag_start_pos is None:
-            return QTableView.mouseMoveEvent(self, event)
-
-        if self.event_has_mods():
-            self.drag_start_pos = None
-            return
-
-        if not (event.buttons() & Qt.LeftButton) or \
-                (event.pos() - self.drag_start_pos).manhattanLength() \
-                      < QApplication.startDragDistance():
-            return
-
-        index = self.indexAt(event.pos())
-        if not index.isValid():
-            return
-        drag = self.drag_data()
-        drag.exec_(Qt.CopyAction)
-        self.drag_start_pos = None
-
-    def dragEnterEvent(self, event):
-        if int(event.possibleActions() & Qt.CopyAction) + \
-           int(event.possibleActions() & Qt.MoveAction) == 0:
-            return
-        paths = self.paths_from_event(event)
-
-        if paths:
-            event.acceptProposedAction()
-
-    def dragMoveEvent(self, event):
-        event.acceptProposedAction()
-
-    def dropEvent(self, event):
-        paths = self.paths_from_event(event)
-        event.setDropAction(Qt.CopyAction)
-        event.accept()
-        self.files_dropped.emit(paths)
-
     # }}}
 
     @property
     def column_map(self):
         return self._model.column_map
+
+    @property
+    def visible_columns(self):
+        h = self.horizontalHeader()
+        logical_indices = (x for x in xrange(h.count()) if not h.isSectionHidden(x))
+        rmap = {i:x for i, x in enumerate(self.column_map)}
+        return (rmap[h.visualIndex(x)] for x in logical_indices if h.visualIndex(x) > -1)
 
     def refresh_book_details(self):
         idx = self.currentIndex()
@@ -859,7 +752,7 @@ class BooksView(QTableView):  # {{{
                     self.scrollTo(self.model().index(row, i), self.PositionAtCenter)
                     break
 
-    def set_current_row(self, row=0, select=True):
+    def set_current_row(self, row=0, select=True, for_sync=False):
         if row > -1 and row < self.model().rowCount(QModelIndex()):
             h = self.horizontalHeader()
             logical_indices = list(range(h.count()))
@@ -872,10 +765,14 @@ class BooksView(QTableView):  # {{{
             pairs.sort(cmp=lambda x,y:cmp(x[1], y[1]))
             i = pairs[0][0]
             index = self.model().index(row, i)
-            self.setCurrentIndex(index)
-            if select:
+            if for_sync:
                 sm = self.selectionModel()
-                sm.select(index, sm.ClearAndSelect|sm.Rows)
+                sm.setCurrentIndex(index, sm.NoUpdate)
+            else:
+                self.setCurrentIndex(index)
+                if select:
+                    sm = self.selectionModel()
+                    sm.select(index, sm.ClearAndSelect|sm.Rows)
 
     def keyPressEvent(self, ev):
         val = self.horizontalScrollBar().value()

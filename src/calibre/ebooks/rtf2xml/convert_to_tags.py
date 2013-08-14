@@ -36,8 +36,8 @@ class ConvertToTags:
         self.__dtd_path = dtd_path
         self.__no_dtd = no_dtd
         self.__encoding = 'cp' + encoding
-        if encoding == 'mac_roman':
-            self.__encoding = 'mac_roman'
+        # if encoding == 'mac_roman':
+            # self.__encoding = 'mac_roman'
         self.__indent = indent
         self.__run_level = run_level
         self.__write_to = better_mktemp()

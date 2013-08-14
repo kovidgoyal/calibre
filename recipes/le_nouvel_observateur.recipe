@@ -1,0 +1,49 @@
+from __future__ import unicode_literals
+__license__   = 'GPL v3'
+__copyright__ = '2013, Malah <malah at neuf dot fr>'
+'''
+Le Nouvel Observateur
+'''
+
+__author__ = '2013, Malah <malah at neuf dot fr>'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class LeNouvelObs(BasicNewsRecipe):
+    title          = u'Le Nouvel Observateur'
+    __author__ = 'Malah'
+    description = u'Actualités en temps réel, Info à la Une'
+    oldest_article = 1
+    language = 'fr'
+    max_articles_per_feed = 25
+    use_embedded_content = False
+    ignore_duplicate_articles = ('title', 'url')
+    remove_empty_feeds = True
+    no_stylesheets = True
+    masthead_url       = u'https://upload.wikimedia.org/wikipedia/fr/f/f9/Le_Nouvel_observateur.png'
+    feeds          = [
+        (u'Politique', u'http://tempsreel.nouvelobs.com/politique/rss.xml'),
+        (u'Société', u'http://tempsreel.nouvelobs.com/societe/rss.xml'),
+        (u'Monde', u'http://tempsreel.nouvelobs.com/monde/rss.xml'),
+        (u'Economie', u'http://tempsreel.nouvelobs.com/economie/rss.xml'),
+        (u'Culture', u'http://tempsreel.nouvelobs.com/culture/rss.xml'),
+        (u'High Tech', u'http://obsession.nouvelobs.com/high-tech/rss.xml'),
+        (u'Education', u'http://tempsreel.nouvelobs.com/education/rss.xml'),
+        (u'Services', u'http://tempsreel.nouvelobs.com/services/rss.xml'),
+        (u'Sport', u'http://tempsreel.nouvelobs.com/sport/rss.xml'),
+        (u'CinéObs', u'http://cinema.nouvelobs.com/articles.rss'),
+        (u'TéléObs', u'http://teleobs.nouvelobs.com/rss.xml'),
+        (u'Autres Actualités',u'http://tempsreel.nouvelobs.com/rss.xml'),
+    ]
+    keep_only_tags = [
+        dict(name='h1', attrs={'id':'obs-article-title'}),
+        dict(name='div', attrs={'class':'obs-date'}),
+        dict(name='div', attrs={'class':'art-auteur'}),
+        dict(name='h2', attrs={'class':'obs-article-intro'}),
+        dict(name='div', attrs={'id':'obs-article-keywords'}),
+        dict(name='div', attrs={'id':'obs-article-mainpic'}),
+        dict(name='div', attrs={'itemprop':'articleBody'}),
+        dict(name='img', attrs={'id':'ObsImg'}),
+        dict(name='p', attrs={'class':'date-media'}),
+        dict(name='p', attrs={'id':'ObsDesc'}),
+    ]

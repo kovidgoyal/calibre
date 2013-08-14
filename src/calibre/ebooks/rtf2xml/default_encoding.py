@@ -61,12 +61,41 @@ class DefaultEncoding:
     """
     Find the default encoding for the doc
     """
-    def __init__(self, in_file, bug_handler, run_level = 1, check_raw = False):
+
+    #Note: not all those encoding are really supported by rtf2xml
+    # See http://msdn.microsoft.com/en-us/library/windows/desktop/dd317756%28v=vs.85%29.aspx
+    # and src\calibre\gui2\widgets.py for the input list in calibre
+    ENCODINGS = {
+                # Special cases
+                'cp1252':'1252',
+                'utf-8':'1252',
+                'ascii':'1252',
+                # Normal cases
+                'big5':'950',
+                'cp1250':'1250',
+                'cp1251':'1251',
+                'cp1253':'1253',
+                'cp1254':'1254',
+                'cp1255':'1255',
+                'cp1256':'1256',
+                'shift_jis':'932',
+                'gb2312':'936',
+                #Not in RTF 1.9.1 codepage specification
+                'hz':'52936',
+                'iso8859_5':'28595',
+                'iso2022_jp':'50222',
+                'iso2022_kr':'50225',
+                'euc_jp':'51932',
+                'euc_kr':'51949',
+                'gb18030':'54936',
+                }
+
+    def __init__(self, in_file, bug_handler, default_encoding, run_level = 1, check_raw = False):
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__platform = 'Windows'
         self.__default_num = 'not-defined'
-        self.__code_page = '1252'
+        self.__code_page = self.ENCODINGS.get(default_encoding, '1252')
         self.__datafetched = False
         self.__fetchraw = check_raw
 
@@ -75,16 +104,16 @@ class DefaultEncoding:
             self._encoding()
             self.__datafetched = True
             code_page = 'ansicpg' + self.__code_page
-            if self.__code_page == '10000':
-                self.__code_page = 'mac_roman'
+            # if self.__code_page == '10000':
+                # self.__code_page = 'mac_roman'
         return self.__platform, code_page, self.__default_num
 
     def get_codepage(self):
         if not self.__datafetched:
             self._encoding()
             self.__datafetched = True
-            if self.__code_page == '10000':
-                self.__code_page = 'mac_roman'
+            # if self.__code_page == '10000':
+                # self.__code_page = 'mac_roman'
         return self.__code_page
 
     def get_platform(self):
@@ -148,6 +177,7 @@ if __name__ == '__main__':
     import sys
     encode_obj = DefaultEncoding(
             in_file = sys.argv[1],
+            default_encoding = sys.argv[2],
             bug_handler = Exception,
             check_raw = True,
             )

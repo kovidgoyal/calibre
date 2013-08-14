@@ -1,0 +1,67 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+class AdvancedUserRecipe1376229553(BasicNewsRecipe):
+    title          = u'Daily Express'
+    __author__ = 'Dave Asbury'
+    encoding    = 'utf-8'
+    remove_empty_feeds = True
+    #remove_javascript     = True
+    no_stylesheets        = True
+    oldest_article = 2
+    max_articles_per_feed = 10
+    #auto_cleanup = True
+    compress_news_images = True
+    compress_news_images_max_size = 25
+    ignore_duplicate_articles = {'title', 'url'}
+
+    remove_tags = [
+                                dict(name='footer'),
+                                dict(attrs={'id' : 'header_addons'}),
+                dict(attrs={'class' : 'hoverException'}),
+                                dict(name='_li'),dict(name='li'),
+                        dict(attrs={'class' : 'box related-articles clear'}),
+                                dict(attrs={'class' : 'news-list'}),
+                             ]
+    keep_only_tags = [
+                dict(name='h1'),
+                                dict(attrs={'class' : 'publish-info'}),
+                                # dict(name='h3'),
+                                #dict(name='section',attrs={'class' : 'photo'}),
+                #dict(name='section',attrs={'class' : 'text-description'}),
+
+                dict(attrs={'class' : 'clearfix hR new-style'}),
+                             ]
+
+    preprocess_regexps = [
+        (re.compile(r'widget', re.IGNORECASE | re.DOTALL), lambda match: '')]
+
+    preprocess_regexps = [
+        (re.compile(r'<h3>More UK</h3>', re.IGNORECASE | re.DOTALL), lambda match: '')]
+
+    feeds          = [(u'UK News', u'http://www.express.co.uk/posts/rss/1/uk'),
+                 (u'World News',u'http://www.express.co.uk/posts/rss/78/world'),
+                         (u'Finance',u'http://www.express.co.uk/posts/rss/21/finance'),
+                 (u'Sport',u'http://www.express.co.uk/posts/rss/65/sport'),
+                 (u'Entertainment',u'http://www.express.co.uk/posts/rss/18/entertainment'),
+                         (u'Lifestyle',u'http://www.express.co.uk/posts/rss/8/life&style'),
+                 (u'Fun',u'http://www.express.co.uk/posts/rss/110/fun'),
+                        ]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.express.co.uk/ourpaper/')
+        cov = soup.find(attrs={'src' : re.compile('http://images.dailyexpress.co.uk/img/covers/')})
+        cov=str(cov)
+        cov2 =  re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
+
+        cov=str(cov2)
+        cov=cov[2:len(cov)-2]
+        cover_url=cov
+        return cover_url
+
+    extra_css = '''
+                    h1{font-weight:bold;font-size:26px;}
+                    h2{font-weight:normal;font-size:small;}
+                    p{font-size:14px;}
+                    body{font-size:14px;}
+      '''
+

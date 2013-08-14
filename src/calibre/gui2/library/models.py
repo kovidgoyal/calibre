@@ -315,9 +315,14 @@ class BooksModel(QAbstractTableModel):  # {{{
         return ids
 
     def delete_books_by_id(self, ids, permanent=False):
-        for id in ids:
-            self.db.delete_book(id, permanent=permanent, do_clean=False)
-        self.db.clean()
+        if hasattr(self.db, 'new_api'):
+            self.db.new_api.remove_books(ids, permanent=permanent)
+            self.db.data.books_deleted(tuple(ids))
+            self.db.notify('delete', list(ids))
+        else:
+            for id in ids:
+                self.db.delete_book(id, permanent=permanent, do_clean=False)
+            self.db.clean()
         self.books_deleted()
 
     def books_added(self, num):
@@ -458,6 +463,10 @@ class BooksModel(QAbstractTableModel):  # {{{
         mi.id = self.db.id(idx)
         mi.field_metadata = self.db.field_metadata
         mi.path = self.db.abspath(idx, create_dirs=False)
+        try:
+            mi.marked = self.db.data.get_marked(idx, index_is_id=False)
+        except:
+            mi.marked = None
         return mi
 
     def current_changed(self, current, previous, emit_signal=True):

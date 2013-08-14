@@ -292,6 +292,9 @@ class WritingTest(BaseTest):
             ae(c.field_for('sort', 1), 'Moose, The')
             ae(c.field_for('sort', 2), 'Cat')
 
+        # Test setting with the same value repeated
+        ae(sf('tags', {3: ('a', 'b', 'a')}), {3})
+
     # }}}
 
     def test_dirtied(self):  # {{{
@@ -340,12 +343,12 @@ class WritingTest(BaseTest):
             ae(sf('authors', {1:'author1 & author2', 2:'author1 & author2', 3:'author1 & author2'}), {1,2,3})
             count = 6
             while cache.dirty_queue_length() and count > 0:
-                mb.join(interval)
+                mb.join(2)
                 count -= 1
             af(cache.dirty_queue_length())
         finally:
             mb.stop()
-        mb.join(interval)
+        mb.join(2)
         af(mb.is_alive())
         from calibre.ebooks.metadata.opf2 import OPF
         for book_id in (1, 2, 3):
@@ -416,6 +419,13 @@ class WritingTest(BaseTest):
         # it is reset to 1.0
         ae(nmi2.get_extra('#series'), 1.0)
         self.compare_metadata(nmi2, oldmi2, exclude={'last_modified', 'format_metadata', '#series_index'})
+
+        cache = self.init_cache(self.cloned_library)
+        mi = cache.get_metadata(1)
+        otags = mi.tags
+        mi.tags = [x.upper() for x in mi.tags]
+        cache.set_metadata(3, mi)
+        self.assertEqual(set(otags), set(cache.field_for('tags', 3)), 'case changes should not be allowed in set_metadata')
 
     # }}}
 
@@ -571,4 +581,3 @@ class WritingTest(BaseTest):
         cache.add_format(1, 'ADD', BytesIO(b'xxxx'))
         test_invalidate()
     # }}}
-

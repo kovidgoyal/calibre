@@ -209,6 +209,7 @@ class AddRemoveTest(BaseTest):
 
     def test_remove_books(self):  # {{{
         'Test removal of books'
+        cl = self.cloned_library
         cache = self.init_cache()
         af, ae, at = self.assertFalse, self.assertEqual, self.assertTrue
         authors = cache.fields['authors'].table
@@ -233,7 +234,7 @@ class AddRemoveTest(BaseTest):
         item_id = {v:k for k, v in cache.fields['#series'].table.id_map.iteritems()}['My Series Two']
         cache.remove_books((1,), permanent=True)
         for x in (fmtpath, bookpath, authorpath):
-            af(os.path.exists(x))
+            af(os.path.exists(x), 'The file %s exists, when it should not' % x)
         for c in (cache, self.init_cache()):
             table = c.fields['authors'].table
             self.assertNotIn(1, c.all_book_ids())
@@ -251,6 +252,19 @@ class AddRemoveTest(BaseTest):
             self.assertFalse(table.id_map)
             self.assertFalse(table.book_col_map)
             self.assertFalse(table.col_book_map)
+
+        # Test the delete service
+        from calibre.db.delete_service import delete_service
+        cache = self.init_cache(cl)
+        # Check that files are removed
+        fmtpath = cache.format_abspath(1, 'FMT1')
+        bookpath = os.path.dirname(fmtpath)
+        authorpath = os.path.dirname(bookpath)
+        item_id = {v:k for k, v in cache.fields['#series'].table.id_map.iteritems()}['My Series Two']
+        cache.remove_books((1,))
+        delete_service().wait()
+        for x in (fmtpath, bookpath, authorpath):
+            af(os.path.exists(x), 'The file %s exists, when it should not' % x)
 
     # }}}
 
@@ -271,4 +285,3 @@ class AddRemoveTest(BaseTest):
         af(db.has_format(1, 'ORIGINAL_FMT1'))
         ae(set(fmts), set(db.formats(1, verify_formats=False)))
     # }}}
-

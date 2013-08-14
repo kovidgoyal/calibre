@@ -337,6 +337,14 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
 # }}}
 
 # Many-Many fields {{{
+
+def uniq(vals):
+    ' Remove all duplicates from vals, while preserving order. Items in vals must be hashable '
+    vals = vals or ()
+    seen = set()
+    seen_add = seen.add
+    return tuple(x for x in vals if x not in seen and not seen_add(x))
+
 def many_many(book_id_val_map, db, field, allow_case_change, *args):
     dirtied = set()
     m = field.metadata
@@ -349,6 +357,7 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
     rid_map = {kmap(item):item_id for item_id, item in table.id_map.iteritems()}
     val_map = {}
     case_changes = {}
+    book_id_val_map = {k:uniq(vals) for k, vals in book_id_val_map.iteritems()}
     for vals in book_id_val_map.itervalues():
         for val in vals:
             get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,

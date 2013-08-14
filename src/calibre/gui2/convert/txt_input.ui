@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>518</width>
-    <height>353</height>
+    <width>588</width>
+    <height>378</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -93,7 +93,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="markdown_box">
      <property name="title">
       <string>Markdown</string>
      </property>
@@ -112,27 +112,27 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="opt_markdown_disable_toc">
+       <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>Do not insert Table of Contents into output text when using markdown</string>
+         <string>You can optionally enable various extensions to the base markdown syntax, below.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QListWidget" name="opt_markdown_extensions"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>More information on &lt;a href=&quot;http://pythonhosted.org/Markdown/extensions/index.html&quot;&gt;markdown extensions&lt;/a&gt;</string>
+        </property>
+        <property name="openExternalLinks">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
-   </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>213</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>

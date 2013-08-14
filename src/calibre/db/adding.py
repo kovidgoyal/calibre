@@ -106,26 +106,27 @@ def add_catalog(cache, path, title):
     from calibre.utils.date import utcnow
 
     fmt = os.path.splitext(path)[1][1:].lower()
-    with lopen(path, 'rb') as stream, cache.write_lock:
-        matches = cache._search('title:="%s" and tags:="%s"' % (title.replace('"', '\\"'), _('Catalog')), None)
-        db_id = None
-        if matches:
-            db_id = list(matches)[0]
-        try:
-            mi = get_metadata(stream, fmt)
-            mi.authors = ['calibre']
-        except:
-            mi = Metadata(title, ['calibre'])
-        mi.title, mi.authors = title, ['calibre']
-        mi.tags = [_('Catalog')]
-        mi.pubdate = mi.timestamp = utcnow()
-        if fmt == 'mobi':
-            mi.cover, mi.cover_data = None, (None, None)
-        if db_id is None:
-            db_id = cache._create_book_entry(mi, apply_import_tags=False)
-        else:
-            cache._set_metadata(db_id, mi)
-        cache._add_format(db_id, fmt, stream)
+    with lopen(path, 'rb') as stream:
+        with cache.write_lock:
+            matches = cache._search('title:="%s" and tags:="%s"' % (title.replace('"', '\\"'), _('Catalog')), None)
+            db_id = None
+            if matches:
+                db_id = list(matches)[0]
+            try:
+                mi = get_metadata(stream, fmt)
+                mi.authors = ['calibre']
+            except:
+                mi = Metadata(title, ['calibre'])
+            mi.title, mi.authors = title, ['calibre']
+            mi.tags = [_('Catalog')]
+            mi.pubdate = mi.timestamp = utcnow()
+            if fmt == 'mobi':
+                mi.cover, mi.cover_data = None, (None, None)
+            if db_id is None:
+                db_id = cache._create_book_entry(mi, apply_import_tags=False)
+            else:
+                cache._set_metadata(db_id, mi)
+        cache.add_format(db_id, fmt, stream)  # Cant keep write lock since post-import hooks might run
 
     return db_id
 
@@ -156,7 +157,7 @@ def add_news(cache, path, arg):
             mi.timestamp = utcnow()
 
         db_id = cache._create_book_entry(mi, apply_import_tags=False)
-        cache._add_format(db_id, fmt, stream)
+    cache.add_format(db_id, fmt, stream)  # Cant keep write lock since post-import hooks might run
 
     if not hasattr(path, 'read'):
         stream.close()

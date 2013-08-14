@@ -290,8 +290,11 @@ class NumericSearch(object):  # {{{
                 raise ParseException(
                         _('Non-numeric value in query: {0}').format(query))
 
+        qfalse = query == 'false'
         for val, book_ids in field_iter():
             if val is None:
+                if qfalse:
+                    matches |= book_ids
                 continue
             try:
                 v = cast(val)

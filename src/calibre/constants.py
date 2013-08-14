@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 9, 42)
+numeric_version = (0, 9, 43)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -217,9 +217,11 @@ else:
 # }}}
 
 def get_version():
-    '''Return version string that indicates if we are running in a dev env'''
+    '''Return version string for display to user '''
     dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
     v = __version__
+    if numeric_version[-1] == 0:
+        v = v[:-2]
     if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
         v += '*'
     if iswindows and is64bit:

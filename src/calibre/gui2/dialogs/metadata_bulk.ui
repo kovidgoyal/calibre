@@ -604,6 +604,18 @@ Future conversion of these books will use the default settings.</string>
                </widget>
               </item>
               <item>
+               <widget class="QRadioButton" name="cover_trim">
+                <property name="toolTip">
+                 <string>Try to automatically detect and remove borders and extra space
+ from the edges of cover images. This can sometimes remove too
+ much, so use with care.</string>
+                </property>
+                <property name="text">
+                 <string>&amp;Trim cover (DANGEROUS)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QRadioButton" name="cover_from_fmt">
                 <property name="text">
                  <string>Set from &amp;ebook file(s)</string>
@@ -1112,8 +1124,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>934</width>
-                <height>256</height>
+                <width>203</width>
+                <height>58</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">

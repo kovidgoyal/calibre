@@ -3,10 +3,10 @@ __license__     = 'GPL v3'
 __copyright__   = '08 Januery 2011, desUBIKado'
 __author__      = 'desUBIKado'
 __description__ = 'Daily newspaper from Biscay'
-__version__     = 'v0.08'
-__date__        = '08, Januery 2011'
+__version__     = 'v0.10'
+__date__        = '07, August 2013'
 '''
-[url]http://www.elcorreo.com/[/url]
+http://www.elcorreo.com/
 '''
 
 import time
@@ -24,6 +24,7 @@ class heraldo(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
+    masthead_url          = 'http://www.elcorreo.com/vizcaya/noticias/201002/02/Media/logo-elcorreo-nuevo.png'
     language              = 'es'
     timefmt               = '[%a, %d %b, %Y]'
     encoding              = 'iso-8859-1'
@@ -33,15 +34,15 @@ class heraldo(BasicNewsRecipe):
     feeds              = [
                            (u'Portada',       u'http://www.elcorreo.com/vizcaya/portada.xml'),
                            (u'Local',         u'http://www.elcorreo.com/vizcaya/rss/feeds/vizcaya.xml'),
-               (u'Internacional', u'hhttp://www.elcorreo.com/vizcaya/rss/feeds/internacional.xml'),
-               (u'Econom\xeda',   u'http://www.elcorreo.com/vizcaya/rss/feeds/economia.xml'),
+                           (u'Internacional', u'hhttp://www.elcorreo.com/vizcaya/rss/feeds/internacional.xml'),
+                           (u'Econom\xeda',   u'http://www.elcorreo.com/vizcaya/rss/feeds/economia.xml'),
                            (u'Pol\xedtica',   u'http://www.elcorreo.com/vizcaya/rss/feeds/politica.xml'),
-               (u'Opini\xf3n',    u'http://www.elcorreo.com/vizcaya/rss/feeds/opinion.xml'),
-               (u'Deportes',      u'http://www.elcorreo.com/vizcaya/rss/feeds/deportes.xml'),
+                           (u'Opini\xf3n',    u'http://www.elcorreo.com/vizcaya/rss/feeds/opinion.xml'),
+                           (u'Deportes',      u'http://www.elcorreo.com/vizcaya/rss/feeds/deportes.xml'),
                            (u'Sociedad',      u'http://www.elcorreo.com/vizcaya/rss/feeds/sociedad.xml'),
-               (u'Cultura',       u'http://www.elcorreo.com/vizcaya/rss/feeds/cultura.xml'),
-               (u'Televisi\xf3n', u'http://www.elcorreo.com/vizcaya/rss/feeds/television.xml'),
-               (u'Gente',         u'http://www.elcorreo.com/vizcaya/rss/feeds/gente.xml')
+                           (u'Cultura',       u'http://www.elcorreo.com/vizcaya/rss/feeds/cultura.xml'),
+                           (u'Televisi\xf3n', u'http://www.elcorreo.com/vizcaya/rss/feeds/television.xml'),
+                           (u'Gente',         u'http://www.elcorreo.com/vizcaya/rss/feeds/gente.xml')
                          ]
 
     keep_only_tags     = [
@@ -54,14 +55,14 @@ class heraldo(BasicNewsRecipe):
                           dict(name='div', attrs={'class':['mod_lomas','bloque_lomas','blm_header','link-app3','link-app4','botones_listado']}),
                           dict(name='div', attrs={'class':['navegacion_galeria','modulocanalpromocion','separa','separacion','compartir','tags_relacionados']}),
                           dict(name='div', attrs={'class':['moduloBuscadorDeportes','modulo-gente','moddestacadopeq','OpcArt','articulopiniones']}),
-                          dict(name='div', attrs={'class':['modulo-especial','publiEspecial']}),
-                          dict(name='div', attrs={'id':['articulopina']}),
+                          dict(name='div', attrs={'class':['modulo-especial','publiEspecial','carruselNoticias','vj','modulocomun2']}),
+                          dict(name='div', attrs={'id':['articulopina','webs_asociadas']}),
                           dict(name='br', attrs={'class':'clear'}),
                           dict(name='form', attrs={'name':'frm_conversor2'})
                          ]
 
     remove_tags_before = dict(name='div' , attrs={'class':'articulo  '})
-    remove_tags_after  = dict(name='div' , attrs={'class':'comentarios'})
+    remove_tags_after  = dict(name='div' , attrs={'class':'robapaginas'})
 
     def get_cover_url(self):
         cover = None
@@ -69,10 +70,8 @@ class heraldo(BasicNewsRecipe):
         year = str(st.tm_year)
         month = "%.2d" % st.tm_mon
         day = "%.2d" % st.tm_mday
-        #[url]http://img.kiosko.net/2011/01/02/es/elcorreo.750.jpg[/url]
-                #[url]http://info.elcorreo.com/pdf/06012011-viz.pdf[/url]
-        cover='http://info.elcorreo.com/pdf/'+ day + month + year +'-viz.pdf'
-
+                 # http://info.elcorreo.com/pdf/07082013-viz.pdf
+        cover='http://info.elcorreo.com/pdf/'+ day +  month + year +'-viz.pdf'
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
@@ -92,29 +91,27 @@ class heraldo(BasicNewsRecipe):
                     img{margin-bottom: 0.4em}
                 '''
 
-
-
     preprocess_regexps = [
 
- # To present the image of the embedded video
+ # Para presentar la imagen de los video incrustados
                            (re.compile(r'var RUTA_IMAGEN', re.DOTALL|re.IGNORECASE), lambda match: '</script><img src'),
                            (re.compile(r'.jpg";', re.DOTALL|re.IGNORECASE), lambda match: '.jpg">'),
                            (re.compile(r'var SITIO = "elcorreo";', re.DOTALL|re.IGNORECASE), lambda match: '<SCRIPT TYPE="text/JavaScript"'),
 
-# To separate paragraphs with a blank line
+# Para separar los parrafos con una linea en blanco
                            (re.compile(r'<div class="p"', re.DOTALL|re.IGNORECASE), lambda match: '<p></p><div class="p"'),
 
-# To put a blank line between the subtitle and the date and time of the news
+# Para poner una linea en blanco entre el subttulo y la fecha y hora de la noticia
                            (re.compile(r'<div class="date">', re.DOTALL|re.IGNORECASE), lambda match: '<br><div class="date">'),
 
-# To put a blank line between the intro of the embedded videos and the previous text
+# Para poner una linea en blanco entre la entradilla de los videos incrustados y el texto anterior
                            (re.compile(r'<div class="video"', re.DOTALL|re.IGNORECASE), lambda match: '<br><div class="video"'),
 
-# To view photos from the first when these are presented as a gallery
+# Para sacar las fotos a partir de la primera cuando se presentan como una galeria
                            (re.compile(r'src="/img/shim.gif"', re.DOTALL|re.IGNORECASE), lambda match: ''),
                            (re.compile(r'rel=', re.DOTALL|re.IGNORECASE), lambda match: 'src='),
 
-# To remove the link of the title
+# Para quitar el enlace del titulo
                            (re.compile(r'<h1 class="headline">\n<a href="', re.DOTALL|re.IGNORECASE), lambda match: '<h1 class="'),
                            (re.compile(r'</a>\n</h1>', re.DOTALL|re.IGNORECASE), lambda match: '</h1>'),
 

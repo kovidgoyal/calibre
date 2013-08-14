@@ -6,7 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, string
 from operator import attrgetter
 
 from PyQt4.Qt import (Qt, QAbstractItemModel, QVariant, QPixmap, QModelIndex, QSize,
@@ -325,6 +325,9 @@ class SearchFilter(SearchQueryParser):
     def __init__(self):
         SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
         self.srs = set([])
+        # remove joiner words surrounded by space or at string boundaries
+        self.joiner_pat = re.compile(r'(^|\s)(and|not|or|a|the|is|of)(\s|$)', re.IGNORECASE)
+        self.punctuation_table = {ord(x):' ' for x in string.punctuation}
 
     def add_search_result(self, search_result):
         self.srs.add(search_result)
@@ -449,11 +452,10 @@ class SearchFilter(SearchQueryParser):
 
                     if locvalue == 'format':
                         vals = accessor(sr).split(',')
-                    elif locvalue in ('author2', 'title2'):
+                    elif locvalue in {'author2', 'title2'}:
                         m = self.IN_MATCH
-                        vals = re.sub(r'(^|\s)(and|not|or|a|the|is|of|,)(\s|$)', ' ', accessor(sr)).split(' ')
-                        vals = [x for x in vals if x]
-                        final_query = query.lower()
+                        vals = [x for x in self.field_trimmer(accessor(sr)).split() if x]
+                        final_query = ' '.join(self.field_trimmer(icu_lower(query)).split())
                     else:
                         vals = [accessor(sr)]
                     if self._match(final_query, vals, m):
@@ -463,4 +465,9 @@ class SearchFilter(SearchQueryParser):
                     import traceback
                     traceback.print_exc()
         return matches
+
+    def field_trimmer(self, field):
+        ''' Remove common joiner words and punctuation to improve matching,
+        punctuation is removed first, so that a.and.b becomes a b '''
+        return self.joiner_pat.sub(' ', field.translate(self.punctuation_table))
 

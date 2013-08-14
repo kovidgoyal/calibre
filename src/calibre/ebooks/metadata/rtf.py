@@ -1,5 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
 """
 Edit metadata in RTF files.
 """
@@ -61,7 +62,7 @@ def detect_codepage(stream):
     if match is not None:
         num = match.group(1)
         if num == '0':
-            num = '1250'
+            num = '1252'
         codec = 'cp'+num
         try:
             codecs.lookup(codec)
@@ -82,7 +83,9 @@ def decode(raw, codec):
     return raw
 
 def get_metadata(stream):
-    """ Return metadata as a L{MetaInfo} object """
+    """
+    Return metadata as a L{MetaInfo} object
+    """
     stream.seek(0)
     if stream.read(5) != r'{\rtf':
         return MetaInformation(_('Unknown'))

@@ -11,14 +11,26 @@ from calibre.customize.ui import output_profiles
 from calibre.ebooks.conversion.config import load_defaults
 from calibre.ebooks.oeb.base import XPath, OPF
 from calibre.ebooks.oeb.polish.cover import find_cover_page
-from calibre.ebooks.oeb.transforms.jacket import render_jacket as render
+from calibre.ebooks.oeb.transforms.jacket import render_jacket as render, referenced_images
 
-def render_jacket(mi):
+def render_jacket(container, jacket):
+    mi = container.mi
     ps = load_defaults('page_setup')
     op = ps.get('output_profile', 'default')
     opmap = {x.short_name:x for x in output_profiles()}
     output_profile = opmap.get(op, opmap['default'])
-    return render(mi, output_profile)
+    root = render(mi, output_profile)
+    for img, path in referenced_images(root):
+        container.log('Embedding referenced image: %s into jacket' % path)
+        ext = path.rpartition('.')[-1]
+        jacket_item = container.generate_item('jacket_image.'+ext, id_prefix='jacket_img')
+        name = container.href_to_name(jacket_item.get('href'), container.opf_name)
+        with open(path, 'rb') as f:
+            container.parsed_cache[name] = f.read()
+            container.commit_item(name)
+        href = container.name_to_href(name, jacket)
+        img.set('src', href)
+    return root
 
 def is_legacy_jacket(root):
     return len(root.xpath(
@@ -42,16 +54,24 @@ def find_existing_jacket(container):
                     return name
 
 def replace_jacket(container, name):
-    root = render_jacket(container.mi)
+    root = render_jacket(container, name)
     container.parsed_cache[name] = root
     container.dirty(name)
 
 def remove_jacket(container):
     name = find_existing_jacket(container)
     if name is not None:
+        remove_jacket_images(container, name)
         container.remove_item(name)
         return True
     return False
+
+def remove_jacket_images(container, name):
+    root = container.parsed_cache[name]
+    for img in root.xpath('//*[local-name() = "img" and @src]'):
+        iname = container.href_to_name(img.get('src'), name)
+        if container.has_name(iname):
+            container.remove_item(iname)
 
 def add_or_replace_jacket(container):
     name = find_existing_jacket(container)
@@ -60,6 +80,9 @@ def add_or_replace_jacket(container):
         jacket_item = container.generate_item('jacket.xhtml', id_prefix='jacket')
         name = container.href_to_name(jacket_item.get('href'), container.opf_name)
         found = False
+    if found:
+        remove_jacket_images(container, name)
+
     replace_jacket(container, name)
     if not found:
         # Insert new jacket into spine

@@ -1083,12 +1083,12 @@ class OPF(object):  # {{{
             for item in self.itermanifest():
                 if item.get('id', None) == cover_id:
                     mt = item.get('media-type', '')
-                    if 'xml' not in mt:
+                    if mt and 'xml' not in mt and 'html' not in mt:
                         return item.get('href', None)
             for item in self.itermanifest():
                 if item.get('href', None) == cover_id:
                     mt = item.get('media-type', '')
-                    if mt.startswith('image/'):
+                    if mt and mt.startswith('image/'):
                         return item.get('href', None)
 
     @dynamic_property

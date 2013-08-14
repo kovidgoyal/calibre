@@ -36,8 +36,16 @@ elif islinux:
 
 can_recycle = callable(recycle)
 
-def delete_file(path):
-    if callable(recycle):
+def nuke_recycle():
+    global can_recycle
+    can_recycle = False
+
+def restore_recyle():
+    global can_recycle
+    can_recycle = callable(recycle)
+
+def delete_file(path, permanent=False):
+    if not permanent and can_recycle:
         try:
             recycle(path)
             return
@@ -59,7 +67,7 @@ def delete_tree(path, permanent=False):
             time.sleep(1)
             shutil.rmtree(path)
     else:
-        if callable(recycle):
+        if can_recycle:
             try:
                 recycle(path)
                 return

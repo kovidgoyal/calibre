@@ -1,0 +1,31 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1359406781(BasicNewsRecipe):
+    title          = u'Private Eye'
+    oldest_article = 15
+    max_articles_per_feed = 100
+    remove_empty_feeds = True
+    remove_javascript     = True
+    no_stylesheets = True
+    ignore_duplicate_articles = {'title'}
+    language = 'en_GB'
+    __author__ = 'Martyn Pritchard'
+    encoding     =  'iso-8859-1'
+    compress_news_images = True
+    compress_news_images_auto_size = 8
+    scale_news_images_to_device = False
+    scale_news_images = (220, 300)
+
+    def get_cover_url(self):
+            soup = self.index_to_soup('http://www.private-eye.co.uk')
+            cov = soup.find(attrs={'width' : '180', 'border' : '0'})
+            cover_url = 'http://www.private-eye.co.uk/'+cov['src']
+            return cover_url
+
+    keep_only_tags = [dict(name='table', attrs={'width':['100%'], 'border':['0'], 'align': ['center'], 'cellspacing':['0'], 'cellpadding':['0']}),
+                      dict(name='table', attrs={'width':['480'], 'cellspacing':['0'], 'cellpadding':['0']}),
+                      dict(name='table', attrs={'width':['490'], 'border':['0'], 'align': ['left'], 'cellspacing':['0'], 'cellpadding':['1']}),
+                      dict(name='table', attrs={'width':['500'], 'cellspacing':['0'], 'cellpadding':['0']}),
+                     ]
+
+    feeds          = [(u'Private Eye', u'http://www.private-eye.co.uk/rss/rss.php')]

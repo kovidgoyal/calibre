@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, shutil, uuid, json, glob, time, cPickle, hashlib
+import os, shutil, uuid, json, glob, time, cPickle, hashlib, errno
 from functools import partial
 
 import apsw
@@ -19,6 +19,7 @@ from calibre.constants import (iswindows, filesystem_encoding,
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
 from calibre.db import SPOOL_SIZE
 from calibre.db.schema_upgrades import SchemaUpgrade
+from calibre.db.delete_service import delete_service
 from calibre.db.errors import NoSuchFormat
 from calibre.library.field_metadata import FieldMetadata
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
@@ -28,7 +29,6 @@ from calibre.utils.date import utcfromtimestamp, parse_date
 from calibre.utils.filenames import (
     is_case_sensitive, samefile, hardlink_file, ascii_filename, WindowsAtomicFolderMove, atomic_rename)
 from calibre.utils.magick.draw import save_cover_data_to
-from calibre.utils.recycle_bin import delete_tree, delete_file
 from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
@@ -1035,9 +1035,18 @@ class DB(object):
             path = os.path.normcase(path).lower()
         return path
 
-    def rmtree(self, path, permanent=False):
-        if not self.normpath(self.library_path).startswith(self.normpath(path)):
-            delete_tree(path, permanent=permanent)
+    def is_deletable(self, path):
+        return path and not self.normpath(self.library_path).startswith(self.normpath(path))
+
+    def rmtree(self, path):
+        if self.is_deletable(path):
+            try:
+                shutil.rmtree(path)
+            except:
+                import traceback
+                traceback.print_exc()
+                time.sleep(1)  # In case something has temporarily locked a file
+                shutil.rmtree(path)
 
     def construct_path_name(self, book_id, title, author):
         '''
@@ -1170,7 +1179,7 @@ class DB(object):
         path = self.format_abspath(book_id, fmt, fname, path)
         if path is not None:
             try:
-                delete_file(path)
+                delete_service().delete_files((path,), self.library_path)
             except:
                 import traceback
                 traceback.print_exc()
@@ -1215,6 +1224,22 @@ class DB(object):
                             shutil.copyfileobj(f, d)
                         return True
         return False
+
+    def cover_or_cache(self, path, timestamp):
+        path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
+        try:
+            stat = os.stat(path)
+        except EnvironmentError:
+            return False, None, None
+        if abs(timestamp - stat.st_mtime) < 0.1:
+            return True, None, None
+        try:
+            f = lopen(path, 'rb')
+        except (IOError, OSError):
+            time.sleep(0.2)
+        f = lopen(path, 'rb')
+        with f:
+            return True, f.read(), stat.st_mtime
 
     def set_cover(self, book_id, path, data):
         path = os.path.abspath(os.path.join(self.library_path, path))
@@ -1360,10 +1385,10 @@ class DB(object):
                 if os.path.exists(spath) and not samefile(spath, tpath):
                     if wam is not None:
                         wam.delete_originals()
-                    self.rmtree(spath, permanent=True)
+                    self.rmtree(spath)
                     parent = os.path.dirname(spath)
                     if len(os.listdir(parent)) == 0:
-                        self.rmtree(parent, permanent=True)
+                        self.rmtree(parent)
         finally:
             if wam is not None:
                 wam.close_handles()
@@ -1404,16 +1429,20 @@ class DB(object):
             return f.read()
 
     def remove_books(self, path_map, permanent=False):
-        for book_id, path in path_map.iteritems():
-            if path:
-                path = os.path.join(self.library_path, path)
-                if os.path.exists(path):
-                    self.rmtree(path, permanent=permanent)
-                    parent = os.path.dirname(path)
-                    if len(os.listdir(parent)) == 0:
-                        self.rmtree(parent, permanent=permanent)
         self.conn.executemany(
             'DELETE FROM books WHERE id=?', [(x,) for x in path_map])
+        paths = {os.path.join(self.library_path, x) for x in path_map.itervalues() if x}
+        paths = {x for x in paths if os.path.exists(x) and self.is_deletable(x)}
+        if permanent:
+            for path in paths:
+                self.rmtree(path)
+                try:
+                    os.rmdir(os.path.dirname(path))
+                except OSError as e:
+                    if e.errno != errno.ENOTEMPTY:
+                        raise
+        else:
+            delete_service().delete_books(paths, self.library_path)
 
     def add_custom_data(self, name, val_map, delete_first):
         if delete_first:
@@ -1485,7 +1514,7 @@ class DB(object):
         if not self.is_case_sensitive:
             for x in items:
                 path_map[x.lower()] = x
-            items = set(path_map)
+            items = {x.lower() for x in items}
             paths = {x.lower() for x in paths}
         items = items.intersection(paths)
         return items, path_map

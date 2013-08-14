@@ -216,7 +216,11 @@ class PDFWriter(QObject):
         try:
             if self.cover_data is not None:
                 p = QPixmap()
-                p.loadFromData(self.cover_data)
+                try:
+                    p.loadFromData(self.cover_data)
+                except TypeError:
+                    self.log.warn('This ebook does not have a raster cover, cannot generate cover for PDF'
+                                  '. Cover type: %s' % type(self.cover_data))
                 if not p.isNull():
                     self.doc.init_page()
                     draw_image_page(QRect(*self.doc.full_page_rect),

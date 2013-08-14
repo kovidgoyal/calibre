@@ -59,7 +59,6 @@ class CoverManager(object):
         </html>
     ''')
 
-
     def __init__(self, no_default_cover=False, no_svg_cover=False,
             preserve_aspect_ratio=False, fixed_size=None):
         self.no_default_cover = no_default_cover
@@ -141,7 +140,7 @@ class CoverManager(object):
             if width is None or height is None:
                 self.log.warning('Failed to read cover dimensions')
                 width, height = 600, 800
-            #if self.preserve_aspect_ratio:
+            # if self.preserve_aspect_ratio:
             #    width, height = 600, 800
             self.svg_template = self.svg_template.replace('__viewbox__',
                     '0 0 %d %d'%(width, height))
@@ -170,6 +169,3 @@ class CoverManager(object):
             titem = getattr(self.oeb.toc, 'item_that_refers_to_cover', None)
             if titem is not None:
                 titem.href = item.href
-
-
-

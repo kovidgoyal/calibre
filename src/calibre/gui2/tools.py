@@ -373,9 +373,9 @@ def convert_existing(parent, db, book_ids, output_format):  # {{{
 
     if already_converted_ids:
         if not question_dialog(parent, _('Convert existing'),
-                _('The following books have already been converted to %s format. '
-                   'Do you wish to reconvert them?') % output_format,
-                '\n'.join(already_converted_titles)):
+                _('The following books have already been converted to the %s format. '
+                   'Do you wish to reconvert them?') % output_format.upper(),
+                det_msg='\n'.join(already_converted_titles), skip_dialog_name='confirm_bulk_reconvert'):
             book_ids = [x for x in book_ids if x not in already_converted_ids]
 
     return book_ids

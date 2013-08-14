@@ -12,7 +12,8 @@ class TelegraphUK(BasicNewsRecipe):
     description           = 'News from United Kingdom'
     oldest_article        = 2
     category              = 'news, politics, UK'
-    publisher             = 'Telegraph Media Group ltd.'    
+    publisher             = 'Telegraph Media Group ltd.'
+    compress_news_images  = True
     max_articles_per_feed = 100
     no_stylesheets        = True
     language              = 'en_GB'
@@ -34,30 +35,30 @@ class TelegraphUK(BasicNewsRecipe):
                         , 'publisher' : publisher
                         , 'language'  : language
                         }
-                        
-                        
+
     keep_only_tags      = [
                            dict(name='div', attrs={'class':['storyHead','byline']})
-                          ,dict(name='div', attrs={'id':'mainBodyArea'           })
+                          ,dict(name='div', attrs={'id':'mainBodyArea'})
                           ]
-    remove_tags         = [dict(name='div', attrs={'class':['related_links_inline',"imgindex","next","prev","gutterUnder",'ssImgHide','imageExtras','ssImg hide','related_links_video']})
+    remove_tags         = [dict(name='div', attrs={
+        'class':['related_links_inline',"imgindex","next","prev","gutterUnder",'ssImgHide','imageExtras','ssImg hide','related_links_video']})
                           ,dict(name='ul' , attrs={'class':['shareThis shareBottom']})
                           ,dict(name='span', attrs={'class':['num','placeComment']})
                           ]
 
     feeds               = [
-                         (u'UK News'        , u'http://www.telegraph.co.uk/news/uknews/rss'                                      )
-                        ,(u'World News'     , u'http://www.telegraph.co.uk/news/worldnews/rss'                                   )
-                        ,(u'Politics'       , u'http://www.telegraph.co.uk/news/newstopics/politics/rss'                         )
-                        ,(u'Finance'        , u'http://www.telegraph.co.uk/finance/rss'                                          )
-                        ,(u'Technology News', u'http://www.telegraph.co.uk/scienceandtechnology/technology/technologynews/rss'   )
+                         (u'UK News'        , u'http://www.telegraph.co.uk/news/uknews/rss')
+                        ,(u'World News'     , u'http://www.telegraph.co.uk/news/worldnews/rss')
+                        ,(u'Politics'       , u'http://www.telegraph.co.uk/news/newstopics/politics/rss')
+                        ,(u'Finance'        , u'http://www.telegraph.co.uk/finance/rss')
+                        ,(u'Technology News', u'http://www.telegraph.co.uk/scienceandtechnology/technology/technologynews/rss')
                         ,(u'UK News'        , u'http://www.telegraph.co.uk/scienceandtechnology/technology/technologyreviews/rss')
-                        ,(u'Science News'   , u'http://www.telegraph.co.uk/scienceandtechnology/science/sciencenews/rss'         )
-                        ,(u'Sport'          , u'http://www.telegraph.co.uk/sport/rss'                                            )
-                        ,(u'Earth News'     , u'http://www.telegraph.co.uk/earth/earthnews/rss'                                  )
-                        ,(u'Comment'        , u'http://www.telegraph.co.uk/comment/rss'                                          )
-                        ,(u'Travel'        , u'http://www.telegraph.co.uk/travel/rss'                                            )
-                        ,(u'How about that?', u'http://www.telegraph.co.uk/news/newstopics/howaboutthat/rss'                     )
+                        ,(u'Science News'   , u'http://www.telegraph.co.uk/scienceandtechnology/science/sciencenews/rss')
+                        ,(u'Sport'          , u'http://www.telegraph.co.uk/sport/rss')
+                        ,(u'Earth News'     , u'http://www.telegraph.co.uk/earth/earthnews/rss')
+                        ,(u'Comment'        , u'http://www.telegraph.co.uk/comment/rss')
+                        ,(u'Travel'        , u'http://www.telegraph.co.uk/travel/rss')
+                        ,(u'How about that?', u'http://www.telegraph.co.uk/news/newstopics/howaboutthat/rss')
                          ]
     def populate_article_metadata(self, article, soup, first):
         if first and hasattr(self, 'add_toc_thumbnail'):
@@ -70,3 +71,4 @@ class TelegraphUK(BasicNewsRecipe):
         if 'picture-galleries' in url or 'pictures' in url or 'picturegalleries' in url :
             url = None
         return url
+

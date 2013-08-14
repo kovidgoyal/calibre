@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (division, absolute_import, print_function)
-store_version = 3  # Needed for dynamic plugin loading
+from __future__ import (unicode_literals, division, absolute_import, print_function)
+store_version = 4  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2013, Tomasz Długosz <tomek3d@gmail.com>'
@@ -62,6 +62,8 @@ class KoobeStore(BasicStoreConfig, StorePlugin):
 
                     cover_url = ''.join(data.xpath('.//div[@class="cover"]/a/img/@src'))
                     price = ''.join(data.xpath('.//span[@class="current_price"]/text()'))
+                    if not price:
+                        price = ''.join(data.xpath('.//div[@class="book_promo_price"]/span/text()'))
                     title = ''.join(data.xpath('.//h2[@class="title"]/a/text()'))
                     author = ', '.join(data.xpath('.//h3[@class="book_author"]/a/text()'))
                     formats = ', '.join(data.xpath('.//div[@class="formats"]/div/div/@title'))

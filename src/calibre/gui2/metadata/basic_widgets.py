@@ -24,8 +24,8 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATETIME,
         choose_files, error_dialog, choose_images)
 from calibre.gui2.complete2 import EditWithComplete
-from calibre.utils.date import (local_tz, qt_to_dt, as_local_time,
-        UNDEFINED_DATE)
+from calibre.utils.date import (
+    local_tz, qt_to_dt, as_local_time, UNDEFINED_DATE, is_date_undefined)
 from calibre import strftime
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
@@ -867,8 +867,10 @@ class FormatsManager(QWidget):
                     mi = get_metadata(stream, ext)
                 return mi, ext
             except:
+                import traceback
                 error_dialog(self, _('Could not read metadata'),
-                            _('Could not read metadata from %s format')%ext).exec_()
+                            _('Could not read metadata from %s format')%ext.upper(),
+                             det_msg=traceback.format_exc(), show=True)
             return None, None
         finally:
             if old != prefs['read_file_metadata']:
@@ -900,6 +902,9 @@ class Cover(ImageView):  # {{{
                 _('&Browse'), parent)
         self.trim_cover_button = QPushButton(QIcon(I('trim.png')),
                 _('T&rim'), parent)
+        self.trim_cover_button.setToolTip(_(
+            'Automatically detect and remove extra space at the cover\'s edges.\n'
+            'Pressing it repeatedly can sometimes remove stubborn borders.'))
         self.remove_cover_button = QPushButton(QIcon(I('trash.png')),
             _('&Remove'), parent)
 
@@ -971,7 +976,7 @@ class Cover(ImageView):  # {{{
             return
         im = Image()
         im.load(cdata)
-        im.trim(10)
+        im.trim(tweaks['cover_trim_fuzz_value'])
         cdata = im.export('png')
         self.current_val = cdata
 
@@ -1453,7 +1458,7 @@ class DateEdit(QDateTimeEdit):
         def fget(self):
             return qt_to_dt(self.dateTime(), as_utc=False)
         def fset(self, val):
-            if val is None:
+            if val is None or is_date_undefined(val):
                 val = UNDEFINED_DATE
             else:
                 val = as_local_time(val)

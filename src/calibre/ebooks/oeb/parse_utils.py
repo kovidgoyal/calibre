@@ -399,7 +399,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         idx = p.index(a) -1
         p.remove(a)
         if a.tail:
-            if idx <= 0:
+            if idx < 0:
                 if p.text is None:
                     p.text = ''
                 p.text += a.tail

@@ -1214,6 +1214,11 @@ class DeviceMixin(object): # {{{
             subject = ';'.join(sub_dest_parts[2:])
             fmts = [x.strip().lower() for x in fmts.split(',')]
             self.send_by_mail(to, fmts, delete, subject=subject)
+        elif dest == 'choosemail':
+            from calibre.gui2.email import select_recipients
+            data = select_recipients(self)
+            if data:
+                self.send_multiple_by_mail(data, delete)
 
     def cover_to_thumbnail(self, data):
         if self.device_manager.device and \

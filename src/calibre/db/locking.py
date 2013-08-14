@@ -7,12 +7,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from threading import Lock, Condition, current_thread, RLock
-from functools import partial
-from collections import Counter
+import traceback, sys
+from threading import Lock, Condition, current_thread
+from calibre.utils.config_base import tweaks
 
 class LockingError(RuntimeError):
-    pass
+
+    def __init__(self, msg, extra=None):
+        RuntimeError.__init__(self, msg)
+        self.locking_debug_msg = extra
 
 def create_locks():
     '''
@@ -37,7 +40,8 @@ def create_locks():
     the possibility of deadlocking in this scenario).
     '''
     l = SHLock()
-    return RWLockWrapper(l), RWLockWrapper(l, is_shared=False)
+    wrapper = DebugRWLockWrapper if tweaks.get('newdb_debug_locking', False) else RWLockWrapper
+    return wrapper(l), wrapper(l, is_shared=False)
 
 class SHLock(object):  # {{{
     '''
@@ -217,284 +221,25 @@ class RWLockWrapper(object):
     def owns_lock(self):
         return self._shlock.owns_lock()
 
-class RecordLock(object):
+class DebugRWLockWrapper(RWLockWrapper):
 
-    '''
-    Lock records identified by hashable ids. To use
+    def __init__(self, *args, **kwargs):
+        RWLockWrapper.__init__(self, *args, **kwargs)
 
-    rl = RecordLock()
+    def __enter__(self):
+        print ('#' * 120, file=sys.stderr)
+        print ('acquire called: thread id:', current_thread(), 'shared:', self._is_shared, file=sys.stderr)
+        traceback.print_stack()
+        RWLockWrapper.__enter__(self)
+        print ('acquire done: thread id:', current_thread(), file=sys.stderr)
+        print ('_' * 120, file=sys.stderr)
 
-    with rl.lock(some_id):
-        # do something
+    def release(self):
+        print ('*' * 120, file=sys.stderr)
+        print ('release called: thread id:', current_thread(), 'shared:', self._is_shared, file=sys.stderr)
+        traceback.print_stack()
+        RWLockWrapper.release(self)
+        print ('release done: thread id:', current_thread(), 'is_shared:', self._shlock.is_shared, 'is_exclusive:', self._shlock.is_exclusive, file=sys.stderr)
+        print ('_' * 120, file=sys.stderr)
 
-    This will lock the record identified by some_id exclusively. The lock is
-    recursive, which means that you can lock the same record multiple times in
-    the same thread.
-
-    This class co-operates with the SHLock class. If you try to lock a record
-    in a thread that already holds the SHLock, a LockingError is raised. This
-    is to prevent the possibility of a cross-lock deadlock.
-
-    A cross-lock deadlock is still possible if you first lock a record and then
-    acquire the SHLock, but the usage pattern for this lock makes this highly
-    unlikely (this lock should be acquired immediately before any file I/O on
-    files in the library and released immediately after).
-    '''
-
-    class Wrap(object):
-
-        def __init__(self, release):
-            self.release = release
-
-        def __enter__(self):
-            return self
-
-        def __exit__(self, *args, **kwargs):
-            self.release()
-            self.release = None
-
-    def __init__(self, sh_lock):
-        self._lock = Lock()
-        #  This is for recycling lock objects.
-        self._free_locks = [RLock()]
-        self._records = {}
-        self._counter = Counter()
-        self.sh_lock = sh_lock
-
-    def lock(self, record_id):
-        if self.sh_lock.owns_lock():
-            raise LockingError('Current thread already holds a shared lock,'
-                ' you cannot also ask for record lock as this could cause a'
-                ' deadlock.')
-        with self._lock:
-            l = self._records.get(record_id, None)
-            if l is None:
-                l = self._take_lock()
-                self._records[record_id] = l
-            self._counter[record_id] += 1
-        l.acquire()
-        return RecordLock.Wrap(partial(self.release, record_id))
-
-    def release(self, record_id):
-        with self._lock:
-            l = self._records.pop(record_id, None)
-            if l is None:
-                raise LockingError('No lock acquired for record %r'%record_id)
-            l.release()
-            self._counter[record_id] -= 1
-            if self._counter[record_id] > 0:
-                self._records[record_id] = l
-            else:
-                self._return_lock(l)
-
-    def _take_lock(self):
-        try:
-            return self._free_locks.pop()
-        except IndexError:
-            return RLock()
-
-    def _return_lock(self, lock):
-        self._free_locks.append(lock)
-
-# Tests {{{
-if __name__ == '__main__':
-    import time, random, unittest
-    from threading import Thread
-
-    class TestLock(unittest.TestCase):
-        """Testcases for Lock classes."""
-
-        def test_owns_locks(self):
-            lock = SHLock()
-            self.assertFalse(lock.owns_lock())
-            lock.acquire(shared=True)
-            self.assertTrue(lock.owns_lock())
-            lock.release()
-            self.assertFalse(lock.owns_lock())
-            lock.acquire(shared=False)
-            self.assertTrue(lock.owns_lock())
-            lock.release()
-            self.assertFalse(lock.owns_lock())
-
-            done = []
-            def test():
-                if not lock.owns_lock():
-                    done.append(True)
-            lock.acquire()
-            t = Thread(target=test)
-            t.daemon = True
-            t.start()
-            t.join(1)
-            self.assertEqual(len(done), 1)
-            lock.release()
-
-        def test_multithread_deadlock(self):
-            lock = SHLock()
-            def two_shared():
-                r = RWLockWrapper(lock)
-                with r:
-                    time.sleep(0.2)
-                    with r:
-                        pass
-            def one_exclusive():
-                time.sleep(0.1)
-                w = RWLockWrapper(lock, is_shared=False)
-                with w:
-                    pass
-            threads = [Thread(target=two_shared), Thread(target=one_exclusive)]
-            for t in threads:
-                t.daemon = True
-                t.start()
-            for t in threads:
-                t.join(5)
-            live = [t for t in threads if t.is_alive()]
-            self.assertListEqual(live, [], 'ShLock hung')
-
-        def test_upgrade(self):
-            lock = SHLock()
-            lock.acquire(shared=True)
-            self.assertRaises(LockingError, lock.acquire, shared=False)
-            lock.release()
-
-        def test_downgrade(self):
-            lock = SHLock()
-            lock.acquire(shared=False)
-            self.assertRaises(LockingError, lock.acquire, shared=True)
-            lock.release()
-
-        def test_recursive(self):
-            lock = SHLock()
-            lock.acquire(shared=True)
-            lock.acquire(shared=True)
-            self.assertEqual(lock.is_shared, 2)
-            lock.release()
-            lock.release()
-            self.assertFalse(lock.is_shared)
-            lock.acquire(shared=False)
-            lock.acquire(shared=False)
-            self.assertEqual(lock.is_exclusive, 2)
-            lock.release()
-            lock.release()
-            self.assertFalse(lock.is_exclusive)
-
-        def test_release(self):
-            lock = SHLock()
-            self.assertRaises(LockingError, lock.release)
-
-            def get_lock(shared):
-                lock.acquire(shared=shared)
-                time.sleep(1)
-                lock.release()
-
-            threads = [Thread(target=get_lock, args=(x,)) for x in (True,
-                False)]
-            for t in threads:
-                t.daemon = True
-                t.start()
-                self.assertRaises(LockingError, lock.release)
-                t.join(2)
-                self.assertFalse(t.is_alive())
-            self.assertFalse(lock.is_shared)
-            self.assertFalse(lock.is_exclusive)
-
-        def test_acquire(self):
-            lock = SHLock()
-
-            def get_lock(shared):
-                lock.acquire(shared=shared)
-                time.sleep(1)
-                lock.release()
-
-            shared = Thread(target=get_lock, args=(True,))
-            shared.daemon = True
-            shared.start()
-            time.sleep(0.1)
-            self.assertTrue(lock.acquire(shared=True, blocking=False))
-            lock.release()
-            self.assertFalse(lock.acquire(shared=False, blocking=False))
-            lock.acquire(shared=False)
-            self.assertFalse(shared.is_alive())
-            lock.release()
-            self.assertTrue(lock.acquire(shared=False, blocking=False))
-            lock.release()
-
-            exclusive = Thread(target=get_lock, args=(False,))
-            exclusive.daemon = True
-            exclusive.start()
-            time.sleep(0.1)
-            self.assertFalse(lock.acquire(shared=False, blocking=False))
-            self.assertFalse(lock.acquire(shared=True, blocking=False))
-            lock.acquire(shared=True)
-            self.assertFalse(exclusive.is_alive())
-            lock.release()
-            lock.acquire(shared=False)
-            lock.release()
-            lock.acquire(shared=True)
-            lock.release()
-            self.assertFalse(lock.is_shared)
-            self.assertFalse(lock.is_exclusive)
-
-        def test_contention(self):
-            lock = SHLock()
-            done = []
-            def lots_of_acquires():
-                for _ in xrange(1000):
-                    shared = random.choice([True,False])
-                    lock.acquire(shared=shared)
-                    lock.acquire(shared=shared)
-                    time.sleep(random.random() * 0.0001)
-                    lock.release()
-                    time.sleep(random.random() * 0.0001)
-                    lock.acquire(shared=shared)
-                    time.sleep(random.random() * 0.0001)
-                    lock.release()
-                    lock.release()
-                done.append(True)
-            threads = [Thread(target=lots_of_acquires) for _ in xrange(10)]
-            for t in threads:
-                t.daemon = True
-                t.start()
-            for t in threads:
-                t.join(20)
-            live = [t for t in threads if t.is_alive()]
-            self.assertListEqual(live, [], 'ShLock hung')
-            self.assertEqual(len(done), len(threads), 'SHLock locking failed')
-            self.assertFalse(lock.is_shared)
-            self.assertFalse(lock.is_exclusive)
-
-        def test_record_lock(self):
-            shlock = SHLock()
-            lock = RecordLock(shlock)
-
-            shlock.acquire()
-            self.assertRaises(LockingError, lock.lock, 1)
-            shlock.release()
-            with lock.lock(1):
-                with lock.lock(1):
-                    pass
-
-            def dolock():
-                with lock.lock(1):
-                    time.sleep(0.1)
-
-            t = Thread(target=dolock)
-            t.daemon = True
-            with lock.lock(1):
-                t.start()
-                t.join(0.2)
-                self.assertTrue(t.is_alive())
-            t.join(0.11)
-            self.assertFalse(t.is_alive())
-
-            t = Thread(target=dolock)
-            t.daemon = True
-            with lock.lock(2):
-                t.start()
-                t.join(0.11)
-                self.assertFalse(t.is_alive())
-
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestLock)
-    unittest.TextTestRunner(verbosity=2).run(suite)
-
-# }}}
 
