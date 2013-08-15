@@ -243,10 +243,12 @@ class MyBlockingBusyNew(QDialog):  # {{{
             cache.set_field('timestamp', {bid:args.adddate for bid in self.ids})
 
         if args.do_series:
-            sval = args.series_start_value if args.do_series_restart else cache.get_next_series_num_for(args.series, current_indices=True)
-            cache.set_field('series', {bid:args.series for bid in self.ids})
             if not args.series:
+                import sys
+                # Logically this can not happen or only if this is triggered by clear_series
+                # as if no name is entered modification is blocked ie autonumber should not append
                 cache.set_field('series_index', {bid:1.0 for bid in self.ids})
+                sys.stderr.write("args.series sans series a ete appele")
             else:
                 def next_series_num(bid, i):
                     if args.do_series_restart:
@@ -255,11 +257,16 @@ class MyBlockingBusyNew(QDialog):  # {{{
                     sval[bid] = next_num
                     return next_num
 
-                smap = {bid:next_series_num(bid, i) for i, bid in enumerate(self.ids)}
-                if args.do_autonumber:
-                    cache.set_field('series_index', smap)
-                elif tweaks['series_index_auto_increment'] != 'no_change':
-                    cache.set_field('series_index', {bid:1.0 for bid in self.ids})
+                sval = args.series_start_value if args.do_series_restart else cache.get_next_series_num_for(args.series, current_indices=True)
+                cache.set_field('series', {bid:args.series for bid in self.ids})
+
+                # smap = {bid:1.0 for bid in self.ids}
+                if tweaks['series_index_auto_increment'] != 'no_change':
+                    # Tweak should be invoked first otherwise if autonumber
+                    smap = {bid:1.0 for bid in self.ids}
+                elif args.do_autonumber:
+                    smap = {bid:next_series_num(bid, i) for i, bid in enumerate(self.ids)}
+                # cache.set_field('series_index', smap)
 
         if args.do_remove_conv:
             cache.delete_conversion_options(self.ids)
