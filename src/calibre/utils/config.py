@@ -12,7 +12,7 @@ from optparse import OptionParser as _OptionParser, OptionGroup
 from optparse import IndentedHelpFormatter
 
 from calibre.constants import (config_dir, CONFIG_DIR_MODE, __appname__,
-        __version__, __author__)
+        get_version, __author__)
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.config_base import (make_config_dir, Option, OptionValues,
         OptionSet, ConfigInterface, Config, prefs, StringConfig, ConfigProxy,
@@ -76,7 +76,7 @@ class OptionParser(_OptionParser):
 
     def __init__(self,
                  usage='%prog [options] filename',
-                 version='%%prog (%s %s)'%(__appname__, __version__),
+                 version=None,
                  epilog=None,
                  gui_mode=False,
                  conflict_handler='resolve',
@@ -89,6 +89,8 @@ class OptionParser(_OptionParser):
             epilog = _('Created by ')+colored(__author__, fg='cyan')
         usage += '\n\n'+_('''Whenever you pass arguments to %prog that have spaces in them, '''
                  '''enclose the arguments in quotation marks.''')+'\n'
+        if version is None:
+            version = '%%prog (%s %s)'%(__appname__, get_version())
         _OptionParser.__init__(self, usage=usage, version=version, epilog=epilog,
                                formatter=CustomHelpFormatter(),
                                conflict_handler=conflict_handler, **kwds)

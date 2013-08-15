@@ -225,6 +225,13 @@ class Image(_magick.Image):  # {{{
         _magick.Image.quantize(self, number_colors, colorspace, treedepth, dither,
                 measure_error)
 
+    def trim(self, fuzz):
+        try:
+            _magick.Image.remove_border(self, fuzz)
+        except AttributeError:
+            _magick.Image.trim(self, fuzz)
+
+
 # }}}
 
 def create_canvas(width, height, bgcolor='#ffffff'):

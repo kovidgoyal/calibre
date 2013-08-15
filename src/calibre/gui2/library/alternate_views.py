@@ -19,14 +19,33 @@ from PyQt4.Qt import (
     QTimer, QPalette, QColor, QItemSelection, QPixmap, QMenu, QApplication,
     QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QEvent,
     QPropertyAnimation, QEasingCurve, pyqtSlot, QHelpEvent, QAbstractItemView,
-    QStyleOptionViewItem, QToolTip)
+    QStyleOptionViewItem, QToolTip, QByteArray, QBuffer)
 
-from calibre import fit_image
+from calibre import fit_image, prints, prepare_string_for_xml
+from calibre.ebooks.metadata import fmt_sidx
 from calibre.gui2 import gprefs, config
-from calibre.gui2.library.caches import CoverCache
+from calibre.gui2.library.caches import CoverCache, ThumbnailCache
 from calibre.utils.config import prefs
 
 CM_TO_INCH = 0.393701
+CACHE_FORMAT = 'PPM'
+
+def auto_height(widget):
+    return max(185, QApplication.instance().desktop().availableGeometry(widget).height() / 5.0)
+
+class EncodeError(ValueError):
+    pass
+
+def image_to_data(image):  # {{{
+    ba = QByteArray()
+    buf = QBuffer(ba)
+    buf.open(QBuffer.WriteOnly)
+    if not image.save(buf, CACHE_FORMAT):
+        raise EncodeError('Failed to encode thumbnail')
+    ret = bytes(ba.data())
+    buf.close()
+    return ret
+# }}}
 
 # Drag 'n Drop {{{
 def dragMoveEvent(self, event):
@@ -295,6 +314,7 @@ class CoverDelegate(QStyledItemDelegate):
         self.render_queue = Queue()
         self.animating = None
         self.highlight_color = QColor(Qt.white)
+        self.on_device_emblem = QPixmap(I('ok.png')).scaled(48, 48, transformMode=Qt.SmoothTransformation)
 
     def set_dimensions(self):
         width = self.original_width = gprefs['cover_grid_width']
@@ -302,7 +322,7 @@ class CoverDelegate(QStyledItemDelegate):
         self.original_show_title = show_title = gprefs['cover_grid_show_title']
 
         if height < 0.1:
-            height = max(185, QApplication.instance().desktop().availableGeometry(self.parent()).height() / 5.0)
+            height = auto_height(self.parent())
         else:
             height *= self.parent().logicalDpiY() * CM_TO_INCH
 
@@ -326,7 +346,7 @@ class CoverDelegate(QStyledItemDelegate):
 
     def calculate_spacing(self):
         spc = self.original_spacing = gprefs['cover_grid_spacing']
-        if spc < 0.1:
+        if spc < 0.01:
             self.spacing = max(10, min(50, int(0.1 * self.original_width)))
         else:
             self.spacing = self.parent().logicalDpiX() * CM_TO_INCH * spc
@@ -352,10 +372,14 @@ class CoverDelegate(QStyledItemDelegate):
                 painter.restore()
         db = db.new_api
         cdata = self.cover_cache[book_id]
+        device_connected = self.parent().gui.device_connected is not None
+        on_device = device_connected and db.field_for('ondevice', book_id)
         painter.save()
+        right_adjust = 0
         try:
             rect = option.rect
             rect.adjust(self.MARGIN, self.MARGIN, -self.MARGIN, -self.MARGIN)
+            orect = QRect(rect)
             if cdata is None or cdata is False:
                 title = db.field_for('title', book_id, default_value='')
                 authors = ' & '.join(db.field_for('authors', book_id, default_value=()))
@@ -365,22 +389,31 @@ class CoverDelegate(QStyledItemDelegate):
                     self.render_queue.put(book_id)
             else:
                 if self.title_height != 0:
-                    orect = QRect(rect)
+                    trect = QRect(rect)
                     rect.setBottom(rect.bottom() - self.title_height)
                 if self.animating is not None and self.animating.row() == index.row():
                     cdata = cdata.scaled(cdata.size() * self._animated_size)
                 dx = max(0, int((rect.width() - cdata.width())/2.0))
                 dy = max(0, rect.height() - cdata.height())
+                right_adjust = dx
                 rect.adjust(dx, dy, -dx, 0)
                 painter.drawPixmap(rect, cdata)
                 if self.title_height != 0:
-                    rect = orect
+                    rect = trect
                     rect.setTop(rect.bottom() - self.title_height + 5)
                     painter.setRenderHint(QPainter.TextAntialiasing, True)
                     title = db.field_for('title', book_id, default_value='')
                     metrics = painter.fontMetrics()
                     painter.drawText(rect, Qt.AlignCenter|Qt.TextSingleLine,
                                      metrics.elidedText(title, Qt.ElideRight, rect.width()))
+            if on_device:
+                p = self.on_device_emblem
+                drect = QRect(orect)
+                drect.setRight(drect.right() - right_adjust)
+                drect.setBottom(drect.bottom() - self.title_height)
+                drect.setTop(drect.bottom() - p.height() + 1)
+                drect.setLeft(drect.right() - p.width() + 1)
+                painter.drawPixmap(drect, p)
         finally:
             painter.restore()
 
@@ -395,12 +428,27 @@ class CoverDelegate(QStyledItemDelegate):
                 book_id = db.id(index.row())
             except (ValueError, IndexError, KeyError):
                 return False
-            title = db.new_api.field_for('title', book_id)
-            authors = db.new_api.field_for('authors', book_id)
+            db = db.new_api
+            device_connected = self.parent().gui.device_connected
+            on_device = device_connected is not None and db.field_for('ondevice', book_id)
+            p = prepare_string_for_xml
+            title = db.field_for('title', book_id)
+            authors = db.field_for('authors', book_id)
             if title and authors:
-                title = '<b>%s</b>' % ('\n'.join(wrap(title, 100)))
-                authors = '\n'.join(wrap(' & '.join(authors), 100))
-                QToolTip.showText(event.globalPos(), '%s<br><br>%s' % (title, authors), view)
+                title = '<b>%s</b>' % ('<br>'.join(wrap(p(title), 120)))
+                authors = '<br>'.join(wrap(p(' & '.join(authors)), 120))
+                tt = '%s<br><br>%s' % (title, authors)
+                series = db.field_for('series', book_id)
+                if series:
+                    use_roman_numbers=config['use_roman_numerals_for_series_number']
+                    val = _('Book %(sidx)s of <span class="series_name">%(series)s</span>')%dict(
+                        sidx=fmt_sidx(db.field_for('series_index', book_id), use_roman=use_roman_numbers),
+                        series=p(series))
+                    tt += '<br><br>' + val
+                if on_device:
+                    val = _('This book is on the device in %s') % on_device
+                    tt += '<br><br>' + val
+                QToolTip.showText(event.globalPos(), tt, view)
                 return True
         return False
 
@@ -441,16 +489,17 @@ class GridView(QListView):
         self.delegate.animation.finished.connect(self.animation_done)
         self.setItemDelegate(self.delegate)
         self.setSpacing(self.delegate.spacing)
+        self.padding_left = 0
         self.set_color()
         self.ignore_render_requests = Event()
+        self.thumbnail_cache = ThumbnailCache(max_size=gprefs['cover_grid_disk_cache_size'],
+            thumbnail_size=(self.delegate.cover_size.width(), self.delegate.cover_size.height()))
         self.render_thread = None
         self.update_item.connect(self.re_render, type=Qt.QueuedConnection)
         self.doubleClicked.connect(self.double_clicked)
         self.setCursor(Qt.PointingHandCursor)
         self.gui = parent
         self.context_menu = None
-        self.verticalScrollBar().sliderPressed.connect(self.slider_pressed)
-        self.verticalScrollBar().sliderReleased.connect(self.slider_released)
         self.update_timer = QTimer(self)
         self.update_timer.setInterval(200)
         self.update_timer.timeout.connect(self.update_viewport)
@@ -482,27 +531,6 @@ class GridView(QListView):
         for r in xrange(self.first_visible_row or 0, self.last_visible_row or (m.count() - 1)):
             self.update(m.index(r, 0))
 
-    def slider_pressed(self):
-        self.ignore_render_requests.set()
-        self.verticalScrollBar().valueChanged.connect(self.value_changed_during_scroll)
-        self.update_timer.setInterval(500)
-
-    def slider_released(self):
-        self.update_viewport()
-        self.verticalScrollBar().valueChanged.disconnect(self.value_changed_during_scroll)
-        self.update_timer.setInterval(200)
-
-    def value_changed_during_scroll(self):
-        if self.ignore_render_requests.is_set():
-            self.update_timer.start()
-        else:
-            self.ignore_render_requests.set()
-
-    def wheelEvent(self, e):
-        self.ignore_render_requests.set()
-        QListView.wheelEvent(self, e)
-        self.update_timer.start()
-
     def double_clicked(self, index):
         d = self.delegate
         if d.animating is None and not config['disable_animations']:
@@ -530,6 +558,32 @@ class GridView(QListView):
         self.setPalette(pal)
         self.delegate.highlight_color = pal.color(pal.Text)
 
+    def center_grid(self):
+        if self.gui.library_view.alternate_views.current_view is not self:
+            return
+        try:
+            sz = self.spacing()*2 + self.delegate.item_size.width()
+            num = self.width() // sz
+        except (AttributeError, ZeroDivisionError):
+            return
+        extra = max(0, int((self.width() - (num * sz)) / 2) - self.spacing())
+        if extra != self.padding_left:
+            self.padding_left = extra
+            self.setViewportMargins(self.padding_left, 0, 0, 0)
+
+    def resizeEvent(self, e):
+        self.center_grid()
+        return QListView.resizeEvent(self, e)
+
+    def event(self, e):
+        if e.type() == e.Paint:
+            p = QPainter(self)
+            # Without this the viewport margin is rendered in QPalette::Window
+            # instead of QPalette::Base
+            p.fillRect(0, 0, self.padding_left+2, self.height(), self.palette().color(QPalette.Base))
+            p.end()
+        return QListView.event(self, e)
+
     def refresh_settings(self):
         size_changed = (
             gprefs['cover_grid_width'] != self.delegate.original_width or
@@ -545,12 +599,19 @@ class GridView(QListView):
             self.setSpacing(self.delegate.spacing)
         self.set_color()
         self.delegate.cover_cache.set_limit(gprefs['cover_grid_cache_size'])
+        if size_changed:
+            self.thumbnail_cache.set_thumbnail_size(self.delegate.cover_size.width(), self.delegate.cover_size.height())
+        cs = gprefs['cover_grid_disk_cache_size']
+        if (cs*(1024**2)) != self.thumbnail_cache.max_size:
+            self.thumbnail_cache.set_size(cs)
 
     def shown(self):
         if self.render_thread is None:
+            self.thumbnail_cache.set_database(self.gui.current_db)
             self.render_thread = Thread(target=self.render_covers)
             self.render_thread.daemon = True
             self.render_thread.start()
+        self.center_grid()
 
     def render_covers(self):
         q = self.delegate.render_queue
@@ -572,19 +633,51 @@ class GridView(QListView):
     def render_cover(self, book_id):
         if self.ignore_render_requests.is_set():
             return
-        cdata = self.model().db.new_api.cover(book_id)
-        if cdata is not None:
+        tcdata, timestamp = self.thumbnail_cache[book_id]
+        use_cache = False
+        if timestamp is None:
+            # Not in cache
+            has_cover, cdata, timestamp = self.model().db.new_api.cover_or_cache(book_id, 0)
+        else:
+            has_cover, cdata, timestamp = self.model().db.new_api.cover_or_cache(book_id, timestamp)
+            if has_cover and cdata is None:
+                # The cached cover is fresh
+                cdata = tcdata
+                use_cache = True
+
+        if has_cover:
             p = QImage()
-            p.loadFromData(cdata)
-            cdata = None
-            if not p.isNull():
-                width, height = p.width(), p.height()
-                scaled, nwidth, nheight = fit_image(width, height, self.delegate.cover_size.width(), self.delegate.cover_size.height())
-                if scaled:
-                    if self.ignore_render_requests.is_set():
-                        return
-                    p = p.scaled(nwidth, nheight, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-                cdata = p
+            p.loadFromData(cdata, CACHE_FORMAT if cdata is tcdata else 'JPEG')
+            if p.isNull() and cdata is tcdata:
+                # Invalid image in cache
+                self.thumbnail_cache.invalidate((book_id,))
+                self.update_item.emit(book_id)
+                return
+            cdata = None if p.isNull() else p
+            if not use_cache:  # cache is stale
+                if cdata is not None:
+                    width, height = p.width(), p.height()
+                    scaled, nwidth, nheight = fit_image(width, height, self.delegate.cover_size.width(), self.delegate.cover_size.height())
+                    if scaled:
+                        if self.ignore_render_requests.is_set():
+                            return
+                        p = p.scaled(nwidth, nheight, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+                    cdata = p
+                # update cache
+                if cdata is None:
+                    self.thumbnail_cache.invalidate((book_id,))
+                else:
+                    try:
+                        self.thumbnail_cache.insert(book_id, timestamp, image_to_data(cdata))
+                    except EncodeError as err:
+                        self.thumbnail_cache.invalidate((book_id,))
+                        prints(err)
+                    except Exception:
+                        import traceback
+                        traceback.print_exc()
+        elif tcdata is not None:
+            # Cover was removed, but it exists in cache, remove from cache
+            self.thumbnail_cache.invalidate((book_id,))
         self.delegate.cover_cache.set(book_id, cdata)
         self.update_item.emit(book_id)
 
@@ -600,6 +693,7 @@ class GridView(QListView):
     def shutdown(self):
         self.ignore_render_requests.set()
         self.delegate.render_queue.put(None)
+        self.thumbnail_cache.shutdown()
 
     def set_database(self, newdb, stage=0):
         if not hasattr(newdb, 'new_api'):
@@ -607,10 +701,12 @@ class GridView(QListView):
         if stage == 0:
             self.ignore_render_requests.set()
             try:
-                self.model().db.new_api.remove_cover_cache(self.delegate.cover_cache)
+                for x in (self.delegate.cover_cache, self.thumbnail_cache):
+                    self.model().db.new_api.remove_cover_cache(x)
             except AttributeError:
                 pass  # db is None
-            newdb.new_api.add_cover_cache(self.delegate.cover_cache)
+            for x in (self.delegate.cover_cache, self.thumbnail_cache):
+                newdb.new_api.add_cover_cache(x)
             try:
                 # Use a timeout so that if, for some reason, the render thread
                 # gets stuck, we dont deadlock, future covers wont get

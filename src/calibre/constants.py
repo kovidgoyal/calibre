@@ -217,9 +217,11 @@ else:
 # }}}
 
 def get_version():
-    '''Return version string that indicates if we are running in a dev env'''
+    '''Return version string for display to user '''
     dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
     v = __version__
+    if numeric_version[-1] == 0:
+        v = v[:-2]
     if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
         v += '*'
     if iswindows and is64bit:

@@ -867,8 +867,10 @@ class FormatsManager(QWidget):
                     mi = get_metadata(stream, ext)
                 return mi, ext
             except:
+                import traceback
                 error_dialog(self, _('Could not read metadata'),
-                            _('Could not read metadata from %s format')%ext).exec_()
+                            _('Could not read metadata from %s format')%ext.upper(),
+                             det_msg=traceback.format_exc(), show=True)
             return None, None
         finally:
             if old != prefs['read_file_metadata']:
@@ -900,6 +902,9 @@ class Cover(ImageView):  # {{{
                 _('&Browse'), parent)
         self.trim_cover_button = QPushButton(QIcon(I('trim.png')),
                 _('T&rim'), parent)
+        self.trim_cover_button.setToolTip(_(
+            'Automatically detect and remove extra space at the cover\'s edges.\n'
+            'Pressing it repeatedly can sometimes remove stubborn borders.'))
         self.remove_cover_button = QPushButton(QIcon(I('trash.png')),
             _('&Remove'), parent)
 
@@ -971,7 +976,7 @@ class Cover(ImageView):  # {{{
             return
         im = Image()
         im.load(cdata)
-        im.trim(10)
+        im.trim(tweaks['cover_trim_fuzz_value'])
         cdata = im.export('png')
         self.current_val = cdata
 

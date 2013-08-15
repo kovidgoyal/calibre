@@ -31,7 +31,6 @@ silently ignored.
 ''')
 
 
-
 def config():
     c = StringConfig('')
     c.add_opt('title', ['-t', '--title'],
@@ -163,7 +162,7 @@ def main(args=sys.argv):
         if getattr(opts, pref.name) is not None:
             trying_to_set = True
             break
-    mi = get_metadata(stream, stream_type)
+    mi = get_metadata(stream, stream_type, force_read_metadata=True)
     if trying_to_set:
         prints(_('Original metadata')+'::')
     metadata = unicode(mi)
@@ -181,7 +180,7 @@ def main(args=sys.argv):
             if opts.lrf_bookid is not None:
                 lrf = LRFMetaFile(stream)
                 lrf.book_id = opts.lrf_bookid
-        mi = get_metadata(stream, stream_type)
+        mi = get_metadata(stream, stream_type, force_read_metadata=True)
         prints('\n' + _('Changed metadata') + '::')
         metadata = unicode(mi)
         metadata = '\t'+'\n\t'.join(metadata.split('\n'))

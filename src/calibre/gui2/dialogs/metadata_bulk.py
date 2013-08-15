@@ -204,7 +204,6 @@ class MyBlockingBusyNew(QDialog):  # {{{
                     covers.sort(key=lambda x: x[1])
                     if covers:
                         cache.set_cover({book_id:covers[-1][0]})
-<<<<<<< HEAD
         elif args.cover_action == 'trim':
             from calibre.utils.magick import Image
             for book_id in self.ids:
@@ -212,11 +211,9 @@ class MyBlockingBusyNew(QDialog):  # {{{
                 if cdata:
                     im = Image()
                     im.load(cdata)
-                    im.trim(10)
-                    cdata = im.export('png')
+                    im.trim(tweaks['cover_trim_fuzz_value'])
+                    cdata = im.export('jpg')
                     cache.set_cover({book_id:cdata})
-=======
->>>>>>> parent of 8bef2dd... Add trim cover option to bulk metadata
 
         # Formats
         if args.do_remove_format:
@@ -436,6 +433,15 @@ class MyBlockingBusy(QDialog):  # {{{
                     if covers:
                         self.db.set_cover(id, covers[-1][0])
                     covers = []
+            elif cover_action == 'trim':
+                from calibre.utils.magick import Image
+                cdata = self.db.cover(id, index_is_id=True)
+                if cdata:
+                    im = Image()
+                    im.load(cdata)
+                    im.trim(tweaks['cover_trim_fuzz_value'])
+                    cdata = im.export('jpg')
+                    self.db.set_cover(id, cdata)
 
             if do_remove_format:
                 self.db.remove_format(id, remove_format, index_is_id=True,
@@ -1226,6 +1232,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             cover_action = 'generate'
         elif self.cover_from_fmt.isChecked():
             cover_action = 'fromfmt'
+        elif self.cover_trim.isChecked():
+            cover_action = 'trim'
 
         args = Settings(remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,

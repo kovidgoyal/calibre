@@ -588,6 +588,14 @@ class Cache(object):
         return ret
 
     @read_api
+    def cover_or_cache(self, book_id, timestamp):
+        try:
+            path = self._field_for('path', book_id).replace('/', os.sep)
+        except AttributeError:
+            return False, None, None
+        return self.backend.cover_or_cache(path, timestamp)
+
+    @read_api
     def cover_last_modified(self, book_id):
         try:
             path = self._field_for('path', book_id).replace('/', os.sep)
@@ -1032,8 +1040,8 @@ class Cache(object):
                 path = self._field_for('path', book_id).replace('/', os.sep)
 
             self.backend.set_cover(book_id, path, data)
-            for cc in self.cover_caches:
-                cc.invalidate(book_id)
+        for cc in self.cover_caches:
+            cc.invalidate(book_id_data_map)
         return self._set_field('cover', {
             book_id:(0 if data is None else 1) for book_id, data in book_id_data_map.iteritems()})
 
@@ -1049,7 +1057,7 @@ class Cache(object):
 
     @write_api
     def set_metadata(self, book_id, mi, ignore_errors=False, force_changes=False,
-                     set_title=True, set_authors=True):
+                     set_title=True, set_authors=True, allow_case_change=False):
         '''
         Set metadata for the book `id` from the `Metadata` object `mi`
 
@@ -1070,13 +1078,13 @@ class Cache(object):
         except (AttributeError, TypeError):
             pass
 
-        def set_field(name, val, **kwargs):
-            self._set_field(name, {book_id:val}, **kwargs)
+        def set_field(name, val):
+            self._set_field(name, {book_id:val}, do_path_update=False, allow_case_change=allow_case_change)
 
         path_changed = False
         if set_title and mi.title:
             path_changed = True
-            set_field('title', mi.title, do_path_update=False)
+            set_field('title', mi.title)
         if set_authors:
             path_changed = True
             if not mi.authors:
@@ -1084,7 +1092,7 @@ class Cache(object):
             authors = []
             for a in mi.authors:
                 authors += string_to_authors(a)
-            set_field('authors', authors, do_path_update=False)
+            set_field('authors', authors)
 
         if path_changed:
             self._update_path({book_id})
@@ -1352,8 +1360,7 @@ class Cache(object):
         self._search_api.discard_books(book_ids)
         self._clear_caches(book_ids=book_ids, template_cache=False, search_cache=False)
         for cc in self.cover_caches:
-            for book_id in book_ids:
-                cc.invalidate(book_id)
+            cc.invalidate(book_ids)
 
     @read_api
     def author_sort_strings_for_books(self, book_ids):
