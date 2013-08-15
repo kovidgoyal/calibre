@@ -580,8 +580,6 @@
       DEVICE_FLAGS_ANDROID_BUGS },
   { "Acer", 0x0502, "Liquid Z120 MT65xx Android Phone", 0x3473,
       DEVICE_FLAGS_ANDROID_BUGS },
-  { "Acer", 0x0502, "MT65xx Android Phone", 0x353c,
-      DEVICE_FLAGS_ANDROID_BUGS },
 
   /*
    * SanDisk
