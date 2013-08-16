@@ -287,7 +287,8 @@ class Connection(apsw.Connection):  # {{{
         return cursor.execute(sql, bindings)
 
     def executemany(self, sql, sequence_of_bindings):
-        return self.cursor().executemany(sql, sequence_of_bindings)
+        with self:  # Disable autocommit mode, for performance
+            return self.cursor().executemany(sql, sequence_of_bindings)
 
 # }}}
 
