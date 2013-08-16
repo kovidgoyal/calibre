@@ -20,6 +20,44 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.9.44
+  date: 2013-08-16
+
+  new features:
+    - title: "Add an option to display all virtual libraries as tabs above the book list."
+      description: "Convenient to quickly switch between virtual libraries. To enable, click the Virtual library button and select 'Show virtual libraries as tabs'.  You can re-arrange the tabs by drag and drop and close tabs you do not want. Right click on the tabs to restore closed tabs."
+
+    - title: "An improved cover trimming algorithm to automatically detect and remove borders and extra space from the edge of cover images. To try it use the 'Trim' button in the edit metadata dialog. This can sometimes remove too much so if you dont like the result, just click cancel. You can make the algorithm more or less aggressive via Preferences->Tweaks"
+
+    - title: "Allow customizing the comic metadata reader plugin via Preferences->Plugins to read the series index from either the volume or the issue number of the comic."
+      tickets: [1211433]
+
+    - title: "Linux MTP driver: Add ids for some newer devices."
+      tickets: [1212458]
+
+    - title: "Add a trim cover option to the bulk metadata edit dialog"
+
+    - title: "Make the book information dialog user resizable, with a splitter between the cover and the info panel. Also change the background of the cover panel for books that have been marked using the Temp marker plugin."
+      tickets: [1209057]
+
+    - title: "Driver for Samsung Galaxy Young Android phone"
+      tickets: [1212918]
+ 
+  bug fixes:
+    - title: "PDF Output: Do not abort conversion if the document being converted has an HTML cover (found in some broken EPUB files)."
+
+    - title: "RTF Input: When converting RTF files with no codepage, use the input encoding setting as the codepage."
+      tickets: [1163572]
+
+  improved recipes:
+    - The Independent
+    - El Periodica de Aragon 
+    - El Correo
+
+  new recipes:
+    - title: Daily Express 
+      author: Dave Asbury
+
 - version: 0.9.43
   date: 2013-08-09
 
