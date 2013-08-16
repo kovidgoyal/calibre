@@ -86,13 +86,16 @@ class ArchiveExtract(FileTypePlugin):
                 of.write(zf.read(fname))
         return of.name
 
-def get_comic_book_info(d, mi):
+def get_comic_book_info(d, mi, series_index='volume'):
     # See http://code.google.com/p/comicbookinfo/wiki/Example
     series = d.get('series', '')
     if series.strip():
         mi.series = series
-        if d.get('volume', -1) > -1:
-            mi.series_index = float(d['volume'])
+        si = d.get(series_index, None)
+        if si is None:
+            si = d.get('issue' if series_index == 'volume' else 'volume', None)
+        if si is not None:
+            mi.series_index = float(si)
     if d.get('rating', -1) > -1:
         mi.rating = d['rating']
     for x in ('title', 'publisher'):
@@ -126,7 +129,7 @@ def get_comic_book_info(d, mi):
         except:
             pass
 
-def get_comic_metadata(stream, stream_type):
+def get_comic_metadata(stream, stream_type, series_index='volume'):
     # See http://code.google.com/p/comicbookinfo/wiki/Example
     from calibre.ebooks.metadata import MetaInformation
 
@@ -149,7 +152,7 @@ def get_comic_metadata(stream, stream_type):
         if hasattr(m, 'iterkeys'):
             for cat in m.iterkeys():
                 if cat.startswith('ComicBookInfo'):
-                    get_comic_book_info(m[cat], mi)
+                    get_comic_book_info(m[cat], mi, series_index=series_index)
                     break
     return mi
 

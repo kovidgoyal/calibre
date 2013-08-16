@@ -130,6 +130,9 @@ class ComicMetadataReader(MetadataReaderPlugin):
     file_types = set(['cbr', 'cbz'])
     description = _('Extract cover from comic files')
 
+    def customization_help(self, gui=False):
+        return 'Read series number from volume or issue number. Default is volume, set this to issue to use issue number instead.'
+
     def get_metadata(self, stream, ftype):
         if hasattr(stream, 'seek') and hasattr(stream, 'tell'):
             pos = stream.tell()
@@ -151,8 +154,11 @@ class ComicMetadataReader(MetadataReaderPlugin):
         mi = MetaInformation(None, None)
         stream.seek(0)
         if ftype in {'cbr', 'cbz'}:
+            series_index = self.site_customization
+            if series_index not in {'volume', 'issue'}:
+                series_index = 'volume'
             try:
-                mi.smart_update(get_comic_metadata(stream, ftype))
+                mi.smart_update(get_comic_metadata(stream, ftype, series_index=series_index))
             except:
                 pass
         if ret is not None:

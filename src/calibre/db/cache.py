@@ -306,6 +306,9 @@ class Cache(object):
                     field.author_sort_field = self.fields['author_sort']
                 elif name == 'title':
                     field.title_sort_field = self.fields['sort']
+        if self.backend.custom_columns_deleted:
+            self.mark_as_dirty(self.all_book_ids())
+        self.backend.custom_columns_deleted = False
 
     @read_api
     def field_for(self, name, book_id, default_value=None):

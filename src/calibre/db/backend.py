@@ -423,6 +423,7 @@ class DB(object):
         ]
         defs['virtual_libraries'] = {}
         defs['virtual_lib_on_startup'] = defs['cs_virtual_lib_on_startup'] = ''
+        defs['virt_libs_hidden'] = defs['virt_libs_order'] = ()
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
@@ -514,6 +515,7 @@ class DB(object):
     # }}}
 
     def initialize_custom_columns(self):  # {{{
+        self.custom_columns_deleted = False
         with self.conn:
             # Delete previously marked custom columns
             for record in self.conn.get(
@@ -536,6 +538,7 @@ class DB(object):
                         DROP TABLE   IF EXISTS {lt};
                         '''.format(table=table, lt=lt)
                 )
+                self.custom_columns_deleted = True
             self.conn.execute('DELETE FROM custom_columns WHERE mark_for_delete=1')
 
         # Load metadata for custom columns
