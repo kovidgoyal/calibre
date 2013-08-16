@@ -561,12 +561,13 @@ class GridView(QListView):
     def center_grid(self):
         if self.gui.library_view.alternate_views.current_view is not self:
             return
+        layout_width = self.viewport().width() + self.padding_left
         try:
             sz = self.spacing()*2 + self.delegate.item_size.width()
-            num = self.width() // sz
+            num = layout_width // sz
         except (AttributeError, ZeroDivisionError):
             return
-        extra = max(0, int((self.width() - (num * sz)) / 2) - self.spacing())
+        extra = max(0, int((layout_width - (num * sz)) / 2))
         if extra != self.padding_left:
             self.padding_left = extra
             self.setViewportMargins(self.padding_left, 0, 0, 0)
