@@ -515,6 +515,7 @@ class DB(object):
     # }}}
 
     def initialize_custom_columns(self):  # {{{
+        self.custom_columns_deleted = False
         with self.conn:
             # Delete previously marked custom columns
             for record in self.conn.get(
@@ -537,6 +538,7 @@ class DB(object):
                         DROP TABLE   IF EXISTS {lt};
                         '''.format(table=table, lt=lt)
                 )
+                self.custom_columns_deleted = True
             self.conn.execute('DELETE FROM custom_columns WHERE mark_for_delete=1')
 
         # Load metadata for custom columns

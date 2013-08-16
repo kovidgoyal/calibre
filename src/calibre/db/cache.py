@@ -107,6 +107,9 @@ class Cache(object):
 
         self._search_api = Search(self, 'saved_searches', self.field_metadata.get_search_terms())
         self.initialize_dynamic()
+        if self.backend.custom_columns_deleted:
+            self.mark_as_dirty(self.all_book_ids())
+        self.backend.custom_columns_deleted = False
 
     @write_api
     def initialize_dynamic(self):
@@ -1547,7 +1550,6 @@ class Cache(object):
     @write_api
     def delete_custom_column(self, label=None, num=None):
         self.backend.delete_custom_column(label, num)
-        self._mark_as_dirty(self._all_book_ids())
 
     @write_api
     def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display={}):
