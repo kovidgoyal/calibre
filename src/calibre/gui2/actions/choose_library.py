@@ -171,7 +171,7 @@ class BackupStatus(QDialog):  # {{{
         self.setResult(9)
         self.setWindowTitle(_('Backup status'))
         self.update()
-        self.resize(self.sizeHint())
+        self.resize(self.sizeHint() + QSize(50, 15))
 
     def update(self):
         db = self.db()
