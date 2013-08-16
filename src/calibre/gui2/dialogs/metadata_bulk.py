@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Dialog to edit metadata in bulk'''
 
 import re, os, inspect
-from collections import namedtuple
+from collections import namedtuple, Counter
 from threading import Thread
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
@@ -242,31 +242,35 @@ class MyBlockingBusyNew(QDialog):  # {{{
         if args.adddate is not None:
             cache.set_field('timestamp', {bid:args.adddate for bid in self.ids})
 
-        if args.do_series:
-            if not args.series:
-                import sys
-                # Logically this can not happen or only if this is triggered by clear_series
-                # as if no name is entered modification is blocked ie autonumber should not append
-                cache.set_field('series_index', {bid:1.0 for bid in self.ids})
-                sys.stderr.write("args.series sans series a ete appele")
-            else:
-                def next_series_num(bid, i):
-                    if args.do_series_restart:
-                        return sval + i
-                    next_num = _get_next_series_num_for_list(sorted(sval.itervalues()), unwrap=False)
-                    sval[bid] = next_num
-                    return next_num
+        if args.do_series and args.series:
+            # import sys
+            # if not args.series:
+                # Logically this can only happen if a serie name is composed of spaces, not sure this should be allowed
+                # cache.set_field('series_index', {bid:1.0 for bid in self.ids})
+                # sys.stderr.write('I was there\n')
+            # else:
+            def next_series_num(bid, i):
+                if args.do_series_restart:
+                    return sval + i
+                next_num = _get_next_series_num_for_list(sorted(sval.itervalues()), unwrap=False)
+                sval[bid] = next_num
+                return next_num
 
-                sval = args.series_start_value if args.do_series_restart else cache.get_next_series_num_for(args.series, current_indices=True)
-                cache.set_field('series', {bid:args.series for bid in self.ids})
+            sval = args.series_start_value if args.do_series_restart else cache.get_next_series_num_for(args.series, current_indices=True)
+            #Get series old name occurrence in selection
+            series_occ = Counter(cache.all_field_for('series', self.ids).itervalues())
+            cache.set_field('series', {bid:args.series for bid in self.ids})
 
-                # smap = {bid:1.0 for bid in self.ids}
-                if tweaks['series_index_auto_increment'] != 'no_change':
-                    # Tweak should be invoked first otherwise if autonumber
-                    smap = {bid:1.0 for bid in self.ids}
-                elif args.do_autonumber:
+            # sys.stderr.write(repr(series_occ)+'\n')
+            # sys.stderr.write(repr(series_occ.keys()[0])+'\n')
+
+            if args.do_autonumber:
+                if args.do_series_restart or len(series_occ)>1 or series_occ.keys()[0] is None:
                     smap = {bid:next_series_num(bid, i) for i, bid in enumerate(self.ids)}
-                # cache.set_field('series_index', smap)
+                    cache.set_field('series_index', smap)
+            elif tweaks['series_index_auto_increment'] != 'no_change':
+                cache.set_field('series_index', {bid:1.0 for bid in self.ids})
+            
 
         if args.do_remove_conv:
             cache.delete_conversion_options(self.ids)
