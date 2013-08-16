@@ -1547,6 +1547,7 @@ class Cache(object):
     @write_api
     def delete_custom_column(self, label=None, num=None):
         self.backend.delete_custom_column(label, num)
+        self._mark_as_dirty(self._all_book_ids())
 
     @write_api
     def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display={}):
