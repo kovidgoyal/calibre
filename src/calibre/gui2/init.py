@@ -345,6 +345,9 @@ class VLTabs(QTabBar):  # {{{
         self.currentChanged.connect(self.tab_changed)
         self.tabButton(all_idx, self.RightSide).setVisible(False)
 
+    def update_current(self):
+        self.rebuild()
+
     def contextMenuEvent(self, ev):
         m = QMenu(self)
         m.addAction(_('Sort alphabetically'), self.sort_alphabetically)
