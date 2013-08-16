@@ -61,6 +61,8 @@ def mousePressEvent(base_class, self, event):
     if self.indexAt(ep) in self.selectionModel().selectedIndexes() and \
             event.button() == Qt.LeftButton and not self.event_has_mods():
         self.drag_start_pos = ep
+    if hasattr(self, 'handle_mouse_press_event'):
+        return self.handle_mouse_press_event(event)
     return base_class.mousePressEvent(self, event)
 
 def drag_icon(self, cover, multiple):
@@ -733,4 +735,30 @@ class GridView(QListView):
 
     def restore_hpos(self, hpos):
         pass
+
+    def handle_mouse_press_event(self, ev):
+        if QApplication.keyboardModifiers() & Qt.ShiftModifier:
+            # Shift-Click in QLitView is broken. It selects extra items in
+            # various circumstances, for example, click on some item in the
+            # middle of a row then click on an item in the next row, all items
+            # in the first row will be selected instead of only items after the
+            # middle item.
+            index = self.indexAt(ev.pos())
+            if not index.isValid():
+                return
+            ci = self.currentIndex()
+            sm = self.selectionModel()
+            sm.setCurrentIndex(index, sm.NoUpdate)
+            if not ci.isValid():
+                return
+            if not sm.hasSelection():
+                sm.select(index, sm.ClearAndSelect)
+                return
+            cr = ci.row()
+            tgt = index.row()
+            top = self.model().index(min(cr, tgt), 0)
+            bottom = self.model().index(max(cr, tgt), 0)
+            sm.select(QItemSelection(top, bottom), sm.Select)
+        else:
+            return QListView.mousePressEvent(self, ev)
 # }}}
