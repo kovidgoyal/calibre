@@ -3,6 +3,7 @@ import re
 class AdvancedUserRecipe1376229553(BasicNewsRecipe):
     title          = u'Daily Express'
     __author__ = 'Dave Asbury'
+    language = 'en_GB'
     encoding    = 'utf-8'
     remove_empty_feeds = True
     #remove_javascript     = True
