@@ -906,8 +906,11 @@ class BrowseServer(object):
     @Endpoint()
     def browse_random(self, *args, **kwargs):
         import random
-        book_id = random.choice(self.db.search_getting_ids(
-            '', self.search_restriction))
+        try:
+            book_id = random.choice(self.db.search_getting_ids(
+                '', self.search_restriction))
+        except IndexError:
+            raise cherrypy.HTTPError(404, 'This library has no books')
         ans = self.browse_render_details(book_id, add_random_button=True)
         return self.browse_template('').format(
                 title='', script='book();', main=ans)
