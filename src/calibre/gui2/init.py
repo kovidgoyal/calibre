@@ -343,7 +343,15 @@ class VLTabs(QTabBar):  # {{{
                 all_idx = i
         self.setCurrentIndex(all_idx if current_idx is None else current_idx)
         self.currentChanged.connect(self.tab_changed)
-        self.tabButton(all_idx, self.RightSide).setVisible(False)
+        try:
+            self.tabButton(all_idx, self.RightSide).setVisible(False)
+        except AttributeError:
+            try:
+                self.tabButton(all_idx, self.LeftSide).setVisible(False)
+            except AttributeError:
+                # On some OS X machines (using native style) the tab button is
+                # on the left
+                pass
 
     def update_current(self):
         self.rebuild()
