@@ -316,7 +316,6 @@ class CoverDelegate(QStyledItemDelegate):
         self.render_queue = Queue()
         self.animating = None
         self.highlight_color = QColor(Qt.white)
-        self.on_device_emblem = QPixmap(I('ok.png')).scaled(48, 48, transformMode=Qt.SmoothTransformation)
 
     def set_dimensions(self):
         width = self.original_width = gprefs['cover_grid_width']
@@ -372,6 +371,7 @@ class CoverDelegate(QStyledItemDelegate):
                 painter.drawRoundedRect(option.rect, 10, 10, Qt.RelativeSize)
             finally:
                 painter.restore()
+        marked = db.data.get_marked(book_id)
         db = db.new_api
         cdata = self.cover_cache[book_id]
         device_connected = self.parent().gui.device_connected is not None
@@ -408,8 +408,22 @@ class CoverDelegate(QStyledItemDelegate):
                     metrics = painter.fontMetrics()
                     painter.drawText(rect, Qt.AlignCenter|Qt.TextSingleLine,
                                      metrics.elidedText(title, Qt.ElideRight, rect.width()))
+            if marked:
+                try:
+                    p = self.marked_emblem
+                except AttributeError:
+                    p = self.marked_emblem = QPixmap(I('rating.png')).scaled(48, 48, transformMode=Qt.SmoothTransformation)
+                drect = QRect(orect)
+                drect.setLeft(drect.left() + right_adjust)
+                drect.setRight(drect.left() + p.width())
+                drect.setBottom(drect.bottom() - self.title_height)
+                drect.setTop(drect.bottom() - p.height())
+                painter.drawPixmap(drect, p)
             if on_device:
-                p = self.on_device_emblem
+                try:
+                    p = self.on_device_emblem
+                except AttributeError:
+                    p = self.on_device_emblem = QPixmap(I('ok.png')).scaled(48, 48, transformMode=Qt.SmoothTransformation)
                 drect = QRect(orect)
                 drect.setRight(drect.right() - right_adjust)
                 drect.setBottom(drect.bottom() - self.title_height)
