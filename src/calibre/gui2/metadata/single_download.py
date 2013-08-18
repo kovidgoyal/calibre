@@ -1012,6 +1012,7 @@ class FullFetch(QDialog):  # {{{
         self.next_button.setIcon(QIcon(I('ok.png')))
         self.next_button.clicked.connect(self.next_clicked)
         self.ok_button = self.bb.button(self.bb.Ok)
+        self.ok_button.setEnabled(False)
         self.ok_button.clicked.connect(self.ok_clicked)
         self.prev_button = self.bb.addButton(_('Back'), self.bb.ActionRole)
         self.prev_button.setIcon(QIcon(I('back.png')))
@@ -1080,6 +1081,7 @@ class FullFetch(QDialog):  # {{{
 
     def identify_results_found(self):
         self.next_button.setEnabled(True)
+        self.ok_button.setEnabled(True)
 
     def next_clicked(self, *args):
         gprefs['metadata_single_gui_geom'] = bytearray(self.saveGeometry())
