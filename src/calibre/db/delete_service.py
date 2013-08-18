@@ -49,6 +49,7 @@ class DeleteService(Thread):
         self.queue_paths(tdir, paths, delete_empty_parent=True)
 
     def queue_paths(self, tdir, paths, delete_empty_parent=True):
+        queued = False
         for path in paths:
             if os.path.exists(path):
                 try:
@@ -65,6 +66,13 @@ class DeleteService(Thread):
                         if e.errno != errno.ENOTEMPTY:
                             raise
                 self.requests.put(os.path.join(tdir, os.path.basename(path)))
+                queued = True
+        if not queued:
+            try:
+                os.rmdir(tdir)
+            except OSError as e:
+                if e.errno != errno.ENOTEMPTY:
+                    raise
 
     def delete_files(self, paths, library_path):
         tdir = self.create_staging(library_path)
