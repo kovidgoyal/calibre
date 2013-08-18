@@ -177,7 +177,7 @@ class GuiRunner(QObject):
 
     def start_gui(self, db):
         from calibre.gui2.ui import Main
-        main = Main(self.opts, gui_debug=self.gui_debug)
+        main = self.main = Main(self.opts, gui_debug=self.gui_debug)
         if self.splash_screen is not None:
             self.splash_screen.showMessage(_('Initializing user interface...'))
         with gprefs:  # Only write gui.json after initialization is complete
@@ -199,7 +199,6 @@ class GuiRunner(QObject):
         for event in self.app.file_event_hook.events:
             add_filesystem_book(event)
         self.app.file_event_hook = add_filesystem_book
-        self.main = main
 
     def initialization_failed(self):
         print 'Catastrophic failure initializing GUI, bailing out...'
@@ -231,7 +230,13 @@ class GuiRunner(QObject):
                     det_msg=traceback.format_exc(), show=True)
                 self.initialization_failed()
 
-        self.start_gui(db)
+        try:
+            self.start_gui(db)
+        except Exception:
+            error_dialog(self.main, _('Startup error'),
+                         _('There was an error during {0} startup.'
+                           ' Parts of {0} may not function. Click Show details to learn more.').format(__appname__),
+                         det_msg=traceback.format_exc(), show=True)
 
     def initialize_db(self):
         from calibre.db import get_db_loader
