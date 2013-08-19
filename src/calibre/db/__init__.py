@@ -122,17 +122,3 @@ def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None, conve
             x['available_formats'] = [i.upper() for i in formats.split(',')]
 
     return data
-
-def get_db_loader():
-    from calibre.utils.config_base import tweaks
-    if tweaks.get('use_new_db', False):
-        from calibre.db.legacy import LibraryDatabase as cls
-        import apsw
-        errs = (apsw.Error,)
-    else:
-        from calibre.library.database2 import LibraryDatabase2 as cls
-        from calibre.library.sqlite import sqlite, DatabaseException
-        errs = (sqlite.Error, DatabaseException)
-    return cls, errs
-
-

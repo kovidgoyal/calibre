@@ -22,8 +22,8 @@ from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
 from calibre.gui2.actions import InterfaceAction
 
 def db_class():
-    from calibre.db import get_db_loader
-    return get_db_loader()[0]
+    from calibre.db.legacy import LibraryDatabase
+    return LibraryDatabase
 
 class LibraryUsageStats(object):  # {{{
 

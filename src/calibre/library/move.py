@@ -15,9 +15,9 @@ from calibre.utils.ipc.job import ParallelJob
 
 
 def move_library(from_, to, notification=lambda x:x):
-    from calibre.db import get_db_loader
+    from calibre.db.legacy import LibraryDatabase
     time.sleep(1)
-    old = get_db_loader()[0](from_)
+    old = LibraryDatabase(from_)
     old.move_library_to(to, notification)
     return True
 

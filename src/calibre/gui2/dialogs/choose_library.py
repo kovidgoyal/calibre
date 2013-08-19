@@ -85,8 +85,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
                     show=True)
             return False
         if ac in ('new', 'move'):
-            from calibre.db import get_db_loader
-            LibraryDatabase = get_db_loader()[0]
+            from calibre.db.legacy import LibraryDatabase
             if not empty:
                 error_dialog(self, _('Not empty'),
                     _('The folder %s is not empty. Please choose an empty'

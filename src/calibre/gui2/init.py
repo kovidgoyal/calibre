@@ -10,7 +10,7 @@ import functools
 from PyQt4.Qt import (Qt, QApplication, QStackedWidget, QMenu, QTimer,
         QSize, QSizePolicy, QStatusBar, QLabel, QFont, QAction, QTabBar)
 
-from calibre.utils.config import prefs, tweaks
+from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.constants import (isosx, __appname__, preferred_encoding,
     get_version)
@@ -171,8 +171,6 @@ class StatusBar(QStatusBar):  # {{{
         QStatusBar.__init__(self, parent)
         self.version = get_version()
         self.base_msg = '%s %s' % (__appname__, self.version)
-        if tweaks.get('use_new_db', False):
-            self.base_msg += ' [newdb]'
         self.device_string = ''
         self.update_label = UpdateLabel('')
         self.total = self.current = self.selected = self.library_total = 0
@@ -249,18 +247,13 @@ class GridViewButton(LayoutButton):  # {{{
     def __init__(self, gui):
         sc = _('Shift+Alt+G')
         LayoutButton.__init__(self, I('grid.png'), _('Cover Grid'), parent=gui, shortcut=sc)
-        if tweaks.get('use_new_db', False):
-            self.set_state_to_show()
-            self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
-            gui.addAction(self.action_toggle)
-            gui.keyboard.register_shortcut('grid view toggle' + self.label, unicode(self.action_toggle.text()),
-                                        default_keys=(sc,), action=self.action_toggle)
-            self.action_toggle.triggered.connect(self.toggle)
-            self.toggled.connect(self.update_state)
-            self.grid_enabled = True
-        else:
-            self.setVisible(False)
-            self.grid_enabled = False
+        self.set_state_to_show()
+        self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
+        gui.addAction(self.action_toggle)
+        gui.keyboard.register_shortcut('grid view toggle' + self.label, unicode(self.action_toggle.text()),
+                                    default_keys=(sc,), action=self.action_toggle)
+        self.action_toggle.triggered.connect(self.toggle)
+        self.toggled.connect(self.update_state)
 
     def update_state(self, checked):
         if checked:
@@ -269,11 +262,10 @@ class GridViewButton(LayoutButton):  # {{{
             self.set_state_to_show()
 
     def save_state(self):
-        if self.grid_enabled:
-            gprefs['grid view visible'] = bool(self.isChecked())
+        gprefs['grid view visible'] = bool(self.isChecked())
 
     def restore_state(self):
-        if self.grid_enabled and gprefs.get('grid view visible', False):
+        if gprefs.get('grid view visible', False):
             self.toggle()
 
 

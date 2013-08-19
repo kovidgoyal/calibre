@@ -14,6 +14,7 @@ from Queue import Queue, Empty
 from threading import Thread
 from collections import OrderedDict
 
+import apsw
 from PyQt4.Qt import (Qt, SIGNAL, QTimer, QHelpEvent, QAction,
                      QMenu, QIcon, pyqtSignal, QUrl, QFont,
                      QDialog, QSystemTrayIcon, QApplication)
@@ -22,7 +23,7 @@ from calibre import prints, force_unicode
 from calibre.constants import __appname__, isosx, filesystem_encoding, DEBUG
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
-from calibre.db import get_db_loader
+from calibre.db.legacy import LibraryDatabase
 from calibre.customize.ui import interface_actions, available_store_plugins
 from calibre.gui2 import (error_dialog, GetMetadata, open_url,
         gprefs, max_available_height, config, info_dialog, Dispatcher,
@@ -585,10 +586,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             unload_user_template_functions(olddb.library_id)
         except:
             olddb = None
-        db_class, errs = get_db_loader()
         try:
-            db = db_class(newloc, default_prefs=default_prefs)
-        except errs:
+            db = LibraryDatabase(newloc, default_prefs=default_prefs)
+        except apsw.Error:
             if not allow_rebuild:
                 raise
             import traceback
@@ -602,7 +602,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             if repair:
                 from calibre.gui2.dialogs.restore_library import repair_library_at
                 if repair_library_at(newloc, parent=self):
-                    db = db_class(newloc, default_prefs=default_prefs)
+                    db = LibraryDatabase(newloc, default_prefs=default_prefs)
                 else:
                     return
             else:

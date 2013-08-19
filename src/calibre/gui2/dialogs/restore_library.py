@@ -12,7 +12,6 @@ from calibre.gui2 import (error_dialog, question_dialog, warning_dialog,
     info_dialog)
 from calibre import force_unicode
 from calibre.constants import filesystem_encoding
-from calibre.utils.config_base import tweaks
 
 class DBRestore(QDialog):
 
@@ -42,10 +41,7 @@ class DBRestore(QDialog):
         self.library_path = library_path
         self.update_signal.connect(self.do_update, type=Qt.QueuedConnection)
 
-        if tweaks.get('use_new_db', False):
-            from calibre.db.restore import Restore
-        else:
-            from calibre.library.restore import Restore
+        from calibre.db.restore import Restore
         self.restorer = Restore(library_path, self)
         self.restorer.daemon = True
 

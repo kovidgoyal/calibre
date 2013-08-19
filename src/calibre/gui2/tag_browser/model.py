@@ -15,7 +15,7 @@ from PyQt4.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
 
 from calibre.constants import config_dir
 from calibre.gui2 import NONE, gprefs, config, error_dialog
-from calibre.library.database2 import Tag
+from calibre.db.categories import Tag
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key, lower, strcmp, collation_order
 from calibre.library.field_metadata import TagsIcons, category_icon_map

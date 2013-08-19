@@ -4,12 +4,14 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, time, socket, traceback
 from functools import partial
 
+import apsw
 from PyQt4.Qt import (QCoreApplication, QIcon, QObject, QTimer,
         QPixmap, QSplashScreen, QApplication)
 
 from calibre import prints, plugins, force_unicode
 from calibre.constants import (iswindows, __appname__, isosx, DEBUG, islinux,
         filesystem_encoding, get_portable_base)
+from calibre.db.legacy import LibraryDatabase
 from calibre.utils.ipc import gui_socket_address, RC
 from calibre.gui2 import (ORG_NAME, APP_UID, initialize_file_icon_provider,
     Application, choose_dir, error_dialog, question_dialog, gprefs)
@@ -222,7 +224,7 @@ class GuiRunner(QObject):
 
             try:
                 self.library_path = candidate
-                db = self.db_class(candidate)
+                db = LibraryDatabase(candidate)
             except:
                 error_dialog(self.splash_screen, _('Bad database location'),
                     _('Bad database location %r. calibre will now quit.'
@@ -239,12 +241,10 @@ class GuiRunner(QObject):
                          det_msg=traceback.format_exc(), show=True)
 
     def initialize_db(self):
-        from calibre.db import get_db_loader
         db = None
-        self.db_class, errs = get_db_loader()
         try:
-            db = self.db_class(self.library_path)
-        except errs:
+            db = LibraryDatabase(self.library_path)
+        except apsw.Error:
             repair = question_dialog(self.splash_screen, _('Corrupted database'),
                     _('The library database at %s appears to be corrupted. Do '
                     'you want calibre to try and rebuild it automatically? '
@@ -255,7 +255,7 @@ class GuiRunner(QObject):
                     )
             if repair:
                 if repair_library(self.library_path):
-                    db = self.db_class(self.library_path)
+                    db = LibraryDatabase(self.library_path)
         except:
             error_dialog(self.splash_screen, _('Bad database location'),
                     _('Bad database location %r. Will start with '

@@ -17,7 +17,7 @@ from calibre.gui2.preferences.look_feel_ui import Ui_Form
 from calibre.gui2 import config, gprefs, qt_app, NONE, open_local_file
 from calibre.utils.localization import (available_translations,
     get_language, get_lang)
-from calibre.utils.config import prefs, tweaks
+from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.gui2.book_details import get_field_list
 from calibre.gui2.preferences.coloring import EditRules
@@ -210,10 +210,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.fs_help_msg.setText(unicode(self.fs_help_msg.text())%(
             _(' or ').join(keys)))
         self.cover_grid_color_button.clicked.connect(self.change_cover_grid_color)
-        if not tweaks.get('use_new_db', False):
-            for i in range(self.tabWidget.count()):
-                if self.tabWidget.widget(i) is self.cover_grid_tab:
-                    self.tabWidget.removeTab(i)
         self.size_calculated.connect(self.update_cg_cache_size, type=Qt.QueuedConnection)
         self.tabWidget.currentChanged.connect(self.tab_changed)
         self.cover_grid_empty_cache.clicked.connect(self.empty_cache)
