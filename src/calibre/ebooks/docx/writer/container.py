@@ -18,8 +18,8 @@ from calibre.utils.zipfile import ZipFile
 
 class DOCX(object):
 
-    def __init__(self):
-        pass
+    def __init__(self, opts, log):
+        self.opts, self.log = opts, log
 
     # Boilerplate {{{
     @property
@@ -95,5 +95,5 @@ class DOCX(object):
             # TODO: Write document and document relationships
 
 if __name__ == '__main__':
-    d = DOCX()
+    d = DOCX(None, None)
     print (d.websettings)
