@@ -14,7 +14,7 @@ from PyQt4.Qt import QComboBox, Qt, QLineEdit, QStringList, pyqtSlot, QDialog, \
                      pyqtSignal, QCompleter, QAction, QKeySequence, QTimer, \
                      QString, QIcon, QMenu
 
-from calibre.gui2 import config, error_dialog
+from calibre.gui2 import config, error_dialog, question_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
@@ -420,6 +420,11 @@ class SearchBoxMixin(object):  # {{{
         self.highlight_only_button.setToolTip(tt)
 
     def highlight_only_clicked(self, state):
+        if not config['highlight_search_matches'] and not question_dialog(self, _('Are you sure?'),
+            _('This will change how searching works. When you search, instead of showing only the '
+                'matching books, all books will be shown with the matching books highlighted. '
+                'Are you sure this is what you want?'), skip_dialog_name='confirm_search_highlight_toggle'):
+            return
         config['highlight_search_matches'] = not config['highlight_search_matches']
         self.set_highlight_only_button_icon()
         self.search.do_search()
