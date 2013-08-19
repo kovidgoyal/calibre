@@ -20,7 +20,7 @@ class ElTribunoJujuyImpreso(BasicNewsRecipe):
     max_articles_per_feed   = 250
     no_stylesheets          = True
     use_embedded_content    = False
-    encoding                = 'cp1252'
+    encoding                = 'utf8'
     publication_type        = 'newspaper'
     delay                   = 1
     articles_are_obfuscated = True
@@ -124,4 +124,3 @@ class ElTribunoJujuyImpreso(BasicNewsRecipe):
         artid = right.partition('-')[0]
         params = {'Note':artid}
         return (self.PRINTURL % urllib.urlencode(params))
-
