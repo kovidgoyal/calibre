@@ -34,7 +34,7 @@ def bf():
         _bf = QVariant(_bf)
     return _bf
 
-class TagTreeItem(object): # {{{
+class TagTreeItem(object):  # {{{
 
     CATEGORY = 0
     TAG      = 1
@@ -198,7 +198,7 @@ class TagTreeItem(object): # {{{
         return res
     # }}}
 
-class TagsModel(QAbstractItemModel): # {{{
+class TagsModel(QAbstractItemModel):  # {{{
 
     search_item_renamed = pyqtSignal()
     tag_item_renamed = pyqtSignal()
@@ -285,7 +285,7 @@ class TagsModel(QAbstractItemModel): # {{{
             print ('Tag Browser build already in progress')
             traceback.print_stack()
             return
-        #traceback.print_stack()
+        # traceback.print_stack()
         #print ()
         self._build_in_progress = True
         self.beginResetModel()
@@ -296,7 +296,7 @@ class TagsModel(QAbstractItemModel): # {{{
     def _run_rebuild(self, state_map={}):
         for node in self.node_map.itervalues():
             node.break_cycles()
-        del node #Clear reference to node in the current frame
+        del node  # Clear reference to node in the current frame
         self.node_map.clear()
         self.category_nodes = []
         self.root_item = self.create_node(icon_map=self.icon_state_map)
@@ -404,7 +404,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 components = [name]
             return components
 
-        def process_one_node(category, collapse_model, state_map): # {{{
+        def process_one_node(category, collapse_model, state_map):  # {{{
             collapse_letter = None
             category_node = category
             key = category_node.category_key
@@ -489,25 +489,25 @@ class TagsModel(QAbstractItemModel): # {{{
                                 # Formatter threw an exception. Don't create subnode
                                 node_parent = sub_cat = category
                             else:
-                                sub_cat = self.create_node(parent=category, data = name,
-                                     tooltip = None, temporary=True,
-                                     category_icon = category_node.icon,
+                                sub_cat = self.create_node(parent=category, data=name,
+                                     tooltip=None, temporary=True,
+                                     category_icon=category_node.icon,
                                      category_key=category_node.category_key,
                                      icon_map=self.icon_state_map)
                                 sub_cat.tag.is_searchable = False
                                 sub_cat.is_gst = is_gst
                                 node_parent = sub_cat
-                            last_idx = idx # remember where we last partitioned
+                            last_idx = idx  # remember where we last partitioned
                         else:
                             node_parent = sub_cat
-                    else: # by 'first letter'
+                    else:  # by 'first letter'
                         cl = cl_list[idx]
                         if cl != collapse_letter:
                             collapse_letter = cl
                             sub_cat = self.create_node(parent=category,
-                                     data = collapse_letter,
-                                     category_icon = category_node.icon,
-                                     tooltip = None, temporary=True,
+                                     data=collapse_letter,
+                                     category_icon=category_node.icon,
+                                     tooltip=None, temporary=True,
                                      category_key=category_node.category_key,
                                      icon_map=self.icon_state_map)
                         sub_cat.is_gst = is_gst
@@ -784,7 +784,7 @@ class TagsModel(QAbstractItemModel): # {{{
         self.refresh_required.emit()
 
     def handle_drop(self, on_node, ids):
-        #print 'Dropped ids:', ids, on_node.tag
+        # print 'Dropped ids:', ids, on_node.tag
         key = on_node.tag.category
         if (key == 'authors' and len(ids) >= 5):
             if not confirm('<p>'+_('Changing the authors for several books can '
@@ -809,7 +809,7 @@ class TagsModel(QAbstractItemModel): # {{{
 
             # Author_sort cannot change explicitly. Changing the author might
             # change it.
-            mi.author_sort = None # Never will change by itself.
+            mi.author_sort = None  # Never will change by itself.
 
             if key == 'authors':
                 mi.authors = [val]
@@ -858,7 +858,7 @@ class TagsModel(QAbstractItemModel): # {{{
         tb_cats = self.db.field_metadata
         for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys(),
                                key=sort_key):
-            cat_name = '@' + user_cat # add the '@' to avoid name collision
+            cat_name = '@' + user_cat  # add the '@' to avoid name collision
             while True:
                 try:
                     tb_cats.add_user_category(label=cat_name, name=user_cat)
@@ -891,7 +891,7 @@ class TagsModel(QAbstractItemModel): # {{{
         defvalue = order.get('*', 100)
         tb_keys = sorted(tb_categories.keys(), key=lambda x: order.get(x, defvalue))
         for category in tb_keys:
-            if category in data: # The search category can come and go
+            if category in data:  # The search category can come and go
                 self.row_map.append(category)
                 self.categories[category] = tb_categories[category]['name']
         return data
@@ -994,7 +994,7 @@ class TagsModel(QAbstractItemModel): # {{{
                             return False
                         user_cats[nkey + rest] = user_cats[ckey + rest]
                         del user_cats[ckey + rest]
-            self.user_categories_edited.emit(user_cats, nkey) # Does a refresh
+            self.user_categories_edited.emit(user_cats, nkey)  # Does a refresh
             return True
 
         key = item.tag.category
@@ -1014,7 +1014,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 return False
             self.db.saved_search_rename(unicode(item.data(role).toString()), val)
             item.tag.name = val
-            self.search_item_renamed.emit() # Does a refresh
+            self.search_item_renamed.emit()  # Does a refresh
         else:
             if key == 'series':
                 self.db.rename_series(item.tag.id, val)
@@ -1089,7 +1089,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 fm = self.db.metadata_for_field(node.tag.category)
                 if node.tag.category in \
                     ('tags', 'series', 'authors', 'rating', 'publisher') or \
-                    (fm['is_custom'] and \
+                    (fm['is_custom'] and
                         fm['datatype'] in ['text', 'rating', 'series', 'enumeration']):
                     ans |= Qt.ItemIsDropEnabled
             else:
@@ -1193,7 +1193,8 @@ class TagsModel(QAbstractItemModel): # {{{
         exclusive: clear all states before applying this one
         set_to: None => advance the state, otherwise a value from TAG_SEARCH_STATES
         '''
-        if not index.isValid(): return False
+        if not index.isValid():
+            return False
         item = self.get_node(index)
         item.toggle(set_to=set_to)
         if exclusive:
@@ -1269,7 +1270,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     if self.db.field_metadata[tag.category]['is_csp']:
                         add_colon = True
 
-                    if tag.name and tag.name[0] == u'\u2605': # char is a star. Assume rating
+                    if tag.name and tag.name[0] == u'\u2605':  # char is a star. Assume rating
                         ans.append('%s%s:%s'%(prefix, category, len(tag.name)))
                     else:
                         name = tag.original_name
