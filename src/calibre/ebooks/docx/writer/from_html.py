@@ -6,12 +6,121 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from lxml import etree
+
+from calibre.ebooks.docx.writer.utils import convert_color, int_or_zero
+from calibre.ebooks.oeb.stylizer import Stylizer
+from calibre.ebooks.oeb.base import XPath, barename
+
+
+class TextStyle(object):
+
+    def __init__(self, css):
+        # for x in ('text-transform', 'text-shadow', 'font-variant', 'letter-spacing', 'vertical-align'):
+        self.font_family = css['font-family']  # TODO: Resolve multiple font families and generic font family names
+        try:
+            self.font_size = int(float(css['font-size']) * 2)  # stylizer normalizes all font sizes into pts
+        except (ValueError, TypeError, AttributeError):
+            self.font_size = None
+
+        fw = self.font_weight = css['font-weight']
+        self.bold = fw in {'bold', 'bolder'} or int_or_zero(fw) >= 700
+        self.font_style = css['font-style']
+        self.italic = self.font_style in {'italic', 'oblique'}
+        self.color = convert_color(css['color'])
+        self.background_color = convert_color(css.backgroundColor)
+        td = set((css.effective_text_decoration or '').split())
+        self.underline = 'underline' in td
+        self.dstrike = 'line-through' in td and 'overline' in td
+        self.strike = not self.dstrike and 'line-through' in td
+
+        # TODO: Borders and padding
+
+    def __hash__(self):
+        return hash(tuple(
+            getattr(self, x) for x in ('font_family', 'font_size', 'bold', 'italic', 'color', 'background_color', 'underline', 'strike', 'dstrike')))
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
+class TextRun(object):
+
+    def __init__(self, style):
+        self.style = style
+
+class Block(object):
+
+    def __init__(self):
+        self.texts = []
+
+    def add_text(self, text, style):
+        pass
+
 class Convert(object):
 
     def __init__(self, oeb, docx):
         self.oeb, self.docx = oeb, docx
         self.log, self.opts = docx.log, docx.opts
 
+        self.blocks = []
+
     def __call__(self):
-        pass
+        from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
+        SVGRasterizer()(self.oeb, self.opts)
+
+        for item in self.oeb.spine:
+            self.process_item(item)
+
+    def process_item(self, item):
+        stylizer = Stylizer(item.data, item.href, self.oeb, self.opts, self.opts.output_profile)
+
+        for body in XPath('//h:body')(item.data):
+            b = Block()
+            self.blocks.append(b)
+            self.process_block(body, b, stylizer, ignore_tail=True)
+
+    def process_block(self, html_block, docx_block, stylizer, ignore_tail=False):
+        if html_block.text:
+            docx_block.add_text(html_block.text, stylizer.style(html_block))
+
+        for child in html_block.iterchildren(etree.Element):
+            tag = barename(child.tag)
+            style = stylizer.style(child)
+            display = style.get('display', 'inline')
+            if tag == 'img':
+                return  # TODO: Handle images
+            if display == 'block':
+                b = Block()
+                self.blocks.append(b)
+                self.process_block(child, b, stylizer)
+            else:
+                self.process_inline(child, self.blocks[-1], stylizer)
+
+        if ignore_tail is False and html_block.tail:
+            b = docx_block
+            if b is not self.blocks[-1]:
+                b = Block()
+                self.blocks.append(b)
+            b.add_text(html_block.tail, stylizer.style(html_block.getparent()))
+
+    def process_inline(self, html_child, docx_block, stylizer):
+        tag = barename(html_child.tag)
+        if tag == 'img':
+            return  # TODO: Handle images
+        style = stylizer.style(html_child)
+        if html_child.text:
+            docx_block.add_text(html_child.text, style)
+        for child in html_child.iterchildren(etree.Element):
+            style = stylizer.style(child)
+            display = style.get('display', 'inline')
+            if display == 'block':
+                b = Block()
+                self.blocks.append(b)
+                self.process_block(child, b, stylizer)
+            else:
+                self.process_inline(child, self.blocks[-1], stylizer)
+
+        if html_child.tail:
+            docx_block.add_text(html_child.tail, stylizer.style(html_child.getparent()))
+
 

@@ -494,6 +494,9 @@ class Style(object):
             result = DEFAULTS[name]
         return result
 
+    def get(self, name, default=None):
+        return self._style.get(name, default)
+
     def _unit_convert(self, value, base=None, font=None):
         'Return value in pts'
         if base is None:
