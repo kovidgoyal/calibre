@@ -97,7 +97,9 @@ clicking the :guilabel:`Virtual Library` button and choosing the
 You can display all available virtual libraries as tabs above the book list.
 This is particularly handy if you like switching between virtual libraries very
 often. Click the :guilabel:`Virtual Library` button and select :guilabel:`Show
-virtual libraries as tabs`.
+virtual libraries as tabs`. You can re-arrange the tabs by drag and drop and
+close ones you do not want to see. Closed tabs can be restored by
+right-clicking on the tab bar.
 
 Using additional restrictions
 -------------------------------
