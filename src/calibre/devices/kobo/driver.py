@@ -44,7 +44,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 1, 0)
+    version = (2, 1, 1)
 
     dbversion = 0
     fwversion = 0
@@ -2112,9 +2112,6 @@ class KOBOTOUCH(KOBO):
             create_bookshelves      = False
             update_series_details   = False
 
-        collections = booklists.get_collections(collections_attributes)
-#        debug_print('KoboTouch:update_device_database_collections - Collections:', collections)
-
         opts = self.settings()
         if opts.extra_customization:
             create_bookshelves = opts.extra_customization[self.OPT_CREATE_BOOKSHELVES] and self.supports_bookshelves()
@@ -2122,6 +2119,9 @@ class KOBOTOUCH(KOBO):
         else:
             delete_empty_shelves = False
         bookshelf_attribute = len(collections_attributes)
+
+        collections = booklists.get_collections(collections_attributes) if bookshelf_attribute else None
+#        debug_print('KoboTouch:update_device_database_collections - Collections:', collections)
 
         # Create a connection to the sqlite database
         # Needs to be outside books collection as in the case of removing
@@ -2551,12 +2551,12 @@ class KOBOTOUCH(KOBO):
             if show_debug:
                 debug_print('        Did not find a record - adding')
             cursor.execute(addquery, add_values)
-            connection.commit()
         elif result[0] == 'true':
             if show_debug:
                 debug_print('        Found a record - updating - result=', result)
             cursor.execute(updatequery, update_values)
-            connection.commit()
+
+        connection.commit()
 
         cursor.close()
 

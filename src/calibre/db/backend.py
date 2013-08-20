@@ -287,7 +287,8 @@ class Connection(apsw.Connection):  # {{{
         return cursor.execute(sql, bindings)
 
     def executemany(self, sql, sequence_of_bindings):
-        return self.cursor().executemany(sql, sequence_of_bindings)
+        with self:  # Disable autocommit mode, for performance
+            return self.cursor().executemany(sql, sequence_of_bindings)
 
 # }}}
 
@@ -515,6 +516,7 @@ class DB(object):
     # }}}
 
     def initialize_custom_columns(self):  # {{{
+        self.custom_columns_deleted = False
         with self.conn:
             # Delete previously marked custom columns
             for record in self.conn.get(
@@ -537,6 +539,7 @@ class DB(object):
                         DROP TABLE   IF EXISTS {lt};
                         '''.format(table=table, lt=lt)
                 )
+                self.custom_columns_deleted = True
             self.conn.execute('DELETE FROM custom_columns WHERE mark_for_delete=1')
 
         # Load metadata for custom columns
@@ -1053,25 +1056,31 @@ class DB(object):
         '''
         Construct the directory name for this book based on its metadata.
         '''
-        author = ascii_filename(author
-                    )[:self.PATH_LIMIT].decode('ascii', 'replace')
-        title  = ascii_filename(title
-                    )[:self.PATH_LIMIT].decode('ascii', 'replace')
+        book_id = ' (%d)' % book_id
+        l = self.PATH_LIMIT - (len(book_id) // 2) - 2
+        author = ascii_filename(author)[:l].decode('ascii', 'replace')
+        title  = ascii_filename(title)[:l].decode('ascii', 'replace')
         while author[-1] in (' ', '.'):
             author = author[:-1]
         if not author:
             author = ascii_filename(_('Unknown')).decode(
                     'ascii', 'replace')
-        return '%s/%s (%d)'%(author, title, book_id)
+        return '%s/%s%s' % (author, title, book_id)
 
-    def construct_file_name(self, book_id, title, author):
+    def construct_file_name(self, book_id, title, author, extlen):
         '''
         Construct the file name for this book based on its metadata.
         '''
-        author = ascii_filename(author
-                    )[:self.PATH_LIMIT].decode('ascii', 'replace')
-        title  = ascii_filename(title
-                    )[:self.PATH_LIMIT].decode('ascii', 'replace')
+        extlen = max(extlen, 14)  # 14 accounts for ORIGINAL_EPUB
+        # The PATH_LIMIT on windows already takes into account the doubling
+        # (it is used to enforce the total path length limit, individual path
+        # components can be much longer than the total path length would allow on
+        # windows).
+        l = (self.PATH_LIMIT - (extlen // 2) - 2) if iswindows else ((self.PATH_LIMIT - extlen - 2) // 2)
+        if l < 5:
+            raise ValueError('Extension length too long: %d' % extlen)
+        author = ascii_filename(author)[:l].decode('ascii', 'replace')
+        title  = ascii_filename(title)[:l].decode('ascii', 'replace')
         name   = title + ' - ' + author
         while name.endswith('.'):
             name = name[:-1]
@@ -1328,9 +1337,9 @@ class DB(object):
                             wam.close_handles()
 
     def add_format(self, book_id, fmt, stream, title, author, path):
-        fname = self.construct_file_name(book_id, title, author)
-        path = os.path.join(self.library_path, path)
         fmt = ('.' + fmt.lower()) if fmt else ''
+        fname = self.construct_file_name(book_id, title, author, len(fmt))
+        path = os.path.join(self.library_path, path)
         dest = os.path.join(path, fname + fmt)
         if not os.path.exists(path):
             os.makedirs(path)
@@ -1349,7 +1358,11 @@ class DB(object):
         path = self.construct_path_name(book_id, title, author)
         current_path = path_field.for_book(book_id, default_value='')
         formats = formats_field.for_book(book_id, default_value=())
-        fname = self.construct_file_name(book_id, title, author)
+        try:
+            extlen = max(len(fmt) for fmt in formats) + 1
+        except ValueError:
+            extlen = 10
+        fname = self.construct_file_name(book_id, title, author, extlen)
         # Check if the metadata used to construct paths has changed
         changed = False
         for fmt in formats:

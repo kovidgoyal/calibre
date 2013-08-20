@@ -7,71 +7,75 @@ import time
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title          = u'Metro UK'
     description = 'News from The Metro, UK'
-    #timefmt = ''
-    __author__ = 'Dave Asbury'
-    #last update 4/4/13
-    #cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/276636_117118184990145_2132092232_n.jpg'
 
     cover_url = 'https://twimg0-a.akamaihd.net/profile_images/1638332595/METRO_LETTERS-01.jpg'
     remove_empty_feeds = True
     remove_javascript     = True
+    no_stylesheets        = True
     auto_cleanup = True
     max_articles_per_feed = 12
     ignore_duplicate_articles = {'title', 'url'}
-    encoding = 'UTF-8'
+    #encoding = 'UTF-8'
 
     language = 'en_GB'
     masthead_url        = 'http://e-edition.metro.co.uk/images/metro_logo.gif'
     compress_news_images = True
+    compress_news_images_max_size = 30
+    remove_attributes = ['style', 'font']
+    preprocess_regexps = [
+
+                (re.compile(r'\| Metro News', re.IGNORECASE | re.DOTALL), lambda match: ''),
+                        ]
+
     def parse_index(self):
-		articles = {}
-		key = None
-		ans = []
-		feeds = [ ('UK', 'http://metro.co.uk/news/uk/'),
-			('World', 'http://metro.co.uk/news/world/'),
-			('Weird', 'http://metro.co.uk/news/weird/'),
-			('Money', 'http://metro.co.uk/news/money/'),
-			('Sport', 'http://metro.co.uk/sport/'),
-			('Guilty Pleasures', 'http://metro.co.uk/guilty-pleasures/')
-			]
-		for key, feed in feeds:
-			soup = self.index_to_soup(feed)
-			articles[key] = []
-			ans.append(key)
+        articles = {}
+        key = None
+        ans = []
+        feeds = [('UK', 'http://metro.co.uk/news/uk/'),
+                ('World', 'http://metro.co.uk/news/world/'),
+                ('Weird', 'http://metro.co.uk/news/weird/'),
+                ('Money', 'http://metro.co.uk/news/money/'),
+                ('Sport', 'http://metro.co.uk/sport/'),
+                ('Guilty Pleasures', 'http://metro.co.uk/guilty-pleasures/')
+                ]
+        for key, feed in feeds:
+            soup = self.index_to_soup(feed)
+            articles[key] = []
+            ans.append(key)
 
-			today = datetime.date.today()
-			today = time.mktime(today.timetuple())-60*60*24
+            today = datetime.date.today()
+            today = time.mktime(today.timetuple())-60*60*24
 
-			for a in soup.findAll('a'):
-				for name, value in a.attrs:
-					if name == "class" and value=="post":
-						url = a['href']
-						title = a['title']
-						print title
-						description = ''
-						m = re.search('^.*uk/([^/]*)/([^/]*)/([^/]*)/', url)
-						skip = 1
-						if len(m.groups()) == 3:
-							g = m.groups()
-							dt = datetime.datetime.strptime(''+g[0]+'-'+g[1]+'-'+g[2], '%Y-%m-%d')
-							pubdate = time.strftime('%a, %d %b', dt.timetuple())
+            for a in soup.findAll('a'):
+                for name, value in a.attrs:
+                    if name == "class" and value=="post":
+                        url = a['href']
+                        title = a['title']
+                        print title
+                        description = ''
+                        m = re.search('^.*uk/([^/]*)/([^/]*)/([^/]*)/', url)
+                        skip = 1
+                        if len(m.groups()) == 3:
+                            g = m.groups()
+                            dt = datetime.datetime.strptime(''+g[0]+'-'+g[1]+'-'+g[2], '%Y-%m-%d')
+                            pubdate = time.strftime('%a, %d %b', dt.timetuple())
 
-							dt = time.mktime(dt.timetuple())
-							if dt >= today:
-								print pubdate
-								skip = 0
-						else:
-							pubdate = strftime('%a, %d %b')
+                            dt = time.mktime(dt.timetuple())
+                            if dt >= today:
+                                print pubdate
+                                skip = 0
+                        else:
+                            pubdate = strftime('%a, %d %b')
 
-						summary = a.find(True, attrs={'class':'excerpt'})
-						if summary:
-							description = self.tag_to_string(summary, use_alt=False)
+                        summary = a.find(True, attrs={'class':'excerpt'})
+                        if summary:
+                            description = self.tag_to_string(summary, use_alt=False)
 
-						if skip == 0:
-							articles[key].append(
-										dict(title=title, url=url, date=pubdate,
-												description=description,
-												content=''))
-		#ans = self.sort_index_by(ans, {'The Front Page':-1, 'Dining In, Dining Out':1, 'Obituaries':2})
-		ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
-		return ans
+                        if skip == 0:
+                            articles[key].append(
+                                                    dict(title=title, url=url, date=pubdate,
+                                                                    description=description,
+                                                                    content=''))
+        #ans = self.sort_index_by(ans, {'The Front Page':-1, 'Dining In, Dining Out':1, 'Obituaries':2})
+        ans = [(key, articles[key]) for key in ans if key in articles]
+        return ans

@@ -857,11 +857,11 @@ GUI = '''\
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=calibre %F
+Name=calibre
 GenericName=E-book library management
 Comment=E-book library management: Convert, view, share, catalogue all your e-books
 TryExec=calibre
-Exec=calibre
+Exec=calibre %F
 Icon=calibre-gui
 Categories=Office;
 '''

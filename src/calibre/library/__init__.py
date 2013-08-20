@@ -3,9 +3,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Code to manage ebook library'''
 
 def db(path=None, read_only=False):
-    from calibre.db import get_db_loader
+    from calibre.db.legacy import LibraryDatabase
     from calibre.utils.config import prefs
-    return get_db_loader()[0](path if path else prefs['library_path'],
+    return LibraryDatabase(path if path else prefs['library_path'],
             read_only=read_only)
 
 

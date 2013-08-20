@@ -446,6 +446,7 @@ class SearchRestrictionMixin(object):
                                         db.data.get_base_restriction())
         self._apply_search_restriction(db.data.get_search_restriction(),
                                        db.data.get_search_restriction_name())
+        self.vl_tabs.update_current()
 
     def build_virtual_library_list(self, menu, handler):
         db = self.library_view.model().db

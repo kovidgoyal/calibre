@@ -61,6 +61,8 @@ def mousePressEvent(base_class, self, event):
     if self.indexAt(ep) in self.selectionModel().selectedIndexes() and \
             event.button() == Qt.LeftButton and not self.event_has_mods():
         self.drag_start_pos = ep
+    if hasattr(self, 'handle_mouse_press_event'):
+        return self.handle_mouse_press_event(event)
     return base_class.mousePressEvent(self, event)
 
 def drag_icon(self, cover, multiple):
@@ -314,7 +316,6 @@ class CoverDelegate(QStyledItemDelegate):
         self.render_queue = Queue()
         self.animating = None
         self.highlight_color = QColor(Qt.white)
-        self.on_device_emblem = QPixmap(I('ok.png')).scaled(48, 48, transformMode=Qt.SmoothTransformation)
 
     def set_dimensions(self):
         width = self.original_width = gprefs['cover_grid_width']
@@ -370,6 +371,7 @@ class CoverDelegate(QStyledItemDelegate):
                 painter.drawRoundedRect(option.rect, 10, 10, Qt.RelativeSize)
             finally:
                 painter.restore()
+        marked = db.data.get_marked(book_id)
         db = db.new_api
         cdata = self.cover_cache[book_id]
         device_connected = self.parent().gui.device_connected is not None
@@ -406,8 +408,22 @@ class CoverDelegate(QStyledItemDelegate):
                     metrics = painter.fontMetrics()
                     painter.drawText(rect, Qt.AlignCenter|Qt.TextSingleLine,
                                      metrics.elidedText(title, Qt.ElideRight, rect.width()))
+            if marked:
+                try:
+                    p = self.marked_emblem
+                except AttributeError:
+                    p = self.marked_emblem = QPixmap(I('rating.png')).scaled(48, 48, transformMode=Qt.SmoothTransformation)
+                drect = QRect(orect)
+                drect.setLeft(drect.left() + right_adjust)
+                drect.setRight(drect.left() + p.width())
+                drect.setBottom(drect.bottom() - self.title_height)
+                drect.setTop(drect.bottom() - p.height())
+                painter.drawPixmap(drect, p)
             if on_device:
-                p = self.on_device_emblem
+                try:
+                    p = self.on_device_emblem
+                except AttributeError:
+                    p = self.on_device_emblem = QPixmap(I('ok.png')).scaled(48, 48, transformMode=Qt.SmoothTransformation)
                 drect = QRect(orect)
                 drect.setRight(drect.right() - right_adjust)
                 drect.setBottom(drect.bottom() - self.title_height)
@@ -558,32 +574,6 @@ class GridView(QListView):
         self.setPalette(pal)
         self.delegate.highlight_color = pal.color(pal.Text)
 
-    def center_grid(self):
-        if self.gui.library_view.alternate_views.current_view is not self:
-            return
-        try:
-            sz = self.spacing()*2 + self.delegate.item_size.width()
-            num = self.width() // sz
-        except (AttributeError, ZeroDivisionError):
-            return
-        extra = max(0, int((self.width() - (num * sz)) / 2) - self.spacing())
-        if extra != self.padding_left:
-            self.padding_left = extra
-            self.setViewportMargins(self.padding_left, 0, 0, 0)
-
-    def resizeEvent(self, e):
-        self.center_grid()
-        return QListView.resizeEvent(self, e)
-
-    def event(self, e):
-        if e.type() == e.Paint:
-            p = QPainter(self)
-            # Without this the viewport margin is rendered in QPalette::Window
-            # instead of QPalette::Base
-            p.fillRect(0, 0, self.padding_left+2, self.height(), self.palette().color(QPalette.Base))
-            p.end()
-        return QListView.event(self, e)
-
     def refresh_settings(self):
         size_changed = (
             gprefs['cover_grid_width'] != self.delegate.original_width or
@@ -611,7 +601,6 @@ class GridView(QListView):
             self.render_thread = Thread(target=self.render_covers)
             self.render_thread.daemon = True
             self.render_thread.start()
-        self.center_grid()
 
     def render_covers(self):
         q = self.delegate.render_queue
@@ -760,4 +749,30 @@ class GridView(QListView):
 
     def restore_hpos(self, hpos):
         pass
+
+    def handle_mouse_press_event(self, ev):
+        if QApplication.keyboardModifiers() & Qt.ShiftModifier:
+            # Shift-Click in QLitView is broken. It selects extra items in
+            # various circumstances, for example, click on some item in the
+            # middle of a row then click on an item in the next row, all items
+            # in the first row will be selected instead of only items after the
+            # middle item.
+            index = self.indexAt(ev.pos())
+            if not index.isValid():
+                return
+            ci = self.currentIndex()
+            sm = self.selectionModel()
+            sm.setCurrentIndex(index, sm.NoUpdate)
+            if not ci.isValid():
+                return
+            if not sm.hasSelection():
+                sm.select(index, sm.ClearAndSelect)
+                return
+            cr = ci.row()
+            tgt = index.row()
+            top = self.model().index(min(cr, tgt), 0)
+            bottom = self.model().index(max(cr, tgt), 0)
+            sm.select(QItemSelection(top, bottom), sm.Select)
+        else:
+            return QListView.mousePressEvent(self, ev)
 # }}}

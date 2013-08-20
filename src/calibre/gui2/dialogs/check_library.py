@@ -13,7 +13,7 @@ from PyQt4.Qt import (QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel,
 
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.check_library import CheckLibrary, CHECKS
-from calibre.library.database2 import delete_file, delete_tree
+from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre import prints, as_unicode
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.library.sqlite import DBThread, OperationalError

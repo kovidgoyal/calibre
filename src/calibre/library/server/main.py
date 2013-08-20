@@ -100,7 +100,7 @@ def daemonize(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
 
 
 def main(args=sys.argv):
-    from calibre.db import get_db_loader
+    from calibre.db.legacy import LibraryDatabase
     parser = option_parser()
     opts, args = parser.parse_args(args)
     if opts.daemonize and not iswindows:
@@ -116,7 +116,7 @@ def main(args=sys.argv):
         print('No saved library path. Use the --with-library option'
                 ' to specify the path to the library you want to use.')
         return 1
-    db = get_db_loader()[0](opts.with_library)
+    db = LibraryDatabase(opts.with_library)
     server = LibraryServer(db, opts, show_tracebacks=opts.develop)
     server.start()
     return 0
