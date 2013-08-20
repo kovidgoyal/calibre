@@ -242,35 +242,28 @@ class MyBlockingBusyNew(QDialog):  # {{{
         if args.adddate is not None:
             cache.set_field('timestamp', {bid:args.adddate for bid in self.ids})
 
-        if args.do_series and args.series:
-            # import sys
-            # if not args.series:
-                # Logically this can only happen if a serie name is composed of spaces, not sure this should be allowed
-                # cache.set_field('series_index', {bid:1.0 for bid in self.ids})
-                # sys.stderr.write('I was there\n')
-            # else:
-            def next_series_num(bid, i):
-                if args.do_series_restart:
-                    return sval + i
-                next_num = _get_next_series_num_for_list(sorted(sval.itervalues()), unwrap=False)
-                sval[bid] = next_num
-                return next_num
-
-            sval = args.series_start_value if args.do_series_restart else cache.get_next_series_num_for(args.series, current_indices=True)
+        if args.do_series:
             #Get series old name occurrence in selection
             series_occ = Counter(cache.all_field_for('series', self.ids).itervalues())
             cache.set_field('series', {bid:args.series for bid in self.ids})
-
-            # sys.stderr.write(repr(series_occ)+'\n')
-            # sys.stderr.write(repr(series_occ.keys()[0])+'\n')
-
-            if args.do_autonumber and
-                (args.do_series_restart or len(series_occ)>1 or series_occ.keys()[0] is None):
-                    smap = {bid:next_series_num(bid, i) for i, bid in enumerate(self.ids)}
-                    cache.set_field('series_index', smap)
-            elif tweaks['series_index_auto_increment'] != 'no_change':
+            if not args.series:
                 cache.set_field('series_index', {bid:1.0 for bid in self.ids})
-            
+            else:
+                def next_series_num(bid, i):
+                    if args.do_series_restart:
+                        return sval + i
+                    next_num = _get_next_series_num_for_list(sorted(sval.itervalues()), unwrap=False)
+                    sval[bid] = next_num
+                    return next_num
+
+                sval = args.series_start_value if args.do_series_restart else cache.            get_next_series_num_for(args.series, current_indices=True)
+
+                if args.do_autonumber:
+                    if args.do_series_restart or len(series_occ)>1 or series_occ.keys()[0] is None:
+                        smap = {bid:next_series_num(bid, i) for i, bid in enumerate(self.ids)}
+                        cache.set_field('series_index', smap)
+                elif tweaks['series_index_auto_increment'] != 'no_change':
+                    cache.set_field('series_index', {bid:1.0 for bid in self.ids})
 
         if args.do_remove_conv:
             cache.delete_conversion_options(self.ids)
