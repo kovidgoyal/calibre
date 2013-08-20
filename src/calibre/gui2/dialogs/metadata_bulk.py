@@ -264,8 +264,8 @@ class MyBlockingBusyNew(QDialog):  # {{{
             # sys.stderr.write(repr(series_occ)+'\n')
             # sys.stderr.write(repr(series_occ.keys()[0])+'\n')
 
-            if args.do_autonumber:
-                if args.do_series_restart or len(series_occ)>1 or series_occ.keys()[0] is None:
+            if args.do_autonumber and
+                (args.do_series_restart or len(series_occ)>1 or series_occ.keys()[0] is None):
                     smap = {bid:next_series_num(bid, i) for i, bid in enumerate(self.ids)}
                     cache.set_field('series_index', smap)
             elif tweaks['series_index_auto_increment'] != 'no_change':
