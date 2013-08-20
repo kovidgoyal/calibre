@@ -9,14 +9,40 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from lxml import etree
 
 from calibre.ebooks.docx.writer.utils import convert_color, int_or_zero
-from calibre.ebooks.oeb.stylizer import Stylizer
+from calibre.ebooks.oeb.stylizer import Stylizer as Sz, Style as St
 from calibre.ebooks.oeb.base import XPath, barename
 
+class Style(St):
+
+    def __init__(self, *args, **kwargs):
+        St.__init__(self, *args, **kwargs)
+        self._letterSpacing = None
+
+    @property
+    def letterSpacing(self):
+        if self._letterSpacing is not None:
+            val = self._get('letter-spacing')
+            if val == 'normal':
+                self._letterSpacing = val
+            else:
+                self._letterSpacing = self._unit_convert(val)
+        return self._letterSpacing
+
+class Stylizer(Sz):
+
+    def style(self, element):
+        try:
+            return self._styles[element]
+        except KeyError:
+            return Style(element, self)
 
 class TextStyle(object):
 
+    ALL_PROPS = ('font_family', 'font_size', 'bold', 'italic', 'color',
+                 'background_color', 'underline', 'strike', 'dstrike', 'caps',
+                 'shadow', 'small_caps', 'spacing', 'vertical-align')
+
     def __init__(self, css):
-        # for x in ('text-transform', 'text-shadow', 'font-variant', 'letter-spacing', 'vertical-align'):
         self.font_family = css['font-family']  # TODO: Resolve multiple font families and generic font family names
         try:
             self.font_size = int(float(css['font-size']) * 2)  # stylizer normalizes all font sizes into pts
@@ -33,12 +59,21 @@ class TextStyle(object):
         self.underline = 'underline' in td
         self.dstrike = 'line-through' in td and 'overline' in td
         self.strike = not self.dstrike and 'line-through' in td
+        self.text_transform = css['text-transform']  # TODO: If lowercase or capitalize, transform the actual text
+        self.caps = self.text_transform == 'uppercase'
+        self.shadow = css['text-shadow'] not in {'none', None}
+        self.small_caps = css['font-variant'] in {'small-caps', 'smallcaps'}
+        try:
+            self.spacing = int(float(css['letter-spacing']) * 20)
+        except (ValueError, TypeError, AttributeError):
+            self.spacing = None
+        self.vertical_align = {'sub':'subscript', 'super':'superscript'}.get((css['vertical-align'] or '').lower(), 'baseline')
 
         # TODO: Borders and padding
 
     def __hash__(self):
         return hash(tuple(
-            getattr(self, x) for x in ('font_family', 'font_size', 'bold', 'italic', 'color', 'background_color', 'underline', 'strike', 'dstrike')))
+            getattr(self, x) for x in self.ALL_PROPS))
 
     def __eq__(self, other):
         return hash(self) == hash(other)

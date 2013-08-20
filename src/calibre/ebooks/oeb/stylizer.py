@@ -48,7 +48,7 @@ INHERITED = set(['azimuth', 'border-collapse', 'border-spacing',
                  'speak-numeral', 'speak-punctuation', 'speak', 'speech-rate',
                  'stress', 'text-align', 'text-indent', 'text-transform',
                  'visibility', 'voice-family', 'volume', 'white-space',
-                 'widows', 'word-spacing'])
+                 'widows', 'word-spacing', 'text-shadow'])
 
 FONT_SIZE_NAMES = set(['xx-small', 'x-small', 'small', 'medium', 'large',
                        'x-large', 'xx-large'])
