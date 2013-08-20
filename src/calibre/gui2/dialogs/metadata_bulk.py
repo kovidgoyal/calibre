@@ -256,7 +256,7 @@ class MyBlockingBusyNew(QDialog):  # {{{
                     sval[bid] = next_num
                     return next_num
 
-                sval = args.series_start_value if args.do_series_restart else cache.            get_next_series_num_for(args.series, current_indices=True)
+                sval = args.series_start_value if args.do_series_restart else cache.get_next_series_num_for(args.series, current_indices=True)
 
                 if args.do_autonumber:
                     if args.do_series_restart or len(series_occ)>1 or series_occ.keys()[0] is None:
