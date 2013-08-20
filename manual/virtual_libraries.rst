@@ -94,6 +94,11 @@ You can quickly use the current search as a temporary virtual library by
 clicking the :guilabel:`Virtual Library` button and choosing the
 :guilabel:`*current search` entry.
 
+You can display all available virtual libraries as tabs above the book list.
+This is particularly handy if you like switching between virtual libraries very
+often. Click the :guilabel:`Virtual Library` button and select :guilabel:`Show
+virtual libraries as tabs`.
+
 Using additional restrictions
 -------------------------------
 
