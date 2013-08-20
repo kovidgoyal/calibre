@@ -308,8 +308,10 @@
                </property>
                <property name="toolTip">
                 <string>If not checked, the series number for the books will be set to 1.
-If checked, selected books will be automatically numbered, in the order
-you selected them. So if you selected Book A and then Book B,
+If checked, selected books will be automatically numbered,
+using the same numbering if only the name is changed (new_db)
+or in the order you selected them otherwise.
+So if you selected Book A and then Book B,
 Book A will have series number 1 and Book B series number 2.</string>
                </property>
                <property name="text">
