@@ -20,7 +20,7 @@ class Ozon(Source):
     capabilities = frozenset(['identify', 'cover'])
 
     touched_fields = frozenset(['title', 'authors', 'identifier:isbn', 'identifier:ozon',
-                               'publisher', 'pubdate', 'comments', 'series', 'rating', 'language'])
+                               'publisher', 'pubdate', 'comments', 'series', 'rating', 'languages'])
     # Test purpose only, test function does not like when sometimes some filed are empty
     # touched_fields = frozenset(['title', 'authors', 'identifier:isbn', 'identifier:ozon',
     #                          'publisher', 'pubdate', 'comments'])

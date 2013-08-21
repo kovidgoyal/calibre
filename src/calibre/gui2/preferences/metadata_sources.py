@@ -162,7 +162,9 @@ class FieldsModel(QAbstractListModel):  # {{{
                 'languages': _('Languages'),
         }
         self.overrides = {}
-        self.exclude = frozenset(['series_index'])
+        self.exclude = frozenset([
+            'series_index', 'language'  # some plugins use language instead of languages
+        ])
 
     def rowCount(self, parent=None):
         return len(self.fields)
