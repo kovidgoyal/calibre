@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Dialog to edit metadata in bulk'''
 
 import re, os, inspect
-from collections import namedtuple
+from collections import namedtuple, Counter
 from threading import Thread
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
@@ -243,8 +243,9 @@ class MyBlockingBusyNew(QDialog):  # {{{
             cache.set_field('timestamp', {bid:args.adddate for bid in self.ids})
 
         if args.do_series:
-            sval = args.series_start_value if args.do_series_restart else cache.get_next_series_num_for(args.series, current_indices=True)
-            cache.set_field('series', {bid:args.series for bid in self.ids})
+            # Get series old name occurrence in selection
+            series_occ = Counter(cache.all_field_for('series', self.ids).itervalues())
+            cache.set_field('series', {bid:args.series for bid in self.ids})  
             if not args.series:
                 cache.set_field('series_index', {bid:1.0 for bid in self.ids})
             else:
@@ -255,9 +256,11 @@ class MyBlockingBusyNew(QDialog):  # {{{
                     sval[bid] = next_num
                     return next_num
 
-                smap = {bid:next_series_num(bid, i) for i, bid in enumerate(self.ids)}
+                sval = args.series_start_value if args.do_series_restart else cache.get_next_series_num_for(args.series, current_indices=True)
                 if args.do_autonumber:
-                    cache.set_field('series_index', smap)
+                    if args.do_series_restart or len(series_occ)>1 or series_occ.keys()[0] is None:
+                        smap = {bid:next_series_num(bid, i) for i, bid in enumerate(self.ids)}
+                        cache.set_field('series_index', smap)  
                 elif tweaks['series_index_auto_increment'] != 'no_change':
                     cache.set_field('series_index', {bid:1.0 for bid in self.ids})
 
