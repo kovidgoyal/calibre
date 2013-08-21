@@ -36,7 +36,7 @@ class Ozon(Source):
              '(?:[0-9]+[- ]?){2}[0-9X]'
     isbnRegex = re.compile(isbnPattern)
 
-    def get_book_url(self, identifiers): # {{{
+    def get_book_url(self, identifiers):  # {{{
         import urllib2
         ozon_id = identifiers.get('ozon', None)
         res = None
@@ -46,7 +46,7 @@ class Ozon(Source):
         return res
     # }}}
 
-    def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
+    def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
         from urllib import quote_plus
         # div_book -> search only books, ebooks and audio books
         search_url = self.ozon_url + '/webservice/webservice.asmx/SearchWebService?searchContext=div_book&searchText='
@@ -81,7 +81,7 @@ class Ozon(Source):
     # }}}
 
     def identify(self, log, result_queue, abort, title=None, authors=None,
-            identifiers={}, timeout=60): # {{{
+            identifiers={}, timeout=60):  # {{{
         from lxml import etree
         from calibre.ebooks.chardet import xml_to_unicode
 
@@ -113,7 +113,7 @@ class Ozon(Source):
 
     # }}}
 
-    def get_metadata(self, log, entries, title, authors, identifiers): # {{{
+    def get_metadata(self, log, entries, title, authors, identifiers):  # {{{
         # some book titles have extra characters like this
         # TODO: make a twick
         #reRemoveFromTitle = None
@@ -138,10 +138,11 @@ class Ozon(Source):
             for author in authors:
                 for miauthor in miauthors:
                     #log.debug(u'=> %s <> %s'%(author, miauthor))
-                    if author in miauthor: return True
+                    if author in miauthor:
+                        return True
             return None
 
-        def ensure_metadata_match(mi): # {{{
+        def ensure_metadata_match(mi):  # {{{
             match = True
             if title:
                 mititle = unicode(mi.title).upper() if mi.title else ''
@@ -171,7 +172,7 @@ class Ozon(Source):
         return metadata
     # }}}
 
-    def get_all_details(self, log, metadata, abort, result_queue, identifiers, timeout): # {{{
+    def get_all_details(self, log, metadata, abort, result_queue, identifiers, timeout):  # {{{
         req_isbn = identifiers.get('isbn', None)
 
         for mi in metadata:
@@ -202,7 +203,7 @@ class Ozon(Source):
                 log.exception(u'Failed to get details for metadata: %s'%mi.title)
     # }}}
 
-    def to_metadata(self, log, entry): # {{{
+    def to_metadata(self, log, entry):  # {{{
         xp_template = 'normalize-space(./*[local-name() = "{0}"]/text())'
 
         title = entry.xpath(xp_template.format('Name'))
@@ -237,7 +238,7 @@ class Ozon(Source):
         return mi
     # }}}
 
-    def get_cached_cover_url(self, identifiers): # {{{
+    def get_cached_cover_url(self, identifiers):  # {{{
         url = None
         ozon_id = identifiers.get('ozon', None)
         if ozon_id is None:
@@ -249,7 +250,7 @@ class Ozon(Source):
         return url
     # }}}
 
-    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False): # {{{
+    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):  # {{{
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
             log.debug('No cached cover found, running identify')
@@ -286,7 +287,7 @@ class Ozon(Source):
             return as_unicode(e)
     # }}}
 
-    def get_book_details(self, log, metadata, timeout): # {{{
+    def get_book_details(self, log, metadata, timeout):  # {{{
         from lxml import html, etree
         from calibre.ebooks.chardet import xml_to_unicode
 
@@ -338,7 +339,7 @@ class Ozon(Source):
                     metadata.pubdate = toPubdate(log, matcher.group(0))
 
         # overwrite comments from HTML if any
-        xpt = u'//*[@id="detail_description"]//*[contains(text(), "От производителя")]/../node()[not(self::comment())][not(self::br)][preceding::*[contains(text(), "От производителя")]]'
+        xpt = u'//*[@id="detail_description"]//*[contains(text(), "От производителя")]/../node()[not(self::comment())][not(self::br)][preceding::*[contains(text(), "От производителя")]]'  # noqa
         from lxml.etree import ElementBase
         comment_elem = doc.xpath(xpt)
         if comment_elem:
@@ -356,11 +357,11 @@ class Ozon(Source):
             log.debug('No book description found in HTML')
     # }}}
 
-def _quoteString(strToQuote): # {{{
+def _quoteString(strToQuote):  # {{{
     return '"' + strToQuote + '"' if strToQuote and strToQuote.find(' ') != -1 else strToQuote
 # }}}
 
-def _verifyISBNIntegrity(log, isbn): # {{{
+def _verifyISBNIntegrity(log, isbn):  # {{{
     # Online ISBN-Check http://www.isbn-check.de/
     res = check_isbn(isbn)
     if not res:
@@ -369,7 +370,7 @@ def _verifyISBNIntegrity(log, isbn): # {{{
 # }}}
 
 # TODO: make customizable
-def _translateToBigCoverUrl(coverUrl): # {{{
+def _translateToBigCoverUrl(coverUrl):  # {{{
     # http://www.ozon.ru/multimedia/books_covers/small/1002986468.gif
     # http://www.ozon.ru/multimedia/books_covers/1002986468.jpg
 
@@ -379,7 +380,7 @@ def _translateToBigCoverUrl(coverUrl): # {{{
     return coverUrl
 # }}}
 
-def _get_affiliateId(): # {{{
+def _get_affiliateId():  # {{{
     import random
 
     aff_id = 'romuk'
@@ -391,7 +392,7 @@ def _get_affiliateId(): # {{{
 
 def _format_isbn(log, isbn):  # {{{
     # for now only RUS ISBN are supported
-    #http://ru.wikipedia.org/wiki/ISBN_российских_издательств
+    # http://ru.wikipedia.org/wiki/ISBN_российских_издательств
     isbn_pat = re.compile(r"""
         ^
         (\d{3})?            # match GS1 Prefix for ISBN13
@@ -416,7 +417,6 @@ def _format_isbn(log, isbn):  # {{{
         $
     """, re.VERBOSE)
 
-
     res = check_isbn(isbn)
     if res:
         m = isbn_pat.match(res)
@@ -427,9 +427,9 @@ def _format_isbn(log, isbn):  # {{{
     return res
 # }}}
 
-def _translageLanguageToCode(displayLang): # {{{
+def _translageLanguageToCode(displayLang):  # {{{
     displayLang = unicode(displayLang).strip() if displayLang else None
-    langTbl = {  None: 'ru',
+    langTbl = {None: 'ru',
                 u'Немецкий': 'de',
                 u'Английский': 'en',
                 u'Французский': 'fr',
@@ -444,7 +444,7 @@ def _translageLanguageToCode(displayLang): # {{{
 # }}}
 
 # [В.П. Колесников | Колесников В.П.]-> В. П. BКолесников
-def _normalizeAuthorNameWithInitials(name): # {{{
+def _normalizeAuthorNameWithInitials(name):  # {{{
     res = name
     if name:
         re1 = u'^(?P<lname>\S+)\s+(?P<fname>[^\d\W]\.)(?:\s*(?P<mname>[^\d\W]\.))?$'
@@ -459,7 +459,7 @@ def _normalizeAuthorNameWithInitials(name): # {{{
     return res
 # }}}
 
-def toPubdate(log, yearAsString): # {{{
+def toPubdate(log, yearAsString):  # {{{
     from calibre.utils.date import parse_only_date
     res = None
     if yearAsString:
@@ -470,16 +470,15 @@ def toPubdate(log, yearAsString): # {{{
     return res
 # }}}
 
-def _listToUnicodePrintStr(lst): # {{{
+def _listToUnicodePrintStr(lst):  # {{{
     return u'[' + u', '.join(unicode(x) for x in lst) + u']'
 # }}}
 
-if __name__ == '__main__': # tests {{{
+if __name__ == '__main__':  # tests {{{
     # To run these test use: calibre-debug -e src/calibre/ebooks/metadata/sources/ozon.py
     # comment some touched_fields before run thoses tests
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
             title_test, authors_test, isbn_test)
-
 
     test_identify_plugin(Ozon.name,
         [
@@ -490,7 +489,7 @@ if __name__ == '__main__': # tests {{{
 #                 authors_test([u'В. П. Колесников', u'Г. В. Шатков'])]
 #            ),
              (
-                {'identifiers':{'isbn': '9785916572629'} },
+                {'identifiers':{'isbn': '9785916572629'}},
                 [title_test(u'На все четыре стороны', exact=True),
                  authors_test([u'А. А. Гилл'])]
              ),
@@ -501,7 +500,7 @@ if __name__ == '__main__': # tests {{{
                  authors_test([u'Erich Maria Remarque'])]
              ),
              (
-                {'identifiers':{ }, 'title':u'Метро 2033',
+                {'identifiers':{}, 'title':u'Метро 2033',
                     'authors':[u'Дмитрий Глуховский']},
                 [title_test(u'Метро 2033', exact=False)]
              ),
