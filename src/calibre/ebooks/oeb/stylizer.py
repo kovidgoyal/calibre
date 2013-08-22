@@ -8,15 +8,11 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import os, itertools, re, logging, copy, unicodedata
+import os, re, logging, copy, unicodedata
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
 from cssutils.css import (CSSStyleRule, CSSPageRule, CSSFontFaceRule,
         cssproperties)
-try:
-    from cssutils.css import PropertyValue
-except ImportError:
-    raise RuntimeError('You need cssutils >= 0.9.9 for calibre')
 from cssutils import (profile as cssprofiles, parseString, parseStyle, log as
         cssutils_log, CSSParser, profiles, replaceUrls)
 from lxml import etree
@@ -24,8 +20,8 @@ from cssselect import HTMLTranslator
 
 from calibre import force_unicode
 from calibre.ebooks import unit_convert
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
-from calibre.ebooks.oeb.base import XPNSMAP, xpath, urlnormalize
+from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES, XPNSMAP, xpath, urlnormalize
+from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
 
 cssutils_log.setLevel(logging.WARN)
 
@@ -53,46 +49,6 @@ INHERITED = set(['azimuth', 'border-collapse', 'border-spacing',
                  'stress', 'text-align', 'text-indent', 'text-transform',
                  'visibility', 'voice-family', 'volume', 'white-space',
                  'widows', 'word-spacing'])
-
-DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',
-            'background-color': 'transparent', 'background-image': 'none',
-            'background-position': '0% 0%', 'background-repeat': 'repeat',
-            'border-bottom-color': ':color', 'border-bottom-style': 'none',
-            'border-bottom-width': 'medium', 'border-collapse': 'separate',
-            'border-left-color': ':color', 'border-left-style': 'none',
-            'border-left-width': 'medium', 'border-right-color': ':color',
-            'border-right-style': 'none', 'border-right-width': 'medium',
-            'border-spacing': 0, 'border-top-color': ':color',
-            'border-top-style': 'none', 'border-top-width': 'medium', 'bottom':
-            'auto', 'caption-side': 'top', 'clear': 'none', 'clip': 'auto',
-            'color': 'black', 'content': 'normal', 'counter-increment': 'none',
-            'counter-reset': 'none', 'cue-after': 'none', 'cue-before': 'none',
-            'cursor': 'auto', 'direction': 'ltr', 'display': 'inline',
-            'elevation': 'level', 'empty-cells': 'show', 'float': 'none',
-            'font-family': 'serif', 'font-size': 'medium', 'font-style':
-            'normal', 'font-variant': 'normal', 'font-weight': 'normal',
-            'height': 'auto', 'left': 'auto', 'letter-spacing': 'normal',
-            'line-height': 'normal', 'list-style-image': 'none',
-            'list-style-position': 'outside', 'list-style-type': 'disc',
-            'margin-bottom': 0, 'margin-left': 0, 'margin-right': 0,
-            'margin-top': 0, 'max-height': 'none', 'max-width': 'none',
-            'min-height': 0, 'min-width': 0, 'orphans': '2',
-            'outline-color': 'invert', 'outline-style': 'none',
-            'outline-width': 'medium', 'overflow': 'visible', 'padding-bottom':
-            0, 'padding-left': 0, 'padding-right': 0, 'padding-top': 0,
-            'page-break-after': 'auto', 'page-break-before': 'auto',
-            'page-break-inside': 'auto', 'pause-after': 0, 'pause-before':
-            0, 'pitch': 'medium', 'pitch-range': '50', 'play-during': 'auto',
-            'position': 'static', 'quotes': u"'“' '”' '‘' '’'", 'richness':
-            '50', 'right': 'auto', 'speak': 'normal', 'speak-header': 'once',
-            'speak-numeral': 'continuous', 'speak-punctuation': 'none',
-            'speech-rate': 'medium', 'stress': '50', 'table-layout': 'auto',
-            'text-align': 'auto', 'text-decoration': 'none', 'text-indent':
-            0, 'text-transform': 'none', 'top': 'auto', 'unicode-bidi':
-            'normal', 'vertical-align': 'baseline', 'visibility': 'visible',
-            'voice-family': 'default', 'volume': 'medium', 'white-space':
-            'normal', 'widows': '2', 'width': 'auto', 'word-spacing': 'normal',
-            'z-index': 'auto'}
 
 FONT_SIZE_NAMES = set(['xx-small', 'x-small', 'small', 'medium', 'large',
                        'x-large', 'xx-large'])
@@ -421,14 +377,11 @@ class Stylizer(object):
         style = {}
         for prop in cssstyle:
             name = prop.name
-            if name in ('margin', 'padding'):
-                style.update(self._normalize_edge(prop.cssValue, name))
-            elif name == 'font':
-                style.update(self._normalize_font(prop.cssValue))
-            elif name == 'list-style':
-                style.update(self._normalize_list_style(prop.cssValue))
+            normalizer = normalizers.get(name, None)
+            if normalizer is not None:
+                style.update(normalizer(name, prop.cssValue))
             elif name == 'text-align':
-                style.update(self._normalize_text_align(prop.cssValue))
+                style['text-align'] = self._apply_text_align(prop.value)
             else:
                 style[name] = prop.value
         if 'font-size' in style:
@@ -441,93 +394,10 @@ class Stylizer(object):
                 style['font-size'] = "%dpt" % self.profile.fnames[size]
         return style
 
-    def _normalize_edge(self, cssvalue, name):
-        style = {}
-        if isinstance(cssvalue, PropertyValue):
-            primitives = [v.cssText for v in cssvalue]
-        else:
-            primitives = [cssvalue.cssText]
-        if len(primitives) == 1:
-            value, = primitives
-            values = [value, value, value, value]
-        elif len(primitives) == 2:
-            vert, horiz = primitives
-            values = [vert, horiz, vert, horiz]
-        elif len(primitives) == 3:
-            top, horiz, bottom = primitives
-            values = [top, horiz, bottom, horiz]
-        else:
-            values = primitives[:4]
-        edges = ('top', 'right', 'bottom', 'left')
-        for edge, value in itertools.izip(edges, values):
-            style["%s-%s" % (name, edge)] = value
-        return style
-
-    def _normalize_list_style(self, cssvalue):
-        composition = ('list-style-type', 'list-style-position',
-                       'list-style-image')
-        style = {}
-        if cssvalue.cssText == 'inherit':
-            for key in composition:
-                style[key] = 'inherit'
-        else:
-            try:
-                primitives = [v.cssText for v in cssvalue]
-            except TypeError:
-                primitives = [cssvalue.cssText]
-            primitives.reverse()
-            value = primitives.pop()
-            for key in composition:
-                if cssprofiles.validate(key, value):
-                    style[key] = value
-                    if not primitives:
-                        break
-                    value = primitives.pop()
-            for key in composition:
-                if key not in style:
-                    style[key] = DEFAULTS[key]
-
-        return style
-
-    def _normalize_text_align(self, cssvalue):
-        style = {}
-        text = cssvalue.cssText
-        if text == 'inherit':
-            style['text-align'] = 'inherit'
-        else:
-            if text in ('left', 'justify') and self.opts.change_justification in ('left', 'justify'):
-                val = self.opts.change_justification
-                style['text-align'] = val
-            else:
-                style['text-align'] = text
-        return style
-
-    def _normalize_font(self, cssvalue):
-        composition = ('font-style', 'font-variant', 'font-weight',
-                       'font-size', 'line-height', 'font-family')
-        style = {}
-        if cssvalue.cssText == 'inherit':
-            for key in composition:
-                style[key] = 'inherit'
-        else:
-            try:
-                primitives = [v.cssText for v in cssvalue]
-            except TypeError:
-                primitives = [cssvalue.cssText]
-            primitives.reverse()
-            value = primitives.pop()
-            for key in composition:
-                if cssprofiles.validate(key, value):
-                    style[key] = value
-                    if not primitives:
-                        break
-                    value = primitives.pop()
-            for key in composition:
-                if key not in style:
-                    val = ('inherit' if key in {'font-family', 'font-size'}
-                        else 'normal')
-                    style[key] = val
-        return style
+    def _apply_text_align(self, text):
+        if text in ('left', 'justify') and self.opts.change_justification in ('left', 'justify'):
+            text = self.opts.change_justification
+        return text
 
     def style(self, element):
         try:
