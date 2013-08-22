@@ -252,7 +252,8 @@ class Stylizer(object):
                     for rule in stylesheet.cssRules:
                         if rule.type == rule.IMPORT_RULE:
                             ihref = item.abshref(rule.href)
-                            if rule.media.mediaText == 'amzn-mobi': continue
+                            if rule.media.mediaText == 'amzn-mobi':
+                                continue
                             hrefs = self.oeb.manifest.hrefs
                             if ihref not in hrefs:
                                 self.logger.warn('Ignoring missing stylesheet in @import rule:', rule.href)
@@ -353,7 +354,7 @@ class Stylizer(object):
                                 x.insert(0, span)
                                 self.style(span)._update_cssdict(cssdict)
                                 break
-                else: # Element pseudo-class
+                else:  # Element pseudo-class
                     for elem in matches:
                         self.style(elem)._update_pseudo_class(fl, cssdict)
             else:
@@ -431,8 +432,10 @@ class Stylizer(object):
                 style[name] = prop.value
         if 'font-size' in style:
             size = style['font-size']
-            if size == 'normal': size = 'medium'
-            if size == 'smallest': size = 'xx-small'
+            if size == 'normal':
+                size = 'medium'
+            if size == 'smallest':
+                size = 'xx-small'
             if size in FONT_SIZE_NAMES:
                 style['font-size'] = "%dpt" % self.profile.fnames[size]
         return style
@@ -476,7 +479,8 @@ class Stylizer(object):
             for key in composition:
                 if cssprofiles.validate(key, value):
                     style[key] = value
-                    if not primitives: break
+                    if not primitives:
+                        break
                     value = primitives.pop()
             for key in composition:
                 if key not in style:
@@ -514,7 +518,8 @@ class Stylizer(object):
             for key in composition:
                 if cssprofiles.validate(key, value):
                     style[key] = value
-                    if not primitives: break
+                    if not primitives:
+                        break
                     value = primitives.pop()
             for key in composition:
                 if key not in style:
@@ -532,7 +537,8 @@ class Stylizer(object):
     def stylesheet(self, name, font_scale=None):
         rules = []
         for _, _, style, selector, href in self.rules:
-            if href != name: continue
+            if href != name:
+                continue
             if font_scale and 'font-size' in style and \
                     style['font-size'].endswith('pt'):
                 style = copy.copy(style)
@@ -684,13 +690,15 @@ class Style(object):
             elif value == 'smaller':
                 factor = 1.0/1.2
                 for _, _, size in self._profile.fsizes:
-                    if base <= size: break
+                    if base <= size:
+                        break
                     factor = None
                     result = size
             elif value == 'larger':
                 factor = 1.2
                 for _, _, size in reversed(self._profile.fsizes):
-                    if base >= size: break
+                    if base >= size:
+                        break
                     factor = None
                     result = size
             else:
@@ -839,8 +847,7 @@ class Style(object):
             self._get('padding-bottom'), base=self.height)
 
     def __str__(self):
-        items = self._style.items()
-        items.sort()
+        items = sorted(self._style.items())
         return '; '.join("%s: %s" % (key, val) for key, val in items)
 
     def cssdict(self):
