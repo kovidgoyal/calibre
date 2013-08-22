@@ -105,9 +105,9 @@ def load_plugins_index():
     return json.loads(bz2.decompress(raw))
 
 # Get metadata from plugin zip file {{{
-def convert_node(fields, x, names={}):
+def convert_node(fields, x, names={}, import_data=None):
     name = x.__class__.__name__
-    conv = lambda x:convert_node(fields, x, names=names)
+    conv = lambda x:convert_node(fields, x, names=names, import_data=import_data)
     if name == 'Str':
         return x.s.decode('utf-8') if isinstance(x.s, bytes) else x.s
     elif name == 'Num':
@@ -124,13 +124,34 @@ def convert_node(fields, x, names={}):
         return tuple(map(conv, x.args))[0]
     elif name == 'Name':
         if x.id not in names:
+            if import_data is not None and x.id in import_data[0]:
+                return get_import_data(x.id, import_data[0][x.id], *import_data[1:])
             raise ValueError('Could not find name %s for fields: %s' % (x.id, fields))
         return names[x.id]
     raise TypeError('Unknown datatype %s for fields: %s' % (x, fields))
 
 Alias = namedtuple('Alias', 'name asname')
 
-def parse_metadata(raw):
+def get_import_data(name, mod, zf, names):
+    mod = mod.split('.')
+    if mod[0] == 'calibre_plugins':
+        mod = mod[2:]
+    mod = '/'.join(mod) + '.py'
+    if mod in names:
+        raw = zf.open(names[mod]).read()
+        module = ast.parse(raw, filename='__init__.py')
+        top_level_assigments = filter(lambda x:x.__class__.__name__ == 'Assign', ast.iter_child_nodes(module))
+        for node in top_level_assigments:
+            targets = {getattr(t, 'id', None) for t in node.targets}
+            targets.discard(None)
+            for x in targets:
+                if x == name:
+                    return convert_node({x}, node.value)
+        raise ValueError('Failed to find name: %r in module: %r' % (name, mod))
+    else:
+        raise ValueError('Failed to find module: %r' % mod)
+
+def parse_metadata(raw, namelist, zf):
     module = ast.parse(raw, filename='__init__.py')
     top_level_imports = filter(lambda x:x.__class__.__name__ == 'ImportFrom', ast.iter_child_nodes(module))
     top_level_classes = tuple(filter(lambda x:x.__class__.__name__ == 'ClassDef', ast.iter_child_nodes(module)))
@@ -138,6 +159,7 @@ def parse_metadata(raw):
     defaults = {'name':'', 'description':'', 'supported_platforms':['windows', 'osx', 'linux'],
                 'version':(1, 0, 0), 'author':'Unknown', 'minimum_calibre_version':(0, 9, 42)}
     field_names = set(defaults)
+    imported_names = {}
 
     plugin_import_found = set()
     all_imports = []
@@ -156,8 +178,11 @@ def parse_metadata(raw):
                 plugin_import_found |= inames
             else:
                 all_imports.append((mod, [n.name for n in names]))
+                imported_names[n.asname or n.name] = mod
     if not plugin_import_found:
         return all_imports
+
+    import_data = (imported_names, zf, namelist)
 
     names = {}
     for node in top_level_assigments:
@@ -165,7 +190,7 @@ def parse_metadata(raw):
         targets.discard(None)
         for x in targets - field_names:
             try:
-                val = convert_node({x}, node.value)
+                val = convert_node({x}, node.value, import_data=import_data)
             except Exception:
                 pass
             else:
@@ -179,7 +204,7 @@ def parse_metadata(raw):
             targets.discard(None)
             fields = field_names.intersection(targets)
             if fields:
-                val = convert_node(fields, node.value, names=names)
+                val = convert_node(fields, node.value, names=names, import_data=import_data)
                 for field in fields:
                     found[field] = val
         return found
@@ -218,7 +243,7 @@ def get_plugin_info(raw):
         if metadata is None:
             raise ValueError('No __init__.py found in plugin')
         raw = zf.open(metadata).read()
-        ans = parse_metadata(raw)
+        ans = parse_metadata(raw, names, zf)
         if isinstance(ans, dict):
             return ans
         # The plugin is importing its base class from somewhere else, le sigh
@@ -229,7 +254,7 @@ def get_plugin_info(raw):
             mod = '/'.join(mod) + '.py'
             if mod in names:
                 raw = zf.open(names[mod]).read()
-                ans = parse_metadata(raw)
+                ans = parse_metadata(raw, names, zf)
                 if isinstance(ans, dict):
                     return ans
 
@@ -512,10 +537,11 @@ class HelloWorld(FileTypePlugin):
         'supported_platforms':['windows', 'osx', 'linux'],
         'author':'Acme Inc.', 'version':{1:'a', 'b':2},
         'minimum_calibre_version':(0, 7, 53)}
-    assert parse_metadata(raw) == vals
+    assert parse_metadata(raw, None, None) == vals
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, 'w') as zf:
-        zf.writestr('very/lovely.py', raw)
+        zf.writestr('very/lovely.py', raw.replace(b'MV = (0, 7, 53)', b'from very.ver import MV'))
+        zf.writestr('very/ver.py', b'MV = (0, 7, 53)')
         zf.writestr('__init__.py', b'from xxx import yyy\nfrom very.lovely import HelloWorld')
     assert get_plugin_info(buf.getvalue()) == vals
 
@@ -523,5 +549,7 @@ class HelloWorld(FileTypePlugin):
 
 if __name__ == '__main__':
     # test_parse_metadata()
-    main()
+    # import pprint
+    # pprint.pprint(get_plugin_info(open(sys.argv[-1], 'rb').read()))
 
+    main()
