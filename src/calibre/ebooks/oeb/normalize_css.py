@@ -164,7 +164,7 @@ for x in EDGES:
     name = 'border-' + x
     normalizers[name] = simple_normalizer(name, ('color', 'style', 'width'), check_inherit=False)
 
-def test_normalization():
+def test_normalization():  # {{{
     import unittest
     from cssutils import parseStyle
 
@@ -264,6 +264,7 @@ def test_normalization():
 
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestNormalization)
     unittest.TextTestRunner(verbosity=4).run(tests)
+# }}}
 
 if __name__ == '__main__':
     test_normalization()
