@@ -988,9 +988,10 @@ class DB(object):
         uv = int(self.user_version)
 
         if sql is None:
+            from apsw_shell import Shell
             callback(_('Dumping database to SQL') + '...')
             buf = StringIO()
-            shell = apsw.Shell(db=self.conn, stdout=buf)
+            shell = Shell(db=self.conn, stdout=buf)
             shell.process_command('.dump')
             sql = buf.getvalue()
 
