@@ -161,6 +161,25 @@ class ReadingTest(BaseTest):
         # Test subsorting
         self.assertEqual([3, 2, 1], cache.multisort([('identifiers', True),
             ('title', True)]), 'Subsort failed')
+
+        # Test sorting of is_multiple fields.
+
+        # Author like fields should be sorted by generating sort names from the
+        # actual values in entry order
+        for field in ('authors', '#authors'):
+            self.assertEqual(
+                cache.set_field(field, {1:('aa bb', 'bb cc', 'cc dd'), 2:('bb aa', 'xx yy'), 3: ('aa bb', 'bb aa')}), {1, 2, 3})
+            self.assertEqual([2, 3, 1], cache.multisort([(field, True)], ids_to_sort=(1, 2, 3)))
+            self.assertEqual([1, 3, 2], cache.multisort([(field, False)], ids_to_sort=(1, 2, 3)))
+
+        # All other is_multiple fields should be sorted by sorting the values
+        # for each book and using that as the sort key
+        for field in ('tags', '#tags'):
+            self.assertEqual(
+                cache.set_field(field, {1:('b', 'a'), 2:('c', 'y'), 3: ('b', 'z')}), {1, 2, 3})
+            self.assertEqual([1, 3, 2], cache.multisort([(field, True)], ids_to_sort=(1, 2, 3)))
+            self.assertEqual([2, 3, 1], cache.multisort([(field, False)], ids_to_sort=(1, 2, 3)))
+
     # }}}
 
     def test_get_metadata(self):  # {{{
