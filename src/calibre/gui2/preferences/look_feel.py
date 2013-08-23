@@ -210,6 +210,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.fs_help_msg.setText(unicode(self.fs_help_msg.text())%(
             _(' or ').join(keys)))
         self.cover_grid_color_button.clicked.connect(self.change_cover_grid_color)
+        self.cover_grid_default_color_button.clicked.connect(self.restore_cover_grid_color)
         self.size_calculated.connect(self.update_cg_cache_size, type=Qt.QueuedConnection)
         self.tabWidget.currentChanged.connect(self.tab_changed)
         self.cover_grid_empty_cache.clicked.connect(self.empty_cache)
@@ -319,6 +320,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             col = tuple(col.getRgb())[:3]
             self.set_cg_color(col)
             self.changed_signal.emit()
+
+    def restore_cover_grid_color(self):
+        self.set_cg_color(gprefs.defaults['cover_grid_color'])
+        self.changed_signal.emit()
 
     def build_font_obj(self):
         font_info = self.current_font
