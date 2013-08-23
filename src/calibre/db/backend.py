@@ -1009,8 +1009,17 @@ class DB(object):
                     import gc
                     for i in xrange(3):
                         gc.collect()
-                    time.sleep(5)
-                    atomic_rename(tmpdb, self.dbpath)
+                    # Try the rename repeatedly in case something like a virus
+                    # scanner has opened one of the files (I love windows)
+                    for i in xrange(10):
+                        time.sleep(1)
+                        try:
+                            atomic_rename(tmpdb, self.dbpath)
+                            break
+                        except:
+                            if i > 8:
+                                raise
+
             finally:
                 self.reopen()
 
