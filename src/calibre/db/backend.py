@@ -1003,7 +1003,14 @@ class DB(object):
 
             self.close()
             try:
-                atomic_rename(tmpdb, self.dbpath)
+                try:
+                    atomic_rename(tmpdb, self.dbpath)
+                except:
+                    import gc
+                    for i in xrange(3):
+                        gc.collect()
+                    time.sleep(5)
+                    atomic_rename(tmpdb, self.dbpath)
             finally:
                 self.reopen()
 
