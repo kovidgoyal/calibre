@@ -185,7 +185,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
                     'text/xml', 'text/javascript', 'text/css'],
             }
 
-            if opts.password:
+            if opts.username and opts.password:
                 self.users_dict[opts.username.strip()] = opts.password.strip()
                 auth_controller = AuthController('Your calibre library',
                         self.users_dict)
