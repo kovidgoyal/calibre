@@ -387,7 +387,7 @@ class LayoutMixin(object):  # {{{
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
             self.centralwidget.layout().addWidget(self.bd_splitter)
-            button_order = ('tb', 'bd', 'cb', 'gv')
+            button_order = ('tb', 'bd', 'gv', 'cb')
         # }}}
         else:  # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
@@ -402,7 +402,7 @@ class LayoutMixin(object):  # {{{
             self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                 QSizePolicy.Expanding))
             self.centralwidget.layout().addWidget(self.bd_splitter)
-            button_order = ('tb', 'cb', 'bd', 'gv')
+            button_order = ('tb', 'cb', 'gv', 'bd')
         # }}}
 
         self.status_bar = StatusBar(self)
