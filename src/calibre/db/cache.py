@@ -1685,10 +1685,10 @@ class Cache(object):
 
     @read_api
     def virtual_libraries_for_books(self, book_ids):
-        libraries = tuple(self._pref('virtual_libraries', {}).iterkeys())
+        libraries = self._pref('virtual_libraries', {})
         ans = {book_id:[] for book_id in book_ids}
-        for lib in libraries:
-            books = self._search(lib)  # We deliberately dont use book_ids as we want to use the search cache
+        for lib, expr in libraries.iteritems():
+            books = self._search(expr)  # We deliberately dont use book_ids as we want to use the search cache
             for book in book_ids:
                 if book in books:
                     ans[book].append(lib)

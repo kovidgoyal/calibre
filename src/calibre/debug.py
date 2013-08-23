@@ -84,7 +84,7 @@ Everything after the -- is passed to the script.
 
     return parser
 
-def reinit_db_new(dbpath, callback=None, sql_dump=None):
+def reinit_db(dbpath, callback=None, sql_dump=None):
     from calibre.db.backend import Connection
     import apsw
     import shutil
@@ -92,6 +92,8 @@ def reinit_db_new(dbpath, callback=None, sql_dump=None):
     from contextlib import closing
     if callback is None:
         callback = lambda x, y: None
+    if not os.path.exists(dbpath):
+        raise ValueError(dbpath + ' does not exist')
 
     with closing(Connection(dbpath)) as conn:
         uv = int(conn.get('PRAGMA user_version;', all=False))
@@ -113,56 +115,6 @@ def reinit_db_new(dbpath, callback=None, sql_dump=None):
         shutil.copyfile(dest, dbpath)
     finally:
         callback(1, False)
-        if os.path.exists(dest):
-            os.remove(dest)
-    prints('Database successfully re-initialized')
-
-
-def reinit_db(dbpath, callback=None, sql_dump=None):
-    if not os.path.exists(dbpath):
-        raise ValueError(dbpath + ' does not exist')
-    from calibre.utils.config_base import tweaks
-    if tweaks.get('use_new_db', False):
-        return reinit_db_new(dbpath, callback, sql_dump)
-
-    from calibre.library.sqlite import connect
-    from contextlib import closing
-    import shutil
-    conn = connect(dbpath, False)
-    uv = conn.get('PRAGMA user_version;', all=False)
-    conn.execute('PRAGMA writable_schema=ON')
-    conn.commit()
-    if sql_dump is None:
-        sql_lines = conn.dump()
-    else:
-        sql_lines = open(sql_dump, 'rb').read()
-    conn.close()
-    dest = dbpath + '.tmp'
-    try:
-        with closing(connect(dest, False)) as nconn:
-            nconn.execute('create temporary table temp_sequence(id INTEGER PRIMARY KEY AUTOINCREMENT)')
-            nconn.commit()
-            if sql_dump is None:
-                if callable(callback):
-                    callback(len(sql_lines), True)
-                for i, line in enumerate(sql_lines):
-                    try:
-                        nconn.execute(line)
-                    except:
-                        import traceback
-                        prints('SQL line %r failed with error:'%line)
-                        prints(traceback.format_exc())
-                        continue
-                    finally:
-                        if callable(callback):
-                            callback(i, False)
-            else:
-                nconn.executescript(sql_lines)
-            nconn.execute('pragma user_version=%d'%int(uv))
-            nconn.commit()
-        os.remove(dbpath)
-        shutil.copyfile(dest, dbpath)
-    finally:
         if os.path.exists(dest):
             os.remove(dest)
     prints('Database successfully re-initialized')

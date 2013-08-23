@@ -3,18 +3,22 @@ import re
 class AdvancedUserRecipe1376229553(BasicNewsRecipe):
     title          = u'Daily Express'
     __author__ = 'Dave Asbury'
+    language = 'en_GB'
+    # 13-08-17 remove quoted text from article
     encoding    = 'utf-8'
     remove_empty_feeds = True
     #remove_javascript     = True
     no_stylesheets        = True
-    oldest_article = 2
+    oldest_article = 1
     max_articles_per_feed = 10
     #auto_cleanup = True
     compress_news_images = True
-    compress_news_images_max_size = 25
+    compress_news_images_max_size = 30
     ignore_duplicate_articles = {'title', 'url'}
 
     remove_tags = [
+                                dict(attrs={'class' : 'quote'}),
+                dict(attrs={'class' : 'author'}),
                                 dict(name='footer'),
                                 dict(attrs={'id' : 'header_addons'}),
                 dict(attrs={'class' : 'hoverException'}),
@@ -59,9 +63,11 @@ class AdvancedUserRecipe1376229553(BasicNewsRecipe):
         return cover_url
 
     extra_css = '''
-                    h1{font-weight:bold;font-size:26px;}
-                    h2{font-weight:normal;font-size:small;}
-                    p{font-size:14px;}
-                    body{font-size:14px;}
+                    h1{font-weight:bold;font-size:175%;}
+                    h2{font-weight:normal;font-size:75%;}
+                    #p{font-size:14px;}
+                    #body{font-size:14px;}
+                    .photo-caption {display: block;margin-left: auto;margin-right: auto;width:100%;font-size:40%;}
+                    .publish-info {font-size:50%;}
+                    .photo img {display: block;margin-left: auto;margin-right: auto;width:100%;}
       '''
-

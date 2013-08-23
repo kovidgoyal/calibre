@@ -97,3 +97,12 @@ class FilesystemTest(BaseTest):
             self.assertEqual(all_ids, cache.all_book_ids())
             cache.backend.close()
 
+    def test_long_filenames(self):
+        ' Test long file names '
+        cache = self.init_cache()
+        cache.set_field('title', {1:'a'*10000})
+        self.assertLessEqual(len(cache.field_for('path', 1)), cache.backend.PATH_LIMIT * 2)
+        cache.set_field('authors', {1:'b'*10000})
+        self.assertLessEqual(len(cache.field_for('path', 1)), cache.backend.PATH_LIMIT * 2)
+        fpath = cache.format_abspath(1, cache.formats(1)[0])
+        self.assertLessEqual(len(fpath), len(cache.backend.library_path) + cache.backend.PATH_LIMIT * 4)

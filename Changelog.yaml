@@ -20,6 +20,56 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.0.0
+  date: 2013-08-23
+
+  new features:
+    - title: "A new 'cover grid' view of the books in your calibre library"
+      description: "Excellent for judging your books by their covers :) To use click the button with the icon of a grid in the bottom right corner of the main window. It can be configured via Preferences->Look & Feel->Cover Grid"
+      type: major
+
+    - title: "A new, faster database backend"
+      description: "The database backend in calibre has been re-written from scratch. The new code is smaller, more robust and much faster than the old code. The exact speedup will depend on the number of books and number and type of custom columns in your library. Users have reported calibre startup times decreasing by a factor of 2-3 times."
+      type: major
+
+    - title: "For a summary of the major changes in calibre between 0.9 and 1.0, see http://calibre-ebook.com/new-in/ten"
+      type: major
+
+    - title: "RTF Input: Add option to ignore WMF images iinstead of replacing them with a placeholder."
+      tickets: [1213599]
+
+    - title: "Content server: Make virtual libraries available as searches from the start page. They work just like saved searches, clicking on a virtual library will show you all the books in that virtual library."
+ 
+  bug fixes:
+    - title: "Remove extra, useless 'language' entry in metadata download configuration dialog"
+
+    - title: "Kobo driver: Display device collections even if the driver is configured to not manage shelves on the device."
+      tickets: [1214233]
+
+    - title: "Fix typo in calibre.desktop file on linux"
+      tickets: [1213664]
+
+    - title: "Edit metadata dialog: Disable OK button while results are being downloaded."
+      tickets: [1213397]
+
+    - title: "In OS X 10.8 Apple stopped redirecting stdout/stderr to Console.app for applications launched by launch services. Re-enable the redirection, useful for debugging."
+
+    - title: "Fix virtual library tabs not being updated when using VL button"
+
+  improved recipes:
+    - Consumerist
+    - jeuxvideo
+    - Metro UK
+    - El Tribuno
+    - High Country News
+    - Daily Express
+    - Providence Journal
+    - mediapart
+
+  new recipes:
+    - title: News24 and Nuus24
+      author: Nicki de Wet
+     
 - version: 0.9.44
   date: 2013-08-16
 

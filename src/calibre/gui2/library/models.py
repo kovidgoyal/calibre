@@ -685,7 +685,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             elif dt in {'text', 'comments', 'composite', 'enumeration'}:
                 if m['is_multiple'] and not field_obj.is_composite:
                     jv = m['is_multiple']['list_to_ui']
-                    do_sort = field == 'tags'
+                    do_sort = '&' not in jv
                     if do_sort:
                         def func(idx):
                             return QVariant(jv.join(sorted(fffunc(field_obj, idfunc(idx), default_value=()), key=sort_key)))

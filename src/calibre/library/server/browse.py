@@ -22,6 +22,7 @@ from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
 from calibre.library.field_metadata import category_icon_map
 from calibre.library.server.utils import quote, unquote
+from calibre.db.categories import Tag
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 
 def xml(*args, **kwargs):
@@ -352,6 +353,9 @@ class BrowseServer(object):
                 (_('All books'), 'allbooks', 'book.png'),
                 (_('Random book'), 'randombook', 'random.png'),
                 ]
+        virt_libs = self.db.prefs.get('virtual_libraries', {})
+        if virt_libs:
+            cats.append((_('Virtual Libs.'), 'virt_libs', 'lt.png'))
 
         def getter(x):
             return category_meta[x]['name'].lower()
@@ -421,11 +425,12 @@ class BrowseServer(object):
 
     def browse_category(self, category, sort):
         categories = self.categories_cache()
+        categories['virt_libs'] = {}
         if category not in categories:
             raise cherrypy.HTTPError(404, 'category not found')
         category_meta = self.db.field_metadata
-        category_name = category_meta[category]['name']
-        datatype = category_meta[category]['datatype']
+        category_name = _('Virtual Libraries') if category == 'virt_libs' else category_meta[category]['name']
+        datatype = 'text' if category == 'virt_libs' else category_meta[category]['datatype']
 
         # See if we have any sub-categories to display. As we find them, add
         # them to the displayed set to avoid showing the same item twice
@@ -480,7 +485,10 @@ class BrowseServer(object):
             script = 'true'
 
         # Now do the category items
+        vls = self.db.prefs.get('virtual_libraries', {})
+        categories['virt_libs'] = [Tag(k) for k, v in vls.iteritems()]
         items = categories[category]
+
         sort = self.browse_sort_categories(items, sort)
 
         if not cats and len(items) == 1:
@@ -590,6 +598,7 @@ class BrowseServer(object):
         prefix = '' if self.is_wsgi else self.opts.url_prefix
         if category is None:
             ans = self.browse_toplevel()
+        # The following are fake categories used for the top-level view
         elif category == 'newest':
             raise cherrypy.InternalRedirect(prefix +
                     '/browse/matches/newest/dummy')
@@ -629,18 +638,19 @@ class BrowseServer(object):
         categories = self.categories_cache()
 
         if category not in categories and \
-                category not in ('newest', 'allbooks'):
+                category not in ('newest', 'allbooks', 'virt_libs'):
             raise cherrypy.HTTPError(404, 'category not found')
         fm = self.db.field_metadata
         try:
             category_name = fm[category]['name']
             dt = fm[category]['datatype']
         except:
-            if category not in ('newest', 'allbooks'):
+            if category not in ('newest', 'allbooks', 'virt_libs'):
                 raise
             category_name = {
                     'newest' : _('Newest'),
                     'allbooks' : _('All books'),
+                    'virt_libs': _('Virtual Libraries'),
             }[category]
             dt = None
 
@@ -658,6 +668,10 @@ class BrowseServer(object):
                 hide_sort = 'true'
             elif category == 'allbooks':
                 ids = all_ids
+            elif category == 'virt_libs':
+                which = unhexlify(cid).decode('utf-8')
+                vls = self.db.prefs.get('virtual_libraries', {})
+                ids = self.search_cache(vls[which])
             else:
                 if fm.get(category, {'datatype':None})['datatype'] == 'composite':
                     cid = cid.decode('utf-8')
@@ -906,8 +920,11 @@ class BrowseServer(object):
     @Endpoint()
     def browse_random(self, *args, **kwargs):
         import random
-        book_id = random.choice(self.db.search_getting_ids(
-            '', self.search_restriction))
+        try:
+            book_id = random.choice(self.db.search_getting_ids(
+                '', self.search_restriction))
+        except IndexError:
+            raise cherrypy.HTTPError(404, 'This library has no books')
         ans = self.browse_render_details(book_id, add_random_button=True)
         return self.browse_template('').format(
                 title='', script='book();', main=ans)
@@ -924,6 +941,7 @@ class BrowseServer(object):
                 title='', script='book();', main=ans)
 
     # }}}
+
     # Search {{{
     @Endpoint(sort_type='list')
     def browse_search(self, query='', list_sort=None):

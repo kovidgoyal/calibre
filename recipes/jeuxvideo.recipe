@@ -6,6 +6,7 @@ JeuxVideo.com
 '''
 
 __author__ = '2013, Malah <malah at neuf dot fr>'
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class JeuxVideoCom(BasicNewsRecipe):
@@ -27,6 +28,8 @@ class JeuxVideoCom(BasicNewsRecipe):
     masthead_url       = u'https://upload.wikimedia.org/wikipedia/commons/3/39/Jeuxvideocom.png'
     feeds =  [
         (u'Section PC',u'http://www.jeuxvideo.com/rss/rss-pc.xml'),
+        (u'Section Xbox One',u'http://www.jeuxvideo.com/rss/rss-xo.xml'),
+        (u'Section PlayStation 4',u'http://www.jeuxvideo.com/rss/rss-ps4.xml'),
         (u'Section Xbox 360',u'http://www.jeuxvideo.com/rss/rss-360.xml'),
         (u'Section PlayStation 3',u'http://www.jeuxvideo.com/rss/rss-ps3.xml'),
         (u'Section Wii U',u'http://www.jeuxvideo.com/rss/rss-wiiu.xml'),

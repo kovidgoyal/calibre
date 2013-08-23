@@ -13,7 +13,7 @@ from collections import defaultdict, Counter
 
 from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY, null
 from calibre.db.write import Writer
-from calibre.ebooks.metadata import title_sort
+from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.date import UNDEFINED_DATE
@@ -48,6 +48,10 @@ class Field(object):
             self._sort_key = lambda x:sort_key(calibre_langcode_to_name(x))
         self.is_multiple = (bool(self.metadata['is_multiple']) or self.name ==
                 'formats')
+        self.sort_sort_key = True
+        if self.is_multiple and '&' in self.metadata['is_multiple']['list_to_ui']:
+            self._sort_key = lambda x: sort_key(author_to_author_sort(x))
+            self.sort_sort_key = False
         self.default_value = {} if name == 'identifiers' else () if self.is_multiple else None
         self.category_formatter = type(u'')
         if dt == 'rating':
@@ -378,9 +382,9 @@ class ManyToManyField(Field):
         all_cids = set()
         for cids in ans.itervalues():
             all_cids = all_cids.union(set(cids))
-        sk_map = {cid: self._sort_key(self.table.id_map[cid])
-                for cid in all_cids}
-        return {id_: (tuple(sk_map[cid] for cid in cids) if cids else
+        sk_map = {cid: self._sort_key(self.table.id_map[cid]) for cid in all_cids}
+        sort_func = (lambda x:tuple(sorted(x))) if self.sort_sort_key else tuple
+        return {id_: (sort_func(sk_map[cid] for cid in cids) if cids else
                         (self._default_sort_key,))
                 for id_, cids in ans.iteritems()}
 
