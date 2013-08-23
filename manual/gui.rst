@@ -62,7 +62,13 @@ Add books
 The :guilabel:`Add books` action can read metadata from a wide variety of ebook formats. In addition, it tries to guess metadata from the filename.
 See the :ref:`config_filename_metadata` section, to learn how to configure this.
 
-To add an additional format for an existing book use the :ref:`edit_meta_information` action.
+To add an additional format for an existing book you can do any of three things:
+
+    1. Drag and drop the file onto the book details panel on the right side of the main window
+           
+    2. Right click the Add books button and choose :guilabel`:Add files to selected books`.
+           
+    3. Click the red add books button in the top right area of the :guilabel:`Edit Metadata` dialog, accessed by the :ref:`edit_meta_information` action.
 
 .. _edit_meta_information:
 
