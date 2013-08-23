@@ -267,6 +267,7 @@ class POCKETBOOK602(USBMS):
 
     EBOOK_DIR_MAIN = 'books'
     SUPPORTS_SUB_DIRS = True
+    SCAN_FROM_ROOT = True
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0xa4a5]
