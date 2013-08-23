@@ -263,9 +263,11 @@ class ConvertAction(InterfaceAction):
                     pass
         self.gui.tags_view.recount()
         if self.gui.current_view() is self.gui.library_view:
-            current = self.gui.library_view.currentIndex()
+            lv = self.gui.library_view
+            current = lv.currentIndex()
             if current.isValid():
-                self.gui.library_view.model().current_changed(current, QModelIndex())
+                lv.model().refresh_ids((book_id,))
+                lv.model().current_changed(current, QModelIndex())
         if manually_fine_tune_toc:
             self.gui.iactions['Edit ToC'].do_one(book_id, fmt.upper())
 
