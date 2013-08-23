@@ -554,6 +554,8 @@ class OPF(object):  # {{{
                 resolve_entities=True, assume_utf8=True)
         raw = raw[raw.find('<'):]
         self.root     = etree.fromstring(raw, self.PARSER)
+        if self.root is None:
+            raise ValueError('Not an OPF file')
         try:
             self.package_version = float(self.root.get('version', None))
         except (AttributeError, TypeError, ValueError):
