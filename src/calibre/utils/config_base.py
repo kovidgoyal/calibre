@@ -471,12 +471,12 @@ def write_tweaks(raw):
 tweaks = read_tweaks()
 
 def reset_tweaks_to_default():
-    global tweaks
     default_tweaks = P('default_tweaks.py', data=True,
             allow_user_override=False)
     dl, dg = {}, {}
     exec default_tweaks in dg, dl
-    tweaks = dl
+    tweaks.clear()
+    tweaks.update(dl)
 
 class Tweak(object):
 
