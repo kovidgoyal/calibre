@@ -820,8 +820,11 @@ class Cache(object):
                 ans = self.fields[fm.get(field, field)].sort_keys_for_books(
                     get_metadata, lang_map, all_book_ids)
             except KeyError:
-                ans = virtual_fields[fm.get(field, field)].sort_keys_for_books(
-                    get_metadata, lang_map, all_book_ids)
+                if field == 'id':
+                    ans = {bid:bid for bid in ids_to_sort}
+                else:
+                    ans = virtual_fields[fm.get(field, field)].sort_keys_for_books(
+                        get_metadata, lang_map, all_book_ids)
             if is_series:
                 idx_ans = self.fields[idx].sort_keys_for_books(
                     get_metadata, lang_map, all_book_ids)
