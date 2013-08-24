@@ -26,7 +26,7 @@ class Field(object):
     is_many_many = False
     is_composite = False
 
-    def __init__(self, name, table):
+    def __init__(self, name, table, bools_are_tristate):
         self.name, self.table = name, table
         dt = self.metadata['datatype']
         self.has_text_data = dt in {'text', 'comments', 'series', 'enumeration'}
@@ -43,6 +43,10 @@ class Field(object):
             self._default_sort_key = 0
         elif dt == 'bool':
             self._default_sort_key = None
+            if bools_are_tristate:
+                self._sort_key = lambda x:{True: 1, False: 2, None: 3}.get(x, 3)
+            else:
+                self._sort_key = lambda x:{True: 1, False: 2, None: 2}.get(x, 2)
         elif dt == 'datetime':
             self._default_sort_key = UNDEFINED_DATE
             if tweaks['sort_dates_using_visible_fields']:
@@ -248,7 +252,7 @@ class CompositeField(OneToOneField):
 
 class OnDeviceField(OneToOneField):
 
-    def __init__(self, name, table):
+    def __init__(self, name, table, bools_are_tristate):
         self.name = name
         self.book_on_device_func = None
         self.is_multiple = False
@@ -565,7 +569,7 @@ class TagsField(ManyToManyField):
                 ans.append(c)
         return ans
 
-def create_field(name, table):
+def create_field(name, table, bools_are_tristate):
     cls = {
             ONE_ONE: OneToOneField,
             MANY_ONE: ManyToOneField,
@@ -585,5 +589,5 @@ def create_field(name, table):
         cls = CompositeField
     elif table.metadata['datatype'] == 'series':
         cls = SeriesField
-    return cls(name, table)
+    return cls(name, table, bools_are_tristate)
 

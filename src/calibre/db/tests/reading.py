@@ -125,7 +125,7 @@ class ReadingTest(BaseTest):
 
     def test_sorting(self):  # {{{
         'Test sorting'
-        cache = self.init_cache(self.library_path)
+        cache = self.init_cache()
         for field, order in {
             'title'  : [2, 1, 3],
             'authors': [2, 1, 3],
@@ -147,7 +147,7 @@ class ReadingTest(BaseTest):
             '#rating':[3, 2, 1],
             '#series':[3, 2, 1],
             '#tags':[3, 2, 1],
-            '#yesno':[3, 1, 2],
+            '#yesno':[2, 1, 3],
             '#comments':[3, 2, 1],
         }.iteritems():
             x = list(reversed(order))
@@ -188,6 +188,11 @@ class ReadingTest(BaseTest):
         with Tweak('gui_pubdate_display_format', 'MMM'), Tweak('sort_dates_using_visible_fields', True):
             c2 = self.init_cache()
             self.assertEqual([3, 2, 1], c2.multisort([('pubdate', True)]))
+
+        # Test bool sorting when not tristate
+        cache.set_pref('bools_are_tristate', False)
+        c2 = self.init_cache()
+        self.assertEqual([2, 3, 1], c2.multisort([('#yesno', True), ('id', False)]))
 
     # }}}
 

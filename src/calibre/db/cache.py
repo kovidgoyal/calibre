@@ -286,14 +286,15 @@ class Cache(object):
         '''
         with self.write_lock:
             self.backend.read_tables()
+            bools_are_tristate = self.backend.prefs['bools_are_tristate']
 
             for field, table in self.backend.tables.iteritems():
-                self.fields[field] = create_field(field, table)
+                self.fields[field] = create_field(field, table, bools_are_tristate)
                 if table.metadata['datatype'] == 'composite':
                     self.composites[field] = self.fields[field]
 
             self.fields['ondevice'] = create_field('ondevice',
-                    VirtualTable('ondevice'))
+                    VirtualTable('ondevice'), bools_are_tristate)
 
             for name, field in self.fields.iteritems():
                 if name[0] == '#' and name.endswith('_index'):
