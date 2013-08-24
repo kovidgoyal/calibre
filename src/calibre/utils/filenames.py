@@ -406,6 +406,15 @@ def atomic_rename(oldpath, newpath):
     or may not exist. If it exists, it is replaced. '''
     if iswindows:
         import win32file
-        win32file.MoveFileEx(oldpath, newpath, win32file.MOVEFILE_REPLACE_EXISTING|win32file.MOVEFILE_WRITE_THROUGH)
+        for i in xrange(10):
+            try:
+                win32file.MoveFileEx(oldpath, newpath, win32file.MOVEFILE_REPLACE_EXISTING|win32file.MOVEFILE_WRITE_THROUGH)
+                break
+            except:
+                if i > 8:
+                    raise
+                # Try the rename repeatedly in case something like a virus
+                # scanner has opened one of the files (I love windows)
+                time.sleep(1)
     else:
         os.rename(oldpath, newpath)
