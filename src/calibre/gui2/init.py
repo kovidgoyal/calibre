@@ -334,6 +334,8 @@ class VLTabs(QTabBar):  # {{{
             if not vl:
                 all_idx = i
         self.setCurrentIndex(all_idx if current_idx is None else current_idx)
+        if current_idx is None and current_lib:
+            self.setTabText(all_idx, current_lib)
         self.currentChanged.connect(self.tab_changed)
         try:
             self.tabButton(all_idx, self.RightSide).setVisible(False)
