@@ -99,7 +99,7 @@ class OneToOneTable(Table):
                 # failures to decode utf-8
                 query = db.conn.execute('SELECT {0}, cast({1} as blob) FROM {2}'.format(idcol,
                     self.metadata['column'], self.metadata['table']))
-                self.book_col_map = {k:bytes(val).decode('utf-8', 'ignore') for k, val in query}
+                self.book_col_map = {k:bytes(val).decode('utf-8', 'replace') for k, val in query}
         else:
             us = self.unserialize
             self.book_col_map = {book_id:us(val) for book_id, val in query}
