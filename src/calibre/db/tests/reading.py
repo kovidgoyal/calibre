@@ -180,6 +180,15 @@ class ReadingTest(BaseTest):
             self.assertEqual([1, 3, 2], cache.multisort([(field, True)], ids_to_sort=(1, 2, 3)))
             self.assertEqual([2, 3, 1], cache.multisort([(field, False)], ids_to_sort=(1, 2, 3)))
 
+        # Test tweak to sort dates by visible format
+        from calibre.utils.date import parse_only_date as p
+        from calibre.utils.config_base import Tweak
+        self.assertEqual(cache.set_field('pubdate', {1:p('2001-3-3'), 2:p('2002-2-3'), 3:p('2003-1-3')}), {1, 2, 3})
+        self.assertEqual([1, 2, 3], cache.multisort([('pubdate', True)]))
+        with Tweak('gui_pubdate_display_format', 'MMM'), Tweak('sort_dates_using_visible_fields', True):
+            c2 = self.init_cache()
+            self.assertEqual([3, 2, 1], c2.multisort([('pubdate', True)]))
+
     # }}}
 
     def test_get_metadata(self):  # {{{

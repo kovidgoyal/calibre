@@ -10,13 +10,14 @@ __docformat__ = 'restructuredtext en'
 
 from threading import Lock
 from collections import defaultdict, Counter
+from functools import partial
 
 from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY, null
 from calibre.db.write import Writer
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
-from calibre.utils.date import UNDEFINED_DATE
+from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort
 from calibre.utils.localization import calibre_langcode_to_name
 
 class Field(object):
@@ -44,6 +45,14 @@ class Field(object):
             self._default_sort_key = None
         elif dt == 'datetime':
             self._default_sort_key = UNDEFINED_DATE
+            if tweaks['sort_dates_using_visible_fields']:
+                fmt = None
+                if name in {'timestamp', 'pubdate', 'last_modified'}:
+                    fmt = tweaks['gui_%s_display_format' % name]
+                elif self.metadata['is_custom']:
+                    fmt = self.metadata.get('display', {}).get('date_format', None)
+                self._sort_key = partial(clean_date_for_sort, fmt=fmt)
+
         if self.name == 'languages':
             self._sort_key = lambda x:sort_key(calibre_langcode_to_name(x))
         self.is_multiple = (bool(self.metadata['is_multiple']) or self.name ==

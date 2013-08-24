@@ -478,3 +478,14 @@ def reset_tweaks_to_default():
     exec default_tweaks in dg, dl
     tweaks = dl
 
+class Tweak(object):
+
+    def __init__(self, name, value):
+        self.name, self.value = name, value
+
+    def __enter__(self):
+        self.origval = tweaks[self.name]
+        tweaks[self.name] = self.value
+
+    def __exit__(self, *args):
+        tweaks[self.name] = self.origval

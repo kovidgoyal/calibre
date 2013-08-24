@@ -357,10 +357,10 @@ def cd_repl_func(tt, dt, match_object):
         return ''
     return cd_function_index[s[0]](tt, dt)
 
-def clean_date_for_sort(dt, format):
+def clean_date_for_sort(dt, fmt=None):
     ''' Return dt with fields not in shown in format set to a default '''
-    if not format:
-        format = 'yyMd'
+    if not fmt:
+        fmt = 'yyMd'
 
     if not isinstance(dt, datetime):
         dt = datetime.combine(dt, dtime())
@@ -370,15 +370,15 @@ def clean_date_for_sort(dt, format):
             dt = dt.replace(tzinfo=_local_tz)
         dt = as_local_time(dt)
 
-    if format == 'iso':
-        format = 'yyMdhms'
+    if fmt == 'iso':
+        fmt = 'yyMdhms'
 
     tt = {'year':UNDEFINED_DATE.year, 'mon':UNDEFINED_DATE.month,
           'day':UNDEFINED_DATE.day, 'hour':UNDEFINED_DATE.hour,
           'min':UNDEFINED_DATE.minute, 'sec':UNDEFINED_DATE.second}
 
     repl_func = partial(cd_repl_func, tt, dt)
-    re.sub('(s{1,2})|(m{1,2})|(h{1,2})|(d{1,4}|M{1,4}|(?:yyyy|yy))', repl_func, format)
+    re.sub('(s{1,2})|(m{1,2})|(h{1,2})|(d{1,4}|M{1,4}|(?:yyyy|yy))', repl_func, fmt)
     return dt.replace(year=tt['year'], month=tt['mon'], day=tt['day'], hour=tt['hour'],
                       minute=tt['min'], second=tt['sec'], microsecond=0)
 
