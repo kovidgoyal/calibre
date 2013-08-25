@@ -216,8 +216,16 @@ class CompositeField(OneToOneField):
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         val_map = defaultdict(set)
+        splitter = self.table.metadata['is_multiple'].get('cache_to_list', None)
         for book_id in candidates:
-            val_map[self.get_value_with_cache(book_id, get_metadata)].add(book_id)
+            vals = self.get_value_with_cache(book_id, get_metadata)
+            if splitter:
+                vals = [vv.strip() for vv in vals.split(splitter)]
+            else:
+                vals = [vals]
+            for v in vals:
+                if v:
+                    val_map[v].add(book_id)
         for val, book_ids in val_map.iteritems():
             yield val, book_ids
 
