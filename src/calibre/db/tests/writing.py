@@ -556,7 +556,7 @@ class WritingTest(BaseTest):
             self.assertEqual(c.field_for('#series_index', 2), 4.0)
     # }}}
 
-    def test_composite(self):  # {{{
+    def test_composite_cache(self):  # {{{
         ' Test that the composite field cache is properly invalidated on writes '
         cache = self.init_cache()
         cache.create_custom_column('tc', 'TC', 'composite', False, display={

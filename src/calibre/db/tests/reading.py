@@ -555,3 +555,16 @@ class ReadingTest(BaseTest):
         self.assertListEqual([2, 3, 1], ids)
     # }}}
 
+    def test_composites(self):  # {{{
+        cache = self.init_cache()
+        cache.create_custom_column('mult', 'CC1', 'composite', True, display={'composite_template': 'b,a,c'})
+        cache.create_custom_column('single', 'CC1', 'composite', False, display={'composite_template': 'b,a,c'})
+
+        cache = self.init_cache()
+        # Test searching
+        self.assertEqual({1,2,3}, cache.search('#mult:=a'))
+        self.assertEqual(set(), cache.search('#mult:=b,a,c'))
+        self.assertEqual({1,2,3}, cache.search('#single:=b,a,c'))
+        self.assertEqual(set(), cache.search('#single:=b'))
+    # }}}
+
