@@ -55,7 +55,8 @@ class TestResult(unittest.TextTestResult):
         if self.wasSuccessful():
             tests = sorted(self.times, key=self.times.get, reverse=True)
         slowest = ['%s [%g s]' % (t.id(), self.times[t]) for t in tests[:3]]
-        self.stream.writeln('\nSlowest tests: %s' % ' '.join(slowest))
+        if len(slowest) > 1:
+            self.stream.writeln('\nSlowest tests: %s' % ' '.join(slowest))
 
 def find_tests():
     return unittest.defaultTestLoader.discover(os.path.dirname(os.path.abspath(__file__)), pattern='*.py')
