@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, os, shutil, tempfile, atexit, gc
+import unittest, os, shutil, tempfile, atexit, gc, time
 from functools import partial
 from io import BytesIO
 from future_builtins import map
@@ -31,7 +31,13 @@ class BaseTest(unittest.TestCase):
         from calibre.utils.recycle_bin import restore_recyle
         restore_recyle()
         gc.collect(), gc.collect()
-        shutil.rmtree(self.library_path)
+        try:
+            shutil.rmtree(self.library_path)
+        except EnvironmentError:
+            # Try again in case something transient has a file lock on windows
+            gc.collect(), gc.collect()
+            time.sleep(2)
+            shutil.rmtree(self.library_path)
 
     def create_db(self, library_path):
         from calibre.library.database2 import LibraryDatabase2
