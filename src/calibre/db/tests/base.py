@@ -21,14 +21,11 @@ class BaseTest(unittest.TestCase):
     longMessage = True
     maxDiff = None
 
-    @classmethod
-    def setUpClass(cls):
-        from calibre.utils.config_base import reset_tweaks_to_default
-        reset_tweaks_to_default()
-
     def setUp(self):
         from calibre.utils.recycle_bin import nuke_recycle
         nuke_recycle()
+        from calibre.utils.config_base import reset_tweaks_to_default
+        reset_tweaks_to_default()
         self.library_path = self.mkdtemp()
         self.create_db(self.library_path)
 
