@@ -89,7 +89,7 @@ def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None, conve
         x = {}
         for field in FIELDS:
             x[field] = record[self.FIELD_MAP[field]]
-        if convert_to_local_tz and hasattr(self, 'new_api'):
+        if convert_to_local_tz:
             for tf in ('timestamp', 'pubdate', 'last_modified'):
                 x[tf] = as_local_time(x[tf])
 

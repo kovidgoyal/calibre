@@ -685,8 +685,6 @@ class GridView(QListView):
         self.thumbnail_cache.shutdown()
 
     def set_database(self, newdb, stage=0):
-        if not hasattr(newdb, 'new_api'):
-            return
         if stage == 0:
             self.ignore_render_requests.set()
             try:

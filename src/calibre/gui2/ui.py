@@ -544,11 +544,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.activateWindow()
         elif msg.startswith('refreshdb:'):
             db = self.library_view.model().db
-            if hasattr(db, 'new_api'):
-                db.new_api.reload_from_db()
-                self.library_view.model().resort()
-            else:
-                self.library_view.model().refresh()
+            db.new_api.reload_from_db()
+            self.library_view.model().resort()
             self.library_view.model().research()
             self.tags_view.recount()
             self.library_view.model().db.refresh_format_cache()

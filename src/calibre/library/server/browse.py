@@ -681,10 +681,7 @@ class BrowseServer(object):
                 ids = self.db.get_books_for_category(q, cid)
                 ids = [x for x in ids if x in all_ids]
 
-        if hasattr(self.db, 'new_api'):
-            items = [self.db.data.tablerow_for_id(x) for x in ids]
-        else:
-            items = [self.db.data._data[x] for x in ids]
+        items = [self.db.data.tablerow_for_id(x) for x in ids]
         if category == 'newest':
             list_sort = 'timestamp'
         if dt == 'series':
@@ -948,10 +945,7 @@ class BrowseServer(object):
         if isbytestring(query):
             query = query.decode('UTF-8')
         ids = self.db.search_getting_ids(query.strip(), self.search_restriction)
-        if hasattr(self.db, 'new_api'):
-            items = [self.db.data.tablerow_for_id(x) for x in ids]
-        else:
-            items = [self.db.data._data[x] for x in ids]
+        items = [self.db.data.tablerow_for_id(x) for x in ids]
         sort = self.browse_sort_book_list(items, list_sort)
         ids = [x[0] for x in items]
         html = render_book_list(ids, self.opts.url_prefix,
