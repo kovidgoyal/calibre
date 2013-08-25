@@ -8,6 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from locale import atof
 from threading import Lock
 from collections import defaultdict, Counter
 from functools import partial
@@ -175,17 +176,35 @@ class OneToOneField(Field):
 class CompositeField(OneToOneField):
 
     is_composite = True
+    SIZE_SUFFIX_MAP = {suffix:i for i, suffix in enumerate(('', 'K', 'M', 'G', 'T', 'P', 'E'))}
 
     def __init__(self, *args, **kwargs):
         OneToOneField.__init__(self, *args, **kwargs)
 
         self._render_cache = {}
         self._lock = Lock()
-        self._composite_name = '#' + self.metadata['label']
+        m = self.metadata
+        self._composite_name = '#' + m['label']
         try:
-            self.splitter = self.metadata['is_multiple'].get('cache_to_list', None)
+            self.splitter = m['is_multiple'].get('cache_to_list', None)
         except AttributeError:
             self.splitter = None
+        composite_sort = m.get('display', {}).get('composite_sort', None)
+        if composite_sort == 'number':
+            self._sort_key = self.number_sort_key
+        else:
+            self._sort_key = sort_key
+
+    def number_sort_key(self, val):
+        try:
+            p = 1
+            if val and val.endswith('B'):
+                p = 1 << (10 * self.SIZE_SUFFIX_MAP.get(val[-2:-1], 0))
+                val = val[:(-2 if p > 1 else -1)].strip()
+            val = atof(val) * p
+        except (TypeError, AttributeError, ValueError):
+            val = 0.0
+        return val
 
     def render_composite(self, book_id, mi):
         with self._lock:
@@ -215,7 +234,7 @@ class CompositeField(OneToOneField):
         return ans
 
     def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
-        return {id_: sort_key(self.get_value_with_cache(id_, get_metadata)) for id_ in
+        return {id_: self._sort_key(self.get_value_with_cache(id_, get_metadata)) for id_ in
                 all_book_ids}
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
