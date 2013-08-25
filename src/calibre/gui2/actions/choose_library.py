@@ -142,7 +142,7 @@ class MovedDialog(QDialog):  # {{{
 
     def accept(self):
         newloc = unicode(self.loc.text())
-        if not db_class.exists_at(newloc):
+        if not db_class().exists_at(newloc):
             error_dialog(self, _('No library found'),
                     _('No existing calibre library found at %s')%newloc,
                     show=True)
