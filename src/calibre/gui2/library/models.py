@@ -683,15 +683,25 @@ class BooksModel(QAbstractTableModel):  # {{{
                 def func(idx):
                     return by if fffunc(field_obj, idfunc(idx)) else bb
             elif dt in {'text', 'comments', 'composite', 'enumeration'}:
-                if m['is_multiple'] and not field_obj.is_composite:
+                if m['is_multiple']:
                     jv = m['is_multiple']['list_to_ui']
                     do_sort = '&' not in jv
-                    if do_sort:
-                        def func(idx):
-                            return QVariant(jv.join(sorted(fffunc(field_obj, idfunc(idx), default_value=()), key=sort_key)))
+                    if field_obj.is_composite:
+                        if do_sort:
+                            sv = m['is_multiple']['cache_to_list']
+                            def func(idx):
+                                val = fffunc(field_obj, idfunc(idx), default_value='') or ''
+                                return QVariant(jv.join(sorted((x.strip() for x in val.split(sv)), key=sort_key)))
+                        else:
+                            def func(idx):
+                                return QVariant(fffunc(field_obj, idfunc(idx), default_value=''))
                     else:
-                        def func(idx):
-                            return QVariant(jv.join(fffunc(field_obj, idfunc(idx), default_value=())))
+                        if do_sort:
+                            def func(idx):
+                                return QVariant(jv.join(sorted(fffunc(field_obj, idfunc(idx), default_value=()), key=sort_key)))
+                        else:
+                            def func(idx):
+                                return QVariant(jv.join(fffunc(field_obj, idfunc(idx), default_value=())))
                 else:
                     if dt in {'text', 'composite', 'enumeration'} and m['display'].get('use_decorations', False):
                         def func(idx):
