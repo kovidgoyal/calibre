@@ -556,11 +556,14 @@ class ReadingTest(BaseTest):
     # }}}
 
     def test_composites(self):  # {{{
+        from calibre.utils.date import parse_only_date as p
         cache = self.init_cache()
         cache.create_custom_column('mult', 'CC1', 'composite', True, display={'composite_template': 'b,a,c'})
         cache.create_custom_column('single', 'CC2', 'composite', False, display={'composite_template': 'b,a,c'})
         cache.create_custom_column('number', 'CC3', 'composite', False, display={'composite_template': '{#float}', 'composite_sort':'number'})
         cache.create_custom_column('size', 'CC4', 'composite', False, display={'composite_template': '{#float:human_readable()}', 'composite_sort':'number'})
+        cache.create_custom_column('ccdate', 'CC5', 'composite', False,
+                                   display={'composite_template': '{pubdate:format_date(d-M-yy)}', 'composite_sort':'date'})
 
         cache = self.init_cache()
         # Test searching
@@ -574,5 +577,9 @@ class ReadingTest(BaseTest):
         self.assertEqual([3, 1, 2], cache.multisort([('#number', True)]))
         cache.set_field('#float', {1:3, 2:2*1024, 3:1*1024*1024})
         self.assertEqual([1, 2, 3], cache.multisort([('#size', True)]))
+
+        # Test date sorting
+        cache.set_field('pubdate', {1:p('2001-2-6'), 2:p('2001-10-6'), 3:p('2001-6-6')})
+        self.assertEqual([1, 3, 2], cache.multisort([('#ccdate', True)]))
     # }}}
 

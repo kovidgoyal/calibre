@@ -18,7 +18,7 @@ from calibre.db.write import Writer
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
-from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort
+from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort, parse_date
 from calibre.utils.localization import calibre_langcode_to_name
 
 class Field(object):
@@ -191,7 +191,15 @@ class CompositeField(OneToOneField):
             self.splitter = None
         composite_sort = m.get('display', {}).get('composite_sort', None)
         if composite_sort == 'number':
+            self._default_sort_key = 0
             self._sort_key = self.number_sort_key
+        elif composite_sort == 'date':
+            self._default_sort_key = UNDEFINED_DATE
+            self._filter_date = lambda x: x
+            if tweaks['sort_dates_using_visible_fields']:
+                fmt = m.get('display', {}).get('date_format', None)
+                self._filter_date = partial(clean_date_for_sort, fmt=fmt)
+            self._sort_key = self.date_sort_key
         else:
             self._sort_key = sort_key
 
@@ -202,8 +210,15 @@ class CompositeField(OneToOneField):
                 p = 1 << (10 * self.SIZE_SUFFIX_MAP.get(val[-2:-1], 0))
                 val = val[:(-2 if p > 1 else -1)].strip()
             val = atof(val) * p
-        except (TypeError, AttributeError, ValueError):
+        except (TypeError, AttributeError, ValueError, KeyError):
             val = 0.0
+        return val
+
+    def date_sort_key(self, val):
+        try:
+            val = self._filter_date(parse_date(val))
+        except (TypeError, ValueError, AttributeError, KeyError):
+            val = UNDEFINED_DATE
         return val
 
     def render_composite(self, book_id, mi):
