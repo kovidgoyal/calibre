@@ -182,6 +182,10 @@ class CompositeField(OneToOneField):
         self._render_cache = {}
         self._lock = Lock()
         self._composite_name = '#' + self.metadata['label']
+        try:
+            self.splitter = self.metadata['is_multiple'].get('cache_to_list', None)
+        except AttributeError:
+            self.splitter = None
 
     def render_composite(self, book_id, mi):
         with self._lock:
@@ -216,16 +220,10 @@ class CompositeField(OneToOneField):
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         val_map = defaultdict(set)
-        try:
-            splitter = self.table.metadata['is_multiple'].get('cache_to_list', None)
-        except AttributeError:
-            splitter = None
+        splitter = self.splitter
         for book_id in candidates:
             vals = self.get_value_with_cache(book_id, get_metadata)
-            if splitter:
-                vals = (vv.strip() for vv in vals.split(splitter))
-            else:
-                vals = (vals,)
+            vals = (vv.strip() for vv in vals.split(splitter)) if splitter else (vals,)
             for v in vals:
                 if v:
                     val_map[v].add(book_id)
