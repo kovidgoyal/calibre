@@ -7,12 +7,55 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, os, argparse
+import unittest, os, argparse, time, functools
 
 try:
     import init_calibre  # noqa
 except ImportError:
     pass
+
+def no_endl(f):
+    @functools.wraps(f)
+    def func(*args, **kwargs):
+        self = f.__self__
+        orig = self.stream.writeln
+        self.stream.writeln = self.stream.write
+        try:
+            return f(*args, **kwargs)
+        finally:
+            self.stream.writeln = orig
+    return func
+
+class TestResult(unittest.TextTestResult):
+
+    def __init__(self, *args, **kwargs):
+        super(TestResult, self).__init__(*args, **kwargs)
+        self.start_time = {}
+        for x in ('Success', 'Error', 'Failure', 'Skip', 'ExpectedFailure', 'UnexpectedSuccess'):
+            x = 'add' + x
+            setattr(self, x, no_endl(getattr(self, x)))
+        self.times = {}
+
+    def startTest(self, test):
+        self.start_time[test] = time.time()
+        return super(TestResult, self).startTest(test)
+
+    def stopTest(self, test):
+        orig = self.stream.writeln
+        self.stream.writeln = self.stream.write
+        super(TestResult, self).stopTest(test)
+        elapsed = time.time()
+        elapsed -= self.start_time.get(test, elapsed)
+        self.times[test] = elapsed
+        self.stream.writeln = orig
+        self.stream.writeln(' [%.1g secs]' % elapsed)
+
+    def stopTestRun(self):
+        super(TestResult, self).stopTestRun()
+        if self.wasSuccessful():
+            tests = sorted(self.times, key=self.times.get, reverse=True)
+        slowest = ['%s [%g]' % (t.id(), self.times[t]) for t in tests[:3]]
+        self.stream.writeln('\nSlowest tests: %s' % ' '.join(slowest))
 
 def find_tests():
     return unittest.defaultTestLoader.discover(os.path.dirname(os.path.abspath(__file__)), pattern='*.py')
@@ -47,5 +90,7 @@ if __name__ == '__main__':
         tests = ans
     else:
         tests = unittest.defaultTestLoader.loadTestsFromName(args.name) if args.name else find_tests()
-    unittest.TextTestRunner(verbosity=4).run(tests)
+    r = unittest.TextTestRunner
+    r.resultclass = TestResult
+    r(verbosity=4).run(tests)
 
