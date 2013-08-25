@@ -564,6 +564,7 @@ class ReadingTest(BaseTest):
         cache.create_custom_column('size', 'CC4', 'composite', False, display={'composite_template': '{#float:human_readable()}', 'composite_sort':'number'})
         cache.create_custom_column('ccdate', 'CC5', 'composite', False,
                                    display={'composite_template': '{pubdate:format_date(d-M-yy)}', 'composite_sort':'date'})
+        cache.create_custom_column('bool', 'CC6', 'composite', False, display={'composite_template': '{#yesno}', 'composite_sort':'bool'})
 
         cache = self.init_cache()
         # Test searching
@@ -581,5 +582,8 @@ class ReadingTest(BaseTest):
         # Test date sorting
         cache.set_field('pubdate', {1:p('2001-2-6'), 2:p('2001-10-6'), 3:p('2001-6-6')})
         self.assertEqual([1, 3, 2], cache.multisort([('#ccdate', True)]))
+
+        # Test bool sorting
+        self.assertEqual([2, 1, 3], cache.multisort([('#bool', True)]))
     # }}}
 

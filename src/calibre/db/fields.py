@@ -15,11 +15,15 @@ from functools import partial
 
 from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY, null
 from calibre.db.write import Writer
+from calibre.db.utils import force_to_bool
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort, parse_date
 from calibre.utils.localization import calibre_langcode_to_name
+
+def bool_sort_key(bools_are_tristate):
+    return (lambda x:{True: 1, False: 2, None: 3}.get(x, 3)) if bools_are_tristate else lambda x:{True: 1, False: 2, None: 2}.get(x, 2)
 
 class Field(object):
 
@@ -44,10 +48,7 @@ class Field(object):
             self._default_sort_key = 0
         elif dt == 'bool':
             self._default_sort_key = None
-            if bools_are_tristate:
-                self._sort_key = lambda x:{True: 1, False: 2, None: 3}.get(x, 3)
-            else:
-                self._sort_key = lambda x:{True: 1, False: 2, None: 2}.get(x, 2)
+            self._sort_key = bool_sort_key(bools_are_tristate)
         elif dt == 'datetime':
             self._default_sort_key = UNDEFINED_DATE
             if tweaks['sort_dates_using_visible_fields']:
@@ -178,8 +179,8 @@ class CompositeField(OneToOneField):
     is_composite = True
     SIZE_SUFFIX_MAP = {suffix:i for i, suffix in enumerate(('', 'K', 'M', 'G', 'T', 'P', 'E'))}
 
-    def __init__(self, *args, **kwargs):
-        OneToOneField.__init__(self, *args, **kwargs)
+    def __init__(self, name, table, bools_are_tristate):
+        OneToOneField.__init__(self, name, table, bools_are_tristate)
 
         self._render_cache = {}
         self._lock = Lock()
@@ -200,6 +201,10 @@ class CompositeField(OneToOneField):
                 fmt = m.get('display', {}).get('date_format', None)
                 self._filter_date = partial(clean_date_for_sort, fmt=fmt)
             self._sort_key = self.date_sort_key
+        elif composite_sort == 'bool':
+            self._default_sort_key = None
+            self._bool_sort_key = bool_sort_key(bools_are_tristate)
+            self._sort_key = self.bool_sort_key
         else:
             self._sort_key = sort_key
 
@@ -220,6 +225,9 @@ class CompositeField(OneToOneField):
         except (TypeError, ValueError, AttributeError, KeyError):
             val = UNDEFINED_DATE
         return val
+
+    def bool_sort_key(self, val):
+        return self._bool_sort_key(force_to_bool(val))
 
     def render_composite(self, book_id, mi):
         with self._lock:
