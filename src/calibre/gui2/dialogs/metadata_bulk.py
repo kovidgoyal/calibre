@@ -3,8 +3,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Dialog to edit metadata in bulk'''
 
-import re, os, inspect
-from collections import namedtuple
+import re, os
+from collections import namedtuple, defaultdict
 from threading import Thread
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
@@ -62,7 +62,7 @@ class MyBlockingBusy(QDialog):  # {{{
 
     all_done = pyqtSignal()
 
-    def __init__(self, args, ids, db, cc_widgets, s_r_func, do_sr, parent=None, window_title=_('Working')):
+    def __init__(self, args, ids, db, refresh_books, cc_widgets, s_r_func, do_sr, sr_calls, parent=None, window_title=_('Working')):
         QDialog.__init__(self, parent)
 
         self._layout =  l = QVBoxLayout()
@@ -86,6 +86,8 @@ class MyBlockingBusy(QDialog):  # {{{
         self.db, self.cc_widgets = db, cc_widgets
         self.s_r_func = FunctionDispatcher(s_r_func)
         self.do_sr = do_sr
+        self.sr_calls = sr_calls
+        self.refresh_books = refresh_books
 
     def accept(self):
         pass
@@ -276,6 +278,10 @@ class MyBlockingBusy(QDialog):  # {{{
         if self.do_sr:
             for book_id in self.ids:
                 self.s_r_func(book_id)
+            if self.sr_calls:
+                for field, book_id_val_map in self.sr_calls.iteritems():
+                    self.refresh_books.update(self.db.new_api.set_field(field, book_id_val_map))
+
 # }}}
 
 class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
@@ -296,7 +302,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                             _('Append to field'),
                         ]
 
-    def __init__(self, window, rows, model, tab):
+    def __init__(self, window, rows, model, tab, refresh_books):
         ResizableDialog.__init__(self, window)
         Ui_MetadataBulkDialog.__init__(self)
         self.model = model
@@ -309,6 +315,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 len(rows))
         self.write_series = False
         self.changed = False
+        self.refresh_books = refresh_books
 
         all_tags = self.db.all_tags()
         self.tags.update_items_cache(all_tags)
@@ -790,7 +797,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 self.s_r_set_colors()
                 break
 
-    def do_search_replace(self, id):
+    def do_search_replace(self, book_id):
         source = self.s_r_sf_itemdata(None)
         if not source or not self.s_r_obj:
             return
@@ -798,7 +805,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         if not dest:
             dest = source
         dfm = self.db.field_metadata[dest]
-        mi = self.db.get_metadata(id, index_is_id=True)
+        mi = self.db.new_api.get_proxy_metadata(book_id)
         val = self.s_r_do_regexp(mi)
         val = self.s_r_do_destination(mi, val)
         if dfm['is_multiple']:
@@ -823,37 +830,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             if dest == 'title' and len(val) == 0:
                 val = _('Unknown')
 
-        if dfm['is_custom']:
-            extra = self.db.get_custom_extra(id, label=dfm['label'], index_is_id=True)
-            books_to_refresh = self.db.set_custom(id, val, label=dfm['label'],
-                                                  extra=extra, commit=False,
-                                                  allow_case_change=True)
-        elif dest.startswith('#') and dest.endswith('_index'):
-            label = self.db.field_metadata[dest[:-6]]['label']
-            series = self.db.get_custom(id, label=label, index_is_id=True)
-            books_to_refresh = self.db.set_custom(id, series, label=label,
-                                                  extra=val, commit=False,
-                                                  allow_case_change=True)
-        else:
-            if dest == 'comments':
-                setter = self.db.set_comment
-            elif dest == 'sort':
-                setter = self.db.set_title_sort
-            else:
-                setter = getattr(self.db, 'set_'+dest)
-
-            args = inspect.getargspec(setter)
-            if args and 'allow_case_change' in args.args:
-                books_to_refresh = setter(id, val, notify=False, commit=False,
-                                          allow_case_change=True)
-            else:
-                setter(id, val, notify=False, commit=False)
-                books_to_refresh = set([])
-        if books_to_refresh:
-            # Must commit here because we are telling the gui that the data is
-            # permanent. Make sure it really is.
-            self.db.commit()
-            self.model.refresh_ids(list(books_to_refresh))
+        self.set_field_calls[dest][book_id] = val
     # }}}
 
     def create_custom_column_editors(self):
@@ -993,9 +970,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
         source = self.s_r_sf_itemdata(None)
         do_sr = source and self.s_r_obj
-        bb = MyBlockingBusy(args, self.ids, self.db,
+        self.set_field_calls = defaultdict(dict)
+        bb = MyBlockingBusy(args, self.ids, self.db, self.refresh_books,
             getattr(self, 'custom_column_widgets', []),
-            self.do_search_replace, do_sr, parent=self)
+            self.do_search_replace, do_sr, self.set_field_calls, parent=self)
 
         # The metadata backup thread causes database commits
         # which can slow down bulk editing of large numbers of books
