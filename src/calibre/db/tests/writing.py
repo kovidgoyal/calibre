@@ -294,6 +294,8 @@ class WritingTest(BaseTest):
 
         # Test setting with the same value repeated
         ae(sf('tags', {3: ('a', 'b', 'a')}), {3})
+        ae(sf('tags', {3: ('x', 'X')}), {3}, 'Failed when setting tag twice with different cases')
+        ae(('x',), cache.field_for('tags', 3))
 
     # }}}
 
