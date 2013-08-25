@@ -556,6 +556,7 @@ class ReadingTest(BaseTest):
     # }}}
 
     def test_composites(self):  # {{{
+        ' Test sorting and searching in composite columns '
         from calibre.utils.date import parse_only_date as p
         cache = self.init_cache()
         cache.create_custom_column('mult', 'CC1', 'composite', True, display={'composite_template': 'b,a,c'})
@@ -565,6 +566,7 @@ class ReadingTest(BaseTest):
         cache.create_custom_column('ccdate', 'CC5', 'composite', False,
                                    display={'composite_template': '{pubdate:format_date(d-M-yy)}', 'composite_sort':'date'})
         cache.create_custom_column('bool', 'CC6', 'composite', False, display={'composite_template': '{#yesno}', 'composite_sort':'bool'})
+        cache.create_custom_column('ccm', 'CC7', 'composite', True, display={'composite_template': '{#tags}'})
 
         cache = self.init_cache()
         # Test searching
@@ -585,5 +587,9 @@ class ReadingTest(BaseTest):
 
         # Test bool sorting
         self.assertEqual([2, 1, 3], cache.multisort([('#bool', True)]))
+
+        # Test is_multiple sorting
+        cache.set_field('#tags', {1:'b, a, c', 2:'a, b, c', 3:'a, c, b'})
+        self.assertEqual([1, 2, 3], cache.multisort([('#ccm', True)]))
     # }}}
 

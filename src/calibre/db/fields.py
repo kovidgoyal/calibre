@@ -205,8 +205,15 @@ class CompositeField(OneToOneField):
             self._default_sort_key = None
             self._bool_sort_key = bool_sort_key(bools_are_tristate)
             self._sort_key = self.bool_sort_key
+        elif self.splitter is not None:
+            self._default_sort_key = ()
+            self._sort_key = self.multiple_sort_key
         else:
             self._sort_key = sort_key
+
+    def multiple_sort_key(self, val):
+        val = (sort_key(x.strip()) for x in (val or '').split(self.splitter))
+        return tuple(sorted(val))
 
     def number_sort_key(self, val):
         try:
