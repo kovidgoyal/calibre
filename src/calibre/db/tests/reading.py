@@ -572,7 +572,7 @@ class ReadingTest(BaseTest):
         # Test numeric sorting
         cache.set_field('#float', {1:2, 2:10, 3:0.0001})
         self.assertEqual([3, 1, 2], cache.multisort([('#number', True)]))
-        cache.set_field('#float', {1:3, 2:2*1024, 3:3*1024*1024})
+        cache.set_field('#float', {1:3, 2:2*1024, 3:1*1024*1024})
         self.assertEqual([1, 2, 3], cache.multisort([('#size', True)]))
     # }}}
 
