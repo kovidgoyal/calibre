@@ -1088,6 +1088,8 @@ Enter SQL statements terminated with a ";"
                 self.write(self.stdout, "\n")
 
             def comment(s):
+                if isinstance(s, bytes):
+                    s = s.decode('utf-8', 'replace')
                 self.write(self.stdout, textwrap.fill(s, 78, initial_indent="-- ", subsequent_indent="-- ")+"\n")
 
             pats=", ".join([(x,"(All)")[x=="%"] for x in cmd])
