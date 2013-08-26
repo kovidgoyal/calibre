@@ -358,7 +358,10 @@ class BrowseServer(object):
             cats.append((_('Virtual Libs.'), 'virt_libs', 'lt.png'))
 
         def getter(x):
-            return category_meta[x]['name'].lower()
+            try:
+                return category_meta[x]['name'].lower()
+            except KeyError:
+                return x
 
         displayed_custom_fields = custom_fields_to_display(self.db)
         uc_displayed = set()
