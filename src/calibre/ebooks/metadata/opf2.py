@@ -793,11 +793,13 @@ class OPF(object):  # {{{
         def fset(self, val):
             val = (val or '').strip()
             titles = self.title_path(self.metadata)
-            if not val or self.package_version < 3:
+            if self.package_version < 3:
+                # EPUB 3 allows multiple title elements containing sub-titles,
+                # series and other things. We all loooove EPUB 3.
                 for title in titles:
                     title.getparent().remove(title)
+                titles = ()
             if val:
-                titles = self.title_path(self.metadata)
                 title = titles[0] if titles else self.create_metadata_element('title')
                 title.text = re.sub(r'\s+', ' ', unicode(val))
 
