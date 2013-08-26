@@ -554,6 +554,20 @@ class WritingTest(BaseTest):
             self.assertEqual(c.field_for('#series', 2), 'My Series Two')
             self.assertEqual(c.field_for('#series_index', 1), 3.0)
             self.assertEqual(c.field_for('#series_index', 2), 4.0)
+
+        # Test renaming many-many items to multiple items
+        cache = self.init_cache(self.cloned_library)
+        t = {v:k for k, v in cache.get_id_map('tags').iteritems()}['Tag One']
+        affected_books, id_map = cache.rename_items('tags', {t:'Something, Else, Entirely'})
+        self.assertEqual({1, 2}, affected_books)
+        tmap = cache.get_id_map('tags')
+        self.assertEqual('Something', tmap[id_map[t]])
+        self.assertEqual(1, len(id_map))
+        f1, f2 = cache.field_for('tags', 1), cache.field_for('tags', 2)
+        for f in (f1, f2):
+            for t in 'Something,Else,Entirely'.split(','):
+                self.assertIn(t, f)
+            self.assertNotIn('Tag One', f)
     # }}}
 
     def test_composite_cache(self):  # {{{

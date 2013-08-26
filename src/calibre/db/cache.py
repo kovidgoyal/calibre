@@ -1388,12 +1388,22 @@ class Cache(object):
         affected_books = set()
         moved_books = set()
         id_map = {}
+        try:
+            sv = f.metadata['is_multiple']['ui_to_list']
+        except (TypeError, KeyError, AttributeError):
+            sv = None
         for item_id, new_name in item_id_to_new_name_map.iteritems():
-            books, new_id = func(item_id, new_name, self.backend)
+            new_names = tuple(x.strip() for x in new_name.split(sv)) if sv else (new_name,)
+            books, new_id = func(item_id, new_names[0], self.backend)
             affected_books.update(books)
             id_map[item_id] = new_id
             if new_id != item_id:
                 moved_books.update(books)
+            if len(new_names) > 1:
+                # Add the extra items to the books
+                extra = new_names[1:]
+                self._set_field(field, {book_id:self._fast_field_for(f, book_id) + extra for book_id in books})
+
         if affected_books:
             if field == 'authors':
                 self._set_field('author_sort',
@@ -1401,7 +1411,7 @@ class Cache(object):
                 self._update_path(affected_books, mark_as_dirtied=False)
             elif change_index and hasattr(f, 'index_field') and tweaks['series_index_auto_increment'] != 'no_change':
                 for book_id in moved_books:
-                    self._set_field(f.index_field.name, {book_id:self._get_next_series_num_for(self._field_for(field, book_id), field=field)})
+                    self._set_field(f.index_field.name, {book_id:self._get_next_series_num_for(self._fast_field_for(f, book_id), field=field)})
             self._mark_as_dirty(affected_books)
         return affected_books, id_map
 
