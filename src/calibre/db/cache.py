@@ -1201,7 +1201,8 @@ class Cache(object):
             title = self._field_for('title', book_id, default_value=_('Unknown'))
             author = self._field_for('authors', book_id, default_value=(_('Unknown'),))[0]
             stream = stream_or_path if hasattr(stream_or_path, 'read') else lopen(stream_or_path, 'rb')
-            size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path)
+
+            size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path, name)
             del stream
 
             max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)

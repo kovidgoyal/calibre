@@ -1337,7 +1337,7 @@ class DB(object):
                         if wam is not None:
                             wam.close_handles()
 
-    def add_format(self, book_id, fmt, stream, title, author, path):
+    def add_format(self, book_id, fmt, stream, title, author, path, current_name):
         fmt = ('.' + fmt.lower()) if fmt else ''
         fname = self.construct_file_name(book_id, title, author, len(fmt))
         path = os.path.join(self.library_path, path)
@@ -1345,6 +1345,22 @@ class DB(object):
         if not os.path.exists(path):
             os.makedirs(path)
         size = 0
+        if current_name is not None:
+            old_path = os.path.join(path, current_name + fmt)
+            if old_path != dest:
+                # Ensure that the old format file is not orphaned, this can
+                # happen if the algorithm in construct_file_name is changed.
+                try:
+                    # rename rather than remove, so that if something goes
+                    # wrong in the rest of this function, at least the file is
+                    # not deleted
+                    os.rename(old_path, dest)
+                except EnvironmentError as e:
+                    if getattr(e, 'errno', None) != errno.ENOENT:
+                        # Failing to rename the old format will at worst leave a
+                        # harmless orphan, so log and ignore the error
+                        import traceback
+                        traceback.print_exc()
 
         if (not getattr(stream, 'name', False) or not samefile(dest, stream.name)):
             with lopen(dest, 'wb') as f:
