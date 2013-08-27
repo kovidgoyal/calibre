@@ -39,13 +39,6 @@ def test_winutil():
         raise RuntimeError('win_pnp_drives returned no drives')
     print ('win_pnp_drives OK!')
 
-def test_win32():
-    from calibre.utils.winshell import desktop
-    d = desktop()
-    if not d:
-        raise RuntimeError('winshell failed')
-    print ('winshell OK! (%s is the desktop)'%d)
-
 def test_sqlite():
     import sqlite3
     conn = sqlite3.connect(':memory:')
@@ -121,7 +114,6 @@ def test():
     test_woff()
     test_qt()
     if iswindows:
-        test_win32()
         test_winutil()
         test_wpd()
 
