@@ -1531,11 +1531,11 @@ class Cache(object):
 
     @write_api
     def set_sort_for_authors(self, author_id_to_sort_map, update_books=True):
-        self.fields['authors'].table.set_sort_names(author_id_to_sort_map, self.backend)
+        sort_map = self.fields['authors'].table.set_sort_names(author_id_to_sort_map, self.backend)
         changed_books = set()
         if update_books:
             val_map = {}
-            for author_id in author_id_to_sort_map:
+            for author_id in sort_map:
                 books = self._books_for_field('authors', author_id)
                 changed_books |= books
                 for book_id in books:
@@ -1545,16 +1545,18 @@ class Cache(object):
                     val_map[book_id] = ' & '.join(sorts)
             if val_map:
                 self._set_field('author_sort', val_map)
-        self._mark_as_dirty(changed_books)
+        if changed_books:
+            self._mark_as_dirty(changed_books)
         return changed_books
 
     @write_api
     def set_link_for_authors(self, author_id_to_link_map):
-        self.fields['authors'].table.set_links(author_id_to_link_map, self.backend)
+        link_map = self.fields['authors'].table.set_links(author_id_to_link_map, self.backend)
         changed_books = set()
-        for author_id in author_id_to_link_map:
+        for author_id in link_map:
             changed_books |= self._books_for_field('authors', author_id)
-        self._mark_as_dirty(changed_books)
+        if changed_books:
+            self._mark_as_dirty(changed_books)
         return changed_books
 
     @read_api

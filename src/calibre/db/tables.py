@@ -366,15 +366,19 @@ class AuthorsTable(ManyToManyTable):
 
     def set_sort_names(self, aus_map, db):
         aus_map = {aid:(a or '').strip() for aid, a in aus_map.iteritems()}
+        aus_map = {aid:a for aid, a in aus_map.iteritems() if a != self.asort_map.get(aid, None)}
         self.asort_map.update(aus_map)
         db.conn.executemany('UPDATE authors SET sort=? WHERE id=?',
             [(v, k) for k, v in aus_map.iteritems()])
+        return aus_map
 
     def set_links(self, link_map, db):
         link_map = {aid:(l or '').strip() for aid, l in link_map.iteritems()}
+        link_map = {aid:l for aid, l in link_map.iteritems() if l != self.alink_map.get(aid, None)}
         self.alink_map.update(link_map)
         db.conn.executemany('UPDATE authors SET link=? WHERE id=?',
             [(v, k) for k, v in link_map.iteritems()])
+        return link_map
 
     def remove_books(self, book_ids, db):
         clean = ManyToManyTable.remove_books(self, book_ids, db)

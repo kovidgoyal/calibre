@@ -607,3 +607,21 @@ class WritingTest(BaseTest):
         cache = self.init_cache()
         self.assertEqual(cache.all_book_ids(), all_ids, 'dump and restore broke database')
     # }}}
+
+    def test_set_author_data(self):  # {{{
+        cache = self.init_cache()
+        adata = cache.author_data()
+        ldata = {aid:str(aid) for aid in adata}
+        self.assertEqual({1,2,3}, cache.set_link_for_authors(ldata))
+        for c in (cache, self.init_cache()):
+            self.assertEqual(ldata, {aid:d['link'] for aid, d in c.author_data().iteritems()})
+        self.assertEqual({3}, cache.set_link_for_authors({aid:'xxx' if aid == max(adata) else str(aid) for aid in adata}),
+                         'Setting the author link to the same value as before, incorrectly marked some books as dirty')
+        sdata = {aid:'%s, changed' % aid for aid in adata}
+        self.assertEqual({1,2,3}, cache.set_sort_for_authors(sdata))
+        for bid in (1, 2, 3):
+            self.assertIn(', changed', cache.field_for('author_sort', bid))
+        sdata = {aid:'%s, changed' % (aid*2 if aid == max(adata) else aid) for aid in adata}
+        self.assertEqual({3}, cache.set_sort_for_authors(sdata),
+                         'Setting the author sort to the same value as before, incorrectly marked some books as dirty')
+    # }}}
