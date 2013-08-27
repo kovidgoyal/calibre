@@ -252,8 +252,8 @@ class LibraryDatabase(object):
         return recursive_import(self, root, single_book_per_directory=single_book_per_directory, callback=callback, added_ids=added_ids)
 
     def add_catalog(self, path, title):
-        book_id = add_catalog(self.new_api, path, title)
-        if book_id is not None:
+        book_id, new_book_added = add_catalog(self.new_api, path, title)
+        if book_id is not None and new_book_added:
             self.data.books_added((book_id,))
         return book_id
 
