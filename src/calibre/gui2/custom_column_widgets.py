@@ -12,7 +12,7 @@ from PyQt4.Qt import (QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateTimeEdit
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL,
         QPushButton, QMessageBox, QToolButton, Qt)
 
-from calibre.utils.date import qt_to_dt, now
+from calibre.utils.date import qt_to_dt, now, as_local_time, as_utc
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.comments_editor import Editor as CommentsEditor
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog
@@ -189,10 +189,10 @@ class DateTime(Base):
         l.addStretch(2)
 
         w = self.widgets[1]
-        format = cm['display'].get('date_format','')
-        if not format:
-            format = 'dd MMM yyyy hh:mm'
-        w.setDisplayFormat(format)
+        format_ = cm['display'].get('date_format','')
+        if not format_:
+            format_ = 'dd MMM yyyy hh:mm'
+        w.setDisplayFormat(format_)
         w.setCalendarPopup(True)
         w.setMinimumDateTime(UNDEFINED_QDATETIME)
         w.setSpecialValueText(_('Undefined'))
@@ -213,6 +213,12 @@ class DateTime(Base):
         else:
             val = qt_to_dt(val)
         return val
+
+    def normalize_db_val(self, val):
+        return as_local_time(val) if val is not None else None
+
+    def normalize_ui_val(self, val):
+        return as_utc(val) if val is not None else None
 
 class Comments(Base):
 
@@ -822,6 +828,12 @@ class BulkDateTime(BulkBase):
         else:
             val = qt_to_dt(val)
         return val
+
+    def normalize_db_val(self, val):
+        return as_local_time(val) if val is not None else None
+
+    def normalize_ui_val(self, val):
+        return as_utc(val) if val is not None else None
 
 class BulkSeries(BulkBase):
 
