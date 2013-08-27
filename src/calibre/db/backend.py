@@ -988,7 +988,7 @@ class DB(object):
         uv = int(self.user_version)
 
         if sql is None:
-            from apsw_shell import Shell
+            from calibre.utils.apsw_shell import Shell
             callback(_('Dumping database to SQL') + '...')
             buf = StringIO()
             shell = Shell(db=self.conn, stdout=buf)
