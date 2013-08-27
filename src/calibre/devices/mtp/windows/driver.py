@@ -12,7 +12,7 @@ from functools import wraps, partial
 from future_builtins import zip
 from itertools import chain
 
-from calibre import as_unicode, prints
+from calibre import as_unicode, prints, force_unicode
 from calibre.constants import plugins, __appname__, numeric_version, isxp
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice
@@ -142,7 +142,7 @@ class MTP_DEVICE(MTPDeviceBase):
             return True
         if self.wpd_error:
             p('Cannot detect MTP devices')
-            p(self.wpd_error)
+            p(force_unicode(self.wpd_error))
             return False
         try:
             pnp_ids = frozenset(self.wpd.enumerate_devices())
