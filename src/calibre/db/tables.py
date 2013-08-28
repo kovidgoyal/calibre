@@ -41,9 +41,7 @@ def c_parse(val):
 
 ONE_ONE, MANY_ONE, MANY_MANY = xrange(3)
 
-class Null:
-    pass
-null = Null()
+null = object()
 
 class Table(object):
 
