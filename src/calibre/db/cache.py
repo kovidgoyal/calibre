@@ -822,7 +822,7 @@ class Cache(object):
                     get_metadata, lang_map, all_book_ids)
             except KeyError:
                 if field == 'id':
-                    ans = {bid:bid for bid in ids_to_sort}
+                    ans = {bid:bid for bid in all_book_ids}
                 else:
                     ans = virtual_fields[fm.get(field, field)].sort_keys_for_books(
                         get_metadata, lang_map, all_book_ids)
