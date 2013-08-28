@@ -30,8 +30,9 @@ class MarkedVirtualField(object):
         for book_id in candidates:
             yield self.marked_ids.get(book_id, default_value), {book_id}
 
-    def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
-        return {bid:self.marked_ids.get(bid, None) for bid in all_book_ids}
+    def sort_keys_for_books(self, get_metadata, lang_map):
+        g = self.marked_ids.get
+        return lambda book_id:g(book_id, None)
 
 class TableRow(object):
 

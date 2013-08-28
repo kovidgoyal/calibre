@@ -25,6 +25,8 @@ from calibre.utils.localization import calibre_langcode_to_name
 def bool_sort_key(bools_are_tristate):
     return (lambda x:{True: 1, False: 2, None: 3}.get(x, 3)) if bools_are_tristate else lambda x:{True: 1, False: 2, None: 2}.get(x, 2)
 
+IDENTITY = lambda x: x
+
 class Field(object):
 
     is_many = False
@@ -36,7 +38,7 @@ class Field(object):
         dt = self.metadata['datatype']
         self.has_text_data = dt in {'text', 'comments', 'series', 'enumeration'}
         self.table_type = self.table.table_type
-        self._sort_key = (sort_key if dt in ('text', 'series', 'enumeration') else lambda x: x)
+        self._sort_key = (sort_key if dt in ('text', 'series', 'enumeration') else IDENTITY)
 
         # This will be compared to the output of sort_key() which is a
         # bytestring, therefore it is safer to have it be a bytestring.
@@ -112,12 +114,11 @@ class Field(object):
         '''
         return iter(())
 
-    def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
+    def sort_keys_for_books(self, get_metadata, lang_map):
         '''
-        Return a mapping of book_id -> sort_key. The sort key is suitable for
+        Return a function that maps book_id to sort_key. The sort key is suitable for
         use in sorting the list of all books by this field, via the python cmp
-        method. all_book_ids is the list/set of book ids for which sort_keys
-        should be generated.
+        method.
         '''
         raise NotImplementedError()
 
@@ -165,9 +166,13 @@ class OneToOneField(Field):
     def __iter__(self):
         return self.table.book_col_map.iterkeys()
 
-    def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
-        return {id_: self._sort_key(self.table.book_col_map.get(id_,
-            self._default_sort_key)) for id_ in all_book_ids}
+    def sort_keys_for_books(self, get_metadata, lang_map):
+        bcmg = self.table.book_col_map.get
+        dk = self._default_sort_key
+        sk = self._sort_key
+        if sk is IDENTITY:
+            return lambda book_id:bcmg(book_id, dk)
+        return lambda book_id:sk(bcmg(book_id, dk))
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         cbm = self.table.book_col_map
@@ -263,9 +268,12 @@ class CompositeField(OneToOneField):
                 self._render_cache[book_id] = ans
         return ans
 
-    def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
-        return {id_: self._sort_key(self.get_value_with_cache(id_, get_metadata)) for id_ in
-                all_book_ids}
+    def sort_keys_for_books(self, get_metadata, lang_map):
+        gv = self.get_value_with_cache
+        sk = self._sort_key
+        if sk is IDENTITY:
+            return lambda book_id:gv(book_id, get_metadata)
+        return lambda book_id:sk(gv(book_id, get_metadata))
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         val_map = defaultdict(set)
@@ -362,9 +370,8 @@ class OnDeviceField(OneToOneField):
     def __iter__(self):
         return iter(())
 
-    def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
-        return {id_: self.for_book(id_) for id_ in
-                all_book_ids}
+    def sort_keys_for_books(self, get_metadata, lang_map):
+        return self.for_book
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         val_map = defaultdict(set)
@@ -372,6 +379,27 @@ class OnDeviceField(OneToOneField):
             val_map[self.for_book(book_id, default_value=default_value)].add(book_id)
         for val, book_ids in val_map.iteritems():
             yield val, book_ids
+
+class LazySortMap(object):
+
+    __slots__ = ('default_sort_key', 'sort_key_func', 'id_map', 'cache')
+
+    def __init__(self, default_sort_key, sort_key_func, id_map):
+        self.default_sort_key = default_sort_key
+        self.sort_key_func = sort_key_func
+        self.id_map = id_map
+        self.cache = {None:default_sort_key}
+
+    def __call__(self, item_id):
+        try:
+            return self.cache[item_id]
+        except KeyError:
+            try:
+                val = self.cache[item_id] = self.sort_key_func(self.id_map[item_id])
+            except KeyError:
+                val = self.cache[item_id] = self.default_sort_key
+            return val
+
 
 class ManyToOneField(Field):
 
@@ -397,13 +425,10 @@ class ManyToOneField(Field):
     def __iter__(self):
         return self.table.id_map.iterkeys()
 
-    def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
-        ans = {id_: self.table.book_col_map.get(id_, None)
-                for id_ in all_book_ids}
-        sk_map = {cid: (self._default_sort_key if cid is None else
-                self._sort_key(self.table.id_map[cid]))
-                for cid in ans.itervalues()}
-        return {id_: sk_map[cid] for id_, cid in ans.iteritems()}
+    def sort_keys_for_books(self, get_metadata, lang_map):
+        sk_map = LazySortMap(self._default_sort_key, self._sort_key, self.table.id_map)
+        bcmg = self.table.book_col_map.get
+        return lambda book_id:sk_map(bcmg(book_id, None))
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         cbm = self.table.col_book_map
@@ -447,17 +472,17 @@ class ManyToManyField(Field):
     def __iter__(self):
         return self.table.id_map.iterkeys()
 
-    def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
-        ans = {id_: self.table.book_col_map.get(id_, ())
-                for id_ in all_book_ids}
-        all_cids = set()
-        for cids in ans.itervalues():
-            all_cids = all_cids.union(set(cids))
-        sk_map = {cid: self._sort_key(self.table.id_map[cid]) for cid in all_cids}
-        sort_func = (lambda x:tuple(sorted(x))) if self.sort_sort_key else tuple
-        return {id_: (sort_func(sk_map[cid] for cid in cids) if cids else
-                        (self._default_sort_key,))
-                for id_, cids in ans.iteritems()}
+    def sort_keys_for_books(self, get_metadata, lang_map):
+        sk_map = LazySortMap(self._default_sort_key, self._sort_key, self.table.id_map)
+        bcmg = self.table.book_col_map.get
+        dsk = (self._default_sort_key,)
+        if self.sort_sort_key:
+            def sk(book_id):
+                return tuple(sorted(sk_map(x) for x in bcmg(book_id, ()))) or dsk
+        else:
+            def sk(book_id):
+                return tuple(sk_map(x) for x in bcmg(book_id, ())) or dsk
+        return sk
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         cbm = self.table.col_book_map
@@ -491,13 +516,11 @@ class IdentifiersField(ManyToManyField):
                 ids = default_value
         return ids
 
-    def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
+    def sort_keys_for_books(self, get_metadata, lang_map):
         'Sort by identifier keys'
-        ans = {id_: self.table.book_col_map.get(id_, ())
-                for id_ in all_book_ids}
-        return {id_: (tuple(sorted(cids.iterkeys())) if cids else
-                        (self._default_sort_key,))
-                for id_, cids in ans.iteritems()}
+        bcmg = self.table.book_col_map.get
+        dv = {self._default_sort_key:None}
+        return lambda book_id: tuple(sorted(bcmg(book_id, dv).iterkeys()))
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=()):
         bcm = self.table.book_col_map
@@ -566,22 +589,43 @@ class FormatsField(ManyToManyField):
                 ans.append(c)
         return ans
 
+class LazySeriesSortMap(object):
+
+    __slots__ = ('default_sort_key', 'sort_key_func', 'id_map', 'cache')
+
+    def __init__(self, default_sort_key, sort_key_func, id_map):
+        self.default_sort_key = default_sort_key
+        self.sort_key_func = sort_key_func
+        self.id_map = id_map
+        self.cache = {}
+
+    def __call__(self, item_id, lang):
+        try:
+            return self.cache[(item_id, lang)]
+        except KeyError:
+            try:
+                val = self.cache[(item_id, lang)] = self.sort_key_func(self.id_map[item_id], lang)
+            except KeyError:
+                val = self.cache[(item_id, lang)] = self.default_sort_key
+            return val
+
 class SeriesField(ManyToOneField):
 
-    def sort_key_for_series(self, book_id, lang_map, series_sort_order):
-        sid = self.table.book_col_map.get(book_id, None)
-        if sid is None:
-            return self._default_sort_key
-        lang = lang_map.get(book_id, None) or None
-        if lang:
-            lang = lang[0]
-        return self._sort_key(title_sort(self.table.id_map[sid],
-                                         order=series_sort_order, lang=lang))
-
-    def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
+    def sort_keys_for_books(self, get_metadata, lang_map):
         sso = tweaks['title_series_sorting']
-        return {book_id:self.sort_key_for_series(book_id, lang_map, sso) for book_id
-                in all_book_ids}
+        ssk = self._sort_key
+        ts = title_sort
+        def sk(val, lang):
+            return ssk(ts(val, order=sso, lang=lang))
+        sk_map = LazySeriesSortMap(self._default_sort_key, sk, self.table.id_map)
+        bcmg = self.table.book_col_map.get
+        lang_map = {k:v[0] if v else None for k, v in lang_map.iteritems()}
+
+        def key(book_id):
+            lang = lang_map.get(book_id, None)
+            return sk_map(bcmg(book_id, None), lang)
+
+        return key
 
     def category_sort_value(self, item_id, book_ids, lang_map):
         lang = None

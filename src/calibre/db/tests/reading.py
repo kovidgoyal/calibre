@@ -126,6 +126,7 @@ class ReadingTest(BaseTest):
     def test_sorting(self):  # {{{
         'Test sorting'
         cache = self.init_cache()
+        ae = self.assertEqual
         for field, order in {
             'title'  : [2, 1, 3],
             'authors': [2, 1, 3],
@@ -151,49 +152,63 @@ class ReadingTest(BaseTest):
             '#comments':[3, 2, 1],
         }.iteritems():
             x = list(reversed(order))
-            self.assertEqual(order, cache.multisort([(field, True)],
+            ae(order, cache.multisort([(field, True)],
                 ids_to_sort=x),
                     'Ascending sort of %s failed'%field)
-            self.assertEqual(x, cache.multisort([(field, False)],
+            ae(x, cache.multisort([(field, False)],
                 ids_to_sort=order),
                     'Descending sort of %s failed'%field)
-
-        # Test subsorting
-        self.assertEqual([3, 2, 1], cache.multisort([('identifiers', True),
-            ('title', True)]), 'Subsort failed')
 
         # Test sorting of is_multiple fields.
 
         # Author like fields should be sorted by generating sort names from the
         # actual values in entry order
         for field in ('authors', '#authors'):
-            self.assertEqual(
+            ae(
                 cache.set_field(field, {1:('aa bb', 'bb cc', 'cc dd'), 2:('bb aa', 'xx yy'), 3: ('aa bb', 'bb aa')}), {1, 2, 3})
-            self.assertEqual([2, 3, 1], cache.multisort([(field, True)], ids_to_sort=(1, 2, 3)))
-            self.assertEqual([1, 3, 2], cache.multisort([(field, False)], ids_to_sort=(1, 2, 3)))
+            ae([2, 3, 1], cache.multisort([(field, True)], ids_to_sort=(1, 2, 3)))
+            ae([1, 3, 2], cache.multisort([(field, False)], ids_to_sort=(1, 2, 3)))
 
         # All other is_multiple fields should be sorted by sorting the values
         # for each book and using that as the sort key
         for field in ('tags', '#tags'):
-            self.assertEqual(
+            ae(
                 cache.set_field(field, {1:('b', 'a'), 2:('c', 'y'), 3: ('b', 'z')}), {1, 2, 3})
-            self.assertEqual([1, 3, 2], cache.multisort([(field, True)], ids_to_sort=(1, 2, 3)))
-            self.assertEqual([2, 3, 1], cache.multisort([(field, False)], ids_to_sort=(1, 2, 3)))
+            ae([1, 3, 2], cache.multisort([(field, True)], ids_to_sort=(1, 2, 3)))
+            ae([2, 3, 1], cache.multisort([(field, False)], ids_to_sort=(1, 2, 3)))
 
         # Test tweak to sort dates by visible format
         from calibre.utils.date import parse_only_date as p
         from calibre.utils.config_base import Tweak
-        self.assertEqual(cache.set_field('pubdate', {1:p('2001-3-3'), 2:p('2002-2-3'), 3:p('2003-1-3')}), {1, 2, 3})
-        self.assertEqual([1, 2, 3], cache.multisort([('pubdate', True)]))
+        ae(cache.set_field('pubdate', {1:p('2001-3-3'), 2:p('2002-2-3'), 3:p('2003-1-3')}), {1, 2, 3})
+        ae([1, 2, 3], cache.multisort([('pubdate', True)]))
         with Tweak('gui_pubdate_display_format', 'MMM'), Tweak('sort_dates_using_visible_fields', True):
             c2 = self.init_cache()
-            self.assertEqual([3, 2, 1], c2.multisort([('pubdate', True)]))
+            ae([3, 2, 1], c2.multisort([('pubdate', True)]))
 
         # Test bool sorting when not tristate
         cache.set_pref('bools_are_tristate', False)
         c2 = self.init_cache()
-        self.assertEqual([2, 3, 1], c2.multisort([('#yesno', True), ('id', False)]))
+        ae([2, 3, 1], c2.multisort([('#yesno', True), ('id', False)]))
 
+        # Test subsorting
+        ae([3, 2, 1], cache.multisort([('identifiers', True),
+            ('title', True)]), 'Subsort failed')
+        from calibre.ebooks.metadata.book.base import Metadata
+        for i in xrange(7):
+            cache.create_book_entry(Metadata('title%d' % i), apply_import_tags=False)
+        cache.create_custom_column('one', 'CC1', 'int', False)
+        cache.create_custom_column('two', 'CC2', 'int', False)
+        cache.create_custom_column('three', 'CC3', 'int', False)
+        cache.close()
+        cache = self.init_cache()
+        cache.set_field('#one', {(i+(5*m)):m for m in (0, 1) for i in xrange(1, 6)})
+        cache.set_field('#two', {i+(m*3):m for m in (0, 1, 2) for i in (1, 2, 3)})
+        cache.set_field('#two', {10:2})
+        cache.set_field('#three', {i:i for i in xrange(1, 11)})
+        ae(list(xrange(1, 11)), cache.multisort([('#one', True), ('#two', True)], ids_to_sort=sorted(cache.all_book_ids())))
+        ae([4, 5, 1, 2, 3, 7,8, 9, 10, 6], cache.multisort([('#one', True), ('#two', False)], ids_to_sort=sorted(cache.all_book_ids())))
+        ae([5, 4, 3, 2, 1, 10, 9, 8, 7, 6], cache.multisort([('#one', True), ('#two', False), ('#three', False)], ids_to_sort=sorted(cache.all_book_ids())))
     # }}}
 
     def test_get_metadata(self):  # {{{

@@ -10,7 +10,8 @@ __docformat__ = 'restructuredtext en'
 import os, traceback, random, shutil, re
 from io import BytesIO
 from collections import defaultdict
-from functools import wraps, partial
+from functools import wraps
+from future_builtins import zip
 
 from calibre import isbytestring
 from calibre.constants import iswindows, preferred_encoding
@@ -19,7 +20,7 @@ from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.categories import get_categories
 from calibre.db.locking import create_locks
 from calibre.db.errors import NoSuchFormat
-from calibre.db.fields import create_field
+from calibre.db.fields import create_field, IDENTITY
 from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
 from calibre.db.write import get_series_values
@@ -804,42 +805,59 @@ class Cache(object):
         ascending=True or False). The most significant field is the first
         2-tuple.
         '''
-        all_book_ids = frozenset(self._all_book_ids() if ids_to_sort is None
-                else ids_to_sort)
-        ids_to_sort = all_book_ids if ids_to_sort is None else ids_to_sort
+        ids_to_sort = self._all_book_ids() if ids_to_sort is None else ids_to_sort
         get_metadata = self._get_proxy_metadata
         lang_map = self.fields['languages'].book_value_map
         virtual_fields = virtual_fields or {}
 
         fm = {'title':'sort', 'authors':'author_sort'}
 
-        def sort_key(field):
-            'Handle series type fields'
+        def sort_key_func(field):
+            'Handle series type fields, virtual fields and the id field'
             idx = field + '_index'
             is_series = idx in self.fields
             try:
-                ans = self.fields[fm.get(field, field)].sort_keys_for_books(
-                    get_metadata, lang_map, all_book_ids)
+                func = self.fields[fm.get(field, field)].sort_keys_for_books(get_metadata, lang_map)
             except KeyError:
                 if field == 'id':
-                    ans = {bid:bid for bid in all_book_ids}
+                    return IDENTITY
                 else:
-                    ans = virtual_fields[fm.get(field, field)].sort_keys_for_books(
-                        get_metadata, lang_map, all_book_ids)
+                    return virtual_fields[fm.get(field, field)].sort_keys_for_books(get_metadata, lang_map)
             if is_series:
-                idx_ans = self.fields[idx].sort_keys_for_books(
-                    get_metadata, lang_map, all_book_ids)
-                ans = {k:(v, idx_ans[k]) for k, v in ans.iteritems()}
-            return ans
+                idx_func = self.fields[idx].sort_keys_for_books(get_metadata, lang_map)
+                def skf(book_id):
+                    return (func(book_id), idx_func(book_id))
+                return skf
+            return func
 
-        sort_keys = tuple(sort_key(field[0]) for field in fields)
+        if len(fields) == 1:
+            return sorted(ids_to_sort, key=sort_key_func(fields[0][0]),
+                          reverse=not fields[0][1])
+        sort_key_funcs = tuple(sort_key_func(field) for field, order in fields)
+        orders = tuple(1 if order else -1 for _, order in fields)
+        Lazy = object()  # Lazy load the sort keys for sub-sort fields
 
-        if len(sort_keys) == 1:
-            sk = sort_keys[0]
-            return sorted(ids_to_sort, key=lambda i:sk[i], reverse=not
-                    fields[0][1])
-        else:
-            return sorted(ids_to_sort, key=partial(SortKey, fields, sort_keys))
+        class SortKey(object):
+
+            __slots__ = ('book_id', 'sort_key')
+
+            def __init__(self, book_id):
+                self.book_id = book_id
+                # Calculate only the first sub-sort key since that will always be used
+                self.sort_key = [key(book_id) if i == 0 else Lazy for i, key in enumerate(sort_key_funcs)]
+
+            def __cmp__(self, other):
+                for i, (order, self_key, other_key) in enumerate(zip(orders, self.sort_key, other.sort_key)):
+                    if self_key is Lazy:
+                        self_key = self.sort_key[i] = sort_key_funcs[i](self.book_id)
+                    if other_key is Lazy:
+                        other_key = other.sort_key[i] = sort_key_funcs[i](other.book_id)
+                    ans = cmp(self_key, other_key)
+                    if ans != 0:
+                        return ans * order
+                return 0
+
+        return sorted(ids_to_sort, key=SortKey)
 
     @read_api
     def search(self, query, restriction='', virtual_fields=None, book_ids=None):
@@ -1712,18 +1730,4 @@ class Cache(object):
         return {k:tuple(sorted(v, key=sort_key)) for k, v in ans.iteritems()}
 
     # }}}
-
-class SortKey(object):  # {{{
-
-    def __init__(self, fields, sort_keys, book_id):
-        self.orders = tuple(1 if f[1] else -1 for f in fields)
-        self.sort_key = tuple(sk[book_id] for sk in sort_keys)
-
-    def __cmp__(self, other):
-        for i, order in enumerate(self.orders):
-            ans = cmp(self.sort_key[i], other.sort_key[i])
-            if ans != 0:
-                return ans * order
-        return 0
-# }}}
 
