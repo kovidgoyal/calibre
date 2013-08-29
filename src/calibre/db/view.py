@@ -335,14 +335,14 @@ class View(object):
         # be shared by multiple views. This is not ideal, but...
         self.cache.clear_search_caches(old_marked_ids | set(self.marked_ids))
 
-    def refresh(self, field=None, ascending=True, clear_caches=True):
+    def refresh(self, field=None, ascending=True, clear_caches=True, do_search=True):
         self._map = tuple(sorted(self.cache.all_book_ids()))
         self._map_filtered = tuple(self._map)
         if clear_caches:
             self.cache.clear_caches()
         if field is not None:
             self.sort(field, ascending)
-        if self.search_restriction or self.base_restriction:
+        if do_search and self.search_restriction or self.base_restriction:
             self.search('', return_matches=False)
 
     def refresh_ids(self, ids):

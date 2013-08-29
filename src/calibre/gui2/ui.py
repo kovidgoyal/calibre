@@ -543,12 +543,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.raise_()
             self.activateWindow()
         elif msg.startswith('refreshdb:'):
-            db = self.library_view.model().db
-            db.new_api.reload_from_db()
-            self.library_view.model().resort()
-            self.library_view.model().research()
+            m = self.library_view.model()
+            m.db.new_api.reload_from_db()
+            m.db.data.refresh(clear_caches=False, do_search=False)
+            m.resort()
+            m.research()
             self.tags_view.recount()
-            self.library_view.model().db.refresh_format_cache()
         elif msg.startswith('shutdown:'):
             self.quit(confirm_quit=False)
         else:
