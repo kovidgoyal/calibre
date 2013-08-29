@@ -342,7 +342,7 @@ class View(object):
             self.cache.clear_caches()
         if field is not None:
             self.sort(field, ascending)
-        if do_search and self.search_restriction or self.base_restriction:
+        if do_search and (self.search_restriction or self.base_restriction):
             self.search('', return_matches=False)
 
     def refresh_ids(self, ids):
