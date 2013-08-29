@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, random, shutil, re
+import os, traceback, random, shutil, re, operator
 from io import BytesIO
 from collections import defaultdict
 from functools import wraps
@@ -23,7 +23,7 @@ from calibre.db.errors import NoSuchFormat
 from calibre.db.fields import create_field, IDENTITY
 from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
-from calibre.db.write import get_series_values
+from calibre.db.write import get_series_values, uniq
 from calibre.db.lazy import FormatMetadata, FormatsList, ProxyMetadata
 from calibre.ebooks import check_ebook_format
 from calibre.ebooks.metadata import string_to_authors, author_to_author_sort, get_title_sort_pat
@@ -829,6 +829,9 @@ class Cache(object):
                     return (func(book_id), idx_func(book_id))
                 return skf
             return func
+
+        # Sort only once on any given field
+        fields = uniq(fields, operator.itemgetter(0))
 
         if len(fields) == 1:
             return sorted(ids_to_sort, key=sort_key_func(fields[0][0]),
