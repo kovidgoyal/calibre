@@ -276,6 +276,20 @@ class ManyToOneTable(Table):
                 self.link_table, lcol, table), (existing_item, item_id, item_id))
         return affected_books, new_id
 
+class RatingTable(ManyToOneTable):
+
+    def read_id_maps(self, db):
+        ManyToOneTable.read_id_maps(self, db)
+        # Ensure there are no records with rating=0 in the table. These should
+        # be represented as rating:None instead.
+        bad_ids = {item_id for item_id, rating in self.id_map.iteritems() if rating == 0}
+        if bad_ids:
+            self.id_map = {item_id:rating for item_id, rating in self.id_map.iteritems() if rating != 0}
+            db.conn.executemany('DELETE FROM {0} WHERE {1}=?'.format(self.link_table, self.metadata['link_column']),
+                                tuple((x,) for x in bad_ids))
+            db.conn.execute('DELETE FROM {0} WHERE {1}=0'.format(
+                self.metadata['table'], self.metadata['column']))
+
 class ManyToManyTable(ManyToOneTable):
 
     '''

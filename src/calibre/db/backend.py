@@ -32,7 +32,7 @@ from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
-        CompositeTable, UUIDTable)
+        CompositeTable, UUIDTable, RatingTable)
 # }}}
 
 '''
@@ -702,14 +702,15 @@ class DB(object):
                 metadata['column'] = col
             tables[col] = (PathTable if col == 'path' else UUIDTable if col == 'uuid' else OneToOneTable)(col, metadata)
 
-        for col in ('series', 'publisher', 'rating'):
+        for col in ('series', 'publisher'):
             tables[col] = ManyToOneTable(col, self.field_metadata[col].copy())
 
-        for col in ('authors', 'tags', 'formats', 'identifiers', 'languages'):
+        for col in ('authors', 'tags', 'formats', 'identifiers', 'languages', 'rating'):
             cls = {
                     'authors':AuthorsTable,
                     'formats':FormatsTable,
                     'identifiers':IdentifiersTable,
+                    'rating':RatingTable,
                   }.get(col, ManyToManyTable)
             tables[col] = cls(col, self.field_metadata[col].copy())
 
