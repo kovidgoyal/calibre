@@ -27,6 +27,12 @@ def bool_sort_key(bools_are_tristate):
 
 IDENTITY = lambda x: x
 
+class InvalidLinkTable(Exception):
+
+    def __init__(self, name):
+        Exception.__init__(self, name)
+        self.field_name = name
+
 class Field(object):
 
     is_many = False
@@ -144,9 +150,15 @@ class Field(object):
                 ratings = tuple(r for r in (book_rating_map.get(book_id, 0) for
                                             book_id in item_book_ids) if r > 0)
                 avg = sum(ratings)/len(ratings) if ratings else 0
-                name = self.category_formatter(id_map[item_id])
+                try:
+                    name = self.category_formatter(id_map[item_id])
+                except KeyError:
+                    # db has entries in the link table without entries in the
+                    # id table, for example, see
+                    # https://bugs.launchpad.net/bugs/1218783
+                    raise InvalidLinkTable(self.name)
                 sval = (self.category_sort_value(item_id, item_book_ids, lang_map)
-                        if special_sort else name)
+                    if special_sort else name)
                 c = tag_class(name, id=item_id, sort=sval, avg=avg,
                               id_set=item_book_ids, count=len(item_book_ids))
                 ans.append(c)

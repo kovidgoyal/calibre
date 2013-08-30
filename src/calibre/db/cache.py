@@ -20,7 +20,7 @@ from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.categories import get_categories
 from calibre.db.locking import create_locks
 from calibre.db.errors import NoSuchFormat
-from calibre.db.fields import create_field, IDENTITY
+from calibre.db.fields import create_field, IDENTITY, InvalidLinkTable
 from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
 from calibre.db.write import get_series_values, uniq
@@ -866,10 +866,18 @@ class Cache(object):
     def search(self, query, restriction='', virtual_fields=None, book_ids=None):
         return self._search_api(self, query, restriction, virtual_fields=virtual_fields, book_ids=book_ids)
 
-    @read_api
-    def get_categories(self, sort='name', book_ids=None, icon_map=None):
-        return get_categories(self, sort=sort, book_ids=book_ids,
-                              icon_map=icon_map)
+    @api
+    def get_categories(self, sort='name', book_ids=None, icon_map=None, already_fixed=None):
+        try:
+            with self.read_lock:
+                return get_categories(self, sort=sort, book_ids=book_ids, icon_map=icon_map)
+        except InvalidLinkTable as err:
+            bad_field = err.field_name
+            if bad_field == already_fixed:
+                raise
+            with self.write_lock:
+                self.fields[bad_field].table.fix_link_table(self.backend)
+            return self.get_categories(sort=sort, book_ids=book_ids, icon_map=icon_map, already_fixed=bad_field)
 
     @write_api
     def update_last_modified(self, book_ids, now=None):

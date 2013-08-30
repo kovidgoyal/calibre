@@ -64,6 +64,9 @@ class Table(object):
     def remove_books(self, book_ids, db):
         return set()
 
+    def fix_link_table(self, db):
+        pass
+
 class VirtualTable(Table):
 
     '''
@@ -201,6 +204,17 @@ class ManyToOneTable(Table):
             cbm[item_id].add(book)
             bcm[book] = item_id
 
+    def fix_link_table(self, db):
+        linked_item_ids = {item_id for item_id in self.book_col_map.itervalues()}
+        extra_item_ids = linked_item_ids - set(self.id_map)
+        if extra_item_ids:
+            for item_id in extra_item_ids:
+                book_ids = self.col_book_map.pop(item_id, ())
+                for book_id in book_ids:
+                    self.book_col_map.pop(book_id, None)
+            db.conn.executemany('DELETE FROM {0} WHERE {1}=?'.format(
+                self.link_table, self.metadata['link_column']), tuple((x,) for x in extra_item_ids))
+
     def remove_books(self, book_ids, db):
         clean = set()
         for book_id in book_ids:
@@ -283,6 +297,17 @@ class ManyToManyTable(ManyToOneTable):
             bcm[book].append(item_id)
 
         self.book_col_map = {k:tuple(v) for k, v in bcm.iteritems()}
+
+    def fix_link_table(self, db):
+        linked_item_ids = {item_id for item_ids in self.book_col_map.itervalues() for item_id in item_ids}
+        extra_item_ids = linked_item_ids - set(self.id_map)
+        if extra_item_ids:
+            for item_id in extra_item_ids:
+                book_ids = self.col_book_map.pop(item_id, ())
+                for book_id in book_ids:
+                    self.book_col_map[book_id] = tuple(iid for iid in self.book_col_map.pop(book_id, ()) if iid not in extra_item_ids)
+            db.conn.executemany('DELETE FROM {0} WHERE {1}=?'.format(
+                self.link_table, self.metadata['link_column']), tuple((x,) for x in extra_item_ids))
 
     def remove_books(self, book_ids, db):
         clean = set()
