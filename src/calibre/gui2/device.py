@@ -591,12 +591,11 @@ class DeviceManager(Thread): # {{{
     def _save_books(self, paths, target):
         '''Copy books from device to disk'''
         for path in paths:
-            name = path.rpartition(os.sep)[2]
+            name = ascii_filename(os.path.basename(path))
             dest = os.path.join(target, name)
             if os.path.abspath(dest) != os.path.abspath(path):
-                f = open(dest, 'wb')
-                self.device.get_file(path, f)
-                f.close()
+                with open(dest, 'wb') as f:
+                    self.device.get_file(path, f)
 
     def save_books(self, done, paths, target, add_as_step_to_job=None):
         return self.create_job_step(self._save_books, done, args=[paths, target],
