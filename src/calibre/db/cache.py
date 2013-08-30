@@ -1200,14 +1200,14 @@ class Cache(object):
 
     @api
     def add_format(self, book_id, fmt, stream_or_path, replace=True, run_hooks=True, dbapi=None):
-        with self.write_lock:
-            if run_hooks:
-                # Run import plugins
-                npath = run_import_plugins(stream_or_path, fmt)
-                fmt = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-                stream_or_path = lopen(npath, 'rb')
-                fmt = check_ebook_format(stream_or_path, fmt)
+        if run_hooks:
+            # Run import plugins
+            npath = run_import_plugins(stream_or_path, fmt)
+            fmt = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
+            stream_or_path = lopen(npath, 'rb')
+            fmt = check_ebook_format(stream_or_path, fmt)
 
+        with self.write_lock:
             fmt = (fmt or '').upper()
             self.format_metadata_cache[book_id].pop(fmt, None)
             try:
