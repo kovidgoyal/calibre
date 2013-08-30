@@ -1201,7 +1201,9 @@ class Cache(object):
     @api
     def add_format(self, book_id, fmt, stream_or_path, replace=True, run_hooks=True, dbapi=None):
         if run_hooks:
-            # Run import plugins
+            # Run import plugins, the write lock is not held to cater for
+            # broken plugins that might spin the event loop by popping up a
+            # message in the GUI during the processing.
             npath = run_import_plugins(stream_or_path, fmt)
             fmt = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
             stream_or_path = lopen(npath, 'rb')
