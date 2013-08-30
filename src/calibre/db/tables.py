@@ -56,7 +56,7 @@ class Table(object):
         }.get(metadata['datatype'], None)
         if name == 'authors':
             # Legacy
-            self.unserialize = lambda x: x.replace('|', ',') if x else None
+            self.unserialize = lambda x: x.replace('|', ',') if x else ''
 
         self.link_table = (link_table if link_table else
                 'books_%s_link'%self.metadata['table'])

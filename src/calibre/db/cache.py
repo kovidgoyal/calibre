@@ -1299,11 +1299,7 @@ class Cache(object):
         string. '''
         table = self.fields['authors'].table
         result = []
-        try:
-            rmap = {icu_lower(v):k for k, v in table.id_map.iteritems()}
-        except AttributeError:
-            # Somehow, the authors table has some authors that are None. Corrupted db?
-            rmap = {icu_lower(v or ''):k for k, v in table.id_map.iteritems()}
+        rmap = {icu_lower(v):k for k, v in table.id_map.iteritems()}
         for aut in authors:
             aid = rmap.get(icu_lower(aut), None)
             result.append(author_to_author_sort(aut) if aid is None else table.asort_map[aid])
