@@ -22,7 +22,7 @@ from calibre.gui2 import (config, error_dialog, Dispatcher, dynamic,
         warning_dialog, info_dialog, choose_dir, FunctionDispatcher,
         show_restart_warning, gprefs, question_dialog)
 from calibre.ebooks.metadata import authors_to_string
-from calibre import preferred_encoding, prints, force_unicode, as_unicode
+from calibre import preferred_encoding, prints, force_unicode, as_unicode, sanitize_file_name2
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import (FreeSpaceError, WrongDestinationError,
         BlacklistedDevice)
@@ -591,7 +591,7 @@ class DeviceManager(Thread): # {{{
     def _save_books(self, paths, target):
         '''Copy books from device to disk'''
         for path in paths:
-            name = ascii_filename(os.path.basename(path))
+            name = sanitize_file_name2(os.path.basename(path))
             dest = os.path.join(target, name)
             if os.path.abspath(dest) != os.path.abspath(path):
                 with open(dest, 'wb') as f:
