@@ -106,6 +106,7 @@ def add_catalog(cache, path, title):
     from calibre.utils.date import utcnow
 
     fmt = os.path.splitext(path)[1][1:].lower()
+    new_book_added = False
     with lopen(path, 'rb') as stream:
         with cache.write_lock:
             matches = cache._search('title:="%s" and tags:="%s"' % (title.replace('"', '\\"'), _('Catalog')), None)
@@ -118,17 +119,19 @@ def add_catalog(cache, path, title):
             except:
                 mi = Metadata(title, ['calibre'])
             mi.title, mi.authors = title, ['calibre']
+            mi.author_sort = 'calibre'  # The MOBI/AZW3 format sets author sort to date
             mi.tags = [_('Catalog')]
             mi.pubdate = mi.timestamp = utcnow()
             if fmt == 'mobi':
                 mi.cover, mi.cover_data = None, (None, None)
             if db_id is None:
                 db_id = cache._create_book_entry(mi, apply_import_tags=False)
+                new_book_added = True
             else:
                 cache._set_metadata(db_id, mi)
         cache.add_format(db_id, fmt, stream)  # Cant keep write lock since post-import hooks might run
 
-    return db_id
+    return db_id, new_book_added
 
 def add_news(cache, path, arg):
     from calibre.ebooks.metadata.meta import get_metadata

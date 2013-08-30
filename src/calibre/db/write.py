@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import re
 from functools import partial
 from datetime import datetime
+from future_builtins import zip
 
 from calibre.constants import preferred_encoding, ispy3
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
@@ -338,12 +339,14 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
 
 # Many-Many fields {{{
 
-def uniq(vals):
-    ' Remove all duplicates from vals, while preserving order. Items in vals must be hashable '
+def uniq(vals, kmap):
+    ''' Remove all duplicates from vals, while preserving order. kmap must be a
+    callable that returns a hashable value for every item in vals '''
     vals = vals or ()
+    lvals = (kmap(x) for x in vals)
     seen = set()
     seen_add = seen.add
-    return tuple(x for x in vals if x not in seen and not seen_add(x))
+    return tuple(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))
 
 def many_many(book_id_val_map, db, field, allow_case_change, *args):
     dirtied = set()
@@ -357,7 +360,7 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
     rid_map = {kmap(item):item_id for item_id, item in table.id_map.iteritems()}
     val_map = {}
     case_changes = {}
-    book_id_val_map = {k:uniq(vals) for k, vals in book_id_val_map.iteritems()}
+    book_id_val_map = {k:uniq(vals, kmap) for k, vals in book_id_val_map.iteritems()}
     for vals in book_id_val_map.itervalues():
         for val in vals:
             get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,

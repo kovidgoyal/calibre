@@ -294,6 +294,8 @@ class WritingTest(BaseTest):
 
         # Test setting with the same value repeated
         ae(sf('tags', {3: ('a', 'b', 'a')}), {3})
+        ae(sf('tags', {3: ('x', 'X')}), {3}, 'Failed when setting tag twice with different cases')
+        ae(('x',), cache.field_for('tags', 3))
 
     # }}}
 
@@ -552,9 +554,23 @@ class WritingTest(BaseTest):
             self.assertEqual(c.field_for('#series', 2), 'My Series Two')
             self.assertEqual(c.field_for('#series_index', 1), 3.0)
             self.assertEqual(c.field_for('#series_index', 2), 4.0)
+
+        # Test renaming many-many items to multiple items
+        cache = self.init_cache(self.cloned_library)
+        t = {v:k for k, v in cache.get_id_map('tags').iteritems()}['Tag One']
+        affected_books, id_map = cache.rename_items('tags', {t:'Something, Else, Entirely'})
+        self.assertEqual({1, 2}, affected_books)
+        tmap = cache.get_id_map('tags')
+        self.assertEqual('Something', tmap[id_map[t]])
+        self.assertEqual(1, len(id_map))
+        f1, f2 = cache.field_for('tags', 1), cache.field_for('tags', 2)
+        for f in (f1, f2):
+            for t in 'Something,Else,Entirely'.split(','):
+                self.assertIn(t, f)
+            self.assertNotIn('Tag One', f)
     # }}}
 
-    def test_composite(self):  # {{{
+    def test_composite_cache(self):  # {{{
         ' Test that the composite field cache is properly invalidated on writes '
         cache = self.init_cache()
         cache.create_custom_column('tc', 'TC', 'composite', False, display={
@@ -580,4 +596,32 @@ class WritingTest(BaseTest):
         test_invalidate()
         cache.add_format(1, 'ADD', BytesIO(b'xxxx'))
         test_invalidate()
+    # }}}
+
+    def test_dump_and_restore(self):  # {{{
+        ' Test roundtripping the db through SQL '
+        cache = self.init_cache()
+        all_ids = cache.all_book_ids()
+        cache.dump_and_restore()
+        self.assertEqual(cache.set_field('title', {1:'nt'}), set([1]), 'database connection broken')
+        cache = self.init_cache()
+        self.assertEqual(cache.all_book_ids(), all_ids, 'dump and restore broke database')
+    # }}}
+
+    def test_set_author_data(self):  # {{{
+        cache = self.init_cache()
+        adata = cache.author_data()
+        ldata = {aid:str(aid) for aid in adata}
+        self.assertEqual({1,2,3}, cache.set_link_for_authors(ldata))
+        for c in (cache, self.init_cache()):
+            self.assertEqual(ldata, {aid:d['link'] for aid, d in c.author_data().iteritems()})
+        self.assertEqual({3}, cache.set_link_for_authors({aid:'xxx' if aid == max(adata) else str(aid) for aid in adata}),
+                         'Setting the author link to the same value as before, incorrectly marked some books as dirty')
+        sdata = {aid:'%s, changed' % aid for aid in adata}
+        self.assertEqual({1,2,3}, cache.set_sort_for_authors(sdata))
+        for bid in (1, 2, 3):
+            self.assertIn(', changed', cache.field_for('author_sort', bid))
+        sdata = {aid:'%s, changed' % (aid*2 if aid == max(adata) else aid) for aid in adata}
+        self.assertEqual({3}, cache.set_sort_for_authors(sdata),
+                         'Setting the author sort to the same value as before, incorrectly marked some books as dirty')
     # }}}

@@ -220,6 +220,8 @@ class BooksView(QTableView):  # {{{
         self.was_restored = False
         self.column_header = HeaderView(Qt.Horizontal, self)
         self.setHorizontalHeader(self.column_header)
+        self.column_header.sortIndicatorChanged.disconnect()
+        self.column_header.sortIndicatorChanged.connect(self.user_sort_requested)
         self.column_header.setMovable(True)
         self.column_header.setClickable(True)
         self.column_header.sectionMoved.connect(self.save_state)
@@ -257,9 +259,9 @@ class BooksView(QTableView):  # {{{
                 sz = h.sectionSizeHint(idx)
                 h.resizeSection(idx, sz)
         elif action == 'ascending':
-            self.sortByColumn(idx, Qt.AscendingOrder)
+            self.sort_by_column_and_order(idx, True)
         elif action == 'descending':
-            self.sortByColumn(idx, Qt.DescendingOrder)
+            self.sort_by_column_and_order(idx, False)
         elif action == 'defaults':
             self.apply_state(self.get_default_state())
         elif action == 'addcustcol':
@@ -368,6 +370,30 @@ class BooksView(QTableView):  # {{{
     # }}}
 
     # Sorting {{{
+    def sort_by_column_and_order(self, col, ascending):
+        self.column_header.blockSignals(True)
+        self.sortByColumn(col, Qt.AscendingOrder if ascending else Qt.DescendingOrder)
+        self.column_header.blockSignals(False)
+
+    def user_sort_requested(self, col, order=Qt.AscendingOrder):
+        if col >= len(self.column_map) or col < 0:
+            return QTableView.sortByColumn(self, col)
+        field = self.column_map[col]
+        self.intelligent_sort(field, order == Qt.AscendingOrder)
+
+    def intelligent_sort(self, field, ascending):
+        m = self.model()
+        pname = 'previous_sort_order_' + self.__class__.__name__
+        previous = gprefs.get(pname, {})
+        if field == m.sorted_on[0] or field not in previous:
+            self.sort_by_named_field(field, ascending)
+            previous[field] = ascending
+            gprefs[pname] = previous
+            return
+        previous[m.sorted_on[0]] = m.sorted_on[1]
+        gprefs[pname] = previous
+        self.sort_by_named_field(field, previous[field])
+
     def about_to_be_sorted(self, idc):
         selected_rows = [r.row() for r in self.selectionModel().selectedRows()]
         self.selected_ids = [idc(r) for r in selected_rows]
@@ -382,12 +408,12 @@ class BooksView(QTableView):  # {{{
     def sort_by_named_field(self, field, order, reset=True):
         if field in self.column_map:
             idx = self.column_map.index(field)
-            if order:
-                self.sortByColumn(idx, Qt.AscendingOrder)
-            else:
-                self.sortByColumn(idx, Qt.DescendingOrder)
+            self.sort_by_column_and_order(idx, order)
         else:
             self._model.sort_by_named_field(field, order, reset)
+            self.column_header.blockSignals(True)
+            self.column_header.setSortIndicator(-1, Qt.AscendingOrder)
+            self.column_header.blockSignals(False)
 
     def multisort(self, fields, reset=True, only_if_different=False):
         if len(fields) == 0:
@@ -413,11 +439,11 @@ class BooksView(QTableView):  # {{{
         dir = Qt.AscendingOrder if fields[0][1] else Qt.DescendingOrder
         if col in self.column_map:
             col = self.column_map.index(col)
-            hdrs = self.horizontalHeader()
+            self.column_header.blockSignals(True)
             try:
-                hdrs.setSortIndicator(col, dir)
-            except:
-                pass
+                self.column_header.setSortIndicator(col, dir)
+            finally:
+                self.column_header.blockSignals(False)
     # }}}
 
     # Ondevice column {{{
@@ -481,8 +507,7 @@ class BooksView(QTableView):  # {{{
             return
         for col, order in reversed(self.cleanup_sort_history(
                 saved_history)[:max_sort_levels]):
-            self.sortByColumn(self.column_map.index(col),
-                              Qt.AscendingOrder if order else Qt.DescendingOrder)
+            self.sort_by_column_and_order(self.column_map.index(col), order)
 
     def apply_state(self, state, max_sort_levels=3):
         h = self.column_header

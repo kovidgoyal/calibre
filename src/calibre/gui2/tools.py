@@ -291,7 +291,7 @@ def fetch_scheduled_recipe(arg):  # {{{
         from calibre.customize.ui import plugin_for_output_format
         p = plugin_for_output_format('pdf')
         for opt in p.options:
-            recs.append(opt.name, pdf.get(opt.name, opt.recommended_value), OptionRecommendation.HIGH)
+            recs.append((opt.option.name, pdf.get(opt.option.name, opt.recommended_value), OptionRecommendation.HIGH))
 
     args = [arg['recipe'], pt.name, recs]
     if arg['username'] is not None:

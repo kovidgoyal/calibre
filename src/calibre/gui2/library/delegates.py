@@ -36,7 +36,7 @@ class DateTimeEdit(QDateTimeEdit):  # {{{
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_Minus:
             ev.accept()
-            self.setDateTime(self.minimumDateTime())
+            self.setDateTime(UNDEFINED_QDATETIME)
         elif ev.key() == Qt.Key_Equal:
             ev.accept()
             self.setDateTime(QDateTime.currentDateTime())

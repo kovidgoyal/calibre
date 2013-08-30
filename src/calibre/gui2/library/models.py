@@ -11,7 +11,7 @@ from collections import defaultdict, namedtuple
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
         QModelIndex, QVariant, QDateTime, QColor, QPixmap)
 
-from calibre.gui2 import NONE, UNDEFINED_QDATETIME, error_dialog
+from calibre.gui2 import NONE, error_dialog
 from calibre.utils.search_query_parser import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.formatter import SafeFormat
@@ -227,20 +227,14 @@ class BooksModel(QAbstractTableModel):  # {{{
             elif col in self.custom_columns:
                 self.headers[col] = self.custom_columns[col]['name']
 
-        if hasattr(self.db, 'new_api'):
-            self.build_new_data_convertors()
-        else:
-            self.build_data_convertors()
+        self.build_data_convertors()
         self.reset()
         self.database_changed.emit(db)
         self.stop_metadata_backup()
         self.start_metadata_backup()
 
     def start_metadata_backup(self):
-        if hasattr(self.db, 'new_api'):
-            from calibre.db.backup import MetadataBackup
-        else:
-            from calibre.library.caches import MetadataBackup
+        from calibre.db.backup import MetadataBackup
         self.metadata_backup = MetadataBackup(self.db)
         self.metadata_backup.start()
 
@@ -315,14 +309,9 @@ class BooksModel(QAbstractTableModel):  # {{{
         return ids
 
     def delete_books_by_id(self, ids, permanent=False):
-        if hasattr(self.db, 'new_api'):
-            self.db.new_api.remove_books(ids, permanent=permanent)
-            self.db.data.books_deleted(tuple(ids))
-            self.db.notify('delete', list(ids))
-        else:
-            for id in ids:
-                self.db.delete_book(id, permanent=permanent, do_clean=False)
-            self.db.clean()
+        self.db.new_api.remove_books(ids, permanent=permanent)
+        self.db.data.books_deleted(tuple(ids))
+        self.db.notify('delete', list(ids))
         self.books_deleted()
 
     def books_added(self, num):
@@ -646,7 +635,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             img = self.default_image
         return img
 
-    def build_new_data_convertors(self):
+    def build_data_convertors(self):
 
         def renderer(field, decorator=False):
             idfunc = self.db.id
@@ -683,15 +672,25 @@ class BooksModel(QAbstractTableModel):  # {{{
                 def func(idx):
                     return by if fffunc(field_obj, idfunc(idx)) else bb
             elif dt in {'text', 'comments', 'composite', 'enumeration'}:
-                if m['is_multiple'] and not field_obj.is_composite:
+                if m['is_multiple']:
                     jv = m['is_multiple']['list_to_ui']
                     do_sort = '&' not in jv
-                    if do_sort:
-                        def func(idx):
-                            return QVariant(jv.join(sorted(fffunc(field_obj, idfunc(idx), default_value=()), key=sort_key)))
+                    if field_obj.is_composite:
+                        if do_sort:
+                            sv = m['is_multiple']['cache_to_list']
+                            def func(idx):
+                                val = fffunc(field_obj, idfunc(idx), default_value='') or ''
+                                return QVariant(jv.join(sorted((x.strip() for x in val.split(sv)), key=sort_key)))
+                        else:
+                            def func(idx):
+                                return QVariant(fffunc(field_obj, idfunc(idx), default_value=''))
                     else:
-                        def func(idx):
-                            return QVariant(jv.join(fffunc(field_obj, idfunc(idx), default_value=())))
+                        if do_sort:
+                            def func(idx):
+                                return QVariant(jv.join(sorted(fffunc(field_obj, idfunc(idx), default_value=()), key=sort_key)))
+                        else:
+                            def func(idx):
+                                return QVariant(jv.join(fffunc(field_obj, idfunc(idx), default_value=())))
                 else:
                     if dt in {'text', 'composite', 'enumeration'} and m['display'].get('use_decorations', False):
                         def func(idx):
@@ -751,170 +750,6 @@ class BooksModel(QAbstractTableModel):  # {{{
         # build a index column to data converter map, to remove the string lookup in the data loop
         self.column_to_dc_map = [self.dc[col] for col in self.column_map]
         self.column_to_dc_decorator_map = [self.dc_decorator.get(col, None) for col in self.column_map]
-
-    def build_data_convertors(self):
-        def authors(r, idx=-1):
-            au = self.db.data[r][idx]
-            if au:
-                au = [a.strip().replace('|', ',') for a in au.split(',')]
-                return QVariant(' & '.join(au))
-            else:
-                return None
-
-        def languages(r, idx=-1):
-            lc = self.db.data[r][idx]
-            if lc:
-                langs = [calibre_langcode_to_name(l.strip()) for l in lc.split(',')]
-                return QVariant(', '.join(langs))
-            return None
-
-        def tags(r, idx=-1):
-            tags = self.db.data[r][idx]
-            if tags:
-                return QVariant(', '.join(sorted(tags.split(','), key=sort_key)))
-            return None
-
-        def series_type(r, idx=-1, siix=-1):
-            series = self.db.data[r][idx]
-            if series:
-                idx = fmt_sidx(self.db.data[r][siix])
-                return QVariant(series + ' [%s]'%idx)
-            return None
-
-        def size(r, idx=-1):
-            size = self.db.data[r][idx]
-            if size:
-                ans = '%.1f'%(float(size)/(1024*1024))
-                if size > 0 and ans == '0.0':
-                    ans = '<0.1'
-                return QVariant(ans)
-            return None
-
-        def rating_type(r, idx=-1):
-            r = self.db.data[r][idx]
-            r = r/2.0 if r else 0
-            return QVariant(int(r))
-
-        def datetime_type(r, idx=-1):
-            val = self.db.data[r][idx]
-            if val is not None:
-                return QVariant(QDateTime(as_local_time(val)))
-            else:
-                return QVariant(UNDEFINED_QDATETIME)
-
-        def bool_type(r, idx=-1):
-            return None  # displayed using a decorator
-
-        def bool_type_decorator(r, idx=-1, bool_cols_are_tristate=True):
-            val = force_to_bool(self.db.data[r][idx])
-            if val is None:
-                if not bool_cols_are_tristate:
-                    return self.bool_no_icon
-                return NONE
-            if val:
-                return self.bool_yes_icon
-            return self.bool_no_icon
-
-        def ondevice_decorator(r, idx=-1):
-            text = self.db.data[r][idx]
-            if text:
-                return self.bool_yes_icon
-            return self.bool_blank_icon
-
-        def text_type(r, mult=None, idx=-1):
-            text = self.db.data[r][idx]
-            if text and mult:
-                jv = mult['list_to_ui']
-                sv = mult['cache_to_list']
-                return QVariant(jv.join(
-                    sorted([t.strip() for t in text.split(sv)], key=sort_key)))
-            return QVariant(text)
-
-        def decorated_text_type(r, idx=-1):
-            text = self.db.data[r][idx]
-            if force_to_bool(text) is not None:
-                return None
-            return QVariant(text)
-
-        def number_type(r, idx=-1, fmt=None):
-            if fmt is not None:
-                try:
-                    return QVariant(fmt.format(self.db.data[r][idx]))
-                except:
-                    pass
-            return QVariant(self.db.data[r][idx])
-
-        self.dc = {
-                   'title'    : functools.partial(text_type,
-                                idx=self.db.field_metadata['title']['rec_index'], mult=None),
-                   'authors'  : functools.partial(authors,
-                                idx=self.db.field_metadata['authors']['rec_index']),
-                   'size'     : functools.partial(size,
-                                idx=self.db.field_metadata['size']['rec_index']),
-                   'timestamp': functools.partial(datetime_type,
-                                idx=self.db.field_metadata['timestamp']['rec_index']),
-                   'pubdate'  : functools.partial(datetime_type,
-                                idx=self.db.field_metadata['pubdate']['rec_index']),
-                   'last_modified': functools.partial(datetime_type,
-                                idx=self.db.field_metadata['last_modified']['rec_index']),
-                   'rating'   : functools.partial(rating_type,
-                                idx=self.db.field_metadata['rating']['rec_index']),
-                   'publisher': functools.partial(text_type,
-                                idx=self.db.field_metadata['publisher']['rec_index'], mult=None),
-                   'tags'     : functools.partial(tags,
-                                idx=self.db.field_metadata['tags']['rec_index']),
-                   'series'   : functools.partial(series_type,
-                                idx=self.db.field_metadata['series']['rec_index'],
-                                siix=self.db.field_metadata['series_index']['rec_index']),
-                   'ondevice' : functools.partial(text_type,
-                                idx=self.db.field_metadata['ondevice']['rec_index'], mult=None),
-                   'languages': functools.partial(languages,
-                                idx=self.db.field_metadata['languages']['rec_index']),
-                   }
-
-        self.dc_decorator = {
-                'ondevice':functools.partial(ondevice_decorator,
-                    idx=self.db.field_metadata['ondevice']['rec_index']),
-                    }
-
-        # Add the custom columns to the data converters
-        for col in self.custom_columns:
-            idx = self.custom_columns[col]['rec_index']
-            datatype = self.custom_columns[col]['datatype']
-            if datatype in ('text', 'comments', 'composite', 'enumeration'):
-                mult=self.custom_columns[col]['is_multiple']
-                self.dc[col] = functools.partial(text_type, idx=idx, mult=mult)
-                if datatype in ['text', 'composite', 'enumeration'] and not mult:
-                    if self.custom_columns[col]['display'].get('use_decorations', False):
-                        self.dc[col] = functools.partial(decorated_text_type, idx=idx)
-                        self.dc_decorator[col] = functools.partial(
-                            bool_type_decorator, idx=idx,
-                            bool_cols_are_tristate=
-                                self.db.prefs.get('bools_are_tristate'))
-            elif datatype in ('int', 'float'):
-                fmt = self.custom_columns[col]['display'].get('number_format', None)
-                self.dc[col] = functools.partial(number_type, idx=idx, fmt=fmt)
-            elif datatype == 'datetime':
-                self.dc[col] = functools.partial(datetime_type, idx=idx)
-            elif datatype == 'bool':
-                self.dc[col] = functools.partial(bool_type, idx=idx)
-                self.dc_decorator[col] = functools.partial(
-                            bool_type_decorator, idx=idx,
-                            bool_cols_are_tristate=
-                                self.db.prefs.get('bools_are_tristate'))
-            elif datatype == 'rating':
-                self.dc[col] = functools.partial(rating_type, idx=idx)
-            elif datatype == 'series':
-                self.dc[col] = functools.partial(series_type, idx=idx,
-                    siix=self.db.field_metadata.cc_series_index_column_for(col))
-            else:
-                print 'What type is this?', col, datatype
-        # build a index column to data converter map, to remove the string lookup in the data loop
-        self.column_to_dc_map = []
-        self.column_to_dc_decorator_map = []
-        for col in self.column_map:
-            self.column_to_dc_map.append(self.dc[col])
-            self.column_to_dc_decorator_map.append(self.dc_decorator.get(col, None))
 
     def data(self, index, role):
         col = index.column()

@@ -206,6 +206,29 @@ def load_c_extensions(conn, debug=DEBUG):
             print e
     return False
 
+def do_connect(path, row_factory=None):
+    conn = sqlite.connect(path, factory=Connection,
+                                detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
+    conn.execute('pragma cache_size=5000')
+    encoding = conn.execute('pragma encoding').fetchone()[0]
+    conn.create_aggregate('sortconcat', 2, SortedConcatenate)
+    conn.create_aggregate('sortconcat_bar', 2, SortedConcatenateBar)
+    conn.create_aggregate('sortconcat_amper', 2, SortedConcatenateAmper)
+    conn.create_aggregate('identifiers_concat', 2, IdentifiersConcat)
+    load_c_extensions(conn)
+    conn.row_factory = sqlite.Row if row_factory else (lambda cursor, row : list(row))
+    conn.create_aggregate('concat', 1, Concatenate)
+    conn.create_aggregate('aum_sortconcat', 4, AumSortedConcatenate)
+    conn.create_collation('PYNOCASE', partial(pynocase,
+        encoding=encoding))
+    conn.create_function('title_sort', 1, title_sort)
+    conn.create_function('author_to_author_sort', 1,
+            _author_to_author_sort)
+    conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
+    # Dummy functions for dynamically created filters
+    conn.create_function('books_list_filter', 1, lambda x: 1)
+    conn.create_collation('icucollate', icu_collator)
+    return conn
 
 class DBThread(Thread):
 
@@ -222,27 +245,7 @@ class DBThread(Thread):
         self.conn = None
 
     def connect(self):
-        self.conn = sqlite.connect(self.path, factory=Connection,
-                                   detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
-        self.conn.execute('pragma cache_size=5000')
-        encoding = self.conn.execute('pragma encoding').fetchone()[0]
-        self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
-        self.conn.create_aggregate('sortconcat_bar', 2, SortedConcatenateBar)
-        self.conn.create_aggregate('sortconcat_amper', 2, SortedConcatenateAmper)
-        self.conn.create_aggregate('identifiers_concat', 2, IdentifiersConcat)
-        load_c_extensions(self.conn)
-        self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
-        self.conn.create_aggregate('concat', 1, Concatenate)
-        self.conn.create_aggregate('aum_sortconcat', 4, AumSortedConcatenate)
-        self.conn.create_collation('PYNOCASE', partial(pynocase,
-            encoding=encoding))
-        self.conn.create_function('title_sort', 1, title_sort)
-        self.conn.create_function('author_to_author_sort', 1,
-                _author_to_author_sort)
-        self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
-        # Dummy functions for dynamically created filters
-        self.conn.create_function('books_list_filter', 1, lambda x: 1)
-        self.conn.create_collation('icucollate', icu_collator)
+        self.conn = do_connect(self.path, self.row_factory)
 
     def run(self):
         try:

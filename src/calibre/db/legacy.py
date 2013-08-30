@@ -143,8 +143,8 @@ class LibraryDatabase(object):
         self.data.cache.initialize_template_cache()
 
     def all_ids(self):
-        for book_id in self.new_api.all_book_ids():
-            yield book_id
+        'All book ids in the db. This can no longer be a generator because of db locking.'
+        return tuple(self.new_api.all_book_ids())
 
     def is_empty(self):
         with self.new_api.read_lock:
@@ -252,8 +252,8 @@ class LibraryDatabase(object):
         return recursive_import(self, root, single_book_per_directory=single_book_per_directory, callback=callback, added_ids=added_ids)
 
     def add_catalog(self, path, title):
-        book_id = add_catalog(self.new_api, path, title)
-        if book_id is not None:
+        book_id, new_book_added = add_catalog(self.new_api, path, title)
+        if book_id is not None and new_book_added:
             self.data.books_added((book_id,))
         return book_id
 

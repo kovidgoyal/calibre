@@ -113,7 +113,8 @@ class EbookIterator(BookmarksMixin):
 
         self.book_format = os.path.splitext(self.pathtoebook)[1][1:].upper()
         if getattr(plumber.input_plugin, 'is_kf8', False):
-            self.book_format = 'KF8'
+            fs = ':joint' if getattr(plumber.input_plugin, 'mobi_is_joint', False) else ''
+            self.book_format = 'KF8' + fs
 
         self.opf = getattr(plumber.input_plugin, 'optimize_opf_parsing', None)
         if self.opf is None:

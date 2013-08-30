@@ -20,6 +20,81 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.1.0
+  date: 2013-08-30
+
+  new features:
+    - title: "Rewrite the HTML metadata parser to make it faster and more robust."
+      tickets: [1217751]
+
+    - title: "Book list: When sorting on a currently unsorted column, use the last applied sort for that column, instead of always sorting in ascending order."
+      tickets: [1216714]
+
+    - title: "PocketBook driver: Scan for books files in the entire device not just in the 'books' folder"
+ 
+  bug fixes:
+    - title: "Fix a regression in 1.0 that could cause the dates in custom date-type columns to change in some timezones when using the edit metadata dialog to make unrelated changes."
+      tickets: [1217096]
+
+    - title: "When replacing formats in a book with a very long title+authors on windows, calibre could leave behind the old format file, because the filename shortening algorithm has changed. Handle that case."
+
+    - title: "Fix content server giving an error if you return to the top level page after using the virtual libraries."
+      tickets: [1216838]
+
+    - title: "Fix calibredb not updating the running calibre instance properly in 1.0"
+      tickets: [1218177]
+
+    - title: "Fix a regression in 1.0 that broke splitting of multiple valued field like tags into many items during a rename."
+      tickets: [1216699]
+
+    - title: "Fix a regression in 1.0 that caused an error when trying to set values for tags with the same item repeated, with different case."
+      tickets: [1216398]
+
+    - title: "Fix a regression that broke downloading news when output format is set to PDF"
+
+    - title: "Creating a catalog with an already existing catalog in the library would cause a temporary duplicate entry in the book list. Also fix the author sort for catalogs generated in the AZW3 format not being correct."
+
+    - title: "EPUB metadata: When changing the title in an EPUB 2.0 file that has multiple titles, remove the extra titles."
+      tickets: [1211949]
+
+    - title: "Fix a regression in 1.0 that caused Search and Replace in the bulk metadata edit dialog to be much slower than before"
+
+    - title: "Fix a regression in 1.0 that caused incorrect sorting and searching on some composite columns (columns built from other columns)."
+
+    - title: "Fix a regression in 1.0 that prevented the moving of libraries inside calibre"
+      tickets: [1216401]
+
+    - title: "Virtual Library tabs: If the user activates a hidden tab via the Virtual Library button, change the name of the All Books tab to reflect the hidden virtual library."
+      tickets: [1216174]
+
+    - title: "Ignore text records in the database that are damaged, instead of erroring out. Lets the rest of the data be used."
+      tickets: [1215981]
+
+    - title: "Fix regression that broke calibredb catalog when sorting on the id field."
+      tickets: [1216090]
+
+    - title: "HTML Input: Handle malformed OPF files when converting. "
+      tickets: [1215924]
+
+    - title: "Ensure that the Formats custom column (if present) is updated when a new format is created as a result of a conversion."
+      tickets: [1215885]
+
+    - title: "Fix a bug in 1.0 that broke the Check Library function on computers with non-English locales."
+      tickets: [1215819]
+
+    - title: "Content server: Fix blank username causing error on startup."
+      tickets: [1215893]
+
+    - title: "Fix sorting of book list by multi-valued fields like tags not correct in the new backend."
+      tickets: [1215820]
+
+  improved recipes:
+    - Daily Mirror
+
+  new recipes:
+    - title: VFR Magazine 
+      author: Krittika Goyal
+
 - version: 1.0.0
   date: 2013-08-23
 

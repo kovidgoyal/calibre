@@ -18,33 +18,35 @@
     <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>&amp;What kind of match to use:</string>
+   <item row="0" column="2" rowspan="3">
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
      </property>
-     <property name="buddy">
-      <cstring>matchkind</cstring>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
      </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QComboBox" name="matchkind">
-     <item>
-      <property name="text">
-       <string>Contains: the word or phrase matches anywhere in the metadata field</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Equals: the word or phrase must match the entire metadata field</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Regular expression: the expression must match anywhere in the metadata field</string>
-      </property>
-     </item>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QLabel" name="label_12">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>&lt;p&gt;You can also perform other kinds of advanced searches, for example searching date columns for dates after a particular date, or checking for books that have no covers and  so on. See the &lt;a href=&quot;http://manual.calibre-ebook.com/gui.html#the-search-interface&quot;&gt;The Search Interface&lt;/a&gt; for more information.</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <property name="openExternalLinks">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item row="2" column="0" colspan="2">
@@ -57,6 +59,16 @@
        <string>A&amp;dvanced Search</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
+       <item row="5" column="0">
+        <widget class="QDialogButtonBox" name="buttonBox">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="standardButtons">
+          <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
@@ -140,26 +152,10 @@
             </item>
            </layout>
           </item>
-          <item>
-           <widget class="QLabel" name="label_6">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>See the &lt;a href=&quot;http://manual.calibre-ebook.com/gui.html#the-search-interface&quot;&gt;User Manual&lt;/a&gt; for more help</string>
-            </property>
-            <property name="openExternalLinks">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
          </layout>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="3" column="0">
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -171,16 +167,6 @@
           </size>
          </property>
         </spacer>
-       </item>
-       <item row="3" column="0">
-        <widget class="QDialogButtonBox" name="buttonBox">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="standardButtons">
-          <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-         </property>
-        </widget>
        </item>
       </layout>
      </widget>
@@ -305,18 +291,34 @@
      </widget>
     </widget>
    </item>
-   <item row="1" column="1">
-    <spacer name="verticalSpacer_3">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>&amp;What kind of match to use:</string>
      </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
+     <property name="buddy">
+      <cstring>matchkind</cstring>
      </property>
-    </spacer>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="matchkind">
+     <item>
+      <property name="text">
+       <string>Contains: the word or phrase matches anywhere in the metadata field</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Equals: the word or phrase must match the entire metadata field</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Regular expression: the expression must match anywhere in the metadata field</string>
+      </property>
+     </item>
+    </widget>
    </item>
   </layout>
  </widget>

@@ -142,7 +142,7 @@ class MovedDialog(QDialog):  # {{{
 
     def accept(self):
         newloc = unicode(self.loc.text())
-        if not db_class.exists_at(newloc):
+        if not db_class().exists_at(newloc):
             error_dialog(self, _('No library found'),
                     _('No existing calibre library found at %s')%newloc,
                     show=True)
@@ -190,10 +190,7 @@ class BackupStatus(QDialog):  # {{{
 
     def mark_all_dirty(self):
         db = self.db()
-        if hasattr(db, 'new_api'):
-            db.new_api.mark_as_dirty(db.new_api.all_book_ids())
-        else:
-            db.dirtied(list(db.data.iterallids()))
+        db.new_api.mark_as_dirty(db.new_api.all_book_ids())
 
 # }}}
 
@@ -454,17 +451,14 @@ class ChooseLibraryAction(InterfaceAction):
             self.gui.library_moved(db.library_path, call_close=False)
 
     def check_library(self):
-        from calibre.gui2.dialogs.check_library import CheckLibraryDialog, DBCheck, DBCheckNew
+        from calibre.gui2.dialogs.check_library import CheckLibraryDialog, DBCheck
         self.gui.library_view.save_state()
         m = self.gui.library_view.model()
         m.stop_metadata_backup()
         db = m.db
         db.prefs.disable_setting = True
 
-        if hasattr(db, 'new_api'):
-            d = DBCheckNew(self.gui, db)
-        else:
-            d = DBCheck(self.gui, db)
+        d = DBCheck(self.gui, db)
         d.start()
         try:
             d.conn.close()

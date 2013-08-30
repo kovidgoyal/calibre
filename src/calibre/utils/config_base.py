@@ -116,7 +116,6 @@ class OptionSet(object):
         if name in self.preferences:
             self.preferences.remove(name)
 
-
     def add_opt(self, name, switches=[], help=None, type=None, choices=None,
                  group=None, default=None, action=None, metavar=None):
         '''
@@ -174,7 +173,6 @@ class OptionSet(object):
                         )
             g.add_option(*pref.switches, **args)
 
-
         return parser
 
     def get_override_section(self, src):
@@ -230,7 +228,7 @@ class OptionSet(object):
 
     def serialize(self, opts):
         src = '# %s\n\n'%(self.description.replace('\n', '\n# '))
-        groups = [self.render_group(name, self.groups.get(name, ''), opts) \
+        groups = [self.render_group(name, self.groups.get(name, ''), opts)
                                         for name in [None] + self.group_list]
         return src + '\n\n'.join(groups)
 
@@ -264,7 +262,6 @@ class Config(ConfigInterface):
     def __init__(self, basename, description=''):
         ConfigInterface.__init__(self, description)
         self.config_file_path = os.path.join(config_dir, basename+'.py')
-
 
     def parse(self):
         src = ''
@@ -367,7 +364,6 @@ class ConfigProxy(object):
 
     def help(self, key):
         return self.__config.get_option(key).help
-
 
 
 def _prefs():
@@ -475,10 +471,21 @@ def write_tweaks(raw):
 tweaks = read_tweaks()
 
 def reset_tweaks_to_default():
-    global tweaks
     default_tweaks = P('default_tweaks.py', data=True,
             allow_user_override=False)
     dl, dg = {}, {}
     exec default_tweaks in dg, dl
-    tweaks = dl
+    tweaks.clear()
+    tweaks.update(dl)
 
+class Tweak(object):
+
+    def __init__(self, name, value):
+        self.name, self.value = name, value
+
+    def __enter__(self):
+        self.origval = tweaks[self.name]
+        tweaks[self.name] = self.value
+
+    def __exit__(self, *args):
+        tweaks[self.name] = self.origval

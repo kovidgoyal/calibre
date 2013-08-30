@@ -30,8 +30,9 @@ class MarkedVirtualField(object):
         for book_id in candidates:
             yield self.marked_ids.get(book_id, default_value), {book_id}
 
-    def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
-        return {bid:self.marked_ids.get(bid, None) for bid in all_book_ids}
+    def sort_keys_for_books(self, get_metadata, lang_map):
+        g = self.marked_ids.get
+        return lambda book_id:g(book_id, None)
 
 class TableRow(object):
 
@@ -334,14 +335,14 @@ class View(object):
         # be shared by multiple views. This is not ideal, but...
         self.cache.clear_search_caches(old_marked_ids | set(self.marked_ids))
 
-    def refresh(self, field=None, ascending=True, clear_caches=True):
+    def refresh(self, field=None, ascending=True, clear_caches=True, do_search=True):
         self._map = tuple(sorted(self.cache.all_book_ids()))
         self._map_filtered = tuple(self._map)
         if clear_caches:
             self.cache.clear_caches()
         if field is not None:
             self.sort(field, ascending)
-        if self.search_restriction or self.base_restriction:
+        if do_search and (self.search_restriction or self.base_restriction):
             self.search('', return_matches=False)
 
     def refresh_ids(self, ids):

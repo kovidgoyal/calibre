@@ -42,6 +42,10 @@ NULL_VALUES = {
 
 field_metadata = FieldMetadata()
 
+def reset_field_metadata():
+    global field_metadata
+    field_metadata = FieldMetadata()
+
 ck = lambda typ: icu_lower(typ).strip().replace(':', '').replace(',', '')
 cv = lambda val: val.strip().replace(',', '|').replace(':', '|')
 

@@ -84,7 +84,8 @@ class Manual(Command):
                                    '-d', '.build/doctrees', '.', '.build/html'])
             subprocess.check_call(['sphinx-build', '-b', 'myepub', '-d',
                                    '.build/doctrees', '.', '.build/epub'])
-            subprocess.check_call(['sphinx-build', '-b', 'mylatex', '-d',
+            with self:
+                subprocess.check_call(['sphinx-build', '-b', 'mylatex', '-d',
                                    '.build/doctrees', '.', '.build/latex'])
             pwd = os.getcwdu()
             os.chdir('.build/latex')
@@ -106,6 +107,18 @@ class Manual(Command):
         path = os.path.join(self.SRC, 'calibre', 'manual', '.build')
         if os.path.exists(path):
             shutil.rmtree(path)
+
+    def __enter__(self):
+        with open('index.rst', 'r+b') as f:
+            raw = self.orig_index = f.read()
+            f.seek(0)
+            f.truncate()
+            pos = raw.index(b'.. REMOVE_IN_PDF')
+            f.write(raw[:pos])
+
+    def __exit__(self, *args):
+        with open('index.rst', 'wb') as f:
+            f.write(self.orig_index)
 
 class TagRelease(Command):
 
