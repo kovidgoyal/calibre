@@ -924,7 +924,7 @@ Enter SQL statements terminated with a ";"
         fn=getattr(self, "command_"+cmd[0], None)
         if not fn:
             raise self.Error("Unknown command \"%s\".  Enter \".help\" for help" % (cmd[0],))
-        res=fn(cmd[1:])
+        fn(cmd[1:])
 
     ###
     ### Commands start here
@@ -2861,7 +2861,7 @@ Enter SQL statements terminated with a ";"
         def __getattr__(self, k):
             return ""
         def colour_value(self, val, formatted):
-            c=self.colour
+            self.colour
             if val is None:
                 return self.vnull+formatted+self.vnull_
             if isinstance(val, Shell._basestring):
