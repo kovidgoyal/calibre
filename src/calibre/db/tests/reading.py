@@ -150,6 +150,7 @@ class ReadingTest(BaseTest):
             '#tags':[3, 2, 1],
             '#yesno':[2, 1, 3],
             '#comments':[3, 2, 1],
+            'id': [1, 2, 3],
         }.iteritems():
             x = list(reversed(order))
             ae(order, cache.multisort([(field, True)],
