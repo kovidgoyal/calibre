@@ -214,7 +214,7 @@ class EditorWidget(QWebView):  # {{{
             if is_image:
                 self.exec_command('insertHTML',
                         '<img src="%s" alt="%s"></img>'%(prepare_string_for_xml(url, True),
-                            prepare_string_for_xml(name or '', True)))
+                            prepare_string_for_xml(name or _('Image'), True)))
             elif name:
                 self.exec_command('insertHTML',
                         '<a href="%s">%s</a>'%(prepare_string_for_xml(url, True),
