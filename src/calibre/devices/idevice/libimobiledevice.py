@@ -182,8 +182,11 @@ class libiMobileDevice():
     # iDevice udid string
     UDID_SIZE = 40
 
-    def __init__(self, verbose=False):
-        self.verbose = verbose
+    def __init__(self, **kwargs):
+        if 'verbose' in kwargs:
+            self.verbose = kwargs['verbose']
+        else:
+            self.verbose = False
 
         self._log_location()
         self.afc = None
