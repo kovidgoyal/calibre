@@ -217,6 +217,15 @@ if False:
     _('Fonts')
     _('&Step up')
     _('Step &down')
+    _('Basic colors')
+    _('Custom colors')
+    _('&Add to Custom Colors')
+    _('Hu&e')
+    _('&Sat')
+    _('&Val')
+    _('&Red')
+    _('&Green')
+    _('Bl&ue')
 
 _lcase_map = {}
 for k in _extra_lang_codes:
