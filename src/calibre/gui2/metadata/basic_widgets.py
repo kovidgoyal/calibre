@@ -9,11 +9,11 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os, errno, shutil
 
-from PyQt4.Qt import (Qt, QDateTimeEdit, pyqtSignal, QMessageBox, QIcon,
-        QToolButton, QWidget, QLabel, QGridLayout, QApplication,
-        QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, QDialog, QMenu,
-        QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox,
-        QAction, QCalendarWidget, QDate, QDateTime)
+from PyQt4.Qt import (
+    Qt, QDateTimeEdit, pyqtSignal, QMessageBox, QIcon, QToolButton, QWidget,
+    QLabel, QGridLayout, QApplication, QDoubleSpinBox, QListWidgetItem, QSize,
+    QPixmap, QDialog, QMenu, QSpinBox, QLineEdit, QSizePolicy,
+    QDialogButtonBox, QAction, QCalendarWidget, QDate, QDateTime)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
 from calibre.utils.icu import sort_key
@@ -896,28 +896,34 @@ class Cover(ImageView):  # {{{
         self.show_size = True
         self.dialog = parent
         self._cdata = None
+        self.cdata_before_trim = None
         self.cover_changed.connect(self.set_pixmap_from_data)
 
-        self.select_cover_button = QPushButton(QIcon(I('document_open.png')),
-                _('&Browse'), parent)
-        self.trim_cover_button = QPushButton(QIcon(I('trim.png')),
-                _('T&rim'), parent)
-        self.trim_cover_button.setToolTip(_(
+        class CB(QToolButton):
+
+            def __init__(self, text, icon=None, action=None):
+                QToolButton.__init__(self, parent)
+                self.setText(text)
+                if icon is not None:
+                    self.setIcon(QIcon(I(icon)))
+                self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Preferred)
+                self.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+                if action is not None:
+                    self.clicked.connect(action)
+
+        self.select_cover_button = CB(_('&Browse'), 'document_open.png', self.select_cover)
+        self.trim_cover_button = b = CB(_('T&rim borders'), 'trim.png', self.trim_cover)
+        b.setToolTip(_(
             'Automatically detect and remove extra space at the cover\'s edges.\n'
             'Pressing it repeatedly can sometimes remove stubborn borders.'))
-        self.remove_cover_button = QPushButton(QIcon(I('trash.png')),
-            _('&Remove'), parent)
+        b.m = m = QMenu()
+        b.setPopupMode(QToolButton.DelayedPopup)
+        m.addAction(QIcon(I('edit-undo.png')), _('Undo last trim'), self.undo_trim)
+        b.setMenu(m)
+        self.remove_cover_button = CB(_('&Remove'), 'trash.png', self.remove_cover)
 
-        self.select_cover_button.clicked.connect(self.select_cover)
-        self.remove_cover_button.clicked.connect(self.remove_cover)
-        self.trim_cover_button.clicked.connect(self.trim_cover)
-
-        self.download_cover_button = QPushButton(_('Download co&ver'), parent)
-        self.generate_cover_button = QPushButton(_('&Generate cover'), parent)
-
-        self.download_cover_button.clicked.connect(self.download_cover)
-        self.generate_cover_button.clicked.connect(self.generate_cover)
-
+        self.download_cover_button = CB(_('Download co&ver'), 'arrow-down.png', self.download_cover)
+        self.generate_cover_button = CB(_('&Generate cover'), 'default_cover.png', self.generate_cover)
         self.buttons = [self.select_cover_button, self.remove_cover_button,
                 self.trim_cover_button, self.download_cover_button,
                 self.generate_cover_button]
@@ -925,6 +931,11 @@ class Cover(ImageView):  # {{{
         self.frame_size = (300, 400)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,
             QSizePolicy.Preferred))
+
+    def undo_trim(self):
+        if self.cdata_before_trim:
+            self.current_val = self.cdata_before_trim
+            self.cdata_before_trim = None
 
     def frame_resized(self, ev):
         sz = ev.size()
@@ -977,8 +988,8 @@ class Cover(ImageView):  # {{{
         im = Image()
         im.load(cdata)
         im.trim(tweaks['cover_trim_fuzz_value'])
-        cdata = im.export('png')
-        self.current_val = cdata
+        self.current_val = im.export('png')
+        self.cdata_before_trim = cdata
 
     def generate_cover(self, *args):
         from calibre.ebooks import calibre_cover
@@ -1014,6 +1025,7 @@ class Cover(ImageView):  # {{{
 
     def initialize(self, db, id_):
         self._cdata = None
+        self.cdata_before_trim = None
         self.current_val = db.cover(id_, index_is_id=True)
         self.original_val = self.current_val
 
@@ -1027,6 +1039,7 @@ class Cover(ImageView):  # {{{
             return self._cdata
         def fset(self, cdata):
             self._cdata = None
+            self.cdata_before_trim = None
             pm = QPixmap()
             if cdata:
                 pm.loadFromData(cdata)
