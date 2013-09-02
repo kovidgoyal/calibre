@@ -10,7 +10,7 @@ import itertools, operator, os
 from types import MethodType
 from time import time
 from threading import Event, Thread
-from Queue import Queue
+from Queue import LifoQueue
 from functools import wraps, partial
 from textwrap import wrap
 
@@ -313,7 +313,7 @@ class CoverDelegate(QStyledItemDelegate):
         self.animation.setDuration(500)
         self.set_dimensions()
         self.cover_cache = CoverCache(limit=gprefs['cover_grid_cache_size'])
-        self.render_queue = Queue()
+        self.render_queue = LifoQueue()
         self.animating = None
         self.highlight_color = QColor(Qt.white)
 
