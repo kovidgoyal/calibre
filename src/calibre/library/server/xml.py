@@ -53,7 +53,7 @@ class XMLServer(object):
         if isbytestring(search):
             search = search.decode('UTF-8')
 
-        ids = self.db.search_getting_ids(search.strip(), self.search_restriction)
+        ids = self.db.search_getting_ids(search.strip(), self.search_restriction, sort_results=False)
 
         FM = self.db.FIELD_MAP
 

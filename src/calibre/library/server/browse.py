@@ -922,7 +922,7 @@ class BrowseServer(object):
         import random
         try:
             book_id = random.choice(self.db.search_getting_ids(
-                '', self.search_restriction))
+                '', self.search_restriction, sort_results=False))
         except IndexError:
             raise cherrypy.HTTPError(404, 'This library has no books')
         ans = self.browse_render_details(book_id, add_random_button=True)

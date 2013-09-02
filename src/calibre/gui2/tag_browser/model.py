@@ -846,7 +846,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             try:
                 data = self.db.get_categories(sort=sort,
                         icon_map=self.category_icon_map,
-                        ids=self.db.search('', return_matches=True))
+                        ids=self.db.search('', return_matches=True, sort_results=False))
             except:
                 data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
                 self.restriction_error.emit()

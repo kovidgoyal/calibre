@@ -407,7 +407,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     def _sort(self, label, order, reset):
         self.about_to_be_sorted.emit(self.db.id)
-        self.db.sort(label, order)
+        self.db.data.incremental_sort([(label, order)])
         if reset:
             self.reset()
         self.sorted_on = (label, order)

@@ -285,7 +285,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
 
         try:
             db = self.gui.library_view.model().db
-            recs = db.data.search_getting_ids('', v, use_virtual_library=False)
+            recs = db.data.search_getting_ids('', v, use_virtual_library=False, sort_results=False)
         except ParseException as e:
             error_dialog(self.gui, _('Invalid search'),
                          _('The search in the search box is not valid'),
