@@ -213,7 +213,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     # Some network protocol constants
     BASE_PACKET_LEN             = 4096
     PROTOCOL_VERSION            = 1
-    MAX_CLIENT_COMM_TIMEOUT     = 60.0 # Wait at most N seconds for an answer
+    MAX_CLIENT_COMM_TIMEOUT     = 300.0 # Wait at most N seconds for an answer
     MAX_UNSUCCESSFUL_CONNECTS   = 5
 
     SEND_NOOP_EVERY_NTH_PROBE   = 5
