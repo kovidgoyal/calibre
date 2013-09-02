@@ -215,7 +215,8 @@ class Quickview(QDialog, Ui_Quickview):
             sv = selected_item
         sv = sv.replace('"', r'\"')
         self.last_search = self.current_key+':"=' + sv + '"'
-        books = self.db.search(self.last_search, return_matches=True)
+        books = self.db.search(self.last_search, return_matches=True,
+                               sort_results=False)
 
         self.books_table.setRowCount(len(books))
         self.books_label.setText(_('Books with selected item "{0}": {1}').
