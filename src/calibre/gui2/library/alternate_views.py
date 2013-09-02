@@ -750,7 +750,7 @@ class GridView(QListView):
 
     def handle_mouse_press_event(self, ev):
         if QApplication.keyboardModifiers() & Qt.ShiftModifier:
-            # Shift-Click in QLitView is broken. It selects extra items in
+            # Shift-Click in QListView is broken. It selects extra items in
             # various circumstances, for example, click on some item in the
             # middle of a row then click on an item in the next row, all items
             # in the first row will be selected instead of only items after the
