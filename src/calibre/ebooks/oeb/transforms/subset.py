@@ -27,7 +27,7 @@ def get_font_properties(rule, default=None):
             val = s.getProperty(q).propertyValue[0]
             val = getattr(val, g)
             if q == 'font-family':
-                val = [x.value for x in s.getProperty(q).propertyValue]
+                val = [x.value for x in s.getProperty(q).propertyValue if hasattr(x.value, 'lower')]
                 if val and val[0] == 'inherit':
                     val = None
         except (IndexError, KeyError, AttributeError, TypeError, ValueError):
