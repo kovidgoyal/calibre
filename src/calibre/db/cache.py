@@ -1716,6 +1716,10 @@ class Cache(object):
         return self.backend.dump_and_restore(callback=callback, sql=sql)
 
     @write_api
+    def vacuum(self):
+        self.backend.vacuum()
+
+    @write_api
     def close(self):
         self.backend.close()
 

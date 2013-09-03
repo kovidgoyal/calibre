@@ -995,6 +995,8 @@ class DB(object):
             shell = Shell(db=self.conn, stdout=buf)
             shell.process_command('.dump')
             sql = buf.getvalue()
+            del shell
+            del buf
 
         with TemporaryFile(suffix='_tmpdb.db', dir=os.path.dirname(self.dbpath)) as tmpdb:
             callback(_('Restoring database from SQL') + '...')
@@ -1007,6 +1009,9 @@ class DB(object):
                 atomic_rename(tmpdb, self.dbpath)
             finally:
                 self.reopen()
+
+    def vacuum(self):
+        self.conn.execute('VACUUM')
 
     @dynamic_property
     def user_version(self):
