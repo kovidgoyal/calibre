@@ -675,6 +675,16 @@ class BrowseServer(object):
                 which = unhexlify(cid).decode('utf-8')
                 vls = self.db.prefs.get('virtual_libraries', {})
                 ids = self.search_cache(vls[which])
+                if not ids:
+                    msg = _('The virtual library <b>%s</b> has no books.') % prepare_string_for_xml(which)
+                    if self.search_restriction:
+                        msg += ' ' + _(
+                            'This is probably because you have applied a virtual library'
+                            ' to the content server in Preferences->Sharing over the net.'
+                            ' This virtual library is applied globally and combined with'
+                            ' the current virtual library.')
+                    return self.browse_template('name').format(title='',
+                        script='', main='<p>%s</p>'%msg)
             else:
                 if fm.get(category, {'datatype':None})['datatype'] == 'composite':
                     cid = cid.decode('utf-8')
