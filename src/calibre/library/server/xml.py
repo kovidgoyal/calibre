@@ -134,7 +134,7 @@ class XMLServer(object):
 
         updated = self.db.last_modified()
         kwargs = dict(
-                start = str(start),
+                start=str(start),
                 updated=updated.strftime('%Y-%m-%dT%H:%M:%S+00:00'),
                 total=str(len(ids)),
                 num=str(len(books)))

@@ -31,7 +31,6 @@ class Cache(object):
             self._search_cache[search] = old
         return self._search_cache[search][1]
 
-
     def categories_cache(self, restrict_to=frozenset([])):
         base_restriction = self.search_cache('')
         if restrict_to:

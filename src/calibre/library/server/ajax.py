@@ -23,7 +23,7 @@ from calibre.library.server import custom_fields_to_display
 from calibre import force_unicode, isbytestring
 from calibre.library.field_metadata import category_icon_map
 
-class Endpoint(object): # {{{
+class Endpoint(object):  # {{{
     'Manage mime-type json serialization, etc.'
 
     def __init__(self, mimetype='application/json; charset=utf-8',
@@ -55,7 +55,7 @@ class Endpoint(object): # {{{
         return wrapper
 # }}}
 
-def category_icon(category, meta): # {{{
+def category_icon(category, meta):  # {{{
     if category in category_icon_map:
         icon = category_icon_map[category]
     elif meta['is_custom']:
@@ -116,7 +116,6 @@ class AjaxServer(object):
 
         # Search
         connect('ajax_search', base_href+'/search', self.ajax_search)
-
 
     # Get book metadata {{{
     def ajax_book_to_json(self, book_id, get_category_urls=True,
@@ -214,7 +213,7 @@ class AjaxServer(object):
                 book_id = int(book_id)
             data, last_modified = self.ajax_book_to_json(book_id,
                     get_category_urls=category_urls.lower()=='true',
-                    device_compatible=device_compatible.lower()=='true');
+                    device_compatible=device_compatible.lower()=='true')
         except:
             raise cherrypy.HTTPError(404, 'No book with id: %r'%book_id)
 
@@ -291,7 +290,6 @@ class AjaxServer(object):
 
         displayed_custom_fields = custom_fields_to_display(self.db)
 
-
         for category in sorted(categories, key=lambda x: sort_key(getter(x))):
             if len(categories[category]) == 0:
                 continue
@@ -314,7 +312,7 @@ class AjaxServer(object):
         ans = [{'url':k, 'name':v[0], 'icon':v[1], 'is_category':True}
                 for k, v in ans.iteritems()]
         ans.sort(key=lambda x: sort_key(x['name']))
-        for name, url, icon in  [
+        for name, url, icon in [
                 (_('All books'), 'allbooks', 'book.png'),
                 (_('Newest'), 'newest', 'forward.png'),
                 ]:
@@ -505,7 +503,6 @@ class AjaxServer(object):
                 'items':items,
         }
 
-
     # }}}
 
     # Books in the specified category {{{
@@ -568,7 +565,6 @@ class AjaxServer(object):
                 'base_url':absurl(self.opts.url_prefix, '/ajax/books_in/%s/%s'%(category, item)),
                 'book_ids':ids
         }
-
 
     # }}}
 
