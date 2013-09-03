@@ -222,7 +222,7 @@ class MobileServer(object):
             search = ''
         if isbytestring(search):
             search = search.decode('UTF-8')
-        ids = self.db.search_getting_ids(search.strip(), self.search_restriction, sort_results=False)
+        ids = self.search_for_books(search)
         FM = self.db.FIELD_MAP
         items = [r for r in iter(self.db) if r[FM['id']] in ids]
         if sort is not None:

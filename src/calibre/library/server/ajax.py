@@ -590,8 +590,7 @@ class AjaxServer(object):
 
         if isbytestring(query):
             query = query.decode('UTF-8')
-        ids = self.db.search_getting_ids(query.strip(), self.search_restriction, sort_results=False)
-        ids = list(ids)
+        ids = list(self.search_for_books(query))
         self.db.data.multisort(fields=[(sfield, sort_order == 'asc')], subsort=True,
                 only_ids=ids)
         total_num = len(ids)

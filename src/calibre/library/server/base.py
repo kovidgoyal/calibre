@@ -314,3 +314,9 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         t.daemon = True
         t.start()
 
+    def search_for_books(self, query):
+        return self.db.search_getting_ids(
+            (query or '').strip(), self.search_restriction,
+            sort_results=False, use_virtual_library=False)
+
+
