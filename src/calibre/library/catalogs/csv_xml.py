@@ -136,7 +136,7 @@ class CSV_XML(CatalogPlugin):
                         # Could be 9, 10 or 13 digits, with hyphens, possibly ending in 'X'
                         item = u'%s' % re.sub(r'[^\dX-]', '', item)
                     elif field in ['pubdate', 'timestamp']:
-                        item = isoformat(item)
+                        item = isoformat(item, as_utc=False)
                     elif field == 'comments':
                         item = item.replace(u'\r\n', u' ')
                         item = item.replace(u'\n', u' ')
@@ -198,7 +198,7 @@ class CSV_XML(CatalogPlugin):
 
                 for field in ('timestamp', 'pubdate'):
                     if field in fields:
-                        record.append(getattr(E, field)(r[field].isoformat()))
+                        record.append(getattr(E, field)(isoformat(r[field], as_utc=False)))
 
                 if 'tags' in fields and r['tags']:
                     tags = E.tags()
