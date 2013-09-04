@@ -70,20 +70,34 @@ class MTP_DEVICE(BASE):
 
         return self._prefs
 
-    def is_folder_ignored(self, storage_or_storage_id, name,
+    def is_folder_ignored(self, storage_or_storage_id, path,
                           ignored_folders=None):
         storage_id = unicode(getattr(storage_or_storage_id, 'object_id',
                              storage_or_storage_id))
-        name = icu_lower(name)
+        lpath = tuple(icu_lower(name) for name in path)
         if ignored_folders is None:
             ignored_folders = self.get_pref('ignored_folders')
         if storage_id in ignored_folders:
-            return name in {icu_lower(x) for x in ignored_folders[storage_id]}
+            # Use the users ignored folders settings
+            return '/'.join(lpath) in {icu_lower(x) for x in ignored_folders[storage_id]}
 
-        return name in {
-            'alarms', 'android', 'dcim', 'movies', 'music', 'notifications',
+        # Implement the default ignore policy
+
+        # Top level ignores
+        if lpath[0] in {
+            'alarms', 'dcim', 'movies', 'music', 'notifications',
             'pictures', 'ringtones', 'samsung', 'sony', 'htc', 'bluetooth',
-            'games', 'lost.dir', 'video', 'whatsapp', 'image', 'com.zinio.mobile.android.reader'}
+            'games', 'lost.dir', 'video', 'whatsapp', 'image', 'com.zinio.mobile.android.reader'}:
+            return True
+
+        if len(lpath) > 1 and lpath[0] == 'android':
+            # Ignore everything in Android apart from a few select folders
+            if lpath[1] != 'data':
+                return True
+            if len(lpath) > 2 and lpath[2] != 'com.amazon.kindle':
+                return True
+
+        return False
 
     def configure_for_kindle_app(self):
         proxy = self.prefs
@@ -398,8 +412,8 @@ class MTP_DEVICE(BASE):
 
         for infile, fname, mi in izip(files, names, metadata):
             path = self.create_upload_path(prefix, mi, fname, routing)
-            if path and self.is_folder_ignored(storage, path[0]):
-                raise MTPInvalidSendPathError(path[0])
+            if path and self.is_folder_ignored(storage, path):
+                raise MTPInvalidSendPathError('/'.join(path))
             parent = self.ensure_parent(storage, path)
             if hasattr(infile, 'read'):
                 pos = infile.tell()
@@ -549,6 +563,3 @@ if __name__ == '__main__':
         print ('Prefix for main mem:', dev.prefix_for_location(None))
     finally:
         dev.shutdown()
-
-
-

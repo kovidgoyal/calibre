@@ -18,6 +18,8 @@ from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice
 from calibre.devices.mtp.base import MTPDeviceBase, debug
 
+null = object()
+
 class ThreadingViolation(Exception):
 
     def __init__(self):
@@ -219,14 +221,26 @@ class MTP_DEVICE(MTPDeviceBase):
 
         return True
 
-    def _filesystem_callback(self, obj, level):
-        n = obj.get('name', '')
-        msg = _('Found object: %s')%n
-        if (level == 0 and
-            self.is_folder_ignored(self._currently_getting_sid, n)):
+    def _filesystem_callback(self, fs_map, obj, level):
+        name = obj.get('name', '')
+        self.filesystem_callback(_('Found object: %s')%name)
+        if not obj.get('is_folder', False):
             return False
-        self.filesystem_callback(msg)
-        return obj.get('is_folder', False)
+        fs_map[obj.get('id', null)] = obj
+        path = [name]
+        pid = obj.get('parent_id', 0)
+        while pid != 0 and pid in fs_map:
+            parent = fs_map[pid]
+            path.append(parent.get('name', ''))
+            pid = parent.get('parent_id', 0)
+            if fs_map.get(pid, None) is parent:
+                break  # An object is its own parent
+
+        path = tuple(reversed(path))
+        ok = not self.is_folder_ignored(self._currently_getting_sid, path)
+        if not ok:
+            debug('Ignored object: %s' % '/'.join(path))
+        return ok
 
     @property
     def filesystem_cache(self):
@@ -249,8 +263,8 @@ class MTP_DEVICE(MTPDeviceBase):
                 storage = {'id':storage_id, 'size':capacity, 'name':name,
                         'is_folder':True, 'can_delete':False, 'is_system':True}
                 self._currently_getting_sid = unicode(storage_id)
-                id_map = self.dev.get_filesystem(storage_id,
-                        self._filesystem_callback)
+                id_map = self.dev.get_filesystem(storage_id, partial(
+                        self._filesystem_callback, {}))
                 for x in id_map.itervalues():
                     x['storage_id'] = storage_id
                 all_storage.append(storage)

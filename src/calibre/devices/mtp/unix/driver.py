@@ -21,6 +21,7 @@ from calibre.devices.mtp.base import MTPDeviceBase, synchronous, debug
 MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
         'bcd serial manufacturer product')
 
+null = object()
 def fingerprint(d):
     return MTPDevice(d.busnum, d.devnum, d.vendor_id, d.product_id, d.bcd,
             d.serial, d.manufacturer, d.product)
@@ -230,13 +231,23 @@ class MTP_DEVICE(MTPDeviceBase):
         ans += pprint.pformat(storage)
         return ans
 
-    def _filesystem_callback(self, entry, level):
+    def _filesystem_callback(self, fs_map, entry, level):
         name = entry.get('name', '')
         self.filesystem_callback(_('Found object: %s')%name)
-        if (level == 0 and
-            self.is_folder_ignored(self._currently_getting_sid, name)):
-            return False
-        return True
+        fs_map[entry.get('id', null)] = entry
+        path = [name]
+        pid = entry.get('parent_id', 0)
+        while pid != 0 and pid in fs_map:
+            parent = fs_map[pid]
+            path.append(parent.get('name', ''))
+            pid = parent.get('parent_id', 0)
+            if fs_map.get(pid, None) is parent:
+                break  # An object is its own parent
+        path = tuple(reversed(path))
+        ok = not self.is_folder_ignored(self._currently_getting_sid, path)
+        if not ok:
+            debug('Ignored object: %s' % '/'.join(path))
+        return ok
 
     @property
     def filesystem_cache(self):
@@ -260,7 +271,7 @@ class MTP_DEVICE(MTPDeviceBase):
                         'is_system':True})
                     self._currently_getting_sid = unicode(sid)
                     items, errs = self.dev.get_filesystem(sid,
-                            self._filesystem_callback)
+                            partial(self._filesystem_callback, {}))
                     all_items.extend(items), all_errs.extend(errs)
                 if not all_items and all_errs:
                     raise DeviceError(
