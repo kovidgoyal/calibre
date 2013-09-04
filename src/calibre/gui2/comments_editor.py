@@ -214,7 +214,7 @@ class EditorWidget(QWebView):  # {{{
             if is_image:
                 self.exec_command('insertHTML',
                         '<img src="%s" alt="%s"></img>'%(prepare_string_for_xml(url, True),
-                            prepare_string_for_xml(name or '', True)))
+                            prepare_string_for_xml(name or _('Image'), True)))
             elif name:
                 self.exec_command('insertHTML',
                         '<a href="%s">%s</a>'%(prepare_string_for_xml(url, True),
@@ -308,14 +308,14 @@ class EditorWidget(QWebView):  # {{{
 
         def fget(self):
             ans = u''
-            check = unicode(self.page().mainFrame().toPlainText()).strip()
-            if not check:
-                return ans
             try:
+                check = unicode(self.page().mainFrame().toPlainText()).strip()
                 raw = unicode(self.page().mainFrame().toHtml())
                 raw = xml_to_unicode(raw, strip_encoding_pats=True,
                                     resolve_entities=True)[0]
                 raw = self.comments_pat.sub('', raw)
+                if not check and '<img' not in raw.lower():
+                    return ans
 
                 try:
                     root = html.fromstring(raw)

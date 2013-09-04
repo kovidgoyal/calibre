@@ -622,13 +622,29 @@ should fix by hand.
 The list of books in |app| is blank!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to understand why that happened, you have to understand what a |app| library is. At the most basic level, a |app| library is just a folder. Whenever you add a book to |app|, that book's files are copied into this folder (arranged into sub folders by author and title). Inside the |app| library folder, at the top level, you will see a file called metadata.db. This file is where |app| stores the metadata like title/author/rating/tags etc. for *every* book in your |app| library. The list of books that |app| displays is created by reading the contents of this metadata.db file.
+In order to understand why that happened, you have to understand what a |app|
+library is. At the most basic level, a |app| library is just a folder. Whenever
+you add a book to |app|, that book's files are copied into this folder
+(arranged into sub folders by author and title). Inside the |app| library
+folder, at the top level, you will see a file called metadata.db. This file is
+where |app| stores the metadata like title/author/rating/tags etc. for *every*
+book in your |app| library. The list of books that |app| displays is created by
+reading the contents of this metadata.db file.
 
 There can be two reasons why |app| is showing a empty list of books:
 
-  * Your |app| library folder changed its location. This can happen if it was on an external disk and the drive letter for that disk changed. Or if you accidentally moved the folder. In this case, |app| cannot find its library and so starts up with an empty library instead. To remedy this, do a right-click on the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Switch/create library. Click the little blue icon to select the new location of your |app| library and click OK.
+  * Your |app| library folder changed its location. This can happen if it was
+    on an external disk and the drive letter for that disk changed. Or if you
+    accidentally moved the folder. In this case, |app| cannot find its library
+    and so starts up with an empty library instead. To remedy this, do a
+    right-click on the |app| icon in the |app| toolbar and select Switch/create
+    library. Click the little blue icon to select the new location of your
+    |app| library and click OK.
 
-  * Your metadata.db file was deleted/corrupted. In this case, you can ask |app| to rebuild the metadata.db from its backups. Right click the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Library maintenance->Restore database. |app| will automatically rebuild metadata.db.
+  * Your metadata.db file was deleted/corrupted. In this case, you can ask
+    |app| to rebuild the metadata.db from its backups. Right click the |app|
+    icon in the |app| toolbar and select Library maintenance->Restore database.
+    |app| will automatically rebuild metadata.db.
 
 I am getting errors with my calibre library on a networked drive/NAS?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -700,8 +716,14 @@ Take your pick:
 |app| is pronounced as cal-i-ber *not* ca-li-bre. If you're wondering, |app| is the British/commonwealth spelling for caliber. Being Indian, that's the natural spelling for me. 
 
 Why does |app| show only some of my fonts on OS X?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| embeds fonts in ebook files it creates. Ebook files support embedding only TrueType (.ttf) fonts. Most fonts on OS X systems are in .dfont format, thus they cannot be embedded. |app| shows only TrueType fonts found on your system. You can obtain many TrueType fonts on the web. Simply download the .ttf files and add them to the Library/Fonts directory in your home directory.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+
+|app| embeds fonts in ebook files it creates. Ebook files support embedding
+only TrueType and OpenType (.ttf and .otf) fonts. Most fonts on OS X systems
+are in .dfont format, thus they cannot be embedded. |app| shows only TrueType
+and OpenType fonts found on your system. You can obtain many such fonts on the
+web. Simply download the .ttf/.otf files and add them to the Library/Fonts
+directory in your home directory.
 
 |app| is not starting on Windows?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

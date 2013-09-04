@@ -398,7 +398,10 @@ class Worker(Thread):  # Get details {{{
     def parse_title(self, root):
         h1 = root.xpath('//h1[@id="title"]')
         if h1:
-            return self.totext(h1[0])
+            h1 = h1[0]
+            for child in h1.xpath('./*[contains(@class, "a-color-secondary")]'):
+                h1.remove(child)
+            return self.totext(h1)
         tdiv = root.xpath('//h1[contains(@class, "parseasinTitle")]')[0]
         actual_title = tdiv.xpath('descendant::*[@id="btAsinTitle"]')
         if actual_title:
@@ -413,6 +416,8 @@ class Worker(Thread):  # Get details {{{
 
     def parse_authors(self, root):
         matches = CSSSelect('#byline .author .contributorNameID')(root)
+        if not matches:
+            matches = CSSSelect('#byline .author a.a-link-normal')(root)
         if matches:
             authors = [self.totext(x) for x in matches]
             return [a for a in authors if a]
@@ -431,11 +436,15 @@ class Worker(Thread):  # Get details {{{
         return authors
 
     def parse_rating(self, root):
-        ratings = root.xpath('//div[@class="jumpBar"]/descendant::span[contains(@class,"asinReviewsSummary")]')
-        if not ratings:
-            ratings = root.xpath('//div[@class="buying"]/descendant::span[contains(@class,"asinReviewsSummary")]')
-        if not ratings:
-            ratings = root.xpath('//span[@class="crAvgStars"]/descendant::span[contains(@class,"asinReviewsSummary")]')
+        rating_paths = ('//div[@data-feature-name="averageCustomerReviews"]',
+                        '//div[@class="jumpBar"]/descendant::span[contains(@class,"asinReviewsSummary")]',
+                        '//div[@class="buying"]/descendant::span[contains(@class,"asinReviewsSummary")]',
+                        '//span[@class="crAvgStars"]/descendant::span[contains(@class,"asinReviewsSummary")]')
+        ratings = None
+        for p in rating_paths:
+            ratings = root.xpath(p)
+            if ratings:
+                break
         if ratings:
             for elem in ratings[0].xpath('descendant::*[@title]'):
                 t = elem.get('title').strip()
@@ -528,6 +537,8 @@ class Worker(Thread):  # Get details {{{
         imgs = root.xpath('//img[(@id="prodImage" or @id="original-main-image" or @id="main-image") and @src]')
         if not imgs:
             imgs = root.xpath('//div[@class="main-image-inner-wrapper"]/img[@src]')
+            if not imgs:
+                imgs = root.xpath('//div[@id="main-image-container"]//img[@src]')
         if imgs:
             src = imgs[0].get('src')
             if 'loading-' in src:
@@ -622,7 +633,7 @@ class Amazon(Source):
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
         'identifier:isbn', 'rating', 'comments', 'publisher', 'pubdate',
-        'languages', 'series', 'tags'])
+        'languages', 'series'])
     has_html_comments = True
     supports_gzip_transfer_encoding = True
 
@@ -1001,8 +1012,7 @@ class Amazon(Source):
     # }}}
 
 if __name__ == '__main__':  # tests {{{
-    # To run these test use: calibre-debug -e
-    # src/calibre/ebooks/metadata/sources/amazon.py
+    # To run these test use: calibre-debug src/calibre/ebooks/metadata/sources/amazon.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
             isbn_test, title_test, authors_test, comments_test)
     com_tests = [  # {{{
@@ -1027,7 +1037,7 @@ if __name__ == '__main__':  # tests {{{
                 [title_test(
                 "Griffin's Destiny: Book Three: The Griffin's Daughter Trilogy",
                 exact=True),
-                comments_test('Jelena'), comments_test('Leslie'),
+                comments_test('Jelena'), comments_test('Ashinji'),
                 ]
             ),
 

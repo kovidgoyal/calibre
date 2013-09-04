@@ -51,7 +51,8 @@ def run_funcs(self, db, ndb, funcs):
             if meth[0] in {'!', '@', '#', '+', '$', '-', '%'}:
                 if meth[0] != '+':
                     fmt = {'!':dict, '@':lambda x:frozenset(x or ()), '#':lambda x:set((x or '').split(',')),
-                           '$':lambda x:set(tuple(y) for y in x), '-':lambda x:None, '%':lambda x: set((x or '').split(','))}[meth[0]]
+                           '$':lambda x:set(tuple(y) for y in x), '-':lambda x:None,
+                           '%':lambda x: set((x or '').split(','))}[meth[0]]
                 else:
                     fmt = args[-1]
                     args = args[:-1]
@@ -66,6 +67,16 @@ class LegacyTest(BaseTest):
 
     def test_library_wide_properties(self):  # {{{
         'Test library wide properties'
+        def to_unicode(x):
+            if isinstance(x, bytes):
+                return x.decode('utf-8')
+            if isinstance(x, dict):
+                # We ignore the key rec_index, since it is not stable for
+                # custom columns (it is created by iterating over a dict)
+                return {k.decode('utf-8') if isinstance(k, bytes) else k:to_unicode(v)
+                        for k, v in x.iteritems() if k != 'rec_index'}
+            return x
+
         def get_props(db):
             props = ('user_version', 'is_second_db', 'library_id', 'field_metadata',
                     'custom_column_label_map', 'custom_column_num_map', 'library_path', 'dbpath')
@@ -73,7 +84,7 @@ class LegacyTest(BaseTest):
             ans = {x:getattr(db, x) for x in props}
             ans.update({x:getattr(db, x)() for x in fprops})
             ans['all_ids'] = frozenset(db.all_ids())
-            return ans
+            return to_unicode(ans)
 
         old = self.init_old()
         oldvals = get_props(old)

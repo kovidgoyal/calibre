@@ -270,7 +270,7 @@ class KINDLE(USBMS):
         elif bm.type == 'kindle_clippings':
             # Find 'My Clippings' author=Kindle in database, or add
             last_update = 'Last modified %s' % strftime(u'%x %X',bm.value['timestamp'].timetuple())
-            mc_id = list(db.data.search_getting_ids('title:"My Clippings"', ''))
+            mc_id = list(db.data.search_getting_ids('title:"My Clippings"', '', sort_results=False))
             if mc_id:
                 db.add_format_with_hooks(mc_id[0], 'TXT', bm.value['path'],
                         index_is_id=True)

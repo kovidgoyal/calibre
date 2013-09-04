@@ -675,6 +675,16 @@ class BrowseServer(object):
                 which = unhexlify(cid).decode('utf-8')
                 vls = self.db.prefs.get('virtual_libraries', {})
                 ids = self.search_cache(vls[which])
+                if not ids:
+                    msg = _('The virtual library <b>%s</b> has no books.') % prepare_string_for_xml(which)
+                    if self.search_restriction:
+                        msg += ' ' + _(
+                            'This is probably because you have applied a virtual library'
+                            ' to the content server in Preferences->Sharing over the net.'
+                            ' This virtual library is applied globally and combined with'
+                            ' the current virtual library.')
+                    return self.browse_template('name').format(title='',
+                        script='', main='<p>%s</p>'%msg)
             else:
                 if fm.get(category, {'datatype':None})['datatype'] == 'composite':
                     cid = cid.decode('utf-8')
@@ -921,8 +931,7 @@ class BrowseServer(object):
     def browse_random(self, *args, **kwargs):
         import random
         try:
-            book_id = random.choice(self.db.search_getting_ids(
-                '', self.search_restriction))
+            book_id = random.choice(self.search_for_books(''))
         except IndexError:
             raise cherrypy.HTTPError(404, 'This library has no books')
         ans = self.browse_render_details(book_id, add_random_button=True)
@@ -947,7 +956,7 @@ class BrowseServer(object):
     def browse_search(self, query='', list_sort=None):
         if isbytestring(query):
             query = query.decode('UTF-8')
-        ids = self.db.search_getting_ids(query.strip(), self.search_restriction)
+        ids = self.search_for_books(query)
         items = [self.db.data.tablerow_for_id(x) for x in ids]
         sort = self.browse_sort_book_list(items, list_sort)
         ids = [x[0] for x in items]

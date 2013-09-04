@@ -21,16 +21,13 @@ class Cache(object):
     def search_cache(self, search):
         old = self._search_cache.pop(search, None)
         if old is None or old[0] <= self.db.last_modified():
-            matches = self.db.data.search_getting_ids(search, self.search_restriction)
-            if not matches:
-                matches = []
+            matches = self.search_for_books(search) or []
             self._search_cache[search] = (utcnow(), frozenset(matches))
             if len(self._search_cache) > 50:
                 self._search_cache.popitem(last=False)
         else:
             self._search_cache[search] = old
         return self._search_cache[search][1]
-
 
     def categories_cache(self, restrict_to=frozenset([])):
         base_restriction = self.search_cache('')

@@ -30,6 +30,10 @@ static int wcscpy_s(wchar_t *dest, size_t sz, const wchar_t *src) {
 }
 #endif
 
+#define STRFY(x) #x
+#define STRFY2(x) STRFY(x)
+#define NOMEM PyErr_SetString(PyExc_MemoryError, "Out of memory at line number: " STRFY2(__LINE__))
+
 static wchar_t *unicode_to_wchar(PyObject *o) {
     wchar_t *buf;
     Py_ssize_t len;
@@ -37,7 +41,7 @@ static wchar_t *unicode_to_wchar(PyObject *o) {
     if (!PyUnicode_Check(o)) {PyErr_Format(PyExc_TypeError, "The python object must be a unicode object"); return NULL;}
     len = PyUnicode_GET_SIZE(o);
     buf = (wchar_t *)calloc(len+2, sizeof(wchar_t));
-    if (buf == NULL) { PyErr_NoMemory(); return NULL; }
+    if (buf == NULL) { NOMEM; return NULL; }
     len = PyUnicode_AsWideChar((PyUnicodeObject*)o, buf, len);
     if (len == -1) { free(buf); PyErr_Format(PyExc_TypeError, "Invalid python unicode object."); return NULL; }
     return buf;
@@ -47,7 +51,7 @@ static PyObject *wchar_to_unicode(const wchar_t *o) {
     PyObject *ans;
     if (o == NULL) return NULL;
     ans = PyUnicode_FromWideChar(o, wcslen(o));
-    if (ans == NULL) PyErr_NoMemory();
+    if (ans == NULL) NOMEM;
     return ans;
 }
 
@@ -237,14 +241,14 @@ RAR_init(RARArchive *self, PyObject *args, PyObject *kwds) {
     self->Cmd.UserData = (LPARAM)pycallback;
 
     self->archive = new (std::nothrow) PyArchive(file, cname, &self->Cmd);
-    if (self->archive == NULL) { PyErr_NoMemory(); return -1; }
+    if (self->archive == NULL) { NOMEM; return -1; }
     free(cname);
 
     self->DataIO.UnpArcSize=self->archive->FileLength();
     self->DataIO.UnpVolume=false;
 
     self->Unp = new (std::nothrow) Unpack(&self->DataIO);
-    if (self->Unp == NULL) { PyErr_NoMemory(); return -1; }
+    if (self->Unp == NULL) { NOMEM; return -1; }
     self->file_count = 0;
 
     try {
@@ -259,7 +263,7 @@ RAR_init(RARArchive *self, PyObject *args, PyObject *kwds) {
             Array<byte> cdata;
             if (self->archive->GetComment(&cdata, NULL)) {
                 self->comment = PyBytes_FromStringAndSize((const char*)&cdata[0], cdata.Size());
-                if (self->comment == NULL) { PyErr_NoMemory(); return -1; }
+                if (self->comment == NULL) { NOMEM; return -1; }
             } else {
                 self->comment = Py_None;
                 Py_INCREF(self->comment);
@@ -275,7 +279,7 @@ RAR_init(RARArchive *self, PyObject *args, PyObject *kwds) {
         return -1;
     } catch (std::bad_alloc) {
         if (!PyErr_Occurred()) 
-            PyErr_NoMemory();
+            NOMEM;
         return -1;
     }
 
@@ -328,7 +332,7 @@ RAR_current_item(RARArchive *self, PyObject *args) {
         return NULL;
     } catch (std::bad_alloc) {
         if (!PyErr_Occurred()) 
-            PyErr_NoMemory();
+            NOMEM;
         return NULL;
     }
 
@@ -451,7 +455,7 @@ RAR_process_item(RARArchive *self, PyObject *args) {
         return NULL;
     } catch (std::bad_alloc) {
         if (!PyErr_Occurred()) 
-            PyErr_NoMemory();
+            NOMEM;
         return NULL;
     }
     Py_RETURN_NONE;

@@ -525,6 +525,8 @@ class MobiMLizer(object):
                     else:
                         break
                 if vbstate.para is not None:
+                    if vbstate.para.text:
+                        vtag.text = vbstate.para.text
                     for child in vbstate.para:
                         vtag.append(child)
                 return

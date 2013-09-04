@@ -10,7 +10,7 @@ import itertools, operator, os
 from types import MethodType
 from time import time
 from threading import Event, Thread
-from Queue import Queue
+from Queue import LifoQueue
 from functools import wraps, partial
 from textwrap import wrap
 
@@ -313,7 +313,7 @@ class CoverDelegate(QStyledItemDelegate):
         self.animation.setDuration(500)
         self.set_dimensions()
         self.cover_cache = CoverCache(limit=gprefs['cover_grid_cache_size'])
-        self.render_queue = Queue()
+        self.render_queue = LifoQueue()
         self.animating = None
         self.highlight_color = QColor(Qt.white)
 
@@ -750,7 +750,7 @@ class GridView(QListView):
 
     def handle_mouse_press_event(self, ev):
         if QApplication.keyboardModifiers() & Qt.ShiftModifier:
-            # Shift-Click in QLitView is broken. It selects extra items in
+            # Shift-Click in QListView is broken. It selects extra items in
             # various circumstances, for example, click on some item in the
             # middle of a row then click on an item in the next row, all items
             # in the first row will be selected instead of only items after the

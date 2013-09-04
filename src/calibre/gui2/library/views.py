@@ -183,7 +183,6 @@ class BooksView(QTableView):  # {{{
 
         setup_dnd_interface(self)
         self.setAlternatingRowColors(True)
-        self.setSelectionBehavior(self.SelectRows)
         self.setShowGrid(False)
         self.setWordWrap(False)
 

@@ -24,18 +24,15 @@ class DBCheck(QDialog):  # {{{
         QDialog.__init__(self, parent)
         self.l = QVBoxLayout()
         self.setLayout(self.l)
-        self.l1 = QLabel(_('Checking database integrity') + ' ' +
+        self.l1 = QLabel(_('Vacuuming database to improve performance.') + ' ' +
                          _('This will take a while, please wait...'))
-        self.setWindowTitle(_('Checking database integrity'))
+        self.setWindowTitle(_('Vacuuming...'))
         self.l1.setWordWrap(True)
         self.l.addWidget(self.l1)
         self.msg = QLabel('')
         self.update_msg.connect(self.msg.setText, type=Qt.QueuedConnection)
         self.l.addWidget(self.msg)
         self.msg.setWordWrap(True)
-        self.bb = QDialogButtonBox(QDialogButtonBox.Cancel)
-        self.l.addWidget(self.bb)
-        self.bb.rejected.connect(self.reject)
         self.resize(self.sizeHint() + QSize(100, 50))
         self.error = None
         self.db = db.new_api
@@ -43,15 +40,15 @@ class DBCheck(QDialog):  # {{{
         self.rejected = False
 
     def start(self):
-        t = self.thread = Thread(target=self.dump_and_restore)
+        t = self.thread = Thread(target=self.vacuum)
         t.daemon = True
         t.start()
         QTimer.singleShot(100, self.check)
         self.exec_()
 
-    def dump_and_restore(self):
+    def vacuum(self):
         try:
-            self.db.dump_and_restore(self.update_msg.emit)
+            self.db.vacuum()
         except Exception as e:
             import traceback
             self.error = (as_unicode(e), traceback.format_exc())

@@ -1299,11 +1299,7 @@ class Cache(object):
         string. '''
         table = self.fields['authors'].table
         result = []
-        try:
-            rmap = {icu_lower(v):k for k, v in table.id_map.iteritems()}
-        except AttributeError:
-            # Somehow, the authors table has some authors that are None. Corrupted db?
-            rmap = {icu_lower(v or ''):k for k, v in table.id_map.iteritems()}
+        rmap = {icu_lower(v):k for k, v in table.id_map.iteritems()}
         for aut in authors:
             aid = rmap.get(icu_lower(aut), None)
             result.append(author_to_author_sort(aut) if aid is None else table.asort_map[aid])
@@ -1718,6 +1714,10 @@ class Cache(object):
     @write_api
     def dump_and_restore(self, callback=None, sql=None):
         return self.backend.dump_and_restore(callback=callback, sql=sql)
+
+    @write_api
+    def vacuum(self):
+        self.backend.vacuum()
 
     @write_api
     def close(self):

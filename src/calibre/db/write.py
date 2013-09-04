@@ -156,7 +156,7 @@ def get_adapter(name, metadata):
     if name == 'author_sort':
         return lambda x: ans(x) or ''
     if name == 'authors':
-        return lambda x: ans(x) or (_('Unknown'),)
+        return lambda x: tuple(y.replace('|', ',') for y in ans(x)) or (_('Unknown'),)
     if name in {'timestamp', 'last_modified'}:
         return lambda x: ans(x) or UNDEFINED_DATE
     if name == 'series_index':
