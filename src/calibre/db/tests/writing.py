@@ -297,6 +297,11 @@ class WritingTest(BaseTest):
         ae(sf('tags', {3: ('x', 'X')}), {3}, 'Failed when setting tag twice with different cases')
         ae(('x',), cache.field_for('tags', 3))
 
+        # Test setting of authors with | in their names (for legacy database
+        # format compatibility | is replaced by ,)
+        ae(sf('authors', {3: ('Some| Author',)}), {3})
+        ae(('Some, Author',), cache.field_for('authors', 3))
+
     # }}}
 
     def test_dirtied(self):  # {{{
