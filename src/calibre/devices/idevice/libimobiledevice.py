@@ -304,10 +304,11 @@ class libiMobileDevice():
             self._log(" device already disconnected")
 
     def dismount_ios_media_folder(self):
-        self._afc_client_free()
-        #self._lockdown_goodbye()
-        self._idevice_free()
-        self.device_mounted = False
+        if self.device_mounted:
+            self._afc_client_free()
+            #self._lockdown_goodbye()
+            self._idevice_free()
+            self.device_mounted = False
 
     def exists(self, path):
         '''
