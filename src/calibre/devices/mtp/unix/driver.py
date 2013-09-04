@@ -52,7 +52,8 @@ class MTP_DEVICE(MTPDeviceBase):
     def is_device_mtp(self, d, debug=None):
         ''' Returns True iff the _is_device_mtp check returns True and libmtp
         is able to probe the device successfully. '''
-        if self._is_device_mtp is None: return False
+        if self._is_device_mtp is None:
+            return False
         return (self._is_device_mtp(d, debug=debug) and
                 self.libmtp.is_mtp_device(d.busnum, d.devnum))
 
@@ -61,7 +62,8 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @synchronous
     def detect_managed_devices(self, devices_on_system, force_refresh=False):
-        if self.libmtp is None: return None
+        if self.libmtp is None:
+            return None
         # First remove blacklisted devices.
         devs = set()
         for d in devices_on_system:
@@ -109,13 +111,14 @@ class MTP_DEVICE(MTPDeviceBase):
             p(err)
             return False
         devs = [d for d in devices_on_system if
-            ( (d.vendor_id, d.product_id) in self.known_devices or
+            ((d.vendor_id, d.product_id) in self.known_devices or
                self.is_device_mtp(d, debug=p)) and d.vendor_id != APPLE]
         if not devs:
             p('No MTP devices connected to system')
             return False
         p('MTP devices connected:')
-        for d in devs: p(d)
+        for d in devs:
+            p(d)
 
         for d in devs:
             p('\nTrying to open:', d)
@@ -144,7 +147,8 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @synchronous
     def eject(self):
-        if self.currently_connected_dev is None: return
+        if self.currently_connected_dev is None:
+            return
         self.ejected_devices.add(self.currently_connected_dev)
         self.post_yank_cleanup()
 
@@ -244,7 +248,8 @@ class MTP_DEVICE(MTPDeviceBase):
                 storage, all_items, all_errs = [], [], []
                 for sid, capacity in zip([self._main_id, self._carda_id,
                     self._cardb_id], self.total_space()):
-                    if sid is None: continue
+                    if sid is None:
+                        continue
                     name = _('Unknown')
                     for x in self.dev.storage_info:
                         if x['id'] == sid:
@@ -384,7 +389,8 @@ def develop():
     dev.startup()
     try:
         cd = dev.detect_managed_devices(scanner.devices)
-        if cd is None: raise RuntimeError('No MTP device found')
+        if cd is None:
+            raise RuntimeError('No MTP device found')
         dev.open(cd, 'develop')
         pprint.pprint(dev.dev.storage_info)
         dev.filesystem_cache
