@@ -44,7 +44,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 1, 1)
+    version = (2, 1, 2)
 
     dbversion = 0
     fwversion = 0
@@ -1321,11 +1321,12 @@ class KOBOTOUCH(KOBO):
 
     TIMESTAMP_STRING = "%Y-%m-%dT%H:%M:%SZ"
 
+    AURA_PRODUCT_ID     = [0x4203]
     AURA_HD_PRODUCT_ID  = [0x4193]
     GLO_PRODUCT_ID      = [0x4173]
     MINI_PRODUCT_ID     = [0x4183]
     TOUCH_PRODUCT_ID    = [0x4163]
-    PRODUCT_ID          = AURA_HD_PRODUCT_ID + GLO_PRODUCT_ID + MINI_PRODUCT_ID + TOUCH_PRODUCT_ID
+    PRODUCT_ID          = AURA_PRODUCT_ID + AURA_HD_PRODUCT_ID + GLO_PRODUCT_ID + MINI_PRODUCT_ID + TOUCH_PRODUCT_ID
 
     BCD = [0x0110, 0x0326]
 
@@ -2704,6 +2705,8 @@ class KOBOTOUCH(KOBO):
                 opts.extra_customization = extra_customization
         return opts
 
+    def isAura(self):
+        return self.detected_device.idProduct in self.AURA_PRODUCT_ID
     def isAuraHD(self):
         return self.detected_device.idProduct in self.AURA_HD_PRODUCT_ID
     def isGlo(self):
@@ -2714,11 +2717,13 @@ class KOBOTOUCH(KOBO):
         return self.detected_device.idProduct in self.TOUCH_PRODUCT_ID
 
     def cover_file_endings(self):
-        return self.GLO_COVER_FILE_ENDINGS if self.isGlo() else self.AURA_HD_COVER_FILE_ENDINGS if self.isAuraHD() else self.COVER_FILE_ENDINGS
+        return self.GLO_COVER_FILE_ENDINGS if self.isGlo() or self.isAura() else self.AURA_HD_COVER_FILE_ENDINGS if self.isAuraHD() else self.COVER_FILE_ENDINGS
 
     def set_device_name(self):
         device_name = self.gui_name
-        if self.isAuraHD():
+        if self.isAura():
+            device_name = 'Kobo Aura'
+        elif self.isAuraHD():
             device_name = 'Kobo Aura HD'
         elif self.isGlo():
             device_name = 'Kobo Glo'
