@@ -20,7 +20,7 @@ from calibre.db.cache import Cache
 from calibre.db.errors import NoSuchFormat
 from calibre.db.categories import CATEGORY_SORTS
 from calibre.db.view import View
-from calibre.db.write import clean_identifier
+from calibre.db.write import clean_identifier, get_series_values
 from calibre.utils.date import utcnow
 from calibre.utils.search_query_parser import set_saved_searches
 
@@ -645,8 +645,10 @@ class LibraryDatabase(object):
             else:
                 affected_books = self.new_api._set_field(field, {book_id:val}, allow_case_change=allow_case_change)
             if data['datatype'] == 'series':
-                extra = 1.0 if extra is None else extra
-                self.new_api._set_field(field + '_index', {book_id:extra})
+                s, sidx = get_series_values(val)
+                if sidx is None:
+                    extra = 1.0 if extra is None else extra
+                    self.new_api._set_field(field + '_index', {book_id:extra})
         if notify and affected_books:
             self.notify('metadata', list(affected_books))
         return affected_books

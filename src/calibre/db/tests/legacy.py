@@ -760,6 +760,12 @@ class LegacyTest(BaseTest):
         ndb.delete_custom_column('created')
         ndb = self.init_legacy(n)
         self.assertRaises(KeyError, ndb.custom_field_name, num=num)
+
+        # Test setting custom series
+        ndb = self.init_legacy(self.cloned_library)
+        ndb.set_custom(1, 'TS [9]', label='series')
+        self.assertEqual(ndb.new_api.field_for('#series', 1), 'TS')
+        self.assertEqual(ndb.new_api.field_for('#series_index', 1), 9)
     # }}}
 
     def test_legacy_original_fmt(self):  # {{{
