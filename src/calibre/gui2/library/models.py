@@ -121,7 +121,9 @@ class BooksModel(QAbstractTableModel):  # {{{
     count_changed_signal = pyqtSignal(int)
     searched             = pyqtSignal(object)
 
-    orig_headers = {
+    def __init__(self, parent=None, buffer=40):
+        QAbstractTableModel.__init__(self, parent)
+        self.orig_headers = {
                         'title'     : _("Title"),
                         'ondevice'   : _("On Device"),
                         'authors'   : _("Author(s)"),
@@ -134,10 +136,8 @@ class BooksModel(QAbstractTableModel):  # {{{
                         'series'    : ngettext("Series", 'Series', 1),
                         'last_modified' : _('Modified'),
                         'languages' : _('Languages'),
-    }
+        }
 
-    def __init__(self, parent=None, buffer=40):
-        QAbstractTableModel.__init__(self, parent)
         self.db = None
 
         self.formatter = SafeFormat()
