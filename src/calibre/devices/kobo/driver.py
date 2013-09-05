@@ -13,7 +13,7 @@ Originally developed by Timothy Legge <timlegge@gmail.com>.
 Extended to support Touch firmware 2.0.0 and later and newer devices by David Forrester <davidfor@internode.on.net>
 '''
 
-import os, time
+import os, time, shutil
 
 from contextlib import closing
 from calibre.devices.usbms.books import BookList
@@ -1001,9 +1001,10 @@ class KOBO(USBMS):
         '''
         for idx, path in enumerate(paths):
             if path.find('kepub') >= 0:
-                with closing(open(path)) as r:
+                with closing(open(path, 'rb')) as r:
                     tf = PersistentTemporaryFile(suffix='.epub')
-                    tf.write(r.read())
+                    shutil.copyfileobj(r, tf)
+#                    tf.write(r.read())
                     paths[idx] = tf.name
         return paths
 
