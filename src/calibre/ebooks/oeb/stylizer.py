@@ -569,8 +569,8 @@ class Style(object):
     def set(self, prop, val):
         self._style[prop] = val
 
-    def drop(self, prop):
-        self._style.pop(prop, None)
+    def drop(self, prop, default=None):
+        return self._style.pop(prop, default)
 
     def _update_cssdict(self, cssdict):
         self._style.update(cssdict)
