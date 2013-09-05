@@ -391,9 +391,7 @@ class FieldMetadata(dict):
     # }}}
 
     # search labels that are not db columns
-    search_items = [    'all',
-                        'search',
-                    ]
+    search_items = ['all', 'search']
 
     def __init__(self):
         self._field_metadata = copy.deepcopy(self._field_metadata_prototype)
@@ -434,12 +432,10 @@ class FieldMetadata(dict):
             yield key
 
     def __contains__(self, key):
-        return self.has_key(key)
+        return key in self._tb_cats or key == 'title_sort'
 
     def has_key(self, key):
-        if key == 'title_sort':
-            return True
-        return key in self._tb_cats
+        return key in self
 
     def keys(self):
         return self._tb_cats.keys()
