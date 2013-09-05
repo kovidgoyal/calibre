@@ -848,7 +848,7 @@ class Style(object):
             self._get('padding-bottom'), base=self.height)
 
     def __str__(self):
-        items = sorted(self._style.items())
+        items = sorted(self._style.iteritems())
         return '; '.join("%s: %s" % (key, val) for key, val in items)
 
     def cssdict(self):
