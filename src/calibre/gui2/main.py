@@ -11,7 +11,6 @@ from PyQt4.Qt import (QCoreApplication, QIcon, QObject, QTimer,
 from calibre import prints, plugins, force_unicode
 from calibre.constants import (iswindows, __appname__, isosx, DEBUG, islinux,
         filesystem_encoding, get_portable_base)
-from calibre.db.legacy import LibraryDatabase
 from calibre.utils.ipc import gui_socket_address, RC
 from calibre.gui2 import (ORG_NAME, APP_UID, initialize_file_icon_provider,
     Application, choose_dir, error_dialog, question_dialog, gprefs)
@@ -83,7 +82,6 @@ def find_portable_library():
         os.mkdir(lib)
 
 def init_qt(args):
-    from calibre.gui2.ui import Main
     parser = option_parser()
     opts, args = parser.parse_args(args)
     find_portable_library()
@@ -99,9 +97,8 @@ def init_qt(args):
     override = 'calibre-gui' if islinux else None
     app = Application(args, override_program_name=override)
     app.file_event_hook = EventAccumulator()
-    actions = tuple(Main.create_application_menubar())
     app.setWindowIcon(QIcon(I('lt.png')))
-    return app, opts, args, actions
+    return app, opts, args
 
 
 def get_default_library_path():
@@ -208,6 +205,7 @@ class GuiRunner(QObject):
         raise SystemExit(1)
 
     def initialize_db_stage2(self, db, tb):
+        from calibre.db.legacy import LibraryDatabase
 
         if db is None and tb is not None:
             # DB Repair failed
@@ -241,6 +239,7 @@ class GuiRunner(QObject):
                          det_msg=traceback.format_exc(), show=True)
 
     def initialize_db(self):
+        from calibre.db.legacy import LibraryDatabase
         db = None
         try:
             db = LibraryDatabase(self.library_path)
@@ -307,13 +306,15 @@ def run_in_debug_mode(logpath=None):
             stderr=subprocess.STDOUT, stdin=open(os.devnull, 'r'),
             creationflags=creationflags)
 
-def run_gui(opts, args, actions, listener, app, gui_debug=None):
+def run_gui(opts, args, listener, app, gui_debug=None):
     initialize_file_icon_provider()
     app.load_builtin_fonts(scan_for_fonts=True)
     if not dynamic.get('welcome_wizard_was_run', False):
         from calibre.gui2.wizard import wizard
         wizard().exec_()
         dynamic.set('welcome_wizard_was_run', True)
+    from calibre.gui2.ui import Main
+    actions = tuple(Main.create_application_menubar())
     runner = GuiRunner(opts, args, actions, listener, app, gui_debug=gui_debug)
     ret = app.exec_()
     if getattr(runner.main, 'run_wizard_b4_shutdown', False):
@@ -419,7 +420,7 @@ def main(args=sys.argv):
         args = ['calibre']
 
     try:
-        app, opts, args, actions = init_qt(args)
+        app, opts, args = init_qt(args)
     except AbortInit:
         return 1
     from calibre.utils.lock import singleinstance
@@ -440,10 +441,10 @@ def main(args=sys.argv):
             except socket.error:
                 cant_start()
             else:
-                return run_gui(opts, args, actions, listener, app,
+                return run_gui(opts, args, listener, app,
                         gui_debug=gui_debug)
         else:
-            return run_gui(opts, args, actions, listener, app,
+            return run_gui(opts, args, listener, app,
                     gui_debug=gui_debug)
     otherinstance = False
     try:
@@ -454,7 +455,7 @@ def main(args=sys.argv):
         # On windows only singleinstance can be trusted
         otherinstance = True if iswindows else False
     if not otherinstance and not opts.shutdown_running_calibre:
-        return run_gui(opts, args, actions, listener, app, gui_debug=gui_debug)
+        return run_gui(opts, args, listener, app, gui_debug=gui_debug)
 
     communicate(opts, args)
 

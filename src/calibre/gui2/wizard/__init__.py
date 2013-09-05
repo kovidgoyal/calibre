@@ -14,7 +14,6 @@ from contextlib import closing
 from PyQt4.Qt import (QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel,
     QVariant, QItemSelectionModel, SIGNAL, QObject, QTimer, pyqtSignal)
 from calibre import __appname__, patheq
-from calibre.db.legacy import LibraryDatabase
 from calibre.library.move import MoveLibrary
 from calibre.constants import (filesystem_encoding, iswindows, plugins,
         isportable)
@@ -29,7 +28,6 @@ from calibre.gui2 import min_available_height, available_width
 from calibre.utils.config import dynamic, prefs
 from calibre.gui2 import NONE, choose_dir, error_dialog
 from calibre.gui2.dialogs.progress import ProgressDialog
-from calibre.customize.ui import device_plugins
 
 if iswindows:
     winutil = plugins['winutil'][0]
@@ -272,6 +270,7 @@ class Android(Device):
 
     @classmethod
     def commit(cls):
+        from calibre.customize.ui import device_plugins
         super(Android, cls).commit()
         for plugin in device_plugins(include_disabled=True):
             if hasattr(plugin, 'configure_for_generic_epub_app'):
@@ -292,6 +291,7 @@ class AndroidPhoneWithKindle(Android):
 
     @classmethod
     def commit(cls):
+        from calibre.customize.ui import device_plugins
         super(Android, cls).commit()
         for plugin in device_plugins(include_disabled=True):
             if hasattr(plugin, 'configure_for_kindle_app'):
@@ -461,6 +461,11 @@ class KindlePage(QWizardPage, KindleUI):
     def nextId(self):
         return FinishPage.ID
 
+    def retranslateUi(self, widget):
+        KindleUI.retranslateUi(self, widget)
+        if hasattr(self, 'send_email_widget'):
+            self.send_email_widget.retranslateUi(self.send_email_widget)
+
 class StanzaPage(QWizardPage, StanzaUI):
 
     ID = 5
@@ -617,6 +622,7 @@ class Callback(object):
 
 _mm = None
 def move_library(oldloc, newloc, parent, callback_on_complete):
+    from calibre.db.legacy import LibraryDatabase
     callback = Callback(callback_on_complete)
     try:
         if not os.path.exists(os.path.join(newloc, 'metadata.db')):
@@ -710,10 +716,12 @@ class LibraryPage(QWizardPage, LibraryUI):
         __builtin__.__dict__['_'] = lambda(x): x
         from calibre.utils.localization import set_translators
         from calibre.gui2 import qt_app
+        from calibre.ebooks.metadata.book.base import reset_field_metadata
         set_translators()
         qt_app.load_translations()
         self.retranslate.emit()
         self.init_languages()
+        reset_field_metadata()
         try:
             lang = prefs['language'].lower()[:2]
             metadata_plugins = {
@@ -728,6 +736,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             pass
 
     def is_library_dir_suitable(self, x):
+        from calibre.db.legacy import LibraryDatabase
         try:
             return LibraryDatabase.exists_at(x) or not os.listdir(x)
         except:
@@ -741,6 +750,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         return True
 
     def change(self):
+        from calibre.db.legacy import LibraryDatabase
         x = choose_dir(self, 'database location dialog',
                          _('Select location for books'))
         if x:
