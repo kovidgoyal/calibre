@@ -928,10 +928,25 @@ Why doesn't |app| have an automatic update?
 
 For many reasons:
 
-  * *There is no need to update every week*. If you are happy with how |app| works turn off the update notification and be on your merry way. Check back to see if you want to update once a year or so.
-  * Pre downloading the updates for all users in the background would require about 80TB of bandwidth *every week*. That costs thousands of dollars a month. And |app| is currently growing at 300,000 new users every month.
-  * If I implement a dialog that downloads the update and launches it, instead of going to the website as it does now, that would save the most ardent |app| updater, *at most five clicks a week*. There are far higher priority things to do in |app| development.
-  * If you really, really hate downloading |app| every week but still want to be up to the latest, I encourage you to run from source, which makes updating trivial. Instructions are :ref:`available here <develop>`.
+  * *There is no need to update every week*. If you are happy with how |app|
+    works turn off the update notification and be on your merry way. Check back
+    to see if you want to update once a year or so. There is a check box to
+    turn off the update notification, on the update notification itself.
+
+  * |app| downloads currently use `about 100TB of bandwidth a month
+    <http://status.calibre-ebook.com/downloads>`_. Implementing automatic
+    updates would greatly increase that and end up costing thousands of dollars
+    a month, which someone has to pay. And |app| is currently growing at `half
+    a million new installs a month <https://status.calibre-ebook.com>`_.
+
+  * If I implement a dialog that downloads the update and launches it, instead
+    of going to the website as it does now, that would save the most ardent
+    |app| updater, *at most five clicks a week*. There are far higher priority
+    things to do in |app| development.
+
+  * If you really, really hate downloading |app| every week but still want to
+    be up to the latest, I encourage you to run from source, which makes
+    updating trivial. Instructions are :ref:`available here <develop>`.
 
 How is |app| licensed?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
