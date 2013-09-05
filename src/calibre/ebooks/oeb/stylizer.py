@@ -210,6 +210,7 @@ class Stylizer(object):
         if self.profile is None:
             # Just in case the default profile is removed in the future :)
             self.profile = opts.output_profile
+        self.body_font_size = self.profile.fbase
         self.logger = oeb.logger
         item = oeb.manifest.hrefs[path]
         basename = os.path.basename(path)
@@ -630,7 +631,7 @@ class Style(object):
             base = self.width
         if not font and font != 0:
             font = self.fontSize
-        return unit_convert(value, base, font, self._profile.dpi)
+        return unit_convert(value, base, font, self._profile.dpi, body_font_size=self._stylizer.body_font_size)
 
     def pt_to_px(self, value):
         return (self._profile.dpi / 72.0) * value

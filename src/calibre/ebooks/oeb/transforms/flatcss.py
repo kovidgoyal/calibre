@@ -310,6 +310,8 @@ class CSSFlattener(object):
         except:
             font_size = self.sbase if self.sbase is not None else \
                 self.context.source.fbase
+        if tag == 'body' and isinstance(font_size, (int, float)):
+            stylizer.body_font_size = font_size
         if 'align' in node.attrib:
             if tag != 'img':
                 cssdict['text-align'] = node.attrib['align']
