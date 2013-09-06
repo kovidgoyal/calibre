@@ -20,6 +20,55 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.2.0
+  date: 2013-09-06
+
+  new features:
+    - title: "Conversion: Add support for the CSS3 rem font size unit"
+
+    - title: "MTP devices, such as Android tablets/phones: Allow ignoring any folder on the device, not just top level folders. For newly connected devices, also scan /Android/data/com.amazon.kindle for books by default (newer versions of the Kindle app place downloaded files there)."
+
+    - title: "Speed up sorting when the book list is showing a restricted set of books, such as when the results of a search are displayed or a virtual library is used."
+      tickets: [1217622]
+
+    - title: "Edit metadata dialog: Add an undo option for the Trim cover button."
+      tickets: [1219227]
+ 
+  bug fixes:
+    - title: "Amazon metadata download: Update to handle website changes at amazon.com"
+
+    - title: "PDF Output: Workaround a bug in the library calibre uses to render HTML to PDF that caused text in some documents that used small-caps fonts to not render correctly."
+      tickets: [1216354]
+
+    - title: "Kobo driver: When a sideloaded kepub is added from a Kobo device to the calibre library, it is added as an epub, but the file copied is corrupt."
+      tickets: [1221035]
+
+    - title: "Fix changing the user interface language in the welcome wizard causing some parts of the interface to remain in the old language until calibre is restarted."
+      tickets: [1220767]
+
+    - title: "Fix regression in 1.0 that broke setting author names with the | character in them."
+      tickets: [1220348]
+
+    - title: "Content server: When running from inside the main calibre program, do not restrict the books shown based on the current virtual library in the main program. If you wish to restrict the books shown in the content server, use Preferences->Sharing over the net."
+
+    - title: "Output dates in the local timezone instead of UTC when generating CSV catalogs"
+
+    - title: "Library maintenance: When doing a check library instead of dumping the database to SQL and restoring it, run a VACUUM. This works around various bugs in the dump and restore capabilities of apsw."
+      tickets: [1217988] 
+
+    - title: "Edit metadata dialog: Fix adding an image to an empty comments block not working"
+
+    - title: "Conversion: Fix font declarations with invalid font-family values causing conversion to abort when subsetting is enabled."
+
+    - title: "MOBI Output: Fix conversion of some super/sub scripts failling if they are the first or last element in a paragraph."
+      tickets: [1218858]
+
+    - title: "New database backend: Various improvements to make the backend more robust against databases with invalid/corrupt data in them."
+      tickets: [1218465, 1218783]
+
+  improved recipes:
+    - Countryfile
+
 - version: 1.1.0
   date: 2013-08-30
 
