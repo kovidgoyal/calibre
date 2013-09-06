@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 #
 # Written:      2012-01-28
-# Last Edited:  2013-08-18
-# Remark:       Version 1.2
-# Integration of former separated Blog-News
+# Last Edited:  2013-09-06
+# Remark:       Version 1.3
+# Update cleanup for new web article design
 #
 __license__   = 'GPL v3'
 __copyright__ = '2013, Armin Geller'
@@ -28,7 +28,7 @@ class HighCountryNews(BasicNewsRecipe):
     no_stylesheets        = True
     auto_cleanup          = False
     remove_javascript     = True
-    remove_empty_feeds    = True  # 2013-08-18 AGe add
+    remove_empty_feeds    = True
     use_embedded_content  = False
 
     masthead_url          = 'http://www.hcn.org/logo.jpg'
@@ -43,10 +43,10 @@ class HighCountryNews(BasicNewsRecipe):
               (u'Most recent', u'http://feeds.feedburner.com/hcn/most-recent?format=xml'),
               (u'Current Issue', u'http://feeds.feedburner.com/hcn/current-issue?format=xml'),
 
-              (u'From the Blogs', u'http://feeds.feedburner.com/hcn/FromTheBlogs?format=xml'),  # 2013-07-23 AGe add
-              (u'Heard around the West', u'http://feeds.feedburner.com/hcn/heard?format=xml'),  # 2013-07-23 AGe add
-              (u'The GOAT Blog', u'http://feeds.feedburner.com/hcn/goat?format=xml'),          # 2013-07-23 AGe add
-              (u'The Range', u'http://feeds.feedburner.com/hcn/range?format=xml'),             # 2013-07-23 AGe add
+              (u'From the Blogs', u'http://feeds.feedburner.com/hcn/FromTheBlogs?format=xml'),
+              (u'Heard around the West', u'http://feeds.feedburner.com/hcn/heard?format=xml'),
+              (u'The GOAT Blog', u'http://feeds.feedburner.com/hcn/goat?format=xml'),
+              (u'The Range', u'http://feeds.feedburner.com/hcn/range?format=xml'),
 
               (u'Writers on the Range', u'http://feeds.feedburner.com/hcn/wotr'),
               (u'High Country Views', u'http://feeds.feedburner.com/hcn/HighCountryViews'),
@@ -65,13 +65,15 @@ class HighCountryNews(BasicNewsRecipe):
                                                       'image-viewer-controls nojs',
                                                       'protectedArticleWrapper',
                                                       'visualClear',
-                                                     ]})
+                                                      'feed-icons',  # 2013-09-06 AGe add
+                                                      'PayWallEmail',  # 2013-09-06 AGe add
+                                                     ]}),
+                    dict(name='div', attrs={'id':['offer-below-locked-article']}),  # 2013-09-06 AGe add
                   ]
 
     INDEX                 = ''
     def append_page(self, soup, appendtag, position):
         pager = soup.find('span',attrs={'class':'next'})
-        print 'AGE-append_page-------------->: ', pager
         if pager:
             nexturl = self.INDEX + pager.a['href']
             soup2 = self.index_to_soup(nexturl)
