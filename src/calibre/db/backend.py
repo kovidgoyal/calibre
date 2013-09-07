@@ -982,33 +982,35 @@ class DB(object):
         self.conn
 
     def dump_and_restore(self, callback=None, sql=None):
-        from io import StringIO
+        import codecs
+        from calibre.utils.apsw_shell import Shell
         from contextlib import closing
         if callback is None:
             callback = lambda x: x
         uv = int(self.user_version)
 
-        if sql is None:
-            from calibre.utils.apsw_shell import Shell
-            callback(_('Dumping database to SQL') + '...')
-            buf = StringIO()
-            shell = Shell(db=self.conn, stdout=buf)
-            shell.process_command('.dump')
-            sql = buf.getvalue()
-            del shell
-            del buf
+        with TemporaryFile(suffix='.sql') as fname:
+            if sql is None:
+                callback(_('Dumping database to SQL') + '...')
+                with codecs.open(fname, 'wb', encoding='utf-8') as buf:
+                    shell = Shell(db=self.conn, stdout=buf)
+                    shell.process_command('.dump')
+            else:
+                with open(fname, 'wb') as buf:
+                    buf.write(sql if isinstance(sql, bytes) else sql.encode('utf-8'))
 
-        with TemporaryFile(suffix='_tmpdb.db', dir=os.path.dirname(self.dbpath)) as tmpdb:
-            callback(_('Restoring database from SQL') + '...')
-            with closing(Connection(tmpdb)) as conn:
-                conn.execute(sql)
-                conn.execute('PRAGMA user_version=%d;'%uv)
+            with TemporaryFile(suffix='_tmpdb.db', dir=os.path.dirname(self.dbpath)) as tmpdb:
+                callback(_('Restoring database from SQL') + '...')
+                with closing(Connection(tmpdb)) as conn:
+                    shell = Shell(db=conn, encoding='utf-8')
+                    shell.process_command('.read ' + fname)
+                    conn.execute('PRAGMA user_version=%d;'%uv)
 
-            self.close()
-            try:
-                atomic_rename(tmpdb, self.dbpath)
-            finally:
-                self.reopen()
+                self.close()
+                try:
+                    atomic_rename(tmpdb, self.dbpath)
+                finally:
+                    self.reopen()
 
     def vacuum(self):
         self.conn.execute('VACUUM')
