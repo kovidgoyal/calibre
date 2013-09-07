@@ -106,6 +106,7 @@ class Convert(object):
         self.styles.apply_section_page_breaks(self.section_starts[1:])
 
         notes_header = None
+        orig_rid_map = self.images.rid_map
         if self.footnotes.has_notes:
             dl = DL()
             dl.set('class', 'notes')
@@ -118,6 +119,7 @@ class Convert(object):
                 dl[-1][0].tail = ']'
                 dl.append(DD())
                 paras = []
+                self.images.rid_map = note.rels[0]
                 for wp in note:
                     if wp.tag.endswith('}tbl'):
                         self.tables.register(wp, self.styles)
@@ -127,6 +129,7 @@ class Convert(object):
                         dl[-1].append(p)
                         paras.append(wp)
                 self.styles.apply_contextual_spacing(paras)
+        self.images.rid_map = orig_rid_map
 
         self.resolve_links(relationships_by_id)
 
@@ -231,17 +234,22 @@ class Convert(object):
         fonts = self.fonts = Fonts()
 
         foraw = enraw = None
+        forel, enrel = ({}, {}), ({}, {})
         if foname is not None:
             try:
                 foraw = self.docx.read(foname)
             except KeyError:
                 self.log.warn('Footnotes %s do not exist' % foname)
+            else:
+                forel = self.docx.get_relationships(foname)
         if enname is not None:
             try:
                 enraw = self.docx.read(enname)
             except KeyError:
                 self.log.warn('Endnotes %s do not exist' % enname)
-        footnotes(fromstring(foraw) if foraw else None, fromstring(enraw) if enraw else None)
+            else:
+                enrel = self.docx.get_relationships(enname)
+        footnotes(fromstring(foraw) if foraw else None, forel, fromstring(enraw) if enraw else None, enrel)
 
         if fname is not None:
             embed_relationships = self.docx.get_relationships(fname)[0]
