@@ -296,20 +296,21 @@ class EditMetadataAction(InterfaceAction):
                 list(range(self.gui.library_view.model().rowCount(QModelIndex())))
             current_row = row_list.index(cr)
 
-        changed, rows_to_refresh = self.do_edit_metadata(row_list, current_row)
+        with self.gui.library_view.preserve_state():
+            changed, rows_to_refresh = self.do_edit_metadata(row_list, current_row)
 
-        m = self.gui.library_view.model()
+            m = self.gui.library_view.model()
 
-        if rows_to_refresh:
-            m.refresh_rows(rows_to_refresh)
+            if rows_to_refresh:
+                m.refresh_rows(rows_to_refresh)
 
-        if changed:
-            m.refresh_ids(list(changed))
-            current = self.gui.library_view.currentIndex()
-            if self.gui.cover_flow:
-                self.gui.cover_flow.dataChanged()
-            m.current_changed(current, previous)
-            self.gui.tags_view.recount()
+            if changed:
+                m.refresh_ids(list(changed))
+                current = self.gui.library_view.currentIndex()
+                if self.gui.cover_flow:
+                    self.gui.cover_flow.dataChanged()
+                m.current_changed(current, previous)
+                self.gui.tags_view.recount()
 
     def do_edit_metadata(self, row_list, current_row):
         from calibre.gui2.metadata.single import edit_metadata
