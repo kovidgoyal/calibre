@@ -586,7 +586,10 @@ class OPDSServer(object):
                 (_('Title'), _('Title'), 'Otitle'),
                 ]
         def getter(x):
-            return category_meta[x]['name'].lower()
+            try:
+                return category_meta[x]['name'].lower()
+            except KeyError:
+                return x
         for category in sorted(categories, key=lambda x: sort_key(getter(x))):
             if len(categories[category]) == 0:
                 continue
