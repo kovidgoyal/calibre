@@ -126,7 +126,7 @@ def CATALOG_ENTRY(item, item_kind, base_href, version, updated,
     if item.id is not None:
         iid = 'I' + str(item.id)
         iid += ':'+item_kind
-    link = NAVLINK(href = base_href + '/' + hexlify(iid))
+    link = NAVLINK(href=base_href + '/' + hexlify(iid))
     count = (_('%d books') if item.count > 1 else _('%d book'))%item.count
     if ignore_count:
         count = ''
@@ -145,7 +145,7 @@ def CATALOG_ENTRY(item, item_kind, base_href, version, updated,
 def CATALOG_GROUP_ENTRY(item, category, base_href, version, updated):
     id_ = 'calibre:category-group:'+category+':'+item.text
     iid = item.text
-    link = NAVLINK(href = base_href + '/' + hexlify(iid))
+    link = NAVLINK(href=base_href + '/' + hexlify(iid))
     return E.entry(
             TITLE(item.text),
             ID(id_),
@@ -176,7 +176,7 @@ def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS, prefix):
                                                            no_tag_count=True)))
     series = item[FM['series']]
     if series:
-        extra.append(_('SERIES: %(series)s [%(sidx)s]<br />')%\
+        extra.append(_('SERIES: %(series)s [%(sidx)s]<br />')%
                 dict(series=xml(series),
                 sidx=fmt_sidx(float(item[FM['series_index']]))))
     for key in CKEYS:
@@ -231,7 +231,7 @@ def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS, prefix):
 
 # }}}
 
-class Feed(object): # {{{
+class Feed(object):  # {{{
 
     def __init__(self, id_, updated, version, subtitle=None,
             title=__appname__ + ' ' + _('Library'),
@@ -267,14 +267,14 @@ class Feed(object): # {{{
                 xml_declaration=True)
     # }}}
 
-class TopLevel(Feed): # {{{
+class TopLevel(Feed):  # {{{
 
     def __init__(self,
             updated,  # datetime object in UTC
             categories,
             version,
-            id_       = 'urn:calibre:main',
-            subtitle  = _('Books in your library')
+            id_='urn:calibre:main',
+            subtitle=_('Books in your library')
             ):
         Feed.__init__(self, id_, updated, version, subtitle=subtitle)
 
@@ -333,7 +333,6 @@ class CategoryGroupFeed(NavFeed):
         base_href = self.base_href + '/categorygroup/' + hexlify(which)
         for item in items:
             self.root.append(CATALOG_GROUP_ENTRY(item, which, base_href, version, updated))
-
 
 
 class OPDSServer(object):
@@ -452,7 +451,6 @@ class OPDSServer(object):
         return str(CategoryFeed(items, category, id_, updated, version, offsets,
             page_url, up_url, self.db))
 
-
     def opds_navcatalog(self, which=None, version=0, offset=0):
         try:
             offset = int(offset)
@@ -563,7 +561,8 @@ class OPDSServer(object):
             raise cherrypy.HTTPError(404, 'Non id categories not supported')
 
         q = category
-        if q == 'news': q = 'tags'
+        if q == 'news':
+            q = 'tags'
         ids = self.db.get_books_for_category(q, which)
         sort_by = 'series' if category == 'series' else 'title'
 
@@ -572,7 +571,6 @@ class OPDSServer(object):
                 version=version, sort_by=sort_by)
 
     # }}}
-
 
     def opds(self, version=0):
         version = int(version)
