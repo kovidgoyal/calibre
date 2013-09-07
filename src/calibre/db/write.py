@@ -278,6 +278,10 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
     # Map values to db ids, including any new values
     kmap = safe_lower if dt in {'text', 'series'} else lambda x:x
     rid_map = {kmap(item):item_id for item_id, item in table.id_map.iteritems()}
+    if len(rid_map) != len(table.id_map):
+        # table has some entries that differ only in case, fix it
+        table.fix_case_duplicates(db)
+        rid_map = {kmap(item):item_id for item_id, item in table.id_map.iteritems()}
     val_map = {None:None}
     case_changes = {}
     for val in book_id_val_map.itervalues():
@@ -339,7 +343,7 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
 
 # Many-Many fields {{{
 
-def uniq(vals, kmap):
+def uniq(vals, kmap=lambda x:x):
     ''' Remove all duplicates from vals, while preserving order. kmap must be a
     callable that returns a hashable value for every item in vals '''
     vals = vals or ()
@@ -358,6 +362,10 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
     # Map values to db ids, including any new values
     kmap = safe_lower if dt == 'text' else lambda x:x
     rid_map = {kmap(item):item_id for item_id, item in table.id_map.iteritems()}
+    if len(rid_map) != len(table.id_map):
+        # table has some entries that differ only in case, fix it
+        table.fix_case_duplicates(db)
+        rid_map = {kmap(item):item_id for item_id, item in table.id_map.iteritems()}
     val_map = {}
     case_changes = {}
     book_id_val_map = {k:uniq(vals, kmap) for k, vals in book_id_val_map.iteritems()}

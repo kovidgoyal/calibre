@@ -67,6 +67,13 @@ class Table(object):
     def fix_link_table(self, db):
         pass
 
+    def fix_case_duplicates(self, db):
+        ''' If this table contains entries that differ only by case, then merge
+        those entries. This can happen in databases created with old versions
+        of calibre and non-ascii values, since sqlite's NOCASE only works with
+        ascii text. '''
+        pass
+
 class VirtualTable(Table):
 
     '''
@@ -214,6 +221,26 @@ class ManyToOneTable(Table):
                     self.book_col_map.pop(book_id, None)
             db.conn.executemany('DELETE FROM {0} WHERE {1}=?'.format(
                 self.link_table, self.metadata['link_column']), tuple((x,) for x in extra_item_ids))
+
+    def fix_case_duplicates(self, db):
+        case_map = defaultdict(set)
+        for item_id, val in self.id_map.iteritems():
+            case_map[icu_lower(val)].add(item_id)
+
+        for v in case_map.itervalues():
+            if len(v) > 1:
+                main_id = min(v)
+                v.discard(main_id)
+                for item_id in v:
+                    self.id_map.pop(item_id, None)
+                    books = self.col_book_map.pop(item_id, set())
+                    for book_id in books:
+                        self.book_col_map[book_id] = main_id
+                db.conn.executemany('UPDATE {0} SET {1}=? WHERE {1}=?'.format(
+                    self.link_table, self.metadata['link_column']),
+                    tuple((main_id, x) for x in v))
+                db.conn.executemany('DELETE FROM {0} WHERE id=?'.format(self.metadata['table']),
+                    tuple((x,) for x in v))
 
     def remove_books(self, book_ids, db):
         clean = set()
@@ -386,6 +413,43 @@ class ManyToManyTable(ManyToOneTable):
                 self.link_table, lcol, table), (existing_item, item_id, item_id))
         return affected_books, new_id
 
+    def fix_case_duplicates(self, db):
+        from calibre.db.write import uniq
+        case_map = defaultdict(set)
+        for item_id, val in self.id_map.iteritems():
+            case_map[icu_lower(val)].add(item_id)
+
+        for v in case_map.itervalues():
+            if len(v) > 1:
+                done_books = set()
+                main_id = min(v)
+                v.discard(main_id)
+                for item_id in v:
+                    self.id_map.pop(item_id, None)
+                    books = self.col_book_map.pop(item_id, set())
+                    for book_id in books:
+                        if book_id in done_books:
+                            continue
+                        done_books.add(book_id)
+                        orig = self.book_col_map.get(book_id, ())
+                        if not orig:
+                            continue
+                        vals = uniq(tuple(main_id if x in v else x for x in orig))
+                        self.book_col_map[book_id] = vals
+                        if len(orig) == len(vals):
+                            # We have a simple replacement
+                            db.conn.executemany(
+                                'UPDATE {0} SET {1}=? WHERE {1}=? AND book=?'.format(
+                                self.link_table, self.metadata['link_column']),
+                                tuple((main_id, x, book_id) for x in v))
+                        else:
+                            # duplicates
+                            db.conn.execute('DELETE FROM {0} WHERE book=?'.format(self.link_table), (book_id,))
+                            db.conn.executemany(
+                                'INSERT INTO {0} (book,{1}) VALUES (?,?)'.format(self.link_table, self.metadata['link_column']),
+                                tuple((book_id, x) for x in vals))
+                db.conn.executemany('DELETE FROM {0} WHERE id=?'.format(self.metadata['table']),
+                    tuple((x,) for x in v))
 
 class AuthorsTable(ManyToManyTable):
 
@@ -443,6 +507,9 @@ class FormatsTable(ManyToManyTable):
     do_clean_on_remove = False
 
     def read_id_maps(self, db):
+        pass
+
+    def fix_case_duplicates(self, db):
         pass
 
     def read_maps(self, db):
@@ -522,6 +589,9 @@ class FormatsTable(ManyToManyTable):
 class IdentifiersTable(ManyToManyTable):
 
     def read_id_maps(self, db):
+        pass
+
+    def fix_case_duplicates(self, db):
         pass
 
     def read_maps(self, db):
