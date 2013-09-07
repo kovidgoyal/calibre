@@ -12,26 +12,30 @@ class anan(BasicNewsRecipe):
 
     title = 'Anandtech'
     description = 'comprehensive Hardware Tests'
-    __author__ = 'Oliver Niesner' # 2012-09-20 AGE: update
+    __author__ = 'Oliver Niesner, Armin Geller'  # 2013-09-07 AGE: update
     use_embedded_content   = False
     language = 'en'
     timefmt = ' [%d %b %Y]'
-    oldest_article        = 7 # 2012-09-20 AGE: update
+    oldest_article        = 7
     max_articles_per_feed = 40
     no_stylesheets = True
     remove_javascript = True
     encoding = 'utf-8'
 
-    cover_url = 'http://www.anandtech.com/content/images/globals/header_logo.png' # 2012-09-20 AGE: new
-    masthead_url = 'http://www.anandtech.com/content/images/globals/printheader.png' # 2012-09-20 AGE: update
+    cover_url = 'http://www.anandtech.com/content/images/globals/header_logo.png'
+    masthead_url = 'http://www.anandtech.com/content/images/globals/printheader.png'
 
+    keep_only_tags = [
+                       dict(name='section', attrs={'class':['main_cont']}),
+                     ]
+    remove_tags=[                                            # 2013-09-07 AGE: update
+                  dict(name='div', attrs={'class':['print',  # logo
+                                                    'breadcrumb_area noprint',
+                                                    'fl-rt noprint',
+                                                    'blog_top_right',]})
+                 ]
 
-    remove_tags=[
-                  dict(name='a', attrs={'class': 'bluebutton noprint'}),
-                  dict(name='img', attrs={'alt': 'header'}),
-                 ] # 2012-09-20 AGE: update
-  
-    feeds =  [ ('Anandtech', 'http://www.anandtech.com/rss/')]
+    feeds =  [('Anandtech', 'http://www.anandtech.com/rss/')]
 
     def print_version(self,url):
-        return url.replace('0Cshow0C', '0Cprint0C') # 2012-09-20 AGE: update
+        return url.replace("0Cshow0C", "0Cprint0C")  # 2013-09-07 AGE: update
