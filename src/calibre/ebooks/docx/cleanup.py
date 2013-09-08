@@ -8,8 +8,6 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 
-from lxml.html.builder import P
-
 from calibre.ebooks.docx.names import XPath
 
 NBSP = '\xa0'
@@ -166,14 +164,10 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover):
         lift(span)
 
     # If a paragraph ends with a <br>, that <br> is not rendered in HTML, but
-    # it is in Word, so move it out
-    for br in root.xpath('//p/node()[position()=last()]/self::br'):
+    # it is in Word, so add a trailing space to ensure it is rendered.
+    for br in root.xpath('//*[contains("p,h1,h2,h3,h4,h5,h6,li", name())]/node()[position()=last()]/self::br'):
         if not br.tail:
-            p = br.getparent()
-            p.remove(br)
-            gp = p.getparent()
-            blank = P(NBSP)
-            gp.insert(gp.index(p)+1, blank)
+            br.tail = NBSP
 
     if detect_cover:
         # Check if the first image in the document is possibly a cover
