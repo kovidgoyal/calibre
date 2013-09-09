@@ -742,6 +742,7 @@ class Metadata(object):
         A HTML representation of this object.
         '''
         from calibre.ebooks.metadata import authors_to_string
+        from calibre.utils.date import isoformat
         ans = [(_('Title'), unicode(self.title))]
         ans += [(_('Author(s)'), (authors_to_string(self.authors) if self.authors else _('Unknown')))]
         ans += [(_('Publisher'), unicode(self.publisher))]
@@ -753,9 +754,9 @@ class Metadata(object):
             ans += [(_('Series'), unicode(self.series) + ' #%s'%self.format_series_index())]
         ans += [(_('Languages'), u', '.join(self.languages))]
         if self.timestamp is not None:
-            ans += [(_('Timestamp'), unicode(self.timestamp.isoformat(' ')))]
+            ans += [(_('Timestamp'), unicode(isoformat(self.timestamp, as_utc=False, sep=' ')))]
         if self.pubdate is not None:
-            ans += [(_('Published'), unicode(self.pubdate.isoformat(' ')))]
+            ans += [(_('Published'), unicode(isoformat(self.pubdate, as_utc=False, sep=' ')))]
         if self.rights is not None:
             ans += [(_('Rights'), unicode(self.rights))]
         for key in self.custom_field_keys():
