@@ -371,6 +371,8 @@ class DB(object):
         UPDATE authors SET sort=author_to_author_sort(name) WHERE sort IS NULL;
         ''')
 
+        # Initialize_prefs must be called before initialize_custom_columns because
+        # icc can set a pref.
         self.initialize_prefs(default_prefs, restore_all_prefs, progress_callback)
         self.initialize_custom_columns()
         self.initialize_tables()
@@ -425,6 +427,7 @@ class DB(object):
         defs['virtual_libraries'] = {}
         defs['virtual_lib_on_startup'] = defs['cs_virtual_lib_on_startup'] = ''
         defs['virt_libs_hidden'] = defs['virt_libs_order'] = ()
+        defs['backup_all_metadata_on_start'] = 'no'
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
@@ -539,7 +542,7 @@ class DB(object):
                         DROP TABLE   IF EXISTS {lt};
                         '''.format(table=table, lt=lt)
                 )
-                self.custom_columns_deleted = True
+                self.prefs.set('backup_all_metadata_on_start', 'yes')
             self.conn.execute('DELETE FROM custom_columns WHERE mark_for_delete=1')
 
         # Load metadata for custom columns
@@ -808,6 +811,7 @@ class DB(object):
         if display is not None:
             self.conn.execute('UPDATE custom_columns SET display=? WHERE id=?', (json.dumps(display), num))
             changed = True
+        # Note: the caller is responsible for scheduling a metadata backup if necessary
         return changed
 
     def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display={}):  # {{{
@@ -964,6 +968,7 @@ class DB(object):
             ]
         script = ' \n'.join(lines)
         self.conn.execute(script)
+        self.prefs.set('backup_all_metadata_on_start', 'yes')
         return num
     # }}}
 
