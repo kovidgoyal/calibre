@@ -149,6 +149,7 @@ class BooksView(QTableView):  # {{{
 
     files_dropped = pyqtSignal(object)
     add_column_signal = pyqtSignal()
+    is_library_view = True
 
     def viewportEvent(self, event):
         if (event.type() == event.ToolTip and not gprefs['book_list_tooltips']):
@@ -776,6 +777,28 @@ class BooksView(QTableView):  # {{{
                     self.scrollTo(self.model().index(row, i), self.PositionAtCenter)
                     break
 
+    @property
+    def current_book(self):
+        ci = self.currentIndex()
+        if ci.isValid():
+            try:
+                return self.model().db.data.index_to_id(ci.row())
+            except (IndexError, ValueError, KeyError, TypeError, AttributeError):
+                pass
+
+    def current_book_state(self):
+        return self.current_book, self.horizontalScrollBar().value()
+
+    def restore_current_book_state(self, state):
+        book_id, hpos = state
+        try:
+            row = self.model().db.data.id_to_index(book_id)
+        except (IndexError, ValueError, KeyError, TypeError, AttributeError):
+            return
+        self.set_current_row(row)
+        self.scroll_to_row(row)
+        self.horizontalScrollBar().setValue(hpos)
+
     def set_current_row(self, row=0, select=True, for_sync=False):
         if row > -1 and row < self.model().rowCount(QModelIndex()):
             h = self.horizontalHeader()
@@ -929,18 +952,26 @@ class BooksView(QTableView):  # {{{
             self.select_rows([id_to_select], using_ids=True)
 
     def search_proxy(self, txt):
+        if self.is_library_view:
+            # Save the current book before doing the search, after the search
+            # is completed, this book will become the current book and be
+            # scrolled to if it is present in the search results
+            self.alternate_views.save_current_book_state()
         self._model.search(txt)
         id_to_select = self._model.get_current_highlighted_id()
         if id_to_select is not None:
             self.select_rows([id_to_select], using_ids=True)
         elif self._model.highlight_only:
             self.clearSelection()
-        self.setFocus(Qt.OtherFocusReason)
+        if self.isVisible():
+            self.setFocus(Qt.OtherFocusReason)
 
     def connect_to_search_box(self, sb, search_done):
         sb.search.connect(self.search_proxy)
         self._search_done = search_done
         self._model.searched.connect(self.search_done)
+        if self.is_library_view:
+            self._model.search_done.connect(self.alternate_views.restore_current_book_state)
 
     def connect_to_book_display(self, bd):
         self._model.new_bookdisplay_data.connect(bd)
@@ -954,6 +985,8 @@ class BooksView(QTableView):  # {{{
 # }}}
 
 class DeviceBooksView(BooksView):  # {{{
+
+    is_library_view = False
 
     def __init__(self, parent):
         BooksView.__init__(self, parent, DeviceBooksModel,

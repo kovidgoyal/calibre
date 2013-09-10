@@ -120,6 +120,7 @@ class BooksModel(QAbstractTableModel):  # {{{
     new_bookdisplay_data = pyqtSignal(object)
     count_changed_signal = pyqtSignal(int)
     searched             = pyqtSignal(object)
+    search_done          = pyqtSignal()
 
     def __init__(self, parent=None, buffer=40):
         QAbstractTableModel.__init__(self, parent)
@@ -392,6 +393,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             # Do not issue search done for the null search. It is used to clear
             # the search and count records for restrictions
             self.searched.emit(True)
+        self.search_done.emit()
 
     def sort(self, col, order, reset=True):
         if not self.db:
