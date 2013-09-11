@@ -100,9 +100,16 @@ class String(unicode):
         try:
             raw = s.encode('latin1')
             if raw.startswith(codecs.BOM_UTF16_BE):
-                raise UnicodeEncodeError('')
+                raw = codecs.BOM_UTF16_BE + s.encode('utf-16-be')
         except UnicodeEncodeError:
             raw = codecs.BOM_UTF16_BE + s.encode('utf-16-be')
+        stream.write(b'('+raw+b')')
+
+class UTF16String(unicode):
+
+    def pdf_serialize(self, stream):
+        s = self.replace('\\', '\\\\').replace('(', r'\(').replace(')', r'\)')
+        raw = codecs.BOM_UTF16_BE + s.encode('utf-16-be')
         stream.write(b'('+raw+b')')
 
 class Dictionary(dict):

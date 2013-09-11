@@ -30,6 +30,8 @@ from calibre.ebooks.docx.fields import Fields
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
+NBSP = '\xa0'
+
 class Text:
 
     def __init__(self, elem, attr, buf):
@@ -396,7 +398,17 @@ class Convert(object):
         if not dest.text and len(dest) == 0:
             # Empty paragraph add a non-breaking space so that it is rendered
             # by WebKit
-            dest.text = '\xa0'
+            dest.text = NBSP
+
+        # If the last element in a block is a <br> the <br> is not rendered in
+        # HTML, unless it is followed by a trailing space. Word, on the other
+        # hand inserts a blank line for trailing <br>s.
+        if len(dest) > 0 and not dest[-1].tail:
+            if dest[-1].tag == 'br':
+                dest[-1].tail = NBSP
+            elif len(dest[-1]) > 0 and dest[-1][-1].tag == 'br' and not dest[-1][-1].tail:
+                dest[-1][-1].tail = NBSP
+
         return dest
 
     def wrap_elems(self, elems, wrapper):

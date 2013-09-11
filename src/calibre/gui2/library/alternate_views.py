@@ -226,6 +226,7 @@ class AlternateViews(object):
         self.stack = None
         self.break_link = False
         self.main_connected = False
+        self.current_book_state = None
 
     def set_stack(self, stack):
         self.stack = stack
@@ -290,6 +291,15 @@ class AlternateViews(object):
         for view in self.views.itervalues():
             if view is not self.main_view:
                 view.set_context_menu(menu)
+
+    def save_current_book_state(self):
+        self.current_book_state = self.current_view, self.current_view.current_book_state()
+
+    def restore_current_book_state(self):
+        if self.current_book_state is not None:
+            if self.current_book_state[0] is self.current_view:
+                self.current_view.restore_current_book_state(self.current_book_state[1])
+            self.current_book_state = None
 # }}}
 
 # Rendering of covers {{{
@@ -773,4 +783,26 @@ class GridView(QListView):
             sm.select(QItemSelection(top, bottom), sm.Select)
         else:
             return QListView.mousePressEvent(self, ev)
+
+    @property
+    def current_book(self):
+        ci = self.currentIndex()
+        if ci.isValid():
+            try:
+                return self.model().db.data.index_to_id(ci.row())
+            except (IndexError, ValueError, KeyError, TypeError, AttributeError):
+                pass
+
+    def current_book_state(self):
+        return self.current_book
+
+    def restore_current_book_state(self, state):
+        book_id = state
+        try:
+            row = self.model().db.data.id_to_index(book_id)
+        except (IndexError, ValueError, KeyError, TypeError, AttributeError):
+            return
+        self.set_current_row(row)
+        self.select_rows((row,))
+        self.scrollTo(self.model().index(row, 0), self.PositionAtCenter)
 # }}}
