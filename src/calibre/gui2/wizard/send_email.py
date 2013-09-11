@@ -10,7 +10,7 @@ import cStringIO, sys
 from binascii import hexlify, unhexlify
 from functools import partial
 
-from PyQt4.Qt import QWidget, pyqtSignal, QDialog, Qt, QLabel, \
+from PyQt4.Qt import QWidget, pyqtSignal, QDialog, Qt, QInputDialog, QLabel, \
         QLineEdit, QDialogButtonBox, QGridLayout, QCheckBox
 
 from calibre.gui2.wizard.send_email_ui import Ui_Form
@@ -31,10 +31,26 @@ class TestEmail(QDialog, TE_Dialog):
         if pa:
             self.to.setText(pa)
         if opts.relay_host:
+            tmp_password=''
+            if opts.relay_prompt:
+                header=opts.relay_username+'@'+opts.relay_host
+                tmp_password, ok = QInputDialog.getText(self,
+                    header,
+                    _('Password:'),
+                    mode=parent.relay_password.Password,
+                    text=tmp_password)
+                if not ok:
+                    tmp_password=''
+                else:
+                    conf = smtp_prefs()
+                    conf.set('relay_password', hexlify(str(tmp_password).encode('utf-8')))
+                    tmp_password='password prompted'
+            else:
+                tmp_password=unhexlify(opts.relay_password).decode('utf-8')
             self.label.setText(_('Using: %(un)s:%(pw)s@%(host)s:%(port)s and %(enc)s encryption')%
-                    dict(un=opts.relay_username, pw=unhexlify(opts.relay_password).decode('utf-8'),
+                    dict(un=opts.relay_username, pw=tmp_password,
                         host=opts.relay_host, port=opts.relay_port, enc=opts.encryption))
-
+                        
     def test(self, *args):
         self.log.setPlainText(_('Sending...'))
         self.test_button.setEnabled(False)
@@ -128,7 +144,7 @@ class SendEmail(QWidget, Ui_Form):
         if opts.relay_username:
             self.relay_username.setText(opts.relay_username)
         self.relay_username.textChanged.connect(self.changed)
-        if opts.relay_password:
+        if opts.relay_password and not opts.relay_prompt:
             self.relay_password.setText(unhexlify(opts.relay_password).decode('utf-8'))
         self.relay_password.textChanged.connect(self.changed)
         getattr(self, 'relay_'+opts.encryption.lower()).setChecked(True)
@@ -142,6 +158,31 @@ class SendEmail(QWidget, Ui_Form):
              self.relay_password.Password if
              state == 0 else self.relay_password.Normal))
         self.test_email_button.clicked.connect(self.test_email)
+        if opts.relay_prompt:
+            self.relay_prompt_password.setText(_('Current setting: Prompting for password, auto email disabled!'))
+            self.relay_prompt_password.setChecked(True)
+            self.relay_show_password.setChecked(False)
+            self.relay_show_password.setCheckable(False)
+            self.relay_password.setText('')
+            self.relay_password.setEchoMode(self.relay_password.NoEcho)
+            self.relay_password.setReadOnly(True)        
+        self.relay_prompt_password.stateChanged.connect(self.prompt_password_checkbox_changed)
+
+    def prompt_password_checkbox_changed(self, *args):
+        if self.relay_prompt_password.checkState():
+            self.relay_prompt_password.setText(_('Current setting: Prompting for password, auto email disabled!'))
+            self.relay_show_password.setChecked(False)
+            self.relay_show_password.setCheckable(False)
+            self.relay_password.setText('');
+            self.relay_password.setEchoMode(self.relay_password.NoEcho)
+            self.relay_password.setReadOnly(True)
+        else:
+            self.relay_prompt_password.setText(_('Current setting: Not prompting for password.'))
+            self.relay_show_password.setChecked(False)
+            self.relay_show_password.setCheckable(True)
+            self.relay_password.setEchoMode(self.relay_password.Password)
+            self.relay_password.setReadOnly(False)
+        self.changed_signal.emit()
 
     def changed(self, *args):
         self.changed_signal.emit()
@@ -149,12 +190,15 @@ class SendEmail(QWidget, Ui_Form):
     def test_email(self, *args):
         pa = self.preferred_to_address()
         to_set = pa is not None
+        opts = smtp_prefs().parse()
         if self.set_email_settings(to_set):
-            opts = smtp_prefs().parse()
-            if not opts.relay_password or question_dialog(self, _('OK to proceed?'),
+            if opts.relay_prompt or not opts.relay_password or question_dialog(self, _('OK to proceed?'),
                     _('This will display your email password on the screen'
                     '. Is it OK to proceed?'), show_copy_button=False):
                 TestEmail(pa, self).exec_()
+        if opts.relay_prompt:
+            conf = smtp_prefs()
+            conf.set('relay_password', '')
 
     def test_email_settings(self, to):
         opts = smtp_prefs().parse()
@@ -223,12 +267,13 @@ class SendEmail(QWidget, Ui_Form):
             return False
         username = unicode(self.relay_username.text()).strip()
         password = unicode(self.relay_password.text()).strip()
+        prompt = self.relay_prompt_password.checkState()
         host = unicode(self.relay_host.text()).strip()
         enc_method = ('TLS' if self.relay_tls.isChecked() else 'SSL'
                 if self.relay_ssl.isChecked() else 'NONE')
         if host:
             # Validate input
-            if ((username and not password) or (not username and password)):
+            if ((username and not password and not prompt) or (not username and password)):
                 error_dialog(self, _('Bad configuration'),
                             _('You must either set both the username <b>and</b> password for '
                             'the mail server or no username and no password at all.')).exec_()
@@ -238,7 +283,7 @@ class SendEmail(QWidget, Ui_Form):
                             _('Please enter a username and password or set'
                                ' encryption to None ')).exec_()
                 return False
-            if not (username and password) and not question_dialog(self,
+            if not username and not password and not question_dialog(self,
                     _('Are you sure?'),
                 _('No username and password set for mailserver. Most '
                     ' mailservers need a username and password. Are you sure?')):
@@ -249,6 +294,7 @@ class SendEmail(QWidget, Ui_Form):
         conf.set('relay_port', self.relay_port.value())
         conf.set('relay_username', username if username else None)
         conf.set('relay_password', hexlify(password.encode('utf-8')))
+        conf.set('relay_prompt', self.relay_prompt_password.checkState())
         conf.set('encryption', enc_method)
         return True
 

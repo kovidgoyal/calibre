@@ -66,7 +66,7 @@ class Sendmail(object):
             'gmail.com' in rh or 'live.com' in rh):
             self.rate_limit = tweaks['public_smtp_relay_delay']
 
-    def __call__(self, attachment, aname, to, subject, text, log=None,
+    def __call__(self, attachment, aname, to, subject, text, smtp_password='', log=None,
             abort=None, notifications=None):
 
         try_count = 0
@@ -75,7 +75,7 @@ class Sendmail(object):
                 log('\nRetrying in %d seconds...\n' %
                         self.rate_limit)
             worker = Worker(self.sendmail,
-                    (attachment, aname, to, subject, text, log))
+                    (attachment, aname, to, subject, text, smtp_password, log))
             worker.start()
             start_time = time.time()
             while worker.is_alive():
@@ -97,7 +97,7 @@ class Sendmail(object):
             if try_count > self.MAX_RETRIES:
                 raise worker.exception
 
-    def sendmail(self, attachment, aname, to, subject, text, log):
+    def sendmail(self, attachment, aname, to, subject, text, smtp_password='', log=None):
         logged = False
         while time.time() - self.last_send_time <= self.rate_limit:
             if not logged and self.rate_limit > 0:
@@ -115,11 +115,14 @@ class Sendmail(object):
             eto = []
             for x in to.split(','):
                 eto.append(extract_email_address(x.strip()))
+            if smtp_password == '':
+                smtp_password=unhexlify(opts.relay_password).decode('utf-8')
             sendmail(msg, efrom, eto, localhost=None,
                         verbose=1,
                         relay=opts.relay_host,
                         username=opts.relay_username,
-                        password=unhexlify(opts.relay_password).decode('utf-8'), port=opts.relay_port,
+                        password=smtp_password,
+                        port=opts.relay_port,
                         encryption=opts.encryption,
                         debug_output=log.debug)
         finally:
@@ -129,16 +132,16 @@ gui_sendmail = Sendmail()
 
 
 def send_mails(jobnames, callback, attachments, to_s, subjects,
-                texts, attachment_names, job_manager):
+                texts, attachment_names, job_manager, smtp_password=''):
     for name, attachment, to, subject, text, aname in zip(jobnames,
             attachments, to_s, subjects, texts, attachment_names):
         description = _('Email %(name)s to %(to)s') % dict(name=name, to=to)
         job = ThreadedJob('email', description, gui_sendmail, (attachment, aname, to,
-                subject, text), {}, callback)
+                subject, text, smtp_password), {}, callback)
         job_manager.run_threaded_job(job)
 
 
-def email_news(mi, remove, get_fmts, done, job_manager):
+def email_news(mi, remove, get_fmts, done, job_manager, smtp_password=''):
     opts = email_config().parse()
     accounts = [(account, [x.strip().lower() for x in x[0].split(',')])
             for account, x in opts.accounts.items() if x[1]]
@@ -165,7 +168,7 @@ def email_news(mi, remove, get_fmts, done, job_manager):
         send_mails(jobnames,
                 Dispatcher(partial(done, remove=do_remove)),
                 attachments, to_s, subjects, texts, attachment_names,
-                job_manager)
+                job_manager, smtp_password)
         sent_mails.append(to_s[0])
     return sent_mails
 
@@ -285,6 +288,12 @@ def select_recipients(parent=None):
 
 class EmailMixin(object):  # {{{
 
+    def __init__(self):
+        self.smtp_password=''
+
+    def set_smtp_password(self, smtp_pw):
+        self.smtp_password=smtp_pw
+
     def send_multiple_by_mail(self, recipients, delete_from_library):
         ids = set(self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows())
         if not ids:
@@ -393,7 +402,7 @@ class EmailMixin(object):  # {{{
             send_mails(jobnames,
                     Dispatcher(partial(self.email_sent, remove=remove)),
                     attachments, to_s, subjects, texts, attachment_names,
-                    self.job_manager)
+                    self.job_manager, smtp_password=self.smtp_password)
             self.status_bar.show_message(_('Sending email to')+' '+to, 3000)
 
         auto = []
@@ -456,6 +465,9 @@ class EmailMixin(object):  # {{{
                 traceback.print_exc()
 
     def email_news(self, id_):
+        opts = email_config().parse()
+        if opts.relay_prompt:
+            return
         mi = self.library_view.model().db.get_metadata(id_,
                 index_is_id=True)
         remove = [id_] if config['delete_news_from_library_on_upload'] \
@@ -468,7 +480,7 @@ class EmailMixin(object):  # {{{
                             plugboard_formats=plugboard_email_formats)
             return files
         sent_mails = email_news(mi, remove,
-                get_fmts, self.email_sent, self.job_manager)
+                get_fmts, self.email_sent, self.job_manager, self.smtp_password)
         if sent_mails:
             self.status_bar.show_message(_('Sent news to')+' '+
                     ', '.join(sent_mails),  3000)

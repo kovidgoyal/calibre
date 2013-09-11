@@ -266,6 +266,7 @@ def config(defaults=None):
     c.add_opt('relay_port', default=25)
     c.add_opt('relay_username')
     c.add_opt('relay_password')
+    c.add_opt('relay_prompt')
     c.add_opt('encryption', default='TLS', choices=['TLS', 'SSL'])
     return c
 
