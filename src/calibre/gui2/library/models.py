@@ -939,7 +939,8 @@ class BooksModel(QAbstractTableModel):  # {{{
             tmpl = unicode(value.toString()).strip()
             disp = cc['display']
             disp['composite_template'] = tmpl
-            self.db.set_custom_column_metadata(cc['colnum'], display=disp)
+            self.db.set_custom_column_metadata(cc['colnum'], display=disp,
+                                               immediate_backup=True)
             self.refresh(reset=True)
             return True
 

@@ -308,9 +308,9 @@ class Cache(object):
                     field.author_sort_field = self.fields['author_sort']
                 elif name == 'title':
                     field.title_sort_field = self.fields['sort']
-        if self.backend.custom_columns_deleted:
+        if self.backend.prefs['backup_all_metadata_on_start'] == 'yes':
             self.mark_as_dirty(self.all_book_ids())
-        self.backend.custom_columns_deleted = False
+            self.backend.prefs.set('backup_all_metadata_on_start', 'no')
 
     @read_api
     def field_for(self, name, book_id, default_value=None):
@@ -1604,8 +1604,15 @@ class Cache(object):
         self.backend.create_custom_column(label, name, datatype, is_multiple, editable=editable, display=display)
 
     @write_api
-    def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None, display=None):
-        return self.backend.set_custom_column_metadata(num, name=name, label=label, is_editable=is_editable, display=display)
+    def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None,
+                                   display=None, immediate_backup=False):
+        changed = self.backend.set_custom_column_metadata(num, name=name, label=label, is_editable=is_editable, display=display)
+        if changed:
+            if immediate_backup:
+                self.mark_as_dirty(self._all_book_ids())
+            else:
+                self.backend.prefs.set('backup_all_metadata_on_start', 'yes')
+        return changed
 
     @read_api
     def get_books_for_category(self, category, item_id_or_composite_value):
