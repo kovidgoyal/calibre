@@ -24,6 +24,8 @@ class ANDROID(USBMS):
     # Ordered list of supported formats
     FORMATS     = ['epub', 'pdf']
 
+    SUPPORTS_NON_ENGLISH_CHARACTERS = True
+
     VENDOR_ID   = {
             # HTC
             0x0bb4 : {0xc02  : HTC_BCDS,

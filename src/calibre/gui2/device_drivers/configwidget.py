@@ -17,6 +17,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 class ConfigWidget(QWidget, Ui_ConfigWidget):
 
     def __init__(self, settings, all_formats, supports_subdirs,
+        supports_non_english_characters,
         must_read_metadata, supports_use_author_sort,
         extra_customization_message, device):
 
@@ -53,6 +54,10 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             self.opt_use_subdirs.setChecked(self.settings.use_subdirs)
         else:
             self.opt_use_subdirs.hide()
+        if supports_non_english_characters:
+            self.opt_asciiize.setChecked(self.settings.asciiize)
+        else:
+            self.opt_asciiize.hide()
         if not must_read_metadata:
             self.opt_read_metadata.setChecked(self.settings.read_metadata)
         else:
@@ -136,6 +141,9 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
 
     def use_author_sort(self):
         return self.opt_use_author_sort.isChecked()
+
+    def asciiize(self):
+        return self.opt_asciiize.isChecked()
 
     def validate(self):
         formats = set(self.format_map())
