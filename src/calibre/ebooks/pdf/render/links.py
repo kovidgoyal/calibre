@@ -11,7 +11,7 @@ import os
 from urlparse import urlparse
 from urllib2 import unquote
 
-from calibre.ebooks.pdf.render.common import Array, Name, Dictionary, String
+from calibre.ebooks.pdf.render.common import Array, Name, Dictionary, String, UTF16String
 
 class Destination(Array):
 
@@ -131,7 +131,7 @@ class Links(object):
         a = self.anchors[path]
         dest = a.get(frag, a[None])
         item = Dictionary({'Parent':parentref, 'Dest':dest,
-                           'Title':String(toc.text or _('Unknown'))})
+                           'Title':UTF16String(toc.text or _('Unknown'))})
         return self.pdf.objects.add(item)
 
 
