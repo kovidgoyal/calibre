@@ -308,9 +308,9 @@ class Cache(object):
                     field.author_sort_field = self.fields['author_sort']
                 elif name == 'title':
                     field.title_sort_field = self.fields['sort']
-        if self.backend.prefs['backup_all_metadata_on_start'] == 'yes':
-            self.mark_as_dirty(self.all_book_ids())
-            self.backend.prefs.set('backup_all_metadata_on_start', 'no')
+        if self.backend.prefs['update_all_last_mod_dates_on_start'] == 'yes':
+            self.update_last_modified(self.all_book_ids())
+            self.backend.prefs.set('update_all_last_mod_dates_on_start', 'no')
 
     @read_api
     def field_for(self, name, book_id, default_value=None):
@@ -1609,9 +1609,9 @@ class Cache(object):
         changed = self.backend.set_custom_column_metadata(num, name=name, label=label, is_editable=is_editable, display=display)
         if changed:
             if immediate_backup:
-                self.mark_as_dirty(self._all_book_ids())
+                self.update_last_modified(self._all_book_ids())
             else:
-                self.backend.prefs.set('backup_all_metadata_on_start', 'yes')
+                self.backend.prefs.set('update_all_last_mod_dates_on_start', 'yes')
         return changed
 
     @read_api
