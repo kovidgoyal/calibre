@@ -427,7 +427,7 @@ class DB(object):
         defs['virtual_libraries'] = {}
         defs['virtual_lib_on_startup'] = defs['cs_virtual_lib_on_startup'] = ''
         defs['virt_libs_hidden'] = defs['virt_libs_order'] = ()
-        defs['backup_all_metadata_on_start'] = 'no'
+        defs['update_all_last_mod_dates_on_start'] = False
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
@@ -542,7 +542,7 @@ class DB(object):
                         DROP TABLE   IF EXISTS {lt};
                         '''.format(table=table, lt=lt)
                 )
-                self.prefs.set('backup_all_metadata_on_start', 'yes')
+                self.prefs.set('update_all_last_mod_dates_on_start', True)
             self.conn.execute('DELETE FROM custom_columns WHERE mark_for_delete=1')
 
         # Load metadata for custom columns
@@ -968,7 +968,7 @@ class DB(object):
             ]
         script = ' \n'.join(lines)
         self.conn.execute(script)
-        self.prefs.set('backup_all_metadata_on_start', 'yes')
+        self.prefs.set('update_all_last_mod_dates_on_start', True)
         return num
     # }}}
 
