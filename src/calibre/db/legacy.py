@@ -684,8 +684,10 @@ class LibraryDatabase(object):
     def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display={}):
         self.new_api.create_custom_column(label, name, datatype, is_multiple, editable=editable, display=display)
 
-    def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None, display=None, notify=True):
-        changed = self.new_api.set_custom_column_metadata(num, name=name, label=label, is_editable=is_editable, display=display)
+    def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None, display=None,
+                                   notify=True, immediate_backup=False):
+        changed = self.new_api.set_custom_column_metadata(num, name=name, label=label, is_editable=is_editable,
+                                                          display=display, immediate_backup=immediate_backup)
         if changed and notify:
             self.notify('metadata', [])
 
