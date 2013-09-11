@@ -1,0 +1,33 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class HindustanTimes(BasicNewsRecipe):
+    title = u'PhysOrg'
+    language = 'en'
+    __author__ = 'Krittika Goyal'
+    oldest_article = 1  # days
+    max_articles_per_feed = 25
+    #encoding = 'cp1252'
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
+
+    feeds = [
+        ('Nanotechnology',
+         'http://phys.org/rss-feed/nanotech-news/'),
+        ('Physics',
+         'http://phys.org/rss-feed/physics-news/'),
+        ('Space and Earth',
+         'http://phys.org/rss-feed/space-news/'),
+        ('Electronics',
+         'http://phys.org/rss-feed/electronics-news/'),
+        ('Chemistry',
+         'http://phys.org/rss-feed/chemistry-news/'),
+        ('Biology',
+         'http://phys.org/rss-feed/biology-news/'),
+        ('Technology',
+         'http://phys.org/rss-feed/technology-news/'),
+        ('Other Sciences',
+         'http://phys.org/rss-feed/science-news/'),
+    ]
