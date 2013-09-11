@@ -203,6 +203,9 @@ class ANDROID(USBMS):
             # Prestigio and Teclast
             0x2207 : {0 : [0x222], 0x10 : [0x222]},
 
+            # OPPO
+            0x22d9 : {0x2768: [0x228]},
+
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books',
             'sdcard/ebooks']
