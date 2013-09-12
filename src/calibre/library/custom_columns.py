@@ -377,7 +377,7 @@ class CustomColumns(object):
         self.conn.commit()
 
     def set_custom_column_metadata(self, num, name=None, label=None,
-            is_editable=None, display=None, notify=True, immediate_backup=False):
+            is_editable=None, display=None, notify=True, update_last_modified=False):
         changed = False
         if name is not None:
             self.conn.execute('UPDATE custom_columns SET name=? WHERE id=?',

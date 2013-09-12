@@ -1605,10 +1605,10 @@ class Cache(object):
 
     @write_api
     def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None,
-                                   display=None, immediate_backup=False):
+                                   display=None, update_last_modified=False):
         changed = self.backend.set_custom_column_metadata(num, name=name, label=label, is_editable=is_editable, display=display)
         if changed:
-            if immediate_backup:
+            if update_last_modified:
                 self._update_last_modified(self._all_book_ids())
             else:
                 self.backend.prefs.set('update_all_last_mod_dates_on_start', True)
