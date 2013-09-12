@@ -224,26 +224,28 @@ def read_cover(stream, zin, mi, opfmeta, extract_cover):
     cover_href = None
     cover_data = None
     cover_frame = None
+    imgnum = 0
     for frm in otext.topnode.getElementsByType(odFrame):
         img = frm.getElementsByType(odImage)
-        if len(img) > 0: # there should be only one
-            i_href = img[0].getAttribute('href')
-            try:
-                raw = zin.read(i_href)
-            except KeyError:
-                continue
-            try:
-                width, height, fmt = identify_data(raw)
-            except:
-                continue
-        else:
+        if len(img) == 0:
             continue
+        i_href = img[0].getAttribute('href')
+        try:
+            raw = zin.read(i_href)
+        except KeyError:
+            continue
+        try:
+            width, height, fmt = identify_data(raw)
+        except:
+            continue
+        imgnum += 1
         if opfmeta and frm.getAttribute('name').lower() == u'opf.cover':
             cover_href = i_href
             cover_data = (fmt, raw)
             cover_frame = frm.getAttribute('name') # could have upper case
             break
-        if cover_href is None and 0.8 <= height/width <= 1.8 and height*width >= 12000:
+        if cover_href is None and imgnum == 1 and 0.8 <= height/width <= 1.8 and height*width >= 12000:
+            # Pick the first image as the cover if it is of a suitable size
             cover_href = i_href
             cover_data = (fmt, raw)
             if not opfmeta:
