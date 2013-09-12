@@ -7,9 +7,10 @@ import os, traceback, Queue, time, cStringIO, re, sys, weakref
 from threading import Thread, Event
 
 from PyQt4.Qt import (QMenu, QAction, QActionGroup, QIcon, SIGNAL,
-                     Qt, pyqtSignal, QDialog, QObject, QVBoxLayout,
+                     Qt, QInputDialog, pyqtSignal, QDialog, QObject, QVBoxLayout,
                      QDialogButtonBox)
 
+from calibre.utils.smtp import (config as email_config)
 from calibre.customize.ui import (available_input_formats, available_output_formats,
     device_plugins, disabled_device_plugins)
 from calibre.devices.interface import DevicePlugin
@@ -1212,12 +1213,42 @@ class DeviceMixin(object): # {{{
             fmts = sub_dest_parts[1]
             subject = ';'.join(sub_dest_parts[2:])
             fmts = [x.strip().lower() for x in fmts.split(',')]
+            opts = email_config().parse()
+            tmp_password=''
+            if opts.relay_prompt:
+                header=opts.relay_username+'@'+opts.relay_host
+                tmp_password, ok = QInputDialog.getText(
+                    self,
+                    header,
+                    _('Password:'),
+                    mode=2,
+                    text=tmp_password)
+                if not ok:
+                    return
+                else:
+                    self.set_smtp_password(str(tmp_password))
             self.send_by_mail(to, fmts, delete, subject=subject)
+            self.set_smtp_password('')
         elif dest == 'choosemail':
             from calibre.gui2.email import select_recipients
             data = select_recipients(self)
             if data:
+                opts = email_config().parse()
+                tmp_password=''
+                if opts.relay_prompt:
+                    header=opts.relay_username+'@'+opts.relay_host
+                    tmp_password, ok = QInputDialog.getText(
+                        self,
+                        header,
+                        _('XXPassword:'),
+                        mode=2,
+                        text=tmp_password)
+                    if not ok:
+                        return
+                    else:
+                        self.set_smtp_password(str(tmp_password))
                 self.send_multiple_by_mail(data, delete)
+                self.set_smtp_password('')
 
     def cover_to_thumbnail(self, data):
         if self.device_manager.device and \
