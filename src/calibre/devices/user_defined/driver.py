@@ -33,6 +33,8 @@ class USER_DEFINED(USBMS):
 
     SUPPORTS_SUB_DIRS = True
 
+    SUPPORTS_NON_ENGLISH_CHARACTERS = True
+
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('USB Vendor ID (in hex)') + ':::<p>' +
             _('Get this ID using Preferences -> Misc -> Get information to '

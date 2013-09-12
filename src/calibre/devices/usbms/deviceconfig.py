@@ -32,6 +32,8 @@ class DeviceConfig(object):
                                        # books when SUPPORTS_SUB_DIRS is False
     SUPPORTS_SUB_DIRS_DEFAULT = True
 
+    SUPPORTS_NON_ENGLISH_CHARACTERS = False
+
     MUST_READ_METADATA = False
     SUPPORTS_USE_AUTHOR_SORT = False
 
@@ -61,6 +63,12 @@ class DeviceConfig(object):
                 help=_('Ordered list of formats the device will accept'))
         c.add_opt('use_subdirs', default=cls.SUPPORTS_SUB_DIRS_DEFAULT,
                 help=_('Place files in sub directories if the device supports them'))
+        c.add_opt('asciiize', default=True,
+                help=_('Normally, calibre will convert all non English characters into English equivalents '
+                       'for the file names. '
+                       'WARNING: If you turn this off, you may experience errors when '
+                       'saving, depending on how well the filesystem you are saving '
+                       'to supports unicode.'))
         c.add_opt('read_metadata', default=True,
                 help=_('Read metadata from files on device'))
         c.add_opt('use_author_sort', default=False,
@@ -80,6 +88,7 @@ class DeviceConfig(object):
     def config_widget(cls):
         from calibre.gui2.device_drivers.configwidget import ConfigWidget
         cw = ConfigWidget(cls.settings(), cls.FORMATS, cls.SUPPORTS_SUB_DIRS,
+            cls.SUPPORTS_NON_ENGLISH_CHARACTERS,
             cls.MUST_READ_METADATA, cls.SUPPORTS_USE_AUTHOR_SORT,
             cls.EXTRA_CUSTOMIZATION_MESSAGE, cls)
         return cw
@@ -90,6 +99,8 @@ class DeviceConfig(object):
         proxy['format_map'] = config_widget.format_map()
         if cls.SUPPORTS_SUB_DIRS:
             proxy['use_subdirs'] = config_widget.use_subdirs()
+        if cls.SUPPORTS_NON_ENGLISH_CHARACTERS:
+            proxy['asciiize'] = config_widget.asciiize()
         if not cls.MUST_READ_METADATA:
             proxy['read_metadata'] = config_widget.read_metadata()
         if cls.SUPPORTS_USE_AUTHOR_SORT:

@@ -14,12 +14,12 @@ device. This class handles device detection.
 import os, subprocess, time, re, sys, glob
 from itertools import repeat
 
-from calibre import prints, as_unicode
+from calibre import prints, as_unicode, sanitize_file_name
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.constants import iswindows, islinux, isosx, isfreebsd, plugins
-from calibre.utils.filenames import ascii_filename as sanitize
+from calibre.utils.filenames import ascii_filename
 
 if isosx:
     usbobserver, usbobserver_err = plugins['usbobserver']
@@ -1039,6 +1039,9 @@ class Device(DeviceConfig, DevicePlugin):
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
         from calibre.devices.utils import create_upload_path
         settings = self.settings()
+        sanitize = ascii_filename
+        if self.SUPPORTS_NON_ENGLISH_CHARACTERS and not settings.asciiize:
+            sanitize = sanitize_file_name
         filepath = create_upload_path(mdata, fname, self.save_template(), sanitize,
                 prefix_path=os.path.abspath(path),
                 maxlen=self.MAX_PATH_LEN,
