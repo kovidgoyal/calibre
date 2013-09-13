@@ -13,7 +13,8 @@ import sip
 from PyQt4.Qt import (QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit,
     QToolBar, QVBoxLayout, QAction, QIcon, Qt, QTabWidget, QUrl, QFormLayout,
     QSyntaxHighlighter, QColor, QChar, QColorDialog, QMenu, QDialog, QLabel,
-    QHBoxLayout, QKeySequence, QLineEdit, QDialogButtonBox, QPushButton)
+    QHBoxLayout, QKeySequence, QLineEdit, QDialogButtonBox, QPushButton,
+    QCheckBox)
 from PyQt4.QtWebKit import QWebView, QWebPage
 
 from calibre.ebooks.chardet import xml_to_unicode
@@ -232,6 +233,7 @@ class EditorWidget(QWebView):  # {{{
         d.setLayout(l)
         d.url = QLineEdit(d)
         d.name = QLineEdit(d)
+        d.treat_as_image = QCheckBox(d)
         d.setMinimumWidth(600)
         d.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         d.br = b = QPushButton(_('&Browse'))
@@ -242,14 +244,18 @@ class EditorWidget(QWebView):  # {{{
                 d.url.setText(files[0])
         b.clicked.connect(cf)
         d.la = la = QLabel(_(
-            'Enter a URL. You can also choose to create a link to a file on '
+            'Enter a URL. If you check the "Treat the URL as an image" box '
+            'then the URL will be added as an image reference instead of as '
+            'a link. You can also choose to create a link to a file on '
             'your computer. If the selected file is an image, it will be '
-            'inserted as an image. Note that if you create a link to a file on '
-            'your computer, it will stop working if the file is moved.'))
+            'inserted as an image reference, otherwise it will be a link. '
+            'Note that if you create a link to a file on your computer, it '
+            'will stop working if the file is moved.'))
         la.setWordWrap(True)
         la.setStyleSheet('QLabel { margin-bottom: 1.5ex }')
         l.setWidget(0, l.SpanningRole, la)
         l.addRow(_('Enter &URL:'), d.url)
+        l.addRow(_('Treat the URL as an image'), d.treat_as_image)
         l.addRow(_('Enter &name (optional):'), d.name)
         l.addRow(_('Choose a file on your computer:'), d.br)
         l.addRow(d.bb)
@@ -263,6 +269,8 @@ class EditorWidget(QWebView):  # {{{
                 with lopen(link, 'rb') as f:
                     q = what(f)
                 is_image = q in {'jpeg', 'png', 'gif'}
+            else:
+                is_image = d.treat_as_image.isChecked()
         return link, name, is_image
 
     def parse_link(self, link):
