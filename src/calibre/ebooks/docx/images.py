@@ -91,12 +91,13 @@ def get_hpos(anchor, page_width):
 
 class Images(object):
 
-    def __init__(self):
+    def __init__(self, log):
         self.rid_map = {}
         self.used = {}
         self.names = set()
         self.all_images = set()
         self.links = []
+        self.log = log
 
     def __call__(self, relationships_by_id):
         self.rid_map = relationships_by_id
@@ -109,6 +110,17 @@ class Images(object):
         raw = self.docx.read(fname)
         base = base or ascii_filename(rid_map[rid].rpartition('/')[-1]).replace(' ', '_') or 'image'
         ext = what(None, raw) or base.rpartition('.')[-1] or 'jpeg'
+        if ext == 'emf':
+            # For an example, see: https://bugs.launchpad.net/bugs/1224849
+            self.log('Found an EMF image: %s, trying to extract embedded raster image' % base)
+            from calibre.utils.wmf.emf import emf_unwrap
+            try:
+                raw = emf_unwrap(raw)
+            except Exception as e:
+                self.log.exception('Failed to extract embedded raster image from EMF')
+            else:
+                ext = 'png'
+
         base = base.rpartition('.')[0]
         if not base:
             base = 'image'

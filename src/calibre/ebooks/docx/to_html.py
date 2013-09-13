@@ -57,7 +57,7 @@ class Convert(object):
         self.tables = Tables()
         self.fields = Fields()
         self.styles = Styles(self.tables)
-        self.images = Images()
+        self.images = Images(self.log)
         self.object_map = OrderedDict()
         self.html = HTML(
             HEAD(

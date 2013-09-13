@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import sys, struct
 
-
+from calibre.utils.wmf import create_bmp_from_dib, to_png
 
 class WMFHeader(object):
 
@@ -34,39 +34,6 @@ class WMFHeader(object):
 
         self.records_start_at = header_size * 2
 
-class DIBHeader(object):
-
-    '''
-    See http://en.wikipedia.org/wiki/BMP_file_format
-    '''
-
-    def __init__(self, raw):
-        hsize = struct.unpack('<I', raw[:4])[0]
-        if hsize == 40:
-            parts = struct.unpack('<IiiHHIIIIII', raw[:hsize])
-            for i, attr in enumerate((
-                'header_size', 'width', 'height', 'color_planes',
-                'bits_per_pixel', 'compression', 'image_size',
-                'hres', 'vres', 'ncols', 'nimpcols'
-                )):
-                setattr(self, attr, parts[i])
-        elif hsize == 12:
-            parts = struct.unpack('<IHHHH', raw[:hsize])
-            for i, attr in enumerate((
-                'header_size', 'width', 'height', 'color_planes',
-                'bits_per_pixel')):
-                setattr(self, attr, parts[i])
-        else:
-            raise ValueError('Unsupported DIB header type of size: %d'%hsize)
-
-        self.bitmasks_size = 12 if getattr(self, 'compression', 0) == 3 else 0
-        self.color_table_size = 0
-        if self.bits_per_pixel != 24:
-            # See http://support.microsoft.com/kb/q81498/
-            # for all the gory Micro and soft details
-            self.color_table_size = getattr(self, 'ncols', 0) * 4
-
-
 class WMF(object):
 
     def __init__(self, log=None, verbose=0):
@@ -80,7 +47,7 @@ class WMF(object):
         self.window_extent = None
         self.bitmaps = []
 
-        self.function_map = { # {{{
+        self.function_map = {  # {{{
                 30: 'SaveDC',
                 53: 'RealizePalette',
                 55: 'SetPalEntries',
@@ -160,7 +127,7 @@ class WMF(object):
                 2851: 'StretchBlt',
                 2881: 'DibStretchBlt',
                 3907: 'StretchDIBits'
-        } # }}}
+        }  # }}}
 
     def __call__(self, stream_or_data):
         data = stream_or_data
@@ -174,7 +141,7 @@ class WMF(object):
         self.records = []
         while offset < len(data)-6:
             size, func = struct.unpack_from('<IH', data, offset)
-            size *= 2 # Convert to bytes
+            size *= 2  # Convert to bytes
             offset += hsize
             params = ''
             delta = size - hsize
@@ -196,7 +163,6 @@ class WMF(object):
                 self.log.debug('Ignoring record:', rec[0])
 
         self.has_raster_image = len(self.bitmaps) > 0
-
 
     def SetMapMode(self, params):
         if len(params) == 2:
@@ -231,40 +197,13 @@ class WMF(object):
             dest_width, y_dest, x_dest = struct.unpack_from('<IHHHHHHHH', raw, offset)
         offset += struct.calcsize(fmt)
         bmp_data = raw[offset:]
-        bmp = self.create_bmp_from_dib(bmp_data)
+        bmp = create_bmp_from_dib(bmp_data)
         self.bitmaps.append(bmp)
-
-    def create_bmp_from_dib(self, raw):
-        size = len(raw) + 14
-        dh = DIBHeader(raw)
-        pixel_array_offset = dh.header_size + dh.bitmasks_size + \
-                             dh.color_table_size
-        parts = ['BM', struct.pack('<I', size), '\0'*4, struct.pack('<I',
-            pixel_array_offset)]
-        return ''.join(parts) + raw
 
     def to_png(self):
         bmps = list(sorted(self.bitmaps, key=lambda x: len(x)))
         bmp = bmps[-1]
-
-        # ImageMagick does not convert some bmp files correctly, while Qt does,
-        # so try Qt first. See for instance:
-        # https://bugs.launchpad.net/calibre/+bug/934167
-        # ImageMagick bug report:
-        # http://www.imagemagick.org/discourse-server/viewtopic.php?f=3&t=20350
-        from PyQt4.Qt import QImage, QByteArray, QBuffer
-        i = QImage()
-        if i.loadFromData(bmp):
-            ba = QByteArray()
-            buf = QBuffer(ba)
-            buf.open(QBuffer.WriteOnly)
-            i.save(buf, 'png')
-            return bytes(ba.data())
-
-        from calibre.utils.magick import Image
-        img = Image()
-        img.load(bmp)
-        return img.export('png')
+        return to_png(bmp)
 
 def wmf_unwrap(wmf_data, verbose=0):
     '''
