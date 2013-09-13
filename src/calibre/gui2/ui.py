@@ -201,7 +201,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.check_messages_timer.start(1000)
 
         for ac in self.iactions.values():
-            ac.do_genesis()
+            try:
+                ac.do_genesis()
+            except Exception:
+                # Ignore errors in third party plugins
+                import traceback
+                traceback.print_exc()
+                if getattr(ac, 'plugin_path', None) is None:
+                    raise
         self.donate_action = QAction(QIcon(I('donate.png')),
                 _('&Donate to support calibre'), self)
         for st in self.istores.values():
