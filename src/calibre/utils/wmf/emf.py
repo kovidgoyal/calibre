@@ -13,6 +13,7 @@ from collections import namedtuple
 from calibre.utils.wmf import create_bmp_from_dib, to_png
 
 # Record types {{{
+# See: http://msdn.microsoft.com/en-us/library/cc231166.aspx
 RECORD_TYPES = {
     'EMR_BITBLT' : 0x4C,
     'EMR_STRETCHBLT' : 0x4D,
@@ -27,6 +28,7 @@ RECORD_TYPES = {
 }
 RECORD_RMAP = {v:k for k, v in RECORD_TYPES.iteritems()}
 
+# See http://msdn.microsoft.com/en-us/library/cc230601.aspx
 StretchDiBits = namedtuple(
     'StretchDiBits', 'left top right bottom x_dest y_dest x_src y_src cx_src'
     ' cy_src bmp_hdr_offset bmp_header_size bmp_bits_offset'
