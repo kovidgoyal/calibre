@@ -244,8 +244,8 @@ class EditorWidget(QWebView):  # {{{
         d.la = la = QLabel(_(
             'Enter a URL. You can also choose to create a link to a file on '
             'your computer. If the selected file is an image, it will be '
-            'inserted as an image. Note that if you create a link to a file on '
-            'your computer, it will stop working if the file is moved.'))
+            'inserted as an image. Note that if you create a link to a file or image on '
+            'your computer, it will stop working if the file or image is moved.'))
         la.setWordWrap(True)
         la.setStyleSheet('QLabel { margin-bottom: 1.5ex }')
         l.setWidget(0, l.SpanningRole, la)
