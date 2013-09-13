@@ -20,6 +20,59 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.3.0
+  date: 2013-09-13
+
+  new features:
+    - title: "When doing searches or switching between virtual libraries in the main book list, preserve the current book. The currently selected book will remain visible if it is present in the results of the search or the selected virtual library."
+      tickets: [1216713]
+
+    - title: "Drivers for Oppo Find 5 and PocketBook Mini 515"
+      tickets: [1223853]
+ 
+  bug fixes:
+    - title: "DOCX Input: Handle numbered paragraphs where the numbering is specified in the paragraph style, instead of on the paragraph directly. Also support the use of arbitrary, styled text for bullets."
+
+    - title: "DOCX Input: Fix a single line break at the end of a paragraph not being rendered as a blank line."
+
+    - title: "DOCX Input: Fix extra top/bottom margins around headings when the heading style in word does not specify any top/bottom margins."
+
+    - title: "DOCX Input: Handle images in footnotes and endnotes."
+      tickets: [1221686]
+
+    - title: "ODT Input: Only treat the first image as a cover if it is of suitable size, instead of any image in the document."
+      tickets: [1224157]
+
+    - title: "Book polishing: Do not leave behind the old comments when updating metadata if the comments have been deleted in calibre."
+
+    - title: "PDF Output: Fix non-breaking space characters incorrectly rendered in PDF outline."
+      tickets: [1223862]
+
+    - title: "Content server: Fix error in opds feed after using virtual libraries in the main server."
+      tickets: [1222108]
+
+    - title: "Do not scroll the book list horizontally after editing metadata."
+      tickets: [1221552]
+
+    - title: "New database backend: Handle databases that contain multiple tags/series/publishers/etc. that differ only in case."
+      tickets: [1221545] 
+
+  improved recipes:
+    - Harvard Business Review
+    - Jakarta Post 
+    - Jakarta Globe
+    - Dilema Veche
+    - Daily Express
+    - Anandtech
+    - High Country News
+
+  new recipes:
+    - title: Caravan Magazine
+      author: Kovid Goyal
+
+    - title: Phys Org 
+      author: Krittika Goyal
+     
 - version: 1.2.0
   date: 2013-09-06
 
