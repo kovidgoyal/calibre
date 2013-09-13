@@ -333,19 +333,23 @@ class ChooseLibraryAction(InterfaceAction):
         for name, loc in locations:
             ac = self.quick_menu.addAction(name, Dispatcher(partial(self.switch_requested,
                 loc)))
+            ac.setStatusTip(_('Switch to: %s') % loc)
             quick_actions.append(ac)
             ac = self.rename_menu.addAction(name, Dispatcher(partial(self.rename_requested,
                 name, loc)))
             rename_actions.append(ac)
+            ac.setStatusTip(_('Rename: %s') % loc)
             ac = self.delete_menu.addAction(name, Dispatcher(partial(self.delete_requested,
                 name, loc)))
             delete_actions.append(ac)
+            ac.setStatusTip(_('Remove: %s') % loc)
 
         qs_actions = []
         for i, x in enumerate(locations[:len(self.switch_actions)]):
             name, loc = x
             ac = self.switch_actions[i]
             ac.setText(name)
+            ac.setStatusTip(_('Switch to: %s') % loc)
             ac.setVisible(True)
             qs_actions.append(ac)
 
