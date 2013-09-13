@@ -10,10 +10,10 @@ def what(file, h=None):
     if h is None:
         if isinstance(file, basestring):
             f = open(file, 'rb')
-            h = f.read(32)
+            h = f.read(44)
         else:
             location = file.tell()
-            h = file.read(32)
+            h = file.read(44)
             file.seek(location)
             f = None
     else:
@@ -119,6 +119,12 @@ def test_bmp(h, f):
         return 'bmp'
 
 tests.append(test_bmp)
+
+def test_emf(h, f):
+    if h[:4] == b'\x01\0\0\0' and h[40:44] == b' EMF':
+        return 'emf'
+
+tests.append(test_emf)
 
 #--------------------#
 # Small test program #
