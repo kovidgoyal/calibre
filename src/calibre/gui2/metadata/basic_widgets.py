@@ -1264,11 +1264,12 @@ class IdentifiersEdit(QLineEdit):  # {{{
                 c = x.split(':')
                 if len(c) > 1:
                     itype = c[0].lower()
+                    c = ':'.join(c[1:])
                     if itype == 'isbn':
-                        v = check_isbn(c[1])
+                        v = check_isbn(c)
                         if v is not None:
-                            c[1] = v
-                    ans[itype] = c[1]
+                            c = v
+                    ans[itype] = c
             return ans
         def fset(self, val):
             if not val:

@@ -111,7 +111,7 @@ def adapt_languages(to_tuple, x):
 
 def clean_identifier(typ, val):
     typ = icu_lower(typ or '').strip().replace(':', '').replace(',', '')
-    val = (val or '').strip().replace(',', '|').replace(':', '|')
+    val = (val or '').strip().replace(',', '|')
     return typ, val
 
 def adapt_identifiers(to_tuple, x):
