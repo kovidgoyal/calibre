@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
 politika.rs
 '''
@@ -19,11 +19,11 @@ class Politika(BasicNewsRecipe):
     encoding              = 'utf8'
     delay                 = 1
     language              = 'sr'
-    publication_type      = 'newspaper'    
-    masthead_url          = 'http://static.politika.co.rs/images_new/politika.gif'    
-    extra_css             = """ 
-                               @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} 
-                               @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} 
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://static.politika.co.rs/images_new/politika2.gif'
+    extra_css             = """
+                               @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
+                               @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                body{font-family: Arial,Helvetica,sans1,sans-serif}
                                h1{font-family: "Times New Roman",Times,serif1,serif}
                                .articledescription{font-family: sans1, sans-serif}
@@ -42,7 +42,7 @@ class Politika(BasicNewsRecipe):
     keep_only_tags     = [dict(name='div', attrs={'class':'big_article_home item_details'})]
     remove_tags_after  = dict(attrs={'class':'online_date'})
     remove_tags        = [dict(name=['link','meta','iframe','embed','object'])]
-    
+
     feeds          = [
                          (u'Politika'         , u'http://www.politika.rs/rubrike/Politika/index.1.lt.xml'         )
                         ,(u'Svet'             , u'http://www.politika.rs/rubrike/Svet/index.1.lt.xml'             )
@@ -59,8 +59,16 @@ class Politika(BasicNewsRecipe):
             del item['style']
         for item in soup.findAll('a', attrs={'class':'category'}):
             item.name='span'
-            if item.has_key('href'):            
+            if item.has_key('href'):
                del item['href']
-            if item.has_key('title'):            
+            if item.has_key('title'):
                del item['title']
         return soup
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.politika.rs/')
+        coverlink = soup.find('a', attrs={'class':'home_print_img'})
+        if coverlink:
+           return coverlink['href']
+        return None
+        
