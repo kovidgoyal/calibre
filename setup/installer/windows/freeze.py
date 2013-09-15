@@ -485,7 +485,7 @@ class Win32Freeze(Command, WixMixIn):
                     '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:WINDOWS',
                     '/RELEASE',
                     '/ENTRY:wWinMainCRTStartup',
-                    '/OUT:'+exe, self.embed_resources(exe),
+                    '/OUT:'+exe, self.embed_resources(exe, desc='Calibre Portable', product_description='Calibre Portable'),
                     obj, 'User32.lib']
             self.run_builder(cmd)
 
