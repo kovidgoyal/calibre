@@ -296,21 +296,31 @@ class EditMetadataAction(InterfaceAction):
                 list(range(self.gui.library_view.model().rowCount(QModelIndex())))
             current_row = row_list.index(cr)
 
-        with self.gui.library_view.preserve_state():
-            changed, rows_to_refresh = self.do_edit_metadata(row_list, current_row)
+        view = self.gui.library_view.alternate_views.current_view
+        try:
+            hpos = view.horizontalScrollBar().value()
+        except Exception:
+            hpos = 0
 
-            m = self.gui.library_view.model()
+        changed, rows_to_refresh = self.do_edit_metadata(row_list, current_row)
 
-            if rows_to_refresh:
-                m.refresh_rows(rows_to_refresh)
+        m = self.gui.library_view.model()
 
-            if changed:
-                m.refresh_ids(list(changed))
-                current = self.gui.library_view.currentIndex()
-                if self.gui.cover_flow:
-                    self.gui.cover_flow.dataChanged()
-                m.current_changed(current, previous)
-                self.gui.tags_view.recount()
+        if rows_to_refresh:
+            m.refresh_rows(rows_to_refresh)
+
+        if changed:
+            m.refresh_ids(list(changed))
+            current = self.gui.library_view.currentIndex()
+            if self.gui.cover_flow:
+                self.gui.cover_flow.dataChanged()
+            m.current_changed(current, previous)
+            self.gui.tags_view.recount()
+        if self.gui.library_view.alternate_views.current_view is view:
+            if hasattr(view, 'restore_hpos'):
+                view.restore_hpos(hpos)
+            else:
+                view.horizontalScrollBar().setValue(hpos)
 
     def do_edit_metadata(self, row_list, current_row):
         from calibre.gui2.metadata.single import edit_metadata
