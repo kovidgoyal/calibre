@@ -18,7 +18,6 @@ class OEBOutput(OutputFormatPlugin):
 
     recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
 
-
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from urllib import unquote
         from lxml import etree
@@ -62,7 +61,7 @@ class OEBOutput(OutputFormatPlugin):
                     f.write(str(item))
                 item.unload_data_from_memory(memory=path)
 
-    def workaround_nook_cover_bug(self, root): # {{{
+    def workaround_nook_cover_bug(self, root):  # {{{
         cov = root.xpath('//*[local-name() = "meta" and @name="cover" and'
                 ' @content != "cover"]')
 
@@ -96,7 +95,7 @@ class OEBOutput(OutputFormatPlugin):
                     cov.set('content', 'cover')
     # }}}
 
-    def workaround_pocketbook_cover_bug(self, root): # {{{
+    def workaround_pocketbook_cover_bug(self, root):  # {{{
         m = root.xpath('//*[local-name() = "manifest"]/*[local-name() = "item" '
                 ' and @id="cover"]')
         if len(m) == 1:
@@ -106,7 +105,7 @@ class OEBOutput(OutputFormatPlugin):
             p.insert(0, m)
     # }}}
 
-    def migrate_lang_code(self, root): # {{{
+    def migrate_lang_code(self, root):  # {{{
         from calibre.utils.localization import lang_as_iso639_1
         for lang in root.xpath('//*[local-name() = "language"]'):
             clc = lang_as_iso639_1(lang.text)
