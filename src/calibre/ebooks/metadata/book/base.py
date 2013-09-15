@@ -391,7 +391,7 @@ class Metadata(object):
                     m['#value#'] = None
             um[key] = m
         _data = object.__getattribute__(self, '_data')
-        _data['user_metadata'].update(um)
+        _data['user_metadata'] = um
 
     def set_user_metadata(self, field, metadata):
         '''
