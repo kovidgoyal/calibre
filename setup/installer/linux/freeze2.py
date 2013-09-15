@@ -86,7 +86,6 @@ class LinuxFreeze(Command):
         self.initbase()
         self.copy_libs()
         self.copy_python()
-        self.compile_mount_helper()
         self.build_launchers()
         self.create_tarfile()
 
@@ -143,13 +142,6 @@ class LinuxFreeze(Command):
                 shutil.copytree(x, d)
             else:
                 shutil.copyfile(x, d)
-
-    def compile_mount_helper(self):
-        self.info('Compiling mount helper...')
-        dest = self.j(self.bin_dir, 'calibre-mount-helper')
-        subprocess.check_call(['gcc', '-Wall', '-pedantic',
-            self.j(self.SRC, 'calibre', 'devices',
-                'linux_mount_helper.c'), '-o', dest])
 
     def copy_python(self):
         self.info('Copying python...')
