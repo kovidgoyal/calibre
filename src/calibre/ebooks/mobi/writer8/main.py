@@ -22,6 +22,7 @@ from calibre.ebooks.mobi.utils import (create_text_record, to_base,
 from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.oeb.base import (OEB_DOCS, OEB_STYLES, SVG_MIME, XPath,
         extract, XHTML, urlnormalize)
+from calibre.ebooks.oeb.normalize_css import condense_sheet
 from calibre.ebooks.oeb.parse_utils import barename
 from calibre.ebooks.mobi.writer8.skeleton import Chunker, aid_able_tags, to_href
 from calibre.ebooks.mobi.writer8.index import (NCXIndex, SkelIndex,
@@ -150,6 +151,8 @@ class KF8Writer(object):
 
         for item in self.oeb.manifest:
             if item.media_type in OEB_STYLES:
+                if hasattr(item.data, 'cssText'):
+                    condense_sheet(self.data(item))
                 data = self.data(item).cssText
                 sheets[item.href] = len(self.flows)
                 self.flows.append(force_unicode(data, 'utf-8'))

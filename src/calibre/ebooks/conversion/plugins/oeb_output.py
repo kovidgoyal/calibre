@@ -25,7 +25,8 @@ class OEBOutput(OutputFormatPlugin):
         self.log, self.opts = log, opts
         if not os.path.exists(output_path):
             os.makedirs(output_path)
-        from calibre.ebooks.oeb.base import OPF_MIME, NCX_MIME, PAGE_MAP_MIME
+        from calibre.ebooks.oeb.base import OPF_MIME, NCX_MIME, PAGE_MAP_MIME, OEB_STYLES
+        from calibre.ebooks.oeb.normalize_css import condense_sheet
         with CurrentDir(output_path):
             results = oeb_book.to_opf2(page_map=True)
             for key in (OPF_MIME, NCX_MIME, PAGE_MAP_MIME):
@@ -53,6 +54,8 @@ class OEBOutput(OutputFormatPlugin):
                         f.write(raw)
 
             for item in oeb_book.manifest:
+                if item.media_type in OEB_STYLES and hasattr(item.data, 'cssText'):
+                    condense_sheet(item.data)
                 path = os.path.abspath(unquote(item.href))
                 dir = os.path.dirname(path)
                 if not os.path.exists(dir):

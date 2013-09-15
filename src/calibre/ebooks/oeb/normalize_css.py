@@ -57,6 +57,7 @@ DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',  # {{{
 # }}}
 
 EDGES = ('top', 'right', 'bottom', 'left')
+BORDER_PROPS = ('color', 'style', 'width')
 
 def normalize_edge(name, cssvalue):
     style = {}
@@ -162,11 +163,85 @@ for x in ('margin', 'padding', 'border-style', 'border-width', 'border-color'):
 
 for x in EDGES:
     name = 'border-' + x
-    normalizers[name] = simple_normalizer(name, ('color', 'style', 'width'), check_inherit=False)
+    normalizers[name] = simple_normalizer(name, BORDER_PROPS, check_inherit=False)
+
+def condense_edge(vals):
+    edges = {x.name.rpartition('-')[-1]:x.value for x in vals}
+    if len(edges) != 4:
+        return
+    ce = {}
+    for (x, y) in [('left', 'right'), ('top', 'bottom')]:
+        if edges[x] == edges[y]:
+            ce[x] = edges[x]
+        else:
+            ce[x], ce[y] = edges[x], edges[y]
+    if len(ce) == 4:
+        return ' '.join(ce[x] for x in ('top', 'right', 'bottom', 'left'))
+    if len(ce) == 3:
+        if 'right' in ce:
+            return ' '.join(ce[x] for x in ('top', 'right', 'top', 'left'))
+        return ' '.join(ce[x] for x in ('top', 'left', 'bottom'))
+    if len(ce) == 2:
+        if ce['top'] == ce['left']:
+            return ce['top']
+        return ' '.join(ce[x] for x in ('top', 'left'))
+
+def simple_condenser(prefix, func):
+    @wraps(func)
+    def condense_simple(style, props):
+        cp = func(props)
+        if cp is not None:
+            for prop in props:
+                style.removeProperty(prop.name)
+            style.setProperty(prefix, cp)
+    return condense_simple
+
+def condense_border(style, props):
+    prop_map = {p.name:p for p in props}
+    edge_vals = []
+    for edge in EDGES:
+        name = 'border-%s' % edge
+        vals = []
+        for prop in BORDER_PROPS:
+            x = prop_map.get('%s-%s' % (name, prop), None)
+            if x is not None:
+                vals.append(x)
+        if len(vals) == 3:
+            for prop in vals:
+                style.removeProperty(prop.name)
+            style.setProperty(name, ' '.join(x.value for x in vals))
+            prop_map[name] = style.getProperty(name)
+        x = prop_map.get(name, None)
+        if x is not None:
+            edge_vals.append(x)
+    if len(edge_vals) == 4 and len({x.value for x in edge_vals}) == 1:
+        for prop in edge_vals:
+            style.removeProperty(prop.name)
+        style.setProperty('border', edge_vals[0].value)
+
+condensers = {'margin': simple_condenser('margin', condense_edge), 'padding': simple_condenser('padding', condense_edge), 'border': condense_border}
+
+
+def condense_rule(style):
+    expanded = {'margin-':[], 'padding-':[], 'border-':[]}
+    for prop in style.getProperties():
+        for x in expanded:
+            if prop.name and prop.name.startswith(x):
+                expanded[x].append(prop)
+                break
+    for prefix, vals in expanded.iteritems():
+        if len(vals) > 1 and {x.priority for x in vals} == {''}:
+            condensers[prefix[:-1]](style, vals)
+
+def condense_sheet(sheet):
+    for rule in sheet.cssRules:
+        if rule.type == rule.STYLE_RULE:
+            condense_rule(rule.style)
 
 def test_normalization():  # {{{
     import unittest
     from cssutils import parseStyle
+    from itertools import product
 
     class TestNormalization(unittest.TestCase):
         longMessage = True
@@ -261,6 +336,50 @@ def test_normalization():  # {{{
             }.iteritems():
                 cval = tuple(parseStyle('list-style: %s' % raw, validate=False))[0].cssValue
                 self.assertDictEqual(ls_dict(expected), normalizers['list-style']('list-style', cval))
+
+        def test_edge_condensation(self):
+            for s, v in {
+                (1, 1, 3) : None,
+                (1, 2, 3, 4) : '2pt 3pt 4pt 1pt',
+                (1, 2, 3, 2) : '2pt 3pt 2pt 1pt',
+                (1, 2, 1, 3) : '2pt 1pt 3pt',
+                (1, 2, 1, 2) : '2pt 1pt',
+                (1, 1, 1, 1) : '1pt',
+                ('2%', '2%', '2%', '2%') : '2%',
+                tuple('0 0 0 0'.split()) : '0',
+            }.iteritems():
+                for prefix in ('margin', 'padding'):
+                    css = {'%s-%s' % (prefix, x) : str(y)+'pt' if isinstance(y, (int, float)) else y for x, y in zip(('left', 'top', 'right', 'bottom'), s)}
+                    css = '; '.join(('%s:%s' % (k, v) for k, v in css.iteritems()))
+                    style = parseStyle(css)
+                    condense_rule(style)
+                    val = getattr(style.getProperty(prefix), 'value', None)
+                    self.assertEqual(v, val)
+                    if val is not None:
+                        for edge in EDGES:
+                            self.assertFalse(getattr(style.getProperty('%s-%s' % (prefix, edge)), 'value', None))
+
+        def test_border_condensation(self):
+            vals = 'red solid 5px'
+            css = '; '.join('border-%s-%s: %s' % (edge, p, v) for edge in EDGES for p, v in zip(BORDER_PROPS, vals.split()))
+            style = parseStyle(css)
+            condense_rule(style)
+            for e, p in product(EDGES, BORDER_PROPS):
+                self.assertFalse(style.getProperty('border-%s-%s' % (e, p)))
+                self.assertFalse(style.getProperty('border-%s' % e))
+                self.assertFalse(style.getProperty('border-%s' % p))
+            self.assertEqual(style.getProperty('border').value, vals)
+            css = '; '.join('border-%s-%s: %s' % (edge, p, v) for edge in ('top',) for p, v in zip(BORDER_PROPS, vals.split()))
+            style = parseStyle(css)
+            condense_rule(style)
+            self.assertEqual(style.cssText, 'border-top: %s' % vals)
+            css += ';' + '; '.join('border-%s-%s: %s' % (edge, p, v) for edge in ('right', 'left', 'bottom') for p, v in
+                             zip(BORDER_PROPS, vals.replace('red', 'green').split()))
+            style = parseStyle(css)
+            condense_rule(style)
+            self.assertEqual(len(style.getProperties()), 4)
+            self.assertEqual(style.getProperty('border-top').value, vals)
+            self.assertEqual(style.getProperty('border-left').value, vals.replace('red', 'green'))
 
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestNormalization)
     unittest.TextTestRunner(verbosity=4).run(tests)
