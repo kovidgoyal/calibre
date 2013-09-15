@@ -48,8 +48,8 @@ class KF8Writer(object):
         self.toc_adder = TOCAdder(oeb, opts)
         self.used_images = set()
         self.resources = resources
-        self.flows = [None] # First flow item is reserved for the text
-        self.records = [None] # Placeholder for zeroth record
+        self.flows = [None]  # First flow item is reserved for the text
+        self.records = [None]  # Placeholder for zeroth record
 
         self.log('\tGenerating KF8 markup...')
         self.dup_data()
@@ -145,7 +145,7 @@ class KF8Writer(object):
                 cssutils.replaceUrls(sheet, replacer, ignoreImportRules=True)
 
     def extract_css_into_flows(self):
-        inlines = defaultdict(list) # Ensure identical <style>s not repeated
+        inlines = defaultdict(list)  # Ensure identical <style>s not repeated
         sheets = {}
 
         for item in self.oeb.manifest:
@@ -375,7 +375,7 @@ class KF8Writer(object):
                 key=lambda entry: (entry['depth'], entry['offset']))
         is_non_linear = original != linearized
         entries = linearized
-        is_non_linear = False # False as we are using the linearized entries
+        is_non_linear = False  # False as we are using the linearized entries
 
         if is_non_linear:
             for entry in entries:
@@ -428,7 +428,7 @@ class KF8Writer(object):
                 _('Unknown'), ref.type, (pos, fid)))
 
         if self.guide_table:
-            self.guide_table.sort(key=lambda x:x.type) # Needed by the Kindle
+            self.guide_table.sort(key=lambda x:x.type)  # Needed by the Kindle
             self.guide_records = GuideIndex(self.guide_table)()
 
 def create_kf8_book(oeb, opts, resources, for_joint=False):
