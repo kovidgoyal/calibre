@@ -487,7 +487,7 @@ class PolishAction(InterfaceAction):
                 db.save_original_format(book_id, fmt, notify=False)
             with open(path, 'rb') as f:
                 db.add_format(book_id, fmt, f, index_is_id=True)
-        self.gui.status_bar.show_message(job.description + (' completed'), 2000)
+        self.gui.status_bar.show_message(job.description + _(' completed'), 2000)
         try:
             shutil.rmtree(base)
             parent = os.path.dirname(base)
