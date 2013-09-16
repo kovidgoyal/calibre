@@ -25,7 +25,7 @@ from calibre import fit_image, prints, prepare_string_for_xml
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.gui2 import gprefs, config
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 
 CM_TO_INCH = 0.393701
 CACHE_FORMAT = 'PPM'
@@ -562,7 +562,10 @@ class GridView(QListView):
         if d.animating is None and not config['disable_animations']:
             d.animating = index
             d.animation.start()
-        self.gui.iactions['View'].view_triggered(index)
+        if tweaks['doubleclick_on_library_view'] == 'open_viewer':
+            self.gui.iactions['View'].view_triggered(index)
+        elif tweaks['doubleclick_on_library_view'] in {'edit_metadata', 'edit_cell'}:
+            self.gui.iactions['Edit Metadata'].edit_metadata(False, False)
 
     def animation_value_changed(self, value):
         if self.delegate.animating is not None:
