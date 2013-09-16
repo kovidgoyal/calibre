@@ -36,6 +36,13 @@ def cleanup_tags(tags):
             ans.append(tag)
     return ans
 
+def create_backend(
+        library_path, default_prefs=None, read_only=False,
+        progress_callback=lambda x, y:True, restore_all_prefs=False):
+    return DB(library_path, default_prefs=default_prefs,
+                     read_only=read_only, restore_all_prefs=restore_all_prefs,
+                     progress_callback=progress_callback)
+
 class LibraryDatabase(object):
 
     ''' Emulate the old LibraryDatabase2 interface '''
@@ -58,9 +65,9 @@ class LibraryDatabase(object):
         self.is_second_db = is_second_db
         self.listeners = set()
 
-        backend = self.backend = DB(library_path, default_prefs=default_prefs,
-                     read_only=read_only, restore_all_prefs=restore_all_prefs,
-                     progress_callback=progress_callback)
+        backend = self.backend = create_backend(library_path, default_prefs=default_prefs,
+                    read_only=read_only, restore_all_prefs=restore_all_prefs,
+                    progress_callback=progress_callback)
         cache = self.new_api = Cache(backend)
         cache.init()
         self.data = View(cache)

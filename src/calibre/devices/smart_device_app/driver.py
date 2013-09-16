@@ -202,8 +202,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     # making this number effectively around 10 to 15 larger.
     PATH_FUDGE_FACTOR           = 40
 
-    THUMBNAIL_HEIGHT            = 160
-    DEFAULT_THUMBNAIL_HEIGHT    = 160
+    THUMBNAIL_HEIGHT              = 160
+    DEFAULT_THUMBNAIL_HEIGHT      = 160
+    THUMBNAIL_COMPRESSION_QUALITY = 70
 
     PREFIX                      = ''
     BACKLOADING_ERROR_MESSAGE   = None
@@ -292,12 +293,22 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
               'particular IP address. The driver will listen only on the '
               'entered address, and this address will be the one advertized '
               'over mDNS (bonjour).') + '</p>',
-        _('Replace books with the same calibre identifier') + ':::<p>' +
+        _('Replace books with same calibre ID') + ':::<p>' +
             _('Use this option to overwrite a book on the device if that book '
               'has the same calibre identifier as the book being sent. The file name of the '
               'book will not change even if the save template produces a '
               'different result. Using this option in most cases prevents '
               'having multiple copies of a book on the device.') + '</p>',
+        _('Cover thumbnail compression quality') + ':::<p>' +
+            _('Use this option to control the size and quality of the cover '
+              'file sent to the device. It must be between 50 and 99. '
+              'The larger the number the higher quality the cover, but also '
+              'the larger the file. For example, changing this from 70 to 90 '
+              'results in a much better cover that is approximately 2.5 '
+              'times as big. To see the changes you must force calibre '
+              'to resend metadata to the device, either by changing '
+              'the metadata for the book (updating the last modification '
+              'time) or resending the book itself.') + '</p>',
         ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 False, '',
@@ -306,7 +317,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 False, '',
                 '',    '',
                 True,  '',
-                True
+                True,   '70'
     ]
     OPT_AUTOSTART               = 0
     OPT_PASSWORD                = 2
@@ -317,6 +328,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     OPT_AUTODISCONNECT          = 10
     OPT_FORCE_IP_ADDRESS        = 11
     OPT_OVERWRITE_BOOKS_UUID    = 12
+    OPT_COMPRESSION_QUALITY     = 13
 
 
     def __init__(self, path):
@@ -1287,6 +1299,19 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.client_can_stream_books = False
         self.client_can_stream_metadata = False
         self.client_wants_uuid_file_names = False
+
+        compression_quality_ok = True
+        try:
+            cq = int(self.settings().extra_customization[self.OPT_COMPRESSION_QUALITY])
+            if cq < 50 or cq > 99:
+                compression_quality_ok = False
+        except:
+            compression_quality_ok = False
+        if not compression_quality_ok:
+            self.THUMBNAIL_COMPRESSION_QUALITY = 70
+            message = 'Bad compression quality setting. It must be a number between 50 and 99'
+            self._debug(message)
+            return message
 
         message = None
         try:

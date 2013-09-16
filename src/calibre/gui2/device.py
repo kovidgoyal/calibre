@@ -1233,7 +1233,8 @@ class DeviceMixin(object): # {{{
         ht = self.device_manager.device.THUMBNAIL_HEIGHT \
                 if self.device_manager else DevicePlugin.THUMBNAIL_HEIGHT
         try:
-            return thumbnail(data, ht, ht)
+            return thumbnail(data, ht, ht,
+                    compression_quality=self.device_manager.device.THUMBNAIL_COMPRESSION_QUALITY)
         except:
             pass
 
