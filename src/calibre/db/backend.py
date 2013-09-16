@@ -1273,22 +1273,21 @@ class DB(object):
         if callable(getattr(data, 'save', None)):
             from calibre.gui2 import pixmap_to_data
             data = pixmap_to_data(data)
-        else:
-            if callable(getattr(data, 'read', None)):
-                data = data.read()
-            if data is None:
-                if os.path.exists(path):
-                    try:
-                        os.remove(path)
-                    except (IOError, OSError):
-                        time.sleep(0.2)
-                        os.remove(path)
-            else:
+        elif callable(getattr(data, 'read', None)):
+            data = data.read()
+        if data is None:
+            if os.path.exists(path):
                 try:
-                    save_cover_data_to(data, path)
+                    os.remove(path)
                 except (IOError, OSError):
                     time.sleep(0.2)
-                    save_cover_data_to(data, path)
+                    os.remove(path)
+        else:
+            try:
+                save_cover_data_to(data, path)
+            except (IOError, OSError):
+                time.sleep(0.2)
+                save_cover_data_to(data, path)
 
     def copy_format_to(self, book_id, fmt, fname, path, dest,
                        windows_atomic_move=None, use_hardlink=False):
