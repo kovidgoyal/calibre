@@ -83,7 +83,7 @@ def adapt_number(typ, x):
     if x is None:
         return None
     if isinstance(x, (unicode, bytes)):
-        if x.lower() == 'none':
+        if not x or x.lower() == 'none':
             return None
     return typ(x)
 
