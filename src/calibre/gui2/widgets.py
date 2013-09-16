@@ -236,7 +236,7 @@ class ImageDropMixin(object):  # {{{
 
     def handle_image_drop(self, pmap):
         self.set_pixmap(pmap)
-        self.cover_changed.emit(pixmap_to_data(pmap))
+        self.cover_changed.emit(pixmap_to_data(pmap, quality=100))
 
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
@@ -268,7 +268,7 @@ class ImageDropMixin(object):  # {{{
         if not pmap.isNull():
             self.set_pixmap(pmap)
             self.cover_changed.emit(
-                    pixmap_to_data(pmap))
+                    pixmap_to_data(pmap, quality=100))
 # }}}
 
 class ImageView(QWidget, ImageDropMixin):  # {{{
