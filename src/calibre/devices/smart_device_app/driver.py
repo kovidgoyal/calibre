@@ -204,7 +204,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     THUMBNAIL_HEIGHT              = 160
     DEFAULT_THUMBNAIL_HEIGHT      = 160
-    THUMBNAIL_COMPRESSION_QUALITY = 70
+    THUMBNAIL_COMPRESSION_QUALITY = 75
 
     PREFIX                      = ''
     BACKLOADING_ERROR_MESSAGE   = None
@@ -317,7 +317,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 False, '',
                 '',    '',
                 True,  '',
-                True,   '70'
+                True,   '75'
     ]
     OPT_AUTOSTART               = 0
     OPT_PASSWORD                = 2
