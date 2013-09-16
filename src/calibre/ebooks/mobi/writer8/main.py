@@ -230,7 +230,11 @@ class KF8Writer(object):
                 count += 1
                 ref = item.abshref(a.get('href'))
                 href, _, frag = ref.partition('#')
-                href = urlnormalize(href)
+                try:
+                    href = urlnormalize(href)
+                except ValueError:
+                    # a non utf-8 quoted url? Since we cannot interpret it, pass it through.
+                    pass
                 if href in hrefs:
                     placeholder = 'kindle:pos:fid:0000:off:%s'%to_href(count)
                     self.link_map[placeholder] = (href, frag)
