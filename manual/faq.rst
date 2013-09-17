@@ -499,11 +499,17 @@ that allows you to create collections on your Kindle from the |app| metadata. It
 I am getting an error when I try to use |app| with my Kobo Touch/Glo/etc.?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Kobo has very buggy firmware. Connecting to it has been known to fail at random. Certain combinations of motherboard, USB ports/cables/hubs can exacerbate this tendency to fail. If you are getting an error when connecting to your touch with |app| try the following, each of which has solved the problem for *some* |app| users.
+The Kobo has very buggy firmware. Connecting to it has been known to fail at
+random. Certain combinations of motherboard, USB ports/cables/hubs can
+exacerbate this tendency to fail. If you are getting an error when connecting
+to your touch with |app| try the following, each of which has solved the
+problem for *some* |app| users.
 
   * Connect the Kobo directly to your computer, not via USB Hub
   * Try a different USB cable and a different USB port on your computer
-  * Try a different computer (preferably an older model)
+  * Try a different computer, in particular the Kobo does not work well with
+    some Windows XP machines. If you are on Windows XP, try a computer with a
+    newer version of windows.
   * Try upgrading the firmware on your Kobo Touch to the latest
   * Try resetting the Kobo (sometimes this cures the problem for a little while, but then it re-appears, in which case you have to reset again and again)
   * Try only putting one or two books onto the Kobo at a time and do not keep large collections on the Kobo
