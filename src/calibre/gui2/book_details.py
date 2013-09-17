@@ -29,7 +29,7 @@ from calibre.utils.localization import calibre_langcode_to_name
 from calibre.utils.config import tweaks
 
 def render_html(mi, css, vertical, widget, all_fields=False):  # {{{
-    table = render_data(mi, all_fields=all_fields,
+    table, comment_fields = render_data(mi, all_fields=all_fields,
             use_roman_numbers=config['use_roman_numerals_for_series_number'])
 
     def color_to_string(col):
@@ -68,12 +68,9 @@ def render_html(mi, css, vertical, widget, all_fields=False):  # {{{
         </body>
     <html>
     '''%(f, fam, c, css)
-    fm = getattr(mi, 'field_metadata', field_metadata)
-    fl = dict(get_field_list(fm))
-    show_comments = (all_fields or fl.get('comments', True))
     comments = u''
-    if mi.comments and show_comments:
-        comments = comments_to_html(force_unicode(mi.comments))
+    if comment_fields:
+        comments = '\n'.join(u'<div>%s</div>' % x for x in comment_fields)
     right_pane = u'<div id="comments" class="comments">%s</div>'%comments
 
     if vertical:
@@ -106,8 +103,10 @@ def get_field_list(fm, use_defaults=False):
 
 def render_data(mi, use_roman_numbers=True, all_fields=False):
     ans = []
+    comment_fields = []
     isdevice = not hasattr(mi, 'id')
     fm = getattr(mi, 'field_metadata', field_metadata)
+    row = u'<td class="title">%s</td><td class="value">%s</td>'
 
     for field, display in get_field_list(fm):
         metadata = fm.get(field, None)
@@ -119,24 +118,23 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
             isnull = mi.get(field) is None
         else:
             isnull = mi.is_null(field)
-        if (not display or not metadata or isnull or field == 'comments'):
+        if (not display or not metadata or isnull):
             continue
         name = metadata['name']
         if not name:
             name = field
         name += ':'
-        if metadata['datatype'] == 'comments':
+        if metadata['datatype'] == 'comments' or field == 'comments':
             val = getattr(mi, field)
             if val:
                 val = force_unicode(val)
-                ans.append((field,
-                    u'<td class="comments" colspan="2">%s</td>'%comments_to_html(val)))
+                comment_fields.append(comments_to_html(val))
         elif metadata['datatype'] == 'rating':
             val = getattr(mi, field)
             if val:
                 val = val/2.0
                 ans.append((field,
-                    u'<td class="title">%s</td><td class="rating" '
+                    u'<td class="title">%s</td><td class="rating value" '
                     'style=\'font-family:"%s"\'>%s</td>'%(
                         name, rating_font(), u'\u2605'*int(val))))
         elif metadata['datatype'] == 'composite' and \
@@ -145,8 +143,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
             if val:
                 val = force_unicode(val)
                 ans.append((field,
-                    u'<td class="title">%s</td><td>%s</td>'%
-                        (name, comments_to_html(val))))
+                    row % (name, comments_to_html(val))))
         elif field == 'path':
             if mi.path:
                 path = force_unicode(mi.path, filesystem_encoding)
@@ -163,22 +160,20 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                             prepare_string_for_xml(durl))
                 link = u'<a href="%s:%s" title="%s">%s</a>%s' % (scheme, url,
                         prepare_string_for_xml(path, True), pathstr, extra)
-                ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name, link)))
+                ans.append((field, row % (name, link)))
         elif field == 'formats':
             if isdevice:
                 continue
             fmts = [u'<a href="format:%s:%s">%s</a>' % (mi.id, x, x) for x
                         in mi.formats]
-            ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,
-                u', '.join(fmts))))
+            ans.append((field, row % (name, u', '.join(fmts))))
         elif field == 'identifiers':
             urls = urls_from_identifiers(mi.identifiers)
             links = [u'<a href="%s" title="%s:%s">%s</a>' % (url, id_typ, id_val, name)
                     for name, id_typ, id_val, url in urls]
             links = u', '.join(links)
             if links:
-                ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(
-                    _('Ids')+':', links)))
+                ans.append((field, row % (_('Ids')+':', links)))
         elif field == 'authors' and not isdevice:
             authors = []
             formatter = EvalFormatter()
@@ -199,14 +194,12 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                     authors.append(u'<a calibre-data="authors" href="%s">%s</a>'%(link, aut))
                 else:
                     authors.append(aut)
-            ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,
-                u' & '.join(authors))))
+            ans.append((field, row % (name, u' & '.join(authors))))
         elif field == 'languages':
             if not mi.languages:
                 continue
             names = filter(None, map(calibre_langcode_to_name, mi.languages))
-            ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,
-                u', '.join(names))))
+            ans.append((field, row % (name, u', '.join(names))))
         else:
             val = mi.format_field(field)[-1]
             if val is None:
@@ -224,14 +217,13 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                 if is_date_undefined(aval):
                     continue
 
-            ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name, val)))
+            ans.append((field, row % (name, val)))
 
     dc = getattr(mi, 'device_collections', [])
     if dc:
         dc = u', '.join(sorted(dc, key=sort_key))
         ans.append(('device_collections',
-            u'<td class="title">%s</td><td>%s</td>'%(
-                _('Collections')+':', dc)))
+            row % (_('Collections')+':', dc)))
 
     def classname(field):
         try:
@@ -243,7 +235,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
     ans = [u'<tr id="%s" class="%s">%s</tr>'%(field.replace('#', '_'),
         classname(field), html) for field, html in ans]
     # print '\n'.join(ans)
-    return u'<table class="fields">%s</table>'%(u'\n'.join(ans))
+    return u'<table class="fields">%s</table>'%(u'\n'.join(ans)), comment_fields
 
 # }}}
 
