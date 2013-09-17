@@ -13,7 +13,7 @@ from PyQt4.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, QColor, Qt, QIcon,
         QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
         QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem,
-        QApplication)
+        QApplication, QStandardItem, QStandardItemModel, QCheckBox)
 
 from calibre import prepare_string_for_xml, sanitize_file_name_unicode
 from calibre.constants import config_dir
@@ -331,7 +331,6 @@ class RuleEditor(QDialog): # {{{
             l.addItem(QSpacerItem(10, 10, QSizePolicy.Expanding), 2, 7)
         else:
             self.filename_box = QComboBox()
-            self.filename_box.setInsertPolicy(self.filename_box.InsertAlphabetically)
             d = os.path.join(config_dir, 'cc_icons')
             self.icon_file_names = []
             if os.path.exists(d):
@@ -341,9 +340,15 @@ class RuleEditor(QDialog): # {{{
                         if icon_file.endswith('.png'):
                             self.icon_file_names.append(icon_file)
             self.icon_file_names.sort(key=sort_key)
-            self.update_filename_box()
 
-            l.addWidget(self.filename_box, 2, 5)
+            vb = QVBoxLayout()
+            self.multiple_icon_cb = QCheckBox(_('Choose more than one icon'))
+            vb.addWidget(self.multiple_icon_cb)
+            self.update_filename_box()
+            self.multiple_icon_cb.clicked.connect(self.multiple_box_clicked)
+            vb.addWidget(self.filename_box)
+            l.addLayout(vb, 2, 5)
+
             self.filename_button = QPushButton(QIcon(I('document_open.png')),
                                                _('&Add icon'))
             l.addWidget(self.filename_button, 2, 6)
@@ -401,18 +406,37 @@ class RuleEditor(QDialog): # {{{
             self.update_color_label()
             self.color_box.currentIndexChanged.connect(self.update_color_label)
         else:
+            self.rule_icon_files = []
             self.filename_button.clicked.connect(self.filename_button_clicked)
 
         self.resize(self.sizeHint())
 
+    def multiple_box_clicked(self):
+        self.update_filename_box()
+        self.update_icon_filenames_in_box()
+
     def update_filename_box(self):
-        self.filename_box.clear()
+        doing_multiple = self.multiple_icon_cb.isChecked()
+
+        model = QStandardItemModel()
+        self.filename_box.setModel(model)
         self.icon_file_names.sort(key=sort_key)
-        self.filename_box.addItem('')
-        self.filename_box.addItems(self.icon_file_names)
+        if doing_multiple:
+            item = QStandardItem(_('Open to see checkboxes'))
+        else:
+            item = QStandardItem('')
+        model.appendRow(item)
+
         for i,filename in enumerate(self.icon_file_names):
+            item = QStandardItem(filename)
+            if doing_multiple:
+                item.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled);
+                item.setData(Qt.Unchecked, Qt.CheckStateRole)
+            else:
+                item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable);
             icon = QIcon(os.path.join(config_dir, 'cc_icons', filename))
-            self.filename_box.setItemIcon(i+1, icon)
+            item.setIcon(icon)
+            model.appendRow(item)
 
     def update_color_label(self):
         pal = QApplication.palette()
@@ -432,9 +456,9 @@ class RuleEditor(QDialog): # {{{
                     all_files=False, select_only_single_file=True)
             if path:
                 icon_path = path[0]
-                icon_name = sanitize_file_name_unicode(
+                icon_name = lower(sanitize_file_name_unicode(
                              os.path.splitext(
-                                   os.path.basename(icon_path))[0]+'.png')
+                                   os.path.basename(icon_path))[0]+'.png'))
                 if icon_name not in self.icon_file_names:
                     self.icon_file_names.append(icon_name)
                     self.update_filename_box()
@@ -449,12 +473,46 @@ class RuleEditor(QDialog): # {{{
                     except:
                         import traceback
                         traceback.print_exc()
-                self.filename_box.setCurrentIndex(self.filename_box.findText(icon_name))
+                if self.multiple_icon_cb.isChecked():
+                    if icon_name not in self.rule_icon_files:
+                        self.rule_icon_files.append(icon_name)
+                    self.update_icon_filenames_in_box()
+                else:
+                    self.filename_box.setCurrentIndex(self.filename_box.findText(icon_name))
                 self.filename_box.adjustSize()
         except:
             import traceback
             traceback.print_exc()
         return
+
+    def get_filenames_from_box(self):
+        if self.multiple_icon_cb.isChecked():
+            model = self.filename_box.model()
+            fnames = []
+            for i in range(1, model.rowCount()):
+                item = model.item(i, 0)
+                if item.checkState() == Qt.Checked:
+                    fnames.append(lower(unicode(item.text())))
+            fname = ' : '.join(fnames)
+        else:
+            fname = lower(unicode(self.filename_box.currentText()))
+        return fname
+
+    def update_icon_filenames_in_box(self):
+        if self.rule_icon_files:
+            if not self.multiple_icon_cb.isChecked():
+                idx = self.filename_box.findText(self.rule_icon_files[0])
+                if idx >= 0:
+                    self.filename_box.setCurrentIndex(idx)
+                else:
+                    self.filename_box.setCurrentIndex(0)
+            else:
+                model = self.filename_box.model()
+                for icon in self.rule_icon_files:
+                    idx = self.filename_box.findText(icon)
+                    if idx >= 0:
+                        item = model.item(idx)
+                        item.setCheckState(Qt.Checked)
 
     def add_blank_condition(self):
         c = ConditionEditor(self.fm, parent=self.conditions_widget)
@@ -469,12 +527,11 @@ class RuleEditor(QDialog): # {{{
                     self.color_box.setCurrentIndex(idx)
         else:
             self.kind_box.setCurrentIndex(0 if kind == 'icon' else 1)
-            if rule.color:
-                idx = self.filename_box.findText(rule.color)
-                if idx >= 0:
-                    self.filename_box.setCurrentIndex(idx)
-                else:
-                    self.filename_box.setCurrentIndex(0)
+            self.rule_icon_files = [ic.strip() for ic in rule.color.split(':')]
+            if len(self.rule_icon_files) > 1:
+                self.multiple_icon_cb.setChecked(True)
+            self.update_filename_box()
+            self.update_icon_filenames_in_box()
 
         for i in range(self.column_box.count()):
             c = unicode(self.column_box.itemData(i).toString())
@@ -492,10 +549,9 @@ class RuleEditor(QDialog): # {{{
                 import traceback
                 traceback.print_exc()
 
-
     def accept(self):
         if self.rule_kind != 'color':
-            fname = lower(unicode(self.filename_box.currentText()))
+            fname = self.get_filenames_from_box()
             if not fname:
                 error_dialog(self, _('No icon selected'),
                         _('You must choose an icon for this rule'), show=True)
@@ -528,7 +584,7 @@ class RuleEditor(QDialog): # {{{
     def rule(self):
         r = Rule(self.fm)
         if self.rule_kind != 'color':
-            r.color = unicode(self.filename_box.currentText())
+            r.color = self.get_filenames_from_box()
         else:
             r.color = unicode(self.color_box.currentText())
         idx = self.column_box.currentIndex()

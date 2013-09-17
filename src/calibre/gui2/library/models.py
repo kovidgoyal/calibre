@@ -9,7 +9,7 @@ import functools, re, os, traceback, errno, time
 from collections import defaultdict, namedtuple
 
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
-        QModelIndex, QVariant, QDateTime, QColor, QPixmap)
+        QModelIndex, QVariant, QDateTime, QColor, QPixmap, QPainter)
 
 from calibre.gui2 import NONE, error_dialog
 from calibre.utils.search_query_parser import ParseException
@@ -76,9 +76,10 @@ class ColumnColor(object):  # {{{
 
 class ColumnIcon(object):  # {{{
 
-    def __init__(self, formatter):
+    def __init__(self, formatter, model):
         self.mi = None
         self.formatter = formatter
+        self.model = model
 
     def __call__(self, id_, key, fmt, kind, db, icon_cache, icon_bitmap_cache):
         dex = key+kind
@@ -88,26 +89,44 @@ class ColumnIcon(object):  # {{{
         try:
             if self.mi is None:
                 self.mi = db.get_metadata(id_, index_is_id=True)
-            icon = self.formatter.safe_format(fmt, self.mi, '', self.mi)
-            if icon:
-                if icon in icon_bitmap_cache:
-                    icon_bitmap = icon_bitmap_cache[icon]
+            icons = self.formatter.safe_format(fmt, self.mi, '', self.mi)
+            if icons:
+                if icons in icon_bitmap_cache:
+                    icon_bitmap = icon_bitmap_cache[icons]
                     icon_cache[id_][dex] = icon_bitmap
                     return icon_bitmap
-                d = os.path.join(config_dir, 'cc_icons', icon)
-                if (os.path.exists(d)):
-                    icon_bitmap = QPixmap(d)
-                    h = icon_bitmap.height()
-                    w = icon_bitmap.width()
-                    # If the image is landscape and width is more than 50%
-                    # large than height, use the pixmap. This tells Qt to display
-                    # the image full width. It might be clipped to row height.
-                    if w < (3 * h)/2:
-                        icon_bitmap = QIcon(icon_bitmap)
-                    icon_cache[id_][dex] = icon_bitmap
-                    icon_bitmap_cache[icon] = icon_bitmap
-                    self.mi = None
-                    return icon_bitmap
+
+                icon_list = [ic.strip() for ic in icons.split(':')]
+                icon_bitmaps = []
+                total_width = 0
+                for icon in icon_list:
+                    d = os.path.join(config_dir, 'cc_icons', icon)
+                    if (os.path.exists(d)):
+                        bm = QPixmap(d)
+                        icon_bitmaps.append(bm)
+                        total_width += bm.width()
+                if len(icon_bitmaps) > 1:
+                    result = QPixmap(len(icon_list)*128, 128)
+                    result.fill()
+                    painter = QPainter(result)
+                    x = 0
+                    for bm in icon_bitmaps:
+                        painter.drawPixmap(x, 0, bm)
+                        x += bm.width()
+                    painter.end()
+                else:
+                    result = icon_bitmaps[0]
+
+                # If the image height is less than the row height, leave it alone
+                # The -2 allows for a pixel above and below. Also ensure that
+                # it is always a bit positive
+                rh = min(2, self.model.row_height - 2)
+                if result.height() > rh:
+                    result = result.scaledToHeight(rh, mode=Qt.SmoothTransformation)
+                icon_cache[id_][dex] = result
+                icon_bitmap_cache[icons] = result
+                self.mi = None
+                return result
         except:
             pass
 # }}}
@@ -145,7 +164,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.colors = frozenset([unicode(c) for c in QColor.colorNames()])
         self._clear_caches()
         self.column_color = ColumnColor(self.formatter, self.colors)
-        self.column_icon = ColumnIcon(self.formatter)
+        self.column_icon = ColumnIcon(self.formatter, self)
 
         self.book_on_device = None
         self.editable_cols = ['title', 'authors', 'rating', 'publisher',
@@ -168,6 +187,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None
         self.highlight_only = False
+        self.row_height = 0
         self.read_config()
 
     def _clear_caches(self):
@@ -175,6 +195,9 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.icon_cache = defaultdict(dict)
         self.icon_bitmap_cache = {}
         self.color_row_fmt_cache = None
+
+    def set_row_height(self, height):
+        self.row_height = height
 
     def change_alignment(self, colname, alignment):
         if colname in self.column_map and alignment in ('left', 'right', 'center'):
