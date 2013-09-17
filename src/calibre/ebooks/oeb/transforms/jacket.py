@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os
 from xml.sax.saxutils import escape
+from string import Formatter
 
 from lxml import etree
 
@@ -20,6 +21,14 @@ from calibre.utils.date import is_date_undefined
 from calibre.ebooks.chardet import strip_encoding_declarations
 
 JACKET_XPATH = '//h:meta[@name="calibre-content" and @content="jacket"]'
+
+class SafeFormatter(Formatter):
+
+    def get_value(self, *args, **kwargs):
+        try:
+            return Formatter.get_value(self, *args, **kwargs)
+        except KeyError:
+            return ''
 
 class Jacket(object):
     '''
@@ -217,8 +226,9 @@ def render_jacket(mi, output_profile,
         args['_genre_label'] = args.get('_genre_label', '{_genre_label}')
         args['_genre'] = args.get('_genre', '{_genre}')
 
-        generated_html = P('jacket/template.xhtml',
-                data=True).decode('utf-8').format(**args)
+        formatter = SafeFormatter()
+        generated_html = formatter.format(P('jacket/template.xhtml',
+                data=True).decode('utf-8'), **args)
 
         # Post-process the generated html to strip out empty header items
 
