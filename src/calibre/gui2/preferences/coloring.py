@@ -29,7 +29,9 @@ from calibre.utils.icu import lower
 all_columns_string = _('All Columns')
 
 icon_rule_kinds = [(_('icon with text'), 'icon'),
-                   (_('icon with no text'), 'icon_only') ]
+                   (_('icon with no text'), 'icon_only'),
+                   (_('composed icons w/text'), 'icon_composed'),
+                   (_('composed icons w/no text'), 'icon_only_composed'),]
 
 class ConditionEditor(QWidget): # {{{
 
@@ -526,7 +528,10 @@ class RuleEditor(QDialog): # {{{
                 if idx >= 0:
                     self.color_box.setCurrentIndex(idx)
         else:
-            self.kind_box.setCurrentIndex(0 if kind == 'icon' else 1)
+            for i,tup in enumerate(icon_rule_kinds):
+                if kind == tup[1]:
+                    self.kind_box.setCurrentIndex(i)
+                    break
             self.rule_icon_files = [ic.strip() for ic in rule.color.split(':')]
             if len(self.rule_icon_files) > 1:
                 self.multiple_icon_cb.setChecked(True)
@@ -691,6 +696,15 @@ class RulesModel(QAbstractListModel): # {{{
         self.reset()
 
     def rule_to_html(self, kind, col, rule):
+        trans_kind = 'not found'
+        if kind == 'color':
+            trans_kind = _('color')
+        else:
+            for tt, t in icon_rule_kinds:
+                if kind == t:
+                    trans_kind = tt
+                    break
+
         if not isinstance(rule, Rule):
             if kind == 'color':
                 return _('''
@@ -702,20 +716,10 @@ class RulesModel(QAbstractListModel): # {{{
                 <p>Advanced Rule: set <b>%(typ)s</b> for column <b>%(col)s</b>:
                 <pre>%(rule)s</pre>
                 ''')%dict(col=col,
-                          typ=icon_rule_kinds[0][0]
-                            if kind == icon_rule_kinds[0][1] else icon_rule_kinds[1][0],
+                          typ=trans_kind,
                           rule=prepare_string_for_xml(rule))
 
         conditions = [self.condition_to_html(c) for c in rule.conditions]
-
-        trans_kind = 'not found'
-        if kind == 'color':
-            trans_kind = _('color')
-        else:
-            for tt, t in icon_rule_kinds:
-                if kind == t:
-                    trans_kind = tt
-                    break
 
         return _('''\
             <p>Set the <b>%(kind)s</b> of <b>%(col)s</b> to <b>%(color)s</b> if the following

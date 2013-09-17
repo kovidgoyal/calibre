@@ -81,38 +81,49 @@ class ColumnIcon(object):  # {{{
         self.formatter = formatter
         self.model = model
 
-    def __call__(self, id_, key, fmt, kind, db, icon_cache, icon_bitmap_cache):
-        dex = key+kind
-        if id_ in icon_cache and dex in icon_cache[id_]:
+    def __call__(self, id_, key, fmts, cache_index, db, icon_cache, icon_bitmap_cache):
+        if id_ in icon_cache and cache_index in icon_cache[id_]:
             self.mi = None
-            return icon_cache[id_][dex]
+            return icon_cache[id_][cache_index]
         try:
             if self.mi is None:
                 self.mi = db.get_metadata(id_, index_is_id=True)
-            icons = self.formatter.safe_format(fmt, self.mi, '', self.mi)
+            icons = []
+            for kind,fmt in fmts:
+                rule_icons = self.formatter.safe_format(fmt, self.mi, '', self.mi)
+                if not rule_icons:
+                    continue
+                icon_list = [ic.strip() for ic in rule_icons.split(':')]
+                if icon_list and not kind.endswith('_composed'):
+                    icons = icon_list
+                    break
+                else:
+                    icons.extend(icon_list)
+
             if icons:
-                if icons in icon_bitmap_cache:
-                    icon_bitmap = icon_bitmap_cache[icons]
-                    icon_cache[id_][dex] = icon_bitmap
+                icon_string = ':'.join(icons)
+                if icon_string in icon_bitmap_cache:
+                    icon_bitmap = icon_bitmap_cache[icon_string]
+                    icon_cache[id_][cache_index] = icon_bitmap
                     return icon_bitmap
 
-                icon_list = [ic.strip() for ic in icons.split(':')]
                 icon_bitmaps = []
                 total_width = 0
-                for icon in icon_list:
+                for icon in icons:
                     d = os.path.join(config_dir, 'cc_icons', icon)
                     if (os.path.exists(d)):
                         bm = QPixmap(d)
                         icon_bitmaps.append(bm)
                         total_width += bm.width()
                 if len(icon_bitmaps) > 1:
-                    result = QPixmap(len(icon_list)*128, 128)
+                    i = len(icon_bitmaps)
+                    result = QPixmap((i * 128) + ((i-1)*2), 128)
                     result.fill(Qt.transparent)
                     painter = QPainter(result)
                     x = 0
                     for bm in icon_bitmaps:
                         painter.drawPixmap(x, 0, bm)
-                        x += bm.width()
+                        x += bm.width() + 2
                     painter.end()
                 else:
                     result = icon_bitmaps[0]
@@ -123,8 +134,8 @@ class ColumnIcon(object):  # {{{
                 rh = max(2, self.model.row_height - 2)
                 if result.height() > rh:
                     result = result.scaledToHeight(rh, mode=Qt.SmoothTransformation)
-                icon_cache[id_][dex] = result
-                icon_bitmap_cache[icons] = result
+                icon_cache[id_][cache_index] = result
+                icon_bitmap_cache[icon_string] = result
                 self.mi = None
                 return result
         except:
@@ -788,16 +799,21 @@ class BooksModel(QAbstractTableModel):  # {{{
             if rules:
                 key = self.column_map[col]
                 id_ = None
+                fmts = []
                 for kind, k, fmt in rules:
-                    if k == key and kind == 'icon_only':
+                    if k == key and kind in ('icon_only', 'icon_only_composed'):
                         if id_ is None:
                             id_ = self.id(index)
                             self.column_icon.mi = None
-                        ccicon = self.column_icon(id_, key, fmt, 'icon_only', self.db,
-                                              self.icon_cache, self.icon_bitmap_cache)
-                        if ccicon is not None:
-                            return NONE
-                self.icon_cache[id_][key+'icon_only'] = None
+                        fmts.append((kind, fmt))
+
+                if fmts:
+                    cache_index = key + ':'.join([kind for kind,fmt in fmts])
+                    ccicon = self.column_icon(id_, key, fmts, cache_index, self.db,
+                                      self.icon_cache, self.icon_bitmap_cache)
+                    if ccicon is not None:
+                        return NONE
+                    self.icon_cache[id_][cache_index] = None
             return self.column_to_dc_map[col](index.row())
         elif role in (Qt.EditRole, Qt.ToolTipRole):
             return self.column_to_dc_map[col](index.row())
@@ -854,21 +870,25 @@ class BooksModel(QAbstractTableModel):  # {{{
                 key = self.column_map[col]
                 id_ = None
                 need_icon_with_text = False
+                fmts = []
                 for kind, k, fmt in rules:
-                    if k == key and kind in ('icon', 'icon_only'):
+                    if k == key and kind.startswith('icon'):
                         if id_ is None:
                             id_ = self.id(index)
                             self.column_icon.mi = None
-                        if kind == 'icon':
+                        fmts.append((kind, fmt))
+                        if kind in ('icon', 'icon_composed'):
                             need_icon_with_text = True
-                        ccicon = self.column_icon(id_, key, fmt, kind, self.db,
-                                          self.icon_cache, self.icon_bitmap_cache)
-                        if ccicon is not None:
-                            return ccicon
-                if need_icon_with_text:
-                    self.icon_cache[id_][key+'icon'] = self.bool_blank_icon
-                    return self.bool_blank_icon
-                self.icon_cache[id_][key+'icon'] = None
+                if fmts:
+                    cache_index = key + ':'.join([kind for kind,fmt in fmts])
+                    ccicon = self.column_icon(id_, key, fmts, cache_index, self.db,
+                                  self.icon_cache, self.icon_bitmap_cache)
+                    if ccicon is not None:
+                        return ccicon
+                    if need_icon_with_text:
+                        self.icon_cache[id_][cache_index] = self.bool_blank_icon
+                        return self.bool_blank_icon
+                    self.icon_cache[id_][cache_index] = None
         elif role == Qt.TextAlignmentRole:
             cname = self.column_map[index.column()]
             ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
