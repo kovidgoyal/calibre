@@ -808,7 +808,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                         fmts.append((kind, fmt))
 
                 if fmts:
-                    cache_index = key + ':'.join([kind for kind,fmt in fmts])
+                    cache_index = key + ':DisplayRole'
                     ccicon = self.column_icon(id_, key, fmts, cache_index, self.db,
                                       self.icon_cache, self.icon_bitmap_cache)
                     if ccicon is not None:
@@ -880,7 +880,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                         if kind in ('icon', 'icon_composed'):
                             need_icon_with_text = True
                 if fmts:
-                    cache_index = key + ':'.join([kind for kind,fmt in fmts])
+                    cache_index = key + ':DecorationRole'
                     ccicon = self.column_icon(id_, key, fmts, cache_index, self.db,
                                   self.icon_cache, self.icon_bitmap_cache)
                     if ccicon is not None:
