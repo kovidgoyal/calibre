@@ -107,7 +107,7 @@ class ColumnIcon(object):  # {{{
                         total_width += bm.width()
                 if len(icon_bitmaps) > 1:
                     result = QPixmap(len(icon_list)*128, 128)
-                    result.fill()
+                    result.fill(Qt.transparent)
                     painter = QPainter(result)
                     x = 0
                     for bm in icon_bitmaps:
@@ -120,7 +120,7 @@ class ColumnIcon(object):  # {{{
                 # If the image height is less than the row height, leave it alone
                 # The -2 allows for a pixel above and below. Also ensure that
                 # it is always a bit positive
-                rh = min(2, self.model.row_height - 2)
+                rh = max(2, self.model.row_height - 2)
                 if result.height() > rh:
                     result = result.scaledToHeight(rh, mode=Qt.SmoothTransformation)
                 icon_cache[id_][dex] = result
