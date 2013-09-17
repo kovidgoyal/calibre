@@ -44,6 +44,22 @@ class DateTimeEdit(QDateTimeEdit):  # {{{
             return QDateTimeEdit.keyPressEvent(self, ev)
 # }}}
 
+class ClearingSpinBox(QSpinBox):    # {{{
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_Space:
+            self.setValue(-1000000)
+        else:
+            return QSpinBox.keyPressEvent(self, ev)
+# }}}
+
+class ClearingDoubleSpinBox(QDoubleSpinBox):    # {{{
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_Space:
+            self.setValue(-1000000.0)
+        else:
+            return QDoubleSpinBox.keyPressEvent(self, ev)
+# }}}
+
 class RatingDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, *args, **kwargs):
@@ -293,14 +309,14 @@ class CcNumberDelegate(QStyledItemDelegate):  # {{{
         m = index.model()
         col = m.column_map[index.column()]
         if m.custom_columns[col]['datatype'] == 'int':
-            editor = QSpinBox(parent)
+            editor = ClearingSpinBox(parent)
             editor.setRange(-1000000, 100000000)
             editor.setSpecialValueText(_('Undefined'))
             editor.setSingleStep(1)
         else:
-            editor = QDoubleSpinBox(parent)
+            editor = ClearingDoubleSpinBox(parent)
             editor.setSpecialValueText(_('Undefined'))
-            editor.setRange(-1000000., 100000000)
+            editor.setRange(-1000000., 100000000.)
             editor.setDecimals(2)
         return editor
 
