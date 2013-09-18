@@ -649,6 +649,7 @@ class BooksView(QTableView):  # {{{
             self.resizeRowToContents(0)
             self.verticalHeader().setDefaultSectionSize(self.rowHeight(0) +
                                             gprefs['extra_row_spacing'])
+            self._model.set_row_height(self.rowHeight(0))
             self.row_sizing_done = True
 
     def resize_column_to_fit(self, column):
