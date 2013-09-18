@@ -763,6 +763,8 @@ class BooksView(QTableView):  # {{{
         idx = self.currentIndex()
         if idx.isValid():
             self._model.current_changed(idx, idx)
+            return True
+        return False
 
     def scrollContentsBy(self, dx, dy):
         # Needed as Qt bug causes headerview to not always update when scrolling

@@ -587,7 +587,8 @@ class SearchRestrictionMixin(object):
         v = self.current_view()
         if not v.currentIndex().isValid():
             v.set_current_row()
-        v.refresh_book_details()
+        if not v.refresh_book_details():
+            self.book_details.reset_info()
 
     def set_number_of_books_shown(self):
         db = self.library_view.model().db
