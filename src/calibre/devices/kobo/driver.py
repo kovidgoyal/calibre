@@ -31,19 +31,19 @@ from calibre.utils.config_base import prefs
 EPUB_EXT = '.epub'
 
 
-# Implementation of QtQHash for strings. This doesn't seem to be in the Python implemention. 
-def qhash (inputstr):
-    instr = ""
-    if isinstance (inputstr, str):
-        instr = inputstr 
-    elif isinstance (inputstr, unicode):
-        instr = inputstr.encode ("utf8")
+# Implementation of QtQHash for strings. This doesn't seem to be in the Python implementation.
+def qhash(inputstr):
+    instr = b""
+    if isinstance(inputstr, bytes):
+        instr = inputstr
+    elif isinstance(inputstr, unicode):
+        instr = inputstr.encode("utf8")
     else:
         return -1
 
     h = 0x00000000
-    for i in range (0, len (instr)):
-        h = (h << 4) + ord(instr[i])
+    for x in bytearray(instr):
+        h = (h << 4) + x
         h ^= (h & 0xf0000000) >> 23
         h &= 0x0fffffff
 
@@ -1251,7 +1251,7 @@ class KOBOTOUCH(KOBO):
 
     max_supported_fwversion         = (2,9,1)
     min_fwversion_images_on_sdcard  = (2,4,1)
-    min_fwversion_images_tree       = (2,9,0) # Cover images stored in tree under .kobo-images
+    min_fwversion_images_tree       = (2,9,0)  # Cover images stored in tree under .kobo-images
 
     has_kepubs = True
 
@@ -1764,8 +1764,8 @@ class KOBOTOUCH(KOBO):
                 bookshelves = get_bookshelvesforbook(connection, row[3])
 
                 prefix = self._card_a_prefix if oncard == 'carda' else self._main_prefix
-                changed = update_booklist(prefix, path, row[0], row[1], mime, row[2], row[3], row[5], 
-                                          row[6], row[7], row[4], row[8], row[9], row[10], row[11], 
+                changed = update_booklist(prefix, path, row[0], row[1], mime, row[2], row[3], row[5],
+                                          row[6], row[7], row[4], row[8], row[9], row[10], row[11],
                                           row[12], row[13], row[14], bookshelves)
 
                 if changed:
@@ -2042,7 +2042,7 @@ class KOBOTOUCH(KOBO):
                 if os.path.exists(fpath):
                     debug_print("KoboTouch:delete_images - Image File Exists")
                     os.unlink(fpath)
-                
+
             try:
                 os.removedirs(os.path.dirname(path))
             except:
