@@ -25,7 +25,7 @@ def is_truetype_font(raw):
 
 def get_tables(raw):
     num_tables = struct.unpack_from(b'>H', raw, 4)[0]
-    offset = 4*3 # start of the table record entries
+    offset = 4*3  # start of the table record entries
     for i in xrange(num_tables):
         table_tag, table_checksum, table_offset, table_length = struct.unpack_from(
                     b'>4s3L', raw, offset)
@@ -104,12 +104,14 @@ def decode_name_record(recs):
     Get the English names of this font. See
     http://www.microsoft.com/typography/otspec/name.htm for details.
     '''
-    if not recs: return None
+    if not recs:
+        return None
     unicode_names = {}
     windows_names = {}
     mac_names = {}
     for platform_id, encoding_id, language_id, src in recs:
-        if language_id > 0x8000: continue
+        if language_id > 0x8000:
+            continue
         if platform_id == 0:
             if encoding_id < 4:
                 try:
@@ -124,14 +126,16 @@ def decode_name_record(recs):
         elif platform_id == 2:
             codec = {0:'ascii', 1:'utf-16-be', 2:'iso-8859-1'}.get(encoding_id,
                     None)
-            if codec is None: continue
+            if codec is None:
+                continue
             try:
                 unicode_names[language_id] = src.decode(codec)
             except ValueError:
                 continue
         elif platform_id == 3:
             codec = {1:16, 10:32}.get(encoding_id, None)
-            if codec is None: continue
+            if codec is None:
+                continue
             try:
                 windows_names[language_id] = src.decode('utf-%d-be'%codec)
             except ValueError:
