@@ -589,7 +589,7 @@ class BuiltinCount(BuiltinFormatterFunction):
             'uses an ampersand. Examples: {tags:count(,)}, {authors:count(&)}')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, sep):
-        return unicode(len(val.split(sep)))
+        return unicode(len([v for v in val.split(sep) if v]))
 
 class BuiltinListitem(BuiltinFormatterFunction):
     name = 'list_item'
