@@ -19,7 +19,7 @@ from calibre.utils.fonts.sfnt.errors import UnsupportedFont, NoGlyphs
 
 def resolve_glyphs(loca, glyf, character_map, extra_glyphs):
     unresolved_glyphs = set(character_map.itervalues()) | extra_glyphs
-    unresolved_glyphs.add(0) # We always want the .notdef glyph
+    unresolved_glyphs.add(0)  # We always want the .notdef glyph
     resolved_glyphs = {}
 
     while unresolved_glyphs:
@@ -286,7 +286,8 @@ def test_mem():
     for i in xrange(calls):
         subset(raw, (), (('a', 'z'),))
     del raw
-    for i in xrange(3): gc.collect()
+    for i in xrange(3):
+        gc.collect()
     print ('Leaked memory per call:', (memory() - start_mem)/calls*1024, 'KB')
 
 def test():
@@ -344,7 +345,7 @@ def all():
             print (name, path, err)
             print()
 
-    print ('Average reduction to: %.1f%%'%( sum(averages)/len(averages)))
+    print ('Average reduction to: %.1f%%'%(sum(averages)/len(averages)))
     print('Total:', total, 'Unsupported:', len(unsupported), 'Failed:',
             len(failed), 'Warnings:', len(warnings))
 
