@@ -7,7 +7,7 @@ Created on 29 Jun 2012
 
 @author: charles
 '''
-import socket, select, json, os, traceback, time, sys, random
+import socket, select, json, os, traceback, time, sys, random, cPickle
 import posixpath
 import hashlib, threading
 import Queue
@@ -34,7 +34,8 @@ from calibre.library import current_library_name
 from calibre.library.server import server_config as content_server_config
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc import eintr_retry_call
-from calibre.utils.config_base import tweaks
+from calibre.utils.config_base import config_dir, tweaks
+from calibre.utils.date import parse_date
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
         unpublish_zeroconf, get_all_ips)
@@ -108,7 +109,7 @@ class ConnectionListener(Thread):
                         try:
                             packet = self.driver.broadcast_socket.recvfrom(100)
                             remote = packet[1]
-                            content_server_port = b'';
+                            content_server_port = b''
                             try :
                                 content_server_port = \
                                     str(content_server_config().parse().port)
@@ -680,6 +681,18 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         else:
             return None
 
+    def _metadata_in_cache(self, uuid, ext, lastmod):
+        key = uuid+ext
+        if isinstance(lastmod, unicode):
+            lastmod = parse_date(lastmod)
+#         if key in self.known_uuids:
+#             self._debug(key, lastmod, self.known_uuids[key].last_modified)
+#         else:
+#             self._debug(key, 'not in known uuids')
+        if key in self.known_uuids and self.known_uuids[key].last_modified == lastmod:
+            return self.known_uuids[key].deepcopy()
+        return None
+
     def _metadata_already_on_device(self, book):
         v = self.known_metadata.get(book.lpath, None)
         if v is not None:
@@ -701,6 +714,32 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         except:
             return None
 
+    def _read_metadata_cache(self):
+        cache_file_name = os.path.join(config_dir,
+                           'device_drivers_' + self.__class__.__name__ +
+                                '_metadata_cache.pickle')
+        if os.path.exists(cache_file_name):
+            with open(cache_file_name, mode='rb') as fd:
+                json_metadata = cPickle.load(fd)
+            for uuid,json_book in json_metadata.iteritems():
+                book = self.json_codec.raw_to_book(json_book, SDBook, self.PREFIX)
+                self.known_uuids[uuid] = book
+                lpath = book.get('lpath')
+                if lpath in self.known_metadata:
+                    self.known_uuids.pop(uuid, None)
+                else:
+                    self.known_metadata[lpath] = book
+
+    def _write_metadata_cache(self):
+        cache_file_name = os.path.join(config_dir,
+                           'device_drivers_' + self.__class__.__name__ +
+                                '_metadata_cache.pickle')
+        json_metadata = {}
+        for uuid,book in self.known_uuids.iteritems():
+            json_metadata[uuid] = self.json_codec.encode_book_metadata(book)
+        with open(cache_file_name, mode='wb') as fd:
+            cPickle.dump(json_metadata, fd)
+
     def _set_known_metadata(self, book, remove=False):
         lpath = book.lpath
         ext = os.path.splitext(lpath)[1]
@@ -721,6 +760,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             except:
                 pass
             self.device_socket = None
+            self._write_metadata_cache()
         self.is_connected = False
 
     def _attach_to_port(self, sock, port):
@@ -868,12 +908,17 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('Device can receive book binary', self.client_can_stream_metadata)
             self.client_can_delete_multiple = result.get('canDeleteMultipleBooks', False)
             self._debug('Device can delete multiple books', self.client_can_delete_multiple)
+            self.client_can_use_metadata_cache = result.get('canUseCachedMetadata', False)
+            self._debug('Device can use cached metadata', self.client_can_use_metadata_cache)
 
             self.client_device_kind = result.get('deviceKind', '')
             self._debug('Client device kind', self.client_device_kind)
 
             self.client_device_name = result.get('deviceName', self.client_device_kind)
             self._debug('Client device name', self.client_device_name)
+
+            self.client_app_name = result.get('appName', "")
+            self._debug('Client app name', self.client_app_name)
 
             self.max_book_packet_len = result.get('maxBookContentPacketLen',
                                                   self.BASE_PACKET_LEN)
@@ -933,8 +978,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             except:
                 pass
 
-            self.known_metadata = {}
-            self.known_uuids = {}
             return True
         except socket.timeout:
             self._close_device_socket()
@@ -1019,13 +1062,41 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self._debug(oncard)
         if oncard is not None:
             return CollectionsBookList(None, None, None)
-        opcode, result = self._call_client('GET_BOOK_COUNT', {'canStream':True,
-                                                              'canScan':True})
+        opcode, result = self._call_client('GET_BOOK_COUNT',
+                            {'canStream':True,
+                             'canScan':True,
+                             'willUseCachedMetadata': self.client_can_use_metadata_cache})
         bl = CollectionsBookList(None, self.PREFIX, self.settings)
         if opcode == 'OK':
             count = result['count']
             will_stream = 'willStream' in result
             will_scan = 'willScan' in result
+            will_use_cache = self.client_can_use_metadata_cache
+
+            if will_use_cache:
+                books_on_device = {}
+                self._debug('caching. count=', count)
+                for i in range(0, count):
+                    opcode, result = self._receive_from_client(print_debug_info=False)
+                    books_on_device[result.get('uuid')] = result
+
+                books_to_send = []
+                for u,v in books_on_device.iteritems():
+                    book = self._metadata_in_cache(u, v['extension'], v['last_modified'])
+                    if book:
+                        bl.add_book(book, replace_metadata=True)
+                    else:
+                        books_to_send.append(v['priKey'])
+
+                count = len(books_to_send)
+                self._debug('caching. Need count from device', count)
+
+                self._call_client('NOOP', {'count': count},
+                                  print_debug_info=False, wait_for_response=False)
+                for priKey in books_to_send:
+                    self._call_client('NOOP', {'priKey':priKey},
+                                  print_debug_info=False, wait_for_response=False)
+
             for i in range(0, count):
                 if (i % 100) == 0:
                     self._debug('getting book metadata. Done', i, 'of', count)
@@ -1397,6 +1468,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.connection_queue = Queue.Queue(1)
         self.connection_listener = ConnectionListener(self)
         self.connection_listener.start()
+
+        self._read_metadata_cache()
         return message
 
     @synchronous('sync_lock')
