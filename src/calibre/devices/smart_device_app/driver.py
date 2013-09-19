@@ -18,7 +18,7 @@ from errno import EAGAIN, EINTR
 from threading import Thread
 
 from calibre import prints
-from calibre.constants import numeric_version, DEBUG
+from calibre.constants import numeric_version, DEBUG, cache_dir
 from calibre.devices.errors import (OpenFailed, ControlError, TimeoutError,
                                     InitialConnectionError, PacketError)
 from calibre.devices.interface import DevicePlugin
@@ -34,7 +34,7 @@ from calibre.library import current_library_name
 from calibre.library.server import server_config as content_server_config
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc import eintr_retry_call
-from calibre.utils.config_base import config_dir, tweaks
+from calibre.utils.config_base import tweaks
 from calibre.utils.date import parse_date
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
@@ -715,7 +715,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return None
 
     def _read_metadata_cache(self):
-        cache_file_name = os.path.join(config_dir,
+        cache_file_name = os.path.join(cache_dir(),
                            'device_drivers_' + self.__class__.__name__ +
                                 '_metadata_cache.pickle')
         if os.path.exists(cache_file_name):
@@ -731,7 +731,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     self.known_metadata[lpath] = book
 
     def _write_metadata_cache(self):
-        cache_file_name = os.path.join(config_dir,
+        cache_file_name = os.path.join(cache_dir(),
                            'device_drivers_' + self.__class__.__name__ +
                                 '_metadata_cache.pickle')
         json_metadata = {}
