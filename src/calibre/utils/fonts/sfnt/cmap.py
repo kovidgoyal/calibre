@@ -141,7 +141,7 @@ class BMPTable(object):
                             glyph_id = self.glyph_id_map[idx]
                             if glyph_id != 0:
                                 glyph_id += self.id_delta[i]
-                        yield glyph_id % 0x1000
+                        yield glyph_id % 0x10000
                         break
             if not found:
                 yield 0
@@ -159,7 +159,7 @@ class BMPTable(object):
                     glyph_id = self.glyph_id_map[idx]
                     if glyph_id != 0:
                         glyph_id += self.id_delta[i]
-                glyph_id %= 0x1000
+                glyph_id %= 0x10000
                 if glyph_id in glyph_ids and code not in ans:
                     ans[code] = glyph_id
         return ans

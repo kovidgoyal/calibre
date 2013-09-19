@@ -350,7 +350,7 @@ def get_bmp_glyph_ids(table, bmp, codes):
                         glyph_id = glyph_id_map[idx]
                         if glyph_id != 0:
                             glyph_id += id_delta[i]
-                    yield glyph_id % 0x1000
+                    yield glyph_id % 0x10000
                     break
         if not found:
             yield 0
