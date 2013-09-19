@@ -9,6 +9,7 @@ Created on 29 Jun 2012
 '''
 import socket, select, json, os, traceback, time, sys, random, cPickle
 import posixpath
+from collections import defaultdict
 import hashlib, threading
 import Queue
 
@@ -35,7 +36,7 @@ from calibre.library.server import server_config as content_server_config
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.config_base import tweaks
-from calibre.utils.date import parse_date
+from calibre.utils.date import parse_date, now, isoformat
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
         unpublish_zeroconf, get_all_ips)
@@ -370,7 +371,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     # copied from USBMS. Perhaps this could be a classmethod in usbms?
     def _update_driveinfo_record(self, dinfo, prefix, location_code, name=None):
-        from calibre.utils.date import isoformat, now
         import uuid
         if not isinstance(dinfo, dict):
             dinfo = {}
@@ -689,8 +689,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 #             self._debug(key, lastmod, self.known_uuids[key].last_modified)
 #         else:
 #             self._debug(key, 'not in known uuids')
-        if key in self.known_uuids and self.known_uuids[key].last_modified == lastmod:
-            return self.known_uuids[key].deepcopy()
+        if key in self.known_uuids and self.known_uuids[key]['book'].last_modified == lastmod:
+            self.known_uuids[key]['last_used'] = now()
+            return self.known_uuids[key]['book'].deepcopy()
         return None
 
     def _metadata_already_on_device(self, book):
@@ -710,7 +711,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _uuid_already_on_device(self, uuid, ext):
         try:
-            return self.known_uuids.get(uuid + ext, None)
+            return self.known_uuids[uuid + ext]['book']
         except:
             return None
 
@@ -722,8 +723,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             with open(cache_file_name, mode='rb') as fd:
                 json_metadata = cPickle.load(fd)
             for uuid,json_book in json_metadata.iteritems():
-                book = self.json_codec.raw_to_book(json_book, SDBook, self.PREFIX)
-                self.known_uuids[uuid] = book
+                book = self.json_codec.raw_to_book(json_book['book'], SDBook, self.PREFIX)
+                self.known_uuids[uuid]['book'] = book
+                self.known_uuids[uuid]['last_used'] = json_book['last_used']
                 lpath = book.get('lpath')
                 if lpath in self.known_metadata:
                     self.known_uuids.pop(uuid, None)
@@ -734,9 +736,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         cache_file_name = os.path.join(cache_dir(),
                            'device_drivers_' + self.__class__.__name__ +
                                 '_metadata_cache.pickle')
-        json_metadata = {}
+        json_metadata = defaultdict(dict)
         for uuid,book in self.known_uuids.iteritems():
-            json_metadata[uuid] = self.json_codec.encode_book_metadata(book)
+            json_metadata[uuid]['book'] = self.json_codec.encode_book_metadata(book['book'])
+            json_metadata[uuid]['last_used'] = book['last_used']
         with open(cache_file_name, mode='wb') as fd:
             cPickle.dump(json_metadata, fd, -1)
 
@@ -744,14 +747,18 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         lpath = book.lpath
         ext = os.path.splitext(lpath)[1]
         uuid = book.get('uuid', None)
+        key = None
+        if uuid and ext:
+            key = uuid + ext
         if remove:
             self.known_metadata.pop(lpath, None)
-            if uuid and ext:
-                self.known_uuids.pop(uuid+ext, None)
+            if key:
+                self.known_uuids.pop(key, None)
         else:
             new_book = self.known_metadata[lpath] = book.deepcopy()
-            if uuid and ext:
-                self.known_uuids[uuid+ext] = new_book
+            if key:
+                self.known_uuids[key]['book'] = new_book
+                self.known_uuids[key]['last_used'] = now()
 
     def _close_device_socket(self):
         if self.device_socket is not None:
@@ -1359,7 +1366,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.device_socket = None
         self.json_codec = JsonCodec()
         self.known_metadata = {}
-        self.known_uuids = {}
+        self.known_uuids = defaultdict(dict)
         self.debug_time = time.time()
         self.debug_start_time = time.time()
         self.max_book_packet_len = 0
