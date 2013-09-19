@@ -69,7 +69,15 @@ def parse_meta_tags(src):
         '<meta\s+%s\s+%s' % (cpat, npat),
     ):
         for match in re.finditer(pat, src, flags=re.IGNORECASE):
-            field = rmap[match.group('name').lower()]
+            x = match.group('name').lower()
+            try:
+                field = rmap[x]
+            except KeyError:
+                try:
+                    field = rmap[x.replace(':', '.')]
+                except KeyError:
+                    continue
+
             if field not in ans:
                 ans[field] = replace_entities(match.group('content'))
             if len(ans) == len(META_NAMES):
