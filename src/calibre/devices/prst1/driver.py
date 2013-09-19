@@ -776,7 +776,7 @@ class PRST1(USBMS):
             return False
         if not book.lpath.lower().endswith('.epub'):
             return False
-        if book.pubdate.date() < date(2010, 10, 17):
+        if book.pubdate is None or book.pubdate.date() < date(2010, 10, 17):
             return False
         return True
 
