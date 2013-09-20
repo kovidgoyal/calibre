@@ -167,6 +167,10 @@ class DeviceManager(Thread): # {{{
         return self.connected_device is not None
 
     @property
+    def is_device_present(self):
+        return self.connected_device is not None and self.connected_device not in self.ejected_devices
+
+    @property
     def device(self):
         return self.connected_device
 

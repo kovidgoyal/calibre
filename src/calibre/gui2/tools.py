@@ -318,7 +318,7 @@ def generate_catalog(parent, dbspec, ids, device_manager, db):  # {{{
     # Profile the connected device
     # Parallel initialization in calibre.library.cli:command_catalog()
     connected_device = {
-                         'is_device_connected': device_manager.is_device_connected,
+                         'is_device_connected': device_manager.is_device_present,
                          'kind': device_manager.connected_device_kind,
                          'name': None,
                          'save_template': None,
@@ -326,7 +326,7 @@ def generate_catalog(parent, dbspec, ids, device_manager, db):  # {{{
                          'storage': None
                        }
 
-    if device_manager.is_device_connected:
+    if device_manager.is_device_present:
         device = device_manager.device
         connected_device['name'] = device.get_gui_name()
         try:
