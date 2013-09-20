@@ -20,6 +20,71 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.4.0
+  date: 2013-09-20
+
+  new features:
+    - title: "Column icons: Allow the use of multiple icons with column icon rules."
+      description: "You can now have column icon rules display multiple icons in a single column, side by side. There are two ways to do this, either specify multiple icons when creating the rule, or create multiple rules that match the same book and specify the icon type to be 'composed' for every rule. See Preferences->Look & Feel->Column icons for details."
+
+    - title: "Kobo driver: Add support for new cover handling in Kobo Aura with updated firmware"
+
+    - title: "Driver for Icarus Essence"
+      tickets: [1226304] 
+
+    - title: "Show a warning when attempting to copy books between libraries that do no have the same set of custom columns."
+      tickets: [1225484]
+
+    - title: "EPUB/AZW3 Output: Use shorthand forms for margin, padding and border CSS properties, where possible"
+
+    - title: "Allow colons in identifier values, needed for using URIs as identifiers"
+      tickets: [1224885]
+
+    - title: "Comments editor: Allow treating arbitrary URLs as images"
+
+    - title: "Show full path of library under mouse in status bar when switching/renaming/deleting libraries via the calibre library button."
+      tickets: [1224925]
+
+    - title: "DOCX Input: Add support for embedded EMF images that are just wrappers around an actual raster image."
+      tickets: [1224849]
+ 
+  bug fixes:
+    - title: "Conversion: Fix font subsetting not working for large fonts with more than 4000 glyphs, such as CJK fonts"
+
+    - title: "HTML Input: Fix a regression that broke processing of HTML files that contain meta tags with dc: namespaced attribute values."
+
+    - title: "Fix switching to an empty virtual library not blanking the book details panel"
+
+    - title: "Keep position when deleting tags in the tag editor"
+      tickets: [1226093]
+
+    - title: "Book details panel: Render custom comments fields the same as the builtin comments field. In particular this fixes problems caused by wide text and images in custom comments fields."
+      tickets: [1226350]
+
+    - title: "Metadata jackets: Do not error out when using a custom template with some custom fields that are not present."
+      tickets: [1225357]
+
+    - title: "AZW3 Output: Dont choke on invalid (undecodable) links in the input document"
+
+    - title: "Cover grid: Respect the double click on library view tweak"
+
+    - title: "Fix covers set by drag and drop or pasting in the edit metadata dialog showing compression artifacts due to aggressive jpeg compression"
+
+    - title: "Conversion: Fix a bug that could cause incorrect border values to be used when cascading, shorthand border CSS is present."
+
+    - title: "Fix regression in 1.3 that caused the book list to not track the current book when using Next/Previous in the edit metadata dialog."
+
+  improved recipes:
+    - Liberation
+    - Politika
+
+  new recipes:
+    - title: Sage News 
+      author: Brian Hahn
+
+    - title: Il Cambiamento 
+      author: ghib9
+
 - version: 1.3.0
   date: 2013-09-13
 
