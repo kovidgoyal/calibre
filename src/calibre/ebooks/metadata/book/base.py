@@ -190,7 +190,6 @@ class Metadata(object):
         instead. '''
         m = Metadata(None)
         object.__setattr__(m, '__dict__', copy.deepcopy(self.__dict__))
-        object.__setattr__(m, '_data', copy.deepcopy(object.__getattribute__(self, '_data')))
         return m
 
     def deepcopy_metadata(self):
