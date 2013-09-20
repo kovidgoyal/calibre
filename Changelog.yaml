@@ -32,7 +32,7 @@
     - title: "Driver for Icarus Essence"
       tickets: [1226304] 
 
-    - title: "Show a warning when attempting to copy books between libraries that do no have the same set of custom columns."
+    - title: "Show a warning when attempting to copy books between libraries that do not have the same set of custom columns."
       tickets: [1225484]
 
     - title: "EPUB/AZW3 Output: Use shorthand forms for margin, padding and border CSS properties, where possible"
