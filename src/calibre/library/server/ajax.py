@@ -508,7 +508,7 @@ class AjaxServer(object):
     # Books in the specified category {{{
     @Endpoint()
     def ajax_books_in(self, category, item, sort='title', num=25, offset=0,
-            sort_order='asc'):
+            sort_order='asc', get_additional_fields=''):
         '''
         Return the books (as list of ids) present in the specified category.
         '''
@@ -559,12 +559,26 @@ class AjaxServer(object):
                 only_ids=ids)
         total_num = len(ids)
         ids = ids[offset:offset+num]
-        return {
+
+        result = {
                 'total_num': total_num, 'sort_order':sort_order,
                 'offset':offset, 'num':len(ids), 'sort':sort,
                 'base_url':absurl(self.opts.url_prefix, '/ajax/books_in/%s/%s'%(category, item)),
                 'book_ids':ids
         }
+
+        if get_additional_fields:
+            additional_fields = {}
+            for field in get_additional_fields.split(','):
+                field = field.strip()
+                if field:
+                    flist = additional_fields[field] = []
+                    for id_ in ids:
+                        flist.append(self.db.new_api.field_for(field, id_,
+                                                               default_value=None))
+            if additional_fields:
+                result['additional_fields'] = additional_fields
+        return result
 
     # }}}
 
