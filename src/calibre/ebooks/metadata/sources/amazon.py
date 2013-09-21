@@ -748,6 +748,16 @@ class Amazon(Source):
             mi.tags = list(map(fixcase, mi.tags))
         mi.isbn = check_isbn(mi.isbn)
 
+    def get_website_domain(self, domain):
+        udomain = domain
+        if domain == 'uk':
+            udomain = 'co.uk'
+        elif domain == 'jp':
+            udomain = 'co.jp'
+        elif domain == 'br':
+            udomain = 'com.br'
+        return udomain
+
     def create_query(self, log, title=None, authors=None, identifiers={},  # {{{
             domain=None):
         from urllib import urlencode
@@ -803,14 +813,7 @@ class Amazon(Source):
         encoded_q = dict([(x.encode(encode_to, 'ignore'), y.encode(encode_to,
             'ignore')) for x, y in
             q.iteritems()])
-        udomain = domain
-        if domain == 'uk':
-            udomain = 'co.uk'
-        elif domain == 'jp':
-            udomain = 'co.jp'
-        elif domain == 'br':
-            udomain = 'com.br'
-        url = 'http://www.amazon.%s/s/?'%udomain + urlencode(encoded_q)
+        url = 'http://www.amazon.%s/s/?'%self.get_website_domain(domain) + urlencode(encoded_q)
         return url, domain
 
     # }}}
@@ -828,7 +831,7 @@ class Amazon(Source):
         return url
     # }}}
 
-    def parse_results_page(self, root):  # {{{
+    def parse_results_page(self, root, domain):  # {{{
         from lxml.html import tostring
 
         matches = []
@@ -851,7 +854,10 @@ class Amazon(Source):
             for a in links:
                 title = tostring(a, method='text', encoding=unicode)
                 if title_ok(title):
-                    matches.append(a.get('href'))
+                    url = a.get('href')
+                    if url.startswith('/'):
+                        url = 'http://www.amazon.%s%s' % (self.get_website_domain(domain), url)
+                    matches.append(url)
                 break
 
         if not matches:
@@ -862,7 +868,10 @@ class Amazon(Source):
                 for a in td.xpath(r'descendant::td[@class="dataColumn"]/descendant::a[@href]/span[@class="srTitle"]/..'):
                     title = tostring(a, method='text', encoding=unicode)
                     if title_ok(title):
-                        matches.append(a.get('href'))
+                        url = a.get('href')
+                        if url.startswith('/'):
+                            url = 'http://www.amazon.%s%s' % (self.get_website_domain(domain), url)
+                        matches.append(url)
                     break
 
         # Keep only the top 5 matches as the matches are sorted by relevance by
@@ -938,7 +947,7 @@ class Amazon(Source):
                     found = False
 
         if found:
-            matches = self.parse_results_page(root)
+            matches = self.parse_results_page(root, domain)
 
         if abort.is_set():
             return
