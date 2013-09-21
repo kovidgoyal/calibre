@@ -587,7 +587,7 @@ class libiMobileDevice():
                                          str(from_name),
                                          str(to_name))
         if error:
-            self._log(" ERROR: %s" % self.afc_error(error))
+            self._log(" ERROR: %s" % self._afc_error(error))
 
     def remove(self, path):
         '''
@@ -601,7 +601,7 @@ class libiMobileDevice():
         error = self.lib.afc_remove_path(byref(self.afc), str(path))
 
         if error:
-            self._log(" ERROR: %s" % self.afc_error(error))
+            self._log(" ERROR: %s" % self._afc_error(error))
 
     def stat(self, path):
         '''
@@ -650,7 +650,7 @@ class libiMobileDevice():
 
         error = self.lib.afc_client_free(byref(self.afc)) & 0xFFFF
         if error:
-            self._log(" ERROR: %s" % self.afc_error(error))
+            self._log(" ERROR: %s" % self._afc_error(error))
 
     def _afc_client_new(self):
         '''
