@@ -398,7 +398,7 @@ class CcCommentsDelegate(QStyledItemDelegate):  # {{{
         m = index.model()
         col = m.column_map[index.column()]
         text = m.db.data[index.row()][m.custom_columns[col]['rec_index']]
-        editor = CommentsDialog(parent, text)
+        editor = CommentsDialog(parent, text, column_name=m.custom_columns[col]['name'])
         d = editor.exec_()
         if d:
             m.setData(index, QVariant(editor.textbox.html), Qt.EditRole)
