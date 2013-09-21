@@ -9,7 +9,7 @@ from calibre.library.comments import comments_to_html
 
 class CommentsDialog(QDialog, Ui_CommentsDialog):
 
-    def __init__(self, parent, text):
+    def __init__(self, parent, text, column_name=None):
         QDialog.__init__(self, parent)
         Ui_CommentsDialog.__init__(self)
         self.setupUi(self)
@@ -23,4 +23,7 @@ class CommentsDialog(QDialog, Ui_CommentsDialog):
         # self.textbox.setTabChangesFocus(True)
         self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
         self.buttonBox.button(QDialogButtonBox.Cancel).setText(_('&Cancel'))
+
+        if column_name:
+            self.setWindowTitle(_('Edit "{0}"').format(column_name))
 
