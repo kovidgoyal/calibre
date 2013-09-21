@@ -1381,6 +1381,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             cq = int(self.settings().extra_customization[self.OPT_COMPRESSION_QUALITY])
             if cq < 50 or cq > 99:
                 compression_quality_ok = False
+            else:
+                self.THUMBNAIL_COMPRESSION_QUALITY = cq
         except:
             compression_quality_ok = False
         if not compression_quality_ok:
