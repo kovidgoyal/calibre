@@ -40,6 +40,8 @@ Copy over /etc/nginx/sites-available/default from another file server. When
 copying, remember to use cat instead of cp to preserve hardlinks (the file is a
 hardlink to /etc/nginx/sites-enabled/default)
 
+Also copy over /etc/nginx/mime.types
+
 rsync /srv from another file server
 
 service nginx start
