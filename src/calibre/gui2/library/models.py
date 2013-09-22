@@ -111,6 +111,8 @@ class ColumnIcon(object):  # {{{
                     d = os.path.join(config_dir, 'cc_icons', icon)
                     if (os.path.exists(d)):
                         bm = QPixmap(d)
+                        bm = bm.scaled(128, 128, aspectRatioMode= Qt.KeepAspectRatio,
+                                       transformMode=Qt.SmoothTransformation)
                         icon_bitmaps.append(bm)
                         total_width += bm.width()
                 if len(icon_bitmaps) > 1:
