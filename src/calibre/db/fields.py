@@ -452,8 +452,11 @@ class ManyToOneField(Field):
 
     @property
     def book_value_map(self):
-        return {book_id:self.table.id_map[item_id] for book_id, item_id in
+        try:
+            return {book_id:self.table.id_map[item_id] for book_id, item_id in
                 self.table.book_col_map.iteritems()}
+        except KeyError:
+            raise InvalidLinkTable(self.name)
 
 class ManyToManyField(Field):
 
@@ -514,8 +517,11 @@ class ManyToManyField(Field):
 
     @property
     def book_value_map(self):
-        return {book_id:tuple(self.table.id_map[item_id] for item_id in item_ids)
+        try:
+            return {book_id:tuple(self.table.id_map[item_id] for item_id in item_ids)
                 for book_id, item_ids in self.table.book_col_map.iteritems()}
+        except KeyError:
+            raise InvalidLinkTable(self.name)
 
 class IdentifiersField(ManyToManyField):
 
