@@ -227,6 +227,10 @@ class CSSFlattener(object):
         for item in self.oeb.spine:
             html = item.data
             body = html.find(XHTML('body'))
+            if 'style' in html.attrib:
+                b = body.attrib.get('style', '')
+                body.set('style',  html.get('style') + ';' + b)
+                del html.attrib['style']
             bs = body.get('style', '').split(';')
             bs.append('margin-top: 0pt')
             bs.append('margin-bottom: 0pt')
