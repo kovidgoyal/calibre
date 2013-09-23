@@ -162,6 +162,18 @@ class Worker(Thread):  # Get details {{{
             '''
         self.language_names = {'Language', 'Sprache', 'Lingua', 'Idioma', 'Langue', '言語'}
 
+        self.tags_xpath = '''
+            descendant::h2[
+                text() = "Look for Similar Items by Category" or
+                text() = "Ähnliche Artikel finden" or
+                text() = "Buscar productos similares por categoría" or
+                text() = "Ricerca articoli simili per categoria" or
+                text() = "Rechercher des articles similaires par rubrique" or
+                text() = "Procure por itens similares por categoria" or
+                text() = "関連商品を探す"
+            ]/../descendant::ul/li
+        '''
+
         self.ratings_pat = re.compile(
             r'([0-9.]+) ?(out of|von|su|étoiles sur|つ星のうち|de un máximo de|de) ([\d\.]+)( (stars|Sternen|stelle|estrellas|estrelas)){0,1}')
 
@@ -509,15 +521,8 @@ class Worker(Thread):  # Get details {{{
         exclude_tokens = {'kindle', 'a-z'}
         exclude = {'special features', 'by authors', 'authors & illustrators', 'books', 'new; used & rental textbooks'}
         seen = set()
-        tags = root.xpath('''
-            //div[@class="kindleAuthorRank"]/div[@class="browseNodeRanks"]/div[@class="nodeRank"]
-            ''')
-        if not tags:
-            tags = root.xpath('''
-                //li[@id="SalesRank"]/descendant::span[@class="zg_hrsr_ladder"]
-                ''')
-        for container in tags:
-            for i, a in enumerate(container.iterdescendants('a')):
+        for li in root.xpath(self.tags_xpath):
+            for i, a in enumerate(li.iterdescendants('a')):
                 if i > 0:
                     # we ignore the first category since it is almost always too broad
                     raw = (a.text or '').strip().replace(',', ';')
@@ -1073,10 +1078,10 @@ if __name__ == '__main__':  # tests {{{
                     authors_test(['F. Scott Fitzgerald'])]
             ),
 
-            (  # A newer book with tags via amazon best seller rank
-                {'identifiers':{'isbn': '0385346824'}},
-                [title_test('Ex-Communication: A Novel', exact=True),
-                    authors_test(['Peter Clines']), ]
+            (  # A newer book
+                {'identifiers':{'isbn': '9780316044981'}},
+                [title_test('The Heroes', exact=True),
+                    authors_test(['Joe Abercrombie'])]
 
             ),
 
