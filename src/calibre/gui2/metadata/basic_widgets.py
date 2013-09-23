@@ -861,7 +861,7 @@ class FormatsManager(QWidget):
             if fmt.path is None:
                 stream = db.format(id_, ext, as_file=True, index_is_id=True)
             else:
-                stream = open(fmt.path, 'r+b')
+                stream = open(fmt.path, 'rb')
             try:
                 with stream:
                     mi = get_metadata(stream, ext)
