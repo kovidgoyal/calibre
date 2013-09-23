@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os, re
+import sys, os, re, math
 from collections import OrderedDict, defaultdict
 
 from lxml import html
@@ -16,7 +16,7 @@ from lxml.html.builder import (
 from calibre.ebooks.docx.container import DOCX, fromstring
 from calibre.ebooks.docx.names import (
     XPath, is_tag, XML, STYLES, NUMBERING, FONTS, get, generate_anchor,
-    descendants, FOOTNOTES, ENDNOTES, children, THEMES)
+    descendants, FOOTNOTES, ENDNOTES, children, THEMES, SETTINGS)
 from calibre.ebooks.docx.styles import Styles, inherit, PageProperties
 from calibre.ebooks.docx.numbering import Numbering
 from calibre.ebooks.docx.fonts import Fonts
@@ -27,6 +27,7 @@ from calibre.ebooks.docx.cleanup import cleanup_markup
 from calibre.ebooks.docx.theme import Theme
 from calibre.ebooks.docx.toc import create_toc
 from calibre.ebooks.docx.fields import Fields
+from calibre.ebooks.docx.settings import Settings
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
@@ -227,6 +228,7 @@ class Convert(object):
 
         nname = get_name(NUMBERING, 'numbering.xml')
         sname = get_name(STYLES, 'styles.xml')
+        sename = get_name(SETTINGS, 'settings.xml')
         fname = get_name(FONTS, 'fontTable.xml')
         tname = get_name(THEMES, 'theme1.xml')
         foname = get_name(FOOTNOTES, 'footnotes.xml')
@@ -237,6 +239,14 @@ class Convert(object):
 
         foraw = enraw = None
         forel, enrel = ({}, {}), ({}, {})
+        if sename is not None:
+            try:
+                seraw = self.docx.read(sename)
+            except KeyError:
+                self.log.warn('Settings %s do not exist' % sename)
+            else:
+                self.settings = Settings(fromstring(seraw))
+
         if foname is not None:
             try:
                 foraw = self.docx.read(foname)
@@ -538,6 +548,11 @@ class Convert(object):
                     l.set('class', 'noteref')
                     text.add_elem(l)
                     ans.append(text.elem)
+            elif is_tag(child, 'w:tab'):
+                spaces = int(math.ceil((self.settings.default_tab_stop / 36) * 6))
+                text.add_elem(SPAN(NBSP * spaces))
+                ans.append(text.elem)
+                ans[-1].set('class', 'tab')
         if text.buf:
             setattr(text.elem, text.attr, ''.join(text.buf))
 

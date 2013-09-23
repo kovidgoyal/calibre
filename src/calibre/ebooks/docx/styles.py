@@ -458,6 +458,8 @@ class Styles(object):
 
             dl.notes dd:last-of-type { page-break-after: avoid }
 
+            span.tab { white-space: pre }
+
             ''') % (self.body_font_family, self.body_font_size, self.body_color)
         if ef:
             prefix = ef + '\n' + prefix
