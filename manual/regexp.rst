@@ -1,4 +1,3 @@
-
 .. include:: global.rst
 
 .. _regexptutorial:
@@ -26,7 +25,7 @@ There are a few places |app| uses regular expressions. There's the Search & Repl
 What on earth *is* a regular expression?
 ------------------------------------------------
 
-A regular expression is a way to describe sets of strings. A single regular expression cat *match* a number of different strings. This is what makes regular expression so powerful -- they are a concise way of describing a potentially large number of variations.
+A regular expression is a way to describe sets of strings. A single regular expression can *match* a number of different strings. This is what makes regular expression so powerful -- they are a concise way of describing a potentially large number of variations.
 
 .. note:: I'm using string here in the sense it is used in programming languages: a string of one or more characters, characters including actual characters, numbers, punctuation and so-called whitespace (linebreaks, tabulators etc.). Please note that generally, uppercase and lowercase characters are not considered the same, thus "a" being a different character from "A" and so forth. In |app|, regular expressions are case insensitive in the search bar, but not in the conversion options. There's a way to make every regular expression case insensitive, but we'll discuss that later. It gets complicated because regular expressions allow for variations in the strings it matches, so one expression can match multiple strings, which is why people bother using them at all. More on that in a bit.
 
