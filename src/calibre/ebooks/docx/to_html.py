@@ -132,6 +132,28 @@ class Convert(object):
                         dl[-1].append(p)
                         paras.append(wp)
                 self.styles.apply_contextual_spacing(paras)
+
+        for p, wp in self.object_map.iteritems():
+            if len(p) > 0 and not p.text and len(p[0]) > 0 and not p[0].text and p[0][0].get('class', None) == 'tab':
+                # Paragraph uses tabs for indentation, convert to text-indent
+                parent = p[0]
+                tabs = []
+                for child in parent:
+                    if child.get('class', None) == 'tab':
+                        tabs.append(child)
+                        if child.tail:
+                            break
+                    else:
+                        break
+                indent = len(tabs) * self.settings.default_tab_stop
+                style = self.styles.resolve(wp)
+                if style.text_indent is inherit or (hasattr(style.text_indent, 'endswith') and style.text_indent.endswith('pt')):
+                    if style.text_indent is not inherit:
+                        indent = float(style.text_indent[:-2]) + indent
+                    style.text_indent = '%.3gpt' % indent
+                    parent.text = tabs[-1].tail or ''
+                    map(parent.remove, tabs)
+
         self.images.rid_map = orig_rid_map
 
         self.resolve_links(relationships_by_id)
