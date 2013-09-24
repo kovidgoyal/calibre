@@ -489,7 +489,7 @@ class BrowseServer(object):
 
         # Now do the category items
         vls = self.db.prefs.get('virtual_libraries', {})
-        categories['virt_libs'] = sorted([Tag(k) for k, v in vls.iteritems()], key=lambda x:x.name)
+        categories['virt_libs'] = sorted([Tag(k) for k, v in vls.iteritems()], key=lambda x:sort_key(x.name))
         items = categories[category]
 
         sort = self.browse_sort_categories(items, sort)
