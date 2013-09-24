@@ -55,6 +55,7 @@ class Convert(object):
         self.mi = self.docx.metadata
         self.body = BODY()
         self.theme = Theme()
+        self.settings = Settings()
         self.tables = Tables()
         self.fields = Fields()
         self.styles = Styles(self.tables)
@@ -267,7 +268,7 @@ class Convert(object):
             except KeyError:
                 self.log.warn('Settings %s do not exist' % sename)
             else:
-                self.settings = Settings(fromstring(seraw))
+                self.settings(fromstring(seraw))
 
         if foname is not None:
             try:

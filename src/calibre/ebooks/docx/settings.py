@@ -10,8 +10,10 @@ from calibre.ebooks.docx.names import XPath, get
 
 class Settings(object):
 
-    def __init__(self, root):
+    def __init__(self):
         self.default_tab_stop = 720 / 20
+
+    def __call__(self, root):
         for dts in XPath('//w:defaultTabStop[@w:val]')(root):
             try:
                 self.default_tab_stop = int(get(dts, 'w:val')) / 20
