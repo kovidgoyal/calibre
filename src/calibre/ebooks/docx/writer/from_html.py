@@ -78,18 +78,43 @@ class TextStyle(object):
     def __eq__(self, other):
         return hash(self) == hash(other)
 
+class LineBreak(object):
+
+    def __init__(self, clear='none'):
+        self.clear = clear
+
 class TextRun(object):
 
     def __init__(self, style):
         self.style = style
+        self.texts = []
+
+    def add_text(self, text, preserve_whitespace):
+        self.texts.append((text, preserve_whitespace))
+
+    def add_break(self, clear='none'):
+        self.texts.append(LineBreak(clear=clear))
+
+style_cache = {}
 
 class Block(object):
 
     def __init__(self):
-        self.texts = []
+        self.runs = []
 
     def add_text(self, text, style):
-        pass
+        ts = TextStyle(style)
+        ws = style['white-space']
+        if self.runs and ts == self.runs[-1].style:
+            run = self.runs[-1]
+        else:
+            run = TextRun(ts)
+        if ws == 'pre-line':
+            for text in text.splitlines():
+                run.add_text(text, False)
+                run.add_break()
+        else:
+            run.add_text(text, ws in {'pre', 'pre-wrap'})
 
 class Convert(object):
 
