@@ -56,7 +56,8 @@ def get_cover_data(stream, ext):  # {{{
 
 Settings = namedtuple('Settings', 'remove_all remove add au aus do_aus rating pub do_series do_autonumber do_remove_format '
                       'remove_format do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value '
-                      'do_title_case cover_action clear_series pubdate adddate do_title_sort languages clear_languages restore_original')
+                      'do_title_case cover_action clear_series pubdate adddate do_title_sort languages clear_languages restore_original comments')
+null = object()
 
 class MyBlockingBusy(QDialog):  # {{{
 
@@ -215,6 +216,14 @@ class MyBlockingBusy(QDialog):  # {{{
                     im.trim(tweaks['cover_trim_fuzz_value'])
                     cdata = im.export('jpg')
                     cache.set_cover({book_id:cdata})
+        elif args.cover_action == 'clone':
+            cdata = None
+            for book_id in self.ids:
+                cdata = cache.cover(book_id)
+                if cdata:
+                    break
+            if cdata:
+                cache.set_cover({bid:cdata for bid in self.ids if bid != book_id})
 
         # Formats
         if args.do_remove_format:
@@ -261,6 +270,9 @@ class MyBlockingBusy(QDialog):  # {{{
                     cache.set_field('series_index', smap)
                 elif tweaks['series_index_auto_increment'] != 'no_change':
                     cache.set_field('series_index', {bid:1.0 for bid in self.ids})
+
+        if args.comments is not null:
+            cache.set_field('comments', {bid:args.comments for bid in self.ids})
 
         if args.do_remove_conv:
             cache.delete_conversion_options(self.ids)
@@ -310,12 +322,16 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.refresh_book_list.setChecked(gprefs['refresh_book_list_on_bulk_edit'])
         self.refresh_book_list.toggled.connect(self.save_refresh_booklist)
         self.ids = [self.db.id(r) for r in rows]
+        self.first_title = self.db.title(self.ids[0], index_is_id=True)
+        self.cover_clone.setToolTip(unicode(self.cover_clone.toolTip()) + ' (%s)' % self.first_title)
         self.box_title.setText('<p>' +
                 _('Editing meta information for <b>%d books</b>') %
                 len(rows))
         self.write_series = False
         self.changed = False
         self.refresh_books = refresh_books
+        self.comments = null
+        self.comments_button.clicked.connect(self.set_comments)
 
         all_tags = self.db.all_tags()
         self.tags.update_items_cache(all_tags)
@@ -372,6 +388,16 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.languages.setEditText('')
         self.authors.setFocus(Qt.OtherFocusReason)
         self.exec_()
+
+    def set_comments(self):
+        from calibre.gui2.dialogs.comments_dialog import CommentsDialog
+        d = CommentsDialog(self, '' if self.comments is null else (self.comments or ''), _('Comments'))
+        if d.exec_() == d.Accepted:
+            self.comments = d.textbox.html
+            b = self.comments_button
+            b.setStyleSheet('QPushButton { font-weight: bold }')
+            if unicode(b.text())[-1] != '*':
+                b.setText(unicode(b.text()) + ' *')
 
     def save_refresh_booklist(self, *args):
         gprefs['refresh_book_list_on_bulk_edit'] = bool(self.refresh_book_list.isChecked())
@@ -960,13 +986,15 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             cover_action = 'fromfmt'
         elif self.cover_trim.isChecked():
             cover_action = 'trim'
+        elif self.cover_clone.isChecked():
+            cover_action = 'clone'
 
         args = Settings(remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
                 series_start_value, do_title_case, cover_action, clear_series,
                 pubdate, adddate, do_title_sort, languages, clear_languages,
-                restore_original)
+                restore_original, self.comments)
 
         source = self.s_r_sf_itemdata(None)
         do_sr = source and self.s_r_obj
