@@ -6,7 +6,7 @@ from PyQt4.QtCore import Qt, QRectF, QString
 from PyQt4.QtGui import QFont, QColor, QPixmap, QGraphicsPixmapItem, \
                         QGraphicsItem, QFontMetrics, QPen, QBrush, QGraphicsRectItem
 
-from calibre.ebooks.lrf.fonts import FONT_MAP
+from calibre.ebooks.lrf.fonts import LIBERATION_FONT_MAP
 from calibre.ebooks.BeautifulSoup import Tag
 from calibre.ebooks.hyphenate import hyphenate_word
 
@@ -59,7 +59,7 @@ class FontLoader(object):
         self.face_map = font_map
 
     def font(self, text_style):
-        device_font = text_style.fontfacename in FONT_MAP
+        device_font = text_style.fontfacename in LIBERATION_FONT_MAP
         try:
             if device_font:
                 face = self.font_map[text_style.fontfacename]
