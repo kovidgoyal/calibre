@@ -792,6 +792,7 @@ class KOBO(USBMS):
             # debug_print('    Commit: Set FavouritesIndex')
 
     def update_device_database_collections(self, booklists, collections_attributes, oncard):
+        debug_print("Kobo:update_device_database_collections - oncard='%s'"%oncard)
         if self.modify_database_check("update_device_database_collections") == False:
             return
 
@@ -822,7 +823,7 @@ class KOBO(USBMS):
         collections_attributes = ['tags']
 
         collections = booklists.get_collections(collections_attributes)
-#        debug_print('Collections', collections)
+#        debug_print('Kobo:update_device_database_collections - Collections:', collections)
 
         # Create a connection to the sqlite database
         # Needs to be outside books collection as in the case of removing
@@ -2171,8 +2172,10 @@ class KOBOTOUCH(KOBO):
                 # Need to reset the collections outside the particular loops
                 # otherwise the last item will not be removed
                 if self.dbversion < 53:
+                    debug_print("KoboTouch:update_device_database_collections - calling reset_readstatus")
                     self.reset_readstatus(connection, oncard)
                 if self.dbversion >= 14:
+                    debug_print("KoboTouch:update_device_database_collections - calling reset_favouritesindex")
                     self.reset_favouritesindex(connection, oncard)
 
 #                debug_print("KoboTouch:update_device_database_collections - length collections=", len(collections))
@@ -2240,7 +2243,7 @@ class KOBOTOUCH(KOBO):
                                     debug_print('            category not added to book.device_collections', book.device_collections)
                     debug_print("KoboTouch:update_device_database_collections - end for category='%s'"%category)
 
-            else:  # No collections
+            elif bookshelf_attribute:  # No collections but have set the shelf option
                 # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
                 debug_print("No Collections - reseting ReadStatus")
                 if self.dbversion < 53:
@@ -2249,7 +2252,8 @@ class KOBOTOUCH(KOBO):
                     debug_print("No Collections - resetting FavouritesIndex")
                     self.reset_favouritesindex(connection, oncard)
 
-            if self.supports_bookshelves() or self.supports_series():
+            # Set the series info and cleanup the bookshelves only if the firmware supports them and the user has set the options.
+            if (self.supports_bookshelves() or self.supports_series()) and (bookshelf_attribute or update_series_details):
                 debug_print("KoboTouch:update_device_database_collections - managing bookshelves and series.")
 
                 self.series_set  = 0
