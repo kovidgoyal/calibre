@@ -4447,21 +4447,21 @@ class CatalogBuilder(object):
         """
         excluded_tags = []
         for rule in self.opts.exclusion_rules:
-            if rule[1].lower() == 'tags':
+            if rule[1] == _('Tags'):
                 excluded_tags.extend(rule[2].split(','))
 
         # Remove dups
         excluded_tags = list(set(excluded_tags))
 
         # Report excluded books
-        if self.opts.verbose and excluded_tags:
+        if excluded_tags:
             self.opts.log.info(" Books excluded by tag:")
             data = self.db.get_data_as_dict(ids=self.opts.ids)
             for record in data:
                 matched = list(set(record['tags']) & set(excluded_tags))
                 if matched:
                     for rule in self.opts.exclusion_rules:
-                        if rule[1] == 'Tags' and rule[2] == str(matched[0]):
+                        if rule[1] == _('Tags') and rule[2] == str(matched[0]):
                             self.opts.log.info("  - '%s' by %s (Exclusion rule '%s')" %
                                 (record['title'], record['authors'][0], rule[0]))
 
