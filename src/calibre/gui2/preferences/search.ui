@@ -200,6 +200,12 @@ to be shown as user categories</string>
    </item>
    <item row="5" column="0" colspan="2">
     <widget class="QPushButton" name="clear_history_button">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="toolTip">
       <string>Clear search histories from all over calibre. Including the book list, e-book viewer, fetch news dialog, etc.</string>
      </property>
