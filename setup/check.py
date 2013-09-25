@@ -34,6 +34,8 @@ class Check(Command):
         for x in os.walk(self.j(self.SRC, 'calibre')):
             for f in x[-1]:
                 y = self.j(x[0], f)
+                if x[0].endswith('calibre/ebooks/markdown'):
+                    continue
                 mtime = os.stat(y).st_mtime
                 if cache.get(y, 0) == mtime:
                     continue
