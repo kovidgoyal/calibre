@@ -334,7 +334,7 @@ class Report(QDialog):  # {{{
             self.show_next()
 
     def show_report(self, book_title, book_id, fmts, job, report):
-        from calibre.ebooks.markdown.markdown import markdown
+        from calibre.ebooks.markdown import markdown
         self.current_log = job.details
         self.setWindowTitle(_('Polishing of %s')%book_title)
         self.view.setText(markdown('# %s\n\n'%book_title + report,
