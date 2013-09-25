@@ -21,7 +21,7 @@ class ScienceAAS(BasicNewsRecipe):
     delay                  = 1
     timefmt                = ' [%A, %d %B, %Y]'
     needs_subscription     = True
-    LOGIN = 'http://www.sciencemag.org/cgi/login?uri=%2Findex.dtl'
+    LOGIN = 'http://www.sciencemag.org/cgi/login'
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -29,10 +29,10 @@ class ScienceAAS(BasicNewsRecipe):
             br.open(self.LOGIN)
             br.select_form(nr=0)
             br['username'] = self.username
-            br['code'    ] = self.password
+            br['code'] = self.password
             br.submit()
         return br
 
-    keep_only_tags = [ dict(name='div', attrs={'id':'content-block'}) ]
+    keep_only_tags = [dict(name='div', attrs={'id':'content-block'})]
 
     feeds       = [(u"Science: Current Issue", u'http://www.sciencemag.org/rss/current.xml')]
