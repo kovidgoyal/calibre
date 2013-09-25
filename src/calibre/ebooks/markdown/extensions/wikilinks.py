@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 '''
 WikiLinks Extension for Python-Markdown
 ======================================
@@ -11,22 +9,22 @@ Basic usage:
     >>> import markdown
     >>> text = "Some text with a [[WikiLink]]."
     >>> html = markdown.markdown(text, ['wikilinks'])
-    >>> html
-    u'<p>Some text with a <a class="wikilink" href="/WikiLink/">WikiLink</a>.</p>'
+    >>> print html
+    <p>Some text with a <a class="wikilink" href="/WikiLink/">WikiLink</a>.</p>
 
 Whitespace behavior:
 
-    >>> markdown.markdown('[[ foo bar_baz ]]', ['wikilinks'])
-    u'<p><a class="wikilink" href="/foo_bar_baz/">foo bar_baz</a></p>'
-    >>> markdown.markdown('foo [[ ]] bar', ['wikilinks'])
-    u'<p>foo  bar</p>'
+    >>> print markdown.markdown('[[ foo bar_baz ]]', ['wikilinks'])
+    <p><a class="wikilink" href="/foo_bar_baz/">foo bar_baz</a></p>
+    >>> print markdown.markdown('foo [[ ]] bar', ['wikilinks'])
+    <p>foo  bar</p>
 
 To define custom settings the simple way:
 
-    >>> markdown.markdown(text, 
+    >>> print markdown.markdown(text, 
     ...     ['wikilinks(base_url=/wiki/,end_url=.html,html_class=foo)']
     ... )
-    u'<p>Some text with a <a class="foo" href="/wiki/WikiLink.html">WikiLink</a>.</p>'
+    <p>Some text with a <a class="foo" href="/wiki/WikiLink.html">WikiLink</a>.</p>
     
 Custom settings the complex way:
 
@@ -37,8 +35,8 @@ Custom settings the complex way:
     ...                                 ('end_url', '.html'),
     ...                                 ('html_class', '') ]},
     ...     safe_mode = True)
-    >>> md.convert(text)
-    u'<p>Some text with a <a href="http://example.com/WikiLink.html">WikiLink</a>.</p>'
+    >>> print md.convert(text)
+    <p>Some text with a <a href="http://example.com/WikiLink.html">WikiLink</a>.</p>
 
 Use MetaData with mdx_meta.py (Note the blank html_class in MetaData):
 
@@ -48,13 +46,13 @@ Use MetaData with mdx_meta.py (Note the blank html_class in MetaData):
     ...
     ... Some text with a [[WikiLink]]."""
     >>> md = markdown.Markdown(extensions=['meta', 'wikilinks'])
-    >>> md.convert(text)
-    u'<p>Some text with a <a href="http://example.com/WikiLink.html">WikiLink</a>.</p>'
+    >>> print md.convert(text)
+    <p>Some text with a <a href="http://example.com/WikiLink.html">WikiLink</a>.</p>
 
 MetaData should not carry over to next document:
 
-    >>> md.convert("No [[MetaData]] here.")
-    u'<p>No <a class="wikilink" href="/MetaData/">MetaData</a> here.</p>'
+    >>> print md.convert("No [[MetaData]] here.")
+    <p>No <a class="wikilink" href="/MetaData/">MetaData</a> here.</p>
 
 Define a custom URL builder:
 
@@ -62,8 +60,8 @@ Define a custom URL builder:
     ...     return '/bar/'
     >>> md = markdown.Markdown(extensions=['wikilinks'], 
     ...         extension_configs={'wikilinks' : [('build_url', my_url_builder)]})
-    >>> md.convert('[[foo]]')
-    u'<p><a class="wikilink" href="/bar/">foo</a></p>'
+    >>> print md.convert('[[foo]]')
+    <p><a class="wikilink" href="/bar/">foo</a></p>
 
 From the command line:
 
@@ -75,10 +73,14 @@ License: [BSD](http://www.opensource.org/licenses/bsd-license.php)
 
 Dependencies:
 * [Python 2.3+](http://python.org)
-* [Markdown 2.0+](http://www.freewisdom.org/projects/python-markdown/)
+* [Markdown 2.0+](http://packages.python.org/Markdown/)
 '''
 
-import calibre.ebooks.markdown.markdown as markdown
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from . import Extension
+from ..inlinepatterns import Pattern
+from ..util import etree
 import re
 
 def build_url(label, base, end):
@@ -87,7 +89,7 @@ def build_url(label, base, end):
     return '%s%s%s'% (base, clean_label, end)
 
 
-class WikiLinkExtension(markdown.Extension):
+class WikiLinkExtension(Extension):
     def __init__(self, configs):
         # set extension defaults
         self.config = {
@@ -105,23 +107,23 @@ class WikiLinkExtension(markdown.Extension):
         self.md = md
     
         # append to end of inline patterns
-        WIKILINK_RE = r'\[\[([A-Za-z0-9_ -]+)\]\]'
-        wikilinkPattern = WikiLinks(WIKILINK_RE, self.config)
+        WIKILINK_RE = r'\[\[([\w0-9_ -]+)\]\]'
+        wikilinkPattern = WikiLinks(WIKILINK_RE, self.getConfigs())
         wikilinkPattern.md = md
         md.inlinePatterns.add('wikilink', wikilinkPattern, "<not_strong")
 
 
-class WikiLinks(markdown.inlinepatterns.Pattern):
+class WikiLinks(Pattern):
     def __init__(self, pattern, config):
-        markdown.inlinepatterns.Pattern.__init__(self, pattern)
+        super(WikiLinks, self).__init__(pattern)
         self.config = config
   
     def handleMatch(self, m):
         if m.group(2).strip():
             base_url, end_url, html_class = self._getMeta()
             label = m.group(2).strip()
-            url = self.config['build_url'][0](label, base_url, end_url)
-            a = markdown.etree.Element('a')
+            url = self.config['build_url'](label, base_url, end_url)
+            a = etree.Element('a')
             a.text = label 
             a.set('href', url)
             if html_class:
@@ -132,24 +134,18 @@ class WikiLinks(markdown.inlinepatterns.Pattern):
 
     def _getMeta(self):
         """ Return meta data or config data. """
-        base_url = self.config['base_url'][0]
-        end_url = self.config['end_url'][0]
-        html_class = self.config['html_class'][0]
+        base_url = self.config['base_url']
+        end_url = self.config['end_url']
+        html_class = self.config['html_class']
         if hasattr(self.md, 'Meta'):
-            if self.md.Meta.has_key('wiki_base_url'):
+            if 'wiki_base_url' in self.md.Meta:
                 base_url = self.md.Meta['wiki_base_url'][0]
-            if self.md.Meta.has_key('wiki_end_url'):
+            if 'wiki_end_url' in self.md.Meta:
                 end_url = self.md.Meta['wiki_end_url'][0]
-            if self.md.Meta.has_key('wiki_html_class'):
+            if 'wiki_html_class' in self.md.Meta:
                 html_class = self.md.Meta['wiki_html_class'][0]
         return base_url, end_url, html_class
     
 
 def makeExtension(configs=None) :
     return WikiLinkExtension(configs=configs)
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
-
