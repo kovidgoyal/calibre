@@ -9,9 +9,9 @@ import functools, re, os, traceback, errno, time
 from collections import defaultdict, namedtuple
 
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
-        QModelIndex, QVariant, QDateTime, QColor, QPixmap)
+        QModelIndex, QVariant, QDateTime, QColor, QPixmap, QPainter)
 
-from calibre.gui2 import NONE, UNDEFINED_QDATETIME, error_dialog
+from calibre.gui2 import NONE, error_dialog
 from calibre.utils.search_query_parser import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.formatter import SafeFormat
@@ -61,7 +61,7 @@ class ColumnColor(object):  # {{{
             return color_cache[id_][key]
         try:
             if self.mi is None:
-                self.mi = db.get_metadata(id_, index_is_id=True)
+                self.mi = db.new_api.get_proxy_metadata(id_)
             color = self.formatter.safe_format(fmt, self.mi, '', self.mi)
             if color in self.colors:
                 color = QColor(color)
@@ -76,38 +76,68 @@ class ColumnColor(object):  # {{{
 
 class ColumnIcon(object):  # {{{
 
-    def __init__(self, formatter):
+    def __init__(self, formatter, model):
         self.mi = None
         self.formatter = formatter
+        self.model = model
 
-    def __call__(self, id_, key, fmt, kind, db, icon_cache, icon_bitmap_cache):
-        dex = key+kind
-        if id_ in icon_cache and dex in icon_cache[id_]:
+    def __call__(self, id_, key, fmts, cache_index, db, icon_cache, icon_bitmap_cache):
+        if id_ in icon_cache and cache_index in icon_cache[id_]:
             self.mi = None
-            return icon_cache[id_][dex]
+            return icon_cache[id_][cache_index]
         try:
             if self.mi is None:
-                self.mi = db.get_metadata(id_, index_is_id=True)
-            icon = self.formatter.safe_format(fmt, self.mi, '', self.mi)
-            if icon:
-                if icon in icon_bitmap_cache:
-                    icon_bitmap = icon_bitmap_cache[icon]
-                    icon_cache[id_][dex] = icon_bitmap
+                self.mi = db.new_api.get_proxy_metadata(id_)
+            icons = []
+            for kind, fmt in fmts:
+                rule_icons = self.formatter.safe_format(fmt, self.mi, '', self.mi)
+                if not rule_icons:
+                    continue
+                icon_list = [ic.strip() for ic in rule_icons.split(':')]
+                icons.extend(icon_list)
+                if icon_list and not kind.endswith('_composed'):
+                    break
+
+            if icons:
+                icon_string = ':'.join(icons)
+                if icon_string in icon_bitmap_cache:
+                    icon_bitmap = icon_bitmap_cache[icon_string]
+                    icon_cache[id_][cache_index] = icon_bitmap
                     return icon_bitmap
-                d = os.path.join(config_dir, 'cc_icons', icon)
-                if (os.path.exists(d)):
-                    icon_bitmap = QPixmap(d)
-                    h = icon_bitmap.height()
-                    w = icon_bitmap.width()
-                    # If the image is landscape and width is more than 50%
-                    # large than height, use the pixmap. This tells Qt to display
-                    # the image full width. It might be clipped to row height.
-                    if w < (3 * h)/2:
-                        icon_bitmap = QIcon(icon_bitmap)
-                    icon_cache[id_][dex] = icon_bitmap
-                    icon_bitmap_cache[icon] = icon_bitmap
-                    self.mi = None
-                    return icon_bitmap
+
+                icon_bitmaps = []
+                total_width = 0
+                for icon in icons:
+                    d = os.path.join(config_dir, 'cc_icons', icon)
+                    if (os.path.exists(d)):
+                        bm = QPixmap(d)
+                        bm = bm.scaled(128, 128, aspectRatioMode= Qt.KeepAspectRatio,
+                                       transformMode=Qt.SmoothTransformation)
+                        icon_bitmaps.append(bm)
+                        total_width += bm.width()
+                if len(icon_bitmaps) > 1:
+                    i = len(icon_bitmaps)
+                    result = QPixmap((i * 128) + ((i-1)*2), 128)
+                    result.fill(Qt.transparent)
+                    painter = QPainter(result)
+                    x = 0
+                    for bm in icon_bitmaps:
+                        painter.drawPixmap(x, 0, bm)
+                        x += bm.width() + 2
+                    painter.end()
+                else:
+                    result = icon_bitmaps[0]
+
+                # If the image height is less than the row height, leave it alone
+                # The -2 allows for a pixel above and below. Also ensure that
+                # it is always a bit positive
+                rh = max(2, self.model.row_height - 2)
+                if result.height() > rh:
+                    result = result.scaledToHeight(rh, mode=Qt.SmoothTransformation)
+                icon_cache[id_][cache_index] = result
+                icon_bitmap_cache[icon_string] = result
+                self.mi = None
+                return result
         except:
             pass
 # }}}
@@ -120,8 +150,11 @@ class BooksModel(QAbstractTableModel):  # {{{
     new_bookdisplay_data = pyqtSignal(object)
     count_changed_signal = pyqtSignal(int)
     searched             = pyqtSignal(object)
+    search_done          = pyqtSignal()
 
-    orig_headers = {
+    def __init__(self, parent=None, buffer=40):
+        QAbstractTableModel.__init__(self, parent)
+        self.orig_headers = {
                         'title'     : _("Title"),
                         'ondevice'   : _("On Device"),
                         'authors'   : _("Author(s)"),
@@ -134,17 +167,15 @@ class BooksModel(QAbstractTableModel):  # {{{
                         'series'    : ngettext("Series", 'Series', 1),
                         'last_modified' : _('Modified'),
                         'languages' : _('Languages'),
-    }
+        }
 
-    def __init__(self, parent=None, buffer=40):
-        QAbstractTableModel.__init__(self, parent)
         self.db = None
 
         self.formatter = SafeFormat()
         self.colors = frozenset([unicode(c) for c in QColor.colorNames()])
         self._clear_caches()
         self.column_color = ColumnColor(self.formatter, self.colors)
-        self.column_icon = ColumnIcon(self.formatter)
+        self.column_icon = ColumnIcon(self.formatter, self)
 
         self.book_on_device = None
         self.editable_cols = ['title', 'authors', 'rating', 'publisher',
@@ -167,6 +198,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None
         self.highlight_only = False
+        self.row_height = 0
         self.read_config()
 
     def _clear_caches(self):
@@ -174,6 +206,9 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.icon_cache = defaultdict(dict)
         self.icon_bitmap_cache = {}
         self.color_row_fmt_cache = None
+
+    def set_row_height(self, height):
+        self.row_height = height
 
     def change_alignment(self, colname, alignment):
         if colname in self.column_map and alignment in ('left', 'right', 'center'):
@@ -227,20 +262,14 @@ class BooksModel(QAbstractTableModel):  # {{{
             elif col in self.custom_columns:
                 self.headers[col] = self.custom_columns[col]['name']
 
-        if hasattr(self.db, 'new_api'):
-            self.build_new_data_convertors()
-        else:
-            self.build_data_convertors()
+        self.build_data_convertors()
         self.reset()
         self.database_changed.emit(db)
         self.stop_metadata_backup()
         self.start_metadata_backup()
 
     def start_metadata_backup(self):
-        if hasattr(self.db, 'new_api'):
-            from calibre.db.backup import MetadataBackup
-        else:
-            from calibre.library.caches import MetadataBackup
+        from calibre.db.backup import MetadataBackup
         self.metadata_backup = MetadataBackup(self.db)
         self.metadata_backup.start()
 
@@ -315,14 +344,9 @@ class BooksModel(QAbstractTableModel):  # {{{
         return ids
 
     def delete_books_by_id(self, ids, permanent=False):
-        if hasattr(self.db, 'new_api'):
-            self.db.new_api.remove_books(ids, permanent=permanent)
-            self.db.data.books_deleted(tuple(ids))
-            self.db.notify('delete', list(ids))
-        else:
-            for id in ids:
-                self.db.delete_book(id, permanent=permanent, do_clean=False)
-            self.db.clean()
+        self.db.new_api.remove_books(ids, permanent=permanent)
+        self.db.data.books_deleted(tuple(ids))
+        self.db.notify('delete', list(ids))
         self.books_deleted()
 
     def books_added(self, num):
@@ -403,6 +427,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             # Do not issue search done for the null search. It is used to clear
             # the search and count records for restrictions
             self.searched.emit(True)
+        self.search_done.emit()
 
     def sort(self, col, order, reset=True):
         if not self.db:
@@ -418,7 +443,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     def _sort(self, label, order, reset):
         self.about_to_be_sorted.emit(self.db.id)
-        self.db.sort(label, order)
+        self.db.data.incremental_sort([(label, order)])
         if reset:
             self.reset()
         self.sorted_on = (label, order)
@@ -646,7 +671,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             img = self.default_image
         return img
 
-    def build_new_data_convertors(self):
+    def build_data_convertors(self):
 
         def renderer(field, decorator=False):
             idfunc = self.db.id
@@ -683,15 +708,25 @@ class BooksModel(QAbstractTableModel):  # {{{
                 def func(idx):
                     return by if fffunc(field_obj, idfunc(idx)) else bb
             elif dt in {'text', 'comments', 'composite', 'enumeration'}:
-                if m['is_multiple'] and not field_obj.is_composite:
+                if m['is_multiple']:
                     jv = m['is_multiple']['list_to_ui']
-                    do_sort = field == 'tags'
-                    if do_sort:
-                        def func(idx):
-                            return QVariant(jv.join(sorted(fffunc(field_obj, idfunc(idx), default_value=()), key=sort_key)))
+                    do_sort = '&' not in jv
+                    if field_obj.is_composite:
+                        if do_sort:
+                            sv = m['is_multiple']['cache_to_list']
+                            def func(idx):
+                                val = fffunc(field_obj, idfunc(idx), default_value='') or ''
+                                return QVariant(jv.join(sorted((x.strip() for x in val.split(sv)), key=sort_key)))
+                        else:
+                            def func(idx):
+                                return QVariant(fffunc(field_obj, idfunc(idx), default_value=''))
                     else:
-                        def func(idx):
-                            return QVariant(jv.join(fffunc(field_obj, idfunc(idx), default_value=())))
+                        if do_sort:
+                            def func(idx):
+                                return QVariant(jv.join(sorted(fffunc(field_obj, idfunc(idx), default_value=()), key=sort_key)))
+                        else:
+                            def func(idx):
+                                return QVariant(jv.join(fffunc(field_obj, idfunc(idx), default_value=())))
                 else:
                     if dt in {'text', 'composite', 'enumeration'} and m['display'].get('use_decorations', False):
                         def func(idx):
@@ -752,170 +787,6 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.column_to_dc_map = [self.dc[col] for col in self.column_map]
         self.column_to_dc_decorator_map = [self.dc_decorator.get(col, None) for col in self.column_map]
 
-    def build_data_convertors(self):
-        def authors(r, idx=-1):
-            au = self.db.data[r][idx]
-            if au:
-                au = [a.strip().replace('|', ',') for a in au.split(',')]
-                return QVariant(' & '.join(au))
-            else:
-                return None
-
-        def languages(r, idx=-1):
-            lc = self.db.data[r][idx]
-            if lc:
-                langs = [calibre_langcode_to_name(l.strip()) for l in lc.split(',')]
-                return QVariant(', '.join(langs))
-            return None
-
-        def tags(r, idx=-1):
-            tags = self.db.data[r][idx]
-            if tags:
-                return QVariant(', '.join(sorted(tags.split(','), key=sort_key)))
-            return None
-
-        def series_type(r, idx=-1, siix=-1):
-            series = self.db.data[r][idx]
-            if series:
-                idx = fmt_sidx(self.db.data[r][siix])
-                return QVariant(series + ' [%s]'%idx)
-            return None
-
-        def size(r, idx=-1):
-            size = self.db.data[r][idx]
-            if size:
-                ans = '%.1f'%(float(size)/(1024*1024))
-                if size > 0 and ans == '0.0':
-                    ans = '<0.1'
-                return QVariant(ans)
-            return None
-
-        def rating_type(r, idx=-1):
-            r = self.db.data[r][idx]
-            r = r/2.0 if r else 0
-            return QVariant(int(r))
-
-        def datetime_type(r, idx=-1):
-            val = self.db.data[r][idx]
-            if val is not None:
-                return QVariant(QDateTime(as_local_time(val)))
-            else:
-                return QVariant(UNDEFINED_QDATETIME)
-
-        def bool_type(r, idx=-1):
-            return None  # displayed using a decorator
-
-        def bool_type_decorator(r, idx=-1, bool_cols_are_tristate=True):
-            val = force_to_bool(self.db.data[r][idx])
-            if val is None:
-                if not bool_cols_are_tristate:
-                    return self.bool_no_icon
-                return NONE
-            if val:
-                return self.bool_yes_icon
-            return self.bool_no_icon
-
-        def ondevice_decorator(r, idx=-1):
-            text = self.db.data[r][idx]
-            if text:
-                return self.bool_yes_icon
-            return self.bool_blank_icon
-
-        def text_type(r, mult=None, idx=-1):
-            text = self.db.data[r][idx]
-            if text and mult:
-                jv = mult['list_to_ui']
-                sv = mult['cache_to_list']
-                return QVariant(jv.join(
-                    sorted([t.strip() for t in text.split(sv)], key=sort_key)))
-            return QVariant(text)
-
-        def decorated_text_type(r, idx=-1):
-            text = self.db.data[r][idx]
-            if force_to_bool(text) is not None:
-                return None
-            return QVariant(text)
-
-        def number_type(r, idx=-1, fmt=None):
-            if fmt is not None:
-                try:
-                    return QVariant(fmt.format(self.db.data[r][idx]))
-                except:
-                    pass
-            return QVariant(self.db.data[r][idx])
-
-        self.dc = {
-                   'title'    : functools.partial(text_type,
-                                idx=self.db.field_metadata['title']['rec_index'], mult=None),
-                   'authors'  : functools.partial(authors,
-                                idx=self.db.field_metadata['authors']['rec_index']),
-                   'size'     : functools.partial(size,
-                                idx=self.db.field_metadata['size']['rec_index']),
-                   'timestamp': functools.partial(datetime_type,
-                                idx=self.db.field_metadata['timestamp']['rec_index']),
-                   'pubdate'  : functools.partial(datetime_type,
-                                idx=self.db.field_metadata['pubdate']['rec_index']),
-                   'last_modified': functools.partial(datetime_type,
-                                idx=self.db.field_metadata['last_modified']['rec_index']),
-                   'rating'   : functools.partial(rating_type,
-                                idx=self.db.field_metadata['rating']['rec_index']),
-                   'publisher': functools.partial(text_type,
-                                idx=self.db.field_metadata['publisher']['rec_index'], mult=None),
-                   'tags'     : functools.partial(tags,
-                                idx=self.db.field_metadata['tags']['rec_index']),
-                   'series'   : functools.partial(series_type,
-                                idx=self.db.field_metadata['series']['rec_index'],
-                                siix=self.db.field_metadata['series_index']['rec_index']),
-                   'ondevice' : functools.partial(text_type,
-                                idx=self.db.field_metadata['ondevice']['rec_index'], mult=None),
-                   'languages': functools.partial(languages,
-                                idx=self.db.field_metadata['languages']['rec_index']),
-                   }
-
-        self.dc_decorator = {
-                'ondevice':functools.partial(ondevice_decorator,
-                    idx=self.db.field_metadata['ondevice']['rec_index']),
-                    }
-
-        # Add the custom columns to the data converters
-        for col in self.custom_columns:
-            idx = self.custom_columns[col]['rec_index']
-            datatype = self.custom_columns[col]['datatype']
-            if datatype in ('text', 'comments', 'composite', 'enumeration'):
-                mult=self.custom_columns[col]['is_multiple']
-                self.dc[col] = functools.partial(text_type, idx=idx, mult=mult)
-                if datatype in ['text', 'composite', 'enumeration'] and not mult:
-                    if self.custom_columns[col]['display'].get('use_decorations', False):
-                        self.dc[col] = functools.partial(decorated_text_type, idx=idx)
-                        self.dc_decorator[col] = functools.partial(
-                            bool_type_decorator, idx=idx,
-                            bool_cols_are_tristate=
-                                self.db.prefs.get('bools_are_tristate'))
-            elif datatype in ('int', 'float'):
-                fmt = self.custom_columns[col]['display'].get('number_format', None)
-                self.dc[col] = functools.partial(number_type, idx=idx, fmt=fmt)
-            elif datatype == 'datetime':
-                self.dc[col] = functools.partial(datetime_type, idx=idx)
-            elif datatype == 'bool':
-                self.dc[col] = functools.partial(bool_type, idx=idx)
-                self.dc_decorator[col] = functools.partial(
-                            bool_type_decorator, idx=idx,
-                            bool_cols_are_tristate=
-                                self.db.prefs.get('bools_are_tristate'))
-            elif datatype == 'rating':
-                self.dc[col] = functools.partial(rating_type, idx=idx)
-            elif datatype == 'series':
-                self.dc[col] = functools.partial(series_type, idx=idx,
-                    siix=self.db.field_metadata.cc_series_index_column_for(col))
-            else:
-                print 'What type is this?', col, datatype
-        # build a index column to data converter map, to remove the string lookup in the data loop
-        self.column_to_dc_map = []
-        self.column_to_dc_decorator_map = []
-        for col in self.column_map:
-            self.column_to_dc_map.append(self.dc[col])
-            self.column_to_dc_decorator_map.append(self.dc_decorator.get(col, None))
-
     def data(self, index, role):
         col = index.column()
         # in obscure cases where custom columns are both edited and added, for a time
@@ -928,16 +799,21 @@ class BooksModel(QAbstractTableModel):  # {{{
             if rules:
                 key = self.column_map[col]
                 id_ = None
+                fmts = []
                 for kind, k, fmt in rules:
-                    if k == key and kind == 'icon_only':
+                    if k == key and kind in {'icon_only', 'icon_only_composed'}:
                         if id_ is None:
                             id_ = self.id(index)
                             self.column_icon.mi = None
-                        ccicon = self.column_icon(id_, key, fmt, 'icon_only', self.db,
-                                              self.icon_cache, self.icon_bitmap_cache)
-                        if ccicon is not None:
-                            return NONE
-                self.icon_cache[id_][key+'icon_only'] = None
+                        fmts.append((kind, fmt))
+
+                if fmts:
+                    cache_index = key + ':DisplayRole'
+                    ccicon = self.column_icon(id_, key, fmts, cache_index, self.db,
+                                      self.icon_cache, self.icon_bitmap_cache)
+                    if ccicon is not None:
+                        return NONE
+                    self.icon_cache[id_][cache_index] = None
             return self.column_to_dc_map[col](index.row())
         elif role in (Qt.EditRole, Qt.ToolTipRole):
             return self.column_to_dc_map[col](index.row())
@@ -994,21 +870,25 @@ class BooksModel(QAbstractTableModel):  # {{{
                 key = self.column_map[col]
                 id_ = None
                 need_icon_with_text = False
+                fmts = []
                 for kind, k, fmt in rules:
-                    if k == key and kind in ('icon', 'icon_only'):
+                    if k == key and kind.startswith('icon'):
                         if id_ is None:
                             id_ = self.id(index)
                             self.column_icon.mi = None
-                        if kind == 'icon':
+                        fmts.append((kind, fmt))
+                        if kind in ('icon', 'icon_composed'):
                             need_icon_with_text = True
-                        ccicon = self.column_icon(id_, key, fmt, kind, self.db,
-                                          self.icon_cache, self.icon_bitmap_cache)
-                        if ccicon is not None:
-                            return ccicon
-                if need_icon_with_text:
-                    self.icon_cache[id_][key+'icon'] = self.bool_blank_icon
-                    return self.bool_blank_icon
-                self.icon_cache[id_][key+'icon'] = None
+                if fmts:
+                    cache_index = key + ':DecorationRole'
+                    ccicon = self.column_icon(id_, key, fmts, cache_index, self.db,
+                                  self.icon_cache, self.icon_bitmap_cache)
+                    if ccicon is not None:
+                        return ccicon
+                    if need_icon_with_text:
+                        self.icon_cache[id_][cache_index] = self.bool_blank_icon
+                        return self.bool_blank_icon
+                    self.icon_cache[id_][cache_index] = None
         elif role == Qt.TextAlignmentRole:
             cname = self.column_map[index.column()]
             ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
@@ -1028,7 +908,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 if ht == 'timestamp':  # change help text because users know this field as 'date'
                     ht = 'date'
                 if self.db.field_metadata[self.column_map[section]]['is_category']:
-                    is_cat = '.\n\n' + _('Click in this column and press Q to Quickview books with the same %s' % ht)
+                    is_cat = '.\n\n' + _('Click in this column and press Q to Quickview books with the same %s') % ht
                 else:
                     is_cat = ''
                 return QVariant(_('The lookup/search name is "{0}"{1}').format(ht, is_cat))
@@ -1102,7 +982,8 @@ class BooksModel(QAbstractTableModel):  # {{{
             tmpl = unicode(value.toString()).strip()
             disp = cc['display']
             disp['composite_template'] = tmpl
-            self.db.set_custom_column_metadata(cc['colnum'], display=disp)
+            self.db.set_custom_column_metadata(cc['colnum'], display=disp,
+                                               update_last_modified=True)
             self.refresh(reset=True)
             return True
 

@@ -41,8 +41,8 @@ def get_page_size(opts, for_comic=False):  # {{{
             width, sep, height = opts.custom_size.partition('x')
             if height:
                 try:
-                    width = float(width)
-                    height = float(height)
+                    width = float(width.replace(',', '.'))
+                    height = float(height.replace(',', '.'))
                 except:
                     pass
                 else:

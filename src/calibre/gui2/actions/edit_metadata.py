@@ -296,6 +296,12 @@ class EditMetadataAction(InterfaceAction):
                 list(range(self.gui.library_view.model().rowCount(QModelIndex())))
             current_row = row_list.index(cr)
 
+        view = self.gui.library_view.alternate_views.current_view
+        try:
+            hpos = view.horizontalScrollBar().value()
+        except Exception:
+            hpos = 0
+
         changed, rows_to_refresh = self.do_edit_metadata(row_list, current_row)
 
         m = self.gui.library_view.model()
@@ -310,6 +316,11 @@ class EditMetadataAction(InterfaceAction):
                 self.gui.cover_flow.dataChanged()
             m.current_changed(current, previous)
             self.gui.tags_view.recount()
+        if self.gui.library_view.alternate_views.current_view is view:
+            if hasattr(view, 'restore_hpos'):
+                view.restore_hpos(hpos)
+            else:
+                view.horizontalScrollBar().setValue(hpos)
 
     def do_edit_metadata(self, row_list, current_row):
         from calibre.gui2.metadata.single import edit_metadata
@@ -352,11 +363,12 @@ class EditMetadataAction(InterfaceAction):
         # Prevent the TagView from updating due to signals from the database
         self.gui.tags_view.blockSignals(True)
         changed = False
+        refresh_books = set(book_ids)
         try:
             current_tab = 0
             while True:
                 dialog = MetadataBulkDialog(self.gui, rows,
-                                self.gui.library_view.model(), current_tab)
+                                self.gui.library_view.model(), current_tab, refresh_books)
                 if dialog.changed:
                     changed = True
                 if not dialog.do_again:
@@ -365,12 +377,13 @@ class EditMetadataAction(InterfaceAction):
         finally:
             self.gui.tags_view.blockSignals(False)
         if changed:
+            refresh_books |= dialog.refresh_books
             m = self.gui.library_view.model()
             if gprefs['refresh_book_list_on_bulk_edit']:
                 m.refresh(reset=False)
                 m.research()
             else:
-                m.refresh_ids(book_ids)
+                m.refresh_ids(refresh_books)
             self.gui.tags_view.recount()
             if self.gui.cover_flow:
                 self.gui.cover_flow.dataChanged()

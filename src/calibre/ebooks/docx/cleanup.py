@@ -114,7 +114,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover):
 
     # Merge consecutive spans that have the same styling
     current_run = []
-    for span in root.xpath('//span'):
+    for span in root.xpath('//span[not(@style)]'):
         if not current_run:
             current_run.append(span)
         else:
@@ -147,7 +147,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover):
                     parent.append(child)
 
     # Make spans whose only styling is bold or italic into <b> and <i> tags
-    for span in root.xpath('//span[@class]'):
+    for span in root.xpath('//span[@class and not(@style)]'):
         css = class_map.get(span.get('class', None), {})
         if len(css) == 1:
             if css == {'font-style':'italic'}:
@@ -158,7 +158,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover):
                 del span.attrib['class']
 
     # Get rid of <span>s that have no styling
-    for span in root.xpath('//span[not(@class) and not(@id)]'):
+    for span in root.xpath('//span[not(@class) and not(@id) and not(@style)]'):
         lift(span)
 
     if detect_cover:
@@ -173,7 +173,10 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover):
                     width, height, fmt = identify(path)
                 except:
                     width, height, fmt = 0, 0, None
-                is_cover = 0.8 <= height/width <= 1.8 and height*width >= 160000
+                try:
+                    is_cover = 0.8 <= height/width <= 1.8 and height*width >= 160000
+                except ZeroDivisionError:
+                    is_cover = False
                 if is_cover:
                     log.debug('Detected an image that looks like a cover')
                     img.getparent().remove(img)

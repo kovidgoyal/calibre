@@ -6,29 +6,23 @@ class JakartaGlobe(BasicNewsRecipe):
     max_articles_per_feed = 100
 
     feeds          = [
-	(u'News', u'http://www.thejakartaglobe.com/pages/getrss/getrss-news.php'),
-	(u'Business', u'http://www.thejakartaglobe.com/pages/getrss/getrss-business.php'),
-	(u'Technology', u'http://www.thejakartaglobe.com/pages/getrss/getrss-tech.php'),
-	(u'My Jakarta', u'http://www.thejakartaglobe.com/pages/getrss/getrss-myjakarta.php'),
-	(u'International', u'http://www.thejakartaglobe.com/pages/getrss/getrss-international.php'),
-	(u'Life and Times', u'http://www.thejakartaglobe.com/pages/getrss/getrss-lifeandtimes.php'),
-	]
+    (u'News', u'http://www.thejakartaglobe.com/news/feed/'),
+    (u'Business', u'http://www.thejakartaglobe.com/business/feed/'),
+    (u'Opinion', u'http://www.thejakartaglobe.com/opinion/feed/'),
+    (u'Count me in', u'http://www.thejakartaglobe.com/count-me-in/feed/'),
+    (u'International', u'http://www.thejakartaglobe.com/international/feed/'),
+    (u'Sports', u'http://www.thejakartaglobe.com/sports/feed/'),
+    ]
     __author__ = 'rty'
     pubisher  = 'JakartaGlobe.com'
     description           = 'JakartaGlobe, Indonesia, Newspaper'
     category              = 'News, Indonesia'
 
-
     remove_javascript = True
     use_embedded_content   = False
     no_stylesheets = True
+    auto_cleanup = True
     language = 'en_ID'
     encoding               = 'utf-8'
     conversion_options = {'linearize_tables':True}
     masthead_url = 'http://www.thejakartaglobe.com/pages/2010/images/jak-globe-logo.jpg'
-    keep_only_tags = [
-							dict(name='div', attrs={'class':'story'}),
-							dict(name='span', attrs={'class':'headline'}),
-							dict(name='div', attrs={'class':'story'}),
-							dict(name='p', attrs={'id':'bodytext'})
-                               ]

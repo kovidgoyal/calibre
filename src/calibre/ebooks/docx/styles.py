@@ -92,7 +92,7 @@ class Style(object):
                 else:
                     self.character_style.update(rs)
 
-        if self.style_type == 'numbering':
+        if self.style_type in {'numbering', 'paragraph'}:
             self.numbering_style_link = None
             for x in XPath('./w:pPr/w:numPr/w:numId[@w:val]')(elem):
                 self.numbering_style_link = get(x, 'w:val')
@@ -150,7 +150,7 @@ class Styles(object):
                 self.id_map[s.style_id] = s
             if s.is_default:
                 self.default_styles[s.style_type] = s
-            if s.style_type == 'numbering' and s.numbering_style_link:
+            if getattr(s, 'numbering_style_link', None) is not None:
                 self.numbering_style_links[s.style_id] = s.numbering_style_link
 
         self.default_paragraph_style = self.default_character_style = None
@@ -212,6 +212,7 @@ class Styles(object):
     def resolve_paragraph(self, p):
         ans = self.para_cache.get(p, None)
         if ans is None:
+            linked_style = None
             ans = self.para_cache[p] = ParagraphStyle()
             ans.style_name = None
             direct_formatting = None
@@ -233,7 +234,7 @@ class Styles(object):
 
             default_para = self.default_styles.get('paragraph', None)
             if direct_formatting.linked_style is not None:
-                ls = self.get(direct_formatting.linked_style)
+                ls = linked_style = self.get(direct_formatting.linked_style)
                 if ls is not None:
                     ans.style_name = ls.name
                     ps = ls.paragraph_style
@@ -256,6 +257,11 @@ class Styles(object):
                     ps = self.numbering.get_para_style(num_id, lvl)
                     if ps is not None:
                         parent_styles.append(ps)
+            if not is_numbering and linked_style is not None and getattr(linked_style.paragraph_style, 'numbering', inherit) is not inherit:
+                num_id, lvl = linked_style.paragraph_style.numbering
+                if num_id is not None:
+                    p.set('calibre_num_id', '%s:%s' % (lvl, num_id))
+                is_numbering = True
 
             for attr in ans.all_properties:
                 if not (is_numbering and attr == 'text_indent'):  # skip text-indent for lists
@@ -295,7 +301,7 @@ class Styles(object):
             if ts is not None:
                 parent_styles.append(ts)
             if direct_formatting.linked_style is not None:
-                ls = self.get(direct_formatting.linked_style).character_style
+                ls = getattr(self.get(direct_formatting.linked_style), 'character_style', None)
                 if ls is not None:
                     parent_styles.append(ls)
             elif default_char is not None and default_char.character_style is not None:
@@ -379,7 +385,7 @@ class Styles(object):
 
     def resolve_numbering(self, numbering):
         # When a numPr element appears inside a paragraph style, the lvl info
-        # must be discarder and pStyle used instead.
+        # must be discarded and pStyle used instead.
         self.numbering = numbering
         for style in self:
             ps = style.paragraph_style
@@ -437,7 +443,8 @@ class Styles(object):
             '''\
             body { font-family: %s; font-size: %s; color: %s }
 
-            ul, ol, p { margin: 0; padding: 0 }
+            /* In word all paragraphs have zero margins unless explicitly specified in a style */
+            ul, ol, p, h1, h2, h3, h4, h5, h6 { margin: 0; padding: 0 }
 
             sup.noteref a { text-decoration: none }
 
@@ -450,6 +457,8 @@ class Styles(object):
             dl.notes dd { page-break-after: always }
 
             dl.notes dd:last-of-type { page-break-after: avoid }
+
+            span.tab { white-space: pre }
 
             ''') % (self.body_font_family, self.body_font_size, self.body_color)
         if ef:

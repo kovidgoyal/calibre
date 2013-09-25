@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os, re
+import sys, os, re, math
 from collections import OrderedDict, defaultdict
 
 from lxml import html
@@ -16,7 +16,7 @@ from lxml.html.builder import (
 from calibre.ebooks.docx.container import DOCX, fromstring
 from calibre.ebooks.docx.names import (
     XPath, is_tag, XML, STYLES, NUMBERING, FONTS, get, generate_anchor,
-    descendants, FOOTNOTES, ENDNOTES, children, THEMES)
+    descendants, FOOTNOTES, ENDNOTES, children, THEMES, SETTINGS)
 from calibre.ebooks.docx.styles import Styles, inherit, PageProperties
 from calibre.ebooks.docx.numbering import Numbering
 from calibre.ebooks.docx.fonts import Fonts
@@ -27,8 +27,11 @@ from calibre.ebooks.docx.cleanup import cleanup_markup
 from calibre.ebooks.docx.theme import Theme
 from calibre.ebooks.docx.toc import create_toc
 from calibre.ebooks.docx.fields import Fields
+from calibre.ebooks.docx.settings import Settings
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
+
+NBSP = '\xa0'
 
 class Text:
 
@@ -52,10 +55,11 @@ class Convert(object):
         self.mi = self.docx.metadata
         self.body = BODY()
         self.theme = Theme()
+        self.settings = Settings()
         self.tables = Tables()
         self.fields = Fields()
         self.styles = Styles(self.tables)
-        self.images = Images()
+        self.images = Images(self.log)
         self.object_map = OrderedDict()
         self.html = HTML(
             HEAD(
@@ -106,6 +110,7 @@ class Convert(object):
         self.styles.apply_section_page_breaks(self.section_starts[1:])
 
         notes_header = None
+        orig_rid_map = self.images.rid_map
         if self.footnotes.has_notes:
             dl = DL()
             dl.set('class', 'notes')
@@ -118,6 +123,7 @@ class Convert(object):
                 dl[-1][0].tail = ']'
                 dl.append(DD())
                 paras = []
+                self.images.rid_map = note.rels[0]
                 for wp in note:
                     if wp.tag.endswith('}tbl'):
                         self.tables.register(wp, self.styles)
@@ -127,6 +133,29 @@ class Convert(object):
                         dl[-1].append(p)
                         paras.append(wp)
                 self.styles.apply_contextual_spacing(paras)
+
+        for p, wp in self.object_map.iteritems():
+            if len(p) > 0 and not p.text and len(p[0]) > 0 and not p[0].text and p[0][0].get('class', None) == 'tab':
+                # Paragraph uses tabs for indentation, convert to text-indent
+                parent = p[0]
+                tabs = []
+                for child in parent:
+                    if child.get('class', None) == 'tab':
+                        tabs.append(child)
+                        if child.tail:
+                            break
+                    else:
+                        break
+                indent = len(tabs) * self.settings.default_tab_stop
+                style = self.styles.resolve(wp)
+                if style.text_indent is inherit or (hasattr(style.text_indent, 'endswith') and style.text_indent.endswith('pt')):
+                    if style.text_indent is not inherit:
+                        indent = float(style.text_indent[:-2]) + indent
+                    style.text_indent = '%.3gpt' % indent
+                    parent.text = tabs[-1].tail or ''
+                    map(parent.remove, tabs)
+
+        self.images.rid_map = orig_rid_map
 
         self.resolve_links(relationships_by_id)
 
@@ -222,6 +251,7 @@ class Convert(object):
 
         nname = get_name(NUMBERING, 'numbering.xml')
         sname = get_name(STYLES, 'styles.xml')
+        sename = get_name(SETTINGS, 'settings.xml')
         fname = get_name(FONTS, 'fontTable.xml')
         tname = get_name(THEMES, 'theme1.xml')
         foname = get_name(FOOTNOTES, 'footnotes.xml')
@@ -231,17 +261,30 @@ class Convert(object):
         fonts = self.fonts = Fonts()
 
         foraw = enraw = None
+        forel, enrel = ({}, {}), ({}, {})
+        if sename is not None:
+            try:
+                seraw = self.docx.read(sename)
+            except KeyError:
+                self.log.warn('Settings %s do not exist' % sename)
+            else:
+                self.settings(fromstring(seraw))
+
         if foname is not None:
             try:
                 foraw = self.docx.read(foname)
             except KeyError:
                 self.log.warn('Footnotes %s do not exist' % foname)
+            else:
+                forel = self.docx.get_relationships(foname)
         if enname is not None:
             try:
                 enraw = self.docx.read(enname)
             except KeyError:
                 self.log.warn('Endnotes %s do not exist' % enname)
-        footnotes(fromstring(foraw) if foraw else None, fromstring(enraw) if enraw else None)
+            else:
+                enrel = self.docx.get_relationships(enname)
+        footnotes(fromstring(foraw) if foraw else None, forel, fromstring(enraw) if enraw else None, enrel)
 
         if fname is not None:
             embed_relationships = self.docx.get_relationships(fname)[0]
@@ -388,7 +431,17 @@ class Convert(object):
         if not dest.text and len(dest) == 0:
             # Empty paragraph add a non-breaking space so that it is rendered
             # by WebKit
-            dest.text = '\xa0'
+            dest.text = NBSP
+
+        # If the last element in a block is a <br> the <br> is not rendered in
+        # HTML, unless it is followed by a trailing space. Word, on the other
+        # hand inserts a blank line for trailing <br>s.
+        if len(dest) > 0 and not dest[-1].tail:
+            if dest[-1].tag == 'br':
+                dest[-1].tail = NBSP
+            elif len(dest[-1]) > 0 and dest[-1][-1].tag == 'br' and not dest[-1][-1].tail:
+                dest[-1][-1].tail = NBSP
+
         return dest
 
     def wrap_elems(self, elems, wrapper):
@@ -518,6 +571,11 @@ class Convert(object):
                     l.set('class', 'noteref')
                     text.add_elem(l)
                     ans.append(text.elem)
+            elif is_tag(child, 'w:tab'):
+                spaces = int(math.ceil((self.settings.default_tab_stop / 36) * 6))
+                text.add_elem(SPAN(NBSP * spaces))
+                ans.append(text.elem)
+                ans[-1].set('class', 'tab')
         if text.buf:
             setattr(text.elem, text.attr, ''.join(text.buf))
 

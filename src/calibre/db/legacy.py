@@ -20,7 +20,7 @@ from calibre.db.cache import Cache
 from calibre.db.errors import NoSuchFormat
 from calibre.db.categories import CATEGORY_SORTS
 from calibre.db.view import View
-from calibre.db.write import clean_identifier
+from calibre.db.write import clean_identifier, get_series_values
 from calibre.utils.date import utcnow
 from calibre.utils.search_query_parser import set_saved_searches
 
@@ -35,6 +35,13 @@ def cleanup_tags(tags):
             seen.add(tag.lower())
             ans.append(tag)
     return ans
+
+def create_backend(
+        library_path, default_prefs=None, read_only=False,
+        progress_callback=lambda x, y:True, restore_all_prefs=False):
+    return DB(library_path, default_prefs=default_prefs,
+                     read_only=read_only, restore_all_prefs=restore_all_prefs,
+                     progress_callback=progress_callback)
 
 class LibraryDatabase(object):
 
@@ -58,9 +65,9 @@ class LibraryDatabase(object):
         self.is_second_db = is_second_db
         self.listeners = set()
 
-        backend = self.backend = DB(library_path, default_prefs=default_prefs,
-                     read_only=read_only, restore_all_prefs=restore_all_prefs,
-                     progress_callback=progress_callback)
+        backend = self.backend = create_backend(library_path, default_prefs=default_prefs,
+                    read_only=read_only, restore_all_prefs=restore_all_prefs,
+                    progress_callback=progress_callback)
         cache = self.new_api = Cache(backend)
         cache.init()
         self.data = View(cache)
@@ -143,8 +150,8 @@ class LibraryDatabase(object):
         self.data.cache.initialize_template_cache()
 
     def all_ids(self):
-        for book_id in self.new_api.all_book_ids():
-            yield book_id
+        'All book ids in the db. This can no longer be a generator because of db locking.'
+        return tuple(self.new_api.all_book_ids())
 
     def is_empty(self):
         with self.new_api.read_lock:
@@ -252,8 +259,8 @@ class LibraryDatabase(object):
         return recursive_import(self, root, single_book_per_directory=single_book_per_directory, callback=callback, added_ids=added_ids)
 
     def add_catalog(self, path, title):
-        book_id = add_catalog(self.new_api, path, title)
-        if book_id is not None:
+        book_id, new_book_added = add_catalog(self.new_api, path, title)
+        if book_id is not None and new_book_added:
             self.data.books_added((book_id,))
         return book_id
 
@@ -645,8 +652,10 @@ class LibraryDatabase(object):
             else:
                 affected_books = self.new_api._set_field(field, {book_id:val}, allow_case_change=allow_case_change)
             if data['datatype'] == 'series':
-                extra = 1.0 if extra is None else extra
-                self.new_api._set_field(field + '_index', {book_id:extra})
+                s, sidx = get_series_values(val)
+                if sidx is None:
+                    extra = 1.0 if extra is None else extra
+                    self.new_api._set_field(field + '_index', {book_id:extra})
         if notify and affected_books:
             self.notify('metadata', list(affected_books))
         return affected_books
@@ -682,8 +691,10 @@ class LibraryDatabase(object):
     def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display={}):
         self.new_api.create_custom_column(label, name, datatype, is_multiple, editable=editable, display=display)
 
-    def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None, display=None, notify=True):
-        changed = self.new_api.set_custom_column_metadata(num, name=name, label=label, is_editable=is_editable, display=display)
+    def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None, display=None,
+                                   notify=True, update_last_modified=False):
+        changed = self.new_api.set_custom_column_metadata(num, name=name, label=label, is_editable=is_editable,
+                                                          display=display, update_last_modified=update_last_modified)
         if changed and notify:
             self.notify('metadata', [])
 

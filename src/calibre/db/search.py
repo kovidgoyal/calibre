@@ -13,6 +13,7 @@ from datetime import timedelta
 from collections import deque
 
 from calibre.constants import preferred_encoding
+from calibre.db.utils import force_to_bool
 from calibre.utils.config_base import prefs
 from calibre.utils.date import parse_date, UNDEFINED_DATE, now, dt_as_local
 from calibre.utils.icu import primary_find, sort_key
@@ -24,22 +25,6 @@ EQUALS_MATCH   = 1
 REGEXP_MATCH   = 2
 
 # Utils {{{
-
-def force_to_bool(val):
-    if isinstance(val, (str, unicode)):
-        try:
-            val = icu_lower(val)
-            if not val:
-                val = None
-            elif val in [_('yes'), _('checked'), 'true', 'yes']:
-                val = True
-            elif val in [_('no'), _('unchecked'), 'false', 'no']:
-                val = False
-            else:
-                val = bool(int(val))
-        except:
-            val = None
-    return val
 
 def _matchkind(query):
     matchkind = CONTAINS_MATCH

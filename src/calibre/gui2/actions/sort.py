@@ -69,7 +69,7 @@ class SortByAction(InterfaceAction):
                 name = _('Title')
             if key == 'ondevice' and self.gui.device_connected is None:
                     continue
-            ascending = True
+            ascending = None
             if key == sort_col:
                 name = _('%s [reverse current sort]') % name
                 ascending = not order
@@ -80,6 +80,9 @@ class SortByAction(InterfaceAction):
             menu.addAction(sac)
 
     def sort_requested(self, key, ascending):
-        self.gui.library_view.sort_by_named_field(key, ascending)
+        if ascending is None:
+            self.gui.library_view.intelligent_sort(key, True)
+        else:
+            self.gui.library_view.sort_by_named_field(key, ascending)
 
 

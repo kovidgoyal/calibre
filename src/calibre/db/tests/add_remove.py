@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, glob
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 from datetime import timedelta
@@ -284,4 +284,20 @@ class AddRemoveTest(BaseTest):
         ae(raw, db.format(1, 'FMT1'))
         af(db.has_format(1, 'ORIGINAL_FMT1'))
         ae(set(fmts), set(db.formats(1, verify_formats=False)))
+    # }}}
+
+    def test_format_orphan(self):  # {{{
+        ' Test that adding formats does not create orphans if the file name algorithm changes '
+        cache = self.init_cache()
+        path = cache.format_abspath(1, 'FMT1')
+        base, name = os.path.split(path)
+        prefix = 'mushroomxx'
+        os.rename(path, os.path.join(base, prefix + name))
+        cache.fields['formats'].table.fname_map[1]['FMT1'] = prefix + os.path.splitext(name)[0]
+        old = glob.glob(os.path.join(base, '*.fmt1'))
+        cache.add_format(1, 'FMT1', BytesIO(b'xxxx'), run_hooks=False)
+        new = glob.glob(os.path.join(base, '*.fmt1'))
+        self.assertNotEqual(old, new)
+        self.assertEqual(len(old), len(new))
+        self.assertNotIn(prefix, cache.fields['formats'].format_fname(1, 'FMT1'))
     # }}}

@@ -20,6 +20,298 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.4.0
+  date: 2013-09-20
+
+  new features:
+    - title: "Column icons: Allow the use of multiple icons with column icon rules."
+      description: "You can now have column icon rules display multiple icons in a single column, side by side. There are two ways to do this, either specify multiple icons when creating the rule, or create multiple rules that match the same book and specify the icon type to be 'composed' for every rule. See Preferences->Look & Feel->Column icons for details."
+
+    - title: "Kobo driver: Add support for new cover handling in Kobo Aura with updated firmware"
+
+    - title: "Driver for Icarus Essence"
+      tickets: [1226304] 
+
+    - title: "Show a warning when attempting to copy books between libraries that do not have the same set of custom columns."
+      tickets: [1225484]
+
+    - title: "EPUB/AZW3 Output: Use shorthand forms for margin, padding and border CSS properties, where possible"
+
+    - title: "Allow colons in identifier values, needed for using URIs as identifiers"
+      tickets: [1224885]
+
+    - title: "Comments editor: Allow treating arbitrary URLs as images"
+
+    - title: "Show full path of library under mouse in status bar when switching/renaming/deleting libraries via the calibre library button."
+      tickets: [1224925]
+
+    - title: "DOCX Input: Add support for embedded EMF images that are just wrappers around an actual raster image."
+      tickets: [1224849]
+ 
+  bug fixes:
+    - title: "Conversion: Fix font subsetting not working for large fonts with more than 4000 glyphs, such as CJK fonts"
+
+    - title: "HTML Input: Fix a regression that broke processing of HTML files that contain meta tags with dc: namespaced attribute values."
+
+    - title: "Fix switching to an empty virtual library not blanking the book details panel"
+
+    - title: "Keep position when deleting tags in the tag editor"
+      tickets: [1226093]
+
+    - title: "Book details panel: Render custom comments fields the same as the builtin comments field. In particular this fixes problems caused by wide text and images in custom comments fields."
+      tickets: [1226350]
+
+    - title: "Metadata jackets: Do not error out when using a custom template with some custom fields that are not present."
+      tickets: [1225357]
+
+    - title: "AZW3 Output: Dont choke on invalid (undecodable) links in the input document"
+
+    - title: "Cover grid: Respect the double click on library view tweak"
+
+    - title: "Fix covers set by drag and drop or pasting in the edit metadata dialog showing compression artifacts due to aggressive jpeg compression"
+
+    - title: "Conversion: Fix a bug that could cause incorrect border values to be used when cascading, shorthand border CSS is present."
+
+    - title: "Fix regression in 1.3 that caused the book list to not track the current book when using Next/Previous in the edit metadata dialog."
+
+  improved recipes:
+    - Liberation
+    - Politika
+
+  new recipes:
+    - title: Sage News 
+      author: Brian Hahn
+
+    - title: Il Cambiamento 
+      author: ghib9
+
+- version: 1.3.0
+  date: 2013-09-13
+
+  new features:
+    - title: "When doing searches or switching between virtual libraries in the main book list, preserve the current book. The currently selected book will remain visible if it is present in the results of the search or the selected virtual library."
+      tickets: [1216713]
+
+    - title: "Drivers for Oppo Find 5 and PocketBook Mini 515"
+      tickets: [1223853]
+ 
+  bug fixes:
+    - title: "DOCX Input: Handle numbered paragraphs where the numbering is specified in the paragraph style, instead of on the paragraph directly. Also support the use of arbitrary, styled text for bullets."
+
+    - title: "DOCX Input: Fix a single line break at the end of a paragraph not being rendered as a blank line."
+
+    - title: "DOCX Input: Fix extra top/bottom margins around headings when the heading style in word does not specify any top/bottom margins."
+
+    - title: "DOCX Input: Handle images in footnotes and endnotes."
+      tickets: [1221686]
+
+    - title: "ODT Input: Only treat the first image as a cover if it is of suitable size, instead of any image in the document."
+      tickets: [1224157]
+
+    - title: "Book polishing: Do not leave behind the old comments when updating metadata if the comments have been deleted in calibre."
+
+    - title: "PDF Output: Fix non-breaking space characters incorrectly rendered in PDF outline."
+      tickets: [1223862]
+
+    - title: "Content server: Fix error in opds feed after using virtual libraries in the main server."
+      tickets: [1222108]
+
+    - title: "Do not scroll the book list horizontally after editing metadata."
+      tickets: [1221552]
+
+    - title: "New database backend: Handle databases that contain multiple tags/series/publishers/etc. that differ only in case."
+      tickets: [1221545] 
+
+  improved recipes:
+    - Harvard Business Review
+    - Jakarta Post 
+    - Jakarta Globe
+    - Dilema Veche
+    - Daily Express
+    - Anandtech
+    - High Country News
+
+  new recipes:
+    - title: Caravan Magazine
+      author: Kovid Goyal
+
+    - title: Phys Org 
+      author: Krittika Goyal
+     
+- version: 1.2.0
+  date: 2013-09-06
+
+  new features:
+    - title: "Conversion: Add support for the CSS3 rem font size unit"
+
+    - title: "MTP devices, such as Android tablets/phones: Allow ignoring any folder on the device, not just top level folders. For newly connected devices, also scan /Android/data/com.amazon.kindle for books by default (newer versions of the Kindle app place downloaded files there)."
+
+    - title: "Speed up sorting when the book list is showing a restricted set of books, such as when the results of a search are displayed or a virtual library is used."
+      tickets: [1217622]
+
+    - title: "Edit metadata dialog: Add an undo option for the Trim cover button."
+      tickets: [1219227]
+ 
+  bug fixes:
+    - title: "Amazon metadata download: Update to handle website changes at amazon.com"
+
+    - title: "PDF Output: Workaround a bug in the library calibre uses to render HTML to PDF that caused text in some documents that used small-caps fonts to not render correctly."
+      tickets: [1216354]
+
+    - title: "Kobo driver: When a sideloaded kepub is added from a Kobo device to the calibre library, it is added as an epub, but the file copied is corrupt."
+      tickets: [1221035]
+
+    - title: "Fix changing the user interface language in the welcome wizard causing some parts of the interface to remain in the old language until calibre is restarted."
+      tickets: [1220767]
+
+    - title: "Fix regression in 1.0 that broke setting author names with the | character in them."
+      tickets: [1220348]
+
+    - title: "Content server: When running from inside the main calibre program, do not restrict the books shown based on the current virtual library in the main program. If you wish to restrict the books shown in the content server, use Preferences->Sharing over the net."
+
+    - title: "Output dates in the local timezone instead of UTC when generating CSV catalogs"
+
+    - title: "Library maintenance: When doing a check library instead of dumping the database to SQL and restoring it, run a VACUUM. This works around various bugs in the dump and restore capabilities of apsw."
+      tickets: [1217988] 
+
+    - title: "Edit metadata dialog: Fix adding an image to an empty comments block not working"
+
+    - title: "Conversion: Fix font declarations with invalid font-family values causing conversion to abort when subsetting is enabled."
+
+    - title: "MOBI Output: Fix conversion of some super/sub scripts failling if they are the first or last element in a paragraph."
+      tickets: [1218858]
+
+    - title: "New database backend: Various improvements to make the backend more robust against databases with invalid/corrupt data in them."
+      tickets: [1218465, 1218783]
+
+  improved recipes:
+    - Countryfile
+
+- version: 1.1.0
+  date: 2013-08-30
+
+  new features:
+    - title: "Rewrite the HTML metadata parser to make it faster and more robust."
+      tickets: [1217751]
+
+    - title: "Book list: When sorting on a currently unsorted column, use the last applied sort for that column, instead of always sorting in ascending order."
+      tickets: [1216714]
+
+    - title: "PocketBook driver: Scan for books files in the entire device not just in the 'books' folder"
+ 
+  bug fixes:
+    - title: "Fix a regression in 1.0 that could cause the dates in custom date-type columns to change in some timezones when using the edit metadata dialog to make unrelated changes."
+      tickets: [1217096]
+
+    - title: "When replacing formats in a book with a very long title+authors on windows, calibre could leave behind the old format file, because the filename shortening algorithm has changed. Handle that case."
+
+    - title: "Fix content server giving an error if you return to the top level page after using the virtual libraries."
+      tickets: [1216838]
+
+    - title: "Fix calibredb not updating the running calibre instance properly in 1.0"
+      tickets: [1218177]
+
+    - title: "Fix a regression in 1.0 that broke splitting of multiple valued field like tags into many items during a rename."
+      tickets: [1216699]
+
+    - title: "Fix a regression in 1.0 that caused an error when trying to set values for tags with the same item repeated, with different case."
+      tickets: [1216398]
+
+    - title: "Fix a regression that broke downloading news when output format is set to PDF"
+
+    - title: "Creating a catalog with an already existing catalog in the library would cause a temporary duplicate entry in the book list. Also fix the author sort for catalogs generated in the AZW3 format not being correct."
+
+    - title: "EPUB metadata: When changing the title in an EPUB 2.0 file that has multiple titles, remove the extra titles."
+      tickets: [1211949]
+
+    - title: "Fix a regression in 1.0 that caused Search and Replace in the bulk metadata edit dialog to be much slower than before"
+
+    - title: "Fix a regression in 1.0 that caused incorrect sorting and searching on some composite columns (columns built from other columns)."
+
+    - title: "Fix a regression in 1.0 that prevented the moving of libraries inside calibre"
+      tickets: [1216401]
+
+    - title: "Virtual Library tabs: If the user activates a hidden tab via the Virtual Library button, change the name of the All Books tab to reflect the hidden virtual library."
+      tickets: [1216174]
+
+    - title: "Ignore text records in the database that are damaged, instead of erroring out. Lets the rest of the data be used."
+      tickets: [1215981]
+
+    - title: "Fix regression that broke calibredb catalog when sorting on the id field."
+      tickets: [1216090]
+
+    - title: "HTML Input: Handle malformed OPF files when converting. "
+      tickets: [1215924]
+
+    - title: "Ensure that the Formats custom column (if present) is updated when a new format is created as a result of a conversion."
+      tickets: [1215885]
+
+    - title: "Fix a bug in 1.0 that broke the Check Library function on computers with non-English locales."
+      tickets: [1215819]
+
+    - title: "Content server: Fix blank username causing error on startup."
+      tickets: [1215893]
+
+    - title: "Fix sorting of book list by multi-valued fields like tags not correct in the new backend."
+      tickets: [1215820]
+
+  improved recipes:
+    - Daily Mirror
+
+  new recipes:
+    - title: VFR Magazine 
+      author: Krittika Goyal
+
+- version: 1.0.0
+  date: 2013-08-23
+
+  new features:
+    - title: "A new 'cover grid' view of the books in your calibre library"
+      description: "Excellent for judging your books by their covers :) To use click the button with the icon of a grid in the bottom right corner of the main window. It can be configured via Preferences->Look & Feel->Cover Grid"
+      type: major
+
+    - title: "A new, faster database backend"
+      description: "The database backend in calibre has been re-written from scratch. The new code is smaller, more robust and much faster than the old code. The exact speedup will depend on the number of books and number and type of custom columns in your library. Users have reported calibre startup times decreasing by a factor of 2-3 times."
+      type: major
+
+    - title: "For a summary of the major changes in calibre between 0.9 and 1.0, see http://calibre-ebook.com/new-in/ten"
+      type: major
+
+    - title: "RTF Input: Add option to ignore WMF images iinstead of replacing them with a placeholder."
+      tickets: [1213599]
+
+    - title: "Content server: Make virtual libraries available as searches from the start page. They work just like saved searches, clicking on a virtual library will show you all the books in that virtual library."
+ 
+  bug fixes:
+    - title: "Remove extra, useless 'language' entry in metadata download configuration dialog"
+
+    - title: "Kobo driver: Display device collections even if the driver is configured to not manage shelves on the device."
+      tickets: [1214233]
+
+    - title: "Fix typo in calibre.desktop file on linux"
+      tickets: [1213664]
+
+    - title: "Edit metadata dialog: Disable OK button while results are being downloaded."
+      tickets: [1213397]
+
+    - title: "In OS X 10.8 Apple stopped redirecting stdout/stderr to Console.app for applications launched by launch services. Re-enable the redirection, useful for debugging."
+
+    - title: "Fix virtual library tabs not being updated when using VL button"
+
+  improved recipes:
+    - Consumerist
+    - jeuxvideo
+    - Metro UK
+    - El Tribuno
+    - High Country News
+    - Daily Express
+    - Providence Journal
+    - mediapart
+
+  new recipes:
+    - title: News24 and Nuus24
+      author: Nicki de Wet
+     
 - version: 0.9.44
   date: 2013-08-16
 

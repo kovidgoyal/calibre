@@ -1,177 +1,154 @@
-#!/usr/bin/env  python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Try to read metadata from an HTML file.
 '''
 
 import re
 
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import string_to_authors
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre import entity_to_unicode
-from calibre.utils.date import parse_date
+from calibre import replace_entities, isbytestring
+from calibre.utils.date import parse_date, is_date_undefined
 
 def get_metadata(stream):
     src = stream.read()
     return get_metadata_(src)
 
-def get_meta_regexp_(name):
-    return re.compile('<meta name=[\'"]' + name + r'[\'"]\s+content=[\'"](.+?)[\'"]\s*/?>', re.IGNORECASE)
+COMMENT_NAMES = {
+    'title': 'TITLE',
+    'authors': 'AUTHOR',
+    'publisher': 'PUBLISHER',
+    'isbn': 'ISBN',
+    'language': 'LANGUAGE',
+    'pubdate': 'PUBDATE',
+    'timestamp': 'TIMESTAMP',
+    'series': 'SERIES',
+    'series_index': 'SERIESNUMBER',
+    'rating': 'RATING',
+    'comments': 'COMMENTS',
+    'tags': 'TAGS',
+}
+
+META_NAMES = {
+    'title' : ('dc.title', 'dcterms.title', 'title'),
+    'authors': ('author', 'dc.creator.aut', 'dcterms.creator.aut', 'dc.creator'),
+    'publisher': ('publisher', 'dc.publisher', 'dcterms.publisher'),
+    'isbn': ('isbn', 'dc.identifier.isbn', 'dcterms.identifier.isbn'),
+    'language': ('dc.language', 'dcterms.language'),
+    'pubdate': ('pubdate', 'date of publication', 'dc.date.published', 'dc.date.publication', 'dc.date.issued', 'dcterms.issued'),
+    'timestamp': ('timestamp', 'date of creation', 'dc.date.created', 'dc.date.creation', 'dcterms.created'),
+    'series': ('series',),
+    'series_index': ('seriesnumber', 'series_index', 'series.index'),
+    'rating': ('rating',),
+    'comments': ('comments',),
+    'tags': ('tags',),
+}
+
+# Extract an HTML attribute value, supports both single and double quotes and
+# single quotes inside double quotes and vice versa.
+attr_pat = r'''(?:(?P<sq>')|(?P<dq>"))(?P<content>(?(sq)[^']+|[^"]+))(?(sq)'|")'''
+
+def parse_meta_tags(src):
+    rmap = {}
+    for field, names in META_NAMES.iteritems():
+        for name in names:
+            rmap[name.lower()] = field
+    all_names = '|'.join(rmap)
+    ans = {}
+    npat = r'''name\s*=\s*['"]{0,1}(?P<name>%s)['"]{0,1}''' % all_names
+    cpat = 'content\s*=\s*%s' % attr_pat
+    for pat in (
+        '<meta\s+%s\s+%s' % (npat, cpat),
+        '<meta\s+%s\s+%s' % (cpat, npat),
+    ):
+        for match in re.finditer(pat, src, flags=re.IGNORECASE):
+            x = match.group('name').lower()
+            try:
+                field = rmap[x]
+            except KeyError:
+                try:
+                    field = rmap[x.replace(':', '.')]
+                except KeyError:
+                    continue
+
+            if field not in ans:
+                ans[field] = replace_entities(match.group('content'))
+            if len(ans) == len(META_NAMES):
+                return ans
+    return ans
+
+def parse_comment_tags(src):
+    all_names = '|'.join(COMMENT_NAMES.itervalues())
+    rmap = {v:k for k, v in COMMENT_NAMES.iteritems()}
+    ans = {}
+    for match in re.finditer(r'''<!--\s*(?P<name>%s)\s*=\s*%s''' % (all_names, attr_pat), src):
+        field = rmap[match.group('name')]
+        if field not in ans:
+            ans[field] = replace_entities(match.group('content'))
+        if len(ans) == len(COMMENT_NAMES):
+            break
+    return ans
 
 def get_metadata_(src, encoding=None):
-    if not isinstance(src, unicode):
+    # Meta data definitions as in
+    # http://www.mobileread.com/forums/showpost.php?p=712544&postcount=9
+
+    if isbytestring(src):
         if not encoding:
             src = xml_to_unicode(src)[0]
         else:
             src = src.decode(encoding, 'replace')
+    src = src[:150000]  # Searching shouldn't take too long
+    comment_tags = parse_comment_tags(src)
+    meta_tags = parse_meta_tags(src)
 
-    # Meta data definitions as in
-    # http://www.mobileread.com/forums/showpost.php?p=712544&postcount=9
+    def get(field):
+        ans = comment_tags.get(field, meta_tags.get(field, None))
+        if ans:
+            ans = ans.strip()
+        if not ans:
+            ans = None
+        return ans
 
     # Title
-    title = None
-    pat = re.compile(r'<!--.*?TITLE=(?P<q>[\'"])(.+?)(?P=q).*?-->', re.DOTALL)
-    src = src[:150000] # Searching shouldn't take too long
-    match = pat.search(src)
-    if match:
-        title = match.group(2)
-    else:
-        for x in ('DC.title','DCTERMS.title','Title'):
-            pat = get_meta_regexp_(x)
-            match = pat.search(src)
-            if match:
-                title = match.group(1)
-                break
+    title = get('title')
     if not title:
         pat = re.compile('<title>([^<>]+?)</title>', re.IGNORECASE)
         match = pat.search(src)
         if match:
-            title = match.group(1)
+            title = replace_entities(match.group(1))
 
     # Author
-    author = None
-    pat = re.compile(r'<!--.*?AUTHOR=(?P<q>[\'"])(.+?)(?P=q).*?-->', re.DOTALL)
-    match = pat.search(src)
-    if match:
-        author = match.group(2).replace(',', ';')
-    else:
-        for x in ('Author','DC.creator.aut','DCTERMS.creator.aut', 'DC.creator'):
-            pat = get_meta_regexp_(x)
-            match = pat.search(src)
-            if match:
-                author = match.group(1)
-                break
+    authors = get('authors') or _('Unknown')
 
     # Create MetaInformation with Title and Author
-    ent_pat = re.compile(r'&(\S+)?;')
-    if title:
-        title = ent_pat.sub(entity_to_unicode, title)
-    if author:
-        author = ent_pat.sub(entity_to_unicode, author)
-    mi = MetaInformation(title, [author] if author else None)
+    mi = Metadata(title or _('Unknown'), string_to_authors(authors))
 
-    # Publisher
-    publisher = None
-    pat = re.compile(r'<!--.*?PUBLISHER=(?P<q>[\'"])(.+?)(?P=q).*?-->', re.DOTALL)
-    match = pat.search(src)
-    if match:
-        publisher = match.group(2)
-    else:
-        for x in ('Publisher','DC.publisher','DCTERMS.publisher'):
-            pat = get_meta_regexp_(x)
-            match = pat.search(src)
-            if match:
-                publisher = match.group(1)
-                break
-    if publisher:
-        mi.publisher = ent_pat.sub(entity_to_unicode, publisher)
+    for field in ('publisher', 'isbn', 'language', 'comments'):
+        val = get(field)
+        if val:
+            setattr(mi, field, val)
 
-    # ISBN
-    isbn = None
-    pat = re.compile(r'<!--.*?ISBN=[\'"]([^"\']+)[\'"].*?-->', re.DOTALL)
-    match = pat.search(src)
-    if match:
-        isbn = match.group(1)
-    else:
-        for x in ('ISBN','DC.identifier.ISBN','DCTERMS.identifier.ISBN'):
-            pat = get_meta_regexp_(x)
-            match = pat.search(src)
-            if match:
-                isbn = match.group(1)
-                break
-    if isbn:
-        mi.isbn = re.sub(r'[^0-9xX]', '', isbn)
-
-    # LANGUAGE
-    language = None
-    pat = re.compile(r'<!--.*?LANGUAGE=[\'"]([^"\']+)[\'"].*?-->', re.DOTALL)
-    match = pat.search(src)
-    if match:
-        language = match.group(1)
-    else:
-        for x in ('DC.language','DCTERMS.language'):
-            pat = get_meta_regexp_(x)
-            match = pat.search(src)
-            if match:
-                language = match.group(1)
-                break
-    if language:
-        mi.language = language
-
-    # PUBDATE
-    pubdate = None
-    pat = re.compile(r'<!--.*?PUBDATE=[\'"]([^"\']+)[\'"].*?-->', re.DOTALL)
-    match = pat.search(src)
-    if match:
-        pubdate = match.group(1)
-    else:
-        for x in ('Pubdate','Date of publication','DC.date.published','DC.date.publication','DC.date.issued','DCTERMS.issued'):
-            pat = get_meta_regexp_(x)
-            match = pat.search(src)
-            if match:
-                pubdate = match.group(1)
-                break
-    if pubdate:
+    for field in ('pubdate', 'timestamp'):
         try:
-            mi.pubdate = parse_date(pubdate)
+            val = parse_date(get(field))
         except:
             pass
-
-    # TIMESTAMP
-    timestamp = None
-    pat = re.compile(r'<!--.*?TIMESTAMP=[\'"]([^"\']+)[\'"].*?-->', re.DOTALL)
-    match = pat.search(src)
-    if match:
-        timestamp = match.group(1)
-    else:
-        for x in ('Timestamp','Date of creation','DC.date.created','DC.date.creation','DCTERMS.created'):
-            pat = get_meta_regexp_(x)
-            match = pat.search(src)
-            if match:
-                timestamp = match.group(1)
-                break
-    if timestamp:
-        try:
-            mi.timestamp = parse_date(timestamp)
-        except:
-            pass
+        else:
+            if not is_date_undefined(val):
+                setattr(mi, field, val)
 
     # SERIES
-    series = None
-    pat = re.compile(r'<!--.*?SERIES=[\'"]([^"\']+)[\'"].*?-->', re.DOTALL)
-    match = pat.search(src)
-    if match:
-        series = match.group(1)
-    else:
-        pat = get_meta_regexp_("Series")
-        match = pat.search(src)
-        if match:
-            series = match.group(1)
+    series = get('series')
     if series:
-        pat = re.compile(r'\[([.0-9]+)\]')
+        pat = re.compile(r'\[([.0-9]+)\]$')
         match = pat.search(series)
         series_index = None
         if match is not None:
@@ -180,30 +157,18 @@ def get_metadata_(src, encoding=None):
             except:
                 pass
             series = series.replace(match.group(), '').strip()
-
-        mi.series = ent_pat.sub(entity_to_unicode, series)
+        mi.series = series
         if series_index is None:
-            pat = get_meta_regexp_("Seriesnumber")
-            match = pat.search(src)
-            if match:
-                try:
-                    series_index = float(match.group(1))
-                except:
-                    pass
+            series_index = get('series_index')
+            try:
+                series_index = float(series_index)
+            except:
+                pass
         if series_index is not None:
             mi.series_index = series_index
 
     # RATING
-    rating = None
-    pat = re.compile(r'<!--.*?RATING=[\'"]([^"\']+)[\'"].*?-->', re.DOTALL)
-    match = pat.search(src)
-    if match:
-        rating = match.group(1)
-    else:
-        pat = get_meta_regexp_("Rating")
-        match = pat.search(src)
-        if match:
-            rating = match.group(1)
+    rating = get('rating')
     if rating:
         try:
             mi.rating = float(rating)
@@ -216,36 +181,11 @@ def get_metadata_(src, encoding=None):
         except:
             pass
 
-    # COMMENTS
-    comments = None
-    pat = re.compile(r'<!--.*?COMMENTS=[\'"]([^"\']+)[\'"].*?-->', re.DOTALL)
-    match = pat.search(src)
-    if match:
-        comments = match.group(1)
-    else:
-        pat = get_meta_regexp_("Comments")
-        match = pat.search(src)
-        if match:
-            comments = match.group(1)
-    if comments:
-        mi.comments = ent_pat.sub(entity_to_unicode, comments)
-
     # TAGS
-    tags = None
-    pat = re.compile(r'<!--.*?TAGS=[\'"]([^"\']+)[\'"].*?-->', re.DOTALL)
-    match = pat.search(src)
-    if match:
-        tags = match.group(1)
-    else:
-        pat = get_meta_regexp_("Tags")
-        match = pat.search(src)
-        if match:
-            tags = match.group(1)
+    tags = get('tags')
     if tags:
-        mi.tags = [x.strip() for x in ent_pat.sub(entity_to_unicode,
-            tags).split(",")]
+        tags = [x.strip() for x in tags.split(',') if x.strip()]
+        if tags:
+            mi.tags = tags
 
-    # Ready to return MetaInformation
     return mi
-
-

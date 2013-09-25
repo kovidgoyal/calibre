@@ -21,6 +21,7 @@ from calibre.devices.mtp.base import MTPDeviceBase, synchronous, debug
 MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
         'bcd serial manufacturer product')
 
+null = object()
 def fingerprint(d):
     return MTPDevice(d.busnum, d.devnum, d.vendor_id, d.product_id, d.bcd,
             d.serial, d.manufacturer, d.product)
@@ -52,7 +53,8 @@ class MTP_DEVICE(MTPDeviceBase):
     def is_device_mtp(self, d, debug=None):
         ''' Returns True iff the _is_device_mtp check returns True and libmtp
         is able to probe the device successfully. '''
-        if self._is_device_mtp is None: return False
+        if self._is_device_mtp is None:
+            return False
         return (self._is_device_mtp(d, debug=debug) and
                 self.libmtp.is_mtp_device(d.busnum, d.devnum))
 
@@ -61,7 +63,8 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @synchronous
     def detect_managed_devices(self, devices_on_system, force_refresh=False):
-        if self.libmtp is None: return None
+        if self.libmtp is None:
+            return None
         # First remove blacklisted devices.
         devs = set()
         for d in devices_on_system:
@@ -109,13 +112,14 @@ class MTP_DEVICE(MTPDeviceBase):
             p(err)
             return False
         devs = [d for d in devices_on_system if
-            ( (d.vendor_id, d.product_id) in self.known_devices or
+            ((d.vendor_id, d.product_id) in self.known_devices or
                self.is_device_mtp(d, debug=p)) and d.vendor_id != APPLE]
         if not devs:
             p('No MTP devices connected to system')
             return False
         p('MTP devices connected:')
-        for d in devs: p(d)
+        for d in devs:
+            p(d)
 
         for d in devs:
             p('\nTrying to open:', d)
@@ -144,7 +148,8 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @synchronous
     def eject(self):
-        if self.currently_connected_dev is None: return
+        if self.currently_connected_dev is None:
+            return
         self.ejected_devices.add(self.currently_connected_dev)
         self.post_yank_cleanup()
 
@@ -226,13 +231,23 @@ class MTP_DEVICE(MTPDeviceBase):
         ans += pprint.pformat(storage)
         return ans
 
-    def _filesystem_callback(self, entry, level):
+    def _filesystem_callback(self, fs_map, entry, level):
         name = entry.get('name', '')
         self.filesystem_callback(_('Found object: %s')%name)
-        if (level == 0 and
-            self.is_folder_ignored(self._currently_getting_sid, name)):
-            return False
-        return True
+        fs_map[entry.get('id', null)] = entry
+        path = [name]
+        pid = entry.get('parent_id', 0)
+        while pid != 0 and pid in fs_map:
+            parent = fs_map[pid]
+            path.append(parent.get('name', ''))
+            pid = parent.get('parent_id', 0)
+            if fs_map.get(pid, None) is parent:
+                break  # An object is its own parent
+        path = tuple(reversed(path))
+        ok = not self.is_folder_ignored(self._currently_getting_sid, path)
+        if not ok:
+            debug('Ignored object: %s' % '/'.join(path))
+        return ok
 
     @property
     def filesystem_cache(self):
@@ -244,7 +259,8 @@ class MTP_DEVICE(MTPDeviceBase):
                 storage, all_items, all_errs = [], [], []
                 for sid, capacity in zip([self._main_id, self._carda_id,
                     self._cardb_id], self.total_space()):
-                    if sid is None: continue
+                    if sid is None:
+                        continue
                     name = _('Unknown')
                     for x in self.dev.storage_info:
                         if x['id'] == sid:
@@ -255,7 +271,7 @@ class MTP_DEVICE(MTPDeviceBase):
                         'is_system':True})
                     self._currently_getting_sid = unicode(sid)
                     items, errs = self.dev.get_filesystem(sid,
-                            self._filesystem_callback)
+                            partial(self._filesystem_callback, {}))
                     all_items.extend(items), all_errs.extend(errs)
                 if not all_items and all_errs:
                     raise DeviceError(
@@ -384,7 +400,8 @@ def develop():
     dev.startup()
     try:
         cd = dev.detect_managed_devices(scanner.devices)
-        if cd is None: raise RuntimeError('No MTP device found')
+        if cd is None:
+            raise RuntimeError('No MTP device found')
         dev.open(cd, 'develop')
         pprint.pprint(dev.dev.storage_info)
         dev.filesystem_cache

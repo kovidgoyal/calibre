@@ -1,0 +1,92 @@
+import html5lib
+from lxml import etree
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.utils.cleantext import clean_xml_chars
+
+def is_title(tag):
+    return tag.name == 'h2' and tag.parent.name == 'div' and tag.parent['class'] == 'left-corner'
+
+class CaravanMagazine(BasicNewsRecipe):
+
+    title = 'Caravan Magazine'
+    __author__ = 'Kovid Goyal'
+    description = 'An Indian Journal of politics and culture'
+    language = 'en_IN'
+    timefmt = ' [%b, %Y]'
+
+    no_stylesheets = True
+
+    keep_only_tags = [
+        dict(name=is_title),
+        dict(attrs={'class':['subhheading', 'authorndate', 'full-image-view', 'fullpage-body']}),
+    ]
+    remove_tags = [
+        dict(attrs={'class':['share-with']}),
+        dict(attrs={'class':lambda x: x and 'thumb-image-view' in x}),
+    ]
+
+    def preprocess_raw_html(self, raw_html, url):
+        root = html5lib.parse(
+            clean_xml_chars(raw_html), treebuilder='lxml',
+            namespaceHTMLElements=False)
+        for s in root.xpath('//script'):
+            s.getparent().remove(s)
+        return etree.tostring(root, encoding=unicode)
+
+    def preprocess_html(self, soup):
+        # Handle the image thumbnails
+        for div in soup.findAll('div', attrs={'class':lambda x: x and x.startswith('show-image')}):
+            if div['class'] == 'show-image':
+                div.extract()
+            else:
+                div['style'] = 'page-break-inside:avoid'
+
+        return soup
+
+    # To parse artice toc
+    def parse_index(self):
+        raw = self.index_to_soup(
+            'http://caravanmagazine.in/current-issue', raw=True)
+        raw = raw.decode('utf-8')
+        raw = self.preprocess_raw_html(raw, None)
+        soup = self.index_to_soup(raw)
+
+        a = soup.find('a', rel=lambda x:x and '[field_c_issues_image]' in x)
+        if a is not None:
+            self.cover_url = a['href']
+
+        ci = soup.find(attrs={'class': 'current-issue-block'})
+        current_section = 'Section'
+        current_articles = []
+        feeds = []
+        for div in ci.findAll(
+                attrs={'class': ['view-header', 'view-content']}):
+            if div['class'] == 'view-header':
+                if current_articles:
+                    feeds.append((current_section, current_articles))
+                current_section = self.tag_to_string(div).replace('paging_filter', '')
+                current_articles = []
+                self.log('Section:', current_section)
+            else:
+                for art in div.findAll('div', attrs={'class': lambda x: x and 'views-row' in x.split()}):
+                    title = div.find(attrs={'class': 'views-field-title'})
+                    if title is not None:
+                        a = title.find('a', href=True)
+                        if a is not None:
+                            href = a['href']
+                            if href.startswith('/'):
+                                href = 'http://caravanmagazine.in' + href
+                            article = {
+                                'title': self.tag_to_string(title), 'url': href}
+                            title.extract()
+                            desc = self.tag_to_string(div).strip()
+                            if desc:
+                                article['description'] = desc
+                            current_articles.append(article)
+                            self.log('\t' + article['title'])
+                            self.log('\t\t' + article['url'])
+
+        if current_articles:
+            feeds.append((current_section, current_articles))
+
+        return feeds

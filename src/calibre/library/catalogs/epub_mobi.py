@@ -447,7 +447,7 @@ class EPUB_MOBI(CatalogPlugin):
             try:
                 search_text = 'title:"%s" author:%s' % (
                         opts.catalog_title.replace('"', '\\"'), 'calibre')
-                matches = db.search(search_text, return_matches=True)
+                matches = db.search(search_text, return_matches=True, sort_results=False)
                 if matches:
                     cpath = db.cover(matches[0], index_is_id=True, as_path=True)
                     if cpath and os.path.exists(cpath):

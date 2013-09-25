@@ -285,7 +285,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
 
         try:
             db = self.gui.library_view.model().db
-            recs = db.data.search_getting_ids('', v, use_virtual_library=False)
+            recs = db.data.search_getting_ids('', v, use_virtual_library=False, sort_results=False)
         except ParseException as e:
             error_dialog(self.gui, _('Invalid search'),
                          _('The search in the search box is not valid'),
@@ -587,7 +587,8 @@ class SearchRestrictionMixin(object):
         v = self.current_view()
         if not v.currentIndex().isValid():
             v.set_current_row()
-        v.refresh_book_details()
+        if not v.refresh_book_details():
+            self.book_details.reset_info()
 
     def set_number_of_books_shown(self):
         db = self.library_view.model().db

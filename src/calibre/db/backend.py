@@ -32,7 +32,7 @@ from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
-        CompositeTable, UUIDTable)
+        CompositeTable, UUIDTable, RatingTable)
 # }}}
 
 '''
@@ -371,6 +371,8 @@ class DB(object):
         UPDATE authors SET sort=author_to_author_sort(name) WHERE sort IS NULL;
         ''')
 
+        # Initialize_prefs must be called before initialize_custom_columns because
+        # icc can set a pref.
         self.initialize_prefs(default_prefs, restore_all_prefs, progress_callback)
         self.initialize_custom_columns()
         self.initialize_tables()
@@ -425,6 +427,7 @@ class DB(object):
         defs['virtual_libraries'] = {}
         defs['virtual_lib_on_startup'] = defs['cs_virtual_lib_on_startup'] = ''
         defs['virt_libs_hidden'] = defs['virt_libs_order'] = ()
+        defs['update_all_last_mod_dates_on_start'] = False
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
@@ -539,7 +542,7 @@ class DB(object):
                         DROP TABLE   IF EXISTS {lt};
                         '''.format(table=table, lt=lt)
                 )
-                self.custom_columns_deleted = True
+                self.prefs.set('update_all_last_mod_dates_on_start', True)
             self.conn.execute('DELETE FROM custom_columns WHERE mark_for_delete=1')
 
         # Load metadata for custom columns
@@ -702,14 +705,15 @@ class DB(object):
                 metadata['column'] = col
             tables[col] = (PathTable if col == 'path' else UUIDTable if col == 'uuid' else OneToOneTable)(col, metadata)
 
-        for col in ('series', 'publisher', 'rating'):
+        for col in ('series', 'publisher'):
             tables[col] = ManyToOneTable(col, self.field_metadata[col].copy())
 
-        for col in ('authors', 'tags', 'formats', 'identifiers', 'languages'):
+        for col in ('authors', 'tags', 'formats', 'identifiers', 'languages', 'rating'):
             cls = {
                     'authors':AuthorsTable,
                     'formats':FormatsTable,
                     'identifiers':IdentifiersTable,
+                    'rating':RatingTable,
                   }.get(col, ManyToManyTable)
             tables[col] = cls(col, self.field_metadata[col].copy())
 
@@ -807,6 +811,7 @@ class DB(object):
         if display is not None:
             self.conn.execute('UPDATE custom_columns SET display=? WHERE id=?', (json.dumps(display), num))
             changed = True
+        # Note: the caller is responsible for scheduling a metadata backup if necessary
         return changed
 
     def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display={}):  # {{{
@@ -963,6 +968,7 @@ class DB(object):
             ]
         script = ' \n'.join(lines)
         self.conn.execute(script)
+        self.prefs.set('update_all_last_mod_dates_on_start', True)
         return num
     # }}}
 
@@ -981,30 +987,38 @@ class DB(object):
         self.conn
 
     def dump_and_restore(self, callback=None, sql=None):
-        from io import StringIO
+        import codecs
+        from calibre.utils.apsw_shell import Shell
         from contextlib import closing
         if callback is None:
             callback = lambda x: x
         uv = int(self.user_version)
 
-        if sql is None:
-            callback(_('Dumping database to SQL') + '...')
-            buf = StringIO()
-            shell = apsw.Shell(db=self.conn, stdout=buf)
-            shell.process_command('.dump')
-            sql = buf.getvalue()
+        with TemporaryFile(suffix='.sql') as fname:
+            if sql is None:
+                callback(_('Dumping database to SQL') + '...')
+                with codecs.open(fname, 'wb', encoding='utf-8') as buf:
+                    shell = Shell(db=self.conn, stdout=buf)
+                    shell.process_command('.dump')
+            else:
+                with open(fname, 'wb') as buf:
+                    buf.write(sql if isinstance(sql, bytes) else sql.encode('utf-8'))
 
-        with TemporaryFile(suffix='_tmpdb.db', dir=os.path.dirname(self.dbpath)) as tmpdb:
-            callback(_('Restoring database from SQL') + '...')
-            with closing(Connection(tmpdb)) as conn:
-                conn.execute(sql)
-                conn.execute('PRAGMA user_version=%d;'%uv)
+            with TemporaryFile(suffix='_tmpdb.db', dir=os.path.dirname(self.dbpath)) as tmpdb:
+                callback(_('Restoring database from SQL') + '...')
+                with closing(Connection(tmpdb)) as conn:
+                    shell = Shell(db=conn, encoding='utf-8')
+                    shell.process_command('.read ' + fname)
+                    conn.execute('PRAGMA user_version=%d;'%uv)
 
-            self.close()
-            try:
-                atomic_rename(tmpdb, self.dbpath)
-            finally:
-                self.reopen()
+                self.close()
+                try:
+                    atomic_rename(tmpdb, self.dbpath)
+                finally:
+                    self.reopen()
+
+    def vacuum(self):
+        self.conn.execute('VACUUM')
 
     @dynamic_property
     def user_version(self):
@@ -1259,22 +1273,21 @@ class DB(object):
         if callable(getattr(data, 'save', None)):
             from calibre.gui2 import pixmap_to_data
             data = pixmap_to_data(data)
-        else:
-            if callable(getattr(data, 'read', None)):
-                data = data.read()
-            if data is None:
-                if os.path.exists(path):
-                    try:
-                        os.remove(path)
-                    except (IOError, OSError):
-                        time.sleep(0.2)
-                        os.remove(path)
-            else:
+        elif callable(getattr(data, 'read', None)):
+            data = data.read()
+        if data is None:
+            if os.path.exists(path):
                 try:
-                    save_cover_data_to(data, path)
+                    os.remove(path)
                 except (IOError, OSError):
                     time.sleep(0.2)
-                    save_cover_data_to(data, path)
+                    os.remove(path)
+        else:
+            try:
+                save_cover_data_to(data, path)
+            except (IOError, OSError):
+                time.sleep(0.2)
+                save_cover_data_to(data, path)
 
     def copy_format_to(self, book_id, fmt, fname, path, dest,
                        windows_atomic_move=None, use_hardlink=False):
@@ -1336,7 +1349,7 @@ class DB(object):
                         if wam is not None:
                             wam.close_handles()
 
-    def add_format(self, book_id, fmt, stream, title, author, path):
+    def add_format(self, book_id, fmt, stream, title, author, path, current_name):
         fmt = ('.' + fmt.lower()) if fmt else ''
         fname = self.construct_file_name(book_id, title, author, len(fmt))
         path = os.path.join(self.library_path, path)
@@ -1344,6 +1357,22 @@ class DB(object):
         if not os.path.exists(path):
             os.makedirs(path)
         size = 0
+        if current_name is not None:
+            old_path = os.path.join(path, current_name + fmt)
+            if old_path != dest:
+                # Ensure that the old format file is not orphaned, this can
+                # happen if the algorithm in construct_file_name is changed.
+                try:
+                    # rename rather than remove, so that if something goes
+                    # wrong in the rest of this function, at least the file is
+                    # not deleted
+                    os.rename(old_path, dest)
+                except EnvironmentError as e:
+                    if getattr(e, 'errno', None) != errno.ENOENT:
+                        # Failing to rename the old format will at worst leave a
+                        # harmless orphan, so log and ignore the error
+                        import traceback
+                        traceback.print_exc()
 
         if (not getattr(stream, 'name', False) or not samefile(dest, stream.name)):
             with lopen(dest, 'wb') as f:

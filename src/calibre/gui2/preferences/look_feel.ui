@@ -347,6 +347,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="cover_grid_default_color_button">
+           <property name="text">
+            <string>Restore &amp;default color</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="horizontalSpacer_2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>

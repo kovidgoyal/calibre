@@ -19,7 +19,7 @@ from calibre.utils.recycle_bin import can_recycle
 
 single_shot = partial(QTimer.singleShot, 10)
 
-class MultiDeleter(QObject): # {{{
+class MultiDeleter(QObject):  # {{{
 
     def __init__(self, gui, ids, callback):
         from calibre.gui2.dialogs.progress import ProgressDialog
@@ -256,7 +256,7 @@ class DeleteAction(InterfaceAction):
             self.gui.tags_view.recount()
 
     def remove_matching_books_from_device(self, *args):
-        if not self.gui.device_manager.is_device_connected:
+        if not self.gui.device_manager.is_device_present:
             d = error_dialog(self.gui, _('Cannot delete books'),
                              _('No device is connected'))
             d.exec_()
@@ -264,7 +264,7 @@ class DeleteAction(InterfaceAction):
         ids = self._get_selected_ids()
         if not ids:
             #_get_selected_ids shows a dialog box if nothing is selected, so we
-            #do not need to show one here
+            # do not need to show one here
             return
         to_delete = {}
         some_to_delete = False
@@ -305,7 +305,6 @@ class DeleteAction(InterfaceAction):
         self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
 
-
     def library_ids_deleted(self, ids_deleted, current_row=None):
         view = self.gui.library_view
         for v in (self.gui.memory_view, self.gui.card_a_view, self.gui.card_b_view):
@@ -332,7 +331,7 @@ class DeleteAction(InterfaceAction):
     def do_library_delete(self, to_delete_ids):
         view = self.gui.current_view()
         # Ask the user if they want to delete the book from the library or device if it is in both.
-        if self.gui.device_manager.is_device_connected:
+        if self.gui.device_manager.is_device_present:
             on_device = False
             on_device_ids = self._get_selected_ids()
             for id in on_device_ids:

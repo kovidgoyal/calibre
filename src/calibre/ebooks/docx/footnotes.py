@@ -12,9 +12,10 @@ from calibre.ebooks.docx.names import get, XPath, descendants
 
 class Note(object):
 
-    def __init__(self, parent):
+    def __init__(self, parent, rels):
         self.type = get(parent, 'w:type', 'normal')
         self.parent = parent
+        self.rels = rels
 
     def __iter__(self):
         for p in descendants(self.parent, 'w:p', 'w:tbl'):
@@ -28,18 +29,18 @@ class Footnotes(object):
         self.counter = 0
         self.notes = OrderedDict()
 
-    def __call__(self, footnotes, endnotes):
+    def __call__(self, footnotes, footnotes_rels, endnotes, endnotes_rels):
         if footnotes is not None:
             for footnote in XPath('./w:footnote[@w:id]')(footnotes):
                 fid = get(footnote, 'w:id')
                 if fid:
-                    self.footnotes[fid] = Note(footnote)
+                    self.footnotes[fid] = Note(footnote, footnotes_rels)
 
         if endnotes is not None:
             for endnote in XPath('./w:endnote[@w:id]')(endnotes):
                 fid = get(endnote, 'w:id')
                 if fid:
-                    self.endnotes[fid] = Note(endnote)
+                    self.endnotes[fid] = Note(endnote, endnotes_rels)
 
     def get_ref(self, ref):
         fid = get(ref, 'w:id')

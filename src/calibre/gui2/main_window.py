@@ -78,15 +78,16 @@ class MainWindow(QMainWindow):
 
     @classmethod
     def create_application_menubar(cls):
-        mb = QMenuBar(None)
-        menu = QMenu()
-        for action in cls.get_menubar_actions():
-            menu.addAction(action)
-            cls.__actions.append(action)
-            yield action
-        mb.addMenu(menu)
-        cls.___menu_bar = mb
-        cls.___menu = menu
+        if not cls.__actions:
+            mb = QMenuBar(None)
+            menu = QMenu()
+            for action in cls.get_menubar_actions():
+                menu.addAction(action)
+                cls.__actions.append(action)
+            mb.addMenu(menu)
+            cls.___menu_bar = mb
+            cls.___menu = menu
+        return cls.__actions
 
     @classmethod
     def get_menubar_actions(cls):

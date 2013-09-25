@@ -30,7 +30,8 @@ class ContainerException(OCFException):
 
 class Container(dict):
     def __init__(self, stream=None):
-        if not stream: return
+        if not stream:
+            return
         soup = BeautifulStoneSoup(stream.read())
         container = soup.find(name=re.compile(r'container$', re.I))
         if not container:
@@ -256,7 +257,8 @@ def update_metadata(opf, mi, apply_null=False, update_timestamp=False):
         langs = []
         for lc in mi.languages:
             lc2 = lang_as_iso639_1(lc)
-            if lc2: lc = lc2
+            if lc2:
+                lc = lc2
             langs.append(lc)
         mi.languages = langs
 
@@ -270,6 +272,8 @@ def update_metadata(opf, mi, apply_null=False, update_timestamp=False):
             opf.tags = []
         if not getattr(mi, 'isbn', None):
             opf.isbn = None
+        if not getattr(mi, 'comments', None):
+            opf.comments = None
     if update_timestamp and mi.timestamp is not None:
         opf.timestamp = mi.timestamp
 

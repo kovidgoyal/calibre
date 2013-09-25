@@ -7,7 +7,7 @@ import json, os, traceback
 
 from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
-                      QIcon, QSize)
+                      QIcon, QSize, QVariant)
 
 from calibre import sanitize_file_name_unicode
 from calibre.constants import config_dir
@@ -18,7 +18,6 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.library.coloring import (displayable_columns, color_row_key)
 from calibre.gui2 import error_dialog, choose_files, pixmap_to_data
-
 
 class ParenPosition:
 
@@ -247,9 +246,15 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                             self.icon_file_names.append(icon_file)
             self.icon_file_names.sort(key=sort_key)
             self.update_filename_box()
-            self.icon_with_text.setChecked(True)
-            if icon_rule_kind == 'icon_only':
-                self.icon_without_text.setChecked(True)
+
+            dex = 0
+            from calibre.gui2.preferences.coloring import icon_rule_kinds
+            for i,tup in enumerate(icon_rule_kinds):
+                txt,val = tup
+                self.icon_kind.addItem(txt, userData=QVariant(val))
+                if val == icon_rule_kind:
+                    dex = i
+            self.icon_kind.setCurrentIndex(dex)
             self.icon_field.setCurrentIndex(self.icon_field.findData(icon_field_key))
 
         if mi:
@@ -410,7 +415,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.rule = (unicode(self.colored_field.itemData(
                                 self.colored_field.currentIndex()).toString()), txt)
         elif self.iconing:
-            rt = 'icon' if self.icon_with_text.isChecked() else 'icon_only'
+            rt = unicode(self.icon_kind.itemData(self.icon_kind.currentIndex()).toString())
             self.rule = (rt,
                          unicode(self.icon_field.itemData(
                                 self.icon_field.currentIndex()).toString()),

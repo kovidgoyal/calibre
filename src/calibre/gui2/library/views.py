@@ -149,6 +149,7 @@ class BooksView(QTableView):  # {{{
 
     files_dropped = pyqtSignal(object)
     add_column_signal = pyqtSignal()
+    is_library_view = True
 
     def viewportEvent(self, event):
         if (event.type() == event.ToolTip and not gprefs['book_list_tooltips']):
@@ -183,7 +184,6 @@ class BooksView(QTableView):  # {{{
 
         setup_dnd_interface(self)
         self.setAlternatingRowColors(True)
-        self.setSelectionBehavior(self.SelectRows)
         self.setShowGrid(False)
         self.setWordWrap(False)
 
@@ -220,6 +220,8 @@ class BooksView(QTableView):  # {{{
         self.was_restored = False
         self.column_header = HeaderView(Qt.Horizontal, self)
         self.setHorizontalHeader(self.column_header)
+        self.column_header.sortIndicatorChanged.disconnect()
+        self.column_header.sortIndicatorChanged.connect(self.user_sort_requested)
         self.column_header.setMovable(True)
         self.column_header.setClickable(True)
         self.column_header.sectionMoved.connect(self.save_state)
@@ -257,9 +259,9 @@ class BooksView(QTableView):  # {{{
                 sz = h.sectionSizeHint(idx)
                 h.resizeSection(idx, sz)
         elif action == 'ascending':
-            self.sortByColumn(idx, Qt.AscendingOrder)
+            self.sort_by_column_and_order(idx, True)
         elif action == 'descending':
-            self.sortByColumn(idx, Qt.DescendingOrder)
+            self.sort_by_column_and_order(idx, False)
         elif action == 'defaults':
             self.apply_state(self.get_default_state())
         elif action == 'addcustcol':
@@ -368,6 +370,30 @@ class BooksView(QTableView):  # {{{
     # }}}
 
     # Sorting {{{
+    def sort_by_column_and_order(self, col, ascending):
+        self.column_header.blockSignals(True)
+        self.sortByColumn(col, Qt.AscendingOrder if ascending else Qt.DescendingOrder)
+        self.column_header.blockSignals(False)
+
+    def user_sort_requested(self, col, order=Qt.AscendingOrder):
+        if col >= len(self.column_map) or col < 0:
+            return QTableView.sortByColumn(self, col)
+        field = self.column_map[col]
+        self.intelligent_sort(field, order == Qt.AscendingOrder)
+
+    def intelligent_sort(self, field, ascending):
+        m = self.model()
+        pname = 'previous_sort_order_' + self.__class__.__name__
+        previous = gprefs.get(pname, {})
+        if field == m.sorted_on[0] or field not in previous:
+            self.sort_by_named_field(field, ascending)
+            previous[field] = ascending
+            gprefs[pname] = previous
+            return
+        previous[m.sorted_on[0]] = m.sorted_on[1]
+        gprefs[pname] = previous
+        self.sort_by_named_field(field, previous[field])
+
     def about_to_be_sorted(self, idc):
         selected_rows = [r.row() for r in self.selectionModel().selectedRows()]
         self.selected_ids = [idc(r) for r in selected_rows]
@@ -382,12 +408,12 @@ class BooksView(QTableView):  # {{{
     def sort_by_named_field(self, field, order, reset=True):
         if field in self.column_map:
             idx = self.column_map.index(field)
-            if order:
-                self.sortByColumn(idx, Qt.AscendingOrder)
-            else:
-                self.sortByColumn(idx, Qt.DescendingOrder)
+            self.sort_by_column_and_order(idx, order)
         else:
             self._model.sort_by_named_field(field, order, reset)
+            self.column_header.blockSignals(True)
+            self.column_header.setSortIndicator(-1, Qt.AscendingOrder)
+            self.column_header.blockSignals(False)
 
     def multisort(self, fields, reset=True, only_if_different=False):
         if len(fields) == 0:
@@ -413,11 +439,11 @@ class BooksView(QTableView):  # {{{
         dir = Qt.AscendingOrder if fields[0][1] else Qt.DescendingOrder
         if col in self.column_map:
             col = self.column_map.index(col)
-            hdrs = self.horizontalHeader()
+            self.column_header.blockSignals(True)
             try:
-                hdrs.setSortIndicator(col, dir)
-            except:
-                pass
+                self.column_header.setSortIndicator(col, dir)
+            finally:
+                self.column_header.blockSignals(False)
     # }}}
 
     # Ondevice column {{{
@@ -481,8 +507,7 @@ class BooksView(QTableView):  # {{{
             return
         for col, order in reversed(self.cleanup_sort_history(
                 saved_history)[:max_sort_levels]):
-            self.sortByColumn(self.column_map.index(col),
-                              Qt.AscendingOrder if order else Qt.DescendingOrder)
+            self.sort_by_column_and_order(self.column_map.index(col), order)
 
     def apply_state(self, state, max_sort_levels=3):
         h = self.column_header
@@ -624,6 +649,7 @@ class BooksView(QTableView):  # {{{
             self.resizeRowToContents(0)
             self.verticalHeader().setDefaultSectionSize(self.rowHeight(0) +
                                             gprefs['extra_row_spacing'])
+            self._model.set_row_height(self.rowHeight(0))
             self.row_sizing_done = True
 
     def resize_column_to_fit(self, column):
@@ -737,6 +763,8 @@ class BooksView(QTableView):  # {{{
         idx = self.currentIndex()
         if idx.isValid():
             self._model.current_changed(idx, idx)
+            return True
+        return False
 
     def scrollContentsBy(self, dx, dy):
         # Needed as Qt bug causes headerview to not always update when scrolling
@@ -751,6 +779,28 @@ class BooksView(QTableView):  # {{{
                 if not h.isSectionHidden(i) and h.sectionViewportPosition(i) >= 0:
                     self.scrollTo(self.model().index(row, i), self.PositionAtCenter)
                     break
+
+    @property
+    def current_book(self):
+        ci = self.currentIndex()
+        if ci.isValid():
+            try:
+                return self.model().db.data.index_to_id(ci.row())
+            except (IndexError, ValueError, KeyError, TypeError, AttributeError):
+                pass
+
+    def current_book_state(self):
+        return self.current_book, self.horizontalScrollBar().value()
+
+    def restore_current_book_state(self, state):
+        book_id, hpos = state
+        try:
+            row = self.model().db.data.id_to_index(book_id)
+        except (IndexError, ValueError, KeyError, TypeError, AttributeError):
+            return
+        self.set_current_row(row)
+        self.scroll_to_row(row)
+        self.horizontalScrollBar().setValue(hpos)
 
     def set_current_row(self, row=0, select=True, for_sync=False):
         if row > -1 and row < self.model().rowCount(QModelIndex()):
@@ -905,18 +955,26 @@ class BooksView(QTableView):  # {{{
             self.select_rows([id_to_select], using_ids=True)
 
     def search_proxy(self, txt):
+        if self.is_library_view:
+            # Save the current book before doing the search, after the search
+            # is completed, this book will become the current book and be
+            # scrolled to if it is present in the search results
+            self.alternate_views.save_current_book_state()
         self._model.search(txt)
         id_to_select = self._model.get_current_highlighted_id()
         if id_to_select is not None:
             self.select_rows([id_to_select], using_ids=True)
         elif self._model.highlight_only:
             self.clearSelection()
-        self.setFocus(Qt.OtherFocusReason)
+        if self.isVisible():
+            self.setFocus(Qt.OtherFocusReason)
 
     def connect_to_search_box(self, sb, search_done):
         sb.search.connect(self.search_proxy)
         self._search_done = search_done
         self._model.searched.connect(self.search_done)
+        if self.is_library_view:
+            self._model.search_done.connect(self.alternate_views.restore_current_book_state)
 
     def connect_to_book_display(self, bd):
         self._model.new_bookdisplay_data.connect(bd)
@@ -930,6 +988,8 @@ class BooksView(QTableView):  # {{{
 # }}}
 
 class DeviceBooksView(BooksView):  # {{{
+
+    is_library_view = False
 
     def __init__(self, parent):
         BooksView.__init__(self, parent, DeviceBooksModel,

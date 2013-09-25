@@ -201,7 +201,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.check_messages_timer.start(1000)
 
         for ac in self.iactions.values():
-            ac.do_genesis()
+            try:
+                ac.do_genesis()
+            except Exception:
+                # Ignore errors in third party plugins
+                import traceback
+                traceback.print_exc()
+                if getattr(ac, 'plugin_path', None) is None:
+                    raise
         self.donate_action = QAction(QIcon(I('donate.png')),
                 _('&Donate to support calibre'), self)
         for st in self.istores.values():
@@ -543,15 +550,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.raise_()
             self.activateWindow()
         elif msg.startswith('refreshdb:'):
-            db = self.library_view.model().db
-            if hasattr(db, 'new_api'):
-                db.new_api.reload_from_db()
-                self.library_view.model().resort()
-            else:
-                self.library_view.model().refresh()
-            self.library_view.model().research()
+            m = self.library_view.model()
+            m.db.new_api.reload_from_db()
+            m.db.data.refresh(clear_caches=False, do_search=False)
+            m.resort()
+            m.research()
             self.tags_view.recount()
-            self.library_view.model().db.refresh_format_cache()
         elif msg.startswith('shutdown:'):
             self.quit(confirm_quit=False)
         else:

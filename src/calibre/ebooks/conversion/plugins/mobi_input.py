@@ -17,6 +17,7 @@ class MOBIInput(InputFormatPlugin):
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         self.is_kf8 = False
+        self.mobi_is_joint = False
 
         from calibre.ebooks.mobi.reader.mobi6 import MobiReader
         from lxml import html
@@ -35,6 +36,8 @@ class MOBIInput(InputFormatPlugin):
 
         if mr.kf8_type is not None:
             log('Found KF8 MOBI of type %r'%mr.kf8_type)
+            if mr.kf8_type == 'joint':
+                self.mobi_is_joint = True
             from calibre.ebooks.mobi.reader.mobi8 import Mobi8Reader
             mr = Mobi8Reader(mr, log)
             opf = os.path.abspath(mr())

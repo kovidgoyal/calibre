@@ -136,7 +136,7 @@ class USBMS(CLI, Device):
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
 
-        debug_print ('USBMS: Fetching list of books from device. Device=',
+        debug_print('USBMS: Fetching list of books from device. Device=',
                      self.__class__.__name__,
                      'oncard=', oncard)
 
@@ -160,7 +160,7 @@ class USBMS(CLI, Device):
             self.EBOOK_DIR_CARD_B if oncard == 'cardb' else \
             self.get_main_ebook_dir()
 
-        debug_print ('USBMS: dirs are:', prefix, ebook_dirs)
+        debug_print('USBMS: dirs are:', prefix, ebook_dirs)
 
         # get the metadata cache
         bl = self.booklist_class(oncard, prefix, self.settings)
@@ -185,13 +185,13 @@ class USBMS(CLI, Device):
                     if idx is not None:
                         bl_cache[lpath] = None
                         if self.update_metadata_item(bl[idx]):
-                            #print 'update_metadata_item returned true'
+                            # print 'update_metadata_item returned true'
                             changed = True
                     else:
                         if bl.add_book(self.book_from_path(prefix, lpath),
                                               replace_metadata=False):
                             changed = True
-                except: # Probably a filename encoding error
+                except:  # Probably a filename encoding error
                     import traceback
                     traceback.print_exc()
             return changed
@@ -202,11 +202,12 @@ class USBMS(CLI, Device):
             if self.SCAN_FROM_ROOT:
                 ebook_dir = self.normalize_path(prefix)
             else:
-                ebook_dir = self.normalize_path( \
-                            os.path.join(prefix, *(ebook_dir.split('/'))) \
+                ebook_dir = self.normalize_path(
+                            os.path.join(prefix, *(ebook_dir.split('/')))
                                     if ebook_dir else prefix)
             debug_print('USBMS: scan from root', self.SCAN_FROM_ROOT, ebook_dir)
-            if not os.path.exists(ebook_dir): continue
+            if not os.path.exists(ebook_dir):
+                continue
             # Get all books in the ebook_dir directory
             if self.SUPPORTS_SUB_DIRS or self.SUPPORTS_SUB_DIRS_FOR_SCAN:
                 # build a list of files to check, so we can accurately report progress
@@ -237,9 +238,9 @@ class USBMS(CLI, Device):
                 need_sync = True
                 del bl[idx]
 
-        debug_print('USBMS: count found in cache: %d, count of files in metadata: %d, need_sync: %s' % \
+        debug_print('USBMS: count found in cache: %d, count of files in metadata: %d, need_sync: %s' %
             (len(bl_cache), len(bl), need_sync))
-        if need_sync: #self.count_found_in_bl != len(bl) or need_sync:
+        if need_sync:  # self.count_found_in_bl != len(bl) or need_sync:
             if oncard == 'cardb':
                 self.sync_booklists((None, None, bl))
             elif oncard == 'carda':
@@ -272,7 +273,7 @@ class USBMS(CLI, Device):
                 self.upload_cover(os.path.dirname(filepath),
                                   os.path.splitext(os.path.basename(filepath))[0],
                                   mdata, filepath)
-            except: # Failure to upload cover is not catastrophic
+            except:  # Failure to upload cover is not catastrophic
                 import traceback
                 traceback.print_exc()
 

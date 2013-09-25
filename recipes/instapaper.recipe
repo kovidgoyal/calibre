@@ -33,8 +33,8 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
             (u'Instapaper Starred', u'http://www.instapaper.com/starred')
             ]
 
-    #Adds the title tag to the body of the recipe. Use this if your articles miss headings.
-    add_title_tag = False;
+    # Adds the title tag to the body of the recipe. Use this if your articles miss headings.
+    add_title_tag = False
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -43,7 +43,7 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
             br.select_form(nr=0)
             br['username'] = self.username
             if self.password is not None:
-               br['password'] = self.password
+                br['password'] = self.password
             br.submit()
         return br
 
@@ -55,7 +55,7 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
             self.report_progress(0, 'Fetching feed'+' %s...'%(feedtitle if feedtitle else feedurl))
             articles = []
             soup = self.index_to_soup(feedurl)
-            for item in soup.findAll('div', attrs={'class':'cornerControls'}):
+            for item in soup.findAll('div', attrs={'class':'title_row'}):
                 #description = self.tag_to_string(item.div)
                 atag = item.a
                 if atag and atag.has_key('href'):
@@ -73,10 +73,10 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
         article.title  = soup.find('title').contents[0].strip()
 
     def postprocess_html(self, soup, first_fetch):
-        #adds the title to each story, as it is not always included
+        # adds the title to each story, as it is not always included
         if self.add_title_tag:
             for link_tag in soup.findAll(attrs={"id" : "story"}):
                 link_tag.insert(0,'<h1>'+soup.find('title').contents[0].strip()+'</h1>')
 
-        #print repr(soup)
+        # print repr(soup)
         return soup

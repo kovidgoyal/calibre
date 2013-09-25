@@ -108,7 +108,7 @@ class PdfEngine(QPaintEngine):
 
     def init_page(self):
         self.pdf.transform(self.pdf_system)
-        self.pdf.apply_fill(color=(1, 1, 1)) # QPainter has a default background brush of white
+        self.pdf.apply_fill(color=(1, 1, 1))  # QPainter has a default background brush of white
         self.graphics.reset()
         self.pdf.save_stack()
         self.current_page_inited = True
@@ -150,7 +150,8 @@ class PdfEngine(QPaintEngine):
         return QPaintEngine.Pdf
 
     def add_image(self, img, cache_key):
-        if img.isNull(): return
+        if img.isNull():
+            return
         return self.pdf.add_image(img, cache_key)
 
     @store_error
@@ -271,7 +272,8 @@ class PdfEngine(QPaintEngine):
     @store_error
     def drawPolygon(self, points, mode):
         self.apply_graphics_state()
-        if not points: return
+        if not points:
+            return
         p = Path()
         p.move_to(points[0].x(), points[0].y())
         for point in points[1:]:
@@ -303,8 +305,7 @@ class PdfEngine(QPaintEngine):
             link.append((llx, lly, urx, ury))
         self.pdf.links.add(current_item, start_page, links, anchors)
 
-class PdfDevice(QPaintDevice): # {{{
-
+class PdfDevice(QPaintDevice):  # {{{
 
     def __init__(self, file_object, page_size=A4, left_margin=inch,
                  top_margin=inch, right_margin=inch, bottom_margin=inch,

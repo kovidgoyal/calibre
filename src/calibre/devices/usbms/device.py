@@ -908,7 +908,12 @@ class Device(DeviceConfig, DevicePlugin):
                     except:
                         pass
 
-        t = Thread(target=do_it, args=[drives])
+        def do_it2(drives):
+            import win32process
+            EJECT = os.path.join(os.path.dirname(sys.executable), 'calibre-eject.exe')
+            subprocess.Popen([EJECT] + drives, creationflags=win32process.CREATE_NO_WINDOW).wait()
+
+        t = Thread(target=do_it2, args=[drives])
         t.daemon = True
         t.start()
         self.__save_win_eject_thread = t

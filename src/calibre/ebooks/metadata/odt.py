@@ -122,7 +122,7 @@ class odfmetaparser(xml.sax.saxutils.XMLGenerator):
         if name == (OFFICENS,u'meta'):
             for k,v in self.addfields.items():
                 if len(v) > 0:
-                    if type(k) == type(''):
+                    if isinstance(k, basestring):
                         xml.sax.saxutils.XMLGenerator.startElementNS(self,(METANS,u'user-defined'),None,{(METANS,u'name'):k})
                         xml.sax.saxutils.XMLGenerator.characters(self, v)
                         xml.sax.saxutils.XMLGenerator.endElementNS(self, (METANS,u'user-defined'),None)
@@ -165,19 +165,19 @@ def get_metadata(stream, extract_cover=True):
     parser.parse(StringIO(content))
     data = odfs.seenfields
     mi = MetaInformation(None, [])
-    if data.has_key('title'):
+    if 'title' in data:
         mi.title = data['title']
     if data.get('initial-creator', '').strip():
         mi.authors = string_to_authors(data['initial-creator'])
-    elif data.has_key('creator'):
+    elif 'creator' in data:
         mi.authors = string_to_authors(data['creator'])
-    if data.has_key('description'):
+    if 'description' in data:
         mi.comments = data['description']
-    if data.has_key('language'):
+    if 'language' in data:
         mi.language = data['language']
     if data.get('keywords', ''):
         mi.tags = [x.strip() for x in data['keywords'].split(',') if x.strip()]
-    opfmeta = False # we need this later for the cover
+    opfmeta = False  # we need this later for the cover
     opfnocover = False
     if data.get('opf.metadata','') == 'true':
         # custom metadata contains OPF information
@@ -212,7 +212,7 @@ def get_metadata(stream, extract_cover=True):
         try:
             read_cover(stream, zin, mi, opfmeta, extract_cover)
         except:
-            pass # Do not let an error reading the cover prevent reading other data
+            pass  # Do not let an error reading the cover prevent reading other data
 
     return mi
 
@@ -224,26 +224,28 @@ def read_cover(stream, zin, mi, opfmeta, extract_cover):
     cover_href = None
     cover_data = None
     cover_frame = None
+    imgnum = 0
     for frm in otext.topnode.getElementsByType(odFrame):
         img = frm.getElementsByType(odImage)
-        if len(img) > 0: # there should be only one
-            i_href = img[0].getAttribute('href')
-            try:
-                raw = zin.read(i_href)
-            except KeyError:
-                continue
-            try:
-                width, height, fmt = identify_data(raw)
-            except:
-                continue
-        else:
+        if len(img) == 0:
             continue
+        i_href = img[0].getAttribute('href')
+        try:
+            raw = zin.read(i_href)
+        except KeyError:
+            continue
+        try:
+            width, height, fmt = identify_data(raw)
+        except:
+            continue
+        imgnum += 1
         if opfmeta and frm.getAttribute('name').lower() == u'opf.cover':
             cover_href = i_href
             cover_data = (fmt, raw)
-            cover_frame = frm.getAttribute('name') # could have upper case
+            cover_frame = frm.getAttribute('name')  # could have upper case
             break
-        if cover_href is None and 0.8 <= height/width <= 1.8 and height*width >= 12000:
+        if cover_href is None and imgnum == 1 and 0.8 <= height/width <= 1.8 and height*width >= 12000:
+            # Pick the first image as the cover if it is of a suitable size
             cover_href = i_href
             cover_data = (fmt, raw)
             if not opfmeta:

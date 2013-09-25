@@ -7,8 +7,9 @@ Created on 29 Jun 2012
 
 @author: charles
 '''
-import socket, select, json, os, traceback, time, sys, random
+import socket, select, json, os, traceback, time, sys, random, cPickle
 import posixpath
+from collections import defaultdict
 import hashlib, threading
 import Queue
 
@@ -18,7 +19,7 @@ from errno import EAGAIN, EINTR
 from threading import Thread
 
 from calibre import prints
-from calibre.constants import numeric_version, DEBUG
+from calibre.constants import numeric_version, DEBUG, cache_dir
 from calibre.devices.errors import (OpenFailed, ControlError, TimeoutError,
                                     InitialConnectionError, PacketError)
 from calibre.devices.interface import DevicePlugin
@@ -108,7 +109,7 @@ class ConnectionListener(Thread):
                         try:
                             packet = self.driver.broadcast_socket.recvfrom(100)
                             remote = packet[1]
-                            content_server_port = b'';
+                            content_server_port = b''
                             try :
                                 content_server_port = \
                                     str(content_server_config().parse().port)
@@ -202,8 +203,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     # making this number effectively around 10 to 15 larger.
     PATH_FUDGE_FACTOR           = 40
 
-    THUMBNAIL_HEIGHT            = 160
-    DEFAULT_THUMBNAIL_HEIGHT    = 160
+    THUMBNAIL_HEIGHT              = 160
+    DEFAULT_THUMBNAIL_HEIGHT      = 160
+    THUMBNAIL_COMPRESSION_QUALITY = 75
 
     PREFIX                      = ''
     BACKLOADING_ERROR_MESSAGE   = None
@@ -213,11 +215,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     # Some network protocol constants
     BASE_PACKET_LEN             = 4096
     PROTOCOL_VERSION            = 1
-    MAX_CLIENT_COMM_TIMEOUT     = 60.0 # Wait at most N seconds for an answer
+    MAX_CLIENT_COMM_TIMEOUT     = 300.0  # Wait at most N seconds for an answer
     MAX_UNSUCCESSFUL_CONNECTS   = 5
 
     SEND_NOOP_EVERY_NTH_PROBE   = 5
-    DISCONNECT_AFTER_N_SECONDS  = 30*60 # 30 minutes
+    DISCONNECT_AFTER_N_SECONDS  = 30*60  # 30 minutes
 
     ZEROCONF_CLIENT_STRING      = b'calibre wireless device client'
 
@@ -292,12 +294,22 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
               'particular IP address. The driver will listen only on the '
               'entered address, and this address will be the one advertized '
               'over mDNS (bonjour).') + '</p>',
-        _('Replace books with the same calibre identifier') + ':::<p>' +
+        _('Replace books with same calibre ID') + ':::<p>' +
             _('Use this option to overwrite a book on the device if that book '
               'has the same calibre identifier as the book being sent. The file name of the '
               'book will not change even if the save template produces a '
               'different result. Using this option in most cases prevents '
               'having multiple copies of a book on the device.') + '</p>',
+        _('Cover thumbnail compression quality') + ':::<p>' +
+            _('Use this option to control the size and quality of the cover '
+              'file sent to the device. It must be between 50 and 99. '
+              'The larger the number the higher quality the cover, but also '
+              'the larger the file. For example, changing this from 70 to 90 '
+              'results in a much better cover that is approximately 2.5 '
+              'times as big. To see the changes you must force calibre '
+              'to resend metadata to the device, either by changing '
+              'the metadata for the book (updating the last modification '
+              'time) or resending the book itself.') + '</p>',
         ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 False, '',
@@ -306,7 +318,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 False, '',
                 '',    '',
                 True,  '',
-                True
+                True,   '75'
     ]
     OPT_AUTOSTART               = 0
     OPT_PASSWORD                = 2
@@ -317,7 +329,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     OPT_AUTODISCONNECT          = 10
     OPT_FORCE_IP_ADDRESS        = 11
     OPT_OVERWRITE_BOOKS_UUID    = 12
-
+    OPT_COMPRESSION_QUALITY     = 13
 
     def __init__(self, path):
         self.sync_lock = threading.RLock()
@@ -445,7 +457,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             else:
                 for c in tag.split('/'):
                     c = sanitize(c)
-                    if not c: continue
+                    if not c:
+                        continue
                     extra_components.append(c)
             extra_components.append(name)
 
@@ -509,7 +522,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             # Things get trashed if we don't make a copy of the data.
             v = self._read_binary_from_net(2)
             if len(v) == 0:
-                return '' # documentation says the socket is broken permanently.
+                return ''  # documentation says the socket is broken permanently.
             data += v
         total_len = int(data[:dex])
         data = data[dex:]
@@ -517,7 +530,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         while pos < total_len:
             v = self._read_binary_from_net(total_len - pos)
             if len(v) == 0:
-                return '' # documentation says the socket is broken permanently.
+                return ''  # documentation says the socket is broken permanently.
             data += v
             pos += len(v)
         return data
@@ -541,7 +554,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._debug('socket error', e, e.errno)
                 if e.args[0] != EAGAIN and e.args[0] != EINTR:
                     raise
-                time.sleep(0.1) # lets not hammer the OS too hard
+                time.sleep(0.1)  # lets not hammer the OS too hard
 
     def _call_client(self, op, arg, print_debug_info=True, wait_for_response=True):
         if op != 'NOOP':
@@ -589,7 +602,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if v:
                 v = json.loads(v, object_hook=from_json)
                 if print_debug_info and extra_debug:
-                        self._debug('receive after decode') #, v)
+                        self._debug('receive after decode')  # , v)
                 return (self.reverse_opcodes[v[0]], v[1])
             self._debug('protocol error -- empty json string')
         except socket.timeout:
@@ -668,6 +681,20 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         else:
             return None
 
+    def _metadata_in_cache(self, uuid, ext, lastmod):
+        from calibre.utils.date import parse_date, now
+        key = uuid+ext
+        if isinstance(lastmod, unicode):
+            lastmod = parse_date(lastmod)
+#         if key in self.known_uuids:
+#             self._debug(key, lastmod, self.known_uuids[key].last_modified)
+#         else:
+#             self._debug(key, 'not in known uuids')
+        if key in self.known_uuids and self.known_uuids[key]['book'].last_modified == lastmod:
+            self.known_uuids[key]['last_used'] = now()
+            return self.known_uuids[key]['book'].deepcopy()
+        return None
+
     def _metadata_already_on_device(self, book):
         v = self.known_metadata.get(book.lpath, None)
         if v is not None:
@@ -685,22 +712,55 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _uuid_already_on_device(self, uuid, ext):
         try:
-            return self.known_uuids.get(uuid + ext, None)
+            return self.known_uuids[uuid + ext]['book']
         except:
             return None
 
+    def _read_metadata_cache(self):
+        cache_file_name = os.path.join(cache_dir(),
+                           'device_drivers_' + self.__class__.__name__ +
+                                '_metadata_cache.pickle')
+        if os.path.exists(cache_file_name):
+            with open(cache_file_name, mode='rb') as fd:
+                json_metadata = cPickle.load(fd)
+            for uuid,json_book in json_metadata.iteritems():
+                book = self.json_codec.raw_to_book(json_book['book'], SDBook, self.PREFIX)
+                self.known_uuids[uuid]['book'] = book
+                self.known_uuids[uuid]['last_used'] = json_book['last_used']
+                lpath = book.get('lpath')
+                if lpath in self.known_metadata:
+                    self.known_uuids.pop(uuid, None)
+                else:
+                    self.known_metadata[lpath] = book
+
+    def _write_metadata_cache(self):
+        cache_file_name = os.path.join(cache_dir(),
+                           'device_drivers_' + self.__class__.__name__ +
+                                '_metadata_cache.pickle')
+        json_metadata = defaultdict(dict)
+        for uuid,book in self.known_uuids.iteritems():
+            json_metadata[uuid]['book'] = self.json_codec.encode_book_metadata(book['book'])
+            json_metadata[uuid]['last_used'] = book['last_used']
+        with open(cache_file_name, mode='wb') as fd:
+            cPickle.dump(json_metadata, fd, -1)
+
     def _set_known_metadata(self, book, remove=False):
+        from calibre.utils.date import now
         lpath = book.lpath
         ext = os.path.splitext(lpath)[1]
         uuid = book.get('uuid', None)
+        key = None
+        if uuid and ext:
+            key = uuid + ext
         if remove:
             self.known_metadata.pop(lpath, None)
-            if uuid and ext:
-                self.known_uuids.pop(uuid+ext, None)
+            if key:
+                self.known_uuids.pop(key, None)
         else:
             new_book = self.known_metadata[lpath] = book.deepcopy()
-            if uuid and ext:
-                self.known_uuids[uuid+ext] = new_book
+            if key:
+                self.known_uuids[key]['book'] = new_book
+                self.known_uuids[key]['last_used'] = now()
 
     def _close_device_socket(self):
         if self.device_socket is not None:
@@ -709,6 +769,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             except:
                 pass
             self.device_socket = None
+            self._write_metadata_cache()
         self.is_connected = False
 
     def _attach_to_port(self, sock, port):
@@ -856,12 +917,17 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('Device can receive book binary', self.client_can_stream_metadata)
             self.client_can_delete_multiple = result.get('canDeleteMultipleBooks', False)
             self._debug('Device can delete multiple books', self.client_can_delete_multiple)
+            self.client_can_use_metadata_cache = result.get('canUseCachedMetadata', False)
+            self._debug('Device can use cached metadata', self.client_can_use_metadata_cache)
 
             self.client_device_kind = result.get('deviceKind', '')
             self._debug('Client device kind', self.client_device_kind)
 
             self.client_device_name = result.get('deviceName', self.client_device_kind)
             self._debug('Client device name', self.client_device_name)
+
+            self.client_app_name = result.get('appName', "")
+            self._debug('Client app name', self.client_app_name)
 
             self.max_book_packet_len = result.get('maxBookContentPacketLen',
                                                   self.BASE_PACKET_LEN)
@@ -875,7 +941,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
             self.client_wants_uuid_file_names = result.get('useUuidFileNames', False)
             self._debug('Device wants UUID file names', self.client_wants_uuid_file_names)
-
 
             config = self._configProxy()
             config['format_map'] = exts
@@ -921,8 +986,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             except:
                 pass
 
-            self.known_metadata = {}
-            self.known_uuids = {}
             return True
         except socket.timeout:
             self._close_device_socket()
@@ -1007,13 +1070,41 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self._debug(oncard)
         if oncard is not None:
             return CollectionsBookList(None, None, None)
-        opcode, result = self._call_client('GET_BOOK_COUNT', {'canStream':True,
-                                                              'canScan':True})
+        opcode, result = self._call_client('GET_BOOK_COUNT',
+                            {'canStream':True,
+                             'canScan':True,
+                             'willUseCachedMetadata': self.client_can_use_metadata_cache})
         bl = CollectionsBookList(None, self.PREFIX, self.settings)
         if opcode == 'OK':
             count = result['count']
             will_stream = 'willStream' in result
             will_scan = 'willScan' in result
+            will_use_cache = self.client_can_use_metadata_cache
+
+            if will_use_cache:
+                books_on_device = {}
+                self._debug('caching. count=', count)
+                for i in range(0, count):
+                    opcode, result = self._receive_from_client(print_debug_info=False)
+                    books_on_device[result.get('uuid')] = result
+
+                books_to_send = []
+                for u,v in books_on_device.iteritems():
+                    book = self._metadata_in_cache(u, v['extension'], v['last_modified'])
+                    if book:
+                        bl.add_book(book, replace_metadata=True)
+                    else:
+                        books_to_send.append(v['priKey'])
+
+                count = len(books_to_send)
+                self._debug('caching. Need count from device', count)
+
+                self._call_client('NOOP', {'count': count},
+                                  print_debug_info=False, wait_for_response=False)
+                for priKey in books_to_send:
+                    self._call_client('NOOP', {'priKey':priKey},
+                                  print_debug_info=False, wait_for_response=False)
+
             for i in range(0, count):
                 if (i % 100) == 0:
                     self._debug('getting book metadata. Done', i, 'of', count)
@@ -1074,7 +1165,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 books_to_send.append(book)
 
         count = len(books_to_send)
-        self._call_client('SEND_BOOKLISTS', { 'count': count,
+        self._call_client('SEND_BOOKLISTS', {'count': count,
                      'collections': coldict,
                      'willStreamMetadata': self.client_can_stream_metadata},
                      wait_for_response=not self.client_can_stream_metadata)
@@ -1197,7 +1288,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.report_progress(1.0, _('Removing books from device metadata listing...'))
         self._debug('finished removing metadata for %d books' % (len(paths)))
 
-
     @synchronous('sync_lock')
     def get_file(self, path, outfile, end_session=True, this_book=None, total_books=None):
         if self.settings().extra_customization[self.OPT_EXTRA_DEBUG]:
@@ -1278,7 +1368,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.device_socket = None
         self.json_codec = JsonCodec()
         self.known_metadata = {}
-        self.known_uuids = {}
+        self.known_uuids = defaultdict(dict)
         self.debug_time = time.time()
         self.debug_start_time = time.time()
         self.max_book_packet_len = 0
@@ -1287,6 +1377,21 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.client_can_stream_books = False
         self.client_can_stream_metadata = False
         self.client_wants_uuid_file_names = False
+
+        compression_quality_ok = True
+        try:
+            cq = int(self.settings().extra_customization[self.OPT_COMPRESSION_QUALITY])
+            if cq < 50 or cq > 99:
+                compression_quality_ok = False
+            else:
+                self.THUMBNAIL_COMPRESSION_QUALITY = cq
+        except:
+            compression_quality_ok = False
+        if not compression_quality_ok:
+            self.THUMBNAIL_COMPRESSION_QUALITY = 70
+            message = 'Bad compression quality setting. It must be a number between 50 and 99'
+            self._debug(message)
+            return message
 
         message = None
         try:
@@ -1315,7 +1420,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._close_listen_socket()
                 return message
         else:
-            while i < 100: # try 9090 then up to 99 random port numbers
+            while i < 100:  # try 9090 then up to 99 random port numbers
                 i += 1
                 port = self._attach_to_port(self.listen_socket,
                                 9090 if i == 1 else random.randint(8192, 32000))
@@ -1372,6 +1477,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.connection_queue = Queue.Queue(1)
         self.connection_listener = ConnectionListener(self)
         self.connection_listener.start()
+
+        self._read_metadata_cache()
         return message
 
     @synchronous('sync_lock')

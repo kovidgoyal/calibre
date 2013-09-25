@@ -63,13 +63,13 @@ class TagEditor(QDialog, Ui_TagEditor):
         if geom is not None:
             self.restoreGeometry(geom)
 
-
     def delete_tags(self, item=None):
         confirms, deletes = [], []
         items = self.available_tags.selectedItems() if item is None else [item]
         if not items:
             error_dialog(self, 'No tags selected', 'You must select at least one tag from the list of Available tags.').exec_()
             return
+        pos = self.available_tags.verticalScrollBar().value()
         for item in items:
             used = self.db.is_tag_used(unicode(item.text())) \
                 if self.key is None else \
@@ -93,7 +93,7 @@ class TagEditor(QDialog, Ui_TagEditor):
                                                         label=self.key)
                 self.db.refresh_ids(bks)
             self.available_tags.takeItem(self.available_tags.row(item))
-
+        self.available_tags.verticalScrollBar().setValue(pos)
 
     def apply_tags(self, item=None):
         items = self.available_tags.selectedItems() if item is None else [item]
@@ -115,7 +115,6 @@ class TagEditor(QDialog, Ui_TagEditor):
         if row > 2:
             item = self.available_tags.item(row)
             self.available_tags.scrollToItem(item)
-
 
     def unapply_tags(self, item=None):
         items = self.applied_tags.selectedItems() if item is None else [item]

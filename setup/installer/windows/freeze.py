@@ -41,6 +41,8 @@ DESCRIPTIONS = {
         'calibre-server': 'Standalone calibre content server',
         'calibre-parallel': 'calibre worker process',
         'calibre-smtp' : 'Command line interface for sending books via email',
+        'calibre-recycle' : 'Helper program for deleting to recycle bin',
+        'calibre-eject' : 'Helper program for ejecting connected reader devices',
 }
 
 def walk(dir):
@@ -81,6 +83,8 @@ class Win32Freeze(Command, WixMixIn):
 
         self.initbase()
         self.build_launchers()
+        self.build_eject()
+        self.build_recycle()
         self.add_plugins()
         self.freeze()
         self.embed_manifests()
@@ -218,7 +222,10 @@ class Win32Freeze(Command, WixMixIn):
 
         self.info('Adding calibre sources...')
         for x in glob.glob(self.j(self.SRC, '*')):
-            shutil.copytree(x, self.j(sp_dir, self.b(x)))
+            if os.path.isdir(x):
+                shutil.copytree(x, self.j(sp_dir, self.b(x)))
+            else:
+                shutil.copy(x, self.j(sp_dir, self.b(x)))
 
         for x in (r'calibre\manual', r'calibre\trac', 'pythonwin'):
             deld = self.j(sp_dir, x)
@@ -383,17 +390,21 @@ class Win32Freeze(Command, WixMixIn):
             os.remove(y)
 
     def run_builder(self, cmd, show_output=False):
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-        if p.wait() != 0:
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        buf = []
+        while p.poll() is None:
+            x = p.stdout.read() + p.stderr.read()
+            if x:
+                buf.append(x)
+        if p.returncode != 0:
             self.info('Failed to run builder:')
             self.info(*cmd)
-            self.info(p.stdout.read())
-            self.info(p.stderr.read())
+            self.info(''.join(buf))
+            self.info('')
+            sys.stdout.flush()
             sys.exit(1)
         if show_output:
-            self.info(p.stdout.read())
-            self.info(p.stderr.read())
+            self.info(''.join(buf) + '\n')
 
     def build_portable_installer(self):
         zf = self.a(self.j('dist', 'calibre-portable-%s.zip.lz'%VERSION))
@@ -480,7 +491,7 @@ class Win32Freeze(Command, WixMixIn):
                     '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:WINDOWS',
                     '/RELEASE',
                     '/ENTRY:wWinMainCRTStartup',
-                    '/OUT:'+exe, self.embed_resources(exe),
+                    '/OUT:'+exe, self.embed_resources(exe, desc='Calibre Portable', product_description='Calibre Portable'),
                     obj, 'User32.lib']
             self.run_builder(cmd)
 
@@ -533,6 +544,36 @@ class Win32Freeze(Command, WixMixIn):
                     zf.write(f, arcname)
         finally:
             os.chdir(cwd)
+
+    def build_recycle(self):
+        self.info('Building calibre-recycle.exe')
+        base = self.j(self.src_root, 'setup', 'installer', 'windows')
+        src = self.j(base, 'recycle.c')
+        obj = self.j(self.obj_dir, self.b(src)+'.obj')
+        cflags  = '/c /EHsc /MD /W3 /Ox /nologo /D_UNICODE'.split()
+        if self.newer(obj, src):
+            cmd = [msvc.cc] + cflags + ['/Fo'+obj, '/Tc'+src]
+            self.run_builder(cmd, show_output=True)
+        exe = self.j(self.base, 'calibre-recycle.exe')
+        cmd = [msvc.linker] + ['/MACHINE:'+machine,
+                '/SUBSYSTEM:CONSOLE', '/RELEASE',
+                '/OUT:'+exe] + [self.embed_resources(exe), obj, 'Shell32.lib']
+        self.run_builder(cmd)
+
+    def build_eject(self):
+        self.info('Building calibre-eject.exe')
+        base = self.j(self.src_root, 'setup', 'installer', 'windows')
+        src = self.j(base, 'eject.c')
+        obj = self.j(self.obj_dir, self.b(src)+'.obj')
+        cflags  = '/c /EHsc /MD /W3 /Ox /nologo /D_UNICODE'.split()
+        if self.newer(obj, src):
+            cmd = [msvc.cc] + cflags + ['/Fo'+obj, '/Tc'+src]
+            self.run_builder(cmd, show_output=True)
+        exe = self.j(self.base, 'calibre-eject.exe')
+        cmd = [msvc.linker] + ['/MACHINE:'+machine,
+                '/SUBSYSTEM:CONSOLE', '/RELEASE',
+                '/OUT:'+exe] + [self.embed_resources(exe), obj, 'setupapi.lib']
+        self.run_builder(cmd)
 
     def build_launchers(self, debug=False):
         if not os.path.exists(self.obj_dir):

@@ -738,14 +738,14 @@ def choose_images(window, name, title, select_only_single_file=True,
         return fd.get_files()
     return None
 
-def pixmap_to_data(pixmap, format='JPEG'):
+def pixmap_to_data(pixmap, format='JPEG', quality=90):
     '''
     Return the QPixmap pixmap as a string saved in the specified format.
     '''
     ba = QByteArray()
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
-    pixmap.save(buf, format)
+    pixmap.save(buf, format, quality=quality)
     return bytes(ba.data())
 
 class ResizableDialog(QDialog):

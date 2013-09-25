@@ -9,8 +9,10 @@ import os
 from functools import partial
 from threading import Thread
 from contextlib import closing
+from collections import defaultdict
 
-from PyQt4.Qt import (QToolButton, QDialog, QGridLayout, QIcon, QLabel, QDialogButtonBox)
+from PyQt4.Qt import (QToolButton, QDialog, QGridLayout, QIcon, QLabel, QDialogButtonBox,
+                      QFormLayout, QCheckBox, QWidget, QScrollArea, QVBoxLayout)
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import (error_dialog, Dispatcher, warning_dialog, gprefs,
@@ -19,6 +21,72 @@ from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.widgets import HistoryLineEdit
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import now
+from calibre.utils.icu import sort_key
+
+def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {{{
+    source_metadata = db.field_metadata.custom_field_metadata(include_composites=True)
+    ndbname = os.path.basename(newdb.library_path)
+
+    d = QDialog(gui)
+    d.setWindowTitle(_('Different custom columns'))
+    l = QFormLayout()
+    tl = QVBoxLayout()
+    d.setLayout(tl)
+    d.s = QScrollArea(d)
+    tl.addWidget(d.s)
+    d.w = QWidget(d)
+    d.s.setWidget(d.w)
+    d.s.setWidgetResizable(True)
+    d.w.setLayout(l)
+    d.setMinimumWidth(600)
+    d.setMinimumHeight(500)
+    d.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+
+    msg = _('The custom columns in the <i>{0}</i> library are different from the '
+        'custom columns in the <i>{1}</i> library. As a result, some metadata might not be copied.').format(
+        os.path.basename(db.library_path), ndbname)
+    d.la = la = QLabel(msg)
+    la.setWordWrap(True)
+    la.setStyleSheet('QLabel { margin-bottom: 1.5ex }')
+    l.addRow(la)
+    if incompatible_cols:
+        la = d.la2 = QLabel(_('The following columns are incompatible - they have the same name'
+                ' but different data types. They will be ignored: ') +
+                    ', '.join(sorted(incompatible_cols, key=sort_key)))
+        la.setWordWrap(True)
+        la.setStyleSheet('QLabel { margin-bottom: 1.5ex }')
+        l.addRow(la)
+
+    missing_widgets = []
+    if missing_cols:
+        la = d.la3 = QLabel(_('The following columns are missing in the <i>{0}</i> library.'
+                                ' You can choose to add them automatically below.').format(
+                                    ndbname))
+        la.setWordWrap(True)
+        l.addRow(la)
+        for k in missing_cols:
+            widgets = (k, QCheckBox(_('Add to the %s library') % ndbname))
+            l.addRow(QLabel(k), widgets[1])
+            missing_widgets.append(widgets)
+    d.la4 = la = QLabel(_('This warning is only shown once per library, per session'))
+    la.setWordWrap(True)
+    tl.addWidget(la)
+
+    tl.addWidget(d.bb)
+    d.bb.accepted.connect(d.accept)
+    d.bb.rejected.connect(d.reject)
+    d.resize(d.sizeHint())
+    if d.exec_() == d.Accepted:
+        for k, cb in missing_widgets:
+            if cb.isChecked():
+                col_meta = source_metadata[k]
+                newdb.create_custom_column(
+                            col_meta['label'], col_meta['name'], col_meta['datatype'],
+                            len(col_meta['is_multiple']) > 0,
+                            col_meta['is_editable'], col_meta['display'])
+        return True
+    return False
+# }}}
 
 class Worker(Thread):  # {{{
 
@@ -47,11 +115,11 @@ class Worker(Thread):  # {{{
 
         self.done()
 
-    def add_formats(self, id, paths, newdb, replace=True):
+    def add_formats(self, id_, paths, newdb, replace=True):
         for path in paths:
             fmt = os.path.splitext(path)[-1].replace('.', '').upper()
             with open(path, 'rb') as f:
-                newdb.add_format(id, fmt, f, index_is_id=True,
+                newdb.add_format(id_, fmt, f, index_is_id=True,
                         notify=False, replace=replace)
 
     def doit(self):
@@ -174,6 +242,10 @@ class ChooseLibrary(QDialog):  # {{{
         return (unicode(self.le.text()), self.delete_after_copy)
 # }}}
 
+# Static session-long set of pairs of libraries that have had their custom columns
+# checked for compatibility
+libraries_with_checked_columns = defaultdict(set)
+
 class CopyToLibraryAction(InterfaceAction):
 
     name = 'Copy To Library'
@@ -231,6 +303,11 @@ class CopyToLibraryAction(InterfaceAction):
                     _('Cannot copy to current library.'), show=True)
             self.copy_to_library(path, delete_after)
 
+    def _column_is_compatible(self, source_metadata, dest_metadata):
+        return (source_metadata['datatype'] == dest_metadata['datatype'] and
+                    (source_metadata['datatype'] != 'text' or
+                     source_metadata['is_multiple'] == dest_metadata['is_multiple']))
+
     def copy_to_library(self, loc, delete_after=False):
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
@@ -251,6 +328,41 @@ class CopyToLibraryAction(InterfaceAction):
         def progress(idx, title):
             self.pd.set_msg(title)
             self.pd.set_value(idx)
+
+        # Open the new db so we can check the custom columns. We use only the
+        # backend since we only need the custom column definitions, not the
+        # rest of the data in the db.
+
+        global libraries_with_checked_columns
+
+        from calibre.db.legacy import create_backend
+        newdb = create_backend(loc)
+
+        continue_processing = True
+        with closing(newdb):
+            if newdb.library_id not in libraries_with_checked_columns[db.library_id]:
+
+                newdb_meta = newdb.field_metadata.custom_field_metadata()
+                incompatible_columns = []
+                missing_columns = []
+                for k, m in db.field_metadata.custom_iteritems():
+                    if m['datatype'] == 'composite':
+                        continue
+                    if k not in newdb_meta:
+                        missing_columns.append(k)
+                    elif not self._column_is_compatible(m, newdb_meta[k]):
+                        incompatible_columns.append(k)
+
+                if missing_columns or incompatible_columns:
+                    continue_processing = ask_about_cc_mismatch(self.gui, db, newdb,
+                                            missing_columns, incompatible_columns)
+                if continue_processing:
+                    libraries_with_checked_columns[db.library_id].add(newdb.library_id)
+
+        newdb.close()
+        del newdb
+        if not continue_processing:
+            return
 
         self.worker = Worker(ids, db, loc, Dispatcher(progress),
                              Dispatcher(self.pd.accept), delete_after)

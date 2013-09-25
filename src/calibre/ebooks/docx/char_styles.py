@@ -196,9 +196,9 @@ class RunStyle(object):
             td = set()
             if self.text_decoration is not inherit:
                 td.add(self.text_decoration)
-            if self.strike:
+            if self.strike and self.strike is not inherit:
                 td.add('line-through')
-            if self.dstrike:
+            if self.dstrike and self.dstrike is not inherit:
                 td.add('line-through')
             if td:
                 c['text-decoration'] = ' '.join(td)
@@ -206,7 +206,7 @@ class RunStyle(object):
                 c['text-transform'] = 'uppercase'
             if self.i is True:
                 c['font-style'] = 'italic'
-            if self.shadow:
+            if self.shadow and self.shadow is not inherit:
                 c['text-shadow'] = '2px 2px'
             if self.smallCaps is True:
                 c['font-variant'] = 'small-caps'

@@ -54,11 +54,7 @@ Everything after the -- is passed to the script.
             'plugin code.')
     parser.add_option('--reinitialize-db', default=None,
             help='Re-initialize the sqlite calibre database at the '
-            'specified path. Useful to recover from db corruption.'
-            ' You can also specify the path to an SQL dump which '
-            'will be used instead of trying to dump the database.'
-            ' This can be useful when dumping fails, but dumping '
-            'with sqlite3 works.')
+            'specified path. Useful to recover from db corruption.')
     parser.add_option('-p', '--py-console', help='Run python console',
             default=False, action='store_true')
     parser.add_option('-m', '--inspect-mobi', action='store_true',
@@ -84,39 +80,42 @@ Everything after the -- is passed to the script.
 
     return parser
 
-def reinit_db(dbpath, callback=None, sql_dump=None):
-    from calibre.db.backend import Connection
-    import apsw
-    import shutil
-    from io import StringIO
+def reinit_db(dbpath):
     from contextlib import closing
-    if callback is None:
-        callback = lambda x, y: None
-    if not os.path.exists(dbpath):
-        raise ValueError(dbpath + ' does not exist')
-
-    with closing(Connection(dbpath)) as conn:
-        uv = int(conn.get('PRAGMA user_version;', all=False))
-        if sql_dump is None:
-            buf = StringIO()
-            shell = apsw.Shell(db=conn, stdout=buf)
-            shell.process_command('.dump')
-            sql = buf.getvalue()
-        else:
-            sql = open(sql_dump, 'rb').read().decode('utf-8')
-
-    dest = dbpath + '.tmp'
-    callback(1, True)
-    try:
-        with closing(Connection(dest)) as conn:
-            conn.execute(sql)
-            conn.execute('PRAGMA user_version=%d;'%int(uv))
-        os.remove(dbpath)
-        shutil.copyfile(dest, dbpath)
-    finally:
-        callback(1, False)
-        if os.path.exists(dest):
-            os.remove(dest)
+    from calibre import as_unicode
+    from calibre.ptempfile import TemporaryFile
+    from calibre.utils.filenames import atomic_rename
+    # We have to use sqlite3 instead of apsw as apsw has no way to discard
+    # problematic statements
+    import sqlite3
+    from calibre.library.sqlite import do_connect
+    with TemporaryFile(suffix='_tmpdb.db', dir=os.path.dirname(dbpath)) as tmpdb:
+        with closing(do_connect(dbpath)) as src, closing(do_connect(tmpdb)) as dest:
+            dest.execute('create temporary table temp_sequence(id INTEGER PRIMARY KEY AUTOINCREMENT)')
+            dest.commit()
+            uv = int(src.execute('PRAGMA user_version;').fetchone()[0])
+            dump = src.iterdump()
+            last_restore_error = None
+            while True:
+                try:
+                    statement = next(dump)
+                except StopIteration:
+                    break
+                except sqlite3.OperationalError as e:
+                    prints('Failed to dump a line:', as_unicode(e))
+                if last_restore_error:
+                    prints('Failed to restore a line:', last_restore_error)
+                    last_restore_error = None
+                try:
+                    dest.execute(statement)
+                except sqlite3.OperationalError as e:
+                    last_restore_error = as_unicode(e)
+                    # The dump produces an extra commit at the end, so
+                    # only print this error if there are more
+                    # statements to be restored
+            dest.execute('PRAGMA user_version=%d;'%uv)
+            dest.commit()
+        atomic_rename(tmpdb, dbpath)
     prints('Database successfully re-initialized')
 
 def debug_device_driver():
@@ -238,10 +237,7 @@ def main(args=sys.argv):
         prints('CALIBRE_EXTENSIONS_PATH='+sys.extensions_location)
         prints('CALIBRE_PYTHON_PATH='+os.pathsep.join(sys.path))
     elif opts.reinitialize_db is not None:
-        sql_dump = None
-        if len(args) > 1 and os.access(args[-1], os.R_OK):
-            sql_dump = args[-1]
-        reinit_db(opts.reinitialize_db, sql_dump=sql_dump)
+        reinit_db(opts.reinitialize_db)
     elif opts.inspect_mobi:
         for path in args[1:]:
             inspect_mobi(path)

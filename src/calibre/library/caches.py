@@ -816,9 +816,9 @@ class ResultCache(SearchQueryParser):  # {{{
                 current_candidates -= matches
         return matches
 
-    def search(self, query, return_matches=False):
+    def search(self, query, return_matches=False, sort_results=True):
         ans = self.search_getting_ids(query, self.search_restriction,
-                                      set_restriction_count=True)
+                                      set_restriction_count=True, sort_results=sort_results)
         if return_matches:
             return ans
         self._map_filtered = ans
@@ -833,7 +833,7 @@ class ResultCache(SearchQueryParser):  # {{{
             return restriction
 
     def search_getting_ids(self, query, search_restriction,
-                           set_restriction_count=False, use_virtual_library=True):
+                           set_restriction_count=False, use_virtual_library=True, sort_results=True):
         if use_virtual_library:
             search_restriction = self._build_restriction_string(search_restriction)
         q = ''

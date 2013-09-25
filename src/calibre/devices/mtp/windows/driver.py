@@ -12,11 +12,13 @@ from functools import wraps, partial
 from future_builtins import zip
 from itertools import chain
 
-from calibre import as_unicode, prints
+from calibre import as_unicode, prints, force_unicode
 from calibre.constants import plugins, __appname__, numeric_version, isxp
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice
 from calibre.devices.mtp.base import MTPDeviceBase, debug
+
+null = object()
 
 class ThreadingViolation(Exception):
 
@@ -80,7 +82,8 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @same_thread
     def detect_managed_devices(self, devices_on_system, force_refresh=False):
-        if self.wpd is None: return None
+        if self.wpd is None:
+            return None
         if self.eject_dev_on_next_scan:
             self.eject_dev_on_next_scan = False
             if self.currently_connected_pnp_id is not None:
@@ -142,7 +145,7 @@ class MTP_DEVICE(MTPDeviceBase):
             return True
         if self.wpd_error:
             p('Cannot detect MTP devices')
-            p(self.wpd_error)
+            p(force_unicode(self.wpd_error))
             return False
         try:
             pnp_ids = frozenset(self.wpd.enumerate_devices())
@@ -166,7 +169,8 @@ class MTP_DEVICE(MTPDeviceBase):
                 p(traceback.format_exc())
                 continue
             protocol = data.get('protocol', '').lower()
-            if not protocol.startswith('mtp:'): continue
+            if not protocol.startswith('mtp:'):
+                continue
             p('MTP device:', pnp_id)
             p(pprint.pformat(data))
             if not self.is_suitable_wpd_device(data):
@@ -195,10 +199,12 @@ class MTP_DEVICE(MTPDeviceBase):
     def is_suitable_wpd_device(self, devdata):
         # Check that protocol is MTP
         protocol = devdata.get('protocol', '').lower()
-        if not protocol.startswith('mtp:'): return False
+        if not protocol.startswith('mtp:'):
+            return False
 
         # Check that the device has some read-write storage
-        if not devdata.get('has_storage', False): return False
+        if not devdata.get('has_storage', False):
+            return False
         has_rw_storage = False
         for s in devdata.get('storage', []):
             if s.get('filesystem', None) == 'DCF':
@@ -206,22 +212,35 @@ class MTP_DEVICE(MTPDeviceBase):
                 # See https://bugs.launchpad.net/calibre/+bug/1054562
                 continue
             if s.get('type', 'unknown_unknown').split('_')[-1] == 'rom':
-                continue # Read only storage
+                continue  # Read only storage
             if s.get('rw', False):
                 has_rw_storage = True
                 break
-        if not has_rw_storage: return False
+        if not has_rw_storage:
+            return False
 
         return True
 
-    def _filesystem_callback(self, obj, level):
-        n = obj.get('name', '')
-        msg = _('Found object: %s')%n
-        if (level == 0 and
-            self.is_folder_ignored(self._currently_getting_sid, n)):
+    def _filesystem_callback(self, fs_map, obj, level):
+        name = obj.get('name', '')
+        self.filesystem_callback(_('Found object: %s')%name)
+        if not obj.get('is_folder', False):
             return False
-        self.filesystem_callback(msg)
-        return obj.get('is_folder', False)
+        fs_map[obj.get('id', null)] = obj
+        path = [name]
+        pid = obj.get('parent_id', 0)
+        while pid != 0 and pid in fs_map:
+            parent = fs_map[pid]
+            path.append(parent.get('name', ''))
+            pid = parent.get('parent_id', 0)
+            if fs_map.get(pid, None) is parent:
+                break  # An object is its own parent
+
+        path = tuple(reversed(path))
+        ok = not self.is_folder_ignored(self._currently_getting_sid, path)
+        if not ok:
+            debug('Ignored object: %s' % '/'.join(path))
+        return ok
 
     @property
     def filesystem_cache(self):
@@ -234,7 +253,8 @@ class MTP_DEVICE(MTPDeviceBase):
             items = []
             for storage_id, capacity in zip([self._main_id, self._carda_id,
                 self._cardb_id], ts):
-                if storage_id is None: continue
+                if storage_id is None:
+                    continue
                 name = _('Unknown')
                 for s in self.dev.data['storage']:
                     if s['id'] == storage_id:
@@ -243,9 +263,10 @@ class MTP_DEVICE(MTPDeviceBase):
                 storage = {'id':storage_id, 'size':capacity, 'name':name,
                         'is_folder':True, 'can_delete':False, 'is_system':True}
                 self._currently_getting_sid = unicode(storage_id)
-                id_map = self.dev.get_filesystem(storage_id,
-                        self._filesystem_callback)
-                for x in id_map.itervalues(): x['storage_id'] = storage_id
+                id_map = self.dev.get_filesystem(storage_id, partial(
+                        self._filesystem_callback, {}))
+                for x in id_map.itervalues():
+                    x['storage_id'] = storage_id
                 all_storage.append(storage)
                 items.append(id_map.itervalues())
             self._filesystem_cache = FilesystemCache(all_storage, chain(*items))
@@ -255,7 +276,8 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @same_thread
     def do_eject(self):
-        if self.currently_connected_pnp_id is None: return
+        if self.currently_connected_pnp_id is None:
+            return
         self.ejected_devices.add(self.currently_connected_pnp_id)
         self.currently_connected_pnp_id = self.current_friendly_name = None
         self._main_id = self._carda_id = self._cardb_id = None
@@ -273,7 +295,8 @@ class MTP_DEVICE(MTPDeviceBase):
         return self.currently_connected_pnp_id is not None
 
     def eject(self):
-        if self.currently_connected_pnp_id is None: return
+        if self.currently_connected_pnp_id is None:
+            return
         self.eject_dev_on_next_scan = True
         self.current_serial_num = None
 

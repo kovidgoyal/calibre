@@ -1,3 +1,5 @@
+## Last Edit:  2013-08-23
+## From:  Armin Geller
 __license__   = 'GPL v3'
 __copyright__ = '2010, NA'
 '''
@@ -18,33 +20,30 @@ class Consumerist(BasicNewsRecipe):
     encoding              = 'utf-8'
     use_embedded_content  = False
     language              = 'en'
-    masthead_url          = 'http://consumerist.com/css/images/footer_man.gif'
+    masthead_url          = 'http://consumermediallc.files.wordpress.com/2013/02/consumerist.png'# AGe 2013-08-23
+    
     extra_css             = '''
-	body{font-family: "Lucida Grande",Helvetica,Arial,sans-serif}
-	img{margin-bottom: 1em}
-	h1{font-family :Arial,Helvetica,sans-serif; font-size:x-large}
-	h2{font-family :Arial,Helvetica,sans-serif; font-size:large}
-	              '''
+                              body{font-family: "Lucida Grande",Helvetica,Arial,sans-serif}
+                              img{margin-bottom: 1em}
+                              h1{font-family :Arial,Helvetica,sans-serif; font-size:x-large}
+                              h2{font-family :Arial,Helvetica,sans-serif; font-size:large}
+                            '''
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
+                          'comment'   : description,
+                          'tags'      : category,
+                          'publisher' : publisher,
+                          'language'  : language,
+                          }
 
     remove_attributes  = ['width','height']
-    #keep_only_tags     = [dict(attrs={'class':['', 'category-breadcrumb']}),]
-    remove_tags_before = dict(name='h2')
 
-    remove_tags = [
-       #dict(name='iframe'),
-       dict(name='div', attrs={'class':['e-comments', 'more-about', 'entry-tags']}),
-       #dict(name='div', attrs={'id':['IEContainer', 'clickIncludeBox']}),
-       #dict(name='ul', attrs={'class':'article-tools'}),
-       #dict(name='ul', attrs={'class':'articleTools'}),
-    ]
+    keep_only_tags     = dict(name='div', attrs={'class':['hfeed',]}) # AGe 2013-08-23
 
-    remove_tags_after  = dict(attrs={'class':'e-body'})
+    remove_tags        = [dict(name='div', attrs={'class':['navigation', # AGe 2013-08-23
+                                         'wpcom-related-posts widget widget_related_posts', # AGe 2013-08-23
+                                         'sharedaddy sd-like-enabled sd-sharing-enabled',]}), # AGe 2013-08-23
+                          dict(name='div', attrs={'id':['comments',]}), # AGe 2013-08-23
+                          ]
 
     feeds = [(u'Articles', u'http://consumerist.com/index.xml')]
 

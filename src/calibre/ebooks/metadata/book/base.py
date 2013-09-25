@@ -42,8 +42,12 @@ NULL_VALUES = {
 
 field_metadata = FieldMetadata()
 
+def reset_field_metadata():
+    global field_metadata
+    field_metadata = FieldMetadata()
+
 ck = lambda typ: icu_lower(typ).strip().replace(':', '').replace(',', '')
-cv = lambda val: val.strip().replace(',', '|').replace(':', '|')
+cv = lambda val: val.strip().replace(',', '|')
 
 class Metadata(object):
 
@@ -181,11 +185,11 @@ class Metadata(object):
         return key in object.__getattribute__(self, '_data')
 
     def deepcopy(self):
-        ''' Do not use this method unless you know what you are doing, if you want to create a simple clone of
-        this object, use :meth:`deepcopy_metadata` instead. '''
+        ''' Do not use this method unless you know what you are doing, if you
+        want to create a simple clone of this object, use :meth:`deepcopy_metadata`
+        instead. '''
         m = Metadata(None)
-        m.__dict__ = copy.deepcopy(self.__dict__)
-        object.__setattr__(m, '_data', copy.deepcopy(object.__getattribute__(self, '_data')))
+        object.__setattr__(m, '__dict__', copy.deepcopy(self.__dict__))
         return m
 
     def deepcopy_metadata(self):
@@ -387,7 +391,7 @@ class Metadata(object):
                     m['#value#'] = None
             um[key] = m
         _data = object.__getattribute__(self, '_data')
-        _data['user_metadata'].update(um)
+        _data['user_metadata'] = um
 
     def set_user_metadata(self, field, metadata):
         '''
@@ -738,6 +742,7 @@ class Metadata(object):
         A HTML representation of this object.
         '''
         from calibre.ebooks.metadata import authors_to_string
+        from calibre.utils.date import isoformat
         ans = [(_('Title'), unicode(self.title))]
         ans += [(_('Author(s)'), (authors_to_string(self.authors) if self.authors else _('Unknown')))]
         ans += [(_('Publisher'), unicode(self.publisher))]
@@ -749,9 +754,9 @@ class Metadata(object):
             ans += [(_('Series'), unicode(self.series) + ' #%s'%self.format_series_index())]
         ans += [(_('Languages'), u', '.join(self.languages))]
         if self.timestamp is not None:
-            ans += [(_('Timestamp'), unicode(self.timestamp.isoformat(' ')))]
+            ans += [(_('Timestamp'), unicode(isoformat(self.timestamp, as_utc=False, sep=' ')))]
         if self.pubdate is not None:
-            ans += [(_('Published'), unicode(self.pubdate.isoformat(' ')))]
+            ans += [(_('Published'), unicode(isoformat(self.pubdate, as_utc=False, sep=' ')))]
         if self.rights is not None:
             ans += [(_('Rights'), unicode(self.rights))]
         for key in self.custom_field_keys():

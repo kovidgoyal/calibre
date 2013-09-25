@@ -7,13 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import weakref
+import weakref, operator
 from functools import partial
 from itertools import izip, imap
 from future_builtins import map
 
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config_base import tweaks
+from calibre.db.write import uniq
 
 def sanitize_sort_field_name(field_metadata, field):
     field = field_metadata.search_term_to_field_key(field.lower().strip())
@@ -30,8 +31,9 @@ class MarkedVirtualField(object):
         for book_id in candidates:
             yield self.marked_ids.get(book_id, default_value), {book_id}
 
-    def sort_keys_for_books(self, get_metadata, lang_map, all_book_ids):
-        return {bid:self.marked_ids.get(bid, None) for bid in all_book_ids}
+    def sort_keys_for_books(self, get_metadata, lang_map):
+        g = self.marked_ids.get
+        return lambda book_id:g(book_id, None)
 
 class TableRow(object):
 
@@ -122,6 +124,12 @@ class View(object):
 
         self._map = tuple(sorted(self.cache.all_book_ids()))
         self._map_filtered = tuple(self._map)
+        self.full_map_is_sorted = True
+        self.sort_history = [('id', True)]
+
+    def add_to_sort_history(self, items):
+        self.sort_history = uniq((list(items) + list(self.sort_history)),
+                                 operator.itemgetter(0))[:tweaks['maximum_resort_levels']]
 
     def count(self):
         return len(self._map)
@@ -217,7 +225,7 @@ class View(object):
             ans = [':::'.join((adata[aid]['name'], adata[aid]['sort'], adata[aid]['link'])) for aid in ids if aid in adata]
         return ':#:'.join(ans) if ans else default_value
 
-    def multisort(self, fields=[], subsort=False, only_ids=None):
+    def _do_sort(self, ids_to_sort, fields=(), subsort=False):
         fields = [(sanitize_sort_field_name(self.field_metadata, x), bool(y)) for x, y in fields]
         keys = self.field_metadata.sortable_field_keys()
         fields = [x for x in fields if x[0] in keys]
@@ -226,11 +234,16 @@ class View(object):
         if not fields:
             fields = [('timestamp', False)]
 
-        sorted_book_ids = self.cache.multisort(
-            fields, ids_to_sort=self._map if only_ids is None else only_ids,
+        return self.cache.multisort(
+            fields, ids_to_sort=ids_to_sort,
             virtual_fields={'marked':MarkedVirtualField(self.marked_ids)})
+
+    def multisort(self, fields=[], subsort=False, only_ids=None):
+        sorted_book_ids = self._do_sort(self._map if only_ids is None else only_ids, fields=fields, subsort=subsort)
         if only_ids is None:
             self._map = tuple(sorted_book_ids)
+            self.full_map_is_sorted = True
+            self.add_to_sort_history(fields)
             if len(self._map_filtered) == len(self._map):
                 self._map_filtered = tuple(self._map)
             else:
@@ -240,9 +253,16 @@ class View(object):
             smap = {book_id:i for i, book_id in enumerate(sorted_book_ids)}
             only_ids.sort(key=smap.get)
 
-    def search(self, query, return_matches=False):
+    def incremental_sort(self, fields=(), subsort=False):
+        if len(self._map) == len(self._map_filtered):
+            return self.multisort(fields=fields, subsort=subsort)
+        self._map_filtered = tuple(self._do_sort(self._map_filtered, fields=fields, subsort=subsort))
+        self.full_map_is_sorted = False
+        self.add_to_sort_history(fields)
+
+    def search(self, query, return_matches=False, sort_results=True):
         ans = self.search_getting_ids(query, self.search_restriction,
-                                      set_restriction_count=True)
+                                      set_restriction_count=True, sort_results=sort_results)
         if return_matches:
             return ans
         self._map_filtered = tuple(ans)
@@ -257,7 +277,7 @@ class View(object):
             return restriction
 
     def search_getting_ids(self, query, search_restriction,
-                           set_restriction_count=False, use_virtual_library=True):
+                           set_restriction_count=False, use_virtual_library=True, sort_results=True):
         if use_virtual_library:
             search_restriction = self._build_restriction_string(search_restriction)
         q = ''
@@ -270,10 +290,28 @@ class View(object):
         if not q:
             if set_restriction_count:
                 self.search_restriction_book_count = len(self._map)
-            return list(self._map)
+            rv = list(self._map)
+            if sort_results and not self.full_map_is_sorted:
+                rv = self._do_sort(rv, fields=self.sort_history)
+                self._map = tuple(rv)
+                self.full_map_is_sorted = True
+            return rv
         matches = self.cache.search(
             query, search_restriction, virtual_fields={'marked':MarkedVirtualField(self.marked_ids)})
-        rv = [x for x in self._map if x in matches]
+        if len(matches) == len(self._map):
+            rv = list(self._map)
+        else:
+            rv = [x for x in self._map if x in matches]
+        if sort_results and not self.full_map_is_sorted:
+            # We need to sort the search results
+            if matches.issubset(frozenset(self._map_filtered)):
+                rv = [x for x in self._map_filtered if x in matches]
+            else:
+                rv = self._do_sort(rv, fields=self.sort_history)
+            if len(matches) == len(self._map):
+                # We have sorted all ids, update self._map
+                self._map = tuple(rv)
+                self.full_map_is_sorted = True
         if set_restriction_count and q == search_restriction:
             self.search_restriction_book_count = len(rv)
         return rv
@@ -334,14 +372,16 @@ class View(object):
         # be shared by multiple views. This is not ideal, but...
         self.cache.clear_search_caches(old_marked_ids | set(self.marked_ids))
 
-    def refresh(self, field=None, ascending=True, clear_caches=True):
+    def refresh(self, field=None, ascending=True, clear_caches=True, do_search=True):
         self._map = tuple(sorted(self.cache.all_book_ids()))
         self._map_filtered = tuple(self._map)
+        self.full_map_is_sorted = True
+        self.sort_history = [('id', True)]
         if clear_caches:
             self.cache.clear_caches()
         if field is not None:
             self.sort(field, ascending)
-        if self.search_restriction or self.base_restriction:
+        if do_search and (self.search_restriction or self.base_restriction):
             self.search('', return_matches=False)
 
     def refresh_ids(self, ids):

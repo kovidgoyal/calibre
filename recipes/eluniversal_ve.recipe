@@ -1,27 +1,28 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.eluniversal.com
 '''
 
-from calibre import strftime
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class ElUniversal(BasicNewsRecipe):
     title                  = 'El Universal'
     __author__             = 'Darko Miletic'
-    description            = 'Noticias de Venezuela'
+    description            = 'Noticias de Venezuela y el mundo. Avances informativos de ultimo minuto. Incluye secciones de politica, deportes, economia y mas.'
     oldest_article         = 2
     max_articles_per_feed  = 100
     no_stylesheets         = True
     use_embedded_content   = False
-    remove_empty_feeds     = True    
+    remove_empty_feeds     = True
     encoding               = 'cp1252'
     publisher              = 'El Universal'
     category               = 'news, Caracas, Venezuela, world'
     language               = 'es_VE'
-    publication_type       = 'newspaper'    
-    cover_url              = strftime('http://static.eluniversal.com/%Y/%m/%d/portada.jpg')
+    publication_type       = 'newspaper'
+    masthead_url           = 'http://cdn.eluniversal.com/images/eu4/back/logo-eluniversal.gif'
+    #cover_url              = strftime('http://cdn.eluniversal.com/%Y/%m/%d/portada.jpg')
+    cover_url              = 'http://images.eluniversal.com//pdf/primeraPlana.pdf'
     extra_css              = """
                                 .txt60{font-family: Tahoma,Geneva,sans-serif; font-size: small}
                                 .txt29{font-family: Tahoma,Geneva,sans-serif; font-size: small; color: gray}
@@ -30,10 +31,10 @@ class ElUniversal(BasicNewsRecipe):
                                 body{font-family: Verdana,Arial,Helvetica,sans-serif}
                              """
     conversion_options = {
-                             'comments'        : description
-                            ,'tags'            : category
-                            ,'language'        : language
-                            ,'publisher'       : publisher
+                             'comments'  : description
+                            ,'tags'      : category
+                            ,'language'  : language
+                            ,'publisher' : publisher
                          }
 
     remove_tags_before=dict(attrs={'class':'header-print MB10'})

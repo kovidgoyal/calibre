@@ -19,7 +19,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.utils.date import parse_date
-from calibre.gui2.device_drivers.mtp_folder_browser import Browser, TopLevel
+from calibre.gui2.device_drivers.mtp_folder_browser import Browser, IgnoredFolders
 
 class FormatsConfig(QWidget): # {{{
 
@@ -424,7 +424,7 @@ class MTPConfig(QTabWidget):
         d.exec_()
 
     def change_ignored_folders(self):
-        d = TopLevel(self.device,
+        d = IgnoredFolders(self.device,
                      self.current_ignored_folders, parent=self)
         if d.exec_() == d.Accepted:
             self.current_ignored_folders = d.ignored_folders

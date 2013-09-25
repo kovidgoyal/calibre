@@ -10,7 +10,7 @@ import itertools, operator, os
 from types import MethodType
 from time import time
 from threading import Event, Thread
-from Queue import Queue
+from Queue import LifoQueue
 from functools import wraps, partial
 from textwrap import wrap
 
@@ -25,7 +25,7 @@ from calibre import fit_image, prints, prepare_string_for_xml
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.gui2 import gprefs, config
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 
 CM_TO_INCH = 0.393701
 CACHE_FORMAT = 'PPM'
@@ -226,6 +226,7 @@ class AlternateViews(object):
         self.stack = None
         self.break_link = False
         self.main_connected = False
+        self.current_book_state = None
 
     def set_stack(self, stack):
         self.stack = stack
@@ -290,6 +291,15 @@ class AlternateViews(object):
         for view in self.views.itervalues():
             if view is not self.main_view:
                 view.set_context_menu(menu)
+
+    def save_current_book_state(self):
+        self.current_book_state = self.current_view, self.current_view.current_book_state()
+
+    def restore_current_book_state(self):
+        if self.current_book_state is not None:
+            if self.current_book_state[0] is self.current_view:
+                self.current_view.restore_current_book_state(self.current_book_state[1])
+            self.current_book_state = None
 # }}}
 
 # Rendering of covers {{{
@@ -313,7 +323,7 @@ class CoverDelegate(QStyledItemDelegate):
         self.animation.setDuration(500)
         self.set_dimensions()
         self.cover_cache = CoverCache(limit=gprefs['cover_grid_cache_size'])
-        self.render_queue = Queue()
+        self.render_queue = LifoQueue()
         self.animating = None
         self.highlight_color = QColor(Qt.white)
 
@@ -552,7 +562,10 @@ class GridView(QListView):
         if d.animating is None and not config['disable_animations']:
             d.animating = index
             d.animation.start()
-        self.gui.iactions['View'].view_triggered(index)
+        if tweaks['doubleclick_on_library_view'] == 'open_viewer':
+            self.gui.iactions['View'].view_triggered(index)
+        elif tweaks['doubleclick_on_library_view'] in {'edit_metadata', 'edit_cell'}:
+            self.gui.iactions['Edit Metadata'].edit_metadata(False, False)
 
     def animation_value_changed(self, value):
         if self.delegate.animating is not None:
@@ -685,8 +698,6 @@ class GridView(QListView):
         self.thumbnail_cache.shutdown()
 
     def set_database(self, newdb, stage=0):
-        if not hasattr(newdb, 'new_api'):
-            return
         if stage == 0:
             self.ignore_render_requests.set()
             try:
@@ -752,7 +763,7 @@ class GridView(QListView):
 
     def handle_mouse_press_event(self, ev):
         if QApplication.keyboardModifiers() & Qt.ShiftModifier:
-            # Shift-Click in QLitView is broken. It selects extra items in
+            # Shift-Click in QListView is broken. It selects extra items in
             # various circumstances, for example, click on some item in the
             # middle of a row then click on an item in the next row, all items
             # in the first row will be selected instead of only items after the
@@ -775,4 +786,26 @@ class GridView(QListView):
             sm.select(QItemSelection(top, bottom), sm.Select)
         else:
             return QListView.mousePressEvent(self, ev)
+
+    @property
+    def current_book(self):
+        ci = self.currentIndex()
+        if ci.isValid():
+            try:
+                return self.model().db.data.index_to_id(ci.row())
+            except (IndexError, ValueError, KeyError, TypeError, AttributeError):
+                pass
+
+    def current_book_state(self):
+        return self.current_book
+
+    def restore_current_book_state(self, state):
+        book_id = state
+        try:
+            row = self.model().db.data.id_to_index(book_id)
+        except (IndexError, ValueError, KeyError, TypeError, AttributeError):
+            return
+        self.set_current_row(row)
+        self.select_rows((row,))
+        self.scrollTo(self.model().index(row, 0), self.PositionAtCenter)
 # }}}

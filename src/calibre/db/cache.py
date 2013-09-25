@@ -7,10 +7,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, random, shutil, re
+import os, traceback, random, shutil, re, operator
 from io import BytesIO
 from collections import defaultdict
-from functools import wraps, partial
+from functools import wraps
+from future_builtins import zip
 
 from calibre import isbytestring
 from calibre.constants import iswindows, preferred_encoding
@@ -19,10 +20,10 @@ from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.categories import get_categories
 from calibre.db.locking import create_locks
 from calibre.db.errors import NoSuchFormat
-from calibre.db.fields import create_field
+from calibre.db.fields import create_field, IDENTITY, InvalidLinkTable
 from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
-from calibre.db.write import get_series_values
+from calibre.db.write import get_series_values, uniq
 from calibre.db.lazy import FormatMetadata, FormatsList, ProxyMetadata
 from calibre.ebooks import check_ebook_format
 from calibre.ebooks.metadata import string_to_authors, author_to_author_sort, get_title_sort_pat
@@ -286,14 +287,15 @@ class Cache(object):
         '''
         with self.write_lock:
             self.backend.read_tables()
+            bools_are_tristate = self.backend.prefs['bools_are_tristate']
 
             for field, table in self.backend.tables.iteritems():
-                self.fields[field] = create_field(field, table)
+                self.fields[field] = create_field(field, table, bools_are_tristate)
                 if table.metadata['datatype'] == 'composite':
                     self.composites[field] = self.fields[field]
 
             self.fields['ondevice'] = create_field('ondevice',
-                    VirtualTable('ondevice'))
+                    VirtualTable('ondevice'), bools_are_tristate)
 
             for name, field in self.fields.iteritems():
                 if name[0] == '#' and name.endswith('_index'):
@@ -306,9 +308,9 @@ class Cache(object):
                     field.author_sort_field = self.fields['author_sort']
                 elif name == 'title':
                     field.title_sort_field = self.fields['sort']
-        if self.backend.custom_columns_deleted:
-            self.mark_as_dirty(self.all_book_ids())
-        self.backend.custom_columns_deleted = False
+        if self.backend.prefs['update_all_last_mod_dates_on_start']:
+            self.update_last_modified(self.all_book_ids())
+            self.backend.prefs.set('update_all_last_mod_dates_on_start', False)
 
     @read_api
     def field_for(self, name, book_id, default_value=None):
@@ -803,48 +805,79 @@ class Cache(object):
         ascending=True or False). The most significant field is the first
         2-tuple.
         '''
-        all_book_ids = frozenset(self._all_book_ids() if ids_to_sort is None
-                else ids_to_sort)
-        ids_to_sort = all_book_ids if ids_to_sort is None else ids_to_sort
+        ids_to_sort = self._all_book_ids() if ids_to_sort is None else ids_to_sort
         get_metadata = self._get_proxy_metadata
         lang_map = self.fields['languages'].book_value_map
         virtual_fields = virtual_fields or {}
 
         fm = {'title':'sort', 'authors':'author_sort'}
 
-        def sort_key(field):
-            'Handle series type fields'
+        def sort_key_func(field):
+            'Handle series type fields, virtual fields and the id field'
             idx = field + '_index'
             is_series = idx in self.fields
             try:
-                ans = self.fields[fm.get(field, field)].sort_keys_for_books(
-                    get_metadata, lang_map, all_book_ids)
+                func = self.fields[fm.get(field, field)].sort_keys_for_books(get_metadata, lang_map)
             except KeyError:
-                ans = virtual_fields[fm.get(field, field)].sort_keys_for_books(
-                    get_metadata, lang_map, all_book_ids)
+                if field == 'id':
+                    return IDENTITY
+                else:
+                    return virtual_fields[fm.get(field, field)].sort_keys_for_books(get_metadata, lang_map)
             if is_series:
-                idx_ans = self.fields[idx].sort_keys_for_books(
-                    get_metadata, lang_map, all_book_ids)
-                ans = {k:(v, idx_ans[k]) for k, v in ans.iteritems()}
-            return ans
+                idx_func = self.fields[idx].sort_keys_for_books(get_metadata, lang_map)
+                def skf(book_id):
+                    return (func(book_id), idx_func(book_id))
+                return skf
+            return func
 
-        sort_keys = tuple(sort_key(field[0]) for field in fields)
+        # Sort only once on any given field
+        fields = uniq(fields, operator.itemgetter(0))
 
-        if len(sort_keys) == 1:
-            sk = sort_keys[0]
-            return sorted(ids_to_sort, key=lambda i:sk[i], reverse=not
-                    fields[0][1])
-        else:
-            return sorted(ids_to_sort, key=partial(SortKey, fields, sort_keys))
+        if len(fields) == 1:
+            return sorted(ids_to_sort, key=sort_key_func(fields[0][0]),
+                          reverse=not fields[0][1])
+        sort_key_funcs = tuple(sort_key_func(field) for field, order in fields)
+        orders = tuple(1 if order else -1 for _, order in fields)
+        Lazy = object()  # Lazy load the sort keys for sub-sort fields
+
+        class SortKey(object):
+
+            __slots__ = ('book_id', 'sort_key')
+
+            def __init__(self, book_id):
+                self.book_id = book_id
+                # Calculate only the first sub-sort key since that will always be used
+                self.sort_key = [key(book_id) if i == 0 else Lazy for i, key in enumerate(sort_key_funcs)]
+
+            def __cmp__(self, other):
+                for i, (order, self_key, other_key) in enumerate(zip(orders, self.sort_key, other.sort_key)):
+                    if self_key is Lazy:
+                        self_key = self.sort_key[i] = sort_key_funcs[i](self.book_id)
+                    if other_key is Lazy:
+                        other_key = other.sort_key[i] = sort_key_funcs[i](other.book_id)
+                    ans = cmp(self_key, other_key)
+                    if ans != 0:
+                        return ans * order
+                return 0
+
+        return sorted(ids_to_sort, key=SortKey)
 
     @read_api
     def search(self, query, restriction='', virtual_fields=None, book_ids=None):
         return self._search_api(self, query, restriction, virtual_fields=virtual_fields, book_ids=book_ids)
 
-    @read_api
-    def get_categories(self, sort='name', book_ids=None, icon_map=None):
-        return get_categories(self, sort=sort, book_ids=book_ids,
-                              icon_map=icon_map)
+    @api
+    def get_categories(self, sort='name', book_ids=None, icon_map=None, already_fixed=None):
+        try:
+            with self.read_lock:
+                return get_categories(self, sort=sort, book_ids=book_ids, icon_map=icon_map)
+        except InvalidLinkTable as err:
+            bad_field = err.field_name
+            if bad_field == already_fixed:
+                raise
+            with self.write_lock:
+                self.fields[bad_field].table.fix_link_table(self.backend)
+            return self.get_categories(sort=sort, book_ids=book_ids, icon_map=icon_map, already_fixed=bad_field)
 
     @write_api
     def update_last_modified(self, book_ids, now=None):
@@ -1175,14 +1208,16 @@ class Cache(object):
 
     @api
     def add_format(self, book_id, fmt, stream_or_path, replace=True, run_hooks=True, dbapi=None):
-        with self.write_lock:
-            if run_hooks:
-                # Run import plugins
-                npath = run_import_plugins(stream_or_path, fmt)
-                fmt = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
-                stream_or_path = lopen(npath, 'rb')
-                fmt = check_ebook_format(stream_or_path, fmt)
+        if run_hooks:
+            # Run import plugins, the write lock is not held to cater for
+            # broken plugins that might spin the event loop by popping up a
+            # message in the GUI during the processing.
+            npath = run_import_plugins(stream_or_path, fmt)
+            fmt = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
+            stream_or_path = lopen(npath, 'rb')
+            fmt = check_ebook_format(stream_or_path, fmt)
 
+        with self.write_lock:
             fmt = (fmt or '').upper()
             self.format_metadata_cache[book_id].pop(fmt, None)
             try:
@@ -1197,7 +1232,8 @@ class Cache(object):
             title = self._field_for('title', book_id, default_value=_('Unknown'))
             author = self._field_for('authors', book_id, default_value=(_('Unknown'),))[0]
             stream = stream_or_path if hasattr(stream_or_path, 'read') else lopen(stream_or_path, 'rb')
-            size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path)
+
+            size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path, name)
             del stream
 
             max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
@@ -1267,7 +1303,7 @@ class Cache(object):
         for aut in authors:
             aid = rmap.get(icu_lower(aut), None)
             result.append(author_to_author_sort(aut) if aid is None else table.asort_map[aid])
-        return ' & '.join(result)
+        return ' & '.join(filter(None, result))
 
     @read_api
     def has_book(self, mi):
@@ -1384,12 +1420,22 @@ class Cache(object):
         affected_books = set()
         moved_books = set()
         id_map = {}
+        try:
+            sv = f.metadata['is_multiple']['ui_to_list']
+        except (TypeError, KeyError, AttributeError):
+            sv = None
         for item_id, new_name in item_id_to_new_name_map.iteritems():
-            books, new_id = func(item_id, new_name, self.backend)
+            new_names = tuple(x.strip() for x in new_name.split(sv)) if sv else (new_name,)
+            books, new_id = func(item_id, new_names[0], self.backend)
             affected_books.update(books)
             id_map[item_id] = new_id
             if new_id != item_id:
                 moved_books.update(books)
+            if len(new_names) > 1:
+                # Add the extra items to the books
+                extra = new_names[1:]
+                self._set_field(field, {book_id:self._fast_field_for(f, book_id) + extra for book_id in books})
+
         if affected_books:
             if field == 'authors':
                 self._set_field('author_sort',
@@ -1397,7 +1443,7 @@ class Cache(object):
                 self._update_path(affected_books, mark_as_dirtied=False)
             elif change_index and hasattr(f, 'index_field') and tweaks['series_index_auto_increment'] != 'no_change':
                 for book_id in moved_books:
-                    self._set_field(f.index_field.name, {book_id:self._get_next_series_num_for(self._field_for(field, book_id), field=field)})
+                    self._set_field(f.index_field.name, {book_id:self._get_next_series_num_for(self._fast_field_for(f, book_id), field=field)})
             self._mark_as_dirty(affected_books)
         return affected_books, id_map
 
@@ -1517,11 +1563,11 @@ class Cache(object):
 
     @write_api
     def set_sort_for_authors(self, author_id_to_sort_map, update_books=True):
-        self.fields['authors'].table.set_sort_names(author_id_to_sort_map, self.backend)
+        sort_map = self.fields['authors'].table.set_sort_names(author_id_to_sort_map, self.backend)
         changed_books = set()
         if update_books:
             val_map = {}
-            for author_id in author_id_to_sort_map:
+            for author_id in sort_map:
                 books = self._books_for_field('authors', author_id)
                 changed_books |= books
                 for book_id in books:
@@ -1531,16 +1577,18 @@ class Cache(object):
                     val_map[book_id] = ' & '.join(sorts)
             if val_map:
                 self._set_field('author_sort', val_map)
-        self._mark_as_dirty(changed_books)
+        if changed_books:
+            self._mark_as_dirty(changed_books)
         return changed_books
 
     @write_api
     def set_link_for_authors(self, author_id_to_link_map):
-        self.fields['authors'].table.set_links(author_id_to_link_map, self.backend)
+        link_map = self.fields['authors'].table.set_links(author_id_to_link_map, self.backend)
         changed_books = set()
-        for author_id in author_id_to_link_map:
+        for author_id in link_map:
             changed_books |= self._books_for_field('authors', author_id)
-        self._mark_as_dirty(changed_books)
+        if changed_books:
+            self._mark_as_dirty(changed_books)
         return changed_books
 
     @read_api
@@ -1556,8 +1604,15 @@ class Cache(object):
         self.backend.create_custom_column(label, name, datatype, is_multiple, editable=editable, display=display)
 
     @write_api
-    def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None, display=None):
-        return self.backend.set_custom_column_metadata(num, name=name, label=label, is_editable=is_editable, display=display)
+    def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None,
+                                   display=None, update_last_modified=False):
+        changed = self.backend.set_custom_column_metadata(num, name=name, label=label, is_editable=is_editable, display=display)
+        if changed:
+            if update_last_modified:
+                self._update_last_modified(self._all_book_ids())
+            else:
+                self.backend.prefs.set('update_all_last_mod_dates_on_start', True)
+        return changed
 
     @read_api
     def get_books_for_category(self, category, item_id_or_composite_value):
@@ -1668,6 +1723,10 @@ class Cache(object):
         return self.backend.dump_and_restore(callback=callback, sql=sql)
 
     @write_api
+    def vacuum(self):
+        self.backend.vacuum()
+
+    @write_api
     def close(self):
         self.backend.close()
 
@@ -1685,28 +1744,14 @@ class Cache(object):
 
     @read_api
     def virtual_libraries_for_books(self, book_ids):
-        libraries = tuple(self._pref('virtual_libraries', {}).iterkeys())
+        libraries = self._pref('virtual_libraries', {})
         ans = {book_id:[] for book_id in book_ids}
-        for lib in libraries:
-            books = self._search(lib)  # We deliberately dont use book_ids as we want to use the search cache
+        for lib, expr in libraries.iteritems():
+            books = self._search(expr)  # We deliberately dont use book_ids as we want to use the search cache
             for book in book_ids:
                 if book in books:
                     ans[book].append(lib)
         return {k:tuple(sorted(v, key=sort_key)) for k, v in ans.iteritems()}
 
     # }}}
-
-class SortKey(object):  # {{{
-
-    def __init__(self, fields, sort_keys, book_id):
-        self.orders = tuple(1 if f[1] else -1 for f in fields)
-        self.sort_key = tuple(sk[book_id] for sk in sort_keys)
-
-    def __cmp__(self, other):
-        for i, order in enumerate(self.orders):
-            ans = cmp(self.sort_key[i], other.sort_key[i])
-            if ans != 0:
-                return ans * order
-        return 0
-# }}}
 

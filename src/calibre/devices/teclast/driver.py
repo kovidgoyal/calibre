@@ -72,7 +72,7 @@ class IPAPYRUS(TECLAST_K3):
 
     FORMATS = ['epub', 'pdf', 'txt']
 
-    VENDOR_NAME      = ['E_READER', 'EBOOKREA']
+    VENDOR_NAME      = ['E_READER', 'EBOOKREA', 'ICARUS']
     WINDOWS_MAIN_MEM = ''
 
 class SOVOS(TECLAST_K3):

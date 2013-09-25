@@ -53,7 +53,7 @@ class XMLServer(object):
         if isbytestring(search):
             search = search.decode('UTF-8')
 
-        ids = self.db.search_getting_ids(search.strip(), self.search_restriction)
+        ids = self.search_for_books(search)
 
         FM = self.db.FIELD_MAP
 
@@ -134,7 +134,7 @@ class XMLServer(object):
 
         updated = self.db.last_modified()
         kwargs = dict(
-                start = str(start),
+                start=str(start),
                 updated=updated.strftime('%Y-%m-%dT%H:%M:%S+00:00'),
                 total=str(len(ids)),
                 num=str(len(books)))

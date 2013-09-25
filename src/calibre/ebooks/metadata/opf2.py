@@ -518,7 +518,6 @@ class OPF(object):  # {{{
     spine_path      = XPath('descendant::*[re:match(name(), "spine", "i")]/*[re:match(name(), "itemref", "i")]')
     guide_path      = XPath('descendant::*[re:match(name(), "guide", "i")]/*[re:match(name(), "reference", "i")]')
 
-    title           = MetadataField('title', formatter=lambda x: re.sub(r'\s+', ' ', x))
     publisher       = MetadataField('publisher')
     comments        = MetadataField('description')
     category        = MetadataField('type')
@@ -554,6 +553,8 @@ class OPF(object):  # {{{
                 resolve_entities=True, assume_utf8=True)
         raw = raw[raw.find('<'):]
         self.root     = etree.fromstring(raw, self.PARSER)
+        if self.root is None:
+            raise ValueError('Not an OPF file')
         try:
             self.package_version = float(self.root.get('version', None))
         except (AttributeError, TypeError, ValueError):
@@ -778,6 +779,31 @@ class OPF(object):  # {{{
             item.set('href', get_href(item))
         for item in self.iterguide():
             item.set('href', get_href(item))
+
+    @dynamic_property
+    def title(self):
+        # TODO: Add support for EPUB 3 refinements
+
+        def fget(self):
+            for elem in self.title_path(self.metadata):
+                title = self.get_text(elem)
+                if title and title.strip():
+                    return re.sub(r'\s+', ' ', title.strip())
+
+        def fset(self, val):
+            val = (val or '').strip()
+            titles = self.title_path(self.metadata)
+            if self.package_version < 3:
+                # EPUB 3 allows multiple title elements containing sub-titles,
+                # series and other things. We all loooove EPUB 3.
+                for title in titles:
+                    title.getparent().remove(title)
+                titles = ()
+            if val:
+                title = titles[0] if titles else self.create_metadata_element('title')
+                title.text = re.sub(r'\s+', ' ', unicode(val))
+
+        return property(fget=fget, fset=fset)
 
     @dynamic_property
     def authors(self):
@@ -1130,10 +1156,7 @@ class OPF(object):  # {{{
     def get_metadata_element(self, name):
         matches = self.metadata_elem_path(self.metadata, name=name)
         if matches:
-            num = -1
-            if self.package_version >= 3 and name == 'title':
-                num = 0
-            return matches[num]
+            return matches[-1]
 
     def create_metadata_element(self, name, attrib=None, is_dc=True):
         if is_dc:

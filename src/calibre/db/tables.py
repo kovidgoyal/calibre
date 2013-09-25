@@ -41,9 +41,7 @@ def c_parse(val):
 
 ONE_ONE, MANY_ONE, MANY_MANY = xrange(3)
 
-class Null:
-    pass
-null = Null()
+null = object()
 
 class Table(object):
 
@@ -58,13 +56,23 @@ class Table(object):
         }.get(metadata['datatype'], None)
         if name == 'authors':
             # Legacy
-            self.unserialize = lambda x: x.replace('|', ',') if x else None
+            self.unserialize = lambda x: x.replace('|', ',') if x else ''
 
         self.link_table = (link_table if link_table else
                 'books_%s_link'%self.metadata['table'])
 
     def remove_books(self, book_ids, db):
         return set()
+
+    def fix_link_table(self, db):
+        pass
+
+    def fix_case_duplicates(self, db):
+        ''' If this table contains entries that differ only by case, then merge
+        those entries. This can happen in databases created with old versions
+        of calibre and non-ascii values, since sqlite's NOCASE only works with
+        ascii text. '''
+        pass
 
 class VirtualTable(Table):
 
@@ -92,7 +100,14 @@ class OneToOneTable(Table):
         query = db.conn.execute('SELECT {0}, {1} FROM {2}'.format(idcol,
             self.metadata['column'], self.metadata['table']))
         if self.unserialize is None:
-            self.book_col_map = dict(query)
+            try:
+                self.book_col_map = dict(query)
+            except UnicodeDecodeError:
+                # The db is damaged, try to work around it by ignoring
+                # failures to decode utf-8
+                query = db.conn.execute('SELECT {0}, cast({1} as blob) FROM {2}'.format(idcol,
+                    self.metadata['column'], self.metadata['table']))
+                self.book_col_map = {k:bytes(val).decode('utf-8', 'replace') for k, val in query}
         else:
             us = self.unserialize
             self.book_col_map = {book_id:us(val) for book_id, val in query}
@@ -196,6 +211,37 @@ class ManyToOneTable(Table):
             cbm[item_id].add(book)
             bcm[book] = item_id
 
+    def fix_link_table(self, db):
+        linked_item_ids = {item_id for item_id in self.book_col_map.itervalues()}
+        extra_item_ids = linked_item_ids - set(self.id_map)
+        if extra_item_ids:
+            for item_id in extra_item_ids:
+                book_ids = self.col_book_map.pop(item_id, ())
+                for book_id in book_ids:
+                    self.book_col_map.pop(book_id, None)
+            db.conn.executemany('DELETE FROM {0} WHERE {1}=?'.format(
+                self.link_table, self.metadata['link_column']), tuple((x,) for x in extra_item_ids))
+
+    def fix_case_duplicates(self, db):
+        case_map = defaultdict(set)
+        for item_id, val in self.id_map.iteritems():
+            case_map[icu_lower(val)].add(item_id)
+
+        for v in case_map.itervalues():
+            if len(v) > 1:
+                main_id = min(v)
+                v.discard(main_id)
+                for item_id in v:
+                    self.id_map.pop(item_id, None)
+                    books = self.col_book_map.pop(item_id, set())
+                    for book_id in books:
+                        self.book_col_map[book_id] = main_id
+                db.conn.executemany('UPDATE {0} SET {1}=? WHERE {1}=?'.format(
+                    self.link_table, self.metadata['link_column']),
+                    tuple((main_id, x) for x in v))
+                db.conn.executemany('DELETE FROM {0} WHERE id=?'.format(self.metadata['table']),
+                    tuple((x,) for x in v))
+
     def remove_books(self, book_ids, db):
         clean = set()
         for book_id in book_ids:
@@ -257,6 +303,20 @@ class ManyToOneTable(Table):
                 self.link_table, lcol, table), (existing_item, item_id, item_id))
         return affected_books, new_id
 
+class RatingTable(ManyToOneTable):
+
+    def read_id_maps(self, db):
+        ManyToOneTable.read_id_maps(self, db)
+        # Ensure there are no records with rating=0 in the table. These should
+        # be represented as rating:None instead.
+        bad_ids = {item_id for item_id, rating in self.id_map.iteritems() if rating == 0}
+        if bad_ids:
+            self.id_map = {item_id:rating for item_id, rating in self.id_map.iteritems() if rating != 0}
+            db.conn.executemany('DELETE FROM {0} WHERE {1}=?'.format(self.link_table, self.metadata['link_column']),
+                                tuple((x,) for x in bad_ids))
+            db.conn.execute('DELETE FROM {0} WHERE {1}=0'.format(
+                self.metadata['table'], self.metadata['column']))
+
 class ManyToManyTable(ManyToOneTable):
 
     '''
@@ -278,6 +338,17 @@ class ManyToManyTable(ManyToOneTable):
             bcm[book].append(item_id)
 
         self.book_col_map = {k:tuple(v) for k, v in bcm.iteritems()}
+
+    def fix_link_table(self, db):
+        linked_item_ids = {item_id for item_ids in self.book_col_map.itervalues() for item_id in item_ids}
+        extra_item_ids = linked_item_ids - set(self.id_map)
+        if extra_item_ids:
+            for item_id in extra_item_ids:
+                book_ids = self.col_book_map.pop(item_id, ())
+                for book_id in book_ids:
+                    self.book_col_map[book_id] = tuple(iid for iid in self.book_col_map.pop(book_id, ()) if iid not in extra_item_ids)
+            db.conn.executemany('DELETE FROM {0} WHERE {1}=?'.format(
+                self.link_table, self.metadata['link_column']), tuple((x,) for x in extra_item_ids))
 
     def remove_books(self, book_ids, db):
         clean = set()
@@ -342,6 +413,43 @@ class ManyToManyTable(ManyToOneTable):
                 self.link_table, lcol, table), (existing_item, item_id, item_id))
         return affected_books, new_id
 
+    def fix_case_duplicates(self, db):
+        from calibre.db.write import uniq
+        case_map = defaultdict(set)
+        for item_id, val in self.id_map.iteritems():
+            case_map[icu_lower(val)].add(item_id)
+
+        for v in case_map.itervalues():
+            if len(v) > 1:
+                done_books = set()
+                main_id = min(v)
+                v.discard(main_id)
+                for item_id in v:
+                    self.id_map.pop(item_id, None)
+                    books = self.col_book_map.pop(item_id, set())
+                    for book_id in books:
+                        if book_id in done_books:
+                            continue
+                        done_books.add(book_id)
+                        orig = self.book_col_map.get(book_id, ())
+                        if not orig:
+                            continue
+                        vals = uniq(tuple(main_id if x in v else x for x in orig))
+                        self.book_col_map[book_id] = vals
+                        if len(orig) == len(vals):
+                            # We have a simple replacement
+                            db.conn.executemany(
+                                'UPDATE {0} SET {1}=? WHERE {1}=? AND book=?'.format(
+                                self.link_table, self.metadata['link_column']),
+                                tuple((main_id, x, book_id) for x in v))
+                        else:
+                            # duplicates
+                            db.conn.execute('DELETE FROM {0} WHERE book=?'.format(self.link_table), (book_id,))
+                            db.conn.executemany(
+                                'INSERT INTO {0} (book,{1}) VALUES (?,?)'.format(self.link_table, self.metadata['link_column']),
+                                tuple((book_id, x) for x in vals))
+                db.conn.executemany('DELETE FROM {0} WHERE id=?'.format(self.metadata['table']),
+                    tuple((x,) for x in v))
 
 class AuthorsTable(ManyToManyTable):
 
@@ -359,15 +467,19 @@ class AuthorsTable(ManyToManyTable):
 
     def set_sort_names(self, aus_map, db):
         aus_map = {aid:(a or '').strip() for aid, a in aus_map.iteritems()}
+        aus_map = {aid:a for aid, a in aus_map.iteritems() if a != self.asort_map.get(aid, None)}
         self.asort_map.update(aus_map)
         db.conn.executemany('UPDATE authors SET sort=? WHERE id=?',
             [(v, k) for k, v in aus_map.iteritems()])
+        return aus_map
 
     def set_links(self, link_map, db):
         link_map = {aid:(l or '').strip() for aid, l in link_map.iteritems()}
+        link_map = {aid:l for aid, l in link_map.iteritems() if l != self.alink_map.get(aid, None)}
         self.alink_map.update(link_map)
         db.conn.executemany('UPDATE authors SET link=? WHERE id=?',
             [(v, k) for k, v in link_map.iteritems()])
+        return link_map
 
     def remove_books(self, book_ids, db):
         clean = ManyToManyTable.remove_books(self, book_ids, db)
@@ -395,6 +507,9 @@ class FormatsTable(ManyToManyTable):
     do_clean_on_remove = False
 
     def read_id_maps(self, db):
+        pass
+
+    def fix_case_duplicates(self, db):
         pass
 
     def read_maps(self, db):
@@ -474,6 +589,9 @@ class FormatsTable(ManyToManyTable):
 class IdentifiersTable(ManyToManyTable):
 
     def read_id_maps(self, db):
+        pass
+
+    def fix_case_duplicates(self, db):
         pass
 
     def read_maps(self, db):

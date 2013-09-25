@@ -13,7 +13,7 @@ Originally developed by Timothy Legge <timlegge@gmail.com>.
 Extended to support Touch firmware 2.0.0 and later and newer devices by David Forrester <davidfor@internode.on.net>
 '''
 
-import os, time
+import os, time, shutil
 
 from contextlib import closing
 from calibre.devices.usbms.books import BookList
@@ -31,6 +31,25 @@ from calibre.utils.config_base import prefs
 EPUB_EXT = '.epub'
 
 
+# Implementation of QtQHash for strings. This doesn't seem to be in the Python implementation.
+def qhash(inputstr):
+    instr = b""
+    if isinstance(inputstr, bytes):
+        instr = inputstr
+    elif isinstance(inputstr, unicode):
+        instr = inputstr.encode("utf8")
+    else:
+        return -1
+
+    h = 0x00000000
+    for x in bytearray(instr):
+        h = (h << 4) + x
+        h ^= (h & 0xf0000000) >> 23
+        h &= 0x0fffffff
+
+    return h
+
+
 class DummyCSSPreProcessor(object):
 
     def __call__(self, data, add_namespace=False):
@@ -44,11 +63,11 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 1, 1)
+    version = (2, 1, 3)
 
     dbversion = 0
     fwversion = 0
-    supported_dbversion = 80
+    supported_dbversion = 90
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -773,6 +792,7 @@ class KOBO(USBMS):
             # debug_print('    Commit: Set FavouritesIndex')
 
     def update_device_database_collections(self, booklists, collections_attributes, oncard):
+        debug_print("Kobo:update_device_database_collections - oncard='%s'"%oncard)
         if self.modify_database_check("update_device_database_collections") == False:
             return
 
@@ -803,7 +823,7 @@ class KOBO(USBMS):
         collections_attributes = ['tags']
 
         collections = booklists.get_collections(collections_attributes)
-#        debug_print('Collections', collections)
+#        debug_print('Kobo:update_device_database_collections - Collections:', collections)
 
         # Create a connection to the sqlite database
         # Needs to be outside books collection as in the case of removing
@@ -1001,9 +1021,10 @@ class KOBO(USBMS):
         '''
         for idx, path in enumerate(paths):
             if path.find('kepub') >= 0:
-                with closing(open(path)) as r:
+                with closing(open(path, 'rb')) as r:
                     tf = PersistentTemporaryFile(suffix='.epub')
-                    tf.write(r.read())
+                    shutil.copyfileobj(r, tf)
+#                    tf.write(r.read())
                     paths[idx] = tf.name
         return paths
 
@@ -1220,16 +1241,18 @@ class KOBOTOUCH(KOBO):
     description = 'Communicate with the Kobo Touch, Glo, Mini and Aura HD ereaders. Based on the existing Kobo driver by %s.' % (KOBO.author)
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 80
+    supported_dbversion             = 90
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
     min_dbversion_archive           = 71
     min_dbversion_images_on_sdcard  = 77
     min_dbversion_activiy           = 77
+    min_dbversion_keywords          = 82
 
-    max_supported_fwversion         = (2,8,1)
+    max_supported_fwversion         = (2,9,1)
     min_fwversion_images_on_sdcard  = (2,4,1)
+    min_fwversion_images_tree       = (2,9,0)  # Cover images stored in tree under .kobo-images
 
     has_kepubs = True
 
@@ -1321,23 +1344,25 @@ class KOBOTOUCH(KOBO):
 
     TIMESTAMP_STRING = "%Y-%m-%dT%H:%M:%SZ"
 
+    AURA_PRODUCT_ID     = [0x4203]
     AURA_HD_PRODUCT_ID  = [0x4193]
     GLO_PRODUCT_ID      = [0x4173]
     MINI_PRODUCT_ID     = [0x4183]
     TOUCH_PRODUCT_ID    = [0x4163]
-    PRODUCT_ID          = AURA_HD_PRODUCT_ID + GLO_PRODUCT_ID + MINI_PRODUCT_ID + TOUCH_PRODUCT_ID
+    PRODUCT_ID          = AURA_PRODUCT_ID + AURA_HD_PRODUCT_ID + GLO_PRODUCT_ID + MINI_PRODUCT_ID + TOUCH_PRODUCT_ID
 
     BCD = [0x0110, 0x0326]
 
-    # Image file name endings. Made up of: image size, min_dbversion, max_dbversion,
+    # Image file name endings. Made up of: image size, min_dbversion, max_dbversion, isFullSize,
     COVER_FILE_ENDINGS = {
                           ' - N3_FULL.parsed':[(600,800),0, 99,True,],            # Used for screensaver, home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,473),0, 99,False,],   # Used for Details screen
+                          ' - N3_LIBRARY_FULL.parsed':[(355,473),0, 81,False,],   # Used for Details screen
                           ' - N3_LIBRARY_GRID.parsed':[(149,198),0, 99,False,],   # Used for library lists
                           ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,False,],
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,473), 82, 99,False,],   # Used for Details screen
 #                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
                           }
-    GLO_COVER_FILE_ENDINGS = {
+    GLO_COVER_FILE_ENDINGS = {      # Glo and Aura share resolution, so the image sizes should be the same.
                           ' - N3_FULL.parsed':[(758,1024),0, 99,True,],           # Used for screensaver, home screen
                           ' - N3_LIBRARY_FULL.parsed':[(355,479),0, 99,False,],   # Used for Details screen
                           ' - N3_LIBRARY_GRID.parsed':[(149,201),0, 99,False,],   # Used for library lists
@@ -1402,6 +1427,7 @@ class KOBOTOUCH(KOBO):
         debug_print('Kobo device: %s' % self.gui_name)
         debug_print('Version of driver:', self.version, 'Has kepubs:', self.has_kepubs)
         debug_print('Version of firmware:', self.fwversion, 'Has kepubs:', self.has_kepubs)
+        debug_print('Firmware supports cover image tree:', self.fwversion >= self.min_fwversion_images_tree)
 
         self.booklist_class.rebuild_collections = self.rebuild_collections
 
@@ -1524,7 +1550,7 @@ class KOBOTOUCH(KOBO):
                     if (ContentType == '6' and MimeType != 'application/x-kobo-epub+zip'):
                         if os.path.exists(self.normalize_path(os.path.join(prefix, lpath))):
                             if self.update_metadata_item(bl[idx]):
-                                print 'update_metadata_item returned true'
+#                                print 'update_metadata_item returned true'
                                 changed = True
                         else:
                             debug_print("    Strange:  The file: ", prefix, lpath, " does not exist!")
@@ -1739,8 +1765,9 @@ class KOBOTOUCH(KOBO):
                 bookshelves = get_bookshelvesforbook(connection, row[3])
 
                 prefix = self._card_a_prefix if oncard == 'carda' else self._main_prefix
-                changed = update_booklist(prefix,   path, row[0], row[1], mime, row[2], row[3], row[5], row[
-                                          6], row[7], row[4], row[8], row[9], row[10], row[11], row[12], row[13], row[14], bookshelves)
+                changed = update_booklist(prefix, path, row[0], row[1], mime, row[2], row[3], row[5],
+                                          row[6], row[7], row[4], row[8], row[9], row[10], row[11],
+                                          row[12], row[13], row[14], bookshelves)
 
                 if changed:
                     need_sync = True
@@ -1810,11 +1837,11 @@ class KOBOTOUCH(KOBO):
     def imagefilename_from_imageID(self, prefix, ImageID):
         show_debug = self.is_debugging_title(ImageID)
 
-        path = self.images_path(prefix)
-        path = self.normalize_path(path.replace('/', os.sep))
+        path = self.images_path(prefix, ImageID)
+#        path = self.normalize_path(path.replace('/', os.sep))
 
         for ending, cover_options in self.cover_file_endings().items():
-            fpath = path + ImageID + ending
+            fpath = path + ending
             if os.path.exists(fpath):
                 if show_debug:
                     debug_print("KoboTouch:imagefilename_from_imageID - have cover image fpath=%s" % (fpath))
@@ -1915,8 +1942,6 @@ class KOBOTOUCH(KOBO):
         else:
             debug_print("KoboTouch:_modify_epub: received container")
 
-#        cssnames = [n for n in container.name_path_map if n.endswith('.css')]
-#        for cssname in cssnames:
         from calibre.ebooks.oeb.base import OEB_STYLES
         for cssname, mt in container.mime_map.iteritems():
             if mt in OEB_STYLES:
@@ -2007,16 +2032,22 @@ class KOBOTOUCH(KOBO):
     def delete_images(self, ImageID, book_path):
         debug_print("KoboTouch:delete_images - ImageID=", ImageID)
         if ImageID != None:
-            path = self.images_path(book_path)
-            path = path + ImageID
+            path = self.images_path(book_path, ImageID)
+            debug_print("KoboTouch:delete_images - path=%s" % path)
 
             for ending in self.cover_file_endings().keys():
                 fpath = path + ending
                 fpath = self.normalize_path(fpath)
+                debug_print("KoboTouch:delete_images - fpath=%s" % fpath)
 
                 if os.path.exists(fpath):
-                    # print 'Image File Exists: ' + fpath
+                    debug_print("KoboTouch:delete_images - Image File Exists")
                     os.unlink(fpath)
+
+            try:
+                os.removedirs(os.path.dirname(path))
+            except:
+                pass
 
     def contentid_from_path(self, path, ContentType):
         show_debug = self.is_debugging_title(path) and True
@@ -2141,8 +2172,10 @@ class KOBOTOUCH(KOBO):
                 # Need to reset the collections outside the particular loops
                 # otherwise the last item will not be removed
                 if self.dbversion < 53:
+                    debug_print("KoboTouch:update_device_database_collections - calling reset_readstatus")
                     self.reset_readstatus(connection, oncard)
                 if self.dbversion >= 14:
+                    debug_print("KoboTouch:update_device_database_collections - calling reset_favouritesindex")
                     self.reset_favouritesindex(connection, oncard)
 
 #                debug_print("KoboTouch:update_device_database_collections - length collections=", len(collections))
@@ -2210,7 +2243,7 @@ class KOBOTOUCH(KOBO):
                                     debug_print('            category not added to book.device_collections', book.device_collections)
                     debug_print("KoboTouch:update_device_database_collections - end for category='%s'"%category)
 
-            else:  # No collections
+            elif bookshelf_attribute:  # No collections but have set the shelf option
                 # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
                 debug_print("No Collections - reseting ReadStatus")
                 if self.dbversion < 53:
@@ -2219,7 +2252,8 @@ class KOBOTOUCH(KOBO):
                     debug_print("No Collections - resetting FavouritesIndex")
                     self.reset_favouritesindex(connection, oncard)
 
-            if self.supports_bookshelves() or self.supports_series():
+            # Set the series info and cleanup the bookshelves only if the firmware supports them and the user has set the options.
+            if (self.supports_bookshelves() or self.supports_series()) and (bookshelf_attribute or update_series_details):
                 debug_print("KoboTouch:update_device_database_collections - managing bookshelves and series.")
 
                 self.series_set  = 0
@@ -2295,14 +2329,22 @@ class KOBOTOUCH(KOBO):
         ImageID = ImageID.replace('.', '_')
         return ImageID
 
-    def images_path(self, path):
+    def images_path(self, path, imageId=None):
         if self._card_a_prefix and os.path.abspath(path).startswith(os.path.abspath(self._card_a_prefix)) and self.supports_covers_on_sdcard():
-            path_prefix = 'koboExtStorage/images/'
+            path_prefix = 'koboExtStorage/images-cache/' if self.supports_images_tree() else 'koboExtStorage/images/'
             path = os.path.join(self._card_a_prefix, path_prefix)
         else:
-            path_prefix = '.kobo/images/'
+            path_prefix = '.kobo-images/' if self.supports_images_tree() else '.kobo/images/'
             path = os.path.join(self._main_prefix, path_prefix)
 
+        if self.supports_images_tree() and imageId:
+            hash1 = qhash(imageId)
+            dir1  = hash1 & (0xff * 1)
+            dir2  = (hash1 & (0xff00 * 1)) >> 8
+            path = os.path.join(path, "%s" % dir1, "%s" % dir2)
+
+        if imageId:
+            path = os.path.join(path, imageId)
         return path
 
     def _upload_cover(self, path, filename, metadata, filepath, uploadgrayscale, keep_cover_aspect=False):
@@ -2324,8 +2366,7 @@ class KOBOTOUCH(KOBO):
 
                 try:
                     import sqlite3 as sqlite
-                    with closing(sqlite.connect(self.normalize_path(self._main_prefix +
-                        '.kobo/KoboReader.sqlite'))) as connection:
+                    with closing(sqlite.connect(self.device_database_path())) as connection:
 
                         # return bytestrings if the content cannot the decoded as unicode
                         connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
@@ -2345,7 +2386,7 @@ class KOBOTOUCH(KOBO):
                         cursor.close()
 
                     if ImageID != None:
-                        path = os.path.join(self.images_path(path), ImageID)
+                        path = self.images_path(path, ImageID)
 
                         if show_debug:
                             debug_print("KoboTouch:_upload_cover - About to loop over cover endings")
@@ -2704,6 +2745,8 @@ class KOBOTOUCH(KOBO):
                 opts.extra_customization = extra_customization
         return opts
 
+    def isAura(self):
+        return self.detected_device.idProduct in self.AURA_PRODUCT_ID
     def isAuraHD(self):
         return self.detected_device.idProduct in self.AURA_HD_PRODUCT_ID
     def isGlo(self):
@@ -2714,11 +2757,13 @@ class KOBOTOUCH(KOBO):
         return self.detected_device.idProduct in self.TOUCH_PRODUCT_ID
 
     def cover_file_endings(self):
-        return self.GLO_COVER_FILE_ENDINGS if self.isGlo() else self.AURA_HD_COVER_FILE_ENDINGS if self.isAuraHD() else self.COVER_FILE_ENDINGS
+        return self.GLO_COVER_FILE_ENDINGS if self.isGlo() or self.isAura() else self.AURA_HD_COVER_FILE_ENDINGS if self.isAuraHD() else self.COVER_FILE_ENDINGS
 
     def set_device_name(self):
         device_name = self.gui_name
-        if self.isAuraHD():
+        if self.isAura():
+            device_name = 'Kobo Aura'
+        elif self.isAuraHD():
             device_name = 'Kobo Aura HD'
         elif self.isGlo():
             device_name = 'Kobo Glo'
@@ -2755,6 +2800,9 @@ class KOBOTOUCH(KOBO):
 
     def supports_covers_on_sdcard(self):
         return self.dbversion >= self.min_dbversion_images_on_sdcard and self.fwversion >= self.min_fwversion_images_on_sdcard
+
+    def supports_images_tree(self):
+        return self.fwversion >= self.min_fwversion_images_tree
 
     def has_externalid(self):
         return self.dbversion >= self.min_dbversion_externalid

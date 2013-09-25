@@ -358,7 +358,10 @@ class BrowseServer(object):
             cats.append((_('Virtual Libs.'), 'virt_libs', 'lt.png'))
 
         def getter(x):
-            return category_meta[x]['name'].lower()
+            try:
+                return category_meta[x]['name'].lower()
+            except KeyError:
+                return x
 
         displayed_custom_fields = custom_fields_to_display(self.db)
         uc_displayed = set()
@@ -486,7 +489,7 @@ class BrowseServer(object):
 
         # Now do the category items
         vls = self.db.prefs.get('virtual_libraries', {})
-        categories['virt_libs'] = [Tag(k) for k, v in vls.iteritems()]
+        categories['virt_libs'] = sorted([Tag(k) for k, v in vls.iteritems()], key=lambda x:sort_key(x.name))
         items = categories[category]
 
         sort = self.browse_sort_categories(items, sort)
@@ -672,6 +675,16 @@ class BrowseServer(object):
                 which = unhexlify(cid).decode('utf-8')
                 vls = self.db.prefs.get('virtual_libraries', {})
                 ids = self.search_cache(vls[which])
+                if not ids:
+                    msg = _('The virtual library <b>%s</b> has no books.') % prepare_string_for_xml(which)
+                    if self.search_restriction:
+                        msg += ' ' + _(
+                            'This is probably because you have applied a virtual library'
+                            ' to the content server in Preferences->Sharing over the net.'
+                            ' This virtual library is applied globally and combined with'
+                            ' the current virtual library.')
+                    return self.browse_template('name').format(title='',
+                        script='', main='<p>%s</p>'%msg)
             else:
                 if fm.get(category, {'datatype':None})['datatype'] == 'composite':
                     cid = cid.decode('utf-8')
@@ -681,10 +694,7 @@ class BrowseServer(object):
                 ids = self.db.get_books_for_category(q, cid)
                 ids = [x for x in ids if x in all_ids]
 
-        if hasattr(self.db, 'new_api'):
-            items = [self.db.data.tablerow_for_id(x) for x in ids]
-        else:
-            items = [self.db.data._data[x] for x in ids]
+        items = [self.db.data.tablerow_for_id(x) for x in ids]
         if category == 'newest':
             list_sort = 'timestamp'
         if dt == 'series':
@@ -921,8 +931,7 @@ class BrowseServer(object):
     def browse_random(self, *args, **kwargs):
         import random
         try:
-            book_id = random.choice(self.db.search_getting_ids(
-                '', self.search_restriction))
+            book_id = random.choice(self.search_for_books(''))
         except IndexError:
             raise cherrypy.HTTPError(404, 'This library has no books')
         ans = self.browse_render_details(book_id, add_random_button=True)
@@ -947,11 +956,8 @@ class BrowseServer(object):
     def browse_search(self, query='', list_sort=None):
         if isbytestring(query):
             query = query.decode('UTF-8')
-        ids = self.db.search_getting_ids(query.strip(), self.search_restriction)
-        if hasattr(self.db, 'new_api'):
-            items = [self.db.data.tablerow_for_id(x) for x in ids]
-        else:
-            items = [self.db.data._data[x] for x in ids]
+        ids = self.search_for_books(query)
+        items = [self.db.data.tablerow_for_id(x) for x in ids]
         sort = self.browse_sort_book_list(items, list_sort)
         ids = [x[0] for x in items]
         html = render_book_list(ids, self.opts.url_prefix,

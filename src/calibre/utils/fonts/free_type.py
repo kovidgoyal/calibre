@@ -17,7 +17,7 @@ class ThreadingViolation(Exception):
 
     def __init__(self):
         Exception.__init__(self,
-                'You cannot use the MTP driver from a thread other than the '
+                'You cannot use the freetype plugin from a thread other than the '
                 ' thread in which startup() was called')
 
 def same_thread(func):

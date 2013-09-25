@@ -482,3 +482,26 @@ class WAYTEQ(USBMS):
         return names
 
 
+class WOXTER(USBMS):
+
+    name           = 'Woxter Scriba device interface'
+    gui_name       = 'Woxter Scriba'
+    description    = _('Communicate with the Woxter Scriba reader')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'mobi', 'fb2', 'txt', 'pdf', 'html', 'rtf', 'djvu', 'doc']
+
+    VENDOR_ID   = [0x2207]
+    PRODUCT_ID  = [0x2818]
+    BCD         = [0x0100]
+
+    EBOOK_DIR_MAIN = 'Books'
+    SCAN_FROM_ROOT = True
+    SUPPORTS_SUB_DIRS = True
+
+    VENDOR_NAME = ['ROCKCHIP']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EREADER']
+
+
