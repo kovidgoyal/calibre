@@ -36,7 +36,6 @@ from calibre.library.server import server_config as content_server_config
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.config_base import tweaks
-from calibre.utils.date import parse_date, now, isoformat
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
         unpublish_zeroconf, get_all_ips)
@@ -371,6 +370,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     # copied from USBMS. Perhaps this could be a classmethod in usbms?
     def _update_driveinfo_record(self, dinfo, prefix, location_code, name=None):
+        from calibre.utils.date import isoformat, now
         import uuid
         if not isinstance(dinfo, dict):
             dinfo = {}
@@ -682,6 +682,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return None
 
     def _metadata_in_cache(self, uuid, ext, lastmod):
+        from calibre.utils.date import parse_date, now
         key = uuid+ext
         if isinstance(lastmod, unicode):
             lastmod = parse_date(lastmod)
@@ -744,6 +745,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             cPickle.dump(json_metadata, fd, -1)
 
     def _set_known_metadata(self, book, remove=False):
+        from calibre.utils.date import now
         lpath = book.lpath
         ext = os.path.splitext(lpath)[1]
         uuid = book.get('uuid', None)
