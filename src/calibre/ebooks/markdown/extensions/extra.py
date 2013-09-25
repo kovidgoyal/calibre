@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Python-Markdown Extra Extension
 ===============================
@@ -27,23 +26,29 @@ when you upgrade to any future version of Python-Markdown.
 
 """
 
-import calibre.ebooks.markdown.markdown as markdown
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from . import Extension
 
-extensions = ['fenced_code',
+extensions = ['smart_strong',
+              'fenced_code',
               'footnotes',
-              'headerid',
+              'attr_list',
               'def_list',
               'tables',
               'abbr',
               ]
               
 
-class ExtraExtension(markdown.Extension):
+class ExtraExtension(Extension):
     """ Add various extensions to Markdown class."""
 
     def extendMarkdown(self, md, md_globals):
         """ Register extension instances. """
         md.registerExtensions(extensions, self.config)
+        if not md.safeMode:
+            # Turn on processing of markdown text within raw html
+            md.preprocessors['html_block'].markdown_in_raw = True
 
 def makeExtension(configs={}):
     return ExtraExtension(configs=dict(configs))

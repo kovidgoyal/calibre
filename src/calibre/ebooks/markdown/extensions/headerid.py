@@ -1,28 +1,28 @@
-#!/usr/bin/python
-
 """
 HeaderID Extension for Python-Markdown
 ======================================
 
-Adds ability to set HTML IDs for headers.
+Auto-generate id attributes for HTML headers.
 
 Basic usage:
 
     >>> import markdown
-    >>> text = "# Some Header # {#some_id}"
+    >>> text = "# Some Header #"
     >>> md = markdown.markdown(text, ['headerid'])
-    >>> md
-    u'<h1 id="some_id">Some Header</h1>'
+    >>> print md
+    <h1 id="some-header">Some Header</h1>
 
 All header IDs are unique:
 
     >>> text = '''
     ... #Header
-    ... #Another Header {#header}
-    ... #Third Header {#header}'''
+    ... #Header
+    ... #Header'''
     >>> md = markdown.markdown(text, ['headerid'])
-    >>> md
-    u'<h1 id="header">Header</h1>\\n<h1 id="header_1">Another Header</h1>\\n<h1 id="header_2">Third Header</h1>'
+    >>> print md
+    <h1 id="header">Header</h1>
+    <h1 id="header_1">Header</h1>
+    <h1 id="header_2">Header</h1>
 
 To fit within a html template's hierarchy, set the header base level:
 
@@ -30,17 +30,26 @@ To fit within a html template's hierarchy, set the header base level:
     ... #Some Header
     ... ## Next Level'''
     >>> md = markdown.markdown(text, ['headerid(level=3)'])
-    >>> md
-    u'<h3 id="some_header">Some Header</h3>\\n<h4 id="next_level">Next Level</h4>'
+    >>> print md
+    <h3 id="some-header">Some Header</h3>
+    <h4 id="next-level">Next Level</h4>
+
+Works with inline markup.
+
+    >>> text = '#Some *Header* with [markup](http://example.com).'
+    >>> md = markdown.markdown(text, ['headerid'])
+    >>> print md
+    <h1 id="some-header-with-markup">Some <em>Header</em> with <a href="http://example.com">markup</a>.</h1>
 
 Turn off auto generated IDs:
 
     >>> text = '''
     ... # Some Header
-    ... # Header with ID # { #foo }'''
+    ... # Another Header'''
     >>> md = markdown.markdown(text, ['headerid(forceid=False)'])
-    >>> md
-    u'<h1>Some Header</h1>\\n<h1 id="foo">Header with ID</h1>'
+    >>> print md
+    <h1>Some Header</h1>
+    <h1>Another Header</h1>
 
 Use with MetaData extension:
 
@@ -49,85 +58,101 @@ Use with MetaData extension:
     ...
     ... # A Header'''
     >>> md = markdown.markdown(text, ['headerid', 'meta'])
-    >>> md
-    u'<h2>A Header</h2>'
+    >>> print md
+    <h2>A Header</h2>
 
-Copyright 2007-2008 [Waylan Limberg](http://achinghead.com/).
+Copyright 2007-2011 [Waylan Limberg](http://achinghead.com/).
 
-Project website: <http://www.freewisdom.org/project/python-markdown/HeaderId>
+Project website: <http://packages.python.org/Markdown/extensions/header_id.html>
 Contact: markdown@freewisdom.org
 
-License: BSD (see ../docs/LICENSE for details)
+License: BSD (see ../docs/LICENSE for details) 
 
 Dependencies:
 * [Python 2.3+](http://python.org)
-* [Markdown 2.0+](http://www.freewisdom.org/projects/python-markdown/)
+* [Markdown 2.0+](http://packages.python.org/Markdown/)
 
 """
 
-import calibre.ebooks.markdown.markdown as markdown
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from . import Extension
+from ..treeprocessors import Treeprocessor
 import re
-from string import ascii_lowercase, digits, punctuation
+import logging
+import unicodedata
 
-ID_CHARS = ascii_lowercase + digits + '-_'
+logger = logging.getLogger('MARKDOWN')
+
 IDCOUNT_RE = re.compile(r'^(.*)_([0-9]+)$')
 
 
-class HeaderIdProcessor(markdown.blockprocessors.BlockProcessor):
-    """ Replacement BlockProcessor for Header IDs. """
+def slugify(value, separator):
+    """ Slugify a string, to make it URL friendly. """
+    value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
+    value = re.sub('[^\w\s-]', '', value.decode('ascii')).strip().lower()
+    return re.sub('[%s\s]+' % separator, separator, value)
 
-    # Detect a header at start of any line in block
-    RE = re.compile(r"""(^|\n)
-                        (?P<level>\#{1,6})  # group('level') = string of hashes
-                        (?P<header>.*?)     # group('header') = Header text
-                        \#*                 # optional closing hashes
-                        (?:[ \t]*\{[ \t]*\#(?P<id>[-_:a-zA-Z0-9]+)[ \t]*\})?
-                        (\n|$)              #  ^^ group('id') = id attribute
-                     """,
-                     re.VERBOSE)
 
-    IDs = []
-
-    def test(self, parent, block):
-        return bool(self.RE.search(block))
-
-    def run(self, parent, blocks):
-        block = blocks.pop(0)
-        m = self.RE.search(block)
+def unique(id, ids):
+    """ Ensure id is unique in set of ids. Append '_1', '_2'... if not """
+    while id in ids or not id:
+        m = IDCOUNT_RE.match(id)
         if m:
-            before = block[:m.start()] # All lines before header
-            after = block[m.end():]    # All lines after header
-            if before:
-                # As the header was not the first line of the block and the
-                # lines before the header must be parsed first,
-                # recursively parse this lines as a block.
-                self.parser.parseBlocks(parent, [before])
-            # Create header using named groups from RE
-            start_level, force_id = self._get_meta()
-            level = len(m.group('level')) + start_level
-            if level > 6:
-                level = 6
-            h = markdown.etree.SubElement(parent, 'h%d' % level)
-            h.text = m.group('header').strip()
-            if m.group('id'):
-                h.set('id', self._unique_id(m.group('id')))
-            elif force_id:
-                h.set('id', self._create_id(m.group('header').strip()))
-            if after:
-                # Insert remaining lines as first block for future parsing.
-                blocks.insert(0, after)
+            id = '%s_%d'% (m.group(1), int(m.group(2))+1)
         else:
-            # This should never happen, but just in case...
-            print ("We've got a problem header!")
+            id = '%s_%d'% (id, 1)
+    ids.add(id)
+    return id
+
+
+def itertext(elem):
+    """ Loop through all children and return text only. 
+    
+    Reimplements method of same name added to ElementTree in Python 2.7
+    
+    """
+    if elem.text:
+        yield elem.text
+    for e in elem:
+        for s in itertext(e):
+            yield s
+        if e.tail:
+            yield e.tail
+
+
+class HeaderIdTreeprocessor(Treeprocessor):
+    """ Assign IDs to headers. """
+
+    IDs = set()
+
+    def run(self, doc):
+        start_level, force_id = self._get_meta()
+        slugify = self.config['slugify']
+        sep = self.config['separator']
+        for elem in doc.getiterator():
+            if elem.tag in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+                if force_id:
+                    if "id" in elem.attrib:
+                        id = elem.get('id')
+                    else:
+                        id = slugify(''.join(itertext(elem)), sep)
+                    elem.set('id', unique(id, self.IDs))
+                if start_level:
+                    level = int(elem.tag[-1]) + start_level
+                    if level > 6:
+                        level = 6
+                    elem.tag = 'h%d' % level
+
 
     def _get_meta(self):
         """ Return meta data suported by this ext as a tuple """
-        level = int(self.config['level'][0]) - 1
-        force = self._str2bool(self.config['forceid'][0])
+        level = int(self.config['level']) - 1
+        force = self._str2bool(self.config['forceid'])
         if hasattr(self.md, 'Meta'):
-            if self.md.Meta.has_key('header_level'):
+            if 'header_level' in self.md.Meta:
                 level = int(self.md.Meta['header_level'][0]) - 1
-            if self.md.Meta.has_key('header_forceid'):
+            if 'header_forceid' in self.md.Meta: 
                 force = self._str2bool(self.md.Meta['header_forceid'][0])
         return level, force
 
@@ -140,34 +165,15 @@ class HeaderIdProcessor(markdown.blockprocessors.BlockProcessor):
             return True
         return default
 
-    def _unique_id(self, id):
-        """ Ensure ID is unique. Append '_1', '_2'... if not """
-        while id in self.IDs:
-            m = IDCOUNT_RE.match(id)
-            if m:
-                id = '%s_%d'% (m.group(1), int(m.group(2))+1)
-            else:
-                id = '%s_%d'% (id, 1)
-        self.IDs.append(id)
-        return id
 
-    def _create_id(self, header):
-        """ Return ID from Header text. """
-        h = ''
-        for c in header.lower().replace(' ', '_'):
-            if c in ID_CHARS:
-                h += c
-            elif c not in punctuation:
-                h += '+'
-        return self._unique_id(h)
-
-
-class HeaderIdExtension (markdown.Extension):
+class HeaderIdExtension(Extension):
     def __init__(self, configs):
         # set defaults
         self.config = {
                 'level' : ['1', 'Base level for headers.'],
-                'forceid' : ['True', 'Force all headers to have an id.']
+                'forceid' : ['True', 'Force all headers to have an id.'],
+                'separator' : ['-', 'Word separator.'],
+                'slugify' : [slugify, 'Callable to generate anchors'], 
             }
 
         for key, value in configs:
@@ -175,20 +181,19 @@ class HeaderIdExtension (markdown.Extension):
 
     def extendMarkdown(self, md, md_globals):
         md.registerExtension(self)
-        self.processor = HeaderIdProcessor(md.parser)
+        self.processor = HeaderIdTreeprocessor()
         self.processor.md = md
-        self.processor.config = self.config
-        # Replace existing hasheader in place.
-        md.parser.blockprocessors['hashheader'] = self.processor
+        self.processor.config = self.getConfigs()
+        if 'attr_list' in md.treeprocessors.keys():
+            # insert after attr_list treeprocessor
+            md.treeprocessors.add('headerid', self.processor, '>attr_list')
+        else:
+            # insert after 'prettify' treeprocessor.
+            md.treeprocessors.add('headerid', self.processor, '>prettify')
 
     def reset(self):
-        self.processor.IDs = []
+        self.processor.IDs = set()
 
 
 def makeExtension(configs=None):
     return HeaderIdExtension(configs=configs)
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
-
