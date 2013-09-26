@@ -20,6 +20,49 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.5.0
+  date: 2013-09-26
+
+  new features:
+    - title: "Driver for Woxter Scriba"
+      tickets: [1228690]
+
+    - title: "Bulk metadata edit: Allow setting the comments for all selected books and also allow cloning the covers. Cloning covers means that the cover of the first selected book will be set for all other selected books."
+      tickets: [1230040]
+ 
+  bug fixes:
+    - title: "Windows: Improved device ejection code. Eject individual drives before trying to eject the device. This fixes incomplete ejection with the Nook devices."
+
+    - title: "Catalogs: fix exclude tags rules not working in non-English locales when creating catalogs in EPUB/MOBI formats."
+      tickets: [1228949]
+
+    - title: "Kobo driver: Fix reading status being cleared when connecting to a Kobo with older firmware and metadata management set to automatic."
+      tickets: [1230018]
+
+    - title: "Content server: Sort virtual libraries by name"
+      tickets: [1229459]
+
+    - title: "DOCX Input: Convert tabs in the docx file into non-breaking spaces in the output document. Note that custom tab stops are not supported."
+      tickets: [1228893]
+
+    - title: "Conversion: Handle the style attribute on the <html> tag"
+
+    - title: "Handle databases with invalid ratings link tables"
+      tickets: [1228517]
+
+    - title: "DOCX Input: Handle DOCX files with missing referenced styles"
+      tickets: [1228669]
+
+    - title: "Update amazon metadata download plugin for changes to the Amazon website"
+
+  improved recipes:
+    - Slate
+    - El Universal (VE)
+    - GoComics
+
+  new recipes:
+    - title: 
+
 - version: 1.4.0
   date: 2013-09-20
 
