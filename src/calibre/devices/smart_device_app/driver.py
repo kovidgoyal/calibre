@@ -687,10 +687,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         key = uuid+ext
         if isinstance(lastmod, unicode):
             lastmod = parse_date(lastmod)
-#         if key in self.known_uuids:
-#             self._debug(key, lastmod, self.known_uuids[key].last_modified)
-#         else:
-#             self._debug(key, 'not in known uuids')
         if key in self.known_uuids and self.known_uuids[key]['book'].last_modified == lastmod:
             self.known_uuids[key]['last_used'] = now()
             return self.known_uuids[key]['book'].deepcopy()
@@ -718,21 +714,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return None
 
     def _read_metadata_cache(self):
-#         cache_file_name = os.path.join(cache_dir(),
-#                            'device_drivers_' + self.__class__.__name__ +
-#                                 '_metadata_cache.pickle')
-#         if os.path.exists(cache_file_name):
-#             with open(cache_file_name, mode='rb') as fd:
-#                 json_metadata = cPickle.load(fd)
-#             for uuid,json_book in json_metadata.iteritems():
-#                 book = self.json_codec.raw_to_book(json_book['book'], SDBook, self.PREFIX)
-#                 self.known_uuids[uuid]['book'] = book
-#                 self.known_uuids[uuid]['last_used'] = json_book['last_used']
-#                 lpath = book.get('lpath')
-#                 if lpath in self.known_metadata:
-#                     self.known_uuids.pop(uuid, None)
-#                 else:
-#                     self.known_metadata[lpath] = book
+        try:
+            old_cache_file_name = os.path.join(cache_dir(),
+                           'device_drivers_' + self.__class__.__name__ +
+                                '_metadata_cache.pickle')
+            if os.path.exists(old_cache_file_name):
+                os.remove(old_cache_file_name)
+        except:
+            pass
 
         cache_file_name = os.path.join(cache_dir(),
                            'device_drivers_' + self.__class__.__name__ +
