@@ -729,8 +729,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.known_uuids = defaultdict(dict)
         self.known_metadata = {}
         with open(cache_file_name, mode='rb') as fd:
-            while True:
-                try:
+            try:
+                while True:
                     rec_len = fd.readline()
                     if len(rec_len) != 8:
                         break
@@ -747,20 +747,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                         self.known_uuids.pop(uuid, None)
                     else:
                         self.known_metadata[lpath] = metadata
-                except:
-                    traceback.print_exc()
+            except:
+                traceback.print_exc()
 
     def _write_metadata_cache(self):
-#         cache_file_name = os.path.join(cache_dir(),
-#                            'device_drivers_' + self.__class__.__name__ +
-#                                 '_metadata_cache.pickle')
-#         json_metadata = defaultdict(dict)
-#         for uuid,book in self.known_uuids.iteritems():
-#             json_metadata[uuid]['book'] = self.json_codec.encode_book_metadata(book['book'])
-#             json_metadata[uuid]['last_used'] = book['last_used']
-#         with open(cache_file_name, mode='wb') as fd:
-#             cPickle.dump(json_metadata, fd, -1)
-
         cache_file_name = os.path.join(cache_dir(),
                            'device_drivers_' + self.__class__.__name__ +
                                 '_metadata_cache.json')
