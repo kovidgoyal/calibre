@@ -281,12 +281,10 @@ class BooksModel(QAbstractTableModel):  # {{{
             # do something on the GUI thread. Deadlock.
 
     def refresh_ids(self, ids, current_row=-1):
-        print 'jhere'
         self._clear_caches()
         rows = self.db.refresh_ids(ids)
         if rows:
             self.refresh_rows(rows, current_row=current_row)
-        self.reset()
 
     def refresh_rows(self, rows, current_row=-1):
         self._clear_caches()
