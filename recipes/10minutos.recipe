@@ -1,23 +1,18 @@
 #!/usr/bin/env  python
-##
-## Last Edited:  2013-09-29 Carlos Alves <carlosalves90@gmail.com>
-##
 
 __license__   = 'GPL v3'
-__author__ = '2010, Yuri Alvarez<me at yurialvarez.com>'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-
+__author__ = '2013, Carlos Alves <carlosalves90@gmail.com>'
 '''
-elobservador.com.uy
+10minutos.com.uy
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class Noticias(BasicNewsRecipe):
-    title                 = 'El Observador'
-    __author__ = 'yrvn'
-    description           = 'Noticias desde Uruguay'
-    tags = 'news, sports, entretainment'
+class General(BasicNewsRecipe):
+    title                 = '10minutos'
+    __author__            = 'Carlos Alves'
+    description           = 'Noticias de Salto - Uruguay'
+    tags = 'news, sports'
     language       = 'es_UY'
     timefmt        = '[%a, %d %b, %Y]'
     use_embedded_content  = False
@@ -28,17 +23,13 @@ class Noticias(BasicNewsRecipe):
 
     oldest_article        = 2
     max_articles_per_feed = 100
-    keep_only_tags = [
-             dict(name='div', attrs={'class':'story collapsed'})
-             ]
+    keep_only_tags = [dict(name='div', attrs={'class':'post-content'})]
+
     remove_tags = [
-             dict(name='div', attrs={'class':['fecha', 'copyright', 'story_right']}),
-             dict(name='div', attrs={'class':['photo', 'social']}),
-             dict(name='div', attrs={'id':'widget'}),
+             dict(name='div', attrs={'class':['hr', 'titlebar', 'navigation']}),
+             dict(name='p', attrs={'class':'post-meta'}),
              dict(name=['object','link'])
                   ]
-
-    remove_attributes = ['width','height', 'style', 'font', 'color']
 
     extra_css = '''
                 h1{font-family:Geneva, Arial, Helvetica, sans-serif;color:#154B7A;}
@@ -47,9 +38,11 @@ class Noticias(BasicNewsRecipe):
                 p {font-family:Arial,Helvetica,sans-serif;}
                 '''
     feeds = [
-           (u'Portada', u'http://elobservador.com.uy/rss/portada/'),
+           (u'Articulos', u'http://10minutos.com.uy/feed/')
         ]
 
+    def get_cover_url(self):
+        return 'http://10minutos.com.uy/a/img/logo.png'
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
