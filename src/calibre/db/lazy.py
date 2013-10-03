@@ -234,11 +234,11 @@ def composite_getter(mi, field, metadata, book_id, cache, formatter, template_ca
 
 def virtual_libraries_getter(dbref, book_id, cache):
     try:
-        return cache[field]
+        return cache['virtual_libraries']
     except KeyError:
         db = dbref()
         vls = db.virtual_libraries_for_books((book_id,))[book_id]
-        ret = cache[field] = ', '.join(vls)
+        ret = cache['virtual_libraries'] = ', '.join(vls)
         return ret
 
 getters = {
