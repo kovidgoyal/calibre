@@ -418,11 +418,11 @@ class CoverDelegate(QStyledItemDelegate):
                     metrics = painter.fontMetrics()
                     painter.drawText(rect, Qt.AlignCenter|Qt.TextSingleLine,
                                      metrics.elidedText(title, Qt.ElideRight, rect.width()))
-            if marked:
+            if gprefs['show_marked_icon'] and marked:
                 try:
                     p = self.marked_emblem
                 except AttributeError:
-                    p = self.marked_emblem = QPixmap(I('rating.png')).scaled(48, 48, transformMode=Qt.SmoothTransformation)
+                    p = self.marked_emblem = QPixmap(I('marked.png')).scaled(48, 48, transformMode=Qt.SmoothTransformation)
                 drect = QRect(orect)
                 drect.setLeft(drect.left() + right_adjust)
                 drect.setRight(drect.left() + p.width())

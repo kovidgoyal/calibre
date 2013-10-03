@@ -150,6 +150,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('disable_animations', config)
         r('systray_icon', config, restart_required=True)
         r('show_splash_screen', gprefs)
+        r('show_marked_icon', gprefs)
         r('disable_tray_notification', config)
         r('use_roman_numerals_for_series_number', config)
         r('separate_cover_flow', config, restart_required=True)

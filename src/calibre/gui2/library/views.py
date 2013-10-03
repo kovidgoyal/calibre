@@ -63,6 +63,8 @@ class HeaderView(QHeaderView):  # {{{
                     opt.state |= QStyle.State_MouseOver
         sm = self.selectionModel()
         if opt.orientation == Qt.Vertical:
+            if gprefs['show_marked_icon']:
+                opt.icon = model.headerData(logical_index, opt.orientation, Qt.DecorationRole)
             if sm.isRowSelected(logical_index, QModelIndex()):
                 opt.state |= QStyle.State_Sunken
 
