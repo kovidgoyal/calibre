@@ -660,11 +660,10 @@ class KOBO(USBMS):
                     ' selecting "Configure this device" and then the '
                     ' "Attempt to support newer firmware" option.'
                     ' Doing so may require you to perform a factory reset of'
-                    ' your Kobo.'
+                    ' your Kobo.') + ((
                     '\nDevice database version: %s.'
-                    '\nDevice firmware version: %s' % (self.dbversion, self.fwversion)
-                     ),
-                     UserFeedback.WARN)
+                    '\nDevice firmware version: %s') % (self.dbversion, self.fwversion))
+                    , UserFeedback.WARN)
 
                 return False
             else:
