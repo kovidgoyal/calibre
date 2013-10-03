@@ -550,3 +550,10 @@ highlight_virtual_library = 'yellow'
 # all available output formats to be present.
 restrict_output_formats = None
 
+#: Set the thumbnail image quality used by the content server
+# The quality of a thumbnail is largely controlled by the compression quality
+# used when creating it. Set this to a larger number to improve the quality.
+# Note that the thumbnails get much larger with larger compression quality
+# numbers.
+# The value can be between 50 and 99
+content_server_thumbnail_compression_quality = 75
