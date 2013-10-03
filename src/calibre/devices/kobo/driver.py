@@ -661,7 +661,7 @@ class KOBO(USBMS):
                     ' "Attempt to support newer firmware" option.'
                     ' Doing so may require you to perform a factory reset of'
                     ' your Kobo.'
-                    '\nDevice database version: %s.' 
+                    '\nDevice database version: %s.'
                     '\nDevice firmware version: %s' % (self.dbversion, self.fwversion)
                      ),
                      UserFeedback.WARN)
@@ -2836,7 +2836,7 @@ class KOBOTOUCH(KOBO):
                     ' "Attempt to support newer firmware" option.'
                     ' Doing so may require you to perform a factory reset of'
                     ' your Kobo.'
-                    '\nDevice database version: %s.' 
+                    '\nDevice database version: %s.'
                     '\nDevice firmware version: %s' % (self.dbversion, self.fwversion)
                      ),
                      UserFeedback.WARN)
