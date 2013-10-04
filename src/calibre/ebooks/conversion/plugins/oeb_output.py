@@ -54,7 +54,7 @@ class OEBOutput(OutputFormatPlugin):
                         f.write(raw)
 
             for item in oeb_book.manifest:
-                if item.media_type in OEB_STYLES and hasattr(item.data, 'cssText'):
+                if not self.opts.expand_css and item.media_type in OEB_STYLES and hasattr(item.data, 'cssText'):
                     condense_sheet(item.data)
                 path = os.path.abspath(unquote(item.href))
                 dir = os.path.dirname(path)

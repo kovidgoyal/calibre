@@ -141,7 +141,7 @@ def add_pipeline_options(parser, plumber):
                       'subset_embedded_fonts', 'embed_all_fonts',
                       'line_height', 'minimum_line_height',
                       'linearize_tables',
-                      'extra_css', 'filter_css',
+                      'extra_css', 'filter_css', 'expand_css',
                       'smarten_punctuation', 'unsmarten_punctuation',
                       'margin_top', 'margin_left', 'margin_right',
                       'margin_bottom', 'change_justification',
