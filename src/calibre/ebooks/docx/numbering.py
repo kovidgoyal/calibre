@@ -298,7 +298,7 @@ class Numbering(object):
                 for attr in ('list-lvl', 'list-id', 'list-template'):
                     child.attrib.pop(attr, None)
                 val = int(child.get('value'))
-                if last_val == val - 1 or wrap.tag == 'ul':
+                if last_val == val - 1 or wrap.tag == 'ul' or (last_val is None and val == 1):
                     child.attrib.pop('value')
                 last_val = val
             current_run[-1].tail = '\n'
