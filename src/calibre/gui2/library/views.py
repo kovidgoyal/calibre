@@ -696,7 +696,7 @@ class BooksView(QTableView):  # {{{
             self.row_header.headerDataChanged(Qt.Vertical, min(sections), max(sections))
         else:
             # Marked items have either appeared or all been removed
-            self.model().row_decoration = self.model().bool_blank_icon if current_marked else None
+            self.model().set_row_decoration(current_marked)
             self.row_header.headerDataChanged(Qt.Vertical, 0, self.row_header.count()-1)
             self.row_header.geometriesChanged.emit()
 

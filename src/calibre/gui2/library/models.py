@@ -212,6 +212,9 @@ class BooksModel(QAbstractTableModel):  # {{{
     def set_row_height(self, height):
         self.row_height = height
 
+    def set_row_decoration(self, current_marked):
+        self.row_decoration = self.bool_blank_icon if current_marked else None
+
     def change_alignment(self, colname, alignment):
         if colname in self.column_map and alignment in ('left', 'right', 'center'):
             old = self.alignment_map.get(colname, 'left')
