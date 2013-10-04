@@ -77,6 +77,7 @@ class View(object):
     def __init__(self, cache):
         self.cache = cache
         self.marked_ids = {}
+        self.marked_listeners = {}
         self.search_restriction_book_count = 0
         self.search_restriction = self.base_restriction = ''
         self.search_restriction_name = self.base_restriction_name = ''
@@ -126,6 +127,9 @@ class View(object):
         self._map_filtered = tuple(self._map)
         self.full_map_is_sorted = True
         self.sort_history = [('id', True)]
+
+    def add_marked_listener(self, func):
+        self.marked_listeners[id(func)] = weakref.ref(func)
 
     def add_to_sort_history(self, items):
         self.sort_history = uniq((list(items) + list(self.sort_history)),
@@ -370,7 +374,13 @@ class View(object):
                 id_dict.itervalues())))
         # This invalidates all searches in the cache even though the cache may
         # be shared by multiple views. This is not ideal, but...
-        self.cache.clear_search_caches(old_marked_ids | set(self.marked_ids))
+        cmids = set(self.marked_ids)
+        self.cache.clear_search_caches(old_marked_ids | cmids)
+        if old_marked_ids != cmids:
+            for funcref in self.marked_listeners.itervalues():
+                func = funcref()
+                if func is not None:
+                    func(old_marked_ids, cmids)
 
     def refresh(self, field=None, ascending=True, clear_caches=True, do_search=True):
         self._map = tuple(sorted(self.cache.all_book_ids()))

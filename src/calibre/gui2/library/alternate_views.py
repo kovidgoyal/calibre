@@ -422,7 +422,7 @@ class CoverDelegate(QStyledItemDelegate):
                 try:
                     p = self.marked_emblem
                 except AttributeError:
-                    p = self.marked_emblem = QPixmap(I('rating.png')).scaled(48, 48, transformMode=Qt.SmoothTransformation)
+                    p = self.marked_emblem = m.marked_icon.pixmap(48, 48)
                 drect = QRect(orect)
                 drect.setLeft(drect.left() + right_adjust)
                 drect.setRight(drect.left() + p.width())
