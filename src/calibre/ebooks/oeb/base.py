@@ -107,8 +107,7 @@ def iterlinks(root, find_links_in_css=True):
     :param root: A valid lxml.etree element.
     '''
     assert etree.iselement(root)
-    link_attrs = set(html.defs.link_attrs)
-    link_attrs.add(XLINK('href'))
+    link_attrs = set(html.defs.link_attrs) | {XLINK('href'), 'poster'}
 
     for el in root.iter():
         attribs = el.attrib
