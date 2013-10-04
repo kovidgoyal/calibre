@@ -193,6 +193,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.bool_yes_icon = QIcon(I('ok.png'))
         self.bool_no_icon = QIcon(I('list_remove.png'))
         self.bool_blank_icon = QIcon(I('blank.png'))
+        self.marked_icon = QIcon(I('marked.png'))
         self.device_connected = False
         self.ids_to_highlight = []
         self.ids_to_highlight_set = set()
@@ -921,6 +922,10 @@ class BooksModel(QAbstractTableModel):  # {{{
 
         if role == Qt.DisplayRole:  # orientation is vertical
             return QVariant(section+1)
+        if role == Qt.DecorationRole:
+            if self.db.data.get_marked(self.db.data.index_to_id(section)):
+                return self.marked_icon
+            return self.bool_blank_icon
         return NONE
 
     def flags(self, index):

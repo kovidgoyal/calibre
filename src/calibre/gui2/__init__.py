@@ -84,6 +84,7 @@ defs['action-layout-context-menu-cover-browser'] = (
         )
 
 defs['show_splash_screen'] = True
+defs['show_marked_icon'] = True
 defs['toolbar_icon_size'] = 'medium'
 defs['automerge'] = 'ignore'
 defs['toolbar_text'] = 'always'
