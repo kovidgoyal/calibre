@@ -193,7 +193,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.bool_yes_icon = QIcon(I('ok.png'))
         self.bool_no_icon = QIcon(I('list_remove.png'))
         self.bool_blank_icon = QIcon(I('blank.png'))
-        self.marked_icon = QIcon(I('rating.png'))
+        self.marked_icon = QIcon(I('marked.png'))
         self.row_decoration = NONE
         self.device_connected = False
         self.ids_to_highlight = []
