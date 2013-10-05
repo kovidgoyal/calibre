@@ -845,8 +845,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self.is_connected = False
         if self.is_connected:
             self.noop_counter += 1
-            if only_presence and (
-                    self.noop_counter % self.SEND_NOOP_EVERY_NTH_PROBE) != 1:
+            if (only_presence and
+                    self.noop_counter > self.SEND_NOOP_EVERY_NTH_PROBE and
+                    (self.noop_counter % self.SEND_NOOP_EVERY_NTH_PROBE) != 1):
                 try:
                     ans = select.select((self.device_socket,), (), (), 0)
                     if len(ans[0]) == 0:
