@@ -8,8 +8,7 @@ Manage application-wide preferences.
 '''
 import os, cPickle, base64, datetime, json, plistlib
 from copy import deepcopy
-from optparse import OptionParser as _OptionParser, OptionGroup
-from optparse import IndentedHelpFormatter
+import optparse
 
 from calibre.constants import (config_dir, CONFIG_DIR_MODE, __appname__,
         get_version, __author__)
@@ -17,6 +16,10 @@ from calibre.utils.lock import ExclusiveFile
 from calibre.utils.config_base import (make_config_dir, Option, OptionValues,
         OptionSet, ConfigInterface, Config, prefs, StringConfig, ConfigProxy,
         read_raw_tweaks, read_tweaks, write_tweaks, tweaks, plugin_dir)
+
+# optparse uses gettext.gettext instead of _ from builtins, so we
+# monkey patch it.
+optparse._ = _
 
 if False:
     # Make pyflakes happy
@@ -27,7 +30,7 @@ if False:
 def check_config_write_access():
     return os.access(config_dir, os.W_OK) and os.access(config_dir, os.X_OK)
 
-class CustomHelpFormatter(IndentedHelpFormatter):
+class CustomHelpFormatter(optparse.IndentedHelpFormatter):
 
     def format_usage(self, usage):
         from calibre.utils.terminal import colored
@@ -72,7 +75,7 @@ class CustomHelpFormatter(IndentedHelpFormatter):
         return "".join(result)+'\n'
 
 
-class OptionParser(_OptionParser):
+class OptionParser(optparse.OptionParser):
 
     def __init__(self,
                  usage='%prog [options] filename',
@@ -91,7 +94,7 @@ class OptionParser(_OptionParser):
                  '''enclose the arguments in quotation marks.''')+'\n'
         if version is None:
             version = '%%prog (%s %s)'%(__appname__, get_version())
-        _OptionParser.__init__(self, usage=usage, version=version, epilog=epilog,
+        optparse.OptionParser.__init__(self, usage=usage, version=version, epilog=epilog,
                                formatter=CustomHelpFormatter(),
                                conflict_handler=conflict_handler, **kwds)
         self.gui_mode = gui_mode
@@ -104,22 +107,22 @@ class OptionParser(_OptionParser):
     def print_usage(self, file=None):
         from calibre.utils.terminal import ANSIStream
         s = ANSIStream(file)
-        _OptionParser.print_usage(self, file=s)
+        optparse.OptionParser.print_usage(self, file=s)
 
     def print_help(self, file=None):
         from calibre.utils.terminal import ANSIStream
         s = ANSIStream(file)
-        _OptionParser.print_help(self, file=s)
+        optparse.OptionParser.print_help(self, file=s)
 
     def print_version(self, file=None):
         from calibre.utils.terminal import ANSIStream
         s = ANSIStream(file)
-        _OptionParser.print_version(self, file=s)
+        optparse.OptionParser.print_version(self, file=s)
 
     def error(self, msg):
         if self.gui_mode:
             raise Exception(msg)
-        _OptionParser.error(self, msg)
+        optparse.OptionParser.error(self, msg)
 
     def merge(self, parser):
         '''
@@ -182,8 +185,8 @@ class OptionParser(_OptionParser):
 
     def add_option_group(self, *args, **kwargs):
         if isinstance(args[0], type(u'')):
-            args = [OptionGroup(self, *args, **kwargs)] + list(args[1:])
-        return _OptionParser.add_option_group(self, *args, **kwargs)
+            args = [optparse.OptionGroup(self, *args, **kwargs)] + list(args[1:])
+        return optparse.OptionParser.add_option_group(self, *args, **kwargs)
 
 class DynamicConfig(dict):
     '''
