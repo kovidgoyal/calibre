@@ -2,7 +2,6 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -45,6 +44,45 @@
        y1="91"
        x2="73"
        y2="91" />
+    <filter
+       id="filter3014"
+       inkscape:label="Ridged border"
+       inkscape:menu="Bevels"
+       inkscape:menu-tooltip="Ridged border with inner bevel"
+       color-interpolation-filters="sRGB">
+      <feMorphology
+         id="feMorphology3016"
+         radius="4.3"
+         in="SourceAlpha"
+         result="result91" />
+      <feComposite
+         id="feComposite3018"
+         in2="result91"
+         operator="out"
+         in="SourceGraphic" />
+      <feGaussianBlur
+         id="feGaussianBlur3020"
+         result="result0"
+         stdDeviation="1.2" />
+      <feDiffuseLighting
+         id="feDiffuseLighting3022"
+         diffuseConstant="1"
+         result="result92">
+        <feDistantLight
+           id="feDistantLight3024"
+           elevation="66"
+           azimuth="225" />
+      </feDiffuseLighting>
+      <feBlend
+         id="feBlend3026"
+         in2="SourceGraphic"
+         mode="multiply"
+         result="result93" />
+      <feComposite
+         id="feComposite3028"
+         in2="SourceAlpha"
+         operator="in" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -105,7 +143,7 @@
      id="layer1"
      transform="translate(0,-924.36218)">
     <path
-       style="fill:#f39509;fill-opacity:1;stroke:#7a6822;stroke-opacity:1;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none"
+       style="fill:#f39509;fill-opacity:1;stroke:#7a6822;stroke-opacity:1;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter3014)"
        d="m 1.9128912,974.70018 49.4974748,-49.49747 -7.071068,21.2132 31.819805,17.67767 24.433067,-3.85121 -63.639613,63.63963 3.851207,-24.43308 -17.677669,-31.81981 z"
        id="path3088"
        inkscape:connector-curvature="0"
