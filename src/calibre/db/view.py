@@ -382,6 +382,12 @@ class View(object):
                 if func is not None:
                     func(old_marked_ids, cmids)
 
+    def toggle_marked_ids(self, book_ids):
+        book_ids = set(book_ids)
+        mids = set(self.marked_ids)
+        common = mids.intersection(book_ids)
+        self.set_marked_ids((mids | book_ids) - common)
+
     def refresh(self, field=None, ascending=True, clear_caches=True, do_search=True):
         self._map = tuple(sorted(self.cache.all_book_ids()))
         self._map_filtered = tuple(self._map)
