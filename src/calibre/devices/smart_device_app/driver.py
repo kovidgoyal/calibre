@@ -7,7 +7,7 @@ Created on 29 Jun 2012
 
 @author: charles
 '''
-import socket, select, json, os, traceback, time, sys, random, cPickle
+import socket, select, json, os, traceback, time, sys, random
 import posixpath
 from collections import defaultdict
 import hashlib, threading
@@ -686,10 +686,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         key = uuid+ext
         if isinstance(lastmod, unicode):
             lastmod = parse_date(lastmod)
-#         if key in self.known_uuids:
-#             self._debug(key, lastmod, self.known_uuids[key].last_modified)
-#         else:
-#             self._debug(key, 'not in known uuids')
         if key in self.known_uuids and self.known_uuids[key]['book'].last_modified == lastmod:
             self.known_uuids[key]['last_used'] = now()
             return self.known_uuids[key]['book'].deepcopy()
@@ -717,32 +713,60 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return None
 
     def _read_metadata_cache(self):
-        cache_file_name = os.path.join(cache_dir(),
+        from calibre.utils.config import from_json
+        try:
+            old_cache_file_name = os.path.join(cache_dir(),
                            'device_drivers_' + self.__class__.__name__ +
                                 '_metadata_cache.pickle')
-        if os.path.exists(cache_file_name):
-            with open(cache_file_name, mode='rb') as fd:
-                json_metadata = cPickle.load(fd)
-            for uuid,json_book in json_metadata.iteritems():
-                book = self.json_codec.raw_to_book(json_book['book'], SDBook, self.PREFIX)
-                self.known_uuids[uuid]['book'] = book
-                self.known_uuids[uuid]['last_used'] = json_book['last_used']
-                lpath = book.get('lpath')
-                if lpath in self.known_metadata:
-                    self.known_uuids.pop(uuid, None)
-                else:
-                    self.known_metadata[lpath] = book
+            if os.path.exists(old_cache_file_name):
+                os.remove(old_cache_file_name)
+        except:
+            pass
+
+        cache_file_name = os.path.join(cache_dir(),
+                           'device_drivers_' + self.__class__.__name__ +
+                                '_metadata_cache.json')
+        self.known_uuids = defaultdict(dict)
+        self.known_metadata = {}
+        with open(cache_file_name, mode='rb') as fd:
+            try:
+                while True:
+                    rec_len = fd.readline()
+                    if len(rec_len) != 8:
+                        break
+                    raw = fd.read(int(rec_len))
+                    book = json.loads(raw.decode('utf-8'), object_hook=from_json)
+                    uuid = book.keys()[0]
+                    metadata = self.json_codec.raw_to_book(book[uuid]['book'],
+                                                        SDBook, self.PREFIX)
+                    book[uuid]['book'] = metadata
+                    self.known_uuids.update(book)
+
+                    lpath = metadata.get('lpath')
+                    if lpath in self.known_metadata:
+                        self.known_uuids.pop(uuid, None)
+                    else:
+                        self.known_metadata[lpath] = metadata
+            except:
+                traceback.print_exc()
 
     def _write_metadata_cache(self):
+        from calibre.utils.config import to_json
         cache_file_name = os.path.join(cache_dir(),
                            'device_drivers_' + self.__class__.__name__ +
-                                '_metadata_cache.pickle')
-        json_metadata = defaultdict(dict)
-        for uuid,book in self.known_uuids.iteritems():
-            json_metadata[uuid]['book'] = self.json_codec.encode_book_metadata(book['book'])
-            json_metadata[uuid]['last_used'] = book['last_used']
+                                '_metadata_cache.json')
         with open(cache_file_name, mode='wb') as fd:
-            cPickle.dump(json_metadata, fd, -1)
+            try:
+                for uuid,book in self.known_uuids.iteritems():
+                    json_metadata = defaultdict(dict)
+                    json_metadata[uuid]['book'] = self.json_codec.encode_book_metadata(book['book'])
+                    json_metadata[uuid]['last_used'] = book['last_used']
+                    result = json.dumps(json_metadata, indent=2, default=to_json)
+                    fd.write("%0.7d\n"%(len(result)+1))
+                    fd.write(result)
+                    fd.write('\n')
+            except:
+                traceback.print_exc()
 
     def _set_known_metadata(self, book, remove=False):
         from calibre.utils.date import now
@@ -757,7 +781,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if key:
                 self.known_uuids.pop(key, None)
         else:
-            new_book = self.known_metadata[lpath] = book.deepcopy()
+            # Check if we have another UUID with the same lpath. If so, remove it
+            existing_uuid = self.known_metadata.get(lpath, {}).get('uuid', None)
+            if existing_uuid:
+                self.known_uuids.pop(existing_uuid + ext, None)
+
+            new_book = book.deepcopy()
+            self.known_metadata[lpath] = new_book
             if key:
                 self.known_uuids[key]['book'] = new_book
                 self.known_uuids[key]['last_used'] = now()
@@ -815,8 +845,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self.is_connected = False
         if self.is_connected:
             self.noop_counter += 1
-            if only_presence and (
-                    self.noop_counter % self.SEND_NOOP_EVERY_NTH_PROBE) != 1:
+            if (only_presence and
+                    self.noop_counter > self.SEND_NOOP_EVERY_NTH_PROBE and
+                    (self.noop_counter % self.SEND_NOOP_EVERY_NTH_PROBE) != 1):
                 try:
                     ans = select.select((self.device_socket,), (), (), 0)
                     if len(ans[0]) == 0:

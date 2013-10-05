@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010-2011, Eddie Lau'
+__copyright__ = '2010-2013, Eddie Lau'
 
 # Region - Hong Kong, Vancouver, Toronto
 __Region__ = 'Hong Kong'
@@ -32,6 +32,7 @@ __Date__ = ''
 
 '''
 Change Log:
+2013/09/28: allow thumbnails even with hi-res images
 2012/04/24: improved parsing of news.mingpao.com content
 2011/12/18: update the overridden create_odf(.) routine with the one from Calibre version 0.8.31. Move __UseChineseTitle__ usage away
             from create_odf(.). Optional support of text_summary and thumbnail images in Kindle's article view. Start new day
@@ -846,8 +847,7 @@ class MPRecipe(BasicNewsRecipe):
         return soup
 
     def populate_article_metadata(self, article, soup, first):
-        # thumbnails shouldn't be available if using hi-res images
-        if __IncludeThumbnails__ and __HiResImg__ == False and first and hasattr(self, 'add_toc_thumbnail'):
+        if __IncludeThumbnails__ and first and hasattr(self, 'add_toc_thumbnail'):
             img = soup.find('img')
             if img is not None:
                 self.add_toc_thumbnail(article, img['src'])
@@ -1068,6 +1068,7 @@ class MPRecipe(BasicNewsRecipe):
 
         with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
             opf.render(opf_file, ncx_file)
+
 
 
 

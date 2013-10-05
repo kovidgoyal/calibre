@@ -1,23 +1,29 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class AdvancedUserRecipe1312361378(BasicNewsRecipe):
-    title          = u'Carta capital'
-    __author__ = 'Pablo Aldama'
+class AdvancedUserRecipe1380852962(BasicNewsRecipe):
+    title          = u'Carta Capital'
+    __author__ = 'Erico Lisboa'
     language = 'pt_BR'
-    oldest_article = 9
+    oldest_article = 15
     max_articles_per_feed = 100
+    auto_cleanup = True
+    use_embedded_content = False
 
-    feeds          = [(u'Politica', u'http://www.cartacapital.com.br/category/politica/feed')
-                      ,(u'Economia', u'http://www.cartacapital.com.br/category/economia/feed')
-                      ,(u'Cultura', u'http://www.cartacapital.com.br/category/cultura/feed')
-                      ,(u'Internacional', u'http://www.cartacapital.com.br/category/internacional/feed')
-                      ,(u'Saude', u'http://www.cartacapital.com.br/category/saude/feed')
-                      ,(u'Sociedade', u'http://www.cartacapital.com.br/category/sociedade/feed')
-                      ,(u'Tecnologia', u'http://www.cartacapital.com.br/category/tecnologia/feed')
-                      ,(u'Carta na escola', u'http://www.cartacapital.com.br/category/carta-na-escola/feed')
-                      ,(u'Carta fundamental', u'http://www.cartacapital.com.br/category/carta-fundamental/feed')
-                      ,(u'Carta verde', u'http://www.cartacapital.com.br/category/carta-verde/feed')
-
-]
-    def print_version(self, url):
-        return url + '/print'
+    feeds          = [(u'Pol\xedtica',
+u'http://www.cartacapital.com.br/politica/politica/rss'), (u'Economia',
+u'http://www.cartacapital.com.br/economia/economia/atom.xml'),
+(u'Sociedade',
+u'http://www.cartacapital.com.br/sociedade/sociedade/atom.xml'),
+(u'Internacional',
+u'http://www.cartacapital.com.br/internacional/internacional/atom.xml'),
+(u'Tecnologia',
+u'http://www.cartacapital.com.br/tecnologia/tecnologia/atom.xml'),
+(u'Cultura',
+u'http://www.cartacapital.com.br/cultura/cultura/atom.xml'),
+(u'Sa\xfade', u'http://www.cartacapital.com.br/saude/saude/atom.xml'),
+(u'Educa\xe7\xe3o',
+u'http://www.cartacapital.com.br/educacao/educacao/atom.xml')]

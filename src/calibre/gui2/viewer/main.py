@@ -8,7 +8,7 @@ from threading import Thread
 from PyQt4.Qt import (QApplication, Qt, QIcon, QTimer, QByteArray, QSize,
         QTime, QDoubleSpinBox, QLabel, QTextBrowser, QPropertyAnimation,
         QPainter, QBrush, QColor, pyqtSignal, QUrl, QRegExpValidator, QRegExp,
-        QLineEdit, QToolButton, QMenu, QInputDialog, QAction, QKeySequence,
+        QLineEdit, QToolButton, QMenu, QInputDialog, QAction,
         QModelIndex)
 
 from calibre.gui2.viewer.main_ui import Ui_EbookViewer
@@ -234,18 +234,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view_resized_timer.timeout.connect(self.viewport_resize_finished)
         self.view_resized_timer.setSingleShot(True)
         self.resize_in_progress = False
-        qs = [Qt.CTRL+Qt.Key_Q,Qt.CTRL+Qt.Key_W]
-        self.action_quit.setShortcuts(qs)
         self.action_quit.triggered.connect(self.quit)
-        self.action_focus_search = QAction(self)
-        self.addAction(self.action_focus_search)
-        self.action_focus_search.setShortcuts([Qt.Key_Slash,
-            QKeySequence(QKeySequence.Find)])
-        self.action_focus_search.triggered.connect(lambda x:
-                self.search.setFocus(Qt.OtherFocusReason))
         self.action_copy.setDisabled(True)
         self.action_metadata.setCheckable(True)
-        self.action_metadata.setShortcut(Qt.CTRL+Qt.Key_I)
         self.action_table_of_contents.setCheckable(True)
         self.toc.setMinimumWidth(80)
         self.action_reference_mode.setCheckable(True)
@@ -255,18 +246,14 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_copy.triggered[bool].connect(self.copy)
         self.action_font_size_larger.triggered.connect(self.font_size_larger)
         self.action_font_size_smaller.triggered.connect(self.font_size_smaller)
-        self.action_font_size_larger.setShortcut(Qt.CTRL+Qt.Key_Equal)
-        self.action_font_size_smaller.setShortcut(Qt.CTRL+Qt.Key_Minus)
         self.action_open_ebook.triggered[bool].connect(self.open_ebook)
         self.action_next_page.triggered.connect(self.view.next_page)
         self.action_previous_page.triggered.connect(self.view.previous_page)
         self.action_find_next.triggered.connect(self.find_next)
         self.action_find_previous.triggered.connect(self.find_previous)
         self.action_full_screen.triggered[bool].connect(self.toggle_fullscreen)
-        self.action_full_screen.setShortcuts([Qt.Key_F11, Qt.CTRL+Qt.SHIFT+Qt.Key_F])
-        self.action_full_screen.setToolTip(_('Toggle full screen (%s)') %
-                _(' or ').join([unicode(x.toString(x.NativeText)) for x in
-                    self.action_full_screen.shortcuts()]))
+        self.action_full_screen.setToolTip(_('Toggle full screen [%s]') %
+                _(' or ').join([x for x in self.view.shortcuts.get_shortcuts('Fullscreen')]))
         self.action_back.triggered[bool].connect(self.back)
         self.action_forward.triggered[bool].connect(self.forward)
         self.action_preferences.triggered.connect(self.do_config)
@@ -348,11 +335,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pos_label.setFocusPolicy(Qt.NoFocus)
         self.clock_timer = QTimer(self)
         self.clock_timer.timeout.connect(self.update_clock)
-        self.esc_full_screen_action = a = QAction(self)
-        self.addAction(a)
-        a.setShortcut(Qt.Key_Escape)
-        a.setEnabled(False)
-        a.triggered.connect(self.action_full_screen.trigger)
 
         self.print_menu = QMenu()
         self.print_menu.addAction(QIcon(I('print-preview.png')), _('Print Preview'))
@@ -360,9 +342,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.tool_bar.widgetForAction(self.action_print).setPopupMode(QToolButton.MenuButtonPopup)
         self.action_print.triggered.connect(self.print_book)
         self.print_menu.actions()[0].triggered.connect(self.print_preview)
-        ca = self.view.copy_action
-        ca.setShortcut(QKeySequence.Copy)
-        self.addAction(ca)
         self.open_history_menu = QMenu()
         self.clear_recent_history_action = QAction(
                 _('Clear list of recently opened books'), self)
@@ -487,6 +466,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 at_start=True)
 
     def lookup(self, word):
+        from calibre.gui2.viewer.documentview import config
+        opts = config().parse()
+        settings = self.dictionary_view.page().settings()
+        settings.setFontSize(settings.DefaultFontSize, opts.default_font_size)
+        settings.setFontSize(settings.DefaultFixedFontSize, opts.mono_font_size)
         self.dictionary_view.setHtml('<html><body><p>'+
             _('Connecting to dict.org to lookup: <b>%s</b>&hellip;')%word +
             '</p></body></html>')
@@ -513,7 +497,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         p = Printing(self.iterator, self)
         p.start_preview()
 
-    def toggle_fullscreen(self, x):
+    def toggle_fullscreen(self):
         if self.isFullScreen():
             self.showNormal()
         else:
@@ -539,7 +523,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def show_full_screen_label(self):
         f = self.full_screen_label
-        self.esc_full_screen_action.setEnabled(True)
         height = 200
         width = int(0.7*self.view.width())
         f.resize(width, height)
@@ -604,7 +587,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.clock_timer.stop()
         self.vertical_scrollbar.setVisible(True)
         self.window_mode_changed = 'normal'
-        self.esc_full_screen_action.setEnabled(False)
         self.settings_changed()
         self.full_screen_label.setVisible(False)
         if hasattr(self, '_original_frame_margins'):
@@ -727,11 +709,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def magnification_changed(self, val):
         tt = '%(action)s [%(sc)s]\n'+_('Current magnification: %(mag).1f')
-        sc = unicode(self.action_font_size_larger.shortcut().toString())
+        sc = _(' or ').join(self.view.shortcuts.get_shortcuts('Font larger'))
         self.action_font_size_larger.setToolTip(
                 tt %dict(action=unicode(self.action_font_size_larger.text()),
                          mag=val, sc=sc))
-        sc = unicode(self.action_font_size_smaller.shortcut().toString())
+        sc = _(' or ').join(self.view.shortcuts.get_shortcuts('Font smaller'))
         self.action_font_size_smaller.setToolTip(
                 tt %dict(action=unicode(self.action_font_size_smaller.text()),
                          mag=val, sc=sc))
@@ -1116,10 +1098,40 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.load_path(self.iterator.spine[self.current_index-1], pos=1.0)
 
     def keyPressEvent(self, event):
-        MainWindow.keyPressEvent(self, event)
-        if not event.isAccepted():
-            if not self.view.handle_key_press(event):
-                event.ignore()
+        if event.key() == Qt.Key_Escape:
+            if self.metadata.isVisible():
+                self.metadata.setVisible(False)
+                event.accept()
+                return
+            if self.isFullScreen():
+                self.toggle_fullscreen()
+                event.accept()
+                return
+        try:
+            key = self.view.shortcuts.get_match(event)
+        except AttributeError:
+            return MainWindow.keyPressEvent(self, event)
+        action = {
+            'Quit':self.action_quit,
+            'Show metadata':self.action_metadata,
+            'Copy':self.view.copy_action,
+            'Font larger': self.action_font_size_larger,
+            'Font smaller': self.action_font_size_smaller,
+            'Fullscreen': self.action_full_screen,
+            'Find next': self.action_find_next,
+            'Find previous': self.action_find_previous,
+            'Search online': self.view.search_online_action,
+            'Lookup word': self.view.dictionary_action,
+            'Next occurrence': self.view.search_action,
+        }.get(key, None)
+        if action is not None:
+            event.accept()
+            action.trigger()
+            return
+        if key == 'Focus Search':
+            self.search.setFocus(Qt.OtherFocusReason)
+        if not self.view.handle_key_press(event):
+            event.ignore()
 
     def __enter__(self):
         return self

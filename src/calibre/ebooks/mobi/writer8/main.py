@@ -151,7 +151,7 @@ class KF8Writer(object):
 
         for item in self.oeb.manifest:
             if item.media_type in OEB_STYLES:
-                if hasattr(item.data, 'cssText'):
+                if not self.opts.expand_css and hasattr(item.data, 'cssText'):
                     condense_sheet(self.data(item))
                 data = self.data(item).cssText
                 sheets[item.href] = len(self.flows)

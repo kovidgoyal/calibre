@@ -923,6 +923,11 @@ class ActionSortBy(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.sort:SortByAction'
     description = _('Sort the list of books')
 
+class ActionMarkBooks(InterfaceActionBase):
+    name = 'Mark Books'
+    actual_plugin = 'calibre.gui2.actions.mark_books:MarkBooksAction'
+    description = _('Temporarily mark books')
+
 class ActionStore(InterfaceActionBase):
     name = 'Store'
     author = 'John Schember'
@@ -953,7 +958,8 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionMatchBooks, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore,
-        ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy]
+        ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
+        ActionMarkBooks]
 
 # }}}
 
@@ -1245,6 +1251,15 @@ class StoreSonyAUStore(StoreSonyStore):
     actual_plugin = 'calibre.gui2.store.stores.sony_au_plugin:SonyStore'
     headquarters = 'AU'
 
+class StoreAmazonCAKindleStore(StoreBase):
+    name = 'Amazon CA Kindle'
+    author = 'Tomasz Długosz'
+    description = u'Kindle books from Amazon.'
+    actual_plugin = 'calibre.gui2.store.stores.amazon_ca_plugin:AmazonCAKindleStore'
+
+    headquarters = 'CA'
+    formats = ['KINDLE']
+    # affiliate = True
 
 class StoreAmazonDEKindleStore(StoreBase):
     name = 'Amazon DE Kindle'
@@ -1699,6 +1714,7 @@ plugins += [
     StoreAllegroStore,
     StoreArchiveOrgStore,
     StoreAmazonKindleStore,
+    StoreAmazonCAKindleStore,
     StoreAmazonDEKindleStore,
     StoreAmazonESKindleStore,
     StoreAmazonFRKindleStore,

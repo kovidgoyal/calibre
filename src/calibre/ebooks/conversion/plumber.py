@@ -363,6 +363,14 @@ OptionRecommendation(name='filter_css',
                 'font-family,color,margin-left,margin-right')
         ),
 
+OptionRecommendation(name='expand_css',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_(
+                'By default, calibre will use the shorthand form for various'
+                ' css properties such as margin, padding, border, etc. This'
+                ' option will cause it to use the full expanded form instead.')
+        ),
+
 OptionRecommendation(name='page_breaks_before',
             recommended_value="//*[name()='h1' or name()='h2']",
             level=OptionRecommendation.LOW,

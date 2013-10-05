@@ -90,7 +90,7 @@ class Level(object):
                 self.is_numbered = False
                 cs = self.character_style
                 if lt in {'\uf0a7', 'o'} or (
-                    cs.font_family is not inherit and cs.font_family.lower() in {'wingdings', 'symbol'}):
+                    cs is not None and cs.font_family is not inherit and cs.font_family.lower() in {'wingdings', 'symbol'}):
                     self.fmt = {'\uf0a7':'square', 'o':'circle'}.get(lt, 'disc')
                 else:
                     self.bullet_template = lt
@@ -298,7 +298,7 @@ class Numbering(object):
                 for attr in ('list-lvl', 'list-id', 'list-template'):
                     child.attrib.pop(attr, None)
                 val = int(child.get('value'))
-                if last_val == val - 1 or wrap.tag == 'ul':
+                if last_val == val - 1 or wrap.tag == 'ul' or (last_val is None and val == 1):
                     child.attrib.pop('value')
                 last_val = val
             current_run[-1].tail = '\n'

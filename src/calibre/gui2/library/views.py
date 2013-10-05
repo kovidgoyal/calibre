@@ -22,7 +22,7 @@ from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
 from calibre.gui2.library.alternate_views import AlternateViews, setup_dnd_interface
 from calibre.utils.config import tweaks, prefs
-from calibre.gui2 import error_dialog, gprefs
+from calibre.gui2 import error_dialog, gprefs, FunctionDispatcher
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.constants import filesystem_encoding
 from calibre import force_unicode
@@ -63,6 +63,11 @@ class HeaderView(QHeaderView):  # {{{
                     opt.state |= QStyle.State_MouseOver
         sm = self.selectionModel()
         if opt.orientation == Qt.Vertical:
+            try:
+                opt.icon = model.headerData(logical_index, opt.orientation, Qt.DecorationRole)
+                opt.iconAlignment = Qt.AlignVCenter
+            except TypeError:
+                pass
             if sm.isRowSelected(logical_index, QModelIndex()):
                 opt.state |= QStyle.State_Sunken
 
@@ -214,6 +219,7 @@ class BooksView(QTableView):  # {{{
         self.setSortingEnabled(True)
         self.selectionModel().currentRowChanged.connect(self._model.current_changed)
         self.preserve_state = partial(PreserveViewState, self)
+        self.marked_changed_listener = FunctionDispatcher(self.marked_changed)
 
         # {{{ Column Header setup
         self.can_add_columns = True
@@ -229,6 +235,7 @@ class BooksView(QTableView):  # {{{
         self.column_header.customContextMenuRequested.connect(self.show_column_header_context_menu)
         self.column_header.sectionResized.connect(self.column_resized, Qt.QueuedConnection)
         self.row_header = HeaderView(Qt.Vertical, self)
+        self.row_header.setResizeMode(self.row_header.Fixed)
         self.setVerticalHeader(self.row_header)
         # }}}
 
@@ -682,7 +689,19 @@ class BooksView(QTableView):  # {{{
         self.publisher_delegate.set_auto_complete_function(db.all_publishers)
         self.alternate_views.set_database(db, stage=1)
 
+    def marked_changed(self, old_marked, current_marked):
+        if bool(old_marked) == bool(current_marked):
+            changed = old_marked | current_marked
+            sections = tuple(map(self.model().db.data.id_to_index, changed))
+            self.row_header.headerDataChanged(Qt.Vertical, min(sections), max(sections))
+        else:
+            # Marked items have either appeared or all been removed
+            self.model().set_row_decoration(current_marked)
+            self.row_header.headerDataChanged(Qt.Vertical, 0, self.row_header.count()-1)
+            self.row_header.geometriesChanged.emit()
+
     def database_changed(self, db):
+        db.data.add_marked_listener(self.marked_changed_listener)
         for i in range(self.model().columnCount(None)):
             if self.itemDelegateForColumn(i) in (self.rating_delegate,
                     self.timestamp_delegate, self.pubdate_delegate,

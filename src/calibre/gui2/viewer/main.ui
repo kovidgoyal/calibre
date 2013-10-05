@@ -248,9 +248,6 @@
    <property name="toolTip">
     <string>Find next occurrence</string>
    </property>
-   <property name="shortcut">
-    <string>F3</string>
-   </property>
   </action>
   <action name="action_copy">
    <property name="icon">
@@ -316,9 +313,6 @@
    </property>
    <property name="toolTip">
     <string>Find previous occurrence</string>
-   </property>
-   <property name="shortcut">
-    <string>Shift+F3</string>
    </property>
   </action>
   <action name="action_toggle_paged_mode">

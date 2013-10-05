@@ -9,6 +9,7 @@ Command line interface to conversion sub-system
 
 import sys, os
 from optparse import OptionGroup, Option
+from collections import OrderedDict
 
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
@@ -126,14 +127,14 @@ def add_input_output_options(parser, plumber):
         parser.add_option_group(oo)
 
 def add_pipeline_options(parser, plumber):
-    groups = {
-              '' : ('',
+    groups = OrderedDict((
+              ('' , ('',
                     [
                      'input_profile',
                      'output_profile',
                      ]
-                    ),
-              'LOOK AND FEEL' : (
+                    )),
+              (_('LOOK AND FEEL') , (
                   _('Options to control the look and feel of the output'),
                   [
                       'base_font_size', 'disable_font_rescaling',
@@ -141,7 +142,7 @@ def add_pipeline_options(parser, plumber):
                       'subset_embedded_fonts', 'embed_all_fonts',
                       'line_height', 'minimum_line_height',
                       'linearize_tables',
-                      'extra_css', 'filter_css',
+                      'extra_css', 'filter_css', 'expand_css',
                       'smarten_punctuation', 'unsmarten_punctuation',
                       'margin_top', 'margin_left', 'margin_right',
                       'margin_bottom', 'change_justification',
@@ -150,17 +151,17 @@ def add_pipeline_options(parser, plumber):
                       'remove_paragraph_spacing_indent_size',
                       'asciiize', 'keep_ligatures',
                   ]
-                  ),
+                  )),
 
-              'HEURISTIC PROCESSING' : (
+              (_('HEURISTIC PROCESSING') , (
                   _('Modify the document text and structure using common'
                      ' patterns. Disabled by default. Use %(en)s to enable. '
                      ' Individual actions can be disabled with the %(dis)s options.')
                   % dict(en='--enable-heuristics', dis='--disable-*'),
                   ['enable_heuristics'] + HEURISTIC_OPTIONS
-                  ),
+                  )),
 
-              'SEARCH AND REPLACE' : (
+              (_('SEARCH AND REPLACE') , (
                  _('Modify the document text and structure using user defined patterns.'),
                  [
                      'sr1_search', 'sr1_replace',
@@ -168,9 +169,9 @@ def add_pipeline_options(parser, plumber):
                      'sr3_search', 'sr3_replace',
                      'search_replace',
                  ]
-              ),
+              )),
 
-              'STRUCTURE DETECTION' : (
+              (_('STRUCTURE DETECTION') , (
                   _('Control auto-detection of document structure.'),
                   [
                       'chapter', 'chapter_mark',
@@ -178,9 +179,9 @@ def add_pipeline_options(parser, plumber):
                       'insert_metadata', 'page_breaks_before',
                       'remove_fake_margins', 'start_reading_at',
                   ]
-                  ),
+                  )),
 
-              'TABLE OF CONTENTS' : (
+              (_('TABLE OF CONTENTS') , (
                   _('Control the automatic generation of a Table of Contents. By '
                   'default, if the source file has a Table of Contents, it will '
                   'be used in preference to the automatically generated one.'),
@@ -189,26 +190,20 @@ def add_pipeline_options(parser, plumber):
                     'toc_threshold', 'max_toc_links', 'no_chapters_in_toc',
                     'use_auto_toc', 'toc_filter', 'duplicate_links_in_toc',
                   ]
-                  ),
+                  )),
 
-              'METADATA' : (_('Options to set metadata in the output'),
+              (_('METADATA') , (_('Options to set metadata in the output'),
                             plumber.metadata_option_names + ['read_metadata_from_opf'],
-                            ),
-              'DEBUG': (_('Options to help with debugging the conversion'),
+                            )),
+              (_('DEBUG'), (_('Options to help with debugging the conversion'),
                         [
                          'verbose',
                          'debug_pipeline',
-                         ]),
+                         ])),
 
+              ))
 
-              }
-
-    group_order = ['', 'LOOK AND FEEL', 'HEURISTIC PROCESSING',
-            'SEARCH AND REPLACE', 'STRUCTURE DETECTION',
-            'TABLE OF CONTENTS', 'METADATA', 'DEBUG']
-
-    for group in group_order:
-        desc, options = groups[group]
+    for group, (desc, options) in groups.iteritems():
         if group:
             group = OptionGroup(parser, group, desc)
             parser.add_option_group(group)
