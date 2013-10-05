@@ -487,6 +487,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 at_start=True)
 
     def lookup(self, word):
+        from calibre.gui2.viewer.documentview import config
+        opts = config().parse()
+        settings = self.dictionary_view.page().settings()
+        settings.setFontSize(settings.DefaultFontSize, opts.default_font_size)
+        settings.setFontSize(settings.DefaultFixedFontSize, opts.mono_font_size)
         self.dictionary_view.setHtml('<html><body><p>'+
             _('Connecting to dict.org to lookup: <b>%s</b>&hellip;')%word +
             '</p></body></html>')
