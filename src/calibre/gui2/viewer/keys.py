@@ -6,6 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from calibre.constants import isosx
 
 SHORTCUTS = {
         'Next Page' : (['PgDown', 'Space'],
@@ -49,5 +50,38 @@ SHORTCUTS = {
 
         'Forward': (['Alt+Right'],
             _('Forward')),
+
+        'Quit': (['Ctrl+Q', 'Ctrl+W', 'Alt+F4'],
+            _('Quit')),
+
+        'Focus Search': (['/', 'Ctrl+F'],
+            _('Start search')),
+
+        'Show metadata': (['Ctrl+I'],
+            _('Show metadata')),
+
+        'Font larger': (['Ctrl+='],
+            _('Font size larger')),
+
+        'Font smaller': (['Ctrl+-'],
+            _('Font size smaller')),
+
+        'Fullscreen': ((['Ctrl+Meta+F'] if isosx else ['Ctrl+Shift+F', 'F11']),
+            _('Fullscreen')),
+
+        'Find next': (['F3'],
+            _('Find next')),
+
+        'Find previous': (['Shift+F3'],
+            _('Find previous')),
+
+        'Search online': (['Ctrl+E'],
+            _('Search online for word')),
+
+        'Lookup word': (['Ctrl+L'],
+            _('Lookup word in dictionary')),
+
+        'Next occurrence': (['Ctrl+S'],
+            _('Go to next occurrence of selected word')),
 
 }
