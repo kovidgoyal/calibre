@@ -100,7 +100,7 @@ class BookmarkManager(QDialog, Ui_BookmarkManager):
             bad = False
             try:
                 for bm in imported:
-                    if len(bm) != 2:
+                    if 'title' not in bm:
                         bad = True
                         break
             except:
@@ -109,9 +109,9 @@ class BookmarkManager(QDialog, Ui_BookmarkManager):
             if not bad:
                 bookmarks = self.get_bookmarks()
                 for bm in imported:
-                    if bm not in bookmarks and bm['title'] != 'calibre_current_page_bookmark':
+                    if bm not in bookmarks:
                         bookmarks.append(bm)
-                self.set_bookmarks(bookmarks)
+                self.set_bookmarks([bm for bm in bookmarks if bm['title'] != 'calibre_current_page_bookmark'])
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
