@@ -71,7 +71,7 @@ def clone_container(container, dest_dir):
         return cls(None, None, container.log, clone_data=clone_data)
     return cls(None, container.log, clone_data=clone_data)
 
-class Container(object):
+class Container(object):  # {{{
 
     '''
     A container represents an Open EBook as a directory full of files and an
@@ -107,7 +107,9 @@ class Container(object):
 
         if clone_data is not None:
             self.cloned = True
-            self.name_path_map = clone_data['name_path_map']
+            for x in ('name_path_map', 'opf_name', 'mime_map', 'pretty_print', 'encoding_map'):
+                setattr(self, x, clone_data[x])
+            self.opf_dir = os.path.dirname(self.name_path_map[self.opf_name])
             return
 
         # Map of relative paths with '/' separators from root of unzipped ePub
@@ -134,6 +136,21 @@ class Container(object):
             name = self.href_to_name(href, self.opf_name)
             if name in self.mime_map:
                 self.mime_map[name] = item.get('media-type')
+
+    def clone_data(self, dest_dir):
+        Container.commit(self, keep_parsed=True)
+        self.cloned = True
+        clone_dir(self.root, dest_dir)
+        return {
+            'root': dest_dir,
+            'opf_name': self.opf_name,
+            'mime_map': self.mime_map.copy(),
+            'pretty_print': set(self.pretty_print),
+            'encoding_map': self.encoding_map.copy(),
+            'name_path_map': {
+                name:os.path.join(dest_dir, os.path.relpath(path, self.root))
+                for name, path in self.name_path_map.iteritems()}
+        }
 
     def abspath_to_name(self, fullpath):
         return self.relpath(os.path.abspath(fullpath)).replace(os.sep, '/')
@@ -292,21 +309,26 @@ class Container(object):
             for item in self.opf_xpath('//opf:guide/opf:reference[@href and @type]')}
 
     @property
-    def spine_items(self):
+    def spine_names(self):
         manifest_id_map = self.manifest_id_map
 
-        linear, non_linear = [], []
+        non_linear = []
         for item in self.opf_xpath('//opf:spine/opf:itemref[@idref]'):
             idref = item.get('idref')
             name = manifest_id_map.get(idref, None)
             path = self.name_path_map.get(name, None)
             if path:
                 if item.get('linear', 'yes') == 'yes':
-                    yield path
+                    yield name
                 else:
-                    non_linear.append(path)
-        for path in non_linear:
-            yield path
+                    non_linear.append(name)
+        for name in non_linear:
+            yield name
+
+    @property
+    def spine_items(self):
+        for name in self.spine_names:
+            yield self.name_path_map[name]
 
     def remove_item(self, name):
         '''
@@ -498,17 +520,6 @@ class Container(object):
         for name in tuple(self.dirtied):
             self.commit_item(name, keep_parsed=keep_parsed)
 
-    def clone_data(self, dest_dir):
-        self.commit(keep_parsed=True)
-        self.cloned = True
-        clone_dir(self.root, dest_dir)
-        return {
-            'root': dest_dir,
-            'name_path_map': {
-                name:os.path.join(dest_dir, os.path.relpath(path, self.root))
-                for name, path in self.name_path_map.iteritems()}
-        }
-
     def compare_to(self, other):
         if set(self.name_path_map) != set(other.name_path_map):
             return 'Set of files is not the same'
@@ -519,6 +530,7 @@ class Container(object):
                 if f1.read() != f2.read():
                     mismatches.append('The file %s is not the same'%name)
         return '\n'.join(mismatches)
+# }}}
 
 # EPUB {{{
 class InvalidEpub(InvalidBook):
@@ -539,7 +551,7 @@ class EpubContainer(Container):
             'rights.xml': False,
     }
 
-    def __init__(self, pathtoepub, log, clone_data=None):
+    def __init__(self, pathtoepub, log, clone_data=None, tdir=None):
         if clone_data is not None:
             super(EpubContainer, self).__init__(None, None, log, clone_data=clone_data)
             for x in ('pathtoepub', 'container', 'obfuscated_fonts'):
@@ -547,7 +559,9 @@ class EpubContainer(Container):
             return
 
         self.pathtoepub = pathtoepub
-        tdir = self.root = os.path.abspath(os.path.realpath(PersistentTemporaryDirectory('_epub_container')))
+        if tdir is None:
+            tdir = os.path.abspath(os.path.realpath(PersistentTemporaryDirectory('_epub_container')))
+        self.root = tdir
         with open(self.pathtoepub, 'rb') as stream:
             try:
                 zf = ZipFile(stream)
@@ -685,7 +699,7 @@ class AZW3Container(Container):
 
     book_type = 'azw3'
 
-    def __init__(self, pathtoazw3, log, clone_data=None):
+    def __init__(self, pathtoazw3, log, clone_data=None, tdir=None):
         if clone_data is not None:
             super(AZW3Container, self).__init__(None, None, log, clone_data=clone_data)
             for x in ('pathtoazw3', 'obfuscated_fonts'):
@@ -693,7 +707,9 @@ class AZW3Container(Container):
             return
 
         self.pathtoazw3 = pathtoazw3
-        tdir = self.root = os.path.abspath(os.path.realpath(PersistentTemporaryDirectory('_azw3_container')))
+        if tdir is None:
+            tdir = os.path.abspath(os.path.realpath(PersistentTemporaryDirectory('_azw3_container')))
+        self.root = tdir
         with open(pathtoazw3, 'rb') as stream:
             raw = stream.read(3)
             if raw == b'TPZ':
@@ -752,11 +768,11 @@ class AZW3Container(Container):
         outp.convert(oeb, outpath, inp, plumber.opts, default_log)
 # }}}
 
-def get_container(path, log=None):
+def get_container(path, log=None, tdir=None):
     if log is None:
         log = default_log
     ebook = (AZW3Container if path.rpartition('.')[-1].lower() in {'azw3', 'mobi'}
-            else EpubContainer)(path, log)
+            else EpubContainer)(path, log, tdir=tdir)
     return ebook
 
 def test_roundtrip():
