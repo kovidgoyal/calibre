@@ -583,6 +583,8 @@ class ReadingTest(BaseTest):
                                    display={'composite_template': '{pubdate:format_date(d-M-yy)}', 'composite_sort':'date'})
         cache.create_custom_column('bool', 'CC6', 'composite', False, display={'composite_template': '{#yesno}', 'composite_sort':'bool'})
         cache.create_custom_column('ccm', 'CC7', 'composite', True, display={'composite_template': '{#tags}'})
+        cache.create_custom_column('ccp', 'CC8', 'composite', True, display={'composite_template': '{publisher}'})
+        cache.create_custom_column('ccf', 'CC9', 'composite', True, display={'composite_template': "{:'approximate_formats()'}"})
 
         cache = self.init_cache()
         # Test searching
@@ -607,5 +609,14 @@ class ReadingTest(BaseTest):
         # Test is_multiple sorting
         cache.set_field('#tags', {1:'b, a, c', 2:'a, b, c', 3:'a, c, b'})
         self.assertEqual([1, 2, 3], cache.multisort([('#ccm', True)]))
+
+        # Test that lock downgrading during update of search cache works
+        self.assertEqual(cache.search('#ccp:One'), {2})
+        cache.set_field('publisher', {2:'One', 1:'One'})
+        self.assertEqual(cache.search('#ccp:One'), {1, 2})
+
+        self.assertEqual(cache.search('#ccf:FMT1'), {1, 2})
+        cache.remove_formats({1:('FMT1',)})
+        self.assertEqual('FMT2', cache.field_for('#ccf', 1))
     # }}}
 

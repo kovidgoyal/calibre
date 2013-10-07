@@ -17,6 +17,9 @@ class LockingError(RuntimeError):
         RuntimeError.__init__(self, msg)
         self.locking_debug_msg = extra
 
+class DowngradeLockError(LockingError):
+    pass
+
 def create_locks():
     '''
     Return a pair of locks: (read_lock, write_lock)
@@ -150,7 +153,7 @@ class SHLock(object):  # {{{
         #  to the shared queue and it will give us the lock eventually.
         if self.is_exclusive or self._exclusive_queue:
             if self._exclusive_owner is me:
-                raise LockingError("can't downgrade SHLock object")
+                raise DowngradeLockError("can't downgrade SHLock object")
             if not blocking:
                 return False
             waiter = self._take_waiter()

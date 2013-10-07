@@ -18,7 +18,7 @@ from calibre.constants import iswindows, preferred_encoding
 from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postimport
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.categories import get_categories
-from calibre.db.locking import create_locks
+from calibre.db.locking import create_locks, DowngradeLockError
 from calibre.db.errors import NoSuchFormat
 from calibre.db.fields import create_field, IDENTITY, InvalidLinkTable
 from calibre.db.search import Search
@@ -51,10 +51,19 @@ def write_api(f):
 
 def wrap_simple(lock, func):
     @wraps(func)
-    def ans(*args, **kwargs):
-        with lock:
+    def call_func_with_lock(*args, **kwargs):
+        try:
+            with lock:
+                return func(*args, **kwargs)
+        except DowngradeLockError:
+            # We already have an exclusive lock, no need to acquire a shared
+            # lock. This can happen when updating the search cache in the
+            # presence of composite columns. Updating the search cache holds an
+            # exclusive lock, but searching a composite column involves
+            # reading field values via ProxyMetadata which tries to get a
+            # shared lock.
             return func(*args, **kwargs)
-    return ans
+    return call_func_with_lock
 
 def run_import_plugins(path_or_stream, fmt):
     fmt = fmt.lower()

@@ -464,7 +464,7 @@ class Parser(SearchQueryParser):  # {{{
         return self.all_book_ids
 
     def field_iter(self, name, candidates):
-        get_metadata = partial(self.dbcache._get_metadata, get_user_categories=False)
+        get_metadata = self.dbcache._get_proxy_metadata
         try:
             field = self.dbcache.fields[name]
         except KeyError:
