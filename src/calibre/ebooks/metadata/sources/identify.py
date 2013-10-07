@@ -537,14 +537,13 @@ def urls_from_identifiers(identifiers):  # {{{
     if oclc:
         ans.append(('OCLC', 'oclc', oclc,
             'http://www.worldcat.org/oclc/'+oclc))
-    url = identifiers.get('uri', None)
-    if url is None:
-        url = identifiers.get('url', None)
-    if url and url.startswith('http'):
-        url = url[:8].replace('|', ':') + url[8:].replace('|', ',')
-        parts = urlparse(url)
-        name = parts.netloc
-        ans.append((name, 'url', url, url))
+    for x in ('uri', 'url'):
+        url = identifiers.get(x, None)
+        if url and url.startswith('http'):
+            url = url[:8].replace('|', ':') + url[8:].replace('|', ',')
+            parts = urlparse(url)
+            name = parts.netloc
+            ans.append((name, x, url, url))
     return ans
 # }}}
 
