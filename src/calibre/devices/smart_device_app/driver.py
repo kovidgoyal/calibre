@@ -682,6 +682,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return None
 
     def _metadata_in_cache(self, uuid, ext, lastmod):
+        if lastmod == 'None':
+            return None
         from calibre.utils.date import parse_date, now
         key = uuid+ext
         if isinstance(lastmod, unicode):
