@@ -22,6 +22,7 @@ class TweakBook(QDialog):
 
     def __init__(self, parent, book_id, fmts, db):
         QDialog.__init__(self, parent)
+        self.setWindowIcon(QIcon(I('tweak.png')))
         self.book_id, self.fmts, self.db_ref = book_id, fmts, weakref.ref(db)
         self._exploded = None
         self._cleanup_dirs = []
@@ -54,7 +55,7 @@ class TweakBook(QDialog):
         self.rebuild_button.setEnabled(False)
         self.explode_button.setEnabled(True)
 
-    def setup_ui(self): # {{{
+    def setup_ui(self):  # {{{
         self._g = g = QHBoxLayout(self)
         self.setLayout(g)
         self._l = l = QVBoxLayout()
@@ -285,7 +286,7 @@ class TweakBook(QDialog):
 class TweakEpubAction(InterfaceAction):
 
     name = 'Tweak ePub'
-    action_spec = (_('Tweak Book'), 'trim.png',
+    action_spec = (_('Tweak Book'), 'tweak.png',
             _('Make small changes to ePub, HTMLZ or AZW3 format books'),
             _('T'))
     dont_add_to = frozenset(['context-menu-device'])
