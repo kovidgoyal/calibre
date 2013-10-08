@@ -1692,6 +1692,15 @@ class StoreWHSmithUKStore(StoreBase):
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
 
+class StoreWolneLekturyStore(StoreBase):
+    name = 'Wolne Lektury'
+    author = u'Tomasz Długosz'
+    description = u'Wolne Lektury to biblioteka internetowa czynna 24 godziny na dobę, 365 dni w roku, której zasoby dostępne są całkowicie za darmo. Wszystkie dzieła są odpowiednio opracowane - opatrzone przypisami, motywami i udostępnione w kilku formatach - HTML, TXT, PDF, EPUB, MOBI, FB2.'
+    actual_plugin = 'calibre.gui2.store.stores.wolnelektury_plugin:WolneLekturyStore'
+
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF', 'TXT', 'FB2']
+
 class StoreWoblinkStore(StoreBase):
     name = 'Woblink'
     author = u'Tomasz Długosz'
@@ -1759,6 +1768,7 @@ plugins += [
     StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
     StoreWHSmithUKStore,
+    StoreWolneLekturyStore,
     StoreWoblinkStore,
     XinXiiStore
 ]
