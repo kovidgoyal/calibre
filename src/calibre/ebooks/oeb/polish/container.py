@@ -495,6 +495,12 @@ class Container(object):  # {{{
         with open(dest, 'wb') as f:
             f.write(data)
 
+    def filesize(self, name):
+        if name in self.dirtied:
+            self.commit_item(name)
+        path = self.name_to_abspath(name)
+        return os.path.getsize(path)
+
     def open(self, name, mode='rb'):
         ''' Open the file pointed to by name for direct read/write. Note that
         this will commit the file if it is dirtied and remove it from the parse
