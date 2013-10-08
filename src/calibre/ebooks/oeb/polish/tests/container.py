@@ -35,7 +35,7 @@ class ContainerTests(BaseTest):
                 self.assertIn(name, c2.name_path_map)
                 self.assertEqual(c1.open(name).read(), c2.open(name).read(), 'The file %s differs' % name)
 
-            spine_names = tuple(c1.spine_names)
+            spine_names = tuple(x[0] for x in c1.spine_names)
             text = spine_names[0]
             root = c2.parsed(text)
             root.xpath('//*[local-name()="body"]')[0].set('id', 'changed id for test')

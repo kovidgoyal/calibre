@@ -319,15 +319,15 @@ class Container(object):  # {{{
             path = self.name_path_map.get(name, None)
             if path:
                 if item.get('linear', 'yes') == 'yes':
-                    yield name
+                    yield name, True
                 else:
                     non_linear.append(name)
         for name in non_linear:
-            yield name
+            yield name, False
 
     @property
     def spine_items(self):
-        for name in self.spine_names:
+        for name, linear in self.spine_names:
             yield self.name_path_map[name]
 
     def remove_item(self, name):
