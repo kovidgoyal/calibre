@@ -60,17 +60,20 @@ class WolneLekturyStore(BasicStoreConfig, StorePlugin):
                 title = ''.join(data.xpath('.//div[@class="title"]/a[1]/text()'))
                 author = ', '.join(data.xpath('.//div[@class="mono author"]/a/text()'))
                 price = '0,00 zł'
-                formats = ', '.join(data.xpath('.//div[@class="book-box-formats mono"]/span/a/text()'))
 
                 counter -= 1
 
                 s = SearchResult()
+                for link in data.xpath('.//div[@class="book-box-formats mono"]/span/a'):
+                    ext = ''.join(link.xpath('./text()'))
+                    href = 'http://wolnelektury.pl' + link.get('href')
+                    s.downloads[ext] = href
                 s.cover_url = 'http://wolnelektury.pl' + cover_url.strip()
                 s.title = title.strip()
                 s.author = author
                 s.price = price
                 s.detail_item = 'http://wolnelektury.pl' + id
-                s.formats = formats.upper().strip()
+                s.formats = ', '.join(s.downloads.keys())
                 s.drm = SearchResult.DRM_UNLOCKED
 
                 yield s
