@@ -497,7 +497,7 @@ class Container(object):  # {{{
 
     def filesize(self, name):
         if name in self.dirtied:
-            self.commit_item(name)
+            self.commit_item(name, keep_parsed=True)
         path = self.name_to_abspath(name)
         return os.path.getsize(path)
 
