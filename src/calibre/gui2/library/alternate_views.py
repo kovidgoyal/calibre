@@ -731,6 +731,16 @@ class GridView(QListView):
             sel.merge(QItemSelection(m.index(min(group), 0), m.index(max(group), 0)), sm.Select)
         sm.select(sel, sm.ClearAndSelect)
 
+    def selectAll(self):
+        # We re-implement this to ensure that only indexes from column 0 are
+        # selected. The base class implementation selects all columns. This
+        # causes problems with selection syncing, see
+        # https://bugs.launchpad.net/bugs/1236348
+        m = self.model()
+        sm = self.selectionModel()
+        sel = QItemSelection(m.index(0, 0), m.index(m.rowCount(QModelIndex())-1, 0))
+        sm.select(sel, sm.ClearAndSelect)
+
     def set_current_row(self, row):
         sm = self.selectionModel()
         sm.setCurrentIndex(self.model().index(row, 0), sm.NoUpdate)
