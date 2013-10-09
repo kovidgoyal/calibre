@@ -14,10 +14,17 @@ from calibre import guess_type, human_readable
 from calibre.ebooks.oeb.base import OEB_STYLES
 from calibre.gui2.tweak_book import current_container
 
-ICON_SIZE = 24
+TOP_ICON_SIZE = 24
 NAME_ROLE = Qt.UserRole
+NBSP = '\xa0'
 
-class ItemDelegate(QStyledItemDelegate):
+class ItemDelegate(QStyledItemDelegate):  # {{{
+
+    def initStyleOption(self, option, index):
+        QStyledItemDelegate.initStyleOption(self, option, index)
+        top_level = not index.parent().isValid()
+        if top_level:
+            option.decorationSize = QSize(TOP_ICON_SIZE, TOP_ICON_SIZE)
 
     def sizeHint(self, option, index):
         ans = QStyledItemDelegate.sizeHint(self, option, index)
@@ -30,9 +37,9 @@ class ItemDelegate(QStyledItemDelegate):
         hover = option.state & QStyle.State_MouseOver
         if hover:
             if top_level:
-                suffix = '\xa0(%d)' % index.model().rowCount(index)
+                suffix = '%s(%d)' % (NBSP, index.model().rowCount(index))
             else:
-                suffix = '\xa0' + human_readable(current_container().filesize(unicode(index.data(NAME_ROLE).toString())))
+                suffix = NBSP + human_readable(current_container().filesize(unicode(index.data(NAME_ROLE).toString())))
             br = painter.boundingRect(option.rect, Qt.AlignRight|Qt.AlignVCenter, suffix)
         if top_level and index.row() > 0:
             option.rect.adjust(0, 5, 0, 0)
@@ -44,6 +51,7 @@ class ItemDelegate(QStyledItemDelegate):
         if hover:
             option.rect.adjust(0, 0, br.width(), 0)
             painter.drawText(option.rect, Qt.AlignRight|Qt.AlignVCenter, suffix)
+# }}}
 
 class FileList(QTreeWidget):
 
@@ -52,7 +60,6 @@ class FileList(QTreeWidget):
         self.delegate = ItemDelegate(self)
         self.setTextElideMode(Qt.ElideMiddle)
         self.setItemDelegate(self.delegate)
-        self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.header().close()
         self.setDragEnabled(True)
         self.setSelectionMode(self.ExtendedSelection)
@@ -60,7 +67,7 @@ class FileList(QTreeWidget):
         self.setDropIndicatorShown(True)
         self.setDragDropMode(self.InternalMove)
         self.setAutoScroll(True)
-        self.setAutoScrollMargin(ICON_SIZE*2)
+        self.setAutoScrollMargin(TOP_ICON_SIZE*2)
         self.setDefaultDropAction(Qt.MoveAction)
         self.setAutoExpandDelay(1000)
         self.setAnimated(True)
