@@ -410,7 +410,7 @@ class EPUBOutput(OutputFormatPlugin):
             for tag in XPath('//h:embed')(root):
                 tag.getparent().remove(tag)
             for tag in XPath('//h:object')(root):
-                if tag.get('type', '').lower().strip() in ('image/svg+xml',):
+                if tag.get('type', '').lower().strip() in {'image/svg+xml', 'application/svg+xml'}:
                     continue
                 tag.getparent().remove(tag)
 
