@@ -539,9 +539,14 @@ class OPDSServer(object):
             try:
                 p = which.index(':')
                 category = which[p+1:]
+                which = which[:p]
+                # This line will toss an exception for composite columns
                 which = int(which[:p])
             except:
-                raise cherrypy.HTTPError(404, 'Tag %r not found'%which)
+                # Might be a composite column, where we have the lookup key
+                if not (category in self.db.field_metadata and
+                        self.db.field_metadata[category]['datatype'] == 'composite'):
+                    raise cherrypy.HTTPError(404, 'Tag %r not found'%which)
 
         categories = self.categories_cache(
                 self.get_opds_allowed_ids_for_version(version))
