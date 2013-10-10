@@ -690,6 +690,7 @@ class BooksView(QTableView):  # {{{
         self.alternate_views.set_database(db, stage=1)
 
     def marked_changed(self, old_marked, current_marked):
+        self.alternate_views.marked_changed(old_marked, current_marked)
         if bool(old_marked) == bool(current_marked):
             changed = old_marked | current_marked
             sections = tuple(map(self.model().db.data.id_to_index, changed))

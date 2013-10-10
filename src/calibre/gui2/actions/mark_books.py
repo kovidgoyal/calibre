@@ -72,7 +72,7 @@ class MarkBooksAction(InterfaceAction):
     def about_to_show_menu(self):
         db = self.gui.current_db
         num = len(db.data.marked_ids)
-        text = ngettext('Show marked book', 'Show marked books (%d)' % num, num)
+        text = _('Show marked book') if num == 1 else (_('Show marked books') + (' (%d)' % num))
         self.show_marked_action.setText(text)
 
     def location_selected(self, loc):

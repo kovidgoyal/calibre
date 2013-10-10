@@ -300,6 +300,10 @@ class AlternateViews(object):
             if self.current_book_state[0] is self.current_view:
                 self.current_view.restore_current_book_state(self.current_book_state[1])
             self.current_book_state = None
+
+    def marked_changed(self, old_marked, current_marked):
+        if self.current_view is not self.main_view:
+            self.current_view.marked_changed(old_marked, current_marked)
 # }}}
 
 # Rendering of covers {{{
@@ -818,4 +822,11 @@ class GridView(QListView):
         self.set_current_row(row)
         self.select_rows((row,))
         self.scrollTo(self.model().index(row, 0), self.PositionAtCenter)
+
+    def marked_changed(self, old_marked, current_marked):
+        changed = old_marked | current_marked
+        m = self.model()
+        for book_id in changed:
+            self.update(m.index(m.db.data.id_to_index(book_id), 0))
+
 # }}}
