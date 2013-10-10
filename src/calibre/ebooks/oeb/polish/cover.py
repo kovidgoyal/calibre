@@ -33,6 +33,21 @@ def set_azw3_cover(container, cover_path, report):
     container.dirty(container.opf_name)
     report('Cover updated' if found else 'Cover inserted')
 
+def get_azw3_raster_cover_name(container):
+    items = container.opf_xpath('//opf:guide/opf:reference[@href and contains(@type, "cover")]')
+    if items:
+        return container.href_to_name(items[0].get('href'))
+
+def get_raster_cover_name(container):
+    if container.book_type == 'azw3':
+        return get_azw3_raster_cover_name(container)
+    return find_cover_image(container, strict=True)
+
+def get_cover_page_name(container):
+    if container.book_type == 'azw3':
+        return
+    return find_cover_page(container)
+
 def set_cover(container, cover_path, report):
     if container.book_type == 'azw3':
         set_azw3_cover(container, cover_path, report)
@@ -52,7 +67,7 @@ COVER_TYPES = {
     'other.ms-coverimage', 'other.ms-thumbimage-standard',
     'other.ms-thumbimage', 'thumbimagestandard', 'cover'}
 
-def find_cover_image(container):
+def find_cover_image(container, strict=False):
     'Find a raster image marked as a cover in the OPF'
     manifest_id_map = container.manifest_id_map
     mm = container.mime_map
@@ -68,6 +83,9 @@ def find_cover_image(container):
     for ref_type, name in guide_type_map.iteritems():
         if ref_type.lower() == 'cover' and is_raster_image(mm.get(name, None)):
             return name
+
+    if strict:
+        return
 
     # Find the largest image from all possible guide cover items
     largest_cover = (None, 0)
