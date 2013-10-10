@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 1  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import random
 from contextlib import closing
 
 from lxml import html
@@ -32,7 +31,7 @@ class AmazonCAKindleStore(StorePlugin):
     def open(self, parent=None, detail_item=None, external=False):
         #aff_id = {'tag': ''}
         # Use Kovid's affiliate id 30% of the time.
-        #if random.randint(1, 10) in (1, 2, 3):
+        # if random.randint(1, 10) in (1, 2, 3):
         #    aff_id['tag'] = 'calibrebs-20'
         # store_link = 'http://www.amazon.ca/Kindle-eBooks/b/?ie=UTF&node=1286228011&ref_=%(tag)s&ref=%(tag)s&tag=%(tag)s&linkCode=ur2&camp=1789&creative=390957' % aff_id
         store_link = 'http://www.amazon.ca/ebooks-kindle/b/ref=sa_menu_kbo?ie=UTF8&node=2980423011'

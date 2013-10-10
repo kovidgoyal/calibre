@@ -15,7 +15,7 @@ from calibre.utils.date import now as nowf
 import os, datetime, re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from contextlib import nested
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
@@ -92,7 +92,7 @@ class AppleDaily(BasicNewsRecipe):
         except:
             cover = None
         return cover
-        
+
     def populate_article_metadata(self, article, soup, first):
         if first and hasattr(self, 'add_toc_thumbnail'):
             picdiv = soup.find('img')
@@ -112,7 +112,7 @@ class AppleDaily(BasicNewsRecipe):
                 articles.append({'title': title, 'url': articlelink})
             feeds.append((sectitle, articles))
         return feeds
-        
+
     def create_opf(self, feeds, dir=None):
         if dir is None:
             dir = self.output_dir
