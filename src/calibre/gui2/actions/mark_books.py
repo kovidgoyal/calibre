@@ -50,7 +50,7 @@ class MarkBooksAction(InterfaceAction):
             self.toggle_ids(book_ids)
 
     def genesis(self):
-        self.qaction.triggered.connect(self.toolbar_triggered)
+        self.qaction.triggered.connect(self.toggle_selected)
         self.menu = m = self.qaction.menu()
         m.aboutToShow.connect(self.about_to_show_menu)
         ma = partial(self.create_menu_action, m)
@@ -69,6 +69,22 @@ class MarkBooksAction(InterfaceAction):
         self.unmark_series_action = a = ma('unmark-series', _('Clear all books in the selected series'), icon='minus.png')
         a.triggered.connect(partial(self.mark_field, 'series', False))
 
+    def gui_layout_complete(self):
+        for x in self.gui.bars_manager.main_bars + self.gui.bars_manager.child_bars:
+            try:
+                w = x.widgetForAction(self.qaction)
+                w.installEventFilter(self)
+            except:
+                continue
+
+    def eventFilter(self, obj, ev):
+        if ev.type() == ev.MouseButtonPress and ev.button() == Qt.LeftButton:
+            mods = QApplication.keyboardModifiers()
+            if mods & Qt.ControlModifier or mods & Qt.ShiftModifier:
+                self.show_marked()
+                return True
+        return False
+
     def about_to_show_menu(self):
         db = self.gui.current_db
         num = len(db.data.marked_ids)
@@ -78,13 +94,6 @@ class MarkBooksAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
-
-    def toolbar_triggered(self):
-        mods = QApplication.keyboardModifiers()
-        if mods & Qt.ControlModifier or mods & Qt.ShiftModifier:
-            self.show_marked()
-        else:
-            self.toggle_selected()
 
     def toggle_selected(self):
         book_ids = self._get_selected_ids()
