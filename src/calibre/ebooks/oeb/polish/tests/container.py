@@ -57,3 +57,19 @@ class ContainerTests(BaseTest):
             for c in (c1, c2):
                 c.commit(outpath=x)
 
+    def test_file_removal(self):
+        ' Test removal of files from the container '
+        book = get_simple_book()
+        c = get_container(book, tdir=self.tdir)
+        files = ('toc.ncx', 'cover.png', 'titlepage.xhtml')
+        self.assertIn('titlepage.xhtml', {x[0] for x in c.spine_names})
+        self.assertTrue(c.opf_xpath('//opf:meta[@name="cover"]'))
+        for x in files:
+            c.remove_item(x)
+        self.assertIn(c.opf_name, c.dirtied)
+        self.assertNotIn('titlepage.xhtml', {x[0] for x in c.spine_names})
+        self.assertFalse(c.opf_xpath('//opf:meta[@name="cover"]'))
+        raw = c.serialize_item(c.opf_name).decode('utf-8')
+        for x in files:
+            self.assertNotIn(x, raw)
+

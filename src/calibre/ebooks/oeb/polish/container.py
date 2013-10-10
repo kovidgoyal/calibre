@@ -345,10 +345,21 @@ class Container(object):  # {{{
                 self.remove_from_xml(elem)
                 self.dirty(self.opf_name)
         if removed:
+            for spine in self.opf_xpath('//opf:spine'):
+                tocref = spine.attrib.get('toc', None)
+                if tocref and tocref in removed:
+                    spine.attrib.pop('toc', None)
+                    self.dirty(self.opf_name)
+
             for item in self.opf_xpath('//opf:spine/opf:itemref[@idref]'):
                 idref = item.get('idref')
                 if idref in removed:
                     self.remove_from_xml(item)
+                    self.dirty(self.opf_name)
+
+            for meta in self.opf_xpath('//opf:meta[@name="cover" and @content]'):
+                if meta.get('content') in removed:
+                    self.remove_from_xml(meta)
                     self.dirty(self.opf_name)
 
         for item in self.opf_xpath('//opf:guide/opf:reference[@href]'):
