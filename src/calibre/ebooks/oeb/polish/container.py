@@ -12,6 +12,7 @@ from collections import defaultdict
 from io import BytesIO
 from urllib import unquote as urlunquote, quote as urlquote
 from urlparse import urlparse
+from future_builtins import zip
 
 from lxml import etree
 
@@ -228,6 +229,14 @@ class Container(object):  # {{{
         data, self.used_encoding = xml_to_unicode(data)
         return fix_data(data)
 
+    @property
+    def names_that_need_not_be_manifested(self):
+        return {self.opf_name}
+
+    @property
+    def names_that_must_not_be_removed(self):
+        return {self.opf_name}
+
     def parse_xml(self, data):
         data, self.used_encoding = xml_to_unicode(
             data, strip_encoding_pats=True, assume_utf8=True, resolve_entities=True)
@@ -309,9 +318,8 @@ class Container(object):  # {{{
             for item in self.opf_xpath('//opf:guide/opf:reference[@href and @type]')}
 
     @property
-    def spine_names(self):
+    def spine_iter(self):
         manifest_id_map = self.manifest_id_map
-
         non_linear = []
         for item in self.opf_xpath('//opf:spine/opf:itemref[@idref]'):
             idref = item.get('idref')
@@ -319,16 +327,33 @@ class Container(object):  # {{{
             path = self.name_path_map.get(name, None)
             if path:
                 if item.get('linear', 'yes') == 'yes':
-                    yield name, True
+                    yield item, name, True
                 else:
-                    non_linear.append(name)
-        for name in non_linear:
-            yield name, False
+                    non_linear.append((item, name))
+        for item, name in non_linear:
+            yield item, name, False
+
+    @property
+    def spine_names(self):
+        for item, name, linear in self.spine_iter:
+            yield name, linear
 
     @property
     def spine_items(self):
         for name, linear in self.spine_names:
             yield self.name_path_map[name]
+
+    def remove_from_spine(self, spine_items, remove_if_no_longer_in_spine=True):
+        nixed = set()
+        for (name, remove), (item, xname, linear) in zip(spine_items, self.spine_iter):
+            if remove and name == xname:
+                self.remove_from_xml(item)
+                nixed.add(name)
+        if remove_if_no_longer_in_spine:
+            # Remove from the book if no longer in spine
+            nixed -= {name for name, linear in self.spine_names}
+            for name in nixed:
+                self.remove_item(name)
 
     def remove_item(self, name):
         '''
@@ -623,6 +648,34 @@ class EpubContainer(Container):
         ans['container'] = copy.deepcopy(self.container)
         return ans
 
+    @property
+    def names_that_need_not_be_manifested(self):
+        return super(EpubContainer, self).names_that_need_not_be_manifested | {'META-INF/' + x for x in self.META_INF}
+
+    @property
+    def names_that_must_not_be_removed(self):
+        return super(EpubContainer, self).names_that_must_not_be_removed | {'META-INF/container.xml'}
+
+    def remove_item(self, name):
+        # Handle removal of obfuscated fonts
+        if name == 'META-INF/encryption.xml':
+            self.obfuscated_fonts.clear()
+        if name in self.obfuscated_fonts:
+            self.obfuscated_fonts.pop(name, None)
+            enc = self.parsed('META-INF/encryption.xml')
+            for em in enc.xpath('//*[local-name()="EncryptionMethod" and @Algorithm]'):
+                alg = em.get('Algorithm')
+                if alg not in {ADOBE_OBFUSCATION, IDPF_OBFUSCATION}:
+                    continue
+                try:
+                    cr = em.getparent().xpath('descendant::*[local-name()="CipherReference" and @URI]')[0]
+                except (IndexError, ValueError, KeyError):
+                    continue
+                if name == self.href_to_name(cr.get('URI')):
+                    self.remove_from_xml(em.getparent())
+                    self.dirty('META-INF/encryption.xml')
+        super(EpubContainer, self).remove_item(name)
+
     def process_encryption(self):
         fonts = {}
         enc = self.parsed('META-INF/encryption.xml')
@@ -630,7 +683,10 @@ class EpubContainer(Container):
             alg = em.get('Algorithm')
             if alg not in {ADOBE_OBFUSCATION, IDPF_OBFUSCATION}:
                 raise DRMError()
-            cr = em.getparent().xpath('descendant::*[local-name()="CipherReference" and @URI]')[0]
+            try:
+                cr = em.getparent().xpath('descendant::*[local-name()="CipherReference" and @URI]')[0]
+            except (IndexError, ValueError, KeyError):
+                continue
             name = self.href_to_name(cr.get('URI'))
             path = self.name_path_map.get(name, None)
             if path is not None:

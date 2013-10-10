@@ -8,15 +8,18 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt4.Qt import (
     QWidget, QTreeWidget, QGridLayout, QSize, Qt, QTreeWidgetItem, QIcon,
-    QStyledItemDelegate, QStyle, QPixmap, QPainter)
+    QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal)
 
-from calibre import guess_type, human_readable
+from calibre import human_readable
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
+from calibre.ebooks.oeb.polish.container import guess_type
 from calibre.ebooks.oeb.polish.cover import get_cover_page_name, get_raster_cover_name
+from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import current_container
 
 TOP_ICON_SIZE = 24
 NAME_ROLE = Qt.UserRole
+CATEGORY_ROLE = NAME_ROLE + 1
 NBSP = '\xa0'
 
 class ItemDelegate(QStyledItemDelegate):  # {{{
@@ -49,6 +52,8 @@ class ItemDelegate(QStyledItemDelegate):  # {{{
 # }}}
 
 class FileList(QTreeWidget):
+
+    delete_requested = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
@@ -116,7 +121,7 @@ class FileList(QTreeWidget):
         for names in container.manifest_type_map.itervalues():
             manifested_names |= set(names)
 
-        font_types = {guess_type('a.'+x)[0] for x in ('ttf', 'otf', 'woff')}
+        font_types = {guess_type('a.'+x) for x in ('ttf', 'otf', 'woff')}
 
         def get_category(mt):
             category = 'misc'
@@ -171,8 +176,10 @@ class FileList(QTreeWidget):
                     icon = self.rendered_emblem_cache[emblems] = canvas
             item.setData(0, Qt.DecorationRole, icon)
 
+        ok_to_be_unmanifested = container.names_that_need_not_be_manifested
+
         def create_item(name, linear=None):
-            imt = container.mime_map.get(name, guess_type(name)[0])
+            imt = container.mime_map.get(name, guess_type(name))
             icat = get_category(imt)
             category = 'text' if linear is not None else ({'text':'misc'}.get(icat, icat))
             item = QTreeWidgetItem(self.categories['text' if linear is not None else category], 1)
@@ -182,12 +189,13 @@ class FileList(QTreeWidget):
             item.setFlags(flags)
             item.setStatusTip(0, _('Full path: ') + name)
             item.setData(0, NAME_ROLE, name)
+            item.setData(0, CATEGORY_ROLE, category)
             set_display_name(name, item)
             # TODO: Add appropriate tooltips based on the emblems
             emblems = []
             if name in {cover_page_name, cover_image_name}:
                 emblems.append('default_cover.png')
-            if name not in manifested_names and name not in {container.opf_name, 'META-INF/container.xml', 'META-INF/encryption.xml'}:
+            if name not in manifested_names and name not in ok_to_be_unmanifested:
                 emblems.append('dialog_question.png')
             if linear is False:
                 emblems.append('arrow-down.png')
@@ -205,7 +213,7 @@ class FileList(QTreeWidget):
             processed[name] = create_item(name, linear=linear)
 
         all_files = list(container.manifest_type_map.iteritems())
-        all_files.append((guess_type('a.opf')[0], [container.opf_name]))
+        all_files.append((guess_type('a.opf'), [container.opf_name]))
 
         for name in container.name_path_map:
             if name in processed:
@@ -218,7 +226,45 @@ class FileList(QTreeWidget):
     def show_context_menu(self, point):
         pass
 
+    def keyPressEvent(self, ev):
+        if ev.key() in (Qt.Key_Delete, Qt.Key_Backspace):
+            ev.accept()
+            self.request_delete()
+        else:
+            return QTreeWidget.keyPressEvent(self, ev)
+
+    def request_delete(self):
+        names = {unicode(item.data(0, NAME_ROLE).toString()) for item in self.selectedItems()}
+        bad = names & current_container().names_that_must_not_be_removed
+        if bad:
+            return error_dialog(self, _('Cannot delete'),
+                         _('The file(s) %s cannot be deleted.') % ('<b>%s</b>' % ', '.join(bad)), show=True)
+
+        text = self.categories['text']
+        children = (text.child(i) for i in xrange(text.childCount()))
+        spine_removals = [(unicode(item.data(0, NAME_ROLE).toString()), item.isSelected()) for item in children]
+        other_removals = {unicode(item.data(0, NAME_ROLE).toString()) for item in self.selectedItems()
+                          if unicode(item.data(0, CATEGORY_ROLE).toString()) != 'text'}
+        self.delete_requested.emit(spine_removals, other_removals)
+
+    def delete_done(self, spine_removals, other_removals):
+        removals = []
+        for i, (name, remove) in enumerate(spine_removals):
+            if remove:
+                removals.append(self.categories['text'].child(i))
+        for category, parent in self.categories.iteritems():
+            if category != 'text':
+                for i in xrange(parent.childCount()):
+                    child = parent.child(i)
+                    if unicode(child.data(0, NAME_ROLE).toString()) in other_removals:
+                        removals.append(child)
+
+        for c in removals:
+            c.parent().removeChild(c.parent().indexOfChild(c))
+
 class FileListWidget(QWidget):
+
+    delete_requested = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -226,6 +272,8 @@ class FileListWidget(QWidget):
         self.file_list = FileList(self)
         self.layout().addWidget(self.file_list)
         self.layout().setContentsMargins(0, 0, 0, 0)
+        for x in ('delete_requested',):
+            getattr(self.file_list, x).connect(getattr(self, x))
 
     def build(self, container):
         self.file_list.build(container)
