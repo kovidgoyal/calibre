@@ -11,7 +11,7 @@ from PyQt4.Qt import (
     QStyledItemDelegate, QStyle, QPixmap, QPainter)
 
 from calibre import guess_type, human_readable
-from calibre.ebooks.oeb.base import OEB_STYLES
+from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
 from calibre.ebooks.oeb.polish.cover import get_cover_page_name, get_raster_cover_name
 from calibre.gui2.tweak_book import current_container
 
@@ -108,15 +108,7 @@ class FileList(QTreeWidget):
                 flags |= Qt.ItemIsDropEnabled
             i.setFlags(flags)
 
-        processed, seen = set(), {}
-
-        def get_display_name(name, item):
-            parts = name.split('/')
-            text = parts[-1]
-            while text in seen and parts:
-                text = parts.pop() + '/' + text
-            seen[text] = item
-            return text
+        processed, seen = {}, {}
 
         cover_page_name = get_cover_page_name(container)
         cover_image_name = get_raster_cover_name(container)
@@ -124,14 +116,35 @@ class FileList(QTreeWidget):
         for names in container.manifest_type_map.itervalues():
             manifested_names |= set(names)
 
-        def add_emblems(item, name, linear=True):
-            emblems = []
-            if name in {cover_page_name, cover_image_name}:
-                emblems.append('default_cover.png')
-            if name not in manifested_names and name not in {container.opf_name, 'META-INF/container.xml', 'META-INF/encryption.xml'}:
-                emblems.append('dialog_question.png')
-            if not linear:
-                emblems.append('arrow-down.png')
+        font_types = {guess_type('a.'+x)[0] for x in ('ttf', 'otf', 'woff')}
+
+        def get_category(mt):
+            category = 'misc'
+            if mt.startswith('image/'):
+                category = 'images'
+            elif mt in font_types:
+                category = 'fonts'
+            elif mt in OEB_STYLES:
+                category = 'styles'
+            elif mt in OEB_DOCS:
+                category = 'text'
+            return category
+
+        def set_display_name(name, item):
+            if name in processed:
+                # We have an exact duplicate (can happen if there are
+                # duplicates in the spine)
+                item.setText(0, processed[name].text(0))
+                return
+
+            parts = name.split('/')
+            text = parts[-1]
+            while text in seen and parts:
+                text = parts.pop() + '/' + text
+            seen[text] = item
+            item.setText(0, text)
+
+        def render_emblems(item, emblems):
             emblems = tuple(emblems)
             if not emblems:
                 return
@@ -158,27 +171,38 @@ class FileList(QTreeWidget):
                     icon = self.rendered_emblem_cache[emblems] = canvas
             item.setData(0, Qt.DecorationRole, icon)
 
+        def create_item(name, linear=None):
+            imt = container.mime_map.get(name, guess_type(name)[0])
+            icat = get_category(imt)
+            category = 'text' if linear is not None else ({'text':'misc'}.get(icat, icat))
+            item = QTreeWidgetItem(self.categories['text' if linear is not None else category], 1)
+            flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable
+            if category == 'text':
+                flags |= Qt.ItemIsDragEnabled
+            item.setFlags(flags)
+            item.setStatusTip(0, _('Full path: ') + name)
+            item.setData(0, NAME_ROLE, name)
+            set_display_name(name, item)
+            # TODO: Add appropriate tooltips based on the emblems
+            emblems = []
+            if name in {cover_page_name, cover_image_name}:
+                emblems.append('default_cover.png')
+            if name not in manifested_names and name not in {container.opf_name, 'META-INF/container.xml', 'META-INF/encryption.xml'}:
+                emblems.append('dialog_question.png')
+            if linear is False:
+                emblems.append('arrow-down.png')
+            if linear is None and icat == 'text':
+                # Text item outside spine
+                emblems.append('dialog_warning.png')
+            if category == 'text' and name in processed:
+                # Duplicate entry in spine
+                emblems.append('dialog_warning.png')
+
+            render_emblems(item, emblems)
+            return item
+
         for name, linear in container.spine_names:
-            processed.add(name)
-            i = QTreeWidgetItem(self.categories['text'], 1)
-            prefix = '' if linear else '[nl] '
-            i.setText(0, prefix + get_display_name(name, i))
-            i.setStatusTip(0, _('Full path: ') + name)
-            i.setFlags(Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsSelectable)
-            i.setData(0, NAME_ROLE, name)
-            add_emblems(i, name, linear=linear)
-
-        font_types = {guess_type('a.'+x)[0] for x in ('ttf', 'otf', 'woff')}
-
-        def get_category(mt):
-            category = 'misc'
-            if mt.startswith('image/'):
-                category = 'images'
-            elif mt in font_types:
-                category = 'fonts'
-            elif mt in OEB_STYLES:
-                category = 'styles'
-            return category
+            processed[name] = create_item(name, linear=linear)
 
         all_files = list(container.manifest_type_map.iteritems())
         all_files.append((guess_type('a.opf')[0], [container.opf_name]))
@@ -186,15 +210,7 @@ class FileList(QTreeWidget):
         for name in container.name_path_map:
             if name in processed:
                 continue
-            processed.add(name)
-            imt = container.mime_map.get(name, guess_type(name)[0])
-            icat = get_category(imt)
-            i = QTreeWidgetItem(self.categories[icat], 1)
-            i.setText(0, get_display_name(name, i))
-            i.setStatusTip(0, _('Full path: ') + name)
-            i.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
-            i.setData(0, NAME_ROLE, name)
-            add_emblems(i, name)
+            processed[name] = create_item(name)
 
         for c in self.categories.itervalues():
             self.expandItem(c)
