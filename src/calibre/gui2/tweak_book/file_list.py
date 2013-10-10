@@ -128,7 +128,7 @@ class FileList(QTreeWidget):
             emblems = []
             if name in {cover_page_name, cover_image_name}:
                 emblems.append('default_cover.png')
-            if name not in manifested_names and name not in {container.opf_name, 'META_INF/container.xml', 'META_INF/encryption.xml'}:
+            if name not in manifested_names and name not in {container.opf_name, 'META-INF/container.xml', 'META-INF/encryption.xml'}:
                 emblems.append('dialog_question.png')
             if not linear:
                 emblems.append('arrow-down.png')
