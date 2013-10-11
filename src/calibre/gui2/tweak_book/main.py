@@ -40,7 +40,7 @@ def main(args=sys.argv):
     sys.excepthook = main.unhandled_exception
     main.show()
     if len(args) > 1:
-        main.open_book(args[1])
+        main.boss.open_book(args[1])
     app.exec_()
 
 if __name__ == '__main__':

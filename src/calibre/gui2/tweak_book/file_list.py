@@ -260,7 +260,7 @@ class FileList(QTreeWidget):
                         removals.append(child)
 
         for c in removals:
-            c.parent().removeChild(c.parent().indexOfChild(c))
+            c.parent().removeChild(c)
 
 class FileListWidget(QWidget):
 
@@ -274,6 +274,8 @@ class FileListWidget(QWidget):
         self.layout().setContentsMargins(0, 0, 0, 0)
         for x in ('delete_requested',):
             getattr(self.file_list, x).connect(getattr(self, x))
+        for x in ('delete_done',):
+            setattr(self, x, getattr(self.file_list, x))
 
     def build(self, container):
         self.file_list.build(container)
