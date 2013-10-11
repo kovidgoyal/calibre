@@ -959,6 +959,33 @@ class OPF(object):  # {{{
                         identifiers['isbn'] = val
         return identifiers
 
+    def set_identifiers(self, identifiers):
+        identifiers = identifiers.copy()
+        uuid_id = None
+        for attr in self.root.attrib:
+            if attr.endswith('unique-identifier'):
+                uuid_id = self.root.attrib[attr]
+                break
+
+        for x in self.XPath(
+            'descendant::*[local-name() = "identifier"]')(
+                    self.metadata):
+            xid = x.get('id', None)
+            is_package_identifier = uuid_id is not None and uuid_id == xid
+            typ = {val for attr, val in x.attrib.iteritems() if attr.endswith('scheme')}
+            if is_package_identifier:
+                typ = tuple(typ)
+                if typ and typ[0].lower() in identifiers:
+                    self.set_text(x, identifiers.pop(typ[0].lower()))
+                continue
+            if typ and not (typ & {'calibre', 'uuid'}):
+                x.getparent().remove(x)
+
+        for typ, val in identifiers.iteritems():
+            attrib = {'{%s}scheme'%self.NAMESPACES['opf']: typ.upper()}
+            self.set_text(self.create_metadata_element(
+                'identifier', attrib=attrib), unicode(val))
+
     @dynamic_property
     def application_id(self):
 

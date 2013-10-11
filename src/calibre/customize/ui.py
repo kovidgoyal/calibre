@@ -319,6 +319,19 @@ class ApplyNullMetadata(object):
 
 apply_null_metadata = ApplyNullMetadata()
 
+class ForceIdentifiers(object):
+
+    def __init__(self):
+        self.force_identifiers = False
+
+    def __enter__(self):
+        self.force_identifiers = True
+
+    def __exit__(self, *args):
+        self.force_identifiers = False
+
+force_identifiers = ForceIdentifiers()
+
 def get_file_type_metadata(stream, ftype):
     mi = MetaInformation(None, None)
 
@@ -346,6 +359,7 @@ def set_file_type_metadata(stream, mi, ftype):
                 with plugin:
                     try:
                         plugin.apply_null = apply_null_metadata.apply_null
+                        plugin.force_identifiers = force_identifiers.force_identifiers
                         plugin.set_metadata(stream, mi, ftype.lower().strip())
                         break
                     except:

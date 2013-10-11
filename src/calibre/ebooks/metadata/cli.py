@@ -9,7 +9,7 @@ ebook-meta
 import sys, os
 
 from calibre.utils.config import StringConfig
-from calibre.customize.ui import metadata_readers, metadata_writers
+from calibre.customize.ui import metadata_readers, metadata_writers, force_identifiers
 from calibre.ebooks.metadata.meta import get_metadata, set_metadata
 from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string, \
                     title_sort, MetaInformation
@@ -63,6 +63,11 @@ def config():
               help=_('Set the rating. Should be a number between 1 and 5.'))
     c.add_opt('isbn', ['--isbn'],
               help=_('Set the ISBN of the book.'))
+    c.add_opt('identifiers', ['--identifier'], action='append',
+              help=_('Set the identifiers for the book, can be specified multiple times.'
+                     ' For example: --identifier uri:http://acme.com --identifier isbn:12345'
+                     ' To remove an identifier, specify no value, --identifier isbn:'
+                     ' Note that for EPUB files, an identifier marked as the package identifier cannot be removed.'))
     c.add_opt('tags', ['--tags'],
               help=_('Set the tags for the book. Should be a comma separated list.'))
     c.add_opt('book_producer', ['-k', '--book-producer'],
@@ -114,7 +119,7 @@ def do_set_metadata(opts, mi, stream, stream_type):
     for pref in config().option_set.preferences:
         if pref.name in ('to_opf', 'from_opf', 'authors', 'title_sort',
                          'author_sort', 'get_cover', 'cover', 'tags',
-                         'lrf_bookid'):
+                         'lrf_bookid', 'identifiers'):
             continue
         val = getattr(opts, pref.name, None)
         if val is not None:
@@ -136,12 +141,20 @@ def do_set_metadata(opts, mi, stream, stream_type):
         mi.series_index = float(opts.series_index.strip())
     if getattr(opts, 'pubdate', None) is not None:
         mi.pubdate = parse_date(opts.pubdate, assume_utc=False, as_utc=False)
+    if getattr(opts, 'identifiers', None):
+        val = {k.strip():v.strip() for k, v in (x.partition(':')[0::2] for x in opts.identifiers)}
+        if val:
+            orig = mi.get_identifiers()
+            orig.update(val)
+            val = {k:v for k, v in orig.iteritems() if k and v}
+            mi.set_identifiers(val)
 
     if getattr(opts, 'cover', None) is not None:
         ext = os.path.splitext(opts.cover)[1].replace('.', '').upper()
         mi.cover_data = (ext, open(opts.cover, 'rb').read())
 
-    set_metadata(stream, mi, stream_type)
+    with force_identifiers:
+        set_metadata(stream, mi, stream_type)
 
 
 def main(args=sys.argv):
