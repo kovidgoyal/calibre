@@ -400,6 +400,8 @@ def _prefs():
             help=_('Add new formats to existing book records'))
     c.add_opt('installation_uuid', default=None, help='Installation UUID')
     c.add_opt('new_book_tags', default=[], help=_('Tags to apply to books added to the library'))
+    c.add_opt('mark_new_books', default=False, help=_(
+        'Mark newly added books. The mark is a temporary mark that is automatically removed when calibre is restarted.'))
 
     # these are here instead of the gui preferences because calibredb and
     # calibre server can execute searches

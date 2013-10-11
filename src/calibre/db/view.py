@@ -13,7 +13,7 @@ from itertools import izip, imap
 from future_builtins import map
 
 from calibre.ebooks.metadata import title_sort
-from calibre.utils.config_base import tweaks
+from calibre.utils.config_base import tweaks, prefs
 from calibre.db.write import uniq
 
 def sanitize_sort_field_name(field_metadata, field):
@@ -426,4 +426,6 @@ class View(object):
         ids = tuple(ids)
         self._map = ids + self._map
         self._map_filtered = ids + self._map_filtered
+        if prefs['mark_new_books']:
+            self.toggle_marked_ids(ids)
 
