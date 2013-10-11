@@ -730,27 +730,28 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                 '_metadata_cache.json')
         self.known_uuids = defaultdict(dict)
         self.known_metadata = {}
-        with open(cache_file_name, mode='rb') as fd:
-            try:
-                while True:
-                    rec_len = fd.readline()
-                    if len(rec_len) != 8:
-                        break
-                    raw = fd.read(int(rec_len))
-                    book = json.loads(raw.decode('utf-8'), object_hook=from_json)
-                    uuid = book.keys()[0]
-                    metadata = self.json_codec.raw_to_book(book[uuid]['book'],
-                                                        SDBook, self.PREFIX)
-                    book[uuid]['book'] = metadata
-                    self.known_uuids.update(book)
+        if os.path.exists(cache_file_name):
+            with open(cache_file_name, mode='rb') as fd:
+                try:
+                    while True:
+                        rec_len = fd.readline()
+                        if len(rec_len) != 8:
+                            break
+                        raw = fd.read(int(rec_len))
+                        book = json.loads(raw.decode('utf-8'), object_hook=from_json)
+                        uuid = book.keys()[0]
+                        metadata = self.json_codec.raw_to_book(book[uuid]['book'],
+                                                            SDBook, self.PREFIX)
+                        book[uuid]['book'] = metadata
+                        self.known_uuids.update(book)
 
-                    lpath = metadata.get('lpath')
-                    if lpath in self.known_metadata:
-                        self.known_uuids.pop(uuid, None)
-                    else:
-                        self.known_metadata[lpath] = metadata
-            except:
-                traceback.print_exc()
+                        lpath = metadata.get('lpath')
+                        if lpath in self.known_metadata:
+                            self.known_uuids.pop(uuid, None)
+                        else:
+                            self.known_metadata[lpath] = metadata
+                except:
+                    traceback.print_exc()
 
     def _write_metadata_cache(self):
         from calibre.utils.config import to_json
