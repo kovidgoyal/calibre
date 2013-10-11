@@ -827,6 +827,9 @@ class GridView(QListView):
         changed = old_marked | current_marked
         m = self.model()
         for book_id in changed:
-            self.update(m.index(m.db.data.id_to_index(book_id), 0))
+            try:
+                self.update(m.index(m.db.data.id_to_index(book_id), 0))
+            except ValueError:
+                pass
 
 # }}}
