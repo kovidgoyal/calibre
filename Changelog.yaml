@@ -20,6 +20,81 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.6.0
+  date: 2013-10-07
+
+  new features:
+    - title: "Temporary marking of books in the library"
+      description: "This allows you to select books from your calibre library manually and mark them. This 'mark' will remain until you restart calibre, or clear the marks. You can easily work with only the marked subset of books by right clicking the Mark Books button. To use this feature, go to Preferences->Toolbars and add the 'Mark Books' tool to the main toolbar."
+      type: major
+
+    - title: "Get Books: Add Wolne Lektury and Amazon (Canada) ebook stores"
+
+    - title: "DOCX Input: Handle hyperlinks in footnotes and endnotes"
+      tickets: [1232790]
+
+    - title: "Driver for Sunstech reader"
+      tickets: [1231590]
+
+    - title: "Allow using both uri: and url: identifiers to create two different arbitrary links instead of just one in the Book details panel"
+
+    - title: "E-book viewer: Make all keyboard shortcuts configurable"
+      tickets: [1232019]
+
+    - title: "Conversion: Add an option to not condense CSS rules for margin, padding, border, etc. Option is under the Look & Feel section of the conversion dialog."
+      tickets: [1233220]
+
+    - title: "calibredb: Allow setting of title sort field"
+      tickets: [1233711]
+
+    - title: "ebook-meta: Add an --identifier option to set identifiers."
+ 
+  bug fixes:
+    - title: "Fix a locking error when composite columns containing formats are used and formats are added/deleted."
+      tickets: [1233330]
+
+    - title: "EPUB Output: Do not strip <object> tags with type application/svg+xml in addition to those that use image/svg+xml."
+      tickets: [1236845]
+
+    - title: "Cover grid: Fix selecting all books with Ctrl+A causing subsequent deselects to not fully work."
+      tickets: [1236348]
+
+    - title: "HTMLZ Output: Fix long titles causing error when converting on windows."
+      tickets: [1235815]
+
+    - title: "Content server: Fix OPDS category links to composite columns"
+
+    - title: "E-book viewer: Fix regression that broke import/export of bookmarks"
+      tickets: [1231980]
+
+    - title: "E-book viewer: Use the default font size setting for the dictionary view as well."
+      tickets: [1232025]
+
+    - title: "DOCX Input: Avoid using the value attribute for simple numbered lists, to silence the asinine epubcheck"
+
+    - title: "HTML Input: Images linked by the poster attribute of the <video> tag are now recognized and processed."
+
+    - title: "DOCX Input: Fix erorr when converting docx files that have numbering defined with no associated character style."
+      tickets: [1232100]
+
+    - title: "EPUB Metadata: Implementing updating identifiers other than isbn in the epub file from calibre when polishing or exporting the epub"
+
+    - title: "Amazon metadata download: Fix parsing of some dates on amazon.de"
+      tickets: [1238125]
+
+  improved recipes:
+    - National Geographic Magazine
+    - New York Review of Books
+    - Focus (PL)
+    - Carta Capital
+    - AM 730 
+    - Ming Pao (HK)
+    - Neu Osnabrucker Zeitung
+
+  new recipes:
+    - title: Various Uruguayan news sources 
+      author: Carlos Alves
+     
 - version: 1.5.0
   date: 2013-09-26
 
