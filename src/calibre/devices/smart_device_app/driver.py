@@ -682,30 +682,36 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return None
 
     def _metadata_in_cache(self, uuid, ext, lastmod):
-        if lastmod == 'None':
-            return None
-        from calibre.utils.date import parse_date, now
-        key = uuid+ext
-        if isinstance(lastmod, unicode):
-            lastmod = parse_date(lastmod)
-        if key in self.known_uuids and self.known_uuids[key]['book'].last_modified == lastmod:
-            self.known_uuids[key]['last_used'] = now()
-            return self.known_uuids[key]['book'].deepcopy()
+        try:
+            from calibre.utils.date import parse_date, now
+            key = uuid+ext
+            if isinstance(lastmod, unicode):
+                if lastmod == 'None':
+                    return None
+                lastmod = parse_date(lastmod)
+            if key in self.known_uuids and self.known_uuids[key]['book'].last_modified == lastmod:
+                self.known_uuids[key]['last_used'] = now()
+                return self.known_uuids[key]['book'].deepcopy()
+        except:
+            traceback.print_exc()
         return None
 
     def _metadata_already_on_device(self, book):
-        v = self.known_metadata.get(book.lpath, None)
-        if v is not None:
-            # Metadata is the same if the uuids match, if the last_modified dates
-            # match, and if the height of the thumbnails is the same. The last
-            # is there to allow a device to demand a different thumbnail size
-            if (v.get('uuid', None) == book.get('uuid', None) and
-                    v.get('last_modified', None) == book.get('last_modified', None)):
-                v_thumb = v.get('thumbnail', None)
-                b_thumb = book.get('thumbnail', None)
-                if bool(v_thumb) != bool(b_thumb):
-                    return False
-                return not v_thumb or v_thumb[1] == b_thumb[1]
+        try:
+            v = self.known_metadata.get(book.lpath, None)
+            if v is not None:
+                # Metadata is the same if the uuids match, if the last_modified dates
+                # match, and if the height of the thumbnails is the same. The last
+                # is there to allow a device to demand a different thumbnail size
+                if (v.get('uuid', None) == book.get('uuid', None) and
+                        v.get('last_modified', None) == book.get('last_modified', None)):
+                    v_thumb = v.get('thumbnail', None)
+                    b_thumb = book.get('thumbnail', None)
+                    if bool(v_thumb) != bool(b_thumb):
+                        return False
+                    return not v_thumb or v_thumb[1] == b_thumb[1]
+        except:
+            traceback.print_exc()
         return False
 
     def _uuid_already_on_device(self, uuid, ext):
@@ -730,9 +736,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                 '_metadata_cache.json')
         self.known_uuids = defaultdict(dict)
         self.known_metadata = {}
-        if os.path.exists(cache_file_name):
-            with open(cache_file_name, mode='rb') as fd:
-                try:
+        try:
+            if os.path.exists(cache_file_name):
+                with open(cache_file_name, mode='rb') as fd:
                     while True:
                         rec_len = fd.readline()
                         if len(rec_len) != 8:
@@ -750,16 +756,24 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                             self.known_uuids.pop(uuid, None)
                         else:
                             self.known_metadata[lpath] = metadata
-                except:
-                    traceback.print_exc()
+        except:
+            traceback.print_exc()
+            self.known_uuids = defaultdict(dict)
+            self.known_metadata = {}
+            try:
+                if os.path.exists(cache_file_name):
+                    os.remove(cache_file_name)
+            except:
+                traceback.print_exc()
+
 
     def _write_metadata_cache(self):
         from calibre.utils.config import to_json
         cache_file_name = os.path.join(cache_dir(),
                            'device_drivers_' + self.__class__.__name__ +
                                 '_metadata_cache.json')
-        with open(cache_file_name, mode='wb') as fd:
-            try:
+        try:
+            with open(cache_file_name, mode='wb') as fd:
                 for uuid,book in self.known_uuids.iteritems():
                     json_metadata = defaultdict(dict)
                     json_metadata[uuid]['book'] = self.json_codec.encode_book_metadata(book['book'])
@@ -768,6 +782,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     fd.write("%0.7d\n"%(len(result)+1))
                     fd.write(result)
                     fd.write('\n')
+        except:
+            traceback.print_exc()
+            try:
+                if os.path.exists(cache_file_name):
+                    os.remove(cache_file_name)
             except:
                 traceback.print_exc()
 
