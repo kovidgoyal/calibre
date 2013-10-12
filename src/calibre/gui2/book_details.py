@@ -5,6 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
+from functools import partial
+
 from PyQt4.Qt import (QPixmap, QSize, QWidget, Qt, pyqtSignal, QUrl, QIcon,
     QPropertyAnimation, QEasingCurve, QApplication, QFontInfo, QAction,
     QSizePolicy, QPainter, QRect, pyqtProperty, QLayout, QPalette, QMenu,
@@ -164,8 +167,16 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
         elif field == 'formats':
             if isdevice:
                 continue
-            fmts = [u'<a href="format:%s:%s">%s</a>' % (mi.id, x, x) for x
-                        in mi.formats]
+            p = partial(prepare_string_for_xml, attribute=True)
+            path = ''
+            if mi.path:
+                h, t = os.path.split(mi.path)
+                path = '/'.join((os.path.basename(h), t))
+            data = ({
+                'fmt':x, 'path':p(path or ''), 'fname':p(mi.format_files.get(x, '')),
+                'ext':x.lower(), 'id':mi.id
+            } for x in mi.formats)
+            fmts = [u'<a title="{path}/{fname}.{ext}" href="format:{id}:{fmt}">{fmt}</a>'.format(**x) for x in data]
             ans.append((field, row % (name, u', '.join(fmts))))
         elif field == 'identifiers':
             urls = urls_from_identifiers(mi.identifiers)
