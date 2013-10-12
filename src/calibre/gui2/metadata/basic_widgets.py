@@ -892,8 +892,7 @@ class Cover(ImageView):  # {{{
     download_cover = pyqtSignal()
 
     def __init__(self, parent):
-        ImageView.__init__(self, parent)
-        self.show_size = True
+        ImageView.__init__(self, parent, show_size_pref_name='edit_metadata_cover_widget', default_show_size=True)
         self.dialog = parent
         self._cdata = None
         self.cdata_before_trim = None

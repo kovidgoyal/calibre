@@ -247,7 +247,7 @@ class ImageDropMixin(object):  # {{{
     def set_pixmap(self, pmap):
         self.setPixmap(pmap)
 
-    def contextMenuEvent(self, ev):
+    def build_context_menu(self):
         cm = QMenu(self)
         paste = cm.addAction(_('Paste Cover'))
         copy = cm.addAction(_('Copy Cover'))
@@ -255,7 +255,10 @@ class ImageDropMixin(object):  # {{{
             paste.setEnabled(False)
         copy.triggered.connect(self.copy_to_clipboard)
         paste.triggered.connect(self.paste_from_clipboard)
-        cm.exec_(ev.globalPos())
+        return cm
+
+    def contextMenuEvent(self, ev):
+        self.build_context_menu().exec_(ev.globalPos())
 
     def copy_to_clipboard(self):
         QApplication.instance().clipboard().setPixmap(self.get_pixmap())
@@ -276,19 +279,35 @@ class ImageView(QWidget, ImageDropMixin):  # {{{
     BORDER_WIDTH = 1
     cover_changed = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, show_size_pref_name=None, default_show_size=False):
         QWidget.__init__(self, parent)
+        self.show_size_pref_name = ('show_size_on_cover_' + show_size_pref_name) if show_size_pref_name else None
         self._pixmap = QPixmap(self)
         self.setMinimumSize(QSize(150, 200))
         ImageDropMixin.__init__(self)
         self.draw_border = True
         self.show_size = False
+        if self.show_size_pref_name:
+            self.show_size = gprefs.get(self.show_size_pref_name, default_show_size)
 
     def setPixmap(self, pixmap):
         if not isinstance(pixmap, QPixmap):
             raise TypeError('Must use a QPixmap')
         self._pixmap = pixmap
         self.updateGeometry()
+        self.update()
+
+    def build_context_menu(self):
+        m = ImageDropMixin.build_context_menu(self)
+        if self.show_size_pref_name:
+            text = _('Hide size in corner') if self.show_size else _('Show size in corner')
+            m.addAction(text, self.toggle_show_size)
+        return m
+
+    def toggle_show_size(self):
+        self.show_size ^= True
+        if self.show_size_pref_name:
+            gprefs[self.show_size_pref_name] = self.show_size
         self.update()
 
     def pixmap(self):
