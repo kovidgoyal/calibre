@@ -71,10 +71,10 @@ def finalize(shortcuts, custom_keys_map={}): # {{{
 
 class Manager(QObject): # {{{
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, config_name='shortcuts/main'):
         QObject.__init__(self, parent)
 
-        self.config = JSONConfig('shortcuts/main')
+        self.config = JSONConfig(config_name)
         self.shortcuts = OrderedDict()
         self.keys_map = {}
         self.groups = {}
