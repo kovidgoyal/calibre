@@ -15,7 +15,7 @@ from calibre import browser, get_download_filename
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import Dispatcher
 from calibre.gui2.threaded_jobs import ThreadedJob
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.filenames import ascii_filename
 
 class EbookDownload(object):
@@ -56,7 +56,8 @@ class EbookDownload(object):
             cj.load(cookie_file)
             br.set_cookiejar(cj)
         with closing(br.open(url)) as r:
-            tf = PersistentTemporaryFile(suffix=filename)
+            temp_path = os.path.join(PersistentTemporaryDirectory(), filename)
+            tf = open(temp_path, 'w+b')
             tf.write(r.read())
             dfilename = tf.name
 
