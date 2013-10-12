@@ -70,6 +70,10 @@ class ReUpload(Command):  # {{{
 
     def pre_sub_commands(self, opts):
         opts.replace = True
+        exists = {x for x in installers() if os.path.exists(x)}
+        if not exists:
+            print ('There appear to be no installers!')
+            raise SystemExit(1)
 
     def run(self, opts):
         upload_signatures()

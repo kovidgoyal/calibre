@@ -873,6 +873,11 @@ class Application(QApplication):
                 'MessageBoxWarning': u'dialog_warning.png',
                 'MessageBoxCritical': u'dialog_error.png',
                 'MessageBoxQuestion': u'dialog_question.png',
+                # These two are used to calculate the sizes for the doc widget
+                # title bar buttons, therefore, they have to exist. The actual
+                # icon is not used.
+                'TitleBarCloseButton': u'window-close.png',
+                'TitleBarNormalButton': u'window-close.png',
                 }.iteritems():
             if v not in pcache:
                 p = I(v)

@@ -18,12 +18,14 @@ def get_opts_from_parser(parser):
         for x in opt._short_opts:
             yield x
     for o in parser.option_list:
-        for x in do_opt(o): yield x
+        for x in do_opt(o):
+            yield x
     for g in parser.option_groups:
         for o in g.option_list:
-            for x in do_opt(o): yield x
+            for x in do_opt(o):
+                yield x
 
-class Coffee(Command): # {{{
+class Coffee(Command):  # {{{
 
     description = 'Compile coffeescript files into javascript'
     COFFEE_DIRS = ('ebooks/oeb/display', 'ebooks/oeb/polish')
@@ -112,7 +114,7 @@ class Coffee(Command): # {{{
             os.remove(x)
 # }}}
 
-class Kakasi(Command): # {{{
+class Kakasi(Command):  # {{{
 
     description = 'Compile resources for unihandecode'
 
@@ -155,29 +157,29 @@ class Kakasi(Command): # {{{
         dic = {}
         for line in open(src, "r"):
             line = line.decode("utf-8").strip()
-            if line.startswith(';;'): # skip comment
+            if line.startswith(';;'):  # skip comment
                 continue
             if re.match(r"^$",line):
                 continue
             pair = re.sub(r'\\u([0-9a-fA-F]{4})', lambda x:unichr(int(x.group(1),16)), line)
             dic[pair[0]] = pair[1]
-        cPickle.dump(dic, open(dst, 'wb'), protocol=-1) #pickle
+        cPickle.dump(dic, open(dst, 'wb'), protocol=-1)  # pickle
 
     def mkkanadict(self, src, dst):
         dic = {}
         for line in open(src, "r"):
             line = line.decode("utf-8").strip()
-            if line.startswith(';;'): # skip comment
+            if line.startswith(';;'):  # skip comment
                 continue
             if re.match(r"^$",line):
                 continue
             (alpha, kana) = line.split(' ')
             dic[kana] = alpha
-        cPickle.dump(dic, open(dst, 'wb'), protocol=-1) #pickle
+        cPickle.dump(dic, open(dst, 'wb'), protocol=-1)  # pickle
 
     def parsekdict(self, line):
         line = line.decode("utf-8").strip()
-        if line.startswith(';;'): # skip comment
+        if line.startswith(';;'):  # skip comment
             return
         (yomi, kanji) = line.split(' ')
         if ord(yomi[-1:]) <= ord('z'):
@@ -193,7 +195,7 @@ class Kakasi(Command): # {{{
             if kanji in self.records[key]:
                 rec = self.records[key][kanji]
                 rec.append((yomi,tail))
-                self.records[key].update( {kanji: rec} )
+                self.records[key].update({kanji: rec})
             else:
                 self.records[key][kanji]=[(yomi, tail)]
         else:
@@ -213,7 +215,7 @@ class Kakasi(Command): # {{{
             shutil.rmtree(kakasi)
 # }}}
 
-class Resources(Command): # {{{
+class Resources(Command):  # {{{
 
     description = 'Compile various needed calibre resources'
     sub_commands = ['kakasi', 'coffee']
@@ -254,7 +256,6 @@ class Resources(Command): # {{{
                 for n in sorted(files, key=self.b):
                     with open(n, 'rb') as f:
                         zf.writestr(os.path.basename(n), f.read())
-
 
         dest = self.j(self.RESOURCES, 'ebook-convert-complete.pickle')
         files = []

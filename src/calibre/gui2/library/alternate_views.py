@@ -300,6 +300,10 @@ class AlternateViews(object):
             if self.current_book_state[0] is self.current_view:
                 self.current_view.restore_current_book_state(self.current_book_state[1])
             self.current_book_state = None
+
+    def marked_changed(self, old_marked, current_marked):
+        if self.current_view is not self.main_view:
+            self.current_view.marked_changed(old_marked, current_marked)
 # }}}
 
 # Rendering of covers {{{
@@ -422,7 +426,7 @@ class CoverDelegate(QStyledItemDelegate):
                 try:
                     p = self.marked_emblem
                 except AttributeError:
-                    p = self.marked_emblem = QPixmap(I('rating.png')).scaled(48, 48, transformMode=Qt.SmoothTransformation)
+                    p = self.marked_emblem = m.marked_icon.pixmap(48, 48)
                 drect = QRect(orect)
                 drect.setLeft(drect.left() + right_adjust)
                 drect.setRight(drect.left() + p.width())
@@ -731,6 +735,16 @@ class GridView(QListView):
             sel.merge(QItemSelection(m.index(min(group), 0), m.index(max(group), 0)), sm.Select)
         sm.select(sel, sm.ClearAndSelect)
 
+    def selectAll(self):
+        # We re-implement this to ensure that only indexes from column 0 are
+        # selected. The base class implementation selects all columns. This
+        # causes problems with selection syncing, see
+        # https://bugs.launchpad.net/bugs/1236348
+        m = self.model()
+        sm = self.selectionModel()
+        sel = QItemSelection(m.index(0, 0), m.index(m.rowCount(QModelIndex())-1, 0))
+        sm.select(sel, sm.ClearAndSelect)
+
     def set_current_row(self, row):
         sm = self.selectionModel()
         sm.setCurrentIndex(self.model().index(row, 0), sm.NoUpdate)
@@ -808,4 +822,14 @@ class GridView(QListView):
         self.set_current_row(row)
         self.select_rows((row,))
         self.scrollTo(self.model().index(row, 0), self.PositionAtCenter)
+
+    def marked_changed(self, old_marked, current_marked):
+        changed = old_marked | current_marked
+        m = self.model()
+        for book_id in changed:
+            try:
+                self.update(m.index(m.db.data.id_to_index(book_id), 0))
+            except ValueError:
+                pass
+
 # }}}

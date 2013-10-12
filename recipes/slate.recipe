@@ -20,6 +20,7 @@ class Slate(BasicNewsRecipe):
     masthead_url = 'http://img.slate.com/images/redesign2008/slate_logo.gif'
     remove_attributes = ['style']
     INDEX = 'http://slate.com'
+    compress_news_images = True
 
     keep_only_tags = [
         dict(name='header', attrs={'class':'article-header'}),

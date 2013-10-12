@@ -67,7 +67,8 @@ class HTMLZOutput(OutputFormatPlugin):
 
             fname = u'index'
             if opts.htmlz_title_filename:
-                fname = ascii_filename(unicode(oeb_book.metadata.title[0]))
+                from calibre.utils.filenames import shorten_components_to
+                fname = shorten_components_to(100, (ascii_filename(unicode(oeb_book.metadata.title[0])),))[0]
             with open(os.path.join(tdir, fname+u'.html'), 'wb') as tf:
                 tf.write(html)
 

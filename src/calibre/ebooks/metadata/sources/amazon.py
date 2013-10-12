@@ -46,14 +46,14 @@ class Worker(Thread):  # Get details {{{
 
         months = {
                 'de': {
-            1: ['jän'],
+            1: ['jän', 'januar'],
             2: ['februar'],
             3: ['märz'],
             5: ['mai'],
             6: ['juni'],
             7: ['juli'],
-            10: ['okt'],
-            12: ['dez']
+            10: ['okt', 'oktober'],
+            12: ['dez', 'dezember']
             },
                 'it': {
             1: ['enn'],

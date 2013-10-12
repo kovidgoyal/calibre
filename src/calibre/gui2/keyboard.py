@@ -28,7 +28,7 @@ ROOT = QModelIndex()
 class NameConflict(ValueError):
     pass
 
-def finalize(shortcuts, custom_keys_map={}): # {{{
+def finalize(shortcuts, custom_keys_map={}):  # {{{
     '''
     Resolve conflicts and assign keys to every action in shorcuts, which must
     be a OrderedDict. User specified mappings of unique names to keys (as a
@@ -69,12 +69,12 @@ def finalize(shortcuts, custom_keys_map={}): # {{{
 
 # }}}
 
-class Manager(QObject): # {{{
+class Manager(QObject):  # {{{
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, config_name='shortcuts/main'):
         QObject.__init__(self, parent)
 
-        self.config = JSONConfig('shortcuts/main')
+        self.config = JSONConfig(config_name)
         self.shortcuts = OrderedDict()
         self.keys_map = {}
         self.groups = {}
@@ -127,7 +127,7 @@ class Manager(QObject): # {{{
             'map', {}).iteritems()}
         self.keys_map = finalize(self.shortcuts, custom_keys_map=custom_keys_map)
         #import pprint
-        #pprint.pprint(self.keys_map)
+        # pprint.pprint(self.keys_map)
 
     def replace_action(self, unique_name, new_action):
         '''
@@ -255,7 +255,8 @@ class ConfigModel(QAbstractItemModel, SearchQueryParser):
         kmap = {}
         for node in self.all_shortcuts:
             sc = node.data
-            if sc['set_to_default']: continue
+            if sc['set_to_default']:
+                continue
             keys = [unicode(k.toString(k.PortableText)) for k in sc['keys']]
             kmap[sc['unique_name']] = keys
         self.keyboard.config['map'] = kmap
@@ -343,7 +344,7 @@ class ConfigModel(QAbstractItemModel, SearchQueryParser):
 
 # }}}
 
-class Editor(QFrame): # {{{
+class Editor(QFrame):  # {{{
 
     editing_done = pyqtSignal(object)
 
@@ -403,10 +404,12 @@ class Editor(QFrame): # {{{
         self.current_keys = list(shortcut['keys'])
         default = ', '.join([unicode(k.toString(k.NativeText)) for k in
                     self.default_keys])
-        if not default: default = _('None')
+        if not default:
+            default = _('None')
         current = ', '.join([unicode(k.toString(k.NativeText)) for k in
                     self.current_keys])
-        if not current: current = _('None')
+        if not current:
+            current = _('None')
 
         self.use_default.setText(_('Default: %(deflt)s [Currently not conflicting: %(curr)s]')%
                 dict(deflt=default, curr=current))
@@ -461,7 +464,8 @@ class Editor(QFrame): # {{{
 
     def dup_check(self, sequence):
         for sc in self.all_shortcuts:
-            if sc is self.shortcut: continue
+            if sc is self.shortcut:
+                continue
             for k in sc['keys']:
                 if k == sequence:
                     return sc['name']
@@ -484,7 +488,7 @@ class Editor(QFrame): # {{{
 
 # }}}
 
-class Delegate(QStyledItemDelegate): # {{{
+class Delegate(QStyledItemDelegate):  # {{{
 
     changed_signal = pyqtSignal()
 
@@ -555,7 +559,8 @@ class Delegate(QStyledItemDelegate): # {{{
                 ckey = QKeySequence(ckey, QKeySequence.PortableText)
                 matched = False
                 for s in editor.all_shortcuts:
-                    if s is editor.shortcut: continue
+                    if s is editor.shortcut:
+                        continue
                     for k in s['keys']:
                         if k == ckey:
                             matched = True
@@ -581,7 +586,7 @@ class Delegate(QStyledItemDelegate): # {{{
 
 # }}}
 
-class ShortcutConfig(QWidget): # {{{
+class ShortcutConfig(QWidget):  # {{{
 
     changed_signal = pyqtSignal()
 

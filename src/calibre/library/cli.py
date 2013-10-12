@@ -629,9 +629,12 @@ def command_set_metadata(args, dbpath):
 
     if opts.field:
         fields = {k:v for k, v in fields()}
+        fields['title_sort'] = fields['sort']
         vals = {}
         for x in opts.field:
             field, val = x.partition(':')[::2]
+            if field == 'sort':
+                field = 'title_sort'
             if field not in fields:
                 print >>sys.stderr, _('%s is not a known field'%field)
                 return 1

@@ -250,7 +250,7 @@ def _write_new_cover(new_cdata, cpath):
     save_cover_data_to(new_cdata, new_cover.name)
     return new_cover
 
-def update_metadata(opf, mi, apply_null=False, update_timestamp=False):
+def update_metadata(opf, mi, apply_null=False, update_timestamp=False, force_identifiers=False):
     for x in ('guide', 'toc', 'manifest', 'spine'):
         setattr(mi, x, None)
     if mi.languages:
@@ -274,10 +274,16 @@ def update_metadata(opf, mi, apply_null=False, update_timestamp=False):
             opf.isbn = None
         if not getattr(mi, 'comments', None):
             opf.comments = None
+    if apply_null or force_identifiers:
+        opf.set_identifiers(mi.get_identifiers())
+    else:
+        orig = opf.get_identifiers()
+        orig.update(mi.get_identifiers())
+        opf.set_identifiers({k:v for k, v in orig.iteritems() if k and v})
     if update_timestamp and mi.timestamp is not None:
         opf.timestamp = mi.timestamp
 
-def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
+def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_identifiers=False):
     stream.seek(0)
     reader = get_zip_reader(stream, root=os.getcwdu())
     raster_cover = reader.opf.raster_cover
@@ -308,7 +314,7 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
             traceback.print_exc()
 
     update_metadata(reader.opf, mi, apply_null=apply_null,
-                    update_timestamp=update_timestamp)
+                    update_timestamp=update_timestamp, force_identifiers=force_identifiers)
 
     newopf = StringIO(reader.opf.render())
     if isinstance(reader.archive, LocalZipFile):

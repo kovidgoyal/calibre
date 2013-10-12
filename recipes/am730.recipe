@@ -3,10 +3,10 @@ from __future__ import unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2013, Eddie Lau'
 __Date__ = ''
-__HiResImg__ = True
 
 '''
 Change Log:
+2013/09/28 -- update due to website redesign, add cover
 2013/03/30 -- first version
 '''
 
@@ -15,7 +15,7 @@ from calibre.utils.date import now as nowf
 import os, datetime, re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from contextlib import nested
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
@@ -32,18 +32,17 @@ class AppleDaily(BasicNewsRecipe):
     encoding = 'utf-8'
     auto_cleanup = False
     remove_javascript = True
-    use_embedded_content   = False
+    use_embedded_content = False
     no_stylesheets = True
     description = 'http://www.am730.com.hk'
     category    = 'Chinese, News, Hong Kong'
     masthead_url = 'http://www.am730.com.hk/images/logo.jpg'
-
-    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; max-height:90%;} div[id=articleHeader] {font-size:200%; text-align:left; font-weight:bold;} photocaption {font-size:50%; margin-left:auto; margin-right:auto;}'
-    keep_only_tags = [dict(name='div', attrs={'id':'articleHeader'}),
-                      dict(name='div', attrs={'class':'thecontent wordsnap'}),
-                      dict(name='a', attrs={'class':'lightboximg'})]
-    remove_tags = [dict(name='img', attrs={'src':'/images/am730_article_logo.jpg'}),
-                   dict(name='img', attrs={'src':'/images/am_endmark.gif'})]
+    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 20px; margin-bottom: 20px; max-height:70%;} div[id=articleHeader] {font-size:200%; text-align:left; font-weight:bold;} li {font-size:50%; margin-left:auto; margin-right:auto;}'
+    keep_only_tags = [dict(name='h2', attrs={'class':'printTopic'}),
+                      dict(name='div', attrs={'id':'article_content'}),
+                      dict(name='div', attrs={'id':'slider'})]
+    remove_tags = [dict(name='img', attrs={'src':'images/am730_article_logo.jpg'}),
+                   dict(name='img', attrs={'src':'images/am_endmark.gif'})]
 
     def get_dtlocal(self):
         dt_utc = datetime.datetime.utcnow()
@@ -84,6 +83,16 @@ class AppleDaily(BasicNewsRecipe):
     def get_weekday(self):
         return self.get_dtlocal().weekday()
 
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.am730.com.hk')
+        cover = 'http://www.am730.com.hk/' + soup.find(attrs={'id':'mini_news_img'}).find('img').get('src', False)
+        br = BasicNewsRecipe.get_browser(self)
+        try:
+            br.open(cover)
+        except:
+            cover = None
+        return cover
+
     def populate_article_metadata(self, article, soup, first):
         if first and hasattr(self, 'add_toc_thumbnail'):
             picdiv = soup.find('img')
@@ -93,47 +102,16 @@ class AppleDaily(BasicNewsRecipe):
     def parse_index(self):
         feeds = []
         soup = self.index_to_soup('http://www.am730.com.hk/')
-        ul = soup.find(attrs={'class':'nav-section'})
-        sectionList = []
-        for li in ul.findAll('li'):
-            a = 'http://www.am730.com.hk/' + li.find('a', href=True).get('href', False)
-            title = li.find('a').get('title', False).strip()
-            sectionList.append((title, a))
-        for title, url in sectionList:
-            articles = self.parse_section(url)
-            if articles:
-                feeds.append((title, articles))
+        optgroups = soup.findAll('optgroup')
+        for optgroup in optgroups:
+            sectitle = optgroup.get('label')
+            articles = []
+            for option in optgroup.findAll('option'):
+                articlelink = "http://www.am730.com.hk/" + option.get('value')
+                title = option.string
+                articles.append({'title': title, 'url': articlelink})
+            feeds.append((sectitle, articles))
         return feeds
-
-    def parse_section(self, url):
-        soup = self.index_to_soup(url)
-        items = soup.findAll(attrs={'style':'padding-bottom: 15px;'})
-        current_articles = []
-        for item in items:
-            a = item.find(attrs={'class':'t6 f14'}).find('a', href=True)
-            articlelink = 'http://www.am730.com.hk/' + a.get('href', True)
-            title = self.tag_to_string(a)
-            description = self.tag_to_string(item.find(attrs={'class':'t3 f14'}))
-            current_articles.append({'title': title, 'url': articlelink, 'description': description})
-        return current_articles
-
-    def preprocess_html(self, soup):
-        multia = soup.findAll('a')
-        for a in multia:
-            if not (a == None):
-                image = a.find('img')
-                if not (image == None):
-                    if __HiResImg__:
-                        image['src'] = image.get('src').replace('/thumbs/', '/')
-                    caption = image.get('alt')
-                    tag = Tag(soup, "photo", [])
-                    tag2 = Tag(soup, "photocaption", [])
-                    tag.insert(0, image)
-                    if not caption == None:
-                        tag2.insert(0, caption)
-                        tag.insert(1, tag2)
-                    a.replaceWith(tag)
-        return soup
 
     def create_opf(self, feeds, dir=None):
         if dir is None:
@@ -287,4 +265,5 @@ class AppleDaily(BasicNewsRecipe):
 
         with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
             opf.render(opf_file, ncx_file)
+
 

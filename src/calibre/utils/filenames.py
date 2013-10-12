@@ -295,6 +295,15 @@ def windows_hardlink(src, dest):
         msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
         raise Exception(msg % ('hardlink size: %d not the same as source size' % sz))
 
+def windows_nlinks(path):
+    import win32file
+    dwFlagsAndAttributes = win32file.FILE_FLAG_BACKUP_SEMANTICS if os.path.isdir(path) else 0
+    handle = win32file.CreateFile(path, win32file.GENERIC_READ, win32file.FILE_SHARE_READ, None, win32file.OPEN_EXISTING, dwFlagsAndAttributes, None)
+    try:
+        return win32file.GetFileInformationByHandle(handle)[7]
+    finally:
+        handle.Close()
+
 class WindowsAtomicFolderMove(object):
 
     '''
@@ -399,6 +408,12 @@ def hardlink_file(src, dest):
         windows_hardlink(src, dest)
         return
     os.link(src, dest)
+
+def nlinks_file(path):
+    ' Return number of hardlinks to the file '
+    if iswindows:
+        return windows_nlinks(path)
+    return os.stat(path).st_nlink
 
 def atomic_rename(oldpath, newpath):
     '''Replace the file newpath with the file oldpath. Can fail if the files

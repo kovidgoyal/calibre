@@ -7,11 +7,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, logging, sys, hashlib, uuid, re
+import os, logging, sys, hashlib, uuid, re, shutil, copy
 from collections import defaultdict
 from io import BytesIO
 from urllib import unquote as urlunquote, quote as urlquote
 from urlparse import urlparse
+from future_builtins import zip
 
 from lxml import etree
 
@@ -30,6 +31,7 @@ from calibre.ebooks.oeb.base import (
 from calibre.ebooks.oeb.polish.errors import InvalidBook, DRMError
 from calibre.ebooks.oeb.parse_utils import NotHTML, parse_html, RECOVER_PARSER
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
+from calibre.utils.filenames import nlinks_file, hardlink_file
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.utils.logging import default_log
 from calibre.utils.zipfile import ZipFile
@@ -47,7 +49,30 @@ class CSSPreProcessor(cssp):
     def __call__(self, data):
         return self.MS_PAT.sub(self.ms_sub, data)
 
-class Container(object):
+def clone_dir(src, dest):
+    ' Clone a directory using hard links for the files, dest must already exist '
+    for x in os.listdir(src):
+        dpath = os.path.join(dest, x)
+        spath = os.path.join(src, x)
+        if os.path.isdir(spath):
+            os.mkdir(dpath)
+            clone_dir(spath, dpath)
+        else:
+            try:
+                hardlink_file(spath, dpath)
+            except:
+                shutil.copy2(spath, dpath)
+
+def clone_container(container, dest_dir):
+    ' Efficiently clone a container using hard links '
+    dest_dir = os.path.abspath(os.path.realpath(dest_dir))
+    clone_data = container.clone_data(dest_dir)
+    cls = type(container)
+    if cls is Container:
+        return cls(None, None, container.log, clone_data=clone_data)
+    return cls(None, container.log, clone_data=clone_data)
+
+class Container(object):  # {{{
 
     '''
     A container represents an Open EBook as a directory full of files and an
@@ -67,8 +92,8 @@ class Container(object):
 
     book_type = 'oeb'
 
-    def __init__(self, rootpath, opfpath, log):
-        self.root = os.path.abspath(rootpath)
+    def __init__(self, rootpath, opfpath, log, clone_data=None):
+        self.root = clone_data['root'] if clone_data is not None else os.path.abspath(rootpath)
         self.log = log
         self.html_preprocessor = HTMLPreProcessor()
         self.css_preprocessor = CSSPreProcessor()
@@ -79,6 +104,14 @@ class Container(object):
         self.dirtied = set()
         self.encoding_map = {}
         self.pretty_print = set()
+        self.cloned = False
+
+        if clone_data is not None:
+            self.cloned = True
+            for x in ('name_path_map', 'opf_name', 'mime_map', 'pretty_print', 'encoding_map'):
+                setattr(self, x, clone_data[x])
+            self.opf_dir = os.path.dirname(self.name_path_map[self.opf_name])
+            return
 
         # Map of relative paths with '/' separators from root of unzipped ePub
         # to absolute paths on filesystem with os-specific separators
@@ -104,6 +137,21 @@ class Container(object):
             name = self.href_to_name(href, self.opf_name)
             if name in self.mime_map:
                 self.mime_map[name] = item.get('media-type')
+
+    def clone_data(self, dest_dir):
+        Container.commit(self, keep_parsed=True)
+        self.cloned = True
+        clone_dir(self.root, dest_dir)
+        return {
+            'root': dest_dir,
+            'opf_name': self.opf_name,
+            'mime_map': self.mime_map.copy(),
+            'pretty_print': set(self.pretty_print),
+            'encoding_map': self.encoding_map.copy(),
+            'name_path_map': {
+                name:os.path.join(dest_dir, os.path.relpath(path, self.root))
+                for name, path in self.name_path_map.iteritems()}
+        }
 
     def abspath_to_name(self, fullpath):
         return self.relpath(os.path.abspath(fullpath)).replace(os.sep, '/')
@@ -180,6 +228,14 @@ class Container(object):
             pass
         data, self.used_encoding = xml_to_unicode(data)
         return fix_data(data)
+
+    @property
+    def names_that_need_not_be_manifested(self):
+        return {self.opf_name}
+
+    @property
+    def names_that_must_not_be_removed(self):
+        return {self.opf_name}
 
     def parse_xml(self, data):
         data, self.used_encoding = xml_to_unicode(
@@ -262,21 +318,42 @@ class Container(object):
             for item in self.opf_xpath('//opf:guide/opf:reference[@href and @type]')}
 
     @property
-    def spine_items(self):
+    def spine_iter(self):
         manifest_id_map = self.manifest_id_map
-
-        linear, non_linear = [], []
+        non_linear = []
         for item in self.opf_xpath('//opf:spine/opf:itemref[@idref]'):
             idref = item.get('idref')
             name = manifest_id_map.get(idref, None)
             path = self.name_path_map.get(name, None)
             if path:
                 if item.get('linear', 'yes') == 'yes':
-                    yield path
+                    yield item, name, True
                 else:
-                    non_linear.append(path)
-        for path in non_linear:
-            yield path
+                    non_linear.append((item, name))
+        for item, name in non_linear:
+            yield item, name, False
+
+    @property
+    def spine_names(self):
+        for item, name, linear in self.spine_iter:
+            yield name, linear
+
+    @property
+    def spine_items(self):
+        for name, linear in self.spine_names:
+            yield self.name_path_map[name]
+
+    def remove_from_spine(self, spine_items, remove_if_no_longer_in_spine=True):
+        nixed = set()
+        for (name, remove), (item, xname, linear) in zip(spine_items, self.spine_iter):
+            if remove and name == xname:
+                self.remove_from_xml(item)
+                nixed.add(name)
+        if remove_if_no_longer_in_spine:
+            # Remove from the book if no longer in spine
+            nixed -= {name for name, linear in self.spine_names}
+            for name in nixed:
+                self.remove_item(name)
 
     def remove_item(self, name):
         '''
@@ -293,10 +370,21 @@ class Container(object):
                 self.remove_from_xml(elem)
                 self.dirty(self.opf_name)
         if removed:
+            for spine in self.opf_xpath('//opf:spine'):
+                tocref = spine.attrib.get('toc', None)
+                if tocref and tocref in removed:
+                    spine.attrib.pop('toc', None)
+                    self.dirty(self.opf_name)
+
             for item in self.opf_xpath('//opf:spine/opf:itemref[@idref]'):
                 idref = item.get('idref')
                 if idref in removed:
                     self.remove_from_xml(item)
+                    self.dirty(self.opf_name)
+
+            for meta in self.opf_xpath('//opf:meta[@name="cover" and @content]'):
+                if meta.get('content') in removed:
+                    self.remove_from_xml(meta)
                     self.dirty(self.opf_name)
 
         for item in self.opf_xpath('//opf:guide/opf:reference[@href]'):
@@ -436,8 +524,18 @@ class Container(object):
         self.dirtied.discard(name)
         if not keep_parsed:
             self.parsed_cache.pop(name)
-        with open(self.name_path_map[name], 'wb') as f:
+        dest = self.name_path_map[name]
+        if self.cloned and nlinks_file(dest) > 1:
+            # Decouple this file from its links
+            os.unlink(dest)
+        with open(dest, 'wb') as f:
             f.write(data)
+
+    def filesize(self, name):
+        if name in self.dirtied:
+            self.commit_item(name, keep_parsed=True)
+        path = self.name_to_abspath(name)
+        return os.path.getsize(path)
 
     def open(self, name, mode='rb'):
         ''' Open the file pointed to by name for direct read/write. Note that
@@ -451,11 +549,18 @@ class Container(object):
         base = os.path.dirname(path)
         if not os.path.exists(base):
             os.makedirs(base)
+        else:
+            if self.cloned and mode not in {'r', 'rb'} and os.path.exists(path) and nlinks_file(path) > 1:
+                # Decouple this file from its links
+                temp = path + 'xxx'
+                shutil.copyfile(path, temp)
+                os.unlink(path)
+                os.rename(temp, path)
         return open(path, mode)
 
-    def commit(self, outpath=None):
+    def commit(self, outpath=None, keep_parsed=False):
         for name in tuple(self.dirtied):
-            self.commit_item(name)
+            self.commit_item(name, keep_parsed=keep_parsed)
 
     def compare_to(self, other):
         if set(self.name_path_map) != set(other.name_path_map):
@@ -467,6 +572,7 @@ class Container(object):
                 if f1.read() != f2.read():
                     mismatches.append('The file %s is not the same'%name)
         return '\n'.join(mismatches)
+# }}}
 
 # EPUB {{{
 class InvalidEpub(InvalidBook):
@@ -487,9 +593,17 @@ class EpubContainer(Container):
             'rights.xml': False,
     }
 
-    def __init__(self, pathtoepub, log):
+    def __init__(self, pathtoepub, log, clone_data=None, tdir=None):
+        if clone_data is not None:
+            super(EpubContainer, self).__init__(None, None, log, clone_data=clone_data)
+            for x in ('pathtoepub', 'container', 'obfuscated_fonts'):
+                setattr(self, x, clone_data[x])
+            return
+
         self.pathtoepub = pathtoepub
-        tdir = self.root = os.path.abspath(os.path.realpath(PersistentTemporaryDirectory('_epub_container')))
+        if tdir is None:
+            tdir = os.path.abspath(os.path.realpath(PersistentTemporaryDirectory('_epub_container')))
+        self.root = tdir
         with open(self.pathtoepub, 'rb') as stream:
             try:
                 zf = ZipFile(stream)
@@ -527,6 +641,41 @@ class EpubContainer(Container):
         if 'META-INF/encryption.xml' in self.name_path_map:
             self.process_encryption()
 
+    def clone_data(self, dest_dir):
+        ans = super(EpubContainer, self).clone_data(dest_dir)
+        ans['pathtoepub'] = self.pathtoepub
+        ans['obfuscated_fonts'] = self.obfuscated_fonts.copy()
+        ans['container'] = copy.deepcopy(self.container)
+        return ans
+
+    @property
+    def names_that_need_not_be_manifested(self):
+        return super(EpubContainer, self).names_that_need_not_be_manifested | {'META-INF/' + x for x in self.META_INF}
+
+    @property
+    def names_that_must_not_be_removed(self):
+        return super(EpubContainer, self).names_that_must_not_be_removed | {'META-INF/container.xml'}
+
+    def remove_item(self, name):
+        # Handle removal of obfuscated fonts
+        if name == 'META-INF/encryption.xml':
+            self.obfuscated_fonts.clear()
+        if name in self.obfuscated_fonts:
+            self.obfuscated_fonts.pop(name, None)
+            enc = self.parsed('META-INF/encryption.xml')
+            for em in enc.xpath('//*[local-name()="EncryptionMethod" and @Algorithm]'):
+                alg = em.get('Algorithm')
+                if alg not in {ADOBE_OBFUSCATION, IDPF_OBFUSCATION}:
+                    continue
+                try:
+                    cr = em.getparent().xpath('descendant::*[local-name()="CipherReference" and @URI]')[0]
+                except (IndexError, ValueError, KeyError):
+                    continue
+                if name == self.href_to_name(cr.get('URI')):
+                    self.remove_from_xml(em.getparent())
+                    self.dirty('META-INF/encryption.xml')
+        super(EpubContainer, self).remove_item(name)
+
     def process_encryption(self):
         fonts = {}
         enc = self.parsed('META-INF/encryption.xml')
@@ -534,7 +683,10 @@ class EpubContainer(Container):
             alg = em.get('Algorithm')
             if alg not in {ADOBE_OBFUSCATION, IDPF_OBFUSCATION}:
                 raise DRMError()
-            cr = em.getparent().xpath('descendant::*[local-name()="CipherReference" and @URI]')[0]
+            try:
+                cr = em.getparent().xpath('descendant::*[local-name()="CipherReference" and @URI]')[0]
+            except (IndexError, ValueError, KeyError):
+                continue
             name = self.href_to_name(cr.get('URI'))
             path = self.name_path_map.get(name, None)
             if path is not None:
@@ -578,8 +730,8 @@ class EpubContainer(Container):
             decrypt_font(tkey, path, alg)
             self.obfuscated_fonts[font] = (alg, tkey)
 
-    def commit(self, outpath=None):
-        super(EpubContainer, self).commit()
+    def commit(self, outpath=None, keep_parsed=False):
+        super(EpubContainer, self).commit(keep_parsed=keep_parsed)
         for name in self.obfuscated_fonts:
             if name not in self.name_path_map:
                 continue
@@ -620,9 +772,17 @@ class AZW3Container(Container):
 
     book_type = 'azw3'
 
-    def __init__(self, pathtoazw3, log):
+    def __init__(self, pathtoazw3, log, clone_data=None, tdir=None):
+        if clone_data is not None:
+            super(AZW3Container, self).__init__(None, None, log, clone_data=clone_data)
+            for x in ('pathtoazw3', 'obfuscated_fonts'):
+                setattr(self, x, clone_data[x])
+            return
+
         self.pathtoazw3 = pathtoazw3
-        tdir = self.root = os.path.abspath(os.path.realpath(PersistentTemporaryDirectory('_azw3_container')))
+        if tdir is None:
+            tdir = os.path.abspath(os.path.realpath(PersistentTemporaryDirectory('_azw3_container')))
+        self.root = tdir
         with open(pathtoazw3, 'rb') as stream:
             raw = stream.read(3)
             if raw == b'TPZ':
@@ -659,8 +819,14 @@ class AZW3Container(Container):
         super(AZW3Container, self).__init__(tdir, opf_path, log)
         self.obfuscated_fonts = {x.replace(os.sep, '/') for x in obfuscated_fonts}
 
-    def commit(self, outpath=None):
-        super(AZW3Container, self).commit()
+    def clone_data(self, dest_dir):
+        ans = super(AZW3Container, self).clone_data(dest_dir)
+        ans['pathtoazw3'] = self.pathtoazw3
+        ans['obfuscated_fonts'] = self.obfuscated_fonts.copy()
+        return ans
+
+    def commit(self, outpath=None, keep_parsed=False):
+        super(AZW3Container, self).commit(keep_parsed=keep_parsed)
         if outpath is None:
             outpath = self.pathtoazw3
         from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
@@ -675,11 +841,11 @@ class AZW3Container(Container):
         outp.convert(oeb, outpath, inp, plumber.opts, default_log)
 # }}}
 
-def get_container(path, log=None):
+def get_container(path, log=None, tdir=None):
     if log is None:
         log = default_log
     ebook = (AZW3Container if path.rpartition('.')[-1].lower() in {'azw3', 'mobi'}
-            else EpubContainer)(path, log)
+            else EpubContainer)(path, log, tdir=tdir)
     return ebook
 
 def test_roundtrip():

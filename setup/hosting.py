@@ -508,12 +508,14 @@ def upload_to_servers(files, version):  # {{{
 
 def upload_to_dbs(files, version):  # {{{
     print('Uploading to fosshub.com')
+    sys.stdout.flush()
     server = 'mirror1.fosshub.com'
     rdir = 'release/'
     check_call(['ssh', 'kovid@%s' % server, 'rm -f release/*'])
     for x in files:
         start = time.time()
         print ('Uploading', x)
+        sys.stdout.flush()
         for i in range(5):
             try:
                 check_call(['rsync', '-h', '-z', '--progress', '-e', 'ssh -x', x,
@@ -522,10 +524,12 @@ def upload_to_dbs(files, version):  # {{{
                 raise SystemExit(1)
             except:
                 print ('\nUpload failed, trying again in 30 seconds')
+                sys.stdout.flush()
                 time.sleep(30)
             else:
                 break
         print ('Uploaded in', int(time.time() - start), 'seconds\n\n')
+        sys.stdout.flush()
     check_call(['ssh', 'kovid@%s' % server, '/home/kovid/uploadFiles'])
 # }}}
 

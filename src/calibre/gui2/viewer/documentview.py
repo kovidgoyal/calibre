@@ -498,12 +498,10 @@ class DocumentView(QWebView):  # {{{
                 d.OpenImageInNewWindow, d.OpenLink, d.Reload, d.InspectElement]))
 
         self.search_online_action = QAction(QIcon(I('search.png')), '', self)
-        self.search_online_action.setShortcut(Qt.CTRL+Qt.Key_E)
         self.search_online_action.triggered.connect(self.search_online)
         self.addAction(self.search_online_action)
         self.dictionary_action = QAction(QIcon(I('dictionary.png')),
                 _('&Lookup in dictionary'), self)
-        self.dictionary_action.setShortcut(Qt.CTRL+Qt.Key_L)
         self.dictionary_action.triggered.connect(self.lookup)
         self.addAction(self.dictionary_action)
         self.image_popup = ImagePopup(self)
@@ -514,7 +512,6 @@ class DocumentView(QWebView):  # {{{
         self.view_table_action.triggered.connect(self.popup_table)
         self.search_action = QAction(QIcon(I('dictionary.png')),
                 _('&Search for next occurrence'), self)
-        self.search_action.setShortcut(Qt.CTRL+Qt.Key_S)
         self.search_action.triggered.connect(self.search_next)
         self.addAction(self.search_action)
 
@@ -652,9 +649,9 @@ class DocumentView(QWebView):  # {{{
         text = self._selectedText()
         if text and img.isNull():
             self.search_online_action.setText(text)
-            menu.addAction(self.search_online_action)
-            menu.addAction(self.dictionary_action)
-            menu.addAction(self.search_action)
+            for x, sc in (('search_online', 'Search online'), ('dictionary', 'Lookup word'), ('search', 'Next occurrence')):
+                ac = getattr(self, '%s_action' % x)
+                menu.addAction(ac.icon(), '%s [%s]' % (unicode(ac.text()), ','.join(self.shortcuts.get_shortcuts(sc))), ac.trigger)
 
         if not text and img.isNull():
             menu.addSeparator()

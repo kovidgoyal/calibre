@@ -111,7 +111,7 @@ class ColumnIcon(object):  # {{{
                     d = os.path.join(config_dir, 'cc_icons', icon)
                     if (os.path.exists(d)):
                         bm = QPixmap(d)
-                        bm = bm.scaled(128, 128, aspectRatioMode= Qt.KeepAspectRatio,
+                        bm = bm.scaled(128, 128, aspectRatioMode=Qt.KeepAspectRatio,
                                        transformMode=Qt.SmoothTransformation)
                         icon_bitmaps.append(bm)
                         total_width += bm.width()
@@ -193,6 +193,8 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.bool_yes_icon = QIcon(I('ok.png'))
         self.bool_no_icon = QIcon(I('list_remove.png'))
         self.bool_blank_icon = QIcon(I('blank.png'))
+        self.marked_icon = QIcon(I('marked.png'))
+        self.row_decoration = NONE
         self.device_connected = False
         self.ids_to_highlight = []
         self.ids_to_highlight_set = set()
@@ -209,6 +211,9 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     def set_row_height(self, height):
         self.row_height = height
+
+    def set_row_decoration(self, current_marked):
+        self.row_decoration = self.bool_blank_icon if current_marked else None
 
     def change_alignment(self, colname, alignment):
         if colname in self.column_map and alignment in ('left', 'right', 'center'):
@@ -488,6 +493,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         mi.id = self.db.id(idx)
         mi.field_metadata = self.db.field_metadata
         mi.path = self.db.abspath(idx, create_dirs=False)
+        mi.format_files = self.db.new_api.format_files(self.db.data.index_to_id(idx))
         try:
             mi.marked = self.db.data.get_marked(idx, index_is_id=False)
         except:
@@ -921,6 +927,8 @@ class BooksModel(QAbstractTableModel):  # {{{
 
         if role == Qt.DisplayRole:  # orientation is vertical
             return QVariant(section+1)
+        if role == Qt.DecorationRole:
+            return self.marked_icon if self.db.data.get_marked(self.db.data.index_to_id(section)) else self.row_decoration
         return NONE
 
     def flags(self, index):

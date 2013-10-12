@@ -1,0 +1,51 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__author__ = '2013, Carlos Alves <carlosalves90@gmail.com>'
+'''
+diarioelpueblo.com.uy
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class General(BasicNewsRecipe):
+    title                 = 'Diario El Pueblo'
+    __author__            = 'Carlos Alves'
+    description           = 'Noticias de Salto - Uruguay'
+    tags = 'news, sports'
+    language       = 'es_UY'
+    timefmt        = '[%a, %d %b, %Y]'
+    use_embedded_content  = False
+    recursion             = 5
+    encoding = 'utf8'
+    remove_javascript = True
+    no_stylesheets = True
+
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    keep_only_tags = [dict(name='div', attrs={'class':'post-alt blog'})]
+
+    remove_tags = [
+             dict(name='div', attrs={'class':['hr', 'titlebar', 'volver-arriba-right','navigation']}),
+             dict(name='div', attrs={'id':'comment','id':'suckerfish','id':'crp_related'}),
+             dict(name='h3', attrs={'class':['post_date']}),
+             dict(name=['object','link'])
+                  ]
+
+    extra_css = '''
+                h1{font-family:Geneva, Arial, Helvetica, sans-serif;color:#154B7A;}
+                h3{font-size: 14px;color:#999999; font-family:Geneva, Arial, Helvetica, sans-serif;font-weight: bold;}
+                h2{color:#666666; font-family:Geneva, Arial, Helvetica, sans-serif;font-size:small;}
+                p {font-family:Arial,Helvetica,sans-serif;}
+                '''
+    feeds = [
+           (u'Articulos', u'http://www.diarioelpueblo.com.uy/feed')
+        ]
+
+    def get_cover_url(self):
+        return 'http://www.diarioelpueblo.com.uy/wp-content/uploads/2013/06/Cabezal_Web1.jpg'
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup

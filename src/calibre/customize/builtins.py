@@ -435,7 +435,7 @@ class EPUBMetadataWriter(MetadataWriterPlugin):
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.epub import set_metadata
-        set_metadata(stream, mi, apply_null=self.apply_null)
+        set_metadata(stream, mi, apply_null=self.apply_null, force_identifiers=self.force_identifiers)
 
 class FB2MetadataWriter(MetadataWriterPlugin):
 
@@ -923,6 +923,11 @@ class ActionSortBy(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.sort:SortByAction'
     description = _('Sort the list of books')
 
+class ActionMarkBooks(InterfaceActionBase):
+    name = 'Mark Books'
+    actual_plugin = 'calibre.gui2.actions.mark_books:MarkBooksAction'
+    description = _('Temporarily mark books')
+
 class ActionStore(InterfaceActionBase):
     name = 'Store'
     author = 'John Schember'
@@ -953,7 +958,8 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionMatchBooks, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore,
-        ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy]
+        ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
+        ActionMarkBooks]
 
 # }}}
 
@@ -1245,6 +1251,15 @@ class StoreSonyAUStore(StoreSonyStore):
     actual_plugin = 'calibre.gui2.store.stores.sony_au_plugin:SonyStore'
     headquarters = 'AU'
 
+class StoreAmazonCAKindleStore(StoreBase):
+    name = 'Amazon CA Kindle'
+    author = u'Tomasz Długosz'
+    description = u'Kindle books from Amazon.'
+    actual_plugin = 'calibre.gui2.store.stores.amazon_ca_plugin:AmazonCAKindleStore'
+
+    headquarters = 'CA'
+    formats = ['KINDLE']
+    # affiliate = True
 
 class StoreAmazonDEKindleStore(StoreBase):
     name = 'Amazon DE Kindle'
@@ -1341,16 +1356,6 @@ class StoreBiblioStore(StoreBase):
 
     headquarters = 'BG'
     formats = ['EPUB, PDF']
-
-class StoreBookotekaStore(StoreBase):
-    name = 'Bookoteka'
-    author = u'Tomasz Długosz'
-    description = u'E-booki w Bookotece dostępne są w formacie EPUB oraz PDF. Publikacje sprzedawane w Bookotece są objęte prawami autorskimi. Zobowiązaliśmy się chronić te prawa, ale bez ograniczania dostępu do książki użytkownikowi, który nabył ją w legalny sposób. Dlatego też Bookoteka stosuje tak zwany „watermarking transakcyjny” czyli swego rodzaju znaki wodne.'  # noqa
-    actual_plugin = 'calibre.gui2.store.stores.bookoteka_plugin:BookotekaStore'
-
-    drm_free_only = True
-    headquarters = 'PL'
-    formats = ['EPUB', 'PDF']
 
 class StoreCdpStore(StoreBase):
     name = 'Cdp.pl'
@@ -1687,6 +1692,15 @@ class StoreWHSmithUKStore(StoreBase):
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
 
+class StoreWolneLekturyStore(StoreBase):
+    name = 'Wolne Lektury'
+    author = u'Tomasz Długosz'
+    description = u'Wolne Lektury to biblioteka internetowa czynna 24 godziny na dobę, 365 dni w roku, której zasoby dostępne są całkowicie za darmo. Wszystkie dzieła są odpowiednio opracowane - opatrzone przypisami, motywami i udostępnione w kilku formatach - HTML, TXT, PDF, EPUB, MOBI, FB2.'  # noqa
+    actual_plugin = 'calibre.gui2.store.stores.wolnelektury_plugin:WolneLekturyStore'
+
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF', 'TXT', 'FB2']
+
 class StoreWoblinkStore(StoreBase):
     name = 'Woblink'
     author = u'Tomasz Długosz'
@@ -1709,6 +1723,7 @@ plugins += [
     StoreAllegroStore,
     StoreArchiveOrgStore,
     StoreAmazonKindleStore,
+    StoreAmazonCAKindleStore,
     StoreAmazonDEKindleStore,
     StoreAmazonESKindleStore,
     StoreAmazonFRKindleStore,
@@ -1718,7 +1733,6 @@ plugins += [
     StoreBNStore,
     StoreBeamEBooksDEStore,
     StoreBiblioStore,
-    StoreBookotekaStore,
     StoreChitankaStore,
     StoreCdpStore,
     StoreDieselEbooksStore,
@@ -1754,6 +1768,7 @@ plugins += [
     StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
     StoreWHSmithUKStore,
+    StoreWolneLekturyStore,
     StoreWoblinkStore,
     XinXiiStore
 ]

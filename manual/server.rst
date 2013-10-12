@@ -104,7 +104,7 @@ Save this adapter as :file:`calibre-wsgi-adpater.py` somewhere your server will 
 
 Let's suppose that we want to use WSGI in Apache. First enable WSGI in Apache by adding the following to :file:`httpd.conf`::
 
-    LoadModule proxy_module modules/mod_wsgi.so
+    LoadModule wsgi_module modules/mod_wsgi.so
 
 The exact technique for enabling the wsgi module will vary depending on your Apache installation. Once you have the proxy modules enabled, add the following rules to httpd.conf (or if you are using virtual hosts to the conf file for the virtual host in question::
 

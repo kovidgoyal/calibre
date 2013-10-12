@@ -93,10 +93,12 @@ class Convert(object):
         self.framed_map = {}
         self.anchor_map = {}
         self.link_map = defaultdict(list)
+        self.link_source_map = {}
         paras = []
 
         self.log.debug('Converting Word markup to HTML')
         self.read_page_properties(doc)
+        self.current_rels = relationships_by_id
         for wp, page_properties in self.page_map.iteritems():
             self.current_page = page_properties
             if wp.tag.endswith('}p'):
@@ -123,7 +125,7 @@ class Convert(object):
                 dl[-1][0].tail = ']'
                 dl.append(DD())
                 paras = []
-                self.images.rid_map = note.rels[0]
+                self.images.rid_map = self.current_rels = note.rels[0]
                 for wp in note:
                     if wp.tag.endswith('}tbl'):
                         self.tables.register(wp, self.styles)
@@ -157,7 +159,7 @@ class Convert(object):
 
         self.images.rid_map = orig_rid_map
 
-        self.resolve_links(relationships_by_id)
+        self.resolve_links()
 
         self.styles.cascade(self.layers)
 
@@ -378,6 +380,7 @@ class Convert(object):
                     try:
                         hl = hl_xpath(x)[0]
                         self.link_map[hl].append(span)
+                        self.link_source_map[hl] = self.current_rels
                         x.set('is-link', '1')
                     except IndexError:
                         current_hyperlink = None
@@ -455,9 +458,10 @@ class Convert(object):
             wrapper.append(elem)
         return wrapper
 
-    def resolve_links(self, relationships_by_id):
+    def resolve_links(self):
         self.resolved_link_map = {}
         for hyperlink, spans in self.link_map.iteritems():
+            relationships_by_id = self.link_source_map[hyperlink]
             span = spans[0]
             if len(spans) > 1:
                 span = self.wrap_elems(spans, SPAN())
