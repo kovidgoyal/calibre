@@ -1187,7 +1187,7 @@ class BuiltinDaysBetween(BuiltinFormatterFunction):
         except:
             return ''
         i = d1 - d2
-        return str('%d.%d'%(i.days, i.seconds/8640))
+        return '%.1f'%(i.days + (i.seconds/(24.0*60.0*60.0)))
 
 class BuiltinLanguageStrings(BuiltinFormatterFunction):
     name = 'language_strings'
