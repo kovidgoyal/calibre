@@ -33,6 +33,7 @@ class Main(MainWindow):
 
         self.create_actions()
         self.create_menubar()
+        self.create_toolbar()
         self.create_docks()
 
         self.status_bar = self.statusBar()
@@ -62,6 +63,10 @@ class Main(MainWindow):
         b = self.menuBar()
         f = b.addMenu(_('&File'))
         f.addAction(self.action_open_book)
+
+    def create_toolbar(self):
+        self.global_bar = b = self.addToolBar(_('Global'))
+        b.addAction(self.action_open_book)
 
     def create_docks(self):
         self.file_list_dock = d = QDockWidget(_('&Files Browser'), self)
