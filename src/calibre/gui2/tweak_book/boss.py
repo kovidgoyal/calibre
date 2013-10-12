@@ -10,7 +10,7 @@ import tempfile, shutil
 
 from PyQt4.Qt import QObject
 
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, choose_files
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.oeb.polish.main import SUPPORTED
 from calibre.ebooks.oeb.polish.container import get_container, clone_container
@@ -37,16 +37,23 @@ class Boss(QObject):
         # TODO: Implement this
         return True
 
-    def open_book(self, path):
+    def open_book(self, path=None):
+        if not self.check_dirtied():
+            return
+
+        if not hasattr(path, 'rpartition'):
+            path = choose_files(self.gui, 'open-book-for-tweaking', _('Choose book'),
+                                [(_('Books'), [x.lower() for x in SUPPORTED])], all_files=False, select_only_single_file=True)
+            if not path:
+                return
+            path = path[0]
+
         ext = path.rpartition('.')[-1].upper()
         if ext not in SUPPORTED:
             return error_dialog(self.gui, _('Unsupported format'),
                 _('Tweaking is only supported for books in the %s formats.'
                   ' Convert your book to one of these formats first.') % _(' and ').join(sorted(SUPPORTED)),
                 show=True)
-
-        if not self.check_dirtied():
-            return
 
         self.container_count = -1
         if self.tdir:
