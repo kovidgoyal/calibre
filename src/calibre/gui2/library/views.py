@@ -66,7 +66,7 @@ class HeaderView(QHeaderView):  # {{{
             try:
                 opt.icon = model.headerData(logical_index, opt.orientation, Qt.DecorationRole)
                 opt.iconAlignment = Qt.AlignVCenter
-            except TypeError:
+            except (IndexError, ValueError, TypeError):
                 pass
             if sm.isRowSelected(logical_index, QModelIndex()):
                 opt.state |= QStyle.State_Sunken
