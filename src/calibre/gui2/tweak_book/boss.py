@@ -71,12 +71,27 @@ class Boss(QObject):
         self.current_metadata = self.gui.current_metadata = container.mi
         self.global_undo.open_book(container)
         self.gui.update_window_title()
-        self.gui.file_list.build(container)
+        self.gui.file_list.build(container, preserve_state=False)
+        self.update_global_history_actions()
+
+    def update_global_history_actions(self):
+        gu = self.global_undo
+        for x, text in (('undo', _('&Undo')), ('redo', '&Redo')):
+            ac = getattr(self.gui, 'action_global_%s' % x)
+            ac.setEnabled(getattr(gu, 'can_' + x))
+            ac.setText(text + ' ' + getattr(gu, x + '_msg'))
 
     def add_savepoint(self, msg):
         nc = clone_container(current_container(), self.mkdtemp())
         self.global_undo.add_savepoint(nc, msg)
         set_current_container(nc)
+        self.update_global_history_actions()
+
+    def do_global_undo(self):
+        pass
+
+    def do_global_redo(self):
+        pass
 
     def delete_requested(self, spine_items, other_items):
         if not self.check_dirtied():

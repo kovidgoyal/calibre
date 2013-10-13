@@ -58,15 +58,26 @@ class Main(MainWindow):
             return ac
 
         self.action_open_book = reg('document_open.png', _('Open &book'), self.boss.open_book, 'open-book', 'Ctrl+O', _('Open a new book'))
+        self.action_global_undo = reg('back.png', _('&Revert to before'), self.boss.do_global_undo, 'global-undo', 'Ctrl+Left',
+                                      _('Revert book to before the last action (Undo)'))
+        self.action_global_redo = reg('forward.png', _('&Revert to after'), self.boss.do_global_redo, 'global-redo', 'Ctrl+Right',
+                                      _('Revert book state to after the next action (Redo)'))
 
     def create_menubar(self):
         b = self.menuBar()
+
         f = b.addMenu(_('&File'))
         f.addAction(self.action_open_book)
+
+        e = b.addMenu(_('&Edit'))
+        e.addAction(self.action_global_undo)
+        e.addAction(self.action_global_redo)
 
     def create_toolbar(self):
         self.global_bar = b = self.addToolBar(_('Global'))
         b.addAction(self.action_open_book)
+        b.addAction(self.action_global_undo)
+        b.addAction(self.action_global_redo)
 
     def create_docks(self):
         self.file_list_dock = d = QDockWidget(_('&Files Browser'), self)

@@ -89,7 +89,25 @@ class FileList(QTreeWidget):
                 'images':'view-image.png',
             }.iteritems()}
 
-    def build(self, container):
+    def get_state(self):
+        s = {'pos':self.verticalScrollBar().value()}
+        s['expanded'] = {c for c, item in self.categories.iteritems() if item.isExpanded()}
+        s['selected'] = {unicode(i.data(0, NAME_ROLE).toString()) for i in self.selectedItems()}
+        return s
+
+    def set_state(self, state):
+        for category, item in self.categories:
+            item.setExpanded(category in state['expanded'])
+        self.verticalScrollBar().setValue(state['pos'])
+        for parent in self.categories.itervalues():
+            for c in (parent.child(i) for i in parent.childCount()):
+                name = unicode(c.data(0, NAME_ROLE).toString())
+                if name in state['selected']:
+                    c.setSelected(True)
+
+    def build(self, container, preserve_state=True):
+        if preserve_state:
+            state = self.get_state()
         self.clear()
         self.root = self.invisibleRootItem()
         self.root.setFlags(Qt.ItemIsDragEnabled)
@@ -221,7 +239,10 @@ class FileList(QTreeWidget):
             processed[name] = create_item(name)
 
         for c in self.categories.itervalues():
-            self.expandItem(c)
+            c.setExpanded(True)
+
+        if preserve_state:
+            self.set_state(state)
 
     def show_context_menu(self, point):
         pass
@@ -277,7 +298,7 @@ class FileListWidget(QWidget):
         for x in ('delete_done',):
             setattr(self, x, getattr(self.file_list, x))
 
-    def build(self, container):
-        self.file_list.build(container)
+    def build(self, container, preserve_state=True):
+        self.file_list.build(container, preserve_state=preserve_state)
 
 
