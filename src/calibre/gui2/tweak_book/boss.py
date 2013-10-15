@@ -87,11 +87,23 @@ class Boss(QObject):
         set_current_container(nc)
         self.update_global_history_actions()
 
+    def apply_container_update_to_gui(self):
+        container = current_container()
+        self.gui.file_list.build(container)
+        self.update_global_history_actions()
+        # TODO: Apply to other GUI elements
+
     def do_global_undo(self):
-        pass
+        container = self.global_undo.undo()
+        if container is not None:
+            set_current_container(container)
+            self.apply_container_update_to_gui()
 
     def do_global_redo(self):
-        pass
+        container = self.global_undo.redo()
+        if container is not None:
+            set_current_container(container)
+            self.apply_container_update_to_gui()
 
     def delete_requested(self, spine_items, other_items):
         if not self.check_dirtied():

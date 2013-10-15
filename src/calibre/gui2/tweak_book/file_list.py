@@ -96,11 +96,11 @@ class FileList(QTreeWidget):
         return s
 
     def set_state(self, state):
-        for category, item in self.categories:
+        for category, item in self.categories.iteritems():
             item.setExpanded(category in state['expanded'])
         self.verticalScrollBar().setValue(state['pos'])
         for parent in self.categories.itervalues():
-            for c in (parent.child(i) for i in parent.childCount()):
+            for c in (parent.child(i) for i in xrange(parent.childCount())):
                 name = unicode(c.data(0, NAME_ROLE).toString())
                 if name in state['selected']:
                     c.setSelected(True)
