@@ -19,7 +19,7 @@ from PyQt4.Qt import (
     QTimer, QPalette, QColor, QItemSelection, QPixmap, QMenu, QApplication,
     QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QEvent,
     QPropertyAnimation, QEasingCurve, pyqtSlot, QHelpEvent, QAbstractItemView,
-    QStyleOptionViewItem, QToolTip, QByteArray, QBuffer)
+    QStyleOptionViewItem, QToolTip, QByteArray, QBuffer, QBrush)
 
 from calibre import fit_image, prints, prepare_string_for_xml
 from calibre.ebooks.metadata import fmt_sidx
@@ -586,6 +586,12 @@ class GridView(QListView):
         pal = QPalette()
         col = QColor(r, g, b)
         pal.setColor(pal.Base, col)
+        tex = gprefs['cover_grid_texture']
+        if tex:
+            from calibre.gui2.preferences.texture_chooser import texture_path
+            path = texture_path(tex)
+            if path:
+                pal.setBrush(pal.Base, QBrush(QPixmap(path)))
         dark = (r + g + b)/3.0 < 128
         pal.setColor(pal.Text, QColor(Qt.white if dark else Qt.black))
         self.setPalette(pal)

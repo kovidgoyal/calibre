@@ -312,61 +312,12 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLabel" name="label_14">
-           <property name="text">
-            <string>Background color for the cover grid:</string>
-           </property>
-           <property name="buddy">
-            <cstring>cover_grid_color_button</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="cover_grid_color_label">
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="autoFillBackground">
-            <bool>true</bool>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="cover_grid_color_button">
-           <property name="text">
-            <string>Change &amp;color</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="cover_grid_default_color_button">
-           <property name="text">
-            <string>Restore &amp;default color</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
+        <widget class="QGroupBox" name="cg_background_box">
+         <property name="title">
+          <string>Background for the cover grid</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_5"/>
+        </widget>
        </item>
        <item>
         <widget class="QGroupBox" name="groupBox_4">
