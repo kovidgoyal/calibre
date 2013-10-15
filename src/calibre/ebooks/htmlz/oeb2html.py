@@ -49,7 +49,7 @@ class OEB2HTML(object):
         return self.mlize_spine(oeb_book)
 
     def mlize_spine(self, oeb_book):
-        output = [u'<html><body><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" /></head>']
+        output = [u'<html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" /></head><body>']
         for item in oeb_book.spine:
             self.log.debug('Converting %s to HTML...' % item.href)
             self.rewrite_ids(item.data, item)
