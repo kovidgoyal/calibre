@@ -22,6 +22,18 @@ from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace,\
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.logging import default_log
 
+SELF_CLOSING_TAGS = [
+    'area',
+    'base',
+    'basefont',
+    'br',
+    'hr',
+    'input',
+    'img',
+    'link',
+    'meta'
+]
+
 class OEB2HTML(object):
     '''
     Base class. All subclasses should implement dump_text to actually transform
@@ -183,7 +195,11 @@ class OEB2HTMLNoCSSizer(OEB2HTML):
             at += ' %s="%s"' % (k, prepare_string_for_xml(v, attribute=True))
 
         # Write the tag.
-        text.append('<%s%s>' % (tag, at))
+        text.append('<%s%s' % (tag, at))
+        if tag in SELF_CLOSING_TAGS:
+        	text.append(' />')
+        else:
+        	text.append('>')
 
         # Turn styles into tags.
         if style['font-weight'] in ('bold', 'bolder'):
@@ -210,7 +226,8 @@ class OEB2HTMLNoCSSizer(OEB2HTML):
         # Close all open tags.
         tags.reverse()
         for t in tags:
-            text.append('</%s>' % t)
+            if t not in SELF_CLOSING_TAGS:
+                text.append('</%s>' % t)
 
         # Add the text that is outside of the tag.
         if hasattr(elem, 'tail') and elem.tail:
@@ -270,7 +287,11 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
             style_t = ' style="%s"' % style_a.replace('"', "'")
 
         # Write the tag.
-        text.append('<%s%s%s>' % (tag, at, style_t))
+        text.append('<%s%s%s' % (tag, at, style_t))
+        if tag in SELF_CLOSING_TAGS:
+        	text.append(' />')
+        else:
+        	text.append('>')
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
@@ -283,7 +304,8 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
         # Close all open tags.
         tags.reverse()
         for t in tags:
-            text.append('</%s>' % t)
+            if t not in SELF_CLOSING_TAGS:
+                text.append('</%s>' % t)
 
         # Add the text that is outside of the tag.
         if hasattr(elem, 'tail') and elem.tail:
@@ -350,7 +372,11 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
             at += ' %s="%s"' % (k, prepare_string_for_xml(v, attribute=True))
 
         # Write the tag.
-        text.append('<%s%s>' % (tag, at))
+        text.append('<%s%s' % (tag, at))
+        if tag in SELF_CLOSING_TAGS:
+        	text.append(' />')
+        else:
+        	text.append('>')
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
@@ -363,7 +389,8 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
         # Close all open tags.
         tags.reverse()
         for t in tags:
-            text.append('</%s>' % t)
+            if t not in SELF_CLOSING_TAGS:
+                text.append('</%s>' % t)
 
         # Add the text that is outside of the tag.
         if hasattr(elem, 'tail') and elem.tail:
