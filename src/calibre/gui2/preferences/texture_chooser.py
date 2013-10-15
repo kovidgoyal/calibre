@@ -10,7 +10,7 @@ import glob, os, string, shutil
 from functools import partial
 from PyQt4.Qt import (
     QDialog, QVBoxLayout, QListWidget, QListWidgetItem, Qt, QIcon,
-    QApplication, QSize, QPixmap, QDialogButtonBox, QTimer)
+    QApplication, QSize, QPixmap, QDialogButtonBox, QTimer, QLabel)
 
 from calibre.constants import config_dir
 from calibre.gui2 import choose_files, error_dialog
@@ -50,6 +50,10 @@ class TextureChooser(QDialog):
         il.itemSelectionChanged.connect(self.update_remove_state)
         l.addWidget(il)
 
+        self.ad = ad = QLabel(_('The builtin textures come from <a href="http://subtlepatterns.com">subtlepatterns.com</a>.'))
+        ad.setOpenExternalLinks(True)
+        ad.setWordWrap(True)
+        l.addWidget(ad)
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
@@ -137,6 +141,7 @@ class TextureChooser(QDialog):
         if self.selected_fname.startswith(':'):
             return error_dialog(self, _('Cannot remove'),
                                 _('Cannot remover builtin textures'), show=True)
+        os.remove(unicode(self.selected_item.data(Qt.UserRole+1).toString()))
         self.images.takeItem(self.images.row(self.selected_item))
 
 if __name__ == '__main__':
