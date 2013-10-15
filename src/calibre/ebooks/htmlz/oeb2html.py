@@ -267,7 +267,7 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
         # Turn style into strings for putting in the tag.
         style_t = ''
         if style_a:
-            style_t = ' style="%s"' % style_a
+            style_t = ' style="%s"' % style_a.replace('"', "'")
 
         # Write the tag.
         text.append('<%s%s%s>' % (tag, at, style_t))
