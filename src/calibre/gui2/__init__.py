@@ -753,11 +753,13 @@ class ResizableDialog(QDialog):
     def __init__(self, *args, **kwargs):
         QDialog.__init__(self, *args)
         self.setupUi(self)
-        nh, nw = min_available_height()-25, available_width()-10
+        desktop = QCoreApplication.instance().desktop()
+        geom = desktop.availableGeometry(self)
+        nh, nw = geom.height()-25, geom.width()-10
         if nh < 0:
-            nh = 800
+            nh = max(800, self.height())
         if nw < 0:
-            nw = 600
+            nw = max(600, self.height())
         nh = min(self.height(), nh)
         nw = min(self.width(), nw)
         self.resize(nw, nh)
