@@ -18,8 +18,8 @@ class CommentsDialog(QDialog, Ui_CommentsDialog):
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
-        if text is not None:
-            self.textbox.html = comments_to_html(text)
+        self.textbox.html = comments_to_html(text) if text else ''
+        self.textbox.wyswyg_dirtied()
         # self.textbox.setTabChangesFocus(True)
         self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
         self.buttonBox.button(QDialogButtonBox.Cancel).setText(_('&Cancel'))
