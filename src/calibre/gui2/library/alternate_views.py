@@ -8,7 +8,6 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import itertools, operator, os
 from types import MethodType
-from time import time
 from threading import Event, Thread
 from Queue import LifoQueue
 from functools import wraps, partial
@@ -23,6 +22,7 @@ from PyQt4.Qt import (
 
 from calibre import fit_image, prints, prepare_string_for_xml
 from calibre.ebooks.metadata import fmt_sidx
+from calibre.utils import join_with_timeout
 from calibre.gui2 import gprefs, config
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
 from calibre.utils.config import prefs, tweaks
@@ -482,17 +482,6 @@ class CoverDelegate(QStyledItemDelegate):
                 return True
         return False
 
-def join_with_timeout(q, timeout=2):
-    q.all_tasks_done.acquire()
-    try:
-        endtime = time() + timeout
-        while q.unfinished_tasks:
-            remaining = endtime - time()
-            if remaining <= 0.0:
-                raise RuntimeError('Waiting for queue to clear timed out')
-            q.all_tasks_done.wait(remaining)
-    finally:
-        q.all_tasks_done.release()
 # }}}
 
 # The View {{{
