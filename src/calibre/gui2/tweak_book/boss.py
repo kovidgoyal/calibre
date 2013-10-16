@@ -16,14 +16,16 @@ from calibre.ebooks.oeb.polish.main import SUPPORTED
 from calibre.ebooks.oeb.polish.container import get_container, clone_container
 from calibre.gui2.tweak_book import set_current_container, current_container, tprefs
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
+from calibre.gui2.tweak_book.save import SaveManager
 
 class Boss(QObject):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         QObject.__init__(self, parent)
         self.global_undo = GlobalUndoHistory()
         self.container_count = 0
         self.tdir = None
+        self.save_manager = SaveManager(parent)
 
     def __call__(self, gui):
         self.gui = gui
@@ -40,6 +42,7 @@ class Boss(QObject):
     def open_book(self, path=None):
         if not self.check_dirtied():
             return
+        # TODO: Check if a save is in progress and abort if it is
 
         if not hasattr(path, 'rpartition'):
             path = choose_files(self.gui, 'open-book-for-tweaking', _('Choose book'),
@@ -119,7 +122,10 @@ class Boss(QObject):
         # TODO: Update other GUI elements
 
     def save_book(self):
-        pass
+        self.gui.action_save.setEnabled(False)
+        tdir = tempfile.mkdtemp(prefix='save-%05d-' % self.container_count, dir=self.tdir)
+        container = clone_container(current_container(), tdir)
+        self.save_manager.schedule(tdir, container)
 
     def quit(self):
         if not self.confirm_quit():

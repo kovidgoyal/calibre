@@ -8,6 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt4.Qt import QDockWidget, Qt, QLabel, QIcon, QAction, QApplication
 
+from calibre.constants import __appname__, get_version
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.file_list import FileListWidget
@@ -39,6 +40,11 @@ class Main(MainWindow):
 
         self.status_bar = self.statusBar()
         self.l = QLabel('Placeholder')
+        self.status_bar.addPermanentWidget(self.boss.save_manager.status_widget)
+        self.status_bar.addWidget(QLabel(_('%s %s created by %s') % (__appname__, get_version(), 'Kovid Goyal')))
+        f = self.status_bar.font()
+        f.setBold(True)
+        self.status_bar.setFont(f)
 
         self.setCentralWidget(self.l)
         self.boss(self)
