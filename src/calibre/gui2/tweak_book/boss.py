@@ -8,13 +8,13 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import tempfile, shutil
 
-from PyQt4.Qt import QObject
+from PyQt4.Qt import QObject, QApplication
 
 from calibre.gui2 import error_dialog, choose_files
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.oeb.polish.main import SUPPORTED
 from calibre.ebooks.oeb.polish.container import get_container, clone_container
-from calibre.gui2.tweak_book import set_current_container, current_container
+from calibre.gui2.tweak_book import set_current_container, current_container, tprefs
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 
 class Boss(QObject):
@@ -72,14 +72,15 @@ class Boss(QObject):
         self.global_undo.open_book(container)
         self.gui.update_window_title()
         self.gui.file_list.build(container, preserve_state=False)
+        self.gui.action_save.setEnabled(False)
         self.update_global_history_actions()
 
     def update_global_history_actions(self):
         gu = self.global_undo
-        for x, text in (('undo', _('&Undo')), ('redo', '&Redo')):
+        for x, text in (('undo', _('&Revert to before')), ('redo', '&Revert to after')):
             ac = getattr(self.gui, 'action_global_%s' % x)
             ac.setEnabled(getattr(gu, 'can_' + x))
-            ac.setText(text + ' ' + getattr(gu, x + '_msg'))
+            ac.setText(text + ' ' + (getattr(gu, x + '_msg') or '...'))
 
     def add_savepoint(self, msg):
         nc = clone_container(current_container(), self.mkdtemp())
@@ -113,6 +114,25 @@ class Boss(QObject):
         c.remove_from_spine(spine_items)
         for name in other_items:
             c.remove_item(name)
+        self.gui.action_save.setEnabled(True)
         self.gui.file_list.delete_done(spine_items, other_items)
+        # TODO: Update other GUI elements
 
+    def save_book(self):
+        pass
 
+    def quit(self):
+        if not self.confirm_quit():
+            return
+        self.save_state()
+        QApplication.instance().quit()
+
+    def confirm_quit(self):
+        return True
+
+    def shutdown(self):
+        self.save_state()
+
+    def save_state(self):
+        with tprefs:
+            self.gui.save_state()
