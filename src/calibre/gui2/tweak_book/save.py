@@ -6,14 +6,17 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import shutil
+import shutil, os
 from threading import Thread
 from Queue import LifoQueue, Empty
 
 from PyQt4.Qt import (QObject, pyqtSignal, QLabel, QWidget, QHBoxLayout, Qt)
 
-from calibre.utils import join_with_timeout
+from calibre.constants import iswindows
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.progress_indicator import ProgressIndicator
+from calibre.utils import join_with_timeout
+from calibre.utils.filenames import atomic_rename
 
 class SaveWidget(QWidget):
 
@@ -101,10 +104,18 @@ class SaveManager(QObject):
         self.save_done.emit()
 
     def do_save(self, tdir, container):
+        temp = None
         try:
-            import time
-            time.sleep(10)
+            path = container.path_to_ebook
+            temp = PersistentTemporaryFile(
+                prefix=('_' if iswindows else '.'), suffix=os.path.splitext(path)[1], dir=os.path.dirname(path))
+            temp.close()
+            temp = temp.name
+            container.commit(temp)
+            atomic_rename(temp, path)
         finally:
+            if temp and os.path.exists(temp):
+                os.remove(temp)
             shutil.rmtree(tdir, ignore_errors=True)
 
     @property

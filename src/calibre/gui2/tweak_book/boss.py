@@ -10,7 +10,7 @@ import tempfile, shutil
 
 from PyQt4.Qt import QObject, QApplication
 
-from calibre.gui2 import error_dialog, choose_files
+from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.oeb.polish.main import SUPPORTED
 from calibre.ebooks.oeb.polish.container import get_container, clone_container
@@ -26,6 +26,7 @@ class Boss(QObject):
         self.container_count = 0
         self.tdir = None
         self.save_manager = SaveManager(parent)
+        self.save_manager.report_error.connect(self.report_save_error)
 
     def __call__(self, gui):
         self.gui = gui
@@ -42,7 +43,10 @@ class Boss(QObject):
     def open_book(self, path=None):
         if not self.check_dirtied():
             return
-        # TODO: Check if a save is in progress and abort if it is
+        if self.save_manager.has_tasks:
+            return info_dialog(self.gui, _('Cannot open'),
+                        _('The current book is being saved, you cannot open a new book until'
+                          ' the saving is completed'), show=True)
 
         if not hasattr(path, 'rpartition'):
             path = choose_files(self.gui, 'open-book-for-tweaking', _('Choose book'),
@@ -95,6 +99,7 @@ class Boss(QObject):
         container = current_container()
         self.gui.file_list.build(container)
         self.update_global_history_actions()
+        self.gui.action_save.setEnabled(True)
         # TODO: Apply to other GUI elements
 
     def do_global_undo(self):
@@ -127,6 +132,11 @@ class Boss(QObject):
         container = clone_container(current_container(), tdir)
         self.save_manager.schedule(tdir, container)
 
+    def report_save_error(self, tb):
+        error_dialog(self.gui, _('Could not save'),
+                     _('Saving of the book failed. Click "Show Details"'
+                       ' for more information.'), det_msg=tb, show=True)
+
     def quit(self):
         if not self.confirm_quit():
             return
@@ -134,10 +144,19 @@ class Boss(QObject):
         QApplication.instance().quit()
 
     def confirm_quit(self):
+        if self.save_manager.has_tasks:
+            if not question_dialog(
+                self.gui, _('Are you sure?'), _(
+                    'The current book is being saved in the background, quitting will abort'
+                    ' the save process, are you sure?'), default_yes=False):
+                return False
+
         return True
 
     def shutdown(self):
         self.save_state()
+        self.save_manager.shutdown()
+        self.save_manager.wait(0.1)
 
     def save_state(self):
         with tprefs:

@@ -745,6 +745,10 @@ class EpubContainer(Container):
             f.write(guess_type('a.epub'))
         zip_rebuilder(self.root, outpath)
 
+    @property
+    def path_to_ebook(self):
+        return self.pathtoepub
+
 # }}}
 
 # AZW3 {{{
@@ -839,6 +843,11 @@ class AZW3Container(Container):
         oeb = create_oebbook(default_log, opf, plumber.opts)
         set_cover(oeb)
         outp.convert(oeb, outpath, inp, plumber.opts, default_log)
+
+    @property
+    def path_to_ebook(self):
+        return self.pathtoepub
+
 # }}}
 
 def get_container(path, log=None, tdir=None):
