@@ -150,6 +150,12 @@ class Boss(QObject):
                     'The current book is being saved in the background, quitting will abort'
                     ' the save process, are you sure?'), default_yes=False):
                 return False
+        if self.gui.action_save.isEnabled():
+            if not question_dialog(
+                self.gui, _('Are you sure?'), _(
+                    'The current book has unsaved changes, you will lose them if you quit,'
+                    ' are you sure?'), default_yes=False):
+                return False
 
         return True
 
