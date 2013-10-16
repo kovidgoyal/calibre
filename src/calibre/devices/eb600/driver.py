@@ -59,6 +59,8 @@ class TOLINO(EB600):
     VENDOR_NAME      = ['DEUTSCHE']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['_TELEKOMTOLINO']
 
+    # There are apparently two versions of this device, one with swapped
+    # drives and one without, see https://bugs.launchpad.net/bugs/1240504
     def linux_swap_drives(self, drives):
         if len(drives) < 2 or not drives[1] or not drives[2]:
             return drives
