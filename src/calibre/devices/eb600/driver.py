@@ -62,7 +62,7 @@ class TOLINO(EB600):
     # There are apparently two versions of this device, one with swapped
     # drives and one without, see https://bugs.launchpad.net/bugs/1240504
     def linux_swap_drives(self, drives):
-        if len(drives) < 2 or not drives[1] or not drives[2]:
+        if len(drives) < 2 or not drives[0] or not drives[1]:
             return drives
         drives = list(drives)
         t = drives[0]
