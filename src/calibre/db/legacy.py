@@ -154,7 +154,7 @@ class LibraryDatabase(object):
         return tuple(self.new_api.all_book_ids())
 
     def is_empty(self):
-        with self.new_api.read_lock:
+        with self.new_api.safe_read_lock:
             return not bool(self.new_api.fields['title'].table.book_col_map)
 
     def get_usage_count_by_id(self, field):
@@ -363,7 +363,7 @@ class LibraryDatabase(object):
 
     def authors_with_sort_strings(self, index, index_is_id=False):
         book_id = index if index_is_id else self.id(index)
-        with self.new_api.read_lock:
+        with self.new_api.safe_read_lock:
             authors = self.new_api._field_ids_for('authors', book_id)
             adata = self.new_api._author_data(authors)
             return [(aid, adata[aid]['name'], adata[aid]['sort'], adata[aid]['link']) for aid in authors]
@@ -379,7 +379,7 @@ class LibraryDatabase(object):
             self.notify('metadata', list(changed_books))
 
     def book_on_device(self, book_id):
-        with self.new_api.read_lock:
+        with self.new_api.safe_read_lock:
             return self.new_api.fields['ondevice'].book_on_device(book_id)
 
     def book_on_device_string(self, book_id):
@@ -393,7 +393,7 @@ class LibraryDatabase(object):
         return self.new_api.fields['ondevice'].book_on_device_func
 
     def books_in_series(self, series_id):
-        with self.new_api.read_lock:
+        with self.new_api.safe_read_lock:
             book_ids = self.new_api._books_for_field('series', series_id)
             ff = self.new_api._field_for
             return sorted(book_ids, key=lambda x:ff('series_index', x))

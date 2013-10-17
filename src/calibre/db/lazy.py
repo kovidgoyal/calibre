@@ -132,7 +132,7 @@ def adata_getter(field):
             author_ids, adata = cache['adata']
         except KeyError:
             db = dbref()
-            with db.read_lock:
+            with db.safe_read_lock:
                 author_ids = db._field_ids_for('authors', book_id)
                 adata = db._author_data(author_ids)
             cache['adata'] = (author_ids, adata)
