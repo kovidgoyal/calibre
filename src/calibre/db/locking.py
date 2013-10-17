@@ -13,6 +13,8 @@ from calibre.utils.config_base import tweaks
 
 class LockingError(RuntimeError):
 
+    is_locking_error = True
+
     def __init__(self, msg, extra=None):
         RuntimeError.__init__(self, msg)
         self.locking_debug_msg = extra
