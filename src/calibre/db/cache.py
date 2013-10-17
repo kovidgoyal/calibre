@@ -1397,6 +1397,10 @@ class Cache(object):
             except:
                 path = None
             path_map[book_id] = path
+        if iswindows:
+            paths = (x.replace(os.sep, '/') for x in path_map.itervalues() if x)
+            self.backend.windows_check_if_files_in_use(paths)
+
         self.backend.remove_books(path_map, permanent=permanent)
         for field in self.fields.itervalues():
             try:
