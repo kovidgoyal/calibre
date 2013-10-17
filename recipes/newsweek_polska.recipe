@@ -2,173 +2,263 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2010, matek09, matek09@gmail.com; 2012, admroz, a.rozewicki@gmail.com'
+__copyright__ = '2010, matek09, matek09@gmail.com; 2012-2013, admroz, a.rozewicki@gmail.com'
 
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
 from string import capwords
 import datetime
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 
 class Newsweek(BasicNewsRecipe):
 
-	# how many issues to go back, 0 means get the most current one
-	BACK_ISSUES = 2
+    # how many issues to go back, 0 means get the most current one
+    BACK_ISSUES = 1
 
-	EDITION = '0'
-	DATE = None
-	YEAR = datetime.datetime.now().year
+    EDITION = '0'
+    DATE = None
+    YEAR = datetime.datetime.now().year
 
-	title = u'Newsweek Polska'
-	__author__ = 'matek09, admroz'
-	description = 'Weekly magazine'
-	encoding = 'utf-8'
-	language = 'pl'
-	remove_javascript = True
+    title = u'Newsweek Polska'
+    __author__ = 'matek09, admroz'
+    description = 'Weekly magazine'
+    encoding = 'utf-8'
+    language = 'pl'
+    remove_javascript = True
 
-	temp_files = []
-	articles_are_obfuscated = True
-
-
-	#
-	# Parses each article
-	#
-	def get_obfuscated_article(self, url):
-		br = self.get_browser()
-		br.open(url)
-		source = br.response().read()
-		page = self.index_to_soup(source)
-
-		main_section = page.find(id='mainSection')
-
-		title = main_section.find('h1')
-		info = main_section.find('ul', attrs={'class' : 'articleInfo'})
-		authors = info.find('li').find('h4')
-		article = main_section.find('div', attrs={'id' : 'article'})
-
-		# remove related articles box
-		related = article.find('div', attrs={'class' : 'relatedBox'})
-		if related is not None:
-			related.extract()
-
-		# remove div with social networking links and links to
-		# other articles in web version
-		for div in article.findAll('div'):
-			if div.find('span', attrs={'class' : 'google-plus'}):
-				div.extract()
-
-			for p in div.findAll('p'):
-				if p.find('span', attrs={'style' : 'color: rgb(255, 0, 0);'}):
-					p.extract()
-					continue
-				for a in p.findAll('a'):
-					if a.find('span', attrs={'style' : 'font-size: larger;'}):
-						a.extract()
+    temp_files = []
+    articles_are_obfuscated = True
 
 
-		html = unicode(title) + unicode(authors) + unicode(article)
-		next = main_section.find('li', attrs={'class' : 'next'})
+    #
+    # Parses article contents from one page
+    #
+    def get_article_divs(self, css, main_section):
+        strs = []
 
-		while next:
-			url = next.find('a')['href']
-			br.open(url)
-			source = br.response().read()
-			page = self.index_to_soup(source)
-			main_section = page.find(id='mainSection')
-			article = main_section.find('div', attrs={'id' : 'article'})
-			aside = article.find(id='articleAside')
-			if aside is not None:
-				aside.extract()
-			html = html + unicode(article)
-			next = main_section.find('li', attrs={'class' : 'next'})
+        # get all divs with given css class
+        article_divs = main_section.findAll('div', attrs={'class' : css})
+        for article_div in article_divs:
 
+            # remove sections like 'read more...' etc.
+            for p in article_div.findAll('p'):
 
-		self.temp_files.append(PersistentTemporaryFile('_temparse.html'))
-		self.temp_files[-1].write(html)
-		self.temp_files[-1].close()
-		return self.temp_files[-1].name
+                if p.find('span', attrs={'style' : 'color: #800000; font-size: medium;'}):
+                    p.extract()
+                    continue
 
+                if p.find('span', attrs={'style' : 'font-size: medium; color: #800000;'}):
+                    p.extract()
+                    continue
 
-	#
-	# Goes back given number of issues. It also knows how to go back
-	# to the previous year if there are not enough issues in the current one
-	#
-	def find_last_issue(self, archive_url):
-		archive_soup = self.index_to_soup(archive_url)
-		select = archive_soup.find('select', attrs={'id' : 'paper_issue_select'})
-		options = select.findAll(lambda tag: tag.name == 'option' and tag.has_key('value'))
+                if p.find('span', attrs={'style' : 'font-size: medium;'}):
+                    p.extract()
+                    continue
 
-		# check if need to go back to previous year
-		if len(options) > self.BACK_ISSUES:
-			option = options[self.BACK_ISSUES];
-			self.EDITION = option['value'].replace('http://www.newsweek.pl/wydania/','')
-			self.index_to_soup('http://www.newsweek.pl/wydania/' + self.EDITION)
-		else:
-			self.BACK_ISSUES = self.BACK_ISSUES - len(options)
-			self.YEAR = self.YEAR - 1
-			self.find_last_issue(archive_url + ',' + str(self.YEAR))
+                if p.find('span', attrs={'style' : 'color: #800000;'}):
+                    p.extract()
+                    continue
 
+                obj = p.find('object')
+                if obj:
+                    obj.extract()
+                    continue
 
-	#
-	# Looks for the last issue which we want to download. Then goes on each
-	# section and article and stores them (assigning to sections)
-	#
-	def parse_index(self):
-		archive_url = 'http://www.newsweek.pl/wydania/archiwum'
-		self.find_last_issue(archive_url)
-		soup = self.index_to_soup('http://www.newsweek.pl/wydania/' + self.EDITION)
-		self.DATE = self.tag_to_string(soup.find('span', attrs={'class' : 'data'}))
-		main_section = soup.find(id='mainSection')
-		img = main_section.find(lambda tag: tag.name == 'img' and tag.has_key('alt') and tag.has_key('title'))
-		self.cover_url = img['src']
-		feeds = []
-		articles = {}
-		sections = []
+                strong = p.find('strong')
+                if strong:
+                    newest = re.compile("Tekst pochodzi z najnowszego numeru Tygodnika Newsweek")
+                    if newest.search(str(strong)):
+                        strong.extract()
+                        continue
 
-		news_list = main_section.find('ul', attrs={'class' : 'newsList'})
-		section = 'Inne'
+                itunes = p.find('a')
+                if itunes:
+                    reurl = re.compile("itunes.apple.com")
+                    if reurl.search(str(itunes['href'])):
+                        p.extract()
+                        continue
 
-		for li in news_list.findAll('li'):
-			h3 = li.find('h3')
-			if h3 is not None:
-				section = capwords(self.tag_to_string(h3))
-				continue
-			else:
-				h2 = li.find('h2')
-				if h2 is not None:
-					article = self.create_article(h2)
-					if article is None :
-						continue
-
-					if articles.has_key(section):
-						articles[section].append(article)
-					else:
-						articles[section] = [article]
-						sections.append(section)
+                imagedesc = p.find('div', attrs={'class' : 'image-desc'})
+                if imagedesc:
+                    redesc = re.compile("Okładka numeru")
+                    if (redesc.search(str(imagedesc))):
+                        p.extract()
+                        continue
 
 
-		for section in sections:
-			feeds.append((section, articles[section]))
-		return feeds
+
+            # get actual contents
+            for content in article_div.contents:
+                strs.append("".join(str(content)))
+
+        # return contents as a string
+        return unicode("".join(strs))
 
 
-	#
-	# Creates each article metadata (skips locked ones). The content will
-	# be extracted later by other method (get_obfuscated_article).
-	#
-	def create_article(self, h2):
-		article = {}
-		a = h2.find('a')
-		if a is None:
-			return None
+    #
+    # Articles can be divided into several pages, this method parses them recursevely
+    #
+    def get_article_page(self, br, url, page):
+        br.open(url)
+        source = br.response().read()
 
-		article['title'] = self.tag_to_string(a)
-		article['url'] = a['href']
-		article['date'] = self.DATE
-		desc = h2.findNext('p')
+        html = ''
 
-		if desc is not None:
-			article['description'] = self.tag_to_string(desc)
-		else:
-			article['description'] = ''
-		return article
+        matches = re.search(r'<article>(.*)</article>', source, re.DOTALL)
+        if matches is None:
+            print "no article tag found, returning..."
+            return
+
+        main_section = BeautifulSoup(matches.group(0))
+
+        if page == 0:
+            title = main_section.find('h1')
+            html = html + unicode(title)
+
+            authors = ''
+            authorBox = main_section.find('div', attrs={'class' : 'AuthorBox'})
+            if authorBox is not None:
+                authorH4 = authorBox.find('h4')
+                if authorH4 is not None:
+                    authors = self.tag_to_string(authorH4)
+            html = html + unicode(authors)
+
+            info = main_section.find('p', attrs={'class' : 'lead'})
+            html = html + unicode(info)
+
+        html = html + self.get_article_divs('3917dc34e07c9c7180df2ea9ef103361845c8af42b71f51b960059226090a1ac articleStart', main_section)
+        html = html + self.get_article_divs('3917dc34e07c9c7180df2ea9ef103361845c8af42b71f51b960059226090a1ac', main_section)
+
+        nextPage = main_section.find('a', attrs={'class' : 'next'})
+        if nextPage:
+            html = html + self.get_article_page(br, nextPage['href'], page+1)
+
+        return html
+
+    #
+    # Parses each article
+    #
+    def get_obfuscated_article(self, url):
+        br = self.get_browser()
+        html = self.get_article_page(br, url, 0)
+        self.temp_files.append(PersistentTemporaryFile('_temparse.html'))
+        self.temp_files[-1].write(html)
+        self.temp_files[-1].close()
+        return self.temp_files[-1].name
+
+
+    #
+    # Goes back given number of issues. It also knows how to go back
+    # to the previous year if there are not enough issues in the current one
+    #
+    def find_last_issue(self, archive_url):
+        archive_soup = self.index_to_soup(archive_url, True)
+
+        # workaround because html is so messed up that find() method on soup returns None
+        # and therefore we need to extract subhtml that we need
+        matches = re.search(r'<ul class="rightIssueList">(.*?)</ul>', archive_soup, re.DOTALL)
+        if matches is None:
+            return
+
+        subSoup = BeautifulSoup(matches.group(0))
+        issueLinks = subSoup.findAll('a')
+
+        # check if need to go back to previous year
+        if len(issueLinks) > self.BACK_ISSUES:
+            link = issueLinks[self.BACK_ISSUES];
+            self.EDITION = link['href'].replace('http://www.newsweek.pl/wydania/','')
+            self.index_to_soup('http://www.newsweek.pl/wydania/' + self.EDITION)
+        else:
+            self.BACK_ISSUES = self.BACK_ISSUES - len(issueLinks)
+            self.YEAR = self.YEAR - 1
+            self.find_last_issue(archive_url + '/' + str(self.YEAR))
+
+
+    #
+    # Looks for the last issue which we want to download. Then goes on each
+    # section and article and stores them (assigning to sections)
+    #
+    def parse_index(self):
+        archive_url = 'http://www.newsweek.pl/wydania/archiwum'
+        self.find_last_issue(archive_url)
+        soup = self.index_to_soup('http://www.newsweek.pl/wydania/' + self.EDITION)
+
+        matches = re.search(r'<div class="Issue-Entry">(.*)ARTICLE_BOTTOM', soup.prettify(), re.DOTALL)
+        if matches is None:
+            return
+
+        main_section = BeautifulSoup(matches.group(0))
+
+        # date
+        matches = re.search(r'(\d{2}-\d{2}-\d{4})', self.tag_to_string(main_section.find('h2')))
+        if matches:
+            self.DATE = matches.group(0)
+
+        # cover
+        img = main_section.find(lambda tag: tag.name == 'img' and tag.has_key('alt') and tag.has_key('title'))
+        self.cover_url = img['src']
+        feeds = []
+        articles = {}
+        sections = []
+
+        # sections
+        for sectionUl in main_section.findAll('ul', attrs={'class' : 'whatsin'}):
+
+            # section header
+            header = sectionUl.find('li', attrs={'class' : 'header'})
+            if header is None:
+                continue
+
+            section = capwords(self.tag_to_string(header))
+
+            # articles in section
+            articleUl = sectionUl.find('ul')
+            if articleUl is None:
+                continue
+
+            for articleLi in articleUl.findAll('li'):
+                # check if article is closed which should be skipped
+                closed = articleLi.find('span', attrs={'class' : 'closeart'})
+                if closed is not None:
+                    continue
+
+                article = self.create_article(articleLi)
+                if article is None :
+                    continue
+
+                if articles.has_key(section):
+                    articles[section].append(article)
+                else:
+                    articles[section] = [article]
+                    sections.append(section)
+
+        for section in sections:
+#             print("%s -> %d" % (section, len(articles[section])))
+#
+#             for article in articles[section]:
+#                 print(" - %s" % article)
+
+            feeds.append((section, articles[section]))
+
+        return feeds
+
+
+    #
+    # Creates each article metadata (skips locked ones). The content will
+    # be extracted later by other method (get_obfuscated_article).
+    #
+    def create_article(self, articleLi):
+        article = {}
+
+        a = articleLi.find('a')
+        if a is None:
+            return None
+
+        article['title'] = self.tag_to_string(a)
+        article['url'] = a['href']
+        article['date'] = self.DATE
+        article['description'] = ''
+
+        return article
