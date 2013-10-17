@@ -1008,7 +1008,7 @@ class DB(object):
                 callback(_('Restoring database from SQL') + '...')
                 with closing(Connection(tmpdb)) as conn:
                     shell = Shell(db=conn, encoding='utf-8')
-                    shell.process_command('.read ' + fname)
+                    shell.process_command('.read ' + fname.replace(os.sep, '/'))
                     conn.execute('PRAGMA user_version=%d;'%uv)
 
                 self.close()
