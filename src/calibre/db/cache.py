@@ -57,7 +57,7 @@ def wrap_simple(lock, func):
                 return func(*args, **kwargs)
         except DowngradeLockError:
             # We already have an exclusive lock, no need to acquire a shared
-            # lock. See the safe_read_lock properties documentation for why
+            # lock. See the safe_read_lock properties' documentation for why
             # this is necessary.
             return func(*args, **kwargs)
     return call_func_with_lock
@@ -123,7 +123,12 @@ class Cache(object):
         search cache in the presence of composite columns. Updating the search
         cache holds an exclusive lock, but searching a composite column
         involves reading field values via ProxyMetadata which tries to get a
-        shared lock. There may be other scenarios that trigger this as well. '''
+        shared lock. There may be other scenarios that trigger this as well.
+
+        This property returns a new lock object on every access. This lock
+        object is not recursive (for performance) and must only be used in a
+        with statement as ``with cache.safe_read_lock:`` otherwise bad things
+        will happen.'''
         return SafeReadLock(self.read_lock)
 
     @write_api
