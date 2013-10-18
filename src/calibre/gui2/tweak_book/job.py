@@ -10,7 +10,7 @@ import time
 from threading import Thread
 from functools import partial
 
-from PyQt4.Qt import (QWidget, QVBoxLayout, QLabel, Qt, QPainter, QBrush, QColor, QAction)
+from PyQt4.Qt import (QWidget, QVBoxLayout, QLabel, Qt, QPainter, QBrush, QRect)
 
 from calibre.gui2 import Dispatcher
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -50,19 +50,18 @@ class BlockingJob(QWidget):
         l.addStretch(10)
         self.pi = ProgressIndicator(self, 128)
         l.addWidget(self.pi, alignment=Qt.AlignHCenter)
-        self.msg = QLabel('')
+        self.dummy = QLabel('<h2>\xa0')
         l.addSpacing(10)
-        l.addWidget(self.msg, alignment=Qt.AlignHCenter)
+        l.addWidget(self.dummy, alignment=Qt.AlignHCenter)
         l.addStretch(10)
         self.setVisible(False)
+        self.text = ''
 
     def start(self):
         self.setGeometry(0, 0, self.parent().width(), self.parent().height())
         self.setVisible(True)
         # Prevent any actions from being triggerred by key presses
-        for child in self.parent().findChildren(QAction):
-            child.blockSignals(True)
-        self.parent().menuBar().setEnabled(False)
+        self.parent().setEnabled(False)
         self.raise_()
         self.setFocus(Qt.OtherFocusReason)
         self.pi.startAnimation()
@@ -70,9 +69,7 @@ class BlockingJob(QWidget):
     def stop(self):
         self.pi.stopAnimation()
         self.setVisible(False)
-        for child in self.parent().findChildren(QAction):
-            child.blockSignals(False)
-        self.parent().menuBar().setEnabled(True)
+        self.parent().setEnabled(True)
 
     def job_done(self, callback, job):
         del job.callback
@@ -80,10 +77,22 @@ class BlockingJob(QWidget):
         callback(job)
 
     def paintEvent(self, ev):
+        br = ev.region().boundingRect()
         p = QPainter(self)
-        p.fillRect(ev.region().boundingRect(), QBrush(QColor(200, 200, 200, 160), Qt.SolidPattern))
+        p.setOpacity(0.2)
+        p.fillRect(br, QBrush(self.palette().text()))
         p.end()
         QWidget.paintEvent(self, ev)
+        p = QPainter(self)
+        p.setClipRect(br)
+        f = p.font()
+        f.setBold(True)
+        f.setPointSize(20)
+        p.setFont(f)
+        p.setPen(Qt.SolidLine)
+        r = QRect(0, self.dummy.geometry().top() + 10, self.geometry().width(), 150)
+        p.drawText(r, Qt.AlignHCenter | Qt.AlignTop | Qt.TextSingleLine, self.text)
+        p.end()
 
     def eventFilter(self, obj, ev):
         if ev.type() in (ev.KeyPress, ev.KeyRelease):
@@ -91,7 +100,7 @@ class BlockingJob(QWidget):
         return QWidget.eventFilter(self, obj, ev)
 
     def set_msg(self, text):
-        self.msg.setText('<h2>%s</h2>' % text)
+        self.text = text
 
     def __call__(self, name, user_text, callback, function, *args, **kwargs):
         ' Run a job that blocks the GUI providing some feedback to the user '
