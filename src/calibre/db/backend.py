@@ -1406,6 +1406,8 @@ class DB(object):
 
         source_ok = current_path and os.path.exists(spath)
         wam = WindowsAtomicFolderMove(spath) if iswindows and source_ok else None
+        format_map = {}
+        original_format_map = {}
         try:
             if not os.path.exists(tpath):
                 os.makedirs(tpath)
@@ -1416,22 +1418,34 @@ class DB(object):
                         windows_atomic_move=wam, use_hardlink=True)
                 for fmt in formats:
                     dest = os.path.join(tpath, fname+'.'+fmt.lower())
-                    self.copy_format_to(book_id, fmt, formats_field.format_fname(book_id, fmt), current_path,
+                    format_map[fmt] = dest
+                    ofmt_fname = formats_field.format_fname(book_id, fmt)
+                    original_format_map[fmt] = os.path.join(spath, ofmt_fname+'.'+fmt.lower())
+                    self.copy_format_to(book_id, fmt, ofmt_fname, current_path,
                                         dest, windows_atomic_move=wam, use_hardlink=True)
             # Update db to reflect new file locations
             for fmt in formats:
                 formats_field.table.set_fname(book_id, fmt, fname, self)
             path_field.table.set_path(book_id, path, self)
 
-            # Delete not needed directories
+            # Delete not needed files and directories
             if source_ok:
-                if os.path.exists(spath) and not samefile(spath, tpath):
-                    if wam is not None:
-                        wam.delete_originals()
-                    self.rmtree(spath)
-                    parent = os.path.dirname(spath)
-                    if len(os.listdir(parent)) == 0:
-                        self.rmtree(parent)
+                if os.path.exists(spath):
+                    if samefile(spath, tpath):
+                        # The format filenames may have changed while the folder
+                        # name remains the same
+                        for fmt, opath in original_format_map.iteritems():
+                            npath = format_map.get(fmt, None)
+                            if npath and os.path.abspath(npath.lower()) != os.path.abspath(opath.lower()) and samefile(opath, npath):
+                                # opath and npath are different hard links to the same file
+                                os.unlink(opath)
+                    else:
+                        if wam is not None:
+                            wam.delete_originals()
+                        self.rmtree(spath)
+                        parent = os.path.dirname(spath)
+                        if len(os.listdir(parent)) == 0:
+                            self.rmtree(parent)
         finally:
             if wam is not None:
                 wam.close_handles()
