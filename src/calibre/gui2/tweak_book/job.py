@@ -62,7 +62,9 @@ class BlockingJob(QWidget):
         # Prevent any actions from being triggerred by key presses
         for child in self.parent().findChildren(QAction):
             child.blockSignals(True)
+        self.parent().menuBar().setEnabled(False)
         self.raise_()
+        self.setFocus(Qt.OtherFocusReason)
         self.pi.startAnimation()
 
     def stop(self):
@@ -70,6 +72,7 @@ class BlockingJob(QWidget):
         self.setVisible(False)
         for child in self.parent().findChildren(QAction):
             child.blockSignals(False)
+        self.parent().menuBar().setEnabled(True)
 
     def job_done(self, callback, job):
         del job.callback
