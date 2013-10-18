@@ -201,32 +201,31 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
             fpath = os.path.join(cpath, fname)
     return ans, fpath
 
-def samefile_windows(src, dst):
+def windows_get_fileid(path):
+    ''' The fileid uniquely identifies actual file contents (it is the same for
+    all hardlinks to a file). Similar to inode number on linux. '''
     import win32file
     from pywintypes import error
+    if isbytestring(path):
+        path = path.decode(filesystem_encoding)
+    try:
+        h = win32file.CreateFile(path, 0, 0, None, win32file.OPEN_EXISTING,
+                win32file.FILE_FLAG_BACKUP_SEMANTICS, 0)
+        try:
+            data = win32file.GetFileInformationByHandle(h)
+        finally:
+            win32file.CloseHandle(h)
+    except (error, EnvironmentError):
+        return None
+    return data[4], data[8], data[9]
 
+def samefile_windows(src, dst):
     samestring = (os.path.normcase(os.path.abspath(src)) ==
             os.path.normcase(os.path.abspath(dst)))
     if samestring:
         return True
 
-    handles = []
-
-    def get_fileid(x):
-        if isbytestring(x):
-            x = x.decode(filesystem_encoding)
-        try:
-            h = win32file.CreateFile(x, 0, 0, None, win32file.OPEN_EXISTING,
-                    win32file.FILE_FLAG_BACKUP_SEMANTICS, 0)
-            handles.append(h)
-            data = win32file.GetFileInformationByHandle(h)
-        except (error, EnvironmentError):
-            return None
-        return (data[4], data[8], data[9])
-
-    a, b = get_fileid(src), get_fileid(dst)
-    for h in handles:
-        win32file.CloseHandle(h)
+    a, b = windows_get_fileid(src), windows_get_fileid(dst)
     if a is None and b is None:
         return False
     return a == b
