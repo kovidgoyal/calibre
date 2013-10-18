@@ -238,7 +238,7 @@ class DebugRWLockWrapper(RWLockWrapper):
         print ('acquire done: thread id:', current_thread(), file=sys.stderr)
         print ('_' * 120, file=sys.stderr)
 
-    def release(self):
+    def release(self, *args):
         print ('*' * 120, file=sys.stderr)
         print ('release called: thread id:', current_thread(), 'shared:', self._is_shared, file=sys.stderr)
         traceback.print_stack()
