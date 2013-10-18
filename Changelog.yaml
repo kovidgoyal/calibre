@@ -72,10 +72,10 @@
 
     - title: "Template language: Fix formatter function days_between to compute the right value when the answer is negative."
 
-    - title: "Windows: Fix spurious file in use by other process error if the book's folder contained multiple hardlinks pointing to the same file"
+    - title: "Windows: Fix spurious file in use by other process error if the book's folder contained multiple hard links pointing to the same file"
       tickets: [1240788, 1240194]
 
-    - title: "Windows: Fix duplicate files being created in very special circumstances when changing title and/or author. (the title or author had to be between 31 and 35 characters lng and the book entry had to have been created by a pre 1.x version of calibre)."
+    - title: "Windows: Fix duplicate files being created in very special circumstances when changing title and/or author. (the title or author had to be between 31 and 35 characters long and the book entry had to have been created by a pre 1.x version of calibre). You can check if your library has any such duplicates and remove them, by using the Check Library tool (Right click the calibre button on the toolbar and select Library Maintenance->Check Library)."
 
   improved recipes:
     - Wall Street Journal
