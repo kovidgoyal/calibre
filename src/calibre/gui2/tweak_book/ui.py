@@ -41,7 +41,7 @@ class Main(MainWindow):
         self.status_bar = self.statusBar()
         self.l = QLabel('Placeholder')
         self.status_bar.addPermanentWidget(self.boss.save_manager.status_widget)
-        self.status_bar.addWidget(QLabel(_('%s %s created by %s') % (__appname__, get_version(), 'Kovid Goyal')))
+        self.status_bar.addWidget(QLabel(_('{0} {1} created by {2}').format(__appname__, get_version(), 'Kovid Goyal')))
         f = self.status_bar.font()
         f.setBold(True)
         self.status_bar.setFont(f)
