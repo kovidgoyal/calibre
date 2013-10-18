@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from binascii import hexlify
 from PyQt4.Qt import (
     QWidget, QTreeWidget, QGridLayout, QSize, Qt, QTreeWidgetItem, QIcon,
     QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal)
@@ -16,6 +17,7 @@ from calibre.ebooks.oeb.polish.container import guess_type
 from calibre.ebooks.oeb.polish.cover import get_cover_page_name, get_raster_cover_name
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import current_container
+from calibre.utils.icu import sort_key
 
 TOP_ICON_SIZE = 24
 NAME_ROLE = Qt.UserRole
@@ -73,7 +75,6 @@ class FileList(QTreeWidget):
         self.setAutoExpandDelay(1000)
         self.setAnimated(True)
         self.setMouseTracking(True)
-        self.in_drop_event = False
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
         self.root = self.invisibleRootItem()
@@ -89,7 +90,25 @@ class FileList(QTreeWidget):
                 'images':'view-image.png',
             }.iteritems()}
 
-    def build(self, container):
+    def get_state(self):
+        s = {'pos':self.verticalScrollBar().value()}
+        s['expanded'] = {c for c, item in self.categories.iteritems() if item.isExpanded()}
+        s['selected'] = {unicode(i.data(0, NAME_ROLE).toString()) for i in self.selectedItems()}
+        return s
+
+    def set_state(self, state):
+        for category, item in self.categories.iteritems():
+            item.setExpanded(category in state['expanded'])
+        self.verticalScrollBar().setValue(state['pos'])
+        for parent in self.categories.itervalues():
+            for c in (parent.child(i) for i in xrange(parent.childCount())):
+                name = unicode(c.data(0, NAME_ROLE).toString())
+                if name in state['selected']:
+                    c.setSelected(True)
+
+    def build(self, container, preserve_state=True):
+        if preserve_state:
+            state = self.get_state()
         self.clear()
         self.root = self.invisibleRootItem()
         self.root.setFlags(Qt.ItemIsDragEnabled)
@@ -140,6 +159,7 @@ class FileList(QTreeWidget):
                 # We have an exact duplicate (can happen if there are
                 # duplicates in the spine)
                 item.setText(0, processed[name].text(0))
+                item.setText(1, processed[name].text(1))
                 return
 
             parts = name.split('/')
@@ -148,6 +168,7 @@ class FileList(QTreeWidget):
                 text = parts.pop() + '/' + text
             seen[text] = item
             item.setText(0, text)
+            item.setText(1, hexlify(sort_key(text)))
 
         def render_emblems(item, emblems):
             emblems = tuple(emblems)
@@ -220,11 +241,16 @@ class FileList(QTreeWidget):
                 continue
             processed[name] = create_item(name)
 
-        for c in self.categories.itervalues():
-            self.expandItem(c)
+        for name, c in self.categories.iteritems():
+            c.setExpanded(True)
+            if name != 'text':
+                c.sortChildren(1, Qt.AscendingOrder)
+
+        if preserve_state:
+            self.set_state(state)
 
     def show_context_menu(self, point):
-        pass
+        pass  # TODO: Implement this
 
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key_Delete, Qt.Key_Backspace):
@@ -262,6 +288,14 @@ class FileList(QTreeWidget):
         for c in removals:
             c.parent().removeChild(c)
 
+    def dropEvent(self, event):
+        text = self.categories['text']
+        pre_drop_order = {text.child(i):i for i in xrange(text.childCount())}
+        super(FileList, self).dropEvent(event)
+        current_order = {text.child(i):i for i in xrange(text.childCount())}
+        if current_order != pre_drop_order:
+            pass  # TODO: Implement this
+
 class FileListWidget(QWidget):
 
     delete_requested = pyqtSignal(object, object)
@@ -277,7 +311,7 @@ class FileListWidget(QWidget):
         for x in ('delete_done',):
             setattr(self, x, getattr(self.file_list, x))
 
-    def build(self, container):
-        self.file_list.build(container)
+    def build(self, container, preserve_state=True):
+        self.file_list.build(container, preserve_state=preserve_state)
 
 

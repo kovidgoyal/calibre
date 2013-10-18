@@ -6,10 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, tempfile, shutil, errno, time
+import os, tempfile, shutil, errno, time, atexit
 from threading import Thread
 from Queue import Queue
 
+from calibre.ptempfile import remove_dir
 from calibre.utils.recycle_bin import delete_tree, delete_file
 
 class DeleteService(Thread):
@@ -40,39 +41,64 @@ class DeleteService(Thread):
         base_path = os.path.dirname(library_path)
         base = os.path.basename(library_path)
         try:
-            return tempfile.mkdtemp(prefix=base+' deleted ', dir=base_path)
+            ans = tempfile.mkdtemp(prefix=base+' deleted ', dir=base_path)
         except OSError:
-            return tempfile.mkdtemp(prefix=base+' deleted ')
+            ans = tempfile.mkdtemp(prefix=base+' deleted ')
+        atexit.register(remove_dir, ans)
+        return ans
+
+    def remove_dir_if_empty(self, path):
+        try:
+            os.rmdir(path)
+        except OSError as e:
+            if e.errno == errno.ENOTEMPTY or len(os.listdir(path)) > 0:
+                # Some linux systems appear to raise an EPERM instead of an
+                # ENOTEMPTY, see https://bugs.launchpad.net/bugs/1240797
+                return
+            raise
 
     def delete_books(self, paths, library_path):
         tdir = self.create_staging(library_path)
         self.queue_paths(tdir, paths, delete_empty_parent=True)
 
     def queue_paths(self, tdir, paths, delete_empty_parent=True):
-        queued = False
+        try:
+            self._queue_paths(tdir, paths, delete_empty_parent=delete_empty_parent)
+        except:
+            if os.path.exists(tdir):
+                shutil.rmtree(tdir, ignore_errors=True)
+            raise
+
+    def _queue_paths(self, tdir, paths, delete_empty_parent=True):
+        requests = []
         for path in paths:
             if os.path.exists(path):
+                basename = os.path.basename(path)
+                c = 0
+                while True:
+                    dest = os.path.join(tdir, basename)
+                    if not os.path.exists(dest):
+                        break
+                    c += 1
+                    basename = '%d - %s' % (c, os.path.basename(path))
                 try:
-                    shutil.move(path, tdir)
+                    shutil.move(path, dest)
                 except EnvironmentError:
+                    if os.path.isdir(path):
+                        # shutil.move may have partially copied the directory,
+                        # so the subsequent call to move() will fail as the
+                        # destination directory already exists
+                        raise
                     # Wait a little in case something has locked a file
                     time.sleep(1)
-                    shutil.move(path, tdir)
+                    shutil.move(path, dest)
                 if delete_empty_parent:
-                    parent = os.path.dirname(path)
-                    try:
-                        os.rmdir(parent)
-                    except OSError as e:
-                        if e.errno != errno.ENOTEMPTY:
-                            raise
-                self.requests.put(os.path.join(tdir, os.path.basename(path)))
-                queued = True
-        if not queued:
-            try:
-                os.rmdir(tdir)
-            except OSError as e:
-                if e.errno != errno.ENOTEMPTY:
-                    raise
+                    self.remove_dir_if_empty(os.path.dirname(path))
+                requests.append(dest)
+        if not requests:
+            self.remove_dir_if_empty(tdir)
+        else:
+            self.requests.put(tdir)
 
     def delete_files(self, paths, library_path):
         tdir = self.create_staging(library_path)
@@ -96,16 +122,17 @@ class DeleteService(Thread):
         'Blocks until all pending deletes have completed'
         self.requests.join()
 
-    def do_delete(self, x):
-        if os.path.isdir(x):
-            delete_tree(x)
-        else:
-            delete_file(x)
-        try:
-            os.rmdir(os.path.dirname(x))
-        except OSError as e:
-            if e.errno != errno.ENOTEMPTY:
-                raise
+    def do_delete(self, tdir):
+        if os.path.exists(tdir):
+            try:
+                for x in os.listdir(tdir):
+                    x = os.path.join(tdir, x)
+                    if os.path.isdir(x):
+                        delete_tree(x)
+                    else:
+                        delete_file(x)
+            finally:
+                shutil.rmtree(tdir)
 
 __ds = None
 def delete_service():

@@ -234,9 +234,12 @@ class Comments(Base):
         self.widgets = [self._box]
 
     def setter(self, val):
-        if val is None:
+        if not val or not val.strip():
             val = ''
-        self._tb.html = comments_to_html(val)
+        else:
+            val = comments_to_html(val)
+        self._tb.html = val
+        self._tb.wyswyg_dirtied()
 
     def getter(self):
         val = unicode(self._tb.html).strip()

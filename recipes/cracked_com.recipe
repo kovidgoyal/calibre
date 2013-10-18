@@ -22,12 +22,8 @@ class Cracked(BasicNewsRecipe):
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    # remove_tags_before = dict(id='PrimaryContent')
-
-    keep_only_tags = dict(name='article', attrs={
-                          'class': 'module article dropShadowBottomCurved'})
-
-    # remove_tags_after = dict(name='div', attrs={'class':'shareBar'})
+    keep_only_tags = [dict(name='article', attrs={'class': 'module article dropShadowBottomCurved'}),
+                        dict(name='article', attrs={'class': 'module blog dropShadowBottomCurved'})]
 
     remove_tags = [
         dict(name='section', attrs={'class': ['socialTools', 'quickFixModule']})]

@@ -64,7 +64,7 @@ class HANLINV3(USBMS):
         return names
 
     def linux_swap_drives(self, drives):
-        if len(drives) < 2 or not drives[1] or not drives[2]: return drives
+        if len(drives) < 2 or not drives[0] or not drives[1]: return drives
         drives = list(drives)
         t = drives[0]
         drives[0] = drives[1]

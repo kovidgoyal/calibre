@@ -53,4 +53,23 @@ class GlobalUndoHistory(object):
             self.pos += 1
             return self.current_container
 
+    @property
+    def can_undo(self):
+        return self.pos > 0
+
+    @property
+    def can_redo(self):
+        return self.pos < len(self.states) - 1
+
+    @property
+    def undo_msg(self):
+        if not self.can_undo:
+            return ''
+        return self.states[self.pos - 1].message or ''
+
+    @property
+    def redo_msg(self):
+        if not self.can_redo:
+            return ''
+        return self.states[self.pos].message or ''
 

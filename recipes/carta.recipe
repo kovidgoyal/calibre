@@ -12,7 +12,7 @@ class Carta(BasicNewsRecipe):
 
     title = u'Carta'
     description = 'News about electronic publishing'
-    __author__ = 'Oliver Niesner'
+    __author__ = 'Oliver Niesner' # AGe Update 2013-10-13
     use_embedded_content   = False
     timefmt = ' [%a %d %b %Y]'
     oldest_article = 7
@@ -25,7 +25,7 @@ class Carta(BasicNewsRecipe):
 
 
 
-    remove_tags_after = [dict(name='p', attrs={'class':'tags-blog'})]
+    remove_tags_after = [dict(name='div', attrs={'id':'BlogContent'})] # AGe
 
     remove_tags = [dict(name='p', attrs={'class':'print'}),
                    dict(name='p', attrs={'class':'tags-blog'}),

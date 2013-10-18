@@ -76,8 +76,29 @@ class FilesystemTest(BaseTest):
         f = open(fpath, 'rb')
         with self.assertRaises(IOError):
             cache.set_field('title', {1:'Moved'})
+        with self.assertRaises(IOError):
+            cache.remove_books({1})
         f.close()
         self.assertNotEqual(cache.field_for('title', 1), 'Moved', 'Title was changed despite file lock')
+
+        # Test on folder with hardlinks
+        from calibre.ptempfile import TemporaryDirectory
+        from calibre.utils.filenames import hardlink_file, WindowsAtomicFolderMove
+        raw = b'xxx'
+        with TemporaryDirectory() as tdir1, TemporaryDirectory() as tdir2:
+            a, b = os.path.join(tdir1, 'a'), os.path.join(tdir1, 'b')
+            a = os.path.join(tdir1, 'a')
+            with open(a, 'wb') as f:
+                f.write(raw)
+            hardlink_file(a, b)
+            wam = WindowsAtomicFolderMove(tdir1)
+            wam.copy_path_to(a, os.path.join(tdir2, 'a'))
+            wam.copy_path_to(b, os.path.join(tdir2, 'b'))
+            wam.delete_originals()
+            self.assertEqual([], os.listdir(tdir1))
+            self.assertEqual({'a', 'b'}, set(os.listdir(tdir2)))
+            self.assertEqual(raw, open(os.path.join(tdir2, 'a'), 'rb').read())
+            self.assertEqual(raw, open(os.path.join(tdir2, 'b'), 'rb').read())
 
     def test_library_move(self):
         ' Test moving of library '
@@ -106,3 +127,15 @@ class FilesystemTest(BaseTest):
         self.assertLessEqual(len(cache.field_for('path', 1)), cache.backend.PATH_LIMIT * 2)
         fpath = cache.format_abspath(1, cache.formats(1)[0])
         self.assertLessEqual(len(fpath), len(cache.backend.library_path) + cache.backend.PATH_LIMIT * 4)
+
+    def test_fname_change(self):
+        ' Test the changing of the filename but not the folder name '
+        cache = self.init_cache()
+        title = 'a'*30 + 'bbb'
+        cache.backend.PATH_LIMIT = 100
+        cache.set_field('title', {3:title})
+        cache.add_format(3, 'TXT', BytesIO(b'xxx'))
+        cache.backend.PATH_LIMIT = 40
+        cache.set_field('title', {3:title})
+        fpath = cache.format_abspath(3, 'TXT')
+        self.assertEqual(sorted([os.path.basename(fpath)]), sorted(os.listdir(os.path.dirname(fpath))))

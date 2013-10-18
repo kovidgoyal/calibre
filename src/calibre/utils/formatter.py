@@ -515,8 +515,8 @@ class TemplateFormatter(string.Formatter):
         try:
             ans = self.evaluate(fmt, [], kwargs).strip()
         except Exception as e:
-#            if DEBUG:
-#                traceback.print_exc()
+            if DEBUG and getattr(e, 'is_locking_error', False):
+                traceback.print_exc()
             ans = error_value + ' ' + e.message
         return ans
 
@@ -529,7 +529,7 @@ class ValidateFormatter(TemplateFormatter):
 
     def validate(self, x):
         from calibre.ebooks.metadata.book.base import Metadata
-        self.book = Metadata('');
+        self.book = Metadata('')
         return self.vformat(x, [], {})
 
 validation_formatter = ValidateFormatter()

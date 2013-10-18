@@ -66,7 +66,7 @@ class HeaderView(QHeaderView):  # {{{
             try:
                 opt.icon = model.headerData(logical_index, opt.orientation, Qt.DecorationRole)
                 opt.iconAlignment = Qt.AlignVCenter
-            except TypeError:
+            except (IndexError, ValueError, TypeError):
                 pass
             if sm.isRowSelected(logical_index, QModelIndex()):
                 opt.state |= QStyle.State_Sunken
@@ -693,7 +693,13 @@ class BooksView(QTableView):  # {{{
         self.alternate_views.marked_changed(old_marked, current_marked)
         if bool(old_marked) == bool(current_marked):
             changed = old_marked | current_marked
-            sections = tuple(map(self.model().db.data.id_to_index, changed))
+            i = self.model().db.data.id_to_index
+            def f(x):
+                try:
+                    return i(x)
+                except ValueError:
+                    pass
+            sections = tuple(x for x in map(f, changed) if x is not None)
             self.row_header.headerDataChanged(Qt.Vertical, min(sections), max(sections))
         else:
             # Marked items have either appeared or all been removed

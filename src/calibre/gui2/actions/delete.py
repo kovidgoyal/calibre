@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import errno
 from functools import partial
 from collections import Counter
 
@@ -360,7 +361,17 @@ class DeleteAction(InterfaceAction):
             return
         next_id = view.next_id
         if len(to_delete_ids) < 5:
-            view.model().delete_books_by_id(to_delete_ids)
+            try:
+                view.model().delete_books_by_id(to_delete_ids)
+            except IOError as err:
+                if err.errno == errno.EACCES:
+                    import traceback
+                    fname = getattr(err, 'filename', 'file') or 'file'
+                    return error_dialog(self.gui, _('Permission denied'),
+                            _('Could not access %s. Is it being used by another'
+                            ' program? Click "Show details" for more information.')%fname, det_msg=traceback.format_exc(),
+                            show=True)
+
             self.library_ids_deleted2(to_delete_ids, next_id=next_id)
         else:
             self.__md = MultiDeleter(self.gui, to_delete_ids,

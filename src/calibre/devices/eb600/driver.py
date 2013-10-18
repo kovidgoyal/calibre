@@ -59,8 +59,24 @@ class TOLINO(EB600):
     VENDOR_NAME      = ['DEUTSCHE']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['_TELEKOMTOLINO']
 
+    EXTRA_CUSTOMIZATION_MESSAGE = [
+        _('Swap main and card A') +
+            ':::' +
+            _('Check this box if the device\'s main memory is being seen as card a and the card '
+              'is being seen as main memory. Some Tolino devices may need this option.'),
+    ]
+
+    EXTRA_CUSTOMIZATION_DEFAULT = [
+        True,
+    ]
+
+    OPT_SWAP_MEMORY = 0
+
+    # There are apparently two versions of this device, one with swapped
+    # drives and one without, see https://bugs.launchpad.net/bugs/1240504
     def linux_swap_drives(self, drives):
-        if len(drives) < 2 or not drives[1] or not drives[2]:
+        e = self.settings().extra_customization
+        if len(drives) < 2 or not drives[0] or not drives[1] or not e[self.OPT_SWAP_MEMORY]:
             return drives
         drives = list(drives)
         t = drives[0]
@@ -69,7 +85,8 @@ class TOLINO(EB600):
         return tuple(drives)
 
     def windows_sort_drives(self, drives):
-        if len(drives) < 2:
+        e = self.settings().extra_customization
+        if len(drives) < 2 or not e[self.OPT_SWAP_MEMORY]:
             return drives
         main = drives.get('main', None)
         carda = drives.get('carda', None)

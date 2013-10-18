@@ -928,7 +928,10 @@ class BooksModel(QAbstractTableModel):  # {{{
         if role == Qt.DisplayRole:  # orientation is vertical
             return QVariant(section+1)
         if role == Qt.DecorationRole:
-            return self.marked_icon if self.db.data.get_marked(self.db.data.index_to_id(section)) else self.row_decoration
+            try:
+                return self.marked_icon if self.db.data.get_marked(self.db.data.index_to_id(section)) else self.row_decoration
+            except (ValueError, IndexError):
+                pass
         return NONE
 
     def flags(self, index):

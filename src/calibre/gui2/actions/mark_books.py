@@ -20,7 +20,7 @@ class MarkBooksAction(InterfaceAction):
     action_type = 'current'
     action_add_menu = True
     dont_add_to = frozenset([
-        'toolbar-device', 'context-menu-device', 'menubar-device', 'context-menu-cover-browser'])
+        'context-menu-device', 'menubar-device', 'context-menu-cover-browser'])
     action_menu_clone_qaction = _('Toggle mark for selected books')
 
     accepts_drops = True

@@ -8,13 +8,15 @@ __docformat__ = 'restructuredtext en'
 from threading import Thread
 from functools import partial
 
-from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog, QColorDialog,
-        QAbstractListModel, Qt, QIcon, QKeySequence, QPalette, QColor, pyqtSignal)
+from PyQt4.Qt import (
+    QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter,
+    QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal,
+    QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton)
 
 from calibre import human_readable
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
-from calibre.gui2 import config, gprefs, qt_app, NONE, open_local_file
+from calibre.gui2 import config, gprefs, qt_app, NONE, open_local_file, question_dialog
 from calibre.utils.localization import (available_translations,
     get_language, get_lang)
 from calibre.utils.config import prefs
@@ -96,6 +98,33 @@ class DisplayedFields(QAbstractListModel):  # {{{
             self.changed = True
             return idx
 
+# }}}
+
+class Background(QWidget):  # {{{
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self.bcol = QColor(*gprefs['cover_grid_color'])
+        self.btex = gprefs['cover_grid_texture']
+        self.update_brush()
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+
+    def update_brush(self):
+        self.brush = QBrush(self.bcol)
+        if self.btex:
+            from calibre.gui2.preferences.texture_chooser import texture_path
+            path = texture_path(self.btex)
+            if path:
+                self.brush.setTexture(QPixmap(path))
+        self.update()
+
+    def sizeHint(self):
+        return QSize(200, 120)
+
+    def paintEvent(self, ev):
+        painter = QPainter(self)
+        painter.fillRect(ev.rect(), self.brush)
+        painter.end()
 # }}}
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -209,10 +238,24 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         keys = [unicode(x.toString(QKeySequence.NativeText)) for x in keys]
         self.fs_help_msg.setText(unicode(self.fs_help_msg.text())%(
             _(' or ').join(keys)))
-        self.cover_grid_color_button.clicked.connect(self.change_cover_grid_color)
-        self.cover_grid_default_color_button.clicked.connect(self.restore_cover_grid_color)
         self.size_calculated.connect(self.update_cg_cache_size, type=Qt.QueuedConnection)
         self.tabWidget.currentChanged.connect(self.tab_changed)
+
+        l = self.cg_background_box.layout()
+        self.cg_bg_widget = w = Background(self)
+        l.addWidget(w, 0, 0, 3, 1)
+        self.cover_grid_color_button = b = QPushButton(_('Change &color'), self)
+        b.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        l.addWidget(b, 0, 1)
+        b.clicked.connect(self.change_cover_grid_color)
+        self.cover_grid_texture_button = b = QPushButton(_('Change &background image'), self)
+        b.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        l.addWidget(b, 1, 1)
+        b.clicked.connect(self.change_cover_grid_texture)
+        self.cover_grid_default_appearance_button = b = QPushButton(_('Restore &default appearance'), self)
+        b.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        l.addWidget(b, 2, 1)
+        b.clicked.connect(self.restore_cover_grid_appearance)
         self.cover_grid_empty_cache.clicked.connect(self.empty_cache)
         self.cover_grid_open_cache.clicked.connect(self.open_cg_cache)
         self.cover_grid_smaller_cover.clicked.connect(partial(self.resize_cover, True))
@@ -270,6 +313,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.edit_rules.initialize(db.field_metadata, db.prefs, mi, 'column_color_rules')
         self.icon_rules.initialize(db.field_metadata, db.prefs, mi, 'column_icon_rules')
         self.set_cg_color(gprefs['cover_grid_color'])
+        self.set_cg_texture(gprefs['cover_grid_texture'])
         self.update_aspect_ratio()
 
     def open_cg_cache(self):
@@ -292,9 +336,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.size_calculated.emit(self.gui.grid_view.thumbnail_cache.current_size)
 
     def set_cg_color(self, val):
-        pal = QPalette()
-        pal.setColor(QPalette.Window, QColor(*val))
-        self.cover_grid_color_label.setPalette(pal)
+        self.cg_bg_widget.bcol = QColor(*val)
+        self.cg_bg_widget.update_brush()
+
+    def set_cg_texture(self, val):
+        self.cg_bg_widget.btex = val
+        self.cg_bg_widget.update_brush()
 
     def empty_cache(self):
         self.gui.grid_view.thumbnail_cache.empty()
@@ -312,17 +359,32 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.icon_rules.clear()
         self.changed_signal.emit()
         self.set_cg_color(gprefs.defaults['cover_grid_color'])
+        self.set_cg_texture(gprefs.defaults['cover_grid_texture'])
 
     def change_cover_grid_color(self):
-        col = QColorDialog.getColor(self.cover_grid_color_label.palette().color(QPalette.Window),
+        col = QColorDialog.getColor(self.cg_bg_widget.bcol,
                               self.gui, _('Choose background color for cover grid'))
         if col.isValid():
             col = tuple(col.getRgb())[:3]
             self.set_cg_color(col)
             self.changed_signal.emit()
+            if self.cg_bg_widget.btex:
+                if question_dialog(
+                    self, _('Remove background image?'),
+                    _('There is currently a background image set, so the color'
+                      ' you have chosen will not be visible. Remove the background image?')):
+                    self.set_cg_texture(None)
 
-    def restore_cover_grid_color(self):
+    def change_cover_grid_texture(self):
+        from calibre.gui2.preferences.texture_chooser import TextureChooser
+        d = TextureChooser(parent=self, initial=self.cg_bg_widget.btex)
+        if d.exec_() == d.Accepted:
+            self.set_cg_texture(d.texture)
+            self.changed_signal.emit()
+
+    def restore_cover_grid_appearance(self):
         self.set_cg_color(gprefs.defaults['cover_grid_color'])
+        self.set_cg_texture(gprefs.defaults['cover_grid_texture'])
         self.changed_signal.emit()
 
     def build_font_obj(self):
@@ -383,7 +445,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.display_model.commit()
         self.edit_rules.commit(self.gui.current_db.prefs)
         self.icon_rules.commit(self.gui.current_db.prefs)
-        gprefs['cover_grid_color'] = tuple(self.cover_grid_color_label.palette().color(QPalette.Window).getRgb())[:3]
+        gprefs['cover_grid_color'] = tuple(self.cg_bg_widget.bcol.getRgb())[:3]
+        gprefs['cover_grid_texture'] = self.cg_bg_widget.btex
         return rr
 
     def refresh_gui(self, gui):

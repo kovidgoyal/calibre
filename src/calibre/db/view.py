@@ -205,7 +205,7 @@ class View(object):
 
     def get_series_sort(self, idx, index_is_id=True, default_value=''):
         book_id = idx if index_is_id else self.index_to_id(idx)
-        with self.cache.read_lock:
+        with self.cache.safe_read_lock:
             lang_map = self.cache.fields['languages'].book_value_map
             lang = lang_map.get(book_id, None) or None
             if lang:
@@ -223,7 +223,7 @@ class View(object):
 
     def get_author_data(self, idx, index_is_id=True, default_value=None):
         id_ = idx if index_is_id else self.index_to_id(idx)
-        with self.cache.read_lock:
+        with self.cache.safe_read_lock:
             ids = self.cache._field_ids_for('authors', id_)
             adata = self.cache._author_data(ids)
             ans = [':::'.join((adata[aid]['name'], adata[aid]['sort'], adata[aid]['link'])) for aid in ids if aid in adata]
