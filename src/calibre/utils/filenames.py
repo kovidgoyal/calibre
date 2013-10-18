@@ -318,6 +318,7 @@ class WindowsAtomicFolderMove(object):
 
         import win32file, winerror
         from pywintypes import error
+        from collections import defaultdict
 
         if isbytestring(path):
             path = path.decode(filesystem_encoding)
@@ -325,7 +326,13 @@ class WindowsAtomicFolderMove(object):
         if not os.path.exists(path):
             return
 
-        for x in os.listdir(path):
+        names = os.listdir(path)
+        name_to_fileid = {x:windows_get_fileid(os.path.join(path, x)) for x in names}
+        fileid_to_names = defaultdict(set)
+        for name, fileid in name_to_fileid.iteritems():
+            fileid_to_names[fileid].add(name)
+
+        for x in names:
             f = os.path.normcase(os.path.abspath(os.path.join(path, x)))
             if not os.path.isfile(f):
                 continue
@@ -340,6 +347,20 @@ class WindowsAtomicFolderMove(object):
                         win32file.FILE_SHARE_DELETE, None,
                         win32file.OPEN_EXISTING, win32file.FILE_FLAG_SEQUENTIAL_SCAN, 0)
             except error as e:
+                if getattr(e, 'winerror', 0) == winerror.ERROR_SHARING_VIOLATION:
+                    # The file could be a hardlink to an already opened file,
+                    # in which case we use the same handle for both files
+                    fileid = name_to_fileid[x]
+                    found = False
+                    for other in fileid_to_names[fileid]:
+                        other = os.path.normcase(os.path.abspath(os.path.join(path, other)))
+                        if other in self.handle_map:
+                            self.handle_map[f] = self.handle_map[other]
+                            found = True
+                            break
+                    if found:
+                        continue
+
                 self.close_handles()
                 if getattr(e, 'winerror', 0) == winerror.ERROR_SHARING_VIOLATION:
                     err = IOError(errno.EACCES,
@@ -370,6 +391,8 @@ class WindowsAtomicFolderMove(object):
             return
         except:
             pass
+
+        win32file.SetFilePointer(handle, 0, win32file.FILE_BEGIN)
         with lopen(dest, 'wb') as f:
             while True:
                 hr, raw = win32file.ReadFile(handle, 1024*1024)
@@ -380,6 +403,7 @@ class WindowsAtomicFolderMove(object):
                 f.write(raw)
 
     def release_file(self, path):
+        ' Release the lock on the file pointed to by path. Will also release the lock on any hardlinks to path '
         key = None
         for p, h in self.handle_map.iteritems():
             if samefile_windows(path, p):
@@ -388,7 +412,9 @@ class WindowsAtomicFolderMove(object):
         if key is not None:
             import win32file
             win32file.CloseHandle(key[1])
-            self.handle_map.pop(key[0])
+            remove = [f for f, h in self.handle_map.iteritems() if h is key[1]]
+            for x in remove:
+                self.handle_map.pop(x)
 
     def close_handles(self):
         import win32file

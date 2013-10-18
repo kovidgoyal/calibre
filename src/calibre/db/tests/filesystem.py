@@ -81,6 +81,25 @@ class FilesystemTest(BaseTest):
         f.close()
         self.assertNotEqual(cache.field_for('title', 1), 'Moved', 'Title was changed despite file lock')
 
+        # Test on folder with hardlinks
+        from calibre.ptempfile import TemporaryDirectory
+        from calibre.utils.filenames import hardlink_file, WindowsAtomicFolderMove
+        raw = b'xxx'
+        with TemporaryDirectory() as tdir1, TemporaryDirectory() as tdir2:
+            a, b = os.path.join(tdir1, 'a'), os.path.join(tdir1, 'b')
+            a = os.path.join(tdir1, 'a')
+            with open(a, 'wb') as f:
+                f.write(raw)
+            hardlink_file(a, b)
+            wam = WindowsAtomicFolderMove(tdir1)
+            wam.copy_path_to(a, os.path.join(tdir2, 'a'))
+            wam.copy_path_to(b, os.path.join(tdir2, 'b'))
+            wam.delete_originals()
+            self.assertEqual([], os.listdir(tdir1))
+            self.assertEqual({'a', 'b'}, set(os.listdir(tdir2)))
+            self.assertEqual(raw, open(os.path.join(tdir2, 'a'), 'rb').read())
+            self.assertEqual(raw, open(os.path.join(tdir2, 'b'), 'rb').read())
+
     def test_library_move(self):
         ' Test moving of library '
         from calibre.ptempfile import TemporaryDirectory
