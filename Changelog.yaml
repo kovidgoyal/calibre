@@ -20,6 +20,73 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.7.0
+  date: 2013-10-18
+
+  new features:
+    - title: "Cover grid: Allow using images as the background for the cover grid. To choose an image, go to Preferences->Look & Feel->Cover Grid."
+      tickets: [1239194]
+
+    - title: "An option to mark newly added books with a temporary mark. Option is in Preferences->Adding books."
+      tickets: [1238609]
+ 
+    - title: "Edit metadata dialog: Allow turning off the cover size displayed in the bottom right corner of the cover by right clicking the cover and choosing 'Hide cover size'. It can be restored the same way."
+
+  bug fixes:
+    - title: "Conversion: If both embed font family and the filter css option to remove fonts are set, do not remove the font specified by the embed font family option."
+
+    - title: "Fix a few remaining situations that could cause formats column to show an error message about SHLock"
+
+    - title: "Make deleting books to recycle bin more robust. Ensure that the temporary directory created during the move to recycle bin process is not left behind in case of errors."
+
+    - title: "Windows: Check if the books' files are in use before deleting"
+
+    - title: "Fix custom device driver swap main and card option not working. Also fix swapping not happening for a few devices on linux"
+      tickets: [1240504]
+
+    - title: "Edit metadata dialog: The Edit metadata dialog currently limits its max size based on the geometry of the smallest attached screen. Change that to use the geometry of the screen on which it will be shown."
+      tickets: [1239597]
+
+    - title: "HTMLZ Output: Fix <style> tag placed inside <body> instead of <head>."
+      tickets: [1239530]
+
+    - title: "HTMLZ Output: Fix inline styles not escaping quotes properly."
+      tickets: [1239527]
+
+    - title: "HTMLZ Output: Fix incorrect handling of some self closing tags like <br>."
+      tickets: [1239555] 
+
+    - title: "Content server: Fix single item categories not working with reverse proxy setup."
+      tickets: [1238987]
+
+    - title: "Fix a bug that could cause calibre to crash when switching from a large library to a smaller library with marked books."
+      tickets: [1239210]
+
+    - title: "Get Books: Fix downloading of some books in formats that do not have metadata yielding nonsense titles"
+
+    - title: "Allow marked book button to be added to main toolbar when device is connected"
+      tickets: [1239163]
+
+    - title: "Fix error if a marked book is deleted/merged."
+      tickets: [1239161]
+
+    - title: "Template language: Fix formatter function days_between to compute the right value when the answer is negative."
+
+    - title: "Windows: Fix spurious file in use by other process error if the book's folder contained multiple hardlinks pointing to the same file"
+      tickets: [1240788, 1240194]
+
+    - title: "Windows: Fix duplicate files being created in very special circumstances when changing title and/or author. (the title or author had to be between 31 and 35 characters lng and the book entry had to have been created by a pre 1.x version of calibre)."
+
+  improved recipes:
+    - Wall Street Journal
+    - Newsweek Polska
+    - Wired Magazine
+    - cracked.com
+    - Television Without Pity
+    - Carta
+    - Diagonales
+
+
 - version: 1.6.0
   date: 2013-10-11
 
