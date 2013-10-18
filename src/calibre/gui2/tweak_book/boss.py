@@ -8,7 +8,9 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import tempfile, shutil
 
-from PyQt4.Qt import QObject, QApplication
+from PyQt4.Qt import (
+    QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
+    QDialogButtonBox, QIcon, QTimer, QPixmap)
 
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -27,6 +29,7 @@ class Boss(QObject):
         self.tdir = None
         self.save_manager = SaveManager(parent)
         self.save_manager.report_error.connect(self.report_save_error)
+        self.doing_terminal_save = False
 
     def __call__(self, gui):
         self.gui = gui
@@ -144,20 +147,59 @@ class Boss(QObject):
         QApplication.instance().quit()
 
     def confirm_quit(self):
+        if self.doing_terminal_save:
+            return False
         if self.save_manager.has_tasks:
             if not question_dialog(
                 self.gui, _('Are you sure?'), _(
                     'The current book is being saved in the background, quitting will abort'
                     ' the save process, are you sure?'), default_yes=False):
                 return False
+
         if self.gui.action_save.isEnabled():
-            if not question_dialog(
-                self.gui, _('Are you sure?'), _(
-                    'The current book has unsaved changes, you will lose them if you quit,'
-                    ' are you sure?'), default_yes=False):
+            d = QDialog(self.gui)
+            d.l = QGridLayout(d)
+            d.setLayout(d.l)
+            d.setWindowTitle(_('Unsaved changes'))
+            d.i = QLabel('')
+            d.i.setPixmap(QPixmap(I('save.png')).scaledToHeight(64, Qt.SmoothTransformation))
+            d.i.setMaximumSize(QSize(d.i.pixmap().width(), 64))
+            d.i.setScaledContents(True)
+            d.l.addWidget(d.i, 0, 0)
+            d.m = QLabel(_('There are unsaved changes, if you quit without saving, you will lose them.'))
+            d.m.setWordWrap(True)
+            d.l.addWidget(d.m, 0, 1)
+            d.bb = QDialogButtonBox(QDialogButtonBox.Cancel)
+            d.bb.rejected.connect(d.reject)
+            d.bb.accepted.connect(d.accept)
+            d.l.addWidget(d.bb, 1, 0, 1, 2)
+            d.do_save = None
+            def endit(x):
+                d.do_save = x
+                d.accept()
+            b = d.bb.addButton(_('&Save and Quit'), QDialogButtonBox.ActionRole)
+            b.setIcon(QIcon(I('save.png')))
+            b.clicked.connect(lambda *args: endit(True))
+            b = d.bb.addButton(_('&Quit without saving'), QDialogButtonBox.ActionRole)
+            b.clicked.connect(lambda *args: endit(False))
+            d.resize(d.sizeHint())
+            if d.exec_() != d.Accepted or d.do_save is None:
+                return False
+            if d.do_save:
+                self.gui.action_save.trigger()
+                self.gui.blocking_job.set_msg(_('Saving, please wait...'))
+                self.gui.blocking_job.start()
+                self.doing_terminal_save = True
+                QTimer.singleShot(50, self.check_terminal_save)
                 return False
 
         return True
+
+    def check_terminal_save(self):
+        if self.save_manager.has_tasks:
+            return QTimer.singleShot(50, self.check_terminal_save)
+        self.shutdown()
+        QApplication.instance().quit()
 
     def shutdown(self):
         self.save_state()

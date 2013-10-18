@@ -59,6 +59,7 @@ class Main(MainWindow):
 
         def reg(icon, text, target, sid, keys, description):
             ac = QAction(QIcon(I(icon)), text, self)
+            ac.setObjectName('action-' + sid)
             ac.triggered.connect(target)
             if isinstance(keys, type('')):
                 keys = (keys,)
