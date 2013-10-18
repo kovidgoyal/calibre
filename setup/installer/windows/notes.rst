@@ -69,7 +69,8 @@ to login as the normal user account with ssh. To do this, follow these steps:
         rm -R /etc/ssh*
         mkpasswd -cl > /etc/passwd
         mkgroup --local > /etc/group
-    * Assign the necessary rights to the normal user account::
+    * Assign the necessary rights to the normal user account (administrator
+      command prompt needed)::
         editrights.exe -a SeAssignPrimaryTokenPrivilege -u kovid
         editrights.exe -a SeCreateTokenPrivilege -u kovid
         editrights.exe -a SeTcbPrivilege -u kovid
