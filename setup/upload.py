@@ -138,6 +138,8 @@ class UploadInstallers(Command):  # {{{
         available = set(glob.glob('dist/*'))
         files = {x:installer_description(x) for x in
                 all_possible.intersection(available)}
+        for x in files:
+            os.chmod(x, stat.S_IRUSR|stat.S_IWUSR|stat.S_IRGRP|stat.S_IROTH)
         sizes = {os.path.basename(x):os.path.getsize(x) for x in files}
         self.record_sizes(sizes)
         tdir = mkdtemp()
