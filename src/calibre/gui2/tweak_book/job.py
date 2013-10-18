@@ -10,7 +10,7 @@ import time
 from threading import Thread
 from functools import partial
 
-from PyQt4.Qt import (QWidget, QVBoxLayout, QLabel, Qt, QPainter, QBrush, QColor)
+from PyQt4.Qt import (QWidget, QVBoxLayout, QLabel, Qt, QPainter, QBrush, QColor, QAction)
 
 from calibre.gui2 import Dispatcher
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -59,12 +59,17 @@ class BlockingJob(QWidget):
     def start(self):
         self.setGeometry(0, 0, self.parent().width(), self.parent().height())
         self.setVisible(True)
+        # Prevent any actions from being triggerred by key presses
+        for child in self.parent().findChildren(QAction):
+            child.blockSignals(True)
         self.raise_()
         self.pi.startAnimation()
 
     def stop(self):
         self.pi.stopAnimation()
         self.setVisible(False)
+        for child in self.parent().findChildren(QAction):
+            child.blockSignals(False)
 
     def job_done(self, callback, job):
         del job.callback
@@ -77,8 +82,17 @@ class BlockingJob(QWidget):
         p.end()
         QWidget.paintEvent(self, ev)
 
+    def eventFilter(self, obj, ev):
+        if ev.type() in (ev.KeyPress, ev.KeyRelease):
+            return True
+        return QWidget.eventFilter(self, obj, ev)
+
+    def set_msg(self, text):
+        self.msg.setText('<h2>%s</h2>' % text)
+
     def __call__(self, name, user_text, callback, function, *args, **kwargs):
-        self.msg.setText('<h2>%s</h2>' % user_text)
+        ' Run a job that blocks the GUI providing some feedback to the user '
+        self.set_msg(user_text)
         job = LongJob(name, user_text, Dispatcher(partial(self.job_done, callback)), function, *args, **kwargs)
         job.start()
         self.start()
