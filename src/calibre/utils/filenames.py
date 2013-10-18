@@ -352,12 +352,13 @@ class WindowsAtomicFolderMove(object):
                     # in which case we use the same handle for both files
                     fileid = name_to_fileid[x]
                     found = False
-                    for other in fileid_to_names[fileid]:
-                        other = os.path.normcase(os.path.abspath(os.path.join(path, other)))
-                        if other in self.handle_map:
-                            self.handle_map[f] = self.handle_map[other]
-                            found = True
-                            break
+                    if fileid is not None:
+                        for other in fileid_to_names[fileid]:
+                            other = os.path.normcase(os.path.abspath(os.path.join(path, other)))
+                            if other in self.handle_map:
+                                self.handle_map[f] = self.handle_map[other]
+                                found = True
+                                break
                     if found:
                         continue
 
