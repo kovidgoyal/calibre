@@ -274,7 +274,7 @@ class libiMobileDevice():
                         dst.write(data)
                         bytes_remaining = 0
             else:
-                self._log("copying %d {:,} bytes".format(file_size))
+                self._log("copying {:,} bytes".format(file_size))
                 data = self._afc_file_read(handle, file_size, mode)
                 dst.write(data)
 
