@@ -6,12 +6,13 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import tempfile, shutil
+import tempfile, shutil, sys
 
 from PyQt4.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
     QDialogButtonBox, QIcon, QTimer, QPixmap)
 
+from calibre import prints
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.oeb.polish.main import SUPPORTED
@@ -136,6 +137,9 @@ class Boss(QObject):
         self.save_manager.schedule(tdir, container)
 
     def report_save_error(self, tb):
+        if self.doing_terminal_save:
+            prints(tb, file=sys.stderr)
+            return
         error_dialog(self.gui, _('Could not save'),
                      _('Saving of the book failed. Click "Show Details"'
                        ' for more information.'), det_msg=tb, show=True)
