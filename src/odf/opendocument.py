@@ -607,7 +607,10 @@ def load(odffile):
         Returns a reference to the structure
     """
     z = zipfile.ZipFile(odffile)
-    mimetype = z.read('mimetype')
+    try:
+        mimetype = z.read('mimetype')
+    except KeyError:  # Added by Kovid to handle malformed odt files
+        mimetype = 'application/vnd.oasis.opendocument.text'
     doc = OpenDocument(mimetype, add_generator=False)
 
     # Look in the manifest file to see if which of the four files there are
