@@ -355,6 +355,28 @@ class Container(object):  # {{{
             for name in nixed:
                 self.remove_item(name)
 
+    def set_spine(self, spine_items):
+        ''' Set the spine to be spine_items where spine_items is an iterable of
+        the form (name, linear). Will raise an error if one of the names is not
+        present in the manifest. '''
+        imap = self.manifest_id_map
+        imap = {name:item_id for item_id, name in imap.iteritems()}
+        items = [item for item, name, linear in self.spine_iter]
+        tail, last_tail = (items[0].tail, items[-1].tail) if items else ('\n    ', '\n  ')
+        map(self.remove_from_xml, items)
+        spine = self.opf_xpath('//opf:spine')[0]
+        spine.text = tail
+        for name, linear in spine_items:
+            i = spine.makeelement('{%s}itemref' % OPF_NAMESPACES['opf'], nsmap={'opf':OPF_NAMESPACES['opf']})
+            i.tail = tail
+            i.set('idref', imap[name])
+            spine.append(i)
+            if not linear:
+                i.set('linear', 'no')
+        if len(spine) > 0:
+            spine[-1].tail = last_tail
+        self.dirty(self.opf_name)
+
     def remove_item(self, name):
         '''
         Remove the item identified by name from this container. This removes all

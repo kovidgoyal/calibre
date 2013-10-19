@@ -35,6 +35,7 @@ class Boss(QObject):
     def __call__(self, gui):
         self.gui = gui
         gui.file_list.delete_requested.connect(self.delete_requested)
+        gui.file_list.reorder_spine.connect(self.reorder_spine)
 
     def mkdtemp(self):
         self.container_count += 1
@@ -129,6 +130,16 @@ class Boss(QObject):
         self.gui.action_save.setEnabled(True)
         self.gui.file_list.delete_done(spine_items, other_items)
         # TODO: Update other GUI elements
+
+    def reorder_spine(self, items):
+        # TODO: If content.opf is dirty in an editor, abort, calling
+        # file_list.build(current_container) to undo drag and drop
+        self.add_savepoint(_('Re-order text'))
+        c = current_container()
+        c.set_spine(items)
+        self.gui.action_save.setEnabled(True)
+        self.gui.file_list.build(current_container())  # needed as the linear flag may have changed on some items
+        # TODO: If content.opf is open in an editor, reload it
 
     def save_book(self):
         self.gui.action_save.setEnabled(False)
