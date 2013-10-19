@@ -6,17 +6,19 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import tempfile, shutil, sys
+import tempfile, shutil, sys, os
 
 from PyQt4.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
     QDialogButtonBox, QIcon, QTimer, QPixmap)
 
 from calibre import prints
-from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED
-from calibre.ebooks.oeb.polish.container import get_container, clone_container
+from calibre.ebooks.oeb.polish.container import get_container, clone_container, guess_type
+from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import set_current_container, current_container, tprefs
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.save import SaveManager
@@ -34,8 +36,10 @@ class Boss(QObject):
 
     def __call__(self, gui):
         self.gui = gui
-        gui.file_list.delete_requested.connect(self.delete_requested)
-        gui.file_list.reorder_spine.connect(self.reorder_spine)
+        fl = gui.file_list
+        fl.delete_requested.connect(self.delete_requested)
+        fl.reorder_spine.connect(self.reorder_spine)
+        fl.rename_requested.connect(self.rename_requested)
 
     def mkdtemp(self):
         self.container_count += 1
@@ -140,6 +144,25 @@ class Boss(QObject):
         self.gui.action_save.setEnabled(True)
         self.gui.file_list.build(current_container())  # needed as the linear flag may have changed on some items
         # TODO: If content.opf is open in an editor, reload it
+
+    def rename_requested(self, oldname, newname):
+        if guess_type(oldname) != guess_type(newname):
+            args = os.path.splitext(oldname) + os.path.splitext(newname)
+            if not confirm(
+                _('You are changing the file type of {0}<b>{1}</b> to {2}<b>{3}</b>.'
+                  ' Doing so can cause problems, are you sure?').format(*args),
+                'confirm-filetype-change', parent=self.gui, title=_('Are you sure?'),
+                config_set=tprefs):
+                return
+        if urlnormalize(newname) != newname:
+            if not confirm(
+                _('The name you have chosen {0} contains special characters, internally'
+                  ' it will look like: {1}Try to use only the English alphabet [a-z], numbers [0-9],'
+                  ' hyphens and underscores for file names. Other characters can cause problems for '
+                  ' different ebook viewers. Are you sure you want to proceed?').format(
+                      '<pre>%s</pre>'%newname, '<pre>%s</pre>' % urlnormalize(newname)),
+                'confirm-urlunsafe-change', parent=self.gui, title=_('Are you sure?'), config_set=tprefs):
+                    return
 
     def save_book(self):
         self.gui.action_save.setEnabled(False)

@@ -27,6 +27,18 @@ NBSP = '\xa0'
 
 class ItemDelegate(QStyledItemDelegate):  # {{{
 
+    rename_requested = pyqtSignal(object, object)
+
+    def setEditorData(self, editor, index):
+        name = unicode(index.data(NAME_ROLE).toString())
+        editor.setText(name)
+
+    def setModelData(self, editor, model, index):
+        newname = unicode(editor.text())
+        oldname = unicode(index.data(NAME_ROLE).toString())
+        if newname != oldname:
+            self.rename_requested.emit(oldname, newname)
+
     def sizeHint(self, option, index):
         ans = QStyledItemDelegate.sizeHint(self, option, index)
         top_level = not index.parent().isValid()
@@ -58,15 +70,18 @@ class FileList(QTreeWidget):
 
     delete_requested = pyqtSignal(object, object)
     reorder_spine = pyqtSignal(object)
+    rename_requested = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
         self.delegate = ItemDelegate(self)
+        self.delegate.rename_requested.connect(self.rename_requested)
         self.setTextElideMode(Qt.ElideMiddle)
         self.setItemDelegate(self.delegate)
         self.setIconSize(QSize(16, 16))
         self.header().close()
         self.setDragEnabled(True)
+        self.setEditTriggers(self.EditKeyPressed)
         self.setSelectionMode(self.ExtendedSelection)
         self.viewport().setAcceptDrops(True)
         self.setDropIndicatorShown(True)
@@ -200,6 +215,7 @@ class FileList(QTreeWidget):
             item.setData(0, Qt.DecorationRole, icon)
 
         ok_to_be_unmanifested = container.names_that_need_not_be_manifested
+        cannot_be_renamed = container.names_that_must_not_be_changed
 
         def create_item(name, linear=None):
             imt = container.mime_map.get(name, guess_type(name))
@@ -209,6 +225,8 @@ class FileList(QTreeWidget):
             flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable
             if category == 'text':
                 flags |= Qt.ItemIsDragEnabled
+            if name not in cannot_be_renamed:
+                flags |= Qt.ItemIsEditable
             item.setFlags(flags)
             item.setStatusTip(0, _('Full path: ') + name)
             item.setData(0, NAME_ROLE, name)
@@ -313,6 +331,7 @@ class FileListWidget(QWidget):
 
     delete_requested = pyqtSignal(object, object)
     reorder_spine = pyqtSignal(object)
+    rename_requested = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -320,7 +339,7 @@ class FileListWidget(QWidget):
         self.file_list = FileList(self)
         self.layout().addWidget(self.file_list)
         self.layout().setContentsMargins(0, 0, 0, 0)
-        for x in ('delete_requested', 'reorder_spine'):
+        for x in ('delete_requested', 'reorder_spine', 'rename_requested'):
             getattr(self.file_list, x).connect(getattr(self, x))
         for x in ('delete_done',):
             setattr(self, x, getattr(self.file_list, x))

@@ -237,6 +237,10 @@ class Container(object):  # {{{
     def names_that_must_not_be_removed(self):
         return {self.opf_name}
 
+    @property
+    def names_that_must_not_be_changed(self):
+        return set()
+
     def parse_xml(self, data):
         data, self.used_encoding = xml_to_unicode(
             data, strip_encoding_pats=True, assume_utf8=True, resolve_entities=True)
@@ -678,6 +682,10 @@ class EpubContainer(Container):
     def names_that_must_not_be_removed(self):
         return super(EpubContainer, self).names_that_must_not_be_removed | {'META-INF/container.xml'}
 
+    @property
+    def names_that_must_not_be_changed(self):
+        return super(EpubContainer, self).names_that_must_not_be_changed | {'META-INF/' + x for x in self.META_INF}
+
     def remove_item(self, name):
         # Handle removal of obfuscated fonts
         if name == 'META-INF/encryption.xml':
@@ -870,6 +878,9 @@ class AZW3Container(Container):
     def path_to_ebook(self):
         return self.pathtoepub
 
+    @property
+    def names_that_must_not_be_changed(self):
+        return set(self.name_path_map)
 # }}}
 
 def get_container(path, log=None, tdir=None):
