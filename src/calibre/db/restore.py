@@ -99,7 +99,16 @@ class Restore(Thread):
 
     def run(self):
         try:
-            with TemporaryDirectory('relib') as tdir:
+            basedir = os.path.dirname(self.src_library_path)
+            try:
+                tdir = TemporaryDirectory('_rlib', dir=basedir)
+                tdir.__enter__()
+            except EnvironmentError:
+                # Incase we dont have permissions to create directories in the
+                # parent folder of the src library
+                tdir = TemporaryDirectory('_rlib')
+
+            with tdir as tdir:
                 self.library_path = tdir
                 self.scan_library()
                 if not self.load_preferences():

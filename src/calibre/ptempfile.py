@@ -170,7 +170,8 @@ class TemporaryDirectory(object):
         self.keep = keep
 
     def __enter__(self):
-        self.tdir = _make_dir(self.suffix, self.prefix, self.dir)
+        if not hasattr(self, 'tdir'):
+            self.tdir = _make_dir(self.suffix, self.prefix, self.dir)
         return self.tdir
 
     def __exit__(self, *args):
