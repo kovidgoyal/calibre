@@ -11,6 +11,7 @@ Transform OEB content into a single (more or less) HTML file.
 '''
 
 import os
+import re
 
 from functools import partial
 from lxml import html
@@ -254,10 +255,15 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
         attribs = elem.attrib
 
         style_a = '%s' % style
+        style_a = style_a if style_a else ''
         if tag == 'body':
+            # Change the body to a div so we can merge multiple files.
             tag = 'div'
-            if not style['page-break-before'] == 'always':
-                style_a = 'page-break-before: always;' + ' ' if style_a else '' + style_a
+            # Add page-break-brefore: always because renders typically treat a new file (we're merging files)
+            # as a page break and remove all other page break types that might be set.
+            style_a = 'page-break-before: always; %s' % re.sub('page-break-[^:]+:[^;]+;?', '', style_a)
+        # Remove unnecessary spaces.
+        style_a = re.sub('\s{2,}', ' ', style_a).strip()
         tags.append(tag)
 
         # Remove attributes we won't want.
