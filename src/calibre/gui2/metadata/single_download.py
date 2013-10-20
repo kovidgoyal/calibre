@@ -305,6 +305,8 @@ class ResultsView(QTableView):  # {{{
         self.show_details_signal.emit(''.join(parts))
 
     def select_index(self, index):
+        if self.model() is None:
+            return
         if not index.isValid():
             index = self.model().index(0, 0)
         book = self.model().data(index, Qt.UserRole)
