@@ -99,7 +99,7 @@ class Restore(Thread):
 
     def run(self):
         try:
-            with TemporaryDirectory('_library_restore') as tdir:
+            with TemporaryDirectory('relib') as tdir:
                 self.library_path = tdir
                 self.scan_library()
                 if not self.load_preferences():
