@@ -700,7 +700,8 @@ class BooksView(QTableView):  # {{{
                 except ValueError:
                     pass
             sections = tuple(x for x in map(f, changed) if x is not None)
-            self.row_header.headerDataChanged(Qt.Vertical, min(sections), max(sections))
+            if sections:
+                self.row_header.headerDataChanged(Qt.Vertical, min(sections), max(sections))
         else:
             # Marked items have either appeared or all been removed
             self.model().set_row_decoration(current_marked)
