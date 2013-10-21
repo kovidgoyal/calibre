@@ -719,7 +719,7 @@ class EpubContainer(Container):
     def __init__(self, pathtoepub, log, clone_data=None, tdir=None):
         if clone_data is not None:
             super(EpubContainer, self).__init__(None, None, log, clone_data=clone_data)
-            for x in ('pathtoepub', 'container', 'obfuscated_fonts'):
+            for x in ('pathtoepub', 'obfuscated_fonts'):
                 setattr(self, x, clone_data[x])
             return
 
