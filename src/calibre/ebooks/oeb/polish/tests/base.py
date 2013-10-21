@@ -51,10 +51,7 @@ def get_simple_book(fmt='epub'):
             build_book(x, ans, args=['--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal',
                                         '--cover=' + I('lt.png')])
         finally:
-            try:
-                os.remove('index.html')
-            except:
-                pass
+            os.remove(x)
     return ans
 
 devnull = DevNull()
