@@ -43,6 +43,14 @@ class GlobalUndoHistory(object):
         self.states.append(State(new_container))
         self.pos += 1
 
+    def rewind_savepoint(self):
+        if self.pos > 0 and self.pos == len(self.states) - 1:
+            self.pos -= 1
+            cleanup(self.states.pop())
+            ans = self.current_container
+            ans.message = None
+            return ans
+
     def undo(self):
         if self.pos > 0:
             self.pos -= 1

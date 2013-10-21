@@ -7,6 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import tempfile, shutil, sys, os
+from functools import partial
 
 from PyQt4.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
@@ -17,6 +18,7 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED
 from calibre.ebooks.oeb.polish.container import get_container, clone_container, guess_type
+from calibre.ebooks.oeb.polish.replace import rename_files
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import set_current_container, current_container, tprefs
@@ -104,6 +106,12 @@ class Boss(QObject):
         set_current_container(nc)
         self.update_global_history_actions()
 
+    def rewind_savepoint(self):
+        container = self.global_undo.rewind_savepoint()
+        if container is not None:
+            set_current_container(container)
+            self.update_global_history_actions()
+
     def apply_container_update_to_gui(self):
         container = current_container()
         self.gui.file_list.build(container)
@@ -146,6 +154,8 @@ class Boss(QObject):
         # TODO: If content.opf is open in an editor, reload it
 
     def rename_requested(self, oldname, newname):
+        if not self.check_dirtied():
+            return
         if guess_type(oldname) != guess_type(newname):
             args = os.path.splitext(oldname) + os.path.splitext(newname)
             if not confirm(
@@ -163,6 +173,20 @@ class Boss(QObject):
                       '<pre>%s</pre>'%newname, '<pre>%s</pre>' % urlnormalize(newname)),
                 'confirm-urlunsafe-change', parent=self.gui, title=_('Are you sure?'), config_set=tprefs):
                     return
+        self.add_savepoint(_('Rename %s') % oldname)
+        self.gui.blocking_job(
+            'rename_file', _('Renaming and updating links...'), partial(self.rename_done, oldname, newname),
+            rename_files, current_container(), {oldname: newname})
+
+    def rename_done(self, oldname, newname, job):
+        if job.traceback is not None:
+            self.rewind_savepoint()
+            return error_dialog(self.gui, _('Failed to rename files'),
+                    _('Failed to rename files, click Show details for more information.'),
+                                det_msg=job.traceback, show=True)
+        self.gui.file_list.build(current_container())
+        self.gui.action_save.setEnabled(True)
+        # TODO: Update the rest of the GUI
 
     def save_book(self):
         self.gui.action_save.setEnabled(False)
