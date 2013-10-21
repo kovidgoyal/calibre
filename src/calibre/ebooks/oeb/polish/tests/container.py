@@ -6,12 +6,14 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os
+import os, subprocess
 
 from calibre.ebooks.oeb.polish.tests.base import BaseTest, get_simple_book
 
-from calibre.ebooks.oeb.polish.container import get_container, clone_container
+from calibre.ebooks.oeb.polish.container import get_container, clone_container, OCF_NS
+from calibre.ebooks.oeb.polish.replace import rename_files
 from calibre.utils.filenames import nlinks_file
+from calibre.ptempfile import TemporaryFile
 
 class ContainerTests(BaseTest):
 
@@ -72,4 +74,83 @@ class ContainerTests(BaseTest):
         raw = c.serialize_item(c.opf_name).decode('utf-8')
         for x in files:
             self.assertNotIn(x, raw)
+
+    def run_external_tools(self, container, gvim=False, epubcheck=True):
+        with TemporaryFile(suffix='.epub', dir=self.tdir) as f:
+            container.commit(outpath=f)
+            if gvim:
+                subprocess.Popen(['gvim', '-f', f]).wait()
+            if epubcheck:
+                subprocess.Popen(['epubcheck', f]).wait()
+
+    def test_file_rename(self):
+        ' Test renaming of files '
+        book = get_simple_book()
+        count = [0]
+        def new_container():
+            count[0] += 1
+            tdir = os.mkdir(os.path.join(self.tdir, str(count[0])))
+            return get_container(book, tdir=tdir)
+
+        # Test simple opf rename
+        c = new_container()
+        orig_name = c.opf_name
+        name = 'renamed opf.opf'
+        rename_files(c, {c.opf_name: name})
+        self.assertEqual(c.opf_name, name)
+        for x in ('name_path_map', 'mime_map'):
+            self.assertNotIn(orig_name, getattr(c, x))
+            self.assertIn(name, getattr(c, x))
+        self.assertNotIn(name, c.dirtied)
+        root = c.parsed('META-INF/container.xml')
+        vals = set(root.xpath(
+            r'child::ocf:rootfiles/ocf:rootfile/@full-path',
+            namespaces={'ocf':OCF_NS}))
+        self.assertSetEqual(vals, {name})
+        self.check_links(c)
+
+        # Test a rename that moves the OPF into different directory
+        c = new_container()
+        orig_name = c.opf_name
+        name = 'renamed/again/metadata.opf'
+        rename_files(c, {c.opf_name: name})
+        self.check_links(c)
+
+        # Test that renaming commits dirtied items
+        c = new_container()
+        name = next(c.spine_names)[0]
+        root = c.parsed(name)
+        root.xpath('//*[local-name()="body"]')[0].set('id', 'rename-dirty-test')
+        rename_files(c, {name:'other/' + name})
+        with c.open('other/' + name) as f:
+            raw = f.read()
+        self.assertIn(b'id="rename-dirty-test"', raw)
+        self.check_links(c)
+
+        # Test renaming of stylesheets
+        c = new_container()
+        rename_files(c, {'stylesheet.css':'styles/s 1.css', 'page_styles.css':'styles/p 1.css'})
+        self.check_links(c)
+
+        # Test renaming of images
+        c = new_container()
+        rename_files(c, {'cover.png':'images/cover img.png', 'light_wood.png':'images/light wood.png', 'marked.png':'images/marked img.png'})
+        self.check_links(c)
+
+        # Test renaming of ToC
+        c = new_container()
+        rename_files(c, {'toc.ncx': 'toc/toc file.ncx'})
+        self.check_links(c)
+
+        # Test renaming of font files
+        c = new_container()
+        rename_files(c, {'LiberationMono-Regular.ttf': 'fonts/LiberationMono Regular.ttf'})
+        self.check_links(c)
+
+        # Test renaming of text files
+        c = new_container()
+        rename_files(c, {'index_split_000.html':'text/page one.html', 'index_split_001.html':'text/page two.html'})
+        self.check_links(c)
+
+        # self.run_external_tools(c, gvim=True)
 

@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, logging, sys, hashlib, uuid, re, shutil, copy
+import os, logging, sys, hashlib, uuid, re, shutil
 from collections import defaultdict
 from io import BytesIO
 from urllib import unquote as urlunquote, quote as urlquote
@@ -15,6 +15,7 @@ from urlparse import urlparse
 from future_builtins import zip
 
 from lxml import etree
+from cssutils import replaceUrls, getUrls
 
 from calibre import guess_type as _guess_type, CurrentDir
 from calibre.customize.ui import (plugin_for_input_format,
@@ -27,7 +28,8 @@ from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.reader.headers import MetadataHeader
 from calibre.ebooks.mobi.tweak import set_cover
 from calibre.ebooks.oeb.base import (
-    serialize, OEB_DOCS, _css_logger, OEB_STYLES, OPF2_NS, DC11_NS, OPF)
+    serialize, OEB_DOCS, _css_logger, OEB_STYLES, OPF2_NS, DC11_NS, OPF,
+    rewrite_links, iterlinks, itercsslinks)
 from calibre.ebooks.oeb.polish.errors import InvalidBook, DRMError
 from calibre.ebooks.oeb.parse_utils import NotHTML, parse_html, RECOVER_PARSER
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
@@ -105,6 +107,7 @@ class Container(object):  # {{{
         self.encoding_map = {}
         self.pretty_print = set()
         self.cloned = False
+        self.cache_names = ('parsed_cache', 'mime_map', 'name_path_map', 'encoding_map', 'dirtied', 'pretty_print')
 
         if clone_data is not None:
             self.cloned = True
@@ -152,6 +155,100 @@ class Container(object):  # {{{
                 name:os.path.join(dest_dir, os.path.relpath(path, self.root))
                 for name, path in self.name_path_map.iteritems()}
         }
+
+    def rename(self, current_name, new_name):
+        ''' Renames a file from current_name to new_name. It automatically
+        rebases all links inside the file if the directory the file is in
+        changes. Note however, that links are not updated in the other files
+        that could reference this file. This is for performance, such updates
+        should be done once, in bulk. '''
+        if current_name in self.names_that_must_not_be_changed:
+            raise ValueError('Renaming of %s is not allowed' % current_name)
+        if self.exists(new_name):
+            raise ValueError('Cannot rename %s to %s as %s already exists' % (self.opf_name, new_name, new_name))
+        new_path = self.name_to_abspath(new_name)
+        base = os.path.dirname(new_path)
+        if os.path.isfile(base):
+            raise ValueError('Cannot rename %s to %s as %s is a file' % (self.opf_name, new_name, base))
+        if not os.path.exists(base):
+            os.makedirs(base)
+        old_path = parent_dir = self.name_to_abspath(current_name)
+        self.commit_item(current_name)
+        os.rename(old_path, new_path)
+        # Remove empty directories
+        while parent_dir:
+            parent_dir = os.path.dirname(parent_dir)
+            try:
+                os.rmdir(parent_dir)
+            except EnvironmentError:
+                break
+
+        for x in ('mime_map', 'encoding_map'):
+            x = getattr(self, x)
+            if current_name in x:
+                x[new_name] = x[current_name]
+        self.name_path_map[new_name] = new_path
+        for x in self.cache_names:
+            x = getattr(self, x)
+            try:
+                x.pop(current_name, None)
+            except TypeError:
+                x.discard(current_name)
+        if current_name == self.opf_name:
+            self.opf_name = new_name
+        if os.path.dirname(old_path) != os.path.dirname(new_path):
+            from calibre.ebooks.oeb.polish.replace import LinkRebaser
+            repl = LinkRebaser(self, current_name, new_name)
+            self.replace_links(new_name, repl)
+            self.dirty(new_name)
+
+    def replace_links(self, name, replace_func):
+        ''' Replace all links in name using replace_func, which must be a
+        callable that accepts a URL and returns the replaced URL. It must also
+        have a 'replaced' attribute that is set to True if any actual
+        replacement is done. Convenient ways of creating such callables are
+        using the :class:`LinkReplacer` and :class:`LinkRebaser` classes. '''
+        media_type = self.mime_map.get(name, guess_type(name))
+        if name == self.opf_name:
+            for elem in self.opf_xpath('//*[@href]'):
+                elem.set('href', replace_func(elem.get('href')))
+        elif media_type.lower() in OEB_DOCS:
+            rewrite_links(self.parsed(name), replace_func)
+        elif media_type.lower() in OEB_STYLES:
+            replaceUrls(self.parsed(name), replace_func)
+        elif media_type.lower() == guess_type('toc.ncx'):
+            for elem in self.parsed(name).xpath('//*[@src]'):
+                elem.set('src', replace_func(elem.get('src')))
+
+        if replace_func.replaced:
+            self.dirty(name)
+        return replace_func.replaced
+
+    def iterlinks(self, name, get_line_numbers=True):
+        ''' Iterate over all links in name. If get_line_numbers is True the
+        yields results of the form (link, line_number, offset). Where
+        line_number is the line_number at which the link occurs and offset is
+        the number of characters from the start of the line. Note that offset
+        could actually encompass several lines if not zero. '''
+        media_type = self.mime_map.get(name, guess_type(name))
+        if name == self.opf_name:
+            for elem in self.opf_xpath('//*[@href]'):
+                yield (elem.get('href'), elem.sourceline, 0) if get_line_numbers else elem.get('href')
+        elif media_type.lower() in OEB_DOCS:
+            for el, attr, link, pos in iterlinks(self.parsed(name)):
+                yield (link, el.sourceline, pos) if get_line_numbers else link
+        elif media_type.lower() in OEB_STYLES:
+            if get_line_numbers:
+                with self.open(name) as f:
+                    raw = self.decode(f.read())
+                    for link, offset in itercsslinks(raw):
+                        yield link, 0, offset
+            else:
+                for link in getUrls(self.parsed(name)):
+                    yield link
+        elif media_type.lower() == guess_type('toc.ncx'):
+            for elem in self.parsed(name).xpath('//*[@src]'):
+                yield (elem.get('src'), elem.sourceline, 0) if get_line_numbers else elem.get('src')
 
     def abspath_to_name(self, fullpath):
         return self.relpath(os.path.abspath(fullpath)).replace(os.sep, '/')
@@ -648,15 +745,15 @@ class EpubContainer(Container):
         container_path = join(self.root, 'META-INF', 'container.xml')
         if not exists(container_path):
             raise InvalidEpub('No META-INF/container.xml in epub')
-        self.container = etree.fromstring(open(container_path, 'rb').read())
-        opf_files = self.container.xpath((
+        container = etree.fromstring(open(container_path, 'rb').read())
+        opf_files = container.xpath((
             r'child::ocf:rootfiles/ocf:rootfile'
             '[@media-type="%s" and @full-path]'%guess_type('a.opf')
             ), namespaces={'ocf':OCF_NS}
         )
         if not opf_files:
             raise InvalidEpub('META-INF/container.xml contains no link to OPF file')
-        opf_path = os.path.join(self.root, *opf_files[0].get('full-path').split('/'))
+        opf_path = os.path.join(self.root, *(urlunquote(opf_files[0].get('full-path')).split('/')))
         if not exists(opf_path):
             raise InvalidEpub('OPF file does not exist at location pointed to'
                     ' by META-INF/container.xml')
@@ -666,13 +763,34 @@ class EpubContainer(Container):
         self.obfuscated_fonts = {}
         if 'META-INF/encryption.xml' in self.name_path_map:
             self.process_encryption()
+        self.parsed_cache['META-INF/container.xml'] = container
 
     def clone_data(self, dest_dir):
         ans = super(EpubContainer, self).clone_data(dest_dir)
         ans['pathtoepub'] = self.pathtoepub
         ans['obfuscated_fonts'] = self.obfuscated_fonts.copy()
-        ans['container'] = copy.deepcopy(self.container)
         return ans
+
+    def rename(self, old_name, new_name):
+        is_opf = old_name == self.opf_name
+        super(EpubContainer, self).rename(old_name, new_name)
+        if is_opf:
+            for elem in self.parsed('META-INF/container.xml').xpath((
+                r'child::ocf:rootfiles/ocf:rootfile'
+                '[@media-type="%s" and @full-path]'%guess_type('a.opf')
+                ), namespaces={'ocf':OCF_NS}
+            ):
+                # The asinine epubcheck cannot handle quoted filenames in
+                # container.xml
+                elem.set('full-path', self.opf_name)
+            self.dirty('META-INF/container.xml')
+        if old_name in self.obfuscated_fonts:
+            self.obfuscated_fonts[new_name] = self.obfuscated_fonts.pop(old_name)
+            enc = self.parsed('META-INF/encryption.xml')
+            for cr in enc.xpath('//*[local-name()="CipherReference" and @URI]'):
+                if self.href_to_name(cr.get('URI')) == old_name:
+                    cr.set('URI', self.name_to_href(new_name))
+                    self.dirty('META-INF/encryption.xml')
 
     @property
     def names_that_need_not_be_manifested(self):

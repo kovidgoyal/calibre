@@ -10,11 +10,7 @@ __docformat__ = 'restructuredtext en'
 import codecs
 from urlparse import urlparse
 
-from cssutils import replaceUrls
-
 from calibre.ebooks.chardet import strip_encoding_declarations
-from calibre.ebooks.oeb.polish.container import guess_type
-from calibre.ebooks.oeb.base import (OEB_DOCS, OEB_STYLES, rewrite_links)
 
 class LinkReplacer(object):
 
@@ -26,6 +22,12 @@ class LinkReplacer(object):
         self.replaced = False
 
     def __call__(self, url):
+        if url and url.startswith('#'):
+            repl = self.frag_map(self.base, url[1:])
+            if not repl or repl == url[1:]:
+                return url
+            self.replaced = True
+            return '#' + repl
         name = self.container.href_to_name(url, self.base)
         if not name:
             return url
@@ -42,23 +44,37 @@ class LinkReplacer(object):
             self.replaced = True
         return href
 
-def replace_links(container, link_map, frag_map=lambda name, frag:frag):
-    ncx_type = guess_type('toc.ncx')
-    for name, media_type in container.mime_map.iteritems():
-        repl = LinkReplacer(name, container, link_map, frag_map)
-        if media_type.lower() in OEB_DOCS:
-            rewrite_links(container.parsed(name), repl)
-        elif media_type.lower() in OEB_STYLES:
-            replaceUrls(container.parsed(name), repl)
-        elif media_type.lower() == ncx_type:
-            for elem in container.parsed(name).xpath('//*[@src]'):
-                src = elem.get('src')
-                nsrc = repl(src)
-                if src != nsrc:
-                    elem.set('src', nsrc)
+class LinkRebaser(object):
 
-        if repl.replaced:
-            container.dirty(name)
+    def __init__(self, container, old_name, new_name):
+        self.old_name, self.new_name = old_name, new_name
+        self.container = container
+        self.replaced = False
+
+    def __call__(self, url):
+        if url and url.startswith('#'):
+            return url
+        purl = urlparse(url)
+        frag = purl.fragment
+        name = self.container.href_to_name(url, self.old_name)
+        if not name:
+            return url
+        if name == self.old_name:
+            name = self.new_name
+        href = self.container.name_to_href(name, self.new_name)
+        if frag:
+            href += '#' + frag
+        if href != url:
+            self.replaced = True
+        return href
+
+
+def replace_links(container, link_map, frag_map=lambda name, frag:frag, replace_in_opf=False):
+    for name, media_type in container.mime_map.iteritems():
+        if name == container.opf_name and not replace_in_opf:
+            continue
+        repl = LinkReplacer(name, container, link_map, frag_map)
+        container.replace_links(name, repl)
 
 def smarten_punctuation(container, report):
     from calibre.ebooks.conversion.preprocess import smarten_punctuation
@@ -82,4 +98,20 @@ def smarten_punctuation(container, report):
             for m in root.xpath('descendant::*[local-name()="meta" and @http-equiv]'):
                 m.getparent().remove(m)
             container.dirty(name)
+
+def rename_files(container, file_map):
+    overlap = set(file_map).intersection(set(file_map.itervalues()))
+    if overlap:
+        raise ValueError('Circular rename detected. The files %s are both rename targets and destinations' % ', '.join(overlap))
+    for name, dest in file_map.iteritems():
+        if container.exists(dest):
+            raise ValueError('Cannot rename {0} to {1} as {1} already exists'.format(name, dest))
+    if len(tuple(file_map.itervalues())) != len(set(file_map.itervalues())):
+        raise ValueError('Cannot rename, the set of destination files contains duplicates')
+    link_map = {}
+    for current_name, new_name in file_map.iteritems():
+        container.rename(current_name, new_name)
+        if new_name != container.opf_name:  # OPF is handled by the container
+            link_map[current_name] = new_name
+    replace_links(container, link_map, replace_in_opf=True)
 

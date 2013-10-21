@@ -100,6 +100,12 @@ def close_self_closing_tags(raw):
 def uuid_id():
     return 'u'+unicode(uuid.uuid4())
 
+def itercsslinks(raw):
+    for match in _css_url_re.finditer(raw):
+        yield match.group(1), match.start(1)
+    for match in _css_import_re.finditer(raw):
+        yield match.group(1), match.start(1)
+
 def iterlinks(root, find_links_in_css=True):
     '''
     Iterate over all links in a OEB Document.

@@ -45,6 +45,7 @@ def get_simple_book(fmt='epub'):
         raw = raw.replace('LMONOI', P('fonts/liberation/LiberationMono-Italic.ttf'))
         raw = raw.replace('LMONO', P('fonts/liberation/LiberationMono-Regular.ttf'))
         raw = raw.replace('IMAGE1', I('marked.png'))
+        raw = raw.replace('IMAGE2', I('textures/light_wood.png'))
         try:
             with open(x, 'wb') as f:
                 f.write(raw.encode('utf-8'))
@@ -68,4 +69,11 @@ class BaseTest(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tdir, ignore_errors=True)
         del self.tdir
+
+    def check_links(self, container):
+        for name in container.name_path_map:
+            for link in container.iterlinks(name, get_line_numbers=False):
+                dest = container.href_to_name(link, name)
+                if dest:
+                    self.assertTrue(container.exists(dest), 'The link %s in %s does not exist' % (link, name))
 
