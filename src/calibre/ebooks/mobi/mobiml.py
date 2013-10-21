@@ -382,7 +382,7 @@ class MobiMLizer(object):
         istate.fgcolor  = style['color']
         istate.strikethrough = style.effective_text_decoration == 'line-through'
         istate.underline = style.effective_text_decoration == 'underline'
-        ff = style['font-family'].lower() if style['font-family'] else ''
+        ff = style['font-family'].lower() if hasattr(style['font-family'], 'lower') else ''
         if 'monospace' in ff or 'courier' in ff or ff.endswith(' mono'):
             istate.family = 'monospace'
         elif ('sans-serif' in ff or 'sansserif' in ff or 'verdana' in ff or
