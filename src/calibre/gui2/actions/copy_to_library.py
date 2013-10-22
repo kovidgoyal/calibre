@@ -280,6 +280,9 @@ class CopyToLibraryAction(InterfaceAction):
             return
         db = self.gui.library_view.model().db
         locations = list(self.stats.locations(db))
+        if len(locations) > 50:
+            self.menu.addAction(_('Choose library by path...'), self.choose_library)
+            self.menu.addSeparator()
         for name, loc in locations:
             self.menu.addAction(name, partial(self.copy_to_library,
                 loc))
@@ -287,7 +290,8 @@ class CopyToLibraryAction(InterfaceAction):
                     partial(self.copy_to_library, loc, delete_after=True))
             self.menu.addSeparator()
 
-        self.menu.addAction(_('Choose library by path...'), self.choose_library)
+        if len(locations) <= 50:
+            self.menu.addAction(_('Choose library by path...'), self.choose_library)
         self.qaction.setVisible(bool(locations))
 
     def choose_library(self):
