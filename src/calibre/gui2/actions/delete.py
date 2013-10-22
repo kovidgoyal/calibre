@@ -196,12 +196,10 @@ class DeleteAction(InterfaceAction):
             _('Choose formats to be deleted'), ids)
         if not fmts:
             return
-        for id in ids:
-            for fmt in fmts:
-                self.gui.library_view.model().db.remove_format(id, fmt,
-                        index_is_id=True, notify=False)
-        self.gui.library_view.model().refresh_ids(ids)
-        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
+        m = self.gui.library_view.model()
+        m.db.new_api.remove_formats({book_id:fmts for book_id in ids})
+        m.refresh_ids(ids)
+        m.current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
         if ids:
             self.gui.tags_view.recount()
@@ -216,8 +214,10 @@ class DeleteAction(InterfaceAction):
             exclude=True)
         if fmts is None:
             return
+        m = self.gui.library_view.model()
+        removals = {}
         for id in ids:
-            bfmts = self.gui.library_view.model().db.formats(id, index_is_id=True)
+            bfmts = m.db.formats(id, index_is_id=True)
             if bfmts is None:
                 continue
             bfmts = set([x.lower() for x in bfmts.split(',')])
@@ -225,14 +225,14 @@ class DeleteAction(InterfaceAction):
             if bfmts - rfmts:
                 # Do not delete if it will leave the book with no
                 # formats
-                for fmt in rfmts:
-                    self.gui.library_view.model().db.remove_format(id, fmt,
-                            index_is_id=True, notify=False)
-        self.gui.library_view.model().refresh_ids(ids)
-        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
-                self.gui.library_view.currentIndex())
-        if ids:
-            self.gui.tags_view.recount()
+                removals[id] = rfmts
+        if removals:
+            m.db.new_api.remove_formats(removals)
+            m.refresh_ids(ids)
+            m.current_changed(self.gui.library_view.currentIndex(),
+                    self.gui.library_view.currentIndex())
+            if ids:
+                self.gui.tags_view.recount()
 
     def delete_all_formats(self, *args):
         ids = self._get_selected_ids()
@@ -244,17 +244,18 @@ class DeleteAction(InterfaceAction):
                             +'</p>', 'delete_all_formats', self.gui):
             return
         db = self.gui.library_view.model().db
+        removals = {}
         for id in ids:
             fmts = db.formats(id, index_is_id=True, verify_formats=False)
             if fmts:
-                for fmt in fmts.split(','):
-                    self.gui.library_view.model().db.remove_format(id, fmt,
-                            index_is_id=True, notify=False)
-        self.gui.library_view.model().refresh_ids(ids)
-        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
-                self.gui.library_view.currentIndex())
-        if ids:
-            self.gui.tags_view.recount()
+                removals[id] = fmts.split(',')
+        if removals:
+            db.new_api.remove_formats(removals)
+            self.gui.library_view.model().refresh_ids(ids)
+            self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
+                    self.gui.library_view.currentIndex())
+            if ids:
+                self.gui.tags_view.recount()
 
     def remove_matching_books_from_device(self, *args):
         if not self.gui.device_manager.is_device_present:

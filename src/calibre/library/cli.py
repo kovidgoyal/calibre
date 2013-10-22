@@ -398,13 +398,14 @@ def command_add(args, dbpath):
     return 0
 
 def do_remove(db, ids):
+    book_ids = set()
     for x in ids:
         if isinstance(x, int):
-            db.delete_book(x)
+            book_ids.add(x)
         else:
-            for y in x:
-                db.delete_book(y)
+            book_ids |= set(x)
 
+    db.new_api.remove_books(book_ids)
     db.clean()
     send_message()
 

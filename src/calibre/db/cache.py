@@ -1280,6 +1280,7 @@ class Cache(object):
                 self.format_metadata_cache[book_id].pop(fmt, None)
 
         if not db_only:
+            removes = defaultdict(set)
             for book_id, fmts in formats_map.iteritems():
                 try:
                     path = self._field_for('path', book_id).replace('/', os.sep)
@@ -1291,7 +1292,9 @@ class Cache(object):
                     except:
                         continue
                     if name and path:
-                        self.backend.remove_format(book_id, fmt, name, path)
+                        removes[book_id].add((fmt, name, path))
+            if removes:
+                self.backend.remove_formats(removes)
 
         size_map = table.remove_formats(formats_map, self.backend)
         self.fields['size'].table.update_sizes(size_map)

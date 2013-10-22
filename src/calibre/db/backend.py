@@ -1199,14 +1199,18 @@ class DB(object):
     def has_format(self, book_id, fmt, fname, path):
         return self.format_abspath(book_id, fmt, fname, path) is not None
 
-    def remove_format(self, book_id, fmt, fname, path):
-        path = self.format_abspath(book_id, fmt, fname, path)
-        if path is not None:
-            try:
-                delete_service().delete_files((path,), self.library_path)
-            except:
-                import traceback
-                traceback.print_exc()
+    def remove_formats(self, remove_map):
+        paths = []
+        for book_id, removals in remove_map.iteritems():
+            for fmt, fname, path in removals:
+                path = self.format_abspath(book_id, fmt, fname, path)
+                if path is not None:
+                    paths.append(path)
+        try:
+            delete_service().delete_files(paths, self.library_path)
+        except:
+            import traceback
+            traceback.print_exc()
 
     def cover_last_modified(self, path):
         path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
