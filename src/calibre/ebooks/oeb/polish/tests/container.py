@@ -149,7 +149,7 @@ class ContainerTests(BaseTest):
 
         # Test renaming of text files
         c = new_container()
-        rename_files(c, {'index_split_000.html':'text/page one.html', 'index_split_001.html':'text/page two.html'})
+        rename_files(c, {'index_split_000.html':'text/page one fällen.html', 'index_split_001.html':'text/page two fällen.html'})
         self.check_links(c)
 
         # self.run_external_tools(c, gvim=True)

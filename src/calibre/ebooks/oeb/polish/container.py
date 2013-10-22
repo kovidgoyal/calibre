@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 import os, logging, sys, hashlib, uuid, re, shutil
 from collections import defaultdict
 from io import BytesIO
-from urllib import unquote as urlunquote, quote as urlquote
 from urlparse import urlparse
 from future_builtins import zip
 
@@ -29,7 +28,7 @@ from calibre.ebooks.mobi.reader.headers import MetadataHeader
 from calibre.ebooks.mobi.tweak import set_cover
 from calibre.ebooks.oeb.base import (
     serialize, OEB_DOCS, _css_logger, OEB_STYLES, OPF2_NS, DC11_NS, OPF,
-    rewrite_links, iterlinks, itercsslinks)
+    rewrite_links, iterlinks, itercsslinks, urlquote, urlunquote)
 from calibre.ebooks.oeb.polish.errors import InvalidBook, DRMError
 from calibre.ebooks.oeb.parse_utils import NotHTML, parse_html, RECOVER_PARSER
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
