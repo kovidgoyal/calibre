@@ -346,18 +346,21 @@ class Convert(object):
     def read_block_anchors(self, doc):
         doc_anchors = frozenset(XPath('./w:body/w:bookmarkStart[@w:name]')(doc))
         if doc_anchors:
-            current_bm = None
+            current_bm = set()
             rmap = {v:k for k, v in self.object_map.iteritems()}
             for p in descendants(doc, 'w:p', 'w:bookmarkStart[@w:name]'):
                 if p.tag.endswith('}p'):
                     if current_bm and p in rmap:
                         para = rmap[p]
                         if 'id' not in para.attrib:
-                            para.set('id', generate_anchor(current_bm, frozenset(self.anchor_map.itervalues())))
-                        self.anchor_map[current_bm] = para.get('id')
-                        current_bm = None
+                            para.set('id', generate_anchor(next(iter(current_bm)), frozenset(self.anchor_map.itervalues())))
+                        for name in current_bm:
+                            self.anchor_map[name] = para.get('id')
+                        current_bm = set()
                 elif p in doc_anchors:
-                    current_bm = get(p, 'w:name')
+                    anchor = get(p, 'w:name')
+                    if anchor:
+                        current_bm.add(anchor)
 
     def convert_p(self, p):
         dest = P()
@@ -500,11 +503,18 @@ class Convert(object):
             tt = hyperlink.get('title', None)
             if tt:
                 span.set('title', tt)
-            url = hyperlink['url']
-            if url in self.anchor_map:
-                span.set('href', '#' + self.anchor_map[url])
-                continue
-            span.set('href', url)
+            url = hyperlink.get('url', None)
+            if url is None:
+                anchor = hyperlink.get('anchor', None)
+                if anchor in self.anchor_map:
+                    span.set('href', '#' + self.anchor_map[anchor])
+                    continue
+                self.log.warn('Hyperlink field with unknown anchor: %s' % anchor)
+            else:
+                if url in self.anchor_map:
+                    span.set('href', '#' + self.anchor_map[url])
+                    continue
+                span.set('href', url)
 
         for img, link in self.images.links:
             parent = img.getparent()

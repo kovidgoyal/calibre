@@ -40,18 +40,16 @@ def parse_hyperlink(raw, log):
     raw = raw.replace('\\\\', '\x01').replace('\\"', '\x02')
     for token, token_type in scanner.scan(raw)[0]:
         token = token.replace('\x01', '\\').replace('\x02', '"')
-        if not ans:
-            if token_type is not WORD:
-                log('Invalid hyperlink, first token is not a URL (%s)' % raw)
-                return ans
-            ans['url'] = token
         if token_type is FLAG:
             last_option = {'l':'anchor', 'm':'image-map', 'n':'target', 'o':'title', 't':'target'}.get(token[1], None)
             if last_option is not None:
                 ans[last_option] = None
         elif token_type is WORD:
-            if last_option is not None:
+            if last_option is None:
+                ans['url'] = token
+            else:
                 ans[last_option] = token
+                last_option = None
     return ans
 
 
@@ -105,4 +103,20 @@ class Fields(object):
                     for runs in all_runs:
                         self.hyperlink_fields.append((hl, runs))
 
+def test_parse_hyperlink():
+    import unittest
 
+    class TestParseHyperLink(unittest.TestCase):
+
+        def test_parsing(self):
+            self.assertEqual(parse_hyperlink(
+                r'\l anchor1', None), {'anchor':'anchor1'})
+            self.assertEqual(parse_hyperlink(
+                r'www.calibre-ebook.com', None), {'url':'www.calibre-ebook.com'})
+            self.assertEqual(parse_hyperlink(
+                r'www.calibre-ebook.com \t target \o tt', None), {'url':'www.calibre-ebook.com', 'target':'target', 'title': 'tt'})
+            self.assertEqual(parse_hyperlink(
+                r'"c:\\Some Folder"', None), {'url': 'c:\\Some Folder'})
+
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestParseHyperLink)
+    unittest.TextTestRunner(verbosity=4).run(suite)
