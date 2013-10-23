@@ -83,7 +83,7 @@ def node_depth(node):
 def html5_parse(data, max_nesting_depth=100):
     import html5lib
     # html5lib bug: http://code.google.com/p/html5lib/issues/detail?id=195
-    data = re.sub(r'<\s*title\s*[^>]*/\s*>', '<title></title>', data)
+    data = re.sub(r'<\s*(title|style|script|textarea)\s*[^>]*/\s*>', r'<\1></\1>', data, flags=re.I)
 
     data = html5lib.parse(data, treebuilder='lxml').getroot()
 
@@ -116,6 +116,7 @@ def html5_parse(data, max_nesting_depth=100):
                     prefix = x[11:]
                     namespaces[prefix] = val
 
+        remapped_namespaces = {}
         if namespaces:
             # Some destroyed namespace declarations were found
             p = elem.getparent()
@@ -127,6 +128,7 @@ def html5_parse(data, max_nesting_depth=100):
                 p.remove(elem)
                 elem = clone_element(elem, nsmap=namespaces)
                 p.insert(idx, elem)
+                remapped_namespaces = {ns:namespaces[ns] for ns in set(namespaces) - set(elem.nsmap)}
 
         b = barename(elem.tag)
         idx = b.find('U0003A')
@@ -135,6 +137,8 @@ def html5_parse(data, max_nesting_depth=100):
             ns = elem.nsmap.get(prefix, None)
             if ns is None:
                 ns = non_html5_namespaces.get(prefix, None)
+            if ns is None:
+                ns = remapped_namespaces.get(prefix, None)
             if ns is not None:
                 elem.tag = '{%s}%s'%(ns, tag)
 
@@ -145,6 +149,8 @@ def html5_parse(data, max_nesting_depth=100):
                 ns = elem.nsmap.get(prefix, None)
                 if ns is None:
                     ns = non_html5_namespaces.get(prefix, None)
+                if ns is None:
+                    ns = remapped_namespaces.get(prefix, None)
                 if ns is not None:
                     elem.attrib['{%s}%s'%(ns, tag)] = elem.attrib.pop(b)
 

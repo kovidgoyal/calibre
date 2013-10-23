@@ -88,7 +88,7 @@ self_closing_bad_tags = {'a', 'abbr', 'address', 'article', 'aside', 'audio', 'b
 'label', 'legend', 'li', 'map', 'mark', 'meter', 'nav', 'ol', 'output', 'p',
 'pre', 'progress', 'q', 'rp', 'rt', 'samp', 'section', 'select', 'small',
 'span', 'strong', 'sub', 'summary', 'sup', 'textarea', 'time', 'ul', 'var',
-'video'}
+'video', 'title', 'script', 'style'}
 
 _self_closing_pat = re.compile(
     r'<(?P<tag>%s)(?=[\s/])(?P<arg>[^>]*)/>'%('|'.join(self_closing_bad_tags)),
