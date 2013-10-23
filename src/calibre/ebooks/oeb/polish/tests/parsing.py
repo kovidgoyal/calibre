@@ -71,11 +71,31 @@ def namespaces(test, parse_function):
     ae(len(xpath('//ns1:tag2[@ns1:id="test"]')), 1, err)
     ae(len(xpath('//ns2:tag3[@ns2:id="test"]')), 1, err)
 
-all_checks = (nonvoid_cdata_elements, namespaces)
+    markup = '<html xml:lang="en"><body><p lang="de"><p xml:lang="es"><p lang="en" xml:lang="de">'
+    root = parse_function(markup)
+    err = 'xml:lang not converted to lang, parsed markup:\n' + etree.tostring(root)
+    ae(len(root.xpath('//*[@lang="en"]')), 2, err)
+    ae(len(root.xpath('//*[@lang="de"]')), 1, err)
+    ae(len(root.xpath('//*[@lang="es"]')), 1, err)
+    ae(len(XPath('//*[@xml:lang]')(root)), 0, err)
+
+def space_characters(test, parse_function):
+    markup = '<html><p>\u000c</p>'
+    root = parse_function(markup)
+    err = 'form feed character not converted, parsed markup:\n' + etree.tostring(root)
+    test.assertNotIn('\u000c', root.xpath('//*[local-name()="p"]')[0].text, err)
+
+def case_insensitive_element_names(test, parse_function):
+    markup = '<HTML><P> </p>'
+    root = parse_function(markup)
+    err = 'case sensitive parsing, parsed markup:\n' + etree.tostring(root)
+    test.assertEqual(len(XPath('//h:p')(root)), 1, err)
+
+basic_checks = (nonvoid_cdata_elements, namespaces, space_characters, case_insensitive_element_names)
 
 class ParsingTests(BaseTest):
 
     def test_conversion_parser(self):
         ' Test parsing with the parser used for conversion '
-        for test in all_checks:
+        for test in basic_checks:
             test(self, html5_parse)
